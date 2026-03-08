@@ -1,6 +1,6 @@
 #!/bin/bash
 # NETSHIELD Blacklist – iptables
-# Aktualisiert: 2026-03-08 17:41 UTC | Eintraege: 0
+# Aktualisiert: 2026-03-08 18:12 UTC | Eintraege: 0
 # Verwendung: sudo bash blacklist_iptables.sh
 
 # Bestehende NETSHIELD-Chain leeren

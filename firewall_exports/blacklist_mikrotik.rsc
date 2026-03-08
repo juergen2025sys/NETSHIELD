@@ -1,5 +1,5 @@
 # NETSHIELD Blacklist – Mikrotik RouterOS
-# Aktualisiert: 2026-03-08 17:41 UTC
+# Aktualisiert: 2026-03-08 18:12 UTC
 # Eintraege: 0
 # Import: /import file=blacklist_mikrotik.rsc
 
