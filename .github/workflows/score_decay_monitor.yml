@@ -185,12 +185,47 @@ jobs:
           with open("score_decay_report.md", "w") as f:
               f.write("\n".join(lines))
           print("score_decay_report.md geschrieben")
+
+          # ── IPs aus Blacklist löschen ─────────────────────────────────────
+          # Entfernt werden: 60+ Tage inaktiv (decay_suggest)
+          BLACKLIST = "combined_threat_blacklist_ipv4.txt"
+          removed_from_bl = 0
+          if os.path.exists(BLACKLIST) and decay_suggest:
+              remove_set = {ip for ip, score, days, last in decay_suggest}
+              with open(BLACKLIST) as f:
+                  bl_lines = f.readlines()
+              cleaned = []
+              for line in bl_lines:
+                  ip = line.strip()
+                  if ip and not ip.startswith("#") and ip in remove_set:
+                      removed_from_bl += 1
+                      # Auch aus seen_db entfernen
+                      db.pop(ip, None)
+                  else:
+                      cleaned.append(line)
+              if removed_from_bl > 0:
+                  with open(BLACKLIST, "w") as f:
+                      f.writelines(cleaned)
+                  # seen_db aktualisiert speichern
+                  with open(DB_FILE, "w") as f:
+                      json.dump(db, f, separators=(",", ":"))
+                  print(f"\n✅ {removed_from_bl} IPs aus Blacklist + seen_db entfernt (60+ Tage inaktiv)")
+              else:
+                  print("\nKeine IPs zum Entfernen gefunden")
+          elif not decay_suggest:
+              print("\nKeine IPs zum Entfernen (noch keine 60 Tage inaktiv)")
+
+          # Lösch-Zusammenfassung in Report ergänzen
+          with open("score_decay_report.md", "a") as f:
+              f.write(f"\n---\n## 🗑️ Automatisch gelöscht\n")
+              f.write(f"**{removed_from_bl} IPs** aus Blacklist entfernt (60+ Tage in keinem Feed gesehen)\n")
+              f.write(f"\n*Score Decay Auto-Cleaner: {now_str}*\n")
           EOF
 
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add score_decay_report.md score_decay_log.txt
-          git diff --staged --quiet || git commit -m "Score Decay Monitor: Report aktualisiert [$(date -u '+%Y-%m-%d %H:%M') UTC]"
+          git add score_decay_report.md score_decay_log.txt combined_threat_blacklist_ipv4.txt seen_db.json
+          git diff --staged --quiet || git commit -m "Score Decay: Auto-Cleanup abgeschlossen [$(date -u '+%Y-%m-%d %H:%M') UTC]"
           git push
