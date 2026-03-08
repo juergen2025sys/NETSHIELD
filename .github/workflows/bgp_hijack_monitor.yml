@@ -2,7 +2,7 @@ name: BGP Hijack Monitor
 
 on:
   schedule:
-    - cron: '15 */6 * * *'  # läuft VOR dem Blacklist-Workflow (der läuft um :00)
+    - cron: '15 */6 * * *'
   workflow_dispatch:
 
 permissions:
@@ -11,14 +11,14 @@ permissions:
 jobs:
   bgp-monitor:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 8          # GitHub-seitiger Schutz
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           persist-credentials: true
 
       - name: Run BGP Hijack Monitor & Build Compromise List
+        timeout-minutes: 7      # Python-Step darf max 7 Min laufen
         run: |
           python3 << 'EOF'
           import urllib.request
@@ -28,38 +28,41 @@ jobs:
           import os
           import time
           import ipaddress
-          import socket
+          import signal
           from datetime import datetime, timezone
 
           now = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
 
-          # ══════════════════════════════════════════════════════════════════
-          # HILFSFUNKTIONEN
-          # ══════════════════════════════════════════════════════════════════
+          # ── Globale Deadline: nach 360 Sek. sauber beenden ───────────────
+          DEADLINE = time.time() + 360  # 6 Minuten
 
-          def fetch_raw(url, timeout=25):
-              """Gibt (text, status) zurück."""
+          def time_left():
+              return max(0, DEADLINE - time.time())
+
+          def out_of_time():
+              return time.time() >= DEADLINE
+
+          IP_RE   = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b')
+          CIDR_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b')
+
+          def fetch_raw(url, timeout=12):
               try:
                   req = urllib.request.Request(url, headers={
-                      "User-Agent": "BGPHijackMonitor/3.0 (github-actions; security-research)",
-                      "Accept": "*/*"
+                      "User-Agent": "NETSHIELD-BGPMonitor/3.0 (github-actions)"
                   })
                   with urllib.request.urlopen(req, timeout=timeout) as r:
-                      return r.read().decode("utf-8", errors="ignore"), r.status
-              except urllib.error.HTTPError as e:
-                  return None, e.code
+                      return r.read().decode("utf-8", errors="ignore")
               except Exception as e:
-                  return None, str(e)
+                  print(f"  FEHLER {url.split('/')[-1][:40]}: {e}")
+                  return None
 
-          def fetch_json(url, timeout=25):
-              text, status = fetch_raw(url, timeout)
-              if text:
-                  try:
-                      return json.loads(text), status
-                  except:
-                      return None, status
-              return None, status
+          def fetch_json(url, timeout=12):
+              raw = fetch_raw(url, timeout)
+              try:
+                  return json.loads(raw) if raw else None
+              except:
+                  return None
 
           def is_private(entry):
               try:
@@ -68,297 +71,142 @@ jobs:
               except:
                   return True
 
-          def expand_prefix(cidr, max_ips=254):
-              """Löst ein CIDR in einzelne IPs auf (bis max_ips)."""
-              try:
-                  net = ipaddress.ip_network(cidr, strict=False)
-                  hosts = list(net.hosts())
-                  if len(hosts) > max_ips:
-                      step = max(1, len(hosts) // max_ips)
-                      hosts = hosts[::step][:max_ips]
-                  return [str(h) for h in hosts]
-              except:
-                  return []
-
-          IP_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b')
-          CIDR_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b')
-
-          hijacker_asns = {}   # "AS12345" -> {"sources": [], "prefixes": set()}
-          all_cidrs     = set()
-          all_ips       = set()
+          all_cidrs = set()
+          all_ips   = set()
+          hijacker_asns = {}
 
           # ══════════════════════════════════════════════════════════════════
-          # FEED 1: RIPE RIS BGP Hijack Alerts (vollständig offen, kein Key)
-          # Endpoint liefert aktuelle Hijack-Kandidaten aus dem RIPE RIS
+          # FEED 1: Spamhaus DROP/EDROP – direkteste Quelle, sehr schnell
           # ══════════════════════════════════════════════════════════════════
-          print("=" * 60)
-          print("FEED 1: RIPE RIS – Hijack Candidates")
-          print("=" * 60)
+          print("=" * 50)
+          print("FEED 1: Spamhaus DROP / EDROP")
+          print("=" * 50)
 
-          # RIPE RIS: Prefixes mit inkonsistenten Ankündigungen (mögliche Hijacks)
-          # Wir nutzen den öffentlichen routing-consistency-Endpunkt für bekannte
-          # Abuse-ASNs aus verschiedenen öffentlichen Listen
-          KNOWN_ABUSE_ASNS = [
-              # Aus Spamhaus / Emerging Threats / öffentlichen Abuse-Datenbanken
-              "209588",   # Flyservers S.A. – massiver Abuse-Hoster
-              "398705",   # Bdrive Inc
-              "36352",    # ColoCrossing
-              "174",      # Cogent – oft missbraucht
-              "9009",     # M247 – VPN/Proxy-Hoster
-              "16276",    # OVH – häufig missbraucht
-              "51167",    # Contabo
-              "24940",    # Hetzner
-              "20473",    # Choopa/Vultr
-              "14061",    # DigitalOcean
-              "63949",    # Linode/Akamai
-              "46844",    # Sharktech
-              "8100",     # ASN-9 / QuadraNet
-              "40676",    # Psychz Networks
-              "55286",    # B2 Net Solutions
-              "62904",    # Eonix Corporation
-              "36420",    # Maxihost
-              "394711",   # Limenet
-              "35913",    # DediPath
-              "53667",    # FranTech Solutions / BuyVM
+          for feed_name, url in [
+              ("DROP",  "https://www.spamhaus.org/drop/drop.txt"),
+              ("EDROP", "https://www.spamhaus.org/drop/edrop.txt"),
+          ]:
+              if out_of_time(): break
+              text = fetch_raw(url)
+              if text:
+                  cidrs = [c for c in CIDR_RE.findall(text) if not is_private(c)]
+                  all_cidrs.update(cidrs)
+                  print(f"  {feed_name}: {len(cidrs)} CIDRs")
+
+          # ══════════════════════════════════════════════════════════════════
+          # FEED 2: Emerging Threats – kompromittierte IPs
+          # ══════════════════════════════════════════════════════════════════
+          print("\nFEED 2: Emerging Threats")
+          if not out_of_time():
+              for name, url in [
+                  ("ET Block",      "https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt"),
+                  ("ET Compromised","https://rules.emergingthreats.net/blockrules/compromised-ips.txt"),
+              ]:
+                  if out_of_time(): break
+                  text = fetch_raw(url)
+                  if text:
+                      ips   = [ip for ip in IP_RE.findall(text)   if not is_private(ip)]
+                      cidrs = [c  for c  in CIDR_RE.findall(text) if not is_private(c)]
+                      all_ips.update(ips)
+                      all_cidrs.update(cidrs)
+                      print(f"  {name}: {len(ips)} IPs + {len(cidrs)} CIDRs")
+
+          # ══════════════════════════════════════════════════════════════════
+          # FEED 3: RIPE – Prefixes bekannter Abuse-ASNs
+          #         Nur die Top-10 ASNs, max 3 Sek. pro Request
+          # ══════════════════════════════════════════════════════════════════
+          print("\nFEED 3: RIPE Abuse-ASN Prefixes (Top 10)")
+          ABUSE_ASNS = [
+              "209588","36352","9009","51167","20473",
+              "14061","46844","55286","40676","62904",
           ]
-
-          ripe_found = 0
-          for asn_num in KNOWN_ABUSE_ASNS:
-              asn_key = f"AS{asn_num}"
-              time.sleep(0.3)
-              data, status = fetch_json(
-                  f"https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS{asn_num}"
-              )
-              if data:
-                  prefixes = data.get("data", {}).get("prefixes", [])
-                  for p in prefixes:
-                      pfx = p.get("prefix", "")
-                      if pfx and not is_private(pfx):
-                          all_cidrs.add(pfx)
-                          if asn_key not in hijacker_asns:
-                              hijacker_asns[asn_key] = {"sources": [], "prefixes": set()}
-                          hijacker_asns[asn_key]["prefixes"].add(pfx)
-                          if "ripe_ris" not in hijacker_asns[asn_key]["sources"]:
-                              hijacker_asns[asn_key]["sources"].append("ripe_ris")
-                          ripe_found += 1
-                  print(f"  AS{asn_num}: {len(prefixes)} Prefixes")
-              else:
-                  print(f"  AS{asn_num}: Fehler ({status})")
-
-          print(f"  → Gesamt: {ripe_found} Prefixes aus RIPE RIS\n")
+          if not out_of_time():
+              for asn_num in ABUSE_ASNS:
+                  if out_of_time(): break
+                  data = fetch_json(
+                      f"https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS{asn_num}",
+                      timeout=8
+                  )
+                  if data:
+                      prefixes = data.get("data", {}).get("prefixes", [])
+                      valid = [p.get("prefix","") for p in prefixes
+                               if p.get("prefix") and not is_private(p.get("prefix",""))]
+                      all_cidrs.update(valid)
+                      asn_key = f"AS{asn_num}"
+                      hijacker_asns[asn_key] = {"sources": ["ripe_ris"], "prefixes": set(valid)}
+                      print(f"  AS{asn_num}: {len(valid)} Prefixes")
+                  time.sleep(0.3)
 
           # ══════════════════════════════════════════════════════════════════
-          # FEED 2: Spamhaus BGP Feed (öffentlich, kein Key für DROP/EDROP)
-          # DROP = Don't Route Or Peer – direkt von Spamhaus gepflegte Hijack-/
-          # Abuse-Prefixes die vollständig geblockt werden sollten
+          # FEED 4: BGPStream CAIDA + C2-Tracker (schnelle Text-Feeds)
           # ══════════════════════════════════════════════════════════════════
-          print("=" * 60)
-          print("FEED 2: Spamhaus DROP / EDROP (Hijacked Prefixes)")
-          print("=" * 60)
-
-          SPAMHAUS_FEEDS = {
-              "DROP":  "https://www.spamhaus.org/drop/drop.txt",
-              "EDROP": "https://www.spamhaus.org/drop/edrop.txt",
+          print("\nFEED 4: C2-Tracker & ThreatFox")
+          FAST_FEEDS = {
+              "C2-Tracker":   "https://raw.githubusercontent.com/montysecurity/C2-Tracker/main/data/all.txt",
+              "ThreatFox":    "https://raw.githubusercontent.com/elliotwutingfeng/ThreatFox-IOC-IPs/main/ips.txt",
+              "Feodo C2":     "https://feodotracker.abuse.ch/downloads/ipblocklist_aggressive.txt",
           }
-
-          for feed_name, url in SPAMHAUS_FEEDS.items():
-              text, status = fetch_raw(url)
+          for name, url in FAST_FEEDS.items():
+              if out_of_time(): break
+              text = fetch_raw(url)
               if text:
-                  cidrs = CIDR_RE.findall(text)
-                  valid = [c for c in cidrs if not is_private(c)]
-                  all_cidrs.update(valid)
-                  # Spamhaus listet keine ASNs direkt → als "spamhaus_drop" markieren
-                  fake_asn = "AS_SPAMHAUS_DROP"
-                  if fake_asn not in hijacker_asns:
-                      hijacker_asns[fake_asn] = {"sources": [], "prefixes": set()}
-                  hijacker_asns[fake_asn]["prefixes"].update(valid)
-                  if "spamhaus_drop" not in hijacker_asns[fake_asn]["sources"]:
-                      hijacker_asns[fake_asn]["sources"].append("spamhaus_drop")
-                  print(f"  {feed_name}: {len(valid)} Prefixes")
-              else:
-                  print(f"  {feed_name}: Fehler ({status})")
-
-          print()
+                  ips = [ip for ip in IP_RE.findall(text) if not is_private(ip)]
+                  all_ips.update(ips)
+                  print(f"  {name}: {len(ips)} IPs")
 
           # ══════════════════════════════════════════════════════════════════
-          # FEED 3: Emerging Threats – Kompromittierte BGP-Blöcke
+          # SCHRITT 2: CIDRs → IPs auflösen (mit Zeitlimit!)
           # ══════════════════════════════════════════════════════════════════
-          print("=" * 60)
-          print("FEED 3: Emerging Threats – Compromised IPs")
-          print("=" * 60)
+          print(f"\n{'='*50}")
+          print(f"SCHRITT 2: {len(all_cidrs)} CIDRs auflösen (noch {time_left():.0f}s Zeit)")
+          print(f"{'='*50}")
 
-          ET_FEEDS = {
-              "ET_Block":   "https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt",
-              "ET_Botnet":  "https://rules.emergingthreats.net/blockrules/compromised-ips.txt",
-          }
-
-          for feed_name, url in ET_FEEDS.items():
-              text, status = fetch_raw(url)
-              if text:
-                  found_ips   = [ip for ip in IP_RE.findall(text) if not is_private(ip)]
-                  found_cidrs = [c  for c  in CIDR_RE.findall(text) if not is_private(c)]
-                  all_ips.update(found_ips)
-                  all_cidrs.update(found_cidrs)
-                  print(f"  {feed_name}: {len(found_ips)} IPs + {len(found_cidrs)} CIDRs")
-              else:
-                  print(f"  {feed_name}: Fehler ({status})")
-
-          print()
-
-          # ══════════════════════════════════════════════════════════════════
-          # FEED 4: iptoasn.com – IP-zu-ASN-Datenbank (vollständig kostenlos)
-          # Wir laden die komplette TSV-Datenbank und extrahieren alle Prefixes
-          # der bekannten Abuse-ASNs
-          # ══════════════════════════════════════════════════════════════════
-          print("=" * 60)
-          print("FEED 4: iptoasn.com – Abuse-ASN Prefix-Lookup")
-          print("=" * 60)
-
-          # iptoasn bietet eine komprimierte DB, wir nutzen den API-Endpunkt
-          # für einzelne ASN-Lookups (kostenlos, kein Key)
-          ip2asn_found = 0
-          for asn_num in KNOWN_ABUSE_ASNS[:10]:  # Top 10 um API zu schonen
-              time.sleep(0.5)
-              data, status = fetch_json(
-                  f"https://api.iptoasn.com/v1/as/ip/{asn_num}"
-              )
-              # iptoasn gibt bei ASN-Nummern die Ranges zurück
-              if data:
-                  announced = data.get("announced", False)
-                  as_country = data.get("as_country_code", "")
-                  as_description = data.get("as_description", "")
-                  # Trage ASN-Info ein
-                  asn_key = f"AS{asn_num}"
-                  if asn_key in hijacker_asns:
-                      hijacker_asns[asn_key]["holder"] = as_description
-                  ip2asn_found += 1
-
-          print(f"  → {ip2asn_found} ASN-Infos ergänzt\n")
-
-          # ══════════════════════════════════════════════════════════════════
-          # FEED 5: Team Cymru – Bulk Whois via TCP (NXDOMAIN-basiert)
-          # Kostenlos und zuverlässig – kein HTTP
-          # ══════════════════════════════════════════════════════════════════
-          print("=" * 60)
-          print("FEED 5: BGP Hijack Exchange – Öffentlicher Feed")
-          print("=" * 60)
-
-          # BGP Hijack Exchange (bgphe.com) – öffentlicher JSON-Feed
-          bgphe_data, bgphe_status = fetch_json("https://bgphe.com/api/events?limit=100")
-          bgphe_found = 0
-          if bgphe_data:
-              events = bgphe_data if isinstance(bgphe_data, list) else (
-                  bgphe_data.get("data") or bgphe_data.get("events") or []
-              )
-              for ev in events:
-                  # Hijacker ASN
-                  hijacker = str(ev.get("hijacker_asn", ev.get("hijackerAsn", "")))
-                  victim_prefix = ev.get("prefix", ev.get("hijacked_prefix", ""))
-                  if hijacker and re.match(r'^\d+$', hijacker):
-                      key = f"AS{hijacker}"
-                      if key not in hijacker_asns:
-                          hijacker_asns[key] = {"sources": [], "prefixes": set()}
-                      if "bgp_hijack_exchange" not in hijacker_asns[key]["sources"]:
-                          hijacker_asns[key]["sources"].append("bgp_hijack_exchange")
-                      if victim_prefix and not is_private(victim_prefix):
-                          hijacker_asns[key]["prefixes"].add(victim_prefix)
-                          all_cidrs.add(victim_prefix)
-                      bgphe_found += 1
-              print(f"  BGP Hijack Exchange: {bgphe_found} Events")
-          else:
-              print(f"  BGP Hijack Exchange: Fehler ({bgphe_status})")
-
-          # Fallback: CAIDA BGPStream
-          bs_data, bs_status = fetch_json(
-              "https://bgpstream.crossroads.exchange/api/events?type=hijack&limit=100"
-          )
-          bs_found = 0
-          if bs_data:
-              events = bs_data if isinstance(bs_data, list) else (
-                  bs_data.get("events") or bs_data.get("data") or []
-              )
-              for ev in events:
-                  as_path = ev.get("as_path", [])
-                  prefix  = ev.get("prefix", ev.get("more_specific_prefix", ""))
-                  if isinstance(as_path, list) and as_path:
-                      asn = str(as_path[-1])
-                  elif isinstance(as_path, str):
-                      parts = as_path.split()
-                      asn = parts[-1] if parts else ""
-                  else:
-                      asn = ""
-                  if asn and re.match(r'^\d+$', asn):
-                      key = f"AS{asn}"
-                      if key not in hijacker_asns:
-                          hijacker_asns[key] = {"sources": [], "prefixes": set()}
-                      if "bgpstream_caida" not in hijacker_asns[key]["sources"]:
-                          hijacker_asns[key]["sources"].append("bgpstream_caida")
-                      if prefix and not is_private(prefix):
-                          hijacker_asns[key]["prefixes"].add(prefix)
-                          all_cidrs.add(prefix)
-                      bs_found += 1
-              print(f"  BGPStream CAIDA:     {bs_found} Events")
-          else:
-              print(f"  BGPStream CAIDA:     Fehler ({bs_status})")
-
-          print()
-
-          # ══════════════════════════════════════════════════════════════════
-          # SCHRITT 2: CIDRs in IPs auflösen
-          # ══════════════════════════════════════════════════════════════════
-          print("=" * 60)
-          print(f"SCHRITT 2: {len(all_cidrs)} CIDRs in IPs auflösen")
-          print("=" * 60)
-
-          # Prefixes aus hijacker_asns auch zu all_cidrs hinzufügen
-          for asn, info in hijacker_asns.items():
-              for pfx in info["prefixes"]:
-                  if "/" in pfx and not is_private(pfx):
-                      all_cidrs.add(pfx)
-
+          expanded = 0
+          skipped  = 0
           for cidr in all_cidrs:
+              if out_of_time():
+                  print(f"  ⏱ Zeitlimit erreicht – {skipped} CIDRs übersprungen")
+                  break
               try:
                   net = ipaddress.ip_network(cidr, strict=False)
                   if net.prefixlen >= 24:
                       all_ips.update(str(h) for h in net.hosts())
-                  elif net.prefixlen >= 20:
-                      all_ips.update(expand_prefix(cidr, 256))
-                  elif net.prefixlen >= 16:
-                      all_ips.update(expand_prefix(cidr, 128))
-                  # Alles größer /16 nur als CIDR behalten
+                      expanded += 1
+                  elif net.prefixlen >= 22:
+                      # Max 512 IPs samplen
+                      hosts = list(net.hosts())
+                      all_ips.update(str(h) for h in hosts[::max(1,len(hosts)//512)][:512])
+                      expanded += 1
+                  # Alles größer /22 → nur CIDR behalten, keine IP-Expansion
+                  else:
+                      skipped += 1
               except:
                   pass
 
           # Private herausfiltern
-          all_cidrs = {c for c in all_cidrs if not is_private(c)}
           all_ips   = {ip for ip in all_ips   if not is_private(ip)}
+          all_cidrs = {c  for c  in all_cidrs if not is_private(c)}
 
-          print(f"  → {len(all_cidrs)} CIDRs | {len(all_ips)} Einzel-IPs\n")
+          print(f"  Aufgelöst: {expanded} CIDRs | Übersprungen (>/22): {skipped}")
+          print(f"  Gesamt: {len(all_cidrs)} CIDRs | {len(all_ips)} IPs")
 
           # ══════════════════════════════════════════════════════════════════
-          # SCHRITT 3: Bestehende Datei laden & mergen
+          # SCHRITT 3: Datei schreiben
           # ══════════════════════════════════════════════════════════════════
-          print("=" * 60)
-          print("SCHRITT 3: bgp_compromised_ips.txt aktualisieren")
-          print("=" * 60)
+          print(f"\n{'='*50}")
+          print("SCHRITT 3: bgp_compromised_ips.txt schreiben")
+          print(f"{'='*50}")
 
           COMPROMISE_FILE = "bgp_compromised_ips.txt"
           existing = set()
-
           if os.path.exists(COMPROMISE_FILE):
-              with open(COMPROMISE_FILE, "r") as f:
-                  for line in f:
-                      line = line.strip()
-                      if line and not line.startswith("#"):
-                          existing.add(line)
-              print(f"  Bestehende Einträge: {len(existing)}")
+              with open(COMPROMISE_FILE) as f:
+                  existing = {l.strip() for l in f if l.strip() and not l.startswith("#")}
 
           new_cidrs = all_cidrs - existing
           new_ips   = all_ips   - existing
-          print(f"  Neue CIDRs: {len(new_cidrs)} | Neue IPs: {len(new_ips)}")
-
-          final_all  = (existing | all_cidrs | all_ips)
-          final_all  = {e for e in final_all if not is_private(e)}
+          final_all = (existing | all_cidrs | all_ips)
+          final_all = {e for e in final_all if not is_private(e)}
 
           cidrs_out = sorted(e for e in final_all if "/" in e)
           ips_out   = sorted(
@@ -367,24 +215,23 @@ jobs:
           )
 
           with open(COMPROMISE_FILE, "w") as f:
-              f.write(f"# BGP Compromised IPs & Prefixes\n")
-              f.write(f"# Automatisch generiert durch BGP Hijack Monitor\n")
+              f.write(f"# BGP Compromised IPs & Prefixes – NETSHIELD\n")
               f.write(f"# Aktualisiert: {now_str}\n")
               f.write(f"# Hijacker-ASNs: {len(hijacker_asns)}\n")
               f.write(f"# CIDRs: {len(cidrs_out)} | Einzel-IPs: {len(ips_out)}\n")
-              f.write(f"# Quellen: ripe_ris, spamhaus_drop, emerging_threats, bgpstream_caida\n\n")
+              f.write(f"# Neu: {len(new_cidrs)} CIDRs + {len(new_ips)} IPs\n")
+              f.write(f"# Quellen: spamhaus_drop, emerging_threats, ripe_ris, c2tracker, threatfox\n\n")
               if cidrs_out:
                   f.write("# ── Hijacked Prefixes (CIDRs) ──\n")
                   f.write("\n".join(cidrs_out) + "\n\n")
               if ips_out:
-                  f.write("# ── Aufgeloeste Einzel-IPs ──\n")
+                  f.write("# ── Aufgeloeste IPs ──\n")
                   f.write("\n".join(ips_out) + "\n")
 
-          print(f"  ✅ Geschrieben: {len(cidrs_out)} CIDRs + {len(ips_out)} IPs")
+          print(f"  ✅ {len(cidrs_out)} CIDRs + {len(ips_out)} IPs geschrieben")
+          print(f"  Neu: +{len(new_cidrs)} CIDRs / +{len(new_ips)} IPs")
 
-          # ══════════════════════════════════════════════════════════════════
-          # SCHRITT 4: Report
-          # ══════════════════════════════════════════════════════════════════
+          # ── Report ────────────────────────────────────────────────────────
           lines = []
           lines.append("# BGP Hijack Monitor – Report")
           lines.append(f"**Aktualisiert:** {now_str}\n")
@@ -392,46 +239,27 @@ jobs:
           lines.append("## Zusammenfassung\n")
           lines.append("| Metrik | Wert |")
           lines.append("|---|---|")
-          lines.append(f"| Feeds | RIPE RIS, Spamhaus DROP/EDROP, Emerging Threats, BGPStream |")
-          lines.append(f"| Erkannte Hijacker-ASNs | **{len(hijacker_asns)}** |")
-          lines.append(f"| Hijacked Prefixes (CIDRs) | **{len(cidrs_out)}** |")
-          lines.append(f"| Aufgelöste Einzel-IPs | **{len(ips_out)}** |")
-          lines.append(f"| Neu hinzugekommen | **{len(new_cidrs) + len(new_ips)}** |")
-          lines.append(f"| Gesamt in Datei | **{len(cidrs_out)+len(ips_out)}** |")
+          lines.append(f"| Feeds | Spamhaus DROP/EDROP, Emerging Threats, RIPE RIS, C2-Tracker, ThreatFox |")
+          lines.append(f"| Hijacker-ASNs (RIPE) | {len(hijacker_asns)} |")
+          lines.append(f"| CIDRs gesamt | **{len(cidrs_out)}** |")
+          lines.append(f"| Einzel-IPs gesamt | **{len(ips_out)}** |")
+          lines.append(f"| Neu hinzugekommen | **{len(new_cidrs)+len(new_ips)}** |")
+          lines.append(f"| Zeitstempel | {now_str} |")
           lines.append("")
-          lines.append("---")
-          lines.append("## Tracked ASNs & Prefixes\n")
-          lines.append("| ASN | Quellen | Prefixes |")
-          lines.append("|---|---|---|")
-          for asn, d in sorted(hijacker_asns.items()):
-              src = ", ".join(d["sources"])
-              pfx_count = len(d["prefixes"])
-              sample = ", ".join(list(d["prefixes"])[:3])
-              if pfx_count > 3:
-                  sample += f" (+{pfx_count-3})"
-              lines.append(f"| **{asn}** | {src} | {sample or '–'} |")
-
-          if new_cidrs:
-              lines.append("")
+          if hijacker_asns:
               lines.append("---")
-              lines.append(f"## Neu entdeckte CIDRs ({len(new_cidrs)})\n")
-              for c in sorted(list(new_cidrs))[:50]:
-                  lines.append(f"- `{c}`")
-              if len(new_cidrs) > 50:
-                  lines.append(f"- *... und {len(new_cidrs)-50} weitere*")
+              lines.append("## RIPE Abuse-ASNs\n")
+              lines.append("| ASN | Prefixes |")
+              lines.append("|---|---|")
+              for asn, d in sorted(hijacker_asns.items()):
+                  lines.append(f"| **{asn}** | {len(d['prefixes'])} |")
+          lines.append(f"\n---\n*Generiert: {now_str}*")
 
-          lines.append("")
-          lines.append("---")
-          lines.append("*`bgp_compromised_ips.txt` wird vom Blacklist-Workflow automatisch eingelesen.*")
-          lines.append(f"\n*Generiert: {now_str}*")
-
-          with open("bgp_hijack_report.md", "w", encoding="utf-8") as f:
+          with open("bgp_hijack_report.md", "w") as f:
               f.write("\n".join(lines))
 
-          print(f"  ✅ bgp_hijack_report.md geschrieben")
-          print(f"\n{'='*60}")
-          print(f"FERTIG: {len(cidrs_out)} CIDRs + {len(ips_out)} IPs in bgp_compromised_ips.txt")
-          print(f"{'='*60}")
+          print("\n✅ FERTIG!")
+          print(f"   Laufzeit genutzt: {360-time_left():.0f}s von 360s")
           EOF
 
       - name: Commit Results
