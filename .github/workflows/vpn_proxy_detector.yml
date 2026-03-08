@@ -73,7 +73,7 @@ jobs:
                   "https://raw.githubusercontent.com/nicpenning/AzureIPRanges/main/azure_ipranges.txt",
               "DigitalOcean":
                   "https://www.digitalocean.com/geo/google.csv",
-              "Vultr":
+              "Constant (Hosting)":
                   "https://geofeed.constant.com/?json",
               "Hosting Providers (firehol)":
                   "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/datacenters.ipset",
@@ -124,8 +124,7 @@ jobs:
               with open(VPN_FILE) as f:
                   existing = {l.strip() for l in f if l.strip() and not l.startswith("#")}
 
-          new_entries = (all_ips | all_cidrs) - existing
-
+          new_entries  = (all_ips | all_cidrs) - existing
           cidrs_sorted = sorted(all_cidrs)
           ips_sorted   = sorted(all_ips, key=lambda ip: tuple(int(o) for o in ip.split(".")))
 
