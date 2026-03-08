@@ -1,0 +1,43 @@
+ame: Update IP Blacklist
+
+on:
+  schedule:
+    - cron: '0 */3 * * *'  # alle 3 Stunden
+  workflow_dispatch:        # manuell auslösbar
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Fetch & Convert Blacklist
+        run: |
+          python3 << 'EOF'
+          import urllib.request
+          import json
+
+          url = "https://raw.githubusercontent.com/lula73/bot-detector/refs/heads/master/blacklist.json"
+          with urllib.request.urlopen(url) as r:
+              data = json.load(r)
+
+          ips = [entry["ip"] for entry in data["blacklist"]]
+
+          with open("bot_detector_blacklist_ipv4.txt", "w") as f:
+              f.write(f"# Bot Detector Blacklist\n")
+              f.write(f"# Source: github.com/lula73/bot-detector\n")
+              f.write(f"# IPs: {len(ips)}\n")
+              f.write("\n".join(ips) + "\n")
+
+          print(f"Saved {len(ips)} IPs.")
+          EOF
+
+      - name: Commit & Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add bot_detector_blacklist_ipv4.txt
+          git diff --cached --quiet || git commit -m "chore: update blacklist $(date -u '+%Y-%m-%d %H:%M') UTC"
+          git push
