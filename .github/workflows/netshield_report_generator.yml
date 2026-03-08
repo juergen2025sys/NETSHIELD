@@ -2,7 +2,8 @@ name: NETSHIELD Report Generator
 
 on:
   schedule:
-    - cron: '30 */6 * * *'  # nach allen anderen Workflows
+    - cron: '50 */6 * * *'   # nach combined-blacklist (0h) + exporter (30min)
+    - cron: '50 1,7,13,19 * * *'
   workflow_dispatch:
 
 permissions:
