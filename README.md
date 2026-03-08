@@ -1,106 +1,191 @@
 
-name: Update Combined Threat Blacklist
+<div align="center">
 
-on:
-  schedule:
-    - cron: '0 */6 * * *'  # alle 6 Stunden
-  workflow_dispatch:
+# 🛡️ NETSHIELD
 
-permissions:
-  contents: write
+### Vollständige IPv4-Blocklist-Suite für Firewalls & Netzwerksicherheit
 
-jobs:
-  update:
-    runs-on: ubuntu-latest
+![IPv4](https://img.shields.io/badge/IPv4-254%2C556%20Ranges-blue?style=flat-square)
+![Länder](https://img.shields.io/badge/L%C3%A4nder-249-green?style=flat-square)
+![Kontinente](https://img.shields.io/badge/Kontinente-6-orange?style=flat-square)
+![Update](https://img.shields.io/badge/Update-Automatisch-brightgreen?style=flat-square)
+![Lizenz](https://img.shields.io/badge/Lizenz-Kostenlos-lightgrey?style=flat-square)
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: true
+*Entwickelt für OPNsense · pfSense · FortiGate · und jede Firewall mit IP-Blocklist-Unterstützung*
 
-      - name: Fetch & Merge Threat IPs
-        run: |
-          python3 << 'EOF'
-          import urllib.request
-          import re
-          import os
-          from datetime import datetime, timezone
+</div>
 
-          SOURCES = [
-              "https://cinsscore.com/list/ci-badguys.txt",
-              "https://blocklist.greensnow.co/greensnow.txt",
-              "https://feodotracker.abuse.ch/downloads/ipblocklist_aggressive.txt",
-              "https://raw.githubusercontent.com/elliotwutingfeng/ThreatFox-IOC-IPs/refs/heads/main/ips.txt",
-              "https://raw.githubusercontent.com/Tizian-Maxime-Weigt/L7-HTTP-DDoS-Flood-IP-Signature-IP-List/refs/heads/main/ddos-signatures.txt",
-              "https://binarydefense.com/banlist.txt",
-              "https://raw.githubusercontent.com/duggytuxy/Data-Shield_IPv4_Blocklist/refs/heads/main/prod_data-shield_ipv4_blocklist.txt",
-              "https://sigs.interserver.net/ip.txt",
-              "https://raw.githubusercontent.com/Y3ll0w/CrowdSec-CAPI-Decisions/refs/heads/main/ssh-bf.json.txt",
-              "https://raw.githubusercontent.com/cenk/trcert-malware/refs/heads/main/trcert-ips.txt",
-              "https://danger.rulez.sk/projects/bruteforceblocker/blist.php",
-              "https://threatview.io/Downloads/IP-High-Confidence-Feed.txt",
-              "https://raw.githubusercontent.com/florentvinai/bad-ips-on-my-vps/refs/heads/main/banned_ips.txt",
-              "https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/cybercrime.ipset",
-              "https://www.dshield.org/block.txt",
-              "https://raw.githubusercontent.com/CriticalPathSecurity/Public-Intelligence-Feeds/refs/heads/master/cloudzy.txt",
-              "https://gist.githubusercontent.com/BBcan177/d7105c242f17f4498f81/raw",
-              "https://kevinmarx.org/malicious-ip-list.txt",
-              "https://raw.githubusercontent.com/yuexuan521/honeypot-blocklist/refs/heads/main/ip_list.txt",
-              "https://raw.githubusercontent.com/EdanWong/ip_list/refs/heads/main/my_ips.txt",
-              "https://raw.githubusercontent.com/nixbear/malicious_ips/refs/heads/main/malicious_ips.txt",
-              "https://raw.githubusercontent.com/ufukart/Blacklist/main/blacklist.txt",
-              "https://raw.githubusercontent.com/f3csystems/BlockList_IP/refs/heads/main/blacklist.txt",
-              "https://raw.githubusercontent.com/IT3ngineer/FortigateBlockList/refs/heads/main/AzureBlockListIPs.txt",
-          ]
+---
 
-          # Regex für IPv4
-          IP_PATTERN = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?:/\d{1,2})?\b')
+## 📌 Übersicht
 
-          # Bestehende IPs laden
-          existing_file = "combined_threat_blacklist_ipv4.txt"
-          existing_ips = set()
-          if os.path.exists(existing_file):
-              with open(existing_file, "r") as f:
-                  for line in f:
-                      line = line.strip()
-                      if line and not line.startswith("#"):
-                          existing_ips.add(line)
-              print(f"Bestehende IPs geladen: {len(existing_ips)}")
+NETSHIELD bietet fertige IPv4-Blocklisten, organisiert nach Land, Kontinent und Bedrohungsstufe. Alle Listen werden vollautomatisch aktualisiert und sind als Raw-Links verfügbar — einfach in die Firewall einfügen und vergessen.
 
-          # Neue IPs aus allen Quellen sammeln
-          new_ips = set()
-          for url in SOURCES:
-              try:
-                  req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-                  with urllib.request.urlopen(req, timeout=15) as r:
-                      content = r.read().decode("utf-8", errors="ignore")
-                  found = IP_PATTERN.findall(content)
-                  new_ips.update(found)
-                  print(f"OK: {url.split('/')[-1]} → {len(found)} IPs")
-              except Exception as e:
-                  print(f"FEHLER: {url.split('/')[-1]} → {e}")
+---
 
-          # Nur wirklich neue IPs
-          added_ips = new_ips - existing_ips
-          all_ips = existing_ips | new_ips
-          sorted_ips = sorted(all_ips)
+## 🌍 Alle Länder
 
-          now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-          with open(existing_file, "w") as f:
-              f.write(f"# Combined Threat Blacklist\n")
-              f.write(f"# Aktualisiert: {now}\n")
-              f.write(f"# Gesamt IPs: {len(sorted_ips)}\n")
-              f.write(f"# Neu hinzugefügt: {len(added_ips)}\n")
-              f.write("\n".join(sorted_ips) + "\n")
+| Eigenschaft | Wert |
+|---|---|
+| **Einträge** | ~254.556 CIDR-Ranges |
+| **Format** | CIDR (z.B. `1.0.0.0/24`) |
+| **Update** | Automatisch |
+| **Raw Link** | [all_countries_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/all_countries_ipv4.txt) |
 
-          print(f"\nFertig! Gesamt: {len(sorted_ips)} | Neu: {len(added_ips)}")
-          EOF
+**Verwendungszweck:** Blockiert den gesamten eingehenden WAN-Verkehr aus allen Ländern der Welt mit einer einzigen Liste. Ideal für Firewalls, bei denen keine eingehenden Verbindungen benötigt werden — eliminiert die Angriffsfläche durch ausländische IPs vollständig.
 
-      - name: Commit & Push
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add combined_threat_blacklist_ipv4.txt
-          git diff --staged --quiet || git commit -m "Auto-update combined_threat_blacklist_ipv4.txt [$(date -u '+%Y-%m-%d %H:%M') UTC]"
-          git push
+---
+
+## 🌐 Kontinent-Blocklisten
+
+Ganze Regionen mit einem einzigen Link blockieren.
+
+| Kontinent | Raw Link |
+|---|---|
+| 🇪🇺 Europa | [europe_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/continents/europe_ipv4.txt) |
+| 🌏 Asien | [asia_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/continents/asia_ipv4.txt) |
+| 🌍 Afrika | [africa_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/continents/africa_ipv4.txt) |
+| 🌎 Nordamerika | [north_america_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/continents/north_america_ipv4.txt) |
+| 🌎 Südamerika | [south_america_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/continents/south_america_ipv4.txt) |
+| 🌊 Ozeanien | [oceania_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/continents/oceania_ipv4.txt) |
+
+---
+
+## 🗺️ Länder-Blocklisten
+
+Einzelne Länder blockieren — nach Kontinent organisiert. Den Raw-Link direkt in der Firewall verwenden.
+
+**Raw-Link-Schema:**
+```
+https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/{kontinent}/{land}_ipv4.txt
+```
+
+**Beispiele:**
+| Land | Raw Link |
+|---|---|
+| 🇮🇷 Iran | [iran_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/asia/iran_ipv4.txt) |
+| 🇨🇳 China | [china_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/asia/china_ipv4.txt) |
+| 🇷🇺 Russland | [russia_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/europe/russia_ipv4.txt) |
+| 🇺🇸 USA | [united_states_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/north_america/united_states_ipv4.txt) |
+| 🇧🇷 Brasilien | [brazil_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/south_america/brazil_ipv4.txt) |
+| 🇳🇬 Nigeria | [nigeria_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/africa/nigeria_ipv4.txt) |
+
+> Alle 249 Länderdateien im [`countries/`](https://github.com/juergen2025sys/NETSHIELD/tree/main/countries) Ordner durchsuchen.
+
+---
+
+## 🚫 Threat-Intelligence-Listen
+
+### Blacklist — Hohe Konfidenz (≥ 40%)
+
+| Eigenschaft | Wert |
+|---|---|
+| **Inhalt** | Bestätigte bösartige IPs mit Konfidenzniveau ≥ 40% |
+| **Format** | Eine IP pro Zeile |
+| **Update** | Automatisch · Täglich |
+| **Raw Link** | [blacklist_confidence40_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt) |
+
+**Verwendungszweck:** Hochkonfidente Bedrohungs-IPs blockieren — bekannte Angreifer, Scanner, Brute-Force-Bots und bösartige Akteure. Empfohlen für **hartes Blockieren**.
+
+---
+
+### Watchlist — Niedrige Konfidenz (20–39%)
+
+| Eigenschaft | Wert |
+|---|---|
+| **Inhalt** | Verdächtige IPs mit Konfidenzniveau 20–39% |
+| **Format** | Eine IP pro Zeile |
+| **Update** | Automatisch · Täglich |
+| **Raw Link** | [watchlist_confidence20to39_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/watchlist_confidence20to39_ipv4.txt) |
+
+**Verwendungszweck:** Niedrigkonfidente verdächtige IPs überwachen oder weich blockieren — nützlich für Rate-Limiting, Logging oder strengere Inspektionsregeln.
+
+> ⚠️ **Warnung:** Diese Liste hat eine **hohe Falsch-Positiv-Rate**. Viele IPs können legitime Nutzer, Shared-Hosting oder dynamische IPs sein, die vorübergehend markiert wurden. Empfohlen nur für **Logging und Monitoring** — nicht für hartes Blockieren.
+
+---
+
+### 🤖 Bot-Detector-Blacklist
+
+| Eigenschaft | Wert |
+|---|---|
+| **Inhalt** | Bots, Scraper, Scanner, DDoS-Quellen, VPN/Proxy-Missbrauch, Cloud-Bots |
+| **Format** | Eine IP pro Zeile |
+| **Update** | Automatisch · Alle 3 Stunden |
+| **Raw Link** | [bot_detector_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/bot_detector_blacklist_ipv4.txt) |
+
+**Kategorien:**
+- KI-Crawler, SEO-Bots, Scraper, Suchmaschinen-Bots
+- Schwachstellen-Scanner, Aggressive Scanner
+- DDoS-Quellen, Proxy/VPN-Missbrauch
+- Hosting/Cloud-Bots (AWS, Azure, DigitalOcean usw.)
+
+**Verwendungszweck:** Bekannte Bots und automatisierte Bedrohungen blockieren — ideal für Webserver, APIs und Dienste, die nur von echten Nutzern erreichbar sein sollen.
+
+> ⚠️ **Hinweis:** Diese Liste enthält Cloud/Hosting-IPs (AWS, Azure, GCP, DigitalOcean usw.). Diese IPs sind als Bots markiert, können aber auch von legitimen Cloud-Nutzern verwendet werden. Empfohlen für **Webserver und APIs** — nicht für allgemeines LAN-Blocking.
+
+---
+
+### 💀 Combined Threat Blacklist
+
+| Eigenschaft | Wert |
+|---|---|
+| **Inhalt** | Aggregierte Bedrohungs-IPs aus über 20 Threat-Intelligence-Quellen |
+| **Format** | Eine IP pro Zeile |
+| **Update** | Automatisch · Alle 6 Stunden |
+| **Besonderheit** | Liste wächst kontinuierlich — IPs werden nur hinzugefügt, nie entfernt |
+| **Raw Link** | [combined_threat_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/combined_threat_blacklist_ipv4.txt) |
+
+**Inhalt:**
+- Bestätigte Angreifer, Brute-Force-Quellen, SSH-Scanner
+- DDoS-Quellen, Botnet-IPs
+- Honeypot-Treffer
+- Malware-Command-and-Control-Server
+- Bekannte bösartige Rechenzentrum-IPs
+
+**Verwendungszweck:** Die umfassendste Blockliste in NETSHIELD — aggregiert aus dutzenden Threat-Intelligence-Feeds und wächst mit jeder Aktualisierung. Ideal für **hartes Blockieren** auf Firewall-Ebene.
+
+---
+
+## ✅ Getestet & Verifiziert
+
+Alle IP-Ranges wurden auf Vorhandensein in `all_countries_ipv4.txt` geprüft:
+
+| Land | Beispiel-IP | Verifiziertes CIDR |
+|---|---|---|
+| 🇷🇺 Russland | 5.8.18.100 | ✅ 5.8.16.0/21 |
+| 🇨🇳 China | 113.195.145.80 | ✅ 113.194.0.0/15 |
+| 🇧🇷 Brasilien | 177.75.40.100 | ✅ 177.75.40.0/21 |
+| 🇮🇳 Indien | 103.10.197.50 | ✅ 103.10.197.0/24 |
+| 🇧🇬 Bulgarien | 31.170.100.50 | ✅ 31.170.100.0/22 |
+| 🇻🇳 Vietnam | 45.125.65.50 | ✅ 45.125.64.0/22 |
+| 🇷🇴 Rumänien | 82.80.100.200 | ✅ 82.80.0.0/15 |
+| 🇵🇰 Pakistan | 203.78.120.30 | ✅ 203.78.112.0/20 |
+
+---
+
+## 🗺️ Hinweise zur Kontinentzuordnung
+
+| Land | Zugeordnet zu | Hinweis |
+|---|---|---|
+| 🇹🇷 Türkei (TR) | Asien | Transkontinental — Großteil der Landfläche liegt in Asien |
+| 🇷🇺 Russland (RU) | Europa | Politisch europäisch, erstreckt sich aber über ganz Asien |
+| 🇬🇱 Grönland (GL) | Europa | Dänisches Territorium — geografisch Nordamerika |
+| 🇨🇾 Zypern (CY) | Europa | Politisch europäisch (EU-Mitglied), geografisch näher an Asien |
+
+> Für Firewall-Zwecke spielt dies keine Rolle — jede IP ist immer in `all_countries_ipv4.txt` enthalten.
+
+---
+
+## 🔧 Funktioniert gut in Kombination mit
+
+- 🖥️ Rechenzentrum-IP-Listen — AWS, Azure, Hetzner usw.
+- 🔒 VPN-Anbieter-Listen — NordVPN, ProtonVPN usw.
+- 🧅 TOR-Exit-Node-Listen
+- 🕵️ Threat-Intelligence-Feeds
+- 🛑 Bekannte bösartige IP-Listen
+
+---
+
+## 📜 Lizenz
+
+Kostenlos für jeden Zweck nutzbar. Keine Namensnennung erforderlich.
