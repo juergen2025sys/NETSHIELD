@@ -156,6 +156,42 @@ jobs:
                           ip_in_hq.add(ip)
                   feed_stats.append((name, len(ips)))
 
+          # --- Lokale Sub-Workflow-Dateien einlesen ---
+          # tor, cve, vpn, bot-detector schreiben eigene Dateien → hier einlesen
+          LOCAL_FEEDS = {
+              "tor_exit_nodes.txt":              True,   # HQ = True
+              "cve_exploit_ips.txt":             True,
+              "vpn_proxy_ranges.txt":            False,
+              "bot_detector_blacklist_ipv4.txt": False,
+          }
+          import ipaddress as _ipaddress
+          def _is_valid_public(ip):
+              try:
+                  o = _ipaddress.ip_address(ip.split("/")[0])
+                  return o.version == 4 and not o.is_private and not o.is_loopback and not o.is_multicast and not o.is_reserved and not o.is_link_local
+              except: return False
+
+          for local_file, is_hq_local in LOCAL_FEEDS.items():
+              if not os.path.exists(local_file):
+                  print(f"  SKIP (nicht vorhanden): {local_file}")
+                  continue
+              local_ips = set()
+              with open(local_file) as lf:
+                  for line in lf:
+                      line = line.strip()
+                      if not line or line.startswith("#"):
+                          continue
+                      for m in IPV4_RE.finditer(line):
+                          ip = m.group(1)
+                          if ip not in DNS_WHITELIST and _is_valid_public(ip):
+                              local_ips.add(ip)
+              for ip in local_ips:
+                  ip_feed_count[ip] = ip_feed_count.get(ip, 0) + 1
+                  if is_hq_local:
+                      ip_in_hq.add(ip)
+              feed_stats.append((local_file, len(local_ips)))
+              print(f"  Lokal eingelesen: {local_file} → {len(local_ips)} IPs (HQ={is_hq_local})")
+
           # --- Nur valide IPs in seen_db aufnehmen (2+ Feeds oder HQ-Feed) ---
           current_valid = {ip for ip, count in ip_feed_count.items()
                            if count >= 2 or ip in ip_in_hq}
