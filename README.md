@@ -10,11 +10,27 @@ Automatically updated via PowerShell — free to use, no attribution required.
 
 ### 🌍 `all_countries_ipv4.txt`
 - **Content:** All IPv4 ranges from all 249 countries worldwide
-- **Entries:** 254,556 CIDR ranges
+- **Entries:** ~254,556 CIDR ranges
 - **Format:** CIDR (e.g. `1.0.0.0/24`)
 - **Source:** [country-ip-blocks.hackinggate.com](https://country-ip-blocks.hackinggate.com)
-- **Update:** Manual — run the included PowerShell script
+- **Update:** Automatic
+- **Raw:** `https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/all_countries_ipv4.txt`
 - **Use Case:** Block all incoming WAN traffic from every country in the world with a single list. Perfect for firewalls where no inbound connections are needed — completely eliminates the attack surface from foreign IPs.
+
+---
+
+### 🌐 Continent Files (`continents/`)
+
+For more granular control — block only specific regions instead of the entire world.
+
+| Continent | File | Raw Link |
+|---|---|---|
+| 🇪🇺 Europe | `continents/europe_ipv4.txt` | [Raw](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/continents/europe_ipv4.txt) |
+| 🌏 Asia | `continents/asia_ipv4.txt` | [Raw](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/continents/asia_ipv4.txt) |
+| 🌍 Africa | `continents/africa_ipv4.txt` | [Raw](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/continents/africa_ipv4.txt) |
+| 🌎 North America | `continents/north_america_ipv4.txt` | [Raw](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/continents/north_america_ipv4.txt) |
+| 🌎 South America | `continents/south_america_ipv4.txt` | [Raw](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/continents/south_america_ipv4.txt) |
+| 🌊 Oceania | `continents/oceania_ipv4.txt` | [Raw](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/continents/oceania_ipv4.txt) |
 
 ---
 
@@ -23,6 +39,7 @@ Automatically updated via PowerShell — free to use, no attribution required.
 - **Format:** One IP per line
 - **Source:** [AbuseIPDB](https://www.abuseipdb.com)
 - **Update:** Automatic (daily)
+- **Raw:** `https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt`
 - **Use Case:** Block high-confidence threat IPs — known attackers, scanners, brute-force bots, and malicious actors.
 
 ---
@@ -32,6 +49,7 @@ Automatically updated via PowerShell — free to use, no attribution required.
 - **Format:** One IP per line
 - **Source:** [AbuseIPDB](https://www.abuseipdb.com)
 - **Update:** Automatic (daily)
+- **Raw:** `https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/watchlist_confidence20to39_ipv4.txt`
 - **Use Case:** Monitor or soft-block low-confidence suspicious IPs — useful for rate limiting, logging, or stricter inspection rules.
 - **⚠️ Warning:** This list has a **high false positive rate**. Many IPs in this range may be legitimate users, shared hosting, or dynamic IPs that were temporarily flagged. Use with caution — recommended for logging/monitoring only, not for hard blocking.
 
@@ -73,3 +91,18 @@ IP ranges verified to be present in `all_countries_ipv4.txt`:
 ## 📜 License
 
 Free to use for any purpose. No attribution required.
+
+---
+
+## 🗺️ Notes on Continent Assignment
+
+Most countries are assigned to their geographical continent. However, a few transcontinental or politically special cases are assigned as follows:
+
+| Country | Assigned to | Note |
+|---|---|---|
+| 🇹🇷 Turkey (TR) | Asia | Transcontinental — majority of land mass is in Asia |
+| 🇷🇺 Russia (RU) | Europe | Politically European, but spans all of Asia too |
+| 🇬🇱 Greenland (GL) | Europe | Danish territory — geographically North America |
+| 🇨🇾 Cyprus (CY) | Europe | Politically European (EU member), geographically closer to Asia |
+
+> **Note:** For firewall purposes this does not matter — every IP is present in at least one continent list and always in `all_countries_ipv4.txt`.
