@@ -203,18 +203,21 @@ jobs:
           db_size = os.path.getsize(DB_FILE) / (1024*1024)
           print(f"threat_db.json Groesse: {db_size:.1f} MB (wird gecacht, nicht ins Repo)")
 
-          # Blacklist ausgeben (sortiert nach Score absteigend)
+          # Blacklist ausgeben (sortiert nach Score absteigend, max. 1 Mio. IPs)
+          MAX_IPS = 1_000_000
           sorted_ips = sorted(db.keys(), key=lambda ip: db[ip]["score"], reverse=True)
+          total_ips = len(sorted_ips)
+          sorted_ips = sorted_ips[:MAX_IPS]
 
           with open("combined_threat_blacklist_ipv4.txt", "w") as f:
               f.write(f"# Combined Threat Blacklist\n")
               f.write(f"# Aktualisiert: {now.strftime('%Y-%m-%d %H:%M UTC')}\n")
               f.write(f"# Quellen: {len(SOURCES)}\n")
-              f.write(f"# Gesamt IPs: {len(sorted_ips)}\n")
+              f.write(f"# Gesamt IPs (DB): {total_ips} | Ausgegeben (Top nach Score): {len(sorted_ips)}\n")
               f.write(f"# Abgelaufen & entfernt: {len(expired)}\n")
               f.write("\n".join(sorted_ips) + "\n")
 
-          print(f"\nFertig! Gesamt: {len(sorted_ips)} IPs | Abgelaufen: {len(expired)}")
+          print(f"\nFertig! DB gesamt: {total_ips} IPs | Ausgegeben: {len(sorted_ips)} | Abgelaufen: {len(expired)}")
           EOF
 
       - name: Commit & Push
