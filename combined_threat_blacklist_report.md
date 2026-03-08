@@ -1,25 +1,44 @@
 # Combined Threat Blacklist Report
 
-- Aktualisiert: **2026-03-08 18:25 UTC**
-- Feeds gesamt: **186**
-- Discovery-Feeds aktiv: **5**
-- Blacklist: **881** IPv4
-- Watchlist: **371** IPv4
-- Datacenter/Cloud-Watchlist: **1** IPv4
-- Abgelaufen entfernt: **0**
+- Aktualisiert: **2026-03-08 19:22 UTC**
+- Feeds gesamt: **34**
+- Eintraege gesamt: **3700653**
 
-## Top Feed-Statistik
+## Feed-Statistik
 
-| Feed | IPv4 | Gewicht | Typ |
-|---|---:|---:|---|
-| `auto_https_raw_githubusercontent_com_montysecurity_c2_tracker_main_data_viper_20c2_20` | 254 | 6 | malware |
-| `auto_https_raw_githubusercontent_com_firehol_blocklist_ipsets_master_cleantalk_new_ip` | 250 | 2 | generic |
-| `auto_https_raw_githubusercontent_com_montysecurity_c2_tracker_main_data_hak5_20cloud_` | 98 | 6 | malware |
-| `auto_https_raw_githubusercontent_com_firehol_blocklist_ipsets_master_iblocklist_isp_q` | 73 | 2 | generic |
-| `auto_https_raw_githubusercontent_com_firehol_blocklist_ipsets_master_iblocklist_isp_t` | 56 | 2 | generic |
-| `auto_https_raw_githubusercontent_com_firehol_blocklist_ipsets_master_iblocklist_org_e` | 42 | 2 | generic |
-| `auto_https_raw_githubusercontent_com_firehol_blocklist_ipsets_master_iblocklist_isp_a` | 35 | 2 | generic |
-| `auto_https_raw_githubusercontent_com_firehol_blocklist_ipsets_master_iblocklist_isp_c` | 33 | 2 | generic |
-| `auto_https_raw_githubusercontent_com_firehol_blocklist_ipsets_master_iblocklist_isp_v` | 22 | 2 | generic |
-| `auto_https_raw_githubusercontent_com_firehol_blocklist_ipsets_master_iblocklist_isp_e` | 14 | 2 | generic |
-| `auto_https_raw_githubusercontent_com_firehol_blocklist_ipsets_master_iblocklist_org_l` | 13 | 2 | generic |
+| Feed | IPs |
+|---|---:|
+| `firehol_anonymous` | 1979603 |
+| `black_mirror` | 1174966 |
+| `romainmarcoux_aa` | 300000 |
+| `ufukart_blacklist` | 232508 |
+| `romainmarcoux_ab` | 166950 |
+| `ultimate_hosts` | 148664 |
+| `amitambekar_full` | 139986 |
+| `data_shield` | 85219 |
+| `4ip_high_security` | 71420 |
+| `edanwong` | 40638 |
+| `threatfox_ioc` | 33304 |
+| `cinsscore` | 15000 |
+| `trcert_malware` | 13643 |
+| `threatview_high_conf` | 9100 |
+| `florent_banned` | 8884 |
+| `feodo_aggressive` | 7607 |
+| `nixbear_malicious` | 5566 |
+| `greensnow` | 4823 |
+| `amitambekar_aa` | 4428 |
+| `cloudzy` | 3578 |
+| `cyna_malicious` | 3376 |
+| `f3csystems` | 3056 |
+| `binary_defense` | 1543 |
+| `bbcan177` | 1383 |
+| `l7_ddos` | 1138 |
+| `interserver` | 965 |
+| `danger_bruteforce` | 573 |
+| `crowdsec_ssh` | 298 |
+| `honeypot_blocklist` | 276 |
+| `firehol_cybercrime` | 216 |
+| `kevinmarx` | 70 |
+| `dshield` | 40 |
+| `fortigate_azure` | 33 |
+| `romainmarcoux_ac` | 0 |
