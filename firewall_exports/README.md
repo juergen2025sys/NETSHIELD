@@ -1,6 +1,6 @@
 # NETSHIELD Firewall Exports
 
-**Aktualisiert:** 2026-03-08 17:35 UTC  
+**Aktualisiert:** 2026-03-08 17:41 UTC  
 **IPs gesamt:** 0
 
 ---
@@ -46,4 +46,4 @@ Firewall → Aliases → Import → `blacklist_pfsense_opnsense.xml`
 ```
 
 ---
-*Automatisch generiert von NETSHIELD Firewall Format Exporter · 2026-03-08 17:35 UTC*
+*Automatisch generiert von NETSHIELD Firewall Format Exporter · 2026-03-08 17:41 UTC*

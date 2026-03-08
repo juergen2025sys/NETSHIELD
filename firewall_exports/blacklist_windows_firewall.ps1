@@ -1,5 +1,5 @@
 # NETSHIELD Blacklist – Windows Firewall (PowerShell)
-# Aktualisiert: 2026-03-08 17:35 UTC
+# Aktualisiert: 2026-03-08 17:41 UTC
 # Eintraege: 0
 # Ausfuehren als Administrator: .\blacklist_windows_firewall.ps1
 
@@ -15,6 +15,6 @@ New-NetFirewallRule `
     -Direction Inbound `
     -Action Block `
     -RemoteAddress $ips `
-    -Description "NETSHIELD Combined Threat Blacklist – 2026-03-08 17:35 UTC"
+    -Description "NETSHIELD Combined Threat Blacklist – 2026-03-08 17:41 UTC"
 
 Write-Host "NETSHIELD Blacklist geladen: $($ips.Count) IPs geblockt"

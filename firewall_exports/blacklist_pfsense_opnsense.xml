@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<!-- NETSHIELD Blacklist | Aktualisiert: 2026-03-08 17:35 UTC -->
+<!-- NETSHIELD Blacklist | Aktualisiert: 2026-03-08 17:41 UTC -->
 <aliases>
   <alias>
     <name>NETSHIELD_Blacklist</name>
     <type>host</type>
-    <description>NETSHIELD Combined Threat Blacklist – 2026-03-08 17:35 UTC</description>
+    <description>NETSHIELD Combined Threat Blacklist – 2026-03-08 17:41 UTC</description>
     <address></address>
     <detail></detail>
   </alias>
