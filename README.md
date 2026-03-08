@@ -1,12 +1,13 @@
 
 
+
 <div align="center">
 
 # 🛡️ NETSHIELD
 
 ### Vollständige IPv4-Blocklist-Suite für Firewalls & Netzwerksicherheit
 
-![IPv4](https://img.shields.io/badge/IPv4-254%2C556%20Ranges-blue?style=flat-square)
+![IPv4](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/combined_threat_blacklist_report.md&label=Combined+IPs&query=$.count&color=blue&style=flat-square)
 ![Länder](https://img.shields.io/badge/L%C3%A4nder-249-green?style=flat-square)
 ![Kontinente](https://img.shields.io/badge/Kontinente-6-orange?style=flat-square)
 ![Quellen](https://img.shields.io/badge/Threat--Quellen-31-red?style=flat-square)
