@@ -18,6 +18,14 @@ jobs:
         with:
           persist-credentials: true
 
+      - name: Cache threat_db.json
+        uses: actions/cache@v4
+        with:
+          path: threat_db.json
+          key: threat-db-${{ github.run_id }}
+          restore-keys: |
+            threat-db-
+
       - name: Fetch & Merge Threat IPs
         run: |
           python3 << 'EOF'
@@ -28,7 +36,6 @@ jobs:
           from datetime import datetime, timezone
 
           SOURCES = [
-              # Threat Intelligence
               "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_abusers_1d.netset",
               "https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/cybercrime.ipset",
               "https://www.blocklist.de/downloads/export-ips_all.txt",
@@ -110,12 +117,14 @@ jobs:
           now = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d")
 
-          # Datenbank laden
+          # Datenbank laden (aus Cache falls vorhanden)
           db = {}
           if os.path.exists(DB_FILE):
               with open(DB_FILE, "r") as f:
                   db = json.load(f)
               print(f"Datenbank geladen: {len(db)} IPs")
+          else:
+              print("Keine Datenbank gefunden, starte neu.")
 
           # IPs aus allen Quellen sammeln
           current_ips = set()
@@ -151,9 +160,11 @@ jobs:
                   del db[ip]
           print(f"Abgelaufen & entfernt: {len(expired)} IPs")
 
-          # Datenbank speichern
+          # Datenbank kompakt speichern (fuer Cache, nicht fuer Repo)
           with open(DB_FILE, "w") as f:
-              json.dump(db, f, indent=2)
+              json.dump(db, f, separators=(',', ':'))
+          db_size = os.path.getsize(DB_FILE) / (1024*1024)
+          print(f"threat_db.json Groesse: {db_size:.1f} MB (wird gecacht, nicht ins Repo)")
 
           # Blacklist ausgeben (sortiert nach Score absteigend)
           sorted_ips = sorted(db.keys(), key=lambda ip: db[ip]["score"], reverse=True)
@@ -161,6 +172,7 @@ jobs:
           with open("combined_threat_blacklist_ipv4.txt", "w") as f:
               f.write(f"# Combined Threat Blacklist\n")
               f.write(f"# Aktualisiert: {now.strftime('%Y-%m-%d %H:%M UTC')}\n")
+              f.write(f"# Quellen: {len(SOURCES)}\n")
               f.write(f"# Gesamt IPs: {len(sorted_ips)}\n")
               f.write(f"# Abgelaufen & entfernt: {len(expired)}\n")
               f.write("\n".join(sorted_ips) + "\n")
@@ -172,6 +184,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add combined_threat_blacklist_ipv4.txt threat_db.json
+          grep -qxF 'threat_db.json' .gitignore 2>/dev/null || echo 'threat_db.json' >> .gitignore
+          git add combined_threat_blacklist_ipv4.txt .gitignore
           git diff --staged --quiet || git commit -m "Auto-update combined_threat_blacklist_ipv4.txt [$(date -u '+%Y-%m-%d %H:%M') UTC]"
           git push
