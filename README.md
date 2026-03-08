@@ -122,7 +122,7 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/{conti
 
 **Use Case:** Block known bots and automated threats — ideal for web servers, APIs, and any service that should only be accessed by real users.
 
-> ⚠️ **Note:** This list contains cloud/hosting IPs (AWS, Azure, GCP, DigitalOcean etc.). These IPs are flagged as bots, but may also be used by legitimate cloud users. Recommended for **web servers and APIs** — not for general WAN blocking.
+> ⚠️ **Note:** This list contains cloud/hosting IPs (AWS, Azure, GCP, DigitalOcean etc.). These IPs are flagged as bots, but may also be used by legitimate cloud users. Recommended for **web servers and APIs** — not for general LAN blocking.
 
 ---
 
