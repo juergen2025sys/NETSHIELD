@@ -108,21 +108,21 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/{conti
 
 | Property | Value |
 |---|---|
-| **Content** | Bots, scrapers, scanners, DDoS sources, VPN/proxy abuse, cloud bots |
-| **Format** | One IP per line |
-| **Update** | Automatic · Every 3 hours |
-| **Source** | [lula73/bot-detector](https://github.com/lula73/bot-detector) |
+| **Inhalt** | Bots, Scraper, Scanner, DDoS-Quellen, VPN/Proxy-Missbrauch, Cloud-Bots |
+| **Format** | Eine IP pro Zeile |
+| **Update** | Automatisch · Alle 3 Stunden |
+| **Quelle** | [lula73/bot-detector](https://github.com/lula73/bot-detector) |
 | **Raw Link** | [bot_detector_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/bot_detector_blacklist_ipv4.txt) |
 
-**Categories:**
-- AI Crawlers, SEO Bots, Scrapers, Search Engine Bots
-- Vulnerability Scanners, Aggressive Scanners
-- DDoS Sources, Proxy/VPN Abuse
-- Hosting/Cloud Bots (AWS, Azure, DigitalOcean etc.)
+**Kategorien:**
+- KI-Crawler, SEO-Bots, Scraper, Suchmaschinen-Bots
+- Schwachstellen-Scanner, Aggressive Scanner
+- DDoS-Quellen, Proxy/VPN-Missbrauch
+- Hosting/Cloud-Bots (AWS, Azure, DigitalOcean usw.)
 
-**Use Case:** Block known bots and automated threats — ideal for web servers, APIs, and any service that should only be accessed by real users.
+**Verwendungszweck:** Bekannte Bots und automatisierte Bedrohungen blockieren — ideal für Webserver, APIs und Dienste, die nur von echten Nutzern erreichbar sein sollen.
 
-> ⚠️ **Note:** This list contains cloud/hosting IPs (AWS, Azure, GCP, DigitalOcean etc.). These IPs are flagged as bots, but may also be used by legitimate cloud users. Recommended for **web servers and APIs** — not for general LAN blocking.
+> ⚠️ **Hinweis:** Diese Liste enthält Cloud/Hosting-IPs (AWS, Azure, GCP, DigitalOcean usw.). Diese IPs sind als Bots markiert, können aber auch von legitimen Cloud-Nutzern verwendet werden. Empfohlen für **Webserver und APIs** — nicht für allgemeines LAN-Blocking.
 
 ---
 
