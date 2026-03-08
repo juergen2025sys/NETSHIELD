@@ -8,6 +8,7 @@
 ![IPv4](https://img.shields.io/badge/IPv4-254%2C556%20Ranges-blue?style=flat-square)
 ![Länder](https://img.shields.io/badge/L%C3%A4nder-249-green?style=flat-square)
 ![Kontinente](https://img.shields.io/badge/Kontinente-6-orange?style=flat-square)
+![Quellen](https://img.shields.io/badge/Threat--Quellen-69-red?style=flat-square)
 ![Update](https://img.shields.io/badge/Update-Automatisch-brightgreen?style=flat-square)
 ![Lizenz](https://img.shields.io/badge/Lizenz-Kostenlos-lightgrey?style=flat-square)
 
@@ -19,7 +20,7 @@
 
 ## 📌 Übersicht
 
-NETSHIELD bietet fertige IPv4-Blocklisten, organisiert nach Land, Kontinent und Bedrohungsstufe. Alle Listen werden vollautomatisch aktualisiert und sind als Raw-Links verfügbar — einfach in die Firewall einfügen und vergessen.
+NETSHIELD bietet fertige IPv4-Blocklisten, organisiert nach Land, Kontinent und Bedrohungsstufe. Alle Listen werden vollautomatisch über GitHub Actions aktualisiert und sind als Raw-Links verfügbar — einfach in die Firewall einfügen und vergessen.
 
 ---
 
@@ -53,7 +54,7 @@ Ganze Regionen mit einem einzigen Link blockieren.
 
 ## 🗺️ Länder-Blocklisten
 
-Einzelne Länder blockieren — nach Kontinent organisiert. Den Raw-Link direkt in der Firewall verwenden.
+Einzelne Länder blockieren — nach Kontinent organisiert.
 
 **Raw-Link-Schema:**
 ```
@@ -100,7 +101,7 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/{konti
 
 **Verwendungszweck:** Niedrigkonfidente verdächtige IPs überwachen oder weich blockieren — nützlich für Rate-Limiting, Logging oder strengere Inspektionsregeln.
 
-> ⚠️ **Warnung:** Diese Liste hat eine **hohe Falsch-Positiv-Rate**. Viele IPs können legitime Nutzer, Shared-Hosting oder dynamische IPs sein, die vorübergehend markiert wurden. Empfohlen nur für **Logging und Monitoring** — nicht für hartes Blockieren.
+> ⚠️ **Warnung:** Diese Liste hat eine **hohe Falsch-Positiv-Rate**. Empfohlen nur für **Logging und Monitoring** — nicht für hartes Blockieren.
 
 ---
 
@@ -113,15 +114,9 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/{konti
 | **Update** | Automatisch · Alle 3 Stunden |
 | **Raw Link** | [bot_detector_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/bot_detector_blacklist_ipv4.txt) |
 
-**Kategorien:**
-- KI-Crawler, SEO-Bots, Scraper, Suchmaschinen-Bots
-- Schwachstellen-Scanner, Aggressive Scanner
-- DDoS-Quellen, Proxy/VPN-Missbrauch
-- Hosting/Cloud-Bots (AWS, Azure, DigitalOcean usw.)
+**Kategorien:** KI-Crawler · SEO-Bots · Scraper · Schwachstellen-Scanner · DDoS-Quellen · Proxy/VPN-Missbrauch · Hosting/Cloud-Bots (AWS, Azure, DigitalOcean usw.)
 
-**Verwendungszweck:** Bekannte Bots und automatisierte Bedrohungen blockieren — ideal für Webserver, APIs und Dienste, die nur von echten Nutzern erreichbar sein sollen.
-
-> ⚠️ **Hinweis:** Diese Liste enthält Cloud/Hosting-IPs (AWS, Azure, GCP, DigitalOcean usw.). Diese IPs sind als Bots markiert, können aber auch von legitimen Cloud-Nutzern verwendet werden. Empfohlen für **Webserver und APIs** — nicht für allgemeines LAN-Blocking.
+> ⚠️ **Hinweis:** Enthält Cloud/Hosting-IPs — empfohlen für **Webserver und APIs**, nicht für allgemeines LAN-Blocking.
 
 ---
 
@@ -129,26 +124,53 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/{konti
 
 | Eigenschaft | Wert |
 |---|---|
-| **Inhalt** | Aggregierte Bedrohungs-IPs aus über 20 Threat-Intelligence-Quellen |
-| **Format** | Eine IP pro Zeile |
+| **Inhalt** | Aggregierte Bedrohungs-IPs aus **69 Threat-Intelligence-Quellen** |
+| **Format** | Eine IP pro Zeile · sortiert nach Bedrohungs-Score |
 | **Update** | Automatisch · Alle 6 Stunden |
-| **Besonderheit** | Liste wächst kontinuierlich — IPs werden nur hinzugefügt, nie entfernt |
 | **Raw Link** | [combined_threat_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/combined_threat_blacklist_ipv4.txt) |
 
-**Inhalt:**
-- Bestätigte Angreifer, Brute-Force-Quellen, SSH-Scanner
-- DDoS-Quellen, Botnet-IPs
-- Honeypot-Treffer
-- Malware-Command-and-Control-Server
-- Bekannte bösartige Rechenzentrum-IPs
+**Inhalt:** Bestätigte Angreifer · Brute-Force-Quellen · SSH-Scanner · DDoS-Quellen · Botnet-IPs · Honeypot-Treffer · Malware-C2-Server · bösartige Rechenzentrum-IPs
 
-**Verwendungszweck:** Die umfassendste Blockliste in NETSHIELD — aggregiert aus dutzenden Threat-Intelligence-Feeds und wächst mit jeder Aktualisierung. Ideal für **hartes Blockieren** auf Firewall-Ebene.
+#### 🧠 Intelligentes Score-System
+
+Jede IP erhält einen **Score** basierend darauf, in wie vielen der 69 Quellen sie auftaucht. Die gefährlichsten IPs (höchster Score) stehen ganz oben in der Liste.
+
+| Score | Bedeutung |
+|---|---|
+| 1 | IP in 1 Quelle gefunden |
+| 5 | IP in 5 verschiedenen Quellen bestätigt |
+| 20+ | Hochgefährlich — in vielen Feeds gelistet |
+
+#### ⏱️ Automatische Bereinigung (60-Tage-Regel)
+
+IPs die **60 Tage lang** in keiner Quelle mehr auftauchen werden automatisch aus der Liste entfernt. So bleibt die Liste aktuell und frei von veralteten Einträgen.
+
+#### 🔒 Eingebaute Schutzfilter
+
+Folgende IPs können **nie** in die Liste aufgenommen werden:
+
+- **Bekannte DNS-Server:** Google (8.8.8.8), Cloudflare (1.1.1.1), OpenDNS, Quad9, AdGuard und weitere
+- **Private IP-Ranges:** `10.x.x.x` · `172.16–31.x.x` · `192.168.x.x` · `127.x.x.x`
+- **Reservierte Ranges:** Multicast (`224+`) · Broadcast · Loopback
+
+---
+
+## ⚙️ Update-Politik
+
+| Liste | Intervall | Methode |
+|---|---|---|
+| Alle Länder | Bei Bedarf | GitHub Actions |
+| Kontinent-Listen | Bei Bedarf | GitHub Actions |
+| Länder-Listen (249) | Bei Bedarf | GitHub Actions |
+| Blacklist/Watchlist | Täglich | GitHub Actions |
+| Bot-Detector-Blacklist | Alle 3 Stunden | GitHub Actions |
+| Combined Threat Blacklist | Alle 6 Stunden | GitHub Actions + Cache |
+
+Die **threat_db.json** (interne Datenbank für Score-System und Zeitstempel) wird über **GitHub Actions Cache** gespeichert — nicht im Repository. Dadurch bleibt das Repo schlank, während das Score-System über alle Runs hinweg funktioniert.
 
 ---
 
 ## ✅ Getestet & Verifiziert
-
-Alle IP-Ranges wurden auf Vorhandensein in `all_countries_ipv4.txt` geprüft:
 
 | Land | Beispiel-IP | Verifiziertes CIDR |
 |---|---|---|
@@ -171,8 +193,6 @@ Alle IP-Ranges wurden auf Vorhandensein in `all_countries_ipv4.txt` geprüft:
 | 🇷🇺 Russland (RU) | Europa | Politisch europäisch, erstreckt sich aber über ganz Asien |
 | 🇬🇱 Grönland (GL) | Europa | Dänisches Territorium — geografisch Nordamerika |
 | 🇨🇾 Zypern (CY) | Europa | Politisch europäisch (EU-Mitglied), geografisch näher an Asien |
-
-> Für Firewall-Zwecke spielt dies keine Rolle — jede IP ist immer in `all_countries_ipv4.txt` enthalten.
 
 ---
 
