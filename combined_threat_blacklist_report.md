@@ -1,8 +1,8 @@
 # Combined Threat Blacklist Report
 
-- Aktualisiert: **2026-03-09 01:45 UTC**
+- Aktualisiert: **2026-03-09 06:55 UTC**
 - Feeds gesamt: **31**
-- Eintraege gesamt: **2312776**
+- Eintraege gesamt: **2332091**
 - Abgelaufen & entfernt: **0**
 
 ## Feed-Statistik
@@ -12,35 +12,35 @@
 | `firehol_anonymous` | 1979603 |
 | `black_mirror` | 1174966 |
 | `romainmarcoux_aa` | 300000 |
-| `ufukart_blacklist` | 234594 |
-| `cve_exploit_ips.txt` | 205073 |
-| `romainmarcoux_ab` | 163245 |
-| `data_shield` | 86002 |
-| `4ip_high_security` | 69902 |
-| `vpn_proxy_ranges.txt` | 56319 |
-| `edanwong` | 40638 |
-| `threatfox_ioc` | 33330 |
+| `ufukart_blacklist` | 229115 |
+| `cve_exploit_ips.txt` | 220880 |
+| `romainmarcoux_ab` | 164569 |
+| `data_shield` | 86084 |
+| `4ip_high_security` | 71170 |
+| `vpn_proxy_ranges.txt` | 56243 |
+| `edanwong` | 41103 |
+| `threatfox_ioc` | 33151 |
 | `tor_exit_nodes.txt` | 20120 |
 | `bot_detector_blacklist_ipv4.txt` | 17950 |
 | `cinsscore` | 15000 |
 | `trcert_malware` | 13643 |
-| `florent_banned` | 8902 |
+| `florent_banned` | 8910 |
 | `feodo_aggressive` | 7607 |
-| `threatview_high_conf` | 7284 |
-| `nixbear_malicious` | 5575 |
-| `greensnow` | 5457 |
+| `threatview_high_conf` | 7497 |
+| `nixbear_malicious` | 5604 |
+| `greensnow` | 5392 |
 | `cloudzy` | 3578 |
-| `cyna_malicious` | 3380 |
-| `f3csystems` | 3066 |
+| `cyna_malicious` | 3383 |
+| `f3csystems` | 3087 |
 | `binary_defense` | 1772 |
 | `bbcan177` | 1383 |
 | `l7_ddos` | 1138 |
-| `interserver` | 911 |
-| `danger_bruteforce` | 575 |
+| `interserver` | 891 |
+| `danger_bruteforce` | 569 |
 | `crowdsec_ssh` | 298 |
-| `honeypot_blocklist` | 270 |
+| `honeypot_blocklist` | 249 |
 | `firehol_cybercrime` | 216 |
 | `kevinmarx` | 70 |
-| `fortigate_azure` | 43 |
+| `fortigate_azure` | 44 |
 | `dshield` | 40 |
 | `romainmarcoux_ac` | 0 |
