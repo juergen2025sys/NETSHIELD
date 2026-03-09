@@ -8,6 +8,11 @@ on:
 
 permissions:
   contents: write
+  actions: read
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
 
 
 concurrency:
