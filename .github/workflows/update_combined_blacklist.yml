@@ -370,11 +370,31 @@ jobs:
           print(f"\nFertig! combined: {len(sorted_ips)} IPs | active: {len(active_ips)} IPs | Feeds: {len(SOURCES)}")
           EOF
 
+      - name: Save seen_db Cache
+        uses: actions/cache@v4
+        with:
+          path: seen_db.json
+          key: netshield-seen-db-v1-${{ github.run_id }}
+
       - name: Commit and Push
         run: |
+          python3 -c "
+import json, os
+from datetime import datetime, timezone
+now_str = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
+meta = {'note': 'seen_db.json nur im GitHub Actions Cache (zu gross fuer Repo)', 'updated': now_str}
+if os.path.exists('seen_db.json'):
+    with open('seen_db.json') as f:
+        db = json.load(f)
+    meta['total_ips'] = len(db)
+    meta['size_mb'] = round(os.path.getsize('seen_db.json') / 1024 / 1024, 1)
+    print(f'seen_db: {len(db)} IPs, {meta["size_mb"]} MB → nur Cache, kein Push')
+with open('seen_db_meta.json', 'w') as f:
+    json.dump(meta, f, indent=2)
+"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db.json
+          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -382,9 +402,3 @@ jobs:
             git pull --rebase origin ${GITHUB_REF_NAME}
             git push origin HEAD:${GITHUB_REF_NAME}
           fi
-
-      - name: Save seen_db Cache
-        uses: actions/cache@v4
-        with:
-          path: seen_db.json
-          key: netshield-seen-db-v1-${{ github.run_id }}
