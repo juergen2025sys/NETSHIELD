@@ -1,24 +1,20 @@
 # Score Decay Monitor – Report
-**Aktualisiert:** 2026-03-08 15:58 UTC
+**Aktualisiert:** 2026-03-09 20:03 UTC
 
 ---
 ## Übersicht
 
-| Kategorie | Anzahl IPs | Bedeutung |
+| Kategorie | IPs | Bedeutung |
 |---|---|---|
-| ✅ Kürzlich aktiv (≤7 Tage) | **2269210** | Frische Bedrohungen |
-| 🟡 Veraltend – Warnung | **0** | 30-44 Tage ohne Aktivität, Score≥5 |
-| 🔴 Veraltend – Kritisch | **0** | 45+ Tage ohne Aktivität, Score≥10 |
-| 💀 Zombie (hoher Score, inaktiv) | **0** | Score≥20 aber 30+ Tage tot |
+| ✅ Kürzlich aktiv (≤7 Tage) | **2311839** | Frische Bedrohungen |
+| 🟡 Veraltend – Warnung | **0** | 30-44 Tage ohne Aktivität |
+| 🔴 Veraltend – Kritisch | **0** | 45+ Tage ohne Aktivität |
+| 💀 Zombie | **0** | Score≥20, 30+ Tage inaktiv |
 | 🗑️ Entfernung empfohlen | **0** | 60+ Tage inaktiv |
 
 ---
-## Score-Verteilung
-
-| Score-Bereich | IPs |
-|---|---|
-| 5-9 | 2041880 ████████████████████ |
-| 0-4 | 227330 ████████████████████ |
+## 🗑️ Automatisch gelöscht
+**0 IPs** aus Blacklist entfernt (60+ Tage inaktiv)
 
 ---
-*Generiert: 2026-03-08 15:58 UTC | DB-Einträge: 2269210*
+*Generiert: 2026-03-09 20:03 UTC | DB: 2311839 IPs*
