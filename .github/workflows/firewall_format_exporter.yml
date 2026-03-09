@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
   export:
     runs-on: ubuntu-latest
@@ -60,7 +64,7 @@ jobs:
           print(f"  OK: blacklist.json ({len(ips)} IPs)")
 
           # 2. CSV
-          with open("firewall_exports/blacklist.csv", "w") as f:
+          with open("firewall_exports/blacklist.csv", "w", encoding="utf-8") as f:
               f.write("ip,type,source,updated\n")
               for ip in ips:
                   f.write(f"{ip},IPv4,NETSHIELD,{now_str}\n")
@@ -97,7 +101,7 @@ jobs:
           print(f"  OK: blacklist_pfsense_opnsense.xml")
 
           # 6. Cisco ACL
-          with open("firewall_exports/blacklist_cisco_acl.txt", "w") as f:
+          with open("firewall_exports/blacklist_cisco_acl.txt", "w", encoding="utf-8") as f:
               f.write(f"! NETSHIELD Blacklist – Cisco ACL | {now_str}\nip access-list extended NETSHIELD_BLACKLIST\n")
               for ip in ips:
                   f.write(f" deny   ip host {ip} any log\n")
@@ -123,7 +127,7 @@ jobs:
           print(f"  OK: blacklist_windows_firewall.ps1")
 
           # README
-          with open("firewall_exports/README.md", "w") as f:
+          with open("firewall_exports/README.md", "w", encoding="utf-8") as f:
               f.write(f"# NETSHIELD Firewall Exports\n\n**Aktualisiert:** {now_str}  \n**IPs:** {len(ips)}\n\n")
               f.write("| Datei | Format | Verwendung |\n|---|---|---|\n")
               f.write("| `blacklist.json` | JSON | APIs, SIEM |\n")

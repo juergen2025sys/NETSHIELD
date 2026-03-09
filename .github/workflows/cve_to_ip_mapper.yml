@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
   cve-mapper:
     runs-on: ubuntu-latest
@@ -175,7 +179,7 @@ jobs:
           lines.append(f"**Gesamt:** {len(final)} IPs | **Neu:** +{len(new_ips)}")
           lines.append(f"\n---\n*Generiert: {now_str}*")
 
-          with open("cve_exploit_report.md", "w") as f:
+          with open("cve_exploit_report.md", "w", encoding="utf-8") as f:
               f.write("\n".join(lines))
           print("cve_exploit_report.md geschrieben")
           EOF

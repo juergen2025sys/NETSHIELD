@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -39,7 +43,7 @@ jobs:
               print("Behalte bestehende bot_detector_blacklist_ipv4.txt")
               sys.exit(0)
 
-          with open("bot_detector_blacklist_ipv4.txt", "w") as f:
+          with open("bot_detector_blacklist_ipv4.txt", "w", encoding="utf-8") as f:
               f.write("# NETSHIELD Bot-Detector Blacklist\n")
               f.write(f"# Aktualisiert: {now_str}\n")
               f.write(f"# Quelle: github.com/lula73/bot-detector\n")

@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
   update-blocklist:
     runs-on: ubuntu-latest
@@ -62,8 +66,8 @@ jobs:
                   errors.append(cc)
               time.sleep(0.1)
 
-          sorted_ips = sorted(all_ips)
-          with open("all_countries_ipv4.txt", "w") as f:
+          sorted_ips = sorted(all_ips, key=lambda ip: tuple(int(o) for o in ip.split('.')))
+          with open("all_countries_ipv4.txt", "w", encoding="utf-8") as f:
               f.write("\n".join(sorted_ips) + "\n")
 
           print(f"\nDone! Total: {len(sorted_ips)} IP ranges")

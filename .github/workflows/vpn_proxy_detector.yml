@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
   vpn-detector:
     runs-on: ubuntu-latest
@@ -166,7 +170,7 @@ jobs:
           lines.append(f"| Neu hinzugekommen | **{len(new_entries)}** |")
           lines.append(f"\n---\n*Generiert: {now_str}*")
 
-          with open("vpn_proxy_report.md", "w") as f:
+          with open("vpn_proxy_report.md", "w", encoding="utf-8") as f:
               f.write("\n".join(lines))
           print("vpn_proxy_report.md geschrieben")
           EOF

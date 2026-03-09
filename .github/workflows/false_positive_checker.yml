@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
   fp-checker:
     runs-on: ubuntu-latest
@@ -160,10 +164,10 @@ jobs:
                   f.writelines(cleaned_lines)
               print(f"Blacklist bereinigt: {removed_count} False Positives entfernt")
           else:
-              print("Keine False Positives in den Top-500 gefunden")
+              print("Keine False Positives gefunden")
 
           # ── False Positive Liste speichern ────────────────────────────────
-          with open("false_positives_log.txt", "a") as f:
+          with open("false_positives_log.txt", "a", encoding="utf-8") as f:
               f.write(f"\n# Scan: {now_str} – {removed_count} entfernt\n")
               for ip in false_positives:
                   f.write(f"{ip}\n")
@@ -199,7 +203,7 @@ jobs:
 
           lines.append(f"\n---\n*Generiert: {now_str}*")
 
-          with open("false_positive_report.md", "w") as f:
+          with open("false_positive_report.md", "w", encoding="utf-8") as f:
               f.write("\n".join(lines))
           print("false_positive_report.md geschrieben")
           EOF

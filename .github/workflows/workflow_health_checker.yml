@@ -54,7 +54,12 @@ jobs:
                   warnings.append("Kein `persist-credentials: true` – Push-Auth könnte fehlen")
 
               # ── Cron-Format prüfen ───────────────────────────────────────
-              cron_matches = re.findall(r"cron:\s*['\"]([^'\"]+)['\"]", content)
+              # Nur echte YAML-Schedule-Zeilen (- cron: '...'), keine Python-Strings
+              cron_matches = []
+              for line in lines:
+                  m = re.match(r"\s*-\s+cron:\s*['\"]([^'\"]+)['\"]", line)
+                  if m:
+                      cron_matches.append(m.group(1))
               for cron_expr in cron_matches:
                   parts = cron_expr.strip().split()
                   if len(parts) != 5:
@@ -129,6 +134,10 @@ jobs:
 
               # ── str(dict).get() – AttributeError ────────────────────────
               for i, line in enumerate(lines, 1):
+                  # Eigene Regex-Patterns und Kommentare ausschließen
+                  stripped = line.strip()
+                  if stripped.startswith('#') or 're.search' in stripped or 're.compile' in stripped or "r'" in stripped or 'r"' in stripped:
+                      continue
                   if re.search(r'str\s*\(.*\)\s*\.get\s*\(', line):
                       errors.append(f"Zeile {i}: `str(...).get(...)` – str hat kein .get(), führt zu AttributeError. Korrekt: `(dict_expr).get(...)`")
 
@@ -233,7 +242,7 @@ jobs:
 
           lines.append(f"\n---\n*Generiert: {now_str} | {len(yml_files)} Workflow-Dateien geprüft*")
 
-          with open("workflow_health_report.md", "w") as f:
+          with open("workflow_health_report.md", "w", encoding="utf-8") as f:
               f.write("\n".join(lines))
           print(f"\nworkflow_health_report.md geschrieben")
           print(f"Gesamt: {ok_count} OK | {warn_count} Warnungen | {err_count} Fehler")

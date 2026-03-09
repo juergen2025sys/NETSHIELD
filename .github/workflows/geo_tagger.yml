@@ -2,12 +2,16 @@ name: Geo-Tagger
 
 on:
   schedule:
-    - cron: '0 6 * * 0'  # Sonntag 06:00 UTC  # wöchentlich Sonntag 06:00 UTC
+    - cron: '0 6 * * 0'  # Sonntag 06:00 UTC
   workflow_dispatch:
 
 permissions:
   contents: write
 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
   geo-tagger:
     runs-on: ubuntu-latest
@@ -175,7 +179,7 @@ jobs:
 
           lines.append(f"\n---\n*Generiert: {now_str}*")
 
-          with open("geo_tagger_report.md", "w") as f:
+          with open("geo_tagger_report.md", "w", encoding="utf-8") as f:
               f.write("\n".join(lines))
           print("geo_tagger_report.md geschrieben")
           EOF

@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
   tor-monitor:
     runs-on: ubuntu-latest
@@ -84,7 +88,7 @@ jobs:
                     f"| Gesamt aktive Exit-Nodes | **{len(final_ips)}** |",
                     f"| Neu | **+{len(new_ips)}** |", f"| Entfernt | **-{len(removed_ips)}** |",
                     f"\n---\n*Generiert: {now_str}*"]
-          with open("tor_exit_report.md", "w") as f:
+          with open("tor_exit_report.md", "w", encoding="utf-8") as f:
               f.write("\n".join(lines))
           print(f"Fertig: {len(final_ips)} Tor-Exit-IPs")
           EOF

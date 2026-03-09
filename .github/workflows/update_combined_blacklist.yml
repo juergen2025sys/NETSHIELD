@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -356,7 +360,7 @@ jobs:
                       active_ips.append(ip)
               except Exception:
                   pass
-          active_ips.sort()
+          active_ips.sort(key=lambda ip: tuple(int(o) for o in ip.split('.')))
 
           with open("active_blacklist_ipv4.txt", "w", encoding="utf-8") as f:
               f.write("# NETSHIELD Active Blacklist (IPv4) – Stufe 2\n")

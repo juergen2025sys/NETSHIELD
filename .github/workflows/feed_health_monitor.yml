@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
   feed-health:
     runs-on: ubuntu-latest
@@ -242,7 +246,7 @@ jobs:
 
           lines.append(f"\n---\n*Generiert: {now_str} | {len(FEEDS)} Feeds geprüft*")
 
-          with open("feed_health_report.md", "w") as f:
+          with open("feed_health_report.md", "w", encoding="utf-8") as f:
               f.write("\n".join(lines))
           print("feed_health_report.md geschrieben")
 

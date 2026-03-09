@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
   active-filter:
     runs-on: ubuntu-latest
@@ -61,7 +65,7 @@ jobs:
               except Exception:
                   pass
 
-          active.sort()
+          active.sort(key=lambda ip: tuple(int(o) for o in ip.split('.')))
           print(f"Aktive IPs (letzte 30 Tage): {len(active)}")
 
           with open(OUT_FILE, "w") as f:

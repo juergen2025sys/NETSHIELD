@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
   score-decay:
     runs-on: ubuntu-latest
@@ -42,7 +46,7 @@ jobs:
 
           if not os.path.exists(DB_FILE):
               print("FEHLER: seen_db.json nicht gefunden")
-              with open("score_decay_report.md", "w") as f:
+              with open("score_decay_report.md", "w", encoding="utf-8") as f:
                   f.write("# Score Decay Monitor\n\n*seen_db.json nicht gefunden.*\n")
               exit(0)
 
@@ -96,7 +100,7 @@ jobs:
           print(f"Entfernung empfohlen (60+ Tage):  {len(decay_suggest)}")
 
           # Decay-Log
-          with open("score_decay_log.txt", "w") as f:
+          with open("score_decay_log.txt", "w", encoding="utf-8") as f:
               f.write(f"# Score Decay Log | {now_str}\n# DB: {len(db)} IPs\n\n")
               f.write("# ZOMBIE IPs (Score≥20, 30+ Tage inaktiv)\n")
               for ip, score, days, last in zombie_high[:100]:
@@ -142,7 +146,7 @@ jobs:
                    f"## 🗑️ Automatisch gelöscht\n**{removed_from_bl} IPs** aus Blacklist entfernt (60+ Tage inaktiv)\n",
                    f"---\n*Generiert: {now_str} | DB: {len(db)} IPs*"]
 
-          with open("score_decay_report.md", "w") as f:
+          with open("score_decay_report.md", "w", encoding="utf-8") as f:
               f.write("\n".join(lines))
           print("score_decay_report.md geschrieben")
           EOF

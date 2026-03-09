@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
   generate-report:
     runs-on: ubuntu-latest
@@ -97,7 +101,7 @@ jobs:
           lines.append("---")
           lines.append(f"*Automatisch generiert von NETSHIELD Report Generator · {now_str}*")
 
-          with open("NETSHIELD_REPORT.md", "w") as f:
+          with open("NETSHIELD_REPORT.md", "w", encoding="utf-8") as f:
               f.write("\n".join(lines))
           print(f"NETSHIELD_REPORT.md geschrieben | combined: {total:,} IPs")
           EOF
