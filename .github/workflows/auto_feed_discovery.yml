@@ -2,7 +2,7 @@ name: Auto Feed Discovery
 
 on:
   schedule:
-    - cron: '0 5 * * *'   # täglich 05:00 UTC (nach CVE-Mapper 04:00 + Duplicate Cleaner 04:30)
+    - cron: '0 4 * * 0'   # wöchentlich Sonntag 04:00 UTC
   workflow_dispatch:
 
 env:
