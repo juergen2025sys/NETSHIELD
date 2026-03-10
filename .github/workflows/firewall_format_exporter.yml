@@ -158,18 +158,37 @@ jobs:
 
           # Git LFS für Dateien > 50 MB aktivieren
           git lfs install --skip-smudge 2>/dev/null || true
-          git lfs track "firewall_exports/blacklist.csv"                 2>/dev/null || true
-          git lfs track "firewall_exports/blacklist_iptables.sh"         2>/dev/null || true
-          git lfs track "firewall_exports/blacklist_mikrotik.rsc"        2>/dev/null || true
-          git lfs track "firewall_exports/blacklist_cisco_acl.txt"       2>/dev/null || true
+          git lfs track "firewall_exports/blacklist.csv"                  2>/dev/null || true
+          git lfs track "firewall_exports/blacklist_iptables.sh"          2>/dev/null || true
+          git lfs track "firewall_exports/blacklist_mikrotik.rsc"         2>/dev/null || true
+          git lfs track "firewall_exports/blacklist_cisco_acl.txt"        2>/dev/null || true
           git lfs track "firewall_exports/blacklist_pfsense_opnsense.xml" 2>/dev/null || true
           git add .gitattributes 2>/dev/null || true
 
           git add firewall_exports/
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
-          else
-            git commit -m "Firewall Format Exporter: $(date -u '+%Y-%m-%d %H:%M') UTC"
-            git pull --rebase origin ${GITHUB_REF_NAME}
-            git push origin HEAD:${GITHUB_REF_NAME}
+            exit 0
           fi
+
+          git commit -m "Firewall Format Exporter: $(date -u '+%Y-%m-%d %H:%M') UTC"
+
+          # Retry-Schleife: bis zu 5 Versuche bei gleichzeitigen Commits anderer Workflows
+          for attempt in 1 2 3 4 5; do
+            echo "Push-Versuch $attempt..."
+            git fetch origin ${GITHUB_REF_NAME}
+            if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+              if git push origin HEAD:${GITHUB_REF_NAME}; then
+                echo "Push erfolgreich (Versuch $attempt)"
+                exit 0
+              fi
+            else
+              # Konflikt: unsere neu generierten Export-Dateien gewinnen immer
+              git checkout --theirs firewall_exports/ 2>/dev/null || true
+              git add firewall_exports/
+              GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+            fi
+            sleep $((attempt * 5))
+          done
+          echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+          exit 1
