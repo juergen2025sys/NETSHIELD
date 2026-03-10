@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-03-10 19:09 UTC
+**Aktualisiert:** 2026-03-10 19:14 UTC
 
-**Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
+**Workflows:** 20 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
 
 ---
 ## Übersicht
@@ -13,6 +13,7 @@
 | `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `0 5 * * *` |
 | `community_ip_report.yml` | ✅ OK | 0 | 0 | – |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
+| `dependabot.yml` | ❌ FEHLER | 2 | 3 | – |
 | `duplicate_cleaner.yml` | ✅ OK | 0 | 0 | `30 4 * * *` |
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * 0` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
@@ -29,4 +30,13 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 
 ---
-*Generiert: 2026-03-10 19:09 UTC | 19 Workflow-Dateien geprüft*
+## ❌ Fehler im Detail
+
+### `dependabot.yml`
+
+- 🔴 Fehlendes `permissions:` – Workflow könnte keine Schreibrechte haben
+- 🔴 Fehlendes `contents: write` – Push wird fehlschlagen
+
+
+---
+*Generiert: 2026-03-10 19:14 UTC | 20 Workflow-Dateien geprüft*
