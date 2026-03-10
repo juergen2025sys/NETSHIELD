@@ -2,7 +2,9 @@ name: False Positive Checker
 
 on:
   schedule:
-    - cron: '0 5 * * 0'  # wöchentlich Sonntag 05:00 UTC
+    - cron: '0 6 * * *'   # täglich 06:00 UTC
+    - cron: '0 14 * * *'  # täglich 14:00 UTC
+    - cron: '0 22 * * *'  # täglich 22:00 UTC
   workflow_dispatch:
 
 env:
@@ -23,7 +25,7 @@ concurrency:
 jobs:
   fp-checker:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -150,37 +152,49 @@ jobs:
           print("Prüfe auf False Positives...")
 
           # ── False-Positive-Erkennung ──────────────────────────────────────
-          false_positives     = []
-          whitelist_hits      = []
-          reverse_dns_legit   = []
+          import concurrent.futures
 
-          for i, ip in enumerate(blacklist_ips):  # Alle IPs prüfen
-              if i % 500 == 0:
-                  print(f"  {i}/{len(blacklist_ips)}...")
+          false_positives   = []
+          whitelist_hits    = []
+          reverse_dns_legit = []
 
-              # Whitelist-Check
+          LEGIT_DOMAINS = [
+              "google.com", "cloudflare.com", "akamai.com",
+              "fastly.net", "amazonaws.com", "microsoft.com",
+              "apple.com", "facebook.com", "twitter.com",
+              "youtube.com", "netflix.com", "cdn77.com",
+              "edgecastcdn.net", "incapsula.com"
+          ]
+
+          def check_ip(ip):
               if is_whitelisted(ip):
-                  whitelist_hits.append((ip, "Bekannte legitime IP-Range (CDN/Cloud)"))
-                  false_positives.append(ip)
-                  continue
-
-              # Reverse-DNS-Check (legitime Domains)
-              time.sleep(0.05)
+                  return ("whitelist", ip, "Bekannte legitime IP-Range (CDN/Cloud)")
               try:
                   hostname, _, _ = socket.gethostbyaddr(ip)
                   hostname = hostname.lower()
-                  # Prüfen ob Hostname zu legitimer Domain gehört
-                  for domain in ["google.com", "cloudflare.com", "akamai.com",
-                                  "fastly.net", "amazonaws.com", "microsoft.com",
-                                  "apple.com", "facebook.com", "twitter.com",
-                                  "youtube.com", "netflix.com", "cdn77.com",
-                                  "edgecastcdn.net", "incapsula.com"]:
+                  for domain in LEGIT_DOMAINS:
                       if domain in hostname:
-                          reverse_dns_legit.append((ip, hostname))
-                          false_positives.append(ip)
-                          break
+                          return ("dns", ip, hostname)
               except:
-                  pass  # Kein Reverse-DNS = normal für Abuse-IPs
+                  pass
+              return None
+
+          print(f"Prüfe {len(blacklist_ips)} IPs (parallel, 50 Threads)...")
+          with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
+              results = list(executor.map(check_ip, blacklist_ips))
+
+          for i, result in enumerate(results):
+              if i % 5000 == 0:
+                  print(f"  {i}/{len(blacklist_ips)}...")
+              if result is None:
+                  continue
+              kind, ip, info = result
+              if kind == "whitelist":
+                  whitelist_hits.append((ip, info))
+                  false_positives.append(ip)
+              elif kind == "dns":
+                  reverse_dns_legit.append((ip, info))
+                  false_positives.append(ip)
 
           print(f"\nFalse Positives gefunden: {len(false_positives)}")
           print(f"  Whitelist-Treffer:    {len(whitelist_hits)}")
