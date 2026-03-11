@@ -1,14 +1,13 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-03-11 17:26 UTC
+**Aktualisiert:** 2026-03-11 17:41 UTC
 
-**Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
+**Workflows:** 18 | ✅ 18 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
 ## Übersicht
 
 | Workflow | Status | Fehler | Warnungen | Cron |
 |---|---|---|---|---|
-| `active_filter.yml` | ✅ OK | 0 | 0 | `15 0 * * *` |
 | `asn_reputation_scorer.yml` | ✅ OK | 0 | 0 | `0 2 * * *` |
 | `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `0 4 * * 0` |
 | `community_ip_report.yml` | ✅ OK | 0 | 0 | – |
@@ -29,4 +28,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 
 ---
-*Generiert: 2026-03-11 17:26 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-03-11 17:41 UTC | 18 Workflow-Dateien geprüft*
