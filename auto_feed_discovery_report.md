@@ -1,46 +1,29 @@
 # Auto Feed Discovery – Report
-**Aktualisiert:** 2026-03-11 00:06 UTC
+**Aktualisiert:** 2026-03-11 19:13 UTC
 
 ---
 ## Zusammenfassung
 
 | Metrik | Wert |
 |---|---|
-| Repos gesucht | **85** |
-| Dieser Run: Angenommen | **1** |
-| Dieser Run: Abgelehnt | **16** |
+| Repos gesucht | **87** |
+| Dieser Run: Angenommen | **0** |
+| Dieser Run: Abgelehnt | **6** |
 | Feeds gesamt (aktiv) | **3** |
-| Abgelehnte Repos (gesamt) | **165** |
-| HQ-Referenz-IPs | **102916** |
-
----
-## ✅ Neu angenommene Feeds
-
-| Feed | Repo | IPs | Overlap | FP-Rate | Stars |
-|---|---|---|---|---|---|
-| `turntuptechnologies_iocs` | [turntuptechnologies/iocs](https://github.com/turntuptechnologies/iocs) | 262 | 68.7% | 1.0% | 4 |
+| Abgelehnte Repos (gesamt) | **171** |
+| HQ-Referenz-IPs | **103022** |
 
 ---
 ## ❌ Abgelehnte Repos (dieser Run)
 
 | Repo | Grund |
 |---|---|
-| `VISHUKS/RSC_Detector` | Keine IP-Datei |
-| `Ffhvcvjh/DeHashed-Password-Breach-Scanner` | Keine IP-Datei |
-| `Gabrielasts/Phishing-detection` | Keine IP-Datei |
-| `toxyl/ossh-swarm-wordlists` | Keine IP-Datei |
-| `doniboyd/IOC-Checker-Pro` | Keine IP-Datei |
-| `king1234567891/mephala` | Keine IP-Datei |
-| `juccoblak/CVE-2025-6554` | Keine IP-Datei |
-| `johnacelazatin/mail-osint-tools` | Keine IP-Datei |
-| `LuffyAD/canary-stable` | Keine IP-Datei |
-| `jacobdjwilson/awesome-annual-security-reports` | Keine IP-Datei |
-| `IbdaaTec/AndroidDeviceRiskBookData` | Keine IP-Datei |
-| `biggerback/tls_fingerprint_db` | Keine IP-Datei |
-| `kenttibusiness/scamnet` | Keine IP-Datei |
-| `lillestump147/critical-infrastructure-threat-intel` | Keine IP-Datei |
-| `apprehensive-plusfours956/deepdarkCTI` | Keine IP-Datei |
-| `spkatragadda/intelliHunt` | Keine IP-Datei |
+| `elchacal801/flame-fraud` | Keine IP-Datei |
+| `SreejaPuthan/ICEBERG-Threat-Intel-updator` | Keine IP-Datei |
+| `Prajwalgrathish/TotalOSINT` | Keine IP-Datei |
+| `yud1takata/security-ops-blueprint` | Keine IP-Datei |
+| `Davizitos007/OSINT-NEXUS` | Keine IP-Datei |
+| `nwiecz/C2IntelFeedsFGT` | Keine IP-Datei |
 
 ---
 ## 📋 Alle aktiven Auto-Feeds
@@ -52,4 +35,4 @@
 | `hsenr_enterprise_honeypot_platform_v2` | 459 | 68.4% | 1 | 2026-03-10 |
 
 ---
-*Generiert: 2026-03-11 00:06 UTC*
+*Generiert: 2026-03-11 19:13 UTC*

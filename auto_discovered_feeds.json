@@ -1,7 +1,7 @@
 {
-  "updated": "2026-03-11 00:06 UTC",
+  "updated": "2026-03-11 19:13 UTC",
   "total_feeds": 3,
-  "new_this_run": 1,
+  "new_this_run": 0,
   "rejected_repos": [
     "4IP-Solutions/threat-feeds",
     "Baniur/Writeups",
@@ -10,6 +10,7 @@
     "CarlosTorresct24/SENTINEL-GOLD-Multi-Modal-Cyber-Physical-Threat-Fusion-Engine",
     "CriticalPathSecurity/Public-Intelligence-Feeds",
     "CriticalPathSecurity/Zeek-Intelligence-Feeds",
+    "Davizitos007/OSINT-NEXUS",
     "EdanWong/ip_list",
     "Egyan07/ViperFin",
     "EndlessFractal/Threat-Intel-Feed",
@@ -44,6 +45,7 @@
     "OutOfSyncStudios/express-ip-blacklist",
     "Oz134/perishable-inventory-risk-engine",
     "PKHarsimran/SwiftIOC-Automated-Threat-Intelligence-Collector",
+    "Prajwalgrathish/TotalOSINT",
     "Renchinnyam11/soc-detection-threat-intel-lab",
     "Roshenrosha/CBbot",
     "S-L1/ti_scraper",
@@ -52,6 +54,7 @@
     "Serp07/updater_list_for_mikrotik",
     "SevensRequiem/path-captures",
     "ShadowWhisperer/IPs",
+    "SreejaPuthan/ICEBERG-Threat-Intel-updator",
     "Stuub/CVE-2024-31848-PoC",
     "T145/black-mirror",
     "Tizian-Maxime-Weigt/L7-HTTP-DDoS-Flood-IP-Signature-IP-List",
@@ -94,6 +97,7 @@
     "drb-ra/C2IntelFeeds",
     "duggytuxy/Data-Shield_IPv4_Blocklist",
     "duggytuxy/malicious_ip_addresses",
+    "elchacal801/flame-fraud",
     "elliotwutingfeng/ESET-APR-IPs",
     "elliotwutingfeng/Spamhaus-DNSBL-IPs",
     "elliotwutingfeng/ThreatFox-IOC-IPs",
@@ -130,6 +134,7 @@
     "muchdogesec/obstracts",
     "nixbear/malicious_ips",
     "nuekkis/GuOx-Express",
+    "nwiecz/C2IntelFeedsFGT",
     "pallebone/StrictBlockPAllebone",
     "poddmo/ufw-blocklist",
     "prbinu/yipfilter",
@@ -167,6 +172,7 @@
     "wolffcatskyy/crowdsec-blocklist-import",
     "wolffcatskyy/crowdsec-unifi-bouncer",
     "xxxsen/ip-blackcage",
+    "yud1takata/security-ops-blueprint",
     "yuexuana521/honeypot-blocklist"
   ],
   "feeds": [
