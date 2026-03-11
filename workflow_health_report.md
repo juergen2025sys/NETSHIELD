@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-03-11 20:51 UTC
+**Aktualisiert:** 2026-03-11 21:02 UTC
 
 **Workflows:** 19 | ✅ 15 OK | ⚠️ 1 Warnung | ❌ 3 Fehler
 
@@ -8,7 +8,7 @@
 
 | Workflow | Status | Fehler | Warnungen | Cron |
 |---|---|---|---|---|
-| `abuseipdb_feed.yml` | ⚠️ WARNUNG | 0 | 1 | `*/30 * * * *` |
+| `abuseipdb_feed.yml` | ⚠️ WARNUNG | 0 | 2 | `* * * * *` |
 | `asn_reputation_scorer.yml` | ✅ OK | 0 | 0 | `0 2 * * *` |
 | `auto_feed_discovery.yml` | ❌ FEHLER | 1 | 0 | `30 4 * * 0` |
 | `community_ip_report.yml` | ✅ OK | 0 | 0 | – |
@@ -49,8 +49,9 @@
 
 ### `abuseipdb_feed.yml`
 
+- 🟡 Kein `persist-credentials: true` – Push-Auth könnte fehlen
 - 🟡 Kein `timeout-minutes:` – Job könnte bis zu 6h hängen
 
 
 ---
-*Generiert: 2026-03-11 20:51 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-03-11 21:02 UTC | 19 Workflow-Dateien geprüft*
