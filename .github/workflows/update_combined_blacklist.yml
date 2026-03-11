@@ -39,6 +39,81 @@ jobs:
           restore-keys: |
             netshield-seen-db-
 
+      - name: Fetch AbuseIPDB Blacklist (API, Round-Robin)
+        env:
+          ABUSEIPDB_KEY_1: ${{ secrets.ABUSEIPDB_API_KEY_1 }}
+          ABUSEIPDB_KEY_2: ${{ secrets.ABUSEIPDB_API_KEY_2 }}
+          ABUSEIPDB_KEY_3: ${{ secrets.ABUSEIPDB_API_KEY_3 }}
+        run: |
+          python3 << 'EOF'
+          import json, os, urllib.request, urllib.error
+          from datetime import datetime, timezone
+
+          now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+          # ── Round-Robin: 3 Keys, alle mit Score ≥ 50, je 10.000 IPs ────────────
+          # Alle drei Keys fragen denselben Mindest-Score ab (50%) und holen
+          # jeweils bis zu 10.000 IPs. Durch Round-Robin und Union werden
+          # bis zu 30.000 einzigartige IPs gesammelt (API-Limit pro Key/Tag).
+          KEY_CONFIGS = [
+              (os.environ.get("ABUSEIPDB_KEY_1", ""), 50, 10000),
+              (os.environ.get("ABUSEIPDB_KEY_2", ""), 50, 10000),
+              (os.environ.get("ABUSEIPDB_KEY_3", ""), 50, 10000),
+          ]
+
+          all_ips = set()
+          stats   = []
+
+          for idx, (key, min_score, limit) in enumerate(KEY_CONFIGS, 1):
+              if not key:
+                  print(f"  Key {idx}: nicht gesetzt – übersprungen")
+                  stats.append((idx, min_score, 0, "KEY_MISSING"))
+                  continue
+
+              url = (
+                  f"https://api.abuseipdb.com/api/v2/blacklist"
+                  f"?confidenceMinimum={min_score}&limit={limit}&plaintext=1"
+              )
+              req = urllib.request.Request(url, headers={
+                  "Key":    key,
+                  "Accept": "text/plain",
+              })
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as r:
+                      status = r.status
+                      body   = r.read().decode("utf-8", errors="ignore")
+
+                  ips = {line.strip() for line in body.splitlines()
+                         if line.strip() and not line.startswith("#")}
+                  all_ips.update(ips)
+                  print(f"  Key {idx} (Score≥{min_score}): {len(ips)} IPs  [HTTP {status}]")
+                  stats.append((idx, min_score, len(ips), "OK"))
+
+              except urllib.error.HTTPError as e:
+                  body = e.read().decode("utf-8", errors="ignore")[:200]
+                  print(f"  Key {idx} (Score≥{min_score}): HTTP-Fehler {e.code} – {body}")
+                  stats.append((idx, min_score, 0, f"HTTP_{e.code}"))
+              except Exception as e:
+                  print(f"  Key {idx} (Score≥{min_score}): Fehler – {e}")
+                  stats.append((idx, min_score, 0, "ERROR"))
+
+          # ── Ergebnis speichern ────────────────────────────────────────────────
+          OUT = "abuseipdb_api_blacklist.txt"
+          sorted_ips = sorted(all_ips, key=lambda ip: tuple(int(o) for o in ip.split(".")))
+
+          with open(OUT, "w", encoding="utf-8") as f:
+              f.write("# AbuseIPDB API Blacklist – NETSHIELD\n")
+              f.write(f"# Aktualisiert: {now_str}\n")
+              f.write(f"# Quellen: 3 API-Keys (Round-Robin)\n")
+              f.write(f"# Eintraege: {len(sorted_ips)}\n")
+              for idx, score, count, status in stats:
+                  f.write(f"# Key {idx}: Score≥{score} → {count} IPs [{status}]\n")
+              f.write("\n")
+              f.write("\n".join(sorted_ips) + "\n")
+
+          print(f"\nAbuseIPDB gesamt: {len(sorted_ips)} einzigartige IPs → {OUT}")
+          EOF
+
       - name: Fetch, discover, learn and build IPv4 lists
         run: |
           python3 << 'EOF'
@@ -74,6 +149,7 @@ jobs:
               "ipsum_level5", "ipsum_level7", "abuseipdb_s100_30d", "abuseipdb_s90_30d",
               "abuseipdb_score100", "turris_greylist", "talos_intelligence",
               "tor_project_bulk", "tor_danme", "tor_critpath", "tor_secops",
+              "abuseipdb_api_blacklist.txt",   # AbuseIPDB Live-API (Score≥50, HQ)
           }
 
           # ══════════════════════════════════════════════════════════════════
@@ -284,6 +360,7 @@ jobs:
               "cve_exploit_ips.txt":             True,
               "bot_detector_blacklist_ipv4.txt": False,
               "honeypot_ips.txt":                True,
+              "abuseipdb_api_blacklist.txt":     True,   # AbuseIPDB API (Round-Robin, HQ)
           }
           for local_file, is_hq_local in LOCAL_FEEDS.items():
               if not os.path.exists(local_file):
@@ -507,7 +584,7 @@ jobs:
           PYEOF
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json seen_db.json
+          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
