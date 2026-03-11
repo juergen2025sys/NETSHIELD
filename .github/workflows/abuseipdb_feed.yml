@@ -3,7 +3,7 @@ name: AbuseIPDB Feed
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "* * * * *"
 
 permissions:
   contents: write
@@ -26,9 +26,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref_name }}
           fetch-depth: 0
-          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -36,37 +34,34 @@ jobs:
           python-version: "3.11"
 
       - name: Restore seen_db Cache
-        id: restore_seen_db
-        uses: actions/cache/restore@v4
+        uses: actions/cache@v4
         with:
           path: seen_db.json
-          key: netshield-seen-db-v1-${{ github.run_id }}
-          restore-keys: |
-            netshield-seen-db-v1-
+          key: netshield-seen-db
 
       - name: Ensure seen_db exists
         run: |
-          set -euo pipefail
           if [ ! -f seen_db.json ]; then
             echo "{}" > seen_db.json
           fi
 
       - name: Install dependencies
         run: |
-          set -euo pipefail
           python -m pip install --upgrade pip
           pip install requests
 
       - name: Fetch AbuseIPDB Blacklists
         env:
-          ABUSEIPDB_API_KEY: ${{ secrets.ABUSEIPDB_API_KEY }}
+          KEY1: ${{ secrets.ABUSEIPDB_API_KEY_1 }}
+          KEY2: ${{ secrets.ABUSEIPDB_API_KEY_2 }}
+          KEY3: ${{ secrets.ABUSEIPDB_API_KEY_3 }}
         run: |
-          set -euo pipefail
+          set -e
 
-          if [ -z "${ABUSEIPDB_API_KEY:-}" ]; then
-            echo "ABUSEIPDB_API_KEY secret fehlt."
-            exit 1
-          fi
+          KEYS=("$KEY1" "$KEY2" "$KEY3")
+          ABUSEIPDB_API_KEY=${KEYS[$RANDOM % ${#KEYS[@]}]}
+
+          export ABUSEIPDB_API_KEY
 
           python abuseipdb_feed.py \
             --min-score "${MIN_SCORE}" \
@@ -76,35 +71,10 @@ jobs:
             --output-md abuseipdb_report.md \
             --seen-db seen_db.json
 
-          test -f abuseipdb_blacklist.txt
-          test -f abuseipdb_report.md
-          test -f seen_db.json
-
-      - name: Save seen_db Cache
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          path: seen_db.json
-          key: netshield-seen-db-v1-${{ github.run_id }}
-
-      - name: Save seen_db Cache (latest alias)
-        if: always()
-        uses: actions/cache/save@v4
-        continue-on-error: true
-        with:
-          path: seen_db.json
-          key: netshield-seen-db-v1-latest
-
       - name: Commit and Push
         run: |
-          set -euo pipefail
-
-          BRANCH="${GITHUB_REF_NAME:-main}"
-
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git checkout "${BRANCH}"
 
           git add abuseipdb_blacklist.txt abuseipdb_report.md seen_db.json
 
@@ -113,19 +83,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "AbuseIPDB Feed: $(date -u '+%Y-%m-%d %H:%M') UTC"
+          git commit -m "AbuseIPDB Feed $(date -u '+%Y-%m-%d %H:%M UTC')"
 
-          for i in 1 2 3; do
-            echo "Push-Versuch ${i}..."
-
-            if git pull --rebase origin "${BRANCH}" && git push origin "HEAD:${BRANCH}"; then
-              echo "Push erfolgreich"
-              exit 0
-            fi
-
-            echo "Push-Konflikt, neuer Versuch..."
-            sleep 2
-          done
-
-          echo "Push nach 3 Versuchen fehlgeschlagen."
-          exit 1
+          git pull --rebase origin main
+          git push origin main
