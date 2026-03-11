@@ -38,18 +38,18 @@ Die Nutzung ist bewusst einfach gehalten:
 
 ## 🚀 Quick Start
 
-### Empfohlene Einstiegslisten
+### Welche Liste für welchen Zweck?
 
 | Einsatz | Feed | Empfehlung |
 |---|---|---|
-| Allgemeines Threat Blocking | [active_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt) | Beste Default-Liste für die meisten Firewalls |
-| Strengere Threat-Liste | [blacklist_confidence40_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt) | Fokus auf höher bewertete Treffer |
+| Allgemeines Threat Blocking | [active_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt) | Beste Default-Liste, frische Bedrohungen |
+| Qualitativ beste Liste | [blacklist_confidence40_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt) | Nur mehrfach bestätigte IPs, wenig False Positives |
 | Maximale Abdeckung | [combined_threat_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/combined_threat_blacklist_ipv4.txt) | Für Analyse, SOC, Feed-Fusion |
 | Geo Blocking (alle Länder) | [all_countries_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/all_countries_ipv4.txt) | Alle Länder in einer Datei |
 | Geo Blocking nach Kontinent | [continents/](https://github.com/juergen2025sys/NETSHIELD/tree/main/continents) | 6 Kontinent-Dateien einzeln |
 | Spezialschutz | [tor_exit_nodes.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/tor_exit_nodes.txt) · [vpn_proxy_ranges.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/vpn_proxy_ranges.txt) · [cve_exploit_ips.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/cve_exploit_ips.txt) | Ergänzende Speziallisten |
 
-> **Empfehlung für Einsteiger:** Starte mit [`active_blacklist_ipv4.txt`](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt), füge dann schrittweise `tor_exit_nodes.txt` und `vpn_proxy_ranges.txt` hinzu. Geo Blocking erst danach ergänzen.
+> **Empfehlung für Einsteiger:** Starte mit [`active_blacklist_ipv4.txt`](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt) für frische Bedrohungen. Wer weniger IPs, aber höhere Treffsicherheit möchte, wechselt zu [`blacklist_confidence40_ipv4.txt`](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt). Geo Blocking und Speziallisten danach ergänzen.
 
 ---
 
@@ -59,15 +59,15 @@ Die Nutzung ist bewusst einfach gehalten:
 
 | Datei | Zweck | Update-Intervall |
 |---|---|---|
-| [combined_threat_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/combined_threat_blacklist_ipv4.txt) | Aggregierte Threat-IPs aus vielen Quellen | alle 6 Stunden |
-| [active_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt) | Aktiv gefilterte Firewall-Blockliste | automatisch |
-| [blacklist_confidence40_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt) | IPs mit höherem Confidence-Score | alle 6 Stunden |
-| [watchlist_confidence20to39_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/watchlist_confidence20to39_ipv4.txt) | Beobachtungsliste für schwächere Treffer | alle 6 Stunden |
-| [bot_detector_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/bot_detector_blacklist_ipv4.txt) | Bots, Scraper, Scanner, Abuse-Quellen | alle 6 Stunden |
-| [tor_exit_nodes.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/tor_exit_nodes.txt) | Tor Exit Nodes | täglich |
-| [cve_exploit_ips.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/cve_exploit_ips.txt) | IPs mit Bezug zu aktiver Exploit-Aktivität | täglich |
+| [combined_threat_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/combined_threat_blacklist_ipv4.txt) | Aggregierte Threat-IPs aus ~80 Quellen (Vollarchiv 365 Tage) | alle 3 Stunden |
+| [active_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt) | Frische Bedrohungen: zuletzt bestätigt ≤ 30 Tage | täglich |
+| [blacklist_confidence40_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt) | Qualitätsgefilterter Feed: mehrfach bestätigt, HQ-Quellen, persistent | alle 3 Stunden |
+| [watchlist_confidence20to39_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/watchlist_confidence20to39_ipv4.txt) | Beobachtungsliste: schwächere Signale, noch nicht ausreichend bestätigt | alle 3 Stunden |
+| [bot_detector_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/bot_detector_blacklist_ipv4.txt) | Bots, Scraper, Scanner, Abuse-Quellen | täglich |
+| [tor_exit_nodes.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/tor_exit_nodes.txt) | Tor Exit Nodes aus 6 Quellen | täglich |
+| [cve_exploit_ips.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/cve_exploit_ips.txt) | IPs mit Bezug zu aktiver Exploit-Aktivität (C2, Feodo, ThreatFox) | täglich |
 | [vpn_proxy_ranges.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/vpn_proxy_ranges.txt) | VPN-, Proxy- und Anonymisierungs-Ranges | wöchentlich |
-| [asn_blocklist_firewall.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/asn_blocklist_firewall.txt) | Netzwerke mit schlechter Reputation (ASN) | täglich |
+| [asn_blocklist_firewall.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/asn_blocklist_firewall.txt) | Netzwerke mit schlechter Reputation (ASN-Ebene) | täglich |
 
 ### 🌍 Geo Blocking
 
@@ -84,8 +84,8 @@ Die Nutzung ist bewusst einfach gehalten:
 | Liste | Einträge |
 |---|---:|
 | [combined_threat_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/combined_threat_blacklist_ipv4.txt) | **2.344.956** |
-| [active_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt) | **2.311.839** |
-| [blacklist_confidence40_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt) | **2.311.839** |
+| [active_blacklist_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt) | wird kleiner je mehr Daten akkumuliert |
+| [blacklist_confidence40_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt) | wird kleiner je mehr Daten akkumuliert |
 | [cve_exploit_ips.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/cve_exploit_ips.txt) | **220.881** |
 | [vpn_proxy_ranges.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/vpn_proxy_ranges.txt) | **111.974** |
 | [tor_exit_nodes.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/tor_exit_nodes.txt) | **20.120** |
@@ -94,18 +94,96 @@ Die Nutzung ist bewusst einfach gehalten:
 
 ---
 
+## 🧠 Das Confidence-Modell erklärt
+
+`blacklist_confidence40_ipv4.txt` ist die qualitativ hochwertigste Liste in NETSHIELD — aber sie funktioniert anders als eine normale Blacklist und es lohnt sich, das Prinzip zu verstehen.
+
+### Warum nicht einfach alle IPs blocken?
+
+NETSHIELD aggregiert ~80 Feeds gleichzeitig. Darunter befinden sich hochwertige Echtzeit-Feeds (Feodo Tracker, Spamhaus DROP, AbuseIPDB Score 100) genauso wie große statische Listen mit Hunderttausenden IPs die sich monatelang kaum ändern. Würde man alles gleichgewichtig behandeln, könnte eine IP die einmalig in einer veralteten Megalist stand, auf ewig als "aktive Bedrohung" gelten — genau das will `confidence40` verhindern.
+
+### Wie wird ein Score berechnet?
+
+Jede IP bekommt einen Score aus vier unabhängigen Dimensionen (max. 100 Punkte):
+
+| Dimension | Max. | Was gemessen wird |
+|---|---|---|
+| **Quellen-Qualität** | 40 Pkt | HQ-Feed? Wie viele Feeds melden die IP heute? Akkumulierte Feed-Anzahl? |
+| **Aktualität** | 30 Pkt | Wann wurde die IP zuletzt in ≥2 Feeds oder einem HQ-Feed gesehen? |
+| **Persistenz** | 20 Pkt | An wie vielen verschiedenen Tagen wurde die IP unabhängig bestätigt? |
+| **Bekannt seit** | 10 Pkt | Wie lange ist die IP schon im System? |
+
+**Schwellwert: Score ≥ 50 → `blacklist_confidence40`**  
+**Score 25–49 → `watchlist_confidence20to39`**
+
+Eine IP die nur einmal in einer Low-Quality-Liste auftauchte und seitdem nie wieder gesehen wurde, erreicht maximal ~20 Punkte und kommt nie in die Confidence-Liste. Eine IP die täglich in mehreren HQ-Feeds auftaucht und das seit Wochen, kommt auf 70–100 Punkte.
+
+### Was macht die Aktualitäts-Messung besonders?
+
+Das System unterscheidet zwischen "wurde heute irgendwo erwähnt" und "wurde heute wirklich aktiv bestätigt". Das `last_seen`-Datum einer IP wird **nur dann aktualisiert**, wenn:
+
+- die IP heute in **mindestens 2 verschiedenen Feeds** auftauchte, **oder**
+- die IP heute in **mindestens einem HQ-Feed** (Feodo, Spamhaus, AbuseIPDB Score 100 usw.) gemeldet wurde
+
+Eine IP die nur in einem einzigen statischen Feed steht — egal wie groß dieser Feed ist — gilt nicht als "heute aktiv bestätigt" und verliert schrittweise ihre Aktualitätspunkte.
+
+### ⏳ Warum braucht die Confidence-Liste Zeit zum Aufbauen?
+
+Der Persistenz-Score (`days_seen`) misst auf wie vielen verschiedenen **Tagen** eine IP unabhängig bestätigt wurde. Dieser Wert kann nicht rückwirkend berechnet werden — er wächst organisch mit jedem Tag an dem das System läuft.
+
+**Zeitplan der Filterqualität:**
+
+```
+Tag 1–3   Frischer Start
+          Quellen-Qualität und Aktualität dominieren das Scoring.
+          Liste enthält bereits alle HQ-Feed-IPs korrekt.
+          Persistenz-Bonus noch minimal.
+
+Tag 4–7   Erste Selektionswirkung
+          IPs die nur in statischen Feeds standen und seitdem
+          nicht mehr bestätigt wurden, verlieren Aktualitätspunkte.
+          Liste beginnt sich spürbar von "combined" zu unterscheiden.
+
+Tag 8–14  Stabile Grundqualität
+          Persistenz-Score greift für regelmäßig bestätigte IPs.
+          Gut bestätigte Dauerbedrohungen haben jetzt hohe Scores.
+          Einmalige Treffer fallen zunehmend aus der Liste.
+
+Tag 15+   Volle Filterqualität
+          Die Liste zeigt ihr eigentliches Profil:
+          kompakt, treffsicher, wenig False Positives.
+          Neue echte Bedrohungen landen sofort durch HQ-Feeds.
+          Alte unbestätigte IPs fallen kontinuierlich heraus.
+```
+
+> **Kurzfassung:** In den ersten Tagen nach einem Reset ist `confidence40` noch ähnlich groß wie `combined`. Das ist normal. Nach 1–2 Wochen entwickelt sich der Unterschied deutlich — die Liste wird kleiner und gleichzeitig treffsicherer.
+
+### Die drei Listen im Vergleich
+
+| | `combined` | `active` | `confidence40` |
+|---|---|---|---|
+| **Zweck** | Vollarchiv, maximale Abdeckung | Frische Bedrohungen ≤ 30 Tage | Qualitätsgefiltert, wenig FP |
+| **Größe** | Sehr groß | Mittel | Kleiner, aber präziser |
+| **False Positives** | Höher | Mittel | Niedrig |
+| **Neue Bedrohungen** | Sofort | Sofort | Sofort (via HQ-Feeds) |
+| **Empfehlung** | SOC / Analyse | Allgemeines Blocking | Produktion, sensible Umgebungen |
+
+---
+
 ## 🏗️ Projektstruktur
 
 ```
 NETSHIELD/
 ├── .github/workflows/                  # Automatische Build-, Prüf- und Export-Workflows
-├── active_blacklist_ipv4.txt           # Empfohlene aktive Firewall-Blockliste
-├── combined_threat_blacklist_ipv4.txt  # Große aggregierte Threat-Liste
-├── blacklist_confidence40_ipv4.txt     # Höhere Confidence / strengere Filterung
+├── active_blacklist_ipv4.txt           # Frische Bedrohungen (≤30 Tage bestätigt)
+├── combined_threat_blacklist_ipv4.txt  # Großes Vollarchiv (365 Tage)
+├── blacklist_confidence40_ipv4.txt     # Qualitätsgefiltert: mehrfach & HQ-bestätigt
+├── watchlist_confidence20to39_ipv4.txt # Beobachtungsliste: schwächere Signale
 ├── bot_detector_blacklist_ipv4.txt     # Bot-, Scraper- und Scanner-Erkennung
 ├── tor_exit_nodes.txt                  # Tor Exit Nodes
-├── cve_exploit_ips.txt                 # Exploit-nahe IPs
+├── cve_exploit_ips.txt                 # Exploit-nahe IPs (C2, Feodo, ThreatFox)
 ├── vpn_proxy_ranges.txt                # VPN- und Proxy-Ranges
+├── asn_blocklist_firewall.txt          # ASN-Reputationsliste
 ├── all_countries_ipv4.txt              # Alle Länder in einer Datei
 ├── continents/                         # Kontinent-Dateien
 ├── countries/                          # Länderdateien nach Region sortiert
@@ -118,17 +196,18 @@ NETSHIELD/
 
 NETSHIELD ist kein statisches IP-Archiv, sondern ein **automatisiertes Blocklist-Framework**. Workflows pflegen Listen kontinuierlich:
 
-| Workflow | Aufgabe |
-|---|---|
-| `update-blocklist.yml` | Hauptliste aktualisieren |
-| `update_combined_blacklist.yml` | Kombinierte Liste zusammenführen |
-| `update_confidence_blacklist.yml` | Confidence-basierte Filterung |
-| `false_positive_checker.yml` | False-Positive-Erkennung |
-| `feed_health_monitor.yml` | Feed-Qualität überwachen |
-| `firewall_format_exporter.yml` | Exportformate erzeugen |
-| `tor_exit_monitor.yml` | Tor Exit Nodes tracken |
-| `vpn_proxy_detector.yml` | VPN/Proxy-Ranges erkennen |
-| `asn_reputation_scorer.yml` | ASN-Reputationsbewertung |
+| Workflow | Aufgabe | Intervall |
+|---|---|---|
+| `update_combined_blacklist.yml` | ~80 Feeds abrufen, seen_db aufbauen, combined + active + confidence schreiben | alle 3h |
+| `update_confidence_blacklist.yml` | Confidence-Score neu berechnen, confidence40 + watchlist schreiben | alle 3h |
+| `false_positive_checker.yml` | Whitelisted CDN/Cloud-IPs aus combined entfernen | 3x täglich |
+| `score_decay_monitor.yml` | IPs nach 60 Tagen Inaktivität aus DB entfernen | wöchentlich |
+| `tor_exit_monitor.yml` | Tor Exit Nodes aus 6 Quellen aktualisieren | täglich |
+| `vpn_proxy_detector.yml` | VPN/Proxy-Ranges aktualisieren | wöchentlich |
+| `cve_to_ip_mapper.yml` | Exploit-IPs aus C2-Trackern und ThreatFox | täglich |
+| `firewall_format_exporter.yml` | iptables, nftables, pfSense XML, Cisco ACL usw. generieren | täglich |
+| `asn_reputation_scorer.yml` | ASN-Reputationsbewertung und Blockliste | täglich |
+| `feed_health_monitor.yml` | Feed-Erreichbarkeit und Qualität überwachen | täglich |
 
 ---
 
@@ -136,38 +215,50 @@ NETSHIELD ist kein statisches IP-Archiv, sondern ein **automatisiertes Blocklist
 
 ### OPNsense / pfSense
 
-- URL Table Alias mit [`active_blacklist_ipv4.txt`](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt) als Typ `URL Table (IPs)`
-- Zusätzliche Alias-Feeds: [`tor_exit_nodes.txt`](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/tor_exit_nodes.txt) und [`vpn_proxy_ranges.txt`](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/vpn_proxy_ranges.txt)
-- Geo Blocking über [continents/](https://github.com/juergen2025sys/NETSHIELD/tree/main/continents) oder einzelne Länderdateien
+URL Table Alias anlegen (Typ `URL Table (IPs)`):
+
+```
+# Frische Bedrohungen (empfohlen als Einstieg)
+https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt
+
+# Qualitätsgefiltert (für sensible Umgebungen)
+https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt
+
+# Ergänzend
+https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/tor_exit_nodes.txt
+https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/vpn_proxy_ranges.txt
+```
+
+Geo Blocking über [continents/](https://github.com/juergen2025sys/NETSHIELD/tree/main/continents) oder einzelne Länderdateien aus [countries/](https://github.com/juergen2025sys/NETSHIELD/tree/main/countries).
 
 ### Webserver / Reverse Proxies
 
-- [`bot_detector_blacklist_ipv4.txt`](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/bot_detector_blacklist_ipv4.txt)
-- [`tor_exit_nodes.txt`](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/tor_exit_nodes.txt)
-- [`vpn_proxy_ranges.txt`](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/vpn_proxy_ranges.txt)
+```
+# Bot- und Scanner-Schutz
+https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/bot_detector_blacklist_ipv4.txt
+https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/tor_exit_nodes.txt
+```
+
+### Linux (iptables / nftables)
+
+Fertige Skripte im [firewall_exports/](https://github.com/juergen2025sys/NETSHIELD/tree/main/firewall_exports) Ordner:
+
+```bash
+# iptables
+bash firewall_exports/blacklist_iptables.sh
+
+# nftables
+nft -f firewall_exports/blacklist_nftables.conf
+```
 
 ### SOC / Lab / Forschung
 
-- [`combined_threat_blacklist_ipv4.txt`](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/combined_threat_blacklist_ipv4.txt) als umfassender Feed
-- `blacklist_geo_enriched.json` für angereicherte Daten
-- [NETSHIELD_REPORT.md](https://github.com/juergen2025sys/NETSHIELD/blob/main/NETSHIELD_REPORT.md) für aktuelle Projektstatus-Reports
-
----
-
-## 🛡️ Confidence-Modell
-
-NETSHIELD bewertet IPs anhand eines **gewichteten Score-Modells**:
-
-- Feed-Qualität und Quellenreputation
-- Mehrfachsichtung über verschiedene Feeds
-- Aktualität und zeitliche Persistenz
-
-Das ermöglicht eine klare Trennung:
-
-| Score | Liste | Empfehlung |
-|---|---|---|
-| ≥ 40 | [`blacklist_confidence40_ipv4.txt`](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt) | Direkt blocken |
-| 20–39 | [`watchlist_confidence20to39_ipv4.txt`](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/watchlist_confidence20to39_ipv4.txt) | Beobachten / loggen |
+```
+combined_threat_blacklist_ipv4.txt   # Vollständiger aggregierter Feed
+blacklist_geo_enriched.json          # IPs angereichert mit Geo/ASN-Daten
+asn_reputation_report.md             # Top-Abuse-ASNs mit Score
+NETSHIELD_REPORT.md                  # Aktueller Projektstatus
+```
 
 ---
 
@@ -186,11 +277,11 @@ Das ermöglicht eine klare Trennung:
 
 ### Einzelne Länder
 
-Länderdateien liegen unter `countries/{kontinent}/{land}_ipv4.txt`, z. B.:
+Länderdateien unter `countries/{kontinent}/{land}_ipv4.txt`, z. B.:
 
 - [countries/europe/germany_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/europe/germany_ipv4.txt)
 - [countries/europe/russia_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/europe/russia_ipv4.txt)
-- [countries/asia/japan_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/asia/japan_ipv4.txt)
+- [countries/asia/china_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/asia/china_ipv4.txt)
 - [countries/north_america/united_states_ipv4.txt](https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/countries/north_america/united_states_ipv4.txt)
 
 Alle 249 Länder sind im [countries/](https://github.com/juergen2025sys/NETSHIELD/tree/main/countries) Verzeichnis verfügbar.
@@ -199,9 +290,11 @@ Alle 249 Länder sind im [countries/](https://github.com/juergen2025sys/NETSHIEL
 
 ## ⚠️ Hinweise
 
-**GeoIP ist eine Näherung.** Country- und Kontinentlisten basieren auf administrativer IP-Zuordnung. Bei CDN-Infrastruktur, Cloud-Providern, Gaming-Diensten, globalen Anycast-/Edge-Netzen und VPN-/Hosting-Plattformen kann es zu False Positives kommen.
+**GeoIP ist eine Näherung.** Country- und Kontinentlisten basieren auf administrativer IP-Zuordnung. Bei CDN-Infrastruktur, Cloud-Providern, Anycast-Netzen und VPN-/Hosting-Plattformen kann es zu False Positives kommen.
 
-**Große Listen testen.** Vor dem Produktiveinsatz empfehlen sich Staging-Regeln, Log-Monitoring, schrittweise Aktivierung und Whitelisting legitimer Ziele.
+**`combined` vor dem Produktiveinsatz testen.** Die Liste ist sehr groß und enthält bewusst auch ältere und schwach bestätigte IPs. Für direktes Firewall-Blocking ist `active` oder `confidence40` die bessere Wahl.
+
+**`confidence40` braucht Anlaufzeit.** Nach einem Neustart des Systems arbeitet sich die Filterqualität in den ersten 7–14 Tagen auf ihr eigentliches Niveau ein. Mehr dazu im Abschnitt [Das Confidence-Modell](#-das-confidence-modell-erklärt).
 
 ---
 
