@@ -2,7 +2,7 @@ name: Auto Feed Discovery
 
 on:
   schedule:
-    - cron: '0 4 * * 0'   # wöchentlich Sonntag 04:00 UTC
+    - cron: '30 4 * * 0'   # wöchentlich Sonntag 04:30 UTC (nach cve_to_ip_mapper um 04:00)
   workflow_dispatch:
 
 env:

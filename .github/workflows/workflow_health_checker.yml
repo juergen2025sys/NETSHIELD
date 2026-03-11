@@ -2,7 +2,7 @@ name: Workflow Health Checker
 
 on:
   schedule:
-    - cron: '0 1 * * *'    # täglich 01:00 UTC
+    - cron: '5 1 * * *'    # täglich 01:05 UTC (5 Min nach feed_health_monitor um 01:00)
   push:
     paths:
       - '.github/workflows/*.yml'
@@ -208,6 +208,91 @@ jobs:
                           f"Confidence-Scoring ignoriert diese IPs (Score bleibt 0)"
                       )
 
+
+              # ── [AUDIT-BUG-1] O(n²) API-Loop: fetch innerhalb ASN-Score-Schleife ────
+              # Erkennt: for asn ... in asn_ip_count.items(): ... fetch_json(...iptoasn...)
+              in_asn_loop = False
+              for i, line in enumerate(lines, 1):
+                  if not is_code_line(line):
+                      continue
+                  if re.search(r'for\s+\w+.*in\s+asn_ip_count', line):
+                      in_asn_loop = True
+                  if in_asn_loop and re.search(r'fetch_json\s*\(.*iptoasn', line):
+                      errors.append(
+                          f"Zeile {i}: [AUDIT-BUG-1] API-Call zu iptoasn.com innerhalb des ASN-Score-Loops "
+                          f"→ O(n²) Komplexität, bis zu 15.000+ Requests, Timeout und Rate-Limit-Sperre. "
+                          f"Fix: asn_to_ips-Dict bereits in Schritt 2 befüllen, im Score-Loop nur "
+                          f"`asn_to_ips.get(asn, [])` verwenden."
+                      )
+                      in_asn_loop = False  # einmal pro Loop melden
+
+              # ── [AUDIT-BUG-2] seen_db wird modifiziert aber nicht committed ────────
+              # Erkennt Workflows die json.dump(db) aufrufen aber seen_db.json nicht im git add haben
+              writes_seen_db = bool(re.search(r'json\.dump\s*\(\s*db\s*,', content))
+              has_seen_db_in_git_add = bool(re.search(r'git\s+add\b.*seen_db\.json', content))
+              if writes_seen_db and not has_seen_db_in_git_add:
+                  errors.append(
+                      "[AUDIT-BUG-2] seen_db.json wird per json.dump() geschrieben, "
+                      "aber fehlt im `git add`-Befehl. Fällt der GitHub-Cache nach 7 Tagen weg, "
+                      "gehen alle Änderungen (z.B. Community-Reports) dauerhaft verloren. "
+                      "Fix: `git add ... seen_db.json` ergänzen."
+                  )
+
+              # ── [AUDIT-BUG-3] Score-Decay überschreibt latest-Cache-Alias ───────────
+              # Erkennt: Workflow enthält 'decay' im Namen oder 'DECAY_DAYS' im Code
+              # und speichert Cache mit key: netshield-seen-db-v1-latest (statt decay-<run_id>)
+              is_decay_workflow = "DECAY_DAYS" in content or "score_decay" in name.lower() or "decay" in name.lower()
+              if is_decay_workflow:
+                  saves_latest_alias = bool(re.search(
+                      r'key:\s*netshield-seen-db-v1-\$\{\{?\s*github\.run_id\s*\}?\}', content
+                  ))
+                  overwrites_latest = bool(re.search(
+                      r'key:\s*netshield-seen-db-v1-latest', content
+                  ))
+                  # Prüfen ob ein Save-Step den latest-Key schreibt (nicht nur Restore)
+                  # Heuristik: wenn latest als einziger Save-Key vorkommt
+                  save_blocks = re.findall(r'- name: Save seen_db.*?(?=- name:|\Z)', content, re.DOTALL)
+                  for block in save_blocks:
+                      if "netshield-seen-db-v1-latest" in block and "decay" not in block:
+                          errors.append(
+                              "[AUDIT-BUG-3] Score-Decay-Workflow speichert Cache mit Key "
+                              "`netshield-seen-db-v1-latest` – überschreibt damit den aktuellen "
+                              "Combined-Cache mit einer modifizierten (ausgedünnten) seen_db. "
+                              "Der nächste Combined-Lauf startet mit falscher DB. "
+                              "Fix: Save-Key auf `netshield-seen-db-v1-decay-\${{ github.run_id }}` ändern."
+                          )
+
+              # ── [AUDIT-TIMING] Bekannte Zeitkonflikte prüfen ────────────────────────
+              # Prüft ob noch die alten konfliktbehafteten Cron-Zeiten vorhanden sind
+              KNOWN_CONFLICTS = {
+                  "workflow_health_checker.yml": {
+                      "bad":  r"0\s+1\s+\*\s+\*\s+\*",
+                      "hint": "01:00 UTC – Konflikt mit feed_health_monitor. Fix: `5 1 * * *` (01:05 UTC)"
+                  },
+                  "update-blocklist.yml": {
+                      "bad":  r"0\s+3\s+\*\s+\*\s+[13]",
+                      "hint": "03:00 UTC Mo/Mi – Konflikt mit update_combined_blacklist. Fix: `30 2 * * 1` / `30 2 * * 3` (02:30 UTC)"
+                  },
+                  "false_positive_checker.yml": {
+                      "bad":  r"0\s+(?:6|14|22)\s+\*\s+\*\s+\*",
+                      "hint": "06:00/14:00/22:00 UTC – Konflikt mit update_combined_blacklist (gleiche Zeit). Fix: 05:30/13:30/21:30 UTC"
+                  },
+                  "auto_feed_discovery.yml": {
+                      "bad":  r"0\s+4\s+\*\s+\*\s+0",
+                      "hint": "04:00 UTC Sonntag – Konflikt mit cve_to_ip_mapper. Fix: `30 4 * * 0` (04:30 UTC)"
+                  },
+                  "geo_tagger.yml": {
+                      "bad":  r"0\s+6\s+\*\s+\*\s+0",
+                      "hint": "06:00 UTC Sonntag – Überschneidung mit false_positive_checker + combined. Fix: `30 6 * * 0` (06:30 UTC)"
+                  },
+              }
+              if name in KNOWN_CONFLICTS:
+                  conflict = KNOWN_CONFLICTS[name]
+                  for cron_expr in cron_matches:
+                      if re.search(conflict["bad"], cron_expr):
+                          errors.append(
+                              f"[AUDIT-TIMING] Zeitkonflikt erkannt: `{cron_expr}` – {conflict['hint']}"
+                          )
 
               # ── Doppelte Cron-Kommentare ─────────────────────────────────
               for i, line in enumerate(lines, 1):

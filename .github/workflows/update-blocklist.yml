@@ -2,8 +2,8 @@ name: Update All Countries IPv4 Blocklist
 
 on:
   schedule:
-    - cron: '0 3 * * 1'  # Jeden Montag um 03:00 UTC
-    - cron: '0 3 * * 3'  # Jeden Mittwoch um 03:00 UTC
+    - cron: '30 2 * * 1'  # Jeden Montag um 02:30 UTC (vor combined-Lauf um 03:00)
+    - cron: '30 2 * * 3'  # Jeden Mittwoch um 02:30 UTC (vor combined-Lauf um 03:00)
   workflow_dispatch:     # Manuell startbar
 
 env:

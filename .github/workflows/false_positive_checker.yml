@@ -2,9 +2,9 @@ name: False Positive Checker
 
 on:
   schedule:
-    - cron: '0 6 * * *'   # täglich 06:00 UTC
-    - cron: '0 14 * * *'  # täglich 14:00 UTC
-    - cron: '0 22 * * *'  # täglich 22:00 UTC
+    - cron: '30 5 * * *'   # täglich 05:30 UTC (30 Min vor Combined um 06:00)
+    - cron: '30 13 * * *'  # täglich 13:30 UTC (30 Min vor Combined um 14:00 – kein Konflikt)
+    - cron: '30 21 * * *'  # täglich 21:30 UTC (30 Min vor Combined um 22:00 – kein Konflikt)
   workflow_dispatch:
 
 env:
@@ -25,7 +25,7 @@ concurrency:
 jobs:
   fp-checker:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -42,8 +42,8 @@ jobs:
           now = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
 
-          # Majestic Million entfernt – Whitelist-CIDR + Reverse-DNS reicht aus
-          print("Starte False Positive Prüfung (Whitelist + Reverse-DNS)...")
+          # Whitelist-CIDR-Check – Reverse-DNS nicht aktiv
+          print("Starte False Positive Prüfung (Whitelist-CIDR)...")
 
           # ── Bekannte legitime IP-Ranges (Whitelist) ───────────────────────
           WHITELIST_CIDRS = [
@@ -178,7 +178,6 @@ jobs:
           lines.append(f"|---|---|")
           lines.append(f"| Geprüfte IPs (gesamt) | {len(blacklist_ips)} |")
           lines.append(f"| Whitelist-Treffer | **{len(whitelist_hits)}** |")
-          lines.append(f"| Reverse-DNS legitim | **{len(reverse_dns_legit)}** |")
           lines.append(f"| Gesamt entfernt | **{removed_count}** |")
 
           if whitelist_hits:
@@ -188,14 +187,6 @@ jobs:
               lines.append("|---|---|")
               for ip, reason in whitelist_hits[:20]:
                   lines.append(f"| `{ip}` | {reason} |")
-
-          if reverse_dns_legit:
-              lines.append("")
-              lines.append("## Legitime Reverse-DNS-Einträge\n")
-              lines.append("| IP | Hostname |")
-              lines.append("|---|---|")
-              for ip, hostname in reverse_dns_legit[:20]:
-                  lines.append(f"| `{ip}` | `{hostname}` |")
 
           lines.append(f"\n---\n*Generiert: {now_str}*")
 

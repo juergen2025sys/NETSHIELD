@@ -2,7 +2,7 @@ name: Geo-Tagger
 
 on:
   schedule:
-    - cron: '0 6 * * 0'  # Sonntag 06:00 UTC
+    - cron: '30 6 * * 0'  # Sonntag 06:30 UTC (nach false_positive_checker 05:30 + combined 06:00)
   workflow_dispatch:
 
 env:
@@ -23,7 +23,7 @@ concurrency:
 jobs:
   geo-tagger:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
