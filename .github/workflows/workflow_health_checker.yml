@@ -170,6 +170,45 @@ jobs:
               if modifies_seen_db and "github.run_id" not in content:
                   errors.append("seen_db.json wird modifiziert, aber kein `Save seen_db Cache`-Step mit `github.run_id` gefunden – Änderungen gehen beim nächsten Run verloren")
 
+              # ── Cache Restore-Key Konsistenz ─────────────────────────────
+              # Combined speichert mit netshield-seen-db-v1-<run_id> und netshield-seen-db-v1-latest
+              # Workflows die seen_db lesen müssen restore-keys: netshield-seen-db-v1- verwenden
+              uses_seen_db_cache = "netshield-seen-db" in content and "actions/cache" in content
+              if uses_seen_db_cache:
+                  has_old_only = bool(re.search(r"key:\s*netshield-seen-db-v1\s*$", content, re.MULTILINE))
+                  has_new_restore = "netshield-seen-db-v1-" in content and "restore-keys" in content
+                  if has_old_only and not has_new_restore:
+                      errors.append(
+                          "Cache Restore-Key `netshield-seen-db-v1` findet den von Combined gespeicherten "
+                          "Cache (`netshield-seen-db-v1-<run_id>`) nicht. Korrekt: "
+                          "`key: netshield-seen-db-v1-latest` + `restore-keys: |\n  netshield-seen-db-v1-`"
+                      )
+
+              # ── days_seen Initialwert bei .get() ─────────────────────────
+              # get("days_seen", 1) + 1 startet fälschlich bei 2 statt 1
+              # korrekt: get("days_seen", 0) + 1
+              for i, line in enumerate(lines, 1):
+                  if not is_code_line(line):
+                      continue
+                  if re.search(r'get\s*\(\s*["\'\']days_seen["\'\']\s*,\s*1\s*\)\s*\+\s*1', line):
+                      errors.append(
+                          f"Zeile {i}: `get(\"days_seen\", 1) + 1` – Initialwert falsch: "
+                          f"erster Bestätigungstag wird als 2 gezählt. Korrekt: `get(\"days_seen\", 0) + 1`"
+                      )
+
+              # ── seen_db Schema-Vollständigkeit ───────────────────────────
+              # Neue Einträge müssen alle Pflichtfelder des neuen Schemas enthalten
+              REQUIRED_SCHEMA_FIELDS = ["days_seen", "today_count", "today_hq", "hq_feeds", "feeds"]
+              writes_new_db_entry = bool(re.search(r'"first"\s*:\s*now_day', content))
+              if writes_new_db_entry:
+                  missing = [f for f in REQUIRED_SCHEMA_FIELDS if f'"{f}"' not in content]
+                  if missing:
+                      errors.append(
+                          f"seen_db Eintrag fehlt Pflichtfelder: {missing} – "
+                          f"Confidence-Scoring ignoriert diese IPs (Score bleibt 0)"
+                      )
+
+
               # ── Doppelte Cron-Kommentare ─────────────────────────────────
               for i, line in enumerate(lines, 1):
                   if "cron:" in line and line.count("#") >= 2:
