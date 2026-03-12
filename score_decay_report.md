@@ -1,5 +1,5 @@
 # Score Decay Monitor – Report
-**Aktualisiert:** 2026-03-12 20:04 UTC
+**Aktualisiert:** 2026-03-12 21:48 UTC
 
 ---
 ## Übersicht
@@ -17,4 +17,4 @@
 **0 IPs** aus Blacklist entfernt (30+ Tage inaktiv)
 
 ---
-*Generiert: 2026-03-12 20:04 UTC | DB: 2859128 IPs*
+*Generiert: 2026-03-12 21:48 UTC | DB: 2859128 IPs*
