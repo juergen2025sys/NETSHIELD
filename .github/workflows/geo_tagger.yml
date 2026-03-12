@@ -102,13 +102,26 @@ jobs:
 
           print(f"Blacklist: {len(blacklist_ips):,} IPs geladen")
 
-          # IPs als ipaddress-Objekte für CIDR-Check
+          # IPs als sortierte Integer für Binary-Search (~60x schneller als brute-force)
+          from bisect import bisect_right
+
+          def build_ranges(networks):
+              ranges = sorted(
+                  [(int(n.network_address), int(n.broadcast_address)) for n in networks]
+              )
+              return ranges, [r[0] for r in ranges]
+
+          def ip_in_ranges(ip_int, ranges, starts):
+              idx = bisect_right(starts, ip_int) - 1
+              return idx >= 0 and ranges[idx][0] <= ip_int <= ranges[idx][1]
+
           bl_addrs = []
           for ip in blacklist_ips:
               try:
-                  bl_addrs.append((ip, ipaddress.ip_address(ip)))
+                  bl_addrs.append((ip, int(ipaddress.ip_address(ip))))
               except:
                   pass
+          bl_addrs.sort(key=lambda x: x[1])
           print(f"Gültige IPs für CIDR-Check: {len(bl_addrs):,}")
 
           # ── Pro Land: Prefixliste laden + Blacklist-IPs matchen ───────────
@@ -140,16 +153,16 @@ jobs:
                   print("SKIP (keine CIDRs)")
                   continue
 
-              # Blacklist-IPs matchen
+              asn_ranges, asn_starts = build_ranges(networks)
+
+              # Blacklist-IPs matchen (Binary-Search)
               matched = []
-              for ip_str, addr in bl_addrs:
+              for ip_str, ip_int in bl_addrs:
                   if ip_str in ip_to_country:
-                      continue  # bereits einem Land zugeordnet
-                  for net in networks:
-                      if addr in net:
-                          matched.append(ip_str)
-                          ip_to_country[ip_str] = cc
-                          break
+                      continue
+                  if ip_in_ranges(ip_int, asn_ranges, asn_starts):
+                      matched.append(ip_str)
+                      ip_to_country[ip_str] = cc
 
               total_ips = sum(n.num_addresses for n in networks)
               results.append({
