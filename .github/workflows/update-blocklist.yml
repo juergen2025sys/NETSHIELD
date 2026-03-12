@@ -67,28 +67,40 @@ jobs:
               net = ipaddress.ip_network(entry, strict=False)
               return (int(net.network_address), net.prefixlen)
 
+          def fetch_country(url, retries=3, timeout=15):
+              """Fetch mit bis zu 3 Versuchen bei Netzwerkfehlern."""
+              for attempt in range(1, retries + 1):
+                  try:
+                      with urllib.request.urlopen(url, timeout=timeout) as response:
+                          return response.read().decode("utf-8"), None
+                  except urllib.error.HTTPError as e:
+                      return None, e  # HTTP-Fehler nicht wiederholen (404 etc.)
+                  except Exception as e:
+                      if attempt < retries:
+                          time.sleep(attempt * 2)  # 2s, 4s zwischen Versuchen
+                      else:
+                          return None, e
+              return None, Exception("Unbekannter Fehler")
+
           for i, cc in enumerate(countries):
               url = f"{base_url}/{cc}_IPv4.txt"
-              try:
-                  with urllib.request.urlopen(url, timeout=15) as response:
-                      content = response.read().decode("utf-8")
-                      lines = [
-                          l.strip()
-                          for l in content.splitlines()
-                          if l.strip() and l[0].isdigit()
-                      ]
-                      all_ips.update(lines)
-                      print(f"[{i+1}/{len(countries)}] {cc} - {len(lines)} entries")
+              raw, err = fetch_country(url)
 
-              except urllib.error.HTTPError as e:
-                  if e.code == 404:
-                      print(f"[{i+1}/{len(countries)}] {cc} - 0 entries (404)")
-                  else:
-                      print(f"[{i+1}/{len(countries)}] {cc} - ERROR: HTTP Error {e.code}")
-                      errors.append(cc)
-
-              except Exception as e:
-                  print(f"[{i+1}/{len(countries)}] {cc} - ERROR: {e}")
+              if raw is not None:
+                  lines = [
+                      l.strip()
+                      for l in raw.splitlines()
+                      if l.strip() and l[0].isdigit()
+                  ]
+                  all_ips.update(lines)
+                  print(f"[{i+1}/{len(countries)}] {cc} - {len(lines)} entries")
+              elif isinstance(err, urllib.error.HTTPError) and err.code == 404:
+                  print(f"[{i+1}/{len(countries)}] {cc} - 0 entries (404)")
+              elif isinstance(err, urllib.error.HTTPError):
+                  print(f"[{i+1}/{len(countries)}] {cc} - ERROR: HTTP {err.code}")
+                  errors.append(cc)
+              else:
+                  print(f"[{i+1}/{len(countries)}] {cc} - ERROR nach 3 Versuchen: {err}")
                   errors.append(cc)
 
               time.sleep(0.1)

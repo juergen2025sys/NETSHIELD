@@ -536,8 +536,8 @@ jobs:
               if len(data.get("feeds", [])) >= 2 or data.get("hq")
           }
 
-          # 365-Tage-Ablauf
-          cutoff    = now - timedelta(days=365)
+          # 180-Tage-Ablauf (konsistent mit EXPIRY_DAYS in update_combined_blacklist)
+          cutoff    = now - timedelta(days=180)
           expired   = []
           for ip in list(db.keys()):
               try:
