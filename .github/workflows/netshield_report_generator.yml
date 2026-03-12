@@ -2,7 +2,7 @@ name: NETSHIELD Report Generator
 
 on:
   schedule:
-    - cron: '50 0 * * *'    # täglich 00:50 UTC
+    - cron: '0,30 * * * *'    # alle 30 Minuten
   workflow_dispatch:
 
 env:
