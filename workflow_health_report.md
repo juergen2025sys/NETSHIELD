@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-03-12 20:48 UTC
+**Aktualisiert:** 2026-03-12 20:52 UTC
 
 **Workflows:** 17 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
 
@@ -31,8 +31,8 @@
 
 ### `score_decay_monitor.yml`
 
-- 🔴 [AUDIT-BUG-3] Score-Decay-Workflow speichert Cache mit Key `netshield-seen-db-v1-latest` – überschreibt damit den aktuellen Combined-Cache mit einer modifizierten (ausgedünnten) seen_db. Der nächste Combined-Lauf startet mit falscher DB. Fix: Save-Key auf `netshield-seen-db-v1-decay-23159101` ändern.
+- 🔴 [AUDIT-BUG-3] Score-Decay-Workflow speichert Cache mit Key `netshield-seen-db-v1-latest` – überschreibt damit den aktuellen Combined-Cache mit einer modifizierten (ausgedünnten) seen_db. Der nächste Combined-Lauf startet mit falscher DB. Fix: Save-Key auf `netshield-seen-db-v1-decay-23337981` ändern.
 
 
 ---
-*Generiert: 2026-03-12 20:48 UTC | 17 Workflow-Dateien geprüft*
+*Generiert: 2026-03-12 20:52 UTC | 17 Workflow-Dateien geprüft*
