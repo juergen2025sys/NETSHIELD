@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-03-12 20:05 UTC
+**Aktualisiert:** 2026-03-12 20:06 UTC
 
 **Workflows:** 17 | ✅ 12 OK | ⚠️ 0 Warnung | ❌ 5 Fehler
 
@@ -32,24 +32,24 @@
 ### `asn_reputation_scorer.yml`
 
 - 🔴 seen_db.json wird modifiziert, aber kein `Save seen_db Cache`-Step mit `github.run_id` gefunden – Änderungen gehen beim nächsten Run verloren
-- 🔴 [AUDIT-BUG-2] seen_db.json wird per json.dump() geschrieben, aber fehlt im `git add`-Befehl. Fällt der GitHub-Cache nach 7 Tagen weg, gehen alle Änderungen (z.B. Community-Reports) dauerhaft verloren. Fix: `git add ... seen_db.json` ergänzen.
+- 🔴 [AUDIT-BUG-2] wird per json.dump() geschrieben, aber fehlt im `git add`-Befehl. Fällt der GitHub-Cache nach 7 Tagen weg, gehen alle Änderungen (z.B. Community-Reports) dauerhaft verloren. Fix: `git add ...` ergänzen.
 
 ### `auto_feed_discovery.yml`
 
-- 🔴 [AUDIT-BUG-2] seen_db.json wird per json.dump() geschrieben, aber fehlt im `git add`-Befehl. Fällt der GitHub-Cache nach 7 Tagen weg, gehen alle Änderungen (z.B. Community-Reports) dauerhaft verloren. Fix: `git add ... seen_db.json` ergänzen.
+- 🔴 [AUDIT-BUG-2] wird per json.dump() geschrieben, aber fehlt im `git add`-Befehl. Fällt der GitHub-Cache nach 7 Tagen weg, gehen alle Änderungen (z.B. Community-Reports) dauerhaft verloren. Fix: `git add ...` ergänzen.
 
 ### `community_ip_report.yml`
 
-- 🔴 [AUDIT-BUG-2] seen_db.json wird per json.dump() geschrieben, aber fehlt im `git add`-Befehl. Fällt der GitHub-Cache nach 7 Tagen weg, gehen alle Änderungen (z.B. Community-Reports) dauerhaft verloren. Fix: `git add ... seen_db.json` ergänzen.
+- 🔴 [AUDIT-BUG-2] wird per json.dump() geschrieben, aber fehlt im `git add`-Befehl. Fällt der GitHub-Cache nach 7 Tagen weg, gehen alle Änderungen (z.B. Community-Reports) dauerhaft verloren. Fix: `git add ...` ergänzen.
 
 ### `score_decay_monitor.yml`
 
-- 🔴 [AUDIT-BUG-2] seen_db.json wird per json.dump() geschrieben, aber fehlt im `git add`-Befehl. Fällt der GitHub-Cache nach 7 Tagen weg, gehen alle Änderungen (z.B. Community-Reports) dauerhaft verloren. Fix: `git add ... seen_db.json` ergänzen.
+- 🔴 [AUDIT-BUG-2] wird per json.dump() geschrieben, aber fehlt im `git add`-Befehl. Fällt der GitHub-Cache nach 7 Tagen weg, gehen alle Änderungen (z.B. Community-Reports) dauerhaft verloren. Fix: `git add ...` ergänzen.
 
 ### `update_combined_blacklist.yml`
 
-- 🔴 [AUDIT-BUG-2] seen_db.json wird per json.dump() geschrieben, aber fehlt im `git add`-Befehl. Fällt der GitHub-Cache nach 7 Tagen weg, gehen alle Änderungen (z.B. Community-Reports) dauerhaft verloren. Fix: `git add ... seen_db.json` ergänzen.
+- 🔴 [AUDIT-BUG-2] wird per json.dump() geschrieben, aber fehlt im `git add`-Befehl. Fällt der GitHub-Cache nach 7 Tagen weg, gehen alle Änderungen (z.B. Community-Reports) dauerhaft verloren. Fix: `git add ...` ergänzen.
 
 
 ---
-*Generiert: 2026-03-12 20:05 UTC | 17 Workflow-Dateien geprüft*
+*Generiert: 2026-03-12 20:06 UTC | 17 Workflow-Dateien geprüft*
