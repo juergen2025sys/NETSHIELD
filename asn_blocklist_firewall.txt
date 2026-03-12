@@ -1,5 +1,24 @@
 # ASN Reputation Blocklist – NETSHIELD
-# Aktualisiert: 2026-03-12 04:20 UTC
-# Format: AS<Nummer> # Score | Organisation | Land
-# Nur ASNs mit Score >= 50 werden gelistet
+# Aktualisiert: 2026-03-12 19:45 UTC
+# Format: AS<Nummer> # Score | BL-Hits | Organisation | Land
+# Nur ASNs mit Score >= 50 (base_score + BL-Treffer + DROP/ET-Bonus)
 
+AS12389  # Score:9999 | BL-Hits:9688 | Rostelecom | RU
+AS45102  # Score:9999 | BL-Hits:28614 | Alibaba Cloud | CN
+AS132203  # Score:9999 | BL-Hits:14481 | Tencent Cloud | CN
+AS14061  # Score:9999 | BL-Hits:171620 | DigitalOcean | US
+AS20473  # Score:9999 | BL-Hits:16001 | Vultr | US
+AS51167  # Score:9999 | BL-Hits:10052 | Contabo | DE
+AS24940  # Score:9999 | BL-Hits:20169 | Hetzner | DE
+AS63949  # Score:9999 | BL-Hits:7634 | Linode (Akamai) | US
+AS16276  # Score:9999 | BL-Hits:32392 | OVH | FR
+AS12876  # Score:9999 | BL-Hits:7131 | Scaleway | FR
+AS31898  # Score:9999 | BL-Hits:23926 | Oracle Cloud | US
+AS16509  # Score:9999 | BL-Hits:277786 | Amazon AWS | US
+AS8075  # Score:9999 | BL-Hits:32600 | Microsoft Azure | US
+AS8560  # Score:5330 | BL-Hits:2660 | IONOS | DE
+AS47583  # Score:3780 | BL-Hits:1880 | Hostinger | LT
+AS26496  # Score:2990 | BL-Hits:1490 | GoDaddy | US
+AS22612  # Score:2872 | BL-Hits:1426 | Namecheap | US
+AS36351  # Score:2292 | BL-Hits:1141 | IBM Cloud | US
+AS46606  # Score:1570 | BL-Hits:780 | Bluehost (Unified Layer) | US

@@ -1,4 +1,197 @@
 {
-  "updated": "2026-03-12 04:20 UTC",
-  "asns": {}
+  "updated": "2026-03-12 19:45 UTC",
+  "method": "scanitex-cidr-match",
+  "bl_total": 2859128,
+  "asns": {
+    "AS12389": {
+      "holder": "Rostelecom",
+      "country": "RU",
+      "score": 9999,
+      "bl_matches": 9688,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 3183,
+      "total_ips": 17214464
+    },
+    "AS45102": {
+      "holder": "Alibaba Cloud",
+      "country": "CN",
+      "score": 9999,
+      "bl_matches": 28614,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 877,
+      "total_ips": 9523200
+    },
+    "AS132203": {
+      "holder": "Tencent Cloud",
+      "country": "CN",
+      "score": 9999,
+      "bl_matches": 14481,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 1050,
+      "total_ips": 2391808
+    },
+    "AS14061": {
+      "holder": "DigitalOcean",
+      "country": "US",
+      "score": 9999,
+      "bl_matches": 171620,
+      "drop_bonus": 0,
+      "et_bonus": 2,
+      "prefixes": 827,
+      "total_ips": 3035904
+    },
+    "AS20473": {
+      "holder": "Vultr",
+      "country": "US",
+      "score": 9999,
+      "bl_matches": 16001,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 1453,
+      "total_ips": 1369088
+    },
+    "AS51167": {
+      "holder": "Contabo",
+      "country": "DE",
+      "score": 9999,
+      "bl_matches": 10052,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 567,
+      "total_ips": 469504
+    },
+    "AS24940": {
+      "holder": "Hetzner",
+      "country": "DE",
+      "score": 9999,
+      "bl_matches": 20169,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 82,
+      "total_ips": 2810880
+    },
+    "AS63949": {
+      "holder": "Linode (Akamai)",
+      "country": "US",
+      "score": 9999,
+      "bl_matches": 7634,
+      "drop_bonus": 0,
+      "et_bonus": 2,
+      "prefixes": 341,
+      "total_ips": 1268480
+    },
+    "AS16276": {
+      "holder": "OVH",
+      "country": "FR",
+      "score": 9999,
+      "bl_matches": 32392,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 600,
+      "total_ips": 4545024
+    },
+    "AS12876": {
+      "holder": "Scaleway",
+      "country": "FR",
+      "score": 9999,
+      "bl_matches": 7131,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 22,
+      "total_ips": 570112
+    },
+    "AS31898": {
+      "holder": "Oracle Cloud",
+      "country": "US",
+      "score": 9999,
+      "bl_matches": 23926,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 1971,
+      "total_ips": 4743680
+    },
+    "AS16509": {
+      "holder": "Amazon AWS",
+      "country": "US",
+      "score": 9999,
+      "bl_matches": 277786,
+      "drop_bonus": 0,
+      "et_bonus": 2,
+      "prefixes": 14341,
+      "total_ips": 190563840
+    },
+    "AS8075": {
+      "holder": "Microsoft Azure",
+      "country": "US",
+      "score": 9999,
+      "bl_matches": 32600,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 931,
+      "total_ips": 66393344
+    },
+    "AS8560": {
+      "holder": "IONOS",
+      "country": "DE",
+      "score": 5330,
+      "bl_matches": 2660,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 462,
+      "total_ips": 852736
+    },
+    "AS47583": {
+      "holder": "Hostinger",
+      "country": "LT",
+      "score": 3780,
+      "bl_matches": 1880,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 860,
+      "total_ips": 793344
+    },
+    "AS26496": {
+      "holder": "GoDaddy",
+      "country": "US",
+      "score": 2990,
+      "bl_matches": 1490,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 184,
+      "total_ips": 1248512
+    },
+    "AS22612": {
+      "holder": "Namecheap",
+      "country": "US",
+      "score": 2872,
+      "bl_matches": 1426,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 312,
+      "total_ips": 153216
+    },
+    "AS36351": {
+      "holder": "IBM Cloud",
+      "country": "US",
+      "score": 2292,
+      "bl_matches": 1141,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 328,
+      "total_ips": 4076544
+    },
+    "AS46606": {
+      "holder": "Bluehost (Unified Layer)",
+      "country": "US",
+      "score": 1570,
+      "bl_matches": 780,
+      "drop_bonus": 0,
+      "et_bonus": 0,
+      "prefixes": 285,
+      "total_ips": 861184
+    }
+  }
 }
