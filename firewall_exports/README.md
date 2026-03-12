@@ -1,7 +1,7 @@
 # NETSHIELD Firewall Exports
 
-**Aktualisiert:** 2026-03-11 03:11 UTC  
-**IPs:** 2311839
+**Aktualisiert:** 2026-03-12 03:17 UTC  
+**IPs:** 2869985
 
 | Datei | Format | Verwendung |
 |---|---|---|
@@ -14,4 +14,4 @@
 | `blacklist_mikrotik.rsc` | RouterOS | Mikrotik |
 | `blacklist_windows_firewall.ps1` | PowerShell | Windows |
 
-*Generiert von NETSHIELD Firewall Format Exporter · 2026-03-11 03:11 UTC*
+*Generiert von NETSHIELD Firewall Format Exporter · 2026-03-12 03:17 UTC*
