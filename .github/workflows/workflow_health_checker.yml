@@ -159,7 +159,12 @@ jobs:
                       errors.append(f"Zeile {i}: `str(...).get(...)` – str hat kein .get(), führt zu AttributeError. Korrekt: `(dict_expr).get(...)`")
 
               # ── seen_db wird modifiziert aber Cache nicht gespeichert ────
-              modifies_seen_db = any(
+              # Nur prüfen wenn der Workflow tatsächlich seen_db.json öffnet/definiert
+              uses_seen_db_file = bool(
+                  re.search(r'"seen_db\.json"', content) or
+                  re.search("'seen_db\.json'", content)
+              )
+              modifies_seen_db = uses_seen_db_file and any(
                   re.search(r'(del db\[|db\.pop\(|json\.dump\(db)', line)
                   for line in lines
               )
