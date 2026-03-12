@@ -16,14 +16,14 @@ permissions:
   pull-requests: none
   security-events: none
 
-
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
+
 jobs:
   asn-scorer:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -38,168 +38,272 @@ jobs:
           import re
           import os
           import time
+          import ipaddress
           from datetime import datetime, timezone
           from collections import defaultdict
 
           now = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
-          IP_RE   = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b')
 
-          def fetch_raw(url, timeout=20):
+          CIDR_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b')
+
+          def fetch_raw(url, timeout=30):
               try:
-                  req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD-ASNScorer/1.0"})
+                  req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD-ASNScorer/2.0"})
                   with urllib.request.urlopen(req, timeout=timeout) as r:
                       return r.read().decode("utf-8", errors="ignore")
               except Exception as e:
-                  print(f"  FEHLER {url.split('/')[-1]}: {e}")
+                  print(f"  FEHLER {url}: {e}")
                   return None
 
-          def fetch_json(url, timeout=20):
-              raw = fetch_raw(url, timeout)
-              try:
-                  return json.loads(raw) if raw else None
-              except:
-                  return None
+          # ── High-Risk ASN-Definitionen ────────────────────────────────────
+          # slug     = ScaniteX URL-Slug  → /download/txt liefert CIDR-Liste
+          # asn      = AS-Nummer (für Report)
+          # holder   = Anzeigename
+          # country  = Land
+          # base_score = Basis-Reputationsscore (höher = verdächtiger)
+          #              Kriterien: Geopolitisches Risiko, bekannte Abuse-Quellen,
+          #              häufig in Threat-Feeds gesichtet
+          HIGH_RISK_ASNS = [
+              # ── Russland ──────────────────────────────────────────────────
+              {"slug": "rostelecom",          "asn": "AS12389",  "holder": "Rostelecom",                 "country": "RU", "base_score": 40},
+              # ── China ────────────────────────────────────────────────────
+              {"slug": "alibaba-cloud",       "asn": "AS45102",  "holder": "Alibaba Cloud",              "country": "CN", "base_score": 35},
+              {"slug": "tencent-cloud",       "asn": "AS132203", "holder": "Tencent Cloud",              "country": "CN", "base_score": 35},
+              # ── Bekannte Abuse-Hoster ─────────────────────────────────────
+              {"slug": "digitalocean",        "asn": "AS14061",  "holder": "DigitalOcean",               "country": "US", "base_score": 20},
+              {"slug": "vultr",               "asn": "AS20473",  "holder": "Vultr",                      "country": "US", "base_score": 20},
+              {"slug": "contabo",             "asn": "AS51167",  "holder": "Contabo",                    "country": "DE", "base_score": 25},
+              {"slug": "hetzner",             "asn": "AS24940",  "holder": "Hetzner",                    "country": "DE", "base_score": 15},
+              {"slug": "linode",              "asn": "AS63949",  "holder": "Linode (Akamai)",             "country": "US", "base_score": 15},
+              {"slug": "ovh",                 "asn": "AS16276",  "holder": "OVH",                        "country": "FR", "base_score": 15},
+              {"slug": "hostinger",           "asn": "AS47583",  "holder": "Hostinger",                  "country": "LT", "base_score": 20},
+              {"slug": "namecheap",           "asn": "AS22612",  "holder": "Namecheap",                  "country": "US", "base_score": 20},
+              {"slug": "godaddy",             "asn": "AS26496",  "holder": "GoDaddy",                    "country": "US", "base_score": 10},
+              {"slug": "bluehost",            "asn": "AS46606",  "holder": "Bluehost (Unified Layer)",   "country": "US", "base_score": 10},
+              {"slug": "ionos",               "asn": "AS8560",   "holder": "IONOS",                      "country": "DE", "base_score": 10},
+              {"slug": "scaleway",            "asn": "AS12876",  "holder": "Scaleway",                   "country": "FR", "base_score": 10},
+              # ── Große Cloud (niedrig priorisiert, aber trackbar) ──────────
+              {"slug": "oracle-cloud",        "asn": "AS31898",  "holder": "Oracle Cloud",               "country": "US", "base_score": 15},
+              {"slug": "amazon-aws",          "asn": "AS16509",  "holder": "Amazon AWS",                 "country": "US", "base_score": 10},
+              {"slug": "microsoft-azure",     "asn": "AS8075",   "holder": "Microsoft Azure",            "country": "US", "base_score": 10},
+              {"slug": "ibm-cloud",           "asn": "AS36351",  "holder": "IBM Cloud",                  "country": "US", "base_score": 10},
+          ]
 
-          # ── Schritt 1: IPs aus Blacklist laden ───────────────────────────
+          SCANITEX_BASE = "https://scanitex.com/en/resources/asn-database"
+
+          # ── Schritt 1: Blacklist laden ────────────────────────────────────
           BLACKLIST = "combined_threat_blacklist_ipv4.txt"
           blacklist_ips = []
           if os.path.exists(BLACKLIST):
               with open(BLACKLIST) as f:
-                  blacklist_ips = [l.strip() for l in f if l.strip() and not l.startswith("#")]
-              print(f"Blacklist geladen: {len(blacklist_ips)} IPs")
+                  blacklist_ips = [
+                      l.strip() for l in f
+                      if l.strip() and not l.startswith("#")
+                  ]
+              print(f"Blacklist geladen: {len(blacklist_ips):,} IPs")
           else:
-              print(f"WARNUNG: {BLACKLIST} nicht gefunden – nur Feed-Daten werden verwendet")
+              print(f"WARNUNG: {BLACKLIST} nicht gefunden")
 
-          # ── Schritt 2: ASN pro IP bestimmen (iptoasn.com, kein Key) ──────
-          print("\nASN-Lookup via iptoasn.com (Sample: 300 IPs)...")
-          asn_ip_count  = defaultdict(int)
-          asn_meta      = {}   # asn -> {holder, country}
-          asn_to_ips    = defaultdict(list)  # asn -> [ip, ...] für DROP-Check ohne Re-Lookup
+          # IPs als ipaddress-Objekte für schnellen CIDR-Check
+          bl_addrs = []
+          for ip in blacklist_ips:
+              try:
+                  bl_addrs.append(ipaddress.ip_address(ip))
+              except:
+                  pass
+          print(f"Gültige IPs für CIDR-Check: {len(bl_addrs):,}")
 
-          sample = blacklist_ips[:300]
-          for i, ip in enumerate(sample):
-              if i % 50 == 0:
-                  print(f"  {i}/{len(sample)}...")
-              time.sleep(0.15)
-              data = fetch_json(f"https://api.iptoasn.com/v1/as/ip/{ip}")
-              if data:
-                  asn = str(data.get("as_number", 0))
-                  if asn and asn != "0":
-                      asn_ip_count[asn] += 1
-                      asn_to_ips[asn].append(ip)  # IP dem ASN zuordnen – kein Re-Lookup nötig
-                      if asn not in asn_meta:
-                          asn_meta[asn] = {
-                              "holder":  data.get("as_description", "Unknown"),
-                              "country": data.get("as_country_code", "??")
-                          }
-
-          # ── Schritt 3: Abuse-Score berechnen ─────────────────────────────
-          # Score-Faktoren:
-          #   +10 pro IP in der Blacklist
-          #   +20 wenn ASN in Spamhaus DROP-Feed
-          #   +15 wenn ASN in Emerging Threats
-          #   +5  wenn Country in High-Risk-Liste
-
-          HIGH_RISK_COUNTRIES = {"CN","RU","KP","IR","NG","BR","IN","VN","UA","RO"}
-
+          # ── Schritt 2: Ergänzende Threat-Feeds laden ──────────────────────
           print("\nSpamhaus DROP laden...")
           drop_text = fetch_raw("https://www.spamhaus.org/drop/drop.txt") or ""
-          drop_cidrs = set(re.findall(r'(\d+\.\d+\.\d+\.\d+/\d+)', drop_text))
+          drop_networks = []
+          for cidr in CIDR_RE.findall(drop_text):
+              try:
+                  drop_networks.append(ipaddress.ip_network(cidr, strict=False))
+              except:
+                  pass
+          print(f"  Spamhaus DROP: {len(drop_networks)} Netzwerke")
 
           print("Emerging Threats laden...")
           et_text = fetch_raw("https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt") or ""
-          et_ips  = set(IP_RE.findall(et_text))
+          et_ips = set()
+          for ip in re.findall(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b', et_text):
+              et_ips.add(ip)
+          print(f"  Emerging Threats: {len(et_ips):,} IPs")
 
-          # RIPE ASN → Prefix-Mapping für DROP-Prüfung
-          import ipaddress
-          def ip_in_cidrs(ip, cidrs):
-              try:
-                  addr = ipaddress.ip_address(ip)
-                  for c in cidrs:
-                      try:
-                          if addr in ipaddress.ip_network(c, strict=False):
-                              return True
-                      except:
-                          pass
-              except:
-                  pass
+          # Hilfsfunktion: IP in DROP-Netz?
+          def in_drop(addr):
+              for net in drop_networks:
+                  if addr in net:
+                      return True
               return False
 
-          asn_scores = {}
-          for asn, count in asn_ip_count.items():
-              score = count * 10
-              meta  = asn_meta.get(asn, {})
+          # ── Schritt 3: Pro ASN Prefixliste laden + Blacklist-IPs matchen ──
+          print("\nASN-Prefixlisten von ScaniteX laden und gegen Blacklist prüfen...")
+          results = []
 
-              # Land-Bonus
-              if meta.get("country") in HIGH_RISK_COUNTRIES:
-                  score += 5
+          for entry in HIGH_RISK_ASNS:
+              slug    = entry["slug"]
+              url     = f"{SCANITEX_BASE}/{slug}/download/txt"
+              print(f"  {entry['asn']} {entry['holder']}...", end=" ", flush=True)
 
-              # Spamhaus DROP-Check: IPs des ASN aus lokalem Dict – kein erneuter API-Call
-              asn_sample_ips = asn_to_ips.get(asn, [])
-              drop_hits = sum(1 for ip in asn_sample_ips[:5] if ip_in_cidrs(ip, drop_cidrs))
-              if drop_hits > 0:
-                  score += 20
+              raw = fetch_raw(url)
+              if not raw:
+                  print("SKIP (kein Download)")
+                  continue
 
-              # Emerging Threats Check - proportional zum ASN-Anteil
-              asn_ratio = count / max(len(sample), 1)
-              et_hits = int(sum(1 for ip in sample if ip in et_ips) * asn_ratio)
-              score += et_hits * 15
+              # CIDRs aus TXT parsen
+              networks = []
+              for cidr in CIDR_RE.findall(raw):
+                  try:
+                      networks.append(ipaddress.ip_network(cidr, strict=False))
+                  except:
+                      pass
 
-              asn_scores[asn] = {
-                  "score":   min(score, 1000),
-                  "ip_count": count,
-                  "holder":  meta.get("holder", "Unknown"),
-                  "country": meta.get("country", "??"),
-              }
+              if not networks:
+                  print("SKIP (keine CIDRs)")
+                  continue
 
-          sorted_asns = sorted(asn_scores.items(), key=lambda x: x[1]["score"], reverse=True)
+              # Blacklist-IPs gegen CIDRs prüfen
+              matched_ips = []
+              drop_bonus  = 0
+              et_bonus    = 0
 
-          # ── Schritt 4: Firewall-Blockliste ausgeben ───────────────────────
-          print("\nFirewall-ASN-Blockliste schreiben...")
+              for addr in bl_addrs:
+                  ip_str = str(addr)
+                  for net in networks:
+                      if addr in net:
+                          matched_ips.append(ip_str)
+                          # Bonus: IP auch in Spamhaus DROP?
+                          if in_drop(addr):
+                              drop_bonus += 1
+                          # Bonus: IP auch in Emerging Threats?
+                          if ip_str in et_ips:
+                              et_bonus += 1
+                          break  # einmal gefunden, weiter zur nächsten IP
 
-          # Format: eine ASN pro Zeile (kompatibel mit iptables/nftables/pfSense)
+              # Score berechnen
+              # base_score:  Basis-Reputation laut Konfiguration oben
+              # +2 pro Blacklist-IP im ASN-Bereich (deckt schon 100% der IPs ab)
+              # +5 pro IP die auch in Spamhaus DROP ist
+              # +3 pro IP die auch in Emerging Threats ist
+              score = entry["base_score"]
+              score += len(matched_ips) * 2
+              score += drop_bonus * 5
+              score += et_bonus * 3
+              score = min(score, 9999)
+
+              total_prefixes = len(networks)
+              total_ips_covered = sum(net.num_addresses for net in networks)
+
+              results.append({
+                  "asn":            entry["asn"],
+                  "holder":         entry["holder"],
+                  "country":        entry["country"],
+                  "base_score":     entry["base_score"],
+                  "score":          score,
+                  "bl_matches":     len(matched_ips),
+                  "drop_bonus":     drop_bonus,
+                  "et_bonus":       et_bonus,
+                  "prefixes":       total_prefixes,
+                  "total_ips":      total_ips_covered,
+                  "matched_ips":    matched_ips[:500],  # max 500 IPs im JSON
+              })
+
+              print(f"{len(matched_ips):,} BL-Hits / {total_prefixes} Prefixes → Score {score}")
+              time.sleep(0.5)  # kurze Pause, kein Rate-Limit-Risiko
+
+          # Sortieren nach Score
+          results.sort(key=lambda x: x["score"], reverse=True)
+
+          # ── Schritt 4: asn_blocklist_firewall.txt ─────────────────────────
+          print("\nFirewall-Blockliste schreiben...")
           with open("asn_blocklist_firewall.txt", "w", encoding="utf-8") as f:
               f.write(f"# ASN Reputation Blocklist – NETSHIELD\n")
               f.write(f"# Aktualisiert: {now_str}\n")
-              f.write(f"# Format: AS<Nummer> # Score | Organisation | Land\n")
-              f.write(f"# Nur ASNs mit Score >= 50 werden gelistet\n\n")
+              f.write(f"# Format: AS<Nummer> # Score | BL-Hits | Organisation | Land\n")
+              f.write(f"# Nur ASNs mit Score >= 50 (base_score + BL-Treffer + DROP/ET-Bonus)\n\n")
               blocked = 0
-              for asn, data in sorted_asns:
-                  if data["score"] >= 50:
-                      f.write(f"AS{asn}  # Score:{data['score']} | {data['holder'][:40]} | {data['country']}\n")
+              for r in results:
+                  if r["score"] >= 50:
+                      f.write(
+                          f"{r['asn']}  "
+                          f"# Score:{r['score']} | "
+                          f"BL-Hits:{r['bl_matches']} | "
+                          f"{r['holder'][:40]} | "
+                          f"{r['country']}\n"
+                      )
                       blocked += 1
-              print(f"  {blocked} ASNs mit Score >= 50 gelistet")
+          print(f"  {blocked} ASNs mit Score >= 50 gelistet")
 
-          # ── Schritt 5: JSON-Datenbank für andere Workflows ────────────────
-          with open("asn_reputation_db.json", "w") as f:
-              json.dump({
-                  "updated": now_str,
-                  "asns": {
-                      asn: data for asn, data in sorted_asns
-                  }
-              }, f, indent=2)
+          # ── Schritt 5: asn_reputation_db.json ────────────────────────────
+          db = {
+              "updated":  now_str,
+              "method":   "scanitex-cidr-match",
+              "bl_total": len(bl_addrs),
+              "asns": {}
+          }
+          for r in results:
+              db["asns"][r["asn"]] = {
+                  "holder":     r["holder"],
+                  "country":    r["country"],
+                  "score":      r["score"],
+                  "bl_matches": r["bl_matches"],
+                  "drop_bonus": r["drop_bonus"],
+                  "et_bonus":   r["et_bonus"],
+                  "prefixes":   r["prefixes"],
+                  "total_ips":  r["total_ips"],
+              }
+
+          with open("asn_reputation_db.json", "w", encoding="utf-8") as f:
+              json.dump(db, f, indent=2)
 
           # ── Schritt 6: Report ─────────────────────────────────────────────
-          lines = []
-          lines.append("# ASN Reputation Scorer – Report")
-          lines.append(f"**Aktualisiert:** {now_str}\n")
-          lines.append("---")
-          lines.append(f"## Top 30 Abuse-ASNs\n")
-          lines.append("| Rang | ASN | Organisation | Land | Score | Blacklist-IPs |")
-          lines.append("|---|---|---|---|---|---|")
-          for rank, (asn, d) in enumerate(sorted_asns[:30], 1):
-              bar = "🔴" if d["score"] >= 200 else "🟡" if d["score"] >= 100 else "⚪"
-              lines.append(f"| {rank} | AS{asn} | {d['holder'][:35]} | {d['country']} | {bar} {d['score']} | {d['ip_count']} |")
-          lines.append("")
-          lines.append("---")
-          lines.append(f"*Gesamt analysierte ASNs: {len(asn_scores)} | Geblockte ASNs (Score≥50): {sum(1 for _,d in sorted_asns if d['score']>=50)}*")
-          lines.append(f"\n*Generiert: {now_str}*")
+          total_bl_hits = sum(r["bl_matches"] for r in results)
+          lines = [
+              "# ASN Reputation Scorer – Report",
+              f"**Aktualisiert:** {now_str}  ",
+              f"**Methode:** ScaniteX CIDR-Prefixlisten (kein API-Key, 100% BL-Coverage)  ",
+              f"**Blacklist-IPs gesamt:** {len(bl_addrs):,}  ",
+              f"**Davon in bekannten ASN-Ranges:** {total_bl_hits:,}",
+              "",
+              "---",
+              "",
+              "## ASN-Übersicht (nach Score sortiert)",
+              "",
+              "| Rang | ASN | Organisation | Land | Score | BL-Hits | DROP | ET | Prefixes |",
+              "|---|---|---|---|---|---|---|---|---|",
+          ]
+          for rank, r in enumerate(results, 1):
+              flag = "🔴" if r["score"] >= 200 else "🟠" if r["score"] >= 100 else "🟡" if r["score"] >= 50 else "⚪"
+              lines.append(
+                  f"| {rank} | {r['asn']} | {r['holder'][:35]} | {r['country']} "
+                  f"| {flag} {r['score']} | {r['bl_matches']:,} | +{r['drop_bonus']} | +{r['et_bonus']} | {r['prefixes']} |"
+              )
+
+          lines += [
+              "",
+              "---",
+              "",
+              "### Score-Formel",
+              "```",
+              "score = base_score + (BL-Treffer × 2) + (DROP-Bonus × 5) + (ET-Bonus × 3)",
+              "```",
+              "- **base_score**: Basis-Reputation (RU/CN-Provider höher bewertet)",
+              "- **BL-Treffer**: Blacklist-IPs die in ASN-Prefixes liegen (100% Coverage)",
+              "- **DROP-Bonus**: IPs auch in Spamhaus DROP",
+              "- **ET-Bonus**: IPs auch in Emerging Threats",
+              "",
+              "---",
+              f"*Datenquelle: [ScaniteX ASN Database](https://scanitex.com/en/resources/asn-database) (BGP via RIPE Stat, kein API-Key)*  ",
+              f"*Generiert: {now_str}*",
+          ]
 
           with open("asn_reputation_report.md", "w", encoding="utf-8") as f:
               f.write("\n".join(lines))
 
-          print(f"\nFERTIG: {len(asn_scores)} ASNs bewertet")
+          print(f"\nFERTIG: {len(results)} ASNs bewertet, {total_bl_hits:,} BL-Treffer gesamt")
           EOF
 
       - name: Commit
