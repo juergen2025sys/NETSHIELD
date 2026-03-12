@@ -1,9 +1,9 @@
 # Geo-Tagger – Blacklist Enrichment Report
-**Aktualisiert:** 2026-03-12 19:46 UTC  
+**Aktualisiert:** 2026-03-12 19:53 UTC  
 **Methode:** ScaniteX Länderprefixe (kein API-Key, kein Rate-Limit)  
 **Blacklist-IPs gesamt:** 2,859,128  
-**Davon zugeordnet:** 43,791 (1.5%)  
-**Nicht zugeordnet:** 2,815,337
+**Davon zugeordnet:** 2,283,626 (79.9%)  
+**Nicht zugeordnet:** 575,502
 
 ---
 
@@ -11,31 +11,31 @@
 
 | Rang | Land | Code | Risiko | BL-Hits | Anteil | Prefixes |
 |---|---|---|---|---|---|---|
-| 1 | 🇳🇬 Nigeria | `NG` | 🟡 Mittel | 13,288 | 0.5% | 20 |
-| 2 | 🇸🇬 Singapur | `SG` | ⚪ Niedrig | 10,953 | 0.4% | 20 |
-| 3 | 🇺🇸 USA | `US` | ⚪ Niedrig | 10,074 | 0.4% | 20 |
-| 4 | 🇻🇳 Vietnam | `VN` | 🟡 Mittel | 4,590 | 0.2% | 20 |
-| 5 | 🇵🇰 Pakistan | `PK` | 🟡 Mittel | 905 | 0.0% | 20 |
-| 6 | 🇧🇾 Belarus | `BY` | 🔴 Hoch | 852 | 0.0% | 20 |
-| 7 | 🇮🇷 Iran | `IR` | 🔴 Hoch | 422 | 0.0% | 20 |
-| 8 | 🇬🇧 Grossbritannien | `GB` | ⚪ Niedrig | 377 | 0.0% | 20 |
-| 9 | 🇺🇦 Ukraine | `UA` | 🟡 Mittel | 376 | 0.0% | 20 |
-| 10 | 🇮🇩 Indonesien | `ID` | 🟡 Mittel | 277 | 0.0% | 20 |
-| 11 | 🇷🇺 Russland | `RU` | 🔴 Hoch | 201 | 0.0% | 20 |
-| 12 | 🇷🇴 Rumänien | `RO` | 🟡 Mittel | 200 | 0.0% | 20 |
-| 13 | 🇭🇰 Hongkong | `HK` | 🟡 Mittel | 181 | 0.0% | 20 |
-| 14 | 🇳🇱 Niederlande | `NL` | ⚪ Niedrig | 177 | 0.0% | 20 |
-| 15 | 🇮🇳 Indien | `IN` | 🟡 Mittel | 175 | 0.0% | 20 |
-| 16 | 🇰🇿 Kasachstan | `KZ` | 🟡 Mittel | 153 | 0.0% | 20 |
-| 17 | 🇧🇩 Bangladesch | `BD` | 🟡 Mittel | 133 | 0.0% | 20 |
-| 18 | 🇹🇷 Türkei | `TR` | 🟡 Mittel | 123 | 0.0% | 20 |
-| 19 | 🇩🇪 Deutschland | `DE` | ⚪ Niedrig | 104 | 0.0% | 20 |
-| 20 | 🇧🇷 Brasilien | `BR` | 🟡 Mittel | 72 | 0.0% | 20 |
-| 21 | 🇯🇵 Japan | `JP` | ⚪ Niedrig | 63 | 0.0% | 20 |
-| 22 | 🇰🇷 Südkorea | `KR` | ⚪ Niedrig | 45 | 0.0% | 20 |
-| 23 | 🇸🇾 Syrien | `SY` | 🔴 Hoch | 32 | 0.0% | 20 |
-| 24 | 🇫🇷 Frankreich | `FR` | ⚪ Niedrig | 12 | 0.0% | 20 |
-| 25 | 🇨🇳 China | `CN` | 🔴 Hoch | 4 | 0.0% | 20 |
+| 1 | 🇺🇸 USA | `US` | ⚪ Niedrig | 1,208,477 | 42.3% | 69494 |
+| 2 | 🇨🇳 China | `CN` | 🔴 Hoch | 193,755 | 6.8% | 8803 |
+| 3 | 🇷🇺 Russland | `RU` | 🔴 Hoch | 170,208 | 6.0% | 11251 |
+| 4 | 🇬🇧 Grossbritannien | `GB` | ⚪ Niedrig | 119,753 | 4.2% | 9256 |
+| 5 | 🇩🇪 Deutschland | `DE` | ⚪ Niedrig | 78,134 | 2.7% | 10962 |
+| 6 | 🇺🇦 Ukraine | `UA` | 🟡 Mittel | 64,646 | 2.3% | 2888 |
+| 7 | 🇸🇬 Singapur | `SG` | ⚪ Niedrig | 58,435 | 2.0% | 1857 |
+| 8 | 🇮🇳 Indien | `IN` | 🟡 Mittel | 56,230 | 2.0% | 9138 |
+| 9 | 🇫🇷 Frankreich | `FR` | ⚪ Niedrig | 41,904 | 1.5% | 4684 |
+| 10 | 🇳🇱 Niederlande | `NL` | ⚪ Niedrig | 37,998 | 1.3% | 6330 |
+| 11 | 🇭🇰 Hongkong | `HK` | 🟡 Mittel | 37,177 | 1.3% | 3295 |
+| 12 | 🇻🇳 Vietnam | `VN` | 🟡 Mittel | 31,448 | 1.1% | 1646 |
+| 13 | 🇧🇷 Brasilien | `BR` | 🟡 Mittel | 31,166 | 1.1% | 12802 |
+| 14 | 🇮🇩 Indonesien | `ID` | 🟡 Mittel | 28,942 | 1.0% | 6034 |
+| 15 | 🇮🇷 Iran | `IR` | 🔴 Hoch | 24,418 | 0.9% | 1920 |
+| 16 | 🇳🇬 Nigeria | `NG` | 🟡 Mittel | 15,623 | 0.5% | 398 |
+| 17 | 🇧🇩 Bangladesch | `BD` | 🟡 Mittel | 13,308 | 0.5% | 2288 |
+| 18 | 🇰🇷 Südkorea | `KR` | ⚪ Niedrig | 13,283 | 0.5% | 2422 |
+| 19 | 🇵🇰 Pakistan | `PK` | 🟡 Mittel | 12,937 | 0.5% | 771 |
+| 20 | 🇷🇴 Rumänien | `RO` | 🟡 Mittel | 12,794 | 0.4% | 2853 |
+| 21 | 🇹🇷 Türkei | `TR` | 🟡 Mittel | 12,619 | 0.4% | 1949 |
+| 22 | 🇯🇵 Japan | `JP` | ⚪ Niedrig | 11,395 | 0.4% | 4727 |
+| 23 | 🇰🇿 Kasachstan | `KZ` | 🟡 Mittel | 5,471 | 0.2% | 645 |
+| 24 | 🇧🇾 Belarus | `BY` | 🔴 Hoch | 3,346 | 0.1% | 106 |
+| 25 | 🇸🇾 Syrien | `SY` | 🔴 Hoch | 157 | 0.0% | 213 |
 | 26 | 🇰🇵 Nordkorea | `KP` | 🔴 Hoch | 2 | 0.0% | 1 |
 
 ---
@@ -44,11 +44,11 @@
 
 | Risikoklasse | BL-Hits | Anteil |
 |---|---|---|
-| 🔴 Hoch (RU/CN/KP/IR/SY/BY) | 1,513 | 0.1% |
-| 🟡 Mittel | 20,473 | 0.7% |
-| ⚪ Niedrig / Tracking | 21,805 | 0.8% |
-| ❓ Nicht zugeordnet | 2,815,337 | 98.5% |
+| 🔴 Hoch (RU/CN/KP/IR/SY/BY) | 391,886 | 13.7% |
+| 🟡 Mittel | 322,361 | 11.3% |
+| ⚪ Niedrig / Tracking | 1,569,379 | 54.9% |
+| ❓ Nicht zugeordnet | 575,502 | 20.1% |
 
 ---
 *Datenquelle: [ScaniteX IP Ranges](https://scanitex.com/en/resources/ip-ranges) (täglich aktualisiert)*  
-*Generiert: 2026-03-12 19:46 UTC*
+*Generiert: 2026-03-12 19:53 UTC*
