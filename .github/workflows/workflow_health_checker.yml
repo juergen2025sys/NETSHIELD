@@ -176,17 +176,31 @@ jobs:
                   errors.append("seen_db.json wird modifiziert, aber kein `Save seen_db Cache`-Step mit `github.run_id` gefunden – Änderungen gehen beim nächsten Run verloren")
 
               # ── Cache Restore-Key Konsistenz ─────────────────────────────
-              # Combined speichert mit netshield-seen-db-v1-<run_id> und netshield-seen-db-v1-latest
-              # Workflows die seen_db lesen müssen restore-keys: netshield-seen-db-v1- verwenden
+              # Prüft ob ein Restore-Step den latest-Key UND restore-keys hat
+              # Nur melden wenn restore-keys komplett fehlt (nicht nur an anderer Stelle steht)
               uses_seen_db_cache = "netshield-seen-db" in content and "actions/cache" in content
               if uses_seen_db_cache:
                   has_old_only = bool(re.search(r"key:\s*netshield-seen-db-v1\s*$", content, re.MULTILINE))
                   has_new_restore = "netshield-seen-db-v1-" in content and "restore-keys" in content
+                  # Zusätzlich: prüfen ob restore-keys im selben Cache-Block wie Restore steht
+                  # (nicht nur irgendwo im File) – verhindert False Positives
+                  restore_blocks = re.findall(
+                      r'- name: Restore seen_db.*?(?=      - name:|\Z)', content, re.DOTALL
+                  )
+                  has_restore_keys_in_block = any(
+                      "restore-keys" in block for block in restore_blocks
+                  )
                   if has_old_only and not has_new_restore:
                       errors.append(
                           "Cache Restore-Key `netshield-seen-db-v1` findet den von Combined gespeicherten "
                           "Cache (`netshield-seen-db-v1-<run_id>`) nicht. Korrekt: "
                           "`key: netshield-seen-db-v1-latest` + `restore-keys: |\n  netshield-seen-db-v1-`"
+                      )
+                  elif uses_seen_db_cache and restore_blocks and not has_restore_keys_in_block:
+                      warnings.append(
+                          "Cache-Restore ohne `restore-keys` im Restore-Block – "
+                          "bei Cache-Miss (z.B. nach 7 Tagen Inaktivität) wird seen_db nicht gefunden. "
+                          "Fix: `restore-keys: |\n  netshield-seen-db-v1-` ergänzen."
                       )
 
               # ── days_seen Initialwert bei .get() ─────────────────────────
@@ -259,24 +273,28 @@ jobs:
               # und speichert Cache mit key: netshield-seen-db-v1-latest (statt decay-<run_id>)
               is_decay_workflow = "DECAY_DAYS" in content or "score_decay" in name.lower() or "decay" in name.lower()
               if is_decay_workflow:
-                  saves_latest_alias = bool(re.search(
-                      r'key:\s*netshield-seen-db-v1-\$\{\{?\s*github\.run_id\s*\}?\}', content
+                  # Score-Decay MUSS beide Save-Steps haben:
+                  # 1) netshield-seen-db-v1-decay-<run_id>  (versionierter Snapshot)
+                  # 2) netshield-seen-db-v1-latest           (damit nachfolgende Workflows aktuellen Stand bekommen)
+                  has_decay_runid_save = bool(re.search(
+                      r'key:\s*netshield-seen-db-v1-decay-\$\{\{?\s*github\.run_id\s*\}?\}', content
                   ))
-                  overwrites_latest = bool(re.search(
+                  has_latest_save = bool(re.search(
                       r'key:\s*netshield-seen-db-v1-latest', content
                   ))
-                  # Prüfen ob ein Save-Step den latest-Key schreibt (nicht nur Restore)
-                  # Heuristik: wenn latest als einziger Save-Key vorkommt
-                  save_blocks = re.findall(r'- name: Save seen_db.*?(?=- name:|\Z)', content, re.DOTALL)
-                  for block in save_blocks:
-                      if "netshield-seen-db-v1-latest" in block and "decay" not in block:
-                          errors.append(
-                              "[AUDIT-BUG-3] Score-Decay-Workflow speichert Cache mit Key "
-                              "`netshield-seen-db-v1-latest` – überschreibt damit den aktuellen "
-                              "Combined-Cache mit einer modifizierten (ausgedünnten) seen_db. "
-                              "Der nächste Combined-Lauf startet mit falscher DB. "
-                              "Fix: Save-Key auf `netshield-seen-db-v1-decay-\${{ github.run_id }}` ändern."
-                          )
+                  if not has_decay_runid_save:
+                      errors.append(
+                          "[AUDIT-BUG-3] Score-Decay-Workflow hat keinen versionierten Cache-Save "
+                          "`netshield-seen-db-v1-decay-${{ github.run_id }}` – "
+                          "Fix: Save-Step mit diesem Key ergänzen."
+                      )
+                  if not has_latest_save:
+                      errors.append(
+                          "[AUDIT-BUG-3] Score-Decay-Workflow speichert seen_db nicht unter "
+                          "`netshield-seen-db-v1-latest` – nachfolgende Workflows (confidence, community) "
+                          "holen nach dem Decay-Lauf den alten, unbereinigten Cache. "
+                          "Fix: zweiten Save-Step mit `key: netshield-seen-db-v1-latest` ergänzen."
+                      )
 
               # ── [AUDIT-TIMING] Bekannte Zeitkonflikte prüfen ────────────────────────
               # Prüft ob noch die alten konfliktbehafteten Cron-Zeiten vorhanden sind
