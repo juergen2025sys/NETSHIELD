@@ -131,7 +131,7 @@ jobs:
           now        = datetime.now(timezone.utc)
           now_day    = now.strftime("%Y-%m-%d")
           now_stamp  = now.strftime("%Y-%m-%d %H:%M UTC")
-          EXPIRY_DAYS = 365
+          EXPIRY_DAYS = 180
           DB_FILE     = "seen_db.json"
           READ_LIMIT  = 25 * 1024 * 1024   # 25 MB pro Feed
 
@@ -490,7 +490,7 @@ jobs:
               if ip not in current_valid:
                   del db[ip]
 
-          # ── 365-Tage-Ablauf ────────────────────────────────────────────────
+          # ── 180-Tage-Ablauf ────────────────────────────────────────────────
           expired = []
           cutoff  = now - timedelta(days=EXPIRY_DAYS)
           for ip in list(db.keys()):
