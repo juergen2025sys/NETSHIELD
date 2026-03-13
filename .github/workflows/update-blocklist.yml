@@ -39,28 +39,278 @@ jobs:
           import urllib.error
           import time
           import ipaddress
+          import os
+          from datetime import datetime, timezone
 
-          countries = [
-              "AF","AX","AL","DZ","AS","AD","AO","AI","AQ","AG","AR","AM","AW","AU","AT","AZ",
-              "BS","BH","BD","BB","BY","BE","BZ","BJ","BM","BT","BO","BQ","BA","BW","BV","BR",
-              "IO","BN","BG","BF","BI","CV","KH","CM","CA","KY","CF","TD","CL","CN","CX","CC",
-              "CO","KM","CG","CD","CK","CR","CI","HR","CU","CW","CY","CZ","DK","DJ","DM","DO",
-              "EC","EG","SV","GQ","ER","EE","SZ","ET","FK","FO","FJ","FI","FR","GF","PF","TF",
-              "GA","GM","GE","DE","GH","GI","GR","GL","GD","GP","GU","GT","GG","GN","GW","GY",
-              "HT","HM","VA","HN","HK","HU","IS","IN","ID","IR","IQ","IE","IM","IL","IT","JM",
-              "JP","JE","JO","KZ","KE","KI","KP","KR","KW","KG","LA","LV","LB","LS","LR","LY",
-              "LI","LT","LU","MO","MG","MW","MY","MV","ML","MT","MH","MQ","MR","MU","YT","MX",
-              "FM","MD","MC","MN","ME","MS","MA","MZ","MM","NA","NR","NP","NL","NC","NZ","NI",
-              "NE","NG","NU","NF","MK","MP","NO","OM","PK","PW","PS","PA","PG","PY","PE","PH",
-              "PN","PL","PT","PR","QA","RE","RO","RU","RW","BL","SH","KN","LC","MF","PM","VC",
-              "WS","SM","ST","SA","SN","RS","SC","SL","SG","SX","SK","SI","SB","SO","ZA","GS",
-              "SS","ES","LK","SD","SR","SJ","SE","CH","SY","TW","TJ","TZ","TH","TL","TG","TK",
-              "TO","TT","TN","TR","TM","TC","TV","UG","UA","AE","GB","US","UM","UY","UZ","VU",
-              "VE","VN","VG","VI","WF","EH","YE","ZM","ZW"
-          ]
+          now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+          # ── Länder → (Kontinent, Anzeigename) ────────────────────────────
+          # Schlüssel = ISO-Alpha-2, Wert = (kontinent_slug, dateiname_ohne_ext)
+          COUNTRY_MAP = {
+              # Africa
+              "AO": ("africa", "angola"),
+              "BF": ("africa", "burkina_faso"),
+              "BI": ("africa", "burundi"),
+              "BJ": ("africa", "benin"),
+              "BW": ("africa", "botswana"),
+              "CD": ("africa", "democratic_republic_of_the_congo"),
+              "CF": ("africa", "central_african_republic"),
+              "CG": ("africa", "republic_of_the_congo"),
+              "CI": ("africa", "ivory_coast"),
+              "CM": ("africa", "cameroon"),
+              "CV": ("africa", "cape_verde"),
+              "DJ": ("africa", "djibouti"),
+              "DZ": ("africa", "algeria"),
+              "EG": ("africa", "egypt"),
+              "EH": ("africa", "western_sahara"),
+              "ER": ("africa", "eritrea"),
+              "ET": ("africa", "ethiopia"),
+              "GA": ("africa", "gabon"),
+              "GH": ("africa", "ghana"),
+              "GM": ("africa", "gambia"),
+              "GN": ("africa", "guinea"),
+              "GQ": ("africa", "equatorial_guinea"),
+              "GW": ("africa", "guinea_bissau"),
+              "KE": ("africa", "kenya"),
+              "KM": ("africa", "comoros"),
+              "LR": ("africa", "liberia"),
+              "LS": ("africa", "lesotho"),
+              "LY": ("africa", "libya"),
+              "MA": ("africa", "morocco"),
+              "MG": ("africa", "madagascar"),
+              "ML": ("africa", "mali"),
+              "MR": ("africa", "mauritania"),
+              "MU": ("africa", "mauritius"),
+              "MW": ("africa", "malawi"),
+              "MZ": ("africa", "mozambique"),
+              "NA": ("africa", "namibia"),
+              "NE": ("africa", "niger"),
+              "NG": ("africa", "nigeria"),
+              "RW": ("africa", "rwanda"),
+              "SC": ("africa", "seychelles"),
+              "SD": ("africa", "sudan"),
+              "SL": ("africa", "sierra_leone"),
+              "SN": ("africa", "senegal"),
+              "SO": ("africa", "somalia"),
+              "SS": ("africa", "south_sudan"),
+              "ST": ("africa", "sao_tome_and_principe"),
+              "SZ": ("africa", "eswatini"),
+              "TD": ("africa", "chad"),
+              "TG": ("africa", "togo"),
+              "TN": ("africa", "tunisia"),
+              "TZ": ("africa", "tanzania"),
+              "UG": ("africa", "uganda"),
+              "YT": ("africa", "mayotte"),
+              "ZA": ("africa", "south_africa"),
+              "ZM": ("africa", "zambia"),
+              "ZW": ("africa", "zimbabwe"),
+              "GS": ("africa", "south_georgia"),
+              "RE": ("africa", "reunion"),
+              "SH": ("africa", "saint_helena"),
+              # Asia
+              "AE": ("asia", "united_arab_emirates"),
+              "AF": ("asia", "afghanistan"),
+              "AM": ("asia", "armenia"),
+              "AZ": ("asia", "azerbaijan"),
+              "BD": ("asia", "bangladesh"),
+              "BH": ("asia", "bahrain"),
+              "BN": ("asia", "brunei"),
+              "BT": ("asia", "bhutan"),
+              "CN": ("asia", "china"),
+              "CY": ("asia", "cyprus"),
+              "GE": ("asia", "georgia"),
+              "HK": ("asia", "hong_kong"),
+              "ID": ("asia", "indonesia"),
+              "IL": ("asia", "israel"),
+              "IN": ("asia", "india"),
+              "IQ": ("asia", "iraq"),
+              "IR": ("asia", "iran"),
+              "JO": ("asia", "jordan"),
+              "JP": ("asia", "japan"),
+              "KG": ("asia", "kyrgyzstan"),
+              "KH": ("asia", "cambodia"),
+              "KP": ("asia", "north_korea"),
+              "KR": ("asia", "south_korea"),
+              "KW": ("asia", "kuwait"),
+              "KZ": ("asia", "kazakhstan"),
+              "LA": ("asia", "laos"),
+              "LB": ("asia", "lebanon"),
+              "LK": ("asia", "sri_lanka"),
+              "MM": ("asia", "myanmar"),
+              "MN": ("asia", "mongolia"),
+              "MO": ("asia", "macau"),
+              "MV": ("asia", "maldives"),
+              "MY": ("asia", "malaysia"),
+              "NP": ("asia", "nepal"),
+              "OM": ("asia", "oman"),
+              "PH": ("asia", "philippines"),
+              "PK": ("asia", "pakistan"),
+              "PS": ("asia", "palestine"),
+              "QA": ("asia", "qatar"),
+              "SA": ("asia", "saudi_arabia"),
+              "SG": ("asia", "singapore"),
+              "SY": ("asia", "syria"),
+              "TH": ("asia", "thailand"),
+              "TJ": ("asia", "tajikistan"),
+              "TL": ("asia", "east_timor"),
+              "TM": ("asia", "turkmenistan"),
+              "TR": ("asia", "turkey"),
+              "TW": ("asia", "taiwan"),
+              "UZ": ("asia", "uzbekistan"),
+              "VN": ("asia", "vietnam"),
+              "YE": ("asia", "yemen"),
+              "IO": ("asia", "british_indian_ocean_territory"),
+              # Europe
+              "AD": ("europe", "andorra"),
+              "AL": ("europe", "albania"),
+              "AT": ("europe", "austria"),
+              "BA": ("europe", "bosnia_and_herzegovina"),
+              "BE": ("europe", "belgium"),
+              "BG": ("europe", "bulgaria"),
+              "BY": ("europe", "belarus"),
+              "CH": ("europe", "switzerland"),
+              "CZ": ("europe", "czech_republic"),
+              "DE": ("europe", "germany"),
+              "DK": ("europe", "denmark"),
+              "EE": ("europe", "estonia"),
+              "ES": ("europe", "spain"),
+              "FI": ("europe", "finland"),
+              "FO": ("europe", "faroe_islands"),
+              "FR": ("europe", "france"),
+              "GB": ("europe", "united_kingdom"),
+              "GG": ("europe", "guernsey"),
+              "GI": ("europe", "gibraltar"),
+              "GL": ("europe", "greenland"),
+              "GR": ("europe", "greece"),
+              "HR": ("europe", "croatia"),
+              "HU": ("europe", "hungary"),
+              "IE": ("europe", "ireland"),
+              "IM": ("europe", "isle_of_man"),
+              "IS": ("europe", "iceland"),
+              "IT": ("europe", "italy"),
+              "JE": ("europe", "jersey"),
+              "LI": ("europe", "liechtenstein"),
+              "LT": ("europe", "lithuania"),
+              "LU": ("europe", "luxembourg"),
+              "LV": ("europe", "latvia"),
+              "MC": ("europe", "monaco"),
+              "MD": ("europe", "moldova"),
+              "ME": ("europe", "montenegro"),
+              "MK": ("europe", "north_macedonia"),
+              "MT": ("europe", "malta"),
+              "NL": ("europe", "netherlands"),
+              "NO": ("europe", "norway"),
+              "PL": ("europe", "poland"),
+              "PT": ("europe", "portugal"),
+              "RO": ("europe", "romania"),
+              "RS": ("europe", "serbia"),
+              "RU": ("europe", "russia"),
+              "SE": ("europe", "sweden"),
+              "SI": ("europe", "slovenia"),
+              "SJ": ("europe", "svalbard_and_jan_mayen"),
+              "SK": ("europe", "slovakia"),
+              "SM": ("europe", "san_marino"),
+              "UA": ("europe", "ukraine"),
+              "VA": ("europe", "vatican_city"),
+              "AX": ("europe", "aland_islands"),
+              # North America
+              "AG": ("north_america", "antigua_and_barbuda"),
+              "AI": ("north_america", "anguilla"),
+              "AN": ("north_america", "netherlands_antilles"),
+              "AW": ("north_america", "aruba"),
+              "BB": ("north_america", "barbados"),
+              "BL": ("north_america", "saint_barthelemy"),
+              "BM": ("north_america", "bermuda"),
+              "BQ": ("north_america", "bonaire"),
+              "BS": ("north_america", "bahamas"),
+              "BZ": ("north_america", "belize"),
+              "CA": ("north_america", "canada"),
+              "CR": ("north_america", "costa_rica"),
+              "CU": ("north_america", "cuba"),
+              "CW": ("north_america", "curacao"),
+              "DM": ("north_america", "dominica"),
+              "DO": ("north_america", "dominican_republic"),
+              "GD": ("north_america", "grenada"),
+              "GP": ("north_america", "guadeloupe"),
+              "GT": ("north_america", "guatemala"),
+              "HN": ("north_america", "honduras"),
+              "HT": ("north_america", "haiti"),
+              "JM": ("north_america", "jamaica"),
+              "KN": ("north_america", "saint_kitts_and_nevis"),
+              "KY": ("north_america", "cayman_islands"),
+              "LC": ("north_america", "saint_lucia"),
+              "MF": ("north_america", "saint_martin"),
+              "MQ": ("north_america", "martinique"),
+              "MS": ("north_america", "montserrat"),
+              "MX": ("north_america", "mexico"),
+              "NI": ("north_america", "nicaragua"),
+              "PA": ("north_america", "panama"),
+              "PM": ("north_america", "saint_pierre_and_miquelon"),
+              "PR": ("north_america", "puerto_rico"),
+              "SV": ("north_america", "el_salvador"),
+              "SX": ("north_america", "sint_maarten"),
+              "TC": ("north_america", "turks_and_caicos_islands"),
+              "TT": ("north_america", "trinidad_and_tobago"),
+              "US": ("north_america", "united_states"),
+              "VC": ("north_america", "saint_vincent_and_the_grenadines"),
+              "VG": ("north_america", "british_virgin_islands"),
+              "VI": ("north_america", "us_virgin_islands"),
+              "UM": ("north_america", "us_minor_outlying_islands"),
+              # Oceania
+              "AS": ("oceania", "american_samoa"),
+              "AU": ("oceania", "australia"),
+              "CC": ("oceania", "cocos_islands"),
+              "CK": ("oceania", "cook_islands"),
+              "CX": ("oceania", "christmas_island"),
+              "FJ": ("oceania", "fiji"),
+              "FM": ("oceania", "micronesia"),
+              "GU": ("oceania", "guam"),
+              "HM": ("oceania", "heard_island"),
+              "KI": ("oceania", "kiribati"),
+              "MH": ("oceania", "marshall_islands"),
+              "MP": ("oceania", "northern_mariana_islands"),
+              "NC": ("oceania", "new_caledonia"),
+              "NF": ("oceania", "norfolk_island"),
+              "NR": ("oceania", "nauru"),
+              "NU": ("oceania", "niue"),
+              "NZ": ("oceania", "new_zealand"),
+              "PF": ("oceania", "french_polynesia"),
+              "PG": ("oceania", "papua_new_guinea"),
+              "PN": ("oceania", "pitcairn_islands"),
+              "PW": ("oceania", "palau"),
+              "SB": ("oceania", "solomon_islands"),
+              "TF": ("oceania", "french_southern_territories"),
+              "TK": ("oceania", "tokelau"),
+              "TO": ("oceania", "tonga"),
+              "TV": ("oceania", "tuvalu"),
+              "VU": ("oceania", "vanuatu"),
+              "WF": ("oceania", "wallis_and_futuna"),
+              "WS": ("oceania", "samoa"),
+              "AQ": ("oceania", "antarctica"),
+              # South America
+              "AR": ("south_america", "argentina"),
+              "BO": ("south_america", "bolivia"),
+              "BR": ("south_america", "brazil"),
+              "BV": ("south_america", "bouvet_island"),
+              "CL": ("south_america", "chile"),
+              "CO": ("south_america", "colombia"),
+              "EC": ("south_america", "ecuador"),
+              "FK": ("south_america", "falkland_islands"),
+              "GF": ("south_america", "french_guiana"),
+              "GY": ("south_america", "guyana"),
+              "PE": ("south_america", "peru"),
+              "PY": ("south_america", "paraguay"),
+              "SR": ("south_america", "suriname"),
+              "UY": ("south_america", "uruguay"),
+              "VE": ("south_america", "venezuela"),
+          }
+
+          CONTINENTS = ["africa", "asia", "europe", "north_america", "oceania", "south_america"]
 
           base_url = "https://country-ip-blocks.hackinggate.com"
-          all_ips = set()
+          all_ips  = set()                # für all_countries_ipv4.txt
+          continent_ips = {c: set() for c in CONTINENTS}
+          country_data  = {}              # cc → sorted list of entries
           errors = []
 
           def sort_key(entry):
@@ -68,21 +318,24 @@ jobs:
               return (int(net.network_address), net.prefixlen)
 
           def fetch_country(url, retries=3, timeout=15):
-              """Fetch mit bis zu 3 Versuchen bei Netzwerkfehlern."""
               for attempt in range(1, retries + 1):
                   try:
                       with urllib.request.urlopen(url, timeout=timeout) as response:
                           return response.read().decode("utf-8"), None
                   except urllib.error.HTTPError as e:
-                      return None, e  # HTTP-Fehler nicht wiederholen (404 etc.)
+                      return None, e
                   except Exception as e:
                       if attempt < retries:
-                          time.sleep(attempt * 2)  # 2s, 4s zwischen Versuchen
+                          time.sleep(attempt * 2)
                       else:
                           return None, e
               return None, Exception("Unbekannter Fehler")
 
+          countries = list(COUNTRY_MAP.keys())
+          print(f"Lade {len(countries)} Länder von hackinggate.com ...")
+
           for i, cc in enumerate(countries):
+              continent, name = COUNTRY_MAP[cc]
               url = f"{base_url}/{cc}_IPv4.txt"
               raw, err = fetch_country(url)
 
@@ -93,33 +346,66 @@ jobs:
                       if l.strip() and l[0].isdigit()
                   ]
                   all_ips.update(lines)
-                  print(f"[{i+1}/{len(countries)}] {cc} - {len(lines)} entries")
+                  continent_ips[continent].update(lines)
+                  country_data[cc] = (continent, name, sorted(lines, key=sort_key))
+                  print(f"[{i+1}/{len(countries)}] {cc} ({name}) → {len(lines)} entries")
               elif isinstance(err, urllib.error.HTTPError) and err.code == 404:
-                  print(f"[{i+1}/{len(countries)}] {cc} - 0 entries (404)")
+                  print(f"[{i+1}/{len(countries)}] {cc} ({name}) → 0 entries (404)")
+                  country_data[cc] = (continent, name, [])
               elif isinstance(err, urllib.error.HTTPError):
-                  print(f"[{i+1}/{len(countries)}] {cc} - ERROR: HTTP {err.code}")
+                  print(f"[{i+1}/{len(countries)}] {cc} ({name}) → ERROR HTTP {err.code}")
                   errors.append(cc)
               else:
-                  print(f"[{i+1}/{len(countries)}] {cc} - ERROR nach 3 Versuchen: {err}")
+                  print(f"[{i+1}/{len(countries)}] {cc} ({name}) → ERROR: {err}")
                   errors.append(cc)
 
               time.sleep(0.1)
 
-          sorted_ips = sorted(all_ips, key=sort_key)
-
+          # ── 1) all_countries_ipv4.txt ────────────────────────────────────
+          sorted_all = sorted(all_ips, key=sort_key)
           with open("all_countries_ipv4.txt", "w", encoding="utf-8") as f:
-              f.write("\n".join(sorted_ips) + "\n")
+              f.write("\n".join(sorted_all) + "\n")
+          print(f"\nall_countries_ipv4.txt: {len(sorted_all)} entries")
 
-          print(f"\nDone! Total: {len(sorted_ips)} IP ranges")
+          # ── 2) continents/*.txt ──────────────────────────────────────────
+          os.makedirs("continents", exist_ok=True)
+          for continent in CONTINENTS:
+              ips  = sorted(continent_ips[continent], key=sort_key)
+              path = f"continents/{continent}_ipv4.txt"
+              with open(path, "w", encoding="utf-8") as f:
+                  f.write(f"# NETSHIELD – {continent.replace('_', ' ').title()} IPv4 Ranges\n")
+                  f.write(f"# Aktualisiert: {now_str}\n")
+                  f.write(f"# IP-Ranges: {len(ips)}\n\n")
+                  f.write("\n".join(ips) + "\n")
+              print(f"continents/{continent}_ipv4.txt: {len(ips)} entries")
+
+          # ── 3) countries/{continent}/{name}_ipv4.txt ─────────────────────
+          for cc, (continent, name, ips) in country_data.items():
+              dir_path = f"countries/{continent}"
+              os.makedirs(dir_path, exist_ok=True)
+              path = f"{dir_path}/{name}_ipv4.txt"
+              with open(path, "w", encoding="utf-8") as f:
+                  f.write(f"# NETSHIELD – {name.replace('_', ' ').title()} ({cc}) IPv4 Ranges\n")
+                  f.write(f"# Aktualisiert: {now_str}\n")
+                  f.write(f"# IP-Ranges: {len(ips)}\n\n")
+                  if ips:
+                      f.write("\n".join(ips) + "\n")
+              print(f"countries/{continent}/{name}_ipv4.txt: {len(ips)} entries")
+
+          print(f"\nDone! Gesamt: {len(sorted_all)} IP-Ranges")
           if errors:
-              print(f"Errors: {', '.join(errors)}")
+              print(f"Fehler bei: {', '.join(errors)}")
           EOF
 
       - name: Commit and Push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add all_countries_ipv4.txt
-          git diff --staged --quiet || git commit -m "Update All Countries IPv4: $(date -u '+%Y-%m-%d %H:%M') UTC"
-          git pull --rebase origin ${GITHUB_REF_NAME}
-          git push origin HEAD:${GITHUB_REF_NAME}
+          git add all_countries_ipv4.txt continents/ countries/
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Update All Countries IPv4: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git pull --rebase origin ${GITHUB_REF_NAME}
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi
