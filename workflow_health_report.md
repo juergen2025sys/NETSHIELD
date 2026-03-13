@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-03-13 20:31 UTC
+**Aktualisiert:** 2026-03-13 20:35 UTC
 
 **Workflows:** 18 | ✅ 18 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
@@ -13,7 +13,7 @@
 | `community_ip_report.yml` | ✅ OK | 0 | 0 | – |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
 | `duplicate_cleaner.yml` | ✅ OK | 0 | 0 | `30 5 * * *` |
-| `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 21 * * *` |
+| `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `geo_tagger.yml` | ✅ OK | 0 | 0 | `30 6 * * 0` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 23 * * *` |
@@ -28,4 +28,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | `5 1 * * *` |
 
 ---
-*Generiert: 2026-03-13 20:31 UTC | 18 Workflow-Dateien geprüft*
+*Generiert: 2026-03-13 20:35 UTC | 18 Workflow-Dateien geprüft*
