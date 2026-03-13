@@ -1,5 +1,5 @@
 # Score Decay Monitor – Report
-**Aktualisiert:** 2026-03-12 21:48 UTC
+**Aktualisiert:** 2026-03-13 13:28 UTC
 
 ---
 ## Übersicht
@@ -10,11 +10,13 @@
 | 🟡 Veraltend – Warnung | **0** | 30-44 Tage ohne Aktivität |
 | 🔴 Veraltend – Kritisch | **0** | 45+ Tage ohne Aktivität |
 | 💀 Zombie | **0** | Score≥20, 30+ Tage inaktiv |
-| 🗑️ Entfernung empfohlen | **0** | 30+ Tage inaktiv |
+| ⏳ Läuft bald ab (150+ Tage) | **0** | combined entfernt bei 180 Tagen |
 
 ---
-## 🗑️ Automatisch gelöscht
-**0 IPs** aus Blacklist entfernt (30+ Tage inaktiv)
+## ℹ️ Hinweis
+IPs werden **nicht** durch diesen Workflow gelöscht.
+Das Entfernen aus combined + seen_db erfolgt ausschließlich durch
+`update_combined_blacklist` nach **180 Tagen** ohne Feed-Bestätigung.
 
 ---
-*Generiert: 2026-03-12 21:48 UTC | DB: 2859128 IPs*
+*Generiert: 2026-03-13 13:28 UTC | DB: 2859128 IPs*
