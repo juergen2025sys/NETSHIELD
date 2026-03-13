@@ -168,7 +168,13 @@ jobs:
 
               # ── seen_db ebenfalls bereinigen ──────────────────────────────
               # Ohne diesen Schritt trägt combined beim nächsten Lauf die
-              # Whitelist-IPs sofort wieder ein → Bereinigung wäre wirkungslos
+              # Whitelist-IPs sofort wieder ein → Bereinigung wäre wirkungslos.
+              # FIX Bug2: HQ-IPs NICHT aus seen_db löschen!
+              # HQ-Feeds (Feodo, Talos etc.) melden diese IPs weiterhin → combined
+              # würde sie im nächsten Lauf sofort wieder eintragen (Lösch-Reinsert-Zyklus).
+              # Stattdessen: HQ-IPs bleiben in seen_db, werden aber aus der Blacklist-Datei
+              # entfernt – combined schreibt sie beim nächsten Lauf ggf. wieder rein,
+              # was korrekt ist wenn der HQ-Feed sie aktiv meldet.
               DB_FILE = "seen_db.json"
               if os.path.exists(DB_FILE):
                   import json
@@ -176,14 +182,20 @@ jobs:
                       with open(DB_FILE) as f:
                           db = json.load(f)
                       db_removed = 0
+                      db_skipped_hq = 0
                       for ip in fp_set:
                           if ip in db:
+                              if db[ip].get("hq", False):
+                                  db_skipped_hq += 1
+                                  print(f"  SKIP seen_db-Löschung für {ip} (HQ-IP)")
+                                  continue
                               del db[ip]
                               db_removed += 1
                       if db_removed > 0:
                           with open(DB_FILE, "w") as f:
                               json.dump(db, f, separators=(",", ":"))
-                          print(f"seen_db bereinigt: {db_removed} False Positives entfernt")
+                          print(f"seen_db bereinigt: {db_removed} False Positives entfernt"
+                                f" | {db_skipped_hq} HQ-IPs behalten")
                   except Exception as e:
                       print(f"seen_db konnte nicht bereinigt werden: {e}")
           else:

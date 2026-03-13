@@ -445,11 +445,18 @@ jobs:
               rep_score = min(stars * 2 + forks * 3, 100)
               print(f"  ⭐ Reputation: {stars} Stars / {forks} Forks → Score {rep_score}")
 
-              # Feed ANGENOMMEN
-              feed_name = re.sub(r'[^a-z0-9_]', '_',
+              # FIX Bug4: Feed-Name-Kollision vollständig auflösen.
+              # Vorher: nur einmaliges "_v2" → bei weiterer Kollision stiller Datenverlust.
+              # Jetzt: Loop bis zum ersten freien Namen; bestehende Einträge desselben
+              # Repos (Updates) behalten ihren alten Namen.
+              base_name = re.sub(r'[^a-z0-9_]', '_',
                                  full_name.lower().replace('/', '_'))[:60]
-              if feed_name in approved_feeds:
-                  feed_name = feed_name + "_v2"
+              feed_name = base_name
+              suffix = 2
+              while (feed_name in approved_feeds and
+                     approved_feeds[feed_name].get("repo") != full_name):
+                  feed_name = f"{base_name[:57]}_v{suffix}"
+                  suffix += 1
 
               is_new_feed = feed_name not in existing_feeds
 
@@ -535,15 +542,33 @@ jobs:
           # Der combined-Workflow wendet seinen eigenen Filter korrekt an wenn er
           # danach seen_db verarbeitet. Hier wird seen_db nur als Staging-Area befüllt.
 
-          # 180-Tage-Ablauf (konsistent mit EXPIRY_DAYS in update_combined_blacklist)
-          cutoff    = now - timedelta(days=180)
+          # FIX Bug1: Expiry-Logik identisch mit update_combined_blacklist:
+          # Watchlist-IPs (last="2000-01-01", hq=False) laufen nach first-Datum ab (30 Tage),
+          # NICHT nach last-Datum – sonst werden neu eingetragene IPs sofort gelöscht,
+          # da 2000-01-01 immer älter als 180 Tage ist.
+          EXPIRY_DAYS         = 180
+          WATCHLIST_EXPIRY_DAYS = 30
+          cutoff    = now - timedelta(days=EXPIRY_DAYS)
+          cutoff_wl = now - timedelta(days=WATCHLIST_EXPIRY_DAYS)
           expired   = []
           for ip in list(db.keys()):
               try:
-                  last_dt = datetime.strptime(db[ip]["last"], "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                  if last_dt < cutoff:
-                      expired.append(ip)
-                      del db[ip]
+                  entry      = db[ip]
+                  last_str   = entry.get("last",  "2000-01-01")
+                  first_str  = entry.get("first", last_str)
+                  is_hq      = entry.get("hq", False)
+                  last_seen  = datetime.strptime(last_str,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                  first_seen = datetime.strptime(first_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                  if last_str == "2000-01-01" and not is_hq:
+                      # Watchlist-IP: Ablauf nach first-Datum (30 Tage)
+                      if first_seen < cutoff_wl:
+                          expired.append(ip)
+                          del db[ip]
+                  else:
+                      # Normale IP: Ablauf nach last-Datum (180 Tage)
+                      if last_seen < cutoff:
+                          expired.append(ip)
+                          del db[ip]
               except Exception:
                   pass
 
