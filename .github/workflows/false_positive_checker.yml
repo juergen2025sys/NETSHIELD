@@ -3,8 +3,8 @@ name: False Positive Checker
 on:
   schedule:
     - cron: '0 5 * * *'    # täglich 05:00 UTC (60 Min vor Combined um 06:00 – verhindert Git-Konflikt)
-    - cron: '0 13 * * *'   # täglich 13:00 UTC (60 Min Puffer vor Combined um 14:00)
-    - cron: '0 21 * * *'   # täglich 21:00 UTC (60 Min Puffer vor Combined um 22:00)
+    - cron: '0 13 * * *'   # täglich 13:00 UTC (60 Min Puffer vor Combined um 15:00)
+    - cron: '0 20 * * *'   # täglich 20:00 UTC (60 Min Puffer vor Combined um 21:00 – FIX: war 21:00, Konflikt mit Combined)
   workflow_dispatch:
 
 env:

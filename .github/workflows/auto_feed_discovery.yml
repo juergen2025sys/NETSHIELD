@@ -582,7 +582,8 @@ jobs:
           # ── Schritt 8: combined_threat_blacklist_ipv4.txt neu schreiben ───
           # Alle IPs aus seen_db (unveränderte Logik wie im Combined-Workflow)
           BLACKLIST = "combined_threat_blacklist_ipv4.txt"
-          sorted_ips = sorted(db.keys())
+          # FIX: Numerische IP-Sortierung (konsistent mit update_combined_blacklist)
+          sorted_ips = sorted(db.keys(), key=lambda ip: tuple(int(o) for o in ip.split('.')))
 
           with open(BLACKLIST, "w", encoding="utf-8") as f:
               f.write("# NETSHIELD Combined Threat Blacklist (IPv4) – Stufe 1\n")
