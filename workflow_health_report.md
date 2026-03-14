@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-03-14 20:04 UTC
+**Aktualisiert:** 2026-03-14 20:10 UTC
 
 **Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
@@ -22,11 +22,11 @@
 | `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
 | `tor_exit_monitor.yml` | ✅ OK | 0 | 0 | `30 23 * * *` |
 | `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 2 * * 1`, `30 2 * * 3` |
-| `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 23 * * *` |
+| `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
 | `update_combined_blacklist.yml` | ✅ OK | 0 | 0 | `0 */3 * * *` |
 | `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | `30 0 * * *`, `30 3 * * *`, `30 6 * * *`, `30 9 * * *`, `30 12 * * *`, `30 15 * * *`, `30 18 * * *`, `30 21 * * *` |
 | `vpn_proxy_detector.yml` | ✅ OK | 0 | 0 | `45 3 * * 1` |
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | `5 1 * * *` |
 
 ---
-*Generiert: 2026-03-14 20:04 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-03-14 20:10 UTC | 19 Workflow-Dateien geprüft*
