@@ -174,16 +174,20 @@ jobs:
                   if not data or not isinstance(data, dict):
                       break
                   events  = data.get("data", [])
-                  from_id = data.get("from_id", 0)
+                  # from_id fehlt im Response → keine weiteren Seiten
+                  # from_id == 0 nur nach der ERSTEN Page als Abbruch werten,
+                  # wenn gleichzeitig weniger Events als erwartet zurückkamen
+                  next_from_id = data.get("from_id")
                   for event in events:
                       ip = event.get("remote_host", "")
                       if ip and is_valid_ipv4(ip) and not is_private(ip):
                           sensor_ips.add(ip)
                   sensor_total += len(events)
-                  print(f"  Page {page+1}: {len(events)} Events, from_id={from_id}")
+                  print(f"  Page {page+1}: {len(events)} Events, from_id={next_from_id}")
                   page += 1
-                  if from_id == 0:
+                  if next_from_id is None or (next_from_id == 0 and page > 1):
                       break  # Keine weiteren Seiten
+                  from_id = next_from_id
           else:
               print(f"  Sensor-Count für {yesterday} nicht verfügbar")
 

@@ -147,6 +147,7 @@ jobs:
           confidence40 = []
           confidence20 = []
           skipped      = 0
+          skipped_watchlist = 0
 
           for ip, data in db.items():
               if ip not in combined_ips:
@@ -166,6 +167,12 @@ jobs:
               except Exception:
                   skipped += 1
                   continue
+
+              # Watchlist-IPs (last="2000-01-01", hq=False) haben keine HQ-Bestätigung.
+              # score_b wird 0 → landen unter Schwelle 25 → lautlos ignoriert.
+              # Explizit zählen für den Report.
+              if last_seen == "2000-01-01" and not is_hq:
+                  skipped_watchlist += 1
 
               days_since_last = (now - last_dt).days
               days_known      = (now - first_dt).days + 1
@@ -236,6 +243,7 @@ jobs:
 
           print(f"Konfidenz ≥50 (→ confidence40-Datei): {len(confidence40)} IPs")
           print(f"Konfidenz 25-49 (→ watchlist):         {len(confidence20)} IPs")
+          print(f"Watchlist (kein HQ, last=2000-01-01):  {skipped_watchlist} IPs (Score zu niedrig, ausstehend)")
           print(f"Übersprungen:                          {skipped} IPs (Datumsfehler)")
 
           with open(OUT_40, "w") as f:

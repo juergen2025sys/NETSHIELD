@@ -335,6 +335,7 @@ jobs:
           # Alle neuen IPs aus diesem Discovery-Run (für seen_db-Eintrag)
           all_new_ips = set()   # IPs aus neu angenommenen Feeds
           all_known_ips = set() # IPs aus bereits bekannten Feeds (re-fetched)
+          ip_auto_feed_count: dict = {}  # ip → Anzahl Auto-Feeds die sie in diesem Run melden
 
           for full_name, meta in candidate_repos.items():
               if full_name in rejected_repos:
@@ -477,11 +478,13 @@ jobs:
                   "hq":            False,
               }
 
-              # IPs für seen_db merken
+              # IPs für seen_db merken + Feed-Zählung je IP aufbauen
               if is_new_feed:
                   all_new_ips.update(ips)
               else:
                   all_known_ips.update(ips)
+              for _ip in ips:
+                  ip_auto_feed_count[_ip] = ip_auto_feed_count.get(_ip, 0) + 1
 
               evaluation_log.append({
                   "repo":        full_name,
@@ -497,40 +500,33 @@ jobs:
 
           # ── Schritt 6: seen_db aktualisieren ──────────────────────────────
           # Auto-discovered Feeds sind NICHT HQ (hq=False).
-          # Neue Feeds: 1 IP-Feed zählt als Quelle → today_count=1.
-          # IP gilt als "stark bestätigt" wenn sie bereits in seen_db ist
-          # (d.h. schon von einem anderen Feed bekannt) + heute von diesem Feed bestätigt.
-          # Neue, noch unbekannte IPs aus Auto-Feeds: werden in seen_db als
-          # Single-Feed-Einträge eingetragen (hq=False, today_count=1).
-          # Der Combined-Workflow läuft danach und übernimmt sie wenn sie
-          # zusätzlich von anderen Feeds bestätigt werden.
+          # today_count = Anzahl verschiedener Auto-Feeds die diese IP in diesem Run
+          # melden (>= 1). Combined überschreibt today_count beim nächsten Lauf korrekt.
+          # "last" wird NICHT gesetzt – auto_feed_discovery ist kein HQ-Feed.
 
           SOURCE_LABEL = "auto_feed_discovery"
           ingested_new  = 0
           ingested_seen = 0
 
           for ip in all_new_ips | all_known_ips:
+              auto_count = ip_auto_feed_count.get(ip, 1)
               if ip in db:
                   # Bereits in seen_db – Bestätigung durch auto-feed zählen
                   existing_f = set(db[ip].get("feeds", []))
                   if SOURCE_LABEL not in existing_f:
                       db[ip]["feeds"] = sorted(existing_f | {SOURCE_LABEL})
-                  db[ip]["today_count"] = 1  # FIX Bug3: immer 1 setzen, nicht akkumulieren (combined überschreibt danach korrekt)
-                  # "last" NICHT setzen – auto_feed_discovery ist kein HQ-Feed.
-                  # Nur HQ-Feeds (Feodo, Talos etc.) via update_combined_blacklist
-                  # dürfen "last" aktualisieren. Sonst hält ein nicht-HQ Feed
-                  # IPs künstlich am Leben (180-Tage-Ablauf wird verschleppt).
+                  # Echte Anzahl Auto-Feeds setzen; Combined überschreibt beim nächsten Lauf
+                  db[ip]["today_count"] = auto_count
                   ingested_seen += 1
               else:
-                  # Neue IP – nur eintragen wenn sie in all_new_ips (neuer Feed)
-                  # oder in all_known_ips und HQ-Overlap-geprüft
+                  # Neue IP eintragen
                   db[ip] = {
                       "first":       now_day,
                       "last":        "2000-01-01",  # noch nicht stark bestätigt
                       "hq":          False,
                       "feeds":       [SOURCE_LABEL],
                       "hq_feeds":    0,
-                      "today_count": 1,
+                      "today_count": auto_count,
                       "today_hq":    False,
                       "days_seen":   0,
                   }

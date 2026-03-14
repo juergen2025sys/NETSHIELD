@@ -45,7 +45,7 @@ jobs:
           ISSUE_USER: ${{ github.event.issue.user.login }}
         run: |
           python3 << 'EOF'
-          import ipaddress, json, os, re
+          import ipaddress, json, os, re, sys
           from datetime import datetime, timezone
 
           now     = datetime.now(timezone.utc)
@@ -78,7 +78,7 @@ jobs:
               with open(RESULT_FILE, "w") as f:
                   f.write(f"RATE_LIMITED|{reporter}|{today_count}")
               print(f"Rate-Limit erreicht für {reporter}: {today_count} Reports heute")
-              exit(0)
+              sys.exit(0)
 
           # ── IP aus Issue-Body extrahieren ──────────────────────────────────
           # Issue Template Feld: "### IP Address\n\n1.2.3.4"
@@ -96,7 +96,7 @@ jobs:
               with open(RESULT_FILE, "w") as f:
                   f.write("NO_IP_FOUND||")
               print("Keine IP im Issue gefunden")
-              exit(0)
+              sys.exit(0)
 
           # ── IP validieren ─────────────────────────────────────────────────
           DNS_WHITELIST = {
@@ -132,7 +132,7 @@ jobs:
               with open(RESULT_FILE, "w") as f:
                   f.write(f"INVALID_IP|{ip}|")
               print(f"Ungültige IP: {ip}")
-              exit(0)
+              sys.exit(0)
 
           # ── Angriffs-Typ aus Issue extrahieren ────────────────────────────
           attack_match = re.search(r"###\s*Attack Type\s*\n+\s*(.+)", issue_body)
@@ -247,6 +247,7 @@ jobs:
               shouldClose = false;
             } else if (status === 'RATE_LIMITED') {
               comment = `## ⚠️ Rate Limit Reached\n\nYou have submitted too many reports today. Please try again tomorrow.\n\n> Maximum: 5 reports per user per day`;
+              shouldClose = false;
             } else if (status === 'NO_IP_FOUND') {
               comment = `## ❌ No IP Address Found\n\nWe could not extract an IP address from your report.\n\nPlease use the **Issue Template** and fill in the IP Address field correctly.`;
               shouldClose = false;

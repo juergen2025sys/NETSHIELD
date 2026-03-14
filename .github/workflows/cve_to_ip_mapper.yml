@@ -80,9 +80,9 @@ jobs:
               # Botnet C2 IPs  
               "URLhaus Malware IPs":
                   "https://urlhaus.abuse.ch/downloads/text/",
-              # MISP Threat Feeds
+              # MISP Community C2 IPs (plain IPv4 list, kein CSV/JSON-Format)
               "MISP Botnet C2":
-                  "https://www.misp-project.org/feeds/botnet-C2-IP.csv",
+                  "https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/feeds/IPC2s.csv",
               # Emerging Threats aktive Exploit-IPs
               "ET Compromised":
                   "https://rules.emergingthreats.net/blockrules/compromised-ips.txt",
