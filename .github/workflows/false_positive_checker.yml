@@ -45,6 +45,7 @@ jobs:
           python3 << 'EOF'
           import re
           import os
+          import sys
           import ipaddress
           from datetime import datetime, timezone
 
@@ -112,7 +113,7 @@ jobs:
           BLACKLIST = "combined_threat_blacklist_ipv4.txt"
           if not os.path.exists(BLACKLIST):
               print(f"FEHLER: {BLACKLIST} nicht gefunden!")
-              exit(1)
+              sys.exit(1)
 
           with open(BLACKLIST) as f:
               lines_raw = f.readlines()

@@ -115,12 +115,6 @@ jobs:
                   print(f"  FEHLER {url}: {e}")
                   return None
 
-          def is_private(ip):
-              parts = list(map(int, ip.split(".")))
-              return (parts[0] == 10 or
-                      (parts[0] == 172 and 16 <= parts[1] <= 31) or
-                      (parts[0] == 192 and parts[1] == 168) or
-                      parts[0] in (0, 127) or parts[0] >= 224)
 
           HONEYPOT_SOURCES = {
               # Honeypot-spezifische Feeds (alle öffentlich, kein API-Key)
