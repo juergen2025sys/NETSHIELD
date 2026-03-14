@@ -49,6 +49,8 @@ jobs:
               "combined":  "combined_threat_blacklist_ipv4.txt",
               "tor":       "tor_exit_nodes.txt",
               "cve":       "cve_exploit_ips.txt",
+              "honeypot":  "honeypot_ips.txt",
+              "honeydb":   "honeydb_ips.txt",
               "vpn":       "vpn_proxy_ranges.txt",
               "botdet":    "bot_detector_blacklist_ipv4.txt",
           }
@@ -85,14 +87,14 @@ jobs:
 
           # 1) Sub-Listen vs. combined
           overlaps_with_combined = {}
-          for key in ["tor", "cve", "vpn", "botdet"]:
+          for key in ["tor", "cve", "honeypot", "honeydb", "vpn", "botdet"]:
               overlap = data[key]["ips"] & combined_ips
               overlaps_with_combined[key] = overlap
               pct = len(overlap)/max(len(data[key]["ips"]),1)*100
               print(f"  {FILES[key]} ∩ combined: {len(overlap)} IPs ({pct:.1f}%)")
 
           # 2) Sub-Listen untereinander
-          sub_keys = ["tor", "cve", "vpn", "botdet"]
+          sub_keys = ["tor", "cve", "honeypot", "honeydb", "vpn", "botdet"]
           cross_overlaps = {}
           print()
           for i, k1 in enumerate(sub_keys):
@@ -110,11 +112,11 @@ jobs:
           #     → spart Speicher und verhindert doppeltes Zählen
           #   - Sub-Listen untereinander: keine Änderung (erlaubt, da combined
           #     sowieso dedupliziert)
-          # Ausnahme: tor + cve sind HQ-Feeds → IPs dort behalten damit
+          # Ausnahme: tor, cve, honeypot, honeydb sind HQ-Feeds → IPs dort behalten damit
           #   combined sie beim nächsten Lauf korrekt als HQ markiert.
           #   Nur vpn + botdet werden aus combined-Duplikaten bereinigt.
 
-          CLEAN_FROM_COMBINED = ["vpn", "botdet"]  # tor + cve bleiben (HQ-Markierung wichtig)
+          CLEAN_FROM_COMBINED = ["vpn", "botdet"]  # tor/cve/honeypot/honeydb bleiben (HQ-Markierung wichtig)
 
           total_removed = 0
           removal_stats = {}
@@ -167,7 +169,7 @@ jobs:
           lines.append("## Überschneidungen mit combined_threat_blacklist\n")
           lines.append("| Sub-Liste | Gemeinsame IPs | Anteil | Aktion |")
           lines.append("|---|---|---|---|")
-          for key in ["tor", "cve", "vpn", "botdet"]:
+          for key in ["tor", "cve", "honeypot", "honeydb", "vpn", "botdet"]:
               overlap = len(overlaps_with_combined[key])
               total   = max(data[key]["count"], 1)
               pct     = f"{overlap/total*100:.1f}%"
@@ -194,7 +196,7 @@ jobs:
           lines.append(f"| Metrik | Wert |")
           lines.append(f"|---|---|")
           lines.append(f"| Duplikate entfernt (vpn + botdet) | **{total_removed:,}** |")
-          lines.append(f"| Tor/CVE behalten (HQ-Markierung) | **{len(overlaps_with_combined['tor']) + len(overlaps_with_combined['cve']):,}** |")
+          lines.append(f"| HQ-Feeds behalten (tor/cve/honeypot/honeydb) | **{sum(len(overlaps_with_combined[k]) for k in ['tor','cve','honeypot','honeydb']):,}** |")
           lines.append(f"| Combined Blacklist (unverändert) | **{len(combined_ips):,}** |")
 
           lines.append(f"\n---\n*Generiert: {now_str}*")
