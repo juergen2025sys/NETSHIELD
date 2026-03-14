@@ -186,7 +186,7 @@ jobs:
                   sensor_total += len(events)
                   print(f"  Page {page+1}: {len(events)} Events, from_id={next_from_id}")
                   page += 1
-                  if next_from_id is None or next_from_id == 0:
+                  if next_from_id is None or (next_from_id == 0 and page > 0):
                       break  # Keine weiteren Seiten
                   from_id = next_from_id
           else:
