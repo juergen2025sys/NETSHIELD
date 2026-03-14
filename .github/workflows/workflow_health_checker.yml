@@ -368,14 +368,14 @@ jobs:
       - name: Generate Report
         run: |
           python3 << 'EOF'
-          import json
+          import json, sys
           
           try:
               with open("/tmp/wf_results.json") as f:
                   data = json.load(f)
           except Exception as e:
               print(f"FEHLER: wf_results.json konnte nicht gelesen werden: {e}")
-              exit(1)
+              sys.exit(1)
           results   = data["results"]
           now_str   = data["now_str"]
           yml_files = ["x"] * data["yml_count"]
