@@ -150,7 +150,7 @@ jobs:
               "firehol_anonymous", "dshield", "cloudzy", "netmountains_blocklist",
               "urlhaus_ips", "firehol_level1", "firehol_level2", "firehol_level3",
               "firehol_webclient", "firehol_webserver", "firehol_proxies", "firehol_abusers_1d",
-              "et_block", "et_compromised", "spamhaus_drop", "spamhaus_edrop",
+              "et_block", "et_compromised", "spamhaus_drop",
               "blocklist_de_all", "blocklist_de_export", "blocklist_de_strongips",
               "blocklist_de_ssh", "c2_tracker", "c2_iplist", "cobalt_strike_ips",
               "ipsum_level5", "ipsum_level7", "abuseipdb_s100_30d", "abuseipdb_s90_30d",
@@ -194,7 +194,7 @@ jobs:
               "fortigate_azure":            ("https://raw.githubusercontent.com/IT3ngineer/FortigateBlockList/refs/heads/main/AzureBlockListIPs.txt", False),
               "romainmarcoux_aa":           ("https://raw.githubusercontent.com/romainmarcoux/malicious-ip/main/full-300k-aa.txt", False),
               "romainmarcoux_ab":           ("https://raw.githubusercontent.com/romainmarcoux/malicious-ip/main/full-300k-ab.txt", False),
-              "romainmarcoux_ac":           ("https://raw.githubusercontent.com/romainmarcoux/malicious-ip/main/full-300k-ac.txt", False),
+              # "romainmarcoux_ac" entfernt: full-300k-ac.txt existiert nicht mehr (HTTP 200, leerer Body)
               "4ip_high_security":          ("https://raw.githubusercontent.com/4IP-Solutions/threat-feeds/refs/heads/main/blocklist-incoming-ip-high-security.txt", False),
               "cyna_malicious":             ("https://raw.githubusercontent.com/cybersecurity-cyna/Malicious_IP/refs/heads/main/ip-list.txt", False),
               "black_mirror":               ("https://github.com/T145/black-mirror/releases/download/latest/BLOCK_IPV4.txt", False),
@@ -234,7 +234,7 @@ jobs:
               "et_block":                   ("https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt", True),
               "et_compromised":             ("https://rules.emergingthreats.net/blockrules/compromised-ips.txt", True),
               "spamhaus_drop":              ("https://www.spamhaus.org/drop/drop.txt", True),
-              "spamhaus_edrop":             ("https://www.spamhaus.org/drop/edrop.txt", True),
+              # "spamhaus_edrop" entfernt: seit 10.04.2024 in DROP konsolidiert, edrop.txt ist leer
               "blocklist_de_all":           ("https://lists.blocklist.de/lists/all.txt", True),
               "blocklist_de_export":        ("https://www.blocklist.de/downloads/export-ips_all.txt", True),
               "blocklist_de_strongips":     ("https://lists.blocklist.de/lists/strongips.txt", True),
@@ -264,7 +264,7 @@ jobs:
 
               # ── Spam / Phishing ───────────────────────────────────────────
               "spamhaus_pbl":               ("https://raw.githubusercontent.com/elliotwutingfeng/Spamhaus-DNSBL-IPs/main/pbl.txt", False),
-              "phishing_army":              ("https://phishing.army/download/phishing_army_blocklist.txt", False),
+              # "phishing_army" entfernt: enthält Domains, keine IPs → liefert immer 0 IPs
               "openphish":                  ("https://openphish.com/feed.txt", False),
               "pgl_yoyo_adservers":         ("https://pgl.yoyo.org/adservers/iplist.php?format=&showintro=0", False),
 
