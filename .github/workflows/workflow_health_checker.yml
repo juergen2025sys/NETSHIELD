@@ -1,16 +1,9 @@
-name: Workflow Health Checker
+name: Feed Health Monitor
 
 on:
   schedule:
-    - cron: '5 1 * * *'    # täglich 01:05 UTC (5 Min nach feed_health_monitor um 01:00)
-  push:
-    paths:
-      - '.github/workflows/*.yml'
+    - cron: '0 1 * * *'    # täglich 01:00 UTC
   workflow_dispatch:
-
-concurrency:
-  group: workflow-health-checker
-  cancel-in-progress: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -23,10 +16,14 @@ permissions:
   pull-requests: none
   security-events: none
 
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
-  workflow-health:
+  feed-health:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
 
     steps:
       - name: Checkout Repository
@@ -34,404 +31,223 @@ jobs:
         with:
           persist-credentials: true
 
-      - name: Check all Workflows
+      - name: Test all Feed URLs
         run: |
           python3 << 'EOF'
-          import os, re, glob, json
+          import urllib.request, urllib.error, time, re, json, os
           from datetime import datetime, timezone
-          
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+
           now     = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
-          
-          WORKFLOW_DIR = ".github/workflows"
-          yml_files    = sorted(glob.glob(f"{WORKFLOW_DIR}/*.yml"))
-          
-          results = []
-          
-          for path in yml_files:
-              name     = os.path.basename(path)
-              warnings = []
-              errors   = []
-          
-              with open(path, encoding="utf-8") as f:
-                  content = f.read()
-                  lines   = content.splitlines()
-          
-              if "permissions:" not in content:
-                  errors.append("Fehlendes `permissions:` – Workflow könnte keine Schreibrechte haben")
-              if "contents: write" not in content:
-                  errors.append("Fehlendes `contents: write` – Push wird fehlschlagen")
-              if "persist-credentials: true" not in content:
-                  warnings.append("Kein `persist-credentials: true` – Push-Auth könnte fehlen")
-          
-              # Nur echte YAML-Schedule-Zeilen (- cron: '...'), keine Python-Strings
-              cron_matches = []
-              for line in lines:
-                  m = re.match(r"\s*-\s+cron:\s*['\"]([^'\"]+)['\"]", line)
-                  if m:
-                      cron_matches.append(m.group(1))
-              for cron_expr in cron_matches:
-                  parts = cron_expr.strip().split()
-                  if len(parts) != 5:
-                      errors.append(f"Ungültiger Cron-Ausdruck: `{cron_expr}` (erwartet 5 Felder)")
-          
-              if "timeout-minutes:" not in content:
-                  warnings.append("Kein `timeout-minutes:` – Job könnte bis zu 6h hängen")
-          
-              for i, line in enumerate(lines, 1):
-                  stripped = line.strip()
-                  if stripped == "git push" or stripped == "git push\n":
-                      errors.append(f"Zeile {i}: Nacktes `git push` ohne rebase – Konflikt-Risiko bei parallelen Runs")
-          
-              for i, line in enumerate(lines):
-                  if "uses: actions/cache" in line or "uses: actions/checkout" in line:
-                      # nächste nicht-leere Zeile prüfen
-                      for j in range(i+1, min(i+10, len(lines))):
-                          nl = lines[j].strip()
-                          if nl == "":
-                              continue
-                          if nl.startswith("run:"):
-                              errors.append(f"Zeile {j+1}: `run:` direkt nach `uses:` ohne eigenen `- name:` Step → YAML-Fehler")
-                          break
-          
-              for i, line in enumerate(lines, 1):
-                  stripped = line.strip()
-                  # Nur echte Shell-Zeilen prüfen (nicht Python-Code mit re.findall etc.)
-                  if stripped.startswith("git commit -m") and "findall" not in stripped and "re." not in stripped:
-                      m = re.search(r'git commit -m ["\']([^"\']+)["\']', stripped)
-                      if m:
-                          msg = m.group(1)
-                          if "UTC" not in msg and "date" not in msg:
-                              warnings.append(f"Zeile {i}: Commit-Message ohne UTC-Zeitstempel: `{msg[:60]}`")
-          
-              if "git commit" in content and "git add" not in content:
-                  warnings.append("git commit ohne vorheriges git add gefunden")
-          
-              for i, line in enumerate(lines, 1):
-                  stripped = line.strip()
-                  if stripped == "git add" or stripped == "git add ":
-                      errors.append(f"Zeile {i}: `git add` ohne Argumente – keine Datei wird gestaged, Commit ist leer")
-          
-              for i, line in enumerate(lines, 1):
-                  stripped = line.strip()
-                  if stripped.startswith("python3 -c") and (stripped.endswith('"') is False or stripped.count('"') < 2):
-                      if stripped.endswith('"') is False:
-                          errors.append("Zeile " + str(i) + ": `python3 -c \"...` mit mehrzeiligem Code – YAML-Syntaxfehler, bitte python3 Heredoc verwenden")
-          
-              in_heredoc = False
-              heredoc_indent = 0
-              for i, line in enumerate(lines, 1):
-                  stripped = line.strip()
-                  if re.search(r"<<\s*'[A-Z]+EOF[A-Z]*'", line) or re.search(r'<<\s*"[A-Z]+EOF[A-Z]*"', line):
-                      in_heredoc = True
-                      heredoc_indent = len(line) - len(line.lstrip())
-                      continue
-                  if in_heredoc:
-                      if re.match(r'^[A-Z]*EOF[A-Z]*\s*$', stripped):
-                          in_heredoc = False
-                          continue
-                      if line.strip() and not line.startswith(" " * max(heredoc_indent, 1)):
-                          errors.append(f"Zeile {i}: Heredoc-Inhalt ohne Einrückung – YAML-Syntaxfehler (mindestens {heredoc_indent} Leerzeichen erwartet)")
-                          in_heredoc = False
-          
-              def is_code_line(ln):
-                  """True wenn Zeile echter Code ist – kein Kommentar, kein append-Meldungstext."""
-                  s = ln.strip()
-                  if s.startswith('#'):
-                      return False
-                  import re as _re
-                  if _re.search(r'(errors|warnings)\.append\s*\(', ln):
-                      return False
-                  return True
-          
-              for i, line in enumerate(lines, 1):
-                  if not is_code_line(line):
-                      continue
-                  if re.search(r'str\s*\(.*\)\s*\.get\s*\(', line):
-                      errors.append(f"Zeile {i}: `str(...).get(...)` – str hat kein .get(), führt zu AttributeError. Korrekt: `(dict_expr).get(...)`")
-          
-              # Nur prüfen wenn der Workflow tatsächlich seen_db.json öffnet/definiert
-              uses_seen_db_file = name != "workflow_health_checker.yml" and bool(
-                  re.search(r'"seen_db\.json"', content) or
-                  re.search(r"'seen_db\.json'", content)
-              )
-              modifies_seen_db = uses_seen_db_file and any(
-                  re.search(r'(del db\[|db\.pop\(|json\.dump\(db)', line)
-                  for line in lines
-              )
-              has_cache_save = "actions/cache" in content and (
-                  "github.run_id" in content or "save" in content.lower()
-              )
-              # Nur warnen wenn seen_db modifiziert wird aber kein Cache-Save-Step vorhanden
-              if modifies_seen_db and "github.run_id" not in content:
-                  errors.append("seen_db.json wird modifiziert, aber kein `Save seen_db Cache`-Step mit `github.run_id` gefunden – Änderungen gehen beim nächsten Run verloren")
-          
-              # Prüft ob ein Restore-Step den latest-Key UND restore-keys hat
-              # Nur melden wenn restore-keys komplett fehlt (nicht nur an anderer Stelle steht)
-              uses_seen_db_cache = name != "workflow_health_checker.yml" and "netshield-seen-db" in content and "actions/cache" in content
-              if uses_seen_db_cache:
-                  has_old_only = bool(re.search(r"key:\s*netshield-seen-db-v1\s*$", content, re.MULTILINE))
-                  has_new_restore = "netshield-seen-db-v1-" in content and "restore-keys" in content
-                  # Zusätzlich: prüfen ob restore-keys im selben Cache-Block wie Restore steht
-                  # (nicht nur irgendwo im File) – verhindert False Positives
-                  restore_blocks = re.findall(
-                      r'- name: Restore seen_db.*?(?=      - name:|\Z)', content, re.DOTALL
-                  )
-                  has_restore_keys_in_block = any(
-                      "restore-keys" in block for block in restore_blocks
-                  )
-                  if has_old_only and not has_new_restore:
-                      errors.append(
-                          "Cache Restore-Key `netshield-seen-db-v1` findet den von Combined gespeicherten "
-                          "Cache (`netshield-seen-db-v1-<run_id>`) nicht. Korrekt: "
-                          "`key: netshield-seen-db-v1-latest` + `restore-keys: |\n  netshield-seen-db-v1-`"
-                      )
-                  elif uses_seen_db_cache and restore_blocks and not has_restore_keys_in_block:
-                      warnings.append(
-                          "Cache-Restore ohne `restore-keys` im Restore-Block – "
-                          "bei Cache-Miss (z.B. nach 7 Tagen Inaktivität) wird seen_db nicht gefunden. "
-                          "Fix: `restore-keys: |\n  netshield-seen-db-v1-` ergänzen."
-                      )
-          
-              # get("days_seen", 1) + 1 startet fälschlich bei 2 statt 1
-              # korrekt: get("days_seen", 0) + 1
-              for i, line in enumerate(lines, 1):
-                  if not is_code_line(line):
-                      continue
-                  if re.search(r'get\s*\(\s*["\'\']days_seen["\'\']\s*,\s*1\s*\)\s*\+\s*1', line):
-                      errors.append(
-                          f"Zeile {i}: `get(\"days_seen\", 1) + 1` – Initialwert falsch: "
-                          f"erster Bestätigungstag wird als 2 gezählt. Korrekt: `get(\"days_seen\", 0) + 1`"
-                      )
-          
-              # Neue Einträge müssen alle Pflichtfelder des neuen Schemas enthalten
-              REQUIRED_SCHEMA_FIELDS = ["days_seen", "today_count", "today_hq", "hq_feeds", "feeds"]
-              writes_new_db_entry = bool(re.search(r'"first"\s*:\s*now_day', content))
-              if writes_new_db_entry:
-                  missing = [f for f in REQUIRED_SCHEMA_FIELDS if f'"{f}"' not in content]
-                  if missing:
-                      errors.append(
-                          f"seen_db Eintrag fehlt Pflichtfelder: {missing} – "
-                          f"Confidence-Scoring ignoriert diese IPs (Score bleibt 0)"
-                      )
-          
-          
-              # Erkennt: for asn ... in asn_ip_count.items(): ... fetch_json(...iptoasn...)
-              in_asn_loop = False
-              for i, line in enumerate(lines, 1):
-                  if not is_code_line(line):
-                      continue
-                  if re.search(r'for\s+\w+.*in\s+asn_ip_count', line):
-                      in_asn_loop = True
-                  if in_asn_loop and re.search(r'fetch_json\s*\(.*iptoasn', line):
-                      errors.append(
-                          f"Zeile {i}: [AUDIT-BUG-1] API-Call zu iptoasn.com innerhalb des ASN-Score-Loops "
-                          f"→ O(n²) Komplexität, bis zu 15.000+ Requests, Timeout und Rate-Limit-Sperre. "
-                          f"Fix: asn_to_ips-Dict bereits in Schritt 2 befüllen, im Score-Loop nur "
-                          f"`asn_to_ips.get(asn, [])` verwenden."
-                      )
-                      in_asn_loop = False  # einmal pro Loop melden
-          
-              # Erkennt Workflows die json.dump(db) aufrufen aber nicht im git add haben
-              writes_seen_db = name != "workflow_health_checker.yml" and bool(
-                  re.search(r'open\s*\(\s*"seen_db\.json"', content) or
-                  re.search(r"open\s*\(\s*'seen_db\.json'", content) or
-                  ((re.search(r'DB_FILE\s*=\s*"seen_db\.json"', content) or
-                    re.search(r"DB_FILE\s*=\s*'seen_db\.json'", content)) and
-                   re.search(r'json\.dump\s*\(\s*db\s*,', content))
-              )
-              has_seen_db_in_git_add = bool(re.search(r'git\s+add\b.*seen_db\.json', content))
-              has_seen_db_cache_save = bool(
-                  re.search(r'- name: Save seen_db', content) and
-                  re.search(r'path:\s*seen_db\.json', content)
-              )
-              if writes_seen_db and not has_seen_db_in_git_add and not has_seen_db_cache_save:
-                  errors.append(
-                      "[AUDIT-BUG-2] seen_db.json wird per json.dump() geschrieben, "
-                      "aber weder im `git add`-Befehl noch in einem `Save seen_db Cache`-Step "
-                      "mit `path: seen_db.json` gesichert. Fällt der GitHub-Cache nach 7 Tagen weg, "
-                      "gehen alle Änderungen dauerhaft verloren. "
-                      "Fix: `git add seen_db.json` oder `Save seen_db Cache`-Step ergänzen."
-                  )
-          
-              # Erkennt: Workflow enthält 'decay' im Namen oder 'DECAY_DAYS' im Code
-              # und speichert Cache mit key: netshield-seen-db-v1-latest (statt decay-<run_id>)
-              # Ausnahme: workflow_health_checker selbst enthält 'DECAY_DAYS' als String in den Prüfregeln
-              is_decay_workflow = name not in ("workflow_health_checker.yml",) and (
-                  "DECAY_DAYS" in content or "score_decay" in name.lower() or "decay" in name.lower()
-              )
-              if is_decay_workflow:
-                  # Score-Decay MUSS beide Save-Steps haben:
-                  # 1) netshield-seen-db-v1-decay-<run_id>  (versionierter Snapshot)
-                  # 2) netshield-seen-db-v1-latest           (damit nachfolgende Workflows aktuellen Stand bekommen)
-                  has_decay_runid_save = bool(re.search(
-                      r'key:\s*netshield-seen-db-v1-decay-\$\{\{?\s*github\.run_id\s*\}?\}', content
-                  ))
-                  has_latest_save = bool(re.search(
-                      r'key:\s*netshield-seen-db-v1-latest', content
-                  ))
-                  if not has_decay_runid_save:
-                      errors.append(
-                          "[AUDIT-BUG-3] Score-Decay-Workflow hat keinen versionierten Cache-Save "
-                          "`netshield-seen-db-v1-decay-${{ github.run_id }}` – "
-                          "Fix: Save-Step mit diesem Key ergänzen."
-                      )
-                  if not has_latest_save:
-                      errors.append(
-                          "[AUDIT-BUG-3] Score-Decay-Workflow speichert seen_db nicht unter "
-                          "`netshield-seen-db-v1-latest` – nachfolgende Workflows (confidence, community) "
-                          "holen nach dem Decay-Lauf den alten, unbereinigten Cache. "
-                          "Fix: zweiten Save-Step mit `key: netshield-seen-db-v1-latest` ergänzen."
-                      )
-          
-              # Prüft ob noch die alten konfliktbehafteten Cron-Zeiten vorhanden sind
-              KNOWN_CONFLICTS = {
-                  "workflow_health_checker.yml": {
-                      "bad":  r"^0\s+1\s+\*\s+\*\s+\*$",
-                      "hint": "01:00 UTC – Konflikt mit feed_health_monitor. Fix: `5 1 * * *` (01:05 UTC)"
-                  },
-                  "update-blocklist.yml": {
-                      "bad":  r"^0\s+3\s+\*\s+\*\s+[13]$",
-                      "hint": "03:00 UTC Mo/Mi – Konflikt mit update_combined_blacklist. Fix: `30 2 * * 1` / `30 2 * * 3` (02:30 UTC)"
-                  },
-                  "false_positive_checker.yml": {
-                      "bad":  r"^0\s+(?:6|14|22)\s+\*\s+\*\s+\*$",
-                      "hint": "06:00/14:00/22:00 UTC – Konflikt mit update_combined_blacklist (gleiche Zeit). Fix: 05:30/13:30/21:30 UTC"
-                  },
-                  "auto_feed_discovery.yml": {
-                      "bad":  r"^0\s+4\s+\*\s+\*\s+0$",
-                      "hint": "04:00 UTC Sonntag – Konflikt mit cve_to_ip_mapper. Fix: `30 4 * * 0` (04:30 UTC)"
-                  },
-                  "geo_tagger.yml": {
-                      "bad":  r"^0\s+6\s+\*\s+\*\s+0$",
-                      "hint": "06:00 UTC Sonntag – Überschneidung mit false_positive_checker + combined. Fix: `45 6 * * 0` (06:45 UTC)"
-                  },
-              }
-              if name in KNOWN_CONFLICTS:
-                  conflict = KNOWN_CONFLICTS[name]
-                  for cron_expr in cron_matches:
-                      if re.search(conflict["bad"], cron_expr):
-                          errors.append(
-                              f"[AUDIT-TIMING] Zeitkonflikt erkannt: `{cron_expr}` – {conflict['hint']}"
-                          )
-          
-              for i, line in enumerate(lines, 1):
-                  if "cron:" in line and line.count("#") >= 2:
-                      warnings.append(f"Zeile {i}: Doppelter Kommentar im Cron-Eintrag – bitte bereinigen")
-          
-              for i, line in enumerate(lines, 1):
-                  if not is_code_line(line):
-                      continue
-                  stripped = line.strip()
-                  if re.search(r'\bsorted\s*\(\s*(all_ips|ips|blacklist_ips|final_ips|active_ips)\s*\)', stripped):
-                      warnings.append(f"Zeile {i}: `sorted(ips)` ohne `key=` – lexikografische Sortierung, nicht numerisch (z.B. '10.x' < '2.x'). Korrekt: `sorted(ips, key=lambda ip: tuple(int(o) for o in ip.split('.')))`")
-                  if re.search(r'active\w*\.sort\(\)\s*$', stripped) or re.search(r'active_ips\.sort\(\)\s*$', stripped):
-                      warnings.append(f"Zeile {i}: `.sort()` ohne `key=` auf IP-Liste – lexikografisch statt numerisch")
-          
-              for i, line in enumerate(lines, 1):
-                  if re.search(r'for\s+\w+\s+in\s+\w+.*if.*fetch', line) or \
-                     re.search(r'\[.*fetch.*for\s+\w+\s+in', line):
-                      warnings.append(f"Zeile {i}: HTTP-Call in List-Comprehension – kein Rate-Limiting möglich, kann zu API-Sperren führen. Besser: explizite Schleife mit `time.sleep()`")
-          
-              for i, line in enumerate(lines, 1):
-                  if re.search(r'open\s*\([^)]*["\'](?:w|a)["\']', line):
-                      if 'encoding' not in line and re.search(r'\.(md|txt|csv)\b', line):
-                          warnings.append(f"Zeile {i}: `open()` ohne `encoding=\"utf-8\"` für Textdatei – kann auf manchen Systemen zu Fehlern führen")
-          
-              if "concurrency:" not in content:
-                  warnings.append("Kein `concurrency:`-Block – gleichzeitige schedule+manuell Runs können sich gegenseitig überschreiben")
-          
-              has_bare_exit = bool(re.search(r'(?<!sys\.)\bexit\s*\(\s*[01]\s*\)', content))
-              has_sys_exit  = bool(re.search(r'\bsys\.exit\s*\(', content))
-              if has_bare_exit and has_sys_exit:
-                  warnings.append("`exit()` und `sys.exit()` gemischt verwendet – einheitlich `sys.exit()` bevorzugen")
-          
-              for i, line in enumerate(lines, 1):
-                  if "Top-500" in line or "top-500" in line:
-                      context = "\n".join(lines[max(0, i-5):i+5])
-                      if "[:500]" not in context:
-                          warnings.append(f"Zeile {i}: Kommentar erwähnt 'Top-500' aber kein `[:500]`-Slice im Code – irreführend, prüfen ob wirklich alle IPs gemeint sind")
-          
-              status = "❌ FEHLER" if errors else ("⚠️ WARNUNG" if warnings else "✅ OK")
-              results.append({
-                  "file":     name,
-                  "status":   status,
-                  "errors":   errors,
-                  "warnings": warnings,
-                  "crons":    cron_matches,
-              })
-              print(f"{status}: {name} ({len(errors)} Fehler, {len(warnings)} Warnungen)")
-          
-          with open("/tmp/wf_results.json", "w") as f:
-              json.dump({"results": results, "now_str": now_str, "yml_count": len(yml_files)}, f)
-          EOF
 
-      - name: Generate Report
-        run: |
-          python3 << 'EOF'
-          import json, sys
-          
-          try:
-              with open("/tmp/wf_results.json") as f:
-                  data = json.load(f)
-          except Exception as e:
-              print(f"FEHLER: wf_results.json konnte nicht gelesen werden: {e}")
-              sys.exit(1)
-          results   = data["results"]
-          now_str   = data["now_str"]
-          yml_files = ["x"] * data["yml_count"]
-          
-          ok_count   = sum(1 for r in results if r["status"] == "✅ OK")
-          warn_count = sum(1 for r in results if r["status"] == "⚠️ WARNUNG")
-          err_count  = sum(1 for r in results if r["status"] == "❌ FEHLER")
-          
-          report_lines = []
-          report_lines.append("# Workflow Health Checker – Report")
-          report_lines.append(f"**Aktualisiert:** {now_str}\n")
-          report_lines.append(f"**Workflows:** {len(results)} | ✅ {ok_count} OK | ⚠️ {warn_count} Warnung | ❌ {err_count} Fehler\n")
-          report_lines.append("---")
-          report_lines.append("## Übersicht\n")
-          report_lines.append("| Workflow | Status | Fehler | Warnungen | Cron |")
-          report_lines.append("|---|---|---|---|---|")
-          for r in results:
-              cron_str = ", ".join(f"`{c}`" for c in r["crons"]) if r["crons"] else "–"
-              report_lines.append(f"| `{r['file']}` | {r['status']} | {len(r['errors'])} | {len(r['warnings'])} | {cron_str} |")
-          
+          # Alle 112 Feed-URLs (entsprechend update_combined_blacklist.yml – ohne LOCAL_FEEDS)
+          FEEDS = {
+              "cinsscore":                  "https://cinsscore.com/list/ci-badguys.txt",
+              "cinsarmy":                   "https://cinsarmy.com/list/ci-badguys.txt",
+              "greensnow":                  "https://blocklist.greensnow.co/greensnow.txt",
+              "feodo_aggressive":           "https://feodotracker.abuse.ch/downloads/ipblocklist_aggressive.txt",
+              "feodo_recommended":          "https://feodotracker.abuse.ch/downloads/ipblocklist.txt",
+              "threatfox_ioc":              "https://raw.githubusercontent.com/elliotwutingfeng/ThreatFox-IOC-IPs/refs/heads/main/ips.txt",
+              "l7_ddos":                    "https://raw.githubusercontent.com/Tizian-Maxime-Weigt/L7-HTTP-DDoS-Flood-IP-Signature-IP-List/refs/heads/main/ddos-signatures.txt",
+              "binary_defense":             "https://binarydefense.com/banlist.txt",
+              "data_shield":                "https://raw.githubusercontent.com/duggytuxy/Data-Shield_IPv4_Blocklist/refs/heads/main/prod_critical_data-shield_ipv4_blocklist.txt",
+              "interserver":                "https://sigs.interserver.net/ip.txt",
+              "crowdsec_ssh":               "https://raw.githubusercontent.com/Y3ll0w/CrowdSec-CAPI-Decisions/refs/heads/main/ssh-bf.json.txt",
+              "trcert_malware":             "https://raw.githubusercontent.com/cenk/trcert-malware/refs/heads/main/trcert-ips.txt",
+              "danger_bruteforce":          "https://danger.rulez.sk/projects/bruteforceblocker/blist.php",
+              "threatview_high_conf":       "https://threatview.io/Downloads/IP-High-Confidence-Feed.txt",
+              "florent_banned":             "https://raw.githubusercontent.com/florentvinai/bad-ips-on-my-vps/refs/heads/main/banned_ips.txt",
+              "firehol_cybercrime":         "https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/cybercrime.ipset",
+              "firehol_anonymous":          "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_anonymous.netset",
+              "dshield":                    "https://www.dshield.org/block.txt",
+              "cloudzy":                    "https://raw.githubusercontent.com/CriticalPathSecurity/Public-Intelligence-Feeds/refs/heads/master/cloudzy.txt",
+              "bbcan177":                   "https://gist.githubusercontent.com/BBcan177/d7105c242f17f4498f81/raw",
+              "kevinmarx":                  "https://kevinmarx.org/malicious-ip-list.txt",
+              "honeypot_blocklist":         "https://raw.githubusercontent.com/yuexuana521/honeypot-blocklist/refs/heads/main/ip_list.txt",
+              "edanwong":                   "https://raw.githubusercontent.com/EdanWong/ip_list/refs/heads/main/my_ips.txt",
+              "nixbear_malicious":          "https://raw.githubusercontent.com/nixbear/malicious_ips/refs/heads/main/malicious_ips.txt",
+              "ufukart_blacklist":          "https://raw.githubusercontent.com/ufukart/Blacklist/main/blacklist.txt",
+              "f3csystems":                 "https://raw.githubusercontent.com/f3csystems/BlockList_IP/refs/heads/main/blacklist.txt",
+              "fortigate_azure":            "https://raw.githubusercontent.com/IT3ngineer/FortigateBlockList/refs/heads/main/AzureBlockListIPs.txt",
+              "romainmarcoux_aa":           "https://raw.githubusercontent.com/romainmarcoux/malicious-ip/main/full-300k-aa.txt",
+              "romainmarcoux_ab":           "https://raw.githubusercontent.com/romainmarcoux/malicious-ip/main/full-300k-ab.txt",
+              "romainmarcoux_ac":           "https://raw.githubusercontent.com/romainmarcoux/malicious-ip/main/full-300k-ac.txt",
+              "4ip_high_security":          "https://raw.githubusercontent.com/4IP-Solutions/threat-feeds/refs/heads/main/blocklist-incoming-ip-high-security.txt",
+              "cyna_malicious":             "https://raw.githubusercontent.com/cybersecurity-cyna/Malicious_IP/refs/heads/main/ip-list.txt",
+              "black_mirror":               "https://github.com/T145/black-mirror/releases/download/latest/BLOCK_IPV4.txt",
+              "alienvault":                 "https://reputation.alienvault.com/reputation.generic",
+              "bitwire_ipblocklist":        "https://raw.githubusercontent.com/bitwire-it/ipblocklist/refs/heads/main/ip-list.txt",
+              "littlejake_all_blacklist":   "https://cdn.jsdelivr.net/gh/LittleJake/ip-blacklist/all_blacklist.txt",
+              "shadowwhisperer_hackers":    "https://raw.githubusercontent.com/ShadowWhisperer/IPs/refs/heads/master/Malware/Hackers",
+              "netmountains_blocklist":     "https://raw.githubusercontent.com/NETMOUNTAINS/Curated-IP-Blocklist/main/ip-blacklist.list",
+              "bluetack_blacklist":         "https://raw.githubusercontent.com/actuallymentor/bluetack-ip-blacklist-generator/refs/heads/master/blacklist",
+              "rtbh_output":                "https://list.rtbh.com.tr/output.txt",
+              "sefinek_malicious":          "https://raw.githubusercontent.com/sefinek/Malicious-IP-Addresses/main/lists/main.txt",
+              "magicteamc_bad_ips":         "https://raw.githubusercontent.com/MagicTeaMC/bad-ips/refs/heads/main/bad-ips.txt",
+              "ddrimus_http_threats":       "https://raw.githubusercontent.com/ddrimus/http-threat-blocklist/refs/heads/main/blocklist.txt",
+              "blacksnowdot_packets":       "https://raw.githubusercontent.com/BlacKSnowDot0/packetsdatabase-db/refs/heads/main/ip_list.txt",
+              "freakuency_threatfeed":      "https://raw.githubusercontent.com/FreakuencyFive/Public-IP-ThreatFeed/refs/heads/main/blacklist.txt",
+              "ultimate_hosts_ips0":        "https://raw.githubusercontent.com/Ultimate-Hosts-Blacklist/Ultimate.Hosts.Blacklist/refs/heads/master/ips/ips0.list",
+              "amitambekar_threats":        "https://raw.githubusercontent.com/amitambekar510/Malicious-IP-Threat-List/refs/heads/main/Malicious-IP-Threat-List.txt",
+              "amitambekar_threats_aa":     "https://raw.githubusercontent.com/amitambekar510/Malicious-IP-Threat-List/main/Malicious-IP-Threat-List_aa",
+              "dolutech_blacklist":         "https://raw.githubusercontent.com/dolutech/blacklist-dolutech/refs/heads/main/Black-list-semanal-dolutech.txt",
+              "zerof_ipextractor":          "https://raw.githubusercontent.com/ZEROF/ipextractor/refs/heads/main/ipexdbl.txt",
+              "subnet_blocklist_new":       "https://raw.githubusercontent.com/coyote-nl/blocklist/refs/heads/main/subnet-blocklist-new",
+              "bdix_prefix_ipv4":           "https://raw.githubusercontent.com/tushroy/bdix-isp-blocks/refs/heads/master/bdix-prefix_ipv4.txt",
+              "urlhaus_ips":                "https://urlhaus.abuse.ch/downloads/text/",
+              # bazaar_c2 entfernt: Endpunkt liefert Hash-Listen, keine IPs → 0 Treffer
+              "firehol_level1":             "https://iplists.firehol.org/files/firehol_level1.netset",
+              "firehol_level2":             "https://iplists.firehol.org/files/firehol_level2.netset",
+              "firehol_level3":             "https://iplists.firehol.org/files/firehol_level3.netset",
+              "firehol_level4":             "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level4.netset",
+              "firehol_webclient":          "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_webclient.netset",
+              "firehol_webserver":          "https://iplists.firehol.org/files/firehol_webserver.netset",
+              "firehol_proxies":            "https://iplists.firehol.org/files/firehol_proxies.netset",
+              "firehol_abusers_1d":         "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_abusers_1d.netset",
+              "et_block":                   "https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt",
+              "et_compromised":             "https://rules.emergingthreats.net/blockrules/compromised-ips.txt",
+              "spamhaus_drop":              "https://www.spamhaus.org/drop/drop.txt",
+              "spamhaus_edrop":             "https://www.spamhaus.org/drop/edrop.txt",
+              "blocklist_de_all":           "https://lists.blocklist.de/lists/all.txt",
+              "blocklist_de_export":        "https://www.blocklist.de/downloads/export-ips_all.txt",
+              "blocklist_de_strongips":     "https://lists.blocklist.de/lists/strongips.txt",
+              "blocklist_de_getlast":       "https://api.blocklist.de/getlast.php?time=43200",
+              "blocklist_de_ssh":           "https://lists.blocklist.de/lists/ssh.txt",
+              "blocklist_de_mail":          "https://lists.blocklist.de/lists/mail.txt",
+              "blocklist_de_apache":        "https://lists.blocklist.de/lists/apache.txt",
+              "blocklist_de_imap":          "https://lists.blocklist.de/lists/imap.txt",
+              "blocklist_de_ftp":           "https://lists.blocklist.de/lists/ftp.txt",
+              "c2_tracker":                 "https://raw.githubusercontent.com/montysecurity/C2-Tracker/main/data/all.txt",
+              "c2_iplist":                  "https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/feeds/IPC2s.csv",
+              "cobalt_strike_ips":          "https://raw.githubusercontent.com/Gi7w0rm/CobaltStrikeC2Tracker/main/lists/IPs.txt",
+              "stopforumspam_toxic":        "https://www.stopforumspam.com/downloads/toxic_ip_cidr.txt",
+              "ipsum_level3":               "https://raw.githubusercontent.com/stamparm/ipsum/master/levels/3.txt",
+              "ipsum_level5":               "https://raw.githubusercontent.com/stamparm/ipsum/master/levels/5.txt",
+              "ipsum_level7":               "https://raw.githubusercontent.com/stamparm/ipsum/master/levels/7.txt",
+              "ipsum_master":               "https://raw.githubusercontent.com/stamparm/ipsum/refs/heads/master/ipsum.txt",
+              "shodan_scanners":            "https://raw.githubusercontent.com/jgamblin/Shodan-Malware-Scanning-IPs/master/malware_ips.txt",
+              "binaryedge_scanners":        "https://raw.githubusercontent.com/stamparm/maltrail/master/trails/static/mass_scanner.txt",
+              "normshield_ssh":             "https://iplists.firehol.org/files/normshield_all_ssh.ipset",
+              "spamhaus_pbl":               "https://raw.githubusercontent.com/elliotwutingfeng/Spamhaus-DNSBL-IPs/main/pbl.txt",
+              "phishing_army":              "https://phishing.army/download/phishing_army_blocklist.txt",
+              "openphish":                  "https://openphish.com/feed.txt",
+              "pgl_yoyo_adservers":         "https://pgl.yoyo.org/adservers/iplist.php?format=&showintro=0",
+              "abuseipdb_s100_30d":         "https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-30d.ipv4",
+              "abuseipdb_s90_30d":          "https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s90-30d.ipv4",
+              "abuseipdb_tmiland":          "https://abuseipdb.tmiland.com/abuseipdb.txt",
+              "abuseipdb_score75":          "https://raw.githubusercontent.com/LittleJake/ip-blacklist/refs/heads/main/abuseipdb_blacklist_ip_score_75.txt",
+              "abuseipdb_score100":         "https://raw.githubusercontent.com/LittleJake/ip-blacklist/refs/heads/main/abuseipdb_blacklist_ip_score_100.txt",
+              "abuseipdb_scriptzteam":      "https://raw.githubusercontent.com/scriptzteam/AbuseIPDB-BlackList/refs/heads/main/abuseipdb_blacklist.txt",
+              "abuseipdb_axllent":          "https://raw.githubusercontent.com/axllent/iplists/master/lists/abuseipdb-30d.txt",
+              "mrlooker_threats":           "https://raw.githubusercontent.com/mrlooker/Suspicious-IPs/main/IPs.txt",
+              "gridinsoft":                 "https://raw.githubusercontent.com/GridinSoft/IP-Blocklist/main/ip-blocklist.txt",
+              "duggytuxy_agr":              "https://raw.githubusercontent.com/duggytuxy/malicious_ip_addresses/main/botnets_zombies_scanners_spam_ips.txt",
+              "turris_greylist":            "https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv",
+              "talos_intelligence":         "https://talosintelligence.com/documents/ip-blacklist",
+              "eset_apr":                   "https://raw.githubusercontent.com/elliotwutingfeng/ESET-APR-IPs/main/ips.txt",
+              "romainmarcoux_outgoing_aa":  "https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-aa.txt",
+              "romainmarcoux_outgoing_ab":  "https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-ab.txt",
+              "fullbogons_ipv4":            "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt",
+              "tor_project_bulk":           "https://check.torproject.org/torbulkexitlist",
+              "tor_danme":                  "https://www.dan.me.uk/torlist/",
+              "tor_critpath":               "https://raw.githubusercontent.com/CriticalPathSecurity/Public-Intelligence-Feeds/refs/heads/master/tor-exit.txt",
+              "tor_secops":                 "https://raw.githubusercontent.com/SecOps-Institute/Tor-IP-Addresses/master/tor-exit-nodes.lst",
+              "tor_neblink":                "https://www.neblink.net/blocklist/TorExitNodes.txt",
+              "tor_enkidu":                 "https://raw.githubusercontent.com/Enkidu-6/tor-relay-lists/main/relays-v4.txt",
+          }
+
+          IP_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b')
+
+          def check_feed(name, url):
+              t0 = time.time()
+              try:
+                  req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD-HealthMonitor/1.0"})
+                  with urllib.request.urlopen(req, timeout=20) as r:
+                      code   = r.status
+                      sample = r.read(65536).decode("utf-8", errors="ignore")
+                  elapsed = round(time.time() - t0, 2)
+                  ip_count = len(set(IP_RE.findall(sample)))
+                  has_ips  = ip_count > 0
+                  return {"name": name, "url": url, "status": code, "ok": code == 200,
+                          "has_ips": has_ips, "sample_ips": ip_count, "ms": int(elapsed*1000)}
+              except urllib.error.HTTPError as e:
+                  return {"name": name, "url": url, "status": e.code, "ok": False,
+                          "has_ips": False, "sample_ips": 0, "ms": int((time.time()-t0)*1000)}
+              except Exception as e:
+                  return {"name": name, "url": url, "status": 0, "ok": False,
+                          "has_ips": False, "sample_ips": 0, "ms": int((time.time()-t0)*1000), "err": str(e)[:80]}
+
+          results = []
+          with ThreadPoolExecutor(max_workers=15) as ex:
+              futures = {ex.submit(check_feed, n, u): n for n, u in FEEDS.items()}
+              for f in as_completed(futures, timeout=300):
+                  r = f.result()
+                  results.append(r)
+                  icon = "✅" if r["ok"] and r["has_ips"] else ("⚠️" if r["ok"] else "❌")
+                  print(f"{icon} {r['name']}: HTTP {r['status']} | {r['ms']}ms | ~{r['sample_ips']} IPs (sample)")
+
+          results.sort(key=lambda x: (not x["ok"], x["name"]))
+
+          ok_count   = sum(1 for r in results if r["ok"] and r["has_ips"])
+          warn_count = sum(1 for r in results if r["ok"] and not r["has_ips"])
+          err_count  = sum(1 for r in results if not r["ok"])
+
+          print(f"\nErgebnis: ✅ {ok_count} OK | ⚠️ {warn_count} leer | ❌ {err_count} Fehler")
+
+          # ── Report schreiben ───────────────────────────────────────────────
+          lines = []
+          lines.append("# Feed Health Monitor – Report")
+          lines.append(f"**Aktualisiert:** {now_str}\n")
+          lines.append(f"**Feeds gesamt:** {len(FEEDS)} | ✅ {ok_count} OK | ⚠️ {warn_count} leer | ❌ {err_count} Fehler\n")
+          lines.append("---")
+
           if err_count > 0:
-              report_lines.append("\n---\n## ❌ Fehler im Detail\n")
+              lines.append("## ❌ Fehlerhafte Feeds\n")
+              lines.append("| Feed | HTTP | Fehler | Reaktionszeit |")
+              lines.append("|---|---|---|---|")
               for r in results:
-                  if r["errors"]:
-                      report_lines.append(f"### `{r['file']}`\n")
-                      for e in r["errors"]:
-                          report_lines.append(f"- 🔴 {e}")
-                      report_lines.append("")
-          
+                  if not r["ok"]:
+                      err_msg = r.get("err", f"HTTP {r['status']}")
+                      lines.append(f"| `{r['name']}` | {r['status']} | {err_msg} | {r['ms']}ms |")
+              lines.append("")
+
           if warn_count > 0:
-              report_lines.append("\n---\n## ⚠️ Warnungen im Detail\n")
+              lines.append("## ⚠️ Feeds ohne IPs (möglicherweise leer oder falsches Format)\n")
+              lines.append("| Feed | HTTP | Reaktionszeit |")
+              lines.append("|---|---|---|")
               for r in results:
-                  if r["warnings"]:
-                      report_lines.append(f"### `{r['file']}`\n")
-                      for w in r["warnings"]:
-                          report_lines.append(f"- 🟡 {w}")
-                      report_lines.append("")
-          
-          report_lines.append(f"\n---\n*Generiert: {now_str} | {len(yml_files)} Workflow-Dateien geprüft*")
-          
-          with open("workflow_health_report.md", "w", encoding="utf-8") as f:
-              f.write("\n".join(report_lines))
-          print(f"\nworkflow_health_report.md geschrieben")
-          print(f"Gesamt: {ok_count} OK | {warn_count} Warnungen | {err_count} Fehler")
+                  if r["ok"] and not r["has_ips"]:
+                      lines.append(f"| `{r['name']}` | {r['status']} | {r['ms']}ms |")
+              lines.append("")
+
+          lines.append("## ✅ Alle Feeds – Übersicht\n")
+          lines.append("| Feed | Status | HTTP | IPs (Sample) | Reaktionszeit |")
+          lines.append("|---|---|---|---|---|")
+          for r in results:
+              icon = "✅" if r["ok"] and r["has_ips"] else ("⚠️" if r["ok"] else "❌")
+              lines.append(f"| `{r['name']}` | {icon} | {r['status']} | ~{r['sample_ips']} | {r['ms']}ms |")
+
+          lines.append(f"\n---\n*Generiert: {now_str} | {len(FEEDS)} Feeds geprüft*")
+
+          with open("feed_health_report.md", "w", encoding="utf-8") as f:
+              f.write("\n".join(lines))
+          print("feed_health_report.md geschrieben")
+
+          # JSON für andere Workflows
+          with open("feed_health_status.json", "w") as f:
+              json.dump({"updated": now_str, "summary": {"ok": ok_count, "warn": warn_count, "error": err_count}, "feeds": results}, f, indent=2)
           EOF
 
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add workflow_health_report.md
+          git add feed_health_report.md feed_health_status.json
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
-            git commit -m "Workflow Health Checker: $(date -u '+%Y-%m-%d %H:%M') UTC"
-            git pull --rebase -X theirs origin ${GITHUB_REF_NAME}
+            git commit -m "Feed Health Monitor: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git pull --rebase origin ${GITHUB_REF_NAME}
             git push origin HEAD:${GITHUB_REF_NAME}
           fi
