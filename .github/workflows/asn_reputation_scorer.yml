@@ -129,11 +129,22 @@ jobs:
           print(f"  Spamhaus DROP: {len(drop_networks)} Netzwerke")
 
           print("Emerging Threats laden...")
-          et_text = fetch_raw("https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt") or ""
+          # FIX Bug3: emergingthreats.net blockiert via robots.txt → et_ips war immer leer.
+          # Primär: compromised-ips.txt (kein robots.txt-Block), Fallback: firehol mirror.
+          ET_URLS = [
+              "https://rules.emergingthreats.net/blockrules/compromised-ips.txt",
+              "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/et_block.ipset",
+          ]
+          et_text = ""
+          for et_url in ET_URLS:
+              et_text = fetch_raw(et_url) or ""
+              if et_text:
+                  print(f"  ET-Quelle: {et_url.split('/')[-1]}")
+                  break
           et_ips = set()
           for ip in re.findall(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b', et_text):
               et_ips.add(ip)
-          print(f"  Emerging Threats: {len(et_ips):,} IPs")
+          print(f"  Emerging Threats: {len(et_ips):,} IPs" if et_ips else "  Emerging Threats: FEHLER – alle Quellen nicht erreichbar")
 
           # Hilfsfunktion: Binary-Search CIDR-Check (sortierte Ranges)
           from bisect import bisect_right

@@ -1,4 +1,4 @@
-name: Feed Health Monitor
+name: Workflow Health Checker
 
 on:
   schedule:

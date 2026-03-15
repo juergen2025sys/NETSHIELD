@@ -23,7 +23,7 @@ concurrency:
 jobs:
   discover:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45  # erhöht von 30 – bei Rate-Limit-Wartezeiten (60s) kann 30min knapp werden
 
     steps:
       - name: Checkout Repository
@@ -267,6 +267,10 @@ jobs:
               "attackers", "bad-ip", "bad-ips", "suspicious-ip",
               "tor-exit-nodes", "tor-relays", "honeypot", "ssh-bruteforce",
               "rdp-bruteforce", "network-abuse", "maltrail", "threat-hunting",
+              # NEU: erweiterte Abdeckung
+              "ransomware", "apt", "ddos", "cobalt-strike", "command-and-control",
+              "credential-stuffing", "exploit", "port-scan", "spam", "trojan",
+              "intrusion-detection", "brute-force", "vulnerability-scanner",
           ]
 
           SEARCH_CODE_QUERIES = [
@@ -285,6 +289,12 @@ jobs:
               "filename:scanner.txt",
               "filename:denylist.txt ipv4",
               "filename:banlist.txt ipv4",
+              # NEU: erweiterte Dateiname-Suche
+              "filename:c2-ips.txt",
+              "filename:malware-ips.txt",
+              "filename:blocklist.ipset",
+              "filename:ransomware.txt ip",
+              "filename:abuse.txt ip",
           ]
 
           candidate_repos = {}
@@ -580,22 +590,15 @@ jobs:
           with open(DB_FILE, "w") as f:
               json.dump(db, f, separators=(",", ":"))
 
-          # ── Schritt 8: combined_threat_blacklist_ipv4.txt neu schreiben ───
-          # Alle IPs aus seen_db (unveränderte Logik wie im Combined-Workflow)
-          BLACKLIST = "combined_threat_blacklist_ipv4.txt"
-          # FIX: Numerische IP-Sortierung (konsistent mit update_combined_blacklist)
-          sorted_ips = sorted(db.keys(), key=lambda ip: tuple(int(o) for o in ip.split('.')))
+          # Schritt 8 (combined_threat_blacklist_ipv4.txt schreiben) ENTFERNT.
+          # Begründung: auto_feed_discovery läuft nur wöchentlich (So 04:30) und hat
+          # möglicherweise einen leicht veralteten seen_db-Cache. Das Überschreiben von
+          # combined_threat_blacklist_ipv4.txt würde für ~1,5h eine ältere Version
+          # bereitstellen bis update_combined_blacklist um 06:00 wieder übernimmt.
+          # update_combined_blacklist generiert die Datei sauberer aus der vollständigen
+          # Feed-Pipeline – kein Mehrwert durch zusätzlichen Write hier.
 
-          with open(BLACKLIST, "w", encoding="utf-8") as f:
-              f.write("# NETSHIELD Combined Threat Blacklist (IPv4) – Stufe 1\n")
-              f.write(f"# Aktualisiert: {now_str}\n")
-              f.write(f"# Eintraege: {len(sorted_ips)}\n")
-              f.write(f"# Auto-Feed-Discovery: +{ingested_seen} bestätigt | +{ingested_new} neu\n\n")
-              f.write("\n".join(sorted_ips) + "\n")
-
-          print(f"combined_threat_blacklist_ipv4.txt: {len(sorted_ips)} IPs")
-
-          # ── Schritt 9: auto_discovered_feeds.json speichern ───────────────
+          # ── Schritt 8: auto_discovered_feeds.json speichern ───────────────
           new_feeds_count = len(approved_feeds) - len(existing_feeds)
           output = {
               "updated":        now_str,
@@ -625,7 +628,7 @@ jobs:
           lines.append(f"| Feeds gesamt (aktiv) | **{len(approved_feeds)}** |")
           lines.append(f"| IPs in seen_db bestätigt | **{ingested_seen}** |")
           lines.append(f"| Neue IPs eingetragen | **{ingested_new}** |")
-          lines.append(f"| Combined Blacklist gesamt | **{len(sorted_ips):,}** |")
+          lines.append(f"| seen_db gesamt | **{len(db):,}** |")
           lines.append(f"| HQ-Referenz-IPs | **{len(hq_ref_ips)}** |")
 
           if new_approved:
@@ -684,21 +687,15 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add auto_discovered_feeds.json auto_feed_discovery_report.md \
-                  combined_threat_blacklist_ipv4.txt
+          git add auto_discovered_feeds.json auto_feed_discovery_report.md
           # seen_db.json bleibt AUSSCHLIESSLICH im GitHub Actions Cache (345 MB, > 100 MB Limit)
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
             git commit -m "Auto Feed Discovery: $(date -u '+%Y-%m-%d %H:%M') UTC"
-            # Rebase vor Push – bei Konflikt in combined_threat_blacklist_ipv4.txt
-            # remote-Version nehmen (update_combined_blacklist hat vollständigere Daten;
-            # nächster Combined-Run generiert die Datei sowieso neu aus seen_db)
             if ! git pull --rebase origin ${GITHUB_REF_NAME}; then
               echo "Rebase-Konflikt erkannt – löse automatisch auf..."
-              git checkout --theirs combined_threat_blacklist_ipv4.txt
-              git add combined_threat_blacklist_ipv4.txt
-              # Weitere Konflikte (auto_discovered_feeds.json, report) mit eigener Version lösen
+              # Konflikte (auto_discovered_feeds.json, report) mit eigener Version lösen
               git diff --name-only --diff-filter=U | while read f; do
                 echo "  Konflikt in $f – nehme eigene Version (ours)"
                 git checkout --ours "$f"
