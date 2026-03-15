@@ -92,8 +92,8 @@ NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus üb
 
 | Datei | Beschreibung | Einträge | Update | Empfohlen für |
 |---|---|---:|---|---|
-| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen (30T + Conf≥50) | **2,660,858** | 8x täglich | **OPNsense / Firewall** |
-| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs (180 Tage) | **3,476,524** | 8x täglich | Audit / SIEM |
+| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen (30T + Conf≥50) | **2,661,264** | 8x täglich | **OPNsense / Firewall** |
+| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs (180 Tage) | **3,477,277** | 8x täglich | Audit / SIEM |
 | [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Hohe Konfidenz (Score ≥50) | **2,331,037** | 8x täglich | Strenge Umgebungen |
 | [`watchlist_confidence20to39_ipv4.txt`](watchlist_confidence20to39_ipv4.txt) | Watchlist (Score 25–49) | **528,091** | 8x täglich | Monitoring |
 | [`tor_exit_nodes.txt`](tor_exit_nodes.txt) | Tor Exit Nodes | **7,655** | täglich 23:30 | Anonymisierung blockieren |
@@ -102,7 +102,7 @@ NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus üb
 | [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte IPs | **13,801** | täglich 23:00 | Ergänzung |
 | [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **0** | täglich 22:15 | Ergänzung |
 | [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot-Detector | **17,954** | täglich 23:45 | Web-Schutz |
-| [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs (Score≥50) | **19** | täglich 02:00 | ASN-Blocking |
+| [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs (Score≥50) | **18** | täglich 02:00 | ASN-Blocking |
 
 ### Geo-Listen
 
