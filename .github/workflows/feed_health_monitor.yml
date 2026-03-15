@@ -64,7 +64,7 @@ jobs:
               "cloudzy":                    "https://raw.githubusercontent.com/CriticalPathSecurity/Public-Intelligence-Feeds/refs/heads/master/cloudzy.txt",
               "bbcan177":                   "https://gist.githubusercontent.com/BBcan177/d7105c242f17f4498f81/raw",
               "kevinmarx":                  "https://kevinmarx.org/malicious-ip-list.txt",
-              "honeypot_blocklist":         "https://raw.githubusercontent.com/yuexuana521/honeypot-blocklist/refs/heads/main/ip_list.txt",
+              # "honeypot_blocklist" entfernt: yuexuana521/honeypot-blocklist Repo gelöscht
               "edanwong":                   "https://raw.githubusercontent.com/EdanWong/ip_list/refs/heads/main/my_ips.txt",
               "nixbear_malicious":          "https://raw.githubusercontent.com/nixbear/malicious_ips/refs/heads/main/malicious_ips.txt",
               "ufukart_blacklist":          "https://raw.githubusercontent.com/ufukart/Blacklist/main/blacklist.txt",
@@ -77,7 +77,7 @@ jobs:
               "cyna_malicious":             "https://raw.githubusercontent.com/cybersecurity-cyna/Malicious_IP/refs/heads/main/ip-list.txt",
               "black_mirror":               "https://github.com/T145/black-mirror/releases/download/latest/BLOCK_IPV4.txt",
               "alienvault":                 "https://reputation.alienvault.com/reputation.generic",
-              "bitwire_ipblocklist":        "https://raw.githubusercontent.com/bitwire-it/ipblocklist/refs/heads/main/ip-list.txt",
+              "bitwire_ipblocklist":        "https://raw.githubusercontent.com/bitwire-it/ipblocklist/refs/heads/main/inbound.txt",
               "littlejake_all_blacklist":   "https://cdn.jsdelivr.net/gh/LittleJake/ip-blacklist/all_blacklist.txt",
               "shadowwhisperer_hackers":    "https://raw.githubusercontent.com/ShadowWhisperer/IPs/refs/heads/master/Malware/Hackers",
               "netmountains_blocklist":     "https://raw.githubusercontent.com/NETMOUNTAINS/Curated-IP-Blocklist/main/ip-blacklist.list",
@@ -120,32 +120,32 @@ jobs:
               "blocklist_de_ftp":           "https://lists.blocklist.de/lists/ftp.txt",
               "c2_tracker":                 "https://raw.githubusercontent.com/montysecurity/C2-Tracker/main/data/all.txt",
               "c2_iplist":                  "https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/feeds/IPC2s.csv",
-              "cobalt_strike_ips":          "https://raw.githubusercontent.com/Gi7w0rm/CobaltStrikeC2Tracker/main/lists/IPs.txt",
+              # "cobalt_strike_ips" entfernt: Repo gelöscht
               "stopforumspam_toxic":        "https://www.stopforumspam.com/downloads/toxic_ip_cidr.txt",
               "ipsum_level3":               "https://raw.githubusercontent.com/stamparm/ipsum/master/levels/3.txt",
               "ipsum_level5":               "https://raw.githubusercontent.com/stamparm/ipsum/master/levels/5.txt",
               "ipsum_level7":               "https://raw.githubusercontent.com/stamparm/ipsum/master/levels/7.txt",
               "ipsum_master":               "https://raw.githubusercontent.com/stamparm/ipsum/refs/heads/master/ipsum.txt",
-              "shodan_scanners":            "https://raw.githubusercontent.com/jgamblin/Shodan-Malware-Scanning-IPs/master/malware_ips.txt",
+              # "shodan_scanners" entfernt: Repo gelöscht
               "binaryedge_scanners":        "https://raw.githubusercontent.com/stamparm/maltrail/master/trails/static/mass_scanner.txt",
-              "normshield_ssh":             "https://iplists.firehol.org/files/normshield_all_ssh.ipset",
-              "spamhaus_pbl":               "https://raw.githubusercontent.com/elliotwutingfeng/Spamhaus-DNSBL-IPs/main/pbl.txt",
+              # "normshield_ssh" entfernt: firehol ipset nicht mehr verfügbar
+              "spamhaus_pbl":               "https://raw.githubusercontent.com/elliotwutingfeng/Spamhaus-DNSBL-IPs/main/pbl-aggressive.txt",
               "phishing_army":              "https://phishing.army/download/phishing_army_blocklist.txt",
               "openphish":                  "https://openphish.com/feed.txt",
               "pgl_yoyo_adservers":         "https://pgl.yoyo.org/adservers/iplist.php?format=&showintro=0",
               "abuseipdb_s100_30d":         "https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-30d.ipv4",
-              "abuseipdb_s90_30d":          "https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s90-30d.ipv4",
+              "abuseipdb_s100_7d":          "https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-7d.ipv4",
               "abuseipdb_tmiland":          "https://abuseipdb.tmiland.com/abuseipdb.txt",
               "abuseipdb_score75":          "https://raw.githubusercontent.com/LittleJake/ip-blacklist/refs/heads/main/abuseipdb_blacklist_ip_score_75.txt",
               "abuseipdb_score100":         "https://raw.githubusercontent.com/LittleJake/ip-blacklist/refs/heads/main/abuseipdb_blacklist_ip_score_100.txt",
               "abuseipdb_scriptzteam":      "https://raw.githubusercontent.com/scriptzteam/AbuseIPDB-BlackList/refs/heads/main/abuseipdb_blacklist.txt",
               "abuseipdb_axllent":          "https://raw.githubusercontent.com/axllent/iplists/master/lists/abuseipdb-30d.txt",
-              "mrlooker_threats":           "https://raw.githubusercontent.com/mrlooker/Suspicious-IPs/main/IPs.txt",
-              "gridinsoft":                 "https://raw.githubusercontent.com/GridinSoft/IP-Blocklist/main/ip-blocklist.txt",
-              "duggytuxy_agr":              "https://raw.githubusercontent.com/duggytuxy/malicious_ip_addresses/main/botnets_zombies_scanners_spam_ips.txt",
+              # "mrlooker_threats" entfernt: Repo gelöscht
+              # "gridinsoft" entfernt: Repo gelöscht
+              # "duggytuxy_agr" entfernt: Dateiname geändert
               "turris_greylist":            "https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv",
-              "talos_intelligence":         "https://talosintelligence.com/documents/ip-blacklist",
-              "eset_apr":                   "https://raw.githubusercontent.com/elliotwutingfeng/ESET-APR-IPs/main/ips.txt",
+              # "talos_intelligence" entfernt: zu snort.org umgezogen, Terms-Accept required
+              # "eset_apr" entfernt: Repo gelöscht
               "romainmarcoux_outgoing_aa":  "https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-aa.txt",
               "romainmarcoux_outgoing_ab":  "https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-ab.txt",
               "fullbogons_ipv4":            "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt",

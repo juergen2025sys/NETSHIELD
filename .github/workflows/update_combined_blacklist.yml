@@ -152,9 +152,9 @@ jobs:
               "firehol_webclient", "firehol_webserver", "firehol_proxies", "firehol_abusers_1d",
               "et_block", "et_compromised", "spamhaus_drop",
               "blocklist_de_all", "blocklist_de_export", "blocklist_de_strongips",
-              "blocklist_de_ssh", "c2_tracker", "c2_iplist", "cobalt_strike_ips",
-              "ipsum_level5", "ipsum_level7", "abuseipdb_s100_30d", "abuseipdb_s90_30d",
-              "abuseipdb_score100", "turris_greylist", "talos_intelligence",
+              "blocklist_de_ssh", "c2_tracker", "c2_iplist",
+              "ipsum_level5", "ipsum_level7", "abuseipdb_s100_30d", "abuseipdb_s100_7d",
+              "abuseipdb_score100", "turris_greylist",
               "tor_project_bulk", "tor_danme", "tor_critpath", "tor_secops",
               "data_shield",                      # DataShield Critical Feed (geprüfte Qualität)
           }
@@ -186,7 +186,7 @@ jobs:
               "cloudzy":                    ("https://raw.githubusercontent.com/CriticalPathSecurity/Public-Intelligence-Feeds/refs/heads/master/cloudzy.txt", True),
               "bbcan177":                   ("https://gist.githubusercontent.com/BBcan177/d7105c242f17f4498f81/raw", False),
               "kevinmarx":                  ("https://kevinmarx.org/malicious-ip-list.txt", False),
-              "honeypot_blocklist":         ("https://raw.githubusercontent.com/yuexuan521/honeypot-blocklist/refs/heads/main/ip_list.txt", False),
+              # "honeypot_blocklist" entfernt: yuexuana521/honeypot-blocklist Repo gelöscht
               "edanwong":                   ("https://raw.githubusercontent.com/EdanWong/ip_list/refs/heads/main/my_ips.txt", False),
               "nixbear_malicious":          ("https://raw.githubusercontent.com/nixbear/malicious_ips/refs/heads/main/malicious_ips.txt", False),
               "ufukart_blacklist":          ("https://raw.githubusercontent.com/ufukart/Blacklist/main/blacklist.txt", False),
@@ -199,7 +199,7 @@ jobs:
               "cyna_malicious":             ("https://raw.githubusercontent.com/cybersecurity-cyna/Malicious_IP/refs/heads/main/ip-list.txt", False),
               "black_mirror":               ("https://github.com/T145/black-mirror/releases/download/latest/BLOCK_IPV4.txt", False),
               "alienvault":                 ("https://reputation.alienvault.com/reputation.generic", False),
-              "bitwire_ipblocklist":        ("https://raw.githubusercontent.com/bitwire-it/ipblocklist/refs/heads/main/ip-list.txt", False),
+              "bitwire_ipblocklist":        ("https://raw.githubusercontent.com/bitwire-it/ipblocklist/refs/heads/main/inbound.txt", False),
               "littlejake_all_blacklist":   ("https://cdn.jsdelivr.net/gh/LittleJake/ip-blacklist/all_blacklist.txt", False),
               "shadowwhisperer_hackers":    ("https://raw.githubusercontent.com/ShadowWhisperer/IPs/refs/heads/master/Malware/Hackers", False),
               "netmountains_blocklist":     ("https://raw.githubusercontent.com/NETMOUNTAINS/Curated-IP-Blocklist/main/ip-blacklist.list", True),
@@ -248,7 +248,7 @@ jobs:
               # ── C2 / Botnet ───────────────────────────────────────────────
               "c2_tracker":                 ("https://raw.githubusercontent.com/montysecurity/C2-Tracker/main/data/all.txt", True),
               "c2_iplist":                  ("https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/feeds/IPC2s.csv", True),
-              "cobalt_strike_ips":          ("https://raw.githubusercontent.com/Gi7w0rm/CobaltStrikeC2Tracker/main/lists/IPs.txt", True),
+              # "cobalt_strike_ips" entfernt: Gi7w0rm/CobaltStrikeC2Tracker Repo gelöscht – C2 abgedeckt durch c2_tracker
 
               # ── SSH / Brute-Force ─────────────────────────────────────────
               "stopforumspam_toxic":        ("https://www.stopforumspam.com/downloads/toxic_ip_cidr.txt", False),
@@ -258,19 +258,19 @@ jobs:
               "ipsum_level5":               ("https://raw.githubusercontent.com/stamparm/ipsum/master/levels/5.txt", True),
               "ipsum_level7":               ("https://raw.githubusercontent.com/stamparm/ipsum/master/levels/7.txt", True),
               "ipsum_master":               ("https://raw.githubusercontent.com/stamparm/ipsum/refs/heads/master/ipsum.txt", False),
-              "shodan_scanners":            ("https://raw.githubusercontent.com/jgamblin/Shodan-Malware-Scanning-IPs/master/malware_ips.txt", False),
+              # "shodan_scanners" entfernt: jgamblin/Shodan-Malware-Scanning-IPs Repo gelöscht – Shodan via binaryedge_scanners
               "binaryedge_scanners":        ("https://raw.githubusercontent.com/stamparm/maltrail/master/trails/static/mass_scanner.txt", False),
-              "normshield_ssh":             ("https://iplists.firehol.org/files/normshield_all_ssh.ipset", False),
+              # "normshield_ssh" entfernt: normshield_all_ssh.ipset bei firehol nicht mehr verfügbar
 
               # ── Spam / Phishing ───────────────────────────────────────────
-              "spamhaus_pbl":               ("https://raw.githubusercontent.com/elliotwutingfeng/Spamhaus-DNSBL-IPs/main/pbl.txt", False),
+              "spamhaus_pbl":               ("https://raw.githubusercontent.com/elliotwutingfeng/Spamhaus-DNSBL-IPs/main/pbl-aggressive.txt", False),
               # "phishing_army" entfernt: enthält Domains, keine IPs → liefert immer 0 IPs
               "openphish":                  ("https://openphish.com/feed.txt", False),
               "pgl_yoyo_adservers":         ("https://pgl.yoyo.org/adservers/iplist.php?format=&showintro=0", False),
 
               # ── AbuseIPDB ─────────────────────────────────────────────────
               "abuseipdb_s100_30d":         ("https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-30d.ipv4", True),
-              "abuseipdb_s90_30d":          ("https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s90-30d.ipv4", True),
+              "abuseipdb_s100_7d":          ("https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-7d.ipv4", True),  # ersetzt abuseipdb_s90_30d
               "abuseipdb_tmiland":          ("https://abuseipdb.tmiland.com/abuseipdb.txt", False),
               "abuseipdb_score75":          ("https://raw.githubusercontent.com/LittleJake/ip-blacklist/refs/heads/main/abuseipdb_blacklist_ip_score_75.txt", False),
               "abuseipdb_score100":         ("https://raw.githubusercontent.com/LittleJake/ip-blacklist/refs/heads/main/abuseipdb_blacklist_ip_score_100.txt", True),
@@ -278,12 +278,12 @@ jobs:
               "abuseipdb_axllent":          ("https://raw.githubusercontent.com/axllent/iplists/master/lists/abuseipdb-30d.txt", False),
 
               # ── Community / GitHub ────────────────────────────────────────
-              "mrlooker_threats":           ("https://raw.githubusercontent.com/mrlooker/Suspicious-IPs/main/IPs.txt", False),
-              "gridinsoft":                 ("https://raw.githubusercontent.com/GridinSoft/IP-Blocklist/main/ip-blocklist.txt", False),
-              "duggytuxy_agr":              ("https://raw.githubusercontent.com/duggytuxy/malicious_ip_addresses/main/botnets_zombies_scanners_spam_ips.txt", False),
+              # "mrlooker_threats" entfernt: mrlooker/Suspicious-IPs Repo gelöscht
+              # "gridinsoft" entfernt: GridinSoft/IP-Blocklist Repo gelöscht
+              # "duggytuxy_agr" entfernt: Dateiname geändert – abgedeckt durch data_shield (gleiches Repo-Netz)
               "turris_greylist":            ("https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv", True),
-              "talos_intelligence":         ("https://talosintelligence.com/documents/ip-blacklist", True),
-              "eset_apr":                   ("https://raw.githubusercontent.com/elliotwutingfeng/ESET-APR-IPs/main/ips.txt", False),
+              # "talos_intelligence" entfernt: URL zu snort.org umgezogen, Terms-Accept required – nicht automatisierbar
+              # "eset_apr" entfernt: elliotwutingfeng/ESET-APR-IPs Repo gelöscht
               "romainmarcoux_outgoing_aa":  ("https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-aa.txt", False),
               "romainmarcoux_outgoing_ab":  ("https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-ab.txt", False),
               "fullbogons_ipv4":            ("https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt", False),
