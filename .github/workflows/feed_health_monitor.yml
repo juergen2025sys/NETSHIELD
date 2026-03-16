@@ -72,7 +72,7 @@ jobs:
               "fortigate_azure":            "https://raw.githubusercontent.com/IT3ngineer/FortigateBlockList/refs/heads/main/AzureBlockListIPs.txt",
               "romainmarcoux_aa":           "https://raw.githubusercontent.com/romainmarcoux/malicious-ip/main/full-300k-aa.txt",
               "romainmarcoux_ab":           "https://raw.githubusercontent.com/romainmarcoux/malicious-ip/main/full-300k-ab.txt",
-              "romainmarcoux_ac":           "https://raw.githubusercontent.com/romainmarcoux/malicious-ip/main/full-300k-ac.txt",
+              # "romainmarcoux_ac" entfernt: full-300k-ac.txt existiert nicht mehr (HTTP 200, leerer Body)
               "4ip_high_security":          "https://raw.githubusercontent.com/4IP-Solutions/threat-feeds/refs/heads/main/blocklist-incoming-ip-high-security.txt",
               "cyna_malicious":             "https://raw.githubusercontent.com/cybersecurity-cyna/Malicious_IP/refs/heads/main/ip-list.txt",
               "black_mirror":               "https://github.com/T145/black-mirror/releases/download/latest/BLOCK_IPV4.txt",
@@ -108,7 +108,7 @@ jobs:
               "et_block":                   "https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt",
               "et_compromised":             "https://rules.emergingthreats.net/blockrules/compromised-ips.txt",
               "spamhaus_drop":              "https://www.spamhaus.org/drop/drop.txt",
-              "spamhaus_edrop":             "https://www.spamhaus.org/drop/edrop.txt",
+              # "spamhaus_edrop" entfernt: seit 10.04.2024 in DROP konsolidiert, edrop.txt ist leer
               "blocklist_de_all":           "https://lists.blocklist.de/lists/all.txt",
               "blocklist_de_export":        "https://www.blocklist.de/downloads/export-ips_all.txt",
               "blocklist_de_strongips":     "https://lists.blocklist.de/lists/strongips.txt",
@@ -130,7 +130,7 @@ jobs:
               "binaryedge_scanners":        "https://raw.githubusercontent.com/stamparm/maltrail/master/trails/static/mass_scanner.txt",
               # "normshield_ssh" entfernt: firehol ipset nicht mehr verfügbar
               "spamhaus_pbl":               "https://raw.githubusercontent.com/elliotwutingfeng/Spamhaus-DNSBL-IPs/main/pbl-aggressive.txt",
-              "phishing_army":              "https://phishing.army/download/phishing_army_blocklist.txt",
+              # "phishing_army" entfernt: enthält Domains, keine IPs → liefert immer 0 IPs
               "openphish":                  "https://openphish.com/feed.txt",
               "pgl_yoyo_adservers":         "https://pgl.yoyo.org/adservers/iplist.php?format=&showintro=0",
               "abuseipdb_s100_30d":         "https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-30d.ipv4",
@@ -235,7 +235,7 @@ jobs:
           print("feed_health_report.md geschrieben")
 
           # JSON für andere Workflows
-          with open("feed_health_status.json", "w") as f:
+          with open("feed_health_status.json", "w", encoding="utf-8") as f:
               json.dump({"updated": now_str, "summary": {"ok": ok_count, "warn": warn_count, "error": err_count}, "feeds": results}, f, indent=2)
           EOF
 

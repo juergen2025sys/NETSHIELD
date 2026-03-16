@@ -87,9 +87,15 @@ jobs:
                   continue
               days_ago    = (now - last_dt).days
               # Score basiert auf echten Bestätigungstagen (days_seen) + HQ-Bonus
-              # Fallback auf days_active für alte Einträge ohne days_seen
+              # Fallback auf days_active für alte Einträge ohne days_seen.
+              # WICHTIG: Watchlist-IPs haben last="2000-01-01" (Sentinel) aber ein
+              # aktuelles first-Datum → (last_dt - first_dt) wäre negativ!
+              # Daher explizit auf den Sentinel-Wert prüfen.
               if days_seen == 0:
-                  days_seen = (last_dt - first_dt).days + 1
+                  if last_seen == "2000-01-01":
+                      days_seen = 1  # Watchlist-IP ohne HQ-Bestätigung
+                  else:
+                      days_seen = max(1, (last_dt - first_dt).days + 1)
               score       = days_seen + (20 if is_hq else 0)
               score_dist[(score // 5) * 5] += 1
 
