@@ -193,7 +193,7 @@ jobs:
           total_matched = sum(r["matches"] for r in results)
 
           # ── blacklist_geo_enriched.json ───────────────────────────────────
-          with open("blacklist_geo_enriched.json", "w") as f:
+          with open("blacklist_geo_enriched.json", "w", encoding="utf-8") as f:
               json.dump({
                   "updated":       now_str,
                   "method":        "scanitex-cidr-match",
