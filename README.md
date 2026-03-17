@@ -1,4 +1,5 @@
 
+
 # 🛡️ NETSHIELD
 
 **Automatisiertes IP-Threat-Intelligence-System mit dynamischer Blacklist-Verwaltung**
@@ -96,9 +97,7 @@ NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus üb
 | [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs (180 Tage) | **3,938,697**                                                 | 8x täglich | Audit / SIEM |
 | [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Hohe Konfidenz (Score ≥50) | **2,331,037**                                                 | 8x täglich | Strenge Umgebungen |
 | [`watchlist_confidence20to39_ipv4.txt`](watchlist_confidence20to39_ipv4.txt) | Watchlist (Score 25–49) | **528,091**                                                 | 8x täglich | Monitoring |
-| [`tor_exit_nodes.txt`](tor_exit_nodes.txt) | Tor Exit Nodes | **7,841**                                                 | täglich 23:30 | Anonymisierung blockieren |
 | [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploit & C2-Server | **229,981**                                                 | täglich 04:00 | IDS/IPS |
-| [`vpn_proxy_ranges.txt`](vpn_proxy_ranges.txt) | VPN/Proxy/Datacenter | **62,466**                                                 | wöchentlich Mo | Proxy-Erkennung |
 | [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte IPs | **13,846**                                                 | täglich 23:00 | Ergänzung |
 | [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **12,579**                                                 | täglich 22:15 | Ergänzung |
 | [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot-Detector | **17,954**                                                 | täglich 23:45 | Web-Schutz |
@@ -119,11 +118,6 @@ NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus üb
 **Alias URL (aktive Blockliste):**
 ```
 https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt
-```
-
-**Tor Exit Nodes:**
-```
-https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/tor_exit_nodes.txt
 ```
 
 **Hohe Konfidenz:**
@@ -166,20 +160,18 @@ Feodo C2, Talos Intelligence, AbuseIPDB (API + Score100), Spamhaus DROP/EDROP, E
 | **Update Combined Blacklist** | 8x täglich (alle 3h) | Haupt-Engine: Feeds laden, seen_db aktualisieren, Stufe 1+2 schreiben |
 | **Confidence Blacklist** | 8x täglich (15min nach Combined) | confidence40 + watchlist aus seen_db berechnen |
 | **False Positive Checker** | 3x täglich (05:00/13:00/20:00) | Whitelist-CIDRs prüfen, FP aus combined entfernen |
-| **Tor Exit Node Monitor** | täglich 23:30 | 6 Tor-Quellen aggregieren → tor_exit_nodes.txt |
 | **Honeypot Monitor** | täglich 23:00 | Honeypot-Feeds aggregieren → honeypot_ips.txt |
 | **HoneyDB Monitor** | täglich 22:15 | HoneyDB API abfragen → honeydb_ips.txt |
 | **Bot-Detector Blacklist** | täglich 22:45 | bot_detector_blacklist_ipv4.txt aktualisieren |
 | **CVE-to-IP Mapper** | täglich 04:00 | C2/Exploit-IPs → cve_exploit_ips.txt |
-| **Duplicate Cleaner** | täglich 04:30 | Duplikate in Sub-Listen bereinigen |
-| **VPN & Proxy Detector** | wöchentlich Mo 03:45 | vpn_proxy_ranges.txt aktualisieren |
-| **Update All Countries IPv4** | Mo + Mi 02:30 | Länder/Kontinente/all_countries synchron erzeugen |
+| **Duplicate Cleaner** | täglich 05:30 | Duplikate in Sub-Listen bereinigen |
+| **Update All Countries IPv4** | Mo + Mi 01:30 | Länder/Kontinente/all_countries synchron erzeugen |
 | **Auto Feed Discovery** | wöchentlich So 04:30 | GitHub nach neuen IP-Feeds durchsuchen + bewerten |
 | **Geo-Tagger** | wöchentlich So 06:45 | Blacklist-IPs mit Länder-Geo-Daten anreichern |
 | **ASN Reputation Scorer** | täglich 02:00 | ASN-Reputationsscoring → asn_reputation_db.json |
 | **Score Decay Monitor** | wöchentlich So 07:00 | Alterungs-Report (read-only, löscht nichts) |
 | **Feed Health Monitor** | täglich 01:00 | Alle Feed-URLs auf Erreichbarkeit prüfen |
-| **Workflow Health Checker** | täglich 01:05 | YAML-Workflows auf Fehler/Warnungen analysieren |
+| **Workflow Health Checker** | täglich 01:15 | YAML-Workflows auf Fehler/Warnungen analysieren |
 | **NETSHIELD Report Generator** | alle 30 Minuten | NETSHIELD_REPORT.md + README IP-Zahlen aktualisieren |
 | **Community IP Report** | bei Issue-Erstellung | Community-gemeldete IPs verarbeiten und in seen_db eintragen |
 
@@ -204,7 +196,7 @@ Verwende das Label `community-report` beim Erstellen des Issues.
 
 ```
 NETSHIELD/
-├── .github/workflows/          # 19 GitHub Actions Workflows
+├── .github/workflows/          # 17 GitHub Actions Workflows
 ├── continents/                 # IPv4-Ranges pro Kontinent
 ├── countries/                  # IPv4-Ranges pro Land
 │   ├── africa/
@@ -217,10 +209,8 @@ NETSHIELD/
 ├── combined_threat_blacklist_ipv4.txt  # → Audit
 ├── blacklist_confidence40_ipv4.txt     # → Hohe Konfidenz
 ├── watchlist_confidence20to39_ipv4.txt # → Monitoring
-├── tor_exit_nodes.txt
 ├── cve_exploit_ips.txt
 ├── honeypot_ips.txt
-├── vpn_proxy_ranges.txt
 ├── bot_detector_blacklist_ipv4.txt
 ├── all_countries_ipv4.txt
 ├── asn_blocklist_firewall.txt
