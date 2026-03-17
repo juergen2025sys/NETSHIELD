@@ -126,8 +126,9 @@ jobs:
                   "https://raw.githubusercontent.com/ThreatMon/ThreatMon-Daily-IPs/main/ThreatMon.txt",
               "turris_honeypot":
                   "https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv",
-              "cymru_bogons":
-                  "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt",
+              # cymru_bogons entfernt: fullbogons-ipv4.txt enthält nicht-routbare/reservierte
+              # Bereiche (Bogons), keine Angreifer-IPs. is_valid_public_ipv4() filtert sie
+              # zwar korrekt heraus, aber der Feed liefert 0 nutzbare IPs → sinnloser Request.
               "sissden_honeypot":
                   "https://raw.githubusercontent.com/stamparm/ipsum/master/levels/5.txt",
           }
