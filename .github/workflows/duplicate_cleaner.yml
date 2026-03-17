@@ -54,7 +54,6 @@ jobs:
 
           FILES = {
               "combined":  "combined_threat_blacklist_ipv4.txt",
-              "tor":       "tor_exit_nodes.txt",
               "cve":       "cve_exploit_ips.txt",
               "honeypot":  "honeypot_ips.txt",
               "honeydb":   "honeydb_ips.txt",
@@ -93,14 +92,14 @@ jobs:
 
           # 1) Sub-Listen vs. combined (nur zur Info – LOCAL_FEEDS werden nicht bereinigt)
           overlaps_with_combined = {}
-          for key in ["tor", "cve", "honeypot", "honeydb", "botdet"]:
+          for key in ["cve", "honeypot", "honeydb", "botdet"]:
               overlap = data[key]["ips"] & combined_ips
               overlaps_with_combined[key] = overlap
               pct = len(overlap)/max(len(data[key]["ips"]),1)*100
               print(f"  {FILES[key]} ∩ combined: {len(overlap)} IPs ({pct:.1f}%)")
 
           # 2) Sub-Listen untereinander
-          sub_keys = ["tor", "cve", "honeypot", "honeydb", "botdet"]
+          sub_keys = ["cve", "honeypot", "honeydb", "botdet"]
           cross_overlaps = {}
           print()
           for i, k1 in enumerate(sub_keys):
@@ -118,8 +117,8 @@ jobs:
           #     → spart Speicher, verhindert doppeltes Zählen
           #   - cve_exploit_ips.txt: NICHT bereinigen (eigenständige thematische Liste)
 
-          # LOCAL_FEEDS werden nicht bereinigt – combined liest sie direkt ein.
-          # Da vpn_proxy_ranges.txt entfernt wurde, gibt es nichts mehr zu bereinigen.
+          # Alle verbleibenden Sub-Listen sind LOCAL_FEEDS die combined direkt
+          # einliest – keine Bereinigung nötig.
           CLEAN_FROM_COMBINED = []
 
           total_removed = 0
@@ -171,12 +170,12 @@ jobs:
           lines.append("")
           lines.append("---")
           lines.append("## Überschneidungen mit combined_threat_blacklist\n")
-          lines.append("> Alle Sub-Listen (tor/cve/honeypot/honeydb/botdet) sind LOCAL_FEEDS –\n")
+          lines.append("> Alle Sub-Listen (cve/honeypot/honeydb/botdet) sind LOCAL_FEEDS –\n")
           lines.append("> combined liest sie direkt ein, daher keine Bereinigung nötig.\n")
           lines.append("| Sub-Liste | Gemeinsame IPs | Anteil | Aktion |")
           lines.append("|---|---|---|---|")
-          LOCAL_FEED_KEYS = {"tor", "cve", "honeypot", "honeydb", "botdet"}
-          for key in ["tor", "cve", "honeypot", "honeydb", "botdet"]:
+          LOCAL_FEED_KEYS = {"cve", "honeypot", "honeydb", "botdet"}
+          for key in ["cve", "honeypot", "honeydb", "botdet"]:
               overlap = len(overlaps_with_combined[key])
               total   = max(data[key]["count"], 1)
               pct     = f"{overlap/total*100:.1f}%"

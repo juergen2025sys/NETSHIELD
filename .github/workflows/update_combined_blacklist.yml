@@ -155,7 +155,6 @@ jobs:
               "blocklist_de_ssh", "c2_tracker", "c2_iplist",
               "ipsum_level5", "ipsum_level7", "abuseipdb_s100_30d", "abuseipdb_s100_7d",
               "abuseipdb_score100", "turris_greylist",
-              "tor_project_bulk", "tor_danme", "tor_critpath", "tor_secops",
               "data_shield",                      # DataShield Critical Feed (geprüfte Qualität)
           }
 
@@ -289,12 +288,7 @@ jobs:
               "fullbogons_ipv4":            ("https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt", False),
 
               # ── Tor Exit Nodes ────────────────────────────────────────────
-              "tor_project_bulk":           ("https://check.torproject.org/torbulkexitlist", True),
-              "tor_danme":                  ("https://www.dan.me.uk/torlist/", True),
-              "tor_critpath":               ("https://raw.githubusercontent.com/CriticalPathSecurity/Public-Intelligence-Feeds/refs/heads/master/tor-exit.txt", True),
-              "tor_secops":                 ("https://raw.githubusercontent.com/SecOps-Institute/Tor-IP-Addresses/master/tor-exit-nodes.lst", True),
-              "tor_neblink":                ("https://www.neblink.net/blocklist/TorExitNodes.txt", False),
-              "tor_enkidu":                 ("https://raw.githubusercontent.com/Enkidu-6/tor-relay-lists/main/relays-v4.txt", False),
+              # tor_* entfernt: tor_exit_monitor Workflow wurde entfernt
           }
 
           # ── seen_db laden ──────────────────────────────────────────────────
@@ -427,7 +421,7 @@ jobs:
 
           # ── Lokale Sub-Workflow-Dateien einlesen ───────────────────────────
           LOCAL_FEEDS = {
-              "tor_exit_nodes.txt":              True,
+              # tor_exit_nodes.txt entfernt
               "cve_exploit_ips.txt":             True,
               "bot_detector_blacklist_ipv4.txt": False,
               "honeypot_ips.txt":                True,
