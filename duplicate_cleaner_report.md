@@ -1,17 +1,17 @@
 # Duplicate Cleaner – Report
-**Aktualisiert:** 2026-03-16 06:50 UTC
+**Aktualisiert:** 2026-03-17 06:37 UTC
 
 ---
 ## Dateigrößen
 
 | Datei | IPs |
 |---|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | 3,922,014 |
-| ✅ `tor_exit_nodes.txt` | 7,839 |
-| ✅ `cve_exploit_ips.txt` | 228,547 |
-| ✅ `honeypot_ips.txt` | 13,956 |
-| ✅ `honeydb_ips.txt` | 11,306 |
-| ✅ `vpn_proxy_ranges.txt` | 62,467 |
+| ✅ `combined_threat_blacklist_ipv4.txt` | 3,935,441 |
+| ✅ `tor_exit_nodes.txt` | 7,841 |
+| ✅ `cve_exploit_ips.txt` | 229,981 |
+| ✅ `honeypot_ips.txt` | 13,846 |
+| ✅ `honeydb_ips.txt` | 12,579 |
+| ✅ `vpn_proxy_ranges.txt` | 62,466 |
 | ✅ `bot_detector_blacklist_ipv4.txt` | 17,954 |
 
 ---
@@ -23,32 +23,29 @@
 
 | Sub-Liste | Gemeinsame IPs | Anteil | Aktion |
 |---|---|---|---|
-| `tor_exit_nodes.txt` | 7,839 | 100.0% | ⏭️ übersprungen (LOCAL_FEED) |
-| `cve_exploit_ips.txt` | 228,517 | 100.0% | ⏭️ übersprungen (LOCAL_FEED) |
-| `honeypot_ips.txt` | 13,953 | 100.0% | ⏭️ übersprungen (LOCAL_FEED) |
-| `honeydb_ips.txt` | 11,306 | 100.0% | ⏭️ übersprungen (LOCAL_FEED) |
-| `vpn_proxy_ranges.txt` | 5,762 | 9.2% | 🗑️ 5762 entfernt |
-| `bot_detector_blacklist_ipv4.txt` | 2,456 | 13.7% | ⏭️ übersprungen (LOCAL_FEED) |
+| `tor_exit_nodes.txt` | 7,840 | 100.0% | ⏭️ übersprungen (LOCAL_FEED) |
+| `cve_exploit_ips.txt` | 229,890 | 100.0% | ⏭️ übersprungen (LOCAL_FEED) |
+| `honeypot_ips.txt` | 13,797 | 99.6% | ⏭️ übersprungen (LOCAL_FEED) |
+| `honeydb_ips.txt` | 11,272 | 89.6% | ⏭️ übersprungen (LOCAL_FEED) |
+| `vpn_proxy_ranges.txt` | 1 | 0.0% | 🗑️ 1 entfernt |
+| `bot_detector_blacklist_ipv4.txt` | 2,462 | 13.7% | ⏭️ übersprungen (LOCAL_FEED) |
 
 ---
 ## Sub-Listen Überschneidungen (nur Info)
 
 | Paar | Gemeinsame IPs |
 |---|---|
-| `cve∩honeypot` | 9,113 |
-| `cve∩honeydb` | 6,159 |
-| `honeypot∩honeydb` | 2,941 |
-| `tor∩cve` | 722 |
-| `cve∩botdet` | 494 |
-| `honeydb∩botdet` | 55 |
-| `cve∩vpn` | 49 |
-| `honeypot∩botdet` | 25 |
-| `tor∩honeydb` | 19 |
-| `tor∩honeypot` | 17 |
-| `honeydb∩vpn` | 4 |
+| `cve∩honeypot` | 9,047 |
+| `cve∩honeydb` | 5,747 |
+| `honeypot∩honeydb` | 2,877 |
+| `tor∩cve` | 726 |
+| `cve∩botdet` | 493 |
+| `tor∩honeypot` | 24 |
+| `honeypot∩botdet` | 24 |
+| `tor∩honeydb` | 18 |
+| `honeydb∩botdet` | 14 |
 | `tor∩botdet` | 1 |
-| `honeypot∩vpn` | 1 |
-| `vpn∩botdet` | 1 |
+| `honeydb∩vpn` | 1 |
 
 *Sub-Listen-Duplikate werden nicht entfernt – combined dedupliziert automatisch.*
 
@@ -57,8 +54,8 @@
 
 | Metrik | Wert |
 |---|---|
-| Duplikate entfernt (nur vpn_proxy_ranges) | **5,762** |
-| Combined Blacklist (unverändert) | **3,922,014** |
+| Duplikate entfernt (nur vpn_proxy_ranges) | **1** |
+| Combined Blacklist (unverändert) | **3,935,441** |
 
 ---
-*Generiert: 2026-03-16 06:50 UTC*
+*Generiert: 2026-03-17 06:37 UTC*
