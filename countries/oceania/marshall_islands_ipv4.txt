@@ -1,6 +1,6 @@
 # NETSHIELD – Marshall Islands (MH) IPv4 Ranges
-# Aktualisiert: 2026-03-16 05:02 UTC
-# IP-Ranges: 8
+# Aktualisiert: 2026-03-18 04:03 UTC
+# IP-Ranges: 9
 
 23.181.56.0/24
 81.30.106.0/24
@@ -10,3 +10,4 @@
 185.207.196.0/22
 193.227.113.0/24
 203.78.152.0/22
+204.236.0.0/19
