@@ -897,12 +897,15 @@ jobs:
                 fi
               else
                 # Konflikt: unsere frisch generierten Dateien gewinnen immer
+                # WICHTIG: honeydb_ips.txt wird von honeydb_monitor erzeugt, NICHT von combined.
+                # --ours bezieht sich beim rebase auf origin/main (upstream), nicht den lokalen Commit.
+                # honeydb_ips.txt hier mit --ours zu überschreiben würde frische HoneyDB-Daten vernichten.
                 git checkout --ours combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md \
-                  seen_db_meta.json abuseipdb_api_blacklist.txt honeydb_ips.txt 2>/dev/null || true
+                  seen_db_meta.json abuseipdb_api_blacklist.txt 2>/dev/null || true
                 git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md seen_db_meta.json \
-                  abuseipdb_api_blacklist.txt honeydb_ips.txt 2>/dev/null || true
+                  abuseipdb_api_blacklist.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

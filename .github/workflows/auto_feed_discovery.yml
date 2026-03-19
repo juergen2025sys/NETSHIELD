@@ -245,7 +245,8 @@ jobs:
           hq_ref_ips = set()
           hq_ref_urls = [
               "https://feodotracker.abuse.ch/downloads/ipblocklist_aggressive.txt",
-              "https://talosintelligence.com/documents/ip-blacklist",
+              # talosintelligence.com entfernt: Terms-Accept required, liefert immer 0 IPs
+              # (analog zu SOURCES in update_combined_blacklist.yml)
               "https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-30d.ipv4",
           ]
           for url in hq_ref_urls:

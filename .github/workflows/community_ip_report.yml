@@ -199,7 +199,7 @@ jobs:
               json.dump(db, f, separators=(",", ":"))
 
           # ── Log-Eintrag ───────────────────────────────────────────────────
-          with open(REPORT_FILE, "a") as f:
+          with open(REPORT_FILE, "a", encoding="utf-8") as f:
               f.write(f"{now_day} | issue=#{issue_number} | user={reporter} | ip={ip} | type={attack_type} | action={action} | ACCEPTED\n")
 
           # ── Ergebnis für nächsten Step speichern ──────────────────────────

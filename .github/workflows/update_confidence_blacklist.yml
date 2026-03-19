@@ -69,7 +69,12 @@ jobs:
               sys.exit(1)
 
           with open(DB_FILE) as f:
-              db = json.load(f)
+              try:
+                  db = json.load(f)
+              except Exception as e:
+                  print(f"FEHLER: seen_db.json ist korrupt oder nicht lesbar: {e}")
+                  print("Behalte bestehende Confidence-Blacklists und breche ab.")
+                  sys.exit(0)
           print(f"seen_db geladen: {len(db)} IPs")
 
           # Alter der seen_db prüfen

@@ -57,7 +57,9 @@ jobs:
           # ── Check 1: Cron-Kollisionen & doppelte Namen ────────────────────
           # Cron-Regex matcht nur echte Cron-Expressions (Ziffern, *, /, ,)
           # und explizit NICHT den eigenen Dateinamen (verhindert Self-Match)
-          SELF = os.path.basename(__file__) if hasattr(__file__, '__file__') else "workflow_health_checker.yml"
+          # os.path.basename(__file__) funktioniert in einem python3-Heredoc nicht (kein Dateiname).
+          # Deshalb direkt als Konstante. Muss bei Umbenennung der Datei angepasst werden.
+          SELF = "workflow_health_checker.yml"
           cron_re = re.compile(r"cron:\s*'([\d\s*/,]+)'")
           cron_map = {}
           name_map = {}
@@ -88,6 +90,12 @@ jobs:
 
           # ── Pro Datei ─────────────────────────────────────────────────────
           for fname in files:
+              # Eigene Datei nicht prüfen: der Health Checker läuft innerhalb des Runners
+              # und kann sich nicht selbst syntaxprüfen ohne False Positives zu erzeugen.
+              if fname == SELF:
+                  results[fname] = {"blocks": 0, "errors": [], "warnings": [], "cron": []}
+                  print(f"⏭  {fname}: übersprungen (eigene Datei)")
+                  continue
               path    = f"{WORKFLOWS_DIR}/{fname}"
               content = open(path).read()
               file_errors   = []
