@@ -218,6 +218,17 @@ jobs:
           # Combined findet diesen Stand via restore-keys beim nächsten Lauf.
           key: netshield-seen-db-v1-community-${{ github.run_id }}
 
+      - name: Save seen_db Cache (latest alias)
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: seen_db.json
+          # FIX Bug2: Community-Meldungen müssen auch unter 'latest' gespeichert werden,
+          # damit Combined beim nächsten Lauf den Community-Stand aufnimmt.
+          # Combined lädt immer zuerst 'netshield-seen-db-v1-latest' (exakter Match) –
+          # ohne diesen Schritt würde Combined immer seinen eigenen Cache finden und
+          # Community-Einträge gingen verloren.
+          key: netshield-seen-db-v1-latest
+
       - name: Commit Log
         run: |
           git config user.name "github-actions[bot]"

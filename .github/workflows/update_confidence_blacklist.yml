@@ -281,13 +281,13 @@ jobs:
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}
-              if git rebase -X ours origin/${GITHUB_REF_NAME}; then
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
                 if git push origin HEAD:${GITHUB_REF_NAME}; then
                   echo "Push erfolgreich (Versuch $attempt)"
                   exit 0
                 fi
               else
-                git checkout --ours blacklist_confidence40_ipv4.txt \
+                git checkout --theirs blacklist_confidence40_ipv4.txt \
                   watchlist_confidence20to39_ipv4.txt 2>/dev/null || true
                 git add blacklist_confidence40_ipv4.txt \
                   watchlist_confidence20to39_ipv4.txt 2>/dev/null || true

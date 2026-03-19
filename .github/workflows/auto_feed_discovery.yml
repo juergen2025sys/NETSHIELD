@@ -614,7 +614,7 @@ jobs:
           with open(AUTO_FILE, "w", encoding="utf-8") as f:
               json.dump(output, f, indent=2, ensure_ascii=False)
 
-          # ── Schritt 10: Report ────────────────────────────────────────────
+          # ── Schritt 9: Report ─────────────────────────────────────────────
           new_approved = [e for e in evaluation_log if e["result"] == "APPROVED"]
           new_rejected = [e for e in evaluation_log if e["result"] == "REJECTED"]
 
@@ -697,12 +697,13 @@ jobs:
             echo "Keine Änderungen"
           else
             git commit -m "Auto Feed Discovery: $(date -u '+%Y-%m-%d %H:%M') UTC"
-            if ! git pull --rebase origin ${GITHUB_REF_NAME}; then
+            if ! git pull --rebase -X theirs origin ${GITHUB_REF_NAME}; then
               echo "Rebase-Konflikt erkannt – löse automatisch auf..."
-              # Konflikte (auto_discovered_feeds.json, report) mit eigener Version lösen
+              # Konflikte (auto_discovered_feeds.json, report) mit eigener Version lösen.
+              # In einem Rebase bedeutet --theirs die LOKALEN Commits (nicht upstream).
               git diff --name-only --diff-filter=U | while read f; do
-                echo "  Konflikt in $f – nehme eigene Version (ours)"
-                git checkout --ours "$f"
+                echo "  Konflikt in $f – nehme eigene Version (theirs)"
+                git checkout --theirs "$f"
                 git add "$f"
               done
               GIT_EDITOR=true git rebase --continue

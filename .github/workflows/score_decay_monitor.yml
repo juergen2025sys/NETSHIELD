@@ -60,7 +60,13 @@ jobs:
               exit(0)
 
           with open(DB_FILE) as f:
-              db = json.load(f)
+              try:
+                  db = json.load(f)
+              except Exception as e:
+                  print(f"FEHLER: seen_db.json ist korrupt oder nicht lesbar: {e}")
+                  with open("score_decay_report.md", "w", encoding="utf-8") as rf:
+                      rf.write(f"# Score Decay Monitor\n\n*seen_db.json konnte nicht gelesen werden: {e}*\n")
+                  exit(0)
           print(f"seen_db geladen: {len(db)} IPs")
 
           WARN_DAYS     = 30

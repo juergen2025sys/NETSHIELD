@@ -890,17 +890,16 @@ jobs:
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}
-              if git rebase -X ours origin/${GITHUB_REF_NAME}; then
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
                 if git push origin HEAD:${GITHUB_REF_NAME}; then
                   echo "Push erfolgreich (Versuch $attempt)"
                   exit 0
                 fi
               else
-                # Konflikt: unsere frisch generierten Dateien gewinnen immer
-                # WICHTIG: honeydb_ips.txt wird von honeydb_monitor erzeugt, NICHT von combined.
-                # --ours bezieht sich beim rebase auf origin/main (upstream), nicht den lokalen Commit.
-                # honeydb_ips.txt hier mit --ours zu überschreiben würde frische HoneyDB-Daten vernichten.
-                git checkout --ours combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
+                # Konflikt: unsere frisch generierten Dateien gewinnen immer.
+                # In einem Rebase bedeutet --theirs die LOKALEN Commits (nicht upstream),
+                # also genau das was wir wollen: die frisch generierten Dateien bevorzugen.
+                git checkout --theirs combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md \
                   seen_db_meta.json abuseipdb_api_blacklist.txt 2>/dev/null || true
                 git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
