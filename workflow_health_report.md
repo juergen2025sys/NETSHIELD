@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-03-18 03:49 UTC
+**Aktualisiert:** 2026-03-19 03:49 UTC
 
-**Workflows:** 17 | ✅ 17 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
+**Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
 ## Übersicht
@@ -12,7 +12,6 @@
 | `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `30 4 * * 0` |
 | `community_ip_report.yml` | ✅ OK | 0 | 0 | – |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
-| `duplicate_cleaner.yml` | ✅ OK | 0 | 0 | `30 5 * * *` |
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `geo_tagger.yml` | ✅ OK | 0 | 0 | `45 6 * * 0` |
@@ -27,4 +26,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | `15 1 * * *` |
 
 ---
-*Generiert: 2026-03-18 03:49 UTC | 17 Workflow-Dateien geprüft*
+*Generiert: 2026-03-19 03:49 UTC | 16 Workflow-Dateien geprüft*
