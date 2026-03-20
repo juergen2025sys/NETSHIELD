@@ -165,6 +165,8 @@ jobs:
               # Google Services
               "172.217.16.196", "172.217.16.206", "172.217.20.132", "172.217.16.195",
               "142.251.127.190", "142.251.208.164",
+              # Google YouTube / Video CDN (142.251.x.x – enthält u.a. 142.251.155.119, 142.251.151.119)
+              "142.251.0.0/16",
               # Hurricane Electric
               "184.105.99.75",
               # Facebook / Meta
@@ -499,7 +501,8 @@ jobs:
                   if ipset_m:
                       val = ipset_m.group(1).split(';')[0].strip()
                       if '/' in val:
-                          if is_valid_public_cidr(val): entries.add(val)
+                          if is_valid_public_cidr(val):
+                              entries.add(str(ipaddress.ip_network(val, strict=False)))
                       else:
                           if val not in DNS_WHITELIST and is_valid_public_ipv4(val):
                               entries.add(val)
@@ -512,7 +515,8 @@ jobs:
                   # CIDR?
                   cidr_m = CIDR_RE.match(first_col)
                   if cidr_m:
-                      if is_valid_public_cidr(cidr_m.group(1)): entries.add(cidr_m.group(1))
+                      if is_valid_public_cidr(cidr_m.group(1)):
+                          entries.add(str(ipaddress.ip_network(cidr_m.group(1), strict=False)))
                       continue
                   # ip:port?
                   ip_port = re.match(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):\d+', first_col)
@@ -530,7 +534,8 @@ jobs:
                       continue
                   # Fallback: alle IPs/CIDRs in der Zeile (URLhaus, JSON-Felder etc.)
                   for cidr in CIDR_RE.findall(line):
-                      if is_valid_public_cidr(cidr): entries.add(cidr)
+                      if is_valid_public_cidr(cidr):
+                          entries.add(str(ipaddress.ip_network(cidr, strict=False)))
                   for m in IPV4_RE.finditer(line):
                       ip = m.group(1)
                       if ip not in DNS_WHITELIST and is_valid_public_ipv4(ip):

@@ -78,7 +78,8 @@ jobs:
                   if ipset_m:
                       val = ipset_m.group(1).split(';')[0].strip()
                       if '/' in val:
-                          if is_valid_public_cidr(val): entries.add(val)
+                          if is_valid_public_cidr(val):
+                              entries.add(str(ipaddress.ip_network(val, strict=False)))
                       else:
                           if is_valid_public_ipv4(val): entries.add(val)
                       continue
@@ -87,7 +88,8 @@ jobs:
                   first_col = line.split(',')[0].strip()
                   cidr_m = CIDR_RE_L.match(first_col)
                   if cidr_m:
-                      if is_valid_public_cidr(cidr_m.group(1)): entries.add(cidr_m.group(1))
+                      if is_valid_public_cidr(cidr_m.group(1)):
+                          entries.add(str(ipaddress.ip_network(cidr_m.group(1), strict=False)))
                       continue
                   ip_port = re.match(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):\d+', first_col)
                   if ip_port:
@@ -98,7 +100,8 @@ jobs:
                       if is_valid_public_ipv4(ip_m.group(1)): entries.add(ip_m.group(1))
                       continue
                   for cidr in CIDR_RE_L.findall(line):
-                      if is_valid_public_cidr(cidr): entries.add(cidr)
+                      if is_valid_public_cidr(cidr):
+                          entries.add(str(ipaddress.ip_network(cidr, strict=False)))
                   for ip in IP_RE_L.findall(line):
                       if is_valid_public_ipv4(ip): entries.add(ip)
               return entries

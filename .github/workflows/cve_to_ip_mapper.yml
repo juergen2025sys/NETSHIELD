@@ -117,7 +117,7 @@ jobs:
                       val = ipset_m.group(1).split(';')[0].strip()
                       if '/' in val:
                           if is_valid_public_cidr(val):
-                              entries.add(val)
+                              entries.add(str(ipaddress.ip_network(val, strict=False)))
                       else:
                           if is_valid_public_ipv4(val):
                               entries.add(val)
@@ -136,7 +136,7 @@ jobs:
                   if cidr_m:
                       val = cidr_m.group(1)
                       if is_valid_public_cidr(val):
-                          entries.add(val)
+                          entries.add(str(ipaddress.ip_network(val, strict=False)))
                       continue
 
                   # ip:port -> nur IP
@@ -159,7 +159,7 @@ jobs:
                   # (z.B. URLhaus: "http://1.2.3.4/pfad")
                   for cidr in CIDR_RE.findall(line):
                       if is_valid_public_cidr(cidr):
-                          entries.add(cidr)
+                          entries.add(str(ipaddress.ip_network(cidr, strict=False)))
                   for ip in IP_RE.findall(line):
                       if is_valid_public_ipv4(ip):
                           entries.add(ip)
