@@ -1,19 +1,19 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-03-22 02:35 UTC
+**Aktualisiert:** 2026-03-22 04:55 UTC
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **3,909,543** | 2026-03-22 02:35 UTC |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage) → OPNsense | **2,746,446** | 2026-03-22 02:35 UTC |
-| ✅ `blacklist_confidence40_ipv4.txt` | Hohe Konfidenz (≥40%) | **2,331,037** | 2026-03-22 02:35 UTC |
-| ✅ `watchlist_confidence20to39_ipv4.txt` | Watchlist (20-39%) | **60,324** | 2026-03-22 02:35 UTC |
-| ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **230,161** | 2026-03-22 02:35 UTC |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,950** | 2026-03-22 02:35 UTC |
-| ✅ `honeypot_ips.txt` | Honeypot IPs | **11,210** | 2026-03-22 02:35 UTC |
-| ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **13,602** | 2026-03-22 02:35 UTC |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **3,909,543** | 2026-03-22 04:55 UTC |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage) → OPNsense | **2,746,446** | 2026-03-22 04:55 UTC |
+| ✅ `blacklist_confidence40_ipv4.txt` | Hohe Konfidenz (≥40%) | **2,331,037** | 2026-03-22 04:55 UTC |
+| ✅ `watchlist_confidence20to39_ipv4.txt` | Watchlist (20-39%) | **60,324** | 2026-03-22 04:55 UTC |
+| ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **230,161** | 2026-03-22 04:55 UTC |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,950** | 2026-03-22 04:55 UTC |
+| ✅ `honeypot_ips.txt` | Honeypot IPs | **11,210** | 2026-03-22 04:55 UTC |
+| ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **13,602** | 2026-03-22 04:55 UTC |
 
 ---
 ## 🔗 OPNsense Alias URL
@@ -25,7 +25,7 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist
 ---
 ## 🔍 Feed Health: ✅ 91 OK | ⚠️ 1 leer | ❌ 1 Fehler
 
-*Letzter Check: 2026-03-21 03:16 UTC – Details: [feed_health_report.md](feed_health_report.md)*
+*Letzter Check: 2026-03-22 03:35 UTC – Details: [feed_health_report.md](feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -33,4 +33,4 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist
 *Details: [workflow_health_report.md](workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-03-22 02:35 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-03-22 04:55 UTC*
