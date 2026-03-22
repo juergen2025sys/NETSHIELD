@@ -1,5 +1,5 @@
 # HoneyDB Monitor – Report
-**Aktualisiert:** 2026-03-21 22:44 UTC  
+**Aktualisiert:** 2026-03-22 22:46 UTC  
 **Quelle:** [honeydb.io](https://honeydb.io) – Community Honeypot Network
 
 ---
@@ -7,41 +7,41 @@
 
 | Endpunkt | IPs |
 |---|---|
-| ✅ Bad Hosts (24h, alle Dienste) | 12,326 |
-| ✅ Bad Hosts – SSH | 3,441 |
-| ✅ Bad Hosts – HTTP | 3,587 |
+| ✅ Bad Hosts (24h, alle Dienste) | 10,038 |
+| ✅ Bad Hosts – SSH | 2,344 |
+| ✅ Bad Hosts – HTTP | 3,044 |
 | ⚠️ Bad Hosts – TELNET | 0 |
-| ✅ Bad Hosts – FTP | 1,457 |
-| ⚠️ Sensor Events – 2026-03-20 (bis 5000) | 0 |
+| ✅ Bad Hosts – FTP | 1,431 |
+| ⚠️ Sensor Events – 2026-03-21 (bis 5000) | 0 |
 
 ---
 ## Top angegriffene Dienste (letzte 24h)
 
 | Rang | Dienst | Anzahl Attacken |
 |---|---|---|
-| 1 | `VNC` | 6,179,224 |
-| 2 | `MSSQL` | 1,158,728 |
-| 3 | `RDP` | 501,113 |
-| 4 | `MySQL` | 347,435 |
-| 5 | `SSH` | 245,480 |
-| 6 | `SNMP` | 168,933 |
-| 7 | `SIP` | 164,007 |
-| 8 | `HTTP` | 151,254 |
-| 9 | `FTP` | 47,099 |
-| 10 | `PostgreSQL` | 43,017 |
+| 1 | `VNC` | 4,912,355 |
+| 2 | `RDP` | 529,262 |
+| 3 | `MSSQL` | 520,962 |
+| 4 | `MySQL` | 422,260 |
+| 5 | `SIP` | 300,285 |
+| 6 | `SSH` | 129,314 |
+| 7 | `SNMP` | 87,764 |
+| 8 | `HTTP` | 85,533 |
+| 9 | `DNS` | 77,366 |
+| 10 | `FTP` | 31,740 |
 
 ---
 ## Zusammenfassung
 
 | Metrik | Wert |
 |---|---|
-| Gesamt HoneyDB-IPs | **13,602** |
-| Neu (heute) | **+9,461** |
-| Entfernt | **-8,875** |
+| Gesamt HoneyDB-IPs | **10,962** |
+| Neu (heute) | **+7,319** |
+| Entfernt | **-9,959** |
 | API Requests verbraucht | **7** von ~50/Tag (1500/Monat) |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-03-21 22:44 UTC*
+*Generiert: 2026-03-22 22:46 UTC*
