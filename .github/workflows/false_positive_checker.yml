@@ -64,9 +64,9 @@ jobs:
               # Auch wenn is_valid_public_ipv4() private IPs herausfiltert,
               # dienen diese Einträge als zusätzliche Sicherheitsebene.
               "192.168.13.1",        # LAN Gateway / lokaler DNS-Server
-              "192.168.13.0/24",     # bisheriges LAN-Subnetz
-              "192.168.14.1",        # OPNsense / lokaler DNS-Server
-              "192.168.14.0/24",     # aktuelles LAN-Subnetz
+              "192.168.14.1",        # LAN Gateway / lokaler DNS-Server
+              "192.168.13.0/24",     # gesamtes LAN-Subnetz (Klasse C)
+              "192.168.14.0/24",     # zweites lokales LAN-Subnetz
               "10.0.0.0/8",          # RFC 1918 Class A
               "172.16.0.0/12",       # RFC 1918 Class B
               "192.168.0.0/16",      # RFC 1918 Class C (alle privaten 192.168.x.x)
@@ -309,11 +309,17 @@ jobs:
               except:
                   pass
 
-          def is_whitelisted(ip):
+          def is_whitelisted_entry(value):
               try:
-                  addr = ipaddress.ip_address(ip)
+                  candidate = value.strip()
+                  if not candidate:
+                      return False
+                  if '/' in candidate:
+                      net = ipaddress.ip_network(candidate, strict=False)
+                      return any(net.overlaps(whitelisted) for whitelisted in whitelist_networks)
+                  addr = ipaddress.ip_address(candidate)
                   return any(addr in net for net in whitelist_networks)
-              except:
+              except Exception:
                   return False
 
           # ── Blacklist laden ───────────────────────────────────────────────
@@ -341,7 +347,7 @@ jobs:
 
           print(f"Prüfe {len(blacklist_ips)} IPs gegen Whitelist...")
           for i, ip in enumerate(blacklist_ips):
-              if is_whitelisted(ip):
+              if is_whitelisted_entry(ip):
                   whitelist_hits.append((ip, "Bekannte legitime IP-Range (CDN/Cloud)"))
                   false_positives.append(ip)
 

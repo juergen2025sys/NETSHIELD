@@ -139,9 +139,11 @@ jobs:
           IPV4_RE = re.compile(r'(?<!\d)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?!\d)')
 
           DNS_WHITELIST = {
+              "192.168.13.1", "192.168.14.1",
               "8.8.8.8", "8.8.4.4", "1.1.1.1", "1.0.0.1",
               "208.67.222.222", "208.67.220.220", "9.9.9.9",
-              "149.112.112.112", "94.140.14.14", "94.140.15.15",
+              "149.112.112.112", "149.112.112.10", "149.112.112.11",
+              "94.140.14.14", "94.140.15.15",
           }
 
           # ── Whitelist: IPs/CIDRs die NIE auf die Blacklist kommen ─────────
@@ -153,9 +155,9 @@ jobs:
               # Auch wenn is_valid_public_ipv4() private IPs herausfiltert,
               # dienen diese Einträge als zusätzliche Sicherheitsebene.
               "192.168.13.1",        # LAN Gateway / lokaler DNS-Server
-              "192.168.13.0/24",     # bisheriges LAN-Subnetz
-              "192.168.14.1",        # OPNsense / lokaler DNS-Server
-              "192.168.14.0/24",     # aktuelles LAN-Subnetz
+              "192.168.14.1",        # LAN Gateway / lokaler DNS-Server
+              "192.168.13.0/24",     # gesamtes LAN-Subnetz (Klasse C)
+              "192.168.14.0/24",     # zweites lokales LAN-Subnetz
               "10.0.0.0/8",          # RFC 1918 Class A
               "172.16.0.0/12",       # RFC 1918 Class B
               "192.168.0.0/16",      # RFC 1918 Class C (alle privaten 192.168.x.x)
@@ -309,19 +311,38 @@ jobs:
               except Exception:
                   return False
 
-          def is_never_block_entry(entry):
-              """Zusätzlicher Schutz: private/lokale IPs und Whitelist-Einträge
-              dürfen niemals in Feed, seen_db oder Final-Listen landen."""
+          PROTECTED_CIDRS = [
+              "192.168.13.0/24", "192.168.14.0/24",
+              "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
+          ]
+          _protected_networks = []
+          for _entry in (list(DNS_WHITELIST) + PROTECTED_CIDRS):
               try:
-                  if '/' in entry:
-                      net = ipaddress.ip_network(entry, strict=False)
-                      return (net.version != 4 or net.is_private or net.is_loopback or
-                              net.is_multicast or net.is_reserved or net.is_link_local or
-                              is_whitelisted(entry))
-                  addr = ipaddress.ip_address(entry)
-                  return (addr.version != 4 or addr.is_private or addr.is_loopback or
-                          addr.is_multicast or addr.is_reserved or addr.is_link_local or
-                          is_whitelisted(entry))
+                  _protected_networks.append(ipaddress.ip_network(_entry, strict=False))
+              except Exception:
+                  pass
+
+          def is_protected_entry(value):
+              """True wenn eine IP/ein CIDR niemals in Listen landen darf."""
+              try:
+                  candidate = value.strip()
+                  if not candidate:
+                      return True
+                  if '/' in candidate:
+                      net = ipaddress.ip_network(candidate, strict=False)
+                      if net.version != 4 or net.prefixlen < 8:
+                          return True
+                      if (net.is_private or net.is_loopback or net.is_multicast or
+                          net.is_reserved or net.is_link_local or net.is_unspecified):
+                          return True
+                      return any(net.overlaps(protected) for protected in _protected_networks)
+                  addr = ipaddress.ip_address(candidate)
+                  if addr.version != 4:
+                      return True
+                  if (addr.is_private or addr.is_loopback or addr.is_multicast or
+                      addr.is_reserved or addr.is_link_local or addr.is_unspecified):
+                      return True
+                  return any(addr in protected for protected in _protected_networks)
               except Exception:
                   return True
 
@@ -488,10 +509,7 @@ jobs:
           def is_valid_public_ipv4(ip):
               try:
                   obj = ipaddress.ip_address(ip)
-                  return (obj.version == 4 and not obj.is_private and
-                          not obj.is_loopback and not obj.is_multicast and
-                          not obj.is_unspecified and not obj.is_reserved and
-                          not obj.is_link_local)
+                  return obj.version == 4 and not is_protected_entry(str(obj))
               except Exception:
                   return False
 
@@ -500,12 +518,17 @@ jobs:
           def is_valid_public_cidr(cidr):
               try:
                   net = ipaddress.ip_network(cidr, strict=False)
-                  return (net.version == 4
-                          and not net.is_private and not net.is_loopback
-                          and not net.is_multicast and not net.is_reserved
-                          and not net.is_link_local and net.prefixlen >= 8)
+                  return net.version == 4 and net.prefixlen >= 8 and not is_protected_entry(str(net))
               except Exception:
                   return False
+
+          removed_preexisting_protected = 0
+          for ip in list(db.keys()):
+              if is_protected_entry(ip):
+                  del db[ip]
+                  removed_preexisting_protected += 1
+          if removed_preexisting_protected:
+              print(f"Geschützte Alt-Einträge aus seen_db entfernt: {removed_preexisting_protected}")
 
           def parse_feed_entries(text):
               """Universeller Parser: plain IPv4, CIDR, ip:port, ipset, FortiGate,
@@ -519,7 +542,7 @@ jobs:
                   fg = re.match(r'set\s+subnet\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', line)
                   if fg:
                       ip = fg.group(1)
-                      if ip not in DNS_WHITELIST and is_valid_public_ipv4(ip) and not is_never_block_entry(ip):
+                      if is_valid_public_ipv4(ip):
                           entries.add(ip)
                       continue
                   # ipset: "add setname 1.2.3.4" oder "add setname 1.2.3.0/24"
@@ -527,49 +550,42 @@ jobs:
                   if ipset_m:
                       val = ipset_m.group(1).split(';')[0].strip()
                       if '/' in val:
-                          if is_valid_public_cidr(val):
-                              norm = str(ipaddress.ip_network(val, strict=False))
-                              if not is_never_block_entry(norm):
-                                  entries.add(norm)
+                          if is_valid_public_cidr(val): entries.add(str(ipaddress.ip_network(val, strict=False)))
                       else:
-                          if val not in DNS_WHITELIST and is_valid_public_ipv4(val) and not is_never_block_entry(val):
+                          if is_valid_public_ipv4(val):
                               entries.add(val)
                       continue
                   # Inline-Kommentar abschneiden (Spamhaus DROP: "1.2.3.0/24 ; SBLxxx")
                   line = re.split(r'\s*[;#]', line)[0].strip()
-                  if not line:
-                      continue
+                  if not line: continue
                   # CSV: nur erste Spalte pruefen
                   first_col = line.split(',')[0].strip()
                   # CIDR?
                   cidr_m = CIDR_RE.match(first_col)
                   if cidr_m:
-                      cidr = str(ipaddress.ip_network(cidr_m.group(1), strict=False))
-                      if is_valid_public_cidr(cidr) and not is_never_block_entry(cidr):
-                          entries.add(cidr)
+                      if is_valid_public_cidr(cidr_m.group(1)): entries.add(str(ipaddress.ip_network(cidr_m.group(1), strict=False)))
                       continue
                   # ip:port?
                   ip_port = re.match(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):\d+', first_col)
                   if ip_port:
                       ip = ip_port.group(1)
-                      if ip not in DNS_WHITELIST and is_valid_public_ipv4(ip) and not is_never_block_entry(ip):
+                      if is_valid_public_ipv4(ip):
                           entries.add(ip)
                       continue
                   # Plain IP in erster Spalte?
-                  ip_m = re.match(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', first_col)
+                  ip_m = re.match(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b', first_col)
                   if ip_m:
                       ip = ip_m.group(1)
-                      if ip not in DNS_WHITELIST and is_valid_public_ipv4(ip) and not is_never_block_entry(ip):
+                      if is_valid_public_ipv4(ip):
                           entries.add(ip)
                       continue
                   # Fallback: alle IPs/CIDRs in der Zeile (URLhaus, JSON-Felder etc.)
                   for cidr in CIDR_RE.findall(line):
-                      cidr = str(ipaddress.ip_network(cidr, strict=False))
-                      if is_valid_public_cidr(cidr) and not is_never_block_entry(cidr):
-                          entries.add(cidr)
+                      if is_valid_public_cidr(cidr):
+                          entries.add(str(ipaddress.ip_network(cidr, strict=False)))
                   for m in IPV4_RE.finditer(line):
                       ip = m.group(1)
-                      if ip not in DNS_WHITELIST and is_valid_public_ipv4(ip) and not is_never_block_entry(ip):
+                      if is_valid_public_ipv4(ip):
                           entries.add(ip)
               return entries
 
@@ -739,6 +755,14 @@ jobs:
                       "days_seen":      1 if strongly_confirmed_today else 0,
                   }
 
+          protected_removed_runtime = 0
+          for ip in list(db.keys()):
+              if is_protected_entry(ip):
+                  del db[ip]
+                  protected_removed_runtime += 1
+          if protected_removed_runtime:
+              print(f"Geschützte Einträge nach Feed-Ingest entfernt: {protected_removed_runtime}")
+
           # Aufnahme-Filter: mindestens 2 verschiedene Feeds (gesamt) oder HQ.
           # AUSNAHME: Community-Reports (feeds=['community_report']) werden NICHT
           # sofort gelöscht – sie leben bis zum Watchlist-Expiry (30 Tage nach first).
@@ -749,9 +773,11 @@ jobs:
           # verspricht.
           current_valid = {
               ip for ip, data in db.items()
-              if len(data.get("feeds", [])) >= 2
-              or data.get("hq")
-              or "community_report" in data.get("feeds", [])
+              if not is_protected_entry(ip) and (
+                  len(data.get("feeds", [])) >= 2
+                  or data.get("hq")
+                  or "community_report" in data.get("feeds", [])
+              )
           }
           for ip in list(db.keys()):
               if ip not in current_valid:
@@ -797,7 +823,10 @@ jobs:
           # ── Stufe 1: combined_threat_blacklist_ipv4.txt (alle DB-IPs) ─────
           # FIX Bug6: Numerische IP-Sortierung (1.2.3.4 vor 10.0.0.1),
           # konsistent mit active_blacklist und allen anderen Ausgabedateien.
-          sorted_ips = sorted(db.keys(), key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
+          sorted_ips = sorted(
+              [ip for ip in db.keys() if not is_protected_entry(ip)],
+              key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e)
+          )
           feed_stats.sort(key=lambda x: -x[1])
 
           with open("combined_threat_blacklist_ipv4.txt", "w", encoding="utf-8") as f:
@@ -818,6 +847,8 @@ jobs:
           active_skipped_score = 0
 
           for ip, data in db.items():
+              if is_protected_entry(ip):
+                  continue
               try:
                   last_dt  = datetime.strptime(data["last"],  "%Y-%m-%d").replace(tzinfo=timezone.utc)
                   first_dt = datetime.strptime(data.get("first", data["last"]), "%Y-%m-%d").replace(tzinfo=timezone.utc)

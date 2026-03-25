@@ -128,10 +128,17 @@ jobs:
           fp_nets = [ipaddress.ip_network(c, strict=False) for c in FP_CIDRS]
 
           DNS_WHITELIST = {
+              "192.168.13.1", "192.168.14.1",
               "8.8.8.8", "8.8.4.4", "1.1.1.1", "1.0.0.1",
               "208.67.222.222", "208.67.220.220", "9.9.9.9",
-              "149.112.112.112", "94.140.14.14", "94.140.15.15",
+              "149.112.112.112", "149.112.112.10", "149.112.112.11",
+              "94.140.14.14", "94.140.15.15",
           }
+          PROTECTED_CIDRS = [
+              "192.168.13.0/24", "192.168.14.0/24",
+              "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
+          ]
+          protected_nets = [ipaddress.ip_network(c, strict=False) for c in PROTECTED_CIDRS]
 
           # ── Hilfsfunktionen ───────────────────────────────────────────────
           def gh_api(path, token=GH_TOKEN, retries=3):
@@ -176,7 +183,8 @@ jobs:
                   return (obj.version == 4 and not obj.is_private and
                           not obj.is_loopback and not obj.is_multicast and
                           not obj.is_reserved and not obj.is_link_local and
-                          not obj.is_unspecified and ip not in DNS_WHITELIST)
+                          not obj.is_unspecified and ip not in DNS_WHITELIST and
+                          not any(obj in net for net in protected_nets))
               except Exception:
                   return False
 

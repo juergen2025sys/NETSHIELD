@@ -65,6 +65,15 @@ jobs:
           name_map = {}
           for fname in files:
               content = open(f"{WORKFLOWS_DIR}/{fname}").read()
+
+              if fname in required_protection:
+                  missing = [token for token in required_protection[fname] if token not in content]
+                  if missing:
+                      errors.append({
+                          "file": fname,
+                          "check": "Hardening-Guard fehlt",
+                          "detail": f"Fehlende Schutz-Tokens: {', '.join(missing)}",
+                      })
               for cron in cron_re.findall(content):
                   cron = cron.strip()
                   cron_map.setdefault(cron, []).append(fname)
@@ -87,6 +96,12 @@ jobs:
                       "check": "Doppelter Workflow-Name",
                       "detail": f'name: "{name}" – concurrency-group schlägt fehl, Runs blockieren sich',
                   })
+
+          required_protection = {
+              "update_combined_blacklist.yml": ["is_protected_entry", "192.168.14.0/24", "192.168.13.0/24"],
+              "update_confidence_blacklist.yml": ["is_protected_entry", "192.168.14.0/24", "192.168.13.0/24"],
+              "false_positive_checker.yml": ["192.168.14.0/24", "192.168.13.0/24"],
+          }
 
           # ── Pro Datei ─────────────────────────────────────────────────────
           for fname in files:
