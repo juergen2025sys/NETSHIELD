@@ -1,14 +1,14 @@
 # False Positive Checker – Report
-**Aktualisiert:** 2026-03-25 19:42 UTC
+**Aktualisiert:** 2026-03-25 20:39 UTC
 
 ---
 ## Ergebnis
 
 | Metrik | Wert |
 |---|---|
-| Geprüfte IPs (gesamt) | 3828963 |
-| Whitelist-Treffer | **1308** |
-| Gesamt entfernt | **1308** |
+| Geprüfte IPs (gesamt) | 3828580 |
+| Whitelist-Treffer | **439** |
+| Gesamt entfernt | **439** |
 
 ## Whitelist-Treffer
 
@@ -22,6 +22,8 @@
 | `17.172.34.64` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `17.172.224.47` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `17.178.112.16` | Bekannte legitime IP-Range (CDN/Cloud) |
+| `23.20.0.0/14` | Bekannte legitime IP-Range (CDN/Cloud) |
+| `23.227.38.64/29` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `23.235.46.29` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `40.92.6.66` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `40.92.9.82` | Bekannte legitime IP-Range (CDN/Cloud) |
@@ -32,8 +34,6 @@
 | `40.92.21.81` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `40.92.51.48` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `40.92.64.78` | Bekannte legitime IP-Range (CDN/Cloud) |
-| `40.92.65.40` | Bekannte legitime IP-Range (CDN/Cloud) |
-| `40.92.67.98` | Bekannte legitime IP-Range (CDN/Cloud) |
 
 ---
-*Generiert: 2026-03-25 19:42 UTC*
+*Generiert: 2026-03-25 20:39 UTC*
