@@ -256,8 +256,16 @@ jobs:
               "17.172.0.0/16", "17.178.96.0/19", "17.57.144.0/22",
               # ProtonMail
               "185.70.40.0/24", "185.70.41.0/24",
-              # Tutanota
-              "23.21.86.0/24",
+              # Tutanota / Tuta (Deutschland, Hannover) – Quelle: RIPE (Tutao GmbH, AS207960)
+              "91.199.219.0/24",
+              # Google.com & YouTube.com (Serving-Infrastruktur)
+              # Quellen: https://www.gstatic.com/ipranges/goog.json (offiziell)
+              "74.125.0.0/16",       # YouTube / Google Video (AS15169)
+              "108.177.0.0/17",      # Google globale Infrastruktur
+              "142.250.0.0/15",      # Google Services (neuere Range)
+              "172.217.0.0/16",      # Google Serving (google.com / youtube.com)
+              "34.64.0.0/10",        # Google Cloud / GFE (Google Front End)
+              "35.184.0.0/13",       # Google Cloud (GFE / YouTube Streaming)
               # mail.com
               "74.208.4.200", "74.208.4.201", "74.208.4.220", "74.208.4.221",
               "82.165.159.130", "82.165.159.131",
@@ -605,7 +613,6 @@ jobs:
                   return name, set()
 
           # ── Alle Feeds parallel laden ──────────────────────────────────────
-          ip_feed_count = {}
           ip_in_hq      = set()
           feed_stats    = []
 
@@ -616,7 +623,6 @@ jobs:
               for future in as_completed(futures, timeout=600):
                   name, ips = future.result()
                   for ip in ips:
-                      ip_feed_count[ip] = ip_feed_count.get(ip, 0) + 1
                       if name in HIGH_QUALITY:
                           ip_in_hq.add(ip)
                       # Feed-Name pro IP merken
@@ -641,7 +647,6 @@ jobs:
               with open(local_file) as lf:
                   local_ips = parse_feed_entries(lf.read())
               for entry in local_ips:
-                  ip_feed_count[entry] = ip_feed_count.get(entry, 0) + 1
                   if is_hq_local:
                       ip_in_hq.add(entry)
                   if entry not in ip_feeds_today:
@@ -670,7 +675,6 @@ jobs:
                       for future in as_completed(futures, timeout=120):
                           name, ips = future.result()
                           for ip in ips:
-                              ip_feed_count[ip] = ip_feed_count.get(ip, 0) + 1
                               # Auto-discovered Feeds sind nicht HQ
                               if ip not in ip_feeds_today:
                                   ip_feeds_today[ip] = set()
@@ -840,7 +844,7 @@ jobs:
           # ── Stufe 2: active_blacklist_ipv4.txt (30 Tage + Confidence >= 65) ──
           # Kriterien kombiniert:
           #   1. last_seen <= 30 Tage  (nur HQ-Feeds setzen last → echte Aktualität)
-          #   2. Confidence-Score >= 50 (gleiche Formel wie update_confidence_blacklist)
+          #   2. Confidence-Score >= 65 (gleiche Schwelle wie active_blacklist-Header)
           # Ziel: kleine, qualitativ hochwertige OPNsense-Liste ohne statischen Ballast.
           cutoff_30 = now - timedelta(days=30)
           active_ips = []
@@ -922,7 +926,7 @@ jobs:
                   hq_mark = " ⭐" if name in HIGH_QUALITY else ""
                   f.write(f"| `{name}`{hq_mark} | {count} |\n")
 
-          print(f"\nFertig! combined: {len(sorted_ips)} IPs | active: {len(active_ips)} IPs (Score<50: {active_skipped_score}) | Feeds: {len(SOURCES)}")
+          print(f"\nFertig! combined: {len(sorted_ips)} IPs | active: {len(active_ips)} IPs (Score<65: {active_skipped_score}) | Feeds: {len(SOURCES)}")
           EOF
 
       - name: Save seen_db Cache

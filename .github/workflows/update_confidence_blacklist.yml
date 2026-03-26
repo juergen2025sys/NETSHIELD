@@ -119,14 +119,19 @@ jobs:
                   sys.exit(0)
           print(f"seen_db geladen: {len(db)} IPs")
 
-          # Alter der seen_db prüfen
-          newest_last = max((d.get("last","2000-01-01") for d in db.values()), default="2000-01-01")
+          # Alter der seen_db prüfen – nur echte HQ-Bestätigungsdaten (last != 2000-01-01)
+          # berücksichtigen, damit Watchlist-IPs (last="2000-01-01") kein falsches Alarm-Alter erzeugen
+          real_dates = [d.get("last","2000-01-01") for d in db.values() if d.get("last","2000-01-01") != "2000-01-01"]
+          newest_last = max(real_dates) if real_dates else None
           try:
-              newest_dt = datetime.strptime(newest_last, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-              db_age_hours = (now - newest_dt).total_seconds() / 3600
-              print(f"seen_db aktuellster Eintrag: {newest_last} ({db_age_hours:.1f}h alt)")
-              if db_age_hours > 6:
-                  print(f"WARNUNG: seen_db ist {db_age_hours:.1f}h alt – Cache möglicherweise veraltet!")
+              if newest_last:
+                  newest_dt = datetime.strptime(newest_last, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                  db_age_hours = (now - newest_dt).total_seconds() / 3600
+                  print(f"seen_db aktuellster Eintrag: {newest_last} ({db_age_hours:.1f}h alt)")
+                  if db_age_hours > 6:
+                      print(f"WARNUNG: seen_db ist {db_age_hours:.1f}h alt – Cache möglicherweise veraltet!")
+              else:
+                  print("seen_db: Keine HQ-bestätigten Einträge vorhanden (nur Watchlist-IPs)")
           except Exception:
               pass
 

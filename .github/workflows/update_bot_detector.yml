@@ -159,6 +159,23 @@ jobs:
             echo "Keine Änderungen"
           else
             git commit -m "Bot-Detector Blacklist: $(date -u '+%Y-%m-%d %H:%M') UTC"
-            git pull --rebase origin ${GITHUB_REF_NAME}
-            git push origin HEAD:${GITHUB_REF_NAME}
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git checkout --theirs bot_detector_blacklist_ipv4.txt \
+                  bot_detector_report.md 2>/dev/null || true
+                git add bot_detector_blacklist_ipv4.txt \
+                  bot_detector_report.md 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
           fi

@@ -177,14 +177,19 @@ jobs:
                           warnings.append({"file": fname, "check": "as_completed ohne timeout", "detail": msg})
                           break
 
-              # ── Check 9: git push ohne rebase (Shell-Teil) ────────────────
+              # ── Check 9: git push ohne Retry-Schleife (Shell-Teil) ───────────
+              # Korrekte Implementierung: for-Schleife mit mehreren Versuchen + git push darin.
+              # Falsch-Positiv-Schutz: "rebase" allein reicht nicht –
+              # "git pull --rebase && git push" ohne Schleife ist genauso fehleranfällig.
               shell_blocks = re.findall(r"run: \|(.*?)(?=\n      - name:|\n  [a-z]|\Z)", content, re.DOTALL)
               for part in shell_blocks:
-                  if "git push" in part and "rebase" not in part:
-                      msg = "git push ohne pull --rebase – Race-Condition bei parallelen Runs"
-                      file_warnings.append(msg)
-                      warnings.append({"file": fname, "check": "Git Push ohne Rebase", "detail": msg})
-                      break
+                  if "git push" in part:
+                      has_retry_loop = bool(re.search(r'for attempt in \d', part))
+                      if not has_retry_loop:
+                          msg = "git push ohne Retry-Schleife – Race-Condition bei parallelen Runs (kein 'for attempt in ...')"
+                          file_warnings.append(msg)
+                          warnings.append({"file": fname, "check": "Git Push ohne Retry-Schleife", "detail": msg})
+                          break
 
               # ── Check 10: concurrency fehlt bei scheduled Workflow ─────────
               if "schedule" in content and "concurrency:" not in content:
@@ -274,6 +279,23 @@ jobs:
             echo "Keine Änderungen"
           else
             git commit -m "Workflow Health Checker: $(date -u '+%Y-%m-%d %H:%M') UTC"
-            git pull --rebase origin ${GITHUB_REF_NAME}
-            git push origin HEAD:${GITHUB_REF_NAME}
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git checkout --theirs workflow_health_report.md \
+                  workflow_health_status.json 2>/dev/null || true
+                git add workflow_health_report.md \
+                  workflow_health_status.json 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
           fi

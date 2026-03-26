@@ -216,7 +216,6 @@ jobs:
               # North America
               "AG": ("north_america", "antigua_and_barbuda"),
               "AI": ("north_america", "anguilla"),
-              "AN": ("north_america", "netherlands_antilles"),
               "AW": ("north_america", "aruba"),
               "BB": ("north_america", "barbados"),
               "BL": ("north_america", "saint_barthelemy"),
@@ -428,6 +427,21 @@ jobs:
             echo "Keine Änderungen"
           else
             git commit -m "Update All Countries IPv4: $(date -u '+%Y-%m-%d %H:%M') UTC"
-            git pull --rebase origin ${GITHUB_REF_NAME}
-            git push origin HEAD:${GITHUB_REF_NAME}
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git checkout --theirs all_countries_ipv4.txt 2>/dev/null || true
+                git add all_countries_ipv4.txt continents/ countries/ 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
           fi

@@ -196,8 +196,18 @@ jobs:
               "185.70.40.0/24",
               "185.70.41.0/24",
 
-              # Tutanota / Tuta (Deutschland, Hannover) – /24 = präzise
-              "23.21.86.0/24",
+              # Tutanota / Tuta (Deutschland, Hannover) – Quelle: RIPE (Tutao GmbH, AS207960)
+              "91.199.219.0/24",
+
+              # ── Google.com & YouTube.com (Serving-Infrastruktur) ──────────
+              # Quellen: Google-published IP ranges (goog.json / cloud.json)
+              # https://www.gstatic.com/ipranges/goog.json
+              "74.125.0.0/16",       # YouTube / Google Video (AS15169)
+              "108.177.0.0/17",      # Google globale Infrastruktur
+              "142.250.0.0/15",      # Google Services (neuere Range)
+              "172.217.0.0/16",      # Google Serving (google.com / youtube.com)
+              "34.64.0.0/10",        # Google Cloud / GFE (Google Front End)
+              "35.184.0.0/13",       # Google Cloud (GFE / YouTube Streaming)
 
               # mail.com (United Internet) – Quelle: postmaster.mail.com
               "74.208.4.200", "74.208.4.201",                    # mout.mail.com
