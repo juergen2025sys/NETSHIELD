@@ -114,7 +114,6 @@ jobs:
               except Exception:
                   pass
           bl_addrs.sort(key=lambda x: x[1])
-          bl_ints = [x[1] for x in bl_addrs]
           print(f"Gültige IPs für CIDR-Check: {len(bl_addrs):,}")
 
           # ── Schritt 2: Ergänzende Threat-Feeds laden ──────────────────────

@@ -155,7 +155,7 @@ jobs:
                       file_warnings.append(msg)
                       warnings.append({"file": fname, "check": "Fehlende Fehlerbehandlung", "detail": msg})
 
-                  # ── Check 7: del db[ip] in aktiver for-Schleife ────────────
+                  # ── Check 6: del db[ip] in aktiver for-Schleife ────────────
                   # Nur echte Code-Zeilen prüfen (keine Kommentare, keine Strings)
                   code_lines = [l for l in dedented.splitlines()
                                 if l.strip() and not l.strip().startswith('#')
@@ -168,7 +168,7 @@ jobs:
                       file_errors.append(msg)
                       errors.append({"file": fname, "check": "Dict-Mutation in Schleife", "detail": msg})
 
-                  # ── Check 8: ThreadPoolExecutor ohne timeout ───────────────
+                  # ── Check 7: ThreadPoolExecutor ohne timeout ───────────────
                   for m in re.finditer(r'as_completed\(futures\)', dedented):
                       snippet = dedented[m.start():m.start()+60]
                       if "timeout=" not in snippet:
@@ -177,7 +177,7 @@ jobs:
                           warnings.append({"file": fname, "check": "as_completed ohne timeout", "detail": msg})
                           break
 
-              # ── Check 9: git push ohne Retry-Schleife (Shell-Teil) ───────────
+              # ── Check 8: git push ohne Retry-Schleife (Shell-Teil) ───────────
               # Korrekte Implementierung: for-Schleife mit mehreren Versuchen + git push darin.
               # Falsch-Positiv-Schutz: "rebase" allein reicht nicht –
               # "git pull --rebase && git push" ohne Schleife ist genauso fehleranfällig.
@@ -191,7 +191,7 @@ jobs:
                           warnings.append({"file": fname, "check": "Git Push ohne Retry-Schleife", "detail": msg})
                           break
 
-              # ── Check 10: concurrency fehlt bei scheduled Workflow ─────────
+              # ── Check 9: concurrency fehlt bei scheduled Workflow ─────────
               if "schedule" in content and "concurrency:" not in content:
                   msg = "Kein concurrency-Block – parallele Runs möglich bei manuell + scheduled gleichzeitig"
                   file_warnings.append(msg)
