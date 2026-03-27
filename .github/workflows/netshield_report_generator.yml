@@ -2,7 +2,7 @@ name: NETSHIELD Report Generator
 
 on:
   schedule:
-    - cron: '5 * * * *'    # stündlich (5 Min nach der vollen Stunde – nach combined-Läufen)
+    - cron: '30 * * * *'   # stündlich (30 Min nach der vollen Stunde – combined braucht ~20min, Puffer 10min)
   workflow_dispatch:
 
 env:

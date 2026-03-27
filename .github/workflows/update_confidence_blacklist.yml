@@ -2,14 +2,14 @@ name: Confidence Blacklist
 
 on:
   schedule:
-    - cron: '30 0 * * *'    # täglich 00:30 UTC (30 Min nach Combined – sicher nach Cache-Save)
-    - cron: '30 3 * * *'    # täglich 03:30 UTC (30 Min nach Combined-Lauf um 03:00)
-    - cron: '30 6 * * *'    # täglich 06:30 UTC (30 Min nach Combined-Lauf um 06:00)
-    - cron: '30 9 * * *'    # täglich 09:30 UTC
-    - cron: '30 12 * * *'   # täglich 12:30 UTC
-    - cron: '30 15 * * *'   # täglich 15:30 UTC
-    - cron: '30 18 * * *'   # täglich 18:30 UTC
-    - cron: '30 21 * * *'   # täglich 21:30 UTC
+    - cron: '45 0 * * *'    # täglich 00:45 UTC (45 Min nach Combined – sicher nach Cache-Save)
+    - cron: '45 3 * * *'    # täglich 03:45 UTC (45 Min nach Combined-Lauf um 03:00)
+    - cron: '45 6 * * *'    # täglich 06:45 UTC (45 Min nach Combined-Lauf um 06:00)
+    - cron: '45 9 * * *'    # täglich 09:45 UTC
+    - cron: '45 12 * * *'   # täglich 12:45 UTC
+    - cron: '45 15 * * *'   # täglich 15:45 UTC
+    - cron: '45 18 * * *'   # täglich 18:45 UTC
+    - cron: '45 21 * * *'   # täglich 21:45 UTC
   workflow_dispatch:
 
 env:
