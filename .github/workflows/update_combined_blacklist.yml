@@ -500,7 +500,9 @@ jobs:
               # "eset_apr" entfernt: elliotwutingfeng/ESET-APR-IPs Repo gelöscht
               "romainmarcoux_outgoing_aa":  ("https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-aa.txt", False),
               "romainmarcoux_outgoing_ab":  ("https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-ab.txt", False),
-              "fullbogons_ipv4":            ("https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt", False),
+              # "fullbogons_ipv4" entfernt: team-cymru.org/fullbogons-ipv4.txt enthält ausschließlich
+              # Bogon-Ranges (nicht-routbar/reserviert) – is_valid_public_ipv4() filtert 100% heraus
+              # → 0 nutzbare IPs, ~3 MB sinnloser Download pro Lauf (analog zu honeypot_monitor.yml)
 
               # ── Tor Exit Nodes ────────────────────────────────────────────
               # tor_* entfernt: tor_exit_monitor Workflow wurde entfernt
@@ -852,7 +854,8 @@ jobs:
           # Ziel: kleine, qualitativ hochwertige OPNsense-Liste ohne statischen Ballast.
           cutoff_30 = now - timedelta(days=30)
           active_ips = []
-          active_skipped_score = 0
+          active_skipped_score = 0   # besteht Recency, aber Score < 65
+          active_skipped_old   = 0   # zu alt (last_dt > 30 Tage)
 
           for ip, data in db.items():
               if is_protected_entry(ip):
@@ -864,6 +867,7 @@ jobs:
                   continue
 
               if last_dt < cutoff_30:
+                  active_skipped_old += 1
                   continue
 
               is_hq       = data.get("hq", False)
@@ -914,7 +918,7 @@ jobs:
               f.write(f"# Aktualisiert: {now_stamp}\n")
               f.write(f"# Kriterien: last_seen <= 30 Tage UND Confidence-Score >= 65/100\n")
               f.write(f"# Eintraege: {len(active_ips)}\n")
-              f.write(f"# Herausgefiltert (Score < 65): {active_skipped_score}\n\n")
+              f.write(f"# Herausgefiltert (zu alt >30T): {active_skipped_old} | (Score <65): {active_skipped_score}\n\n")
               f.write("\n".join(active_ips) + "\n")
 
           # ── Report ─────────────────────────────────────────────────────────
@@ -923,14 +927,14 @@ jobs:
               f.write(f"- Aktualisiert: **{now_stamp}**\n")
               f.write(f"- Feeds gesamt: **{len(SOURCES)}**\n")
               f.write(f"- Stufe 1 (combined): **{len(sorted_ips)}** IPs\n")
-              f.write(f"- Stufe 2 (active, 30T + Conf≥65): **{len(active_ips)}** IPs (herausgefiltert: {active_skipped_score})\n")
+              f.write(f"- Stufe 2 (active, 30T + Conf≥65): **{len(active_ips)}** IPs | herausgefiltert: {active_skipped_old} zu alt, {active_skipped_score} Score<65\n")
               f.write(f"- Abgelaufen & entfernt: **{len(expired)}**\n\n")
               f.write("## Feed-Statistik\n\n| Feed | IPs |\n|---|---:|\n")
               for name, count in feed_stats:
                   hq_mark = " ⭐" if name in HIGH_QUALITY else ""
                   f.write(f"| `{name}`{hq_mark} | {count} |\n")
 
-          print(f"\nFertig! combined: {len(sorted_ips)} IPs | active: {len(active_ips)} IPs (Score<65: {active_skipped_score}) | Feeds: {len(SOURCES)}")
+          print(f"\nFertig! combined: {len(sorted_ips)} IPs | active: {len(active_ips)} IPs | zu alt: {active_skipped_old} | Score<65: {active_skipped_score} | Feeds: {len(SOURCES)}")
           EOF
 
       - name: Save seen_db Cache

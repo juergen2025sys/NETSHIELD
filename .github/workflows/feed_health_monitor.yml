@@ -148,7 +148,9 @@ jobs:
               # "eset_apr" entfernt: Repo gelöscht
               "romainmarcoux_outgoing_aa":  "https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-aa.txt",
               "romainmarcoux_outgoing_ab":  "https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-ab.txt",
-              "fullbogons_ipv4":            "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt",
+              # "fullbogons_ipv4" entfernt: team-cymru.org/fullbogons-ipv4.txt enthält ausschließlich
+              # Bogon-Ranges (nicht-routbar/reserviert) – is_valid_public_ipv4() filtert 100% heraus
+              # → 0 nutzbare IPs, ~3 MB sinnloser Download pro Lauf (analog zu honeypot_monitor.yml)
               # tor_* entfernt: tor_exit_monitor Workflow wurde entfernt
           }
 
