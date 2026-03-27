@@ -181,7 +181,17 @@ jobs:
               # Korrekte Implementierung: for-Schleife mit mehreren Versuchen + git push darin.
               # Falsch-Positiv-Schutz: "rebase" allein reicht nicht –
               # "git pull --rebase && git push" ohne Schleife ist genauso fehleranfällig.
-              shell_blocks = re.findall(r"run: \|(.*?)(?=\n      - name:|\n  [a-z]|\Z)", content, re.DOTALL)
+              #
+              # FIX False Positive: Python-Heredocs (python3 << 'EOF'...EOF) vor der
+              # Shell-Suche entfernen – sonst triggert "git push" als Python-String-
+              # Literal (z.B. if "git push" in part) fälschlicherweise den Check.
+              content_shell_only = re.sub(
+                  r"python3 << 'EOF'.*?\n\s*EOF\b", "", content, flags=re.DOTALL
+              )
+              shell_blocks = re.findall(
+                  r"run: \|(.*?)(?=\n      - name:|\n  [a-z]|\Z)",
+                  content_shell_only, re.DOTALL
+              )
               for part in shell_blocks:
                   if "git push" in part:
                       has_retry_loop = bool(re.search(r'for attempt in \d', part))
