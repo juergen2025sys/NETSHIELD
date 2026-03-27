@@ -109,6 +109,13 @@ jobs:
           OUT = "abuseipdb_api_blacklist.txt"
           sorted_ips = sorted(all_ips, key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
 
+          # ── FIX #6: Leerungsschutz für AbuseIPDB-Ausgabe ──────────────────
+          MIN_ABUSEIPDB = 100
+          if len(sorted_ips) < MIN_ABUSEIPDB:
+              print(f"WARNUNG: Nur {len(sorted_ips)} AbuseIPDB-IPs (<{MIN_ABUSEIPDB}) – "
+                    f"behalte bestehende {OUT}")
+              import sys; sys.exit(0)
+
           with open(OUT, "w", encoding="utf-8") as f:
               f.write("# AbuseIPDB API Blacklist – NETSHIELD\n")
               f.write(f"# Aktualisiert: {now_str}\n")
@@ -520,6 +527,39 @@ jobs:
           else:
               print("Keine seen_db gefunden – starte neu.")
 
+          # ── FIX #1: false_positives_set.json einlesen ─────────────────────
+          # false_positive_checker schreibt diese Datei; combined liest sie hier
+          # und schließt die IPs beim Feed-Ingest aus – kein direktes Schreiben
+          # in combined_threat_blacklist_ipv4.txt durch den FP-Checker mehr.
+          FP_SET_FILE = "false_positives_set.json"
+          _fp_networks = []
+          _fp_ips      = set()
+          if os.path.exists(FP_SET_FILE):
+              try:
+                  with open(FP_SET_FILE) as _f:
+                      _fp_data = json.load(_f)
+                  for _e in _fp_data.get("ips", []):
+                      try:
+                          if "/" in _e:
+                              _fp_networks.append(ipaddress.ip_network(_e, strict=False))
+                          else:
+                              _fp_ips.add(_e)
+                      except Exception:
+                          pass
+                  print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs als FP geladen")
+              except Exception as _ex:
+                  print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
+
+          def is_in_fp_set(ip_str):
+              """True wenn IP im False-Positive-Set steht."""
+              if ip_str in _fp_ips:
+                  return True
+              try:
+                  _addr = ipaddress.ip_address(ip_str.split("/")[0])
+                  return any(_addr in _net for _net in _fp_networks)
+              except Exception:
+                  return False
+
           def is_valid_public_ipv4(ip):
               try:
                   obj = ipaddress.ip_address(ip)
@@ -712,8 +752,8 @@ jobs:
           # Non-HQ Feeds setzen "last" nie → statische Listen halten IPs nicht am Leben
 
           for ip, today_feeds in ip_feeds_today.items():
-              # Whitelist-Check: diese IPs kommen NIE auf die Blacklist
-              if is_whitelisted(ip):
+              # Whitelist-Check + FP-Set-Check: diese IPs kommen NIE auf die Blacklist
+              if is_whitelisted(ip) or is_in_fp_set(ip):
                   continue
               today_count = len(today_feeds)
               today_is_hq = ip in ip_in_hq

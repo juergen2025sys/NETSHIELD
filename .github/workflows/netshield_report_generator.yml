@@ -98,6 +98,13 @@ jobs:
                   s = fh.get("summary", {})
                   lines.append("---")
                   lines.append(f"## 🔍 Feed Health: ✅ {s.get('ok',0)} OK | ⚠️ {s.get('warn',0)} leer | ❌ {s.get('error',0)} Fehler\n")
+                  # FIX #9: Ausgefallene Feeds namentlich anzeigen
+                  failed = fh.get("failed_feeds", [])
+                  warned = fh.get("warned_feeds", [])
+                  if failed:
+                      lines.append(f"**❌ Ausgefallen:** {', '.join(f'`{n}`' for n in failed[:10])}{'…' if len(failed)>10 else ''}\n")
+                  if warned:
+                      lines.append(f"**⚠️ Leer:** {', '.join(f'`{n}`' for n in warned[:10])}{'…' if len(warned)>10 else ''}\n")
                   lines.append(f"*Letzter Check: {fh.get('updated','–')} – Details: [feed_health_report.md](feed_health_report.md)*\n")
               except Exception as e:
                   print(f"WARNUNG: feed_health_status.json konnte nicht gelesen werden: {e}")

@@ -252,11 +252,17 @@ jobs:
           # ── Schritt 2: HQ-Referenz-Set laden (Overlap-Check) ─────────────
           print("\nLade HQ-Referenz-Sets für Overlap-Check...")
           hq_ref_ips = set()
+          # FIX #5: Erweiterte HQ-Referenz-Sets für den Overlap-Check.
+          # Zuvor nur 2 Quellen (Feodo + AbuseIPDB) → Feeds mit Fokus auf Tor-Exits,
+          # SSH-Scanner oder Honeypots hatten kaum Overlap und wurden fälschlicherweise
+          # abgelehnt. Jetzt 4 thematisch verschiedene Quellen → breitere Abdeckung.
           hq_ref_urls = [
               "https://feodotracker.abuse.ch/downloads/ipblocklist_aggressive.txt",
-              # talosintelligence.com entfernt: Terms-Accept required, liefert immer 0 IPs
-              # (analog zu SOURCES in update_combined_blacklist.yml)
               "https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-30d.ipv4",
+              # Scanning/SSH-Bruteforce-Abdeckung
+              "https://raw.githubusercontent.com/stamparm/ipsum/master/levels/5.txt",
+              # Honeypot/Greylist-Abdeckung
+              "https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv",
           ]
           for url in hq_ref_urls:
               text = fetch_raw(url)
@@ -475,13 +481,16 @@ jobs:
               # Vorher: nur einmaliges "_v2" → bei weiterer Kollision stiller Datenverlust.
               # Jetzt: Loop bis zum ersten freien Namen; bestehende Einträge desselben
               # Repos (Updates) behalten ihren alten Namen.
+              # FIX #16: Kein Truncating auf 57 Zeichen mehr.
+              # Feed-Namen sind interne Schlüssel; volle Länge verhindert Kollisionen
+              # zwischen Repos mit ähnlichen Namen (z.B. org-a/ip-feed vs org-b/ip-feed).
               base_name = re.sub(r'[^a-z0-9_]', '_',
-                                 full_name.lower().replace('/', '_'))[:60]
+                                 full_name.lower().replace('/', '_'))
               feed_name = base_name
               suffix = 2
               while (feed_name in approved_feeds and
                      approved_feeds[feed_name].get("repo") != full_name):
-                  feed_name = f"{base_name[:57]}_v{suffix}"
+                  feed_name = f"{base_name}_v{suffix}"
                   suffix += 1
 
               is_new_feed = feed_name not in existing_feeds

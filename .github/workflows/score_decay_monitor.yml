@@ -106,6 +106,10 @@ jobs:
                   if last_seen == "2000-01-01":
                       days_seen = 1  # Watchlist-IP ohne HQ-Bestätigung
                   else:
+                      # FIX #15: max(1, ...) ist absichtlich und darf NICHT entfernt werden.
+                      # Bei Daten-Anomalien (last_dt < first_dt durch z.B. Zeitzonen-Bug)
+                      # würde (last_dt - first_dt).days negativ werden → Score wäre 0
+                      # und die IP würde fälschlicherweise als Zombie markiert.
                       days_seen = max(1, (last_dt - first_dt).days + 1)
               score       = days_seen + (20 if is_hq else 0)
               score_dist[(score // 5) * 5] += 1

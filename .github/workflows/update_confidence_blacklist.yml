@@ -128,8 +128,10 @@ jobs:
                   newest_dt = datetime.strptime(newest_last, "%Y-%m-%d").replace(tzinfo=timezone.utc)
                   db_age_hours = (now - newest_dt).total_seconds() / 3600
                   print(f"seen_db aktuellster Eintrag: {newest_last} ({db_age_hours:.1f}h alt)")
-                  if db_age_hours > 6:
-                      print(f"WARNUNG: seen_db ist {db_age_hours:.1f}h alt – Cache möglicherweise veraltet!")
+                  # FIX #8: Schwelle von 6h auf 4h gesenkt (combined läuft alle 3h –
+                  # bei >4h wurde bereits ein vollständiger Run verpasst).
+                  if db_age_hours > 4:
+                      print(f"WARNUNG: seen_db ist {db_age_hours:.1f}h alt – mindestens ein combined-Run wurde verpasst!")
               else:
                   print("seen_db: Keine HQ-bestätigten Einträge vorhanden (nur Watchlist-IPs)")
           except Exception:

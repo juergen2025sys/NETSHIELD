@@ -226,7 +226,10 @@ jobs:
           final_ips   = sorted(all_ips, key=lambda ip: (tuple(int(o) for o in ip.split('/')[0].split('.')), ip))
 
           # ── Leerungsschutz ────────────────────────────────────────────────
-          MIN_ENTRIES = 100
+          # FIX #11: MIN_ENTRIES von 100 auf 300 erhöht.
+          # HoneyDB liefert normalerweise 500–5000 IPs. 100 war zu permissiv
+          # und hätte einen partiellen API-Ausfall durchgelassen.
+          MIN_ENTRIES = 300
           if len(final_ips) < MIN_ENTRIES:
               print(f"WARNUNG: Nur {len(final_ips)} HoneyDB-IPs (< {MIN_ENTRIES}) – behalte bestehende Datei")
               import sys; sys.exit(0)

@@ -2,9 +2,9 @@ name: False Positive Checker
 
 on:
   schedule:
-    - cron: '0 5 * * *'    # täglich 05:00 UTC (60 Min vor Combined um 06:00 – verhindert Git-Konflikt)
-    - cron: '0 13 * * *'   # täglich 13:00 UTC (60 Min Puffer vor Combined um 15:00)
-    - cron: '0 20 * * *'   # täglich 20:00 UTC (60 Min Puffer vor Combined um 21:00)
+    - cron: '0 5 * * *'    # täglich 05:00 UTC
+    - cron: '0 13 * * *'   # täglich 13:00 UTC
+    - cron: '0 20 * * *'   # täglich 20:00 UTC
   workflow_dispatch:
 
 env:
@@ -18,10 +18,10 @@ permissions:
   pull-requests: none
   security-events: none
 
-
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
+
 jobs:
   fp-checker:
     runs-on: ubuntu-latest
@@ -47,280 +47,126 @@ jobs:
           import re
           import os
           import sys
+          import json
           import ipaddress
           from datetime import datetime, timezone
 
           now = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
 
-          # Whitelist-CIDR-Check – Reverse-DNS nicht aktiv
           print("Starte False Positive Prüfung (Whitelist-CIDR)...")
 
-          # ── Bekannte legitime IP-Ranges (Whitelist) ───────────────────────
-          # Einzelne IPs + präzise Mail-CIDRs von offiziellen Postmaster-Quellen.
-          # Breite /8 /16 Ranges wurden bewusst vermieden – nur dedizierte Mailserver-Blöcke.
           WHITELIST_CIDRS = [
-              # ── Lokale Netze / Gateway / DNS (RFC 1918 – niemals blockieren) ──
-              # Auch wenn is_valid_public_ipv4() private IPs herausfiltert,
-              # dienen diese Einträge als zusätzliche Sicherheitsebene.
-              "192.168.13.1",        # LAN Gateway / lokaler DNS-Server
-              "192.168.14.1",        # LAN Gateway / lokaler DNS-Server
-              "192.168.13.0/24",     # gesamtes LAN-Subnetz (Klasse C)
-              "192.168.14.0/24",     # zweites lokales LAN-Subnetz
-              "10.0.0.0/8",          # RFC 1918 Class A
-              "172.16.0.0/12",       # RFC 1918 Class B
-              "192.168.0.0/16",      # RFC 1918 Class C (alle privaten 192.168.x.x)
-
-              # Shopify CDN
+              "192.168.13.1", "192.168.14.1",
+              "192.168.13.0/24", "192.168.14.0/24",
+              "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
               "185.111.111.154", "185.111.111.155", "185.111.111.156",
               "185.111.111.157", "185.111.111.158", "185.111.111.159",
-              # Tucows / OpenSRS
               "192.64.87.219",
-              # Google Cloud / Spotify (GCP)
-              "141.8.194.242",
-              "35.186.224.24",
-              # GitHub Pages / CDN
+              "141.8.194.242", "35.186.224.24",
               "185.199.109.133", "185.199.111.133",
-              # Shopify CDN
-              "23.227.38.65",
-              # Microsoft (OneDrive/Teams)
               "52.109.89.119",
-              # Telekom Deutschland
               "80.146.236.47",
-              # Google Services
               "172.217.16.196", "172.217.16.206", "172.217.20.132", "172.217.16.195",
               "142.251.127.190", "142.251.208.164",
-              "142.251.155.119", "142.251.151.119", "142.251.127.84",  # OPNsense Freigabeliste
-              "142.251.157.119", "142.251.14.105",                     # OPNsense Freigabeliste
-              # Hurricane Electric
+              "142.251.155.119", "142.251.151.119", "142.251.127.84",
+              "142.251.157.119", "142.251.14.105",
               "184.105.99.75",
-              # Shopify
               "160.79.104.10",
-              # Facebook / Meta
               "157.240.253.35",
-              # Legitimer Hoster
               "91.228.167.128", "91.228.166.47",
-              # Cloudflare
               "104.18.32.47", "172.64.155.209",
-              # GitHub
               "140.82.112.0/20",
-              # ICANN / Verisign (WordPress.com Nameserver)
               "192.0.66.111", "192.0.66.218",
-              # Quad9 DNS (alle IPv4-Adressen, alle Dienstvarianten)
-              "9.9.9.9", "149.112.112.112",    # Secure (mit Malware-Blocking)
-              "9.9.9.10", "149.112.112.10",    # Unsecured (ohne Blocking)
-              "9.9.9.11", "149.112.112.11",    # Secure + ECS
-
-              # ── E-Mail-Anbieter Deutschland ────────────────────────────────
-              # GMX (United Internet / Ionos) – Quelle: postmaster.gmx.com
-              "212.227.15.15", "212.227.15.18", "212.227.15.19",  # mout.gmx.net
-              "212.227.17.20", "212.227.17.21", "212.227.17.22",  # mout.gmx.net
-              "212.227.15.44", "212.227.15.45", "212.227.15.46",  # mout-bounce.gmx.net
-              "212.227.17.26", "212.227.17.28", "212.227.17.29",  # mout-bounce.gmx.net
-              "82.165.159.12", "82.165.159.13", "82.165.159.14",  # mout-xforward.gmx.net
-              "82.165.159.40", "82.165.159.41", "82.165.159.42",  # mout-xforward.gmx.net
-
-              # WEB.DE (United Internet) – Quelle: postmaster.web.de
-              "212.227.15.3",  "212.227.15.4",  "212.227.15.5",   # mout.web.de
-              "212.227.15.6",  "212.227.15.14", "212.227.17.11",  # mout.web.de
-              "212.227.17.12", "217.72.192.78",                   # mout.web.de
-              "217.72.192.77",                                     # mout-bounce.web.de
-              "212.227.15.25", "212.227.15.26", "212.227.15.29",  # mout-bounce.web.de
-              "212.227.15.54", "212.227.15.55", "212.227.17.18",  # mout-bounce.web.de
-              "212.227.17.19",                                     # mout-bounce.web.de
-              "82.165.159.2",  "82.165.159.3",  "82.165.159.4",   # mout-xforward.web.de
-              "82.165.159.34", "82.165.159.35", "82.165.159.45",  # mout-xforward.web.de
-
-              # IONOS / 1&1 – Quelle: ionos.com/help/email/postmaster
-              "217.72.192.73", "217.72.192.74", "217.72.192.75",  # mout.kundenserver.de
-              "212.227.17.13", "212.227.17.24",                   # mout.kundenserver.de
+              "9.9.9.9", "149.112.112.112",
+              "9.9.9.10", "149.112.112.10",
+              "9.9.9.11", "149.112.112.11",
+              "212.227.15.15", "212.227.15.18", "212.227.15.19",
+              "212.227.17.20", "212.227.17.21", "212.227.17.22",
+              "212.227.15.44", "212.227.15.45", "212.227.15.46",
+              "212.227.17.26", "212.227.17.28", "212.227.17.29",
+              "82.165.159.12", "82.165.159.13", "82.165.159.14",
+              "82.165.159.40", "82.165.159.41", "82.165.159.42",
+              "212.227.15.3",  "212.227.15.4",  "212.227.15.5",
+              "212.227.15.6",  "212.227.15.14", "212.227.17.11",
+              "212.227.17.12", "217.72.192.78",
+              "217.72.192.77",
+              "212.227.15.25", "212.227.15.26", "212.227.15.29",
+              "212.227.15.54", "212.227.15.55", "212.227.17.18",
+              "212.227.17.19",
+              "82.165.159.2",  "82.165.159.3",  "82.165.159.4",
+              "82.165.159.34", "82.165.159.35", "82.165.159.45",
+              "217.72.192.73", "217.72.192.74", "217.72.192.75",
+              "212.227.17.13", "212.227.17.24",
               "212.227.126.130", "212.227.126.131", "212.227.126.133",
               "212.227.126.134", "212.227.126.135", "212.227.126.187",
-              "74.208.4.194",  "74.208.4.195",  "74.208.4.196",  "74.208.4.197",  # mout.perfora.net
-              "82.165.159.5",  "82.165.159.6",  "82.165.159.7",  # mout-xforward.kundenserver.de
+              "74.208.4.194",  "74.208.4.195",  "74.208.4.196",  "74.208.4.197",
+              "82.165.159.5",  "82.165.159.6",  "82.165.159.7",
               "82.165.159.8",  "82.165.159.9",  "82.165.159.10",
               "82.165.159.36", "82.165.159.37", "82.165.159.38",
               "82.165.159.39", "82.165.159.43", "82.165.159.44",
-              "82.165.159.132","82.165.159.133","82.165.159.134", # mout-xforward.perfora.net
-              "217.72.192.100","217.72.192.101","217.72.192.102", # mout-bounce.kundenserver.de
+              "82.165.159.132","82.165.159.133","82.165.159.134",
+              "217.72.192.100","217.72.192.101","217.72.192.102",
               "212.227.15.22", "212.227.15.31", "212.227.15.32",
               "212.227.15.56", "212.227.15.57", "212.227.15.58",
               "212.227.17.3",  "212.227.17.14", "212.227.17.25",
-              "74.208.4.198",  "74.208.4.204",  "74.208.4.205",  # mout-bounce.perfora.net
-              "212.227.15.53", "212.227.15.47",                   # mout-csbulk.1and1.com
+              "74.208.4.198",  "74.208.4.204",  "74.208.4.205",
+              "212.227.15.53", "212.227.15.47",
               "212.227.126.220","212.227.126.221","212.227.126.222","212.227.126.223",
               "212.227.126.224","212.227.126.225","212.227.126.226","212.227.126.227",
-              "212.227.15.50", "212.227.15.52",                   # mout-cscorp.1and1.com
-              "212.227.15.7",  "212.227.15.8",  "212.227.17.7",  "212.227.17.27", # moint.1and1.com
-
-              # Posteo (Berlin, datenschutzfreundlich)
-              "185.67.36.0/24",      # /24 = 254 IPs, nur Posteo
-
-              # mailbox.org (Berlin)
-              "80.241.60.0/24",      # /24 = 254 IPs, nur mailbox.org
-
-              # Telekom / T-Online Mail – nur konkrete Mailserver
-              "194.25.134.60", "194.25.134.61", "194.25.134.62",  # smtp.t-online.de
+              "212.227.15.50", "212.227.15.52",
+              "212.227.15.7",  "212.227.15.8",  "212.227.17.7",  "212.227.17.27",
+              "185.67.36.0/24",
+              "80.241.60.0/24",
+              "194.25.134.60", "194.25.134.61", "194.25.134.62",
               "194.25.134.80", "194.25.134.81",
-
-              # ── E-Mail-Anbieter International ──────────────────────────────
-              # Gmail / Google Workspace – SPF _netblocks.google.com (offizielle /20 Ranges)
-              # Quelle: dig TXT _netblocks.google.com → nur Mail-spezifische Blöcke
-              "64.18.0.0/20",        # Gmail SMTP (klein, nur Mail)
-              "64.233.160.0/19",     # Gmail SMTP
-              "66.102.0.0/20",       # Gmail SMTP
-              "66.249.80.0/20",      # Gmail SMTP
-              "72.14.192.0/18",      # Gmail SMTP
-              "108.177.8.0/21",      # Gmail SMTP
-              "173.194.0.0/16",      # Gmail SMTP (größter Block, aber dediziert Mail)
-              "207.126.144.0/20",    # Gmail SMTP
-              "209.85.128.0/17",     # Gmail SMTP
-              "216.58.192.0/19",     # Gmail SMTP
-              "216.239.32.0/19",     # Gmail SMTP
-
-              # Microsoft Outlook.com / Hotmail – Quelle: sendersupport.olc.protection.outlook.com
-              "40.92.0.0/15",        # Outlook.com outbound (offiziell von MS Postmaster)
-              "40.107.0.0/16",       # Outlook.com outbound
-              "52.100.0.0/14",       # Office 365 outbound
-              "52.238.78.88/32",     # Office 365 outbound (einzelne IP)
-              "104.47.0.0/17",       # Office 365 outbound
-
-              # Yahoo Mail – SPF: _spf.mail.yahoo.com
-              "98.136.0.0/15",       # Yahoo Mail SMTP
-              "66.196.0.0/19",       # Yahoo Mail SMTP
-              "66.228.160.0/19",     # Yahoo Mail SMTP
-              "74.6.232.0/21",       # Yahoo Mail SMTP
-
-              # Apple iCloud Mail – nur dedizierter Mail-Block (nicht ganzes /8)
-              "17.172.0.0/16",       # Apple iCloud Mail Server
-              "17.178.96.0/19",      # Apple iCloud Mail Server
-              "17.57.144.0/22",      # Apple iCloud Mail Server
-
-              # ProtonMail / Proton (Schweiz) – /24 = präzise
-              "185.70.40.0/24",
-              "185.70.41.0/24",
-
-              # Tutanota / Tuta (Deutschland, Hannover) – Quelle: RIPE (Tutao GmbH, AS207960)
+              "64.18.0.0/20", "64.233.160.0/19", "66.102.0.0/20",
+              "66.249.80.0/20", "72.14.192.0/18", "108.177.8.0/21",
+              "173.194.0.0/16", "207.126.144.0/20", "209.85.128.0/17",
+              "216.58.192.0/19", "216.239.32.0/19",
+              "40.92.0.0/15", "40.107.0.0/16", "52.100.0.0/14",
+              "52.238.78.88/32", "104.47.0.0/17",
+              "98.136.0.0/15", "66.196.0.0/19", "66.228.160.0/19", "74.6.232.0/21",
+              "17.172.0.0/16", "17.178.96.0/19", "17.57.144.0/22",
+              "185.70.40.0/24", "185.70.41.0/24",
               "91.199.219.0/24",
-
-              # ── Google.com & YouTube.com (Serving-Infrastruktur) ──────────
-              # Quellen: Google-published IP ranges (goog.json / cloud.json)
-              # https://www.gstatic.com/ipranges/goog.json
-              "74.125.0.0/16",       # YouTube / Google Video (AS15169)
-              "108.177.0.0/17",      # Google globale Infrastruktur
-              "142.250.0.0/15",      # Google Services (neuere Range)
-              "172.217.0.0/16",      # Google Serving (google.com / youtube.com)
-              "34.64.0.0/10",        # Google Cloud / GFE (Google Front End)
-              "35.184.0.0/13",       # Google Cloud (GFE / YouTube Streaming)
-
-              # mail.com (United Internet) – Quelle: postmaster.mail.com
-              "74.208.4.200", "74.208.4.201",                    # mout.mail.com
-              "74.208.4.220", "74.208.4.221",                    # mout-bounce.mail.com
-              "82.165.159.130", "82.165.159.131",                # mout-xforward.mail.com
-
-              # ── DNS-Resolver (öffentlich, eindeutig) ───────────────────────
-              # Cloudflare 1.1.1.1 – Quelle: developers.cloudflare.com/1.1.1.1
-              "1.1.1.1", "1.0.0.1",          # Standard DNS
-              "1.1.1.2", "1.0.0.2",          # Malware-Blocking
-              "1.1.1.3", "1.0.0.3",          # Malware + Adult-Blocking
-              # OpenDNS / Cisco – bekannte öffentliche Resolver
-              "208.67.222.222", "208.67.220.220",  # OpenDNS standard
-              "208.67.222.123", "208.67.220.123",  # OpenDNS FamilyShield
-              # Google Public DNS (bereits via 8.8.8.8 bekannt)
+              "74.125.0.0/16", "108.177.0.0/17", "142.250.0.0/15",
+              "172.217.0.0/16", "34.64.0.0/10", "35.184.0.0/13",
+              "74.208.4.200", "74.208.4.201", "74.208.4.220", "74.208.4.221",
+              "82.165.159.130", "82.165.159.131",
+              "1.1.1.1", "1.0.0.1", "1.1.1.2", "1.0.0.2", "1.1.1.3", "1.0.0.3",
+              "208.67.222.222", "208.67.220.220", "208.67.222.123", "208.67.220.123",
               "8.8.8.8", "8.8.4.4",
-              # Cloudflare DNS-Resolver Ranges
-              "162.159.36.0/23",   # Cloudflare 1.1.1.1 Anycast
-              "162.159.46.0/23",   # Cloudflare 1.1.1.1 Anycast
-
-              # ── NTP-Zeitserver (eindeutige Eigentümer) ─────────────────────
-              # Cloudflare NTP – time.cloudflare.com
+              "162.159.36.0/23", "162.159.46.0/23",
               "162.159.200.1", "162.159.200.123",
-              # Google NTP – time.google.com / time1-4.google.com
               "216.239.35.0/24",
-              # PTB Braunschweig – Physikalisch-Technische Bundesanstalt (Deutsche Atomuhr)
-              "192.53.103.103",    # ptbtime1.ptb.de
-              "192.53.103.104",    # ptbtime2.ptb.de
-              "192.53.103.108",    # ptbtime3.ptb.de
-              # NIST (US-Bundesbehörde) – time.nist.gov
+              "192.53.103.103", "192.53.103.104", "192.53.103.108",
               "129.6.15.28", "129.6.15.29", "129.6.15.30",
-              # Universitäre NTP-Pool-Server (DE) – pool.ntp.org
-              "130.149.17.21",     # TU Berlin
-              "91.189.94.4",       # Canonical NTP (Ubuntu)
-
-              # ── CDN (Fastly – offizielle Liste via api.fastly.com/public-ip-list) ──
-              "23.235.32.0/20",
-              "43.249.72.0/22",
-              "103.244.50.0/24",
-              "103.245.222.0/23",
-              "103.245.224.0/24",
-              "104.156.80.0/20",
-              "140.248.64.0/18",
-              "140.248.128.0/17",
-              "146.75.0.0/17",
-              "151.101.0.0/16",    # Fastly (Reddit, GitHub, StackOverflow etc.)
-              "157.52.64.0/18",
-              "167.82.0.0/17",
-              "167.82.128.0/20",
-              "167.82.160.0/20",
-              "167.82.224.0/20",
-              "172.111.64.0/18",
-              "185.31.16.0/22",
-              "199.27.72.0/21",
-              "199.232.0.0/16",
-
-              # ── CDN Cloudflare (vollständige offizielle Liste – cloudflare.com/ips-v4) ──
-              "173.245.48.0/20",
-              "103.21.244.0/22",
-              "103.22.200.0/22",
-              "103.31.4.0/22",
-              "141.101.64.0/18",
-              "108.162.192.0/18",
-              "190.93.240.0/20",
-              "188.114.96.0/20",
-              "197.234.240.0/22",
-              "198.41.128.0/17",
-              "162.158.0.0/15",
-              "104.16.0.0/13",
-              "104.24.0.0/14",
-              "172.64.0.0/13",
-              "131.0.72.0/22",
-
-              # ── Betriebssystem-Updates ─────────────────────────────────────
-              # Ubuntu / Canonical – archive.ubuntu.com + security.ubuntu.com
-              # Quelle: ARIN (Canonical Ltd, AS41231)
-              "91.189.88.0/21",    # Canonical Launchpad / archive.ubuntu.com
-              "91.189.91.0/24",    # security.ubuntu.com
-              "185.125.188.0/22",  # Canonical Snap Store / snapcraft.io
-              "185.125.190.0/24",  # Canonical / Ubuntu Updates
-
-              # Windows Update – Microsoft WSUS / update.microsoft.com
-              # Quelle: Microsoft-eigene Ranges (kein breites Azure-Netz)
-              "13.107.4.0/24",     # update.microsoft.com (dedizierter Block)
-              "13.107.5.0/24",     # update.microsoft.com
-              "13.107.9.0/24",     # windowsupdate.com
-              "131.253.33.0/24",   # Microsoft Update CDN
-              "132.245.0.0/16",    # Microsoft Update (Office)
-
-              # ── NVIDIA (eigene IP-Ranges laut ARIN/RIPE) ──────────────────
-              # Quelle: networksdb.io / ARIN-Registrierung (nvidia.com)
-              "72.25.64.0/18",     # NVIDIA-2 (GeForce / Treiber-Download CDN)
-              "24.51.0.0/19",      # NVIDIA-2
-              "66.22.128.0/19",    # NVIDIA (nvidia.com Webserver)
-              "198.100.160.0/20",  # NVIDIA-NSV (update.nvidia.com)
-              "216.228.128.0/17",  # NVIDIA GeForce CDN
-              "23.64.208.0/20",    # Akamai CDN – NVIDIA GeForce Experience Downloads
-
-              # ── AMD (Advanced Micro Devices – ARIN: AMD-Z, AS33619) ────────
-              # Quelle: ARIN-Registrierung (amd.com), registriert seit 1993
-              "165.204.0.0/16",    # AMDNET – amd.com / Treiber-Server
-              "199.189.112.0/22",  # AMD Treiber / Software Update Server
+              "130.149.17.21", "91.189.94.4",
+              "23.235.32.0/20", "43.249.72.0/22", "103.244.50.0/24",
+              "103.245.222.0/23", "103.245.224.0/24", "104.156.80.0/20",
+              "140.248.64.0/18", "140.248.128.0/17", "146.75.0.0/17",
+              "151.101.0.0/16", "157.52.64.0/18", "167.82.0.0/17",
+              "167.82.128.0/20", "167.82.160.0/20", "167.82.224.0/20",
+              "172.111.64.0/18", "185.31.16.0/22", "199.27.72.0/21", "199.232.0.0/16",
+              "173.245.48.0/20", "103.21.244.0/22", "103.22.200.0/22",
+              "103.31.4.0/22", "141.101.64.0/18", "108.162.192.0/18",
+              "190.93.240.0/20", "188.114.96.0/20", "197.234.240.0/22",
+              "198.41.128.0/17", "162.158.0.0/15", "104.16.0.0/13",
+              "104.24.0.0/14", "172.64.0.0/13", "131.0.72.0/22",
+              "91.189.88.0/21", "91.189.91.0/24", "185.125.188.0/22", "185.125.190.0/24",
+              "13.107.4.0/24", "13.107.5.0/24", "13.107.9.0/24",
+              "131.253.33.0/24", "132.245.0.0/16",
+              "72.25.64.0/18", "24.51.0.0/19", "66.22.128.0/19",
+              "198.100.160.0/20", "216.228.128.0/17", "23.64.208.0/20",
+              "165.204.0.0/16", "199.189.112.0/22",
           ]
 
           whitelist_networks = []
           for cidr in WHITELIST_CIDRS:
               try:
                   whitelist_networks.append(ipaddress.ip_network(cidr, strict=False))
-              except:
+              except Exception:
                   pass
 
           def is_whitelisted_entry(value):
@@ -330,7 +176,7 @@ jobs:
                       return False
                   if '/' in candidate:
                       net = ipaddress.ip_network(candidate, strict=False)
-                      return any(net.overlaps(whitelisted) for whitelisted in whitelist_networks)
+                      return any(net.overlaps(w) for w in whitelist_networks)
                   addr = ipaddress.ip_address(candidate)
                   return any(addr in net for net in whitelist_networks)
               except Exception:
@@ -345,88 +191,78 @@ jobs:
           with open(BLACKLIST) as f:
               lines_raw = f.readlines()
 
-          blacklist_ips = []
-          for line in lines_raw:
-              ip = line.strip()
-              if ip and not ip.startswith("#"):
-                  blacklist_ips.append(ip)
-
+          blacklist_ips = [l.strip() for l in lines_raw if l.strip() and not l.startswith("#")]
           print(f"\nBlacklist geladen: {len(blacklist_ips)} IPs")
           print("Prüfe auf False Positives...")
 
-          # ── False-Positive-Erkennung (nur Whitelist-CIDR) ────────────────
-          false_positives   = []
-          whitelist_hits    = []
-          reverse_dns_legit = []
+          false_positives = []
+          whitelist_hits  = []
 
-          print(f"Prüfe {len(blacklist_ips)} IPs gegen Whitelist...")
-          for i, ip in enumerate(blacklist_ips):
+          for ip in blacklist_ips:
               if is_whitelisted_entry(ip):
                   whitelist_hits.append((ip, "Bekannte legitime IP-Range (CDN/Cloud)"))
                   false_positives.append(ip)
 
           print(f"  Fertig. {len(false_positives)} False Positives gefunden.")
 
-          print(f"\nFalse Positives gefunden: {len(false_positives)}")
-          print(f"  Whitelist-Treffer:    {len(whitelist_hits)}")
-          print(f"  Reverse-DNS-Legit:    {len(reverse_dns_legit)}")
-
-          # ── False Positives aus Blacklist entfernen ───────────────────────
+          # ── FIX #1/#4: Nicht mehr combined_threat_blacklist_ipv4.txt direkt schreiben.
+          # Stattdessen false_positives_set.json speichern – update_combined_blacklist
+          # liest diese Datei beim nächsten Run und filtert die IPs beim Ingest heraus.
+          # Vorteile:
+          #   1. Keine Race-Condition mehr mit combined (der als einzige Quelle der
+          #      Wahrheit für combined_threat_blacklist_ipv4.txt gilt).
+          #   2. HQ-IPs werden sauber behandelt: combined entscheidet beim nächsten
+          #      Lauf ob ein HQ-Feed die IP erneut meldet – kein ewiger Add/Remove-Zyklus.
           fp_set = set(false_positives)
-          cleaned_lines = []
-          removed_count = 0
+          FP_JSON = "false_positives_set.json"
 
-          for line in lines_raw:
-              ip = line.strip()
-              if ip and not ip.startswith("#") and ip in fp_set:
-                  removed_count += 1
-                  continue  # rauslassen
-              cleaned_lines.append(line)
+          existing_fp = set()
+          if os.path.exists(FP_JSON):
+              try:
+                  with open(FP_JSON) as f:
+                      data = json.load(f)
+                  existing_fp = set(data.get("ips", []))
+              except Exception:
+                  existing_fp = set()
 
-          if removed_count > 0:
-              with open(BLACKLIST, "w", encoding="utf-8") as f:
-                  f.writelines(cleaned_lines)
-              print(f"Blacklist bereinigt: {removed_count} False Positives entfernt")
+          merged_fp = existing_fp | fp_set
+          with open(FP_JSON, "w", encoding="utf-8") as f:
+              json.dump({
+                  "updated":  now_str,
+                  "count":    len(merged_fp),
+                  "ips":      sorted(merged_fp),
+              }, f, indent=2)
+          print(f"false_positives_set.json: {len(merged_fp)} IPs gespeichert "
+                f"({len(fp_set)} neu, {len(existing_fp)} bereits vorhanden)")
 
-              # ── seen_db ebenfalls bereinigen ──────────────────────────────
-              # Ohne diesen Schritt trägt combined beim nächsten Lauf die
-              # Whitelist-IPs sofort wieder ein → Bereinigung wäre wirkungslos.
-              # FIX Bug2: HQ-IPs NICHT aus seen_db löschen!
-              # HQ-Feeds (Feodo, Talos etc.) melden diese IPs weiterhin → combined
-              # würde sie im nächsten Lauf sofort wieder eintragen (Lösch-Reinsert-Zyklus).
-              # Stattdessen: HQ-IPs bleiben in seen_db, werden aber aus der Blacklist-Datei
-              # entfernt – combined schreibt sie beim nächsten Lauf ggf. wieder rein,
-              # was korrekt ist wenn der HQ-Feed sie aktiv meldet.
-              DB_FILE = "seen_db.json"
-              if os.path.exists(DB_FILE):
-                  import json
-                  try:
-                      with open(DB_FILE) as f:
-                          db = json.load(f)
-                      db_removed = 0
-                      db_skipped_hq = 0
-                      for ip in fp_set:
-                          if ip in db:
-                              if db[ip].get("hq", False):
-                                  db_skipped_hq += 1
-                                  print(f"  SKIP seen_db-Löschung für {ip} (HQ-IP)")
-                                  continue
-                              del db[ip]
-                              db_removed += 1
-                      if db_removed > 0:
-                          with open(DB_FILE, "w") as f:
-                              json.dump(db, f, separators=(",", ":"))
-                          print(f"seen_db bereinigt: {db_removed} False Positives entfernt"
-                                f" | {db_skipped_hq} HQ-IPs behalten")
-                  except Exception as e:
-                      print(f"seen_db konnte nicht bereinigt werden: {e}")
-          else:
-              print("Keine False Positives gefunden")
+          # ── seen_db ebenfalls bereinigen (alle FP-IPs, inkl. HQ) ─────────
+          # FIX #4: HQ-IPs werden jetzt AUCH aus seen_db entfernt.
+          # Begründung: combined trägt sie beim nächsten Lauf korrekt wieder ein,
+          # falls der HQ-Feed sie noch aktiv meldet. Ohne diesen Schritt entsteht
+          # ein ewiger 3h-Zyklus: FP-Checker entfernt aus Datei → combined re-added
+          # aus seen_db → FP-Checker entfernt erneut.
+          DB_FILE = "seen_db.json"
+          if os.path.exists(DB_FILE):
+              try:
+                  with open(DB_FILE) as f:
+                      db = json.load(f)
+                  db_removed = 0
+                  for ip in fp_set:
+                      if ip in db:
+                          del db[ip]
+                          db_removed += 1
+                  if db_removed > 0:
+                      with open(DB_FILE, "w", encoding="utf-8") as f:
+                          json.dump(db, f, separators=(",", ":"))
+                      print(f"seen_db bereinigt: {db_removed} False Positives entfernt "
+                            f"(inkl. HQ-IPs – combined re-addiert sie falls Feed noch aktiv)")
+              except Exception as e:
+                  print(f"seen_db konnte nicht bereinigt werden: {e}")
 
-          # ── False Positive Liste speichern ────────────────────────────────
+          # ── False Positive Log ────────────────────────────────────────────
           with open("false_positives_log.txt", "a", encoding="utf-8") as f:
-              f.write(f"\n# Scan: {now_str} – {removed_count} entfernt\n")
-              for ip in false_positives:
+              f.write(f"\n# Scan: {now_str} – {len(fp_set)} neue FPs\n")
+              for ip in sorted(fp_set):
                   f.write(f"{ip}\n")
 
           # ── Report ────────────────────────────────────────────────────────
@@ -435,15 +271,17 @@ jobs:
           lines.append(f"**Aktualisiert:** {now_str}\n")
           lines.append("---")
           lines.append("## Ergebnis\n")
-          lines.append(f"| Metrik | Wert |")
-          lines.append(f"|---|---|")
+          lines.append("| Metrik | Wert |")
+          lines.append("|---|---|")
           lines.append(f"| Geprüfte IPs (gesamt) | {len(blacklist_ips)} |")
-          lines.append(f"| Whitelist-Treffer | **{len(whitelist_hits)}** |")
-          lines.append(f"| Gesamt entfernt | **{removed_count}** |")
+          lines.append(f"| Whitelist-Treffer (dieser Run) | **{len(whitelist_hits)}** |")
+          lines.append(f"| FP-Set gesamt (kumuliert) | **{len(merged_fp)}** |")
+          lines.append("")
+          lines.append("> ℹ️ FPs werden nicht mehr direkt aus `combined_threat_blacklist_ipv4.txt` entfernt.")
+          lines.append("> `false_positives_set.json` wird beim nächsten `update_combined_blacklist`-Lauf angewendet.")
 
           if whitelist_hits:
-              lines.append("")
-              lines.append("## Whitelist-Treffer\n")
+              lines.append("\n## Whitelist-Treffer\n")
               lines.append("| IP | Grund |")
               lines.append("|---|---|")
               for ip, reason in whitelist_hits[:20]:
@@ -466,8 +304,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add false_positives_log.txt false_positive_report.md combined_threat_blacklist_ipv4.txt
-          git diff --staged --quiet || git commit -m "False Positive Check abgeschlossen [$(date -u '+%Y-%m-%d %H:%M') UTC]"
+          # combined_threat_blacklist_ipv4.txt wird NICHT mehr durch diesen Workflow
+          # verändert – nur noch false_positives_set.json, Log und Report.
+          git add false_positives_log.txt false_positive_report.md false_positives_set.json
+          git diff --staged --quiet || git commit -m "False Positive Check: $(date -u '+%Y-%m-%d %H:%M') UTC"
           for attempt in 1 2 3 4 5; do
             echo "Push-Versuch $attempt..."
             git fetch origin ${GITHUB_REF_NAME}
@@ -478,9 +318,9 @@ jobs:
               fi
             else
               git checkout --theirs false_positives_log.txt false_positive_report.md \
-                combined_threat_blacklist_ipv4.txt 2>/dev/null || true
+                false_positives_set.json 2>/dev/null || true
               git add false_positives_log.txt false_positive_report.md \
-                combined_threat_blacklist_ipv4.txt 2>/dev/null || true
+                false_positives_set.json 2>/dev/null || true
               GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
             fi
             sleep $((attempt * 3))

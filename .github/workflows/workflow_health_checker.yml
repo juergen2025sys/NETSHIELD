@@ -32,6 +32,10 @@ jobs:
           persist-credentials: true
 
       - name: Check Python Code in all Workflow Files
+        env:
+          # FIX #10: Workflow-Dateiname aus github-Kontext ableiten statt hartcodiert.
+          # Verhindert stilles Fehlverhalten bei Umbenennung der Datei.
+          WORKFLOW_SELF: ${{ github.workflow_ref }}
         run: |
           python3 << 'EOF'
           import re, textwrap, os, json, ast, sys
@@ -57,9 +61,13 @@ jobs:
           # ── Check 1: Cron-Kollisionen & doppelte Namen ────────────────────
           # Cron-Regex matcht nur echte Cron-Expressions (Ziffern, *, /, ,)
           # und explizit NICHT den eigenen Dateinamen (verhindert Self-Match)
-          # os.path.basename(__file__) funktioniert in einem python3-Heredoc nicht (kein Dateiname).
-          # Deshalb direkt als Konstante. Muss bei Umbenennung der Datei angepasst werden.
-          SELF = "workflow_health_checker.yml"
+          # FIX #10: SELF aus WORKFLOW_SELF-Env-Var ableiten.
+          # Format von github.workflow_ref: "owner/repo/.github/workflows/name.yml@refs/heads/main"
+          import os as _os
+          _wf_ref = _os.environ.get("WORKFLOW_SELF", "")
+          _wf_part = _wf_ref.split(".github/workflows/")[-1].split("@")[0].strip()
+          SELF = _wf_part if _wf_part.endswith(".yml") else "workflow_health_checker.yml"
+          print(f"SELF erkannt als: {SELF}")
           required_protection = {
               "update_combined_blacklist.yml": ["is_protected_entry", "192.168.14.0/24", "192.168.13.0/24"],
               "update_confidence_blacklist.yml": ["is_protected_entry", "192.168.14.0/24", "192.168.13.0/24"],

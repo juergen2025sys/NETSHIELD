@@ -231,9 +231,18 @@ jobs:
               f.write("\n".join(lines))
           print("feed_health_report.md geschrieben")
 
-          # JSON für andere Workflows
+          # FIX #9: failed_feeds und warned_feeds im JSON – damit netshield_report_generator
+          # kritische Feed-Ausfälle namentlich im Dashboard anzeigen kann.
+          failed_feeds = [r["name"] for r in results if not r["ok"]]
+          warned_feeds = [r["name"] for r in results if r["ok"] and not r["has_ips"]]
           with open("feed_health_status.json", "w", encoding="utf-8") as f:
-              json.dump({"updated": now_str, "summary": {"ok": ok_count, "warn": warn_count, "error": err_count}, "feeds": results}, f, indent=2)
+              json.dump({
+                  "updated": now_str,
+                  "summary": {"ok": ok_count, "warn": warn_count, "error": err_count},
+                  "failed_feeds": failed_feeds,
+                  "warned_feeds": warned_feeds,
+                  "feeds": results,
+              }, f, indent=2)
           EOF
 
       - name: Commit
