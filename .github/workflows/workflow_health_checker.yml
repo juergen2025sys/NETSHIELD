@@ -279,7 +279,7 @@ jobs:
               if fname == "false_positive_checker.yml":
                   save_keys = re.findall(r'key:[ \t]*(netshield-seen-db-[^ \t\r\n$]+)', content)
                   for _key in save_keys:
-                      if ("${" + "{") in _key and "fp-" not in _key:  # avoid YAML ${{ parse
+                      if ("${" + "{") in _key and "fp-" not in _key:  # avoid YAML expression parse
                           msg = (f"Cache Save-Key '{_key.strip()}' verwendet nicht den "
                                  f"fp-Prefix – FP-Checker würde Combined-Cache überschreiben "
                                  f"(Race-Condition)")
