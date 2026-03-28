@@ -34,7 +34,7 @@ jobs:
       - name: Fetch Honeypot IPs
         run: |
           python3 << 'EOF'
-          import urllib.request, re, os, ipaddress
+          import urllib.request, re, os, sys, ipaddress
           from datetime import datetime, timezone
 
           now     = datetime.now(timezone.utc)
@@ -161,7 +161,6 @@ jobs:
 
           # ── Leerungsschutz ────────────────────────────────────────────────
           # FIX LS3: sys.exit(1) statt sys.exit(0) + GitHub Warning Annotation.
-          import sys
           MIN_ENTRIES = 500
           if len(final_ips) < MIN_ENTRIES:
               msg = f"Nur {len(final_ips)} IPs (< {MIN_ENTRIES}) – behalte bestehende honeypot_ips.txt"

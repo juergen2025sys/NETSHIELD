@@ -257,7 +257,8 @@ jobs:
               _guarded_files = {
                   "honeydb_monitor.yml", "honeypot_monitor.yml",
                   "update_bot_detector.yml", "update-blocklist.yml",
-                  "update_combined_blacklist.yml",
+                  "update_combined_blacklist.yml", "geo_tagger.yml",
+                  "asn_reputation_scorer.yml", "cve_to_ip_mapper.yml",
               }
               if fname in _guarded_files:
                   has_warning_annot = f"::warning file={fname}::" in content
@@ -277,10 +278,22 @@ jobs:
               # überschreibt er den frisch generierten Combined-Cache und
               # erzeugt eine Race-Condition.
               if fname == "false_positive_checker.yml":
-                  save_keys = re.findall(r'key:[ \t]*(netshield-seen-db-[^ \t\r\n$]+)', content)
-                  for _key in save_keys:
-                      if ("${" + "{") in _key and "fp-" not in _key:  # avoid YAML expression parse
-                          msg = (f"Cache Save-Key '{_key.strip()}' verwendet nicht den "
+                  # FIX CHK12: Der alte Check verwendete ("${" + "{") um den YAML-Parser
+                  # zu umgehen, prüfte damit aber nur ob "${{" im Key-String steht – was
+                  # bei normalen Schlüsseln nie der Fall ist. Der Check war deshalb
+                  # dauerhaft wirkungslos (kein Treffer je möglich).
+                  # Korrektur: Alle "key:"-Zeilen im Cache-Save-Kontext via Regex extrahieren
+                  # und prüfen ob der Key den fp-Prefix enthält. Der YAML-Ausdruck
+                  # "${{ github.run_id }}" wird korrekt als Teil des Key-Strings erkannt.
+                  save_blocks = re.findall(
+                      r'- name: Save seen_db Cache.*?key:\s*([^\n]+)',
+                      content, re.DOTALL
+                  )
+                  for _key in save_blocks:
+                      _key = _key.strip()
+                      # Key muss fp- enthalten (z.B. netshield-seen-db-fp-${{ github.run_id }})
+                      if "netshield-seen-db-" in _key and "fp-" not in _key:
+                          msg = (f"Cache Save-Key '{_key}' verwendet nicht den "
                                  f"fp-Prefix – FP-Checker würde Combined-Cache überschreiben "
                                  f"(Race-Condition)")
                           file_errors.append(msg)

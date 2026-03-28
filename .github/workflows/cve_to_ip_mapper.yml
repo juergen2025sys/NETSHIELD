@@ -36,6 +36,7 @@ jobs:
           import re
           import json
           import os
+          import sys
           import time
           import ipaddress
           from datetime import datetime, timezone
@@ -260,6 +261,17 @@ jobs:
 
           new_ips = all_exploit_ips - existing
           final   = sorted(all_exploit_ips, key=sort_key)
+
+          # ── Leerungsschutz ────────────────────────────────────────────────
+          # Wenn alle 8 CVE-Feeds fehlgeschlagen sind, liefert final 0 Einträge.
+          # In diesem Fall bestehende Datei NICHT überschreiben.
+          MIN_CVE_ENTRIES = 100
+          if len(final) < MIN_CVE_ENTRIES:
+              msg = (f"Nur {len(final)} CVE-IPs (< {MIN_CVE_ENTRIES}) – "
+                     f"behalte bestehende {CVE_FILE}")
+              print(f"::warning file=cve_to_ip_mapper.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(1)
 
           with open(CVE_FILE, "w", encoding="utf-8") as f:
               f.write(f"# CVE Exploit & C2 IP Blocklist – NETSHIELD\n")

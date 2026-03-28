@@ -43,7 +43,7 @@ jobs:
         with:
           path: seen_db.json
           # FIX: restore-keys matcht jetzt alle Varianten die Combined schreibt
-          # Combined speichert: netshield-seen-db-v1-<run_id>
+          # Combined speichert: netshield-seen-db-v2-<run_id>
           # Durch restore-keys holen wir immer den neuesten verfügbaren Cache
           key: netshield-seen-db-v2-${{ github.run_id }}
           restore-keys: |

@@ -192,6 +192,18 @@ jobs:
           results.sort(key=lambda x: x["matches"], reverse=True)
           total_matched = sum(r["matches"] for r in results)
 
+          # ── Leerungsschutz ────────────────────────────────────────────────
+          # Wenn ScaniteX nicht erreichbar war und alle Länder-Requests fehlschlugen,
+          # sind total_matched=0 und ip_to_country leer → keine Ausgabe schreiben.
+          import sys
+          MIN_GEO_MATCHED = 100
+          if total_matched < MIN_GEO_MATCHED:
+              msg = (f"Nur {total_matched} Geo-Treffer (< {MIN_GEO_MATCHED}) – "
+                     f"behalte bestehende blacklist_geo_enriched.json")
+              print(f"::warning file=geo_tagger.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(1)
+
           # ── blacklist_geo_enriched.json ───────────────────────────────────
           with open("blacklist_geo_enriched.json", "w", encoding="utf-8") as f:
               json.dump({

@@ -42,6 +42,7 @@ jobs:
           import json
           import os
           import sys
+          import time
           from datetime import datetime, timezone, timedelta
 
           now     = datetime.now(timezone.utc)
@@ -229,7 +230,6 @@ jobs:
           # FIX #11 / FIX LS2: MIN_ENTRIES auf 500 erhöht (entspricht unterer Normalwert
           # 500–5000 IPs). sys.exit(1) statt sys.exit(0) damit GitHub Actions den
           # Step als fehlgeschlagen markiert und im UI sichtbar wird.
-          import sys
           MIN_ENTRIES = 500
           if len(final_ips) < MIN_ENTRIES:
               msg = f"Nur {len(final_ips)} HoneyDB-IPs (< {MIN_ENTRIES}) – behalte bestehende Datei"

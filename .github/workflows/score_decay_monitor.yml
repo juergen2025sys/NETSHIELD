@@ -48,7 +48,7 @@ jobs:
       - name: Run Score Decay Analysis
         run: |
           python3 << 'EOF'
-          import json, os, re
+          import json, os, re, sys
           from datetime import datetime, timezone, timedelta
           from collections import defaultdict
 
@@ -62,7 +62,7 @@ jobs:
               print("FEHLER: seen_db.json nicht gefunden")
               with open("score_decay_report.md", "w", encoding="utf-8") as f:
                   f.write("# Score Decay Monitor\n\n*seen_db.json nicht gefunden.*\n")
-              exit(0)
+              sys.exit(0)
 
           with open(DB_FILE) as f:
               try:
@@ -71,7 +71,7 @@ jobs:
                   print(f"FEHLER: seen_db.json ist korrupt oder nicht lesbar: {e}")
                   with open("score_decay_report.md", "w", encoding="utf-8") as rf:
                       rf.write(f"# Score Decay Monitor\n\n*seen_db.json konnte nicht gelesen werden: {e}*\n")
-                  exit(0)
+                  sys.exit(0)
           print(f"seen_db geladen: {len(db)} IPs")
 
           # FIX AGE1: Cache-Alter prüfen – Score Decay läuft wöchentlich (So 07:00).

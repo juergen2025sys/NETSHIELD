@@ -345,12 +345,11 @@ jobs:
 
           # FIX #14: Elapsed-time Guard – Abbruch bei >15min damit der Commit-Schritt
           # noch innerhalb des 20min Job-Timeouts ausgeführt werden kann.
-          import time as _time
-          _loop_start = _time.monotonic()
+          _loop_start = time.monotonic()
           MAX_LOOP_SECONDS = 900  # 15 Minuten
 
           for i, cc in enumerate(countries):
-              if _time.monotonic() - _loop_start > MAX_LOOP_SECONDS:
+              if time.monotonic() - _loop_start > MAX_LOOP_SECONDS:
                   print(f"WARNUNG: Elapsed-time Guard ausgelöst nach {i} Ländern – "
                         f"Rest wird beim nächsten Run geladen.")
                   break

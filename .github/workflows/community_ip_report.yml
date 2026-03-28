@@ -68,8 +68,7 @@ jobs:
           MAX_REPORTS_PER_USER = 5
           today_count = 0
           if os.path.exists(REPORT_FILE):
-              import re as _re
-              _date_re = _re.compile(r"^\d{4}-\d{2}-\d{2}$")
+              _date_re = re.compile(r"^\d{4}-\d{2}-\d{2}$")
               with open(REPORT_FILE) as f:
                   for line in f:
                       # FIX #13: Datum-Format validieren bevor verglichen wird.
