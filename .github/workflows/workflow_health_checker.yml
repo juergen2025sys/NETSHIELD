@@ -221,6 +221,93 @@ jobs:
                   file_warnings.append(msg)
                   warnings.append({"file": fname, "check": "Concurrency fehlt", "detail": msg})
 
+              # ── Check 10: sys.exit(0) im Leerungsschutz ──────────────────
+              # Leerungsschutz-Exits müssen sys.exit(1) verwenden damit GitHub
+              # Actions den Step als fehlgeschlagen markiert. exit(0) versteckt
+              # das Problem still.
+              # AUSNAHME: exit(0) ist korrekt bei Feed-Netzwerkfehlern
+              # ("nicht erreichbar"), User-Fehlern (community_ip_report) und
+              # fehlenden Konfigurationsdateien.
+              _leer_kws  = {"MIN_ENTRIES", "MIN_ABUSEIPDB", "Leerungsschutz"}
+              _ok_kws    = {"nicht erreichbar", "Versuchen fehlgeschlagen",
+                            "RATE_LIMITED", "NO_IP_FOUND", "INVALID_IP",
+                            "WORKFLOWS_DIR", "korrupt", "nicht lesbar",
+                            "FP-Liste", "False-Positive"}
+              for _bi, _blk in enumerate(blocks):
+                  _lines = _blk.splitlines()
+                  for _j, _ln in enumerate(_lines):
+                      _s = _ln.strip()
+                      if _s.startswith("#"):
+                          continue
+                      if "sys.exit(0)" in _s or _s == "exit(0)":
+                          _ctx = " ".join(_lines[max(0,_j-8):_j])
+                          _is_leer = any(kw in _ctx for kw in _leer_kws)
+                          _is_ok   = any(kw in _ctx for kw in _ok_kws)
+                          if _is_leer and not _is_ok:
+                              msg = (f"Block {_bi} L~{_j}: sys.exit(0) im Leerungsschutz – "
+                                     f"soll sys.exit(1) sein damit GH-UI Fehler anzeigt")
+                              file_errors.append(msg)
+                              errors.append({"file": fname, "check": "exit(0) im Leerungsschutz",
+                                             "detail": msg})
+
+              # ── Check 11: ::warning Annotation vor Leerungsschutz-exit ───
+              # Jeder Leerungsschutz-Exit sollte vorher eine GH-Annotation
+              # print(f"::warning file=...::...") ausgeben damit das Problem
+              # im GitHub-Actions-UI sichtbar wird ohne den Log zu öffnen.
+              _guarded_files = {
+                  "honeydb_monitor.yml", "honeypot_monitor.yml",
+                  "update_bot_detector.yml", "update-blocklist.yml",
+                  "update_combined_blacklist.yml",
+              }
+              if fname in _guarded_files:
+                  has_warning_annot = f"::warning file={fname}::" in content
+                  has_leer          = any(kw in content for kw in _leer_kws)
+                  if has_leer and not has_warning_annot:
+                      msg = (f"Leerungsschutz vorhanden aber keine "
+                             f"'::warning file={fname}::' Annotation – "
+                             f"Ausfall nur im Job-Log sichtbar")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname,
+                                       "check": "GH Warning Annotation fehlt",
+                                       "detail": msg})
+
+              # ── Check 12: false_positive_checker Cache-Key ────────────────
+              # Der FP-Checker muss seinen Cache-Save in einen eigenen Slot
+              # (netshield-seen-db-fp-) schreiben, NICHT in v2. Andernfalls
+              # überschreibt er den frisch generierten Combined-Cache und
+              # erzeugt eine Race-Condition.
+              if fname == "false_positive_checker.yml":
+                  save_keys = re.findall(r'key:[ \t]*(netshield-seen-db-[^ \t\r\n$]+)', content)
+                  for _key in save_keys:
+                      if "${{" in _key and "fp-" not in _key:
+                          msg = (f"Cache Save-Key '{_key.strip()}' verwendet nicht den "
+                                 f"fp-Prefix – FP-Checker würde Combined-Cache überschreiben "
+                                 f"(Race-Condition)")
+                          file_errors.append(msg)
+                          errors.append({"file": fname,
+                                         "check": "Cache-Key Race-Condition",
+                                         "detail": msg})
+
+              # ── Check 13: MIN_ENTRIES-Schwellen zu niedrig ────────────────
+              # Bekannte Mindestwerte aus der NETSHIELD-Architektur:
+              #   honeydb_monitor:  >= 500  (liefert normalerweise 500-5000 IPs)
+              #   update-blocklist: >= 500000 (hackinggate liefert ~3.5M Ranges)
+              _min_thresholds = {
+                  "honeydb_monitor.yml":  500,
+                  "update-blocklist.yml": 500_000,
+              }
+              if fname in _min_thresholds:
+                  for _m in re.finditer(r"MIN_ENTRIES\s*=\s*([\d_]+)", content):
+                      _val = int(_m.group(1).replace("_", ""))
+                      _expected = _min_thresholds[fname]
+                      if _val < _expected:
+                          msg = (f"MIN_ENTRIES={_val:,} ist zu niedrig "
+                                 f"(Minimum für {fname}: {_expected:,})")
+                          file_warnings.append(msg)
+                          warnings.append({"file": fname,
+                                           "check": "MIN_ENTRIES zu niedrig",
+                                           "detail": msg})
+
               results[fname] = {
                   "blocks":   len(blocks),
                   "errors":   file_errors,
