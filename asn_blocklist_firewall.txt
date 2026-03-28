@@ -1,24 +1,24 @@
 # ASN Reputation Blocklist – NETSHIELD
-# Aktualisiert: 2026-03-27 04:39 UTC
+# Aktualisiert: 2026-03-28 04:26 UTC
 # Format: AS<Nummer> # Score | BL-Hits | Organisation | Land
 # Nur ASNs mit Score >= 50 (base_score + BL-Treffer + DROP/ET-Bonus)
 
-AS14061  # Score:110 | BL-Hits:208968 | DigitalOcean | US
-AS51167  # Score:103 | BL-Hits:12161 | Contabo | DE
-AS132203  # Score:101 | BL-Hits:23044 | Tencent Cloud | CN
-AS45102  # Score:95 | BL-Hits:33466 | Alibaba Cloud | CN
-AS20473  # Score:95 | BL-Hits:17607 | Vultr | US
-AS22612  # Score:90 | BL-Hits:1622 | Namecheap | US
-AS12389  # Score:85 | BL-Hits:14304 | Rostelecom | RU
-AS16276  # Score:85 | BL-Hits:39368 | OVH | FR
-AS31898  # Score:85 | BL-Hits:25139 | Oracle Cloud | US
-AS16509  # Score:85 | BL-Hits:295473 | Amazon AWS | US
-AS12876  # Score:80 | BL-Hits:8347 | Scaleway | FR
-AS24940  # Score:78 | BL-Hits:23070 | Hetzner | DE
-AS47583  # Score:78 | BL-Hits:2846 | Hostinger | LT
-AS63949  # Score:75 | BL-Hits:11018 | Linode (Akamai) | US
-AS8560  # Score:75 | BL-Hits:3244 | IONOS | DE
-AS26496  # Score:65 | BL-Hits:1947 | GoDaddy | US
-AS46606  # Score:60 | BL-Hits:911 | Bluehost (Unified Layer) | US
-AS8075  # Score:58 | BL-Hits:37244 | Microsoft Azure | US
-AS36351  # Score:50 | BL-Hits:1203 | IBM Cloud | US
+AS14061  # Score:110 | BL-Hits:210604 | DigitalOcean | US
+AS132203  # Score:104 | BL-Hits:23078 | Tencent Cloud | CN
+AS51167  # Score:103 | BL-Hits:12226 | Contabo | DE
+AS45102  # Score:95 | BL-Hits:33561 | Alibaba Cloud | CN
+AS20473  # Score:95 | BL-Hits:17689 | Vultr | US
+AS22612  # Score:90 | BL-Hits:1625 | Namecheap | US
+AS12389  # Score:85 | BL-Hits:14383 | Rostelecom | RU
+AS16276  # Score:85 | BL-Hits:39585 | OVH | FR
+AS31898  # Score:85 | BL-Hits:25193 | Oracle Cloud | US
+AS16509  # Score:85 | BL-Hits:296243 | Amazon AWS | US
+AS12876  # Score:80 | BL-Hits:8394 | Scaleway | FR
+AS24940  # Score:78 | BL-Hits:23140 | Hetzner | DE
+AS47583  # Score:78 | BL-Hits:2853 | Hostinger | LT
+AS63949  # Score:75 | BL-Hits:11128 | Linode (Akamai) | US
+AS8560  # Score:75 | BL-Hits:3258 | IONOS | DE
+AS26496  # Score:65 | BL-Hits:1948 | GoDaddy | US
+AS46606  # Score:60 | BL-Hits:916 | Bluehost (Unified Layer) | US
+AS8075  # Score:55 | BL-Hits:37720 | Microsoft Azure | US
+AS36351  # Score:50 | BL-Hits:1206 | IBM Cloud | US
