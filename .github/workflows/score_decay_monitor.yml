@@ -32,6 +32,7 @@ jobs:
           persist-credentials: true
 
       - name: Restore seen_db Cache (read-only)
+        id: cache-restore
         uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         # actions/cache/restore statt actions/cache: führt KEINEN Post-Job-Save durch.
         # Score Decay liest seen_db ausschließlich lesend – ein Cache-Write würde
@@ -45,6 +46,17 @@ jobs:
             netshield-seen-db-v1-
             netshield-seen-db-
 
+      # FIX: seen_db.json auch direkt aus dem Repo lesen falls Cache-Miss.
+      # Das Repo enthält seen_db.json nach jedem combined-Lauf als committete Datei.
+      - name: Fallback – seen_db.json aus Repo verwenden
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: |
+          if [ -f seen_db.json ]; then
+            echo "Cache-Miss – verwende seen_db.json aus Checkout ($(wc -c < seen_db.json) Bytes)"
+          else
+            echo "::warning file=score_decay_monitor.yml::seen_db.json weder im Cache noch im Repo gefunden – Report wird mit leerer DB erstellt"
+          fi
+
       - name: Run Score Decay Analysis
         run: |
           python3 << 'EOF'
@@ -55,23 +67,35 @@ jobs:
           now     = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
 
-          DB_FILE   = "seen_db.json"
-
+          DB_FILE = "seen_db.json"
 
           if not os.path.exists(DB_FILE):
-              print("FEHLER: seen_db.json nicht gefunden")
+              msg = "seen_db.json nicht gefunden (weder Cache noch Repo)"
+              print(f"::warning file=score_decay_monitor.yml::{msg}")
+              print(f"WARNUNG: {msg}")
               with open("score_decay_report.md", "w", encoding="utf-8") as f:
-                  f.write("# Score Decay Monitor\n\n*seen_db.json nicht gefunden.*\n")
-              sys.exit(0)
+                  f.write(f"# Score Decay Monitor\n\n*{msg}*\n\n"
+                          f"*Generiert: {now_str}*\n")
+              with open("score_decay_log.txt", "w", encoding="utf-8") as f:
+                  f.write(f"# Score Decay Log | {now_str}\n# {msg}\n")
+              # FIX: sys.exit(1) statt sys.exit(0) damit GitHub den Step als
+              # fehlgeschlagen markiert und im Actions-UI sichtbar wird.
+              sys.exit(1)
 
           with open(DB_FILE) as f:
               try:
                   db = json.load(f)
               except Exception as e:
-                  print(f"FEHLER: seen_db.json ist korrupt oder nicht lesbar: {e}")
+                  msg = f"seen_db.json ist korrupt oder nicht lesbar: {e}"
+                  print(f"::warning file=score_decay_monitor.yml::{msg}")
+                  print(f"FEHLER: {msg}")
                   with open("score_decay_report.md", "w", encoding="utf-8") as rf:
-                      rf.write(f"# Score Decay Monitor\n\n*seen_db.json konnte nicht gelesen werden: {e}*\n")
-                  sys.exit(0)
+                      rf.write(f"# Score Decay Monitor\n\n*{msg}*\n\n"
+                               f"*Generiert: {now_str}*\n")
+                  with open("score_decay_log.txt", "w", encoding="utf-8") as f:
+                      f.write(f"# Score Decay Log | {now_str}\n# {msg}\n")
+                  sys.exit(1)
+
           print(f"seen_db geladen: {len(db)} IPs")
 
           # FIX AGE1: Cache-Alter prüfen – Score Decay läuft wöchentlich (So 07:00).
@@ -193,6 +217,9 @@ jobs:
       # Ein Write würde den neueren Stand des letzten Combined-Laufs überschreiben.
 
       - name: Commit
+        # FIX: Auch bei sys.exit(1) im Python-Step soll der Commit-Step laufen,
+        # damit der Fehler-Report (score_decay_report.md) committet wird.
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
