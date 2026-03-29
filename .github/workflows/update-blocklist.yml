@@ -330,12 +330,12 @@ jobs:
                           return None, e
                       # Transiente Serverfehler → Retry
                       if e.code in (429, 500, 502, 503, 504) and attempt < retries:
-                          time.sleep(attempt * 2)
+                          time.sleep(attempt * 5)  # FIX RL1: war *2 – zu kurz bei Rate-Limit
                       else:
                           return None, e
                   except Exception as e:
                       if attempt < retries:
-                          time.sleep(attempt * 2)
+                          time.sleep(attempt * 5)  # FIX RL1: war *2
                       else:
                           return None, e
               return None, Exception("Unbekannter Fehler")
@@ -382,7 +382,7 @@ jobs:
                   print(f"[{i+1}/{len(countries)}] {cc} ({name}) → ERROR: {err}")
                   errors.append(cc)
 
-              time.sleep(0.1)
+              time.sleep(0.5)  # FIX RL1: war 0.1 – zu schnell für hackinggate (Rate-Limit)
 
           # ── Leerungsschutz ────────────────────────────────────────────────
           # FIX LS5: Schwelle auf 500.000 erhöht (bei partiellem hackinggate-Ausfall
