@@ -283,6 +283,7 @@ jobs:
               "172.217.0.0/16",      # Google Serving (google.com / youtube.com)
               "34.64.0.0/10",        # Google Cloud / GFE (Google Front End)
               "35.184.0.0/13",       # Google Cloud (GFE / YouTube Streaming)
+              "192.178.0.0/15",      # Google Services (gstatic, googleapis etc.)
               # mail.com
               "74.208.4.200", "74.208.4.201", "74.208.4.220", "74.208.4.221",
               "82.165.159.130", "82.165.159.131",
