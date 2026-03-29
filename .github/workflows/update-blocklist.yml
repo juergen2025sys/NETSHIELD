@@ -330,12 +330,12 @@ jobs:
                           return None, e
                       # Transiente Serverfehler → Retry
                       if e.code in (429, 500, 502, 503, 504) and attempt < retries:
-                          time.sleep(attempt * 5)  # FIX RL1: war *2 – zu kurz bei Rate-Limit
+                          time.sleep(attempt * 2)
                       else:
                           return None, e
                   except Exception as e:
                       if attempt < retries:
-                          time.sleep(attempt * 5)  # FIX RL1: war *2
+                          time.sleep(attempt * 2)
                       else:
                           return None, e
               return None, Exception("Unbekannter Fehler")
@@ -382,14 +382,14 @@ jobs:
                   print(f"[{i+1}/{len(countries)}] {cc} ({name}) → ERROR: {err}")
                   errors.append(cc)
 
-              time.sleep(0.5)  # FIX RL1: war 0.1 – zu schnell für hackinggate (Rate-Limit)
+              time.sleep(0.1)
 
           # ── Leerungsschutz ────────────────────────────────────────────────
           # FIX LS5: Schwelle auf 500.000 erhöht (bei partiellem hackinggate-Ausfall
           # könnten trotzdem 100k+ Ranges ankommen und den alten Stand überschreiben).
           # sys.exit(1) statt sys.exit(0) + GitHub Warning Annotation.
           import sys
-          MIN_ENTRIES = 500_000  # realistisch: ~3.5M Einträge erwartet
+          MIN_ENTRIES = 200_000  # FIX LS5b: hackinggate liefert seit 2026-03 ~255k aggregierte Ranges (war ~3.5M detailliert)
           if len(all_ips) < MIN_ENTRIES:
               msg = (f"Nur {len(all_ips)} IP-Ranges geladen (< {MIN_ENTRIES}) – "
                      f"Leerungsschutz aktiv, Dateien werden NICHT überschrieben.")
