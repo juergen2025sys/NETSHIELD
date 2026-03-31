@@ -760,6 +760,40 @@ jobs:
           else:
               print(f"  SKIP: {AUTO_FEEDS_FILE} nicht vorhanden")
 
+          # ── community_pending.json einlesen (FIX Bug2) ─────────────────
+          # Community-Reports schreiben ihre seen_db-Änderungen in einen eigenen
+          # Cache-Slot (community-<issue>-<run_id>), der von Combined nie erreicht
+          # wird, weil restore-keys immer zuerst den neueren v2-Slot trifft.
+          # Lösung: Community-Workflow committet community_pending.json ins Repo.
+          # Combined liest diese Datei hier ein, mergt die IPs in ip_feeds_today
+          # und leert sie danach, damit verarbeitete Einträge nicht nochmals
+          # eingelesen werden.
+          PENDING_FILE = "community_pending.json"
+          if os.path.exists(PENDING_FILE):
+              try:
+                  with open(PENDING_FILE) as pf:
+                      pending_data = json.load(pf)
+                  if pending_data:
+                      print(f"  community_pending.json: {len(pending_data)} ausst. IP(s) einlesen...")
+                      for ip, entry in pending_data.items():
+                          if is_whitelisted(ip) or is_in_fp_set(ip):
+                              continue
+                          if ip not in ip_feeds_today:
+                              ip_feeds_today[ip] = set()
+                          ip_feeds_today[ip].add("community_report")
+                          if entry.get("hq", False):
+                              ip_in_hq.add(ip)
+                      print(f"  community_pending.json: {len(pending_data)} IPs gemergt")
+                      # Datei leeren damit Einträge nicht nochmals verarbeitet werden
+                      with open(PENDING_FILE, "w") as pf:
+                          json.dump({}, pf)
+                  else:
+                      print(f"  community_pending.json: leer (keine ausst. Reports)")
+              except Exception as e:
+                  print(f"  WARNUNG: community_pending.json Fehler: {e}")
+          else:
+              print(f"  SKIP: {PENDING_FILE} nicht vorhanden")
+
           # ── seen_db aktualisieren ─────────────────────────────────────────
           #
           # Felder pro IP:
@@ -1032,7 +1066,7 @@ jobs:
           PYEOF
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt 2>/dev/null || true
+          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt community_pending.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -1051,10 +1085,10 @@ jobs:
                 # also genau das was wir wollen: die frisch generierten Dateien bevorzugen.
                 git checkout --theirs combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md \
-                  seen_db_meta.json abuseipdb_api_blacklist.txt 2>/dev/null || true
+                  seen_db_meta.json abuseipdb_api_blacklist.txt community_pending.json 2>/dev/null || true
                 git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md seen_db_meta.json \
-                  abuseipdb_api_blacklist.txt 2>/dev/null || true
+                  abuseipdb_api_blacklist.txt community_pending.json 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))
