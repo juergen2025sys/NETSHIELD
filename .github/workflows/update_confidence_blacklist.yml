@@ -159,7 +159,9 @@ jobs:
           #
           # [A] QUELLEN-QUALITÄT (max. 40 Punkte) – wie vertrauenswürdig sind
           #     die Feeds die diese IP gemeldet haben?
-          #       hq=True (je in einem HQ-Feed)          → 40
+          #       hq=True, hq_feeds >= 3                 → 40  (mehrere unabh. HQ-Feeds)
+          #       hq=True, hq_feeds >= 2                 → 38  (zwei HQ-Feeds)
+          #       hq=True, hq_feeds == 1                 → 36  (ein HQ-Feed – bewusst > Non-HQ-Max 35)
           #       today_count >= 5 (heute 5+ Feeds)      → 35
           #       today_count >= 3 (heute 3+ Feeds)      → 28
           #       today_count >= 2 (heute 2+ Feeds)      → 20
@@ -250,7 +252,7 @@ jobs:
               elif is_hq and hq_feeds >= 2:
                   score_a = 38   # von 2 versch. HQ-Feeds bestätigt
               elif is_hq:
-                  score_a = 35   # 1 HQ-Feed (FIX Bug1: war fälschlicherweise 40 = gleich wie ≥3)
+                  score_a = 36   # 1 HQ-Feed (FIX Bug6: 36 > Non-HQ-Max 35, kein Score-Tie mit today_count>=5)
               elif today_count >= 5:
                   score_a = 35
               elif today_count >= 3:
