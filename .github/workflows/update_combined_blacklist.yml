@@ -974,20 +974,25 @@ jobs:
                   continue
 
               is_hq       = data.get("hq", False)
+              hq_feeds    = data.get("hq_feeds", 1 if is_hq else 0)
               feed_count  = len(data.get("feeds", []))
               today_count = data.get("today_count", 0)
               days_seen   = data.get("days_seen", 1)
               days_since_last = (now - last_dt).days
               days_known      = (now - first_dt).days + 1
 
-              if is_hq:                  score_a = 40
-              elif today_count >= 5:     score_a = 35
-              elif today_count >= 3:     score_a = 28
-              elif today_count >= 2:     score_a = 20
-              elif feed_count >= 5:      score_a = 15
-              elif feed_count >= 3:      score_a = 10
-              elif feed_count >= 2:      score_a = 5
-              else:                      score_a = 0
+              # FIX: hq_feeds-Abstufung identisch mit update_confidence_blacklist.yml
+              # (Bug1+Bug6-Fix): hq=True,1Feed → 36 (bewusst > Non-HQ-Max 35)
+              if is_hq and hq_feeds >= 3:   score_a = 40
+              elif is_hq and hq_feeds >= 2: score_a = 38
+              elif is_hq:                   score_a = 36
+              elif today_count >= 5:        score_a = 35
+              elif today_count >= 3:        score_a = 28
+              elif today_count >= 2:        score_a = 20
+              elif feed_count >= 5:         score_a = 15
+              elif feed_count >= 3:         score_a = 10
+              elif feed_count >= 2:         score_a = 5
+              else:                         score_a = 0
 
               if days_since_last <= 1:   score_b = 30
               elif days_since_last <= 3: score_b = 25
