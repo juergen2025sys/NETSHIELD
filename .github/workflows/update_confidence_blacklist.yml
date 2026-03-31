@@ -247,10 +247,10 @@ jobs:
               # Reihenfolge: is_hq (Bool-Basischeck) → hq_feeds-Abstufung → today_count → feed_count
               if is_hq and hq_feeds >= 3:
                   score_a = 40   # von ≥3 versch. HQ-Feeds bestätigt → max
-              elif is_hq and hq_feeds == 2:
+              elif is_hq and hq_feeds >= 2:
                   score_a = 38   # von 2 versch. HQ-Feeds bestätigt
               elif is_hq:
-                  score_a = 40   # 1 HQ-Feed: bleibt 40 (hq=True ist bereits starkes Signal)
+                  score_a = 35   # 1 HQ-Feed (FIX Bug1: war fälschlicherweise 40 = gleich wie ≥3)
               elif today_count >= 5:
                   score_a = 35
               elif today_count >= 3:

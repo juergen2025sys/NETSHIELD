@@ -35,7 +35,7 @@ jobs:
         run: |
           python3 << 'EOF'
           import urllib.request, urllib.error, json, sys, ipaddress, time
-          from datetime import datetime, timezone
+          from datetime import datetime, timezone, timedelta  # FIX Bug4: timedelta direkt hier, kein zweiter Import nötig
 
           now     = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
@@ -98,7 +98,6 @@ jobs:
               "Known Bot (AI Crawler)",
               "Known Bot (SEO)",
           }
-          from datetime import datetime, timezone, timedelta
           _now = datetime.now(timezone.utc)
           _cutoff = (_now - timedelta(days=30)).strftime("%Y-%m-%d")
 

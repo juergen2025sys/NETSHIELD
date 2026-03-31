@@ -247,6 +247,27 @@ jobs:
           with open(DB_FILE, "w") as f:
               json.dump(db, f, separators=(",", ":"))
 
+          # ── community_pending.json schreiben (FIX Bug2) ───────────────────
+          # Der Cache-Key des Community-Workflows (community-<issue>-<run_id>)
+          # wird von Combined nie erreicht, da Combined's restore-keys zuerst
+          # den neueren v2-Slot trifft. Lösung: Die gemeldeten IPs werden
+          # zusätzlich in community_pending.json ins Repo committet.
+          # Combined liest diese Datei beim nächsten Lauf ein und mergt sie
+          # in seen_db. Damit gehen Community-Reports nicht mehr verloren.
+          PENDING_FILE = "community_pending.json"
+          pending = {}
+          if os.path.exists(PENDING_FILE):
+              try:
+                  with open(PENDING_FILE) as pf:
+                      pending = json.load(pf)
+              except Exception:
+                  pending = {}
+          # Nur die neu eingetragene/aktualisierte IP hinzufügen
+          pending[ip] = db.get(ip, {})
+          with open(PENDING_FILE, "w") as pf:
+              json.dump(pending, pf, separators=(",", ":"))
+          print(f"community_pending.json aktualisiert: {len(pending)} ausstehende IP(s)")
+
           # ── Log-Eintrag ───────────────────────────────────────────────────
           with open(REPORT_FILE, "a", encoding="utf-8") as f:
               f.write(f"{now_day} | issue=#{issue_number} | user={reporter} | ip={ip} | type={attack_type} | action={action} | ACCEPTED\n")
@@ -270,7 +291,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add community_reports_log.txt 2>/dev/null || true
+          git add community_reports_log.txt community_pending.json 2>/dev/null || true
           git diff --staged --quiet || git commit -m "Community Report #${{ github.event.issue.number }}: $(date -u '+%Y-%m-%d %H:%M') UTC"
           for attempt in 1 2 3 4 5; do
             echo "Push-Versuch $attempt..."
@@ -281,8 +302,8 @@ jobs:
                 exit 0
               fi
             else
-              git checkout --theirs community_reports_log.txt 2>/dev/null || true
-              git add community_reports_log.txt 2>/dev/null || true
+              git checkout --theirs community_reports_log.txt community_pending.json 2>/dev/null || true
+              git add community_reports_log.txt community_pending.json 2>/dev/null || true
               GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
             fi
             sleep $((attempt * 3))
