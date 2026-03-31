@@ -2,7 +2,7 @@ name: Geo-Tagger
 
 on:
   schedule:
-    - cron: '30 7 * * 0'  # Sonntag 07:30 UTC (FIX #7: 30min Puffer nach score_decay 07:00 – war 07:15 zu knapp)
+    - cron: '0 8 * * 0'   # Sonntag 08:00 UTC (FIX #7b: 60min Puffer nach score_decay 07:00, timeout-minutes=10 – 30min war zu knapp bei GitHub-Queue-Delays)
   workflow_dispatch:
 
 env:

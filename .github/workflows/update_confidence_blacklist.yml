@@ -217,6 +217,9 @@ jobs:
               feed_count  = len(data.get("feeds", []))
               today_count = data.get("today_count", 0)
               today_hq    = data.get("today_hq", False)
+              # FIX: hq_feeds (Anzahl einzigartiger HQ-Feed-Quellen) auslesen –
+              # wurde bisher gepflegt aber nie im Scoring genutzt (toter Code).
+              hq_feeds    = data.get("hq_feeds", 1 if is_hq else 0)
               days_seen   = data.get("days_seen", 1)
               last_seen   = data.get("last",  "2000-01-01")
               first_seen  = data.get("first", last_seen)
@@ -238,8 +241,16 @@ jobs:
               days_known      = (now - first_dt).days + 1
 
               # [A] Quellen-Qualität
-              if is_hq:
-                  score_a = 40
+              # FIX: hq_feeds (Anzahl einzigartiger HQ-Feed-Quellen) wird jetzt
+              # ausgewertet. IPs die von mehreren unabhängigen HQ-Feeds bestätigt
+              # werden, erhalten einen höheren Score als solche mit nur 1 HQ-Feed.
+              # Reihenfolge: is_hq (Bool-Basischeck) → hq_feeds-Abstufung → today_count → feed_count
+              if is_hq and hq_feeds >= 3:
+                  score_a = 40   # von ≥3 versch. HQ-Feeds bestätigt → max
+              elif is_hq and hq_feeds == 2:
+                  score_a = 38   # von 2 versch. HQ-Feeds bestätigt
+              elif is_hq:
+                  score_a = 40   # 1 HQ-Feed: bleibt 40 (hq=True ist bereits starkes Signal)
               elif today_count >= 5:
                   score_a = 35
               elif today_count >= 3:
