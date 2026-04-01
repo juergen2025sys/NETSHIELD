@@ -42,6 +42,10 @@ jobs:
             netshield-seen-db-
 
       - name: Fetch AbuseIPDB Blacklist (API, Round-Robin)
+        continue-on-error: true  # FIX: Free-Plan erlaubt 1 Request/Tag pro Key → nach 3 Keys
+                                 # schlagen Runs 4-8 mit exit(1) fehl und blockierten den
+                                 # gesamten Combined-Lauf. Leerungsschutz greift weiterhin
+                                 # (bestehende Datei wird nicht überschrieben), Combined läuft durch.
         env:
           ABUSEIPDB_KEY_1: ${{ secrets.ABUSEIPDB_API_KEY_1 }}
           ABUSEIPDB_KEY_2: ${{ secrets.ABUSEIPDB_API_KEY_2 }}
