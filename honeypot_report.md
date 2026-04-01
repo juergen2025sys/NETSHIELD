@@ -1,5 +1,5 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-03-31 23:29 UTC
+**Aktualisiert:** 2026-04-01 22:38 UTC
 
 ---
 | Quelle | IPs |
@@ -7,15 +7,15 @@
 | ❌ `yuexuana_honeypot` | 0 |
 | ❌ `badpackets_honeypot` | 0 |
 | ❌ `threatmon_honeypot` | 0 |
-| ✅ `turris_honeypot` | 7684 |
-| ✅ `ipsum_level5` | 4346 |
+| ✅ `turris_honeypot` | 8111 |
+| ✅ `ipsum_level5` | 4401 |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honeypot-IPs | **11409** |
-| Neu | **+6309** |
-| Entfernt | **-5560** |
+| Gesamt Honeypot-IPs | **11844** |
+| Neu | **+6584** |
+| Entfernt | **-6149** |
 
 ---
-*Generiert: 2026-03-31 23:29 UTC*
+*Generiert: 2026-04-01 22:38 UTC*
