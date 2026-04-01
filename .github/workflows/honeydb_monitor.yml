@@ -2,7 +2,10 @@ name: HoneyDB Monitor
 
 on:
   schedule:
-    - cron: '15 22 * * *'   # täglich 22:15 UTC (vor Honeypot Monitor 23:00 und Combined 00:00)
+    - cron: '0 23 * * *'   # 23:00 UTC → vor Combined 00:00
+    - cron: '0 7  * * *'   # 07:00 UTC → vor Combined 08:00
+    - cron: '0 15 * * *'   # 15:00 UTC → vor Combined 16:00
+    # 3 Runs/Tag × max. 12 Requests = 36 Requests/Tag < 50 Limit (1500/Monat ÷ 30 Tage)
   workflow_dispatch:
 
 env:
