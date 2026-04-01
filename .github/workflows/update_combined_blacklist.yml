@@ -2,7 +2,11 @@ name: Update Combined Blacklist
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # 8x täglich – alle 3 Stunden
+    - cron: '0 0,8,16 * * *'  # 3x täglich – 00:00 / 08:00 / 16:00 UTC
+                               # Passt exakt zu 3 AbuseIPDB Free-Plan Keys (1 Request/Tag/Key)
+                               # 00:00: nach allen Nacht-Feeds (HoneyDB 22:15, BotDet 22:45, Honeypot 23:00)
+                               # 08:00: nach CVE-Mapper (04:00) mit ausreichend Puffer
+                               # 16:00: Nachmittags-Refresh
   workflow_dispatch:
 
 env:
@@ -57,19 +61,17 @@ jobs:
 
           now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-          # ── Fallback-Logik: Free-Plan erlaubt 1 Request/Tag pro Key ─────────────
-          # Key 1 wird zuerst versucht. Schlägt er fehl (429 Rate-Limit oder
-          # sonstiger Fehler), wird Key 2 versucht, dann Key 3.
-          # Da alle Keys dieselbe Liste zurückgeben (Free-Plan, Top-10.000
-          # nach Score ≥ 50), reicht ein erfolgreicher Request pro Tag.
-          # .strip() entfernt versehentliche Newlines/Leerzeichen aus dem Secret
+          # ── Round-Robin über 3 Keys ──────────────────────────────────────────
+          # Combined läuft 3×/Tag (00:00 / 08:00 / 16:00 UTC).
+          # Free-Plan: 1 Request/Tag/Key → jeder Key deckt genau einen Run ab.
+          # Beim ersten erfolgreichen Key wird abgebrochen, die anderen geschont.
           KEYS = [
               os.environ.get("ABUSEIPDB_KEY_1", "").strip(),
               os.environ.get("ABUSEIPDB_KEY_2", "").strip(),
               os.environ.get("ABUSEIPDB_KEY_3", "").strip(),
           ]
           MIN_SCORE = 50
-          LIMIT     = 10000
+          LIMIT     = 500000  # Free-Plan liefert max. ~10k, bei Upgrade auf Basic/Premium automatisch mehr
 
           all_ips = set()
           stats   = []
