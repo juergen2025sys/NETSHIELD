@@ -304,16 +304,48 @@ jobs:
                   "honeydb_monitor.yml":  500,
                   "update-blocklist.yml": 200_000,  # FIX: hackinggate liefert seit 2026-03 ~255k aggregierte Ranges (war ~3.5M detailliert)
               }
-              if fname in _min_thresholds:
-                  for _m in re.finditer(r"MIN_ENTRIES\s*=\s*([\d_]+)", content):
-                      _val = int(_m.group(1).replace("_", ""))
-                      _expected = _min_thresholds[fname]
-                      if _val < _expected:
-                          msg = (f"MIN_ENTRIES={_val:,} ist zu niedrig "
-                                 f"(Minimum für {fname}: {_expected:,})")
+              # ── Check 13: Mindestschwellen / Leerungsschutz-Thresholds ───
+              # Prüft bekannte Guard-Variablen pro Workflow auf zu niedrige Werte.
+              _threshold_specs = {
+                  "honeydb_monitor.yml": {
+                      "MIN_ENTRIES": 500,
+                  },
+                  "update-blocklist.yml": {
+                      "MIN_ENTRIES": 200_000,
+                  },
+                  "cve_to_ip_mapper.yml": {
+                      "MIN_CVE_ENTRIES": 100,
+                  },
+                  "honeypot_monitor.yml": {
+                      "MIN_ENTRIES": 500,
+                  },
+                  "asn_reputation_scorer.yml": {
+                      "MIN_ASN_RESULTS": 5,
+                  },
+                  "geo_tagger.yml": {
+                      "MIN_GEO_MATCHED": 100,
+                  },
+              }
+              if fname in _threshold_specs:
+                  for _var, _expected in _threshold_specs[fname].items():
+                      _found = False
+                      _rx = re.compile(rf'\b{re.escape(_var)}\s*=\s*([\d_]+)')
+                      for _m in _rx.finditer(content):
+                          _found = True
+                          _val = int(_m.group(1).replace("_", ""))
+                          if _val < _expected:
+                              msg = (f"{_var}={_val:,} ist zu niedrig "
+                                     f"(Minimum für {fname}: {_expected:,})")
+                              file_warnings.append(msg)
+                              warnings.append({"file": fname,
+                                               "check": f"{_var} zu niedrig",
+                                               "detail": msg})
+                      if not _found:
+                          msg = (f"{_var} nicht gefunden – "
+                                 f"Leerungsschutz-Regressionscheck unvollständig")
                           file_warnings.append(msg)
                           warnings.append({"file": fname,
-                                           "check": "MIN_ENTRIES zu niedrig",
+                                           "check": f"{_var} fehlt",
                                            "detail": msg})
 
               results[fname] = {

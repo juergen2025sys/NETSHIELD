@@ -39,7 +39,7 @@ jobs:
           persist-credentials: true
 
       - name: Restore seen_db Cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: seen_db.json
           # FIX: restore-keys matcht jetzt alle Varianten die Combined schreibt
@@ -63,7 +63,7 @@ jobs:
           DB_FILE    = "seen_db.json"
           BLACKLIST  = "combined_threat_blacklist_ipv4.txt"
           OUT_40     = "blacklist_confidence40_ipv4.txt"
-          OUT_WATCH  = "watchlist_confidence20to39_ipv4.txt"
+          OUT_WATCH  = "watchlist_confidence25to39_ipv4.txt"
 
           DNS_WHITELIST = {
               "192.168.13.1", "192.168.14.1",
@@ -205,7 +205,7 @@ jobs:
           # ══════════════════════════════════════════════════════════════════
 
           confidence40 = []
-          confidence20 = []
+          confidence25 = []
           skipped      = 0
           skipped_watchlist = 0
 
@@ -296,13 +296,13 @@ jobs:
               if conf >= 40 and not is_protected_entry(ip):
                   confidence40.append((ip, conf))
               elif conf >= 25 and not is_protected_entry(ip):
-                  confidence20.append((ip, conf))
+                  confidence25.append((ip, conf))
 
           confidence40.sort(key=lambda x: (-x[1], x[0]))
-          confidence20.sort(key=lambda x: (-x[1], x[0]))
+          confidence25.sort(key=lambda x: (-x[1], x[0]))
 
           print(f"Konfidenz ≥40 (→ confidence40-Datei): {len(confidence40)} IPs")
-          print(f"Konfidenz 25-39 (→ watchlist):         {len(confidence20)} IPs")
+          print(f"Konfidenz 25-39 (→ watchlist):         {len(confidence25)} IPs")
           print(f"Watchlist (kein HQ, last=2000-01-01):  {skipped_watchlist} IPs (Score zu niedrig, ausstehend)")
           print(f"Übersprungen:                          {skipped} IPs (Datumsfehler)")
 
@@ -317,18 +317,18 @@ jobs:
           with open(OUT_WATCH, "w", encoding="utf-8") as f:
               f.write(f"# NETSHIELD Watchlist – Niedriges Vertrauen (Score 25-39/100)\n")
               f.write(f"# Aktualisiert: {now_str}\n")
-              f.write(f"# Eintraege: {len(confidence20)}\n\n")
-              for ip, conf in confidence20:
+              f.write(f"# Eintraege: {len(confidence25)}\n\n")
+              for ip, conf in confidence25:
                   f.write(f"{ip}\n")
 
-          print(f"Fertig: {len(confidence40)} IPs (conf≥40) | {len(confidence20)} IPs (watchlist 25-39)")
+          print(f"Fertig: {len(confidence40)} IPs (conf≥40) | {len(confidence25)} IPs (watchlist 25-39)")
           EOF
 
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add blacklist_confidence40_ipv4.txt watchlist_confidence20to39_ipv4.txt
+          git add blacklist_confidence40_ipv4.txt watchlist_confidence25to39_ipv4.txt
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -343,9 +343,9 @@ jobs:
                 fi
               else
                 git checkout --theirs blacklist_confidence40_ipv4.txt \
-                  watchlist_confidence20to39_ipv4.txt 2>/dev/null || true
+                  watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
                 git add blacklist_confidence40_ipv4.txt \
-                  watchlist_confidence20to39_ipv4.txt 2>/dev/null || true
+                  watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

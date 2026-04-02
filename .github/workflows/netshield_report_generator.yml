@@ -56,9 +56,9 @@ jobs:
 
           FILES = {
               "combined_threat_blacklist_ipv4.txt": "Stufe 1 – Alle IPs (180 Tage)",
-              "active_blacklist_ipv4.txt":          "Stufe 2 – Aktiv (30 Tage + Conf≥65) → OPNsense",
-              "blacklist_confidence40_ipv4.txt":    "Mittleres/Hohes Vertrauen (≥40%)",
-              "watchlist_confidence20to39_ipv4.txt":"Watchlist (Score 25-39/100)",
+              "active_blacklist_ipv4.txt":          "Stufe 2 – Aktiv (30 Tage + Conf≥65)",
+              "blacklist_confidence40_ipv4.txt":    "Mittleres/Hohes Vertrauen (≥40%) → OPNsense",
+              "watchlist_confidence25to39_ipv4.txt":"Watchlist (Score 25-39/100)",
               "cve_exploit_ips.txt":                "CVE Exploit IPs",
               "bot_detector_blacklist_ipv4.txt":    "Bot-Detector Blacklist",
               "honeypot_ips.txt":                   "Honeypot IPs",
@@ -86,7 +86,7 @@ jobs:
           lines.append("---")
           lines.append("## 🔗 OPNsense Alias URL\n")
           lines.append("```")
-          lines.append("https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt")
+          lines.append("https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt")
           lines.append("```")
           lines.append("")
 
@@ -141,7 +141,7 @@ jobs:
               "combined_threat_blacklist_ipv4.txt":    lambda n: f"**{n:,}**",
               "active_blacklist_ipv4.txt":             lambda n: f"**{n:,}**",
               "blacklist_confidence40_ipv4.txt":       lambda n: f"**{n:,}**",
-              "watchlist_confidence20to39_ipv4.txt":   lambda n: f"**{n:,}**",
+              "watchlist_confidence25to39_ipv4.txt":   lambda n: f"**{n:,}**",
               "cve_exploit_ips.txt":                   lambda n: f"**{n:,}**",
               "bot_detector_blacklist_ipv4.txt":       lambda n: f"**{n:,}**",
               "abuseipdb_api_blacklist.txt":           lambda n: f"**{n:,}**",

@@ -428,7 +428,7 @@ jobs:
               "4ip_high_security":          ("https://raw.githubusercontent.com/4IP-Solutions/threat-feeds/refs/heads/main/blocklist-incoming-ip-high-security.txt", False),
               "cyna_malicious":             ("https://raw.githubusercontent.com/cybersecurity-cyna/Malicious_IP/refs/heads/main/ip-list.txt", False),
               "black_mirror":               ("https://github.com/T145/black-mirror/releases/download/latest/BLOCK_IPV4.txt", False),
-              "alienvault":                 ("https://reputation.alienvault.com/reputation.generic", False),
+              # "alienvault" entfernt: OTX/AlienVault laut Ausschluss-Policy deaktiviert
               "bitwire_ipblocklist":        ("https://raw.githubusercontent.com/bitwire-it/ipblocklist/refs/heads/main/inbound.txt", False),
               "littlejake_all_blacklist":   ("https://cdn.jsdelivr.net/gh/LittleJake/ip-blacklist/all_blacklist.txt", False),
               "shadowwhisperer_hackers":    ("https://raw.githubusercontent.com/ShadowWhisperer/IPs/refs/heads/master/Malware/Hackers", False),
