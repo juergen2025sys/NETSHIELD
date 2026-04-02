@@ -2,6 +2,7 @@
 
 
 
+
 # 🛡️ NETSHIELD
 
 **Automatisiertes IP-Threat-Intelligence-System mit dynamischer Blacklist-Verwaltung**
@@ -95,15 +96,15 @@ NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus üb
 
 | Datei | Beschreibung | Einträge | Update | Empfohlen für |
 |---|---|---:|---|---|
-| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen (30T + Conf≥65) | **2,371,066**                                                                                                                                                                                                                                                                                                                                    | 8x täglich | **OPNsense / Firewall** |
-| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs (180 Tage) | **4,067,386**                                                                                                                                                                                                                                                                                                                                    | 8x täglich | Audit / SIEM |
-| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres/Hohes Vertrauen (Score ≥40) | **2,860,517**                                                                                                                                                                                                                                                                                                                                    | 8x täglich | Zusätzliche Filterregeln |
-| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25–39) | **326,500**                                                                                                                                                                                                                                                                                                                       | 8x täglich | Monitoring |
-| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploit & C2-Server | **220,384**                                                                                                                                                                                                                                                                                                                                    | täglich 04:00 | IDS/IPS |
-| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte IPs | **11,844**                                                                                                                                                                                                                                                                                                                                    | täglich 23:00 | Ergänzung |
-| [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **8,098**                                                                                                                                                                                                                                                                                                                                    | täglich 22:15 | Ergänzung |
-| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot-Detector | **17,364**                                                                                                                                                                                                                                                                                                                                    | täglich 23:45 | Web-Schutz |
-| [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs (Score≥50) | **19**                                                                                                                                                                                                                                                                                                                                    | täglich 02:00 | ASN-Blocking |
+| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen (30T + Conf≥65) | **2,370,081**                                                                                                                                                                                                                                                                                                                                   | 8x täglich | **OPNsense / Firewall** |
+| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs (180 Tage) | **4,066,646**                                                                                                                                                                                                                                                                                                                                   | 8x täglich | Audit / SIEM |
+| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres/Hohes Vertrauen (Score ≥40) | **2,859,722**                                                                                                                                                                                                                                                                                                                                   | 8x täglich | Zusätzliche Filterregeln |
+| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25–39) | **326,549**                                                                                                                                                                                                                                                                                                                      | 8x täglich | Monitoring |
+| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploit & C2-Server | **220,384**                                                                                                                                                                                                                                                                                                                                   | täglich 04:00 | IDS/IPS |
+| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte IPs | **11,844**                                                                                                                                                                                                                                                                                                                                   | täglich 23:00 | Ergänzung |
+| [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **8,098**                                                                                                                                                                                                                                                                                                                                   | täglich 22:15 | Ergänzung |
+| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot-Detector | **17,364**                                                                                                                                                                                                                                                                                                                                   | täglich 22:45 | Web-Schutz |
+| [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs (Score≥50) | **19**                                                                                                                                                                                                                                                                                                                                   | täglich 02:00 | ASN-Blocking |
 
 ### Geo-Listen
 
@@ -152,7 +153,7 @@ Score = A (Quellen-Qualität) + B (Aktualität) + C (Persistenz) + D (Bekannt se
 
 ### HQ-Feeds (bestimmen Lebenszeit)
 
-Feodo C2, Talos Intelligence, AbuseIPDB (API + Score100), Spamhaus DROP/EDROP, Emerging Threats, FireHOL Level 1/2/3, blocklist.de, CINS Score, C2-Tracker, Cobalt Strike Tracker, ThreatFox IOC, URLhaus, Binary Defense, Turris Greylist, GreenSnow, ThreatView High Confidence, DShield u.v.m.
+Feodo C2, AbuseIPDB (API + Score100), Spamhaus DROP, Emerging Threats, FireHOL Level 1/2/3, blocklist.de, CINS Score, C2-Tracker, ThreatFox IOC, URLhaus, Binary Defense, Turris Greylist, GreenSnow, ThreatView High Confidence, DShield u.v.m.
 
 ---
 
@@ -167,10 +168,9 @@ Feodo C2, Talos Intelligence, AbuseIPDB (API + Score100), Spamhaus DROP/EDROP, E
 | **HoneyDB Monitor** | täglich 22:15 | HoneyDB API abfragen → honeydb_ips.txt |
 | **Bot-Detector Blacklist** | täglich 22:45 | bot_detector_blacklist_ipv4.txt aktualisieren |
 | **CVE-to-IP Mapper** | täglich 04:00 | C2/Exploit-IPs → cve_exploit_ips.txt |
-| **Duplicate Cleaner** | täglich 05:30 | Duplikate in Sub-Listen bereinigen |
 | **Update All Countries IPv4** | Mo + Mi 01:30 | Länder/Kontinente/all_countries synchron erzeugen |
 | **Auto Feed Discovery** | wöchentlich So 04:30 | GitHub nach neuen IP-Feeds durchsuchen + bewerten |
-| **Geo-Tagger** | wöchentlich So 06:45 | Blacklist-IPs mit Länder-Geo-Daten anreichern |
+| **Geo-Tagger** | wöchentlich So 07:30 | Blacklist-IPs mit Länder-Geo-Daten anreichern |
 | **ASN Reputation Scorer** | täglich 02:00 | ASN-Reputationsscoring → asn_reputation_db.json |
 | **Score Decay Monitor** | wöchentlich So 07:00 | Alterungs-Report (read-only, löscht nichts) |
 | **Feed Health Monitor** | täglich 01:00 | Alle Feed-URLs auf Erreichbarkeit prüfen |
@@ -199,7 +199,7 @@ Verwende das Label `community-report` beim Erstellen des Issues.
 
 ```
 NETSHIELD/
-├── .github/workflows/          # 17 GitHub Actions Workflows
+├── .github/workflows/          # 16 GitHub Actions Workflows
 ├── continents/                 # IPv4-Ranges pro Kontinent
 ├── countries/                  # IPv4-Ranges pro Land
 │   ├── africa/
@@ -214,6 +214,7 @@ NETSHIELD/
 ├── watchlist_confidence25to39_ipv4.txt # → Monitoring (25–39)
 ├── cve_exploit_ips.txt
 ├── honeypot_ips.txt
+├── honeydb_ips.txt
 ├── bot_detector_blacklist_ipv4.txt
 ├── all_countries_ipv4.txt
 ├── asn_blocklist_firewall.txt
