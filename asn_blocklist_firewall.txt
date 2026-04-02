@@ -1,5 +1,5 @@
 # ASN Reputation Blocklist – NETSHIELD
-# Aktualisiert: 2026-04-01 04:52 UTC
+# Aktualisiert: 2026-04-02 04:35 UTC
 # Format: AS<Nummer> # Score | BL-Hits | Organisation | Land
 # Nur ASNs mit Score >= 50 (base_score + BL-Treffer + DROP/ET-Bonus)
 
@@ -10,9 +10,9 @@ AS45102  # Score:95 | BL-Hits:34096 | Alibaba Cloud | CN
 AS20473  # Score:95 | BL-Hits:17774 | Vultr | US
 AS22612  # Score:90 | BL-Hits:1631 | Namecheap | US
 AS12389  # Score:85 | BL-Hits:14625 | Rostelecom | RU
+AS16276  # Score:85 | BL-Hits:40001 | OVH | FR
 AS31898  # Score:85 | BL-Hits:25360 | Oracle Cloud | US
 AS16509  # Score:85 | BL-Hits:298173 | Amazon AWS | US
-AS16276  # Score:84 | BL-Hits:40001 | OVH | FR
 AS12876  # Score:80 | BL-Hits:8476 | Scaleway | FR
 AS24940  # Score:78 | BL-Hits:23311 | Hetzner | DE
 AS47583  # Score:78 | BL-Hits:2871 | Hostinger | LT

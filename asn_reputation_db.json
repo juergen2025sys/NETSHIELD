@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-01 04:52 UTC",
+  "updated": "2026-04-02 04:35 UTC",
   "method": "scanitex-cidr-match",
   "bl_total": 3697532,
   "asns": {
@@ -14,7 +14,7 @@
       "bl_matches": 215376,
       "density": 70942.95,
       "drop_bonus": 0,
-      "et_bonus": 186,
+      "et_bonus": 153,
       "prefixes": 827,
       "total_ips": 3035904
     },
@@ -108,6 +108,21 @@
       "prefixes": 3183,
       "total_ips": 17214464
     },
+    "AS16276": {
+      "holder": "OVH",
+      "country": "FR",
+      "score": 85,
+      "score_a": 45,
+      "score_b": 15,
+      "score_c": 10,
+      "score_d": 15,
+      "bl_matches": 40001,
+      "density": 8801.05,
+      "drop_bonus": 0,
+      "et_bonus": 4,
+      "prefixes": 600,
+      "total_ips": 4545024
+    },
     "AS31898": {
       "holder": "Oracle Cloud",
       "country": "US",
@@ -119,7 +134,7 @@
       "bl_matches": 25360,
       "density": 5346.06,
       "drop_bonus": 0,
-      "et_bonus": 7,
+      "et_bonus": 8,
       "prefixes": 1971,
       "total_ips": 4743680
     },
@@ -134,24 +149,9 @@
       "bl_matches": 298173,
       "density": 1564.69,
       "drop_bonus": 0,
-      "et_bonus": 27,
+      "et_bonus": 18,
       "prefixes": 14341,
       "total_ips": 190563840
-    },
-    "AS16276": {
-      "holder": "OVH",
-      "country": "FR",
-      "score": 84,
-      "score_a": 45,
-      "score_b": 15,
-      "score_c": 9,
-      "score_d": 15,
-      "bl_matches": 40001,
-      "density": 8801.05,
-      "drop_bonus": 0,
-      "et_bonus": 3,
-      "prefixes": 600,
-      "total_ips": 4545024
     },
     "AS12876": {
       "holder": "Scaleway",
