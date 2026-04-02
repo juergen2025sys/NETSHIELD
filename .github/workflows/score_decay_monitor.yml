@@ -46,15 +46,20 @@ jobs:
             netshield-seen-db-v1-
             netshield-seen-db-
 
-      # FIX: seen_db.json auch direkt aus dem Repo lesen falls Cache-Miss.
-      # Das Repo enthält seen_db.json nach jedem combined-Lauf als committete Datei.
-      - name: Fallback – seen_db.json aus Repo verwenden
+      # Repo-Fallback ist absichtlich nur informativ:
+      # update_combined_blacklist.yml committet seen_db.json NICHT ins Repo,
+      # sondern nur seen_db_meta.json. Die echte Analyse benötigt den Cache.
+      - name: Fallback – Cache-Miss transparent melden
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: |
           if [ -f seen_db.json ]; then
-            echo "Cache-Miss – verwende seen_db.json aus Checkout ($(wc -c < seen_db.json) Bytes)"
+            echo "Unerwartet: seen_db.json liegt im Checkout ($(wc -c < seen_db.json) Bytes)"
+          elif [ -f seen_db_meta.json ]; then
+            echo "::warning file=score_decay_monitor.yml::Cache-Miss – seen_db.json nicht verfügbar; Repo enthält nur seen_db_meta.json"
+            echo "seen_db_meta.json gefunden:"
+            cat seen_db_meta.json
           else
-            echo "::warning file=score_decay_monitor.yml::seen_db.json weder im Cache noch im Repo gefunden – Report wird mit leerer DB erstellt"
+            echo "::warning file=score_decay_monitor.yml::Cache-Miss – weder seen_db.json noch seen_db_meta.json verfügbar"
           fi
 
       - name: Run Score Decay Analysis
@@ -70,7 +75,7 @@ jobs:
           DB_FILE = "seen_db.json"
 
           if not os.path.exists(DB_FILE):
-              msg = "seen_db.json nicht gefunden (weder Cache noch Repo)"
+              msg = "seen_db.json nicht im Cache gefunden; im Repo liegt höchstens seen_db_meta.json"
               print(f"::warning file=score_decay_monitor.yml::{msg}")
               print(f"WARNUNG: {msg}")
               with open("score_decay_report.md", "w", encoding="utf-8") as f:
