@@ -433,7 +433,8 @@ jobs:
               # "romainmarcoux_ac" entfernt: full-300k-ac.txt existiert nicht mehr (HTTP 200, leerer Body)
               "4ip_high_security":          ("https://raw.githubusercontent.com/4IP-Solutions/threat-feeds/refs/heads/main/blocklist-incoming-ip-high-security.txt", False),
               "cyna_malicious":             ("https://raw.githubusercontent.com/cybersecurity-cyna/Malicious_IP/refs/heads/main/ip-list.txt", False),
-              "black_mirror":               ("https://github.com/T145/black-mirror/releases/download/latest/BLOCK_IPV4.txt", False),
+              # "black_mirror" entfernt: GitHub-Release-Download kann sehr groß werden und
+              # blockiert ThreadPoolExecutor bis zum 600s-Timeout → Combined-Crash (FIX #CB1)
               "alienvault":                 ("https://reputation.alienvault.com/reputation.generic", False),
               "bitwire_ipblocklist":        ("https://raw.githubusercontent.com/bitwire-it/ipblocklist/refs/heads/main/inbound.txt", False),
               "littlejake_all_blacklist":   ("https://cdn.jsdelivr.net/gh/LittleJake/ip-blacklist/all_blacklist.txt", False),
@@ -681,16 +682,27 @@ jobs:
 
           with ThreadPoolExecutor(max_workers=15) as executor:
               futures = {executor.submit(fetch_ips, n, u): n for n, (u, _) in SOURCES.items()}
-              for future in as_completed(futures, timeout=600):
-                  name, ips = future.result()
-                  for ip in ips:
-                      if name in HIGH_QUALITY:
-                          ip_in_hq.add(ip)
-                      # Feed-Name pro IP merken
-                      if ip not in ip_feeds_today:
-                          ip_feeds_today[ip] = set()
-                      ip_feeds_today[ip].add(name)
-                  feed_stats.append((name, len(ips)))
+              # FIX #CB1: try/except um as_completed() fängt concurrent.futures.TimeoutError
+              # (tritt auf wenn ein Feed hängt und 600s überschreitet) und verhindert
+              # den unkontrollierten Crash des gesamten Steps.
+              try:
+                  for future in as_completed(futures, timeout=600):
+                      try:
+                          name, ips = future.result()
+                      except Exception as _fe:
+                          print(f"::warning file=update_combined_blacklist.yml::Future-Fehler: {_fe}")
+                          continue
+                      for ip in ips:
+                          if name in HIGH_QUALITY:
+                              ip_in_hq.add(ip)
+                          # Feed-Name pro IP merken
+                          if ip not in ip_feeds_today:
+                              ip_feeds_today[ip] = set()
+                          ip_feeds_today[ip].add(name)
+                      feed_stats.append((name, len(ips)))
+              except Exception as _te:
+                  print(f"::warning file=update_combined_blacklist.yml::Feed-Fetch Timeout/Fehler: {_te}")
+                  print(f"WARNUNG: Feed-Fetch teilweise abgebrochen ({_te}) – fahre mit {len(ip_feeds_today)} bisher gesammelten IPs fort")
 
           # ── Lokale Sub-Workflow-Dateien einlesen ───────────────────────────
           LOCAL_FEEDS = {
@@ -753,14 +765,21 @@ jobs:
 
                   with ThreadPoolExecutor(max_workers=5) as ex:
                       futures = {ex.submit(fetch_auto, f): f["name"] for f in auto_feeds}
-                      for future in as_completed(futures, timeout=120):
-                          name, ips = future.result()
-                          for ip in ips:
-                              # Auto-discovered Feeds sind nicht HQ
-                              if ip not in ip_feeds_today:
-                                  ip_feeds_today[ip] = set()
-                              ip_feeds_today[ip].add(name)
-                          feed_stats.append((name, len(ips)))
+                      try:
+                          for future in as_completed(futures, timeout=120):
+                              try:
+                                  name, ips = future.result()
+                              except Exception as _afe:
+                                  print(f"  WARNUNG Auto-Feed Future: {_afe}")
+                                  continue
+                              for ip in ips:
+                                  # Auto-discovered Feeds sind nicht HQ
+                                  if ip not in ip_feeds_today:
+                                      ip_feeds_today[ip] = set()
+                                  ip_feeds_today[ip].add(name)
+                              feed_stats.append((name, len(ips)))
+                      except Exception as _ate:
+                          print(f"  WARNUNG Auto-Feeds Timeout: {_ate}")
               except Exception as e:
                   print(f"  WARNUNG: auto_discovered_feeds.json Fehler: {e}")
           else:
