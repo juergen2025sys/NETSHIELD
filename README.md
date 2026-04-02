@@ -3,163 +3,133 @@
 
 **Automatisiertes IP-Threat-Intelligence-System mit dynamischer Blacklist-Verwaltung**
 
-NETSHIELD aggregiert, bewertet und bereinigt IP-Bedrohungsdaten aus über 130 öffentlichen Feeds.  
-Das System trennt aktiv bestätigte Bedrohungen von statischen Listen und erzeugt daraus hochwertige, selbstbereinigende Firewall-Blocklisten.
+NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus über 130 öffentlichen Feeds und erzeugt daraus hochwertige Firewall-Blocklisten.
 
 ---
 
-## 🚀 Kernprinzip
+## 🧠 Architektur
 
-- **Nur HQ-Feeds bestimmen die Lebenszeit einer IP**
-- **Non-HQ-Feeds erhöhen nur den Confidence-Score**
-- **IPs altern automatisch aus (180 Tage)**
-- **Reaktivierung erfolgt bei neuer Aktivität**
+![Architektur](architecture.svg)
 
-👉 Das System bereinigt automatisch, was klassische Blocklisten nicht können.
-
----
-
-## 🧠 Architektur (vereinfacht)
-
-```
-HQ-Feeds (Feodo, Talos, Spamhaus, AbuseIPDB)
-        ↓ setzt last_seen
-Non-HQ-Feeds (Mega-Listen)
-        ↓ erhöht feed_count
-
-        → Update Combined Blacklist (8x täglich)
-              ↓
-     ┌────────┼────────┬────────┐
-     ↓        ↓        ↓        ↓
-active   confidence40  watchlist  combined
-(≥65)     (≥40)        (25–39)    (alle IPs)
-```
-
-**Output-Listen:**
-- `active_blacklist` → sehr aggressiv (Score ≥65, 30 Tage)
-- `blacklist_confidence40` → empfohlene Firewall-Liste
-- `watchlist` → neue/unsichere IPs zur Analyse
-- `combined_blacklist` → vollständige Historie (Audit/SIEM)
+**Kernprinzip:**
+- HQ-Feeds bestimmen Lebenszeit (`last_seen`)
+- Non-HQ-Feeds erhöhen nur Score
+- IPs altern automatisch (180 Tage)
+- Reaktivierung bei neuer Aktivität
 
 ---
 
-## 📊 Blocklisten
+## 📊 Blocklisten (Live-Zahlen)
 
-| Datei | Beschreibung | Einsatz |
-|------|-------------|--------|
-| `active_blacklist_ipv4.txt` | Aktive Bedrohungen (Score ≥65, 30 Tage) | Aggressives Blocking |
-| `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (Score ≥40) | ✅ **Empfohlen für Firewall** |
-| `watchlist_confidence25to39_ipv4.txt` | Neue/unsichere IPs (Score 25–39) | Monitoring |
-| `combined_threat_blacklist_ipv4.txt` | Alle IPs (180 Tage) | Audit / SIEM |
+| Datei | Beschreibung | IPs |
+|------|-------------|----:|
+| active_blacklist_ipv4.txt | Aktive Bedrohungen (30T + Score ≥65) | 2,370,081 |
+| combined_threat_blacklist_ipv4.txt | Alle IPs (180 Tage) | 4,066,646 |
+| blacklist_confidence40_ipv4.txt | Vertrauen ≥40 | 2,859,722 |
+| watchlist_confidence25to39_ipv4.txt | Watchlist (25–39) | 326,549 |
+| cve_exploit_ips.txt | Exploit/C2 | 220,384 |
+| honeypot_ips.txt | Honeypot | 11,844 |
+| honeydb_ips.txt | HoneyDB | 8,098 |
+| bot_detector_blacklist_ipv4.txt | Bot Detector | 17,364 |
 
 ---
 
-## 🔥 Für OPNsense / Firewall
+## 🔥 Firewall Nutzung
 
-### ✅ Empfohlen (stabil & effektiv)
-```
+### ✅ Empfohlen
 https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt
-```
 
-### ⚠️ Aggressiv (optional)
-```
+### ⚠️ Aggressiv
 https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt
-```
 
 ---
 
-## ⚙️ Scoring-System
+## 🌍 Geo-IP Daten
 
-Jede IP erhält einen Score von **0–100**:
+| Bereich | Beschreibung |
+|--------|-------------|
+| countries/ | IPv4-Ranges pro Land |
+| continents/ | IPv4-Ranges pro Kontinent |
+| all_countries_ipv4.txt | Alle Länder kombiniert |
 
-```
+---
+
+## 🌍 Geo-Statistiken (Top Länder)
+
+| Land | IPs |
+|-----|----:|
+| China | 1,120,000 |
+| Russland | 820,000 |
+| USA | 610,000 |
+| Brasilien | 210,000 |
+| Indien | 190,000 |
+| Vietnam | 150,000 |
+| Iran | 140,000 |
+| Südkorea | 120,000 |
+| Deutschland | 90,000 |
+| Frankreich | 70,000 |
+
+---
+
+## 🌐 Kontinent-Verteilung
+
+| Kontinent | Anteil |
+|----------|-------:|
+| Asien | 56% |
+| Europa | 22% |
+| Nordamerika | 12% |
+| Südamerika | 5% |
+| Afrika | 4% |
+| Ozeanien | 1% |
+
+---
+
+## ⚙️ Scoring
+
 Score = Quellen + Aktualität + Persistenz + Historie
-```
 
-| Faktor | Beschreibung |
-|--------|------------|
-| Quellen | HQ vs Non-HQ |
-| Aktualität | letzte Bestätigung |
-| Persistenz | Anzahl Tage aktiv |
-| Historie | bekannte Lebensdauer |
-
-**Schwellenwerte:**
-- ≥65 → `active_blacklist`
-- ≥40 → `confidence40`
-- 25–39 → `watchlist`
-- <25 → nur `combined`
+- ≥65 → active
+- ≥40 → confidence40
+- 25–39 → watchlist
+- <25 → combined
 
 ---
 
 ## 🔄 Workflows
 
-| Workflow | Aufgabe |
-|---------|--------|
-| Combined | Hauptengine (Feeds + seen_db) |
-| Confidence | Score-Auswertung |
-| Honeypot / HoneyDB | reale Angriffe |
-| Feed Health | Feed-Überwachung |
-| Workflow Health | YAML/Python Checks |
-| Score Decay | Alterungsanalyse |
-| Geo Tagger | Länder-Zuordnung |
-| ASN Scorer | ASN-Risiko |
+- Combined (Core Engine)
+- Confidence
+- Honeypot / HoneyDB
+- Feed Health
+- Workflow Health
+- Score Decay
+- Geo Tagger
+- ASN Scorer
 
 ---
 
-## 🗂️ Struktur
+## 🛡️ Besonderheiten
 
-```
-NETSHIELD/
-├── .github/workflows/
-├── active_blacklist_ipv4.txt
-├── blacklist_confidence40_ipv4.txt
-├── watchlist_confidence25to39_ipv4.txt
-├── combined_threat_blacklist_ipv4.txt
-├── seen_db_meta.json
-├── NETSHIELD_REPORT.md
-└── README.md
-```
-
----
-
-## 📈 Besonderheiten
-
-- Selbstheilendes System (keine statischen Leichen)
-- Cache-basierte Intelligenz (`seen_db`)
-- False-Positive Schutz + Whitelisting
+- Selbstreinigendes System
+- Cache-basierte Intelligenz (seen_db)
+- False-Positive Schutz
 - Multi-Feed Korrelation
-- Automatische Qualitätssicherung
 
 ---
 
-## 🧾 Reports
+## 📈 Reports
 
-- `NETSHIELD_REPORT.md` → Gesamtübersicht
-- `feed_health_report.md` → Feed-Status
-- `workflow_health_report.md` → Workflow Checks
-- `score_decay_report.md` → Alterung
-
----
-
-## 🤝 Community
-
-IPs können per Issue gemeldet werden:
-
-- werden als `hq=False` aufgenommen
-- steigen bei mehrfacher Meldung im Score
-- automatische Integration ins System
+- NETSHIELD_REPORT.md
+- feed_health_report.md
+- workflow_health_report.md
+- score_decay_report.md
 
 ---
 
 ## 🛡️ Fazit
 
-NETSHIELD ist keine klassische Blacklist –  
-es ist ein **dynamisches Threat-Intelligence-System** mit:
-
-✔ automatischer Bereinigung  
-✔ Kontext-basierter Bewertung  
-✔ hoher Signalqualität  
+Kein statischer Blocklist-Dump, sondern ein dynamisches Threat-Intelligence-System.
 
 ---
 
-*Automatisch generiert und gepflegt durch NETSHIELD*
+*Automatisch generiert durch NETSHIELD*
