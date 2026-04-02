@@ -35,7 +35,7 @@ jobs:
         run: |
           python3 << 'EOF'
           import urllib.request, urllib.error, json, sys, ipaddress, time
-          from datetime import datetime, timezone, timedelta  # FIX Bug4: timedelta direkt hier, kein zweiter Import nötig
+          from datetime import datetime, timezone
 
           now     = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
@@ -86,49 +86,14 @@ jobs:
               sys.exit(0)
 
           # ── IPs extrahieren + validieren ──────────────────────────────────
-          # FIX BOT1: Legitime Suchmaschinen-Crawler und SEO-Bots herausfiltern.
-          # Der Feed enthält Kategorien wie "Known Bot (Search Engine)", "Known Bot (AI Crawler)"
-          # und "Known Bot (SEO)" – das sind keine Angreifer sondern legitime Bots
-          # (Googlebot, Bingbot, GPTBot etc.). Diese würden als False Positives in die
-          # Blacklist gelangen und SEO/Indexing des eigenen Servers blockieren.
-          # FIX BOT2: is_permanent=false + Einträge älter als 30 Tage ignorieren,
-          # da der Feed "every 3 hours" updated wird – veraltete Einträge sind nicht mehr valide.
-          BLOCKED_CATEGORIES = {
-              "Known Bot (Search Engine)",
-              "Known Bot (AI Crawler)",
-              "Known Bot (SEO)",
-          }
-          _now = datetime.now(timezone.utc)
-          _cutoff = (_now - timedelta(days=30)).strftime("%Y-%m-%d")
-
           raw_entries  = data.get("blacklist", [])
-          filtered_entries = []
-          skipped_category = 0
-          skipped_stale    = 0
-          for entry in raw_entries:
-              if not isinstance(entry, dict) or "ip" not in entry:
-                  continue
-              # Legitime Bot-Kategorien überspringen
-              cat = entry.get("category", "")
-              if cat in BLOCKED_CATEGORIES:
-                  skipped_category += 1
-                  continue
-              # Veraltete nicht-permanente Einträge überspringen
-              if not entry.get("is_permanent", False):
-                  last_seen = entry.get("last_seen", "2000-01-01")
-                  if last_seen < _cutoff:
-                      skipped_stale += 1
-                      continue
-              filtered_entries.append(entry)
-
-          raw_ips      = [entry["ip"] for entry in filtered_entries]
+          raw_ips      = [entry["ip"] for entry in raw_entries if "ip" in entry]
           valid_ips    = [ip for ip in raw_ips if is_valid_public_ipv4(ip)]
           invalid_ips  = [ip for ip in raw_ips if not is_valid_public_ipv4(ip)]
           unique_ips   = sorted(set(valid_ips),
                                 key=lambda ip: tuple(int(o) for o in ip.split(".")))
 
-          print(f"  Roh: {len(data.get('blacklist', []))} | Legitime Bots gefiltert: {skipped_category} | "
-                f"Veraltet (>30T) gefiltert: {skipped_stale} | Gültig: {len(unique_ips)} | "
+          print(f"  Roh: {len(raw_ips)} | Gültig: {len(unique_ips)} | "
                 f"Ungültig/privat: {len(invalid_ips)} | Duplikate: {len(valid_ips) - len(unique_ips)}")
 
           # ── Leerungsschutz ────────────────────────────────────────────────
@@ -174,11 +139,9 @@ jobs:
           lines.append(f"| Gesamt IPs | **{len(unique_ips):,}** |")
           lines.append(f"| Neu (heute) | **+{len(new_ips):,}** |")
           lines.append(f"| Entfernt | **-{len(removed_ips):,}** |")
-          lines.append(f"| Legitime Bot-Kategorien gefiltert | {skipped_category:,} |")
-          lines.append(f"| Veraltete Einträge gefiltert (>30T) | {skipped_stale:,} |")
           lines.append(f"| Ungültig/privat gefiltert | {len(invalid_ips):,} |")
           lines.append(f"| Duplikate entfernt | {len(valid_ips) - len(unique_ips):,} |")
-          lines.append(f"| Feed-Einträge gesamt (roh) | {len(data.get('blacklist', [])):,} |")
+          lines.append(f"| Feed-Einträge (roh) | {len(raw_ips):,} |")
           lines.append("")
           lines.append("---")
           lines.append("> ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.")

@@ -176,23 +176,8 @@ jobs:
                   code_only = '\n'.join(code_lines)
                   has_keys_loop = bool(re.search(r'for \w+ in \w+\.keys\(\)', code_only))
                   has_del       = bool(re.search(r'\bdel \w+\[', code_only))
-                  # FIX Bug5: has_list_wrap darf nicht global im Block suchen –
-                  # ein list() an anderer Stelle würde den Check fälschlicherweise
-                  # unterdrücken (false negative). Stattdessen: prüfen ob das
-                  # problematische for...keys()-Muster selbst in list() eingebettet ist,
-                  # d.h. "for <var> in list(<dict>.keys())" in derselben Zeile steht.
-                  has_list_wrap = bool(re.search(r'for \w+ in list\(\w+\.keys\(\)\)', code_only))
-                  # Zusätzlich: del muss in Zeilennähe (≤5 Zeilen) nach keys()-Schleife stehen
-                  unsafe_keys_del = False
+                  has_list_wrap = bool(re.search(r'for \w+ in list\(', code_only))
                   if has_keys_loop and has_del and not has_list_wrap:
-                      lines_only = code_only.splitlines()
-                      for li, line in enumerate(lines_only):
-                          if re.search(r'for \w+ in \w+\.keys\(\)', line):
-                              window = '\n'.join(lines_only[li:li+6])
-                              if re.search(r'\bdel \w+\[', window):
-                                  unsafe_keys_del = True
-                                  break
-                  if unsafe_keys_del:
                       msg = f"Block {i}: 'del' in for-Schleife über .keys() ohne list() – RuntimeError"
                       file_errors.append(msg)
                       errors.append({"file": fname, "check": "Dict-Mutation in Schleife", "detail": msg})

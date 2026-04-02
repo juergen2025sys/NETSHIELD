@@ -2,10 +2,7 @@ name: HoneyDB Monitor
 
 on:
   schedule:
-    - cron: '0 23 * * *'   # 23:00 UTC → vor Combined 00:00
-    - cron: '0 7  * * *'   # 07:00 UTC → vor Combined 08:00
-    - cron: '0 15 * * *'   # 15:00 UTC → vor Combined 16:00
-    # 3 Runs/Tag × max. 12 Requests = 36 Requests/Tag < 50 Limit (1500/Monat ÷ 30 Tage)
+    - cron: '15 22 * * *'   # täglich 22:15 UTC (vor Honeypot Monitor 23:00 und Combined 00:00)
   workflow_dispatch:
 
 env:
@@ -81,10 +78,6 @@ jobs:
                       print(f"  [{label or endpoint}] HTTP {r.status} | verbraucht: {consumed} | verbleibend: {remaining}/1500")
                       return json.loads(r.read().decode("utf-8", errors="ignore"))
               except urllib.error.HTTPError as e:
-                  # FIX: requests_used auch bei Fehlern hochzählen – der API-Request
-                  # wurde vom Server empfangen und verbraucht das Rate-Limit-Kontingent,
-                  # auch wenn er mit 429/401 beantwortet wird.
-                  requests_used += 1
                   if e.code == 429:
                       print(f"  RATE LIMIT [{label or endpoint}] – übersprungen")
                   elif e.code == 401:
@@ -93,9 +86,6 @@ jobs:
                       print(f"  HTTP {e.code} [{label or endpoint}]: {e.reason}")
                   return None
               except Exception as e:
-                  # Netzwerkfehler (Timeout, DNS etc.) – kein Server-Request versendet,
-                  # aber zur Sicherheit trotzdem zählen um den Report konservativ zu halten.
-                  requests_used += 1
                   print(f"  FEHLER [{label or endpoint}]: {e}")
                   return None
 

@@ -63,7 +63,7 @@ jobs:
           DB_FILE    = "seen_db.json"
           BLACKLIST  = "combined_threat_blacklist_ipv4.txt"
           OUT_40     = "blacklist_confidence40_ipv4.txt"
-          OUT_WATCH  = "watchlist_confidence25to39_ipv4.txt"
+          OUT_WATCH  = "watchlist_confidence20to39_ipv4.txt"
 
           DNS_WHITELIST = {
               "192.168.13.1", "192.168.14.1",
@@ -159,9 +159,7 @@ jobs:
           #
           # [A] QUELLEN-QUALITÄT (max. 40 Punkte) – wie vertrauenswürdig sind
           #     die Feeds die diese IP gemeldet haben?
-          #       hq=True, hq_feeds >= 3                 → 40  (mehrere unabh. HQ-Feeds)
-          #       hq=True, hq_feeds >= 2                 → 38  (zwei HQ-Feeds)
-          #       hq=True, hq_feeds == 1                 → 36  (ein HQ-Feed – bewusst > Non-HQ-Max 35)
+          #       hq=True (je in einem HQ-Feed)          → 40
           #       today_count >= 5 (heute 5+ Feeds)      → 35
           #       today_count >= 3 (heute 3+ Feeds)      → 28
           #       today_count >= 2 (heute 2+ Feeds)      → 20
@@ -219,9 +217,6 @@ jobs:
               feed_count  = len(data.get("feeds", []))
               today_count = data.get("today_count", 0)
               today_hq    = data.get("today_hq", False)
-              # FIX: hq_feeds (Anzahl einzigartiger HQ-Feed-Quellen) auslesen –
-              # wurde bisher gepflegt aber nie im Scoring genutzt (toter Code).
-              hq_feeds    = data.get("hq_feeds", 1 if is_hq else 0)
               days_seen   = data.get("days_seen", 1)
               last_seen   = data.get("last",  "2000-01-01")
               first_seen  = data.get("first", last_seen)
@@ -243,16 +238,8 @@ jobs:
               days_known      = (now - first_dt).days + 1
 
               # [A] Quellen-Qualität
-              # FIX: hq_feeds (Anzahl einzigartiger HQ-Feed-Quellen) wird jetzt
-              # ausgewertet. IPs die von mehreren unabhängigen HQ-Feeds bestätigt
-              # werden, erhalten einen höheren Score als solche mit nur 1 HQ-Feed.
-              # Reihenfolge: is_hq (Bool-Basischeck) → hq_feeds-Abstufung → today_count → feed_count
-              if is_hq and hq_feeds >= 3:
-                  score_a = 40   # von ≥3 versch. HQ-Feeds bestätigt → max
-              elif is_hq and hq_feeds >= 2:
-                  score_a = 38   # von 2 versch. HQ-Feeds bestätigt
-              elif is_hq:
-                  score_a = 36   # 1 HQ-Feed (FIX Bug6: 36 > Non-HQ-Max 35, kein Score-Tie mit today_count>=5)
+              if is_hq:
+                  score_a = 40
               elif today_count >= 5:
                   score_a = 35
               elif today_count >= 3:
@@ -341,7 +328,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add blacklist_confidence40_ipv4.txt watchlist_confidence25to39_ipv4.txt
+          git add blacklist_confidence40_ipv4.txt watchlist_confidence20to39_ipv4.txt
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -356,9 +343,9 @@ jobs:
                 fi
               else
                 git checkout --theirs blacklist_confidence40_ipv4.txt \
-                  watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
+                  watchlist_confidence20to39_ipv4.txt 2>/dev/null || true
                 git add blacklist_confidence40_ipv4.txt \
-                  watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
+                  watchlist_confidence20to39_ipv4.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

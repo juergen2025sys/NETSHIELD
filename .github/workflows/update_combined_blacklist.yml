@@ -2,11 +2,7 @@ name: Update Combined Blacklist
 
 on:
   schedule:
-    - cron: '0 0,8,16 * * *'  # 3x täglich – 00:00 / 08:00 / 16:00 UTC
-                               # Passt exakt zu 3 AbuseIPDB Free-Plan Keys (1 Request/Tag/Key)
-                               # 00:00: nach allen Nacht-Feeds (HoneyDB 22:15, BotDet 22:45, Honeypot 23:00)
-                               # 08:00: nach CVE-Mapper (04:00) mit ausreichend Puffer
-                               # 16:00: Nachmittags-Refresh
+    - cron: '0 */3 * * *'  # 8x täglich – alle 3 Stunden
   workflow_dispatch:
 
 env:
@@ -46,10 +42,6 @@ jobs:
             netshield-seen-db-
 
       - name: Fetch AbuseIPDB Blacklist (API, Round-Robin)
-        continue-on-error: true  # FIX: Free-Plan erlaubt 1 Request/Tag pro Key → nach 3 Keys
-                                 # schlagen Runs 4-8 mit exit(1) fehl und blockierten den
-                                 # gesamten Combined-Lauf. Leerungsschutz greift weiterhin
-                                 # (bestehende Datei wird nicht überschrieben), Combined läuft durch.
         env:
           ABUSEIPDB_KEY_1: ${{ secrets.ABUSEIPDB_API_KEY_1 }}
           ABUSEIPDB_KEY_2: ${{ secrets.ABUSEIPDB_API_KEY_2 }}
@@ -61,17 +53,19 @@ jobs:
 
           now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-          # ── Round-Robin über 3 Keys ──────────────────────────────────────────
-          # Combined läuft 3×/Tag (00:00 / 08:00 / 16:00 UTC).
-          # Free-Plan: 1 Request/Tag/Key → jeder Key deckt genau einen Run ab.
-          # Beim ersten erfolgreichen Key wird abgebrochen, die anderen geschont.
+          # ── Fallback-Logik: Free-Plan erlaubt 1 Request/Tag pro Key ─────────────
+          # Key 1 wird zuerst versucht. Schlägt er fehl (429 Rate-Limit oder
+          # sonstiger Fehler), wird Key 2 versucht, dann Key 3.
+          # Da alle Keys dieselbe Liste zurückgeben (Free-Plan, Top-10.000
+          # nach Score ≥ 50), reicht ein erfolgreicher Request pro Tag.
+          # .strip() entfernt versehentliche Newlines/Leerzeichen aus dem Secret
           KEYS = [
               os.environ.get("ABUSEIPDB_KEY_1", "").strip(),
               os.environ.get("ABUSEIPDB_KEY_2", "").strip(),
               os.environ.get("ABUSEIPDB_KEY_3", "").strip(),
           ]
           MIN_SCORE = 50
-          LIMIT     = 500000  # Free-Plan liefert max. ~10k, bei Upgrade auf Basic/Premium automatisch mehr
+          LIMIT     = 10000
 
           all_ips = set()
           stats   = []
@@ -433,8 +427,7 @@ jobs:
               # "romainmarcoux_ac" entfernt: full-300k-ac.txt existiert nicht mehr (HTTP 200, leerer Body)
               "4ip_high_security":          ("https://raw.githubusercontent.com/4IP-Solutions/threat-feeds/refs/heads/main/blocklist-incoming-ip-high-security.txt", False),
               "cyna_malicious":             ("https://raw.githubusercontent.com/cybersecurity-cyna/Malicious_IP/refs/heads/main/ip-list.txt", False),
-              # "black_mirror" entfernt: GitHub-Release-Download kann sehr groß werden und
-              # blockiert ThreadPoolExecutor bis zum 600s-Timeout → Combined-Crash (FIX #CB1)
+              "black_mirror":               ("https://github.com/T145/black-mirror/releases/download/latest/BLOCK_IPV4.txt", False),
               "alienvault":                 ("https://reputation.alienvault.com/reputation.generic", False),
               "bitwire_ipblocklist":        ("https://raw.githubusercontent.com/bitwire-it/ipblocklist/refs/heads/main/inbound.txt", False),
               "littlejake_all_blacklist":   ("https://cdn.jsdelivr.net/gh/LittleJake/ip-blacklist/all_blacklist.txt", False),
@@ -682,27 +675,16 @@ jobs:
 
           with ThreadPoolExecutor(max_workers=15) as executor:
               futures = {executor.submit(fetch_ips, n, u): n for n, (u, _) in SOURCES.items()}
-              # FIX #CB1: try/except um as_completed() fängt concurrent.futures.TimeoutError
-              # (tritt auf wenn ein Feed hängt und 600s überschreitet) und verhindert
-              # den unkontrollierten Crash des gesamten Steps.
-              try:
-                  for future in as_completed(futures, timeout=600):
-                      try:
-                          name, ips = future.result()
-                      except Exception as _fe:
-                          print(f"::warning file=update_combined_blacklist.yml::Future-Fehler: {_fe}")
-                          continue
-                      for ip in ips:
-                          if name in HIGH_QUALITY:
-                              ip_in_hq.add(ip)
-                          # Feed-Name pro IP merken
-                          if ip not in ip_feeds_today:
-                              ip_feeds_today[ip] = set()
-                          ip_feeds_today[ip].add(name)
-                      feed_stats.append((name, len(ips)))
-              except Exception as _te:
-                  print(f"::warning file=update_combined_blacklist.yml::Feed-Fetch Timeout/Fehler: {_te}")
-                  print(f"WARNUNG: Feed-Fetch teilweise abgebrochen ({_te}) – fahre mit {len(ip_feeds_today)} bisher gesammelten IPs fort")
+              for future in as_completed(futures, timeout=600):
+                  name, ips = future.result()
+                  for ip in ips:
+                      if name in HIGH_QUALITY:
+                          ip_in_hq.add(ip)
+                      # Feed-Name pro IP merken
+                      if ip not in ip_feeds_today:
+                          ip_feeds_today[ip] = set()
+                      ip_feeds_today[ip].add(name)
+                  feed_stats.append((name, len(ips)))
 
           # ── Lokale Sub-Workflow-Dateien einlesen ───────────────────────────
           LOCAL_FEEDS = {
@@ -765,59 +747,18 @@ jobs:
 
                   with ThreadPoolExecutor(max_workers=5) as ex:
                       futures = {ex.submit(fetch_auto, f): f["name"] for f in auto_feeds}
-                      try:
-                          for future in as_completed(futures, timeout=120):
-                              try:
-                                  name, ips = future.result()
-                              except Exception as _afe:
-                                  print(f"  WARNUNG Auto-Feed Future: {_afe}")
-                                  continue
-                              for ip in ips:
-                                  # Auto-discovered Feeds sind nicht HQ
-                                  if ip not in ip_feeds_today:
-                                      ip_feeds_today[ip] = set()
-                                  ip_feeds_today[ip].add(name)
-                              feed_stats.append((name, len(ips)))
-                      except Exception as _ate:
-                          print(f"  WARNUNG Auto-Feeds Timeout: {_ate}")
+                      for future in as_completed(futures, timeout=120):
+                          name, ips = future.result()
+                          for ip in ips:
+                              # Auto-discovered Feeds sind nicht HQ
+                              if ip not in ip_feeds_today:
+                                  ip_feeds_today[ip] = set()
+                              ip_feeds_today[ip].add(name)
+                          feed_stats.append((name, len(ips)))
               except Exception as e:
                   print(f"  WARNUNG: auto_discovered_feeds.json Fehler: {e}")
           else:
               print(f"  SKIP: {AUTO_FEEDS_FILE} nicht vorhanden")
-
-          # ── community_pending.json einlesen (FIX Bug2) ─────────────────
-          # Community-Reports schreiben ihre seen_db-Änderungen in einen eigenen
-          # Cache-Slot (community-<issue>-<run_id>), der von Combined nie erreicht
-          # wird, weil restore-keys immer zuerst den neueren v2-Slot trifft.
-          # Lösung: Community-Workflow committet community_pending.json ins Repo.
-          # Combined liest diese Datei hier ein, mergt die IPs in ip_feeds_today
-          # und leert sie danach, damit verarbeitete Einträge nicht nochmals
-          # eingelesen werden.
-          PENDING_FILE = "community_pending.json"
-          if os.path.exists(PENDING_FILE):
-              try:
-                  with open(PENDING_FILE) as pf:
-                      pending_data = json.load(pf)
-                  if pending_data:
-                      print(f"  community_pending.json: {len(pending_data)} ausst. IP(s) einlesen...")
-                      for ip, entry in pending_data.items():
-                          if is_whitelisted(ip) or is_in_fp_set(ip):
-                              continue
-                          if ip not in ip_feeds_today:
-                              ip_feeds_today[ip] = set()
-                          ip_feeds_today[ip].add("community_report")
-                          if entry.get("hq", False):
-                              ip_in_hq.add(ip)
-                      print(f"  community_pending.json: {len(pending_data)} IPs gemergt")
-                      # Datei leeren damit Einträge nicht nochmals verarbeitet werden
-                      with open(PENDING_FILE, "w") as pf:
-                          json.dump({}, pf)
-                  else:
-                      print(f"  community_pending.json: leer (keine ausst. Reports)")
-              except Exception as e:
-                  print(f"  WARNUNG: community_pending.json Fehler: {e}")
-          else:
-              print(f"  SKIP: {PENDING_FILE} nicht vorhanden")
 
           # ── seen_db aktualisieren ─────────────────────────────────────────
           #
@@ -999,25 +940,20 @@ jobs:
                   continue
 
               is_hq       = data.get("hq", False)
-              hq_feeds    = data.get("hq_feeds", 1 if is_hq else 0)
               feed_count  = len(data.get("feeds", []))
               today_count = data.get("today_count", 0)
               days_seen   = data.get("days_seen", 1)
               days_since_last = (now - last_dt).days
               days_known      = (now - first_dt).days + 1
 
-              # FIX: hq_feeds-Abstufung identisch mit update_confidence_blacklist.yml
-              # (Bug1+Bug6-Fix): hq=True,1Feed → 36 (bewusst > Non-HQ-Max 35)
-              if is_hq and hq_feeds >= 3:   score_a = 40
-              elif is_hq and hq_feeds >= 2: score_a = 38
-              elif is_hq:                   score_a = 36
-              elif today_count >= 5:        score_a = 35
-              elif today_count >= 3:        score_a = 28
-              elif today_count >= 2:        score_a = 20
-              elif feed_count >= 5:         score_a = 15
-              elif feed_count >= 3:         score_a = 10
-              elif feed_count >= 2:         score_a = 5
-              else:                         score_a = 0
+              if is_hq:                  score_a = 40
+              elif today_count >= 5:     score_a = 35
+              elif today_count >= 3:     score_a = 28
+              elif today_count >= 2:     score_a = 20
+              elif feed_count >= 5:      score_a = 15
+              elif feed_count >= 3:      score_a = 10
+              elif feed_count >= 2:      score_a = 5
+              else:                      score_a = 0
 
               if days_since_last <= 1:   score_b = 30
               elif days_since_last <= 3: score_b = 25
@@ -1096,7 +1032,7 @@ jobs:
           PYEOF
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt community_pending.json 2>/dev/null || true
+          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -1115,10 +1051,10 @@ jobs:
                 # also genau das was wir wollen: die frisch generierten Dateien bevorzugen.
                 git checkout --theirs combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md \
-                  seen_db_meta.json abuseipdb_api_blacklist.txt community_pending.json 2>/dev/null || true
+                  seen_db_meta.json abuseipdb_api_blacklist.txt 2>/dev/null || true
                 git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md seen_db_meta.json \
-                  abuseipdb_api_blacklist.txt community_pending.json 2>/dev/null || true
+                  abuseipdb_api_blacklist.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))
