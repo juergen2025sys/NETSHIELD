@@ -107,7 +107,9 @@ jobs:
                   return True
 
           if not os.path.exists(DB_FILE):
-              print(f"FEHLER: {DB_FILE} nicht gefunden – bitte zuerst Update Combined Blacklist ausführen.")
+              msg = f"{DB_FILE} nicht gefunden – bitte zuerst Update Combined Blacklist ausführen."
+              print(f"::warning file=update_confidence_blacklist.yml::{msg}")
+              print(f"FEHLER: {msg}")
               sys.exit(1)
 
           with open(DB_FILE) as f:
@@ -138,7 +140,9 @@ jobs:
               pass
 
           if not os.path.exists(BLACKLIST):
-              print(f"FEHLER: {BLACKLIST} nicht gefunden!")
+              msg = f"{BLACKLIST} nicht gefunden – combined-Workflow muss zuerst laufen."
+              print(f"::warning file=update_confidence_blacklist.yml::{msg}")
+              print(f"FEHLER: {msg}")
               sys.exit(1)
 
           with open(BLACKLIST) as f:

@@ -230,7 +230,8 @@ jobs:
               # fehlenden Konfigurationsdateien.
               _leer_kws  = {"MIN_ENTRIES", "MIN_ABUSEIPDB", "Leerungsschutz"}
               _ok_kws    = {"nicht erreichbar", "Versuchen fehlgeschlagen",
-                            "RATE_LIMITED", "NO_IP_FOUND", "INVALID_IP",
+                            "RATE_LIMITED", "Rate-Limit",  # Rate-Limit: intentionales exit(0) mit continue-on-error (z.B. AbuseIPDB)
+                            "NO_IP_FOUND", "INVALID_IP",
                             "WORKFLOWS_DIR", "korrupt", "nicht lesbar",
                             "FP-Liste", "False-Positive"}
               for _bi, _blk in enumerate(blocks):
@@ -259,6 +260,7 @@ jobs:
                   "update_bot_detector.yml", "update-blocklist.yml",
                   "update_combined_blacklist.yml", "geo_tagger.yml",
                   "asn_reputation_scorer.yml", "cve_to_ip_mapper.yml",
+                  "update_confidence_blacklist.yml", "false_positive_checker.yml",
               }
               if fname in _guarded_files:
                   has_warning_annot = f"::warning file={fname}::" in content

@@ -2,7 +2,7 @@ name: Honeypot Monitor
 
 on:
   schedule:
-    - cron: '0 23 * * *'   # täglich 23:00 UTC (vor Tor um 23:30 und Combined um 00:00)
+    - cron: '0 23 * * *'   # täglich 23:00 UTC (vor Combined um 00:00; 15min Puffer nach HoneyDB 22:15 + Bot-Detector 22:45)
   workflow_dispatch:
 
 env:

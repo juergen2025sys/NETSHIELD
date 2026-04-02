@@ -195,7 +195,9 @@ jobs:
           # ── Blacklist laden ───────────────────────────────────────────────
           BLACKLIST = "combined_threat_blacklist_ipv4.txt"
           if not os.path.exists(BLACKLIST):
-              print(f"FEHLER: {BLACKLIST} nicht gefunden!")
+              msg = f"{BLACKLIST} nicht gefunden – Prüfung übersprungen."
+              print(f"::warning file=false_positive_checker.yml::{msg}")
+              print(f"FEHLER: {msg}")
               sys.exit(1)
 
           with open(BLACKLIST) as f:
