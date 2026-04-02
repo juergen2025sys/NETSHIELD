@@ -110,10 +110,10 @@ jobs:
           OUT = "abuseipdb_api_blacklist.txt"
           sorted_ips = sorted(all_ips, key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
 
-          # ── FIX #6: Leerungsschutz für AbuseIPDB-Ausgabe ──────────────────
-          # FIX LS1: sys.exit(1) statt sys.exit(0) damit GitHub Actions den Step
-          # als fehlgeschlagen markiert und im UI sichtbar wird.
-          # Zusätzlich: GitHub Workflow Warning Annotation ausgeben.
+          # ── Leerungsschutz für AbuseIPDB-Ausgabe ─────────────────────────
+          # Rate-Limit (Free-Plan: 5 Req/Tag) → exit(0) statt exit(1), da
+          # continue-on-error am Step den Build-Abbruch verhindert.
+          # Die bestehende abuseipdb_api_blacklist.txt wird als lokaler Feed weiter gelesen.
           import sys
           MIN_ABUSEIPDB = 100
           if len(sorted_ips) < MIN_ABUSEIPDB:
