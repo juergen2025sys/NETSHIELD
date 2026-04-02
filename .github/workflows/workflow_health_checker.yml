@@ -297,13 +297,6 @@ jobs:
                                          "detail": msg})
 
               # ── Check 13: MIN_ENTRIES-Schwellen zu niedrig ────────────────
-              # Bekannte Mindestwerte aus der NETSHIELD-Architektur:
-              #   honeydb_monitor:  >= 500  (liefert normalerweise 500-5000 IPs)
-              #   update-blocklist: >= 500000 (hackinggate liefert ~3.5M Ranges)
-              _min_thresholds = {
-                  "honeydb_monitor.yml":  500,
-                  "update-blocklist.yml": 200_000,  # FIX: hackinggate liefert seit 2026-03 ~255k aggregierte Ranges (war ~3.5M detailliert)
-              }
               # ── Check 13: Mindestschwellen / Leerungsschutz-Thresholds ───
               # Prüft bekannte Guard-Variablen pro Workflow auf zu niedrige Werte.
               _threshold_specs = {

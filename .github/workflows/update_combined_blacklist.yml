@@ -42,6 +42,7 @@ jobs:
             netshield-seen-db-
 
       - name: Fetch AbuseIPDB Blacklist (API, Round-Robin)
+        continue-on-error: true  # Rate-Limit (5 Req/Tag, Free-Plan) darf den Haupt-Build nicht blockieren
         env:
           ABUSEIPDB_KEY_1: ${{ secrets.ABUSEIPDB_API_KEY_1 }}
           ABUSEIPDB_KEY_2: ${{ secrets.ABUSEIPDB_API_KEY_2 }}
@@ -117,10 +118,10 @@ jobs:
           MIN_ABUSEIPDB = 100
           if len(sorted_ips) < MIN_ABUSEIPDB:
               msg = (f"Nur {len(sorted_ips)} AbuseIPDB-IPs (<{MIN_ABUSEIPDB}) – "
-                     f"behalte bestehende {OUT}")
+                     f"Rate-Limit erschöpft, behalte bestehende {OUT}")
               print(f"::warning file=update_combined_blacklist.yml::{msg}")
               print(f"WARNUNG: {msg}")
-              sys.exit(1)
+              sys.exit(0)  # exit(0) = kein Fehler; continue-on-error am Step verhindert Build-Block
 
           with open(OUT, "w", encoding="utf-8") as f:
               f.write("# AbuseIPDB API Blacklist – NETSHIELD\n")
