@@ -234,21 +234,25 @@ jobs:
                       file_warnings.append(msg)
                       warnings.append({"file": fname, "check": "Fehlende Fehlerbehandlung", "detail": msg})
 
-                  # ── Check 6: del db[ip] in aktiver for-Schleife ────────────
-                  # FIX CHK6b: Negativer Lookahead statt block-globalem has_list_wrap.
-                  # Alter Ansatz: hat_list_wrap=True wenn irgendwo im Block list()
-                  # vorkommt → blendet .keys()-Loops ohne list() aus (False Negative).
-                  # Neuer Ansatz: sucht gezielt nach "for x in <name>.keys()" die
-                  # NICHT unmittelbar von list( umschlossen sind (per Lookahead).
+                  # ── Check 6: del in aktiver for-Schleife (Dict-Mutation) ──
+                  # FIX CHK6c: Zeilenbasierter Check – jede for-Zeile einzeln prüfen.
+                  # "for x in list(d.keys())" – SICHER  → kein Match
+                  # "for x in list(d)"        – SICHER  → kein Match
+                  # "for x in d.keys()"       – UNSICHER → Fehler
+                  # "for x in d"              – UNSICHER → Fehler (wenn del im Block)
+                  # Negativer Lookahead auf list( direkt nach "in " schließt korrekte
+                  # list(db.keys())-Muster aus und verhindert den False Positive.
                   code_lines = [l for l in dedented.splitlines()
                                 if l.strip() and not l.strip().startswith('#')]
                   code_only = '\n'.join(code_lines)
-                  has_unprotected_keys = bool(re.search(
-                      r'for \w+ in (?!list\()\w+\.keys\(\)', code_only
-                  ))
+                  _unsafe_for_matches = re.findall(
+                      r'^\s*for \w+ in (?!list\()([A-Za-z_]\w*(?:\.keys\(\))?)',
+                      code_only, re.MULTILINE
+                  )
                   has_del = bool(re.search(r'\bdel \w+\[', code_only))
-                  if has_unprotected_keys and has_del:
-                      msg = f"Block {i}: 'del' in for-Schleife über .keys() ohne list() – RuntimeError"
+                  if _unsafe_for_matches and has_del:
+                      msg = (f"Block {i}: 'del' in for-Schleife ohne list()-Kopie "
+                             f"({_unsafe_for_matches[0]}) – RuntimeError bei Dict-Größenänderung")
                       file_errors.append(msg)
                       errors.append({"file": fname, "check": "Dict-Mutation in Schleife", "detail": msg})
 
@@ -455,6 +459,61 @@ jobs:
                   warnings.append({"file": fname,
                                    "check": "Kein expliziter Leerungsschutz",
                                    "detail": msg})
+
+              # ── Check 16: urllib.urlopen ohne timeout= ───────────────────
+              # urlopen ohne timeout= hängt unendlich bei toten Feeds / Netzwerkproblemen.
+              # Jeder externe HTTP-Aufruf MUSS einen expliziten timeout haben.
+              for _bi, _blk in enumerate(blocks):
+                  for _m in re.finditer(r'urlopen\(([^)]+)\)', _blk):
+                      _args = _m.group(1)
+                      if 'timeout=' not in _args:
+                          msg = (f"Block {_bi}: urllib.urlopen() ohne timeout= – "
+                                 f"hängt ewig bei totem Host/Netzwerkausfall")
+                          file_warnings.append(msg)
+                          warnings.append({"file": fname,
+                                           "check": "urlopen ohne timeout",
+                                           "detail": msg})
+                          break
+
+              # ── Check 17: open(..., "a") ohne encoding= ──────────────────
+              # Append-Mode kann ebenso wie Write-Mode zum UnicodeEncodeError
+              # führen wenn Locale nicht UTF-8 ist.
+              _open_append_pat = re.compile(r"open\([^)]+,\s*['\"]{1}a['\"]{1}\s*\)")
+              for _bi, _blk in enumerate(blocks):
+                  for _m in _open_append_pat.finditer(_blk):
+                      _snip = _blk[max(0, _m.start()-30):_m.end()+60]
+                      if 'encoding' not in _snip:
+                          msg = (f"Block {_bi}: open(..., 'a') ohne encoding= – "
+                                 f"UnicodeEncodeError möglich bei non-ASCII")
+                          file_warnings.append(msg)
+                          warnings.append({"file": fname,
+                                           "check": "Encoding fehlt (append)",
+                                           "detail": msg})
+                          break
+
+
+              # ── Check 18: sys.exit() ohne vorherige Fehlermeldung ────────
+              # Ein "stiller" sys.exit(1) ohne print() davor ist schwer zu debuggen.
+              # Mindestens ein print() oder eine ::warning-Annotation sollte vorher stehen.
+              for _bi, _blk in enumerate(blocks):
+                  _lines = _blk.splitlines()
+                  for _j, _ln in enumerate(_lines):
+                      _s = _ln.strip()
+                      if _s.startswith('#'):
+                          continue
+                      if re.search(r'sys\.exit\(1\)', _s):
+                          # Prüfe die 5 Zeilen davor auf print() oder ::warning
+                          _ctx_lines = _lines[max(0, _j-5):_j]
+                          _ctx = ' '.join(_ctx_lines)
+                          if 'print(' not in _ctx and '::warning' not in _ctx and '::error' not in _ctx:
+                              msg = (f"Block {_bi} L~{_j}: sys.exit(1) ohne vorherige "
+                                     f"Fehlermeldung (print/annotation) – schwer debuggbar")
+                              file_warnings.append(msg)
+                              warnings.append({"file": fname,
+                                               "check": "Stiller sys.exit(1)",
+                                               "detail": msg})
+                              break
+
 
               results[fname] = {
                   "blocks":   len(blocks),
