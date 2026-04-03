@@ -34,7 +34,7 @@ jobs:
       - name: Fetch Bot-Detector Blacklist
         run: |
           python3 << 'EOF'
-          import urllib.request, urllib.error, json, sys, ipaddress, time
+          import urllib.request, urllib.error, json, os, sys, ipaddress, time
           from datetime import datetime, timezone
 
           now     = datetime.now(timezone.utc)
@@ -105,8 +105,6 @@ jobs:
               sys.exit(1)
 
           # ── Delta berechnen ───────────────────────────────────────────────
-          import os
-          import sys
           existing = set()
           if os.path.exists(OUT_FILE):
               with open(OUT_FILE) as f:

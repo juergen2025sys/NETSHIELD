@@ -107,6 +107,7 @@ jobs:
                   return (parts[0] == 10 or
                           (parts[0] == 172 and 16 <= parts[1] <= 31) or
                           (parts[0] == 192 and parts[1] == 168) or
+                          (parts[0] == 169 and parts[1] == 254) or
                           parts[0] in (0, 127) or parts[0] >= 224)
               except Exception:
                   return True

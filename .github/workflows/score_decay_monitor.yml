@@ -183,7 +183,7 @@ jobs:
           print(f"Veraltend – Warnung (30-44 Tage): {len(stale_warn)}")
           print(f"Veraltend – Kritisch (45+ Tage):  {len(stale_critical)}")
           print(f"Zombie (Score≥20, 30+ Tage):      {len(zombie_high)}")
-          print(f"Entfernung empfohlen (30+ Tage):  {len(decay_suggest)}")
+          print(f"Läuft bald ab (150+ Tage):        {len(decay_suggest)}")
 
           # Decay-Log
           with open("score_decay_log.txt", "w", encoding="utf-8") as f:
@@ -194,7 +194,7 @@ jobs:
               f.write("\n# KRITISCH veraltend (45+ Tage, Score≥10)\n")
               for ip, score, days, last in stale_critical[:200]:
                   f.write(f"{ip}  score={score}  last={last}  ({days}d ago)\n")
-              f.write("\n# Entfernung empfohlen (30+ Tage)\n")
+              f.write("\n# Läuft bald ab (150+ Tage, combined entfernt bei 180T)\n")
               for ip, score, days, last in decay_suggest[:500]:
                   f.write(f"{ip}  score={score}  last={last}  ({days}d ago)\n")
 

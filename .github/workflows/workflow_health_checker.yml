@@ -102,7 +102,10 @@ jobs:
               if len(parts) != 5:
                   return []
               minute_f, hour_f, dom_f, month_f, dow_f = parts
-              if dom_f != '*' or month_f != '*' or dow_f != '*':
+              # Weekly-Crons nicht stillschweigend verwerfen:
+              # Für den Puffer-Check genügt eine konservative Tageszeit-Betrachtung.
+              # month_f bleibt eingeschränkt; dom_f / dow_f werden bewusst ignoriert.
+              if month_f != '*':
                   return []
               minutes = _expand_simple_field(minute_f, 0, 59)
               hours   = _expand_simple_field(hour_f, 0, 23)
