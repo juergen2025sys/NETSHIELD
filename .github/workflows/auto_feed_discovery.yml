@@ -628,6 +628,18 @@ jobs:
           # Feed-Pipeline – kein Mehrwert durch zusätzlichen Write hier.
 
           # ── Schritt 8: auto_discovered_feeds.json speichern ───────────────
+          # Leerungsschutz: Wenn die GitHub-Suche komplett fehlschlug (Rate-Limit,
+          # API-Fehler), ist candidate_repos leer und approved_feeds == existing_feeds.
+          # In diesem Fall darf auto_discovered_feeds.json NICHT geschrieben werden –
+          # bestehende Feeds würden sonst mit 0 neu bewerteten Kandidaten überschrieben.
+          import sys as _sys
+          if len(candidate_repos) == 0 and len(existing_feeds) > 0:
+              _msg = (f"GitHub-Suche lieferte 0 Kandidaten – behalte bestehende "
+                      f"auto_discovered_feeds.json ({len(existing_feeds)} Feeds)")
+              print(f"::warning file=auto_feed_discovery.yml::{_msg}")
+              print(f"WARNUNG: {_msg}")
+              _sys.exit(1)
+
           new_feeds_count = len(approved_feeds) - len(existing_feeds)
           output = {
               "updated":        now_str,
