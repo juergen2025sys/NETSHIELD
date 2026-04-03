@@ -439,7 +439,7 @@ jobs:
                   or "http://" in content
               )
               _writes_outputs = any(tok in content for tok in [
-                  ".txt"", ".txt'", ".md"", ".md'", "OUT_FILE", "REPORT_FILE"
+                  ".txt", ".md", "OUT_FILE", "REPORT_FILE"
               ])
               _has_min_guard = bool(re.search(r'\bMIN_[A-Z0-9_]+\b', content))
               _quality_guard_exempt = {
