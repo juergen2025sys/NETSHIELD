@@ -77,6 +77,50 @@ jobs:
           cron_re = re.compile(r"cron:\s*'([\d\s*/,]+)'")
           cron_map = {}
           name_map = {}
+
+          def _expand_simple_field(field, min_v, max_v):
+              field = field.strip()
+              if field == "*":
+                  return list(range(min_v, max_v + 1))
+              vals = set()
+              for part in field.split(','):
+                  part = part.strip()
+                  if not part:
+                      continue
+                  if part.startswith('*/'):
+                      step = int(part[2:])
+                      vals.update(range(min_v, max_v + 1, step))
+                  elif part.isdigit():
+                      v = int(part)
+                      if min_v <= v <= max_v:
+                          vals.add(v)
+              return sorted(vals)
+
+          def _cron_minutes_of_day(expr):
+              parts = expr.split()
+              if len(parts) != 5:
+                  return []
+              minute_f, hour_f, dom_f, month_f, dow_f = parts
+              if dom_f != '*' or month_f != '*' or dow_f != '*':
+                  return []
+              minutes = _expand_simple_field(minute_f, 0, 59)
+              hours   = _expand_simple_field(hour_f, 0, 23)
+              return sorted({h * 60 + m for h in hours for m in minutes})
+
+          def _fmt_minute_of_day(v):
+              return f"{v // 60:02d}:{v % 60:02d} UTC"
+
+          expected_sequence = [
+              ("feed_health_monitor.yml",       "workflow_health_checker.yml",   15),
+              ("honeydb_monitor.yml",           "update_bot_detector.yml",       15),
+              ("update_bot_detector.yml",       "honeypot_monitor.yml",          15),
+              ("honeypot_monitor.yml",          "update_combined_blacklist.yml", 60),
+              ("update_combined_blacklist.yml", "update_confidence_blacklist.yml", 45),
+              ("score_decay_monitor.yml",       "geo_tagger.yml",                30),
+          ]
+          continue_on_error_allowlist = {
+              "update_combined_blacklist.yml",  # AbuseIPDB Rate-Limit ist absichtlich non-blocking
+          }
           for fname in files:
               content = open(f"{WORKFLOWS_DIR}/{fname}").read()
 
@@ -109,6 +153,33 @@ jobs:
                       "file": " + ".join(wfs),
                       "check": "Doppelter Workflow-Name",
                       "detail": f'name: "{name}" – concurrency-group schlägt fehl, Runs blockieren sich',
+                  })
+
+          # ── Check 1b: Erwartete Workflow-Reihenfolge / Mindestpuffer ─────
+          file_crons = {fname: cron_re.findall(open(f"{WORKFLOWS_DIR}/{fname}").read()) for fname in files}
+          for _src, _dst, _min_gap in expected_sequence:
+              src_minutes = []
+              dst_minutes = []
+              for _expr in file_crons.get(_src, []):
+                  src_minutes.extend(_cron_minutes_of_day(_expr.strip()))
+              for _expr in file_crons.get(_dst, []):
+                  dst_minutes.extend(_cron_minutes_of_day(_expr.strip()))
+              src_minutes = sorted(set(src_minutes))
+              dst_minutes = sorted(set(dst_minutes))
+              if not src_minutes or not dst_minutes:
+                  continue
+              bad_pairs = []
+              for _s in src_minutes:
+                  later = [_d for _d in dst_minutes if _d > _s]
+                  if later:
+                      _next = later[0]
+                      if (_next - _s) < _min_gap:
+                          bad_pairs.append(f"{_fmt_minute_of_day(_s)} → {_fmt_minute_of_day(_next)} ({_next - _s}min < {_min_gap}min)")
+              if bad_pairs:
+                  warnings.append({
+                      "file": f"{_src} → {_dst}",
+                      "check": "Workflow-Reihenfolge / Puffer zu knapp",
+                      "detail": "; ".join(bad_pairs[:5]),
                   })
 
           # ── Pro Datei ─────────────────────────────────────────────────────
@@ -348,6 +419,42 @@ jobs:
                           warnings.append({"file": fname,
                                            "check": f"{_var} fehlt",
                                            "detail": msg})
+
+              # ── Check 14: continue-on-error sichtbar machen ──────────────
+              if "continue-on-error: true" in content and fname not in continue_on_error_allowlist:
+                  msg = ("continue-on-error=true gesetzt – Fehler können still bleiben; "
+                         "Review ob das wirklich beabsichtigt ist")
+                  file_warnings.append(msg)
+                  warnings.append({"file": fname,
+                                   "check": "continue-on-error aktiv",
+                                   "detail": msg})
+
+              # ── Check 15: Externer Feed ohne expliziten Leerungsschutz ───
+              # Heuristik: Workflow lädt externe URLs und schreibt Listen/Reports,
+              # aber enthält keine MIN_*-Schwelle. Das ist kein harter Fehler,
+              # sondern ein Hinweis auf mögliche Datenqualitäts-Lücken.
+              _has_external_fetch = (
+                  "urllib.request.urlopen" in content
+                  or "https://" in content
+                  or "http://" in content
+              )
+              _writes_outputs = any(tok in content for tok in [
+                  ".txt"", ".txt'", ".md"", ".md'", "OUT_FILE", "REPORT_FILE"
+              ])
+              _has_min_guard = bool(re.search(r'\bMIN_[A-Z0-9_]+\b', content))
+              _quality_guard_exempt = {
+                  "feed_health_monitor.yml",
+                  "workflow_health_checker.yml",
+                  "netshield_report_generator.yml",
+                  "community_ip_report.yml",
+              }
+              if _has_external_fetch and _writes_outputs and not _has_min_guard and fname not in _quality_guard_exempt:
+                  msg = ("Externer Feed/Report ohne explizite MIN_* Guard-Variable – "
+                         "Müll-/Leer-Daten könnten unbemerkt akzeptiert werden")
+                  file_warnings.append(msg)
+                  warnings.append({"file": fname,
+                                   "check": "Kein expliziter Leerungsschutz",
+                                   "detail": msg})
 
               results[fname] = {
                   "blocks":   len(blocks),
