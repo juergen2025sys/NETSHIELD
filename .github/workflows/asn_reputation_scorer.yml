@@ -266,7 +266,6 @@ jobs:
           # ── Schritt 4: asn_blocklist_firewall.txt ─────────────────────────
           # Leerungsschutz: Wenn alle ASN-Lookups fehlschlugen ist results leer →
           # keine Ausgabedatei überschreiben.
-          import sys
           MIN_ASN_RESULTS = 5  # mind. 5 ASNs müssen erfolgreich abgefragt worden sein
           if len(results) < MIN_ASN_RESULTS:
               msg = (f"Nur {len(results)} ASN-Ergebnisse (< {MIN_ASN_RESULTS}) – "

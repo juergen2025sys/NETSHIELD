@@ -118,7 +118,7 @@ jobs:
               except Exception as e:
                   print(f"FEHLER: seen_db.json ist korrupt oder nicht lesbar: {e}")
                   print("Behalte bestehende Confidence-Blacklists und breche ab.")
-                  sys.exit(0)
+                  sys.exit(1)  # exit(1) damit GitHub Actions den Fehler im UI anzeigt
           print(f"seen_db geladen: {len(db)} IPs")
 
           # Alter der seen_db prüfen – nur echte HQ-Bestätigungsdaten (last != 2000-01-01)

@@ -237,7 +237,18 @@ jobs:
               except Exception:
                   existing_fp = set()
 
-          merged_fp = (existing_fp | fp_set) & set(blacklist_ips)
+          # Leerungsschutz: wenn combined_threat_blacklist_ipv4.txt kurzzeitig leer oder
+          # stark geschrumpft ist (z.B. nach fehlgeschlagenem Combined-Run), darf der
+          # Schnitt-Filter keine legitimen FP-Einträge aus existing_fp löschen.
+          # Untergrenze: mind. 1000 IPs → sonst existing_fp NICHT per Schnitt beschneiden.
+          MIN_BLACKLIST_FOR_STALE_CLEANUP = 1000
+          if len(blacklist_ips) >= MIN_BLACKLIST_FOR_STALE_CLEANUP:
+              merged_fp = (existing_fp | fp_set) & set(blacklist_ips)
+          else:
+              # Blacklist zu klein → nur neue FPs hinzufügen, bestehende NICHT entfernen
+              merged_fp = existing_fp | fp_set
+              print(f"WARNUNG: Blacklist hat nur {len(blacklist_ips)} Einträge (<{MIN_BLACKLIST_FOR_STALE_CLEANUP}) "
+                    f"– existing_fp wird nicht per Schnitt bereinigt (Datenschutz)")
           removed_stale_fp = (existing_fp | fp_set) - merged_fp
           with open(FP_JSON, "w", encoding="utf-8") as f:
               json.dump({
