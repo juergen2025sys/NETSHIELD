@@ -1,26 +1,10 @@
 {
-  "updated": "2026-04-03 11:26 UTC",
+  "updated": "2026-04-03 11:36 UTC",
   "total": 16,
-  "ok": 13,
-  "warn": 0,
-  "error": 3,
-  "errors": [
-    {
-      "file": "auto_feed_discovery.yml",
-      "check": "Dict-Mutation in Schleife",
-      "detail": "Block 0: 'del' in for-Schleife ohne list()-Kopie (range) \u2013 RuntimeError bei Dict-Gr\u00f6\u00dfen\u00e4nderung"
-    },
-    {
-      "file": "false_positive_checker.yml",
-      "check": "Dict-Mutation in Schleife",
-      "detail": "Block 0: 'del' in for-Schleife ohne list()-Kopie (WHITELIST_CIDRS) \u2013 RuntimeError bei Dict-Gr\u00f6\u00dfen\u00e4nderung"
-    },
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "Dict-Mutation in Schleife",
-      "detail": "Block 1: 'del' in for-Schleife ohne list()-Kopie (WHITELIST_ENTRIES) \u2013 RuntimeError bei Dict-Gr\u00f6\u00dfen\u00e4nderung"
-    }
-  ],
+  "ok": 15,
+  "warn": 1,
+  "error": 0,
+  "errors": [],
   "warnings": [
     {
       "file": "auto_feed_discovery.yml",
