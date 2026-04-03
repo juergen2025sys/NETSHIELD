@@ -451,7 +451,8 @@ jobs:
                   exit 0
                 fi
               else
-                git checkout --ours all_countries_ipv4.txt 2>/dev/null || true
+                git checkout --theirs all_countries_ipv4.txt 2>/dev/null || true
+                git checkout --theirs continents/ countries/ 2>/dev/null || true
                 git add all_countries_ipv4.txt continents/ countries/ 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi

@@ -263,7 +263,7 @@ jobs:
                   exit 0
                 fi
               else
-                git checkout --ours feed_health_report.md \
+                git checkout --theirs feed_health_report.md \
                   feed_health_status.json 2>/dev/null || true
                 git add feed_health_report.md \
                   feed_health_status.json 2>/dev/null || true

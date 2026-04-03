@@ -242,7 +242,7 @@ jobs:
                   exit 0
                 fi
               else
-                git checkout --ours score_decay_log.txt score_decay_report.md 2>/dev/null || true
+                git checkout --theirs score_decay_log.txt score_decay_report.md 2>/dev/null || true
                 git add score_decay_log.txt score_decay_report.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi

@@ -330,7 +330,7 @@ jobs:
                 exit 0
               fi
             else
-              git checkout --ours false_positives_log.txt false_positive_report.md \
+              git checkout --theirs false_positives_log.txt false_positive_report.md \
                 false_positives_set.json 2>/dev/null || true
               git add false_positives_log.txt false_positive_report.md \
                 false_positives_set.json 2>/dev/null || true

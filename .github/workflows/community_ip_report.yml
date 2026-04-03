@@ -281,7 +281,7 @@ jobs:
                 exit 0
               fi
             else
-              git checkout --ours community_reports_log.txt 2>/dev/null || true
+              git checkout --theirs community_reports_log.txt 2>/dev/null || true
               git add community_reports_log.txt 2>/dev/null || true
               GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
             fi

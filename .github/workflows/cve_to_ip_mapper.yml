@@ -336,7 +336,7 @@ jobs:
                 exit 0
               fi
             else
-              git checkout --ours cve_exploit_ips.txt cve_exploit_report.md 2>/dev/null || true
+              git checkout --theirs cve_exploit_ips.txt cve_exploit_report.md 2>/dev/null || true
               git add cve_exploit_ips.txt cve_exploit_report.md 2>/dev/null || true
               GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
             fi

@@ -172,7 +172,7 @@ jobs:
                   exit 0
                 fi
               else
-                git checkout --ours bot_detector_blacklist_ipv4.txt \
+                git checkout --theirs bot_detector_blacklist_ipv4.txt \
                   bot_detector_report.md 2>/dev/null || true
                 git add bot_detector_blacklist_ipv4.txt \
                   bot_detector_report.md 2>/dev/null || true

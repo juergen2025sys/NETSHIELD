@@ -726,7 +726,7 @@ jobs:
                   exit 0
                 fi
               else
-                git checkout --ours auto_discovered_feeds.json \
+                git checkout --theirs auto_discovered_feeds.json \
                   auto_feed_discovery_report.md 2>/dev/null || true
                 git add auto_discovered_feeds.json \
                   auto_feed_discovery_report.md 2>/dev/null || true

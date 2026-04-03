@@ -1057,7 +1057,8 @@ jobs:
                 # Konflikt: unsere frisch generierten Dateien gewinnen immer.
                 # In einem Rebase bedeutet --theirs die LOKALEN Commits (nicht upstream),
                 # also genau das was wir wollen: die frisch generierten Dateien bevorzugen.
-                git checkout --ours combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
+                # (Korrekt: --theirs, nicht --ours – in Rebase sind die Semantiken umgekehrt)
+                git checkout --theirs combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md \
                   seen_db_meta.json abuseipdb_api_blacklist.txt 2>/dev/null || true
                 git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \

@@ -387,7 +387,7 @@ jobs:
                 exit 0
               fi
             else
-              git checkout --ours asn_blocklist_firewall.txt asn_reputation_db.json \
+              git checkout --theirs asn_blocklist_firewall.txt asn_reputation_db.json \
                 asn_reputation_report.md 2>/dev/null || true
               git add asn_blocklist_firewall.txt asn_reputation_db.json \
                 asn_reputation_report.md 2>/dev/null || true
