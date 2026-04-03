@@ -57,7 +57,7 @@ jobs:
           FILES = {
               "combined_threat_blacklist_ipv4.txt": "Stufe 1 – Alle IPs (180 Tage)",
               "active_blacklist_ipv4.txt":          "Stufe 2 – Aktiv (30 Tage + Conf≥65)",
-              "blacklist_confidence40_ipv4.txt":    "Mittleres/Hohes Vertrauen (≥40%) → OPNsense",
+              "blacklist_confidence40_ipv4.txt":    "Mittleres/Hohes Vertrauen (≥40/100) → OPNsense",
               "watchlist_confidence25to39_ipv4.txt":"Watchlist (Score 25-39/100)",
               "cve_exploit_ips.txt":                "CVE Exploit IPs",
               "bot_detector_blacklist_ipv4.txt":    "Bot-Detector Blacklist",

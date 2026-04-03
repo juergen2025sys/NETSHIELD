@@ -696,6 +696,11 @@ jobs:
               "honeydb_ips.txt":                 True,   # HoneyDB Community Honeypot Network (API)
               "abuseipdb_api_blacklist.txt":     True,   # AbuseIPDB API (Round-Robin, HQ)
           }
+          # FIX: Lokale HQ-Dateinamen für hq_feed_names_today-Berechnung.
+          # Dateinamen wie "honeydb_ips.txt" sind nicht in HIGH_QUALITY (Feed-Namen),
+          # werden aber als HQ-Quelle behandelt → müssen separat erfasst werden damit
+          # hq_feeds-Zähler in seen_db die lokalen HQ-Dateien korrekt mitzählt.
+          LOCAL_HQ_NAMES = {name for name, is_hq in LOCAL_FEEDS.items() if is_hq}
           # FIX STALE1: Alters-Check für lokale Feed-Dateien.
           # Sub-Workflows schreiben einen "# Aktualisiert: YYYY-MM-DD HH:MM UTC"-Header.
           # Bei > 48h Alter (sub-workflow ausgefallen) GitHub Warning ausgeben.
@@ -796,8 +801,10 @@ jobs:
               # bestimmt → IPs aus rein statischen Listen altern nach 180 Tagen automatisch aus.
               strongly_confirmed_today = today_is_hq
 
-              # HQ-Feed-Anzahl für diese IP heute
-              hq_feed_names_today = today_feeds & HIGH_QUALITY
+              # HQ-Feed-Anzahl für diese IP heute (benannte Feeds + lokale HQ-Dateien)
+              # FIX: LOCAL_HQ_NAMES ergänzt – Dateinamen wie "honeydb_ips.txt" sind
+              # nicht in HIGH_QUALITY, müssen aber als HQ-Quelle mitzählen.
+              hq_feed_names_today = today_feeds & (HIGH_QUALITY | LOCAL_HQ_NAMES)
 
               if ip in db:
                   existing_feeds = set(db[ip].get("feeds", []))
