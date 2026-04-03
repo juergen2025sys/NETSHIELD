@@ -235,26 +235,41 @@ jobs:
                       warnings.append({"file": fname, "check": "Fehlende Fehlerbehandlung", "detail": msg})
 
                   # ── Check 6: del in aktiver for-Schleife (Dict-Mutation) ──
-                  # FIX CHK6c: Zeilenbasierter Check – jede for-Zeile einzeln prüfen.
-                  # "for x in list(d.keys())" – SICHER  → kein Match
-                  # "for x in list(d)"        – SICHER  → kein Match
-                  # "for x in d.keys()"       – UNSICHER → Fehler
-                  # "for x in d"              – UNSICHER → Fehler (wenn del im Block)
-                  # Negativer Lookahead auf list( direkt nach "in " schließt korrekte
-                  # list(db.keys())-Muster aus und verhindert den False Positive.
+                  # FIX CHK6d: Präzise Korrelation – Loop-Variable muss zum del-Ziel passen.
+                  # Falsch-Positive entstanden wenn del db[ip] in einem sicheren Loop steht,
+                  # aber ein unsicherer Loop (range(), fp_set, WHITELIST_ENTRIES) im gleichen
+                  # Block vorkommt. Jetzt: für jede unsichere for-Zeile Loop-Var + Iter-Name
+                  # extrahieren und gezielt nach "del {iter_name}[" oder "del {loop_var}[" suchen.
+                  # "for x in list(d.keys())" – SICHER  → list()-Lookahead schließt aus
+                  # "for x in list(d)"        – SICHER  → list()-Lookahead schließt aus
+                  # "for x in range(...)"     – SICHER  → range()-Lookahead schließt aus
+                  # "for x in d.keys()"       – nur Fehler wenn del d[...] folgt
+                  # "for x in d"              – nur Fehler wenn del d[...] oder del x[...] folgt
                   code_lines = [l for l in dedented.splitlines()
                                 if l.strip() and not l.strip().startswith('#')]
                   code_only = '\n'.join(code_lines)
-                  _unsafe_for_matches = re.findall(
-                      r'^\s*for \w+ in (?!list\()([A-Za-z_]\w*(?:\.keys\(\))?)',
-                      code_only, re.MULTILINE
-                  )
-                  has_del = bool(re.search(r'\bdel \w+\[', code_only))
-                  if _unsafe_for_matches and has_del:
-                      msg = (f"Block {i}: 'del' in for-Schleife ohne list()-Kopie "
-                             f"({_unsafe_for_matches[0]}) – RuntimeError bei Dict-Größenänderung")
-                      file_errors.append(msg)
-                      errors.append({"file": fname, "check": "Dict-Mutation in Schleife", "detail": msg})
+                  _dict_mutation_found   = False
+                  _dict_mutation_detail  = ""
+                  import re as _re2
+                  for _fm in _re2.finditer(
+                      r'^\s*for\s+(\w+)\s+in\s+(?!list\()(?!range\()([A-Za-z_]\w*(?:\.keys\(\))?)',
+                      code_only, _re2.MULTILINE
+                  ):
+                      _loop_var  = _fm.group(1)
+                      _iter_name = _fm.group(2).split('.')[0]
+                      _del_iter  = bool(_re2.search(rf'\bdel\s+{_re2.escape(_iter_name)}\[', code_only))
+                      _del_var   = bool(_re2.search(rf'\bdel\s+{_re2.escape(_loop_var)}\[', code_only))
+                      if _del_iter or _del_var:
+                          _dict_mutation_found  = True
+                          _target = _iter_name if _del_iter else _loop_var
+                          _dict_mutation_detail = (
+                              f"Block {i}: 'del {_target}[...]' in for-Schleife über "
+                              f"'{_iter_name}' ohne list()-Kopie – RuntimeError bei Dict-Größenänderung"
+                          )
+                          break
+                  if _dict_mutation_found:
+                      file_errors.append(_dict_mutation_detail)
+                      errors.append({"file": fname, "check": "Dict-Mutation in Schleife", "detail": _dict_mutation_detail})
 
                   # ── Check 7: ThreadPoolExecutor ohne timeout ───────────────
                   for m in re.finditer(r'as_completed\(futures\)', dedented):
@@ -335,6 +350,7 @@ jobs:
                   "update_combined_blacklist.yml", "geo_tagger.yml",
                   "asn_reputation_scorer.yml", "cve_to_ip_mapper.yml",
                   "update_confidence_blacklist.yml", "false_positive_checker.yml",
+                  "score_decay_monitor.yml",  # FIX CHK11: hat ::warning + sys.exit(1) bei Cache-Miss
               }
               if fname in _guarded_files:
                   has_warning_annot = f"::warning file={fname}::" in content
@@ -451,6 +467,8 @@ jobs:
                   "workflow_health_checker.yml",
                   "netshield_report_generator.yml",
                   "community_ip_report.yml",
+                  "auto_feed_discovery.yml",   # FIX CHK15: Discovery/Merge-Workflow; seen_db-Guard
+                                               # ist additive Merge-Logik, kein klassischer MIN_*-Guard
               }
               if _has_external_fetch and _writes_outputs and not _has_min_guard and fname not in _quality_guard_exempt:
                   msg = ("Externer Feed/Report ohne explizite MIN_* Guard-Variable – "
