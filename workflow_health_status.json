@@ -1,32 +1,11 @@
 {
-  "updated": "2026-04-03 11:09 UTC",
+  "updated": "2026-04-03 11:19 UTC",
   "total": 16,
-  "ok": 12,
+  "ok": 15,
   "warn": 1,
-  "error": 3,
-  "errors": [
-    {
-      "file": "auto_feed_discovery.yml",
-      "check": "Dict-Mutation in Schleife",
-      "detail": "Block 0: 'del' in for-Schleife ohne list()-Kopie (range) \u2013 RuntimeError bei Dict-Gr\u00f6\u00dfen\u00e4nderung"
-    },
-    {
-      "file": "false_positive_checker.yml",
-      "check": "Dict-Mutation in Schleife",
-      "detail": "Block 0: 'del' in for-Schleife ohne list()-Kopie (WHITELIST_CIDRS) \u2013 RuntimeError bei Dict-Gr\u00f6\u00dfen\u00e4nderung"
-    },
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "Dict-Mutation in Schleife",
-      "detail": "Block 1: 'del' in for-Schleife ohne list()-Kopie (WHITELIST_ENTRIES) \u2013 RuntimeError bei Dict-Gr\u00f6\u00dfen\u00e4nderung"
-    }
-  ],
+  "error": 0,
+  "errors": [],
   "warnings": [
-    {
-      "file": "auto_feed_discovery.yml",
-      "check": "Kein expliziter Leerungsschutz",
-      "detail": "Externer Feed/Report ohne explizite MIN_* Guard-Variable \u2013 M\u00fcll-/Leer-Daten k\u00f6nnten unbemerkt akzeptiert werden"
-    },
     {
       "file": "score_decay_monitor.yml",
       "check": "Stiller sys.exit(1)",
