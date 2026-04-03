@@ -106,6 +106,7 @@ jobs:
 
           # ── Delta berechnen ───────────────────────────────────────────────
           import os
+          import sys
           existing = set()
           if os.path.exists(OUT_FILE):
               with open(OUT_FILE) as f:

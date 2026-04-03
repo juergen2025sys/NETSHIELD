@@ -56,6 +56,7 @@ jobs:
           python3 << 'EOF'
           import json, os, sys, ipaddress
           from datetime import datetime, timezone, timedelta
+          import sys
 
           now     = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")

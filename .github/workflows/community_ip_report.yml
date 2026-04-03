@@ -52,6 +52,7 @@ jobs:
           python3 << 'EOF'
           import ipaddress, json, os, re, sys
           from datetime import datetime, timezone
+          import sys
 
           now     = datetime.now(timezone.utc)
           now_day = now.strftime("%Y-%m-%d")

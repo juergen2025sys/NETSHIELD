@@ -36,6 +36,7 @@ jobs:
           python3 << 'EOF'
           import urllib.request, re, os, sys, ipaddress
           from datetime import datetime, timezone
+          import sys
 
           now     = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")

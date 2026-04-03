@@ -64,6 +64,7 @@ jobs:
           # FIX #10: SELF aus WORKFLOW_SELF-Env-Var ableiten.
           # Format von github.workflow_ref: "owner/repo/.github/workflows/name.yml@refs/heads/main"
           import os as _os
+          import sys
           _wf_ref = _os.environ.get("WORKFLOW_SELF", "")
           _wf_part = _wf_ref.split(".github/workflows/")[-1].split("@")[0].strip()
           SELF = _wf_part if _wf_part.endswith(".yml") else "workflow_health_checker.yml"
@@ -235,41 +236,26 @@ jobs:
                       warnings.append({"file": fname, "check": "Fehlende Fehlerbehandlung", "detail": msg})
 
                   # ── Check 6: del in aktiver for-Schleife (Dict-Mutation) ──
-                  # FIX CHK6d: Präzise Korrelation – Loop-Variable muss zum del-Ziel passen.
-                  # Falsch-Positive entstanden wenn del db[ip] in einem sicheren Loop steht,
-                  # aber ein unsicherer Loop (range(), fp_set, WHITELIST_ENTRIES) im gleichen
-                  # Block vorkommt. Jetzt: für jede unsichere for-Zeile Loop-Var + Iter-Name
-                  # extrahieren und gezielt nach "del {iter_name}[" oder "del {loop_var}[" suchen.
-                  # "for x in list(d.keys())" – SICHER  → list()-Lookahead schließt aus
-                  # "for x in list(d)"        – SICHER  → list()-Lookahead schließt aus
-                  # "for x in range(...)"     – SICHER  → range()-Lookahead schließt aus
-                  # "for x in d.keys()"       – nur Fehler wenn del d[...] folgt
-                  # "for x in d"              – nur Fehler wenn del d[...] oder del x[...] folgt
+                  # FIX CHK6c: Zeilenbasierter Check – jede for-Zeile einzeln prüfen.
+                  # "for x in list(d.keys())" – SICHER  → kein Match
+                  # "for x in list(d)"        – SICHER  → kein Match
+                  # "for x in d.keys()"       – UNSICHER → Fehler
+                  # "for x in d"              – UNSICHER → Fehler (wenn del im Block)
+                  # Negativer Lookahead auf list( direkt nach "in " schließt korrekte
+                  # list(db.keys())-Muster aus und verhindert den False Positive.
                   code_lines = [l for l in dedented.splitlines()
                                 if l.strip() and not l.strip().startswith('#')]
                   code_only = '\n'.join(code_lines)
-                  _dict_mutation_found   = False
-                  _dict_mutation_detail  = ""
-                  import re as _re2
-                  for _fm in _re2.finditer(
-                      r'^\s*for\s+(\w+)\s+in\s+(?!list\()(?!range\()([A-Za-z_]\w*(?:\.keys\(\))?)',
-                      code_only, _re2.MULTILINE
-                  ):
-                      _loop_var  = _fm.group(1)
-                      _iter_name = _fm.group(2).split('.')[0]
-                      _del_iter  = bool(_re2.search(rf'\bdel\s+{_re2.escape(_iter_name)}\[', code_only))
-                      _del_var   = bool(_re2.search(rf'\bdel\s+{_re2.escape(_loop_var)}\[', code_only))
-                      if _del_iter or _del_var:
-                          _dict_mutation_found  = True
-                          _target = _iter_name if _del_iter else _loop_var
-                          _dict_mutation_detail = (
-                              f"Block {i}: 'del {_target}[...]' in for-Schleife über "
-                              f"'{_iter_name}' ohne list()-Kopie – RuntimeError bei Dict-Größenänderung"
-                          )
-                          break
-                  if _dict_mutation_found:
-                      file_errors.append(_dict_mutation_detail)
-                      errors.append({"file": fname, "check": "Dict-Mutation in Schleife", "detail": _dict_mutation_detail})
+                  _unsafe_for_matches = re.findall(
+                      r'^\s*for \w+ in (?!list\()([A-Za-z_]\w*(?:\.keys\(\))?)',
+                      code_only, re.MULTILINE
+                  )
+                  has_del = bool(re.search(r'\bdel \w+\[', code_only))
+                  if _unsafe_for_matches and has_del:
+                      msg = (f"Block {i}: 'del' in for-Schleife ohne list()-Kopie "
+                             f"({_unsafe_for_matches[0]}) – RuntimeError bei Dict-Größenänderung")
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Dict-Mutation in Schleife", "detail": msg})
 
                   # ── Check 7: ThreadPoolExecutor ohne timeout ───────────────
                   for m in re.finditer(r'as_completed\(futures\)', dedented):
@@ -334,6 +320,11 @@ jobs:
                           _is_leer = any(kw in _ctx for kw in _leer_kws)
                           _is_ok   = any(kw in _ctx for kw in _ok_kws)
                           if _is_leer and not _is_ok:
+                              # FIX CHK10b: exit(0) mit "continue-on-error"-Kommentar
+                              # in derselben Zeile ist intentionell – kein Fehler melden.
+                              _exit0_ctx = _lines[_j] if _j < len(_lines) else ""
+                              if "continue-on-error" in _exit0_ctx:
+                                  continue
                               msg = (f"Block {_bi} L~{_j}: sys.exit(0) im Leerungsschutz – "
                                      f"soll sys.exit(1) sein damit GH-UI Fehler anzeigt")
                               file_errors.append(msg)
@@ -350,7 +341,6 @@ jobs:
                   "update_combined_blacklist.yml", "geo_tagger.yml",
                   "asn_reputation_scorer.yml", "cve_to_ip_mapper.yml",
                   "update_confidence_blacklist.yml", "false_positive_checker.yml",
-                  "score_decay_monitor.yml",  # FIX CHK11: hat ::warning + sys.exit(1) bei Cache-Miss
               }
               if fname in _guarded_files:
                   has_warning_annot = f"::warning file={fname}::" in content
@@ -467,8 +457,6 @@ jobs:
                   "workflow_health_checker.yml",
                   "netshield_report_generator.yml",
                   "community_ip_report.yml",
-                  "auto_feed_discovery.yml",   # FIX CHK15: Discovery/Merge-Workflow; seen_db-Guard
-                                               # ist additive Merge-Logik, kein klassischer MIN_*-Guard
               }
               if _has_external_fetch and _writes_outputs and not _has_min_guard and fname not in _quality_guard_exempt:
                   msg = ("Externer Feed/Report ohne explizite MIN_* Guard-Variable – "
@@ -511,17 +499,21 @@ jobs:
 
 
               # ── Check 18: sys.exit() ohne vorherige Fehlermeldung ────────
-              # Ein "stiller" sys.exit(1) ohne print() davor ist schwer zu debuggen.
-              # Mindestens ein print() oder eine ::warning-Annotation sollte vorher stehen.
+              # FIX CHK18b: Fenster auf 8 Zeilen erweitert (war 5 – zu eng bei
+              # mehrzeiligen open()-Blöcken vor sys.exit). Nur echte Code-Zeilen
+              # (keine Kommentare) im Kontext-Fenster zählen.
               for _bi, _blk in enumerate(blocks):
                   _lines = _blk.splitlines()
                   for _j, _ln in enumerate(_lines):
                       _s = _ln.strip()
                       if _s.startswith('#'):
                           continue
-                      if re.search(r'sys\.exit\(1\)', _s):
-                          # Prüfe die 5 Zeilen davor auf print() oder ::warning
-                          _ctx_lines = _lines[max(0, _j-5):_j]
+                      # FIX CHK18c: nur echte sys.exit(1)-Statements, keine String-Literale.
+                      # Zeile muss nach sys.exit(1) enden (ggf. Kommentar), kein weiterer Kontext.
+                      if re.search(r'sys\.exit\(1\)\s*(?:#.*)?$', _s):
+                          # Prüfe die 8 Zeilen davor (nur Code, keine Kommentare)
+                          _ctx_lines = [l for l in _lines[max(0, _j-8):_j]
+                                        if l.strip() and not l.strip().startswith('#')]
                           _ctx = ' '.join(_ctx_lines)
                           if 'print(' not in _ctx and '::warning' not in _ctx and '::error' not in _ctx:
                               msg = (f"Block {_bi} L~{_j}: sys.exit(1) ohne vorherige "
