@@ -68,7 +68,6 @@ jobs:
           import json, os, re, sys
           from datetime import datetime, timezone, timedelta
           from collections import defaultdict
-          import sys
 
           now     = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")

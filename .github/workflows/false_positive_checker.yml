@@ -237,7 +237,8 @@ jobs:
               except Exception:
                   existing_fp = set()
 
-          merged_fp = existing_fp | fp_set
+          merged_fp = (existing_fp | fp_set) & set(blacklist_ips)
+          removed_stale_fp = (existing_fp | fp_set) - merged_fp
           with open(FP_JSON, "w", encoding="utf-8") as f:
               json.dump({
                   "updated":  now_str,
@@ -245,7 +246,7 @@ jobs:
                   "ips":      sorted(merged_fp),
               }, f, indent=2)
           print(f"false_positives_set.json: {len(merged_fp)} IPs gespeichert "
-                f"({len(fp_set)} neu, {len(existing_fp)} bereits vorhanden)")
+                f"({len(fp_set)} neu erkannt, {len(existing_fp)} bereits vorhanden, {len(removed_stale_fp)} veraltete entfernt)")
 
           # ── seen_db ebenfalls bereinigen (alle FP-IPs, inkl. HQ) ─────────
           # FIX #4: HQ-IPs werden jetzt AUCH aus seen_db entfernt.

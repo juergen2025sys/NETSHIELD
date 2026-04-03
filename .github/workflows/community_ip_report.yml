@@ -52,7 +52,6 @@ jobs:
           python3 << 'EOF'
           import ipaddress, json, os, re, sys
           from datetime import datetime, timezone
-          import sys
 
           now     = datetime.now(timezone.utc)
           now_day = now.strftime("%Y-%m-%d")
@@ -265,7 +264,7 @@ jobs:
           path: seen_db.json
           # FIX #3: Eindeutiger Slot pro Issue → keine gegenseitige Überschreibung
           # bei parallelen Community-Reports.
-          key: netshield-seen-db-community-${{ github.event.issue.number }}-${{ github.run_id }}
+          key: netshield-seen-db-community-${{ github.event.issue.number }}-${{ github.run_id }}-save
 
       - name: Commit Log
         run: |

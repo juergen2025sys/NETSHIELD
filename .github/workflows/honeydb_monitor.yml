@@ -62,32 +62,44 @@ jobs:
           # ── API-Helper ────────────────────────────────────────────────────
           requests_used = 0
 
-          def api_get(endpoint, label=""):
+          def api_get(endpoint, label="", retries=3):
               global requests_used
               url = f"{BASE_URL}{endpoint}"
-              req = urllib.request.Request(url, headers={
-                  "X-HoneyDb-ApiId":  API_ID,
-                  "X-HoneyDb-ApiKey": API_KEY,
-                  "User-Agent":       "NETSHIELD-HoneyDB/1.0",
-              })
-              try:
-                  with urllib.request.urlopen(req, timeout=30) as r:
-                      remaining = r.headers.get("honeydb-qpm-remaining", "?")
-                      consumed  = r.headers.get("honeydb-qpm-consumed",  "?")
-                      requests_used += 1
-                      print(f"  [{label or endpoint}] HTTP {r.status} | verbraucht: {consumed} | verbleibend: {remaining}/1500")
-                      return json.loads(r.read().decode("utf-8", errors="ignore"))
-              except urllib.error.HTTPError as e:
-                  if e.code == 429:
-                      print(f"  RATE LIMIT [{label or endpoint}] – übersprungen")
-                  elif e.code == 401:
-                      print(f"  AUTHENTIFIZIERUNG FEHLGESCHLAGEN [{label or endpoint}] – API Key prüfen!")
-                  else:
+              for attempt in range(1, retries + 1):
+                  req = urllib.request.Request(url, headers={
+                      "X-HoneyDb-ApiId":  API_ID,
+                      "X-HoneyDb-ApiKey": API_KEY,
+                      "User-Agent":       "NETSHIELD-HoneyDB/1.0",
+                  })
+                  try:
+                      with urllib.request.urlopen(req, timeout=30) as r:
+                          remaining = r.headers.get("honeydb-qpm-remaining", "?")
+                          consumed  = r.headers.get("honeydb-qpm-consumed",  "?")
+                          requests_used += 1
+                          print(f"  [{label or endpoint}] HTTP {r.status} | verbraucht: {consumed} | verbleibend: {remaining}/1500")
+                          return json.loads(r.read().decode("utf-8", errors="ignore"))
+                  except urllib.error.HTTPError as e:
+                      if e.code == 429:
+                          print(f"  RATE LIMIT [{label or endpoint}] – übersprungen")
+                          return None
+                      if e.code == 401:
+                          print(f"  AUTHENTIFIZIERUNG FEHLGESCHLAGEN [{label or endpoint}] – API Key prüfen!")
+                          return None
+                      if e.code in (500, 502, 503, 504) and attempt < retries:
+                          wait_s = 2 ** attempt
+                          print(f"  HTTP {e.code} [{label or endpoint}] – Retry in {wait_s}s ({attempt}/{retries})")
+                          time.sleep(wait_s)
+                          continue
                       print(f"  HTTP {e.code} [{label or endpoint}]: {e.reason}")
-                  return None
-              except Exception as e:
-                  print(f"  FEHLER [{label or endpoint}]: {e}")
-                  return None
+                      return None
+                  except Exception as e:
+                      if attempt < retries:
+                          wait_s = 2 ** attempt
+                          print(f"  FEHLER [{label or endpoint}]: {e} – Retry in {wait_s}s ({attempt}/{retries})")
+                          time.sleep(wait_s)
+                          continue
+                      print(f"  FEHLER [{label or endpoint}]: {e}")
+                      return None
 
           def is_private(ip):
               try:
