@@ -190,6 +190,7 @@ jobs:
           EOF
 
       - name: Commit
+        if: always()  # FIX: auch bei Leerungsschutz-Exit den Report committen
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -207,7 +208,7 @@ jobs:
                   exit 0
                 fi
               else
-                git checkout --theirs honeypot_ips.txt honeypot_report.md 2>/dev/null || true
+                git checkout --ours honeypot_ips.txt honeypot_report.md 2>/dev/null || true
                 git add honeypot_ips.txt honeypot_report.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi

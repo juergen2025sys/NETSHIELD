@@ -606,7 +606,7 @@ jobs:
                   exit 0
                 fi
               else
-                git checkout --theirs workflow_health_report.md \
+                git checkout --ours workflow_health_report.md \
                   workflow_health_status.json 2>/dev/null || true
                 git add workflow_health_report.md \
                   workflow_health_status.json 2>/dev/null || true

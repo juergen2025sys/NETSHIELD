@@ -40,6 +40,7 @@ jobs:
           import time
           import ipaddress
           import os
+          import sys
           from datetime import datetime, timezone
 
           now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
@@ -388,7 +389,6 @@ jobs:
           # FIX LS5: Schwelle auf 500.000 erhöht (bei partiellem hackinggate-Ausfall
           # könnten trotzdem 100k+ Ranges ankommen und den alten Stand überschreiben).
           # sys.exit(1) statt sys.exit(0) + GitHub Warning Annotation.
-          import sys
           MIN_ENTRIES = 200_000  # FIX LS5b: hackinggate liefert seit 2026-03 ~255k aggregierte Ranges (war ~3.5M detailliert)
           if len(all_ips) < MIN_ENTRIES:
               msg = (f"Nur {len(all_ips)} IP-Ranges geladen (< {MIN_ENTRIES}) – "
@@ -451,7 +451,7 @@ jobs:
                   exit 0
                 fi
               else
-                git checkout --theirs all_countries_ipv4.txt 2>/dev/null || true
+                git checkout --ours all_countries_ipv4.txt 2>/dev/null || true
                 git add all_countries_ipv4.txt continents/ countries/ 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi

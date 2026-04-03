@@ -154,6 +154,7 @@ jobs:
           EOF
 
       - name: Commit
+        if: always()  # FIX: auch bei Leerungsschutz-Exit den Report committen
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -171,7 +172,7 @@ jobs:
                   exit 0
                 fi
               else
-                git checkout --theirs bot_detector_blacklist_ipv4.txt \
+                git checkout --ours bot_detector_blacklist_ipv4.txt \
                   bot_detector_report.md 2>/dev/null || true
                 git add bot_detector_blacklist_ipv4.txt \
                   bot_detector_report.md 2>/dev/null || true

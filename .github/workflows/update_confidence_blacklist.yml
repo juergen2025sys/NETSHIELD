@@ -132,7 +132,10 @@ jobs:
                   print(f"seen_db aktuellster Eintrag: {newest_last} ({db_age_hours:.1f}h alt)")
                   # FIX #8: Schwelle von 6h auf 4h gesenkt (combined läuft alle 3h –
                   # bei >4h wurde bereits ein vollständiger Run verpasst).
-                  if db_age_hours > 4:
+                  # FIX: Schwelle 4h -> 3.75h (225min). Combined laeuft alle 3h,
+                  # Confidence-Workflow 45min danach. Bei >3.75h wurde bereits
+                  # mindestens ein combined-Run verpasst.
+                  if db_age_hours > 3.75:
                       print(f"WARNUNG: seen_db ist {db_age_hours:.1f}h alt – mindestens ein combined-Run wurde verpasst!")
               else:
                   print("seen_db: Keine HQ-bestätigten Einträge vorhanden (nur Watchlist-IPs)")
@@ -346,7 +349,7 @@ jobs:
                   exit 0
                 fi
               else
-                git checkout --theirs blacklist_confidence40_ipv4.txt \
+                git checkout --ours blacklist_confidence40_ipv4.txt \
                   watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
                 git add blacklist_confidence40_ipv4.txt \
                   watchlist_confidence25to39_ipv4.txt 2>/dev/null || true

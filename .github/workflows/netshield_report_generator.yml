@@ -255,7 +255,7 @@ jobs:
                   exit 0
                 fi
               else
-                git checkout --theirs NETSHIELD_REPORT.md README.md 2>/dev/null || true
+                git checkout --ours NETSHIELD_REPORT.md README.md 2>/dev/null || true
                 git add NETSHIELD_REPORT.md README.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
