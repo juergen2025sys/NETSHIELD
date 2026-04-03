@@ -546,7 +546,7 @@ jobs:
           ingested_new  = 0
           ingested_seen = 0
 
-          for ip in all_new_ips | all_known_ips:
+          for ip in list(all_new_ips | all_known_ips):
               auto_count = ip_auto_feed_count.get(ip, 1)
               if ip in db:
                   # Bereits in seen_db – Bestätigung durch auto-feed zählen
@@ -585,6 +585,9 @@ jobs:
           cutoff    = now - timedelta(days=EXPIRY_DAYS)
           cutoff_wl = now - timedelta(days=WATCHLIST_EXPIRY_DAYS)
           expired   = []
+          # Collect keys to expire first, then delete in a separate pass
+          # to avoid RuntimeError from modifying a dict during iteration.
+          to_expire = []
           for ip in list(db.keys()):
               try:
                   entry      = db[ip]
@@ -596,18 +599,18 @@ jobs:
                   if last_str == "2000-01-01" and not is_hq:
                       # Watchlist-IP: Ablauf nach first-Datum (30 Tage)
                       if first_seen < cutoff_wl:
-                          expired.append(ip)
-                          del db[ip]
+                          to_expire.append(ip)
                   else:
                       # Normale IP: Ablauf nach last-Datum (180 Tage)
                       if last_seen < cutoff:
-                          expired.append(ip)
-                          del db[ip]
+                          to_expire.append(ip)
               except Exception:
                   # Einträge mit defektem Datum entfernen (analog zu update_combined_blacklist)
-                  expired.append(ip)
-                  if ip in db:
-                      del db[ip]
+                  to_expire.append(ip)
+          # Delete expired entries after iteration is complete
+          for ip in to_expire:
+              expired.append(ip)
+              db.pop(ip, None)
 
           print(f"\nseen_db: +{ingested_seen} bestätigt | +{ingested_new} neu eingetragen | "
                 f"{len(expired)} abgelaufen | Gesamt: {len(db)} IPs")

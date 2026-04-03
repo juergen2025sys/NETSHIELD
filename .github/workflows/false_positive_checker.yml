@@ -259,10 +259,11 @@ jobs:
                   with open(DB_FILE) as f:
                       db = json.load(f)
                   db_removed = 0
-                  for ip in fp_set:
-                      if ip in db:
-                          del db[ip]
-                          db_removed += 1
+                  # Collect-then-delete: avoid triggering dict-mutation linter check
+                  to_remove_fp = [ip for ip in fp_set if ip in db]
+                  for ip in to_remove_fp:
+                      db.pop(ip, None)
+                      db_removed += 1
                   if db_removed > 0:
                       with open(DB_FILE, "w", encoding="utf-8") as f:
                           json.dump(db, f, separators=(",", ":"))

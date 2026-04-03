@@ -326,7 +326,7 @@ jobs:
           ]
 
           _whitelist_networks = []
-          for _entry in WHITELIST_ENTRIES:
+          for _entry in list(WHITELIST_ENTRIES):
               try:
                   _whitelist_networks.append(ipaddress.ip_network(_entry, strict=False))
               except Exception:
@@ -587,10 +587,11 @@ jobs:
                   return False
 
           removed_preexisting_protected = 0
-          for ip in list(db.keys()):
-              if is_protected_entry(ip):
-                  del db[ip]
-                  removed_preexisting_protected += 1
+          # Collect-then-delete: explicit two-pass to satisfy dict-mutation linter
+          _protected_old = [ip for ip in db if is_protected_entry(ip)]
+          for ip in _protected_old:
+              db.pop(ip, None)
+              removed_preexisting_protected += 1
           if removed_preexisting_protected:
               print(f"Geschützte Alt-Einträge aus seen_db entfernt: {removed_preexisting_protected}")
 
@@ -843,10 +844,11 @@ jobs:
                   }
 
           protected_removed_runtime = 0
-          for ip in list(db.keys()):
-              if is_protected_entry(ip):
-                  del db[ip]
-                  protected_removed_runtime += 1
+          # Collect-then-delete: explicit two-pass to satisfy dict-mutation linter
+          _protected_runtime = [ip for ip in db if is_protected_entry(ip)]
+          for ip in _protected_runtime:
+              db.pop(ip, None)
+              protected_removed_runtime += 1
           if protected_removed_runtime:
               print(f"Geschützte Einträge nach Feed-Ingest entfernt: {protected_removed_runtime}")
 
@@ -866,9 +868,10 @@ jobs:
                   or "community_report" in data.get("feeds", [])
               )
           }
-          for ip in list(db.keys()):
-              if ip not in current_valid:
-                  del db[ip]
+          # Collect-then-delete: explicit two-pass to satisfy dict-mutation linter
+          _invalid_ips = [ip for ip in db if ip not in current_valid]
+          for ip in _invalid_ips:
+              db.pop(ip, None)
 
           # ── 180-Tage-Ablauf ────────────────────────────────────────────────
           # Watchlist-IPs (last="2000-01-01", hq=False) haben nie eine HQ-Bestätigung
@@ -879,6 +882,8 @@ jobs:
           expired = []
           cutoff      = now - timedelta(days=EXPIRY_DAYS)
           cutoff_wl   = now - timedelta(days=WATCHLIST_EXPIRY_DAYS)
+          # Collect-then-delete: two-pass avoids RuntimeError and satisfies dict-mutation linter
+          _to_expire = []
           for ip in list(db.keys()):
               try:
                   entry     = db[ip]
@@ -891,16 +896,16 @@ jobs:
                   if last_str == "2000-01-01" and not is_hq:
                       # Watchlist-IP: Ablauf nach first-Datum (30 Tage)
                       if first_seen < cutoff_wl:
-                          expired.append(ip)
-                          del db[ip]
+                          _to_expire.append(ip)
                   else:
                       # Normale IP: Ablauf nach last-Datum (180 Tage)
                       if last_seen < cutoff:
-                          expired.append(ip)
-                          del db[ip]
+                          _to_expire.append(ip)
               except Exception:
-                  expired.append(ip)
-                  del db[ip]
+                  _to_expire.append(ip)
+          for ip in _to_expire:
+              expired.append(ip)
+              db.pop(ip, None)
           print(f"Abgelaufen (>{EXPIRY_DAYS} Tage / Watchlist >{WATCHLIST_EXPIRY_DAYS} Tage): {len(expired)} IPs entfernt")
 
           # ── seen_db speichern ──────────────────────────────────────────────
