@@ -1,19 +1,19 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-04-03 03:32 UTC
+**Aktualisiert:** 2026-04-03 05:55 UTC
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **4,068,071** | 2026-04-03 03:32 UTC |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **2,371,642** | 2026-04-03 03:32 UTC |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40%) → OPNsense | **2,860,598** | 2026-04-03 03:32 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **326,496** | 2026-04-03 03:32 UTC |
-| ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **220,384** | 2026-04-03 03:32 UTC |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,950** | 2026-04-03 03:32 UTC |
-| ✅ `honeypot_ips.txt` | Honeypot IPs | **10,665** | 2026-04-03 03:32 UTC |
-| ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **8,568** | 2026-04-03 03:32 UTC |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **4,083,246** | 2026-04-03 05:55 UTC |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **2,368,410** | 2026-04-03 05:55 UTC |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **2,876,103** | 2026-04-03 05:55 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **324,937** | 2026-04-03 05:55 UTC |
+| ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **219,089** | 2026-04-03 05:55 UTC |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,950** | 2026-04-03 05:55 UTC |
+| ✅ `honeypot_ips.txt` | Honeypot IPs | **10,665** | 2026-04-03 05:55 UTC |
+| ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **8,568** | 2026-04-03 05:55 UTC |
 
 ---
 ## 🔗 OPNsense Alias URL
@@ -23,13 +23,13 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 ```
 
 ---
-## 🔍 Feed Health: ✅ 90 OK | ⚠️ 1 leer | ❌ 1 Fehler
+## 🔍 Feed Health: ✅ 88 OK | ⚠️ 1 leer | ❌ 2 Fehler
 
-**❌ Ausgefallen:** `spamhaus_pbl`
+**❌ Ausgefallen:** `spamhaus_pbl`, `threatview_high_conf`
 
 **⚠️ Leer:** `openphish`
 
-*Letzter Check: 2026-04-02 03:40 UTC – Details: [feed_health_report.md](feed_health_report.md)*
+*Letzter Check: 2026-04-03 03:41 UTC – Details: [feed_health_report.md](feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -37,4 +37,4 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 *Details: [workflow_health_report.md](workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-04-03 03:32 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-04-03 05:55 UTC*
