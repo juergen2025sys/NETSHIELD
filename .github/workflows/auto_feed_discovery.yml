@@ -734,6 +734,7 @@ jobs:
           key: netshield-seen-db-afd-save-${{ github.run_id }}
 
       - name: Commit
+        if: always()  # auch bei Guard-Fail den Report committen
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

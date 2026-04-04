@@ -192,6 +192,47 @@ jobs:
           results.sort(key=lambda x: x["matches"], reverse=True)
           total_matched = sum(r["matches"] for r in results)
 
+          # ── Report immer zuerst schreiben ────────────────────────────────
+          pct_covered = total_matched / max(len(bl_addrs), 1) * 100
+
+          lines = [
+              "# Geo-Tagger – Blacklist Enrichment Report",
+              f"**Aktualisiert:** {now_str}  ",
+              f"**Methode:** ScaniteX Länderprefixe (kein API-Key, kein Rate-Limit)  ",
+              f"**Blacklist-IPs gesamt:** {len(bl_addrs):,}  ",
+              f"**Davon zugeordnet:** {total_matched:,} ({pct_covered:.1f}%)  ",
+              f"**Nicht zugeordnet:** {len(unmatched):,}",
+              "",
+              "---",
+              "",
+              "## Länder-Übersicht",
+              "",
+              "| Land | CC | Risiko | Prefixe | Treffer |",
+              "|---|---|---|---:|---:|",
+          ]
+          for r in results:
+              lines.append(
+                  f"| {r['flag']} {r['name']} | `{r['cc']}` | {r['risk']} | {r['prefixes']:,} | **{r['matches']:,}** |"
+              )
+
+          if unmatched:
+              lines += ["", "---", "", "## Nicht zugeordnete IPs (Sample)", ""]
+              for ip in unmatched[:50]:
+                  lines.append(f"- `{ip}`")
+              if len(unmatched) > 50:
+                  lines.append(f"- … und {len(unmatched) - 50:,} weitere")
+
+          lines += [
+              "",
+              "---",
+              f"*Datenquelle: [ScaniteX IP Ranges](https://scanitex.com/en/resources/ip-ranges) (länderweise CIDR-Listen, kein API-Key)*  ",
+              f"*Generiert: {now_str}*",
+          ]
+
+          with open("geo_tagger_report.md", "w", encoding="utf-8") as f:
+              f.write("\n".join(lines))
+          print("geo_tagger_report.md geschrieben")
+
           # ── Leerungsschutz ────────────────────────────────────────────────
           # Wenn ScaniteX nicht erreichbar war und alle Länder-Requests fehlschlugen,
           # sind total_matched=0 und ip_to_country leer → keine Ausgabe schreiben.
@@ -214,63 +255,6 @@ jobs:
                   "ip_to_country": ip_to_country,
               }, f, separators=(",", ":"))
           print("blacklist_geo_enriched.json geschrieben")
-
-          # ── geo_tagger_report.md ──────────────────────────────────────────
-          pct_covered = total_matched / max(len(bl_addrs), 1) * 100
-
-          lines = [
-              "# Geo-Tagger – Blacklist Enrichment Report",
-              f"**Aktualisiert:** {now_str}  ",
-              f"**Methode:** ScaniteX Länderprefixe (kein API-Key, kein Rate-Limit)  ",
-              f"**Blacklist-IPs gesamt:** {len(bl_addrs):,}  ",
-              f"**Davon zugeordnet:** {total_matched:,} ({pct_covered:.1f}%)  ",
-              f"**Nicht zugeordnet:** {len(unmatched):,}",
-              "",
-              "---",
-              "",
-              "## Länder-Übersicht (nach Blacklist-Treffern)",
-              "",
-              "| Rang | Land | Code | Risiko | BL-Hits | Anteil | Prefixes |",
-              "|---|---|---|---|---|---|---|",
-          ]
-
-          risk_label = {"high": "🔴 Hoch", "medium": "🟡 Mittel", "low": "⚪ Niedrig"}
-          for rank, r in enumerate(results, 1):
-              if r["matches"] == 0:
-                  continue
-              pct = r["matches"] / max(len(bl_addrs), 1) * 100
-              lines.append(
-                  f"| {rank} | {r['flag']} {r['name']} | `{r['cc']}` "
-                  f"| {risk_label[r['risk']]} "
-                  f"| {r['matches']:,} | {pct:.1f}% | {r['prefixes']} |"
-              )
-
-          # Zusammenfassung nach Risikoklasse
-          high_hits   = sum(r["matches"] for r in results if r["risk"] == "high")
-          medium_hits = sum(r["matches"] for r in results if r["risk"] == "medium")
-          low_hits    = sum(r["matches"] for r in results if r["risk"] == "low")
-
-          lines += [
-              "",
-              "---",
-              "",
-              "## Zusammenfassung nach Risikoklasse",
-              "",
-              "| Risikoklasse | BL-Hits | Anteil |",
-              "|---|---|---|",
-              f"| 🔴 Hoch (RU/CN/KP/IR/SY/BY) | {high_hits:,} | {high_hits/max(len(bl_addrs),1)*100:.1f}% |",
-              f"| 🟡 Mittel | {medium_hits:,} | {medium_hits/max(len(bl_addrs),1)*100:.1f}% |",
-              f"| ⚪ Niedrig / Tracking | {low_hits:,} | {low_hits/max(len(bl_addrs),1)*100:.1f}% |",
-              f"| ❓ Nicht zugeordnet | {len(unmatched):,} | {len(unmatched)/max(len(bl_addrs),1)*100:.1f}% |",
-              "",
-              "---",
-              f"*Datenquelle: [ScaniteX IP Ranges](https://scanitex.com/en/resources/ip-ranges) (täglich aktualisiert)*  ",
-              f"*Generiert: {now_str}*",
-          ]
-
-          with open("geo_tagger_report.md", "w", encoding="utf-8") as f:
-              f.write("\n".join(lines))
-          print("geo_tagger_report.md geschrieben")
 
           print(f"\nFERTIG: {total_matched:,} von {len(bl_addrs):,} IPs ({pct_covered:.1f}%) zugeordnet")
           EOF

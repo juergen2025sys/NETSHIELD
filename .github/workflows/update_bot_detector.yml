@@ -96,14 +96,6 @@ jobs:
           print(f"  Roh: {len(raw_ips)} | Gültig: {len(unique_ips)} | "
                 f"Ungültig/privat: {len(invalid_ips)} | Duplikate: {len(valid_ips) - len(unique_ips)}")
 
-          # ── Leerungsschutz ────────────────────────────────────────────────
-          # FIX LS4: sys.exit(1) statt sys.exit(0) + GitHub Warning Annotation.
-          if len(unique_ips) < MIN_ENTRIES:
-              msg = f"Nur {len(unique_ips)} IPs (< {MIN_ENTRIES}) – behalte bestehende Datei"
-              print(f"::warning file=update_bot_detector.yml::{msg}")
-              print(f"WARNUNG: {msg}")
-              sys.exit(1)
-
           # ── Delta berechnen ───────────────────────────────────────────────
           existing = set()
           if os.path.exists(OUT_FILE):
@@ -116,17 +108,7 @@ jobs:
 
           print(f"  Delta: +{len(new_ips)} neu | -{len(removed_ips)} entfernt")
 
-          # ── Blacklist schreiben ───────────────────────────────────────────
-          with open(OUT_FILE, "w", encoding="utf-8") as f:
-              f.write("# NETSHIELD Bot-Detector Blacklist\n")
-              f.write(f"# Aktualisiert: {now_str}\n")
-              f.write(f"# Quelle: github.com/lula73/bot-detector\n")
-              f.write(f"# Gesamt: {len(unique_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt\n\n")
-              f.write("\n".join(unique_ips) + "\n")
-
-          print(f"  {OUT_FILE}: {len(unique_ips)} IPs geschrieben")
-
-          # ── Report schreiben ──────────────────────────────────────────────
+          # ── Report immer zuerst schreiben ─────────────────────────────────
           lines = []
           lines.append("# Bot-Detector Blacklist – Report")
           lines.append(f"**Aktualisiert:** {now_str}  ")
@@ -149,6 +131,25 @@ jobs:
           with open(REPORT_FILE, "w", encoding="utf-8") as f:
               f.write("\n".join(lines))
           print(f"  {REPORT_FILE} geschrieben")
+
+          # ── Leerungsschutz ────────────────────────────────────────────────
+          # FIX LS4: sys.exit(1) statt sys.exit(0) + GitHub Warning Annotation.
+          if len(unique_ips) < MIN_ENTRIES:
+              msg = f"Nur {len(unique_ips)} IPs (< {MIN_ENTRIES}) – behalte bestehende Datei"
+              print(f"::warning file=update_bot_detector.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(1)
+
+          # ── Blacklist schreiben ───────────────────────────────────────────
+          with open(OUT_FILE, "w", encoding="utf-8") as f:
+              f.write("# NETSHIELD Bot-Detector Blacklist\n")
+              f.write(f"# Aktualisiert: {now_str}\n")
+              f.write(f"# Quelle: github.com/lula73/bot-detector\n")
+              f.write(f"# Gesamt: {len(unique_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt\n\n")
+              f.write("\n".join(unique_ips) + "\n")
+
+          print(f"  {OUT_FILE}: {len(unique_ips)} IPs geschrieben")
+
           print(f"\nFERTIG: {len(unique_ips)} Bot-IPs | +{len(new_ips)} neu | -{len(removed_ips)} entfernt")
           EOF
 

@@ -267,6 +267,56 @@ jobs:
           # Leerungsschutz: Wenn alle ASN-Lookups fehlschlugen ist results leer →
           # keine Ausgabedatei überschreiben.
           MIN_ASN_RESULTS = 5  # mind. 5 ASNs müssen erfolgreich abgefragt worden sein
+
+          # ── Schritt 4a: Report immer zuerst schreiben ────────────────────
+          total_bl_hits = sum(r["bl_matches"] for r in results)
+          lines = [
+              "# ASN Reputation Scorer – Report",
+              f"**Aktualisiert:** {now_str}  ",
+              f"**Methode:** ScaniteX CIDR-Prefixlisten (kein API-Key, 100% BL-Coverage)  ",
+              f"**Blacklist-IPs gesamt:** {len(bl_addrs):,}  ",
+              f"**Davon in bekannten ASN-Ranges:** {total_bl_hits:,}",
+              "",
+              "---",
+              "",
+              "## ASN-Übersicht (nach Score sortiert)",
+              "",
+              "| Rang | ASN | Organisation | Land | Score | BL-Hits | Dichte/1M | DROP | ET | Prefixes |",
+              "|---|---|---|---|---|---|---|---|---|---|",
+          ]
+          for rank, r in enumerate(results, 1):
+              flag = "🔴" if r["score"] >= 100 else "🟠" if r["score"] >= 70 else "🟡" if r["score"] >= 50 else "⚪"
+              density_str = f"{r['density']:.1f}"
+              lines.append(
+                  f"| {rank} | {r['asn']} | {r['holder'][:35]} | {r['country']} "
+                  f"| {flag} {r['score']} | {r['bl_matches']:,} | {density_str} | +{r['drop_bonus']} | +{r['et_bonus']} | {r['prefixes']} |"
+              )
+
+          lines += [
+              "",
+              "---",
+              "",
+              "### Score-Formel (normalisiert auf ASN-Größe)",
+              "```",
+              "score = A (Abuse-Dichte) + B (Absolute Präsenz) + C (Feed-Bonus) + D (Basis-Reputation)",
+              "A: BL-Hits pro 1M IPs im ASN  → max 60",
+              "B: Absolute BL-Treffer-Stufe   → max 20",
+              "C: Spamhaus DROP + ET-Bonus    → max 10",
+              "D: Basis-Reputation (RU/CN++)  → max 40",
+              "```",
+              "- **Abuse-Dichte**: verhindert dass große Netze (AWS) kleine (Contabo) verdrängen",
+              "- **Absolute Präsenz**: große Netze mit viel Abuse bleiben trotzdem trackbar",
+              "- **Feed-Bonus**: IPs auch in Spamhaus DROP oder Emerging Threats",
+              "",
+              "---",
+              f"*Datenquelle: [ScaniteX ASN Database](https://scanitex.com/en/resources/asn-database) (BGP via RIPE Stat, kein API-Key)*  ",
+              f"*Generiert: {now_str}*",
+          ]
+
+          with open("asn_reputation_report.md", "w", encoding="utf-8") as f:
+              f.write("\n".join(lines))
+          print("asn_reputation_report.md geschrieben")
+
           if len(results) < MIN_ASN_RESULTS:
               msg = (f"Nur {len(results)} ASN-Ergebnisse (< {MIN_ASN_RESULTS}) – "
                      f"behalte bestehende Ausgabedateien")
@@ -319,54 +369,6 @@ jobs:
 
           with open("asn_reputation_db.json", "w", encoding="utf-8") as f:
               json.dump(db, f, indent=2)
-
-          # ── Schritt 6: Report ─────────────────────────────────────────────
-          total_bl_hits = sum(r["bl_matches"] for r in results)
-          lines = [
-              "# ASN Reputation Scorer – Report",
-              f"**Aktualisiert:** {now_str}  ",
-              f"**Methode:** ScaniteX CIDR-Prefixlisten (kein API-Key, 100% BL-Coverage)  ",
-              f"**Blacklist-IPs gesamt:** {len(bl_addrs):,}  ",
-              f"**Davon in bekannten ASN-Ranges:** {total_bl_hits:,}",
-              "",
-              "---",
-              "",
-              "## ASN-Übersicht (nach Score sortiert)",
-              "",
-              "| Rang | ASN | Organisation | Land | Score | BL-Hits | Dichte/1M | DROP | ET | Prefixes |",
-              "|---|---|---|---|---|---|---|---|---|---|",
-          ]
-          for rank, r in enumerate(results, 1):
-              flag = "🔴" if r["score"] >= 100 else "🟠" if r["score"] >= 70 else "🟡" if r["score"] >= 50 else "⚪"
-              density_str = f"{r['density']:.1f}"
-              lines.append(
-                  f"| {rank} | {r['asn']} | {r['holder'][:35]} | {r['country']} "
-                  f"| {flag} {r['score']} | {r['bl_matches']:,} | {density_str} | +{r['drop_bonus']} | +{r['et_bonus']} | {r['prefixes']} |"
-              )
-
-          lines += [
-              "",
-              "---",
-              "",
-              "### Score-Formel (normalisiert auf ASN-Größe)",
-              "```",
-              "score = A (Abuse-Dichte) + B (Absolute Präsenz) + C (Feed-Bonus) + D (Basis-Reputation)",
-              "A: BL-Hits pro 1M IPs im ASN  → max 60",
-              "B: Absolute BL-Treffer-Stufe   → max 20",
-              "C: Spamhaus DROP + ET-Bonus    → max 10",
-              "D: Basis-Reputation (RU/CN++)  → max 40",
-              "```",
-              "- **Abuse-Dichte**: verhindert dass große Netze (AWS) kleine (Contabo) verdrängen",
-              "- **Absolute Präsenz**: große Netze mit viel Abuse bleiben trotzdem trackbar",
-              "- **Feed-Bonus**: IPs auch in Spamhaus DROP oder Emerging Threats",
-              "",
-              "---",
-              f"*Datenquelle: [ScaniteX ASN Database](https://scanitex.com/en/resources/asn-database) (BGP via RIPE Stat, kein API-Key)*  ",
-              f"*Generiert: {now_str}*",
-          ]
-
-          with open("asn_reputation_report.md", "w", encoding="utf-8") as f:
-              f.write("\n".join(lines))
 
           print(f"\nFERTIG: {len(results)} ASNs bewertet, {total_bl_hits:,} BL-Treffer gesamt")
           EOF

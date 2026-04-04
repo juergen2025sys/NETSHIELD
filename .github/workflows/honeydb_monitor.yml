@@ -240,6 +240,34 @@ jobs:
           removed_ips = existing - all_ips
           final_ips   = sorted(all_ips, key=lambda ip: (tuple(int(o) for o in ip.split('/')[0].split('.')), ip))
 
+          # ── Report immer zuerst schreiben ────────────────────────────────
+          lines = []
+          lines.append("# HoneyDB Monitor – Report")
+          lines.append(f"**Aktualisiert:** {now_str}  ")
+          lines.append(f"**Quelle:** [honeydb.io](https://honeydb.io) – Community Honeypot Network\n")
+          lines.append("---")
+          lines.append("## Endpunkte & Ergebnisse\n")
+          lines.append("| Endpunkt | Treffer |")
+          lines.append("|---|---:|")
+          for key, value in stats.items():
+              lines.append(f"| {key} | **{value:,}** |")
+          lines.append("")
+          lines.append("---")
+          lines.append("| Metrik | Wert |")
+          lines.append("|---|---|")
+          lines.append(f"| Gesamt HoneyDB-IPs | **{len(final_ips):,}** |")
+          lines.append(f"| Neu | **+{len(new_ips):,}** |")
+          lines.append(f"| Entfernt | **-{len(removed_ips):,}** |")
+          lines.append(f"| API Requests genutzt | **{requests_used}** von ~50/Tag (1500/Monat) |")
+          lines.append("")
+          lines.append("---")
+          lines.append("> ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.")
+          lines.append(f"\n---\n*Generiert: {now_str}*")
+
+          with open("honeydb_report.md", "w", encoding="utf-8") as f:
+              f.write("\n".join(lines))
+          print("  honeydb_report.md geschrieben")
+
           # ── Leerungsschutz ────────────────────────────────────────────────
           # FIX #11 / FIX LS2: MIN_ENTRIES auf 500 erhöht (entspricht unterer Normalwert
           # 500–5000 IPs). sys.exit(1) statt sys.exit(0) damit GitHub Actions den
@@ -260,45 +288,6 @@ jobs:
 
           print(f"  {HONEYDB_FILE}: {len(final_ips)} IPs geschrieben")
 
-          # ── Report ────────────────────────────────────────────────────────
-          lines = []
-          lines.append("# HoneyDB Monitor – Report")
-          lines.append(f"**Aktualisiert:** {now_str}  ")
-          lines.append(f"**Quelle:** [honeydb.io](https://honeydb.io) – Community Honeypot Network\n")
-          lines.append("---")
-          lines.append("## Endpunkte & Ergebnisse\n")
-          lines.append("| Endpunkt | IPs |")
-          lines.append("|---|---|")
-          for name, count in stats.items():
-              icon = "✅" if count > 0 else "⚠️"
-              lines.append(f"| {icon} {name} | {count:,} |")
-
-          if top_services:
-              lines.append("")
-              lines.append("---")
-              lines.append("## Top angegriffene Dienste (letzte 24h)\n")
-              lines.append("| Rang | Dienst | Anzahl Attacken |")
-              lines.append("|---|---|---|")
-              for i, svc in enumerate(top_services, 1):
-                  lines.append(f"| {i} | `{svc.get('service', '?')}` | {svc.get('count', 0):,} |")
-
-          lines.append("")
-          lines.append("---")
-          lines.append("## Zusammenfassung\n")
-          lines.append("| Metrik | Wert |")
-          lines.append("|---|---|")
-          lines.append(f"| Gesamt HoneyDB-IPs | **{len(final_ips):,}** |")
-          lines.append(f"| Neu (heute) | **+{len(new_ips):,}** |")
-          lines.append(f"| Entfernt | **-{len(removed_ips):,}** |")
-          lines.append(f"| API Requests verbraucht | **{requests_used}** von ~50/Tag (1500/Monat) |")
-          lines.append("")
-          lines.append("---")
-          lines.append("> ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.")
-          lines.append(f"\n---\n*Generiert: {now_str}*")
-
-          with open("honeydb_report.md", "w", encoding="utf-8") as f:
-              f.write("\n".join(lines))
-          print("  honeydb_report.md geschrieben")
           print(f"\nFERTIG: {len(final_ips)} IPs | {requests_used} API Requests")
           EOF
 

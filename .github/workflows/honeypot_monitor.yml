@@ -160,6 +160,20 @@ jobs:
           removed_ips = existing - all_ips
           final_ips   = sorted(all_ips, key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
 
+          # Report immer zuerst schreiben
+          lines = ["# Honeypot Monitor – Report", f"**Aktualisiert:** {now_str}\n", "---",
+                   "| Quelle | IPs |", "|---|---|"]
+          for n, c in stats.items():
+              lines.append(f"| {'✅' if c > 0 else '❌'} `{n}` | {c} |")
+          lines += ["", "---", f"| Metrik | Wert |", "|---|---|",
+                    f"| Gesamt Honeypot-IPs | **{len(final_ips)}** |",
+                    f"| Neu | **+{len(new_ips)}** |", f"| Entfernt | **-{len(removed_ips)}** |",
+                    f"\n---\n*Generiert: {now_str}*"]
+
+          with open("honeypot_report.md", "w", encoding="utf-8") as f:
+              f.write("\n".join(lines))
+          print("honeypot_report.md geschrieben")
+
           # ── Leerungsschutz ────────────────────────────────────────────────
           # FIX LS3: sys.exit(1) statt sys.exit(0) + GitHub Warning Annotation.
           MIN_ENTRIES = 500
@@ -175,18 +189,6 @@ jobs:
               f.write(f"# Quellen: {len(HONEYPOT_SOURCES)} | Gesamt: {len(final_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt\n\n")
               f.write("\n".join(final_ips) + "\n")
 
-          # Report
-          lines = ["# Honeypot Monitor – Report", f"**Aktualisiert:** {now_str}\n", "---",
-                   "| Quelle | IPs |", "|---|---|"]
-          for n, c in stats.items():
-              lines.append(f"| {'✅' if c > 0 else '❌'} `{n}` | {c} |")
-          lines += ["", "---", f"| Metrik | Wert |", "|---|---|",
-                    f"| Gesamt Honeypot-IPs | **{len(final_ips)}** |",
-                    f"| Neu | **+{len(new_ips)}** |", f"| Entfernt | **-{len(removed_ips)}** |",
-                    f"\n---\n*Generiert: {now_str}*"]
-
-          with open("honeypot_report.md", "w", encoding="utf-8") as f:
-              f.write("\n".join(lines))
           print(f"Fertig: {len(final_ips)} Honeypot-IPs")
           EOF
 
