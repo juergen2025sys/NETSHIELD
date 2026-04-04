@@ -9,7 +9,20 @@
 
 <br/>
 
-<img src="netshield_stats.svg" alt="NETSHIELD Stats" width="760"/>
+
+| 🔵 Combined | 🔴 Aktiv ≥65 | 🟡 Confidence ≥40 | 🟠 Watchlist |
+|:-----------:|:------------:|:-----------------:|:------------:|
+| **4.112.169 IPs** | **2.381.047 IPs** | **2.900.870 IPs** | **322.287 IPs** |
+
+| 🔴 CVE/Exploit | 🔵 Honeypot | 🟣 Bot-Detector | 🟣 Feeds |
+|:--------------:|:-----------:|:---------------:|:--------:|
+| **217.542 IPs** | **10.111 IPs** | **17.950 IPs** | **98 Quellen** |
+
+| 🔄 Aktualisierung | 🗓️ Aufbewahrung | ⚙️ Workflows | 🟢 Letztes Update |
+|:-----------------:|:---------------:|:------------:|:-----------------:|
+| **8× täglich** | **180 Tage** | **16 aktiv** | **LAST_UPDATE** |
+
+
 
 <br/>
 
