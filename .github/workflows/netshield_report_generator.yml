@@ -98,7 +98,6 @@ jobs:
                   s = fh.get("summary", {})
                   lines.append("---")
                   lines.append(f"## 🔍 Feed Health: ✅ {s.get('ok',0)} OK | ⚠️ {s.get('warn',0)} leer | ❌ {s.get('error',0)} Fehler\n")
-                  # FIX #9: Ausgefallene Feeds namentlich anzeigen
                   failed = fh.get("failed_feeds", [])
                   warned = fh.get("warned_feeds", [])
                   if failed:
@@ -121,6 +120,73 @@ jobs:
           with open("NETSHIELD_REPORT.md", "w", encoding="utf-8") as f:
               f.write("\n".join(lines))
           print(f"NETSHIELD_REPORT.md geschrieben | combined: {total:,} IPs")
+          EOF
+
+      # ── NEU: Header-Statistiktabelle im README aktualisieren ──────────────────
+      - name: Update README Header Stats
+        run: |
+          python3 << 'EOF'
+          import os, re
+          from datetime import datetime, timezone
+
+          def count_ips(filepath):
+              if not os.path.exists(filepath): return 0
+              count = 0
+              with open(filepath) as f:
+                  for line in f:
+                      if line.strip() and not line.startswith("#"):
+                          count += 1
+              return count
+
+          if not os.path.exists("README.md"):
+              print("README.md nicht gefunden – übersprungen")
+              exit(0)
+
+          with open("README.md", "r", encoding="utf-8") as f:
+              readme = f.read()
+
+          combined  = count_ips("combined_threat_blacklist_ipv4.txt")
+          active    = count_ips("active_blacklist_ipv4.txt")
+          conf40    = count_ips("blacklist_confidence40_ipv4.txt")
+          watchlist = count_ips("watchlist_confidence25to39_ipv4.txt")
+          cve       = count_ips("cve_exploit_ips.txt")
+          honeypot  = count_ips("honeypot_ips.txt")
+          now_str   = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+          def fmt(n):
+              return f"**{n:,}**"
+
+          # Zeile 1 der Header-Tabelle: Combined | Active | Conf40 | Watchlist | CVE | Honeypot | Feeds
+          # Muster: | **Zahl** | **Zahl** | **Zahl** | **Zahl** | **Zahl** | **Zahl** | **98** |
+          row1_pattern = (
+              r'(\|\s*📦 Combined\s*\|\s*🔴 Active ≥65\s*\|\s*🟡 Confidence ≥40\s*\|\s*🟠 Watchlist\s*\|\s*🚨 CVE/Exploit\s*\|\s*🍯 Honeypot\s*\|\s*📡 Feeds\s*\|)'
+              r'\n(\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|)'
+          )
+          row1_replacement = (
+              r'\1'
+              f'\n| {fmt(combined)} | {fmt(active)} | {fmt(conf40)} | {fmt(watchlist)} | {fmt(cve)} | {fmt(honeypot)} | **98** |'
+          )
+          readme, n1 = re.subn(row1_pattern, row1_replacement, readme)
+
+          # Zeile 2 der Header-Tabelle: Letztes Update | Intervall | Retention | Workflows | Länder
+          row2_pattern = (
+              r'(\|\s*🕐 Letztes Update\s*\|\s*🔄 Intervall\s*\|\s*📅 IP-Retention\s*\|\s*⚙️ Workflows\s*\|\s*🌍 Länder\s*\|)'
+              r'\n(\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|)'
+          )
+          row2_replacement = (
+              r'\1'
+              f'\n| {now_str} | 8× täglich | 180 Tage | 16 aktiv | 250+ |'
+          )
+          readme, n2 = re.subn(row2_pattern, row2_replacement, readme)
+
+          # Fallback: <!-- LAST_UPDATE --> Platzhalter ersetzen falls noch vorhanden
+          readme = readme.replace("<!-- LAST_UPDATE -->", now_str)
+
+          with open("README.md", "w", encoding="utf-8") as f:
+              f.write(readme)
+
+          print(f"Header-Stats aktualisiert: combined={combined:,} active={active:,} conf40={conf40:,}")
+          print(f"  Zeile 1: {n1} Treffer | Zeile 2: {n2} Treffer | Zeitstempel: {now_str}")
           EOF
 
       - name: Update README IP Counts
@@ -166,37 +232,21 @@ jobs:
 
               formatted = fmt(count)
 
-              # ── FIX: Robustes Regex das korrekt die Einträge-Spalte (3. Spalte) trifft ──
-              #
-              # README-Tabellenformat:
-              #   | [`datei.txt`](datei.txt) | Beschreibung | **Zahl** | Update | Empfohlen |
-              #
-              # Das alte Pattern matched nur 1 Pipe nach dem Dateinamen → trifft die
-              # Beschreibungs-Spalte statt die Einträge-Spalte.
-              # Das neue Pattern matched explizit 2 Pipes nach dem Dateinamen:
-              #   Gruppe 1: alles bis inkl. "| Beschreibung |"
-              #   Gruppe 2: der zu ersetzende Zahlenwert
-              #   Gruppe 3: " |" danach (Update-Spalte folgt)
-              #
-              # Pattern für Link-Zeilen:  | [`datei`](datei) | Beschreibung | **Zahl** |
               pattern_link = (
                   r'(\|\s*\[`?' + re.escape(filename) + r'`?\]\([^)]*\)\s*\|[^|]*\|)\s*[^|]+?(\s*\|)'
               )
-              # Pattern für Code-Zeilen:  | `datei` | Beschreibung | **Zahl** |
               pattern_code = (
                   r'(\|[^|]*`' + re.escape(filename) + r'`[^|]*\|[^|]*\|)\s*[^|]+?(\s*\|)'
               )
 
               matched = False
 
-              # Versuche zuerst Link-Pattern (bevorzugt, da README Links verwendet)
               new_readme, n1 = re.subn(pattern_link, rf'\1 {formatted} \2', readme)
               if n1 > 0:
                   readme = new_readme
                   matched = True
                   print(f"  ✅ {filename}: {formatted} (Link-Pattern, {n1} Treffer)")
 
-              # Fallback: Code-Pattern (backtick ohne Link)
               if not matched:
                   new_readme, n2 = re.subn(pattern_code, rf'\1 {formatted} \2', readme)
                   if n2 > 0:
@@ -207,16 +257,11 @@ jobs:
               if matched:
                   changes += 1
               else:
-                  # Letzter Fallback: direktes Suchen nach dem Dateinamen in der Zeile
-                  # und Ersetzen des **Zahl**-Musters in der dritten Spalte
                   lines_out = []
                   replaced  = False
                   for line in readme.splitlines(keepends=True):
                       if f"`{filename}`" in line or f"({filename})" in line:
-                          # Spalten aufteilen und dritte (Index 3) ersetzen
                           cols = line.split("|")
-                          # cols[0]=leer, cols[1]=Datei, cols[2]=Beschreibung, cols[3]=Einträge
-                          # Mindestens 5 Felder nötig; cols[3] darf nicht die letzte Spalte sein
                           if len(cols) >= 5 and cols[3].strip().replace("*", "").replace(",", "").replace(" ", "").isdigit():
                               cols[3] = f" {formatted} "
                               line = "|".join(cols)
