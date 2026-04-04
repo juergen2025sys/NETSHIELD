@@ -642,6 +642,16 @@ jobs:
               print(f"WARNUNG: {_msg}")
               _sys.exit(1)
 
+          # Leerungsschutz: mind. 10 aktive Feeds müssen vorhanden sein,
+          # sonst deutet das auf einen kompletten Discovery-Ausfall hin.
+          MIN_APPROVED_FEEDS = 10
+          if len(approved_feeds) < MIN_APPROVED_FEEDS:
+              _msg = (f"Nur {len(approved_feeds)} aktive Feeds (< {MIN_APPROVED_FEEDS}) – "
+                      f"Discovery-Ausfall vermutet, behalte bestehende auto_discovered_feeds.json")
+              print(f"::warning file=auto_feed_discovery.yml::{_msg}")
+              print(f"WARNUNG: {_msg}")
+              _sys.exit(1)
+
           new_feeds_count = len(approved_feeds) - len(existing_feeds)
           output = {
               "updated":        now_str,

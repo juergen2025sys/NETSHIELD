@@ -460,6 +460,7 @@ jobs:
                   "workflow_health_checker.yml",
                   "netshield_report_generator.yml",
                   "community_ip_report.yml",
+                  "auto_feed_discovery.yml",   # hat MIN_APPROVED_FEEDS guard
               }
               if _has_external_fetch and _writes_outputs and not _has_min_guard and fname not in _quality_guard_exempt:
                   msg = ("Externer Feed/Report ohne explizite MIN_* Guard-Variable – "

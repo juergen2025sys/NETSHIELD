@@ -85,8 +85,7 @@ jobs:
               if not os.path.exists("score_decay_log.txt"):
                   with open("score_decay_log.txt", "w", encoding="utf-8") as f:
                       f.write(f"# Score Decay Log | {now_str}\n# {msg}\n")
-              # FIX: sys.exit(1) damit GitHub den Step als
-              # fehlgeschlagen markiert und im Actions-UI sichtbar wird.
+              print(f"ABBRUCH: {msg} – kein weiterer Score-Decay-Lauf möglich.")
               sys.exit(1)
 
           with open(DB_FILE) as f:
