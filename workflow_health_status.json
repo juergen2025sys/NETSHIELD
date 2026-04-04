@@ -1,56 +1,25 @@
 {
-  "updated": "2026-04-04 18:51 UTC",
+  "updated": "2026-04-04 19:09 UTC",
   "total": 16,
-  "ok": 7,
-  "warn": 4,
-  "error": 5,
+  "ok": 13,
+  "warn": 0,
+  "error": 3,
   "errors": [
     {
-      "file": "asn_reputation_scorer.yml",
+      "file": "auto_feed_discovery.yml",
       "check": "Report nach Guard-Exit",
-      "detail": "Block 0 L~241: sys.exit(1) vor Report/Status-Write (asn_reputation_db.json, asn_reputation_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
+      "detail": "Block 0 L~600: sys.exit(1) vor Report/Status-Write (auto_discovered_feeds.json, auto_feed_discovery_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
     },
     {
-      "file": "geo_tagger.yml",
+      "file": "cve_to_ip_mapper.yml",
       "check": "Report nach Guard-Exit",
-      "detail": "Block 0 L~170: sys.exit(1) vor Report/Status-Write (blacklist_geo_enriched.json, geo_tagger_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
-    },
-    {
-      "file": "honeydb_monitor.yml",
-      "check": "Report nach Guard-Exit",
-      "detail": "Block 0 L~213: sys.exit(1) vor Report/Status-Write (honeydb_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
-    },
-    {
-      "file": "honeypot_monitor.yml",
-      "check": "Report nach Guard-Exit",
-      "detail": "Block 0 L~134: sys.exit(1) vor Report/Status-Write (honeypot_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
+      "detail": "Block 0 L~236: sys.exit(1) vor Report/Status-Write (cve_exploit_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
     },
     {
       "file": "update_bot_detector.yml",
       "check": "Report nach Guard-Exit",
-      "detail": "Block 0 L~69: sys.exit(1) vor Report/Status-Write (bot_detector_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
+      "detail": "Block 0 L~105: sys.exit(1) vor Report/Status-Write (bot_detector_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
     }
   ],
-  "warnings": [
-    {
-      "file": "auto_feed_discovery.yml",
-      "check": "Commit-Step nicht always()",
-      "detail": "Workflow hat MIN_* Guard + Report/Status-Dateien im Commit-Step, aber kein 'if: always()' am Commit-Step \u2013 Guard-Fail kann stale Reports hinterlassen"
-    },
-    {
-      "file": "community_ip_report.yml",
-      "check": "Commit-Step Pattern A",
-      "detail": "Commit-Step nutzt Pattern A \u2013 Push-Loop l\u00e4uft auch ohne Commit. Bevorzuge 'if git diff --staged --quiet; then echo ...; else git commit; push-loop; fi'"
-    },
-    {
-      "file": "cve_to_ip_mapper.yml",
-      "check": "Commit-Step Pattern A",
-      "detail": "Commit-Step nutzt Pattern A \u2013 Push-Loop l\u00e4uft auch ohne Commit. Bevorzuge 'if git diff --staged --quiet; then echo ...; else git commit; push-loop; fi'"
-    },
-    {
-      "file": "false_positive_checker.yml",
-      "check": "Commit-Step Pattern A",
-      "detail": "Commit-Step nutzt Pattern A \u2013 Push-Loop l\u00e4uft auch ohne Commit. Bevorzuge 'if git diff --staged --quiet; then echo ...; else git commit; push-loop; fi'"
-    }
-  ]
+  "warnings": []
 }
