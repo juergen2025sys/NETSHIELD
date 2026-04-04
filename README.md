@@ -1,14 +1,41 @@
 
-
-
-
-
+<div align="center">
 
 # 🛡️ NETSHIELD
 
 **Automatisiertes IP-Threat-Intelligence-System mit dynamischer Blacklist-Verwaltung**
 
-NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus über 98 öffentlichen Feeds. Das System unterscheidet zwischen aktiven Bedrohungen und veralteten statischen Listen – und stellt daraus qualitativ hochwertige Blocklisten für Firewalls (OPNsense, pfSense, iptables) bereit.
+[![Update Combined](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml)
+[![Feed Health](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml)
+[![Confidence Blacklist](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml)
+
+<br/>
+
+| 📦 Combined | 🔴 Active | 🟡 Confidence ≥40 | 📡 Feeds |
+|:-----------:|:---------:|:-----------------:|:--------:|
+| **4,112,169** IPs | **2,381,047** IPs | **2,900,870** IPs | **98** Quellen |
+
+<br/>
+
+> NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus 98 öffentlichen Feeds.  
+> Das System unterscheidet aktive Bedrohungen von veralteten statischen Listen —  
+> und liefert daraus qualitativ hochwertige Blocklisten für OPNsense, pfSense und iptables.
+
+</div>
+
+---
+
+## ⚡ Quick Start — OPNsense Alias
+
+**Empfohlene URL** (aktive Bedrohungen, 30 Tage + Score ≥ 65):
+```
+https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt
+```
+
+**Mittleres/Hohes Vertrauen** (Score ≥ 40, größere Abdeckung):
+```
+https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt
+```
 
 ---
 
@@ -16,11 +43,11 @@ NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus üb
 
 - [Architektur](#architektur)
 - [Blocklisten](#blocklisten)
-- [Wie funktioniert die Bewertung](#wie-funktioniert-die-bewertung)
+- [Confidence-Score](#wie-funktioniert-die-bewertung)
 - [Workflows](#workflows)
-- [Für OPNsense / Firewall](#für-opnsense--firewall)
 - [Community Reports](#community-reports)
 - [Dateistruktur](#dateistruktur)
+- [Reports & Monitoring](#reports--monitoring)
 
 ---
 
@@ -89,7 +116,9 @@ NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus üb
   <text font-family="sans-serif" font-size="12" fill="#888780" x="340" y="450" text-anchor="middle">IP ohne HQ-Bestätigung → altert aus nach 180 Tagen · kehrt zurück wenn wieder aktiv</text>
 </svg>
 
-**Kernprinzip:** Nur HQ-Feeds (Feodo, Talos, AbuseIPDB, Spamhaus etc.) bestimmen die Lebenszeit einer IP. Statische Mega-Listen erhöhen den Confidence-Score, können eine IP aber nicht am Leben halten. Das System bereinigt automatisch was die Feeds selbst nicht können.
+> **Kernprinzip:** Nur HQ-Feeds (Feodo, Talos, AbuseIPDB, Spamhaus etc.) bestimmen die Lebenszeit einer IP.  
+> Statische Mega-Listen erhöhen den Confidence-Score, können eine IP aber nicht am Leben halten.  
+> Das System bereinigt automatisch, was die Feeds selbst nicht können.
 
 ---
 
@@ -97,37 +126,23 @@ NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus üb
 
 | Datei | Beschreibung | Einträge | Update | Empfohlen für |
 |---|---|---:|---|---|
-| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen (30T + Conf≥65) | **2,381,047**                                                                                                                                                                                                                                                                                                                                                               | 8x täglich | **OPNsense / Firewall** |
-| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs (180 Tage) | **4,112,169**                                                                                                                                                                                                                                                                                                                                                               | 8x täglich | Audit / SIEM |
-| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres/Hohes Vertrauen (Score ≥40) | **2,900,870**                                                                                                                                                                                                                                                                                                                                                               | 8x täglich | Zusätzliche Filterregeln |
-| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25–39) | **322,287**                                                                                                                                                                                                                                                                                                                                                  | 8x täglich | Monitoring |
-| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploit & C2-Server | **217,542**                                                                                                                                                                                                                                                                                                                                                               | täglich 04:00 | IDS/IPS |
-| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte IPs | **10,111**                                                                                                                                                                                                                                                                                                                                                               | täglich 23:00 | Ergänzung |
-| [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **9,404**                                                                                                                                                                                                                                                                                                                                                               | täglich 22:15 | Ergänzung |
-| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot-Detector | **17,950**                                                                                                                                                                                                                                                                                                                                                               | täglich 22:45 | Web-Schutz |
-| [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs (Score≥50) | **19**                                                                                                                                                                                                                                                                                                                                                               | täglich 02:00 | ASN-Blocking |
+| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen (30T + Conf≥65) | **2,381,047** | 8x täglich | **OPNsense / Firewall** |
+| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs (180 Tage) | **4,112,169** | 8x täglich | Audit / SIEM |
+| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres/Hohes Vertrauen (Score ≥40) | **2,900,870** | 8x täglich | Zusätzliche Filterregeln |
+| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25–39) | **322,287** | 8x täglich | Monitoring |
+| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploit & C2-Server | **217,542** | täglich 04:00 | IDS/IPS |
+| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte IPs | **10,111** | täglich 23:00 | Ergänzung |
+| [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **9,404** | täglich 22:15 | Ergänzung |
+| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot-Detector | **17,950** | täglich 22:45 | Web-Schutz |
+| [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs (Score≥50) | **19** | täglich 02:00 | ASN-Blocking |
 
-### Geo-Listen
+### 🌍 Geo-Listen
 
 | Verzeichnis | Beschreibung |
 |---|---|
 | [`continents/`](continents/) | IPv4-Ranges pro Kontinent (africa, asia, europe, north_america, oceania, south_america) |
 | [`countries/`](countries/) | IPv4-Ranges pro Land, organisiert nach Kontinent |
 | [`all_countries_ipv4.txt`](all_countries_ipv4.txt) | Alle Länder zusammengeführt |
-
----
-
-## Für OPNsense / Firewall
-
-**Alias URL (aktive Blockliste):**
-```
-https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt
-```
-
-**Mittleres/Hohes Vertrauen:**
-```
-https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt
-```
 
 ---
 
@@ -147,10 +162,13 @@ Score = A (Quellen-Qualität) + B (Aktualität) + C (Persistenz) + D (Bekannt se
 | **D – Bekannt seit** | 10 | Länger im System = stabiler Score |
 
 **Schwellwerte:**
-- Score ≥ 65 → `active_blacklist` (OPNsense / Firewall)
-- Score ≥ 40 → `blacklist_confidence40` (mittleres/hohes Vertrauen)
-- Score 25–39 → `watchlist`
-- Score < 25 → nur in `combined` (Audit)
+
+| Score | Liste | Verwendung |
+|---|---|---|
+| ≥ 65 | `active_blacklist` | OPNsense / Firewall |
+| ≥ 40 | `blacklist_confidence40` | Mittleres/Hohes Vertrauen |
+| 25–39 | `watchlist` | Monitoring |
+| < 25 | `combined` | Audit only |
 
 ### HQ-Feeds (bestimmen Lebenszeit)
 
@@ -190,9 +208,7 @@ Verdächtige IPs können über das **Issue-System** gemeldet werden. Das System:
 3. Schließt das Issue automatisch mit Feedback
 4. Promoted die IP zur aktiven Blacklist sobald **3 unabhängige Meldungen** vorliegen
 
-**Limit:** 5 Reports pro User pro Tag.
-
-Verwende das Label `community-report` beim Erstellen des Issues.
+> **Limit:** 5 Reports pro User pro Tag · Label `community-report` verwenden
 
 ---
 
@@ -211,8 +227,8 @@ NETSHIELD/
 │   └── south_america/
 ├── active_blacklist_ipv4.txt           # → OPNsense
 ├── combined_threat_blacklist_ipv4.txt  # → Audit
-├── blacklist_confidence40_ipv4.txt     # → Mittleres/Hohes Vertrauen (≥40)
-├── watchlist_confidence25to39_ipv4.txt # → Monitoring (25–39)
+├── blacklist_confidence40_ipv4.txt     # → Confidence ≥40
+├── watchlist_confidence25to39_ipv4.txt # → Monitoring
 ├── cve_exploit_ips.txt
 ├── honeypot_ips.txt
 ├── honeydb_ips.txt
@@ -243,4 +259,8 @@ NETSHIELD/
 
 ---
 
+<div align="center">
+
 *Automatisch aktualisiert durch NETSHIELD · [NETSHIELD_REPORT.md](NETSHIELD_REPORT.md)*
+
+</div>
