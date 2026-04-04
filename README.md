@@ -19,7 +19,7 @@
 
 | IP-Quellen | Aktive IP-Drohungen (Confidence ≥65) | CVE/Exploit IPs | Honeypot IPs |
 |:---|:---|:---|:---|
-| 98 (Aktiv: 90+) | **2,381,444** | **217,542** | **10,111** |
+| 98 (Aktiv: 90+) | **2,382,156** | **217,542** | **10,111** |
 <!-- STATS_TABLE_END -->
 
 <!-- META_TABLE_START -->
@@ -27,7 +27,7 @@
 
 | Letztes Update | Update-Intervall | IP-Retention | Aktive Workflows | Geografische Abdeckung |
 |:---|:---|:---|:---|:---|
-| 2026-04-04 13:33 UTC | 8× täglich | 180 Tage | 16 | 250+ Länder |
+| 2026-04-04 13:39 UTC | 8× täglich | 180 Tage | 16 | 250+ Länder |
 <!-- META_TABLE_END -->
 
 NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus 98 öffentlichen Feeds. Das System unterscheidet aktive Bedrohungen von veralteten statischen Listen und liefert daraus qualitativ hochwertige Blocklisten für OPNsense, pfSense und iptables.
@@ -69,14 +69,14 @@ iptables -I INPUT -m set --match-set netshield src -j DROP
 
 | Datei | Zweck | Einträge | Empfohlen für |
 |---|---|---:|---|
-| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen · letzte 30 Tage · Score ≥ 65 | **2,381,444**  | OPNsense / pfSense / Firewall |
-| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres bis hohes Vertrauen · Score ≥ 40 | **2,900,932**  | Erweiterte Filterregeln |
-| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs · 180-Tage-Fenster | **4,113,036**  | Audit / SIEM |
-| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist · Score 25–39 | **322,280**  | Monitoring |
-| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploits & aktive C2-Server | **217,542**  | IDS / IPS |
-| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **10,111**  | Ergänzung |
-| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **17,950**  | Web-Schutz |
-| [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥ 50 | **19**  | ASN-Blocking |
+| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen · letzte 30 Tage · Score ≥ 65 | **2,382,156**   | OPNsense / pfSense / Firewall |
+| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres bis hohes Vertrauen · Score ≥ 40 | **2,900,932**   | Erweiterte Filterregeln |
+| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs · 180-Tage-Fenster | **4,114,755**   | Audit / SIEM |
+| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist · Score 25–39 | **322,280**   | Monitoring |
+| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploits & aktive C2-Server | **217,542**   | IDS / IPS |
+| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **10,111**   | Ergänzung |
+| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **17,950**   | Web-Schutz |
+| [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥ 50 | **19**   | ASN-Blocking |
 
 ### Geo-Listen
 
