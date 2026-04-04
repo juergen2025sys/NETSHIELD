@@ -1,4 +1,5 @@
 
+
 <div align="center">
 
 # 🛡️ NETSHIELD
@@ -12,13 +13,17 @@
 
 <br/>
 
+<!-- STATS_TABLE_START -->
 | 📦 Combined | 🔴 Active ≥65 | 🟡 Confidence ≥40 | 🟠 Watchlist | 🚨 CVE/Exploit | 🍯 Honeypot | 📡 Feeds |
 |:-----------:|:-------------:|:-----------------:|:------------:|:--------------:|:-----------:|:--------:|
 | **4,112,169** | **2,381,047** | **2,900,870** | **322,287** | **217,542** | **10,111** | **98** |
+<!-- STATS_TABLE_END -->
 
+<!-- META_TABLE_START -->
 | 🕐 Letztes Update | 🔄 Intervall | 📅 IP-Retention | ⚙️ Workflows | 🌍 Länder |
 |:-----------------:|:------------:|:---------------:|:------------:|:---------:|
 | <!-- LAST_UPDATE --> | 8× täglich | 180 Tage | 16 aktiv | 250+ |
+<!-- META_TABLE_END -->
 
 <br/>
 
