@@ -9,23 +9,85 @@
 
 <br/>
 
-<table align="center" width="100%"><tr>
-<td width="33%" align="center"><a href="combined_threat_blacklist_ipv4.txt"><img src="https://img.shields.io/badge/Combined-4.112.169%20IPs-blue?style=for-the-badge&labelColor=1a1a1a"/></a></td>
-<td width="33%" align="center"><a href="active_blacklist_ipv4.txt"><img src="https://img.shields.io/badge/Aktiv%20≥65-2.381.047%20IPs-red?style=for-the-badge&labelColor=1a1a1a"/></a></td>
-<td width="34%" align="center"><a href="blacklist_confidence40_ipv4.txt"><img src="https://img.shields.io/badge/Confidence%20≥40-2.900.870%20IPs-yellow?style=for-the-badge&labelColor=1a1a1a"/></a></td>
-</tr><tr>
-<td width="33%" align="center"><a href="watchlist_confidence25to39_ipv4.txt"><img src="https://img.shields.io/badge/Watchlist-322.287%20IPs-orange?style=for-the-badge&labelColor=1a1a1a"/></a></td>
-<td width="33%" align="center"><a href="cve_exploit_ips.txt"><img src="https://img.shields.io/badge/CVE%2FExploit-217.542%20IPs-critical?style=for-the-badge&labelColor=1a1a1a"/></a></td>
-<td width="34%" align="center"><a href="honeypot_ips.txt"><img src="https://img.shields.io/badge/Honeypot-10.111%20IPs-informational?style=for-the-badge&labelColor=1a1a1a"/></a></td>
-</tr><tr>
-<td width="33%" align="center"><a href="bot_detector_blacklist_ipv4.txt"><img src="https://img.shields.io/badge/Bot--Detector-17.950%20IPs-9b59b6?style=for-the-badge&labelColor=1a1a1a"/></a></td>
-<td width="33%" align="center"><a href="#architektur"><img src="https://img.shields.io/badge/Feeds-98%20Quellen-blueviolet?style=for-the-badge&labelColor=1a1a1a"/></a></td>
-<td width="34%" align="center"><img src="https://img.shields.io/badge/Letztes%20Update-LAST__UPDATE-brightgreen?style=for-the-badge&labelColor=1a1a1a"/></td>
-</tr><tr>
-<td width="33%" align="center"><img src="https://img.shields.io/badge/Aktualisierung-8x%20täglich-555555?style=for-the-badge&labelColor=1a1a1a"/></td>
-<td width="33%" align="center"><img src="https://img.shields.io/badge/Aufbewahrung-180%20Tage-555555?style=for-the-badge&labelColor=1a1a1a"/></td>
-<td width="34%" align="center"><img src="https://img.shields.io/badge/Workflows-16%20aktiv-555555?style=for-the-badge&labelColor=1a1a1a"/></td>
-</tr></table>
+<svg width="760" height="176" viewBox="0 0 760 176" xmlns="http://www.w3.org/2000/svg" font-family="DejaVu Sans,Verdana,Geneva,sans-serif">
+
+  <!-- Row 1 -->
+  <!-- Combined -->
+  <rect x="4" y="4" width="244" height="36" rx="4" fill="#1a1a1a"/>
+  <rect x="148" y="4" width="100" height="36" rx="4" fill="#2196F3"/>
+  <text x="75" y="27" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" letter-spacing="1">COMBINED</text>
+  <text x="198" y="27" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">4.112.169 IPs</text>
+
+  <!-- Aktiv ≥65 -->
+  <rect x="258" y="4" width="244" height="36" rx="4" fill="#1a1a1a"/>
+  <rect x="402" y="4" width="100" height="36" rx="4" fill="#e53935"/>
+  <text x="329" y="27" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" letter-spacing="1">AKTIV ≥65</text>
+  <text x="452" y="27" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">2.381.047 IPs</text>
+
+  <!-- Confidence ≥40 -->
+  <rect x="512" y="4" width="244" height="36" rx="4" fill="#1a1a1a"/>
+  <rect x="668" y="4" width="88" height="36" rx="4" fill="#F9A825"/>
+  <text x="589" y="27" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" letter-spacing="1">CONFIDENCE ≥40</text>
+  <text x="712" y="27" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">2.900.870 IPs</text>
+
+  <!-- Row 2 -->
+  <!-- Watchlist -->
+  <rect x="4" y="48" width="244" height="36" rx="4" fill="#1a1a1a"/>
+  <rect x="148" y="48" width="100" height="36" rx="4" fill="#FB8C00"/>
+  <text x="75" y="71" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" letter-spacing="1">WATCHLIST</text>
+  <text x="198" y="71" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">322.287 IPs</text>
+
+  <!-- CVE/Exploit -->
+  <rect x="258" y="48" width="244" height="36" rx="4" fill="#1a1a1a"/>
+  <rect x="402" y="48" width="100" height="36" rx="4" fill="#e53935"/>
+  <text x="329" y="71" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" letter-spacing="1">CVE/EXPLOIT</text>
+  <text x="452" y="71" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">217.542 IPs</text>
+
+  <!-- Honeypot -->
+  <rect x="512" y="48" width="244" height="36" rx="4" fill="#1a1a1a"/>
+  <rect x="668" y="48" width="88" height="36" rx="4" fill="#039BE5"/>
+  <text x="589" y="71" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" letter-spacing="1">HONEYPOT</text>
+  <text x="712" y="71" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">10.111 IPs</text>
+
+  <!-- Row 3 -->
+  <!-- Bot-Detector -->
+  <rect x="4" y="92" width="244" height="36" rx="4" fill="#1a1a1a"/>
+  <rect x="148" y="92" width="100" height="36" rx="4" fill="#8E24AA"/>
+  <text x="75" y="115" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" letter-spacing="1">BOT-DETECTOR</text>
+  <text x="198" y="115" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">17.950 IPs</text>
+
+  <!-- Feeds -->
+  <rect x="258" y="92" width="244" height="36" rx="4" fill="#1a1a1a"/>
+  <rect x="402" y="92" width="100" height="36" rx="4" fill="#7B1FA2"/>
+  <text x="329" y="115" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" letter-spacing="1">FEEDS</text>
+  <text x="452" y="115" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">98 QUELLEN</text>
+
+  <!-- Letztes Update -->
+  <rect x="512" y="92" width="244" height="36" rx="4" fill="#1a1a1a"/>
+  <rect x="668" y="92" width="88" height="36" rx="4" fill="#43A047"/>
+  <text x="589" y="115" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" letter-spacing="1">LETZTES UPDATE</text>
+  <text x="712" y="115" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">LAST_UPDATE</text>
+
+  <!-- Row 4 -->
+  <!-- Aktualisierung -->
+  <rect x="4" y="136" width="244" height="36" rx="4" fill="#1a1a1a"/>
+  <rect x="148" y="136" width="100" height="36" rx="4" fill="#555"/>
+  <text x="75" y="159" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" letter-spacing="1">AKTUALISIERUNG</text>
+  <text x="198" y="159" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">8X TÄGLICH</text>
+
+  <!-- Aufbewahrung -->
+  <rect x="258" y="136" width="244" height="36" rx="4" fill="#1a1a1a"/>
+  <rect x="402" y="136" width="100" height="36" rx="4" fill="#555"/>
+  <text x="329" y="159" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" letter-spacing="1">AUFBEWAHRUNG</text>
+  <text x="452" y="159" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">180 TAGE</text>
+
+  <!-- Workflows -->
+  <rect x="512" y="136" width="244" height="36" rx="4" fill="#1a1a1a"/>
+  <rect x="668" y="136" width="88" height="36" rx="4" fill="#555"/>
+  <text x="589" y="159" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle" letter-spacing="1">WORKFLOWS</text>
+  <text x="712" y="159" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">16 AKTIV</text>
+
+</svg>
 
 <br/>
 
