@@ -179,10 +179,60 @@ jobs:
                   if var_match:
                       pat = rf'with open\({re.escape(report_path)}\s*,\s*["\']w["\']'
                   else:
-                      pat = rf'with open\((?:r?f?["\'])[^\n]*{re.escape(report_path)}[^\n]*["\']\s*,\s*["\']w["\']'
+                      pat = rf'with open\((?:r?f?["\'])[^^\n]*{re.escape(report_path)}[^\n]*["\']\s*,\s*["\']w["\']'
                   if re.search(pat, prior):
                       return True
               return False
+
+          def _extract_report_targets_from_block(dedented):
+              targets = set()
+              var_values = {}
+              lines = dedented.splitlines()
+
+              for raw_line in lines:
+                  line = _code_only(raw_line).strip()
+                  if not line:
+                      continue
+
+                  for m in re.finditer(r'\b([A-Z_][A-Z0-9_]*)\s*=\s*(["\'])([^"\']+)\2', line):
+                      value = m.group(3).strip()
+                      low = value.lower()
+                      if any(tok in low for tok in ["report", "status", "result", "summary", ".md", ".json"]):
+                          var_values[m.group(1)] = value
+
+                  open_match = re.search(r'with\s+open\((.+?),\s*["\']w["\']', line)
+                  if not open_match:
+                      continue
+                  raw_target = open_match.group(1).strip()
+
+                  if re.fullmatch(r'[A-Z_][A-Z0-9_]*', raw_target):
+                      resolved = var_values.get(raw_target)
+                      targets.add(resolved or raw_target)
+                      continue
+
+                  lit = re.match(r'(?:r|f|rf|fr)?["\']([^"\']+)["\']$', raw_target)
+                  if lit:
+                      value = lit.group(1).strip()
+                      low = value.lower()
+                      if any(tok in low for tok in ["report", "status", "result", "summary", ".md", ".json"]):
+                          targets.add(value)
+
+              return sorted(targets)
+
+          def _extract_report_targets_from_blocks(blocks):
+              targets = set()
+              for blk in blocks:
+                  targets.update(_extract_report_targets_from_block(textwrap.dedent(blk)))
+              return sorted(targets)
+
+          def _has_commit_step_always(content):
+              lines = content.splitlines()
+              for idx, raw_line in enumerate(lines):
+                  if re.match(r'^\s*-\s+name:\s+.*commit', raw_line, re.I):
+                      window = "\n".join(lines[idx:idx+8])
+                      if "if: always()" in window:
+                          return True
+              return "if: always()" in content
 
           expected_sequence = [
               ("feed_health_monitor.yml",       "workflow_health_checker.yml",   15),
@@ -644,7 +694,9 @@ jobs:
               for _shell in shell_blocks:
                   _shell_reports.extend(_report_like_paths(_extract_git_added_files(_shell)))
               _shell_reports = sorted(set(_shell_reports))
-              _has_always_commit = "if: always()" in content and bool(_shell_reports)
+              _written_reports = _extract_report_targets_from_blocks(blocks)
+              _report_targets = sorted(set(_shell_reports + _written_reports))
+              _has_always_commit = _has_commit_step_always(content) and bool(_report_targets)
               for _bi, _blk in enumerate(blocks):
                   _ded = textwrap.dedent(_blk)
                   for _guard in _find_guard_exits(_ded):
@@ -652,9 +704,9 @@ jobs:
                           continue
                       if not _has_always_commit:
                           continue
-                      if not _has_prior_report_write(_guard["lines_before"], _shell_reports):
+                      if not _has_prior_report_write(_guard["lines_before"], _report_targets):
                           msg = (f"Block {_bi} L~{_guard['line']}: sys.exit(1) vor Report/Status-Write "
-                                 f"({', '.join(_shell_reports[:4])}) – stale Report moeglich trotz Commit-Step mit if: always()")
+                                 f"({', '.join(_report_targets[:4])}) – stale Report moeglich trotz Commit-Step mit if: always()")
                           file_errors.append(msg)
                           errors.append({"file": fname,
                                          "check": "Report nach Guard-Exit",
@@ -669,8 +721,8 @@ jobs:
                   for _blk in blocks
                   for _guard in _find_guard_exits(textwrap.dedent(_blk))
               )
-              if _has_guard_exit and _shell_reports and "if: always()" not in content:
-                  msg = ("Workflow hat MIN_* Guard + Report/Status-Dateien im Commit-Step, "
+              if _has_guard_exit and _report_targets and not _has_commit_step_always(content):
+                  msg = ("Workflow hat Guard + Report/Status-Dateien (geschrieben oder committed), "
                          "aber kein 'if: always()' am Commit-Step – Guard-Fail kann stale Reports hinterlassen")
                   file_warnings.append(msg)
                   warnings.append({"file": fname,
