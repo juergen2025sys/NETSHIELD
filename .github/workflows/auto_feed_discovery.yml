@@ -629,41 +629,9 @@ jobs:
           # update_combined_blacklist generiert die Datei sauberer aus der vollständigen
           # Feed-Pipeline – kein Mehrwert durch zusätzlichen Write hier.
 
-          # ── Schritt 8: auto_discovered_feeds.json speichern ───────────────
-          # Leerungsschutz: Wenn die GitHub-Suche komplett fehlschlug (Rate-Limit,
-          # API-Fehler), ist candidate_repos leer und approved_feeds == existing_feeds.
-          # In diesem Fall darf auto_discovered_feeds.json NICHT geschrieben werden –
-          # bestehende Feeds würden sonst mit 0 neu bewerteten Kandidaten überschrieben.
-          import sys as _sys
-          if len(candidate_repos) == 0 and len(existing_feeds) > 0:
-              _msg = (f"GitHub-Suche lieferte 0 Kandidaten – behalte bestehende "
-                      f"auto_discovered_feeds.json ({len(existing_feeds)} Feeds)")
-              print(f"::warning file=auto_feed_discovery.yml::{_msg}")
-              print(f"WARNUNG: {_msg}")
-              _sys.exit(1)
-
-          # Leerungsschutz: mind. 10 aktive Feeds müssen vorhanden sein,
-          # sonst deutet das auf einen kompletten Discovery-Ausfall hin.
-          MIN_APPROVED_FEEDS = 10
-          if len(approved_feeds) < MIN_APPROVED_FEEDS:
-              _msg = (f"Nur {len(approved_feeds)} aktive Feeds (< {MIN_APPROVED_FEEDS}) – "
-                      f"Discovery-Ausfall vermutet, behalte bestehende auto_discovered_feeds.json")
-              print(f"::warning file=auto_feed_discovery.yml::{_msg}")
-              print(f"WARNUNG: {_msg}")
-              _sys.exit(1)
-
-          new_feeds_count = len(approved_feeds) - len(existing_feeds)
-          output = {
-              "updated":        now_str,
-              "total_feeds":    len(approved_feeds),
-              "new_this_run":   new_feeds_count,
-              "rejected_repos": sorted(rejected_repos),
-              "feeds":          list(approved_feeds.values()),
-          }
-          with open(AUTO_FILE, "w", encoding="utf-8") as f:
-              json.dump(output, f, indent=2, ensure_ascii=False)
-
-          # ── Schritt 9: Report ─────────────────────────────────────────────
+          # ── Schritt 8: Report immer zuerst schreiben ─────────────────────
+          # Muss vor allen sys.exit()-Guards stehen, damit der Report auch bei
+          # Guard-Exits aktuell ist und vom Commit-Step (if: always()) erfasst wird.
           new_approved = [e for e in evaluation_log if e["result"] == "APPROVED"]
           new_rejected = [e for e in evaluation_log if e["result"] == "REJECTED"]
 
@@ -722,6 +690,42 @@ jobs:
           with open("auto_feed_discovery_report.md", "w", encoding="utf-8") as f:
               f.write("\n".join(lines))
           print("auto_feed_discovery_report.md geschrieben")
+
+          # ── Schritt 9: auto_discovered_feeds.json speichern ───────────────
+          # Leerungsschutz: Wenn die GitHub-Suche komplett fehlschlug (Rate-Limit,
+          # API-Fehler), ist candidate_repos leer und approved_feeds == existing_feeds.
+          # In diesem Fall darf auto_discovered_feeds.json NICHT geschrieben werden –
+          # bestehende Feeds würden sonst mit 0 neu bewerteten Kandidaten überschrieben.
+          import sys as _sys
+          if len(candidate_repos) == 0 and len(existing_feeds) > 0:
+              _msg = (f"GitHub-Suche lieferte 0 Kandidaten – behalte bestehende "
+                      f"auto_discovered_feeds.json ({len(existing_feeds)} Feeds)")
+              print(f"::warning file=auto_feed_discovery.yml::{_msg}")
+              print(f"WARNUNG: {_msg}")
+              _sys.exit(1)
+
+          # Leerungsschutz: mind. 10 aktive Feeds müssen vorhanden sein,
+          # sonst deutet das auf einen kompletten Discovery-Ausfall hin.
+          MIN_APPROVED_FEEDS = 10
+          if len(approved_feeds) < MIN_APPROVED_FEEDS:
+              _msg = (f"Nur {len(approved_feeds)} aktive Feeds (< {MIN_APPROVED_FEEDS}) – "
+                      f"Discovery-Ausfall vermutet, behalte bestehende auto_discovered_feeds.json")
+              print(f"::warning file=auto_feed_discovery.yml::{_msg}")
+              print(f"WARNUNG: {_msg}")
+              _sys.exit(1)
+
+          new_feeds_count = len(approved_feeds) - len(existing_feeds)
+          output = {
+              "updated":        now_str,
+              "total_feeds":    len(approved_feeds),
+              "new_this_run":   new_feeds_count,
+              "rejected_repos": sorted(rejected_repos),
+              "feeds":          list(approved_feeds.values()),
+          }
+          with open(AUTO_FILE, "w", encoding="utf-8") as f:
+              json.dump(output, f, indent=2, ensure_ascii=False)
+
+
           EOF
 
       - name: Save seen_db Cache
