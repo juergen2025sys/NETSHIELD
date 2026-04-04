@@ -35,11 +35,13 @@ jobs:
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: seen_db.json
-          # FIX #13: Eigener afd-Prefix verhindert dass auto_feed_discovery den
-          # Combined-Cache (v2-Prefix) überschreibt. restore-keys lesen weiterhin
-          # den neuesten Combined-Stand – nur das Schreiben geht in einen eigenen Slot.
-          key: netshield-seen-db-afd-${{ github.run_id }}
+          # Eigener afd-Prefix verhindert dass auto_feed_discovery den
+          # Combined-Cache (v2-Prefix) überschreibt. restore-keys lesen
+          # zuerst den letzten eigenen afd-Stand, dann den Combined-Stand.
+          key: netshield-seen-db-afd-save-${{ github.run_id }}
           restore-keys: |
+            netshield-seen-db-afd-save-
+            netshield-seen-db-afd-
             netshield-seen-db-v2-
             netshield-seen-db-v1-
             netshield-seen-db-
@@ -716,10 +718,9 @@ jobs:
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: seen_db.json
-          # FIX #13 / FIX CACHE-MISS: Save-Key bekommt -save Suffix damit er sich vom
-          # Restore-Key unterscheidet. GitHub Actions schreibt einen Cache-Eintrag nur
-          # wenn der Key noch nicht existiert – bei identischem Key wuerde nach einem
-          # Cache-Miss der neue Stand nie persistiert werden.
+          # Save-Key mit -save Suffix und afd-Prefix: wird beim nächsten
+          # auto_feed_discovery Run über restore-keys gefunden und geladen,
+          # sodass eigene Änderungen über Wochen akkumulieren.
           key: netshield-seen-db-afd-save-${{ github.run_id }}
 
       - name: Commit

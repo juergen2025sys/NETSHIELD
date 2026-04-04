@@ -81,9 +81,11 @@ jobs:
               with open("score_decay_report.md", "w", encoding="utf-8") as f:
                   f.write(f"# Score Decay Monitor\n\n*{msg}*\n\n"
                           f"*Generiert: {now_str}*\n")
-              with open("score_decay_log.txt", "w", encoding="utf-8") as f:
-                  f.write(f"# Score Decay Log | {now_str}\n# {msg}\n")
-              # FIX: sys.exit(1) statt sys.exit(0) damit GitHub den Step als
+              # Vorhandenen Log NICHT überschreiben – nur Report schreiben
+              if not os.path.exists("score_decay_log.txt"):
+                  with open("score_decay_log.txt", "w", encoding="utf-8") as f:
+                      f.write(f"# Score Decay Log | {now_str}\n# {msg}\n")
+              # FIX: sys.exit(1) damit GitHub den Step als
               # fehlgeschlagen markiert und im Actions-UI sichtbar wird.
               sys.exit(1)
 
@@ -97,8 +99,9 @@ jobs:
                   with open("score_decay_report.md", "w", encoding="utf-8") as rf:
                       rf.write(f"# Score Decay Monitor\n\n*{msg}*\n\n"
                                f"*Generiert: {now_str}*\n")
-                  with open("score_decay_log.txt", "w", encoding="utf-8") as f:
-                      f.write(f"# Score Decay Log | {now_str}\n# {msg}\n")
+                  if not os.path.exists("score_decay_log.txt"):
+                      with open("score_decay_log.txt", "w", encoding="utf-8") as f:
+                          f.write(f"# Score Decay Log | {now_str}\n# {msg}\n")
                   sys.exit(1)
 
           print(f"seen_db geladen: {len(db)} IPs")

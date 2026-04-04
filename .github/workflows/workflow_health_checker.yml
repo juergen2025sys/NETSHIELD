@@ -120,7 +120,7 @@ jobs:
               ("update_bot_detector.yml",       "honeypot_monitor.yml",          15),
               ("honeypot_monitor.yml",          "update_combined_blacklist.yml", 60),
               ("update_combined_blacklist.yml", "update_confidence_blacklist.yml", 45),
-              ("score_decay_monitor.yml",       "geo_tagger.yml",                30),
+              ("score_decay_monitor.yml",       "geo_tagger.yml",                45),
           ]
           continue_on_error_allowlist = {
               "update_combined_blacklist.yml",  # AbuseIPDB Rate-Limit ist absichtlich non-blocking
@@ -389,7 +389,7 @@ jobs:
                       "MIN_ENTRIES": 500,
                   },
                   "update-blocklist.yml": {
-                      "MIN_ENTRIES": 200_000,
+                      "MIN_ENTRIES": 240_000,
                   },
                   "cve_to_ip_mapper.yml": {
                       "MIN_CVE_ENTRIES": 100,

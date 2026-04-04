@@ -130,12 +130,9 @@ jobs:
                   newest_dt = datetime.strptime(newest_last, "%Y-%m-%d").replace(tzinfo=timezone.utc)
                   db_age_hours = (now - newest_dt).total_seconds() / 3600
                   print(f"seen_db aktuellster Eintrag: {newest_last} ({db_age_hours:.1f}h alt)")
-                  # FIX #8: Schwelle von 6h auf 4h gesenkt (combined läuft alle 3h –
-                  # bei >4h wurde bereits ein vollständiger Run verpasst).
-                  # FIX: Schwelle 4h -> 3.75h (225min). Combined laeuft alle 3h,
-                  # Confidence-Workflow 45min danach. Bei >3.75h wurde bereits
-                  # mindestens ein combined-Run verpasst.
-                  if db_age_hours > 3.75:
+                  # FIX: Schwelle 4.5h – combined läuft alle 3h, confidence 45min danach.
+                  # Bei >4.5h wurde sicher mindestens ein vollständiger combined-Run verpasst.
+                  if db_age_hours > 4.5:
                       print(f"WARNUNG: seen_db ist {db_age_hours:.1f}h alt – mindestens ein combined-Run wurde verpasst!")
               else:
                   print("seen_db: Keine HQ-bestätigten Einträge vorhanden (nur Watchlist-IPs)")

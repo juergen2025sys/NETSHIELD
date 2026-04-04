@@ -43,6 +43,7 @@ jobs:
           import os
           import sys
           import time
+          import ipaddress
           from datetime import datetime, timezone, timedelta
 
           now     = datetime.now(timezone.utc)
@@ -58,6 +59,27 @@ jobs:
               sys.exit(1)
 
           BASE_URL = "https://honeydb.io/api"
+
+          # ── IP-Validierung via ipaddress-Modul (korrekt für alle Sonderfälle) ──
+          def is_private(ip):
+              try:
+                  obj = ipaddress.ip_address(ip)
+                  return (obj.version != 4
+                          or obj.is_private
+                          or obj.is_loopback
+                          or obj.is_multicast
+                          or obj.is_reserved
+                          or obj.is_link_local
+                          or obj.is_unspecified)
+              except Exception:
+                  return True
+
+          def is_valid_ipv4(ip):
+              try:
+                  obj = ipaddress.ip_address(ip)
+                  return obj.version == 4
+              except Exception:
+                  return False
 
           # ── API-Helper ────────────────────────────────────────────────────
           requests_used = 0
@@ -190,10 +212,9 @@ jobs:
                   if not data or not isinstance(data, dict):
                       break
                   events  = data.get("data", [])
-                  # from_id fehlt im Response → keine weiteren Seiten
-                  # from_id == 0 nur nach der ERSTEN Page als Abbruch werten,
-                  # wenn gleichzeitig weniger Events als erwartet zurückkamen
-                  next_from_id = data.get("from_id")
+                  # API liefert "from_id" als next-page-Cursor; fehlt er → keine weiteren Seiten.
+                  # Fallback: wenn "next_from_id" statt "from_id" geliefert wird, beide prüfen.
+                  next_from_id = data.get("from_id") or data.get("next_from_id")
                   for event in events:
                       ip = event.get("remote_host", "")
                       if ip and is_valid_ipv4(ip) and not is_private(ip):

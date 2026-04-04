@@ -351,8 +351,8 @@ jobs:
 
           for i, cc in enumerate(countries):
               if time.monotonic() - _loop_start > MAX_LOOP_SECONDS:
-                  print(f"WARNUNG: Elapsed-time Guard ausgelöst nach {i} Ländern – "
-                        f"Rest wird beim nächsten Run geladen.")
+                  print(f"WARNUNG: Elapsed-time Guard ausgelöst nach {i} Ländern ({i}/{len(countries)}) – "
+                        f"Rest wird beim nächsten Run geladen. Bisher geladene Daten werden gespeichert.")
                   break
               continent, name = COUNTRY_MAP[cc]
               url = f"{base_url}/{cc}_IPv4.txt"
@@ -386,10 +386,10 @@ jobs:
               time.sleep(0.1)
 
           # ── Leerungsschutz ────────────────────────────────────────────────
-          # FIX LS5: Schwelle auf 500.000 erhöht (bei partiellem hackinggate-Ausfall
-          # könnten trotzdem 100k+ Ranges ankommen und den alten Stand überschreiben).
-          # sys.exit(1) statt sys.exit(0) + GitHub Warning Annotation.
-          MIN_ENTRIES = 200_000  # FIX LS5b: hackinggate liefert seit 2026-03 ~255k aggregierte Ranges (war ~3.5M detailliert)
+          # hackinggate liefert ~255k aggregierte Ranges. Bei partiellem Ausfall
+          # könnten trotzdem 200k+ ankommen → Schwelle auf 240k erhöht für
+          # zuverlässigeren Schutz vor teilweise fehlgeschlagenen Runs.
+          MIN_ENTRIES = 240_000
           if len(all_ips) < MIN_ENTRIES:
               msg = (f"Nur {len(all_ips)} IP-Ranges geladen (< {MIN_ENTRIES}) – "
                      f"Leerungsschutz aktiv, Dateien werden NICHT überschrieben.")
