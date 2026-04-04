@@ -5,24 +5,18 @@
 
 **Automatisiertes IP-Threat-Intelligence-System mit dynamischer Blacklist-Verwaltung**
 
-[![Update Combined](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml) [![Feed Health](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml) [![Confidence Blacklist](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml) [![False Positive Checker](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml)
+[![Update Combined](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml)
+[![Feed Health](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml)
+[![Confidence Blacklist](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml)
+[![False Positive Checker](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml)
 
 <br/>
 
+[![](https://img.shields.io/badge/Combined-4.112.169%20IPs-blue?style=for-the-badge&labelColor=1a1a1a)](combined_threat_blacklist_ipv4.txt) [![](https://img.shields.io/badge/Active%20%E2%89%A565-2.381.047%20IPs-red?style=for-the-badge&labelColor=1a1a1a)](active_blacklist_ipv4.txt) [![](https://img.shields.io/badge/Confidence%20%E2%89%A540-2.900.870%20IPs-yellow?style=for-the-badge&labelColor=1a1a1a)](blacklist_confidence40_ipv4.txt)
 
-| 🔵 Combined | 🔴 Aktiv ≥65 | 🟡 Confidence ≥40 | 🟠 Watchlist |
-|:-----------:|:------------:|:-----------------:|:------------:|
-| **4.112.169 IPs** | **2.381.047 IPs** | **2.900.870 IPs** | **322.287 IPs** |
+[![](https://img.shields.io/badge/Watchlist-322.287%20IPs-orange?style=flat-square&labelColor=1a1a1a)](watchlist_confidence25to39_ipv4.txt) [![](https://img.shields.io/badge/CVE%2FExploit-217.542%20IPs-critical?style=flat-square&labelColor=1a1a1a)](cve_exploit_ips.txt) [![](https://img.shields.io/badge/Honeypot-10.111%20IPs-informational?style=flat-square&labelColor=1a1a1a)](honeypot_ips.txt) [![](https://img.shields.io/badge/Bot--Detector-17.950%20IPs-9b59b6?style=flat-square&labelColor=1a1a1a)](bot_detector_blacklist_ipv4.txt) [![](https://img.shields.io/badge/Feeds-98%20Quellen-blueviolet?style=flat-square&labelColor=1a1a1a)](#architektur)
 
-| 🔴 CVE/Exploit | 🔵 Honeypot | 🟣 Bot-Detector | 🟣 Feeds |
-|:--------------:|:-----------:|:---------------:|:--------:|
-| **217.542 IPs** | **10.111 IPs** | **17.950 IPs** | **98 Quellen** |
-
-| 🔄 Aktualisierung | 🗓️ Aufbewahrung | ⚙️ Workflows | 🟢 Letztes Update |
-|:-----------------:|:---------------:|:------------:|:-----------------:|
-| **8× täglich** | **180 Tage** | **16 aktiv** | **LAST_UPDATE** |
-
-
+[![](https://img.shields.io/badge/Letztes%20Update-LAST__UPDATE-brightgreen?style=flat-square&labelColor=1a1a1a)](#) [![](https://img.shields.io/badge/Update-8%C3%97%20t%C3%A4glich-555555?style=flat-square&labelColor=1a1a1a)](#workflows) [![](https://img.shields.io/badge/Retention-180%20Tage-555555?style=flat-square&labelColor=1a1a1a)](#wie-funktioniert-die-bewertung) [![](https://img.shields.io/badge/Workflows-16%20aktiv-555555?style=flat-square&labelColor=1a1a1a)](#workflows) [![](https://img.shields.io/badge/L%C3%A4nder-250%2B-555555?style=flat-square&labelColor=1a1a1a)](#-geo-listen)
 
 <br/>
 
@@ -118,14 +112,14 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/watchlist_confid
 
 | Datei | Beschreibung | Einträge | Update | Empfohlen für |
 |---|---|---:|---|---|
-| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen (30T + Conf≥65) | **2.381.047** | 8x täglich | **OPNsense / Firewall** |
-| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs (180 Tage) | **4.112.169** | 8x täglich | Audit / SIEM |
-| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres/Hohes Vertrauen (Score ≥40) | **2.900.870** | 8x täglich | Zusätzliche Filterregeln |
-| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25–39) | **322.287** | 8x täglich | Monitoring |
-| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploit & C2-Server | **217.542** | täglich 04:00 | IDS/IPS |
-| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte IPs | **10.111** | täglich 23:00 | Ergänzung |
-| [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **9.404** | täglich 22:15 | Ergänzung |
-| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot-Detector | **17.950** | täglich 22:45 | Web-Schutz |
+| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen (30T + Conf≥65) | **2,381,047** | 8x täglich | **OPNsense / Firewall** |
+| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs (180 Tage) | **4,112,169** | 8x täglich | Audit / SIEM |
+| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres/Hohes Vertrauen (Score ≥40) | **2,900,870** | 8x täglich | Zusätzliche Filterregeln |
+| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25–39) | **322,287** | 8x täglich | Monitoring |
+| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploit & C2-Server | **217,542** | täglich 04:00 | IDS/IPS |
+| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte IPs | **10,111** | täglich 23:00 | Ergänzung |
+| [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **9,404** | täglich 22:15 | Ergänzung |
+| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot-Detector | **17,950** | täglich 22:45 | Web-Schutz |
 | [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs (Score≥50) | **19** | täglich 02:00 | ASN-Blocking |
 
 ### 🌍 Geo-Listen
