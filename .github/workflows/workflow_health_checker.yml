@@ -38,7 +38,7 @@ jobs:
           WORKFLOW_SELF: ${{ github.workflow_ref }}
         run: |
           python3 << 'EOF'
-          import re, textwrap, os, json, ast, sys
+          import re, textwrap, os, json, ast, sys, shlex
           from datetime import datetime, timezone
 
           now     = datetime.now(timezone.utc)
@@ -113,6 +113,76 @@ jobs:
 
           def _fmt_minute_of_day(v):
               return f"{v // 60:02d}:{v % 60:02d} UTC"
+
+          def _code_only(line):
+              return line.split('#', 1)[0].rstrip()
+
+          def _extract_git_added_files(shell_text):
+              added = []
+              for raw_line in shell_text.splitlines():
+                  line = _code_only(raw_line).strip()
+                  if not line.startswith("git add "):
+                      continue
+                  try:
+                      parts = shlex.split(line)
+                  except Exception:
+                      parts = line.split()
+                  for token in parts[2:]:
+                      if token in {"2>/dev/null", "||", "true"}:
+                          continue
+                      if token.startswith("-"):
+                          continue
+                      added.append(token)
+              return added
+
+          def _report_like_paths(paths):
+              hits = []
+              for path in paths:
+                  p = path.strip().strip("\\")
+                  low = p.lower()
+                  if any(tok in low for tok in [
+                      "report", "status", "result", "summary", ".md", ".json"
+                  ]):
+                      hits.append(p)
+              return hits
+
+          def _find_guard_exits(dedented):
+              guard_exits = []
+              lines = dedented.splitlines()
+              for idx, raw_line in enumerate(lines):
+                  line = _code_only(raw_line).strip()
+                  if not line:
+                      continue
+                  exit_match = re.search(r'sys\.exit\((\d+)\)', line)
+                  if not exit_match:
+                      continue
+                  context_lines = [_code_only(l) for l in lines[max(0, idx-14):idx+1]]
+                  context = " ".join(x for x in context_lines if x.strip())
+                  min_vars = sorted(set(re.findall(r'\bMIN_[A-Z0-9_]+\b', context)))
+                  if not min_vars:
+                      continue
+                  guard_exits.append({
+                      "line": idx,
+                      "exit_code": int(exit_match.group(1)),
+                      "mins": min_vars,
+                      "context": context,
+                      "lines_before": lines[:idx],
+                  })
+              return guard_exits
+
+          def _has_prior_report_write(lines_before, report_paths):
+              if not report_paths:
+                  return True
+              prior = "\n".join(lines_before)
+              for report_path in report_paths:
+                  var_match = re.fullmatch(r'[A-Z_][A-Z0-9_]*', report_path)
+                  if var_match:
+                      pat = rf'with open\({re.escape(report_path)}\s*,\s*["\']w["\']'
+                  else:
+                      pat = rf'with open\((?:r?f?["\'])[^\n]*{re.escape(report_path)}[^\n]*["\']\s*,\s*["\']w["\']'
+                  if re.search(pat, prior):
+                      return True
+              return False
 
           expected_sequence = [
               ("feed_health_monitor.yml",       "workflow_health_checker.yml",   15),
@@ -403,15 +473,14 @@ jobs:
                   "geo_tagger.yml": {
                       "MIN_GEO_MATCHED": 100,
                   },
-                  "auto_feed_discovery.yml": {
-                      "MIN_APPROVED_FEEDS": 10,
-                  },
-                  # FIX CHK13: fehlende Einträge ergänzt
                   "update_bot_detector.yml": {
                       "MIN_ENTRIES": 50,
                   },
                   "update_combined_blacklist.yml": {
                       "MIN_ABUSEIPDB": 100,
+                  },
+                  "auto_feed_discovery.yml": {
+                      "MIN_APPROVED_FEEDS": 10,
                   },
               }
               if fname in _threshold_specs:
@@ -531,6 +600,82 @@ jobs:
                                                "detail": msg})
                               break
 
+
+              # ── Check 19: Commit-Step Pattern A (unbedingte Push-Loop) ───
+              # Fehlerbild: "git diff --staged --quiet || git commit ..." und danach
+              # trotzdem immer fetch/rebase/push. Wenn gar nichts committet wurde,
+              # kann der Step bei GitHub-Störung unnötig mit exit(1) fehlschlagen.
+              for _si, _shell in enumerate(shell_blocks):
+                  _shell_code = "\n".join(
+                      _code_only(l) for l in _shell.splitlines()
+                      if _code_only(l).strip()
+                  )
+                  _has_pattern_a = (
+                      "git diff --staged --quiet || git commit" in _shell_code
+                      and "for attempt in 1 2 3 4 5; do" in _shell_code
+                  )
+                  if _has_pattern_a:
+                      msg = ("Commit-Step nutzt Pattern A – Push-Loop läuft auch ohne Commit. "
+                             "Bevorzuge 'if git diff --staged --quiet; then echo ...; else git commit; push-loop; fi'")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname,
+                                       "check": "Commit-Step Pattern A",
+                                       "detail": msg})
+                      break
+
+              # ── Check 20: MIN_*-Guards mit ungueltigen Schwellenwerten ─────
+              # Fuer neue Workflows ohne harte Baseline soll zumindest erkannt werden,
+              # wenn ein Guard versehentlich auf 0 gesetzt wurde.
+              for _m in re.finditer(r'\b(MIN_[A-Z0-9_]+)\s*=\s*([\d_]+)', content):
+                  _var = _m.group(1)
+                  _val = int(_m.group(2).replace("_", ""))
+                  if _val <= 0:
+                      msg = f"{_var}={_val} ist ungueltig – Guard muss > 0 sein"
+                      file_errors.append(msg)
+                      errors.append({"file": fname,
+                                     "check": f"{_var} ungueltig",
+                                     "detail": msg})
+
+              # ── Check 21: Guard-Exit vor Report/Status-Write ──────────────
+              # Wenn ein Workflow Report-/Status-Dateien committet und der Commit-Step
+              # mit if: always() laufen soll, muessen diese Dateien VOR sys.exit(1)
+              # geschrieben werden. Sonst bleibt ein stale Report im Repo stehen.
+              _shell_reports = []
+              for _shell in shell_blocks:
+                  _shell_reports.extend(_report_like_paths(_extract_git_added_files(_shell)))
+              _shell_reports = sorted(set(_shell_reports))
+              _has_always_commit = "if: always()" in content and bool(_shell_reports)
+              for _bi, _blk in enumerate(blocks):
+                  _ded = textwrap.dedent(_blk)
+                  for _guard in _find_guard_exits(_ded):
+                      if _guard["exit_code"] != 1:
+                          continue
+                      if not _has_always_commit:
+                          continue
+                      if not _has_prior_report_write(_guard["lines_before"], _shell_reports):
+                          msg = (f"Block {_bi} L~{_guard['line']}: sys.exit(1) vor Report/Status-Write "
+                                 f"({', '.join(_shell_reports[:4])}) – stale Report moeglich trotz Commit-Step mit if: always()")
+                          file_errors.append(msg)
+                          errors.append({"file": fname,
+                                         "check": "Report nach Guard-Exit",
+                                         "detail": msg})
+                          break
+
+              # ── Check 22: Guard-Workflow mit Report-Dateien aber Commit nicht always ──
+              # Neue Workflows mit Guard + Report sollten den Commit-Step absichern,
+              # damit der Fehler-Report auch bei sys.exit(1) committet wird.
+              _has_guard_exit = any(
+                  _guard["exit_code"] == 1
+                  for _blk in blocks
+                  for _guard in _find_guard_exits(textwrap.dedent(_blk))
+              )
+              if _has_guard_exit and _shell_reports and "if: always()" not in content:
+                  msg = ("Workflow hat MIN_* Guard + Report/Status-Dateien im Commit-Step, "
+                         "aber kein 'if: always()' am Commit-Step – Guard-Fail kann stale Reports hinterlassen")
+                  file_warnings.append(msg)
+                  warnings.append({"file": fname,
+                                   "check": "Commit-Step nicht always()",
+                                   "detail": msg})
 
               results[fname] = {
                   "blocks":   len(blocks),
