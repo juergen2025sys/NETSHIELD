@@ -12,19 +12,13 @@
 
 <br/>
 
-![Combined](https://img.shields.io/badge/Combined-4.112.169%20IPs-blue?style=flat-square&logo=database&logoColor=white)
-![Active](https://img.shields.io/badge/Active%20%E2%89%A565-2.381.047%20IPs-red?style=flat-square)
-![Confidence](https://img.shields.io/badge/Confidence%20%E2%89%A540-2.900.870%20IPs-yellow?style=flat-square)
-![Watchlist](https://img.shields.io/badge/Watchlist-322.287%20IPs-orange?style=flat-square)
-![CVE](https://img.shields.io/badge/CVE%2FExploit-217.542%20IPs-critical?style=flat-square)
-![Honeypot](https://img.shields.io/badge/Honeypot-10.111%20IPs-informational?style=flat-square)
-![Feeds](https://img.shields.io/badge/Feeds-98%20Quellen-blueviolet?style=flat-square)
+| 📦 Combined | 🔴 Active ≥65 | 🟡 Confidence ≥40 | 🟠 Watchlist | 🚨 CVE/Exploit | 🍯 Honeypot | 📡 Feeds |
+|:-----------:|:-------------:|:-----------------:|:------------:|:--------------:|:-----------:|:--------:|
+| **4,112,169** | **2,381,047** | **2,900,870** | **322,287** | **217,542** | **10,111** | **98** |
 
-![Update](https://img.shields.io/badge/Letztes%20Update-<!-- LAST_UPDATE_BADGE -->-555555?style=flat-square)
-![Intervall](https://img.shields.io/badge/Update-8%C3%97%20t%C3%A4glich-555555?style=flat-square)
-![Retention](https://img.shields.io/badge/IP--Retention-180%20Tage-555555?style=flat-square)
-![Workflows](https://img.shields.io/badge/Workflows-16%20aktiv-555555?style=flat-square)
-![L%C3%A4nder](https://img.shields.io/badge/L%C3%A4nder-250%2B-555555?style=flat-square)
+| 🕐 Letztes Update | 🔄 Intervall | 📅 IP-Retention | ⚙️ Workflows | 🌍 Länder |
+|:-----------------:|:------------:|:---------------:|:------------:|:---------:|
+| <!-- LAST_UPDATE --> | 8× täglich | 180 Tage | 16 aktiv | 250+ |
 
 <br/>
 
