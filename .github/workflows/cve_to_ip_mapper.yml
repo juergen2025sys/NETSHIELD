@@ -258,6 +258,33 @@ jobs:
           new_ips = all_exploit_ips - existing
           final   = sorted(all_exploit_ips, key=sort_key)
 
+          # ── Report ────────────────────────────────────────────────────────
+          lines = []
+          lines.append("# CVE-to-IP Mapper – Report")
+          lines.append(f"**Aktualisiert:** {now_str}\n")
+          lines.append("---")
+          lines.append("## Quellen & Treffer\n")
+          lines.append("| Quelle | IPs |")
+          lines.append("|---|---|")
+          for name, count in source_stats.items():
+              icon = "✅" if count > 0 else "❌"
+              lines.append(f"| {icon} {name} | {count} |")
+          lines.append("")
+          lines.append("---")
+          lines.append("## Kategorien\n")
+          lines.append("| Kategorie | IPs |")
+          lines.append("|---|---|")
+          for tag, ips in sorted(cve_ip_map.items(), key=lambda x: len(x[1]), reverse=True):
+              lines.append(f"| {tag} | **{len(ips)}** |")
+          lines.append("")
+          lines.append("---")
+          lines.append(f"**Gesamt:** {len(final)} IPs | **Neu:** +{len(new_ips)}")
+          lines.append(f"\n---\n*Generiert: {now_str}*")
+
+          with open("cve_exploit_report.md", "w", encoding="utf-8") as f:
+              f.write("\n".join(lines))
+          print("cve_exploit_report.md geschrieben")
+
           # ── Leerungsschutz ────────────────────────────────────────────────
           # Wenn alle 8 CVE-Feeds fehlgeschlagen sind, liefert final 0 Einträge.
           # In diesem Fall bestehende Datei NICHT überschreiben.
@@ -288,32 +315,6 @@ jobs:
           # Der combined-blacklist-Workflow liest cve_exploit_ips.txt als Feed-Quelle ein.
           print(f"cve_exploit_ips.txt fertig – wird vom combined-blacklist-Workflow eingelesen.")
 
-          # ── Report ────────────────────────────────────────────────────────
-          lines = []
-          lines.append("# CVE-to-IP Mapper – Report")
-          lines.append(f"**Aktualisiert:** {now_str}\n")
-          lines.append("---")
-          lines.append("## Quellen & Treffer\n")
-          lines.append("| Quelle | IPs |")
-          lines.append("|---|---|")
-          for name, count in source_stats.items():
-              icon = "✅" if count > 0 else "❌"
-              lines.append(f"| {icon} {name} | {count} |")
-          lines.append("")
-          lines.append("---")
-          lines.append("## Kategorien\n")
-          lines.append("| Kategorie | IPs |")
-          lines.append("|---|---|")
-          for tag, ips in sorted(cve_ip_map.items(), key=lambda x: len(x[1]), reverse=True):
-              lines.append(f"| {tag} | **{len(ips)}** |")
-          lines.append("")
-          lines.append("---")
-          lines.append(f"**Gesamt:** {len(final)} IPs | **Neu:** +{len(new_ips)}")
-          lines.append(f"\n---\n*Generiert: {now_str}*")
-
-          with open("cve_exploit_report.md", "w", encoding="utf-8") as f:
-              f.write("\n".join(lines))
-          print("cve_exploit_report.md geschrieben")
           EOF
 
       - name: Commit

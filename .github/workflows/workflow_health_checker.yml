@@ -403,6 +403,9 @@ jobs:
                   "geo_tagger.yml": {
                       "MIN_GEO_MATCHED": 100,
                   },
+                  "auto_feed_discovery.yml": {
+                      "MIN_APPROVED_FEEDS": 10,
+                  },
                   # FIX CHK13: fehlende Einträge ergänzt
                   "update_bot_detector.yml": {
                       "MIN_ENTRIES": 50,
