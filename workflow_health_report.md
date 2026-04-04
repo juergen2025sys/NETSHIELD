@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-04 19:09 UTC
+**Aktualisiert:** 2026-04-04 19:11 UTC
 
 **Workflows:** 16 | ✅ 13 OK | ⚠️ 0 Warnung | ❌ 3 Fehler
 
@@ -8,9 +8,9 @@
 
 | Datei | Check | Detail |
 |---|---|---|
-| `auto_feed_discovery.yml` | Report nach Guard-Exit | Block 0 L~600: sys.exit(1) vor Report/Status-Write (auto_discovered_feeds.json, auto_feed_discovery_report.md) – stale Report moeglich trotz Commit-Step mit if: always() |
-| `cve_to_ip_mapper.yml` | Report nach Guard-Exit | Block 0 L~236: sys.exit(1) vor Report/Status-Write (cve_exploit_report.md) – stale Report moeglich trotz Commit-Step mit if: always() |
-| `update_bot_detector.yml` | Report nach Guard-Exit | Block 0 L~105: sys.exit(1) vor Report/Status-Write (bot_detector_report.md) – stale Report moeglich trotz Commit-Step mit if: always() |
+| `auto_feed_discovery.yml` | Report nach Guard-Exit | Block 0 L~600: sys.exit(1) vor Report/Status-Write (auto_discovered_feeds.json, auto_feed_discovery_report.md, seen_db.json) – stale Report moeglich trotz Commit-Step mit if: always() |
+| `cve_to_ip_mapper.yml` | Report nach Guard-Exit | Block 0 L~236: sys.exit(1) vor Report/Status-Write (CVE_FILE, cve_exploit_report.md) – stale Report moeglich trotz Commit-Step mit if: always() |
+| `update_bot_detector.yml` | Report nach Guard-Exit | Block 0 L~105: sys.exit(1) vor Report/Status-Write (OUT_FILE, bot_detector_report.md) – stale Report moeglich trotz Commit-Step mit if: always() |
 
 ## Übersicht
 
@@ -34,4 +34,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-04 19:09 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-04 19:11 UTC | 16 Workflow-Dateien geprüft*
