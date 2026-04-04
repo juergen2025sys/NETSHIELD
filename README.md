@@ -1,266 +1,280 @@
 
 <div align="center">
 
-# 🛡️ NETSHIELD
+<br/>
+
+```
+███╗   ██╗███████╗████████╗███████╗██╗  ██╗██╗███████╗██╗     ██████╗
+████╗  ██║██╔════╝╚══██╔══╝██╔════╝██║  ██║██║██╔════╝██║     ██╔══██╗
+██╔██╗ ██║█████╗     ██║   ███████╗███████║██║█████╗  ██║     ██║  ██║
+██║╚██╗██║██╔══╝     ██║   ╚════██║██╔══██║██║██╔══╝  ██║     ██║  ██║
+██║ ╚████║███████╗   ██║   ███████║██║  ██║██║███████╗███████╗██████╔╝
+╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚═════╝
+```
 
 **Automatisiertes IP-Threat-Intelligence-System mit dynamischer Blacklist-Verwaltung**
 
-[![Update Combined](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml)
-[![Feed Health](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml)
-[![Confidence Blacklist](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml)
+<br/>
+
+[![Update Combined](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml/badge.svg?style=flat-square)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml)&nbsp;
+[![Feed Health](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml/badge.svg?style=flat-square)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml)&nbsp;
+[![Confidence Blacklist](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml/badge.svg?style=flat-square)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml)
 
 <br/>
 
-| 📦 Combined | 🔴 Active | 🟡 Confidence ≥40 | 📡 Feeds |
-|:-----------:|:---------:|:-----------------:|:--------:|
-| **4,112,169** IPs | **2,381,047** IPs | **2,900,870** IPs | **98** Quellen |
+---
+
+### 📊 Live-Statistiken
 
 <br/>
 
-> NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus 98 öffentlichen Feeds.  
-> Das System unterscheidet aktive Bedrohungen von veralteten statischen Listen —  
-> und liefert daraus qualitativ hochwertige Blocklisten für OPNsense, pfSense und iptables.
+| 🗂️ Gesamt (Combined) | 🔴 Aktiv (Score ≥65) | 🟡 Confidence ≥40 | 🔵 Watchlist | 📡 Feed-Quellen |
+|:--------------------:|:--------------------:|:-----------------:|:------------:|:---------------:|
+| **4.112.169** | **2.381.047** | **2.900.870** | **322.287** | **98** |
+
+<br/>
+
+> 🔄 Daten werden **8× täglich** automatisch aktualisiert — zuletzt durch den NETSHIELD Report Generator.
+
+---
 
 </div>
 
----
+## ⚡ Schnellstart
 
-## ⚡ Quick Start — OPNsense Alias
+Füge eine der folgenden URLs direkt als **URL-Alias in OPNsense / pfSense** ein:
 
-**Empfohlene URL** (aktive Bedrohungen, 30 Tage + Score ≥ 65):
+### 🔴 Empfohlen — Aktive Bedrohungen (Score ≥65, letzte 30 Tage)
 ```
 https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt
 ```
+> Präzise, aktuell, für Produktiv-Firewalls geeignet. Kein Rauschen.
 
-**Mittleres/Hohes Vertrauen** (Score ≥ 40, größere Abdeckung):
+### 🟡 Erweitert — Mittleres/Hohes Vertrauen (Score ≥40)
 ```
 https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt
 ```
+> Größere Abdeckung, ideal für zusätzliche Filterregeln oder IDS-Systeme.
+
+### 🟠 Watchlist — Beobachtung (Score 25–39)
+```
+https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/watchlist_confidence25to39_ipv4.txt
+```
+> Für Monitoring und SIEM-Korrelation. Nicht für direktes Blocking empfohlen.
 
 ---
 
-## 📋 Inhalt
+## 🧠 Wie funktioniert NETSHIELD?
 
-- [Architektur](#architektur)
-- [Blocklisten](#blocklisten)
-- [Confidence-Score](#wie-funktioniert-die-bewertung)
-- [Workflows](#workflows)
-- [Community Reports](#community-reports)
-- [Dateistruktur](#dateistruktur)
-- [Reports & Monitoring](#reports--monitoring)
+NETSHIELD aggregiert **98 öffentliche Threat-Intelligence-Feeds**, bewertet jede IP nach einem mehrdimensionalen Scoring-Modell und erzeugt daraus qualitativ hochwertige, automatisch berechnete Blocklisten.
 
----
+### Das Kernprinzip
 
-## Architektur
+```
+Nur HQ-Feeds bestimmen die Lebenszeit einer IP.
+Statische Mega-Listen erhöhen den Score — aber sie können eine IP nicht am Leben halten.
+Das System bereinigt automatisch, was die Feeds selbst nicht können.
+```
 
-<svg width="100%" viewBox="0 0 680 480" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </marker>
-  </defs>
-
-  <!-- HQ-Feeds -->
-  <rect x="40" y="30" width="180" height="52" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
-  <text font-family="sans-serif" font-size="14" font-weight="500" fill="#085041" x="130" y="52" text-anchor="middle" dominant-baseline="central">HQ-Feeds</text>
-  <text font-family="sans-serif" font-size="12" fill="#0F6E56" x="130" y="70" text-anchor="middle" dominant-baseline="central">Feodo · Talos · AbuseIPDB · Spamhaus</text>
-
-  <!-- Non-HQ-Feeds -->
-  <rect x="460" y="30" width="180" height="52" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
-  <text font-family="sans-serif" font-size="14" font-weight="500" fill="#2C2C2A" x="550" y="52" text-anchor="middle" dominant-baseline="central">Non-HQ-Feeds</text>
-  <text font-family="sans-serif" font-size="12" fill="#5F5E5A" x="550" y="70" text-anchor="middle" dominant-baseline="central">romainmarcoux · ipsum · littlejake</text>
-
-  <!-- Arrows from feeds into engine -->
-  <line x1="200" y1="82" x2="290" y2="148" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arrow)" fill="none"/>
-  <line x1="460" y1="82" x2="390" y2="148" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)" fill="none"/>
-
-  <!-- Arrow labels -->
-  <text font-family="sans-serif" font-size="12" fill="#444441" x="226" y="108" text-anchor="middle">setzt last_seen</text>
-  <text font-family="sans-serif" font-size="12" fill="#444441" x="444" y="108" text-anchor="middle">erhöht feed_count</text>
-
-  <!-- Main engine box -->
-  <rect x="210" y="150" width="260" height="80" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
-  <text font-family="sans-serif" font-size="14" font-weight="500" fill="#26215C" x="340" y="180" text-anchor="middle" dominant-baseline="central">Update Combined Blacklist</text>
-  <text font-family="sans-serif" font-size="12" fill="#534AB7" x="340" y="200" text-anchor="middle" dominant-baseline="central">8× täglich · seen_db · IP-Lebenszeit 180 Tage</text>
-
-  <!-- Arrow down center -->
-  <line x1="340" y1="230" x2="340" y2="280" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)" fill="none"/>
-
-  <!-- Splitter lines -->
-  <line x1="150" y1="280" x2="150" y2="305" stroke="#B4B2A9" stroke-width="0.5" fill="none"/>
-  <line x1="530" y1="280" x2="530" y2="305" stroke="#B4B2A9" stroke-width="0.5" fill="none"/>
-  <line x1="150" y1="305" x2="530" y2="305" stroke="#B4B2A9" stroke-width="0.5" fill="none"/>
-  <line x1="150" y1="305" x2="150" y2="340" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)" fill="none"/>
-  <line x1="340" y1="305" x2="340" y2="340" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)" fill="none"/>
-  <line x1="530" y1="305" x2="530" y2="340" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)" fill="none"/>
-
-  <!-- active_blacklist -->
-  <rect x="50" y="340" width="200" height="70" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
-  <text font-family="sans-serif" font-size="14" font-weight="500" fill="#4A1B0C" x="150" y="362" text-anchor="middle" dominant-baseline="central">active_blacklist</text>
-  <text font-family="sans-serif" font-size="12" fill="#993C1D" x="150" y="379" text-anchor="middle" dominant-baseline="central">30T + Score ≥ 65</text>
-  <text font-family="sans-serif" font-size="12" fill="#993C1D" x="150" y="395" text-anchor="middle" dominant-baseline="central">→ OPNsense / Firewall</text>
-
-  <!-- combined_blacklist -->
-  <rect x="240" y="340" width="200" height="70" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
-  <text font-family="sans-serif" font-size="14" font-weight="500" fill="#2C2C2A" x="340" y="362" text-anchor="middle" dominant-baseline="central">combined_blacklist</text>
-  <text font-family="sans-serif" font-size="12" fill="#5F5E5A" x="340" y="379" text-anchor="middle" dominant-baseline="central">180 Tage · alle IPs</text>
-  <text font-family="sans-serif" font-size="12" fill="#5F5E5A" x="340" y="395" text-anchor="middle" dominant-baseline="central">→ Audit / SIEM</text>
-
-  <!-- confidence40 -->
-  <rect x="430" y="340" width="200" height="70" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
-  <text font-family="sans-serif" font-size="14" font-weight="500" fill="#412402" x="530" y="362" text-anchor="middle" dominant-baseline="central">confidence40</text>
-  <text font-family="sans-serif" font-size="12" fill="#854F0B" x="530" y="379" text-anchor="middle" dominant-baseline="central">Score ≥ 40 · watchlist</text>
-  <text font-family="sans-serif" font-size="12" fill="#854F0B" x="530" y="395" text-anchor="middle" dominant-baseline="central">→ Analyse</text>
-
-  <!-- Bottom note -->
-  <text font-family="sans-serif" font-size="12" fill="#888780" x="340" y="450" text-anchor="middle">IP ohne HQ-Bestätigung → altert aus nach 180 Tagen · kehrt zurück wenn wieder aktiv</text>
-</svg>
-
-> **Kernprinzip:** Nur HQ-Feeds (Feodo, Talos, AbuseIPDB, Spamhaus etc.) bestimmen die Lebenszeit einer IP.  
-> Statische Mega-Listen erhöhen den Confidence-Score, können eine IP aber nicht am Leben halten.  
-> Das System bereinigt automatisch, was die Feeds selbst nicht können.
+IPs ohne HQ-Bestätigung altern nach **180 Tagen** automatisch aus. Werden sie erneut von einem HQ-Feed gemeldet, kehren sie sofort zurück.
 
 ---
 
-## Blocklisten
+## 📐 Architektur
 
-| Datei | Beschreibung | Einträge | Update | Empfohlen für |
-|---|---|---:|---|---|
-| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen (30T + Conf≥65) | **2,381,444**  | 8x täglich | **OPNsense / Firewall** |
-| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs (180 Tage) | **4,113,036**  | 8x täglich | Audit / SIEM |
-| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres/Hohes Vertrauen (Score ≥40) | **2,900,932**  | 8x täglich | Zusätzliche Filterregeln |
-| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25–39) | **322,280**  | 8x täglich | Monitoring |
-| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploit & C2-Server | **217,542**  | täglich 04:00 | IDS/IPS |
-| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte IPs | **10,111**  | täglich 23:00 | Ergänzung |
-| [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **9,404**  | täglich 22:15 | Ergänzung |
-| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot-Detector | **17,950**  | täglich 22:45 | Web-Schutz |
-| [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs (Score≥50) | **19**  | täglich 02:00 | ASN-Blocking |
-
-### 🌍 Geo-Listen
-
-| Verzeichnis | Beschreibung |
-|---|---|
-| [`continents/`](continents/) | IPv4-Ranges pro Kontinent (africa, asia, europe, north_america, oceania, south_america) |
-| [`countries/`](countries/) | IPv4-Ranges pro Land, organisiert nach Kontinent |
-| [`all_countries_ipv4.txt`](all_countries_ipv4.txt) | Alle Länder zusammengeführt |
+```
+┌─────────────────────────┐         ┌────────────────────────────┐
+│        HQ-Feeds         │         │       Non-HQ-Feeds         │
+│  Feodo · Talos · Abuse  │         │  romainmarcoux · ipsum     │
+│  Spamhaus · FireHOL     │         │  littlejake · blocklist.de │
+│  DShield · URLhaus …    │         │  + weitere statische Listen│
+└────────────┬────────────┘         └────────────┬───────────────┘
+             │ setzt last_seen                    │ erhöht feed_count
+             └──────────────┬────────────────────┘
+                            ▼
+              ┌─────────────────────────┐
+              │  Update Combined (8×/d) │
+              │  seen_db · 180d Lifetime│
+              └──────┬──────────┬───────┘
+                     │          │
+          ┌──────────┘          └────────────┐
+          ▼                                  ▼
+┌─────────────────┐              ┌───────────────────────┐
+│ active_blacklist│              │  combined_blacklist    │
+│ Score ≥65, 30d  │              │  Alle IPs · 180 Tage  │
+│ → OPNsense/FW   │              │  → Audit / SIEM       │
+└─────────────────┘              └───────────────────────┘
+          ▼
+┌─────────────────┐
+│  confidence40   │
+│  Score ≥40      │
+│  → Analyse / IDS│
+└─────────────────┘
+```
 
 ---
 
-## Wie funktioniert die Bewertung
+## 📊 Confidence-Score
 
-Jede IP erhält einen **Confidence-Score von 0–100** aus vier Dimensionen:
+Jede IP erhält einen **Score von 0–100** aus vier Dimensionen:
 
 ```
 Score = A (Quellen-Qualität) + B (Aktualität) + C (Persistenz) + D (Bekannt seit)
 ```
 
 | Dimension | Max | Beschreibung |
-|---|---|---|
-| **A – Quellen-Qualität** | 40 | HQ-Feed = 40 Pkt, mehrere Feeds = 20–35 Pkt |
-| **B – Aktualität** | 30 | Letzte HQ-Bestätigung: heute = 30, vor 7T = 20, vor 30T = 6 |
-| **C – Persistenz** | 20 | Über mehrere Tage bestätigt: 14+ Tage = 20 Pkt |
-| **D – Bekannt seit** | 10 | Länger im System = stabiler Score |
+|:---|:---:|:---|
+| **A — Quellen-Qualität** | 40 | HQ-Feed = 40 Pkt · mehrere Feeds = 20–35 Pkt |
+| **B — Aktualität** | 30 | HQ-Bestätigung heute = 30 · vor 7 Tagen = 20 · vor 30 Tagen = 6 |
+| **C — Persistenz** | 20 | Bestätigt über 14+ Tage = 20 Pkt |
+| **D — Bekannt seit** | 10 | Länger im System = stabilerer Score |
 
-**Schwellwerte:**
+### Score-Schwellwerte & Verwendung
 
-| Score | Liste | Verwendung |
-|---|---|---|
-| ≥ 65 | `active_blacklist` | OPNsense / Firewall |
-| ≥ 40 | `blacklist_confidence40` | Mittleres/Hohes Vertrauen |
-| 25–39 | `watchlist` | Monitoring |
-| < 25 | `combined` | Audit only |
-
-### HQ-Feeds (bestimmen Lebenszeit)
-
-Feodo C2, AbuseIPDB (API + Score100), Spamhaus DROP, Emerging Threats, FireHOL Level 1/2/3, blocklist.de, CINS Score, C2-Tracker, ThreatFox IOC, URLhaus, Binary Defense, Turris Greylist, GreenSnow, ThreatView High Confidence, DShield u.v.m.
+| Score | Liste | Einsatz |
+|:---:|:---|:---|
+| **≥ 65** | `active_blacklist` | 🔴 OPNsense · pfSense · iptables |
+| **≥ 40** | `blacklist_confidence40` | 🟡 Erweiterte Filter · IDS/IPS |
+| **25–39** | `watchlist` | 🟠 Monitoring · SIEM |
+| **< 25** | `combined` (nur) | ⚪ Audit · Analyse |
 
 ---
 
-## Workflows
+## 📦 Alle Blocklisten
+
+| Datei | Beschreibung | Einträge | Update | Einsatz |
+|:---|:---|---:|:---:|:---|
+| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen · Score ≥65 · 30 Tage | **2.381.047** | 8×/Tag | 🔴 Firewall |
+| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs · 180 Tage Retention | **4.112.169** | 8×/Tag | ⚪ Audit / SIEM |
+| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Score ≥40 · mittleres/hohes Vertrauen | **2.900.870** | 8×/Tag | 🟡 Filter |
+| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Score 25–39 · Beobachtungsliste | **322.287** | 8×/Tag | 🟠 Monitoring |
+| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploit & C2-Server | **217.542** | tägl. 04:00 | 🔴 IDS/IPS |
+| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte IPs | **10.111** | tägl. 23:00 | ➕ Ergänzung |
+| [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **9.404** | tägl. 22:15 | ➕ Ergänzung |
+| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot-Detector-Blacklist | **17.950** | tägl. 22:45 | 🌐 Web-Schutz |
+| [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥50 | **19** | tägl. 02:00 | 🔵 ASN-Blocking |
+
+### 🌍 Geo-Listen
+
+| Verzeichnis / Datei | Beschreibung |
+|:---|:---|
+| [`continents/`](continents/) | IPv4-Ranges pro Kontinent (africa, asia, europe, north_america, oceania, south_america) |
+| [`countries/`](countries/) | IPv4-Ranges pro Land, nach Kontinent organisiert |
+| [`all_countries_ipv4.txt`](all_countries_ipv4.txt) | Alle Länder zusammengeführt |
+
+---
+
+## ⚙️ Workflows & Automatisierung
 
 | Workflow | Zeitplan | Aufgabe |
-|---|---|---|
-| **Update Combined Blacklist** | 8x täglich (alle 3h) | Haupt-Engine: Feeds laden, seen_db aktualisieren, Stufe 1+2 schreiben |
-| **Confidence Blacklist** | 8x täglich (15min nach Combined) | confidence40 + watchlist aus seen_db berechnen |
-| **False Positive Checker** | 3x täglich (05:00/13:00/20:00) | Whitelist-CIDRs prüfen, FP aus combined entfernen |
-| **Honeypot Monitor** | täglich 23:00 | Honeypot-Feeds aggregieren → honeypot_ips.txt |
-| **HoneyDB Monitor** | täglich 22:15 | HoneyDB API abfragen → honeydb_ips.txt |
-| **Bot-Detector Blacklist** | täglich 22:45 | bot_detector_blacklist_ipv4.txt aktualisieren |
-| **CVE-to-IP Mapper** | täglich 04:00 | C2/Exploit-IPs → cve_exploit_ips.txt |
-| **Update All Countries IPv4** | Mo + Mi 01:30 | Länder/Kontinente/all_countries synchron erzeugen |
-| **Auto Feed Discovery** | wöchentlich So 04:30 | GitHub nach neuen IP-Feeds durchsuchen + bewerten |
-| **Geo-Tagger** | wöchentlich So 07:45 | Blacklist-IPs mit Länder-Geo-Daten anreichern |
-| **ASN Reputation Scorer** | täglich 02:00 | ASN-Reputationsscoring → asn_reputation_db.json |
-| **Score Decay Monitor** | wöchentlich So 07:00 | Alterungs-Report (read-only, löscht nichts) |
-| **Feed Health Monitor** | täglich 01:00 | Alle Feed-URLs auf Erreichbarkeit prüfen |
-| **Workflow Health Checker** | täglich 01:15 | YAML-Workflows auf Fehler/Warnungen analysieren |
-| **NETSHIELD Report Generator** | alle 30 Minuten | NETSHIELD_REPORT.md + README IP-Zahlen aktualisieren |
-| **Community IP Report** | bei Issue-Erstellung | Community-gemeldete IPs verarbeiten und in seen_db eintragen |
+|:---|:---:|:---|
+| **Update Combined Blacklist** | 8×/Tag (alle 3h) | Haupt-Engine: Feeds laden, seen_db aktualisieren, Stufe 1+2 schreiben |
+| **Confidence Blacklist** | 8×/Tag (+15 min) | confidence40 + watchlist aus seen_db berechnen |
+| **False Positive Checker** | 3×/Tag | Whitelist-CIDRs prüfen, FPs aus combined entfernen |
+| **Honeypot Monitor** | tägl. 23:00 | Honeypot-Feeds → honeypot_ips.txt |
+| **HoneyDB Monitor** | tägl. 22:15 | HoneyDB API → honeydb_ips.txt |
+| **Bot-Detector Blacklist** | tägl. 22:45 | bot_detector_blacklist_ipv4.txt aktualisieren |
+| **CVE-to-IP Mapper** | tägl. 04:00 | C2/Exploit-IPs → cve_exploit_ips.txt |
+| **Update All Countries IPv4** | Mo + Mi 01:30 | Länder/Kontinente/all_countries synchronisieren |
+| **Auto Feed Discovery** | So 04:30 | GitHub nach neuen IP-Feeds durchsuchen + bewerten |
+| **Geo-Tagger** | So 07:45 | Blacklist-IPs mit Geo-Daten anreichern |
+| **ASN Reputation Scorer** | tägl. 02:00 | ASN-Reputationsscoring → asn_reputation_db.json |
+| **Score Decay Monitor** | So 07:00 | Alterungs-Report (read-only) |
+| **Feed Health Monitor** | tägl. 01:00 | Feed-URLs auf Erreichbarkeit prüfen |
+| **Workflow Health Checker** | tägl. 01:15 | YAML-Workflows auf Fehler analysieren |
+| **NETSHIELD Report Generator** | alle 30 Min | NETSHIELD_REPORT.md + README-Zahlen aktualisieren |
+| **Community IP Report** | bei Issue-Erstellung | Community-IPs validieren und in seen_db eintragen |
 
 ---
 
-## Community Reports
+## 🤝 Community-Reports
 
-Verdächtige IPs können über das **Issue-System** gemeldet werden. Das System:
+Verdächtige IPs können über das **[Issue-System](../../issues)** gemeldet werden:
 
-1. Validiert die IP (nur öffentliche IPv4, keine DNS-Whitelist)
-2. Trägt sie mit `hq=False` in seen_db ein (Watchlist)
-3. Schließt das Issue automatisch mit Feedback
-4. Promoted die IP zur aktiven Blacklist sobald **3 unabhängige Meldungen** vorliegen
+```
+1. Issue erstellen  →  Label "community-report" verwenden
+2. NETSHIELD validiert die IP (nur öffentliche IPv4, keine DNS-Whitelist)
+3. IP wird mit hq=False in seen_db eingetragen (→ Watchlist)
+4. Issue wird automatisch mit Feedback geschlossen
+5. Bei 3+ unabhängigen Meldungen: Promotion zur active_blacklist
+```
 
-> **Limit:** 5 Reports pro User pro Tag · Label `community-report` verwenden
+> ⚠️ **Limit:** 5 Reports pro User pro Tag.
 
 ---
 
-## Dateistruktur
+## 📁 Dateistruktur
 
 ```
 NETSHIELD/
-├── .github/workflows/          # 16 GitHub Actions Workflows
-├── continents/                 # IPv4-Ranges pro Kontinent
-├── countries/                  # IPv4-Ranges pro Land
+├── .github/
+│   └── workflows/                      ← 16 GitHub Actions Workflows
+├── continents/                         ← IPv4-Ranges pro Kontinent
+├── countries/                          ← IPv4-Ranges pro Land
 │   ├── africa/
 │   ├── asia/
 │   ├── europe/
 │   ├── north_america/
 │   ├── oceania/
 │   └── south_america/
-├── active_blacklist_ipv4.txt           # → OPNsense
-├── combined_threat_blacklist_ipv4.txt  # → Audit
-├── blacklist_confidence40_ipv4.txt     # → Confidence ≥40
-├── watchlist_confidence25to39_ipv4.txt # → Monitoring
+│
+├── active_blacklist_ipv4.txt           ← 🔴 OPNsense / Firewall
+├── combined_threat_blacklist_ipv4.txt  ← ⚪ Audit / SIEM
+├── blacklist_confidence40_ipv4.txt     ← 🟡 Confidence ≥40
+├── watchlist_confidence25to39_ipv4.txt ← 🟠 Monitoring
 ├── cve_exploit_ips.txt
 ├── honeypot_ips.txt
 ├── honeydb_ips.txt
 ├── bot_detector_blacklist_ipv4.txt
 ├── all_countries_ipv4.txt
 ├── asn_blocklist_firewall.txt
+│
 ├── asn_reputation_db.json
 ├── blacklist_geo_enriched.json
 ├── auto_discovered_feeds.json
 ├── seen_db_meta.json
-├── NETSHIELD_REPORT.md                 # Automatisch generiert
+│
+├── NETSHIELD_REPORT.md                 ← Automatisch generiert (alle 30 min)
+├── feed_health_report.md
+├── workflow_health_report.md
+├── geo_tagger_report.md
+├── asn_reputation_report.md
+├── score_decay_report.md
+├── auto_feed_discovery_report.md
 └── README.md
 ```
 
 ---
 
-## Reports & Monitoring
+## 📋 Reports & Monitoring
 
-| Datei | Beschreibung |
-|---|---|
-| [`NETSHIELD_REPORT.md`](NETSHIELD_REPORT.md) | Übersicht aller Listen + Feed Health (alle 30min) |
-| [`feed_health_report.md`](feed_health_report.md) | Status aller Feed-URLs |
-| [`workflow_health_report.md`](workflow_health_report.md) | Workflow-Analyse (Fehler/Warnungen) |
-| [`geo_tagger_report.md`](geo_tagger_report.md) | Geo-Verteilung der Blacklist-IPs |
-| [`asn_reputation_report.md`](asn_reputation_report.md) | ASN-Scoring-Report |
-| [`score_decay_report.md`](score_decay_report.md) | Alterungs-Analyse der seen_db |
-| [`auto_feed_discovery_report.md`](auto_feed_discovery_report.md) | Neu entdeckte Feeds |
+| Datei | Beschreibung | Update |
+|:---|:---|:---:|
+| [`NETSHIELD_REPORT.md`](NETSHIELD_REPORT.md) | Übersicht aller Listen + Feed-Health | alle 30 min |
+| [`feed_health_report.md`](feed_health_report.md) | Status aller 98 Feed-URLs | tägl. |
+| [`workflow_health_report.md`](workflow_health_report.md) | Workflow-Analyse (Fehler/Warnungen) | tägl. |
+| [`geo_tagger_report.md`](geo_tagger_report.md) | Geo-Verteilung der Blacklist-IPs | wöchentl. |
+| [`asn_reputation_report.md`](asn_reputation_report.md) | ASN-Scoring-Report | tägl. |
+| [`score_decay_report.md`](score_decay_report.md) | Alterungs-Analyse der seen_db | wöchentl. |
+| [`auto_feed_discovery_report.md`](auto_feed_discovery_report.md) | Neu entdeckte Feeds | wöchentl. |
+
+---
+
+### HQ-Feed-Quellen (Auswahl)
+
+`Feodo C2` · `AbuseIPDB` · `Spamhaus DROP/EDROP` · `Emerging Threats` · `FireHOL L1/L2/L3` · `blocklist.de` · `CINS Score` · `C2-Tracker` · `ThreatFox IOC` · `URLhaus` · `Binary Defense` · `Turris Greylist` · `GreenSnow` · `ThreatView High Confidence` · `DShield` · u.v.m.
 
 ---
 
 <div align="center">
 
+<br/>
+
 *Automatisch aktualisiert durch NETSHIELD · [NETSHIELD_REPORT.md](NETSHIELD_REPORT.md)*
+
+![](https://img.shields.io/badge/IPs%20gesamt-4.112.169-red?style=flat-square)
+![](https://img.shields.io/badge/Feeds-98%20Quellen-blue?style=flat-square)
+![](https://img.shields.io/badge/Update-8×%20täglich-green?style=flat-square)
+![](https://img.shields.io/badge/Retention-180%20Tage-orange?style=flat-square)
 
 </div>
