@@ -485,6 +485,16 @@ jobs:
               # ── SSH / Brute-Force ─────────────────────────────────────────
               "stopforumspam_toxic":        ("https://www.stopforumspam.com/downloads/toxic_ip_cidr.txt", False),
 
+              # ── Honeypot / Sensor Networks ───────────────────────────────
+              # DataPlane.org – betriebenes Sensor/Honeypot-Netzwerk
+              # Erfasst echte Angriffe auf SSH, VNC, Telnet u.a.
+              # Format: ASN | ASname | ipaddr | lastseen | category
+              # parse_entries() extrahiert IPs korrekt per Fallback-Regex.
+              # Kein API-Key, freie nicht-kommerzielle Nutzung.
+              "dataplane_sshclient":        ("https://dataplane.org/sshclient.txt", True),
+              "dataplane_sshpwauth":        ("https://dataplane.org/sshpwauth.txt", True),
+              "dataplane_vncrfb":           ("https://dataplane.org/vncrfb.txt", True),
+
               # ── Scanning / Recon ──────────────────────────────────────────
               "ipsum_level3":               ("https://raw.githubusercontent.com/stamparm/ipsum/master/levels/3.txt", False),
               "ipsum_level5":               ("https://raw.githubusercontent.com/stamparm/ipsum/master/levels/5.txt", True),
