@@ -497,6 +497,10 @@ jobs:
               "dataplane_telnetlogin":      ("https://dataplane.org/telnetlogin.txt", True),
               "dataplane_dnsrd":            ("https://dataplane.org/dnsrd.txt", True),
               "dataplane_smtpdata":         ("https://dataplane.org/smtpdata.txt", True),
+              "dataplane_smtpgreet":        ("https://dataplane.org/smtpgreet.txt", False),
+              # smtpgreet: HQ=False – enthält auch harmlose SMTP-Scanner/Surveyor-IPs
+              "dataplane_dnsrdany":         ("https://dataplane.org/dnsrdany.txt", True),
+              "dataplane_dnsversion":       ("https://dataplane.org/dnsversion.txt", True),
 
               # ── Scanning / Recon ──────────────────────────────────────────
               "ipsum_level3":               ("https://raw.githubusercontent.com/stamparm/ipsum/master/levels/3.txt", False),
