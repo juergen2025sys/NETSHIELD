@@ -12,19 +12,9 @@
 
 <br/>
 
-![](https://img.shields.io/badge/Combined-4.112.169%20IPs-blue?style=flat-square&labelColor=1a1a1a)
-![](https://img.shields.io/badge/Active%20%E2%89%A565-2.381.047%20IPs-red?style=flat-square&labelColor=1a1a1a)
-![](https://img.shields.io/badge/Confidence%20%E2%89%A540-2.900.870%20IPs-yellow?style=flat-square&labelColor=1a1a1a)
-![](https://img.shields.io/badge/Watchlist-322.287%20IPs-orange?style=flat-square&labelColor=1a1a1a)
-![](https://img.shields.io/badge/CVE%2FExploit-217.542%20IPs-critical?style=flat-square&labelColor=1a1a1a)
-![](https://img.shields.io/badge/Honeypot-10.111%20IPs-informational?style=flat-square&labelColor=1a1a1a)
-![](https://img.shields.io/badge/Feeds-98%20Quellen-blueviolet?style=flat-square&labelColor=1a1a1a)
+[![](https://img.shields.io/badge/Combined-4.112.169%20IPs-blue?style=flat-square&labelColor=1a1a1a)](combined_threat_blacklist_ipv4.txt) [![](https://img.shields.io/badge/Active%20%E2%89%A565-2.381.047%20IPs-red?style=flat-square&labelColor=1a1a1a)](active_blacklist_ipv4.txt) [![](https://img.shields.io/badge/Confidence%20%E2%89%A540-2.900.870%20IPs-yellow?style=flat-square&labelColor=1a1a1a)](blacklist_confidence40_ipv4.txt) [![](https://img.shields.io/badge/Watchlist-322.287%20IPs-orange?style=flat-square&labelColor=1a1a1a)](watchlist_confidence25to39_ipv4.txt) [![](https://img.shields.io/badge/CVE%2FExploit-217.542%20IPs-critical?style=flat-square&labelColor=1a1a1a)](cve_exploit_ips.txt) [![](https://img.shields.io/badge/Honeypot-10.111%20IPs-informational?style=flat-square&labelColor=1a1a1a)](honeypot_ips.txt) [![](https://img.shields.io/badge/Feeds-98%20Quellen-blueviolet?style=flat-square&labelColor=1a1a1a)](#architektur)
 
-![](https://img.shields.io/badge/Letztes%20Update-wird%20aktualisiert-brightgreen?style=flat-square&labelColor=1a1a1a)
-![](https://img.shields.io/badge/Intervall-8%C3%97%20t%C3%A4glich-555555?style=flat-square&labelColor=1a1a1a)
-![](https://img.shields.io/badge/IP--Retention-180%20Tage-555555?style=flat-square&labelColor=1a1a1a)
-![](https://img.shields.io/badge/Workflows-16%20aktiv-555555?style=flat-square&labelColor=1a1a1a)
-![](https://img.shields.io/badge/L%C3%A4nder-250%2B-555555?style=flat-square&labelColor=1a1a1a)
+[![](https://img.shields.io/badge/Letztes%20Update-LAST__UPDATE-brightgreen?style=flat-square&labelColor=1a1a1a)](#) [![](https://img.shields.io/badge/Intervall-8%C3%97%20t%C3%A4glich-555555?style=flat-square&labelColor=1a1a1a)](#workflows) [![](https://img.shields.io/badge/IP--Retention-180%20Tage-555555?style=flat-square&labelColor=1a1a1a)](#wie-funktioniert-die-bewertung) [![](https://img.shields.io/badge/Workflows-16%20aktiv-555555?style=flat-square&labelColor=1a1a1a)](#workflows) [![](https://img.shields.io/badge/L%C3%A4nder-250%2B-555555?style=flat-square&labelColor=1a1a1a)](#-geo-listen)
 
 <br/>
 
