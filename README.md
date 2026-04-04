@@ -122,7 +122,7 @@ Nur **HQ-Feeds** (Feodo, AbuseIPDB, Spamhaus, Talos u. a.) bestimmen die Lebensz
         ▼
 ┌─────────────────────────────────┐
 │   Update Combined Blacklist     │  ← Haupt-Engine · 8× täglich
-│   seen_db · Score-Berechnung   │
+│   seen_db · Score-Berechnung    │
 │   IP-Lebenszeit 180 Tage        │
 └──────────┬──────────────────────┘
            │
