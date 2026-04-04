@@ -126,7 +126,7 @@ jobs:
       - name: Update README Header Stats
         run: |
           python3 << 'EOF'
-          import os, re
+          import os
           from datetime import datetime, timezone
 
           def count_ips(filepath):
@@ -142,9 +142,6 @@ jobs:
               print("README.md nicht gefunden – übersprungen")
               exit(0)
 
-          with open("README.md", "r", encoding="utf-8") as f:
-              readme = f.read()
-
           combined  = count_ips("combined_threat_blacklist_ipv4.txt")
           active    = count_ips("active_blacklist_ipv4.txt")
           conf40    = count_ips("blacklist_confidence40_ipv4.txt")
@@ -153,40 +150,59 @@ jobs:
           honeypot  = count_ips("honeypot_ips.txt")
           now_str   = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-          def fmt(n):
-              return f"**{n:,}**"
+          # Die exakten Ersatz-Zeilen – müssen 1:1 dem README-Format entsprechen
+          ROW1_HEADER = "| 📦 Combined | 🔴 Active ≥65 | 🟡 Confidence ≥40 | 🟠 Watchlist | 🚨 CVE/Exploit | 🍯 Honeypot | 📡 Feeds |"
+          ROW1_SEP    = "|:-----------:|:-------------:|:-----------------:|:------------:|:--------------:|:-----------:|:--------:|"
+          ROW1_DATA   = f"| **{combined:,}** | **{active:,}** | **{conf40:,}** | **{watchlist:,}** | **{cve:,}** | **{honeypot:,}** | **98** |"
 
-          # Zeile 1 der Header-Tabelle: Combined | Active | Conf40 | Watchlist | CVE | Honeypot | Feeds
-          # Muster: | **Zahl** | **Zahl** | **Zahl** | **Zahl** | **Zahl** | **Zahl** | **98** |
-          row1_pattern = (
-              r'(\|\s*📦 Combined\s*\|\s*🔴 Active ≥65\s*\|\s*🟡 Confidence ≥40\s*\|\s*🟠 Watchlist\s*\|\s*🚨 CVE/Exploit\s*\|\s*🍯 Honeypot\s*\|\s*📡 Feeds\s*\|)'
-              r'\n(\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|)'
-          )
-          row1_replacement = (
-              r'\1'
-              f'\n| {fmt(combined)} | {fmt(active)} | {fmt(conf40)} | {fmt(watchlist)} | {fmt(cve)} | {fmt(honeypot)} | **98** |'
-          )
-          readme, n1 = re.subn(row1_pattern, row1_replacement, readme)
+          ROW2_HEADER = "| 🕐 Letztes Update | 🔄 Intervall | 📅 IP-Retention | ⚙️ Workflows | 🌍 Länder |"
+          ROW2_SEP    = "|:-----------------:|:------------:|:---------------:|:------------:|:---------:|"
+          ROW2_DATA   = f"| {now_str} | 8× täglich | 180 Tage | 16 aktiv | 250+ |"
 
-          # Zeile 2 der Header-Tabelle: Letztes Update | Intervall | Retention | Workflows | Länder
-          row2_pattern = (
-              r'(\|\s*🕐 Letztes Update\s*\|\s*🔄 Intervall\s*\|\s*📅 IP-Retention\s*\|\s*⚙️ Workflows\s*\|\s*🌍 Länder\s*\|)'
-              r'\n(\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|)'
-          )
-          row2_replacement = (
-              r'\1'
-              f'\n| {now_str} | 8× täglich | 180 Tage | 16 aktiv | 250+ |'
-          )
-          readme, n2 = re.subn(row2_pattern, row2_replacement, readme)
+          with open("README.md", "r", encoding="utf-8") as f:
+              lines = f.readlines()
 
-          # Fallback: <!-- LAST_UPDATE --> Platzhalter ersetzen falls noch vorhanden
-          readme = readme.replace("<!-- LAST_UPDATE -->", now_str)
+          out = []
+          i = 0
+          while i < len(lines):
+              stripped = lines[i].strip()
+
+              # Erkenne Header-Zeile 1 anhand eindeutiger Schlüsselwörter
+              if "📦 Combined" in stripped and "🔴 Active" in stripped and "📡 Feeds" in stripped:
+                  out.append(ROW1_HEADER + "\n")
+                  i += 1
+                  # Separator-Zeile überspringen/ersetzen
+                  if i < len(lines) and lines[i].strip().startswith("|:"):
+                      out.append(ROW1_SEP + "\n")
+                      i += 1
+                  # Daten-Zeile überspringen/ersetzen (kann mehrere sein wenn doppelt)
+                  while i < len(lines) and lines[i].strip().startswith("|") and not lines[i].strip().startswith("|:") and "📦" not in lines[i] and "🕐" not in lines[i]:
+                      i += 1  # alte Datenzeile(n) wegwerfen
+                  out.append(ROW1_DATA + "\n")
+                  continue
+
+              # Erkenne Header-Zeile 2
+              elif "🕐 Letztes Update" in stripped and "🌍 Länder" in stripped:
+                  out.append(ROW2_HEADER + "\n")
+                  i += 1
+                  if i < len(lines) and lines[i].strip().startswith("|:"):
+                      out.append(ROW2_SEP + "\n")
+                      i += 1
+                  while i < len(lines) and lines[i].strip().startswith("|") and not lines[i].strip().startswith("|:") and "🕐" not in lines[i]:
+                      i += 1
+                  out.append(ROW2_DATA + "\n")
+                  continue
+
+              else:
+                  out.append(lines[i])
+                  i += 1
 
           with open("README.md", "w", encoding="utf-8") as f:
-              f.write(readme)
+              f.writelines(out)
 
-          print(f"Header-Stats aktualisiert: combined={combined:,} active={active:,} conf40={conf40:,}")
-          print(f"  Zeile 1: {n1} Treffer | Zeile 2: {n2} Treffer | Zeitstempel: {now_str}")
+          print(f"✅ Header-Stats aktualisiert:")
+          print(f"   Combined={combined:,} | Active={active:,} | Conf40={conf40:,} | Watchlist={watchlist:,}")
+          print(f"   CVE={cve:,} | Honeypot={honeypot:,} | Update={now_str}")
           EOF
 
       - name: Update README IP Counts
