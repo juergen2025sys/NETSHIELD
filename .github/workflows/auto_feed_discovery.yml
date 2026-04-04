@@ -506,7 +506,7 @@ jobs:
                   "url":           raw_url,
                   "repo":          full_name,
                   "file":          best_file["path"],
-                  "added":         now_day,
+                  "added":         existing_feeds[feed_name]["added"] if not is_new_feed and feed_name in existing_feeds else now_day,
                   "last_checked":  now_day,
                   "ip_count":      len(ips),
                   "overlap_pct":   round(overlap_pct * 100, 1),

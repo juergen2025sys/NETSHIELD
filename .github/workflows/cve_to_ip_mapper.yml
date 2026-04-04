@@ -167,10 +167,6 @@ jobs:
 
               return entries
 
-          # Rueckwaertskompatibilitaet: is_private() fuer alte Codestellen
-          def is_private(ip):
-              return not is_valid_public_ipv4(ip)
-
           # ── CVE-Exploit-IP-Feeds (alle ohne API-Key) ──────────────────────
           CVE_SOURCES = {
               # Feodo Tracker – C2-Server aktiver Malware-Kampagnen

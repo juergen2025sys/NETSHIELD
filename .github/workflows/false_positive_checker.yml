@@ -248,7 +248,7 @@ jobs:
               # Blacklist zu klein → nur neue FPs hinzufügen, bestehende NICHT entfernen
               merged_fp = existing_fp | fp_set
               print(f"WARNUNG: Blacklist hat nur {len(blacklist_ips)} Einträge (<{MIN_BLACKLIST_FOR_STALE_CLEANUP}) "
-                    f"– existing_fp wird nicht per Schnitt bereinigt (Datenschutz)")
+                    f"– existing_fp wird nicht per Schnitt bereinigt (Datenverlust-Schutz)")
           removed_stale_fp = (existing_fp | fp_set) - merged_fp
           with open(FP_JSON, "w", encoding="utf-8") as f:
               json.dump({

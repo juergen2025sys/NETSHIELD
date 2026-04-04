@@ -123,26 +123,6 @@ jobs:
                       print(f"  FEHLER [{label or endpoint}]: {e}")
                       return None
 
-          def is_private(ip):
-              try:
-                  parts = list(map(int, ip.split(".")))
-                  return (parts[0] == 10 or
-                          (parts[0] == 172 and 16 <= parts[1] <= 31) or
-                          (parts[0] == 192 and parts[1] == 168) or
-                          (parts[0] == 169 and parts[1] == 254) or
-                          parts[0] in (0, 127) or parts[0] >= 224)
-              except Exception:
-                  return True
-
-          def is_valid_ipv4(ip):
-              parts = ip.split(".")
-              if len(parts) != 4:
-                  return False
-              try:
-                  return all(0 <= int(p) <= 255 for p in parts)
-              except Exception:
-                  return False
-
           def extract_ips_from_list(data):
               ips = set()
               if isinstance(data, list):
