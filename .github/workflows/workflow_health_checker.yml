@@ -174,14 +174,29 @@ jobs:
               if not report_paths:
                   return True
               prior = "\n".join(lines_before)
+
+              # Variablen-Aliases ermitteln: z.B. REPORT_FILE = "bot_detector_report.md"
+              # → damit wird auch "with open(REPORT_FILE, 'w')" als Prior-Write erkannt
+              # wenn der resolved Wert in report_paths enthalten ist.
+              var_aliases = set()
+              for raw_line in lines_before:
+                  line = _code_only(raw_line).strip()
+                  for m in re.finditer(r'\b([A-Z_][A-Z0-9_]*)\s*=\s*(["\'])([^"\']+)\2', line):
+                      if m.group(3).strip() in report_paths:
+                          var_aliases.add(m.group(1))
+
               for report_path in report_paths:
                   var_match = re.fullmatch(r'[A-Z_][A-Z0-9_]*', report_path)
                   if var_match:
                       pat = rf'with open\({re.escape(report_path)}\s*,\s*["\']w["\']'
                   else:
-                      pat = rf'with open\((?:r?f?["\'])[^^\n]*{re.escape(report_path)}[^\n]*["\']\s*,\s*["\']w["\']'
+                      pat = rf'with open\((?:r?f?["\'])[^\n]*{re.escape(report_path)}[^\n]*["\']\s*,\s*["\']w["\']'
                   if re.search(pat, prior):
                       return True
+                  # Zusatz: auch über Variablen-Alias suchen (REPORT_FILE → "bot_detector_report.md")
+                  for alias in var_aliases:
+                      if re.search(rf'with open\({re.escape(alias)}\s*,\s*["\']w["\']', prior):
+                          return True
               return False
 
           def _extract_report_targets_from_block(dedented):
@@ -207,7 +222,16 @@ jobs:
 
                   if re.fullmatch(r'[A-Z_][A-Z0-9_]*', raw_target):
                       resolved = var_values.get(raw_target)
-                      targets.add(resolved or raw_target)
+                      if resolved:
+                          # Variablenname bekannt und aufgelöst → resolved Wert nehmen
+                          targets.add(resolved)
+                      else:
+                          # Variablenname unbekannt → nur aufnehmen wenn Name selbst
+                          # auf Report-/Status-Datei hindeutet (REPORT_FILE, STATUS_FILE).
+                          # OUT_FILE, BLACKLIST_FILE u.ä. werden so korrekt ausgeschlossen.
+                          low_var = raw_target.lower()
+                          if any(tok in low_var for tok in ["report", "status", "result", "summary"]):
+                              targets.add(raw_target)
                       continue
 
                   lit = re.match(r'(?:r|f|rf|fr)?["\']([^"\']+)["\']$', raw_target)
