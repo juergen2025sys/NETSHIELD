@@ -1,14 +1,16 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-04 03:42 UTC
+**Aktualisiert:** 2026-04-04 05:08 UTC
 
-**Workflows:** 16 | ✅ 15 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
+**Workflows:** 16 | ✅ 14 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
+| `score_decay_monitor.yml → geo_tagger.yml` | Workflow-Reihenfolge / Puffer zu knapp | 07:00 UTC → 07:30 UTC (30min < 45min) |
 | `auto_feed_discovery.yml` | Kein expliziter Leerungsschutz | Externer Feed/Report ohne explizite MIN_* Guard-Variable – Müll-/Leer-Daten könnten unbemerkt akzeptiert werden |
+| `score_decay_monitor.yml` | Stiller sys.exit(1) | Block 0 L~23: sys.exit(1) ohne vorherige Fehlermeldung (print/annotation) – schwer debuggbar |
 
 ## Übersicht
 
@@ -24,7 +26,7 @@
 | `honeydb_monitor.yml` | ✅ OK | 0 | 0 | `15 22 * * *` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 23 * * *` |
 | `netshield_report_generator.yml` | ✅ OK | 0 | 0 | `30 * * * *` |
-| `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
+| `score_decay_monitor.yml` | ⚠️ | 0 | 1 | `0 7 * * 0` |
 | `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 1 * * 1`, `30 1 * * 3` |
 | `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
 | `update_combined_blacklist.yml` | ✅ OK | 0 | 0 | `0 */3 * * *` |
@@ -32,4 +34,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-04 03:42 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-04 05:08 UTC | 16 Workflow-Dateien geprüft*
