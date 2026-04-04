@@ -14,11 +14,9 @@
 
 | 📦 Combined | 🔴 Active ≥65 | 🟡 Confidence ≥40 | 🟠 Watchlist | 🚨 CVE/Exploit | 🍯 Honeypot | 📡 Feeds |
 | **4,113,036** | **2,381,444** | **2,900,932** | **322,280** | **217,542** | **10,111** | **98** |
-| **4,112,169** | **2,381,047** | **2,900,870** | **322,287** | **217,542** | **10,111** | **98** |
 
 | 🕐 Letztes Update | 🔄 Intervall | 📅 IP-Retention | ⚙️ Workflows | 🌍 Länder |
-| 2026-04-04 11:56 UTC | 8× täglich | 180 Tage | 16 aktiv | 250+ |
-| 2026-04-04 11:56 UTC | 8× täglich | 180 Tage | 16 aktiv | 250+ |
+| 2026-04-04 12:00 UTC | 8× täglich | 180 Tage | 16 aktiv | 250+ |
 
 <br/>
 
@@ -114,15 +112,15 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/watchlist_confid
 
 | Datei | Beschreibung | Einträge | Update | Empfohlen für |
 |---|---|---:|---|---|
-| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen (30T + Conf≥65) | **2,381,444**   | 8x täglich | **OPNsense / Firewall** |
-| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs (180 Tage) | **4,113,036**   | 8x täglich | Audit / SIEM |
-| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres/Hohes Vertrauen (Score ≥40) | **2,900,932**   | 8x täglich | Zusätzliche Filterregeln |
-| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25–39) | **322,280**   | 8x täglich | Monitoring |
-| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploit & C2-Server | **217,542**   | täglich 04:00 | IDS/IPS |
-| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte IPs | **10,111**   | täglich 23:00 | Ergänzung |
-| [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **9,404**   | täglich 22:15 | Ergänzung |
-| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot-Detector | **17,950**   | täglich 22:45 | Web-Schutz |
-| [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs (Score≥50) | **19**   | täglich 02:00 | ASN-Blocking |
+| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen (30T + Conf≥65) | **2,381,444**    | 8x täglich | **OPNsense / Firewall** |
+| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs (180 Tage) | **4,113,036**    | 8x täglich | Audit / SIEM |
+| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres/Hohes Vertrauen (Score ≥40) | **2,900,932**    | 8x täglich | Zusätzliche Filterregeln |
+| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25–39) | **322,280**    | 8x täglich | Monitoring |
+| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploit & C2-Server | **217,542**    | täglich 04:00 | IDS/IPS |
+| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte IPs | **10,111**    | täglich 23:00 | Ergänzung |
+| [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **9,404**    | täglich 22:15 | Ergänzung |
+| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot-Detector | **17,950**    | täglich 22:45 | Web-Schutz |
+| [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs (Score≥50) | **19**    | täglich 02:00 | ASN-Blocking |
 
 ### 🌍 Geo-Listen
 
