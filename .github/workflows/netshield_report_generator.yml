@@ -1,8 +1,8 @@
-name: NETSHIELD Report Generator (Optimized)
+name: NETSHIELD Report Generator
 
 on:
   schedule:
-    - cron: '30 * * * *'
+    - cron: '30 * * * *'   # stündlich (30 Min nach der vollen Stunde – combined braucht ~20min, Puffer 10min)
   workflow_dispatch:
 
 env:
@@ -11,6 +11,10 @@ env:
 permissions:
   contents: write
   actions: read
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
 
 concurrency:
   group: ${{ github.workflow }}
@@ -19,51 +23,363 @@ concurrency:
 jobs:
   generate-report:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: true
 
-      - name: Update README (Stats + Timestamp)
+      - name: Generate NETSHIELD_REPORT.md
         run: |
           python3 << 'EOF'
-          import os, re
+          import json
+          import os
           from datetime import datetime, timezone
 
-          def count_ips(f):
-              if not os.path.exists(f): return 0
-              return sum(1 for l in open(f) if l.strip() and not l.startswith("#"))
+          now = datetime.now(timezone.utc)
+          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
 
-          combined  = count_ips("combined_threat_blacklist_ipv4.txt")
-          active    = count_ips("active_blacklist_ipv4.txt")
-          conf40    = count_ips("blacklist_confidence40_ipv4.txt")
+          def count_ips(filepath):
+              if not os.path.exists(filepath):
+                  return 0
+              count = 0
+              with open(filepath, encoding="utf-8") as f:
+                  for line in f:
+                      if line.strip() and not line.startswith("#"):
+                          count += 1
+              return count
+
+          def file_age(filepath):
+              if not os.path.exists(filepath):
+                  return "–"
+              ts = os.path.getmtime(filepath)
+              return datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+          FILES = {
+              "combined_threat_blacklist_ipv4.txt": "Stufe 1 – Alle IPs (180 Tage)",
+              "active_blacklist_ipv4.txt": "Stufe 2 – Aktiv (30 Tage + Conf≥65)",
+              "blacklist_confidence40_ipv4.txt": "Mittleres/Hohes Vertrauen (≥40/100) → OPNsense",
+              "watchlist_confidence25to39_ipv4.txt": "Watchlist (Score 25-39/100)",
+              "cve_exploit_ips.txt": "CVE Exploit IPs",
+              "bot_detector_blacklist_ipv4.txt": "Bot-Detector Blacklist",
+              "honeypot_ips.txt": "Honeypot IPs",
+              "honeydb_ips.txt": "HoneyDB Community Honeypot (API)",
+          }
+
+          lines = []
+          lines.append("# 🛡 NETSHIELD Report")
+          lines.append(f"**Aktualisiert:** {now_str}\n")
+          lines.append("---")
+          lines.append("## 📊 Listen-Übersicht\n")
+          lines.append("| Datei | Beschreibung | IPs | Letzte Änderung |")
+          lines.append("|---|---|---:|---|")
+
+          total = 0
+          for fname, desc in FILES.items():
+              count = count_ips(fname)
+              age = file_age(fname)
+              exists = "✅" if os.path.exists(fname) else "❌"
+              lines.append(f"| {exists} `{fname}` | {desc} | **{count:,}** | {age} |")
+              if fname == "combined_threat_blacklist_ipv4.txt":
+                  total = count
+
+          lines.append("")
+          lines.append("---")
+          lines.append("## 🔗 OPNsense Alias URL\n")
+          lines.append("```")
+          lines.append("https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt")
+          lines.append("```")
+          lines.append("")
+
+          if os.path.exists("feed_health_status.json"):
+              try:
+                  with open("feed_health_status.json", encoding="utf-8") as f:
+                      fh = json.load(f)
+                  s = fh.get("summary", {})
+                  lines.append("---")
+                  lines.append(f"## 🔍 Feed Health: ✅ {s.get('ok', 0)} OK | ⚠️ {s.get('warn', 0)} leer | ❌ {s.get('error', 0)} Fehler\n")
+                  failed = fh.get("failed_feeds", [])
+                  warned = fh.get("warned_feeds", [])
+                  if failed:
+                      lines.append(f"**❌ Ausgefallen:** {', '.join(f'`{n}`' for n in failed[:10])}{'…' if len(failed) > 10 else ''}\n")
+                  if warned:
+                      lines.append(f"**⚠️ Leer:** {', '.join(f'`{n}`' for n in warned[:10])}{'…' if len(warned) > 10 else ''}\n")
+                  lines.append(f"*Letzter Check: {fh.get('updated', '–')} – Details: [feed_health_report.md](feed_health_report.md)*\n")
+              except Exception as e:
+                  print(f"WARNUNG: feed_health_status.json konnte nicht gelesen werden: {e}")
+
+          if os.path.exists("workflow_health_report.md"):
+              lines.append("---")
+              lines.append("## ⚙️ Workflow Health\n")
+              lines.append("*Details: [workflow_health_report.md](workflow_health_report.md)*\n")
+
+          lines.append("---")
+          lines.append(f"*Automatisch generiert von NETSHIELD Report Generator · {now_str}*")
+
+          with open("NETSHIELD_REPORT.md", "w", encoding="utf-8") as f:
+              f.write("\n".join(lines))
+          print(f"NETSHIELD_REPORT.md geschrieben | combined: {total:,} IPs")
+          EOF
+
+      - name: Update README Header Stats
+        run: |
+          python3 << 'EOF'
+          import os
+          import re
+          from datetime import datetime, timezone
+
+          FEED_COUNT = 98
+          UPDATE_INTERVAL = "8× täglich"
+          RETENTION = "180 Tage"
+          WORKFLOW_COUNT = 16
+          COUNTRY_COUNT = "250+"
+
+          def count_ips(filepath):
+              if not os.path.exists(filepath):
+                  return 0
+              count = 0
+              with open(filepath, encoding="utf-8") as f:
+                  for line in f:
+                      if line.strip() and not line.startswith("#"):
+                          count += 1
+              return count
+
+          if not os.path.exists("README.md"):
+              print("README.md nicht gefunden – übersprungen")
+              raise SystemExit(0)
+
+          combined = count_ips("combined_threat_blacklist_ipv4.txt")
+          active = count_ips("active_blacklist_ipv4.txt")
+          conf40 = count_ips("blacklist_confidence40_ipv4.txt")
           watchlist = count_ips("watchlist_confidence25to39_ipv4.txt")
-          cve       = count_ips("cve_exploit_ips.txt")
-          honeypot  = count_ips("honeypot_ips.txt")
-
+          cve = count_ips("cve_exploit_ips.txt")
+          honeypot = count_ips("honeypot_ips.txt")
           now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-          stats = f"| 📦 Combined | 🔴 Active ≥65 | 🟡 Confidence ≥40 | 🟠 Watchlist | 🚨 CVE/Exploit | 🍯 Honeypot | 📡 Feeds |\n|:-----------:|:-------------:|:-----------------:|:------------:|:--------------:|:-----------:|:--------:|\n| **{combined:,}** | **{active:,}** | **{conf40:,}** | **{watchlist:,}** | **{cve:,}** | **{honeypot:,}** | **98** |"
+          row1_header = "| 📦 Combined | 🔴 Active ≥65 | 🟡 Confidence ≥40 | 🟠 Watchlist | 🚨 CVE/Exploit | 🍯 Honeypot | 📡 Feeds |"
+          row1_sep = "|:-----------:|:-------------:|:-----------------:|:------------:|:--------------:|:-----------:|:--------:|"
+          row1_data = f"| **{combined:,}** | **{active:,}** | **{conf40:,}** | **{watchlist:,}** | **{cve:,}** | **{honeypot:,}** | **{FEED_COUNT}** |"
 
-          meta = f"| 🕐 Letztes Update | 🔄 Intervall | 📅 IP-Retention | ⚙️ Workflows | 🌍 Länder |\n|:-----------------:|:------------:|:---------------:|:------------:|:---------:|\n| {now_str} | 8× täglich | 180 Tage | 16 aktiv | 250+ |"
+          row2_header = "| 🕐 Letztes Update | 🔄 Intervall | 📅 IP-Retention | ⚙️ Workflows | 🌍 Länder |"
+          row2_sep = "|:-----------------:|:------------:|:---------------:|:------------:|:---------:|"
+          row2_data = f"| **{now_str}** | {UPDATE_INTERVAL} | {RETENTION} | {WORKFLOW_COUNT} aktiv | {COUNTRY_COUNT} |"
 
-          with open("README.md","r",encoding="utf-8") as f:
-              c = f.read()
+          with open("README.md", "r", encoding="utf-8") as f:
+              content = f.read()
 
-          c = re.sub(r"<!-- STATS_TABLE_START -->.*?<!-- STATS_TABLE_END -->",
-                     f"<!-- STATS_TABLE_START -->\n{stats}\n<!-- STATS_TABLE_END -->", c, flags=re.S)
+          original = content
 
-          c = re.sub(r"<!-- META_TABLE_START -->.*?<!-- META_TABLE_END -->",
-                     f"<!-- META_TABLE_START -->\n{meta}\n<!-- META_TABLE_END -->", c, flags=re.S)
+          # Optionalen Platzhalter direkt ersetzen, falls vorhanden
+          content = content.replace("<!-- LAST_UPDATE -->", f"**{now_str}**")
 
-          c = c.replace("<!-- LAST_UPDATE -->", now_str)
+          lines = content.splitlines(keepends=True)
+          out = []
+          i = 0
+          row1_replaced = False
+          row2_replaced = False
 
-          open("README.md","w",encoding="utf-8").write(c)
+          while i < len(lines):
+              stripped = lines[i].strip()
+
+              if "📦 Combined" in stripped and "🔴 Active" in stripped and "📡 Feeds" in stripped:
+                  out.append(row1_header + "\n")
+                  i += 1
+                  if i < len(lines) and lines[i].strip().startswith("|:"):
+                      out.append(row1_sep + "\n")
+                      i += 1
+                  else:
+                      out.append(row1_sep + "\n")
+                  while i < len(lines):
+                      s = lines[i].strip()
+                      if not s.startswith("|"):
+                          break
+                      if s.startswith("|:"):
+                          break
+                      if "🕐 Letztes Update" in s or "📦 Combined" in s:
+                          break
+                      i += 1
+                  out.append(row1_data + "\n")
+                  row1_replaced = True
+                  continue
+
+              if "🕐 Letztes Update" in stripped and "🌍 Länder" in stripped:
+                  out.append(row2_header + "\n")
+                  i += 1
+                  if i < len(lines) and lines[i].strip().startswith("|:"):
+                      out.append(row2_sep + "\n")
+                      i += 1
+                  else:
+                      out.append(row2_sep + "\n")
+                  while i < len(lines):
+                      s = lines[i].strip()
+                      if not s.startswith("|"):
+                          break
+                      if s.startswith("|:"):
+                          break
+                      if "📦 Combined" in s or "🕐 Letztes Update" in s:
+                          break
+                      i += 1
+                  out.append(row2_data + "\n")
+                  row2_replaced = True
+                  continue
+
+              out.append(lines[i])
+              i += 1
+
+          content = "".join(out)
+
+          # Fallback: wenn Tabellen nicht gefunden wurden, einfache Pattern-Ersetzung versuchen
+          if not row1_replaced:
+              content, n = re.subn(
+                  r"\|\s*\*\*[\d,]+\*\*\s*\|\s*\*\*[\d,]+\*\*\s*\|\s*\*\*[\d,]+\*\*\s*\|\s*\*\*[\d,]+\*\*\s*\|\s*\*\*[\d,]+\*\*\s*\|\s*\*\*[\d,]+\*\*\s*\|\s*\*\*[\d,]+\*\*\s*\|",
+                  row1_data,
+                  content,
+                  count=1,
+              )
+              row1_replaced = n > 0
+
+          if not row2_replaced:
+              content, n = re.subn(
+                  r"\|\s*(?:\*\*)?\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}\s+UTC(?:\*\*)?\s*\|\s*8×\s+täglich\s*\|\s*180\s+Tage\s*\|\s*\d+\s+aktiv\s*\|\s*250\+\s*\|",
+                  row2_data,
+                  content,
+                  count=1,
+              )
+              row2_replaced = n > 0
+
+          with open("README.md", "w", encoding="utf-8") as f:
+              f.write(content)
+
+          print("✅ Header-Stats aktualisiert:")
+          print(f"   Combined={combined:,} | Active={active:,} | Conf40={conf40:,} | Watchlist={watchlist:,}")
+          print(f"   CVE={cve:,} | Honeypot={honeypot:,} | Update={now_str}")
+          if not row1_replaced:
+              print("WARNUNG: Stats-Tabelle 1 wurde nur über Fallback/Platzhalter behandelt oder nicht erkannt")
+          if not row2_replaced and "<!-- LAST_UPDATE -->" not in original:
+              print("WARNUNG: Update-Tabelle 2 wurde nur über Fallback behandelt oder nicht erkannt")
+          EOF
+
+      - name: Update README IP Counts
+        run: |
+          python3 << 'EOF'
+          import os
+          import re
+
+          def count_ips(filepath):
+              if not os.path.exists(filepath):
+                  return None
+              count = 0
+              with open(filepath, encoding="utf-8") as f:
+                  for line in f:
+                      if line.strip() and not line.startswith("#"):
+                          count += 1
+              return count
+
+          README_COUNTS = {
+              "combined_threat_blacklist_ipv4.txt": lambda n: f"**{n:,}**",
+              "active_blacklist_ipv4.txt": lambda n: f"**{n:,}**",
+              "blacklist_confidence40_ipv4.txt": lambda n: f"**{n:,}**",
+              "watchlist_confidence25to39_ipv4.txt": lambda n: f"**{n:,}**",
+              "cve_exploit_ips.txt": lambda n: f"**{n:,}**",
+              "bot_detector_blacklist_ipv4.txt": lambda n: f"**{n:,}**",
+              "abuseipdb_api_blacklist.txt": lambda n: f"**{n:,}**",
+              "honeypot_ips.txt": lambda n: f"**{n:,}**",
+              "honeydb_ips.txt": lambda n: f"**{n:,}**",
+              "asn_blocklist_firewall.txt": lambda n: f"**{n:,}**",
+          }
+
+          if not os.path.exists("README.md"):
+              print("README.md nicht gefunden – übersprungen")
+              raise SystemExit(0)
+
+          with open("README.md", "r", encoding="utf-8") as f:
+              readme = f.read()
+
+          changes = 0
+          for filename, fmt in README_COUNTS.items():
+              count = count_ips(filename)
+              if count is None:
+                  print(f"  SKIP: {filename} nicht vorhanden")
+                  continue
+
+              formatted = fmt(count)
+              pattern_link = (
+                  r'(\|\s*\[`?' + re.escape(filename) + r'`?\]\([^)]*\)\s*\|[^|]*\|)\s*[^|]+?(\s*\|)'
+              )
+              pattern_code = (
+                  r'(\|[^|]*`' + re.escape(filename) + r'`[^|]*\|[^|]*\|)\s*[^|]+?(\s*\|)'
+              )
+
+              matched = False
+              new_readme, n1 = re.subn(pattern_link, rf'\1 {formatted} \2', readme)
+              if n1 > 0:
+                  readme = new_readme
+                  matched = True
+                  print(f"  ✅ {filename}: {formatted} (Link-Pattern, {n1} Treffer)")
+
+              if not matched:
+                  new_readme, n2 = re.subn(pattern_code, rf'\1 {formatted} \2', readme)
+                  if n2 > 0:
+                      readme = new_readme
+                      matched = True
+                      print(f"  ✅ {filename}: {formatted} (Code-Pattern, {n2} Treffer)")
+
+              if matched:
+                  changes += 1
+                  continue
+
+              lines_out = []
+              replaced = False
+              for line in readme.splitlines(keepends=True):
+                  if f"`{filename}`" in line or f"({filename})" in line:
+                      cols = line.split("|")
+                      if len(cols) >= 5 and cols[3].strip().replace("*", "").replace(",", "").replace(" ", "").isdigit():
+                          cols[3] = f" {formatted} "
+                          line = "|".join(cols)
+                          replaced = True
+                  lines_out.append(line)
+
+              if replaced:
+                  readme = "".join(lines_out)
+                  changes += 1
+                  print(f"  ✅ {filename}: {formatted} (Spalten-Fallback)")
+              else:
+                  print(f"  ⚠️  {filename}: kein Match in README-Tabelle")
+
+          if changes > 0:
+              with open("README.md", "w", encoding="utf-8") as f:
+                  f.write(readme)
+              print(f"\n{changes} IP-Zahlen im README aktualisiert")
+          else:
+              print("Keine Änderungen am README")
           EOF
 
       - name: Commit
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add README.md
-          git commit -m "auto update" || echo "no changes"
-          git push
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add NETSHIELD_REPORT.md README.md
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "NETSHIELD Report Generator: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git checkout --theirs NETSHIELD_REPORT.md README.md 2>/dev/null || true
+                git add NETSHIELD_REPORT.md README.md 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi
