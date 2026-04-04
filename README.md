@@ -5,33 +5,17 @@
 
 **Automatisiertes IP-Threat-Intelligence-System mit dynamischer Blacklist-Verwaltung**
 
-[![Update Combined](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml)
-[![Feed Health](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml)
-[![Confidence Blacklist](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml)
-[![False Positive Checker](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml)
+[![Update Combined](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml) [![Feed Health](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml) [![Confidence Blacklist](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml) [![False Positive Checker](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml)
 
 <br/>
 
-<p align="center">
-  <a href="combined_threat_blacklist_ipv4.txt"><img src="https://img.shields.io/badge/COMBINED────-4.112.169%20IPs-blue?style=for-the-badge&labelColor=111111"/></a>
-  <a href="active_blacklist_ipv4.txt"><img src="https://img.shields.io/badge/ACTIVE≥65───-2.381.047%20IPs-red?style=for-the-badge&labelColor=111111"/></a>
-  <a href="blacklist_confidence40_ipv4.txt"><img src="https://img.shields.io/badge/CONF≥40────-2.900.870%20IPs-yellow?style=for-the-badge&labelColor=111111"/></a>
-  <a href="watchlist_confidence25to39_ipv4.txt"><img src="https://img.shields.io/badge/WATCHLIST───-322.287%20IPs-orange?style=for-the-badge&labelColor=111111"/></a>
-</p>
+<p align="center"><a href="combined_threat_blacklist_ipv4.txt"><img src="https://img.shields.io/badge/Combined-4.112.169%20IPs-blue?style=for-the-badge&labelColor=1a1a1a"/></a>&nbsp;<a href="active_blacklist_ipv4.txt"><img src="https://img.shields.io/badge/Aktiv%20≥65-2.381.047%20IPs-red?style=for-the-badge&labelColor=1a1a1a"/></a>&nbsp;<a href="blacklist_confidence40_ipv4.txt"><img src="https://img.shields.io/badge/Confidence%20≥40-2.900.870%20IPs-yellow?style=for-the-badge&labelColor=1a1a1a"/></a></p>
 
-<p align="center">
-  <a href="cve_exploit_ips.txt"><img src="https://img.shields.io/badge/CVE/EXPLOIT─-217.542%20IPs-critical?style=for-the-badge&labelColor=111111"/></a>
-  <a href="honeypot_ips.txt"><img src="https://img.shields.io/badge/HONEYPOT────-10.111%20IPs-informational?style=for-the-badge&labelColor=111111"/></a>
-  <a href="bot_detector_blacklist_ipv4.txt"><img src="https://img.shields.io/badge/BOT─────────-17.950%20IPs-9b59b6?style=for-the-badge&labelColor=111111"/></a>
-  <a href="#architektur"><img src="https://img.shields.io/badge/FEEDS───────-98%20Quellen-blueviolet?style=for-the-badge&labelColor=111111"/></a>
-</p>
+<p align="center"><a href="watchlist_confidence25to39_ipv4.txt"><img src="https://img.shields.io/badge/Watchlist-322.287%20IPs-orange?style=for-the-badge&labelColor=1a1a1a"/></a>&nbsp;<a href="cve_exploit_ips.txt"><img src="https://img.shields.io/badge/CVE%2FExploit-217.542%20IPs-critical?style=for-the-badge&labelColor=1a1a1a"/></a>&nbsp;<a href="honeypot_ips.txt"><img src="https://img.shields.io/badge/Honeypot-10.111%20IPs-informational?style=for-the-badge&labelColor=1a1a1a"/></a></p>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/LAST_UPDATE──-LAST__UPDATE-brightgreen?style=for-the-badge&labelColor=111111"/>
-  <a href="#workflows"><img src="https://img.shields.io/badge/UPDATE───────-8x%20daily-555555?style=for-the-badge&labelColor=111111"/></a>
-  <a href="#wie-funktioniert-die-bewertung"><img src="https://img.shields.io/badge/RETENTION────-180%20days-555555?style=for-the-badge&labelColor=111111"/></a>
-  <a href="#workflows"><img src="https://img.shields.io/badge/WORKFLOWS────-16%20active-555555?style=for-the-badge&labelColor=111111"/></a>
-</p>
+<p align="center"><a href="bot_detector_blacklist_ipv4.txt"><img src="https://img.shields.io/badge/Bot--Detector-17.950%20IPs-9b59b6?style=for-the-badge&labelColor=1a1a1a"/></a>&nbsp;<a href="#architektur"><img src="https://img.shields.io/badge/Feeds-98%20Quellen-blueviolet?style=for-the-badge&labelColor=1a1a1a"/></a></p>
+
+<p align="center"><img src="https://img.shields.io/badge/Letztes%20Update-LAST__UPDATE-brightgreen?style=for-the-badge&labelColor=1a1a1a"/>&nbsp;<img src="https://img.shields.io/badge/Aktualisierung-8x%20täglich-555555?style=for-the-badge&labelColor=1a1a1a"/>&nbsp;<img src="https://img.shields.io/badge/Aufbewahrung-180%20Tage-555555?style=for-the-badge&labelColor=1a1a1a"/>&nbsp;<img src="https://img.shields.io/badge/Workflows-16%20aktiv-555555?style=for-the-badge&labelColor=1a1a1a"/></p>
 
 <br/>
 
@@ -127,14 +111,14 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/watchlist_confid
 
 | Datei | Beschreibung | Einträge | Update | Empfohlen für |
 |---|---|---:|---|---|
-| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen (30T + Conf≥65) | **2,381,047** | 8x täglich | **OPNsense / Firewall** |
-| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs (180 Tage) | **4,112,169** | 8x täglich | Audit / SIEM |
-| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres/Hohes Vertrauen (Score ≥40) | **2,900,870** | 8x täglich | Zusätzliche Filterregeln |
-| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25–39) | **322,287** | 8x täglich | Monitoring |
-| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploit & C2-Server | **217,542** | täglich 04:00 | IDS/IPS |
-| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte IPs | **10,111** | täglich 23:00 | Ergänzung |
-| [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **9,404** | täglich 22:15 | Ergänzung |
-| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot-Detector | **17,950** | täglich 22:45 | Web-Schutz |
+| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen (30T + Conf≥65) | **2.381.047** | 8x täglich | **OPNsense / Firewall** |
+| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs (180 Tage) | **4.112.169** | 8x täglich | Audit / SIEM |
+| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres/Hohes Vertrauen (Score ≥40) | **2.900.870** | 8x täglich | Zusätzliche Filterregeln |
+| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25–39) | **322.287** | 8x täglich | Monitoring |
+| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploit & C2-Server | **217.542** | täglich 04:00 | IDS/IPS |
+| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte IPs | **10.111** | täglich 23:00 | Ergänzung |
+| [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **9.404** | täglich 22:15 | Ergänzung |
+| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot-Detector | **17.950** | täglich 22:45 | Web-Schutz |
 | [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs (Score≥50) | **19** | täglich 02:00 | ASN-Blocking |
 
 ### 🌍 Geo-Listen
