@@ -49,7 +49,7 @@ jobs:
           # URL-Quellen – sie werden automatisch ausgeschlossen, da sie nicht in
           # SOURCES enthalten sind.
 
-          def _extract_feeds_from_combined(workflow_path="update_combined_blacklist.yml"):
+          def _extract_feeds_from_combined(workflow_path=".github/workflows/update_combined_blacklist.yml"):
               """Liest SOURCES aus update_combined_blacklist.yml und gibt {name: url} zurück."""
               text = pathlib.Path(workflow_path).read_text(encoding="utf-8")
 

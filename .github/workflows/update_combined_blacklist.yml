@@ -512,9 +512,9 @@ jobs:
               # "normshield_ssh" entfernt: normshield_all_ssh.ipset bei firehol nicht mehr verfügbar
 
               # ── Spam / Phishing ───────────────────────────────────────────
-              "spamhaus_pbl":               ("https://raw.githubusercontent.com/elliotwutingfeng/Spamhaus-DNSBL-IPs/main/pbl-aggressive.txt", False),
+              # "spamhaus_pbl" entfernt: elliotwutingfeng/Spamhaus-DNSBL-IPs pbl-aggressive.txt → HTTP 404
               # "phishing_army" entfernt: enthält Domains, keine IPs → liefert immer 0 IPs
-              "openphish":                  ("https://openphish.com/feed.txt", False),
+              # "openphish" entfernt: liefert URLs, keine IPs → immer 0 nutzbare Einträge
               "pgl_yoyo_adservers":         ("https://pgl.yoyo.org/adservers/iplist.php?format=&showintro=0", False),
 
               # ── AbuseIPDB ─────────────────────────────────────────────────
