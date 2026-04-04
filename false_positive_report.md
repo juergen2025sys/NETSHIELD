@@ -1,14 +1,14 @@
 # False Positive Checker – Report
-**Aktualisiert:** 2026-04-03 20:37 UTC
+**Aktualisiert:** 2026-04-04 05:58 UTC
 
 ---
 ## Ergebnis
 
 | Metrik | Wert |
 |---|---|
-| Geprüfte IPs (gesamt) | 4089897 |
-| Whitelist-Treffer (dieser Run) | **34** |
-| FP-Set gesamt (kumuliert) | **34** |
+| Geprüfte IPs (gesamt) | 4111110 |
+| Whitelist-Treffer (dieser Run) | **42** |
+| FP-Set gesamt (kumuliert) | **42** |
 
 > ℹ️ FPs werden nicht mehr direkt aus `combined_threat_blacklist_ipv4.txt` entfernt.
 > `false_positives_set.json` wird beim nächsten `update_combined_blacklist`-Lauf angewendet.
@@ -17,6 +17,7 @@
 
 | IP | Grund |
 |---|---|
+| `23.227.38.64/29` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `52.112.4.37` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `52.112.64.206` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `52.112.64.221` | Bekannte legitime IP-Range (CDN/Cloud) |
@@ -36,7 +37,6 @@
 | `52.114.142.17` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `52.114.142.198` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `52.114.142.232` | Bekannte legitime IP-Range (CDN/Cloud) |
-| `52.114.154.177` | Bekannte legitime IP-Range (CDN/Cloud) |
 
 ---
-*Generiert: 2026-04-03 20:37 UTC*
+*Generiert: 2026-04-04 05:58 UTC*
