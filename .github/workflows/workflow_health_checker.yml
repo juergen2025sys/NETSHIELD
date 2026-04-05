@@ -824,7 +824,8 @@ jobs:
                       msg = ("Numerische Sortierung von active_ips ist nicht gegen kaputte Eintraege abgesichert")
                       file_warnings.append(msg)
                       warnings.append({"file": fname, "check": "Sort-Key ohne Fallback", "detail": msg})
-                  if 'for fut in as_completed(futures, timeout=900):' in content and 'except TimeoutError' not in content:
+                  # FIX BUG3: combined verwendet timeout=600, nicht 900. Literal war veraltet.
+                  if 'for future in as_completed(futures, timeout=600):' in content and 'except TimeoutError' not in content:
                       msg = ("Auto-Feed-Sammlung hat kein explizites Timeout-Handling/Logging fuer pending Futures")
                       file_warnings.append(msg)
                       warnings.append({"file": fname, "check": "Timeout-Handling fehlt", "detail": msg})

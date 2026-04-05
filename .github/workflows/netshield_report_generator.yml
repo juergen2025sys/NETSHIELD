@@ -77,22 +77,24 @@ jobs:
                   raw_sources = workflow[brace_start:brace_end]
                   remote_feeds = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*\(\s*"([^"\n]+)"\s*,\s*(True|False)\s*\)\s*,?', raw_sources, re.MULTILINE))
 
-                  local_block = re.search(r'^\s+LOCAL_FEEDS\s*=\s*\[', workflow, re.MULTILINE)
+                  # FIX BUG1: LOCAL_FEEDS ist ein Dict ({...}), keine List ([...]).
+                  # Suche nach { statt [ und parse Dict-Einträge "name": True/False.
+                  local_block = re.search(r'^\s+LOCAL_FEEDS\s*=\s*\{', workflow, re.MULTILINE)
                   local_feeds = 0
                   if local_block:
-                      bracket_start = local_block.start() + local_block.group().index('[')
+                      brace_start2 = local_block.start() + local_block.group().index('{')
                       depth = 0
-                      bracket_end = bracket_start
-                      for i, ch in enumerate(workflow[bracket_start:], bracket_start):
-                          if ch == '[':
+                      brace_end2 = brace_start2
+                      for i, ch in enumerate(workflow[brace_start2:], brace_start2):
+                          if ch == '{':
                               depth += 1
-                          elif ch == ']':
+                          elif ch == '}':
                               depth -= 1
                               if depth == 0:
-                                  bracket_end = i + 1
+                                  brace_end2 = i + 1
                                   break
-                      raw_local = workflow[bracket_start:bracket_end]
-                      local_feeds = len(re.findall(r'^\s*"[^"\n]+"\s*,?$', raw_local, re.MULTILINE))
+                      raw_local = workflow[brace_start2:brace_end2]
+                      local_feeds = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*(True|False)\s*,?', raw_local, re.MULTILINE))
 
                   total = remote_feeds + local_feeds
                   return str(total) if total > 0 else "–"
@@ -216,22 +218,23 @@ jobs:
                   raw_sources = workflow[brace_start:brace_end]
                   remote_feeds = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*\(\s*"([^"\n]+)"\s*,\s*(True|False)\s*\)\s*,?', raw_sources, re.MULTILINE))
 
-                  local_block = re.search(r'^\s+LOCAL_FEEDS\s*=\s*\[', workflow, re.MULTILINE)
+                  # FIX BUG1: LOCAL_FEEDS ist ein Dict ({...}), keine List ([...]).
+                  local_block = re.search(r'^\s+LOCAL_FEEDS\s*=\s*\{', workflow, re.MULTILINE)
                   local_feeds = 0
                   if local_block:
-                      bracket_start = local_block.start() + local_block.group().index('[')
+                      brace_start2 = local_block.start() + local_block.group().index('{')
                       depth = 0
-                      bracket_end = bracket_start
-                      for i, ch in enumerate(workflow[bracket_start:], bracket_start):
-                          if ch == '[':
+                      brace_end2 = brace_start2
+                      for i, ch in enumerate(workflow[brace_start2:], brace_start2):
+                          if ch == '{':
                               depth += 1
-                          elif ch == ']':
+                          elif ch == '}':
                               depth -= 1
                               if depth == 0:
-                                  bracket_end = i + 1
+                                  brace_end2 = i + 1
                                   break
-                      raw_local = workflow[bracket_start:bracket_end]
-                      local_feeds = len(re.findall(r'^\s*"[^"\n]+"\s*,?$', raw_local, re.MULTILINE))
+                      raw_local = workflow[brace_start2:brace_end2]
+                      local_feeds = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*(True|False)\s*,?', raw_local, re.MULTILINE))
 
                   total = remote_feeds + local_feeds
                   return str(total) if total > 0 else "–"

@@ -150,6 +150,14 @@ jobs:
               except Exception:
                   continue
               days_ago    = (now - last_dt).days
+
+              # FIX BUG2: Watchlist-IPs haben last="2000-01-01" als Sentinel-Wert.
+              # days_ago wäre dadurch ≈9591 → fälschliche Einordnung in decay_suggest,
+              # stale_critical und zombie_high. Diese IPs überspringen – ihr Ablauf
+              # wird über first_seen + EXPIRY_DAYS in combined_blacklist gesteuert.
+              if last_seen == "2000-01-01":
+                  continue
+
               # Score basiert auf echten Bestätigungstagen (days_seen) + HQ-Bonus
               # Fallback auf days_active für alte Einträge ohne days_seen.
               # WICHTIG: Watchlist-IPs haben last="2000-01-01" (Sentinel) aber ein

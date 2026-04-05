@@ -958,7 +958,7 @@ jobs:
           with open("combined_threat_blacklist_ipv4.txt", "w", encoding="utf-8") as f:
               f.write("# NETSHIELD Combined Threat Blacklist (IPv4) – Stufe 1\n")
               f.write(f"# Aktualisiert: {now_stamp}\n")
-              f.write(f"# Feeds: {len(SOURCES)}\n")
+              f.write(f"# Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}\n")
               f.write(f"# Eintraege: {len(sorted_ips)}\n")
               f.write(f"# Abgelaufen entfernt: {len(expired)}\n\n")
               f.write("\n".join(sorted_ips) + "\n")
@@ -1044,7 +1044,7 @@ jobs:
           with open("combined_threat_blacklist_report.md", "w", encoding="utf-8") as f:
               f.write("# Combined Threat Blacklist Report\n\n")
               f.write(f"- Aktualisiert: **{now_stamp}**\n")
-              f.write(f"- Feeds gesamt: **{len(SOURCES)}**\n")
+              f.write(f"- Feeds gesamt: **{len(SOURCES) + len(LOCAL_FEEDS)}** (davon {len(LOCAL_FEEDS)} lokale Sub-Workflow-Feeds)\n")
               f.write(f"- Stufe 1 (combined): **{len(sorted_ips)}** IPs\n")
               f.write(f"- Stufe 2 (active, 30T + Conf≥65): **{len(active_ips)}** IPs | herausgefiltert: {active_skipped_old} zu alt, {active_skipped_score} Score<65\n")
               f.write(f"- Abgelaufen & entfernt: **{len(expired)}**\n\n")
@@ -1053,7 +1053,7 @@ jobs:
                   hq_mark = " ⭐" if name in HIGH_QUALITY else ""
                   f.write(f"| `{name}`{hq_mark} | {count} |\n")
 
-          print(f"\nFertig! combined: {len(sorted_ips)} IPs | active: {len(active_ips)} IPs | zu alt: {active_skipped_old} | Score<65: {active_skipped_score} | Feeds: {len(SOURCES)}")
+          print(f"\nFertig! combined: {len(sorted_ips)} IPs | active: {len(active_ips)} IPs | zu alt: {active_skipped_old} | Score<65: {active_skipped_score} | Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}")
           EOF
 
       - name: Save seen_db Cache
