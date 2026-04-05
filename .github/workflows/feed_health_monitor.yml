@@ -187,6 +187,7 @@ jobs:
           EOF
 
       - name: Commit
+        if: always()  # FIX: auch bei raise SystemExit(1) in _extract_feeds_from_combined() den Report committen
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

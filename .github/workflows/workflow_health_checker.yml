@@ -153,7 +153,7 @@ jobs:
                   line = _code_only(raw_line).strip()
                   if not line:
                       continue
-                  exit_match = re.search(r'sys\.exit\((\d+)\)', line)
+                  exit_match = re.search(r'(?:sys\.exit|raise\s+SystemExit)\((\d+)\)', line)
                   if not exit_match:
                       continue
                   context_lines = [_code_only(l) for l in lines[max(0, idx-14):idx+1]]
