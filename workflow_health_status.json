@@ -1,9 +1,15 @@
 {
-  "updated": "2026-04-05 05:29 UTC",
+  "updated": "2026-04-05 09:56 UTC",
   "total": 16,
-  "ok": 16,
+  "ok": 15,
   "warn": 0,
-  "error": 0,
-  "errors": [],
+  "error": 1,
+  "errors": [
+    {
+      "file": "auto_feed_discovery.yml",
+      "check": "Report nach Guard-Exit",
+      "detail": "Block 0 L~234: sys.exit(1) vor Report/Status-Write (auto_discovered_feeds.json, auto_feed_discovery_report.md, seen_db.json) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
+    }
+  ],
   "warnings": []
 }
