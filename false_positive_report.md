@@ -1,17 +1,18 @@
 # False Positive Checker – Report
-**Aktualisiert:** 2026-04-05 06:09 UTC
+**Aktualisiert:** 2026-04-05 11:48 UTC
 
 ---
 ## Ergebnis
 
 | Metrik | Wert |
 |---|---|
-| Geprüfte IPs (gesamt) | 4117429 |
+| Geprüfte IPs (gesamt) | 4139153 |
 | Whitelist-Treffer (dieser Run) | **44** |
 | FP-Set gesamt (kumuliert) | **45** |
 
 > ℹ️ FPs werden nicht mehr direkt aus `combined_threat_blacklist_ipv4.txt` entfernt.
 > `false_positives_set.json` wird beim nächsten `update_combined_blacklist`-Lauf angewendet.
+> Der `fp-` Cache-Slot dieses Workflows ist absichtlich isoliert und überschreibt den Combined-Cache nicht; dauerhafte Wirkung entsteht erst durch das nächste Combined-Update.
 
 ## Whitelist-Treffer
 
@@ -39,4 +40,4 @@
 | `52.114.142.17` | Bekannte legitime IP-Range (CDN/Cloud) |
 
 ---
-*Generiert: 2026-04-05 06:09 UTC*
+*Generiert: 2026-04-05 11:48 UTC*
