@@ -1,13 +1,13 @@
 # False Positive Checker – Report
-**Aktualisiert:** 2026-04-05 13:57 UTC
+**Aktualisiert:** 2026-04-05 20:33 UTC
 
 ---
 ## Ergebnis
 
 | Metrik | Wert |
 |---|---|
-| Geprüfte IPs (gesamt) | 4139944 |
-| Whitelist-Treffer (dieser Run) | **44** |
+| Geprüfte IPs (gesamt) | 4142618 |
+| Whitelist-Treffer (dieser Run) | **45** |
 | FP-Set gesamt (kumuliert) | **45** |
 
 > ℹ️ FPs werden nicht mehr direkt aus `combined_threat_blacklist_ipv4.txt` entfernt.
@@ -21,6 +21,7 @@
 | `13.107.136.10` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `13.107.137.11` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `13.107.138.10` | Bekannte legitime IP-Range (CDN/Cloud) |
+| `23.227.38.64/29` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `52.112.4.37` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `52.112.64.206` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `52.112.64.221` | Bekannte legitime IP-Range (CDN/Cloud) |
@@ -37,7 +38,6 @@
 | `52.114.128.70` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `52.114.132.42` | Bekannte legitime IP-Range (CDN/Cloud) |
 | `52.114.132.73` | Bekannte legitime IP-Range (CDN/Cloud) |
-| `52.114.142.17` | Bekannte legitime IP-Range (CDN/Cloud) |
 
 ---
-*Generiert: 2026-04-05 13:57 UTC*
+*Generiert: 2026-04-05 20:33 UTC*
