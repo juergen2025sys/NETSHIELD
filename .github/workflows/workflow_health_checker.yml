@@ -899,6 +899,7 @@ jobs:
           EOF
 
       - name: Commit
+        if: always()  # FIX: Report auch bei Python-Fehler committen
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
