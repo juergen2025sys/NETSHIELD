@@ -202,8 +202,11 @@ jobs:
                   sensor_total += len(events)
                   print(f"  Page {page+1}: {len(events)} Events, from_id={next_from_id}")
                   page += 1
-                  if next_from_id is None or next_from_id == 0:
-                      break  # Keine weiteren Seiten
+                  try:
+                      if next_from_id is None or int(next_from_id) == 0:
+                          break  # Keine weiteren Seiten
+                  except (TypeError, ValueError):
+                      break  # Unerwarteter Typ → sicher abbrechen
                   from_id = next_from_id
           else:
               print(f"  Sensor-Count für {yesterday} nicht verfügbar")
