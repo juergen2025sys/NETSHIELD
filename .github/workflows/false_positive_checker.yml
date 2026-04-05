@@ -32,7 +32,12 @@ jobs:
           persist-credentials: true
 
       - name: Restore seen_db Cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        # FIX WarnB: actions/cache/restore statt actions/cache verwenden.
+        # actions/cache würde automatisch einen Post-Job-Save auslösen und dabei
+        # die noch UNBEREINIGTE seen_db speichern (bevor der FP-Bereinigungsschritt
+        # gelaufen ist). Der explizite Save-Step weiter unten ist die einzige
+        # korrekte Schreibquelle nach der FP-Bereinigung.
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: seen_db.json
           # FIX RC1: Restore-Key liest den neuesten Combined-Cache (v2-Prefix).

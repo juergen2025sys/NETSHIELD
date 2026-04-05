@@ -159,19 +159,15 @@ jobs:
                   continue
 
               # Score basiert auf echten Bestätigungstagen (days_seen) + HQ-Bonus
-              # Fallback auf days_active für alte Einträge ohne days_seen.
-              # WICHTIG: Watchlist-IPs haben last="2000-01-01" (Sentinel) aber ein
-              # aktuelles first-Datum → (last_dt - first_dt) wäre negativ!
-              # Daher explizit auf den Sentinel-Wert prüfen.
+              # Fallback für alte Einträge ohne days_seen. Sentinel-IPs (last="2000-01-01")
+              # wurden bereits oben per continue übersprungen – dieser Zweig gilt nur
+              # noch für normale IPs mit echtem last-Datum.
               if days_seen == 0:
-                  if last_seen == "2000-01-01":
-                      days_seen = 1  # Watchlist-IP ohne HQ-Bestätigung
-                  else:
-                      # FIX #15: max(1, ...) ist absichtlich und darf NICHT entfernt werden.
-                      # Bei Daten-Anomalien (last_dt < first_dt durch z.B. Zeitzonen-Bug)
-                      # würde (last_dt - first_dt).days negativ werden → Score wäre 0
-                      # und die IP würde fälschlicherweise als Zombie markiert.
-                      days_seen = max(1, (last_dt - first_dt).days + 1)
+                  # FIX #15: max(1, ...) ist absichtlich und darf NICHT entfernt werden.
+                  # Bei Daten-Anomalien (last_dt < first_dt durch z.B. Zeitzonen-Bug)
+                  # würde (last_dt - first_dt).days negativ werden → Score wäre 0
+                  # und die IP würde fälschlicherweise als Zombie markiert.
+                  days_seen = max(1, (last_dt - first_dt).days + 1)
               score       = days_seen + (20 if is_hq else 0)
               score_dist[(score // 5) * 5] += 1
 
