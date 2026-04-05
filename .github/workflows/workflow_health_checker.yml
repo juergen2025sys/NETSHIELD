@@ -343,6 +343,68 @@ jobs:
               file_errors   = []
               file_warnings = []
 
+              # ── Check 23: gezielte Regression-Checks fuer neue Findings ─────
+              if fname == "false_positive_checker.yml":
+                  if re.search(r'git checkout --theirs\s+false_positives_log\.txt false_positive_report\.md\s+false_positives_set\.json', content):
+                      msg = ("git checkout --theirs fuer mehrere Dateien steht einzeilig/fragil da – "
+                             "Backslash-Continuation verwenden")
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Fragile git checkout-Zeile", "detail": msg})
+
+              if fname == "update-blocklist.yml":
+                  if 'git checkout --theirs all_countries_ipv4.txt' in content:
+                      msg = "git checkout --theirs fuer all_countries_ipv4.txt ohne '--' – inkonsistent/fragil"
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Fehlendes -- bei git checkout", "detail": msg})
+
+              if fname == "community_ip_report.yml":
+                  if ('key: netshield-seen-db-community-${{ github.event.issue.number }}-${{ github.run_id }}' in content
+                          and 'netshield-seen-db-community-${{ github.event.issue.number }}-' not in content.split('restore-keys: |', 1)[1]):
+                      msg = ("Community-Cache nutzt issue+run_id als Key, aber kein issue-spezifisches restore-prefix – "
+                             "seen_db akkumuliert pro Issue nicht")
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Community-Cache Restore-Key", "detail": msg})
+
+              if fname == "honeydb_monitor.yml":
+                  if 'data.get("from_id") or data.get("next_from_id")' in content:
+                      msg = ("Paging-Cursor nutzt boolean 'or' – Wert 0 ist falsy und kann auf das falsche Feld zurückfallen")
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Unsicherer Paging-Cursor", "detail": msg})
+
+              if fname == "auto_feed_discovery.yml":
+                  if 'to_expire = []' in content and 'to_expire.append(ip)' in content:
+                      msg = ("Expiry-Loop nutzt Liste statt Set – doppelte Delete-Kandidaten bleiben moeglich")
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Expiry-Deduplizierung fehlt", "detail": msg})
+
+              if fname == "feed_health_monitor.yml":
+                  if 'ast.literal_eval(raw)' in content or re.search(r'^\s*import ast\b', content, re.M):
+                      msg = ("Feed-Extraktion nutzt ast.literal_eval – bricht bei Kommentaren im SOURCES-Dict")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Fragile SOURCES-Extraktion", "detail": msg})
+
+              if fname == "geo_tagger.yml":
+                  if 'MAX_ELAPSED_SECONDS' not in content and 'started_at = time.time()' not in content:
+                      msg = ("Geo-Tagger hat keinen Elapsed-Time-Guard vor dem Laender-Loop")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Elapsed-Time-Guard fehlt", "detail": msg})
+
+              if fname == "netshield_report_generator.yml":
+                  if 'cols[3]' in content:
+                      msg = ("README-Fallback schreibt hart in cols[3] – Tabellenschema-Aenderungen koennen falsche Spalte aktualisieren")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Harte README-Spalte", "detail": msg})
+
+              if fname == "update_combined_blacklist.yml":
+                  if 'active_ips.sort(key=lambda e:' in content and 'except Exception:' not in content[content.find('active_ips.sort(key=lambda e:'):content.find('active_ips.sort(key=lambda e:')+220]:
+                      msg = ("Numerische Sortierung von active_ips ist nicht gegen kaputte Eintraege abgesichert")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Sort-Key ohne Fallback", "detail": msg})
+                  if 'for fut in as_completed(futures, timeout=900):' in content and 'except TimeoutError' not in content:
+                      msg = ("Auto-Feed-Sammlung hat kein explizites Timeout-Handling/Logging fuer pending Futures")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Timeout-Handling fehlt", "detail": msg})
+
               # Python-Blöcke aus YAML-Heredocs extrahieren
               blocks = re.findall(r"python3 << 'EOF'(.*?)\n\s*EOF\b", content, re.DOTALL)
 
@@ -752,6 +814,70 @@ jobs:
                   warnings.append({"file": fname,
                                    "check": "Commit-Step nicht always()",
                                    "detail": msg})
+
+
+
+              # ── Check 23: gezielte Regression-Checks fuer neue Findings ─────
+              if fname == "false_positive_checker.yml":
+                  if re.search(r'git checkout --theirs\s+false_positives_log\.txt false_positive_report\.md\s+false_positives_set\.json', content):
+                      msg = ("git checkout --theirs fuer mehrere Dateien steht einzeilig/fragil da – "
+                             "Backslash-Continuation verwenden")
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Fragile git checkout-Zeile", "detail": msg})
+
+              if fname == "update-blocklist.yml":
+                  if 'git checkout --theirs all_countries_ipv4.txt' in content:
+                      msg = "git checkout --theirs fuer all_countries_ipv4.txt ohne '--' – inkonsistent/fragil"
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Fehlendes -- bei git checkout", "detail": msg})
+
+              if fname == "community_ip_report.yml":
+                  if ('key: netshield-seen-db-community-${{ github.event.issue.number }}-${{ github.run_id }}' in content
+                          and 'netshield-seen-db-community-${{ github.event.issue.number }}-' not in content.split('restore-keys: |', 1)[1]):
+                      msg = ("Community-Cache nutzt issue+run_id als Key, aber kein issue-spezifisches restore-prefix – "
+                             "seen_db akkumuliert pro Issue nicht")
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Community-Cache Restore-Key", "detail": msg})
+
+              if fname == "honeydb_monitor.yml":
+                  if 'data.get("from_id") or data.get("next_from_id")' in content:
+                      msg = ("Paging-Cursor nutzt boolean 'or' – Wert 0 ist falsy und kann auf das falsche Feld zurückfallen")
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Unsicherer Paging-Cursor", "detail": msg})
+
+              if fname == "auto_feed_discovery.yml":
+                  if 'to_expire = []' in content and 'to_expire.append(ip)' in content:
+                      msg = ("Expiry-Loop nutzt Liste statt Set – doppelte Delete-Kandidaten bleiben moeglich")
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Expiry-Deduplizierung fehlt", "detail": msg})
+
+              if fname == "feed_health_monitor.yml":
+                  if 'ast.literal_eval(raw)' in content or re.search(r'^\s*import ast\b', content, re.M):
+                      msg = ("Feed-Extraktion nutzt ast.literal_eval – bricht bei Kommentaren im SOURCES-Dict")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Fragile SOURCES-Extraktion", "detail": msg})
+
+              if fname == "geo_tagger.yml":
+                  if 'MAX_ELAPSED_SECONDS' not in content and 'started_at = time.time()' not in content:
+                      msg = ("Geo-Tagger hat keinen Elapsed-Time-Guard vor dem Laender-Loop")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Elapsed-Time-Guard fehlt", "detail": msg})
+
+              if fname == "netshield_report_generator.yml":
+                  if 'cols[3]' in content:
+                      msg = ("README-Fallback schreibt hart in cols[3] – Tabellenschema-Aenderungen koennen falsche Spalte aktualisieren")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Harte README-Spalte", "detail": msg})
+
+              if fname == "update_combined_blacklist.yml":
+                  if 'active_ips.sort(key=lambda e:' in content and 'except Exception:' not in content[content.find('active_ips.sort(key=lambda e:'):content.find('active_ips.sort(key=lambda e:')+220]:
+                      msg = ("Numerische Sortierung von active_ips ist nicht gegen kaputte Eintraege abgesichert")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Sort-Key ohne Fallback", "detail": msg})
+                  if 'for fut in as_completed(futures, timeout=900):' in content and 'except TimeoutError' not in content:
+                      msg = ("Auto-Feed-Sammlung hat kein explizites Timeout-Handling/Logging fuer pending Futures")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Timeout-Handling fehlt", "detail": msg})
 
               results[fname] = {
                   "blocks":   len(blocks),

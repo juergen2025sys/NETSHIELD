@@ -141,7 +141,7 @@ jobs:
           python3 << 'EOF'
           import ipaddress, json, os, re, urllib.request
           from datetime import datetime, timezone, timedelta
-          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 
           now        = datetime.now(timezone.utc)
           now_day    = now.strftime("%Y-%m-%d")
@@ -772,14 +772,21 @@ jobs:
 
                   with ThreadPoolExecutor(max_workers=5) as ex:
                       futures = {ex.submit(fetch_auto, f): f["name"] for f in auto_feeds}
-                      for future in as_completed(futures, timeout=120):
-                          name, ips = future.result()
-                          for ip in ips:
-                              # Auto-discovered Feeds sind nicht HQ
-                              if ip not in ip_feeds_today:
-                                  ip_feeds_today[ip] = set()
-                              ip_feeds_today[ip].add(name)
-                          feed_stats.append((name, len(ips)))
+                      try:
+                          for future in as_completed(futures, timeout=120):
+                              name, ips = future.result()
+                              for ip in ips:
+                                  # Auto-discovered Feeds sind nicht HQ
+                                  if ip not in ip_feeds_today:
+                                      ip_feeds_today[ip] = set()
+                                  ip_feeds_today[ip].add(name)
+                              feed_stats.append((name, len(ips)))
+                      except TimeoutError:
+                          pending = sorted(name for future, name in futures.items() if not future.done())
+                          for future in futures:
+                              if not future.done():
+                                  future.cancel()
+                          print(f"  WARNUNG: Auto-Feeds Timeout – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:8])}{'…' if len(pending) > 8 else ''}")
               except Exception as e:
                   print(f"  WARNUNG: auto_discovered_feeds.json Fehler: {e}")
           else:
@@ -1011,7 +1018,10 @@ jobs:
               else:
                   active_skipped_score += 1
 
-          active_ips.sort(key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
+          try:
+              active_ips.sort(key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
+          except Exception:
+              active_ips.sort()
 
           with open("active_blacklist_ipv4.txt", "w", encoding="utf-8") as f:
               f.write("# NETSHIELD Active Blacklist (IPv4) – Stufe 2\n")

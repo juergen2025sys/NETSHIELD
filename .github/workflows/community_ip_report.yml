@@ -39,6 +39,7 @@ jobs:
           # immer den neuesten globalen Stand (combined, confidence etc.).
           key: netshield-seen-db-community-${{ github.event.issue.number }}-${{ github.run_id }}
           restore-keys: |
+            netshield-seen-db-community-${{ github.event.issue.number }}-
             netshield-seen-db-v2-
             netshield-seen-db-v1-
             netshield-seen-db-

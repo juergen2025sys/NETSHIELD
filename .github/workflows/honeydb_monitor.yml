@@ -194,7 +194,7 @@ jobs:
                   events  = data.get("data", [])
                   # API liefert "from_id" als next-page-Cursor; fehlt er → keine weiteren Seiten.
                   # Fallback: wenn "next_from_id" statt "from_id" geliefert wird, beide prüfen.
-                  next_from_id = data.get("from_id") or data.get("next_from_id")
+                  next_from_id = data["from_id"] if "from_id" in data else data.get("next_from_id")
                   for event in events:
                       ip = event.get("remote_host", "")
                       if ip and is_valid_ipv4(ip) and not is_private(ip):

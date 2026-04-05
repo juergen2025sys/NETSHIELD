@@ -589,7 +589,7 @@ jobs:
           expired   = []
           # Collect keys to expire first, then delete in a separate pass
           # to avoid RuntimeError from modifying a dict during iteration.
-          to_expire = []
+          to_expire = set()
           for ip in list(db.keys()):
               try:
                   entry      = db[ip]
@@ -601,14 +601,14 @@ jobs:
                   if last_str == "2000-01-01" and not is_hq:
                       # Watchlist-IP: Ablauf nach first-Datum (30 Tage)
                       if first_seen < cutoff_wl:
-                          to_expire.append(ip)
+                          to_expire.add(ip)
                   else:
                       # Normale IP: Ablauf nach last-Datum (180 Tage)
                       if last_seen < cutoff:
-                          to_expire.append(ip)
+                          to_expire.add(ip)
               except Exception:
                   # Einträge mit defektem Datum entfernen (analog zu update_combined_blacklist)
-                  to_expire.append(ip)
+                  to_expire.add(ip)
           # Delete expired entries after iteration is complete
           for ip in to_expire:
               expired.append(ip)

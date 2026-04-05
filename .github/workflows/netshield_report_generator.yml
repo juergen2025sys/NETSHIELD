@@ -285,10 +285,14 @@ jobs:
               for line in readme.splitlines(keepends=True):
                   if f"`{filename}`" in line or f"({filename})" in line:
                       cols = line.split("|")
-                      if len(cols) >= 5 and cols[3].strip().replace("*", "").replace(",", "").replace(" ", "").isdigit():
-                          cols[3] = f" {formatted} "
-                          line = "|".join(cols)
-                          replaced = True
+                      if len(cols) >= 5:
+                          for idx in range(1, len(cols) - 1):
+                              cleaned = cols[idx].strip().replace("*", "").replace(",", "").replace(" ", "")
+                              if cleaned.isdigit():
+                                  cols[idx] = f" {formatted} "
+                                  line = "|".join(cols)
+                                  replaced = True
+                                  break
                   lines_out.append(line)
 
               if replaced:

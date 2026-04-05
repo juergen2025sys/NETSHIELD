@@ -34,7 +34,7 @@ jobs:
       - name: Test all Feed URLs
         run: |
           python3 << 'EOF'
-          import ast, pathlib
+          import pathlib
           import urllib.request, urllib.error, time, re, json, os
           from datetime import datetime, timezone
           from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -73,13 +73,20 @@ jobs:
                   raise ValueError("SOURCES-Block: schließende } nicht gefunden")
 
               raw = text[brace_start:brace_end]
-              try:
-                  sources = ast.literal_eval(raw)
-              except Exception as e:
-                  raise ValueError(f"SOURCES konnte nicht geparst werden: {e}")
 
-              # SOURCES-Format: {"name": ("url", hq_bool)} → {name: url} extrahieren
-              return {name: url for name, (url, _hq) in sources.items()}
+              # Zeilenweise parsen statt ast.literal_eval: robust gegen Kommentare
+              # innerhalb des SOURCES-Dicts in update_combined_blacklist.yml.
+              feed_re = re.compile(
+                  r'^[ \t]*"([^"\n]+)"\s*:\s*\(\s*"([^"\n]+)"\s*,\s*(True|False)\s*\)\s*,?',
+                  re.MULTILINE,
+              )
+              sources = {}
+              for m in feed_re.finditer(raw):
+                  sources[m.group(1)] = m.group(2)
+              if not sources:
+                  raise ValueError("SOURCES konnte nicht geparst werden: keine URL-Einträge erkannt")
+
+              return sources
 
           try:
               FEEDS = _extract_feeds_from_combined()
