@@ -304,7 +304,8 @@ jobs:
           lines.append(f"| FP-Set gesamt (kumuliert) | **{len(merged_fp)}** |")
           lines.append("")
           lines.append("> ℹ️ FPs werden nicht mehr direkt aus `combined_threat_blacklist_ipv4.txt` entfernt.")
-          lines.append("> `false_positives_set.json` wird beim nächsten `update_combined_blacklist`-Lauf angewendet.")
+          lines.append("> `false_positives_set.json` wird beim nächsten `update_combined_blacklist`-Lauf angewendet.
+> Der `fp-` Cache-Slot dieses Workflows ist absichtlich isoliert und ueberschreibt den Combined-Cache nicht; dauerhafte Wirkung entsteht erst durch das naechste Combined-Update.")
 
           if whitelist_hits:
               lines.append("\n## Whitelist-Treffer\n")

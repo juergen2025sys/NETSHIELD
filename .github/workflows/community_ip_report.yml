@@ -265,7 +265,7 @@ jobs:
           path: seen_db.json
           # FIX #3: Eindeutiger Slot pro Issue → keine gegenseitige Überschreibung
           # bei parallelen Community-Reports.
-          key: netshield-seen-db-community-${{ github.event.issue.number }}-${{ github.run_id }}-save
+          key: netshield-seen-db-community-${{ github.event.issue.number }}-${{ github.run_id }}
 
       - name: Commit Log
         if: always()  # FIX: auch bei exit(0) (RATE_LIMITED, NO_IP_FOUND etc.) den Log committen

@@ -275,7 +275,16 @@ jobs:
                   found = extract_ips(text)
                   hq_ref_ips.update(found)
                   print(f"  HQ-Ref {url.split('/')[-1]}: {len(found)} IPs")
-          print(f"HQ-Referenz gesamt: {len(hq_ref_ips)} IPs\n")
+
+          MIN_HQ_REF_IPS = 200
+          hq_ref_ready = len(hq_ref_ips) >= MIN_HQ_REF_IPS
+          if hq_ref_ready:
+              print(f"HQ-Referenz gesamt: {len(hq_ref_ips)} IPs\n")
+          else:
+              print(f"WARNUNG: HQ-Referenz-Set unzureichend ({len(hq_ref_ips)} IPs < {MIN_HQ_REF_IPS})")
+              print("Abbruch: Overlap-Validierung waere ohne belastbare HQ-Referenz nicht sicher.")
+              import sys as _sys
+              _sys.exit(1)
 
           # ── Schritt 3: GitHub-Suche nach neuen Feeds ──────────────────────
           SEARCH_TOPICS = [
@@ -447,7 +456,7 @@ jobs:
               print(f"  ✅ False-Positive-Rate: {fp:.1%}")
 
               # Kriterium 4: Overlap mit HQ-Feeds (min. 20% oder 50 IPs)
-              if hq_ref_ips:
+              if hq_ref_ready:
                   overlap     = len(ips & hq_ref_ips)
                   overlap_pct = overlap / len(ips) if ips else 0
                   if overlap_pct < 0.20 and overlap < 50:

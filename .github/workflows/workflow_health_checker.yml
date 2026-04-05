@@ -770,7 +770,7 @@ jobs:
                       errors.append({"file": fname, "check": "Fragile git checkout-Zeile", "detail": msg})
 
               if fname == "update-blocklist.yml":
-                  if 'git checkout --theirs all_countries_ipv4.txt' in content:
+                  if re.search(r'git checkout --theirs\s+all_countries_ipv4\.txt', content):
                       msg = "git checkout --theirs fuer all_countries_ipv4.txt ohne '--' – inkonsistent/fragil"
                       file_errors.append(msg)
                       errors.append({"file": fname, "check": "Fehlendes -- bei git checkout", "detail": msg})

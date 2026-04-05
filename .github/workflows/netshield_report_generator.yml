@@ -51,6 +51,53 @@ jobs:
                           count += 1
               return count
 
+          def derive_feed_count(workflow_path=".github/workflows/update_combined_blacklist.yml"):
+              if not os.path.exists(workflow_path):
+                  return "–"
+              try:
+                  with open(workflow_path, encoding="utf-8") as f:
+                      workflow = f.read()
+
+                  sources_block = re.search(r'^\s+SOURCES\s*=\s*\{', workflow, re.MULTILINE)
+                  if not sources_block:
+                      return "–"
+
+                  brace_start = sources_block.start() + sources_block.group().index('{')
+                  depth = 0
+                  brace_end = brace_start
+                  for i, ch in enumerate(workflow[brace_start:], brace_start):
+                      if ch == '{':
+                          depth += 1
+                      elif ch == '}':
+                          depth -= 1
+                          if depth == 0:
+                              brace_end = i + 1
+                              break
+                  raw_sources = workflow[brace_start:brace_end]
+                  remote_feeds = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*\(\s*"([^"\n]+)"\s*,\s*(True|False)\s*\)\s*,?', raw_sources, re.MULTILINE))
+
+                  local_block = re.search(r'^\s+LOCAL_FEEDS\s*=\s*\[', workflow, re.MULTILINE)
+                  local_feeds = 0
+                  if local_block:
+                      bracket_start = local_block.start() + local_block.group().index('[')
+                      depth = 0
+                      bracket_end = bracket_start
+                      for i, ch in enumerate(workflow[bracket_start:], bracket_start):
+                          if ch == '[':
+                              depth += 1
+                          elif ch == ']':
+                              depth -= 1
+                              if depth == 0:
+                                  bracket_end = i + 1
+                                  break
+                      raw_local = workflow[bracket_start:bracket_end]
+                      local_feeds = len(re.findall(r'^\s*"[^"\n]+"\s*,?$', raw_local, re.MULTILINE))
+
+                  total = remote_feeds + local_feeds
+                  return str(total) if total > 0 else "–"
+              except Exception:
+                  return "–"
+
           def file_age(filepath):
               if not os.path.exists(filepath):
                   return "–"
@@ -131,7 +178,6 @@ jobs:
           from datetime import datetime, timezone
 
           # ── Konstanten ────────────────────────────────────────────────────
-          FEED_COUNT      = 103  # 98 SOURCES (remote) + 5 LOCAL_FEEDS (cve, bot, honeypot, honeydb, abuseipdb)
           WORKFLOW_COUNT  = 16
 
           def count_ips(filepath):
@@ -144,20 +190,68 @@ jobs:
                           count += 1
               return count
 
+          def derive_feed_count(workflow_path=".github/workflows/update_combined_blacklist.yml"):
+              if not os.path.exists(workflow_path):
+                  return "–"
+              try:
+                  with open(workflow_path, encoding="utf-8") as f:
+                      workflow = f.read()
+
+                  sources_block = re.search(r'^\s+SOURCES\s*=\s*\{', workflow, re.MULTILINE)
+                  if not sources_block:
+                      return "–"
+
+                  brace_start = sources_block.start() + sources_block.group().index('{')
+                  depth = 0
+                  brace_end = brace_start
+                  for i, ch in enumerate(workflow[brace_start:], brace_start):
+                      if ch == '{':
+                          depth += 1
+                      elif ch == '}':
+                          depth -= 1
+                          if depth == 0:
+                              brace_end = i + 1
+                              break
+                  raw_sources = workflow[brace_start:brace_end]
+                  remote_feeds = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*\(\s*"([^"\n]+)"\s*,\s*(True|False)\s*\)\s*,?', raw_sources, re.MULTILINE))
+
+                  local_block = re.search(r'^\s+LOCAL_FEEDS\s*=\s*\[', workflow, re.MULTILINE)
+                  local_feeds = 0
+                  if local_block:
+                      bracket_start = local_block.start() + local_block.group().index('[')
+                      depth = 0
+                      bracket_end = bracket_start
+                      for i, ch in enumerate(workflow[bracket_start:], bracket_start):
+                          if ch == '[':
+                              depth += 1
+                          elif ch == ']':
+                              depth -= 1
+                              if depth == 0:
+                                  bracket_end = i + 1
+                                  break
+                      raw_local = workflow[bracket_start:bracket_end]
+                      local_feeds = len(re.findall(r'^\s*"[^"\n]+"\s*,?$', raw_local, re.MULTILINE))
+
+                  total = remote_feeds + local_feeds
+                  return str(total) if total > 0 else "–"
+              except Exception:
+                  return "–"
+
           if not os.path.exists("README.md"):
               print("README.md nicht gefunden – übersprungen")
               raise SystemExit(0)
 
-          active   = count_ips("active_blacklist_ipv4.txt")
-          cve      = count_ips("cve_exploit_ips.txt")
-          honeypot = count_ips("honeypot_ips.txt")
-          now_str  = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+          active     = count_ips("active_blacklist_ipv4.txt")
+          cve        = count_ips("cve_exploit_ips.txt")
+          honeypot   = count_ips("honeypot_ips.txt")
+          feed_count = derive_feed_count()
+          now_str    = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
           # ── Neue Tabelleninhalte (passend zum neuen README-Format) ────────
           # STATS_TABLE: Key Statistics
           stats_header = "| IP-Quellen | Aktive IP-Drohungen (Confidence \u226565) | CVE/Exploit IPs | Honeypot IPs |"
           stats_sep    = "|:---|:---|:---|:---|"
-          stats_data   = f"| {FEED_COUNT} (Aktiv: 90+) | **{active:,}** | **{cve:,}** | **{honeypot:,}** |"
+          stats_data   = f"| {feed_count} (dynamisch) | **{active:,}** | **{cve:,}** | **{honeypot:,}** |"
 
           # META_TABLE: Aktualisierungs-Status
           meta_header = "| Letztes Update | Update-Intervall | IP-Retention | Aktive Workflows | Geografische Abdeckung |"
