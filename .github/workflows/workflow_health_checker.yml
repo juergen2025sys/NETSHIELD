@@ -790,7 +790,11 @@ jobs:
                       errors.append({"file": fname, "check": "Unsicherer Paging-Cursor", "detail": msg})
 
               if fname == "auto_feed_discovery.yml":
-                  if 'to_expire = []' in content and 'to_expire.append(ip)' in content:
+                  # set() + add() ist korrekt (keine Duplikate moeglich) → kein Fehler.
+                  # Nur Liste + append() melden, da dort Duplikate auftreten koennen.
+                  _uses_set  = 'to_expire = set()' in content and 'to_expire.add(' in content
+                  _uses_list = 'to_expire = []'   in content and 'to_expire.append(' in content
+                  if _uses_list and not _uses_set:
                       msg = ("Expiry-Loop nutzt Liste statt Set – doppelte Delete-Kandidaten bleiben moeglich")
                       file_errors.append(msg)
                       errors.append({"file": fname, "check": "Expiry-Deduplizierung fehlt", "detail": msg})
