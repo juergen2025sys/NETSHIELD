@@ -1,19 +1,19 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-04-05 15:01 UTC
+**Aktualisiert:** 2026-04-05 15:54 UTC
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **4,139,944** | 2026-04-05 15:01 UTC |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **2,384,565** | 2026-04-05 15:01 UTC |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **2,924,088** | 2026-04-05 15:01 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **322,739** | 2026-04-05 15:01 UTC |
-| ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **216,760** | 2026-04-05 15:01 UTC |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,950** | 2026-04-05 15:01 UTC |
-| ✅ `honeypot_ips.txt` | Honeypot IPs | **10,094** | 2026-04-05 15:01 UTC |
-| ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **9,430** | 2026-04-05 15:01 UTC |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **4,139,944** | 2026-04-05 15:54 UTC |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **2,384,565** | 2026-04-05 15:54 UTC |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **2,924,088** | 2026-04-05 15:54 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **322,739** | 2026-04-05 15:54 UTC |
+| ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **216,760** | 2026-04-05 15:54 UTC |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,950** | 2026-04-05 15:54 UTC |
+| ✅ `honeypot_ips.txt` | Honeypot IPs | **10,094** | 2026-04-05 15:54 UTC |
+| ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **9,430** | 2026-04-05 15:54 UTC |
 
 ---
 ## 🔗 OPNsense Alias URL
@@ -35,4 +35,4 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 *Details: [workflow_health_report.md](workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-04-05 15:01 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-04-05 15:54 UTC*
