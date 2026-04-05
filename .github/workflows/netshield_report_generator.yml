@@ -131,7 +131,7 @@ jobs:
           from datetime import datetime, timezone
 
           # ── Konstanten ────────────────────────────────────────────────────
-          FEED_COUNT      = 98
+          FEED_COUNT      = 103  # 98 SOURCES (remote) + 5 LOCAL_FEEDS (cve, bot, honeypot, honeydb, abuseipdb)
           WORKFLOW_COUNT  = 16
 
           def count_ips(filepath):

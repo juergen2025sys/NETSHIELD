@@ -173,8 +173,8 @@ jobs:
           #       1 Feed total                            →  0
           #
           # [B] AKTUALITÄT (max. 30 Punkte) – wie frisch ist die letzte
-          #     *starke* Bestätigung? ("last" wurde oben nur gesetzt wenn
-          #     2+ Feeds oder 1 HQ-Feed an diesem Tag)
+          #     *starke* Bestätigung? ("last" wird in update_combined_blacklist
+          #     ausschließlich gesetzt wenn mindestens 1 HQ-Feed die IP heute meldet)
           #       last_seen ≤ 1 Tag   → 30
           #       last_seen ≤ 3 Tage  → 25
           #       last_seen ≤ 7 Tage  → 20
@@ -329,6 +329,7 @@ jobs:
           EOF
 
       - name: Commit
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
