@@ -195,13 +195,6 @@ jobs:
                   "https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-30d.ipv4",
           }
 
-          # CVE-Tags für bekannte Exploit-Kampagnen (aus öffentlichen Feeds)
-          CVE_TAGS = {
-              "feodo":     ["CVE-2023-3519", "Emotet", "QakBot", "TrickBot"],
-              "c2tracker": ["CVE-2021-44228 (Log4Shell)", "CVE-2022-1388", "Cobalt Strike"],
-              "et":        ["CVE-2017-0144 (EternalBlue)", "CVE-2019-0708 (BlueKeep)"],
-          }
-
           all_exploit_ips = set()
           source_stats    = {}
           cve_ip_map      = {}  # CVE/Malware -> set of IPs
@@ -231,6 +224,10 @@ jobs:
                   tag = "Compromised Host"
               elif "abuseipdb" in url.lower():
                   tag = "AbuseIPDB Score 100"
+              elif "urlhaus" in url.lower():
+                  tag = "URLhaus Malware C2"
+              elif "drb-ra" in url.lower() or "c2intelfeeds" in url.lower():
+                  tag = "MISP Botnet C2"
 
               if tag not in cve_ip_map:
                   cve_ip_map[tag] = set()

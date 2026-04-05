@@ -181,7 +181,10 @@ jobs:
           from datetime import datetime, timezone
 
           # ── Konstanten ────────────────────────────────────────────────────
-          WORKFLOW_COUNT  = 16
+          WORKFLOW_COUNT  = len([
+              f for f in os.listdir(".github/workflows")
+              if f.endswith(".yml")
+          ]) if os.path.isdir(".github/workflows") else 16
 
           def count_ips(filepath):
               if not os.path.exists(filepath):

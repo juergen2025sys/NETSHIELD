@@ -11,6 +11,9 @@ permissions:
   contents: write
   issues: write
   actions: read
+  packages: none
+  pull-requests: none
+  security-events: none
 
 concurrency:
   group: community-report-${{ github.event.issue.number }}

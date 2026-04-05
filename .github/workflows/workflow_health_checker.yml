@@ -800,7 +800,13 @@ jobs:
                       errors.append({"file": fname, "check": "Expiry-Deduplizierung fehlt", "detail": msg})
 
               if fname == "feed_health_monitor.yml":
-                  if 'ast.literal_eval(raw)' in content or re.search(r'^\s*import ast\b', content, re.M):
+                  # Nur echten Code prüfen – Kommentare wie "# statt ast.literal_eval"
+                  # dürfen keinen False-Positive auslösen.
+                  _fhm_code = '\n'.join(
+                      l for l in content.splitlines()
+                      if l.strip() and not l.strip().startswith('#')
+                  )
+                  if 'ast.literal_eval(' in _fhm_code or re.search(r'^\s*import ast\b', _fhm_code, re.MULTILINE):
                       msg = ("Feed-Extraktion nutzt ast.literal_eval – bricht bei Kommentaren im SOURCES-Dict")
                       file_warnings.append(msg)
                       warnings.append({"file": fname, "check": "Fragile SOURCES-Extraktion", "detail": msg})
@@ -840,6 +846,46 @@ jobs:
               icon = "❌" if file_errors else ("⚠️" if file_warnings else "✅")
               print(f"{icon} {fname}: {len(blocks)} Block(s) | "
                     f"{len(file_errors)} Fehler | {len(file_warnings)} Warnungen")
+
+          # ── Whitelist-Sync-Check ──────────────────────────────────────────
+          # Prüft ob WHITELIST_ENTRIES (update_combined_blacklist.yml) und
+          # WHITELIST_CIDRS (false_positive_checker.yml) synchron sind.
+          # Beide Listen müssen identisch sein – Drift führt zu inkonsistenter Filterung.
+          def _extract_whitelist(workflow_content, varname):
+              m = re.search(rf'{varname}\s*=\s*\[', workflow_content)
+              if not m:
+                  return set()
+              start = m.end()
+              depth = 1
+              i = start
+              while i < len(workflow_content) and depth > 0:
+                  if workflow_content[i] == '[': depth += 1
+                  elif workflow_content[i] == ']': depth -= 1
+                  i += 1
+              block = workflow_content[start:i-1]
+              return {e.strip() for e in re.findall(r'"([^"]+)"', block) if e.strip()}
+
+          _combined_path = f"{WORKFLOWS_DIR}/update_combined_blacklist.yml"
+          _fp_path       = f"{WORKFLOWS_DIR}/false_positive_checker.yml"
+          if os.path.exists(_combined_path) and os.path.exists(_fp_path):
+              _wl_combined = _extract_whitelist(open(_combined_path).read(), "WHITELIST_ENTRIES")
+              _wl_fp       = _extract_whitelist(open(_fp_path).read(), "WHITELIST_CIDRS")
+              _only_combined = _wl_combined - _wl_fp
+              _only_fp       = _wl_fp - _wl_combined
+              if _only_combined or _only_fp:
+                  _detail_parts = []
+                  if _only_combined:
+                      _detail_parts.append(f"nur in combined: {', '.join(sorted(_only_combined)[:5])}{'…' if len(_only_combined) > 5 else ''}")
+                  if _only_fp:
+                      _detail_parts.append(f"nur in fp_checker: {', '.join(sorted(_only_fp)[:5])}{'…' if len(_only_fp) > 5 else ''}")
+                  warnings.append({
+                      "file": "update_combined_blacklist.yml ↔ false_positive_checker.yml",
+                      "check": "Whitelist-Drift",
+                      "detail": f"{len(_only_combined) + len(_only_fp)} Einträge nicht synchron – " + "; ".join(_detail_parts),
+                  })
+                  print(f"⚠️  Whitelist-Drift: {len(_only_combined)} nur in combined, {len(_only_fp)} nur in fp_checker")
+              else:
+                  print(f"✅ Whitelist-Sync: beide Listen identisch ({len(_wl_combined)} Einträge)")
 
           # ── Zusammenfassung ───────────────────────────────────────────────
           ok_count   = sum(1 for v in results.values() if not v["errors"] and not v["warnings"])
