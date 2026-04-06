@@ -57,6 +57,7 @@ jobs:
           import json
           import re
           import os
+          import sys
           import time
           import ipaddress
           from datetime import datetime, timezone, timedelta
@@ -286,9 +287,7 @@ jobs:
               print(f"::warning file=auto_feed_discovery.yml::{_msg}")
               print(f"WARNUNG: {_msg}")
               # Fehler-Report vor Exit schreiben damit Commit-Step (if: always()) ihn erfasst
-              import sys as _sys
-              from datetime import datetime as _dt, timezone as _tz
-              _now_str = _dt.now(_tz.utc).strftime("%Y-%m-%d %H:%M UTC")
+              _now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
               with open("auto_feed_discovery_report.md", "w", encoding="utf-8") as _f:
                   _f.write(f"# Auto Feed Discovery – Report\n"
                            f"**Aktualisiert:** {_now_str}\n\n---\n\n"
@@ -296,7 +295,7 @@ jobs:
                            f"*{_msg}*\n\n"
                            f"*Generiert: {_now_str}*\n")
               print("auto_feed_discovery_report.md geschrieben (Fehler-Report)")
-              _sys.exit(1)
+              sys.exit(1)
 
           # ── Schritt 3: GitHub-Suche nach neuen Feeds ──────────────────────
           SEARCH_TOPICS = [
@@ -717,13 +716,12 @@ jobs:
           # API-Fehler), ist candidate_repos leer und approved_feeds == existing_feeds.
           # In diesem Fall darf auto_discovered_feeds.json NICHT geschrieben werden –
           # bestehende Feeds würden sonst mit 0 neu bewerteten Kandidaten überschrieben.
-          import sys as _sys
           if len(candidate_repos) == 0 and len(existing_feeds) > 0:
               _msg = (f"GitHub-Suche lieferte 0 Kandidaten – behalte bestehende "
                       f"auto_discovered_feeds.json ({len(existing_feeds)} Feeds)")
               print(f"::warning file=auto_feed_discovery.yml::{_msg}")
               print(f"WARNUNG: {_msg}")
-              _sys.exit(1)
+              sys.exit(1)
 
           # Leerungsschutz: mind. 10 aktive Feeds müssen vorhanden sein,
           # sonst deutet das auf einen kompletten Discovery-Ausfall hin.
@@ -733,7 +731,7 @@ jobs:
                       f"Discovery-Ausfall vermutet, behalte bestehende auto_discovered_feeds.json")
               print(f"::warning file=auto_feed_discovery.yml::{_msg}")
               print(f"WARNUNG: {_msg}")
-              _sys.exit(1)
+              sys.exit(1)
 
           new_feeds_count = len(approved_feeds) - len(existing_feeds)
           output = {
