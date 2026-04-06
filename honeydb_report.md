@@ -1,5 +1,5 @@
 # HoneyDB Monitor – Report
-**Aktualisiert:** 2026-04-05 22:52 UTC  
+**Aktualisiert:** 2026-04-06 22:57 UTC  
 **Quelle:** [honeydb.io](https://honeydb.io) – Community Honeypot Network
 
 ---
@@ -7,23 +7,23 @@
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **8,292** |
-| Bad Hosts – SSH | **1,893** |
-| Bad Hosts – HTTP | **2,251** |
+| Bad Hosts (24h, alle Dienste) | **10,753** |
+| Bad Hosts – SSH | **1,788** |
+| Bad Hosts – HTTP | **4,040** |
 | Bad Hosts – TELNET | **0** |
-| Bad Hosts – FTP | **363** |
-| Sensor Events – 2026-04-04 (bis 5000) | **0** |
+| Bad Hosts – FTP | **535** |
+| Sensor Events – 2026-04-05 (bis 5000) | **0** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt HoneyDB-IPs | **9,446** |
-| Neu | **+6,075** |
-| Entfernt | **-6,059** |
+| Gesamt HoneyDB-IPs | **11,908** |
+| Neu | **+8,705** |
+| Entfernt | **-6,243** |
 | API Requests genutzt | **9** von ~50/Tag (1500/Monat) |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-04-05 22:52 UTC*
+*Generiert: 2026-04-06 22:57 UTC*
