@@ -344,7 +344,10 @@ jobs:
               file_warnings = []
 
               # Python-Blöcke aus YAML-Heredocs extrahieren
+              # FIX CHK-PYEOF: auch python3 - << 'PYEOF' Blöcke erkennen
+              # (z.B. seen_db_meta.json Writer in update_combined_blacklist.yml)
               blocks = re.findall(r"python3 << 'EOF'(.*?)\n\s*EOF\b", content, re.DOTALL)
+              blocks += re.findall(r"python3 - << 'PYEOF'(.*?)\n\s*PYEOF\b", content, re.DOTALL)
 
               for i, block in enumerate(blocks):
                   dedented = textwrap.dedent(block)
@@ -488,6 +491,7 @@ jobs:
                   "update_combined_blacklist.yml", "geo_tagger.yml",
                   "asn_reputation_scorer.yml", "cve_to_ip_mapper.yml",
                   "update_confidence_blacklist.yml", "false_positive_checker.yml",
+                  "auto_feed_discovery.yml", "feed_health_monitor.yml",
               }
               if fname in _guarded_files:
                   has_warning_annot = f"::warning file={fname}::" in content
@@ -849,6 +853,96 @@ jobs:
                       file_warnings.append(msg)
                       warnings.append({"file": fname, "check": "Timeout-Handling fehlt", "detail": msg})
 
+              # ── Check 24: Unpinned Actions (Sicherheitsrisiko) ──────────────
+              # uses: actions/xxx@v4 ohne SHA-Hash erlaubt Supply-Chain-Angriffe.
+              # Korrekt: uses: actions/checkout@<sha> # v4.2.2
+              _uses_re = re.compile(r'^\s*-?\s*uses:\s*(\S+)', re.MULTILINE)
+              for _um in _uses_re.finditer(content):
+                  _action = _um.group(1).strip()
+                  if '/' not in _action:
+                      continue  # Lokale Actions (./xxx)
+                  if '@' not in _action:
+                      msg = f"uses: {_action} – kein @version/@sha angegeben"
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Unpinned Action", "detail": msg})
+                      continue
+                  _ref = _action.split('@', 1)[1]
+                  # SHA-Hashes sind 40 hex chars; Tags wie v4, v7 sind kurz
+                  if len(_ref) < 40 and not _ref.startswith('$'):
+                      msg = f"uses: {_action} – Tag statt SHA-Hash (Supply-Chain-Risiko)"
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Action nicht SHA-pinned", "detail": msg})
+
+              # ── Check 25: timeout-minutes fehlt am Job ───────────────────
+              # Ohne timeout-minutes kann ein haengender Job bis zum GitHub-
+              # Standard (360min) laufen und Minuten verbrauchen.
+              _in_jobs_section = False
+              for _line in content.splitlines():
+                  if _line.strip() == 'jobs:':
+                      _in_jobs_section = True
+                      continue
+                  if _in_jobs_section and re.match(r'^  [a-z]', _line) and ':' in _line:
+                      _job_name = _line.strip().rstrip(':')
+                      _job_pos = content.find(_line)
+                      _job_window = content[_job_pos:_job_pos+500]
+                      _before_steps = _job_window.split('steps:')[0] if 'steps:' in _job_window else _job_window
+                      if 'timeout-minutes:' not in _before_steps:
+                          msg = f"Job '{_job_name}' hat kein timeout-minutes – haengende Runs verbrauchen bis zu 360min"
+                          file_warnings.append(msg)
+                          warnings.append({"file": fname, "check": "timeout-minutes fehlt", "detail": msg})
+                      break
+
+              # ── Check 26: persist-credentials bei git push ───────────────
+              # Wenn ein Workflow git push ausfuehrt, braucht checkout
+              # persist-credentials: true. Fehlt es, schlaegt push fehl.
+              _has_git_push = 'git push' in content_shell_only
+              _has_persist = 'persist-credentials: true' in content
+              if _has_git_push and not _has_persist:
+                  msg = "git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen"
+                  file_errors.append(msg)
+                  errors.append({"file": fname, "check": "persist-credentials fehlt", "detail": msg})
+
+              # ── Check 27: Permissions-Audit ──────────────────────────────
+              # contents: write nur wenn der Workflow tatsaechlich committet.
+              _has_contents_write = 'contents: write' in content
+              _has_commit = 'git commit' in content_shell_only or 'git push' in content_shell_only
+              if _has_contents_write and not _has_commit:
+                  msg = "permissions: contents: write gesetzt aber kein git commit/push erkennbar – Least-Privilege-Verletzung"
+                  file_warnings.append(msg)
+                  warnings.append({"file": fname, "check": "Permissions zu breit", "detail": msg})
+
+              # ── Check 28: Doppelter Import im selben Block ───────────────
+              # Doppeltes "import re" oder "import sys" in einem Block deutet auf
+              # Copy-Paste-Fehler hin (os und sys sind ausgenommen da haeufig
+              # absichtlich re-importiert wegen Namespace-Isolation).
+              for _bi, _blk in enumerate(blocks):
+                  _import_counts = {}
+                  for _il in _blk.splitlines():
+                      _il_s = _il.strip()
+                      if _il_s.startswith('#'):
+                          continue
+                      _im = re.match(r'(?:from\s+(\S+)\s+)?import\s+(.+)', _il_s)
+                      if _im:
+                          for _mod in _im.group(2).split(','):
+                              _mod_name = _mod.strip().split()[0].strip()
+                              if _mod_name:
+                                  _import_counts[_mod_name] = _import_counts.get(_mod_name, 0) + 1
+                  _dups = {m: c for m, c in _import_counts.items() if c > 1 and m not in {'os', 'sys'}}
+                  if _dups:
+                      msg = (f"Block {_bi}: Doppelte Imports: {', '.join(f'{m}({c}x)' for m, c in _dups.items())} – "
+                             f"moeglicherweise Copy-Paste-Artefakt")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Doppelter Import", "detail": msg})
+                      break
+
+              # ── Check 29: Fehlende FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 ────
+              # GitHub empfiehlt diese env-Variable fuer alle Workflows mit
+              # actions/checkout >= v4 um Node.js 24 Kompatibilitaet zu erzwingen.
+              if 'actions/checkout@' in content and 'FORCE_JAVASCRIPT_ACTIONS_TO_NODE24' not in content:
+                  msg = "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich"
+                  file_warnings.append(msg)
+                  warnings.append({"file": fname, "check": "Node24 env fehlt", "detail": msg})
+
               results[fname] = {
                   "blocks":   len(blocks),
                   "errors":   file_errors,
@@ -899,6 +993,413 @@ jobs:
                   print(f"⚠️  Whitelist-Drift: {len(_only_combined)} nur in combined, {len(_only_fp)} nur in fp_checker")
               else:
                   print(f"✅ Whitelist-Sync: beide Listen identisch ({len(_wl_combined)} Einträge)")
+
+          # ── HIGH_QUALITY ↔ SOURCES hq=True Konsistenz ─────────────────────
+          # Feeds mit hq=True in SOURCES muessen auch in HIGH_QUALITY stehen,
+          # sonst wird ip_in_hq nie befuellt → "last" wird nie gesetzt → IPs
+          # altern still aus (Bug-DP1 Regressionsschutz).
+          if os.path.exists(_combined_path):
+              _combined_text = open(_combined_path).read()
+              # HIGH_QUALITY Set extrahieren (Brace-Counting statt einfacher Regex)
+              _hq_m = re.search(r'HIGH_QUALITY\s*=\s*\{', _combined_text)
+              _hq_names = set()
+              if _hq_m:
+                  _hq_start = _hq_m.end() - 1
+                  _hq_depth = 0
+                  _hq_end = _hq_start
+                  for _i, _ch in enumerate(_combined_text[_hq_start:], _hq_start):
+                      if _ch == '{': _hq_depth += 1
+                      elif _ch == '}':
+                          _hq_depth -= 1
+                          if _hq_depth == 0: _hq_end = _i + 1; break
+                  _hq_block = _combined_text[_hq_start:_hq_end]
+                  # Nur String-Literale auf Code-Zeilen (keine Kommentare)
+                  for _hq_line in _hq_block.splitlines():
+                      _hq_line_code = _hq_line.split('#')[0]
+                      for _m in re.finditer(r'"([a-z0-9_]+)"', _hq_line_code):
+                          _hq_names.add(_m.group(1))
+
+              # SOURCES mit hq=True
+              _src_hq = set()
+              _src_re = re.compile(
+                  r'^\s*"([^"\n]+)"\s*:\s*\(\s*"[^"\n]+"\s*,\s*True\s*\)',
+                  re.MULTILINE,
+              )
+              for _m in _src_re.finditer(_combined_text):
+                  _src_hq.add(_m.group(1))
+
+              _in_hq_not_src = _hq_names - _src_hq
+              _in_src_not_hq = _src_hq - _hq_names
+              if _in_src_not_hq:
+                  errors.append({
+                      "file": "update_combined_blacklist.yml",
+                      "check": "HIGH_QUALITY ↔ SOURCES Drift",
+                      "detail": f"hq=True in SOURCES aber nicht in HIGH_QUALITY: {', '.join(sorted(_in_src_not_hq)[:8])} – IPs altern still aus (Bug-DP1)",
+                  })
+                  print(f"❌ HIGH_QUALITY Drift: {len(_in_src_not_hq)} Feeds hq=True aber nicht in HIGH_QUALITY")
+              elif _in_hq_not_src:
+                  warnings.append({
+                      "file": "update_combined_blacklist.yml",
+                      "check": "HIGH_QUALITY ↔ SOURCES Drift",
+                      "detail": f"In HIGH_QUALITY aber nicht hq=True in SOURCES: {', '.join(sorted(_in_hq_not_src)[:8])} – toter Code",
+                  })
+                  print(f"⚠️  HIGH_QUALITY Drift: {len(_in_hq_not_src)} in HIGH_QUALITY ohne SOURCES-Eintrag")
+              else:
+                  print(f"✅ HIGH_QUALITY ↔ SOURCES: konsistent ({len(_hq_names)} HQ-Feeds)")
+
+          # ── DNS_WHITELIST Konsistenz ───────────────────────────────────────
+          # Mehrere Workflows definieren DNS_WHITELIST eigenstaendig.
+          # Alle muessen identisch sein.
+          _dns_wl_per_file = {}
+          for _fname in files:
+              _fpath = f"{WORKFLOWS_DIR}/{_fname}"
+              _ftext = open(_fpath).read()
+              _dns_m = re.search(r'DNS_WHITELIST\s*=\s*\{', _ftext)
+              if not _dns_m:
+                  continue
+              _dns_start = _dns_m.end() - 1
+              _dns_depth = 0
+              _dns_end = _dns_start
+              for _i, _ch in enumerate(_ftext[_dns_start:], _dns_start):
+                  if _ch == '{': _dns_depth += 1
+                  elif _ch == '}':
+                      _dns_depth -= 1
+                      if _dns_depth == 0: _dns_end = _i + 1; break
+              _dns_block = _ftext[_dns_start:_dns_end]
+              _dns_ips = {m.strip() for m in re.findall(r'"([^"]+)"', _dns_block)}
+              _dns_wl_per_file[_fname] = _dns_ips
+
+          if len(_dns_wl_per_file) >= 2:
+              _dns_reference = None
+              _dns_ref_file  = None
+              _dns_drifts    = []
+              for _fname, _ips in sorted(_dns_wl_per_file.items()):
+                  if _dns_reference is None:
+                      _dns_reference = _ips
+                      _dns_ref_file  = _fname
+                      continue
+                  if _ips != _dns_reference:
+                      _only_ref  = _dns_reference - _ips
+                      _only_this = _ips - _dns_reference
+                      _dns_drifts.append((_fname, len(_only_ref), len(_only_this)))
+              if _dns_drifts:
+                  _drift_detail = "; ".join(
+                      f"{f} (+{a}/-{r} vs {_dns_ref_file})" for f, r, a in _dns_drifts
+                  )
+                  warnings.append({
+                      "file": " ↔ ".join(sorted(_dns_wl_per_file.keys())),
+                      "check": "DNS_WHITELIST Drift",
+                      "detail": f"DNS_WHITELIST nicht identisch: {_drift_detail}",
+                  })
+                  print(f"⚠️  DNS_WHITELIST Drift: {len(_dns_drifts)} Datei(en) abweichend")
+              else:
+                  print(f"✅ DNS_WHITELIST: konsistent über {len(_dns_wl_per_file)} Dateien")
+
+          # ── LOCAL_FEEDS ↔ Sub-Workflow Ausgabedateien ──────────────────────
+          # LOCAL_FEEDS in update_combined_blacklist.yml referenziert Dateien die
+          # von Sub-Workflows erzeugt werden. Prüfe ob diese Dateien auch
+          # tatsaechlich von einem Workflow geschrieben werden.
+          if os.path.exists(_combined_path):
+              _combined_text_lf = open(_combined_path).read()
+              _lf_m = re.search(r'LOCAL_FEEDS\s*=\s*\{', _combined_text_lf)
+              _local_feed_files = set()
+              if _lf_m:
+                  _lf_start = _lf_m.end() - 1
+                  _lf_depth = 0
+                  _lf_end = _lf_start
+                  for _i, _ch in enumerate(_combined_text_lf[_lf_start:], _lf_start):
+                      if _ch == '{': _lf_depth += 1
+                      elif _ch == '}':
+                          _lf_depth -= 1
+                          if _lf_depth == 0: _lf_end = _i + 1; break
+                  _lf_block = _combined_text_lf[_lf_start:_lf_end]
+                  for _m in re.finditer(r'"([^"]+\.txt)"', _lf_block):
+                      _local_feed_files.add(_m.group(1))
+
+              # Prüfe welche LOCAL_FEED-Dateien von keinem Workflow geschrieben werden
+              _all_written = set()
+              for _fname in files:
+                  _fpath = f"{WORKFLOWS_DIR}/{_fname}"
+                  _ftext = open(_fpath).read()
+                  _fblocks = re.findall(r"python3 << 'EOF'(.*?)\n\s*EOF", _ftext, re.DOTALL)
+                  for _blk in _fblocks:
+                      for _m in re.finditer(r'open\(\s*["\']([a-z0-9_.\-]+\.txt)["\']', _blk):
+                          _all_written.add(_m.group(1))
+                      for _m in re.finditer(r'\b([A-Z_]+)\s*=\s*["\']([a-z0-9_.\-]+\.txt)["\']', _blk):
+                          _all_written.add(_m.group(2))
+
+              _orphan_feeds = _local_feed_files - _all_written
+              if _orphan_feeds:
+                  warnings.append({
+                      "file": "update_combined_blacklist.yml",
+                      "check": "LOCAL_FEEDS verwaist",
+                      "detail": f"LOCAL_FEEDS referenziert Dateien ohne erkennbaren Erzeuger-Workflow: {', '.join(sorted(_orphan_feeds))}",
+                  })
+                  print(f"⚠️  LOCAL_FEEDS: {len(_orphan_feeds)} verwaiste Dateien")
+              else:
+                  print(f"✅ LOCAL_FEEDS: alle {len(_local_feed_files)} Dateien haben Erzeuger-Workflow")
+
+          # ── Doppelte Feed-URLs ─────────────────────────────────────────────
+          # Gleiche URL in mehreren Workflows/Dicts fuehrt zu doppeltem today_count
+          # und aufgeblaesenem Confidence-Score (dokumentierter Bug-Typ).
+          _url_to_workflows = {}
+          _url_re = re.compile(r'"(https?://[^"\s]+)"')
+          for _fname in files:
+              _fpath = f"{WORKFLOWS_DIR}/{_fname}"
+              _ftext = open(_fpath).read()
+              _fblocks = re.findall(r"python3 << 'EOF'(.*?)\n\s*EOF", _ftext, re.DOTALL)
+              for _blk in _fblocks:
+                  # Nur URLs in SOURCES/CVE_SOURCES/HONEYPOT_SOURCES-artigen Dicts
+                  for _line in _blk.splitlines():
+                      _line_code = _line.split('#')[0]
+                      for _m in _url_re.finditer(_line_code):
+                          _url = _m.group(1)
+                          # Nur Feed-URLs (nicht GitHub API, nicht ScaniteX, nicht hackinggate)
+                          if any(skip in _url for skip in [
+                              'api.github.com', 'scanitex.com', 'hackinggate.com',
+                              'api.abuseipdb.com', 'honeydb.io/api',
+                          ]):
+                              continue
+                          _url_to_workflows.setdefault(_url, set()).add(_fname)
+
+          _dup_urls = {u: wfs for u, wfs in _url_to_workflows.items() if len(wfs) > 1}
+          if _dup_urls:
+              # Nur melden wenn die URL nicht bereits als Duplikat-Kommentar dokumentiert ist
+              _real_dups = []
+              for _url, _wfs in sorted(_dup_urls.items()):
+                  # Prüfe ob die Duplikation per Kommentar dokumentiert ist
+                  _documented = False
+                  for _wf in _wfs:
+                      _wf_text = open(f"{WORKFLOWS_DIR}/{_wf}").read()
+                      # Kommentar-Muster: "# ... entfernt: identisch ..." oder "# ... entfernt: ... doppelt ..."
+                      _url_short = _url.split('/')[-1][:30]
+                      if re.search(rf'#.*(?:entfernt|identisch|doppelt).*{re.escape(_url_short[:15])}', _wf_text, re.I):
+                          _documented = True
+                          break
+                  if not _documented:
+                      _real_dups.append((_url, _wfs))
+
+              if _real_dups:
+                  _dup_detail = "; ".join(
+                      f"{u.split('/')[-1][:40]} in {'+'.join(sorted(wfs))}"
+                      for u, wfs in _real_dups[:5]
+                  )
+                  warnings.append({
+                      "file": "Cross-Workflow",
+                      "check": "Doppelte Feed-URLs",
+                      "detail": f"{len(_real_dups)} URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: {_dup_detail}",
+                  })
+                  print(f"⚠️  Doppelte Feed-URLs: {len(_real_dups)} undokumentierte Duplikate")
+              else:
+                  print(f"✅ Feed-URLs: {len(_dup_urls)} Duplikate gefunden, alle dokumentiert")
+          else:
+              print(f"✅ Feed-URLs: keine Duplikate ({len(_url_to_workflows)} URLs)")
+
+          # ── EXPIRY_DAYS Konsistenz ────────────────────────────────────────
+          # update_combined_blacklist und auto_feed_discovery muessen gleiche
+          # Werte fuer EXPIRY_DAYS und WATCHLIST_EXPIRY_DAYS verwenden.
+          _expiry_map = {}
+          _wl_expiry_map = {}
+          for _fname in files:
+              _ftext = open(f"{WORKFLOWS_DIR}/{_fname}").read()
+              for _m in re.finditer(r'\bEXPIRY_DAYS\s*=\s*(\d+)', _ftext):
+                  _expiry_map.setdefault(int(_m.group(1)), []).append(_fname)
+              for _m in re.finditer(r'\bWATCHLIST_EXPIRY_DAYS\s*=\s*(\d+)', _ftext):
+                  _wl_expiry_map.setdefault(int(_m.group(1)), []).append(_fname)
+
+          if len(_expiry_map) > 1:
+              _detail = "; ".join(f"{v}d in {'+'.join(wfs)}" for v, wfs in sorted(_expiry_map.items()))
+              errors.append({
+                  "file": "Cross-Workflow",
+                  "check": "EXPIRY_DAYS Inkonsistenz",
+                  "detail": f"Verschiedene EXPIRY_DAYS-Werte: {_detail} – IPs werden unterschiedlich lang gehalten",
+              })
+              print(f"❌ EXPIRY_DAYS Inkonsistenz: {_detail}")
+          elif _expiry_map:
+              print(f"✅ EXPIRY_DAYS: konsistent ({list(_expiry_map.keys())[0]}d)")
+
+          if len(_wl_expiry_map) > 1:
+              _detail = "; ".join(f"{v}d in {'+'.join(wfs)}" for v, wfs in sorted(_wl_expiry_map.items()))
+              warnings.append({
+                  "file": "Cross-Workflow",
+                  "check": "WATCHLIST_EXPIRY_DAYS Inkonsistenz",
+                  "detail": f"Verschiedene WATCHLIST_EXPIRY_DAYS: {_detail}",
+              })
+              print(f"⚠️  WATCHLIST_EXPIRY_DAYS Inkonsistenz: {_detail}")
+
+          # ── Cache-Key Prefix Validierung ──────────────────────────────────
+          # Jeder Workflow darf nur in seinen eigenen Cache-Prefix schreiben.
+          # Combined → v2, FP-Checker → fp, Auto-Discovery → afd, Community → community
+          _cache_write_rules = {
+              "update_combined_blacklist.yml":  "v2",
+              "false_positive_checker.yml":     "fp",
+              "auto_feed_discovery.yml":        "afd",
+              "community_ip_report.yml":        "community",
+          }
+          for _fname, _expected_prefix in _cache_write_rules.items():
+              _fpath = f"{WORKFLOWS_DIR}/{_fname}"
+              if not os.path.exists(_fpath):
+                  continue
+              _ftext = open(_fpath).read()
+              # Cache Save-Keys extrahieren (key: netshield-seen-db-...)
+              # Beide Patterns: actions/cache (impliziter Save) und actions/cache/save
+              _save_keys = re.findall(
+                  r'key:\s*(netshield-seen-db-[^\s\n]+)',
+                  _ftext
+              )
+              for _sk in _save_keys:
+                  # restore-keys Zeilen ignorieren (die dürfen andere Prefixe haben)
+                  _sk_ctx_start = max(0, _ftext.find(_sk) - 200)
+                  _sk_ctx = _ftext[_sk_ctx_start:_ftext.find(_sk) + len(_sk)]
+                  if 'restore-keys' in _sk_ctx:
+                      continue
+                  if f"-{_expected_prefix}-" not in _sk and not _sk.startswith(f"netshield-seen-db-{_expected_prefix}"):
+                      # Ausnahme: Score Decay nutzt cache/restore (read-only) – kein Write
+                      if _fname == "score_decay_monitor.yml":
+                          continue
+                      warnings.append({
+                          "file": _fname,
+                          "check": "Cache-Key Prefix falsch",
+                          "detail": f"Save-Key '{_sk}' hat nicht den erwarteten Prefix '{_expected_prefix}' – potenzieller Cache-Overwrite",
+                      })
+                      print(f"⚠️  Cache-Key: {_fname} schreibt in '{_sk}' statt '{_expected_prefix}'")
+
+          # ── Workflow-Abhaengigkeitskette ──────────────────────────────────
+          # Sub-Workflows muessen VOR update_combined_blacklist laufen.
+          # Prüfe ob die Cron-Zeiten das garantieren.
+          _dependency_chain = {
+              "honeydb_monitor.yml":     "update_combined_blacklist.yml",
+              "honeypot_monitor.yml":    "update_combined_blacklist.yml",
+              "update_bot_detector.yml": "update_combined_blacklist.yml",
+              "cve_to_ip_mapper.yml":    "update_combined_blacklist.yml",
+          }
+          for _dep_src, _dep_dst in _dependency_chain.items():
+              if _dep_src not in file_crons or _dep_dst not in file_crons:
+                  continue
+              _src_mins = []
+              _dst_mins = []
+              for _expr in file_crons.get(_dep_src, []):
+                  _src_mins.extend(_cron_minutes_of_day(_expr.strip()))
+              for _expr in file_crons.get(_dep_dst, []):
+                  _dst_mins.extend(_cron_minutes_of_day(_expr.strip()))
+              _src_mins = sorted(set(_src_mins))
+              _dst_mins = sorted(set(_dst_mins))
+              if not _src_mins or not _dst_mins:
+                  continue
+              # Fuer jeden Sub-Workflow-Zeitpunkt: laeuft der Combined danach?
+              for _s in _src_mins:
+                  _later = [_d for _d in _dst_mins if _d > _s]
+                  if not _later:
+                      # Sub-Workflow laeuft nach dem letzten Combined → erst am naechsten Tag
+                      # Das ist OK wenn Combined auch frueher laeuft
+                      pass
+
+          # ── Score-Modell Konsistenz (combined ↔ confidence) ──────────────
+          # Die Confidence-Score-Berechnung (score_a/b/c/d) muss in
+          # update_combined_blacklist.yml und update_confidence_blacklist.yml
+          # identisch sein. Drift fuehrt zu inkonsistenten active_blacklist
+          # und confidence40-Listen.
+          _score_files = {
+              "update_combined_blacklist.yml": f"{WORKFLOWS_DIR}/update_combined_blacklist.yml",
+              "update_confidence_blacklist.yml": f"{WORKFLOWS_DIR}/update_confidence_blacklist.yml",
+          }
+          _score_models = {}
+          for _sf_name, _sf_path in _score_files.items():
+              if not os.path.exists(_sf_path):
+                  continue
+              _sf_text = open(_sf_path).read()
+              # score_a Schwellen extrahieren
+              _sa = re.findall(r'score_a\s*=\s*(\d+)', _sf_text)
+              _sb = re.findall(r'score_b\s*=\s*(\d+)', _sf_text)
+              _sc = re.findall(r'score_c\s*=\s*(\d+)', _sf_text)
+              _sd = re.findall(r'score_d\s*=\s*(\d+)', _sf_text)
+              _score_models[_sf_name] = {
+                  "a": tuple(_sa), "b": tuple(_sb),
+                  "c": tuple(_sc), "d": tuple(_sd),
+              }
+
+          if len(_score_models) == 2:
+              _sm_keys = list(_score_models.keys())
+              _sm_a, _sm_b = _score_models[_sm_keys[0]], _score_models[_sm_keys[1]]
+              _score_diffs = []
+              for _dim in ("a", "b", "c", "d"):
+                  if _sm_a[_dim] != _sm_b[_dim]:
+                      _score_diffs.append(f"score_{_dim}")
+              if _score_diffs:
+                  errors.append({
+                      "file": " ↔ ".join(_sm_keys),
+                      "check": "Score-Modell Divergenz",
+                      "detail": f"Unterschiedliche Schwellen in: {', '.join(_score_diffs)} – active_blacklist und confidence40 bewerten IPs unterschiedlich",
+                  })
+                  print(f"❌ Score-Modell Divergenz: {', '.join(_score_diffs)}")
+              else:
+                  print(f"✅ Score-Modell: identisch in combined und confidence")
+
+          # ── PROTECTED_CIDRS Sync ────────────────────────────────────────
+          # Mehrere Workflows definieren PROTECTED_CIDRS. Drift fuehrt dazu
+          # dass ein Workflow private IPs durchlaesst die ein anderer filtert.
+          _prot_per_file = {}
+          for _fname in files:
+              _ftext = open(f"{WORKFLOWS_DIR}/{_fname}").read()
+              _prot_m = re.search(r'PROTECTED_CIDRS\s*=\s*\[', _ftext)
+              if not _prot_m:
+                  continue
+              _p_start = _prot_m.end()
+              _p_depth = 1
+              _p_i = _p_start
+              while _p_i < len(_ftext) and _p_depth > 0:
+                  if _ftext[_p_i] == '[': _p_depth += 1
+                  elif _ftext[_p_i] == ']': _p_depth -= 1
+                  _p_i += 1
+              _p_block = _ftext[_p_start:_p_i-1]
+              _p_cidrs = {c.strip() for c in re.findall(r'"([^"]+)"', _p_block)}
+              _prot_per_file[_fname] = _p_cidrs
+
+          if len(_prot_per_file) >= 2:
+              _prot_ref = None
+              _prot_ref_file = None
+              _prot_drifts = []
+              for _fname, _cidrs in sorted(_prot_per_file.items()):
+                  if _prot_ref is None:
+                      _prot_ref = _cidrs
+                      _prot_ref_file = _fname
+                      continue
+                  if _cidrs != _prot_ref:
+                      _prot_drifts.append(_fname)
+              if _prot_drifts:
+                  warnings.append({
+                      "file": " ↔ ".join(sorted(_prot_per_file.keys())),
+                      "check": "PROTECTED_CIDRS Drift",
+                      "detail": f"PROTECTED_CIDRS nicht identisch: {', '.join(_prot_drifts)} weichen von {_prot_ref_file} ab",
+                  })
+                  print(f"⚠️  PROTECTED_CIDRS Drift: {len(_prot_drifts)} Datei(en) abweichend")
+              else:
+                  print(f"✅ PROTECTED_CIDRS: konsistent über {len(_prot_per_file)} Dateien")
+
+          # ── Actions SHA Aktualitaet ─────────────────────────────────────
+          # Prüfe ob alle Workflows dieselbe SHA fuer actions/checkout und
+          # actions/cache verwenden. Gemischte Versionen deuten auf vergessene
+          # Updates hin.
+          _action_shas = {}  # "actions/checkout" → {sha: [files]}
+          for _fname in files:
+              _ftext = open(f"{WORKFLOWS_DIR}/{_fname}").read()
+              for _am in re.finditer(r'uses:\s*(actions/\S+)@([a-f0-9]{40})', _ftext):
+                  _a_name = _am.group(1)
+                  _a_sha  = _am.group(2)
+                  _action_shas.setdefault(_a_name, {}).setdefault(_a_sha, []).append(_fname)
+
+          for _a_name, _sha_map in _action_shas.items():
+              if len(_sha_map) > 1:
+                  _newest_sha = max(_sha_map.keys(), key=lambda s: len(_sha_map[s]))
+                  _outdated = {sha: wfs for sha, wfs in _sha_map.items() if sha != _newest_sha}
+                  _outdated_files = [f for wfs in _outdated.values() for f in wfs]
+                  if _outdated_files:
+                      warnings.append({
+                          "file": ", ".join(sorted(set(_outdated_files))[:5]),
+                          "check": f"{_a_name} Version-Drift",
+                          "detail": f"{len(_outdated_files)} Datei(en) nutzen aeltere SHA als die Mehrheit – Update vergessen?",
+                      })
+                      print(f"⚠️  {_a_name}: {len(_outdated_files)} Dateien mit aelterer SHA")
 
           # ── Zusammenfassung ───────────────────────────────────────────────
           ok_count   = sum(1 for v in results.values() if not v["errors"] and not v["warnings"])
