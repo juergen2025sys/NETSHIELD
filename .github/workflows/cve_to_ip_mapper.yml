@@ -190,9 +190,10 @@ jobs:
               # Emerging Threats aktive Exploit-IPs
               "ET Compromised":
                   "https://rules.emergingthreats.net/blockrules/compromised-ips.txt",
-              # Abusix
-              "Abusix Combined":
-                  "https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-30d.ipv4",
+              # AbuseIPDB Score-100-Spiegel (30 Tage) – entfernt, da identisch mit
+              # "abuseipdb_s100_30d" in update_combined_blacklist.yml SOURCES.
+              # Doppeltes Einlesen würde den today_count in seen_db künstlich erhöhen
+              # und den Confidence-Score von Turris/AbuseIPDB-IPs fälschlich aufblasen.
           }
 
           all_exploit_ips = set()

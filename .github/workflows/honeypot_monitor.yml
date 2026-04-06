@@ -127,8 +127,10 @@ jobs:
                   "https://raw.githubusercontent.com/badpackets/honeypot-threat-feed/main/honeypot_threat_feed.txt",
               "threatmon_honeypot":
                   "https://raw.githubusercontent.com/ThreatMon/ThreatMon-Daily-IPs/main/ThreatMon.txt",
-              "turris_honeypot":
-                  "https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv",
+              # "turris_honeypot" entfernt: identische URL bereits als "turris_greylist" in
+              # update_combined_blacklist.yml SOURCES (HQ=True) eingetragen. Doppeltes Einlesen
+              # über honeypot_ips.txt (LOCAL_FEED) würde today_count in seen_db künstlich
+              # erhöhen und den Confidence-Score reiner Turris-IPs fälschlich aufblasen.
               # cymru_bogons entfernt: fullbogons-ipv4.txt enthält nicht-routbare/reservierte
               # Bereiche (Bogons), keine Angreifer-IPs. is_valid_public_ipv4() filtert sie
               # zwar korrekt heraus, aber der Feed liefert 0 nutzbare IPs → sinnloser Request.

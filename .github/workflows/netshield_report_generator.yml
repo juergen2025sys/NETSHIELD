@@ -224,65 +224,10 @@ jobs:
                           count += 1
               return count
 
-          def derive_feed_count(workflow_path=".github/workflows/update_combined_blacklist.yml"):
-              if not os.path.exists(workflow_path):
-                  return "–"
-              try:
-                  with open(workflow_path, encoding="utf-8") as f:
-                      workflow = f.read()
-
-                  sources_block = re.search(r'^\s+SOURCES\s*=\s*\{', workflow, re.MULTILINE)
-                  if not sources_block:
-                      return "–"
-
-                  brace_start = sources_block.start() + sources_block.group().index('{')
-                  depth = 0
-                  brace_end = brace_start
-                  for i, ch in enumerate(workflow[brace_start:], brace_start):
-                      if ch == '{':
-                          depth += 1
-                      elif ch == '}':
-                          depth -= 1
-                          if depth == 0:
-                              brace_end = i + 1
-                              break
-                  raw_sources = workflow[brace_start:brace_end]
-                  remote_feeds = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*\(\s*"([^"\n]+)"\s*,\s*(True|False)\s*\)\s*,?', raw_sources, re.MULTILINE))
-
-                  # FIX BUG1: LOCAL_FEEDS ist ein Dict ({...}), keine List ([...]).
-                  local_block = re.search(r'^\s+LOCAL_FEEDS\s*=\s*\{', workflow, re.MULTILINE)
-                  local_feeds = 0
-                  if local_block:
-                      brace_start2 = local_block.start() + local_block.group().index('{')
-                      depth = 0
-                      brace_end2 = brace_start2
-                      for i, ch in enumerate(workflow[brace_start2:], brace_start2):
-                          if ch == '{':
-                              depth += 1
-                          elif ch == '}':
-                              depth -= 1
-                              if depth == 0:
-                                  brace_end2 = i + 1
-                                  break
-                      raw_local = workflow[brace_start2:brace_end2]
-                      local_feeds = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*(True|False)\s*,?', raw_local, re.MULTILINE))
-
-                  total = remote_feeds + local_feeds
-
-                  # Auto-discovered Feeds mitzählen
-                  auto_file = "auto_discovered_feeds.json"
-                  if os.path.exists(auto_file):
-                      try:
-                          with open(auto_file, encoding="utf-8") as af:
-                              auto_data = json.load(af)
-                          total += auto_data.get("total_feeds", 0)
-                      except Exception:
-                          pass
-
-                  return str(total) if total > 0 else "–"
-              except Exception:
-                  return "–"
-
+          # derive_feed_count() ist identisch mit der gleichnamigen Funktion im
+          # vorherigen Step – beide Steps sind eigenständige Python-Prozesse
+          # (separate EOF-Heredocs) und teilen keinen Namespace. Diese Kopie
+          # FIX: wurde als Duplikat entfernt; Logik inline unten beibehalten.
           if not os.path.exists("README.md"):
               print("README.md nicht gefunden – übersprungen")
               raise SystemExit(0)
@@ -290,7 +235,47 @@ jobs:
           active     = count_ips("active_blacklist_ipv4.txt")
           cve        = count_ips("cve_exploit_ips.txt")
           honeypot   = count_ips("honeypot_ips.txt")
-          feed_count = derive_feed_count()
+          # FIX: derive_feed_count() hier inline – separate EOF-Heredocs teilen keinen Namespace.
+          def _derive_feed_count(workflow_path=".github/workflows/update_combined_blacklist.yml"):
+              if not os.path.exists(workflow_path):
+                  return "–"
+              try:
+                  with open(workflow_path, encoding="utf-8") as _wf:
+                      _wf_text = _wf.read()
+                  _sb = re.search(r'^\s+SOURCES\s*=\s*\{', _wf_text, re.MULTILINE)
+                  if not _sb:
+                      return "–"
+                  _bs = _sb.start() + _sb.group().index('{')
+                  _depth, _be = 0, _bs
+                  for _i, _ch in enumerate(_wf_text[_bs:], _bs):
+                      if _ch == '{': _depth += 1
+                      elif _ch == '}':
+                          _depth -= 1
+                          if _depth == 0: _be = _i + 1; break
+                  _remote = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*\(\s*"([^"\n]+)"\s*,\s*(True|False)\s*\)\s*,?', _wf_text[_bs:_be], re.MULTILINE))
+                  _lb = re.search(r'^\s+LOCAL_FEEDS\s*=\s*\{', _wf_text, re.MULTILINE)
+                  _local = 0
+                  if _lb:
+                      _bs2 = _lb.start() + _lb.group().index('{')
+                      _depth, _be2 = 0, _bs2
+                      for _i, _ch in enumerate(_wf_text[_bs2:], _bs2):
+                          if _ch == '{': _depth += 1
+                          elif _ch == '}':
+                              _depth -= 1
+                              if _depth == 0: _be2 = _i + 1; break
+                      _local = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*(True|False)\s*,?', _wf_text[_bs2:_be2], re.MULTILINE))
+                  _total = _remote + _local
+                  _auto = "auto_discovered_feeds.json"
+                  if os.path.exists(_auto):
+                      try:
+                          with open(_auto, encoding="utf-8") as _af:
+                              _total += json.load(_af).get("total_feeds", 0)
+                      except Exception:
+                          pass
+                  return str(_total) if _total > 0 else "–"
+              except Exception:
+                  return "–"
+          feed_count = _derive_feed_count()
           now_str    = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
           # ── Neue Tabelleninhalte (passend zum neuen README-Format) ────────
