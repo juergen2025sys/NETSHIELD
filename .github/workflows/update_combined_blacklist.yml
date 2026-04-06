@@ -390,6 +390,14 @@ jobs:
               "ipsum_level5", "ipsum_level7", "abuseipdb_s100_30d", "abuseipdb_s100_7d",
               "abuseipdb_score100", "turris_greylist",
               "data_shield",                      # DataShield Critical Feed (geprüfte Qualität)
+              # FIX BUG-DP1: DataPlane-Feeds hatten hq=True in SOURCES, fehlten aber
+              # in HIGH_QUALITY. Effekt: ip_in_hq wurde nie befüllt → strongly_confirmed_today
+              # blieb False → das "last"-Feld wurde nie aktualisiert → IPs alterten still
+              # nach 180 Tagen aus, obwohl DataPlane sie täglich frisch liefert.
+              # Alle 8 DataPlane-Feeds hier ergänzt, damit sie wieder HQ-Semantik erhalten.
+              "dataplane_sshclient", "dataplane_sshpwauth", "dataplane_vncrfb",
+              "dataplane_telnetlogin", "dataplane_dnsrd", "dataplane_smtpdata",
+              "dataplane_dnsrdany", "dataplane_dnsversion",
           }
 
           # ══════════════════════════════════════════════════════════════════
@@ -1057,6 +1065,13 @@ jobs:
           EOF
 
       - name: Save seen_db Cache
+        # FIX BUG-AL1: if: always() ergänzt. Ohne dieses Guard wurde der Cache-Save
+        # übersprungen wenn der Haupt-Python-Step mit einer unbehandelten Exception
+        # crashte (z.B. während json.dump bei Netzwerkproblem). Folge: Downstream-
+        # Workflows (Confidence, Score Decay, FP-Checker) griffen auf veralteten Cache
+        # zurück – Confidence-Blacklist berechnete dann Scores auf Basis einer
+        # möglicherweise Stunden alten seen_db.
+        if: always()
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: seen_db.json
@@ -1065,6 +1080,12 @@ jobs:
           key: netshield-seen-db-v2-${{ github.run_id }}
 
       - name: Commit and Push
+        # FIX BUG-AL1 (2/2): if: always() ergänzt. Ohne diesen Guard wurden bei einem
+        # Python-Crash weder combined_threat_blacklist_ipv4.txt noch active_blacklist noch
+        # seen_db_meta.json committet. Das Repo zeigte dann veraltete Stände obwohl der
+        # Workflow technisch gelaufen war. Auch Fehler-Teilstände (z.B. Report ohne
+        # Blacklist-Update) sollen sichtbar ins Repo committed werden.
+        if: always()
         run: |
           python3 - << 'PYEOF'
           import json, os
