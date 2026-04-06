@@ -412,6 +412,7 @@ jobs:
           EOF
 
       - name: Commit
+        if: always()  # FIX: auch bei unbehandelter Exception in Python-Steps den Report committen
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
