@@ -203,6 +203,7 @@ jobs:
       - name: Update README Header Stats
         run: |
           python3 << 'EOF'
+          import json
           import os
           import re
           from datetime import datetime, timezone
