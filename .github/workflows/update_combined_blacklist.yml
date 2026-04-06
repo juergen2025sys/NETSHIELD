@@ -851,7 +851,6 @@ jobs:
 
               if ip in db:
                   existing_feeds = set(db[ip].get("feeds", []))
-                  new_feeds = today_feeds - existing_feeds
 
                   if strongly_confirmed_today:
                       prev_last = db[ip].get("last", "2000-01-01")

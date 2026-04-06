@@ -107,10 +107,19 @@ jobs:
                       print(f"::warning file=feed_health_monitor.yml::SOURCES-Parsing fehlgeschlagen: {_ex} – nutze Cache ({_cache_age}, {len(FEEDS)} Feeds)")
                       print(f"WARNUNG: Fallback auf feed_urls_cache.json ({_cache_age})")
                   except Exception:
-                      print(f"::error file=feed_health_monitor.yml::Feed-Extraktion UND Cache-Fallback fehlgeschlagen: {_ex}")
+                      _err_msg = f"Feed-Extraktion UND Cache-Fallback fehlgeschlagen: {_ex}"
+                      print(f"::error file=feed_health_monitor.yml::{_err_msg}")
+                      # FIX: Report immer VOR SystemExit schreiben, damit Commit-Step (if: always())
+                      # einen aktuellen Fehler-Report committet statt den veralteten Stand zu behalten.
+                      with open("feed_health_report.md", "w", encoding="utf-8") as _ef:
+                          _ef.write(f"# Feed Health Monitor – Report\n**Aktualisiert:** {now_str}\n\n---\n\n## ❌ Kritischer Fehler\n\n*{_err_msg}*\n\n---\n*Generiert: {now_str}*\n")
                       raise SystemExit(1)
               else:
-                  print(f"::error file=feed_health_monitor.yml::Feed-Extraktion fehlgeschlagen (kein Cache vorhanden): {_ex}")
+                  _err_msg = f"Feed-Extraktion fehlgeschlagen (kein Cache vorhanden): {_ex}"
+                  print(f"::error file=feed_health_monitor.yml::{_err_msg}")
+                  # FIX: Report immer VOR SystemExit schreiben
+                  with open("feed_health_report.md", "w", encoding="utf-8") as _ef:
+                      _ef.write(f"# Feed Health Monitor – Report\n**Aktualisiert:** {now_str}\n\n---\n\n## ❌ Kritischer Fehler\n\n*{_err_msg}*\n\n---\n*Generiert: {now_str}*\n")
                   raise SystemExit(1)
 
           IP_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b')

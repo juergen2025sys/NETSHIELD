@@ -453,7 +453,9 @@ jobs:
                 fi
               else
                 git checkout --theirs -- all_countries_ipv4.txt 2>/dev/null || true
-                git checkout --theirs -- continents/ countries/ 2>/dev/null || true
+                # FIX: --theirs auf Verzeichnisse schlägt bei Einzel-Konflikten still fehl.
+                # git diff --name-only --diff-filter=U liefert alle ungelösten Dateien.
+                git diff --name-only --diff-filter=U 2>/dev/null | grep -E '^(continents|countries)/' | xargs -r git checkout --theirs -- 2>/dev/null || true
                 git add all_countries_ipv4.txt continents/ countries/ 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi

@@ -329,7 +329,10 @@ jobs:
           EOF
 
       - name: Save seen_db Cache (nach FP-Bereinigung)
-        if: always()
+        # FIX: Cache nur speichern wenn seen_db.json tatsächlich vorhanden ist.
+        # if: always() allein würde auch eine fehlende Datei cachen und den
+        # Combined-Cache beim nächsten Restore mit einem leeren Stand korrumpieren.
+        if: always() && hashFiles('seen_db.json') != ''
         # FIX: actions/cache/save statt actions/cache – verhindert unnötiges
         # doppeltes Restore im Post-Job-Hook von actions/cache.
         uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
