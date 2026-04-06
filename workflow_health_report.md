@@ -1,15 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-06 20:22 UTC
+**Aktualisiert:** 2026-04-06 20:26 UTC
 
 **Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
-## ⚠️ Warnungen
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Cross-Workflow` | Doppelte Feed-URLs | 8 URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: ipblocklist.txt in cve_to_ip_mapper.yml+update_combined_blacklist.yml; ipblocklist_aggressive.txt in auto_feed_discovery.yml+cve_to_ip_mapper.yml+update_combined_blacklist.yml; abuseipdb-s100-30d.ipv4 in auto_feed_discovery.yml+update_combined_blacklist.yml; IPC2s.csv in cve_to_ip_mapper.yml+update_combined_blacklist.yml; all.txt in cve_to_ip_mapper.yml+update_combined_blacklist.yml |
-
 ## Übersicht
 
 | Workflow | Status | Fehler | Warnungen | Cron |
@@ -32,4 +26,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-06 20:22 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-06 20:26 UTC | 16 Workflow-Dateien geprüft*
