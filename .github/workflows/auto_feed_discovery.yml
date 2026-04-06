@@ -262,6 +262,10 @@ jobs:
           # Zuvor nur 2 Quellen (Feodo + AbuseIPDB) → Feeds mit Fokus auf Tor-Exits,
           # SSH-Scanner oder Honeypots hatten kaum Overlap und wurden fälschlicherweise
           # abgelehnt. Jetzt 4 thematisch verschiedene Quellen → breitere Abdeckung.
+          # HINWEIS: Diese URLs überlappen BEWUSST mit SOURCES in combined.
+          # Sie werden hier NUR für den Overlap-Validierungs-Check neuer Feeds
+          # heruntergeladen und NICHT in seen_db geschrieben – keine today_count-
+          # Aufblähung, kein Confidence-Score-Effekt.
           hq_ref_urls = [
               "https://feodotracker.abuse.ch/downloads/ipblocklist_aggressive.txt",
               "https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-30d.ipv4",

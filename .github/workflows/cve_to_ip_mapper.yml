@@ -168,6 +168,13 @@ jobs:
               return entries
 
           # ── CVE-Exploit-IP-Feeds (alle ohne API-Key) ──────────────────────
+          # HINWEIS: Mehrere URLs hier sind BEWUSST identisch mit SOURCES in
+          # update_combined_blacklist.yml (Feodo, C2-Tracker, URLhaus, IPC2s, ET).
+          # Zweck: CVE-Mapper kategorisiert IPs nach Bedrohungstyp und schreibt
+          # cve_exploit_ips.txt. Combined liest diese Datei als LOCAL_FEED ein,
+          # wodurch die IPs +1 auf today_count erhalten. Das ist gewollt:
+          # IPs die sowohl im CVE-Tracker als auch in der allgemeinen Feed-Pipeline
+          # bestätigt werden, sind vertrauenswürdiger (höherer Confidence-Score).
           CVE_SOURCES = {
               # Feodo Tracker – C2-Server aktiver Malware-Kampagnen
               "Feodo C2 (Aggressive)":

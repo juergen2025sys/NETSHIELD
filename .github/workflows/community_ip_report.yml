@@ -121,10 +121,11 @@ jobs:
           }
 
           PROTECTED_CIDRS = [
+              # Synchron mit update_combined_blacklist.yml, update_confidence_blacklist.yml
+              # und auto_feed_discovery.yml. CDN/Cloud-Ranges (Cloudflare, Google, Azure)
+              # werden separat durch false_positives_set.json und DNS_WHITELIST abgefangen.
               "192.168.13.0/24","192.168.14.0/24",
               "10.0.0.0/8","172.16.0.0/12","192.168.0.0/16",
-              "8.8.8.0/24","1.1.1.0/24","104.16.0.0/13",
-              "13.64.0.0/11","34.0.0.0/9",
           ]
 
           def is_valid_public_ipv4(ip_str):

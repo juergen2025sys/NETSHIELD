@@ -1092,11 +1092,16 @@ jobs:
           now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
           meta = {"note": "seen_db.json nur im GitHub Actions Cache (zu gross fuer Repo)", "updated": now_str}
           if os.path.exists("seen_db.json"):
-              with open("seen_db.json") as f:
-                  db = json.load(f)
-              meta["total_ips"] = len(db)
-              meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
-              print(f"seen_db: {len(db)} IPs, {meta['size_mb']} MB")
+              try:
+                  with open("seen_db.json") as f:
+                      db = json.load(f)
+                  meta["total_ips"] = len(db)
+                  meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
+                  print(f"seen_db: {len(db)} IPs, {meta['size_mb']} MB")
+              except Exception as e:
+                  meta["error"] = f"seen_db.json nicht lesbar: {e}"
+                  meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
+                  print(f"WARNUNG: seen_db.json korrupt oder nicht lesbar: {e}")
           with open("seen_db_meta.json", "w") as f:
               json.dump(meta, f, indent=2)
           PYEOF
