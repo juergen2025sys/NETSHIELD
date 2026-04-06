@@ -101,11 +101,27 @@ jobs:
               except Exception:
                   return "–"
 
+          _TS_RE = re.compile(r'#\s*Aktualisiert:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\s*UTC')
+
           def file_age(filepath):
+              """Liest den '# Aktualisiert: YYYY-MM-DD HH:MM UTC' Header aus der Datei.
+              Fallback auf os.path.getmtime() wäre falsch – git checkout setzt mtime
+              immer auf den Checkout-Zeitpunkt, nicht auf das letzte echte Update."""
               if not os.path.exists(filepath):
                   return "–"
-              ts = os.path.getmtime(filepath)
-              return datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+              try:
+                  with open(filepath, encoding="utf-8") as _f:
+                      # Nur die ersten 10 Zeilen lesen – Header steht immer am Anfang
+                      for _ in range(10):
+                          line = _f.readline()
+                          if not line:
+                              break
+                          m = _TS_RE.search(line)
+                          if m:
+                              return m.group(1) + " UTC"
+              except Exception:
+                  pass
+              return "–"
 
           FILES = {
               "combined_threat_blacklist_ipv4.txt": "Stufe 1 – Alle IPs (180 Tage)",

@@ -763,11 +763,22 @@ jobs:
               community_restore_prefix = f"netshield-seen-db-community-{issue_expr}-"
 
               if fname == "false_positive_checker.yml":
-                  if re.search(r'git checkout --theirs\s+false_positives_log\.txt false_positive_report\.md\s+false_positives_set\.json', content):
-                      msg = ("git checkout --theirs fuer mehrere Dateien steht einzeilig/fragil da – "
-                             "Backslash-Continuation verwenden")
+                  # FIX CHK23a: alter Regex war toter Code – YAML-Datei nutzt Backslash-Continuation
+                  # über mehrere Zeilen, daher niemals single-line Match möglich.
+                  # Neuer Check: alle drei FP-Dateien MÜSSEN einzeln mit Backslash oder
+                  # auf separaten Zeilen im git checkout --theirs stehen.
+                  _fp_files = ["false_positives_log.txt", "false_positive_report.md", "false_positives_set.json"]
+                  _checkout_block = re.search(
+                      r'git checkout --theirs.*?(?=\n\s*git add|\n\s*GIT_EDITOR|$)',
+                      content, re.DOTALL
+                  )
+                  _checkout_text = _checkout_block.group(0) if _checkout_block else ""
+                  _missing_fp = [f for f in _fp_files if f not in _checkout_text]
+                  if _missing_fp:
+                      msg = (f"git checkout --theirs im Commit-Step fehlen Dateien: "
+                             f"{', '.join(_missing_fp)} – Regression im FP-Checker-Commit-Step")
                       file_errors.append(msg)
-                      errors.append({"file": fname, "check": "Fragile git checkout-Zeile", "detail": msg})
+                      errors.append({"file": fname, "check": "Fehlende FP-Dateien im checkout", "detail": msg})
 
               if fname == "update-blocklist.yml":
                   if re.search(r'git checkout --theirs\s+all_countries_ipv4\.txt', content):
