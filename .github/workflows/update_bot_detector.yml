@@ -94,7 +94,9 @@ jobs:
                   f.write("Bestehende `bot_detector_blacklist_ipv4.txt` wurde beibehalten.\n\n")
                   f.write(f"---\n*Generiert: {now_str}*\n")
               print(f"  {REPORT_FILE} geschrieben (Fehler-Report)")
-              sys.exit(0)
+              msg = f"Feed nach {MAX_ATTEMPTS} Versuchen nicht erreichbar: {last_error}"
+              print(f"::warning file=update_bot_detector.yml::{msg}")
+              sys.exit(1)
 
           # ── IPs extrahieren + validieren ──────────────────────────────────
           raw_entries  = data.get("blacklist", [])

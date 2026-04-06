@@ -88,12 +88,30 @@ jobs:
 
               return sources
 
+          FEED_URLS_CACHE = "feed_urls_cache.json"
+
           try:
               FEEDS = _extract_feeds_from_combined()
               print(f"✅ {len(FEEDS)} Feeds aus update_combined_blacklist.yml geladen")
+              # Cache speichern für Fallback bei zukünftigen Parse-Fehlern
+              with open(FEED_URLS_CACHE, "w", encoding="utf-8") as _cf:
+                  json.dump({"updated": now_str, "feeds": FEEDS}, _cf)
           except Exception as _ex:
-              print(f"::error file=feed_health_monitor.yml::Feed-Extraktion fehlgeschlagen: {_ex}")
-              raise SystemExit(1)
+              # Fallback: gespeicherten Cache laden
+              if os.path.exists(FEED_URLS_CACHE):
+                  try:
+                      with open(FEED_URLS_CACHE) as _cf:
+                          _cached = json.load(_cf)
+                      FEEDS = _cached.get("feeds", {})
+                      _cache_age = _cached.get("updated", "unbekannt")
+                      print(f"::warning file=feed_health_monitor.yml::SOURCES-Parsing fehlgeschlagen: {_ex} – nutze Cache ({_cache_age}, {len(FEEDS)} Feeds)")
+                      print(f"WARNUNG: Fallback auf feed_urls_cache.json ({_cache_age})")
+                  except Exception:
+                      print(f"::error file=feed_health_monitor.yml::Feed-Extraktion UND Cache-Fallback fehlgeschlagen: {_ex}")
+                      raise SystemExit(1)
+              else:
+                  print(f"::error file=feed_health_monitor.yml::Feed-Extraktion fehlgeschlagen (kein Cache vorhanden): {_ex}")
+                  raise SystemExit(1)
 
           IP_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b')
 
@@ -191,7 +209,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add feed_health_report.md feed_health_status.json
+          git add feed_health_report.md feed_health_status.json feed_urls_cache.json
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -206,9 +224,9 @@ jobs:
                 fi
               else
                 git checkout --theirs feed_health_report.md \
-                  feed_health_status.json 2>/dev/null || true
+                  feed_health_status.json feed_urls_cache.json 2>/dev/null || true
                 git add feed_health_report.md \
-                  feed_health_status.json 2>/dev/null || true
+                  feed_health_status.json feed_urls_cache.json 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

@@ -97,6 +97,17 @@ jobs:
                       local_feeds = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*(True|False)\s*,?', raw_local, re.MULTILINE))
 
                   total = remote_feeds + local_feeds
+
+                  # Auto-discovered Feeds mitzählen
+                  auto_file = "auto_discovered_feeds.json"
+                  if os.path.exists(auto_file):
+                      try:
+                          with open(auto_file, encoding="utf-8") as af:
+                              auto_data = json.load(af)
+                          total += auto_data.get("total_feeds", 0)
+                      except Exception:
+                          pass
+
                   return str(total) if total > 0 else "–"
               except Exception:
                   return "–"
@@ -256,6 +267,17 @@ jobs:
                       local_feeds = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*(True|False)\s*,?', raw_local, re.MULTILINE))
 
                   total = remote_feeds + local_feeds
+
+                  # Auto-discovered Feeds mitzählen
+                  auto_file = "auto_discovered_feeds.json"
+                  if os.path.exists(auto_file):
+                      try:
+                          with open(auto_file, encoding="utf-8") as af:
+                              auto_data = json.load(af)
+                          total += auto_data.get("total_feeds", 0)
+                      except Exception:
+                          pass
+
                   return str(total) if total > 0 else "–"
               except Exception:
                   return "–"
