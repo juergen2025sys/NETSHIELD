@@ -1165,15 +1165,24 @@ jobs:
           _dup_urls = {u: wfs for u, wfs in _url_to_workflows.items() if len(wfs) > 1}
           if _dup_urls:
               # Nur melden wenn die URL nicht bereits als Duplikat-Kommentar dokumentiert ist
+              # Zwei Erkennungsmethoden:
+              # (a) Spezifisch: URL-Kurzname + Schlüsselwort in derselben Zeile
+              # (b) Generell: HINWEIS-Block mit Schlüsselwort "BEWUSST/überlappen/Overlap"
+              #     → dokumentiert die gesamte Feed-Liste als absichtlich doppelt
+              _doc_keywords_specific = r'(?:entfernt|identisch|doppelt)'
+              _doc_keywords_general  = r'(?:BEWUSST|ueberlappen|überlappen|[Oo]verlap|intentional)'
               _real_dups = []
               for _url, _wfs in sorted(_dup_urls.items()):
-                  # Prüfe ob die Duplikation per Kommentar dokumentiert ist
                   _documented = False
+                  _url_short = _url.split('/')[-1][:30]
                   for _wf in _wfs:
                       _wf_text = open(f"{WORKFLOWS_DIR}/{_wf}").read()
-                      # Kommentar-Muster: "# ... entfernt: identisch ..." oder "# ... entfernt: ... doppelt ..."
-                      _url_short = _url.split('/')[-1][:30]
-                      if re.search(rf'#.*(?:entfernt|identisch|doppelt).*{re.escape(_url_short[:15])}', _wf_text, re.I):
+                      # (a) Spezifisch: "# ... entfernt/identisch/doppelt ... <url_short>"
+                      if re.search(rf'#.*{_doc_keywords_specific}.*{re.escape(_url_short[:15])}', _wf_text, re.I):
+                          _documented = True
+                          break
+                      # (b) Generell: HINWEIS-Block der die Feed-Liste als bewusst doppelt dokumentiert
+                      if re.search(rf'#\s*HINWEIS:.*{_doc_keywords_general}', _wf_text):
                           _documented = True
                           break
                   if not _documented:
