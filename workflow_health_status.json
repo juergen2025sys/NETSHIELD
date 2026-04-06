@@ -1,9 +1,25 @@
 {
-  "updated": "2026-04-06 19:00 UTC",
+  "updated": "2026-04-06 20:16 UTC",
   "total": 16,
-  "ok": 16,
-  "warn": 0,
+  "ok": 15,
+  "warn": 1,
   "error": 0,
   "errors": [],
-  "warnings": []
+  "warnings": [
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "Fehlende Fehlerbehandlung",
+      "detail": "Block 2: json.load() ohne try/except \u2013 crash bei korrupter Datei"
+    },
+    {
+      "file": "Cross-Workflow",
+      "check": "Doppelte Feed-URLs",
+      "detail": "8 URL(s) in mehreren Workflows \u2013 today_count Aufblaehung moeglich: ipblocklist.txt in cve_to_ip_mapper.yml+update_combined_blacklist.yml; ipblocklist_aggressive.txt in auto_feed_discovery.yml+cve_to_ip_mapper.yml+update_combined_blacklist.yml; abuseipdb-s100-30d.ipv4 in auto_feed_discovery.yml+update_combined_blacklist.yml; IPC2s.csv in cve_to_ip_mapper.yml+update_combined_blacklist.yml; all.txt in cve_to_ip_mapper.yml+update_combined_blacklist.yml"
+    },
+    {
+      "file": "auto_feed_discovery.yml \u2194 community_ip_report.yml \u2194 update_combined_blacklist.yml \u2194 update_confidence_blacklist.yml",
+      "check": "PROTECTED_CIDRS Drift",
+      "detail": "PROTECTED_CIDRS nicht identisch: community_ip_report.yml weichen von auto_feed_discovery.yml ab"
+    }
+  ]
 }
