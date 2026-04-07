@@ -2,7 +2,10 @@ name: Workflow Health Checker
 
 on:
   schedule:
-    - cron: '15 1 * * *'   # täglich 01:15 UTC (15 Min nach Feed Health Monitor 01:00)
+    - cron: '15 1 * * *'   # 01:15 UTC (15 Min nach Feed Health Monitor 01:00)
+    - cron: '15 7 * * *'   # 07:15 UTC (nach Score Decay 07:00 + Geo-Tagger 07:45)
+    - cron: '15 13 * * *'  # 13:15 UTC (Tagesmitte – Pipeline-Stillstand erkennen)
+    - cron: '15 19 * * *'  # 19:15 UTC (Abend – vor HoneyDB 22:15 + Combined 00:00)
   workflow_dispatch:
 
 env:
@@ -1410,6 +1413,275 @@ jobs:
                       })
                       print(f"⚠️  {_a_name}: {len(_outdated_files)} Dateien mit aelterer SHA")
 
+          # ══════════════════════════════════════════════════════════════════
+          # PRODUCTION HEALTH CHECKS (Strategie-Dokument v3)
+          # Prüft Laufzeit-Zustand der Pipeline, nicht nur statische Code-Qualität.
+          # Alarm-Logik: WARN = beobachten, CRITICAL = sofort prüfen.
+          # ══════════════════════════════════════════════════════════════════
+
+          prod_health = []  # list of {"level": "WARN"|"CRITICAL", "check": ..., "detail": ...}
+
+          _TS_RE_HEALTH = re.compile(r'#\s*Aktualisiert:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\s*UTC')
+
+          def _file_age_hours(filepath):
+              """Liest Aktualisiert-Timestamp aus Datei-Header, gibt Alter in Stunden zurück."""
+              if not os.path.exists(filepath):
+                  return None
+              try:
+                  with open(filepath, encoding="utf-8") as _fh:
+                      for _ in range(10):
+                          _line = _fh.readline()
+                          if not _line:
+                              break
+                          _m = _TS_RE_HEALTH.search(_line)
+                          if _m:
+                              _dt = datetime.strptime(_m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+                              return (now - _dt).total_seconds() / 3600
+              except Exception:
+                  pass
+              return None
+
+          def _count_ips(filepath):
+              if not os.path.exists(filepath):
+                  return None
+              count = 0
+              with open(filepath, encoding="utf-8") as _fh:
+                  for _line in _fh:
+                      if _line.strip() and not _line.startswith("#"):
+                          count += 1
+              return count
+
+          print("\n" + "=" * 60)
+          print("PRODUCTION HEALTH CHECKS")
+          print("=" * 60)
+
+          # ── PH1: seen_db Integrität (via seen_db_meta.json) ───────────────
+          _meta_file = "seen_db_meta.json"
+          if os.path.exists(_meta_file):
+              try:
+                  with open(_meta_file, encoding="utf-8") as _mf:
+                      _meta = json.load(_mf)
+                  _meta_ips  = _meta.get("total_ips", 0)
+                  _meta_mb   = _meta.get("size_mb", 0)
+                  _meta_err  = _meta.get("error")
+                  _meta_upd  = _meta.get("updated", "")
+
+                  if _meta_err:
+                      prod_health.append({
+                          "level": "CRITICAL", "check": "seen_db Integrität",
+                          "detail": f"seen_db_meta.json meldet Fehler: {_meta_err}",
+                      })
+                      print(f"  🔴 seen_db: Fehler gemeldet – {_meta_err}")
+                  elif _meta_ips == 0:
+                      prod_health.append({
+                          "level": "CRITICAL", "check": "seen_db Integrität",
+                          "detail": "seen_db_meta.json: total_ips=0 – seen_db ist leer oder nicht vorhanden",
+                      })
+                      print("  🔴 seen_db: 0 IPs (leer oder fehlend)")
+                  elif _meta_ips < 10_000:
+                      prod_health.append({
+                          "level": "WARN", "check": "seen_db Integrität",
+                          "detail": f"seen_db_meta.json: nur {_meta_ips:,} IPs (erwartet >10.000) – möglicherweise unvollständig",
+                      })
+                      print(f"  🟡 seen_db: {_meta_ips:,} IPs (niedrig)")
+                  else:
+                      print(f"  ✅ seen_db: {_meta_ips:,} IPs, {_meta_mb} MB")
+
+                  # Alter der seen_db_meta prüfen
+                  if _meta_upd:
+                      try:
+                          _meta_dt = datetime.strptime(_meta_upd.replace(" UTC", ""), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+                          _meta_age_h = (now - _meta_dt).total_seconds() / 3600
+                          if _meta_age_h > 10:
+                              prod_health.append({
+                                  "level": "CRITICAL", "check": "seen_db Aktualität",
+                                  "detail": f"seen_db_meta.json ist {_meta_age_h:.0f}h alt (letztes Update: {_meta_upd}) – Combined-Pipeline steht still",
+                              })
+                              print(f"  🔴 seen_db Alter: {_meta_age_h:.0f}h (CRITICAL >10h)")
+                          elif _meta_age_h > 6:
+                              prod_health.append({
+                                  "level": "WARN", "check": "seen_db Aktualität",
+                                  "detail": f"seen_db_meta.json ist {_meta_age_h:.0f}h alt (letztes Update: {_meta_upd}) – mindestens 1 Combined-Run verpasst",
+                              })
+                              print(f"  🟡 seen_db Alter: {_meta_age_h:.0f}h (WARN >6h)")
+                          else:
+                              print(f"  ✅ seen_db Alter: {_meta_age_h:.1f}h")
+                      except Exception:
+                          pass
+              except Exception as _ex:
+                  prod_health.append({
+                      "level": "CRITICAL", "check": "seen_db Integrität",
+                      "detail": f"seen_db_meta.json nicht lesbar: {_ex}",
+                  })
+                  print(f"  🔴 seen_db_meta.json nicht lesbar: {_ex}")
+          else:
+              prod_health.append({
+                  "level": "WARN", "check": "seen_db Integrität",
+                  "detail": "seen_db_meta.json nicht vorhanden – Combined-Workflow noch nie gelaufen?",
+              })
+              print("  🟡 seen_db_meta.json nicht vorhanden")
+
+          # ── PH2: Aktualität der Output-Listen ─────────────────────────────
+          _freshness_checks = [
+              # (datei, warn_h, crit_h, beschreibung)
+              ("active_blacklist_ipv4.txt",           6,  10, "Active Blacklist (Stufe 2)"),
+              ("combined_threat_blacklist_ipv4.txt",   6,  10, "Combined Blacklist (Stufe 1)"),
+              ("blacklist_confidence40_ipv4.txt",      6,  10, "Confidence-40 Blacklist"),
+              ("feed_health_report.md",               30,  50, "Feed Health Report"),
+          ]
+          for _fpath, _warn_h, _crit_h, _desc in _freshness_checks:
+              _age = _file_age_hours(_fpath)
+              if _age is None:
+                  if _fpath.endswith("_report.md"):
+                      # Reports sind optional – kein Alarm
+                      print(f"  ⏭  {_desc}: Datei nicht vorhanden (optional)")
+                  else:
+                      prod_health.append({
+                          "level": "WARN", "check": f"Aktualität: {_desc}",
+                          "detail": f"{_fpath} nicht vorhanden",
+                      })
+                      print(f"  🟡 {_desc}: nicht vorhanden")
+              elif _age > _crit_h:
+                  prod_health.append({
+                      "level": "CRITICAL", "check": f"Aktualität: {_desc}",
+                      "detail": f"{_fpath} ist {_age:.0f}h alt (CRITICAL-Schwelle: {_crit_h}h) – Pipeline-Stillstand",
+                  })
+                  print(f"  🔴 {_desc}: {_age:.0f}h alt (>{_crit_h}h)")
+              elif _age > _warn_h:
+                  prod_health.append({
+                      "level": "WARN", "check": f"Aktualität: {_desc}",
+                      "detail": f"{_fpath} ist {_age:.0f}h alt (WARN-Schwelle: {_warn_h}h)",
+                  })
+                  print(f"  🟡 {_desc}: {_age:.0f}h alt (>{_warn_h}h)")
+              else:
+                  print(f"  ✅ {_desc}: {_age:.1f}h alt")
+
+          # ── PH3: Output-Sanity – IP-Anzahlen plausibel? ──────────────────
+          # Baselines: erwartete Mindest-IP-Anzahlen bei gesunder Pipeline.
+          # Werte konservativ gewählt – unterschreiten deutet auf Feed-Ausfall
+          # oder Pipeline-Fehler hin, nicht auf normale Schwankungen.
+          _sanity_checks = [
+              # (datei, min_warn, min_crit, beschreibung)
+              ("combined_threat_blacklist_ipv4.txt",   50_000,  10_000, "Combined Blacklist"),
+              ("active_blacklist_ipv4.txt",             5_000,   1_000, "Active Blacklist"),
+              ("blacklist_confidence40_ipv4.txt",       5_000,   1_000, "Confidence-40 Blacklist"),
+              ("cve_exploit_ips.txt",                     500,     100, "CVE Exploit IPs"),
+              ("honeypot_ips.txt",                        500,     100, "Honeypot IPs"),
+              ("bot_detector_blacklist_ipv4.txt",          50,      10, "Bot-Detector"),
+          ]
+          for _fpath, _min_warn, _min_crit, _desc in _sanity_checks:
+              _count = _count_ips(_fpath)
+              if _count is None:
+                  continue  # Datei nicht vorhanden – Frische-Check oben meldet das bereits
+              if _count < _min_crit:
+                  prod_health.append({
+                      "level": "CRITICAL", "check": f"Output-Sanity: {_desc}",
+                      "detail": f"{_fpath}: nur {_count:,} IPs (CRITICAL <{_min_crit:,}) – massiver Datenverlust oder Pipeline-Fehler",
+                  })
+                  print(f"  🔴 {_desc}: {_count:,} IPs (<{_min_crit:,})")
+              elif _count < _min_warn:
+                  prod_health.append({
+                      "level": "WARN", "check": f"Output-Sanity: {_desc}",
+                      "detail": f"{_fpath}: nur {_count:,} IPs (WARN <{_min_warn:,}) – möglicherweise Feed-Ausfälle",
+                  })
+                  print(f"  🟡 {_desc}: {_count:,} IPs (<{_min_warn:,})")
+              else:
+                  print(f"  ✅ {_desc}: {_count:,} IPs")
+
+          # ── PH4: Feed Health Auswirkungen ─────────────────────────────────
+          _fh_file = "feed_health_status.json"
+          if os.path.exists(_fh_file):
+              try:
+                  with open(_fh_file, encoding="utf-8") as _fhf:
+                      _fh = json.load(_fhf)
+                  _fh_summary = _fh.get("summary", {})
+                  _fh_errors  = _fh_summary.get("error", 0)
+                  _fh_warns   = _fh_summary.get("warn", 0)
+                  _fh_ok      = _fh_summary.get("ok", 0)
+                  _fh_total   = _fh_ok + _fh_warns + _fh_errors
+                  _failed     = _fh.get("failed_feeds", [])
+
+                  if _fh_errors >= 5:
+                      prod_health.append({
+                          "level": "CRITICAL", "check": "Feed-Ausfälle",
+                          "detail": f"{_fh_errors} von {_fh_total} Feeds ausgefallen ({', '.join(_failed[:8])}{'…' if len(_failed) > 8 else ''}) – Blacklist-Qualität stark beeinträchtigt",
+                      })
+                      print(f"  🔴 Feed Health: {_fh_errors}/{_fh_total} ausgefallen")
+                  elif _fh_errors >= 2:
+                      prod_health.append({
+                          "level": "WARN", "check": "Feed-Ausfälle",
+                          "detail": f"{_fh_errors} von {_fh_total} Feeds ausgefallen: {', '.join(_failed[:5])}",
+                      })
+                      print(f"  🟡 Feed Health: {_fh_errors}/{_fh_total} ausgefallen")
+                  else:
+                      print(f"  ✅ Feed Health: {_fh_ok}/{_fh_total} OK, {_fh_errors} Fehler, {_fh_warns} Warnungen")
+              except Exception as _ex:
+                  print(f"  ⏭  Feed Health: feed_health_status.json nicht lesbar ({_ex})")
+          else:
+              print("  ⏭  Feed Health: feed_health_status.json nicht vorhanden")
+
+          # ── PH5: Drift-Erkennung (Vergleich mit letztem Health-Status) ────
+          # workflow_health_status.json speichert die letzte Zusammenfassung.
+          # Vergleich der IP-Anzahlen mit den gespeicherten Werten erkennt
+          # ungewöhnliches Wachstum oder Schrumpfen.
+          _prev_status_file = "workflow_health_status.json"
+          if os.path.exists(_prev_status_file):
+              try:
+                  with open(_prev_status_file, encoding="utf-8") as _psf:
+                      _prev = json.load(_psf)
+                  _prev_ip_counts = _prev.get("ip_counts", {})
+
+                  if _prev_ip_counts:
+                      _current_counts = {}
+                      for _fpath, _, _, _desc in _sanity_checks:
+                          _c = _count_ips(_fpath)
+                          if _c is not None:
+                              _current_counts[_fpath] = _c
+
+                      for _fpath, _cur in _current_counts.items():
+                          _prev_c = _prev_ip_counts.get(_fpath)
+                          if _prev_c is None or _prev_c == 0:
+                              continue
+                          _change_pct = ((_cur - _prev_c) / _prev_c) * 100
+
+                          if _change_pct < -30:
+                              prod_health.append({
+                                  "level": "CRITICAL", "check": f"Drift: {_fpath}",
+                                  "detail": f"{_fpath}: {_prev_c:,} → {_cur:,} ({_change_pct:+.0f}%) – starker Rückgang seit letztem Check",
+                              })
+                              print(f"  🔴 Drift {_fpath}: {_change_pct:+.0f}% ({_prev_c:,} → {_cur:,})")
+                          elif _change_pct < -15:
+                              prod_health.append({
+                                  "level": "WARN", "check": f"Drift: {_fpath}",
+                                  "detail": f"{_fpath}: {_prev_c:,} → {_cur:,} ({_change_pct:+.0f}%) – deutlicher Rückgang",
+                              })
+                              print(f"  🟡 Drift {_fpath}: {_change_pct:+.0f}% ({_prev_c:,} → {_cur:,})")
+                          elif _change_pct > 50:
+                              prod_health.append({
+                                  "level": "WARN", "check": f"Drift: {_fpath}",
+                                  "detail": f"{_fpath}: {_prev_c:,} → {_cur:,} ({_change_pct:+.0f}%) – ungewöhnliches Wachstum",
+                              })
+                              print(f"  🟡 Drift {_fpath}: {_change_pct:+.0f}% ({_prev_c:,} → {_cur:,})")
+                          else:
+                              print(f"  ✅ Drift {_fpath}: {_change_pct:+.1f}% (stabil)")
+                  else:
+                      print("  ⏭  Drift: kein vorheriger IP-Count gespeichert (erster Lauf)")
+              except Exception:
+                  print("  ⏭  Drift: workflow_health_status.json nicht lesbar")
+          else:
+              print("  ⏭  Drift: kein vorheriger Status vorhanden (erster Lauf)")
+
+          # ── PH: Zusammenfassung ───────────────────────────────────────────
+          _ph_critical = [p for p in prod_health if p["level"] == "CRITICAL"]
+          _ph_warn     = [p for p in prod_health if p["level"] == "WARN"]
+          print(f"\nProduction Health: 🔴 {len(_ph_critical)} CRITICAL | 🟡 {len(_ph_warn)} WARN")
+
+          # Production Health Findings in die globalen errors/warnings einspeisen
+          for _ph in _ph_critical:
+              errors.append({"file": "Production Health", "check": _ph["check"], "detail": _ph["detail"]})
+          for _ph in _ph_warn:
+              warnings.append({"file": "Production Health", "check": _ph["check"], "detail": _ph["detail"]})
+
           # ── Zusammenfassung ───────────────────────────────────────────────
           ok_count   = sum(1 for v in results.values() if not v["errors"] and not v["warnings"])
           warn_count = sum(1 for v in results.values() if v["warnings"] and not v["errors"])
@@ -1441,6 +1713,19 @@ jobs:
                   lines.append(f"| `{w['file']}` | {w['check']} | {w['detail']} |")
               lines.append("")
 
+          # ── Production Health Dashboard ───────────────────────────────────
+          lines.append("## 🏥 Production Health\n")
+          lines.append(f"**Status:** 🔴 {len(_ph_critical)} CRITICAL | 🟡 {len(_ph_warn)} WARN\n")
+          if prod_health:
+              lines.append("| Level | Check | Detail |")
+              lines.append("|---|---|---|")
+              for _ph in sorted(prod_health, key=lambda x: (0 if x["level"] == "CRITICAL" else 1)):
+                  _icon = "🔴" if _ph["level"] == "CRITICAL" else "🟡"
+                  lines.append(f"| {_icon} {_ph['level']} | {_ph['check']} | {_ph['detail']} |")
+          else:
+              lines.append("*Alle Production Health Checks bestanden.*")
+          lines.append("")
+
           lines.append("## Übersicht\n")
           lines.append("| Workflow | Status | Fehler | Warnungen | Cron |")
           lines.append("|---|---|---|---|---|")
@@ -1455,15 +1740,28 @@ jobs:
               f.write("\n".join(lines))
           print("workflow_health_report.md geschrieben")
 
+          # IP-Counts für Drift-Erkennung beim nächsten Lauf sammeln
+          _current_ip_counts = {}
+          for _fpath, _, _, _ in _sanity_checks:
+              _c = _count_ips(_fpath)
+              if _c is not None:
+                  _current_ip_counts[_fpath] = _c
+
           with open("workflow_health_status.json", "w", encoding="utf-8") as f:
               json.dump({
-                  "updated":  now_str,
-                  "total":    len(files),
-                  "ok":       ok_count,
-                  "warn":     warn_count,
-                  "error":    err_count,
-                  "errors":   errors,
-                  "warnings": warnings,
+                  "updated":           now_str,
+                  "total":             len(files),
+                  "ok":                ok_count,
+                  "warn":              warn_count,
+                  "error":             err_count,
+                  "errors":            errors,
+                  "warnings":          warnings,
+                  "ip_counts":         _current_ip_counts,
+                  "production_health": {
+                      "critical": len(_ph_critical),
+                      "warn":     len(_ph_warn),
+                      "checks":   prod_health,
+                  },
               }, f, indent=2)
 
           if err_count > 0:
