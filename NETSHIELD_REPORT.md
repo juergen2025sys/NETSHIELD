@@ -1,16 +1,16 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-04-07 03:37 UTC
+**Aktualisiert:** 2026-04-07 06:04 UTC
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **4,172,147** | 2026-04-06 21:46 UTC |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **2,400,246** | 2026-04-06 21:46 UTC |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **2,985,401** | 2026-04-06 22:04 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **286,586** | 2026-04-06 22:04 UTC |
-| ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **214,057** | 2026-04-06 05:55 UTC |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **4,199,114** | 2026-04-07 03:22 UTC |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **2,454,861** | 2026-04-07 03:22 UTC |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **3,012,870** | 2026-04-07 05:29 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **819,299** | 2026-04-07 05:29 UTC |
+| ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **57,676** | 2026-04-07 05:43 UTC |
 | ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,950** | 2026-04-06 23:20 UTC |
 | ✅ `honeypot_ips.txt` | Honeypot IPs | **3,830** | 2026-04-06 23:43 UTC |
 | ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **11,908** | 2026-04-06 22:57 UTC |
@@ -25,7 +25,7 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 ---
 ## 🔍 Feed Health: ✅ 98 OK | ⚠️ 0 leer | ❌ 0 Fehler
 
-*Letzter Check: 2026-04-06 03:54 UTC – Details: [feed_health_report.md](feed_health_report.md)*
+*Letzter Check: 2026-04-07 03:45 UTC – Details: [feed_health_report.md](feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -33,4 +33,4 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 *Details: [workflow_health_report.md](workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-04-07 03:37 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-04-07 06:04 UTC*
