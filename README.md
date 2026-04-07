@@ -201,7 +201,7 @@ Enrichment (nach Combined):
 ## Datenfluss & Timing
 
 ```
-22:15  HoneyDB Monitor ──────────────────┐
+22:15  HoneyDB Monitor  ──────────────────┐
 22:45  Bot-Detector Blacklist ────────────┤
 23:00  Honeypot Monitor ──────────────────┤
 00:00  Update Combined Blacklist ─────────┼──→ seen_db Cache
