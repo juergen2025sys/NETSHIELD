@@ -256,6 +256,34 @@ jobs:
           with open(REPORT_FILE, "a", encoding="utf-8") as f:
               f.write(f"{now_day} | issue=#{issue_number} | user={reporter} | ip={ip} | type={attack_type} | action={action} | ACCEPTED\n")
 
+          # ── community_reported_ips.txt pflegen ──────────────────────────
+          # FIX CACHE-LOSS: Community-IPs wurden bisher nur in einen isolierten
+          # seen_db-Cache geschrieben (netshield-seen-db-community-*), den kein
+          # anderer Workflow liest. Ergebnis: IPs gingen nach dem nächsten
+          # Combined-Run verloren, obwohl dem User "Added to Watchlist" bestätigt
+          # wurde. Lösung: IPs zusätzlich in eine committete Datei schreiben,
+          # die update_combined_blacklist als LOCAL_FEED einliest.
+          COMMUNITY_IPS_FILE = "community_reported_ips.txt"
+          community_existing = set()
+          if os.path.exists(COMMUNITY_IPS_FILE):
+              with open(COMMUNITY_IPS_FILE, encoding="utf-8") as _cf:
+                  community_existing = {
+                      l.strip() for l in _cf
+                      if l.strip() and not l.startswith("#")
+                  }
+          community_existing.add(ip)
+          community_sorted = sorted(
+              community_existing,
+              key=lambda x: tuple(int(o) for o in x.split(".")),
+          )
+          with open(COMMUNITY_IPS_FILE, "w", encoding="utf-8") as _cf:
+              _cf.write("# NETSHIELD Community Reported IPs\n")
+              _cf.write(f"# Aktualisiert: {now_day}\n")
+              _cf.write(f"# Eintraege: {len(community_sorted)}\n")
+              _cf.write("# Quelle: GitHub Issues (community-report Label)\n\n")
+              _cf.write("\n".join(community_sorted) + "\n")
+          print(f"community_reported_ips.txt: {len(community_sorted)} IPs ({action})")
+
           # ── Ergebnis für nächsten Step speichern ──────────────────────────
           with open(RESULT_FILE, "w", encoding="utf-8") as f:
               f.write(f"{action}|{ip}|{attack_type}")
@@ -277,7 +305,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add community_reports_log.txt 2>/dev/null || true
+          git add community_reports_log.txt community_reported_ips.txt 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -291,8 +319,8 @@ jobs:
                   exit 0
                 fi
               else
-                git checkout --theirs community_reports_log.txt 2>/dev/null || true
-                git add community_reports_log.txt 2>/dev/null || true
+                git checkout --theirs community_reports_log.txt community_reported_ips.txt 2>/dev/null || true
+                git add community_reports_log.txt community_reported_ips.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

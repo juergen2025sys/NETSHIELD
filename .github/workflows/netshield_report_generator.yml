@@ -195,9 +195,25 @@ jobs:
           lines.append("---")
           lines.append(f"*Automatisch generiert von NETSHIELD Report Generator · {now_str}*")
 
-          with open("NETSHIELD_REPORT.md", "w", encoding="utf-8") as f:
-              f.write("\n".join(lines))
-          print(f"NETSHIELD_REPORT.md geschrieben | combined: {total:,} IPs")
+          # ── FIX: Nur schreiben wenn sich Daten geändert haben ──────────
+          # Verhindert ~24 unnötige Commits/Tag durch stündlich wechselnde
+          # Timestamps bei unveränderten IP-Zahlen und Feed-Health-Daten.
+          new_content = "\n".join(lines)
+          _ts_strip = re.compile(r'\*\*Aktualisiert:\*\*[^\n]*|\*Automatisch generiert[^\n]*|\*Letzter Check:[^\n]*')
+          def _data_only(text):
+              return _ts_strip.sub("", text).strip()
+
+          write_report = True
+          if os.path.exists("NETSHIELD_REPORT.md"):
+              with open("NETSHIELD_REPORT.md", encoding="utf-8") as _old:
+                  if _data_only(_old.read()) == _data_only(new_content):
+                      write_report = False
+                      print(f"NETSHIELD_REPORT.md: Daten unverändert – Schreiben übersprungen")
+
+          if write_report:
+              with open("NETSHIELD_REPORT.md", "w", encoding="utf-8") as f:
+                  f.write(new_content)
+              print(f"NETSHIELD_REPORT.md geschrieben | combined: {total:,} IPs")
           EOF
 
       - name: Update README Header Stats
@@ -317,6 +333,10 @@ jobs:
                   print(f"WARNUNG: {label} – Marker nicht gefunden oder kein Match")
               return new_text
 
+          # FIX: Nur schreiben wenn sich IP-Zahlen oder Feed-Counts geändert haben.
+          # Timestamp in meta_data ändert sich jede Stunde → nur aktualisieren
+          # wenn auch die Daten-Spalten unterschiedlich sind.
+          _old_content = content  # content vor replace_between_markers
           content = replace_between_markers(
               content,
               "<!-- STATS_TABLE_START -->", "<!-- STATS_TABLE_END -->",
@@ -330,10 +350,17 @@ jobs:
               "META_TABLE"
           )
 
-          with open("README.md", "w", encoding="utf-8") as f:
-              f.write(content)
+          # Vergleich ohne Timestamps: nur schreiben wenn Daten-Zeilen sich unterscheiden
+          _ts_re_readme = re.compile(r'\| \d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC \|')
+          _old_stripped = _ts_re_readme.sub("| TS |", _old_content)
+          _new_stripped = _ts_re_readme.sub("| TS |", content)
 
-          print(f"   Active={active:,} | CVE={cve:,} | Honeypot={honeypot:,} | Update={now_str}")
+          if _old_stripped != _new_stripped:
+              with open("README.md", "w", encoding="utf-8") as f:
+                  f.write(content)
+              print(f"   Active={active:,} | CVE={cve:,} | Honeypot={honeypot:,} | Update={now_str}")
+          else:
+              print("README Header Stats: Daten unverändert – Schreiben übersprungen")
           EOF
 
       - name: Update README IP Counts

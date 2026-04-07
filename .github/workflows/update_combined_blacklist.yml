@@ -731,6 +731,11 @@ jobs:
               "honeypot_ips.txt":                True,
               "honeydb_ips.txt":                 True,   # HoneyDB Community Honeypot Network (API)
               "abuseipdb_api_blacklist.txt":     True,   # AbuseIPDB API (Round-Robin, HQ)
+              # FIX CACHE-LOSS: Community-gemeldete IPs werden von community_ip_report.yml
+              # in diese Datei geschrieben und hier als LOCAL_FEED eingelesen.
+              # HQ=False: Einzelne Community-Meldungen sind keine vertrauenswürdige Quelle;
+              # HQ-Promotion erfolgt erst bei community_count >= 3 (in community_ip_report.yml).
+              "community_reported_ips.txt":      False,
           }
           # FIX: Lokale HQ-Dateinamen für hq_feed_names_today-Berechnung.
           # Dateinamen wie "honeydb_ips.txt" sind nicht in HIGH_QUALITY (Feed-Namen),
