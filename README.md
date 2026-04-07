@@ -1,3 +1,5 @@
+[README.md](https://github.com/user-attachments/files/26542149/README.md)
+[README.md](https://github.com/user-attachments/files/26542149/README.md)
 
 
 <div align="center">
@@ -186,7 +188,7 @@ Enrichment (nach Combined):
 | **ASN Reputation Scorer** | täglich 02:00 | ASN-Scoring → asn_reputation_db.json |
 | **Score Decay Monitor** | wöchentlich So 07:00 | Alterungs-Report (read-only) |
 | **Feed Health Monitor** | täglich 01:00 | Feed-URLs auf Erreichbarkeit prüfen |
-| **Workflow Health Checker** | täglich 01:15 | Python-Code in Workflows analysieren |
+| **Workflow Health Checker** | 4× täglich | Python-Code + Production Health Checks (seen_db, Output-Sanity, Drift, Feed-Ausfälle) |
 | **Update All Countries IPv4** | Mo + Mi 01:30 | Länder/Kontinente IPv4-Ranges synchronisieren |
 
 ### Community
@@ -206,7 +208,7 @@ Enrichment (nach Combined):
 00:00  Update Combined Blacklist ─────────┼──→ seen_db Cache
 00:45  Confidence Blacklist ──────────────┘    (8× täglich wiederholt)
 01:00  Feed Health Monitor
-01:15  Workflow Health Checker
+01:15  Workflow Health Checker ←──────────── (4× täglich: 01:15, 07:15, 13:15, 19:15)
 01:30  Update All Countries (Mo+Mi)
 02:00  ASN Reputation Scorer
 04:00  CVE-to-IP Mapper
