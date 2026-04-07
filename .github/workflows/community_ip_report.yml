@@ -33,7 +33,11 @@ jobs:
           persist-credentials: true
 
       - name: Restore seen_db Cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        # FIX: actions/cache/restore statt actions/cache verwenden.
+        # actions/cache löst automatisch einen Post-Job-Save aus und speichert
+        # dabei die noch UNBEREINIGTE seen_db. Der explizite Save-Step weiter
+        # unten ist die einzige korrekte Schreibquelle nach der Verarbeitung.
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: seen_db.json
           # FIX #3: Key enthält issue-Nummer statt run-id.
@@ -294,7 +298,9 @@ jobs:
 
       - name: Save seen_db Cache
         if: always()  # FIX: auch bei unbehandelter Exception den Cache speichern (verhindert Inkonsistenz: Log sagt ACCEPTED, seen_db verliert die IP)
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        # FIX: actions/cache/save statt actions/cache – verhindert doppelten
+        # Save (Restore-Step nutzt jetzt actions/cache/restore ohne Post-Job-Hook).
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: seen_db.json
           # FIX #3: Eindeutiger Slot pro Issue → keine gegenseitige Überschreibung
