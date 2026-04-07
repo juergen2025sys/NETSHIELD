@@ -348,9 +348,11 @@ jobs:
           # noch innerhalb des 20min Job-Timeouts ausgeführt werden kann.
           _loop_start = time.monotonic()
           MAX_LOOP_SECONDS = 900  # 15 Minuten
+          _partial_load = False
 
           for i, cc in enumerate(countries):
               if time.monotonic() - _loop_start > MAX_LOOP_SECONDS:
+                  _partial_load = True
                   print(f"WARNUNG: Elapsed-time Guard ausgelöst nach {i} Ländern ({i}/{len(countries)}) – "
                         f"Rest wird beim nächsten Run geladen. Bisher geladene Daten werden gespeichert.")
                   break
@@ -400,6 +402,8 @@ jobs:
           # ── 1) all_countries_ipv4.txt ────────────────────────────────────
           sorted_all = sorted(all_ips, key=sort_key)
           with open("all_countries_ipv4.txt", "w", encoding="utf-8") as f:
+              if _partial_load:
+                  f.write(f"# WARNUNG: Teildaten – Elapsed-Time Guard bei {len(country_data)}/{len(countries)} Ländern ausgelöst\n")
               f.write("\n".join(sorted_all) + "\n")
           print(f"\nall_countries_ipv4.txt: {len(sorted_all)} entries")
 

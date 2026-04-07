@@ -191,9 +191,10 @@ jobs:
           # ── Angriffs-Typ aus Issue extrahieren ────────────────────────────
           attack_match = re.search(r"###\s*Attack Type\s*\n+\s*(.+)", issue_body)
           attack_type  = attack_match.group(1).strip() if attack_match else "Unknown"
-          # Sanitize: nur alphanumerisch, Leerzeichen, Bindestrich, Slash und Unterstrich erlaubt.
-          # Verhindert Markdown-Injection im GitHub-Issue-Kommentar (z.B. ]( Links, HTML-Tags).
-          attack_type  = re.sub(r"[^\w\s\-/]", "", attack_type)[:80].strip() or "Unknown"
+          # Sanitize: nur ASCII-Buchstaben, Ziffern, Leerzeichen, Bindestrich, Slash und Unterstrich.
+          # FIX: \w durch [a-zA-Z0-9_] ersetzt – \w erlaubt auch Unicode-Zeichen die
+          # die Markdown-Tabelle im Issue-Kommentar visuell brechen können.
+          attack_type  = re.sub(r"[^a-zA-Z0-9_ \-/]", "", attack_type)[:80].strip() or "Unknown"
 
           # ── seen_db laden ─────────────────────────────────────────────────
           db = {}

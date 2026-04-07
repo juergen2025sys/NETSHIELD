@@ -204,7 +204,12 @@ jobs:
               return _ts_strip.sub("", text).strip()
 
           write_report = True
-          if os.path.exists("NETSHIELD_REPORT.md"):
+          # FIX: Wenn combined_threat_blacklist_ipv4.txt fehlt oder leer ist,
+          # Report nicht mit 0-Werten überschreiben (fehlgeschlagener Combined-Run).
+          if total == 0 and os.path.exists("NETSHIELD_REPORT.md"):
+              print("WARNUNG: combined=0 IPs – behalte bestehenden NETSHIELD_REPORT.md")
+              write_report = False
+          elif os.path.exists("NETSHIELD_REPORT.md"):
               with open("NETSHIELD_REPORT.md", encoding="utf-8") as _old:
                   if _data_only(_old.read()) == _data_only(new_content):
                       write_report = False
@@ -251,6 +256,12 @@ jobs:
           active     = count_ips("active_blacklist_ipv4.txt")
           cve        = count_ips("cve_exploit_ips.txt")
           honeypot   = count_ips("honeypot_ips.txt")
+          # FIX: Guard gegen 0-Werte bei fehlendem/leerem Combined-Run.
+          # Wenn alle Hauptlisten 0 IPs haben, liegt wahrscheinlich ein
+          # fehlgeschlagener Combined-Run vor → README nicht mit 0-Werten überschreiben.
+          if active == 0 and cve == 0 and honeypot == 0:
+              print("WARNUNG: Alle Hauptlisten leer oder fehlend – README-Update übersprungen")
+              raise SystemExit(0)
           # FIX: derive_feed_count() hier inline – separate EOF-Heredocs teilen keinen Namespace.
           def _derive_feed_count(workflow_path=".github/workflows/update_combined_blacklist.yml"):
               if not os.path.exists(workflow_path):

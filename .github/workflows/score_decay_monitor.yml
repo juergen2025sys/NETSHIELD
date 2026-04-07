@@ -115,7 +115,9 @@ jobs:
               try:
                   newest_dt = datetime.strptime(newest_last, "%Y-%m-%d").replace(tzinfo=timezone.utc)
                   db_age_hours = (now - newest_dt).total_seconds() / 3600
-                  if db_age_hours > 24:
+                  # FIX: Schwelle von 24h auf 6h gesenkt. Combined läuft alle 3h;
+                  # bei >6h wurden mindestens 2 Combined-Runs verpasst → Daten veraltet.
+                  if db_age_hours > 6:
                       age_msg = (f"seen_db ist {db_age_hours:.0f}h alt (letzter HQ-Eintrag: {newest_last}) "
                                  f"– Score Decay analysiert möglicherweise veraltete Daten")
                       print(f"::warning file=score_decay_monitor.yml::{age_msg}")
