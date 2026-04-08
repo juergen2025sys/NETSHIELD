@@ -254,7 +254,7 @@ jobs:
                   "et_bonus":       et_bonus,
                   "prefixes":       total_prefixes,
                   "total_ips":      total_ips_covered,
-                  "matched_ips":    matched_ips[:500],  # max 500 IPs im JSON
+                  "matched_ips":    matched_ips[:500],  # Samples: max 500 IPs für JSON-Größe; bl_matches enthält die echte Gesamtzahl
               })
 
               print(f"{len(matched_ips):,} BL-Hits / {total_prefixes} Prefixes → Score {score}")
@@ -352,19 +352,20 @@ jobs:
           }
           for r in results:
               db["asns"][r["asn"]] = {
-                  "holder":     r["holder"],
-                  "country":    r["country"],
-                  "score":      r["score"],
-                  "score_a":    r["score_a"],
-                  "score_b":    r["score_b"],
-                  "score_c":    r["score_c"],
-                  "score_d":    r["score_d"],
-                  "bl_matches": r["bl_matches"],
-                  "density":    r["density"],
-                  "drop_bonus": r["drop_bonus"],
-                  "et_bonus":   r["et_bonus"],
-                  "prefixes":   r["prefixes"],
-                  "total_ips":  r["total_ips"],
+                  "holder":              r["holder"],
+                  "country":             r["country"],
+                  "score":               r["score"],
+                  "score_a":             r["score_a"],
+                  "score_b":             r["score_b"],
+                  "score_c":             r["score_c"],
+                  "score_d":             r["score_d"],
+                  "bl_matches":          r["bl_matches"],   # vollständige Gesamtzahl
+                  "matched_ips_sample":  r["matched_ips"],  # Sample: max 500 IPs; vollständige Zahl in bl_matches
+                  "density":             r["density"],
+                  "drop_bonus":          r["drop_bonus"],
+                  "et_bonus":            r["et_bonus"],
+                  "prefixes":            r["prefixes"],
+                  "total_ips":           r["total_ips"],
               }
 
           with open("asn_reputation_db.json", "w", encoding="utf-8") as f:

@@ -57,6 +57,12 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_USER: ${{ github.event.issue.user.login }}
         run: |
+          # FIX RACE1: Neuesten Stand holen bevor community_reports_log.txt gelesen
+          # wird. Ohne diesen Pull würde bei gleichzeitigen Issues desselben Users
+          # der Rate-Limit-Check auf veralteten Checkout-Daten basieren und beide
+          # Runs kämen durch (je nach GitHub-Scheduling-Zeitfenster ~30s Überlappung).
+          git fetch origin ${GITHUB_REF_NAME}
+          git merge --ff-only origin/${GITHUB_REF_NAME} 2>/dev/null || true
           python3 << 'EOF'
           import ipaddress, json, os, re, sys
           from datetime import datetime, timezone

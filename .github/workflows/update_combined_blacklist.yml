@@ -139,7 +139,7 @@ jobs:
       - name: Fetch, discover, learn and build IPv4 lists
         run: |
           python3 << 'EOF'
-          import ipaddress, json, os, re, urllib.request
+          import ipaddress, json, os, re, sys, urllib.request
           from datetime import datetime, timezone, timedelta
           from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 
@@ -1107,6 +1107,18 @@ jobs:
           )
           feed_stats.sort(key=lambda x: -x[1])
 
+          # ── Leerungsschutz combined ───────────────────────────────────────
+          # Verhindert das Überschreiben der Blacklist wenn seen_db leer/korrupt
+          # ist oder alle Feeds gleichzeitig ausgefallen sind (z.B. Runner-Netzwerkausfall).
+          # Schwelle: 1000 IPs – bei normalbetrieb sind stets >10.000 IPs vorhanden.
+          MIN_COMBINED = 1000
+          if len(sorted_ips) < MIN_COMBINED:
+              msg = (f"Nur {len(sorted_ips)} IPs in combined (< {MIN_COMBINED}) – "
+                     f"Leerungsschutz aktiv, combined_threat_blacklist_ipv4.txt wird NICHT überschrieben.")
+              print(f"::error file=update_combined_blacklist.yml::{msg}")
+              print(f"FEHLER: {msg}")
+              sys.exit(1)
+
           with open("combined_threat_blacklist_ipv4.txt", "w", encoding="utf-8") as f:
               f.write("# NETSHIELD Combined Threat Blacklist (IPv4) – Stufe 1\n")
               f.write(f"# Aktualisiert: {now_stamp}\n")
@@ -1127,6 +1139,11 @@ jobs:
 
           for ip, data in db.items():
               if is_protected_entry(ip):
+                  continue
+              # FIX: Watchlist-IPs haben last="2000-01-01" als Sentinel-Wert (keine echte
+              # HQ-Bestätigung). Sie würden durch cutoff_30 korrekt gefiltert, aber das
+              # Verhalten hängt implizit am Sentinel-Datum. Explizit überspringen ist robuster.
+              if data.get("last", "") == "2000-01-01":
                   continue
               try:
                   last_dt  = datetime.strptime(data["last"],  "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -1184,13 +1201,24 @@ jobs:
           except Exception:
               active_ips.sort()
 
-          with open("active_blacklist_ipv4.txt", "w", encoding="utf-8") as f:
-              f.write("# NETSHIELD Active Blacklist (IPv4) – Stufe 2\n")
-              f.write(f"# Aktualisiert: {now_stamp}\n")
-              f.write(f"# Kriterien: last_seen <= 30 Tage UND Confidence-Score >= 65/100\n")
-              f.write(f"# Eintraege: {len(active_ips)}\n")
-              f.write(f"# Herausgefiltert (zu alt >30T): {active_skipped_old} | (Score <65): {active_skipped_score}\n\n")
-              f.write("\n".join(active_ips) + "\n")
+          # ── Leerungsschutz active ─────────────────────────────────────────
+          # active_blacklist kann bei einem frischen Repo (noch keine HQ-Daten) oder
+          # nach einem Cache-Miss leer sein – in dem Fall die bestehende Datei behalten.
+          # Kein sys.exit(1): combined wurde bereits geschrieben, nur active überspringen.
+          MIN_ACTIVE = 100
+          if len(active_ips) < MIN_ACTIVE:
+              msg = (f"Nur {len(active_ips)} aktive IPs (< {MIN_ACTIVE}) – "
+                     f"active_blacklist_ipv4.txt wird NICHT überschrieben (behalte vorherigen Stand).")
+              print(f"::warning file=update_combined_blacklist.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+          else:
+              with open("active_blacklist_ipv4.txt", "w", encoding="utf-8") as f:
+                  f.write("# NETSHIELD Active Blacklist (IPv4) – Stufe 2\n")
+                  f.write(f"# Aktualisiert: {now_stamp}\n")
+                  f.write(f"# Kriterien: last_seen <= 30 Tage UND Confidence-Score >= 65/100\n")
+                  f.write(f"# Eintraege: {len(active_ips)}\n")
+                  f.write(f"# Herausgefiltert (zu alt >30T): {active_skipped_old} | (Score <65): {active_skipped_score}\n\n")
+                  f.write("\n".join(active_ips) + "\n")
 
           # ── Report ─────────────────────────────────────────────────────────
           with open("combined_threat_blacklist_report.md", "w", encoding="utf-8") as f:

@@ -353,8 +353,12 @@ jobs:
           for i, cc in enumerate(countries):
               if time.monotonic() - _loop_start > MAX_LOOP_SECONDS:
                   _partial_load = True
-                  print(f"WARNUNG: Elapsed-time Guard ausgelöst nach {i} Ländern ({i}/{len(countries)}) – "
-                        f"Rest wird beim nächsten Run geladen. Bisher geladene Daten werden gespeichert.")
+                  _skipped_ccs = countries[i:]
+                  _msg = (f"Elapsed-time Guard ausgelöst nach {i} Ländern ({i}/{len(countries)}) – "
+                          f"{len(_skipped_ccs)} Länder übersprungen ({', '.join(_skipped_ccs[:10])}{'…' if len(_skipped_ccs) > 10 else ''}). "
+                          f"Bisher geladene Daten werden gespeichert.")
+                  print(f"::warning file=update-blocklist.yml::{_msg}")
+                  print(f"WARNUNG: {_msg}")
                   break
               continent, name = COUNTRY_MAP[cc]
               url = f"{base_url}/{cc}_IPv4.txt"

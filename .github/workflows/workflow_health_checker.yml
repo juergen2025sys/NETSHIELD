@@ -75,7 +75,10 @@ jobs:
           required_protection = {
               "update_combined_blacklist.yml": ["is_protected_entry", "192.168.14.0/24", "192.168.13.0/24"],
               "update_confidence_blacklist.yml": ["is_protected_entry", "192.168.14.0/24", "192.168.13.0/24"],
-              "false_positive_checker.yml": ["192.168.14.0/24", "192.168.13.0/24"],
+              # FIX: false_positive_checker.yml nutzt WHITELIST_CIDRS + is_whitelisted_entry,
+              # NICHT is_protected_entry. Der vorherige Token-Check erzeugte falsch-positive
+              # Schutzfehler, da is_protected_entry in dieser Datei nicht vorkommt.
+              "false_positive_checker.yml": ["WHITELIST_CIDRS", "is_whitelisted_entry", "192.168.14.0/24", "192.168.13.0/24"],
           }
 
           cron_re = re.compile(r"cron:\s*'([\d\s*/,]+)'")
@@ -945,6 +948,97 @@ jobs:
                   msg = "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich"
                   file_warnings.append(msg)
                   warnings.append({"file": fname, "check": "Node24 env fehlt", "detail": msg})
+
+              # ── Check 30: Leerungsschutz combined_threat_blacklist_ipv4.txt ──
+              # FIX-CB1: Regression-Check – MIN_COMBINED-Guard muss vorhanden sein
+              # bevor combined_threat_blacklist_ipv4.txt geschrieben wird.
+              if fname == "update_combined_blacklist.yml":
+                  _code_lines = [l for l in content.splitlines() if l.strip() and not l.strip().startswith('#')]
+                  _code_only = "\n".join(_code_lines)
+                  _has_min_combined = 'MIN_COMBINED' in _code_only
+                  _has_combined_write = 'combined_threat_blacklist_ipv4.txt' in _code_only
+                  if _has_combined_write and not _has_min_combined:
+                      msg = ("combined_threat_blacklist_ipv4.txt wird geschrieben ohne MIN_COMBINED-Leerungsschutz "
+                             "– leere Blacklist kann an OPNsense ausgeliefert werden (Regression FIX-CB1)")
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Leerungsschutz combined fehlt", "detail": msg})
+
+              # ── Check 31: Leerungsschutz active_blacklist_ipv4.txt ───────────
+              # FIX-CB2: Regression-Check – MIN_ACTIVE-Guard muss vorhanden sein.
+              if fname == "update_combined_blacklist.yml":
+                  _has_min_active = 'MIN_ACTIVE' in content
+                  _has_active_write = 'active_blacklist_ipv4.txt' in content
+                  if _has_active_write and not _has_min_active:
+                      msg = ("active_blacklist_ipv4.txt wird geschrieben ohne MIN_ACTIVE-Leerungsschutz "
+                             "(Regression FIX-CB2)")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Leerungsschutz active fehlt", "detail": msg})
+
+              # ── Check 32: Watchlist-Sentinel in active_blacklist-Loop ────────
+              # FIX-CB3: Regression-Check – Sentinel-Wert 2000-01-01 muss in der
+              # active_blacklist-Loop explizit übersprungen werden.
+              if fname == "update_combined_blacklist.yml":
+                  _active_loop_start = content.find('active_ips = []')
+                  _active_loop_end   = content.find('active_ips.sort(', _active_loop_start) if _active_loop_start != -1 else -1
+                  _active_loop_block = content[_active_loop_start:_active_loop_end] if _active_loop_start != -1 and _active_loop_end != -1 else ""
+                  if _active_loop_block and '2000-01-01' not in _active_loop_block:
+                      msg = ("active_blacklist-Loop überspringt Watchlist-Sentinel (last='2000-01-01') nicht explizit "
+                             "– implizite Filterung über cutoff_30 kann bei Refactoring brechen (Regression FIX-CB3)")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Watchlist-Sentinel fehlt in active-Loop", "detail": msg})
+
+              # ── Check 33: Score Decay Cache-Alters-Schwelle ──────────────────
+              # FIX-SD1: Regression-Check – Schwelle darf nicht unter 12h sinken
+              # (6h erzeugte falsch-positive Warnungen nach einem verpassten Run).
+              if fname == "score_decay_monitor.yml":
+                  _threshold_m = re.search(r'db_age_hours\s*>\s*(\d+)', content)
+                  if _threshold_m:
+                      _threshold_val = int(_threshold_m.group(1))
+                      if _threshold_val < 12:
+                          msg = (f"Cache-Alters-Schwelle ist {_threshold_val}h (< 12h) – "
+                                 f"erzeugt falsch-positive Warnungen nach einzelnem verpassten Combined-Run "
+                                 f"(Regression FIX-SD1)")
+                          file_warnings.append(msg)
+                          warnings.append({"file": fname, "check": "Cache-Schwelle zu streng", "detail": msg})
+
+              # ── Check 34: required_protection für false_positive_checker ─────
+              # FIX-WH9: Regression-Check – false_positive_checker.yml muss auf
+              # WHITELIST_CIDRS + is_whitelisted_entry geprüft werden, nicht is_protected_entry.
+              if fname == "workflow_health_checker.yml":
+                  _rp_block_m = re.search(r'required_protection\s*=\s*\{(.+?)\}', content, re.DOTALL)
+                  if _rp_block_m:
+                      _rp_block = _rp_block_m.group(1)
+                      _fp_line_m = re.search(r'"false_positive_checker\.yml"\s*:\s*\[([^\]]+)\]', _rp_block)
+                      if _fp_line_m:
+                          _fp_tokens = _fp_line_m.group(1)
+                          if 'is_protected_entry' in _fp_tokens:
+                              msg = ("required_protection für false_positive_checker.yml enthält 'is_protected_entry' "
+                                     "– diese Funktion existiert dort nicht, führt zu falsch-positiven Schutzfehlern "
+                                     "(Regression FIX-WH9)")
+                              file_errors.append(msg)
+                              errors.append({"file": fname, "check": "Falscher required_protection-Token", "detail": msg})
+                          if 'is_whitelisted_entry' not in _fp_tokens or 'WHITELIST_CIDRS' not in _fp_tokens:
+                              msg = ("required_protection für false_positive_checker.yml fehlt 'WHITELIST_CIDRS' "
+                                     "oder 'is_whitelisted_entry' (Regression FIX-WH9)")
+                              file_warnings.append(msg)
+                              warnings.append({"file": fname, "check": "required_protection unvollständig", "detail": msg})
+
+              # ── Check 35: sensor_total toter Code in honeydb_monitor ─────────
+              # FIX-HDB1: Regression-Check – sensor_total muss in stats{} einfließen
+              # oder anderweitig verwendet werden, nicht nur akkumuliert werden.
+              if fname == "honeydb_monitor.yml":
+                  _has_sensor_total_acc  = 'sensor_total +=' in content
+                  _has_sensor_total_use  = ('stats[' in content and 'sensor_total' in
+                                            content[content.find('sensor_total +='):content.find('sensor_total +=')+500])
+                  # Prüfen: wird sensor_total nach dem Akkumulieren auch in stats[] oder print() genutzt?
+                  _post_acc = content[content.find('sensor_total +='):] if 'sensor_total +=' in content else ''
+                  _sensor_used_after = ('stats[' in _post_acc[:600] or
+                                        'print(' in _post_acc[:600] and 'sensor_total' in _post_acc[:600])
+                  if _has_sensor_total_acc and not _sensor_used_after:
+                      msg = ("sensor_total wird akkumuliert aber nicht in stats{} oder print() genutzt "
+                             "– toter Code (Regression FIX-HDB1)")
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "sensor_total toter Code", "detail": msg})
 
               results[fname] = {
                   "blocks":   len(blocks),

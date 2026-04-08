@@ -171,7 +171,7 @@ jobs:
           # Wir holen nur gestern um das Request-Limit nicht zu sprengen.
           yesterday     = (now - timedelta(days=1)).strftime("%Y-%m-%d")
           sensor_ips    = set()
-          sensor_total  = 0
+          sensor_total  = 0   # Gesamt-Events (inkl. Duplikate) für Report-Transparenz
           print(f"\n[3/5] Sensor Event Data – {yesterday} (mit Paging)...")
 
           # Zuerst Count abrufen (1 Request)
@@ -218,7 +218,8 @@ jobs:
 
           all_ips.update(sensor_ips)
           stats[f"Sensor Events – {yesterday} (bis 5000)"] = len(sensor_ips)
-          print(f"  → {len(sensor_ips)} einzigartige Sensor-IPs")
+          stats[f"Sensor Events – {yesterday} (gesamt, m. Duplikaten)"] = sensor_total
+          print(f"  → {len(sensor_ips)} einzigartige Sensor-IPs ({sensor_total} Events gesamt)")
 
           # ── 4) Services (aktive Dienste, letzte 24h) ──────────────────────
           # Liefert Übersicht welche Dienste aktiv angegriffen werden.

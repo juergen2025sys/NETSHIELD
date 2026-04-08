@@ -130,7 +130,7 @@ jobs:
                   req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD-HealthMonitor/1.0"})
                   with urllib.request.urlopen(req, timeout=20) as r:
                       code   = r.status
-                      sample = r.read(25 * 1024 * 1024).decode("utf-8", errors="ignore")  # 25 MB – konsistent mit update_combined_blacklist.yml, damit grosse Feeds nicht fälschlich als leer erscheinen
+                      sample = r.read(2 * 1024 * 1024).decode("utf-8", errors="ignore")  # 2 MB reichen für IP-Sample-Check; 25 MB war unnötiger Netzwerk-/Speicherdruck bei 15 parallelen Requests
                   elapsed = round(time.time() - t0, 2)
                   ip_count = len(set(IP_RE.findall(sample)))
                   has_ips  = ip_count > 0
