@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-08 15:35 UTC",
+  "updated": "2026-04-08 15:40 UTC",
   "total": 16,
   "ok": 14,
   "warn": 0,
@@ -13,7 +13,17 @@
     {
       "file": "update_combined_blacklist.yml",
       "check": "SyntaxError",
+      "detail": "Block 0 Zeile 5: SyntaxError \u2013 unexpected indent \u2192 `now_str = datetime.now(timezone.utc).strftime(\"%Y-%m-%d %H:%M UTC\")`"
+    },
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "SyntaxError",
       "detail": "Block 1 Zeile 2: SyntaxError \u2013 unexpected indent \u2192 `import ipaddress, json, os, re, urllib.request`"
+    },
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "SyntaxError",
+      "detail": "Block 2 Zeile 7: SyntaxError \u2013 expected an indented block after 'if' statement on line 6 \u2192 `try:`"
     }
   ],
   "warnings": [],

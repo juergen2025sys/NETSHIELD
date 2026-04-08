@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-08 15:35 UTC
+**Aktualisiert:** 2026-04-08 15:40 UTC
 
 **Workflows:** 16 | ✅ 14 OK | ⚠️ 0 Warnung | ❌ 2 Fehler
 
@@ -9,7 +9,9 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `false_positive_checker.yml` | SyntaxError | Block 0 Zeile 2: SyntaxError – unexpected indent → `import re` |
+| `update_combined_blacklist.yml` | SyntaxError | Block 0 Zeile 5: SyntaxError – unexpected indent → `now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")` |
 | `update_combined_blacklist.yml` | SyntaxError | Block 1 Zeile 2: SyntaxError – unexpected indent → `import ipaddress, json, os, re, urllib.request` |
+| `update_combined_blacklist.yml` | SyntaxError | Block 2 Zeile 7: SyntaxError – expected an indented block after 'if' statement on line 6 → `try:` |
 
 ## 🏥 Production Health
 
@@ -34,9 +36,9 @@
 | `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
 | `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 1 * * 1`, `30 1 * * 3` |
 | `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
-| `update_combined_blacklist.yml` | ❌ | 1 | 0 | `0 */3 * * *` |
+| `update_combined_blacklist.yml` | ❌ | 3 | 0 | `0 */3 * * *` |
 | `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | `45 0 * * *`, `45 3 * * *`, `45 6 * * *`, `45 9 * * *`, `45 12 * * *`, `45 15 * * *`, `45 18 * * *`, `45 21 * * *` |
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-08 15:35 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-08 15:40 UTC | 16 Workflow-Dateien geprüft*
