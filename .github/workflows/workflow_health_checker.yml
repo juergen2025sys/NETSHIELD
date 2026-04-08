@@ -981,9 +981,9 @@ jobs:
               # bevor combined_threat_blacklist_ipv4.txt geschrieben wird.
               if fname == "update_combined_blacklist.yml":
                   _code_lines = [l for l in content.splitlines() if l.strip() and not l.strip().startswith('#')]
-                  _code_only = "\n".join(_code_lines)
-                  _has_min_combined = 'MIN_COMBINED' in _code_only
-                  _has_combined_write = 'combined_threat_blacklist_ipv4.txt' in _code_only
+                  _cb_code = "\n".join(_code_lines)
+                  _has_min_combined = 'MIN_COMBINED' in _cb_code
+                  _has_combined_write = 'combined_threat_blacklist_ipv4.txt' in _cb_code
                   if _has_combined_write and not _has_min_combined:
                       msg = ("combined_threat_blacklist_ipv4.txt wird geschrieben ohne MIN_COMBINED-Leerungsschutz "
                              "– leere Blacklist kann an OPNsense ausgeliefert werden (Regression FIX-CB1)")
