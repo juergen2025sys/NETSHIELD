@@ -1,18 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-08 15:40 UTC
+**Aktualisiert:** 2026-04-08 15:51 UTC
 
-**Workflows:** 16 | ✅ 14 OK | ⚠️ 0 Warnung | ❌ 2 Fehler
+**Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `false_positive_checker.yml` | SyntaxError | Block 0 Zeile 2: SyntaxError – unexpected indent → `import re` |
-| `update_combined_blacklist.yml` | SyntaxError | Block 0 Zeile 5: SyntaxError – unexpected indent → `now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")` |
-| `update_combined_blacklist.yml` | SyntaxError | Block 1 Zeile 2: SyntaxError – unexpected indent → `import ipaddress, json, os, re, urllib.request` |
-| `update_combined_blacklist.yml` | SyntaxError | Block 2 Zeile 7: SyntaxError – expected an indented block after 'if' statement on line 6 → `try:` |
-
 ## 🏥 Production Health
 
 **Status:** 🔴 0 CRITICAL | 🟡 0 WARN
@@ -27,7 +18,7 @@
 | `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `30 4 * * 0` |
 | `community_ip_report.yml` | ✅ OK | 0 | 0 | – |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
-| `false_positive_checker.yml` | ❌ | 1 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
+| `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `geo_tagger.yml` | ✅ OK | 0 | 0 | `45 7 * * 0` |
 | `honeydb_monitor.yml` | ✅ OK | 0 | 0 | `15 22 * * *` |
@@ -36,9 +27,9 @@
 | `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
 | `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 1 * * 1`, `30 1 * * 3` |
 | `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
-| `update_combined_blacklist.yml` | ❌ | 3 | 0 | `0 */3 * * *` |
+| `update_combined_blacklist.yml` | ✅ OK | 0 | 0 | `0 */3 * * *` |
 | `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | `45 0 * * *`, `45 3 * * *`, `45 6 * * *`, `45 9 * * *`, `45 12 * * *`, `45 15 * * *`, `45 18 * * *`, `45 21 * * *` |
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-08 15:40 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-08 15:51 UTC | 16 Workflow-Dateien geprüft*
