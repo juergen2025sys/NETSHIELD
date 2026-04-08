@@ -1,11 +1,23 @@
 {
-  "updated": "2026-04-08 14:49 UTC",
+  "updated": "2026-04-08 15:29 UTC",
   "total": 16,
   "ok": 16,
   "warn": 0,
   "error": 0,
-  "errors": [],
-  "warnings": [],
+  "errors": [
+    {
+      "file": "false_positive_checker.yml",
+      "check": "Hardening-Guard fehlt",
+      "detail": "Fehlende Schutz-Tokens: 192.168.14.0/24, 192.168.13.0/24"
+    }
+  ],
+  "warnings": [
+    {
+      "file": "update_combined_blacklist.yml \u2194 false_positive_checker.yml",
+      "check": "Whitelist-Drift",
+      "detail": "24 Eintr\u00e4ge nicht synchron \u2013 nur in combined: 142.251.110.0/24, 142.251.127.190, 142.251.127.84, 142.251.127.97, 142.251.13.95\u2026; nur in fp_checker: 142.250.0.0/15, 34.64.0.0/10, 35.184.0.0/13"
+    }
+  ],
   "ip_counts": {
     "combined_threat_blacklist_ipv4.txt": 4170990,
     "active_blacklist_ipv4.txt": 2425138,

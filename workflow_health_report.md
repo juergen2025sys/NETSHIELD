@@ -1,9 +1,21 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-08 14:49 UTC
+**Aktualisiert:** 2026-04-08 15:29 UTC
 
 **Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `false_positive_checker.yml` | Hardening-Guard fehlt | Fehlende Schutz-Tokens: 192.168.14.0/24, 192.168.13.0/24 |
+
+## ⚠️ Warnungen
+
+| Datei | Check | Detail |
+|---|---|---|
+| `update_combined_blacklist.yml ↔ false_positive_checker.yml` | Whitelist-Drift | 24 Einträge nicht synchron – nur in combined: 142.251.110.0/24, 142.251.127.190, 142.251.127.84, 142.251.127.97, 142.251.13.95…; nur in fp_checker: 142.250.0.0/15, 34.64.0.0/10, 35.184.0.0/13 |
+
 ## 🏥 Production Health
 
 **Status:** 🔴 0 CRITICAL | 🟡 0 WARN
@@ -32,4 +44,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-08 14:49 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-08 15:29 UTC | 16 Workflow-Dateien geprüft*
