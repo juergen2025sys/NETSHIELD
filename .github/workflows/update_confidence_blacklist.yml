@@ -42,12 +42,14 @@ jobs:
         uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: seen_db.json
-          # FIX: restore-keys matcht jetzt alle Varianten die Combined schreibt
+          # FIX: restore-keys matcht alle Varianten die Combined und auto_feed_discovery schreiben.
           # Combined speichert: netshield-seen-db-v2-<run_id>
-          # Durch restore-keys holen wir immer den neuesten verfügbaren Cache
+          # auto_feed_discovery speichert: netshield-seen-db-afd-save-<run_id>
+          # Durch restore-keys holen wir immer den neuesten verfügbaren Cache.
           key: netshield-seen-db-v2-${{ github.run_id }}
           restore-keys: |
             netshield-seen-db-v2-
+            netshield-seen-db-afd-save-
             netshield-seen-db-v1-
             netshield-seen-db-
 

@@ -308,6 +308,10 @@ jobs:
           CONTINENTS = ["africa", "asia", "europe", "north_america", "oceania", "south_america"]
 
           base_url = "https://country-ip-blocks.hackinggate.com"
+          # Hinweis: hackinggate.com ist der einzige Datenprovider für diesen Workflow.
+          # Bei einem Totalausfall greift der Leerungsschutz (MIN_ENTRIES=240_000) und
+          # die bestehenden Dateien werden beibehalten. Eine alternative Quelle wäre
+          # z.B. https://www.ipdeny.com/ipblocks/ (CIDR-Format, länderbezogen).
           all_ips  = set()                # für all_countries_ipv4.txt
           continent_ips = {c: set() for c in CONTINENTS}
           country_data  = {}              # cc → sorted list of entries
@@ -396,6 +400,11 @@ jobs:
           # könnten trotzdem 200k+ ankommen → Schwelle auf 240k erhöht für
           # zuverlässigeren Schutz vor teilweise fehlgeschlagenen Runs.
           MIN_ENTRIES = 240_000
+          if len(all_ips) == 0:
+              msg = "Keine IP-Ranges geladen – hackinggate.com möglicherweise ausgefallen (SPOF)"
+              print(f"::error file=update-blocklist.yml::{msg}")
+              print(f"FEHLER: {msg}")
+              sys.exit(1)
           if len(all_ips) < MIN_ENTRIES:
               msg = (f"Nur {len(all_ips)} IP-Ranges geladen (< {MIN_ENTRIES}) – "
                      f"Leerungsschutz aktiv, Dateien werden NICHT überschrieben.")

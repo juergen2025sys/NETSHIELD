@@ -3,7 +3,7 @@ name: Workflow Health Checker
 on:
   schedule:
     - cron: '15 1 * * *'   # 01:15 UTC (15 Min nach Feed Health Monitor 01:00)
-    - cron: '15 7 * * *'   # 07:15 UTC (nach Score Decay 07:00 + Geo-Tagger 07:45)
+    - cron: '15 7 * * *'   # 07:15 UTC (nach Score Decay 07:00; VOR Geo-Tagger 07:45 – Geo-Status erst ab 13:15 sichtbar)
     - cron: '15 13 * * *'  # 13:15 UTC (Tagesmitte – Pipeline-Stillstand erkennen)
     - cron: '15 19 * * *'  # 19:15 UTC (Abend – vor HoneyDB 22:15 + Combined 00:00)
   workflow_dispatch:
@@ -377,8 +377,14 @@ jobs:
 
                   # ── Check 4: open(..., "w") ohne encoding ─────────────────
                   # Nur für text-writes (f.write), nicht für json.dump (schreibt nur ASCII)
-                  for m in re.finditer(r'open\([^)]+,\s*["\']w["\']\s*\)', dedented):
-                      snippet = dedented[max(0, m.start()-30):m.end()+60]
+                  # FIX CHK4: Kommentarzeilen ausschließen – open() in # ... Kommentaren
+                  # sind kein echter Code und dürfen keinen False Positive erzeugen.
+                  _dedented_code = "\n".join(
+                      l for l in dedented.splitlines()
+                      if not l.lstrip().startswith("#")
+                  )
+                  for m in re.finditer(r'open\([^)]+,\s*["\']w["\']\s*\)', _dedented_code):
+                      snippet = _dedented_code[max(0, m.start()-30):m.end()+60]
                       if "encoding" not in snippet and "json.dump" not in snippet:
                           msg = f"Block {i}: open(..., 'w') ohne encoding= – UnicodeEncodeError möglich"
                           file_warnings.append(msg)
@@ -644,10 +650,15 @@ jobs:
               # ── Check 17: open(..., "a") ohne encoding= ──────────────────
               # Append-Mode kann ebenso wie Write-Mode zum UnicodeEncodeError
               # führen wenn Locale nicht UTF-8 ist.
+              # FIX CHK17: Kommentarzeilen ausschließen (analog Fix CHK4).
               _open_append_pat = re.compile(r"open\([^)]+,\s*['\"]{1}a['\"]{1}\s*\)")
               for _bi, _blk in enumerate(blocks):
-                  for _m in _open_append_pat.finditer(_blk):
-                      _snip = _blk[max(0, _m.start()-30):_m.end()+60]
+                  _blk_code = "\n".join(
+                      l for l in _blk.splitlines()
+                      if not l.lstrip().startswith("#")
+                  )
+                  for _m in _open_append_pat.finditer(_blk_code):
+                      _snip = _blk_code[max(0, _m.start()-30):_m.end()+60]
                       if 'encoding' not in _snip:
                           msg = (f"Block {_bi}: open(..., 'a') ohne encoding= – "
                                  f"UnicodeEncodeError möglich bei non-ASCII")
@@ -797,6 +808,15 @@ jobs:
                       msg = "git checkout --theirs fuer all_countries_ipv4.txt ohne '--' – inkonsistent/fragil"
                       file_errors.append(msg)
                       errors.append({"file": fname, "check": "Fehlendes -- bei git checkout", "detail": msg})
+                  # FIX CHK23-BL: SPOF-Check – bei Totalausfall (0 IPs) muss
+                  # eine ::error Annotation ausgegeben werden, nicht nur ::warning.
+                  if 'len(all_ips) == 0' not in content:
+                      msg = (
+                          "update-blocklist.yml hat keinen expliziten Null-IP-Guard (len(all_ips)==0) – "
+                          "Totalausfall von hackinggate.com wuerde nur als Warnung erscheinen"
+                      )
+                      file_warnings.append(msg)
+                      warnings.append({"file": fname, "check": "Null-IP SPOF-Guard fehlt", "detail": msg})
 
               if fname == "community_ip_report.yml":
                   restore_section = content.split('restore-keys: |', 1)[1] if 'restore-keys: |' in content else ''
@@ -853,9 +873,16 @@ jobs:
                       msg = ("Numerische Sortierung von active_ips ist nicht gegen kaputte Eintraege abgesichert")
                       file_warnings.append(msg)
                       warnings.append({"file": fname, "check": "Sort-Key ohne Fallback", "detail": msg})
-                  # FIX BUG3: combined verwendet timeout=600, nicht 900. Literal war veraltet.
-                  if 'for future in as_completed(futures, timeout=600):' in content and 'except TimeoutError' not in content:
-                      msg = ("Auto-Feed-Sammlung hat kein explizites Timeout-Handling/Logging fuer pending Futures")
+                  # FIX CHK23-CB: Combined hat zwei ThreadPoolExecutor-Bloecke
+                  # (Hauptfeed timeout=600, Auto-Feed timeout=120). Beide muessen
+                  # except TimeoutError haben. Altes Literal-Match war zu eng.
+                  _tpe_timeouts = re.findall(r'as_completed\(futures,\s*timeout=(\d+)\)', content)
+                  _has_timeout_exc = 'except TimeoutError' in content
+                  if _tpe_timeouts and not _has_timeout_exc:
+                      msg = (
+                          f"as_completed mit timeout= ({', '.join(_tpe_timeouts)}s) aber "
+                          f"kein 'except TimeoutError' – Timeout wird nicht behandelt"
+                      )
                       file_warnings.append(msg)
                       warnings.append({"file": fname, "check": "Timeout-Handling fehlt", "detail": msg})
 
@@ -1373,6 +1400,9 @@ jobs:
           # ── Workflow-Abhaengigkeitskette ──────────────────────────────────
           # Sub-Workflows muessen VOR update_combined_blacklist laufen.
           # Prüfe ob die Cron-Zeiten das garantieren.
+          # Mindest-Puffer (Minuten) zwischen Sub-Workflow und Combined.
+          # Combined braucht ~20min – 60min Puffer ist konservativ sicher.
+          _DEP_MIN_GAP = 60
           _dependency_chain = {
               "honeydb_monitor.yml":     "update_combined_blacklist.yml",
               "honeypot_monitor.yml":    "update_combined_blacklist.yml",
@@ -1392,13 +1422,33 @@ jobs:
               _dst_mins = sorted(set(_dst_mins))
               if not _src_mins or not _dst_mins:
                   continue
-              # Fuer jeden Sub-Workflow-Zeitpunkt: laeuft der Combined danach?
+              # Fuer jeden Sub-Workflow-Zeitpunkt: gibt es einen Combined-Lauf
+              # mindestens _DEP_MIN_GAP Minuten spaeter (am selben Tag)?
+              _dep_bad = []
               for _s in _src_mins:
                   _later = [_d for _d in _dst_mins if _d > _s]
                   if not _later:
-                      # Sub-Workflow laeuft nach dem letzten Combined → erst am naechsten Tag
-                      # Das ist OK wenn Combined auch frueher laeuft
+                      # Sub-Workflow laueft nach dem letzten Combined des Tages.
+                      # Combined laueft aber auch frueher (*/3h), daher kein harter Fehler –
+                      # die Daten werden beim naechsten frueheren Combined-Lauf verarbeitet.
                       pass
+                  else:
+                      _gap = _later[0] - _s
+                      if _gap < _DEP_MIN_GAP:
+                          _dep_bad.append(
+                              f"{_fmt_minute_of_day(_s)} → {_fmt_minute_of_day(_later[0])} "
+                              f"({_gap}min < {_DEP_MIN_GAP}min Mindestpuffer)"
+                          )
+              if _dep_bad:
+                  warnings.append({
+                      "file": f"{_dep_src} → {_dep_dst}",
+                      "check": "Sub-Workflow Puffer zu knapp",
+                      "detail": (
+                          f"Sub-Workflow laueft zu knapp vor Combined – "
+                          f"Output moeglicherweise nicht rechtzeitig verfuegbar: "
+                          + "; ".join(_dep_bad[:5])
+                      ),
+                  })
 
           # ── Score-Modell Konsistenz (combined ↔ confidence) ──────────────
           # Die Confidence-Score-Berechnung (score_a/b/c/d) muss in

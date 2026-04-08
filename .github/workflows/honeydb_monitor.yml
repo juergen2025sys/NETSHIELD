@@ -2,7 +2,7 @@ name: HoneyDB Monitor
 
 on:
   schedule:
-    - cron: '15 22 * * *'   # täglich 22:15 UTC (vor Honeypot Monitor 23:00 und Combined 00:00)
+    - cron: '15 22 * * *'   # täglich 22:15 UTC (nach Combined 21:00; vor Honeypot Monitor 23:00 und Combined 00:00)
   workflow_dispatch:
 
 env:
