@@ -1003,6 +1003,16 @@ jobs:
               db.pop(ip, None)
           print(f"Abgelaufen (>{EXPIRY_DAYS} Tage / Watchlist >{WATCHLIST_EXPIRY_DAYS} Tage): {len(expired)} IPs entfernt")
 
+          # ── Whitelist-/FP-Altlasten aus seen_db bereinigen ───────────────
+          # IPs, die vor Einführung eines neuen Whitelist-/FP-Eintrags bereits
+          # in seen_db lagen, würden sonst beim Schreiben der Combined-Datei
+          # wieder auftauchen. Deshalb hier vor dem Persistieren aktiv entfernen.
+          _wl_cleanup = [ip for ip in db if is_whitelisted(ip) or is_in_fp_set(ip)]
+          for ip in _wl_cleanup:
+              db.pop(ip, None)
+          if _wl_cleanup:
+              print(f"Whitelist-Bereinigung seen_db: {len(_wl_cleanup)} IPs entfernt")
+
           # ── seen_db speichern ──────────────────────────────────────────────
           with open(DB_FILE, "w") as f:
               json.dump(db, f, separators=(",", ":"))
@@ -1010,8 +1020,13 @@ jobs:
           # ── Stufe 1: combined_threat_blacklist_ipv4.txt (alle DB-IPs) ─────
           # FIX Bug6: Numerische IP-Sortierung (1.2.3.4 vor 10.0.0.1),
           # konsistent mit active_blacklist und allen anderen Ausgabedateien.
+          # Zusätzlicher Guard: Whitelist-/FP-Treffer dürfen auch als Altlasten
+          # aus früheren seen_db-Ständen nie mehr in die Combined-Ausgabe.
           sorted_ips = sorted(
-              [ip for ip in db.keys() if not is_protected_entry(ip)],
+              [ip for ip in db.keys()
+               if not is_protected_entry(ip)
+               and not is_whitelisted(ip)
+               and not is_in_fp_set(ip)],
               key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e)
           )
           feed_stats.sort(key=lambda x: -x[1])
