@@ -51,13 +51,13 @@ jobs:
 
       - name: Check Blacklist for False Positives
         run: |
-          python3 << 'EOF'
-          import re
-          import os
-          import sys
-          import json
-          import ipaddress
-          from datetime import datetime, timezone
+  python3 << 'EOF'
+  import re
+  import os
+  import sys
+  import json
+  import ipaddress
+  from datetime import datetime, timezone
 
           now = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
@@ -665,12 +665,12 @@ jobs:
       - name: Commit
         if: always()
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot
-              # --- Dynamic Gaming Whitelist ---
-              # Rockstar
-              "185.56.64.0/22",
-              "104.255.104.0/22",
+  git config user.name "github-actions[bot]"
+  git config user.email "github-actions[bot
+  # --- Dynamic Gaming Whitelist ---
+  # Rockstar
+  "185.56.64.0/22",
+  "104.255.104.0/22",
 
               # Steam / Valve
               "155.133.224.0/22",

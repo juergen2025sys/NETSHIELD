@@ -48,9 +48,9 @@ jobs:
           ABUSEIPDB_KEY_2: ${{ secrets.ABUSEIPDB_API_KEY_2 }}
           ABUSEIPDB_KEY_3: ${{ secrets.ABUSEIPDB_API_KEY_3 }}
         run: |
-          python3 << 'EOF'
-          import json, os, urllib.request, urllib.error
-          from datetime import datetime, timezone
+  python3 << 'EOF'
+  import json, os, urllib.request, urllib.error
+  from datetime import datetime, timezone
 
           now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
@@ -138,10 +138,10 @@ jobs:
 
       - name: Fetch, discover, learn and build IPv4 lists
         run: |
-          python3 << 'EOF'
-          import ipaddress, json, os, re, urllib.request
-          from datetime import datetime, timezone, timedelta
-          from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
+  python3 << 'EOF'
+  import ipaddress, json, os, re, urllib.request
+  from datetime import datetime, timezone, timedelta
+  from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 
           now        = datetime.now(timezone.utc)
           now_day    = now.strftime("%Y-%m-%d")
@@ -1380,31 +1380,31 @@ jobs:
         # Blacklist-Update) sollen sichtbar ins Repo committed werden.
         if: always()
         run: |
-          python3 - << 'PYEOF'
-          import json, os
-          from datetime import datetime, timezone
-          now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-          meta = {"note": "seen_db.json nur im GitHub Actions Cache (zu gross fuer Repo)", "updated": now_str}
-          if os.path.exists("seen_db.json"):
-              try:
-                  with open("seen_db.json") as f:
-                      db = json.load(f)
-                  meta["total_ips"] = len(db)
-                  meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
-                  print(f"seen_db: {len(db)} IPs, {meta['size_mb']} MB")
-              except Exception as e:
-                  meta["error"] = f"seen_db.json nicht lesbar: {e}"
-                  meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
-                  print(f"WARNUNG: seen_db.json korrupt oder nicht lesbar: {e}")
-          with open("seen_db_meta.json", "w") as f:
-              json.dump(meta, f, indent=2)
-          PYEOF
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot
-              # --- Dynamic Gaming Whitelist ---
-              # Rockstar
-              "185.56.64.0/22",
-              "104.255.104.0/22",
+  python3 - << 'PYEOF'
+  import json, os
+  from datetime import datetime, timezone
+  now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+  meta = {"note": "seen_db.json nur im GitHub Actions Cache (zu gross fuer Repo)", "updated": now_str}
+  if os.path.exists("seen_db.json"):
+  try:
+  with open("seen_db.json") as f:
+  db = json.load(f)
+  meta["total_ips"] = len(db)
+  meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
+  print(f"seen_db: {len(db)} IPs, {meta['size_mb']} MB")
+  except Exception as e:
+  meta["error"] = f"seen_db.json nicht lesbar: {e}"
+  meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
+  print(f"WARNUNG: seen_db.json korrupt oder nicht lesbar: {e}")
+  with open("seen_db_meta.json", "w") as f:
+  json.dump(meta, f, indent=2)
+  PYEOF
+  git config user.name "github-actions[bot]"
+  git config user.email "github-actions[bot
+  # --- Dynamic Gaming Whitelist ---
+  # Rockstar
+  "185.56.64.0/22",
+  "104.255.104.0/22",
 
               # Steam / Valve
               "155.133.224.0/22",
