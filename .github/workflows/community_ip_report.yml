@@ -260,7 +260,7 @@ jobs:
               print(f"Neue IP {ip} als Community-Report eingetragen (Watchlist, last=2000-01-01)")
 
           # ── seen_db speichern ─────────────────────────────────────────────
-          with open(DB_FILE, "w") as f:
+          with open(DB_FILE, "w", encoding="utf-8") as f:
               json.dump(db, f, separators=(",", ":"))
 
           # ── Log-Eintrag ───────────────────────────────────────────────────

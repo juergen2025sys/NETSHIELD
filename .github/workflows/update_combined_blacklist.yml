@@ -1090,7 +1090,7 @@ jobs:
               print(f"Whitelist-Bereinigung seen_db: {len(_wl_cleanup)} IPs entfernt")
 
           # ── seen_db speichern ──────────────────────────────────────────────
-          with open(DB_FILE, "w") as f:
+          with open(DB_FILE, "w", encoding="utf-8") as f:
               json.dump(db, f, separators=(",", ":"))
 
           # ── Stufe 1: combined_threat_blacklist_ipv4.txt (alle DB-IPs) ─────

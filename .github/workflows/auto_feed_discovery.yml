@@ -642,7 +642,7 @@ jobs:
                 f"{len(expired)} abgelaufen | Gesamt: {len(db)} IPs")
 
           # ── Schritt 7: seen_db speichern ──────────────────────────────────
-          with open(DB_FILE, "w") as f:
+          with open(DB_FILE, "w", encoding="utf-8") as f:
               json.dump(db, f, separators=(",", ":"))
 
           # Schritt 8 (combined_threat_blacklist_ipv4.txt schreiben) ENTFERNT.
