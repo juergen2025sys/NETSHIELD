@@ -384,6 +384,11 @@ jobs:
                       if not l.lstrip().startswith("#")
                   )
                   for m in re.finditer(r'open\([^)]+,\s*["\']w["\']\s*\)', _dedented_code):
+                      # FIX CHK4b: Zeilen wie msg=f"...open(...,'w')..." sind String-Literale, kein echter open()-Aufruf.
+                      _ml = _dedented_code[_dedented_code.rfind('\n', 0, m.start())+1:]
+                      _ml = _ml[:_ml.find('\n')] if '\n' in _ml else _ml
+                      if re.match(r'\s*(?:msg|_msg|file_\w+)\s*', _ml):
+                          continue
                       snippet = _dedented_code[max(0, m.start()-30):m.end()+60]
                       if "encoding" not in snippet and "json.dump" not in snippet:
                           msg = f"Block {i}: open(..., 'w') ohne encoding= – UnicodeEncodeError möglich"
@@ -658,6 +663,11 @@ jobs:
                       if not l.lstrip().startswith("#")
                   )
                   for _m in _open_append_pat.finditer(_blk_code):
+                      # FIX CHK17b: String-Literale in msg=f"...open(...,'a')..."-Zeilen ausschließen.
+                      _aml = _blk_code[_blk_code.rfind('\n', 0, _m.start())+1:]
+                      _aml = _aml[:_aml.find('\n')] if '\n' in _aml else _aml
+                      if re.match(r'\s*(?:msg|_msg|file_\w+)\s*', _aml):
+                          continue
                       _snip = _blk_code[max(0, _m.start()-30):_m.end()+60]
                       if 'encoding' not in _snip:
                           msg = (f"Block {_bi}: open(..., 'a') ohne encoding= – "
@@ -681,6 +691,8 @@ jobs:
                           continue
                       # FIX CHK18c: nur echte sys.exit(1)-Statements, keine String-Literale.
                       # Zeile muss nach sys.exit(1) enden (ggf. Kommentar), kein weiterer Kontext.
+                      # FIX CHK18d: msg=f"...sys.exit(1)..."-Zeilen sind String-Literale, kein echter Exit.
+                      if re.match(r'\s*(?:msg|_msg|file_\w+)\s*(?:=|\()', _s): continue
                       if re.search(r'sys\.exit\(1\)\s*(?:#.*)?$', _s):
                           # Prüfe die 8 Zeilen davor (nur Code, keine Kommentare)
                           _ctx_lines = [l for l in _lines[max(0, _j-8):_j]
@@ -892,6 +904,10 @@ jobs:
               _uses_re = re.compile(r'^\s*-?\s*uses:\s*(\S+)', re.MULTILINE)
               for _um in _uses_re.finditer(content):
                   _action = _um.group(1).strip()
+                  # FIX CHK24b: Kommentarzeilen überspringen.
+                  _um_line = content.splitlines()[content[:_um.start()].count('\n')]
+                  if _um_line.lstrip().startswith('#'):
+                      continue
                   if '/' not in _action:
                       continue  # Lokale Actions (./xxx)
                   if '@' not in _action:
