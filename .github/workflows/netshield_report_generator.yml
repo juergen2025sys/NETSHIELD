@@ -250,8 +250,9 @@ jobs:
           # (separate EOF-Heredocs) und teilen keinen Namespace.
           # FIX DUP1: Funktion als eigenständige Definition direkt hier, statt
           # als unsynchronisierte Kopie. Beide EOF-Blöcke definieren die Funktion
-          # lokal – das ist unvermeidbar wegen des Heredoc-Namespaces, aber
-          # der Code ist nun identisch strukturiert (kein abweichendes _-Präfix).
+          # lokal – das ist unvermeidbar wegen des Heredoc-Namespaces.
+          # STAND: Beide Blöcke verwenden identischen Namen derive_feed_count()
+          # (kein abweichendes _-Präfix mehr) und identische Implementierung.
           # Änderungen immer in BEIDEN EOF-Blöcken vornehmen (Kommentar markiert Stelle).
           if not os.path.exists("README.md"):
               print("README.md nicht gefunden – übersprungen")

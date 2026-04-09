@@ -51,7 +51,8 @@ jobs:
               # FIX RETRY1: Retry-Logik ergänzt (war: nur 1 Versuch, kein Backoff).
               # Bei transientem Netzwerkfehler fiel ein kompletter Feed weg.
               # Jetzt: bis zu 3 Versuche mit exponentiellem Backoff (2s, 4s).
-              import time as _time
+              # FIX DUP-IMPORT: `import time as _time` entfernt – time ist bereits
+              # auf Modul-Ebene importiert; lokaler Re-Import war Copy-Paste-Artefakt.
               last_err = None
               for attempt in range(1, retries + 1):
                   try:
@@ -61,7 +62,7 @@ jobs:
                   except Exception as e:
                       last_err = e
                       if attempt < retries:
-                          _time.sleep(2 ** attempt)
+                          time.sleep(2 ** attempt)
                       else:
                           print(f"  FEHLER {url.split('/')[-1]} (nach {retries} Versuchen): {e}")
               return None
