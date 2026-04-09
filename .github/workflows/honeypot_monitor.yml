@@ -119,23 +119,52 @@ jobs:
                   return None
 
 
+          # ══════════════════════════════════════════════════════════════════
+          # HONEYPOT_SOURCES – Honeypot-/Bot-spezifische Feeds
+          #
+          # WICHTIG: Quellen hier dürfen NICHT identisch mit SOURCES in
+          # update_combined_blacklist.yml sein, da honeypot_ips.txt als
+          # LOCAL_FEED (HQ=True) eingelesen wird → doppelter today_count.
+          #
+          # Änderungslog:
+          # - yuexuana_honeypot entfernt: Repo gelöscht (404 seit ~März 2026)
+          # - badpackets_honeypot entfernt: Repo gelöscht (404 seit ~März 2026)
+          # - threatmon_honeypot entfernt: Repo gelöscht (404 seit ~März 2026)
+          # - ipsum_level5 entfernt: identische URL bereits in combined SOURCES
+          #   (HQ=True) → doppelter today_count, Confidence-Score aufgeblasen
+          #
+          # Ersatz-Quellen (alle auf bewährten Repos/Diensten):
+          # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
+          # - dronebl_botnets: DroneBL Botnet-IPs via FireHOL (echtes Honeypot-Netz)
+          # - blocklist_de_bots: blocklist.de Bot-spezifische Liste (nicht in combined)
+          # - blocklist_de_bruteforce: blocklist.de Bruteforce-Login (nicht in combined)
+          # ══════════════════════════════════════════════════════════════════
+
           HONEYPOT_SOURCES = {
-              # Honeypot-spezifische Feeds (alle öffentlich, kein API-Key)
-              "yuexuana_honeypot":
-                  "https://raw.githubusercontent.com/yuexuana521/honeypot-blocklist/refs/heads/main/ip_list.txt",
-              "badpackets_honeypot":
-                  "https://raw.githubusercontent.com/badpackets/honeypot-threat-feed/main/honeypot_threat_feed.txt",
-              "threatmon_honeypot":
-                  "https://raw.githubusercontent.com/ThreatMon/ThreatMon-Daily-IPs/main/ThreatMon.txt",
-              # "turris_honeypot" entfernt: identische URL bereits als "turris_greylist" in
-              # update_combined_blacklist.yml SOURCES (HQ=True) eingetragen. Doppeltes Einlesen
-              # über honeypot_ips.txt (LOCAL_FEED) würde today_count in seen_db künstlich
-              # erhöhen und den Confidence-Score reiner Turris-IPs fälschlich aufblasen.
-              # cymru_bogons entfernt: fullbogons-ipv4.txt enthält nicht-routbare/reservierte
-              # Bereiche (Bogons), keine Angreifer-IPs. is_valid_public_ipv4() filtert sie
-              # zwar korrekt heraus, aber der Feed liefert 0 nutzbare IPs → sinnloser Request.
-              "ipsum_level5":
-                  "https://raw.githubusercontent.com/stamparm/ipsum/master/levels/5.txt",
+              # ipsum Level 4: IPs auf mindestens 4 Blacklists gleichzeitig.
+              # Level 3 und 5 sind bereits in combined SOURCES → Level 4 ist
+              # die einzige Stufe die NICHT dort enthalten ist und hier
+              # zusätzlichen Wert liefert ohne Duplikat-Problem.
+              "ipsum_level4":
+                  "https://raw.githubusercontent.com/stamparm/ipsum/master/levels/4.txt",
+
+              # DroneBL: automatisch erkannte Botnets (Honeypot-basiert).
+              # FireHOL-Mirror des DroneBL-Feeds – nur IPs mit DroneBL-Code 17
+              # (automatically detected botnets). Nicht in combined SOURCES.
+              "dronebl_botnets":
+                  "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/dronebl_auto_botnets.ipset",
+
+              # blocklist.de Bots: IPs die als Bots erkannt wurden (badbot,
+              # regbot, w00tw00t). Separater Feed von blocklist.de – die
+              # generischen Listen (all.txt, ssh.txt) sind in combined,
+              # aber bots.txt ist dort NICHT enthalten.
+              "blocklist_de_bots":
+                  "https://lists.blocklist.de/lists/bots.txt",
+
+              # blocklist.de Bruteforce-Login: IPs die Bruteforce-Angriffe
+              # auf Login-Formulare durchführen. Nicht in combined SOURCES.
+              "blocklist_de_bruteforce":
+                  "https://lists.blocklist.de/lists/bruteforcelogin.txt",
           }
 
           all_ips = set()
