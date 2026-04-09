@@ -135,7 +135,7 @@ jobs:
           #
           # Ersatz-Quellen (alle auf bewährten Repos/Diensten):
           # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
-          # - dronebl_botnets: DroneBL Botnet-IPs via FireHOL (echtes Honeypot-Netz)
+          # - dronebl_all: DroneBL alle IPs via FireHOL (echtes Honeypot-Netz)
           # - blocklist_de_bots: blocklist.de Bot-spezifische Liste (nicht in combined)
           # - blocklist_de_bruteforce: blocklist.de Bruteforce-Login (nicht in combined)
           # ══════════════════════════════════════════════════════════════════
@@ -148,11 +148,11 @@ jobs:
               "ipsum_level4":
                   "https://raw.githubusercontent.com/stamparm/ipsum/master/levels/4.txt",
 
-              # DroneBL: automatisch erkannte Botnets (Honeypot-basiert).
-              # FireHOL-Mirror des DroneBL-Feeds – nur IPs mit DroneBL-Code 17
-              # (automatically detected botnets). Nicht in combined SOURCES.
-              "dronebl_botnets":
-                  "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/dronebl_auto_botnets.ipset",
+              # DroneBL: alle gelisteten IPs (Botnets, Worms, DDoS-Drones,
+              # IRC-Spam, kompromittierte Router). FireHOL-Mirror.
+              # Nicht in combined SOURCES.
+              "dronebl_all":
+                  "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/dronebl_all.ipset",
 
               # blocklist.de Bots: IPs die als Bots erkannt wurden (badbot,
               # regbot, w00tw00t). Separater Feed von blocklist.de – die
