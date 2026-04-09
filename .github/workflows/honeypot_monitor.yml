@@ -132,10 +132,15 @@ jobs:
           # - threatmon_honeypot entfernt: Repo gelöscht (404 seit ~März 2026)
           # - ipsum_level5 entfernt: identische URL bereits in combined SOURCES
           #   (HQ=True) → doppelter today_count, Confidence-Score aufgeblasen
+          # - bi_bruteforce_30d entfernt: bi_bruteforce_2_30d.ipset existiert
+          #   nicht im firehol/blocklist-ipsets-Repo (404 seit Beginn), ersetzt
+          #   durch dshield_1d (tägliches DShield-Aggregat, nicht in combined)
           #
-          # Ersatz-Quellen (alle auf bewährten Repos/Diensten):
+          # Aktuelle Quellen (alle auf bewährten Repos/Diensten):
           # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
-          # - bi_bruteforce_30d: badips.com Bruteforce via FireHOL (30-Tage-Feed)
+          # - dshield_1d: DShield Top-Attacker tägliches Aggregat (FireHOL),
+          #   NICHT identisch mit "dshield" in combined (dshield = block.txt, grobe
+          #   /24-Netze; dshield_1d = einzelne IPs der letzten 24h)
           # - blocklist_de_bots: blocklist.de Bot-spezifische Liste (nicht in combined)
           # - blocklist_de_bruteforce: blocklist.de Bruteforce-Login (nicht in combined)
           # ══════════════════════════════════════════════════════════════════
@@ -148,11 +153,13 @@ jobs:
               "ipsum_level4":
                   "https://raw.githubusercontent.com/stamparm/ipsum/master/levels/4.txt",
 
-              # badips.com Bruteforce: IPs die in den letzten 30 Tagen
-              # Bruteforce-Angriffe durchgeführt haben (FireHOL-Aggregat).
-              # Nicht in combined SOURCES.
-              "bi_bruteforce_30d":
-                  "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/bi_bruteforce_2_30d.ipset",
+              # DShield 1d: IPs der Top-Attacker der letzten 24h (DShield/SANS ISC).
+              # Ersatz für bi_bruteforce_2_30d (existierte nie im firehol-Repo).
+              # WICHTIG: combined SOURCES enthält "dshield" = dshield/block.txt
+              # (aggregierte /24-Netze, 3-Tage-Fenster) – das ist eine ANDERE Datei.
+              # dshield_1d.netset = einzelne IPs, tägliche Rotation → kein Duplikat.
+              "dshield_1d":
+                  "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/dshield_1d.netset",
 
               # blocklist.de Bots: IPs die als Bots erkannt wurden (badbot,
               # regbot, w00tw00t). Separater Feed von blocklist.de – die
