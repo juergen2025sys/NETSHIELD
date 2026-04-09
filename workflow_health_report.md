@@ -1,34 +1,34 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-09 18:46 UTC
+**Aktualisiert:** 2026-04-09 19:25 UTC
 
-**Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
+**Workflows:** 16 | ✅ 13 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
-| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 3,933 → 8,732 (+122%) – ungewöhnliches Wachstum |
+| `asn_reputation_scorer.yml` | Doppelter Import | Block 0: Doppelte Imports: time(2x) – moeglicherweise Copy-Paste-Artefakt |
+| `cve_to_ip_mapper.yml` | Doppelter Import | Block 0: Doppelte Imports: time(2x) – moeglicherweise Copy-Paste-Artefakt |
+| `geo_tagger.yml` | Doppelter Import | Block 0: Doppelte Imports: time(2x) – moeglicherweise Copy-Paste-Artefakt |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🟡 WARN | Drift: honeypot_ips.txt | honeypot_ips.txt: 3,933 → 8,732 (+122%) – ungewöhnliches Wachstum |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
 | Workflow | Status | Fehler | Warnungen | Cron |
 |---|---|---|---|---|
-| `asn_reputation_scorer.yml` | ✅ OK | 0 | 0 | `0 2 * * *` |
+| `asn_reputation_scorer.yml` | ⚠️ | 0 | 1 | `0 2 * * *` |
 | `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `30 4 * * 0` |
 | `community_ip_report.yml` | ✅ OK | 0 | 0 | – |
-| `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
+| `cve_to_ip_mapper.yml` | ⚠️ | 0 | 1 | `0 4 * * *` |
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
-| `geo_tagger.yml` | ✅ OK | 0 | 0 | `45 7 * * 0` |
+| `geo_tagger.yml` | ⚠️ | 0 | 1 | `45 7 * * 0` |
 | `honeydb_monitor.yml` | ✅ OK | 0 | 0 | `15 22 * * *` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 23 * * *` |
 | `netshield_report_generator.yml` | ✅ OK | 0 | 0 | `30 * * * *` |
@@ -40,4 +40,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-09 18:46 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-09 19:25 UTC | 16 Workflow-Dateien geprüft*
