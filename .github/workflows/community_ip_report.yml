@@ -69,6 +69,7 @@ jobs:
 
           now     = datetime.now(timezone.utc)
           now_day = now.strftime("%Y-%m-%d")
+          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
 
           issue_body   = os.environ.get("ISSUE_BODY", "")
           issue_number = os.environ.get("ISSUE_NUMBER", "?")
@@ -289,7 +290,7 @@ jobs:
           )
           with open(COMMUNITY_IPS_FILE, "w", encoding="utf-8") as _cf:
               _cf.write("# NETSHIELD Community Reported IPs\n")
-              _cf.write(f"# Aktualisiert: {now_day}\n")
+              _cf.write(f"# Aktualisiert: {now_str}\n")
               _cf.write(f"# Eintraege: {len(community_sorted)}\n")
               _cf.write("# Quelle: GitHub Issues (community-report Label)\n\n")
               _cf.write("\n".join(community_sorted) + "\n")
