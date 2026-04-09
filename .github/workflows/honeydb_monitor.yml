@@ -194,7 +194,14 @@ jobs:
                   events  = data.get("data", [])
                   # API liefert "from_id" als next-page-Cursor; fehlt er → keine weiteren Seiten.
                   # Fallback: wenn "next_from_id" statt "from_id" geliefert wird, beide prüfen.
-                  next_from_id = data["from_id"] if "from_id" in data else data.get("next_from_id")
+                  # FIX CURSOR1: Cursor-Extraktion mit expliziter None-Prüfung.
+                  # "from_id" hat Vorrang vor "next_from_id"; fehlt beides → None.
+                  if "from_id" in data:
+                      next_from_id = data["from_id"]
+                  elif "next_from_id" in data:
+                      next_from_id = data["next_from_id"]
+                  else:
+                      next_from_id = None
                   for event in events:
                       ip = event.get("remote_host", "")
                       if ip and is_valid_ipv4(ip) and not is_private(ip):
@@ -202,16 +209,17 @@ jobs:
                   sensor_total += len(events)
                   print(f"  Page {page+1}: {len(events)} Events, from_id={next_from_id}")
                   page += 1
-                  try:
-                      # FIX: next_from_id == 0 kann ein gültiger Cursor sein.
-                      # Abbruch nur bei None (Feld fehlt) oder wenn keine Events
-                      # auf dieser Seite zurückkamen (leere letzte Seite).
-                      if next_from_id is None:
-                          break
-                      if not events:
-                          break  # Leere Seite → keine weiteren Daten
-                  except (TypeError, ValueError):
-                      break  # Unerwarteter Typ → sicher abbrechen
+                  # FIX CURSOR1: Abbruchbedingungen VOR from_id-Zuweisung prüfen.
+                  # Vorher stand `from_id = next_from_id` nach dem break → bei
+                  # next_from_id=0 wurde 0 zugewiesen und die nächste Iteration
+                  # rief ?from_id=0 auf (= erster Request) → Duplikat-Seiten.
+                  # Jetzt: erst prüfen, dann nur bei Fortschritt zuweisen.
+                  if next_from_id is None:
+                      break   # Kein Cursor → letzte Seite
+                  if not events:
+                      break   # Leere Seite → keine weiteren Daten
+                  if not isinstance(next_from_id, int):
+                      break   # Unerwarteter Typ → sicher abbrechen
                   from_id = next_from_id
           else:
               print(f"  Sensor-Count für {yesterday} nicht verfügbar")

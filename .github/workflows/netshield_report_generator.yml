@@ -247,8 +247,12 @@ jobs:
 
           # derive_feed_count() ist identisch mit der gleichnamigen Funktion im
           # vorherigen Step – beide Steps sind eigenständige Python-Prozesse
-          # (separate EOF-Heredocs) und teilen keinen Namespace. Diese Kopie
-          # FIX: wurde als Duplikat entfernt; Logik inline unten beibehalten.
+          # (separate EOF-Heredocs) und teilen keinen Namespace.
+          # FIX DUP1: Funktion als eigenständige Definition direkt hier, statt
+          # als unsynchronisierte Kopie. Beide EOF-Blöcke definieren die Funktion
+          # lokal – das ist unvermeidbar wegen des Heredoc-Namespaces, aber
+          # der Code ist nun identisch strukturiert (kein abweichendes _-Präfix).
+          # Änderungen immer in BEIDEN EOF-Blöcken vornehmen (Kommentar markiert Stelle).
           if not os.path.exists("README.md"):
               print("README.md nicht gefunden – übersprungen")
               raise SystemExit(0)
@@ -262,8 +266,10 @@ jobs:
           if active == 0 and cve == 0 and honeypot == 0:
               print("WARNUNG: Alle Hauptlisten leer oder fehlend – README-Update übersprungen")
               raise SystemExit(0)
-          # FIX: derive_feed_count() hier inline – separate EOF-Heredocs teilen keinen Namespace.
-          def _derive_feed_count(workflow_path=".github/workflows/update_combined_blacklist.yml"):
+          # FIX DUP1: Identische Logik wie derive_feed_count() im ersten EOF-Block.
+          # Separate EOF-Heredocs teilen keinen Namespace – lokale Definition nötig.
+          # !! Bei Änderungen auch derive_feed_count() im ersten EOF-Block anpassen !!
+          def derive_feed_count(workflow_path=".github/workflows/update_combined_blacklist.yml"):
               if not os.path.exists(workflow_path):
                   return "–"
               try:
@@ -302,7 +308,7 @@ jobs:
                   return str(_total) if _total > 0 else "–"
               except Exception:
                   return "–"
-          feed_count = _derive_feed_count()
+          feed_count = derive_feed_count()
           now_str    = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
           # ── Neue Tabelleninhalte (passend zum neuen README-Format) ────────

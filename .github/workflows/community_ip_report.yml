@@ -61,8 +61,16 @@ jobs:
           # wird. Ohne diesen Pull würde bei gleichzeitigen Issues desselben Users
           # der Rate-Limit-Check auf veralteten Checkout-Daten basieren und beide
           # Runs kämen durch (je nach GitHub-Scheduling-Zeitfenster ~30s Überlappung).
+          # FIX RACE2: merge-Fehler explizit behandeln. Das frühere `|| true`
+          # verschluckte Fehler still – wenn fast-forward fehlschlug, las Python
+          # danach veraltete Daten ohne es zu merken. Jetzt: bei Fehler warnen,
+          # aber trotzdem fortsetzen (Community-Report ist nicht kritisch genug
+          # für einen harten Abbruch).
           git fetch origin ${GITHUB_REF_NAME}
-          git merge --ff-only origin/${GITHUB_REF_NAME} 2>/dev/null || true
+          if ! git merge --ff-only origin/${GITHUB_REF_NAME} 2>/dev/null; then
+            echo "::warning file=community_ip_report.yml::git merge --ff-only fehlgeschlagen – Rate-Limit-Check basiert auf lokalem Checkout-Stand"
+            echo "WARNUNG: Merge fehlgeschlagen, arbeite mit lokalem Stand weiter"
+          fi
           python3 << 'EOF'
           import ipaddress, json, os, re, sys
           from datetime import datetime, timezone
