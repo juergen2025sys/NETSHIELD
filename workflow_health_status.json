@@ -1,27 +1,11 @@
 {
-  "updated": "2026-04-09 19:25 UTC",
+  "updated": "2026-04-09 19:35 UTC",
   "total": 16,
-  "ok": 13,
-  "warn": 3,
+  "ok": 16,
+  "warn": 0,
   "error": 0,
   "errors": [],
-  "warnings": [
-    {
-      "file": "asn_reputation_scorer.yml",
-      "check": "Doppelter Import",
-      "detail": "Block 0: Doppelte Imports: time(2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
-    },
-    {
-      "file": "cve_to_ip_mapper.yml",
-      "check": "Doppelter Import",
-      "detail": "Block 0: Doppelte Imports: time(2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
-    },
-    {
-      "file": "geo_tagger.yml",
-      "check": "Doppelter Import",
-      "detail": "Block 0: Doppelte Imports: time(2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
-    }
-  ],
+  "warnings": [],
   "ip_counts": {
     "combined_threat_blacklist_ipv4.txt": 4202165,
     "active_blacklist_ipv4.txt": 2453730,
