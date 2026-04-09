@@ -1,14 +1,22 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-09 15:01 UTC
+**Aktualisiert:** 2026-04-09 18:46 UTC
 
 **Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
+## ⚠️ Warnungen
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 3,933 → 8,732 (+122%) – ungewöhnliches Wachstum |
+
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🟡 WARN | Drift: honeypot_ips.txt | honeypot_ips.txt: 3,933 → 8,732 (+122%) – ungewöhnliches Wachstum |
 
 ## Übersicht
 
@@ -32,4 +40,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-09 15:01 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-09 18:46 UTC | 16 Workflow-Dateien geprüft*
