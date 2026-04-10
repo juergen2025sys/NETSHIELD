@@ -240,6 +240,7 @@ jobs:
               "dataplane_sshclient", "dataplane_sshpwauth", "dataplane_vncrfb",
               "dataplane_telnetlogin", "dataplane_dnsrd", "dataplane_smtpdata",
               "dataplane_dnsrdany", "dataplane_dnsversion",
+              "threathive_blocklist",
           }
 
           # ══════════════════════════════════════════════════════════════════
@@ -352,6 +353,10 @@ jobs:
               # smtpgreet: HQ=False – enthält auch harmlose SMTP-Scanner/Surveyor-IPs
               "dataplane_dnsrdany":         ("https://dataplane.org/dnsrdany.txt", True),
               "dataplane_dnsversion":       ("https://dataplane.org/dnsversion.txt", True),
+
+              # ThreatHive – Community-Honeypot-Netzwerk, 146k+ IPs, alle 15 Min aktualisiert.
+              # Plain-Text-Feed, kein API-Key, kein Rate-Limit.
+              "threathive_blocklist":       ("https://threathive.net/hiveblocklist.txt", True),
 
               # ── Scanning / Recon ──────────────────────────────────────────
               "ipsum_level3":               ("https://raw.githubusercontent.com/stamparm/ipsum/master/levels/3.txt", False),
