@@ -1,14 +1,20 @@
 {
-  "updated": "2026-04-10 08:49 UTC",
+  "updated": "2026-04-10 11:08 UTC",
   "total": 16,
   "ok": 16,
   "warn": 0,
   "error": 0,
-  "errors": [],
+  "errors": [
+    {
+      "file": "false_positive_checker.yml",
+      "check": "Hardening-Guard fehlt",
+      "detail": "Fehlende Schutz-Tokens: 192.168.14.0/24, 192.168.13.0/24"
+    }
+  ],
   "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4220468,
-    "active_blacklist_ipv4.txt": 2471806,
+    "combined_threat_blacklist_ipv4.txt": 4221548,
+    "active_blacklist_ipv4.txt": 2472778,
     "blacklist_confidence40_ipv4.txt": 3140399,
     "cve_exploit_ips.txt": 56787,
     "honeypot_ips.txt": 8407,
