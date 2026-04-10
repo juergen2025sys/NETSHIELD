@@ -1157,16 +1157,24 @@ jobs:
                           print(f"  ⏭  {_ip_file}: nicht lesbar ({_e})")
 
               # ── Check 38: Secret-Leak in echo ────────────────────────────
-              # `echo ${{ secrets.* }}` gibt den Token-Wert ins Actions-Log aus.
-              # GitHub maskiert Secrets in run:-Blöcken nicht wenn sie explizit
-              # in echo eingebettet sind.
+              # echo $DBLOPEN secrets.* DBLCLOSE gibt Token ins Actions-Log.
+              # GitHub maskiert Secrets in run:-Bloecken nicht wenn sie via
+              # echo explizit ausgegeben werden.
+              # WICHTIG: {{ }} via chr() gebaut - GH Actions wuerde Literal-
+              # Sequenz als Expression expandieren und die YAML-Datei brechen.
+              _dbl_open  = chr(123) + chr(123)   # ergibt {{ ohne GH-Trigger
+              _dbl_close = chr(125) + chr(125)   # ergibt }}
               _secret_echo_re = re.compile(
-                  r'echo\s+["\']?\$\{\{\s*secrets\.[A-Za-z0-9_]+\s*\}\}',
+                  r'echo\s+["'  + "'" + r'"]?\$'
+                  + re.escape(_dbl_open)
+                  + r'\s*secrets\.[A-Za-z0-9_]+\s*'
+                  + re.escape(_dbl_close)
               )
               for _si, _shell in enumerate(shell_blocks):
                   for _sl_m in _secret_echo_re.finditer(_shell):
                       _snip = _shell[max(0, _sl_m.start()-10):_sl_m.end()+40].strip()
-                      msg = (f"shell-Block {_si}: 'echo ${{{{ secrets.* }}}}' – "
+                      _leak_label = 'echo $' + _dbl_open + ' secrets.* ' + _dbl_close
+                      msg = (f"shell-Block {_si}: '{_leak_label}' – "
                              f"Secret-Wert landet im Actions-Log (Token-Leak): {_snip[:80]}")
                       file_errors.append(msg)
                       errors.append({"file": fname, "check": "Secret-Leak in echo", "detail": msg})
