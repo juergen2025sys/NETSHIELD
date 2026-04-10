@@ -221,9 +221,9 @@ jobs:
 
           HIGH_QUALITY = {
               "cinsscore", "cinsarmy", "greensnow", "feodo_aggressive", "feodo_recommended",
-              "threatfox_ioc", "l7_ddos", "binary_defense", "crowdsec_ssh", "trcert_malware",
+              "threatfox_ioc", "binary_defense", "crowdsec_ssh",
               "danger_bruteforce", "threatview_high_conf", "firehol_cybercrime",
-              "firehol_anonymous", "dshield", "cloudzy", "netmountains_blocklist",
+              "firehol_anonymous", "dshield", "cloudzy",
               "urlhaus_ips", "firehol_level1", "firehol_level2", "firehol_level3",
               "firehol_webclient", "firehol_webserver", "firehol_proxies", "firehol_abusers_1d",
               "et_block", "et_compromised", "spamhaus_drop",
@@ -231,7 +231,6 @@ jobs:
               "blocklist_de_ssh", "c2_tracker", "c2_iplist",
               "ipsum_level5", "ipsum_level7", "abuseipdb_s100_30d", "abuseipdb_s100_7d",
               "abuseipdb_score100", "turris_greylist",
-              "data_shield",                      # DataShield Critical Feed (geprüfte Qualität)
               # FIX BUG-DP1: DataPlane-Feeds hatten hq=True in SOURCES, fehlten aber
               # in HIGH_QUALITY. Effekt: ip_in_hq wurde nie befüllt → strongly_confirmed_today
               # blieb False → das "last"-Feld wurde nie aktualisiert → IPs alterten still
@@ -254,12 +253,12 @@ jobs:
               "feodo_aggressive":           ("https://feodotracker.abuse.ch/downloads/ipblocklist_aggressive.txt", True),
               "feodo_recommended":          ("https://feodotracker.abuse.ch/downloads/ipblocklist.txt", True),
               "threatfox_ioc":              ("https://raw.githubusercontent.com/elliotwutingfeng/ThreatFox-IOC-IPs/refs/heads/main/ips.txt", True),
-              "l7_ddos":                    ("https://raw.githubusercontent.com/Tizian-Maxime-Weigt/L7-HTTP-DDoS-Flood-IP-Signature-IP-List/refs/heads/main/ddos-signatures.txt", True),
+              "l7_ddos":                    ("https://raw.githubusercontent.com/Tizian-Maxime-Weigt/L7-HTTP-DDoS-Flood-IP-Signature-IP-List/refs/heads/main/ddos-signatures.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
               "binary_defense":             ("https://binarydefense.com/banlist.txt", True),
-              "data_shield":                ("https://raw.githubusercontent.com/duggytuxy/Data-Shield_IPv4_Blocklist/refs/heads/main/prod_critical_data-shield_ipv4_blocklist.txt", True),
+              "data_shield":                ("https://raw.githubusercontent.com/duggytuxy/Data-Shield_IPv4_Blocklist/refs/heads/main/prod_critical_data-shield_ipv4_blocklist.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
               "interserver":                ("https://sigs.interserver.net/ip.txt", False),
               "crowdsec_ssh":               ("https://raw.githubusercontent.com/Y3ll0w/CrowdSec-CAPI-Decisions/refs/heads/main/ssh-bf.json.txt", True),
-              "trcert_malware":             ("https://raw.githubusercontent.com/cenk/trcert-malware/refs/heads/main/trcert-ips.txt", True),
+              "trcert_malware":             ("https://raw.githubusercontent.com/cenk/trcert-malware/refs/heads/main/trcert-ips.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
               "danger_bruteforce":          ("https://danger.rulez.sk/projects/bruteforceblocker/blist.php", True),
               "threatview_high_conf":       ("https://threatview.io/Downloads/IP-High-Confidence-Feed.txt", True),
               "florent_banned":             ("https://raw.githubusercontent.com/florentvinai/bad-ips-on-my-vps/refs/heads/main/banned_ips.txt", False),
@@ -285,7 +284,7 @@ jobs:
               "bitwire_ipblocklist":        ("https://raw.githubusercontent.com/bitwire-it/ipblocklist/refs/heads/main/inbound.txt", False),
               "littlejake_all_blacklist":   ("https://cdn.jsdelivr.net/gh/LittleJake/ip-blacklist/all_blacklist.txt", False),
               "shadowwhisperer_hackers":    ("https://raw.githubusercontent.com/ShadowWhisperer/IPs/refs/heads/master/Malware/Hackers", False),
-              "netmountains_blocklist":     ("https://raw.githubusercontent.com/NETMOUNTAINS/Curated-IP-Blocklist/main/ip-blacklist.list", True),
+              "netmountains_blocklist":     ("https://raw.githubusercontent.com/NETMOUNTAINS/Curated-IP-Blocklist/main/ip-blacklist.list", False),  # Community-Repo, kein verifizierter Betreiber
               "bluetack_blacklist":         ("https://raw.githubusercontent.com/actuallymentor/bluetack-ip-blacklist-generator/refs/heads/master/blacklist", False),
               "rtbh_output":                ("https://list.rtbh.com.tr/output.txt", False),
               "sefinek_malicious":          ("https://raw.githubusercontent.com/sefinek/Malicious-IP-Addresses/main/lists/main.txt", False),

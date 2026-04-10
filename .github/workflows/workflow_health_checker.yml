@@ -1318,12 +1318,14 @@ jobs:
           # Bekannte, vertrauenswürdige Quellen-Schlüsselwörter (Betreiber-Whitelist):
           _TRUSTED_HQ_KEYWORDS = {
               "abuseipdb", "emerging", "feodo", "blocklist.de", "spamhaus",
-              "cinsscore", "dshield", "abuse.ch", "urlhaus", "sslbl",
+              "cinsscore", "cinsarmy", "dshield", "abuse.ch", "urlhaus", "sslbl",
               "bruteforce", "eicar", "mirai", "honeypot", "honeydb",
               "cve", "ransomware", "botnet", "threatfox", "openphish",
               "myip.ms", "stopforumspam", "greensnow", "binarydefense",
               "torproject", "dan.me", "ipsum", "stamparm", "firehol",
               "talos", "microsoft", "et_pro", "proofpoint",
+              "crowdsec", "dataplane", "threatview", "turris",
+              "criticalpath", "c2_tracker", "c2_iplist", "c2intelfeeds",
           }
           if os.path.exists(_combined_path):
               _cb_text = open(_combined_path).read()
