@@ -610,7 +610,6 @@ jobs:
           WATCHLIST_EXPIRY_DAYS = 30
           cutoff    = now - timedelta(days=EXPIRY_DAYS)
           cutoff_wl = now - timedelta(days=WATCHLIST_EXPIRY_DAYS)
-          expired   = []
           # Collect keys to expire first, then delete in a separate pass
           # to avoid RuntimeError from modifying a dict during iteration.
           to_expire = set()
@@ -635,11 +634,10 @@ jobs:
                   to_expire.add(ip)
           # Delete expired entries after iteration is complete
           for ip in to_expire:
-              expired.append(ip)
               db.pop(ip, None)
 
           print(f"\nseen_db: +{ingested_seen} bestätigt | +{ingested_new} neu eingetragen | "
-                f"{len(expired)} abgelaufen | Gesamt: {len(db)} IPs")
+                f"{len(to_expire)} abgelaufen | Gesamt: {len(db)} IPs")
 
           # ── Schritt 7: seen_db speichern ──────────────────────────────────
           with open(DB_FILE, "w", encoding="utf-8") as f:

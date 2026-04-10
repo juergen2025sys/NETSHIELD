@@ -106,9 +106,6 @@ jobs:
                       if is_valid_public_ipv4(ip): entries.add(ip)
               return entries
 
-          def is_private(ip):
-              return not is_valid_public_ipv4(ip)
-
           def fetch(url, timeout=30):
               try:
                   req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor/1.0"})
