@@ -73,12 +73,11 @@ jobs:
           SELF = _wf_part if _wf_part.endswith(".yml") else "workflow_health_checker.yml"
           print(f"SELF erkannt als: {SELF}")
           required_protection = {
-              "update_combined_blacklist.yml": ["is_protected_entry", "192.168.14.0/24", "192.168.13.0/24"],
+              "update_combined_blacklist.yml": ["is_protected_entry", "whitelist.json"],
               "update_confidence_blacklist.yml": ["is_protected_entry", "192.168.14.0/24", "192.168.13.0/24"],
-              # FIX: false_positive_checker.yml nutzt WHITELIST_CIDRS + is_whitelisted_entry,
-              # NICHT is_protected_entry. Der vorherige Token-Check erzeugte falsch-positive
-              # Schutzfehler, da is_protected_entry in dieser Datei nicht vorkommt.
-              "false_positive_checker.yml": ["WHITELIST_CIDRS", "is_whitelisted_entry", "192.168.14.0/24", "192.168.13.0/24"],
+              # FIX: false_positive_checker.yml lädt Whitelist aus whitelist.json.
+              # Literal-CIDRs stehen nicht mehr inline → Token-Check auf Dateiname.
+              "false_positive_checker.yml": ["WHITELIST_CIDRS", "is_whitelisted_entry", "whitelist.json"],
           }
 
           cron_re = re.compile(r"cron:\s*'([\d\s*/,]+)'")
@@ -1095,44 +1094,53 @@ jobs:
                     f"{len(file_errors)} Fehler | {len(file_warnings)} Warnungen")
 
           # ── Whitelist-Sync-Check ──────────────────────────────────────────
-          # Prüft ob WHITELIST_ENTRIES (update_combined_blacklist.yml) und
-          # WHITELIST_CIDRS (false_positive_checker.yml) synchron sind.
-          # Beide Listen müssen identisch sein – Drift führt zu inkonsistenter Filterung.
-          def _extract_whitelist(workflow_content, varname):
-              m = re.search(rf'{varname}\s*=\s*\[', workflow_content)
-              if not m:
-                  return set()
-              start = m.end()
-              depth = 1
-              i = start
-              while i < len(workflow_content) and depth > 0:
-                  if workflow_content[i] == '[': depth += 1
-                  elif workflow_content[i] == ']': depth -= 1
-                  i += 1
-              block = workflow_content[start:i-1]
-              return {e.strip() for e in re.findall(r'"([^"]+)"', block) if e.strip()}
-
+          # Beide Workflows laden die Whitelist aus .github/workflows/whitelist.json.
+          # Prüfe: Datei existiert, hat genug Einträge, wird von beiden referenziert.
+          _wl_json_path = f"{WORKFLOWS_DIR}/whitelist.json"
           _combined_path = f"{WORKFLOWS_DIR}/update_combined_blacklist.yml"
           _fp_path       = f"{WORKFLOWS_DIR}/false_positive_checker.yml"
-          if os.path.exists(_combined_path) and os.path.exists(_fp_path):
-              _wl_combined = _extract_whitelist(open(_combined_path).read(), "WHITELIST_ENTRIES")
-              _wl_fp       = _extract_whitelist(open(_fp_path).read(), "WHITELIST_CIDRS")
-              _only_combined = _wl_combined - _wl_fp
-              _only_fp       = _wl_fp - _wl_combined
-              if _only_combined or _only_fp:
-                  _detail_parts = []
-                  if _only_combined:
-                      _detail_parts.append(f"nur in combined: {', '.join(sorted(_only_combined)[:5])}{'…' if len(_only_combined) > 5 else ''}")
-                  if _only_fp:
-                      _detail_parts.append(f"nur in fp_checker: {', '.join(sorted(_only_fp)[:5])}{'…' if len(_only_fp) > 5 else ''}")
-                  warnings.append({
-                      "file": "update_combined_blacklist.yml ↔ false_positive_checker.yml",
-                      "check": "Whitelist-Drift",
-                      "detail": f"{len(_only_combined) + len(_only_fp)} Einträge nicht synchron – " + "; ".join(_detail_parts),
+          if os.path.exists(_wl_json_path):
+              try:
+                  with open(_wl_json_path, encoding="utf-8") as _wlf:
+                      _wl_data = json.load(_wlf)
+                  _wl_count = len(_wl_data.get("entries", []))
+                  if _wl_count < 100:
+                      warnings.append({
+                          "file": "whitelist.json",
+                          "check": "Whitelist zu klein",
+                          "detail": f"Nur {_wl_count} Einträge (erwartet >100) – möglicherweise korrupt",
+                      })
+                      print(f"⚠️  whitelist.json: nur {_wl_count} Einträge")
+                  else:
+                      # Prüfe ob beide Workflows die Datei referenzieren
+                      _refs_ok = True
+                      for _wf_path, _wf_name in [(_combined_path, "update_combined_blacklist.yml"), (_fp_path, "false_positive_checker.yml")]:
+                          if os.path.exists(_wf_path):
+                              _wf_text = open(_wf_path).read()
+                              if "whitelist.json" not in _wf_text:
+                                  errors.append({
+                                      "file": _wf_name,
+                                      "check": "Whitelist-Referenz fehlt",
+                                      "detail": "whitelist.json wird nicht referenziert – Whitelist-Filterung inaktiv",
+                                  })
+                                  _refs_ok = False
+                                  print(f"❌ {_wf_name}: referenziert whitelist.json nicht")
+                      if _refs_ok:
+                          print(f"✅ Whitelist-Sync: whitelist.json mit {_wl_count} Einträgen, beide Workflows referenzieren sie")
+              except Exception as _ex:
+                  errors.append({
+                      "file": "whitelist.json",
+                      "check": "Whitelist nicht lesbar",
+                      "detail": f"whitelist.json konnte nicht geladen werden: {_ex}",
                   })
-                  print(f"⚠️  Whitelist-Drift: {len(_only_combined)} nur in combined, {len(_only_fp)} nur in fp_checker")
-              else:
-                  print(f"✅ Whitelist-Sync: beide Listen identisch ({len(_wl_combined)} Einträge)")
+                  print(f"❌ whitelist.json nicht lesbar: {_ex}")
+          else:
+              errors.append({
+                  "file": "whitelist.json",
+                  "check": "Whitelist fehlt",
+                  "detail": "whitelist.json nicht in .github/workflows/ – Whitelist-Filterung inaktiv",
+              })
+              print("❌ whitelist.json nicht vorhanden")
 
           # ── HIGH_QUALITY ↔ SOURCES hq=True Konsistenz ─────────────────────
           # Feeds mit hq=True in SOURCES muessen auch in HIGH_QUALITY stehen,
