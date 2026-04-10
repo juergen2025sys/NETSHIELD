@@ -1,17 +1,11 @@
 {
-  "updated": "2026-04-10 18:23 UTC",
+  "updated": "2026-04-10 18:36 UTC",
   "total": 16,
   "ok": 16,
   "warn": 0,
   "error": 0,
   "errors": [],
-  "warnings": [
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "Untrusted Feed hq=True",
-      "detail": "19 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"cinsarmy\" (https://cinsarmy.com/list/ci-badguys.txt); \"l7_ddos\" (https://raw.githubusercontent.com/Tizian-Maxime-Weigt/L7-HTT); \"data_shield\" (https://raw.githubusercontent.com/duggytuxy/Data-Shield_IPv4); \"crowdsec_ssh\" (https://raw.githubusercontent.com/Y3ll0w/CrowdSec-CAPI-Decis); \"trcert_malware\" (https://raw.githubusercontent.com/cenk/trcert-malware/refs/h); \"threatview_high_conf\" (https://threatview.io/Downloads/IP-High-Confidence-Feed.txt)"
-    }
-  ],
+  "warnings": [],
   "ip_counts": {
     "combined_threat_blacklist_ipv4.txt": 4310885,
     "active_blacklist_ipv4.txt": 2552356,

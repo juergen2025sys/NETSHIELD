@@ -1,15 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-10 18:23 UTC
+**Aktualisiert:** 2026-04-10 18:36 UTC
 
 **Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
-## ⚠️ Warnungen
-
-| Datei | Check | Detail |
-|---|---|---|
-| `update_combined_blacklist.yml` | Untrusted Feed hq=True | 19 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "cinsarmy" (https://cinsarmy.com/list/ci-badguys.txt); "l7_ddos" (https://raw.githubusercontent.com/Tizian-Maxime-Weigt/L7-HTT); "data_shield" (https://raw.githubusercontent.com/duggytuxy/Data-Shield_IPv4); "crowdsec_ssh" (https://raw.githubusercontent.com/Y3ll0w/CrowdSec-CAPI-Decis); "trcert_malware" (https://raw.githubusercontent.com/cenk/trcert-malware/refs/h); "threatview_high_conf" (https://threatview.io/Downloads/IP-High-Confidence-Feed.txt) |
-
 ## 🏥 Production Health
 
 **Status:** 🔴 0 CRITICAL | 🟡 0 WARN
@@ -38,4 +32,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-10 18:23 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-10 18:36 UTC | 16 Workflow-Dateien geprüft*
