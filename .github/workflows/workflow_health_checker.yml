@@ -1082,6 +1082,114 @@ jobs:
                       file_warnings.append(msg)
                       warnings.append({"file": fname, "check": "sensor_total toter Code", "detail": msg})
 
+              # ── Check 36: IP-Listen Duplikate ────────────────────────────
+              # Doppelte IPs in combined/active/confidence.txt verschaffen
+              # einzelnen IPs ein überproportionales Gewicht und blähen die
+              # Datei auf. Geprüft werden alle .txt-Ausgabedateien des Workflows.
+              _ip_list_targets = {
+                  "update_combined_blacklist.yml": [
+                      "combined_threat_blacklist_ipv4.txt",
+                      "active_blacklist_ipv4.txt",
+                  ],
+                  "update_confidence_blacklist.yml": [
+                      "confidence_blacklist_ipv4_40.txt",
+                  ],
+              }
+              if fname in _ip_list_targets:
+                  for _ip_file in _ip_list_targets[fname]:
+                      if not os.path.exists(_ip_file):
+                          continue
+                      try:
+                          with open(_ip_file, encoding="utf-8") as _ipf:
+                              _ip_lines = [l.strip() for l in _ipf if l.strip() and not l.startswith('#')]
+                          _ip_total  = len(_ip_lines)
+                          _ip_unique = len(set(_ip_lines))
+                          _ip_dups   = _ip_total - _ip_unique
+                          if _ip_dups > 0:
+                              _dup_pct = (_ip_dups / _ip_total * 100) if _ip_total else 0
+                              _level = "errors" if _dup_pct > 1 else "warnings"
+                              msg = (f"{_ip_file}: {_ip_dups:,} doppelte IPs "
+                                     f"({_dup_pct:.1f}% von {_ip_total:,}) – "
+                                     f"Scoring-Verzerrung und aufgeblähte Datei")
+                              if _level == "errors":
+                                  file_errors.append(msg)
+                                  errors.append({"file": fname, "check": "IP-Listen Duplikate", "detail": msg})
+                              else:
+                                  file_warnings.append(msg)
+                                  warnings.append({"file": fname, "check": "IP-Listen Duplikate", "detail": msg})
+                              print(f"  {'❌' if _level == 'errors' else '🟡'} {_ip_file}: {_ip_dups:,} Duplikate ({_dup_pct:.1f}%)")
+                          else:
+                              print(f"  ✅ {_ip_file}: keine Duplikate ({_ip_total:,} IPs)")
+                      except Exception as _e:
+                          print(f"  ⏭  {_ip_file}: nicht lesbar ({_e})")
+
+              # ── Check 37: Private IPs in Blacklists ──────────────────────
+              # RFC-1918-Adressen (10.x, 172.16-31.x, 192.168.x) in
+              # Ausgabe-Listen blockieren legale Infrastruktur und deuten auf
+              # fehlende PROTECTED_CIDRS-Filterung hin.
+              _PRIVATE_PATTERNS = re.compile(
+                  r'^(?:10\.\d+\.\d+\.\d+'
+                  r'|172\.(?:1[6-9]|2\d|3[01])\.\d+\.\d+'
+                  r'|192\.168\.\d+\.\d+)$'
+              )
+              if fname in _ip_list_targets:
+                  for _ip_file in _ip_list_targets[fname]:
+                      if not os.path.exists(_ip_file):
+                          continue
+                      try:
+                          with open(_ip_file, encoding="utf-8") as _ipf:
+                              _priv_hits = [
+                                  l.strip().split()[0]
+                                  for l in _ipf
+                                  if l.strip() and not l.startswith('#')
+                                  and _PRIVATE_PATTERNS.match(l.strip().split()[0])
+                              ]
+                          if _priv_hits:
+                              msg = (f"{_ip_file}: {len(_priv_hits)} private RFC-1918-IP(s) "
+                                     f"– erste: {', '.join(_priv_hits[:5])} "
+                                     f"– PROTECTED_CIDRS-Filter prüfen")
+                              file_errors.append(msg)
+                              errors.append({"file": fname, "check": "Private IPs in Blacklist", "detail": msg})
+                              print(f"  ❌ {_ip_file}: {len(_priv_hits)} private IPs gefunden")
+                          else:
+                              print(f"  ✅ {_ip_file}: keine privaten IPs")
+                      except Exception as _e:
+                          print(f"  ⏭  {_ip_file}: nicht lesbar ({_e})")
+
+              # ── Check 38: Secret-Leak in echo ────────────────────────────
+              # `echo ${{ secrets.* }}` gibt den Token-Wert ins Actions-Log aus.
+              # GitHub maskiert Secrets in run:-Blöcken nicht wenn sie explizit
+              # in echo eingebettet sind.
+              _secret_echo_re = re.compile(
+                  r'echo\s+["\']?\$\{\{\s*secrets\.[A-Za-z0-9_]+\s*\}\}',
+              )
+              for _si, _shell in enumerate(shell_blocks):
+                  for _sl_m in _secret_echo_re.finditer(_shell):
+                      _snip = _shell[max(0, _sl_m.start()-10):_sl_m.end()+40].strip()
+                      msg = (f"shell-Block {_si}: 'echo ${{{{ secrets.* }}}}' – "
+                             f"Secret-Wert landet im Actions-Log (Token-Leak): {_snip[:80]}")
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Secret-Leak in echo", "detail": msg})
+                      break
+
+              # ── Check 39: YAML Tab-Zeichen ────────────────────────────────
+              # YAML-Parser lehnen Tab-Indentation ab (YAML 1.2 §6.1).
+              # GitHub Actions-YAML wirft einen unklaren Parse-Fehler statt
+              # eines hilfreichen Hinweises auf den Tab.
+              _tab_lines = []
+              for _tl_no, _tl in enumerate(content.splitlines(), 1):
+                  # Nur führende Tabs zählen; Tabs im Python-Code (EOF-Block)
+                  # sind kein YAML-Problem.
+                  if _tl.startswith('\t'):
+                      _tab_lines.append(_tl_no)
+              if _tab_lines:
+                  _tab_sample = _tab_lines[:5]
+                  msg = (f"YAML-Tab-Zeichen in Zeile(n) {_tab_sample} "
+                         f"({'...' if len(_tab_lines) > 5 else ''}{len(_tab_lines)} gesamt) "
+                         f"– GitHub YAML-Parser bricht mit irreführendem Fehler")
+                  file_errors.append(msg)
+                  errors.append({"file": fname, "check": "YAML Tab-Zeichen", "detail": msg})
+
               results[fname] = {
                   "blocks":   len(blocks),
                   "errors":   file_errors,
@@ -1194,6 +1302,61 @@ jobs:
                   print(f"⚠️  HIGH_QUALITY Drift: {len(_in_hq_not_src)} in HIGH_QUALITY ohne SOURCES-Eintrag")
               else:
                   print(f"✅ HIGH_QUALITY ↔ SOURCES: konsistent ({len(_hq_names)} HQ-Feeds)")
+
+          # ── Check 40: Untrusted Feed hq-Guard ────────────────────────────
+          # Feeds mit hq=True sollten nur von bekannten, verifizierten Betreibern
+          # stammen. Ein unbekannter Betreiber mit hq=True kann die Blockliste
+          # mit falschen Positiven überfluten (kein Score-Altern, keine Prüfung).
+          # Bekannte, vertrauenswürdige Quellen-Schlüsselwörter (Betreiber-Whitelist):
+          _TRUSTED_HQ_KEYWORDS = {
+              "abuseipdb", "emerging", "feodo", "blocklist.de", "spamhaus",
+              "cinsscore", "dshield", "abuse.ch", "urlhaus", "sslbl",
+              "bruteforce", "eicar", "mirai", "honeypot", "honeydb",
+              "cve", "ransomware", "botnet", "threatfox", "openphish",
+              "myip.ms", "stopforumspam", "greensnow", "binarydefense",
+              "torproject", "dan.me", "ipsum", "stamparm", "firehol",
+              "talos", "microsoft", "et_pro", "proofpoint",
+          }
+          if os.path.exists(_combined_path):
+              _cb_text = open(_combined_path).read()
+              # Alle SOURCES-Einträge extrahieren: "name": ("url", hq_bool)
+              _sources_re = re.compile(
+                  r'^\s*"([^"\n]+)"\s*:\s*\(\s*"([^"\n]+)"\s*,\s*(True|False)\s*\)',
+                  re.MULTILINE,
+              )
+              _untrusted_hq = []
+              for _sm in _sources_re.finditer(_cb_text):
+                  _feed_name = _sm.group(1).lower()
+                  _feed_url  = _sm.group(2).lower()
+                  _feed_hq   = _sm.group(3) == "True"
+                  if not _feed_hq:
+                      continue
+                  # Vertrauenswürdig wenn Name ODER URL ein bekanntes Keyword enthält
+                  _trusted = any(
+                      kw in _feed_name or kw in _feed_url
+                      for kw in _TRUSTED_HQ_KEYWORDS
+                  )
+                  if not _trusted:
+                      _untrusted_hq.append((_sm.group(1), _sm.group(2)))
+              if _untrusted_hq:
+                  _detail = "; ".join(
+                      f'"{n}" ({u[:60]})' for n, u in _untrusted_hq[:6]
+                  )
+                  warnings.append({
+                      "file": "update_combined_blacklist.yml",
+                      "check": "Untrusted Feed hq=True",
+                      "detail": (
+                          f"{len(_untrusted_hq)} Feed(s) mit hq=True ohne bekannten Betreiber "
+                          f"– IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: {_detail}"
+                      ),
+                  })
+                  print(f"⚠️  Untrusted hq=True: {len(_untrusted_hq)} Feed(s) ohne bekannten Betreiber")
+              else:
+                  # SOURCES nicht vorhanden → nur wenn Datei existiert aber leer
+                  if _sources_re.search(_cb_text):
+                      print(f"✅ Untrusted Feed hq-Guard: alle hq=True Feeds haben bekannten Betreiber")
+                  else:
+                      print(f"⏭  Untrusted Feed hq-Guard: keine SOURCES gefunden")
 
           # ── DNS_WHITELIST Konsistenz ───────────────────────────────────────
           # Mehrere Workflows definieren DNS_WHITELIST eigenstaendig.
