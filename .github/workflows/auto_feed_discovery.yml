@@ -585,14 +585,15 @@ jobs:
               else:
                   # Neue IP eintragen
                   db[ip] = {
-                      "first":       now_day,
-                      "last":        "2000-01-01",  # noch nicht stark bestätigt
-                      "hq":          False,
-                      "feeds":       [SOURCE_LABEL],
-                      "hq_feeds":    0,
-                      "today_count": auto_count,
-                      "today_hq":    False,
-                      "days_seen":   0,
+                      "first":          now_day,
+                      "last":           "2000-01-01",  # noch nicht stark bestätigt
+                      "hq":             False,
+                      "feeds":          [SOURCE_LABEL],
+                      "hq_feed_names":  [],            # FIX: Schema-Konsistenz mit update_combined_blacklist
+                      "hq_feeds":       0,
+                      "today_count":    auto_count,
+                      "today_hq":       False,
+                      "days_seen":      0,
                   }
                   ingested_new += 1
 

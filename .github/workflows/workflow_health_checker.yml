@@ -1069,13 +1069,17 @@ jobs:
               # FIX-HDB1: Regression-Check – sensor_total muss in stats{} einfließen
               # oder anderweitig verwendet werden, nicht nur akkumuliert werden.
               if fname == "honeydb_monitor.yml":
-                  _has_sensor_total_acc  = 'sensor_total +=' in content
-                  _has_sensor_total_use  = ('stats[' in content and 'sensor_total' in
-                                            content[content.find('sensor_total +='):content.find('sensor_total +=')+500])
-                  # Prüfen: wird sensor_total nach dem Akkumulieren auch in stats[] oder print() genutzt?
-                  _post_acc = content[content.find('sensor_total +='):] if 'sensor_total +=' in content else ''
-                  _sensor_used_after = ('stats[' in _post_acc[:600] or
-                                        'print(' in _post_acc[:600] and 'sensor_total' in _post_acc[:600])
+                  _has_sensor_total_acc = 'sensor_total +=' in content
+                  # FIX CHK35: Suche ab dem LETZTEN sensor_total += (Paging-Schleife
+                  # hat mehrere). find() liefert die ERSTE Stelle – bei mehreren +=
+                  # war _post_acc zu kurz und übersah die stats[]-Zuweisung danach.
+                  # Außerdem: explizite Klammern verhindern Python-Operatorprioritätsfalle
+                  # ('print(... and ...' wurde als 'print(' or ('... and ...') ausgewertet).
+                  _last_acc_pos = content.rfind('sensor_total +=')
+                  _post_acc = content[_last_acc_pos:] if _last_acc_pos != -1 else ''
+                  _in_stats = ('stats[' in _post_acc[:800]) and ('sensor_total' in _post_acc[:800])
+                  _in_print = ('print(' in _post_acc[:800]) and ('sensor_total' in _post_acc[:800])
+                  _sensor_used_after = _in_stats or _in_print
                   if _has_sensor_total_acc and not _sensor_used_after:
                       msg = ("sensor_total wird akkumuliert aber nicht in stats{} oder print() genutzt "
                              "– toter Code (Regression FIX-HDB1)")
@@ -1092,7 +1096,7 @@ jobs:
                       "active_blacklist_ipv4.txt",
                   ],
                   "update_confidence_blacklist.yml": [
-                      "confidence_blacklist_ipv4_40.txt",
+                      "blacklist_confidence40_ipv4.txt",
                   ],
               }
               if fname in _ip_list_targets:
