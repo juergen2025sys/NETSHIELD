@@ -1,20 +1,20 @@
 {
-  "updated": "2026-04-10 11:08 UTC",
+  "updated": "2026-04-10 13:50 UTC",
   "total": 16,
   "ok": 16,
   "warn": 0,
   "error": 0,
-  "errors": [
+  "errors": [],
+  "warnings": [
     {
-      "file": "false_positive_checker.yml",
-      "check": "Hardening-Guard fehlt",
-      "detail": "Fehlende Schutz-Tokens: 192.168.14.0/24, 192.168.13.0/24"
+      "file": "update_combined_blacklist.yml",
+      "check": "Untrusted Feed hq=True",
+      "detail": "19 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"cinsarmy\" (https://cinsarmy.com/list/ci-badguys.txt); \"l7_ddos\" (https://raw.githubusercontent.com/Tizian-Maxime-Weigt/L7-HTT); \"data_shield\" (https://raw.githubusercontent.com/duggytuxy/Data-Shield_IPv4); \"crowdsec_ssh\" (https://raw.githubusercontent.com/Y3ll0w/CrowdSec-CAPI-Decis); \"trcert_malware\" (https://raw.githubusercontent.com/cenk/trcert-malware/refs/h); \"threatview_high_conf\" (https://threatview.io/Downloads/IP-High-Confidence-Feed.txt)"
     }
   ],
-  "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4221548,
-    "active_blacklist_ipv4.txt": 2472778,
+    "combined_threat_blacklist_ipv4.txt": 4222271,
+    "active_blacklist_ipv4.txt": 2484096,
     "blacklist_confidence40_ipv4.txt": 3140399,
     "cve_exploit_ips.txt": 56787,
     "honeypot_ips.txt": 8407,
