@@ -283,6 +283,15 @@ jobs:
           # Combined-Run verloren, obwohl dem User "Added to Watchlist" bestätigt
           # wurde. Lösung: IPs zusätzlich in eine committete Datei schreiben,
           # die update_combined_blacklist als LOCAL_FEED einliest.
+          #
+          # FIX STALE-COMMUNITY: Alte Einträge bereinigen.
+          # Ohne Bereinigung wuchs community_reported_ips.txt unbegrenzt – IPs
+          # die aus seen_db abgelaufen sind (30-Tage-Watchlist / 180-Tage-Ablauf)
+          # wurden beim nächsten Combined-Run erneut eingelesen und reaktiviert,
+          # obwohl der Verfallsmechanismus sie längst entfernt hatte.
+          # Lösung: Nur IPs behalten die noch in seen_db vorhanden sind (oder
+          # die gerade neu gemeldet wurde). Damit ist community_reported_ips.txt
+          # immer konsistent mit dem tatsächlichen seen_db-Stand.
           COMMUNITY_IPS_FILE = "community_reported_ips.txt"
           community_existing = set()
           if os.path.exists(COMMUNITY_IPS_FILE):
@@ -291,9 +300,15 @@ jobs:
                       l.strip() for l in _cf
                       if l.strip() and not l.startswith("#")
                   }
-          community_existing.add(ip)
+          # Bereinigung: nur IPs behalten die noch in seen_db sind + neue IP
+          active_in_db = set(db.keys())
+          community_cleaned = (community_existing & active_in_db) | {ip}
+          removed_stale = community_existing - community_cleaned
+          if removed_stale:
+              print(f"community_reported_ips.txt: {len(removed_stale)} veraltete IPs entfernt "
+                    f"(nicht mehr in seen_db)")
           community_sorted = sorted(
-              community_existing,
+              community_cleaned,
               key=lambda x: tuple(int(o) for o in x.split(".")),
           )
           with open(COMMUNITY_IPS_FILE, "w", encoding="utf-8") as _cf:
