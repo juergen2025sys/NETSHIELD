@@ -300,13 +300,23 @@ jobs:
                       l.strip() for l in _cf
                       if l.strip() and not l.startswith("#")
                   }
-          # Bereinigung: nur IPs behalten die noch in seen_db sind + neue IP
+          # Bereinigung: nur IPs behalten die noch in seen_db sind + neue IP.
+          # FIX CACHE-MISS-GUARD: Bereinigung NUR wenn seen_db tatsächlich geladen
+          # wurde (db nicht leer). Bei Cache-Miss wäre db = {} → active_in_db = set()
+          # → community_cleaned = {ip} → alle bestehenden Community-IPs würden gelöscht.
+          # Ist seen_db leer (Cache-Miss oder erster Run), bestehende Einträge behalten.
           active_in_db = set(db.keys())
-          community_cleaned = (community_existing & active_in_db) | {ip}
-          removed_stale = community_existing - community_cleaned
-          if removed_stale:
-              print(f"community_reported_ips.txt: {len(removed_stale)} veraltete IPs entfernt "
-                    f"(nicht mehr in seen_db)")
+          if active_in_db:
+              community_cleaned = (community_existing & active_in_db) | {ip}
+              removed_stale = community_existing - community_cleaned
+              if removed_stale:
+                  print(f"community_reported_ips.txt: {len(removed_stale)} veraltete IPs entfernt "
+                        f"(nicht mehr in seen_db)")
+          else:
+              # seen_db leer oder Cache-Miss → keine Bereinigung, nur neue IP hinzufügen
+              community_cleaned = community_existing | {ip}
+              removed_stale = set()
+              print("community_reported_ips.txt: seen_db leer/Cache-Miss – Bereinigung übersprungen (Datenverlust-Schutz)")
           community_sorted = sorted(
               community_cleaned,
               key=lambda x: tuple(int(o) for o in x.split(".")),
