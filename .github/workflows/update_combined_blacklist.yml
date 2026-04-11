@@ -846,6 +846,34 @@ jobs:
           if _wl_cleanup:
               print(f"Whitelist-Bereinigung seen_db: {len(_wl_cleanup)} IPs entfernt")
 
+          # ── community_reported_ips.txt Stale-Bereinigung ─────────────────
+          # FIX STALE-COMMUNITY2: community_ip_report.yml nutzt append-only
+          # (Race-Condition-Fix). Stale IPs werden hier bereinigt, nachdem
+          # seen_db-Expiry gelaufen ist. Nur IPs behalten die noch in seen_db
+          # sind – abgelaufene (30-Tage-Watchlist / 180-Tage-Ablauf) entfernen.
+          _COMMUNITY_FILE = "community_reported_ips.txt"
+          if os.path.exists(_COMMUNITY_FILE):
+              with open(_COMMUNITY_FILE, encoding="utf-8") as _cf:
+                  _community_all = {
+                      l.strip() for l in _cf
+                      if l.strip() and not l.startswith("#")
+                  }
+              _community_active = _community_all & set(db.keys())
+              _community_stale = _community_all - _community_active
+              if _community_stale:
+                  _community_sorted = sorted(
+                      _community_active,
+                      key=lambda x: (tuple(int(o) for o in x.split('/')[0].split('.')), x),
+                  )
+                  with open(_COMMUNITY_FILE, "w", encoding="utf-8") as _cf:
+                      _cf.write("# NETSHIELD Community Reported IPs\n")
+                      _cf.write(f"# Aktualisiert: {now_stamp}\n")
+                      _cf.write("# Quelle: GitHub Issues (community-report Label)\n\n")
+                      if _community_sorted:
+                          _cf.write("\n".join(_community_sorted) + "\n")
+                  print(f"community_reported_ips.txt: {len(_community_stale)} veraltete IPs entfernt, "
+                        f"{len(_community_active)} aktive behalten")
+
           # ── seen_db speichern ──────────────────────────────────────────────
           with open(DB_FILE, "w", encoding="utf-8") as f:
               json.dump(db, f, separators=(",", ":"))
@@ -1045,7 +1073,7 @@ jobs:
           PYEOF
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt 2>/dev/null || true
+          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt community_reported_ips.txt 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -1061,10 +1089,11 @@ jobs:
               else
                 git checkout --theirs combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md \
-                  seen_db_meta.json abuseipdb_api_blacklist.txt 2>/dev/null || true
+                  seen_db_meta.json abuseipdb_api_blacklist.txt \
+                  community_reported_ips.txt 2>/dev/null || true
                 git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md seen_db_meta.json \
-                  abuseipdb_api_blacklist.txt 2>/dev/null || true
+                  abuseipdb_api_blacklist.txt community_reported_ips.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

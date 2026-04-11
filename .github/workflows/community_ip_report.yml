@@ -278,21 +278,21 @@ jobs:
               f.write(f"{now_day} | issue=#{issue_number} | user={reporter} | ip={ip} | type={attack_type} | action={action} | ACCEPTED\n")
 
           # ── community_reported_ips.txt pflegen ──────────────────────────
-          # FIX CACHE-LOSS: Community-IPs wurden bisher nur in einen isolierten
-          # seen_db-Cache geschrieben (netshield-seen-db-community-*), den kein
-          # anderer Workflow liest. Ergebnis: IPs gingen nach dem nächsten
-          # Combined-Run verloren, obwohl dem User "Added to Watchlist" bestätigt
-          # wurde. Lösung: IPs zusätzlich in eine committete Datei schreiben,
-          # die update_combined_blacklist als LOCAL_FEED einliest.
+          # FIX CACHE-LOSS: Community-IPs werden in eine committete Datei
+          # geschrieben, die update_combined_blacklist als LOCAL_FEED einliest.
           #
-          # FIX STALE-COMMUNITY: Alte Einträge bereinigen.
-          # Ohne Bereinigung wuchs community_reported_ips.txt unbegrenzt – IPs
-          # die aus seen_db abgelaufen sind (30-Tage-Watchlist / 180-Tage-Ablauf)
-          # wurden beim nächsten Combined-Run erneut eingelesen und reaktiviert,
-          # obwohl der Verfallsmechanismus sie längst entfernt hatte.
-          # Lösung: Nur IPs behalten die noch in seen_db vorhanden sind (oder
-          # die gerade neu gemeldet wurde). Damit ist community_reported_ips.txt
-          # immer konsistent mit dem tatsächlichen seen_db-Stand.
+          # FIX RACE2: Append-only statt Read-Modify-Write.
+          # Vorher: Datei komplett neu geschrieben → bei zwei parallelen
+          # Community-Reports (verschiedene Issues) gewinnt nur der spätere
+          # Push. Der frühere Run verliert seine neue IP still durch
+          # `rebase -X theirs`. Jetzt: nur neue IP anhängen wenn nicht
+          # bereits vorhanden. Git kann Appends an verschiedene Dateistellen
+          # beim Rebase automatisch mergen → kein Datenverlust.
+          #
+          # Stale-Bereinigung wird NICHT mehr hier durchgeführt – das
+          # übernimmt update_combined_blacklist über WATCHLIST_EXPIRY_DAYS
+          # (30 Tage) beim nächsten Lauf. Community-Report soll nur
+          # hinzufügen, nie entfernen.
           COMMUNITY_IPS_FILE = "community_reported_ips.txt"
           community_existing = set()
           if os.path.exists(COMMUNITY_IPS_FILE):
@@ -301,34 +301,22 @@ jobs:
                       l.strip() for l in _cf
                       if l.strip() and not l.startswith("#")
                   }
-          # Bereinigung: nur IPs behalten die noch in seen_db sind + neue IP.
-          # FIX CACHE-MISS-GUARD: Bereinigung NUR wenn seen_db tatsächlich geladen
-          # wurde (db nicht leer). Bei Cache-Miss wäre db = {} → active_in_db = set()
-          # → community_cleaned = {ip} → alle bestehenden Community-IPs würden gelöscht.
-          # Ist seen_db leer (Cache-Miss oder erster Run), bestehende Einträge behalten.
-          active_in_db = set(db.keys())
-          if active_in_db:
-              community_cleaned = (community_existing & active_in_db) | {ip}
-              removed_stale = community_existing - community_cleaned
-              if removed_stale:
-                  print(f"community_reported_ips.txt: {len(removed_stale)} veraltete IPs entfernt "
-                        f"(nicht mehr in seen_db)")
+
+          if ip not in community_existing:
+              # Datei existiert noch nicht → Header + IP schreiben
+              if not os.path.exists(COMMUNITY_IPS_FILE):
+                  with open(COMMUNITY_IPS_FILE, "w", encoding="utf-8") as _cf:
+                      _cf.write("# NETSHIELD Community Reported IPs\n")
+                      _cf.write(f"# Aktualisiert: {now_str}\n")
+                      _cf.write("# Quelle: GitHub Issues (community-report Label)\n\n")
+                      _cf.write(f"{ip}\n")
+              else:
+                  # Append-only: neue IP ans Ende anfügen
+                  with open(COMMUNITY_IPS_FILE, "a", encoding="utf-8") as _cf:
+                      _cf.write(f"{ip}\n")
+              print(f"community_reported_ips.txt: IP {ip} hinzugefügt (append-only, {action})")
           else:
-              # seen_db leer oder Cache-Miss → keine Bereinigung, nur neue IP hinzufügen
-              community_cleaned = community_existing | {ip}
-              removed_stale = set()
-              print("community_reported_ips.txt: seen_db leer/Cache-Miss – Bereinigung übersprungen (Datenverlust-Schutz)")
-          community_sorted = sorted(
-              community_cleaned,
-              key=lambda x: tuple(int(o) for o in x.split(".")),
-          )
-          with open(COMMUNITY_IPS_FILE, "w", encoding="utf-8") as _cf:
-              _cf.write("# NETSHIELD Community Reported IPs\n")
-              _cf.write(f"# Aktualisiert: {now_str}\n")
-              _cf.write(f"# Eintraege: {len(community_sorted)}\n")
-              _cf.write("# Quelle: GitHub Issues (community-report Label)\n\n")
-              _cf.write("\n".join(community_sorted) + "\n")
-          print(f"community_reported_ips.txt: {len(community_sorted)} IPs ({action})")
+              print(f"community_reported_ips.txt: IP {ip} bereits vorhanden ({action})")
 
           # ── Ergebnis für nächsten Step speichern ──────────────────────────
           with open(RESULT_FILE, "w", encoding="utf-8") as f:

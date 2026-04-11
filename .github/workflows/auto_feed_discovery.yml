@@ -737,6 +737,25 @@ jobs:
               sys.exit(1)
 
           new_feeds_count = len(approved_feeds) - len(existing_feeds)
+
+          # FIX REJECTED-CAP: rejected_repos wächst unbegrenzt (append-only Set).
+          # Nach Monaten enthält es Tausende Einträge die JSON aufblähen.
+          # Lösung: Nur Repos behalten die in diesem Run als Kandidat aufgetaucht
+          # sind (also erneut geprüft werden könnten). Repos die nicht mehr in
+          # der GitHub-Suche erscheinen, werden beim nächsten Discovery ohnehin
+          # neu bewertet falls sie wieder auftauchen – kein Informationsverlust.
+          # KNOWN_REPOS sind permanent ausgeschlossen und brauchen keinen Eintrag.
+          MAX_REJECTED = 3000
+          if len(rejected_repos) > MAX_REJECTED:
+              # Behalte nur Repos die in diesem Run als Kandidat gesehen wurden
+              # + die in diesem Run neu abgelehnt wurden (frisch bewertet).
+              this_run_rejected = {e["repo"] for e in evaluation_log if e["result"] == "REJECTED"}
+              relevant_rejected = (rejected_repos & set(candidate_repos.keys())) | this_run_rejected | set(KNOWN_REPOS)
+              trimmed = len(rejected_repos) - len(relevant_rejected)
+              rejected_repos = relevant_rejected
+              print(f"rejected_repos getrimmt: {trimmed} veraltete Einträge entfernt, "
+                    f"{len(rejected_repos)} behalten (MAX_REJECTED={MAX_REJECTED})")
+
           output = {
               "updated":        now_str,
               "total_feeds":    len(approved_feeds),

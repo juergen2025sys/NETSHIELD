@@ -445,6 +445,32 @@ jobs:
                       f.write("\n".join(ips) + "\n")
               print(f"countries/{continent}/{name}_ipv4.txt: {len(ips)} entries")
 
+          # ── Verwaiste Länderdateien aufräumen ──────────────────────────
+          # FIX STALE-COUNTRY: Wenn ein Land in COUNTRY_MAP den Kontinent
+          # wechselt (z.B. GS von africa→oceania), bleibt die alte Datei
+          # countries/africa/south_georgia_ipv4.txt als Altlast im Repo.
+          # Lösung: Alle existierenden *_ipv4.txt-Dateien scannen und
+          # diejenigen löschen, die nicht mehr von COUNTRY_MAP erzeugt werden.
+          import glob
+          expected_paths = set()
+          for cc, (continent, name, ips) in country_data.items():
+              expected_paths.add(f"countries/{continent}/{name}_ipv4.txt")
+          # Auch Länder die übersprungen wurden (Fehler/Timeout) behalten
+          for cc, (continent, name) in COUNTRY_MAP.items():
+              expected_paths.add(f"countries/{continent}/{name}_ipv4.txt")
+
+          stale_removed = []
+          for existing_file in glob.glob("countries/*/*_ipv4.txt"):
+              if existing_file not in expected_paths:
+                  try:
+                      os.remove(existing_file)
+                      stale_removed.append(existing_file)
+                      print(f"  🗑  Verwaiste Datei entfernt: {existing_file}")
+                  except Exception as e:
+                      print(f"  ⚠️  Konnte {existing_file} nicht entfernen: {e}")
+          if stale_removed:
+              print(f"\n{len(stale_removed)} verwaiste Länderdatei(en) entfernt")
+
           print(f"\nDone! Gesamt: {len(sorted_all)} IP-Ranges")
           if errors:
               print(f"Fehler bei: {', '.join(errors)}")
