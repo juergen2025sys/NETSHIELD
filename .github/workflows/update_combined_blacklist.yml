@@ -714,19 +714,22 @@ jobs:
                   continue
               today_count = len(today_feeds)
               today_is_hq = ip in ip_in_hq
-              # "Stark bestätigt" = ausschließlich HQ-Feed-Bestätigung.
-              # Non-HQ Feeds (statische Mega-Listen wie romainmarcoux, ipsum_master etc.)
-              # dürfen "last" NICHT aktualisieren – sie würden IPs sonst ewig am Leben halten.
-              # Non-HQ Feeds erhöhen nur feed_count → beeinflussen Confidence-Score,
-              # aber nicht die Lebenszeit der IP in der Blacklist.
-              # Lebenszeit wird ausschließlich durch HQ-Feeds (Feodo, Talos, AbuseIPDB etc.)
-              # bestimmt → IPs aus rein statischen Listen altern nach 180 Tagen automatisch aus.
-              strongly_confirmed_today = today_is_hq
 
               # HQ-Feed-Anzahl für diese IP heute (benannte Feeds + lokale HQ-Dateien)
               # FIX: LOCAL_HQ_NAMES ergänzt – Dateinamen wie "honeydb_ips.txt" sind
               # nicht in HIGH_QUALITY, müssen aber als HQ-Quelle mitzählen.
+              # WICHTIG: Muss VOR strongly_confirmed_today berechnet werden.
               hq_feed_names_today = today_feeds & (HIGH_QUALITY | LOCAL_HQ_NAMES)
+
+              # FIX AGGREGATOR1: "Stark bestätigt" = mindestens 2 verschiedene HQ-Feeds HEUTE.
+              # Vorher: 1 HQ-Feed reichte → Aggregator-Feeds wie firehol_level1 hielten
+              # IPs ewig am Leben, auch wenn kein anderer Feed sie noch meldete.
+              # Jetzt: Einzelne HQ-Feeds setzen hq=True und erhöhen feed_count,
+              # aber nur 2+ unabhängige HQ-Quellen refreshen "last".
+              # Für NEUE IPs (nicht in db) bleibt 1 HQ-Feed ausreichend für den
+              # Ersteintrag – siehe "last": now_day if today_is_hq weiter unten.
+              # Non-HQ Feeds dürfen "last" weiterhin NICHT aktualisieren.
+              strongly_confirmed_today = len(hq_feed_names_today) >= 2
 
               if ip in db:
                   existing_feeds = set(db[ip].get("feeds", []))
@@ -753,14 +756,19 @@ jobs:
               else:
                   db[ip] = {
                       "first":          now_day,
-                      "last":           now_day if strongly_confirmed_today else "2000-01-01",
+                      # FIX AGGREGATOR1: Neue IPs bekommen last=heute bei 1+ HQ-Feed.
+                      # Nur das REFRESHEN von last bei bestehenden IPs braucht 2+ HQ-Feeds
+                      # (strongly_confirmed_today). So kommen frische Feodo/ThreatFox-IPs
+                      # sofort in active, altern aber nach 30 Tagen raus wenn nur 1
+                      # Aggregator-Feed sie weitermeldet.
+                      "last":           now_day if today_is_hq else "2000-01-01",
                       "hq":             today_is_hq,
                       "feeds":          sorted(today_feeds),
                       "hq_feed_names":  sorted(hq_feed_names_today),   # FIX Bug3: auch bei Neu-Einträgen
                       "hq_feeds":       len(hq_feed_names_today),
                       "today_count":    today_count,
                       "today_hq":       today_is_hq,
-                      "days_seen":      1 if strongly_confirmed_today else 0,
+                      "days_seen":      1 if today_is_hq else 0,
                   }
 
           protected_removed_runtime = 0
