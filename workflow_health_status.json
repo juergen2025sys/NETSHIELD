@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-11 14:00 UTC",
+  "updated": "2026-04-11 15:51 UTC",
   "total": 16,
   "ok": 16,
   "warn": 0,
@@ -15,7 +15,7 @@
     {
       "file": "Production Health",
       "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
-      "detail": "blacklist_confidence40_ipv4.txt ist 6h alt (WARN-Schwelle: 6h)"
+      "detail": "blacklist_confidence40_ipv4.txt ist 8h alt (WARN-Schwelle: 6h)"
     }
   ],
   "ip_counts": {
@@ -33,7 +33,7 @@
       {
         "level": "WARN",
         "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
-        "detail": "blacklist_confidence40_ipv4.txt ist 6h alt (WARN-Schwelle: 6h)"
+        "detail": "blacklist_confidence40_ipv4.txt ist 8h alt (WARN-Schwelle: 6h)"
       }
     ]
   }
