@@ -391,7 +391,7 @@ jobs:
           # Alle neuen IPs aus diesem Discovery-Run (für seen_db-Eintrag)
           all_new_ips = set()   # IPs aus neu angenommenen Feeds
           all_known_ips = set() # IPs aus bereits bekannten Feeds (re-fetched)
-          ip_auto_feed_count: dict = {}  # ip → Anzahl Auto-Feeds die sie in diesem Run melden
+          ip_auto_feed_count = {}  # ip → Anzahl Auto-Feeds die sie in diesem Run melden
 
           for full_name, meta in candidate_repos.items():
               if full_name in rejected_repos:

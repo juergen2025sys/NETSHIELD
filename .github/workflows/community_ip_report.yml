@@ -347,6 +347,12 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
+            # FIX RACE3: Append-only Dateien vor Rebase sichern.
+            # Bei Konflikten mit --theirs gehen lokal angefügte Zeilen verloren.
+            # Lösung: Neue Zeilen (diff) sichern, nach --theirs erneut anhängen.
+            # So bleiben sowohl die Remote-Änderungen als auch die lokalen Appends erhalten.
+            git diff HEAD -- community_reports_log.txt | grep '^+[^+]' | sed 's/^+//' > /tmp/local_log_appends.txt 2>/dev/null || true
+            git diff HEAD -- community_reported_ips.txt | grep '^+[^+]' | sed 's/^+//' > /tmp/local_ip_appends.txt 2>/dev/null || true
             git commit -m "Community Report #${ISSUE_NUMBER}: $(date -u '+%Y-%m-%d %H:%M') UTC"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
@@ -358,6 +364,15 @@ jobs:
                 fi
               else
                 git checkout --theirs community_reports_log.txt community_reported_ips.txt 2>/dev/null || true
+                # FIX RACE3: Gesicherte Append-Zeilen nach --theirs erneut anfügen
+                if [ -s /tmp/local_log_appends.txt ]; then
+                  cat /tmp/local_log_appends.txt >> community_reports_log.txt
+                fi
+                if [ -s /tmp/local_ip_appends.txt ]; then
+                  while IFS= read -r ip; do
+                    grep -qxF "$ip" community_reported_ips.txt 2>/dev/null || echo "$ip" >> community_reported_ips.txt
+                  done < /tmp/local_ip_appends.txt
+                fi
                 git add community_reports_log.txt community_reported_ips.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi

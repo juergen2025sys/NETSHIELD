@@ -241,6 +241,8 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
+            # FIX RACE4: Append-only Log vor Rebase sichern (analog RACE3 in community_ip_report)
+            git diff HEAD -- false_positives_log.txt | grep '^+[^+]' | sed 's/^+//' > /tmp/local_fp_log_appends.txt 2>/dev/null || true
             git commit -m "False Positive Check: $(date -u '+%Y-%m-%d %H:%M') UTC"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
@@ -255,6 +257,10 @@ jobs:
                   false_positives_log.txt \
                   false_positive_report.md \
                   false_positives_set.json 2>/dev/null || true
+                # FIX RACE4: Gesicherte Log-Appends nach --theirs erneut anfügen
+                if [ -s /tmp/local_fp_log_appends.txt ]; then
+                  cat /tmp/local_fp_log_appends.txt >> false_positives_log.txt
+                fi
                 git add \
                   false_positives_log.txt \
                   false_positive_report.md \

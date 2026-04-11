@@ -811,6 +811,14 @@ jobs:
                              f"{', '.join(_missing_fp)} – Regression im FP-Checker-Commit-Step")
                       file_errors.append(msg)
                       errors.append({"file": fname, "check": "Fehlende FP-Dateien im checkout", "detail": msg})
+                  # FIX CHK23-RACE4: Regression-Check – false_positives_log.txt ist
+                  # append-only und muss vor Rebase gesichert werden.
+                  if 'git checkout --theirs' in content and '/tmp/local_fp_log_appends.txt' not in content:
+                      msg = ("Append-only Datei (false_positives_log.txt) wird bei rebase --theirs "
+                             "nicht gesichert – Log-Eintraege gehen bei parallelen Runs verloren "
+                             "(Regression FIX-RACE4)")
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Append-only Rebase-Schutz fehlt", "detail": msg})
 
               if fname == "update-blocklist.yml":
                   # FIX: Negativer Lookahead schließt korrekte "-- theirs -- all_countries" Muster aus.
@@ -836,6 +844,14 @@ jobs:
                              "seen_db akkumuliert pro Issue nicht")
                       file_errors.append(msg)
                       errors.append({"file": fname, "check": "Community-Cache Restore-Key", "detail": msg})
+                  # FIX CHK23-RACE3: Regression-Check – Append-only Dateien muessen
+                  # vor Rebase gesichert und nach --theirs erneut angefuegt werden.
+                  if 'git checkout --theirs' in content and '/tmp/local_log_appends.txt' not in content:
+                      msg = ("Append-only Dateien (community_reports_log.txt, community_reported_ips.txt) "
+                             "werden bei rebase --theirs nicht gesichert – Datenverlust bei parallelen Issues "
+                             "(Regression FIX-RACE3)")
+                      file_errors.append(msg)
+                      errors.append({"file": fname, "check": "Append-only Rebase-Schutz fehlt", "detail": msg})
 
               if fname == "honeydb_monitor.yml":
                   if 'data.get("from_id") or data.get("next_from_id")' in content:
