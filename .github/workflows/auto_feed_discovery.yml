@@ -132,11 +132,15 @@ jobs:
               _WHITELIST_ENTRIES = json.load(_wl_f)["entries"]
 
           fp_nets = []
+          _invalid_wl = 0
           for _wl_entry in _WHITELIST_ENTRIES:
               try:
                   fp_nets.append(ipaddress.ip_network(_wl_entry, strict=False))
-              except Exception:
-                  pass
+              except Exception as _e:
+                  _invalid_wl += 1
+                  print(f"  Whitelist-Eintrag ungültig (übersprungen): {_wl_entry} – {_e}")
+          if _invalid_wl:
+              print(f"  {_invalid_wl} Whitelist-Einträge konnten nicht geparst werden")
 
           # Protected-Nets für is_valid_public_ipv4: identisch mit fp_nets
           # (whitelist.json enthält bereits alle privaten Ranges, DNS, CDN etc.)
@@ -376,8 +380,9 @@ jobs:
                   existing_rejected = set(auto_data.get("rejected_repos", []))
                   print(f"Bestehende auto_discovered_feeds: {len(existing_feeds)} Feeds, "
                         f"{len(existing_rejected)} abgelehnte Repos")
-              except Exception:
-                  pass
+              except Exception as _e:
+                  print(f"::warning file=auto_feed_discovery.yml::auto_discovered_feeds.json konnte nicht geladen werden: {_e} – starte mit leerem Cache")
+                  print(f"WARNUNG: auto_discovered_feeds.json Ladefehler: {_e}")
 
           # ── Schritt 5: Kandidaten bewerten & IPs extrahieren ─────────────
           approved_feeds  = dict(existing_feeds)

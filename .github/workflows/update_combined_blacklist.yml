@@ -171,11 +171,14 @@ jobs:
               WHITELIST_ENTRIES = json.load(_wl_f)["entries"]
 
           _whitelist_networks = []
+          _invalid_wl = 0
           for _entry in list(WHITELIST_ENTRIES):
               try:
                   _whitelist_networks.append(ipaddress.ip_network(_entry, strict=False))
               except Exception:
-                  pass
+                  _invalid_wl += 1
+          if _invalid_wl:
+              print(f"  {_invalid_wl} Whitelist-Einträge ungültig/übersprungen")
 
           def is_whitelisted(ip_str):
               """True wenn IP in einer der Whitelist-Ranges liegt (IPs + CIDRs)."""
@@ -190,11 +193,14 @@ jobs:
               "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
           ]
           _protected_networks = []
+          _invalid_prot = 0
           for _entry in (list(DNS_WHITELIST) + PROTECTED_CIDRS):
               try:
                   _protected_networks.append(ipaddress.ip_network(_entry, strict=False))
               except Exception:
-                  pass
+                  _invalid_prot += 1
+          if _invalid_prot:
+              print(f"  {_invalid_prot} Protected-CIDR-Einträge ungültig/übersprungen")
 
           def is_protected_entry(value):
               """True wenn eine IP/ein CIDR niemals in Listen landen darf."""
@@ -427,8 +433,8 @@ jobs:
                               _fp_networks.append(ipaddress.ip_network(_e, strict=False))
                           else:
                               _fp_ips.add(_e)
-                      except Exception:
-                          pass
+                      except Exception as _fe:
+                          print(f"  FP-Eintrag ungültig (übersprungen): {_e!r} – {_fe}")
                   print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs als FP geladen")
               except Exception as _ex:
                   print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
@@ -619,8 +625,9 @@ jobs:
                                         f"update_confidence_blacklist möglicherweise ausgefallen")
                           print(f"::warning file=update_combined_blacklist.yml::{_extra_msg}")
                           print(f"WARNUNG: {_extra_msg}")
-                  except Exception:
-                      pass
+                  except Exception as _e:
+                      print(f"::warning file=update_combined_blacklist.yml::Stale-Check für confidence_blacklist fehlgeschlagen: {_e}")
+                      print(f"WARNUNG: Stale-Check confidence_blacklist: {_e}")
           for local_file, is_hq_local in LOCAL_FEEDS.items():
               if not os.path.exists(local_file):
                   print(f"  SKIP (nicht vorhanden): {local_file}")
@@ -639,8 +646,9 @@ jobs:
                                         f"Sub-Workflow möglicherweise ausgefallen")
                           print(f"::warning file=update_combined_blacklist.yml::{_stale_msg}")
                           print(f"WARNUNG: {_stale_msg}")
-                  except Exception:
-                      pass
+                  except Exception as _e:
+                      print(f"::warning file=update_combined_blacklist.yml::Stale-Check für {local_file} fehlgeschlagen: {_e}")
+                      print(f"WARNUNG: Stale-Check {local_file}: {_e}")
               local_ips = parse_feed_entries(raw_local)
               for entry in local_ips:
                   if is_hq_local:
@@ -941,7 +949,8 @@ jobs:
               try:
                   last_dt  = datetime.strptime(data["last"],  "%Y-%m-%d").replace(tzinfo=timezone.utc)
                   first_dt = datetime.strptime(data.get("first", data["last"]), "%Y-%m-%d").replace(tzinfo=timezone.utc)
-              except Exception:
+              except Exception as _e:
+                  print(f"  Ungültiges Datum für {ip} in seen_db (übersprungen): {_e}")
                   continue
 
               if last_dt < cutoff_30:

@@ -138,11 +138,14 @@ jobs:
               _WHITELIST_ENTRIES = json.load(_wl_f)["entries"]
 
           _whitelist_networks = []
+          _invalid_wl_cnt = 0
           for _wl_entry in _WHITELIST_ENTRIES:
               try:
                   _whitelist_networks.append(ipaddress.ip_network(_wl_entry, strict=False))
               except Exception:
-                  pass
+                  _invalid_wl_cnt += 1
+          if _invalid_wl_cnt:
+              print(f"  {_invalid_wl_cnt} Whitelist-Einträge ungültig/übersprungen")
 
           def is_valid_public_ipv4(ip_str):
               try:
@@ -182,10 +185,11 @@ jobs:
                               _fp_networks.append(ipaddress.ip_network(_e, strict=False))
                           else:
                               _fp_ips.add(_e)
-                      except Exception:
-                          pass
-              except Exception:
-                  pass  # FP-Check nicht blockierend – bei Fehler einfach überspringen
+                      except Exception as _fe:
+                          print(f"  FP-Eintrag ungültig (übersprungen): {_e!r} – {_fe}")
+              except Exception as _ex:
+                  print(f"::warning file=community_ip_report.yml::false_positives_set.json Ladefehler: {_ex}")
+                  print(f"WARNUNG: FP-Check übersprungen: {_ex}")
 
           def _is_fp(ip_str):
               if ip_str in _fp_ips:

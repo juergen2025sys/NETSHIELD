@@ -128,11 +128,14 @@ jobs:
               return idx >= 0 and ranges[idx][0] <= ip_int <= ranges[idx][1]
 
           bl_addrs = []
+          _invalid_bl = 0
           for ip in blacklist_ips:
               try:
                   bl_addrs.append((ip, int(ipaddress.ip_address(ip))))
               except Exception:
-                  pass
+                  _invalid_bl += 1
+          if _invalid_bl:
+              print(f"  Ungültige BL-Einträge übersprungen: {_invalid_bl}")
           bl_addrs.sort(key=lambda x: x[1])
           print(f"Gültige IPs für CIDR-Check: {len(bl_addrs):,}")
 
@@ -171,11 +174,14 @@ jobs:
 
               # CIDRs aus HTML/TXT parsen
               networks = []
+              _invalid_cidrs = 0
               for cidr in CIDR_RE.findall(raw):
                   try:
                       networks.append(ipaddress.ip_network(cidr, strict=False))
                   except Exception:
-                      pass
+                      _invalid_cidrs += 1
+              if _invalid_cidrs:
+                  print(f"    {_invalid_cidrs} ungültige CIDRs übersprungen")
 
               if not networks:
                   print("SKIP (keine CIDRs)")

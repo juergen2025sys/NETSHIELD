@@ -124,12 +124,15 @@ jobs:
 
           # IPs als sortierte Integer für Binary-Search CIDR-Check (~60x schneller)
           bl_addrs = []
+          _invalid_bl = 0
           for ip in blacklist_ips:
               try:
                   addr = ipaddress.ip_address(ip)
                   bl_addrs.append((ip, int(addr)))
               except Exception:
-                  pass
+                  _invalid_bl += 1
+          if _invalid_bl:
+              print(f"  Ungültige BL-Einträge übersprungen: {_invalid_bl}")
           bl_addrs.sort(key=lambda x: x[1])
           print(f"Gültige IPs für CIDR-Check: {len(bl_addrs):,}")
 
@@ -137,11 +140,14 @@ jobs:
           print("\nSpamhaus DROP laden...")
           drop_text = fetch_raw("https://www.spamhaus.org/drop/drop.txt") or ""
           drop_networks = []
+          _invalid_drop = 0
           for cidr in CIDR_RE.findall(drop_text):
               try:
                   drop_networks.append(ipaddress.ip_network(cidr, strict=False))
               except Exception:
-                  pass
+                  _invalid_drop += 1
+          if _invalid_drop:
+              print(f"  Spamhaus DROP: {_invalid_drop} ungültige CIDRs übersprungen")
           print(f"  Spamhaus DROP: {len(drop_networks)} Netzwerke")
 
           print("Emerging Threats laden...")
@@ -197,11 +203,14 @@ jobs:
 
               # CIDRs aus TXT parsen + Binary-Search-Struktur aufbauen
               networks = []
+              _invalid_cidrs = 0
               for cidr in CIDR_RE.findall(raw):
                   try:
                       networks.append(ipaddress.ip_network(cidr, strict=False))
                   except Exception:
-                      pass
+                      _invalid_cidrs += 1
+              if _invalid_cidrs:
+                  print(f"    {_invalid_cidrs} ungültige CIDRs übersprungen")
 
               if not networks:
                   print("SKIP (keine CIDRs)")

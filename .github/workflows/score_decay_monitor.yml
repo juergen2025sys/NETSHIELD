@@ -127,8 +127,9 @@ jobs:
                       print(f"WARNUNG: {age_msg}")
                   else:
                       print(f"seen_db Alter: {db_age_hours:.1f}h (OK)")
-              except Exception:
-                  pass
+              except Exception as _e:
+                  print(f"::warning file=score_decay_monitor.yml::seen_db Alterscheck fehlgeschlagen: {_e}")
+                  print(f"WARNUNG: seen_db Alterscheck fehlgeschlagen: {_e}")
           else:
               print("seen_db: Keine HQ-bestätigten Einträge (nur Watchlist-IPs)")
 
@@ -152,7 +153,8 @@ jobs:
               try:
                   last_dt  = datetime.strptime(last_seen,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
                   first_dt = datetime.strptime(first_seen, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-              except Exception:
+              except Exception as _e:
+                  print(f"  Ungültiges Datum für {ip} (übersprungen): {_e}")
                   continue
               days_ago    = (now - last_dt).days
 

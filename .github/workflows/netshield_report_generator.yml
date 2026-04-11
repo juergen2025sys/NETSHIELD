@@ -105,8 +105,8 @@ jobs:
                           with open(auto_file, encoding="utf-8") as af:
                               auto_data = json.load(af)
                           total += auto_data.get("total_feeds", 0)
-                      except Exception:
-                          pass
+                      except Exception as _e:
+                          print(f"  WARNUNG: {auto_file} konnte nicht gelesen werden: {_e}")
 
                   return str(total) if total > 0 else "–"
               except Exception:
@@ -130,8 +130,8 @@ jobs:
                           m = _TS_RE.search(line)
                           if m:
                               return m.group(1) + " UTC"
-              except Exception:
-                  pass
+              except Exception as _e:
+                  print(f"  WARNUNG: Timestamp-Lesen fehlgeschlagen: {_e}")
               return "–"
 
           FILES = {
@@ -304,8 +304,8 @@ jobs:
                       try:
                           with open(_auto, encoding="utf-8") as _af:
                               _total += json.load(_af).get("total_feeds", 0)
-                      except Exception:
-                          pass
+                      except Exception as _e:
+                          print(f"  WARNUNG: {_auto} konnte nicht gelesen werden: {_e}")
                   return str(_total) if _total > 0 else "–"
               except Exception:
                   return "–"

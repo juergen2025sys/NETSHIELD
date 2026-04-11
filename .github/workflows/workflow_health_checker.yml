@@ -1815,8 +1815,8 @@ jobs:
                           if _m:
                               _dt = datetime.strptime(_m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
                               return (now - _dt).total_seconds() / 3600
-              except Exception:
-                  pass
+              except Exception as _e:
+                  print(f"  WARNUNG: Timestamp-Lesen fehlgeschlagen: {_e}")
               return None
 
           def _count_ips(filepath):
@@ -1884,8 +1884,8 @@ jobs:
                               print(f"  🟡 seen_db Alter: {_meta_age_h:.0f}h (WARN >6h)")
                           else:
                               print(f"  ✅ seen_db Alter: {_meta_age_h:.1f}h")
-                      except Exception:
-                          pass
+                      except Exception as _e:
+                          print(f"  WARNUNG: seen_db_meta.json Alterscheck fehlgeschlagen: {_e}")
               except Exception as _ex:
                   prod_health.append({
                       "level": "CRITICAL", "check": "seen_db Integrität",
