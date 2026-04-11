@@ -260,6 +260,7 @@ jobs:
                   "hq":          False,
                   "community":   1,
                   "feeds":       ["community_report"],
+                  "hq_feed_names": [],  # FIX: Schema-Konsistenz mit update_combined_blacklist
                   "hq_feeds":    0,
                   "today_count": 1,
                   "today_hq":    False,

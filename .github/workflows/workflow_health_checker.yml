@@ -1232,6 +1232,23 @@ jobs:
                       })
                       print(f"⚠️  whitelist.json: nur {_wl_count} Einträge")
                   else:
+                      # FIX: CIDR-Format-Validierung – Tippfehler (z.B. /33) erkennen
+                      import ipaddress as _ipaddr_check
+                      _wl_invalid = []
+                      for _wl_entry in _wl_data.get("entries", []):
+                          try:
+                              _ipaddr_check.ip_network(_wl_entry, strict=False)
+                          except Exception:
+                              _wl_invalid.append(_wl_entry)
+                      if _wl_invalid:
+                          errors.append({
+                              "file": "whitelist.json",
+                              "check": "Ungültige CIDR-Einträge",
+                              "detail": f"{len(_wl_invalid)} ungültige Einträge: {', '.join(_wl_invalid[:5])}{'…' if len(_wl_invalid) > 5 else ''} – werden still ignoriert",
+                          })
+                          print(f"❌ whitelist.json: {len(_wl_invalid)} ungültige CIDR-Einträge")
+                      else:
+                          print(f"✅ whitelist.json: alle {_wl_count} Einträge sind gültige CIDRs")
                       # Prüfe ob beide Workflows die Datei referenzieren
                       _refs_ok = True
                       for _wf_path, _wf_name in [(_combined_path, "update_combined_blacklist.yml"), (_fp_path, "false_positive_checker.yml")]:

@@ -38,6 +38,7 @@ jobs:
           key: netshield-seen-db-v2-${{ github.run_id }}
           restore-keys: |
             netshield-seen-db-v2-
+            netshield-seen-db-community-
             netshield-seen-db-v1-
             netshield-seen-db-
 
