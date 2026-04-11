@@ -30,7 +30,7 @@ concurrency:
 jobs:
   update-confidence:
     runs-on: ubuntu-latest
-    timeout-minutes: 16
+    timeout-minutes: 25
 
     steps:
       - name: Checkout Repository
