@@ -1,14 +1,28 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-11 07:56 UTC
+**Aktualisiert:** 2026-04-11 14:00 UTC
 
 **Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `update_confidence_blacklist.yml` | Hardening-Guard fehlt | Fehlende Schutz-Tokens: 192.168.14.0/24, 192.168.13.0/24 |
+
+## ⚠️ Warnungen
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 6h alt (WARN-Schwelle: 6h) |
+
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🟡 WARN | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 6h alt (WARN-Schwelle: 6h) |
 
 ## Übersicht
 
@@ -32,4 +46,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-11 07:56 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-11 14:00 UTC | 16 Workflow-Dateien geprüft*
