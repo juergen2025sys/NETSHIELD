@@ -159,6 +159,7 @@ jobs:
           for entry in COUNTRIES:
               elapsed = time.time() - started_at
               if elapsed > MAX_ELAPSED_SECONDS:
+                  hit_limit_early = True
                   _skipped = [e["cc"] for e in COUNTRIES[COUNTRIES.index(entry):]]
                   _msg = (f"Laufzeitlimit erreicht ({elapsed:.0f}s > {MAX_ELAPSED_SECONDS}s) – "
                           f"{len(_skipped)} Länder übersprungen: {', '.join(_skipped)}")
