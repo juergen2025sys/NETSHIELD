@@ -131,21 +131,18 @@ jobs:
               sys.exit(0)
 
           # ── IP validieren ─────────────────────────────────────────────────
-          DNS_WHITELIST = {
-              "192.168.13.1","192.168.14.1",
-              "8.8.8.8","8.8.4.4","1.1.1.1","1.0.0.1",
-              "208.67.222.222","208.67.220.220","9.9.9.9",
-              "149.112.112.112","149.112.112.10","149.112.112.11",
-              "94.140.14.14","94.140.15.15",
-          }
+          # FIX SSOT3: Whitelist aus whitelist.json laden (Single Source of Truth)
+          # statt hardcoded DNS_WHITELIST und PROTECTED_CIDRS.
+          # Synchron mit update_combined_blacklist und false_positive_checker.
+          with open(".github/workflows/whitelist.json", encoding="utf-8") as _wl_f:
+              _WHITELIST_ENTRIES = json.load(_wl_f)["entries"]
 
-          PROTECTED_CIDRS = [
-              # Synchron mit update_combined_blacklist.yml, update_confidence_blacklist.yml
-              # und auto_feed_discovery.yml. CDN/Cloud-Ranges (Cloudflare, Google, Azure)
-              # werden separat durch false_positives_set.json und DNS_WHITELIST abgefangen.
-              "192.168.13.0/24","192.168.14.0/24",
-              "10.0.0.0/8","172.16.0.0/12","192.168.0.0/16",
-          ]
+          _whitelist_networks = []
+          for _wl_entry in _WHITELIST_ENTRIES:
+              try:
+                  _whitelist_networks.append(ipaddress.ip_network(_wl_entry, strict=False))
+              except Exception:
+                  pass
 
           def is_valid_public_ipv4(ip_str):
               try:
@@ -157,10 +154,8 @@ jobs:
                   if obj.is_unspecified:              return False
                   if obj.is_reserved:                 return False
                   if obj.is_link_local:               return False
-                  if ip_str in DNS_WHITELIST:         return False
-                  for cidr in PROTECTED_CIDRS:
-                      if obj in ipaddress.ip_network(cidr, strict=False):
-                          return False
+                  if any(obj in net for net in _whitelist_networks):
+                      return False
                   return True
               except Exception:
                   return False
