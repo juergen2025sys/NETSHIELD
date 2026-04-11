@@ -1,20 +1,20 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-04-10 23:43 UTC
+**Aktualisiert:** 2026-04-11 23:43 UTC
 
 ---
 | Quelle | IPs |
 |---|---|
-| ✅ `ipsum_level4` | 7376 |
+| ✅ `ipsum_level4` | 7475 |
 | ✅ `dshield_1d` | 29 |
-| ✅ `blocklist_de_bots` | 244 |
-| ✅ `blocklist_de_bruteforce` | 248 |
+| ✅ `blocklist_de_bots` | 288 |
+| ✅ `blocklist_de_bruteforce` | 289 |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honeypot-IPs | **7885** |
-| Neu | **+2232** |
-| Entfernt | **-2754** |
+| Gesamt Honeypot-IPs | **8056** |
+| Neu | **+2294** |
+| Entfernt | **-2123** |
 
 ---
-*Generiert: 2026-04-10 23:43 UTC*
+*Generiert: 2026-04-11 23:43 UTC*
