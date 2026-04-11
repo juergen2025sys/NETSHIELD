@@ -1,22 +1,14 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-11 15:59 UTC
+**Aktualisiert:** 2026-04-11 19:47 UTC
 
 **Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
-## ⚠️ Warnungen
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 8h alt (WARN-Schwelle: 6h) |
-
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🟡 WARN | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 8h alt (WARN-Schwelle: 6h) |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -40,4 +32,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-11 15:59 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-11 19:47 UTC | 16 Workflow-Dateien geprüft*

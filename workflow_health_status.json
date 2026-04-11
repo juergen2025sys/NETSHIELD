@@ -1,34 +1,22 @@
 {
-  "updated": "2026-04-11 15:59 UTC",
+  "updated": "2026-04-11 19:47 UTC",
   "total": 16,
   "ok": 16,
   "warn": 0,
   "error": 0,
   "errors": [],
-  "warnings": [
-    {
-      "file": "Production Health",
-      "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
-      "detail": "blacklist_confidence40_ipv4.txt ist 8h alt (WARN-Schwelle: 6h)"
-    }
-  ],
+  "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4340209,
-    "active_blacklist_ipv4.txt": 2547997,
-    "blacklist_confidence40_ipv4.txt": 3009487,
+    "combined_threat_blacklist_ipv4.txt": 4273841,
+    "active_blacklist_ipv4.txt": 2481474,
+    "blacklist_confidence40_ipv4.txt": 3020358,
     "cve_exploit_ips.txt": 56412,
     "honeypot_ips.txt": 7885,
     "bot_detector_blacklist_ipv4.txt": 17950
   },
   "production_health": {
     "critical": 0,
-    "warn": 1,
-    "checks": [
-      {
-        "level": "WARN",
-        "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
-        "detail": "blacklist_confidence40_ipv4.txt ist 8h alt (WARN-Schwelle: 6h)"
-      }
-    ]
+    "warn": 0,
+    "checks": []
   }
 }
