@@ -241,6 +241,8 @@ jobs:
               if community_count >= HQ_COMMUNITY_THRESHOLD:
                   db[ip]["hq"]       = True
                   db[ip]["today_hq"] = True
+                  db[ip]["hq_feed_names"] = ["community_report"]
+                  db[ip]["hq_feeds"] = 1
                   if prev_last != now_day:
                       db[ip]["days_seen"] = db[ip].get("days_seen", 0) + 1
                   db[ip]["last"] = now_day  # HQ-Promotion → last darf gesetzt werden

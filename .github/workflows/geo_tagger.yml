@@ -153,6 +153,8 @@ jobs:
 
           results       = []
           ip_to_country = {}   # ip → cc (für blacklist_geo_enriched.json)
+          processed_countries = 0
+          hit_limit_early = False
 
           for entry in COUNTRIES:
               elapsed = time.time() - started_at
@@ -208,6 +210,7 @@ jobs:
                   "prefixes": len(networks),
                   "total_ips": total_ips,
               })
+              processed_countries += 1
 
               print(f"{len(matched):,} BL-Hits / {len(networks)} Prefixes")
               time.sleep(0.3)
@@ -265,6 +268,14 @@ jobs:
           # Wenn ScaniteX nicht erreichbar war und alle Länder-Requests fehlschlugen,
           # sind total_matched=0 und ip_to_country leer → keine Ausgabe schreiben.
           MIN_GEO_MATCHED = 100
+          MIN_COUNTRIES_PROCESSED = max(5, min(10, len(COUNTRIES)))
+          if hit_limit_early and processed_countries < MIN_COUNTRIES_PROCESSED:
+              msg = (f"Geo-Anreicherung unvollständig: nur {processed_countries}/{len(COUNTRIES)} Länder "
+                     f"vor Laufzeitlimit verarbeitet (< {MIN_COUNTRIES_PROCESSED}) – "
+                     f"behalte bestehende blacklist_geo_enriched.json")
+              print(f"::warning file=geo_tagger.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(1)
           if total_matched < MIN_GEO_MATCHED:
               msg = (f"Nur {total_matched} Geo-Treffer (< {MIN_GEO_MATCHED}) – "
                      f"behalte bestehende blacklist_geo_enriched.json")
