@@ -140,7 +140,7 @@ jobs:
       - name: Fetch, discover, learn and build IPv4 lists
         run: |
           python3 << 'EOF'
-          import ipaddress, json, os, re, sys, socket, urllib.request
+          import ipaddress, json, os, re, sys, urllib.request
           from datetime import datetime, timezone, timedelta
           from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 
@@ -512,11 +512,27 @@ jobs:
               return entries
 
           def fetch_ips(name, url):
+              import time as _time
+              _t0 = _time.monotonic()
+              _MAX_SECS = 15  # Wanduhr-Limit pro Feed (Verbindung + Download)
               try:
                   req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD/3.0"})
                   opener = urllib.request.build_opener(urllib.request.HTTPRedirectHandler())
-                  with opener.open(req, timeout=25) as r:
-                      raw = r.read(READ_LIMIT).decode("utf-8", errors="ignore")
+                  with opener.open(req, timeout=15) as r:
+                      _chunks = []
+                      _total  = 0
+                      while True:
+                          if _time.monotonic() - _t0 > _MAX_SECS:
+                              print(f"TMO {name}: Abbruch nach {_MAX_SECS}s (langsamer Feed)")
+                              break
+                          _chunk = r.read(65536)  # 64 KB Chunks statt einmal READ_LIMIT
+                          if not _chunk:
+                              break
+                          _chunks.append(_chunk)
+                          _total += len(_chunk)
+                          if _total >= READ_LIMIT:
+                              break
+                      raw = b"".join(_chunks).decode("utf-8", errors="ignore")
                   found = parse_feed_entries(raw)
                   ips   = len([e for e in found if '/' not in e])
                   cidrs = len([e for e in found if '/' in e])
@@ -532,7 +548,6 @@ jobs:
 
           ip_feeds_today = {}   # ip → set(feed_namen) für diesen Run
 
-          socket.setdefaulttimeout(20)  # FIX: read() hängt sonst ewig bei langsamen Feeds
           with ThreadPoolExecutor(max_workers=80) as executor:
               futures = {executor.submit(fetch_ips, n, u): n for n, (u, _) in SOURCES.items()}
               try:
