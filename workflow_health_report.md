@@ -1,14 +1,29 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-12 15:43 UTC
+**Aktualisiert:** 2026-04-12 18:36 UTC
 
 **Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | Geo-Coverage | Geo-Enrichment deckt nur 0% der Combined-Blacklist ab (6/4,387,679) – GeoIP-DB veraltet oder Geo-Tagger gescheitert |
+
+## ⚠️ Warnungen
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 8h alt (WARN-Schwelle: 6h) |
+
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 1 CRITICAL | 🟡 1 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🔴 CRITICAL | Geo-Coverage | Geo-Enrichment deckt nur 0% der Combined-Blacklist ab (6/4,387,679) – GeoIP-DB veraltet oder Geo-Tagger gescheitert |
+| 🟡 WARN | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 8h alt (WARN-Schwelle: 6h) |
 
 ## Übersicht
 
@@ -32,4 +47,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-12 15:43 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-12 18:36 UTC | 16 Workflow-Dateien geprüft*
