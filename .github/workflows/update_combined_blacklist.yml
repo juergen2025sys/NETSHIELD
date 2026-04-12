@@ -32,7 +32,7 @@ jobs:
           persist-credentials: true
 
       - name: Restore seen_db Cache
-        uses: actions/cache/restore@5a3ec84eff668545956fd18022a29f5b9a4afbc5 # v4.2.3
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: seen_db.json
           key: netshield-seen-db-v2-${{ github.run_id }}
@@ -1024,7 +1024,7 @@ jobs:
         # zurück – Confidence-Blacklist berechnete dann Scores auf Basis einer
         # möglicherweise Stunden alten seen_db.
         if: always()
-        uses: actions/cache/save@5a3ec84eff668545956fd18022a29f5b9a4afbc5 # v4.2.3
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: seen_db.json
           # v2: Kein statischer "latest"-Key mehr. Restore erfolgt über Prefix
