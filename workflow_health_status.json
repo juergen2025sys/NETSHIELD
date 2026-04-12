@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-12 08:19 UTC",
+  "updated": "2026-04-12 08:29 UTC",
   "total": 16,
   "ok": 16,
   "warn": 0,
@@ -11,17 +11,11 @@
       "detail": "whitelist.json wird nicht referenziert \u2013 Whitelist-Filterung inaktiv"
     }
   ],
-  "warnings": [
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "SSOT-\u00dcbernahme unvollst\u00e4ndig",
-      "detail": "is_protected_entry nutzt whitelist.json nicht direkt \u00fcber _protected_networks = list(_whitelist_networks)"
-    }
-  ],
+  "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4384331,
-    "active_blacklist_ipv4.txt": 2560889,
-    "blacklist_confidence40_ipv4.txt": 3007155,
+    "combined_threat_blacklist_ipv4.txt": 4384740,
+    "active_blacklist_ipv4.txt": 2561559,
+    "blacklist_confidence40_ipv4.txt": 3126503,
     "cve_exploit_ips.txt": 56349,
     "honeypot_ips.txt": 8056,
     "bot_detector_blacklist_ipv4.txt": 17950

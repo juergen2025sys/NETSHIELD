@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-12 08:19 UTC
+**Aktualisiert:** 2026-04-12 08:29 UTC
 
 **Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
@@ -9,12 +9,6 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `update_combined_blacklist.yml` | Whitelist-Referenz fehlt | whitelist.json wird nicht referenziert – Whitelist-Filterung inaktiv |
-
-## ⚠️ Warnungen
-
-| Datei | Check | Detail |
-|---|---|---|
-| `update_combined_blacklist.yml` | SSOT-Übernahme unvollständig | is_protected_entry nutzt whitelist.json nicht direkt über _protected_networks = list(_whitelist_networks) |
 
 ## 🏥 Production Health
 
@@ -44,4 +38,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-12 08:19 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-12 08:29 UTC | 16 Workflow-Dateien geprüft*
