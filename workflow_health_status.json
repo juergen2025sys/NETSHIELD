@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-12 19:50 UTC",
+  "updated": "2026-04-12 20:22 UTC",
   "total": 16,
   "ok": 16,
   "warn": 0,
@@ -11,30 +11,19 @@
       "detail": "Geo-Enrichment deckt nur 0% der Combined-Blacklist ab (6/4,388,519) \u2013 GeoIP-DB veraltet oder Geo-Tagger gescheitert"
     }
   ],
-  "warnings": [
-    {
-      "file": "Production Health",
-      "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
-      "detail": "blacklist_confidence40_ipv4.txt ist 9h alt (WARN-Schwelle: 6h)"
-    }
-  ],
+  "warnings": [],
   "ip_counts": {
     "combined_threat_blacklist_ipv4.txt": 4388519,
     "active_blacklist_ipv4.txt": 2568540,
-    "blacklist_confidence40_ipv4.txt": 3031693,
+    "blacklist_confidence40_ipv4.txt": 3122595,
     "cve_exploit_ips.txt": 56349,
     "honeypot_ips.txt": 8056,
     "bot_detector_blacklist_ipv4.txt": 17950
   },
   "production_health": {
     "critical": 1,
-    "warn": 1,
+    "warn": 0,
     "checks": [
-      {
-        "level": "WARN",
-        "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
-        "detail": "blacklist_confidence40_ipv4.txt ist 9h alt (WARN-Schwelle: 6h)"
-      },
       {
         "level": "CRITICAL",
         "check": "Geo-Coverage",
