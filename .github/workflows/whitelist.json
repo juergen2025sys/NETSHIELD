@@ -1,5 +1,5 @@
 {
-  "_description": "NETSHIELD Whitelist – IPs/CIDRs die NIE auf die Blacklist kommen. 450 Eintraege. GCP Compute, Oracle Cloud, Rackspace und grosse M365-Ranges bewusst NICHT enthalten Erweitert um 18 fehlende Einzel-IPs aus Screenshot.",
+  "_description": "NETSHIELD Whitelist \u2013 IPs/CIDRs die NIE auf die Blacklist kommen. 464 Eintraege. GCP Compute, Oracle Cloud, Rackspace und grosse M365-Ranges bewusst NICHT enthalten.",
   "entries": [
     "10.0.0.0/8",
     "172.16.0.0/12",
@@ -460,14 +460,10 @@
     "104.18.32.47",
     "172.64.155.209",
     "35.186.224.24",
-    "62.159.27.16",
-    "62.159.27.109",
-    "62.159.27.215",
-    "62.159.27.21",
-    "62.159.27.25",
-    "62.201.172.8",
-    "62.201.172.21",
-    "217.160.0.11",
-    "51.195.68.163"
+    "62.159.27.0/24",
+    "62.201.172.0/24",
+    "217.160.0.0/24",
+    "51.195.68.0/24",
+    "207.244.121.0/24"
   ]
 }
