@@ -72,12 +72,11 @@ jobs:
           _wf_part = _wf_ref.split(".github/workflows/")[-1].split("@")[0].strip()
           SELF = _wf_part if _wf_part.endswith(".yml") else "workflow_health_checker.yml"
           print(f"SELF erkannt als: {SELF}")
-          # FIX REFACTOR: update_combined_blacklist.yml delegiert Code an netshield_update.py.
-          # Tokens werden daher in BEIDEN Dateien gesucht (content = yml + py).
+          # FIX REFACTOR: netshield_update.py laden – enthält den ausgelagerten Code
+          # von update_combined_blacklist.yml. content ist erst im Loop verfügbar,
+          # daher wird _netshield_py_text hier einmalig geladen und im Loop genutzt.
           _netshield_py_path = f"{WORKFLOWS_DIR}/netshield_update.py"
           _netshield_py_text = open(_netshield_py_path).read() if os.path.exists(_netshield_py_path) else ""
-          _combined_content  = content + _netshield_py_text  # für token-basierte Checks
-
           required_protection = {
               "update_combined_blacklist.yml": ["is_protected_entry", "whitelist.json"],
               # FIX WH10: update_confidence_blacklist.yml lädt Whitelist seit SSOT1-Refactoring
@@ -287,9 +286,9 @@ jobs:
               content = open(f"{WORKFLOWS_DIR}/{fname}").read()
 
               if fname in required_protection:
-                  # FIX REFACTOR: für update_combined_blacklist.yml auch netshield_update.py durchsuchen
-                  _check_text = (_combined_content if fname == "update_combined_blacklist.yml" else content)
-                  missing = [token for token in required_protection[fname] if token not in _check_text]
+                  # FIX REFACTOR: update_combined_blacklist nutzt netshield_update.py
+                  _rp_text = (content + _netshield_py_text) if fname == "update_combined_blacklist.yml" else content
+                  missing = [token for token in required_protection[fname] if token not in _rp_text]
                   if missing:
                       errors.append({
                           "file": fname,
@@ -1022,9 +1021,9 @@ jobs:
               # FIX-CB1: Regression-Check – MIN_COMBINED-Guard muss vorhanden sein
               # bevor combined_threat_blacklist_ipv4.txt geschrieben wird.
               if fname == "update_combined_blacklist.yml":
-                  # FIX REFACTOR: Code in netshield_update.py → combined_content prüfen
-                  _combined_all = content + _netshield_py_text
-                  _code_lines = [l for l in _combined_all.splitlines() if l.strip() and not l.strip().startswith('#')]
+                  # FIX REFACTOR: MIN_COMBINED ist in netshield_update.py
+                  _cb_full = content + _netshield_py_text
+                  _code_lines = [l for l in _cb_full.splitlines() if l.strip() and not l.strip().startswith('#')]
                   _cb_code = "\n".join(_code_lines)
                   _has_min_combined = 'MIN_COMBINED' in _cb_code
                   _has_combined_write = 'combined_threat_blacklist_ipv4.txt' in _cb_code
@@ -1039,7 +1038,8 @@ jobs:
               if fname == "update_combined_blacklist.yml":
                   # FIX REFACTOR: MIN_ACTIVE ist in netshield_update.py
                   _has_min_active = 'MIN_ACTIVE' in content or 'MIN_ACTIVE' in _netshield_py_text
-                  _has_active_write = 'active_blacklist_ipv4.txt' in content or 'active_blacklist_ipv4.txt' in _netshield_py_text
+                  _has_active_write = ('active_blacklist_ipv4.txt' in content
+                                       or 'active_blacklist_ipv4.txt' in _netshield_py_text)
                   if _has_active_write and not _has_min_active:
                       msg = ("active_blacklist_ipv4.txt wird geschrieben ohne MIN_ACTIVE-Leerungsschutz "
                              "(Regression FIX-CB2)")
