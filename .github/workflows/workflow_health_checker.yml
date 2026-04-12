@@ -2143,50 +2143,35 @@ jobs:
           else:
               print(f"  ⏭  Whitelist-Leak: {_wl_file} nicht vorhanden")
 
-          # ── PH8: Geo-Coverage-Quote ───────────────────────────────────────
-          # blacklist_geo_enriched.json sollte fast alle IPs aus der Combined
-          # Blacklist abdecken. Fällt die Quote unter ~80%, ist die GeoIP-DB
-          # veraltet oder der Geo-Tagger-Run gescheitert. Schwellen großzügig,
-          # da Geo-Tagger nur wöchentlich läuft und Combined alle 3h.
+          # ── PH8: Geo-Tagger Aktualität ────────────────────────────────────
+          # FIX: Ursprünglich als Coverage-Quote (geo_count / combined_count)
+          # implementiert – das war falsch. Geo-Tagger läuft wöchentlich (So 07:45),
+          # Combined alle 3h. Die Geo-Datei spiegelt also einen Wochen-Snapshot,
+          # während Combined kontinuierlich wächst → Coverage erreicht NIE 100%
+          # und ist als Health-Signal unbrauchbar.
+          # Richtige Frage: Ist die Geo-Datei innerhalb des Wochen-Rhythmus frisch?
+          # Schwellen: WARN >9 Tage (1 Run verpasst), CRITICAL >16 Tage (2 Runs verpasst).
           _geo_file = "blacklist_geo_enriched.json"
-          _combined_file = "combined_threat_blacklist_ipv4.txt"
-          if os.path.exists(_geo_file) and os.path.exists(_combined_file):
-              try:
-                  with open(_geo_file, encoding="utf-8") as _gf:
-                      _geo_data = json.load(_gf)
-                  # Schema-flexibel: dict {ip: {...}} oder list [{ip: ...}]
-                  if isinstance(_geo_data, dict):
-                      _geo_count = len(_geo_data)
-                  elif isinstance(_geo_data, list):
-                      _geo_count = len(_geo_data)
+          if os.path.exists(_geo_file):
+              _geo_age_h = _file_age_hours(_geo_file)
+              if _geo_age_h is not None:
+                  _geo_age_d = _geo_age_h / 24
+                  if _geo_age_d > 16:
+                      prod_health.append({
+                          "level": "CRITICAL", "check": "Geo-Tagger Aktualität",
+                          "detail": f"blacklist_geo_enriched.json ist {_geo_age_d:.0f} Tage alt (CRITICAL >16d ≈ 2 wöchentliche Runs verpasst) – Geo-Tagger steht still",
+                      })
+                      print(f"  🔴 Geo-Tagger Alter: {_geo_age_d:.0f}d (CRITICAL >16d)")
+                  elif _geo_age_d > 9:
+                      prod_health.append({
+                          "level": "WARN", "check": "Geo-Tagger Aktualität",
+                          "detail": f"blacklist_geo_enriched.json ist {_geo_age_d:.0f} Tage alt (WARN >9d ≈ 1 wöchentlicher Run verpasst)",
+                      })
+                      print(f"  🟡 Geo-Tagger Alter: {_geo_age_d:.0f}d (WARN >9d)")
                   else:
-                      _geo_count = 0
-                  _combined_count = _count_ips(_combined_file) or 0
-                  if _combined_count > 0 and _geo_count > 0:
-                      _coverage = (_geo_count / _combined_count) * 100
-                      # Geo-Tagger ist wöchentlich → bis zu 7 Tage Lag erwartbar.
-                      # Combined kann in der Woche um ~10-20% wachsen → Coverage
-                      # darf bis ~70% sinken bevor es echt verdächtig wird.
-                      if _coverage < 50:
-                          prod_health.append({
-                              "level": "CRITICAL", "check": "Geo-Coverage",
-                              "detail": f"Geo-Enrichment deckt nur {_coverage:.0f}% der Combined-Blacklist ab ({_geo_count:,}/{_combined_count:,}) – GeoIP-DB veraltet oder Geo-Tagger gescheitert",
-                          })
-                          print(f"  🔴 Geo-Coverage: {_coverage:.0f}% ({_geo_count:,}/{_combined_count:,})")
-                      elif _coverage < 70:
-                          prod_health.append({
-                              "level": "WARN", "check": "Geo-Coverage",
-                              "detail": f"Geo-Enrichment deckt {_coverage:.0f}% der Combined-Blacklist ab ({_geo_count:,}/{_combined_count:,}) – Lag durch wöchentlichen Geo-Tagger-Run möglich",
-                          })
-                          print(f"  🟡 Geo-Coverage: {_coverage:.0f}% ({_geo_count:,}/{_combined_count:,})")
-                      else:
-                          print(f"  ✅ Geo-Coverage: {_coverage:.0f}% ({_geo_count:,}/{_combined_count:,})")
-                  else:
-                      print(f"  ⏭  Geo-Coverage: leere Eingabe (geo={_geo_count}, combined={_combined_count})")
-              except Exception as _ge:
-                  print(f"  ⏭  Geo-Coverage: nicht auswertbar ({_ge})")
+                      print(f"  ✅ Geo-Tagger Alter: {_geo_age_d:.1f}d")
           else:
-              print("  ⏭  Geo-Coverage: blacklist_geo_enriched.json oder combined nicht vorhanden")
+              print("  ⏭  Geo-Tagger Aktualität: blacklist_geo_enriched.json nicht vorhanden (noch nie gelaufen)")
 
           # ── PH: Zusammenfassung ───────────────────────────────────────────
           _ph_critical = [p for p in prod_health if p["level"] == "CRITICAL"]
