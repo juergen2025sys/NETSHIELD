@@ -1,15 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-12 08:29 UTC
+**Aktualisiert:** 2026-04-12 08:33 UTC
 
 **Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `update_combined_blacklist.yml` | Whitelist-Referenz fehlt | whitelist.json wird nicht referenziert – Whitelist-Filterung inaktiv |
-
 ## 🏥 Production Health
 
 **Status:** 🔴 0 CRITICAL | 🟡 0 WARN
@@ -38,4 +32,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-12 08:29 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-12 08:33 UTC | 16 Workflow-Dateien geprüft*
