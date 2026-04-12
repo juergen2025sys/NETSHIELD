@@ -2052,6 +2052,15 @@ jobs:
                                   "detail": f"{_fpath}: {_prev_c:,} → {_cur:,} ({_change_pct:+.0f}%) – deutlicher Rückgang",
                               })
                               print(f"  🟡 Drift {_fpath}: {_change_pct:+.0f}% ({_prev_c:,} → {_cur:,})")
+                          elif _change_pct > 200:
+                              # PH6: Extremes Wachstum (>+200%) ist fast immer ein Bug –
+                              # kaputter Feed-Parser liest Kommentare als IPs, neuer Feed
+                              # mit massivem False-Positive-Anteil, oder Dedup gescheitert.
+                              prod_health.append({
+                                  "level": "CRITICAL", "check": f"Drift: {_fpath}",
+                                  "detail": f"{_fpath}: {_prev_c:,} → {_cur:,} ({_change_pct:+.0f}%) – extremes Wachstum, vermutlich Parser-/Dedup-Bug",
+                              })
+                              print(f"  🔴 Drift {_fpath}: {_change_pct:+.0f}% ({_prev_c:,} → {_cur:,})")
                           elif _change_pct > 50:
                               prod_health.append({
                                   "level": "WARN", "check": f"Drift: {_fpath}",
@@ -2066,6 +2075,118 @@ jobs:
                   print("  ⏭  Drift: workflow_health_status.json nicht lesbar")
           else:
               print("  ⏭  Drift: kein vorheriger Status vorhanden (erster Lauf)")
+
+          # ── PH7: Whitelist-Leakage am Output ──────────────────────────────
+          # Testet das ENDERGEBNIS, nicht den Code: Kommt eine geschützte IP
+          # tatsächlich in einer ausgelieferten Blacklist vor, ist das der
+          # schmerzhafteste Bug, den dieses System haben kann (Kunden blocken
+          # legitime Dienste). Single Source of Truth: whitelist.json.
+          _wl_file = ".github/workflows/whitelist.json"
+          if os.path.exists(_wl_file):
+              try:
+                  with open(_wl_file, encoding="utf-8") as _wlf:
+                      _wl_entries = json.load(_wlf).get("entries", [])
+                  _wl_nets = []
+                  _wl_singles = set()
+                  for _e in _wl_entries:
+                      try:
+                          if "/" in _e:
+                              _wl_nets.append(ipaddress.ip_network(_e, strict=False))
+                          else:
+                              _wl_singles.add(_e.strip())
+                      except Exception:
+                          pass
+
+                  def _ip_is_whitelisted(ip_str):
+                      if ip_str in _wl_singles:
+                          return True
+                      try:
+                          _addr = ipaddress.ip_address(ip_str.split("/")[0])
+                          return any(_addr in _n for _n in _wl_nets)
+                      except Exception:
+                          return False
+
+                  _leak_targets = [
+                      "combined_threat_blacklist_ipv4.txt",
+                      "active_blacklist_ipv4.txt",
+                      "blacklist_confidence40_ipv4.txt",
+                  ]
+                  for _lf in _leak_targets:
+                      if not os.path.exists(_lf):
+                          continue
+                      _leaks = []
+                      _scanned = 0
+                      try:
+                          with open(_lf, encoding="utf-8", errors="ignore") as _lfh:
+                              for _line in _lfh:
+                                  _line = _line.strip()
+                                  if not _line or _line.startswith("#"):
+                                      continue
+                                  _scanned += 1
+                                  if _ip_is_whitelisted(_line):
+                                      _leaks.append(_line)
+                                      if len(_leaks) >= 10:  # Stichprobe reicht – Beweis ist Beweis
+                                          break
+                      except Exception as _le:
+                          print(f"  ⏭  Whitelist-Leak Scan {_lf}: Lese-Fehler ({_le})")
+                          continue
+                      if _leaks:
+                          prod_health.append({
+                              "level": "CRITICAL", "check": f"Whitelist-Leak: {_lf}",
+                              "detail": f"{_lf} enthält whitelisted IPs: {', '.join(_leaks[:5])}{'…' if len(_leaks) > 5 else ''} – Filterung wirkungslos!",
+                          })
+                          print(f"  🔴 Whitelist-Leak {_lf}: {len(_leaks)}+ Treffer ({_leaks[0]} …)")
+                      else:
+                          print(f"  ✅ Whitelist-Leak {_lf}: 0 Treffer ({_scanned:,} IPs gescannt)")
+              except Exception as _wle:
+                  print(f"  ⏭  Whitelist-Leak: whitelist.json nicht lesbar ({_wle})")
+          else:
+              print(f"  ⏭  Whitelist-Leak: {_wl_file} nicht vorhanden")
+
+          # ── PH8: Geo-Coverage-Quote ───────────────────────────────────────
+          # blacklist_geo_enriched.json sollte fast alle IPs aus der Combined
+          # Blacklist abdecken. Fällt die Quote unter ~80%, ist die GeoIP-DB
+          # veraltet oder der Geo-Tagger-Run gescheitert. Schwellen großzügig,
+          # da Geo-Tagger nur wöchentlich läuft und Combined alle 3h.
+          _geo_file = "blacklist_geo_enriched.json"
+          _combined_file = "combined_threat_blacklist_ipv4.txt"
+          if os.path.exists(_geo_file) and os.path.exists(_combined_file):
+              try:
+                  with open(_geo_file, encoding="utf-8") as _gf:
+                      _geo_data = json.load(_gf)
+                  # Schema-flexibel: dict {ip: {...}} oder list [{ip: ...}]
+                  if isinstance(_geo_data, dict):
+                      _geo_count = len(_geo_data)
+                  elif isinstance(_geo_data, list):
+                      _geo_count = len(_geo_data)
+                  else:
+                      _geo_count = 0
+                  _combined_count = _count_ips(_combined_file) or 0
+                  if _combined_count > 0 and _geo_count > 0:
+                      _coverage = (_geo_count / _combined_count) * 100
+                      # Geo-Tagger ist wöchentlich → bis zu 7 Tage Lag erwartbar.
+                      # Combined kann in der Woche um ~10-20% wachsen → Coverage
+                      # darf bis ~70% sinken bevor es echt verdächtig wird.
+                      if _coverage < 50:
+                          prod_health.append({
+                              "level": "CRITICAL", "check": "Geo-Coverage",
+                              "detail": f"Geo-Enrichment deckt nur {_coverage:.0f}% der Combined-Blacklist ab ({_geo_count:,}/{_combined_count:,}) – GeoIP-DB veraltet oder Geo-Tagger gescheitert",
+                          })
+                          print(f"  🔴 Geo-Coverage: {_coverage:.0f}% ({_geo_count:,}/{_combined_count:,})")
+                      elif _coverage < 70:
+                          prod_health.append({
+                              "level": "WARN", "check": "Geo-Coverage",
+                              "detail": f"Geo-Enrichment deckt {_coverage:.0f}% der Combined-Blacklist ab ({_geo_count:,}/{_combined_count:,}) – Lag durch wöchentlichen Geo-Tagger-Run möglich",
+                          })
+                          print(f"  🟡 Geo-Coverage: {_coverage:.0f}% ({_geo_count:,}/{_combined_count:,})")
+                      else:
+                          print(f"  ✅ Geo-Coverage: {_coverage:.0f}% ({_geo_count:,}/{_combined_count:,})")
+                  else:
+                      print(f"  ⏭  Geo-Coverage: leere Eingabe (geo={_geo_count}, combined={_combined_count})")
+              except Exception as _ge:
+                  print(f"  ⏭  Geo-Coverage: nicht auswertbar ({_ge})")
+          else:
+              print("  ⏭  Geo-Coverage: blacklist_geo_enriched.json oder combined nicht vorhanden")
 
           # ── PH: Zusammenfassung ───────────────────────────────────────────
           _ph_critical = [p for p in prod_health if p["level"] == "CRITICAL"]
