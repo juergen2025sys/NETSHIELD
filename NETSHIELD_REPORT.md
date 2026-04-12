@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-04-12 09:11 UTC
+**Aktualisiert:** 2026-04-12 11:05 UTC
 
 ---
 ## 📊 Listen-Übersicht
@@ -8,8 +8,8 @@
 |---|---|---:|---|
 | ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **4,384,740** | 2026-04-12 07:40 UTC |
 | ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **2,561,559** | 2026-04-12 07:40 UTC |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **3,126,503** | 2026-04-12 07:52 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **841,480** | 2026-04-12 07:52 UTC |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **3,031,693** | 2026-04-12 10:23 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **836,572** | 2026-04-12 10:23 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **56,349** | 2026-04-12 05:50 UTC |
 | ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,950** | 2026-04-11 23:05 UTC |
 | ✅ `honeypot_ips.txt` | Honeypot IPs | **8,056** | 2026-04-11 23:43 UTC |
@@ -33,4 +33,4 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 *Details: [workflow_health_report.md](workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-04-12 09:11 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-04-12 11:05 UTC*
