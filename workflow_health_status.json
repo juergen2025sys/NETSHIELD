@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-12 03:14 UTC",
+  "updated": "2026-04-12 04:19 UTC",
   "total": 16,
   "ok": 16,
   "warn": 0,
@@ -8,24 +8,19 @@
     {
       "file": "Production Health",
       "check": "Aktualit\u00e4t: Active Blacklist (Stufe 2)",
-      "detail": "active_blacklist_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
+      "detail": "active_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
     },
     {
       "file": "Production Health",
       "check": "Aktualit\u00e4t: Combined Blacklist (Stufe 1)",
-      "detail": "combined_threat_blacklist_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
+      "detail": "combined_threat_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
     }
   ],
   "warnings": [
     {
-      "file": "update_combined_blacklist.yml",
-      "check": "actions/cache/restore Version-Drift",
-      "detail": "1 Datei(en) nutzen aeltere SHA als die Mehrheit \u2013 Update vergessen?"
-    },
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "actions/cache/save Version-Drift",
-      "detail": "1 Datei(en) nutzen aeltere SHA als die Mehrheit \u2013 Update vergessen?"
+      "file": "Production Health",
+      "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
+      "detail": "blacklist_confidence40_ipv4.txt ist 6h alt (WARN-Schwelle: 6h)"
     }
   ],
   "ip_counts": {
@@ -38,17 +33,22 @@
   },
   "production_health": {
     "critical": 2,
-    "warn": 0,
+    "warn": 1,
     "checks": [
       {
         "level": "CRITICAL",
         "check": "Aktualit\u00e4t: Active Blacklist (Stufe 2)",
-        "detail": "active_blacklist_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
+        "detail": "active_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
       },
       {
         "level": "CRITICAL",
         "check": "Aktualit\u00e4t: Combined Blacklist (Stufe 1)",
-        "detail": "combined_threat_blacklist_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
+        "detail": "combined_threat_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
+      },
+      {
+        "level": "WARN",
+        "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
+        "detail": "blacklist_confidence40_ipv4.txt ist 6h alt (WARN-Schwelle: 6h)"
       }
     ]
   }

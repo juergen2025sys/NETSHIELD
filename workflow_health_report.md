@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-12 03:14 UTC
+**Aktualisiert:** 2026-04-12 04:19 UTC
 
 **Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
@@ -8,24 +8,24 @@
 
 | Datei | Check | Detail |
 |---|---|---|
-| `Production Health` | Aktualität: Active Blacklist (Stufe 2) | active_blacklist_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
-| `Production Health` | Aktualität: Combined Blacklist (Stufe 1) | combined_threat_blacklist_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
+| `Production Health` | Aktualität: Active Blacklist (Stufe 2) | active_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
+| `Production Health` | Aktualität: Combined Blacklist (Stufe 1) | combined_threat_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
 
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
-| `update_combined_blacklist.yml` | actions/cache/restore Version-Drift | 1 Datei(en) nutzen aeltere SHA als die Mehrheit – Update vergessen? |
-| `update_combined_blacklist.yml` | actions/cache/save Version-Drift | 1 Datei(en) nutzen aeltere SHA als die Mehrheit – Update vergessen? |
+| `Production Health` | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 6h alt (WARN-Schwelle: 6h) |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 2 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Aktualität: Active Blacklist (Stufe 2) | active_blacklist_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
-| 🔴 CRITICAL | Aktualität: Combined Blacklist (Stufe 1) | combined_threat_blacklist_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
+| 🔴 CRITICAL | Aktualität: Active Blacklist (Stufe 2) | active_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
+| 🔴 CRITICAL | Aktualität: Combined Blacklist (Stufe 1) | combined_threat_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
+| 🟡 WARN | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 6h alt (WARN-Schwelle: 6h) |
 
 ## Übersicht
 
@@ -49,4 +49,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-12 03:14 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-12 04:19 UTC | 16 Workflow-Dateien geprüft*
