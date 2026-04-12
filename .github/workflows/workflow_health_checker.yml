@@ -74,7 +74,7 @@ jobs:
           print(f"SELF erkannt als: {SELF}")
           required_protection = {
               "update_combined_blacklist.yml": ["is_protected_entry", "whitelist.json"],
-              "update_confidence_blacklist.yml": ["is_protected_entry", "192.168.14.0/24", "192.168.13.0/24"],
+              "update_confidence_blacklist.yml": ["is_protected_entry", "whitelist.json"],  # FIX: SSOT-Migration wie update_combined_blacklist.yml
               # FIX: false_positive_checker.yml lädt Whitelist aus whitelist.json.
               # Literal-CIDRs stehen nicht mehr inline → Token-Check auf Dateiname.
               "false_positive_checker.yml": ["WHITELIST_CIDRS", "is_whitelisted_entry", "whitelist.json"],
