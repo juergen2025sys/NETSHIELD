@@ -2,6 +2,22 @@ import ipaddress, json, os, re, sys, urllib.request
 from datetime import datetime, timezone, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 
+# orjson: im vorherigen Step per pip installiert, 5-10x schneller als stdlib json
+try:
+    import orjson as _orjson
+    def _db_load(path):
+        with open(path, "rb") as _f: return _orjson.loads(_f.read())
+    def _db_dump(db, path):
+        with open(path, "wb") as _f: _f.write(_orjson.dumps(db))
+    print("JSON-Backend: orjson")
+except ImportError:
+    def _db_load(path):
+        with open(path, encoding="utf-8") as _f: return json.load(_f)
+    def _db_dump(db, path):
+        with open(path, "w", encoding="utf-8") as _f:
+            json.dump(db, _f, separators=(",", ":"))
+    print("JSON-Backend: stdlib json (Fallback)")
+
 now        = datetime.now(timezone.utc)
 now_day    = now.strftime("%Y-%m-%d")
 now_stamp  = now.strftime("%Y-%m-%d %H:%M UTC")
