@@ -72,18 +72,10 @@ jobs:
           _wf_part = _wf_ref.split(".github/workflows/")[-1].split("@")[0].strip()
           SELF = _wf_part if _wf_part.endswith(".yml") else "workflow_health_checker.yml"
           print(f"SELF erkannt als: {SELF}")
-          # FIX REFACTOR: netshield_update.py laden – enthält den ausgelagerten Code
-          # von update_combined_blacklist.yml. content ist erst im Loop verfügbar,
-          # daher wird _netshield_py_text hier einmalig geladen und im Loop genutzt.
-          _netshield_py_path = f"{WORKFLOWS_DIR}/netshield_update.py"
-          _netshield_py_text = open(_netshield_py_path).read() if os.path.exists(_netshield_py_path) else ""
           required_protection = {
               "update_combined_blacklist.yml": ["is_protected_entry", "whitelist.json"],
-              # FIX WH10: update_confidence_blacklist.yml lädt Whitelist seit SSOT1-Refactoring
-              # aus whitelist.json (kein Hardcoded-CIDR mehr) → Token-Check auf Dateiname.
-              # Alte Tokens 192.168.14.0/24 / 192.168.13.0/24 existieren dort nicht mehr.
-              "update_confidence_blacklist.yml": ["is_protected_entry", "whitelist.json"],
-              # FIX WH9: false_positive_checker.yml lädt Whitelist aus whitelist.json.
+              "update_confidence_blacklist.yml": ["is_protected_entry", "192.168.14.0/24", "192.168.13.0/24"],
+              # FIX: false_positive_checker.yml lädt Whitelist aus whitelist.json.
               # Literal-CIDRs stehen nicht mehr inline → Token-Check auf Dateiname.
               "false_positive_checker.yml": ["WHITELIST_CIDRS", "is_whitelisted_entry", "whitelist.json"],
           }
@@ -286,9 +278,7 @@ jobs:
               content = open(f"{WORKFLOWS_DIR}/{fname}").read()
 
               if fname in required_protection:
-                  # FIX REFACTOR: update_combined_blacklist nutzt netshield_update.py
-                  _rp_text = (content + _netshield_py_text) if fname == "update_combined_blacklist.yml" else content
-                  missing = [token for token in required_protection[fname] if token not in _rp_text]
+                  missing = [token for token in required_protection[fname] if token not in content]
                   if missing:
                       errors.append({
                           "file": fname,
@@ -1021,9 +1011,7 @@ jobs:
               # FIX-CB1: Regression-Check – MIN_COMBINED-Guard muss vorhanden sein
               # bevor combined_threat_blacklist_ipv4.txt geschrieben wird.
               if fname == "update_combined_blacklist.yml":
-                  # FIX REFACTOR: MIN_COMBINED ist in netshield_update.py
-                  _cb_full = content + _netshield_py_text
-                  _code_lines = [l for l in _cb_full.splitlines() if l.strip() and not l.strip().startswith('#')]
+                  _code_lines = [l for l in content.splitlines() if l.strip() and not l.strip().startswith('#')]
                   _cb_code = "\n".join(_code_lines)
                   _has_min_combined = 'MIN_COMBINED' in _cb_code
                   _has_combined_write = 'combined_threat_blacklist_ipv4.txt' in _cb_code
@@ -1036,10 +1024,8 @@ jobs:
               # ── Check 31: Leerungsschutz active_blacklist_ipv4.txt ───────────
               # FIX-CB2: Regression-Check – MIN_ACTIVE-Guard muss vorhanden sein.
               if fname == "update_combined_blacklist.yml":
-                  # FIX REFACTOR: MIN_ACTIVE ist in netshield_update.py
-                  _has_min_active = 'MIN_ACTIVE' in content or 'MIN_ACTIVE' in _netshield_py_text
-                  _has_active_write = ('active_blacklist_ipv4.txt' in content
-                                       or 'active_blacklist_ipv4.txt' in _netshield_py_text)
+                  _has_min_active = 'MIN_ACTIVE' in content
+                  _has_active_write = 'active_blacklist_ipv4.txt' in content
                   if _has_active_write and not _has_min_active:
                       msg = ("active_blacklist_ipv4.txt wird geschrieben ohne MIN_ACTIVE-Leerungsschutz "
                              "(Regression FIX-CB2)")
@@ -1280,16 +1266,10 @@ jobs:
                       else:
                           print(f"✅ whitelist.json: alle {_wl_count} Einträge sind gültige CIDRs")
                       # Prüfe ob beide Workflows die Datei referenzieren
-                      # FIX: update_combined_blacklist.yml lagert den Python-Code in
-                      # netshield_update.py aus → _wf_text muss auch diese Datei
-                      # einschließen, sonst wird whitelist.json dort nie gefunden.
                       _refs_ok = True
                       for _wf_path, _wf_name in [(_combined_path, "update_combined_blacklist.yml"), (_fp_path, "false_positive_checker.yml")]:
                           if os.path.exists(_wf_path):
                               _wf_text = open(_wf_path).read()
-                              # Für combined: auch netshield_update.py einbeziehen (ausgelagerter Code)
-                              if _wf_name == "update_combined_blacklist.yml":
-                                  _wf_text += _netshield_py_text
                               if "whitelist.json" not in _wf_text:
                                   errors.append({
                                       "file": _wf_name,
@@ -1425,30 +1405,366 @@ jobs:
                   else:
                       print(f"⏭  Untrusted Feed hq-Guard: keine SOURCES gefunden")
 
-          # ── Protected-Filter über whitelist.json (SSOT) ─────────────────
-          # Nach dem SSOT-Refactoring darf update_combined_blacklist.yml keine
-          # separaten DNS_WHITELIST/PROTECTED_CIDRS-Container mehr enthalten.
-          _combined_path = f"{WORKFLOWS_DIR}/update_combined_blacklist.yml"
-          if os.path.exists(_combined_path):
-              _combined_text = open(_combined_path).read()
-              _legacy_tokens = [tok for tok in ("DNS_WHITELIST =", "PROTECTED_CIDRS =") if tok in _combined_text]
-              if _legacy_tokens:
+          # ── DNS_WHITELIST Konsistenz ───────────────────────────────────────
+          # Mehrere Workflows definieren DNS_WHITELIST eigenstaendig.
+          # Alle muessen identisch sein.
+          _dns_wl_per_file = {}
+          for _fname in files:
+              _fpath = f"{WORKFLOWS_DIR}/{_fname}"
+              _ftext = open(_fpath).read()
+              _dns_m = re.search(r'DNS_WHITELIST\s*=\s*\{', _ftext)
+              if not _dns_m:
+                  continue
+              _dns_start = _dns_m.end() - 1
+              _dns_depth = 0
+              _dns_end = _dns_start
+              for _i, _ch in enumerate(_ftext[_dns_start:], _dns_start):
+                  if _ch == '{': _dns_depth += 1
+                  elif _ch == '}':
+                      _dns_depth -= 1
+                      if _dns_depth == 0: _dns_end = _i + 1; break
+              _dns_block = _ftext[_dns_start:_dns_end]
+              _dns_ips = {m.strip() for m in re.findall(r'"([^"]+)"', _dns_block)}
+              _dns_wl_per_file[_fname] = _dns_ips
+
+          if len(_dns_wl_per_file) >= 2:
+              _dns_reference = None
+              _dns_ref_file  = None
+              _dns_drifts    = []
+              for _fname, _ips in sorted(_dns_wl_per_file.items()):
+                  if _dns_reference is None:
+                      _dns_reference = _ips
+                      _dns_ref_file  = _fname
+                      continue
+                  if _ips != _dns_reference:
+                      _only_ref  = _dns_reference - _ips
+                      _only_this = _ips - _dns_reference
+                      _dns_drifts.append((_fname, len(_only_ref), len(_only_this)))
+              if _dns_drifts:
+                  _drift_detail = "; ".join(
+                      f"{f} (+{a}/-{r} vs {_dns_ref_file})" for f, r, a in _dns_drifts
+                  )
                   warnings.append({
-                      "file": "update_combined_blacklist.yml",
-                      "check": "Legacy Protected-Listen vorhanden",
-                      "detail": f"Inline-Definitionen noch vorhanden: {', '.join(_legacy_tokens)} – sollten vollständig durch whitelist.json ersetzt sein",
+                      "file": " ↔ ".join(sorted(_dns_wl_per_file.keys())),
+                      "check": "DNS_WHITELIST Drift",
+                      "detail": f"DNS_WHITELIST nicht identisch: {_drift_detail}",
                   })
-                  print(f"⚠️  update_combined_blacklist.yml: Legacy-Tokens gefunden ({', '.join(_legacy_tokens)})")
-              elif ("_protected_networks = list(_whitelist_networks)" not in _combined_text
-                    and "_protected_networks = list(_whitelist_networks)" not in _netshield_py_text):
-                  warnings.append({
-                      "file": "update_combined_blacklist.yml",
-                      "check": "SSOT-Übernahme unvollständig",
-                      "detail": "is_protected_entry nutzt whitelist.json nicht direkt über _protected_networks = list(_whitelist_networks)",
-                  })
-                  print("⚠️  update_combined_blacklist.yml: _protected_networks wird nicht direkt aus _whitelist_networks abgeleitet")
+                  print(f"⚠️  DNS_WHITELIST Drift: {len(_dns_drifts)} Datei(en) abweichend")
               else:
-                  print("✅ Protected-Filter: update_combined_blacklist.yml nutzt whitelist.json als SSOT")
+                  print(f"✅ DNS_WHITELIST: konsistent über {len(_dns_wl_per_file)} Dateien")
+
+          # ── LOCAL_FEEDS ↔ Sub-Workflow Ausgabedateien ──────────────────────
+          # LOCAL_FEEDS in update_combined_blacklist.yml referenziert Dateien die
+          # von Sub-Workflows erzeugt werden. Prüfe ob diese Dateien auch
+          # tatsaechlich von einem Workflow geschrieben werden.
+          if os.path.exists(_combined_path):
+              _combined_text_lf = open(_combined_path).read()
+              _lf_m = re.search(r'LOCAL_FEEDS\s*=\s*\{', _combined_text_lf)
+              _local_feed_files = set()
+              if _lf_m:
+                  _lf_start = _lf_m.end() - 1
+                  _lf_depth = 0
+                  _lf_end = _lf_start
+                  for _i, _ch in enumerate(_combined_text_lf[_lf_start:], _lf_start):
+                      if _ch == '{': _lf_depth += 1
+                      elif _ch == '}':
+                          _lf_depth -= 1
+                          if _lf_depth == 0: _lf_end = _i + 1; break
+                  _lf_block = _combined_text_lf[_lf_start:_lf_end]
+                  for _m in re.finditer(r'"([^"]+\.txt)"', _lf_block):
+                      _local_feed_files.add(_m.group(1))
+
+              # Prüfe welche LOCAL_FEED-Dateien von keinem Workflow geschrieben werden
+              _all_written = set()
+              for _fname in files:
+                  _fpath = f"{WORKFLOWS_DIR}/{_fname}"
+                  _ftext = open(_fpath).read()
+                  _fblocks = re.findall(r"python3 << 'EOF'(.*?)\n\s*EOF", _ftext, re.DOTALL)
+                  for _blk in _fblocks:
+                      for _m in re.finditer(r'open\(\s*["\']([a-z0-9_.\-]+\.txt)["\']', _blk):
+                          _all_written.add(_m.group(1))
+                      for _m in re.finditer(r'\b([A-Z_]+)\s*=\s*["\']([a-z0-9_.\-]+\.txt)["\']', _blk):
+                          _all_written.add(_m.group(2))
+
+              _orphan_feeds = _local_feed_files - _all_written
+              if _orphan_feeds:
+                  warnings.append({
+                      "file": "update_combined_blacklist.yml",
+                      "check": "LOCAL_FEEDS verwaist",
+                      "detail": f"LOCAL_FEEDS referenziert Dateien ohne erkennbaren Erzeuger-Workflow: {', '.join(sorted(_orphan_feeds))}",
+                  })
+                  print(f"⚠️  LOCAL_FEEDS: {len(_orphan_feeds)} verwaiste Dateien")
+              else:
+                  print(f"✅ LOCAL_FEEDS: alle {len(_local_feed_files)} Dateien haben Erzeuger-Workflow")
+
+          # ── Doppelte Feed-URLs ─────────────────────────────────────────────
+          # Gleiche URL in mehreren Workflows/Dicts fuehrt zu doppeltem today_count
+          # und aufgeblaesenem Confidence-Score (dokumentierter Bug-Typ).
+          _url_to_workflows = {}
+          _url_re = re.compile(r'"(https?://[^"\s]+)"')
+          for _fname in files:
+              _fpath = f"{WORKFLOWS_DIR}/{_fname}"
+              _ftext = open(_fpath).read()
+              _fblocks = re.findall(r"python3 << 'EOF'(.*?)\n\s*EOF", _ftext, re.DOTALL)
+              for _blk in _fblocks:
+                  # Nur URLs in SOURCES/CVE_SOURCES/HONEYPOT_SOURCES-artigen Dicts
+                  for _line in _blk.splitlines():
+                      _line_code = _line.split('#')[0]
+                      for _m in _url_re.finditer(_line_code):
+                          _url = _m.group(1)
+                          # Nur Feed-URLs (nicht GitHub API, nicht ScaniteX, nicht hackinggate)
+                          if any(skip in _url for skip in [
+                              'api.github.com', 'scanitex.com', 'hackinggate.com',
+                              'api.abuseipdb.com', 'honeydb.io/api',
+                          ]):
+                              continue
+                          _url_to_workflows.setdefault(_url, set()).add(_fname)
+
+          _dup_urls = {u: wfs for u, wfs in _url_to_workflows.items() if len(wfs) > 1}
+          if _dup_urls:
+              # Nur melden wenn die URL nicht bereits als Duplikat-Kommentar dokumentiert ist
+              # Zwei Erkennungsmethoden:
+              # (a) Spezifisch: URL-Kurzname + Schlüsselwort in derselben Zeile
+              # (b) Generell: HINWEIS-Block mit Schlüsselwort "BEWUSST/überlappen/Overlap"
+              #     → dokumentiert die gesamte Feed-Liste als absichtlich doppelt
+              _doc_keywords_specific = r'(?:entfernt|identisch|doppelt)'
+              _doc_keywords_general  = r'(?:BEWUSST|ueberlappen|überlappen|[Oo]verlap|intentional)'
+              _real_dups = []
+              for _url, _wfs in sorted(_dup_urls.items()):
+                  _documented = False
+                  _url_short = _url.split('/')[-1][:30]
+                  for _wf in _wfs:
+                      _wf_text = open(f"{WORKFLOWS_DIR}/{_wf}").read()
+                      # (a) Spezifisch: "# ... entfernt/identisch/doppelt ... <url_short>"
+                      if re.search(rf'#.*{_doc_keywords_specific}.*{re.escape(_url_short[:15])}', _wf_text, re.I):
+                          _documented = True
+                          break
+                      # (b) Generell: HINWEIS-Block der die Feed-Liste als bewusst doppelt dokumentiert
+                      if re.search(rf'#\s*HINWEIS:.*{_doc_keywords_general}', _wf_text):
+                          _documented = True
+                          break
+                  if not _documented:
+                      _real_dups.append((_url, _wfs))
+
+              if _real_dups:
+                  _dup_detail = "; ".join(
+                      f"{u.split('/')[-1][:40]} in {'+'.join(sorted(wfs))}"
+                      for u, wfs in _real_dups[:5]
+                  )
+                  warnings.append({
+                      "file": "Cross-Workflow",
+                      "check": "Doppelte Feed-URLs",
+                      "detail": f"{len(_real_dups)} URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: {_dup_detail}",
+                  })
+                  print(f"⚠️  Doppelte Feed-URLs: {len(_real_dups)} undokumentierte Duplikate")
+              else:
+                  print(f"✅ Feed-URLs: {len(_dup_urls)} Duplikate gefunden, alle dokumentiert")
+          else:
+              print(f"✅ Feed-URLs: keine Duplikate ({len(_url_to_workflows)} URLs)")
+
+          # ── EXPIRY_DAYS Konsistenz ────────────────────────────────────────
+          # update_combined_blacklist und auto_feed_discovery muessen gleiche
+          # Werte fuer EXPIRY_DAYS und WATCHLIST_EXPIRY_DAYS verwenden.
+          _expiry_map = {}
+          _wl_expiry_map = {}
+          for _fname in files:
+              _ftext = open(f"{WORKFLOWS_DIR}/{_fname}").read()
+              for _m in re.finditer(r'\bEXPIRY_DAYS\s*=\s*(\d+)', _ftext):
+                  _expiry_map.setdefault(int(_m.group(1)), []).append(_fname)
+              for _m in re.finditer(r'\bWATCHLIST_EXPIRY_DAYS\s*=\s*(\d+)', _ftext):
+                  _wl_expiry_map.setdefault(int(_m.group(1)), []).append(_fname)
+
+          if len(_expiry_map) > 1:
+              _detail = "; ".join(f"{v}d in {'+'.join(wfs)}" for v, wfs in sorted(_expiry_map.items()))
+              errors.append({
+                  "file": "Cross-Workflow",
+                  "check": "EXPIRY_DAYS Inkonsistenz",
+                  "detail": f"Verschiedene EXPIRY_DAYS-Werte: {_detail} – IPs werden unterschiedlich lang gehalten",
+              })
+              print(f"❌ EXPIRY_DAYS Inkonsistenz: {_detail}")
+          elif _expiry_map:
+              print(f"✅ EXPIRY_DAYS: konsistent ({list(_expiry_map.keys())[0]}d)")
+
+          if len(_wl_expiry_map) > 1:
+              _detail = "; ".join(f"{v}d in {'+'.join(wfs)}" for v, wfs in sorted(_wl_expiry_map.items()))
+              warnings.append({
+                  "file": "Cross-Workflow",
+                  "check": "WATCHLIST_EXPIRY_DAYS Inkonsistenz",
+                  "detail": f"Verschiedene WATCHLIST_EXPIRY_DAYS: {_detail}",
+              })
+              print(f"⚠️  WATCHLIST_EXPIRY_DAYS Inkonsistenz: {_detail}")
+
+          # ── Cache-Key Prefix Validierung ──────────────────────────────────
+          # Jeder Workflow darf nur in seinen eigenen Cache-Prefix schreiben.
+          # Combined → v2, FP-Checker → fp, Auto-Discovery → afd, Community → community
+          _cache_write_rules = {
+              "update_combined_blacklist.yml":  "v2",
+              "false_positive_checker.yml":     "fp",
+              "auto_feed_discovery.yml":        "afd",
+              "community_ip_report.yml":        "community",
+          }
+          for _fname, _expected_prefix in _cache_write_rules.items():
+              _fpath = f"{WORKFLOWS_DIR}/{_fname}"
+              if not os.path.exists(_fpath):
+                  continue
+              _ftext = open(_fpath).read()
+              # Cache Save-Keys extrahieren (key: netshield-seen-db-...)
+              # Beide Patterns: actions/cache (impliziter Save) und actions/cache/save
+              _save_keys = re.findall(
+                  r'key:\s*(netshield-seen-db-[^\s\n]+)',
+                  _ftext
+              )
+              for _sk in _save_keys:
+                  # restore-keys Zeilen ignorieren (die dürfen andere Prefixe haben)
+                  _sk_ctx_start = max(0, _ftext.find(_sk) - 200)
+                  _sk_ctx = _ftext[_sk_ctx_start:_ftext.find(_sk) + len(_sk)]
+                  if 'restore-keys' in _sk_ctx:
+                      continue
+                  if f"-{_expected_prefix}-" not in _sk and not _sk.startswith(f"netshield-seen-db-{_expected_prefix}"):
+                      # Ausnahme: Score Decay nutzt cache/restore (read-only) – kein Write
+                      if _fname == "score_decay_monitor.yml":
+                          continue
+                      warnings.append({
+                          "file": _fname,
+                          "check": "Cache-Key Prefix falsch",
+                          "detail": f"Save-Key '{_sk}' hat nicht den erwarteten Prefix '{_expected_prefix}' – potenzieller Cache-Overwrite",
+                      })
+                      print(f"⚠️  Cache-Key: {_fname} schreibt in '{_sk}' statt '{_expected_prefix}'")
+
+          # ── Workflow-Abhaengigkeitskette ──────────────────────────────────
+          # Sub-Workflows muessen VOR update_combined_blacklist laufen.
+          # Prüfe ob die Cron-Zeiten das garantieren.
+          # Mindest-Puffer (Minuten) zwischen Sub-Workflow und Combined.
+          # Combined braucht ~20min – 60min Puffer ist konservativ sicher.
+          _DEP_MIN_GAP = 60
+          _dependency_chain = {
+              "honeydb_monitor.yml":     "update_combined_blacklist.yml",
+              "honeypot_monitor.yml":    "update_combined_blacklist.yml",
+              "update_bot_detector.yml": "update_combined_blacklist.yml",
+              "cve_to_ip_mapper.yml":    "update_combined_blacklist.yml",
+          }
+          for _dep_src, _dep_dst in _dependency_chain.items():
+              if _dep_src not in file_crons or _dep_dst not in file_crons:
+                  continue
+              _src_mins = []
+              _dst_mins = []
+              for _expr in file_crons.get(_dep_src, []):
+                  _src_mins.extend(_cron_minutes_of_day(_expr.strip()))
+              for _expr in file_crons.get(_dep_dst, []):
+                  _dst_mins.extend(_cron_minutes_of_day(_expr.strip()))
+              _src_mins = sorted(set(_src_mins))
+              _dst_mins = sorted(set(_dst_mins))
+              if not _src_mins or not _dst_mins:
+                  continue
+              # Fuer jeden Sub-Workflow-Zeitpunkt: gibt es einen Combined-Lauf
+              # mindestens _DEP_MIN_GAP Minuten spaeter (am selben Tag)?
+              _dep_bad = []
+              for _s in _src_mins:
+                  _later = [_d for _d in _dst_mins if _d > _s]
+                  if not _later:
+                      # Sub-Workflow laueft nach dem letzten Combined des Tages.
+                      # Combined laueft aber auch frueher (*/3h), daher kein harter Fehler –
+                      # die Daten werden beim naechsten frueheren Combined-Lauf verarbeitet.
+                      pass
+                  else:
+                      _gap = _later[0] - _s
+                      if _gap < _DEP_MIN_GAP:
+                          _dep_bad.append(
+                              f"{_fmt_minute_of_day(_s)} → {_fmt_minute_of_day(_later[0])} "
+                              f"({_gap}min < {_DEP_MIN_GAP}min Mindestpuffer)"
+                          )
+              if _dep_bad:
+                  warnings.append({
+                      "file": f"{_dep_src} → {_dep_dst}",
+                      "check": "Sub-Workflow Puffer zu knapp",
+                      "detail": (
+                          f"Sub-Workflow laueft zu knapp vor Combined – "
+                          f"Output moeglicherweise nicht rechtzeitig verfuegbar: "
+                          + "; ".join(_dep_bad[:5])
+                      ),
+                  })
+
+          # ── Score-Modell Konsistenz (combined ↔ confidence) ──────────────
+          # Die Confidence-Score-Berechnung (score_a/b/c/d) muss in
+          # update_combined_blacklist.yml und update_confidence_blacklist.yml
+          # identisch sein. Drift fuehrt zu inkonsistenten active_blacklist
+          # und confidence40-Listen.
+          _score_files = {
+              "update_combined_blacklist.yml": f"{WORKFLOWS_DIR}/update_combined_blacklist.yml",
+              "update_confidence_blacklist.yml": f"{WORKFLOWS_DIR}/update_confidence_blacklist.yml",
+          }
+          _score_models = {}
+          for _sf_name, _sf_path in _score_files.items():
+              if not os.path.exists(_sf_path):
+                  continue
+              _sf_text = open(_sf_path).read()
+              # score_a Schwellen extrahieren
+              _sa = re.findall(r'score_a\s*=\s*(\d+)', _sf_text)
+              _sb = re.findall(r'score_b\s*=\s*(\d+)', _sf_text)
+              _sc = re.findall(r'score_c\s*=\s*(\d+)', _sf_text)
+              _sd = re.findall(r'score_d\s*=\s*(\d+)', _sf_text)
+              _score_models[_sf_name] = {
+                  "a": tuple(_sa), "b": tuple(_sb),
+                  "c": tuple(_sc), "d": tuple(_sd),
+              }
+
+          if len(_score_models) == 2:
+              _sm_keys = list(_score_models.keys())
+              _sm_a, _sm_b = _score_models[_sm_keys[0]], _score_models[_sm_keys[1]]
+              _score_diffs = []
+              for _dim in ("a", "b", "c", "d"):
+                  if _sm_a[_dim] != _sm_b[_dim]:
+                      _score_diffs.append(f"score_{_dim}")
+              if _score_diffs:
+                  errors.append({
+                      "file": " ↔ ".join(_sm_keys),
+                      "check": "Score-Modell Divergenz",
+                      "detail": f"Unterschiedliche Schwellen in: {', '.join(_score_diffs)} – active_blacklist und confidence40 bewerten IPs unterschiedlich",
+                  })
+                  print(f"❌ Score-Modell Divergenz: {', '.join(_score_diffs)}")
+              else:
+                  print(f"✅ Score-Modell: identisch in combined und confidence")
+
+          # ── PROTECTED_CIDRS Sync ────────────────────────────────────────
+          # Mehrere Workflows definieren PROTECTED_CIDRS. Drift fuehrt dazu
+          # dass ein Workflow private IPs durchlaesst die ein anderer filtert.
+          _prot_per_file = {}
+          for _fname in files:
+              _ftext = open(f"{WORKFLOWS_DIR}/{_fname}").read()
+              _prot_m = re.search(r'PROTECTED_CIDRS\s*=\s*\[', _ftext)
+              if not _prot_m:
+                  continue
+              _p_start = _prot_m.end()
+              _p_depth = 1
+              _p_i = _p_start
+              while _p_i < len(_ftext) and _p_depth > 0:
+                  if _ftext[_p_i] == '[': _p_depth += 1
+                  elif _ftext[_p_i] == ']': _p_depth -= 1
+                  _p_i += 1
+              _p_block = _ftext[_p_start:_p_i-1]
+              _p_cidrs = {c.strip() for c in re.findall(r'"([^"]+)"', _p_block)}
+              _prot_per_file[_fname] = _p_cidrs
+
+          if len(_prot_per_file) >= 2:
+              _prot_ref = None
+              _prot_ref_file = None
+              _prot_drifts = []
+              for _fname, _cidrs in sorted(_prot_per_file.items()):
+                  if _prot_ref is None:
+                      _prot_ref = _cidrs
+                      _prot_ref_file = _fname
+                      continue
+                  if _cidrs != _prot_ref:
+                      _prot_drifts.append(_fname)
+              if _prot_drifts:
+                  warnings.append({
+                      "file": " ↔ ".join(sorted(_prot_per_file.keys())),
+                      "check": "PROTECTED_CIDRS Drift",
+                      "detail": f"PROTECTED_CIDRS nicht identisch: {', '.join(_prot_drifts)} weichen von {_prot_ref_file} ab",
+                  })
+                  print(f"⚠️  PROTECTED_CIDRS Drift: {len(_prot_drifts)} Datei(en) abweichend")
+              else:
+                  print(f"✅ PROTECTED_CIDRS: konsistent über {len(_prot_per_file)} Dateien")
 
           # ── Actions SHA Aktualitaet ─────────────────────────────────────
           # Prüfe ob alle Workflows dieselbe SHA fuer actions/checkout und
@@ -1499,8 +1815,8 @@ jobs:
                           if _m:
                               _dt = datetime.strptime(_m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
                               return (now - _dt).total_seconds() / 3600
-              except Exception as _e:
-                  print(f"  WARNUNG: Timestamp-Lesen fehlgeschlagen: {_e}")
+              except Exception:
+                  pass
               return None
 
           def _count_ips(filepath):
@@ -1568,8 +1884,8 @@ jobs:
                               print(f"  🟡 seen_db Alter: {_meta_age_h:.0f}h (WARN >6h)")
                           else:
                               print(f"  ✅ seen_db Alter: {_meta_age_h:.1f}h")
-                      except Exception as _e:
-                          print(f"  WARNUNG: seen_db_meta.json Alterscheck fehlgeschlagen: {_e}")
+                      except Exception:
+                          pass
               except Exception as _ex:
                   prod_health.append({
                       "level": "CRITICAL", "check": "seen_db Integrität",

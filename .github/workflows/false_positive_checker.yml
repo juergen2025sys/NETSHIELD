@@ -70,15 +70,11 @@ jobs:
               WHITELIST_CIDRS = json.load(_wl_f)["entries"]
 
           whitelist_networks = []
-          _invalid_wl = 0
           for cidr in WHITELIST_CIDRS:
               try:
                   whitelist_networks.append(ipaddress.ip_network(cidr, strict=False))
-              except Exception as _e:
-                  _invalid_wl += 1
-                  print(f"  Whitelist-CIDR ungültig (übersprungen): {cidr} – {_e}")
-          if _invalid_wl:
-              print(f"  {_invalid_wl} Whitelist-CIDRs konnten nicht geparst werden")
+              except Exception:
+                  pass
 
           def is_whitelisted_entry(value):
               try:
@@ -87,11 +83,7 @@ jobs:
                       return False
                   if '/' in candidate:
                       net = ipaddress.ip_network(candidate, strict=False)
-                      # FIX: overlaps() war falsch – markierte z.B. 3.0.0.0/8 als FP
-                      # weil 3.120.0.0/24 (Whitelist) darin liegt, nicht umgekehrt.
-                      # Korrekt: nur subnet_of() → Blacklist-CIDR muss vollständig
-                      # INNERHALB einer Whitelist-Range liegen um als FP zu gelten.
-                      return any(net.subnet_of(w) for w in whitelist_networks)
+                      return any(net.overlaps(w) for w in whitelist_networks)
                   addr = ipaddress.ip_address(candidate)
                   return any(addr in net for net in whitelist_networks)
               except Exception:

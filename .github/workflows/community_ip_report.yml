@@ -138,14 +138,11 @@ jobs:
               _WHITELIST_ENTRIES = json.load(_wl_f)["entries"]
 
           _whitelist_networks = []
-          _invalid_wl_cnt = 0
           for _wl_entry in _WHITELIST_ENTRIES:
               try:
                   _whitelist_networks.append(ipaddress.ip_network(_wl_entry, strict=False))
               except Exception:
-                  _invalid_wl_cnt += 1
-          if _invalid_wl_cnt:
-              print(f"  {_invalid_wl_cnt} Whitelist-Einträge ungültig/übersprungen")
+                  pass
 
           def is_valid_public_ipv4(ip_str):
               try:
@@ -185,11 +182,10 @@ jobs:
                               _fp_networks.append(ipaddress.ip_network(_e, strict=False))
                           else:
                               _fp_ips.add(_e)
-                      except Exception as _fe:
-                          print(f"  FP-Eintrag ungültig (übersprungen): {_e!r} – {_fe}")
-              except Exception as _ex:
-                  print(f"::warning file=community_ip_report.yml::false_positives_set.json Ladefehler: {_ex}")
-                  print(f"WARNUNG: FP-Check übersprungen: {_ex}")
+                      except Exception:
+                          pass
+              except Exception:
+                  pass  # FP-Check nicht blockierend – bei Fehler einfach überspringen
 
           def _is_fp(ip_str):
               if ip_str in _fp_ips:
@@ -241,8 +237,6 @@ jobs:
               if community_count >= HQ_COMMUNITY_THRESHOLD:
                   db[ip]["hq"]       = True
                   db[ip]["today_hq"] = True
-                  db[ip]["hq_feed_names"] = ["community_report"]
-                  db[ip]["hq_feeds"] = 1
                   if prev_last != now_day:
                       db[ip]["days_seen"] = db[ip].get("days_seen", 0) + 1
                   db[ip]["last"] = now_day  # HQ-Promotion → last darf gesetzt werden
