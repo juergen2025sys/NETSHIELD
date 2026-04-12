@@ -1,16 +1,10 @@
 {
-  "updated": "2026-04-12 20:22 UTC",
+  "updated": "2026-04-12 20:29 UTC",
   "total": 16,
   "ok": 16,
   "warn": 0,
   "error": 0,
-  "errors": [
-    {
-      "file": "Production Health",
-      "check": "Geo-Coverage",
-      "detail": "Geo-Enrichment deckt nur 0% der Combined-Blacklist ab (6/4,388,519) \u2013 GeoIP-DB veraltet oder Geo-Tagger gescheitert"
-    }
-  ],
+  "errors": [],
   "warnings": [],
   "ip_counts": {
     "combined_threat_blacklist_ipv4.txt": 4388519,
@@ -21,14 +15,8 @@
     "bot_detector_blacklist_ipv4.txt": 17950
   },
   "production_health": {
-    "critical": 1,
+    "critical": 0,
     "warn": 0,
-    "checks": [
-      {
-        "level": "CRITICAL",
-        "check": "Geo-Coverage",
-        "detail": "Geo-Enrichment deckt nur 0% der Combined-Blacklist ab (6/4,388,519) \u2013 GeoIP-DB veraltet oder Geo-Tagger gescheitert"
-      }
-    ]
+    "checks": []
   }
 }
