@@ -87,7 +87,11 @@ jobs:
                       return False
                   if '/' in candidate:
                       net = ipaddress.ip_network(candidate, strict=False)
-                      return any(net.overlaps(w) for w in whitelist_networks)
+                      # FIX: overlaps() war falsch – markierte z.B. 3.0.0.0/8 als FP
+                      # weil 3.120.0.0/24 (Whitelist) darin liegt, nicht umgekehrt.
+                      # Korrekt: nur subnet_of() → Blacklist-CIDR muss vollständig
+                      # INNERHALB einer Whitelist-Range liegen um als FP zu gelten.
+                      return any(net.subnet_of(w) for w in whitelist_networks)
                   addr = ipaddress.ip_address(candidate)
                   return any(addr in net for net in whitelist_networks)
               except Exception:
