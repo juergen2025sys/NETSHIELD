@@ -1280,10 +1280,16 @@ jobs:
                       else:
                           print(f"✅ whitelist.json: alle {_wl_count} Einträge sind gültige CIDRs")
                       # Prüfe ob beide Workflows die Datei referenzieren
+                      # FIX: update_combined_blacklist.yml lagert den Python-Code in
+                      # netshield_update.py aus → _wf_text muss auch diese Datei
+                      # einschließen, sonst wird whitelist.json dort nie gefunden.
                       _refs_ok = True
                       for _wf_path, _wf_name in [(_combined_path, "update_combined_blacklist.yml"), (_fp_path, "false_positive_checker.yml")]:
                           if os.path.exists(_wf_path):
                               _wf_text = open(_wf_path).read()
+                              # Für combined: auch netshield_update.py einbeziehen (ausgelagerter Code)
+                              if _wf_name == "update_combined_blacklist.yml":
+                                  _wf_text += _netshield_py_text
                               if "whitelist.json" not in _wf_text:
                                   errors.append({
                                       "file": _wf_name,
