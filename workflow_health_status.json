@@ -1,20 +1,10 @@
 {
-  "updated": "2026-04-12 08:08 UTC",
+  "updated": "2026-04-12 08:19 UTC",
   "total": 16,
-  "ok": 15,
+  "ok": 16,
   "warn": 0,
-  "error": 1,
+  "error": 0,
   "errors": [
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "Hardening-Guard fehlt",
-      "detail": "Fehlende Schutz-Tokens: is_protected_entry, whitelist.json"
-    },
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "Leerungsschutz combined fehlt",
-      "detail": "combined_threat_blacklist_ipv4.txt wird geschrieben ohne MIN_COMBINED-Leerungsschutz \u2013 leere Blacklist kann an OPNsense ausgeliefert werden (Regression FIX-CB1)"
-    },
     {
       "file": "update_combined_blacklist.yml",
       "check": "Whitelist-Referenz fehlt",
@@ -22,11 +12,6 @@
     }
   ],
   "warnings": [
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "Leerungsschutz active fehlt",
-      "detail": "active_blacklist_ipv4.txt wird geschrieben ohne MIN_ACTIVE-Leerungsschutz (Regression FIX-CB2)"
-    },
     {
       "file": "update_combined_blacklist.yml",
       "check": "SSOT-\u00dcbernahme unvollst\u00e4ndig",
