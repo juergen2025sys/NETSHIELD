@@ -1,26 +1,14 @@
 {
-  "updated": "2026-04-12 14:03 UTC",
+  "updated": "2026-04-12 15:43 UTC",
   "total": 16,
   "ok": 16,
   "warn": 0,
   "error": 0,
-  "errors": [
-    {
-      "file": "update_confidence_blacklist.yml",
-      "check": "Hardening-Guard fehlt",
-      "detail": "Fehlende Schutz-Tokens: 192.168.14.0/24, 192.168.13.0/24"
-    }
-  ],
-  "warnings": [
-    {
-      "file": "Production Health",
-      "check": "Aktualit\u00e4t: Active Blacklist (Stufe 2)",
-      "detail": "active_blacklist_ipv4.txt ist 6h alt (WARN-Schwelle: 6h)"
-    }
-  ],
+  "errors": [],
+  "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4243300,
-    "active_blacklist_ipv4.txt": 2561559,
+    "combined_threat_blacklist_ipv4.txt": 4287704,
+    "active_blacklist_ipv4.txt": 2480192,
     "blacklist_confidence40_ipv4.txt": 3031693,
     "cve_exploit_ips.txt": 56349,
     "honeypot_ips.txt": 8056,
@@ -28,13 +16,7 @@
   },
   "production_health": {
     "critical": 0,
-    "warn": 1,
-    "checks": [
-      {
-        "level": "WARN",
-        "check": "Aktualit\u00e4t: Active Blacklist (Stufe 2)",
-        "detail": "active_blacklist_ipv4.txt ist 6h alt (WARN-Schwelle: 6h)"
-      }
-    ]
+    "warn": 0,
+    "checks": []
   }
 }
