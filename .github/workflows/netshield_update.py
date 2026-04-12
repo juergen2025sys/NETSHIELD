@@ -483,10 +483,10 @@ feed_stats    = []
 
 ip_feeds_today = {}   # ip → set(feed_namen) für diesen Run
 
-with ThreadPoolExecutor(max_workers=25) as executor:
+with ThreadPoolExecutor(max_workers=50) as executor:
     futures = {executor.submit(fetch_ips, n, u): n for n, (u, _) in SOURCES.items()}
     try:
-        for future in as_completed(futures, timeout=600):
+        for future in as_completed(futures, timeout=1800):
             name, ips = future.result()
             for ip in ips:
                 if name in HIGH_QUALITY:
@@ -501,7 +501,7 @@ with ThreadPoolExecutor(max_workers=25) as executor:
         for f in futures:
             if not f.done():
                 f.cancel()
-        print(f"::warning file=update_combined_blacklist.yml::Haupt-Feed-Timeout nach 600s – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:10])}{'…' if len(pending) > 10 else ''}")
+        print(f"::warning file=update_combined_blacklist.yml::Haupt-Feed-Timeout nach 1800s – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:10])}{'…' if len(pending) > 10 else ''}")
         print(f"WARNUNG: Haupt-Feed-Block Timeout – {len(pending)} Feed(s) abgebrochen, bereits geladene Feeds werden weiterverarbeitet")
 
 # ── Lokale Sub-Workflow-Dateien einlesen ───────────────────────────
