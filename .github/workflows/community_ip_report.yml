@@ -134,8 +134,16 @@ jobs:
           # FIX SSOT3: Whitelist aus whitelist.json laden (Single Source of Truth)
           # statt hardcoded DNS_WHITELIST und PROTECTED_CIDRS.
           # Synchron mit update_combined_blacklist und false_positive_checker.
-          with open(".github/workflows/whitelist.json", encoding="utf-8") as _wl_f:
-              _WHITELIST_ENTRIES = json.load(_wl_f)["entries"]
+          try:
+              with open(".github/workflows/whitelist.json", encoding="utf-8") as _wl_f:
+                  _WHITELIST_ENTRIES = json.load(_wl_f)["entries"]
+          except Exception as _wl_err:
+              # Community-Report ist nicht kritisch genug für harten Abbruch –
+              # ohne Whitelist aber unsicher → IP ablehnen und User informieren.
+              print(f"FEHLER: whitelist.json nicht ladbar: {_wl_err}")
+              with open(RESULT_FILE, "w", encoding="utf-8") as f:
+                  f.write(f"INTERNAL_ERROR|{ip}|whitelist.json nicht ladbar")
+              sys.exit(0)
 
           _whitelist_networks = []
           for _wl_entry in _WHITELIST_ENTRIES:

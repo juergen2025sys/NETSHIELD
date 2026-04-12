@@ -71,8 +71,14 @@ jobs:
           # FIX SSOT1: Hardcoded DNS_WHITELIST und PROTECTED_CIDRS durch
           # whitelist.json ersetzt. Synchron mit update_combined_blacklist
           # und false_positive_checker. Neue Whitelist-Einträge wirken sofort.
-          with open(".github/workflows/whitelist.json", encoding="utf-8") as _wl_f:
-              _WHITELIST_ENTRIES = json.load(_wl_f)["entries"]
+          try:
+              with open(".github/workflows/whitelist.json", encoding="utf-8") as _wl_f:
+                  _WHITELIST_ENTRIES = json.load(_wl_f)["entries"]
+          except Exception as _wl_err:
+              _msg = f"whitelist.json nicht ladbar: {_wl_err} – Confidence-Berechnung abgebrochen"
+              print(f"::error file=update_confidence_blacklist.yml::{_msg}")
+              print(f"FEHLER: {_msg}")
+              sys.exit(1)
 
           protected_networks = []
           for _entry in _WHITELIST_ENTRIES:
