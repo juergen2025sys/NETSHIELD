@@ -1,9 +1,10 @@
 # AbuseIPDB API Blacklist – NETSHIELD
-# Aktualisiert: 2026-04-12 06:28 UTC
+# Aktualisiert: 2026-04-12 06:56 UTC
 # Quellen: 3 API-Keys (Round-Robin)
 # Eintraege: 9990
 # Key 1: 0 IPs [HTTP_429]
-# Key 2: 9990 IPs [OK]
+# Key 2: 0 IPs [HTTP_429]
+# Key 3: 9990 IPs [OK]
 
 1.30.20.98
 1.30.199.218
