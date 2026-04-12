@@ -31,6 +31,13 @@ jobs:
         with:
           persist-credentials: true
 
+      - name: Install Python dependencies
+        # orjson (Rust-kompiliert) ist 5-10x schneller als stdlib json beim
+        # Laden/Schreiben der seen_db. MUSS als eigener Step laufen – niemals
+        # per subprocess.run() innerhalb des Python-Skripts, da pip dort eine
+        # Rust-Kompilierung ausloesen kann die den Runner 30+ Min blockiert.
+        run: pip install --quiet --break-system-packages orjson
+
       - name: Restore seen_db Cache
         uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
@@ -140,44 +147,27 @@ jobs:
       - name: Fetch, discover, learn and build IPv4 lists
         run: |
           python3 << 'EOF'
-          import ipaddress, json, os, re, sys, urllib.request, subprocess
+          import ipaddress, json, os, re, sys, urllib.request
           from datetime import datetime, timezone, timedelta
           from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 
-          # ── Schnelle JSON-Bibliothek (orjson >> stdlib json für 60 MB seen_db) ──
-          # orjson ist 5-10x schneller als stdlib json beim Laden großer Dateien.
-          # Fallback auf stdlib json wenn orjson nicht installierbar ist.
+          # ── orjson (im vorherigen Step installiert) ───────────────────────
+          # 5-10x schneller als stdlib json beim Laden/Schreiben der seen_db.
+          # Fallback auf stdlib json falls der Install-Step fehlschlug.
           try:
-              import orjson as _json_lib
-              _ORJSON = True
+              import orjson as _orjson
+              def _db_load(path):
+                  with open(path, "rb") as _f: return _orjson.loads(_f.read())
+              def _db_dump(db, path):
+                  with open(path, "wb") as _f: _f.write(_orjson.dumps(db))
+              print("JSON-Backend: orjson (schnell)")
           except ImportError:
-              subprocess.run([sys.executable, "-m", "pip", "install", "--quiet",
-                              "--break-system-packages", "orjson"], check=False)
-              try:
-                  import orjson as _json_lib
-                  _ORJSON = True
-              except ImportError:
-                  _json_lib = json
-                  _ORJSON = False
-
-          def _fast_load_db(path):
-              """Liest seen_db.json mit orjson (schnell) oder stdlib json (Fallback)."""
-              with open(path, "rb") as _f:
-                  _raw = _f.read()
-              if _ORJSON:
-                  return _json_lib.loads(_raw)
-              return _json_lib.loads(_raw.decode("utf-8"))
-
-          def _fast_dump_db(db, path):
-              """Schreibt seen_db.json mit orjson (schnell) oder stdlib json (Fallback)."""
-              if _ORJSON:
-                  with open(path, "wb") as _f:
-                      _f.write(_json_lib.dumps(db))
-              else:
+              def _db_load(path):
+                  with open(path, encoding="utf-8") as _f: return json.load(_f)
+              def _db_dump(db, path):
                   with open(path, "w", encoding="utf-8") as _f:
                       json.dump(db, _f, separators=(",", ":"))
-
-          print(f"JSON-Backend: {'orjson (schnell)' if _ORJSON else 'stdlib json (Fallback)'}")
+              print("JSON-Backend: stdlib json (Fallback)")
 
           now        = datetime.now(timezone.utc)
           now_day    = now.strftime("%Y-%m-%d")
@@ -424,7 +414,7 @@ jobs:
                   _db_mb = os.path.getsize(DB_FILE) / 1024 / 1024
                   print(f"seen_db laden: {_db_mb:.1f} MB ...")
                   import time as _t; _t0 = _t.monotonic()
-                  db = _fast_load_db(DB_FILE)
+                  db = _db_load(DB_FILE)
                   print(f"seen_db geladen: {len(db)} IPs in {_t.monotonic()-_t0:.1f}s")
               except Exception as _e:
                   print(f"WARNUNG: seen_db nicht lesbar ({_e}) – starte neu.")
@@ -586,7 +576,7 @@ jobs:
 
           ip_feeds_today = {}   # ip → set(feed_namen) für diesen Run
 
-          with ThreadPoolExecutor(max_workers=80) as executor:
+          with ThreadPoolExecutor(max_workers=25) as executor:  # 25 statt 80: weniger Context-Switching auf Shared-Runner
               futures = {executor.submit(fetch_ips, n, u): n for n, (u, _) in SOURCES.items()}
               try:
                   for future in as_completed(futures, timeout=90):
@@ -915,22 +905,18 @@ jobs:
                         f"{len(_community_active)} aktive behalten")
 
           # ── seen_db speichern ──────────────────────────────────────────────
-          # FIX BLOAT: feeds-Liste auf max. 30 Einträge kappen, um seen_db-Wachstum
-          # zu stoppen. Die vollständige akkumulierte Liste wird nie ausgewertet;
-          # hq_feed_names und hq_feeds decken alle HQ-Semantik ab. Ohne dieses Cap
-          # wächst seen_db mit 8 Läufen/Tag × ~80 Feeds auf >60 MB und macht
-          # json.load() zum Engpass (der Timeout-Grund in Run #341).
-          # MAX_FEEDS_PER_IP = 30 ist großzügig – kein Informationsverlust für Scoring.
-          MAX_FEEDS_PER_IP = 30
-          _bloat_capped = 0
-          for _ip, _entry in db.items():
-              _fl = _entry.get("feeds", [])
-              if len(_fl) > MAX_FEEDS_PER_IP:
-                  _entry["feeds"] = _fl[:MAX_FEEDS_PER_IP]
-                  _bloat_capped += 1
-          if _bloat_capped:
-              print(f"feeds-Liste auf {MAX_FEEDS_PER_IP} gekürzt: {_bloat_capped} IPs bereinigt")
-          _fast_dump_db(db, DB_FILE)
+          # FIX BLOAT: feeds-Liste auf max. 30 Einträge kappen damit seen_db
+          # nicht unbegrenzt wächst (Ursache des 30-Min-Timeouts in Run #341).
+          # hq_feed_names/hq_feeds decken alle HQ-Semantik ab – feeds wird
+          # nur noch für den Mindest-Feed-Count-Filter (>=2) benötigt.
+          _MAX_FEEDS = 30
+          _capped = sum(1 for _e in db.values() if len(_e.get("feeds", [])) > _MAX_FEEDS)
+          for _e in db.values():
+              if len(_e.get("feeds", [])) > _MAX_FEEDS:
+                  _e["feeds"] = _e["feeds"][:_MAX_FEEDS]
+          if _capped:
+              print(f"feeds-Liste auf {_MAX_FEEDS} gekürzt: {_capped} IPs bereinigt")
+          _db_dump(db, DB_FILE)
 
           # ── Stufe 1: combined_threat_blacklist_ipv4.txt (alle DB-IPs) ─────
           # FIX Bug6: Numerische IP-Sortierung (1.2.3.4 vor 10.0.0.1),
