@@ -603,6 +603,8 @@ jobs:
           # Watchlist-IPs (last="2000-01-01", hq=False) laufen nach first-Datum ab (30 Tage),
           # NICHT nach last-Datum – sonst werden neu eingetragene IPs sofort gelöscht,
           # da 2000-01-01 immer älter als 180 Tage ist.
+          # SYNC EXPIRY: Werte identisch mit update_combined_blacklist.yml.
+          # Änderungen IMMER in beiden Dateien synchron vornehmen.
           EXPIRY_DAYS         = 180
           WATCHLIST_EXPIRY_DAYS = 30
           cutoff    = now - timedelta(days=EXPIRY_DAYS)

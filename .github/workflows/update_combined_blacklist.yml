@@ -197,7 +197,9 @@ jobs:
                   pass
 
           def is_protected_entry(value):
-              """True wenn eine IP/ein CIDR niemals in Listen landen darf."""
+              """True wenn eine IP/ein CIDR niemals in Listen landen darf.
+              SYNC: Logik identisch mit is_protected_entry() in update_confidence_blacklist.yml.
+              Änderungen IMMER in beiden Dateien synchron vornehmen."""
               try:
                   candidate = value.strip()
                   if not candidate:
@@ -470,7 +472,9 @@ jobs:
 
           def parse_feed_entries(text):
               """Universeller Parser: plain IPv4, CIDR, ip:port, ipset, FortiGate,
-              Spamhaus DROP, URLhaus, CSV erste Spalte. DNS-Whitelist + private gefiltert."""
+              Spamhaus DROP, URLhaus, CSV erste Spalte. DNS-Whitelist + private gefiltert.
+              SYNC: Logik identisch mit parse_entries() in cve_to_ip_mapper.yml
+              und honeypot_monitor.yml. Änderungen in ALLEN synchron halten."""
               entries = set()
               for raw_line in text.splitlines():
                   line = raw_line.strip()
@@ -955,6 +959,8 @@ jobs:
               days_since_last = (now - last_dt).days
               days_known      = (now - first_dt).days + 1
 
+              # SYNC SCORE-MODELL: Schwellen identisch mit update_confidence_blacklist.yml.
+              # Änderungen IMMER in beiden Dateien synchron vornehmen.
               if is_hq:                  score_a = 40
               elif today_count >= 5:     score_a = 35
               elif today_count >= 3:     score_a = 28

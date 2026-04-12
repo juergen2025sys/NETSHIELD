@@ -108,6 +108,8 @@ jobs:
                 - Kommentare (#  ;  //) werden uebersprungen
               Gibt set() von Strings zurueck: "a.b.c.d" oder "a.b.c.0/24".
               CIDRs werden als Einzel-Eintrag behalten, nicht expandiert.
+              SYNC: Logik identisch mit parse_feed_entries() in update_combined_blacklist.yml
+              und parse_entries() in honeypot_monitor.yml. Änderungen in ALLEN synchron halten.
               """
               entries = set()
               for raw_line in text.splitlines():

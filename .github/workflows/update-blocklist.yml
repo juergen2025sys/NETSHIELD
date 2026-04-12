@@ -105,7 +105,7 @@ jobs:
               "ZA": ("africa", "south_africa"),
               "ZM": ("africa", "zambia"),
               "ZW": ("africa", "zimbabwe"),
-              "GS": ("oceania", "south_georgia"),  # FIX GEO1: Südgeorgien liegt im Südatlantik
+              "GS": ("oceania", "south_georgia"),  # FIX GEO1: Südgeorgien liegt im Südatlantik – mangels eigener Kategorie in oceania als Auffangbecken
               "RE": ("africa", "reunion"),
               "SH": ("africa", "saint_helena"),
               # Asia
@@ -279,14 +279,14 @@ jobs:
               "PN": ("oceania", "pitcairn_islands"),
               "PW": ("oceania", "palau"),
               "SB": ("oceania", "solomon_islands"),
-              "TF": ("oceania", "french_southern_territories"),
+              "TF": ("oceania", "french_southern_territories"),  # Indischer Ozean – in oceania als Auffangbecken
               "TK": ("oceania", "tokelau"),
               "TO": ("oceania", "tonga"),
               "TV": ("oceania", "tuvalu"),
               "VU": ("oceania", "vanuatu"),
               "WF": ("oceania", "wallis_and_futuna"),
               "WS": ("oceania", "samoa"),
-              "AQ": ("oceania", "antarctica"),
+              "AQ": ("oceania", "antarctica"),  # Eigener Kontinent – in oceania als Auffangbecken (kaum IP-Ranges)
               # South America
               "AR": ("south_america", "argentina"),
               "BO": ("south_america", "bolivia"),

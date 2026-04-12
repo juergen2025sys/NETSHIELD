@@ -116,6 +116,9 @@ jobs:
                   return False
 
           def is_protected_entry(value):
+              """True wenn eine IP/ein CIDR niemals in Listen landen darf.
+              SYNC: Logik identisch mit is_protected_entry() in update_combined_blacklist.yml.
+              Änderungen IMMER in beiden Dateien synchron vornehmen."""
               try:
                   candidate = value.strip()
                   if not candidate:
@@ -273,6 +276,8 @@ jobs:
               days_since_last = (now - last_dt).days
               days_known      = (now - first_dt).days + 1
 
+              # SYNC SCORE-MODELL: Schwellen identisch mit update_combined_blacklist.yml.
+              # Änderungen IMMER in beiden Dateien synchron vornehmen.
               # [A] Quellen-Qualität
               if is_hq:
                   score_a = 40

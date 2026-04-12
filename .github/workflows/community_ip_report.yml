@@ -378,11 +378,23 @@ jobs:
           fi
 
       - name: Post Issue Comment & Close
+        # FIX CRASH1: if: always() damit der User auch bei unbehandelter Python-
+        # Exception eine Rückmeldung im Issue erhält. Ohne diesen Guard bleibt
+        # das Issue kommentarlos offen wenn der Python-Step crasht.
+        if: always()
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
         with:
           script: |
             const fs = require('fs');
-            const result = fs.readFileSync('community_result.txt', 'utf8').trim();
+
+            // FIX CRASH1: Wenn Python-Step crashte bevor community_result.txt
+            // geschrieben wurde, Fallback-Kommentar posten statt selbst zu crashen.
+            let result = 'INTERNAL_ERROR||';
+            try {
+              result = fs.readFileSync('community_result.txt', 'utf8').trim();
+            } catch (e) {
+              console.log('community_result.txt nicht vorhanden – Python-Step vermutlich gecrasht');
+            }
             const [status, ip, attackType] = result.split('|');
 
             let comment = '';
@@ -400,6 +412,9 @@ jobs:
               shouldClose = false;
             } else if (status === 'NO_IP_FOUND') {
               comment = `## ❌ No IP Address Found\n\nWe could not extract an IP address from your report.\n\nPlease use the **Issue Template** and fill in the IP Address field correctly.`;
+              shouldClose = false;
+            } else if (status === 'INTERNAL_ERROR') {
+              comment = `## ⚠️ Internal Error\n\nAn unexpected error occurred while processing your report. The maintainers have been notified via the workflow logs.\n\nPlease try again later or open a new issue if the problem persists.`;
               shouldClose = false;
             }
 

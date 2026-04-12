@@ -40,6 +40,11 @@ jobs:
           now     = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
 
+          # FIX PERF1: Regex auf Modul-Ebene kompilieren statt bei jedem
+          # parse_entries()-Aufruf. Konsistent mit update_combined_blacklist.yml.
+          IP_RE   = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b')
+          CIDR_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b')
+
           def is_valid_public_ipv4(ip):
               try:
                   obj = ipaddress.ip_address(ip)
@@ -62,9 +67,9 @@ jobs:
 
           def parse_entries(text):
               """Universeller Parser: plain IPv4, CIDR, ip:port, ipset, FortiGate,
-              Spamhaus DROP, URLhaus, CSV erste Spalte. Privates/Loopback gefiltert."""
-              IP_RE_L   = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b')
-              CIDR_RE_L = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b')
+              Spamhaus DROP, URLhaus, CSV erste Spalte. Privates/Loopback gefiltert.
+              SYNC: Logik identisch mit parse_feed_entries() in update_combined_blacklist.yml
+              und parse_entries() in cve_to_ip_mapper.yml. Änderungen in ALLEN synchron halten."""
               entries = set()
               for raw_line in text.splitlines():
                   line = raw_line.strip()
@@ -86,7 +91,7 @@ jobs:
                   line = re.split(r'\s*[;#]', line)[0].strip()
                   if not line: continue
                   first_col = line.split(',')[0].strip()
-                  cidr_m = CIDR_RE_L.match(first_col)
+                  cidr_m = CIDR_RE.match(first_col)
                   if cidr_m:
                       if is_valid_public_cidr(cidr_m.group(1)):
                           entries.add(str(ipaddress.ip_network(cidr_m.group(1), strict=False)))
@@ -99,10 +104,10 @@ jobs:
                   if ip_m:
                       if is_valid_public_ipv4(ip_m.group(1)): entries.add(ip_m.group(1))
                       continue
-                  for cidr in CIDR_RE_L.findall(line):
+                  for cidr in CIDR_RE.findall(line):
                       if is_valid_public_cidr(cidr):
                           entries.add(str(ipaddress.ip_network(cidr, strict=False)))
-                  for ip in IP_RE_L.findall(line):
+                  for ip in IP_RE.findall(line):
                       if is_valid_public_ipv4(ip): entries.add(ip)
               return entries
 

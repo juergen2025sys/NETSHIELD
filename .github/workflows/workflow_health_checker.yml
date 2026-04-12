@@ -852,6 +852,24 @@ jobs:
                              "(Regression FIX-RACE3)")
                       file_errors.append(msg)
                       errors.append({"file": fname, "check": "Append-only Rebase-Schutz fehlt", "detail": msg})
+                  # FIX CHK23-CRASH1: Regression-Check – Post Issue Comment Step
+                  # muss if: always() haben und community_result.txt Existenz prüfen,
+                  # damit User bei Python-Crash trotzdem Feedback im Issue bekommt.
+                  if 'Post Issue Comment' in content:
+                      # Suche den Step-Block
+                      _pic_m = re.search(r'-\s+name:\s+Post Issue Comment.*?(?=\n\s+-\s+name:|\Z)', content, re.DOTALL)
+                      if _pic_m:
+                          _pic_block = _pic_m.group(0)
+                          if 'if: always()' not in _pic_block:
+                              msg = ("Post Issue Comment Step hat kein 'if: always()' – "
+                                     "User bekommt bei Python-Crash kein Feedback (Regression FIX-CRASH1)")
+                              file_errors.append(msg)
+                              errors.append({"file": fname, "check": "Comment-Step nicht always()", "detail": msg})
+                          if 'INTERNAL_ERROR' not in _pic_block:
+                              msg = ("Post Issue Comment Step hat keinen INTERNAL_ERROR-Branch – "
+                                     "fehlende community_result.txt erzeugt unkontrollierten Crash (Regression FIX-CRASH1)")
+                              file_errors.append(msg)
+                              errors.append({"file": fname, "check": "INTERNAL_ERROR Branch fehlt", "detail": msg})
 
               if fname == "honeydb_monitor.yml":
                   if 'data.get("from_id") or data.get("next_from_id")' in content:

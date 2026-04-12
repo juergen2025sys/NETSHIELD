@@ -134,6 +134,10 @@ jobs:
           print(f"Gültige IPs für CIDR-Check: {len(bl_addrs):,}")
 
           # ── Schritt 2: Ergänzende Threat-Feeds laden ──────────────────────
+          # HINWEIS: drop.txt URL überlappt BEWUSST mit "spamhaus_drop" in
+          # update_combined_blacklist.yml. ASN-Scorer nutzt DROP ausschließlich
+          # für den score_c Feed-Bonus (CIDR-Matching), NICHT für IP-Ingest
+          # in seen_db → kein today_count-Aufblähungsrisiko.
           print("\nSpamhaus DROP laden...")
           drop_text = fetch_raw("https://www.spamhaus.org/drop/drop.txt") or ""
           drop_networks = []
