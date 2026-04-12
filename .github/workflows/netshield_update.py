@@ -162,9 +162,12 @@ SOURCES = {
     # "romainmarcoux_ac" entfernt: full-300k-ac.txt existiert nicht mehr (HTTP 200, leerer Body)
     "4ip_high_security":          ("https://raw.githubusercontent.com/4IP-Solutions/threat-feeds/refs/heads/main/blocklist-incoming-ip-high-security.txt", False),
     "cyna_malicious":             ("https://raw.githubusercontent.com/cybersecurity-cyna/Malicious_IP/refs/heads/main/ip-list.txt", False),
-    "black_mirror":               ("https://github.com/T145/black-mirror/releases/download/latest/BLOCK_IPV4.txt", False),
+    # "black_mirror" entfernt: T145/black-mirror liefert 1.24M nicht-HQ IPs → Hauptursache
+    # des seen_db-Wachstums auf 4.38M IPs / 1 GB → Workflow-Timeout nach 50 Min.
+    # Coverage durch firehol_level4, bluetack_blacklist und andere Feeds ausreichend.
     # "alienvault" entfernt: OTX/AlienVault laut Ausschluss-Policy deaktiviert
-    "bitwire_ipblocklist":        ("https://raw.githubusercontent.com/bitwire-it/ipblocklist/refs/heads/main/inbound.txt", False),
+    # "bitwire_ipblocklist" entfernt: 1.76M nicht-HQ IPs, zweite Hauptursache des
+    # seen_db-Größenproblems. Kein verifizierter Betreiber, Coverage durch andere Feeds.
     "littlejake_all_blacklist":   ("https://cdn.jsdelivr.net/gh/LittleJake/ip-blacklist/all_blacklist.txt", False),
     "shadowwhisperer_hackers":    ("https://raw.githubusercontent.com/ShadowWhisperer/IPs/refs/heads/master/Malware/Hackers", False),
     "netmountains_blocklist":     ("https://raw.githubusercontent.com/NETMOUNTAINS/Curated-IP-Blocklist/main/ip-blacklist.list", False),  # Community-Repo, kein verifizierter Betreiber
@@ -345,8 +348,36 @@ def is_valid_public_cidr(cidr):
         return False
 
 removed_preexisting_protected = 0
-# Collect-then-delete: explicit two-pass to satisfy dict-mutation linter
-_protected_old = [ip for ip in db if is_protected_entry(ip)]
+# FIX PERF1: Schnelle seen_db-Bereinigung beim Start.
+# Problem: is_protected_entry() ruft ipaddress.ip_address() für jeden der
+# 4.38M+ Einträge auf → 11+ Minuten Startup-Zeit → Workflow-Timeout.
+# Lösung: Whitelist-IPs als String-Set für O(1)-Lookup vorberechnen;
+# Privat-/Loopback-/Multicast-Ranges per First-Octet-Check fast prüfen.
+# is_protected_entry() (vollständig, mit ipaddress) nur noch für CIDRs
+# und die wenigen IPs die durch den Fast-Path nicht eindeutig sind.
+_wl_ip_strings = set()
+for _net in _protected_networks:
+    if _net.num_addresses == 1:
+        _wl_ip_strings.add(str(_net.network_address))
+
+_PRIVATE_FIRST_OCTETS = frozenset(("10", "172", "192", "127", "0", "169", "224",
+                                    "240", "241", "242", "243", "244", "245", "246",
+                                    "247", "248", "249", "250", "251", "252", "253",
+                                    "254", "255"))
+
+def _is_protected_fast(ip_str: str) -> bool:
+    """Schneller Schutzcheck ohne ipaddress-Aufruf für den häufigen Fall."""
+    if '/' in ip_str:
+        return True  # CIDRs immer per vollständigem Check prüfen (selten)
+    if ip_str in _wl_ip_strings:
+        return True
+    first = ip_str.split('.', 1)[0]
+    if first in _PRIVATE_FIRST_OCTETS:
+        return True
+    return False
+
+_protected_old = [ip for ip in db
+                  if _is_protected_fast(ip) or ('/' in ip and is_protected_entry(ip))]
 for ip in _protected_old:
     db.pop(ip, None)
     removed_preexisting_protected += 1

@@ -24,7 +24,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 90
 
     steps:
       - name: Checkout Repository
@@ -137,6 +137,12 @@ jobs:
 
           print(f"\nAbuseIPDB gesamt: {len(sorted_ips)} einzigartige IPs → {OUT}")
           EOF
+
+      - name: Install orjson (schnelles JSON-Backend für seen_db)
+        # orjson ist 5-10× schneller als stdlib json bei großen Dateien.
+        # seen_db.json ist ~1 GB → Load/Save spart mehrere Minuten pro Lauf.
+        # --break-system-packages nötig für Ubuntu 24 (PEP 668).
+        run: pip install orjson --break-system-packages -q
 
       - name: Fetch, discover, learn and build IPv4 lists
         # Skript liegt als separate Datei – kein 887-Zeilen-Heredoc mehr.
