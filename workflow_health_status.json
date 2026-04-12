@@ -1,55 +1,49 @@
 {
-  "updated": "2026-04-12 04:19 UTC",
+  "updated": "2026-04-12 08:08 UTC",
   "total": 16,
-  "ok": 16,
+  "ok": 15,
   "warn": 0,
-  "error": 0,
+  "error": 1,
   "errors": [
     {
-      "file": "Production Health",
-      "check": "Aktualit\u00e4t: Active Blacklist (Stufe 2)",
-      "detail": "active_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
+      "file": "update_combined_blacklist.yml",
+      "check": "Hardening-Guard fehlt",
+      "detail": "Fehlende Schutz-Tokens: is_protected_entry, whitelist.json"
     },
     {
-      "file": "Production Health",
-      "check": "Aktualit\u00e4t: Combined Blacklist (Stufe 1)",
-      "detail": "combined_threat_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
+      "file": "update_combined_blacklist.yml",
+      "check": "Leerungsschutz combined fehlt",
+      "detail": "combined_threat_blacklist_ipv4.txt wird geschrieben ohne MIN_COMBINED-Leerungsschutz \u2013 leere Blacklist kann an OPNsense ausgeliefert werden (Regression FIX-CB1)"
+    },
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "Whitelist-Referenz fehlt",
+      "detail": "whitelist.json wird nicht referenziert \u2013 Whitelist-Filterung inaktiv"
     }
   ],
   "warnings": [
     {
-      "file": "Production Health",
-      "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
-      "detail": "blacklist_confidence40_ipv4.txt ist 6h alt (WARN-Schwelle: 6h)"
+      "file": "update_combined_blacklist.yml",
+      "check": "Leerungsschutz active fehlt",
+      "detail": "active_blacklist_ipv4.txt wird geschrieben ohne MIN_ACTIVE-Leerungsschutz (Regression FIX-CB2)"
+    },
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "SSOT-\u00dcbernahme unvollst\u00e4ndig",
+      "detail": "is_protected_entry nutzt whitelist.json nicht direkt \u00fcber _protected_networks = list(_whitelist_networks)"
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4273841,
-    "active_blacklist_ipv4.txt": 2481474,
-    "blacklist_confidence40_ipv4.txt": 3007145,
-    "cve_exploit_ips.txt": 56412,
+    "combined_threat_blacklist_ipv4.txt": 4384331,
+    "active_blacklist_ipv4.txt": 2560889,
+    "blacklist_confidence40_ipv4.txt": 3007155,
+    "cve_exploit_ips.txt": 56349,
     "honeypot_ips.txt": 8056,
     "bot_detector_blacklist_ipv4.txt": 17950
   },
   "production_health": {
-    "critical": 2,
-    "warn": 1,
-    "checks": [
-      {
-        "level": "CRITICAL",
-        "check": "Aktualit\u00e4t: Active Blacklist (Stufe 2)",
-        "detail": "active_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
-      },
-      {
-        "level": "CRITICAL",
-        "check": "Aktualit\u00e4t: Combined Blacklist (Stufe 1)",
-        "detail": "combined_threat_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
-      },
-      {
-        "level": "WARN",
-        "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
-        "detail": "blacklist_confidence40_ipv4.txt ist 6h alt (WARN-Schwelle: 6h)"
-      }
-    ]
+    "critical": 0,
+    "warn": 0,
+    "checks": []
   }
 }

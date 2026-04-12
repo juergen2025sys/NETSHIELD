@@ -1,31 +1,29 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-12 04:19 UTC
+**Aktualisiert:** 2026-04-12 08:08 UTC
 
-**Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
+**Workflows:** 16 | ✅ 15 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
 
 ---
 ## ❌ Fehler (kritisch)
 
 | Datei | Check | Detail |
 |---|---|---|
-| `Production Health` | Aktualität: Active Blacklist (Stufe 2) | active_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
-| `Production Health` | Aktualität: Combined Blacklist (Stufe 1) | combined_threat_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
+| `update_combined_blacklist.yml` | Hardening-Guard fehlt | Fehlende Schutz-Tokens: is_protected_entry, whitelist.json |
+| `update_combined_blacklist.yml` | Leerungsschutz combined fehlt | combined_threat_blacklist_ipv4.txt wird geschrieben ohne MIN_COMBINED-Leerungsschutz – leere Blacklist kann an OPNsense ausgeliefert werden (Regression FIX-CB1) |
+| `update_combined_blacklist.yml` | Whitelist-Referenz fehlt | whitelist.json wird nicht referenziert – Whitelist-Filterung inaktiv |
 
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
-| `Production Health` | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 6h alt (WARN-Schwelle: 6h) |
+| `update_combined_blacklist.yml` | Leerungsschutz active fehlt | active_blacklist_ipv4.txt wird geschrieben ohne MIN_ACTIVE-Leerungsschutz (Regression FIX-CB2) |
+| `update_combined_blacklist.yml` | SSOT-Übernahme unvollständig | is_protected_entry nutzt whitelist.json nicht direkt über _protected_networks = list(_whitelist_networks) |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🔴 CRITICAL | Aktualität: Active Blacklist (Stufe 2) | active_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
-| 🔴 CRITICAL | Aktualität: Combined Blacklist (Stufe 1) | combined_threat_blacklist_ipv4.txt ist 13h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
-| 🟡 WARN | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 6h alt (WARN-Schwelle: 6h) |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -44,9 +42,9 @@
 | `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
 | `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 1 * * 1`, `30 1 * * 3` |
 | `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
-| `update_combined_blacklist.yml` | ✅ OK | 0 | 0 | `0 */3 * * *` |
+| `update_combined_blacklist.yml` | ❌ | 1 | 1 | `0 */3 * * *` |
 | `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | `45 0 * * *`, `45 3 * * *`, `45 6 * * *`, `45 9 * * *`, `45 12 * * *`, `45 15 * * *`, `45 18 * * *`, `45 21 * * *` |
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-12 04:19 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-12 08:08 UTC | 16 Workflow-Dateien geprüft*
