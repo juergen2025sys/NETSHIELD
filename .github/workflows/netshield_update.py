@@ -63,10 +63,18 @@ PROTECTED_CIDRS = [
     "192.168.13.0/24", "192.168.14.0/24",
     "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
 ]
-_protected_networks = []
+# FIX SSOT: _protected_networks now includes the full whitelist.json networks
+# (_whitelist_networks) so that is_protected_entry() covers all 464 entries
+# from the Single Source of Truth – not just DNS_WHITELIST + PROTECTED_CIDRS.
+# DNS_WHITELIST and PROTECTED_CIDRS are retained as a bootstrap fallback in
+# case whitelist.json ever fails to load (their entries are a subset of
+# whitelist.json anyway, so there is no semantic duplication).
+_protected_networks = list(_whitelist_networks)
 for _entry in (list(DNS_WHITELIST) + PROTECTED_CIDRS):
     try:
-        _protected_networks.append(ipaddress.ip_network(_entry, strict=False))
+        _net = ipaddress.ip_network(_entry, strict=False)
+        if _net not in _protected_networks:
+            _protected_networks.append(_net)
     except Exception:
         pass
 
