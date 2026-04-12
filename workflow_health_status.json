@@ -1,22 +1,55 @@
 {
-  "updated": "2026-04-11 19:47 UTC",
+  "updated": "2026-04-12 03:14 UTC",
   "total": 16,
   "ok": 16,
   "warn": 0,
   "error": 0,
-  "errors": [],
-  "warnings": [],
+  "errors": [
+    {
+      "file": "Production Health",
+      "check": "Aktualit\u00e4t: Active Blacklist (Stufe 2)",
+      "detail": "active_blacklist_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
+    },
+    {
+      "file": "Production Health",
+      "check": "Aktualit\u00e4t: Combined Blacklist (Stufe 1)",
+      "detail": "combined_threat_blacklist_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
+    }
+  ],
+  "warnings": [
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "actions/cache/restore Version-Drift",
+      "detail": "1 Datei(en) nutzen aeltere SHA als die Mehrheit \u2013 Update vergessen?"
+    },
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "actions/cache/save Version-Drift",
+      "detail": "1 Datei(en) nutzen aeltere SHA als die Mehrheit \u2013 Update vergessen?"
+    }
+  ],
   "ip_counts": {
     "combined_threat_blacklist_ipv4.txt": 4273841,
     "active_blacklist_ipv4.txt": 2481474,
-    "blacklist_confidence40_ipv4.txt": 3020358,
+    "blacklist_confidence40_ipv4.txt": 3007145,
     "cve_exploit_ips.txt": 56412,
-    "honeypot_ips.txt": 7885,
+    "honeypot_ips.txt": 8056,
     "bot_detector_blacklist_ipv4.txt": 17950
   },
   "production_health": {
-    "critical": 0,
+    "critical": 2,
     "warn": 0,
-    "checks": []
+    "checks": [
+      {
+        "level": "CRITICAL",
+        "check": "Aktualit\u00e4t: Active Blacklist (Stufe 2)",
+        "detail": "active_blacklist_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Aktualit\u00e4t: Combined Blacklist (Stufe 1)",
+        "detail": "combined_threat_blacklist_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
+      }
+    ]
   }
 }
