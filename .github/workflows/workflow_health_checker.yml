@@ -794,30 +794,56 @@ jobs:
               community_restore_prefix = f"netshield-seen-db-community-{issue_expr}-"
 
               if fname == "false_positive_checker.yml":
-                  # FIX CHK23a: alter Regex war toter Code – YAML-Datei nutzt Backslash-Continuation
-                  # über mehrere Zeilen, daher niemals single-line Match möglich.
-                  # Neuer Check: alle drei FP-Dateien MÜSSEN einzeln mit Backslash oder
-                  # auf separaten Zeilen im git checkout --theirs stehen.
+                  # FIX CHK23a / RACE5: Zwei gültige Commit-Patterns:
+                  # (A) ALT: git checkout --theirs mit allen 3 FP-Dateien
+                  # (B) NEU (FIX RACE5): git reset --hard + cp /tmp/ für Overwrite-Dateien
+                  #     + Dedup-Append für Log. Kein checkout --theirs mehr nötig.
                   _fp_files = ["false_positives_log.txt", "false_positive_report.md", "false_positives_set.json"]
-                  _checkout_block = re.search(
-                      r'git checkout --theirs.*?(?=\n\s*git add|\n\s*GIT_EDITOR|$)',
-                      content, re.DOTALL
-                  )
-                  _checkout_text = _checkout_block.group(0) if _checkout_block else ""
-                  _missing_fp = [f for f in _fp_files if f not in _checkout_text]
-                  if _missing_fp:
-                      msg = (f"git checkout --theirs im Commit-Step fehlen Dateien: "
-                             f"{', '.join(_missing_fp)} – Regression im FP-Checker-Commit-Step")
+                  _has_old_pattern = 'git checkout --theirs' in content
+                  _has_new_pattern = 'git reset --hard' in content and '/tmp/local_fp_' in content
+
+                  if _has_old_pattern:
+                      # ALT: checkout --theirs muss alle 3 Dateien enthalten
+                      _checkout_block = re.search(
+                          r'git checkout --theirs.*?(?=\n\s*git add|\n\s*GIT_EDITOR|$)',
+                          content, re.DOTALL
+                      )
+                      _checkout_text = _checkout_block.group(0) if _checkout_block else ""
+                      _missing_fp = [f for f in _fp_files if f not in _checkout_text]
+                      if _missing_fp:
+                          msg = (f"git checkout --theirs im Commit-Step fehlen Dateien: "
+                                 f"{', '.join(_missing_fp)} – Regression im FP-Checker-Commit-Step")
+                          file_errors.append(msg)
+                          errors.append({"file": fname, "check": "Fehlende FP-Dateien im checkout", "detail": msg})
+                      # Append-only Log muss vor Rebase gesichert werden
+                      if '/tmp/local_fp_log_appends.txt' not in content:
+                          msg = ("Append-only Datei (false_positives_log.txt) wird bei rebase --theirs "
+                                 "nicht gesichert – Log-Eintraege gehen bei parallelen Runs verloren "
+                                 "(Regression FIX-RACE4)")
+                          file_errors.append(msg)
+                          errors.append({"file": fname, "check": "Append-only Rebase-Schutz fehlt", "detail": msg})
+                  elif _has_new_pattern:
+                      # NEU (FIX RACE5): reset --hard + Backup/Restore
+                      # Overwrite-Dateien müssen via cp gesichert werden
+                      _missing_backup = [f for f in ["local_fp_report.md", "local_fp_set.json"]
+                                         if f not in content]
+                      if _missing_backup:
+                          msg = (f"reset --hard Pattern: Backup fehlt für {', '.join(_missing_backup)} "
+                                 f"– Overwrite-Dateien gehen bei Push-Konflikt verloren")
+                          file_errors.append(msg)
+                          errors.append({"file": fname, "check": "Fehlende FP-Backup im reset-Pattern", "detail": msg})
+                      # Append-only Log muss gesichert werden
+                      if '/tmp/local_fp_log_appends.txt' not in content:
+                          msg = ("reset --hard Pattern: Append-only Log-Sicherung fehlt "
+                                 "(/tmp/local_fp_log_appends.txt)")
+                          file_errors.append(msg)
+                          errors.append({"file": fname, "check": "Append-only Log-Schutz fehlt", "detail": msg})
+                  else:
+                      # Weder altes noch neues Pattern – Commit-Step fehlt Konfliktstrategie
+                      msg = ("Commit-Step hat weder checkout --theirs noch reset --hard Pattern "
+                             "– Push-Konflikte werden nicht behandelt")
                       file_errors.append(msg)
-                      errors.append({"file": fname, "check": "Fehlende FP-Dateien im checkout", "detail": msg})
-                  # FIX CHK23-RACE4: Regression-Check – false_positives_log.txt ist
-                  # append-only und muss vor Rebase gesichert werden.
-                  if 'git checkout --theirs' in content and '/tmp/local_fp_log_appends.txt' not in content:
-                      msg = ("Append-only Datei (false_positives_log.txt) wird bei rebase --theirs "
-                             "nicht gesichert – Log-Eintraege gehen bei parallelen Runs verloren "
-                             "(Regression FIX-RACE4)")
-                      file_errors.append(msg)
-                      errors.append({"file": fname, "check": "Append-only Rebase-Schutz fehlt", "detail": msg})
+                      errors.append({"file": fname, "check": "Fehlende Konfliktstrategie", "detail": msg})
 
               if fname == "update-blocklist.yml":
                   # FIX: Negativer Lookahead schließt korrekte "-- theirs -- all_countries" Muster aus.
@@ -843,14 +869,24 @@ jobs:
                              "seen_db akkumuliert pro Issue nicht")
                       file_errors.append(msg)
                       errors.append({"file": fname, "check": "Community-Cache Restore-Key", "detail": msg})
-                  # FIX CHK23-RACE3: Regression-Check – Append-only Dateien muessen
-                  # vor Rebase gesichert und nach --theirs erneut angefuegt werden.
-                  if 'git checkout --theirs' in content and '/tmp/local_log_appends.txt' not in content:
+                  # FIX CHK23-RACE3 / RACE5: Zwei gültige Commit-Patterns:
+                  # (A) ALT: checkout --theirs + /tmp/local_log_appends.txt Sicherung
+                  # (B) NEU (FIX RACE5): reset --hard + Dedup-Re-Apply aus /tmp/
+                  _has_old_community = 'git checkout --theirs' in content
+                  _has_new_community = 'git reset --hard' in content and '/tmp/local_log_appends.txt' in content
+                  if _has_old_community and '/tmp/local_log_appends.txt' not in content:
                       msg = ("Append-only Dateien (community_reports_log.txt, community_reported_ips.txt) "
                              "werden bei rebase --theirs nicht gesichert – Datenverlust bei parallelen Issues "
                              "(Regression FIX-RACE3)")
                       file_errors.append(msg)
                       errors.append({"file": fname, "check": "Append-only Rebase-Schutz fehlt", "detail": msg})
+                  elif not _has_old_community and not _has_new_community:
+                      # Weder altes noch neues Pattern
+                      if 'git push' in content:
+                          msg = ("Commit-Step hat weder checkout --theirs noch reset --hard Pattern "
+                                 "– Push-Konflikte auf Append-only-Dateien werden nicht behandelt")
+                          file_warnings.append(msg)
+                          warnings.append({"file": fname, "check": "Fehlende Konfliktstrategie", "detail": msg})
                   # FIX CHK23-CRASH1: Regression-Check – Post Issue Comment Step
                   # muss if: always() haben und community_result.txt Existenz prüfen,
                   # damit User bei Python-Crash trotzdem Feedback im Issue bekommt.
