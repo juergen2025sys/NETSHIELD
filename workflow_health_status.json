@@ -1,20 +1,14 @@
 {
-  "updated": "2026-04-13 18:08 UTC",
+  "updated": "2026-04-13 20:12 UTC",
   "total": 16,
-  "ok": 15,
+  "ok": 16,
   "warn": 0,
-  "error": 1,
-  "errors": [
-    {
-      "file": "false_positive_checker.yml",
-      "check": "Fehlende FP-Dateien im checkout",
-      "detail": "git checkout --theirs im Commit-Step fehlen Dateien: false_positives_log.txt, false_positive_report.md, false_positives_set.json \u2013 Regression im FP-Checker-Commit-Step"
-    }
-  ],
+  "error": 0,
+  "errors": [],
   "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4297142,
-    "active_blacklist_ipv4.txt": 2466690,
+    "combined_threat_blacklist_ipv4.txt": 4299998,
+    "active_blacklist_ipv4.txt": 2467334,
     "blacklist_confidence40_ipv4.txt": 3042837,
     "cve_exploit_ips.txt": 54787,
     "honeypot_ips.txt": 6931,
