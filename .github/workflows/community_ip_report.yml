@@ -72,6 +72,7 @@ jobs:
             echo "WARNUNG: Merge fehlgeschlagen, arbeite mit lokalem Stand weiter"
           fi
           python3 << 'EOF'
+          import sys
           import ipaddress, json, os, re, sys
           from datetime import datetime, timezone
 
@@ -149,8 +150,8 @@ jobs:
           for _wl_entry in _WHITELIST_ENTRIES:
               try:
                   _whitelist_networks.append(ipaddress.ip_network(_wl_entry, strict=False))
-              except Exception:
-                  pass
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
           def is_valid_public_ipv4(ip_str):
               try:
@@ -190,10 +191,10 @@ jobs:
                               _fp_networks.append(ipaddress.ip_network(_e, strict=False))
                           else:
                               _fp_ips.add(_e)
-                      except Exception:
-                          pass
-              except Exception:
-                  pass  # FP-Check nicht blockierend – bei Fehler einfach überspringen
+                      except Exception as _suppressed:
+                          print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+              except Exception as _fp_err:
+                  print(f"WARN: FP-Check nicht blockierend – übersprungen: {_fp_err}", file=sys.stderr)
 
           def _is_fp(ip_str):
               if ip_str in _fp_ips:

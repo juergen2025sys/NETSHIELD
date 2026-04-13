@@ -128,8 +128,8 @@ jobs:
               try:
                   addr = ipaddress.ip_address(ip)
                   bl_addrs.append((ip, int(addr)))
-              except Exception:
-                  pass
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
           bl_addrs.sort(key=lambda x: x[1])
           print(f"Gültige IPs für CIDR-Check: {len(bl_addrs):,}")
 
@@ -144,8 +144,8 @@ jobs:
           for cidr in CIDR_RE.findall(drop_text):
               try:
                   drop_networks.append(ipaddress.ip_network(cidr, strict=False))
-              except Exception:
-                  pass
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
           print(f"  Spamhaus DROP: {len(drop_networks)} Netzwerke")
 
           print("Emerging Threats laden...")
@@ -204,8 +204,8 @@ jobs:
               for cidr in CIDR_RE.findall(raw):
                   try:
                       networks.append(ipaddress.ip_network(cidr, strict=False))
-                  except Exception:
-                      pass
+                  except Exception as _suppressed:
+                      print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
               if not networks:
                   print("SKIP (keine CIDRs)")

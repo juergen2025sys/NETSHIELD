@@ -41,7 +41,7 @@ jobs:
           WORKFLOW_SELF: ${{ github.workflow_ref }}
         run: |
           python3 << 'EOF'
-          import re, textwrap, os, json, ast, sys, shlex
+          import re, textwrap, os, json, ast, sys, shlex, ipaddress
           from datetime import datetime, timezone
 
           now     = datetime.now(timezone.utc)
@@ -1833,8 +1833,8 @@ jobs:
                           if _m:
                               _dt = datetime.strptime(_m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
                               return (now - _dt).total_seconds() / 3600
-              except Exception:
-                  pass
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
               return None
 
           def _count_ips(filepath):
@@ -1902,8 +1902,8 @@ jobs:
                               print(f"  🟡 seen_db Alter: {_meta_age_h:.0f}h (WARN >6h)")
                           else:
                               print(f"  ✅ seen_db Alter: {_meta_age_h:.1f}h")
-                      except Exception:
-                          pass
+                      except Exception as _suppressed:
+                          print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
               except Exception as _ex:
                   prod_health.append({
                       "level": "CRITICAL", "check": "seen_db Integrität",
@@ -2094,8 +2094,8 @@ jobs:
                               _wl_nets.append(ipaddress.ip_network(_e, strict=False))
                           else:
                               _wl_singles.add(_e.strip())
-                      except Exception:
-                          pass
+                      except Exception as _suppressed:
+                          print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
                   def _ip_is_whitelisted(ip_str):
                       if ip_str in _wl_singles:

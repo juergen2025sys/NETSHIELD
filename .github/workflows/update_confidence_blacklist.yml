@@ -56,6 +56,7 @@ jobs:
       - name: Build Confidence Blacklists from seen_db
         run: |
           python3 << 'EOF'
+          import sys
           import json, os, sys, ipaddress
           from datetime import datetime, timezone, timedelta
 
@@ -84,8 +85,8 @@ jobs:
           for _entry in _WHITELIST_ENTRIES:
               try:
                   protected_networks.append(ipaddress.ip_network(_entry, strict=False))
-              except Exception:
-                  pass
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
           print(f"whitelist.json geladen: {len(protected_networks)} Einträge")
 
           # ── FP-Set laden (Defense-in-Depth) ──────────────────────────────
@@ -106,8 +107,8 @@ jobs:
                               _fp_networks.append(ipaddress.ip_network(_e, strict=False))
                           else:
                               _fp_ips.add(_e)
-                      except Exception:
-                          pass
+                      except Exception as _suppressed:
+                          print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
                   print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs geladen")
               except Exception as _ex:
                   print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
@@ -177,8 +178,8 @@ jobs:
                       print(f"WARNUNG: seen_db ist {db_age_hours:.1f}h alt – mindestens ein combined-Run wurde verpasst!")
               else:
                   print("seen_db: Keine HQ-bestätigten Einträge vorhanden (nur Watchlist-IPs)")
-          except Exception:
-              pass
+          except Exception as _suppressed:
+              print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
           if not os.path.exists(BLACKLIST):
               msg = f"{BLACKLIST} nicht gefunden – combined-Workflow muss zuerst laufen."

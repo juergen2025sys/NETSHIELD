@@ -79,8 +79,8 @@ jobs:
           for cidr in WHITELIST_CIDRS:
               try:
                   whitelist_networks.append(ipaddress.ip_network(cidr, strict=False))
-              except Exception:
-                  pass
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
           def is_whitelisted_entry(value):
               try:

@@ -65,6 +65,7 @@ jobs:
       - name: Run Score Decay Analysis
         run: |
           python3 << 'EOF'
+          import sys
           import json, os, re, sys
           from datetime import datetime, timezone, timedelta
           from collections import defaultdict
@@ -127,8 +128,8 @@ jobs:
                       print(f"WARNUNG: {age_msg}")
                   else:
                       print(f"seen_db Alter: {db_age_hours:.1f}h (OK)")
-              except Exception:
-                  pass
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
           else:
               print("seen_db: Keine HQ-bestätigten Einträge (nur Watchlist-IPs)")
 

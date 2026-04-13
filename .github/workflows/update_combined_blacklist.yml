@@ -185,8 +185,8 @@ jobs:
           for _entry in list(WHITELIST_ENTRIES):
               try:
                   _whitelist_networks.append(ipaddress.ip_network(_entry, strict=False))
-              except Exception:
-                  pass
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
           def is_whitelisted(ip_str):
               """True wenn IP in einer der Whitelist-Ranges liegt (IPs + CIDRs)."""
@@ -204,8 +204,8 @@ jobs:
           for _entry in (list(DNS_WHITELIST) + PROTECTED_CIDRS):
               try:
                   _protected_networks.append(ipaddress.ip_network(_entry, strict=False))
-              except Exception:
-                  pass
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
           def is_protected_entry(value):
               """True wenn eine IP/ein CIDR niemals in Listen landen darf.
@@ -440,8 +440,8 @@ jobs:
                               _fp_networks.append(ipaddress.ip_network(_e, strict=False))
                           else:
                               _fp_ips.add(_e)
-                      except Exception:
-                          pass
+                      except Exception as _suppressed:
+                          print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
                   print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs als FP geladen")
               except Exception as _ex:
                   print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
@@ -634,8 +634,8 @@ jobs:
                                         f"update_confidence_blacklist möglicherweise ausgefallen")
                           print(f"::warning file=update_combined_blacklist.yml::{_extra_msg}")
                           print(f"WARNUNG: {_extra_msg}")
-                  except Exception:
-                      pass
+                  except Exception as _suppressed:
+                      print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
           for local_file, is_hq_local in LOCAL_FEEDS.items():
               if not os.path.exists(local_file):
                   print(f"  SKIP (nicht vorhanden): {local_file}")
@@ -654,8 +654,8 @@ jobs:
                                         f"Sub-Workflow möglicherweise ausgefallen")
                           print(f"::warning file=update_combined_blacklist.yml::{_stale_msg}")
                           print(f"WARNUNG: {_stale_msg}")
-                  except Exception:
-                      pass
+                  except Exception as _suppressed:
+                      print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
               local_ips = parse_feed_entries(raw_local)
               for entry in local_ips:
                   if is_hq_local:
