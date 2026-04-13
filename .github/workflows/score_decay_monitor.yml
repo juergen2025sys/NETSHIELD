@@ -109,7 +109,7 @@ jobs:
           # Bei veraltetem Cache (> 24h seit letztem HQ-Eintrag) Warnung ausgeben,
           # damit der Report nicht auf Basis einer wochealten seen_db erstellt wird.
           real_dates = [d.get("last", "2000-01-01") for d in db.values()
-                        if d.get("last", "2000-01-01") != "2000-01-01"]
+                        if isinstance(d, dict) and d.get("last", "2000-01-01") != "2000-01-01"]
           if real_dates:
               newest_last = max(real_dates)
               try:

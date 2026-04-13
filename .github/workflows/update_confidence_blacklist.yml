@@ -164,7 +164,7 @@ jobs:
 
           # Alter der seen_db prüfen – nur echte HQ-Bestätigungsdaten (last != 2000-01-01)
           # berücksichtigen, damit Watchlist-IPs (last="2000-01-01") kein falsches Alarm-Alter erzeugen
-          real_dates = [d.get("last","2000-01-01") for d in db.values() if d.get("last","2000-01-01") != "2000-01-01"]
+          real_dates = [d.get("last","2000-01-01") for d in db.values() if isinstance(d, dict) and d.get("last","2000-01-01") != "2000-01-01"]
           newest_last = max(real_dates) if real_dates else None
           try:
               if newest_last:
