@@ -369,34 +369,46 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
-            # FIX RACE3: Append-only Dateien vor Rebase sichern.
-            # Bei Konflikten mit --theirs gehen lokal angefügte Zeilen verloren.
-            # Lösung: Neue Zeilen (diff) sichern, nach --theirs erneut anhängen.
-            # So bleiben sowohl die Remote-Änderungen als auch die lokalen Appends erhalten.
+            # FIX RACE5: Append-only Dateien VOR commit sichern, dann
+            # reset --hard auf Upstream + Re-Apply der eigenen Appends.
+            #
+            # Vorher (FIX RACE3): rebase -X theirs + Diff-Buffer in /tmp/.
+            # Problem: Bei git rebase bedeutet -X theirs das GEGENTEIL von
+            # git merge -X theirs – es behält den eigenen Commit und verwirft
+            # den Upstream. Der Fallback-Zweig (else nach rebase) wird nie
+            # erreicht, weil -X theirs Konflikte still „löst" → der gesamte
+            # RACE3-Schutz war toter Code, Remote-Appends gingen verloren.
+            #
+            # Neues Pattern: Explizit Upstream übernehmen (reset --hard),
+            # eigene Appends deterministisch darauf aufbauen (mit Dedup).
             git diff HEAD -- community_reports_log.txt | grep '^+[^+]' | sed 's/^+//' > /tmp/local_log_appends.txt 2>/dev/null || true
             git diff HEAD -- community_reported_ips.txt | grep '^+[^+]' | sed 's/^+//' > /tmp/local_ip_appends.txt 2>/dev/null || true
             git commit -m "Community Report #${ISSUE_NUMBER}: $(date -u '+%Y-%m-%d %H:%M') UTC"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}
-              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
-                if git push origin HEAD:${GITHUB_REF_NAME}; then
-                  echo "Push erfolgreich (Versuch $attempt)"
-                  exit 0
-                fi
-              else
-                git checkout --theirs community_reports_log.txt community_reported_ips.txt 2>/dev/null || true
-                # FIX RACE3: Gesicherte Append-Zeilen nach --theirs erneut anfügen
-                if [ -s /tmp/local_log_appends.txt ]; then
-                  cat /tmp/local_log_appends.txt >> community_reports_log.txt
-                fi
-                if [ -s /tmp/local_ip_appends.txt ]; then
-                  while IFS= read -r ip; do
-                    grep -qxF "$ip" community_reported_ips.txt 2>/dev/null || echo "$ip" >> community_reported_ips.txt
-                  done < /tmp/local_ip_appends.txt
-                fi
-                git add community_reports_log.txt community_reported_ips.txt 2>/dev/null || true
-                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              # Reset auf Upstream-Stand – übernimmt alle Remote-Änderungen
+              git reset --hard origin/${GITHUB_REF_NAME}
+              # Gesicherte Appends deterministisch wieder anfügen (mit Dedup)
+              if [ -s /tmp/local_log_appends.txt ]; then
+                while IFS= read -r line; do
+                  grep -qxF "$line" community_reports_log.txt 2>/dev/null || echo "$line" >> community_reports_log.txt
+                done < /tmp/local_log_appends.txt
+              fi
+              if [ -s /tmp/local_ip_appends.txt ]; then
+                while IFS= read -r ip; do
+                  grep -qxF "$ip" community_reported_ips.txt 2>/dev/null || echo "$ip" >> community_reported_ips.txt
+                done < /tmp/local_ip_appends.txt
+              fi
+              git add community_reports_log.txt community_reported_ips.txt 2>/dev/null || true
+              if git diff --staged --quiet; then
+                echo "Keine neuen Änderungen nach Reset+Re-Apply"
+                exit 0
+              fi
+              git commit -m "Community Report #${ISSUE_NUMBER}: $(date -u '+%Y-%m-%d %H:%M') UTC"
+              if git push origin HEAD:${GITHUB_REF_NAME}; then
+                echo "Push erfolgreich (Versuch $attempt)"
+                exit 0
               fi
               sleep $((attempt * 3))
             done

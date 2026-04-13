@@ -218,31 +218,45 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
-            # FIX RACE4: Append-only Log vor Rebase sichern (analog RACE3 in community_ip_report)
+            # FIX RACE5: Append-only Log + Overwrite-Dateien VOR commit
+            # sichern, dann reset --hard auf Upstream + Re-Apply.
+            #
+            # Vorher (FIX RACE4): rebase -X theirs + Diff-Buffer in /tmp/.
+            # Problem: Bei git rebase bedeutet -X theirs das GEGENTEIL von
+            # git merge -X theirs – es behält den eigenen Commit und verwirft
+            # den Upstream. Der Fallback-Zweig wird nie erreicht → der gesamte
+            # RACE4-Schutz war toter Code, Remote-Appends gingen verloren.
+            #
+            # Neues Pattern: Explizit Upstream übernehmen (reset --hard),
+            # eigene Appends + Overwrite-Dateien deterministisch darauf aufbauen.
             git diff HEAD -- false_positives_log.txt | grep '^+[^+]' | sed 's/^+//' > /tmp/local_fp_log_appends.txt 2>/dev/null || true
+            # Overwrite-Dateien komplett sichern (werden nach reset zurückgeschrieben)
+            cp false_positive_report.md /tmp/local_fp_report.md 2>/dev/null || true
+            cp false_positives_set.json /tmp/local_fp_set.json 2>/dev/null || true
             git commit -m "False Positive Check: $(date -u '+%Y-%m-%d %H:%M') UTC"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}
-              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
-                if git push origin HEAD:${GITHUB_REF_NAME}; then
-                  echo "Push erfolgreich (Versuch $attempt)"
-                  exit 0
-                fi
-              else
-                git checkout --theirs \
-                  false_positives_log.txt \
-                  false_positive_report.md \
-                  false_positives_set.json 2>/dev/null || true
-                # FIX RACE4: Gesicherte Log-Appends nach --theirs erneut anfügen
-                if [ -s /tmp/local_fp_log_appends.txt ]; then
-                  cat /tmp/local_fp_log_appends.txt >> false_positives_log.txt
-                fi
-                git add \
-                  false_positives_log.txt \
-                  false_positive_report.md \
-                  false_positives_set.json 2>/dev/null || true
-                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              # Reset auf Upstream-Stand – übernimmt alle Remote-Änderungen
+              git reset --hard origin/${GITHUB_REF_NAME}
+              # Append-only Log: gesicherte Zeilen mit Dedup wieder anfügen
+              if [ -s /tmp/local_fp_log_appends.txt ]; then
+                while IFS= read -r line; do
+                  grep -qxF "$line" false_positives_log.txt 2>/dev/null || echo "$line" >> false_positives_log.txt
+                done < /tmp/local_fp_log_appends.txt
+              fi
+              # Overwrite-Dateien: gesicherte Version zurückschreiben (last-write-wins)
+              cp /tmp/local_fp_report.md false_positive_report.md 2>/dev/null || true
+              cp /tmp/local_fp_set.json false_positives_set.json 2>/dev/null || true
+              git add false_positives_log.txt false_positive_report.md false_positives_set.json 2>/dev/null || true
+              if git diff --staged --quiet; then
+                echo "Keine neuen Änderungen nach Reset+Re-Apply"
+                exit 0
+              fi
+              git commit -m "False Positive Check: $(date -u '+%Y-%m-%d %H:%M') UTC"
+              if git push origin HEAD:${GITHUB_REF_NAME}; then
+                echo "Push erfolgreich (Versuch $attempt)"
+                exit 0
               fi
               sleep $((attempt * 3))
             done
