@@ -837,7 +837,7 @@ jobs:
           # erhalten. Für sie wird das Ablaufdatum vom first-Datum berechnet, damit
           # Community-Reports nicht sofort beim nächsten Lauf gelöscht werden.
           # Reguläre IPs laufen weiterhin nach ihrem last-Datum ab (180 Tage).
-          WATCHLIST_EXPIRY_DAYS = 30   # Watchlist-IPs ohne HQ nach 30 Tagen entfernen
+          WATCHLIST_EXPIRY_DAYS = 180  # Watchlist-IPs ohne HQ nach 180 Tagen entfernen (identisch mit EXPIRY_DAYS)
           expired = []
           cutoff      = now - timedelta(days=EXPIRY_DAYS)
           cutoff_wl   = now - timedelta(days=WATCHLIST_EXPIRY_DAYS)
