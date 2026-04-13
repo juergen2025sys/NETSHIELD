@@ -234,27 +234,46 @@ jobs:
 
           if ip in db:
               # IP existiert bereits → community-Flag erhöhen
-              prev_last       = db[ip].get("last", "2000-01-01")
-              community_count = db[ip].get("community", 0) + 1
-              db[ip]["community"]   = community_count
-              db[ip]["today_count"] = db[ip].get("today_count", 0)
+              try:
+                  if not isinstance(db[ip], dict):
+                      raise TypeError(f"db[{ip}] ist kein dict: {type(db[ip])}")
+                  prev_last       = db[ip].get("last", "2000-01-01")
+                  community_count = db[ip].get("community", 0) + 1
+                  db[ip]["community"]   = community_count
+                  db[ip]["today_count"] = db[ip].get("today_count", 0)
 
-              # "last" NUR setzen wenn HQ-Schwelle erreicht (analog zu combined: nur HQ setzt last)
-              # Einzelne Community-Meldungen sind kein HQ-Feed und dürfen die
-              # 180-Tage-Lebenszeit-Uhr nicht zurücksetzen.
-              if community_count >= HQ_COMMUNITY_THRESHOLD:
-                  db[ip]["hq"]       = True
-                  db[ip]["today_hq"] = True
-                  if prev_last != now_day:
-                      db[ip]["days_seen"] = db[ip].get("days_seen", 0) + 1
-                  db[ip]["last"] = now_day  # HQ-Promotion → last darf gesetzt werden
-                  print(f"IP {ip} auf HQ=True gesetzt (community={community_count} >= {HQ_COMMUNITY_THRESHOLD})")
-              else:
-                  db[ip]["today_hq"] = db[ip].get("hq", False)
-                  # last bleibt unverändert – Community < 3 ist kein HQ-Beweis
+                  # "last" NUR setzen wenn HQ-Schwelle erreicht (analog zu combined: nur HQ setzt last)
+                  # Einzelne Community-Meldungen sind kein HQ-Feed und dürfen die
+                  # 180-Tage-Lebenszeit-Uhr nicht zurücksetzen.
+                  if community_count >= HQ_COMMUNITY_THRESHOLD:
+                      db[ip]["hq"]       = True
+                      db[ip]["today_hq"] = True
+                      if prev_last != now_day:
+                          db[ip]["days_seen"] = db[ip].get("days_seen", 0) + 1
+                      db[ip]["last"] = now_day  # HQ-Promotion → last darf gesetzt werden
+                      print(f"IP {ip} auf HQ=True gesetzt (community={community_count} >= {HQ_COMMUNITY_THRESHOLD})")
+                  else:
+                      db[ip]["today_hq"] = db[ip].get("hq", False)
+                      # last bleibt unverändert – Community < 3 ist kein HQ-Beweis
 
-              action = "UPDATED"
-              print(f"IP {ip} bereits bekannt – community={community_count}, hq={db[ip].get('hq', False)}")
+                  action = "UPDATED"
+                  print(f"IP {ip} bereits bekannt – community={community_count}, hq={db[ip].get('hq', False)}")
+              except Exception as _corrupt:
+                  print(f"WARN: Korrupter seen_db-Eintrag {ip}, wird neu angelegt: {_corrupt}", file=sys.stderr)
+                  # Korrupten Eintrag durch frischen ersetzen
+                  db[ip] = {
+                      "first":       now_day,
+                      "last":        "2000-01-01",
+                      "hq":          False,
+                      "community":   1,
+                      "feeds":       ["community_report"],
+                      "hq_feed_names": [],
+                      "hq_feeds":    0,
+                      "today_count": 1,
+                      "today_hq":    False,
+                      "days_seen":   0,
+                  }
+                  action = "REPLACED_CORRUPT"
           else:
               # Neue IP → eintragen ohne last (noch keine HQ-Bestätigung)
               db[ip] = {

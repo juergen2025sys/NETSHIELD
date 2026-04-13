@@ -747,27 +747,43 @@ jobs:
               strongly_confirmed_today = len(hq_feed_names_today) >= 2
 
               if ip in db:
-                  existing_feeds = set(db[ip].get("feeds", []))
+                  try:
+                      if not isinstance(db[ip], dict):
+                          raise TypeError(f"db[{ip}] ist kein dict")
+                      existing_feeds = set(db[ip].get("feeds", []))
 
-                  if strongly_confirmed_today:
-                      prev_last = db[ip].get("last", "2000-01-01")
-                      if prev_last != now_day:
-                          # Neuer Bestätigungstag → days_seen erhöhen (startet bei 0)
-                          db[ip]["days_seen"] = db[ip].get("days_seen", 0) + 1
-                      db[ip]["last"] = now_day
+                      if strongly_confirmed_today:
+                          prev_last = db[ip].get("last", "2000-01-01")
+                          if prev_last != now_day:
+                              # Neuer Bestätigungstag → days_seen erhöhen (startet bei 0)
+                              db[ip]["days_seen"] = db[ip].get("days_seen", 0) + 1
+                          db[ip]["last"] = now_day
 
-                  db[ip]["feeds"]       = sorted(existing_feeds | today_feeds)
-                  db[ip]["today_count"] = today_count
-                  db[ip]["today_hq"]    = today_is_hq
-                  if today_is_hq:
-                      db[ip]["hq"] = True
-                  # FIX Bug3: hq_feeds als Set einzigartiger Feed-Namen akkumulieren.
-                  # Vorher: rohe Addition pro Lauf → unbegrenztes Wachstum (8 Läufe/Tag × 40 HQ-Feeds).
-                  # Jetzt: Zählt jede HQ-Feed-Quelle nur einmal, egal wie oft sie gemeldet hat.
-                  existing_hq_names = set(db[ip].get("hq_feed_names", []))
-                  existing_hq_names.update(hq_feed_names_today)
-                  db[ip]["hq_feed_names"] = sorted(existing_hq_names)
-                  db[ip]["hq_feeds"]      = len(existing_hq_names)
+                      db[ip]["feeds"]       = sorted(existing_feeds | today_feeds)
+                      db[ip]["today_count"] = today_count
+                      db[ip]["today_hq"]    = today_is_hq
+                      if today_is_hq:
+                          db[ip]["hq"] = True
+                      # FIX Bug3: hq_feeds als Set einzigartiger Feed-Namen akkumulieren.
+                      # Vorher: rohe Addition pro Lauf → unbegrenztes Wachstum (8 Läufe/Tag × 40 HQ-Feeds).
+                      # Jetzt: Zählt jede HQ-Feed-Quelle nur einmal, egal wie oft sie gemeldet hat.
+                      existing_hq_names = set(db[ip].get("hq_feed_names", []))
+                      existing_hq_names.update(hq_feed_names_today)
+                      db[ip]["hq_feed_names"] = sorted(existing_hq_names)
+                      db[ip]["hq_feeds"]      = len(existing_hq_names)
+                  except Exception as _corrupt:
+                      print(f"WARN: Korrupter seen_db-Eintrag {ip}, wird neu angelegt: {_corrupt}", file=sys.stderr)
+                      db[ip] = {
+                          "first":          now_day,
+                          "last":           now_day if today_is_hq else "2000-01-01",
+                          "hq":             today_is_hq,
+                          "feeds":          sorted(today_feeds),
+                          "hq_feed_names":  sorted(hq_feed_names_today),
+                          "hq_feeds":       len(hq_feed_names_today),
+                          "today_count":    today_count,
+                          "today_hq":       today_is_hq,
+                          "days_seen":      1 if today_is_hq else 0,
+                      }
               else:
                   db[ip] = {
                       "first":          now_day,
@@ -805,7 +821,7 @@ jobs:
           # verspricht.
           current_valid = {
               ip for ip, data in db.items()
-              if not is_protected_entry(ip) and (
+              if isinstance(data, dict) and not is_protected_entry(ip) and (
                   len(data.get("feeds", [])) >= 2
                   or data.get("hq")
                   or "community_report" in data.get("feeds", [])

@@ -578,12 +578,31 @@ jobs:
               auto_count = ip_auto_feed_count.get(ip, 1)
               if ip in db:
                   # Bereits in seen_db – Bestätigung durch auto-feed zählen
-                  existing_f = set(db[ip].get("feeds", []))
-                  if SOURCE_LABEL not in existing_f:
-                      db[ip]["feeds"] = sorted(existing_f | {SOURCE_LABEL})
-                  # Echte Anzahl Auto-Feeds setzen; Combined überschreibt beim nächsten Lauf
-                  db[ip]["today_count"] = auto_count
-                  ingested_seen += 1
+                  try:
+                      if not isinstance(db[ip], dict):
+                          # Korrupter Eintrag – überschreiben mit frischem Eintrag
+                          db[ip] = {
+                              "first":          now_day,
+                              "last":           "2000-01-01",
+                              "hq":             False,
+                              "feeds":          [SOURCE_LABEL],
+                              "hq_feed_names":  [],
+                              "hq_feeds":       0,
+                              "today_count":    auto_count,
+                              "today_hq":       False,
+                              "days_seen":      0,
+                          }
+                          ingested_new += 1
+                          continue
+                      existing_f = set(db[ip].get("feeds", []))
+                      if SOURCE_LABEL not in existing_f:
+                          db[ip]["feeds"] = sorted(existing_f | {SOURCE_LABEL})
+                      # Echte Anzahl Auto-Feeds setzen; Combined überschreibt beim nächsten Lauf
+                      db[ip]["today_count"] = auto_count
+                      ingested_seen += 1
+                  except Exception as _corrupt:
+                      print(f"WARN: Korrupter seen_db-Eintrag {ip}: {_corrupt}", file=sys.stderr)
+                      continue
               else:
                   # Neue IP eintragen
                   db[ip] = {

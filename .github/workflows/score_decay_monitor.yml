@@ -145,47 +145,53 @@ jobs:
           score_dist     = defaultdict(int)
 
           for ip, data in db.items():
-              last_seen  = data.get("last",  "2000-01-01")
-              first_seen = data.get("first", last_seen)
-              is_hq      = data.get("hq", False)
-              days_seen  = data.get("days_seen", 0)  # Anzahl Tage mit echter Bestätigung
               try:
-                  last_dt  = datetime.strptime(last_seen,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                  first_dt = datetime.strptime(first_seen, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-              except Exception:
+                  if not isinstance(data, dict):
+                      continue
+                  last_seen  = data.get("last",  "2000-01-01")
+                  first_seen = data.get("first", last_seen)
+                  is_hq      = data.get("hq", False)
+                  days_seen  = data.get("days_seen", 0)  # Anzahl Tage mit echter Bestätigung
+                  try:
+                      last_dt  = datetime.strptime(last_seen,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      first_dt = datetime.strptime(first_seen, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                  except Exception:
+                      continue
+                  days_ago    = (now - last_dt).days
+
+                  # FIX BUG2: Watchlist-IPs haben last="2000-01-01" als Sentinel-Wert.
+                  # days_ago wäre dadurch ≈9591 → fälschliche Einordnung in decay_suggest,
+                  # stale_critical und zombie_high. Diese IPs überspringen – ihr Ablauf
+                  # wird über first_seen + EXPIRY_DAYS in combined_blacklist gesteuert.
+                  if last_seen == "2000-01-01":
+                      continue
+
+                  # Score basiert auf echten Bestätigungstagen (days_seen) + HQ-Bonus
+                  # Fallback für alte Einträge ohne days_seen. Sentinel-IPs (last="2000-01-01")
+                  # wurden bereits oben per continue übersprungen – dieser Zweig gilt nur
+                  # noch für normale IPs mit echtem last-Datum.
+                  if days_seen == 0:
+                      # FIX #15: max(1, ...) ist absichtlich und darf NICHT entfernt werden.
+                      # Bei Daten-Anomalien (last_dt < first_dt durch z.B. Zeitzonen-Bug)
+                      # würde (last_dt - first_dt).days negativ werden → Score wäre 0
+                      # und die IP würde fälschlicherweise als Zombie markiert.
+                      days_seen = max(1, (last_dt - first_dt).days + 1)
+                  score       = days_seen + (20 if is_hq else 0)
+                  score_dist[(score // 5) * 5] += 1
+
+                  if days_ago <= 7:
+                      still_active.append((ip, score, days_ago))
+                  if days_ago >= 150:
+                      decay_suggest.append((ip, score, days_ago, last_seen))  # bald von combined entfernt (180T)
+                  elif days_ago >= CRITICAL_DAYS and score >= 10:
+                      stale_critical.append((ip, score, days_ago, last_seen))
+                  elif days_ago >= WARN_DAYS and score >= 5:
+                      stale_warn.append((ip, score, days_ago, last_seen))
+                  if score >= 20 and days_ago >= 30:
+                      zombie_high.append((ip, score, days_ago, last_seen))
+              except Exception as _corrupt:
+                  print(f"WARN: Korrupter seen_db-Eintrag {ip}: {_corrupt}", file=sys.stderr)
                   continue
-              days_ago    = (now - last_dt).days
-
-              # FIX BUG2: Watchlist-IPs haben last="2000-01-01" als Sentinel-Wert.
-              # days_ago wäre dadurch ≈9591 → fälschliche Einordnung in decay_suggest,
-              # stale_critical und zombie_high. Diese IPs überspringen – ihr Ablauf
-              # wird über first_seen + EXPIRY_DAYS in combined_blacklist gesteuert.
-              if last_seen == "2000-01-01":
-                  continue
-
-              # Score basiert auf echten Bestätigungstagen (days_seen) + HQ-Bonus
-              # Fallback für alte Einträge ohne days_seen. Sentinel-IPs (last="2000-01-01")
-              # wurden bereits oben per continue übersprungen – dieser Zweig gilt nur
-              # noch für normale IPs mit echtem last-Datum.
-              if days_seen == 0:
-                  # FIX #15: max(1, ...) ist absichtlich und darf NICHT entfernt werden.
-                  # Bei Daten-Anomalien (last_dt < first_dt durch z.B. Zeitzonen-Bug)
-                  # würde (last_dt - first_dt).days negativ werden → Score wäre 0
-                  # und die IP würde fälschlicherweise als Zombie markiert.
-                  days_seen = max(1, (last_dt - first_dt).days + 1)
-              score       = days_seen + (20 if is_hq else 0)
-              score_dist[(score // 5) * 5] += 1
-
-              if days_ago <= 7:
-                  still_active.append((ip, score, days_ago))
-              if days_ago >= 150:
-                  decay_suggest.append((ip, score, days_ago, last_seen))  # bald von combined entfernt (180T)
-              elif days_ago >= CRITICAL_DAYS and score >= 10:
-                  stale_critical.append((ip, score, days_ago, last_seen))
-              elif days_ago >= WARN_DAYS and score >= 5:
-                  stale_warn.append((ip, score, days_ago, last_seen))
-              if score >= 20 and days_ago >= 30:
-                  zombie_high.append((ip, score, days_ago, last_seen))
 
           for lst in (stale_critical, stale_warn, zombie_high, decay_suggest):
               lst.sort(key=lambda x: x[1], reverse=True)
