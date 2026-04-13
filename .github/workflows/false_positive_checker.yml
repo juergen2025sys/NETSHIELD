@@ -162,30 +162,11 @@ jobs:
           print(f"false_positives_set.json: {len(merged_fp)} IPs gespeichert "
                 f"({len(fp_set)} neu erkannt, {len(existing_fp)} bereits vorhanden, {len(removed_stale_fp)} veraltete entfernt)")
 
-          # ── seen_db ebenfalls bereinigen (alle FP-IPs, inkl. HQ) ─────────
-          # FIX #4: HQ-IPs werden jetzt AUCH aus seen_db entfernt.
-          # Begründung: combined trägt sie beim nächsten Lauf korrekt wieder ein,
-          # falls der HQ-Feed sie noch aktiv meldet. Ohne diesen Schritt entsteht
-          # ein ewiger 3h-Zyklus: FP-Checker entfernt aus Datei → combined re-added
-          # aus seen_db → FP-Checker entfernt erneut.
-          DB_FILE = "seen_db.json"
-          if os.path.exists(DB_FILE):
-              try:
-                  with open(DB_FILE) as f:
-                      db = json.load(f)
-                  db_removed = 0
-                  # Collect-then-delete: avoid triggering dict-mutation linter check
-                  to_remove_fp = [ip for ip in fp_set if ip in db]
-                  for ip in to_remove_fp:
-                      db.pop(ip, None)
-                      db_removed += 1
-                  if db_removed > 0:
-                      with open(DB_FILE, "w", encoding="utf-8") as f:
-                          json.dump(db, f, separators=(",", ":"))
-                      print(f"seen_db bereinigt: {db_removed} False Positives entfernt "
-                            f"(inkl. HQ-IPs – combined re-addiert sie falls Feed noch aktiv)")
-              except Exception as e:
-                  print(f"seen_db konnte nicht bereinigt werden: {e}")
+          # ── seen_db wird NICHT mehr hier bereinigt ─────────────────────
+          # Der combined-Workflow filtert FP-IPs beim nächsten Lauf selbst
+          # über _is_in_fp_set() anhand von false_positives_set.json.
+          # Der fp-Cache-Prefix (netshield-seen-db-fp-*) wurde von keinem
+          # anderen Workflow gelesen – die Bereinigung war wirkungslos.
 
           # ── False Positive Log ────────────────────────────────────────────
           with open("false_positives_log.txt", "a", encoding="utf-8") as f:
@@ -206,8 +187,7 @@ jobs:
           lines.append(f"| FP-Set gesamt (kumuliert) | **{len(merged_fp)}** |")
           lines.append("")
           lines.append("> ℹ️ FPs werden nicht mehr direkt aus `combined_threat_blacklist_ipv4.txt` entfernt.")
-          lines.append("> `false_positives_set.json` wird beim nächsten `update_combined_blacklist`-Lauf angewendet.")
-          lines.append("> Der `fp-` Cache-Slot dieses Workflows ist absichtlich isoliert und überschreibt den Combined-Cache nicht; dauerhafte Wirkung entsteht erst durch das nächste Combined-Update.")
+          lines.append("> `false_positives_set.json` wird beim nächsten `update_combined_blacklist`-Lauf über `_is_in_fp_set()` angewendet.")
 
           if whitelist_hits:
               lines.append("\n## Whitelist-Treffer\n")
@@ -223,18 +203,9 @@ jobs:
           print("false_positive_report.md geschrieben")
           EOF
 
-      - name: Save seen_db Cache (nach FP-Bereinigung)
-        # FIX: Cache nur speichern wenn seen_db.json tatsächlich vorhanden ist.
-        # if: always() allein würde auch eine fehlende Datei cachen und den
-        # Combined-Cache beim nächsten Restore mit einem leeren Stand korrumpieren.
-        if: always() && hashFiles('seen_db.json') != ''
-        # FIX: actions/cache/save statt actions/cache – verhindert unnötiges
-        # doppeltes Restore im Post-Job-Hook von actions/cache.
-        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        with:
-          path: seen_db.json
-          # FIX RC1: Eigener fp-Prefix – überschreibt Combined-Cache (v2) nicht.
-          key: netshield-seen-db-fp-${{ github.run_id }}
+      # seen_db Cache Save entfernt – FP-Checker modifiziert seen_db nicht mehr.
+      # Combined filtert FPs selbst über _is_in_fp_set(). Der fp-Prefix-Cache
+      # (netshield-seen-db-fp-*) wurde von keinem Workflow gelesen.
 
       - name: Commit
         if: always()

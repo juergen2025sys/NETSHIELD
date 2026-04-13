@@ -44,7 +44,7 @@ jobs:
           now = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
 
-          IP_RE   = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b')
+          IP_RE   = re.compile(r'(?<!\d)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?!\d)')
           CIDR_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b')
 
           def fetch(url, timeout=30, retries=3):
@@ -90,6 +90,35 @@ jobs:
                           and not net.is_reserved
                           and not net.is_link_local
                           and net.prefixlen >= 8)
+              except Exception:
+                  return False
+
+          # ── FP-Set laden (synchron mit update_combined_blacklist.yml Z.426-457) ──
+          FP_SET_FILE = "false_positives_set.json"
+          _fp_networks = []
+          _fp_ips      = set()
+          if os.path.exists(FP_SET_FILE):
+              try:
+                  with open(FP_SET_FILE) as _f:
+                      _fp_data = json.load(_f)
+                  for _e in _fp_data.get("ips", []):
+                      try:
+                          if "/" in _e:
+                              _fp_networks.append(ipaddress.ip_network(_e, strict=False))
+                          else:
+                              _fp_ips.add(_e)
+                      except Exception:
+                          pass
+                  print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs als FP geladen")
+              except Exception as _ex:
+                  print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
+
+          def _is_in_fp_set(ip_str):
+              if ip_str in _fp_ips:
+                  return True
+              try:
+                  _addr = ipaddress.ip_address(ip_str.split("/")[0])
+                  return any(_addr in _net for _net in _fp_networks)
               except Exception:
                   return False
 
@@ -274,6 +303,13 @@ jobs:
                   return ((999,), entry)
 
           new_ips = all_exploit_ips - existing
+          # FP-Filter: IPs aus false_positives_set.json entfernen
+          fp_removed = {ip for ip in all_exploit_ips if _is_in_fp_set(ip)}
+          if fp_removed:
+              all_exploit_ips -= fp_removed
+              for tag in cve_ip_map:
+                  cve_ip_map[tag] -= fp_removed
+              print(f"FP-Filter: {len(fp_removed)} IPs entfernt")
           final   = sorted(all_exploit_ips, key=sort_key)
 
           # ── Report immer zuerst schreiben ────────────────────────────────

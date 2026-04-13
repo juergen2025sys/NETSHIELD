@@ -72,7 +72,6 @@ jobs:
             echo "WARNUNG: Merge fehlgeschlagen, arbeite mit lokalem Stand weiter"
           fi
           python3 << 'EOF'
-          import sys
           import ipaddress, json, os, re, sys
           from datetime import datetime, timezone
 

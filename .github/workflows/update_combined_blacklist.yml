@@ -946,65 +946,71 @@ jobs:
           active_skipped_old   = 0   # zu alt (last_dt > 30 Tage)
 
           for ip, data in db.items():
-              if is_protected_entry(ip):
-                  continue
-              # FIX: Watchlist-IPs haben last="2000-01-01" als Sentinel-Wert (keine echte
-              # HQ-Bestätigung). Sie würden durch cutoff_30 korrekt gefiltert, aber das
-              # Verhalten hängt implizit am Sentinel-Datum. Explizit überspringen ist robuster.
-              if data.get("last", "") == "2000-01-01":
-                  continue
               try:
-                  last_dt  = datetime.strptime(data["last"],  "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                  first_dt = datetime.strptime(data.get("first", data["last"]), "%Y-%m-%d").replace(tzinfo=timezone.utc)
-              except Exception:
+                  if not isinstance(data, dict):
+                      continue
+                  if is_protected_entry(ip):
+                      continue
+                  # FIX: Watchlist-IPs haben last="2000-01-01" als Sentinel-Wert (keine echte
+                  # HQ-Bestätigung). Sie würden durch cutoff_30 korrekt gefiltert, aber das
+                  # Verhalten hängt implizit am Sentinel-Datum. Explizit überspringen ist robuster.
+                  if data.get("last", "") == "2000-01-01":
+                      continue
+                  try:
+                      last_dt  = datetime.strptime(data["last"],  "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      first_dt = datetime.strptime(data.get("first", data["last"]), "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                  except Exception:
+                      continue
+
+                  if last_dt < cutoff_30:
+                      active_skipped_old += 1
+                      continue
+
+                  is_hq       = data.get("hq", False)
+                  feed_count  = len(data.get("feeds", []))
+                  today_count = data.get("today_count", 0)
+                  days_seen   = data.get("days_seen", 1)
+                  days_since_last = (now - last_dt).days
+                  days_known      = (now - first_dt).days + 1
+
+                  # SYNC SCORE-MODELL: Schwellen identisch mit update_confidence_blacklist.yml.
+                  # Änderungen IMMER in beiden Dateien synchron vornehmen.
+                  if is_hq:                  score_a = 40
+                  elif today_count >= 5:     score_a = 35
+                  elif today_count >= 3:     score_a = 28
+                  elif today_count >= 2:     score_a = 20
+                  elif feed_count >= 5:      score_a = 15
+                  elif feed_count >= 3:      score_a = 10
+                  elif feed_count >= 2:      score_a = 5
+                  else:                      score_a = 0
+
+                  if days_since_last <= 1:   score_b = 30
+                  elif days_since_last <= 3: score_b = 25
+                  elif days_since_last <= 7: score_b = 20
+                  elif days_since_last <= 14:score_b = 12
+                  elif days_since_last <= 30:score_b = 6
+                  else:                      score_b = 0
+
+                  if days_seen >= 14:        score_c = 20
+                  elif days_seen >= 7:       score_c = 15
+                  elif days_seen >= 3:       score_c = 10
+                  elif days_seen >= 2:       score_c = 6
+                  else:                      score_c = 2
+
+                  if days_known >= 90:       score_d = 10
+                  elif days_known >= 30:     score_d = 6
+                  elif days_known >= 14:     score_d = 3
+                  else:                      score_d = 0
+
+                  conf = min(score_a + score_b + score_c + score_d, 100)
+
+                  if conf >= 65:
+                      active_ips.append(ip)
+                  else:
+                      active_skipped_score += 1
+              except Exception as _corrupt:
+                  print(f"WARN: Korrupter seen_db-Eintrag {ip}: {_corrupt}", file=sys.stderr)
                   continue
-
-              if last_dt < cutoff_30:
-                  active_skipped_old += 1
-                  continue
-
-              is_hq       = data.get("hq", False)
-              feed_count  = len(data.get("feeds", []))
-              today_count = data.get("today_count", 0)
-              days_seen   = data.get("days_seen", 1)
-              days_since_last = (now - last_dt).days
-              days_known      = (now - first_dt).days + 1
-
-              # SYNC SCORE-MODELL: Schwellen identisch mit update_confidence_blacklist.yml.
-              # Änderungen IMMER in beiden Dateien synchron vornehmen.
-              if is_hq:                  score_a = 40
-              elif today_count >= 5:     score_a = 35
-              elif today_count >= 3:     score_a = 28
-              elif today_count >= 2:     score_a = 20
-              elif feed_count >= 5:      score_a = 15
-              elif feed_count >= 3:      score_a = 10
-              elif feed_count >= 2:      score_a = 5
-              else:                      score_a = 0
-
-              if days_since_last <= 1:   score_b = 30
-              elif days_since_last <= 3: score_b = 25
-              elif days_since_last <= 7: score_b = 20
-              elif days_since_last <= 14:score_b = 12
-              elif days_since_last <= 30:score_b = 6
-              else:                      score_b = 0
-
-              if days_seen >= 14:        score_c = 20
-              elif days_seen >= 7:       score_c = 15
-              elif days_seen >= 3:       score_c = 10
-              elif days_seen >= 2:       score_c = 6
-              else:                      score_c = 2
-
-              if days_known >= 90:       score_d = 10
-              elif days_known >= 30:     score_d = 6
-              elif days_known >= 14:     score_d = 3
-              else:                      score_d = 0
-
-              conf = min(score_a + score_b + score_c + score_d, 100)
-
-              if conf >= 65:
-                  active_ips.append(ip)
-              else:
-                  active_skipped_score += 1
 
           try:
               active_ips.sort(key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))

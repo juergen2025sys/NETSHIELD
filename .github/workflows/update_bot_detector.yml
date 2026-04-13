@@ -59,6 +59,35 @@ jobs:
               except Exception:
                   return False
 
+          # ── FP-Set laden (synchron mit update_combined_blacklist.yml Z.426-457) ──
+          FP_SET_FILE = "false_positives_set.json"
+          _fp_networks = []
+          _fp_ips      = set()
+          if os.path.exists(FP_SET_FILE):
+              try:
+                  with open(FP_SET_FILE) as _f:
+                      _fp_data = json.load(_f)
+                  for _e in _fp_data.get("ips", []):
+                      try:
+                          if "/" in _e:
+                              _fp_networks.append(ipaddress.ip_network(_e, strict=False))
+                          else:
+                              _fp_ips.add(_e)
+                      except Exception:
+                          pass
+                  print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs als FP geladen")
+              except Exception as _ex:
+                  print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
+
+          def _is_in_fp_set(ip_str):
+              if ip_str in _fp_ips:
+                  return True
+              try:
+                  _addr = ipaddress.ip_address(ip_str.split("/")[0])
+                  return any(_addr in _net for _net in _fp_networks)
+              except Exception:
+                  return False
+
           # ── Fetch mit Retry ───────────────────────────────────────────────
           MAX_ATTEMPTS = 3
           data = None
@@ -105,6 +134,12 @@ jobs:
           invalid_ips  = [ip for ip in raw_ips if not is_valid_public_ipv4(ip)]
           unique_ips   = sorted(set(valid_ips),
                                 key=lambda ip: tuple(int(o) for o in ip.split(".")))
+          # FP-Filter: IPs aus false_positives_set.json entfernen
+          fp_before = len(unique_ips)
+          unique_ips = [ip for ip in unique_ips if not _is_in_fp_set(ip)]
+          fp_removed_count = fp_before - len(unique_ips)
+          if fp_removed_count:
+              print(f"FP-Filter: {fp_removed_count} IPs entfernt")
 
           print(f"  Roh: {len(raw_ips)} | Gültig: {len(unique_ips)} | "
                 f"Ungültig/privat: {len(invalid_ips)} | Duplikate: {len(valid_ips) - len(unique_ips)}")

@@ -56,7 +56,6 @@ jobs:
       - name: Build Confidence Blacklists from seen_db
         run: |
           python3 << 'EOF'
-          import sys
           import json, os, sys, ipaddress
           from datetime import datetime, timezone, timedelta
 
@@ -256,95 +255,103 @@ jobs:
           skipped_watchlist = 0
 
           for ip, data in db.items():
-              if ip not in combined_ips or is_protected_entry(ip) or _is_in_fp_set(ip):
-                  continue
-
-              is_hq       = data.get("hq", False)
-              feed_count  = len(data.get("feeds", []))
-              today_count = data.get("today_count", 0)
-              today_hq    = data.get("today_hq", False)
-              days_seen   = data.get("days_seen", 1)
-              last_seen   = data.get("last",  "2000-01-01")
-              first_seen  = data.get("first", last_seen)
-
               try:
-                  last_dt  = datetime.strptime(last_seen,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                  first_dt = datetime.strptime(first_seen, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-              except Exception:
+                  if not isinstance(data, dict):
+                      skipped += 1
+                      continue
+                  if ip not in combined_ips or is_protected_entry(ip) or _is_in_fp_set(ip):
+                      continue
+
+                  is_hq       = data.get("hq", False)
+                  feed_count  = len(data.get("feeds", []))
+                  today_count = data.get("today_count", 0)
+                  today_hq    = data.get("today_hq", False)
+                  days_seen   = data.get("days_seen", 1)
+                  last_seen   = data.get("last",  "2000-01-01")
+                  first_seen  = data.get("first", last_seen)
+
+                  try:
+                      last_dt  = datetime.strptime(last_seen,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      first_dt = datetime.strptime(first_seen, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                  except Exception:
+                      skipped += 1
+                      continue
+
+                  # Watchlist-IPs (last="2000-01-01", hq=False) haben keine HQ-Bestätigung.
+                  # score_b wird 0 → landen unter Schwelle 25 → lautlos ignoriert.
+                  # Explizit zählen für den Report.
+                  if last_seen == "2000-01-01" and not is_hq:
+                      skipped_watchlist += 1
+
+                  days_since_last = (now - last_dt).days
+                  days_known      = (now - first_dt).days + 1
+
+                  # SYNC SCORE-MODELL: Schwellen identisch mit update_combined_blacklist.yml.
+                  # Änderungen IMMER in beiden Dateien synchron vornehmen.
+                  # [A] Quellen-Qualität
+                  if is_hq:
+                      score_a = 40
+                  elif today_count >= 5:
+                      score_a = 35
+                  elif today_count >= 3:
+                      score_a = 28
+                  elif today_count >= 2:
+                      score_a = 20
+                  elif feed_count >= 5:
+                      score_a = 15
+                  elif feed_count >= 3:
+                      score_a = 10
+                  elif feed_count >= 2:
+                      score_a = 5
+                  else:
+                      score_a = 0
+
+                  # [B] Aktualität
+                  if days_since_last <= 1:
+                      score_b = 30
+                  elif days_since_last <= 3:
+                      score_b = 25
+                  elif days_since_last <= 7:
+                      score_b = 20
+                  elif days_since_last <= 14:
+                      score_b = 12
+                  elif days_since_last <= 30:
+                      score_b = 6
+                  else:
+                      score_b = 0
+
+                  # [C] Persistenz (Multi-Tag-Bestätigung)
+                  if days_seen >= 14:
+                      score_c = 20
+                  elif days_seen >= 7:
+                      score_c = 15
+                  elif days_seen >= 3:
+                      score_c = 10
+                  elif days_seen >= 2:
+                      score_c = 6
+                  else:
+                      score_c = 2
+
+                  # [D] Bekannt seit
+                  if days_known >= 90:
+                      score_d = 10
+                  elif days_known >= 30:
+                      score_d = 6
+                  elif days_known >= 14:
+                      score_d = 3
+                  else:
+                      score_d = 0
+
+                  conf = min(score_a + score_b + score_c + score_d, 100)
+
+                  if conf >= 40 and not is_protected_entry(ip):
+                      confidence40.append((ip, conf))
+                  elif conf >= 25 and not is_protected_entry(ip):
+                      confidence25.append((ip, conf))
+              except Exception as _corrupt:
                   skipped += 1
+                  print(f"WARN: Korrupter seen_db-Eintrag {ip}: {_corrupt}", file=sys.stderr)
                   continue
-
-              # Watchlist-IPs (last="2000-01-01", hq=False) haben keine HQ-Bestätigung.
-              # score_b wird 0 → landen unter Schwelle 25 → lautlos ignoriert.
-              # Explizit zählen für den Report.
-              if last_seen == "2000-01-01" and not is_hq:
-                  skipped_watchlist += 1
-
-              days_since_last = (now - last_dt).days
-              days_known      = (now - first_dt).days + 1
-
-              # SYNC SCORE-MODELL: Schwellen identisch mit update_combined_blacklist.yml.
-              # Änderungen IMMER in beiden Dateien synchron vornehmen.
-              # [A] Quellen-Qualität
-              if is_hq:
-                  score_a = 40
-              elif today_count >= 5:
-                  score_a = 35
-              elif today_count >= 3:
-                  score_a = 28
-              elif today_count >= 2:
-                  score_a = 20
-              elif feed_count >= 5:
-                  score_a = 15
-              elif feed_count >= 3:
-                  score_a = 10
-              elif feed_count >= 2:
-                  score_a = 5
-              else:
-                  score_a = 0
-
-              # [B] Aktualität
-              if days_since_last <= 1:
-                  score_b = 30
-              elif days_since_last <= 3:
-                  score_b = 25
-              elif days_since_last <= 7:
-                  score_b = 20
-              elif days_since_last <= 14:
-                  score_b = 12
-              elif days_since_last <= 30:
-                  score_b = 6
-              else:
-                  score_b = 0
-
-              # [C] Persistenz (Multi-Tag-Bestätigung)
-              if days_seen >= 14:
-                  score_c = 20
-              elif days_seen >= 7:
-                  score_c = 15
-              elif days_seen >= 3:
-                  score_c = 10
-              elif days_seen >= 2:
-                  score_c = 6
-              else:
-                  score_c = 2
-
-              # [D] Bekannt seit
-              if days_known >= 90:
-                  score_d = 10
-              elif days_known >= 30:
-                  score_d = 6
-              elif days_known >= 14:
-                  score_d = 3
-              else:
-                  score_d = 0
-
-              conf = min(score_a + score_b + score_c + score_d, 100)
-
-              if conf >= 40 and not is_protected_entry(ip):
-                  confidence40.append((ip, conf))
-              elif conf >= 25 and not is_protected_entry(ip):
-                  confidence25.append((ip, conf))
 
           confidence40.sort(key=lambda x: (-x[1], x[0]))
           confidence25.sort(key=lambda x: (-x[1], x[0]))

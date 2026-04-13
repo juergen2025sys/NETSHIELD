@@ -67,7 +67,6 @@ jobs:
           # FIX #10: SELF aus WORKFLOW_SELF-Env-Var ableiten.
           # Format von github.workflow_ref: "owner/repo/.github/workflows/name.yml@refs/heads/main"
           import os as _os
-          import sys
           _wf_ref = _os.environ.get("WORKFLOW_SELF", "")
           _wf_part = _wf_ref.split(".github/workflows/")[-1].split("@")[0].strip()
           SELF = _wf_part if _wf_part.endswith(".yml") else "workflow_health_checker.yml"

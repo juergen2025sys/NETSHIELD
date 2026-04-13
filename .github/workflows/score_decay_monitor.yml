@@ -65,7 +65,6 @@ jobs:
       - name: Run Score Decay Analysis
         run: |
           python3 << 'EOF'
-          import sys
           import json, os, re, sys
           from datetime import datetime, timezone, timedelta
           from collections import defaultdict
