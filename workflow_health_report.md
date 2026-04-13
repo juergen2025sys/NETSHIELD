@@ -1,9 +1,15 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-12 20:29 UTC
+**Aktualisiert:** 2026-04-13 18:08 UTC
 
-**Workflows:** 16 | ✅ 16 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
+**Workflows:** 16 | ✅ 15 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
 
 ---
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `false_positive_checker.yml` | Fehlende FP-Dateien im checkout | git checkout --theirs im Commit-Step fehlen Dateien: false_positives_log.txt, false_positive_report.md, false_positives_set.json – Regression im FP-Checker-Commit-Step |
+
 ## 🏥 Production Health
 
 **Status:** 🔴 0 CRITICAL | 🟡 0 WARN
@@ -18,7 +24,7 @@
 | `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `30 4 * * 0` |
 | `community_ip_report.yml` | ✅ OK | 0 | 0 | – |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
-| `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
+| `false_positive_checker.yml` | ❌ | 1 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `geo_tagger.yml` | ✅ OK | 0 | 0 | `45 7 * * 0` |
 | `honeydb_monitor.yml` | ✅ OK | 0 | 0 | `15 22 * * *` |
@@ -32,4 +38,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-12 20:29 UTC | 16 Workflow-Dateien geprüft*
+*Generiert: 2026-04-13 18:08 UTC | 16 Workflow-Dateien geprüft*
