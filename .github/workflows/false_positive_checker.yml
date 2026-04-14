@@ -52,6 +52,21 @@ jobs:
       - name: Check Blacklist for False Positives
         run: |
           python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries as _parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
           import re
           import os
           import sys
@@ -82,19 +97,7 @@ jobs:
               except Exception as _suppressed:
                   print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
-          def is_whitelisted_entry(value):
-              try:
-                  candidate = value.strip()
-                  if not candidate:
-                      return False
-                  if '/' in candidate:
-                      net = ipaddress.ip_network(candidate, strict=False)
-                      return any(net.overlaps(w) for w in whitelist_networks)
-                  addr = ipaddress.ip_address(candidate)
-                  return any(addr in net for net in whitelist_networks)
-              except Exception:
-                  return False
-
+          # is_whitelisted() → importiert aus netshield_common
           # ── Blacklist laden ───────────────────────────────────────────────
           BLACKLIST = "combined_threat_blacklist_ipv4.txt"
           if not os.path.exists(BLACKLIST):
@@ -114,7 +117,7 @@ jobs:
           whitelist_hits  = []
 
           for ip in blacklist_ips:
-              if is_whitelisted_entry(ip):
+              if is_whitelisted(ip):
                   whitelist_hits.append((ip, "Bekannte legitime IP-Range (CDN/Cloud)"))
                   false_positives.append(ip)
 
@@ -164,7 +167,7 @@ jobs:
 
           # ── seen_db wird NICHT mehr hier bereinigt ─────────────────────
           # Der combined-Workflow filtert FP-IPs beim nächsten Lauf selbst
-          # über _is_in_fp_set() anhand von false_positives_set.json.
+          # über is_in_fp_set() anhand von false_positives_set.json.
           # Der fp-Cache-Prefix (netshield-seen-db-fp-*) wurde von keinem
           # anderen Workflow gelesen – die Bereinigung war wirkungslos.
 
@@ -187,7 +190,7 @@ jobs:
           lines.append(f"| FP-Set gesamt (kumuliert) | **{len(merged_fp)}** |")
           lines.append("")
           lines.append("> ℹ️ FPs werden nicht mehr direkt aus `combined_threat_blacklist_ipv4.txt` entfernt.")
-          lines.append("> `false_positives_set.json` wird beim nächsten `update_combined_blacklist`-Lauf über `_is_in_fp_set()` angewendet.")
+          lines.append("> `false_positives_set.json` wird beim nächsten `update_combined_blacklist`-Lauf über `is_in_fp_set()` angewendet.")
 
           if whitelist_hits:
               lines.append("\n## Whitelist-Treffer\n")
@@ -204,7 +207,7 @@ jobs:
           EOF
 
       # seen_db Cache Save entfernt – FP-Checker modifiziert seen_db nicht mehr.
-      # Combined filtert FPs selbst über _is_in_fp_set(). Der fp-Prefix-Cache
+      # Combined filtert FPs selbst über is_in_fp_set(). Der fp-Prefix-Cache
       # (netshield-seen-db-fp-*) wurde von keinem Workflow gelesen.
 
       - name: Commit

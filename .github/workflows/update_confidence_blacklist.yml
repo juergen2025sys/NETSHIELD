@@ -56,6 +56,21 @@ jobs:
       - name: Build Confidence Blacklists from seen_db
         run: |
           python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries as _parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
           import json, os, sys, ipaddress
           from datetime import datetime, timezone, timedelta
 
@@ -112,41 +127,8 @@ jobs:
               except Exception as _ex:
                   print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
 
-          def _is_in_fp_set(ip_str):
-              if ip_str in _fp_ips:
-                  return True
-              try:
-                  _addr = ipaddress.ip_address(ip_str.split("/")[0])
-                  return any(_addr in _net for _net in _fp_networks)
-              except Exception:
-                  return False
-
-          def is_protected_entry(value):
-              """True wenn eine IP/ein CIDR niemals in Listen landen darf.
-              SYNC: Logik identisch mit is_protected_entry() in update_combined_blacklist.yml.
-              Änderungen IMMER in beiden Dateien synchron vornehmen."""
-              try:
-                  candidate = value.strip()
-                  if not candidate:
-                      return True
-                  if '/' in candidate:
-                      net = ipaddress.ip_network(candidate, strict=False)
-                      if net.version != 4 or net.prefixlen < 8:
-                          return True
-                      if (net.is_private or net.is_loopback or net.is_multicast or
-                          net.is_reserved or net.is_link_local or net.is_unspecified):
-                          return True
-                      return any(net.overlaps(protected) for protected in protected_networks)
-                  addr = ipaddress.ip_address(candidate)
-                  if addr.version != 4:
-                      return True
-                  if (addr.is_private or addr.is_loopback or addr.is_multicast or
-                      addr.is_reserved or addr.is_link_local or addr.is_unspecified):
-                      return True
-                  return any(addr in protected for protected in protected_networks)
-              except Exception:
-                  return True
-
+          # is_in_fp_set() → importiert aus netshield_common
+          # is_protected_entry() → importiert aus netshield_common
           if not os.path.exists(DB_FILE):
               msg = f"{DB_FILE} nicht gefunden – bitte zuerst Update Combined Blacklist ausführen."
               print(f"::warning file=update_confidence_blacklist.yml::{msg}")
@@ -164,7 +146,7 @@ jobs:
 
           # Alter der seen_db prüfen – nur echte HQ-Bestätigungsdaten (last != 2000-01-01)
           # berücksichtigen, damit Watchlist-IPs (last="2000-01-01") kein falsches Alarm-Alter erzeugen
-          real_dates = [d.get("last","2000-01-01") for d in db.values() if isinstance(d, dict) and d.get("last","2000-01-01") != "2000-01-01"]
+          real_dates = [safe_get_date(d, "last") for d in db.values() if isinstance(d, dict) and safe_get_date(d, "last") != "2000-01-01"]
           newest_last = max(real_dates) if real_dates else None
           try:
               if newest_last:
@@ -259,7 +241,7 @@ jobs:
                   if not isinstance(data, dict):
                       skipped += 1
                       continue
-                  if ip not in combined_ips or is_protected_entry(ip) or _is_in_fp_set(ip):
+                  if ip not in combined_ips or is_protected_entry(ip) or is_in_fp_set(ip):
                       continue
 
                   is_hq       = data.get("hq", False)
@@ -267,8 +249,8 @@ jobs:
                   today_count = data.get("today_count", 0)
                   today_hq    = data.get("today_hq", False)
                   days_seen   = data.get("days_seen", 1)
-                  last_seen   = data.get("last",  "2000-01-01")
-                  first_seen  = data.get("first", last_seen)
+                  last_seen   = safe_get_date(data, "last")
+                  first_seen  = safe_get_date(data, "first", last_seen)
 
                   try:
                       last_dt  = datetime.strptime(last_seen,  "%Y-%m-%d").replace(tzinfo=timezone.utc)

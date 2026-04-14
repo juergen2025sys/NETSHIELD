@@ -1,0 +1,27 @@
+name: Run Tests
+
+on:
+  push:
+    paths:
+      - 'scripts/**'
+      - 'tests/**'
+      - '.github/workflows/run_tests.yml'
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'tests/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Run Unit Tests
+        run: python3 -m unittest discover -s tests -v

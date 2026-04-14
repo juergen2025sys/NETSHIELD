@@ -65,6 +65,21 @@ jobs:
       - name: Run Score Decay Analysis
         run: |
           python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries as _parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
           import json, os, re, sys
           from datetime import datetime, timezone, timedelta
           from collections import defaultdict
@@ -108,8 +123,8 @@ jobs:
           # FIX AGE1: Cache-Alter prüfen – Score Decay läuft wöchentlich (So 07:00).
           # Bei veraltetem Cache (> 24h seit letztem HQ-Eintrag) Warnung ausgeben,
           # damit der Report nicht auf Basis einer wochealten seen_db erstellt wird.
-          real_dates = [d.get("last", "2000-01-01") for d in db.values()
-                        if isinstance(d, dict) and d.get("last", "2000-01-01") != "2000-01-01"]
+          real_dates = [safe_get_date(d, "last") for d in db.values()
+                        if isinstance(d, dict) and safe_get_date(d, "last") != "2000-01-01"]
           if real_dates:
               newest_last = max(real_dates)
               try:
@@ -148,8 +163,8 @@ jobs:
               try:
                   if not isinstance(data, dict):
                       continue
-                  last_seen  = data.get("last",  "2000-01-01")
-                  first_seen = data.get("first", last_seen)
+                  last_seen  = safe_get_date(data, "last")
+                  first_seen = safe_get_date(data, "first", last_seen)
                   is_hq      = data.get("hq", False)
                   days_seen  = data.get("days_seen", 0)  # Anzahl Tage mit echter Bestätigung
                   try:

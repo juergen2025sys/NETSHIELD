@@ -17,7 +17,7 @@ permissions:
   security-events: none
 
 concurrency:
-  group: ${{ github.workflow }}
+  group: netshield-seen-db-writers
   cancel-in-progress: false
 
 jobs:
@@ -51,6 +51,21 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries as _parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
           import urllib.request
           import urllib.error
           import urllib.parse
@@ -185,17 +200,7 @@ jobs:
               except Exception:
                   return None
 
-          def is_valid_public_ipv4(ip):
-              try:
-                  obj = ipaddress.ip_address(ip)
-                  return (obj.version == 4 and not obj.is_private and
-                          not obj.is_loopback and not obj.is_multicast and
-                          not obj.is_reserved and not obj.is_link_local and
-                          not obj.is_unspecified and
-                          not any(obj in net for net in protected_nets))
-              except Exception:
-                  return False
-
+          # is_valid_public_ipv4() → importiert aus netshield_common
           def extract_ips(text):
               ips = set()
               for m in IPV4_RE.finditer(text):
@@ -640,8 +645,8 @@ jobs:
           for ip in list(db.keys()):
               try:
                   entry      = db[ip]
-                  last_str   = entry.get("last",  "2000-01-01")
-                  first_str  = entry.get("first", last_str)
+                  last_str   = safe_get_date(entry, "last")
+                  first_str  = safe_get_date(entry, "first", last_str)
                   is_hq      = entry.get("hq", False)
                   last_seen  = datetime.strptime(last_str,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
                   first_seen = datetime.strptime(first_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)

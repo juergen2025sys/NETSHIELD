@@ -34,6 +34,21 @@ jobs:
       - name: Fetch Bot-Detector Blacklist
         run: |
           python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries as _parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
           import urllib.request, urllib.error, json, os, sys, ipaddress, time
           from datetime import datetime, timezone
 
@@ -46,19 +61,7 @@ jobs:
           MIN_ENTRIES = 50   # Leerungsschutz
 
           # ── IP-Validierung ────────────────────────────────────────────────
-          def is_valid_public_ipv4(ip_str):
-              try:
-                  obj = ipaddress.ip_address(ip_str)
-                  return (obj.version == 4
-                          and not obj.is_private
-                          and not obj.is_loopback
-                          and not obj.is_multicast
-                          and not obj.is_unspecified
-                          and not obj.is_reserved
-                          and not obj.is_link_local)
-              except Exception:
-                  return False
-
+          # is_valid_public_ipv4() → importiert aus netshield_common
           # ── FP-Set laden (synchron mit update_combined_blacklist.yml Z.426-457) ──
           FP_SET_FILE = "false_positives_set.json"
           _fp_networks = []
@@ -79,15 +82,7 @@ jobs:
               except Exception as _ex:
                   print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
 
-          def _is_in_fp_set(ip_str):
-              if ip_str in _fp_ips:
-                  return True
-              try:
-                  _addr = ipaddress.ip_address(ip_str.split("/")[0])
-                  return any(_addr in _net for _net in _fp_networks)
-              except Exception:
-                  return False
-
+          # is_in_fp_set() → importiert aus netshield_common
           # ── Fetch mit Retry ───────────────────────────────────────────────
           MAX_ATTEMPTS = 3
           data = None
@@ -136,7 +131,7 @@ jobs:
                                 key=lambda ip: tuple(int(o) for o in ip.split(".")))
           # FP-Filter: IPs aus false_positives_set.json entfernen
           fp_before = len(unique_ips)
-          unique_ips = [ip for ip in unique_ips if not _is_in_fp_set(ip)]
+          unique_ips = [ip for ip in unique_ips if not is_in_fp_set(ip)]
           fp_removed_count = fp_before - len(unique_ips)
           if fp_removed_count:
               print(f"FP-Filter: {fp_removed_count} IPs entfernt")

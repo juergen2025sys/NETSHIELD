@@ -16,7 +16,7 @@ permissions:
   security-events: none
 
 concurrency:
-  group: community-report-${{ github.event.issue.number }}
+  group: netshield-seen-db-writers
   cancel-in-progress: false
 
 jobs:
@@ -72,6 +72,21 @@ jobs:
             echo "WARNUNG: Merge fehlgeschlagen, arbeite mit lokalem Stand weiter"
           fi
           python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries as _parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
           import ipaddress, json, os, re, sys
           from datetime import datetime, timezone
 
@@ -152,22 +167,7 @@ jobs:
               except Exception as _suppressed:
                   print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
-          def is_valid_public_ipv4(ip_str):
-              try:
-                  obj = ipaddress.ip_address(ip_str)
-                  if obj.version != 4:                return False
-                  if obj.is_private:                  return False
-                  if obj.is_loopback:                 return False
-                  if obj.is_multicast:                return False
-                  if obj.is_unspecified:              return False
-                  if obj.is_reserved:                 return False
-                  if obj.is_link_local:               return False
-                  if any(obj in net for net in _whitelist_networks):
-                      return False
-                  return True
-              except Exception:
-                  return False
-
+          # is_valid_public_ipv4() → importiert aus netshield_common
           if not is_valid_public_ipv4(ip):
               with open(RESULT_FILE, "w", encoding="utf-8") as f:
                   f.write(f"INVALID_IP|{ip}|")

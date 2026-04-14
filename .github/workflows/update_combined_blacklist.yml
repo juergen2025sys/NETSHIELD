@@ -18,7 +18,7 @@ permissions:
 
 
 concurrency:
-  group: ${{ github.workflow }}
+  group: netshield-seen-db-writers
   cancel-in-progress: false
 jobs:
   update:
@@ -50,6 +50,21 @@ jobs:
           ABUSEIPDB_KEY_3: ${{ secrets.ABUSEIPDB_API_KEY_3 }}
         run: |
           python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
           import json, os, urllib.request, urllib.error
           from datetime import datetime, timezone
 
@@ -140,6 +155,16 @@ jobs:
       - name: Fetch, discover, learn and build IPv4 lists
         run: |
           python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
           import ipaddress, json, os, re, sys, urllib.request
           from datetime import datetime, timezone, timedelta
           from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
@@ -153,13 +178,7 @@ jobs:
 
           IPV4_RE = re.compile(r'(?<!\d)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?!\d)')
 
-          DNS_WHITELIST = {
-              "192.168.13.1", "192.168.14.1",
-              "8.8.8.8", "8.8.4.4", "1.1.1.1", "1.0.0.1",
-              "208.67.222.222", "208.67.220.220", "9.9.9.9",
-              "149.112.112.112", "149.112.112.10", "149.112.112.11",
-              "94.140.14.14", "94.140.15.15",
-          }
+          # DNS_WHITELIST entfernt – wird über whitelist.json geladen (via netshield_common)
 
           # ── Whitelist: IPs/CIDRs die NIE auf die Blacklist kommen ─────────
           # Spiegelidentisch mit false_positive_checker.yml – hier gefiltert
@@ -188,51 +207,17 @@ jobs:
               except Exception as _suppressed:
                   print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
-          def is_whitelisted(ip_str):
-              """True wenn IP in einer der Whitelist-Ranges liegt (IPs + CIDRs)."""
-              try:
-                  addr = ipaddress.ip_address(ip_str.split('/')[0])
-                  return any(addr in net for net in _whitelist_networks)
-              except Exception:
-                  return False
-
-          PROTECTED_CIDRS = [
-              "192.168.13.0/24", "192.168.14.0/24",
-              "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
-          ]
+          # is_whitelisted() → importiert aus netshield_common
+          # PROTECTED_CIDRS entfernt – wird über whitelist.json + RFC1918 geladen (via netshield_common)
           _protected_networks = []
-          for _entry in (list(DNS_WHITELIST) + PROTECTED_CIDRS):
+          # _protected_networks wird jetzt in load_whitelist() gebaut (netshield_common)
+          for _entry in []:
               try:
                   _protected_networks.append(ipaddress.ip_network(_entry, strict=False))
               except Exception as _suppressed:
                   print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
-          def is_protected_entry(value):
-              """True wenn eine IP/ein CIDR niemals in Listen landen darf.
-              SYNC: Logik identisch mit is_protected_entry() in update_confidence_blacklist.yml.
-              Änderungen IMMER in beiden Dateien synchron vornehmen."""
-              try:
-                  candidate = value.strip()
-                  if not candidate:
-                      return True
-                  if '/' in candidate:
-                      net = ipaddress.ip_network(candidate, strict=False)
-                      if net.version != 4 or net.prefixlen < 8:
-                          return True
-                      if (net.is_private or net.is_loopback or net.is_multicast or
-                          net.is_reserved or net.is_link_local or net.is_unspecified):
-                          return True
-                      return any(net.overlaps(protected) for protected in _protected_networks)
-                  addr = ipaddress.ip_address(candidate)
-                  if addr.version != 4:
-                      return True
-                  if (addr.is_private or addr.is_loopback or addr.is_multicast or
-                      addr.is_reserved or addr.is_link_local or addr.is_unspecified):
-                      return True
-                  return any(addr in protected for protected in _protected_networks)
-              except Exception:
-                  return True
-
+          # is_protected_entry() → importiert aus netshield_common
           HIGH_QUALITY = {
               "cinsscore", "cinsarmy", "greensnow", "feodo_aggressive", "feodo_recommended",
               "threatfox_ioc", "binary_defense", "crowdsec_ssh",
@@ -446,32 +431,11 @@ jobs:
               except Exception as _ex:
                   print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
 
-          def is_in_fp_set(ip_str):
-              """True wenn IP im False-Positive-Set steht."""
-              if ip_str in _fp_ips:
-                  return True
-              try:
-                  _addr = ipaddress.ip_address(ip_str.split("/")[0])
-                  return any(_addr in _net for _net in _fp_networks)
-              except Exception:
-                  return False
-
-          def is_valid_public_ipv4(ip):
-              try:
-                  obj = ipaddress.ip_address(ip)
-                  return obj.version == 4 and not is_protected_entry(str(obj))
-              except Exception:
-                  return False
-
+          # is_in_fp_set() → importiert aus netshield_common
+          # is_valid_public_ipv4() → importiert aus netshield_common
           CIDR_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b')
 
-          def is_valid_public_cidr(cidr):
-              try:
-                  net = ipaddress.ip_network(cidr, strict=False)
-                  return net.version == 4 and net.prefixlen >= 8 and not is_protected_entry(str(net))
-              except Exception:
-                  return False
-
+          # is_valid_public_cidr() → importiert aus netshield_common
           removed_preexisting_protected = 0
           # Collect-then-delete: explicit two-pass to satisfy dict-mutation linter
           _protected_old = [ip for ip in db if is_protected_entry(ip)]
@@ -481,74 +445,14 @@ jobs:
           if removed_preexisting_protected:
               print(f"Geschützte Alt-Einträge aus seen_db entfernt: {removed_preexisting_protected}")
 
-          def parse_feed_entries(text):
-              """Universeller Parser: plain IPv4, CIDR, ip:port, ipset, FortiGate,
-              Spamhaus DROP, URLhaus, CSV erste Spalte. DNS-Whitelist + private gefiltert.
-              SYNC: Logik identisch mit parse_entries() in cve_to_ip_mapper.yml
-              und honeypot_monitor.yml. Änderungen in ALLEN synchron halten."""
-              entries = set()
-              for raw_line in text.splitlines():
-                  line = raw_line.strip()
-                  if not line or line.startswith('#') or line.startswith(';') or line.startswith('//'):
-                      continue
-                  # FortiGate: "set subnet 1.2.3.4 ..."
-                  fg = re.match(r'set\s+subnet\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', line)
-                  if fg:
-                      ip = fg.group(1)
-                      if is_valid_public_ipv4(ip):
-                          entries.add(ip)
-                      continue
-                  # ipset: "add setname 1.2.3.4" oder "add setname 1.2.3.0/24"
-                  ipset_m = re.match(r'add\s+\S+\s+(\S+)', line)
-                  if ipset_m:
-                      val = ipset_m.group(1).split(';')[0].strip()
-                      if '/' in val:
-                          if is_valid_public_cidr(val): entries.add(str(ipaddress.ip_network(val, strict=False)))
-                      else:
-                          if is_valid_public_ipv4(val):
-                              entries.add(val)
-                      continue
-                  # Inline-Kommentar abschneiden (Spamhaus DROP: "1.2.3.0/24 ; SBLxxx")
-                  line = re.split(r'\s*[;#]', line)[0].strip()
-                  if not line: continue
-                  # CSV: nur erste Spalte pruefen
-                  first_col = line.split(',')[0].strip()
-                  # CIDR?
-                  cidr_m = CIDR_RE.match(first_col)
-                  if cidr_m:
-                      if is_valid_public_cidr(cidr_m.group(1)): entries.add(str(ipaddress.ip_network(cidr_m.group(1), strict=False)))
-                      continue
-                  # ip:port?
-                  ip_port = re.match(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):\d+', first_col)
-                  if ip_port:
-                      ip = ip_port.group(1)
-                      if is_valid_public_ipv4(ip):
-                          entries.add(ip)
-                      continue
-                  # Plain IP in erster Spalte?
-                  ip_m = re.match(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b', first_col)
-                  if ip_m:
-                      ip = ip_m.group(1)
-                      if is_valid_public_ipv4(ip):
-                          entries.add(ip)
-                      continue
-                  # Fallback: alle IPs/CIDRs in der Zeile (URLhaus, JSON-Felder etc.)
-                  for cidr in CIDR_RE.findall(line):
-                      if is_valid_public_cidr(cidr):
-                          entries.add(str(ipaddress.ip_network(cidr, strict=False)))
-                  for m in IPV4_RE.finditer(line):
-                      ip = m.group(1)
-                      if is_valid_public_ipv4(ip):
-                          entries.add(ip)
-              return entries
-
+          # parse_feed_entries() → importiert aus netshield_common
           def fetch_ips(name, url):
               try:
                   req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD/3.0"})
                   opener = urllib.request.build_opener(urllib.request.HTTPRedirectHandler())
                   with opener.open(req, timeout=25) as r:
                       raw = r.read(READ_LIMIT).decode("utf-8", errors="ignore")
-                  found = parse_feed_entries(raw)
+                  found = parse_entries(raw, use_protected_check=True)
                   ips   = len([e for e in found if '/' not in e])
                   cidrs = len([e for e in found if '/' in e])
                   print(f"OK  {name}: {ips} IPs" + (f" + {cidrs} CIDRs" if cidrs else ""))
@@ -656,7 +560,7 @@ jobs:
                           print(f"WARNUNG: {_stale_msg}")
                   except Exception as _suppressed:
                       print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
-              local_ips = parse_feed_entries(raw_local)
+              local_ips = parse_entries(raw_local, use_protected_check=True)
               for entry in local_ips:
                   if is_hq_local:
                       ip_in_hq.add(entry)
@@ -846,8 +750,8 @@ jobs:
           for ip in list(db.keys()):
               try:
                   entry     = db[ip]
-                  last_str  = entry.get("last",  "2000-01-01")
-                  first_str = entry.get("first", last_str)
+                  last_str  = safe_get_date(entry, "last")
+                  first_str = safe_get_date(entry, "first", last_str)
                   is_hq     = entry.get("hq", False)
                   last_seen  = datetime.strptime(last_str,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
                   first_seen = datetime.strptime(first_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -974,7 +878,7 @@ jobs:
                       continue
                   try:
                       last_dt  = datetime.strptime(data["last"],  "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                      first_dt = datetime.strptime(data.get("first", data["last"]), "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      first_dt = datetime.strptime(safe_get_date(data, "first", safe_get_date(data, "last")), "%Y-%m-%d").replace(tzinfo=timezone.utc)
                   except Exception:
                       continue
 
@@ -1083,6 +987,21 @@ jobs:
           # und bekommt dadurch immer den neuesten verfügbaren Cache.
           key: netshield-seen-db-v2-${{ github.run_id }}
 
+
+      - name: Backup seen_db to Repo (komprimiert)
+        if: always()
+        run: |
+          if [ -f seen_db.json ]; then
+            # Komprimiertes Backup (nur wenn seen_db > 1MB, also nicht leer/korrupt)
+            SIZE=$(stat -c%s seen_db.json 2>/dev/null || echo 0)
+            if [ "$SIZE" -gt 1048576 ]; then
+              gzip -c seen_db.json > seen_db_backup.json.gz
+              echo "seen_db Backup erstellt: $(du -h seen_db_backup.json.gz | cut -f1)"
+            else
+              echo "seen_db zu klein ($SIZE Bytes) – kein Backup (möglicherweise korrupt)"
+            fi
+          fi
+
       - name: Commit and Push
         # FIX BUG-AL1 (2/2): if: always() ergänzt. Ohne diesen Guard wurden bei einem
         # Python-Crash weder combined_threat_blacklist_ipv4.txt noch active_blacklist noch
@@ -1092,6 +1011,16 @@ jobs:
         if: always()
         run: |
           python3 - << 'PYEOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
           import json, os
           from datetime import datetime, timezone
           now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
@@ -1112,7 +1041,7 @@ jobs:
           PYEOF
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt community_reported_ips.txt 2>/dev/null || true
+          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -1129,10 +1058,10 @@ jobs:
                 git checkout --theirs combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md \
                   seen_db_meta.json abuseipdb_api_blacklist.txt \
-                  community_reported_ips.txt 2>/dev/null || true
+                  community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
                 git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md seen_db_meta.json \
-                  abuseipdb_api_blacklist.txt community_reported_ips.txt 2>/dev/null || true
+                  abuseipdb_api_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))
