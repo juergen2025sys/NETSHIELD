@@ -1046,6 +1046,8 @@ jobs:
             echo "Keine Änderungen"
           else
             git commit -m "Update Combined Blacklist: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            # FIX: Unstaged Änderungen entfernen, damit git rebase nicht fehlschlägt
+            git stash --include-untracked || true
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}
