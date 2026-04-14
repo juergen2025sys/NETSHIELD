@@ -361,6 +361,17 @@ jobs:
           print(f"Watchlist (kein HQ, last=2000-01-01):  {skipped_watchlist} IPs (Score zu niedrig, ausstehend)")
           print(f"Übersprungen:                          {skipped} IPs (Datumsfehler)")
 
+          # ── Leerungsschutz confidence40 ───────────────────────────────────
+          # Verhindert das Überschreiben bei leerem/korruptem seen_db-Cache.
+          # Schwelle identisch mit active_blacklist in update_combined_blacklist.yml.
+          MIN_CONF40 = 100
+          if len(confidence40) < MIN_CONF40:
+              msg = (f"Nur {len(confidence40)} IPs in confidence40 (< {MIN_CONF40}) – "
+                     f"Leerungsschutz aktiv, {OUT_40} wird NICHT überschrieben.")
+              print(f"::warning file=update_confidence_blacklist.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(1)
+
           with open(OUT_40, "w", encoding="utf-8") as f:
               f.write(f"# NETSHIELD Blacklist – Mittleres/Hohes Vertrauen (Score ≥40/100)\n")
               f.write(f"# Aktualisiert: {now_str}\n")
