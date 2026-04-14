@@ -91,7 +91,7 @@ jobs:
               "update_confidence_blacklist.yml": ["is_protected_entry", "whitelist.json"],  # FIX: SSOT-Migration wie update_combined_blacklist.yml
               # FIX: false_positive_checker.yml lädt Whitelist aus whitelist.json.
               # Literal-CIDRs stehen nicht mehr inline → Token-Check auf Dateiname.
-              "false_positive_checker.yml": ["WHITELIST_CIDRS", "is_whitelisted_entry", "whitelist.json"],
+              "false_positive_checker.yml": ["whitelist.json", "is_whitelisted"],
           }
 
           cron_re = re.compile(r"cron:\s*'([\d\s*/,]+)'")
@@ -1143,9 +1143,9 @@ jobs:
                                      "(Regression FIX-WH9)")
                               file_errors.append(msg)
                               errors.append({"file": fname, "check": "Falscher required_protection-Token", "detail": msg})
-                          if 'is_whitelisted_entry' not in _fp_tokens or 'WHITELIST_CIDRS' not in _fp_tokens:
-                              msg = ("required_protection für false_positive_checker.yml fehlt 'WHITELIST_CIDRS' "
-                                     "oder 'is_whitelisted_entry' (Regression FIX-WH9)")
+                          if 'is_whitelisted' not in _fp_tokens or 'whitelist.json' not in _fp_tokens:
+                              msg = ("required_protection für false_positive_checker.yml fehlt 'whitelist.json' "
+                                     "oder 'is_whitelisted' (Regression FIX-WH9)")
                               file_warnings.append(msg)
                               warnings.append({"file": fname, "check": "required_protection unvollständig", "detail": msg})
 
