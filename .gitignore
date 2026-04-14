@@ -1,7 +1,30 @@
 # Lokale Testdateien
 *.pyc
 __pycache__/
+*.egg-info/
+venv/
+.venv/
 
 # Temporäre Outputs
 *.tmp
 *.bak
+*.log
+
+# Secrets / Umgebungsvariablen
+.env
+.env.*
+
+# seen_db (nur im GitHub Actions Cache, zu groß fürs Repo)
+seen_db.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
