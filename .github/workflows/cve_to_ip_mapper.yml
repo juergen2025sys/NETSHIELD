@@ -37,7 +37,7 @@ jobs:
               load_whitelist, load_fp_set, is_in_fp_set,
               is_valid_public_ipv4, is_valid_public_cidr,
               is_protected_entry, is_whitelisted,
-              parse_entries as _parse_entries, calculate_confidence,
+              parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
@@ -84,26 +84,7 @@ jobs:
 
           # is_valid_public_ipv4() → importiert aus netshield_common
           # is_valid_public_cidr() → importiert aus netshield_common
-          # ── FP-Set laden (synchron mit update_combined_blacklist.yml Z.426-457) ──
-          FP_SET_FILE = "false_positives_set.json"
-          _fp_networks = []
-          _fp_ips      = set()
-          if os.path.exists(FP_SET_FILE):
-              try:
-                  with open(FP_SET_FILE) as _f:
-                      _fp_data = json.load(_f)
-                  for _e in _fp_data.get("ips", []):
-                      try:
-                          if "/" in _e:
-                              _fp_networks.append(ipaddress.ip_network(_e, strict=False))
-                          else:
-                              _fp_ips.add(_e)
-                      except Exception:
-                          pass
-                  print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs als FP geladen")
-              except Exception as _ex:
-                  print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
-
+          # FP-Set wird über load_fp_set() (Zeile 48) geladen – netshield_common.
           # is_in_fp_set() → importiert aus netshield_common
           # parse_entries() → importiert aus netshield_common
           # ── CVE-Exploit-IP-Feeds (alle ohne API-Key) ──────────────────────
@@ -155,7 +136,9 @@ jobs:
 
               # parse_entries() erkennt alle gaengigen Formate:
               # plain IPv4, CIDR, ip:port, FortiGate, ipset, URLhaus, CSV, DROP, netset
-              ips = parse_entries(text)
+              # FIX BUG-WL3: use_protected_check=True → Whitelist-IPs werden bereits
+              # beim Parsen herausgefiltert (vorher: nur is_valid_public_ipv4).
+              ips = parse_entries(text, use_protected_check=True)
               all_exploit_ips.update(ips)
               source_stats[name] = len(ips)
 
@@ -207,6 +190,15 @@ jobs:
               for tag in cve_ip_map:
                   cve_ip_map[tag] -= fp_removed
               print(f"FP-Filter: {len(fp_removed)} IPs entfernt")
+          # FIX BUG-WL3: Whitelist-Filter – analog zum FP-Filter.
+          # Defense-in-depth: parse_entries filtert bereits mit use_protected_check,
+          # aber Altlasten aus bestehenden Feeds könnten durchrutschen.
+          wl_removed = {ip for ip in all_exploit_ips if is_whitelisted(ip)}
+          if wl_removed:
+              all_exploit_ips -= wl_removed
+              for tag in cve_ip_map:
+                  cve_ip_map[tag] -= wl_removed
+              print(f"Whitelist-Filter: {len(wl_removed)} IPs entfernt")
           final   = sorted(all_exploit_ips, key=sort_key)
 
           # ── Report immer zuerst schreiben ────────────────────────────────

@@ -169,6 +169,14 @@ jobs:
           from datetime import datetime, timezone, timedelta
           from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 
+          # FIX BUG-WL1: load_whitelist() + load_fp_set() fehlten in diesem Step.
+          # Jeder run:-Step ist ein eigener Prozess – der Aufruf im AbuseIPDB-Step
+          # (Zeile 65) hat hier keine Wirkung. Ohne diesen Aufruf waren
+          # _whitelist_networks und _protected_networks in netshield_common leer,
+          # is_whitelisted() gab immer False zurück → Whitelist-Leak in beiden Ausgabedateien.
+          load_whitelist()
+          load_fp_set()
+
           now        = datetime.now(timezone.utc)
           now_day    = now.strftime("%Y-%m-%d")
           now_stamp  = now.strftime("%Y-%m-%d %H:%M UTC")
@@ -870,6 +878,12 @@ jobs:
                   if not isinstance(data, dict):
                       continue
                   if is_protected_entry(ip):
+                      continue
+                  # FIX BUG-WL2: Expliziter Whitelist-/FP-Check – konsistent mit
+                  # combined-Ausgabe (Zeile 822-826). is_protected_entry() deckt die
+                  # Whitelist zwar ab, aber ein expliziter Guard ist robuster und
+                  # verhindert Regression falls is_protected_entry() je geändert wird.
+                  if is_whitelisted(ip) or is_in_fp_set(ip):
                       continue
                   # FIX: Watchlist-IPs haben last="2000-01-01" als Sentinel-Wert (keine echte
                   # HQ-Bestätigung). Sie würden durch cutoff_30 korrekt gefiltert, aber das
