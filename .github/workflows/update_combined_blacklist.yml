@@ -474,9 +474,14 @@ jobs:
           _wl_fp_starts = [iv[0] for iv in _wl_fp_intervals]
 
           def _fast_is_protected(ip_str):
-              """Schneller Protected-Check via Binary-Search (O(log K) statt O(K))."""
+              """Schneller Protected-Check via Binary-Search (O(log K) statt O(K)).
+              FIX BUG-CIDR1: CIDRs fallen auf is_protected_entry() zurück,
+              da Binary-Search nur die Netzadresse prüft, nicht den Range-Overlap.
+              CIDRs sind <5% der Einträge → kein Performance-Impact."""
               try:
-                  ip_int = int(ipaddress.ip_address(ip_str.split('/')[0]))
+                  if '/' in ip_str:
+                      return is_protected_entry(ip_str)
+                  ip_int = int(ipaddress.ip_address(ip_str))
                   pos = _bisect.bisect_right(_prot_starts, ip_int) - 1
                   if pos >= 0 and ip_int <= _prot_intervals[pos][1]:
                       return True
@@ -486,11 +491,14 @@ jobs:
                   return False
 
           def _fast_is_wl_or_fp(ip_str):
-              """Schneller Whitelist+FP-Check via Binary-Search."""
+              """Schneller Whitelist+FP-Check via Binary-Search.
+              FIX BUG-CIDR1: CIDRs fallen auf is_whitelisted()/is_in_fp_set() zurück."""
               try:
                   if ip_str in _fp_ips:
                       return True
-                  ip_int = int(ipaddress.ip_address(ip_str.split('/')[0]))
+                  if '/' in ip_str:
+                      return is_whitelisted(ip_str) or is_in_fp_set(ip_str)
+                  ip_int = int(ipaddress.ip_address(ip_str))
                   pos = _bisect.bisect_right(_wl_fp_starts, ip_int) - 1
                   return pos >= 0 and ip_int <= _wl_fp_intervals[pos][1]
               except Exception:
