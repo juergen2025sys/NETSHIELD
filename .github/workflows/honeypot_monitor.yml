@@ -39,7 +39,7 @@ jobs:
               load_whitelist, load_fp_set, is_in_fp_set,
               is_valid_public_ipv4, is_valid_public_cidr,
               is_protected_entry, is_whitelisted,
-              parse_entries as _parse_entries, calculate_confidence,
+              parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
@@ -232,12 +232,15 @@ jobs:
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
               if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
                 if git push origin HEAD:${GITHUB_REF_NAME}; then
                   echo "Push erfolgreich (Versuch $attempt)"
                   exit 0
                 fi
               else
+                git stash pop 2>/dev/null || true
                 git checkout --theirs honeypot_ips.txt honeypot_report.md 2>/dev/null || true
                 git add honeypot_ips.txt honeypot_report.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
