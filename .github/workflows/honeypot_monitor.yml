@@ -165,7 +165,9 @@ jobs:
           for name, url in HONEYPOT_SOURCES.items():
               text = fetch(url)
               if text:
-                  ips = parse_entries(text)
+                  # FIX BUG-WL7: use_protected_check=True → Whitelist-IPs
+                  # werden bereits beim Parsen herausgefiltert.
+                  ips = parse_entries(text, use_protected_check=True)
                   all_ips.update(ips)
                   stats[name] = len(ips)
                   print(f"  {name}: {len(ips)} IPs")
@@ -185,6 +187,11 @@ jobs:
           if fp_removed:
               all_ips -= fp_removed
               print(f"FP-Filter: {len(fp_removed)} IPs entfernt")
+          # FIX BUG-WL7: Whitelist-Filter – analog zum FP-Filter (defense-in-depth).
+          wl_removed = {ip for ip in all_ips if is_whitelisted(ip)}
+          if wl_removed:
+              all_ips -= wl_removed
+              print(f"Whitelist-Filter: {len(wl_removed)} IPs entfernt")
           final_ips   = sorted(all_ips, key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
 
           # Report immer zuerst schreiben
