@@ -183,14 +183,37 @@ def is_valid_public_ipv4(ip):
         return False
 
 
+_PRIVATE_RANGES = [
+    ipaddress.ip_network("10.0.0.0/8"),
+    ipaddress.ip_network("172.16.0.0/12"),
+    ipaddress.ip_network("192.168.0.0/16"),
+    ipaddress.ip_network("127.0.0.0/8"),
+    ipaddress.ip_network("169.254.0.0/16"),
+    ipaddress.ip_network("100.64.0.0/10"),
+    ipaddress.ip_network("224.0.0.0/4"),
+]
+
+
 def is_valid_public_cidr(cidr):
-    """True wenn gültiges öffentliches IPv4-CIDR mit Prefix >= /8."""
+    """True wenn gültiges öffentliches IPv4-CIDR mit Prefix >= /8.
+
+    FIX BUG-PRIV1: Prüft zusätzlich ob der CIDR-Range mit privaten/
+    reservierten Bereichen ÜBERLAPPT. Vorher wurde nur net.is_private
+    geprüft (Netzadresse), aber z.B. 192.128.0.0/9 hat eine öffentliche
+    Netzadresse und deckt trotzdem 192.168.0.0/16 ab.
+    """
     try:
         net = ipaddress.ip_network(cidr, strict=False)
-        return (net.version == 4
+        if not (net.version == 4
                 and not net.is_private and not net.is_loopback
                 and not net.is_multicast and not net.is_reserved
-                and not net.is_link_local and net.prefixlen >= 8)
+                and not net.is_link_local and net.prefixlen >= 8):
+            return False
+        # Overlap-Check: breite CIDRs die private Ranges einschließen ablehnen
+        for priv in _PRIVATE_RANGES:
+            if net.overlaps(priv):
+                return False
+        return True
     except Exception:
         return False
 
