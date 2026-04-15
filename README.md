@@ -71,16 +71,16 @@ iptables -I INPUT -m set --match-set netshield src -j DROP
 
 | Datei | Zweck | Einträge | Empfohlen für |
 |---|---|---:|---|
-| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen · letzte 30 Tage · Score ≥ 65 | **2,640,530**                                                                                                                                     | OPNsense / pfSense / Firewall |
-| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres bis hohes Vertrauen · Score ≥ 40 | **3,258,769**                                                                                                                                     | Erweiterte Filterregeln |
-| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs · 180-Tage-Fenster | **4,549,844**                                                                                                                                     | Audit / SIEM |
-| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist · Score 25–39 | **838,620**                                                                                                                                     | Monitoring |
-| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploits & aktive C2-Server | **54,646**                                                                                                                                     | IDS / IPS |
-| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **7,370**                                                                                                                                     | Ergänzung |
-| [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **71,883**                                                                                                                                     | Ergänzung |
-| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **17,950**                                                                                                                                     | Web-Schutz |
-| [`abuseipdb_api_blacklist.txt`](abuseipdb_api_blacklist.txt) | AbuseIPDB Top-IPs (API, Score ≥50) | **9,983**                                                                                                                                     | Ergänzung |
-| [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥ 50 | **19**                                                                                                                                     | ASN-Blocking |
+| [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen · letzte 30 Tage · Score ≥ 65 | **2,640,530**                                                                                                                                      | OPNsense / pfSense / Firewall |
+| [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres bis hohes Vertrauen · Score ≥ 40 | **3,261,313**                                                                                                                                      | Erweiterte Filterregeln |
+| [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs · 180-Tage-Fenster | **4,549,844**                                                                                                                                      | Audit / SIEM |
+| [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist · Score 25–39 | **838,221**                                                                                                                                      | Monitoring |
+| [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploits & aktive C2-Server | **54,646**                                                                                                                                      | IDS / IPS |
+| [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **7,370**                                                                                                                                      | Ergänzung |
+| [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **71,883**                                                                                                                                      | Ergänzung |
+| [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **17,950**                                                                                                                                      | Web-Schutz |
+| [`abuseipdb_api_blacklist.txt`](abuseipdb_api_blacklist.txt) | AbuseIPDB Top-IPs (API, Score ≥50) | **9,983**                                                                                                                                      | Ergänzung |
+| [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥ 50 | **19**                                                                                                                                      | ASN-Blocking |
 
 ### Geo-Listen
 
