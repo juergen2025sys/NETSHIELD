@@ -30,7 +30,7 @@ concurrency:
 jobs:
   update-confidence:
     runs-on: ubuntu-latest
-    timeout-minutes: 59
+    timeout-minutes: 40
 
     steps:
       - name: Checkout Repository
@@ -54,6 +54,8 @@ jobs:
             netshield-seen-db-
 
       - name: Build Confidence Blacklists from seen_db
+        env:
+          PYTHONUNBUFFERED: "1"
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -168,12 +170,52 @@ jobs:
               print(f"FEHLER: {msg}")
               sys.exit(1)
 
+          # combined_threat_blacklist_ipv4.txt wird bereits beim Schreiben in
+          # update_combined_blacklist mit is_protected_entry() gefiltert →
+          # erneute Prüfung hier wäre 502 Netzwerk-Checks × 4,5M IPs ≈ 10 Min Zeitverschwendung.
           with open(BLACKLIST) as f:
               combined_ips = {
-                  l.strip() for l in f
-                  if l.strip() and not l.startswith("#") and not is_protected_entry(l.strip())
+                  s for line in f if (s := line.strip()) and not s.startswith("#")
               }
           print(f"Combined Blacklist: {len(combined_ips)} IPs")
+
+          # ── FP-Vorfilter für combined_ips (einmalig, statt pro IP im Inner-Loop) ─
+          # combined_threat_blacklist_ipv4.txt ist zwar bereits mit is_in_fp_set() gefiltert,
+          # aber es kann einen Timing-Gap geben (FP-Checker läuft nach Combined).
+          # Statt is_in_fp_set(ip) im Inner-Loop (4,5M × ~2945 Netzwerk-Checks ≈ 47 Min),
+          # filtern wir combined_ips EINMAL vorab:
+          #   1. Individuelle FP-IPs:  O(|_fp_ips|) = O(~4802) – sofort per Set-Subtraktion
+          #   2. FP-CIDRs: O(N × log K) via Binary-Search statt O(N × K) – ~268× schneller
+          #
+          # ACHTUNG Binary-Search-Annahme: Die Intervallsuche findet für eine IP nur das
+          # unmittelbar darunter liegende Intervall. Bei überlappenden/verschachtelten CIDRs
+          # (z.B. 10.0.0.0/8 UND 10.1.0.0/16) könnte ein Treffer im Eltern-CIDR übersehen
+          # werden wenn nur das Kind-CIDR gefunden wird. In der Praxis irrelevant, da
+          # false_positives_set.json hauptsächlich Einzel-IPs enthält und die wenigen CIDRs
+          # nicht geschachtelt sind. Sollte sich das ändern, muss hier auf eine
+          # vollständige Intervallbaum-Suche umgestellt werden.
+          if _fp_ips:
+              combined_ips -= _fp_ips
+          if _fp_networks:
+              import bisect as _bisect
+              _intervals = sorted(
+                  (int(n.network_address), int(n.broadcast_address))
+                  for n in _fp_networks
+              )
+              _starts = [iv[0] for iv in _intervals]
+              _fp_cidr_hits = set()
+              for _ip in combined_ips:
+                  try:
+                      _ip_int = int(ipaddress.ip_address(_ip.split('/')[0]))
+                      _pos = _bisect.bisect_right(_starts, _ip_int) - 1
+                      if _pos >= 0 and _ip_int <= _intervals[_pos][1]:
+                          _fp_cidr_hits.add(_ip)
+                  except Exception:
+                      pass
+              if _fp_cidr_hits:
+                  combined_ips -= _fp_cidr_hits
+                  print(f"FP-Timing-Gap-Filter: {len(_fp_cidr_hits)} IPs aus combined_ips entfernt")
+          print(f"Combined Blacklist nach FP-Filter: {len(combined_ips)} IPs")
 
           # ══════════════════════════════════════════════════════════════════
           # KONFIDENZ-MODELL
@@ -241,7 +283,9 @@ jobs:
                   if not isinstance(data, dict):
                       skipped += 1
                       continue
-                  if ip not in combined_ips or is_protected_entry(ip) or is_in_fp_set(ip):
+                  if ip not in combined_ips:
+                      # combined_ips wurde bereits beim Laden auf is_protected_entry()
+                      # und is_in_fp_set() vorgeprüft → keine weiteren Einzelchecks nötig.
                       continue
 
                   is_hq       = data.get("hq", False)
@@ -326,9 +370,11 @@ jobs:
 
                   conf = min(score_a + score_b + score_c + score_d, 100)
 
-                  if conf >= 40 and not is_protected_entry(ip):
+                  # is_protected_entry()-Guard hier entfernt: Zugehörigkeit zu combined_ips
+                  # garantiert bereits dass die IP kein geschützter Eintrag ist.
+                  if conf >= 40:
                       confidence40.append((ip, conf))
-                  elif conf >= 25 and not is_protected_entry(ip):
+                  elif conf >= 25:
                       confidence25.append((ip, conf))
               except Exception as _corrupt:
                   skipped += 1
