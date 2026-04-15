@@ -23,7 +23,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 70
 
     steps:
       - name: Checkout Repository
@@ -458,7 +458,7 @@ jobs:
               try:
                   req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD/3.0"})
                   opener = urllib.request.build_opener(urllib.request.HTTPRedirectHandler())
-                  with opener.open(req, timeout=25) as r:
+                  with opener.open(req, timeout=22) as r:
                       raw = r.read(READ_LIMIT).decode("utf-8", errors="ignore")
                   found = parse_entries(raw, use_protected_check=True)
                   ips   = len([e for e in found if '/' not in e])
@@ -466,7 +466,8 @@ jobs:
                   print(f"OK  {name}: {ips} IPs" + (f" + {cidrs} CIDRs" if cidrs else ""))
                   return name, found
               except Exception as e:
-                  print(f"ERR {name}: {e}")
+                  print(f"ERR  {name}: {type(e).__name__}: {e}")
+                  print(f"::warning file=update_combined_blacklist.yml::Feed fetch failed [{name}]: {type(e).__name__}: {e}")
                   return name, set()
 
           # ── Alle Feeds parallel laden ──────────────────────────────────────
@@ -475,10 +476,10 @@ jobs:
 
           ip_feeds_today = {}   # ip → set(feed_namen) für diesen Run
 
-          with ThreadPoolExecutor(max_workers=15) as executor:
+          with ThreadPoolExecutor(max_workers=10) as executor:
               futures = {executor.submit(fetch_ips, n, u): n for n, (u, _) in SOURCES.items()}
               try:
-                  for future in as_completed(futures, timeout=600):
+                  for future in as_completed(futures, timeout=580):
                       name, ips = future.result()
                       for ip in ips:
                           if name in HIGH_QUALITY:
@@ -596,7 +597,7 @@ jobs:
                   with ThreadPoolExecutor(max_workers=5) as ex:
                       futures = {ex.submit(fetch_auto, f): f["name"] for f in auto_feeds}
                       try:
-                          for future in as_completed(futures, timeout=120):
+                          for future in as_completed(futures, timeout=110):
                               name, ips = future.result()
                               for ip in ips:
                                   # Auto-discovered Feeds sind nicht HQ
