@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-15 04:16 UTC",
+  "updated": "2026-04-15 08:54 UTC",
   "total": 17,
   "ok": 16,
   "warn": 1,
@@ -21,30 +21,20 @@
       "file": "run_tests.yml",
       "check": "Node24 env fehlt",
       "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
-    },
-    {
-      "file": "Production Health",
-      "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
-      "detail": "blacklist_confidence40_ipv4.txt ist 8h alt (WARN-Schwelle: 6h)"
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4487681,
-    "active_blacklist_ipv4.txt": 2581198,
-    "blacklist_confidence40_ipv4.txt": 3201903,
+    "combined_threat_blacklist_ipv4.txt": 4545068,
+    "active_blacklist_ipv4.txt": 2638145,
+    "blacklist_confidence40_ipv4.txt": 3258769,
     "cve_exploit_ips.txt": 54646,
     "honeypot_ips.txt": 7370,
     "bot_detector_blacklist_ipv4.txt": 17950
   },
   "production_health": {
     "critical": 2,
-    "warn": 1,
+    "warn": 0,
     "checks": [
-      {
-        "level": "WARN",
-        "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
-        "detail": "blacklist_confidence40_ipv4.txt ist 8h alt (WARN-Schwelle: 6h)"
-      },
       {
         "level": "CRITICAL",
         "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
