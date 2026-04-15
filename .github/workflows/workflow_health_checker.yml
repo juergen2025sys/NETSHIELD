@@ -2335,12 +2335,15 @@ jobs:
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
               if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
                 if git push origin HEAD:${GITHUB_REF_NAME}; then
                   echo "Push erfolgreich (Versuch $attempt)"
                   exit 0
                 fi
               else
+                git stash pop 2>/dev/null || true
                 git checkout --theirs workflow_health_report.md \
                   workflow_health_status.json 2>/dev/null || true
                 git add workflow_health_report.md \
