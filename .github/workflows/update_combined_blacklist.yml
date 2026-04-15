@@ -153,6 +153,8 @@ jobs:
           EOF
 
       - name: Fetch, discover, learn and build IPv4 lists
+        env:
+          PYTHONUNBUFFERED: "1"
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -443,10 +445,63 @@ jobs:
           # is_valid_public_ipv4() → importiert aus netshield_common
           CIDR_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b')
 
+          # ── FIX PERF-COMBINED: Batch-Filter mit Binary-Search ────────────
+          # is_protected_entry(), is_whitelisted(), is_in_fp_set() iterieren
+          # jeweils über 502-2945 Netzwerk-Ranges pro IP-Aufruf.
+          # Bei 4,5M IPs × (502+502+2945) Checks = ~45 Min verschwendet.
+          # Lösung: sortierte Intervall-Listen + bisect → O(N × log K).
+          import bisect as _bisect
+
+          # Alle geschützten Netzwerke (Whitelist + RFC1918 + FP-CIDRs) zusammenführen
+          _all_protected_nets = list(_protected_networks) + list(_whitelist_networks)
+          if _fp_networks:
+              _all_protected_nets.extend(_fp_networks)
+
+          _prot_intervals = sorted(
+              (int(n.network_address), int(n.broadcast_address))
+              for n in _all_protected_nets
+          )
+          _prot_starts = [iv[0] for iv in _prot_intervals]
+
+          # Whitelist+FP (ohne RFC1918) – für Cleanup-Scans
+          _wl_fp_nets = list(_whitelist_networks)
+          if _fp_networks:
+              _wl_fp_nets.extend(_fp_networks)
+          _wl_fp_intervals = sorted(
+              (int(n.network_address), int(n.broadcast_address))
+              for n in _wl_fp_nets
+          )
+          _wl_fp_starts = [iv[0] for iv in _wl_fp_intervals]
+
+          def _fast_is_protected(ip_str):
+              """Schneller Protected-Check via Binary-Search (O(log K) statt O(K))."""
+              try:
+                  ip_int = int(ipaddress.ip_address(ip_str.split('/')[0]))
+                  pos = _bisect.bisect_right(_prot_starts, ip_int) - 1
+                  if pos >= 0 and ip_int <= _prot_intervals[pos][1]:
+                      return True
+                  # Einzel-IPs im FP-Set (O(1) Set-Lookup)
+                  return ip_str in _fp_ips
+              except Exception:
+                  return False
+
+          def _fast_is_wl_or_fp(ip_str):
+              """Schneller Whitelist+FP-Check via Binary-Search."""
+              try:
+                  if ip_str in _fp_ips:
+                      return True
+                  ip_int = int(ipaddress.ip_address(ip_str.split('/')[0]))
+                  pos = _bisect.bisect_right(_wl_fp_starts, ip_int) - 1
+                  return pos >= 0 and ip_int <= _wl_fp_intervals[pos][1]
+              except Exception:
+                  return False
+
+          print(f"Binary-Search-Index: {len(_prot_intervals)} Protected + {len(_wl_fp_intervals)} WL/FP Intervalle")
+
           # is_valid_public_cidr() → importiert aus netshield_common
           removed_preexisting_protected = 0
-          # Collect-then-delete: explicit two-pass to satisfy dict-mutation linter
-          _protected_old = [ip for ip in db if is_protected_entry(ip)]
+          # FIX PERF-COMBINED: Binary-Search statt is_protected_entry() pro IP
+          _protected_old = [ip for ip in db if _fast_is_protected(ip)]
           for ip in _protected_old:
               db.pop(ip, None)
               removed_preexisting_protected += 1
@@ -637,8 +692,8 @@ jobs:
           # Non-HQ Feeds setzen "last" nie → statische Listen halten IPs nicht am Leben
 
           for ip, today_feeds in ip_feeds_today.items():
-              # Whitelist-Check + FP-Set-Check: diese IPs kommen NIE auf die Blacklist
-              if is_whitelisted(ip) or is_in_fp_set(ip):
+              # FIX PERF-COMBINED: Binary-Search statt is_whitelisted() + is_in_fp_set()
+              if _fast_is_wl_or_fp(ip):
                   continue
               today_count = len(today_feeds)
               today_is_hq = ip in ip_in_hq
@@ -716,8 +771,8 @@ jobs:
                   }
 
           protected_removed_runtime = 0
-          # Collect-then-delete: explicit two-pass to satisfy dict-mutation linter
-          _protected_runtime = [ip for ip in db if is_protected_entry(ip)]
+          # FIX PERF-COMBINED: Binary-Search statt is_protected_entry() pro IP
+          _protected_runtime = [ip for ip in db if _fast_is_protected(ip)]
           for ip in _protected_runtime:
               db.pop(ip, None)
               protected_removed_runtime += 1
@@ -734,7 +789,7 @@ jobs:
           # verspricht.
           current_valid = {
               ip for ip, data in db.items()
-              if isinstance(data, dict) and not is_protected_entry(ip) and (
+              if isinstance(data, dict) and not _fast_is_protected(ip) and (
                   len(data.get("feeds", [])) >= 2
                   or data.get("hq")
                   or "community_report" in data.get("feeds", [])
@@ -784,7 +839,7 @@ jobs:
           # IPs, die vor Einführung eines neuen Whitelist-/FP-Eintrags bereits
           # in seen_db lagen, würden sonst beim Schreiben der Combined-Datei
           # wieder auftauchen. Deshalb hier vor dem Persistieren aktiv entfernen.
-          _wl_cleanup = [ip for ip in db if is_whitelisted(ip) or is_in_fp_set(ip)]
+          _wl_cleanup = [ip for ip in db if _fast_is_wl_or_fp(ip)]
           for ip in _wl_cleanup:
               db.pop(ip, None)
           if _wl_cleanup:
@@ -830,17 +885,15 @@ jobs:
           try:
               sorted_ips = sorted(
                   [ip for ip in db.keys()
-                   if not is_protected_entry(ip)
-                   and not is_whitelisted(ip)
-                   and not is_in_fp_set(ip)],
+                   if not _fast_is_protected(ip)
+                   and not _fast_is_wl_or_fp(ip)],
                   key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e)
               )
           except Exception:
               sorted_ips = sorted(
                   [ip for ip in db.keys()
-                   if not is_protected_entry(ip)
-                   and not is_whitelisted(ip)
-                   and not is_in_fp_set(ip)]
+                   if not _fast_is_protected(ip)
+                   and not _fast_is_wl_or_fp(ip)]
               )
           feed_stats.sort(key=lambda x: -x[1])
 
@@ -878,13 +931,13 @@ jobs:
               try:
                   if not isinstance(data, dict):
                       continue
-                  if is_protected_entry(ip):
+                  if _fast_is_protected(ip):
                       continue
                   # FIX BUG-WL2: Expliziter Whitelist-/FP-Check – konsistent mit
                   # combined-Ausgabe (Zeile 822-826). is_protected_entry() deckt die
                   # Whitelist zwar ab, aber ein expliziter Guard ist robuster und
                   # verhindert Regression falls is_protected_entry() je geändert wird.
-                  if is_whitelisted(ip) or is_in_fp_set(ip):
+                  if _fast_is_wl_or_fp(ip):
                       continue
                   # FIX: Watchlist-IPs haben last="2000-01-01" als Sentinel-Wert (keine echte
                   # HQ-Bestätigung). Sie würden durch cutoff_30 korrekt gefiltert, aber das
