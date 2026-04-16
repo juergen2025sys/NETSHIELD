@@ -72,8 +72,8 @@ def load_whitelist(path=".github/workflows/whitelist.json", min_entries=50):
     for entry in entries:
         try:
             _whitelist_networks.append(ipaddress.ip_network(entry, strict=False))
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"WARNUNG: Ungültiger whitelist.json-Eintrag ignoriert: {entry!r}: {e}", file=sys.stderr)
 
     # Protected = Whitelist + RFC1918
     _protected_networks = list(_whitelist_networks) + list(_RFC_PRIVATE_NETS)
@@ -148,8 +148,8 @@ def load_fp_set(path="false_positives_set.json"):
                     _fp_networks.append(ipaddress.ip_network(entry, strict=False))
                 else:
                     _fp_ips.add(entry)
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"WARNUNG: Ungültiger false_positives_set-Eintrag ignoriert: {entry!r}: {e}", file=sys.stderr)
         print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs geladen")
     except Exception as e:
         print(f"WARNUNG: false_positives_set.json nicht lesbar: {e}")

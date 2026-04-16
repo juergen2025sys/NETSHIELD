@@ -257,10 +257,14 @@ class TestScoring(unittest.TestCase):
         self.assertGreaterEqual(score, 40)
 
     def test_watchlist_threshold(self):
-        """Watchlist: 25-39"""
+        """Watchlist-nahe Score-Berechnung (Ergebnis gemäß Kommentar: 54)"""
         # 2 Feeds heute + 2 Tage alt + 2 Tage gesehen + 14 Tage bekannt
-        # = 20 + 25 + 6 + 3 = 54 (actually above 39)
-        pass
+        # = 20 + 25 + 6 + 3 = 54
+        score = calculate_confidence(
+            is_hq=False, today_count=2, feed_count=2,
+            days_since_last=2, days_seen=2, days_known=14
+        )
+        self.assertEqual(score, 54)
 
     def test_score_capped_at_100(self):
         score = calculate_confidence(

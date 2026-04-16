@@ -73,7 +73,7 @@ jobs:
                   try:
                       req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD-CVEMapper/1.0"})
                       with urllib.request.urlopen(req, timeout=timeout) as r:
-                          return r.read().decode("utf-8", errors="ignore")
+                          return r.read(25 * 1024 * 1024).decode("utf-8", errors="ignore")
                   except Exception as e:
                       last_err = e
                       if attempt < retries:

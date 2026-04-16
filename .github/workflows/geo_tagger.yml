@@ -70,7 +70,7 @@ jobs:
                   try:
                       req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD-GeoTagger/2.0"})
                       with urllib.request.urlopen(req, timeout=timeout) as r:
-                          return r.read().decode("utf-8", errors="ignore")
+                          return r.read(25 * 1024 * 1024).decode("utf-8", errors="ignore")
                   except urllib.error.HTTPError as e:
                       print(f"  FEHLER HTTP {e.code} {url}")
                       return None  # HTTP-Fehler nicht wiederholen

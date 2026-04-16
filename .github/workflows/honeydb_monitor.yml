@@ -135,7 +135,7 @@ jobs:
                           consumed  = r.headers.get("honeydb-qpm-consumed",  "?")
                           requests_used += 1
                           print(f"  [{label or endpoint}] HTTP {r.status} | verbraucht: {consumed} | verbleibend: {remaining}/1500")
-                          return json.loads(r.read().decode("utf-8", errors="ignore"))
+                          return json.loads(r.read(5 * 1024 * 1024).decode("utf-8", errors="ignore"))
                   except urllib.error.HTTPError as e:
                       if e.code == 429:
                           print(f"  RATE LIMIT [{label or endpoint}] – übersprungen")
