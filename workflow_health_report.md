@@ -1,9 +1,18 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-16 15:05 UTC
+**Aktualisiert:** 2026-04-16 20:05 UTC
 
-**Workflows:** 17 | ✅ 17 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
+**Workflows:** 19 | ✅ 17 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
 ---
+## ⚠️ Warnungen
+
+| Datei | Check | Detail |
+|---|---|---|
+| `dependabot-auto-merge.yml` | timeout-minutes fehlt | Job 'automerge' hat kein timeout-minutes – haengende Runs verbrauchen bis zu 360min |
+| `dependabot-auto-merge.yml` | Permissions zu breit | permissions: contents: write gesetzt aber kein git commit/push erkennbar – Least-Privilege-Verletzung |
+| `dependabot-heal-conflicts.yml` | Concurrency fehlt | Kein concurrency-Block – parallele Runs möglich bei manuell + scheduled gleichzeitig |
+| `dependabot-heal-conflicts.yml` | timeout-minutes fehlt | Job 'heal' hat kein timeout-minutes – haengende Runs verbrauchen bis zu 360min |
+
 ## 🏥 Production Health
 
 **Status:** 🔴 0 CRITICAL | 🟡 0 WARN
@@ -18,6 +27,8 @@
 | `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `30 4 * * 0` |
 | `community_ip_report.yml` | ✅ OK | 0 | 0 | – |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
+| `dependabot-auto-merge.yml` | ⚠️ | 0 | 2 | – |
+| `dependabot-heal-conflicts.yml` | ⚠️ | 0 | 2 | – |
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `geo_tagger.yml` | ✅ OK | 0 | 0 | `45 7 * * 0` |
@@ -33,4 +44,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-16 15:05 UTC | 17 Workflow-Dateien geprüft*
+*Generiert: 2026-04-16 20:05 UTC | 19 Workflow-Dateien geprüft*

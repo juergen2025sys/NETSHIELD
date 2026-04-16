@@ -1,15 +1,36 @@
 {
-  "updated": "2026-04-16 15:05 UTC",
-  "total": 17,
+  "updated": "2026-04-16 20:05 UTC",
+  "total": 19,
   "ok": 17,
-  "warn": 0,
+  "warn": 2,
   "error": 0,
   "errors": [],
-  "warnings": [],
+  "warnings": [
+    {
+      "file": "dependabot-auto-merge.yml",
+      "check": "timeout-minutes fehlt",
+      "detail": "Job 'automerge' hat kein timeout-minutes \u2013 haengende Runs verbrauchen bis zu 360min"
+    },
+    {
+      "file": "dependabot-auto-merge.yml",
+      "check": "Permissions zu breit",
+      "detail": "permissions: contents: write gesetzt aber kein git commit/push erkennbar \u2013 Least-Privilege-Verletzung"
+    },
+    {
+      "file": "dependabot-heal-conflicts.yml",
+      "check": "Concurrency fehlt",
+      "detail": "Kein concurrency-Block \u2013 parallele Runs m\u00f6glich bei manuell + scheduled gleichzeitig"
+    },
+    {
+      "file": "dependabot-heal-conflicts.yml",
+      "check": "timeout-minutes fehlt",
+      "detail": "Job 'heal' hat kein timeout-minutes \u2013 haengende Runs verbrauchen bis zu 360min"
+    }
+  ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4574641,
-    "active_blacklist_ipv4.txt": 2604403,
-    "blacklist_confidence40_ipv4.txt": 3279336,
+    "combined_threat_blacklist_ipv4.txt": 4575707,
+    "active_blacklist_ipv4.txt": 2605269,
+    "blacklist_confidence40_ipv4.txt": 3279852,
     "cve_exploit_ips.txt": 54730,
     "honeypot_ips.txt": 7490,
     "bot_detector_blacklist_ipv4.txt": 17950
