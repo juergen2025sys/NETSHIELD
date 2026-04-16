@@ -217,6 +217,7 @@ jobs:
                   exit 0
                 fi
               else
+                git rebase --abort 2>/dev/null || true
                 git stash pop 2>/dev/null || true
                 git checkout --theirs bot_detector_blacklist_ipv4.txt \
                   bot_detector_report.md 2>/dev/null || true

@@ -370,6 +370,7 @@ jobs:
                   exit 0
                 fi
               else
+                git rebase --abort 2>/dev/null || true
                 git stash pop 2>/dev/null || true
                 git checkout --theirs honeydb_ips.txt honeydb_report.md 2>/dev/null || true
                 git add honeydb_ips.txt honeydb_report.md 2>/dev/null || true

@@ -538,6 +538,7 @@ jobs:
                   exit 0
                 fi
               else
+                git rebase --abort 2>/dev/null || true
                 git stash pop 2>/dev/null || true
                 git checkout --theirs NETSHIELD_REPORT.md README.md 2>/dev/null || true
                 git add NETSHIELD_REPORT.md README.md 2>/dev/null || true

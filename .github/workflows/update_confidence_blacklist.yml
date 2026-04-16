@@ -439,6 +439,7 @@ jobs:
                   exit 0
                 fi
               else
+                git rebase --abort 2>/dev/null || true
                 git stash pop 2>/dev/null || true
                 git checkout --theirs blacklist_confidence40_ipv4.txt \
                   watchlist_confidence25to39_ipv4.txt 2>/dev/null || true

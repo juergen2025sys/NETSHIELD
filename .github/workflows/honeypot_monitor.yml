@@ -39,7 +39,7 @@ jobs:
               load_whitelist, load_fp_set, is_in_fp_set,
               is_valid_public_ipv4, is_valid_public_cidr,
               is_protected_entry, is_whitelisted,
-              parse_entries, calculate_confidence,
+              parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
@@ -167,7 +167,7 @@ jobs:
               if text:
                   # FIX BUG-WL7: use_protected_check=True → Whitelist-IPs
                   # werden bereits beim Parsen herausgefiltert.
-                  ips = parse_entries(text, use_protected_check=True)
+                  ips = _parse_entries(text, use_protected_check=True)
                   all_ips.update(ips)
                   stats[name] = len(ips)
                   print(f"  {name}: {len(ips)} IPs")
@@ -247,6 +247,7 @@ jobs:
                   exit 0
                 fi
               else
+                git rebase --abort 2>/dev/null || true
                 git stash pop 2>/dev/null || true
                 git checkout --theirs honeypot_ips.txt honeypot_report.md 2>/dev/null || true
                 git add honeypot_ips.txt honeypot_report.md 2>/dev/null || true

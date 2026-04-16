@@ -251,6 +251,7 @@ jobs:
                   exit 0
                 fi
               else
+                git rebase --abort 2>/dev/null || true
                 git stash pop 2>/dev/null || true
                 git checkout --theirs feed_health_report.md \
                   feed_health_status.json feed_urls_cache.json 2>/dev/null || true
