@@ -251,10 +251,8 @@ class TestScoring(unittest.TestCase):
 
     def test_watchlist_threshold(self):
         """Watchlist: 25-39"""
-        # 2 Feeds heute + 3 Tage alt + 1 Tag gesehen + 0 Tage bekannt
-        # = 20 + 25 + 2 + 0 = 47 (above 39, not in watchlist range)
-        # For watchlist range (25-39): 1 feed + 3 days old + 2 days seen + 14 days known
-        # = 0 + 25 + 6 + 3 = 34
+        # score_a=0 (today_count=1) + score_b=25 (days_since_last=3)
+        # + score_c=6 (days_seen=2) + score_d=3 (days_known=14) = 34
         score = calculate_confidence(
             is_hq=False, today_count=1, feed_count=1,
             days_since_last=3, days_seen=2, days_known=14
