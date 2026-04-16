@@ -1,0 +1,40 @@
+name: dependabot-heal-conflicts
+
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  heal:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Rebase or recreate conflicted Dependabot PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          now=$(date +%s)
+
+          gh pr list             --repo "$REPO"             --state open             --author "app/dependabot"             --json number,mergeStateStatus,createdAt,url |           jq -c '.[]' | while read -r pr; do
+            number=$(echo "$pr" | jq -r '.number')
+            merge_state=$(echo "$pr" | jq -r '.mergeStateStatus')
+            created_at=$(echo "$pr" | jq -r '.createdAt')
+            created_ts=$(date -d "$created_at" +%s)
+            age_days=$(( (now - created_ts) / 86400 ))
+
+            if [ "$merge_state" = "DIRTY" ]; then
+              if [ "$age_days" -ge 21 ]; then
+                gh pr comment "$number" --repo "$REPO" --body "@dependabot recreate"
+              else
+                gh pr comment "$number" --repo "$REPO" --body "@dependabot rebase"
+              fi
+            fi
+          done
