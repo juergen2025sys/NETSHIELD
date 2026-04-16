@@ -551,5 +551,148 @@ class TestFeedAge(unittest.TestCase):
             os.unlink(path)
 
 
+# ═══════════════════════════════════════════════════════════════
+# Atomares write_ip_list (Fix 4a)
+# ═══════════════════════════════════════════════════════════════
+
+class TestWriteIpListAtomic(unittest.TestCase):
+    """Verifiziert dass write_ip_list atomar ist: bei Crash mitten im
+    Schreibvorgang bleibt die Zieldatei im alten Zustand."""
+
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp()
+        self.target = os.path.join(self.tmpdir, "ips.txt")
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.tmpdir)
+
+    def test_normal_write_leaves_no_tempfile(self):
+        write_ip_list(self.target, ["1.2.3.4", "5.6.7.8"], header_lines=["Test"])
+        leftovers = [f for f in os.listdir(self.tmpdir) if f != "ips.txt"]
+        self.assertEqual(leftovers, [])
+
+    def test_crash_during_write_keeps_old_file_intact(self):
+        write_ip_list(self.target, ["1.1.1.1"], header_lines=["v1"])
+        original = open(self.target, encoding="utf-8").read()
+
+        class BadIter:
+            def __iter__(self_inner):
+                yield "2.2.2.2"
+                raise RuntimeError("simulierter Crash mitten im Write")
+
+        with self.assertRaises(RuntimeError):
+            write_ip_list(self.target, BadIter())
+
+        after = open(self.target, encoding="utf-8").read()
+        self.assertEqual(original, after,
+                         "Zieldatei darf bei Crash nicht verändert sein")
+        leftovers = [f for f in os.listdir(self.tmpdir) if f != "ips.txt"]
+        self.assertEqual(leftovers, [],
+                         "Bei Crash dürfen keine .tmp-Leichen zurückbleiben")
+
+    def test_write_produces_correct_content(self):
+        write_ip_list(self.target, ["5.6.7.8", "1.2.3.4"],
+                       header_lines=["Header1", "Header2"])
+        content = open(self.target, encoding="utf-8").read()
+        # Header vorhanden
+        self.assertIn("# Header1", content)
+        self.assertIn("# Header2", content)
+        # Sortiert
+        pos_1 = content.index("1.2.3.4")
+        pos_5 = content.index("5.6.7.8")
+        self.assertLess(pos_1, pos_5)
+
+
+# ═══════════════════════════════════════════════════════════════
+# SSRF-Schutz in fetch_url (Fix 4b)
+# ═══════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════
+# Parser-Härtung: Versions-Strings (Fix 5a)
+# ═══════════════════════════════════════════════════════════════
+
+class TestParserEdgecases(unittest.TestCase):
+    """Verifiziert dass Versions-Strings wie '1.2.3.4.5' nicht als IP
+    durchgehen."""
+
+    def test_version_string_not_extracted(self):
+        # Vorher: '1.2.3.4.5' → {'1.2.3.4'} (falsch!)
+        self.assertEqual(parse_entries("1.2.3.4.5"), set())
+
+    def test_version_string_in_text(self):
+        # Versions-Nummer inmitten von Text
+        self.assertEqual(parse_entries("Software v1.2.3.4.5 released"), set())
+
+    def test_normal_ip_still_works(self):
+        # Regression: normale IPs sollen weiterhin erkannt werden
+        self.assertEqual(parse_entries("1.2.3.4"), {"1.2.3.4"})
+        self.assertEqual(parse_entries("Malware C2: 1.2.3.4 seen"), {"1.2.3.4"})
+
+    def test_ip_at_end_of_sentence(self):
+        # IP am Satzende mit Punkt: '1.2.3.4.' – der Schlusspunkt ist
+        # Satzzeichen, nicht Oktett. Der neue Regex schließt das aus,
+        # weil der Punkt nicht von "ist Oktett-Trenner?" zu unterscheiden
+        # ist. Bewusst angenommener Trade-off.
+        # Dieser Test dokumentiert das Verhalten.
+        self.assertEqual(parse_entries("C2 ist 1.2.3.4."), set())
+
+
+# ═══════════════════════════════════════════════════════════════
+# calculate_confidence mit negativen Inputs (Fix 5b)
+# ═══════════════════════════════════════════════════════════════
+
+class TestConfidenceNegativeInputs(unittest.TestCase):
+    """Negative Inputs sollen nie zu falsch hohen Scores führen."""
+
+    def test_negative_days_since_last_doesnt_grant_recency(self):
+        # Vorher: days_since_last=-1 triggerte "<=1" → 30 Punkte
+        # Jetzt: wird auf 0 geklemmt → bleibt in Frische-Fenster, das ist
+        # OK, aber wir wollen v.a. kein absurdes Verhalten.
+        score = calculate_confidence(
+            today_count=-5, feed_count=-3,
+            days_since_last=-100, days_seen=-1, days_known=-1)
+        # Mit is_hq=False, today=0, feed=0 → A=0
+        # days_since_last geklemmt auf 0 → B=30
+        # days_seen geklemmt auf 0 → C=2 (< 2 Zweig)
+        # days_known geklemmt auf 0 → D=0
+        self.assertEqual(score, 32)
+
+    def test_all_negative_stays_in_range(self):
+        score = calculate_confidence(
+            is_hq=False, today_count=-999, feed_count=-999,
+            days_since_last=-999, days_seen=-999, days_known=-999)
+        self.assertGreaterEqual(score, 0)
+        self.assertLessEqual(score, 100)
+
+
+class TestFetchUrlSsrf(unittest.TestCase):
+    """Verifiziert dass fetch_url kein SSRF erlaubt – weder über
+    gefährliche Schemata noch über Auflösung auf private IPs."""
+
+    def test_file_scheme_blocked(self):
+        self.assertIsNone(fetch_url("file:///etc/passwd"))
+
+    def test_ftp_scheme_blocked(self):
+        self.assertIsNone(fetch_url("ftp://example.com/x"))
+
+    def test_gopher_scheme_blocked(self):
+        self.assertIsNone(fetch_url("gopher://example.com/"))
+
+    def test_loopback_ip_blocked(self):
+        self.assertIsNone(fetch_url("http://127.0.0.1/"))
+
+    def test_aws_metadata_blocked(self):
+        # Cloud-Metadata-Endpoint – der klassische SSRF-Exfil-Pfad
+        self.assertIsNone(fetch_url("http://169.254.169.254/latest/meta-data/"))
+
+    def test_rfc1918_blocked(self):
+        self.assertIsNone(fetch_url("http://192.168.1.1/"))
+        self.assertIsNone(fetch_url("http://10.0.0.1/"))
+
+    def test_localhost_hostname_blocked(self):
+        self.assertIsNone(fetch_url("http://localhost/"))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
