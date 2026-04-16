@@ -5,11 +5,12 @@ on:
     paths:
       - 'scripts/**'
       - 'tests/**'
-      - '.github/workflows/run_tests.yml'
+      - '.github/workflows/**'
   pull_request:
     paths:
       - 'scripts/**'
       - 'tests/**'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 env:
@@ -25,6 +26,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Security hygiene (SHA-Pinning, atomic writes, SSRF)
+        run: python3 scripts/check_security_hygiene.py
 
       - name: Run Unit Tests
         run: python3 -m unittest discover -s tests -v
