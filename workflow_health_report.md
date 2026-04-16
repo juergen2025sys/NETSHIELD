@@ -1,26 +1,14 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-15 20:08 UTC
+**Aktualisiert:** 2026-04-16 04:23 UTC
 
 **Workflows:** 17 | ✅ 17 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 1.0.0.1, 1.1.1.1, 3.120.0.132, 3.121.0.15, 3.121.0.226… – Filterung wirkungslos! |
-| `Production Health` | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 1.0.0.1, 3.120.0.132, 3.121.0.15, 3.121.0.226, 3.126.198.87… – Filterung wirkungslos! |
-| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 34.120.68.241 – Filterung wirkungslos! |
-
 ## 🏥 Production Health
 
-**Status:** 🔴 3 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 1.0.0.1, 1.1.1.1, 3.120.0.132, 3.121.0.15, 3.121.0.226… – Filterung wirkungslos! |
-| 🔴 CRITICAL | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 1.0.0.1, 3.120.0.132, 3.121.0.15, 3.121.0.226, 3.126.198.87… – Filterung wirkungslos! |
-| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 34.120.68.241 – Filterung wirkungslos! |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -45,4 +33,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-15 20:08 UTC | 17 Workflow-Dateien geprüft*
+*Generiert: 2026-04-16 04:23 UTC | 17 Workflow-Dateien geprüft*
