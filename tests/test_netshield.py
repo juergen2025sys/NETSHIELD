@@ -16,7 +16,7 @@ import os
 import sys
 import tempfile
 import unittest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 # Modul-Pfad einfügen
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
@@ -24,8 +24,6 @@ from netshield_common import (
     parse_entries,
     is_valid_public_ipv4,
     is_valid_public_cidr,
-    is_protected_entry,
-    is_whitelisted,
     is_in_fp_set,
     load_whitelist,
     load_fp_set,
@@ -35,11 +33,6 @@ from netshield_common import (
     sort_ips,
     write_ip_list,
     check_local_feed_age,
-    fetch_url,
-    _whitelist_networks,
-    _protected_networks,
-    _fp_ips,
-    _fp_networks,
 )
 import netshield_common
 
@@ -258,9 +251,16 @@ class TestScoring(unittest.TestCase):
 
     def test_watchlist_threshold(self):
         """Watchlist: 25-39"""
-        # 2 Feeds heute + 2 Tage alt + 2 Tage gesehen + 14 Tage bekannt
-        # = 20 + 25 + 6 + 3 = 54 (actually above 39)
-        pass
+        # 2 Feeds heute + 3 Tage alt + 1 Tag gesehen + 0 Tage bekannt
+        # = 20 + 25 + 2 + 0 = 47 (above 39, not in watchlist range)
+        # For watchlist range (25-39): 1 feed + 3 days old + 2 days seen + 14 days known
+        # = 0 + 25 + 6 + 3 = 34
+        score = calculate_confidence(
+            is_hq=False, today_count=1, feed_count=1,
+            days_since_last=3, days_seen=2, days_known=14
+        )
+        self.assertGreaterEqual(score, 25)
+        self.assertLessEqual(score, 39)
 
     def test_score_capped_at_100(self):
         score = calculate_confidence(
@@ -491,11 +491,12 @@ class TestCrashHandling(unittest.TestCase):
         """feeds ist kein List → len() sollte trotzdem funktionieren."""
         data = {"feeds": "not_a_list", "hq": True}
         try:
-            feed_count = len(data.get("feeds", []))
+            result = len(data.get("feeds", []))
         except TypeError:
-            feed_count = 0
+            result = 0
         # Strings haben len() → ergibt 10 statt 0
         # Das ist ein Edge-Case der in der Praxis nicht auftreten sollte
+        self.assertIsInstance(result, int)
 
     def test_scoring_with_extreme_values(self):
         """Score-Berechnung mit extremen Werten."""
