@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: true
 
@@ -37,7 +37,7 @@ jobs:
         # actions/cache löst automatisch einen Post-Job-Save aus und speichert
         # dabei die noch UNBEREINIGTE seen_db. Der explizite Save-Step weiter
         # unten ist die einzige korrekte Schreibquelle nach der Verarbeitung.
-        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: seen_db.json
           # FIX #3: Key enthält issue-Nummer statt run-id.
@@ -351,7 +351,7 @@ jobs:
         if: always()  # FIX: auch bei unbehandelter Exception den Cache speichern (verhindert Inkonsistenz: Log sagt ACCEPTED, seen_db verliert die IP)
         # FIX: actions/cache/save statt actions/cache – verhindert doppelten
         # Save (Restore-Step nutzt jetzt actions/cache/restore ohne Post-Job-Hook).
-        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: seen_db.json
           # FIX #3: Eindeutiger Slot pro Issue → keine gegenseitige Überschreibung
@@ -421,7 +421,7 @@ jobs:
         # Exception eine Rückmeldung im Issue erhält. Ohne diesen Guard bleibt
         # das Issue kommentarlos offen wenn der Python-Step crasht.
         if: always()
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v7
         with:
           script: |
             const fs = require('fs');
