@@ -999,8 +999,12 @@ jobs:
                       errors.append({"file": fname, "check": "Unpinned Action", "detail": msg})
                       continue
                   _ref = _action.split('@', 1)[1]
-                  # SHA-Hashes sind 40 hex chars; Tags wie v4, v7 sind kurz
-                  if len(_ref) < 40 and not _ref.startswith('$'):
+                  # SHA-Hashes sind EXAKT 40 Hex-Zeichen. Nur auf Länge zu
+                  # prüfen reicht nicht: ein Branch-Name mit >= 40 Zeichen
+                  # (z.B. 'feature-very-long-malicious-branch-name-xx') würde
+                  # als SHA durchrutschen und wäre damit ein weiterer
+                  # Supply-Chain-Angriffsvektor.
+                  if not re.fullmatch(r'[a-f0-9]{40}', _ref) and not _ref.startswith('$'):
                       msg = f"uses: {_action} – Tag statt SHA-Hash (Supply-Chain-Risiko)"
                       file_warnings.append(msg)
                       warnings.append({"file": fname, "check": "Action nicht SHA-pinned", "detail": msg})
@@ -1848,16 +1852,21 @@ jobs:
 
           for _a_name, _sha_map in _action_shas.items():
               if len(_sha_map) > 1:
-                  _newest_sha = max(_sha_map.keys(), key=lambda s: len(_sha_map[s]))
-                  _outdated = {sha: wfs for sha, wfs in _sha_map.items() if sha != _newest_sha}
+                  # Heuristik: die SHA, die in den meisten Workflows steckt,
+                  # gilt als Referenz. Ohne GitHub-API-Zugriff koennen wir
+                  # die "neueste" SHA nicht verlaesslich bestimmen – die
+                  # Mehrheits-SHA ist aber ein guter Proxy, weil vergessene
+                  # Update-PRs meist nur einzelne Dateien betreffen.
+                  _majority_sha = max(_sha_map.keys(), key=lambda s: len(_sha_map[s]))
+                  _outdated = {sha: wfs for sha, wfs in _sha_map.items() if sha != _majority_sha}
                   _outdated_files = [f for wfs in _outdated.values() for f in wfs]
                   if _outdated_files:
                       warnings.append({
                           "file": ", ".join(sorted(set(_outdated_files))[:5]),
                           "check": f"{_a_name} Version-Drift",
-                          "detail": f"{len(_outdated_files)} Datei(en) nutzen aeltere SHA als die Mehrheit – Update vergessen?",
+                          "detail": f"{len(_outdated_files)} Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht?",
                       })
-                      print(f"⚠️  {_a_name}: {len(_outdated_files)} Dateien mit aelterer SHA")
+                      print(f"⚠️  {_a_name}: {len(_outdated_files)} Dateien mit abweichender SHA")
 
           # ══════════════════════════════════════════════════════════════════
           # PRODUCTION HEALTH CHECKS (Strategie-Dokument v3)
