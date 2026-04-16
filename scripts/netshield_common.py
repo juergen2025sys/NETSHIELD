@@ -26,8 +26,8 @@ from datetime import datetime, timezone
 # Kompilierte Regex-Patterns (Modul-Ebene, einmalig)
 # ═══════════════════════════════════════════════════════════════
 
-IPV4_RE = re.compile(r'(?<!\d)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?!\d)')
-CIDR_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b')
+IPV4_RE = re.compile(r'(?<![\d.])(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?![\d.])')
+CIDR_RE = re.compile(r'(?<![\d.])(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})(?!\d)')
 TIMESTAMP_RE = re.compile(r'#\s*Aktualisiert:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\s*UTC')
 
 # RFC1918 + Loopback + Multicast + Reserved
@@ -287,7 +287,9 @@ def parse_entries(text, use_protected_check=False):
             continue
 
         # Plain IP in erster Spalte?
-        ip_m = re.match(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b', first_col)
+        # (?![\d.]) statt \b: schliesst auch nachfolgenden Punkt aus,
+        # damit '1.2.3.4.5' (Versions-String) nicht als '1.2.3.4' durchgeht.
+        ip_m = re.match(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?![\d.])', first_col)
         if ip_m:
             ip = ip_m.group(1)
             if ip_check(ip):
@@ -323,6 +325,16 @@ def calculate_confidence(is_hq=False, today_count=0, feed_count=0,
     Returns:
         int: Score 0-100
     """
+    # Negative Inputs auf 0 klemmen – solche Werte sollten nie auftreten,
+    # aber wenn die seen_db korrupt ist, sollen sie nicht versehentlich
+    # hohe Scores erzeugen (negativ < alle Schwellen → triggert den
+    # "<=1"-Zweig und vergibt volle 30 Punkte für Aktualität).
+    today_count     = max(0, today_count)
+    feed_count      = max(0, feed_count)
+    days_since_last = max(0, days_since_last)
+    days_seen       = max(0, days_seen)
+    days_known      = max(0, days_known)
+
     # [A] Quellen-Qualität
     if is_hq:
         score_a = 40
@@ -384,9 +396,43 @@ def calculate_confidence(is_hq=False, today_count=0, feed_count=0,
 # HTTP-Fetch mit Retry
 # ═══════════════════════════════════════════════════════════════
 
+def _is_safe_public_host(hostname):
+    """True wenn der Hostname ausschließlich auf öffentliche IPs auflöst.
+
+    Schützt fetch_url gegen SSRF: kein localhost, kein RFC1918,
+    kein Link-Local (inkl. 169.254.169.254 Cloud-Metadata), kein Loopback,
+    keine Carrier-Grade NAT (100.64.0.0/10), keine Multicast/Reserved.
+    """
+    import socket
+    try:
+        infos = socket.getaddrinfo(hostname, None)
+    except socket.gaierror:
+        return False
+    for info in infos:
+        addr = info[4][0]
+        try:
+            ip = ipaddress.ip_address(addr)
+        except ValueError:
+            return False
+        if (ip.is_private or ip.is_loopback or ip.is_link_local
+                or ip.is_multicast or ip.is_reserved or ip.is_unspecified):
+            return False
+        # Gürtel + Hosenträger: is_global excluded auch Carrier-Grade NAT
+        # (100.64/10) und einige weitere Reserved-Ranges explizit.
+        if not ip.is_global:
+            return False
+    return True
+
+
 def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
               read_limit=25 * 1024 * 1024):
     """Fetcht eine URL mit exponentiellem Backoff.
+
+    Sicherheit:
+        - Nur http/https als Schema (kein file://, ftp://, gopher://).
+        - Host muss auf öffentliche IP auflösen (kein SSRF gegen
+          localhost, RFC1918 oder Cloud-Metadata wie 169.254.169.254).
+        - Gleicher Check wird bei Redirects erneut durchgeführt.
 
     Args:
         url: Ziel-URL.
@@ -401,11 +447,35 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
     import time
     import urllib.request
     import urllib.error
+    import urllib.parse
+
+    def _validate(u):
+        parsed = urllib.parse.urlparse(u)
+        if parsed.scheme not in ("http", "https"):
+            print(f"  FEHLER Schema nicht erlaubt: {parsed.scheme}://")
+            return False
+        if not parsed.hostname:
+            print(f"  FEHLER kein Hostname in URL: {u}")
+            return False
+        if not _is_safe_public_host(parsed.hostname):
+            print(f"  FEHLER Host nicht öffentlich (SSRF-Schutz): {parsed.hostname}")
+            return False
+        return True
+
+    if not _validate(url):
+        return None
+
+    class _SafeRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            if not _validate(newurl):
+                raise urllib.error.URLError(
+                    f"Redirect zu unsicherem Ziel blockiert: {newurl}")
+            return super().redirect_request(req, fp, code, msg, headers, newurl)
 
     for attempt in range(1, retries + 1):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": user_agent})
-            opener = urllib.request.build_opener(urllib.request.HTTPRedirectHandler())
+            opener = urllib.request.build_opener(_SafeRedirect())
             with opener.open(req, timeout=timeout) as r:
                 return r.read(read_limit).decode("utf-8", errors="ignore")
         except urllib.error.HTTPError as e:
@@ -463,7 +533,7 @@ def check_local_feed_age(filepath, max_age_hours=48):
     if not os.path.exists(filepath):
         return None
     try:
-        with open(filepath) as f:
+        with open(filepath, encoding="utf-8", errors="ignore") as f:
             header = f.read(4096)
         m = TIMESTAMP_RE.search(header)
         if not m:
@@ -494,18 +564,45 @@ def sort_ips(ip_list):
 
 
 def write_ip_list(filepath, ips, header_lines=None):
-    """Schreibt eine sortierte IP-Liste mit Header.
+    """Schreibt eine sortierte IP-Liste mit Header – atomar.
+
+    Schreibt erst in eine temporäre Datei im selben Verzeichnis und
+    benennt sie dann per os.replace() um. Damit bleibt die Zieldatei
+    bei Crash/Kill/OOM garantiert in einem konsistenten Zustand:
+    entweder kompletter alter Inhalt oder kompletter neuer Inhalt,
+    niemals eine halb geschriebene Datei.
+
+    Wichtig: tempfile im selben Verzeichnis, weil os.replace über
+    Filesystem-Grenzen hinweg nicht atomar ist.
 
     Args:
         filepath: Zieldatei.
         ips: Iterable von IPs/CIDRs.
         header_lines: Liste von Kommentarzeilen (ohne #-Prefix).
     """
+    import tempfile
     sorted_list = sort_ips(ips)
-    with open(filepath, "w", encoding="utf-8") as f:
-        if header_lines:
-            for line in header_lines:
-                f.write(f"# {line}\n")
-            f.write("\n")
-        f.write("\n".join(sorted_list) + "\n")
+    target_dir = os.path.dirname(os.path.abspath(filepath)) or "."
+    fd, tmp_path = tempfile.mkstemp(
+        prefix=f".{os.path.basename(filepath)}.",
+        suffix=".tmp",
+        dir=target_dir,
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            if header_lines:
+                for line in header_lines:
+                    f.write(f"# {line}\n")
+                f.write("\n")
+            f.write("\n".join(sorted_list) + "\n")
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, filepath)
+    except Exception:
+        # Bei Fehler das tempfile wieder entfernen statt Leichen zu lassen
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+        raise
     return sorted_list
