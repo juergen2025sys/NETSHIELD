@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-04-16 23:25 UTC  
+**Aktualisiert:** 2026-04-17 23:24 UTC  
 **Quelle:** [github.com/lula73/bot-detector](https://github.com/lula73/bot-detector)
 
 ---
@@ -18,4 +18,4 @@
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-04-16 23:25 UTC*
+*Generiert: 2026-04-17 23:24 UTC*
