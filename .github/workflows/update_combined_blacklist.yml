@@ -581,7 +581,7 @@ jobs:
           with ThreadPoolExecutor(max_workers=15) as executor:
               futures = {executor.submit(fetch_ips, n, u): n for n, (u, _) in REST_SOURCES.items()}
               try:
-                  for future in as_completed(futures, timeout=580):
+                  for future in as_completed(futures, timeout=880):
                       name, ips = future.result()
                       _ingest(name, ips)
               except TimeoutError:
@@ -589,7 +589,7 @@ jobs:
                   for f in futures:
                       if not f.done():
                           f.cancel()
-                  print(f"::warning file=update_combined_blacklist.yml::Haupt-Feed-Timeout nach 600s – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:10])}{'…' if len(pending) > 10 else ''}")
+                  print(f"::warning file=update_combined_blacklist.yml::Haupt-Feed-Timeout nach 900s – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:10])}{'…' if len(pending) > 10 else ''}")
                   print(f"WARNUNG: Haupt-Feed-Block Timeout – {len(pending)} Feed(s) abgebrochen, bereits geladene Feeds werden weiterverarbeitet")
 
           # ── Lokale Sub-Workflow-Dateien einlesen ───────────────────────────
@@ -1287,29 +1287,37 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # ── Pre-Flight-Guard: Keine Datei >= 100 MB stagen ─────────────
+          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
+          # Split-Parts (falls erzeugt) und geloeschte Parts auch stagen
+          git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
+          git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
+
+          # ── Pre-Flight-Guard: Keine gestagete Datei >= 100 MB ──────────
           # GitHub lehnt Push bei Dateien > 100 MB hart ab. Falls die
           # Groessen-Schaetzung in der Split-Logik danebenlag (z.B. weil
           # avg-line-length vom Sample abweicht), faengt dieser Check es
           # ab BEVOR der Commit passiert. Besser hier hart fehlschlagen
           # als 5 Push-Versuche mit Rebase-Loop und Datenverlust.
-          oversized=$(find . -type f -size +99M \
-              -not -path './.git/*' \
-              -not -path './node_modules/*' 2>/dev/null || true)
-          if [ -n "$oversized" ]; then
-              echo "::error file=update_combined_blacklist.yml::Pre-Flight-Guard: Datei(en) >= 100 MB gefunden – Push waere unmoeglich:"
-              echo "$oversized" | while read -r f; do
+          # WICHTIG: Nur STAGED files pruefen – nicht das Working-Dir.
+          # seen_db.json (~1 GB) lebt im Working-Dir (gitignored, nur im
+          # Actions-Cache), darf den Guard also nicht triggern.
+          oversized=""
+          while IFS= read -r f; do
+              [ -z "$f" ] && continue
+              [ ! -f "$f" ] && continue
+              sz_bytes=$(stat -c%s "$f" 2>/dev/null || echo 0)
+              if [ "$sz_bytes" -ge 104857600 ]; then
                   sz=$(du -h "$f" 2>/dev/null | cut -f1)
-                  echo "  $f ($sz)"
-              done
-              echo "FEHLER: Abbruch vor git add – nichts wird committet."
+                  oversized="${oversized}  ${f} (${sz})"$'\n'
+              fi
+          done < <(git diff --staged --name-only --diff-filter=ACMR)
+          if [ -n "$oversized" ]; then
+              echo "::error file=update_combined_blacklist.yml::Pre-Flight-Guard: Gestagete Datei(en) >= 100 MB gefunden – Push waere unmoeglich:"
+              printf '%s' "$oversized"
+              echo "FEHLER: Abbruch vor git commit – nichts wird committet."
+              git reset >/dev/null 2>&1 || true
               exit 1
           fi
-
-          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
-          # Split-Parts (falls erzeugt) und geloeschte Parts auch stagen
-          git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
-          git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
