@@ -957,17 +957,68 @@ jobs:
           # verhindert halb geschriebene Datei bei Runner-OOM/SIGKILL.
           # Die Datei bleibt bei Crash entweder komplett alt oder komplett
           # neu – Garantie über os.replace() + fsync.
-          write_ip_list(
-              "combined_threat_blacklist_ipv4.txt",
-              sorted_ips,
-              header_lines=[
-                  "NETSHIELD Combined Threat Blacklist (IPv4) – Stufe 1",
-                  f"Aktualisiert: {now_stamp}",
-                  f"Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}",
-                  f"Eintraege: {len(sorted_ips)}",
-                  f"Abgelaufen entfernt: {len(expired)}",
-              ],
-          )
+          #
+          # FIX HARD-LIMIT: Groesse VOR dem Schreiben schaetzen. Wenn die
+          # Hauptdatei >= HARD_LIMIT_MB waere, Truncate-Fallback: nur die
+          # ersten N IPs schreiben, sodass die Datei unter dem Limit bleibt.
+          # Die Vollstaendigkeit kommt in den Parts. Ohne diesen Check
+          # wuerde git push hart fehlschlagen und der komplette Run
+          # (inkl. korrekt erzeugter Parts) ginge verloren.
+          HARD_LIMIT_MB = 100  # GitHub Push-Limit (auch unten verwendet)
+          TRUNCATE_TARGET_MB = 95  # Sicherheitspuffer unter HARD_LIMIT_MB
+
+          # Schaetzung: avg bytes/line aus einem STRATIFIZIERTEN Sample.
+          # sorted_ips ist numerisch sortiert, niedrige Oktette (1.x.x.x) sind
+          # kuerzer als hohe (223.x.x.x). Ein Sample vom Anfang unterschaetzt
+          # daher systematisch um ~15-20%. Gleichverteiltes Sample via Stride
+          # bringt den Fehler auf <0.1%.
+          _step = max(1, len(sorted_ips) // 10_000)
+          _sample = sorted_ips[::_step][:10_000] if sorted_ips else []
+          _avg_line = (sum(len(s) + 1 for s in _sample) / len(_sample)) if _sample else 16
+          _header_overhead = 512  # grosszuegig fuer 5 Kommentarzeilen
+          # +2% Sicherheitsaufschlag fuer Sample-Restunschaerfe
+          estimated_mb = (len(sorted_ips) * _avg_line * 1.02 + _header_overhead) / 1024 / 1024
+          print(f"\nGeschaetzte Groesse combined (ungesplittet): {estimated_mb:.1f} MB")
+
+          if estimated_mb >= HARD_LIMIT_MB:
+              # Truncate: wie viele IPs passen in TRUNCATE_TARGET_MB?
+              max_ips = int((TRUNCATE_TARGET_MB * 1024 * 1024 - _header_overhead) / _avg_line)
+              max_ips = max(1000, min(max_ips, len(sorted_ips)))
+              truncated_ips = sorted_ips[:max_ips]
+              dropped = len(sorted_ips) - max_ips
+              trunc_msg = (
+                  f"Hauptdatei wuerde {estimated_mb:.1f} MB (>= {HARD_LIMIT_MB} MB "
+                  f"GitHub-Limit) – TRUNCATE auf {max_ips:,} IPs (~{TRUNCATE_TARGET_MB} MB). "
+                  f"{dropped:,} IPs ausschliesslich in Parts. Consumer auf Parts umstellen!"
+              )
+              print(f"::warning file=update_combined_blacklist.yml::{trunc_msg}")
+              print(f"WARNUNG: {trunc_msg}")
+              write_ip_list(
+                  "combined_threat_blacklist_ipv4.txt",
+                  truncated_ips,
+                  header_lines=[
+                      "NETSHIELD Combined Threat Blacklist (IPv4) – Stufe 1 [TRUNCATED]",
+                      f"Aktualisiert: {now_stamp}",
+                      f"Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}",
+                      f"Eintraege in dieser Datei: {max_ips} (von {len(sorted_ips)} gesamt)",
+                      f"WICHTIG: {dropped} IPs NICHT in dieser Datei enthalten "
+                      f"(GitHub-Hard-Limit 100 MB).",
+                      "Fuer vollstaendigen Schutz: combined_threat_blacklist_ipv4_part*.txt verwenden.",
+                      f"Abgelaufen entfernt: {len(expired)}",
+                  ],
+              )
+          else:
+              write_ip_list(
+                  "combined_threat_blacklist_ipv4.txt",
+                  sorted_ips,
+                  header_lines=[
+                      "NETSHIELD Combined Threat Blacklist (IPv4) – Stufe 1",
+                      f"Aktualisiert: {now_stamp}",
+                      f"Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}",
+                      f"Eintraege: {len(sorted_ips)}",
+                      f"Abgelaufen entfernt: {len(expired)}",
+                  ],
+              )
 
           # ── Split-Logik fuer grosse Dateien ───────────────────────────
           # GitHub lehnt Push bei Dateien > 100 MB ab. Sobald combined
@@ -978,19 +1029,23 @@ jobs:
           import glob
           SPLIT_THRESHOLD_MB = 90     # ab hier Parts erzeugen
           PART_TARGET_MB     = 40     # Groesse pro Part
-          HARD_LIMIT_MB      = 100    # GitHub Push-Limit
+          # HARD_LIMIT_MB bereits oben definiert (Truncate-Fallback)
 
           combined_size_mb = os.path.getsize("combined_threat_blacklist_ipv4.txt") / 1024 / 1024
-          print(f"\ncombined_threat_blacklist_ipv4.txt: {combined_size_mb:.1f} MB")
+          print(f"\ncombined_threat_blacklist_ipv4.txt (tatsaechlich): {combined_size_mb:.1f} MB")
 
           # Existierende Parts sammeln (zum Aufraeumen wenn nicht mehr noetig)
           existing_parts = sorted(glob.glob("combined_threat_blacklist_ipv4_part*.txt"))
 
-          if combined_size_mb >= SPLIT_THRESHOLD_MB:
+          # WICHTIG: Split-Entscheidung auf Basis der VOLLSTAENDIGEN Liste
+          # (estimated_mb), nicht der evtl. truncatierten Hauptdatei. Bei Truncate
+          # muessen die Parts zwingend existieren, weil sie die einzige
+          # vollstaendige Quelle sind.
+          if estimated_mb >= SPLIT_THRESHOLD_MB:
               # Ziel: ~PART_TARGET_MB pro Part. Wir splitten nach Zeilen-Anzahl
               # proportional zur Gesamtgroesse (deterministisch auf der bereits
               # sortierten Liste – die Reihenfolge bleibt stabil).
-              num_parts = max(2, int((combined_size_mb / PART_TARGET_MB) + 0.5))
+              num_parts = max(2, int((estimated_mb / PART_TARGET_MB) + 0.5))
               chunk_size = (len(sorted_ips) + num_parts - 1) // num_parts
 
               print(f"  -> Split aktiv: {num_parts} Parts a ~{PART_TARGET_MB} MB "
@@ -1027,15 +1082,9 @@ jobs:
                       except OSError:
                           pass
 
-              # Warnung wenn Haupt-Datei hartes Limit erreicht
-              if combined_size_mb >= HARD_LIMIT_MB:
-                  msg = (f"combined_threat_blacklist_ipv4.txt ist {combined_size_mb:.1f} MB "
-                         f"(>= {HARD_LIMIT_MB} MB GitHub-Limit). Push koennte fehlschlagen. "
-                         f"Parts sind vorhanden – Konsumenten auf Parts umstellen.")
-                  print(f"::error file=update_combined_blacklist.yml::{msg}")
-                  print(f"FEHLER: {msg}")
-              elif combined_size_mb >= SPLIT_THRESHOLD_MB:
-                  msg = (f"combined_threat_blacklist_ipv4.txt ist {combined_size_mb:.1f} MB "
+              # Info-Ausgabe (Truncate-Warnung wurde bereits oben geloggt)
+              if estimated_mb < HARD_LIMIT_MB:
+                  msg = (f"Vollliste waere {estimated_mb:.1f} MB "
                          f"(>= {SPLIT_THRESHOLD_MB} MB). Parts erzeugt als Reserve.")
                   print(f"::warning file=update_combined_blacklist.yml::{msg}")
                   print(f"WARNUNG: {msg}")
@@ -1233,6 +1282,26 @@ jobs:
           PYEOF
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # ── Pre-Flight-Guard: Keine Datei >= 100 MB stagen ─────────────
+          # GitHub lehnt Push bei Dateien > 100 MB hart ab. Falls die
+          # Groessen-Schaetzung in der Split-Logik danebenlag (z.B. weil
+          # avg-line-length vom Sample abweicht), faengt dieser Check es
+          # ab BEVOR der Commit passiert. Besser hier hart fehlschlagen
+          # als 5 Push-Versuche mit Rebase-Loop und Datenverlust.
+          oversized=$(find . -type f -size +99M \
+              -not -path './.git/*' \
+              -not -path './node_modules/*' 2>/dev/null || true)
+          if [ -n "$oversized" ]; then
+              echo "::error file=update_combined_blacklist.yml::Pre-Flight-Guard: Datei(en) >= 100 MB gefunden – Push waere unmoeglich:"
+              echo "$oversized" | while read -r f; do
+                  sz=$(du -h "$f" 2>/dev/null | cut -f1)
+                  echo "  $f ($sz)"
+              done
+              echo "FEHLER: Abbruch vor git add – nichts wird committet."
+              exit 1
+          fi
+
           git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
           # Split-Parts (falls erzeugt) und geloeschte Parts auch stagen
           git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
