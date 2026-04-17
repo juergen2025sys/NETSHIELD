@@ -1,6 +1,7 @@
 
 
 
+
 <div align="center">
 
 # 🛡️ NETSHIELD
@@ -81,6 +82,8 @@ iptables -I INPUT -m set --match-set netshield src -j DROP
 | [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **17,950**                                                                                                                                                           | Web-Schutz |
 | [`abuseipdb_api_blacklist.txt`](abuseipdb_api_blacklist.txt) | AbuseIPDB Top-IPs (API, Score ≥50) | **9,978**                                                                                                                                                           | Ergänzung |
 | [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥ 50 | **19**                                                                                                                                                           | ASN-Blocking |
+
+> **Hinweis zur `combined_threat_blacklist_ipv4.txt`:** Wenn die Datei über 90 MB wächst, werden zusätzlich Parts `combined_threat_blacklist_ipv4_part1.txt`, `_part2.txt` (etc.) mit je ca. 40 MB erzeugt. Die Hauptdatei bleibt bestehen, solange sie unter 100 MB ist (GitHub-Limit). Firewall-Konsumenten, die am GitHub-Limit angestoßen werden, sollten stattdessen die Parts als separate URLs importieren.
 
 ### Geo-Listen
 
