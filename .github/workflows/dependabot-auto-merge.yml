@@ -4,14 +4,19 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
+# Least-Privilege: contents: read reicht – auto-merge geht über die
+# GitHub-API (gh pr merge), nicht per git push. Kein Commit-Schreibrecht
+# nötig.
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
 
 jobs:
   automerge:
     if: github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: ubuntu-latest
+    # Guard gegen haengende Runs (Default: 360min)
+    timeout-minutes: 10
 
     steps:
       - name: Fetch Dependabot metadata

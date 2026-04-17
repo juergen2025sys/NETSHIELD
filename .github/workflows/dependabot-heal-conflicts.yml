@@ -9,9 +9,17 @@ permissions:
   issues: write
   pull-requests: write
 
+# Guard gegen parallele Runs wenn scheduled + manueller Trigger kollidieren.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 jobs:
   heal:
     runs-on: ubuntu-latest
+    # Guard gegen haengende Runs (Default: 360min). Der Loop ueber PRs
+    # sollte in wenigen Minuten durchlaufen.
+    timeout-minutes: 15
 
     steps:
       - name: Rebase or recreate conflicted Dependabot PRs

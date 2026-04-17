@@ -636,7 +636,7 @@ jobs:
           # SYNC EXPIRY: Werte identisch mit update_combined_blacklist.yml.
           # Änderungen IMMER in beiden Dateien synchron vornehmen.
           EXPIRY_DAYS         = 180
-          WATCHLIST_EXPIRY_DAYS = 180
+          WATCHLIST_EXPIRY_DAYS = 30
           cutoff    = now - timedelta(days=EXPIRY_DAYS)
           cutoff_wl = now - timedelta(days=WATCHLIST_EXPIRY_DAYS)
           # Collect keys to expire first, then delete in a separate pass
