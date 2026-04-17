@@ -337,12 +337,17 @@ jobs:
               print(f"WARNUNG: {msg}")
               sys.exit(1)
 
-          with open(HONEYDB_FILE, "w", encoding="utf-8") as f:
-              f.write(f"# NETSHIELD HoneyDB IP Blocklist\n")
-              f.write(f"# Aktualisiert: {now_str}\n")
-              f.write(f"# Quelle: honeydb.io (Community Honeypot Network)\n")
-              f.write(f"# Gesamt: {len(final_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt\n\n")
-              f.write("\n".join(final_ips) + "\n")
+          # FIX ATOMIC: write_ip_list statt open("w") – Crash-sicher.
+          write_ip_list(
+              HONEYDB_FILE,
+              final_ips,
+              header_lines=[
+                  "NETSHIELD HoneyDB IP Blocklist",
+                  f"Aktualisiert: {now_str}",
+                  "Quelle: honeydb.io (Community Honeypot Network)",
+                  f"Gesamt: {len(final_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt",
+              ],
+          )
 
           print(f"  {HONEYDB_FILE}: {len(final_ips)} IPs geschrieben")
 

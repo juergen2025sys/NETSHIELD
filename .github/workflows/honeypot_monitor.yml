@@ -217,11 +217,16 @@ jobs:
               print(f"WARNUNG: {msg}")
               sys.exit(1)
 
-          with open(HONEYPOT_FILE, "w", encoding="utf-8") as f:
-              f.write(f"# NETSHIELD Honeypot IP Blocklist\n")
-              f.write(f"# Aktualisiert: {now_str}\n")
-              f.write(f"# Quellen: {len(HONEYPOT_SOURCES)} | Gesamt: {len(final_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt\n\n")
-              f.write("\n".join(final_ips) + "\n")
+          # FIX ATOMIC: write_ip_list statt open("w") – Crash-sicher.
+          write_ip_list(
+              HONEYPOT_FILE,
+              final_ips,
+              header_lines=[
+                  "NETSHIELD Honeypot IP Blocklist",
+                  f"Aktualisiert: {now_str}",
+                  f"Quellen: {len(HONEYPOT_SOURCES)} | Gesamt: {len(final_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt",
+              ],
+          )
 
           print(f"Fertig: {len(final_ips)} Honeypot-IPs")
           EOF
