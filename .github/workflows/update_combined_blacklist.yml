@@ -392,7 +392,9 @@ jobs:
               # ── AbuseIPDB ─────────────────────────────────────────────────
               "abuseipdb_s100_30d":         ("https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-30d.ipv4", True),
               "abuseipdb_s100_7d":          ("https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-7d.ipv4", True),  # ersetzt abuseipdb_s90_30d
-              "abuseipdb_tmiland":          ("https://abuseipdb.tmiland.com/abuseipdb.txt", False),
+              # abuseipdb_tmiland entfernt: SSL Hostname-Mismatch (Cert nicht fuer
+              # abuseipdb.tmiland.com gueltig) – dauerhafter Fehler auf Server-Seite.
+              # AbuseIPDB-Daten werden durch andere abuseipdb_* Feeds abgedeckt.
               "abuseipdb_score75":          ("https://raw.githubusercontent.com/LittleJake/ip-blacklist/refs/heads/main/abuseipdb_blacklist_ip_score_75.txt", False),
               "abuseipdb_score100":         ("https://raw.githubusercontent.com/LittleJake/ip-blacklist/refs/heads/main/abuseipdb_blacklist_ip_score_100.txt", True),
               "abuseipdb_scriptzteam":      ("https://raw.githubusercontent.com/scriptzteam/AbuseIPDB-BlackList/refs/heads/main/abuseipdb_blacklist.txt", False),
