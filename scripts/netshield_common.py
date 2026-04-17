@@ -237,8 +237,26 @@ def parse_entries(text, use_protected_check=False):
     ip_check = (lambda ip: not is_protected_entry(ip)) if use_protected_check else is_valid_public_ipv4
     cidr_check = (lambda c: not is_protected_entry(c)) if use_protected_check else is_valid_public_cidr
 
+    # Defensiv: Wenn ein Feed None zurückliefert (fetch_url-Timeout,
+    # Corrupt-Download, leerer JSON-Wert), soll der Parser nicht crashen.
+    # Auch Bytes werden toleriert, falls ein Upstream-Fetch nicht dekodiert.
+    if text is None:
+        return set()
+    if isinstance(text, bytes):
+        try:
+            text = text.decode("utf-8", errors="replace")
+        except Exception:
+            return set()
+    if not isinstance(text, str):
+        return set()
+
     entries = set()
     for raw_line in text.splitlines():
+        # Zeilen mit Null-Bytes (Binärmüll, Dateikorruption) komplett
+        # verwerfen statt Null-Bytes zu strippen und die IP dann doch zu
+        # akzeptieren. Legitime IP-Feeds enthalten keine Null-Bytes.
+        if "\x00" in raw_line:
+            continue
         line = raw_line.strip()
         if not line or line.startswith('#') or line.startswith(';') or line.startswith('//'):
             continue
@@ -325,6 +343,24 @@ def calculate_confidence(is_hq=False, today_count=0, feed_count=0,
     Returns:
         int: Score 0-100
     """
+    # Typ-Koerzierung VOR dem Clamp: Wenn seen_db korrupt ist (None, "5",
+    # float aus fremden Tools) muss der Score-Aufruf nicht crashen, sondern
+    # einen definierten Default liefern. Ohne die Koerzierung würde
+    # `max(0, None)` oder `today_count >= 5` mit String-Input einen
+    # TypeError werfen und den gesamten Main-Loop killen.
+    def _int_or(val, default):
+        try:
+            return int(val) if val is not None else default
+        except (TypeError, ValueError):
+            return default
+
+    today_count     = _int_or(today_count,     0)
+    feed_count      = _int_or(feed_count,      0)
+    days_since_last = _int_or(days_since_last, 999)
+    days_seen       = _int_or(days_seen,       1)
+    days_known      = _int_or(days_known,      0)
+    is_hq           = bool(is_hq)
+
     # Negative Inputs auf 0 klemmen – solche Werte sollten nie auftreten,
     # aber wenn die seen_db korrupt ist, sollen sie nicht versehentlich
     # hohe Scores erzeugen (negativ < alle Schwellen → triggert den
