@@ -462,16 +462,31 @@ class TestCrashHandling(unittest.TestCase):
     """Simuliert korrupte seen_db-Einträge."""
 
     def test_none_entry(self):
-        data = None
-        self.assertFalse(isinstance(data, dict))
+        """Regression: parse_entries(None) darf nicht crashen.
+        Vorher vacuous (nur isinstance-Check), jetzt echter Call."""
+        self.assertEqual(parse_entries(None), set())
 
     def test_empty_string_entry(self):
-        data = ""
-        self.assertFalse(isinstance(data, dict))
+        """Regression: parse_entries('') gibt leeres Set zurück."""
+        self.assertEqual(parse_entries(""), set())
 
     def test_integer_entry(self):
-        data = 42
-        self.assertFalse(isinstance(data, dict))
+        """Regression: parse_entries(42) darf nicht crashen."""
+        self.assertEqual(parse_entries(42), set())
+
+    def test_bytes_entry(self):
+        """Bytes werden dekodiert statt zu crashen."""
+        self.assertEqual(parse_entries(b"1.2.3.4"), {"1.2.3.4"})
+
+    def test_null_byte_line_rejected(self):
+        """Zeilen mit Null-Bytes werden verworfen (Binärmüll-Schutz).
+        Vorher: parse_entries('1.2.3.4\\x00') → {'1.2.3.4'} (akzeptiert)."""
+        self.assertEqual(parse_entries("1.2.3.4\x00"), set())
+        # Benachbarte saubere Zeilen bleiben erhalten
+        self.assertEqual(
+            parse_entries("1.2.3.4\n5.6.7.8\x00\n9.10.11.12"),
+            {"1.2.3.4", "9.10.11.12"},
+        )
 
     def test_missing_fields(self):
         data = {"feeds": []}
@@ -516,6 +531,48 @@ class TestCrashHandling(unittest.TestCase):
         # days_since_last=-1 < 1 → score_b=30, days_seen=-1 < 1 → score_c=2
         self.assertGreaterEqual(score, 0)
         self.assertLessEqual(score, 100)
+
+    # ─── Type-Corruption-Tests (vorher ungetestet) ───────────────────
+    # Regression: Vor der Typ-Koerzierung führten korrupte seen_db-Werte
+    # (None, strings aus fremden Tools, float) zum TypeError und killten
+    # den gesamten Main-Loop. Die Tests stellen sicher, dass der Score
+    # einen definierten Default-Wert liefert statt zu crashen.
+
+    def test_scoring_with_string_today_count(self):
+        """today_count='5' (str) darf nicht crashen – wird zu int(5) gecastet."""
+        score = calculate_confidence(today_count="5")
+        self.assertIsInstance(score, int)
+        self.assertGreaterEqual(score, 0)
+        self.assertLessEqual(score, 100)
+
+    def test_scoring_with_none_fields(self):
+        """None an beliebigem Feld darf nicht crashen."""
+        score = calculate_confidence(
+            today_count=None, feed_count=None,
+            days_since_last=None, days_seen=None, days_known=None
+        )
+        self.assertIsInstance(score, int)
+        self.assertGreaterEqual(score, 0)
+        self.assertLessEqual(score, 100)
+
+    def test_scoring_with_unparseable_string(self):
+        """'abc' fällt auf Default zurück – kein Crash."""
+        score = calculate_confidence(today_count="abc", feed_count="xyz")
+        self.assertIsInstance(score, int)
+        self.assertGreaterEqual(score, 0)
+
+    def test_scoring_with_float(self):
+        """Float-Werte werden zu int gecastet (3.7 → 3)."""
+        score = calculate_confidence(today_count=3.7)
+        self.assertIsInstance(score, int)
+        # today_count=3 → score_a=28
+        self.assertEqual(score, 28 + 0 + 2 + 0)  # a=28, b=0(default 999), c=2(default 1), d=0
+
+    def test_scoring_string_equivalent_to_int(self):
+        """today_count='5' muss denselben Score geben wie today_count=5."""
+        score_str = calculate_confidence(today_count="5")
+        score_int = calculate_confidence(today_count=5)
+        self.assertEqual(score_str, score_int)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -602,6 +659,45 @@ class TestWriteIpListAtomic(unittest.TestCase):
         pos_1 = content.index("1.2.3.4")
         pos_5 = content.index("5.6.7.8")
         self.assertLess(pos_1, pos_5)
+
+    def test_sigkill_before_replace_keeps_original_intact(self):
+        """Realistischerer Crash-Test: SIGKILL genau vor os.replace().
+
+        Der existierende RuntimeError-Test läuft durch den except-Branch
+        (der die tempfile aufräumt). SIGKILL bypasst except – die Zieldatei
+        muss trotzdem unversehrt bleiben, weil os.replace() entweder atomar
+        durchläuft oder gar nicht."""
+        import subprocess
+        import signal
+        # Originaldatei anlegen
+        write_ip_list(self.target, ["9.9.9.9"], header_lines=["original"])
+        original = open(self.target, encoding="utf-8").read()
+
+        # Kindprozess: write_ip_list aufrufen, aber os.replace
+        # monkey-patchen, sodass er sich vorher selbst killt.
+        script = f"""
+import sys, os, signal
+sys.path.insert(0, {os.path.join(os.path.dirname(__file__), "..", "scripts")!r})
+from netshield_common import write_ip_list
+_real_replace = os.replace
+def _kill_before_replace(src, dst):
+    os.kill(os.getpid(), signal.SIGKILL)
+os.replace = _kill_before_replace
+write_ip_list({self.target!r}, ["8.8.8.8", "7.7.7.7"], header_lines=["new"])
+"""
+        result = subprocess.run(
+            [sys.executable, "-c", script],
+            capture_output=True, timeout=10,
+        )
+        # Prozess sollte durch SIGKILL beendet worden sein (rc=-9)
+        self.assertEqual(result.returncode, -signal.SIGKILL,
+                         f"Erwartet SIGKILL, bekam rc={result.returncode}")
+
+        # Zieldatei muss Originalinhalt haben – halb geschrieben ist
+        # NICHT akzeptabel.
+        after = open(self.target, encoding="utf-8").read()
+        self.assertEqual(original, after,
+                         "Zieldatei muss bei SIGKILL unversehrt bleiben")
 
 
 # ═══════════════════════════════════════════════════════════════
