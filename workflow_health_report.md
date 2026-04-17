@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-16 20:05 UTC
+**Aktualisiert:** 2026-04-17 04:21 UTC
 
 **Workflows:** 19 | ✅ 17 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
@@ -12,12 +12,16 @@
 | `dependabot-auto-merge.yml` | Permissions zu breit | permissions: contents: write gesetzt aber kein git commit/push erkennbar – Least-Privilege-Verletzung |
 | `dependabot-heal-conflicts.yml` | Concurrency fehlt | Kein concurrency-Block – parallele Runs möglich bei manuell + scheduled gleichzeitig |
 | `dependabot-heal-conflicts.yml` | timeout-minutes fehlt | Job 'heal' hat kein timeout-minutes – haengende Runs verbrauchen bis zu 360min |
+| `Cross-Workflow` | WATCHLIST_EXPIRY_DAYS Inkonsistenz | Verschiedene WATCHLIST_EXPIRY_DAYS: 30d in update_combined_blacklist.yml; 180d in auto_feed_discovery.yml |
+| `Production Health` | Feed-Ausfälle | 2 von 99 Feeds ausgefallen: abuseipdb_tmiland, c2_tracker |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🟡 WARN | Feed-Ausfälle | 2 von 99 Feeds ausgefallen: abuseipdb_tmiland, c2_tracker |
 
 ## Übersicht
 
@@ -44,4 +48,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-16 20:05 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-04-17 04:21 UTC | 19 Workflow-Dateien geprüft*

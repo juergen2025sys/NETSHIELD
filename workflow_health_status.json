@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-16 20:05 UTC",
+  "updated": "2026-04-17 04:21 UTC",
   "total": 19,
   "ok": 17,
   "warn": 2,
@@ -25,19 +25,35 @@
       "file": "dependabot-heal-conflicts.yml",
       "check": "timeout-minutes fehlt",
       "detail": "Job 'heal' hat kein timeout-minutes \u2013 haengende Runs verbrauchen bis zu 360min"
+    },
+    {
+      "file": "Cross-Workflow",
+      "check": "WATCHLIST_EXPIRY_DAYS Inkonsistenz",
+      "detail": "Verschiedene WATCHLIST_EXPIRY_DAYS: 30d in update_combined_blacklist.yml; 180d in auto_feed_discovery.yml"
+    },
+    {
+      "file": "Production Health",
+      "check": "Feed-Ausf\u00e4lle",
+      "detail": "2 von 99 Feeds ausgefallen: abuseipdb_tmiland, c2_tracker"
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4575707,
-    "active_blacklist_ipv4.txt": 2605269,
-    "blacklist_confidence40_ipv4.txt": 3279852,
+    "combined_threat_blacklist_ipv4.txt": 4611042,
+    "active_blacklist_ipv4.txt": 2614666,
+    "blacklist_confidence40_ipv4.txt": 3315594,
     "cve_exploit_ips.txt": 54730,
-    "honeypot_ips.txt": 7490,
+    "honeypot_ips.txt": 8106,
     "bot_detector_blacklist_ipv4.txt": 17950
   },
   "production_health": {
     "critical": 0,
-    "warn": 0,
-    "checks": []
+    "warn": 1,
+    "checks": [
+      {
+        "level": "WARN",
+        "check": "Feed-Ausf\u00e4lle",
+        "detail": "2 von 99 Feeds ausgefallen: abuseipdb_tmiland, c2_tracker"
+      }
+    ]
   }
 }
