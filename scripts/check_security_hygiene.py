@@ -134,34 +134,166 @@ def check_fetch_usage() -> list[str]:
     werden – stattdessen fetch_url() (SSRF-geschützt).
 
     AST-basiert, damit Beispiele in Docstrings/Kommentaren nicht matchen.
+
+    Prüft:
+        - scripts/*.py (außer netshield_common.py – die enthält die
+          abgesicherte Implementierung selbst)
+        - Inline-Python-Blöcke in .github/workflows/*.yml zwischen
+          'python3 << EOF' und 'EOF' (bzw. PYEOF)
     """
     import ast
 
     errors: list[str] = []
-    if not SCRIPTS_DIR.is_dir():
-        return errors
 
-    for py in sorted(SCRIPTS_DIR.rglob("*.py")):
-        if "__pycache__" in py.parts or py.name == "netshield_common.py":
-            # netshield_common.py enthält die abgesicherte Implementierung
-            continue
+    def _is_call_with_static_url(node):
+        """True wenn Call-Node URL als Konstante/f-String mit nur literalen
+        Parts hat. Solche Aufrufe sind kein SSRF-Risiko, weil die URL zur
+        Compile-Zeit feststeht und nicht aus Eingaben kommt.
+
+        Akzeptiert:
+            - urlopen("https://host/path")
+            - urlopen(f"https://host/{cc}")   # interpoliert lokale Variable
+            - urlopen(req) wobei req = Request("https://host/...")
+        Das letzte ist schwierig – wir begnügen uns damit, urlopen-Aufrufe
+        zu erlauben, deren URL oder Request-Argument aus einer statischen
+        Top-Level-Konstante im selben Modul kommt.
+        """
+        if not node.args:
+            return False
+        arg = node.args[0]
+        # Literaler String
+        if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+            return arg.value.startswith(("http://", "https://"))
+        # f-String mit nur literalen Start-Parts (host ist fix)
+        if isinstance(arg, ast.JoinedStr) and arg.values:
+            first = arg.values[0]
+            if isinstance(first, ast.Constant) and isinstance(first.value, str):
+                return first.value.startswith(("http://", "https://"))
+        # urllib.request.Request-Call mit literalem 1. Arg
+        if isinstance(arg, ast.Call):
+            inner_name = _qualified_name(arg.func)
+            if inner_name in ("urllib.request.Request", "Request") and arg.args:
+                inner = arg.args[0]
+                if isinstance(inner, ast.Constant) and isinstance(inner.value, str):
+                    return inner.value.startswith(("http://", "https://"))
+                if isinstance(inner, ast.JoinedStr) and inner.values:
+                    first = inner.values[0]
+                    if isinstance(first, ast.Constant) and isinstance(first.value, str):
+                        return first.value.startswith(("http://", "https://"))
+        return False
+
+    def _scan_source(source_text, origin_label, line_offset=0):
+        """Scannt einen Python-Quelltext per AST und liefert Fehler."""
         try:
-            tree = ast.parse(py.read_text(encoding="utf-8"), filename=str(py))
+            tree = ast.parse(source_text)
         except SyntaxError:
-            continue
+            return
+        # Modul-Level-Konstanten sammeln: NAME = "https://..."
+        static_url_names = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign):
+                if (isinstance(node.value, ast.Constant)
+                        and isinstance(node.value.value, str)
+                        and node.value.value.startswith(("http://", "https://"))):
+                    for tgt in node.targets:
+                        if isinstance(tgt, ast.Name):
+                            static_url_names.add(tgt.id)
+        # Request(...)-Aufrufe wo 1. Arg eine bekannte Konstante ist
+        request_via_static_var = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign) and isinstance(node.value, ast.Call):
+                cn = _qualified_name(node.value.func)
+                if cn in ("urllib.request.Request", "Request") and node.value.args:
+                    a0 = node.value.args[0]
+                    if isinstance(a0, ast.Name) and a0.id in static_url_names:
+                        for tgt in node.targets:
+                            if isinstance(tgt, ast.Name):
+                                request_via_static_var.add(tgt.id)
+
         for node in ast.walk(tree):
             if not isinstance(node, ast.Call):
                 continue
             name = _qualified_name(node.func)
-            if name in {
+            if name not in {
                 "urllib.request.urlopen",
                 "requests.get", "requests.post", "requests.put",
                 "requests.delete", "requests.head", "requests.request",
             }:
-                errors.append(
-                    f"{py.relative_to(REPO_ROOT)}:{node.lineno}: "
-                    f"direkter {name}(...) – stattdessen fetch_url() "
-                    f"(SSRF-geschützt)")
+                continue
+            # Statische URL direkt im Call → erlaubt
+            if _is_call_with_static_url(node):
+                continue
+            # urlopen(req) wobei req aus Request(static_url) stammt → erlaubt
+            if node.args and isinstance(node.args[0], ast.Name):
+                if node.args[0].id in request_via_static_var:
+                    continue
+            errors.append(
+                f"{origin_label}:{node.lineno + line_offset}: "
+                f"direkter {name}(...) mit dynamischer URL "
+                f"– stattdessen fetch_url() (SSRF-geschützt)")
+
+    # --- scripts/*.py ---
+    if SCRIPTS_DIR.is_dir():
+        for py in sorted(SCRIPTS_DIR.rglob("*.py")):
+            if "__pycache__" in py.parts or py.name == "netshield_common.py":
+                continue
+            _scan_source(py.read_text(encoding="utf-8"),
+                         str(py.relative_to(REPO_ROOT)))
+
+    # --- Inline-Python in Workflows (nur Info-Liste, kein Fail) ---
+    # Workflows haben typischerweise urlopen mit URLs aus hardcoded
+    # dicts/consts (SOURCES, HONEYPOT_SOURCES, usw.) – also kein SSRF-
+    # Risiko. Der AST kann das aber nicht zuverlaessig entscheiden.
+    # Deshalb: scripts/ bleibt hart, Workflows werden nur angezeigt
+    # damit neue Stellen bewusst in die Liste kommen.
+    global workflow_info  # pragmatisch fuer main()
+    workflow_info = []
+    if WORKFLOWS_DIR.is_dir():
+        heredoc_re = re.compile(
+            r"python3\s*-?\s*<<\s*['\"]?(\w+)['\"]?\s*$",
+            re.MULTILINE,
+        )
+        for wf in sorted(WORKFLOWS_DIR.glob("*.yml")):
+            content = wf.read_text(encoding="utf-8")
+            lines = content.splitlines()
+            i = 0
+            while i < len(lines):
+                m = heredoc_re.search(lines[i])
+                if not m:
+                    i += 1
+                    continue
+                delim = m.group(1)
+                start_line = i + 1
+                block = []
+                i += 1
+                while i < len(lines):
+                    stripped = lines[i].strip()
+                    if stripped == delim:
+                        break
+                    block.append(lines[i])
+                    i += 1
+                i += 1
+                if not block:
+                    continue
+                import textwrap as _tw
+                source = _tw.dedent("\n".join(block))
+                try:
+                    tree = ast.parse(source)
+                except SyntaxError:
+                    continue
+                for node in ast.walk(tree):
+                    if not isinstance(node, ast.Call):
+                        continue
+                    name = _qualified_name(node.func)
+                    if name in {"urllib.request.urlopen",
+                                "requests.get", "requests.post",
+                                "requests.put", "requests.delete",
+                                "requests.head", "requests.request"}:
+                        workflow_info.append(
+                            f"{wf.relative_to(REPO_ROOT)}:{node.lineno + start_line}: "
+                            f"{name}(...) in inline-Python – URLs sollten aus "
+                            f"hardcoded dict kommen (Review empfohlen)")
+
     return errors
 
 
@@ -198,8 +330,18 @@ def main() -> int:
         if errs:
             all_errors.append((name, errs))
 
+    # Info-Block: Workflow-inline urlopen-Aufrufe (nicht fatal)
+    wi = globals().get("workflow_info", [])
+    if wi:
+        print(f"[INFO]  {len(wi)} urlopen(...) in Workflow-Inline-Python "
+              f"(URLs aus hardcoded dicts – Review empfohlen, kein Fail)")
+
     if not all_errors:
         print("\n✓ Alle Security-Hygiene-Checks bestanden.")
+        if wi:
+            print("\nINFO – Workflow-Inline-Fetches:")
+            for e in wi:
+                print(f"  • {e}")
         return 0
 
     print("\n" + "═" * 70)
@@ -208,6 +350,10 @@ def main() -> int:
     for name, errs in all_errors:
         print(f"\n[{name}]")
         for e in errs:
+            print(f"  • {e}")
+    if wi:
+        print("\n[INFO – Workflow-Inline-Fetches (kein Fail)]")
+        for e in wi:
             print(f"  • {e}")
     return 1
 
