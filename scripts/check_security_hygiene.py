@@ -103,25 +103,89 @@ def check_action_pinning() -> list[str]:
 # Check 2: Keine non-atomaren open(..., "w") auf Blacklist-Dateien
 # ───────────────────────────────────────────────────────────────
 
-# Dateinamen-Pattern: *.txt Blacklists im Repo-Root
+# Dateinamen-Pattern: *.txt Blacklists oder *.json im Repo-Root
 BLACKLIST_TXT_RE = re.compile(
     r"""open\s*\(\s*["'][^"']*\.txt["']\s*,\s*["']w["']""", re.VERBOSE)
+JSON_WRITE_RE = re.compile(
+    r"""open\s*\(\s*["'][^"']*\.json["']\s*,\s*["']w["']""", re.VERBOSE)
 
 
 def check_atomic_writes() -> list[str]:
-    """Warnt wenn direkt open(..., 'w') auf *.txt gemacht wird."""
-    errors: list[str] = []
-    if not SCRIPTS_DIR.is_dir():
-        return errors
+    """Warnt wenn direkt open(..., 'w') auf *.txt oder *.json gemacht wird
+    – stattdessen write_ip_list() bzw. write_json_atomic() verwenden.
 
-    for py in sorted(SCRIPTS_DIR.rglob("*.py")):
-        if "__pycache__" in py.parts:
-            continue
-        for i, line in enumerate(py.read_text(encoding="utf-8").splitlines(), 1):
+    Prueft sowohl scripts/*.py als auch Inline-Python in Workflows.
+    """
+    errors: list[str] = []
+
+    def _scan_lines(lines, origin):
+        for i, line in enumerate(lines, 1):
+            # Kommentare uebergehen (verhindert False-Positives auf
+            # Doku-Zeilen wie "...vor: open('x.json', 'w')... Jetzt: ...")
+            if line.lstrip().startswith("#"):
+                continue
             if BLACKLIST_TXT_RE.search(line):
                 errors.append(
-                    f"{py.relative_to(REPO_ROOT)}:{i}: direktes "
-                    f"open(…, 'w') auf *.txt – stattdessen write_ip_list()")
+                    f"{origin}:{i}: direktes open(…, 'w') auf *.txt "
+                    f"– stattdessen write_ip_list()")
+            elif JSON_WRITE_RE.search(line):
+                errors.append(
+                    f"{origin}:{i}: direktes open(…, 'w') auf *.json "
+                    f"– stattdessen write_json_atomic()")
+
+    # scripts/*.py
+    if SCRIPTS_DIR.is_dir():
+        for py in sorted(SCRIPTS_DIR.rglob("*.py")):
+            if "__pycache__" in py.parts or py.name == "netshield_common.py":
+                # netshield_common definiert die atomaren Helper selbst
+                continue
+            _scan_lines(
+                py.read_text(encoding="utf-8").splitlines(),
+                str(py.relative_to(REPO_ROOT)),
+            )
+
+    # Workflow-YAML: nur Zeilen innerhalb von 'python3 << EOF' ... 'EOF' scannen.
+    # Der Rest (Kommentare, Shell-Heredocs, Dokumentation) wuerde sonst matchen.
+    if WORKFLOWS_DIR.is_dir():
+        heredoc_start = re.compile(
+            r"python3\s*-?\s*<<\s*['\"]?(\w+)['\"]?\s*$", re.MULTILINE)
+        for wf in sorted(WORKFLOWS_DIR.glob("*.yml")):
+            content = wf.read_text(encoding="utf-8")
+            lines = content.splitlines()
+            i = 0
+            while i < len(lines):
+                m = heredoc_start.search(lines[i])
+                if not m:
+                    i += 1
+                    continue
+                delim = m.group(1)
+                block_start_lineno = i + 2  # +1 fuer 0->1-indexed, +1 fuer EOF-Zeile
+                i += 1
+                block = []
+                while i < len(lines):
+                    stripped = lines[i].strip()
+                    if stripped == delim:
+                        break
+                    block.append(lines[i])
+                    i += 1
+                i += 1  # EOF-Zeile ueberspringen
+                if not block:
+                    continue
+                # Zeilennummer im YAML rekonstruieren
+                for bi, bl in enumerate(block):
+                    if bl.lstrip().startswith("#"):
+                        continue
+                    if BLACKLIST_TXT_RE.search(bl):
+                        errors.append(
+                            f"{wf.relative_to(REPO_ROOT)}:{block_start_lineno + bi}: "
+                            f"direktes open(…, 'w') auf *.txt im inline-Python "
+                            f"– stattdessen write_ip_list()")
+                    elif JSON_WRITE_RE.search(bl):
+                        errors.append(
+                            f"{wf.relative_to(REPO_ROOT)}:{block_start_lineno + bi}: "
+                            f"direktes open(…, 'w') auf *.json im inline-Python "
+                            f"– stattdessen write_json_atomic()")
+
     return errors
 
 

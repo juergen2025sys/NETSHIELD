@@ -690,3 +690,35 @@ def write_json_atomic(filepath, data, **dump_kwargs):
         except OSError:
             pass
         raise
+
+
+def write_text_atomic(filepath, content):
+    """Schreibt einen Text atomar (tempfile + fsync + os.replace).
+
+    Fuer Faelle wo weder write_ip_list (erwartet Iterable von IPs + Header)
+    noch write_json_atomic passt – z.B. Firewall-Blocklisten mit
+    Meta-Kommentaren je Zeile, Reports usw.
+
+    Args:
+        filepath: Zieldatei.
+        content: Kompletter Text-Inhalt als String.
+    """
+    import tempfile
+    target_dir = os.path.dirname(os.path.abspath(filepath)) or "."
+    fd, tmp_path = tempfile.mkstemp(
+        prefix=f".{os.path.basename(filepath)}.",
+        suffix=".tmp",
+        dir=target_dir,
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, filepath)
+    except Exception:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+        raise
