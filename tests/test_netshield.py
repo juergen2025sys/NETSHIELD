@@ -790,5 +790,256 @@ class TestFetchUrlSsrf(unittest.TestCase):
         self.assertIsNone(fetch_url("http://localhost/"))
 
 
+# ═══════════════════════════════════════════════════════════════
+# Coverage-Tests: fetch_url Happy-Path + SafeRedirect
+# ═══════════════════════════════════════════════════════════════
+
+class TestFetchUrlWithLocalServer(unittest.TestCase):
+    """Testet fetch_url gegen einen echten lokalen HTTP-Server.
+
+    Wichtig: Der SSRF-Check prüft die Hostnamen-Auflösung. Normalerweise
+    blockiert er localhost/127.0.0.1. Für diese Tests patchen wir den
+    Check temporär, damit wir den Happy-Path und die Redirect-Validierung
+    testen können — ohne externen Netzwerk-Zugriff."""
+
+    @classmethod
+    def setUpClass(cls):
+        from http.server import HTTPServer, BaseHTTPRequestHandler
+        import threading
+
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, *a, **k):
+                pass  # Keine Log-Ausgabe während Tests
+
+            def do_GET(self):
+                if self.path == "/ok":
+                    self.send_response(200)
+                    self.end_headers()
+                    self.wfile.write(b"feed-content\n1.2.3.4\n5.6.7.8")
+                elif self.path == "/redirect-safe":
+                    self.send_response(302)
+                    # Redirect auf eigenen /ok-Pfad (auch lokal → blockiert
+                    # durch SSRF außer wir patchen; der Test für Redirect-
+                    # Safety ist der "unsafe"-Fall unten)
+                    host = f"{self.server.server_address[0]}:{self.server.server_address[1]}"
+                    self.send_header("Location", f"http://{host}/ok")
+                    self.end_headers()
+                elif self.path == "/redirect-unsafe":
+                    self.send_response(302)
+                    # Redirect auf AWS-Metadata-Endpoint
+                    self.send_header("Location", "http://169.254.169.254/latest/meta-data/")
+                    self.end_headers()
+                elif self.path == "/500":
+                    self.send_response(500)
+                    self.end_headers()
+                elif self.path == "/slow":
+                    import time
+                    time.sleep(2)
+                    self.send_response(200)
+                    self.end_headers()
+                else:
+                    self.send_response(404)
+                    self.end_headers()
+
+        cls.server = HTTPServer(("127.0.0.1", 0), Handler)
+        cls.port = cls.server.server_address[1]
+        cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
+        cls.thread.start()
+
+        # SSRF-Check temporär auf "alles erlauben" patchen für diese Klasse
+        import netshield_common
+        cls._orig_safe_host = netshield_common._is_safe_public_host
+        netshield_common._is_safe_public_host = lambda h: True
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.shutdown()
+        import netshield_common
+        netshield_common._is_safe_public_host = cls._orig_safe_host
+
+    def _url(self, path):
+        return f"http://127.0.0.1:{self.port}{path}"
+
+    def test_happy_path_returns_content(self):
+        """fetch_url soll bei 200-Response den Body als str liefern."""
+        from netshield_common import fetch_url
+        result = fetch_url(self._url("/ok"))
+        self.assertIsNotNone(result)
+        self.assertIn("1.2.3.4", result)
+        self.assertIn("feed-content", result)
+
+    def test_safe_redirect_followed(self):
+        """Redirect auf zulässige URL: fetch_url folgt und liefert Content."""
+        from netshield_common import fetch_url
+        result = fetch_url(self._url("/redirect-safe"))
+        self.assertIsNotNone(result)
+        self.assertIn("feed-content", result)
+
+    def test_unsafe_redirect_blocked(self):
+        """Redirect auf AWS-Metadata muss vom _SafeRedirect-Handler
+        blockiert werden — auch wenn der initiale SSRF-Check gepatcht ist.
+
+        Den Patch heben wir für diesen Test kurz auf, damit die echte
+        _is_safe_public_host-Logik beim Redirect greift."""
+        from netshield_common import fetch_url
+        import netshield_common
+        # SSRF-Check für initiale Request erlauben, aber reale Logik
+        # fürs Redirect-Ziel wiederherstellen
+        patched_for_initial = [True]
+        def selective_check(host):
+            if patched_for_initial[0]:
+                patched_for_initial[0] = False
+                return True  # initialer 127.0.0.1-Call
+            # Redirect-Ziel: echte Logik anwenden
+            return self._orig_safe_host(host)
+        netshield_common._is_safe_public_host = selective_check
+        try:
+            result = fetch_url(self._url("/redirect-unsafe"))
+            # Redirect sollte blockiert werden → None
+            self.assertIsNone(result)
+        finally:
+            netshield_common._is_safe_public_host = lambda h: True
+
+    def test_http_error_no_retry(self):
+        """HTTPError soll NICHT wiederholt werden (5xx inklusive)."""
+        from netshield_common import fetch_url
+        result = fetch_url(self._url("/500"), retries=3)
+        self.assertIsNone(result)
+
+    def test_read_limit_respected(self):
+        """read_limit soll den gelesenen Body begrenzen."""
+        from netshield_common import fetch_url
+        result = fetch_url(self._url("/ok"), read_limit=5)
+        self.assertIsNotNone(result)
+        # Body ist "feed-content\n1.2.3.4\n5.6.7.8" (>5 Bytes)
+        # read_limit=5 → nur die ersten 5 Bytes
+        self.assertEqual(len(result), 5)
+
+
+# ═══════════════════════════════════════════════════════════════
+# Coverage-Tests: is_protected_entry — CIDR- und Sonderfälle
+# ═══════════════════════════════════════════════════════════════
+
+class TestIsProtectedEntry(unittest.TestCase):
+    """Direkte Tests für is_protected_entry, der zentrale Filter für
+    Blacklist-Aufnahme. Deckt Branches ab, die bisher nur indirekt
+    über parse_entries getestet waren."""
+
+    def test_empty_string_protected(self):
+        self.assertTrue(is_protected_entry(""))
+        self.assertTrue(is_protected_entry("   "))
+
+    def test_public_ip_not_protected(self):
+        """Echte öffentliche IPs (nicht in Whitelist) sind nicht protected."""
+        self.assertFalse(is_protected_entry("8.8.8.4"))
+        self.assertFalse(is_protected_entry("185.101.102.103"))
+        self.assertFalse(is_protected_entry("45.33.32.156"))
+
+    def test_rfc1918_protected(self):
+        self.assertTrue(is_protected_entry("10.0.0.1"))
+        self.assertTrue(is_protected_entry("192.168.1.1"))
+        self.assertTrue(is_protected_entry("172.16.0.1"))
+
+    def test_loopback_protected(self):
+        self.assertTrue(is_protected_entry("127.0.0.1"))
+
+    def test_link_local_protected(self):
+        self.assertTrue(is_protected_entry("169.254.169.254"))  # AWS Metadata
+
+    def test_multicast_protected(self):
+        self.assertTrue(is_protected_entry("224.0.0.1"))
+
+    def test_invalid_input_protected(self):
+        """Ungültige Strings → protected (Fail-Safe)."""
+        self.assertTrue(is_protected_entry("not-an-ip"))
+        self.assertTrue(is_protected_entry("999.999.999.999"))
+
+    def test_ipv6_protected(self):
+        """IPv6 wird nicht als Blacklist-Kandidat behandelt."""
+        self.assertTrue(is_protected_entry("2001:db8::1"))
+
+    def test_cidr_public_not_protected(self):
+        """Öffentliches CIDR, das nicht in der Whitelist steht."""
+        self.assertFalse(is_protected_entry("185.101.0.0/16"))
+        self.assertFalse(is_protected_entry("45.33.32.0/24"))
+
+    def test_cidr_too_broad_protected(self):
+        """CIDR < /8 (also /7, /6, …) ist zu breit – protected."""
+        self.assertTrue(is_protected_entry("8.0.0.0/7"))
+        self.assertTrue(is_protected_entry("0.0.0.0/0"))
+
+    def test_cidr_rfc1918_protected(self):
+        self.assertTrue(is_protected_entry("10.0.0.0/8"))
+        self.assertTrue(is_protected_entry("192.168.0.0/16"))
+
+    def test_cidr_loopback_protected(self):
+        self.assertTrue(is_protected_entry("127.0.0.0/8"))
+
+
+# ═══════════════════════════════════════════════════════════════
+# Coverage-Tests: is_whitelisted + load_whitelist Fehlerpfade
+# ═══════════════════════════════════════════════════════════════
+
+class TestIsWhitelisted(unittest.TestCase):
+    """is_whitelisted wird in 16 Workflows genutzt, war aber bisher nicht
+    direkt getestet."""
+
+    def test_invalid_ip_returns_false(self):
+        """Bei ungültigem Input soll die Funktion False zurückgeben,
+        nicht crashen."""
+        self.assertFalse(is_whitelisted("garbage"))
+        self.assertFalse(is_whitelisted(""))
+
+    def test_public_ip_not_whitelisted(self):
+        """Eine zufällige öffentliche IP ist normalerweise nicht in der
+        Whitelist."""
+        # Wichtig: Whitelist muss geladen sein
+        load_whitelist()
+        self.assertFalse(is_whitelisted("198.51.100.42"))
+
+    def test_cloudflare_dns_whitelisted(self):
+        """1.1.1.1 (Cloudflare DNS) muss in der Whitelist stehen."""
+        load_whitelist()
+        self.assertTrue(is_whitelisted("1.1.1.1"))
+
+
+# ═══════════════════════════════════════════════════════════════
+# Coverage-Tests: write_ip_list Cleanup-Branches
+# ═══════════════════════════════════════════════════════════════
+
+class TestWriteIpListCleanup(unittest.TestCase):
+    """Deckt den OSError-Fall im tempfile-Cleanup ab."""
+
+    def test_cleanup_tolerates_unlink_error(self):
+        """Wenn os.unlink im except-Branch selbst fehlschlägt, soll die
+        ursprüngliche Exception propagieren, nicht eine neue."""
+        import tempfile as tf
+        tmpdir = tf.mkdtemp()
+        target = os.path.join(tmpdir, "ips.txt")
+        try:
+            # Iterator, der einen RuntimeError wirft
+            class BadIter:
+                def __iter__(self_inner):
+                    yield "1.1.1.1"
+                    raise RuntimeError("Feed-Crash")
+
+            # os.unlink temporär so patchen, dass es selbst wirft
+            _real_unlink = os.unlink
+            def bad_unlink(path):
+                raise OSError("Permission denied")
+            os.unlink = bad_unlink
+            try:
+                with self.assertRaises(RuntimeError) as ctx:
+                    write_ip_list(target, BadIter())
+                # Original-Exception (RuntimeError) soll durchkommen,
+                # nicht die OSError vom unlink-Versuch
+                self.assertIn("Feed-Crash", str(ctx.exception))
+            finally:
+                os.unlink = _real_unlink
+        finally:
+            import shutil
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
