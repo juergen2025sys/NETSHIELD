@@ -642,3 +642,37 @@ def write_ip_list(filepath, ips, header_lines=None):
             pass
         raise
     return sorted_list
+
+
+def write_json_atomic(filepath, data, **dump_kwargs):
+    """Schreibt JSON atomar: tmp-Datei + fsync + os.replace.
+
+    Verhindert korrupte seen_db.json bei Runner-OOM/SIGKILL/Timeout.
+    Ohne diesen Fix bleibt bei Crash eine halb geschriebene Datei zurück,
+    die der naechste Run als korrupt erkennt und ignoriert → Leerungsschutz
+    greift → kein Update.
+
+    Args:
+        filepath: Zieldatei.
+        data: JSON-serialisierbares Objekt.
+        **dump_kwargs: An json.dump weitergereicht (z.B. separators, indent).
+    """
+    import tempfile
+    target_dir = os.path.dirname(os.path.abspath(filepath)) or "."
+    fd, tmp_path = tempfile.mkstemp(
+        prefix=f".{os.path.basename(filepath)}.",
+        suffix=".tmp",
+        dir=target_dir,
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(data, f, **dump_kwargs)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, filepath)
+    except Exception:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+        raise
