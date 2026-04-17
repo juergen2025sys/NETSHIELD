@@ -175,12 +175,60 @@ jobs:
 
           print(f"\nErgebnis: ✅ {ok_count} OK | ⚠️ {warn_count} leer | ❌ {err_count} Fehler")
 
+          # ── DataPlane-Deep-Check ───────────────────────────────────────────
+          # Separate Prüfung der DataPlane-Feeds: diese 9 HQ-Feeds werden in
+          # update_combined_blacklist.yml als Phase 1 vorrangig geladen. Fällt
+          # hier einer aus, geht kritisches Honeypot-Signal verloren → als
+          # ::error:: (nicht nur ::warning::) melden, damit es nicht im
+          # Rauschen der restlichen 100+ Feeds untergeht.
+          DATAPLANE_FEEDS = sorted(n for n in FEEDS if n.startswith("dataplane_"))
+          dp_results = [r for r in results if r["name"] in set(DATAPLANE_FEEDS)]
+          dp_missing = [n for n in DATAPLANE_FEEDS if n not in {r["name"] for r in dp_results}]
+          dp_broken  = [r for r in dp_results if not r["ok"]]
+          dp_empty   = [r for r in dp_results if r["ok"] and not r["has_ips"]]
+          dp_ok      = [r for r in dp_results if r["ok"] and r["has_ips"]]
+
+          print(f"\n── DataPlane-Deep-Check ──")
+          print(f"  Gefunden: {len(dp_results)}/{len(DATAPLANE_FEEDS)} | ✅ {len(dp_ok)} | ⚠️ leer: {len(dp_empty)} | ❌ Fehler: {len(dp_broken)}")
+          for r in sorted(dp_results, key=lambda x: x["name"]):
+              icon = "✅" if r["ok"] and r["has_ips"] else ("⚠️" if r["ok"] else "❌")
+              print(f"  {icon} {r['name']}: HTTP {r['status']} | ~{r['sample_ips']} IPs | {r['ms']}ms")
+
+          # Escalation: DataPlane-Ausfall ist kritischer als andere Feed-Ausfälle
+          for r in dp_broken:
+              err_msg = r.get("err", f"HTTP {r['status']}")
+              print(f"::error file=feed_health_monitor.yml::DataPlane-Feed defekt [{r['name']}]: {err_msg}")
+          for r in dp_empty:
+              print(f"::error file=feed_health_monitor.yml::DataPlane-Feed liefert 0 IPs [{r['name']}]: HTTP {r['status']} – Format-Änderung prüfen")
+          for n in dp_missing:
+              print(f"::error file=feed_health_monitor.yml::DataPlane-Feed fehlt in FEEDS-Dict [{n}] – Health-Check konnte nicht laufen")
+
+          dp_healthy = (len(dp_broken) == 0 and len(dp_empty) == 0 and len(dp_missing) == 0)
+
           # ── Report schreiben ───────────────────────────────────────────────
           lines = []
           lines.append("# Feed Health Monitor – Report")
           lines.append(f"**Aktualisiert:** {now_str}\n")
           lines.append(f"**Feeds gesamt:** {len(FEEDS)} | ✅ {ok_count} OK | ⚠️ {warn_count} leer | ❌ {err_count} Fehler\n")
           lines.append("---")
+
+          # ── DataPlane-Sektion zuerst (kritisch, Phase-1-Feeds) ────────────
+          dp_icon = "✅" if dp_healthy else "❌"
+          lines.append(f"## {dp_icon} DataPlane-Feeds (Phase 1)\n")
+          if dp_healthy:
+              lines.append(f"Alle {len(DATAPLANE_FEEDS)} DataPlane-Feeds erreichbar und liefern IPs.\n")
+          else:
+              lines.append("**⚠️ Kritisch:** DataPlane-Feeds werden in `update_combined_blacklist.yml` "
+                           "als Phase 1 vorrangig geladen. Ein Ausfall hier bedeutet Verlust von "
+                           "Honeypot-Signal (SSH/VNC/Telnet/DNS/SMTP-Angriffe).\n")
+          lines.append("| Feed | Status | HTTP | IPs (Sample) | Reaktionszeit |")
+          lines.append("|---|---|---|---|---|")
+          for r in sorted(dp_results, key=lambda x: x["name"]):
+              icon = "✅" if r["ok"] and r["has_ips"] else ("⚠️" if r["ok"] else "❌")
+              lines.append(f"| `{r['name']}` | {icon} | {r['status']} | ~{r['sample_ips']} | {r['ms']}ms |")
+          for n in dp_missing:
+              lines.append(f"| `{n}` | ❌ | – | – | *fehlt im FEEDS-Dict* |")
+          lines.append("")
 
           if err_count > 0:
               lines.append("## ❌ Fehlerhafte Feeds\n")
@@ -224,6 +272,14 @@ jobs:
                   "summary": {"ok": ok_count, "warn": warn_count, "error": err_count},
                   "failed_feeds": failed_feeds,
                   "warned_feeds": warned_feeds,
+                  "dataplane_status": {
+                      "healthy": dp_healthy,
+                      "expected": len(DATAPLANE_FEEDS),
+                      "ok":      len(dp_ok),
+                      "empty":   [r["name"] for r in dp_empty],
+                      "broken":  [r["name"] for r in dp_broken],
+                      "missing": dp_missing,
+                  },
                   "feeds": results,
               }, f, indent=2)
           EOF
