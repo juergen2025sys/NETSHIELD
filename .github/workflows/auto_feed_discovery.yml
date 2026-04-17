@@ -58,6 +58,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_json_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -669,8 +670,9 @@ jobs:
                 f"{len(to_expire)} abgelaufen | Gesamt: {len(db)} IPs")
 
           # ── Schritt 7: seen_db speichern ──────────────────────────────────
-          with open(DB_FILE, "w", encoding="utf-8") as f:
-              json.dump(db, f, separators=(",", ":"))
+          # Atomar via write_json_atomic – verhindert korrupte Datei bei
+          # Runner-OOM/SIGKILL/Timeout.
+          write_json_atomic(DB_FILE, db, separators=(",", ":"))
 
           # Schritt 8 (combined_threat_blacklist_ipv4.txt schreiben) ENTFERNT.
           # Begründung: auto_feed_discovery läuft nur wöchentlich (So 04:30) und hat

@@ -19,7 +19,10 @@ permissions:
   security-events: none
 
 concurrency:
-  group: ${{ github.workflow }}
+  # FIX RACE: seen_db-Leser muessen in gleicher Gruppe wie die Writer sein,
+  # sonst kann dieser Workflow parallel zum laufenden update_combined_blacklist
+  # einen halb geschriebenen Cache lesen.
+  group: netshield-seen-db-writers
   cancel-in-progress: false
 
 jobs:

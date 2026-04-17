@@ -170,6 +170,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_json_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -918,8 +919,11 @@ jobs:
                         f"{len(_community_active)} aktive behalten")
 
           # ── seen_db speichern ──────────────────────────────────────────────
-          with open(DB_FILE, "w", encoding="utf-8") as f:
-              json.dump(db, f, separators=(",", ":"))
+          # Atomar via write_json_atomic (tmp-Datei + fsync + os.replace).
+          # Verhindert korrupte seen_db.json bei Runner-OOM/SIGKILL/Timeout.
+          # Ohne Atomicity wuerde eine halb geschriebene Datei naechsten Run
+          # als korrupt erkannt → db={} → Leerungsschutz → kein Update.
+          write_json_atomic(DB_FILE, db, separators=(",", ":"))
 
           # ── Stufe 1: combined_threat_blacklist_ipv4.txt (alle DB-IPs) ─────
           # FIX Bug6: Numerische IP-Sortierung (1.2.3.4 vor 10.0.0.1),
