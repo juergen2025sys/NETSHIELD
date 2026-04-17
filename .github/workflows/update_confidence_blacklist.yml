@@ -24,7 +24,7 @@ permissions:
   security-events: none
 
 concurrency:
-  group: ${{ github.workflow }}
+  group: netshield-seen-db-writers
   cancel-in-progress: false
 
 jobs:
