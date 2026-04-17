@@ -945,6 +945,85 @@ jobs:
               ],
           )
 
+          # ── Split-Logik fuer grosse Dateien ───────────────────────────
+          # GitHub lehnt Push bei Dateien > 100 MB ab. Sobald combined
+          # ueber SPLIT_THRESHOLD waechst, zusaetzlich in Parts von ca.
+          # PART_TARGET_MB schreiben. Die Haupt-Datei bleibt als Legacy
+          # erhalten solange sie unter 100 MB ist (sonst wuerde ein
+          # etablierter Download-Link brechen).
+          import glob
+          SPLIT_THRESHOLD_MB = 90     # ab hier Parts erzeugen
+          PART_TARGET_MB     = 40     # Groesse pro Part
+          HARD_LIMIT_MB      = 100    # GitHub Push-Limit
+
+          combined_size_mb = os.path.getsize("combined_threat_blacklist_ipv4.txt") / 1024 / 1024
+          print(f"\ncombined_threat_blacklist_ipv4.txt: {combined_size_mb:.1f} MB")
+
+          # Existierende Parts sammeln (zum Aufraeumen wenn nicht mehr noetig)
+          existing_parts = sorted(glob.glob("combined_threat_blacklist_ipv4_part*.txt"))
+
+          if combined_size_mb >= SPLIT_THRESHOLD_MB:
+              # Ziel: ~PART_TARGET_MB pro Part. Wir splitten nach Zeilen-Anzahl
+              # proportional zur Gesamtgroesse (deterministisch auf der bereits
+              # sortierten Liste – die Reihenfolge bleibt stabil).
+              num_parts = max(2, int((combined_size_mb / PART_TARGET_MB) + 0.5))
+              chunk_size = (len(sorted_ips) + num_parts - 1) // num_parts
+
+              print(f"  -> Split aktiv: {num_parts} Parts a ~{PART_TARGET_MB} MB "
+                    f"({chunk_size:,} IPs/Part)")
+
+              new_parts = []
+              for idx in range(num_parts):
+                  start = idx * chunk_size
+                  end   = min(start + chunk_size, len(sorted_ips))
+                  if start >= len(sorted_ips):
+                      break
+                  part_name = f"combined_threat_blacklist_ipv4_part{idx+1}.txt"
+                  write_ip_list(
+                      part_name,
+                      sorted_ips[start:end],
+                      header_lines=[
+                          f"NETSHIELD Combined Threat Blacklist – Part {idx+1}/{num_parts}",
+                          f"Aktualisiert: {now_stamp}",
+                          f"IP-Bereich: {sorted_ips[start]} bis {sorted_ips[end-1]}",
+                          f"Eintraege: {end - start}",
+                          "Siehe README fuer Nutzung mit allen Parts.",
+                      ],
+                  )
+                  new_parts.append(part_name)
+                  print(f"  {part_name}: {end - start:,} IPs")
+
+              # Alte Parts entfernen, die nicht mehr erzeugt wurden
+              # (z.B. Liste schrumpft von 5 auf 3 Parts)
+              for old in existing_parts:
+                  if old not in new_parts:
+                      try:
+                          os.unlink(old)
+                          print(f"  Alten Part entfernt: {old}")
+                      except OSError:
+                          pass
+
+              # Warnung wenn Haupt-Datei hartes Limit erreicht
+              if combined_size_mb >= HARD_LIMIT_MB:
+                  msg = (f"combined_threat_blacklist_ipv4.txt ist {combined_size_mb:.1f} MB "
+                         f"(>= {HARD_LIMIT_MB} MB GitHub-Limit). Push koennte fehlschlagen. "
+                         f"Parts sind vorhanden – Konsumenten auf Parts umstellen.")
+                  print(f"::error file=update_combined_blacklist.yml::{msg}")
+                  print(f"FEHLER: {msg}")
+              elif combined_size_mb >= SPLIT_THRESHOLD_MB:
+                  msg = (f"combined_threat_blacklist_ipv4.txt ist {combined_size_mb:.1f} MB "
+                         f"(>= {SPLIT_THRESHOLD_MB} MB). Parts erzeugt als Reserve.")
+                  print(f"::warning file=update_combined_blacklist.yml::{msg}")
+                  print(f"WARNUNG: {msg}")
+          else:
+              # Unter Schwelle: Eventuell vorhandene alte Parts aufraeumen
+              for old in existing_parts:
+                  try:
+                      os.unlink(old)
+                      print(f"  Alten Part entfernt (unter Schwelle): {old}")
+                  except OSError:
+                      pass
+
           # ── Stufe 2: active_blacklist_ipv4.txt (30 Tage + Confidence >= 65) ──
           # Kriterien kombiniert:
           #   1. last_seen <= 30 Tage  (nur HQ-Feeds setzen last → echte Aktualität)
@@ -1131,6 +1210,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
+          # Split-Parts (falls erzeugt) und geloeschte Parts auch stagen
+          git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
+          git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -1153,9 +1235,15 @@ jobs:
                   combined_threat_blacklist_report.md \
                   seen_db_meta.json abuseipdb_api_blacklist.txt \
                   community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
+                # Parts ggf. auch per theirs mergen
+                for _p in combined_threat_blacklist_ipv4_part*.txt; do
+                  [ -f "$_p" ] && git checkout --theirs "$_p" 2>/dev/null || true
+                done
                 git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md seen_db_meta.json \
                   abuseipdb_api_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
+                git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
+                git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))
