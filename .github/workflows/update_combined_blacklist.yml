@@ -970,6 +970,11 @@ jobs:
                   # FIX: Watchlist-IPs haben last="2000-01-01" als Sentinel-Wert (keine echte
                   # HQ-Bestätigung). Sie würden durch cutoff_30 korrekt gefiltert, aber das
                   # Verhalten hängt implizit am Sentinel-Datum. Explizit überspringen ist robuster.
+                  #
+                  # WICHTIG: Dieser Guard ist NICHT redundant zum Score-Cutoff ≥65. Eine
+                  # Watchlist-IP mit hq=True (Grenzfall) könnte theoretisch score_a=40 +
+                  # score_c=20 + score_d=10 = 70 erreichen und den Cutoff passieren, obwohl
+                  # sie das Sentinel-Datum hat. Der Guard ist die eigentliche Sicherung.
                   if data.get("last", "") == "2000-01-01":
                       continue
                   try:

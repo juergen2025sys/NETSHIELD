@@ -428,36 +428,50 @@ jobs:
               sys.exit(1)
 
           # ── 1) all_countries_ipv4.txt ────────────────────────────────────
-          sorted_all = sorted(all_ips, key=sort_key)
-          with open("all_countries_ipv4.txt", "w", encoding="utf-8") as f:
-              if _partial_load:
-                  f.write(f"# WARNUNG: Teildaten – Elapsed-Time Guard bei {len(country_data)}/{len(countries)} Ländern ausgelöst\n")
-              f.write("\n".join(sorted_all) + "\n")
-          print(f"\nall_countries_ipv4.txt: {len(sorted_all)} entries")
+          # FIX ATOMIC: write_ip_list statt open("w") – bei Runner-Kill
+          # bleibt die Datei komplett alt oder komplett neu.
+          header_lines = []
+          if _partial_load:
+              header_lines.append(f"WARNUNG: Teildaten – Elapsed-Time Guard bei {len(country_data)}/{len(countries)} Ländern ausgelöst")
+          write_ip_list("all_countries_ipv4.txt", all_ips, header_lines=header_lines or None)
+          print(f"\nall_countries_ipv4.txt: {len(all_ips)} entries")
 
           # ── 2) continents/*.txt ──────────────────────────────────────────
+          # FIX ATOMIC: write_ip_list pro Datei – jede Datei für sich
+          # garantiert konsistent. Bei Crash mitten in der Schleife sind
+          # bereits geschriebene Dateien vollständig, die noch nicht
+          # geschriebenen bleiben vom vorigen Lauf unverändert.
           os.makedirs("continents", exist_ok=True)
           for continent in CONTINENTS:
-              ips  = sorted(continent_ips[continent], key=sort_key)
+              ips  = continent_ips[continent]
               path = f"continents/{continent}_ipv4.txt"
-              with open(path, "w", encoding="utf-8") as f:
-                  f.write(f"# NETSHIELD – {continent.replace('_', ' ').title()} IPv4 Ranges\n")
-                  f.write(f"# Aktualisiert: {now_str}\n")
-                  f.write(f"# IP-Ranges: {len(ips)}\n\n")
-                  f.write("\n".join(ips) + "\n")
+              write_ip_list(
+                  path,
+                  ips,
+                  header_lines=[
+                      f"NETSHIELD – {continent.replace('_', ' ').title()} IPv4 Ranges",
+                      f"Aktualisiert: {now_str}",
+                      f"IP-Ranges: {len(ips)}",
+                  ],
+              )
               print(f"continents/{continent}_ipv4.txt: {len(ips)} entries")
 
           # ── 3) countries/{continent}/{name}_ipv4.txt ─────────────────────
+          # FIX ATOMIC: siehe oben. Bei ~250 Ländern ist die Schleifen-
+          # Länge groß, deshalb ist atomares Schreiben pro Datei wichtig.
           for cc, (continent, name, ips) in country_data.items():
               dir_path = f"countries/{continent}"
               os.makedirs(dir_path, exist_ok=True)
               path = f"{dir_path}/{name}_ipv4.txt"
-              with open(path, "w", encoding="utf-8") as f:
-                  f.write(f"# NETSHIELD – {name.replace('_', ' ').title()} ({cc}) IPv4 Ranges\n")
-                  f.write(f"# Aktualisiert: {now_str}\n")
-                  f.write(f"# IP-Ranges: {len(ips)}\n\n")
-                  if ips:
-                      f.write("\n".join(ips) + "\n")
+              write_ip_list(
+                  path,
+                  ips,
+                  header_lines=[
+                      f"NETSHIELD – {name.replace('_', ' ').title()} ({cc}) IPv4 Ranges",
+                      f"Aktualisiert: {now_str}",
+                      f"IP-Ranges: {len(ips)}",
+                  ],
+              )
               print(f"countries/{continent}/{name}_ipv4.txt: {len(ips)} entries")
 
           # ── Verwaiste Länderdateien aufräumen ──────────────────────────
