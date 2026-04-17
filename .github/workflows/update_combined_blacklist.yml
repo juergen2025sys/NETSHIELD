@@ -241,7 +241,7 @@ jobs:
               "danger_bruteforce", "threatview_high_conf", "firehol_cybercrime",
               "firehol_anonymous", "dshield", "cloudzy",
               "urlhaus_ips", "firehol_level1", "firehol_level2", "firehol_level3",
-              "firehol_webclient", "firehol_webserver", "firehol_proxies", "firehol_abusers_1d",
+              "firehol_webclient", "firehol_webserver", "firehol_abusers_1d",
               "et_block", "et_compromised", "spamhaus_drop",
               "blocklist_de_all", "blocklist_de_export", "blocklist_de_strongips",
               "blocklist_de_ssh", "c2_tracker", "c2_iplist",
@@ -328,7 +328,8 @@ jobs:
               "firehol_level4":             ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level4.netset", False),
               "firehol_webclient":          ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_webclient.netset", True),
               "firehol_webserver":          ("https://iplists.firehol.org/files/firehol_webserver.netset", True),
-              "firehol_proxies":            ("https://iplists.firehol.org/files/firehol_proxies.netset", True),
+              # firehol_proxies entfernt: komplett in firehol_anonymous enthalten
+              # (laut FireHOL-Doku: anonymous = anonymous + dm_tor + firehol_proxies + tor_exits)
               "firehol_abusers_1d":         ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_abusers_1d.netset", True),
               "et_block":                   ("https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt", True),
               "et_compromised":             ("https://rules.emergingthreats.net/blockrules/compromised-ips.txt", True),
@@ -557,10 +558,29 @@ jobs:
                   ip_feeds_today[ip].add(name)
               feed_stats.append((name, len(ips)))
 
-          # Phase 1 – DataPlane-Feeds zuerst (9 kleine Dateien, ~2–3 s)
-          DP_SOURCES  = {n: u for n, (u, _) in SOURCES.items() if n.startswith("dataplane_")}
-          REST_SOURCES = {n: (u, hq) for n, (u, hq) in SOURCES.items() if not n.startswith("dataplane_")}
+          # ── Slow-Feeds (grosse Dateien mit langer Latenz) ──────────────
+          # Laufen in eigener Phase 0 BEVOR andere Feeds starten – mit eigenem
+          # ThreadPool, damit sie nicht mit den 15 Workern von Phase 2 um Slots
+          # kaempfen. Im letzten Run brauchten diese 5 Feeds 19-33 min Phase-2-
+          # Start-Latenz, was Timeouts erzeugte. Separat gestartet laufen sie
+          # komplett parallel zum Rest.
+          SLOW_FEED_NAMES = {
+              "bitwire_ipblocklist",
+              "black_mirror",
+              "bluetack_blacklist",
+              "firehol_anonymous",
+              "magicteamc_bad_ips",
+          }
+          SLOW_SOURCES = {n: u for n, (u, _) in SOURCES.items() if n in SLOW_FEED_NAMES}
+          DP_SOURCES   = {n: u for n, (u, _) in SOURCES.items() if n.startswith("dataplane_")}
+          REST_SOURCES = {n: (u, hq) for n, (u, hq) in SOURCES.items()
+                          if n not in SLOW_FEED_NAMES and not n.startswith("dataplane_")}
 
+          print("── Phase 0: Slow-Feeds (parallel, eigener Pool) ──────────────────")
+          slow_ex = ThreadPoolExecutor(max_workers=len(SLOW_SOURCES) or 1)
+          slow_futures = {slow_ex.submit(fetch_ips, n, u): n for n, u in SLOW_SOURCES.items()}
+
+          # Phase 1 – DataPlane-Feeds zuerst (9 kleine Dateien, ~2–3 s)
           print("── Phase 1: DataPlane-Feeds ──────────────────────────────────────")
           with ThreadPoolExecutor(max_workers=len(DP_SOURCES)) as dp_ex:
               dp_futures = {dp_ex.submit(fetch_ips, n, u): n for n, u in DP_SOURCES.items()}
@@ -576,7 +596,7 @@ jobs:
                   print(f"::warning file=update_combined_blacklist.yml::DataPlane-Timeout – {len(pending)} Feed(s) abgebrochen: {', '.join(pending)}")
                   print(f"WARNUNG: DataPlane-Phase Timeout – {', '.join(pending)} abgebrochen")
 
-          # Phase 2 – Alle übrigen Feeds parallel
+          # Phase 2 – Alle übrigen Feeds parallel (ohne Slow-Feeds und DataPlane)
           print("── Phase 2: Restliche Feeds ──────────────────────────────────────")
           with ThreadPoolExecutor(max_workers=15) as executor:
               futures = {executor.submit(fetch_ips, n, u): n for n, (u, _) in REST_SOURCES.items()}
@@ -591,6 +611,21 @@ jobs:
                           f.cancel()
                   print(f"::warning file=update_combined_blacklist.yml::Haupt-Feed-Timeout nach 900s – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:10])}{'…' if len(pending) > 10 else ''}")
                   print(f"WARNUNG: Haupt-Feed-Block Timeout – {len(pending)} Feed(s) abgebrochen, bereits geladene Feeds werden weiterverarbeitet")
+
+          # Phase 3 – Slow-Feeds einsammeln (laufen seit Phase 0 im Hintergrund)
+          print("── Phase 3: Slow-Feeds einsammeln ────────────────────────────────")
+          try:
+              for future in as_completed(slow_futures, timeout=2400):
+                  name, ips = future.result()
+                  _ingest(name, ips)
+          except TimeoutError:
+              pending = sorted(n for f, n in slow_futures.items() if not f.done())
+              for f in slow_futures:
+                  if not f.done():
+                      f.cancel()
+              print(f"::warning file=update_combined_blacklist.yml::Slow-Feed-Timeout nach 2400s – {len(pending)} Feed(s) abgebrochen: {', '.join(pending)}")
+              print(f"WARNUNG: Slow-Feed-Block Timeout – {len(pending)} Feed(s) abgebrochen")
+          slow_ex.shutdown(wait=False)
 
           # ── Lokale Sub-Workflow-Dateien einlesen ───────────────────────────
           LOCAL_FEEDS = {
