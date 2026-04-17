@@ -170,7 +170,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
-              write_json_atomic,
+              write_json_atomic, write_text_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -1239,8 +1239,7 @@ jobs:
               )
 
           # ── Report ─────────────────────────────────────────────────────────
-          with open("combined_threat_blacklist_report.md", "w", encoding="utf-8") as f:
-              f.write("# Combined Threat Blacklist Report\n\n")
+          write_text_atomic("combined_threat_blacklist_report.md", "# Combined Threat Blacklist Report\n\n")
               f.write(f"- Aktualisiert: **{now_stamp}**\n")
               f.write(f"- Feeds gesamt: **{len(SOURCES) + len(LOCAL_FEEDS)}** (davon {len(LOCAL_FEEDS)} lokale Sub-Workflow-Feeds)\n")
               f.write(f"- Stufe 1 (combined): **{len(sorted_ips)}** IPs\n")
@@ -1300,6 +1299,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_json_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -1318,8 +1318,7 @@ jobs:
                   meta["error"] = f"seen_db.json nicht lesbar: {e}"
                   meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
                   print(f"WARNUNG: seen_db.json korrupt oder nicht lesbar: {e}")
-          with open("seen_db_meta.json", "w", encoding="utf-8") as f:
-              json.dump(meta, f, indent=2)
+          write_json_atomic("seen_db_meta.json", meta, indent=2)
           PYEOF
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

@@ -48,6 +48,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_json_atomic, write_text_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -65,8 +66,7 @@ jobs:
           WORKFLOWS_DIR = ".github/workflows"
           if not os.path.isdir(WORKFLOWS_DIR):
               print(f"WARNUNG: {WORKFLOWS_DIR} nicht gefunden – kein Fallback auf Root.")
-              with open("workflow_health_report.md", "w", encoding="utf-8") as f:
-                  f.write("# Workflow Health Checker\n\n*Workflows-Verzeichnis nicht gefunden.*\n")
+              write_text_atomic("workflow_health_report.md", "# Workflow Health Checker\n\n*Workflows-Verzeichnis nicht gefunden.*\n")
               exit(0)
 
           files = sorted(f for f in os.listdir(WORKFLOWS_DIR) if f.endswith(".yml"))
@@ -2297,8 +2297,7 @@ jobs:
 
           lines.append(f"\n---\n*Generiert: {now_str} | {len(files)} Workflow-Dateien geprüft*")
 
-          with open("workflow_health_report.md", "w", encoding="utf-8") as f:
-              f.write("\n".join(lines))
+          write_text_atomic("workflow_health_report.md", "\n".join(lines))
           print("workflow_health_report.md geschrieben")
 
           # IP-Counts für Drift-Erkennung beim nächsten Lauf sammeln
@@ -2308,8 +2307,10 @@ jobs:
               if _c is not None:
                   _current_ip_counts[_fpath] = _c
 
-          with open("workflow_health_status.json", "w", encoding="utf-8") as f:
-              json.dump({
+          # FIX: atomar schreiben statt open("...", "w") – diese Datei wird von
+          # anderen Workflows gelesen. Bei Runner-Kill waehrend dem Schreiben
+          # bleibt sonst eine halb-geschriebene JSON-Datei zurueck.
+          write_json_atomic("workflow_health_status.json", {
                   "updated":           now_str,
                   "total":             len(files),
                   "ok":                ok_count,
@@ -2323,7 +2324,7 @@ jobs:
                       "warn":     len(_ph_warn),
                       "checks":   prod_health,
                   },
-              }, f, indent=2)
+              }, indent=2)
 
           if err_count > 0:
               print(f"\nFEHLER: {err_count} kritische Probleme gefunden – siehe workflow_health_report.md")

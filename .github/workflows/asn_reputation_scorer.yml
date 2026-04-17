@@ -39,6 +39,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_json_atomic, write_text_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -341,8 +342,7 @@ jobs:
               f"*Generiert: {now_str}*",
           ]
 
-          with open("asn_reputation_report.md", "w", encoding="utf-8") as f:
-              f.write("\n".join(lines))
+          write_text_atomic("asn_reputation_report.md", "\n".join(lines))
           print("asn_reputation_report.md geschrieben")
 
           if len(results) < MIN_ASN_RESULTS:
@@ -353,22 +353,27 @@ jobs:
               sys.exit(1)
 
           print("\nFirewall-Blockliste schreiben...")
-          with open("asn_blocklist_firewall.txt", "w", encoding="utf-8") as f:
-              f.write(f"# ASN Reputation Blocklist – NETSHIELD\n")
-              f.write(f"# Aktualisiert: {now_str}\n")
-              f.write(f"# Format: AS<Nummer> # Score | BL-Hits | Organisation | Land\n")
-              f.write(f"# Nur ASNs mit Score >= 50 (base_score + BL-Treffer + DROP/ET-Bonus)\n\n")
-              blocked = 0
-              for r in results:
-                  if r["score"] >= 50:
-                      f.write(
-                          f"{r['asn']}  "
-                          f"# Score:{r['score']} | "
-                          f"BL-Hits:{r['bl_matches']} | "
-                          f"{r['holder'][:40]} | "
-                          f"{r['country']}\n"
-                      )
-                      blocked += 1
+          # FIX: atomar schreiben (Format hat Meta-Kommentare je Zeile, passt
+          # nicht zu write_ip_list – daher write_text_atomic aus netshield_common).
+          _asn_lines = [
+              f"# ASN Reputation Blocklist – NETSHIELD",
+              f"# Aktualisiert: {now_str}",
+              f"# Format: AS<Nummer> # Score | BL-Hits | Organisation | Land",
+              f"# Nur ASNs mit Score >= 50 (base_score + BL-Treffer + DROP/ET-Bonus)",
+              "",
+          ]
+          blocked = 0
+          for r in results:
+              if r["score"] >= 50:
+                  _asn_lines.append(
+                      f"{r['asn']}  "
+                      f"# Score:{r['score']} | "
+                      f"BL-Hits:{r['bl_matches']} | "
+                      f"{r['holder'][:40]} | "
+                      f"{r['country']}"
+                  )
+                  blocked += 1
+          write_text_atomic("asn_blocklist_firewall.txt", "\n".join(_asn_lines) + "\n")
           print(f"  {blocked} ASNs mit Score >= 50 gelistet")
 
           # ── Schritt 5: asn_reputation_db.json ────────────────────────────
@@ -396,8 +401,8 @@ jobs:
                   "total_ips":           r["total_ips"],
               }
 
-          with open("asn_reputation_db.json", "w", encoding="utf-8") as f:
-              json.dump(db, f, indent=2)
+          # FIX: atomar schreiben (~230 KB, wird von anderen Scripts gelesen)
+          write_json_atomic("asn_reputation_db.json", db, indent=2)
 
           print(f"\nFERTIG: {len(results)} ASNs bewertet, {total_bl_hits:,} BL-Treffer gesamt")
           EOF

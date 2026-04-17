@@ -41,6 +41,8 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+
+              write_text_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -108,9 +110,11 @@ jobs:
           try:
               FEEDS = _extract_feeds_from_combined()
               print(f"✅ {len(FEEDS)} Feeds aus update_combined_blacklist.yml geladen")
-              # Cache speichern für Fallback bei zukünftigen Parse-Fehlern
-              with open(FEED_URLS_CACHE, "w", encoding="utf-8") as _cf:
-                  json.dump({"updated": now_str, "feeds": FEEDS}, _cf)
+              # Cache speichern für Fallback bei zukünftigen Parse-Fehlern.
+              # FIX: atomar schreiben – sonst Risiko einer halb-geschriebenen
+              # JSON-Datei bei Runner-Kill/OOM, die dann den Fallback-Zweig
+              # (unten) zum Absturz bringt.
+              write_json_atomic(FEED_URLS_CACHE, {"updated": now_str, "feeds": FEEDS})
           except Exception as _ex:
               # Fallback: gespeicherten Cache laden
               if os.path.exists(FEED_URLS_CACHE):
@@ -126,15 +130,13 @@ jobs:
                       print(f"::error file=feed_health_monitor.yml::{_err_msg}")
                       # FIX: Report immer VOR SystemExit schreiben, damit Commit-Step (if: always())
                       # einen aktuellen Fehler-Report committet statt den veralteten Stand zu behalten.
-                      with open("feed_health_report.md", "w", encoding="utf-8") as _ef:
-                          _ef.write(f"# Feed Health Monitor – Report\n**Aktualisiert:** {now_str}\n\n---\n\n## ❌ Kritischer Fehler\n\n*{_err_msg}*\n\n---\n*Generiert: {now_str}*\n")
+                      write_text_atomic("feed_health_report.md", f"# Feed Health Monitor – Report\n**Aktualisiert:** {now_str}\n\n---\n\n## ❌ Kritischer Fehler\n\n*{_err_msg}*\n\n---\n*Generiert: {now_str}*\n")
                       raise SystemExit(1)
               else:
                   _err_msg = f"Feed-Extraktion fehlgeschlagen (kein Cache vorhanden): {_ex}"
                   print(f"::error file=feed_health_monitor.yml::{_err_msg}")
                   # FIX: Report immer VOR SystemExit schreiben
-                  with open("feed_health_report.md", "w", encoding="utf-8") as _ef:
-                      _ef.write(f"# Feed Health Monitor – Report\n**Aktualisiert:** {now_str}\n\n---\n\n## ❌ Kritischer Fehler\n\n*{_err_msg}*\n\n---\n*Generiert: {now_str}*\n")
+                  write_text_atomic("feed_health_report.md", f"# Feed Health Monitor – Report\n**Aktualisiert:** {now_str}\n\n---\n\n## ❌ Kritischer Fehler\n\n*{_err_msg}*\n\n---\n*Generiert: {now_str}*\n")
                   raise SystemExit(1)
 
           IP_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b')
@@ -258,16 +260,17 @@ jobs:
 
           lines.append(f"\n---\n*Generiert: {now_str} | {len(FEEDS)} Feeds geprüft*")
 
-          with open("feed_health_report.md", "w", encoding="utf-8") as f:
-              f.write("\n".join(lines))
+          write_text_atomic("feed_health_report.md", "\n".join(lines))
           print("feed_health_report.md geschrieben")
 
           # FIX #9: failed_feeds und warned_feeds im JSON – damit netshield_report_generator
           # kritische Feed-Ausfälle namentlich im Dashboard anzeigen kann.
           failed_feeds = [r["name"] for r in results if not r["ok"]]
           warned_feeds = [r["name"] for r in results if r["ok"] and not r["has_ips"]]
-          with open("feed_health_status.json", "w", encoding="utf-8") as f:
-              json.dump({
+          # FIX: atomar schreiben – netshield_report_generator und workflow_health_checker
+          # lesen diese Datei. Bei Runner-Kill waehrend dem Schreiben koennten sie
+          # eine halb-geschriebene JSON-Datei sehen.
+          write_json_atomic("feed_health_status.json", {
                   "updated": now_str,
                   "summary": {"ok": ok_count, "warn": warn_count, "error": err_count},
                   "failed_feeds": failed_feeds,
@@ -281,7 +284,7 @@ jobs:
                       "missing": dp_missing,
                   },
                   "feeds": results,
-              }, f, indent=2)
+              }, indent=2)
           EOF
 
       - name: Commit

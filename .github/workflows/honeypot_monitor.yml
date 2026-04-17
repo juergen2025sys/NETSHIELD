@@ -41,6 +41,8 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+
+              write_text_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -204,8 +206,7 @@ jobs:
                     f"| Neu | **+{len(new_ips)}** |", f"| Entfernt | **-{len(removed_ips)}** |",
                     f"\n---\n*Generiert: {now_str}*"]
 
-          with open("honeypot_report.md", "w", encoding="utf-8") as f:
-              f.write("\n".join(lines))
+          write_text_atomic("honeypot_report.md", "\n".join(lines))
           print("honeypot_report.md geschrieben")
 
           # ── Leerungsschutz ────────────────────────────────────────────────

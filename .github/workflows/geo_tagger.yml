@@ -39,6 +39,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_json_atomic, write_text_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -266,8 +267,7 @@ jobs:
               f"*Generiert: {now_str}*",
           ]
 
-          with open("geo_tagger_report.md", "w", encoding="utf-8") as f:
-              f.write("\n".join(lines))
+          write_text_atomic("geo_tagger_report.md", "\n".join(lines))
           print("geo_tagger_report.md geschrieben")
 
           # ── Leerungsschutz ────────────────────────────────────────────────
@@ -282,15 +282,18 @@ jobs:
               sys.exit(1)
 
           # ── blacklist_geo_enriched.json ───────────────────────────────────
-          with open("blacklist_geo_enriched.json", "w", encoding="utf-8") as f:
-              json.dump({
+          # FIX: atomar schreiben (~68 MB, wird von workflow_health_checker gelesen).
+          # Bei der Groesse ist ein Runner-Kill waehrend dem Schreiben besonders
+          # wahrscheinlich → ohne atomaren Write bleibt eine halb-geschriebene
+          # JSON-Datei zurueck, die den Reader zum Absturz bringt.
+          write_json_atomic("blacklist_geo_enriched.json", {
                   "updated":       now_str,
                   "method":        "scanitex-cidr-match",
                   "bl_total":      len(bl_addrs),
                   "matched":       total_matched,
                   "unmatched":     len(unmatched),
                   "ip_to_country": ip_to_country,
-              }, f, separators=(",", ":"))
+              }, separators=(",", ":"))
           print("blacklist_geo_enriched.json geschrieben")
 
           print(f"\nFERTIG: {total_matched:,} von {len(bl_addrs):,} IPs ({pct_covered:.1f}%) zugeordnet")

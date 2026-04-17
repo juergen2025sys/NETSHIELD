@@ -41,6 +41,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_text_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -232,8 +233,7 @@ jobs:
                       print(f"NETSHIELD_REPORT.md: Daten unverändert – Schreiben übersprungen")
 
           if write_report:
-              with open("NETSHIELD_REPORT.md", "w", encoding="utf-8") as f:
-                  f.write(new_content)
+              write_text_atomic("NETSHIELD_REPORT.md", new_content)
               print(f"NETSHIELD_REPORT.md geschrieben | combined: {total:,} IPs")
           EOF
 
@@ -247,6 +247,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_text_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -401,8 +402,7 @@ jobs:
           _new_stripped = _ts_re_readme.sub("| TS |", content)
 
           if _old_stripped != _new_stripped:
-              with open("README.md", "w", encoding="utf-8") as f:
-                  f.write(content)
+              write_text_atomic("README.md", content)
               print(f"   Active={active:,} | CVE={cve:,} | Honeypot={honeypot:,} | Update={now_str}")
           else:
               print("README Header Stats: Daten unverändert – Schreiben übersprungen")
@@ -418,6 +418,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_text_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -510,8 +511,7 @@ jobs:
                   print(f"  ⚠️  {filename}: kein Match in README-Tabelle")
 
           if changes > 0:
-              with open("README.md", "w", encoding="utf-8") as f:
-                  f.write(readme)
+              write_text_atomic("README.md", readme)
               print(f"\n{changes} IP-Zahlen im README aktualisiert")
           else:
               print("Keine Änderungen am README")

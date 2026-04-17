@@ -75,6 +75,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_text_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -96,13 +97,13 @@ jobs:
               msg = "seen_db.json nicht im Cache gefunden; im Repo liegt höchstens seen_db_meta.json"
               print(f"::warning file=score_decay_monitor.yml::{msg}")
               print(f"WARNUNG: {msg}")
-              with open("score_decay_report.md", "w", encoding="utf-8") as f:
-                  f.write(f"# Score Decay Monitor\n\n*{msg}*\n\n"
-                          f"*Generiert: {now_str}*\n")
+              write_text_atomic("score_decay_report.md",
+                  f"# Score Decay Monitor\n\n*{msg}*\n\n"
+                  f"*Generiert: {now_str}*\n")
               # Vorhandenen Log NICHT überschreiben – nur Report schreiben
               if not os.path.exists("score_decay_log.txt"):
-                  with open("score_decay_log.txt", "w", encoding="utf-8") as f:
-                      f.write(f"# Score Decay Log | {now_str}\n# {msg}\n")
+                  write_text_atomic("score_decay_log.txt",
+                      f"# Score Decay Log | {now_str}\n# {msg}\n")
               print(f"ABBRUCH: {msg} – kein weiterer Score-Decay-Lauf möglich.")
               sys.exit(1)
 
@@ -113,12 +114,12 @@ jobs:
                   msg = f"seen_db.json ist korrupt oder nicht lesbar: {e}"
                   print(f"::warning file=score_decay_monitor.yml::{msg}")
                   print(f"FEHLER: {msg}")
-                  with open("score_decay_report.md", "w", encoding="utf-8") as rf:
-                      rf.write(f"# Score Decay Monitor\n\n*{msg}*\n\n"
-                               f"*Generiert: {now_str}*\n")
+                  write_text_atomic("score_decay_report.md",
+                      f"# Score Decay Monitor\n\n*{msg}*\n\n"
+                      f"*Generiert: {now_str}*\n")
                   if not os.path.exists("score_decay_log.txt"):
-                      with open("score_decay_log.txt", "w", encoding="utf-8") as f:
-                          f.write(f"# Score Decay Log | {now_str}\n# {msg}\n")
+                      write_text_atomic("score_decay_log.txt",
+                          f"# Score Decay Log | {now_str}\n# {msg}\n")
                   sys.exit(1)
 
           print(f"seen_db geladen: {len(db)} IPs")
@@ -221,17 +222,23 @@ jobs:
           print(f"Läuft bald ab (150+ Tage):        {len(decay_suggest)}")
 
           # Decay-Log
-          with open("score_decay_log.txt", "w", encoding="utf-8") as f:
-              f.write(f"# Score Decay Log | {now_str}\n# DB: {len(db)} IPs\n\n")
-              f.write("# ZOMBIE IPs (Score≥20, 30+ Tage inaktiv)\n")
-              for ip, score, days, last in zombie_high[:100]:
-                  f.write(f"{ip}  score={score}  last={last}  ({days}d ago)\n")
-              f.write("\n# KRITISCH veraltend (45+ Tage, Score≥10)\n")
-              for ip, score, days, last in stale_critical[:200]:
-                  f.write(f"{ip}  score={score}  last={last}  ({days}d ago)\n")
-              f.write("\n# Läuft bald ab (150+ Tage, combined entfernt bei 180T)\n")
-              for ip, score, days, last in decay_suggest[:500]:
-                  f.write(f"{ip}  score={score}  last={last}  ({days}d ago)\n")
+          _log_lines = [
+              f"# Score Decay Log | {now_str}",
+              f"# DB: {len(db)} IPs",
+              "",
+              "# ZOMBIE IPs (Score≥20, 30+ Tage inaktiv)",
+          ]
+          for ip, score, days, last in zombie_high[:100]:
+              _log_lines.append(f"{ip}  score={score}  last={last}  ({days}d ago)")
+          _log_lines.append("")
+          _log_lines.append("# KRITISCH veraltend (45+ Tage, Score≥10)")
+          for ip, score, days, last in stale_critical[:200]:
+              _log_lines.append(f"{ip}  score={score}  last={last}  ({days}d ago)")
+          _log_lines.append("")
+          _log_lines.append("# Läuft bald ab (150+ Tage, combined entfernt bei 180T)")
+          for ip, score, days, last in decay_suggest[:500]:
+              _log_lines.append(f"{ip}  score={score}  last={last}  ({days}d ago)")
+          write_text_atomic("score_decay_log.txt", "\n".join(_log_lines) + "\n")
 
           # Report
           lines = ["# Score Decay Monitor – Report", f"**Aktualisiert:** {now_str}\n", "---",
@@ -248,8 +255,7 @@ jobs:
                    "`update_combined_blacklist` nach **180 Tagen** ohne Feed-Bestätigung.\n",
                    f"---\n*Generiert: {now_str} | DB: {len(db)} IPs*"]
 
-          with open("score_decay_report.md", "w", encoding="utf-8") as f:
-              f.write("\n".join(lines))
+          write_text_atomic("score_decay_report.md", "\n".join(lines))
           print("score_decay_report.md geschrieben")
           EOF
 
