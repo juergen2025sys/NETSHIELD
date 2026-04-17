@@ -1,82 +1,1358 @@
---- NETSHIELD-main/.github/workflows/update_combined_blacklist.yml	2026-04-17 15:36:21.000000000 +0000
-+++ /home/claude/repo/NETSHIELD-main/.github/workflows/update_combined_blacklist.yml	2026-04-17 17:07:51.034754185 +0000
-@@ -23,7 +23,7 @@
- jobs:
-   update:
-     runs-on: ubuntu-latest
--    timeout-minutes: 70
-+    timeout-minutes: 90
- 
-     steps:
-       - name: Checkout Repository
-@@ -581,7 +581,7 @@
-           with ThreadPoolExecutor(max_workers=15) as executor:
-               futures = {executor.submit(fetch_ips, n, u): n for n, (u, _) in REST_SOURCES.items()}
-               try:
--                  for future in as_completed(futures, timeout=580):
-+                  for future in as_completed(futures, timeout=880):
-                       name, ips = future.result()
-                       _ingest(name, ips)
-               except TimeoutError:
-@@ -589,7 +589,7 @@
-                   for f in futures:
-                       if not f.done():
-                           f.cancel()
--                  print(f"::warning file=update_combined_blacklist.yml::Haupt-Feed-Timeout nach 600s – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:10])}{'…' if len(pending) > 10 else ''}")
-+                  print(f"::warning file=update_combined_blacklist.yml::Haupt-Feed-Timeout nach 900s – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:10])}{'…' if len(pending) > 10 else ''}")
-                   print(f"WARNUNG: Haupt-Feed-Block Timeout – {len(pending)} Feed(s) abgebrochen, bereits geladene Feeds werden weiterverarbeitet")
- 
-           # ── Lokale Sub-Workflow-Dateien einlesen ───────────────────────────
-@@ -1287,29 +1287,37 @@
-           git config user.name "github-actions[bot]"
-           git config user.email "github-actions[bot]@users.noreply.github.com"
- 
--          # ── Pre-Flight-Guard: Keine Datei >= 100 MB stagen ─────────────
-+          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
-+          # Split-Parts (falls erzeugt) und geloeschte Parts auch stagen
-+          git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
-+          git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
-+
-+          # ── Pre-Flight-Guard: Keine gestagete Datei >= 100 MB ──────────
-           # GitHub lehnt Push bei Dateien > 100 MB hart ab. Falls die
-           # Groessen-Schaetzung in der Split-Logik danebenlag (z.B. weil
-           # avg-line-length vom Sample abweicht), faengt dieser Check es
-           # ab BEVOR der Commit passiert. Besser hier hart fehlschlagen
-           # als 5 Push-Versuche mit Rebase-Loop und Datenverlust.
--          oversized=$(find . -type f -size +99M \
--              -not -path './.git/*' \
--              -not -path './node_modules/*' 2>/dev/null || true)
--          if [ -n "$oversized" ]; then
--              echo "::error file=update_combined_blacklist.yml::Pre-Flight-Guard: Datei(en) >= 100 MB gefunden – Push waere unmoeglich:"
--              echo "$oversized" | while read -r f; do
-+          # WICHTIG: Nur STAGED files pruefen – nicht das Working-Dir.
-+          # seen_db.json (~1 GB) lebt im Working-Dir (gitignored, nur im
-+          # Actions-Cache), darf den Guard also nicht triggern.
-+          oversized=""
-+          while IFS= read -r f; do
-+              [ -z "$f" ] && continue
-+              [ ! -f "$f" ] && continue
-+              sz_bytes=$(stat -c%s "$f" 2>/dev/null || echo 0)
-+              if [ "$sz_bytes" -ge 104857600 ]; then
-                   sz=$(du -h "$f" 2>/dev/null | cut -f1)
--                  echo "  $f ($sz)"
--              done
--              echo "FEHLER: Abbruch vor git add – nichts wird committet."
-+                  oversized="${oversized}  ${f} (${sz})"$'\n'
-+              fi
-+          done < <(git diff --staged --name-only --diff-filter=ACMR)
-+          if [ -n "$oversized" ]; then
-+              echo "::error file=update_combined_blacklist.yml::Pre-Flight-Guard: Gestagete Datei(en) >= 100 MB gefunden – Push waere unmoeglich:"
-+              printf '%s' "$oversized"
-+              echo "FEHLER: Abbruch vor git commit – nichts wird committet."
-+              git reset >/dev/null 2>&1 || true
-               exit 1
-           fi
--
--          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
--          # Split-Parts (falls erzeugt) und geloeschte Parts auch stagen
--          git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
--          git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
-           if git diff --staged --quiet; then
-             echo "Keine Änderungen"
-           else
+name: Update Combined Blacklist
+
+on:
+  schedule:
+    - cron: '0 */3 * * *'  # 8x täglich – alle 3 Stunden
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: read
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+
+concurrency:
+  group: netshield-seen-db-writers
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: true
+
+      - name: Restore seen_db Cache
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: seen_db.json
+          key: netshield-seen-db-v2-${{ github.run_id }}
+          restore-keys: |
+            netshield-seen-db-v2-
+            netshield-seen-db-community-
+            netshield-seen-db-v1-
+            netshield-seen-db-
+
+      - name: Fetch AbuseIPDB Blacklist (API, Round-Robin)
+        continue-on-error: true  # Rate-Limit (5 Req/Tag, Free-Plan) darf den Haupt-Build nicht blockieren
+        env:
+          ABUSEIPDB_KEY_1: ${{ secrets.ABUSEIPDB_API_KEY_1 }}
+          ABUSEIPDB_KEY_2: ${{ secrets.ABUSEIPDB_API_KEY_2 }}
+          ABUSEIPDB_KEY_3: ${{ secrets.ABUSEIPDB_API_KEY_3 }}
+        run: |
+          python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
+          import json, os, urllib.request, urllib.error
+          from datetime import datetime, timezone
+
+          now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+          # ── Fallback-Logik: Free-Plan erlaubt 1 Request/Tag pro Key ─────────────
+          # Key 1 wird zuerst versucht. Schlägt er fehl (429 Rate-Limit oder
+          # sonstiger Fehler), wird Key 2 versucht, dann Key 3.
+          # Da alle Keys dieselbe Liste zurückgeben (Free-Plan, Top-10.000
+          # nach Score ≥ 50), reicht ein erfolgreicher Request pro Tag.
+          # .strip() entfernt versehentliche Newlines/Leerzeichen aus dem Secret
+          KEYS = [
+              os.environ.get("ABUSEIPDB_KEY_1", "").strip(),
+              os.environ.get("ABUSEIPDB_KEY_2", "").strip(),
+              os.environ.get("ABUSEIPDB_KEY_3", "").strip(),
+          ]
+          MIN_SCORE = 50
+          LIMIT     = 10000
+
+          all_ips = set()
+          stats   = []
+
+          for idx, key in enumerate(KEYS, 1):
+              if not key:
+                  print(f"  Key {idx}: nicht gesetzt – übersprungen")
+                  stats.append((idx, 0, "KEY_MISSING"))
+                  continue
+
+              url = (
+                  f"https://api.abuseipdb.com/api/v2/blacklist"
+                  f"?confidenceMinimum={MIN_SCORE}&limit={LIMIT}&plaintext=1"
+              )
+              req = urllib.request.Request(url, headers={
+                  "Key":    key,
+                  "Accept": "text/plain",
+              })
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as r:
+                      status = r.status
+                      body   = r.read().decode("utf-8", errors="ignore")
+
+                  ips = {line.strip() for line in body.splitlines()
+                         if line.strip() and not line.startswith("#")
+                         and ":" not in line}   # IPv6 ausschließen
+                  all_ips.update(ips)
+                  print(f"  Key {idx}: {len(ips)} IPs  [HTTP {status}] – Erfolg, stoppe hier")
+                  stats.append((idx, len(ips), "OK"))
+                  break   # ← ein erfolgreicher Request reicht, nächste Keys schonen
+
+              except urllib.error.HTTPError as e:
+                  body = e.read().decode("utf-8", errors="ignore")[:200]
+                  print(f"  Key {idx}: HTTP {e.code} – {body} → versuche nächsten Key")
+                  stats.append((idx, 0, f"HTTP_{e.code}"))
+              except Exception as e:
+                  print(f"  Key {idx}: Fehler – {e} → versuche nächsten Key")
+                  stats.append((idx, 0, "ERROR"))
+
+          # ── Ergebnis speichern ────────────────────────────────────────────────
+          OUT = "abuseipdb_api_blacklist.txt"
+          sorted_ips = sorted(all_ips, key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
+
+          # ── Leerungsschutz für AbuseIPDB-Ausgabe ─────────────────────────
+          # Rate-Limit (Free-Plan: 5 Req/Tag) → exit(0) statt exit(1), da
+          # continue-on-error am Step den Build-Abbruch verhindert.
+          # Die bestehende abuseipdb_api_blacklist.txt wird als lokaler Feed weiter gelesen.
+          import sys
+          MIN_ABUSEIPDB = 100
+          if len(sorted_ips) < MIN_ABUSEIPDB:
+              msg = (f"Nur {len(sorted_ips)} AbuseIPDB-IPs (<{MIN_ABUSEIPDB}) – "
+                     f"Rate-Limit erschöpft, behalte bestehende {OUT}")
+              print(f"::warning file=update_combined_blacklist.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(0)  # exit(0) = kein Fehler; continue-on-error am Step verhindert Build-Block
+
+          # FIX ATOMIC: Direktes open("w") durch write_ip_list ersetzt –
+          # garantiert dass die Datei bei Crash/Kill/OOM entweder komplett
+          # alt oder komplett neu ist, nie halb geschrieben.
+          header_stats = [f"Key {idx}: {count} IPs [{status}]" for idx, count, status in stats]
+          write_ip_list(
+              OUT,
+              sorted_ips,
+              header_lines=[
+                  "AbuseIPDB API Blacklist – NETSHIELD",
+                  f"Aktualisiert: {now_str}",
+                  "Quellen: 3 API-Keys (Round-Robin)",
+                  f"Eintraege: {len(sorted_ips)}",
+                  *header_stats,
+              ],
+          )
+
+          print(f"\nAbuseIPDB gesamt: {len(sorted_ips)} einzigartige IPs → {OUT}")
+          EOF
+
+      - name: Fetch, discover, learn and build IPv4 lists
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_json_atomic,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+          import ipaddress, json, os, re, sys, urllib.request
+          from datetime import datetime, timezone, timedelta
+          from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
+
+          # FIX BUG-WL1: load_whitelist() + load_fp_set() fehlten in diesem Step.
+          # Jeder run:-Step ist ein eigener Prozess – der Aufruf im AbuseIPDB-Step
+          # (Zeile 65) hat hier keine Wirkung. Ohne diesen Aufruf waren
+          # _whitelist_networks und _protected_networks in netshield_common leer,
+          # is_whitelisted() gab immer False zurück → Whitelist-Leak in beiden Ausgabedateien.
+          load_whitelist()
+          load_fp_set()
+
+          now        = datetime.now(timezone.utc)
+          now_day    = now.strftime("%Y-%m-%d")
+          now_stamp  = now.strftime("%Y-%m-%d %H:%M UTC")
+          EXPIRY_DAYS = 180
+          DB_FILE     = "seen_db.json"
+          READ_LIMIT  = 25 * 1024 * 1024   # 25 MB pro Feed
+
+          IPV4_RE = re.compile(r'(?<!\d)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?!\d)')
+
+          # DNS_WHITELIST entfernt – wird über whitelist.json geladen (via netshield_common)
+
+          # ── Whitelist: IPs/CIDRs die NIE auf die Blacklist kommen ─────────
+          # Spiegelidentisch mit false_positive_checker.yml – hier gefiltert
+          # beim seen_db-Eintrag, damit sie gar nicht erst aufgenommen werden.
+          # Änderungen immer in BEIDEN Dateien synchron halten.
+          # ── Whitelist: IPs/CIDRs die NIE auf die Blacklist kommen ─────────
+          # Single Source of Truth: whitelist.json (synchron mit false_positive_checker)
+          try:
+              with open(".github/workflows/whitelist.json", encoding="utf-8") as _wl_f:
+                  WHITELIST_ENTRIES = json.load(_wl_f)["entries"]
+              if len(WHITELIST_ENTRIES) < 50:
+                  _msg = f"whitelist.json hat nur {len(WHITELIST_ENTRIES)} Einträge (<50) – möglicherweise korrupt"
+                  print(f"::error file=update_combined_blacklist.yml::{_msg}")
+                  print(f"FEHLER: {_msg}")
+                  sys.exit(1)
+          except Exception as _wl_err:
+              _msg = f"whitelist.json nicht ladbar: {_wl_err} – Workflow abgebrochen (Schutz vor ungefilterter Blacklist)"
+              print(f"::error file=update_combined_blacklist.yml::{_msg}")
+              print(f"FEHLER: {_msg}")
+              sys.exit(1)
+
+          _whitelist_networks = []
+          for _entry in list(WHITELIST_ENTRIES):
+              try:
+                  _whitelist_networks.append(ipaddress.ip_network(_entry, strict=False))
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+
+          # is_whitelisted() → importiert aus netshield_common
+          # PROTECTED_CIDRS entfernt – wird über whitelist.json + RFC1918 geladen (via netshield_common)
+          _protected_networks = []
+          # _protected_networks wird jetzt in load_whitelist() gebaut (netshield_common)
+          for _entry in []:
+              try:
+                  _protected_networks.append(ipaddress.ip_network(_entry, strict=False))
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+
+          # is_protected_entry() → importiert aus netshield_common
+          HIGH_QUALITY = {
+              "cinsscore", "cinsarmy", "greensnow", "feodo_aggressive", "feodo_recommended",
+              "threatfox_ioc", "binary_defense", "crowdsec_ssh",
+              "danger_bruteforce", "threatview_high_conf", "firehol_cybercrime",
+              "firehol_anonymous", "dshield", "cloudzy",
+              "urlhaus_ips", "firehol_level1", "firehol_level2", "firehol_level3",
+              "firehol_webclient", "firehol_webserver", "firehol_proxies", "firehol_abusers_1d",
+              "et_block", "et_compromised", "spamhaus_drop",
+              "blocklist_de_all", "blocklist_de_export", "blocklist_de_strongips",
+              "blocklist_de_ssh", "c2_tracker", "c2_iplist",
+              "ipsum_level5", "ipsum_level7", "abuseipdb_s100_30d", "abuseipdb_s100_7d",
+              "abuseipdb_score100", "turris_greylist",
+              # FIX BUG-DP1: DataPlane-Feeds hatten hq=True in SOURCES, fehlten aber
+              # in HIGH_QUALITY. Effekt: ip_in_hq wurde nie befüllt → strongly_confirmed_today
+              # blieb False → das "last"-Feld wurde nie aktualisiert → IPs alterten still
+              # nach 180 Tagen aus, obwohl DataPlane sie täglich frisch liefert.
+              # Alle 8 DataPlane-HQ-Feeds hier ergänzt; smtpgreet bleibt
+              # bewusst non-HQ (enthält auch harmlose Scanner/Surveyor-IPs).
+              "dataplane_sshclient", "dataplane_sshpwauth", "dataplane_vncrfb",
+              "dataplane_telnetlogin", "dataplane_dnsrd", "dataplane_smtpdata",
+              "dataplane_dnsrdany", "dataplane_dnsversion",
+          }
+
+          # ══════════════════════════════════════════════════════════════════
+          # SOURCES – erweitert um die vom User gelieferten Links
+          # Format: "name": ("url", hq_bool)
+          # ══════════════════════════════════════════════════════════════════
+          SOURCES = {
+              # ── Kern-Feeds ────────────────────────────────────────────────
+              "cinsscore":                  ("https://cinsscore.com/list/ci-badguys.txt", True),
+              "cinsarmy":                   ("https://cinsarmy.com/list/ci-badguys.txt", True),
+              "greensnow":                  ("https://blocklist.greensnow.co/greensnow.txt", True),
+              "feodo_aggressive":           ("https://feodotracker.abuse.ch/downloads/ipblocklist_aggressive.txt", True),
+              "feodo_recommended":          ("https://feodotracker.abuse.ch/downloads/ipblocklist.txt", True),
+              "threatfox_ioc":              ("https://raw.githubusercontent.com/elliotwutingfeng/ThreatFox-IOC-IPs/refs/heads/main/ips.txt", True),
+              "l7_ddos":                    ("https://raw.githubusercontent.com/Tizian-Maxime-Weigt/L7-HTTP-DDoS-Flood-IP-Signature-IP-List/refs/heads/main/ddos-signatures.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
+              "binary_defense":             ("https://binarydefense.com/banlist.txt", True),
+              "data_shield":                ("https://raw.githubusercontent.com/duggytuxy/Data-Shield_IPv4_Blocklist/refs/heads/main/prod_critical_data-shield_ipv4_blocklist.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
+              "interserver":                ("https://sigs.interserver.net/ip.txt", False),
+              "crowdsec_ssh":               ("https://raw.githubusercontent.com/Y3ll0w/CrowdSec-CAPI-Decisions/refs/heads/main/ssh-bf.json.txt", True),
+              "trcert_malware":             ("https://raw.githubusercontent.com/cenk/trcert-malware/refs/heads/main/trcert-ips.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
+              "danger_bruteforce":          ("https://danger.rulez.sk/projects/bruteforceblocker/blist.php", True),
+              "threatview_high_conf":       ("https://threatview.io/Downloads/IP-High-Confidence-Feed.txt", True),
+              "florent_banned":             ("https://raw.githubusercontent.com/florentvinai/bad-ips-on-my-vps/refs/heads/main/banned_ips.txt", False),
+              "firehol_cybercrime":         ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/cybercrime.ipset", True),
+              "firehol_anonymous":          ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_anonymous.netset", True),
+              "dshield":                    ("https://www.dshield.org/block.txt", True),
+              "cloudzy":                    ("https://raw.githubusercontent.com/CriticalPathSecurity/Public-Intelligence-Feeds/refs/heads/master/cloudzy.txt", True),
+              "bbcan177":                   ("https://gist.githubusercontent.com/BBcan177/d7105c242f17f4498f81/raw", False),
+              "kevinmarx":                  ("https://kevinmarx.org/malicious-ip-list.txt", False),
+              # "honeypot_blocklist" entfernt: yuexuana521/honeypot-blocklist Repo gelöscht
+              "edanwong":                   ("https://raw.githubusercontent.com/EdanWong/ip_list/refs/heads/main/my_ips.txt", False),
+              "nixbear_malicious":          ("https://raw.githubusercontent.com/nixbear/malicious_ips/refs/heads/main/malicious_ips.txt", False),
+              "ufukart_blacklist":          ("https://raw.githubusercontent.com/ufukart/Blacklist/main/blacklist.txt", False),
+              "f3csystems":                 ("https://raw.githubusercontent.com/f3csystems/BlockList_IP/refs/heads/main/blacklist.txt", False),
+              "fortigate_azure":            ("https://raw.githubusercontent.com/IT3ngineer/FortigateBlockList/refs/heads/main/AzureBlockListIPs.txt", False),
+              "romainmarcoux_aa":           ("https://raw.githubusercontent.com/romainmarcoux/malicious-ip/main/full-300k-aa.txt", False),
+              "romainmarcoux_ab":           ("https://raw.githubusercontent.com/romainmarcoux/malicious-ip/main/full-300k-ab.txt", False),
+              # "romainmarcoux_ac" entfernt: full-300k-ac.txt existiert nicht mehr (HTTP 200, leerer Body)
+              "4ip_high_security":          ("https://raw.githubusercontent.com/4IP-Solutions/threat-feeds/refs/heads/main/blocklist-incoming-ip-high-security.txt", False),
+              "cyna_malicious":             ("https://raw.githubusercontent.com/cybersecurity-cyna/Malicious_IP/refs/heads/main/ip-list.txt", False),
+              "black_mirror":               ("https://github.com/T145/black-mirror/releases/download/latest/BLOCK_IPV4.txt", False),
+              # "alienvault" entfernt: OTX/AlienVault laut Ausschluss-Policy deaktiviert
+              "bitwire_ipblocklist":        ("https://raw.githubusercontent.com/bitwire-it/ipblocklist/refs/heads/main/inbound.txt", False),
+              "littlejake_all_blacklist":   ("https://cdn.jsdelivr.net/gh/LittleJake/ip-blacklist/all_blacklist.txt", False),
+              "shadowwhisperer_hackers":    ("https://raw.githubusercontent.com/ShadowWhisperer/IPs/refs/heads/master/Malware/Hackers", False),
+              "netmountains_blocklist":     ("https://raw.githubusercontent.com/NETMOUNTAINS/Curated-IP-Blocklist/main/ip-blacklist.list", False),  # Community-Repo, kein verifizierter Betreiber
+              "bluetack_blacklist":         ("https://raw.githubusercontent.com/actuallymentor/bluetack-ip-blacklist-generator/refs/heads/master/blacklist", False),
+              "rtbh_output":                ("https://list.rtbh.com.tr/output.txt", False),
+              "sefinek_malicious":          ("https://raw.githubusercontent.com/sefinek/Malicious-IP-Addresses/main/lists/main.txt", False),
+              "magicteamc_bad_ips":         ("https://raw.githubusercontent.com/MagicTeaMC/bad-ips/refs/heads/main/bad-ips.txt", False),
+              "ddrimus_http_threats":       ("https://raw.githubusercontent.com/ddrimus/http-threat-blocklist/refs/heads/main/blocklist.txt", False),
+              "blacksnowdot_packets":       ("https://raw.githubusercontent.com/BlacKSnowDot0/packetsdatabase-db/refs/heads/main/ip_list.txt", False),
+              "freakuency_threatfeed":      ("https://raw.githubusercontent.com/FreakuencyFive/Public-IP-ThreatFeed/refs/heads/main/blacklist.txt", False),
+              "ultimate_hosts_ips0":        ("https://raw.githubusercontent.com/Ultimate-Hosts-Blacklist/Ultimate.Hosts.Blacklist/refs/heads/master/ips/ips0.list", False),
+              "amitambekar_threats":        ("https://raw.githubusercontent.com/amitambekar510/Malicious-IP-Threat-List/refs/heads/main/Malicious-IP-Threat-List.txt", False),
+              "amitambekar_threats_aa":     ("https://raw.githubusercontent.com/amitambekar510/Malicious-IP-Threat-List/main/Malicious-IP-Threat-List_aa", False),
+              "dolutech_blacklist":         ("https://raw.githubusercontent.com/dolutech/blacklist-dolutech/refs/heads/main/Black-list-semanal-dolutech.txt", False),
+              "zerof_ipextractor":          ("https://raw.githubusercontent.com/ZEROF/ipextractor/refs/heads/main/ipexdbl.txt", False),
+              "subnet_blocklist_new":       ("https://raw.githubusercontent.com/coyote-nl/blocklist/refs/heads/main/subnet-blocklist-new", False),
+              "bdix_prefix_ipv4":           ("https://raw.githubusercontent.com/tushroy/bdix-isp-blocks/refs/heads/master/bdix-prefix_ipv4.txt", False),
+
+              # ── Abuse.ch ──────────────────────────────────────────────────
+              # bazaar_c2 entfernt: Endpunkt liefert Hash-Listen, keine IPs → 0 Treffer
+              "urlhaus_ips":                ("https://urlhaus.abuse.ch/downloads/text/", True),
+
+              # ── FireHOL & Emerging Threats ────────────────────────────────
+              "firehol_level1":             ("https://iplists.firehol.org/files/firehol_level1.netset", True),
+              "firehol_level2":             ("https://iplists.firehol.org/files/firehol_level2.netset", True),
+              "firehol_level3":             ("https://iplists.firehol.org/files/firehol_level3.netset", True),
+              "firehol_level4":             ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level4.netset", False),
+              "firehol_webclient":          ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_webclient.netset", True),
+              "firehol_webserver":          ("https://iplists.firehol.org/files/firehol_webserver.netset", True),
+              "firehol_proxies":            ("https://iplists.firehol.org/files/firehol_proxies.netset", True),
+              "firehol_abusers_1d":         ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_abusers_1d.netset", True),
+              "et_block":                   ("https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt", True),
+              "et_compromised":             ("https://rules.emergingthreats.net/blockrules/compromised-ips.txt", True),
+              "spamhaus_drop":              ("https://www.spamhaus.org/drop/drop.txt", True),
+              # "spamhaus_edrop" entfernt: seit 10.04.2024 in DROP konsolidiert, edrop.txt ist leer
+              "blocklist_de_all":           ("https://lists.blocklist.de/lists/all.txt", True),
+              "blocklist_de_export":        ("https://www.blocklist.de/downloads/export-ips_all.txt", True),
+              "blocklist_de_strongips":     ("https://lists.blocklist.de/lists/strongips.txt", True),
+              "blocklist_de_getlast":       ("https://api.blocklist.de/getlast.php?time=43200", False),
+              "blocklist_de_ssh":           ("https://lists.blocklist.de/lists/ssh.txt", True),
+              "blocklist_de_mail":          ("https://lists.blocklist.de/lists/mail.txt", False),
+              "blocklist_de_apache":        ("https://lists.blocklist.de/lists/apache.txt", False),
+              "blocklist_de_imap":          ("https://lists.blocklist.de/lists/imap.txt", False),
+              "blocklist_de_ftp":           ("https://lists.blocklist.de/lists/ftp.txt", False),
+
+              # ── C2 / Botnet ───────────────────────────────────────────────
+              "c2_tracker":                 ("https://raw.githubusercontent.com/montysecurity/C2-Tracker/main/data/all.txt", True),
+              "c2_iplist":                  ("https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/feeds/IPC2s.csv", True),
+              # "cobalt_strike_ips" entfernt: Gi7w0rm/CobaltStrikeC2Tracker Repo gelöscht – C2 abgedeckt durch c2_tracker
+
+              # ── SSH / Brute-Force ─────────────────────────────────────────
+              "stopforumspam_toxic":        ("https://www.stopforumspam.com/downloads/toxic_ip_cidr.txt", False),
+
+              # ── Honeypot / Sensor Networks ───────────────────────────────
+              # DataPlane.org – betriebenes Sensor/Honeypot-Netzwerk
+              # Erfasst echte Angriffe auf SSH, VNC, Telnet, DNS, SMTP u.a.
+              # Format: ASN | ASname | ipaddr | lastseen | category
+              # parse_entries() extrahiert IPs korrekt per Fallback-Regex.
+              # Kein API-Key, freie nicht-kommerzielle Nutzung.
+              "dataplane_sshclient":        ("https://dataplane.org/sshclient.txt", True),
+              "dataplane_sshpwauth":        ("https://dataplane.org/sshpwauth.txt", True),
+              "dataplane_vncrfb":           ("https://dataplane.org/vncrfb.txt", True),
+              "dataplane_telnetlogin":      ("https://dataplane.org/telnetlogin.txt", True),
+              "dataplane_dnsrd":            ("https://dataplane.org/dnsrd.txt", True),
+              "dataplane_smtpdata":         ("https://dataplane.org/smtpdata.txt", True),
+              "dataplane_smtpgreet":        ("https://dataplane.org/smtpgreet.txt", False),
+              # smtpgreet: HQ=False – enthält auch harmlose SMTP-Scanner/Surveyor-IPs
+              "dataplane_dnsrdany":         ("https://dataplane.org/dnsrdany.txt", True),
+              "dataplane_dnsversion":       ("https://dataplane.org/dnsversion.txt", True),
+
+              # ThreatHive – Community-Honeypot-Netzwerk, 146k+ IPs, alle 15 Min aktualisiert.
+              # Plain-Text-Feed, kein API-Key, kein Rate-Limit.
+              "threathive_blocklist":       ("https://threathive.net/hiveblocklist.txt", False),
+
+              # ── Scanning / Recon ──────────────────────────────────────────
+              "ipsum_level3":               ("https://raw.githubusercontent.com/stamparm/ipsum/master/levels/3.txt", False),
+              "ipsum_level5":               ("https://raw.githubusercontent.com/stamparm/ipsum/master/levels/5.txt", True),
+              "ipsum_level7":               ("https://raw.githubusercontent.com/stamparm/ipsum/master/levels/7.txt", True),
+              "ipsum_master":               ("https://raw.githubusercontent.com/stamparm/ipsum/refs/heads/master/ipsum.txt", False),
+              # "shodan_scanners" entfernt: jgamblin/Shodan-Malware-Scanning-IPs Repo gelöscht – Shodan via binaryedge_scanners
+              "binaryedge_scanners":        ("https://raw.githubusercontent.com/stamparm/maltrail/master/trails/static/mass_scanner.txt", False),
+              # "normshield_ssh" entfernt: normshield_all_ssh.ipset bei firehol nicht mehr verfügbar
+
+              # ── Spam / Phishing ───────────────────────────────────────────
+              # "spamhaus_pbl" entfernt: elliotwutingfeng/Spamhaus-DNSBL-IPs pbl-aggressive.txt → HTTP 404
+              # "phishing_army" entfernt: enthält Domains, keine IPs → liefert immer 0 IPs
+              # "openphish" entfernt: liefert URLs, keine IPs → immer 0 nutzbare Einträge
+              "pgl_yoyo_adservers":         ("https://pgl.yoyo.org/adservers/iplist.php?format=&showintro=0", False),
+
+              # ── AbuseIPDB ─────────────────────────────────────────────────
+              "abuseipdb_s100_30d":         ("https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-30d.ipv4", True),
+              "abuseipdb_s100_7d":          ("https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-7d.ipv4", True),  # ersetzt abuseipdb_s90_30d
+              "abuseipdb_tmiland":          ("https://abuseipdb.tmiland.com/abuseipdb.txt", False),
+              "abuseipdb_score75":          ("https://raw.githubusercontent.com/LittleJake/ip-blacklist/refs/heads/main/abuseipdb_blacklist_ip_score_75.txt", False),
+              "abuseipdb_score100":         ("https://raw.githubusercontent.com/LittleJake/ip-blacklist/refs/heads/main/abuseipdb_blacklist_ip_score_100.txt", True),
+              "abuseipdb_scriptzteam":      ("https://raw.githubusercontent.com/scriptzteam/AbuseIPDB-BlackList/refs/heads/main/abuseipdb_blacklist.txt", False),
+              "abuseipdb_axllent":          ("https://raw.githubusercontent.com/axllent/iplists/master/lists/abuseipdb-30d.txt", False),
+
+              # ── Community / GitHub ────────────────────────────────────────
+              # "mrlooker_threats" entfernt: mrlooker/Suspicious-IPs Repo gelöscht
+              # "gridinsoft" entfernt: GridinSoft/IP-Blocklist Repo gelöscht
+              # "duggytuxy_agr" entfernt: Dateiname geändert – abgedeckt durch data_shield (gleiches Repo-Netz)
+              "turris_greylist":            ("https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv", True),
+              # "talos_intelligence" entfernt: URL zu snort.org umgezogen, Terms-Accept required – nicht automatisierbar
+              # "eset_apr" entfernt: elliotwutingfeng/ESET-APR-IPs Repo gelöscht
+              "romainmarcoux_outgoing_aa":  ("https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-aa.txt", False),
+              "romainmarcoux_outgoing_ab":  ("https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-ab.txt", False),
+              # "fullbogons_ipv4" entfernt: team-cymru.org/fullbogons-ipv4.txt enthält ausschließlich
+              # Bogon-Ranges (nicht-routbar/reserviert) – is_valid_public_ipv4() filtert 100% heraus
+              # → 0 nutzbare IPs, ~3 MB sinnloser Download pro Lauf (analog zu honeypot_monitor.yml)
+
+              # ── Tor Exit Nodes ────────────────────────────────────────────
+              # tor_* entfernt: tor_exit_monitor Workflow wurde entfernt
+          }
+
+          # ── seen_db laden ──────────────────────────────────────────────────
+          db = {}
+          if os.path.exists(DB_FILE):
+              try:
+                  with open(DB_FILE) as f:
+                      db = json.load(f)
+                  print(f"seen_db geladen: {len(db)} IPs")
+              except Exception:
+                  db = {}
+          else:
+              print("Keine seen_db gefunden – starte neu.")
+
+          # ── FIX #1: false_positives_set.json einlesen ─────────────────────
+          # false_positive_checker schreibt diese Datei; combined liest sie hier
+          # und schließt die IPs beim Feed-Ingest aus – kein direktes Schreiben
+          # in combined_threat_blacklist_ipv4.txt durch den FP-Checker mehr.
+          FP_SET_FILE = "false_positives_set.json"
+          _fp_networks = []
+          _fp_ips      = set()
+          if os.path.exists(FP_SET_FILE):
+              try:
+                  with open(FP_SET_FILE) as _f:
+                      _fp_data = json.load(_f)
+                  for _e in _fp_data.get("ips", []):
+                      try:
+                          if "/" in _e:
+                              _fp_networks.append(ipaddress.ip_network(_e, strict=False))
+                          else:
+                              _fp_ips.add(_e)
+                      except Exception as _suppressed:
+                          print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+                  print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs als FP geladen")
+              except Exception as _ex:
+                  print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
+
+          # is_in_fp_set() → importiert aus netshield_common
+          # is_valid_public_ipv4() → importiert aus netshield_common
+          CIDR_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b')
+
+          # ── FIX PERF-COMBINED: Batch-Filter mit Binary-Search ────────────
+          # is_protected_entry(), is_whitelisted(), is_in_fp_set() iterieren
+          # jeweils über 502-2945 Netzwerk-Ranges pro IP-Aufruf.
+          # Bei 4,5M IPs × (502+502+2945) Checks = ~45 Min verschwendet.
+          # Lösung: sortierte Intervall-Listen + bisect → O(N × log K).
+          import bisect as _bisect
+
+          # Alle geschützten Netzwerke (Whitelist + RFC1918 + FP-CIDRs) zusammenführen
+          _all_protected_nets = list(_protected_networks) + list(_whitelist_networks)
+          if _fp_networks:
+              _all_protected_nets.extend(_fp_networks)
+
+          _prot_intervals = sorted(
+              (int(n.network_address), int(n.broadcast_address))
+              for n in _all_protected_nets
+          )
+          _prot_starts = [iv[0] for iv in _prot_intervals]
+
+          # Whitelist+FP (ohne RFC1918) – für Cleanup-Scans
+          _wl_fp_nets = list(_whitelist_networks)
+          if _fp_networks:
+              _wl_fp_nets.extend(_fp_networks)
+          _wl_fp_intervals = sorted(
+              (int(n.network_address), int(n.broadcast_address))
+              for n in _wl_fp_nets
+          )
+          _wl_fp_starts = [iv[0] for iv in _wl_fp_intervals]
+
+          def _fast_is_protected(ip_str):
+              """Schneller Protected-Check via Binary-Search (O(log K) statt O(K)).
+              FIX BUG-CIDR1: CIDRs fallen auf is_protected_entry() zurück,
+              da Binary-Search nur die Netzadresse prüft, nicht den Range-Overlap.
+              CIDRs sind <5% der Einträge → kein Performance-Impact."""
+              try:
+                  if '/' in ip_str:
+                      return is_protected_entry(ip_str)
+                  ip_int = int(ipaddress.ip_address(ip_str))
+                  pos = _bisect.bisect_right(_prot_starts, ip_int) - 1
+                  if pos >= 0 and ip_int <= _prot_intervals[pos][1]:
+                      return True
+                  # Einzel-IPs im FP-Set (O(1) Set-Lookup)
+                  return ip_str in _fp_ips
+              except Exception:
+                  return False
+
+          def _fast_is_wl_or_fp(ip_str):
+              """Schneller Whitelist+FP-Check via Binary-Search.
+              FIX BUG-CIDR1: CIDRs fallen auf is_whitelisted()/is_in_fp_set() zurück."""
+              try:
+                  if ip_str in _fp_ips:
+                      return True
+                  if '/' in ip_str:
+                      return is_whitelisted(ip_str) or is_in_fp_set(ip_str)
+                  ip_int = int(ipaddress.ip_address(ip_str))
+                  pos = _bisect.bisect_right(_wl_fp_starts, ip_int) - 1
+                  return pos >= 0 and ip_int <= _wl_fp_intervals[pos][1]
+              except Exception:
+                  return False
+
+          print(f"Binary-Search-Index: {len(_prot_intervals)} Protected + {len(_wl_fp_intervals)} WL/FP Intervalle")
+
+          # is_valid_public_cidr() → importiert aus netshield_common
+          removed_preexisting_protected = 0
+          # FIX PERF-COMBINED: Binary-Search statt is_protected_entry() pro IP
+          _protected_old = [ip for ip in db if _fast_is_protected(ip)]
+          for ip in _protected_old:
+              db.pop(ip, None)
+              removed_preexisting_protected += 1
+          if removed_preexisting_protected:
+              print(f"Geschützte Alt-Einträge aus seen_db entfernt: {removed_preexisting_protected}")
+
+          # parse_feed_entries() → importiert aus netshield_common
+          def fetch_ips(name, url):
+              try:
+                  req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD/3.0"})
+                  opener = urllib.request.build_opener(urllib.request.HTTPRedirectHandler())
+                  with opener.open(req, timeout=22) as r:
+                      raw = r.read(READ_LIMIT).decode("utf-8", errors="ignore")
+                  found = parse_entries(raw, use_protected_check=True)
+                  ips   = len([e for e in found if '/' not in e])
+                  cidrs = len([e for e in found if '/' in e])
+                  print(f"OK  {name}: {ips} IPs" + (f" + {cidrs} CIDRs" if cidrs else ""))
+                  return name, found
+              except Exception as e:
+                  print(f"ERR  {name}: {type(e).__name__}: {e}")
+                  print(f"::warning file=update_combined_blacklist.yml::Feed fetch failed [{name}]: {type(e).__name__}: {e}")
+                  return name, set()
+
+          # ── Alle Feeds laden: DataPlane zuerst, dann den Rest parallel ────
+          ip_in_hq      = set()
+          feed_stats    = []
+
+          ip_feeds_today = {}   # ip → set(feed_namen) für diesen Run
+
+          def _ingest(name, ips):
+              """Ergebnis eines fetch_ips-Calls in die laufenden Datenstrukturen einpflegen."""
+              for ip in ips:
+                  if name in HIGH_QUALITY:
+                      ip_in_hq.add(ip)
+                  if ip not in ip_feeds_today:
+                      ip_feeds_today[ip] = set()
+                  ip_feeds_today[ip].add(name)
+              feed_stats.append((name, len(ips)))
+
+          # Phase 1 – DataPlane-Feeds zuerst (9 kleine Dateien, ~2–3 s)
+          DP_SOURCES  = {n: u for n, (u, _) in SOURCES.items() if n.startswith("dataplane_")}
+          REST_SOURCES = {n: (u, hq) for n, (u, hq) in SOURCES.items() if not n.startswith("dataplane_")}
+
+          print("── Phase 1: DataPlane-Feeds ──────────────────────────────────────")
+          with ThreadPoolExecutor(max_workers=len(DP_SOURCES)) as dp_ex:
+              dp_futures = {dp_ex.submit(fetch_ips, n, u): n for n, u in DP_SOURCES.items()}
+              try:
+                  for future in as_completed(dp_futures, timeout=60):
+                      name, ips = future.result()
+                      _ingest(name, ips)
+              except TimeoutError:
+                  pending = sorted(n for f, n in dp_futures.items() if not f.done())
+                  for f in dp_futures:
+                      if not f.done():
+                          f.cancel()
+                  print(f"::warning file=update_combined_blacklist.yml::DataPlane-Timeout – {len(pending)} Feed(s) abgebrochen: {', '.join(pending)}")
+                  print(f"WARNUNG: DataPlane-Phase Timeout – {', '.join(pending)} abgebrochen")
+
+          # Phase 2 – Alle übrigen Feeds parallel
+          print("── Phase 2: Restliche Feeds ──────────────────────────────────────")
+          with ThreadPoolExecutor(max_workers=15) as executor:
+              futures = {executor.submit(fetch_ips, n, u): n for n, (u, _) in REST_SOURCES.items()}
+              try:
+                  for future in as_completed(futures, timeout=880):
+                      name, ips = future.result()
+                      _ingest(name, ips)
+              except TimeoutError:
+                  pending = sorted(n for f, n in futures.items() if not f.done())
+                  for f in futures:
+                      if not f.done():
+                          f.cancel()
+                  print(f"::warning file=update_combined_blacklist.yml::Haupt-Feed-Timeout nach 900s – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:10])}{'…' if len(pending) > 10 else ''}")
+                  print(f"WARNUNG: Haupt-Feed-Block Timeout – {len(pending)} Feed(s) abgebrochen, bereits geladene Feeds werden weiterverarbeitet")
+
+          # ── Lokale Sub-Workflow-Dateien einlesen ───────────────────────────
+          LOCAL_FEEDS = {
+              # tor_exit_nodes.txt entfernt
+              "cve_exploit_ips.txt":             True,
+              "bot_detector_blacklist_ipv4.txt": False,
+              "honeypot_ips.txt":                True,
+              "honeydb_ips.txt":                 True,   # HoneyDB Community Honeypot Network (API)
+              "abuseipdb_api_blacklist.txt":     True,   # AbuseIPDB API (Round-Robin, HQ)
+              # FIX CACHE-LOSS: Community-gemeldete IPs werden von community_ip_report.yml
+              # in diese Datei geschrieben und hier als LOCAL_FEED eingelesen.
+              # HQ=False: Einzelne Community-Meldungen sind keine vertrauenswürdige Quelle;
+              # HQ-Promotion erfolgt erst bei community_count >= 3 (in community_ip_report.yml).
+              "community_reported_ips.txt":      False,
+          }
+          # FIX: Lokale HQ-Dateinamen für hq_feed_names_today-Berechnung.
+          # Dateinamen wie "honeydb_ips.txt" sind nicht in HIGH_QUALITY (Feed-Namen),
+          # werden aber als HQ-Quelle behandelt → müssen separat erfasst werden damit
+          # hq_feeds-Zähler in seen_db die lokalen HQ-Dateien korrekt mitzählt.
+          LOCAL_HQ_NAMES = {name for name, is_hq in LOCAL_FEEDS.items() if is_hq}
+          # FIX STALE1: Alters-Check für lokale Feed-Dateien.
+          # Sub-Workflows schreiben einen "# Aktualisiert: YYYY-MM-DD HH:MM UTC"-Header.
+          # Bei > 48h Alter (sub-workflow ausgefallen) GitHub Warning ausgeben.
+          #
+          # FIX STALE2: update_confidence_blacklist fehlte im Alters-Check.
+          # blacklist_confidence40_ipv4.txt und watchlist_confidence25to39_ipv4.txt
+          # sind keine LOCAL_FEEDS (werden nicht als IP-Quelle eingelesen), wurden
+          # deshalb nie auf Aktualität geprüft. Fehlt ein confidence-Run, merkt
+          # combined das nicht. Beide Dateien werden jetzt separat überwacht.
+          _LOCAL_FEED_MAX_AGE_HOURS = 48
+          _ts_re = re.compile(r'#\s*Aktualisiert:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\s*UTC')
+          _EXTRA_AGE_CHECK_FILES = [
+              "blacklist_confidence40_ipv4.txt",       # update_confidence_blacklist
+              "watchlist_confidence25to39_ipv4.txt",   # update_confidence_blacklist
+          ]
+          for _extra_file in _EXTRA_AGE_CHECK_FILES:
+              if not os.path.exists(_extra_file):
+                  continue
+              with open(_extra_file) as _ef:
+                  _extra_raw = _ef.read(4096)  # Header reicht, kein vollständiges Lesen nötig
+              _ts_m_extra = _ts_re.search(_extra_raw)
+              if _ts_m_extra:
+                  try:
+                      _extra_dt = datetime.strptime(_ts_m_extra.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+                      _extra_age_h = (now - _extra_dt).total_seconds() / 3600
+                      if _extra_age_h > _LOCAL_FEED_MAX_AGE_HOURS:
+                          _extra_msg = (f"{_extra_file} ist {_extra_age_h:.0f}h alt "
+                                        f"(letztes Update: {_ts_m_extra.group(1)} UTC) – "
+                                        f"update_confidence_blacklist möglicherweise ausgefallen")
+                          print(f"::warning file=update_combined_blacklist.yml::{_extra_msg}")
+                          print(f"WARNUNG: {_extra_msg}")
+                  except Exception as _suppressed:
+                      print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+          for local_file, is_hq_local in LOCAL_FEEDS.items():
+              if not os.path.exists(local_file):
+                  print(f"  SKIP (nicht vorhanden): {local_file}")
+                  continue
+              with open(local_file) as lf:
+                  raw_local = lf.read()
+              # Alters-Check
+              _ts_m = _ts_re.search(raw_local)
+              if _ts_m:
+                  try:
+                      _file_dt = datetime.strptime(_ts_m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+                      _age_h = (now - _file_dt).total_seconds() / 3600
+                      if _age_h > _LOCAL_FEED_MAX_AGE_HOURS:
+                          _stale_msg = (f"{local_file} ist {_age_h:.0f}h alt "
+                                        f"(letztes Update: {_ts_m.group(1)} UTC) – "
+                                        f"Sub-Workflow möglicherweise ausgefallen")
+                          print(f"::warning file=update_combined_blacklist.yml::{_stale_msg}")
+                          print(f"WARNUNG: {_stale_msg}")
+                  except Exception as _suppressed:
+                      print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+              local_ips = parse_entries(raw_local, use_protected_check=True)
+              for entry in local_ips:
+                  if is_hq_local:
+                      ip_in_hq.add(entry)
+                  if entry not in ip_feeds_today:
+                      ip_feeds_today[entry] = set()
+                  ip_feeds_today[entry].add(local_file)
+              ips_l   = len([e for e in local_ips if '/' not in e])
+              cidrs_l = len([e for e in local_ips if '/' in e])
+              feed_stats.append((local_file, len(local_ips)))
+              print(f"  Lokal: {local_file} → {ips_l} IPs" + (f" + {cidrs_l} CIDRs" if cidrs_l else "") + f" (HQ={is_hq_local})")
+
+
+          # ── Auto-discovered Feeds einlesen ─────────────────────────────────
+          AUTO_FEEDS_FILE = "auto_discovered_feeds.json"
+          if os.path.exists(AUTO_FEEDS_FILE):
+              try:
+                  with open(AUTO_FEEDS_FILE) as af:
+                      auto_data = json.load(af)
+                  auto_feeds = auto_data.get("feeds", [])
+                  print(f"  Auto-discovered Feeds: {len(auto_feeds)}")
+
+                  def fetch_auto(feed):
+                      return fetch_ips(feed["name"], feed["url"])
+
+                  with ThreadPoolExecutor(max_workers=5) as ex:
+                      futures = {ex.submit(fetch_auto, f): f["name"] for f in auto_feeds}
+                      try:
+                          for future in as_completed(futures, timeout=110):
+                              name, ips = future.result()
+                              for ip in ips:
+                                  # Auto-discovered Feeds sind nicht HQ
+                                  if ip not in ip_feeds_today:
+                                      ip_feeds_today[ip] = set()
+                                  ip_feeds_today[ip].add(name)
+                              feed_stats.append((name, len(ips)))
+                      except TimeoutError:
+                          pending = sorted(name for future, name in futures.items() if not future.done())
+                          for future in futures:
+                              if not future.done():
+                                  future.cancel()
+                          print(f"  WARNUNG: Auto-Feeds Timeout – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:8])}{'…' if len(pending) > 8 else ''}")
+              except Exception as e:
+                  print(f"  WARNUNG: auto_discovered_feeds.json Fehler: {e}")
+          else:
+              print(f"  SKIP: {AUTO_FEEDS_FILE} nicht vorhanden")
+
+          # ── seen_db aktualisieren ─────────────────────────────────────────
+          #
+          # Felder pro IP:
+          #   first        – erster Sichttag (unveränderlich)
+          #   last         – letzter Tag an dem die IP "stark bestätigt" war:
+          #                  >= 2 verschiedene Feeds HEUTE oder mindestens 1 HQ-Feed HEUTE
+          #                  Statische Mega-Listen (romainmarcoux 300k etc.) die sich
+          #                  nicht täglich ändern, aktualisieren "last" NICHT alleine.
+          #   hq           – True wenn IP je in einem HQ-Feed gesehen wurde
+          #   feeds        – akkumulierte Feed-Namen (für Persistenz-Score)
+          #   hq_feeds     – Anzahl verschiedener HQ-Feeds die diese IP je gemeldet haben
+          #   today_count  – Anzahl Feeds die diese IP im LETZTEN RUN gemeldet haben
+          #                  (wird bei jedem Run überschrieben, kein Akkumulieren)
+          #   today_hq     – True wenn mindestens 1 HQ-Feed diese IP heute gemeldet hat
+          #   days_seen    – Anzahl verschiedener Tage an denen "stark bestätigt" wurde
+          #                  (echter Multi-Tag-Bestätigungszähler)
+          #
+          # "last" NUR aktualisieren wenn heute durch HQ-Feed bestätigt:
+          # Non-HQ Feeds setzen "last" nie → statische Listen halten IPs nicht am Leben
+
+          for ip, today_feeds in ip_feeds_today.items():
+              # FIX PERF-COMBINED: Binary-Search statt is_whitelisted() + is_in_fp_set()
+              if _fast_is_wl_or_fp(ip):
+                  continue
+              today_count = len(today_feeds)
+              today_is_hq = ip in ip_in_hq
+
+              # HQ-Feed-Anzahl für diese IP heute (benannte Feeds + lokale HQ-Dateien)
+              # FIX: LOCAL_HQ_NAMES ergänzt – Dateinamen wie "honeydb_ips.txt" sind
+              # nicht in HIGH_QUALITY, müssen aber als HQ-Quelle mitzählen.
+              # WICHTIG: Muss VOR strongly_confirmed_today berechnet werden.
+              hq_feed_names_today = today_feeds & (HIGH_QUALITY | LOCAL_HQ_NAMES)
+
+              # FIX AGGREGATOR1: "Stark bestätigt" = mindestens 2 verschiedene HQ-Feeds HEUTE.
+              # Vorher: 1 HQ-Feed reichte → Aggregator-Feeds wie firehol_level1 hielten
+              # IPs ewig am Leben, auch wenn kein anderer Feed sie noch meldete.
+              # Jetzt: Einzelne HQ-Feeds setzen hq=True und erhöhen feed_count,
+              # aber nur 2+ unabhängige HQ-Quellen refreshen "last".
+              # Für NEUE IPs (nicht in db) bleibt 1 HQ-Feed ausreichend für den
+              # Ersteintrag – siehe "last": now_day if today_is_hq weiter unten.
+              # Non-HQ Feeds dürfen "last" weiterhin NICHT aktualisieren.
+              strongly_confirmed_today = len(hq_feed_names_today) >= 2
+
+              if ip in db:
+                  try:
+                      if not isinstance(db[ip], dict):
+                          raise TypeError(f"db[{ip}] ist kein dict")
+                      existing_feeds = set(db[ip].get("feeds", []))
+
+                      if strongly_confirmed_today:
+                          prev_last = db[ip].get("last", "2000-01-01")
+                          if prev_last != now_day:
+                              # Neuer Bestätigungstag → days_seen erhöhen (startet bei 0)
+                              db[ip]["days_seen"] = db[ip].get("days_seen", 0) + 1
+                          db[ip]["last"] = now_day
+
+                      db[ip]["feeds"]       = sorted(existing_feeds | today_feeds)
+                      db[ip]["today_count"] = today_count
+                      db[ip]["today_hq"]    = today_is_hq
+                      if today_is_hq:
+                          db[ip]["hq"] = True
+                      # FIX Bug3: hq_feeds als Set einzigartiger Feed-Namen akkumulieren.
+                      # Vorher: rohe Addition pro Lauf → unbegrenztes Wachstum (8 Läufe/Tag × 40 HQ-Feeds).
+                      # Jetzt: Zählt jede HQ-Feed-Quelle nur einmal, egal wie oft sie gemeldet hat.
+                      existing_hq_names = set(db[ip].get("hq_feed_names", []))
+                      existing_hq_names.update(hq_feed_names_today)
+                      db[ip]["hq_feed_names"] = sorted(existing_hq_names)
+                      db[ip]["hq_feeds"]      = len(existing_hq_names)
+                  except Exception as _corrupt:
+                      print(f"WARN: Korrupter seen_db-Eintrag {ip}, wird neu angelegt: {_corrupt}", file=sys.stderr)
+                      db[ip] = {
+                          "first":          now_day,
+                          "last":           now_day if today_is_hq else "2000-01-01",
+                          "hq":             today_is_hq,
+                          "feeds":          sorted(today_feeds),
+                          "hq_feed_names":  sorted(hq_feed_names_today),
+                          "hq_feeds":       len(hq_feed_names_today),
+                          "today_count":    today_count,
+                          "today_hq":       today_is_hq,
+                          "days_seen":      1 if today_is_hq else 0,
+                      }
+              else:
+                  db[ip] = {
+                      "first":          now_day,
+                      # FIX AGGREGATOR1: Neue IPs bekommen last=heute bei 1+ HQ-Feed.
+                      # Nur das REFRESHEN von last bei bestehenden IPs braucht 2+ HQ-Feeds
+                      # (strongly_confirmed_today). So kommen frische Feodo/ThreatFox-IPs
+                      # sofort in active, altern aber nach 30 Tagen raus wenn nur 1
+                      # Aggregator-Feed sie weitermeldet.
+                      "last":           now_day if today_is_hq else "2000-01-01",
+                      "hq":             today_is_hq,
+                      "feeds":          sorted(today_feeds),
+                      "hq_feed_names":  sorted(hq_feed_names_today),   # FIX Bug3: auch bei Neu-Einträgen
+                      "hq_feeds":       len(hq_feed_names_today),
+                      "today_count":    today_count,
+                      "today_hq":       today_is_hq,
+                      "days_seen":      1 if today_is_hq else 0,
+                  }
+
+          protected_removed_runtime = 0
+          # FIX PERF-COMBINED: Binary-Search statt is_protected_entry() pro IP
+          _protected_runtime = [ip for ip in db if _fast_is_protected(ip)]
+          for ip in _protected_runtime:
+              db.pop(ip, None)
+              protected_removed_runtime += 1
+          if protected_removed_runtime:
+              print(f"Geschützte Einträge nach Feed-Ingest entfernt: {protected_removed_runtime}")
+
+          # Aufnahme-Filter: mindestens 2 verschiedene Feeds (gesamt) oder HQ.
+          # AUSNAHME: Community-Reports (feeds=['community_report']) werden NICHT
+          # sofort gelöscht – sie leben bis zum Watchlist-Expiry (30 Tage nach first).
+          # Hintergrund: auto_feed_discovery hatte denselben Bug (dort als FIX Bug2
+          # behoben). Community-IPs haben nur 1 Feed-Eintrag ('community_report') und
+          # hq=False solange community_count < 3 → würden ohne diese Ausnahme beim
+          # nächsten Run sofort gelöscht, obwohl der Issue-Kommentar 'Added to Watchlist'
+          # verspricht.
+          current_valid = {
+              ip for ip, data in db.items()
+              if isinstance(data, dict) and not _fast_is_protected(ip) and (
+                  len(data.get("feeds", [])) >= 2
+                  or data.get("hq")
+                  or "community_report" in data.get("feeds", [])
+              )
+          }
+          # Collect-then-delete: explicit two-pass to satisfy dict-mutation linter
+          _invalid_ips = [ip for ip in db if ip not in current_valid]
+          for ip in _invalid_ips:
+              db.pop(ip, None)
+
+          # ── 180-Tage-Ablauf ────────────────────────────────────────────────
+          # Watchlist-IPs (last="2000-01-01", hq=False) haben nie eine HQ-Bestätigung
+          # erhalten. Für sie wird das Ablaufdatum vom first-Datum berechnet, damit
+          # Community-Reports nicht sofort beim nächsten Lauf gelöscht werden.
+          # Reguläre IPs laufen weiterhin nach ihrem last-Datum ab (180 Tage).
+          # Gemäß README-Spezifikation: Watchlist-IPs ohne HQ-Bestätigung
+          # laufen nach 30 Tagen ab, HQ-bestätigte IPs nach 180 Tagen.
+          # Vorher stand hier 180 – das widersprach Spec und allen
+          # Inline-Kommentaren und hielt Community-Reports ohne HQ-Bestätigung
+          # bis zu 150 Tage länger als vorgesehen in seen_db.
+          WATCHLIST_EXPIRY_DAYS = 30
+          expired = []
+          cutoff      = now - timedelta(days=EXPIRY_DAYS)
+          cutoff_wl   = now - timedelta(days=WATCHLIST_EXPIRY_DAYS)
+          # Collect-then-delete: two-pass avoids RuntimeError and satisfies dict-mutation linter
+          _to_expire = []
+          for ip in list(db.keys()):
+              try:
+                  entry     = db[ip]
+                  last_str  = safe_get_date(entry, "last")
+                  first_str = safe_get_date(entry, "first", last_str)
+                  is_hq     = entry.get("hq", False)
+                  last_seen  = datetime.strptime(last_str,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                  first_seen = datetime.strptime(first_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+
+                  if last_str == "2000-01-01" and not is_hq:
+                      # Watchlist-IP: Ablauf nach first-Datum (30 Tage)
+                      if first_seen < cutoff_wl:
+                          _to_expire.append(ip)
+                  else:
+                      # Normale IP: Ablauf nach last-Datum (180 Tage)
+                      if last_seen < cutoff:
+                          _to_expire.append(ip)
+              except Exception:
+                  _to_expire.append(ip)
+          for ip in _to_expire:
+              expired.append(ip)
+              db.pop(ip, None)
+          print(f"Abgelaufen (>{EXPIRY_DAYS} Tage / Watchlist >{WATCHLIST_EXPIRY_DAYS} Tage): {len(expired)} IPs entfernt")
+
+          # ── Whitelist-/FP-Altlasten aus seen_db bereinigen ───────────────
+          # IPs, die vor Einführung eines neuen Whitelist-/FP-Eintrags bereits
+          # in seen_db lagen, würden sonst beim Schreiben der Combined-Datei
+          # wieder auftauchen. Deshalb hier vor dem Persistieren aktiv entfernen.
+          _wl_cleanup = [ip for ip in db if _fast_is_wl_or_fp(ip)]
+          for ip in _wl_cleanup:
+              db.pop(ip, None)
+          if _wl_cleanup:
+              print(f"Whitelist-Bereinigung seen_db: {len(_wl_cleanup)} IPs entfernt")
+
+          # ── community_reported_ips.txt Stale-Bereinigung ─────────────────
+          # FIX STALE-COMMUNITY2: community_ip_report.yml nutzt append-only
+          # (Race-Condition-Fix). Stale IPs werden hier bereinigt, nachdem
+          # seen_db-Expiry gelaufen ist. Nur IPs behalten die noch in seen_db
+          # sind – abgelaufene (30-Tage-Watchlist / 180-Tage-Ablauf) entfernen.
+          _COMMUNITY_FILE = "community_reported_ips.txt"
+          if os.path.exists(_COMMUNITY_FILE):
+              with open(_COMMUNITY_FILE, encoding="utf-8") as _cf:
+                  _community_all = {
+                      l.strip() for l in _cf
+                      if l.strip() and not l.startswith("#")
+                  }
+              _community_active = _community_all & set(db.keys())
+              _community_stale = _community_all - _community_active
+              if _community_stale:
+                  _community_sorted = sorted(
+                      _community_active,
+                      key=lambda x: (tuple(int(o) for o in x.split('/')[0].split('.')), x),
+                  )
+                  with open(_COMMUNITY_FILE, "w", encoding="utf-8") as _cf:
+                      _cf.write("# NETSHIELD Community Reported IPs\n")
+                      _cf.write(f"# Aktualisiert: {now_stamp}\n")
+                      _cf.write("# Quelle: GitHub Issues (community-report Label)\n\n")
+                      if _community_sorted:
+                          _cf.write("\n".join(_community_sorted) + "\n")
+                  print(f"community_reported_ips.txt: {len(_community_stale)} veraltete IPs entfernt, "
+                        f"{len(_community_active)} aktive behalten")
+
+          # ── seen_db speichern ──────────────────────────────────────────────
+          # Atomar via write_json_atomic (tmp-Datei + fsync + os.replace).
+          # Verhindert korrupte seen_db.json bei Runner-OOM/SIGKILL/Timeout.
+          # Ohne Atomicity wuerde eine halb geschriebene Datei naechsten Run
+          # als korrupt erkannt → db={} → Leerungsschutz → kein Update.
+          write_json_atomic(DB_FILE, db, separators=(",", ":"))
+
+          # ── Stufe 1: combined_threat_blacklist_ipv4.txt (alle DB-IPs) ─────
+          # FIX Bug6: Numerische IP-Sortierung (1.2.3.4 vor 10.0.0.1),
+          # konsistent mit active_blacklist und allen anderen Ausgabedateien.
+          # Zusätzlicher Guard: Whitelist-/FP-Treffer dürfen auch als Altlasten
+          # aus früheren seen_db-Ständen nie mehr in die Combined-Ausgabe.
+          try:
+              sorted_ips = sorted(
+                  [ip for ip in db.keys()
+                   if not _fast_is_protected(ip)
+                   and not _fast_is_wl_or_fp(ip)],
+                  key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e)
+              )
+          except Exception:
+              sorted_ips = sorted(
+                  [ip for ip in db.keys()
+                   if not _fast_is_protected(ip)
+                   and not _fast_is_wl_or_fp(ip)]
+              )
+          feed_stats.sort(key=lambda x: -x[1])
+
+          # ── Leerungsschutz combined ───────────────────────────────────────
+          # Verhindert das Überschreiben der Blacklist wenn seen_db leer/korrupt
+          # ist oder alle Feeds gleichzeitig ausgefallen sind (z.B. Runner-Netzwerkausfall).
+          # Schwelle: 1000 IPs – bei normalbetrieb sind stets >10.000 IPs vorhanden.
+          MIN_COMBINED = 1000
+          if len(sorted_ips) < MIN_COMBINED:
+              msg = (f"Nur {len(sorted_ips)} IPs in combined (< {MIN_COMBINED}) – "
+                     f"Leerungsschutz aktiv, combined_threat_blacklist_ipv4.txt wird NICHT überschrieben.")
+              print(f"::error file=update_combined_blacklist.yml::{msg}")
+              print(f"FEHLER: {msg}")
+              sys.exit(1)
+
+          # FIX ATOMIC: Direktes open("w") durch write_ip_list ersetzt –
+          # verhindert halb geschriebene Datei bei Runner-OOM/SIGKILL.
+          # Die Datei bleibt bei Crash entweder komplett alt oder komplett
+          # neu – Garantie über os.replace() + fsync.
+          #
+          # FIX HARD-LIMIT: Groesse VOR dem Schreiben schaetzen. Wenn die
+          # Hauptdatei >= HARD_LIMIT_MB waere, Truncate-Fallback: nur die
+          # ersten N IPs schreiben, sodass die Datei unter dem Limit bleibt.
+          # Die Vollstaendigkeit kommt in den Parts. Ohne diesen Check
+          # wuerde git push hart fehlschlagen und der komplette Run
+          # (inkl. korrekt erzeugter Parts) ginge verloren.
+          HARD_LIMIT_MB = 100  # GitHub Push-Limit (auch unten verwendet)
+          TRUNCATE_TARGET_MB = 95  # Sicherheitspuffer unter HARD_LIMIT_MB
+
+          # Schaetzung: avg bytes/line aus einem STRATIFIZIERTEN Sample.
+          # sorted_ips ist numerisch sortiert, niedrige Oktette (1.x.x.x) sind
+          # kuerzer als hohe (223.x.x.x). Ein Sample vom Anfang unterschaetzt
+          # daher systematisch um ~15-20%. Gleichverteiltes Sample via Stride
+          # bringt den Fehler auf <0.1%.
+          _step = max(1, len(sorted_ips) // 10_000)
+          _sample = sorted_ips[::_step][:10_000] if sorted_ips else []
+          _avg_line = (sum(len(s) + 1 for s in _sample) / len(_sample)) if _sample else 16
+          _header_overhead = 512  # grosszuegig fuer 5 Kommentarzeilen
+          # +2% Sicherheitsaufschlag fuer Sample-Restunschaerfe
+          estimated_mb = (len(sorted_ips) * _avg_line * 1.02 + _header_overhead) / 1024 / 1024
+          print(f"\nGeschaetzte Groesse combined (ungesplittet): {estimated_mb:.1f} MB")
+
+          if estimated_mb >= HARD_LIMIT_MB:
+              # Truncate: wie viele IPs passen in TRUNCATE_TARGET_MB?
+              max_ips = int((TRUNCATE_TARGET_MB * 1024 * 1024 - _header_overhead) / _avg_line)
+              max_ips = max(1000, min(max_ips, len(sorted_ips)))
+              truncated_ips = sorted_ips[:max_ips]
+              dropped = len(sorted_ips) - max_ips
+              trunc_msg = (
+                  f"Hauptdatei wuerde {estimated_mb:.1f} MB (>= {HARD_LIMIT_MB} MB "
+                  f"GitHub-Limit) – TRUNCATE auf {max_ips:,} IPs (~{TRUNCATE_TARGET_MB} MB). "
+                  f"{dropped:,} IPs ausschliesslich in Parts. Consumer auf Parts umstellen!"
+              )
+              print(f"::warning file=update_combined_blacklist.yml::{trunc_msg}")
+              print(f"WARNUNG: {trunc_msg}")
+              write_ip_list(
+                  "combined_threat_blacklist_ipv4.txt",
+                  truncated_ips,
+                  header_lines=[
+                      "NETSHIELD Combined Threat Blacklist (IPv4) – Stufe 1 [TRUNCATED]",
+                      f"Aktualisiert: {now_stamp}",
+                      f"Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}",
+                      f"Eintraege in dieser Datei: {max_ips} (von {len(sorted_ips)} gesamt)",
+                      f"WICHTIG: {dropped} IPs NICHT in dieser Datei enthalten "
+                      f"(GitHub-Hard-Limit 100 MB).",
+                      "Fuer vollstaendigen Schutz: combined_threat_blacklist_ipv4_part*.txt verwenden.",
+                      f"Abgelaufen entfernt: {len(expired)}",
+                  ],
+              )
+          else:
+              write_ip_list(
+                  "combined_threat_blacklist_ipv4.txt",
+                  sorted_ips,
+                  header_lines=[
+                      "NETSHIELD Combined Threat Blacklist (IPv4) – Stufe 1",
+                      f"Aktualisiert: {now_stamp}",
+                      f"Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}",
+                      f"Eintraege: {len(sorted_ips)}",
+                      f"Abgelaufen entfernt: {len(expired)}",
+                  ],
+              )
+
+          # ── Split-Logik fuer grosse Dateien ───────────────────────────
+          # GitHub lehnt Push bei Dateien > 100 MB ab. Sobald combined
+          # ueber SPLIT_THRESHOLD waechst, zusaetzlich in Parts von ca.
+          # PART_TARGET_MB schreiben. Die Haupt-Datei bleibt als Legacy
+          # erhalten solange sie unter 100 MB ist (sonst wuerde ein
+          # etablierter Download-Link brechen).
+          import glob
+          SPLIT_THRESHOLD_MB = 90     # ab hier Parts erzeugen
+          PART_TARGET_MB     = 40     # Groesse pro Part
+          # HARD_LIMIT_MB bereits oben definiert (Truncate-Fallback)
+
+          combined_size_mb = os.path.getsize("combined_threat_blacklist_ipv4.txt") / 1024 / 1024
+          print(f"\ncombined_threat_blacklist_ipv4.txt (tatsaechlich): {combined_size_mb:.1f} MB")
+
+          # Existierende Parts sammeln (zum Aufraeumen wenn nicht mehr noetig)
+          existing_parts = sorted(glob.glob("combined_threat_blacklist_ipv4_part*.txt"))
+
+          # WICHTIG: Split-Entscheidung auf Basis der VOLLSTAENDIGEN Liste
+          # (estimated_mb), nicht der evtl. truncatierten Hauptdatei. Bei Truncate
+          # muessen die Parts zwingend existieren, weil sie die einzige
+          # vollstaendige Quelle sind.
+          if estimated_mb >= SPLIT_THRESHOLD_MB:
+              # Ziel: ~PART_TARGET_MB pro Part. Wir splitten nach Zeilen-Anzahl
+              # proportional zur Gesamtgroesse (deterministisch auf der bereits
+              # sortierten Liste – die Reihenfolge bleibt stabil).
+              num_parts = max(2, int((estimated_mb / PART_TARGET_MB) + 0.5))
+              chunk_size = (len(sorted_ips) + num_parts - 1) // num_parts
+
+              print(f"  -> Split aktiv: {num_parts} Parts a ~{PART_TARGET_MB} MB "
+                    f"({chunk_size:,} IPs/Part)")
+
+              new_parts = []
+              for idx in range(num_parts):
+                  start = idx * chunk_size
+                  end   = min(start + chunk_size, len(sorted_ips))
+                  if start >= len(sorted_ips):
+                      break
+                  part_name = f"combined_threat_blacklist_ipv4_part{idx+1}.txt"
+                  write_ip_list(
+                      part_name,
+                      sorted_ips[start:end],
+                      header_lines=[
+                          f"NETSHIELD Combined Threat Blacklist – Part {idx+1}/{num_parts}",
+                          f"Aktualisiert: {now_stamp}",
+                          f"IP-Bereich: {sorted_ips[start]} bis {sorted_ips[end-1]}",
+                          f"Eintraege: {end - start}",
+                          "Siehe README fuer Nutzung mit allen Parts.",
+                      ],
+                  )
+                  new_parts.append(part_name)
+                  print(f"  {part_name}: {end - start:,} IPs")
+
+              # Alte Parts entfernen, die nicht mehr erzeugt wurden
+              # (z.B. Liste schrumpft von 5 auf 3 Parts)
+              for old in existing_parts:
+                  if old not in new_parts:
+                      try:
+                          os.unlink(old)
+                          print(f"  Alten Part entfernt: {old}")
+                      except OSError:
+                          pass
+
+              # Info-Ausgabe (Truncate-Warnung wurde bereits oben geloggt)
+              if estimated_mb < HARD_LIMIT_MB:
+                  msg = (f"Vollliste waere {estimated_mb:.1f} MB "
+                         f"(>= {SPLIT_THRESHOLD_MB} MB). Parts erzeugt als Reserve.")
+                  print(f"::warning file=update_combined_blacklist.yml::{msg}")
+                  print(f"WARNUNG: {msg}")
+          else:
+              # Unter Schwelle: Eventuell vorhandene alte Parts aufraeumen
+              for old in existing_parts:
+                  try:
+                      os.unlink(old)
+                      print(f"  Alten Part entfernt (unter Schwelle): {old}")
+                  except OSError:
+                      pass
+
+          # ── Stufe 2: active_blacklist_ipv4.txt (30 Tage + Confidence >= 65) ──
+          # Kriterien kombiniert:
+          #   1. last_seen <= 30 Tage  (nur HQ-Feeds setzen last → echte Aktualität)
+          #   2. Confidence-Score >= 65 (gleiche Schwelle wie active_blacklist-Header)
+          # Ziel: kleine, qualitativ hochwertige OPNsense-Liste ohne statischen Ballast.
+          cutoff_30 = now - timedelta(days=30)
+          active_ips = []
+          active_skipped_score = 0   # besteht Recency, aber Score < 65
+          active_skipped_old   = 0   # zu alt (last_dt > 30 Tage)
+
+          for ip, data in db.items():
+              try:
+                  if not isinstance(data, dict):
+                      continue
+                  if _fast_is_protected(ip):
+                      continue
+                  # FIX BUG-WL2: Expliziter Whitelist-/FP-Check – konsistent mit
+                  # combined-Ausgabe (Zeile 822-826). is_protected_entry() deckt die
+                  # Whitelist zwar ab, aber ein expliziter Guard ist robuster und
+                  # verhindert Regression falls is_protected_entry() je geändert wird.
+                  if _fast_is_wl_or_fp(ip):
+                      continue
+                  # FIX: Watchlist-IPs haben last="2000-01-01" als Sentinel-Wert (keine echte
+                  # HQ-Bestätigung). Sie würden durch cutoff_30 korrekt gefiltert, aber das
+                  # Verhalten hängt implizit am Sentinel-Datum. Explizit überspringen ist robuster.
+                  #
+                  # WICHTIG: Dieser Guard ist NICHT redundant zum Score-Cutoff ≥65. Eine
+                  # Watchlist-IP mit hq=True (Grenzfall) könnte theoretisch score_a=40 +
+                  # score_c=20 + score_d=10 = 70 erreichen und den Cutoff passieren, obwohl
+                  # sie das Sentinel-Datum hat. Der Guard ist die eigentliche Sicherung.
+                  if data.get("last", "") == "2000-01-01":
+                      continue
+                  try:
+                      last_dt  = datetime.strptime(data["last"],  "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      first_dt = datetime.strptime(safe_get_date(data, "first", safe_get_date(data, "last")), "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                  except Exception:
+                      continue
+
+                  if last_dt < cutoff_30:
+                      active_skipped_old += 1
+                      continue
+
+                  is_hq       = data.get("hq", False)
+                  feed_count  = len(data.get("feeds", []))
+                  today_count = data.get("today_count", 0)
+                  days_seen   = data.get("days_seen", 1)
+                  days_since_last = (now - last_dt).days
+                  days_known      = (now - first_dt).days + 1
+
+                  # FIX DRY: Inline-Scoring entfernt, rufe stattdessen die
+                  # zentrale Funktion aus netshield_common auf. Verhindert
+                  # Drift mit update_confidence_blacklist.yml und spart
+                  # ~30 Zeilen. Die Funktion ist crash-sicher gegen
+                  # korrupte seen_db-Werte (Typ-Koerzierung intern).
+                  conf = calculate_confidence(
+                      is_hq=is_hq,
+                      today_count=today_count,
+                      feed_count=feed_count,
+                      days_since_last=days_since_last,
+                      days_seen=days_seen,
+                      days_known=days_known,
+                  )
+
+                  if conf >= 65:
+                      active_ips.append(ip)
+                  else:
+                      active_skipped_score += 1
+              except Exception as _corrupt:
+                  print(f"WARN: Korrupter seen_db-Eintrag {ip}: {_corrupt}", file=sys.stderr)
+                  continue
+
+          try:
+              active_ips.sort(key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
+          except Exception:
+              active_ips.sort()
+
+          # ── Leerungsschutz active ─────────────────────────────────────────
+          # active_blacklist kann bei einem frischen Repo (noch keine HQ-Daten) oder
+          # nach einem Cache-Miss leer sein – in dem Fall die bestehende Datei behalten.
+          # Kein sys.exit(1): combined wurde bereits geschrieben, nur active überspringen.
+          MIN_ACTIVE = 100
+          if len(active_ips) < MIN_ACTIVE:
+              msg = (f"Nur {len(active_ips)} aktive IPs (< {MIN_ACTIVE}) – "
+                     f"active_blacklist_ipv4.txt wird NICHT überschrieben (behalte vorherigen Stand).")
+              print(f"::warning file=update_combined_blacklist.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+          else:
+              # FIX ATOMIC: write_ip_list statt open("w") – Crash-sicher.
+              write_ip_list(
+                  "active_blacklist_ipv4.txt",
+                  active_ips,
+                  header_lines=[
+                      "NETSHIELD Active Blacklist (IPv4) – Stufe 2",
+                      f"Aktualisiert: {now_stamp}",
+                      "Kriterien: last_seen <= 30 Tage UND Confidence-Score >= 65/100",
+                      f"Eintraege: {len(active_ips)}",
+                      f"Herausgefiltert (zu alt >30T): {active_skipped_old} | (Score <65): {active_skipped_score}",
+                  ],
+              )
+
+          # ── Report ─────────────────────────────────────────────────────────
+          with open("combined_threat_blacklist_report.md", "w", encoding="utf-8") as f:
+              f.write("# Combined Threat Blacklist Report\n\n")
+              f.write(f"- Aktualisiert: **{now_stamp}**\n")
+              f.write(f"- Feeds gesamt: **{len(SOURCES) + len(LOCAL_FEEDS)}** (davon {len(LOCAL_FEEDS)} lokale Sub-Workflow-Feeds)\n")
+              f.write(f"- Stufe 1 (combined): **{len(sorted_ips)}** IPs\n")
+              f.write(f"- Stufe 2 (active, 30T + Conf≥65): **{len(active_ips)}** IPs | herausgefiltert: {active_skipped_old} zu alt, {active_skipped_score} Score<65\n")
+              f.write(f"- Abgelaufen & entfernt: **{len(expired)}**\n\n")
+              f.write("## Feed-Statistik\n\n| Feed | IPs |\n|---|---:|\n")
+              for name, count in feed_stats:
+                  hq_mark = " ⭐" if name in HIGH_QUALITY else ""
+                  f.write(f"| `{name}`{hq_mark} | {count} |\n")
+
+          print(f"\nFertig! combined: {len(sorted_ips)} IPs | active: {len(active_ips)} IPs | zu alt: {active_skipped_old} | Score<65: {active_skipped_score} | Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}")
+          EOF
+
+      - name: Save seen_db Cache
+        # FIX BUG-AL1: if: always() ergänzt. Ohne dieses Guard wurde der Cache-Save
+        # übersprungen wenn der Haupt-Python-Step mit einer unbehandelten Exception
+        # crashte (z.B. während json.dump bei Netzwerkproblem). Folge: Downstream-
+        # Workflows (Confidence, Score Decay, FP-Checker) griffen auf veralteten Cache
+        # zurück – Confidence-Blacklist berechnete dann Scores auf Basis einer
+        # möglicherweise Stunden alten seen_db.
+        if: always()
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: seen_db.json
+          # v2: Kein statischer "latest"-Key mehr. Restore erfolgt über Prefix
+          # und bekommt dadurch immer den neuesten verfügbaren Cache.
+          key: netshield-seen-db-v2-${{ github.run_id }}
+
+
+      - name: Backup seen_db to Repo (komprimiert)
+        if: always()
+        run: |
+          if [ -f seen_db.json ]; then
+            # Komprimiertes Backup (nur wenn seen_db > 1MB, also nicht leer/korrupt)
+            SIZE=$(stat -c%s seen_db.json 2>/dev/null || echo 0)
+            if [ "$SIZE" -gt 1048576 ]; then
+              gzip -c seen_db.json > seen_db_backup.json.gz
+              echo "seen_db Backup erstellt: $(du -h seen_db_backup.json.gz | cut -f1)"
+            else
+              echo "seen_db zu klein ($SIZE Bytes) – kein Backup (möglicherweise korrupt)"
+            fi
+          fi
+
+      - name: Commit and Push
+        # FIX BUG-AL1 (2/2): if: always() ergänzt. Ohne diesen Guard wurden bei einem
+        # Python-Crash weder combined_threat_blacklist_ipv4.txt noch active_blacklist noch
+        # seen_db_meta.json committet. Das Repo zeigte dann veraltete Stände obwohl der
+        # Workflow technisch gelaufen war. Auch Fehler-Teilstände (z.B. Report ohne
+        # Blacklist-Update) sollen sichtbar ins Repo committed werden.
+        if: always()
+        run: |
+          python3 - << 'PYEOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+          import json, os
+          from datetime import datetime, timezone
+          now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+          meta = {"note": "seen_db.json nur im GitHub Actions Cache (zu gross fuer Repo)", "updated": now_str}
+          if os.path.exists("seen_db.json"):
+              try:
+                  with open("seen_db.json") as f:
+                      db = json.load(f)
+                  meta["total_ips"] = len(db)
+                  meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
+                  print(f"seen_db: {len(db)} IPs, {meta['size_mb']} MB")
+              except Exception as e:
+                  meta["error"] = f"seen_db.json nicht lesbar: {e}"
+                  meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
+                  print(f"WARNUNG: seen_db.json korrupt oder nicht lesbar: {e}")
+          with open("seen_db_meta.json", "w", encoding="utf-8") as f:
+              json.dump(meta, f, indent=2)
+          PYEOF
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
+          # Split-Parts (falls erzeugt) und geloeschte Parts auch stagen
+          git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
+          git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
+
+          # ── Pre-Flight-Guard: Keine gestagete Datei >= 100 MB ──────────
+          # GitHub lehnt Push bei Dateien > 100 MB hart ab. Falls die
+          # Groessen-Schaetzung in der Split-Logik danebenlag (z.B. weil
+          # avg-line-length vom Sample abweicht), faengt dieser Check es
+          # ab BEVOR der Commit passiert. Besser hier hart fehlschlagen
+          # als 5 Push-Versuche mit Rebase-Loop und Datenverlust.
+          # WICHTIG: Nur STAGED files pruefen – nicht das Working-Dir.
+          # seen_db.json (~1 GB) lebt im Working-Dir (gitignored, nur im
+          # Actions-Cache), darf den Guard also nicht triggern.
+          oversized=""
+          while IFS= read -r f; do
+              [ -z "$f" ] && continue
+              [ ! -f "$f" ] && continue
+              sz_bytes=$(stat -c%s "$f" 2>/dev/null || echo 0)
+              if [ "$sz_bytes" -ge 104857600 ]; then
+                  sz=$(du -h "$f" 2>/dev/null | cut -f1)
+                  oversized="${oversized}  ${f} (${sz})"$'\n'
+              fi
+          done < <(git diff --staged --name-only --diff-filter=ACMR)
+          if [ -n "$oversized" ]; then
+              echo "::error file=update_combined_blacklist.yml::Pre-Flight-Guard: Gestagete Datei(en) >= 100 MB gefunden – Push waere unmoeglich:"
+              printf '%s' "$oversized"
+              echo "FEHLER: Abbruch vor git commit – nichts wird committet."
+              git reset >/dev/null 2>&1 || true
+              exit 1
+          fi
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Update Combined Blacklist: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            # FIX: Unstaged Änderungen entfernen, damit git rebase nicht fehlschlägt
+            git stash --include-untracked || true
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                git checkout --theirs combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
+                  combined_threat_blacklist_report.md \
+                  seen_db_meta.json abuseipdb_api_blacklist.txt \
+                  community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
+                # Parts ggf. auch per theirs mergen
+                for _p in combined_threat_blacklist_ipv4_part*.txt; do
+                  [ -f "$_p" ] && git checkout --theirs "$_p" 2>/dev/null || true
+                done
+                git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
+                  combined_threat_blacklist_report.md seen_db_meta.json \
+                  abuseipdb_api_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
+                git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
+                git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi
