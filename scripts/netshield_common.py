@@ -508,6 +508,15 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
                     f"Redirect zu unsicherem Ziel blockiert: {newurl}")
             return super().redirect_request(req, fp, code, msg, headers, newurl)
 
+    # HTTP-Statuscodes die als transient gelten und retried werden:
+    # - 429: Rate-Limit, nach Backoff oft wieder OK
+    # - 500-504: Server-Fehler, oft kurzfristig
+    # - 404 NUR bei raw.githubusercontent.com: dokumentierter GitHub-Bug,
+    #   siehe https://github.com/orgs/community/discussions/169205 –
+    #   Files existieren, werden aber sporadisch mit 404 ausgeliefert.
+    TRANSIENT_CODES = {429, 500, 502, 503, 504}
+    _host_is_gh_raw = urllib.parse.urlparse(url).hostname == "raw.githubusercontent.com"
+
     for attempt in range(1, retries + 1):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": user_agent})
@@ -515,8 +524,13 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
             with opener.open(req, timeout=timeout) as r:
                 return r.read(read_limit).decode("utf-8", errors="ignore")
         except urllib.error.HTTPError as e:
+            retryable = e.code in TRANSIENT_CODES or (e.code == 404 and _host_is_gh_raw)
+            if retryable and attempt < retries:
+                print(f"  HTTP {e.code} {url} – Versuch {attempt}/{retries}, Retry...")
+                time.sleep(2 ** attempt)
+                continue
             print(f"  FEHLER HTTP {e.code} {url}")
-            return None  # HTTP-Fehler nicht wiederholen
+            return None
         except Exception as e:
             if attempt < retries:
                 time.sleep(2 ** attempt)
