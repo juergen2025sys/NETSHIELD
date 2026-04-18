@@ -1,54 +1,14 @@
 {
-  "updated": "2026-04-18 04:04 UTC",
+  "updated": "2026-04-18 04:31 UTC",
   "total": 19,
-  "ok": 12,
+  "ok": 18,
   "warn": 0,
-  "error": 7,
+  "error": 1,
   "errors": [
-    {
-      "file": "asn_reputation_scorer.yml",
-      "check": "Report nach Guard-Exit",
-      "detail": "Block 0 L~319: sys.exit(1) vor Report/Status-Write (asn_reputation_db.json, asn_reputation_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
-    },
     {
       "file": "auto_feed_discovery.yml",
       "check": "Dict-Mutation in Schleife",
       "detail": "Block 0: 'del' in for-Schleife ohne list()-Kopie (_WHITELIST_ENTRIES) \u2013 RuntimeError bei Dict-Gr\u00f6\u00dfen\u00e4nderung"
-    },
-    {
-      "file": "auto_feed_discovery.yml",
-      "check": "Report nach Guard-Exit",
-      "detail": "Block 0 L~256: sys.exit(1) vor Report/Status-Write (auto_discovered_feeds.json, auto_feed_discovery_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
-    },
-    {
-      "file": "cve_to_ip_mapper.yml",
-      "check": "Report nach Guard-Exit",
-      "detail": "Block 0 L~207: sys.exit(1) vor Report/Status-Write (cve_exploit_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
-    },
-    {
-      "file": "dependabot-auto-merge.yml",
-      "check": "persist-credentials fehlt",
-      "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
-    },
-    {
-      "file": "geo_tagger.yml",
-      "check": "Report nach Guard-Exit",
-      "detail": "Block 0 L~248: sys.exit(1) vor Report/Status-Write (blacklist_geo_enriched.json, geo_tagger_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
-    },
-    {
-      "file": "honeydb_monitor.yml",
-      "check": "Report nach Guard-Exit",
-      "detail": "Block 0 L~300: sys.exit(1) vor Report/Status-Write (honeydb_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
-    },
-    {
-      "file": "honeypot_monitor.yml",
-      "check": "Report nach Guard-Exit",
-      "detail": "Block 0 L~183: sys.exit(1) vor Report/Status-Write (honeypot_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
-    },
-    {
-      "file": "update_combined_blacklist.yml \u2194 update_confidence_blacklist.yml",
-      "check": "Score-Modell Divergenz",
-      "detail": "Unterschiedliche Schwellen in: score_a, score_c, score_d \u2013 active_blacklist und confidence40 bewerten IPs unterschiedlich"
     }
   ],
   "warnings": [
