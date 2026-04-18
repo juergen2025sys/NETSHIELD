@@ -1,29 +1,14 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-18 08:05 UTC
+**Aktualisiert:** 2026-04-18 14:05 UTC
 
 **Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 7,859 → 78,482 (+899%) – extremes Wachstum, vermutlich Parser-/Dedup-Bug |
-
-## ⚠️ Warnungen
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Feed-Ausfälle | 2 von 99 Feeds ausgefallen: abuseipdb_tmiland, c2_tracker |
-
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🔴 CRITICAL | Drift: honeypot_ips.txt | honeypot_ips.txt: 7,859 → 78,482 (+899%) – extremes Wachstum, vermutlich Parser-/Dedup-Bug |
-| 🟡 WARN | Feed-Ausfälle | 2 von 99 Feeds ausgefallen: abuseipdb_tmiland, c2_tracker |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -50,4 +35,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-18 08:05 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-04-18 14:05 UTC | 19 Workflow-Dateien geprüft*

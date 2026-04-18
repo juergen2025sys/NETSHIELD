@@ -1,45 +1,22 @@
 {
-  "updated": "2026-04-18 08:05 UTC",
+  "updated": "2026-04-18 14:05 UTC",
   "total": 19,
   "ok": 19,
   "warn": 0,
   "error": 0,
-  "errors": [
-    {
-      "file": "Production Health",
-      "check": "Drift: honeypot_ips.txt",
-      "detail": "honeypot_ips.txt: 7,859 \u2192 78,482 (+899%) \u2013 extremes Wachstum, vermutlich Parser-/Dedup-Bug"
-    }
-  ],
-  "warnings": [
-    {
-      "file": "Production Health",
-      "check": "Feed-Ausf\u00e4lle",
-      "detail": "2 von 99 Feeds ausgefallen: abuseipdb_tmiland, c2_tracker"
-    }
-  ],
+  "errors": [],
+  "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4664105,
-    "active_blacklist_ipv4.txt": 2563264,
-    "blacklist_confidence40_ipv4.txt": 3358367,
+    "combined_threat_blacklist_ipv4.txt": 4676448,
+    "active_blacklist_ipv4.txt": 2574980,
+    "blacklist_confidence40_ipv4.txt": 3390752,
     "cve_exploit_ips.txt": 54547,
     "honeypot_ips.txt": 78482,
     "bot_detector_blacklist_ipv4.txt": 17950
   },
   "production_health": {
-    "critical": 1,
-    "warn": 1,
-    "checks": [
-      {
-        "level": "WARN",
-        "check": "Feed-Ausf\u00e4lle",
-        "detail": "2 von 99 Feeds ausgefallen: abuseipdb_tmiland, c2_tracker"
-      },
-      {
-        "level": "CRITICAL",
-        "check": "Drift: honeypot_ips.txt",
-        "detail": "honeypot_ips.txt: 7,859 \u2192 78,482 (+899%) \u2013 extremes Wachstum, vermutlich Parser-/Dedup-Bug"
-      }
-    ]
+    "critical": 0,
+    "warn": 0,
+    "checks": []
   }
 }
