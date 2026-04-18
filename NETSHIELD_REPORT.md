@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-04-18 09:11 UTC
+**Aktualisiert:** 2026-04-18 10:06 UTC
 
 ---
 ## 📊 Listen-Übersicht
@@ -23,13 +23,9 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 ```
 
 ---
-## 🔍 Feed Health: ✅ 96 OK | ⚠️ 1 leer | ❌ 2 Fehler
+## 🔍 Feed Health: ✅ 96 OK | ⚠️ 0 leer | ❌ 0 Fehler
 
-**❌ Ausgefallen:** `abuseipdb_tmiland`, `c2_tracker`
-
-**⚠️ Leer:** `blocklist_de_ssh`
-
-*Letzter Check: 2026-04-17 04:00 UTC – Details: [feed_health_report.md](feed_health_report.md)*
+*Letzter Check: 2026-04-18 09:48 UTC – Details: [feed_health_report.md](feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -37,4 +33,4 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 *Details: [workflow_health_report.md](workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-04-18 09:11 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-04-18 10:06 UTC*
