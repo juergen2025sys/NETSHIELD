@@ -41,6 +41,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_text_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -107,16 +108,18 @@ jobs:
           if data is None:
               print(f"FEHLER: Feed nach {MAX_ATTEMPTS} Versuchen nicht erreichbar: {last_error}")
               print("Behalte bestehende bot_detector_blacklist_ipv4.txt")
-              # Report immer zuerst schreiben – auch bei Fetch-Fehler
-              with open(REPORT_FILE, "w", encoding="utf-8") as f:
-                  f.write("# Bot-Detector Blacklist – Report\n")
-                  f.write(f"**Aktualisiert:** {now_str}  \n")
-                  f.write(f"**Quelle:** [github.com/lula73/bot-detector](https://github.com/lula73/bot-detector)\n\n")
-                  f.write("---\n")
-                  f.write(f"## ❌ Fetch-Fehler\n\n")
-                  f.write(f"Feed nach {MAX_ATTEMPTS} Versuchen nicht erreichbar: `{last_error}`  \n")
-                  f.write("Bestehende `bot_detector_blacklist_ipv4.txt` wurde beibehalten.\n\n")
-                  f.write(f"---\n*Generiert: {now_str}*\n")
+              # FIX ATOMIC: write_text_atomic statt open("w") – bei Runner-Kill
+              # bleibt der Report komplett alt oder komplett neu.
+              write_text_atomic(REPORT_FILE,
+                  "# Bot-Detector Blacklist – Report\n"
+                  f"**Aktualisiert:** {now_str}  \n"
+                  f"**Quelle:** [github.com/lula73/bot-detector](https://github.com/lula73/bot-detector)\n\n"
+                  "---\n"
+                  "## ❌ Fetch-Fehler\n\n"
+                  f"Feed nach {MAX_ATTEMPTS} Versuchen nicht erreichbar: `{last_error}`  \n"
+                  "Bestehende `bot_detector_blacklist_ipv4.txt` wurde beibehalten.\n\n"
+                  f"---\n*Generiert: {now_str}*\n"
+              )
               print(f"  {REPORT_FILE} geschrieben (Fehler-Report)")
               msg = f"Feed nach {MAX_ATTEMPTS} Versuchen nicht erreichbar: {last_error}"
               print(f"::warning file=update_bot_detector.yml::{msg}")
@@ -171,8 +174,8 @@ jobs:
           lines.append("> ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.")
           lines.append(f"\n---\n*Generiert: {now_str}*")
 
-          with open(REPORT_FILE, "w", encoding="utf-8") as f:
-              f.write("\n".join(lines))
+          # FIX ATOMIC: write_text_atomic statt open("w") für Markdown-Report.
+          write_text_atomic(REPORT_FILE, "\n".join(lines))
           print(f"  {REPORT_FILE} geschrieben")
 
           # ── Leerungsschutz ────────────────────────────────────────────────
@@ -184,12 +187,15 @@ jobs:
               sys.exit(1)
 
           # ── Blacklist schreiben ───────────────────────────────────────────
-          with open(OUT_FILE, "w", encoding="utf-8") as f:
-              f.write("# NETSHIELD Bot-Detector Blacklist\n")
-              f.write(f"# Aktualisiert: {now_str}\n")
-              f.write(f"# Quelle: github.com/lula73/bot-detector\n")
-              f.write(f"# Gesamt: {len(unique_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt\n\n")
-              f.write("\n".join(unique_ips) + "\n")
+          # FIX ATOMIC: write_ip_list statt open("w") – atomar + sortiert.
+          # unique_ips ist bereits numerisch sortiert (Zeile ~130), write_ip_list
+          # sortiert zwar erneut via sort_ips(), das Ergebnis ist identisch.
+          write_ip_list(OUT_FILE, unique_ips, header_lines=[
+              "NETSHIELD Bot-Detector Blacklist",
+              f"Aktualisiert: {now_str}",
+              "Quelle: github.com/lula73/bot-detector",
+              f"Gesamt: {len(unique_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt",
+          ])
 
           print(f"  {OUT_FILE}: {len(unique_ips)} IPs geschrieben")
 

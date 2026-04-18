@@ -500,7 +500,7 @@ jobs:
           if stale_removed:
               print(f"\n{len(stale_removed)} verwaiste Länderdatei(en) entfernt")
 
-          print(f"\nDone! Gesamt: {len(sorted_all)} IP-Ranges")
+          print(f"\nDone! Gesamt: {len(all_ips)} IP-Ranges")
           if errors:
               print(f"Fehler bei: {', '.join(errors)}")
           EOF

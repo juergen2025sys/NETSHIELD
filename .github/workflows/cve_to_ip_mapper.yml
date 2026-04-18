@@ -239,18 +239,24 @@ jobs:
               print(f"WARNUNG: {msg}")
               sys.exit(1)
 
-          with open(CVE_FILE, "w", encoding="utf-8") as f:
-              f.write(f"# CVE Exploit & C2 IP Blocklist – NETSHIELD\n")
-              f.write(f"# Aktualisiert: {now_str}\n")
-              f.write(f"# Quellen: {len(CVE_SOURCES)}\n")
-              f.write(f"# Gesamt Eintraege: {len(final)} | Neu: {len(new_ips)}\n\n")
-              written = set()
-              for tag, ips in sorted(cve_ip_map.items()):
-                  valid = sorted(ips - written, key=sort_key)
-                  if valid:
-                      f.write(f"# ── {tag} ──\n")
-                      f.write("\n".join(valid) + "\n\n")
-                      written.update(valid)
+          # FIX ATOMIC: write_text_atomic statt open("w") – bei Runner-Kill
+          # bleibt die Datei komplett alt oder komplett neu, niemals halb
+          # geschrieben. Content wird vorab als String aufgebaut, dann atomar
+          # per tempfile + fsync + os.replace in einem Rutsch geschrieben.
+          _cve_body_parts = [
+              f"# CVE Exploit & C2 IP Blocklist – NETSHIELD\n",
+              f"# Aktualisiert: {now_str}\n",
+              f"# Quellen: {len(CVE_SOURCES)}\n",
+              f"# Gesamt Eintraege: {len(final)} | Neu: {len(new_ips)}\n\n",
+          ]
+          written = set()
+          for tag, ips in sorted(cve_ip_map.items()):
+              valid = sorted(ips - written, key=sort_key)
+              if valid:
+                  _cve_body_parts.append(f"# ── {tag} ──\n")
+                  _cve_body_parts.append("\n".join(valid) + "\n\n")
+                  written.update(valid)
+          write_text_atomic(CVE_FILE, "".join(_cve_body_parts))
 
           print(f"cve_exploit_ips.txt: {len(final)} Eintraege | +{len(new_ips)} neu")
 

@@ -79,6 +79,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_text_atomic, write_json_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -122,8 +123,7 @@ jobs:
                               today_count += 1
 
           if today_count >= MAX_REPORTS_PER_USER:
-              with open(RESULT_FILE, "w", encoding="utf-8") as f:
-                  f.write(f"RATE_LIMITED|{reporter}|{today_count}")
+              write_text_atomic(RESULT_FILE, f"RATE_LIMITED|{reporter}|{today_count}")
               print(f"Rate-Limit erreicht für {reporter}: {today_count} Reports heute")
               sys.exit(0)
 
@@ -140,8 +140,7 @@ jobs:
                   ip = fallback.group(1)
 
           if not ip:
-              with open(RESULT_FILE, "w", encoding="utf-8") as f:
-                  f.write("NO_IP_FOUND||")
+              write_text_atomic(RESULT_FILE, "NO_IP_FOUND||")
               print("Keine IP im Issue gefunden")
               sys.exit(0)
 
@@ -156,8 +155,7 @@ jobs:
               # Community-Report ist nicht kritisch genug für harten Abbruch –
               # ohne Whitelist aber unsicher → IP ablehnen und User informieren.
               print(f"FEHLER: whitelist.json nicht ladbar: {_wl_err}")
-              with open(RESULT_FILE, "w", encoding="utf-8") as f:
-                  f.write(f"INTERNAL_ERROR|{ip}|whitelist.json nicht ladbar")
+              write_text_atomic(RESULT_FILE, f"INTERNAL_ERROR|{ip}|whitelist.json nicht ladbar")
               sys.exit(0)
 
           _whitelist_networks = []
@@ -169,8 +167,7 @@ jobs:
 
           # is_valid_public_ipv4() → importiert aus netshield_common
           if not is_valid_public_ipv4(ip):
-              with open(RESULT_FILE, "w", encoding="utf-8") as f:
-                  f.write(f"INVALID_IP|{ip}|")
+              write_text_atomic(RESULT_FILE, f"INVALID_IP|{ip}|")
               print(f"Ungültige IP: {ip}")
               sys.exit(0)
 
@@ -205,8 +202,7 @@ jobs:
                   return False
 
           if _is_fp(ip):
-              with open(RESULT_FILE, "w", encoding="utf-8") as f:
-                  f.write(f"INVALID_IP|{ip}|")
+              write_text_atomic(RESULT_FILE, f"INVALID_IP|{ip}|")
               print(f"IP {ip} ist auf der False-Positive-Liste – abgelehnt")
               sys.exit(0)
 
@@ -292,10 +288,15 @@ jobs:
               print(f"Neue IP {ip} als Community-Report eingetragen (Watchlist, last=2000-01-01)")
 
           # ── seen_db speichern ─────────────────────────────────────────────
-          with open(DB_FILE, "w", encoding="utf-8") as f:
-              json.dump(db, f, separators=(",", ":"))
+          # FIX ATOMIC: write_json_atomic statt open("w")+json.dump – bei
+          # Runner-Kill bleibt die seen_db.json komplett alt oder komplett neu.
+          # Halb geschriebene JSON würde vom naechsten Run als korrupt erkannt
+          # → db={} → Leerungsschutz → Inkonsistenz mit Log-Eintrag
+          # (Log sagt ACCEPTED, seen_db hätte die IP stillschweigend verloren).
+          write_json_atomic(DB_FILE, db, separators=(",", ":"))
 
           # ── Log-Eintrag ───────────────────────────────────────────────────
+          # allow-nonatomic: append-only Log, siehe FIX RACE2 unten (Zeile ~306)
           with open(REPORT_FILE, "a", encoding="utf-8") as f:
               f.write(f"{now_day} | issue=#{issue_number} | user={reporter} | ip={ip} | type={attack_type} | action={action} | ACCEPTED\n")
 
@@ -325,15 +326,23 @@ jobs:
                   }
 
           if ip not in community_existing:
-              # Datei existiert noch nicht → Header + IP schreiben
+              # Datei existiert noch nicht → Header + IP atomar schreiben
               if not os.path.exists(COMMUNITY_IPS_FILE):
-                  with open(COMMUNITY_IPS_FILE, "w", encoding="utf-8") as _cf:
-                      _cf.write("# NETSHIELD Community Reported IPs\n")
-                      _cf.write(f"# Aktualisiert: {now_str}\n")
-                      _cf.write("# Quelle: GitHub Issues (community-report Label)\n\n")
-                      _cf.write(f"{ip}\n")
+                  # FIX ATOMIC: einmalige Header-Erstellung atomar.
+                  # NB: die Append-Operation weiter unten (Zeile ~337) bleibt
+                  # bewusst non-atomar – Git kann Appends an verschiedene
+                  # Dateistellen beim Rebase automatisch mergen (FIX RACE2),
+                  # deshalb kein write_text_atomic dort.
+                  write_text_atomic(
+                      COMMUNITY_IPS_FILE,
+                      "# NETSHIELD Community Reported IPs\n"
+                      f"# Aktualisiert: {now_str}\n"
+                      "# Quelle: GitHub Issues (community-report Label)\n\n"
+                      f"{ip}\n"
+                  )
               else:
                   # Append-only: neue IP ans Ende anfügen
+                  # allow-nonatomic: FIX RACE2 – Git mergt Appends bei Rebase automatisch
                   with open(COMMUNITY_IPS_FILE, "a", encoding="utf-8") as _cf:
                       _cf.write(f"{ip}\n")
               print(f"community_reported_ips.txt: IP {ip} hinzugefügt (append-only, {action})")
@@ -341,8 +350,7 @@ jobs:
               print(f"community_reported_ips.txt: IP {ip} bereits vorhanden ({action})")
 
           # ── Ergebnis für nächsten Step speichern ──────────────────────────
-          with open(RESULT_FILE, "w", encoding="utf-8") as f:
-              f.write(f"{action}|{ip}|{attack_type}")
+          write_text_atomic(RESULT_FILE, f"{action}|{ip}|{attack_type}")
 
           print(f"Fertig: {action} – IP {ip} ({attack_type})")
           EOF

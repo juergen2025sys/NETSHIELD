@@ -947,12 +947,16 @@ jobs:
                       _community_active,
                       key=lambda x: (tuple(int(o) for o in x.split('/')[0].split('.')), x),
                   )
-                  with open(_COMMUNITY_FILE, "w", encoding="utf-8") as _cf:
-                      _cf.write("# NETSHIELD Community Reported IPs\n")
-                      _cf.write(f"# Aktualisiert: {now_stamp}\n")
-                      _cf.write("# Quelle: GitHub Issues (community-report Label)\n\n")
-                      if _community_sorted:
-                          _cf.write("\n".join(_community_sorted) + "\n")
+                  # FIX ATOMIC: write_text_atomic statt open("w") – bei
+                  # Runner-Kill bleibt die Datei komplett alt oder komplett neu.
+                  _body = (
+                      "# NETSHIELD Community Reported IPs\n"
+                      f"# Aktualisiert: {now_stamp}\n"
+                      "# Quelle: GitHub Issues (community-report Label)\n\n"
+                  )
+                  if _community_sorted:
+                      _body += "\n".join(_community_sorted) + "\n"
+                  write_text_atomic(_COMMUNITY_FILE, _body)
                   print(f"community_reported_ips.txt: {len(_community_stale)} veraltete IPs entfernt, "
                         f"{len(_community_active)} aktive behalten")
 

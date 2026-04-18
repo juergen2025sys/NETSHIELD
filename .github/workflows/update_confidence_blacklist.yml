@@ -65,6 +65,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_text_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -356,20 +357,27 @@ jobs:
               print(f"WARNUNG: {msg}")
               sys.exit(1)
 
-          with open(OUT_40, "w", encoding="utf-8") as f:
-              f.write(f"# NETSHIELD Blacklist – Mittleres/Hohes Vertrauen (Score ≥40/100)\n")
-              f.write(f"# Aktualisiert: {now_str}\n")
-              f.write(f"# Scoring: Quellen-Qualität(40) + Aktualität(30) + Persistenz(20) + Alter(10)\n")
-              f.write(f"# Eintraege: {len(confidence40)}\n\n")
-              for ip, conf in confidence40:
-                  f.write(f"{ip}\n")
+          # FIX ATOMIC: write_text_atomic statt open("w") – garantiert dass
+          # die Datei bei Runner-Kill/OOM komplett alt oder komplett neu bleibt,
+          # niemals halb geschrieben. Reihenfolge ist nach Confidence-Score
+          # absteigend (nicht nach IP), deshalb write_text_atomic statt
+          # write_ip_list (das nach IP sortieren würde).
+          _conf40_body = (
+              f"# NETSHIELD Blacklist – Mittleres/Hohes Vertrauen (Score ≥40/100)\n"
+              f"# Aktualisiert: {now_str}\n"
+              f"# Scoring: Quellen-Qualität(40) + Aktualität(30) + Persistenz(20) + Alter(10)\n"
+              f"# Eintraege: {len(confidence40)}\n\n"
+              + "".join(f"{ip}\n" for ip, conf in confidence40)
+          )
+          write_text_atomic(OUT_40, _conf40_body)
 
-          with open(OUT_WATCH, "w", encoding="utf-8") as f:
-              f.write(f"# NETSHIELD Watchlist – Niedriges Vertrauen (Score 25-39/100)\n")
-              f.write(f"# Aktualisiert: {now_str}\n")
-              f.write(f"# Eintraege: {len(confidence25)}\n\n")
-              for ip, conf in confidence25:
-                  f.write(f"{ip}\n")
+          _watch_body = (
+              f"# NETSHIELD Watchlist – Niedriges Vertrauen (Score 25-39/100)\n"
+              f"# Aktualisiert: {now_str}\n"
+              f"# Eintraege: {len(confidence25)}\n\n"
+              + "".join(f"{ip}\n" for ip, conf in confidence25)
+          )
+          write_text_atomic(OUT_WATCH, _watch_body)
 
           print(f"Fertig: {len(confidence40)} IPs (conf≥40) | {len(confidence25)} IPs (watchlist 25-39)")
           EOF
