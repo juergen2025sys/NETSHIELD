@@ -323,6 +323,23 @@ jobs:
               "ransomware", "apt", "ddos", "cobalt-strike", "command-and-control",
               "credential-stuffing", "exploit", "port-scan", "spam", "trojan",
               "intrusion-detection", "brute-force", "vulnerability-scanner",
+              # NEU v2: produktnahe Tags (werden von etablierten Feeds verwendet,
+              # z.B. elliotwutingfeng/ThreatFox-IOC-IPs, firehol/blocklist-ipsets)
+              "threatfox", "spamhaus", "firehol", "emergingthreats",
+              "pfblockerng", "pihole", "fail2ban", "crowdsec",
+              "suricata", "snort", "mikrotik", "opnsense", "pfsense",
+              "firewalla", "iptables", "ipset",
+              # NEU v2: Threat-Actor / Malware-Familien (häufige Topics)
+              "mirai", "emotet", "trickbot", "qakbot", "stealer",
+              "cryptominer", "xmrig", "rat", "webshell", "backdoor",
+              "doh-blocklist", "proxy-list", "vpn-blocklist", "tor-blocklist",
+              "anonymous-proxy", "open-proxy",
+              # NEU v2: Infrastruktur / Angriffstypen
+              "osint", "cti", "siem", "soc", "edr",
+              "reconnaissance", "lateral-movement", "exfiltration",
+              "web-attacks", "waf", "cve", "zero-day",
+              "email-security", "dns-blocklist", "dns-firewall",
+              "network-security", "perimeter-defense", "edge-security",
           ]
 
           # FIX API1: Queries ohne Body-Keyword entfernt – GitHub Code Search API
@@ -348,6 +365,49 @@ jobs:
               "filename:blocklist.ipset ip",
               "filename:ransomware.txt ip",
               "filename:abuse.txt ip",
+              # NEU v2: weitere Dateinamen aus real existierenden Feed-Repos
+              "filename:bad-ips.txt threat",
+              "filename:badips.txt malicious",
+              "filename:bad_ips.txt malicious",
+              "filename:blocklist-ip.txt threat",
+              "filename:ipblocklist.txt threat",
+              "filename:ip-blocklist.txt threat",
+              "filename:threat-ips.txt malicious",
+              "filename:threatfeed.txt ip",
+              "filename:blocked.txt attacker ip",
+              "filename:blocked-ips.txt malicious",
+              "filename:abuseipdb.txt ip",
+              "filename:malware.txt ip",
+              "filename:phishing.txt ip",
+              "filename:bruteforce.txt ip",
+              "filename:ssh-attackers.txt ip",
+              "filename:honeypot.txt ip",
+              "filename:honeypot-ips.txt malicious",
+              "filename:mirai.txt ip",
+              "filename:emotet.txt ip",
+              "filename:cobalt.txt ip",
+              "filename:cobalt-strike.txt ip",
+              "filename:ddos.txt ip",
+              "filename:scanners.txt malicious ip",
+              "filename:mass-scanner.txt ip",
+              "filename:compromised.txt ip",
+              "filename:compromised-ips.txt threat",
+              "filename:ip-list.txt malicious",
+              "filename:iplist.txt threat",
+              "filename:blacklist.ipv4 threat",
+              "filename:block.txt attacker ip",
+              "filename:rules.txt malicious ip",
+              "filename:deny.txt malicious ip",
+              # netset/ipset formats (firehol-style)
+              "filename:firehol.netset ip",
+              "filename:level1.netset ip",
+              "filename:level2.netset ip",
+              "filename:abusers.netset ip",
+              "filename:cybercrime.ipset ip",
+              # CSV-Feeds
+              "filename:blacklist.csv ip malicious",
+              "filename:threats.csv ip",
+              "filename:iocs.csv ip",
           ]
 
           candidate_repos = {}
