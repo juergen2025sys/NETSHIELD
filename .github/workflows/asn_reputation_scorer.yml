@@ -345,12 +345,12 @@ jobs:
           write_text_atomic("asn_reputation_report.md", "\n".join(lines))
           print("asn_reputation_report.md geschrieben")
 
-          if len(results) < MIN_ASN_RESULTS:
-              msg = (f"Nur {len(results)} ASN-Ergebnisse (< {MIN_ASN_RESULTS}) – "
-                     f"behalte bestehende Ausgabedateien")
-              print(f"::warning file=asn_reputation_scorer.yml::{msg}")
-              print(f"WARNUNG: {msg}")
-              sys.exit(1)
+          # FIX CONSISTENCY: db.json und firewall-Datei MUESSEN vor dem
+          # MIN_ASN_RESULTS-Guard geschrieben werden, weil der Commit-Step
+          # mit if: always() sonst einen frisch geschriebenen Report gegen
+          # stale db.json/firewall.txt committet – inkonsistente Tripel.
+          # Bei partiellen Ergebnissen (results < MIN) spiegeln alle drei
+          # Dateien denselben Run-Zustand wider.
 
           print("\nFirewall-Blockliste schreiben...")
           # FIX: atomar schreiben (Format hat Meta-Kommentare je Zeile, passt
@@ -403,6 +403,17 @@ jobs:
 
           # FIX: atomar schreiben (~230 KB, wird von anderen Scripts gelesen)
           write_json_atomic("asn_reputation_db.json", db, indent=2)
+
+          # Guard NACH allen Writes: alle drei Ausgabedateien spiegeln denselben
+          # (ggf. partiellen) Run-Zustand. Der Commit-Step mit if: always()
+          # staged dann ein konsistentes Tripel. exit(1) signalisiert die
+          # Degradation an GitHub Actions.
+          if len(results) < MIN_ASN_RESULTS:
+              msg = (f"Nur {len(results)} ASN-Ergebnisse (< {MIN_ASN_RESULTS}) – "
+                     f"Ausgabedateien spiegeln degradierten Run")
+              print(f"::warning file=asn_reputation_scorer.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(1)
 
           print(f"\nFERTIG: {len(results)} ASNs bewertet, {total_bl_hits:,} BL-Treffer gesamt")
           EOF

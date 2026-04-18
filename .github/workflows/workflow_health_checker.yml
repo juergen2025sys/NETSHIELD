@@ -204,17 +204,31 @@ jobs:
                       if m.group(3).strip() in report_paths:
                           var_aliases.add(m.group(1))
 
+              # FIX CHK21: Atomic-Writer aus netshield_common ebenfalls als
+              # Prior-Write anerkennen. Die Codebasis schreibt Reports/Status-
+              # Dateien ausschliesslich ueber write_text_atomic / write_json_atomic
+              # (Crash-Sicherheit). Ohne diese Erweiterung wurde jeder guard-exit
+              # hinter einem atomaren Write faelschlicherweise als "stale Report
+              # moeglich" gemeldet (z.B. auto_feed_discovery, honeydb, honeypot,
+              # geo_tagger, cve_to_ip_mapper).
+              atomic_writers = r'(?:write_text_atomic|write_json_atomic|write_ip_list)'
               for report_path in report_paths:
                   var_match = re.fullmatch(r'[A-Z_][A-Z0-9_]*', report_path)
                   if var_match:
                       pat = rf'with open\({re.escape(report_path)}\s*,\s*["\']w["\']'
+                      atomic_pat = rf'{atomic_writers}\(\s*{re.escape(report_path)}\s*,'
                   else:
                       pat = rf'with open\((?:r?f?["\'])[^\n]*{re.escape(report_path)}[^\n]*["\']\s*,\s*["\']w["\']'
+                      atomic_pat = rf'{atomic_writers}\(\s*(?:r|f|rf|fr)?["\'][^"\']*{re.escape(report_path)}[^"\']*["\']\s*,'
                   if re.search(pat, prior):
+                      return True
+                  if re.search(atomic_pat, prior):
                       return True
                   # Zusatz: auch über Variablen-Alias suchen (REPORT_FILE → "bot_detector_report.md")
                   for alias in var_aliases:
                       if re.search(rf'with open\({re.escape(alias)}\s*,\s*["\']w["\']', prior):
+                          return True
+                      if re.search(rf'{atomic_writers}\(\s*{re.escape(alias)}\s*,', prior):
                           return True
               return False
 
@@ -235,9 +249,17 @@ jobs:
                           var_values[m.group(1)] = value
 
                   open_match = re.search(r'with\s+open\((.+?),\s*["\']w["\']', line)
-                  if not open_match:
+                  # FIX CHK21: Auch atomare Writer aus netshield_common erfassen.
+                  # Ohne diese Ergaenzung blieb die Target-Liste bei vielen
+                  # Workflows leer, obwohl Report-Dateien committet werden.
+                  atomic_match = re.search(
+                      r'\b(?:write_text_atomic|write_json_atomic|write_ip_list)\(\s*(.+?)\s*(?:,|\))',
+                      line,
+                  )
+                  match = open_match or atomic_match
+                  if not match:
                       continue
-                  raw_target = open_match.group(1).strip()
+                  raw_target = match.group(1).strip()
 
                   if re.fullmatch(r'[A-Z_][A-Z0-9_]*', raw_target):
                       resolved = var_values.get(raw_target)
@@ -456,6 +478,15 @@ jobs:
               # Literal (z.B. if "git push" in part) fälschlicherweise den Check.
               content_shell_only = re.sub(
                   r"python3 << 'EOF'.*?\n\s*EOF\b", "", content, flags=re.DOTALL
+              )
+              # FIX CHK26: Kommentare (YAML '#...' und Shell '#...') entfernen,
+              # sonst triggert z.B. ein Kommentar "# nicht per git push, sondern
+              # via API" den persist-credentials-Check (dependabot-auto-merge.yml).
+              # Hinweis: String-Literale mit '#' koennen ausnahmsweise ebenfalls
+              # gestripped werden – fuer 'git push'/'git commit'-Suche akzeptabel,
+              # da diese Kommandos nicht als String-Literal sinnvoll erscheinen.
+              content_shell_no_comments = re.sub(
+                  r"(^|\s)#[^\n]*", r"\1", content_shell_only
               )
               shell_blocks = re.findall(
                   r"run: \|(.*?)(?=\n      - name:|\n  [a-z]|\Z)",
@@ -1031,7 +1062,9 @@ jobs:
               # ── Check 26: persist-credentials bei git push ───────────────
               # Wenn ein Workflow git push ausfuehrt, braucht checkout
               # persist-credentials: true. Fehlt es, schlaegt push fehl.
-              _has_git_push = 'git push' in content_shell_only
+              # FIX: content_shell_no_comments verwenden, damit Kommentare
+              # wie "# nicht per git push" nicht faelschlich triggern.
+              _has_git_push = 'git push' in content_shell_no_comments
               _has_persist = 'persist-credentials: true' in content
               if _has_git_push and not _has_persist:
                   msg = "git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen"
@@ -1041,7 +1074,7 @@ jobs:
               # ── Check 27: Permissions-Audit ──────────────────────────────
               # contents: write nur wenn der Workflow tatsaechlich committet.
               _has_contents_write = 'contents: write' in content
-              _has_commit = 'git commit' in content_shell_only or 'git push' in content_shell_only
+              _has_commit = 'git commit' in content_shell_no_comments or 'git push' in content_shell_no_comments
               if _has_contents_write and not _has_commit:
                   msg = "permissions: contents: write gesetzt aber kein git commit/push erkennbar – Least-Privilege-Verletzung"
                   file_warnings.append(msg)
@@ -1757,45 +1790,99 @@ jobs:
                   })
 
           # ── Score-Modell Konsistenz (combined ↔ confidence) ──────────────
-          # Die Confidence-Score-Berechnung (score_a/b/c/d) muss in
-          # update_combined_blacklist.yml und update_confidence_blacklist.yml
-          # identisch sein. Drift fuehrt zu inkonsistenten active_blacklist
-          # und confidence40-Listen.
+          # Die Confidence-Score-Berechnung muss in update_combined_blacklist.yml
+          # und update_confidence_blacklist.yml identisch sein. Drift fuehrt zu
+          # inkonsistenten active_blacklist und confidence40-Listen.
+          #
+          # FIX CHK-SCORE-SSOT: Die Scoring-Logik wurde in
+          # netshield_common.calculate_confidence zentralisiert. Wenn beide
+          # Workflows diese Funktion importieren, ist Divergenz per Definition
+          # ausgeschlossen – kein Vergleich von Inline-Literalen noetig. Nur
+          # wenn einer der Workflows die Funktion NICHT importiert (also
+          # Inline-Scoring verwendet), wird die alte Literal-Drift-Pruefung
+          # aktiviert.
           _score_files = {
               "update_combined_blacklist.yml": f"{WORKFLOWS_DIR}/update_combined_blacklist.yml",
               "update_confidence_blacklist.yml": f"{WORKFLOWS_DIR}/update_confidence_blacklist.yml",
           }
-          _score_models = {}
+          _score_texts = {}
           for _sf_name, _sf_path in _score_files.items():
-              if not os.path.exists(_sf_path):
-                  continue
-              _sf_text = open(_sf_path).read()
-              # score_a Schwellen extrahieren
-              _sa = re.findall(r'score_a\s*=\s*(\d+)', _sf_text)
-              _sb = re.findall(r'score_b\s*=\s*(\d+)', _sf_text)
-              _sc = re.findall(r'score_c\s*=\s*(\d+)', _sf_text)
-              _sd = re.findall(r'score_d\s*=\s*(\d+)', _sf_text)
-              _score_models[_sf_name] = {
-                  "a": tuple(_sa), "b": tuple(_sb),
-                  "c": tuple(_sc), "d": tuple(_sd),
-              }
+              if os.path.exists(_sf_path):
+                  _score_texts[_sf_name] = open(_sf_path).read()
 
-          if len(_score_models) == 2:
+          # Existiert die zentrale Helfer-Funktion ueberhaupt?
+          _common_path = "scripts/netshield_common.py"
+          _helper_exists = (
+              os.path.exists(_common_path)
+              and re.search(r'^\s*def\s+calculate_confidence\s*\(',
+                            open(_common_path).read(), re.MULTILINE) is not None
+          )
+
+          def _imports_calc_conf(text):
+              # Akzeptiere Multi-Line-Import aus netshield_common, z.B.
+              #   from netshield_common import (
+              #       ... , calculate_confidence, ... )
+              _imp_re = re.compile(
+                  r'from\s+netshield_common\s+import\s*\(([^)]*)\)', re.DOTALL
+              )
+              for _m in _imp_re.finditer(text):
+                  if re.search(r'\bcalculate_confidence\b', _m.group(1)):
+                      return True
+              # Single-line Import
+              return bool(re.search(
+                  r'from\s+netshield_common\s+import\s+[^\n]*\bcalculate_confidence\b',
+                  text,
+              ))
+
+          if len(_score_texts) == 2 and _helper_exists and all(
+              _imports_calc_conf(_t) for _t in _score_texts.values()
+          ):
+              # SSOT: beide Workflows nutzen calculate_confidence aus
+              # netshield_common. Divergenz strukturell ausgeschlossen.
+              print("✅ Score-Modell: zentrale calculate_confidence in netshield_common – SSOT")
+          elif len(_score_texts) == 2:
+              _score_models = {}
+              for _sf_name, _sf_text in _score_texts.items():
+                  _sa = re.findall(r'score_a\s*=\s*(\d+)', _sf_text)
+                  _sb = re.findall(r'score_b\s*=\s*(\d+)', _sf_text)
+                  _sc = re.findall(r'score_c\s*=\s*(\d+)', _sf_text)
+                  _sd = re.findall(r'score_d\s*=\s*(\d+)', _sf_text)
+                  _score_models[_sf_name] = {
+                      "a": tuple(_sa), "b": tuple(_sb),
+                      "c": tuple(_sc), "d": tuple(_sd),
+                  }
               _sm_keys = list(_score_models.keys())
               _sm_a, _sm_b = _score_models[_sm_keys[0]], _score_models[_sm_keys[1]]
-              _score_diffs = []
-              for _dim in ("a", "b", "c", "d"):
-                  if _sm_a[_dim] != _sm_b[_dim]:
-                      _score_diffs.append(f"score_{_dim}")
-              if _score_diffs:
-                  errors.append({
-                      "file": " ↔ ".join(_sm_keys),
-                      "check": "Score-Modell Divergenz",
-                      "detail": f"Unterschiedliche Schwellen in: {', '.join(_score_diffs)} – active_blacklist und confidence40 bewerten IPs unterschiedlich",
+
+              # Wenn einer der Workflows gar keine Score-Literale enthaelt aber
+              # auch calculate_confidence nicht importiert, kann das auf einen
+              # unvollstaendigen Refactor hindeuten – als Warnung, nicht Fehler.
+              _empty = [k for k, v in _score_models.items()
+                        if not any(v[d] for d in "abcd")]
+              if len(_empty) == 1:
+                  _missing = _empty[0]
+                  msg = (f"{_missing}: keine Inline-Score-Literale und kein "
+                         f"Import von calculate_confidence – Scoring-Quelle unklar")
+                  warnings.append({
+                      "file": _missing,
+                      "check": "Score-Modell Quelle unklar",
+                      "detail": msg,
                   })
-                  print(f"❌ Score-Modell Divergenz: {', '.join(_score_diffs)}")
+                  print(f"⚠️  {msg}")
               else:
-                  print(f"✅ Score-Modell: identisch in combined und confidence")
+                  _score_diffs = []
+                  for _dim in ("a", "b", "c", "d"):
+                      if _sm_a[_dim] != _sm_b[_dim]:
+                          _score_diffs.append(f"score_{_dim}")
+                  if _score_diffs:
+                      errors.append({
+                          "file": " ↔ ".join(_sm_keys),
+                          "check": "Score-Modell Divergenz",
+                          "detail": f"Unterschiedliche Schwellen in: {', '.join(_score_diffs)} – active_blacklist und confidence40 bewerten IPs unterschiedlich",
+                      })
+                      print(f"❌ Score-Modell Divergenz: {', '.join(_score_diffs)}")
+                  else:
+                      print(f"✅ Score-Modell: identisch in combined und confidence")
 
           # ── PROTECTED_CIDRS Sync ────────────────────────────────────────
           # Mehrere Workflows definieren PROTECTED_CIDRS. Drift fuehrt dazu
