@@ -438,24 +438,29 @@ jobs:
                       warnings.append({"file": fname, "check": "Fehlende Fehlerbehandlung", "detail": msg})
 
                   # ── Check 6: del in aktiver for-Schleife (Dict-Mutation) ──
-                  # FIX CHK6c: Zeilenbasierter Check – jede for-Zeile einzeln prüfen.
+                  # FIX CHK6d: Variablen-abhängiger Match.
+                  # Nur melden, wenn DIESELBE Variable in for-Schleife iteriert UND
+                  # via `del` mutiert wird. Vorher wurde jede unsichere for-Iteration
+                  # (inkl. harmloser Listen) mit jedem beliebigen `del x[...]` im
+                  # selben Block als Fehler gemeldet – False Positive bei z.B.
+                  # `for e in _WHITELIST_ENTRIES:` (Liste) + `del other_dict[k]`.
                   # "for x in list(d.keys())" – SICHER  → kein Match
                   # "for x in list(d)"        – SICHER  → kein Match
-                  # "for x in d.keys()"       – UNSICHER → Fehler
-                  # "for x in d"              – UNSICHER → Fehler (wenn del im Block)
-                  # Negativer Lookahead auf list( direkt nach "in " schließt korrekte
-                  # list(db.keys())-Muster aus und verhindert den False Positive.
+                  # "for x in d.keys()" + "del d[k]" – UNSICHER → Fehler
+                  # "for x in d"        + "del d[k]" – UNSICHER → Fehler
+                  # "for x in other"    + "del d[k]" – SICHER → kein Match (verschiedene Namen)
                   code_lines = [l for l in dedented.splitlines()
                                 if l.strip() and not l.strip().startswith('#')]
                   code_only = '\n'.join(code_lines)
                   _unsafe_for_matches = re.findall(
-                      r'^\s*for \w+ in (?!list\()([A-Za-z_]\w*(?:\.keys\(\))?)',
+                      r'^\s*for \w+ in (?!list\()([A-Za-z_]\w*)(?:\.keys\(\))?',
                       code_only, re.MULTILINE
                   )
-                  has_del = bool(re.search(r'\bdel \w+\[', code_only))
-                  if _unsafe_for_matches and has_del:
+                  _del_targets = set(re.findall(r'\bdel (\w+)\[', code_only))
+                  _conflicts = [v for v in _unsafe_for_matches if v in _del_targets]
+                  if _conflicts:
                       msg = (f"Block {i}: 'del' in for-Schleife ohne list()-Kopie "
-                             f"({_unsafe_for_matches[0]}) – RuntimeError bei Dict-Größenänderung")
+                             f"({_conflicts[0]}) – RuntimeError bei Dict-Größenänderung")
                       file_errors.append(msg)
                       errors.append({"file": fname, "check": "Dict-Mutation in Schleife", "detail": msg})
 

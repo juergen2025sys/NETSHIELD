@@ -346,7 +346,13 @@ jobs:
               "blocklist_de_ftp":           ("https://lists.blocklist.de/lists/ftp.txt", False),
 
               # ── C2 / Botnet ───────────────────────────────────────────────
-              "c2_tracker":                 ("https://raw.githubusercontent.com/montysecurity/C2-Tracker/main/data/all.txt", True),
+              # FIX C2-MIGRATION: montysecurity/C2-Tracker wurde archiviert (README),
+              # data/all.txt ist dauerhaft 404. Ersatz: elliotwutingfeng/ThreatFox-IOC-IPs
+              # – stündlich aktualisierter Mirror der abuse.ch ThreatFox botnet_cc-IOCs
+              # (CC0). Feed-Name 'c2_tracker' bleibt unverändert, damit seen_db / Reports
+              # / Drift-Erkennung nicht brechen. Feodo Tracker als Alternative verworfen:
+              # Datasets seit Wochen leer (<5 IPs).
+              "c2_tracker":                 ("https://raw.githubusercontent.com/elliotwutingfeng/ThreatFox-IOC-IPs/main/ips.txt", True),
               "c2_iplist":                  ("https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/feeds/IPC2s.csv", True),
               # "cobalt_strike_ips" entfernt: Gi7w0rm/CobaltStrikeC2Tracker Repo gelöscht – C2 abgedeckt durch c2_tracker
 
