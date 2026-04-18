@@ -1,9 +1,9 @@
 {
-  "updated": "2026-04-17 20:01 UTC",
+  "updated": "2026-04-18 04:04 UTC",
   "total": 19,
-  "ok": 11,
+  "ok": 12,
   "warn": 0,
-  "error": 8,
+  "error": 7,
   "errors": [
     {
       "file": "asn_reputation_scorer.yml",
@@ -46,11 +46,6 @@
       "detail": "Block 0 L~183: sys.exit(1) vor Report/Status-Write (honeypot_report.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
     },
     {
-      "file": "update_combined_blacklist.yml",
-      "check": "SyntaxError",
-      "detail": "Block 1 Zeile 1079: SyntaxError \u2013 unexpected indent \u2192 `f.write(f\"- Aktualisiert: **{now_stamp}**\\n\")`"
-    },
-    {
       "file": "update_combined_blacklist.yml \u2194 update_confidence_blacklist.yml",
       "check": "Score-Modell Divergenz",
       "detail": "Unterschiedliche Schwellen in: score_a, score_c, score_d \u2013 active_blacklist und confidence40 bewerten IPs unterschiedlich"
@@ -64,11 +59,11 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4620586,
-    "active_blacklist_ipv4.txt": 2622252,
-    "blacklist_confidence40_ipv4.txt": 3320508,
+    "combined_threat_blacklist_ipv4.txt": 4651883,
+    "active_blacklist_ipv4.txt": 2540710,
+    "blacklist_confidence40_ipv4.txt": 3335669,
     "cve_exploit_ips.txt": 54679,
-    "honeypot_ips.txt": 8106,
+    "honeypot_ips.txt": 7859,
     "bot_detector_blacklist_ipv4.txt": 17950
   },
   "production_health": {

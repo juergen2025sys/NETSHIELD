@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-17 20:01 UTC
+**Aktualisiert:** 2026-04-18 04:04 UTC
 
-**Workflows:** 19 | ✅ 11 OK | ⚠️ 0 Warnung | ❌ 8 Fehler
+**Workflows:** 19 | ✅ 12 OK | ⚠️ 0 Warnung | ❌ 7 Fehler
 
 ---
 ## ❌ Fehler (kritisch)
@@ -16,7 +16,6 @@
 | `geo_tagger.yml` | Report nach Guard-Exit | Block 0 L~248: sys.exit(1) vor Report/Status-Write (blacklist_geo_enriched.json, geo_tagger_report.md) – stale Report moeglich trotz Commit-Step mit if: always() |
 | `honeydb_monitor.yml` | Report nach Guard-Exit | Block 0 L~300: sys.exit(1) vor Report/Status-Write (honeydb_report.md) – stale Report moeglich trotz Commit-Step mit if: always() |
 | `honeypot_monitor.yml` | Report nach Guard-Exit | Block 0 L~183: sys.exit(1) vor Report/Status-Write (honeypot_report.md) – stale Report moeglich trotz Commit-Step mit if: always() |
-| `update_combined_blacklist.yml` | SyntaxError | Block 1 Zeile 1079: SyntaxError – unexpected indent → `f.write(f"- Aktualisiert: **{now_stamp}**\n")` |
 | `update_combined_blacklist.yml ↔ update_confidence_blacklist.yml` | Score-Modell Divergenz | Unterschiedliche Schwellen in: score_a, score_c, score_d – active_blacklist und confidence40 bewerten IPs unterschiedlich |
 
 ## ⚠️ Warnungen
@@ -53,9 +52,9 @@
 | `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
 | `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 1 * * 1`, `30 1 * * 3` |
 | `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
-| `update_combined_blacklist.yml` | ❌ | 1 | 0 | `0 */3 * * *` |
+| `update_combined_blacklist.yml` | ✅ OK | 0 | 0 | `0 */3 * * *` |
 | `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | `45 0 * * *`, `45 3 * * *`, `45 6 * * *`, `45 9 * * *`, `45 12 * * *`, `45 15 * * *`, `45 18 * * *`, `45 21 * * *` |
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-17 20:01 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-04-18 04:04 UTC | 19 Workflow-Dateien geprüft*
