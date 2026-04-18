@@ -544,6 +544,35 @@ jobs:
                            f"HEAD/{best_file['path']}")
               print(f"  Datei: {best_file['path']} ({best_file['size']:,} Bytes)")
 
+              # Kriterium 1b: Aktualität der IP-Datei selbst (max. 30 Tage).
+              # repo.pushed_at misst nur irgendeinen Push (README, .gitignore,
+              # Config-Dateien) – sagt nichts über die Blocklist-Datei aus.
+              # Viele Hobby-Repos haben frisches pushed_at, aber die Blocklist
+              # wurde seit Monaten nicht mehr angefasst → stale Feed.
+              time.sleep(0.5)
+              file_commits = gh_api(
+                  f"/repos/{full_name}/commits"
+                  f"?path={urllib.parse.quote(best_file['path'])}&per_page=1"
+              )
+              file_days_old = 999
+              if file_commits and isinstance(file_commits, list) and file_commits:
+                  file_date_str = (file_commits[0].get("commit", {})
+                                   .get("committer", {}).get("date", ""))
+                  try:
+                      file_dt = datetime.strptime(
+                          file_date_str[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      file_days_old = (now - file_dt).days
+                  except Exception:
+                      pass
+              if file_days_old > 30:
+                  print(f"  ❌ IP-Datei veraltet: {file_days_old} Tage "
+                        f"(Repo-Push frisch, aber Blocklist stale)")
+                  rejected_repos.add(full_name)
+                  evaluation_log.append({"repo": full_name, "result": "REJECTED",
+                                         "reason": f"IP-Datei {file_days_old}d alt"})
+                  continue
+              print(f"  ✅ IP-Datei frisch: {file_days_old} Tage alt")
+
               time.sleep(0.5)
               text = fetch_raw(raw_url)
               if not text:
