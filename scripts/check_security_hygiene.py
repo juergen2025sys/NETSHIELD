@@ -31,6 +31,19 @@ Geprüft wird:
     [3] Kein `urllib.request.urlopen()` oder `requests.get()` am
         Top-Level von scripts/ – stattdessen fetch_url() verwenden
         (hat SSRF-Schutz).
+
+    [4] Jeder Workflow hat `timeout-minutes:` gesetzt (auf job- oder
+        step-Ebene). Ohne Timeout haengt ein failender Runner bis zum
+        6h-GitHub-Default und blockiert die Concurrency-Group.
+
+    [5] Jeder Workflow hat `permissions:` am Top-Level gesetzt. Ohne
+        Deklaration erbt der Workflow das Default-Token mit Schreib-
+        rechten auf das gesamte Repo – verletzt Least-Privilege.
+
+    [6] Jeder Workflow der `git push` ausfuehrt hat einen Retry-Loop
+        (Kombination aus `for attempt`/`while` + `git rebase`). Ohne
+        Retry schlagen parallele Scheduler-Runs silent fehl, wenn ein
+        anderer Job kurz davor gepusht hat.
 """
 from __future__ import annotations
 
@@ -483,6 +496,170 @@ def _qualified_name(node):
 
 
 # ───────────────────────────────────────────────────────────────
+# Check 4: timeout-minutes auf jedem Workflow
+# ───────────────────────────────────────────────────────────────
+
+def check_workflow_timeouts() -> list[str]:
+    """Warnt wenn ein Workflow keinen `timeout-minutes:` auf job-Ebene hat.
+
+    Ohne Timeout laeuft ein haengender Runner bis zum 6h-GitHub-Default.
+    Bei Workflows in der `netshield-seen-db-writers`-Concurrency-Group
+    blockiert das alle anderen seen_db-Schreiber fuer bis zu 6 Stunden.
+
+    Prueft auf dict-Ebene: jeder Job muss timeout-minutes haben ODER der
+    Workflow hat es als Default gesetzt. Reine Text-Suche reicht nicht,
+    weil `timeout-minutes` auch in Kommentaren stehen koennte.
+    """
+    errors: list[str] = []
+    if not WORKFLOWS_DIR.is_dir():
+        return errors
+
+    try:
+        import yaml
+    except ImportError:
+        return ["(Check 4 uebersprungen: PyYAML nicht installiert)"]
+
+    for wf in sorted(WORKFLOWS_DIR.glob("*.yml")):
+        try:
+            data = yaml.safe_load(wf.read_text(encoding="utf-8"))
+        except yaml.YAMLError as e:
+            errors.append(f"{wf.relative_to(REPO_ROOT)}: YAML-Parse-Fehler: {e}")
+            continue
+        if not isinstance(data, dict):
+            continue
+
+        jobs = data.get("jobs", {})
+        if not isinstance(jobs, dict):
+            continue
+
+        jobs_without_timeout = []
+        for job_name, job_def in jobs.items():
+            if not isinstance(job_def, dict):
+                continue
+            # reusable-workflow job (uses:) kann keinen timeout-minutes haben
+            if "uses" in job_def:
+                continue
+            if "timeout-minutes" not in job_def:
+                jobs_without_timeout.append(job_name)
+
+        if jobs_without_timeout:
+            errors.append(
+                f"{wf.relative_to(REPO_ROOT)}: "
+                f"Jobs ohne timeout-minutes: {', '.join(jobs_without_timeout)} "
+                f"- ohne Timeout laeuft ein haengender Runner bis 6h")
+    return errors
+
+
+# ───────────────────────────────────────────────────────────────
+# Check 5: permissions am Top-Level
+# ───────────────────────────────────────────────────────────────
+
+# Workflows die bewusst keine permissions brauchen (z.B. reine Test-Runner)
+# werden mit einem Allow-Marker in der ersten Kommentar-Zeile gekennzeichnet.
+_PERMISSIONS_ALLOW_MARKER = "allow-no-permissions"
+
+
+def check_workflow_permissions() -> list[str]:
+    """Warnt wenn ein Workflow kein `permissions:` am Top-Level hat.
+
+    Ohne Deklaration erbt der Workflow das Default-GITHUB_TOKEN – bei
+    aelteren Repos mit "write permissions" als Default ein breiter
+    Angriffsvektor. Best-Practice: Least-Privilege, explizit setzen.
+
+    Ausnahme-Marker: Wer in der allerersten Zeile '# allow-no-permissions:
+    <grund>' setzt, wird uebersprungen.
+    """
+    errors: list[str] = []
+    if not WORKFLOWS_DIR.is_dir():
+        return errors
+
+    try:
+        import yaml
+    except ImportError:
+        return ["(Check 5 uebersprungen: PyYAML nicht installiert)"]
+
+    for wf in sorted(WORKFLOWS_DIR.glob("*.yml")):
+        text = wf.read_text(encoding="utf-8")
+
+        # Ausnahme-Marker in den ersten 3 Zeilen
+        first_lines = text.splitlines()[:3]
+        if any(_PERMISSIONS_ALLOW_MARKER in ln for ln in first_lines):
+            continue
+
+        try:
+            data = yaml.safe_load(text)
+        except yaml.YAMLError:
+            continue
+        if not isinstance(data, dict):
+            continue
+
+        if "permissions" not in data:
+            errors.append(
+                f"{wf.relative_to(REPO_ROOT)}: "
+                f"kein 'permissions:' am Top-Level – Default-Token "
+                f"erbt Schreibrechte. Mit '# allow-no-permissions: <grund>' "
+                f"in Zeile 1 ausnahmsweise erlauben.")
+    return errors
+
+
+# ───────────────────────────────────────────────────────────────
+# Check 6: git push mit Retry-Loop
+# ───────────────────────────────────────────────────────────────
+
+def check_push_retry() -> list[str]:
+    """Warnt wenn ein Workflow `git push` ohne Retry-Loop verwendet.
+
+    Bei parallelen Schedulern (selbe cron-Minute, verschiedene Workflows)
+    kann der zweite Push fehlschlagen, weil der Remote inzwischen voraus
+    ist. Ohne Retry schlaegt der Job fehl und die aktuellen Aenderungen
+    gehen verloren (der naechste Run startet wieder von vorn).
+
+    Best-Practice im Repo: for-Loop ueber attempts + `git rebase -X theirs`
+    + sleep mit exponential backoff. 16 Workflows machen das bereits so.
+    """
+    errors: list[str] = []
+    if not WORKFLOWS_DIR.is_dir():
+        return errors
+
+    # Robuste git-push-Erkennung: Zeile muss ein echter Shell-Call sein,
+    # nicht Kommentar/String. Prueft auf "git push" am Wort-Anfang in
+    # einer Zeile die nicht mit # oder comment-artigen Formen beginnt.
+    push_line_re = re.compile(r"(?:^|[&|;\s])git\s+push\b")
+    # Retry-Indikatoren (Loop + Rebase)
+    loop_re    = re.compile(r"(for\s+attempt|while\s+\[|attempt\s*=\s*\d)")
+    rebase_re  = re.compile(r"git\s+(rebase|pull\s+--rebase)")
+
+    for wf in sorted(WORKFLOWS_DIR.glob("*.yml")):
+        text = wf.read_text(encoding="utf-8")
+
+        # Echte Push-Aufrufe identifizieren: nur Zeilen die nicht mit #
+        # beginnen und die nicht innerhalb eines YAML-Kommentars sind
+        has_real_push = False
+        for line in text.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("#"):
+                continue
+            if push_line_re.search(line):
+                has_real_push = True
+                break
+
+        if not has_real_push:
+            continue
+
+        has_loop   = bool(loop_re.search(text))
+        has_rebase = bool(rebase_re.search(text))
+        if not (has_loop and has_rebase):
+            missing = []
+            if not has_loop:   missing.append("for/while-Loop")
+            if not has_rebase: missing.append("git rebase")
+            errors.append(
+                f"{wf.relative_to(REPO_ROOT)}: "
+                f"`git push` ohne Retry-Logik (fehlt: {', '.join(missing)}) "
+                f"– bei paralleler Push-Kollision geht das Update verloren")
+    return errors
+
+
+# ───────────────────────────────────────────────────────────────
 # Main
 # ───────────────────────────────────────────────────────────────
 
@@ -493,6 +670,9 @@ def main() -> int:
         ("Actions SHA-Pinning",               check_action_pinning),
         ("Atomare Writes auf Blacklisten",    check_atomic_writes),
         ("SSRF-geschützte HTTP-Fetches",      check_fetch_usage),
+        ("Workflow timeout-minutes gesetzt",  check_workflow_timeouts),
+        ("Workflow permissions gesetzt",      check_workflow_permissions),
+        ("git push mit Retry-Loop",           check_push_retry),
     ]
 
     for name, fn in checks:
