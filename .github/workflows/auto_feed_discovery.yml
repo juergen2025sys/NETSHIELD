@@ -466,7 +466,16 @@ jobs:
           # stehen und wurden in jedem Combined-Run erneut versucht → Warnings.
           # Jetzt: Jeden bestehenden Feed pingen, last_checked aktualisieren,
           # bei 3 aufeinanderfolgenden Fehlern aus approved_feeds entfernen.
+          #
+          # FIX STALE-CHECK: Zusätzlich prüfen, ob die IP-Datei selbst noch
+          # aktiv gepflegt wird. repo.pushed_at greift nur bei neuen Kandidaten
+          # (Schritt 5b); bestehende Feeds konnten unbemerkt Monate alt werden.
+          # Jetzt wird das Commit-Datum der IP-Datei bei jedem Refresh geprüft.
+          # Stale-Feeds (Datei >30d alt) werden entfernt, aber NICHT in
+          # rejected_repos eingetragen – damit sie beim nächsten Run wieder
+          # akzeptiert werden, sobald der Maintainer die Datei erneut pusht.
           removed_stale = []
+          removed_aged  = []
           for _name, _feed in list(existing_feeds.items()):
               _url = _feed.get("url", "")
               if not _url:
@@ -483,17 +492,59 @@ jobs:
                       removed_stale.append(_name)
                       print(f"  REFRESH {_name}: 3x in Folge fehlgeschlagen – entfernt")
               else:
-                  # Erfolg → Fail-Zähler resetten, IPs zählen
+                  # Erfolg → Aktualität der IP-Datei selbst prüfen
+                  _repo = _feed.get("repo", "")
+                  _path = _feed.get("file", "")
+                  _file_days = None
+                  if _repo and _path:
+                      time.sleep(0.5)
+                      _commits = gh_api(
+                          f"/repos/{_repo}/commits"
+                          f"?path={urllib.parse.quote(_path)}&per_page=1"
+                      )
+                      if _commits and isinstance(_commits, list) and _commits:
+                          _date_str = (_commits[0].get("commit", {})
+                                       .get("committer", {}).get("date", ""))
+                          try:
+                              _file_dt = datetime.strptime(
+                                  _date_str[:10], "%Y-%m-%d"
+                              ).replace(tzinfo=timezone.utc)
+                              _file_days = (now - _file_dt).days
+                          except Exception:
+                              pass
+
+                  if _file_days is not None and _file_days > 30:
+                      # Feed erreichbar, aber Datei stale → entfernen, aber
+                      # Repo NICHT in rejected_repos – bei neuer Aktivität
+                      # kann er in Schritt 5b wieder akzeptiert werden.
+                      del approved_feeds[_name]
+                      removed_aged.append(f"{_name} ({_file_days}d)")
+                      # Defensiv: Repo aus rejected_repos entfernen, falls
+                      # es dort (aus älterem Lauf) noch steht.
+                      rejected_repos.discard(_repo)
+                      # Und auch aus existing_rejected entfernen, damit die
+                      # Persistenz-Datei den Eintrag nicht wieder reinholt.
+                      existing_rejected.discard(_repo)
+                      print(f"  REFRESH {_name}: IP-Datei {_file_days}d alt – "
+                            f"entfernt (Re-Discovery bei Aktivität möglich)")
+                      continue
+
+                  # Alles frisch → Fail-Zähler resetten, IPs zählen
                   _ips = extract_ips(_content)
                   approved_feeds[_name]["consecutive_fails"] = 0
                   approved_feeds[_name]["last_checked"] = now_day
                   approved_feeds[_name]["ip_count"] = len(_ips)
+                  if _file_days is not None:
+                      approved_feeds[_name]["file_days_old"] = _file_days
                   all_known_ips.update(_ips)
                   for _ip in _ips:
                       ip_auto_feed_count[_ip] = ip_auto_feed_count.get(_ip, 0) + 1
-                  print(f"  REFRESH {_name}: OK ({len(_ips)} IPs)")
+                  _age_str = f", Datei {_file_days}d alt" if _file_days is not None else ""
+                  print(f"  REFRESH {_name}: OK ({len(_ips)} IPs{_age_str})")
           if removed_stale:
               print(f"\nAls tot entfernt: {len(removed_stale)} Feeds: {', '.join(removed_stale)}")
+          if removed_aged:
+              print(f"Als stale entfernt (Datei >30d): {len(removed_aged)} Feeds: {', '.join(removed_aged)}")
 
           for full_name, meta in candidate_repos.items():
               if full_name in rejected_repos:
