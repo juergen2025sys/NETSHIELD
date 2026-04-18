@@ -1,14 +1,14 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-18 04:31 UTC
+**Aktualisiert:** 2026-04-18 08:05 UTC
 
-**Workflows:** 19 | ✅ 18 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
+**Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
 ## ❌ Fehler (kritisch)
 
 | Datei | Check | Detail |
 |---|---|---|
-| `auto_feed_discovery.yml` | Dict-Mutation in Schleife | Block 0: 'del' in for-Schleife ohne list()-Kopie (_WHITELIST_ENTRIES) – RuntimeError bei Dict-Größenänderung |
+| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 7,859 → 78,482 (+899%) – extremes Wachstum, vermutlich Parser-/Dedup-Bug |
 
 ## ⚠️ Warnungen
 
@@ -18,10 +18,11 @@
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 1 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
+| 🔴 CRITICAL | Drift: honeypot_ips.txt | honeypot_ips.txt: 7,859 → 78,482 (+899%) – extremes Wachstum, vermutlich Parser-/Dedup-Bug |
 | 🟡 WARN | Feed-Ausfälle | 2 von 99 Feeds ausgefallen: abuseipdb_tmiland, c2_tracker |
 
 ## Übersicht
@@ -29,7 +30,7 @@
 | Workflow | Status | Fehler | Warnungen | Cron |
 |---|---|---|---|---|
 | `asn_reputation_scorer.yml` | ✅ OK | 0 | 0 | `0 2 * * *` |
-| `auto_feed_discovery.yml` | ❌ | 1 | 0 | `30 4 * * 0` |
+| `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `30 4 * * 0` |
 | `community_ip_report.yml` | ✅ OK | 0 | 0 | – |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
 | `dependabot-auto-merge.yml` | ✅ OK | 0 | 0 | – |
@@ -49,4 +50,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-18 04:31 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-04-18 08:05 UTC | 19 Workflow-Dateien geprüft*
