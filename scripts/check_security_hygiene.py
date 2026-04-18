@@ -100,55 +100,173 @@ def check_action_pinning() -> list[str]:
 
 
 # ───────────────────────────────────────────────────────────────
-# Check 2: Keine non-atomaren open(..., "w") auf Blacklist-Dateien
+# Check 2: Keine non-atomaren open(..., "w"/"a") auf Daten-Dateien
 # ───────────────────────────────────────────────────────────────
+#
+# FIX CHK2-AST (2026-04): von Regex auf AST umgebaut. Der alte Regex
+# (r'''open\s*\(\s*["'][^"']*\.txt["']...''') matcht nur Literal-Pfade
+# wie open("foo.txt", "w"), aber NICHT Variable-Pfade wie
+# open(OUT_FILE, "w"). Dadurch waren über Jahre 15 non-atomare Writes
+# in den Workflows unentdeckt geblieben. Der AST-Check findet beides.
+#
+# Bewusste Append-Stellen (z.B. FIX RACE2 in community_ip_report.yml)
+# koennen mit einem '# allow-nonatomic: <grund>'-Kommentar in derselben
+# Zeile markiert werden – diese werden vom Check uebersprungen.
 
-# Dateinamen-Pattern: *.txt Blacklists oder *.json im Repo-Root
-BLACKLIST_TXT_RE = re.compile(
-    r"""open\s*\(\s*["'][^"']*\.txt["']\s*,\s*["']w["']""", re.VERBOSE)
-JSON_WRITE_RE = re.compile(
-    r"""open\s*\(\s*["'][^"']*\.json["']\s*,\s*["']w["']""", re.VERBOSE)
+# Modi die als "schreibend" gelten und atomar erfolgen muessen.
+# 'r', 'rt', 'rb' etc. sind ausgeschlossen.
+_WRITE_MODES = {"w", "wb", "wt", "w+", "a", "ab", "at", "a+", "x", "xb", "xt"}
+
+# Modus-Konstanten die keine atomare Garantie brauchen (Scratch/Stdin-Stream).
+_SAFE_TARGETS = {
+    "/dev/null", "/dev/stdout", "/dev/stderr",
+    # GitHub-Action-Outputs sind kurze Key=Value-Files die auch bei
+    # Teilausfall funktional brauchbar sind (GHA liest Zeilenweise).
+    # Trotzdem ggf. atomar schreiben empfohlen.
+}
+
+# Marker-Kommentar fuer bewusste Ausnahmen
+_ALLOW_COMMENT = "allow-nonatomic"
+
+
+def _extract_string_from_node(node):
+    """Versucht aus einem AST-Node einen String zu extrahieren.
+
+    Gibt None zurueck wenn der Pfad nicht statisch bestimmbar ist.
+    Unterstuetzt: Literal, f-String mit ausschliesslich konstanten Parts,
+    und Name-Referenzen auf Modul-Level-Konstanten (werden spaeter
+    vom Aufrufer aufgeloest).
+    """
+    import ast as _ast
+    if isinstance(node, _ast.Constant) and isinstance(node.value, str):
+        return node.value
+    if isinstance(node, _ast.JoinedStr):
+        parts = []
+        for v in node.values:
+            if isinstance(v, _ast.Constant) and isinstance(v.value, str):
+                parts.append(v.value)
+            else:
+                return None  # dynamischer Teil – Pfad nicht bestimmbar
+        return "".join(parts)
+    return None
+
+
+def _suggest_helper(path_str):
+    """Liefert eine passende Fix-Empfehlung anhand der Dateiendung."""
+    if path_str is None:
+        return "write_text_atomic() / write_ip_list() / write_json_atomic()"
+    lower = path_str.lower()
+    if lower.endswith(".json"):
+        return "write_json_atomic()"
+    if lower.endswith(".txt"):
+        return "write_ip_list() oder write_text_atomic()"
+    return "write_text_atomic()"
+
+
+def _line_has_allow_marker(lines, line_1indexed):
+    """True wenn die Python-Quell-Zeile oder eine der bis zu 3 vorigen
+    Zeilen einen '# allow-nonatomic: <grund>'-Kommentar enthaelt.
+
+    Mehrzeilige Kommentar-Bloecke werden toleriert – der Marker kann
+    also am Anfang eines 2-3-Zeilen-Kommentars stehen und der Call
+    darunter.
+    """
+    for ln in (line_1indexed, line_1indexed - 1, line_1indexed - 2, line_1indexed - 3):
+        if 1 <= ln <= len(lines):
+            if _ALLOW_COMMENT in lines[ln - 1]:
+                return True
+    return False
+
+
+def _find_non_atomic_writes_in_src(source_text):
+    """Findet alle open(..., 'w'/'a'/'x')-Aufrufe per AST-Walk.
+
+    Returns:
+        list[tuple[int, str|None, str]]: (lineno_in_source, path_str_or_None, mode)
+    """
+    import ast as _ast
+    try:
+        tree = _ast.parse(source_text)
+    except SyntaxError:
+        return []
+
+    # Modul-Level-Konstanten sammeln: NAME = "/path/to/file"
+    static_strings = {}
+    for node in _ast.walk(tree):
+        if isinstance(node, _ast.Assign) and len(node.targets) == 1:
+            target = node.targets[0]
+            if isinstance(target, _ast.Name):
+                extracted = _extract_string_from_node(node.value)
+                if extracted is not None:
+                    static_strings[target.id] = extracted
+
+    findings = []
+    src_lines = source_text.splitlines()
+    for node in _ast.walk(tree):
+        if not isinstance(node, _ast.Call):
+            continue
+        # nur unqualifiziertes open() – os.open, io.open etc. lassen wir durch
+        if not (isinstance(node.func, _ast.Name) and node.func.id == "open"):
+            continue
+        if len(node.args) < 2:
+            continue
+        mode_arg = node.args[1]
+        if not (isinstance(mode_arg, _ast.Constant)
+                and isinstance(mode_arg.value, str)
+                and mode_arg.value in _WRITE_MODES):
+            continue
+
+        # Allow-Marker-Check im Quelltext
+        if _line_has_allow_marker(src_lines, node.lineno):
+            continue
+
+        # Pfad aufloesen
+        path_arg = node.args[0]
+        path_str = _extract_string_from_node(path_arg)
+        if path_str is None and isinstance(path_arg, _ast.Name):
+            path_str = static_strings.get(path_arg.id)
+        # Safe-Targets ausnehmen (z.B. /dev/null)
+        if path_str in _SAFE_TARGETS:
+            continue
+
+        findings.append((node.lineno, path_str, mode_arg.value))
+    return findings
 
 
 def check_atomic_writes() -> list[str]:
-    """Warnt wenn direkt open(..., 'w') auf *.txt oder *.json gemacht wird
-    – stattdessen write_ip_list() bzw. write_json_atomic() verwenden.
+    """Warnt wenn direkt open(..., 'w'/'a'/'x') verwendet wird – statt
+    write_ip_list() / write_text_atomic() / write_json_atomic().
 
-    Prueft sowohl scripts/*.py als auch Inline-Python in Workflows.
+    AST-basiert: findet sowohl open("foo.txt", "w") als auch
+    open(VAR, "w"). Ausnahme per '# allow-nonatomic: <grund>'-Kommentar.
+
+    Prueft scripts/*.py (ausser netshield_common.py, die die atomaren
+    Helper selbst definiert) und Inline-Python in Workflows.
     """
     errors: list[str] = []
 
-    def _scan_lines(lines, origin):
-        for i, line in enumerate(lines, 1):
-            # Kommentare uebergehen (verhindert False-Positives auf
-            # Doku-Zeilen wie "...vor: open('x.json', 'w')... Jetzt: ...")
-            if line.lstrip().startswith("#"):
-                continue
-            if BLACKLIST_TXT_RE.search(line):
-                errors.append(
-                    f"{origin}:{i}: direktes open(…, 'w') auf *.txt "
-                    f"– stattdessen write_ip_list()")
-            elif JSON_WRITE_RE.search(line):
-                errors.append(
-                    f"{origin}:{i}: direktes open(…, 'w') auf *.json "
-                    f"– stattdessen write_json_atomic()")
+    def _report(origin, lineno, path_str, mode):
+        path_display = path_str if path_str is not None else "<Variable>"
+        helper = _suggest_helper(path_str)
+        errors.append(
+            f"{origin}:{lineno}: direktes open({path_display!r}, {mode!r}) "
+            f"– stattdessen {helper}")
 
-    # scripts/*.py
+    # --- scripts/*.py ---
     if SCRIPTS_DIR.is_dir():
         for py in sorted(SCRIPTS_DIR.rglob("*.py")):
             if "__pycache__" in py.parts or py.name == "netshield_common.py":
-                # netshield_common definiert die atomaren Helper selbst
                 continue
-            _scan_lines(
-                py.read_text(encoding="utf-8").splitlines(),
-                str(py.relative_to(REPO_ROOT)),
-            )
+            source = py.read_text(encoding="utf-8")
+            origin = str(py.relative_to(REPO_ROOT))
+            for lineno, path_str, mode in _find_non_atomic_writes_in_src(source):
+                _report(origin, lineno, path_str, mode)
 
-    # Workflow-YAML: nur Zeilen innerhalb von 'python3 << EOF' ... 'EOF' scannen.
-    # Der Rest (Kommentare, Shell-Heredocs, Dokumentation) wuerde sonst matchen.
+    # --- Inline-Python in Workflows ---
     if WORKFLOWS_DIR.is_dir():
         heredoc_start = re.compile(
             r"python3\s*-?\s*<<\s*['\"]?(\w+)['\"]?\s*$", re.MULTILINE)
+        import textwrap as _tw
         for wf in sorted(WORKFLOWS_DIR.glob("*.yml")):
             content = wf.read_text(encoding="utf-8")
             lines = content.splitlines()
@@ -159,32 +277,22 @@ def check_atomic_writes() -> list[str]:
                     i += 1
                     continue
                 delim = m.group(1)
-                block_start_lineno = i + 2  # +1 fuer 0->1-indexed, +1 fuer EOF-Zeile
+                block_start_lineno = i + 2  # +1 fuer 1-indexed, +1 fuer EOF-Zeile
                 i += 1
                 block = []
                 while i < len(lines):
-                    stripped = lines[i].strip()
-                    if stripped == delim:
+                    if lines[i].strip() == delim:
                         break
                     block.append(lines[i])
                     i += 1
                 i += 1  # EOF-Zeile ueberspringen
                 if not block:
                     continue
-                # Zeilennummer im YAML rekonstruieren
-                for bi, bl in enumerate(block):
-                    if bl.lstrip().startswith("#"):
-                        continue
-                    if BLACKLIST_TXT_RE.search(bl):
-                        errors.append(
-                            f"{wf.relative_to(REPO_ROOT)}:{block_start_lineno + bi}: "
-                            f"direktes open(…, 'w') auf *.txt im inline-Python "
-                            f"– stattdessen write_ip_list()")
-                    elif JSON_WRITE_RE.search(bl):
-                        errors.append(
-                            f"{wf.relative_to(REPO_ROOT)}:{block_start_lineno + bi}: "
-                            f"direktes open(…, 'w') auf *.json im inline-Python "
-                            f"– stattdessen write_json_atomic()")
+                source = _tw.dedent("\n".join(block))
+                origin = str(wf.relative_to(REPO_ROOT))
+                for src_lineno, path_str, mode in _find_non_atomic_writes_in_src(source):
+                    yaml_lineno = block_start_lineno + src_lineno - 1
+                    _report(origin, yaml_lineno, path_str, mode)
 
     return errors
 
