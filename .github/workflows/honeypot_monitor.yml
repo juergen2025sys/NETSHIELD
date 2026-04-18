@@ -122,6 +122,15 @@ jobs:
           # - bi_bruteforce_30d entfernt: bi_bruteforce_2_30d.ipset existiert
           #   nicht im firehol/blocklist-ipsets-Repo (404 seit Beginn), ersetzt
           #   durch dshield_1d (tägliches DShield-Aggregat, nicht in combined)
+          # - jamesbrine_honeypot ergänzt (April 2026): AU-Honeypot-Netzwerk
+          #   (Toronto, Singapore, London, Perth), Protokolle SSH/FTP/RDP/GIT/
+          #   SNMP/REDIS. CSV mit Header 'ipv4, activity, date' – Parser
+          #   ignoriert Header automatisch, malformed Zeilen werden von der
+          #   IPv4-Regex gefiltert. Groesse ~40 MB → dediziertes Size-Limit
+          #   via fetch_large() unten.
+          # - stratosphere_aip ergänzt (April 2026): CTU Prag, 27-IoT-Honeypot-
+          #   Netzwerk, CSV 'ip,score' ~400 KB, täglich aktualisiert. Die gleiche
+          #   URL nutzt auch Slips (Stratosphere-IDS) als Default-Threat-Feed.
           #
           # Aktuelle Quellen (alle auf bewährten Repos/Diensten):
           # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
@@ -130,7 +139,42 @@ jobs:
           #   /24-Netze; dshield_1d = einzelne IPs der letzten 24h)
           # - blocklist_de_bots: blocklist.de Bot-spezifische Liste (nicht in combined)
           # - blocklist_de_bruteforce: blocklist.de Bruteforce-Login (nicht in combined)
+          # - jamesbrine_honeypot: AU-Honeypot-Netzwerk, SSH/FTP/RDP/GIT/SNMP/REDIS
+          # - stratosphere_aip: CTU Prag IoT-Honeypot-Netzwerk, AIP-Scoring
           # ══════════════════════════════════════════════════════════════════
+
+          # FIX SIZE: Separate fetch-Funktion mit explizitem Size-Limit fuer
+          # groessere CSV-Feeds (JamesBrine ~40 MB). Die Default-fetch() liest
+          # ohne Limit – bei versehentlich riesigen Antworten waere das ein
+          # Memory- und Timeout-Risiko. Limit bewusst grosszuegig auf 80 MB
+          # gesetzt, damit Wachstum des Feeds nicht sofort bricht. Bei
+          # Ueberschreitung wird der Feed verworfen, nicht truncatiert.
+          def fetch_large(url, timeout=60, retries=3, max_bytes=80 * 1024 * 1024):
+              for attempt in range(1, retries + 1):
+                  try:
+                      req = urllib.request.Request(
+                          url,
+                          headers={"User-Agent": "NETSHIELD-HoneypotMonitor/1.0"},
+                      )
+                      with urllib.request.urlopen(req, timeout=timeout) as r:
+                          data = r.read(max_bytes + 1)
+                          if len(data) > max_bytes:
+                              print(f"  FEHLER {url}: ueber {max_bytes} Bytes – verworfen")
+                              return None
+                          return data.decode("utf-8", errors="ignore")
+                  except urllib.error.HTTPError as e:
+                      print(f"  FEHLER HTTP {e.code} {url}")
+                      return None
+                  except Exception as e:
+                      if attempt < retries:
+                          time.sleep(2 ** attempt)
+                      else:
+                          print(f"  FEHLER {url} (nach {retries} Versuchen): {e}")
+              return None
+
+          # Sources die ueber fetch_large() statt fetch() geladen werden muessen.
+          # Grund: erwartete Antwortgroesse > ~5 MB, separates Timeout/Limit sinnvoll.
+          LARGE_SOURCES = {"jamesbrine_honeypot"}
 
           HONEYPOT_SOURCES = {
               # ipsum Level 4: IPs auf mindestens 4 Blacklists gleichzeitig.
@@ -159,13 +203,30 @@ jobs:
               # auf Login-Formulare durchführen. Nicht in combined SOURCES.
               "blocklist_de_bruteforce":
                   "https://lists.blocklist.de/lists/bruteforcelogin.txt",
+
+              # JamesBrine: Australisches Honeypot-Netzwerk, verteilt auf
+              # Toronto, Singapore, London, Perth. Protokolle SSH, FTP, RDP,
+              # GIT, SNMP, REDIS. CSV-Format 'ipv4, activity, date' – der
+              # parse_entries()-Parser nimmt die erste Spalte, ignoriert den
+              # Header und filtert malformed Zeilen. Taeglich aktualisiert.
+              # LARGE-SOURCE: ~40 MB, wird via fetch_large() geladen.
+              "jamesbrine_honeypot":
+                  "https://jamesbrine.com.au/csv",
+
+              # Stratosphere AIP: IoT-Honeypot-Netzwerk der CTU Prag, generiert
+              # via Attacker IP Prioritizer (AIP). CSV-Format 'ip,score' (Score
+              # wird vom Parser ignoriert, nur Spalte 1). Taeglich rotiert.
+              # 'prioritized_by_newest_attackers' fokussiert auf neue/emerging
+              # Attacker – passt gut neben den aggregierten dshield_1d/ipsum.
+              "stratosphere_aip":
+                  "https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Todays-Blacklists/AIP_historical_blacklist_prioritized_by_newest_attackers.csv",
           }
 
           all_ips = set()
           stats   = {}
 
           for name, url in HONEYPOT_SOURCES.items():
-              text = fetch(url)
+              text = fetch_large(url) if name in LARGE_SOURCES else fetch(url)
               if text:
                   # FIX BUG-WL7: use_protected_check=True → Whitelist-IPs
                   # werden bereits beim Parsen herausgefiltert.
