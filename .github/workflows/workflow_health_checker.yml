@@ -1472,7 +1472,7 @@ jobs:
               "torproject", "dan.me", "ipsum", "stamparm", "firehol",
               "talos", "microsoft", "et_pro", "proofpoint",
               "crowdsec", "dataplane", "threatview", "turris",
-              "criticalpath", "c2_tracker", "c2_iplist", "c2intelfeeds",
+              "criticalpath", "c2_iplist", "c2intelfeeds",
           }
           if os.path.exists(_combined_path):
               _cb_text = open(_combined_path).read()

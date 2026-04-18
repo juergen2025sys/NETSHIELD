@@ -42,7 +42,7 @@ jobs:
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
 
-              write_text_atomic,
+              write_text_atomic, write_json_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )

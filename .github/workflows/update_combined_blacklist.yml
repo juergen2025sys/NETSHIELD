@@ -244,7 +244,7 @@ jobs:
               "firehol_webclient", "firehol_webserver", "firehol_abusers_1d",
               "et_block", "et_compromised", "spamhaus_drop",
               "blocklist_de_all", "blocklist_de_export", "blocklist_de_strongips",
-              "blocklist_de_ssh", "c2_tracker", "c2_iplist",
+              "blocklist_de_ssh", "c2_iplist",
               "ipsum_level5", "ipsum_level7", "abuseipdb_s100_30d", "abuseipdb_s100_7d",
               "abuseipdb_score100", "turris_greylist",
               # FIX BUG-DP1: DataPlane-Feeds hatten hq=True in SOURCES, fehlten aber
@@ -346,15 +346,10 @@ jobs:
               "blocklist_de_ftp":           ("https://lists.blocklist.de/lists/ftp.txt", False),
 
               # ── C2 / Botnet ───────────────────────────────────────────────
-              # FIX C2-MIGRATION: montysecurity/C2-Tracker wurde archiviert (README),
-              # data/all.txt ist dauerhaft 404. Ersatz: elliotwutingfeng/ThreatFox-IOC-IPs
-              # – stündlich aktualisierter Mirror der abuse.ch ThreatFox botnet_cc-IOCs
-              # (CC0). Feed-Name 'c2_tracker' bleibt unverändert, damit seen_db / Reports
-              # / Drift-Erkennung nicht brechen. Feodo Tracker als Alternative verworfen:
-              # Datasets seit Wochen leer (<5 IPs).
-              "c2_tracker":                 ("https://raw.githubusercontent.com/elliotwutingfeng/ThreatFox-IOC-IPs/main/ips.txt", True),
+              # c2_tracker entfernt (war elliotwutingfeng/ThreatFox-IOC-IPs,
+              # im Health-Check als 404 gemeldet). C2-Abdeckung bleibt via
+              # c2_iplist (drb-ra/C2IntelFeeds).
               "c2_iplist":                  ("https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/feeds/IPC2s.csv", True),
-              # "cobalt_strike_ips" entfernt: Gi7w0rm/CobaltStrikeC2Tracker Repo gelöscht – C2 abgedeckt durch c2_tracker
 
               # ── SSH / Brute-Force ─────────────────────────────────────────
               "stopforumspam_toxic":        ("https://www.stopforumspam.com/downloads/toxic_ip_cidr.txt", False),
