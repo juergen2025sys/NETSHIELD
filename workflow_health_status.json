@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-19 08:13 UTC",
+  "updated": "2026-04-19 14:04 UTC",
   "total": 19,
   "ok": 19,
   "warn": 0,
@@ -11,11 +11,17 @@
       "detail": "hq=True in SOURCES aber nicht in HIGH_QUALITY: blocklist_net_ua \u2013 IPs altern still aus (Bug-DP1)"
     }
   ],
-  "warnings": [],
+  "warnings": [
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "Untrusted Feed hq=True",
+      "detail": "1 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"greedybear_recent\" (https://greedybear.honeynet.org/api/feeds/all/all/recent.txt)"
+    }
+  ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4686993,
-    "active_blacklist_ipv4.txt": 2463423,
-    "blacklist_confidence40_ipv4.txt": 3398443,
+    "combined_threat_blacklist_ipv4.txt": 4706674,
+    "active_blacklist_ipv4.txt": 2482772,
+    "blacklist_confidence40_ipv4.txt": 3417041,
     "cve_exploit_ips.txt": 54542,
     "honeypot_ips.txt": 106990,
     "bot_detector_blacklist_ipv4.txt": 17950
