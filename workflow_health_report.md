@@ -1,24 +1,20 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-19 04:22 UTC
+**Aktualisiert:** 2026-04-19 08:13 UTC
 
 **Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
-## ⚠️ Warnungen
+## ❌ Fehler (kritisch)
 
 | Datei | Check | Detail |
 |---|---|---|
-| `Production Health` | Aktualität: Active Blacklist (Stufe 2) | active_blacklist_ipv4.txt ist 7h alt (WARN-Schwelle: 6h) |
-| `Production Health` | Aktualität: Combined Blacklist (Stufe 1) | combined_threat_blacklist_ipv4.txt ist 7h alt (WARN-Schwelle: 6h) |
+| `update_combined_blacklist.yml` | HIGH_QUALITY ↔ SOURCES Drift | hq=True in SOURCES aber nicht in HIGH_QUALITY: blocklist_net_ua – IPs altern still aus (Bug-DP1) |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 2 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🟡 WARN | Aktualität: Active Blacklist (Stufe 2) | active_blacklist_ipv4.txt ist 7h alt (WARN-Schwelle: 6h) |
-| 🟡 WARN | Aktualität: Combined Blacklist (Stufe 1) | combined_threat_blacklist_ipv4.txt ist 7h alt (WARN-Schwelle: 6h) |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -45,4 +41,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-19 04:22 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-04-19 08:13 UTC | 19 Workflow-Dateien geprüft*
