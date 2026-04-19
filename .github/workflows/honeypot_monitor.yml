@@ -2,7 +2,14 @@ name: Honeypot Monitor
 
 on:
   schedule:
-    - cron: '0 23 * * *'   # täglich 23:00 UTC (vor Combined um 00:00; 15min Puffer nach HoneyDB 22:15 + Bot-Detector 22:45)
+    # Laeuft 5x taeglich, jeweils ~15min VOR einem Combined-Run,
+    # damit Combined beim naechsten Lauf die frischen honeypot_ips.txt
+    # einliest. Combined-Runs: 00/03/06/09/12/15/18/21 UTC.
+    - cron: '45 2 * * *'    # 02:45 UTC (vor Combined 03:00)
+    - cron: '45 8 * * *'    # 08:45 UTC (vor Combined 09:00)
+    - cron: '45 11 * * *'   # 11:45 UTC (vor Combined 12:00)
+    - cron: '45 17 * * *'   # 17:45 UTC (vor Combined 18:00)
+    - cron: '50 22 * * *'   # 22:50 UTC (vor Combined 00:00; 5min nach Bot-Detector 22:45)
   workflow_dispatch:
 
 env:
