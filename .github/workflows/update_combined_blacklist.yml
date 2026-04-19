@@ -342,6 +342,14 @@ jobs:
               # rutgers_drop: akademischer Feed (Rutgers University CS-Department). Plain
               # IP-Liste, Attacker gegen Uni-Netz. non-HQ (False): wenig Metadaten zur Kuratierung.
               "rutgers_drop":               ("https://report.cs.rutgers.edu/DROP/attackers", False),
+              # blocklist_net_ua: BlockList.net.ua Projekt, ~90k IPs, EU-Fokus,
+              # Schutz gegen SMTP-Relay-Spam und Hacking-Versuche. Aktiv gepflegt.
+              # HQ (True): bekannter EU-Community-Feed mit klarer Mission-Statement.
+              "blocklist_net_ua":           ("https://iplists.firehol.org/files/blocklist_net_ua.ipset", True),
+              # romain_marcoux: GitHub-Community-Repo, ~40k aktuelle malicious IPs.
+              # Top-40k nach Aggregation aus vielen Quellen. non-HQ (False):
+              # Einzelperson-Repo, Scoring-Kriterien nicht dokumentiert.
+              "romain_marcoux":             ("https://raw.githubusercontent.com/romainmarcoux/malicious-ip/main/full-40k.txt", False),
               "blocklist_de_all":           ("https://lists.blocklist.de/lists/all.txt", True),
               "blocklist_de_export":        ("https://www.blocklist.de/downloads/export-ips_all.txt", True),
               "blocklist_de_strongips":     ("https://lists.blocklist.de/lists/strongips.txt", True),
