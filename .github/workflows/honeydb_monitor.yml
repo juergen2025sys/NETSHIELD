@@ -298,6 +298,18 @@ jobs:
           if fp_removed:
               all_ips -= fp_removed
               print(f"FP-Filter: {len(fp_removed)} IPs entfernt")
+          # FIX BUG-WL-HONEYDB (2026-04-19): Whitelist-Filter fehlte komplett.
+          # Ohne diesen Filter landeten IPs aus whitelist.json (Google 172.217/16,
+          # 74.125/16, 173.194/16, Cloudflare 141.101.64/18, 103.22.200/22 etc.)
+          # in honeydb_ips.txt. Downstream (combined) filtert zwar via
+          # parse_entries(use_protected_check=True), aber die Zwischendatei selbst
+          # ist dann verunreinigt – wer honeydb_ips.txt direkt als Firewall-
+          # Blocklist nutzt, sperrt damit Google/Cloudflare.
+          # Analog zu honeypot_monitor.yml und update_bot_detector.yml.
+          wl_removed = {ip for ip in all_ips if is_whitelisted(ip)}
+          if wl_removed:
+              all_ips -= wl_removed
+              print(f"Whitelist-Filter: {len(wl_removed)} IPs entfernt")
           final_ips   = sorted(all_ips, key=lambda ip: (tuple(int(o) for o in ip.split('/')[0].split('.')), ip))
 
           # ── Report immer zuerst schreiben ────────────────────────────────

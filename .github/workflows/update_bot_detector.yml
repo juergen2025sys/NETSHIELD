@@ -138,6 +138,19 @@ jobs:
           fp_removed_count = fp_before - len(unique_ips)
           if fp_removed_count:
               print(f"FP-Filter: {fp_removed_count} IPs entfernt")
+          # FIX BUG-WL-BOTDETECTOR (2026-04-19): Whitelist-Filter fehlte.
+          # Ohne diesen Filter landeten IPs aus whitelist.json (CDN/Cloud-
+          # Ranges wie Google, Cloudflare, AWS) in bot_detector_blacklist_ipv4.txt.
+          # Downstream (combined) filtert zwar via parse_entries(
+          # use_protected_check=True), aber die Zwischendatei selbst ist dann
+          # verunreinigt – wer bot_detector_blacklist_ipv4.txt direkt als
+          # Firewall-Blocklist nutzt, sperrt damit legitimen CDN-Traffic.
+          # Analog zu honeypot_monitor.yml und honeydb_monitor.yml.
+          wl_before = len(unique_ips)
+          unique_ips = [ip for ip in unique_ips if not is_whitelisted(ip)]
+          wl_removed_count = wl_before - len(unique_ips)
+          if wl_removed_count:
+              print(f"Whitelist-Filter: {wl_removed_count} IPs entfernt")
 
           print(f"  Roh: {len(raw_ips)} | Gültig: {len(unique_ips)} | "
                 f"Ungültig/privat: {len(invalid_ips)} | Duplikate: {len(valid_ips) - len(unique_ips)}")

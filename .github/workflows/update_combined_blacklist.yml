@@ -279,8 +279,12 @@ jobs:
               "danger_bruteforce":          ("https://danger.rulez.sk/projects/bruteforceblocker/blist.php", True),
               "threatview_high_conf":       ("https://threatview.io/Downloads/IP-High-Confidence-Feed.txt", True),
               "florent_banned":             ("https://raw.githubusercontent.com/florentvinai/bad-ips-on-my-vps/refs/heads/main/banned_ips.txt", False),
-              "firehol_cybercrime":         ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/cybercrime.ipset", True),
-              "firehol_anonymous":          ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_anonymous.netset", True),
+              # FIX FIREHOL-STALE (2026-04-19): firehol/blocklist-ipsets auf GitHub
+              # ist eingefroren (letzter Commit 31.03.2026). iplists.firehol.org
+              # wird weiterhin stuendlich aktualisiert. Umstellung behebt das
+              # ~20 Tage alte Daten-Problem.
+              "firehol_cybercrime":         ("https://iplists.firehol.org/files/cybercrime.ipset", True),
+              "firehol_anonymous":          ("https://iplists.firehol.org/files/firehol_anonymous.netset", True),
               "dshield":                    ("https://www.dshield.org/block.txt", True),
               "cloudzy":                    ("https://raw.githubusercontent.com/CriticalPathSecurity/Public-Intelligence-Feeds/refs/heads/master/cloudzy.txt", True),
               "bbcan177":                   ("https://gist.githubusercontent.com/BBcan177/d7105c242f17f4498f81/raw", False),
@@ -325,12 +329,12 @@ jobs:
               "firehol_level1":             ("https://iplists.firehol.org/files/firehol_level1.netset", True),
               "firehol_level2":             ("https://iplists.firehol.org/files/firehol_level2.netset", True),
               "firehol_level3":             ("https://iplists.firehol.org/files/firehol_level3.netset", True),
-              "firehol_level4":             ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level4.netset", False),
-              "firehol_webclient":          ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_webclient.netset", True),
+              "firehol_level4":             ("https://iplists.firehol.org/files/firehol_level4.netset", False),
+              "firehol_webclient":          ("https://iplists.firehol.org/files/firehol_webclient.netset", True),
               "firehol_webserver":          ("https://iplists.firehol.org/files/firehol_webserver.netset", True),
               # firehol_proxies entfernt: komplett in firehol_anonymous enthalten
               # (laut FireHOL-Doku: anonymous = anonymous + dm_tor + firehol_proxies + tor_exits)
-              "firehol_abusers_1d":         ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_abusers_1d.netset", True),
+              "firehol_abusers_1d":         ("https://iplists.firehol.org/files/firehol_abusers_1d.netset", True),
               "et_block":                   ("https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt", True),
               "et_compromised":             ("https://rules.emergingthreats.net/blockrules/compromised-ips.txt", True),
               "spamhaus_drop":              ("https://www.spamhaus.org/drop/drop.txt", True),
