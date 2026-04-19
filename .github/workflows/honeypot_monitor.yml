@@ -269,18 +269,26 @@ jobs:
           # Ohne Key wird OTX stumm uebersprungen – alle anderen Feeds
           # funktionieren weiter, nur die OTX-IPs fehlen.
           #
-          # FIX OTX-TIMEOUT (2026-04-19): 2-Phasen-Ansatz statt Alles-in-einem.
-          # Vorher: /pulses/subscribed lieferte Pulse-Metadata UND Indicators
-          # inline – bei grossen Pulses (z.B. webscanners mit 695k IPs) timeout-
-          # ete die API-Antwort nach 90+ Sekunden.
-          # Jetzt:
-          #   Phase 1 – Pulse-IDs paginiert holen (ohne Indicators, klein/schnell)
-          #   Phase 2 – Pro Pulse separat /pulses/{id}/indicators mit Pagination
-          #             und per-Request-Limit. Grosse Pulses werden in mehreren
-          #             Requests geholt, jeder unter dem 30s-Timeout.
+          # FIX OTX-TIMEOUT-V3 (2026-04-19): Zwei-Phasen mit extrem kleinen
+          # Phase-1-Seiten.
+          # Grund: /pulses/subscribed liefert IMMER Indicators inline. Mit
+          # limit=50 oder limit=10 timeoutete die Antwort bei grossen Pulses
+          # (webscanners mit 695k IPs) weil die JSON-Antwort Hunderte MB
+          # gross wurde.
+          # Jetzt: limit=3 pro Seite – auch bei einem Mega-Pulse ist die
+          # Antwort <30MB und streambar innerhalb 60s Timeout. Die inline
+          # gelieferten Indicators werden VERWORFEN; Phase 2 holt die
+          # Indicators sauber paginiert pro Pulse.
           #
-          # Rate-Limit: 10.000 Requests/Stunde. Auch bei 100 Pulses mit je
-          # 10 Indicator-Pages sind wir unter 1100 Requests – weit vom Limit.
+          # Phasen:
+          #   Phase 1 – /pulses/subscribed?limit=3 → nur Pulse-IDs extrahieren
+          #   Phase 2 – Pro Pulse-ID /pulses/{id}/indicators?limit=500
+          #             paginiert (einzelne Requests <30s)
+          #
+          # Rate-Limit: 10.000 Requests/Stunde. Bei 7 Pulses und limit=3
+          # sind das ~3 Seiten × 1 Sek = 3 Phase-1-Requests, dann pro Pulse
+          # ca. 2-1400 Phase-2-Requests. Auch bei 50 Pulses weit unter
+          # 10.000/Stunde.
           # ──────────────────────────────────────────────────────────────────
           _otx_key = os.environ.get("OTX_API_KEY", "").strip()
           otx_ips_count = 0
@@ -313,25 +321,21 @@ jobs:
                           return None, ("other", 0, str(e))
                   return None, ("other", 0, "unknown")
 
-              # ── Phase 1: Pulse-IDs sammeln ─────────────────────────────
-              # Wichtig: die /subscribed-API liefert grundsaetzlich Pulses
-              # mit Indicators inline. Um den Timeout zu vermeiden, holen wir
-              # nur 10 Pulses pro Seite (statt 50). Kleinere Seiten = kleinere
-              # Antwort = kein Timeout auch bei einem Mega-Pulse dazwischen.
-              # Die Indicators darin nutzen wir direkt wenn die Pulse-Seite
-              # erfolgreich war; bei Timeout fallen wir auf Phase 2 zurueck.
-              pulse_ids = []
-              pulse_ips_inline = set()
-              _otx_base = "https://otx.alienvault.com/api/v1/pulses/subscribed"
-              _otx_page = 1
-              _otx_max_pages = 200  # 200 × 10 = 2000 Pulses (reichlich)
-              pulse_count = 0
-              truncated_pulses = []  # Pulses mit zu vielen Indicators zum inline-holen
-
-              while _otx_page <= _otx_max_pages:
-                  _otx_url = (f"{_otx_base}?modified_since={_otx_since}"
-                              f"&limit=10&page={_otx_page}")
-                  data, err = _otx_fetch(_otx_url, timeout=45)
+              # ── Phase 1: Pulse-IDs via /pulses/subscribed holen ────────
+              # Wir verwenden limit=3 (sehr klein) – der Endpoint liefert
+              # zwar Indicators inline, aber mit nur 3 Pulses pro Seite ist
+              # die Antwort auch bei EINEM Mega-Pulse (~30MB) noch unter
+              # dem 60s-Timeout streambar. Die Indicators werden VERWORFEN –
+              # wir lesen nur die Pulse-IDs und holen Indicators dann
+              # einzeln in Phase 2 mit feiner Pagination.
+              pulse_ids = set()
+              _sub_base = "https://otx.alienvault.com/api/v1/pulses/subscribed"
+              _sub_page = 1
+              _sub_max_pages = 200  # 200 × 3 = 600 Pulses max
+              while _sub_page <= _sub_max_pages:
+                  _sub_url = (f"{_sub_base}?modified_since={_otx_since}"
+                              f"&limit=3&page={_sub_page}")
+                  data, err = _otx_fetch(_sub_url, timeout=60)
                   if err:
                       etype, code, msg = err
                       if etype == "http" and code == 403:
@@ -340,45 +344,35 @@ jobs:
                       if etype == "http" and code == 429:
                           print(f"  otx_pulses: HTTP 429 – Rate-Limit erreicht, breche ab")
                           break
-                      # Timeout oder sonstiger Fehler auf Pulse-Liste: abbrechen
-                      print(f"  otx_pulses: Pulse-Liste Seite {_otx_page} Fehler – {msg}")
+                      print(f"  otx_pulses: Pulse-Liste Seite {_sub_page} Fehler – {msg}")
                       break
                   pulses = data.get("results", []) or []
                   if not pulses:
                       break
                   for pulse in pulses:
-                      pulse_count += 1
                       pid = pulse.get("id", "")
-                      if not pid:
-                          continue
-                      inline_inds = pulse.get("indicators", []) or []
-                      ind_count = pulse.get("indicator_count", len(inline_inds))
-                      # Wenn der Pulse mehr Indicators hat als inline geliefert,
-                      # merken wir uns die ID fuer Phase 2 (vollstaendig holen).
-                      if ind_count and ind_count > len(inline_inds):
-                          truncated_pulses.append((pid, ind_count))
-                      # Inline-Indicators schon mal mitnehmen
-                      for ind in inline_inds:
-                          if ind.get("type") != "IPv4":
-                              continue
-                          ip_str = (ind.get("indicator") or "").strip()
-                          if ip_str:
-                              pulse_ips_inline.add(ip_str)
-                  if len(pulses) < 10:
-                      break  # letzte Seite
-                  _otx_page += 1
-                  time.sleep(0.2)
+                      if pid:
+                          pulse_ids.add(pid)
+                  # Explizit die inline-Indicators nicht verarbeiten – wir
+                  # ueberlassen das Phase 2 mit sauberer Pagination.
+                  if len(pulses) < 3:
+                      break
+                  _sub_page += 1
+                  time.sleep(0.3)
 
-              # ── Phase 2: Grosse Pulses vollstaendig via /indicators ────
-              # Paginiert mit 500 Indicators pro Request; das ist auch bei
-              # einem 700k-Pulse in <30s holbar (1400 Requests, 0.2s Pause =
-              # ~5 Minuten max – bleibt im 10min-Job-Timeout).
+              pulse_count = len(pulse_ids)
+              print(f"  otx_pulses: Phase 1 – {pulse_count} Pulse-IDs gesammelt "
+                    f"({_sub_page} Seiten abgefragt)")
+
+              # ── Phase 2: Indicators pro Pulse paginiert holen ──────────
+              # /pulses/{id}/indicators mit limit=500/page.
               phase2_ips_raw = set()
               phase2_requests = 0
-              phase2_max_requests = 2000  # Hard-cap (entspricht ~1M Indicators)
-              for pid, total in truncated_pulses:
+              phase2_max_requests = 3000  # Hard-cap (~1.5M Indicators moeglich)
+              for idx, pid in enumerate(sorted(pulse_ids), 1):
                   ind_url_base = f"https://otx.alienvault.com/api/v1/pulses/{pid}/indicators"
                   ind_page = 1
+                  pulse_ip_count = 0
                   while phase2_requests < phase2_max_requests:
                       ind_url = f"{ind_url_base}?limit=500&page={ind_page}"
                       ind_data, ind_err = _otx_fetch(ind_url, timeout=30)
@@ -388,7 +382,9 @@ jobs:
                           if etype == "http" and code == 429:
                               print(f"  otx_pulses: Phase-2 Rate-Limit bei Pulse {pid[:8]}… breche ab")
                               break
-                          # 403 / anderer Fehler: diesen Pulse skippen, naechsten probieren
+                          if etype == "http" and code == 404:
+                              # Pulse evtl. geloescht – skip, weiter
+                              break
                           print(f"  otx_pulses: Pulse {pid[:8]}… Seite {ind_page} Fehler: {msg}")
                           break
                       inds = ind_data.get("results", []) or []
@@ -400,21 +396,19 @@ jobs:
                           ip_str = (ind.get("indicator") or "").strip()
                           if ip_str:
                               phase2_ips_raw.add(ip_str)
+                              pulse_ip_count += 1
                       if len(inds) < 500:
                           break
                       ind_page += 1
                       time.sleep(0.1)
                   if phase2_requests >= phase2_max_requests:
                       print(f"  otx_pulses: Phase-2 Request-Limit erreicht "
-                            f"({phase2_requests} Requests), restliche Pulses geskippt")
+                            f"({phase2_requests} Requests), {pulse_count - idx} Pulses geskippt")
                       break
 
               # ── Filter + Zusammenfuehrung ──────────────────────────────
-              # Alle gesammelten IPs (inline + Phase-2) durch Whitelist-/FP-
-              # /Protected-Filter schicken.
-              otx_ips_raw = pulse_ips_inline | phase2_ips_raw
               otx_ips_clean = set()
-              for ip_str in otx_ips_raw:
+              for ip_str in phase2_ips_raw:
                   if not is_valid_public_ipv4(ip_str):
                       continue
                   if is_protected_entry(ip_str):
@@ -427,9 +421,7 @@ jobs:
               otx_ips_count = len(otx_ips_clean)
               stats["otx_pulses"] = otx_ips_count
               print(f"  otx_pulses: {otx_ips_count} IPs "
-                    f"(aus {pulse_count} Pulses, "
-                    f"{len(truncated_pulses)} davon via Phase-2-Pagination, "
-                    f"{phase2_requests} API-Requests gesamt)")
+                    f"(aus {pulse_count} Pulses, {phase2_requests} API-Requests gesamt)")
 
           HONEYPOT_FILE = "honeypot_ips.txt"
           existing = set()
