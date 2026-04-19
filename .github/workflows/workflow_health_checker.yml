@@ -2336,9 +2336,33 @@ jobs:
               warnings.append({"file": "Production Health", "check": _ph["check"], "detail": _ph["detail"]})
 
           # ── Zusammenfassung ───────────────────────────────────────────────
-          ok_count   = sum(1 for v in results.values() if not v["errors"] and not v["warnings"])
-          warn_count = sum(1 for v in results.values() if v["warnings"] and not v["errors"])
-          err_count  = sum(1 for v in results.values() if v["errors"])
+          # FIX: Findings aus Cross-Workflow- und Production-Health-Checks
+          # (HIGH_QUALITY↔SOURCES Drift, Untrusted Feed hq=True, whitelist.json,
+          # Cross-Workflow, Production Health, ...) landen direkt in den globalen
+          # errors/warnings-Listen, ohne in results[fname] eingetragen zu werden.
+          # Der alte Zaehler schaute nur auf `results` und meldete deshalb
+          # "19 OK | 0 Fehler", obwohl die Tabelle weiter unten Fehler auflistet.
+          # Neu: Pro Datei aus globalen Listen + results aggregieren.
+          _per_file_errs  = {}
+          _per_file_warns = {}
+          for _e in errors:
+              _per_file_errs.setdefault(_e["file"], 0)
+              _per_file_errs[_e["file"]] += 1
+          for _w in warnings:
+              _per_file_warns.setdefault(_w["file"], 0)
+              _per_file_warns[_w["file"]] += 1
+          for _fn, _r in results.items():
+              if _r["errors"]:
+                  _per_file_errs[_fn] = _per_file_errs.get(_fn, 0) + len(_r["errors"])
+              if _r["warnings"]:
+                  _per_file_warns[_fn] = _per_file_warns.get(_fn, 0) + len(_r["warnings"])
+
+          _all_buckets = set(_per_file_errs) | set(_per_file_warns) | set(results)
+          err_count  = sum(1 for b in _all_buckets if _per_file_errs.get(b, 0) > 0)
+          warn_count = sum(1 for b in _all_buckets if _per_file_errs.get(b, 0) == 0
+                           and _per_file_warns.get(b, 0) > 0)
+          ok_count   = sum(1 for b in _all_buckets if _per_file_errs.get(b, 0) == 0
+                           and _per_file_warns.get(b, 0) == 0)
 
           print(f"\nGesamt: ✅ {ok_count} OK | ⚠️ {warn_count} Warnungen | ❌ {err_count} Fehler")
 
