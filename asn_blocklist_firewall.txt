@@ -1,24 +1,24 @@
 # ASN Reputation Blocklist – NETSHIELD
-# Aktualisiert: 2026-04-18 04:38 UTC
+# Aktualisiert: 2026-04-19 04:56 UTC
 # Format: AS<Nummer> # Score | BL-Hits | Organisation | Land
 # Nur ASNs mit Score >= 50 (base_score + BL-Treffer + DROP/ET-Bonus)
 
-AS132203  # Score:119 | BL-Hits:24587 | Tencent Cloud | CN
-AS14061  # Score:110 | BL-Hits:239182 | DigitalOcean | US
-AS51167  # Score:100 | BL-Hits:13134 | Contabo | DE
-AS45102  # Score:95 | BL-Hits:36358 | Alibaba Cloud | CN
-AS20473  # Score:95 | BL-Hits:18568 | Vultr | US
-AS63949  # Score:90 | BL-Hits:13200 | Linode (Akamai) | US
-AS22612  # Score:90 | BL-Hits:1652 | Namecheap | US
-AS12876  # Score:90 | BL-Hits:9201 | Scaleway | FR
-AS12389  # Score:85 | BL-Hits:16339 | Rostelecom | RU
-AS31898  # Score:85 | BL-Hits:26211 | Oracle Cloud | US
-AS16509  # Score:85 | BL-Hits:308317 | Amazon AWS | US
-AS24940  # Score:81 | BL-Hits:24440 | Hetzner | DE
-AS16276  # Score:81 | BL-Hits:41452 | OVH | FR
-AS47583  # Score:75 | BL-Hits:2988 | Hostinger | LT
-AS8560  # Score:75 | BL-Hits:3299 | IONOS | DE
-AS26496  # Score:65 | BL-Hits:1971 | GoDaddy | US
+AS132203  # Score:119 | BL-Hits:24652 | Tencent Cloud | CN
+AS14061  # Score:110 | BL-Hits:240055 | DigitalOcean | US
+AS51167  # Score:100 | BL-Hits:13172 | Contabo | DE
+AS45102  # Score:95 | BL-Hits:36426 | Alibaba Cloud | CN
+AS20473  # Score:95 | BL-Hits:18591 | Vultr | US
+AS63949  # Score:90 | BL-Hits:13410 | Linode (Akamai) | US
+AS22612  # Score:90 | BL-Hits:1661 | Namecheap | US
+AS12876  # Score:90 | BL-Hits:9245 | Scaleway | FR
+AS12389  # Score:85 | BL-Hits:16448 | Rostelecom | RU
+AS31898  # Score:85 | BL-Hits:26253 | Oracle Cloud | US
+AS16509  # Score:85 | BL-Hits:308786 | Amazon AWS | US
+AS24940  # Score:81 | BL-Hits:24495 | Hetzner | DE
+AS16276  # Score:81 | BL-Hits:41546 | OVH | FR
+AS47583  # Score:75 | BL-Hits:2999 | Hostinger | LT
+AS8560  # Score:75 | BL-Hits:3311 | IONOS | DE
+AS26496  # Score:65 | BL-Hits:1976 | GoDaddy | US
 AS46606  # Score:60 | BL-Hits:932 | Bluehost (Unified Layer) | US
-AS8075  # Score:55 | BL-Hits:43675 | Microsoft Azure | US
-AS36351  # Score:50 | BL-Hits:1206 | IBM Cloud | US
+AS8075  # Score:55 | BL-Hits:43774 | Microsoft Azure | US
+AS36351  # Score:50 | BL-Hits:1209 | IBM Cloud | US
