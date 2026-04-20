@@ -351,7 +351,10 @@ def calculate_confidence(is_hq=False, today_count=0, feed_count=0,
     def _int_or(val, default):
         try:
             return int(val) if val is not None else default
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, OverflowError):
+            # OverflowError: int(float('inf')) – sollte nie in JSON-seen_db
+            # vorkommen (JSON erlaubt kein Infinity), aber die Funktion ist
+            # dokumentiert crash-sicher. Konsistent mit den anderen Except-Typen.
             return default
 
     today_count     = _int_or(today_count,     0)
