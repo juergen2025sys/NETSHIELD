@@ -602,8 +602,12 @@ jobs:
 
               ip_files.sort(key=lambda x: x["size"], reverse=True)
               best_file = ip_files[0]
+              # URL-Encoding des Pfads: konsistent mit der /commits-API-Abfrage
+              # weiter unten. Ohne quote() werden Dateinamen mit Leerzeichen,
+              # Unicode oder anderen Sonderzeichen zu 404s und der Feed wird
+              # still verworfen. safe="/" behält die Pfad-Struktur.
               raw_url   = (f"https://raw.githubusercontent.com/{full_name}/"
-                           f"HEAD/{best_file['path']}")
+                           f"HEAD/{urllib.parse.quote(best_file['path'], safe='/')}")
               print(f"  Datei: {best_file['path']} ({best_file['size']:,} Bytes)")
 
               # Kriterium 1b: Aktualität der IP-Datei selbst (max. 30 Tage).
