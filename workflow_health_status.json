@@ -1,16 +1,10 @@
 {
-  "updated": "2026-04-20 14:57 UTC",
+  "updated": "2026-04-20 20:06 UTC",
   "total": 19,
   "ok": 18,
-  "warn": 0,
-  "error": 1,
-  "errors": [
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "HIGH_QUALITY \u2194 SOURCES Drift",
-      "detail": "hq=True in SOURCES aber nicht in HIGH_QUALITY: blocklist_net_ua \u2013 IPs altern still aus (Bug-DP1)"
-    }
-  ],
+  "warn": 1,
+  "error": 0,
+  "errors": [],
   "warnings": [
     {
       "file": "update_combined_blacklist.yml",
@@ -19,9 +13,9 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4719995,
-    "active_blacklist_ipv4.txt": 2484490,
-    "blacklist_confidence40_ipv4.txt": 3427151,
+    "combined_threat_blacklist_ipv4.txt": 4723945,
+    "active_blacklist_ipv4.txt": 2498774,
+    "blacklist_confidence40_ipv4.txt": 3460625,
     "cve_exploit_ips.txt": 54504,
     "honeypot_ips.txt": 107120,
     "bot_detector_blacklist_ipv4.txt": 17948

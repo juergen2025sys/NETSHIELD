@@ -1,15 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-20 14:57 UTC
+**Aktualisiert:** 2026-04-20 20:06 UTC
 
-**Workflows:** 19 | ✅ 18 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
+**Workflows:** 19 | ✅ 18 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `update_combined_blacklist.yml` | HIGH_QUALITY ↔ SOURCES Drift | hq=True in SOURCES aber nicht in HIGH_QUALITY: blocklist_net_ua – IPs altern still aus (Bug-DP1) |
-
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
@@ -47,4 +41,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-20 14:57 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-04-20 20:06 UTC | 19 Workflow-Dateien geprüft*
