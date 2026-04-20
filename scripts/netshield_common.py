@@ -534,6 +534,22 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
                 continue
             print(f"  FEHLER HTTP {e.code} {url}")
             return None
+        except urllib.error.URLError as e:
+            # URLError kommt bei DNS-Fehlern, Connection-Refused, Timeouts
+            # UND bei bewusst vom _SafeRedirect ausgelösten SSRF-Blocks.
+            # SSRF-Blocks und URL-Schema-Fehler sind nicht transient – sofort
+            # abbrechen statt 3× zu versuchen und dabei ~6s Backoff zu warten.
+            msg = str(e.reason) if hasattr(e, "reason") else str(e)
+            non_transient = (
+                "Redirect zu unsicherem Ziel blockiert" in msg
+                or "unknown url type" in msg.lower()
+            )
+            if non_transient or attempt >= retries:
+                print(f"  FEHLER {url}"
+                      + (f" (nach {retries} Versuchen)" if attempt >= retries else "")
+                      + f": {e}")
+                return None
+            time.sleep(2 ** attempt)
         except Exception as e:
             if attempt < retries:
                 time.sleep(2 ** attempt)
