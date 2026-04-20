@@ -452,6 +452,19 @@ jobs:
               print("README.md nicht gefunden – übersprungen")
               raise SystemExit(0)
 
+          # FIX BUG#9: Guard gegen 0-Überschreibung bei leerem/fehlendem Combined-Run.
+          # Der vorige Step ("Update README Header Stats") hat denselben Guard –
+          # dieser Step hatte ihn nicht. Bei Pipeline-Ausfall würden die IP-Zahlen
+          # im README stillschweigend auf 0 gesetzt (combined existiert, ist aber leer).
+          # Prüfung: combined_threat_blacklist als Hauptindikator. Falls leer/fehlend
+          # → kein Update, damit die README-Zahlen des letzten erfolgreichen Runs
+          # sichtbar bleiben.
+          combined_count = count_ips("combined_threat_blacklist_ipv4.txt")
+          if combined_count is not None and combined_count == 0:
+              print("WARNUNG: combined_threat_blacklist_ipv4.txt ist leer – "
+                    "README IP Counts nicht überschrieben (Pipeline-Ausfall?)")
+              raise SystemExit(0)
+
           with open("README.md", "r", encoding="utf-8") as f:
               readme = f.read()
 

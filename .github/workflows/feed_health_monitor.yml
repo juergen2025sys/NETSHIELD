@@ -163,11 +163,19 @@ jobs:
           results = []
           with ThreadPoolExecutor(max_workers=15) as ex:
               futures = {ex.submit(check_feed, n, u): n for n, u in FEEDS.items()}
-              for f in as_completed(futures, timeout=300):
-                  r = f.result()
-                  results.append(r)
-                  icon = "✅" if r["ok"] and r["has_ips"] else ("⚠️" if r["ok"] else "❌")
-                  print(f"{icon} {r['name']}: HTTP {r['status']} | {r['ms']}ms | ~{r['sample_ips']} IPs (sample)")
+              # FIX BUG#6: as_completed wirft TimeoutError wenn das 300s-Limit
+              # erreicht wird. Alle anderen Workflows fangen das ab – dieser nicht.
+              # Ohne try/except crasht der gesamte Workflow statt einen Teilergebnis-
+              # Report zu schreiben.
+              try:
+                  for f in as_completed(futures, timeout=300):
+                      r = f.result()
+                      results.append(r)
+                      icon = "✅" if r["ok"] and r["has_ips"] else ("⚠️" if r["ok"] else "❌")
+                      print(f"{icon} {r['name']}: HTTP {r['status']} | {r['ms']}ms | ~{r['sample_ips']} IPs (sample)")
+              except TimeoutError:
+                  timed_out = [name for fut, name in futures.items() if fut not in {f for f in futures if f.done()}]
+                  print(f"::warning::as_completed Timeout (300s) – {len(timed_out)} Feeds nicht abgeschlossen: {timed_out}")
 
           results.sort(key=lambda x: (not x["ok"], x["name"]))
 

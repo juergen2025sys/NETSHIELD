@@ -305,10 +305,13 @@ jobs:
                       continue
 
                   # Watchlist-IPs (last="2000-01-01", hq=False) haben keine HQ-Bestätigung.
-                  # score_b wird 0 → landen unter Schwelle 25 → lautlos ignoriert.
-                  # Explizit zählen für den Report.
+                  # Kein HQ-Feed hat sie je gesehen → explizit überspringen.
+                  # FIX BUG#2: Fehlendes `continue` führte dazu, dass Watchlist-IPs
+                  # mit hohem today_count (≥5 Auto-Feeds) score_a=35 erreichten und
+                  # trotz last="2000-01-01" in die confidence40-Blacklist rutschten.
                   if last_seen == "2000-01-01" and not is_hq:
                       skipped_watchlist += 1
+                      continue
 
                   days_since_last = (now - last_dt).days
                   days_known      = (now - first_dt).days + 1

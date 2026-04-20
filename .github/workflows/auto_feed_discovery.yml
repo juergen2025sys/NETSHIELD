@@ -546,8 +546,19 @@ jobs:
           if removed_aged:
               print(f"Als stale entfernt (Datei >30d): {len(removed_aged)} Feeds: {', '.join(removed_aged)}")
 
+          # FIX BUG#1: Repos die in Schritt 5a (REFRESH bestehender Feeds) bereits
+          # verarbeitet und gezählt wurden, müssen hier übersprungen werden.
+          # Ohne diesen Guard zählt ip_auto_feed_count IPs doppelt (today_count=2
+          # statt 1), was den Confidence-Score im nachfolgenden Combined-Run aufbläht.
+          # Feeds die in 5a als stale/tot entfernt wurden, sind nicht mehr in
+          # approved_feeds und können hier regulär neu bewertet werden.
+          existing_repo_set = {v.get("repo") for v in approved_feeds.values() if v.get("repo")}
+
           for full_name, meta in candidate_repos.items():
               if full_name in rejected_repos:
+                  continue
+              if full_name in existing_repo_set:
+                  # Bereits in Schritt 5a gezählt – überspringen
                   continue
 
               print(f"\nBewerte: {full_name}")

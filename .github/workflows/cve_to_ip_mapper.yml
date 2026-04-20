@@ -183,7 +183,8 @@ jobs:
               except Exception:
                   return ((999,), entry)
 
-          new_ips = all_exploit_ips - existing
+          # FIX BUG#3: FP- und Whitelist-Filter VOR der Delta-Berechnung anwenden.
+          # Vorher wurde new_ips vor dem Filtern berechnet → Report-Statistik überhöht.
           # FP-Filter: IPs aus false_positives_set.json entfernen
           fp_removed = {ip for ip in all_exploit_ips if is_in_fp_set(ip)}
           if fp_removed:
@@ -200,6 +201,9 @@ jobs:
               for tag in cve_ip_map:
                   cve_ip_map[tag] -= wl_removed
               print(f"Whitelist-Filter: {len(wl_removed)} IPs entfernt")
+
+          # Delta NACH allen Filtern berechnen → korrekte Report-Statistik
+          new_ips = all_exploit_ips - existing
           final   = sorted(all_exploit_ips, key=sort_key)
 
           # ── Report immer zuerst schreiben ────────────────────────────────

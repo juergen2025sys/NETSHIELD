@@ -291,8 +291,10 @@ jobs:
               with open(HONEYDB_FILE) as f:
                   existing = {l.strip() for l in f if l.strip() and not l.startswith("#")}
 
-          new_ips     = all_ips - existing
-          removed_ips = existing - all_ips
+          # FIX BUG#3: FP- und Whitelist-Filter VOR der Delta-Berechnung anwenden.
+          # Vorher wurden new_ips/removed_ips vor dem Filtern berechnet → Report
+          # zeigte überhöhte +neu/-entfernt-Zahlen (gefilterte IPs zählten als "neu").
+          # Blacklist-Inhalt war korrekt; nur Statistik war falsch.
           # FP-Filter: IPs aus false_positives_set.json entfernen
           fp_removed = {ip for ip in all_ips if is_in_fp_set(ip)}
           if fp_removed:
@@ -310,6 +312,10 @@ jobs:
           if wl_removed:
               all_ips -= wl_removed
               print(f"Whitelist-Filter: {len(wl_removed)} IPs entfernt")
+
+          # Delta NACH allen Filtern berechnen → korrekte Report-Statistik
+          new_ips     = all_ips - existing
+          removed_ips = existing - all_ips
           final_ips   = sorted(all_ips, key=lambda ip: (tuple(int(o) for o in ip.split('/')[0].split('.')), ip))
 
           # ── Report immer zuerst schreiben ────────────────────────────────
