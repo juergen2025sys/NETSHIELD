@@ -17,12 +17,10 @@ Ausführen:
 
 import os
 import sys
-import json
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
-from copy import deepcopy
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 

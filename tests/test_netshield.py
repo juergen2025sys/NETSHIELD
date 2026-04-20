@@ -16,7 +16,7 @@ import os
 import sys
 import tempfile
 import unittest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 # Modul-Pfad einfügen
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
@@ -36,10 +36,6 @@ from netshield_common import (
     write_ip_list,
     check_local_feed_age,
     fetch_url,
-    _whitelist_networks,
-    _protected_networks,
-    _fp_ips,
-    _fp_networks,
 )
 import netshield_common
 
@@ -503,14 +499,22 @@ class TestCrashHandling(unittest.TestCase):
         self.assertEqual(safe_get_date(data, "last"), "2000-01-01")
 
     def test_corrupt_feeds_field(self):
-        """feeds ist kein List → len() sollte trotzdem funktionieren."""
+        """feeds ist kein List → len() sollte trotzdem funktionieren.
+
+        Dokumentiert den Edge-Case: data.get("feeds", []) liefert den
+        String zurück (Default nur bei Missing-Key), und len("not_a_list")
+        ergibt 10. Der Test pinnt dieses Verhalten, damit eine künftige
+        Härtung (Typen-Check auf list) explizit auffällt statt still zu
+        brechen.
+        """
         data = {"feeds": "not_a_list", "hq": True}
         try:
             feed_count = len(data.get("feeds", []))
         except TypeError:
             feed_count = 0
-        # Strings haben len() → ergibt 10 statt 0
-        # Das ist ein Edge-Case der in der Praxis nicht auftreten sollte
+        # Strings haben len() → ergibt 10 statt 0.
+        # Das ist ein Edge-Case der in der Praxis nicht auftreten sollte.
+        self.assertEqual(feed_count, 10)
 
     def test_scoring_with_extreme_values(self):
         """Score-Berechnung mit extremen Werten."""
@@ -631,7 +635,8 @@ class TestWriteIpListAtomic(unittest.TestCase):
 
     def test_crash_during_write_keeps_old_file_intact(self):
         write_ip_list(self.target, ["1.1.1.1"], header_lines=["v1"])
-        original = open(self.target, encoding="utf-8").read()
+        with open(self.target, encoding="utf-8") as f:
+            original = f.read()
 
         class BadIter:
             def __iter__(self_inner):
@@ -641,7 +646,8 @@ class TestWriteIpListAtomic(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             write_ip_list(self.target, BadIter())
 
-        after = open(self.target, encoding="utf-8").read()
+        with open(self.target, encoding="utf-8") as f:
+            after = f.read()
         self.assertEqual(original, after,
                          "Zieldatei darf bei Crash nicht verändert sein")
         leftovers = [f for f in os.listdir(self.tmpdir) if f != "ips.txt"]
@@ -651,7 +657,8 @@ class TestWriteIpListAtomic(unittest.TestCase):
     def test_write_produces_correct_content(self):
         write_ip_list(self.target, ["5.6.7.8", "1.2.3.4"],
                        header_lines=["Header1", "Header2"])
-        content = open(self.target, encoding="utf-8").read()
+        with open(self.target, encoding="utf-8") as f:
+            content = f.read()
         # Header vorhanden
         self.assertIn("# Header1", content)
         self.assertIn("# Header2", content)
@@ -671,7 +678,8 @@ class TestWriteIpListAtomic(unittest.TestCase):
         import signal
         # Originaldatei anlegen
         write_ip_list(self.target, ["9.9.9.9"], header_lines=["original"])
-        original = open(self.target, encoding="utf-8").read()
+        with open(self.target, encoding="utf-8") as f:
+            original = f.read()
 
         # Kindprozess: write_ip_list aufrufen, aber os.replace
         # monkey-patchen, sodass er sich vorher selbst killt.
@@ -695,7 +703,8 @@ write_ip_list({self.target!r}, ["8.8.8.8", "7.7.7.7"], header_lines=["new"])
 
         # Zieldatei muss Originalinhalt haben – halb geschrieben ist
         # NICHT akzeptabel.
-        after = open(self.target, encoding="utf-8").read()
+        with open(self.target, encoding="utf-8") as f:
+            after = f.read()
         self.assertEqual(original, after,
                          "Zieldatei muss bei SIGKILL unversehrt bleiben")
 
@@ -846,9 +855,14 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
 
-        # SSRF-Check temporär auf "alles erlauben" patchen für diese Klasse
+        # SSRF-Check temporär auf "alles erlauben" patchen für diese Klasse.
+        # staticmethod nötig, weil Python freie Funktionen, die als
+        # Klassenattribut landen, beim Zugriff via self automatisch zu
+        # Methoden bindet und self als ersten Arg einfügt – der Aufruf
+        # self._orig_safe_host(host) würde sonst (self, host) senden und
+        # mit TypeError scheitern.
         import netshield_common
-        cls._orig_safe_host = netshield_common._is_safe_public_host
+        cls._orig_safe_host = staticmethod(netshield_common._is_safe_public_host)
         netshield_common._is_safe_public_host = lambda h: True
 
     @classmethod
