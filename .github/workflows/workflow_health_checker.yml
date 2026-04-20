@@ -1473,6 +1473,10 @@ jobs:
               "talos", "microsoft", "et_pro", "proofpoint",
               "crowdsec", "dataplane", "threatview", "turris",
               "criticalpath", "c2_iplist", "c2intelfeeds",
+              # The Honeynet Project (501(c)(3), seit 1999) – betreibt u.a.
+              # GreedyBear (T-POT-Cluster Aggregator auf greedybear.honeynet.org).
+              # Deckt greedybear_recent und zukünftige Honeynet-Feeds ab.
+              "honeynet",
           }
           if os.path.exists(_combined_path):
               _cb_text = open(_combined_path).read()
