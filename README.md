@@ -1,4 +1,5 @@
 
+
 <div align="center">
 
 # 🛡️ NETSHIELD
@@ -33,21 +34,21 @@
 <!-- STATS_TABLE_START -->
 <table>
 <tr>
-<td align="center" width="25%">
+<td align="center" valign="top" width="25%">
 <h3>124</h3>
-<sub>IP-Quellen (dynamisch)</sub>
+<sub>IP-Quellen<br>(dynamisch)</sub>
 </td>
-<td align="center" width="25%">
+<td align="center" valign="top" width="25%">
 <h3>2,483,828</h3>
 <sub>Aktive IP-Drohungen<br>(Confidence ≥65)</sub>
 </td>
-<td align="center" width="25%">
+<td align="center" valign="top" width="25%">
 <h3>54,542</h3>
-<sub>CVE/Exploit IPs</sub>
+<sub>CVE/Exploit IPs<br>&nbsp;</sub>
 </td>
-<td align="center" width="25%">
+<td align="center" valign="top" width="25%">
 <h3>106,990</h3>
-<sub>Honeypot IPs</sub>
+<sub>Honeypot IPs<br>&nbsp;</sub>
 </td>
 </tr>
 </table>
