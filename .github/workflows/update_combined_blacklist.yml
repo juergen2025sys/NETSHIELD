@@ -260,6 +260,13 @@ jobs:
               # ebenfalls registriert sein, sonst läuft BUG-DP1-Szenario erneut:
               # strongly_confirmed_today bliebe False → IPs würden still ausaltern.
               "greedybear_recent",
+              # blocklist_net_ua (BlockList.net.ua Projekt) – HQ=True in SOURCES,
+              # wurde beim Hinzufügen in SOURCES versehentlich hier vergessen.
+              # Der workflow_health_checker.yml (HIGH_QUALITY ↔ SOURCES Konsistenz)
+              # meldet diesen Drift. Ohne diesen Eintrag werden ~90.000 IPs aus
+              # diesem täglich aktualisierten Feed nicht als HQ erkannt → last-Feld
+              # wird nie gesetzt → IPs altern nach 180 Tagen still aus.
+              "blocklist_net_ua",
           }
 
           # ══════════════════════════════════════════════════════════════════

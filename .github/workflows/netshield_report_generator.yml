@@ -340,43 +340,84 @@ jobs:
           feed_count = derive_feed_count()
           now_str    = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-          # ── Neue Tabelleninhalte (passend zum neuen README-Format) ────────
-          # STATS_TABLE: Key Statistics
-          stats_header = "| IP-Quellen | Aktive IP-Drohungen (Confidence \u226565) | CVE/Exploit IPs | Honeypot IPs |"
-          stats_sep    = "|:---|:---|:---|:---|"
-          stats_data   = f"| {feed_count} (dynamisch) | **{active:,}** | **{cve:,}** | **{honeypot:,}** |"
+          # ── Neue Tabelleninhalte (HTML – passend zum README-Format) ───────
+          # FIX README-HTML: Die README verwendet <table>-HTML, nicht Markdown-Pipes.
+          # Der vorherige Code schrieb Markdown-Pipes zwischen die Marker und matchte
+          # mit einer Regex auf "**Titel**" + "|...|"-Zeilen – das gibt es in der
+          # HTML-README nicht, die Regex matchte 0×, und das Datum blieb eingefroren.
+          #
+          # FIX README-HEIGHT: Alle Zellen haben jetzt zweizeilige Untertitel
+          # (bei Bedarf mit &nbsp;-Padding) + vertical-align:top, damit die Zahlen
+          # immer auf derselben Höhe stehen – auch wenn ein Untertitel länger ist.
 
-          # META_TABLE: Aktualisierungs-Status
-          meta_header = "| Letztes Update | Update-Intervall | IP-Retention | Aktive Workflows | Geografische Abdeckung |"
-          meta_sep    = "|:---|:---|:---|:---|:---|"
-          meta_data   = f"| {now_str} | 8\u00d7 t\u00e4glich | 180 Tage | {WORKFLOW_COUNT} | 250+ L\u00e4nder |"
+          # STATS_TABLE: 4 Zahlen-Kacheln, alle gleich aufgebaut
+          # (<h3>Zahl</h3> + 2-zeiliger <sub>, Leerzeile via &nbsp; falls nur 1 Zeile).
+          stats_html = (
+              "<table>\n"
+              "<tr>\n"
+              f"<td align=\"center\" valign=\"top\" width=\"25%\">\n"
+              f"<h3>{feed_count}</h3>\n"
+              f"<sub>IP-Quellen<br>(dynamisch)</sub>\n"
+              f"</td>\n"
+              f"<td align=\"center\" valign=\"top\" width=\"25%\">\n"
+              f"<h3>{active:,}</h3>\n"
+              f"<sub>Aktive IP-Drohungen<br>(Confidence \u226565)</sub>\n"
+              f"</td>\n"
+              f"<td align=\"center\" valign=\"top\" width=\"25%\">\n"
+              f"<h3>{cve:,}</h3>\n"
+              f"<sub>CVE/Exploit IPs<br>&nbsp;</sub>\n"
+              f"</td>\n"
+              f"<td align=\"center\" valign=\"top\" width=\"25%\">\n"
+              f"<h3>{honeypot:,}</h3>\n"
+              f"<sub>Honeypot IPs<br>&nbsp;</sub>\n"
+              f"</td>\n"
+              "</tr>\n"
+              "</table>"
+          )
+
+          # META_TABLE: 2×4-Zellen + 1 zusammengefasste Zeile
+          meta_html = (
+              "<table>\n"
+              "<tr>\n"
+              "<td><strong>\U0001F552 Letztes Update</strong></td>\n"
+              f"<td>{now_str}</td>\n"
+              "<td><strong>\U0001F504 Intervall</strong></td>\n"
+              "<td>8\u00D7 t\u00E4glich</td>\n"
+              "</tr>\n"
+              "<tr>\n"
+              "<td><strong>\U0001F4C5 IP-Retention</strong></td>\n"
+              "<td>180 Tage</td>\n"
+              "<td><strong>\u2699\uFE0F Aktive Workflows</strong></td>\n"
+              f"<td>{WORKFLOW_COUNT}</td>\n"
+              "</tr>\n"
+              "<tr>\n"
+              "<td><strong>\U0001F30D Abdeckung</strong></td>\n"
+              "<td colspan=\"3\">250+ L\u00E4nder</td>\n"
+              "</tr>\n"
+              "</table>"
+          )
 
           with open("README.md", "r", encoding="utf-8") as f:
               content = f.read()
 
-          def replace_between_markers(text, start_marker, end_marker,
-                                      header, sep, data, label):
-              """Ersetzt Tabelleninhalt zwischen HTML-Kommentar-Markern."""
+          def replace_between_markers(text, start_marker, end_marker, new_block, label):
+              """Ersetzt den Inhalt zwischen zwei HTML-Kommentar-Markern komplett.
+
+              Matcht Marker + beliebigen Inhalt (non-greedy) + End-Marker und
+              ersetzt den Inhalt durch new_block. Funktioniert sowohl mit dem
+              alten Markdown-Pipe-Format als auch mit dem neuen HTML-Format.
+              """
               pattern = (
-                  rf'({re.escape(start_marker)}\n'
-                  rf'\*\*[^\n]+\*\*\n\n)'           # **Titel**
-                  rf'\|[^\n]+\|\n'                  # alter Header
-                  rf'\|[^\n]+\|\n'                  # alter Separator
-                  rf'\|[^\n]+\|\n'                  # alte Datenzeile
-                  rf'({re.escape(end_marker)})'
+                  re.escape(start_marker)
+                  + r'\n.*?\n'
+                  + re.escape(end_marker)
               )
-              replacement = (
-                  rf'\g<1>'
-                  + header + '\n'
-                  + sep    + '\n'
-                  + data   + '\n'
-                  + r'\g<2>'
-              )
-              new_text, n = re.subn(pattern, replacement, text, count=1)
+              replacement = start_marker + '\n' + new_block + '\n' + end_marker
+              new_text, n = re.subn(pattern, replacement, text, count=1, flags=re.DOTALL)
               if n:
-                  print(f"✅ {label} aktualisiert")
+                  print(f"\u2705 {label} aktualisiert")
               else:
-                  print(f"WARNUNG: {label} – Marker nicht gefunden oder kein Match")
+                  print(f"WARNUNG: {label} \u2013 Marker nicht gefunden")
               return new_text
 
           # FIX: Nur schreiben wenn sich IP-Zahlen oder Feed-Counts geändert haben.
@@ -386,20 +427,22 @@ jobs:
           content = replace_between_markers(
               content,
               "<!-- STATS_TABLE_START -->", "<!-- STATS_TABLE_END -->",
-              stats_header, stats_sep, stats_data,
-              "STATS_TABLE"
+              stats_html, "STATS_TABLE"
           )
           content = replace_between_markers(
               content,
               "<!-- META_TABLE_START -->", "<!-- META_TABLE_END -->",
-              meta_header, meta_sep, meta_data,
-              "META_TABLE"
+              meta_html, "META_TABLE"
           )
 
-          # Vergleich ohne Timestamps: nur schreiben wenn Daten-Zeilen sich unterscheiden
-          _ts_re_readme = re.compile(r'\| \d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC \|')
-          _old_stripped = _ts_re_readme.sub("| TS |", _old_content)
-          _new_stripped = _ts_re_readme.sub("| TS |", content)
+          # Vergleich ohne Timestamps: nur schreiben wenn Daten-Zeilen sich unterscheiden.
+          # Das Timestamp-Muster matcht sowohl die alte Markdown-Variante ("| DATE |")
+          # als auch die neue HTML-Variante ("<td>DATE</td>").
+          _ts_re_readme = re.compile(
+              r'(\|\s*|<td>\s*)\d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC(\s*\||\s*</td>)'
+          )
+          _old_stripped = _ts_re_readme.sub("TS", _old_content)
+          _new_stripped = _ts_re_readme.sub("TS", content)
 
           if _old_stripped != _new_stripped:
               write_text_atomic("README.md", content)
