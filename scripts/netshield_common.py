@@ -415,8 +415,14 @@ def calculate_confidence(is_hq=False, today_count=0, feed_count=0,
         score_c = 10
     elif days_seen >= 2:
         score_c = 6
-    else:
+    elif days_seen >= 1:
         score_c = 2
+    else:
+        # FIX BUG-5: days_seen=0 bedeutet "noch nie stark bestätigt"
+        # (Watchlist-IPs ohne HQ). Vorher gab der else-Zweig +2 Punkte
+        # für genau diesen Fall → systematische Score-Inflation für
+        # jede Neu-IP. Korrekt: 0 Punkte Persistenz ohne Bestätigungstag.
+        score_c = 0
 
     # [D] Bekannt seit
     if days_known >= 90:
