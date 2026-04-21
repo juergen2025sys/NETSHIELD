@@ -320,7 +320,16 @@ jobs:
                       continue
 
                   days_since_last = (now - last_dt).days
-                  days_known      = (now - first_dt).days + 1
+                  # FIX BUG-2: first="2000-01-01" ist ein Sentinel, kein echtes Datum.
+                  # Ohne Neutralisierung ergibt (now - first_dt) ≈ 9600 Tage →
+                  # days_known ≥ 90 → voller Alter-Bonus +10. Eine Watchlist-IP
+                  # ohne verwertbares first-Datum bekäme Score-Inflation von 10 Punkten
+                  # für ein fiktives "26 Jahre bekannt"-Alter. Korrekt: days_known=0
+                  # → Alter-Score 0, weil die Dimension keine verwertbare Info hat.
+                  if first_seen == "2000-01-01":
+                      days_known = 0
+                  else:
+                      days_known = (now - first_dt).days + 1
 
                   # FIX DRY: Inline-Scoring entfernt, zentrale Funktion aus
                   # netshield_common aufgerufen. Entspricht dem identischen

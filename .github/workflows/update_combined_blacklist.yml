@@ -855,6 +855,15 @@ jobs:
                       db[ip]["today_hq"]    = today_is_hq
                       if today_is_hq:
                           db[ip]["hq"] = True
+                      # FIX BUG-4: auto_today_count konsumieren und löschen.
+                      # auto_feed_discovery schreibt dieses Feld bei seinen wöchentlichen
+                      # Läufen; combined liest es hier einmal aus und entfernt es, damit
+                      # stale Werte nicht in späteren Läufen von Konsumenten (confidence)
+                      # fehlinterpretiert werden. Das Feld fließt NICHT ins today_count
+                      # ein – es war nur ein Kommunikationskanal zwischen den Workflows.
+                      # Die eigentliche Zählung auto-discovered IPs erfolgt über
+                      # ip_feeds_today via den Feed-Namen (aus auto_discovered_feeds.json).
+                      db[ip].pop("auto_today_count", None)
                       # FIX Bug3: hq_feeds als Set einzigartiger Feed-Namen akkumulieren.
                       # Vorher: rohe Addition pro Lauf → unbegrenztes Wachstum (8 Läufe/Tag × 40 HQ-Feeds).
                       # Jetzt: Zählt jede HQ-Feed-Quelle nur einmal, egal wie oft sie gemeldet hat.
@@ -948,8 +957,15 @@ jobs:
                   last_seen  = datetime.strptime(last_str,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
                   first_seen = datetime.strptime(first_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
 
-                  if last_str == "2000-01-01" and not is_hq:
-                      # Watchlist-IP: Ablauf nach first-Datum (30 Tage)
+                  # FIX BUG-1: Sentinel-Guard unabhängig vom is_hq-Flag.
+                  # Alter Code `last == Sentinel and not is_hq` ließ den Fall
+                  # `last=Sentinel + is_hq=True` durch → last_seen < cutoff (immer
+                  # True weil Sentinel=2000-01-01) → sofortige fälschliche Löschung
+                  # von IPs die im Race zwischen Feed-Ingest und last-Setzung sind.
+                  # Sentinel-Datum bedeutet "kein verwertbares last-Datum", egal
+                  # was hq sagt → Watchlist-Regime (first + 30 Tage).
+                  if last_str == "2000-01-01":
+                      # Kein echtes last-Datum → Ablauf über first (30 Tage)
                       if first_seen < cutoff_wl:
                           _to_expire.append(ip)
                   else:
@@ -1220,9 +1236,12 @@ jobs:
                   # sie das Sentinel-Datum hat. Der Guard ist die eigentliche Sicherung.
                   if data.get("last", "") == "2000-01-01":
                       continue
+                  # first_seen als Variable extrahieren (statt inline) –
+                  # wird unten für den BUG-2-Sentinel-Check benötigt.
+                  first_seen = safe_get_date(data, "first", safe_get_date(data, "last"))
                   try:
                       last_dt  = datetime.strptime(data["last"],  "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                      first_dt = datetime.strptime(safe_get_date(data, "first", safe_get_date(data, "last")), "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      first_dt = datetime.strptime(first_seen, "%Y-%m-%d").replace(tzinfo=timezone.utc)
                   except Exception:
                       continue
 
@@ -1235,7 +1254,16 @@ jobs:
                   today_count = data.get("today_count", 0)
                   days_seen   = data.get("days_seen", 1)
                   days_since_last = (now - last_dt).days
-                  days_known      = (now - first_dt).days + 1
+                  # FIX BUG-2: first="2000-01-01" ist ein Sentinel, kein echtes Datum.
+                  # Ohne Neutralisierung würde days_known ≈ 9600 den vollen Alter-Bonus
+                  # +10 triggern. Für active_blacklist (Score ≥65) ist das besonders
+                  # kritisch: eine HQ-IP mit Sentinel-first könnte so 40+10+20=70
+                  # erreichen und legitime Traffic-Pfade blockieren.
+                  # SYNC: identisch zu update_confidence_blacklist.yml.
+                  if first_seen == "2000-01-01":
+                      days_known = 0
+                  else:
+                      days_known = (now - first_dt).days + 1
 
                   # FIX DRY: Inline-Scoring entfernt, rufe stattdessen die
                   # zentrale Funktion aus netshield_common auf. Verhindert

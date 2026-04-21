@@ -185,6 +185,14 @@ jobs:
                   if last_seen == "2000-01-01":
                       continue
 
+                  # FIX BUG-3: first="2000-01-01" ohne last-Sentinel ist ein
+                  # Datenkorruptions-Zustand (last real, first nicht). Der days_seen-
+                  # Fallback unten würde sonst (last_dt - first_dt).days ≈ 9600 ergeben
+                  # → Score=9620 → sinnlose Zombie/Stale-Einordnung.
+                  # Diese Einträge überspringen statt mit Fantasie-Werten zu scoren.
+                  if first_seen == "2000-01-01":
+                      continue
+
                   # Score basiert auf echten Bestätigungstagen (days_seen) + HQ-Bonus
                   # Fallback für alte Einträge ohne days_seen. Sentinel-IPs (last="2000-01-01")
                   # wurden bereits oben per continue übersprungen – dieser Zweig gilt nur

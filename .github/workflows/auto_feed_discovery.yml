@@ -761,8 +761,15 @@ jobs:
 
           # ── Schritt 6: seen_db aktualisieren ──────────────────────────────
           # Auto-discovered Feeds sind NICHT HQ (hq=False).
-          # today_count = Anzahl verschiedener Auto-Feeds die diese IP in diesem Run
-          # melden (>= 1). Combined überschreibt today_count beim nächsten Lauf korrekt.
+          # FIX BUG-4: today_count wird NICHT mehr hier gesetzt. Das Feld ist
+          # semantisch "Feeds die diese IP im LETZTEN combined-Run gemeldet haben"
+          # und darf nur von update_combined_blacklist.yml gesetzt werden.
+          # Wenn auto_feed (So 04:30) today_count inflatiert und der nächste
+          # combined-Run (06:00) ausfällt, läuft update_confidence (06:45) mit
+          # dem inflationierten Wert und vergibt fälschlich Score-Punkte aus der
+          # today_count-Bemessung. auto_feed-Treffer werden stattdessen über das
+          # separate Feld 'auto_today_count' protokolliert – combined liest das
+          # beim nächsten Lauf und mergt es sauber in ip_feeds_today.
           # "last" wird NICHT gesetzt – auto_feed_discovery ist kein HQ-Feed.
 
           SOURCE_LABEL = "auto_feed_discovery"
@@ -776,40 +783,46 @@ jobs:
                   try:
                       if not isinstance(db[ip], dict):
                           # Korrupter Eintrag – überschreiben mit frischem Eintrag
+                          # today_count=0: auto_feed darf das Feld nicht setzen,
+                          # combined überschreibt es beim nächsten Lauf mit dem
+                          # echten, feed-übergreifenden Wert.
                           db[ip] = {
-                              "first":          now_day,
-                              "last":           "2000-01-01",
-                              "hq":             False,
-                              "feeds":          [SOURCE_LABEL],
-                              "hq_feed_names":  [],
-                              "hq_feeds":       0,
-                              "today_count":    auto_count,
-                              "today_hq":       False,
-                              "days_seen":      0,
+                              "first":             now_day,
+                              "last":              "2000-01-01",
+                              "hq":                False,
+                              "feeds":             [SOURCE_LABEL],
+                              "hq_feed_names":     [],
+                              "hq_feeds":          0,
+                              "today_count":       0,
+                              "today_hq":          False,
+                              "days_seen":         0,
+                              "auto_today_count":  auto_count,
                           }
                           ingested_new += 1
                           continue
                       existing_f = set(db[ip].get("feeds", []))
                       if SOURCE_LABEL not in existing_f:
                           db[ip]["feeds"] = sorted(existing_f | {SOURCE_LABEL})
-                      # Echte Anzahl Auto-Feeds setzen; Combined überschreibt beim nächsten Lauf
-                      db[ip]["today_count"] = auto_count
+                      # today_count NICHT anfassen – combined ist die einzige
+                      # Schreibquelle. Auto-Feed-Zahl ins separate Feld.
+                      db[ip]["auto_today_count"] = auto_count
                       ingested_seen += 1
                   except Exception as _corrupt:
                       print(f"WARN: Korrupter seen_db-Eintrag {ip}: {_corrupt}", file=sys.stderr)
                       continue
               else:
-                  # Neue IP eintragen
+                  # Neue IP eintragen – today_count=0 (combined setzt es beim nächsten Lauf)
                   db[ip] = {
-                      "first":          now_day,
-                      "last":           "2000-01-01",  # noch nicht stark bestätigt
-                      "hq":             False,
-                      "feeds":          [SOURCE_LABEL],
-                      "hq_feed_names":  [],            # FIX: Schema-Konsistenz mit update_combined_blacklist
-                      "hq_feeds":       0,
-                      "today_count":    auto_count,
-                      "today_hq":       False,
-                      "days_seen":      0,
+                      "first":             now_day,
+                      "last":              "2000-01-01",  # noch nicht stark bestätigt
+                      "hq":                False,
+                      "feeds":             [SOURCE_LABEL],
+                      "hq_feed_names":     [],
+                      "hq_feeds":          0,
+                      "today_count":       0,
+                      "today_hq":          False,
+                      "days_seen":         0,
+                      "auto_today_count":  auto_count,
                   }
                   ingested_new += 1
 
@@ -840,7 +853,12 @@ jobs:
                   is_hq      = entry.get("hq", False)
                   last_seen  = datetime.strptime(last_str,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
                   first_seen = datetime.strptime(first_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                  if last_str == "2000-01-01" and not is_hq:
+                  # FIX BUG-1: Sentinel-Guard unabhängig vom is_hq-Flag.
+                  # Siehe gleichen Fix in update_combined_blacklist.yml – der alte
+                  # Guard ließ `last=Sentinel + is_hq=True` durch, was zu sofortiger
+                  # fälschlicher Löschung führt (Sentinel < 180-Tage-cutoff).
+                  # SYNC: Muss identisch zu update_combined_blacklist.yml sein.
+                  if last_str == "2000-01-01":
                       # Watchlist-IP: Ablauf nach first-Datum (30 Tage)
                       if first_seen < cutoff_wl:
                           to_expire.add(ip)
