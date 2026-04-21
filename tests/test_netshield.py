@@ -532,7 +532,8 @@ class TestCrashHandling(unittest.TestCase):
             feed_count=-1, days_since_last=-1,
             days_seen=-1, days_known=-1
         )
-        # days_since_last=-1 < 1 → score_b=30, days_seen=-1 < 1 → score_c=2
+        # days_since_last=-1 < 1 → score_b=30, days_seen=-1 < 1 → score_c=0
+        # (FIX BUG-5: vorher score_c=2 für days_seen<2 inkl. 0)
         self.assertGreaterEqual(score, 0)
         self.assertLessEqual(score, 100)
 
@@ -759,9 +760,12 @@ class TestConfidenceNegativeInputs(unittest.TestCase):
             days_since_last=-100, days_seen=-1, days_known=-1)
         # Mit is_hq=False, today=0, feed=0 → A=0
         # days_since_last geklemmt auf 0 → B=30
-        # days_seen geklemmt auf 0 → C=2 (< 2 Zweig)
+        # FIX BUG-5: days_seen geklemmt auf 0 → C=0 (vorher: else-Zweig gab 2
+        # Punkte für days_seen<2, inklusive 0 – systematische Score-Inflation
+        # für Neu-Einträge ohne jede Bestätigung. Korrigierter Zweig:
+        #   days_seen >= 1 → 2, sonst 0.
         # days_known geklemmt auf 0 → D=0
-        self.assertEqual(score, 32)
+        self.assertEqual(score, 30)
 
     def test_all_negative_stays_in_range(self):
         score = calculate_confidence(
