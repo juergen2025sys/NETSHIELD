@@ -304,12 +304,18 @@ jobs:
                       skipped += 1
                       continue
 
-                  # Watchlist-IPs (last="2000-01-01", hq=False) haben keine HQ-Bestätigung.
-                  # Kein HQ-Feed hat sie je gesehen → explizit überspringen.
-                  # FIX BUG#2: Fehlendes `continue` führte dazu, dass Watchlist-IPs
-                  # mit hohem today_count (≥5 Auto-Feeds) score_a=35 erreichten und
-                  # trotz last="2000-01-01" in die confidence40-Blacklist rutschten.
-                  if last_seen == "2000-01-01" and not is_hq:
+                  # Sentinel-Guard: last="2000-01-01" markiert Einträge ohne echtes
+                  # "last seen"-Datum. Bei einer IP die gleichzeitig in combined_ips
+                  # steht ist das inkonsistent → keine verlässliche Score-Grundlage.
+                  #
+                  # FIX BUG#2 (erweitert): Der alte Guard `last=="2000-01-01" and
+                  # not is_hq` ließ den Fall is_hq=True + Sentinel-Datum durch.
+                  # Folge: score_a=40 (HQ) + score_d=10 (Sentinel-first triggert
+                  # vollen Alter-Bonus) + score_c≥2 = Score ≥52 → fälschlicher
+                  # confidence40-Eintrag. Der is_hq-Check ist entfernt: das
+                  # Sentinel-Datum allein ist das kanonische Ausschluss-Signal,
+                  # unabhängig von anderen Feldern.
+                  if last_seen == "2000-01-01":
                       skipped_watchlist += 1
                       continue
 
@@ -346,7 +352,7 @@ jobs:
 
           print(f"Konfidenz ≥40 (→ confidence40-Datei): {len(confidence40)} IPs")
           print(f"Konfidenz 25-39 (→ watchlist):         {len(confidence25)} IPs")
-          print(f"Watchlist (kein HQ, last=2000-01-01):  {skipped_watchlist} IPs (Score zu niedrig, ausstehend)")
+          print(f"Sentinel-Ausschluss (last=2000-01-01):  {skipped_watchlist} IPs (kein verwertbares Datum)")
           print(f"Übersprungen:                          {skipped} IPs (Datumsfehler)")
 
           # ── Leerungsschutz confidence40 ───────────────────────────────────
