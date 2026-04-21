@@ -184,32 +184,42 @@ jobs:
           # combined_threat_blacklist_ipv4.txt ist zwar bereits mit is_in_fp_set() gefiltert,
           # aber es kann einen Timing-Gap geben (FP-Checker läuft nach Combined).
           # Statt is_in_fp_set(ip) im Inner-Loop (4,5M × ~2945 Netzwerk-Checks ≈ 47 Min),
-          # filtern wir combined_ips EINMAL vorab:
-          #   1. Individuelle FP-IPs:  O(|_fp_ips|) = O(~4802) – sofort per Set-Subtraktion
-          #   2. FP-CIDRs: O(N × log K) via Binary-Search statt O(N × K) – ~268× schneller
+          # filtern wir combined_ips EINMAL vorab via Binary-Search O(N × log K).
           #
-          # ACHTUNG Binary-Search-Annahme: Die Intervallsuche findet für eine IP nur das
-          # unmittelbar darunter liegende Intervall. Bei überlappenden/verschachtelten CIDRs
-          # (z.B. 10.0.0.0/8 UND 10.1.0.0/16) könnte ein Treffer im Eltern-CIDR übersehen
-          # werden wenn nur das Kind-CIDR gefunden wird. In der Praxis irrelevant, da
-          # false_positives_set.json hauptsächlich Einzel-IPs enthält und die wenigen CIDRs
-          # nicht geschachtelt sind. Sollte sich das ändern, muss hier auf eine
-          # vollständige Intervallbaum-Suche umgestellt werden.
+          # FIX BUG-11: Intervalle VOR bisect mergen. Ohne Merge findet
+          # bisect_right nur das zuletzt startende Intervall mit start <= ip.
+          # Bei überlappenden FP-CIDRs würde die IP in einem Eltern-CIDR
+          # übersehen. Merging garantiert: jeder IP-Treffer landet im
+          # umschließenden Intervall.
           if _fp_ips:
               combined_ips -= _fp_ips
           if _fp_networks:
               import bisect as _bisect
-              _intervals = sorted(
+              _intervals_raw = sorted(
                   (int(n.network_address), int(n.broadcast_address))
                   for n in _fp_networks
               )
+              # Intervall-Merge: überlappende/benachbarte Ranges zusammenführen
+              _intervals = []
+              for _lo, _hi in _intervals_raw:
+                  if _intervals and _lo <= _intervals[-1][1] + 1:
+                      _intervals[-1] = (_intervals[-1][0], max(_intervals[-1][1], _hi))
+                  else:
+                      _intervals.append((_lo, _hi))
               _starts = [iv[0] for iv in _intervals]
               _fp_cidr_hits = set()
               for _ip in combined_ips:
                   try:
-                      _ip_int = int(ipaddress.ip_address(_ip.split('/')[0]))
-                      _pos = _bisect.bisect_right(_starts, _ip_int) - 1
-                      if _pos >= 0 and _ip_int <= _intervals[_pos][1]:
+                      # FIX BUG-11 zusatz: bei CIDR-Einträgen das gesamte Intervall
+                      # gegen FP-Ranges prüfen, nicht nur die Netzadresse.
+                      if "/" in _ip:
+                          _net = ipaddress.ip_network(_ip, strict=False)
+                          _lo = int(_net.network_address)
+                          _hi = int(_net.broadcast_address)
+                      else:
+                          _lo = _hi = int(ipaddress.ip_address(_ip))
+                      _pos = _bisect.bisect_right(_starts, _hi) - 1
+                      if _pos >= 0 and _intervals[_pos][1] >= _lo:
                           _fp_cidr_hits.add(_ip)
                   except Exception:
                       pass

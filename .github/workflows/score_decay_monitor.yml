@@ -193,28 +193,41 @@ jobs:
                   if first_seen == "2000-01-01":
                       continue
 
-                  # Score basiert auf echten Bestätigungstagen (days_seen) + HQ-Bonus
-                  # Fallback für alte Einträge ohne days_seen. Sentinel-IPs (last="2000-01-01")
-                  # wurden bereits oben per continue übersprungen – dieser Zweig gilt nur
-                  # noch für normale IPs mit echtem last-Datum.
-                  if days_seen == 0:
-                      # FIX #15: max(1, ...) ist absichtlich und darf NICHT entfernt werden.
-                      # Bei Daten-Anomalien (last_dt < first_dt durch z.B. Zeitzonen-Bug)
-                      # würde (last_dt - first_dt).days negativ werden → Score wäre 0
-                      # und die IP würde fälschlicherweise als Zombie markiert.
-                      days_seen = max(1, (last_dt - first_dt).days + 1)
-                  score       = days_seen + (20 if is_hq else 0)
-                  score_dist[(score // 5) * 5] += 1
+                  # FIX BUG-17: Harmonisiertes Scoring via calculate_confidence.
+                  # Vorher: ad-hoc Formel `days_seen + 20 if hq`, die unabhängig
+                  # vom zentralen Scoring-Modell war. Zwei Workflows scorten
+                  # dieselbe IP unterschiedlich → Dashboards widersprachen sich
+                  # (eine IP konnte gleichzeitig in active_blacklist als "Score 75,
+                  # aktiv" UND in score_decay_log als "Zombie, Score 25" erscheinen).
+                  # Jetzt: einheitliche 0-100-Skala aus netshield_common.
+                  feed_count  = len(data.get("feeds", []))
+                  today_count = data.get("today_count", 0)
+                  score = calculate_confidence(
+                      is_hq=is_hq,
+                      today_count=today_count,
+                      feed_count=feed_count,
+                      days_since_last=days_ago,
+                      days_seen=max(1, days_seen) if days_seen > 0 else max(1, (last_dt - first_dt).days + 1),
+                      days_known=(now - first_dt).days + 1,
+                  )
+                  score_dist[(score // 10) * 10] += 1
 
+                  # Schwellen angepasst auf die 0-100-Confidence-Skala:
+                  #   stale_warn        ≥ Score 25 (≈ Confidence-Watchlist-Grenze)
+                  #   stale_critical    ≥ Score 40 (≈ Confidence-Blacklist-Grenze)
+                  #   zombie_high       ≥ Score 65 (≈ active_blacklist-Schwelle)
+                  # Alte Schwellen waren auf eigene Skala (max ~70) kalibriert –
+                  # die neuen Werte ergeben äquivalente Filterung auf der
+                  # einheitlichen Skala.
                   if days_ago <= 7:
                       still_active.append((ip, score, days_ago))
                   if days_ago >= 150:
                       decay_suggest.append((ip, score, days_ago, last_seen))  # bald von combined entfernt (180T)
-                  elif days_ago >= CRITICAL_DAYS and score >= 10:
+                  elif days_ago >= CRITICAL_DAYS and score >= 40:
                       stale_critical.append((ip, score, days_ago, last_seen))
-                  elif days_ago >= WARN_DAYS and score >= 5:
+                  elif days_ago >= WARN_DAYS and score >= 25:
                       stale_warn.append((ip, score, days_ago, last_seen))
-                  if score >= 20 and days_ago >= 30:
+                  if score >= 65 and days_ago >= 30:
                       zombie_high.append((ip, score, days_ago, last_seen))
               except Exception as _corrupt:
                   print(f"WARN: Korrupter seen_db-Eintrag {ip}: {_corrupt}", file=sys.stderr)
@@ -224,22 +237,23 @@ jobs:
               lst.sort(key=lambda x: x[1], reverse=True)
 
           print(f"Kürzlich aktiv (≤7 Tage):       {len(still_active)}")
-          print(f"Veraltend – Warnung (30-44 Tage): {len(stale_warn)}")
-          print(f"Veraltend – Kritisch (45+ Tage):  {len(stale_critical)}")
-          print(f"Zombie (Score≥20, 30+ Tage):      {len(zombie_high)}")
+          print(f"Veraltend – Warnung (30-44 Tage, Score≥25): {len(stale_warn)}")
+          print(f"Veraltend – Kritisch (45+ Tage, Score≥40):  {len(stale_critical)}")
+          print(f"Zombie (Score≥65, 30+ Tage inaktiv):        {len(zombie_high)}")
           print(f"Läuft bald ab (150+ Tage):        {len(decay_suggest)}")
 
           # Decay-Log
           _log_lines = [
               f"# Score Decay Log | {now_str}",
               f"# DB: {len(db)} IPs",
+              f"# Scoring: harmonisiert mit calculate_confidence (0-100)",
               "",
-              "# ZOMBIE IPs (Score≥20, 30+ Tage inaktiv)",
+              "# ZOMBIE IPs (Score≥65, 30+ Tage inaktiv)",
           ]
           for ip, score, days, last in zombie_high[:100]:
               _log_lines.append(f"{ip}  score={score}  last={last}  ({days}d ago)")
           _log_lines.append("")
-          _log_lines.append("# KRITISCH veraltend (45+ Tage, Score≥10)")
+          _log_lines.append("# KRITISCH veraltend (45+ Tage, Score≥40)")
           for ip, score, days, last in stale_critical[:200]:
               _log_lines.append(f"{ip}  score={score}  last={last}  ({days}d ago)")
           _log_lines.append("")
@@ -253,12 +267,13 @@ jobs:
                    "## Übersicht\n",
                    "| Kategorie | IPs | Bedeutung |", "|---|---|---|",
                    f"| ✅ Kürzlich aktiv (≤7 Tage) | **{len(still_active)}** | Frische Bedrohungen |",
-                   f"| 🟡 Veraltend – Warnung | **{len(stale_warn)}** | 30-44 Tage ohne Aktivität |",
-                   f"| 🔴 Veraltend – Kritisch | **{len(stale_critical)}** | 45+ Tage ohne Aktivität |",
-                   f"| 💀 Zombie | **{len(zombie_high)}** | Score≥20, 30+ Tage inaktiv |",
+                   f"| 🟡 Veraltend – Warnung | **{len(stale_warn)}** | 30-44 Tage ohne Aktivität, Score≥25 |",
+                   f"| 🔴 Veraltend – Kritisch | **{len(stale_critical)}** | 45+ Tage ohne Aktivität, Score≥40 |",
+                   f"| 💀 Zombie | **{len(zombie_high)}** | Score≥65, 30+ Tage inaktiv |",
                    f"| ⏳ Läuft bald ab (150+ Tage) | **{len(decay_suggest)}** | combined entfernt bei 180 Tagen |",
                    "", "---",
-                   "## ℹ️ Hinweis\nIPs werden **nicht** durch diesen Workflow gelöscht.\n"
+                   "## ℹ️ Hinweis\nScore-Berechnung harmonisiert mit `calculate_confidence` (0-100-Skala).\n"
+                   "IPs werden **nicht** durch diesen Workflow gelöscht.\n"
                    "Das Entfernen aus combined + seen_db erfolgt ausschließlich durch\n"
                    "`update_combined_blacklist` nach **180 Tagen** ohne Feed-Bestätigung.\n",
                    f"---\n*Generiert: {now_str} | DB: {len(db)} IPs*"]

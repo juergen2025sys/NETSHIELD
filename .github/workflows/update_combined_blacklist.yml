@@ -270,6 +270,75 @@ jobs:
           }
 
           # ══════════════════════════════════════════════════════════════════
+          # HQ_FEED_FAMILIES – Upstream-Gruppierung der HQ-Feeds
+          #
+          # FIX BUG-9: Aggregator-Feeds derselben Upstream-Quelle zählen für
+          # strongly_confirmed_today (≥2 HQ-Feeds) als EINE Familie, nicht
+          # als mehrere unabhängige Bestätigungen.
+          #
+          # Beispiel: firehol_level1.netset ist eine Teilmenge von level2,
+          # level2 von level3. Eine IP in Level 1+2+3 zählte vorher als
+          # 3 HQ-Bestätigungen (strongly_confirmed_today=True), obwohl es
+          # technisch EIN Upstream ist (FireHOL Aggregator). Effekt: IPs
+          # bleiben ewig in active, solange FireHOL sie in seinem Cache hat,
+          # auch wenn der ursprüngliche Quell-Feed sie längst droppt.
+          # Die Expiry-Uhr wird dadurch nie gestartet.
+          #
+          # Feeds ohne Eintrag in dieser Map zählen als eigene Familie
+          # (ihr Feed-Name IST die Familie). dict.get(feed, feed).
+          HQ_FEED_FAMILIES = {
+              # FireHOL (iplists.firehol.org + github.com/firehol/blocklist-ipsets)
+              "firehol_cybercrime":  "firehol",
+              "firehol_anonymous":   "firehol",
+              "firehol_level1":      "firehol",
+              "firehol_level2":      "firehol",
+              "firehol_level3":      "firehol",
+              "firehol_webclient":   "firehol",
+              "firehol_webserver":   "firehol",
+              "firehol_abusers_1d":  "firehol",
+              # DataPlane (dataplane.org) – einzelner Betreiber, alle Feeds
+              # sind Sensor-Ausgaben derselben Infrastruktur.
+              "dataplane_sshclient":    "dataplane",
+              "dataplane_sshpwauth":    "dataplane",
+              "dataplane_vncrfb":       "dataplane",
+              "dataplane_telnetlogin":  "dataplane",
+              "dataplane_dnsrd":        "dataplane",
+              "dataplane_smtpdata":     "dataplane",
+              "dataplane_dnsrdany":     "dataplane",
+              "dataplane_dnsversion":   "dataplane",
+              # blocklist.de – all.txt ist Obermenge von ssh/export/strongips.
+              "blocklist_de_all":        "blocklist_de",
+              "blocklist_de_export":     "blocklist_de",
+              "blocklist_de_strongips":  "blocklist_de",
+              "blocklist_de_ssh":        "blocklist_de",
+              # AbuseIPDB – alle s100-Feeds stammen aus derselben API-Datenquelle.
+              "abuseipdb_s100_30d":  "abuseipdb",
+              "abuseipdb_s100_7d":   "abuseipdb",
+              "abuseipdb_score100":  "abuseipdb",
+              # feodotracker.abuse.ch – aggressive/recommended sind zwei
+              # Aggregations-Stufen derselben Datenbank.
+              "feodo_aggressive":    "feodo",
+              "feodo_recommended":   "feodo",
+              # emergingthreats.net – et_block und et_compromised sind zwei
+              # Ausgabe-Formate derselben Quelle.
+              "et_block":         "et",
+              "et_compromised":   "et",
+              # ipsum (stamparm) – Level 5 und 7 sind dieselbe Datei mit
+              # unterschiedlichen Schwellwerten.
+              "ipsum_level5":  "ipsum",
+              "ipsum_level7":  "ipsum",
+              # cinsscore/cinsarmy – ci-badguys.txt ist dieselbe Datei,
+              # aliased unter zwei Domains.
+              "cinsscore":  "cins",
+              "cinsarmy":   "cins",
+          }
+
+          def _hq_families_of(hq_feed_names):
+              """Reduziert HQ-Feed-Namen auf ihre Upstream-Familien.
+              Feeds ohne explizites Family-Mapping sind ihre eigene Familie."""
+              return {HQ_FEED_FAMILIES.get(f, f) for f in hq_feed_names}
+
+          # ══════════════════════════════════════════════════════════════════
           # SOURCES – erweitert um die vom User gelieferten Links
           # Format: "name": ("url", hq_bool)
           # ══════════════════════════════════════════════════════════════════
@@ -509,25 +578,46 @@ jobs:
           # Lösung: sortierte Intervall-Listen + bisect → O(N × log K).
           import bisect as _bisect
 
+          def _merge_intervals(nets):
+              """Sortiert und merged überlappende/benachbarte IP-Intervalle.
+
+              FIX BUG-11: bisect_right findet für eine IP nur das zuletzt
+              startende Intervall mit start <= ip. Bei überlappenden CIDRs
+              (z.B. 10.0.0.0/8 + 10.1.0.0/16 in der Whitelist) wird die
+              IP 10.0.5.5 fälschlich NICHT als protected erkannt, weil
+              bisect das kleinere Intervall 10.1.0.0/16 findet und 10.0.5.5
+              liegt außerhalb.
+              Durch Merging zu einem einzigen Intervall (10.0.0.0-10.255.255.255)
+              wird der Treffer zuverlässig gefunden.
+              Whitelist hat 502+ CIDRs mit realen Überlappungen (AWS, Google, etc.).
+              """
+              intervals = sorted(
+                  (int(n.network_address), int(n.broadcast_address))
+                  for n in nets
+              )
+              merged = []
+              for lo, hi in intervals:
+                  if merged and lo <= merged[-1][1] + 1:
+                      merged[-1] = (merged[-1][0], max(merged[-1][1], hi))
+                  else:
+                      merged.append((lo, hi))
+              return merged
+
           # Alle geschützten Netzwerke (Whitelist + RFC1918 + FP-CIDRs) zusammenführen
           _all_protected_nets = list(_protected_networks) + list(_whitelist_networks)
           if _fp_networks:
               _all_protected_nets.extend(_fp_networks)
 
-          _prot_intervals = sorted(
-              (int(n.network_address), int(n.broadcast_address))
-              for n in _all_protected_nets
-          )
+          # FIX BUG-11: _merge_intervals statt rohem sorted() – verhindert
+          # Whitelist-Leaks bei überlappenden CIDRs (AWS /8 + spezifischere /16 etc.)
+          _prot_intervals = _merge_intervals(_all_protected_nets)
           _prot_starts = [iv[0] for iv in _prot_intervals]
 
           # Whitelist+FP (ohne RFC1918) – für Cleanup-Scans
           _wl_fp_nets = list(_whitelist_networks)
           if _fp_networks:
               _wl_fp_nets.extend(_fp_networks)
-          _wl_fp_intervals = sorted(
-              (int(n.network_address), int(n.broadcast_address))
-              for n in _wl_fp_nets
-          )
+          _wl_fp_intervals = _merge_intervals(_wl_fp_nets)
           _wl_fp_starts = [iv[0] for iv in _wl_fp_intervals]
 
           def _fast_is_protected(ip_str):
@@ -827,15 +917,21 @@ jobs:
               # WICHTIG: Muss VOR strongly_confirmed_today berechnet werden.
               hq_feed_names_today = today_feeds & (HIGH_QUALITY | LOCAL_HQ_NAMES)
 
-              # FIX AGGREGATOR1: "Stark bestätigt" = mindestens 2 verschiedene HQ-Feeds HEUTE.
-              # Vorher: 1 HQ-Feed reichte → Aggregator-Feeds wie firehol_level1 hielten
-              # IPs ewig am Leben, auch wenn kein anderer Feed sie noch meldete.
-              # Jetzt: Einzelne HQ-Feeds setzen hq=True und erhöhen feed_count,
-              # aber nur 2+ unabhängige HQ-Quellen refreshen "last".
-              # Für NEUE IPs (nicht in db) bleibt 1 HQ-Feed ausreichend für den
-              # Ersteintrag – siehe "last": now_day if today_is_hq weiter unten.
-              # Non-HQ Feeds dürfen "last" weiterhin NICHT aktualisieren.
-              strongly_confirmed_today = len(hq_feed_names_today) >= 2
+              # FIX BUG-9: "Stark bestätigt" = mindestens 2 verschiedene
+              # HQ-Feed-FAMILIEN HEUTE (nicht 2 Feed-Namen). Vorher zählten
+              # firehol_level1 + firehol_level2 als 2 unabhängige Bestätigungen,
+              # obwohl beide derselbe Upstream (FireHOL-Aggregator) sind.
+              # Effekt des alten Bugs: IPs blieben ewig in active, solange ein
+              # einziger Aggregator sie in seinem Cache hatte. Die Expiry-Uhr
+              # wurde nie gestartet.
+              # Familien-Mapping siehe HQ_FEED_FAMILIES oben. Feeds ohne
+              # Eintrag dort sind ihre eigene Familie.
+              #
+              # Vorgänger-FIX AGGREGATOR1 (len >= 2 auf Feed-Namen) hatte das
+              # Problem nur halb gelöst – genau derselbe Aggregator konnte
+              # weiterhin mit mehreren Unterfeeds den Guard umgehen.
+              hq_families_today = _hq_families_of(hq_feed_names_today)
+              strongly_confirmed_today = len(hq_families_today) >= 2
 
               if ip in db:
                   try:
