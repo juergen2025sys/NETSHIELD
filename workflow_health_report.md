@@ -1,15 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-20 20:06 UTC
+**Aktualisiert:** 2026-04-21 04:20 UTC
 
-**Workflows:** 19 | ✅ 18 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
+**Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
-## ⚠️ Warnungen
-
-| Datei | Check | Detail |
-|---|---|---|
-| `update_combined_blacklist.yml` | Untrusted Feed hq=True | 1 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "greedybear_recent" (https://greedybear.honeynet.org/api/feeds/all/all/recent.txt) |
-
 ## 🏥 Production Health
 
 **Status:** 🔴 0 CRITICAL | 🟡 0 WARN
@@ -41,4 +35,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-20 20:06 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-04-21 04:20 UTC | 19 Workflow-Dateien geprüft*

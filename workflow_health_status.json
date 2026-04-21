@@ -1,23 +1,17 @@
 {
-  "updated": "2026-04-20 20:06 UTC",
+  "updated": "2026-04-21 04:20 UTC",
   "total": 19,
-  "ok": 18,
-  "warn": 1,
+  "ok": 19,
+  "warn": 0,
   "error": 0,
   "errors": [],
-  "warnings": [
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "Untrusted Feed hq=True",
-      "detail": "1 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"greedybear_recent\" (https://greedybear.honeynet.org/api/feeds/all/all/recent.txt)"
-    }
-  ],
+  "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4723945,
-    "active_blacklist_ipv4.txt": 2498774,
-    "blacklist_confidence40_ipv4.txt": 3460625,
+    "combined_threat_blacklist_ipv4.txt": 4743305,
+    "active_blacklist_ipv4.txt": 2482330,
+    "blacklist_confidence40_ipv4.txt": 3492767,
     "cve_exploit_ips.txt": 54504,
-    "honeypot_ips.txt": 107120,
+    "honeypot_ips.txt": 109147,
     "bot_detector_blacklist_ipv4.txt": 17948
   },
   "production_health": {
