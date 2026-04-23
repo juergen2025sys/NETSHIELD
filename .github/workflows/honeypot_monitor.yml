@@ -131,6 +131,14 @@ jobs:
           # - stratosphere_aip ergänzt (April 2026): CTU Prag, 27-IoT-Honeypot-
           #   Netzwerk, CSV 'ip,score' ~400 KB, täglich aktualisiert. Die gleiche
           #   URL nutzt auch Slips (Stratosphere-IDS) als Default-Threat-Feed.
+          # - stratosphere_aip URL-Update (April 2026): von deprecated Pfad
+          #   /Todays-Blacklists/AIP_historical_blacklist_prioritized_by_newest_attackers.csv
+          #   auf offizielle /Latest/AIP-Prioritize_New-latest.csv laut offizieller
+          #   README (https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/README.html).
+          #   Gleiche Daten, zukunftssicher.
+          # - stratosphere_aip_alpha7 ergänzt (April 2026): 7-Tage-Fenster aller
+          #   Attacker aus demselben CTU-Honeypot-Netzwerk. Komplementär zu _New
+          #   (das auf neue Angreifer fokussiert). CSV 'ip,score', tägl. rotiert.
           #
           # Aktuelle Quellen (alle auf bewährten Repos/Diensten):
           # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
@@ -140,7 +148,8 @@ jobs:
           # - blocklist_de_bots: blocklist.de Bot-spezifische Liste (nicht in combined)
           # - blocklist_de_bruteforce: blocklist.de Bruteforce-Login (nicht in combined)
           # - jamesbrine_honeypot: AU-Honeypot-Netzwerk, SSH/FTP/RDP/GIT/SNMP/REDIS
-          # - stratosphere_aip: CTU Prag IoT-Honeypot-Netzwerk, AIP-Scoring
+          # - stratosphere_aip: CTU Prag IoT-Honeypot, Prioritize_New (emerging Attacker)
+          # - stratosphere_aip_alpha7: CTU Prag IoT-Honeypot, 7-Tage-Fenster
           # ══════════════════════════════════════════════════════════════════
 
           # FIX SIZE: Separate fetch-Funktion mit explizitem Size-Limit fuer
@@ -213,13 +222,21 @@ jobs:
               "jamesbrine_honeypot":
                   "https://jamesbrine.com.au/csv",
 
-              # Stratosphere AIP: IoT-Honeypot-Netzwerk der CTU Prag, generiert
-              # via Attacker IP Prioritizer (AIP). CSV-Format 'ip,score' (Score
-              # wird vom Parser ignoriert, nur Spalte 1). Taeglich rotiert.
-              # 'prioritized_by_newest_attackers' fokussiert auf neue/emerging
-              # Attacker – passt gut neben den aggregierten dshield_1d/ipsum.
+              # Stratosphere AIP Prioritize_New: IoT-Honeypot-Netzwerk der CTU Prag,
+              # generiert via Attacker IP Prioritizer (AIP). CSV-Format 'ip,score'
+              # (Score wird vom Parser ignoriert, nur Spalte 1). Taeglich rotiert.
+              # Fokus auf neue/emerging Attacker. URL-Update April 2026 von
+              # deprecated /Todays-Blacklists/AIP_historical_blacklist_prioritized_by_newest_attackers.csv
+              # auf offizielle /Latest/AIP-Prioritize_New-latest.csv laut README.html.
               "stratosphere_aip":
-                  "https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Todays-Blacklists/AIP_historical_blacklist_prioritized_by_newest_attackers.csv",
+                  "https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Prioritize_New-latest.csv",
+
+              # Stratosphere AIP Alpha7: Alle Attacker-IPs der letzten 7 Tage aus
+              # demselben CTU-Honeypot-Netzwerk. Komplementaer zu _New: waehrend
+              # _New neue Angreifer priorisiert, deckt Alpha7 die 7-Tage-Historie
+              # persistenter Angreifer ab. CSV 'ip,score', tägl. rotiert.
+              "stratosphere_aip_alpha7":
+                  "https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Alpha7-latest.csv",
           }
 
           all_ips = set()
