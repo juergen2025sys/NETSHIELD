@@ -519,11 +519,19 @@ jobs:
                   continue
 
               formatted = fmt(count)
+              # FIX README-CROSSLINE: [^|]* / [^|]+? schliessen zwar '|' aus,
+              # aber NICHT '\n'. Dadurch konnte der Regex quer ueber Zeilen
+              # matchen – konkret 26 Zeilen vom Dateinamen in einer NOTE
+              # (Zeile 129) bis zur Scoring-Tabelle (Zeile 155 '| Dimension
+              # | Gewicht | Logik |'). Der Generator hat so die Scoring-
+              # Tabelle bei jedem Run "infiziert": "Gewicht" wurde durch
+              # die IP-Anzahl von combined_threat_blacklist (4,779,997)
+              # ueberschrieben. Fix: [^|\n] statt [^|].
               pattern_link = (
-                  r'(\|\s*\[`?' + re.escape(filename) + r'`?\]\([^)]*\)\s*\|[^|]*\|)\s*[^|]+?(\s*\|)'
+                  r'(\|\s*\[`?' + re.escape(filename) + r'`?\]\([^)\n]*\)\s*\|[^|\n]*\|)\s*[^|\n]+?(\s*\|)'
               )
               pattern_code = (
-                  r'(\|[^|]*`' + re.escape(filename) + r'`[^|]*\|[^|]*\|)\s*[^|]+?(\s*\|)'
+                  r'(\|[^|\n]*`' + re.escape(filename) + r'`[^|\n]*\|[^|\n]*\|)\s*[^|\n]+?(\s*\|)'
               )
 
               matched = False
