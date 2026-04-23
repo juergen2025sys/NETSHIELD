@@ -1,5 +1,6 @@
 
 
+
 <div align="center">
 
 # 🛡️ NETSHIELD
@@ -152,11 +153,11 @@ Jede IP bekommt einen **Confidence-Score (0–100)** aus vier Dimensionen:
 Score = Quellen-Qualität (40) + Aktualität (30) + Persistenz (20) + Bekannt seit (10)
 ```
 
-| Dimension | **4,779,997**                                                       | Logik |
+| Dimension | **Gewicht** | Logik |
 |---|:---:|---|
-| 🏅 Quellen-Qualität | `40` | HQ-Feed = 40 Pkt · 5+ Feeds heute = 35 · 3+ Feeds = 28 · 2+ Feeds = 20 |
-| ⏱️ Aktualität | `30` | Heute bestätigt = 30 · vor 3 Tagen = 25 · vor 7 Tagen = 20 · vor 30 Tagen = 6 |
-| 🔁 Persistenz | `20` | 14+ Tage aktiv bestätigt = 20 · 7 Tage = 15 · 3 Tage = 10 |
+| 🏅 Quellen-Qualität | `40` | HQ-Feed = 40 · 5+ Feeds heute = 35 · 3+ heute = 28 · 2+ heute = 20 · 5+ gesamt = 15 · 3+ gesamt = 10 · 2+ gesamt = 5 |
+| ⏱️ Aktualität | `30` | Heute = 30 · ≤ 3 Tage = 25 · ≤ 7 Tage = 20 · ≤ 14 Tage = 12 · ≤ 30 Tage = 6 |
+| 🔁 Persistenz | `20` | 14+ Tage = 20 · 7 Tage = 15 · 3 Tage = 10 · 2 Tage = 6 · 1 Tag = 2 |
 | 📆 Bekannt seit | `10` | 90+ Tage = 10 · 30+ Tage = 6 · 14+ Tage = 3 |
 
 > [!IMPORTANT]
