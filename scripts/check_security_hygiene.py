@@ -63,6 +63,11 @@ SCRIPTS_DIR    = REPO_ROOT / "scripts"
 SHA40_RE       = re.compile(r"^[a-f0-9]{40}$")
 USES_RE        = re.compile(r"^\s*-?\s*uses:\s*(\S+)", re.MULTILINE)
 
+# FIX PYYAML-SKIP: von check_workflow_timeouts/permissions/push_retry gesetzt
+# wenn PyYAML nicht installiert ist. main() zeigt dann einen INFO-Hinweis
+# aber laesst die Checks nicht als FAIL durchfallen.
+_yaml_missing = False
+
 
 # ───────────────────────────────────────────────────────────────
 # Check 1: Actions SHA-gepinnt
@@ -86,7 +91,13 @@ def check_action_pinning() -> list[str]:
             if line_text.lstrip().startswith("#"):
                 continue
 
-            # Lokale Composite Actions (./.github/actions/xxx) → OK
+            # Lokale Composite Actions (./.github/actions/xxx oder ../...) → OK
+            # FIX LOCAL-COMPOSITE: lokale Pfade haben einen '/' drin, der alte
+            # Check "if '/' not in action" hat sie NICHT übersprungen sondern
+            # als non-pinned gemeldet. Jetzt explizit auf './' / '../' prüfen.
+            if action.startswith(("./", "../")):
+                continue
+            # Kein '/' → vermutlich reusable-workflow-name ohne Pfad → OK
             if "/" not in action:
                 continue
 
@@ -176,15 +187,28 @@ def _suggest_helper(path_str):
     return "write_text_atomic()"
 
 
-def _line_has_allow_marker(lines, line_1indexed):
+def _line_has_allow_marker(lines, line_1indexed, end_line_1indexed=None):
     """True wenn die Python-Quell-Zeile oder eine der bis zu 3 vorigen
     Zeilen einen '# allow-nonatomic: <grund>'-Kommentar enthaelt.
+
+    FIX MULTILINE-MARKER: bei multi-line open(...) Calls kann der Marker
+    auch hinter dem schliessenden ')' stehen. Wenn end_line_1indexed
+    uebergeben wird, werden die Zeilen vom Start des Calls bis zum Ende
+    geprueft, zusaetzlich zu 3 Zeilen davor.
 
     Mehrzeilige Kommentar-Bloecke werden toleriert – der Marker kann
     also am Anfang eines 2-3-Zeilen-Kommentars stehen und der Call
     darunter.
     """
-    for ln in (line_1indexed, line_1indexed - 1, line_1indexed - 2, line_1indexed - 3):
+    scan_lines = set()
+    # 3 Zeilen vor dem Start
+    for ln in range(line_1indexed - 3, line_1indexed + 1):
+        scan_lines.add(ln)
+    # Plus alle Zeilen des Calls bis zum Ende (multi-line open())
+    if end_line_1indexed is not None and end_line_1indexed >= line_1indexed:
+        for ln in range(line_1indexed, end_line_1indexed + 1):
+            scan_lines.add(ln)
+    for ln in scan_lines:
         if 1 <= ln <= len(lines):
             if _ALLOW_COMMENT in lines[ln - 1]:
                 return True
@@ -230,7 +254,9 @@ def _find_non_atomic_writes_in_src(source_text):
             continue
 
         # Allow-Marker-Check im Quelltext
-        if _line_has_allow_marker(src_lines, node.lineno):
+        # FIX MULTILINE-MARKER: end_lineno mit uebergeben fuer multi-line open()
+        end_ln = getattr(node, "end_lineno", None)
+        if _line_has_allow_marker(src_lines, node.lineno, end_ln):
             continue
 
         # Pfad aufloesen
@@ -373,24 +399,40 @@ def check_fetch_usage() -> list[str]:
             tree = ast.parse(source_text)
         except SyntaxError:
             return
+
+        def _is_static_url_node(n):
+            """True wenn n ein AST-Node mit statischer URL-Konstante ist."""
+            if isinstance(n, ast.Constant) and isinstance(n.value, str):
+                return n.value.startswith(("http://", "https://"))
+            if isinstance(n, ast.JoinedStr) and n.values:
+                first = n.values[0]
+                if isinstance(first, ast.Constant) and isinstance(first.value, str):
+                    return first.value.startswith(("http://", "https://"))
+            return False
+
         # Modul-Level-Konstanten sammeln: NAME = "https://..."
+        # FIX STATIC-URL: Auch f-Strings mit statischem Prefix als Konstante zaehlen.
         static_url_names = set()
         for node in ast.walk(tree):
-            if isinstance(node, ast.Assign):
-                if (isinstance(node.value, ast.Constant)
-                        and isinstance(node.value.value, str)
-                        and node.value.value.startswith(("http://", "https://"))):
-                    for tgt in node.targets:
-                        if isinstance(tgt, ast.Name):
-                            static_url_names.add(tgt.id)
-        # Request(...)-Aufrufe wo 1. Arg eine bekannte Konstante ist
+            if isinstance(node, ast.Assign) and _is_static_url_node(node.value):
+                for tgt in node.targets:
+                    if isinstance(tgt, ast.Name):
+                        static_url_names.add(tgt.id)
+
+        # Request(...)-Aufrufe wo 1. Arg statische URL ODER bekannte URL-Variable ist
+        # FIX STATIC-URL: Der alte Code trackte nur Request(NAME), nicht
+        # Request("literal"). Jetzt beide Formen.
         request_via_static_var = set()
         for node in ast.walk(tree):
             if isinstance(node, ast.Assign) and isinstance(node.value, ast.Call):
                 cn = _qualified_name(node.value.func)
                 if cn in ("urllib.request.Request", "Request") and node.value.args:
                     a0 = node.value.args[0]
-                    if isinstance(a0, ast.Name) and a0.id in static_url_names:
+                    is_static = (
+                        _is_static_url_node(a0)
+                        or (isinstance(a0, ast.Name) and a0.id in static_url_names)
+                    )
+                    if is_static:
                         for tgt in node.targets:
                             if isinstance(tgt, ast.Name):
                                 request_via_static_var.add(tgt.id)
@@ -408,8 +450,12 @@ def check_fetch_usage() -> list[str]:
             # Statische URL direkt im Call → erlaubt
             if _is_call_with_static_url(node):
                 continue
-            # urlopen(req) wobei req aus Request(static_url) stammt → erlaubt
+            # urlopen(VAR) wobei VAR statische URL-Konstante ODER Request(static) ist → erlaubt
+            # FIX STATIC-URL: alter Code fragte nur request_via_static_var ab,
+            # static_url_names wurde aufgebaut aber nie benutzt.
             if node.args and isinstance(node.args[0], ast.Name):
+                if node.args[0].id in static_url_names:
+                    continue
                 if node.args[0].id in request_via_static_var:
                     continue
             errors.append(
@@ -517,7 +563,12 @@ def check_workflow_timeouts() -> list[str]:
     try:
         import yaml
     except ImportError:
-        return ["(Check 4 uebersprungen: PyYAML nicht installiert)"]
+        # FIX PYYAML-SKIP: alter Code returnte ["(Check 4 uebersprungen: ...)"]
+        # was main() als FAIL interpretierte. Skip ohne Error-Eintrag, stattdessen
+        # via globalem Flag in main() anzeigen.
+        global _yaml_missing
+        _yaml_missing = True
+        return errors
 
     for wf in sorted(WORKFLOWS_DIR.glob("*.yml")):
         try:
@@ -576,7 +627,10 @@ def check_workflow_permissions() -> list[str]:
     try:
         import yaml
     except ImportError:
-        return ["(Check 5 uebersprungen: PyYAML nicht installiert)"]
+        # FIX PYYAML-SKIP: siehe check_workflow_timeouts
+        global _yaml_missing
+        _yaml_missing = True
+        return errors
 
     for wf in sorted(WORKFLOWS_DIR.glob("*.yml")):
         text = wf.read_text(encoding="utf-8")
@@ -616,46 +670,87 @@ def check_push_retry() -> list[str]:
 
     Best-Practice im Repo: for-Loop ueber attempts + `git rebase -X theirs`
     + sleep mit exponential backoff. 16 Workflows machen das bereits so.
+
+    FIX SCOPE: alter Check suchte Loop und Rebase GLOBAL im ganzen
+    Workflow-File. Ein Workflow mit Retry-Job A und unrelated push-Job B
+    (ohne Retry) passte durch. Jetzt wird pro run:-Block geprueft.
+
+    FIX SHELL-COMMENTS: alter Check ignorierte nur reine YAML-Kommentar-
+    Zeilen (strip().startswith('#')). Zeilen wie `# TODO: git push` oder
+    `echo 'in zukunft git push'` loesten False Positives aus. Jetzt
+    werden Shell-Kommentar-Zeilen innerhalb run:-Bloecken gefiltert, und
+    der Regex verlangt `git push` als echtes Kommando (nach Zeilenstart
+    oder Shell-Separator, nicht nach Whitespace irgendwo).
     """
     errors: list[str] = []
     if not WORKFLOWS_DIR.is_dir():
         return errors
 
-    # Robuste git-push-Erkennung: Zeile muss ein echter Shell-Call sein,
-    # nicht Kommentar/String. Prueft auf "git push" am Wort-Anfang in
-    # einer Zeile die nicht mit # oder comment-artigen Formen beginnt.
-    push_line_re = re.compile(r"(?:^|[&|;\s])git\s+push\b")
-    # Retry-Indikatoren (Loop + Rebase)
-    loop_re    = re.compile(r"(for\s+attempt|while\s+\[|attempt\s*=\s*\d)")
-    rebase_re  = re.compile(r"git\s+(rebase|pull\s+--rebase)")
+    try:
+        import yaml
+    except ImportError:
+        # FIX PYYAML-SKIP
+        global _yaml_missing
+        _yaml_missing = True
+        return errors
+
+    # Restriktiverer Regex: `git push` nur nach Zeilenstart oder echtem
+    # Shell-Separator (;, &, |), NICHT nach irgendeinem Whitespace.
+    # Verhindert Match in `echo "git push"` und `# TODO: git push`.
+    push_line_re = re.compile(r"(?:^|[&|;])\s*git\s+push\b", re.MULTILINE)
+    loop_re      = re.compile(r"(for\s+attempt|while\s+\[|attempt\s*=\s*\d)")
+    rebase_re    = re.compile(r"git\s+(rebase|pull\s+--rebase)")
+
+    def _strip_shell_comments(run_text):
+        """Entfernt Shell-Kommentar-Zeilen aus einem run:-Block."""
+        out = []
+        for line in run_text.splitlines():
+            if line.lstrip().startswith("#"):
+                continue
+            out.append(line)
+        return "\n".join(out)
 
     for wf in sorted(WORKFLOWS_DIR.glob("*.yml")):
-        text = wf.read_text(encoding="utf-8")
-
-        # Echte Push-Aufrufe identifizieren: nur Zeilen die nicht mit #
-        # beginnen und die nicht innerhalb eines YAML-Kommentars sind
-        has_real_push = False
-        for line in text.splitlines():
-            stripped = line.strip()
-            if stripped.startswith("#"):
-                continue
-            if push_line_re.search(line):
-                has_real_push = True
-                break
-
-        if not has_real_push:
+        try:
+            data = yaml.safe_load(wf.read_text(encoding="utf-8"))
+        except yaml.YAMLError:
+            continue
+        if not isinstance(data, dict):
+            continue
+        jobs = data.get("jobs", {})
+        if not isinstance(jobs, dict):
             continue
 
-        has_loop   = bool(loop_re.search(text))
-        has_rebase = bool(rebase_re.search(text))
-        if not (has_loop and has_rebase):
-            missing = []
-            if not has_loop:   missing.append("for/while-Loop")
-            if not has_rebase: missing.append("git rebase")
-            errors.append(
-                f"{wf.relative_to(REPO_ROOT)}: "
-                f"`git push` ohne Retry-Logik (fehlt: {', '.join(missing)}) "
-                f"– bei paralleler Push-Kollision geht das Update verloren")
+        for job_name, job_def in jobs.items():
+            if not isinstance(job_def, dict):
+                continue
+            steps = job_def.get("steps", [])
+            if not isinstance(steps, list):
+                continue
+            for step in steps:
+                if not isinstance(step, dict):
+                    continue
+                run = step.get("run")
+                if not isinstance(run, str):
+                    continue
+                cleaned = _strip_shell_comments(run)
+                if not push_line_re.search(cleaned):
+                    continue
+
+                has_loop   = bool(loop_re.search(run))
+                has_rebase = bool(rebase_re.search(run))
+                if has_loop and has_rebase:
+                    continue
+
+                missing = []
+                if not has_loop:   missing.append("for/while-Loop")
+                if not has_rebase: missing.append("git rebase")
+                step_label = step.get("name") or step.get("id") or "<unnamed>"
+                errors.append(
+                    f"{wf.relative_to(REPO_ROOT)} "
+                    f"(job '{job_name}', step '{step_label}'): "
+                    f"`git push` ohne Retry-Logik (fehlt: {', '.join(missing)}) "
+                    f"– bei paralleler Push-Kollision geht das Update verloren")
     return errors
 
 
@@ -674,13 +769,26 @@ def main() -> int:
         ("Workflow permissions gesetzt",      check_workflow_permissions),
         ("git push mit Retry-Loop",           check_push_retry),
     ]
+    # Checks die PyYAML brauchen (fuer SKIP-Statusanzeige)
+    yaml_dependent = {
+        "Workflow timeout-minutes gesetzt",
+        "Workflow permissions gesetzt",
+        "git push mit Retry-Loop",
+    }
 
     for name, fn in checks:
         errs = fn()
-        status = "PASS" if not errs else f"FAIL ({len(errs)})"
+        if _yaml_missing and name in yaml_dependent and not errs:
+            status = "SKIP"
+        else:
+            status = "PASS" if not errs else f"FAIL ({len(errs)})"
         print(f"[{status}] {name}")
         if errs:
             all_errors.append((name, errs))
+
+    if _yaml_missing:
+        print("[INFO]  PyYAML nicht installiert – 3 Checks uebersprungen "
+              "(pip install pyyaml aktiviert sie)")
 
     # Info-Block: Workflow-inline urlopen-Aufrufe (nicht fatal)
     wi = globals().get("workflow_info", [])
