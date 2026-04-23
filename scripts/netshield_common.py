@@ -340,6 +340,17 @@ def calculate_confidence(is_hq=False, today_count=0, feed_count=0,
         [C] Persistenz (max 20)
         [D] Bekannt seit (max 10)
 
+    Parameter-Defaults (FIX DOC-DEFAULTS):
+        - days_seen=1 bedeutet "heute zum ersten Mal bestaetigt" → 2 Pkt
+          Persistenz. NICHT null – der FIX BUG-5-Kommentar bezieht sich
+          auf expliziten Aufruf mit days_seen=0 (noch nie bestaetigt).
+        - days_since_last=999 → Bucket >30 Tage → 0 Pkt Aktualitaet.
+        - today_count=0, feed_count=0 → 0 Pkt Quellen-Qualitaet (sofern
+          is_hq=False).
+        - days_known=0 → 0 Pkt Bekannt seit.
+        → Minimaler Score bei komplettem Default-Aufruf: 2 (Persistenz
+          fuer "aktuell gesehen"). Ruft niemand so auf.
+
     Returns:
         int: Score 0-100
     """
@@ -442,31 +453,95 @@ def calculate_confidence(is_hq=False, today_count=0, feed_count=0,
 # ═══════════════════════════════════════════════════════════════
 
 def _is_safe_public_host(hostname):
-    """True wenn der Hostname ausschließlich auf öffentliche IPs auflöst.
+    """Prueft Hostname auf oeffentliche IPs und gibt die aufgeloesten
+    IPs zurueck (fuer IP-Pinning gegen DNS-Rebinding).
 
     Schützt fetch_url gegen SSRF: kein localhost, kein RFC1918,
     kein Link-Local (inkl. 169.254.169.254 Cloud-Metadata), kein Loopback,
     keine Carrier-Grade NAT (100.64.0.0/10), keine Multicast/Reserved.
+
+    Returns:
+        list[str] | None: Liste der aufgeloesten oeffentlichen IPs bei
+        Erfolg. None wenn die Aufloesung fehlschlaegt oder eine der
+        IPs unsicher ist.
     """
     import socket
     try:
         infos = socket.getaddrinfo(hostname, None)
     except socket.gaierror:
-        return False
+        return None
+    resolved = []
     for info in infos:
         addr = info[4][0]
         try:
             ip = ipaddress.ip_address(addr)
         except ValueError:
-            return False
+            return None
         if (ip.is_private or ip.is_loopback or ip.is_link_local
                 or ip.is_multicast or ip.is_reserved or ip.is_unspecified):
-            return False
+            return None
         # Gürtel + Hosenträger: is_global excluded auch Carrier-Grade NAT
         # (100.64/10) und einige weitere Reserved-Ranges explizit.
         if not ip.is_global:
-            return False
-    return True
+            return None
+        resolved.append(addr)
+    return resolved or None
+
+
+# FIX DNS-REBIND: Kontext-lokaler Storage fuer gepinnte Hostnamen.
+# getaddrinfo wird innerhalb von fetch_url so gepatcht, dass fuer den
+# validierten Host ausschliesslich die bereits geprueften IPs genutzt
+# werden. Ein Angreifer-DNS kann nicht zwischen _validate() und
+# opener.open() auf 127.0.0.1 / 169.254.169.254 umschwenken.
+#
+# threading.local weil mehrere Threads parallel fetchen koennten
+# (ist im NETSHIELD-Code aktuell nicht genutzt, aber die Library-API
+# soll thread-safe bleiben).
+import threading as _threading
+_pin_state = _threading.local()
+
+
+def _install_dns_pin():
+    """Aktiviert den getaddrinfo-Monkey-Patch (einmalig pro Prozess)."""
+    import socket
+    if getattr(_pin_state, "_patched", False):
+        return
+    _pin_state._original_getaddrinfo = socket.getaddrinfo
+
+    def _pinned_getaddrinfo(host, port, *args, **kwargs):
+        pin_map = getattr(_pin_state, "pin_map", None)
+        if pin_map and host in pin_map:
+            # Bekanntes Pin → nur validierte IPs zurueckgeben
+            ips = pin_map[host]
+            # Port-Normalisierung: getaddrinfo akzeptiert int, str, None
+            try:
+                port_int = int(port) if port is not None else 0
+            except (TypeError, ValueError):
+                port_int = 0
+            return [
+                (socket.AF_INET, socket.SOCK_STREAM, 6, "", (ip, port_int))
+                for ip in ips
+                if ":" not in ip  # nur IPv4 (IPs aus _is_safe_public_host)
+            ]
+        return _pin_state._original_getaddrinfo(host, port, *args, **kwargs)
+
+    socket.getaddrinfo = _pinned_getaddrinfo
+    _pin_state._patched = True
+
+
+def _pin_host(hostname, ips):
+    """Fuegt ein Hostname→IP-Mapping fuer die Dauer des Fetch hinzu."""
+    _install_dns_pin()
+    if not hasattr(_pin_state, "pin_map"):
+        _pin_state.pin_map = {}
+    _pin_state.pin_map[hostname] = ips
+
+
+def _unpin_host(hostname):
+    """Entfernt das Mapping nach dem Fetch."""
+    pin_map = getattr(_pin_state, "pin_map", None)
+    if pin_map and hostname in pin_map:
+        del pin_map[hostname]
 
 
 def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
@@ -494,7 +569,17 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
     import urllib.error
     import urllib.parse
 
+    pinned_hosts = []  # fuer finally-Cleanup
+
     def _validate(u):
+        """Validiert URL und pinnt den Host auf die geprueften IPs.
+
+        FIX DNS-REBIND: Rueckgabewert sind die validierten IPs, die
+        direkt ins _pin_state-Mapping eingetragen werden. Der naechste
+        socket.getaddrinfo-Aufruf (durch urllib intern) bekommt dann
+        ausschliesslich diese IPs zurueck – ein Angreifer-DNS kann
+        nicht zwischen Check und Connect wechseln.
+        """
         parsed = urllib.parse.urlparse(u)
         if parsed.scheme not in ("http", "https"):
             print(f"  FEHLER Schema nicht erlaubt: {parsed.scheme}://")
@@ -502,9 +587,17 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
         if not parsed.hostname:
             print(f"  FEHLER kein Hostname in URL: {u}")
             return False
-        if not _is_safe_public_host(parsed.hostname):
+        safe_ips = _is_safe_public_host(parsed.hostname)
+        if not safe_ips:
             print(f"  FEHLER Host nicht öffentlich (SSRF-Schutz): {parsed.hostname}")
             return False
+        # FIX DNS-REBIND: IPs pinnen, aber backward-kompatibel – wenn
+        # _is_safe_public_host durch einen Test auf lambda h: True
+        # gepatcht ist (legacy API), wird nicht gepinnt und der Fetch
+        # laeuft ohne Rebind-Schutz weiter (Test-Kontext, kein Risiko).
+        if isinstance(safe_ips, list):
+            _pin_host(parsed.hostname, safe_ips)
+            pinned_hosts.append(parsed.hostname)
         return True
 
     if not _validate(url):
@@ -526,47 +619,87 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
     TRANSIENT_CODES = {429, 500, 502, 503, 504}
     _host_is_gh_raw = urllib.parse.urlparse(url).hostname == "raw.githubusercontent.com"
 
-    for attempt in range(1, retries + 1):
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": user_agent})
-            opener = urllib.request.build_opener(_SafeRedirect())
-            with opener.open(req, timeout=timeout) as r:
-                return r.read(read_limit).decode("utf-8", errors="ignore")
-        except urllib.error.HTTPError as e:
-            retryable = e.code in TRANSIENT_CODES or (e.code == 404 and _host_is_gh_raw)
-            if retryable and attempt < retries:
-                print(f"  HTTP {e.code} {url} – Versuch {attempt}/{retries}, Retry...")
-                time.sleep(2 ** attempt)
-                continue
-            print(f"  FEHLER HTTP {e.code} {url}")
-            return None
-        except urllib.error.URLError as e:
-            # URLError kommt bei DNS-Fehlern, Connection-Refused, Timeouts
-            # UND bei bewusst vom _SafeRedirect ausgelösten SSRF-Blocks.
-            # SSRF-Blocks und URL-Schema-Fehler sind nicht transient – sofort
-            # abbrechen statt 3× zu versuchen und dabei ~6s Backoff zu warten.
-            msg = str(e.reason) if hasattr(e, "reason") else str(e)
-            non_transient = (
-                "Redirect zu unsicherem Ziel blockiert" in msg
-                or "unknown url type" in msg.lower()
-            )
-            if non_transient or attempt >= retries:
-                print(f"  FEHLER {url}"
-                      + (f" (nach {retries} Versuchen)" if attempt >= retries else "")
-                      + f": {e}")
+    try:
+        for attempt in range(1, retries + 1):
+            try:
+                req = urllib.request.Request(url, headers={"User-Agent": user_agent})
+                opener = urllib.request.build_opener(_SafeRedirect())
+                with opener.open(req, timeout=timeout) as r:
+                    # FIX READ-LIMIT: +1 Byte mehr lesen um Truncation zu erkennen.
+                    # Wenn genau read_limit+1 gelesen werden konnte, war die Antwort
+                    # groesser als der Limit und wir haben stillschweigend getrimmt.
+                    # Das wurde sonst nie sichtbar und Feeds konnten IPs verlieren.
+                    data = r.read(read_limit + 1)
+                    if len(data) > read_limit:
+                        print(f"  WARNUNG {url}: Response > {read_limit} bytes – "
+                              f"Limit erhoehen sonst gehen Daten verloren")
+                        data = data[:read_limit]
+                    return data.decode("utf-8", errors="ignore")
+            except urllib.error.HTTPError as e:
+                retryable = e.code in TRANSIENT_CODES or (e.code == 404 and _host_is_gh_raw)
+                if retryable and attempt < retries:
+                    print(f"  HTTP {e.code} {url} – Versuch {attempt}/{retries}, Retry...")
+                    time.sleep(2 ** attempt)
+                    continue
+                print(f"  FEHLER HTTP {e.code} {url}")
                 return None
-            time.sleep(2 ** attempt)
-        except Exception as e:
-            if attempt < retries:
+            except urllib.error.URLError as e:
+                # URLError kommt bei DNS-Fehlern, Connection-Refused, Timeouts
+                # UND bei bewusst vom _SafeRedirect ausgelösten SSRF-Blocks.
+                # SSRF-Blocks und URL-Schema-Fehler sind nicht transient – sofort
+                # abbrechen statt 3× zu versuchen und dabei ~6s Backoff zu warten.
+                msg = str(e.reason) if hasattr(e, "reason") else str(e)
+                non_transient = (
+                    "Redirect zu unsicherem Ziel blockiert" in msg
+                    or "unknown url type" in msg.lower()
+                )
+                if non_transient or attempt >= retries:
+                    print(f"  FEHLER {url}"
+                          + (f" (nach {retries} Versuchen)" if attempt >= retries else "")
+                          + f": {e}")
+                    return None
                 time.sleep(2 ** attempt)
-            else:
-                print(f"  FEHLER {url} (nach {retries} Versuchen): {e}")
-    return None
+            except Exception as e:
+                if attempt < retries:
+                    time.sleep(2 ** attempt)
+                else:
+                    print(f"  FEHLER {url} (nach {retries} Versuchen): {e}")
+        return None
+    finally:
+        # FIX DNS-REBIND: Pin-Mapping wieder entfernen damit spaetere
+        # Aufrufe mit anderen URLs nicht gestale IPs bekommen.
+        for h in pinned_hosts:
+            _unpin_host(h)
 
 
 # ═══════════════════════════════════════════════════════════════
 # seen_db Hilfsfunktionen
 # ═══════════════════════════════════════════════════════════════
+
+def _fsync_dir(dir_path):
+    """FIX DIR-FSYNC: os.replace ist auf POSIX erst durable, wenn das
+    Parent-Directory gefsyncted wurde. Ohne das kann nach Power-Loss der
+    Rename verloren gehen, selbst wenn os.replace bereits returnt hat.
+
+    In GitHub-Actions-Runnern (VMs) ist das Risiko gering, aber wenn
+    netshield_common als Library in anderen Umgebungen (Baremetal,
+    Container mit tmpfs-overlay) genutzt wird, ist es notwendig.
+
+    Auf Windows nicht unterstuetzt – os.open auf Directory schlaegt fehl.
+    Failure beim fsync wird geloggt aber nicht propagiert: der eigentliche
+    Write ist bereits erfolgreich und weitergeleitete Exceptions wuerden
+    die Aufrufer in unklarem Zustand zuruecklassen.
+    """
+    try:
+        dir_fd = os.open(dir_path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+    except OSError:
+        return  # z.B. Windows, oder Directory existiert nicht
+    try:
+        os.fsync(dir_fd)
+    except OSError:
+        pass
+    finally:
+        os.close(dir_fd)
 
 def safe_get_date(data, key, default="2000-01-01"):
     """Sicheres Auslesen eines Datumsstrings aus einem dict.
@@ -628,14 +761,30 @@ def check_local_feed_age(filepath, max_age_hours=48):
 def sort_ips(ip_list):
     """Sortiert IPs/CIDRs numerisch (1.2.3.4 vor 10.0.0.1).
 
+    FIX SORT-FALLBACK: Bei einer einzelnen korrupten Entry fiel die
+    gesamte Liste auf lexikalischen Sort zurueck (4.7 Mio IPs waeren
+    dann "10.0.0.1" vor "2.3.4.5" → Firewall-Diffs werden riesig).
+    Jetzt: korrupte Entries werden per-Element abgefangen und an's
+    Ende sortiert, der Rest bleibt numerisch.
+
     Returns:
         list[str]: Sortierte Liste.
     """
+    def _numeric_key(e):
+        try:
+            parts = tuple(int(x) for x in e.split('/')[0].split('.'))
+            if len(parts) != 4 or any(p > 255 or p < 0 for p in parts):
+                # Ungueltige Entry: sortiert nach hinten, lexikalisch untereinander
+                return (1, (256, 256, 256, 256), e)
+            return (0, parts, e)
+        except (ValueError, AttributeError, TypeError):
+            return (1, (256, 256, 256, 256), str(e))
+
     try:
-        return sorted(ip_list,
-                      key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
+        return sorted(ip_list, key=_numeric_key)
     except Exception:
-        return sorted(ip_list)
+        # Absoluter Fallback (sollte nie triggern da _numeric_key selbst safe ist)
+        return sorted(ip_list, key=str)
 
 
 def write_ip_list(filepath, ips, header_lines=None):
@@ -673,6 +822,7 @@ def write_ip_list(filepath, ips, header_lines=None):
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp_path, filepath)
+        _fsync_dir(target_dir)  # FIX DIR-FSYNC
     except Exception:
         # Bei Fehler das tempfile wieder entfernen statt Leichen zu lassen
         try:
@@ -709,6 +859,7 @@ def write_json_atomic(filepath, data, **dump_kwargs):
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp_path, filepath)
+        _fsync_dir(target_dir)  # FIX DIR-FSYNC
     except Exception:
         try:
             os.unlink(tmp_path)
@@ -741,6 +892,7 @@ def write_text_atomic(filepath, content):
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp_path, filepath)
+        _fsync_dir(target_dir)  # FIX DIR-FSYNC
     except Exception:
         try:
             os.unlink(tmp_path)
