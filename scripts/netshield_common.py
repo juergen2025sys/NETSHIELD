@@ -30,12 +30,34 @@ IPV4_RE = re.compile(r'(?<![\d.])(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?![\d.])')
 CIDR_RE = re.compile(r'(?<![\d.])(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})(?!\d)')
 TIMESTAMP_RE = re.compile(r'#\s*Aktualisiert:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\s*UTC')
 
-# RFC1918 + Loopback + Multicast + Reserved
-_RFC_PRIVATE_NETS = [
-    ipaddress.ip_network("10.0.0.0/8"),
-    ipaddress.ip_network("172.16.0.0/12"),
-    ipaddress.ip_network("192.168.0.0/16"),
+# FIX BUG-PRIV2: Unifizierte Liste aller nicht-oeffentlich routbaren IPv4-Bereiche.
+# Vorher existierten zwei abweichende Listen:
+#   _RFC_PRIVATE_NETS (3 Eintraege, nur RFC1918)  -> genutzt von is_protected_entry
+#   _PRIVATE_RANGES   (7 Eintraege, voll)          -> genutzt von is_valid_public_cidr
+# Folge: is_protected_entry liess z.B. 169.0.0.0/8 durch (ueberlappt 169.254/16
+# link-local), obwohl is_valid_public_cidr denselben CIDR korrekt ablehnte.
+# Divergenz zwischen zwei Funktionen mit gleichem Vertrag ("Rangiere Private/
+# Reserved aus"). Jetzt eine Single Source of Truth.
+_RESERVED_NETS = [
+    ipaddress.ip_network("10.0.0.0/8"),       # RFC 1918 private
+    ipaddress.ip_network("172.16.0.0/12"),    # RFC 1918 private
+    ipaddress.ip_network("192.168.0.0/16"),   # RFC 1918 private
+    ipaddress.ip_network("127.0.0.0/8"),      # RFC 990  loopback
+    ipaddress.ip_network("169.254.0.0/16"),   # RFC 3927 link-local (inkl. 169.254.169.254 AWS IMDS)
+    ipaddress.ip_network("100.64.0.0/10"),    # RFC 6598 Carrier-Grade NAT
+    ipaddress.ip_network("224.0.0.0/4"),      # RFC 5771 multicast
+    ipaddress.ip_network("240.0.0.0/4"),      # RFC 1112 Class E reserved (inkl. 255.255.255.255 broadcast)
+    ipaddress.ip_network("0.0.0.0/8"),        # RFC 1122 "this network"
+    ipaddress.ip_network("192.0.2.0/24"),     # RFC 5737 TEST-NET-1 documentation
+    ipaddress.ip_network("198.51.100.0/24"),  # RFC 5737 TEST-NET-2
+    ipaddress.ip_network("203.0.113.0/24"),   # RFC 5737 TEST-NET-3
+    ipaddress.ip_network("198.18.0.0/15"),    # RFC 2544 benchmarking
 ]
+
+# Backward-compat aliases. Neuer Code soll _RESERVED_NETS verwenden.
+# Diese Namen bleiben erhalten, falls externe Scripts/Tests sie importieren.
+_RFC_PRIVATE_NETS = _RESERVED_NETS
+_PRIVATE_RANGES = _RESERVED_NETS
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -75,8 +97,12 @@ def load_whitelist(path=".github/workflows/whitelist.json", min_entries=50):
         except Exception:
             pass
 
-    # Protected = Whitelist + RFC1918
-    _protected_networks = list(_whitelist_networks) + list(_RFC_PRIVATE_NETS)
+    # FIX BUG-PRIV2: Protected = Whitelist + alle reservierten IPv4-Bereiche
+    # (RFC1918 + Loopback + Link-Local + CGNAT + Multicast + Reserved + Doc-Ranges).
+    # Vorher wurden nur die 3 RFC1918-Ranges hinzugefuegt -> is_protected_entry
+    # liess z.B. 169.0.0.0/8 durch (ueberlappt 169.254/16). Jetzt ueber die
+    # unifizierte _RESERVED_NETS-Liste konsistent mit is_valid_public_cidr.
+    _protected_networks = list(_whitelist_networks) + list(_RESERVED_NETS)
 
     print(f"whitelist.json geladen: {len(_whitelist_networks)} Einträge")
     return _whitelist_networks
@@ -172,26 +198,28 @@ def is_in_fp_set(ip_str):
 # ═══════════════════════════════════════════════════════════════
 
 def is_valid_public_ipv4(ip):
-    """True wenn gültige öffentliche IPv4-Adresse (nicht private/loopback/etc)."""
+    """True wenn gültige öffentliche IPv4-Adresse (nicht private/loopback/etc).
+
+    FIX BUG-CGNAT1: Prueft zusaetzlich explizit gegen _RESERVED_NETS.
+    Python's ipaddress-Modul markiert CGNAT (100.64.0.0/10, RFC 6598) nicht
+    als is_private, obwohl die Adressen nie oeffentlich routbar sind. Ohne
+    diesen Zusatzcheck rutschten Einzel-IPs aus dem CGNAT-Bereich durch auf
+    die Blacklist und konnten legitime ISP-Kunden treffen. Dies bringt
+    is_valid_public_ipv4 in Deckung mit is_valid_public_cidr, das die
+    Overlap-Pruefung bereits seit FIX BUG-PRIV1 macht.
+    """
     try:
         obj = ipaddress.ip_address(ip)
-        return (obj.version == 4
+        if not (obj.version == 4
                 and not obj.is_private and not obj.is_loopback
                 and not obj.is_multicast and not obj.is_unspecified
-                and not obj.is_reserved and not obj.is_link_local)
+                and not obj.is_reserved and not obj.is_link_local):
+            return False
+        # FIX BUG-CGNAT1: Zusaetzlicher Check gegen explizite Liste,
+        # weil stdlib CGNAT/Doc-Ranges nicht immer als private markiert.
+        return not any(obj in net for net in _RESERVED_NETS)
     except Exception:
         return False
-
-
-_PRIVATE_RANGES = [
-    ipaddress.ip_network("10.0.0.0/8"),
-    ipaddress.ip_network("172.16.0.0/12"),
-    ipaddress.ip_network("192.168.0.0/16"),
-    ipaddress.ip_network("127.0.0.0/8"),
-    ipaddress.ip_network("169.254.0.0/16"),
-    ipaddress.ip_network("100.64.0.0/10"),
-    ipaddress.ip_network("224.0.0.0/4"),
-]
 
 
 def is_valid_public_cidr(cidr):
@@ -210,7 +238,7 @@ def is_valid_public_cidr(cidr):
                 and not net.is_link_local and net.prefixlen >= 8):
             return False
         # Overlap-Check: breite CIDRs die private Ranges einschließen ablehnen
-        for priv in _PRIVATE_RANGES:
+        for priv in _RESERVED_NETS:
             if net.overlaps(priv):
                 return False
         return True
