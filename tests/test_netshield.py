@@ -1059,5 +1059,140 @@ class TestWriteIpListCleanup(unittest.TestCase):
             shutil.rmtree(tmpdir, ignore_errors=True)
 
 
+# ═══════════════════════════════════════════════════════════════
+# Regression: FIX BUG-CGNAT1 + FIX BUG-PRIV2
+# ═══════════════════════════════════════════════════════════════
+
+class TestBugCgnat1Regression(unittest.TestCase):
+    """FIX BUG-CGNAT1: is_valid_public_ipv4 muss CGNAT (100.64.0.0/10) ablehnen.
+
+    Python's stdlib ipaddress markiert CGNAT-Einzel-IPs nicht als is_private,
+    daher braucht is_valid_public_ipv4 einen expliziten Overlap-Check gegen
+    _RESERVED_NETS. Ohne Fix gelangten CGNAT-IPs aus naiven Upstream-Feeds
+    auf die Blacklist und konnten legitime ISP-Kunden treffen.
+    """
+
+    def test_cgnat_start_rejected(self):
+        self.assertFalse(is_valid_public_ipv4("100.64.0.0"),
+                         "100.64.0.0 (CGNAT start) muss abgelehnt werden")
+
+    def test_cgnat_middle_rejected(self):
+        self.assertFalse(is_valid_public_ipv4("100.100.100.100"),
+                         "100.100.100.100 (CGNAT mittig) muss abgelehnt werden")
+
+    def test_cgnat_end_rejected(self):
+        self.assertFalse(is_valid_public_ipv4("100.127.255.255"),
+                         "100.127.255.255 (CGNAT ende) muss abgelehnt werden")
+
+    def test_just_before_cgnat_accepted(self):
+        self.assertTrue(is_valid_public_ipv4("100.63.255.255"),
+                        "100.63.255.255 (vor CGNAT) ist oeffentlich")
+
+    def test_just_after_cgnat_accepted(self):
+        self.assertTrue(is_valid_public_ipv4("100.128.0.0"),
+                        "100.128.0.0 (nach CGNAT) ist oeffentlich")
+
+    def test_ivp4_still_rejects_rfc1918(self):
+        """Keine Regression gegen die bestehenden Filter."""
+        for ip in ["10.0.0.1", "172.16.0.1", "192.168.1.1",
+                   "127.0.0.1", "169.254.169.254", "224.0.0.1"]:
+            self.assertFalse(is_valid_public_ipv4(ip),
+                             f"{ip} darf nicht als oeffentlich gelten")
+
+    def test_public_ips_still_pass(self):
+        """Keine Regression fuer echte oeffentliche IPs."""
+        for ip in ["8.8.8.8", "1.1.1.1", "185.199.108.153", "1.2.3.4",
+                   "223.255.255.254"]:
+            self.assertTrue(is_valid_public_ipv4(ip),
+                            f"{ip} muss als oeffentlich gelten")
+
+    def test_parse_entries_filters_cgnat_ips(self):
+        """parse_entries muss CGNAT-Einzel-IPs in beiden Modi ablehnen."""
+        feed = "100.64.5.1\n100.70.123.45\n1.2.3.4\n"
+        for protected in [False, True]:
+            r = parse_entries(feed, use_protected_check=protected)
+            self.assertNotIn("100.64.5.1", r,
+                             f"protected={protected}: CGNAT-IP leaked")
+            self.assertNotIn("100.70.123.45", r,
+                             f"protected={protected}: CGNAT-IP leaked")
+            self.assertIn("1.2.3.4", r,
+                          f"protected={protected}: oeffentliche IP verloren")
+
+
+class TestBugPriv2Regression(unittest.TestCase):
+    """FIX BUG-PRIV2: is_protected_entry muss konsistent mit is_valid_public_cidr
+    sein. Vorher hatte is_protected_entry nur 3 RFC1918-Ranges im Overlap-Check,
+    is_valid_public_cidr aber 7 (inkl. Link-Local, CGNAT, Multicast). Folge:
+    169.0.0.0/8 wurde von is_valid_public_cidr korrekt abgelehnt, passierte aber
+    is_protected_entry und konnte via parse_entries(use_protected_check=True)
+    auf die Blacklist geraten.
+    """
+
+    def test_169_slash_8_rejected(self):
+        """169.0.0.0/8 ueberlappt 169.254/16 (link-local) → muss abgelehnt werden."""
+        self.assertFalse(is_valid_public_cidr("169.0.0.0/8"))
+        self.assertTrue(is_protected_entry("169.0.0.0/8"),
+                        "169.0.0.0/8 muss is_protected_entry=True liefern "
+                        "(ueberlappt 169.254/16 link-local)")
+
+    def test_100_slash_9_rejected_via_protected(self):
+        """100.0.0.0/9 ueberlappt 100.64/10 CGNAT → is_protected_entry=True."""
+        self.assertTrue(is_protected_entry("100.0.0.0/9"),
+                        "100.0.0.0/9 muss is_protected_entry=True liefern")
+
+    def test_parse_entries_rejects_reserved_supernets(self):
+        """parse_entries(protected=True) muss alle ueberlappenden Supernets ablehnen."""
+        overlap_cidrs = [
+            "169.0.0.0/8",   # covers 169.254/16 link-local
+            "126.0.0.0/7",   # covers 127/8 loopback
+            "100.0.0.0/9",   # covers 100.64/10 CGNAT (partially)
+            "192.128.0.0/9", # covers 192.168/16 (BUG-PRIV1 regression)
+            "172.0.0.0/8",   # covers 172.16/12
+            "10.0.0.0/7",    # covers 10/8
+        ]
+        for cidr in overlap_cidrs:
+            feed = f"{cidr}\n"
+            r = parse_entries(feed, use_protected_check=True)
+            self.assertEqual(r, set(),
+                             f"{cidr} leaked through parse_entries")
+
+    def test_adjacent_cidrs_still_accepted(self):
+        """CIDRs unmittelbar neben reservierten Bereichen muessen durchgelassen werden,
+        sofern sie keine Whitelist-Eintraege ueberlappen.
+
+        Hinweis: 173/8 wird z.B. durch 173.194/16 (Google) geblockt — korrekt.
+        Die hier getesteten Ranges sind so gewaehlt, dass sie keine Whitelist-
+        Treffer haben (stand 2026-04 gegen das mitgelieferte whitelist.json).
+        """
+        public_cidrs = [
+            "168.0.0.0/8",   # unmittelbar vor 169.254/16
+            "170.0.0.0/8",   # unmittelbar nach 169.254/16
+            "11.0.0.0/8",    # unmittelbar nach 10/8
+        ]
+        for cidr in public_cidrs:
+            self.assertFalse(is_protected_entry(cidr),
+                             f"{cidr} darf nicht als protected gelten "
+                             f"(ueberlappt kein reserved range + keine Whitelist)")
+
+    def test_reserved_nets_is_single_source(self):
+        """_RESERVED_NETS ist die unifizierte Liste; _RFC_PRIVATE_NETS und
+        _PRIVATE_RANGES sind Aliase. Regression wenn jemand getrennte Listen
+        wieder einfuehrt."""
+        self.assertIs(netshield_common._RFC_PRIVATE_NETS,
+                      netshield_common._RESERVED_NETS,
+                      "_RFC_PRIVATE_NETS muss Alias fuer _RESERVED_NETS sein")
+        self.assertIs(netshield_common._PRIVATE_RANGES,
+                      netshield_common._RESERVED_NETS,
+                      "_PRIVATE_RANGES muss Alias fuer _RESERVED_NETS sein")
+        # Mindestens die kritischen 7 Ranges
+        essentials = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
+                      "127.0.0.0/8", "169.254.0.0/16", "100.64.0.0/10",
+                      "224.0.0.0/4"]
+        reserved_strs = {str(n) for n in netshield_common._RESERVED_NETS}
+        for e in essentials:
+            self.assertIn(e, reserved_strs,
+                          f"_RESERVED_NETS fehlt kritischer Range {e}")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
