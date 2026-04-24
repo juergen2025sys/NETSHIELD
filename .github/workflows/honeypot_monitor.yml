@@ -139,6 +139,12 @@ jobs:
           # - stratosphere_aip_alpha7 ergänzt (April 2026): 7-Tage-Fenster aller
           #   Attacker aus demselben CTU-Honeypot-Netzwerk. Komplementär zu _New
           #   (das auf neue Angreifer fokussiert). CSV 'ip,score', tägl. rotiert.
+          # - honeysec_ip2 ergänzt (April 2026): Honeypot-Netzwerk der UCM Trnava
+          #   (SK), Institut für Computertechnik und Informatik. ip_2 = IPs mit
+          #   ≥2 Login-Versuchen (vom Betreiber als Standard empfohlen). Plain
+          #   IPv4-Format, eigene Telemetrie → validiert bestehende Feeds. ip_all
+          #   und ip_5 bewusst NICHT geladen: beide sind Teil-/Obermengen von
+          #   ip_2 und würden den Quell-Count pro IP künstlich verdoppeln.
           #
           # Aktuelle Quellen (alle auf bewährten Repos/Diensten):
           # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
@@ -150,6 +156,7 @@ jobs:
           # - jamesbrine_honeypot: AU-Honeypot-Netzwerk, SSH/FTP/RDP/GIT/SNMP/REDIS
           # - stratosphere_aip: CTU Prag IoT-Honeypot, Prioritize_New (emerging Attacker)
           # - stratosphere_aip_alpha7: CTU Prag IoT-Honeypot, 7-Tage-Fenster
+          # - honeysec_ip2: UCM Trnava Honeypot-Netzwerk, ≥2 Login-Versuche
           # ══════════════════════════════════════════════════════════════════
 
           # FIX SIZE: Separate fetch-Funktion mit explizitem Size-Limit fuer
@@ -237,6 +244,18 @@ jobs:
               # persistenter Angreifer ab. CSV 'ip,score', tägl. rotiert.
               "stratosphere_aip_alpha7":
                   "https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Alpha7-latest.csv",
+
+              # HoneySEC ip_2: Honeypot-Netzwerk der Universität der hl. Cyrill
+              # und Method in Trnava (UCM, SK), Fakultaet fuer Naturwissenschaften,
+              # Institut fuer Computertechnik und Informatik. Aggregiert IPs, die
+              # sich mindestens 2x in einen Honeypot eingeloggt haben (nicht nur
+              # Port-Scan, sondern tatsaechlicher Login-Versuch). Die ≥2-Schwelle
+              # ist vom Betreiber als Standard-Empfehlung markiert (Filter fuer
+              # Tippfehler/One-Off-Scans). Format: Plain IPv4, eine pro Zeile.
+              # WICHTIG: NICHT gleichzeitig ip_all oder ip_5 laden – beide sind
+              # Teil-/Obermengen von ip_2 → dreifacher Quell-Count pro IP.
+              "honeysec_ip2":
+                  "https://honeysec.eu/lists/raw/ip_2",
           }
 
           all_ips = set()
