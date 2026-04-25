@@ -54,7 +54,7 @@ jobs:
           load_fp_set()
 
           import urllib.request, urllib.error, re, os, sys, ipaddress, json, time
-          from datetime import datetime, timezone, timedelta
+          from datetime import datetime, timezone
 
           now     = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
@@ -152,14 +152,6 @@ jobs:
           #   IPv4-Format, eigene Telemetrie → validiert bestehende Feeds. ip_all
           #   und ip_5 bewusst NICHT geladen: beide sind Teil-/Obermengen von
           #   ip_2 und würden den Quell-Count pro IP künstlich verdoppeln.
-          # - dshield_ssh_daily ergänzt (April 2026): SANS ISC Cowrie-Honeypot,
-          #   tägliche Rotation. URL enthält Datum (gestern UTC, da heutige Datei
-          #   oft noch unvollständig). Format: Tab-separiert mit Source-IP,
-          #   Username, Passwort – parse_entries() zieht nur die IPv4-Spalte.
-          #   SANS ToS: max. 1×/h, passt zum 6h-Cron des Workflows. Einzige
-          #   originäre Cowrie-Quelle neben honeysec_ip2 → US-Telemetrie ergänzt
-          #   die EU/AU/SK-Diversität. NICHT identisch mit "dshield" (block.txt,
-          #   /24-Aggregate) oder "dshield_1d" (FireHOL-Mirror) in combined.
           #
           # Aktuelle Quellen (alle auf bewährten Repos/Diensten):
           # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
@@ -172,7 +164,6 @@ jobs:
           # - stratosphere_aip: CTU Prag IoT-Honeypot, Prioritize_New (emerging Attacker)
           # - stratosphere_aip_alpha7: CTU Prag IoT-Honeypot, 7-Tage-Fenster
           # - honeysec_ip2: UCM Trnava Honeypot-Netzwerk, ≥2 Login-Versuche
-          # - dshield_ssh_daily: SANS ISC Cowrie-Honeypot, taegliche Rotation
           # ══════════════════════════════════════════════════════════════════
 
           # FIX SIZE: Separate fetch-Funktion mit explizitem Size-Limit fuer
@@ -272,17 +263,6 @@ jobs:
               # Teil-/Obermengen von ip_2 → dreifacher Quell-Count pro IP.
               "honeysec_ip2":
                   "https://honeysec.eu/lists/raw/ip_2",
-
-              # DShield SSH Daily: taeglicher Cowrie-Honeypot-Output von SANS ISC.
-              # Format: Tab-separiert mit Source-IP, Username, Passwort – parse_entries()
-              # zieht die IPv4-Spalte. URL enthaelt Datum (gestern UTC), da heutige
-              # Datei oft noch unvollstaendig ist. SANS ToS: max. 1x/h, passt zum
-              # 6h-Cron. Einzige originaere Cowrie-Quelle neben honeysec_ip2 →
-              # US-Telemetrie ergaenzt die EU/AU/SK-Diversitaet. NICHT identisch
-              # mit "dshield" (block.txt, /24-Aggregate) oder "dshield_1d"
-              # (FireHOL-Mirror) in combined SOURCES.
-              "dshield_ssh_daily":
-                  f"https://feeds.dshield.org/feeds/ssh_daily_{(now - timedelta(days=1)).strftime('%Y-%m-%d')}",
 
               # SniffCat: Community-Honeypot-DB von Sefinek (sniffcat.com).
               # Eigenständige Plattform (NICHT identisch mit sefinek_malicious in
