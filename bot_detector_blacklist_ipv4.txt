@@ -1,7 +1,7 @@
 # NETSHIELD Bot-Detector Blacklist
-# Aktualisiert: 2026-04-24 23:25 UTC
+# Aktualisiert: 2026-04-25 23:22 UTC
 # Quelle: github.com/lula73/bot-detector
-# Gesamt: 17948 | +0 neu | -0 entfernt
+# Gesamt: 17949 | +1 neu | -0 entfernt
 
 1.64.227.27
 1.64.227.46
@@ -14652,6 +14652,7 @@
 70.39.246.37
 71.88.97.254
 71.125.249.201
+72.14.201.23
 72.25.227.157
 72.30.14.20
 72.146.4.155
