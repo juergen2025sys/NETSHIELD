@@ -65,7 +65,14 @@ _PRIVATE_RANGES = _RESERVED_NETS
 # ═══════════════════════════════════════════════════════════════
 
 _whitelist_networks = []
-_protected_networks = []
+# FIX BUG-RESERVED-INIT: _protected_networks bereits beim Modul-Import mit
+# _RESERVED_NETS füllen, nicht erst in load_whitelist(). Sonst ist die Liste
+# leer wenn is_protected_entry() vor load_whitelist() aufgerufen wird (z.B.
+# in Tests die load_whitelist() nicht im setUp() haben). Dann liefert
+# is_protected_entry("100.0.0.0/9") False, weil Python's is_private/is_reserved
+# für teilweise-public Supernets False zurückgibt – der Reserved-Net-Overlap-
+# Check fällt komplett aus.
+_protected_networks = list(_RESERVED_NETS)
 
 
 def load_whitelist(path=".github/workflows/whitelist.json", min_entries=50):
