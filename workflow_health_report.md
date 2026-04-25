@@ -1,14 +1,22 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-25 04:07 UTC
+**Aktualisiert:** 2026-04-25 08:11 UTC
 
-**Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
+**Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
 
 ---
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 76.76.21.21 – Filterung wirkungslos! |
+
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 1 CRITICAL | 🟡 0 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 76.76.21.21 – Filterung wirkungslos! |
 
 ## Übersicht
 
@@ -35,4 +43,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-25 04:07 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-04-25 08:11 UTC | 19 Workflow-Dateien geprüft*
