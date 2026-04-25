@@ -147,18 +147,74 @@ class OTXClient:
         # Sollte nie erreicht werden
         raise RuntimeError(f"OTX API Fehler nach Retries: {last_err}")
 
-    def get_subscribed_pulses(self, modified_since=None, max_pulses=500):
+    def get_ipv4_indicators(self, modified_since=None, max_indicators=50000):
         """
-        Holt alle Pulses, die der API-Key abonniert hat.
-        Iteriert ueber alle Seiten bis max_pulses oder Ende.
+        Holt IPv4-Indikatoren via /api/v1/indicators/export.
+
+        Wichtig: dieser Endpoint ist deutlich leichter als
+        /api/v1/pulses/subscribed weil er die Pulse-Wrapper-Daten
+        weglaesst und nur die Indikatoren zurueckgibt. Die Antworten
+        sind kleiner -> stabiler bei OTXs notorisch langsamem Backend.
 
         Returns:
-            list[dict]: Pulse-Objekte mit eingebetteten 'indicators'.
+            dict: {ip: [pulse_id1, pulse_id2, ...]} - Mapping IP zu Pulse-IDs
+        """
+        ip_to_pulses = {}
+        page = 1
+        # limit=20: kleine Pages = schnellere Antworten von OTX
+        params = {"types": "IPv4", "limit": 20, "page": page}
+        if modified_since:
+            params["modified_since"] = modified_since.strftime(
+                "%Y-%m-%dT%H:%M:%S+00:00"
+            )
+
+        total_seen = 0
+        while total_seen < max_indicators:
+            params["page"] = page
+            data = self._get("/api/v1/indicators/export", params)
+            results = data.get("results")
+            # results kann eine Liste oder ein einzelnes Dict sein
+            if results is None:
+                break
+            if isinstance(results, dict):
+                results = [results]
+            if not results:
+                break
+
+            for ind in results:
+                if ind.get("type") != "IPv4":
+                    continue
+                ip = ind.get("indicator", "").strip()
+                if not ip:
+                    continue
+                # pulse_id ggf. nicht direkt mitgeliefert
+                pulse_id = ind.get("pulse_key") or ind.get("id") or ""
+                ip_to_pulses.setdefault(ip, []).append(str(pulse_id))
+
+            total_seen += len(results)
+            print(
+                f"  Seite {page}: {len(results)} indicators "
+                f"(unique IPv4: {len(ip_to_pulses):,})",
+                flush=True,
+            )
+
+            if not data.get("next"):
+                break
+            page += 1
+            time.sleep(0.4)
+
+        return ip_to_pulses
+
+    def get_subscribed_pulses(self, modified_since=None, max_pulses=500):
+        """
+        DEPRECATED in diesem Test - nutzt /pulses/subscribed welches
+        bei vielen abonnierten Pulses 504 Gateway Timeouts liefert.
+        Vorerst behalten falls man auf Pulse-Metadaten ausweichen muss.
+
+        Holt alle Pulses, die der API-Key abonniert hat.
         """
         pulses = []
         page = 1
-        # limit=20 statt 50: kleinere Antworten -> stabiler bei vielen
-        # subscribed Pulses + Indicators. Mehr Pages, aber weniger Timeouts.
         params = {"limit": 20, "page": page}
         if modified_since:
             params["modified_since"] = modified_since.strftime(
@@ -180,7 +236,7 @@ class OTXClient:
             if not data.get("next"):
                 break
             page += 1
-            time.sleep(0.5)  # rate-limit safety
+            time.sleep(0.5)
 
         return pulses[:max_pulses]
 
@@ -254,55 +310,53 @@ def main():
         print("  4. export OTX_API_KEY='dein_key'", file=sys.stderr)
         sys.exit(1)
 
+    # Max-Indicators leitet sich aus MAX_PULSES ab (Backward-Compat).
+    # Faustregel: durchschn. 100 IPv4 pro Pulse -> max ca. MAX_PULSES * 100
+    max_indicators = MAX_PULSES * 100
+
     print("=" * 70)
     print("OTX AlienVault Yield Test")
     print("=" * 70)
     print(f"Zeitraum:           letzte {DAYS_BACK} Tage")
-    print(f"Max. Pulses:        {MAX_PULSES}")
+    print(f"Max. Indicators:    {max_indicators:,} (abgeleitet aus MAX_PULSES)")
     print(f"Max. API-Requests:  {MAX_API_REQUESTS}")
+    print(f"Endpoint:           /api/v1/indicators/export?types=IPv4")
     print(f"Gestartet:          {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
     print("=" * 70)
     print()
 
     # 1) NETSHIELD Validierung initialisieren
-    print("[1/5] Lade NETSHIELD Whitelist + False-Positive-Set...")
+    print("[1/4] Lade NETSHIELD Whitelist + False-Positive-Set...")
     load_whitelist()
     load_fp_set()
     print()
 
     # 2) Bestehende Blacklist als Dedup-Basis laden
-    print("[2/5] Lade bestehende Blacklist als Dedup-Basis...")
+    print("[2/4] Lade bestehende Blacklist als Dedup-Basis...")
     existing_ips = load_existing_blacklist()
     print(f"  Total bekannte IPs: {len(existing_ips):,}")
     print()
 
-    # 3) OTX API: subscribed Pulses holen
-    print("[3/5] Hole abonnierte Pulses von OTX...")
+    # 3) OTX API: IPv4-Indikatoren direkt holen (leichter als pulses/subscribed)
+    print("[3/4] Hole IPv4-Indikatoren von OTX (export-Endpoint)...")
     client = OTXClient(API_KEY, max_requests=MAX_API_REQUESTS)
     modified_since = datetime.now(timezone.utc) - timedelta(days=DAYS_BACK)
 
     try:
-        pulses = client.get_subscribed_pulses(
+        ip_to_pulses = client.get_ipv4_indicators(
             modified_since=modified_since,
-            max_pulses=MAX_PULSES,
+            max_indicators=max_indicators,
         )
     except RuntimeError as e:
         print(f"FEHLER: {e}", file=sys.stderr)
         sys.exit(2)
 
-    print(f"  -> {len(pulses)} Pulses geladen ({client.request_count} API-Requests)")
-    print()
-
-    # 4) IPv4 extrahieren
-    print("[4/5] Extrahiere IPv4-Indikatoren...")
-    ip_to_pulses, pulses_with_ipv4 = extract_ipv4_from_pulses(pulses)
     raw_ip_count = len(ip_to_pulses)
-    print(f"  Pulses mit IPv4-Indikatoren: {pulses_with_ipv4} / {len(pulses)}")
-    print(f"  Unique IPv4 (raw):           {raw_ip_count:,}")
+    print(f"  -> {raw_ip_count:,} unique IPv4 erhalten ({client.request_count} API-Requests)")
     print()
 
-    # 5) Validierung + Dedup
-    print("[5/5] Validiere + dedupliziere...")
+    # 4) Validierung + Dedup
+    print("[4/4] Validiere + dedupliziere...")
     valid_ips = []
     skipped_invalid = 0
     skipped_whitelist = 0
@@ -327,7 +381,8 @@ def main():
     print(f"  In Whitelist:        -{skipped_whitelist:,}")
     print(f"  In FP-Set:           -{skipped_fp:,}")
     print(f"  Gueltig (public):    {len(valid_ips):,}")
-    print(f"  Bereits in Blacklist: {len(overlap_ips):,}  ({100*len(overlap_ips)/max(1,len(valid_ips)):.1f}% Overlap)")
+    overlap_pct = 100 * len(overlap_ips) / max(1, len(valid_ips))
+    print(f"  Bereits in Blacklist: {len(overlap_ips):,}  ({overlap_pct:.1f}% Overlap)")
     print(f"  WIRKLICH NEU:        {len(new_ips):,}")
     print()
 
@@ -337,7 +392,6 @@ def main():
     print("=" * 70)
     print("ERGEBNIS")
     print("=" * 70)
-    print(f"  Pulses gescannt:        {len(pulses):,}")
     print(f"  Raw IPv4 aus OTX:       {raw_ip_count:,}")
     print(f"  Nach Validierung:       {len(valid_ips):,}")
     print(f"  Wirklich NEUE IPs:      {len(new_ips):,}")
@@ -379,10 +433,9 @@ def main():
 
     # Sample der neuen IPs (Debugging)
     if new_ips:
-        print("  Sample (erste 10 neue IPs + Pulse-Kontext):")
+        print("  Sample (erste 10 neue IPs):")
         for ip in sorted(new_ips)[:10]:
-            pulse_info = ip_to_pulses[ip][0]
-            print(f"    {ip:<16} <- {pulse_info[0][:50]} ({pulse_info[2]})")
+            print(f"    {ip}")
         print()
 
     # Optional: Ergebnis als JSON fuer weitere Analyse
@@ -391,18 +444,18 @@ def main():
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "config": {
             "days_back": DAYS_BACK,
-            "max_pulses": MAX_PULSES,
+            "max_indicators": max_indicators,
             "max_api_requests": MAX_API_REQUESTS,
+            "endpoint": "/api/v1/indicators/export?types=IPv4",
         },
         "results": {
-            "pulses_scanned": len(pulses),
-            "pulses_with_ipv4": pulses_with_ipv4,
             "raw_ipv4_count": raw_ip_count,
             "valid_after_filter": len(valid_ips),
             "skipped_invalid": skipped_invalid,
             "skipped_whitelist": skipped_whitelist,
             "skipped_fp": skipped_fp,
             "overlap_with_existing": len(overlap_ips),
+            "overlap_percent": round(overlap_pct, 2),
             "new_ips": len(new_ips),
             "api_requests_used": client.request_count,
         },
