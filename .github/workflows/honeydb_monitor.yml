@@ -187,9 +187,49 @@ jobs:
           # ── 2) Bad Hosts nach Dienst ──────────────────────────────────────
           # Jeder Dienst = 1 API-Request. Bei 1500/Monat und täglichem Lauf
           # (30 Tage) bleiben 1500/30 = 50 Requests/Tag verfügbar.
-          # 1 (bad-hosts-all) + 4 Dienste + 1 sensor-count + bis zu 5 sensor-pages + 1 services
-          # = max. 12 Requests/Tag → gut innerhalb des Limits.
-          SERVICES = ["SSH", "HTTP", "TELNET", "FTP"]
+          # 1 (services) + 1 (bad-hosts-all) + N (Dienste) (+ optional Sensor)
+          # Bei N≈10–15 Diensten = max. ~17 Requests/Tag → komfortabel im Limit.
+          #
+          # Service-Liste wird DYNAMISCH aus /services gezogen, damit wir keine
+          # Namen raten (404-Risiko) und nur HoneyDB-aktive Dienste abfragen.
+          #
+          # FP-Block-Liste (case-insensitive): Diese Dienste werden BEWUSST
+          # ausgeschlossen, weil legitimer Traffic gegen unbekannte Hosts
+          # auf diesen Ports nennenswert vorkommt:
+          #   SMTP → Mailserver-zu-Mailserver-Probes (SPF/DKIM, Spam-Filter,
+          #          Backscatter, Mailing-List-Software)
+          #   DNS  → legitime Recursion-Probes von DNS-Resolvern
+          #   NTP  → legitime Time-Pollers (pool.ntp.org-Teilnehmer pollen
+          #          weltweit gegen unbekannte Hosts)
+          #   IMAP/POP3/HTTPS → ähnliche Mail-/Web-Client-Risiken
+          FP_BLOCK_SERVICES = {"SMTP", "DNS", "NTP", "IMAP", "POP3", "HTTPS"}
+          FALLBACK_SERVICES = ["SSH", "HTTP", "TELNET", "FTP"]
+
+          # /services zuerst holen → liefert aktuell aktive Services
+          print(f"\n[2a/5] Services-Liste abrufen...")
+          svc_data = api_get("/services", "services")
+
+          def _extract_service_name(entry):
+              """Defensiv: Service-Name aus Eintrag extrahieren."""
+              if isinstance(entry, str):
+                  return entry
+              if isinstance(entry, dict):
+                  for key in ("service", "name", "service_name"):
+                      v = entry.get(key)
+                      if isinstance(v, str) and v:
+                          return v
+              return None
+
+          SERVICES = []
+          if svc_data and isinstance(svc_data, list):
+              for entry in svc_data:
+                  name = _extract_service_name(entry)
+                  if name and name.upper() not in {s.upper() for s in FP_BLOCK_SERVICES}:
+                      SERVICES.append(name)
+              print(f"  → {len(svc_data)} Services gemeldet, {len(SERVICES)} nach FP-Filter")
+          if not SERVICES:
+              print(f"  WARNUNG: /services lieferte nichts Brauchbares – Fallback-Liste")
+              SERVICES = FALLBACK_SERVICES[:]
           print(f"\n[2/5] Bad Hosts nach Dienst ({', '.join(SERVICES)})...")
           service_stats = {}
           for svc in SERVICES:
@@ -205,15 +245,25 @@ jobs:
                   stats[f"Bad Hosts – {svc}"] = 0
 
           # ── 3) Sensor Event Data – gestern (letzter vollständiger Tag) ────
-          # Liefert max. 1000 Records pro Call → Paging über from_id nötig.
-          # Wir holen nur gestern um das Request-Limit nicht zu sprengen.
-          yesterday     = (now - timedelta(days=1)).strftime("%Y-%m-%d")
-          sensor_ips    = set()
-          sensor_total  = 0   # Gesamt-Events (inkl. Duplikate) für Report-Transparenz
-          print(f"\n[3/5] Sensor Event Data – {yesterday} (mit Paging)...")
+          # WICHTIG: /sensor-data/{date} liefert NUR Events deiner eigenen
+          # honeydb-agent-Sensoren zurück (laut HoneyDB-Doku: "all of YOUR
+          # sensor event data"). Ohne eigene Sensoren ist count immer 0.
+          # Default: skip → spart 1 Request/Tag (count-Call).
+          # Wer eigene Sensoren betreibt: HONEYDB_OWN_SENSORS=true setzen.
+          OWN_SENSORS    = os.environ.get("HONEYDB_OWN_SENSORS", "false").lower() == "true"
+          yesterday      = (now - timedelta(days=1)).strftime("%Y-%m-%d")
+          sensor_ips     = set()
+          sensor_total   = 0   # Gesamt-Events (inkl. Duplikate) für Report-Transparenz
+          sensor_skipped = not OWN_SENSORS
 
-          # Zuerst Count abrufen (1 Request)
-          count_data = api_get(f"/sensor-data/{yesterday}/count", f"sensor-data/{yesterday}/count")
+          if sensor_skipped:
+              print(f"\n[3/5] Sensor Event Data – übersprungen (HONEYDB_OWN_SENSORS != true)")
+              print(f"  Endpunkt liefert nur eigene Sensor-Events; ohne eigene Agents immer 0.")
+          else:
+              print(f"\n[3/5] Sensor Event Data – {yesterday} (mit Paging)...")
+
+          # Zuerst Count abrufen (1 Request) – nur wenn eigene Sensoren konfiguriert
+          count_data = api_get(f"/sensor-data/{yesterday}/count", f"sensor-data/{yesterday}/count") if not sensor_skipped else None
           if count_data and isinstance(count_data, dict):
               total_events = count_data.get("count", 0)
               print(f"  Gesamt Events am {yesterday}: {total_events}")
@@ -259,23 +309,23 @@ jobs:
                   if not isinstance(next_from_id, int):
                       break   # Unerwarteter Typ → sicher abbrechen
                   from_id = next_from_id
-          else:
+          elif not sensor_skipped:
               print(f"  Sensor-Count für {yesterday} nicht verfügbar")
 
           all_ips.update(sensor_ips)
-          stats[f"Sensor Events – {yesterday} (bis 5000)"] = len(sensor_ips)
-          stats[f"Sensor Events – {yesterday} (gesamt, m. Duplikaten)"] = sensor_total
-          print(f"  → {len(sensor_ips)} einzigartige Sensor-IPs ({sensor_total} Events gesamt)")
+          if not sensor_skipped:
+              stats[f"Sensor Events – {yesterday} (bis 5000)"] = len(sensor_ips)
+              stats[f"Sensor Events – {yesterday} (gesamt, m. Duplikaten)"] = sensor_total
+              print(f"  → {len(sensor_ips)} einzigartige Sensor-IPs ({sensor_total} Events gesamt)")
 
           # ── 4) Services (aktive Dienste, letzte 24h) ──────────────────────
           # Liefert Übersicht welche Dienste aktiv angegriffen werden.
-          # Keine IPs, nur Statistik → für den Report nützlich.
+          # Wiederverwendung von svc_data aus Schritt [2a/5] – kein neuer Request.
           print(f"\n[4/5] Services (aktive Dienste, letzte 24h)...")
-          svc_data = api_get("/services", "services")
           top_services = []
           if svc_data and isinstance(svc_data, list):
-              top_services = sorted(svc_data, key=lambda x: x.get("count", 0), reverse=True)[:10]
-              print(f"  → {len(svc_data)} aktive Dienste")
+              top_services = sorted(svc_data, key=lambda x: x.get("count", 0) if isinstance(x, dict) else 0, reverse=True)[:10]
+              print(f"  → {len(svc_data)} aktive Dienste (aus Schritt [2a/5] übernommen)")
           else:
               print("  → Keine Dienst-Daten verfügbar")
 
