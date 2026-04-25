@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-25 14:07 UTC
+**Aktualisiert:** 2026-04-25 19:52 UTC
 
 **Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
@@ -23,7 +23,7 @@
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `geo_tagger.yml` | ✅ OK | 0 | 0 | `45 7 * * 0` |
-| `honeydb_monitor.yml` | ✅ OK | 0 | 0 | `15 22 * * *` |
+| `honeydb_monitor.yml` | ✅ OK | 0 | 0 | `15 22 * * *`, `15 4,10,16 * * *` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 */6 * * *` |
 | `netshield_report_generator.yml` | ✅ OK | 0 | 0 | `30 * * * *` |
 | `run_tests.yml` | ✅ OK | 0 | 0 | – |
@@ -35,4 +35,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-25 14:07 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-04-25 19:52 UTC | 19 Workflow-Dateien geprüft*
