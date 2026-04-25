@@ -70,8 +70,14 @@ class OTXClient:
         self.max_requests = max_requests
         self.request_count = 0
 
-    def _get(self, path, params=None):
-        """GET-Request mit API-Key Header. Throttled (max_requests Limit)."""
+    def _get(self, path, params=None, timeout=120, max_retries=4):
+        """
+        GET-Request mit API-Key Header. Throttled (max_requests Limit).
+
+        Retries mit exponentiellem Backoff bei TimeoutError und 5xx-Antworten.
+        OTX kann auf der ersten Seite mit modified_since-Filter > 60s brauchen
+        wenn der Account viele Pulses abonniert hat -> default timeout 120s.
+        """
         if self.request_count >= self.max_requests:
             raise RuntimeError(
                 f"API-Request-Limit erreicht ({self.max_requests}). "
@@ -86,21 +92,60 @@ class OTXClient:
             "X-OTX-API-KEY": self.api_key,
             "User-Agent": USER_AGENT,
             "Accept": "application/json",
+            "Accept-Encoding": "gzip",  # OTX antwortet groesser-werdend, gzip hilft
         })
 
         self.request_count += 1
-        try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                return json.loads(resp.read())
-        except urllib.error.HTTPError as e:
-            if e.code == 401 or e.code == 403:
+        last_err = None
+        for attempt in range(1, max_retries + 1):
+            try:
+                with urllib.request.urlopen(req, timeout=timeout) as resp:
+                    raw = resp.read()
+                    # gzip-decode falls noetig
+                    if resp.headers.get("Content-Encoding") == "gzip":
+                        import gzip
+                        raw = gzip.decompress(raw)
+                    return json.loads(raw)
+            except urllib.error.HTTPError as e:
+                # 4xx: kein Retry
+                if e.code in (401, 403):
+                    raise RuntimeError(
+                        f"OTX API Auth-Fehler ({e.code}). "
+                        f"Pruefe OTX_API_KEY (https://otx.alienvault.com/api)."
+                    )
+                if e.code == 429:
+                    raise RuntimeError("OTX API Rate-Limit (429). Spaeter erneut versuchen.")
+                # 5xx: retry
+                if 500 <= e.code < 600 and attempt < max_retries:
+                    wait = 2 ** attempt
+                    print(
+                        f"    OTX HTTP {e.code} (Versuch {attempt}/{max_retries}), "
+                        f"warte {wait}s ...",
+                        flush=True,
+                    )
+                    last_err = e
+                    time.sleep(wait)
+                    continue
+                raise RuntimeError(f"OTX API HTTP {e.code}: {e.reason}")
+            except (TimeoutError, urllib.error.URLError, ConnectionError) as e:
+                # Netzwerk/Timeout: retry mit exponentiellem Backoff
+                if attempt < max_retries:
+                    wait = 2 ** attempt
+                    print(
+                        f"    Netzwerkfehler '{type(e).__name__}: {e}' "
+                        f"(Versuch {attempt}/{max_retries}), warte {wait}s ...",
+                        flush=True,
+                    )
+                    last_err = e
+                    time.sleep(wait)
+                    continue
                 raise RuntimeError(
-                    f"OTX API Auth-Fehler ({e.code}). "
-                    f"Pruefe OTX_API_KEY (https://otx.alienvault.com/api)."
+                    f"OTX API nicht erreichbar nach {max_retries} Versuchen: "
+                    f"{type(e).__name__}: {e}"
                 )
-            if e.code == 429:
-                raise RuntimeError("OTX API Rate-Limit (429). Spaeter erneut versuchen.")
-            raise RuntimeError(f"OTX API HTTP {e.code}: {e.reason}")
+
+        # Sollte nie erreicht werden
+        raise RuntimeError(f"OTX API Fehler nach Retries: {last_err}")
 
     def get_subscribed_pulses(self, modified_since=None, max_pulses=500):
         """
@@ -112,7 +157,9 @@ class OTXClient:
         """
         pulses = []
         page = 1
-        params = {"limit": 50, "page": page}
+        # limit=20 statt 50: kleinere Antworten -> stabiler bei vielen
+        # subscribed Pulses + Indicators. Mehr Pages, aber weniger Timeouts.
+        params = {"limit": 20, "page": page}
         if modified_since:
             params["modified_since"] = modified_since.strftime(
                 "%Y-%m-%dT%H:%M:%S+00:00"
