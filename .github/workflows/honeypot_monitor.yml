@@ -152,6 +152,15 @@ jobs:
           #   IPv4-Format, eigene Telemetrie → validiert bestehende Feeds. ip_all
           #   und ip_5 bewusst NICHT geladen: beide sind Teil-/Obermengen von
           #   ip_2 und würden den Quell-Count pro IP künstlich verdoppeln.
+          # - crash0v3r1de_mikrotik ergänzt (April 2026): Mikrotik-Bruteforce-
+          #   Honeypot von Crash0v3r1de (GitHub). Eigenständige Telemetrie eines
+          #   Single-Operators, fokussiert auf Mikrotik-spezifische Angriffe
+          #   (Winbox, API, SSH). Plaintext IPv4, ein Eintrag pro Zeile, 286+
+          #   Commits → aktiv. Repo hat 0 Stars, also Vorsicht: Ausfallrisiko
+          #   höher als bei etablierten Quellen. Bei <50 IPs oder Repo-404
+          #   wieder entfernen. Mehrwert: spezifische Mikrotik-Bruteforce-
+          #   Telemetrie, die in den großen Aggregatoren (ipsum/firehol)
+          #   meist mit Verzögerung auftaucht.
           #
           # Aktuelle Quellen (alle auf bewährten Repos/Diensten):
           # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
@@ -164,6 +173,7 @@ jobs:
           # - stratosphere_aip: CTU Prag IoT-Honeypot, Prioritize_New (emerging Attacker)
           # - stratosphere_aip_alpha7: CTU Prag IoT-Honeypot, 7-Tage-Fenster
           # - honeysec_ip2: UCM Trnava Honeypot-Netzwerk, ≥2 Login-Versuche
+          # - crash0v3r1de_mikrotik: Mikrotik-Bruteforce-Honeypot (Single-Operator)
           # ══════════════════════════════════════════════════════════════════
 
           # FIX SIZE: Separate fetch-Funktion mit explizitem Size-Limit fuer
@@ -263,6 +273,17 @@ jobs:
               # Teil-/Obermengen von ip_2 → dreifacher Quell-Count pro IP.
               "honeysec_ip2":
                   "https://honeysec.eu/lists/raw/ip_2",
+
+              # Mikrotik-Bruteforce-Honeypot von Crash0v3r1de (GitHub).
+              # Plaintext IPv4-Liste (ein Eintrag pro Zeile), gespeist aus dem
+              # eigenen Honeypot-System des Betreibers, fokussiert auf Mikrotik-
+              # spezifische Bruteforce-Angriffe (Winbox/8291, API/8728, SSH).
+              # Aktiv (286+ Commits), aber Single-Operator-Repo mit 0 Stars →
+              # erhöhtes Ausfallrisiko. Bei Repo-404 oder <50 geparsten IPs
+              # entfernen. Ergänzt die generischen SSH/Web-Honeypots um
+              # Mikrotik-spezifische Telemetrie.
+              "crash0v3r1de_mikrotik":
+                  "https://raw.githubusercontent.com/Crash0v3r1de/HoneypotIPLists/main/ip.list",
 
               # SniffCat: Community-Honeypot-DB von Sefinek (sniffcat.com).
               # Eigenständige Plattform (NICHT identisch mit sefinek_malicious in
