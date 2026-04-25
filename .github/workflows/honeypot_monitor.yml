@@ -270,10 +270,12 @@ jobs:
               # hier ist die Community-DB mit User-Reports + WAF/T-Pot/UFW-Reporter).
               # Auth via X-Secret-Token (GitHub-Secret SNIFFCAT_TOKEN). Fehlt der
               # Token, wird der Feed automatisch geskippt (siehe AUTH_HEADERS).
-              # confidenceMin=75 = HQ-Schwelle (30-100 erlaubt). type=txt (default)
-              # liefert plain IPv4 eine pro Zeile. limit=100000 = Maximum.
+              # confidenceMin=30 = Minimum-Schwelle (30-100 erlaubt). NETSHIELD-
+              # eigenes Score-System filtert FPs durch Cross-Validation mit
+              # anderen Quellen ohnehin nach. type=txt (default) liefert plain
+              # IPv4 eine pro Zeile. limit=100000 = Maximum.
               "sniffcat":
-                  "https://api.sniffcat.com/api/v1/blacklist?confidenceMin=75&ipVersion=4&limit=100000",
+                  "https://api.sniffcat.com/api/v1/blacklist?confidenceMin=30&ipVersion=4&limit=100000",
           }
 
           # Auth-pflichtige Feeds: name -> dict mit HTTP-Headern.
