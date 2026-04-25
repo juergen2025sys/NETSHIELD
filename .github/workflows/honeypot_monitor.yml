@@ -32,6 +32,8 @@ jobs:
           persist-credentials: true
 
       - name: Fetch Honeypot IPs
+        env:
+          SNIFFCAT_TOKEN: ${{ secrets.SNIFFCAT_TOKEN }}
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -86,13 +88,18 @@ jobs:
 
           # is_in_fp_set() → importiert aus netshield_common
           # parse_entries() → importiert aus netshield_common
-          def fetch(url, timeout=30, retries=3):
+          def fetch(url, timeout=30, retries=3, headers=None):
               # FIX RETRY4: Retry-Logik ergänzt (war: nur 1 Versuch, kein Backoff).
               # Bei transientem Netzwerkfehler fiel ein kompletter Feed weg.
               # Jetzt: bis zu 3 Versuche mit exponentiellem Backoff (2s, 4s).
+              # FIX AUTH: optionaler headers-Param fuer API-Feeds (z.B. SniffCat
+              # mit X-Secret-Token). Default-User-Agent bleibt erhalten.
+              req_hdrs = {"User-Agent": "NETSHIELD-HoneypotMonitor/1.0"}
+              if headers:
+                  req_hdrs.update(headers)
               for attempt in range(1, retries + 1):
                   try:
-                      req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor/1.0"})
+                      req = urllib.request.Request(url, headers=req_hdrs)
                       with urllib.request.urlopen(req, timeout=timeout) as r:
                           return r.read().decode("utf-8", errors="ignore")
                   except urllib.error.HTTPError as e:
@@ -256,13 +263,42 @@ jobs:
               # Teil-/Obermengen von ip_2 → dreifacher Quell-Count pro IP.
               "honeysec_ip2":
                   "https://honeysec.eu/lists/raw/ip_2",
+
+              # SniffCat: Community-Honeypot-DB von Sefinek (sniffcat.com).
+              # Eigenständige Plattform (NICHT identisch mit sefinek_malicious in
+              # combined SOURCES – das ist Sefiniks privater Honeypot-Output, dies
+              # hier ist die Community-DB mit User-Reports + WAF/T-Pot/UFW-Reporter).
+              # Auth via X-Secret-Token (GitHub-Secret SNIFFCAT_TOKEN). Fehlt der
+              # Token, wird der Feed automatisch geskippt (siehe AUTH_HEADERS).
+              # confidenceMin=75 = HQ-Schwelle (30-100 erlaubt). type=txt (default)
+              # liefert plain IPv4 eine pro Zeile. limit=100000 = Maximum.
+              "sniffcat":
+                  "https://api.sniffcat.com/api/v1/blacklist?confidenceMin=75&ipVersion=4&limit=100000",
+          }
+
+          # Auth-pflichtige Feeds: name -> dict mit HTTP-Headern.
+          # Fehlt ein Wert (Secret nicht gesetzt), wird der Feed in der Schleife
+          # uebersprungen statt 401 zu erzeugen.
+          AUTH_HEADERS = {
+              "sniffcat": {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN", "")},
           }
 
           all_ips = set()
           stats   = {}
 
           for name, url in HONEYPOT_SOURCES.items():
-              text = fetch_large(url) if name in LARGE_SOURCES else fetch(url)
+              # FIX AUTH: Auth-pflichtige Feeds ohne gueltigen Token ueberspringen.
+              auth = AUTH_HEADERS.get(name)
+              if auth is not None and not all(auth.values()):
+                  missing = [k for k, v in auth.items() if not v]
+                  print(f"  SKIP {name}: Auth-Header fehlt ({', '.join(missing)}) – "
+                        f"GitHub-Secret nicht gesetzt")
+                  stats[name] = 0
+                  continue
+              if name in LARGE_SOURCES:
+                  text = fetch_large(url)
+              else:
+                  text = fetch(url, headers=auth)
               if text:
                   # FIX BUG-WL7: use_protected_check=True → Whitelist-IPs
                   # werden bereits beim Parsen herausgefiltert.
