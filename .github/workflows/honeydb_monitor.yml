@@ -2,11 +2,20 @@ name: HoneyDB Monitor
 
 on:
   schedule:
-    - cron: '15 22 * * *'   # täglich 22:15 UTC (nach Combined 21:00; vor Honeypot Monitor 23:00 und Combined 00:00)
+    # Voll-Lauf: 22:15 UTC – /services + /bad-hosts + alle Service-Endpunkte (~34 Req)
+    # Liegt nach Combined 21:00, vor Honeypot Monitor 23:00 und Combined 00:00.
+    - cron: '15 22 * * *'
+    # Light-Läufe alle 6h: 04:15, 10:15, 16:15 UTC – nur /bad-hosts (1 Req)
+    # Holen frische 24h-Snapshots der All-Liste, mergen mit existing.
+    # Total: 34 + 3 = 37 Requests/Tag = 1110/Monat (Limit 1500/Monat).
+    - cron: '15 4,10,16 * * *'
   workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # Schedule durchreichen, damit der Python-Block Voll- vs. Light-Lauf unterscheidet.
+  # Bei workflow_dispatch ist der String leer → Default Voll-Lauf.
+  GITHUB_SCHEDULE: ${{ github.event.schedule }}
 
 permissions:
   contents: write
@@ -66,6 +75,16 @@ jobs:
           now     = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
           today   = now.strftime("%Y-%m-%d")
+
+          # Voll- vs. Light-Lauf unterscheiden anhand des Cron-Schedules.
+          # Voll-Lauf (22:15): /services + /bad-hosts + alle Service-Endpunkte
+          # Light-Lauf (04:15/10:15/16:15): nur /bad-hosts, merged mit existing
+          # workflow_dispatch / leerer Schedule → immer Voll-Lauf
+          FULL_RUN_SCHEDULE = "15 22 * * *"
+          SCHEDULE          = os.environ.get("GITHUB_SCHEDULE", "")
+          LIGHT_RUN         = bool(SCHEDULE) and SCHEDULE != FULL_RUN_SCHEDULE
+          run_mode_label    = "LIGHT" if LIGHT_RUN else "VOLL"
+          print(f"Run-Modus: {run_mode_label} (schedule={SCHEDULE or 'manual/dispatch'})")
 
           API_ID  = os.environ.get("HONEYDB_API_ID",  "")
           API_KEY = os.environ.get("HONEYDB_API_KEY", "")
@@ -185,10 +204,10 @@ jobs:
               stats["Bad Hosts (24h, alle Dienste)"] = 0
 
           # ── 2) Bad Hosts nach Dienst ──────────────────────────────────────
-          # Jeder Dienst = 1 API-Request. Bei 1500/Monat und täglichem Lauf
-          # (30 Tage) bleiben 1500/30 = 50 Requests/Tag verfügbar.
-          # 1 (services) + 1 (bad-hosts-all) + N (Dienste) (+ optional Sensor)
-          # Bei N≈10–15 Diensten = max. ~17 Requests/Tag → komfortabel im Limit.
+          # Request-Budget bei 4 Läufen/Tag (1 Voll + 3 Light):
+          #   Voll-Lauf  (22:15): 1 (services) + 1 (bad-hosts) + N (Service-Endpunkte) ≈ 34 Req
+          #   Light-Lauf (3×):    1 (bad-hosts) je Lauf = 3 Req
+          #   Summe: ~37 Req/Tag = ~1110/Monat (Limit 1500/Monat).
           #
           # Service-Liste wird DYNAMISCH aus /services gezogen, damit wir keine
           # Namen raten (404-Risiko) und nur HoneyDB-aktive Dienste abfragen.
@@ -205,44 +224,53 @@ jobs:
           FP_BLOCK_SERVICES = {"SMTP", "DNS", "NTP", "IMAP", "POP3", "HTTPS"}
           FALLBACK_SERVICES = ["SSH", "HTTP", "TELNET", "FTP"]
 
-          # /services zuerst holen → liefert aktuell aktive Services
-          print(f"\n[2a/5] Services-Liste abrufen...")
-          svc_data = api_get("/services", "services")
+          # /services + alle Service-spezifischen Endpunkte – nur im Voll-Lauf
+          # Bei LIGHT_RUN: skip → spart ~33 Requests, hält Tageslimit ein
+          if LIGHT_RUN:
+              svc_data      = None
+              SERVICES      = []
+              service_stats = {}
+              print(f"\n[2a/5] Services-Liste – LIGHT_RUN, übersprungen")
+              print(f"[2/5]  Bad Hosts nach Dienst – LIGHT_RUN, übersprungen")
+          else:
+              # /services zuerst holen → liefert aktuell aktive Services
+              print(f"\n[2a/5] Services-Liste abrufen...")
+              svc_data = api_get("/services", "services")
 
-          def _extract_service_name(entry):
-              """Defensiv: Service-Name aus Eintrag extrahieren."""
-              if isinstance(entry, str):
-                  return entry
-              if isinstance(entry, dict):
-                  for key in ("service", "name", "service_name"):
-                      v = entry.get(key)
-                      if isinstance(v, str) and v:
-                          return v
-              return None
+              def _extract_service_name(entry):
+                  """Defensiv: Service-Name aus Eintrag extrahieren."""
+                  if isinstance(entry, str):
+                      return entry
+                  if isinstance(entry, dict):
+                      for key in ("service", "name", "service_name"):
+                          v = entry.get(key)
+                          if isinstance(v, str) and v:
+                              return v
+                  return None
 
-          SERVICES = []
-          if svc_data and isinstance(svc_data, list):
-              for entry in svc_data:
-                  name = _extract_service_name(entry)
-                  if name and name.upper() not in {s.upper() for s in FP_BLOCK_SERVICES}:
-                      SERVICES.append(name)
-              print(f"  → {len(svc_data)} Services gemeldet, {len(SERVICES)} nach FP-Filter")
-          if not SERVICES:
-              print(f"  WARNUNG: /services lieferte nichts Brauchbares – Fallback-Liste")
-              SERVICES = FALLBACK_SERVICES[:]
-          print(f"\n[2/5] Bad Hosts nach Dienst ({', '.join(SERVICES)})...")
-          service_stats = {}
-          for svc in SERVICES:
-              data = api_get(f"/bad-hosts/{svc}", f"bad-hosts/{svc}")
-              if data:
-                  ips = extract_ips_from_list(data)
-                  all_ips.update(ips)
-                  service_stats[svc] = len(ips)
-                  stats[f"Bad Hosts – {svc}"] = len(ips)
-                  print(f"  → {svc}: {len(ips)} IPs")
-              else:
-                  service_stats[svc] = 0
-                  stats[f"Bad Hosts – {svc}"] = 0
+              SERVICES = []
+              if svc_data and isinstance(svc_data, list):
+                  for entry in svc_data:
+                      name = _extract_service_name(entry)
+                      if name and name.upper() not in {s.upper() for s in FP_BLOCK_SERVICES}:
+                          SERVICES.append(name)
+                  print(f"  → {len(svc_data)} Services gemeldet, {len(SERVICES)} nach FP-Filter")
+              if not SERVICES:
+                  print(f"  WARNUNG: /services lieferte nichts Brauchbares – Fallback-Liste")
+                  SERVICES = FALLBACK_SERVICES[:]
+              print(f"\n[2/5] Bad Hosts nach Dienst ({', '.join(SERVICES)})...")
+              service_stats = {}
+              for svc in SERVICES:
+                  data = api_get(f"/bad-hosts/{svc}", f"bad-hosts/{svc}")
+                  if data:
+                      ips = extract_ips_from_list(data)
+                      all_ips.update(ips)
+                      service_stats[svc] = len(ips)
+                      stats[f"Bad Hosts – {svc}"] = len(ips)
+                      print(f"  → {svc}: {len(ips)} IPs")
+                  else:
+                      service_stats[svc] = 0
+                      stats[f"Bad Hosts – {svc}"] = 0
 
           # ── 3) Sensor Event Data – gestern (letzter vollständiger Tag) ────
           # WICHTIG: /sensor-data/{date} liefert NUR Events deiner eigenen
@@ -363,6 +391,25 @@ jobs:
               all_ips -= wl_removed
               print(f"Whitelist-Filter: {len(wl_removed)} IPs entfernt")
 
+          # LIGHT_RUN: existing dazu mergen, damit Datei zwischen Voll-Läufen nicht
+          # schrumpft. Die Service-IPs aus dem letzten Voll-Lauf bleiben erhalten,
+          # die /bad-hosts-IPs aus diesem Light-Lauf werden ergänzt.
+          # WICHTIG: existing nochmal durch FP/WL-Filter, falls sich die Listen
+          # zwischenzeitlich geändert haben (sonst bleiben FPs hängen).
+          if LIGHT_RUN and existing:
+              existing_clean = {
+                  ip for ip in existing
+                  if is_valid_ipv4(ip)
+                  and not is_private(ip)
+                  and not is_in_fp_set(ip)
+                  and not is_whitelisted(ip)
+              }
+              before_merge = len(all_ips)
+              all_ips |= existing_clean
+              dropped = len(existing) - len(existing_clean)
+              print(f"LIGHT_RUN-Merge: +{len(all_ips) - before_merge} IPs aus existing übernommen "
+                    f"({dropped} aus existing gefiltert)")
+
           # Delta NACH allen Filtern berechnen → korrekte Report-Statistik
           new_ips     = all_ips - existing
           removed_ips = existing - all_ips
@@ -372,6 +419,8 @@ jobs:
           lines = []
           lines.append("# HoneyDB Monitor – Report")
           lines.append(f"**Aktualisiert:** {now_str}  ")
+          lines.append(f"**Modus:** `{run_mode_label}` "
+                       f"({'nur /bad-hosts, merged mit existing' if LIGHT_RUN else 'voll: /services + /bad-hosts + alle Service-Endpunkte'})  ")
           lines.append(f"**Quelle:** [honeydb.io](https://honeydb.io) – Community Honeypot Network\n")
           lines.append("---")
           lines.append("## Endpunkte & Ergebnisse\n")
