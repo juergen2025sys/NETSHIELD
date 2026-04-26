@@ -228,6 +228,62 @@ jobs:
                   print(f"FP-Timing-Gap-Filter: {len(_fp_cidr_hits)} IPs aus combined_ips entfernt")
           print(f"Combined Blacklist nach FP-Filter: {len(combined_ips)} IPs")
 
+          # ── Whitelist-Defense-in-Depth-Filter ─────────────────────────────
+          # FIX BUG-WL1-PROPAGATION: combined_threat_blacklist_ipv4.txt wird
+          # zwar im Upstream gefiltert, aber wenn der Upstream-Filter ausfällt
+          # (z.B. BUG-WL1: load_whitelist() im Job-Step vergessen → is_whitelisted
+          # liefert False → Filter wirkungslos), propagiert der Leak in die
+          # Confidence-Blacklist OHNE dass dieser Workflow ihn bemerkt.
+          # Genau das ist am 2026-04-26 08:37 UTC passiert: alle drei Output-
+          # Dateien (combined, active, confidence40) enthielten dieselben
+          # whitelisted Google-/Microsoft-IPs.
+          # Lösung: Eigenständiger Whitelist-Filter via Merge+Bisect, identisch
+          # zum FP-Timing-Gap-Filter darüber. Performance: O(N × log K) – bei
+          # 4,5M IPs gegen ~437 gemergte Whitelist-Intervalle <1s. Defense-in-
+          # Depth ist hier den Kosten wert.
+          if protected_networks:
+              import bisect as _bisect2
+              _wl_intervals_raw = sorted(
+                  (int(n.network_address), int(n.broadcast_address))
+                  for n in protected_networks
+              )
+              _wl_intervals = []
+              for _lo, _hi in _wl_intervals_raw:
+                  if _wl_intervals and _lo <= _wl_intervals[-1][1] + 1:
+                      _wl_intervals[-1] = (_wl_intervals[-1][0], max(_wl_intervals[-1][1], _hi))
+                  else:
+                      _wl_intervals.append((_lo, _hi))
+              _wl_starts = [iv[0] for iv in _wl_intervals]
+              _wl_hits = set()
+              for _ip in combined_ips:
+                  try:
+                      if "/" in _ip:
+                          _net = ipaddress.ip_network(_ip, strict=False)
+                          _lo = int(_net.network_address)
+                          _hi = int(_net.broadcast_address)
+                      else:
+                          _lo = _hi = int(ipaddress.ip_address(_ip))
+                      _pos = _bisect2.bisect_right(_wl_starts, _hi) - 1
+                      if _pos >= 0 and _wl_intervals[_pos][1] >= _lo:
+                          _wl_hits.add(_ip)
+                  except Exception:
+                      pass
+              if _wl_hits:
+                  combined_ips -= _wl_hits
+                  # Lautes Logging: Wenn dieser Filter zuschlägt, liegt
+                  # upstream ein BUG-WL1-artiges Problem vor – das soll im
+                  # Workflow-Log auffallen, auch wenn die Filterung selbst
+                  # erfolgreich greift.
+                  _sample = sorted(_wl_hits)[:5]
+                  print(f"::warning file=update_confidence_blacklist.yml::"
+                        f"Whitelist-Leak im Upstream erkannt und gefiltert: "
+                        f"{len(_wl_hits)} IPs (Beispiele: {', '.join(_sample)}). "
+                        f"BUG-WL1-Klasse – Combined-Blacklist-Generator prüfen.")
+                  print(f"Whitelist-Defense-in-Depth: {len(_wl_hits)} IPs aus combined_ips entfernt")
+              else:
+                  print(f"Whitelist-Defense-in-Depth: 0 Treffer (Upstream sauber)")
+          print(f"Combined Blacklist nach Whitelist-Filter: {len(combined_ips)} IPs")
+
           # ══════════════════════════════════════════════════════════════════
           # KONFIDENZ-MODELL
           #
