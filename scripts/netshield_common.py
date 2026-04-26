@@ -74,6 +74,32 @@ _whitelist_networks = []
 # Check fällt komplett aus.
 _protected_networks = list(_RESERVED_NETS)
 
+# FIX BUG-WL1-HARDENING: Loaded-Flag verhindert Fail-Open.
+# Hintergrund: BUG-WL1 (08:37 UTC, 2026-04-26) entstand weil ein Job-Step
+# is_whitelisted() aufrief OHNE vorher load_whitelist() ausgeführt zu haben.
+# _whitelist_networks war leer, is_whitelisted() lieferte für jede IP False,
+# und 8+ Google-/Microsoft-Service-IPs (52.123.128.14, 142.250.154.94, …)
+# landeten in den ausgelieferten Blacklists. Symptom: Filterung wirkungslos,
+# Diagnose erst durch workflow_health_checker im Nachhinein.
+# Lösung: Statt Fail-Open (False = nicht-whitelisted = wird publiziert) jetzt
+# Fail-Closed (RuntimeError, Workflow stirbt laut beim ersten Aufruf).
+_whitelist_loaded = False
+
+
+class WhitelistNotLoadedError(RuntimeError):
+    """Wird geworfen wenn is_whitelisted() oder is_protected_entry() aufgerufen
+    werden, bevor load_whitelist() lief. Verhindert das Fail-Open-Muster aus
+    BUG-WL1."""
+    pass
+
+
+def _reset_whitelist_for_testing():
+    """Setzt den Whitelist-State zurück. NUR für Tests."""
+    global _whitelist_networks, _protected_networks, _whitelist_loaded
+    _whitelist_networks = []
+    _protected_networks = list(_RESERVED_NETS)
+    _whitelist_loaded = False
+
 
 def load_whitelist(path=".github/workflows/whitelist.json", min_entries=50):
     """Lädt whitelist.json und baut Netzwerk-Listen.
@@ -84,7 +110,7 @@ def load_whitelist(path=".github/workflows/whitelist.json", min_entries=50):
     Raises:
         SystemExit: Wenn Datei nicht ladbar oder zu wenig Einträge.
     """
-    global _whitelist_networks, _protected_networks
+    global _whitelist_networks, _protected_networks, _whitelist_loaded
     try:
         with open(path, encoding="utf-8") as f:
             entries = json.load(f)["entries"]
@@ -110,13 +136,29 @@ def load_whitelist(path=".github/workflows/whitelist.json", min_entries=50):
     # liess z.B. 169.0.0.0/8 durch (ueberlappt 169.254/16). Jetzt ueber die
     # unifizierte _RESERVED_NETS-Liste konsistent mit is_valid_public_cidr.
     _protected_networks = list(_whitelist_networks) + list(_RESERVED_NETS)
+    # FIX BUG-WL1-HARDENING: Erst nach erfolgreichem Aufbau auf True setzen,
+    # damit ein halb-fertiger State von is_whitelisted() noch als "nicht geladen"
+    # erkannt wird.
+    _whitelist_loaded = True
 
     print(f"whitelist.json geladen: {len(_whitelist_networks)} Einträge")
     return _whitelist_networks
 
 
 def is_whitelisted(ip_str):
-    """True wenn IP in einer der Whitelist-Ranges liegt."""
+    """True wenn IP in einer der Whitelist-Ranges liegt.
+
+    FIX BUG-WL1-HARDENING: Raised WhitelistNotLoadedError wenn vor dem ersten
+    Aufruf kein load_whitelist() erfolgte. Verhindert das Fail-Open-Muster aus
+    BUG-WL1, wo eine leere _whitelist_networks-Liste dazu führte, dass jede IP
+    als "nicht whitelisted" galt und whitelisted Service-IPs publiziert wurden.
+    """
+    if not _whitelist_loaded:
+        raise WhitelistNotLoadedError(
+            "is_whitelisted() vor load_whitelist() aufgerufen. "
+            "Jeder Workflow muss load_whitelist() früh im Init-Step aufrufen, "
+            "bevor IPs gefiltert werden."
+        )
     try:
         addr = ipaddress.ip_address(ip_str.split('/')[0])
         return any(addr in net for net in _whitelist_networks)
@@ -129,7 +171,19 @@ def is_protected_entry(value):
 
     Prüft: Whitelist, RFC1918, Loopback, Multicast, Reserved, Link-Local,
     Unspecified, IPv6, zu große CIDRs (< /8).
+
+    FIX BUG-WL1-HARDENING: Raised WhitelistNotLoadedError wenn die Whitelist
+    nicht geladen wurde. Ohne die Whitelist würde diese Funktion zwar noch
+    RFC1918/Reserved-Ranges abfangen (wegen _RESERVED_NETS-Init in Zeile 75),
+    aber die explizit konfigurierten Service-IPs (Google/AWS/Cloudflare-Ranges)
+    nicht – was genau der Leak-Vektor von BUG-WL1 war.
     """
+    if not _whitelist_loaded:
+        raise WhitelistNotLoadedError(
+            "is_protected_entry() vor load_whitelist() aufgerufen. "
+            "Jeder Workflow muss load_whitelist() früh im Init-Step aufrufen, "
+            "bevor IPs gefiltert werden."
+        )
     try:
         candidate = value.strip()
         if not candidate:
