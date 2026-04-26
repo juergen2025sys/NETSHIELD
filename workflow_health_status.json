@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-26 12:12 UTC",
+  "updated": "2026-04-26 14:09 UTC",
   "total": 19,
   "ok": 18,
   "warn": 1,
@@ -17,7 +17,7 @@
     "active_blacklist_ipv4.txt": 2283814,
     "blacklist_confidence40_ipv4.txt": 3650907,
     "cve_exploit_ips.txt": 53869,
-    "honeypot_ips.txt": 103144,
+    "honeypot_ips.txt": 103264,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
