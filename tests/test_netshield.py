@@ -1004,7 +1004,11 @@ class TestIsWhitelisted(unittest.TestCase):
 
     def test_invalid_ip_returns_false(self):
         """Bei ungültigem Input soll die Funktion False zurückgeben,
-        nicht crashen."""
+        nicht crashen.
+        FIX BUG-WL1-HARDENING: Test ruft jetzt explizit load_whitelist() auf,
+        weil is_whitelisted() ohne Load mit WhitelistNotLoadedError raised
+        (siehe TestWhitelistFailClosed)."""
+        load_whitelist()
         self.assertFalse(is_whitelisted("garbage"))
         self.assertFalse(is_whitelisted(""))
 
@@ -1019,6 +1023,82 @@ class TestIsWhitelisted(unittest.TestCase):
         """1.1.1.1 (Cloudflare DNS) muss in der Whitelist stehen."""
         load_whitelist()
         self.assertTrue(is_whitelisted("1.1.1.1"))
+
+
+# ═══════════════════════════════════════════════════════════════
+# Regression: BUG-WL1 (08:37 UTC, 2026-04-26)
+# ═══════════════════════════════════════════════════════════════
+
+class TestWhitelistFailClosed(unittest.TestCase):
+    """Regressions-Tests für BUG-WL1.
+
+    Hintergrund: Am 2026-04-26 um 08:37 UTC hat workflow_health_checker einen
+    Whitelist-Leak in allen drei Output-Dateien (combined, active, conf40)
+    gemeldet. Ursache: Der zweite Job-Step in update_combined_blacklist.yml
+    rief is_whitelisted() auf, OHNE vorher load_whitelist() ausgeführt zu
+    haben. _whitelist_networks war leer, jede IP galt als nicht-whitelisted,
+    und 8 Google-/Microsoft-Service-IPs landeten in den ausgelieferten
+    Blacklists. Symptom: stiller Fail-Open über mehrere Stunden.
+
+    Diese Tests stellen sicher, dass der gleiche Bug zukünftig laut scheitert
+    statt stillschweigend zu leaken.
+    """
+
+    def setUp(self):
+        # Whitelist-State explizit zurücksetzen, damit jeder Test mit dem
+        # exakten Vor-Load-Zustand startet (nicht abhängig von vorherigen Tests)
+        netshield_common._reset_whitelist_for_testing()
+
+    def tearDown(self):
+        # Sauber für nachfolgende Tests, die load_whitelist() voraussetzen
+        netshield_common._reset_whitelist_for_testing()
+
+    def test_is_whitelisted_raises_before_load(self):
+        """is_whitelisted() muss raisen wenn load_whitelist() nie lief.
+        Verhindert Fail-Open-Muster aus BUG-WL1."""
+        with self.assertRaises(netshield_common.WhitelistNotLoadedError):
+            is_whitelisted("8.8.8.8")
+
+    def test_is_protected_entry_raises_before_load(self):
+        """is_protected_entry() muss ebenfalls raisen vor load_whitelist().
+        Sonst würde es zwar noch RFC1918 abfangen, aber die explizit
+        konfigurierten Service-IPs (BUG-WL1-Vektor) durchlassen."""
+        with self.assertRaises(netshield_common.WhitelistNotLoadedError):
+            is_protected_entry("142.250.154.94")
+        with self.assertRaises(netshield_common.WhitelistNotLoadedError):
+            is_protected_entry("8.8.8.0/24")
+
+    def test_works_after_load(self):
+        """Nach load_whitelist() funktionieren beide Funktionen normal."""
+        load_whitelist()
+        # Sollte jetzt nicht mehr raisen
+        self.assertIsInstance(is_whitelisted("8.8.8.8"), bool)
+        self.assertIsInstance(is_protected_entry("8.8.8.8"), bool)
+
+    def test_leaked_ips_from_0837_incident_are_whitelisted(self):
+        """Die 8 IPs, die am 2026-04-26 08:37 UTC im Workflow-Health-Report
+        als Whitelist-Leak erschienen, müssen alle in der Whitelist stehen.
+        Wenn dieser Test jemals fehlschlägt, wurde whitelist.json kaputt
+        editiert oder eine SSOT-Quelle hat sich verschoben."""
+        load_whitelist()
+        leaked_ips_from_incident = [
+            "52.123.128.14",     # Microsoft-Service-Range
+            "142.250.154.94",    # Google
+            "142.250.154.95",    # Google
+            "142.251.14.95",     # Google
+            "142.251.20.95",     # Google
+            "142.251.110.94",    # Google
+            "142.251.127.84",    # Google
+            "142.251.151.119",   # Google
+        ]
+        for ip in leaked_ips_from_incident:
+            with self.subTest(ip=ip):
+                self.assertTrue(
+                    is_whitelisted(ip),
+                    f"{ip} muss whitelisted sein (BUG-WL1 Regression). "
+                    f"Wenn fehlend: whitelist.json prüfen, evtl. "
+                    f"versehentlich entfernt."
+                )
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -1071,6 +1151,12 @@ class TestBugCgnat1Regression(unittest.TestCase):
     _RESERVED_NETS. Ohne Fix gelangten CGNAT-IPs aus naiven Upstream-Feeds
     auf die Blacklist und konnten legitime ISP-Kunden treffen.
     """
+
+    def setUp(self):
+        # FIX BUG-WL1-HARDENING: parse_entries(use_protected_check=True) ruft
+        # is_protected_entry() auf, das jetzt fail-closed ist und ohne geladene
+        # Whitelist raised. Daher muss load_whitelist() im setUp laufen.
+        load_whitelist()
 
     def test_cgnat_start_rejected(self):
         self.assertFalse(is_valid_public_ipv4("100.64.0.0"),
@@ -1127,6 +1213,11 @@ class TestBugPriv2Regression(unittest.TestCase):
     is_protected_entry und konnte via parse_entries(use_protected_check=True)
     auf die Blacklist geraten.
     """
+
+    def setUp(self):
+        # FIX BUG-WL1-HARDENING: is_protected_entry() ist jetzt fail-closed
+        # und raised ohne geladene Whitelist.
+        load_whitelist()
 
     def test_169_slash_8_rejected(self):
         """169.0.0.0/8 ueberlappt 169.254/16 (link-local) → muss abgelehnt werden."""
