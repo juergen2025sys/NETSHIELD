@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-26 04:30 UTC
+**Aktualisiert:** 2026-04-26 08:37 UTC
 
 **Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
 
@@ -8,15 +8,19 @@
 
 | Datei | Check | Detail |
 |---|---|---|
-| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 171,555 → 102,783 (-40%) – starker Rückgang seit letztem Check |
+| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 52.123.128.14, 142.250.154.94, 142.250.154.95, 142.251.14.95, 142.251.20.95… – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 142.250.154.94, 142.251.14.95, 142.251.20.95, 142.251.110.94, 142.251.127.84… – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 142.250.154.94, 142.251.110.94, 142.251.127.84, 142.251.14.95, 142.251.151.119… – Filterung wirkungslos! |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 3 CRITICAL | 🟡 0 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Drift: honeypot_ips.txt | honeypot_ips.txt: 171,555 → 102,783 (-40%) – starker Rückgang seit letztem Check |
+| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 52.123.128.14, 142.250.154.94, 142.250.154.95, 142.251.14.95, 142.251.20.95… – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 142.250.154.94, 142.251.14.95, 142.251.20.95, 142.251.110.94, 142.251.127.84… – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 142.250.154.94, 142.251.110.94, 142.251.127.84, 142.251.14.95, 142.251.151.119… – Filterung wirkungslos! |
 
 ## Übersicht
 
@@ -43,4 +47,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-26 04:30 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-04-26 08:37 UTC | 19 Workflow-Dateien geprüft*
