@@ -1,23 +1,17 @@
 {
-  "updated": "2026-04-26 14:09 UTC",
+  "updated": "2026-04-26 19:53 UTC",
   "total": 19,
-  "ok": 18,
-  "warn": 1,
+  "ok": 19,
+  "warn": 0,
   "error": 0,
   "errors": [],
-  "warnings": [
-    {
-      "file": "update_confidence_blacklist.yml",
-      "check": "Doppelter Import",
-      "detail": "Block 0: Doppelte Imports: bisect(2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
-    }
-  ],
+  "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4649990,
-    "active_blacklist_ipv4.txt": 2283814,
-    "blacklist_confidence40_ipv4.txt": 3650907,
+    "combined_threat_blacklist_ipv4.txt": 4656879,
+    "active_blacklist_ipv4.txt": 2287960,
+    "blacklist_confidence40_ipv4.txt": 3657393,
     "cve_exploit_ips.txt": 53869,
-    "honeypot_ips.txt": 103264,
+    "honeypot_ips.txt": 148144,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {

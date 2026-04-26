@@ -1,15 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-04-26 14:09 UTC
+**Aktualisiert:** 2026-04-26 19:53 UTC
 
-**Workflows:** 19 | ✅ 18 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
+**Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
-## ⚠️ Warnungen
-
-| Datei | Check | Detail |
-|---|---|---|
-| `update_confidence_blacklist.yml` | Doppelter Import | Block 0: Doppelte Imports: bisect(2x) – moeglicherweise Copy-Paste-Artefakt |
-
 ## 🏥 Production Health
 
 **Status:** 🔴 0 CRITICAL | 🟡 0 WARN
@@ -37,8 +31,8 @@
 | `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 1 * * 1`, `30 1 * * 3` |
 | `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
 | `update_combined_blacklist.yml` | ✅ OK | 0 | 0 | `0 */3 * * *` |
-| `update_confidence_blacklist.yml` | ⚠️ | 0 | 1 | `45 0 * * *`, `45 3 * * *`, `45 6 * * *`, `45 9 * * *`, `45 12 * * *`, `45 15 * * *`, `45 18 * * *`, `45 21 * * *` |
+| `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | `45 0 * * *`, `45 3 * * *`, `45 6 * * *`, `45 9 * * *`, `45 12 * * *`, `45 15 * * *`, `45 18 * * *`, `45 21 * * *` |
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-04-26 14:09 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-04-26 19:53 UTC | 19 Workflow-Dateien geprüft*
