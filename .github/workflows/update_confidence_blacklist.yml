@@ -74,7 +74,7 @@ jobs:
           load_whitelist()
           load_fp_set()
 
-          import json, os, sys, ipaddress
+          import json, os, sys, ipaddress, bisect
           from datetime import datetime, timezone, timedelta
 
           now     = datetime.now(timezone.utc)
@@ -194,7 +194,6 @@ jobs:
           if _fp_ips:
               combined_ips -= _fp_ips
           if _fp_networks:
-              import bisect as _bisect
               _intervals_raw = sorted(
                   (int(n.network_address), int(n.broadcast_address))
                   for n in _fp_networks
@@ -218,7 +217,7 @@ jobs:
                           _hi = int(_net.broadcast_address)
                       else:
                           _lo = _hi = int(ipaddress.ip_address(_ip))
-                      _pos = _bisect.bisect_right(_starts, _hi) - 1
+                      _pos = bisect.bisect_right(_starts, _hi) - 1
                       if _pos >= 0 and _intervals[_pos][1] >= _lo:
                           _fp_cidr_hits.add(_ip)
                   except Exception:
@@ -242,7 +241,6 @@ jobs:
           # 4,5M IPs gegen ~437 gemergte Whitelist-Intervalle <1s. Defense-in-
           # Depth ist hier den Kosten wert.
           if protected_networks:
-              import bisect as _bisect2
               _wl_intervals_raw = sorted(
                   (int(n.network_address), int(n.broadcast_address))
                   for n in protected_networks
@@ -263,7 +261,7 @@ jobs:
                           _hi = int(_net.broadcast_address)
                       else:
                           _lo = _hi = int(ipaddress.ip_address(_ip))
-                      _pos = _bisect2.bisect_right(_wl_starts, _hi) - 1
+                      _pos = bisect.bisect_right(_wl_starts, _hi) - 1
                       if _pos >= 0 and _wl_intervals[_pos][1] >= _lo:
                           _wl_hits.add(_ip)
                   except Exception:
