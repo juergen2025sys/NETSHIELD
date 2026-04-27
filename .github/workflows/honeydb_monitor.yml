@@ -2,12 +2,13 @@ name: HoneyDB Monitor
 
 on:
   schedule:
-    # Voll-Lauf: 22:15 UTC – /services + /bad-hosts + alle Service-Endpunkte (~34 Req)
+    # Voll-Lauf: 22:15 UTC – /services + /bad-hosts + /twitter-threat-feed +
+    # alle Service-Endpunkte (~35 Req)
     # Liegt nach Combined 21:00, vor Honeypot Monitor 23:00 und Combined 00:00.
     - cron: '15 22 * * *'
     # Light-Läufe alle 6h: 04:15, 10:15, 16:15 UTC – nur /bad-hosts (1 Req)
     # Holen frische 24h-Snapshots der All-Liste, mergen mit existing.
-    # Total: 34 + 3 = 37 Requests/Tag = 1110/Monat (Limit 1500/Monat).
+    # Total: 35 + 3 = 38 Requests/Tag = 1140/Monat (Limit 1500/Monat).
     - cron: '15 4,10,16 * * *'
   workflow_dispatch:
 
@@ -77,7 +78,7 @@ jobs:
           today   = now.strftime("%Y-%m-%d")
 
           # Voll- vs. Light-Lauf unterscheiden anhand des Cron-Schedules.
-          # Voll-Lauf (22:15): /services + /bad-hosts + alle Service-Endpunkte
+          # Voll-Lauf (22:15): /services + /bad-hosts + /twitter-threat-feed + alle Service-Endpunkte
           # Light-Lauf (04:15/10:15/16:15): nur /bad-hosts, merged mit existing
           # workflow_dispatch / leerer Schedule → immer Voll-Lauf
           FULL_RUN_SCHEDULE = "15 22 * * *"
@@ -193,7 +194,7 @@ jobs:
           stats   = {}
 
           # ── 1) Bad Hosts – alle (letzte 24h) ─────────────────────────────
-          print("\n[1/5] Bad Hosts (alle, letzte 24h)...")
+          print("\n[1/6] Bad Hosts (alle, letzte 24h)...")
           data = api_get("/bad-hosts", "bad-hosts")
           if data:
               ips = extract_ips_from_list(data)
@@ -203,11 +204,35 @@ jobs:
           else:
               stats["Bad Hosts (24h, alle Dienste)"] = 0
 
-          # ── 2) Bad Hosts nach Dienst ──────────────────────────────────────
+          # ── 2) Twitter Threat Feed (aggregiert, letzte 24h) ──────────────
+          # Twitter Threat Feed liefert Bad-Hosts aus den Honeypots, die auf
+          # der HoneyDB-eigenen Twitter-Threat-Info-Liste teilnehmen. Das ist
+          # eine ANDERE Honeypot-Population als /bad-hosts (HoneyDB-Sensoren)
+          # → liefert mit hoher Wahrscheinlichkeit zusätzliche IPs, die nicht
+          # in /bad-hosts auftauchen. Response-Format identisch (remote_host,
+          # count, last_seen) → extract_ips_from_list() funktioniert direkt.
+          # Nur im Voll-Lauf abrufen (1 Req/Tag); im Light-Lauf überspringen.
+          if LIGHT_RUN:
+              twitter_ips = set()
+              print(f"\n[2/6] Twitter Threat Feed – LIGHT_RUN, übersprungen")
+              stats["Twitter Threat Feed (24h)"] = 0
+          else:
+              print("\n[2/6] Twitter Threat Feed (aggregiert, letzte 24h)...")
+              tw_data = api_get("/twitter-threat-feed", "twitter-threat-feed")
+              if tw_data:
+                  twitter_ips = extract_ips_from_list(tw_data)
+                  all_ips.update(twitter_ips)
+                  stats["Twitter Threat Feed (24h)"] = len(twitter_ips)
+                  print(f"  → {len(twitter_ips)} IPs")
+              else:
+                  twitter_ips = set()
+                  stats["Twitter Threat Feed (24h)"] = 0
+
+          # ── 3) Bad Hosts nach Dienst ──────────────────────────────────────
           # Request-Budget bei 4 Läufen/Tag (1 Voll + 3 Light):
-          #   Voll-Lauf  (22:15): 1 (services) + 1 (bad-hosts) + N (Service-Endpunkte) ≈ 34 Req
+          #   Voll-Lauf  (22:15): 1 (services) + 1 (bad-hosts) + 1 (twitter) + N (Service-Endpunkte) ≈ 35 Req
           #   Light-Lauf (3×):    1 (bad-hosts) je Lauf = 3 Req
-          #   Summe: ~37 Req/Tag = ~1110/Monat (Limit 1500/Monat).
+          #   Summe: ~38 Req/Tag = ~1140/Monat (Limit 1500/Monat).
           #
           # Service-Liste wird DYNAMISCH aus /services gezogen, damit wir keine
           # Namen raten (404-Risiko) und nur HoneyDB-aktive Dienste abfragen.
@@ -230,11 +255,11 @@ jobs:
               svc_data      = None
               SERVICES      = []
               service_stats = {}
-              print(f"\n[2a/5] Services-Liste – LIGHT_RUN, übersprungen")
-              print(f"[2/5]  Bad Hosts nach Dienst – LIGHT_RUN, übersprungen")
+              print(f"\n[3a/6] Services-Liste – LIGHT_RUN, übersprungen")
+              print(f"[3/6]  Bad Hosts nach Dienst – LIGHT_RUN, übersprungen")
           else:
               # /services zuerst holen → liefert aktuell aktive Services
-              print(f"\n[2a/5] Services-Liste abrufen...")
+              print(f"\n[3a/6] Services-Liste abrufen...")
               svc_data = api_get("/services", "services")
 
               def _extract_service_name(entry):
@@ -258,7 +283,7 @@ jobs:
               if not SERVICES:
                   print(f"  WARNUNG: /services lieferte nichts Brauchbares – Fallback-Liste")
                   SERVICES = FALLBACK_SERVICES[:]
-              print(f"\n[2/5] Bad Hosts nach Dienst ({', '.join(SERVICES)})...")
+              print(f"\n[3/6] Bad Hosts nach Dienst ({', '.join(SERVICES)})...")
               service_stats = {}
               for svc in SERVICES:
                   data = api_get(f"/bad-hosts/{svc}", f"bad-hosts/{svc}")
@@ -272,7 +297,7 @@ jobs:
                       service_stats[svc] = 0
                       stats[f"Bad Hosts – {svc}"] = 0
 
-          # ── 3) Sensor Event Data – gestern (letzter vollständiger Tag) ────
+          # ── 4) Sensor Event Data – gestern (letzter vollständiger Tag) ────
           # WICHTIG: /sensor-data/{date} liefert NUR Events deiner eigenen
           # honeydb-agent-Sensoren zurück (laut HoneyDB-Doku: "all of YOUR
           # sensor event data"). Ohne eigene Sensoren ist count immer 0.
@@ -285,10 +310,10 @@ jobs:
           sensor_skipped = not OWN_SENSORS
 
           if sensor_skipped:
-              print(f"\n[3/5] Sensor Event Data – übersprungen (HONEYDB_OWN_SENSORS != true)")
+              print(f"\n[4/6] Sensor Event Data – übersprungen (HONEYDB_OWN_SENSORS != true)")
               print(f"  Endpunkt liefert nur eigene Sensor-Events; ohne eigene Agents immer 0.")
           else:
-              print(f"\n[3/5] Sensor Event Data – {yesterday} (mit Paging)...")
+              print(f"\n[4/6] Sensor Event Data – {yesterday} (mit Paging)...")
 
           # Zuerst Count abrufen (1 Request) – nur wenn eigene Sensoren konfiguriert
           count_data = api_get(f"/sensor-data/{yesterday}/count", f"sensor-data/{yesterday}/count") if not sensor_skipped else None
@@ -346,19 +371,19 @@ jobs:
               stats[f"Sensor Events – {yesterday} (gesamt, m. Duplikaten)"] = sensor_total
               print(f"  → {len(sensor_ips)} einzigartige Sensor-IPs ({sensor_total} Events gesamt)")
 
-          # ── 4) Services (aktive Dienste, letzte 24h) ──────────────────────
+          # ── 5) Services (aktive Dienste, letzte 24h) ──────────────────────
           # Liefert Übersicht welche Dienste aktiv angegriffen werden.
-          # Wiederverwendung von svc_data aus Schritt [2a/5] – kein neuer Request.
-          print(f"\n[4/5] Services (aktive Dienste, letzte 24h)...")
+          # Wiederverwendung von svc_data aus Schritt [3a/6] – kein neuer Request.
+          print(f"\n[5/6] Services (aktive Dienste, letzte 24h)...")
           top_services = []
           if svc_data and isinstance(svc_data, list):
               top_services = sorted(svc_data, key=lambda x: x.get("count", 0) if isinstance(x, dict) else 0, reverse=True)[:10]
-              print(f"  → {len(svc_data)} aktive Dienste (aus Schritt [2a/5] übernommen)")
+              print(f"  → {len(svc_data)} aktive Dienste (aus Schritt [3a/6] übernommen)")
           else:
               print("  → Keine Dienst-Daten verfügbar")
 
-          # ── 5) Zusammenfassung ────────────────────────────────────────────
-          print(f"\n[5/5] Zusammenfassung...")
+          # ── 6) Zusammenfassung ────────────────────────────────────────────
+          print(f"\n[6/6] Zusammenfassung...")
           print(f"  Gesamt einzigartige IPs: {len(all_ips)}")
           print(f"  API Requests verbraucht: {requests_used}")
 
@@ -420,7 +445,7 @@ jobs:
           lines.append("# HoneyDB Monitor – Report")
           lines.append(f"**Aktualisiert:** {now_str}  ")
           lines.append(f"**Modus:** `{run_mode_label}` "
-                       f"({'nur /bad-hosts, merged mit existing' if LIGHT_RUN else 'voll: /services + /bad-hosts + alle Service-Endpunkte'})  ")
+                       f"({'nur /bad-hosts, merged mit existing' if LIGHT_RUN else 'voll: /services + /bad-hosts + /twitter-threat-feed + alle Service-Endpunkte'})  ")
           lines.append(f"**Quelle:** [honeydb.io](https://honeydb.io) – Community Honeypot Network\n")
           lines.append("---")
           lines.append("## Endpunkte & Ergebnisse\n")
