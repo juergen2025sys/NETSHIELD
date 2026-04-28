@@ -2,7 +2,12 @@ name: Honeypot Monitor
 
 on:
   schedule:
-    - cron: '0 */6 * * *'   # alle 6h (00:00, 06:00, 12:00, 18:00 UTC)
+    - cron: '30 */6 * * *'   # FIX BUG-4: 00:30, 06:30, 12:30, 18:30 UTC.
+                             # Vorher '0 */6' kollidierte exakt mit
+                             # update_combined_blacklist.yml '0 */3' bei 00/06/12/18 UTC.
+                             # Combined las dann honeypot_ips.txt aus dem Checkout
+                             # (Stand vom vorherigen Lauf, bis zu 6h alt).
+                             # 30min nach voll → naechstes Combined 03:00 → 150min Puffer.
   workflow_dispatch:
 
 env:

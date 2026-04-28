@@ -170,7 +170,12 @@ jobs:
                   last_seen  = safe_get_date(data, "last")
                   first_seen = safe_get_date(data, "first", last_seen)
                   is_hq      = data.get("hq", False)
-                  days_seen  = data.get("days_seen", 0)  # Anzahl Tage mit echter Bestätigung
+                  days_seen  = data.get("days_seen", 1)  # Anzahl Tage mit echter Bestätigung
+                  # FIX BUG-1: Default 1 (vorher 0). update_combined_blacklist.yml:1351
+                  # und update_confidence_blacklist.yml:360 verwenden default 1.
+                  # Mit default 0 wurden dieselben IPs hier mit score_c=0, dort
+                  # mit score_c=2 gewertet → Reports und Blacklist widersprachen
+                  # sich um 2 Punkte fuer Eintraege ohne days_seen-Feld.
                   try:
                       last_dt  = datetime.strptime(last_seen,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
                       first_dt = datetime.strptime(first_seen, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -207,7 +212,16 @@ jobs:
                       today_count=today_count,
                       feed_count=feed_count,
                       days_since_last=days_ago,
-                      days_seen=max(1, days_seen) if days_seen > 0 else max(1, (last_dt - first_dt).days + 1),
+                      # FIX BUG-3: Dead-Code-Fallback entfernt.
+                      # Vorher: max(1, days_seen) if days_seen > 0 else max(1, (last_dt - first_dt).days + 1)
+                      # Der else-Zweig wurde nie erreicht (Watchlist-IPs mit
+                      # days_seen=0 sind durch den last="2000-01-01"-Guard oben
+                      # bereits ausgeschlossen) und haette bei Datenkorruption
+                      # (fehlender days_seen-Key, last/first real) Score-Inflation
+                      # erzeugt: (last_dt - first_dt).days koennte Monate sein.
+                      # Mit Bug-1-Fix (default=1) ist der Wert ohnehin >=1, daher
+                      # reicht max(1, days_seen).
+                      days_seen=max(1, days_seen),
                       days_known=(now - first_dt).days + 1,
                   )
                   score_dist[(score // 10) * 10] += 1

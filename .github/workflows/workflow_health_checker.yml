@@ -359,7 +359,13 @@ jobs:
                   continue
               bad_pairs = []
               for _s in src_minutes:
-                  later = [_d for _d in dst_minutes if _d > _s]
+                  # FIX BUG-5: >= statt >, gleiches Pattern wie unten in der
+                  # _dependency_chain-Schleife. Der separate Cron-Kollisions-Check
+                  # (Z. ~331) sieht nur exakt gleiche Cron-Strings als Kollision —
+                  # '0 */6' und '0 */3' sind aber unterschiedliche Strings, die
+                  # sich an Minute 0/360/720/1080 ueberlappen. Ohne >= wuerde
+                  # diese Schleife solche Δ=0-Kollisionen ebenfalls verfehlen.
+                  later = [_d for _d in dst_minutes if _d >= _s]
                   if later:
                       _next = later[0]
                       if (_next - _s) < _min_gap:
@@ -1774,7 +1780,14 @@ jobs:
               # mindestens _DEP_MIN_GAP Minuten spaeter (am selben Tag)?
               _dep_bad = []
               for _s in _src_mins:
-                  _later = [_d for _d in _dst_mins if _d > _s]
+                  # FIX BUG-5: >= statt >, sonst werden gleichzeitige Combined-Läufe
+                  # übersprungen und der Checker meldet faelschlich OK (sieht den
+                  # naechsten Combined 3h spaeter als "valid 180min Puffer"). Δ=0
+                  # ist eine echte Kollision: Combined liest die Sub-Workflow-Files
+                  # aus dem Checkout, also den Stand vom vorherigen Lauf (bis zu
+                  # 6h alt bei honeypot). Mit >= wird gap=0 < _DEP_MIN_GAP korrekt
+                  # als Warnung gemeldet.
+                  _later = [_d for _d in _dst_mins if _d >= _s]
                   if not _later:
                       # Sub-Workflow laueft nach dem letzten Combined des Tages.
                       # Combined laueft aber auch frueher (*/3h), daher kein harter Fehler –

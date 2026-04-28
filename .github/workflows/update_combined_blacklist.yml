@@ -1533,8 +1533,12 @@ jobs:
             echo "Keine Änderungen"
           else
             git commit -m "Update Combined Blacklist: $(date -u '+%Y-%m-%d %H:%M') UTC"
-            # FIX: Unstaged Änderungen entfernen, damit git rebase nicht fehlschlägt
-            git stash --include-untracked || true
+            # FIX BUG-2: Pre-Loop-Stash entfernt. Vorher gab es zwei stashes
+            # (vor und in der Schleife). Der Pre-Loop-Stash machte den In-Loop-
+            # Stash auf der ersten Iteration zum No-Op und wurde selbst nie
+            # gepoppt → harmlos auf ephemeralem Runner, aber unbalanciert
+            # (mehr stash als pop) und verwirrend. Der In-Loop-Stash unten
+            # reicht: er klammert jeden rebase-Versuch korrekt.
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}
