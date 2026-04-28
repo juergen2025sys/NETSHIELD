@@ -191,10 +191,12 @@ jobs:
                       continue
 
                   # FIX BUG-3: first="2000-01-01" ohne last-Sentinel ist ein
-                  # Datenkorruptions-Zustand (last real, first nicht). Der days_seen-
-                  # Fallback unten würde sonst (last_dt - first_dt).days ≈ 9600 ergeben
-                  # → Score=9620 → sinnlose Zombie/Stale-Einordnung.
-                  # Diese Einträge überspringen statt mit Fantasie-Werten zu scoren.
+                  # Datenkorruptions-Zustand (last real, first nicht). Vorher
+                  # haette der days_seen-Fallback unten (jetzt entfernt)
+                  # (last_dt - first_dt).days ≈ 9600 ergeben → Score-Inflation.
+                  # Auch nach Entfernung des Fallbacks bleibt der Skip korrekt:
+                  # days_known=(now - first_dt).days + 1 würde sonst ebenfalls
+                  # den Sentinel-Drift in die Confidence-Berechnung einspeisen.
                   if first_seen == "2000-01-01":
                       continue
 
