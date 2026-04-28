@@ -1,5 +1,5 @@
 {
-  "_description": "NETSHIELD Whitelist – IPs/CIDRs die NIE auf die Blacklist kommen. 583 Eintraege. (Erweitert: +119 IPs aus C2-Log fuer Gaming/Media/AV/Spiele am 2026-04-26)",
+  "_description": "NETSHIELD Whitelist – IPs/CIDRs die NIE auf die Blacklist kommen. 585 Eintraege.",
   "entries": [
     "1.0.0.1",
     "1.0.0.2",
@@ -361,6 +361,7 @@
     "120.29.148.0/24",
     "123.35.104.34",
     "123.236.110.34",
+    "128.85.113.128/29",
     "128.251.172.9",
     "129.6.15.28",
     "129.6.15.29",
