@@ -533,16 +533,40 @@ jobs:
           }
 
           # ── seen_db laden ──────────────────────────────────────────────────
+          # FIX BUG-CACHE-RESTORE: Wenn der GitHub-Actions-Cache abgelaufen ist
+          # (7 Tage Inaktivitaet → Eviction) oder bei kaltem Repo-Klon, fehlt
+          # seen_db.json im Workspace. Vorher: db={} → komplette History
+          # (days_seen, first, hq_feed_names) verloren, Confidence-Scores
+          # fallen schlagartig auf Erstaufnahme-Werte. seen_db_backup.json.gz
+          # wurde zwar bei jedem Lauf ins Repo committet, aber nirgends
+          # zurueckgelesen – tote Backups.
+          # Jetzt: Wenn seen_db.json fehlt aber das gz-Backup im Repo liegt,
+          # daraus restoren. Nur bei nicht-leerem Backup (>=1MB pre-gz Pruefung
+          # erfolgte beim Schreiben → das gz selbst hat garantiert Inhalt).
           db = {}
+          BACKUP_FILE = "seen_db_backup.json.gz"
           if os.path.exists(DB_FILE):
               try:
                   with open(DB_FILE) as f:
                       db = json.load(f)
                   print(f"seen_db geladen: {len(db)} IPs")
-              except Exception:
+              except Exception as _load_err:
+                  print(f"WARN: seen_db.json korrupt ({_load_err}) – versuche Backup", file=sys.stderr)
                   db = {}
-          else:
-              print("Keine seen_db gefunden – starte neu.")
+          if not db and os.path.exists(BACKUP_FILE):
+              try:
+                  import gzip
+                  with gzip.open(BACKUP_FILE, "rt", encoding="utf-8") as _bf:
+                      db = json.load(_bf)
+                  print(f"seen_db aus Backup wiederhergestellt: {len(db)} IPs (Cache war leer/korrupt)")
+                  # Backup-restored db sofort als seen_db.json schreiben, damit
+                  # downstream-Steps und Cache-Save ihn finden.
+                  write_json_atomic(DB_FILE, db, separators=(",", ":"))
+              except Exception as _restore_err:
+                  print(f"WARN: Backup-Restore fehlgeschlagen ({_restore_err}) – starte neu", file=sys.stderr)
+                  db = {}
+          elif not db:
+              print("Keine seen_db gefunden, kein Backup vorhanden – starte neu.")
 
           # ── FIX #1: false_positives_set.json einlesen ─────────────────────
           # false_positive_checker schreibt diese Datei; combined liest sie hier

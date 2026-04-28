@@ -251,17 +251,36 @@ jobs:
               }
 
           # ── Schritt 1: seen_db laden ──────────────────────────────────────
+          # FIX BUG-CACHE-RESTORE: Identisch zu update_combined_blacklist.yml.
+          # Wenn der Cache abgelaufen/leer ist und auto_feed_discovery (woechentlich
+          # Sonntag) zuerst laeuft, wuerde er sonst mit db={} starten und nach
+          # dem Lauf eine fast-leere seen_db zurueck in den Cache schreiben.
+          # Combined wuerde dann beim naechsten Lauf diesen gekuerzten Cache
+          # laden → komplette History (days_seen, first, hq_feed_names) verloren.
+          # Backup-Restore aus seen_db_backup.json.gz (Repo-File) verhindert das.
           DB_FILE = "seen_db.json"
+          BACKUP_FILE = "seen_db_backup.json.gz"
           db = {}
           if os.path.exists(DB_FILE):
               try:
                   with open(DB_FILE) as f:
                       db = json.load(f)
                   print(f"seen_db geladen: {len(db)} IPs")
-              except Exception:
+              except Exception as _load_err:
+                  print(f"WARN: seen_db.json korrupt ({_load_err}) – versuche Backup", file=sys.stderr)
                   db = {}
-          else:
-              print("Keine seen_db gefunden – starte neu.")
+          if not db and os.path.exists(BACKUP_FILE):
+              try:
+                  import gzip
+                  with gzip.open(BACKUP_FILE, "rt", encoding="utf-8") as _bf:
+                      db = json.load(_bf)
+                  print(f"seen_db aus Backup wiederhergestellt: {len(db)} IPs (Cache war leer/korrupt)")
+                  write_json_atomic(DB_FILE, db, separators=(",", ":"))
+              except Exception as _restore_err:
+                  print(f"WARN: Backup-Restore fehlgeschlagen ({_restore_err}) – starte neu", file=sys.stderr)
+                  db = {}
+          elif not db:
+              print("Keine seen_db gefunden, kein Backup vorhanden – starte neu.")
 
           # ── Schritt 2: HQ-Referenz-Set laden (Overlap-Check) ─────────────
           print("\nLade HQ-Referenz-Sets für Overlap-Check...")
