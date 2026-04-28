@@ -107,28 +107,16 @@ jobs:
           print(f"whitelist.json geladen: {len(protected_networks)} Einträge")
 
           # ── FP-Set laden (Defense-in-Depth) ──────────────────────────────
-          # FIX SSOT2: false_positives_set.json laden, damit IPs die der
-          # FP-Checker als False Positives erkannt hat, auch in der Confidence-
-          # Blacklist gefiltert werden – selbst wenn combined sie noch nicht
-          # entfernt hat (Timing-Gap zwischen FP-Checker und Combined).
-          FP_SET_FILE = "false_positives_set.json"
-          _fp_ips = set()
-          _fp_networks = []
-          if os.path.exists(FP_SET_FILE):
-              try:
-                  with open(FP_SET_FILE) as _f:
-                      _fp_data = json.load(_f)
-                  for _e in _fp_data.get("ips", []):
-                      try:
-                          if "/" in _e:
-                              _fp_networks.append(ipaddress.ip_network(_e, strict=False))
-                          else:
-                              _fp_ips.add(_e)
-                      except Exception as _suppressed:
-                          print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
-                  print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs geladen")
-              except Exception as _ex:
-                  print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
+          # FIX SSOT2: false_positives_set.json wird von load_fp_set() oben
+          # bereits in die globalen Strukturen von netshield_common geladen.
+          # Hier nur Aliase auf die common-Strukturen anlegen, damit die
+          # bisherige lokale Filter-Logik unverändert weiterläuft.
+          # Frühere doppelte Lade-Logik entfernt (Single Source of Truth).
+          import netshield_common as _nc
+          _fp_ips      = _nc._fp_ips
+          _fp_networks = _nc._fp_networks
+          print(f"false_positives_set.json (via common): "
+                f"{len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs geladen")
 
           # is_in_fp_set() → importiert aus netshield_common
           # is_protected_entry() → importiert aus netshield_common
@@ -459,7 +447,20 @@ jobs:
               f"# Eintraege: {len(confidence25)}\n\n"
               + "".join(f"{ip}\n" for ip, conf in confidence25)
           )
-          write_text_atomic(OUT_WATCH, _watch_body)
+          # ── Leerungsschutz Watchlist ──────────────────────────────────────
+          # Wenn die Watchlist plötzlich leer/sehr klein ist (Score-Verteilung-
+          # Edge-Case oder Pipeline-Anomalie), bestehende Datei behalten.
+          # Schwelle bewusst niedrig: Watchlist ist informativ, gelegentliche
+          # Schwankungen sind normal – aber 0 Einträge bei vorhandener
+          # confidence40 ist verdächtig.
+          MIN_WATCH = 10
+          if len(confidence25) < MIN_WATCH and os.path.exists(OUT_WATCH):
+              _msg = (f"Nur {len(confidence25)} IPs in watchlist (< {MIN_WATCH}) – "
+                      f"behalte bestehende {OUT_WATCH} (Leerungsschutz)")
+              print(f"::warning file=update_confidence_blacklist.yml::{_msg}")
+              print(f"WARNUNG: {_msg}")
+          else:
+              write_text_atomic(OUT_WATCH, _watch_body)
 
           print(f"Fertig: {len(confidence40)} IPs (conf≥40) | {len(confidence25)} IPs (watchlist 25-39)")
           EOF

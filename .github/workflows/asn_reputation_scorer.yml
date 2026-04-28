@@ -62,7 +62,8 @@ jobs:
           now = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
 
-          CIDR_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b')
+          # CIDR_RE / IPV4_RE werden aus netshield_common importiert.
+          # Lokale \b-Variante entfernt – einheitliche strikte Regex.
 
           def fetch_raw(url, timeout=30, retries=3):
               # FIX #12: HTTP-Statuscode explizit loggen; non-200 wird als WARNUNG ausgegeben.
@@ -178,8 +179,10 @@ jobs:
                   print(f"  ET-Quelle: {et_url.split('/')[-1]}")
                   break
           et_ips = set()
-          for ip in re.findall(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b', et_text):
-              et_ips.add(ip)
+          # FIX: strikte IPV4_RE aus netshield_common nutzen statt inline
+          # \b-Regex – konsistent mit der Versions-String-Filterung.
+          for m in IPV4_RE.finditer(et_text):
+              et_ips.add(m.group(1))
           print(f"  Emerging Threats: {len(et_ips):,} IPs" if et_ips else "  Emerging Threats: FEHLER – alle Quellen nicht erreichbar")
 
           # Hilfsfunktion: Binary-Search CIDR-Check (sortierte Ranges)

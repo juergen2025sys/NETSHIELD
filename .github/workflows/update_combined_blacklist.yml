@@ -193,7 +193,9 @@ jobs:
           DB_FILE     = "seen_db.json"
           READ_LIMIT  = 25 * 1024 * 1024   # 25 MB pro Feed
 
-          IPV4_RE = re.compile(r'(?<!\d)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?!\d)')
+          # IPV4_RE wird aus netshield_common importiert; lokale Re-Definition
+          # entfernt (war ungenutzt, hätte aber bei Wiederverwendung den
+          # Versions-String-Filter umgangen).
 
           # DNS_WHITELIST entfernt – wird über whitelist.json geladen (via netshield_common)
 
@@ -593,7 +595,8 @@ jobs:
 
           # is_in_fp_set() → importiert aus netshield_common
           # is_valid_public_ipv4() → importiert aus netshield_common
-          CIDR_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b')
+          # CIDR_RE wird aus netshield_common importiert (strikte Lookbehind-
+          # Variante); lokale \b-Definition entfernt – ungenutzt und schwächer.
 
           # ── FIX PERF-COMBINED: Batch-Filter mit Binary-Search ────────────
           # is_protected_entry(), is_whitelisted(), is_in_fp_set() iterieren

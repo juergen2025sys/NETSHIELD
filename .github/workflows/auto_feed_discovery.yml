@@ -84,7 +84,10 @@ jobs:
           now_day = now.strftime("%Y-%m-%d")
 
           GH_TOKEN   = os.environ.get("GH_TOKEN", "")
-          IPV4_RE    = re.compile(r'(?<!\d)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?!\d)')
+          # IPV4_RE wird aus netshield_common importiert (strikte Variante mit
+          # Lookbehind/-ahead auf '.', filtert Versions-Strings wie '1.2.3.4.5'
+          # zuverlässig). Frühere lokale Re-Definition war eine schwächere
+          # Variante (nur \d-Lookbehind) und liess Versions-IPs durch.
           READ_LIMIT = 5 * 1024 * 1024   # 5 MB Sample pro Feed
 
           # ── Bekannte Repos – NICHT erneut aufnehmen ───────────────────────

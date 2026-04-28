@@ -64,33 +64,15 @@ jobs:
           now     = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
 
-          # FIX PERF1: Regex auf Modul-Ebene kompilieren statt bei jedem
-          # parse_entries()-Aufruf. Konsistent mit update_combined_blacklist.yml.
-          IP_RE   = re.compile(r'(?<!\d)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?!\d)')
-          CIDR_RE = re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b')
+          # IPV4_RE / CIDR_RE werden aus netshield_common importiert.
+          # FP-Set wurde bereits oben via load_fp_set() geladen –
+          # is_in_fp_set() greift auf die globalen Strukturen in common zu.
+          # Lokale Re-Definitionen waren ungenutzt und auf der schwächeren
+          # \b-Variante; entfernt um Drift mit der Single-Source-of-Truth
+          # zu vermeiden.
 
           # is_valid_public_ipv4() → importiert aus netshield_common
           # is_valid_public_cidr() → importiert aus netshield_common
-          # ── FP-Set laden (synchron mit update_combined_blacklist.yml Z.426-457) ──
-          FP_SET_FILE = "false_positives_set.json"
-          _fp_networks = []
-          _fp_ips      = set()
-          if os.path.exists(FP_SET_FILE):
-              try:
-                  with open(FP_SET_FILE) as _f:
-                      _fp_data = json.load(_f)
-                  for _e in _fp_data.get("ips", []):
-                      try:
-                          if "/" in _e:
-                              _fp_networks.append(ipaddress.ip_network(_e, strict=False))
-                          else:
-                              _fp_ips.add(_e)
-                      except Exception:
-                          pass
-                  print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs als FP geladen")
-              except Exception as _ex:
-                  print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
-
           # is_in_fp_set() → importiert aus netshield_common
           # parse_entries() → importiert aus netshield_common
           def fetch(url, timeout=30, retries=3, headers=None):

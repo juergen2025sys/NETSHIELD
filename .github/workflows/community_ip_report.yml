@@ -174,34 +174,11 @@ jobs:
           # ── FIX FP1: False-Positive-Check gegen false_positives_set.json ──
           # Verhindert dass Community-Reports bekannte legitime IPs (CDN, DNS,
           # Mail-Provider) in die seen_db eintragen.
-          FP_SET_FILE = "false_positives_set.json"
-          _fp_ips = set()
-          _fp_networks = []
-          if os.path.exists(FP_SET_FILE):
-              try:
-                  with open(FP_SET_FILE) as _f:
-                      _fp_data = json.load(_f)
-                  for _e in _fp_data.get("ips", []):
-                      try:
-                          if "/" in _e:
-                              _fp_networks.append(ipaddress.ip_network(_e, strict=False))
-                          else:
-                              _fp_ips.add(_e)
-                      except Exception as _suppressed:
-                          print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
-              except Exception as _fp_err:
-                  print(f"WARN: FP-Check nicht blockierend – übersprungen: {_fp_err}", file=sys.stderr)
+          # FP-Set wurde oben via load_fp_set() bereits in netshield_common
+          # geladen; is_in_fp_set() prüft gegen die globalen Strukturen.
+          # Frühere lokale Re-Implementierung von _is_fp() entfernt.
 
-          def _is_fp(ip_str):
-              if ip_str in _fp_ips:
-                  return True
-              try:
-                  _addr = ipaddress.ip_address(ip_str)
-                  return any(_addr in _net for _net in _fp_networks)
-              except Exception:
-                  return False
-
-          if _is_fp(ip):
+          if is_in_fp_set(ip):
               write_text_atomic(RESULT_FILE, f"INVALID_IP|{ip}|")
               print(f"IP {ip} ist auf der False-Positive-Liste – abgelehnt")
               sys.exit(0)

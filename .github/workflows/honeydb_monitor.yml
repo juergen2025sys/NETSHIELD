@@ -117,25 +117,10 @@ jobs:
               except Exception:
                   return False
 
-          # ── FP-Set laden (synchron mit update_combined_blacklist.yml Z.426-457) ──
-          FP_SET_FILE = "false_positives_set.json"
-          _fp_networks = []
-          _fp_ips      = set()
-          if os.path.exists(FP_SET_FILE):
-              try:
-                  with open(FP_SET_FILE) as _f:
-                      _fp_data = json.load(_f)
-                  for _e in _fp_data.get("ips", []):
-                      try:
-                          if "/" in _e:
-                              _fp_networks.append(ipaddress.ip_network(_e, strict=False))
-                          else:
-                              _fp_ips.add(_e)
-                      except Exception:
-                          pass
-                  print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs als FP geladen")
-              except Exception as _ex:
-                  print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
+          # FP-Set wird oben via load_fp_set() geladen – is_in_fp_set() greift
+          # auf die globalen Strukturen in netshield_common zu. Frühere lokale
+          # Re-Implementierung entfernt (war ungenutzt, _fp_ips/_fp_networks
+          # wurden nirgends gelesen).
 
           # is_in_fp_set() → importiert aus netshield_common
           # ── API-Helper ────────────────────────────────────────────────────
