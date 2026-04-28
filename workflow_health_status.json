@@ -1,22 +1,44 @@
 {
-  "updated": "2026-04-27 20:17 UTC",
+  "updated": "2026-04-28 04:44 UTC",
   "total": 19,
   "ok": 19,
-  "warn": 0,
+  "warn": 1,
   "error": 0,
   "errors": [],
-  "warnings": [],
+  "warnings": [
+    {
+      "file": "Production Health",
+      "check": "Aktualit\u00e4t: Active Blacklist (Stufe 2)",
+      "detail": "active_blacklist_ipv4.txt ist 7h alt (WARN-Schwelle: 6h)"
+    },
+    {
+      "file": "Production Health",
+      "check": "Aktualit\u00e4t: Combined Blacklist (Stufe 1)",
+      "detail": "combined_threat_blacklist_ipv4.txt ist 7h alt (WARN-Schwelle: 6h)"
+    }
+  ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4692921,
-    "active_blacklist_ipv4.txt": 2317751,
-    "blacklist_confidence40_ipv4.txt": 3691011,
+    "combined_threat_blacklist_ipv4.txt": 4697982,
+    "active_blacklist_ipv4.txt": 2323011,
+    "blacklist_confidence40_ipv4.txt": 3694596,
     "cve_exploit_ips.txt": 53891,
-    "honeypot_ips.txt": 151345,
+    "honeypot_ips.txt": 153165,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
     "critical": 0,
-    "warn": 0,
-    "checks": []
+    "warn": 2,
+    "checks": [
+      {
+        "level": "WARN",
+        "check": "Aktualit\u00e4t: Active Blacklist (Stufe 2)",
+        "detail": "active_blacklist_ipv4.txt ist 7h alt (WARN-Schwelle: 6h)"
+      },
+      {
+        "level": "WARN",
+        "check": "Aktualit\u00e4t: Combined Blacklist (Stufe 1)",
+        "detail": "combined_threat_blacklist_ipv4.txt ist 7h alt (WARN-Schwelle: 6h)"
+      }
+    ]
   }
 }
