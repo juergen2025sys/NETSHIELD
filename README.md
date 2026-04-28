@@ -40,7 +40,7 @@
 <sub>IP-Quellen<br>(dynamisch)</sub>
 </td>
 <td align="center" valign="top" width="25%">
-<h3>2,307,471</h3>
+<h3>2,308,891</h3>
 <sub>Aktive IP-Drohungen<br>(Confidence ≥65)</sub>
 </td>
 <td align="center" valign="top" width="25%">
@@ -48,7 +48,7 @@
 <sub>CVE/Exploit IPs<br>&nbsp;</sub>
 </td>
 <td align="center" valign="top" width="25%">
-<h3>153,127</h3>
+<h3>154,114</h3>
 <sub>Honeypot IPs<br>&nbsp;</sub>
 </td>
 </tr>
@@ -59,7 +59,7 @@
 <table>
 <tr>
 <td><strong>🕒 Letztes Update</strong></td>
-<td>2026-04-28 09:40 UTC</td>
+<td>2026-04-28 15:03 UTC</td>
 <td><strong>🔄 Intervall</strong></td>
 <td>8× täglich</td>
 </tr>
@@ -118,16 +118,16 @@ iptables -I INPUT -m set --match-set netshield src -j DROP
 
 | Datei | Zweck | Einträge | Empfohlen für |
 |---|---|---:|---|
-| 🛡️ [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen · letzte 30 Tage · Score ≥ 65 | **2,307,471**                                                                                                                              | OPNsense / pfSense / Firewall |
-| 🔶 [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres bis hohes Vertrauen · Score ≥ 40 | **3,703,626**                                                                                                                              | Erweiterte Filterregeln |
-| 📦 [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs · 180-Tage-Fenster | **4,705,856**                                                                                                                              | Audit / SIEM |
-| 👁️ [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist · Score 25–39 | **186,988**                                                                                                                              | Monitoring |
-| 💣 [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploits & aktive C2-Server | **53,874**                                                                                                                              | IDS / IPS |
-| 🍯 [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **153,127**                                                                                                                              | Ergänzung |
-| 🍯 [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **17,478**                                                                                                                              | Ergänzung |
-| 🤖 [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **17,949**                                                                                                                              | Web-Schutz |
-| 🔗 [`abuseipdb_api_blacklist.txt`](abuseipdb_api_blacklist.txt) | AbuseIPDB Top-IPs (API, Score ≥50) | **9,983**                                                                                                                              | Ergänzung |
-| 🌐 [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥ 50 | **19**                                                                                                                              | ASN-Blocking |
+| 🛡️ [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen · letzte 30 Tage · Score ≥ 65 | **2,308,891**                                                                                                                               | OPNsense / pfSense / Firewall |
+| 🔶 [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres bis hohes Vertrauen · Score ≥ 40 | **3,707,588**                                                                                                                               | Erweiterte Filterregeln |
+| 📦 [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs · 180-Tage-Fenster | **4,707,968**                                                                                                                               | Audit / SIEM |
+| 👁️ [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist · Score 25–39 | **186,971**                                                                                                                               | Monitoring |
+| 💣 [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploits & aktive C2-Server | **53,874**                                                                                                                               | IDS / IPS |
+| 🍯 [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **154,114**                                                                                                                               | Ergänzung |
+| 🍯 [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **17,478**                                                                                                                               | Ergänzung |
+| 🤖 [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **17,949**                                                                                                                               | Web-Schutz |
+| 🔗 [`abuseipdb_api_blacklist.txt`](abuseipdb_api_blacklist.txt) | AbuseIPDB Top-IPs (API, Score ≥50) | **9,992**                                                                                                                               | Ergänzung |
+| 🌐 [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥ 50 | **19**                                                                                                                               | ASN-Blocking |
 
 > [!NOTE]
 > **`combined_threat_blacklist_ipv4.txt`:** Wenn die Datei über 90 MB wächst, werden zusätzlich Parts `combined_threat_blacklist_ipv4_part1.txt`, `_part2.txt` (etc.) mit je ca. 40 MB erzeugt. Die Hauptdatei bleibt bestehen, solange sie unter 100 MB ist (GitHub-Limit). Firewall-Konsumenten, die am GitHub-Limit angestoßen werden, sollten stattdessen die Parts als separate URLs importieren.
