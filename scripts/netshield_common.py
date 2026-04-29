@@ -54,10 +54,14 @@ _RESERVED_NETS = [
     ipaddress.ip_network("198.18.0.0/15"),    # RFC 2544 benchmarking
 ]
 
-# Backward-compat aliases. Neuer Code soll _RESERVED_NETS verwenden.
-# Diese Namen bleiben erhalten, falls externe Scripts/Tests sie importieren.
-_RFC_PRIVATE_NETS = _RESERVED_NETS
-_PRIVATE_RANGES = _RESERVED_NETS
+# FIX ALIAS-IMMUTABLE: Backward-compat aliases als Tuple, nicht als
+# Referenz auf dasselbe Listenobjekt. Vorher waren _RFC_PRIVATE_NETS,
+# _PRIVATE_RANGES und _RESERVED_NETS dieselbe Liste – ein versehentlicher
+# .append/.extend auf einem der Aliases (z.B. in einem Test der nicht
+# resettet) haette das Source-of-Truth silent verschmutzt. Tuple wirft
+# AttributeError beim Mutationsversuch und bleibt iterierbar.
+_RFC_PRIVATE_NETS = tuple(_RESERVED_NETS)
+_PRIVATE_RANGES = tuple(_RESERVED_NETS)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -113,11 +117,25 @@ def load_whitelist(path=".github/workflows/whitelist.json", min_entries=50):
     global _whitelist_networks, _protected_networks, _whitelist_loaded
     try:
         with open(path, encoding="utf-8") as f:
-            entries = json.load(f)["entries"]
+            raw = json.load(f)
+        entries = raw["entries"]
+        # FIX BUG-WL1-STRICT: 'entries' MUSS eine Liste sein. Vorher genuegte
+        # ein String mit ausreichender Laenge dem min_entries-Check, weil
+        # len("...") >= min_entries True ergab. Die nachfolgende Iteration
+        # ueber Zeichen produzierte 0 valide Netzwerke und _whitelist_loaded
+        # wurde trotzdem auf True gesetzt → exakt der BUG-WL1 Fail-Open-
+        # Pfad, gegen den das Hardening eigentlich schuetzen sollte.
+        if not isinstance(entries, list):
+            msg = (f"whitelist.json: 'entries' ist {type(entries).__name__}, "
+                   f"erwartet list")
+            print(f"::error ::{msg}", file=sys.stderr)
+            sys.exit(1)
         if len(entries) < min_entries:
             msg = f"whitelist.json hat nur {len(entries)} Einträge (<{min_entries}) – möglicherweise korrupt"
             print(f"::error ::{msg}", file=sys.stderr)
             sys.exit(1)
+    except SystemExit:
+        raise
     except Exception as e:
         msg = f"whitelist.json nicht ladbar: {e}"
         print(f"::error ::{msg}", file=sys.stderr)
@@ -129,6 +147,17 @@ def load_whitelist(path=".github/workflows/whitelist.json", min_entries=50):
             _whitelist_networks.append(ipaddress.ip_network(entry, strict=False))
         except Exception:
             pass
+
+    # FIX BUG-WL1-STRICT: Zweite Schwelle nach der Iteration. Eine Liste
+    # mit min_entries Eintraegen die alle ungueltig sind (Schema-Drift,
+    # Tippfehler, falsche Quote-Escapes) wuerde sonst silent zu einer
+    # leeren Whitelist fuehren – wieder Fail-Open.
+    if len(_whitelist_networks) < min_entries:
+        msg = (f"whitelist.json: nur {len(_whitelist_networks)} valide Netzwerke "
+               f"aus {len(entries)} Eintraegen geparst (<{min_entries}) – "
+               f"Schema-Pruefung fehlgeschlagen")
+        print(f"::error ::{msg}", file=sys.stderr)
+        sys.exit(1)
 
     # FIX BUG-PRIV2: Protected = Whitelist + alle reservierten IPv4-Bereiche
     # (RFC1918 + Loopback + Link-Local + CGNAT + Multicast + Reserved + Doc-Ranges).
@@ -549,10 +578,17 @@ def _is_safe_public_host(hostname):
     kein Link-Local (inkl. 169.254.169.254 Cloud-Metadata), kein Loopback,
     keine Carrier-Grade NAT (100.64.0.0/10), keine Multicast/Reserved.
 
+    FIX IPV4-ONLY: NETSHIELD verwendet projektweit ausschliesslich IPv4
+    (siehe _RESERVED_NETS, parse_entries, alle Validatoren). IPv6-Records
+    eines Hosts werden uebersprungen, statt durchzulassen und spaeter in
+    _pinned_getaddrinfo silent gefiltert zu werden – das fuehrte bei
+    Hosts mit nur AAAA zu einer leeren getaddrinfo-Antwort und einem
+    schwer diagnostizierbaren gaierror beim connect().
+
     Returns:
-        list[str] | None: Liste der aufgeloesten oeffentlichen IPs bei
-        Erfolg. None wenn die Aufloesung fehlschlaegt oder eine der
-        IPs unsicher ist.
+        list[str] | None: Liste der aufgeloesten oeffentlichen IPv4-IPs bei
+        Erfolg. None wenn die Aufloesung fehlschlaegt, eine IPv4 unsicher
+        ist oder gar keine IPv4 vorliegt.
     """
     import socket
     try:
@@ -566,6 +602,10 @@ def _is_safe_public_host(hostname):
             ip = ipaddress.ip_address(addr)
         except ValueError:
             return None
+        # IPv6-Records ueberspringen, nicht ablehnen – ein Host darf
+        # zusaetzlich AAAA haben, solange mindestens ein safe-public A da ist.
+        if ip.version != 4:
+            continue
         if (ip.is_private or ip.is_loopback or ip.is_link_local
                 or ip.is_multicast or ip.is_reserved or ip.is_unspecified):
             return None
@@ -583,39 +623,54 @@ def _is_safe_public_host(hostname):
 # werden. Ein Angreifer-DNS kann nicht zwischen _validate() und
 # opener.open() auf 127.0.0.1 / 169.254.169.254 umschwenken.
 #
-# threading.local weil mehrere Threads parallel fetchen koennten
-# (ist im NETSHIELD-Code aktuell nicht genutzt, aber die Library-API
-# soll thread-safe bleiben).
+# FIX DNS-PIN-THREADSAFE: _patched und _original_getaddrinfo sind module-
+# global (vorher: threading.local). Der globale socket.getaddrinfo-Patch
+# ist prozessweit, aber bei threading.local sah jeder Thread '_patched =
+# False' und versuchte erneut zu patchen – wobei er den BEREITS gepatchten
+# getaddrinfo als '_original' speicherte. Folge: bei einem nicht-gepinnten
+# Host fiel _pinned_getaddrinfo zurueck auf '_original' = sich selbst →
+# RecursionError. Jetzt einmal pro Prozess patchen, mit Lock geschuetzt.
+# pin_map bleibt threading.local damit gleichzeitige fetch_url-Aufrufe
+# aus verschiedenen Threads sich nicht die Pins gegenseitig ueberschreiben.
 import threading as _threading
 _pin_state = _threading.local()
+_install_lock = _threading.Lock()
+_original_getaddrinfo = None  # gesetzt beim ersten _install_dns_pin()
+_patched = False
 
 
 def _install_dns_pin():
     """Aktiviert den getaddrinfo-Monkey-Patch (einmalig pro Prozess)."""
     import socket
-    if getattr(_pin_state, "_patched", False):
+    global _original_getaddrinfo, _patched
+    # Double-checked locking: erster Check ohne Lock fuer den Hot-Path
+    if _patched:
         return
-    _pin_state._original_getaddrinfo = socket.getaddrinfo
+    with _install_lock:
+        if _patched:
+            return
+        _original_getaddrinfo = socket.getaddrinfo
 
-    def _pinned_getaddrinfo(host, port, *args, **kwargs):
-        pin_map = getattr(_pin_state, "pin_map", None)
-        if pin_map and host in pin_map:
-            # Bekanntes Pin → nur validierte IPs zurueckgeben
-            ips = pin_map[host]
-            # Port-Normalisierung: getaddrinfo akzeptiert int, str, None
-            try:
-                port_int = int(port) if port is not None else 0
-            except (TypeError, ValueError):
-                port_int = 0
-            return [
-                (socket.AF_INET, socket.SOCK_STREAM, 6, "", (ip, port_int))
-                for ip in ips
-                if ":" not in ip  # nur IPv4 (IPs aus _is_safe_public_host)
-            ]
-        return _pin_state._original_getaddrinfo(host, port, *args, **kwargs)
+        def _pinned_getaddrinfo(host, port, *args, **kwargs):
+            pin_map = getattr(_pin_state, "pin_map", None)
+            if pin_map and host in pin_map:
+                # Bekanntes Pin → nur validierte IPs zurueckgeben
+                ips = pin_map[host]
+                # Port-Normalisierung: getaddrinfo akzeptiert int, str, None
+                try:
+                    port_int = int(port) if port is not None else 0
+                except (TypeError, ValueError):
+                    port_int = 0
+                return [
+                    (socket.AF_INET, socket.SOCK_STREAM, 6, "", (ip, port_int))
+                    for ip in ips
+                    if ":" not in ip  # nur IPv4 (IPs aus _is_safe_public_host)
+                ]
+            # Modul-globaler Original-Verweis – kein Self-Reference moeglich.
+            return _original_getaddrinfo(host, port, *args, **kwargs)
 
-    socket.getaddrinfo = _pinned_getaddrinfo
-    _pin_state._patched = True
+        socket.getaddrinfo = _pinned_getaddrinfo
+        _patched = True
 
 
 def _pin_host(hostname, ips):

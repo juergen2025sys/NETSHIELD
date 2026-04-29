@@ -215,11 +215,48 @@ def _line_has_allow_marker(lines, line_1indexed, end_line_1indexed=None):
     return False
 
 
+def _resolve_path_arg(arg_node, static_strings):
+    """Pfad-Resolution aus einem AST-Argument: Konstante > Name → static_strings."""
+    import ast as _ast
+    s = _extract_string_from_node(arg_node)
+    if s is not None:
+        return s
+    if isinstance(arg_node, _ast.Name):
+        return static_strings.get(arg_node.id)
+    return None
+
+
+def _resolve_pathlib_receiver(receiver, static_strings):
+    """Pfad aus pathlib-Receiver: Path("x").attr(...) oder p.attr(...).
+
+    Liefert None wenn der Pfad nicht statisch bestimmbar ist – der Aufrufer
+    meldet dann '<Variable>' wie bei builtin open(VAR, "w").
+    """
+    import ast as _ast
+    if isinstance(receiver, _ast.Call) and receiver.args:
+        # Path("foo.txt").open(...) – 1. Arg des Konstruktor-Calls ist Pfad
+        return _resolve_path_arg(receiver.args[0], static_strings)
+    if isinstance(receiver, _ast.Name):
+        # X.open(...) wo X = "foo.txt" als Modul-Konstante
+        return static_strings.get(receiver.id)
+    return None
+
+
 def _find_non_atomic_writes_in_src(source_text):
-    """Findet alle open(..., 'w'/'a'/'x')-Aufrufe per AST-Walk.
+    """Findet alle non-atomaren Write-Calls per AST-Walk.
+
+    Erkennt drei Patterns:
+        (1) builtin open(path, mode) mit Schreib-Mode
+        (2) pathlib X.open(mode) mit Schreib-Mode (FIX PATHLIB-DETECT)
+        (3) pathlib X.write_text(...) / X.write_bytes(...) (FIX PATHLIB-DETECT)
+
+    FIX PATHLIB-DETECT: Vorher wurde nur Pattern 1 erfasst
+    (isinstance(node.func, ast.Name) and node.func.id == "open"). Pathlib-
+    aequivalente Writes blieben unsichtbar, obwohl sie genauso non-atomar
+    sind (open-write-close ohne tmpfile+rename).
 
     Returns:
-        list[tuple[int, str|None, str]]: (lineno_in_source, path_str_or_None, mode)
+        list[tuple[int, str|None, str]]: (lineno, path_or_None, mode_label)
     """
     import ast as _ast
     try:
@@ -242,33 +279,57 @@ def _find_non_atomic_writes_in_src(source_text):
     for node in _ast.walk(tree):
         if not isinstance(node, _ast.Call):
             continue
-        # nur unqualifiziertes open() – os.open, io.open etc. lassen wir durch
-        if not (isinstance(node.func, _ast.Name) and node.func.id == "open"):
-            continue
-        if len(node.args) < 2:
-            continue
-        mode_arg = node.args[1]
-        if not (isinstance(mode_arg, _ast.Constant)
-                and isinstance(mode_arg.value, str)
-                and mode_arg.value in _WRITE_MODES):
+
+        path_str = None
+        mode_label = None
+
+        # Pattern 1: builtin open(path, mode)
+        if isinstance(node.func, _ast.Name) and node.func.id == "open":
+            if len(node.args) < 2:
+                continue
+            mode_arg = node.args[1]
+            if not (isinstance(mode_arg, _ast.Constant)
+                    and isinstance(mode_arg.value, str)
+                    and mode_arg.value in _WRITE_MODES):
+                continue
+            mode_label = mode_arg.value
+            path_arg = node.args[0]
+            path_str = _resolve_path_arg(path_arg, static_strings)
+
+        # Pattern 2 & 3: pathlib-style X.attr(...)
+        elif isinstance(node.func, _ast.Attribute):
+            attr = node.func.attr
+            if attr == "open":
+                # Path("x").open("w") – mode-Pruefung wie bei builtin
+                if not node.args:
+                    continue
+                mode_arg = node.args[0]
+                if not (isinstance(mode_arg, _ast.Constant)
+                        and isinstance(mode_arg.value, str)
+                        and mode_arg.value in _WRITE_MODES):
+                    continue
+                mode_label = mode_arg.value
+                path_str = _resolve_pathlib_receiver(node.func.value, static_strings)
+            elif attr in ("write_text", "write_bytes"):
+                # Path.write_text(...) ist immer non-atomar (single
+                # open-write-close). Kein Mode-Arg, label aus dem Methodennamen.
+                mode_label = "w" if attr == "write_text" else "wb"
+                path_str = _resolve_pathlib_receiver(node.func.value, static_strings)
+            else:
+                continue
+        else:
             continue
 
-        # Allow-Marker-Check im Quelltext
-        # FIX MULTILINE-MARKER: end_lineno mit uebergeben fuer multi-line open()
+        # Allow-Marker im Quelltext
         end_ln = getattr(node, "end_lineno", None)
         if _line_has_allow_marker(src_lines, node.lineno, end_ln):
             continue
 
-        # Pfad aufloesen
-        path_arg = node.args[0]
-        path_str = _extract_string_from_node(path_arg)
-        if path_str is None and isinstance(path_arg, _ast.Name):
-            path_str = static_strings.get(path_arg.id)
         # Safe-Targets ausnehmen (z.B. /dev/null)
         if path_str in _SAFE_TARGETS:
             continue
 
-        findings.append((node.lineno, path_str, mode_arg.value))
+        findings.append((node.lineno, path_str, mode_label))
     return findings
 
 
