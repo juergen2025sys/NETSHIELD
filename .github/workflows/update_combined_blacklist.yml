@@ -228,13 +228,17 @@ jobs:
 
           # is_whitelisted() → importiert aus netshield_common
           # PROTECTED_CIDRS entfernt – wird über whitelist.json + RFC1918 geladen (via netshield_common)
-          _protected_networks = []
-          # _protected_networks wird jetzt in load_whitelist() gebaut (netshield_common)
-          for _entry in []:
-              try:
-                  _protected_networks.append(ipaddress.ip_network(_entry, strict=False))
-              except Exception as _suppressed:
-                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+          # FIX W-COMBINED-1: _protected_networks aus netshield_common uebernehmen
+          # statt leere lokale Liste anzulegen. Der frühere Dead-Loop
+          # (`for _entry in []:`) hat die Variable als leer belassen; der
+          # Binary-Search-Index in _all_protected_nets (Zeile ~634) bekam dadurch
+          # keine RFC1918-/Reserved-/CGNAT-/Multicast-/Linklocal-Ranges, und
+          # _fast_is_protected war nicht-aequivalent zu is_protected_entry.
+          # Konsequenz: der seen_db-Cleanup-Pass (Zeile ~686/1030) konnte
+          # RFC1918-IPs aus einem migrierten/manuell editierten Cache nicht
+          # mehr abraeumen.
+          import netshield_common as _nc
+          _protected_networks = list(_nc._protected_networks)
 
           # is_protected_entry() → importiert aus netshield_common
           HIGH_QUALITY = {
