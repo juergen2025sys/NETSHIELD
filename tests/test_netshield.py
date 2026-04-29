@@ -1267,14 +1267,24 @@ class TestBugPriv2Regression(unittest.TestCase):
 
     def test_reserved_nets_is_single_source(self):
         """_RESERVED_NETS ist die unifizierte Liste; _RFC_PRIVATE_NETS und
-        _PRIVATE_RANGES sind Aliase. Regression wenn jemand getrennte Listen
-        wieder einfuehrt."""
-        self.assertIs(netshield_common._RFC_PRIVATE_NETS,
-                      netshield_common._RESERVED_NETS,
-                      "_RFC_PRIVATE_NETS muss Alias fuer _RESERVED_NETS sein")
-        self.assertIs(netshield_common._PRIVATE_RANGES,
-                      netshield_common._RESERVED_NETS,
-                      "_PRIVATE_RANGES muss Alias fuer _RESERVED_NETS sein")
+        _PRIVATE_RANGES sind inhaltlich identische, aber immutable Aliase.
+
+        FIX ALIAS-IMMUTABLE: vorher waren die Aliase dasselbe Listenobjekt
+        (assertIs). Eine versehentliche Mutation (.append/.extend) eines
+        Aliases haette das Source-of-Truth silent veraendert. Jetzt sind die
+        Aliase tuple() – content-gleich, aber unmutabel.
+        """
+        self.assertEqual(tuple(netshield_common._RFC_PRIVATE_NETS),
+                         tuple(netshield_common._RESERVED_NETS),
+                         "_RFC_PRIVATE_NETS muss inhaltlich _RESERVED_NETS entsprechen")
+        self.assertEqual(tuple(netshield_common._PRIVATE_RANGES),
+                         tuple(netshield_common._RESERVED_NETS),
+                         "_PRIVATE_RANGES muss inhaltlich _RESERVED_NETS entsprechen")
+        # Mutation muss fehlschlagen
+        with self.assertRaises(AttributeError):
+            netshield_common._RFC_PRIVATE_NETS.append("attacker")
+        with self.assertRaises(AttributeError):
+            netshield_common._PRIVATE_RANGES.append("attacker")
         # Mindestens die kritischen 7 Ranges
         essentials = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
                       "127.0.0.0/8", "169.254.0.0/16", "100.64.0.0/10",
@@ -1283,6 +1293,128 @@ class TestBugPriv2Regression(unittest.TestCase):
         for e in essentials:
             self.assertIn(e, reserved_strs,
                           f"_RESERVED_NETS fehlt kritischer Range {e}")
+
+
+# ═══════════════════════════════════════════════════════════════
+# Regression: BUG-DNS-PIN-THREADSAFE
+# ═══════════════════════════════════════════════════════════════
+
+class TestDnsPinThreadSafe(unittest.TestCase):
+    """FIX DNS-PIN-THREADSAFE: _install_dns_pin nutzte threading.local fuer
+    _patched und _original_getaddrinfo. socket.getaddrinfo wird aber global
+    gepatcht. Folge: ein zweiter Thread sah _patched=False (eigenes local),
+    speicherte den BEREITS gepatchten getaddrinfo als _original und sich
+    selbst war damit Self-Reference -> RecursionError bei nicht-gepinnten
+    Hosts.
+    """
+
+    def test_no_recursion_across_threads(self):
+        import socket as _socket
+        import threading as _t
+        netshield_common._patched = False
+        netshield_common._original_getaddrinfo = None
+        original = _socket.getaddrinfo
+        try:
+            errors = []
+
+            def t_a():
+                try:
+                    netshield_common._install_dns_pin()
+                except Exception as e:
+                    errors.append(("a", e))
+
+            def t_b():
+                try:
+                    netshield_common._install_dns_pin()
+                    # Nicht-gepinnter Lookup: muss durchschlagen, nicht rekursieren.
+                    # Wir patchen das Original kurz auf einen Sentinel um den
+                    # Aufrufpfad zu pruefen ohne echtes Netz.
+                    sentinel_called = []
+                    real = netshield_common._original_getaddrinfo
+
+                    def sentinel(host, port, *a, **kw):
+                        sentinel_called.append(host)
+                        return [(_socket.AF_INET, _socket.SOCK_STREAM, 6, "",
+                                 ("127.0.0.1", port or 0))]
+                    netshield_common._original_getaddrinfo = sentinel
+                    try:
+                        _socket.getaddrinfo("nicht.gepinnter.host.invalid", 80)
+                    finally:
+                        netshield_common._original_getaddrinfo = real
+                    if not sentinel_called:
+                        errors.append(("b", "sentinel never called"))
+                except RecursionError as e:
+                    errors.append(("b", f"RecursionError: {e}"))
+                except Exception as e:
+                    errors.append(("b", e))
+
+            ta = _t.Thread(target=t_a); ta.start(); ta.join()
+            tb = _t.Thread(target=t_b); tb.start(); tb.join()
+            self.assertEqual(errors, [],
+                             f"DNS-Pin nicht thread-safe: {errors}")
+        finally:
+            _socket.getaddrinfo = original
+            netshield_common._patched = False
+            netshield_common._original_getaddrinfo = None
+
+
+# ═══════════════════════════════════════════════════════════════
+# Regression: BUG-WL1-STRICT (Fail-Open via korrupter whitelist.json)
+# ═══════════════════════════════════════════════════════════════
+
+class TestLoadWhitelistStrict(unittest.TestCase):
+    """FIX BUG-WL1-STRICT: load_whitelist akzeptierte 'entries' als String
+    sofern len(string) >= min_entries. Iteration ueber Zeichen ergab 0
+    Netzwerke, _whitelist_loaded wurde aber auf True gesetzt -> Fail-Open
+    mit leerer Whitelist (genau das BUG-WL1-Muster).
+    """
+
+    def setUp(self):
+        netshield_common._reset_whitelist_for_testing()
+
+    def tearDown(self):
+        netshield_common._reset_whitelist_for_testing()
+        # Echte Whitelist wiederherstellen fuer nachfolgende Tests
+        try:
+            load_whitelist()
+        except SystemExit:
+            pass
+
+    def _write(self, payload):
+        f = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False)
+        json.dump(payload, f)
+        f.close()
+        self.addCleanup(os.unlink, f.name)
+        return f.name
+
+    def test_entries_as_string_sys_exits(self):
+        path = self._write({"entries": "1.2.3.0/24" * 10})
+        with self.assertRaises(SystemExit) as cm:
+            load_whitelist(path)
+        self.assertEqual(cm.exception.code, 1)
+
+    def test_entries_missing_sys_exits(self):
+        path = self._write({"foo": "bar"})
+        with self.assertRaises(SystemExit) as cm:
+            load_whitelist(path)
+        self.assertEqual(cm.exception.code, 1)
+
+    def test_too_few_valid_entries_sys_exits(self):
+        # 60 Eintraege, aber alle ungueltig (Schema-Drift-Simulation)
+        path = self._write({"entries": ["nicht-eine-ip"] * 60})
+        with self.assertRaises(SystemExit) as cm:
+            load_whitelist(path)
+        self.assertEqual(cm.exception.code, 1)
+
+    def test_loaded_flag_only_true_after_full_validation(self):
+        # Vor dem failenden load: loaded=False
+        self.assertFalse(netshield_common._whitelist_loaded)
+        path = self._write({"entries": "x" * 100})
+        with self.assertRaises(SystemExit):
+            load_whitelist(path)
+        # Auch danach: loaded muss False bleiben (Fail-Closed)
+        self.assertFalse(netshield_common._whitelist_loaded,
+                         "_whitelist_loaded darf nach failendem Load nicht True sein")
 
 
 if __name__ == "__main__":
