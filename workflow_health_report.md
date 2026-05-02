@@ -1,24 +1,14 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-02 08:43 UTC
+**Aktualisiert:** 2026-05-02 14:14 UTC
 
-**Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
+**Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 74.125.0.0/16, 74.125.1.135, 74.125.7.232, 74.125.10.201, 74.125.11.70… – Filterung wirkungslos! |
-| `Production Health` | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 74.125.29.94, 74.125.208.41, 74.125.208.43, 74.125.208.73, 74.125.208.105… – Filterung wirkungslos! |
-
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 74.125.0.0/16, 74.125.1.135, 74.125.7.232, 74.125.10.201, 74.125.11.70… – Filterung wirkungslos! |
-| 🔴 CRITICAL | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 74.125.29.94, 74.125.208.41, 74.125.208.43, 74.125.208.73, 74.125.208.105… – Filterung wirkungslos! |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -45,4 +35,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-05-02 08:43 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-05-02 14:14 UTC | 19 Workflow-Dateien geprüft*

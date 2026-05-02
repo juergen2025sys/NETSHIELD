@@ -1,44 +1,22 @@
 {
-  "updated": "2026-05-02 08:43 UTC",
+  "updated": "2026-05-02 14:14 UTC",
   "total": 19,
   "ok": 19,
   "warn": 0,
-  "error": 1,
-  "errors": [
-    {
-      "file": "Production Health",
-      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
-      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 74.125.0.0/16, 74.125.1.135, 74.125.7.232, 74.125.10.201, 74.125.11.70\u2026 \u2013 Filterung wirkungslos!"
-    },
-    {
-      "file": "Production Health",
-      "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
-      "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 74.125.29.94, 74.125.208.41, 74.125.208.43, 74.125.208.73, 74.125.208.105\u2026 \u2013 Filterung wirkungslos!"
-    }
-  ],
+  "error": 0,
+  "errors": [],
   "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 4773645,
-    "active_blacklist_ipv4.txt": 2271391,
-    "blacklist_confidence40_ipv4.txt": 3778266,
+    "combined_threat_blacklist_ipv4.txt": 4838607,
+    "active_blacklist_ipv4.txt": 2345217,
+    "blacklist_confidence40_ipv4.txt": 3843668,
     "cve_exploit_ips.txt": 53690,
-    "honeypot_ips.txt": 169124,
+    "honeypot_ips.txt": 168733,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
-    "critical": 2,
+    "critical": 0,
     "warn": 0,
-    "checks": [
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
-        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 74.125.0.0/16, 74.125.1.135, 74.125.7.232, 74.125.10.201, 74.125.11.70\u2026 \u2013 Filterung wirkungslos!"
-      },
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
-        "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 74.125.29.94, 74.125.208.41, 74.125.208.43, 74.125.208.73, 74.125.208.105\u2026 \u2013 Filterung wirkungslos!"
-      }
-    ]
+    "checks": []
   }
 }
