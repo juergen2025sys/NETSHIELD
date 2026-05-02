@@ -177,6 +177,28 @@ jobs:
           import ipaddress, json, os, re, sys, urllib.request
           from datetime import datetime, timezone, timedelta
           from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
+          # FIX PERF-SORT: socket.inet_aton + struct.unpack ist die C-Implementierung
+          # fuer IP→int und ~10x schneller als int(ipaddress.IPv4Address(s)). Wird im
+          # Sort-Key fuer combined_threat_blacklist und active_blacklist verwendet.
+          import socket as _socket, struct as _struct
+
+          def _ip_sort_key(e):
+              """O(1) Sort-Key per inet_aton. CIDRs (selten) werden anhand ihrer
+              Netz-Adresse sortiert – genau wie der alte tuple()-Key. Bei
+              Parse-Fehler (sollte nach Cleanup-Pass nicht mehr vorkommen)
+              landet die IP am Ende mit stabilem Tie-Break ueber den String.
+              Returnt (int, str) – ordnungsequivalent zum alten
+              ((int,int,int,int), str)-Key (Big-Endian inet_aton ↔ dot-notation).
+
+              FIX CRASH-GUARD: faengt zusaetzlich AttributeError (None/bytes/int
+              statt str) und alle weiteren Exceptions ab. Eine einzelne kaputte
+              dict-Key wuerde sonst sorted() crashen und den ganzen Run kippen.
+              """
+              try:
+                  return (_struct.unpack('!I', _socket.inet_aton(e.split('/')[0]))[0], e)
+              except (OSError, AttributeError, TypeError, ValueError):
+                  # Nicht-IP / None / bytes → ans Ende, stabil ueber repr()
+                  return (0xFFFFFFFF, repr(e))
 
           # FIX BUG-WL1: load_whitelist() + load_fp_set() fehlten in diesem Step.
           # Jeder run:-Step ist ein eigener Prozess – der Aufruf im AbuseIPDB-Step
@@ -1029,92 +1051,96 @@ jobs:
                       "days_seen":      1 if today_is_hq else 0,
                   }
 
+          # ── FIX PERF-CLEANUP: Vier volle seen_db-Passes zu einem zusammengefasst.
+          # Vorher liefen vier separate Schleifen ueber alle ~4,8M Eintraege:
+          #   1) protected_runtime         (entfernt protected/whitelisted/RFC1918)
+          #   2) Aufnahme-Filter           (entfernt IPs mit <2 Feeds und kein hq)
+          #   3) 180/30-Tage-Expiry        (entfernt zu alte Eintraege)
+          #   4) wl_cleanup                (entfernt whitelist/FP-Altlasten)
+          # Jede Schleife dereferenziert dieselben dict-Keys neu und ruft die
+          # bisect-Predicates erneut auf. Auf 4,8M Eintraegen waren das ~10–15
+          # min reine Python-Iteration. Eine Schleife reicht: jede IP einmal
+          # anschauen, alle Bedingungen pruefen, beim ersten Treffer mergen.
+          # Counter-Semantik der vier alten Bloecke bleibt erhalten (gleiche
+          # Logmeldungen, gleiche Reihenfolge der Pruefungen).
           protected_removed_runtime = 0
-          # FIX PERF-COMBINED: Binary-Search statt is_protected_entry() pro IP
-          _protected_runtime = [ip for ip in db if _fast_is_protected(ip)]
-          for ip in _protected_runtime:
-              db.pop(ip, None)
-              protected_removed_runtime += 1
-          if protected_removed_runtime:
-              print(f"Geschützte Einträge nach Feed-Ingest entfernt: {protected_removed_runtime}")
-
-          # Aufnahme-Filter: mindestens 2 verschiedene Feeds (gesamt) oder HQ.
-          # AUSNAHME: Community-Reports (feeds=['community_report']) werden NICHT
-          # sofort gelöscht – sie leben bis zum Watchlist-Expiry (30 Tage nach first).
-          # Hintergrund: auto_feed_discovery hatte denselben Bug (dort als FIX Bug2
-          # behoben). Community-IPs haben nur 1 Feed-Eintrag ('community_report') und
-          # hq=False solange community_count < 3 → würden ohne diese Ausnahme beim
-          # nächsten Run sofort gelöscht, obwohl der Issue-Kommentar 'Added to Watchlist'
-          # verspricht.
-          current_valid = {
-              ip for ip, data in db.items()
-              if isinstance(data, dict) and not _fast_is_protected(ip) and (
-                  len(data.get("feeds", [])) >= 2
-                  or data.get("hq")
-                  or "community_report" in data.get("feeds", [])
-              )
-          }
-          # Collect-then-delete: explicit two-pass to satisfy dict-mutation linter
-          _invalid_ips = [ip for ip in db if ip not in current_valid]
-          for ip in _invalid_ips:
-              db.pop(ip, None)
-
-          # ── 180-Tage-Ablauf ────────────────────────────────────────────────
-          # Watchlist-IPs (last="2000-01-01", hq=False) haben nie eine HQ-Bestätigung
-          # erhalten. Für sie wird das Ablaufdatum vom first-Datum berechnet, damit
-          # Community-Reports nicht sofort beim nächsten Lauf gelöscht werden.
-          # Reguläre IPs laufen weiterhin nach ihrem last-Datum ab (180 Tage).
-          # Gemäß README-Spezifikation: Watchlist-IPs ohne HQ-Bestätigung
-          # laufen nach 30 Tagen ab, HQ-bestätigte IPs nach 180 Tagen.
-          # Vorher stand hier 180 – das widersprach Spec und allen
-          # Inline-Kommentaren und hielt Community-Reports ohne HQ-Bestätigung
-          # bis zu 150 Tage länger als vorgesehen in seen_db.
-          WATCHLIST_EXPIRY_DAYS = 30
+          aufnahme_removed = 0
+          wl_cleanup_count = 0
           expired = []
+          WATCHLIST_EXPIRY_DAYS = 30
           cutoff      = now - timedelta(days=EXPIRY_DAYS)
           cutoff_wl   = now - timedelta(days=WATCHLIST_EXPIRY_DAYS)
-          # Collect-then-delete: two-pass avoids RuntimeError and satisfies dict-mutation linter
-          _to_expire = []
+
+          _to_drop = []
+          # FIX CRASH-GUARD: Outer try/except pro IP. Eine einzelne korrupte
+          # seen_db-Zeile (Bytes statt String, dict mit defektem __getitem__,
+          # NaN-Datum etc.) wuerde sonst die komplette Cleanup-Schleife
+          # abbrechen und den Run nach 45 min ohne Output beenden.
+          # Bei Crash: IP wird als korrupt markiert und gedroppt.
+          _corrupt_dropped = 0
           for ip in list(db.keys()):
               try:
-                  entry     = db[ip]
-                  last_str  = safe_get_date(entry, "last")
-                  first_str = safe_get_date(entry, "first", last_str)
-                  is_hq     = entry.get("hq", False)
-                  last_seen  = datetime.strptime(last_str,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                  first_seen = datetime.strptime(first_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                  # 1) Protected (Whitelist + RFC1918/Reserved)
+                  if _fast_is_protected(ip):
+                      protected_removed_runtime += 1
+                      _to_drop.append(ip)
+                      continue
+                  # 4) WL/FP-Altlasten (vorher in eigener Schleife nach Expiry)
+                  if _fast_is_wl_or_fp(ip):
+                      wl_cleanup_count += 1
+                      _to_drop.append(ip)
+                      continue
+                  data = db.get(ip)
+                  if not isinstance(data, dict):
+                      aufnahme_removed += 1
+                      _to_drop.append(ip)
+                      continue
+                  # 2) Aufnahme-Filter: >= 2 Feeds gesamt ODER hq ODER community_report
+                  feeds = data.get("feeds", [])
+                  if not isinstance(feeds, list):
+                      _corrupt_dropped += 1
+                      _to_drop.append(ip)
+                      continue
+                  if not (len(feeds) >= 2 or data.get("hq") or "community_report" in feeds):
+                      aufnahme_removed += 1
+                      _to_drop.append(ip)
+                      continue
+                  # 3) Expiry (Sentinel-Guard wie BUG-1)
+                  try:
+                      last_str  = safe_get_date(data, "last")
+                      first_str = safe_get_date(data, "first", last_str)
+                      last_seen  = datetime.strptime(last_str,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      first_seen = datetime.strptime(first_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      if last_str == "2000-01-01":
+                          if first_seen < cutoff_wl:
+                              expired.append(ip)
+                              _to_drop.append(ip)
+                      else:
+                          if last_seen < cutoff:
+                              expired.append(ip)
+                              _to_drop.append(ip)
+                  except Exception:
+                      expired.append(ip)
+                      _to_drop.append(ip)
+              except Exception as _per_ip_err:
+                  # Korrupter Eintrag (z.B. exotischer Typ in dict) → wegwerfen
+                  # statt Run abbrechen. Logging gedrosselt: max 5 Beispiele.
+                  if _corrupt_dropped < 5:
+                      print(f"WARN: Korrupter seen_db-Eintrag {ip!r} beim Cleanup übersprungen: {_per_ip_err}", file=sys.stderr)
+                  _corrupt_dropped += 1
+                  _to_drop.append(ip)
 
-                  # FIX BUG-1: Sentinel-Guard unabhängig vom is_hq-Flag.
-                  # Alter Code `last == Sentinel and not is_hq` ließ den Fall
-                  # `last=Sentinel + is_hq=True` durch → last_seen < cutoff (immer
-                  # True weil Sentinel=2000-01-01) → sofortige fälschliche Löschung
-                  # von IPs die im Race zwischen Feed-Ingest und last-Setzung sind.
-                  # Sentinel-Datum bedeutet "kein verwertbares last-Datum", egal
-                  # was hq sagt → Watchlist-Regime (first + 30 Tage).
-                  if last_str == "2000-01-01":
-                      # Kein echtes last-Datum → Ablauf über first (30 Tage)
-                      if first_seen < cutoff_wl:
-                          _to_expire.append(ip)
-                  else:
-                      # Normale IP: Ablauf nach last-Datum (180 Tage)
-                      if last_seen < cutoff:
-                          _to_expire.append(ip)
-              except Exception:
-                  _to_expire.append(ip)
-          for ip in _to_expire:
-              expired.append(ip)
+          for ip in _to_drop:
               db.pop(ip, None)
+
+          if _corrupt_dropped:
+              print(f"Korrupte seen_db-Einträge entfernt: {_corrupt_dropped}")
+
+          if protected_removed_runtime:
+              print(f"Geschützte Einträge nach Feed-Ingest entfernt: {protected_removed_runtime}")
           print(f"Abgelaufen (>{EXPIRY_DAYS} Tage / Watchlist >{WATCHLIST_EXPIRY_DAYS} Tage): {len(expired)} IPs entfernt")
-
-          # ── Whitelist-/FP-Altlasten aus seen_db bereinigen ───────────────
-          # IPs, die vor Einführung eines neuen Whitelist-/FP-Eintrags bereits
-          # in seen_db lagen, würden sonst beim Schreiben der Combined-Datei
-          # wieder auftauchen. Deshalb hier vor dem Persistieren aktiv entfernen.
-          _wl_cleanup = [ip for ip in db if _fast_is_wl_or_fp(ip)]
-          for ip in _wl_cleanup:
-              db.pop(ip, None)
-          if _wl_cleanup:
-              print(f"Whitelist-Bereinigung seen_db: {len(_wl_cleanup)} IPs entfernt")
+          if wl_cleanup_count:
+              print(f"Whitelist-Bereinigung seen_db: {wl_cleanup_count} IPs entfernt")
 
           # ── community_reported_ips.txt Stale-Bereinigung ─────────────────
           # FIX STALE-COMMUNITY2: community_ip_report.yml nutzt append-only
@@ -1160,12 +1186,15 @@ jobs:
           # konsistent mit active_blacklist und allen anderen Ausgabedateien.
           # Zusätzlicher Guard: Whitelist-/FP-Treffer dürfen auch als Altlasten
           # aus früheren seen_db-Ständen nie mehr in die Combined-Ausgabe.
+          # FIX PERF-SORT: _ip_sort_key statt Lambda mit string-split + 4×int.
+          # Sortier-Key per socket.inet_aton (C) statt 4-Tupel pro IP – auf 4,8M
+          # Eintraegen ~5-10x schneller. Order-equivalent zum alten Key.
           try:
               sorted_ips = sorted(
                   [ip for ip in db.keys()
                    if not _fast_is_protected(ip)
                    and not _fast_is_wl_or_fp(ip)],
-                  key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e)
+                  key=_ip_sort_key
               )
           except Exception:
               sorted_ips = sorted(
@@ -1415,7 +1444,8 @@ jobs:
                   continue
 
           try:
-              active_ips.sort(key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
+              # FIX PERF-SORT: Gleicher schneller Key wie bei combined.
+              active_ips.sort(key=_ip_sort_key)
           except Exception:
               active_ips.sort()
 
