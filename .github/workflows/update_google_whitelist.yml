@@ -81,8 +81,8 @@ jobs:
           import os
 
           WS = os.environ.get("GITHUB_WORKSPACE", ".")
-          WHITELIST_PATH = os.path.join(WS, "whitelist.json")
-          GOOGLE_RANGES_PATH = os.path.join(WS, "google_ranges.json")
+          WHITELIST_PATH = os.path.join(WS, ".github/workflows/whitelist.json")
+          GOOGLE_RANGES_PATH = os.path.join(WS, ".github/workflows/google_ranges.json")
           NEW_RANGES_PATH = os.path.join(WS, "google_ranges_new.json")
 
           # Neue Google-Ranges laden
@@ -151,7 +151,7 @@ jobs:
           if [ "$CHANGED" = "true" ]; then
             git config user.name "NETSHIELD Bot"
             git config user.email "netshield-bot@noreply"
-            git add whitelist.json google_ranges.json
+            git add .github/workflows/whitelist.json .github/workflows/google_ranges.json
             git commit -m "chore: Google IP Ranges in Whitelist aktualisiert [auto]"
             git push
             echo "Whitelist aktualisiert und gepusht"
