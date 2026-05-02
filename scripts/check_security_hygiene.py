@@ -83,7 +83,12 @@ def check_action_pinning() -> list[str]:
         content = wf.read_text(encoding="utf-8")
         lines   = content.splitlines()
         for m in USES_RE.finditer(content):
-            action = m.group(1).strip()
+            # FIX QUOTE-STRIP: YAML erlaubt Quotes um den uses:-Wert
+            # ("uses: 'actions/checkout@<sha>'" oder "...@<sha>"). Vorher
+            # nahm m.group(1).strip() die Quotes mit, ref hatte ein
+            # trailing " oder ', SHA40_RE matchte nicht und der Check
+            # meldete echte SHA-gepinnte Actions als 'nicht gepinnt'.
+            action = m.group(1).strip().strip("'\"")
 
             # Zeile auf Kommentar prüfen (Kommentierte `uses:` ignorieren)
             line_no   = content[: m.start()].count("\n")
@@ -283,11 +288,23 @@ def _find_non_atomic_writes_in_src(source_text):
         path_str = None
         mode_label = None
 
-        # Pattern 1: builtin open(path, mode)
+        # Pattern 1: builtin open(path, mode) ODER open(path, mode="w")
         if isinstance(node.func, _ast.Name) and node.func.id == "open":
-            if len(node.args) < 2:
+            if not node.args:
                 continue
-            mode_arg = node.args[1]
+            # FIX KW-MODE: mode kann positional ODER keyword sein. Vorher
+            # wurde nur node.args[1] geprueft – open("x", mode="w") rutschte
+            # durch, exakt das non-atomare Pattern was der Check finden soll.
+            mode_arg = None
+            if len(node.args) >= 2:
+                mode_arg = node.args[1]
+            else:
+                for kw in node.keywords:
+                    if kw.arg == "mode":
+                        mode_arg = kw.value
+                        break
+            if mode_arg is None:
+                continue
             if not (isinstance(mode_arg, _ast.Constant)
                     and isinstance(mode_arg.value, str)
                     and mode_arg.value in _WRITE_MODES):
@@ -300,10 +317,18 @@ def _find_non_atomic_writes_in_src(source_text):
         elif isinstance(node.func, _ast.Attribute):
             attr = node.func.attr
             if attr == "open":
-                # Path("x").open("w") – mode-Pruefung wie bei builtin
-                if not node.args:
+                # Path("x").open("w") oder Path("x").open(mode="w")
+                # FIX KW-MODE: Konsistent zu Pattern 1 auch keyword unterstuetzen.
+                mode_arg = None
+                if node.args:
+                    mode_arg = node.args[0]
+                else:
+                    for kw in node.keywords:
+                        if kw.arg == "mode":
+                            mode_arg = kw.value
+                            break
+                if mode_arg is None:
                     continue
-                mode_arg = node.args[0]
                 if not (isinstance(mode_arg, _ast.Constant)
                         and isinstance(mode_arg.value, str)
                         and mode_arg.value in _WRITE_MODES):
@@ -364,8 +389,12 @@ def check_atomic_writes() -> list[str]:
 
     # --- Inline-Python in Workflows ---
     if WORKFLOWS_DIR.is_dir():
+        # FIX HEREDOC-FLAGS: '-?' matchte vorher nur ein einzelnes '-'.
+        # 'python3 -u << EOF' (unbuffered, sehr verbreitet in CI) und
+        # 'python3 -B << EOF' rutschten durch. Jetzt beliebig viele
+        # Single-Char- oder Multi-Char-Flags zulassen.
         heredoc_start = re.compile(
-            r"python3\s*-?\s*<<\s*['\"]?(\w+)['\"]?\s*$", re.MULTILINE)
+            r"python3(?:\s+-\w+)*\s*<<\s*['\"]?(\w+)['\"]?\s*$", re.MULTILINE)
         import textwrap as _tw
         for wf in sorted(WORKFLOWS_DIR.glob("*.yml")):
             content = wf.read_text(encoding="utf-8")
@@ -541,8 +570,10 @@ def check_fetch_usage() -> list[str]:
     global workflow_info  # pragmatisch fuer main()
     workflow_info = []
     if WORKFLOWS_DIR.is_dir():
+        # FIX HEREDOC-FLAGS: konsistent zu check_atomic_writes – auch
+        # python3 -u/-B/-X… erkennen.
         heredoc_re = re.compile(
-            r"python3\s*-?\s*<<\s*['\"]?(\w+)['\"]?\s*$",
+            r"python3(?:\s+-\w+)*\s*<<\s*['\"]?(\w+)['\"]?\s*$",
             re.MULTILINE,
         )
         for wf in sorted(WORKFLOWS_DIR.glob("*.yml")):

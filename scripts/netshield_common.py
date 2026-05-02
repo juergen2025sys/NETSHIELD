@@ -141,10 +141,17 @@ def load_whitelist(path=".github/workflows/whitelist.json", min_entries=50):
         print(f"::error ::{msg}", file=sys.stderr)
         sys.exit(1)
 
-    _whitelist_networks = []
+    # FIX BUG-WL-PARTIAL: Whitelist erst in eine lokale Variable bauen
+    # und nur bei vollstaendigem Erfolg in das Modul-Global uebernehmen.
+    # Vorher schrieben wir direkt in _whitelist_networks und konnten dann
+    # via sys.exit(1) abbrechen – falls jemand SystemExit catcht (Tests,
+    # Library-Use), bleibt _whitelist_networks halb-befuellt zurueck.
+    # Trotz _whitelist_loaded=False sieht der Folge-Code (oder Tests die
+    # _reset_whitelist_for_testing vergessen) eine 'Geister-Whitelist'.
+    new_networks = []
     for entry in entries:
         try:
-            _whitelist_networks.append(ipaddress.ip_network(entry, strict=False))
+            new_networks.append(ipaddress.ip_network(entry, strict=False))
         except Exception:
             pass
 
@@ -152,12 +159,14 @@ def load_whitelist(path=".github/workflows/whitelist.json", min_entries=50):
     # mit min_entries Eintraegen die alle ungueltig sind (Schema-Drift,
     # Tippfehler, falsche Quote-Escapes) wuerde sonst silent zu einer
     # leeren Whitelist fuehren – wieder Fail-Open.
-    if len(_whitelist_networks) < min_entries:
-        msg = (f"whitelist.json: nur {len(_whitelist_networks)} valide Netzwerke "
+    if len(new_networks) < min_entries:
+        msg = (f"whitelist.json: nur {len(new_networks)} valide Netzwerke "
                f"aus {len(entries)} Eintraegen geparst (<{min_entries}) – "
                f"Schema-Pruefung fehlgeschlagen")
         print(f"::error ::{msg}", file=sys.stderr)
         sys.exit(1)
+
+    _whitelist_networks = new_networks
 
     # FIX BUG-PRIV2: Protected = Whitelist + alle reservierten IPv4-Bereiche
     # (RFC1918 + Loopback + Link-Local + CGNAT + Multicast + Reserved + Doc-Ranges).
@@ -493,15 +502,26 @@ def calculate_confidence(is_hq=False, today_count=0, feed_count=0,
     days_known      = _int_or(days_known,      0)
     is_hq           = bool(is_hq)
 
-    # Negative Inputs auf 0 klemmen – solche Werte sollten nie auftreten,
-    # aber wenn die seen_db korrupt ist, sollen sie nicht versehentlich
-    # hohe Scores erzeugen (negativ < alle Schwellen → triggert den
-    # "<=1"-Zweig und vergibt volle 30 Punkte für Aktualität).
-    today_count     = max(0, today_count)
-    feed_count      = max(0, feed_count)
-    days_since_last = max(0, days_since_last)
-    days_seen       = max(0, days_seen)
-    days_known      = max(0, days_known)
+    # Counts (today_count, feed_count) sind monoton nicht-negativ,
+    # negativ ist hier semantisch "nichts gesehen" → 0.
+    today_count = max(0, today_count)
+    feed_count  = max(0, feed_count)
+
+    # FIX BUG-NEG-AGE: Aged-Werte NICHT via max(0, x) klemmen.
+    # Vorheriger Kommentar wollte verhindern, dass korrupte seen_db-
+    # Eintraege "versehentlich hohe Scores" erzeugen – aber genau das
+    # passierte: max(0, -1) = 0, und days_since_last <= 1 vergibt volle
+    # 30 Punkte fuer Aktualitaet. Eine IP mit kaputtem Datums-Diff
+    # (Clock-Drift, Future-Timestamp, Schema-Drift in seen_db) sah
+    # damit aus wie "heute frisch bestaetigt" ohne jeden Quellen-Bezug.
+    # Korrekt: negativ ⇒ unbekannt, auf den jeweiligen "Score-0"-Bucket
+    # mappen (days_since_last=999 → 0 Pkt, days_seen/days_known=0 → 0 Pkt).
+    if days_since_last < 0:
+        days_since_last = 999
+    if days_seen < 0:
+        days_seen = 0
+    if days_known < 0:
+        days_known = 0
 
     # [A] Quellen-Qualität
     if is_hq:
