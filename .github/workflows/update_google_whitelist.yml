@@ -66,7 +66,9 @@ jobs:
           print(f"OK: {len(ranges)} Google IPv4 Ranges verifiziert (syncToken: {data['syncToken']})")
 
           # Speichern für nächste Steps
-          with open("google_ranges_new.json", "w") as f:
+          import os
+          WS = os.environ.get("GITHUB_WORKSPACE", ".")
+          with open(os.path.join(WS, "google_ranges_new.json"), "w") as f:
               json.dump(sorted(ranges), f, indent=2)
 
           EOF
@@ -78,9 +80,10 @@ jobs:
           import json
           import os
 
-          WHITELIST_PATH = "whitelist.json"
-          GOOGLE_RANGES_PATH = "google_ranges.json"
-          NEW_RANGES_PATH = "google_ranges_new.json"
+          WS = os.environ.get("GITHUB_WORKSPACE", ".")
+          WHITELIST_PATH = os.path.join(WS, "whitelist.json")
+          GOOGLE_RANGES_PATH = os.path.join(WS, "google_ranges.json")
+          NEW_RANGES_PATH = os.path.join(WS, "google_ranges_new.json")
 
           # Neue Google-Ranges laden
           with open(NEW_RANGES_PATH) as f:
@@ -108,7 +111,7 @@ jobs:
 
           if entries_set == original_entries:
               print("Keine Änderungen - Whitelist bereits aktuell")
-              with open("changed.txt", "w") as f:
+              with open(os.path.join(WS, "changed.txt"), "w") as f:
                   f.write("false")
           else:
               added = new_google_ranges - old_google_ranges
@@ -137,14 +140,14 @@ jobs:
               with open(GOOGLE_RANGES_PATH, "w") as f:
                   json.dump(sorted(new_google_ranges), f, indent=2)
 
-              with open("changed.txt", "w") as f:
+              with open(os.path.join(WS, "changed.txt"), "w") as f:
                   f.write("true")
 
           EOF
 
       - name: Commit wenn Änderungen
         run: |
-          CHANGED=$(cat changed.txt)
+          CHANGED=$(cat $GITHUB_WORKSPACE/changed.txt)
           if [ "$CHANGED" = "true" ]; then
             git config user.name "NETSHIELD Bot"
             git config user.email "netshield-bot@noreply"
