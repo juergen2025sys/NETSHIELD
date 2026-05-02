@@ -707,14 +707,22 @@ jobs:
           print(f"Binary-Search-Index: {len(_prot_intervals)} Protected + {len(_wl_fp_intervals)} WL/FP Intervalle")
 
           # is_valid_public_cidr() → importiert aus netshield_common
-          removed_preexisting_protected = 0
-          # FIX PERF-COMBINED: Binary-Search statt is_protected_entry() pro IP
-          _protected_old = [ip for ip in db if _fast_is_protected(ip)]
-          for ip in _protected_old:
-              db.pop(ip, None)
-              removed_preexisting_protected += 1
-          if removed_preexisting_protected:
-              print(f"Geschützte Alt-Einträge aus seen_db entfernt: {removed_preexisting_protected}")
+          # FIX PERF-PRECLEAN: Pre-Loop-Cleanup entfernt. Der frühere
+          # Full-Scan über alle 4,8M seen_db-Einträge vor dem Feed-Ingest
+          # (`Geschützte Alt-Einträge aus seen_db entfernt`) war redundant –
+          # der zusammengeführte Cleanup-Pass nach dem Feed-Ingest fängt
+          # exakt dieselben IPs ab. Der Pre-Loop kostete 3:26 ohne neuen
+          # Output. Defense-in-Depth bleibt erhalten: Final-Cleanup deckt
+          # protected/whitelist/RFC1918 + neu reingekommene IPs aus den
+          # Feeds ab. Falls eine Regression hier auftaucht (Whitelist-Leak),
+          # einfach die gestrichenen Zeilen wiederherstellen.
+          # ──────────────────────────────────────────────────────────────
+          # ENTFERNT:
+          #   removed_preexisting_protected = 0
+          #   _protected_old = [ip for ip in db if _fast_is_protected(ip)]
+          #   for ip in _protected_old: db.pop(ip, None); ...
+          #   if removed_preexisting_protected: print(...)
+          # ──────────────────────────────────────────────────────────────
 
           # parse_feed_entries() → importiert aus netshield_common
           def fetch_ips(name, url):
@@ -957,6 +965,12 @@ jobs:
           # "last" NUR aktualisieren wenn heute durch HQ-Feed bestätigt:
           # Non-HQ Feeds setzen "last" nie → statische Listen halten IPs nicht am Leben
 
+          # FIX PERF-UPDATE: Konstanten Set-Ausdruck vor die Schleife hoisten.
+          # (HIGH_QUALITY | LOCAL_HQ_NAMES) wurde pro IP neu konstruiert ~4M-mal.
+          # Set-Vereinigung ist O(N+M); 4M × ~80 elements = wenig pro Aufruf,
+          # aber summiert messbar. Einmal vor der Schleife reicht.
+          _HQ_AND_LOCAL = HIGH_QUALITY | LOCAL_HQ_NAMES
+
           for ip, today_feeds in ip_feeds_today.items():
               # FIX PERF-COMBINED: Binary-Search statt is_whitelisted() + is_in_fp_set()
               if _fast_is_wl_or_fp(ip):
@@ -968,7 +982,7 @@ jobs:
               # FIX: LOCAL_HQ_NAMES ergänzt – Dateinamen wie "honeydb_ips.txt" sind
               # nicht in HIGH_QUALITY, müssen aber als HQ-Quelle mitzählen.
               # WICHTIG: Muss VOR strongly_confirmed_today berechnet werden.
-              hq_feed_names_today = today_feeds & (HIGH_QUALITY | LOCAL_HQ_NAMES)
+              hq_feed_names_today = today_feeds & _HQ_AND_LOCAL
 
               # FIX BUG-9: "Stark bestätigt" = mindestens 2 verschiedene
               # HQ-Feed-FAMILIEN HEUTE (nicht 2 Feed-Namen). Vorher zählten
@@ -988,22 +1002,29 @@ jobs:
 
               if ip in db:
                   try:
-                      if not isinstance(db[ip], dict):
+                      # FIX PERF-UPDATE: db[ip] in lokale Variable cachen.
+                      # Vorher: 8 separate db[ip]-Lookups pro Iteration.
+                      entry = db[ip]
+                      if not isinstance(entry, dict):
                           raise TypeError(f"db[{ip}] ist kein dict")
-                      existing_feeds = set(db[ip].get("feeds", []))
+                      existing_feeds = set(entry.get("feeds", []))
 
                       if strongly_confirmed_today:
-                          prev_last = db[ip].get("last", "2000-01-01")
+                          prev_last = entry.get("last", "2000-01-01")
                           if prev_last != now_day:
                               # Neuer Bestätigungstag → days_seen erhöhen (startet bei 0)
-                              db[ip]["days_seen"] = db[ip].get("days_seen", 0) + 1
-                          db[ip]["last"] = now_day
+                              entry["days_seen"] = entry.get("days_seen", 0) + 1
+                          entry["last"] = now_day
 
-                      db[ip]["feeds"]       = sorted(existing_feeds | today_feeds)
-                      db[ip]["today_count"] = today_count
-                      db[ip]["today_hq"]    = today_is_hq
+                      # NB: sorted() bleibt erhalten – die Bytes des
+                      # seen_db_backup.json.gz sind stabilisiert dadurch (sonst
+                      # würde jeder Run einen 80-MB-Commit erzeugen, weil
+                      # set-Iterationsreihenfolge nicht garantiert stabil ist).
+                      entry["feeds"]       = sorted(existing_feeds | today_feeds)
+                      entry["today_count"] = today_count
+                      entry["today_hq"]    = today_is_hq
                       if today_is_hq:
-                          db[ip]["hq"] = True
+                          entry["hq"] = True
                       # FIX BUG-4: auto_today_count konsumieren und löschen.
                       # auto_feed_discovery schreibt dieses Feld bei seinen wöchentlichen
                       # Läufen; combined liest es hier einmal aus und entfernt es, damit
@@ -1012,14 +1033,14 @@ jobs:
                       # ein – es war nur ein Kommunikationskanal zwischen den Workflows.
                       # Die eigentliche Zählung auto-discovered IPs erfolgt über
                       # ip_feeds_today via den Feed-Namen (aus auto_discovered_feeds.json).
-                      db[ip].pop("auto_today_count", None)
+                      entry.pop("auto_today_count", None)
                       # FIX Bug3: hq_feeds als Set einzigartiger Feed-Namen akkumulieren.
                       # Vorher: rohe Addition pro Lauf → unbegrenztes Wachstum (8 Läufe/Tag × 40 HQ-Feeds).
                       # Jetzt: Zählt jede HQ-Feed-Quelle nur einmal, egal wie oft sie gemeldet hat.
-                      existing_hq_names = set(db[ip].get("hq_feed_names", []))
+                      existing_hq_names = set(entry.get("hq_feed_names", []))
                       existing_hq_names.update(hq_feed_names_today)
-                      db[ip]["hq_feed_names"] = sorted(existing_hq_names)
-                      db[ip]["hq_feeds"]      = len(existing_hq_names)
+                      entry["hq_feed_names"] = sorted(existing_hq_names)
+                      entry["hq_feeds"]      = len(existing_hq_names)
                   except Exception as _corrupt:
                       print(f"WARN: Korrupter seen_db-Eintrag {ip}, wird neu angelegt: {_corrupt}", file=sys.stderr)
                       db[ip] = {
@@ -1366,43 +1387,54 @@ jobs:
           #   2. Confidence-Score >= 65 (gleiche Schwelle wie active_blacklist-Header)
           # Ziel: kleine, qualitativ hochwertige OPNsense-Liste ohne statischen Ballast.
           cutoff_30 = now - timedelta(days=30)
+          # FIX PERF-ACTIVE: ISO-Datum als String für lexikographischen Compare
+          # statt strptime pro IP. "YYYY-MM-DD" ist string-vergleichbar – das
+          # erspart strptime() für die ~1 Mio IPs die das 30-Tage-Window nicht
+          # schaffen (etwa 22% der DB).
+          cutoff_30_str = cutoff_30.strftime("%Y-%m-%d")
           active_ips = []
           active_skipped_score = 0   # besteht Recency, aber Score < 65
           active_skipped_old   = 0   # zu alt (last_dt > 30 Tage)
+          active_skipped_corrupt = 0
+
+          # FIX PERF-ACTIVE: Hot-Loop-Optimierung – Funktions-Lookups in lokale
+          # Variablen binden. Erspart pro Iteration den Modul-/Builtin-Lookup
+          # (~50-100ns × 4,8M = 0,3-0,5s). Marginal aber kostenlos.
+          _strptime  = datetime.strptime
+          _calc_conf = calculate_confidence
+          _UTC = timezone.utc
 
           for ip, data in db.items():
               try:
                   if not isinstance(data, dict):
+                      active_skipped_corrupt += 1
                       continue
+                  # Defense-in-Depth: nach merged Cleanup-Pass sollten hier keine
+                  # protected/wl_or_fp IPs mehr sein. Bisect-Checks sind O(log K)
+                  # und kosten zusammen ~1µs pro IP – günstig genug zum Behalten.
                   if _fast_is_protected(ip):
                       continue
-                  # FIX BUG-WL2: Expliziter Whitelist-/FP-Check – konsistent mit
-                  # combined-Ausgabe (Zeile 822-826). is_protected_entry() deckt die
-                  # Whitelist zwar ab, aber ein expliziter Guard ist robuster und
-                  # verhindert Regression falls is_protected_entry() je geändert wird.
                   if _fast_is_wl_or_fp(ip):
                       continue
-                  # FIX: Watchlist-IPs haben last="2000-01-01" als Sentinel-Wert (keine echte
-                  # HQ-Bestätigung). Sie würden durch cutoff_30 korrekt gefiltert, aber das
-                  # Verhalten hängt implizit am Sentinel-Datum. Explizit überspringen ist robuster.
-                  #
-                  # WICHTIG: Dieser Guard ist NICHT redundant zum Score-Cutoff ≥65. Eine
-                  # Watchlist-IP mit hq=True (Grenzfall) könnte theoretisch score_a=40 +
-                  # score_c=20 + score_d=10 = 70 erreichen und den Cutoff passieren, obwohl
-                  # sie das Sentinel-Datum hat. Der Guard ist die eigentliche Sicherung.
-                  if data.get("last", "") == "2000-01-01":
+                  # FIX PERF-ACTIVE: Sentinel-Check + lexikographischer
+                  # Datums-Compare BEVOR strptime. Watchlist-IPs (last=Sentinel)
+                  # und zu alte IPs werden ohne Parse aussortiert.
+                  last_str = data.get("last", "")
+                  if not isinstance(last_str, str) or last_str == "2000-01-01":
                       continue
-                  # first_seen als Variable extrahieren (statt inline) –
-                  # wird unten für den BUG-2-Sentinel-Check benötigt.
-                  first_seen = safe_get_date(data, "first", safe_get_date(data, "last"))
-                  try:
-                      last_dt  = datetime.strptime(data["last"],  "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                      first_dt = datetime.strptime(first_seen, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                  except Exception:
+                  if last_str < cutoff_30_str:
+                      active_skipped_old += 1
                       continue
 
-                  if last_dt < cutoff_30:
-                      active_skipped_old += 1
+                  # FIX PERF-ACTIVE: first_seen erst hier parsen – nicht vorher.
+                  # Bei IPs die durch den lex-Compare oben rausfallen wurden
+                  # vorher 2 strptime-Aufrufe gemacht.
+                  first_seen = safe_get_date(data, "first", last_str)
+                  try:
+                      last_dt  = _strptime(last_str,   "%Y-%m-%d").replace(tzinfo=_UTC)
+                      first_dt = _strptime(first_seen, "%Y-%m-%d").replace(tzinfo=_UTC)
+                  except Exception:
+                      active_skipped_corrupt += 1
                       continue
 
                   is_hq       = data.get("hq", False)
@@ -1426,7 +1458,7 @@ jobs:
                   # Drift mit update_confidence_blacklist.yml und spart
                   # ~30 Zeilen. Die Funktion ist crash-sicher gegen
                   # korrupte seen_db-Werte (Typ-Koerzierung intern).
-                  conf = calculate_confidence(
+                  conf = _calc_conf(
                       is_hq=is_hq,
                       today_count=today_count,
                       feed_count=feed_count,
@@ -1440,8 +1472,13 @@ jobs:
                   else:
                       active_skipped_score += 1
               except Exception as _corrupt:
-                  print(f"WARN: Korrupter seen_db-Eintrag {ip}: {_corrupt}", file=sys.stderr)
+                  if active_skipped_corrupt < 5:
+                      print(f"WARN: Korrupter seen_db-Eintrag {ip}: {_corrupt}", file=sys.stderr)
+                  active_skipped_corrupt += 1
                   continue
+
+          if active_skipped_corrupt:
+              print(f"Active-Blacklist: {active_skipped_corrupt} korrupte Einträge übersprungen")
 
           try:
               # FIX PERF-SORT: Gleicher schneller Key wie bei combined.
