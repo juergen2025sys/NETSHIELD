@@ -15,6 +15,7 @@ Verwendung in Workflows:
     )
 """
 
+import bisect
 import ipaddress
 import json
 import os
@@ -78,6 +79,71 @@ _whitelist_networks = []
 # Check fällt komplett aus.
 _protected_networks = list(_RESERVED_NETS)
 
+# ───────────────────────────────────────────────────────────────
+# FIX PERF-PARSE: Binary-Search-Indices fuer is_protected_entry,
+# is_whitelisted und is_in_fp_set.
+#
+# Vorher: jeder Aufruf scannte _protected_networks (453 Eintraege)
+# linear – `any(addr in net for net in ...)`. parse_entries() ruft
+# is_protected_entry() pro Feed-Zeile auf. Bei firehol_anonymous
+# (1,69 M IPs) ergab das 1,69M × 453 ≈ 770M Containment-Checks in
+# reinem Python pro Run, ueber alle Feeds zusammen ~10–20 min.
+#
+# Jetzt: sortierte, gemergte (start, end)-Intervalle pro Pool +
+# bisect_right → O(log K) statt O(K) pro IP-Lookup. CIDRs (selten,
+# <5 % der Eintraege) gehen weiter ueber die Overlap-Pruefung, weil
+# Range-Overlap nicht trivial bisect-bar ist.
+#
+# Merging: ueberlappende/benachbarte Ranges werden zu einem Intervall
+# zusammengezogen. Wichtig fuer korrekte Treffer bei Whitelists wie
+# 10.0.0.0/8 + 10.1.0.0/16 (gleiches Problem wie BUG-11 im Workflow).
+# ───────────────────────────────────────────────────────────────
+_protected_starts = []   # protected = whitelist + reserved
+_protected_ends   = []
+_whitelist_starts = []   # nur Whitelist (ohne reserved)
+_whitelist_ends   = []
+
+
+def _merge_intervals_from_nets(nets):
+    """Sortiert (start, end) aus IPv4Networks und merged Ueberlappungen."""
+    intervals = sorted(
+        (int(n.network_address), int(n.broadcast_address))
+        for n in nets
+    )
+    merged = []
+    for lo, hi in intervals:
+        if merged and lo <= merged[-1][1] + 1:
+            merged[-1] = (merged[-1][0], max(merged[-1][1], hi))
+        else:
+            merged.append((lo, hi))
+    return merged
+
+
+def _rebuild_protected_index():
+    """Baut Binary-Search-Indices fuer protected + whitelist neu auf.
+
+    Wird automatisch von load_whitelist() und _reset_whitelist_for_testing()
+    aufgerufen. Tests, die _protected_networks/_whitelist_networks direkt
+    mutieren, muessen diese Funktion danach selbst aufrufen.
+    """
+    global _protected_starts, _protected_ends
+    global _whitelist_starts, _whitelist_ends
+    p = _merge_intervals_from_nets(_protected_networks)
+    _protected_starts = [iv[0] for iv in p]
+    _protected_ends   = [iv[1] for iv in p]
+    w = _merge_intervals_from_nets(_whitelist_networks)
+    _whitelist_starts = [iv[0] for iv in w]
+    _whitelist_ends   = [iv[1] for iv in w]
+
+
+def _interval_contains(starts, ends, ip_int):
+    """O(log K) Lookup: True wenn ip_int in einem der gemergten Intervalle liegt."""
+    if not starts:
+        return False
+    pos = bisect.bisect_right(starts, ip_int) - 1
+    return pos >= 0 and ip_int <= ends[pos]
+
+
 # FIX BUG-WL1-HARDENING: Loaded-Flag verhindert Fail-Open.
 # Hintergrund: BUG-WL1 (08:37 UTC, 2026-04-26) entstand weil ein Job-Step
 # is_whitelisted() aufrief OHNE vorher load_whitelist() ausgeführt zu haben.
@@ -103,6 +169,7 @@ def _reset_whitelist_for_testing():
     _whitelist_networks = []
     _protected_networks = list(_RESERVED_NETS)
     _whitelist_loaded = False
+    _rebuild_protected_index()
 
 
 def load_whitelist(path=".github/workflows/whitelist.json", min_entries=50):
@@ -174,6 +241,9 @@ def load_whitelist(path=".github/workflows/whitelist.json", min_entries=50):
     # liess z.B. 169.0.0.0/8 durch (ueberlappt 169.254/16). Jetzt ueber die
     # unifizierte _RESERVED_NETS-Liste konsistent mit is_valid_public_cidr.
     _protected_networks = list(_whitelist_networks) + list(_RESERVED_NETS)
+    # FIX PERF-PARSE: Binary-Search-Index aufbauen, damit is_protected_entry/
+    # is_whitelisted/is_in_fp_set in O(log K) statt O(K) laufen.
+    _rebuild_protected_index()
     # FIX BUG-WL1-HARDENING: Erst nach erfolgreichem Aufbau auf True setzen,
     # damit ein halb-fertiger State von is_whitelisted() noch als "nicht geladen"
     # erkannt wird.
@@ -198,7 +268,17 @@ def is_whitelisted(ip_str):
             "bevor IPs gefiltert werden."
         )
     try:
-        addr = ipaddress.ip_address(ip_str.split('/')[0])
+        addr_str = ip_str.split('/')[0]
+        # FIX PERF-PARSE: Plain-IP-Pfad ueber Binary-Search-Index (O(log K)).
+        # CIDR-Eintraege landen im except-Branch und gehen ueber den
+        # Linear-Scan – akzeptabel, weil <5% der Eingaben CIDRs sind.
+        if '/' not in ip_str:
+            try:
+                ip_int = int(ipaddress.IPv4Address(addr_str))
+                return _interval_contains(_whitelist_starts, _whitelist_ends, ip_int)
+            except (ipaddress.AddressValueError, ValueError):
+                return False
+        addr = ipaddress.ip_address(addr_str)
         return any(addr in net for net in _whitelist_networks)
     except Exception:
         return False
@@ -234,13 +314,16 @@ def is_protected_entry(value):
                     net.is_reserved or net.is_link_local or net.is_unspecified):
                 return True
             return any(net.overlaps(protected) for protected in _protected_networks)
-        addr = ipaddress.ip_address(candidate)
-        if addr.version != 4:
+        # FIX PERF-PARSE: Plain-IP-Pfad ueber Binary-Search-Index (O(log K)).
+        # is_private/is_loopback/etc. werden vom Index ohnehin abgedeckt
+        # (RFC1918/Reserved/Link-Local/Multicast/etc. sind alle in _RESERVED_NETS
+        # und damit Teil von _protected_networks). Doppelte Pruefung entfaellt.
+        try:
+            ip_int = int(ipaddress.IPv4Address(candidate))
+        except (ipaddress.AddressValueError, ValueError):
+            # Nicht-IPv4 (z.B. IPv6-String) → protected
             return True
-        if (addr.is_private or addr.is_loopback or addr.is_multicast or
-                addr.is_reserved or addr.is_link_local or addr.is_unspecified):
-            return True
-        return any(addr in protected for protected in _protected_networks)
+        return _interval_contains(_protected_starts, _protected_ends, ip_int)
     except Exception:
         return True
 
@@ -251,6 +334,21 @@ def is_protected_entry(value):
 
 _fp_ips = set()
 _fp_networks = []
+
+# FIX PERF-PARSE: Binary-Search-Index fuer FP-Networks (siehe oben).
+_fp_starts = []
+_fp_ends   = []
+
+
+def _rebuild_fp_index():
+    """Baut den Binary-Search-Index fuer FP-Networks neu auf.
+    Wird automatisch von load_fp_set() aufgerufen. Tests, die _fp_networks
+    direkt mutieren, muessen diese Funktion danach selbst aufrufen.
+    """
+    global _fp_starts, _fp_ends
+    fp = _merge_intervals_from_nets(_fp_networks)
+    _fp_starts = [iv[0] for iv in fp]
+    _fp_ends   = [iv[1] for iv in fp]
 
 
 def load_fp_set(path="false_positives_set.json"):
@@ -263,6 +361,7 @@ def load_fp_set(path="false_positives_set.json"):
     _fp_ips = set()
     _fp_networks = []
     if not os.path.exists(path):
+        _rebuild_fp_index()
         return _fp_ips, _fp_networks
     try:
         with open(path) as f:
@@ -278,6 +377,7 @@ def load_fp_set(path="false_positives_set.json"):
         print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs geladen")
     except Exception as e:
         print(f"WARNUNG: false_positives_set.json nicht lesbar: {e}")
+    _rebuild_fp_index()
     return _fp_ips, _fp_networks
 
 
@@ -286,7 +386,15 @@ def is_in_fp_set(ip_str):
     if ip_str in _fp_ips:
         return True
     try:
-        addr = ipaddress.ip_address(ip_str.split("/")[0])
+        addr_str = ip_str.split("/")[0]
+        # FIX PERF-PARSE: Plain-IP-Pfad ueber Binary-Search-Index (O(log K)).
+        if '/' not in ip_str:
+            try:
+                ip_int = int(ipaddress.IPv4Address(addr_str))
+                return _interval_contains(_fp_starts, _fp_ends, ip_int)
+            except (ipaddress.AddressValueError, ValueError):
+                return False
+        addr = ipaddress.ip_address(addr_str)
         return any(addr in net for net in _fp_networks)
     except Exception:
         return False
