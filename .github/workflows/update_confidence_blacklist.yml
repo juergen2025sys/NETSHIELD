@@ -135,23 +135,54 @@ jobs:
                   sys.exit(1)  # exit(1) damit GitHub Actions den Fehler im UI anzeigt
           print(f"seen_db geladen: {len(db)} IPs")
 
-          # Alter der seen_db prüfen – nur echte HQ-Bestätigungsdaten (last != 2000-01-01)
-          # berücksichtigen, damit Watchlist-IPs (last="2000-01-01") kein falsches Alarm-Alter erzeugen
-          real_dates = [safe_get_date(d, "last") for d in db.values() if isinstance(d, dict) and safe_get_date(d, "last") != "2000-01-01"]
-          newest_last = max(real_dates) if real_dates else None
-          try:
-              if newest_last:
-                  newest_dt = datetime.strptime(newest_last, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                  db_age_hours = (now - newest_dt).total_seconds() / 3600
-                  print(f"seen_db aktuellster Eintrag: {newest_last} ({db_age_hours:.1f}h alt)")
-                  # FIX: Schwelle 4.5h – combined läuft alle 3h, confidence 45min danach.
-                  # Bei >4.5h wurde sicher mindestens ein vollständiger combined-Run verpasst.
-                  if db_age_hours > 4.5:
-                      print(f"WARNUNG: seen_db ist {db_age_hours:.1f}h alt – mindestens ein combined-Run wurde verpasst!")
-              else:
-                  print("seen_db: Keine HQ-bestätigten Einträge vorhanden (nur Watchlist-IPs)")
-          except Exception as _suppressed:
-              print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+          # Alter der seen_db prüfen.
+          # FIX SEEN-DB-AGE: Primär seen_db_meta.json verwenden (Stundengenauigkeit
+          # via "updated"-Feld). Der vorherige Ansatz benutzte das aktuellste
+          # last-Datum aus der DB; weil last nur tagesgenau ist (YYYY-MM-DD →
+          # strptime ergibt Mitternacht UTC), zeigte er ab ~04:30 UTC jeden
+          # Tag fälschlich >4,5h Alter, obwohl die Pipeline gerade erst
+          # bestätigt hatte. Fallback auf den DB-Vergleich nur wenn Meta
+          # fehlt/korrupt – Schwelle dort entsprechend großzügiger (24h+3h
+          # Worst-Case durch Tagesgranularität).
+          db_age_hours = None
+          META_FILE = "seen_db_meta.json"
+          if os.path.exists(META_FILE):
+              try:
+                  with open(META_FILE) as _mf:
+                      _meta = json.load(_mf)
+                  _meta_upd = _meta.get("updated", "")
+                  if _meta_upd:
+                      _meta_dt = datetime.strptime(_meta_upd.replace(" UTC", ""), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+                      db_age_hours = (now - _meta_dt).total_seconds() / 3600
+                      print(f"seen_db zuletzt aktualisiert: {_meta_upd} ({db_age_hours:.1f}h alt)")
+                      # Combined läuft alle 3h, plus Wallzeit (~30 min) plus
+                      # Cache-Save → 4,5h ist eine sichere Schwelle bei
+                      # echtem Timestamp.
+                      if db_age_hours > 4.5:
+                          print(f"WARNUNG: seen_db ist {db_age_hours:.1f}h alt – mindestens ein combined-Run wurde verpasst!")
+              except Exception as _suppressed:
+                  print(f"WARN: seen_db_meta.json nicht lesbar – Fallback auf DB-last-Vergleich: {_suppressed}", file=sys.stderr)
+
+          if db_age_hours is None:
+              # Fallback: aktuellstes last-Datum aus DB.
+              # Nur echte HQ-Bestätigungsdaten (last != 2000-01-01) berücksichtigen,
+              # damit Watchlist-IPs (last="2000-01-01") kein falsches Alarm-Alter erzeugen.
+              real_dates = [safe_get_date(d, "last") for d in db.values() if isinstance(d, dict) and safe_get_date(d, "last") != "2000-01-01"]
+              newest_last = max(real_dates) if real_dates else None
+              try:
+                  if newest_last:
+                      newest_dt = datetime.strptime(newest_last, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      db_age_hours = (now - newest_dt).total_seconds() / 3600
+                      print(f"seen_db aktuellster Eintrag (Fallback ohne Meta): {newest_last} ({db_age_hours:.1f}h alt)")
+                      # Schwelle für den Fallback großzügig: last ist nur tagesgenau,
+                      # bei 23:59 geschriebenem Eintrag und 27h später Messung wären
+                      # das echte 27h+ – alles darunter könnte legitim sein.
+                      if db_age_hours > 27:
+                          print(f"WARNUNG: seen_db ist {db_age_hours:.1f}h alt (Fallback) – Pipeline steht vermutlich still!")
+                  else:
+                      print("seen_db: Keine HQ-bestätigten Einträge vorhanden (nur Watchlist-IPs)")
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
           if not os.path.exists(BLACKLIST):
               msg = f"{BLACKLIST} nicht gefunden – combined-Workflow muss zuerst laufen."
