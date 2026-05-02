@@ -752,20 +752,21 @@ class TestConfidenceNegativeInputs(unittest.TestCase):
     """Negative Inputs sollen nie zu falsch hohen Scores führen."""
 
     def test_negative_days_since_last_doesnt_grant_recency(self):
-        # Vorher: days_since_last=-1 triggerte "<=1" → 30 Punkte
-        # Jetzt: wird auf 0 geklemmt → bleibt in Frische-Fenster, das ist
-        # OK, aber wir wollen v.a. kein absurdes Verhalten.
+        # FIX BUG-NEG-AGE: Vorher: max(0, -1) = 0 fiel in den "<=1"-Zweig
+        # und vergab volle 30 Punkte fuer Aktualitaet – exakt das was der
+        # Test-Name verbietet. Der Test selbst hatte assertEqual(score, 30)
+        # und zementierte damit das kaputte Verhalten.
+        # Jetzt: negative Aged-Werte werden auf den jeweiligen "unbekannt"-
+        # Default gemappt (days_since_last=999, days_seen/known=0) → 0 Punkte
+        # in allen vier Dimensionen.
         score = calculate_confidence(
             today_count=-5, feed_count=-3,
             days_since_last=-100, days_seen=-1, days_known=-1)
-        # Mit is_hq=False, today=0, feed=0 → A=0
-        # days_since_last geklemmt auf 0 → B=30
-        # FIX BUG-5: days_seen geklemmt auf 0 → C=0 (vorher: else-Zweig gab 2
-        # Punkte für days_seen<2, inklusive 0 – systematische Score-Inflation
-        # für Neu-Einträge ohne jede Bestätigung. Korrigierter Zweig:
-        #   days_seen >= 1 → 2, sonst 0.
-        # days_known geklemmt auf 0 → D=0
-        self.assertEqual(score, 30)
+        # is_hq=False, today=0, feed=0                          → A=0
+        # days_since_last → 999 (Bucket >30 Tage)               → B=0
+        # days_seen → 0 (FIX BUG-5 else-Zweig)                  → C=0
+        # days_known → 0                                        → D=0
+        self.assertEqual(score, 0)
 
     def test_all_negative_stays_in_range(self):
         score = calculate_confidence(
