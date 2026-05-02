@@ -1016,11 +1016,13 @@ jobs:
                               entry["days_seen"] = entry.get("days_seen", 0) + 1
                           entry["last"] = now_day
 
-                      # NB: sorted() bleibt erhalten – die Bytes des
-                      # seen_db_backup.json.gz sind stabilisiert dadurch (sonst
-                      # würde jeder Run einen 80-MB-Commit erzeugen, weil
-                      # set-Iterationsreihenfolge nicht garantiert stabil ist).
-                      entry["feeds"]       = sorted(existing_feeds | today_feeds)
+                      # FIX PERF-LAZYSORT: per-IP sorted() entfernt. Wird in
+                      # einem einzigen Sweep nach der Update-Schleife (nur ueber
+                      # die heute beruehrten IPs in ip_feeds_today) sortiert,
+                      # bevor seen_db geschrieben wird. Byte-Stabilitaet des
+                      # seen_db_backup.json.gz bleibt dadurch erhalten – nur
+                      # die Sortier-Arbeit wandert aus dem Hot-Loop heraus.
+                      entry["feeds"]       = list(existing_feeds | today_feeds)
                       entry["today_count"] = today_count
                       entry["today_hq"]    = today_is_hq
                       if today_is_hq:
@@ -1039,22 +1041,28 @@ jobs:
                       # Jetzt: Zählt jede HQ-Feed-Quelle nur einmal, egal wie oft sie gemeldet hat.
                       existing_hq_names = set(entry.get("hq_feed_names", []))
                       existing_hq_names.update(hq_feed_names_today)
-                      entry["hq_feed_names"] = sorted(existing_hq_names)
+                      # FIX PERF-LAZYSORT: per-IP sorted() entfernt – siehe Sweep
+                      # nach der Schleife.
+                      entry["hq_feed_names"] = list(existing_hq_names)
                       entry["hq_feeds"]      = len(existing_hq_names)
                   except Exception as _corrupt:
                       print(f"WARN: Korrupter seen_db-Eintrag {ip}, wird neu angelegt: {_corrupt}", file=sys.stderr)
+                      # FIX PERF-LAZYSORT: list() statt sorted() – Sweep nach
+                      # der Schleife sortiert.
                       db[ip] = {
                           "first":          now_day,
                           "last":           now_day if today_is_hq else "2000-01-01",
                           "hq":             today_is_hq,
-                          "feeds":          sorted(today_feeds),
-                          "hq_feed_names":  sorted(hq_feed_names_today),
+                          "feeds":          list(today_feeds),
+                          "hq_feed_names":  list(hq_feed_names_today),
                           "hq_feeds":       len(hq_feed_names_today),
                           "today_count":    today_count,
                           "today_hq":       today_is_hq,
                           "days_seen":      1 if today_is_hq else 0,
                       }
               else:
+                  # FIX PERF-LAZYSORT: list() statt sorted() – Sweep nach
+                  # der Schleife sortiert.
                   db[ip] = {
                       "first":          now_day,
                       # FIX AGGREGATOR1: Neue IPs bekommen last=heute bei 1+ HQ-Feed.
@@ -1064,8 +1072,8 @@ jobs:
                       # Aggregator-Feed sie weitermeldet.
                       "last":           now_day if today_is_hq else "2000-01-01",
                       "hq":             today_is_hq,
-                      "feeds":          sorted(today_feeds),
-                      "hq_feed_names":  sorted(hq_feed_names_today),   # FIX Bug3: auch bei Neu-Einträgen
+                      "feeds":          list(today_feeds),
+                      "hq_feed_names":  list(hq_feed_names_today),   # FIX Bug3: auch bei Neu-Einträgen
                       "hq_feeds":       len(hq_feed_names_today),
                       "today_count":    today_count,
                       "today_hq":       today_is_hq,
@@ -1196,6 +1204,27 @@ jobs:
                         f"{len(_community_active)} aktive behalten")
 
           # ── seen_db speichern ──────────────────────────────────────────────
+          # FIX PERF-LAZYSORT: Sammelsortierung VOR dem JSON-Dump. In der
+          # Update-Schleife oben werden `feeds` und `hq_feed_names` nur als
+          # ungeordnete Listen befuellt – pro IP genau einmal. Hier wird
+          # einmalig sortiert, bevor seen_db gespeichert wird. Iteriert NUR
+          # ueber ip_feeds_today (die heute beruehrten IPs), nicht ueber alle
+          # 4,8 M db-Eintraege – Eintraege die heute nicht angefasst wurden,
+          # sind seit dem letzten Run noch sortiert. IPs aus ip_feeds_today,
+          # die durch den Cleanup-Pass entfernt wurden, werden via `if ip in
+          # db` uebersprungen. Byte-Stabilitaet des seen_db_backup.json.gz
+          # ist damit aequivalent zum vorherigen per-IP-sorted()-Verhalten.
+          for ip in ip_feeds_today:
+              entry = db.get(ip)
+              if not isinstance(entry, dict):
+                  continue
+              _f = entry.get("feeds")
+              if isinstance(_f, list):
+                  entry["feeds"] = sorted(_f)
+              _h = entry.get("hq_feed_names")
+              if isinstance(_h, list):
+                  entry["hq_feed_names"] = sorted(_h)
+
           # Atomar via write_json_atomic (tmp-Datei + fsync + os.replace).
           # Verhindert korrupte seen_db.json bei Runner-OOM/SIGKILL/Timeout.
           # Ohne Atomicity wuerde eine halb geschriebene Datei naechsten Run
@@ -1400,9 +1429,16 @@ jobs:
           # FIX PERF-ACTIVE: Hot-Loop-Optimierung – Funktions-Lookups in lokale
           # Variablen binden. Erspart pro Iteration den Modul-/Builtin-Lookup
           # (~50-100ns × 4,8M = 0,3-0,5s). Marginal aber kostenlos.
-          _strptime  = datetime.strptime
           _calc_conf = calculate_confidence
-          _UTC = timezone.utc
+          # FIX PERF-ACTIVE2: date.fromisoformat statt datetime.strptime.
+          # fromisoformat ist eine pure C-Funktion ohne Format-String-Parser
+          # und ~3-5x schneller als strptime("%Y-%m-%d"). Außerdem entfaellt
+          # das replace(tzinfo=...), weil fuer Tages-Differenzen reine date-
+          # Objekte ausreichen (UTC-Naivitaet ist hier irrelevant: alle
+          # Eintraege sind YYYY-MM-DD ohne Zeitanteil).
+          from datetime import date as _date
+          _fromiso = _date.fromisoformat
+          _now_date = now.date()
 
           for ip, data in db.items():
               try:
@@ -1431,9 +1467,9 @@ jobs:
                   # vorher 2 strptime-Aufrufe gemacht.
                   first_seen = safe_get_date(data, "first", last_str)
                   try:
-                      last_dt  = _strptime(last_str,   "%Y-%m-%d").replace(tzinfo=_UTC)
-                      first_dt = _strptime(first_seen, "%Y-%m-%d").replace(tzinfo=_UTC)
-                  except Exception:
+                      last_dt  = _fromiso(last_str)
+                      first_dt = _fromiso(first_seen)
+                  except (ValueError, TypeError):
                       active_skipped_corrupt += 1
                       continue
 
@@ -1441,7 +1477,7 @@ jobs:
                   feed_count  = len(data.get("feeds", []))
                   today_count = data.get("today_count", 0)
                   days_seen   = data.get("days_seen", 1)
-                  days_since_last = (now - last_dt).days
+                  days_since_last = (_now_date - last_dt).days
                   # FIX BUG-2: first="2000-01-01" ist ein Sentinel, kein echtes Datum.
                   # Ohne Neutralisierung würde days_known ≈ 9600 den vollen Alter-Bonus
                   # +10 triggern. Für active_blacklist (Score ≥65) ist das besonders
@@ -1451,7 +1487,7 @@ jobs:
                   if first_seen == "2000-01-01":
                       days_known = 0
                   else:
-                      days_known = (now - first_dt).days + 1
+                      days_known = (_now_date - first_dt).days + 1
 
                   # FIX DRY: Inline-Scoring entfernt, rufe stattdessen die
                   # zentrale Funktion aus netshield_common auf. Verhindert
