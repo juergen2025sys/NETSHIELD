@@ -1,5 +1,5 @@
 {
-  "_description": "NETSHIELD Whitelist – IPs/CIDRs die NIE auf die Blacklist kommen. 585 Eintraege.",
+  "_description": "NETSHIELD Whitelist \u2013 IPs/CIDRs die NIE auf die Blacklist kommen. 585 Eintraege.",
   "entries": [
     "1.0.0.1",
     "1.0.0.2",
@@ -473,8 +473,6 @@
     "185.111.111.159",
     "185.125.188.0/22",
     "185.199.108.0/22",
-    "185.199.109.133",
-    "185.199.111.133",
     "185.228.168.9",
     "185.228.168.168",
     "185.228.169.9",
