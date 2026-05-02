@@ -445,6 +445,9 @@ class TestWhitelistLoading(unittest.TestCase):
         netshield_common._fp_networks = [
             __import__('ipaddress').ip_network("5.6.7.0/24")
         ]
+        # FIX PERF-PARSE: Direkte Mutation von _fp_networks erfordert
+        # explizites Index-Rebuild fuer den Binary-Search-Pfad.
+        netshield_common._rebuild_fp_index()
         self.assertTrue(is_in_fp_set("1.2.3.4"))
         self.assertTrue(is_in_fp_set("5.6.7.100"))
         self.assertFalse(is_in_fp_set("9.9.9.9"))
