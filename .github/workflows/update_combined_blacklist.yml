@@ -279,11 +279,18 @@ jobs:
               # in HIGH_QUALITY. Effekt: ip_in_hq wurde nie befüllt → strongly_confirmed_today
               # blieb False → das "last"-Feld wurde nie aktualisiert → IPs alterten still
               # nach 180 Tagen aus, obwohl DataPlane sie täglich frisch liefert.
-              # Alle 8 DataPlane-HQ-Feeds hier ergänzt; smtpgreet bleibt
-              # bewusst non-HQ (enthält auch harmlose Scanner/Surveyor-IPs).
+              # Alle DataPlane-HQ-Feeds hier ergänzt; smtpgreet und ntpmode3 bleiben
+              # bewusst non-HQ (enthalten auch harmlose Scanner/Surveyor- bzw. legitime
+              # NTP-Client-IPs). Bei jedem neuen DataPlane-Feed mit hq=True in SOURCES
+              # MUSS der Eintrag auch hier aufgenommen UND in HQ_FEED_FAMILIES als
+              # "dataplane" markiert werden – sonst BUG-DP1.
               "dataplane_sshclient", "dataplane_sshpwauth", "dataplane_vncrfb",
               "dataplane_telnetlogin", "dataplane_dnsrd", "dataplane_smtpdata",
               "dataplane_dnsrdany", "dataplane_dnsversion",
+              # FIX DP-EXTEND: 7 neue HQ-Feeds (dnstcp, proto41, ntpmode6/7, sip*)
+              "dataplane_dnstcp", "dataplane_proto41",
+              "dataplane_ntpmode6", "dataplane_ntpmode7",
+              "dataplane_sipinvitation", "dataplane_sipquery", "dataplane_sipregistration",
               # GreedyBear (Honeynet Project) – HQ=True in SOURCES, muss hier
               # ebenfalls registriert sein, sonst läuft BUG-DP1-Szenario erneut:
               # strongly_confirmed_today bliebe False → IPs würden still ausaltern.
@@ -334,6 +341,19 @@ jobs:
               "dataplane_smtpdata":     "dataplane",
               "dataplane_dnsrdany":     "dataplane",
               "dataplane_dnsversion":   "dataplane",
+              # FIX DP-EXTEND: 8 neue Feeds derselben Familie. smtpgreet und
+              # ntpmode3 sind zwar non-HQ, müssen aber trotzdem hier stehen,
+              # damit sie bei zufälligem Promote auf HQ in Zukunft korrekt
+              # als Familie erkannt werden – schadet sonst nicht.
+              "dataplane_smtpgreet":      "dataplane",
+              "dataplane_dnstcp":         "dataplane",
+              "dataplane_proto41":        "dataplane",
+              "dataplane_ntpmode3":       "dataplane",
+              "dataplane_ntpmode6":       "dataplane",
+              "dataplane_ntpmode7":       "dataplane",
+              "dataplane_sipinvitation":  "dataplane",
+              "dataplane_sipquery":       "dataplane",
+              "dataplane_sipregistration":"dataplane",
               # blocklist.de – all.txt ist Obermenge von ssh/export/strongips.
               "blocklist_de_all":        "blocklist_de",
               "blocklist_de_export":     "blocklist_de",
@@ -479,20 +499,49 @@ jobs:
 
               # ── Honeypot / Sensor Networks ───────────────────────────────
               # DataPlane.org – betriebenes Sensor/Honeypot-Netzwerk
-              # Erfasst echte Angriffe auf SSH, VNC, Telnet, DNS, SMTP u.a.
+              # Erfasst echte Angriffe auf SSH, VNC, Telnet, DNS, SMTP, SIP, NTP u.a.
               # Format: ASN | ASname | ipaddr | lastseen | category
               # parse_entries() extrahiert IPs korrekt per Fallback-Regex.
               # Kein API-Key, freie nicht-kommerzielle Nutzung.
-              "dataplane_sshclient":        ("https://dataplane.org/sshclient.txt", True),
-              "dataplane_sshpwauth":        ("https://dataplane.org/sshpwauth.txt", True),
-              "dataplane_vncrfb":           ("https://dataplane.org/vncrfb.txt", True),
-              "dataplane_telnetlogin":      ("https://dataplane.org/telnetlogin.txt", True),
-              "dataplane_dnsrd":            ("https://dataplane.org/dnsrd.txt", True),
-              "dataplane_smtpdata":         ("https://dataplane.org/smtpdata.txt", True),
-              "dataplane_smtpgreet":        ("https://dataplane.org/smtpgreet.txt", False),
+              #
+              # FIX DP-URL: URLs auf /signals/-Schema umgestellt (offizielles
+              # Verzeichnis laut https://dataplane.org/signals.html). Die alten
+              # /<name>.txt-URLs sind nur noch via Redirect erreichbar und
+              # werden von DataPlane nicht mehr garantiert.
+              #
+              # FIX DP-EXTEND: Alle 16 sinnvollen IP-Listen-Signale aufgenommen
+              # (vorher nur 9). Ausgenommen sind dnstypename (Format: IP+Query,
+              # nicht reine IP-Liste) und sshidpw (Credentials, keine IPs).
+              # ntpmode3 als HQ=False weil legitime NTP-Clients enthalten sind;
+              # ntpmode6/7 sind verdächtig (Control-Query bzw. monlist-Reflection).
+              #
+              # SSH (2 IP-Signale; sshidpw ausgelassen wegen Format)
+              "dataplane_sshclient":        ("https://dataplane.org/signals/sshclient.txt", True),
+              "dataplane_sshpwauth":        ("https://dataplane.org/signals/sshpwauth.txt", True),
+              # VNC (1 Signal)
+              "dataplane_vncrfb":           ("https://dataplane.org/signals/vncrfb.txt", True),
+              # Telnet (1 Signal)
+              "dataplane_telnetlogin":      ("https://dataplane.org/signals/telnetlogin.txt", True),
+              # DNS (4 Signale; dnstypename ausgelassen wegen Format)
+              "dataplane_dnsrd":            ("https://dataplane.org/signals/dnsrd.txt", True),
+              "dataplane_dnsrdany":         ("https://dataplane.org/signals/dnsrdany.txt", True),
+              "dataplane_dnsversion":       ("https://dataplane.org/signals/dnsversion.txt", True),
+              "dataplane_dnstcp":           ("https://dataplane.org/signals/dnstcp.txt", True),
+              # SMTP (2 Signale)
+              "dataplane_smtpdata":         ("https://dataplane.org/signals/smtpdata.txt", True),
+              "dataplane_smtpgreet":        ("https://dataplane.org/signals/smtpgreet.txt", False),
               # smtpgreet: HQ=False – enthält auch harmlose SMTP-Scanner/Surveyor-IPs
-              "dataplane_dnsrdany":         ("https://dataplane.org/dnsrdany.txt", True),
-              "dataplane_dnsversion":       ("https://dataplane.org/dnsversion.txt", True),
+              # IPv6 (1 Signal) – proto41-Relays sind oft Open Relays
+              "dataplane_proto41":          ("https://dataplane.org/signals/proto41.txt", True),
+              # NTP (3 Signale)
+              "dataplane_ntpmode3":         ("https://dataplane.org/signals/ntpmode3.txt", False),
+              # ntpmode3: HQ=False – Mode 3 ist normaler Client-Mode, viele legitime IPs
+              "dataplane_ntpmode6":         ("https://dataplane.org/signals/ntpmode6.txt", True),
+              "dataplane_ntpmode7":         ("https://dataplane.org/signals/ntpmode7.txt", True),
+              # SIP (3 Signale)
+              "dataplane_sipinvitation":    ("https://dataplane.org/signals/sipinvitation.txt", True),
+              "dataplane_sipquery":         ("https://dataplane.org/signals/sipquery.txt", True),
+              "dataplane_sipregistration":  ("https://dataplane.org/signals/sipregistration.txt", True),
 
               # ThreatHive – Community-Honeypot-Netzwerk, 146k+ IPs, alle 15 Min aktualisiert.
               # Plain-Text-Feed, kein API-Key, kein Rate-Limit.
@@ -779,7 +828,10 @@ jobs:
           slow_ex = ThreadPoolExecutor(max_workers=len(SLOW_SOURCES) or 1)
           slow_futures = {slow_ex.submit(fetch_ips, n, u): n for n, u in SLOW_SOURCES.items()}
 
-          # Phase 1 – DataPlane-Feeds zuerst (9 kleine Dateien, ~2–3 s)
+          # Phase 1 – DataPlane-Feeds zuerst (17 kleine Dateien, ~5–10 s)
+          # Werden bewusst zuerst geladen weil sie klein und schnell sind und
+          # die HQ-Bestätigungen früh in ip_in_hq landen sollen. Filter via
+          # n.startswith("dataplane_") greift automatisch bei neuen Feeds.
           print("── Phase 1: DataPlane-Feeds ──────────────────────────────────────")
           with ThreadPoolExecutor(max_workers=len(DP_SOURCES)) as dp_ex:
               dp_futures = {dp_ex.submit(fetch_ips, n, u): n for n, u in DP_SOURCES.items()}
