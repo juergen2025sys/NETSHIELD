@@ -206,12 +206,14 @@ jobs:
 
           # ── Hilfsfunktionen ───────────────────────────────────────────────
           def gh_api(path, token=GH_TOKEN, retries=3):
-              # FIX RATE-LIMIT: bei 403/429 X-RateLimit-Reset auswerten statt fix 60s.
-              # GitHub-Reset-Window ist häufig ~1h – feste 60s führten zu serieller
-              # Folge-403-Kette mit Retry-Verlust. Hard-Cap 30 min schützt vor
-              # extremen Wartezeiten bei Server-Bug oder Clock-Skew.
+              # FIX RATE-LIMIT: bei 403/429 X-RateLimit-Reset auswerten. Wenn
+              # Reset in ≤ MAX_WAIT_SECONDS liegt, einmal warten – sonst sofort
+              # raus. Frühere Variante (30 min wait) führte mit parallelem
+              # REFRESH zum Job-Timeout-Tod, weil mehrere Worker gleichzeitig
+              # sleepten. Pragmatik: einen Call opfern ist billiger als ganzer
+              # Run failt; der nächste Sonntags-Run holt's nach.
               # FIX 5xx-RETRY: 500/502/503/504 vorher → sofortiges None.
-              # Jetzt exponentielles Backoff (5s, 10s, 20s) wie bei fetch_url.
+              # Jetzt exponentielles Backoff (5s, 10s, 20s).
               url = f"https://api.github.com{path}"
               headers = {"Accept": "application/vnd.github+json",
                          "X-GitHub-Api-Version": "2022-11-28"}
@@ -219,7 +221,7 @@ jobs:
                   headers["Authorization"] = f"Bearer {token}"
 
               TRANSIENT_CODES = {500, 502, 503, 504}
-              MAX_WAIT_SECONDS = 30 * 60
+              MAX_WAIT_SECONDS = 90   # Hard-Cap: niemals länger als 90s warten
 
               for attempt in range(retries):
                   try:
@@ -233,18 +235,21 @@ jobs:
                               reset_str = e.headers.get("X-RateLimit-Reset", "") if e.headers else ""
                           except Exception:
                               pass
-                          wait = 60
+                          wait = None
                           try:
                               if reset_str:
-                                  wait = max(5, min(MAX_WAIT_SECONDS,
-                                                    int(reset_str) - int(time.time()) + 5))
+                                  candidate = int(reset_str) - int(time.time()) + 5
+                                  if 0 < candidate <= MAX_WAIT_SECONDS:
+                                      wait = candidate
                           except (ValueError, TypeError):
                               pass
-                          if attempt < retries - 1:
+                          if wait is not None and attempt < retries - 1:
                               print(f"  Rate-Limit (HTTP {e.code}) – warte {wait}s bis Reset...")
                               time.sleep(wait)
                               continue
-                          print(f"  Rate-Limit – Retries erschöpft für {path}")
+                          # Reset zu weit weg, fehlt, oder Retries erschöpft – skip
+                          print(f"  Rate-Limit (HTTP {e.code}) – skip {path} "
+                                f"(Reset >{MAX_WAIT_SECONDS}s oder fehlt)")
                           return None
                       elif e.code == 422:
                           return None
@@ -622,8 +627,8 @@ jobs:
               return result
 
           if existing_feeds:
-              print(f"REFRESH-Phase: {len(existing_feeds)} Feeds parallel (8 Worker)...")
-              with ThreadPoolExecutor(max_workers=8) as _ex:
+              print(f"REFRESH-Phase: {len(existing_feeds)} Feeds parallel (4 Worker)...")
+              with ThreadPoolExecutor(max_workers=4) as _ex:
                   _refresh_results = list(_ex.map(_refresh_one,
                                                   list(existing_feeds.items())))
           else:
