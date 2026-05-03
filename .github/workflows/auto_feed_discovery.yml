@@ -536,11 +536,15 @@ jobs:
               for repo in data.get("items", []):
                   add_repo_candidate(candidate_repos, repo, f"topic:{topic}")
 
+          # FIX CODE-SEARCH-RATE-LIMIT: GitHub Code-Search API hat ein striktes
+          # eigenes Limit von 10 Requests/Minute (anders als Repository-Search
+          # mit 30/min). Vorher time.sleep(2) → 30 Calls/min → konsistent 429.
+          # 7s Pause = ~8 Calls/min, mit Puffer unter dem 10/min-Hard-Limit.
           for query in SEARCH_CODE_QUERIES:
               print(f"Suche Code: {query}...")
               encoded_query = urllib.parse.quote(query, safe=':+*')
               data = gh_api(f"/search/code?q={encoded_query}&sort=indexed&order=desc&per_page=30")
-              time.sleep(2)
+              time.sleep(7)
               if not data:
                   continue
               for item in data.get("items", []):
