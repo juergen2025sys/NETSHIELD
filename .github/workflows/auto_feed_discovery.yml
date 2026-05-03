@@ -85,7 +85,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python3 << 'EOF'
+          # FIX UNBUFFERED: -u erzwingt ungepufferten stdout. Ohne das block-puffert
+          # CPython, weil GitHub Actions kein TTY ist – bei einem Job-Cancel
+          # (SIGTERM/Timeout) gehen alle bisherigen prints verloren, und im Log
+          # steht nichts ausser dem Heredoc-Echo. Mit -u streamen Logs live und
+          # zeigen genau, wo das Skript hing.
+          python3 -u << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
           from netshield_common import (
               load_whitelist, load_fp_set, is_in_fp_set,
