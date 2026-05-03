@@ -2,7 +2,12 @@ name: Auto Feed Discovery
 
 on:
   schedule:
-    - cron: '30 4 * * 0'   # wöchentlich Sonntag 04:30 UTC (nach cve_to_ip_mapper um 04:00)
+    # Sonntag mit Backup-Slots gegen GitHub-Skips bei hoher Last.
+    # Krumme Minuten meiden top-of-hour congestion. Idempotenz-Guard im
+    # ersten Step skippt Folge-Trigger, wenn heute bereits erfolgreich gelaufen.
+    - cron: '37 4 * * 0'   # 04:37 UTC – primärer Slot (nach cve_to_ip_mapper um 04:00)
+    - cron: '23 7 * * 0'   # 07:23 UTC – Backup #1 falls primärer Slot von GitHub übersprungen
+    - cron: '47 11 * * 0'  # 11:47 UTC – Backup #2 als letzte Sicherheit
   workflow_dispatch:
 
 env:
@@ -26,12 +31,41 @@ jobs:
     timeout-minutes: 45  # erhöht von 30 – bei Rate-Limit-Wartezeiten (60s) kann 30min knapp werden
 
     steps:
+      # Idempotenz-Guard: Bei mehreren Cron-Slots (4:37, 7:23, 11:47 UTC) verhindert
+      # dieser Step, dass Backup-Trigger laufen, wenn der primäre Slot bereits
+      # erfolgreich war. Bei manuellem Dispatch wird der Guard übersprungen
+      # (github.event_name != 'schedule'), sodass forcierte Runs immer durchgehen.
+      - name: Skip if already succeeded today
+        id: idempotency
+        if: github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          today=$(date -u +%Y-%m-%d)
+          success_count=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=auto_feed_discovery.yml \
+            --status=success \
+            --created="$today" \
+            --limit=10 \
+            --json databaseId \
+            --jq 'length')
+          if [ "$success_count" -gt 0 ]; then
+            echo "already_ran=true" >> "$GITHUB_OUTPUT"
+            echo "Heute bereits $success_count erfolgreiche Run(s) – Skip dieses Backup-Triggers"
+          else
+            echo "already_ran=false" >> "$GITHUB_OUTPUT"
+            echo "Noch kein erfolgreicher Run heute – fortfahren"
+          fi
+
       - name: Checkout Repository
+        if: steps.idempotency.outputs.already_ran != 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: true
 
       - name: Restore seen_db Cache
+        if: steps.idempotency.outputs.already_ran != 'true'
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: seen_db.json
@@ -47,6 +81,7 @@ jobs:
             netshield-seen-db-
 
       - name: Discover, Validate and Ingest IP Feeds
+        if: steps.idempotency.outputs.already_ran != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -1028,7 +1063,7 @@ jobs:
           EOF
 
       - name: Save seen_db Cache
-        if: always()
+        if: always() && steps.idempotency.outputs.already_ran != 'true'
         # FIX: actions/cache/save statt actions/cache – verhindert doppelten
         # Save (Restore-Step nutzt jetzt actions/cache/restore ohne Post-Job-Hook).
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
@@ -1040,7 +1075,7 @@ jobs:
           key: netshield-seen-db-afd-save-${{ github.run_id }}
 
       - name: Commit
-        if: always()  # auch bei Guard-Fail den Report committen
+        if: always() && steps.idempotency.outputs.already_ran != 'true'  # auch bei Guard-Fail den Report committen
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
