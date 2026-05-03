@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-03 04:49 UTC
+**Aktualisiert:** 2026-05-03 08:57 UTC
 
 **Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
@@ -15,7 +15,7 @@
 | Workflow | Status | Fehler | Warnungen | Cron |
 |---|---|---|---|---|
 | `asn_reputation_scorer.yml` | ✅ OK | 0 | 0 | `0 2 * * *` |
-| `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `30 4 * * 0` |
+| `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `37 4 * * 0`, `23 7 * * 0`, `47 11 * * 0` |
 | `community_ip_report.yml` | ✅ OK | 0 | 0 | – |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
 | `dependabot-auto-merge.yml` | ✅ OK | 0 | 0 | – |
@@ -35,4 +35,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-05-03 04:49 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-05-03 08:57 UTC | 19 Workflow-Dateien geprüft*
