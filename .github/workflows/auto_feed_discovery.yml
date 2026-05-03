@@ -536,20 +536,33 @@ jobs:
               for repo in data.get("items", []):
                   add_repo_candidate(candidate_repos, repo, f"topic:{topic}")
 
-          # FIX CODE-SEARCH-RATE-LIMIT: GitHub Code-Search API hat ein striktes
-          # eigenes Limit von 10 Requests/Minute (anders als Repository-Search
-          # mit 30/min). Vorher time.sleep(2) → 30 Calls/min → konsistent 429.
-          # 7s Pause = ~8 Calls/min, mit Puffer unter dem 10/min-Hard-Limit.
+          # FIX CODE-SEARCH-RATE-LIMIT: GitHub Code-Search API hat ein eigenes
+          # striktes Limit (10/min Primary + Secondary-Burst-Erkennung).
+          # 10s Pause = 6/min, doppelter Puffer unter Hard-Limit.
+          # CIRCUIT-BREAKER: Wenn 5 Calls hintereinander vom gh_api als
+          # "skip" zurückkommen (Reset > MAX_WAIT, also 90s), bricht die
+          # Code-Search-Phase ab. Topic-Search liefert ohnehin den Hauptanteil
+          # der Kandidaten – Code-Search ist Bonus. Besser ein paar Queries
+          # opfern als ganzer Workflow steckt im Rate-Limit fest.
+          consecutive_skips = 0
+          MAX_CONSECUTIVE_SKIPS = 5
           for query in SEARCH_CODE_QUERIES:
               print(f"Suche Code: {query}...")
               encoded_query = urllib.parse.quote(query, safe=':+*')
               data = gh_api(f"/search/code?q={encoded_query}&sort=indexed&order=desc&per_page=30")
-              time.sleep(7)
-              if not data:
-                  continue
-              for item in data.get("items", []):
-                  repo = item.get("repository")
-                  add_repo_candidate(candidate_repos, repo, f"code:{query}")
+              if data is None:
+                  consecutive_skips += 1
+                  if consecutive_skips >= MAX_CONSECUTIVE_SKIPS:
+                      print(f"  CIRCUIT-BREAKER: {MAX_CONSECUTIVE_SKIPS} Code-Queries "
+                            f"in Folge geskippt – Code-Search-Phase abgebrochen, "
+                            f"weiter mit Topic-Suche-Ergebnissen")
+                      break
+              else:
+                  consecutive_skips = 0
+                  for item in data.get("items", []):
+                      repo = item.get("repository")
+                      add_repo_candidate(candidate_repos, repo, f"code:{query}")
+              time.sleep(10)
 
           print(f"\nKandidaten nach Suche: {len(candidate_repos)} Repos\n")
 
