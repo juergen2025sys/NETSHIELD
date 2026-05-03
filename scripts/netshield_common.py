@@ -906,6 +906,22 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
                         print(f"  WARNUNG {url}: Response > {read_limit} bytes – "
                               f"Limit erhoehen sonst gehen Daten verloren")
                         data = data[:read_limit]
+                    # FIX GZIP: Transparent gepackte Feeds (.gz) dekomprimieren.
+                    # Erkennung über Magic-Bytes (\x1f\x8b) – URL-unabhängig, greift
+                    # auch wenn Server kein .gz-Suffix in der URL hat oder gzip per
+                    # Content-Encoding ausliefert. Limit-Check nach Decompression
+                    # erneut: gzip kann 10–20x expandieren (zip-bomb-Schutz).
+                    if data[:2] == b"\x1f\x8b":
+                        try:
+                            import gzip as _gzip
+                            data = _gzip.decompress(data)
+                        except (OSError, MemoryError) as _gz_err:
+                            print(f"  FEHLER gzip-Dekomprimierung {url}: {_gz_err}")
+                            return None
+                        if len(data) > read_limit:
+                            print(f"  WARNUNG {url}: gzip-dekomprimiert > {read_limit} "
+                                  f"bytes – getrimmt (mögliche zip-bomb)")
+                            data = data[:read_limit]
                     return data.decode("utf-8", errors="ignore")
             except urllib.error.HTTPError as e:
                 retryable = e.code in TRANSIENT_CODES or (e.code == 404 and _host_is_gh_raw)
