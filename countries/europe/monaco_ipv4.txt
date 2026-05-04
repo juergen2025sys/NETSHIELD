@@ -1,6 +1,6 @@
 # NETSHIELD – Monaco (MC) IPv4 Ranges
-# Aktualisiert: 2026-04-29 04:50 UTC
-# IP-Ranges: 27
+# Aktualisiert: 2026-05-04 05:00 UTC
+# IP-Ranges: 28
 
 37.44.224.0/22
 80.94.96.0/20
@@ -29,3 +29,4 @@
 195.20.192.0/23
 195.78.0.0/19
 213.133.72.0/21
+213.193.238.0/23
