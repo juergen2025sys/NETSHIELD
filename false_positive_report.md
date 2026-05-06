@@ -1,12 +1,12 @@
 # False Positive Checker – Report
-**Aktualisiert:** 2026-05-05 21:06 UTC
+**Aktualisiert:** 2026-05-06 07:31 UTC
 
 ---
 ## Ergebnis
 
 | Metrik | Wert |
 |---|---|
-| Geprüfte IPs (gesamt) | 4982995 |
+| Geprüfte IPs (gesamt) | 4985692 |
 | Whitelist-Treffer (dieser Run) | **0** |
 | FP-Set gesamt (kumuliert) | **0** |
 
@@ -14,4 +14,4 @@
 > `false_positives_set.json` wird beim nächsten `update_combined_blacklist`-Lauf über `is_in_fp_set()` angewendet.
 
 ---
-*Generiert: 2026-05-05 21:06 UTC*
+*Generiert: 2026-05-06 07:31 UTC*
