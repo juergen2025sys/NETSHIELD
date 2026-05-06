@@ -1,14 +1,24 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-06 04:42 UTC
+**Aktualisiert:** 2026-05-06 09:36 UTC
 
-**Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
+**Workflows:** 19 | ✅ 19 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
 
 ---
+## ⚠️ Warnungen
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | Aktualität: Active Blacklist (Stufe 2) | active_blacklist_ipv4.txt ist 6h alt (WARN-Schwelle: 6h) |
+| `Production Health` | Aktualität: Combined Blacklist (Stufe 1) | combined_threat_blacklist_ipv4.txt ist 6h alt (WARN-Schwelle: 6h) |
+
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 2 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🟡 WARN | Aktualität: Active Blacklist (Stufe 2) | active_blacklist_ipv4.txt ist 6h alt (WARN-Schwelle: 6h) |
+| 🟡 WARN | Aktualität: Combined Blacklist (Stufe 1) | combined_threat_blacklist_ipv4.txt ist 6h alt (WARN-Schwelle: 6h) |
 
 ## Übersicht
 
@@ -35,4 +45,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-05-06 04:42 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-05-06 09:36 UTC | 19 Workflow-Dateien geprüft*
