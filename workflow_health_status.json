@@ -1,34 +1,22 @@
 {
-  "updated": "2026-05-08 04:24 UTC",
+  "updated": "2026-05-08 08:48 UTC",
   "total": 19,
   "ok": 19,
-  "warn": 1,
+  "warn": 0,
   "error": 0,
   "errors": [],
-  "warnings": [
-    {
-      "file": "Production Health",
-      "check": "Drift: honeypot_ips.txt",
-      "detail": "honeypot_ips.txt: 171,151 \u2192 120,537 (-30%) \u2013 deutlicher R\u00fcckgang"
-    }
-  ],
+  "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 5041672,
-    "active_blacklist_ipv4.txt": 2313977,
-    "blacklist_confidence40_ipv4.txt": 4047758,
-    "cve_exploit_ips.txt": 52974,
-    "honeypot_ips.txt": 120537,
+    "combined_threat_blacklist_ipv4.txt": 5049532,
+    "active_blacklist_ipv4.txt": 2319338,
+    "blacklist_confidence40_ipv4.txt": 4051628,
+    "cve_exploit_ips.txt": 52502,
+    "honeypot_ips.txt": 166501,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
     "critical": 0,
-    "warn": 1,
-    "checks": [
-      {
-        "level": "WARN",
-        "check": "Drift: honeypot_ips.txt",
-        "detail": "honeypot_ips.txt: 171,151 \u2192 120,537 (-30%) \u2013 deutlicher R\u00fcckgang"
-      }
-    ]
+    "warn": 0,
+    "checks": []
   }
 }
