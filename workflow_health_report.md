@@ -1,9 +1,16 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-08 15:02 UTC
+**Aktualisiert:** 2026-05-08 20:15 UTC
 
-**Workflows:** 19 | ✅ 19 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
+**Workflows:** 20 | ✅ 19 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
 
 ---
+## ⚠️ Warnungen
+
+| Datei | Check | Detail |
+|---|---|---|
+| `codeql.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
+| `codeql.yml` | actions/checkout Version-Drift | 1 Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht? |
+
 ## 🏥 Production Health
 
 **Status:** 🔴 0 CRITICAL | 🟡 0 WARN
@@ -16,6 +23,7 @@
 |---|---|---|---|---|
 | `asn_reputation_scorer.yml` | ✅ OK | 0 | 0 | `0 2 * * *` |
 | `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `37 4 * * 0`, `23 7 * * 0`, `47 11 * * 0` |
+| `codeql.yml` | ⚠️ | 0 | 1 | `0 3 * * 0` |
 | `community_ip_report.yml` | ✅ OK | 0 | 0 | – |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
 | `dependabot-auto-merge.yml` | ✅ OK | 0 | 0 | – |
@@ -35,4 +43,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-05-08 15:02 UTC | 19 Workflow-Dateien geprüft*
+*Generiert: 2026-05-08 20:15 UTC | 20 Workflow-Dateien geprüft*

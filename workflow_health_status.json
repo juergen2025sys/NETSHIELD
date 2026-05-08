@@ -1,17 +1,28 @@
 {
-  "updated": "2026-05-08 15:02 UTC",
-  "total": 19,
+  "updated": "2026-05-08 20:15 UTC",
+  "total": 20,
   "ok": 19,
-  "warn": 0,
+  "warn": 1,
   "error": 0,
   "errors": [],
-  "warnings": [],
+  "warnings": [
+    {
+      "file": "codeql.yml",
+      "check": "Node24 env fehlt",
+      "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
+    },
+    {
+      "file": "codeql.yml",
+      "check": "actions/checkout Version-Drift",
+      "detail": "1 Datei(en) weichen von der Mehrheits-SHA ab \u2013 Update vergessen oder verfrueht?"
+    }
+  ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 5056807,
-    "active_blacklist_ipv4.txt": 2326595,
-    "blacklist_confidence40_ipv4.txt": 4060336,
+    "combined_threat_blacklist_ipv4.txt": 5064025,
+    "active_blacklist_ipv4.txt": 2332027,
+    "blacklist_confidence40_ipv4.txt": 4065694,
     "cve_exploit_ips.txt": 52502,
-    "honeypot_ips.txt": 164761,
+    "honeypot_ips.txt": 164902,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
