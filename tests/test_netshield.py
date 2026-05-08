@@ -158,6 +158,71 @@ class TestParseEntries(unittest.TestCase):
         result = parse_entries("attack from 1.2.3.4 targeting 5.6.7.8")
         self.assertEqual(result, {"1.2.3.4", "5.6.7.8"})
 
+    def test_fallback_no_phantom_ip_from_cidr_netzadresse(self):
+        """BUG-PARSE-DUAL Regression: im Fallback-Pfad darf die Netzadresse
+        einer CIDR (z.B. 5.5.5.0 in 5.5.5.0/24) nicht zusätzlich als
+        Single-IP entstehen.
+
+        Vorher: IPV4_RE matcht die Netzadresse vor dem '/', weil ihr
+        Lookahead (?![\\d.]) das '/' nicht ausschließt. Folge: parse_entries
+        liefert sowohl '5.5.5.0/24' als auch '5.5.5.0' - redundante Phantom-
+        IPs in den Output-Listen.
+
+        Jetzt: CIDR-Spans werden gemerkt; IPV4_RE-Treffer innerhalb dieser
+        Spans werden verworfen.
+        """
+        # URLhaus-Style: CIDR im Fließtext
+        result = parse_entries("url 5.5.5.0/24 detected")
+        self.assertEqual(result, {"5.5.5.0/24"},
+                         "5.5.5.0 darf nicht als Phantom-IP entstehen")
+
+        # JSON-Style: CIDR in JSON-Feld
+        result = parse_entries('{"net":"11.22.33.0/24","threat":"scan"}')
+        self.assertEqual(result, {"11.22.33.0/24"},
+                         "11.22.33.0 darf nicht als Phantom-IP entstehen")
+
+        # Mit Datum/Log-Präfix: typischer Honeypot-Log-Output
+        result = parse_entries("[2026-04-26] hit on 88.99.100.0/24")
+        self.assertEqual(result, {"88.99.100.0/24"},
+                         "88.99.100.0 darf nicht als Phantom-IP entstehen")
+
+    def test_fallback_cidr_plus_separate_ip(self):
+        """BUG-PARSE-DUAL Regression (Counter-Test): Eine eigenständige IP
+        AUSSERHALB einer CIDR-Span muss weiterhin erfasst werden. Der Fix
+        darf keine echten Single-IPs unterdrücken.
+        """
+        # CIDR + separate IP: beide müssen drin sein
+        result = parse_entries("[2026] hit 88.99.100.0/24 from 11.22.33.44")
+        self.assertEqual(result, {"88.99.100.0/24", "11.22.33.44"})
+
+        # Mehrere CIDRs + IPs durcheinander
+        result = parse_entries("log: 11.22.33.0/24 hit 88.99.100.101 also 5.5.0.0/16")
+        self.assertEqual(result, {"11.22.33.0/24", "5.5.0.0/16", "88.99.100.101"})
+
+    def test_fallback_invalid_cidr_blocks_phantom(self):
+        """BUG-PARSE-DUAL Regression: Auch wenn die CIDR ungültig (z.B.
+        Prefix >32) ist und damit verworfen wird, darf ihre Netzadresse
+        nicht als Phantom-IP durchrutschen. Die Span-Markierung muss
+        IMMER erfolgen, auch für gefilterte CIDRs.
+
+        Test mit 88.99.100.0/64 (invalides Prefix für IPv4): die CIDR
+        wird verworfen, aber 88.99.100.0 wäre eine technisch valide
+        public IPv4 - ohne Span-Tracking würde sie als Phantom in den
+        Output rutschen. Mit Fix: 0 Einträge.
+        """
+        # /64 ist für IPv4 invalid → CIDR wird verworfen.
+        # 88.99.100.0 ist als Einzel-IP technisch valide (nicht in den
+        # _RESERVED_NETS), würde also OHNE Span-Tracking als Phantom
+        # durchschlüpfen.
+        result = parse_entries("hit 88.99.100.0/64 detected")
+        self.assertEqual(result, set(),
+                         "88.99.100.0 darf bei invalidem CIDR-Prefix nicht als Phantom-IP durchschlüpfen")
+
+        # Counter-Test: eine separate IP nach der invaliden CIDR muss
+        # weiterhin erfasst werden.
+        result = parse_entries("hit 88.99.100.0/64 plus 11.22.33.44")
+        self.assertEqual(result, {"11.22.33.44"})
+
     def test_dataplane_pipe_format(self):
         """DataPlane-Format: ASN | ASname | ipaddr | lastseen | category"""
         line = "12345 | Evil ISP | 1.2.3.4 | 2025-04-14 | ssh"
