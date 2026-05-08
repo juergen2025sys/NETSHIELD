@@ -227,26 +227,30 @@ jobs:
           # Änderungen immer in BEIDEN Dateien synchron halten.
           # ── Whitelist: IPs/CIDRs die NIE auf die Blacklist kommen ─────────
           # Single Source of Truth: whitelist.json (synchron mit false_positive_checker)
-          try:
-              with open(".github/workflows/whitelist.json", encoding="utf-8") as _wl_f:
-                  WHITELIST_ENTRIES = json.load(_wl_f)["entries"]
-              if len(WHITELIST_ENTRIES) < 50:
-                  _msg = f"whitelist.json hat nur {len(WHITELIST_ENTRIES)} Einträge (<50) – möglicherweise korrupt"
-                  print(f"::error file=update_combined_blacklist.yml::{_msg}")
-                  print(f"FEHLER: {_msg}")
-                  sys.exit(1)
-          except Exception as _wl_err:
-              _msg = f"whitelist.json nicht ladbar: {_wl_err} – Workflow abgebrochen (Schutz vor ungefilterter Blacklist)"
+          # FIX BUG-DRY-WL: Whitelist wurde HIER ein zweites Mal direkt gelesen,
+          # geparst und in lokales _whitelist_networks gebaut, parallel zum
+          # load_whitelist()-Aufruf weiter oben. Folge: zwei separate
+          # Schema-Validierungen (50-Eintrags-Schwelle hier vs. min_entries in
+          # netshield_common), zwei ip_network()-Iterationen, und im
+          # _all_protected_nets-Aufbau (Zeile ~721) tauchten die Whitelist-
+          # Eintraege doppelt auf - einmal via _protected_networks (das schon
+          # die Whitelist enthaelt), einmal via _whitelist_networks. Der
+          # nachgelagerte _merge_intervals() deduplizierte das, aber der Code
+          # war Drift-Anfaellig und der Schema-Check in load_whitelist() konnte
+          # still umgangen werden.
+          # Jetzt: Wiederverwendung der bereits via load_whitelist() geladenen
+          # und validierten Strukturen aus netshield_common.
+          import netshield_common as _nc
+          _whitelist_networks = list(_nc._whitelist_networks)
+          # WHITELIST_ENTRIES nur fuer den bestehenden Leerungsschutz/Logging
+          # rekonstruieren - wird ausserhalb dieses Blocks vermutlich nicht
+          # benoetigt, aber Variable-Existenz beibehalten fuer Backward-Compat.
+          WHITELIST_ENTRIES = [str(n) for n in _whitelist_networks]
+          if len(WHITELIST_ENTRIES) < 50:
+              _msg = f"whitelist.json hat nur {len(WHITELIST_ENTRIES)} Einträge (<50) – möglicherweise korrupt"
               print(f"::error file=update_combined_blacklist.yml::{_msg}")
               print(f"FEHLER: {_msg}")
               sys.exit(1)
-
-          _whitelist_networks = []
-          for _entry in list(WHITELIST_ENTRIES):
-              try:
-                  _whitelist_networks.append(ipaddress.ip_network(_entry, strict=False))
-              except Exception as _suppressed:
-                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
           # is_whitelisted() → importiert aus netshield_common
           # PROTECTED_CIDRS entfernt – wird über whitelist.json + RFC1918 geladen (via netshield_common)
@@ -259,7 +263,6 @@ jobs:
           # Konsequenz: der seen_db-Cleanup-Pass (Zeile ~686/1030) konnte
           # RFC1918-IPs aus einem migrierten/manuell editierten Cache nicht
           # mehr abraeumen.
-          import netshield_common as _nc
           _protected_networks = list(_nc._protected_networks)
 
           # is_protected_entry() → importiert aus netshield_common
@@ -635,10 +638,22 @@ jobs:
                   import gzip
                   with gzip.open(BACKUP_FILE, "rt", encoding="utf-8") as _bf:
                       db = json.load(_bf)
-                  print(f"seen_db aus Backup wiederhergestellt: {len(db)} IPs (Cache war leer/korrupt)")
-                  # Backup-restored db sofort als seen_db.json schreiben, damit
-                  # downstream-Steps und Cache-Save ihn finden.
-                  write_json_atomic(DB_FILE, db, separators=(",", ":"))
+                  # FIX BUG-BACKUP-GUARD: Backup ist nur dann nutzbar wenn es
+                  # eine plausible Anzahl Eintraege enthaelt. Ein winziges
+                  # Backup (durch frueheren BUG-BACKUP-GUARD-Schreibfehler oder
+                  # manuelle Manipulation) wird hier verworfen - besser von
+                  # Null beginnen als History mit kaputtem Stand zu zementieren.
+                  _MIN_BACKUP_ENTRIES = 10000
+                  if not isinstance(db, dict) or len(db) < _MIN_BACKUP_ENTRIES:
+                      print(f"WARN: Backup hat nur {len(db) if isinstance(db, dict) else 0} "
+                            f"Eintraege (<{_MIN_BACKUP_ENTRIES}) - wird verworfen, starte neu.",
+                            file=sys.stderr)
+                      db = {}
+                  else:
+                      print(f"seen_db aus Backup wiederhergestellt: {len(db)} IPs (Cache war leer/korrupt)")
+                      # Backup-restored db sofort als seen_db.json schreiben, damit
+                      # downstream-Steps und Cache-Save ihn finden.
+                      write_json_atomic(DB_FILE, db, separators=(",", ":"))
               except Exception as _restore_err:
                   print(f"WARN: Backup-Restore fehlgeschlagen ({_restore_err}) – starte neu", file=sys.stderr)
                   db = {}
@@ -1161,14 +1176,26 @@ jobs:
           _corrupt_dropped = 0
           for ip in list(db.keys()):
               try:
-                  # 1) Protected (Whitelist + RFC1918/Reserved)
-                  if _fast_is_protected(ip):
-                      protected_removed_runtime += 1
-                      _to_drop.append(ip)
-                      continue
-                  # 4) WL/FP-Altlasten (vorher in eigener Schleife nach Expiry)
+                  # FIX BUG-STATS-FP: Reihenfolge WL/FP-Check VOR Protected-Check.
+                  # Vorher: _fast_is_protected() prueft am Ende auch ob ip im
+                  # _fp_ips-Set steht (return ip_str in _fp_ips) und liefert dann
+                  # True. Eine FP-IP landete also in protected_removed_runtime
+                  # statt in wl_cleanup_count. Logausgabe zaehlte FP-IPs als
+                  # "Geschuetzte Eintraege entfernt", waehrend "Whitelist-
+                  # Bereinigung seen_db" sie unterschlug.
+                  # Korrekt entfernt wurden die IPs trotzdem - aber der Counter
+                  # log und die Stats waren irrefuehrend fuer Debug/Monitoring.
+                  # Jetzt: zuerst WL/FP, dann Protected. WL/FP-Treffer landen im
+                  # wl_cleanup_count, "echte" Reserved-/Whitelist-Treffer im
+                  # protected_removed_runtime.
+                  # 1) WL/FP-Altlasten (Whitelist + False-Positives)
                   if _fast_is_wl_or_fp(ip):
                       wl_cleanup_count += 1
+                      _to_drop.append(ip)
+                      continue
+                  # 2) Protected (Whitelist + RFC1918/Reserved)
+                  if _fast_is_protected(ip):
+                      protected_removed_runtime += 1
                       _to_drop.append(ip)
                       continue
                   data = db.get(ip)
@@ -1634,13 +1661,30 @@ jobs:
         if: always()
         run: |
           if [ -f seen_db.json ]; then
-            # Komprimiertes Backup (nur wenn seen_db > 1MB, also nicht leer/korrupt)
+            # FIX BUG-BACKUP-GUARD: IP-Mindestcheck zusaetzlich zum Byte-Check.
+            # Vorher nur SIZE > 1MB als einzige Schranke. Eine seen_db mit nur
+            # ~200 grossen Eintraegen (lange feed_names-Listen, hq_feed_names)
+            # passiert die 1MB-Schranke obwohl 99,995% der erwarteten ~4,5M
+            # Eintraege fehlen. Folge: ein durch Software-Korruption oder
+            # Migrations-Bug stark geschrumpfter Stand wuerde das gesunde
+            # Backup im Repo ueberschreiben - Recovery damit unmoeglich.
+            # Jetzt: Byte-Check UND Eintrags-Mindestzahl muessen passen.
             SIZE=$(stat -c%s seen_db.json 2>/dev/null || echo 0)
-            if [ "$SIZE" -gt 1048576 ]; then
+            ENTRY_COUNT=$(python3 -c "
+          import json, sys
+          try:
+              with open('seen_db.json') as f:
+                  d = json.load(f)
+              print(len(d) if isinstance(d, dict) else 0)
+          except Exception:
+              print(0)
+          ")
+            MIN_ENTRIES=100000
+            if [ "$SIZE" -gt 1048576 ] && [ "$ENTRY_COUNT" -gt "$MIN_ENTRIES" ]; then
               gzip -c seen_db.json > seen_db_backup.json.gz
-              echo "seen_db Backup erstellt: $(du -h seen_db_backup.json.gz | cut -f1)"
+              echo "seen_db Backup erstellt: $(du -h seen_db_backup.json.gz | cut -f1) ($ENTRY_COUNT IPs)"
             else
-              echo "seen_db zu klein ($SIZE Bytes) – kein Backup (möglicherweise korrupt)"
+              echo "seen_db zu klein (Bytes=$SIZE, IPs=$ENTRY_COUNT, min=$MIN_ENTRIES) – kein Backup (möglicherweise korrupt)"
             fi
           fi
 

@@ -375,7 +375,12 @@ jobs:
                   is_hq       = data.get("hq", False)
                   feed_count  = len(data.get("feeds", []))
                   today_count = data.get("today_count", 0)
-                  today_hq    = data.get("today_hq", False)
+                  # FIX BUG-DEADVAR: 'today_hq' aus seen_db wurde hier ausgelesen,
+                  # aber nirgends weiterverwendet (calculate_confidence nutzt
+                  # 'is_hq', nicht 'today_hq'). Refactoring-Rest aus einer
+                  # frueheren Score-Variante. Entfernt - die Variable ueberlebt
+                  # weiterhin in seen_db.json (Schreibseite), wird hier aber
+                  # nicht gelesen.
                   days_seen   = data.get("days_seen", 1)
                   last_seen   = safe_get_date(data, "last")
                   first_seen  = safe_get_date(data, "first", last_seen)
