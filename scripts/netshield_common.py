@@ -550,10 +550,26 @@ def parse_entries(text, use_protected_check=False):
             continue
 
         # Fallback: alle IPs/CIDRs in der Zeile (URLhaus, JSON-Felder etc.)
-        for cidr in CIDR_RE.findall(line):
-            if cidr_check(cidr):
-                entries.add(str(ipaddress.ip_network(cidr, strict=False)))
+        # FIX BUG-PARSE-DUAL: CIDR-Spans merken, damit IPV4_RE die Netzadresse
+        # einer CIDR (z.B. 5.5.5.0 in 5.5.5.0/24) NICHT zusaetzlich als
+        # Single-IP einfuegt. Vorher: Eine Zeile wie '{"net":"5.5.5.0/24"}'
+        # erzeugte BEIDE Eintraege - die CIDR und ihre Netzadresse als IP.
+        # Symptom: redundante Phantom-IPs in den Output-Listen, je nach Feed-
+        # Format (URLhaus / JSON / Fliesstext). Spamhaus-DROP war nicht
+        # betroffen, weil dort der ';'-Kommentar-Pfad greift und der Fallback
+        # nicht erreicht wird.
+        cidr_spans = []
+        for cm in CIDR_RE.finditer(line):
+            cidr_str = cm.group(1)
+            # Span IMMER merken (auch fuer ungueltige CIDRs), damit eine
+            # private/reservierte CIDR nicht als Phantom-IP durchrutscht.
+            cidr_spans.append((cm.start(), cm.end()))
+            if cidr_check(cidr_str):
+                entries.add(str(ipaddress.ip_network(cidr_str, strict=False)))
         for m in IPV4_RE.finditer(line):
+            # IP innerhalb einer CIDR-Span ueberspringen (= Netzadresse der CIDR)
+            if any(start <= m.start() < end for start, end in cidr_spans):
+                continue
             ip = m.group(1)
             if ip_check(ip):
                 entries.add(ip)
