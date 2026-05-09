@@ -36,6 +36,7 @@ from netshield_common import (
     write_ip_list,
     check_local_feed_age,
     fetch_url,
+    validate_auto_feeds,
 )
 import netshield_common
 
@@ -1826,6 +1827,160 @@ class TestLoadWhitelistStrict(unittest.TestCase):
         # Auch danach: loaded muss False bleiben (Fail-Closed)
         self.assertFalse(netshield_common._whitelist_loaded,
                          "_whitelist_loaded darf nach failendem Load nicht True sein")
+
+
+class TestValidateAutoFeeds(unittest.TestCase):
+    """FIX BUG-AUTOFEEDS-VALIDATE: validate_auto_feeds filtert
+    auto_discovered_feeds.json-Eintraege auf safe Schema (dict mit
+    string name/url) und URL-Whitelist (nur http/https).
+
+    Vorher: update_combined_blacklist las die Datei direkt mit
+    auto_data.get('feeds', []) ohne Pruefung – ein Angreifer mit
+    Repo-Schreibrechten konnte malicious URLs in den Feed-Loop
+    einschleusen ohne Code-Review-Pfad ueber SOURCES."""
+
+    def test_accepts_valid_https_feeds(self):
+        data = {"feeds": [
+            {"name": "good1", "url": "https://example.com/feed.txt"},
+            {"name": "good2", "url": "https://other.example.org/list"},
+        ]}
+        accepted, rejected = validate_auto_feeds(data)
+        self.assertEqual(len(accepted), 2)
+        self.assertEqual(rejected, 0)
+
+    def test_accepts_http_too(self):
+        """http:// ist erlaubt – fetch_url's SSRF-Schutz schaltet sich
+        ohnehin dazwischen, und manche legacy-feeds nutzen http."""
+        data = {"feeds": [{"name": "ok", "url": "http://example.com/x"}]}
+        accepted, rejected = validate_auto_feeds(data)
+        self.assertEqual(len(accepted), 1)
+        self.assertEqual(rejected, 0)
+
+    def test_rejects_file_url(self):
+        """file:// ist ein klarer SSRF/local-file-read Vektor."""
+        data = {"feeds": [{"name": "evil", "url": "file:///etc/passwd"}]}
+        accepted, rejected = validate_auto_feeds(data)
+        self.assertEqual(accepted, [])
+        self.assertEqual(rejected, 1)
+
+    def test_rejects_ftp_url(self):
+        data = {"feeds": [{"name": "evil", "url": "ftp://attacker.com/list"}]}
+        accepted, rejected = validate_auto_feeds(data)
+        self.assertEqual(accepted, [])
+        self.assertEqual(rejected, 1)
+
+    def test_rejects_data_url(self):
+        """data:// kann inline-Code transportieren – nicht fetchen."""
+        data = {"feeds": [{"name": "evil", "url": "data:text/plain,1.2.3.4"}]}
+        accepted, rejected = validate_auto_feeds(data)
+        self.assertEqual(accepted, [])
+        self.assertEqual(rejected, 1)
+
+    def test_rejects_javascript_url(self):
+        data = {"feeds": [{"name": "evil",
+                            "url": "javascript:alert(1)"}]}
+        accepted, rejected = validate_auto_feeds(data)
+        self.assertEqual(accepted, [])
+        self.assertEqual(rejected, 1)
+
+    def test_rejects_missing_url_field(self):
+        data = {"feeds": [{"name": "broken"}]}
+        accepted, rejected = validate_auto_feeds(data)
+        self.assertEqual(accepted, [])
+        self.assertEqual(rejected, 1)
+
+    def test_rejects_missing_name_field(self):
+        data = {"feeds": [{"url": "https://example.com/x"}]}
+        accepted, rejected = validate_auto_feeds(data)
+        self.assertEqual(accepted, [])
+        self.assertEqual(rejected, 1)
+
+    def test_rejects_non_string_url(self):
+        data = {"feeds": [{"name": "x", "url": 12345}]}
+        accepted, rejected = validate_auto_feeds(data)
+        self.assertEqual(accepted, [])
+        self.assertEqual(rejected, 1)
+
+    def test_rejects_non_dict_entry(self):
+        data = {"feeds": ["not-a-dict", ["also", "not"], 42, None]}
+        accepted, rejected = validate_auto_feeds(data)
+        self.assertEqual(accepted, [])
+        self.assertEqual(rejected, 4)
+
+    def test_mixed_good_and_bad_partial_accept(self):
+        """Bei Mischung: gute Eintraege akzeptieren, schlechte zaehlen."""
+        data = {"feeds": [
+            {"name": "good", "url": "https://example.com/feed"},
+            {"name": "evil", "url": "file:///etc/passwd"},
+            {"name": "broken"},  # missing url
+            {"name": "alsoOK", "url": "https://other.org/feed"},
+        ]}
+        accepted, rejected = validate_auto_feeds(data)
+        self.assertEqual(len(accepted), 2)
+        self.assertEqual(rejected, 2)
+        self.assertEqual({f["name"] for f in accepted}, {"good", "alsoOK"})
+
+    def test_root_not_dict_raises(self):
+        with self.assertRaises(ValueError):
+            validate_auto_feeds(["not", "a", "dict"])
+
+    def test_feeds_not_list_raises(self):
+        with self.assertRaises(ValueError):
+            validate_auto_feeds({"feeds": "not-a-list"})
+
+    def test_feeds_field_missing_returns_empty(self):
+        """Fehlendes 'feeds'-Feld ist OK (analog zur urspruenglichen
+        .get(...,[])-Semantik)."""
+        accepted, rejected = validate_auto_feeds({})
+        self.assertEqual(accepted, [])
+        self.assertEqual(rejected, 0)
+
+    def test_empty_feeds_list(self):
+        accepted, rejected = validate_auto_feeds({"feeds": []})
+        self.assertEqual(accepted, [])
+        self.assertEqual(rejected, 0)
+
+
+class TestParseEntriesAsExtractIPsDropIn(unittest.TestCase):
+    """FIX BUG-WF5-IPV6-ASN / WF6-IPV6-HEALTH: Workflows die vorher eigene
+    IPV4_RE.finditer-Schleifen hatten (asn_reputation_scorer, feed_health_
+    monitor) nutzen jetzt parse_entries als Drop-in. Der Vertrag fuer den
+    Drop-in: keine Phantom-IPv4 aus IPv6-mapped Tokens, aber echte
+    IPv4 in derselben Eingabe bleiben."""
+
+    def test_ipv6_mapped_token_does_not_create_phantom(self):
+        """Klassischer Phantom-Fall: '::ffff:1.2.3.4' allein."""
+        self.assertEqual(parse_entries("::ffff:1.2.3.4"), set())
+
+    def test_real_ipv4_alongside_ipv6_token_survives(self):
+        """Vermischter Input: echte IPv4 darf nicht durch IPv6-Token-
+        Filter mit verworfen werden."""
+        text = "::ffff:1.2.3.4\n5.6.7.8\n::1\n9.10.11.12"
+        self.assertEqual(parse_entries(text), {"5.6.7.8", "9.10.11.12"})
+
+    def test_et_feed_style_input_with_phantom_attempt(self):
+        """Simulation eines vergifteten ET-Feeds: Angreifer versucht
+        eine IPv6-mapped IPv4 einzuschmuggeln um den ASN-Score eines
+        unschuldigen Holders zu verzerren."""
+        # 1.2.3.4 ist hier echt, 5.6.7.8 als IPv6-mapped (sollte
+        # NICHT als ET-bestaetigt gelten und den et_bonus ausloesen)
+        et_text = (
+            "# Emerging Threats compromised IPs\n"
+            "1.2.3.4\n"
+            "::ffff:5.6.7.8\n"
+            "9.10.11.12\n"
+        )
+        result = parse_entries(et_text)
+        self.assertIn("1.2.3.4", result)
+        self.assertIn("9.10.11.12", result)
+        self.assertNotIn("5.6.7.8", result, "Phantom-IPv4 darf nicht")
+
+    def test_health_monitor_sample_with_only_ipv6_mapped(self):
+        """feed_health_monitor: bei einem Feed der nur IPv6-mapped IPs
+        liefert, soll has_ips=False sein (= ip_count==0). Vor Fix:
+        IP_RE.findall haette die Phantom-IPv4 gezaehlt → False True."""
+        sample = "::ffff:1.2.3.4\n::ffff:5.6.7.8\n2001:db8::1\n"
+        self.assertEqual(len(parse_entries(sample)), 0)
 
 
 if __name__ == "__main__":
