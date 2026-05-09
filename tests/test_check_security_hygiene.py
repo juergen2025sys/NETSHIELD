@@ -125,5 +125,108 @@ class TestPathlibDetection(unittest.TestCase):
         self.assertEqual(f, [])
 
 
+class TestModeBypassRegression(unittest.TestCase):
+    """FIX BUG-MODE-DYN: Vorher rutschte open(path, mode) mit Variable-Mode
+    durch den Check, weil nur _ast.Constant akzeptiert wurde. Jetzt loest
+    der Check Modul-Level-Konstanten auf."""
+
+    def test_dynamic_mode_via_module_const_detected(self):
+        src = (
+            'WRITE_MODE = "w"\n'
+            'open("foo.txt", WRITE_MODE)\n'
+        )
+        f = _find_non_atomic_writes_in_src(src)
+        self.assertEqual(len(f), 1, f"Erwartet 1 Finding, bekam {f}")
+        self.assertEqual(f[0][1], "foo.txt")
+        self.assertEqual(f[0][2], "w")
+
+    def test_dynamic_mode_via_kwarg_detected(self):
+        src = (
+            'M = "a"\n'
+            'open("foo.txt", mode=M)\n'
+        )
+        f = _find_non_atomic_writes_in_src(src)
+        self.assertEqual(len(f), 1)
+        self.assertEqual(f[0][2], "a")
+
+    def test_dynamic_mode_pathlib_open_detected(self):
+        src = (
+            'from pathlib import Path\n'
+            'M = "w"\n'
+            'Path("foo.txt").open(M)\n'
+        )
+        f = _find_non_atomic_writes_in_src(src)
+        self.assertEqual(len(f), 1)
+        self.assertEqual(f[0][2], "w")
+
+    def test_truly_dynamic_mode_not_flagged(self):
+        """Wenn der Mode aus einer wirklich nicht-statischen Quelle kommt
+        (Funktions-Argument, env, Berechnung), ist der Check still – das
+        ist gewollt: keine False-Positives bei legitimen Wrappern.
+
+        Nur Modul-Level-Konstanten werden aufgeloest."""
+        src = (
+            'def f(mode):\n'
+            '    open("foo.txt", mode)\n'
+        )
+        f = _find_non_atomic_writes_in_src(src)
+        self.assertEqual(f, [])
+
+    def test_constant_read_mode_via_var_not_flagged(self):
+        """Variable-Mode mit Read-Mode wird KORREKT nicht gemeldet."""
+        src = (
+            'M = "r"\n'
+            'open("foo.txt", M)\n'
+        )
+        f = _find_non_atomic_writes_in_src(src)
+        self.assertEqual(f, [])
+
+
+class TestHeredocRegexRegression(unittest.TestCase):
+    """FIX BUG-HEREDOC-INTERP: Die Heredoc-Erkennung muss neben 'python3 << EOF'
+    auch 'python3.11', 'python', '<<-' und '-u/-B'-Flags akzeptieren – sonst
+    wird Workflow-inline-Python in diesen Varianten vom Hygiene-Check
+    komplett uebersprungen."""
+
+    HEREDOC_RE_SRC = (
+        r"\bpython3?(?:\.\d+)?(?:\s+-\w+)*\s*<<-?\s*['\"]?(\w+)['\"]?\s*$"
+    )
+
+    def _matches(self, line):
+        import re
+        return bool(re.search(self.HEREDOC_RE_SRC, line, re.MULTILINE))
+
+    def test_plain_python3_heredoc(self):
+        self.assertTrue(self._matches("python3 << EOF"))
+
+    def test_python3_with_flags(self):
+        self.assertTrue(self._matches("python3 -u << EOF"))
+        self.assertTrue(self._matches("python3 -u -B << EOF"))
+
+    def test_python_with_minor_version(self):
+        self.assertTrue(self._matches("python3.11 << EOF"))
+        self.assertTrue(self._matches("python3.12 << PYEOF"))
+
+    def test_python_without_major_suffix(self):
+        self.assertTrue(self._matches("python << EOF"))
+
+    def test_indent_strip_heredoc(self):
+        self.assertTrue(self._matches("python3 <<- EOF"))
+
+    def test_quoted_delimiter(self):
+        self.assertTrue(self._matches("python3 << 'EOF'"))
+        self.assertTrue(self._matches('python3 << "EOF"'))
+
+    def test_python_c_oneliner_not_heredoc(self):
+        self.assertFalse(self._matches("python3 -c 'foo'"))
+
+    def test_pythonsomething_not_match(self):
+        """'pythonic' oder 'pythonista' soll nicht wie 'python' aussehen."""
+        # \b stellt sicher, dass nach 'python3?(\.\d+)?' kein Word-Char folgt
+        # (da darauf \s+ oder \s*<< kommen muss).
+        self.assertFalse(self._matches("pythonista << EOF"))
+        self.assertFalse(self._matches("pythonic stuff << EOF"))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -280,6 +280,81 @@ class TestParseEntries(unittest.TestCase):
         # CIDR-only mit Whitespace davor (auto-discovery sieht das oft so)
         self.assertEqual(parse_entries("    5.5.5.0/24"), {"5.5.5.0/24"})
 
+    # ─── Regression: FIX BUG-IPSET-EAGER ────────────────────────────────
+    # Vorher matchte 'add\s+\S+\s+(\S+)' jede mit "add " beginnende Zeile,
+    # extrahierte den 3. Token, und beendete die Zeile mit `continue`.
+    # Wenn das Token keine IP war (Fliesstext, Kommentar, ein zweites Wort),
+    # ging eine eventuell folgende echte IP verloren.
+
+    def test_ipset_eager_match_does_not_swallow_ip_in_freetext(self):
+        """'add notes here 1.2.3.4 important' darf 1.2.3.4 NICHT verlieren."""
+        result = parse_entries("add notes here 1.2.3.4 important")
+        self.assertEqual(result, {"1.2.3.4"})
+
+    def test_ipset_with_trailing_extra_ip(self):
+        """'add badguys 1.2.3.4 5.6.7.8' findet beide IPs (Fallback-Pfad)."""
+        result = parse_entries("add badguys 1.2.3.4 5.6.7.8")
+        self.assertEqual(result, {"1.2.3.4", "5.6.7.8"})
+
+    def test_fortigate_with_trailing_extra_ip(self):
+        """FortiGate-aehnliche Zeile mit zweiter IP: beide muessen rein."""
+        # 255.255.255.255 ist Broadcast (240/4) und wird abgelehnt – das ist OK
+        result = parse_entries("set subnet 1.2.3.4 8.8.8.8")
+        self.assertEqual(result, {"1.2.3.4", "8.8.8.8"})
+
+    def test_ipset_private_value_does_not_leak_neighbor(self):
+        """ipset-Zeile mit privatem CIDR + Fliesstext-Anhang: privater
+        CIDR korrekt verworfen, Fliesstext loest keinen Phantom-Eintrag aus."""
+        result = parse_entries("add badguys 10.0.0.0/8")
+        self.assertEqual(result, set())  # rein privat → leer
+
+    def test_add_prefix_is_not_a_freepass(self):
+        """Eine Zeile die nur zufaellig mit 'add' anfaengt darf den
+        Inline-Parser nicht ueberspringen."""
+        # "added" beginnt mit "add", Regex sollte nicht greifen (\b-Boundary
+        # nicht explizit, aber \s+ verlangt Whitespace nach 'add'). Hier
+        # testen wir nur: Multi-IP-Zeilen mit 'add'-Praefix verlieren keine IP.
+        result = parse_entries("added 1.1.1.1 and 2.2.2.2 to blocklist")
+        # 1.1.1.1 und 2.2.2.2 sind beide oeffentlich
+        self.assertEqual(result, {"1.1.1.1", "2.2.2.2"})
+
+    # ─── Regression: FIX BUG-IPV6-MAPPED ────────────────────────────────
+    # Der Lookbehind '(?<![\d.])' in IPV4_RE liess ':' als Trenner durch.
+    # IPv4-mapped-IPv6 ('::ffff:1.2.3.4') und volle IPv6 mit IPv4-Suffix
+    # ('2001:db8::ffff:192.0.2.1') erzeugten Phantom-IPv4-Eintraege.
+    # Die Token-Heuristik prueft '::' / >=2 ':' im whitespace-Token.
+
+    def test_ipv4_mapped_ipv6_no_phantom(self):
+        """'::ffff:1.2.3.4' darf kein 1.2.3.4 erzeugen."""
+        self.assertEqual(parse_entries("::ffff:1.2.3.4"), set())
+
+    def test_full_ipv6_with_v4_suffix_no_phantom(self):
+        """'2001:db8::ffff:192.0.2.1' (IPv4-mapped in vollem v6) → leer."""
+        self.assertEqual(parse_entries("2001:db8::ffff:192.0.2.1"), set())
+
+    def test_ipv6_loopback_does_not_extract_anything(self):
+        self.assertEqual(parse_entries("::1"), set())
+        self.assertEqual(parse_entries("fe80::1234"), set())
+
+    def test_mixed_ipv4_and_ipv6_in_csv(self):
+        """CSV-Mischung: IPv4 muss extrahiert werden, IPv6 nicht."""
+        result = parse_entries("1.2.3.4,2001:db8::1,5.6.7.8")
+        self.assertEqual(result, {"1.2.3.4", "5.6.7.8"})
+
+    def test_ip_port_still_works_after_ipv6_fix(self):
+        """Sanity: 'IP:port' (1 Doppelpunkt) bleibt funktional."""
+        self.assertEqual(parse_entries("1.2.3.4:8080"), {"1.2.3.4"})
+
+    def test_host_colon_ip_still_works(self):
+        """Sanity: 'host:1.2.3.4' (1 Doppelpunkt im Token) bleibt
+        unbeeintraechtigt – das Token enthaelt nur 1 ':', kein '::'."""
+        self.assertEqual(parse_entries("host:1.2.3.4"), {"1.2.3.4"})
+
+    def test_ipv6_token_neighbour_ipv4_not_swallowed(self):
+        """IPv4 in eigener Token-Position neben IPv6 wird gefunden."""
+        result = parse_entries("foo 1.2.3.4 ::1 bar")
+        self.assertEqual(result, {"1.2.3.4"})
+
 
 class TestParseEntriesForBlacklist(unittest.TestCase):
     """FIX API-CLARITY: parse_entries_for_blacklist ist der empfohlene
@@ -593,6 +668,64 @@ class TestWhitelistLoading(unittest.TestCase):
         fp_ips, fp_nets = load_fp_set("/nonexistent/path.json")
         self.assertEqual(len(fp_ips), 0)
         self.assertEqual(len(fp_nets), 0)
+
+    # ─── Regression: FIX BUG-FP-STRICT ──────────────────────────────────
+    # Vorher genuegte ein String wie "1.2.3.4" dem data.get("ips", []),
+    # die for-Schleife iterierte ueber die Zeichen, und das Set enthielt
+    # danach {'1', '.', '2', '3', '4'}. is_in_fp_set('.') wurde True –
+    # beliebige Substrings galten als False-Positive.
+
+    def test_load_fp_set_ips_as_string_does_not_corrupt_state(self):
+        """ips=String darf das FP-Set NICHT mit Einzelzeichen befuellen."""
+        with open(self.fp_path, 'w') as f:
+            json.dump({"ips": "1.2.3.4"}, f)
+        fp_ips, fp_nets = load_fp_set(self.fp_path)
+        # Erwartung: leerer State (Schema-Reject), NICHT {'1','.','2',...}
+        self.assertEqual(fp_ips, set())
+        self.assertEqual(fp_nets, [])
+        # Und: Punkt darf nicht als FP gelten
+        self.assertFalse(is_in_fp_set("."))
+        # Auch nicht "1" oder andere Einzelzeichen
+        self.assertFalse(is_in_fp_set("1"))
+
+    def test_load_fp_set_root_not_dict_returns_empty(self):
+        """JSON-Root ist eine Liste oder ein String → leerer State."""
+        # Liste statt dict
+        with open(self.fp_path, 'w') as f:
+            json.dump([], f)
+        fp_ips, fp_nets = load_fp_set(self.fp_path)
+        self.assertEqual(fp_ips, set())
+        self.assertEqual(fp_nets, [])
+
+        # String statt dict
+        with open(self.fp_path, 'w') as f:
+            json.dump("hello", f)
+        fp_ips, fp_nets = load_fp_set(self.fp_path)
+        self.assertEqual(fp_ips, set())
+        self.assertEqual(fp_nets, [])
+
+    def test_load_fp_set_skips_non_string_entries(self):
+        """Mix aus validen Strings und Datenmuell – nur Strings werden uebernommen."""
+        with open(self.fp_path, 'w') as f:
+            json.dump({"ips": ["1.2.3.4", None, 123, {"x": "y"}, "5.6.7.0/24"]}, f)
+        fp_ips, fp_nets = load_fp_set(self.fp_path)
+        self.assertEqual(fp_ips, {"1.2.3.4"})
+        self.assertEqual(len(fp_nets), 1)
+
+    def test_load_fp_set_partial_fill_is_reset_on_schema_error(self):
+        """Wenn der Schema-Check FAILT NACH einem Teilbefuelle, muss der
+        State wieder leer sein – kein 'Geister-FP-Set'."""
+        # Vorher legitim gefuellt
+        with open(self.fp_path, 'w') as f:
+            json.dump({"ips": ["1.2.3.4", "9.9.9.9"]}, f)
+        load_fp_set(self.fp_path)
+        # Jetzt korrupte Datei (Root ist Liste, nicht Dict)
+        with open(self.fp_path, 'w') as f:
+            json.dump(["x"], f)
+        fp_ips, fp_nets = load_fp_set(self.fp_path)
+        # Re-Load mit Schema-Error → leer, NICHT alter State
+        self.assertEqual(fp_ips, set())
+        self.assertEqual(fp_nets, [])
 
     def test_is_in_fp_set(self):
         netshield_common._fp_ips = {"1.2.3.4"}
@@ -987,6 +1120,30 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
                     self.send_response(200)
                     self.end_headers()
                     self.wfile.write(b"feed-content\n1.2.3.4\n5.6.7.8")
+                elif self.path == "/gzip-small":
+                    # Korrekt gepackter, kleiner gzip-Stream
+                    import gzip as _gzip
+                    payload = _gzip.compress(b"1.2.3.4\n5.6.7.8\n")
+                    self.send_response(200)
+                    self.end_headers()
+                    self.wfile.write(payload)
+                elif self.path == "/gzip-bomb":
+                    # Klassische zip-bomb: stark komprimierbarer Pseudo-Stream.
+                    # 50 MiB Nullbytes komprimiert auf ~50 KB. Wenn fetch_url
+                    # eager gzip.decompress aufruft (alter Code), wuerden
+                    # waehrend der Decompression 50 MiB allokiert. Das
+                    # Streaming-Limit muss nach read_limit Bytes abbrechen.
+                    import gzip as _gzip
+                    payload = _gzip.compress(b"\x00" * (50 * 1024 * 1024))
+                    self.send_response(200)
+                    self.end_headers()
+                    self.wfile.write(payload)
+                elif self.path == "/gzip-broken":
+                    # Gzip-Magic, aber kaputter Stream: muss als FEHLER
+                    # behandelt werden, nicht crashen.
+                    self.send_response(200)
+                    self.end_headers()
+                    self.wfile.write(b"\x1f\x8bnot-a-real-gzip-stream")
                 elif self.path == "/redirect-safe":
                     self.send_response(302)
                     # Redirect auf eigenen /ok-Pfad (auch lokal → blockiert
@@ -1090,6 +1247,35 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
         # Body ist "feed-content\n1.2.3.4\n5.6.7.8" (>5 Bytes)
         # read_limit=5 → nur die ersten 5 Bytes
         self.assertEqual(len(result), 5)
+
+    # ─── Regression: FIX BUG-GZIP-BOMB ──────────────────────────────────
+    # Vorher: gzip.decompress(data) lud das gesamte expandierte Ergebnis in
+    # den Speicher, BEVOR der Limit-Check griff. Eine 50 KB komprimierte
+    # zip-bomb konnte 50 MiB allokieren – bei groesseren Bombs OOM. Jetzt:
+    # streaming via GzipFile mit harter read(read_limit + 1) Grenze.
+
+    def test_gzip_small_decompressed_correctly(self):
+        """Sanity: kleiner gzip-Stream wird transparent dekomprimiert."""
+        from netshield_common import fetch_url
+        result = fetch_url(self._url("/gzip-small"))
+        self.assertIsNotNone(result)
+        self.assertIn("1.2.3.4", result)
+        self.assertIn("5.6.7.8", result)
+
+    def test_gzip_bomb_aborts_below_read_limit(self):
+        """Bomb (50 MiB nullbytes komprimiert) mit read_limit=1MB:
+        Streaming-Decompress muss abbrechen und None liefern, NICHT die
+        Bombe materialisieren."""
+        from netshield_common import fetch_url
+        result = fetch_url(self._url("/gzip-bomb"), read_limit=1 * 1024 * 1024)
+        # Erwartet: None (Fetch verworfen)
+        self.assertIsNone(result)
+
+    def test_gzip_broken_stream_returns_none(self):
+        """Gzip-Magic mit kaputtem Inhalt: kein Crash, nur None."""
+        from netshield_common import fetch_url
+        result = fetch_url(self._url("/gzip-broken"))
+        self.assertIsNone(result)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -1514,6 +1700,73 @@ class TestDnsPinThreadSafe(unittest.TestCase):
             _socket.getaddrinfo = original
             netshield_common._patched = False
             netshield_common._original_getaddrinfo = None
+
+
+class TestPinRestore(unittest.TestCase):
+    """FIX BUG-PIN-RESTORE: _pin_host gibt jetzt den vorherigen Pin zurueck,
+    _restore_pin stellt ihn nach dem Fetch wieder her – statt den Pin
+    bedingungslos zu loeschen. Schuetzt vor:
+      (a) Re-Pinning desselben Hosts innerhalb eines fetch_url (Redirect
+          gleicher-Host, anderer-Pfad → Pin wuerde im finally weggewischt
+          obwohl noch ein gueltiger State davor stand)
+      (b) verschachtelten fetch_url-Aufrufen die zufaellig denselben Host
+          treffen.
+    """
+
+    def setUp(self):
+        # Pin-State sauber initialisieren
+        if hasattr(netshield_common._pin_state, "pin_map"):
+            netshield_common._pin_state.pin_map.clear()
+
+    def tearDown(self):
+        if hasattr(netshield_common._pin_state, "pin_map"):
+            netshield_common._pin_state.pin_map.clear()
+
+    def test_pin_returns_absent_sentinel_when_no_previous(self):
+        prev = netshield_common._pin_host("example.com", ["1.2.3.4"])
+        self.assertIs(prev, netshield_common._PIN_ABSENT)
+        self.assertEqual(
+            netshield_common._pin_state.pin_map["example.com"], ["1.2.3.4"])
+
+    def test_pin_returns_previous_when_repinning(self):
+        netshield_common._pin_host("example.com", ["1.2.3.4"])
+        prev = netshield_common._pin_host("example.com", ["5.6.7.8"])
+        self.assertEqual(prev, ["1.2.3.4"])
+        self.assertEqual(
+            netshield_common._pin_state.pin_map["example.com"], ["5.6.7.8"])
+
+    def test_restore_with_absent_sentinel_deletes_pin(self):
+        prev = netshield_common._pin_host("example.com", ["1.2.3.4"])
+        netshield_common._restore_pin("example.com", prev)
+        self.assertNotIn("example.com", netshield_common._pin_state.pin_map)
+
+    def test_restore_with_previous_value_overwrites(self):
+        prev1 = netshield_common._pin_host("example.com", ["1.2.3.4"])  # absent
+        prev2 = netshield_common._pin_host("example.com", ["5.6.7.8"])  # ["1.2.3.4"]
+        # innerer Cleanup: zurueck auf prev2 = ["1.2.3.4"]
+        netshield_common._restore_pin("example.com", prev2)
+        self.assertEqual(
+            netshield_common._pin_state.pin_map["example.com"], ["1.2.3.4"])
+        # aeusserer Cleanup: zurueck auf prev1 = absent → geloescht
+        netshield_common._restore_pin("example.com", prev1)
+        self.assertNotIn("example.com", netshield_common._pin_state.pin_map)
+
+    def test_lifo_unwinding_preserves_correct_state(self):
+        """Reihenfolge des Restorens muss LIFO sein, sonst wird der
+        falsche Pin oben gelassen. fetch_url macht das per
+        `for ... in reversed(pinned_hosts)`."""
+        # Drei Pin-Operationen auf demselben Host
+        prevs = []
+        prevs.append(netshield_common._pin_host("h", ["A"]))
+        prevs.append(netshield_common._pin_host("h", ["B"]))
+        prevs.append(netshield_common._pin_host("h", ["C"]))
+        # State jetzt: ["C"]
+        self.assertEqual(netshield_common._pin_state.pin_map["h"], ["C"])
+        # LIFO unwind
+        for prev in reversed(prevs):
+            netshield_common._restore_pin("h", prev)
+        # Stack vollstaendig abgewickelt → kein Mapping mehr
+        self.assertNotIn("h", netshield_common._pin_state.pin_map)
 
 
 # ═══════════════════════════════════════════════════════════════
