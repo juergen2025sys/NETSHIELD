@@ -247,6 +247,30 @@ def _resolve_pathlib_receiver(receiver, static_strings):
     return None
 
 
+def _resolve_mode_arg(mode_arg, static_strings):
+    """Loest einen Mode-AST-Node zu einem String auf.
+
+    FIX BUG-MODE-DYN: Vorher wurde nur isinstance(mode_arg, _ast.Constant)
+    akzeptiert. Code wie
+
+        WRITE_MODE = "w"
+        open(path, WRITE_MODE)
+
+    rutschte komplett durch den Hygiene-Check – ein triviater Bypass-Vektor.
+    Jetzt: Wenn der Mode eine Variable ist, wird im static_strings-Mapping
+    nachgeschlagen (analog zur Pfad-Aufloesung).
+
+    Returns:
+        str | None: Mode als String, falls statisch bestimmbar.
+    """
+    import ast as _ast
+    if isinstance(mode_arg, _ast.Constant) and isinstance(mode_arg.value, str):
+        return mode_arg.value
+    if isinstance(mode_arg, _ast.Name):
+        return static_strings.get(mode_arg.id)
+    return None
+
+
 def _find_non_atomic_writes_in_src(source_text):
     """Findet alle non-atomaren Write-Calls per AST-Walk.
 
@@ -305,11 +329,12 @@ def _find_non_atomic_writes_in_src(source_text):
                         break
             if mode_arg is None:
                 continue
-            if not (isinstance(mode_arg, _ast.Constant)
-                    and isinstance(mode_arg.value, str)
-                    and mode_arg.value in _WRITE_MODES):
+            # FIX BUG-MODE-DYN: Variablen-Modes ueber Modul-Konstanten aufloesen,
+            # statt sie als "kann ich nicht statisch entscheiden" durchzulassen.
+            mode_value = _resolve_mode_arg(mode_arg, static_strings)
+            if mode_value is None or mode_value not in _WRITE_MODES:
                 continue
-            mode_label = mode_arg.value
+            mode_label = mode_value
             path_arg = node.args[0]
             path_str = _resolve_path_arg(path_arg, static_strings)
 
@@ -329,11 +354,11 @@ def _find_non_atomic_writes_in_src(source_text):
                             break
                 if mode_arg is None:
                     continue
-                if not (isinstance(mode_arg, _ast.Constant)
-                        and isinstance(mode_arg.value, str)
-                        and mode_arg.value in _WRITE_MODES):
+                # FIX BUG-MODE-DYN: konsistent zu Pattern 1.
+                mode_value = _resolve_mode_arg(mode_arg, static_strings)
+                if mode_value is None or mode_value not in _WRITE_MODES:
                     continue
-                mode_label = mode_arg.value
+                mode_label = mode_value
                 path_str = _resolve_pathlib_receiver(node.func.value, static_strings)
             elif attr in ("write_text", "write_bytes"):
                 # Path.write_text(...) ist immer non-atomar (single
@@ -391,10 +416,17 @@ def check_atomic_writes() -> list[str]:
     if WORKFLOWS_DIR.is_dir():
         # FIX HEREDOC-FLAGS: '-?' matchte vorher nur ein einzelnes '-'.
         # 'python3 -u << EOF' (unbuffered, sehr verbreitet in CI) und
-        # 'python3 -B << EOF' rutschten durch. Jetzt beliebig viele
-        # Single-Char- oder Multi-Char-Flags zulassen.
+        # 'python3 -B << EOF' rutschten durch.
+        # FIX BUG-HEREDOC-INTERP: Vorher matchten zusaetzlich nicht:
+        #   - 'python3.11 << EOF' / 'python3.12 …' (gepinnte Versionen)
+        #   - 'python << EOF'                       (ohne Major-Suffix)
+        #   - 'python3 <<- EOF'                     (heredoc mit indent-strip)
+        # Workflow-inline-Python in diesen Varianten wurde komplett
+        # uebersprungen, der Hygiene-Check fand dort weder non-atomare
+        # Writes noch ungeschuetzte Fetches – ein stiller Bypass-Vektor.
         heredoc_start = re.compile(
-            r"python3(?:\s+-\w+)*\s*<<\s*['\"]?(\w+)['\"]?\s*$", re.MULTILINE)
+            r"\bpython3?(?:\.\d+)?(?:\s+-\w+)*\s*<<-?\s*['\"]?(\w+)['\"]?\s*$",
+            re.MULTILINE)
         import textwrap as _tw
         for wf in sorted(WORKFLOWS_DIR.glob("*.yml")):
             content = wf.read_text(encoding="utf-8")
@@ -572,8 +604,10 @@ def check_fetch_usage() -> list[str]:
     if WORKFLOWS_DIR.is_dir():
         # FIX HEREDOC-FLAGS: konsistent zu check_atomic_writes – auch
         # python3 -u/-B/-X… erkennen.
+        # FIX BUG-HEREDOC-INTERP: gleiche Lockerung wie in check_atomic_writes
+        # (python3.11, python, '<<-' Heredoc mit indent-strip).
         heredoc_re = re.compile(
-            r"python3(?:\s+-\w+)*\s*<<\s*['\"]?(\w+)['\"]?\s*$",
+            r"\bpython3?(?:\.\d+)?(?:\s+-\w+)*\s*<<-?\s*['\"]?(\w+)['\"]?\s*$",
             re.MULTILINE,
         )
         for wf in sorted(WORKFLOWS_DIR.glob("*.yml")):

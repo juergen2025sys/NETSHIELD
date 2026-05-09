@@ -366,7 +366,28 @@ def load_fp_set(path="false_positives_set.json"):
     try:
         with open(path) as f:
             data = json.load(f)
-        for entry in data.get("ips", []):
+        # FIX BUG-FP-STRICT: 'ips' MUSS eine Liste sein. Vorher genuegte ein
+        # String wie "1.2.3.4" – data.get("ips", []) lieferte den String,
+        # die for-Schleife iterierte ueber die Zeichen, und das Set enthielt
+        # danach {'1', '.', '2', '3', '4'}. Folge: is_in_fp_set('.') == True,
+        # und beliebige IPs/Substrings wurden faelschlich als False-Positive
+        # markiert – das FP-Set verfehlt seine Filterfunktion.
+        # Selbe Fail-Loud-Strategie wie load_whitelist (BUG-WL1-STRICT):
+        # lieber Workflow-Crash als silent korrumpierter State.
+        if not isinstance(data, dict):
+            raise ValueError(
+                f"'false_positives_set.json' Root ist {type(data).__name__}, "
+                f"erwartet dict")
+        ips_field = data.get("ips", [])
+        if not isinstance(ips_field, list):
+            raise ValueError(
+                f"'false_positives_set.json': 'ips' ist {type(ips_field).__name__}, "
+                f"erwartet list")
+        for entry in ips_field:
+            # Nur String-Eintraege akzeptieren – None/int/dict silent skippen
+            # (Schema-Drift, aber fail-soft pro Entry, nicht pro Datei).
+            if not isinstance(entry, str):
+                continue
             try:
                 if "/" in entry:
                     _fp_networks.append(ipaddress.ip_network(entry, strict=False))
@@ -376,6 +397,10 @@ def load_fp_set(path="false_positives_set.json"):
                 pass
         print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs geladen")
     except Exception as e:
+        # Bei Schema-/Parse-Fehler State zurueck auf leer (defensiv – falls
+        # zwischen Init oben und except hier eine partielle Befuellung lief).
+        _fp_ips = set()
+        _fp_networks = []
         print(f"WARNUNG: false_positives_set.json nicht lesbar: {e}")
     _rebuild_fp_index()
     return _fp_ips, _fp_networks
@@ -515,25 +540,35 @@ def parse_entries(text, use_protected_check=False):
         if not line or line.startswith('#') or line.startswith(';') or line.startswith('//'):
             continue
 
-        # FortiGate: "set subnet 1.2.3.4 ..."
-        fg = re.match(r'set\s+subnet\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', line)
-        if fg:
-            ip = fg.group(1)
-            if ip_check(ip):
-                entries.add(ip)
-            continue
-
-        # ipset: "add setname 1.2.3.4" oder "add setname 1.2.3.0/24"
-        ipset_m = re.match(r'add\s+\S+\s+(\S+)', line)
-        if ipset_m:
-            val = ipset_m.group(1).split(';')[0].strip()
-            if '/' in val:
-                if cidr_check(val):
-                    entries.add(str(ipaddress.ip_network(val, strict=False)))
-            else:
-                if ip_check(val):
-                    entries.add(val)
-            continue
+        # FIX BUG-IPSET-EAGER: Vorher gab es hier Format-spezifische
+        # Fast-Pfade fuer FortiGate ("set subnet 1.2.3.4 ...") und ipset
+        # ("add setname 1.2.3.4"), jeweils mit `continue` am Ende. Beide
+        # waren gefaehrlich:
+        #
+        #   1) ipset: die Regex `add\s+\S+\s+(\S+)` matcht JEDE Zeile mit
+        #      "add " am Anfang – auch Fliesstext wie
+        #      "add notes here 1.2.3.4 important". val wurde dann "here",
+        #      ip_check schlug fehl, und das `continue` schluckte die
+        #      echte IP "1.2.3.4". Datenverlust.
+        #   2) FortiGate: strenger (verlangt IP direkt nach "set subnet"),
+        #      aber bei Inline-Kommentaren mit zweiter IP
+        #      ("set subnet 1.2.3.4 # backup 8.8.8.8") wurde 8.8.8.8 ebenso
+        #      verworfen – Pfad-Inkonsistenz mit dem dokumentierten
+        #      "Fallback ist Superset"-Vertrag aus FIX BUG-MULTI-ENTRY.
+        #
+        # Loesung: Format-spezifische Pfade entfernt. Der untere Fallback
+        # findet alle IPs/CIDRs in der Zeile per IPV4_RE/CIDR_RE.finditer
+        # und ist robust gegen alle hier relevanten Formate:
+        #   - "set subnet 1.2.3.4 ..."     → IPV4_RE matcht 1.2.3.4
+        #   - "add setname 1.2.3.4"        → IPV4_RE matcht 1.2.3.4
+        #   - "add setname 1.2.3.0/24"     → CIDR_RE matcht, IP wird per
+        #                                    cidr_spans nicht doppelt erfasst
+        #   - "1.2.3.4:8080"               → IPV4_RE matcht 1.2.3.4
+        #
+        # Zu beachten: bei einer ipset-Zeile mit privatem CIDR
+        # ("add setname 10.0.0.0/8") wird der CIDR korrekt verworfen
+        # (cidr_check=False), und der Fallback tut nichts mehr – exakt
+        # gleiches Verhalten wie vorher.
 
         # Inline-Kommentar abschneiden (Spamhaus DROP: "1.2.3.0/24 ; SBLxxx")
         line = re.split(r'\s*[;#]', line)[0].strip()
@@ -592,11 +627,42 @@ def parse_entries(text, use_protected_check=False):
             # IP innerhalb einer CIDR-Span ueberspringen (= Netzadresse der CIDR)
             if any(start <= m.start() < end for start, end in cidr_spans):
                 continue
+            # FIX BUG-IPV6-MAPPED: '::ffff:1.2.3.4' und Verwandte (IPv4-mapped
+            # IPv6) duerfen die '1.2.3.4' nicht als Phantom-Eintrag durchlassen.
+            # Der Lookbehind '(?<![\d.])' der IPV4_RE laesst ':' als Trenner
+            # gelten – und matcht damit den IPv4-Suffix einer IPv6-Adresse.
+            # Heuristik: wenn das whitespace-getrennte Token der Match-
+            # Position '::' enthaelt oder >=2 Doppelpunkte hat, ist es ein
+            # IPv6-Token und der IPv4-Suffix wird verworfen. Plain "host:1.2.3.4"
+            # (1 Doppelpunkt) bleibt unbeeintraechtigt.
+            if _is_in_ipv6_token(line, m.start(), m.end()):
+                continue
             ip = m.group(1)
             if ip_check(ip):
                 entries.add(ip)
 
     return entries
+
+
+def _is_in_ipv6_token(line, start, end):
+    """True wenn die Position [start:end] in einem whitespace-Token liegt,
+    das wie eine IPv6-Adresse aussieht (enthaelt '::' oder >=2 ':').
+
+    Token-Boundary ist Whitespace; wir scannen rueckwaerts/vorwaerts vom
+    Match. CSV-Komma und Klammern werden als Token-Begrenzer behandelt,
+    damit `2001:db8::1,1.2.3.4` zwei Tokens ergibt.
+    """
+    # Token-Boundary: Whitespace + Standard-Trennzeichen die in Feeds
+    # vorkommen (Komma in CSV, Klammern in JSON-aehnlichen Strings).
+    boundaries = " \t\n\r,()[]{}\"'"
+    t_start = start
+    while t_start > 0 and line[t_start - 1] not in boundaries:
+        t_start -= 1
+    t_end = end
+    while t_end < len(line) and line[t_end] not in boundaries:
+        t_end += 1
+    token = line[t_start:t_end]
+    return "::" in token or token.count(":") >= 2
 
 
 def parse_entries_for_blacklist(text):
@@ -860,15 +926,55 @@ def _install_dns_pin():
 
 
 def _pin_host(hostname, ips):
-    """Fuegt ein Hostname→IP-Mapping fuer die Dauer des Fetch hinzu."""
+    """Setzt ein Hostname→IP-Mapping fuer die Dauer des Fetch und gibt
+    den vorherigen Pin (oder ein Sentinel) zurueck, damit der Aufrufer
+    ihn nach dem Fetch wiederherstellen kann.
+
+    FIX BUG-PIN-RESTORE: Vorher loeschte _unpin_host das Mapping
+    unconditionally. Bei einem (theoretisch moeglichen) Redirect auf
+    denselben Hostname mit aenderndem Pin – oder bei nested fetch_url
+    auf gleichem Host – fuehrte das dazu, dass der innere Cleanup den
+    Pin des aeusseren Aufrufs entfernte. Der aeussere lief danach ohne
+    DNS-Rebind-Schutz weiter. Save-and-restore beseitigt diese Klasse.
+
+    Returns:
+        Der zuvor gespeicherte Pin (Liste) oder das Sentinel _PIN_ABSENT,
+        wenn vorher kein Mapping existierte.
+    """
     _install_dns_pin()
     if not hasattr(_pin_state, "pin_map"):
         _pin_state.pin_map = {}
+    previous = _pin_state.pin_map.get(hostname, _PIN_ABSENT)
     _pin_state.pin_map[hostname] = ips
+    return previous
+
+
+def _restore_pin(hostname, previous):
+    """Stellt den Pin-Zustand wieder her wie er VOR _pin_host(...) war.
+
+    Wenn previous == _PIN_ABSENT war kein Mapping vorhanden → loeschen.
+    Sonst → ueberschreiben.
+    """
+    pin_map = getattr(_pin_state, "pin_map", None)
+    if pin_map is None:
+        return
+    if previous is _PIN_ABSENT:
+        pin_map.pop(hostname, None)
+    else:
+        pin_map[hostname] = previous
+
+
+# Sentinel-Wert: unterscheidet "kein vorheriger Pin" von "vorheriger Pin
+# war eine leere Liste". Eine leere Liste sollte nie auftreten, weil
+# _is_safe_public_host bei 0 IPs None liefert – aber explizit ist sicherer.
+_PIN_ABSENT = object()
 
 
 def _unpin_host(hostname):
-    """Entfernt das Mapping nach dem Fetch."""
+    """Entfernt das Mapping nach dem Fetch.
+
+    FIX BUG-PIN-RESTORE: Behalten fuer Backward-Compat (wird sonst
+    nirgends mehr in fetch_url benutzt – siehe _restore_pin)."""
     pin_map = getattr(_pin_state, "pin_map", None)
     if pin_map and hostname in pin_map:
         del pin_map[hostname]
@@ -899,7 +1005,11 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
     import urllib.error
     import urllib.parse
 
-    pinned_hosts = []  # fuer finally-Cleanup
+    # Liste von (hostname, previous_pin) Paaren fuer finally-Cleanup.
+    # FIX BUG-PIN-RESTORE: vorher nur Hostnames; jetzt auch der zuvor
+    # gespeicherte Pin, damit nested/redirect-same-host-Faelle den State
+    # nicht durcheinanderbringen.
+    pinned_hosts = []
 
     def _validate(u):
         """Validiert URL und pinnt den Host auf die geprueften IPs.
@@ -926,8 +1036,8 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
         # gepatcht ist (legacy API), wird nicht gepinnt und der Fetch
         # laeuft ohne Rebind-Schutz weiter (Test-Kontext, kein Risiko).
         if isinstance(safe_ips, list):
-            _pin_host(parsed.hostname, safe_ips)
-            pinned_hosts.append(parsed.hostname)
+            previous = _pin_host(parsed.hostname, safe_ips)
+            pinned_hosts.append((parsed.hostname, previous))
         return True
 
     if not _validate(url):
@@ -967,19 +1077,38 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
                     # FIX GZIP: Transparent gepackte Feeds (.gz) dekomprimieren.
                     # Erkennung über Magic-Bytes (\x1f\x8b) – URL-unabhängig, greift
                     # auch wenn Server kein .gz-Suffix in der URL hat oder gzip per
-                    # Content-Encoding ausliefert. Limit-Check nach Decompression
-                    # erneut: gzip kann 10–20x expandieren (zip-bomb-Schutz).
+                    # Content-Encoding ausliefert.
+                    #
+                    # FIX BUG-GZIP-BOMB: gzip.decompress(data) lud das KOMPLETTE
+                    # expandierte Ergebnis in den Speicher, BEVOR der Limit-Check
+                    # griff. 25 MB komprimiert koennen auf mehrere GB expandieren
+                    # → OOM des Runners. Der alte Kommentar "zip-bomb-Schutz"
+                    # stimmte nicht – der Schutz wirkte erst nach der Allokation.
+                    # Jetzt: streaming via GzipFile mit harter read(read_limit + 1)
+                    # Grenze. Wenn der Stream mehr liefern wuerde, wird er
+                    # abgeschnitten und der Fetch failt fail-loud.
                     if data[:2] == b"\x1f\x8b":
+                        import gzip as _gzip
+                        import io as _io
                         try:
-                            import gzip as _gzip
-                            data = _gzip.decompress(data)
-                        except (OSError, MemoryError) as _gz_err:
+                            with _gzip.GzipFile(fileobj=_io.BytesIO(data)) as _gz:
+                                # +1 Byte um Truncation zuverlaessig zu erkennen
+                                decompressed = _gz.read(read_limit + 1)
+                        except (OSError, EOFError, MemoryError) as _gz_err:
                             print(f"  FEHLER gzip-Dekomprimierung {url}: {_gz_err}")
                             return None
-                        if len(data) > read_limit:
-                            print(f"  WARNUNG {url}: gzip-dekomprimiert > {read_limit} "
-                                  f"bytes – getrimmt (mögliche zip-bomb)")
-                            data = data[:read_limit]
+                        if len(decompressed) > read_limit:
+                            # Streaming-Limit erreicht: behandle wie zip-bomb –
+                            # KEINE getrimmte Auslieferung wie bei nicht-gzip
+                            # Truncation, weil eine teilweise dekomprimierte
+                            # Datei stark verzerrt sein kann (mitten im Eintrag
+                            # abgeschnitten, oder kuenstlich aufgeblaeht durch
+                            # einen boesartigen Stream). Lieber abbrechen.
+                            print(f"  FEHLER {url}: gzip-Stream > {read_limit} "
+                                  f"bytes nach Dekomprimierung – moegliche "
+                                  f"zip-bomb, Fetch verworfen")
+                            return None
+                        data = decompressed
                     return data.decode("utf-8", errors="ignore")
             except urllib.error.HTTPError as e:
                 retryable = e.code in TRANSIENT_CODES or (e.code == 404 and _host_is_gh_raw)
@@ -1014,8 +1143,10 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
     finally:
         # FIX DNS-REBIND: Pin-Mapping wieder entfernen damit spaetere
         # Aufrufe mit anderen URLs nicht gestale IPs bekommen.
-        for h in pinned_hosts:
-            _unpin_host(h)
+        # FIX BUG-PIN-RESTORE: Restore in umgekehrter Reihenfolge des Pinnens
+        # (LIFO), damit verschachtelte Pins korrekt aufgeloest werden.
+        for h, previous in reversed(pinned_hosts):
+            _restore_pin(h, previous)
 
 
 # ═══════════════════════════════════════════════════════════════
