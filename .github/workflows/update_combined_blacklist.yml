@@ -184,6 +184,7 @@ jobs:
               safe_get_date, parse_date, sort_ips, write_ip_list,
               write_json_atomic, write_text_atomic,
               fetch_url, check_local_feed_age,
+              validate_auto_feeds,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
           import ipaddress, json, os, re, sys, urllib.request
@@ -639,6 +640,19 @@ jobs:
           BACKUP_FILE = "seen_db_backup.json.gz"
           if os.path.exists(DB_FILE):
               try:
+                  # FIX BUG-SEENDB-LIMIT: Pre-Size-Check vor json.load.
+                  # seen_db.json ist heute ~600 MB. 5 GB Hard-Cap erlaubt
+                  # 8x Wachstum, schuetzt aber gegen ein versehentlich
+                  # oder boeswillig korruptes seen_db (z.B. via Cache-
+                  # Restore aus einem anderen Repo) das den Runner mit
+                  # 7 GB RAM via json.load OOM kippen wuerde.
+                  _SEENDB_LIMIT = 5 * 1024 * 1024 * 1024
+                  _dsize = os.path.getsize(DB_FILE)
+                  if _dsize > _SEENDB_LIMIT:
+                      raise ValueError(
+                          f"seen_db.json zu gross: {_dsize / 1024 / 1024:.1f} MB "
+                          f"> {_SEENDB_LIMIT / 1024 / 1024 / 1024:.0f} GB "
+                          f"(moegliche Korruption oder Cache-Mismatch)")
                   with open(DB_FILE) as f:
                       db = json.load(f)
                   print(f"seen_db geladen: {len(db)} IPs")
@@ -648,8 +662,36 @@ jobs:
           if not db and os.path.exists(BACKUP_FILE):
               try:
                   import gzip
+                  # FIX BUG-GZIP-BACKUP-LIMIT: Pre-Size + Streaming-Limit.
+                  # Vorher: gzip.open + json.load ohne irgendeine Groessen-
+                  # Pruefung. Wenn ein Angreifer mit Repo-Schreibrechten das
+                  # Backup durch eine zip-Bombe ersetzt (z.B. 100 MB
+                  # komprimiert -> 50 GB expandiert), erleidet der Workflow
+                  # OOM bevor der nachgelagerte _MIN_BACKUP_ENTRIES-Check
+                  # je greift. Realistisch: Repo-Write erforderlich, also
+                  # Insider-Threat-Vektor – Hardung lohnt trotzdem.
+                  # Layer 1: komprimierte Groesse hard-cap bei 200 MB
+                  #          (aktuelles Backup ist ~70 MB, 200 MB ist 3x
+                  #          headroom fuer normales Wachstum).
+                  # Layer 2: Streaming-Read mit 2 GB-Limit auf den
+                  #          dekomprimierten JSON-Text. Das echte JSON
+                  #          ist heute ~600 MB – 2 GB erlaubt 3x Wachstum.
+                  _BACKUP_COMPRESSED_LIMIT   = 200 * 1024 * 1024
+                  _BACKUP_DECOMPRESSED_LIMIT = 2 * 1024 * 1024 * 1024
+                  _bsize = os.path.getsize(BACKUP_FILE)
+                  if _bsize > _BACKUP_COMPRESSED_LIMIT:
+                      raise ValueError(
+                          f"Backup zu gross: {_bsize / 1024 / 1024:.1f} MB "
+                          f"> {_BACKUP_COMPRESSED_LIMIT / 1024 / 1024:.0f} MB "
+                          f"(moegliche zip-Bombe oder Repo-Korruption)")
                   with gzip.open(BACKUP_FILE, "rt", encoding="utf-8") as _bf:
-                      db = json.load(_bf)
+                      _raw = _bf.read(_BACKUP_DECOMPRESSED_LIMIT + 1)
+                      if len(_raw) > _BACKUP_DECOMPRESSED_LIMIT:
+                          raise ValueError(
+                              f"Backup-Stream > "
+                              f"{_BACKUP_DECOMPRESSED_LIMIT / 1024 / 1024:.0f} MB "
+                              f"nach Dekomprimierung (zip-Bombe), verworfen")
+                      db = json.loads(_raw)
                   # FIX BUG-BACKUP-GUARD: Backup ist nur dann nutzbar wenn es
                   # eine plausible Anzahl Eintraege enthaelt. Ein winziges
                   # Backup (durch frueheren BUG-BACKUP-GUARD-Schreibfehler oder
@@ -1010,7 +1052,16 @@ jobs:
               try:
                   with open(AUTO_FEEDS_FILE) as af:
                       auto_data = json.load(af)
-                  auto_feeds = auto_data.get("feeds", [])
+                  # FIX BUG-AUTOFEEDS-VALIDATE: validate_auto_feeds() filtert
+                  # auf safe Schema (dict mit name/url als String) und URL-
+                  # Whitelist (nur http/https). Vorher: direkter
+                  # auto_data.get("feeds", []) ohne Pruefung – ein Angreifer
+                  # mit Repo-Schreibrechten konnte malicious URLs in den
+                  # Feed-Loop einschleusen ohne Code-Review-Pfad ueber SOURCES.
+                  auto_feeds, _rejected = validate_auto_feeds(auto_data)
+                  if _rejected:
+                      print(f"  WARNUNG: {_rejected} auto-feed Eintraege wegen "
+                            f"Schema-/URL-Check verworfen")
                   print(f"  Auto-discovered Feeds: {len(auto_feeds)}")
 
                   def fetch_auto(feed):

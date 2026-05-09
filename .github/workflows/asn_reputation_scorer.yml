@@ -162,11 +162,24 @@ jobs:
               if et_text:
                   print(f"  ET-Quelle: {et_url.split('/')[-1]}")
                   break
-          et_ips = set()
-          # FIX: strikte IPV4_RE aus netshield_common nutzen statt inline
-          # \b-Regex – konsistent mit der Versions-String-Filterung.
-          for m in IPV4_RE.finditer(et_text):
-              et_ips.add(m.group(1))
+          # FIX BUG-WF5-IPV6-ASN: Vorher direkte IPV4_RE.finditer-Schleife –
+          # IPV4_RE hat einen Lookbehind '(?<![\d.])' der ':' als Trenner
+          # zulaesst. Folge: '::ffff:1.2.3.4' (IPv4-mapped IPv6) matchte den
+          # IPv4-Suffix '1.2.3.4' und fuegte ihn als Phantom-Eintrag ein.
+          # parse_entries() loest das via _is_in_ipv6_token-Heuristik
+          # (Token enthaelt '::' oder >=2 Doppelpunkte → kein Match).
+          # Konsequenz vor Fix: ASN-Reputation-Score wurde durch IPv6-mapped
+          # Eintraege in ET-Feeds verzerrt – mit reproduzierbarem
+          # asymmetrischen Effekt fuer ASN-Holder die viele AAAA-Records
+          # haben. Jetzt: Konsistent mit dem Rest der Pipeline.
+          # CIDR-Filter ('/' not in e): Vertrag bewahren – die alte Schleife
+          # gab nur Plain-IPs zurueck, et_ips wird unten mit 'ip_str in et_ips'
+          # verglichen wo ip_str eine Plain-IP ist. Ein '1.2.3.0/24' im Set
+          # wuerde diesen Vergleich nicht treffen aber die set-Groesse
+          # verzerren. Use_protected_check=False (Validierungs-Modus):
+          # Whitelist-IPs bleiben drin, weil ASN-Scoring sie ueberhaupt
+          # mitsehen soll.
+          et_ips = {e for e in _parse_entries(et_text) if "/" not in e}
           print(f"  Emerging Threats: {len(et_ips):,} IPs" if et_ips else "  Emerging Threats: FEHLER – alle Quellen nicht erreichbar")
 
           # Hilfsfunktion: Binary-Search CIDR-Check (sortierte Ranges)

@@ -150,7 +150,13 @@ jobs:
                       code   = r.status
                       sample = r.read(2 * 1024 * 1024).decode("utf-8", errors="ignore")  # 2 MB reichen für IP-Sample-Check; 25 MB war unnötiger Netzwerk-/Speicherdruck bei 15 parallelen Requests
                   elapsed = round(time.time() - t0, 2)
-                  ip_count = len(set(IP_RE.findall(sample)))
+                  # FIX BUG-WF6-IPV6-HEALTH: vorher IP_RE.findall ohne IPv6-
+                  # Token-Schutz. ::ffff:1.2.3.4 haette den has_ips-Boolean
+                  # faelschlich auf True gesetzt (= Feed gilt als gesund).
+                  # parse_entries() filtert IPv6-Tokens via _is_in_ipv6_token.
+                  # Niedrige Praxis-Relevanz weil ip_count nur fuer Health-
+                  # Watchdog (Boolean), nicht fuer Datenfluss in Blacklists.
+                  ip_count = len(_parse_entries(sample))
                   has_ips  = ip_count > 0
                   return {"name": name, "url": url, "status": code, "ok": code == 200,
                           "has_ips": has_ips, "sample_ips": ip_count, "ms": int(elapsed*1000)}
