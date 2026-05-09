@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-05-09 12:08 UTC
+**Aktualisiert:** 2026-05-09 13:57 UTC
 
 ---
 ## 📊 Listen-Übersicht
@@ -12,7 +12,7 @@
 | ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **175,691** | 2026-05-09 10:49 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **52,429** | 2026-05-09 06:09 UTC |
 | ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,949** | 2026-05-08 23:39 UTC |
-| ✅ `honeypot_ips.txt` | Honeypot IPs | **156,025** | 2026-05-09 08:15 UTC |
+| ✅ `honeypot_ips.txt` | Honeypot IPs | **156,073** | 2026-05-09 13:56 UTC |
 | ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **17,953** | 2026-05-09 11:13 UTC |
 
 ---
@@ -33,4 +33,4 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 *Details: [workflow_health_report.md](workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-05-09 12:08 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-05-09 13:57 UTC*
