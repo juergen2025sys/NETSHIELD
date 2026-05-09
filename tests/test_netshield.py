@@ -234,6 +234,95 @@ class TestParseEntries(unittest.TestCase):
         self.assertEqual(result, {"1.2.3.4"})
         self.assertEqual(len(result), 1)
 
+    def test_multi_entry_per_line_public_cidr_and_ip(self):
+        """FIX BUG-MULTI-ENTRY: Eine Zeile mit CIDR und IP per Whitespace
+        getrennt darf nicht nach dem ersten Match abbrechen. Vorher hatte
+        der Fast-Path-Block ein 'continue', sodass die hintere IP silent
+        verloren ging.
+
+        Heute betrifft das keinen der konsumierten Feeds (alle 1
+        Eintrag/Zeile, ueber 986k Zeilen verifiziert), aber
+        auto_feed_discovery nimmt automatisch neue Feeds auf - waere
+        ein latenter Datenleck-Vektor.
+        """
+        result = parse_entries("5.5.5.0/24 6.6.6.6")
+        self.assertEqual(result, {"5.5.5.0/24", "6.6.6.6"})
+
+    def test_multi_entry_private_cidr_with_public_ip(self):
+        """FIX BUG-MULTI-ENTRY: Privat-CIDR + oeffentliche IP auf einer
+        Zeile. Der Privat-CIDR wird abgelehnt, aber die oeffentliche IP
+        muss erhalten bleiben - Vorher: beide gingen verloren weil der
+        Fast-Path nach dem CIDR-Match (auch bei Reject) 'continue' machte."""
+        result = parse_entries("10.20.30.0/24 5.5.5.5")
+        self.assertEqual(result, {"5.5.5.5"})
+
+    def test_multi_entry_two_public_ips(self):
+        """FIX BUG-MULTI-ENTRY: Zwei oeffentliche IPs per Whitespace getrennt."""
+        result = parse_entries("1.2.3.4 5.6.7.8")
+        self.assertEqual(result, {"1.2.3.4", "5.6.7.8"})
+
+    def test_multi_entry_three_cidrs(self):
+        """FIX BUG-MULTI-ENTRY: Mehrere CIDRs per Whitespace, alle public."""
+        result = parse_entries("5.5.5.0/24 6.6.6.0/24 7.7.7.0/24")
+        self.assertEqual(result, {"5.5.5.0/24", "6.6.6.0/24", "7.7.7.0/24"})
+
+    def test_no_phantom_ip_from_cidr_network_address(self):
+        """Regression: BUG-PARSE-DUAL muss nach BUG-MULTI-ENTRY-Fix
+        weiterhin verhindern, dass die Netzadresse einer CIDR (z.B.
+        '5.5.5.0' aus '5.5.5.0/24') zusaetzlich als Plain-IP eingelegt
+        wird. Der cidr_spans-Schutz im Fallback bleibt aktiv."""
+        # CIDR alleine
+        self.assertEqual(parse_entries("5.5.5.0/24"), {"5.5.5.0/24"})
+        # CIDR in JSON
+        self.assertEqual(parse_entries('{"net":"5.5.5.0/24"}'), {"5.5.5.0/24"})
+        # CIDR mit Inline-Kommentar (Spamhaus-DROP)
+        self.assertEqual(parse_entries("5.5.5.0/24 ; SBL12345"), {"5.5.5.0/24"})
+        # CIDR-only mit Whitespace davor (auto-discovery sieht das oft so)
+        self.assertEqual(parse_entries("    5.5.5.0/24"), {"5.5.5.0/24"})
+
+
+class TestParseEntriesForBlacklist(unittest.TestCase):
+    """FIX API-CLARITY: parse_entries_for_blacklist ist der empfohlene
+    Wrapper fuer den Pipeline-Modus mit Whitelist-Filter. Macht den
+    BUG-WL1/WL3/WL7-Vermeidungspfad explizit und Fail-Closed."""
+
+    def setUp(self):
+        # Pipeline-Modus braucht eine geladene Whitelist (sonst raises).
+        netshield_common._reset_whitelist_for_testing()
+        netshield_common.load_whitelist(min_entries=5)
+
+    def tearDown(self):
+        netshield_common._reset_whitelist_for_testing()
+
+    def test_filters_whitelist_ip(self):
+        """Eine Whitelist-IP (z.B. 1.0.0.1 aus whitelist.json) muss
+        herausgefiltert werden - das ist der Sinn des Wrappers."""
+        from netshield_common import parse_entries_for_blacklist
+        # Mische Whitelist-IPs mit "normalen" Threat-IPs
+        result = parse_entries_for_blacklist("1.0.0.1\n5.5.5.5\n8.8.8.8\n11.22.33.44")
+        # 1.0.0.1 und 8.8.8.8 sind in der Whitelist -> raus
+        self.assertNotIn("1.0.0.1", result)
+        self.assertNotIn("8.8.8.8", result)
+        # 5.5.5.5 und 11.22.33.44 sind nicht in der Whitelist -> drin
+        self.assertIn("5.5.5.5", result)
+        self.assertIn("11.22.33.44", result)
+
+    def test_filters_private_ip(self):
+        """RFC1918/Reserved werden weiterhin gefiltert - der Wrapper
+        ist ein Superset von is_valid_public_ipv4."""
+        from netshield_common import parse_entries_for_blacklist
+        result = parse_entries_for_blacklist("192.168.1.1\n5.5.5.5")
+        self.assertEqual(result, {"5.5.5.5"})
+
+    def test_equivalence_to_parse_entries_with_flag(self):
+        """Wrapper muss exakt dasselbe liefern wie parse_entries(use_protected_check=True)."""
+        from netshield_common import parse_entries_for_blacklist
+        text = "1.0.0.1\n5.5.5.5\n10.0.0.1\n8.8.8.8\n11.22.33.44\n5.5.5.0/24"
+        self.assertEqual(
+            parse_entries_for_blacklist(text),
+            parse_entries(text, use_protected_check=True),
+        )
+
 
 # ═══════════════════════════════════════════════════════════════
 # IP-Validierung
