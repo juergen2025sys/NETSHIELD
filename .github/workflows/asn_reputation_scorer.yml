@@ -66,29 +66,13 @@ jobs:
           # Lokale \b-Variante entfernt – einheitliche strikte Regex.
 
           def fetch_raw(url, timeout=30, retries=3):
-              # FIX #12: HTTP-Statuscode explizit loggen; non-200 wird als WARNUNG ausgegeben.
-              # FIX RETRY2: Retry-Logik ergänzt (war: nur 1 Versuch, kein Backoff).
-              # Bei transientem Netzwerkfehler wurde der ASN komplett übersprungen.
-              # Jetzt: bis zu 3 Versuche mit exponentiellem Backoff (2s, 4s).
-              # FIX DUP-IMPORT: `import time as _time` entfernt – time ist bereits
-              # auf Modul-Ebene importiert; lokaler Re-Import war Copy-Paste-Artefakt.
-              for attempt in range(1, retries + 1):
-                  try:
-                      req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD-ASNScorer/2.0"})
-                      with urllib.request.urlopen(req, timeout=timeout) as r:
-                          if r.status != 200:
-                              print(f"  WARNUNG HTTP {r.status} {url}")
-                              return None
-                          return r.read().decode("utf-8", errors="ignore")
-                  except urllib.error.HTTPError as e:
-                      print(f"  FEHLER HTTP {e.code} {url}: {e.reason}")
-                      return None  # HTTP-Fehler nicht wiederholen (404, 403 etc.)
-                  except Exception as e:
-                      if attempt < retries:
-                          time.sleep(2 ** attempt)
-                      else:
-                          print(f"  FEHLER {url} (nach {retries} Versuchen): {e}")
-              return None
+              # FIX BUG-WF2-FETCHURL: vorher selbstgebauter urlopen-Loop.
+              # Kein SSRF, kein DNS-Pin, kein gzip-Streaming – und 5xx wurden
+              # SOFORT als None returned (Zeile "HTTP-Fehler nicht wiederholen
+              # (404, 403 etc.)") was 500/502/503/504 unnötig zu hartem Fehler
+              # eskalierte. fetch_url retryt 429+5xx korrekt.
+              return fetch_url(url, timeout=timeout, retries=retries,
+                               user_agent="NETSHIELD-ASNScorer/2.0")
 
           # ── High-Risk ASN-Definitionen ────────────────────────────────────
           # slug     = ScaniteX URL-Slug  → /download/txt liefert CIDR-Liste

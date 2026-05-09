@@ -288,12 +288,19 @@ jobs:
 
           # is_valid_public_ipv4() → importiert aus netshield_common
           def extract_ips(text):
-              ips = set()
-              for m in IPV4_RE.finditer(text):
-                  ip = m.group(1)
-                  if is_valid_public_ipv4(ip):
-                      ips.add(ip)
-              return ips
+              # FIX BUG-WF4-IPV6: Vorher eigene IPV4_RE-Schleife mit
+              # is_valid_public_ipv4 – ohne den IPv6-Token-Schutz von
+              # parse_entries. '::ffff:1.2.3.4' in einem Discovery-
+              # Kandidaten-File haette Phantom-IPv4-Eintraege erzeugt
+              # (gleicher BUG-IPV6-MAPPED wie in netshield_common).
+              # Jetzt: parse_entries() nutzen, dann CIDRs herausfiltern
+              # damit der Vertrag der Funktion (nur Plain-IPs) erhalten
+              # bleibt – fp_rate / hq_ref_ips-Overlap rechnen mit
+              # IP-Strings, ein CIDR wuerde dort ValueError ausloesen
+              # bzw. die Set-Operationen verzerren. Whitelist-Filter
+              # NICHT aktiv (use_protected_check=False), weil Discovery
+              # die Liste nur evaluiert.
+              return {e for e in parse_entries(text) if "/" not in e}
 
           def fp_rate(ips, sample_size=200):
               # FIX SAMPLE-BIAS: random.sample statt list(ips)[:200]. Set-Iteration

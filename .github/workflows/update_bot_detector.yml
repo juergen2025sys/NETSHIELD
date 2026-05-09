@@ -69,28 +69,23 @@ jobs:
 
           # is_in_fp_set() → importiert aus netshield_common
           # ── Fetch mit Retry ───────────────────────────────────────────────
-          MAX_ATTEMPTS = 3
+          # FIX BUG-WF2-FETCHURL: vorher selbstgebauter urlopen-Loop ohne
+          # SSRF-Schutz. fetch_url uebernimmt jetzt Retry/Backoff – wir holen
+          # den Body als String und parsen json hier.
           data = None
-          last_error = None
-
-          for attempt in range(1, MAX_ATTEMPTS + 1):
+          raw_body = fetch_url(URL, timeout=20, retries=3,
+                               user_agent="NETSHIELD/3.0")
+          if raw_body is not None:
               try:
-                  req = urllib.request.Request(URL, headers={"User-Agent": "NETSHIELD/3.0"})
-                  with urllib.request.urlopen(req, timeout=20) as r:
-                      data = json.load(r)
-                  print(f"  Feed geladen (Versuch {attempt})")
-                  break
-              except urllib.error.HTTPError as e:
-                  last_error = f"HTTP {e.code}: {e.reason}"
-                  print(f"  Versuch {attempt}/{MAX_ATTEMPTS} fehlgeschlagen: {last_error}")
-              except Exception as e:
-                  last_error = str(e)
-                  print(f"  Versuch {attempt}/{MAX_ATTEMPTS} fehlgeschlagen: {last_error}")
-              if attempt < MAX_ATTEMPTS:
-                  time.sleep(2 ** attempt)  # 2s, 4s
+                  data = json.loads(raw_body)
+                  print(f"  Feed geladen ({len(raw_body)} bytes)")
+              except (json.JSONDecodeError, ValueError) as _je:
+                  print(f"  Feed geladen aber JSON kaputt: {_je}")
+                  data = None
+          last_error = "fetch_url returned None oder JSON-Parse-Fehler" if data is None else None
 
           if data is None:
-              print(f"FEHLER: Feed nach {MAX_ATTEMPTS} Versuchen nicht erreichbar: {last_error}")
+              print(f"FEHLER: Feed nach 3 Versuchen nicht erreichbar: {last_error}")
               print("Behalte bestehende bot_detector_blacklist_ipv4.txt")
               # FIX ATOMIC: write_text_atomic statt open("w") – bei Runner-Kill
               # bleibt der Report komplett alt oder komplett neu.
@@ -100,12 +95,12 @@ jobs:
                   f"**Quelle:** [github.com/lula73/bot-detector](https://github.com/lula73/bot-detector)\n\n"
                   "---\n"
                   "## ❌ Fetch-Fehler\n\n"
-                  f"Feed nach {MAX_ATTEMPTS} Versuchen nicht erreichbar: `{last_error}`  \n"
+                  f"Feed nach 3 Versuchen nicht erreichbar: `{last_error}`  \n"
                   "Bestehende `bot_detector_blacklist_ipv4.txt` wurde beibehalten.\n\n"
                   f"---\n*Generiert: {now_str}*\n"
               )
               print(f"  {REPORT_FILE} geschrieben (Fehler-Report)")
-              msg = f"Feed nach {MAX_ATTEMPTS} Versuchen nicht erreichbar: {last_error}"
+              msg = f"Feed nach 3 Versuchen nicht erreichbar: {last_error}"
               print(f"::warning file=update_bot_detector.yml::{msg}")
               sys.exit(1)
 

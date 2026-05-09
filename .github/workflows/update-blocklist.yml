@@ -340,25 +340,18 @@ jobs:
                   return (0, 0)
 
           def fetch_country(url, retries=3, timeout=15):
-              for attempt in range(1, retries + 1):
-                  try:
-                      with urllib.request.urlopen(url, timeout=timeout) as response:
-                          return response.read().decode("utf-8"), None
-                  except urllib.error.HTTPError as e:
-                      # 404 = Land hat keine IP-Ranges → sofort zurückgeben, kein Retry
-                      if e.code == 404:
-                          return None, e
-                      # Transiente Serverfehler → Retry
-                      if e.code in (429, 500, 502, 503, 504) and attempt < retries:
-                          time.sleep(attempt * 2)
-                      else:
-                          return None, e
-                  except Exception as e:
-                      if attempt < retries:
-                          time.sleep(attempt * 2)
-                      else:
-                          return None, e
-              return None, Exception("Unbekannter Fehler")
+              # FIX BUG-WF2-FETCHURL: vorher direkter urllib.urlopen ohne SSRF-
+              # Schutz. fetch_url uebernimmt jetzt Retry/Backoff und gzip-
+              # Streaming. Das (text, error)-Tupel wird beibehalten fuer
+              # Backward-Compat des Callers (der das error-Objekt fuer Logging
+              # nutzt) – auf einen generischen "fetch_url returned None"-
+              # Marker, da fetch_url nicht zwischen 404/Timeout/etc.
+              # unterscheidet sondern nur None/Body.
+              text = fetch_url(url, timeout=timeout, retries=retries,
+                               user_agent="NETSHIELD-Geo/2.0")
+              if text is None:
+                  return None, Exception("fetch_url returned None")
+              return text, None
 
           countries = list(COUNTRY_MAP.keys())
           print(f"Lade {len(countries)} Länder von hackinggate.com ...")

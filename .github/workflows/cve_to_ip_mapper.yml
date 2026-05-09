@@ -66,24 +66,12 @@ jobs:
           # das Parsing zentral mit der strikten Regex.
 
           def fetch(url, timeout=30, retries=3):
-              # FIX RETRY1: Retry-Logik ergänzt (war: nur 1 Versuch, kein Backoff).
-              # Bei transientem Netzwerkfehler fiel ein kompletter Feed weg.
-              # Jetzt: bis zu 3 Versuche mit exponentiellem Backoff (2s, 4s).
-              # FIX DUP-IMPORT: `import time as _time` entfernt – time ist bereits
-              # auf Modul-Ebene importiert; lokaler Re-Import war Copy-Paste-Artefakt.
-              last_err = None
-              for attempt in range(1, retries + 1):
-                  try:
-                      req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD-CVEMapper/1.0"})
-                      with urllib.request.urlopen(req, timeout=timeout) as r:
-                          return r.read().decode("utf-8", errors="ignore")
-                  except Exception as e:
-                      last_err = e
-                      if attempt < retries:
-                          time.sleep(2 ** attempt)
-                      else:
-                          print(f"  FEHLER {url.split('/')[-1]} (nach {retries} Versuchen): {e}")
-              return None
+              # FIX BUG-WF2-FETCHURL: siehe analoge Aenderung in
+              # asn_reputation_scorer.yml. Kein SSRF/DNS-Pin/gzip-Schutz im
+              # alten urlopen-Pfad; fetch_url liefert all das + saubere
+              # Retry-Strategie fuer 429/5xx.
+              return fetch_url(url, timeout=timeout, retries=retries,
+                               user_agent="NETSHIELD-CVEMapper/1.0")
 
           # is_valid_public_ipv4() → importiert aus netshield_common
           # is_valid_public_cidr() → importiert aus netshield_common

@@ -76,22 +76,34 @@ jobs:
           # is_in_fp_set() → importiert aus netshield_common
           # parse_entries() → importiert aus netshield_common
           def fetch(url, timeout=30, retries=3, headers=None):
-              # FIX RETRY4: Retry-Logik ergänzt (war: nur 1 Versuch, kein Backoff).
-              # Bei transientem Netzwerkfehler fiel ein kompletter Feed weg.
-              # Jetzt: bis zu 3 Versuche mit exponentiellem Backoff (2s, 4s).
-              # FIX AUTH: optionaler headers-Param fuer API-Feeds (z.B. SniffCat
-              # mit X-Secret-Token). Default-User-Agent bleibt erhalten.
+              # FIX BUG-WF2-FETCHURL (partial): fuer Feeds OHNE Auth-Header
+              # nutzen wir fetch_url (SSRF, DNS-Pin, gzip-Streaming, korrektes
+              # 429/5xx-Retry). Feeds MIT custom headers (z.B. SniffCat
+              # X-Secret-Token-API) muessen weiter den urlopen-Pfad nutzen,
+              # weil fetch_url keine custom-Header durchreicht. Diese
+              # API-Pfade haben hardcoded URLs und sind im Hygiene-Check
+              # explizit als Inline-Whitelist akzeptiert.
+              if not headers:
+                  return fetch_url(url, timeout=timeout, retries=retries,
+                                   user_agent="NETSHIELD-HoneypotMonitor/1.0")
+              # Auth-Header-Pfad: alter Loop bleibt, mit korrigierter
+              # Retry-Strategie fuer 5xx (vorher fielen die mit 'return None'
+              # raus statt zu retryen).
               req_hdrs = {"User-Agent": "NETSHIELD-HoneypotMonitor/1.0"}
-              if headers:
-                  req_hdrs.update(headers)
+              req_hdrs.update(headers)
               for attempt in range(1, retries + 1):
                   try:
                       req = urllib.request.Request(url, headers=req_hdrs)
                       with urllib.request.urlopen(req, timeout=timeout) as r:
                           return r.read().decode("utf-8", errors="ignore")
                   except urllib.error.HTTPError as e:
+                      # 5xx und 429 retryen, 4xx sofort failen (Auth-Fehler etc.)
+                      if e.code in (429, 500, 502, 503, 504) and attempt < retries:
+                          print(f"  HTTP {e.code} {url} – Retry {attempt}/{retries}")
+                          time.sleep(2 ** attempt)
+                          continue
                       print(f"  FEHLER HTTP {e.code} {url}")
-                      return None  # HTTP-Fehler nicht wiederholen
+                      return None
                   except Exception as e:
                       if attempt < retries:
                           time.sleep(2 ** attempt)
@@ -170,27 +182,14 @@ jobs:
           # gesetzt, damit Wachstum des Feeds nicht sofort bricht. Bei
           # Ueberschreitung wird der Feed verworfen, nicht truncatiert.
           def fetch_large(url, timeout=60, retries=3, max_bytes=80 * 1024 * 1024):
-              for attempt in range(1, retries + 1):
-                  try:
-                      req = urllib.request.Request(
-                          url,
-                          headers={"User-Agent": "NETSHIELD-HoneypotMonitor/1.0"},
-                      )
-                      with urllib.request.urlopen(req, timeout=timeout) as r:
-                          data = r.read(max_bytes + 1)
-                          if len(data) > max_bytes:
-                              print(f"  FEHLER {url}: ueber {max_bytes} Bytes – verworfen")
-                              return None
-                          return data.decode("utf-8", errors="ignore")
-                  except urllib.error.HTTPError as e:
-                      print(f"  FEHLER HTTP {e.code} {url}")
-                      return None
-                  except Exception as e:
-                      if attempt < retries:
-                          time.sleep(2 ** attempt)
-                      else:
-                          print(f"  FEHLER {url} (nach {retries} Versuchen): {e}")
-              return None
+              # FIX BUG-WF2-FETCHURL: fetch_url unterstuetzt read_limit – das
+              # uebernimmt sowohl die Truncation-Erkennung (warnt bei
+              # Limit-Treffer) als auch streaming-gzip-Bomb-Schutz, was der
+              # alte Code beides NICHT hatte (.read(max_bytes+1) ist roh
+              # binary, dekomprimiertes gzip lief in vollem RAM).
+              return fetch_url(url, timeout=timeout, retries=retries,
+                               user_agent="NETSHIELD-HoneypotMonitor/1.0",
+                               read_limit=max_bytes)
 
           # Sources die ueber fetch_large() statt fetch() geladen werden muessen.
           # Grund: erwartete Antwortgroesse > ~5 MB, separates Timeout/Limit sinnvoll.
