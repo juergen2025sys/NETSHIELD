@@ -1204,12 +1204,31 @@ jobs:
                       _to_drop.append(ip)
                       continue
                   # 2) Aufnahme-Filter: >= 2 Feeds gesamt ODER hq ODER community_report
+                  #    ODER auto_feed_discovery (siehe FIX BUG-AUTOFEED-DROP unten)
                   feeds = data.get("feeds", [])
                   if not isinstance(feeds, list):
                       _corrupt_dropped += 1
                       _to_drop.append(ip)
                       continue
-                  if not (len(feeds) >= 2 or data.get("hq") or "community_report" in feeds):
+                  # FIX BUG-AUTOFEED-DROP: 'auto_feed_discovery' als Single-Feed-Bypass.
+                  # Vorher: Eine durch auto_feed_discovery (wöchentlich, So 04:37 UTC)
+                  # neu eingetragene IP hat zunaechst nur feeds=["auto_feed_discovery"]
+                  # (len=1, kein hq, kein community_report). Sie ueberlebt den Aufnahme-
+                  # Filter nur dann, wenn der naechste combined-Lauf den entsprechenden
+                  # auto-discovered Feed erfolgreich abruft und einen zweiten Feed-
+                  # Namen hinzufuegt. Faellt dieser Fetch beim ersten combined-Lauf
+                  # nach So 04:37 aus (GitHub-raw-404-Bug, Timeout, 5xx), wird die IP
+                  # geloescht und kommt erst die naechste Woche wieder zurueck.
+                  # In den 4,76M Eintraegen der echten seen_db sehen wir 0 IPs mit
+                  # nur ["auto_feed_discovery"] – exakt das Symptom des sofortigen
+                  # Loeschens nach Feed-Ausfall. Fix: solche IPs ueberleben den
+                  # Aufnahme-Filter, bis combined den auto-discovered Feed wieder
+                  # erreicht. Risiko gering, weil auto_feed_discovery selbst strenge
+                  # Validierung anwendet (FP-Rate <5%, HQ-Overlap >=20% oder >=50,
+                  # Format-Qualitaet >=30%, Repo-Aktualitaet <=30 Tage, Groesse
+                  # 100-500k IPs).
+                  if not (len(feeds) >= 2 or data.get("hq") or "community_report" in feeds
+                          or "auto_feed_discovery" in feeds):
                       aufnahme_removed += 1
                       _to_drop.append(ip)
                       continue
