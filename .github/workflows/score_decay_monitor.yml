@@ -256,7 +256,11 @@ jobs:
           print(f"Veraltend – Warnung (30-44 Tage, Score≥25): {len(stale_warn)}")
           print(f"Veraltend – Kritisch (45+ Tage, Score≥40):  {len(stale_critical)}")
           print(f"Zombie (Score≥65, 30+ Tage inaktiv):        {len(zombie_high)}")
-          print(f"Läuft bald ab (150+ Tage):        {len(decay_suggest)}")
+          # decay_suggest hat bewusst KEINE Score-Schwelle - alle Eintraege mit
+          # last_seen >= 150 Tage werden gelistet, weil sie naechste Woche von
+          # der combined_blacklist (180-Tage-Cutoff) entfernt werden, unabhaengig
+          # vom aktuellen Score. Das ist Cleanup-Hinweis, keine Reklassifizierung.
+          print(f"Läuft bald ab (150+ Tage, alle Scores):     {len(decay_suggest)}")
 
           # Decay-Log
           _log_lines = [
