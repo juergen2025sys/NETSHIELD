@@ -461,10 +461,29 @@ def parse_entries(text, use_protected_check=False):
     """Universeller Parser: plain IPv4, CIDR, ip:port, ipset, FortiGate,
     Spamhaus DROP, URLhaus, CSV erste Spalte. Privates/Loopback gefiltert.
 
+    Hat zwei distinkte Modi - die Wahl ist sicherheitsrelevant:
+
+    - ``use_protected_check=False`` (Default, "Validierungs-Modus"):
+      Filtert nur technisch nicht-oeffentliche IPs (RFC1918, Loopback,
+      Reserved, Multicast, Class E, Link-Local, CGNAT, Doc-Ranges).
+      Whitelist-IPs (z.B. 8.8.8.8, 1.1.1.1) kommen DURCH. Geeignet zum
+      Validieren ob ein String eine "echte" IPv4 ist, oder fuer Tests
+      ohne geladene Whitelist. Braucht KEIN load_whitelist() vorher.
+
+    - ``use_protected_check=True`` ("Pipeline-Modus"):
+      Filtert zusaetzlich Whitelist-IPs heraus (via is_protected_entry).
+      DAS ist der Modus den Workflows fuer Blacklist-Generierung
+      verwenden muessen. Verlangt vorher load_whitelist(); sonst
+      WhitelistNotLoadedError.
+
+    Wenn der Output dieser Funktion in eine produzierte Blacklist fliesst,
+    MUSS use_protected_check=True gesetzt sein. Siehe BUG-WL1/WL3/WL7
+    (historische False-Negative-Faelle wo Whitelist-IPs in Outputs landeten).
+    Convenience-Wrapper: ``parse_entries_for_blacklist()``.
+
     Args:
         text: Rohtext des Feeds.
-        use_protected_check: Wenn True, wird is_protected_entry() statt
-            is_valid_public_ipv4() verwendet (schließt Whitelist ein).
+        use_protected_check: Pipeline-Modus aktivieren (siehe oben).
 
     Returns:
         set[str]: Gefiltertes Set von IPs und CIDRs.
@@ -521,43 +540,46 @@ def parse_entries(text, use_protected_check=False):
         if not line:
             continue
 
-        # CSV: nur erste Spalte prüfen
-        first_col = line.split(',')[0].strip()
+        # CSV: nur erste Spalte... siehe Kommentar unten zur Cidr-Span-Strategie.
+        # FIX BUG-MULTI-ENTRY: Vorher gab es drei Fast-Path-Bloecke
+        # (CIDR-am-Anfang / ip:port / Plain-IP-am-Anfang) die jeweils
+        # 'continue' am Ende hatten. Eine Zeile wie "5.5.5.0/24 6.6.6.6"
+        # matchte CIDR_RE.match(first_col), legte den CIDR ab und sprang
+        # aus der Zeile. Die "6.6.6.6" ging silent verloren. Genauso bei
+        # "10.20.30.0/24 5.5.5.5" (privat-CIDR + oeffentliche IP - die IP
+        # verschwand komplett).
+        #
+        # Heute betrifft das keinen der konsumierten Feeds (alle haben
+        # genau 1 Eintrag/Zeile), aber auto_feed_discovery.yml nimmt
+        # automatisch neue Feeds auf - dort waere der Bug ein latenter
+        # Datenleck-Vektor.
+        #
+        # Fix: Die drei Fast-Pfade entfernt. Der Fallback unten ist ein
+        # Superset:
+        #   - findet alle IPs/CIDRs in der Zeile (Multi-Entry)
+        #   - hat per cidr_spans Schutz gegen Phantom-IPs aus CIDR-
+        #     Netzadressen (kein "5.5.5.0" extra zur "5.5.5.0/24")
+        #   - IPV4_RE hat den Versions-String-Schutz ((?![\d.]))
+        #     bereits eingebaut, sodass "1.2.3.4.5" nicht als
+        #     "1.2.3.4" durchgeht
+        #   - ip:port wird durch IPV4_RE korrekt geparst (matcht IP vor ':')
+        #
+        # Verhaltensaenderung: Bei einer CSV-Zeile mit IPs in mehreren
+        # Spalten (z.B. "1.2.3.4,US,reported_by:5.6.7.8") wird jetzt
+        # auch die zweite IP erfasst, statt sie per first_col-Cut zu
+        # verwerfen. In den 30+ derzeit konsumierten Feeds ist dieser
+        # Fall null Mal vorhanden (verifiziert ueber 986k Zeilen).
 
-        # CIDR?
-        cidr_m = CIDR_RE.match(first_col)
-        if cidr_m:
-            if cidr_check(cidr_m.group(1)):
-                entries.add(str(ipaddress.ip_network(cidr_m.group(1), strict=False)))
-            continue
+        # Inline-Kommentar wurde oben bereits per re.split([;#]) abgetrennt,
+        # damit z.B. Spamhaus-DROP "1.2.3.0/24 ; SBL12345" sauber laeuft.
 
-        # ip:port?
-        ip_port = re.match(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):\d+', first_col)
-        if ip_port:
-            ip = ip_port.group(1)
-            if ip_check(ip):
-                entries.add(ip)
-            continue
-
-        # Plain IP in erster Spalte?
-        # (?![\d.]) statt \b: schliesst auch nachfolgenden Punkt aus,
-        # damit '1.2.3.4.5' (Versions-String) nicht als '1.2.3.4' durchgeht.
-        ip_m = re.match(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?![\d.])', first_col)
-        if ip_m:
-            ip = ip_m.group(1)
-            if ip_check(ip):
-                entries.add(ip)
-            continue
-
-        # Fallback: alle IPs/CIDRs in der Zeile (URLhaus, JSON-Felder etc.)
+        # Fallback: alle IPs/CIDRs in der Zeile.
         # FIX BUG-PARSE-DUAL: CIDR-Spans merken, damit IPV4_RE die Netzadresse
         # einer CIDR (z.B. 5.5.5.0 in 5.5.5.0/24) NICHT zusaetzlich als
-        # Single-IP einfuegt. Vorher: Eine Zeile wie '{"net":"5.5.5.0/24"}'
-        # erzeugte BEIDE Eintraege - die CIDR und ihre Netzadresse als IP.
-        # Symptom: redundante Phantom-IPs in den Output-Listen, je nach Feed-
-        # Format (URLhaus / JSON / Fliesstext). Spamhaus-DROP war nicht
-        # betroffen, weil dort der ';'-Kommentar-Pfad greift und der Fallback
-        # nicht erreicht wird.
+        # Single-IP einfuegt. Vorher (vor dem Fix): Eine Zeile wie
+        # '{"net":"5.5.5.0/24"}' erzeugte BEIDE Eintraege - die CIDR und ihre
+        # Netzadresse als IP. Symptom: redundante Phantom-IPs in den
+        # Output-Listen, je nach Feed-Format (URLhaus / JSON / Fliesstext).
         cidr_spans = []
         for cm in CIDR_RE.finditer(line):
             cidr_str = cm.group(1)
@@ -575,6 +597,26 @@ def parse_entries(text, use_protected_check=False):
                 entries.add(ip)
 
     return entries
+
+
+def parse_entries_for_blacklist(text):
+    """Pipeline-Modus-Wrapper um parse_entries(use_protected_check=True).
+
+    Diese Funktion ist die EMPFOHLENE API fuer alle Workflows die einen
+    Feed-Inhalt in eine produzierte Blacklist umsetzen wollen. Sie macht
+    den Whitelist-Filter explizit (kein vergessener default-Argument-Bug
+    der Form BUG-WL1/WL3/WL7) und verlangt implizit, dass load_whitelist()
+    vorher gelaufen ist (sonst WhitelistNotLoadedError - Fail-Closed).
+
+    Args:
+        text: Rohtext des Feeds.
+
+    Returns:
+        set[str]: Gefiltertes Set von IPs und CIDRs - ohne Whitelist,
+        ohne RFC1918/Reserved/Loopback, bereit zum Schreiben in eine
+        Blacklist-Datei.
+    """
+    return parse_entries(text, use_protected_check=True)
 
 
 # ═══════════════════════════════════════════════════════════════
