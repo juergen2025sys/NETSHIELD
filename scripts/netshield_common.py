@@ -1376,3 +1376,61 @@ def write_text_atomic(filepath, content):
         except OSError:
             pass
         raise
+
+# ═══════════════════════════════════════════════════════════════
+# Auto-Discovered Feeds: Schema- und URL-Validierung
+# ═══════════════════════════════════════════════════════════════
+
+def validate_auto_feeds(auto_data):
+    """Filtert auto_discovered_feeds.json-Eintraege auf safe Schema + URL.
+
+    Hintergrund (FIX BUG-AUTOFEEDS-VALIDATE): Vorher las
+    update_combined_blacklist die Datei direkt mit
+    ``auto_data.get("feeds", [])`` ohne Schema-/URL-Pruefung. Risiko:
+    Ein Angreifer mit Repo-Schreibrechten konnte malicious URLs in
+    den Feed-Loop einschmuggeln, ohne den Code-Review-Pfad ueber
+    SOURCES zu durchlaufen. fetch_url's SSRF-Schutz blockt zwar
+    localhost/RFC1918, aber externe Angreifer-URLs mit boeswilligen
+    IP-Listen waeren durch.
+
+    Akzeptiert:
+        - dict-Root mit "feeds"-Liste
+        - pro Eintrag: dict mit string-keys "name" und "url"
+        - URL muss http:// oder https:// sein
+
+    Args:
+        auto_data: Geparstes JSON aus auto_discovered_feeds.json.
+
+    Returns:
+        tuple[list[dict], int]: (akzeptierte_feeds, anzahl_verworfen)
+
+    Raises:
+        ValueError: Wenn Root nicht dict oder feeds nicht list ist
+                    (= grundsaetzlich kaputtes Schema, kein partieller
+                    Restore moeglich).
+    """
+    if not isinstance(auto_data, dict):
+        raise ValueError(
+            f"auto_discovered_feeds Root ist {type(auto_data).__name__}, "
+            f"erwartet dict")
+    raw_feeds = auto_data.get("feeds", [])
+    if not isinstance(raw_feeds, list):
+        raise ValueError(
+            f"auto_discovered_feeds 'feeds' ist {type(raw_feeds).__name__}, "
+            f"erwartet list")
+    accepted = []
+    rejected = 0
+    for feed in raw_feeds:
+        if not isinstance(feed, dict):
+            rejected += 1
+            continue
+        name = feed.get("name")
+        url = feed.get("url")
+        if not isinstance(name, str) or not isinstance(url, str):
+            rejected += 1
+            continue
+        if not (url.startswith("https://") or url.startswith("http://")):
+            rejected += 1
+            continue
+        accepted.append({"name": name, "url": url})
+    return accepted, rejected
