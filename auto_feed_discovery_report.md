@@ -1,321 +1,303 @@
 # Auto Feed Discovery – Report
-**Aktualisiert:** 2026-05-03 09:29 UTC
+**Aktualisiert:** 2026-05-10 09:10 UTC
 
 ---
 ## Zusammenfassung
 
 | Metrik | Wert |
 |---|---|
-| Repos gesucht | **2010** |
+| Repos gesucht | **1990** |
 | Neu angenommen | **1** |
 | Bekannte Feeds re-fetched | **0** |
-| Abgelehnt (dieser Run) | **265** |
-| Feeds gesamt (aktiv) | **17** |
-| IPs in seen_db bestätigt | **175709** |
-| Neue IPs eingetragen | **32463** |
-| seen_db gesamt | **4,879,827** |
-| HQ-Referenz-IPs | **109400** |
+| Abgelehnt (dieser Run) | **246** |
+| Feeds gesamt (aktiv) | **18** |
+| IPs in seen_db bestätigt | **111872** |
+| Neue IPs eingetragen | **34204** |
+| seen_db gesamt | **4,864,031** |
+| HQ-Referenz-IPs | **106704** |
 
 ---
 ## ✅ Angenommene Feeds
 
 | Feed | Repo | IPs | Overlap | FP-Rate | Stars | Status |
 |---|---|---|---|---|---|---|
-| `turbolabit_zzfirewall` | [TurboLabIt/zzfirewall](https://github.com/TurboLabIt/zzfirewall) | 100,095 | 66.4% | 0.0% | 0 | 🆕 NEU |
+| `kraloveckey_ipsets_blocklist` | [kraloveckey/ipsets-blocklist](https://github.com/kraloveckey/ipsets-blocklist) | 16,854 | 13.1% | 0.0% | 0 | 🆕 NEU |
 
 ---
 ## ❌ Abgelehnte Repos
 
 | Repo | Grund |
 |---|---|
-| `NeikiDev/jlab-desktop` | Keine IP-Datei |
-| `Nvafiades1/threat-hunt-library` | Keine IP-Datei |
-| `nwiecz/C2IntelFeedsFGT` | Keine IP-Datei |
-| `NOMARJ/sigil` | Keine IP-Datei |
-| `longbombus/UniScope` | Keine IP-Datei |
-| `wix-incubator/obsidian` | Keine IP-Datei |
-| `hidevopsio/hiboot` | Keine IP-Datei |
-| `geminijong-cpu/hyperhives-macos-infostealer-analysis` | Größe: 1 IPs |
-| `c2lang/c2compiler` | Keine IP-Datei |
-| `Real-Fruit-Snacks/Siphon` | Keine IP-Datei |
-| `Real-Fruit-Snacks/Kraken` | Keine IP-Datei |
-| `brandaobe8314/Condi-Botnet-V9.2` | Keine IP-Datei |
-| `lost-ranchhand865/wraith` | Keine IP-Datei |
-| `terrl1nd/PhoenixC2` | Keine IP-Datei |
-| `LinArcX/zaal` | Größe: 0 IPs |
-| `michalstankiewicz4-cell/IPscanner` | Keine IP-Datei |
-| `Nox-HQ/nox` | Keine IP-Datei |
-| `alex-jung/pipeguard-cli` | Keine IP-Datei |
-| `mamabearmehmi-hub/skill-sentry` | Keine IP-Datei |
-| `alshahanieabas/threatcheck` | Keine IP-Datei |
-| `solosurge/security-scanner` | Keine IP-Datei |
-| `arockenbauer/AutoSSHReporter` | Keine IP-Datei |
-| `fanza2003/xdr-ui` | Keine IP-Datei |
-| `C-Andr3ws/lara-soc-automation` | Keine IP-Datei |
-| `sgofferj/mailblocklist` | Keine IP-Datei |
-| `loitietu/LOICollectionA` | Keine IP-Datei |
-| `cyhkbl/anet-content-intelligence` | Keine IP-Datei |
-| `udaysh134/repx` | Keine IP-Datei |
-| `0z1-ghb/arc-discipline-protocol` | Keine IP-Datei |
-| `RunTimeAdmin/Countersig-Public` | Keine IP-Datei |
-| `casematelabs/holdfastprotocol-eliza-plugin` | Keine IP-Datei |
-| `nullxnothing/devcred-agent` | Keine IP-Datei |
-| `dirtybits/agent-reputation-oracle` | Keine IP-Datei |
-| `Freaquer-Corporation-Private-Limited/papers` | Keine IP-Datei |
-| `agentveil-protocol/avp-sdk` | Keine IP-Datei |
-| `Ghostkey316/vaultfire-x402-guard` | Keine IP-Datei |
-| `deepakfq/opentrustengine` | Keine IP-Datei |
-| `sexfrance/Vouch-Scrapper` | Keine IP-Datei |
-| `Serious-senpai/remote-access-trojan` | Keine IP-Datei |
-| `bartolemoinmost828/clickfix-builder` | Keine IP-Datei |
-| `Feedbackatomicbomb98/How-to-Secure-Your-Git-Ass` | Keine IP-Datei |
-| `joanvergsox/research-app-toolkit` | Keine IP-Datei |
-| `MojiWasp/WordgenMoji` | Keine IP-Datei |
-| `andrewmichaelsmith/flux` | Keine IP-Datei |
-| `cowrie/cowrie` | Keine IP-Datei |
-| `Michelinadetached887/MasscanGUI` | Keine IP-Datei |
-| `ilostmypassword/Melissae-Honeypot-Framework` | Keine IP-Datei |
-| `Gabriel-marchante/Sentinel` | Keine IP-Datei |
-| `Mal-Suen/IntrusionScope` | Keine IP-Datei |
-| `sKwxx/Nexo-RAT-STEALER-DISCORD` | Keine IP-Datei |
-| `mateocallec/security-awareness` | Keine IP-Datei |
-| `batuhan-satilmis/incident-response-playbook` | Keine IP-Datei |
-| `twichhs/ransomware_for_educational` | Keine IP-Datei |
-| `aminulislamfahim/ransomware-ir-case-study-healthcare` | Keine IP-Datei |
-| `sKwxx/nexobuilder` | Keine IP-Datei |
-| `FogSecurity/yes3-scanner` | Keine IP-Datei |
-| `Sulfur-D/digital-menagerie` | Keine IP-Datei |
-| `FS2B/Malware-Artifact-Archive` | Keine IP-Datei |
-| `S3N4T0R-0X0/APTs-Adversary-Simulation` | Keine IP-Datei |
-| `fedoraBee/flatpak-automatic` | Keine IP-Datei |
-| `siakhooi/date-formats` | Keine IP-Datei |
-| `siakhooi/echo-colors` | Keine IP-Datei |
-| `AiursoftWeb/Apkg` | Keine IP-Datei |
-| `F0903/reservoir` | Keine IP-Datei |
-| `mzac/apt-ui` | Keine IP-Datei |
-| `seuros/upkg` | Keine IP-Datei |
-| `littlewolf9527/xsight` | Keine IP-Datei |
-| `Dactylopterussetgun104/Condi-Botnet-V10-Release` | Keine IP-Datei |
-| `Securityblanketramification663/kslkatz_bof` | Keine IP-Datei |
-| `sebafvs/bof-ldap` | Keine IP-Datei |
-| `sebafvs/bof-shell` | Keine IP-Datei |
-| `ccelikanil/GlytchC2` | Keine IP-Datei |
-| `Mazzy-Stars/lain_c2` | Keine IP-Datei |
-| `X2xuyu/Akatsuki-C2` | Keine IP-Datei |
-| `galshichrur/nexuscontrol` | Keine IP-Datei |
-| `mejq/C2-Server` | Keine IP-Datei |
-| `xdrew87/STF` | Keine IP-Datei |
-| `Innevatekiae/Fableborne-Crypto-Bot-Crypto-Game-Auto-Farm-Clicker-Cheat-Token-Hack-Api` | Keine IP-Datei |
-| `Zantirim/Seekers-of-Tokane-Cheat-Crypto-Bot-Auto-Farm-Clicker-Game-Api-Hack` | Keine IP-Datei |
-| `KvzinNcpx7/CVE-2025-9074_DAEMON_KILLER` | Keine IP-Datei |
-| `ycdxsb/PocOrExp_in_Github` | IP-Datei 1140d alt |
-| `Triovista/Parallel-Life-Hack-Game-Bot-Auto-Farm-Clicker-Crypto-Energy-Api-Cheat` | Keine IP-Datei |
-| `skata123a/Roblox-Fisch-Script` | Keine IP-Datei |
-| `Altyaerau/Legends-of-Elumia-Hack-Game-Bot-Auto-Farm-Clicker-Crypto-Elumia-Api-Cheat` | Keine IP-Datei |
-| `Triovista/PiggyPiggy-Hack-Game-Bot-Auto-Farm-Clicker-Crypto-Api-Cheat` | Keine IP-Datei |
-| `Romil2112/log-analyzer` | Keine IP-Datei |
-| `altcha-org/altcha-wordpress-next` | Keine IP-Datei |
-| `stdlib-js/datasets-spam-assassin` | IP-Datei 1783d alt |
-| `NiREvil/vless` | Keine IP-Datei |
-| `lorenzo9uerra/GraphIDS` | Keine IP-Datei |
-| `Sintered-eggshell5927/fluke` | Keine IP-Datei |
-| `ItsMeTinku/Cyber-Attack-Detection` | Keine IP-Datei |
-| `rubysy/SecretProbe` | Keine IP-Datei |
-| `wudidike/pentest_skill` | Keine IP-Datei |
-| `Metbcy/securescan` | Keine IP-Datei |
-| `venkatas/vikramaditya` | Größe: 0 IPs |
-| `Aptitudinal-squirrelfish8512/sentinella2` | Keine IP-Datei |
-| `Pentecostal-model765/cache-commander` | Keine IP-Datei |
-| `GARJE-01/Mini-Enterprise-Network` | Keine IP-Datei |
-| `zzzkeil/base_setups` | Keine IP-Datei |
-| `ruancarlosrc/ssh-hardening-lab` | Keine IP-Datei |
-| `docker-mailserver/docker-mailserver` | Keine IP-Datei |
-| `Si-Richards/ALBIS-Fail2ban` | Keine IP-Datei |
-| `strangelookingnerd/fail2ban-map` | Keine IP-Datei |
-| `CartierC/linux-hardening-pack` | Keine IP-Datei |
-| `cmos486/argos-edge` | Keine IP-Datei |
-| `worryboy/dynamic-dns` | Keine IP-Datei |
-| `darkmtrance/homelab-swarm` | Keine IP-Datei |
-| `Nicolas-Delahaie/home-srv` | Keine IP-Datei |
-| `sergsrgsg/rock-star-skills` | Keine IP-Datei |
-| `Aphifer07/triagewall` | Keine IP-Datei |
-| `pipolimoa/QSentry` | Keine IP-Datei |
-| `youssef-fadl/SOC-Home-Lab` | Keine IP-Datei |
-| `emrecantuzer/threatlens` | Keine IP-Datei |
-| `ayushap1431-crypto/Phantom-Menace-Windows-64bit-Patch` | Keine IP-Datei |
-| `sandeepmothukuri/advanced-soc-lab-v2.0` | Größe: 3 IPs |
-| `MohamedMouloudj/SDN-IDS` | Keine IP-Datei |
-| `Vibsterr99/NetGuard-Automation` | Keine IP-Datei |
-| `tikoci/rosetta` | Keine IP-Datei |
-| `nekomaa110-gif/zeronetv2` | Keine IP-Datei |
-| `drixleal/drix-dev` | Keine IP-Datei |
-| `rod-dot-codes-org/tailscale-router-mikrotik` | Keine IP-Datei |
-| `alifiandzaki131103-rgb/mikrotik-banking-addresslist` | Keine IP-Datei |
-| `dbanegasl/routeros-toolkit` | Keine IP-Datei |
-| `aadunin/DNS-Static` | Keine IP-Datei |
-| `mirceanton/external-dns-provider-mikrotik` | Keine IP-Datei |
-| `soarespaullo/MikroTik` | Keine IP-Datei |
-| `runtechx/OpenFirst` | Keine IP-Datei |
-| `26zl/zeek-peek` | Keine IP-Datei |
-| `mietzen/caddy` | Keine IP-Datei |
-| `NITISHMG/talos-hetzner-k8s` | Keine IP-Datei |
-| `Rosa-Luxemburgstiftung-Berlin/ansible-opnsense-checkmk` | Keine IP-Datei |
-| `onzack/grafana-dashboards` | Keine IP-Datei |
-| `daviswr/opnsense_dsb` | Keine IP-Datei |
-| `jesseklm/hetzner-dyndns` | Keine IP-Datei |
-| `styliteag/dashboard` | Keine IP-Datei |
-| `browningluke/opnsense-go` | Keine IP-Datei |
-| `pfrest/pfSense-pkg-saml2-auth` | Keine IP-Datei |
-| `pfrest/pfsense-vshell` | Keine IP-Datei |
-| `CRT-3005/Identity-Security` | Keine IP-Datei |
-| `AlexS381/DIoDL` | Keine IP-Datei |
-| `sandeepmothukuri/soc-lab-free` | Keine IP-Datei |
-| `jagulab/SOC-Homelab` | Keine IP-Datei |
-| `NX1X/pfSentinel` | Keine IP-Datei |
-| `careed23/Zero-Trust-Network-Architecture` | Keine IP-Datei |
-| `moosery/fwallascan2ban` | Keine IP-Datei |
-| `arillso/ansible.system` | Keine IP-Datei |
-| `heiher/hev-socks5-tproxy` | Keine IP-Datei |
-| `MadokaProject/Madoka` | Keine IP-Datei |
-| `sKwxx/Nexo-Builder` | Keine IP-Datei |
-| `YOUHAVE9405/InstinctEx-Spyglass` | Keine IP-Datei |
-| `Distortions81/M45-Core-Firmware` | Keine IP-Datei |
-| `freakfr0/xmrig` | Keine IP-Datei |
-| `Tumelo-bot937/monerominer-headless-orchestrator` | Keine IP-Datei |
-| `Mr-Spect3r/ECHO` | Keine IP-Datei |
-| `bia-technologies/rat` | Keine IP-Datei |
-| `wavegxz-design/NEXORA-TOOLKIT` | Keine IP-Datei |
-| `lbeldimehdi-svg/WhatsApp-Monitor-Kit` | Keine IP-Datei |
-| `pop98324/vertex-harvester` | Keine IP-Datei |
-| `transvestic-velodrome9214/AgentMemshell` | Keine IP-Datei |
-| `SOMA9-Cloud/wp-shell-hunter` | Keine IP-Datei |
-| `eobot-rat/Red-Devils-premium` | Keine IP-Datei |
-| `MinghuiChen43/awesome-trustworthy-deep-learning` | Keine IP-Datei |
-| `KateyAS/Trojan.Cockroach-Edu-Spyware` | Keine IP-Datei |
-| `V2RAYCONFIGSPOOL/TELEGRAM_PROXY_SUB` | Keine IP-Datei |
-| `notfaj/ester` | Keine IP-Datei |
-| `handeveloper1/DailyProxy---Auto-Update-List` | Keine IP-Datei |
-| `yesoneapi/ai-proxy` | Keine IP-Datei |
-| `xPloits3c/DorkEye` | Keine IP-Datei |
-| `soxoj/maigret` | Keine IP-Datei |
-| `peter11452/Odin-Nav-Stack` | IP-Datei 129d alt |
-| `lucianosrp/open-source-aviation` | Keine IP-Datei |
-| `ArtemioPadilla/watchboard` | Keine IP-Datei |
-| `ivre/ivre` | IP-Datei 235d alt |
-| `vonofdaville/adversarial-phish-forge` | Keine IP-Datei |
-| `arcallen/project-geosentinel` | Keine IP-Datei |
-| `Nicholas-Kloster/AI-LLM-Infrastructure-OSINT` | Keine IP-Datei |
-| `doodad-labs/threat-intelligence` | Keine IP-Datei |
-| `Liberty91LTD/cti-skills` | Keine IP-Datei |
-| `WellKnitTech/ThreatActor.info` | Keine IP-Datei |
-| `Xanderux/C2watcher` | Keine IP-Datei |
-| `fukusuket/THuntCloud` | Keine IP-Datei |
-| `kartavya0203/Ai-socAnalyst` | Keine IP-Datei |
-| `apcmakkadath/logrhythm-scripts7.x` | Keine IP-Datei |
-| `mynameisizhan/Wazuh_SIEM` | Keine IP-Datei |
-| `PacoReinaCampo/SoC-DV` | Keine IP-Datei |
-| `PacoReinaCampo/SoC-RISCV` | Keine IP-Datei |
-| `PacoReinaCampo/SoC-OR1K` | Keine IP-Datei |
-| `PacoReinaCampo/SoC-MSP430` | Keine IP-Datei |
-| `PacoReinaCampo/SoC-NTM` | Keine IP-Datei |
-| `vowstar/qsoc` | Keine IP-Datei |
-| `yasirhamza/AndroDR` | IP-Datei 36d alt |
-| `danibetter6297/light-up-my-life` | Keine IP-Datei |
-| `theSecHunter/Hades-Windows` | Keine IP-Datei |
-| `Prashant-koi/Lavender` | Keine IP-Datei |
-| `northnarrow/northnarrow` | Keine IP-Datei |
-| `Khaledak74/SDN_Topology_Visualizer` | Keine IP-Datei |
-| `Arqenor/arqenor` | Keine IP-Datei |
-| `rix4uni/wordpress-plugins` | Keine IP-Datei |
-| `anshulec23-cloud/ares-recon-system` | Keine IP-Datei |
-| `geevarghesekthomas84-sys/awesome-red-team` | Keine IP-Datei |
-| `Fennek115/Vitriol` | Keine IP-Datei |
-| `elin-olsson/fox-trace` | Keine IP-Datei |
-| `adityavaze232009-bit/decrypt-chromium-suite` | Keine IP-Datei |
-| `ANONIMO432HZ/ChromiumSpecter` | Keine IP-Datei |
-| `uwaserver/uwas` | Keine IP-Datei |
-| `blacAxe/sentinel-proxy` | Keine IP-Datei |
-| `rfxn/cpanel-sessionscribe` | Keine IP-Datei |
-| `zentinelproxy/zentinel` | Keine IP-Datei |
-| `Ordermyaceaeaorta658/shield-cli` | Keine IP-Datei |
-| `Cliftonnonexplosive880/BurpInjector` | Keine IP-Datei |
-| `uneven-freightage871/mod_doscontrol` | Keine IP-Datei |
-| `goklab/guardvibe` | Keine IP-Datei |
-| `kidrek/VigilIntel` | Keine IP-Datei |
-| `password123456/nvd-cve-database` | Keine IP-Datei |
-| `frankyfacile225/DeepZero` | Keine IP-Datei |
-| `Christian93111/CVE-2026-41940` | Keine IP-Datei |
-| `Jenderal92/CVE-2026-41940` | Keine IP-Datei |
-| `OTT-Cybersecurity-LLC/lyrie-ai` | Größe: 0 IPs |
-| `kakashi-kx/WAFMANCER` | Keine IP-Datei |
-| `jsmith-sec/phishing-analysis-lab` | Keine IP-Datei |
-| `albertito/chasquid` | Keine IP-Datei |
-| `api-evangelist/global-relay` | Keine IP-Datei |
-| `NC3-TestingPlatform/mailvalidator` | Keine IP-Datei |
-| `dmarcoff/mcp` | Keine IP-Datei |
-| `thespaceio/PhishGuard` | Keine IP-Datei |
-| `wyre-technology/avanan-mcp` | Keine IP-Datei |
-| `wyre-technology/spamtitan-mcp` | Keine IP-Datei |
-| `wyre-technology/proofpoint-mcp` | Keine IP-Datei |
-| `wyre-technology/abnormal-mcp` | Keine IP-Datei |
-| `AwakenFury/Cyber-Bio-Security` | Keine IP-Datei |
-| `cdpxe/NetworkCovertChannels` | Keine IP-Datei |
-| `Mal-Suen/NetflowSight` | Keine IP-Datei |
-| `Xexxe-HWANG/XexxeBlueRabbit-HWANG` | Zu alt: 999d |
-| `LangerSword/netsieve` | Zu alt: 999d |
-| `real-horizon02/PhishGuard-AI` | Zu alt: 999d |
-| `GT-IoTEdu/wticifes2026-iotedu` | Zu alt: 999d |
-| `GT-IoTEdu/mvpv1-virtual` | Zu alt: 999d |
-| `23521228-BuiLeHuyPhuoc/NT541.Q21-DoS` | Zu alt: 999d |
-| `tonymnp/mini-projet-terraform` | Zu alt: 999d |
-| `Saurabh1997/Technical_notes` | Zu alt: 999d |
-| `akamai/esg-secops` | Zu alt: 999d |
-| `ooovenenoso/CHOCO-DUCKY-Software-Installation-with-Chocolatey` | Zu alt: 999d |
-| `Consini-Jing/ClarityG` | Zu alt: 999d |
-| `r-kyjak/IS` | Zu alt: 999d |
-| `b01lers/bootcamp-training-2020` | Zu alt: 999d |
-| `Matthew-Lancaster/Matthew-Lancaster` | Zu alt: 999d |
-| `merkinmuffley/mixmaster4096` | Zu alt: 999d |
-| `p-ai-org/p-web` | Zu alt: 999d |
-| `yangyuwang/wikiart_metadata` | Zu alt: 999d |
-| `Vishal-mahale/Banking` | Zu alt: 999d |
-| `v0c0n1337/scripts` | Zu alt: 999d |
-| `PayamErfan/Hackathon-2023` | Zu alt: 999d |
-| `portals727/omnipod-apotheotic` | Zu alt: 999d |
-| `octupole/openTRJ` | Zu alt: 999d |
-| `tommasosommaruga/HackSummit` | Zu alt: 999d |
-| `a-belard/maltrail` | Zu alt: 999d |
-| `Chidera-Nnadiekwe/csc7644-final-project-Nnadiekwe-Chidera` | Zu alt: 999d |
-| `yucatan/VectorSigma` | Zu alt: 999d |
-| `AIBIAlab/AIBIAlab.github.io` | Zu alt: 999d |
-| `tamiotsiuopen/kbee` | Zu alt: 999d |
-| `tetsuji16/hacker-news` | Zu alt: 999d |
-| `LETHAL-FORENSICS/Microsoft-Analyzer-Suite` | Zu alt: 999d |
-| `Adamminiaoui/CYBERIA` | Zu alt: 999d |
-| `sam-caldwell/samcaldwell-info` | Zu alt: 999d |
+| `fabs-net/swarmnoise` | Keine IP-Datei |
+| `lilu1244/jlab-desktop` | Keine IP-Datei |
+| `thatboringbro/threat-intel-misp` | Keine IP-Datei |
+| `elviscarvajall/xanaops` | Keine IP-Datei |
+| `abubakerawad/ApexHunter` | Keine IP-Datei |
+| `Lapk0m/n01d-overwatch` | Keine IP-Datei |
+| `Tempest-Solutions-Company/threat-feeds` | Keine IP-Datei |
+| `phishdestroy/namesilo-evidence` | Keine IP-Datei |
+| `satunnaisuus/distill` | Keine IP-Datei |
+| `dry-rb/dry-auto_inject` | Keine IP-Datei |
+| `perchfuruncle656/huntkit` | Größe: 0 IPs |
+| `cystack/stealer-fingerprints` | Keine IP-Datei |
+| `Zeltoc/wireshark-netsupport-rat-analysis` | Keine IP-Datei |
+| `NoSpacesFlies/Iranbot-Botnet` | Keine IP-Datei |
+| `lukababetzki/Apollo` | Keine IP-Datei |
+| `versaagonon/MALWARE-C2-TELEGRAM` | Keine IP-Datei |
+| `Bialomazur/Brutus` | Keine IP-Datei |
+| `SleepTheGod/LateralusLoader` | Keine IP-Datei |
+| `judedusk/findns` | Keine IP-Datei |
+| `VicNa559/code-offline` | Keine IP-Datei |
+| `Nunoo11/vt-scanner-cli` | Keine IP-Datei |
+| `yangyixxxx/skillguard` | Keine IP-Datei |
+| `profullstack/threatcrush` | Keine IP-Datei |
+| `marotoweb/cajuscan_app` | Keine IP-Datei |
+| `WysemanJC/uniden_assistant` | Keine IP-Datei |
+| `vaibhaviacchanala-19/Red-Team-Toolkit` | Keine IP-Datei |
+| `ezequielranieri/threat-intel-dashboard` | Keine IP-Datei |
+| `dirgh2330/AIRP-Playbook` | Keine IP-Datei |
+| `tbeachill/ai-crawler-ip-ranges` | Keine IP-Datei |
+| `bch1212/agenttrust-mcp` | Keine IP-Datei |
+| `ChrisDover/mako-verifier` | Keine IP-Datei |
+| `Cao150702/truthbroker` | Keine IP-Datei |
+| `thairestaurantfood-cyber/AURA` | Keine IP-Datei |
+| `macoloye/GithubProof` | Keine IP-Datei |
+| `Truunik/normierank` | Keine IP-Datei |
+| `Kodaxadev/FrontierWarden` | Keine IP-Datei |
+| `AstryxWeb3/wraith-protocol` | Keine IP-Datei |
+| `Fliegenbart/Proof-of-Use-Trust-Graph` | Keine IP-Datei |
+| `giskard09/argentum-sdk` | Keine IP-Datei |
+| `MinaSaad1/n8n-review-monitoring` | Keine IP-Datei |
+| `rckbrcls/barter` | Keine IP-Datei |
+| `0xE1337/pneuma-protocol` | Keine IP-Datei |
+| `mouradu/CypherX-Ultra` | Keine IP-Datei |
+| `IvannGonzzalez/hve-core` | Keine IP-Datei |
+| `DimonNakub/Genesis` | Keine IP-Datei |
+| `mohitsem13/Verdict` | Keine IP-Datei |
+| `YashAgni2372/ethical-keylogger` | Keine IP-Datei |
+| `samftggr/VEN0m-Ransomware` | Keine IP-Datei |
+| `MariFerraz1/MeowNiverse` | Keine IP-Datei |
+| `soloobr/z-loops` | Keine IP-Datei |
+| `nirholas/solana-wallet-toolkit` | Keine IP-Datei |
+| `injae8669/SafeWeights-ACL` | Keine IP-Datei |
+| `Austenphilippine9715/hf-sandbox` | Keine IP-Datei |
+| `tanhiowyatt/cyanide-framework` | Keine IP-Datei |
+| `OsmanDhaqane/alert-triage-with-splunk-tryhackme-writeup` | Keine IP-Datei |
+| `XXXCAIO1997/plumbum` | Keine IP-Datei |
+| `SecurityRonin/memory-forensic` | Keine IP-Datei |
+| `VQD-BSV-Official/RecoveryJpeg` | Keine IP-Datei |
+| `api-evangelist/spin-ai` | Keine IP-Datei |
+| `AiGptCode/AiGPT-WordPress-Exploitation-Framework` | Keine IP-Datei |
+| `BushidoUK/Ransomware-Tool-Matrix` | Keine IP-Datei |
+| `AmDumDee/global-threat-intel` | Keine IP-Datei |
+| `R3LI4NT/XilentLocker` | Keine IP-Datei |
+| `alfredang/cybersecuritysimulator` | Keine IP-Datei |
+| `GuiMRDS/Ransomware_and_Keylogger_Shield` | Keine IP-Datei |
+| `nycthunter/malwareCTI` | Keine IP-Datei |
+| `RaphEnio/Rasomware-as-a-Masquerade` | Keine IP-Datei |
+| `superham/ACI` | Keine IP-Datei |
+| `Parashar-dev/ATPspy` | Keine IP-Datei |
+| `lingfish/pydeb-s3` | Keine IP-Datei |
+| `markjasonespelita/zyphor_packages` | Keine IP-Datei |
+| `markjasonespelita/zyphor_repo` | Keine IP-Datei |
+| `marinov98/dotfiles` | Größe: 0 IPs |
+| `Ruby570bocadito/ArgusPest` | Keine IP-Datei |
+| `Gerryoverlooking665/Blooket-Bot-Flooder` | Keine IP-Datei |
+| `nickvourd/CS-PDF2EXCEL` | Keine IP-Datei |
+| `ghluka/Axon` | IP-Datei 53d alt |
+| `activecm/rita` | Keine IP-Datei |
+| `RaspiestSheep3/ModularStegoRAT` | Keine IP-Datei |
+| `Sparx-Foundation/actrax` | Keine IP-Datei |
+| `MrGuato/vertex-c2` | Keine IP-Datei |
+| `api-evangelist/raytheon` | Keine IP-Datei |
+| `rehman2052/qualcomm_gbl_exploit_poc` | Keine IP-Datei |
+| `Chrenavete/BoomLand-io-Bot-Crypto-Game-Auto-Farm-Clicker-Cheat-Api-Hack` | Keine IP-Datei |
+| `mokalachristian/Roblox-Fisch-Script` | Keine IP-Datei |
+| `naruto1233958/Roblox-Fisch-Script` | Keine IP-Datei |
+| `1410ailesi/ML-network-intrusion-detection-HAWK` | Keine IP-Datei |
+| `unknown4522/roblox-executor` | Keine IP-Datei |
+| `Fluxenn/Cyber-Finance-Game-Bot-Auto-Farm-Clicker-Crypto-CFI-Telegram-Hack-Cheat` | Keine IP-Datei |
+| `Karan-143/exploitation-validator` | Keine IP-Datei |
+| `wpxq/xqmap` | Keine IP-Datei |
+| `DanxyOfficial/Danxy` | Keine IP-Datei |
+| `aditya123-coder/GoatsPass` | Keine IP-Datei |
+| `SANTOSHPATIL2004/Telegram-Proxy` | Keine IP-Datei |
+| `zackprawaret/MiddleFreeWare` | Keine IP-Datei |
+| `elmaliaa/AdderBoard` | Keine IP-Datei |
+| `qr243vbi/nekobox` | Keine IP-Datei |
+| `api-evangelist/amazon-network-firewall` | Keine IP-Datei |
+| `ShakalBhau0001/classical-crypto-gui-toolkit` | Keine IP-Datei |
+| `ShakalBhau0001/classical-crypto-cli-toolkit` | Keine IP-Datei |
+| `ishika-0101/entropy-chaos` | Keine IP-Datei |
+| `chasesniper/Fray` | Keine IP-Datei |
+| `ary44892/mcp-config-guard` | Keine IP-Datei |
+| `Enzonogue/opena2a` | Keine IP-Datei |
+| `daisievolumetrical8820/vigil-tui` | Keine IP-Datei |
+| `adrienclaire/ShellDeck` | Keine IP-Datei |
+| `crazy-max/docker-fail2ban` | Keine IP-Datei |
+| `abdelatif2030/SecureCloud-Hardening` | Keine IP-Datei |
+| `AndyShaman/vps-setup-skill` | Keine IP-Datei |
+| `joshweb0310/linux-webserver-deploy` | Keine IP-Datei |
+| `Leanorlate749/crow-docs` | Keine IP-Datei |
+| `srkyn/home-network-security` | Keine IP-Datei |
+| `secopdotdev/OpeNirvana` | Keine IP-Datei |
+| `Lithuanianbeansprout3690/advanced-soc-lab-v2.0` | Größe: 3 IPs |
+| `y-zahidi/home-lab-siem` | Keine IP-Datei |
+| `IevgenSoloviov/Projecte-intermodular-administracio-de-sistemes-informatics-en-xarxa` | Keine IP-Datei |
+| `jmoreira01/suricata-ids-integration` | Keine IP-Datei |
+| `jmoreira01/threat-detection-blue-team` | Keine IP-Datei |
+| `corelight/suricata_exporter` | Keine IP-Datei |
+| `Harry-Khatri/NIDS-Intrusion-Detection-` | Keine IP-Datei |
+| `FacundoMfernandez/wazuh-snort-soc-lab` | Keine IP-Datei |
+| `Shaheer-Cybersec/EULE-IDPS` | Keine IP-Datei |
+| `Pinussylvestrissteamer3783/quickchr` | Keine IP-Datei |
+| `megabitus98/megalert` | Keine IP-Datei |
+| `binarykore/zerobytes` | Keine IP-Datei |
+| `mirceanton/mikrotik-terraform` | Keine IP-Datei |
+| `madworx/homeassistant-routeros-lte` | Keine IP-Datei |
+| `Zilleali/Mikrotik-Scripts` | Keine IP-Datei |
+| `Cacti/plugin_mikrotik` | Keine IP-Datei |
+| `D0-5/fyp-sdn-zerotrust` | Keine IP-Datei |
+| `Lionel-Rousseau/laflanelle-secops-architecture` | Keine IP-Datei |
+| `Joseph-Greenwell-III/enterprise-homelab` | Keine IP-Datei |
+| `AthennaMind/opnsense-exporter` | Keine IP-Datei |
+| `Frank-Morris/NetbED` | Keine IP-Datei |
+| `KDN-Cloud/b.aklein.me` | Keine IP-Datei |
+| `susembed/pfsense-mqtt-ha` | Keine IP-Datei |
+| `stepanov1975/pfsense-mcp-server` | Keine IP-Datei |
+| `kingsrule50/wireshark-threat-detection-lab` | Keine IP-Datei |
+| `FacundoMfernandez/firewall-ids-waf-lab` | Keine IP-Datei |
+| `mrkhachaturov/ipranges` | Keine IP-Datei |
+| `prissieanal455/pypacker` | Keine IP-Datei |
+| `ike-sh/leikwan-toolkit` | Keine IP-Datei |
+| `cloudnativelabs/kube-router` | Keine IP-Datei |
+| `kimengumi/kclie` | Keine IP-Datei |
+| `danish-mar/mirai` | Keine IP-Datei |
+| `MiraiTravel/MiraiTravel` | Keine IP-Datei |
+| `jeeberrr/Vyper` | Keine IP-Datei |
+| `SametKorkmaz-dev/CookieGrabber-Stealer` | Keine IP-Datei |
+| `rethaknupp96329680262/Crypto-Mining-Node-Utility` | Keine IP-Datei |
+| `XternA/xmrig` | Keine IP-Datei |
+| `numycode/xmmanager` | Keine IP-Datei |
+| `SwezyDev/RAT-Vulnerabilities` | Keine IP-Datei |
+| `XeinTDM/TelegramRAT` | Keine IP-Datei |
+| `iss4cf0ng/DuplexSpyCS` | Keine IP-Datei |
+| `unlock-security/wshell` | Keine IP-Datei |
+| `din4e/CtG` | Keine IP-Datei |
+| `hackingyseguridad/puertatrasera` | Keine IP-Datei |
+| `maolonchen/antiForget-dk-sft` | Keine IP-Datei |
+| `Kenji7425/c2-framework` | Keine IP-Datei |
+| `Prasadchelated435/windows-telegram-bot` | Keine IP-Datei |
+| `Cvar1984/sussyfinder` | Größe: 0 IPs |
+| `j0rd1s3rr4n0/api` | Keine IP-Datei |
+| `ebrasha/abdal-proxy-hub` | Keine IP-Datei |
+| `Seeh-Saah/awesome-free-proxy-list` | Keine IP-Datei |
+| `Isolable-confutation802/TraceAnalyzer-main` | Keine IP-Datei |
+| `KodyDennon/pursue` | Keine IP-Datei |
+| `armmammothermography417/ContextOS` | Keine IP-Datei |
+| `dada63924/deribit-analyzer` | Keine IP-Datei |
+| `ydavidcm9-wq/vigil` | Keine IP-Datei |
+| `acuestamd/project-geosentinel` | Keine IP-Datei |
+| `imrk1595/metadexer` | Keine IP-Datei |
+| `ViewTechOrg/Checker-Scammer` | Keine IP-Datei |
+| `numerousenletras/Macbook-controller` | Keine IP-Datei |
+| `Aqmar777/openclaw-competitive-intel` | Keine IP-Datei |
+| `giovabal/pulpit` | Keine IP-Datei |
+| `AdityaJain-76/Stock_Analyze_Prompts` | Keine IP-Datei |
+| `Komuda146/Forensics-Tools` | Keine IP-Datei |
+| `Jonaskouame/Phone-Number-Tracker` | Keine IP-Datei |
+| `unequalequality/Ollama-Terminal-Agent` | Keine IP-Datei |
+| `Jieyab89/OSINT-Cheat-sheet` | Keine IP-Datei |
+| `aplaceforallmystuff/mcp-cti-glossary` | Keine IP-Datei |
+| `kbugra/ThreatLens` | Keine IP-Datei |
+| `CodisTech/homelab-configs` | Keine IP-Datei |
+| `jaalso/incident-response-labs` | Keine IP-Datei |
+| `beenuar/AiSOC` | Keine IP-Datei |
+| `ssa1004/security-log-search` | Keine IP-Datei |
+| `api-evangelist/symantec` | Keine IP-Datei |
+| `Oligo12/cyber-projects` | Keine IP-Datei |
+| `azqzazq1/SunnyDayBPF` | Keine IP-Datei |
+| `razatechofficial/edr` | Keine IP-Datei |
+| `Spiritlauncher-01/spiritbit` | Keine IP-Datei |
+| `SaintValTech/saintvaltech-site` | Keine IP-Datei |
+| `seyifalode-cmd/crowdstrike-threat-hunt-portfolio` | Keine IP-Datei |
+| `Trustbustinggleefulness546/Argus` | Keine IP-Datei |
+| `thamarai-selvi/bug-hunt` | Keine IP-Datei |
+| `RT-NoVanity/Cheatsheets` | Keine IP-Datei |
+| `harjassingh2/ids-lateral-movement-detection` | Keine IP-Datei |
+| `MAXIVA11/PingMeMaybe` | Keine IP-Datei |
+| `Astaruf/CVE-2026-41653` | Keine IP-Datei |
+| `lancard/nginx-webui` | Keine IP-Datei |
+| `bx33661/oh-my-vul` | Keine IP-Datei |
+| `Stripmined-reflation431/testing-business-ideas-with-claude` | Keine IP-Datei |
+| `vestalterrace911/python-check-updates` | Keine IP-Datei |
+| `Jimmy-F7/cvesearch` | Keine IP-Datei |
+| `amith53/ca9` | Keine IP-Datei |
+| `razethegame/yocto-sbom` | Keine IP-Datei |
+| `Noetheon/vuln-prioritizer-workbench` | Größe: 0 IPs |
+| `liNAyildiiz/ZeroDaySentinel` | Keine IP-Datei |
+| `WinterGate-IC/cloudzy-upstream-filter-vulnerability` | Keine IP-Datei |
+| `MistDuckCount/Bitdefender-Total-Security-Crack-2026` | Keine IP-Datei |
+| `renatomb/email-base64-scanner` | Keine IP-Datei |
+| `diegotorreslopez81/trustcomms` | Keine IP-Datei |
+| `PRABU-S-19/Opaline-Attachment-Defense-System` | Keine IP-Datei |
+| `wyre-technology/mimecast-mcp` | Keine IP-Datei |
+| `Sunil56224972/Email-Spoofer` | Keine IP-Datei |
+| `mclose/dns-mcp` | Keine IP-Datei |
+| `Steph-ux/bind9-web-ui` | Keine IP-Datei |
+| `xbxh6452/-ARP-Spoofing-Detection-Active-Injection-Technique` | Keine IP-Datei |
+| `Kaleidora/Windows-Emergency-Response-Tools` | Keine IP-Datei |
+| `halfdollarylangylang981/Network-Inventory-Scanner` | Keine IP-Datei |
+| `aimaketosta/BitLock-Crypto-Research` | Keine IP-Datei |
+| `Garasimba/WireMCP-rs` | Keine IP-Datei |
+| `ReddyvariSai/kali-penetration-testing-toolkit` | Keine IP-Datei |
+| `Tarunraj2005/oscpdb` | Keine IP-Datei |
+| `tairimehdi/tcp-ip-attack-lab` | Keine IP-Datei |
+| `saliniarjun/EvilAP` | Keine IP-Datei |
+| `user50618/check-host-cli` | Keine IP-Datei |
+| `bolucat/rules` | Zu alt: 999d |
+| `0xCD4/0xCD4.github.io` | Zu alt: 999d |
+| `vlain1337/php-shell-deobfuscated` | Zu alt: 999d |
+| `Utmins/SOC` | Zu alt: 999d |
+| `Nel-tech/Transparex-model` | Zu alt: 999d |
+| `leaky-forms/leaky-forms` | Zu alt: 999d |
+| `SYNgularity1/mitel-exploits` | Zu alt: 999d |
+| `Jemteddy/gaillacsec` | Zu alt: 999d |
+| `ethanmorganumich/Porcupines` | Zu alt: 999d |
+| `arjunkishannohal/Mylab` | Zu alt: 999d |
+| `esc/databroker` | Zu alt: 999d |
+| `fonnesbeck/ngcm_sklearn_2017` | Zu alt: 999d |
+| `LynnaNeri/Qualifying_Paper` | Zu alt: 999d |
+| `avinashtechlvr/Phishing_Websites_Detection_with_Flask_Ui` | Zu alt: 999d |
+| `bakulskilab/CTD_preterm_birth` | Zu alt: 999d |
+| `JohnnyPh/AndroidTubeEnhanced` | Zu alt: 999d |
+| `zynthian/zynthian-data` | Zu alt: 999d |
+| `UXCentury/spy-detector` | Zu alt: 999d |
+| `shenkkjj/AI-IDS-Project` | Zu alt: 999d |
 
 ---
 ## 📋 Alle aktiven Auto-Feeds
 
 | Feed | IPs | Overlap | Stars | Hinzugefügt |
 |---|---|---|---|---|
-| `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,336 | 75.0% | 4721 | 2026-04-26 |
-| `cbuijs_accomplist` | 31,486 | 0.6% | 20 | 2026-03-27 |
-| `cbuijs_accomplist_v2` | 31,486 | 0.5% | 18 | 2026-03-12 |
-| `ziyadnz_threat_intel_ip_feeds` | 3,827 | 36.7% | 8 | 2026-04-05 |
-| `turntuptechnologies_iocs` | 35 | 97.4% | 4 | 2026-03-29 |
-| `cbuijs_badip` | 26,552 | 60.7% | 4 | 2026-03-29 |
-| `maximewewer_heimdallblocklists` | 38,503 | 69.0% | 4 | 2026-03-29 |
-| `agent6_6_6_wordpress_login_blocklist` | 20,801 | 1.4% | 4 | 2026-03-29 |
-| `cbuijs_badip_v2` | 26,552 | 61.5% | 4 | 2026-03-13 |
-| `maximewewer_heimdallblocklists_v2` | 38,503 | 58.7% | 4 | 2026-03-12 |
-| `turntuptechnologies_iocs_v2` | 35 | 67.1% | 4 | 2026-03-13 |
-| `agent6_6_6_wordpress_login_blocklist_v2` | 20,801 | 1.6% | 4 | 2026-03-13 |
-| `fadouse_clash_threat_intel` | 3,848 | 12.7% | 2 | 2026-03-17 |
-| `kamalmjt_emerging_attackers` | 36,112 | 18.9% | 1 | 2026-03-29 |
-| `idleadmin_threatfeed` | 37,118 | 41.9% | 0 | 2026-04-09 |
-| `wintergate_ic_wic_resources` | 496 | 67.0% | 0 | 2026-04-26 |
-| `turbolabit_zzfirewall` | 100,095 | 66.4% | 0 | 2026-05-03 |
+| `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,293 | 75.0% | 4721 | 2026-04-26 |
+| `cbuijs_accomplist` | 0 | 0.6% | 20 | 2026-03-27 |
+| `cbuijs_accomplist_v2` | 0 | 0.5% | 18 | 2026-03-12 |
+| `ziyadnz_threat_intel_ip_feeds` | 4,317 | 36.7% | 8 | 2026-04-05 |
+| `turntuptechnologies_iocs` | 15 | 97.4% | 4 | 2026-03-29 |
+| `cbuijs_badip` | 0 | 60.7% | 4 | 2026-03-29 |
+| `maximewewer_heimdallblocklists` | 38,494 | 69.0% | 4 | 2026-03-29 |
+| `agent6_6_6_wordpress_login_blocklist` | 21,034 | 1.4% | 4 | 2026-03-29 |
+| `cbuijs_badip_v2` | 0 | 61.5% | 4 | 2026-03-13 |
+| `maximewewer_heimdallblocklists_v2` | 38,494 | 58.7% | 4 | 2026-03-12 |
+| `turntuptechnologies_iocs_v2` | 15 | 67.1% | 4 | 2026-03-13 |
+| `agent6_6_6_wordpress_login_blocklist_v2` | 21,034 | 1.6% | 4 | 2026-03-13 |
+| `fadouse_clash_threat_intel` | 0 | 12.7% | 2 | 2026-03-17 |
+| `kamalmjt_emerging_attackers` | 35,902 | 18.9% | 1 | 2026-03-29 |
+| `idleadmin_threatfeed` | 34,836 | 41.9% | 0 | 2026-04-09 |
+| `wintergate_ic_wic_resources` | 508 | 67.0% | 0 | 2026-04-26 |
+| `turbolabit_zzfirewall` | 36,223 | 66.4% | 0 | 2026-05-03 |
+| `kraloveckey_ipsets_blocklist` | 16,854 | 13.1% | 0 | 2026-05-10 |
 
 ---
-*Generiert: 2026-05-03 09:29 UTC*
+*Generiert: 2026-05-10 09:10 UTC*
