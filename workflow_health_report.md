@@ -1,15 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-10 14:22 UTC
+**Aktualisiert:** 2026-05-10 15:34 UTC
 
-**Workflows:** 20 | ✅ 19 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
+**Workflows:** 20 | ✅ 20 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
-## ⚠️ Warnungen
-
-| Datei | Check | Detail |
-|---|---|---|
-| `codeql.yml` | actions/checkout Version-Drift | 1 Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht? |
-
 ## 🏥 Production Health
 
 **Status:** 🔴 0 CRITICAL | 🟡 0 WARN
@@ -42,4 +36,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-05-10 14:22 UTC | 20 Workflow-Dateien geprüft*
+*Generiert: 2026-05-10 15:34 UTC | 20 Workflow-Dateien geprüft*

@@ -1,17 +1,11 @@
 {
-  "updated": "2026-05-10 14:22 UTC",
+  "updated": "2026-05-10 15:34 UTC",
   "total": 20,
-  "ok": 19,
-  "warn": 1,
+  "ok": 20,
+  "warn": 0,
   "error": 0,
   "errors": [],
-  "warnings": [
-    {
-      "file": "codeql.yml",
-      "check": "actions/checkout Version-Drift",
-      "detail": "1 Datei(en) weichen von der Mehrheits-SHA ab \u2013 Update vergessen oder verfrueht?"
-    }
-  ],
+  "warnings": [],
   "ip_counts": {
     "combined_threat_blacklist_ipv4.txt": 5098284,
     "active_blacklist_ipv4.txt": 2301574,
