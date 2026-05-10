@@ -300,7 +300,7 @@ jobs:
               # bzw. die Set-Operationen verzerren. Whitelist-Filter
               # NICHT aktiv (use_protected_check=False), weil Discovery
               # die Liste nur evaluiert.
-              return {e for e in parse_entries(text) if "/" not in e}
+              return {e for e in _parse_entries(text) if "/" not in e}
 
           def fp_rate(ips, sample_size=200):
               # FIX SAMPLE-BIAS: random.sample statt list(ips)[:200]. Set-Iteration
