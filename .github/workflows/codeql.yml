@@ -20,6 +20,14 @@ on:
     # anderen Workflows konkurriert.
     - cron: '0 3 * * 0'
 
+env:
+  # Erzwingt Node.js 24 fuer JavaScript-basierte Actions (z.B. checkout).
+  # Verhindert Node20-EOL-Warnings und macht den Runner kompatibel mit
+  # neueren Action-Versionen die nur noch Node24 supporten.
+  # Wird vom Workflow Health Checker (Check 29) als Pflicht geprueft
+  # sobald actions/checkout@ im File vorkommt.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: read
   security-events: write   # Findings ins Security-Tab schreiben
