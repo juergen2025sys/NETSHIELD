@@ -111,17 +111,35 @@ jobs:
           SCANITEX_BASE = "https://scanitex.com/en/resources/asn-database"
 
           # ── Schritt 1: Blacklist laden ────────────────────────────────────
+          # FIX BUG-TRUNCATE-PARTS: Sobald die Vollliste >= 100 MB GitHub-Push-
+          # Limit erreicht, schreibt update_combined_blacklist die Hauptdatei
+          # truncatiert (nur die ersten N IPs) und verteilt die vollstaendige
+          # Liste auf combined_threat_blacklist_ipv4_part*.txt. Wenn wir hier
+          # nur die Hauptdatei lesen, fehlen IPs aus den Parts im ASN-CIDR-
+          # Match → ASN-Reputation-Score wird systematisch unterschaetzt.
+          # Loesung: Hauptdatei + alle Parts einlesen, dedupen via set.
+          # Unter Schwelle (Parts existieren nicht) safe – glob matcht nichts.
+          # Identisch zum Fix in update_confidence_blacklist.yml.
+          import glob as _glob
           BLACKLIST = "combined_threat_blacklist_ipv4.txt"
-          blacklist_ips = []
-          if os.path.exists(BLACKLIST):
-              with open(BLACKLIST) as f:
-                  blacklist_ips = [
-                      l.strip() for l in f
-                      if l.strip() and not l.startswith("#")
-                  ]
-              print(f"Blacklist geladen: {len(blacklist_ips):,} IPs")
-          else:
+          _bl_set = set()
+          _sources_read = [BLACKLIST] + sorted(
+              _glob.glob("combined_threat_blacklist_ipv4_part*.txt"))
+          _existing_sources = [s for s in _sources_read if os.path.exists(s)]
+          for _src in _existing_sources:
+              with open(_src) as f:
+                  for line in f:
+                      s = line.strip()
+                      if s and not s.startswith("#"):
+                          _bl_set.add(s)
+          blacklist_ips = list(_bl_set)
+          if not _existing_sources:
               print(f"WARNUNG: {BLACKLIST} nicht gefunden")
+          elif len(_existing_sources) > 1:
+              print(f"Blacklist geladen: {len(blacklist_ips):,} IPs "
+                    f"(Hauptdatei + {len(_existing_sources) - 1} Part(s))")
+          else:
+              print(f"Blacklist geladen: {len(blacklist_ips):,} IPs")
 
           # IPs als sortierte Integer für Binary-Search CIDR-Check (~60x schneller)
           bl_addrs = []

@@ -104,18 +104,40 @@ jobs:
 
           # is_whitelisted() → importiert aus netshield_common
           # ── Blacklist laden ───────────────────────────────────────────────
+          # FIX BUG-TRUNCATE-PARTS: Sobald die Vollliste >= 100 MB GitHub-Push-
+          # Limit erreicht, schreibt update_combined_blacklist die Hauptdatei
+          # truncatiert und verteilt die vollstaendige Liste auf
+          # combined_threat_blacklist_ipv4_part*.txt. Wenn wir hier nur die
+          # Hauptdatei lesen, hat das KRITISCHE Konsequenzen:
+          #   merged_fp = (existing_fp | fp_set) & set(blacklist_ips)
+          # entfernt legitime FP-Eintraege deren IP nur in den Parts steht.
+          # Identische Datenverlust-Klasse wie BUG-WL1-PROPAGATION.
+          # Loesung: Hauptdatei + alle Parts einlesen, dedupen via set.
+          # Identisch zum Fix in update_confidence_blacklist.yml.
+          import glob as _glob
           BLACKLIST = "combined_threat_blacklist_ipv4.txt"
-          if not os.path.exists(BLACKLIST):
+          _sources_read = [BLACKLIST] + sorted(
+              _glob.glob("combined_threat_blacklist_ipv4_part*.txt"))
+          _existing_sources = [s for s in _sources_read if os.path.exists(s)]
+          if not _existing_sources:
               msg = f"{BLACKLIST} nicht gefunden – Prüfung übersprungen."
               print(f"::warning file=false_positive_checker.yml::{msg}")
               print(f"FEHLER: {msg}")
               sys.exit(1)
 
-          with open(BLACKLIST) as f:
-              lines_raw = f.readlines()
-
-          blacklist_ips = [l.strip() for l in lines_raw if l.strip() and not l.startswith("#")]
-          print(f"\nBlacklist geladen: {len(blacklist_ips)} IPs")
+          _bl_set = set()
+          for _src in _existing_sources:
+              with open(_src) as f:
+                  for line in f:
+                      s = line.strip()
+                      if s and not s.startswith("#"):
+                          _bl_set.add(s)
+          blacklist_ips = list(_bl_set)
+          if len(_existing_sources) > 1:
+              print(f"\nBlacklist geladen: {len(blacklist_ips)} IPs "
+                    f"(Hauptdatei + {len(_existing_sources) - 1} Part(s))")
+          else:
+              print(f"\nBlacklist geladen: {len(blacklist_ips)} IPs")
           print("Prüfe auf False Positives...")
 
           false_positives = []
