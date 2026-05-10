@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-10 04:53 UTC
+**Aktualisiert:** 2026-05-10 09:01 UTC
 
-**Workflows:** 20 | ✅ 19 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
+**Workflows:** 20 | ✅ 19 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
@@ -10,12 +10,15 @@
 |---|---|---|
 | `codeql.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `codeql.yml` | actions/checkout Version-Drift | 1 Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht? |
+| `Production Health` | Drift: cve_exploit_ips.txt | cve_exploit_ips.txt: 52,429 → 37,420 (-29%) – deutlicher Rückgang |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🟡 WARN | Drift: cve_exploit_ips.txt | cve_exploit_ips.txt: 52,429 → 37,420 (-29%) – deutlicher Rückgang |
 
 ## Übersicht
 
@@ -43,4 +46,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-05-10 04:53 UTC | 20 Workflow-Dateien geprüft*
+*Generiert: 2026-05-10 09:01 UTC | 20 Workflow-Dateien geprüft*
