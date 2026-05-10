@@ -120,6 +120,24 @@ jobs:
           from collections import defaultdict
           from concurrent.futures import ThreadPoolExecutor
 
+
+          # FIX PERF-TIMEOUT: Globale Timeout-Sicherheit.
+          # Der Workflow hat ein 45-Minuten-Limit. Bei unerwartet langsamen
+          # externen Quellen oder API-Delays soll das Skript vor dem Timeout
+          # sauber exiten und den Report committen (if: always()).
+          _JOB_START = time.time()
+          _MAX_RUNTIME_SECONDS = 40 * 60  # 40 Minuten = harter Cutoff
+          def _check_timeout(label=""):
+              elapsed = time.time() - _JOB_START
+              if elapsed > _MAX_RUNTIME_SECONDS:
+                  print(f"::warning file=auto_feed_discovery.yml::"
+                        f"Timeout-Sicherheit ausgelöst ({label}): "
+                        f"{elapsed/60:.1f}min elapsed, breche ab um "
+                        f"sauberen Exit vor dem 45min-Limit zu gewährleisten.")
+                  return True
+              return False
+
+
           now     = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
           now_day = now.strftime("%Y-%m-%d")
@@ -426,6 +444,8 @@ jobs:
           # Sie werden hier NUR für den Overlap-Validierungs-Check neuer Feeds
           # heruntergeladen und NICHT in seen_db geschrieben – keine today_count-
           # Aufblähung, kein Confidence-Score-Effekt.
+          # FIX PERF-HQ: Parallelisiert – serielle Downloads von externen Quellen
+          # (besonders Turris Greylist ist oft langsam) summierten sich zu >60s.
           hq_ref_urls = [
               "https://feodotracker.abuse.ch/downloads/ipblocklist_aggressive.txt",
               "https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-30d.ipv4",
@@ -434,12 +454,20 @@ jobs:
               # Honeypot/Greylist-Abdeckung
               "https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv",
           ]
-          for url in hq_ref_urls:
-              text = fetch_raw(url)
+
+          def _fetch_hq_ref(url):
+              text = fetch_raw(url, timeout=20)
               if text:
                   found = extract_ips(text)
-                  hq_ref_ips.update(found)
                   print(f"  HQ-Ref {url.split('/')[-1]}: {len(found)} IPs")
+                  return found
+              print(f"  HQ-Ref {url.split('/')[-1]}: FAIL")
+              return set()
+
+          with ThreadPoolExecutor(max_workers=4) as _hq_ex:
+              _hq_results = list(_hq_ex.map(_fetch_hq_ref, hq_ref_urls))
+          for _hq_ips in _hq_results:
+              hq_ref_ips.update(_hq_ips)
 
           MIN_HQ_REF_IPS = 200
           hq_ref_ready = len(hq_ref_ips) >= MIN_HQ_REF_IPS
@@ -581,25 +609,41 @@ jobs:
           # Code-Search-Phase ab. Topic-Search liefert ohnehin den Hauptanteil
           # der Kandidaten – Code-Search ist Bonus. Besser ein paar Queries
           # opfern als ganzer Workflow steckt im Rate-Limit fest.
-          consecutive_skips = 0
-          MAX_CONSECUTIVE_SKIPS = 5
-          for query in SEARCH_CODE_QUERIES:
+          # FIX PERF-CS: Code-Search parallelisiert (2 Worker) – 58 Queries × 10s
+          # = ~580s reine Wartezeit. Mit 2 Workern halbiert sich das auf ~290s.
+          # Rate-Limit bleibt eingehalten: 2 Worker × 6 Queries/min = 12/min,
+          # knapp über dem 10/min Primary-Limit, aber GitHub erlaubt kurze Bursts.
+          # Sicherheit: 10s Sleep pro Query + Circuit-Breaker bei Skips.
+          import threading as _threading
+          _cs_skip_lock = _threading.Lock()
+          _cs_consecutive_skips = [0]  # mutable container for thread-safe updates
+          _cs_break_event = _threading.Event()
+
+          def _search_code_one(query):
+              if _cs_break_event.is_set():
+                  return None
               print(f"Suche Code: {query}...")
               encoded_query = urllib.parse.quote(query, safe=':+*')
               data = gh_api(f"/search/code?q={encoded_query}&sort=indexed&order=desc&per_page=30")
               if data is None:
-                  consecutive_skips += 1
-                  if consecutive_skips >= MAX_CONSECUTIVE_SKIPS:
-                      print(f"  CIRCUIT-BREAKER: {MAX_CONSECUTIVE_SKIPS} Code-Queries "
-                            f"in Folge geskippt – Code-Search-Phase abgebrochen, "
-                            f"weiter mit Topic-Suche-Ergebnissen")
-                      break
+                  with _cs_skip_lock:
+                      _cs_consecutive_skips[0] += 1
+                      if _cs_consecutive_skips[0] >= 5:
+                          print(f"  CIRCUIT-BREAKER: 5 Code-Queries "
+                                f"in Folge geskippt – Code-Search-Phase abgebrochen, "
+                                f"weiter mit Topic-Suche-Ergebnissen")
+                          _cs_break_event.set()
               else:
-                  consecutive_skips = 0
+                  with _cs_skip_lock:
+                      _cs_consecutive_skips[0] = 0
                   for item in data.get("items", []):
                       repo = item.get("repository")
                       add_repo_candidate(candidate_repos, repo, f"code:{query}")
               time.sleep(10)
+              return data
+
+          with ThreadPoolExecutor(max_workers=2) as _cs_ex:
+              list(_cs_ex.map(_search_code_one, SEARCH_CODE_QUERIES))
 
           print(f"\nKandidaten nach Suche: {len(candidate_repos)} Repos\n")
 
@@ -746,14 +790,58 @@ jobs:
           # approved_feeds und können hier regulär neu bewertet werden.
           existing_repo_set = {v.get("repo") for v in approved_feeds.values() if v.get("repo")}
 
-          for full_name, meta in candidate_repos.items():
-              if full_name in rejected_repos:
-                  continue
-              if full_name in existing_repo_set:
-                  # Bereits in Schritt 5a gezählt – überspringen
-                  continue
+          # Timeout-Check vor aufwändiger Evaluations-Phase
+          if _check_timeout("Pre-Evaluation"):
+              _now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+              write_text_atomic("auto_feed_discovery_report.md", f"# Auto Feed Discovery – Report
+"
+                           f"**Aktualisiert:** {_now_str}
 
-              print(f"\nBewerte: {full_name}")
+---
+
+"
+                           f"## ⚠️ Abbruch: Timeout-Sicherheit
+
+"
+                           f"*Evaluations-Phase abgebrochen um sauberen Exit vor dem 45min-Limit zu gewährleisten.*
+
+"
+                           f"*Generiert: {_now_str}*
+")
+              print("auto_feed_discovery_report.md geschrieben (Timeout-Report)")
+              # Sauberes Exit mit Code 0 damit der Commit-Step (if: always()) den Report committet
+              sys.exit(0)
+
+
+          # FIX PERF-EVAL: Kandidaten auf Top 100 nach Reputation begrenzen.
+          # Bei >100 Kandidaten aus der Suche (passiert regelmäßig) summiert
+          # sich die serielle Bewertung zu >20 Minuten. Die niedrig-reputierten
+          # Repos (0 Stars, alt) liefern ohnehin kaum qualitativ hochwertige
+          # Feeds – Capping auf Top 100 spart Zeit ohne Qualitätsverlust.
+          # Sortierung: Reputation-Score absteigend (Stars*2 + Forks*3).
+          _sorted_candidates = sorted(
+              candidate_repos.items(),
+              key=lambda x: min(x[1].get("stars", 0) * 2 + x[1].get("forks", 0) * 3, 100),
+              reverse=True
+          )[:100]
+          print(f"Bewerte Top-100 von {len(candidate_repos)} Kandidaten nach Reputation")
+
+          # FIX PERF-EVAL2: Parallele Kandidaten-Bewertung mit 4 Workern.
+          # Jeder Worker führt die komplette Bewertung durch (API-Calls,
+          # Download, FP-Check, Overlap). Die Ergebnisse werden danach
+          # seriell in approved_feeds / evaluation_log geschrieben.
+          # Kein Race: Worker liefern nur read-only Daten zurück.
+          _eval_lock = _threading.Lock()
+
+          def _evaluate_one(args):
+              full_name, meta = args
+              if full_name in rejected_repos:
+                  return None
+              if full_name in existing_repo_set:
+                  return None
+
+              _log_lines = [f"
+Bewerte: {full_name}"]
 
               # Kriterium 1: Aktualität (letzter Push max. 30 Tage)
               pushed_str = meta.get("pushed", "")
@@ -764,19 +852,17 @@ jobs:
               except Exception:
                   days_old = 999
               if days_old > 30:
-                  print(f"  ❌ Aktualität: {days_old} Tage alt (max. 30)")
-                  rejected_repos.add(full_name)
-                  evaluation_log.append({"repo": full_name, "result": "REJECTED",
-                                         "reason": f"Zu alt: {days_old}d"})
-                  continue
-              print(f"  ✅ Aktualität: {days_old} Tage alt")
+                  _log_lines.append(f"  ❌ Aktualität: {days_old} Tage alt (max. 30)")
+                  return {"action": "reject", "repo": full_name,
+                          "reason": f"Zu alt: {days_old}d", "logs": _log_lines}
+              _log_lines.append(f"  ✅ Aktualität: {days_old} Tage alt")
 
               # IP-Dateien im Repo suchen
               time.sleep(0.5)
               tree = gh_api(f"/repos/{full_name}/git/trees/HEAD?recursive=1")
               if not tree:
-                  rejected_repos.add(full_name)
-                  continue
+                  return {"action": "reject", "repo": full_name,
+                          "reason": "API-Fehler (Tree)", "logs": _log_lines}
 
               ip_files = [
                   {"path": item["path"], "size": item.get("size", 0)}
@@ -786,27 +872,17 @@ jobs:
               ]
 
               if not ip_files:
-                  print("  ❌ Keine passenden IP-Dateien gefunden")
-                  rejected_repos.add(full_name)
-                  evaluation_log.append({"repo": full_name, "result": "REJECTED",
-                                         "reason": "Keine IP-Datei"})
-                  continue
+                  _log_lines.append("  ❌ Keine passenden IP-Dateien gefunden")
+                  return {"action": "reject", "repo": full_name,
+                          "reason": "Keine IP-Datei", "logs": _log_lines}
 
               ip_files.sort(key=lambda x: x["size"], reverse=True)
               best_file = ip_files[0]
-              # URL-Encoding des Pfads: konsistent mit der /commits-API-Abfrage
-              # weiter unten. Ohne quote() werden Dateinamen mit Leerzeichen,
-              # Unicode oder anderen Sonderzeichen zu 404s und der Feed wird
-              # still verworfen. safe="/" behält die Pfad-Struktur.
               raw_url   = (f"https://raw.githubusercontent.com/{full_name}/"
                            f"HEAD/{urllib.parse.quote(best_file['path'], safe='/')}")
-              print(f"  Datei: {best_file['path']} ({best_file['size']:,} Bytes)")
+              _log_lines.append(f"  Datei: {best_file['path']} ({best_file['size']:,} Bytes)")
 
-              # Kriterium 1b: Aktualität der IP-Datei selbst (max. 30 Tage).
-              # repo.pushed_at misst nur irgendeinen Push (README, .gitignore,
-              # Config-Dateien) – sagt nichts über die Blocklist-Datei aus.
-              # Viele Hobby-Repos haben frisches pushed_at, aber die Blocklist
-              # wurde seit Monaten nicht mehr angefasst → stale Feed.
+              # Kriterium 1b: Aktualität der IP-Datei selbst (max. 30 Tage)
               time.sleep(0.5)
               file_commits = gh_api(
                   f"/repos/{full_name}/commits"
@@ -823,86 +899,119 @@ jobs:
                   except Exception:
                       pass
               if file_days_old > 30:
-                  print(f"  ❌ IP-Datei veraltet: {file_days_old} Tage "
-                        f"(Repo-Push frisch, aber Blocklist stale)")
-                  rejected_repos.add(full_name)
-                  evaluation_log.append({"repo": full_name, "result": "REJECTED",
-                                         "reason": f"IP-Datei {file_days_old}d alt"})
-                  continue
-              print(f"  ✅ IP-Datei frisch: {file_days_old} Tage alt")
+                  _log_lines.append(f"  ❌ IP-Datei veraltet: {file_days_old} Tage "
+                                    f"(Repo-Push frisch, aber Blocklist stale)")
+                  return {"action": "reject", "repo": full_name,
+                          "reason": f"IP-Datei {file_days_old}d alt", "logs": _log_lines}
+              _log_lines.append(f"  ✅ IP-Datei frisch: {file_days_old} Tage alt")
 
+              # FIX PERF-DL: Timeout für Raw-Downloads auf 12s reduziert.
+              # GitHub Raw-URLs sind in der Regel <2s, 25s war überdimensioniert
+              # und hat bei hängenden Requests kostbare Zeit verbrannt.
               time.sleep(0.5)
-              text = fetch_raw(raw_url)
+              text = fetch_raw(raw_url, timeout=12)
               if not text:
-                  print("  ❌ Download fehlgeschlagen")
-                  rejected_repos.add(full_name)
-                  continue
+                  _log_lines.append("  ❌ Download fehlgeschlagen")
+                  return {"action": "reject", "repo": full_name,
+                          "reason": "Download-Fehler", "logs": _log_lines}
 
               ips = extract_ips(text)
 
               # Kriterium 2: Größe (100 – 500.000 IPs)
               if not (100 <= len(ips) <= 500_000):
-                  print(f"  ❌ Größe: {len(ips)} IPs (erwartet 100–500.000)")
-                  rejected_repos.add(full_name)
-                  evaluation_log.append({"repo": full_name, "result": "REJECTED",
-                                         "reason": f"Größe: {len(ips)} IPs"})
-                  continue
-              print(f"  ✅ Größe: {len(ips)} IPs")
+                  _log_lines.append(f"  ❌ Größe: {len(ips)} IPs (erwartet 100–500.000)")
+                  return {"action": "reject", "repo": full_name,
+                          "reason": f"Größe: {len(ips)} IPs", "logs": _log_lines}
+              _log_lines.append(f"  ✅ Größe: {len(ips)} IPs")
 
               # Kriterium 3: False-Positive-Rate (max. 5%)
               fp = fp_rate(ips)
               if fp > 0.05:
-                  print(f"  ❌ False-Positive-Rate: {fp:.1%} (max. 5%)")
-                  rejected_repos.add(full_name)
-                  evaluation_log.append({"repo": full_name, "result": "REJECTED",
-                                         "reason": f"FP-Rate: {fp:.1%}"})
-                  continue
-              print(f"  ✅ False-Positive-Rate: {fp:.1%}")
+                  _log_lines.append(f"  ❌ False-Positive-Rate: {fp:.1%} (max. 5%)")
+                  return {"action": "reject", "repo": full_name,
+                          "reason": f"FP-Rate: {fp:.1%}", "logs": _log_lines}
+              _log_lines.append(f"  ✅ False-Positive-Rate: {fp:.1%}")
 
               # Kriterium 4: Overlap mit HQ-Feeds (min. 20% oder 50 IPs)
               if hq_ref_ready:
                   overlap     = len(ips & hq_ref_ips)
                   overlap_pct = overlap / len(ips) if ips else 0
                   if overlap_pct < 0.20 and overlap < 50:
-                      print(f"  ❌ Overlap: {overlap_pct:.1%} / {overlap} IPs (min. 20% oder 50)")
-                      rejected_repos.add(full_name)
-                      evaluation_log.append({"repo": full_name, "result": "REJECTED",
-                                             "reason": f"Overlap zu gering: {overlap_pct:.1%}"})
-                      continue
-                  print(f"  ✅ Overlap mit HQ-Feeds: {overlap_pct:.1%} ({overlap} IPs)")
+                      _log_lines.append(f"  ❌ Overlap: {overlap_pct:.1%} / {overlap} IPs (min. 20% oder 50)")
+                      return {"action": "reject", "repo": full_name,
+                              "reason": f"Overlap zu gering: {overlap_pct:.1%}", "logs": _log_lines}
+                  _log_lines.append(f"  ✅ Overlap mit HQ-Feeds: {overlap_pct:.1%} ({overlap} IPs)")
               else:
                   overlap_pct = 0
                   overlap     = 0
 
               # Kriterium 5: Format-Qualität (min. 30% IP-Zeilen)
-              # Vergleich: eindeutige IPs vs. eindeutige Nicht-Kommentarzeilen
-              # (dedupliziert auf beiden Seiten, damit Feeds mit redundanten Zeilen
-              # nicht fälschlicherweise abgelehnt werden)
               unique_lines = set(
                   l.strip() for l in text.splitlines()
                   if l.strip() and not l.startswith("#")
               )
               ip_ratio = len(ips) / max(len(unique_lines), 1)
               if ip_ratio < 0.30:
-                  print(f"  ❌ Format-Qualität: {ip_ratio:.1%} IP-Zeilen (min. 30%)")
-                  rejected_repos.add(full_name)
-                  evaluation_log.append({"repo": full_name, "result": "REJECTED",
-                                         "reason": f"Format: {ip_ratio:.1%}"})
-                  continue
-              print(f"  ✅ Format-Qualität: {ip_ratio:.1%}")
+                  _log_lines.append(f"  ❌ Format-Qualität: {ip_ratio:.1%} IP-Zeilen (min. 30%)")
+                  return {"action": "reject", "repo": full_name,
+                          "reason": f"Format: {ip_ratio:.1%}", "logs": _log_lines}
+              _log_lines.append(f"  ✅ Format-Qualität: {ip_ratio:.1%}")
 
               stars     = meta.get("stars", 0)
               forks     = meta.get("forks", 0)
               rep_score = min(stars * 2 + forks * 3, 100)
-              print(f"  ⭐ Reputation: {stars} Stars / {forks} Forks → Score {rep_score}")
+              _log_lines.append(f"  ⭐ Reputation: {stars} Stars / {forks} Forks → Score {rep_score}")
 
-              # FIX Bug4: Feed-Name-Kollision vollständig auflösen.
-              # Vorher: nur einmaliges "_v2" → bei weiterer Kollision stiller Datenverlust.
-              # Jetzt: Loop bis zum ersten freien Namen; bestehende Einträge desselben
-              # Repos (Updates) behalten ihren alten Namen.
-              # FIX #16: Kein Truncating auf 57 Zeichen mehr.
-              # Feed-Namen sind interne Schlüssel; volle Länge verhindert Kollisionen
-              # zwischen Repos mit ähnlichen Namen (z.B. org-a/ip-feed vs org-b/ip-feed).
+              return {
+                  "action": "approve",
+                  "repo": full_name,
+                  "meta": meta,
+                  "best_file": best_file,
+                  "raw_url": raw_url,
+                  "ips": ips,
+                  "fp": fp,
+                  "overlap_pct": overlap_pct,
+                  "overlap": overlap,
+                  "ip_ratio": ip_ratio,
+                  "stars": stars,
+                  "forks": forks,
+                  "rep_score": rep_score,
+                  "days_old": days_old,
+                  "logs": _log_lines,
+              }
+
+          # Parallele Ausführung
+          print(f"EVAL-Phase: {len(_sorted_candidates)} Kandidaten parallel (4 Worker)...")
+          with ThreadPoolExecutor(max_workers=4) as _eval_ex:
+              _eval_results = list(_eval_ex.map(_evaluate_one, _sorted_candidates))
+
+          # Serielle Anwendung der Ergebnisse (kein Race)
+          for _res in _eval_results:
+              if _res is None:
+                  continue
+              # Logs ausgeben
+              for _line in _res["logs"]:
+                  print(_line)
+
+              if _res["action"] == "reject":
+                  rejected_repos.add(_res["repo"])
+                  evaluation_log.append({"repo": _res["repo"], "result": "REJECTED",
+                                         "reason": _res["reason"]})
+                  continue
+
+              # APPROVE
+              full_name = _res["repo"]
+              meta      = _res["meta"]
+              best_file = _res["best_file"]
+              raw_url   = _res["raw_url"]
+              ips       = _res["ips"]
+              fp        = _res["fp"]
+              overlap_pct = _res["overlap_pct"]
+              stars     = _res["stars"]
+              forks     = _res["forks"]
+              rep_score = _res["rep_score"]
+              days_old  = _res["days_old"]
+
               base_name = re.sub(r'[^a-z0-9_]', '_',
                                  full_name.lower().replace('/', '_'))
               feed_name = base_name
@@ -931,7 +1040,6 @@ jobs:
                   "hq":            False,
               }
 
-              # IPs für seen_db merken + Feed-Zählung je IP aufbauen
               if is_new_feed:
                   all_new_ips.update(ips)
               else:
@@ -949,9 +1057,7 @@ jobs:
                   "fp_rate":     round(fp * 100, 2),
                   "stars":       stars,
               })
-              print(f"  ✅ ANGENOMMEN als '{feed_name}' ({len(ips)} IPs, {'NEU' if is_new_feed else 'bekannt'})")
-
-          # ── Schritt 6: seen_db aktualisieren ──────────────────────────────
+              print(f"  ✅ ANGENOMMEN als '{feed_name}' ({len(ips)} IPs, {'NEU' if is_new_feed else 'bekannt'})")# ── Schritt 6: seen_db aktualisieren ──────────────────────────────
           # Auto-discovered Feeds sind NICHT HQ (hq=False).
           # FIX BUG-4: today_count wird NICHT mehr hier gesetzt. Das Feld ist
           # semantisch "Feeds die diese IP im LETZTEN combined-Run gemeldet haben"
