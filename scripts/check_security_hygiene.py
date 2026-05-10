@@ -68,6 +68,16 @@ USES_RE        = re.compile(r"^\s*-?\s*uses:\s*(\S+)", re.MULTILINE)
 # aber laesst die Checks nicht als FAIL durchfallen.
 _yaml_missing = False
 
+# FIX BUG-WI-GLOBAL: Modul-Top-Init statt nur innerhalb check_fetch_usage().
+# Vorher: workflow_info wurde via `global workflow_info; workflow_info = []`
+# erst beim ersten Aufruf von check_fetch_usage() angelegt. main() umging
+# das mit `globals().get("workflow_info", [])` als defensiven Fallback,
+# aber Tests die main() ohne check_fetch_usage() patchen oder die
+# Reihenfolge in `checks` umsortieren wuerden auf einen NameError laufen.
+# Jetzt: Modul-Global garantiert vorhanden, check_fetch_usage() leert es
+# am Anfang nur noch (siehe dort).
+workflow_info: list = []
+
 
 # ───────────────────────────────────────────────────────────────
 # Check 1: Actions SHA-gepinnt
@@ -599,8 +609,12 @@ def check_fetch_usage() -> list[str]:
     # Risiko. Der AST kann das aber nicht zuverlaessig entscheiden.
     # Deshalb: scripts/ bleibt hart, Workflows werden nur angezeigt
     # damit neue Stellen bewusst in die Liste kommen.
-    global workflow_info  # pragmatisch fuer main()
-    workflow_info = []
+    # FIX BUG-WI-GLOBAL: workflow_info ist jetzt am Modul-Top initialisiert
+    # (siehe oben). Hier nur noch leeren statt neu anlegen, damit
+    # mehrfache Aufrufe (z.B. aus Tests) nicht akkumulieren. clear()
+    # mutiert die existierende Liste – keine `global`-Deklaration
+    # noetig (Re-Assignment haetten wir, mutieren reicht aus).
+    workflow_info.clear()
     if WORKFLOWS_DIR.is_dir():
         # FIX HEREDOC-FLAGS: konsistent zu check_atomic_writes – auch
         # python3 -u/-B/-X… erkennen.
@@ -917,7 +931,9 @@ def main() -> int:
               "(pip install pyyaml aktiviert sie)")
 
     # Info-Block: Workflow-inline urlopen-Aufrufe (nicht fatal)
-    wi = globals().get("workflow_info", [])
+    # FIX BUG-WI-GLOBAL: workflow_info ist jetzt am Modul-Top garantiert
+    # initialisiert – kein globals().get(..., []) Fallback mehr noetig.
+    wi = workflow_info
     if wi:
         print(f"[INFO]  {len(wi)} urlopen(...) in Workflow-Inline-Python "
               f"(URLs aus hardcoded dicts – Review empfohlen, kein Fail)")

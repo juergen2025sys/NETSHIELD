@@ -732,7 +732,24 @@ def calculate_confidence(is_hq=False, today_count=0, feed_count=0,
     days_since_last = _int_or(days_since_last, 999)
     days_seen       = _int_or(days_seen,       1)
     days_known      = _int_or(days_known,      0)
-    is_hq           = bool(is_hq)
+    # FIX BUG-HQ-BOOL: strikte Bool-Koerzierung analog zu _int_or fuer
+    # numerische Felder. Vorher: is_hq = bool(is_hq) – Python's bool()
+    # ist truthy auf jeden nicht-leeren String, also bool("false") == True.
+    # Wenn seen_db durch Schema-Drift (fremdes Tool, manuelle Edits, alte
+    # Backup-Restore) plueztlich is_hq als String haette, wuerde "false"
+    # die volle HQ-Pruemie von 40 Punkten ausloesen statt 0. Ein einzelner
+    # Score-Sprung von 2 → 42 reicht aus um eine IP unverdient in die
+    # Konfidenz40-Liste zu heben.
+    # Akzeptiert wird nur: echtes True, oder String "true"/"1" (case-insensitive),
+    # oder int 1. Alles andere (False, 0, "false", "", None, dict, list) → False.
+    if isinstance(is_hq, bool):
+        pass  # echter bool – uebernehmen
+    elif isinstance(is_hq, str):
+        is_hq = is_hq.strip().lower() in ("true", "1", "yes")
+    elif isinstance(is_hq, int):
+        is_hq = is_hq == 1
+    else:
+        is_hq = False
 
     # Counts (today_count, feed_count) sind monoton nicht-negativ,
     # negativ ist hier semantisch "nichts gesehen" → 0.
@@ -970,14 +987,13 @@ def _restore_pin(hostname, previous):
 _PIN_ABSENT = object()
 
 
-def _unpin_host(hostname):
-    """Entfernt das Mapping nach dem Fetch.
-
-    FIX BUG-PIN-RESTORE: Behalten fuer Backward-Compat (wird sonst
-    nirgends mehr in fetch_url benutzt – siehe _restore_pin)."""
-    pin_map = getattr(_pin_state, "pin_map", None)
-    if pin_map and hostname in pin_map:
-        del pin_map[hostname]
+# FIX BUG-UNPIN-DEAD: Funktion _unpin_host(hostname) entfernt. War
+# Backward-Compat-Stub fuer die alte unconditional-delete API, aber
+# - Funktion ist private (_-Prefix), kein externer API-Vertrag
+# - 0 Aufrufer in Repo (Workflows, Tests, Scripts)
+# - durch _restore_pin() vollstaendig ersetzt (save-and-restore Pattern,
+#   siehe FIX BUG-PIN-RESTORE-Kommentar in _pin_host oben)
+# Toter Code mit irrefuehrendem Backward-Compat-Argument geloescht.
 
 
 def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
