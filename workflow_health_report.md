@@ -1,24 +1,20 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-10 09:01 UTC
+**Aktualisiert:** 2026-05-10 14:22 UTC
 
-**Workflows:** 20 | ✅ 19 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
+**Workflows:** 20 | ✅ 19 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
-| `codeql.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `codeql.yml` | actions/checkout Version-Drift | 1 Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht? |
-| `Production Health` | Drift: cve_exploit_ips.txt | cve_exploit_ips.txt: 52,429 → 37,420 (-29%) – deutlicher Rückgang |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🟡 WARN | Drift: cve_exploit_ips.txt | cve_exploit_ips.txt: 52,429 → 37,420 (-29%) – deutlicher Rückgang |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -26,7 +22,7 @@
 |---|---|---|---|---|
 | `asn_reputation_scorer.yml` | ✅ OK | 0 | 0 | `0 2 * * *` |
 | `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `37 4 * * 0`, `23 7 * * 0`, `47 11 * * 0` |
-| `codeql.yml` | ⚠️ | 0 | 1 | `0 3 * * 0` |
+| `codeql.yml` | ✅ OK | 0 | 0 | `0 3 * * 0` |
 | `community_ip_report.yml` | ✅ OK | 0 | 0 | – |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
 | `dependabot-auto-merge.yml` | ✅ OK | 0 | 0 | – |
@@ -46,4 +42,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-05-10 09:01 UTC | 20 Workflow-Dateien geprüft*
+*Generiert: 2026-05-10 14:22 UTC | 20 Workflow-Dateien geprüft*
