@@ -193,11 +193,36 @@ jobs:
           # combined_threat_blacklist_ipv4.txt wird bereits beim Schreiben in
           # update_combined_blacklist mit is_protected_entry() gefiltert →
           # erneute Prüfung hier wäre 502 Netzwerk-Checks × 4,5M IPs ≈ 10 Min Zeitverschwendung.
-          with open(BLACKLIST) as f:
-              combined_ips = {
-                  s for line in f if (s := line.strip()) and not s.startswith("#")
-              }
-          print(f"Combined Blacklist: {len(combined_ips)} IPs")
+          #
+          # FIX BUG-TRUNCATE-PARTS: Sobald die Vollliste >= 100 MB GitHub-Push-
+          # Limit erreicht, schreibt update_combined_blacklist die Hauptdatei
+          # truncatiert (nur die ersten N IPs) und verteilt die vollstaendige
+          # Liste auf combined_threat_blacklist_ipv4_part*.txt. Wenn wir hier
+          # nur die Hauptdatei lesen, verlieren IPs die ausschliesslich in den
+          # Parts stehen ihren Confidence-Score und landen weder in
+          # blacklist_confidence40 noch in der Watchlist – obwohl sie in
+          # seen_db vorhanden sind.
+          # Loesung: Hauptdatei + alle Parts einlesen, dedupen via set-Update.
+          # Das ist auch unter Schwelle (Parts existieren nicht) safe – glob
+          # matcht dann nichts. Solange Combined unter SPLIT_THRESHOLD bleibt,
+          # ist die Hauptdatei ohnehin vollstaendig und der Loop ist ein No-Op.
+          import glob as _glob
+          combined_ips = set()
+          _sources_read = [BLACKLIST] + sorted(
+              _glob.glob("combined_threat_blacklist_ipv4_part*.txt"))
+          for _src in _sources_read:
+              if not os.path.exists(_src):
+                  continue
+              with open(_src) as f:
+                  for line in f:
+                      s = line.strip()
+                      if s and not s.startswith("#"):
+                          combined_ips.add(s)
+          if len(_sources_read) > 1:
+              print(f"Combined Blacklist: {len(combined_ips)} IPs "
+                    f"(Hauptdatei + {len(_sources_read) - 1} Part(s))")
+          else:
+              print(f"Combined Blacklist: {len(combined_ips)} IPs")
 
           # ── FP-Vorfilter für combined_ips (einmalig, statt pro IP im Inner-Loop) ─
           # combined_threat_blacklist_ipv4.txt ist zwar bereits mit is_in_fp_set() gefiltert,
