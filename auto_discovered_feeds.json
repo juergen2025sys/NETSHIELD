@@ -1,7 +1,7 @@
 {
-  "updated": "2026-05-10 09:10 UTC",
+  "updated": "2026-05-10 12:24 UTC",
   "total_feeds": 18,
-  "new_this_run": 1,
+  "new_this_run": 0,
   "rejected_repos": [
     "00nx/exodus-decryptor",
     "0x4139/iplist",
@@ -9,6 +9,7 @@
     "0xCyberLiTech/SOC",
     "0xE1337/pneuma-protocol",
     "0xPugal/fuzz4bounty",
+    "0xSteph/pentest-ai",
     "0xSums/SVB",
     "0xbitx/DEDSEC_TOR-GHOST",
     "0xbitx/DEDSEC_WEEPING_ANGLE",
@@ -1240,6 +1241,7 @@
     "fuskovic/nw",
     "gabihajdu/CTF",
     "gaissmai/bart",
+    "gamemann/XDP-Firewall",
     "geevarghesekthomas84-sys/awesome-red-team",
     "geminijong-cpu/hyperhives-macos-infostealer-analysis",
     "gerrinh1005-source/ProxyAtlas",
@@ -1274,6 +1276,7 @@
     "harshhhhh10/Cybersecurity-Internship-Task-6",
     "hasherezade/malware_analysis",
     "hatamiarash7/ipset-exporter",
+    "heiher/hev-socks5-tproxy",
     "herbiezimmerman/2017-11-15-Emotet-Malspam",
     "heshandilharasamarakoon/github-annual-report-2025",
     "hhftechnology/crowdsec_manager",
@@ -1281,8 +1284,10 @@
     "hieutran2511/drawbridge",
     "hoelet/Omnishield_AI",
     "honeyvig/discover",
+    "horsicq/Detect-It-Easy",
     "hrbrmstr/hormel",
     "hsw/docker-centos7-xmrig",
+    "huijingfei/Shadowrocket-Rules",
     "husain-barot-786/Honeypot-Server-to-Detect-Attack-Patterns",
     "hvs-consulting/ioc_signatures",
     "iam-py-test/my_filters_001",
@@ -1374,6 +1379,7 @@
     "kamiyoai/kamiyo-protocol",
     "kamley/cybersec_project_2",
     "kamrujjamanzim/AI_Fraud_Detection",
+    "katlogic/solana-arbitrage-bot",
     "kawsar1533/clawdwatch",
     "kbarbel640-del/skills",
     "kbugra/ThreatLens",
@@ -1496,6 +1502,7 @@
     "menasamuel1835/Pumpfun-Bundler",
     "metaforensics-ai/semantics-av-cli",
     "meuxlugh/codeguard-ai",
+    "mexirica/aptui",
     "mhelhoseiny/MindMap",
     "michael-borck/cybersecurity-lab-lateral-movement",
     "michaelgregoryibizugbe/PHANTOM-RECON",
@@ -1775,6 +1782,7 @@
     "seyifalode-cmd/crowdstrike-threat-hunt-portfolio",
     "sgofferj/mailblocklist",
     "sgofferj/sipblocklist",
+    "sha0coder/mwemu",
     "shadowctrl/crypto-miner",
     "shadowjdm894/anoncat",
     "sharathc213/HoneyDs",
@@ -2087,7 +2095,7 @@
       "file": "blocklists/prod_data-shield_ipv4_blocklist.txt",
       "added": "2026-03-29",
       "last_checked": "2026-05-10",
-      "ip_count": 38494,
+      "ip_count": 38504,
       "overlap_pct": 69.0,
       "fp_rate": 0.0,
       "rep_score": 8,
@@ -2170,7 +2178,7 @@
       "file": "blocklists/prod_data-shield_ipv4_blocklist.txt",
       "added": "2026-03-12",
       "last_checked": "2026-05-10",
-      "ip_count": 38494,
+      "ip_count": 38504,
       "overlap_pct": 58.7,
       "fp_rate": 0.0,
       "rep_score": 8,
@@ -2291,7 +2299,7 @@
       "file": "output/blacklist.csv",
       "added": "2026-04-05",
       "last_checked": "2026-05-10",
-      "ip_count": 4317,
+      "ip_count": 4399,
       "overlap_pct": 36.7,
       "fp_rate": 0.0,
       "rep_score": 34,
@@ -2312,7 +2320,7 @@
       "file": "unifiedblocklist.list",
       "added": "2026-04-09",
       "last_checked": "2026-05-10",
-      "ip_count": 34836,
+      "ip_count": 34925,
       "overlap_pct": 41.9,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -2353,7 +2361,7 @@
       "file": "dev-tools/test2_conf_files/conf.d/globalblacklist.conf",
       "added": "2026-04-26",
       "last_checked": "2026-05-10",
-      "ip_count": 10293,
+      "ip_count": 10294,
       "overlap_pct": 75.0,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -2364,7 +2372,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 1
+      "file_days_old": 0
     },
     {
       "name": "turbolabit_zzfirewall",
@@ -2403,7 +2411,9 @@
         "topic:command-and-control",
         "topic:ipset"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 4
     }
   ]
 }
