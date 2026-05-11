@@ -1,29 +1,24 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-11 16:10 UTC
+**Aktualisiert:** 2026-05-11 20:52 UTC
 
-**Workflows:** 20 | ✅ 18 OK | ⚠️ 2 Warnung | ❌ 1 Fehler
+**Workflows:** 20 | ✅ 18 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 150.171.22.11, 150.171.22.12, 150.171.22.14, 150.171.22.17, 155.133.250.4… – Filterung wirkungslos! |
-
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
 | `geo_tagger.yml` | Doppelter Import | Block 0: Doppelte Imports: glob(2x) – moeglicherweise Copy-Paste-Artefakt |
 | `update_confidence_blacklist.yml` | Doppelter Import | Block 0: Doppelte Imports: glob(2x) – moeglicherweise Copy-Paste-Artefakt |
+| `Production Health` | Push-Limit Naehe | blacklist_geo_enriched.json: 82.6 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 150.171.22.11, 150.171.22.12, 150.171.22.14, 150.171.22.17, 155.133.250.4… – Filterung wirkungslos! |
+| 🟡 WARN | Push-Limit Naehe | blacklist_geo_enriched.json: 82.6 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
 
@@ -51,4 +46,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-05-11 16:10 UTC | 20 Workflow-Dateien geprüft*
+*Generiert: 2026-05-11 20:52 UTC | 20 Workflow-Dateien geprüft*
