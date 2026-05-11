@@ -325,19 +325,161 @@ jobs:
               sys.exit(1)
 
           # ── blacklist_geo_enriched.json ───────────────────────────────────
-          # FIX: atomar schreiben (~68 MB, wird von workflow_health_checker gelesen).
+          # FIX: atomar schreiben (wird von workflow_health_checker gelesen).
           # Bei der Groesse ist ein Runner-Kill waehrend dem Schreiben besonders
           # wahrscheinlich → ohne atomaren Write bleibt eine halb-geschriebene
           # JSON-Datei zurueck, die den Reader zum Absturz bringt.
-          write_json_atomic("blacklist_geo_enriched.json", {
+          #
+          # FIX HARD-LIMIT-GEO: Groesse VOR dem Schreiben schaetzen und bei
+          # >= HARD_LIMIT_MB Truncate-Fallback + Parts anwenden, analog zur
+          # Logik in update_combined_blacklist.yml. Ohne diesen Schutz wuerde
+          # git push hart fehlschlagen sobald geo_enriched die 100 MB GitHub-
+          # Push-Grenze reisst. Wachstum ist proportional zu combined_threat
+          # (Faktor ~1.12 wegen JSON-Overhead) – schwellenwert wird kurz nach
+          # combined erreicht. Hauptdatei bleibt vollstaendig solange unter
+          # HARD_LIMIT, Parts decken Vollstaendigkeit ab sobald Split-Schwelle
+          # erreicht. ip_to_country wird sortiert in Chunks geteilt, Metadaten
+          # (updated/method/bl_total/matched/unmatched) bleiben in jeder Datei.
+          HARD_LIMIT_MB      = 100  # GitHub Push-Limit
+          TRUNCATE_TARGET_MB = 95   # Sicherheitspuffer unter HARD_LIMIT_MB
+          SPLIT_THRESHOLD_MB = 90   # ab hier Parts erzeugen
+          PART_TARGET_MB     = 40   # Groesse pro Part
+
+          # Stabile Item-Reihenfolge fuer deterministisches Splitting.
+          # Sortierung: numerisch nach IP, CIDRs am Ende (lexikographisch).
+          # Eine deterministische Reihenfolge ist wichtig damit Konsumenten
+          # die Parts in derselben Reihenfolge lesen wie sie geschrieben werden.
+          def _geo_sort_key(item):
+              k = item[0]
+              try:
+                  if "/" in k:
+                      # CIDR sortiert nach numerischer Netzadresse, suffix als Tiebreaker
+                      _addr, _mask = k.split("/", 1)
+                      parts = tuple(int(x) for x in _addr.split("."))
+                      return (0, parts, int(_mask))
+                  parts = tuple(int(x) for x in k.split("."))
+                  return (0, parts, -1)
+              except (ValueError, AttributeError):
+                  # Korrupte Keys nach hinten
+                  return (1, (256, 256, 256, 256), 0)
+
+          _geo_items = sorted(ip_to_country.items(), key=_geo_sort_key)
+
+          # Sample-basierte Avg-Schaetzung der serialisierten Eintrags-Groesse.
+          # Pro Entry: '"ip":"cc"' + ',' Trenner (am Ende einer zu viel, aber
+          # Approximation – das +2% Aufschlag faengt die Restunschaerfe).
+          _g_step = max(1, len(_geo_items) // 10_000)
+          _g_sample = _geo_items[::_g_step][:10_000]
+          if _g_sample:
+              # len(json.dumps({k:v})) inkludiert die {}, also -2 fuer Pro-Entry-Volumen
+              _g_avg_entry = sum(
+                  len(json.dumps({k: v}, separators=(",", ":"))) - 2 for k, v in _g_sample
+              ) / len(_g_sample)
+              _g_avg_entry += 1  # ',' zwischen Eintraegen
+          else:
+              _g_avg_entry = 18  # Fallback ~"1.2.3.4":"DE",
+          _g_meta_overhead = 1024  # updated/method/bl_total/matched/unmatched + JSON-Struktur
+          _geo_estimated_mb = (
+              len(_geo_items) * _g_avg_entry * 1.02 + _g_meta_overhead
+          ) / 1024 / 1024
+          print(f"\nGeschaetzte Groesse geo_enriched (ungesplittet): {_geo_estimated_mb:.1f} MB")
+
+          if _geo_estimated_mb >= HARD_LIMIT_MB:
+              # Truncate: erste max_entries (sortiert nach IP). Rest in Parts.
+              _g_max = int((TRUNCATE_TARGET_MB * 1024 * 1024 - _g_meta_overhead) / _g_avg_entry)
+              _g_max = max(1000, min(_g_max, len(_geo_items)))
+              _g_truncated = dict(_geo_items[:_g_max])
+              _g_dropped = len(_geo_items) - _g_max
+              _g_trunc_msg = (
+                  f"Hauptdatei wuerde {_geo_estimated_mb:.1f} MB "
+                  f"(>= {HARD_LIMIT_MB} MB GitHub-Limit) – TRUNCATE auf "
+                  f"{_g_max:,} Eintraege (~{TRUNCATE_TARGET_MB} MB). "
+                  f"{_g_dropped:,} Eintraege ausschliesslich in Parts. Consumer auf Parts umstellen!"
+              )
+              print(f"::warning file=geo_tagger.yml::{_g_trunc_msg}")
+              print(f"WARNUNG: {_g_trunc_msg}")
+              write_json_atomic("blacklist_geo_enriched.json", {
+                  "updated":         now_str,
+                  "method":          "scanitex-cidr-match",
+                  "bl_total":        len(bl_addrs),
+                  "matched":         total_matched,
+                  "unmatched":       len(unmatched),
+                  "truncated":       True,
+                  "entries_in_file": _g_max,
+                  "entries_total":   len(_geo_items),
+                  "note":            (f"{_g_dropped} Eintraege NICHT in dieser Datei "
+                                      f"(GitHub-Hard-Limit 100 MB) – siehe "
+                                      f"blacklist_geo_enriched_part*.json fuer Rest"),
+                  "ip_to_country":   _g_truncated,
+              }, separators=(",", ":"))
+          else:
+              write_json_atomic("blacklist_geo_enriched.json", {
                   "updated":       now_str,
                   "method":        "scanitex-cidr-match",
                   "bl_total":      len(bl_addrs),
                   "matched":       total_matched,
                   "unmatched":     len(unmatched),
-                  "ip_to_country": ip_to_country,
+                  "ip_to_country": dict(_geo_items),
               }, separators=(",", ":"))
-          print("blacklist_geo_enriched.json geschrieben")
+          _geo_main_mb = os.path.getsize("blacklist_geo_enriched.json") / 1024 / 1024
+          print(f"blacklist_geo_enriched.json geschrieben ({_geo_main_mb:.1f} MB)")
+
+          # ── Split-Logik fuer grosse geo_enriched-Dateien ──────────────────
+          # Identische Strategie wie combined/conf40: Split-Entscheidung auf
+          # Basis der VOLLSTAENDIGEN Liste (estimated_mb), Hauptdatei bleibt
+          # bei Truncate parallel als Legacy-Pfad (subset der Eintraege).
+          import glob as _glob_geo
+          _geo_part_glob = "blacklist_geo_enriched_part*.json"
+          _existing_parts_geo = sorted(_glob_geo.glob(_geo_part_glob))
+
+          if _geo_estimated_mb >= SPLIT_THRESHOLD_MB:
+              _g_num_parts = max(2, int((_geo_estimated_mb / PART_TARGET_MB) + 0.5))
+              _g_chunk = (len(_geo_items) + _g_num_parts - 1) // _g_num_parts
+              print(f"  -> Split aktiv: {_g_num_parts} Parts a ~{PART_TARGET_MB} MB "
+                    f"({_g_chunk:,} Eintraege/Part)")
+
+              _new_parts_geo = []
+              for _g_idx in range(_g_num_parts):
+                  _g_start = _g_idx * _g_chunk
+                  _g_end   = min(_g_start + _g_chunk, len(_geo_items))
+                  if _g_start >= len(_geo_items):
+                      break
+                  _g_part_name = f"blacklist_geo_enriched_part{_g_idx+1}.json"
+                  _g_part_items = _geo_items[_g_start:_g_end]
+                  write_json_atomic(_g_part_name, {
+                      "updated":         now_str,
+                      "method":          "scanitex-cidr-match",
+                      "part":            _g_idx + 1,
+                      "parts_total":     _g_num_parts,
+                      "key_range":       [_g_part_items[0][0], _g_part_items[-1][0]],
+                      "entries_in_part": _g_end - _g_start,
+                      "ip_to_country":   dict(_g_part_items),
+                  }, separators=(",", ":"))
+                  _new_parts_geo.append(_g_part_name)
+                  print(f"  {_g_part_name}: {_g_end - _g_start:,} Eintraege, "
+                        f"{os.path.getsize(_g_part_name)/1024/1024:.1f} MB")
+
+              # Alte Parts entfernen, die nicht mehr erzeugt wurden
+              for _g_old in _existing_parts_geo:
+                  if _g_old not in _new_parts_geo:
+                      try:
+                          os.unlink(_g_old)
+                          print(f"  Alten Part entfernt: {_g_old}")
+                      except OSError:
+                          pass
+
+              if _geo_estimated_mb < HARD_LIMIT_MB:
+                  _g_split_msg = (f"Vollliste waere {_geo_estimated_mb:.1f} MB "
+                                  f"(>= {SPLIT_THRESHOLD_MB} MB). Parts erzeugt als Reserve.")
+                  print(f"::warning file=geo_tagger.yml::{_g_split_msg}")
+                  print(f"WARNUNG: {_g_split_msg}")
+          else:
+              for _g_old in _existing_parts_geo:
+                  try:
+                      os.unlink(_g_old)
+                      print(f"  Alten Part entfernt (unter Schwelle): {_g_old}")
+                  except OSError:
+                      pass
 
           print(f"\nFERTIG: {total_matched:,} von {len(bl_addrs):,} IPs ({pct_covered:.1f}%) zugeordnet")
           EOF
@@ -347,7 +489,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX HARD-LIMIT-GEO: Parts-Pattern mitnehmen damit der Commit
+          # die durch Split entstandenen Parts erfasst und alte (geloeschte)
+          # Parts als Removal committet werden.
           git add blacklist_geo_enriched.json geo_tagger_report.md
+          git add -A blacklist_geo_enriched_part*.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -365,7 +511,9 @@ jobs:
               else
                 git stash pop 2>/dev/null || true
                 git checkout --theirs blacklist_geo_enriched.json geo_tagger_report.md 2>/dev/null || true
+                git checkout --theirs blacklist_geo_enriched_part*.json 2>/dev/null || true
                 git add blacklist_geo_enriched.json geo_tagger_report.md 2>/dev/null || true
+                git add -A blacklist_geo_enriched_part*.json 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

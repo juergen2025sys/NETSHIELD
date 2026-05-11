@@ -1231,13 +1231,31 @@ jobs:
                       "blacklist_confidence40_ipv4.txt",
                   ],
               }
+              # FIX TRUNCATE-PARTS-COUNT: Helper liefert IPs aus Hauptdatei +
+              # allen Parts. Bei aktivem Truncate liegen Eintraege gezielt nur
+              # in den Parts – Hauptdatei allein ist unvollstaendig. Identische
+              # Strategie wie die Konsumenten in geo_tagger.yml /
+              # update_confidence_blacklist.yml (FIX BUG-TRUNCATE-PARTS).
+              def _iter_ip_sources(ip_file):
+                  import glob as _glob_th
+                  _base_th, _ext_th = os.path.splitext(ip_file)
+                  return [ip_file] + sorted(_glob_th.glob(f"{_base_th}_part*{_ext_th}"))
+
               if fname in _ip_list_targets:
                   for _ip_file in _ip_list_targets[fname]:
                       if not os.path.exists(_ip_file):
                           continue
                       try:
-                          with open(_ip_file, encoding="utf-8") as _ipf:
-                              _ip_lines = [l.strip() for l in _ipf if l.strip() and not l.startswith('#')]
+                          # Hauptdatei + Parts einlesen, Duplikate global zaehlen
+                          _ip_lines = []
+                          for _src_dup in _iter_ip_sources(_ip_file):
+                              try:
+                                  with open(_src_dup, encoding="utf-8") as _ipf:
+                                      _ip_lines.extend(
+                                          l.strip() for l in _ipf
+                                          if l.strip() and not l.startswith('#'))
+                              except OSError:
+                                  continue
                           _ip_total  = len(_ip_lines)
                           _ip_unique = len(set(_ip_lines))
                           _ip_dups   = _ip_total - _ip_unique
@@ -1273,13 +1291,20 @@ jobs:
                       if not os.path.exists(_ip_file):
                           continue
                       try:
-                          with open(_ip_file, encoding="utf-8") as _ipf:
-                              _priv_hits = [
-                                  l.strip().split()[0]
-                                  for l in _ipf
-                                  if l.strip() and not l.startswith('#')
-                                  and _PRIVATE_PATTERNS.match(l.strip().split()[0])
-                              ]
+                          # FIX TRUNCATE-PARTS-COUNT: Hauptdatei + Parts pruefen,
+                          # damit ein privates Leak in einem Part-only-Eintrag
+                          # nicht unentdeckt bleibt.
+                          _priv_hits = []
+                          for _src_priv in _iter_ip_sources(_ip_file):
+                              try:
+                                  with open(_src_priv, encoding="utf-8") as _ipf:
+                                      _priv_hits.extend(
+                                          l.strip().split()[0]
+                                          for l in _ipf
+                                          if l.strip() and not l.startswith('#')
+                                          and _PRIVATE_PATTERNS.match(l.strip().split()[0]))
+                              except OSError:
+                                  continue
                           if _priv_hits:
                               msg = (f"{_ip_file}: {len(_priv_hits)} private RFC-1918-IP(s) "
                                      f"– erste: {', '.join(_priv_hits[:5])} "
@@ -2006,14 +2031,28 @@ jobs:
               return None
 
           def _count_ips(filepath):
+              # FIX TRUNCATE-PARTS-COUNT: Hauptdatei + Parts deduplizieren.
+              # Bei aktivem Truncate (combined/conf40 >= 100 MB) reicht die
+              # Hauptdatei nicht mehr, weil Eintraege gezielt nur in den Parts
+              # liegen koennen. Sanity-Schwellen (MIN_WARN/MIN_CRIT) muessen
+              # auf den vollstaendigen Bestand prüfen, sonst falsch-positiver
+              # CRITICAL-Alarm sobald Split aktiviert wird.
               if not os.path.exists(filepath):
                   return None
-              count = 0
-              with open(filepath, encoding="utf-8") as _fh:
-                  for _line in _fh:
-                      if _line.strip() and not _line.startswith("#"):
-                          count += 1
-              return count
+              import glob as _glob_ci
+              _base, _ext = os.path.splitext(filepath)
+              _sources = [filepath] + sorted(_glob_ci.glob(f"{_base}_part*{_ext}"))
+              _seen = set()
+              for _src in _sources:
+                  try:
+                      with open(_src, encoding="utf-8") as _fh:
+                          for _line in _fh:
+                              _s = _line.strip()
+                              if _s and not _s.startswith("#"):
+                                  _seen.add(_s)
+                  except OSError:
+                      continue
+              return len(_seen)
 
           print("\n" + "=" * 60)
           print("PRODUCTION HEALTH CHECKS")
@@ -2279,25 +2318,40 @@ jobs:
                       "active_blacklist_ipv4.txt",
                       "blacklist_confidence40_ipv4.txt",
                   ]
+                  # FIX TRUNCATE-PARTS-COUNT: Lokale Helper-Definition (der
+                  # globale _iter_ip_sources oben ist in einem anderen
+                  # for-Scope und hier nicht erreichbar). Hauptdatei + Parts
+                  # scannen, damit ein Leak in einem Part-only-Eintrag nicht
+                  # uebersehen wird.
+                  import glob as _glob_lk
+                  def _leak_sources(lf):
+                      _b, _x = os.path.splitext(lf)
+                      return [lf] + sorted(_glob_lk.glob(f"{_b}_part*{_x}"))
+
                   for _lf in _leak_targets:
                       if not os.path.exists(_lf):
                           continue
                       _leaks = []
                       _scanned = 0
-                      try:
-                          with open(_lf, encoding="utf-8", errors="ignore") as _lfh:
-                              for _line in _lfh:
-                                  _line = _line.strip()
-                                  if not _line or _line.startswith("#"):
-                                      continue
-                                  _scanned += 1
-                                  if _ip_is_whitelisted(_line):
-                                      _leaks.append(_line)
-                                      if len(_leaks) >= 10:  # Stichprobe reicht – Beweis ist Beweis
-                                          break
-                      except Exception as _le:
-                          print(f"  ⏭  Whitelist-Leak Scan {_lf}: Lese-Fehler ({_le})")
-                          continue
+                      _stop_outer = False
+                      for _lf_src in _leak_sources(_lf):
+                          if _stop_outer:
+                              break
+                          try:
+                              with open(_lf_src, encoding="utf-8", errors="ignore") as _lfh:
+                                  for _line in _lfh:
+                                      _line = _line.strip()
+                                      if not _line or _line.startswith("#"):
+                                          continue
+                                      _scanned += 1
+                                      if _ip_is_whitelisted(_line):
+                                          _leaks.append(_line)
+                                          if len(_leaks) >= 10:  # Stichprobe reicht – Beweis ist Beweis
+                                              _stop_outer = True
+                                              break
+                          except Exception as _le:
+                              print(f"  ⏭  Whitelist-Leak Scan {_lf_src}: Lese-Fehler ({_le})")
+                              continue
                       if _leaks:
                           prod_health.append({
                               "level": "CRITICAL", "check": f"Whitelist-Leak: {_lf}",

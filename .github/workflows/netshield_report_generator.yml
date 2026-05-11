@@ -60,16 +60,29 @@ jobs:
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
 
           def count_ips(filepath):
+              # FIX TRUNCATE-PARTS-COUNT: Liest Hauptdatei + alle Parts,
+              # dedupliziert via set. Vorher zaehlte die Funktion nur die
+              # Hauptdatei – bei aktivem Truncate (combined/conf40 >= 100 MB)
+              # zeigte der Report eine falsche, zu niedrige IP-Anzahl.
+              # Identisches Pattern wie FIX BUG-TRUNCATE-PARTS in geo_tagger.yml
+              # und update_confidence_blacklist.yml.
+              # Glob-Pattern leitet sich aus der Hauptdatei ab: foo.txt → foo_part*.txt
               if not os.path.exists(filepath):
                   return 0
-              count = 0
-              with open(filepath, encoding="utf-8") as f:
-                  for line in f:
-                      if line.strip() and not line.startswith("#"):
-                          count += 1
-              return count
-
-          def derive_feed_count(workflow_path=".github/workflows/update_combined_blacklist.yml"):
+              import glob as _glob
+              _base, _ext = os.path.splitext(filepath)
+              _sources = [filepath] + sorted(_glob.glob(f"{_base}_part*{_ext}"))
+              _seen = set()
+              for _src in _sources:
+                  try:
+                      with open(_src, encoding="utf-8") as f:
+                          for line in f:
+                              s = line.strip()
+                              if s and not s.startswith("#"):
+                                  _seen.add(s)
+                  except OSError:
+                      continue
+              return len(_seen)
               if not os.path.exists(workflow_path):
                   return "–"
               try:
@@ -264,18 +277,26 @@ jobs:
           ]) if os.path.isdir(".github/workflows") else 16
 
           def count_ips(filepath):
+              # FIX TRUNCATE-PARTS-COUNT: Hauptdatei + Parts deduplizieren.
+              # Siehe identische Funktion im vorherigen Step (Heredoc-Namespaces
+              # teilen keinen State, deshalb hier zweite Kopie). Vorher unterzaehlte
+              # die Funktion bei Truncate-aktivem combined/conf40 systematisch.
               if not os.path.exists(filepath):
                   return 0
-              count = 0
-              with open(filepath, encoding="utf-8") as f:
-                  for line in f:
-                      if line.strip() and not line.startswith("#"):
-                          count += 1
-              return count
-
-          # derive_feed_count() ist identisch mit der gleichnamigen Funktion im
-          # vorherigen Step – beide Steps sind eigenständige Python-Prozesse
-          # (separate EOF-Heredocs) und teilen keinen Namespace.
+              import glob as _glob
+              _base, _ext = os.path.splitext(filepath)
+              _sources = [filepath] + sorted(_glob.glob(f"{_base}_part*{_ext}"))
+              _seen = set()
+              for _src in _sources:
+                  try:
+                      with open(_src, encoding="utf-8") as f:
+                          for line in f:
+                              s = line.strip()
+                              if s and not s.startswith("#"):
+                                  _seen.add(s)
+                  except OSError:
+                      continue
+              return len(_seen)
           # FIX DUP1: Funktion als eigenständige Definition direkt hier, statt
           # als unsynchronisierte Kopie. Beide EOF-Blöcke definieren die Funktion
           # lokal – das ist unvermeidbar wegen des Heredoc-Namespaces.
@@ -469,14 +490,27 @@ jobs:
           import re
 
           def count_ips(filepath):
+              # FIX TRUNCATE-PARTS-COUNT: Hauptdatei + Parts deduplizieren.
+              # Diese Variante gibt None bei fehlender Hauptdatei zurueck (vom
+              # umgebenden Code als "Datei abwesend" interpretiert). Parts ohne
+              # Hauptdatei werden ignoriert – ein Truncate-Stand mit fehlender
+              # Hauptdatei waere ein Pipeline-Fehler, kein gueltiger Zustand.
               if not os.path.exists(filepath):
                   return None
-              count = 0
-              with open(filepath, encoding="utf-8") as f:
-                  for line in f:
-                      if line.strip() and not line.startswith("#"):
-                          count += 1
-              return count
+              import glob as _glob
+              _base, _ext = os.path.splitext(filepath)
+              _sources = [filepath] + sorted(_glob.glob(f"{_base}_part*{_ext}"))
+              _seen = set()
+              for _src in _sources:
+                  try:
+                      with open(_src, encoding="utf-8") as f:
+                          for line in f:
+                              s = line.strip()
+                              if s and not s.startswith("#"):
+                                  _seen.add(s)
+                  except OSError:
+                      continue
+              return len(_seen)
 
           README_COUNTS = {
               "combined_threat_blacklist_ipv4.txt": lambda n: f"**{n:,}**",

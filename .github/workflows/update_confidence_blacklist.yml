@@ -493,14 +493,126 @@ jobs:
           # niemals halb geschrieben. Reihenfolge ist nach Confidence-Score
           # absteigend (nicht nach IP), deshalb write_text_atomic statt
           # write_ip_list (das nach IP sortieren würde).
-          _conf40_body = (
-              f"# NETSHIELD Blacklist – Mittleres/Hohes Vertrauen (Score ≥40/100)\n"
-              f"# Aktualisiert: {now_str}\n"
-              f"# Scoring: Quellen-Qualität(40) + Aktualität(30) + Persistenz(20) + Alter(10)\n"
-              f"# Eintraege: {len(confidence40)}\n\n"
-              + "".join(f"{ip}\n" for ip, conf in confidence40)
-          )
+          #
+          # FIX HARD-LIMIT-CONF40: Groesse VOR dem Schreiben schaetzen und
+          # bei >= HARD_LIMIT_MB Truncate-Fallback + Parts anwenden, analog
+          # zur Logik in update_combined_blacklist.yml. Ohne diesen Schutz
+          # wuerde git push hart fehlschlagen sobald conf40 die 100 MB
+          # GitHub-Push-Grenze reisst (derzeit ~57 MB, Wachstum proportional
+          # zu combined). Hauptdatei bleibt der Legacy-Pfad (kompletter
+          # Score-sortierter Inhalt solange unter 100 MB), Parts decken die
+          # Vollstaendigkeit ab sobald Split-Schwelle erreicht ist.
+          # Reihenfolge im File: Score-sortiert absteigend bleibt erhalten;
+          # Parts werden in Score-Bereiche aufgeteilt (Part 1 = hoechste Scores).
+          HARD_LIMIT_MB      = 100  # GitHub Push-Limit
+          TRUNCATE_TARGET_MB = 95   # Sicherheitspuffer unter HARD_LIMIT_MB
+          SPLIT_THRESHOLD_MB = 90   # ab hier Parts erzeugen
+          PART_TARGET_MB     = 40   # Groesse pro Part
+
+          # Sample-basierte Avg-Schaetzung (stratifiziert, vermeidet IP-Laengen-
+          # Bias durch sortierte Reihenfolge). Identische Methode wie combined.
+          _step = max(1, len(confidence40) // 10_000)
+          _sample = confidence40[::_step][:10_000]
+          _avg_line = (sum(len(ip) + 1 for ip, _ in _sample) / len(_sample)) if _sample else 16
+          _header_overhead = 512
+          _conf40_estimated_mb = (
+              len(confidence40) * _avg_line * 1.02 + _header_overhead
+          ) / 1024 / 1024
+          print(f"\nGeschaetzte Groesse confidence40 (ungesplittet): {_conf40_estimated_mb:.1f} MB")
+
+          if _conf40_estimated_mb >= HARD_LIMIT_MB:
+              # Truncate: hoechste Scores zuerst, Rest in Parts
+              _max_ips = int((TRUNCATE_TARGET_MB * 1024 * 1024 - _header_overhead) / _avg_line)
+              _max_ips = max(1000, min(_max_ips, len(confidence40)))
+              _truncated = confidence40[:_max_ips]
+              _dropped = len(confidence40) - _max_ips
+              _trunc_msg = (
+                  f"Hauptdatei wuerde {_conf40_estimated_mb:.1f} MB "
+                  f"(>= {HARD_LIMIT_MB} MB GitHub-Limit) – TRUNCATE auf "
+                  f"{_max_ips:,} IPs (~{TRUNCATE_TARGET_MB} MB). "
+                  f"{_dropped:,} IPs ausschliesslich in Parts. Consumer auf Parts umstellen!"
+              )
+              print(f"::warning file=update_confidence_blacklist.yml::{_trunc_msg}")
+              print(f"WARNUNG: {_trunc_msg}")
+              _conf40_body = (
+                  f"# NETSHIELD Blacklist – Mittleres/Hohes Vertrauen (Score ≥40/100) [TRUNCATED]\n"
+                  f"# Aktualisiert: {now_str}\n"
+                  f"# Scoring: Quellen-Qualität(40) + Aktualität(30) + Persistenz(20) + Alter(10)\n"
+                  f"# Eintraege in dieser Datei: {_max_ips} (von {len(confidence40)} gesamt)\n"
+                  f"# WICHTIG: {_dropped} IPs NICHT in dieser Datei (GitHub-Hard-Limit 100 MB).\n"
+                  f"# Fuer vollstaendigen Schutz: blacklist_confidence40_ipv4_part*.txt verwenden.\n\n"
+                  + "".join(f"{ip}\n" for ip, conf in _truncated)
+              )
+          else:
+              _conf40_body = (
+                  f"# NETSHIELD Blacklist – Mittleres/Hohes Vertrauen (Score ≥40/100)\n"
+                  f"# Aktualisiert: {now_str}\n"
+                  f"# Scoring: Quellen-Qualität(40) + Aktualität(30) + Persistenz(20) + Alter(10)\n"
+                  f"# Eintraege: {len(confidence40)}\n\n"
+                  + "".join(f"{ip}\n" for ip, conf in confidence40)
+              )
           write_text_atomic(OUT_40, _conf40_body)
+          _conf40_main_mb = os.path.getsize(OUT_40) / 1024 / 1024
+          print(f"{OUT_40} (tatsaechlich): {_conf40_main_mb:.1f} MB")
+
+          # ── Split-Logik fuer grosse Confidence40-Dateien ──────────────────
+          # Identische Strategie wie in update_combined_blacklist.yml:
+          # Split-Entscheidung auf Basis der VOLLSTAENDIGEN Liste (estimated_mb),
+          # nicht der evtl. truncatierten Hauptdatei. Bei Truncate muessen
+          # die Parts zwingend existieren, weil sie die einzige vollstaendige
+          # Quelle sind.
+          import glob as _glob_conf40
+          _existing_parts_conf40 = sorted(
+              _glob_conf40.glob("blacklist_confidence40_ipv4_part*.txt"))
+
+          if _conf40_estimated_mb >= SPLIT_THRESHOLD_MB:
+              _num_parts = max(2, int((_conf40_estimated_mb / PART_TARGET_MB) + 0.5))
+              _chunk_size = (len(confidence40) + _num_parts - 1) // _num_parts
+              print(f"  -> Split aktiv: {_num_parts} Parts a ~{PART_TARGET_MB} MB "
+                    f"({_chunk_size:,} IPs/Part)")
+
+              _new_parts = []
+              for _idx in range(_num_parts):
+                  _start = _idx * _chunk_size
+                  _end   = min(_start + _chunk_size, len(confidence40))
+                  if _start >= len(confidence40):
+                      break
+                  _part_name = f"blacklist_confidence40_ipv4_part{_idx+1}.txt"
+                  _part_body = (
+                      f"# NETSHIELD Confidence-40 Blacklist – Part {_idx+1}/{_num_parts}\n"
+                      f"# Aktualisiert: {now_str}\n"
+                      f"# Score-Bereich: {confidence40[_start][1]} bis {confidence40[_end-1][1]}\n"
+                      f"# Eintraege: {_end - _start}\n"
+                      f"# Siehe README fuer Nutzung mit allen Parts.\n\n"
+                      + "".join(f"{ip}\n" for ip, conf in confidence40[_start:_end])
+                  )
+                  write_text_atomic(_part_name, _part_body)
+                  _new_parts.append(_part_name)
+                  print(f"  {_part_name}: {_end - _start:,} IPs, "
+                        f"{os.path.getsize(_part_name)/1024/1024:.1f} MB")
+
+              # Alte Parts entfernen, die nicht mehr erzeugt wurden
+              for _old in _existing_parts_conf40:
+                  if _old not in _new_parts:
+                      try:
+                          os.unlink(_old)
+                          print(f"  Alten Part entfernt: {_old}")
+                      except OSError:
+                          pass
+
+              if _conf40_estimated_mb < HARD_LIMIT_MB:
+                  _split_msg = (f"Vollliste waere {_conf40_estimated_mb:.1f} MB "
+                                f"(>= {SPLIT_THRESHOLD_MB} MB). Parts erzeugt als Reserve.")
+                  print(f"::warning file=update_confidence_blacklist.yml::{_split_msg}")
+                  print(f"WARNUNG: {_split_msg}")
+          else:
+              # Unter Schwelle: Eventuell vorhandene alte Parts aufraeumen
+              for _old in _existing_parts_conf40:
+                  try:
+                      os.unlink(_old)
+                      print(f"  Alten Part entfernt (unter Schwelle): {_old}")
+                  except OSError:
+                      pass
 
           _watch_body = (
               f"# NETSHIELD Watchlist – Niedriges Vertrauen (Score 25-39/100)\n"
@@ -531,7 +643,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX HARD-LIMIT-CONF40: Parts-Pattern mitnehmen damit der Commit
+          # die durch Split entstandenen Parts erfasst und alte (geloeschte)
+          # Parts als Removal committet werden (git add erfasst auch Deletes
+          # bei Verwendung eines Patterns).
           git add blacklist_confidence40_ipv4.txt watchlist_confidence25to39_ipv4.txt
+          git add -A blacklist_confidence40_ipv4_part*.txt 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -550,8 +667,10 @@ jobs:
                 git stash pop 2>/dev/null || true
                 git checkout --theirs blacklist_confidence40_ipv4.txt \
                   watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
+                git checkout --theirs blacklist_confidence40_ipv4_part*.txt 2>/dev/null || true
                 git add blacklist_confidence40_ipv4.txt \
                   watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
+                git add -A blacklist_confidence40_ipv4_part*.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))
