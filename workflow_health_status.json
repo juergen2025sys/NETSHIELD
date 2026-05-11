@@ -1,22 +1,45 @@
 {
-  "updated": "2026-05-11 10:44 UTC",
+  "updated": "2026-05-11 16:10 UTC",
   "total": 20,
-  "ok": 20,
-  "warn": 0,
-  "error": 0,
-  "errors": [],
-  "warnings": [],
+  "ok": 18,
+  "warn": 2,
+  "error": 1,
+  "errors": [
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 150.171.22.11, 150.171.22.12, 150.171.22.14, 150.171.22.17, 155.133.250.4\u2026 \u2013 Filterung wirkungslos!"
+    }
+  ],
+  "warnings": [
+    {
+      "file": "geo_tagger.yml",
+      "check": "Doppelter Import",
+      "detail": "Block 0: Doppelte Imports: glob(2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
+    },
+    {
+      "file": "update_confidence_blacklist.yml",
+      "check": "Doppelter Import",
+      "detail": "Block 0: Doppelte Imports: glob(2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
+    }
+  ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 5129904,
-    "active_blacklist_ipv4.txt": 2223602,
-    "blacklist_confidence40_ipv4.txt": 4123710,
+    "combined_threat_blacklist_ipv4.txt": 5137852,
+    "active_blacklist_ipv4.txt": 2229966,
+    "blacklist_confidence40_ipv4.txt": 4131884,
     "cve_exploit_ips.txt": 37363,
-    "honeypot_ips.txt": 140427,
+    "honeypot_ips.txt": 140161,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
-    "critical": 0,
+    "critical": 1,
     "warn": 0,
-    "checks": []
+    "checks": [
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 150.171.22.11, 150.171.22.12, 150.171.22.14, 150.171.22.17, 155.133.250.4\u2026 \u2013 Filterung wirkungslos!"
+      }
+    ]
   }
 }
