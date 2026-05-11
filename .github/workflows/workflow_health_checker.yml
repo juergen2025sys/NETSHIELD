@@ -2395,6 +2395,177 @@ jobs:
           else:
               print("  ⏭  Geo-Tagger Aktualität: blacklist_geo_enriched.json nicht vorhanden (noch nie gelaufen)")
 
+          # ── PH9: Repo-Push-Groessen-Warnung pro Datei ─────────────────────
+          # Scannt ALLE Dateien im Repo (Top-Level + Unterverzeichnisse) auf
+          # die Naehe zum GitHub-100-MB-Push-Limit. Faengt auch Dateien ein
+          # die noch keinen Truncate-Schutz haben (z.B. seen_db_backup.json.gz,
+          # zukuenftige Outputs). Schwellen:
+          #   WARN  >= 80 MB  – noch ~20 MB Puffer, planbar
+          #   CRIT  >= 95 MB  – akut, naechster Push-Fail wahrscheinlich
+          # Schwarze Liste: Dateien die definitiv nie ins Repo gepusht werden
+          # (z.B. .git/objects/, node_modules), damit der Check nicht auf
+          # Git-Internals oder temp-Files anschlaegt.
+          _push_limit_warn_mb = 80
+          _push_limit_crit_mb = 95
+          _push_excluded_dirs = {".git", "node_modules", "__pycache__", ".github/cache"}
+
+          def _is_tracked(_p):
+              # Heuristik: nur Dateien die nicht in einem Exclude-Dir liegen
+              # und nicht mit .tmp/.swp/.bak enden – das matcht das was
+              # tatsaechlich gepusht wird. Reicht fuer Push-Limit-Vorhersage.
+              _norm = _p.lstrip("./")
+              for _ex in _push_excluded_dirs:
+                  if _norm == _ex or _norm.startswith(_ex + "/"):
+                      return False
+              if _norm.endswith((".tmp", ".swp", ".bak")):
+                  return False
+              # Hidden-tmp-Dateien von write_*_atomic (Prefix '.' und Suffix '.tmp')
+              _base = os.path.basename(_norm)
+              if _base.startswith(".") and _base.endswith(".tmp"):
+                  return False
+              return True
+
+          _large_files = []
+          _crit_files  = []
+          for _root, _dirs, _files in os.walk(".", topdown=True):
+              # In-place die ausgeschlossenen Dirs entfernen (spart Walk-Zeit)
+              _dirs[:] = [_d for _d in _dirs if _d not in _push_excluded_dirs]
+              for _fn in _files:
+                  _fp = os.path.join(_root, _fn)
+                  if not _is_tracked(_fp):
+                      continue
+                  try:
+                      _sz_mb = os.path.getsize(_fp) / 1024 / 1024
+                  except OSError:
+                      continue
+                  if _sz_mb >= _push_limit_crit_mb:
+                      _crit_files.append((_fp.lstrip("./"), _sz_mb))
+                  elif _sz_mb >= _push_limit_warn_mb:
+                      _large_files.append((_fp.lstrip("./"), _sz_mb))
+
+          for _fp, _sz_mb in _crit_files:
+              prod_health.append({
+                  "level": "CRITICAL", "check": "Push-Limit Naehe",
+                  "detail": (f"{_fp}: {_sz_mb:.1f} MB (>= {_push_limit_crit_mb} MB) – "
+                             f"naechster git push kann am 100 MB Limit scheitern. "
+                             f"Splitting/Truncate-Logik fehlt oder Schwelle anpassen."),
+              })
+              print(f"  🔴 Push-Limit {_fp}: {_sz_mb:.1f} MB (>= {_push_limit_crit_mb} MB)")
+          for _fp, _sz_mb in _large_files:
+              prod_health.append({
+                  "level": "WARN", "check": "Push-Limit Naehe",
+                  "detail": (f"{_fp}: {_sz_mb:.1f} MB (>= {_push_limit_warn_mb} MB) – "
+                             f"Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."),
+              })
+              print(f"  🟡 Push-Limit {_fp}: {_sz_mb:.1f} MB (>= {_push_limit_warn_mb} MB)")
+          if not _crit_files and not _large_files:
+              print(f"  ✅ Push-Limit: alle Dateien < {_push_limit_warn_mb} MB")
+
+          # ── PH10: Truncate-Aktivierungs-Alarm ─────────────────────────────
+          # Erkennt wenn Parts-Dateien fuer combined/conf40/geo_enriched ZUM
+          # ERSTEN MAL auftauchen – also wenn die Truncate+Parts-Logik in
+          # Produktion aktiviert wurde. Einmaliger CRITICAL pro Datei, der
+          # ueber den Compare-mit-Vorlauf-State (workflow_health_status.json:
+          # parts_history) zugleich abklingt sobald der Konsument das gesehen
+          # hat – Folgeruns sind dann nur noch WARN ("Parts aktiv").
+          # Loesung: Wir vergleichen die aktuelle Parts-Liste mit der zuletzt
+          # gespeicherten. Neue Parts -> CRITICAL einmalig. Bestehende ->
+          # WARN. Entfernte -> INFO (Datei ist wieder unter Schwelle).
+          import glob as _glob_ph10
+          _parts_state_file = "workflow_health_status.json"
+          _prev_parts = {}
+          _parts_history_key_present = False
+          if os.path.exists(_parts_state_file):
+              try:
+                  with open(_parts_state_file, encoding="utf-8") as _psf:
+                      _prev_status = json.load(_psf)
+                  # FIX PH10-BASELINE: Unterscheide "parts_history existiert aber
+                  # ist leer" (= echter Vergleichszustand) von "Key fehlt komplett"
+                  # (= alter Status vor dem PH10-Upgrade, kein Vergleich moeglich).
+                  # Ohne diese Unterscheidung wuerde der erste Health-Run nach dem
+                  # Update bei bereits aktiven Parts faelschlich "ERSTAKTIVIERUNG"
+                  # melden – die Parts waren schon vorher da, der State wusste es
+                  # nur noch nicht.
+                  if "parts_history" in _prev_status:
+                      _parts_history_key_present = True
+                      _prev_parts = _prev_status.get("parts_history") or {}
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+
+          _parts_targets = {
+              "combined_threat_blacklist_ipv4.txt":
+                  "combined_threat_blacklist_ipv4_part*.txt",
+              "blacklist_confidence40_ipv4.txt":
+                  "blacklist_confidence40_ipv4_part*.txt",
+              "blacklist_geo_enriched.json":
+                  "blacklist_geo_enriched_part*.json",
+          }
+          _current_parts = {}
+          for _main_file, _parts_glob in _parts_targets.items():
+              _parts_found = sorted(_glob_ph10.glob(_parts_glob))
+              _current_parts[_main_file] = _parts_found
+              _prev_for_file = _prev_parts.get(_main_file, []) or []
+
+              # Set-Vergleich: was ist neu, was war schon, was ist weg?
+              _set_now  = set(_parts_found)
+              _set_prev = set(_prev_for_file)
+              _new      = sorted(_set_now - _set_prev)
+              _gone     = sorted(_set_prev - _set_now)
+              _kept     = sorted(_set_now & _set_prev)
+
+              if _new and not _kept:
+                  if not _parts_history_key_present:
+                      # FIX PH10-BASELINE: erster Lauf nach Upgrade – aktive Parts
+                      # sind kein neuer Zustand, nur unbekannt fuer den Checker.
+                      # Als stabiler WARN behandeln statt CRITICAL-Alarm.
+                      prod_health.append({
+                          "level": "WARN", "check": "Truncate aktiv",
+                          "detail": (f"{_main_file}: Splitting aktiv "
+                                     f"({len(_new)} Parts) – erste Erfassung "
+                                     f"nach PH10-Upgrade, kein Erstaktivierungs-"
+                                     f"Alarm. Vollstaendige Daten nur ueber "
+                                     f"Hauptdatei + Parts erreichbar."),
+                      })
+                      print(f"  🟡 Truncate aktiv {_main_file}: {len(_new)} Parts (Baseline-Erfassung)")
+                  else:
+                      # Echte Erst-Aktivierung: vorher gar keine Parts, jetzt welche.
+                      # CRITICAL nur damit es sichtbar wird – Datenintegritaet ist
+                      # nicht in Gefahr, aber Konsumenten sollten umstellen.
+                      prod_health.append({
+                          "level": "CRITICAL", "check": "Truncate-Erstaktivierung",
+                          "detail": (f"{_main_file}: Splitting ERSTMALS aktiviert "
+                                     f"({len(_new)} neue Parts: {', '.join(_new)}). "
+                                     f"Konsumenten muessen Hauptdatei + Parts lesen, "
+                                     f"sonst unvollstaendige Daten."),
+                      })
+                      print(f"  🔴 Truncate-Aktivierung {_main_file}: {len(_new)} neue Parts")
+              elif _new and _kept:
+                  # Anzahl Parts hat sich erhoeht – Wachstum.
+                  prod_health.append({
+                      "level": "WARN", "check": "Truncate-Parts wachsen",
+                      "detail": (f"{_main_file}: {len(_new)} neue Parts hinzugekommen "
+                                 f"({len(_set_now)} total). Wachstumstrend pruefen."),
+                  })
+                  print(f"  🟡 Truncate-Wachstum {_main_file}: +{len(_new)} Parts (jetzt {len(_set_now)})")
+              elif _gone and not _set_now:
+                  # Datei wieder unter Schwelle – Parts verschwunden.
+                  # Reiner INFO-Eintrag, keine Eskalation.
+                  print(f"  ℹ️  Truncate {_main_file}: alle {len(_gone)} Parts entfernt (unter Schwelle)")
+              elif _gone:
+                  # Weniger Parts als vorher (Schrumpfung, aber Split bleibt).
+                  print(f"  ℹ️  Truncate {_main_file}: -{len(_gone)} Parts ({len(_set_now)} verbleibend)")
+              elif _kept:
+                  # Stabiler Truncate-Zustand.
+                  prod_health.append({
+                      "level": "WARN", "check": "Truncate aktiv",
+                      "detail": (f"{_main_file}: Splitting weiterhin aktiv "
+                                 f"({len(_kept)} Parts). Vollstaendige Daten nur "
+                                 f"ueber Hauptdatei + Parts erreichbar."),
+                  })
+                  print(f"  🟡 Truncate aktiv {_main_file}: {len(_kept)} Parts")
+              else:
+                  print(f"  ✅ Truncate {_main_file}: nicht aktiv (keine Parts)")
+
           # ── PH: Zusammenfassung ───────────────────────────────────────────
           _ph_critical = [p for p in prod_health if p["level"] == "CRITICAL"]
           _ph_warn     = [p for p in prod_health if p["level"] == "WARN"]
@@ -2511,6 +2682,13 @@ jobs:
                       "warn":     len(_ph_warn),
                       "checks":   prod_health,
                   },
+                  # FIX PH10: parts_history persistiert den aktuellen Parts-
+                  # Zustand pro Produkt-Datei, damit der naechste Run die
+                  # Erst-Aktivierung von Splitting (vorher leer, jetzt nicht)
+                  # gegen blossen Stabil-Zustand (kein Aenderung) unterscheiden
+                  # kann. Ohne diesen State waere "Splitting wurde gerade aktiv"
+                  # nicht erkennbar.
+                  "parts_history":     _current_parts,
               }, indent=2)
 
           if err_count > 0:
