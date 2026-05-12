@@ -1448,5 +1448,18 @@ def validate_auto_feeds(auto_data):
         if not (url.startswith("https://") or url.startswith("http://")):
             rejected += 1
             continue
+        # FIX BUG-AUTOFEEDS-CTRL: Control-Zeichen in URLs explizit ablehnen.
+        # \n, \r, \t und andere C0-Controls (ord < 0x20) sowie DEL (0x7F)
+        # haben in einer http(s)-URL nichts verloren. urllib faengt das
+        # heute mit "InvalidURL: nonnumeric port" ab, aber:
+        #   - die Diagnose passiert erst beim Fetch (spaeter, schwerer zu
+        #     finden), nicht beim Schema-Check
+        #   - kommt mal ein anderer Fetcher (requests, httpx) zum Einsatz,
+        #     der CRLF nicht out-of-the-box rejected, ist der Schutz weg
+        # Explizit hier ablehnen = Defense-in-Depth konsistent zu den
+        # anderen Schema-Checks oben.
+        if any(ord(c) < 0x20 or ord(c) == 0x7F for c in url):
+            rejected += 1
+            continue
         accepted.append({"name": name, "url": url})
     return accepted, rejected
