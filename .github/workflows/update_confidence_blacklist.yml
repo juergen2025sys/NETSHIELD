@@ -469,6 +469,58 @@ jobs:
                   print(f"WARN: Korrupter seen_db-Eintrag {ip}: {_corrupt}", file=sys.stderr)
                   continue
 
+          # FIX BUG-CACHE-DRIFT: Race-Schutz gegen veralteten seen_db-Cache.
+          # Symptom: 5.921 brandneue HQ-IPs (first=last=heute) fehlten am
+          # 2026-05-11 in conf40 obwohl sie in combined.txt + active.txt
+          # standen. Empirisch verifiziert (Sim 4.137.805 vs Repo 4.131.884
+          # = exakt +5.921). Score-Berechnung war korrekt (72 in beiden
+          # Workflows), alle Filter trafen 0 dieser IPs. Ursache: das oben
+          # iterierte `db` enthielt sie nicht, weil der actions/cache/restore-
+          # Step in diesem Workflow einen aelteren seen_db-Cache erwischte
+          # als der combined-Workflow committed hatte (asynchrone Cache-
+          # Replikation auf GitHub-Seite vs synchroner Repo-Push).
+          # Asymmetrie: combined.txt im Repo ist der NEUERE Stand. Eine IP
+          # in combined_ips aber nicht in db ist eindeutig "vom letzten
+          # combined-Run als score-wuerdig anerkannt, aber im hiesigen Cache
+          # noch nicht sichtbar". Sie muss in conf40.
+          # Default-Score 72 = is_hq(40) + days_since=0(30) + days_seen=1(2)
+          # + days_known=1(0). Entspricht exakt dem Score den eine brandneue
+          # HQ-IP im naechsten regulaeren Lauf bekommt. Kein Alter-Bonus,
+          # konservativ.
+          # Cap bei 10% von combined_ips als Sicherheitsnetz: wenn der Cache
+          # komplett kaputt waere (db={}), waeren ALLE ~5,1M IPs Orphans —
+          # dann ist nicht "Cache-Drift", sondern "Cache-Total-Loss" und
+          # der Leerungsschutz weiter unten greift sowieso. Bei plausibler
+          # Drift sind es <0.5% (5.921 / 5.137.852 = 0,12%).
+          _orphans = combined_ips - set(db.keys())
+          if _orphans:
+              _orphan_pct = len(_orphans) / max(1, len(combined_ips)) * 100
+              _orphan_msg = (
+                  f"Cache-Drift erkannt: {len(_orphans):,} IPs in combined.txt "
+                  f"aber nicht in seen_db ({_orphan_pct:.2f}% von combined). "
+                  f"actions/cache/restore lieferte vermutlich einen aelteren "
+                  f"Cache als der combined-Run committeted hat."
+              )
+              if _orphan_pct > 10.0:
+                  # Keine Auto-Heilung – das ist Cache-Total-Loss, kein Drift.
+                  # Leerungsschutz unten greift, falls confidence40 dadurch
+                  # unter MIN_CONF40 faellt.
+                  print(f"::warning file=update_confidence_blacklist.yml::"
+                        f"{_orphan_msg} > 10% Schwelle – Auto-Heilung "
+                        f"deaktiviert, manueller Cache-Refresh noetig.")
+                  print(f"WARNUNG: {_orphan_msg}")
+              else:
+                  print(f"::warning file=update_confidence_blacklist.yml::"
+                        f"{_orphan_msg} Auto-Heilung: alle Orphans mit "
+                        f"Default-HQ-Score 72 in conf40 aufgenommen.")
+                  print(f"INFO: {_orphan_msg}")
+                  _DEFAULT_ORPHAN_SCORE = 72  # is_hq(40)+frisch(30)+1xseen(2)
+                  for _orphan_ip in _orphans:
+                      confidence40.append((_orphan_ip, _DEFAULT_ORPHAN_SCORE))
+                  print(f"Cache-Drift-Heilung: {len(_orphans):,} IPs nachgetragen")
+          else:
+              print(f"Cache-Drift-Check: 0 Orphans (combined.txt und seen_db konsistent)")
+
           confidence40.sort(key=lambda x: (-x[1], x[0]))
           confidence25.sort(key=lambda x: (-x[1], x[0]))
 
