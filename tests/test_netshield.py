@@ -1907,6 +1907,45 @@ class TestValidateAutoFeeds(unittest.TestCase):
         self.assertEqual(accepted, [])
         self.assertEqual(rejected, 4)
 
+    def test_rejects_url_with_control_chars(self):
+        """URLs mit C0-Controls (\\n, \\r, \\t, NUL, ...) muessen bereits
+        im Schema-Validator verworfen werden, nicht erst durch urllib's
+        InvalidURL beim Fetch. Defense-in-Depth: falls jemand mal den
+        Fetcher tauscht (requests/httpx) ist der CRLF-Schutz von urllib
+        nicht garantiert.
+        """
+        bad_urls = [
+            "https://example.com\nHost: evil.com",
+            "https://example.com\r\nX-Injected: 1",
+            "https://example.com\twith-tab",
+            "https://example.com\x00null-byte",
+            "https://example.com\x1bescape",
+            "https://example.com\x7fdel",
+        ]
+        for bad in bad_urls:
+            data = {"feeds": [{"name": "ctrl", "url": bad}]}
+            accepted, rejected = validate_auto_feeds(data)
+            self.assertEqual(accepted, [], f"akzeptiert wurde: {bad!r}")
+            self.assertEqual(rejected, 1, f"falsche reject-Zahl fuer {bad!r}")
+
+    def test_accepts_url_with_printable_special_chars(self):
+        """Nicht jedes Sonderzeichen ist Control-Zeichen. Druckbare ASCII-
+        Zeichen (Query-Strings, Pfad-Encoding, Fragment) muessen durch
+        den Filter unveraendert durchkommen, sonst zerschiessen wir
+        legitime Feed-URLs."""
+        ok_urls = [
+            "https://example.com/path?a=1&b=2",
+            "https://example.com/path%20with%20space",
+            "https://example.com/path#frag",
+            "https://user:pass@example.com/feed",  # Auth-Teil ok, fetch_url filtert spaeter
+            "https://example.com:8443/secure",
+        ]
+        for good in ok_urls:
+            data = {"feeds": [{"name": "ok", "url": good}]}
+            accepted, rejected = validate_auto_feeds(data)
+            self.assertEqual(len(accepted), 1, f"verworfen wurde: {good!r}")
+            self.assertEqual(rejected, 0, f"falsche reject-Zahl fuer {good!r}")
+
     def test_mixed_good_and_bad_partial_accept(self):
         """Bei Mischung: gute Eintraege akzeptieren, schlechte zaehlen."""
         data = {"feeds": [
