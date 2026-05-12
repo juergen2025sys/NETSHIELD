@@ -184,6 +184,42 @@ jobs:
               except Exception as _suppressed:
                   print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
+          # FIX BUG-STALE-HARDCAP: Wenn seen_db wirklich stale ist, NICHT weiterrechnen.
+          # Hintergrund: die WARN-Pfade oben warnen nur (4.5h Meta / 27h Fallback) und
+          # lassen den Workflow weiterlaufen. Bei einer mehrtaegigen combined-Outage
+          # (GitHub Actions down, oder mehrfacher combined-Crash) wuerde confidence
+          # auf einem veralteten Snapshot conf40 + watchlist neu generieren — und damit
+          # einen veralteten Stand als "frisch" ins Repo committen. Firewalls die conf40
+          # konsumieren wuerden veraltete Threats blockieren oder neue verpassen.
+          # Bessere Strategie: bei extrem stalen Daten KEINEN Output schreiben. Die
+          # alten committeten Dateien bleiben stehen — Konsumenten haben dann ehrlich
+          # alte aber konsistente Daten, nicht frisch-aussehende veraltete.
+          # Schwellen:
+          #   Meta-basiert (genau, minutengenau):  8h = 2 verpasste combined-Runs
+          #   Fallback (last-Datum, tagesgenau):  48h = 2 Tage Pipeline-Stillstand
+          # Das gibt Glitches (1 verpasster Run, ~3-4h) genug Toleranz und schlaegt
+          # erst bei echtem Pipeline-Problem zu.
+          STALE_HARDCAP_META_H     = 8.0
+          STALE_HARDCAP_FALLBACK_H = 48.0
+          if db_age_hours is not None:
+              # Welcher Pfad lieferte db_age_hours? Meta hat Vorrang (gesetzt zuerst).
+              # Wir unterscheiden anhand der Schwelle: war Meta-Pfad ueberhaupt aktiv?
+              _used_fallback = not os.path.exists(META_FILE)
+              _cap = STALE_HARDCAP_FALLBACK_H if _used_fallback else STALE_HARDCAP_META_H
+              if db_age_hours > _cap:
+                  _stale_msg = (
+                      f"seen_db ist {db_age_hours:.1f}h alt (Schwelle: {_cap:.0f}h, "
+                      f"{'Fallback' if _used_fallback else 'Meta'}-Quelle). "
+                      f"confidence-Workflow wird abgebrochen, damit keine veralteten "
+                      f"Daten als 'frisch' ins Repo committet werden. Bestehende "
+                      f"{OUT_40} + {OUT_WATCH} bleiben unveraendert. "
+                      f"Ursache vermutlich combined-Workflow-Stillstand: bitte "
+                      f"update_combined_blacklist.yml-Runs pruefen."
+                  )
+                  print(f"::error file=update_confidence_blacklist.yml::{_stale_msg}")
+                  print(f"FEHLER: {_stale_msg}")
+                  sys.exit(1)
+
           if not os.path.exists(BLACKLIST):
               msg = f"{BLACKLIST} nicht gefunden – combined-Workflow muss zuerst laufen."
               print(f"::warning file=update_confidence_blacklist.yml::{msg}")
