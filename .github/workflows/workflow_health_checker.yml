@@ -2566,6 +2566,125 @@ jobs:
               else:
                   print(f"  ✅ Truncate {_main_file}: nicht aktiv (keine Parts)")
 
+          # ── PH: Output-Subset-Invarianten ─────────────────────────────────
+          # FIX BUG-CACHE-DRIFT-CHECK: drei logische Invarianten zwischen den
+          # produktiv ausgelieferten Output-Listen, die IMMER gelten muessen:
+          #   I1: active   ⊆ conf40      (Score>=65 ⊆ Score>=40)
+          #   I2: conf40   ∩ watch = ∅   (per Definition disjunkte Score-Bereiche)
+          #   I3: conf40 ∪ watch ⊆ combined   (kein Phantom-Eintrag ausserhalb DB)
+          # Hintergrund: am 2026-05-11 fehlten 5.921 brandneue HQ-IPs in conf40
+          # obwohl sie in active und combined standen — Cache-Drift zwischen
+          # combined- und confidence-Workflow. Der Fix in update_confidence_
+          # blacklist.yml (BUG-CACHE-DRIFT) heilt das im naechsten Lauf,
+          # dieser Check macht den Bug SICHTBAR falls die Heilung mal nicht
+          # greift (Cap >10%, oder andere zukuenftige Ursachen).
+          #
+          # Helper hier lokal definiert (siehe FIX TRUNCATE-PARTS-COUNT oben:
+          # globale _iter_ip_sources ist in anderem Scope und nicht erreichbar).
+          import glob as _glob_inv
+          def _inv_sources(lf):
+              _b, _x = os.path.splitext(lf)
+              return [lf] + sorted(_glob_inv.glob(f"{_b}_part*{_x}"))
+          def _inv_read_set(lf):
+              if not os.path.exists(lf):
+                  return None
+              _s = set()
+              for _src in _inv_sources(lf):
+                  try:
+                      with open(_src, encoding="utf-8") as _f:
+                          for _line in _f:
+                              _line = _line.strip()
+                              if _line and not _line.startswith("#"):
+                                  _s.add(_line)
+                  except OSError:
+                      continue
+              return _s
+
+          _inv_combined = _inv_read_set("combined_threat_blacklist_ipv4.txt")
+          _inv_active   = _inv_read_set("active_blacklist_ipv4.txt")
+          _inv_conf40   = _inv_read_set("blacklist_confidence40_ipv4.txt")
+          _inv_watch    = _inv_read_set("watchlist_confidence25to39_ipv4.txt")
+
+          # Sanity: wenn irgendeine Datei fehlt, Check skippen.
+          _inv_files_ok = all(s is not None for s in
+                              (_inv_combined, _inv_active, _inv_conf40, _inv_watch))
+          if not _inv_files_ok:
+              print("  ℹ️  Subset-Invarianten: mindestens eine Output-Datei fehlt – uebersprungen.")
+          else:
+              print(f"\n  Subset-Invarianten-Check:")
+              print(f"    combined={len(_inv_combined):,} active={len(_inv_active):,} "
+                    f"conf40={len(_inv_conf40):,} watch={len(_inv_watch):,}")
+
+              # ── I1: active ⊆ conf40 ──────────────────────────────────────
+              _i1_diff = _inv_active - _inv_conf40
+              _i1_n = len(_i1_diff)
+              _i1_pct = (_i1_n / max(1, len(_inv_active))) * 100
+              if _i1_n == 0:
+                  print(f"  ✅ I1: active ⊆ conf40 (0 Differenz)")
+              elif _i1_n > 100 or _i1_pct > 0.05:
+                  prod_health.append({
+                      "level": "CRITICAL",
+                      "check": "active ⊆ conf40 Subset-Invariante verletzt",
+                      "detail": (
+                          f"{_i1_n:,} IPs in active fehlen in conf40 ({_i1_pct:.3f}% von active). "
+                          f"Ursache vermutlich Cache-Drift zwischen combined- und "
+                          f"confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-"
+                          f"Pfad in update_confidence_blacklist.yml hat entweder nicht "
+                          f"gegriffen (Cap >10%) oder wurde umgangen."
+                      ),
+                  })
+                  print(f"  🔴 I1: {_i1_n:,} IPs in active fehlen in conf40 ({_i1_pct:.3f}%) – CRITICAL")
+              else:
+                  prod_health.append({
+                      "level": "WARN",
+                      "check": "active ⊆ conf40 Subset-Invariante (Mini-Drift)",
+                      "detail": (
+                          f"{_i1_n} IPs in active fehlen in conf40 (unterhalb CRITICAL-"
+                          f"Schwelle). Wahrscheinlich kleiner Cache-Drift im Toleranz-"
+                          f"bereich oder Score-Bucket-Wechsel am Tageswechsel."
+                      ),
+                  })
+                  print(f"  🟡 I1: {_i1_n} IPs in active fehlen in conf40 – WARN")
+
+              # ── I2: conf40 ∩ watch = ∅ ───────────────────────────────────
+              _i2_inter = _inv_conf40 & _inv_watch
+              _i2_n = len(_i2_inter)
+              if _i2_n == 0:
+                  print(f"  ✅ I2: conf40 ∩ watch = ∅")
+              else:
+                  prod_health.append({
+                      "level": "CRITICAL",
+                      "check": "conf40 ∩ watch Disjunktheits-Invariante verletzt",
+                      "detail": (
+                          f"{_i2_n:,} IPs sind sowohl in conf40 als auch in watch. "
+                          f"Logisch unmoeglich (Score>=40 UND Score<40). Deutet auf "
+                          f"Workflow-Bug im update_confidence_blacklist.yml Score-Loop "
+                          f"oder doppeltes Schreiben aus parallel laufenden Workflows hin."
+                      ),
+                  })
+                  print(f"  🔴 I2: {_i2_n:,} IPs sind in BEIDEN conf40 und watch – CRITICAL")
+
+              # ── I3: conf40 ∪ watch ⊆ combined ────────────────────────────
+              _i3_phantom = (_inv_conf40 | _inv_watch) - _inv_combined
+              _i3_n = len(_i3_phantom)
+              if _i3_n == 0:
+                  print(f"  ✅ I3: conf40 ∪ watch ⊆ combined (0 Phantome)")
+              else:
+                  prod_health.append({
+                      "level": "CRITICAL",
+                      "check": "conf40 ∪ watch ⊆ combined Subset-Invariante verletzt",
+                      "detail": (
+                          f"{_i3_n:,} Phantom-IPs in conf40/watch ohne Entsprechung in "
+                          f"combined. Sollte unmoeglich sein (confidence-Workflow filtert "
+                          f"via 'ip in combined_ips'). Indikator fuer manuellen Edit der "
+                          f"Output-Listen oder Race zwischen Workflows."
+                      ),
+                  })
+                  print(f"  🔴 I3: {_i3_n:,} Phantom-IPs in conf40/watch fehlen in combined – CRITICAL")
+
+              # Speicher freigeben (5M-String-Sets sind nicht klein)
+              del _inv_combined, _inv_active, _inv_conf40, _inv_watch
+
           # ── PH: Zusammenfassung ───────────────────────────────────────────
           _ph_critical = [p for p in prod_health if p["level"] == "CRITICAL"]
           _ph_warn     = [p for p in prod_health if p["level"] == "WARN"]
