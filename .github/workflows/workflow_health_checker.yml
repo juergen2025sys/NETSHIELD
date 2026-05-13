@@ -1095,8 +1095,15 @@ jobs:
               # Doppeltes "import re" oder "import sys" in einem Block deutet auf
               # Copy-Paste-Fehler hin (os und sys sind ausgenommen da haeufig
               # absichtlich re-importiert wegen Namespace-Isolation).
+              # FIX: "import glob as _glob" und "import glob as _glob_geo" sind
+              # KEIN Duplikat – verschiedene Aliase = bewusste Namespace-Trennung
+              # zwischen Code-Regionen. Nur identische (Modul, Alias)-Paare oder
+              # zweimaliger Alias-loser Import desselben Moduls zaehlen als Dup.
               for _bi, _blk in enumerate(blocks):
                   _import_counts = {}
+                  # Tracking: Welche Aliase pro Modul wir bereits gesehen haben –
+                  # rein fuer Diagnostik in der Warnmeldung.
+                  _alias_seen = {}
                   for _il in _blk.splitlines():
                       _il_s = _il.strip()
                       if _il_s.startswith('#'):
@@ -1104,12 +1111,30 @@ jobs:
                       _im = re.match(r'(?:from\s+(\S+)\s+)?import\s+(.+)', _il_s)
                       if _im:
                           for _mod in _im.group(2).split(','):
-                              _mod_name = _mod.strip().split()[0].strip()
-                              if _mod_name:
-                                  _import_counts[_mod_name] = _import_counts.get(_mod_name, 0) + 1
-                  _dups = {m: c for m, c in _import_counts.items() if c > 1 and m not in {'os', 'sys'}}
+                              _parts = _mod.strip().split()
+                              if not _parts:
+                                  continue
+                              _mod_name = _parts[0].strip()
+                              if not _mod_name:
+                                  continue
+                              # "import X as Y" → Key = "X as Y", sonst Key = "X".
+                              # Damit zaehlen unterschiedliche Aliase NICHT als Dup,
+                              # gleicher Alias (echtes Copy-Paste) hingegen schon.
+                              if len(_parts) >= 3 and _parts[1] == 'as':
+                                  _alias = _parts[2].strip()
+                                  _key = f"{_mod_name} as {_alias}"
+                                  _alias_seen.setdefault(_mod_name, set()).add(_alias)
+                              else:
+                                  _key = _mod_name
+                                  _alias_seen.setdefault(_mod_name, set()).add(None)
+                              _import_counts[_key] = _import_counts.get(_key, 0) + 1
+                  # Modul-Namen aus dem Key fuer Exclude-Vergleich extrahieren
+                  def _bare(_k):
+                      return _k.split(' as ', 1)[0]
+                  _dups = {k: c for k, c in _import_counts.items()
+                           if c > 1 and _bare(k) not in {'os', 'sys'}}
                   if _dups:
-                      msg = (f"Block {_bi}: Doppelte Imports: {', '.join(f'{m}({c}x)' for m, c in _dups.items())} – "
+                      msg = (f"Block {_bi}: Doppelte Imports: {', '.join(f'{k}({c}x)' for k, c in _dups.items())} – "
                              f"moeglicherweise Copy-Paste-Artefakt")
                       file_warnings.append(msg)
                       warnings.append({"file": fname, "check": "Doppelter Import", "detail": msg})
