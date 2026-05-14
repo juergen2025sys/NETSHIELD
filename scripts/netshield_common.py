@@ -71,12 +71,21 @@ _PRIVATE_RANGES = tuple(_RESERVED_NETS)
 
 _whitelist_networks = []
 # FIX BUG-RESERVED-INIT: _protected_networks bereits beim Modul-Import mit
-# _RESERVED_NETS füllen, nicht erst in load_whitelist(). Sonst ist die Liste
-# leer wenn is_protected_entry() vor load_whitelist() aufgerufen wird (z.B.
-# in Tests die load_whitelist() nicht im setUp() haben). Dann liefert
-# is_protected_entry("100.0.0.0/9") False, weil Python's is_private/is_reserved
-# für teilweise-public Supernets False zurückgibt – der Reserved-Net-Overlap-
-# Check fällt komplett aus.
+# _RESERVED_NETS füllen, nicht erst in load_whitelist().
+#
+# Historischer Hintergrund: Vor BUG-WL1-HARDENING (siehe weiter unten) gab
+# is_protected_entry() bei leerer Liste silent False zurück – ein leerer
+# Init bedeutete dann, dass z.B. 100.0.0.0/9 als "nicht protected" galt,
+# weil Python's is_private/is_reserved für teilweise-public Supernets False
+# liefert und der Reserved-Net-Overlap-Check komplett ausfiel.
+#
+# Nach BUG-WL1-HARDENING raised is_protected_entry() ohnehin
+# WhitelistNotLoadedError, bevor diese Liste benutzt wird – die Pre-Init
+# ist also nicht mehr als Sicherheitsanker noetig, sondern als defensive
+# Symmetrie (gleiche Invariante "_protected_networks enthaelt mindestens
+# _RESERVED_NETS" zu jedem Zeitpunkt). _reset_whitelist_for_testing() und
+# der except-Pfad in load_whitelist hielten sich daran ohne diese Init
+# explizit zu replizieren.
 _protected_networks = list(_RESERVED_NETS)
 
 # ───────────────────────────────────────────────────────────────
@@ -551,10 +560,12 @@ def parse_entries(text, use_protected_check=False):
         #      ip_check schlug fehl, und das `continue` schluckte die
         #      echte IP "1.2.3.4". Datenverlust.
         #   2) FortiGate: strenger (verlangt IP direkt nach "set subnet"),
-        #      aber bei Inline-Kommentaren mit zweiter IP
-        #      ("set subnet 1.2.3.4 # backup 8.8.8.8") wurde 8.8.8.8 ebenso
+        #      aber bei Zeilen mit zweiter IP nach Whitespace
+        #      ("set subnet 1.2.3.4 8.8.8.8 dst-addr") wurde 8.8.8.8 ebenso
         #      verworfen – Pfad-Inkonsistenz mit dem dokumentierten
         #      "Fallback ist Superset"-Vertrag aus FIX BUG-MULTI-ENTRY.
+        #      (Hinweis: IPs nach '#' werden weiter abgeschnitten, weil '#'
+        #      als Spamhaus-DROP-Inline-Kommentar gilt – siehe Zeile unten.)
         #
         # Loesung: Format-spezifische Pfade entfernt. Der untere Fallback
         # findet alle IPs/CIDRs in der Zeile per IPV4_RE/CIDR_RE.finditer

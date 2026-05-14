@@ -692,9 +692,12 @@ def check_workflow_timeouts() -> list[str]:
     Bei Workflows in der `netshield-seen-db-writers`-Concurrency-Group
     blockiert das alle anderen seen_db-Schreiber fuer bis zu 6 Stunden.
 
-    Prueft auf dict-Ebene: jeder Job muss timeout-minutes haben ODER der
-    Workflow hat es als Default gesetzt. Reine Text-Suche reicht nicht,
-    weil `timeout-minutes` auch in Kommentaren stehen koennte.
+    Prueft auf dict-Ebene: jeder Job muss timeout-minutes haben. GitHub
+    Actions kennt KEIN workflow-level `timeout-minutes` als Default
+    (offener Feature-Request actions/runner#1449), die Einstellung
+    existiert nur pro Job (und optional pro Step). Reine Text-Suche
+    reicht nicht, weil `timeout-minutes` auch in Kommentaren stehen
+    koennte – deshalb YAML-Parse + dict-Lookup.
     """
     errors: list[str] = []
     if not WORKFLOWS_DIR.is_dir():
