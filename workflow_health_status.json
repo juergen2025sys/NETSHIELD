@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-14 04:57 UTC",
+  "updated": "2026-05-14 09:40 UTC",
   "total": 20,
   "ok": 20,
   "warn": 0,
@@ -7,13 +7,8 @@
   "errors": [
     {
       "file": "Production Health",
-      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
-      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 54.93.92.48, 54.93.92.121 \u2013 Filterung wirkungslos!"
-    },
-    {
-      "file": "Production Health",
-      "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
-      "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 54.93.92.48 \u2013 Filterung wirkungslos!"
+      "check": "active \u2286 conf40 Subset-Invariante verletzt",
+      "detail": "6,124 IPs in active fehlen in conf40 (0.310% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
     }
   ],
   "warnings": [
@@ -21,44 +16,29 @@
       "file": "Production Health",
       "check": "Push-Limit Naehe",
       "detail": "blacklist_geo_enriched.json: 82.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
-    },
-    {
-      "file": "Production Health",
-      "check": "active \u2286 conf40 Subset-Invariante (Mini-Drift)",
-      "detail": "1 IPs in active fehlen in conf40 (unterhalb CRITICAL-Schwelle). Wahrscheinlich kleiner Cache-Drift im Toleranz-bereich oder Score-Bucket-Wechsel am Tageswechsel."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 5193704,
-    "active_blacklist_ipv4.txt": 1970061,
-    "blacklist_confidence40_ipv4.txt": 4211530,
-    "cve_exploit_ips.txt": 37469,
-    "honeypot_ips.txt": 130158,
+    "combined_threat_blacklist_ipv4.txt": 5211565,
+    "active_blacklist_ipv4.txt": 1976645,
+    "blacklist_confidence40_ipv4.txt": 4213138,
+    "cve_exploit_ips.txt": 36397,
+    "honeypot_ips.txt": 130270,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
-    "critical": 2,
-    "warn": 2,
+    "critical": 1,
+    "warn": 1,
     "checks": [
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
-        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 54.93.92.48, 54.93.92.121 \u2013 Filterung wirkungslos!"
-      },
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
-        "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 54.93.92.48 \u2013 Filterung wirkungslos!"
-      },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
         "detail": "blacklist_geo_enriched.json: 82.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
-        "level": "WARN",
-        "check": "active \u2286 conf40 Subset-Invariante (Mini-Drift)",
-        "detail": "1 IPs in active fehlen in conf40 (unterhalb CRITICAL-Schwelle). Wahrscheinlich kleiner Cache-Drift im Toleranz-bereich oder Score-Bucket-Wechsel am Tageswechsel."
+        "level": "CRITICAL",
+        "check": "active \u2286 conf40 Subset-Invariante verletzt",
+        "detail": "6,124 IPs in active fehlen in conf40 (0.310% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
       }
     ]
   },
