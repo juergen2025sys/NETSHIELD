@@ -1,8 +1,8 @@
 # ASN Reputation Scorer – Report
-**Aktualisiert:** 2026-05-14 05:54 UTC  
+**Aktualisiert:** 2026-05-15 06:00 UTC  
 **Methode:** ScaniteX CIDR-Prefixlisten (kein API-Key, 100% BL-Coverage)  
-**Blacklist-IPs gesamt:** 4,882,462  
-**Davon in bekannten ASN-Ranges:** 873,627
+**Blacklist-IPs gesamt:** 4,919,271  
+**Davon in bekannten ASN-Ranges:** 882,528
 
 ---
 
@@ -10,25 +10,25 @@
 
 | Rang | ASN | Organisation | Land | Score | BL-Hits | Dichte/1M | DROP | ET | Prefixes |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | AS132203 | Tencent Cloud | CN | 🔴 113 | 24,731 | 10339.9 | +0 | +1 | 1050 |
-| 2 | AS14061 | DigitalOcean | US | 🔴 110 | 261,512 | 86139.8 | +0 | +24 | 827 |
-| 3 | AS51167 | Contabo | DE | 🔴 106 | 14,595 | 31086.0 | +0 | +2 | 567 |
-| 4 | AS12389 | Rostelecom | RU | 🔴 100 | 19,690 | 1143.8 | +0 | +0 | 3183 |
-| 5 | AS45102 | Alibaba Cloud | CN | 🟠 95 | 39,525 | 4150.4 | +0 | +0 | 877 |
-| 6 | AS20473 | Vultr | US | 🟠 95 | 19,413 | 14179.5 | +0 | +0 | 1453 |
-| 7 | AS63949 | Linode (Akamai) | US | 🟠 90 | 17,182 | 13545.4 | +0 | +0 | 341 |
-| 8 | AS22612 | Namecheap | US | 🟠 90 | 1,788 | 11669.8 | +0 | +0 | 312 |
-| 9 | AS12876 | Scaleway | FR | 🟠 90 | 9,269 | 16258.2 | +0 | +9 | 22 |
-| 10 | AS31898 | Oracle Cloud | US | 🟠 85 | 26,920 | 5674.9 | +0 | +5 | 1971 |
-| 11 | AS16509 | Amazon AWS | US | 🟠 85 | 312,530 | 1640.0 | +0 | +16 | 14341 |
-| 12 | AS24940 | Hetzner | DE | 🟠 81 | 26,444 | 9407.7 | +0 | +2 | 82 |
-| 13 | AS16276 | OVH | FR | 🟠 75 | 44,636 | 9820.9 | +0 | +0 | 600 |
-| 14 | AS47583 | Hostinger | LT | 🟠 75 | 3,523 | 4440.7 | +0 | +0 | 860 |
-| 15 | AS8560 | IONOS | DE | 🟠 74 | 3,349 | 3927.4 | +0 | +3 | 462 |
-| 16 | AS26496 | GoDaddy | US | 🟡 65 | 2,253 | 1804.5 | +0 | +0 | 184 |
-| 17 | AS46606 | Bluehost (Unified Layer) | US | 🟡 65 | 1,191 | 1383.0 | +0 | +0 | 285 |
-| 18 | AS8075 | Microsoft Azure | US | 🟡 55 | 43,611 | 656.9 | +0 | +0 | 931 |
-| 19 | AS36351 | IBM Cloud | US | 🟡 50 | 1,465 | 359.4 | +0 | +0 | 328 |
+| 1 | AS132203 | Tencent Cloud | CN | 🔴 116 | 24,780 | 10360.4 | +0 | +2 | 1050 |
+| 2 | AS14061 | DigitalOcean | US | 🔴 110 | 262,220 | 86373.0 | +0 | +24 | 827 |
+| 3 | AS51167 | Contabo | DE | 🔴 106 | 14,960 | 31863.4 | +0 | +2 | 567 |
+| 4 | AS12389 | Rostelecom | RU | 🔴 100 | 19,846 | 1152.9 | +0 | +0 | 3183 |
+| 5 | AS45102 | Alibaba Cloud | CN | 🟠 95 | 39,611 | 4159.4 | +0 | +0 | 877 |
+| 6 | AS20473 | Vultr | US | 🟠 95 | 19,424 | 14187.5 | +0 | +0 | 1453 |
+| 7 | AS63949 | Linode (Akamai) | US | 🟠 90 | 17,303 | 13640.7 | +0 | +0 | 341 |
+| 8 | AS22612 | Namecheap | US | 🟠 90 | 1,792 | 11695.9 | +0 | +0 | 312 |
+| 9 | AS12876 | Scaleway | FR | 🟠 90 | 9,783 | 17159.8 | +0 | +9 | 22 |
+| 10 | AS31898 | Oracle Cloud | US | 🟠 85 | 26,946 | 5680.4 | +0 | +5 | 1971 |
+| 11 | AS16509 | Amazon AWS | US | 🟠 85 | 316,594 | 1661.3 | +0 | +16 | 14341 |
+| 12 | AS24940 | Hetzner | DE | 🟠 78 | 26,543 | 9443.0 | +0 | +1 | 82 |
+| 13 | AS16276 | OVH | FR | 🟠 75 | 44,844 | 9866.6 | +0 | +0 | 600 |
+| 14 | AS47583 | Hostinger | LT | 🟠 75 | 3,605 | 4544.1 | +0 | +0 | 860 |
+| 15 | AS8560 | IONOS | DE | 🟠 75 | 3,543 | 4154.9 | +0 | +4 | 462 |
+| 16 | AS26496 | GoDaddy | US | 🟡 65 | 2,254 | 1805.3 | +0 | +0 | 184 |
+| 17 | AS46606 | Bluehost (Unified Layer) | US | 🟡 65 | 1,192 | 1384.1 | +0 | +0 | 285 |
+| 18 | AS8075 | Microsoft Azure | US | 🟡 55 | 45,817 | 690.1 | +0 | +0 | 931 |
+| 19 | AS36351 | IBM Cloud | US | 🟡 50 | 1,471 | 360.8 | +0 | +0 | 328 |
 
 ---
 
@@ -46,4 +46,4 @@ D: Basis-Reputation (RU/CN++)  → max 40
 
 ---
 *Datenquelle: [ScaniteX ASN Database](https://scanitex.com/en/resources/asn-database) (BGP via RIPE Stat, kein API-Key)*  
-*Generiert: 2026-05-14 05:54 UTC*
+*Generiert: 2026-05-15 06:00 UTC*
