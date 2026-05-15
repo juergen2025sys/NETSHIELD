@@ -1,9 +1,15 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-15 15:28 UTC
+**Aktualisiert:** 2026-05-15 20:22 UTC
 
-**Workflows:** 20 | ✅ 20 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
+**Workflows:** 20 | ✅ 20 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
 
 ---
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 2,033 IPs in active fehlen in conf40 (0.103% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
@@ -12,10 +18,11 @@
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 1 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
+| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 2,033 IPs in active fehlen in conf40 (0.103% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 | 🟡 WARN | Push-Limit Naehe | blacklist_geo_enriched.json: 82.6 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
@@ -44,4 +51,4 @@
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-05-15 15:28 UTC | 20 Workflow-Dateien geprüft*
+*Generiert: 2026-05-15 20:22 UTC | 20 Workflow-Dateien geprüft*
