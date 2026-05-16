@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-16 14:36 UTC",
+  "updated": "2026-05-16 20:06 UTC",
   "total": 20,
   "ok": 20,
   "warn": 0,
@@ -8,7 +8,7 @@
     {
       "file": "Production Health",
       "check": "active \u2286 conf40 Subset-Invariante verletzt",
-      "detail": "2,799 IPs in active fehlen in conf40 (0.651% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+      "detail": "3,359 IPs in active fehlen in conf40 (0.771% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
     }
   ],
   "warnings": [
@@ -19,11 +19,11 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 5267719,
-    "active_blacklist_ipv4.txt": 429685,
-    "blacklist_confidence40_ipv4.txt": 4264000,
+    "combined_threat_blacklist_ipv4.txt": 5274410,
+    "active_blacklist_ipv4.txt": 435906,
+    "blacklist_confidence40_ipv4.txt": 4268652,
     "cve_exploit_ips.txt": 36565,
-    "honeypot_ips.txt": 129427,
+    "honeypot_ips.txt": 129429,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
@@ -38,7 +38,7 @@
       {
         "level": "CRITICAL",
         "check": "active \u2286 conf40 Subset-Invariante verletzt",
-        "detail": "2,799 IPs in active fehlen in conf40 (0.651% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+        "detail": "3,359 IPs in active fehlen in conf40 (0.771% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
       }
     ]
   },
