@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-15 20:22 UTC",
+  "updated": "2026-05-16 04:37 UTC",
   "total": 20,
   "ok": 20,
   "warn": 0,
@@ -7,8 +7,8 @@
   "errors": [
     {
       "file": "Production Health",
-      "check": "active \u2286 conf40 Subset-Invariante verletzt",
-      "detail": "2,033 IPs in active fehlen in conf40 (0.103% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+      "check": "Drift: active_blacklist_ipv4.txt",
+      "detail": "active_blacklist_ipv4.txt: 1,979,972 \u2192 418,924 (-79%) \u2013 starker R\u00fcckgang seit letztem Check"
     }
   ],
   "warnings": [
@@ -19,11 +19,11 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 5248092,
-    "active_blacklist_ipv4.txt": 1979972,
-    "blacklist_confidence40_ipv4.txt": 4245825,
+    "combined_threat_blacklist_ipv4.txt": 5256764,
+    "active_blacklist_ipv4.txt": 418924,
+    "blacklist_confidence40_ipv4.txt": 4256602,
     "cve_exploit_ips.txt": 36494,
-    "honeypot_ips.txt": 129372,
+    "honeypot_ips.txt": 129459,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
@@ -31,14 +31,14 @@
     "warn": 1,
     "checks": [
       {
+        "level": "CRITICAL",
+        "check": "Drift: active_blacklist_ipv4.txt",
+        "detail": "active_blacklist_ipv4.txt: 1,979,972 \u2192 418,924 (-79%) \u2013 starker R\u00fcckgang seit letztem Check"
+      },
+      {
         "level": "WARN",
         "check": "Push-Limit Naehe",
         "detail": "blacklist_geo_enriched.json: 82.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
-      },
-      {
-        "level": "CRITICAL",
-        "check": "active \u2286 conf40 Subset-Invariante verletzt",
-        "detail": "2,033 IPs in active fehlen in conf40 (0.103% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
       }
     ]
   },
