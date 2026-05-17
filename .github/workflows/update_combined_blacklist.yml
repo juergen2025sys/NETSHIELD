@@ -974,6 +974,12 @@ jobs:
               # HQ=False: Einzelne Community-Meldungen sind keine vertrauenswürdige Quelle;
               # HQ-Promotion erfolgt erst bei community_count >= 3 (in community_ip_report.yml).
               "community_reported_ips.txt":      False,
+              # TweetFeed (tweetfeed.live): IOCs aus Twitter/X-Security-Community.
+              # HQ=False: Quelle empfiehlt explizit keine direkte Blacklist-Nutzung
+              # ("Confidence not always 100%, NOT for blocklist, use as Watchlist").
+              # → nur 1 Punkt im Confidence-Scoring; Promotion in active/conf40
+              # nur wenn andere Quellen die IP zusätzlich bestätigen.
+              "tweetfeed_ips.txt":               False,
           }
           # FIX: Lokale HQ-Dateinamen für hq_feed_names_today-Berechnung.
           # Dateinamen wie "honeydb_ips.txt" sind nicht in HIGH_QUALITY (Feed-Namen),
