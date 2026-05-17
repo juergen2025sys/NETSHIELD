@@ -88,18 +88,20 @@ jobs:
                   return False
 
           # ── API-Helper (kein Auth) ────────────────────────────────────────
-          # Antwort-Behandlung defensiv:
-          #  - Accept-Encoding: identity → kein gzip-Kompressionspfad nötig
-          #  - Content-Encoding aus Response prüfen (manche CDNs ignorieren identity)
-          #    und dann via gzip.decompress fallback
-          #  - Bei JSON-Parse-Fehler die ersten 200 Bytes der rohen Antwort loggen,
-          #    damit Diagnose im Action-Log möglich ist (sonst raten wir blind)
+          # WICHTIG (empirisch, 2026-05-17): tweetfeed.live/v1/year/ip antwortet
+          # je nach Header/Routing entweder mit JSON-Array ODER mit CSV als
+          # text/plain. Beobachtet wurde im echten Run CSV-Output trotz
+          # Accept: application/json (HTTP 200, Content-Type: text/plain,
+          # erste Zeile "2025-05-18 00:52:02,user,domain,...").
+          # → api_get liefert rohen Text zurück; Parsing erfolgt unten.
+          #   Sowohl JSON als auch CSV werden unterstützt (Auto-Detection
+          #   anhand des ersten Nicht-Whitespace-Zeichens: "[" = JSON, sonst CSV).
           import gzip as _gzip
           def api_get(url, retries=3):
               for attempt in range(1, retries + 1):
                   req = urllib.request.Request(url, headers={
                       "User-Agent":      "NETSHIELD-TweetFeed/1.0",
-                      "Accept":          "application/json",
+                      "Accept":          "application/json, text/plain;q=0.9",
                       "Accept-Encoding": "identity",
                   })
                   try:
@@ -109,27 +111,14 @@ jobs:
                           ct     = r.headers.get("Content-Type", "")
                           raw    = r.read()
                           print(f"  HTTP {status} | CT={ct} | CE={ce or '-'} | bytes={len(raw)}")
-                          # Falls CDN gzip trotz identity-Header zurückgibt: dekomprimieren
+                          # Falls trotz identity-Header gzip kommt: dekomprimieren.
                           if ce == "gzip" or raw[:2] == b"\x1f\x8b":
                               try:
                                   raw = _gzip.decompress(raw)
                                   print(f"  gzip dekomprimiert → bytes={len(raw)}")
                               except Exception as ze:
                                   print(f"  gzip-Decompress fehlgeschlagen: {ze}")
-                          text = raw.decode("utf-8", errors="replace")
-                          try:
-                              return json.loads(text)
-                          except json.JSONDecodeError as je:
-                              # Diagnose: erste 200 Zeichen der Antwort zeigen
-                              snippet = text[:200].replace("\n", "\\n")
-                              print(f"  JSON-Parse-Fehler: {je}")
-                              print(f"  Antwort-Anfang (200 chars): {snippet!r}")
-                              if attempt < retries:
-                                  wait_s = 2 ** attempt
-                                  print(f"  Retry in {wait_s}s ({attempt}/{retries})")
-                                  time.sleep(wait_s)
-                                  continue
-                              return None
+                          return raw.decode("utf-8", errors="replace")
                   except urllib.error.HTTPError as e:
                       if e.code in (429, 500, 502, 503, 504) and attempt < retries:
                           wait_s = 2 ** attempt
@@ -147,28 +136,64 @@ jobs:
                       print(f"  FEHLER: {e}")
                       return None
 
-          # ── 1) IOCs abrufen ───────────────────────────────────────────────
-          print(f"[1/3] Abruf {API_URL}...")
-          data = api_get(API_URL)
-          if not isinstance(data, list):
-              print("FEHLER: API lieferte keine Liste – Abbruch")
-              sys.exit(1)
-          print(f"  → {len(data)} IOC-Einträge erhalten")
+          # ── Parser: JSON ODER CSV (Auto-Detection) ────────────────────────
+          # JSON-Format (laut tweetfeed.live-Doku):
+          #   [{"date":"YYYY-MM-DD HH:MM:SS","user":"...","type":"ip",
+          #     "value":"x.x.x.x","tags":[...],"tweet":"..."}, ...]
+          # CSV-Format (empirisch beobachtet, 6 Spalten kommagetrennt):
+          #   date,user,type,value,tags,tweet
+          # Beide werden zu set(IPv4-Strings) reduziert; Filter type=ip auf
+          # Spalte 3 (CSV) bzw. entry["type"] (JSON).
+          import csv as _csv
+          def parse_response(text):
+              stripped = text.lstrip()
+              ips = set()
+              if stripped.startswith("["):
+                  # JSON-Pfad
+                  try:
+                      data = json.loads(stripped)
+                  except json.JSONDecodeError as je:
+                      snippet = stripped[:200].replace("\n", "\\n")
+                      print(f"  JSON-Parse-Fehler: {je}")
+                      print(f"  Antwort-Anfang: {snippet!r}")
+                      return None, "json-error"
+                  if not isinstance(data, list):
+                      return None, "json-not-list"
+                  for entry in data:
+                      if isinstance(entry, dict) and entry.get("type") == "ip":
+                          v = (entry.get("value") or "").strip()
+                          if v:
+                              ips.add(v)
+                  return ips, f"json:{len(data)}-rows"
+              else:
+                  # CSV-Pfad: column 3 = type, column 4 = value
+                  reader = _csv.reader(text.splitlines())
+                  row_count = 0
+                  for row in reader:
+                      row_count += 1
+                      if len(row) < 4:
+                          continue
+                      if row[2].strip().lower() != "ip":
+                          continue
+                      v = row[3].strip()
+                      if v:
+                          ips.add(v)
+                  return ips, f"csv:{row_count}-rows"
 
-          # ── 2) IPs extrahieren + filtern ──────────────────────────────────
-          # Format: [{"date":..., "user":..., "type":"ip", "value":"x.x.x.x",
-          #          "tags":[...], "tweet":...}, ...]
-          # Trotz /v1/year/ip Filter sicherheitshalber auf type=ip prüfen.
-          print(f"\n[2/3] IPs extrahieren + validieren...")
-          raw_ips = set()
-          for entry in data:
-              if not isinstance(entry, dict):
-                  continue
-              if entry.get("type") != "ip":
-                  continue
-              ip = entry.get("value", "").strip()
-              if ip:
-                  raw_ips.add(ip)
+          # ── 1) IOCs abrufen + parsen ──────────────────────────────────────
+          print(f"[1/3] Abruf {API_URL}...")
+          text = api_get(API_URL)
+          if not text:
+              print("FEHLER: Kein Response-Text erhalten – Abbruch")
+              sys.exit(1)
+          raw_ips, fmt = parse_response(text)
+          if raw_ips is None:
+              print(f"FEHLER: Parsing fehlgeschlagen ({fmt}) – Abbruch")
+              sys.exit(1)
+          print(f"  → Format: {fmt}, {len(raw_ips)} eindeutige IP-IOCs extrahiert")
+
+          # ── 2) IPs validieren + filtern ───────────────────────────────────
+          print(f"\n[2/3] IPs validieren + filtern...")
           print(f"  → {len(raw_ips)} eindeutige IPs (vor Filter)")
 
           # Public IPv4 only
@@ -216,7 +241,7 @@ jobs:
           lines.append("## Pipeline\n")
           lines.append("| Schritt | Anzahl |")
           lines.append("|---|---:|")
-          lines.append(f"| IOC-Einträge erhalten | **{len(data):,}** |")
+          lines.append(f"| Response-Format | **{fmt}** |")
           lines.append(f"| Eindeutige IPs (roh) | **{len(raw_ips):,}** |")
           lines.append(f"| Private/Reserved entfernt | **{dropped_private:,}** |")
           lines.append(f"| FP-Filter entfernt | **{len(fp_removed):,}** |")
