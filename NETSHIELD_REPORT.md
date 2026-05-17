@@ -1,13 +1,13 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-05-17 17:32 UTC
+**Aktualisiert:** 2026-05-17 19:43 UTC
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **5,296,073** | 2026-05-17 16:01 UTC |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **428,605** | 2026-05-17 16:01 UTC |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **4,984,452** | 2026-05-17 19:14 UTC |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **427,355** | 2026-05-17 19:14 UTC |
 | ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **4,290,393** | 2026-05-17 16:41 UTC |
 | ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **167,552** | 2026-05-17 16:41 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **36,423** | 2026-05-17 06:39 UTC |
@@ -33,4 +33,4 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 *Details: [workflow_health_report.md](workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-05-17 17:32 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-05-17 19:43 UTC*
