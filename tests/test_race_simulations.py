@@ -601,11 +601,14 @@ class TestCIDROverlapBug(unittest.TestCase):
         self.assertFalse(is_valid_public_cidr("172.0.0.0/8"))
 
     def test_public_cidr_accepted(self):
-        """Normales öffentliches CIDR bleibt gültig."""
+        """Policy: nur /32 ist gültig (kein Overlap mit privaten Ranges)."""
         from netshield_common import is_valid_public_cidr
-        self.assertTrue(is_valid_public_cidr("1.2.3.0/24"))
-        self.assertTrue(is_valid_public_cidr("5.72.0.0/15"))
-        self.assertTrue(is_valid_public_cidr("192.128.0.0/16"))  # kein Overlap
+        self.assertTrue(is_valid_public_cidr("1.2.3.4/32"))
+        self.assertTrue(is_valid_public_cidr("5.72.0.1/32"))
+        self.assertTrue(is_valid_public_cidr("192.128.0.1/32"))  # kein Overlap mit 192.168/16
+        # /24 und breiter wird abgelehnt
+        self.assertFalse(is_valid_public_cidr("1.2.3.0/24"))
+        self.assertFalse(is_valid_public_cidr("5.72.0.0/15"))
 
     def test_parse_entries_filters_overlapping_cidr(self):
         """parse_entries() muss 192.128.0.0/9 herausfiltern."""

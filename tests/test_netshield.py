@@ -53,13 +53,20 @@ class TestParseEntries(unittest.TestCase):
         self.assertEqual(result, {"1.2.3.4", "5.6.7.8"})
 
     def test_cidr(self):
+        # Policy: nur /32-CIDRs werden akzeptiert
+        result = parse_entries("1.2.3.4/32")
+        self.assertEqual(result, {"1.2.3.4/32"})
+
+    def test_cidr_too_large_filtered_at_parse(self):
+        """Policy: CIDRs breiter als /32 werden verworfen, um Kollateralschäden
+        zu vermeiden (z.B. 144.76.0.0/16 würde 65k legitime Hetzner-Hosts mitblocken)."""
         result = parse_entries("1.2.3.0/24")
-        self.assertEqual(result, {"1.2.3.0/24"})
+        self.assertEqual(result, set())
 
     def test_cidr_normalization(self):
-        """CIDRs werden normalisiert (1.2.3.4/24 → 1.2.3.0/24)."""
-        result = parse_entries("1.2.3.99/24")
-        self.assertEqual(result, {"1.2.3.0/24"})
+        """CIDRs werden normalisiert (1.2.3.4/32 ist bereits Host-Adresse)."""
+        result = parse_entries("1.2.3.99/32")
+        self.assertEqual(result, {"1.2.3.99/32"})
 
     def test_ip_port(self):
         result = parse_entries("1.2.3.4:8080")
@@ -74,24 +81,25 @@ class TestParseEntries(unittest.TestCase):
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_ipset_format_cidr(self):
-        result = parse_entries("add badguys 1.2.3.0/24")
-        self.assertEqual(result, {"1.2.3.0/24"})
+        result = parse_entries("add badguys 1.2.3.4/32")
+        self.assertEqual(result, {"1.2.3.4/32"})
 
     def test_ipset_with_semicolon(self):
         result = parse_entries("add badguys 1.2.3.4;comment")
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_spamhaus_drop(self):
-        result = parse_entries("1.2.3.0/24 ; SBL123456")
-        self.assertEqual(result, {"1.2.3.0/24"})
+        # Spamhaus-DROP-Syntax mit /32 (breitere CIDRs werden per Policy verworfen)
+        result = parse_entries("1.2.3.4/32 ; SBL123456")
+        self.assertEqual(result, {"1.2.3.4/32"})
 
     def test_csv_first_column(self):
         result = parse_entries("1.2.3.4,8080,malware,2025-01-01")
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_csv_cidr_first_column(self):
-        result = parse_entries("1.2.3.0/24,SBL,DE")
-        self.assertEqual(result, {"1.2.3.0/24"})
+        result = parse_entries("1.2.3.4/32,SBL,DE")
+        self.assertEqual(result, {"1.2.3.4/32"})
 
     def test_comment_hash(self):
         result = parse_entries("# This is a comment\n1.2.3.4")
@@ -171,34 +179,41 @@ class TestParseEntries(unittest.TestCase):
 
         Jetzt: CIDR-Spans werden gemerkt; IPV4_RE-Treffer innerhalb dieser
         Spans werden verworfen.
+
+        Nach /32-only-Policy: CIDRs > /32 werden komplett verworfen, aber
+        der Span-Schutz muss WEITERHIN greifen, sodass die Netzadresse
+        nicht als Phantom-IP nachgereicht wird. Erwartung: leere Menge.
         """
         # URLhaus-Style: CIDR im Fließtext
         result = parse_entries("url 5.5.5.0/24 detected")
-        self.assertEqual(result, {"5.5.5.0/24"},
+        self.assertEqual(result, set(),
                          "5.5.5.0 darf nicht als Phantom-IP entstehen")
 
         # JSON-Style: CIDR in JSON-Feld
         result = parse_entries('{"net":"11.22.33.0/24","threat":"scan"}')
-        self.assertEqual(result, {"11.22.33.0/24"},
+        self.assertEqual(result, set(),
                          "11.22.33.0 darf nicht als Phantom-IP entstehen")
 
         # Mit Datum/Log-Präfix: typischer Honeypot-Log-Output
         result = parse_entries("[2026-04-26] hit on 88.99.100.0/24")
-        self.assertEqual(result, {"88.99.100.0/24"},
+        self.assertEqual(result, set(),
                          "88.99.100.0 darf nicht als Phantom-IP entstehen")
 
     def test_fallback_cidr_plus_separate_ip(self):
         """BUG-PARSE-DUAL Regression (Counter-Test): Eine eigenständige IP
         AUSSERHALB einer CIDR-Span muss weiterhin erfasst werden. Der Fix
         darf keine echten Single-IPs unterdrücken.
-        """
-        # CIDR + separate IP: beide müssen drin sein
-        result = parse_entries("[2026] hit 88.99.100.0/24 from 11.22.33.44")
-        self.assertEqual(result, {"88.99.100.0/24", "11.22.33.44"})
 
-        # Mehrere CIDRs + IPs durcheinander
+        Nach /32-only-Policy: CIDRs > /32 werden verworfen, separate
+        IPs auf derselben Zeile müssen aber erhalten bleiben.
+        """
+        # CIDR (verworfen) + separate IP (muss durchkommen)
+        result = parse_entries("[2026] hit 88.99.100.0/24 from 11.22.33.44")
+        self.assertEqual(result, {"11.22.33.44"})
+
+        # Mehrere CIDRs (verworfen) + IP durcheinander
         result = parse_entries("log: 11.22.33.0/24 hit 88.99.100.101 also 5.5.0.0/16")
-        self.assertEqual(result, {"11.22.33.0/24", "5.5.0.0/16", "88.99.100.101"})
+        self.assertEqual(result, {"88.99.100.101"})
 
     def test_fallback_invalid_cidr_blocks_phantom(self):
         """BUG-PARSE-DUAL Regression: Auch wenn die CIDR ungültig (z.B.
@@ -245,9 +260,13 @@ class TestParseEntries(unittest.TestCase):
         Eintrag/Zeile, ueber 986k Zeilen verifiziert), aber
         auto_feed_discovery nimmt automatisch neue Feeds auf - waere
         ein latenter Datenleck-Vektor.
+
+        Nach /32-only-Policy: die CIDR > /32 wird verworfen, aber die
+        nachfolgende Plain-IP muss trotzdem erfasst werden (gleicher
+        Mechanik-Test wie zuvor, nur mit /32-konformer Erwartung).
         """
         result = parse_entries("5.5.5.0/24 6.6.6.6")
-        self.assertEqual(result, {"5.5.5.0/24", "6.6.6.6"})
+        self.assertEqual(result, {"6.6.6.6"})
 
     def test_multi_entry_private_cidr_with_public_ip(self):
         """FIX BUG-MULTI-ENTRY: Privat-CIDR + oeffentliche IP auf einer
@@ -263,23 +282,41 @@ class TestParseEntries(unittest.TestCase):
         self.assertEqual(result, {"1.2.3.4", "5.6.7.8"})
 
     def test_multi_entry_three_cidrs(self):
-        """FIX BUG-MULTI-ENTRY: Mehrere CIDRs per Whitespace, alle public."""
+        """FIX BUG-MULTI-ENTRY: Mehrere /32-CIDRs per Whitespace, alle public.
+        (Breitere CIDRs werden per /32-only-Policy verworfen — siehe
+        test_multi_entry_three_wide_cidrs_rejected.)"""
+        result = parse_entries("5.5.5.1/32 6.6.6.6/32 7.7.7.7/32")
+        self.assertEqual(result, {"5.5.5.1/32", "6.6.6.6/32", "7.7.7.7/32"})
+
+    def test_multi_entry_three_wide_cidrs_rejected(self):
+        """Counter-Test zu test_multi_entry_three_cidrs: Mehrere /24 auf
+        einer Zeile werden alle verworfen (Policy)."""
         result = parse_entries("5.5.5.0/24 6.6.6.0/24 7.7.7.0/24")
-        self.assertEqual(result, {"5.5.5.0/24", "6.6.6.0/24", "7.7.7.0/24"})
+        self.assertEqual(result, set())
 
     def test_no_phantom_ip_from_cidr_network_address(self):
         """Regression: BUG-PARSE-DUAL muss nach BUG-MULTI-ENTRY-Fix
         weiterhin verhindern, dass die Netzadresse einer CIDR (z.B.
         '5.5.5.0' aus '5.5.5.0/24') zusaetzlich als Plain-IP eingelegt
-        wird. Der cidr_spans-Schutz im Fallback bleibt aktiv."""
+        wird. Der cidr_spans-Schutz im Fallback bleibt aktiv.
+
+        Nach /32-only-Policy: CIDRs > /32 werden verworfen, aber der
+        Span-Schutz muss WEITERHIN greifen — sonst entstünden Phantom-IPs.
+        Erwartung daher set() (CIDR verworfen + keine Phantom-Netzadresse)."""
         # CIDR alleine
-        self.assertEqual(parse_entries("5.5.5.0/24"), {"5.5.5.0/24"})
+        self.assertEqual(parse_entries("5.5.5.0/24"), set())
         # CIDR in JSON
-        self.assertEqual(parse_entries('{"net":"5.5.5.0/24"}'), {"5.5.5.0/24"})
+        self.assertEqual(parse_entries('{"net":"5.5.5.0/24"}'), set())
         # CIDR mit Inline-Kommentar (Spamhaus-DROP)
-        self.assertEqual(parse_entries("5.5.5.0/24 ; SBL12345"), {"5.5.5.0/24"})
+        self.assertEqual(parse_entries("5.5.5.0/24 ; SBL12345"), set())
         # CIDR-only mit Whitespace davor (auto-discovery sieht das oft so)
-        self.assertEqual(parse_entries("    5.5.5.0/24"), {"5.5.5.0/24"})
+        self.assertEqual(parse_entries("    5.5.5.0/24"), set())
+
+    def test_no_phantom_ip_from_slash32_cidr(self):
+        """Counter-Test: /32-CIDRs werden akzeptiert; ihre Host-Adresse
+        ist identisch mit dem CIDR-Eintrag — keine Phantom-IP-Gefahr."""
+        self.assertEqual(parse_entries("5.5.5.5/32"), {"5.5.5.5/32"})
+        self.assertEqual(parse_entries("5.5.5.5/32 ; SBL12345"), {"5.5.5.5/32"})
 
     # ─── Regression: FIX BUG-IPSET-EAGER ────────────────────────────────
     # Vorher matchte 'add\s+\S+\s+(\S+)' jede mit "add " beginnende Zeile,
@@ -425,15 +462,21 @@ class TestIPValidation(unittest.TestCase):
         self.assertFalse(is_valid_public_ipv4("999.999.999.999"))
 
     def test_valid_cidr(self):
-        self.assertTrue(is_valid_public_cidr("1.2.3.0/24"))
-        self.assertTrue(is_valid_public_cidr("8.0.0.0/8"))
+        # Policy: nur /32 erlaubt
+        self.assertTrue(is_valid_public_cidr("1.2.3.4/32"))
+        self.assertTrue(is_valid_public_cidr("8.8.8.8/32"))
 
     def test_private_cidr(self):
         self.assertFalse(is_valid_public_cidr("192.168.0.0/16"))
         self.assertFalse(is_valid_public_cidr("10.0.0.0/8"))
+        self.assertFalse(is_valid_public_cidr("192.168.1.1/32"))  # auch /32 privat → raus
 
     def test_cidr_too_large(self):
+        # Alles breiter als /32 wird abgelehnt
         self.assertFalse(is_valid_public_cidr("1.0.0.0/7"))
+        self.assertFalse(is_valid_public_cidr("1.2.3.0/24"))
+        self.assertFalse(is_valid_public_cidr("8.0.0.0/8"))
+        self.assertFalse(is_valid_public_cidr("144.76.0.0/16"))  # Hetzner-Range
 
     def test_invalid_cidr(self):
         self.assertFalse(is_valid_public_cidr("not/a/cidr"))
