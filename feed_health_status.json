@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-16 04:24 UTC",
+  "updated": "2026-05-17 04:48 UTC",
   "summary": {
     "ok": 111,
     "warn": 0,
@@ -22,8 +22,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 72800,
-      "ms": 1500
+      "sample_ips": 74980,
+      "ms": 1100
     },
     {
       "name": "abuseipdb_axllent",
@@ -31,8 +31,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 82093,
-      "ms": 3520
+      "sample_ips": 83324,
+      "ms": 3130
     },
     {
       "name": "abuseipdb_s100_30d",
@@ -40,8 +40,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 37738,
-      "ms": 3450
+      "sample_ips": 37604,
+      "ms": 3920
     },
     {
       "name": "abuseipdb_s100_7d",
@@ -49,8 +49,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 37791,
-      "ms": 4850
+      "sample_ips": 37781,
+      "ms": 4860
     },
     {
       "name": "abuseipdb_score100",
@@ -58,8 +58,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 8644,
-      "ms": 680
+      "sample_ips": 9293,
+      "ms": 1160
     },
     {
       "name": "abuseipdb_score75",
@@ -67,8 +67,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 8644,
-      "ms": 930
+      "sample_ips": 9293,
+      "ms": 640
     },
     {
       "name": "abuseipdb_scriptzteam",
@@ -76,8 +76,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 9959,
-      "ms": 590
+      "sample_ips": 9963,
+      "ms": 660
     },
     {
       "name": "amitambekar_threats",
@@ -86,7 +86,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 139988,
-      "ms": 16210
+      "ms": 11290
     },
     {
       "name": "amitambekar_threats_aa",
@@ -95,7 +95,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 6411,
-      "ms": 2210
+      "ms": 1520
     },
     {
       "name": "avastel_proxy_bot_8d",
@@ -104,7 +104,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 300,
-      "ms": 510
+      "ms": 920
     },
     {
       "name": "bbcan177",
@@ -113,7 +113,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 1383,
-      "ms": 520
+      "ms": 540
     },
     {
       "name": "bdix_prefix_ipv4",
@@ -121,8 +121,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 6369,
-      "ms": 2110
+      "sample_ips": 6368,
+      "ms": 2770
     },
     {
       "name": "binary_defense",
@@ -130,8 +130,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 3422,
-      "ms": 480
+      "sample_ips": 3643,
+      "ms": 710
     },
     {
       "name": "binaryedge_scanners",
@@ -140,7 +140,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 16857,
-      "ms": 1940
+      "ms": 2420
     },
     {
       "name": "bitwire_ipblocklist",
@@ -148,8 +148,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 163271,
-      "ms": 4590
+      "sample_ips": 163324,
+      "ms": 6780
     },
     {
       "name": "black_mirror",
@@ -157,8 +157,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 143057,
-      "ms": 3870
+      "sample_ips": 143056,
+      "ms": 2410
     },
     {
       "name": "blacksnowdot_packets",
@@ -167,7 +167,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 24497,
-      "ms": 6820
+      "ms": 10880
     },
     {
       "name": "blocklist_de_all",
@@ -175,8 +175,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 22491,
-      "ms": 4880
+      "sample_ips": 24537,
+      "ms": 2900
     },
     {
       "name": "blocklist_de_apache",
@@ -184,8 +184,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 9072,
-      "ms": 3570
+      "sample_ips": 11824,
+      "ms": 2710
     },
     {
       "name": "blocklist_de_export",
@@ -193,8 +193,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 22491,
-      "ms": 5170
+      "sample_ips": 24563,
+      "ms": 2890
     },
     {
       "name": "blocklist_de_ftp",
@@ -202,8 +202,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 492,
-      "ms": 430
+      "sample_ips": 689,
+      "ms": 560
     },
     {
       "name": "blocklist_de_getlast",
@@ -211,8 +211,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 5679,
-      "ms": 3290
+      "sample_ips": 8817,
+      "ms": 3040
     },
     {
       "name": "blocklist_de_imap",
@@ -220,8 +220,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 4253,
-      "ms": 2020
+      "sample_ips": 3533,
+      "ms": 990
     },
     {
       "name": "blocklist_de_mail",
@@ -229,8 +229,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 14015,
-      "ms": 4740
+      "sample_ips": 13109,
+      "ms": 2590
     },
     {
       "name": "blocklist_de_ssh",
@@ -238,8 +238,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 5359,
-      "ms": 2830
+      "sample_ips": 5118,
+      "ms": 1570
     },
     {
       "name": "blocklist_de_strongips",
@@ -247,8 +247,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 337,
-      "ms": 250
+      "sample_ips": 298,
+      "ms": 580
     },
     {
       "name": "blocklist_net_ua",
@@ -256,8 +256,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 84483,
-      "ms": 6940
+      "sample_ips": 84502,
+      "ms": 5930
     },
     {
       "name": "bluetack_blacklist",
@@ -266,7 +266,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 124334,
-      "ms": 5330
+      "ms": 6380
     },
     {
       "name": "c2_iplist",
@@ -274,8 +274,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 172,
-      "ms": 480
+      "sample_ips": 168,
+      "ms": 760
     },
     {
       "name": "cinsarmy",
@@ -284,7 +284,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 15000,
-      "ms": 210
+      "ms": 350
     },
     {
       "name": "cinsscore",
@@ -293,7 +293,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 15000,
-      "ms": 490
+      "ms": 510
     },
     {
       "name": "cloudzy",
@@ -302,7 +302,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 3578,
-      "ms": 640
+      "ms": 910
     },
     {
       "name": "crowdsec_ssh",
@@ -311,7 +311,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 298,
-      "ms": 290
+      "ms": 560
     },
     {
       "name": "cyna_malicious",
@@ -319,8 +319,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 4112,
-      "ms": 1160
+      "sample_ips": 4124,
+      "ms": 700
     },
     {
       "name": "danger_bruteforce",
@@ -328,8 +328,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 444,
-      "ms": 1280
+      "sample_ips": 458,
+      "ms": 1790
     },
     {
       "name": "data_shield",
@@ -337,8 +337,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 101140,
-      "ms": 1380
+      "sample_ips": 101154,
+      "ms": 2770
     },
     {
       "name": "dataplane_dnsrd",
@@ -346,8 +346,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 7235,
-      "ms": 3790
+      "sample_ips": 6992,
+      "ms": 3820
     },
     {
       "name": "dataplane_dnsrdany",
@@ -355,8 +355,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 397,
-      "ms": 1250
+      "sample_ips": 395,
+      "ms": 980
     },
     {
       "name": "dataplane_dnstcp",
@@ -365,7 +365,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 916,
-      "ms": 890
+      "ms": 610
     },
     {
       "name": "dataplane_dnsversion",
@@ -373,8 +373,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 6247,
-      "ms": 3360
+      "sample_ips": 5995,
+      "ms": 2720
     },
     {
       "name": "dataplane_ntpmode3",
@@ -382,8 +382,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 2918,
-      "ms": 1510
+      "sample_ips": 2902,
+      "ms": 1390
     },
     {
       "name": "dataplane_ntpmode6",
@@ -391,8 +391,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 741,
-      "ms": 680
+      "sample_ips": 736,
+      "ms": 760
     },
     {
       "name": "dataplane_ntpmode7",
@@ -400,8 +400,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 722,
-      "ms": 530
+      "sample_ips": 729,
+      "ms": 460
     },
     {
       "name": "dataplane_proto41",
@@ -410,7 +410,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 16487,
-      "ms": 6270
+      "ms": 7140
     },
     {
       "name": "dataplane_sipinvitation",
@@ -418,8 +418,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 50,
-      "ms": 450
+      "sample_ips": 60,
+      "ms": 230
     },
     {
       "name": "dataplane_sipquery",
@@ -427,8 +427,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 4968,
-      "ms": 1970
+      "sample_ips": 4928,
+      "ms": 2250
     },
     {
       "name": "dataplane_sipregistration",
@@ -436,7 +436,7 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 350,
+      "sample_ips": 346,
       "ms": 520
     },
     {
@@ -445,8 +445,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 414,
-      "ms": 710
+      "sample_ips": 412,
+      "ms": 670
     },
     {
       "name": "dataplane_smtpgreet",
@@ -454,8 +454,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 10157,
-      "ms": 4059
+      "sample_ips": 10046,
+      "ms": 3340
     },
     {
       "name": "dataplane_sshclient",
@@ -463,8 +463,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 19662,
-      "ms": 7980
+      "sample_ips": 19773,
+      "ms": 8570
     },
     {
       "name": "dataplane_sshpwauth",
@@ -472,8 +472,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 11791,
-      "ms": 5770
+      "sample_ips": 12660,
+      "ms": 5670
     },
     {
       "name": "dataplane_telnetlogin",
@@ -482,7 +482,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 19569,
-      "ms": 7380
+      "ms": 8660
     },
     {
       "name": "dataplane_vncrfb",
@@ -490,8 +490,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 1858,
-      "ms": 2320
+      "sample_ips": 1867,
+      "ms": 1370
     },
     {
       "name": "ddrimus_http_threats",
@@ -500,7 +500,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 465,
-      "ms": 200
+      "ms": 590
     },
     {
       "name": "dolutech_blacklist",
@@ -509,7 +509,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 9996,
-      "ms": 6090
+      "ms": 1550
     },
     {
       "name": "dshield",
@@ -518,7 +518,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 40,
-      "ms": 310
+      "ms": 290
     },
     {
       "name": "edanwong",
@@ -526,8 +526,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 856,
-      "ms": 710
+      "sample_ips": 884,
+      "ms": 730
     },
     {
       "name": "et_block",
@@ -536,7 +536,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 1633,
-      "ms": 1330
+      "ms": 890
     },
     {
       "name": "et_compromised",
@@ -545,7 +545,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 436,
-      "ms": 840
+      "ms": 870
     },
     {
       "name": "f3csystems",
@@ -553,8 +553,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 1737,
-      "ms": 670
+      "sample_ips": 1758,
+      "ms": 460
     },
     {
       "name": "feodo_aggressive",
@@ -563,7 +563,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 7607,
-      "ms": 330
+      "ms": 500
     },
     {
       "name": "feodo_recommended",
@@ -572,7 +572,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 5,
-      "ms": 210
+      "ms": 390
     },
     {
       "name": "firehol_abusers_1d",
@@ -581,7 +581,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 6063,
-      "ms": 940
+      "ms": 590
     },
     {
       "name": "firehol_anonymous",
@@ -590,7 +590,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 158928,
-      "ms": 2850
+      "ms": 2080
     },
     {
       "name": "firehol_cybercrime",
@@ -599,7 +599,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 285,
-      "ms": 140
+      "ms": 430
     },
     {
       "name": "firehol_level1",
@@ -607,8 +607,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 4472,
-      "ms": 2990
+      "sample_ips": 4465,
+      "ms": 3190
     },
     {
       "name": "firehol_level2",
@@ -616,8 +616,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 16324,
-      "ms": 4530
+      "sample_ips": 18091,
+      "ms": 4520
     },
     {
       "name": "firehol_level3",
@@ -625,8 +625,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 14323,
-      "ms": 4370
+      "sample_ips": 14773,
+      "ms": 4730
     },
     {
       "name": "firehol_level4",
@@ -635,7 +635,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 85349,
-      "ms": 4530
+      "ms": 4860
     },
     {
       "name": "firehol_webclient",
@@ -644,7 +644,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 285,
-      "ms": 670
+      "ms": 690
     },
     {
       "name": "firehol_webserver",
@@ -652,8 +652,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 1545,
-      "ms": 1720
+      "sample_ips": 1524,
+      "ms": 810
     },
     {
       "name": "florent_banned",
@@ -661,8 +661,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 9968,
-      "ms": 620
+      "sample_ips": 9991,
+      "ms": 860
     },
     {
       "name": "fortigate_azure",
@@ -670,8 +670,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 48,
-      "ms": 430
+      "sample_ips": 38,
+      "ms": 530
     },
     {
       "name": "freakuency_threatfeed",
@@ -679,8 +679,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 34682,
-      "ms": 3280
+      "sample_ips": 35674,
+      "ms": 1990
     },
     {
       "name": "greedybear_recent",
@@ -689,7 +689,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 5000,
-      "ms": 2750
+      "ms": 1570
     },
     {
       "name": "greensnow",
@@ -697,8 +697,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 5134,
-      "ms": 840
+      "sample_ips": 5786,
+      "ms": 1380
     },
     {
       "name": "interserver",
@@ -706,8 +706,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 1008,
-      "ms": 340
+      "sample_ips": 1283,
+      "ms": 980
     },
     {
       "name": "ipsum_level3",
@@ -715,8 +715,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 19188,
-      "ms": 790
+      "sample_ips": 19686,
+      "ms": 970
     },
     {
       "name": "ipsum_level5",
@@ -724,8 +724,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 3062,
-      "ms": 850
+      "sample_ips": 4259,
+      "ms": 1280
     },
     {
       "name": "ipsum_level7",
@@ -733,8 +733,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 107,
-      "ms": 240
+      "sample_ips": 93,
+      "ms": 590
     },
     {
       "name": "ipsum_master",
@@ -742,8 +742,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 125506,
-      "ms": 2600
+      "sample_ips": 125946,
+      "ms": 3230
     },
     {
       "name": "kevinmarx",
@@ -752,7 +752,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 45,
-      "ms": 780
+      "ms": 310
     },
     {
       "name": "l7_ddos",
@@ -761,7 +761,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 1138,
-      "ms": 260
+      "ms": 620
     },
     {
       "name": "littlejake_all_blacklist",
@@ -770,7 +770,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 17729,
-      "ms": 1070
+      "ms": 720
     },
     {
       "name": "magicteamc_bad_ips",
@@ -778,8 +778,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 142359,
-      "ms": 10850
+      "sample_ips": 142372,
+      "ms": 10730
     },
     {
       "name": "myip_ms",
@@ -787,8 +787,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 1617,
-      "ms": 1510
+      "sample_ips": 1594,
+      "ms": 1750
     },
     {
       "name": "netmountains_blocklist",
@@ -796,8 +796,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 71815,
-      "ms": 1220
+      "sample_ips": 74645,
+      "ms": 2250
     },
     {
       "name": "nixbear_malicious",
@@ -805,8 +805,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 8066,
-      "ms": 340
+      "sample_ips": 8099,
+      "ms": 1270
     },
     {
       "name": "pgl_yoyo_adservers",
@@ -815,7 +815,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 8872,
-      "ms": 1350
+      "ms": 1320
     },
     {
       "name": "romain_marcoux",
@@ -824,7 +824,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 40000,
-      "ms": 3240
+      "ms": 2420
     },
     {
       "name": "romainmarcoux_aa",
@@ -832,8 +832,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 147129,
-      "ms": 3220
+      "sample_ips": 147140,
+      "ms": 4470
     },
     {
       "name": "romainmarcoux_ab",
@@ -841,8 +841,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 143320,
-      "ms": 3160
+      "sample_ips": 143580,
+      "ms": 2970
     },
     {
       "name": "romainmarcoux_outgoing_aa",
@@ -851,7 +851,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 131072,
-      "ms": 4570
+      "ms": 4260
     },
     {
       "name": "romainmarcoux_outgoing_ab",
@@ -859,8 +859,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 70877,
-      "ms": 2740
+      "sample_ips": 71964,
+      "ms": 2260
     },
     {
       "name": "rtbh_output",
@@ -868,8 +868,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 37858,
-      "ms": 4470
+      "sample_ips": 37949,
+      "ms": 3460
     },
     {
       "name": "rutgers_drop",
@@ -877,8 +877,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 1565,
-      "ms": 260
+      "sample_ips": 1829,
+      "ms": 1030
     },
     {
       "name": "sefinek_malicious",
@@ -886,8 +886,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 138051,
-      "ms": 8590
+      "sample_ips": 138012,
+      "ms": 6630
     },
     {
       "name": "shadowwhisperer_hackers",
@@ -896,7 +896,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 6893,
-      "ms": 570
+      "ms": 1330
     },
     {
       "name": "spamhaus_drop",
@@ -904,8 +904,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 1645,
-      "ms": 1850
+      "sample_ips": 1644,
+      "ms": 2330
     },
     {
       "name": "stopforumspam_toxic",
@@ -914,7 +914,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 56,
-      "ms": 1090
+      "ms": 390
     },
     {
       "name": "subnet_blocklist_new",
@@ -923,7 +923,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 9461,
-      "ms": 2050
+      "ms": 1320
     },
     {
       "name": "threatfox_ioc",
@@ -931,8 +931,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 27402,
-      "ms": 810
+      "sample_ips": 27231,
+      "ms": 1130
     },
     {
       "name": "threathive_blocklist",
@@ -940,8 +940,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 128097,
-      "ms": 4590
+      "sample_ips": 128969,
+      "ms": 5480
     },
     {
       "name": "threatview_high_conf",
@@ -949,8 +949,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 17616,
-      "ms": 1740
+      "sample_ips": 17966,
+      "ms": 1640
     },
     {
       "name": "trcert_malware",
@@ -959,7 +959,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 14277,
-      "ms": 770
+      "ms": 780
     },
     {
       "name": "turris_greylist",
@@ -967,8 +967,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 10078,
-      "ms": 1810
+      "sample_ips": 9212,
+      "ms": 1560
     },
     {
       "name": "ufukart_blacklist",
@@ -976,8 +976,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 147879,
-      "ms": 2640
+      "sample_ips": 147969,
+      "ms": 1970
     },
     {
       "name": "ultimate_hosts_ips0",
@@ -986,7 +986,7 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 147131,
-      "ms": 18570
+      "ms": 11140
     },
     {
       "name": "urlhaus_ips",
@@ -994,8 +994,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 646,
-      "ms": 8170
+      "sample_ips": 675,
+      "ms": 9820
     },
     {
       "name": "yuexuan_hfish",
@@ -1003,8 +1003,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 266,
-      "ms": 330
+      "sample_ips": 281,
+      "ms": 740
     },
     {
       "name": "zerof_ipextractor",
@@ -1012,8 +1012,8 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 28356,
-      "ms": 8550
+      "sample_ips": 30622,
+      "ms": 5530
     }
   ]
 }
