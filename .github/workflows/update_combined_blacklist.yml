@@ -417,6 +417,16 @@ jobs:
               "l7_ddos":                    ("https://raw.githubusercontent.com/Tizian-Maxime-Weigt/L7-HTTP-DDoS-Flood-IP-Signature-IP-List/refs/heads/main/ddos-signatures.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
               "binary_defense":             ("https://binarydefense.com/banlist.txt", True),
               "data_shield":                ("https://raw.githubusercontent.com/duggytuxy/Data-Shield_IPv4_Blocklist/refs/heads/main/prod_critical_data-shield_ipv4_blocklist.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
+              # data_shield_full: Full-List-Variante desselben Repos (prod_data-shield_ipv4_blocklist.txt).
+              # Komplementaer zu "data_shield" (= prod_critical_, kuratierte CI/CD- und kritische
+              # Infrastruktur-Targets). Die Full-List enthaelt zusaetzlich breitere Malicious-Traffic-
+              # Detections (Probes, Scanner, generische Angreifer). Beide Listen werden alle 6h
+              # aktualisiert, Retention 15 Tage – passt zum 3h-Combined-Takt. Single-Source (gleiche
+              # Probes wie data_shield), aber unterschiedliche Score-Schwellen. Doppel-Treffer auf
+              # beiden Listen erhoehen zusaetzlich den feed_count im Confidence-Score, ohne FP-Risiko
+              # zu erhoehen, weil die Quelle identisch ist. Konsistent zu data_shield: non-HQ (False),
+              # weil Einzelperson-Repo ohne verifizierten Betreiber.
+              "data_shield_full":           ("https://raw.githubusercontent.com/duggytuxy/Data-Shield_IPv4_Blocklist/refs/heads/main/prod_data-shield_ipv4_blocklist.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
               "interserver":                ("https://sigs.interserver.net/ip.txt", False),
               "crowdsec_ssh":               ("https://raw.githubusercontent.com/Y3ll0w/CrowdSec-CAPI-Decisions/refs/heads/main/ssh-bf.json.txt", True),
               "trcert_malware":             ("https://raw.githubusercontent.com/cenk/trcert-malware/refs/heads/main/trcert-ips.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
@@ -1242,6 +1252,7 @@ jobs:
           protected_removed_runtime = 0
           aufnahme_removed = 0
           wl_cleanup_count = 0
+          cidr_aggr_removed = 0   # FIX BUG-CIDR-AGGR: Counter fuer ausgetragene Non-/32-Ranges
           expired = []
           WATCHLIST_EXPIRY_DAYS = 30
           cutoff      = now - timedelta(days=EXPIRY_DAYS)
@@ -1256,6 +1267,27 @@ jobs:
           _corrupt_dropped = 0
           for ip in list(db.keys()):
               try:
+                  # FIX BUG-CIDR-AGGR: Schritt 0 - Non-/32-CIDRs aus Altbestand austragen.
+                  # Hintergrund: parse_entries() filtert auf dem Ingest-Pfad seit dem
+                  # is_valid_public_cidr-Fix korrekt jeden CIDR mit prefixlen < 32
+                  # heraus (z.B. 144.76.0.0/16, das 65k Hetzner-Hosts wie
+                  # schroederdennis.de mitblockt). Aber die Output-Dateien werden
+                  # nicht aus dem Ingest geschrieben, sondern aus dem seen_db-Snapshot
+                  # (combined ~Zeile 1421, active ~Zeile 1621). Vor dem Fix
+                  # eingewanderte Country-/ISP-Aggregations-Ranges (~280k Eintraege:
+                  # /8 bis /31) liegen daher weiter im seen_db und werden
+                  # unveraendert ausgeliefert. Weil deren Quell-Feeds bei jedem Lauf
+                  # neu gefetcht werden, wird last_seen staendig auf heute gesetzt
+                  # und der 180-Tage-Expiry feuert nie.
+                  # Loesung: jeden Key mit '/' (= CIDR-Form) hier einmalig austragen.
+                  # Echte /32-Eintraege werden im Repo als plain IP gespeichert
+                  # ("144.76.85.238", nicht "144.76.85.238/32") - es bleibt also
+                  # nichts Legitimes haengen. Defense-in-Depth: zusaetzlicher Filter
+                  # auf dem Output-Pfad (siehe combined- und active-Writer unten).
+                  if '/' in ip:
+                      cidr_aggr_removed += 1
+                      _to_drop.append(ip)
+                      continue
                   # FIX BUG-STATS-FP: Reihenfolge WL/FP-Check VOR Protected-Check.
                   # Vorher: _fast_is_protected() prueft am Ende auch ob ip im
                   # _fp_ips-Set steht (return ip_str in _fp_ips) und liefert dann
@@ -1345,6 +1377,8 @@ jobs:
 
           if protected_removed_runtime:
               print(f"Geschützte Einträge nach Feed-Ingest entfernt: {protected_removed_runtime}")
+          if cidr_aggr_removed:
+              print(f"Non-/32-CIDR-Aggregate aus seen_db entfernt (BUG-CIDR-AGGR): {cidr_aggr_removed}")
           print(f"Abgelaufen (>{EXPIRY_DAYS} Tage / Watchlist >{WATCHLIST_EXPIRY_DAYS} Tage): {len(expired)} IPs entfernt")
           if wl_cleanup_count:
               print(f"Whitelist-Bereinigung seen_db: {wl_cleanup_count} IPs entfernt")
@@ -1414,20 +1448,26 @@ jobs:
           # konsistent mit active_blacklist und allen anderen Ausgabedateien.
           # Zusätzlicher Guard: Whitelist-/FP-Treffer dürfen auch als Altlasten
           # aus früheren seen_db-Ständen nie mehr in die Combined-Ausgabe.
+          # FIX BUG-CIDR-AGGR (Defense-in-Depth): "'/' not in ip" als zweite
+          # Linie - falls ein CIDR-Aggregat den Cleanup-Pass oben aus irgendeinem
+          # Grund umgeht (z.B. neuer Code-Pfad fuegt direkt in db ein, ohne
+          # parse_entries() zu durchlaufen), wird es spaetestens hier abgewiesen.
           # FIX PERF-SORT: _ip_sort_key statt Lambda mit string-split + 4×int.
           # Sortier-Key per socket.inet_aton (C) statt 4-Tupel pro IP – auf 4,8M
           # Eintraegen ~5-10x schneller. Order-equivalent zum alten Key.
           try:
               sorted_ips = sorted(
                   [ip for ip in db.keys()
-                   if not _fast_is_protected(ip)
+                   if '/' not in ip
+                   and not _fast_is_protected(ip)
                    and not _fast_is_wl_or_fp(ip)],
                   key=_ip_sort_key
               )
           except Exception:
               sorted_ips = sorted(
                   [ip for ip in db.keys()
-                   if not _fast_is_protected(ip)
+                   if '/' not in ip
+                   and not _fast_is_protected(ip)
                    and not _fast_is_wl_or_fp(ip)]
               )
           feed_stats.sort(key=lambda x: -x[1])
@@ -1622,6 +1662,12 @@ jobs:
               try:
                   if not isinstance(data, dict):
                       active_skipped_corrupt += 1
+                      continue
+                  # FIX BUG-CIDR-AGGR (Defense-in-Depth): Non-/32-CIDRs niemals
+                  # in active_blacklist ausliefern. Cleanup-Pass oben raeumt sie
+                  # ohnehin aus db, aber falls je ein Code-Pfad direkt einfuegt,
+                  # haelt diese zweite Linie die OPNsense-Alias-Ranges sauber.
+                  if '/' in ip:
                       continue
                   # Defense-in-Depth: nach merged Cleanup-Pass sollten hier keine
                   # protected/wl_or_fp IPs mehr sein. Bisect-Checks sind O(log K)
