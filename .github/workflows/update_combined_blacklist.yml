@@ -456,7 +456,7 @@ jobs:
               "ultimate_hosts_ips0":        ("https://raw.githubusercontent.com/Ultimate-Hosts-Blacklist/Ultimate.Hosts.Blacklist/refs/heads/master/ips/ips0.list", False),
               "amitambekar_threats":        ("https://raw.githubusercontent.com/amitambekar510/Malicious-IP-Threat-List/refs/heads/main/Malicious-IP-Threat-List.txt", False),
               "amitambekar_threats_aa":     ("https://raw.githubusercontent.com/amitambekar510/Malicious-IP-Threat-List/main/Malicious-IP-Threat-List_aa", False),
-              "dolutech_blacklist":         ("https://raw.githubusercontent.com/dolutech/blacklist-dolutech/refs/heads/main/Black-list-semanal-dolutech.txt", False),
+              # dolutech_blacklist entfernt: 100% Redundanz mit HQ-Feeds, 0 Solo-IPs (Audit 2026-05-17, 38k IPs)
               "zerof_ipextractor":          ("https://raw.githubusercontent.com/ZEROF/ipextractor/refs/heads/main/ipexdbl.txt", False),
               "subnet_blocklist_new":       ("https://raw.githubusercontent.com/coyote-nl/blocklist/refs/heads/main/subnet-blocklist-new", False),
               "bdix_prefix_ipv4":           ("https://raw.githubusercontent.com/tushroy/bdix-isp-blocks/refs/heads/master/bdix-prefix_ipv4.txt", False),
@@ -497,12 +497,9 @@ jobs:
               "blocklist_de_all":           ("https://lists.blocklist.de/lists/all.txt", True),
               "blocklist_de_export":        ("https://www.blocklist.de/downloads/export-ips_all.txt", True),
               "blocklist_de_strongips":     ("https://lists.blocklist.de/lists/strongips.txt", True),
-              "blocklist_de_getlast":       ("https://api.blocklist.de/getlast.php?time=43200", False),
               "blocklist_de_ssh":           ("https://lists.blocklist.de/lists/ssh.txt", True),
-              "blocklist_de_mail":          ("https://lists.blocklist.de/lists/mail.txt", False),
-              "blocklist_de_apache":        ("https://lists.blocklist.de/lists/apache.txt", False),
-              "blocklist_de_imap":          ("https://lists.blocklist.de/lists/imap.txt", False),
-              "blocklist_de_ftp":           ("https://lists.blocklist.de/lists/ftp.txt", False),
+              # blocklist_de_getlast/mail/apache/imap/ftp entfernt: alle 100% Subset von blocklist_de_all
+              # (Audit 2026-05-17: getlast 184k, mail 77k, apache 38k, imap 63k, ftp 8k IPs - alle 0 Solo)
 
               # ── C2 / Botnet ───────────────────────────────────────────────
               # c2_tracker entfernt (war elliotwutingfeng/ThreatFox-IOC-IPs,
@@ -583,7 +580,7 @@ jobs:
               "avastel_proxy_bot_8d":       ("https://raw.githubusercontent.com/antoinevastel/avastel-bot-ips-lists/refs/heads/master/avastel-proxy-bot-ips-blocklist-8days.txt", False),
 
               # ── Scanning / Recon ──────────────────────────────────────────
-              "ipsum_level3":               ("https://raw.githubusercontent.com/stamparm/ipsum/master/levels/3.txt", False),
+              # ipsum_level3 entfernt: 100% Subset von ipsum_level5/7 (Audit 2026-05-17, 72k IPs, 0 Solo)
               "ipsum_level5":               ("https://raw.githubusercontent.com/stamparm/ipsum/master/levels/5.txt", True),
               "ipsum_level7":               ("https://raw.githubusercontent.com/stamparm/ipsum/master/levels/7.txt", True),
               "ipsum_master":               ("https://raw.githubusercontent.com/stamparm/ipsum/refs/heads/master/ipsum.txt", False),
@@ -603,9 +600,9 @@ jobs:
               # abuseipdb_tmiland entfernt: SSL Hostname-Mismatch (Cert nicht fuer
               # abuseipdb.tmiland.com gueltig) – dauerhafter Fehler auf Server-Seite.
               # AbuseIPDB-Daten werden durch andere abuseipdb_* Feeds abgedeckt.
-              "abuseipdb_score75":          ("https://raw.githubusercontent.com/LittleJake/ip-blacklist/refs/heads/main/abuseipdb_blacklist_ip_score_75.txt", False),
+              # abuseipdb_score75 entfernt: 100% Subset von abuseipdb_score100/s100 (Audit 2026-05-17, 107k IPs, 0 Solo)
               "abuseipdb_score100":         ("https://raw.githubusercontent.com/LittleJake/ip-blacklist/refs/heads/main/abuseipdb_blacklist_ip_score_100.txt", True),
-              "abuseipdb_scriptzteam":      ("https://raw.githubusercontent.com/scriptzteam/AbuseIPDB-BlackList/refs/heads/main/abuseipdb_blacklist.txt", False),
+              # abuseipdb_scriptzteam entfernt: 100% Redundanz zu HQ-AbuseIPDB-Feeds (Audit 2026-05-17, 103k IPs, 0 Solo)
               "abuseipdb_axllent":          ("https://raw.githubusercontent.com/axllent/iplists/master/lists/abuseipdb-30d.txt", False),
 
               # ── Community / GitHub ────────────────────────────────────────

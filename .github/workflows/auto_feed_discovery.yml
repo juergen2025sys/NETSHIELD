@@ -933,7 +933,11 @@ jobs:
                           "reason": f"FP-Rate: {fp:.1%}", "logs": _log_lines}
               _log_lines.append(f"  ✅ False-Positive-Rate: {fp:.1%}")
 
-              # Kriterium 4: Overlap mit HQ-Feeds (min. 20% oder 50 IPs)
+              # Kriterium 4: Overlap mit HQ-Feeds (min. 20% oder 50 IPs, max. 95%)
+              # FIX REDUNDANZ-AUDIT (2026-05-17): Obergrenze 95% verhindert dass
+              # reine HQ-Klone aufgenommen werden. Vorher wurden 100%-redundante
+              # Mirrors akzeptiert (z.B. blocklist_de_imap = Subset von _all),
+              # die keine eigene Information beitragen.
               if hq_ref_ready:
                   overlap     = len(ips & hq_ref_ips)
                   overlap_pct = overlap / len(ips) if ips else 0
@@ -941,6 +945,10 @@ jobs:
                       _log_lines.append(f"  ❌ Overlap: {overlap_pct:.1%} / {overlap} IPs (min. 20% oder 50)")
                       return {"action": "reject", "repo": full_name,
                               "reason": f"Overlap zu gering: {overlap_pct:.1%}", "logs": _log_lines}
+                  if overlap_pct > 0.95:
+                      _log_lines.append(f"  ❌ Overlap zu hoch: {overlap_pct:.1%} (max. 95% - reiner Klon)")
+                      return {"action": "reject", "repo": full_name,
+                              "reason": f"Klon-Verdacht: {overlap_pct:.1%}", "logs": _log_lines}
                   _log_lines.append(f"  ✅ Overlap mit HQ-Feeds: {overlap_pct:.1%} ({overlap} IPs)")
               else:
                   overlap_pct = 0
