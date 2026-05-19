@@ -1,11 +1,26 @@
 {
-  "updated": "2026-05-19 10:44 UTC",
+  "updated": "2026-05-19 16:30 UTC",
   "total": 21,
   "ok": 21,
-  "warn": 1,
+  "warn": 3,
   "error": 0,
   "errors": [],
   "warnings": [
+    {
+      "file": "honeypot_monitor.yml \u2192 update_combined_blacklist.yml",
+      "check": "Workflow-Reihenfolge / Puffer zu knapp",
+      "detail": "00:30 UTC \u2192 00:47 UTC (17min < 60min); 06:30 UTC \u2192 06:47 UTC (17min < 60min); 12:30 UTC \u2192 12:47 UTC (17min < 60min); 18:30 UTC \u2192 18:47 UTC (17min < 60min)"
+    },
+    {
+      "file": "update_combined_blacklist.yml \u2192 update_confidence_blacklist.yml",
+      "check": "Workflow-Reihenfolge / Puffer zu knapp",
+      "detail": "00:07 UTC \u2192 00:45 UTC (38min < 45min); 00:27 UTC \u2192 00:45 UTC (18min < 45min); 03:07 UTC \u2192 03:45 UTC (38min < 45min); 03:27 UTC \u2192 03:45 UTC (18min < 45min); 06:07 UTC \u2192 06:45 UTC (38min < 45min)"
+    },
+    {
+      "file": "honeypot_monitor.yml \u2192 update_combined_blacklist.yml",
+      "check": "Sub-Workflow Puffer zu knapp",
+      "detail": "Sub-Workflow laueft zu knapp vor Combined \u2013 Output moeglicherweise nicht rechtzeitig verfuegbar: 00:30 UTC \u2192 00:47 UTC (17min < 60min Mindestpuffer); 06:30 UTC \u2192 06:47 UTC (17min < 60min Mindestpuffer); 12:30 UTC \u2192 12:47 UTC (17min < 60min Mindestpuffer); 18:30 UTC \u2192 18:47 UTC (17min < 60min Mindestpuffer)"
+    },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
@@ -13,11 +28,11 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 5009840,
-    "active_blacklist_ipv4.txt": 402822,
-    "blacklist_confidence40_ipv4.txt": 4051268,
+    "combined_threat_blacklist_ipv4.txt": 5014814,
+    "active_blacklist_ipv4.txt": 407451,
+    "blacklist_confidence40_ipv4.txt": 4055590,
     "cve_exploit_ips.txt": 36617,
-    "honeypot_ips.txt": 131362,
+    "honeypot_ips.txt": 131286,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
