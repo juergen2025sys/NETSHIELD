@@ -2,7 +2,16 @@ name: Update Combined Blacklist
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # 8x täglich – alle 3 Stunden
+    # 3 Slots pro 3h-Fenster gegen GitHub-Schedule-Skips bei hoher Last.
+    # Primaerer Slot 7 min nach voller Stunde meidet top-of-hour congestion.
+    # Backup-Slots +20min und +40min triggern den Workflow erneut, wenn der
+    # primaere Slot von GitHub verzoegert/uebersprungen wurde. Der Idempotenz-
+    # Guard im ersten Step (Skip-Check via gh run list) verhindert, dass der
+    # Backup-Trigger laeuft, wenn in den letzten 2h bereits ein erfolgreicher
+    # Run war - dadurch keine Doppellaeufe trotz 24 Trigger pro Tag.
+    - cron: '7 */3 * * *'   # 00:07, 03:07, 06:07 ... UTC – primaerer Slot
+    - cron: '27 */3 * * *'  # 00:27, 03:27, 06:27 ... UTC – Backup #1 (+20min)
+    - cron: '47 */3 * * *'  # 00:47, 03:47, 06:47 ... UTC – Backup #2 (+40min)
   workflow_dispatch:
 
 env:
@@ -26,12 +35,50 @@ jobs:
     timeout-minutes: 90
 
     steps:
+      # Idempotenz-Guard gegen Doppellaeufe durch Backup-Cron-Slots.
+      # Bei 3 Slots pro 3h-Fenster (7/27/47 min nach voller Stunde) wuerde
+      # ohne Guard jeder Backup-Trigger einen vollen Run starten, auch wenn
+      # der primaere Slot regulaer durchlief. Der Check via gh run list
+      # ermittelt erfolgreiche Runs in den letzten 2h - existiert ein
+      # solcher, skippt dieser Trigger. Bei workflow_dispatch wird der
+      # Guard uebersprungen (immer durchlassen). Pattern adaptiert von
+      # auto_feed_discovery.yml (dort "schon heute gelaufen?" - hier
+      # "in den letzten 2h gelaufen?" wegen 3h-Cron-Intervall).
+      - name: Skip if recent successful run exists
+        id: idempotency
+        if: github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 2h-Fenster: Bei 3h-Cron ein erfolgreicher Run innerhalb von 2h
+          # bedeutet "der aktuelle Slot wurde bereits bedient". Die 2h-
+          # Schwelle laesst Raum fuer Run-Laufzeit (typ. ~25min) plus
+          # GitHub-Verzoegerung, ohne in den naechsten 3h-Slot zu reichen.
+          cutoff_iso=$(date -u -d '2 hours ago' +%Y-%m-%dT%H:%M:%SZ)
+          success_count=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml \
+            --status=success \
+            --created=">${cutoff_iso}" \
+            --limit=10 \
+            --json databaseId \
+            --jq 'length')
+          if [ "$success_count" -gt 0 ]; then
+            echo "already_ran=true" >> "$GITHUB_OUTPUT"
+            echo "In den letzten 2h bereits $success_count erfolgreiche Run(s) – Skip dieses Backup-Triggers"
+          else
+            echo "already_ran=false" >> "$GITHUB_OUTPUT"
+            echo "Kein erfolgreicher Run in den letzten 2h – fortfahren"
+          fi
+
       - name: Checkout Repository
+        if: steps.idempotency.outputs.already_ran != 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: true
 
       - name: Restore seen_db Cache
+        if: steps.idempotency.outputs.already_ran != 'true'
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: seen_db.json
@@ -43,6 +90,7 @@ jobs:
             netshield-seen-db-
 
       - name: Fetch AbuseIPDB Blacklist (API, Round-Robin)
+        if: steps.idempotency.outputs.already_ran != 'true'
         continue-on-error: true  # Rate-Limit (5 Req/Tag, Free-Plan) darf den Haupt-Build nicht blockieren
         env:
           ABUSEIPDB_KEY_1: ${{ secrets.ABUSEIPDB_API_KEY_1 }}
@@ -171,6 +219,7 @@ jobs:
           EOF
 
       - name: Fetch, discover, learn and build IPv4 lists
+        if: steps.idempotency.outputs.already_ran != 'true'
         env:
           PYTHONUNBUFFERED: "1"
         run: |
@@ -1810,7 +1859,10 @@ jobs:
         # Workflows (Confidence, Score Decay, FP-Checker) griffen auf veralteten Cache
         # zurück – Confidence-Blacklist berechnete dann Scores auf Basis einer
         # möglicherweise Stunden alten seen_db.
-        if: always()
+        # NOTE: always()-Semantik bleibt - "always() && Guard" laeuft bei Crash UND
+        # wenn Idempotenz-Guard nicht geskippt hat. Beim Skip soll auch der Cache-
+        # Save nicht laufen, da kein Build-Step ausgefuehrt wurde.
+        if: always() && steps.idempotency.outputs.already_ran != 'true'
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: seen_db.json
@@ -1820,7 +1872,7 @@ jobs:
 
 
       - name: Backup seen_db to Repo (komprimiert)
-        if: always()
+        if: always() && steps.idempotency.outputs.already_ran != 'true'
         run: |
           if [ -f seen_db.json ]; then
             # FIX BUG-BACKUP-GUARD: IP-Mindestcheck zusaetzlich zum Byte-Check.
@@ -1856,7 +1908,10 @@ jobs:
         # seen_db_meta.json committet. Das Repo zeigte dann veraltete Stände obwohl der
         # Workflow technisch gelaufen war. Auch Fehler-Teilstände (z.B. Report ohne
         # Blacklist-Update) sollen sichtbar ins Repo committed werden.
-        if: always()
+        # NOTE: always()-Semantik bleibt - "always() && Guard" laeuft bei Crash UND
+        # wenn Idempotenz-Guard nicht geskippt hat. Beim Skip soll auch der Commit
+        # nicht laufen, da kein Build-Step ausgefuehrt wurde.
+        if: always() && steps.idempotency.outputs.already_ran != 'true'
         run: |
           python3 - << 'PYEOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
