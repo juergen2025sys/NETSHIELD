@@ -588,6 +588,23 @@ jobs:
               "filename:blacklist.csv ip malicious",
               "filename:threats.csv ip",
               "filename:iocs.csv ip",
+              # NEU: erweiterte CSV-Patterns (taegliche/aktuelle Feeds)
+              "filename:badips.csv malicious",
+              "filename:attackers.csv ip",
+              "filename:c2.csv ip",
+              "filename:feed.csv malicious ip",
+              # NEU: .list-Format (verbreitet bei Feed-Repos)
+              "filename:blacklist.list malicious ip",
+              "filename:badips.list ip",
+              "filename:blocklist.list malicious ip",
+              # NEU: .lst-Variante
+              "filename:blacklist.lst malicious ip",
+              "filename:ips.lst malicious",
+              # NEU: .json-Feeds
+              "filename:blacklist.json malicious ip",
+              "filename:threats.json ip",
+              # NEU: weitere ipset/netset Patterns (FireHOL-Style)
+              "filename:bruteforcers.ipset ip",
           ]
 
           candidate_repos = {}
