@@ -1,0 +1,113 @@
+name: Watchdog Combined Blacklist
+
+# Zweck:
+# Sicherstellen dass Update Combined Blacklist mindestens alle 3h 30min laeuft -
+# auch wenn GitHub Actions Schedule-Trigger ueberspringt (bekanntes Verhalten
+# bei hoher Last; siehe github.com/orgs/community/discussions/52477 und andere).
+#
+# Funktion:
+# Alle 30min prueft dieser Workflow, wann der letzte erfolgreiche Lauf von
+# update_combined_blacklist.yml war. Wenn der > 3h 30min her ist, triggert er
+# einen workflow_dispatch-Lauf des Combined-Workflows. workflow_dispatch wird
+# - im Gegensatz zu schedule - von GitHub nicht geskippt und laeuft zuverlaessig.
+#
+# Hinweise:
+# - 30min-Cron-Trigger des Watchdogs koennen selbst von GitHub geskippt werden,
+#   aber bei 48 Triggern/Tag ist Wahrscheinlichkeit dass mehrere in Folge
+#   ausfallen sehr gering.
+# - Falls Watchdog selbst nicht laeuft, fallen wir auf die 7/27/47 */3-Schedule
+#   von Combined zurueck - bisheriges Verhalten bleibt erhalten, nichts wird
+#   schlechter.
+# - Im Combined-Workflow steht beim Idempotenz-Guard: if: github.event_name == 'schedule'.
+#   Bei workflow_dispatch wird der Guard somit nicht ausgefuehrt - das ist hier
+#   gewuenscht, weil der Watchdog vorher selbst die Frische geprueft hat und
+#   nur dann triggert, wenn wirklich ein Lauf faellig ist.
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # alle 30 Minuten
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: read
+  actions: write    # Pflicht fuer gh workflow run (Schreibrecht auf Actions API)
+
+concurrency:
+  group: watchdog-combined
+  cancel-in-progress: false
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check freshness and trigger Combined if stale
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          STALE_THRESHOLD_MINUTES: "210"   # 3h 30min = 210min
+        run: |
+          set -e
+
+          # Letzter erfolgreicher Lauf - egal ob via schedule oder workflow_dispatch
+          # (gh run list ohne --event liefert alle Trigger-Events).
+          # --json updatedAt liefert ISO-8601-Zeitstempel, --jq nimmt das erste
+          # Element (neuester Erfolg).
+          last_success_iso=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml \
+            --status=success \
+            --limit=1 \
+            --json updatedAt \
+            --jq '.[0].updatedAt // empty')
+
+          if [ -z "$last_success_iso" ]; then
+            echo "Kein erfolgreicher Lauf gefunden - triggere Combined zur Sicherheit"
+            should_trigger=true
+          else
+            now_epoch=$(date -u +%s)
+            last_epoch=$(date -u -d "$last_success_iso" +%s)
+            age_min=$(( (now_epoch - last_epoch) / 60 ))
+            echo "Letzter Erfolg: $last_success_iso (vor ${age_min} min)"
+            if [ "$age_min" -ge "$STALE_THRESHOLD_MINUTES" ]; then
+              echo "Schwelle ${STALE_THRESHOLD_MINUTES}min ueberschritten - triggere Combined"
+              should_trigger=true
+            else
+              echo "Innerhalb der Schwelle ${STALE_THRESHOLD_MINUTES}min - kein Eingriff"
+              should_trigger=false
+            fi
+          fi
+
+          if [ "$should_trigger" = "true" ]; then
+            # Pruefe ob Combined bereits laeuft - in dem Fall nicht zusaetzlich
+            # triggern (Combined hat eigene concurrency-Gruppe, ein wartender
+            # Run wuerde vom naechsten cancelled werden - siehe Lauf #639).
+            running_count=$(gh run list \
+              --repo "${{ github.repository }}" \
+              --workflow=update_combined_blacklist.yml \
+              --status=in_progress \
+              --limit=5 \
+              --json databaseId \
+              --jq 'length')
+            queued_count=$(gh run list \
+              --repo "${{ github.repository }}" \
+              --workflow=update_combined_blacklist.yml \
+              --status=queued \
+              --limit=5 \
+              --json databaseId \
+              --jq 'length')
+            active=$(( running_count + queued_count ))
+
+            if [ "$active" -gt 0 ]; then
+              echo "Combined hat bereits ${active} aktive(n) Lauf/Laeufe (running+queued) - kein Re-Trigger"
+            else
+              echo "Triggere update_combined_blacklist.yml via workflow_dispatch"
+              gh workflow run update_combined_blacklist.yml \
+                --repo "${{ github.repository }}" \
+                --ref main
+              echo "Triggered."
+            fi
+          fi
