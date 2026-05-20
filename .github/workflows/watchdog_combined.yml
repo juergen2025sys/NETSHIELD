@@ -25,7 +25,15 @@ name: Watchdog Combined Blacklist
 
 on:
   schedule:
-    - cron: '*/30 * * * *'  # alle 30 Minuten
+    # Laeuft 8x taeglich, jeweils ~68min nach dem primaeren Combined-Slot
+    # (Combined-Cron: 7 */3 * * * = 00:07, 03:07, 06:07 ... UTC).
+    # 68min Puffer reichen fuer: alle 3 Backup-Slots des Combined (07/27/47)
+    # + ~22min Run-Dauer. Wenn zu diesem Zeitpunkt kein erfolgreicher Combined
+    # in den letzten 3h 30min war, springt der Watchdog ein.
+    # Frueher: alle 30min (*/30) - das war zu hektisch, hat viele unnoetige
+    # Trigger erzeugt obwohl Combined regulaer lief. Jetzt: gezielter Check
+    # genau dann, wenn ein Combined-Slot ueberhaupt verpasst sein koennte.
+    - cron: '15 1-23/3 * * *'  # 01:15, 04:15, 07:15, 10:15, 13:15, 16:15, 19:15, 22:15 UTC
   workflow_dispatch:
 
 env:
@@ -49,29 +57,43 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           STALE_THRESHOLD_MINUTES: "210"   # 3h 30min = 210min
+          # Mindest-Laufzeit in Sekunden, ab der ein Combined-Run als "echt"
+          # zaehlt. Combined dauert normal ~22min. Idempotenz-Guard-Skips
+          # dauern 10-15s. Schwelle 60s trennt zuverlaessig zwischen Skip
+          # und echtem Run, ohne dass kuenftige Speed-Optimierungen am
+          # Combined-Build versehentlich rausgefiltert wuerden.
+          MIN_REAL_RUN_SECONDS: "60"
         run: |
           set -e
 
-          # Letzter erfolgreicher Lauf - egal ob via schedule oder workflow_dispatch
-          # (gh run list ohne --event liefert alle Trigger-Events).
-          # --json updatedAt liefert ISO-8601-Zeitstempel, --jq nimmt das erste
-          # Element (neuester Erfolg).
+          # Hole die letzten 20 erfolgreichen Runs und filtere clientseitig
+          # auf echte Runs (Laufzeit > MIN_REAL_RUN_SECONDS). Grund: Der
+          # frueher genutzte "nimm einfach den neuesten Erfolg"-Ansatz hat
+          # 10-15s lange Idempotenz-Guard-Skip-Runs als "frisch" gezaehlt,
+          # wodurch der Watchdog nie eingegriffen hat obwohl real seit
+          # Stunden kein Daten-Update mehr war (siehe Lauf #2 am 2026-05-20:
+          # "Letzter Erfolg vor 106 min" = war aber #644, ein 10s-Skip).
+          #
+          # jq berechnet die Laufzeit aus startedAt/updatedAt (beide ISO-8601)
+          # und gibt den neuesten Run zurueck, der laenger als die Schwelle
+          # lief. Falls kein solcher in den letzten 20 Runs existiert,
+          # liefert .[]?... nichts zurueck und last_success_iso bleibt leer.
           last_success_iso=$(gh run list \
             --repo "${{ github.repository }}" \
             --workflow=update_combined_blacklist.yml \
             --status=success \
-            --limit=1 \
-            --json updatedAt \
-            --jq '.[0].updatedAt // empty')
+            --limit=20 \
+            --json startedAt,updatedAt \
+            --jq "[.[] | select(((.updatedAt | fromdateiso8601) - (.startedAt | fromdateiso8601)) > ${MIN_REAL_RUN_SECONDS})] | .[0].updatedAt // empty")
 
           if [ -z "$last_success_iso" ]; then
-            echo "Kein erfolgreicher Lauf gefunden - triggere Combined zur Sicherheit"
+            echo "Kein echter Lauf (>${MIN_REAL_RUN_SECONDS}s) in den letzten 20 erfolgreichen Runs - triggere Combined zur Sicherheit"
             should_trigger=true
           else
             now_epoch=$(date -u +%s)
             last_epoch=$(date -u -d "$last_success_iso" +%s)
             age_min=$(( (now_epoch - last_epoch) / 60 ))
-            echo "Letzter Erfolg: $last_success_iso (vor ${age_min} min)"
+            echo "Letzter echter Erfolg (>${MIN_REAL_RUN_SECONDS}s Laufzeit): $last_success_iso (vor ${age_min} min)"
             if [ "$age_min" -ge "$STALE_THRESHOLD_MINUTES" ]; then
               echo "Schwelle ${STALE_THRESHOLD_MINUTES}min ueberschritten - triggere Combined"
               should_trigger=true
