@@ -1,31 +1,23 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-20 10:29 UTC
+**Aktualisiert:** 2026-05-20 16:30 UTC
 
-**Workflows:** 21 | ✅ 21 OK | ⚠️ 2 Warnung | ❌ 1 Fehler
+**Workflows:** 22 | ✅ 22 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 4,257 IPs in active fehlen in conf40 (1.070% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
-
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Workflow-Reihenfolge / Puffer zu knapp | 00:30 UTC → 00:47 UTC (17min < 60min); 06:30 UTC → 06:47 UTC (17min < 60min); 12:30 UTC → 12:47 UTC (17min < 60min); 18:30 UTC → 18:47 UTC (17min < 60min) |
-| `update_combined_blacklist.yml → update_confidence_blacklist.yml` | Workflow-Reihenfolge / Puffer zu knapp | 00:07 UTC → 00:45 UTC (38min < 45min); 00:27 UTC → 00:45 UTC (18min < 45min); 03:07 UTC → 03:45 UTC (38min < 45min); 03:27 UTC → 03:45 UTC (18min < 45min); 06:07 UTC → 06:45 UTC (38min < 45min) |
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:30 UTC → 00:47 UTC (17min < 60min Mindestpuffer); 06:30 UTC → 06:47 UTC (17min < 60min Mindestpuffer); 12:30 UTC → 12:47 UTC (17min < 60min Mindestpuffer); 18:30 UTC → 18:47 UTC (17min < 60min Mindestpuffer) |
 | `Production Health` | Push-Limit Naehe | blacklist_geo_enriched.json: 85.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 4,257 IPs in active fehlen in conf40 (1.070% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 | 🟡 WARN | Push-Limit Naehe | blacklist_geo_enriched.json: 85.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
@@ -51,8 +43,9 @@
 | `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 1 * * 1`, `30 1 * * 3` |
 | `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
 | `update_combined_blacklist.yml` | ✅ OK | 0 | 0 | `7 */3 * * *`, `27 */3 * * *`, `47 */3 * * *` |
-| `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | `45 0 * * *`, `45 3 * * *`, `45 6 * * *`, `45 9 * * *`, `45 12 * * *`, `45 15 * * *`, `45 18 * * *`, `45 21 * * *` |
+| `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | – |
+| `watchdog_combined.yml` | ✅ OK | 0 | 0 | `*/30 * * * *` |
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-05-20 10:29 UTC | 21 Workflow-Dateien geprüft*
+*Generiert: 2026-05-20 16:30 UTC | 22 Workflow-Dateien geprüft*
