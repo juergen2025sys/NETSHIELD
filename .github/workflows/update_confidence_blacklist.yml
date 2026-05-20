@@ -1,15 +1,23 @@
 name: Confidence Blacklist
 
+# Trigger: laeuft automatisch nach jedem erfolgreichen Update Combined Blacklist.
+# Vorher: 8 feste schedule-Slots (45min nach den alten Combined-Slots 0,3,6,9,12,15,18,21 UTC).
+# Problem mit dem alten Setup:
+#  - Combined laeuft seit Cron-Umstellung auf 7/27/47 min (drei Slots pro 3h-Fenster)
+#    plus Watchdog-Triggers - die 45-Min-Offsets passten nicht mehr zuverlaessig.
+#  - Wenn Combined einen Slot uebersprang, lief Confidence trotzdem auf 3-6h alten
+#    seen_db-Daten. Die Frische-Schutzlogik (FIX SEEN-DB-AGE / STALE-HARDCAP) fing
+#    das zwar mit WARN/Abort ab, aber unnoetiger Run-Lauf + Lärm im Actions-Tab.
+# Jetzt: workflow_run-Trigger laeuft genau dann, wenn Combined erfolgreich fertig
+# ist - egal ob der vom regulaeren Cron, vom Watchdog oder manuell angestossen wurde.
+# Das macht Confidence zum echten Downstream-Schritt der Combined-Pipeline.
+# Hinweis: workflow_dispatch bleibt fuer manuelle Trigger erhalten.
+
 on:
-  schedule:
-    - cron: '45 0 * * *'    # täglich 00:45 UTC (45 Min nach Combined – sicher nach Cache-Save)
-    - cron: '45 3 * * *'    # täglich 03:45 UTC (45 Min nach Combined-Lauf um 03:00)
-    - cron: '45 6 * * *'    # täglich 06:45 UTC (45 Min nach Combined-Lauf um 06:00)
-    - cron: '45 9 * * *'    # täglich 09:45 UTC
-    - cron: '45 12 * * *'   # täglich 12:45 UTC
-    - cron: '45 15 * * *'   # täglich 15:45 UTC
-    - cron: '45 18 * * *'   # täglich 18:45 UTC
-    - cron: '45 21 * * *'   # täglich 21:45 UTC
+  workflow_run:
+    workflows: ["Update Combined Blacklist"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 env:
@@ -31,6 +39,14 @@ jobs:
   update-confidence:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    # Nur ausfuehren wenn:
+    # - manuell via workflow_dispatch ausgeloest (event_name == 'workflow_dispatch'), ODER
+    # - vom Combined-Workflow ausgeloest UND Combined war erfolgreich.
+    # Bei workflow_run wird der Job auch bei Combined-Failure/Cancelled getriggert -
+    # in dem Fall soll Confidence nicht laufen, weil keine neuen Daten existieren.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
 
     steps:
       - name: Checkout Repository
