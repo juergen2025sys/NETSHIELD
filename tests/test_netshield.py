@@ -1505,7 +1505,7 @@ class TestWriteIpListCleanup(unittest.TestCase):
         try:
             # Iterator, der einen RuntimeError wirft
             class BadIter:
-                def __iter__(self_inner):
+                def __iter__(self):
                     yield "1.1.1.1"
                     raise RuntimeError("Feed-Crash")
 
