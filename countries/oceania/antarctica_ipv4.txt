@@ -1,5 +1,7 @@
 # NETSHIELD – Antarctica (AQ) IPv4 Ranges
-# Aktualisiert: 2026-05-18 05:45 UTC
-# IP-Ranges: 0
+# Aktualisiert: 2026-05-20 05:39 UTC
+# IP-Ranges: 3
 
-
+23.154.160.0/24
+131.143.220.0/23
+209.127.204.0/24
