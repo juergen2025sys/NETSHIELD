@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-20 16:30 UTC
+**Aktualisiert:** 2026-05-20 21:08 UTC
 
 **Workflows:** 22 | ✅ 22 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
@@ -44,8 +44,8 @@
 | `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
 | `update_combined_blacklist.yml` | ✅ OK | 0 | 0 | `7 */3 * * *`, `27 */3 * * *`, `47 */3 * * *` |
 | `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | – |
-| `watchdog_combined.yml` | ✅ OK | 0 | 0 | `*/30 * * * *` |
+| `watchdog_combined.yml` | ✅ OK | 0 | 0 | – |
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 
 ---
-*Generiert: 2026-05-20 16:30 UTC | 22 Workflow-Dateien geprüft*
+*Generiert: 2026-05-20 21:08 UTC | 22 Workflow-Dateien geprüft*
