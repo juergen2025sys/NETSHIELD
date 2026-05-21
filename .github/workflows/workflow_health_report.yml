@@ -17,8 +17,9 @@ name: Workflow Health Report
 # - "Skip-Run": Combined-Run mit Laufzeit <= 60s (Idempotenz-Guard-Skip).
 # - "Watchdog-Trigger": Combined-Run mit event=workflow_dispatch (vom
 #   Watchdog ausgeloest, da kein menschlicher dispatch erwartet).
-# - "Geschluckter Slot": Erwarteter Cron-Trigger (Plan: 7/27/47 */3 UTC),
-#   zu dem in einem +-3min-Fenster kein Run gestartet ist.
+# - "Lucke": Zeit zwischen Ende eines echten Runs und Start des naechsten
+#   echten Runs, sofern >= GAP_THRESHOLD_MINUTES (210min). Lucken sind die
+#   direkt relevante Metrik fuer "Datenstand veraltet".
 
 on:
   schedule:
@@ -140,6 +141,13 @@ jobs:
           watchdog_failed = [r for r in watchdog if r["conclusion"] not in ("success", "")]
 
           # ── Lucken zwischen echten Combined-Runs finden ─────────────────
+          # Lucken sind die ehrliche Metrik fuer "Datenstand veraltet": egal
+          # welcher Cron-Slot geschluckt wurde, was zaehlt ist die Zeit ohne
+          # echten Daten-Update. Geschluckte Einzel-Slots zu erkennen war
+          # frueher hier drin, ist aber unzuverlaessig wegen GitHub-Scheduler-
+          # Drift (Slots koennen 0-60min verzoegert starten - kein verlaessliches
+          # Detektions-Fenster moeglich ohne Slot-Ueberlappung). Lucken-Metrik
+          # ist sowieso die direkt relevante Information.
           gaps = []
           for i in range(1, len(real_runs)):
               prev_end = real_runs[i-1]["updated"]
@@ -152,43 +160,14 @@ jobs:
                       "minutes": int(gap_min),
                   })
 
-          # ── Geschluckte Cron-Slots erkennen ─────────────────────────────
-          # Erwartete Combined-Trigger laut Cron: 7, 27, 47 min nach voller
-          # Stunde alle 3h (00:07, 00:27, 00:47, 03:07, 03:27, 03:47, ...).
-          # Fuer jeden erwarteten Slot in LOOKBACK_DAYS pruefen, ob ein Run
-          # innerhalb +-3min gestartet ist. Wenn nicht: geschluckt.
-          expected_minutes = [7, 27, 47]
-          expected_hours = [0, 3, 6, 9, 12, 15, 18, 21]
-          missed_slots = []
-
-          # Iteration ab lookback_cutoff bis now
-          cursor = lookback_cutoff.replace(minute=0, second=0, microsecond=0)
-          while cursor < now:
-              if cursor.hour in expected_hours:
-                  for m in expected_minutes:
-                      slot = cursor.replace(minute=m)
-                      if slot < lookback_cutoff or slot > now - timedelta(minutes=3):
-                          # Slots in der Zukunft oder ausserhalb Fenster ueberspringen.
-                          # -3min Puffer: ein Slot der GERADE eben war kann noch
-                          # legitim verzoegert sein, nicht als "geschluckt" markieren.
-                          continue
-                      # Pruefen ob ein Combined-Run in +-3min um slot startete
-                      hit = any(
-                          abs((r["started"] - slot).total_seconds()) < 180
-                          for r in combined
-                      )
-                      if not hit:
-                          missed_slots.append(slot)
-              cursor += timedelta(hours=1)
-
           # ── 24h-Statistik separat ───────────────────────────────────────
           real_24h = [r for r in real_runs if r["started"] >= last_24h_cutoff]
           skip_24h = [r for r in skip_runs if r["started"] >= last_24h_cutoff]
-          missed_24h = [s for s in missed_slots if s >= last_24h_cutoff]
           gaps_24h = [g for g in gaps if g["from"] >= last_24h_cutoff]
 
           # In 24h erwartet: 24/3 = 8 echte Runs (1 pro 3h-Fenster)
           expected_real_24h = 8
+
 
           # ── Markdown-Report bauen ───────────────────────────────────────
           def fmt_dt(dt):
@@ -216,12 +195,6 @@ jobs:
           lines.append("")
           lines.append(f"- **Echte Combined-Runs:** {len(real_24h)} / {expected_real_24h} erwartet")
           lines.append(f"- **Skip-Runs (Idempotenz-Guard):** {len(skip_24h)}")
-          lines.append(f"- **Geschluckte Cron-Slots:** {len(missed_24h)}")
-          if missed_24h:
-              slots_str = ", ".join(s.strftime("%H:%M") for s in missed_24h[:10])
-              if len(missed_24h) > 10:
-                  slots_str += f" ... (+{len(missed_24h)-10} weitere)"
-              lines.append(f"  - Zeiten: {slots_str}")
           lines.append(f"- **Lucken (>{GAP_MIN}min zwischen echten Runs):** {len(gaps_24h)}")
           for g in gaps_24h:
               lines.append(f"  - {fmt_dt(g['from'])} -> {fmt_dt(g['to'])} ({g['minutes']} min)")
@@ -233,7 +206,6 @@ jobs:
           lines.append(f"- **Echte Combined-Runs:** {len(real_runs)}")
           lines.append(f"- **Skip-Runs:** {len(skip_runs)}")
           lines.append(f"- **Fehlgeschlagene Runs:** {len(failed_runs)}")
-          lines.append(f"- **Geschluckte Cron-Slots:** {len(missed_slots)}")
           lines.append(f"- **Lucken >{GAP_MIN}min:** {len(gaps)}")
           if gaps:
               biggest = max(gaps, key=lambda g: g["minutes"])
@@ -261,24 +233,6 @@ jobs:
                   lines.append(f"- {fmt_dt(r['started'])} - {r['conclusion']} - Run #{r['id']} ({fmt_duration(r['duration_s'])})")
               lines.append("")
 
-          # ── Geschluckte Slots Details (nur wenn nicht zu viele) ──────────
-          if missed_slots and len(missed_slots) <= 30:
-              lines.append(f"## Alle geschluckten Slots ({LOOKBACK_DAYS}d)")
-              lines.append("")
-              for s in missed_slots:
-                  lines.append(f"- {fmt_dt(s)}")
-              lines.append("")
-          elif missed_slots:
-              lines.append(f"## Geschluckte Slots ({LOOKBACK_DAYS}d)")
-              lines.append("")
-              lines.append(f"Insgesamt {len(missed_slots)} - zu viele fuer Einzel-Auflistung. Verteilung nach Stunde:")
-              lines.append("")
-              from collections import Counter
-              by_hour = Counter(s.hour for s in missed_slots)
-              for h in sorted(by_hour.keys()):
-                  lines.append(f"- {h:02d}:xx UTC -> {by_hour[h]}x")
-              lines.append("")
-
           # ── Footer ───────────────────────────────────────────────────────
           lines.append("---")
           lines.append("")
@@ -297,7 +251,6 @@ jobs:
           print(f"Report geschrieben: {len(lines)} Zeilen")
           print(f"  Echte Runs 24h: {len(real_24h)}/{expected_real_24h}")
           print(f"  Skip-Runs 24h: {len(skip_24h)}")
-          print(f"  Geschluckte Slots 24h: {len(missed_24h)}")
           print(f"  Lucken 24h: {len(gaps_24h)}")
           PYEOF
 
