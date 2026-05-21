@@ -49,12 +49,53 @@ jobs:
       github.event.workflow_run.conclusion == 'success'
 
     steps:
+      # FIX SKIP-RUN-DETECT (2026-05-21): Confidence wird per workflow_run
+      # nach JEDEM erfolgreichen Combined-Lauf getriggert - auch nach
+      # Idempotenz-Guard-Skip-Runs (10-15s lang, keine neuen Daten). Diese
+      # Skip-Runs haben aus GitHub-Sicht conclusion=success, deshalb greift
+      # der if:-Check oben nicht. Ergebnis vorher: Confidence lief unnoetig
+      # auf alten seen_db-Daten - wird zwar von der internen Frische-Schutz-
+      # Logik (FIX SEEN-DB-AGE) abgefangen, aber unnoetiger Run und Laerm.
+      #
+      # Logik: Bei workflow_run prueft dieser Step die Laufzeit des
+      # triggernden Combined-Runs. Wenn < MIN_REAL_RUN_SECONDS = Skip-Run,
+      # beendet den Job sauber via 'exit 0' nach Setzen eines Outputs.
+      # Folge-Steps haben 'if: steps.skip-check.outputs.is_skip != 'true''.
+      # Bei workflow_dispatch (manueller Trigger) wird der Check uebersprungen,
+      # Confidence laeuft dann immer.
+      - name: Skip if Combined was a no-op run
+        id: skip-check
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MIN_REAL_RUN_SECONDS: "60"
+          TRIGGER_RUN_STARTED: ${{ github.event.workflow_run.run_started_at }}
+          TRIGGER_RUN_UPDATED: ${{ github.event.workflow_run.updated_at }}
+          TRIGGER_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -e
+          # Laufzeit aus den vom workflow_run-Event mitgelieferten Feldern.
+          # run_started_at = Combined-Start, updated_at = Combined-Ende.
+          start_epoch=$(date -u -d "$TRIGGER_RUN_STARTED" +%s)
+          end_epoch=$(date -u -d "$TRIGGER_RUN_UPDATED" +%s)
+          duration=$((end_epoch - start_epoch))
+          echo "Triggernder Combined-Run #${TRIGGER_RUN_ID}: ${duration}s Laufzeit"
+          if [ "$duration" -lt "$MIN_REAL_RUN_SECONDS" ]; then
+            echo "is_skip=true" >> "$GITHUB_OUTPUT"
+            echo "Combined war ein Skip-Run (<${MIN_REAL_RUN_SECONDS}s) - keine neuen Daten, Confidence wird uebersprungen"
+          else
+            echo "is_skip=false" >> "$GITHUB_OUTPUT"
+            echo "Combined war ein echter Run - Confidence laeuft"
+          fi
+
       - name: Checkout Repository
+        if: steps.skip-check.outputs.is_skip != 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: true
 
       - name: Restore seen_db Cache
+        if: steps.skip-check.outputs.is_skip != 'true'
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: seen_db.json
@@ -70,6 +111,7 @@ jobs:
             netshield-seen-db-
 
       - name: Build Confidence Blacklists from seen_db
+        if: steps.skip-check.outputs.is_skip != 'true'
         env:
           PYTHONUNBUFFERED: "1"
         run: |
@@ -743,7 +785,10 @@ jobs:
           EOF
 
       - name: Commit
-        if: always()
+        # FIX SKIP-RUN-DETECT: always() bleibt fuer Best-Effort-Commit auch
+        # bei Build-Fehler, aber NICHT wenn Confidence wegen Skip-Run gar
+        # nicht lief (dann gibt's nichts zu committen und kein Checkout).
+        if: always() && steps.skip-check.outputs.is_skip != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
