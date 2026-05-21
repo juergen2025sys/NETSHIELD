@@ -97,20 +97,33 @@ jobs:
           set -o pipefail
 
           # ── 1. Letzten echten Combined-Run finden ──────────────────────
-          # Hole die letzten 30 erfolgreichen Runs und filtere clientseitig
+          # Hole die letzten 100 erfolgreichen Runs und filtere clientseitig
           # auf echte Runs (Laufzeit > MIN_REAL_RUN_SECONDS). Skip-Runs
           # (10-15s lang) wuerden sonst als "frisch" zaehlen, obwohl real
           # seit Stunden kein Daten-Update mehr war.
           #
           # Wir brauchen sowohl startedAt (fuer Slot-Zuordnung) als auch
           # updatedAt (fuer Alter zur Schwellen-Pruefung).
+          #
+          # FIX AUDIT-1 (2026-05-21): limit von 30 auf 100 erhoeht. Bei
+          # vielen Skip-Runs (zaehlen alle als "success") koennte der
+          # letzte ECHTE Run sonst aus dem Fenster fallen, was zu einem
+          # falschen "kein Run gefunden -> triggern" fuehren wuerde. Bei
+          # 100 Runs und typisch ~25 echten + ~50 Skip-Runs pro Woche
+          # haben wir Reserve.
+          #
+          # FIX AUDIT-5 (2026-05-21): explizit nach startedAt sortieren
+          # statt sich auf gh's Default-Sortierung zu verlassen. gh sortiert
+          # zwar "most recent first" aber ohne klare Doku nach welchem Feld.
+          # Bei lang laufenden Runs koennte sonst .[0] nicht der zeitlich
+          # zuletzt gestartete Run sein.
           last_real_json=$(gh run list \
             --repo "${{ github.repository }}" \
             --workflow=update_combined_blacklist.yml \
             --status=success \
-            --limit=30 \
+            --limit=100 \
             --json startedAt,updatedAt \
-            --jq "[.[] | select(((.updatedAt | fromdateiso8601) - (.startedAt | fromdateiso8601)) > ${MIN_REAL_RUN_SECONDS})] | .[0]")
+            --jq "[.[] | select(((.updatedAt | fromdateiso8601) - (.startedAt | fromdateiso8601)) > ${MIN_REAL_RUN_SECONDS})] | sort_by(.startedAt) | reverse | .[0]")
 
           last_real_started=""
           last_real_updated=""
@@ -159,27 +172,61 @@ jobs:
           if [ -n "$last_real_started" ]; then
             echo "Letzter echter Combined-Run: gestartet $last_real_started, beendet $last_real_updated"
           else
-            echo "Kein echter Combined-Run in den letzten 30 Erfolgs-Eintraegen gefunden"
+            echo "Kein echter Combined-Run in den letzten 100 Erfolgs-Eintraegen gefunden"
           fi
 
-          # ── 3. Entscheidungs-Logik ─────────────────────────────────────
+          # ── 3. Combined-Status pruefen (FIX AUDIT-3) ──────────────────
+          # Vor der Slot-Logik pruefen, ob Combined aktuell laeuft oder
+          # gequeued ist. Wenn ja: kein Eingriff, kein verwirrendes Logging.
+          # Frueher wurde erst die Slot-Logik ausgewertet (mit moeglichem
+          # "TRIGGER"-Log) und dann in Step 4 der active-Check abgebrochen.
+          # Das fuehrte zu irrefuehrenden Logs: "TRIGGER ..." obwohl gar
+          # nichts getriggert wurde.
+          running_count=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml \
+            --status=in_progress \
+            --limit=5 \
+            --json databaseId \
+            --jq 'length')
+          queued_count=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml \
+            --status=queued \
+            --limit=5 \
+            --json databaseId \
+            --jq 'length')
+          active=$(( running_count + queued_count ))
+
+          if [ "$active" -gt 0 ]; then
+            echo "Combined hat bereits ${active} aktive(n) Lauf/Laeufe (running=${running_count}, queued=${queued_count}) - kein Eingriff noetig"
+            exit 0
+          fi
+
+          # ── 4. Entscheidungs-Logik ─────────────────────────────────────
           should_trigger=false
           reason=""
 
           # Edge case: gar kein echter Run gefunden -> definitiv triggern
           if [ -z "$last_real_started" ]; then
             should_trigger=true
-            reason="Kein echter Combined-Run in den letzten 30 Erfolgen - triggere zur Sicherheit"
+            reason="Kein echter Combined-Run in den letzten 100 Erfolgen - triggere zur Sicherheit"
           else
             last_started_epoch=$(date -u -d "$last_real_started" +%s)
             last_updated_epoch=$(date -u -d "$last_real_updated" +%s)
             stale_min=$(( (now_epoch - last_updated_epoch) / 60 ))
 
             # SLOT-WAECHTER: Wurde der letzte erwartete Slot bedient?
-            # "Bedient" heisst: ein echter Run startete NACH dem Slot-Zeitpunkt
-            # (mit kleinem Puffer von -3min fuer Clock-Drift).
+            # "Bedient" heisst: ein echter Run startete zum Slot-Zeitpunkt
+            # oder spaeter.
+            #
+            # FIX AUDIT-2+4 (2026-05-21): Frueher gab es -180s Drift-Toleranz
+            # (last_started >= slot_epoch - 180). Das war fehlerhaft - ein
+            # Run der 1-2min VOR dem Slot startete wurde faelschlich als
+            # "bedient" gezaehlt. GitHub-Cron startet scheduled Runs nie
+            # frueher als geplant, nur spaeter. Toleranz also unnoetig.
             slot_served=false
-            if [ "$last_started_epoch" -ge "$((slot_epoch - 180))" ]; then
+            if [ "$last_started_epoch" -ge "$slot_epoch" ]; then
               slot_served=true
             fi
 
@@ -200,36 +247,19 @@ jobs:
             fi
           fi
 
-          # ── 4. Trigger durchfuehren (mit Concurrency-Schutz) ───────────
+          # ── 5. Trigger durchfuehren ────────────────────────────────────
+          # Der active-Check (Combined laeuft bereits?) wurde in Step 3 nach
+          # vorne gezogen (FIX AUDIT-3). Hier muss er nicht nochmal sein -
+          # wir wissen seit Step 3, dass active=0 ist. Theoretisch koennte
+          # zwischen Step 3 und hier ein neuer Combined-Run gestartet sein
+          # (z.B. durch parallelen scheduled Trigger), aber:
+          # 1) Concurrency-Group im Combined verhindert dann eh Doppellauf
+          # 2) Zeitfenster ist < 1s, sehr unwahrscheinlich
           if [ "$should_trigger" = "true" ]; then
             echo "Trigger-Grund: $reason"
-
-            # Pruefe ob Combined bereits laeuft - in dem Fall nicht zusaetzlich
-            # triggern (Combined hat eigene concurrency-Gruppe, ein wartender
-            # Run wuerde vom naechsten cancelled werden - siehe Lauf #639).
-            running_count=$(gh run list \
+            echo "Triggere update_combined_blacklist.yml via workflow_dispatch"
+            gh workflow run update_combined_blacklist.yml \
               --repo "${{ github.repository }}" \
-              --workflow=update_combined_blacklist.yml \
-              --status=in_progress \
-              --limit=5 \
-              --json databaseId \
-              --jq 'length')
-            queued_count=$(gh run list \
-              --repo "${{ github.repository }}" \
-              --workflow=update_combined_blacklist.yml \
-              --status=queued \
-              --limit=5 \
-              --json databaseId \
-              --jq 'length')
-            active=$(( running_count + queued_count ))
-
-            if [ "$active" -gt 0 ]; then
-              echo "Combined hat bereits ${active} aktive(n) Lauf/Laeufe (running+queued) - kein Re-Trigger"
-            else
-              echo "Triggere update_combined_blacklist.yml via workflow_dispatch"
-              gh workflow run update_combined_blacklist.yml \
-                --repo "${{ github.repository }}" \
-                --ref main
-              echo "Triggered."
-            fi
+              --ref main
+            echo "Triggered."
           fi
