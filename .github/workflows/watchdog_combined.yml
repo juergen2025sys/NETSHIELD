@@ -1,45 +1,55 @@
 name: Watchdog Combined Blacklist
 
 # Zweck:
-# Sicherstellen dass Update Combined Blacklist mindestens alle 3h 30min laeuft -
-# auch wenn GitHub Actions Schedule-Trigger ueberspringt (bekanntes Verhalten
-# bei hoher Last; siehe github.com/orgs/community/discussions/52477 und andere).
+# Sicherstellen dass Update Combined Blacklist tatsaechlich zu seinen
+# geplanten Cron-Slots laeuft - auch wenn GitHub Actions Schedule-Trigger
+# ueberspringt (bekanntes Verhalten bei hoher Last; siehe
+# github.com/orgs/community/discussions/52477 und andere).
 #
-# Funktion:
-# Alle 30min prueft dieser Workflow, wann der letzte erfolgreiche Lauf von
-# update_combined_blacklist.yml war. Wenn der > 3h 30min her ist, triggert er
-# einen workflow_dispatch-Lauf des Combined-Workflows. workflow_dispatch wird
-# - im Gegensatz zu schedule - von GitHub nicht geskippt und laeuft zuverlaessig.
+# Funktion (zwei Sicherheitsebenen):
+#
+# 1) SLOT-WAECHTER (primaere Logik):
+#    Watchdog kennt den Cron-Plan von Combined (7/27/47 */3 UTC). Bei jedem
+#    Lauf prueft er: "Wurde der letzte erwartete primaere Slot (07-Minute)
+#    erfolgreich bedient?" Wenn ein primaerer Slot mehr als SLOT_GRACE_MINUTES
+#    her ist und kein echter Combined-Run seit diesem Slot startete, triggert
+#    Watchdog via workflow_dispatch.
+#
+#    Beispiel: Combined-Plan hat Slot 09:07 UTC. Wenn Watchdog um 09:30 UTC
+#    laeuft und kein Combined-Run seit 09:07 startete -> triggern. Damit
+#    wird ein geschluckter Slot innerhalb ~25 min kompensiert statt erst
+#    nach 3h 30min.
+#
+# 2) STALE-SCHWELLE (Fallback):
+#    Falls die Slot-Logik aus irgendeinem Grund nicht greift (z.B. exotische
+#    Cron-Verzoegerung, Bug), gibt es weiterhin die alte Schwellen-Logik:
+#    Wenn der letzte echte Combined-Run laenger als STALE_THRESHOLD_MINUTES
+#    her ist, triggern.
 #
 # Hinweise:
-# - 30min-Cron-Trigger des Watchdogs koennen selbst von GitHub geskippt werden,
-#   aber bei 48 Triggern/Tag ist Wahrscheinlichkeit dass mehrere in Folge
-#   ausfallen sehr gering.
-# - Falls Watchdog selbst nicht laeuft, fallen wir auf die 7/27/47 */3-Schedule
-#   von Combined zurueck - bisheriges Verhalten bleibt erhalten, nichts wird
-#   schlechter.
-# - Im Combined-Workflow steht beim Idempotenz-Guard: if: github.event_name == 'schedule'.
-#   Bei workflow_dispatch wird der Guard somit nicht ausgefuehrt - das ist hier
-#   gewuenscht, weil der Watchdog vorher selbst die Frische geprueft hat und
-#   nur dann triggert, wenn wirklich ein Lauf faellig ist.
+# - 15min-Cron-Trigger des Watchdogs koennen selbst von GitHub geskippt
+#   werden, aber bei 96 Triggern/Tag ist Wahrscheinlichkeit dass mehrere
+#   in Folge ausfallen sehr gering.
+# - Falls Watchdog selbst nicht laeuft, fallen wir auf die 7/27/47 */3-
+#   Schedule von Combined zurueck - bisheriges Verhalten bleibt erhalten,
+#   nichts wird schlechter.
+# - Im Combined-Workflow steht beim Idempotenz-Guard:
+#   if: github.event_name == 'schedule'. Bei workflow_dispatch wird der
+#   Guard somit nicht ausgefuehrt - das ist hier gewuenscht, weil der
+#   Watchdog vorher selbst geprueft hat und nur dann triggert, wenn
+#   wirklich ein Lauf faellig ist.
 
 on:
   schedule:
     # Laeuft alle 15min (96x taeglich). Grund fuer die hohe Frequenz:
     # GitHub-Scheduler schluckt scheduled Workflows unter Last - in der
     # Nacht 2026-05-20/21 wurden zwei aufeinanderfolgende Watchdog-Slots
-    # (22:15 UTC + 01:15 UTC) komplett uebersprungen, wodurch zwischen
-    # 20:48 UTC und ~05:00 UTC kein Eingriff stattfand obwohl die
-    # 210min-Schwelle laengst ueberschritten war.
+    # komplett uebersprungen, wodurch zwischen 20:48 UTC und ~05:00 UTC
+    # kein Eingriff stattfand.
     #
-    # Bei 15min-Intervall wuerden auch mehrere geschluckte Slots in
-    # Folge kein Loch reissen: selbst wenn 1h GitHub-Cron ausfaellt,
-    # kommen vorher und nachher genug Trigger durch.
-    #
-    # Kosten: Watchdog selbst ist billig (gh run list + ggf. ein
-    # workflow_dispatch). Die teure Operation (Combined-Build, ~22min)
-    # wird durch STALE_THRESHOLD_MINUTES weiterhin geschuetzt - nur bei
-    # echtem Stale-Zustand triggert der Watchdog tatsaechlich.
+    # Bei 15min-Intervall: selbst wenn 1h GitHub-Cron ausfaellt, kommen
+    # vorher und nachher genug Trigger durch um geschluckte Combined-Slots
+    # rechtzeitig zu erkennen.
     #
     # Frueher: '15 1-23/3 * * *' (8x/Tag) - zu duenn, mehrere Skips in
     # Folge konnten 6h+ Lucken erzeugen.
@@ -63,57 +73,137 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Check freshness and trigger Combined if stale
+      - name: Check Combined freshness and trigger if needed
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          STALE_THRESHOLD_MINUTES: "210"   # 3h 30min = 210min
-          # Mindest-Laufzeit in Sekunden, ab der ein Combined-Run als "echt"
-          # zaehlt. Combined dauert normal ~22min. Idempotenz-Guard-Skips
-          # dauern 10-15s. Schwelle 60s trennt zuverlaessig zwischen Skip
-          # und echtem Run, ohne dass kuenftige Speed-Optimierungen am
-          # Combined-Build versehentlich rausgefiltert wuerden.
+          # Fallback-Schwelle: Wenn aus irgendeinem Grund die Slot-Logik
+          # nicht greift, springt diese Schwelle ein. 210min = 3h 30min,
+          # passt zum 3h-Combined-Intervall + Puffer fuer Run-Laufzeit.
+          STALE_THRESHOLD_MINUTES: "210"
+          # Mindest-Laufzeit fuer "echten Run". Combined dauert normal ~22min,
+          # Idempotenz-Skips 10-15s. 60s trennt sauber.
           MIN_REAL_RUN_SECONDS: "60"
+          # Slot-Grace: Wie lange darf ein erwarteter primaerer Cron-Slot
+          # (Combined: 7 */3 UTC) "verspaetet" sein bevor Watchdog eingreift?
+          # 20min Puffer reicht fuer GitHub-Cron-Drift (typisch 0-15min) und
+          # gibt den 2 Backup-Slots des Combined (27/47) noch Gelegenheit
+          # zu greifen bevor Watchdog uebersteuert.
+          # Konkret: Bei Slot 09:07 UTC greift Watchdog ab 09:27 UTC, also
+          # gleichzeitig wenn der erste Backup-Slot 09:27 sowieso anstehen
+          # wuerde - aber Watchdog ist verlaesslicher als scheduled.
+          SLOT_GRACE_MINUTES: "20"
         run: |
           set -e
+          set -o pipefail
 
-          # Hole die letzten 20 erfolgreichen Runs und filtere clientseitig
-          # auf echte Runs (Laufzeit > MIN_REAL_RUN_SECONDS). Grund: Der
-          # frueher genutzte "nimm einfach den neuesten Erfolg"-Ansatz hat
-          # 10-15s lange Idempotenz-Guard-Skip-Runs als "frisch" gezaehlt,
-          # wodurch der Watchdog nie eingegriffen hat obwohl real seit
-          # Stunden kein Daten-Update mehr war (siehe Lauf #2 am 2026-05-20:
-          # "Letzter Erfolg vor 106 min" = war aber #644, ein 10s-Skip).
+          # ── 1. Letzten echten Combined-Run finden ──────────────────────
+          # Hole die letzten 30 erfolgreichen Runs und filtere clientseitig
+          # auf echte Runs (Laufzeit > MIN_REAL_RUN_SECONDS). Skip-Runs
+          # (10-15s lang) wuerden sonst als "frisch" zaehlen, obwohl real
+          # seit Stunden kein Daten-Update mehr war.
           #
-          # jq berechnet die Laufzeit aus startedAt/updatedAt (beide ISO-8601)
-          # und gibt den neuesten Run zurueck, der laenger als die Schwelle
-          # lief. Falls kein solcher in den letzten 20 Runs existiert,
-          # liefert .[]?... nichts zurueck und last_success_iso bleibt leer.
-          last_success_iso=$(gh run list \
+          # Wir brauchen sowohl startedAt (fuer Slot-Zuordnung) als auch
+          # updatedAt (fuer Alter zur Schwellen-Pruefung).
+          last_real_json=$(gh run list \
             --repo "${{ github.repository }}" \
             --workflow=update_combined_blacklist.yml \
             --status=success \
-            --limit=20 \
+            --limit=30 \
             --json startedAt,updatedAt \
-            --jq "[.[] | select(((.updatedAt | fromdateiso8601) - (.startedAt | fromdateiso8601)) > ${MIN_REAL_RUN_SECONDS})] | .[0].updatedAt // empty")
+            --jq "[.[] | select(((.updatedAt | fromdateiso8601) - (.startedAt | fromdateiso8601)) > ${MIN_REAL_RUN_SECONDS})] | .[0]")
 
-          if [ -z "$last_success_iso" ]; then
-            echo "Kein echter Lauf (>${MIN_REAL_RUN_SECONDS}s) in den letzten 20 erfolgreichen Runs - triggere Combined zur Sicherheit"
-            should_trigger=true
+          last_real_started=""
+          last_real_updated=""
+          if [ -n "$last_real_json" ] && [ "$last_real_json" != "null" ]; then
+            last_real_started=$(echo "$last_real_json" | jq -r '.startedAt // empty')
+            last_real_updated=$(echo "$last_real_json" | jq -r '.updatedAt // empty')
+          fi
+
+          # ── 2. Letzten erwarteten primaeren Slot bestimmen ─────────────
+          # Combined-Cron: 7 */3 * * * = 00:07, 03:07, 06:07, 09:07, 12:07,
+          # 15:07, 18:07, 21:07 UTC. Wir berechnen den juengsten Slot der
+          # bereits in der Vergangenheit liegt.
+          #
+          # Logik: Aktuelle Stunde modulo 3 gibt Offset zum vorherigen
+          # 3h-Block. Wenn aktuelle Minute < 7, gehoert die aktuelle Stunde
+          # noch nicht zum aktuellen Slot - dann ist letzter Slot 3h frueher.
+          now_epoch=$(date -u +%s)
+          current_hour=$(date -u +%H)
+          current_min=$(date -u +%M)
+          # Fuehrende Nullen entfernen (sonst interpretiert bash als oktal)
+          current_hour=$((10#$current_hour))
+          current_min=$((10#$current_min))
+
+          # Letzte primaere Slot-Stunde (Vielfaches von 3 das <= jetzt liegt)
+          slot_hour=$(( (current_hour / 3) * 3 ))
+          # Wenn aktuelle Stunde der Slot-Stunde entspricht aber Minute < 7,
+          # ist der "aktuelle" Slot noch nicht erreicht - 3h zurueck
+          if [ "$current_hour" -eq "$slot_hour" ] && [ "$current_min" -lt 7 ]; then
+            slot_hour=$((slot_hour - 3))
+          fi
+
+          # Tag fuer Slot bestimmen - falls slot_hour negativ, war es gestern
+          if [ "$slot_hour" -lt 0 ]; then
+            slot_hour=$((slot_hour + 24))
+            slot_date=$(date -u -d 'yesterday' +%Y-%m-%d)
           else
-            now_epoch=$(date -u +%s)
-            last_epoch=$(date -u -d "$last_success_iso" +%s)
-            age_min=$(( (now_epoch - last_epoch) / 60 ))
-            echo "Letzter echter Erfolg (>${MIN_REAL_RUN_SECONDS}s Laufzeit): $last_success_iso (vor ${age_min} min)"
-            if [ "$age_min" -ge "$STALE_THRESHOLD_MINUTES" ]; then
-              echo "Schwelle ${STALE_THRESHOLD_MINUTES}min ueberschritten - triggere Combined"
+            slot_date=$(date -u +%Y-%m-%d)
+          fi
+
+          # ISO-8601 fuer den letzten erwarteten Slot
+          slot_iso=$(printf '%sT%02d:07:00Z' "$slot_date" "$slot_hour")
+          slot_epoch=$(date -u -d "$slot_iso" +%s)
+          slot_age_min=$(( (now_epoch - slot_epoch) / 60 ))
+
+          echo "Letzter erwarteter primaerer Slot: $slot_iso (vor ${slot_age_min} min)"
+          if [ -n "$last_real_started" ]; then
+            echo "Letzter echter Combined-Run: gestartet $last_real_started, beendet $last_real_updated"
+          else
+            echo "Kein echter Combined-Run in den letzten 30 Erfolgs-Eintraegen gefunden"
+          fi
+
+          # ── 3. Entscheidungs-Logik ─────────────────────────────────────
+          should_trigger=false
+          reason=""
+
+          # Edge case: gar kein echter Run gefunden -> definitiv triggern
+          if [ -z "$last_real_started" ]; then
+            should_trigger=true
+            reason="Kein echter Combined-Run in den letzten 30 Erfolgen - triggere zur Sicherheit"
+          else
+            last_started_epoch=$(date -u -d "$last_real_started" +%s)
+            last_updated_epoch=$(date -u -d "$last_real_updated" +%s)
+            stale_min=$(( (now_epoch - last_updated_epoch) / 60 ))
+
+            # SLOT-WAECHTER: Wurde der letzte erwartete Slot bedient?
+            # "Bedient" heisst: ein echter Run startete NACH dem Slot-Zeitpunkt
+            # (mit kleinem Puffer von -3min fuer Clock-Drift).
+            slot_served=false
+            if [ "$last_started_epoch" -ge "$((slot_epoch - 180))" ]; then
+              slot_served=true
+            fi
+
+            if [ "$slot_served" = "false" ] && [ "$slot_age_min" -ge "$SLOT_GRACE_MINUTES" ]; then
               should_trigger=true
+              reason="Slot $slot_iso seit ${slot_age_min}min nicht bedient (Grace: ${SLOT_GRACE_MINUTES}min) - letzter echter Run startete $last_real_started"
+            elif [ "$stale_min" -ge "$STALE_THRESHOLD_MINUTES" ]; then
+              # FALLBACK: Stale-Schwelle - sollte normalerweise nie greifen
+              # wenn Slot-Logik funktioniert, aber als Sicherheitsnetz da.
+              should_trigger=true
+              reason="Fallback: letzter echter Run vor ${stale_min}min (Schwelle ${STALE_THRESHOLD_MINUTES}min)"
             else
-              echo "Innerhalb der Schwelle ${STALE_THRESHOLD_MINUTES}min - kein Eingriff"
-              should_trigger=false
+              if [ "$slot_served" = "true" ]; then
+                echo "Slot $slot_iso wurde bedient (Run startete $last_real_started) - kein Eingriff"
+              else
+                echo "Slot $slot_iso seit ${slot_age_min}min nicht bedient - noch innerhalb Grace (${SLOT_GRACE_MINUTES}min), warte ab"
+              fi
             fi
           fi
 
+          # ── 4. Trigger durchfuehren (mit Concurrency-Schutz) ───────────
           if [ "$should_trigger" = "true" ]; then
+            echo "Trigger-Grund: $reason"
+
             # Pruefe ob Combined bereits laeuft - in dem Fall nicht zusaetzlich
             # triggern (Combined hat eigene concurrency-Gruppe, ein wartender
             # Run wuerde vom naechsten cancelled werden - siehe Lauf #639).
