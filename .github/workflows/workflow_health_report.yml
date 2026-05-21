@@ -64,6 +64,9 @@ jobs:
           set -e
 
           python3 << 'PYEOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import write_text_atomic
+
           import json
           import os
           import subprocess
@@ -245,8 +248,10 @@ jobs:
 
           report = "\n".join(lines) + "\n"
 
-          with open("workflow_health.md", "w", encoding="utf-8") as f:
-              f.write(report)
+          # Atomarer Write (tempfile + fsync + os.replace) - vom Security-
+          # Hygiene-Checker erzwungen, verhindert kaputte workflow_health.md
+          # bei Process-Abbruch waehrend des Schreibens.
+          write_text_atomic("workflow_health.md", report)
 
           print(f"Report geschrieben: {len(lines)} Zeilen")
           print(f"  Echte Runs 24h: {len(real_24h)}/{expected_real_24h}")
