@@ -25,15 +25,25 @@ name: Watchdog Combined Blacklist
 
 on:
   schedule:
-    # Laeuft 8x taeglich, jeweils ~68min nach dem primaeren Combined-Slot
-    # (Combined-Cron: 7 */3 * * * = 00:07, 03:07, 06:07 ... UTC).
-    # 68min Puffer reichen fuer: alle 3 Backup-Slots des Combined (07/27/47)
-    # + ~22min Run-Dauer. Wenn zu diesem Zeitpunkt kein erfolgreicher Combined
-    # in den letzten 3h 30min war, springt der Watchdog ein.
-    # Frueher: alle 30min (*/30) - das war zu hektisch, hat viele unnoetige
-    # Trigger erzeugt obwohl Combined regulaer lief. Jetzt: gezielter Check
-    # genau dann, wenn ein Combined-Slot ueberhaupt verpasst sein koennte.
-    - cron: '15 1-23/3 * * *'  # 01:15, 04:15, 07:15, 10:15, 13:15, 16:15, 19:15, 22:15 UTC
+    # Laeuft alle 15min (96x taeglich). Grund fuer die hohe Frequenz:
+    # GitHub-Scheduler schluckt scheduled Workflows unter Last - in der
+    # Nacht 2026-05-20/21 wurden zwei aufeinanderfolgende Watchdog-Slots
+    # (22:15 UTC + 01:15 UTC) komplett uebersprungen, wodurch zwischen
+    # 20:48 UTC und ~05:00 UTC kein Eingriff stattfand obwohl die
+    # 210min-Schwelle laengst ueberschritten war.
+    #
+    # Bei 15min-Intervall wuerden auch mehrere geschluckte Slots in
+    # Folge kein Loch reissen: selbst wenn 1h GitHub-Cron ausfaellt,
+    # kommen vorher und nachher genug Trigger durch.
+    #
+    # Kosten: Watchdog selbst ist billig (gh run list + ggf. ein
+    # workflow_dispatch). Die teure Operation (Combined-Build, ~22min)
+    # wird durch STALE_THRESHOLD_MINUTES weiterhin geschuetzt - nur bei
+    # echtem Stale-Zustand triggert der Watchdog tatsaechlich.
+    #
+    # Frueher: '15 1-23/3 * * *' (8x/Tag) - zu duenn, mehrere Skips in
+    # Folge konnten 6h+ Lucken erzeugen.
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 env:

@@ -44,31 +44,55 @@ jobs:
       # Guard uebersprungen (immer durchlassen). Pattern adaptiert von
       # auto_feed_discovery.yml (dort "schon heute gelaufen?" - hier
       # "in den letzten 2h gelaufen?" wegen 3h-Cron-Intervall).
+      #
+      # FIX BUG-SKIP-CASCADE (2026-05-21): MIN_REAL_RUN_SECONDS-Filter
+      # ergaenzt. Vorher zaehlten die eigenen 7-9s-Skip-Runs sich selbst
+      # als "erfolgreicher Run in den letzten 2h" und blockierten dadurch
+      # nachfolgende echte Trigger. Belegt durch Logs der Nacht 20./21.05.:
+      # Run #645 lief 20:28 UTC erfolgreich (21min). Backup-Trigger 20:49
+      # und 20:56 skippten korrekt. Aber Triggers 22:39, 22:49, 23:00 sahen
+      # alle 1-2 "success" - das waren aber nur die Skip-Runs untereinander.
+      # Echter Run #645 war zu dem Zeitpunkt schon ausserhalb des 2h-Fensters.
+      # Folge: keine echten Combined-Laeufe zwischen 20:48 und ~05:00 UTC.
+      # Fix-Logik analog zum Watchdog: Laufzeit aus startedAt/updatedAt
+      # berechnen, nur Runs >60s zaehlen. Skip-Runs (~10s) zaehlen damit
+      # nicht mehr als "erfolgreicher Run" und blockieren echte Trigger
+      # nicht.
       - name: Skip if recent successful run exists
         id: idempotency
         if: github.event_name == 'schedule'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Mindest-Laufzeit in Sekunden, ab der ein Run als "echt" zaehlt.
+          # Combined dauert normal ~22min. Idempotenz-Skip selbst dauert 7-10s.
+          # 60s trennt zuverlaessig zwischen Skip und echtem Build, ohne dass
+          # kuenftige Speed-Optimierungen versehentlich rausgefiltert wuerden.
+          MIN_REAL_RUN_SECONDS: "60"
         run: |
           # 2h-Fenster: Bei 3h-Cron ein erfolgreicher Run innerhalb von 2h
           # bedeutet "der aktuelle Slot wurde bereits bedient". Die 2h-
           # Schwelle laesst Raum fuer Run-Laufzeit (typ. ~25min) plus
           # GitHub-Verzoegerung, ohne in den naechsten 3h-Slot zu reichen.
+          #
+          # WICHTIG: Nur Runs mit Laufzeit > MIN_REAL_RUN_SECONDS zaehlen.
+          # Sonst zaehlen Skip-Runs (eigene 7-10s-Laeufe dieses Steps) sich
+          # gegenseitig als "success" und blockieren echte Trigger - siehe
+          # FIX BUG-SKIP-CASCADE im Step-Kommentar oben.
           cutoff_iso=$(date -u -d '2 hours ago' +%Y-%m-%dT%H:%M:%SZ)
           success_count=$(gh run list \
             --repo "${{ github.repository }}" \
             --workflow=update_combined_blacklist.yml \
             --status=success \
             --created=">${cutoff_iso}" \
-            --limit=10 \
-            --json databaseId \
-            --jq 'length')
+            --limit=20 \
+            --json startedAt,updatedAt \
+            --jq "[.[] | select(((.updatedAt | fromdateiso8601) - (.startedAt | fromdateiso8601)) > ${MIN_REAL_RUN_SECONDS})] | length")
           if [ "$success_count" -gt 0 ]; then
             echo "already_ran=true" >> "$GITHUB_OUTPUT"
-            echo "In den letzten 2h bereits $success_count erfolgreiche Run(s) – Skip dieses Backup-Triggers"
+            echo "In den letzten 2h bereits $success_count echte(r) Run(s) (>${MIN_REAL_RUN_SECONDS}s) – Skip dieses Backup-Triggers"
           else
             echo "already_ran=false" >> "$GITHUB_OUTPUT"
-            echo "Kein erfolgreicher Run in den letzten 2h – fortfahren"
+            echo "Kein echter Run (>${MIN_REAL_RUN_SECONDS}s) in den letzten 2h – fortfahren"
           fi
 
       - name: Checkout Repository
