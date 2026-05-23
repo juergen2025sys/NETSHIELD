@@ -1,30 +1,25 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-23 14:43 UTC
+**Aktualisiert:** 2026-05-23 20:11 UTC
 
-**Workflows:** 23 | ✅ 23 OK | ⚠️ 1 Warnung | ❌ 1 Fehler
+**Workflows:** 23 | ✅ 23 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 10,645 IPs in active fehlen in conf40 (1.955% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
-
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Workflow-Reihenfolge / Puffer zu knapp | 00:30 UTC → 00:47 UTC (17min < 60min); 06:30 UTC → 06:47 UTC (17min < 60min); 12:30 UTC → 12:47 UTC (17min < 60min); 18:30 UTC → 18:47 UTC (17min < 60min) |
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:30 UTC → 00:47 UTC (17min < 60min Mindestpuffer); 06:30 UTC → 06:47 UTC (17min < 60min Mindestpuffer); 12:30 UTC → 12:47 UTC (17min < 60min Mindestpuffer); 18:30 UTC → 18:47 UTC (17min < 60min Mindestpuffer) |
+| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 135,406 → 112,743 (-17%) – deutlicher Rückgang |
 | `Production Health` | Push-Limit Naehe | blacklist_geo_enriched.json: 85.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 2 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 10,645 IPs in active fehlen in conf40 (1.955% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| 🟡 WARN | Drift: honeypot_ips.txt | honeypot_ips.txt: 135,406 → 112,743 (-17%) – deutlicher Rückgang |
 | 🟡 WARN | Push-Limit Naehe | blacklist_geo_enriched.json: 85.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
@@ -56,4 +51,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-05-23 14:43 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-05-23 20:11 UTC | 23 Workflow-Dateien geprüft*
