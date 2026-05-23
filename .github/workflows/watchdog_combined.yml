@@ -96,6 +96,50 @@ jobs:
           set -e
           set -o pipefail
 
+          # ── 0. Retry-Helper fuer gh-API-Calls ──────────────────────────
+          # FIX (2026-05-23): Transienter HTTP 401 "Bad credentials" trat
+          # einmalig auf zwischen zwei aufeinander folgenden gh-Calls (Step 1
+          # ging durch, Step 3 erster Call schlug fehl). Gleicher Token, gleiche
+          # Permissions. Vermutlich GitHub-API-Hickup/Rate-Limit - hat
+          # set -e ausgeloest und ganzen Watchdog-Run abgebrochen.
+          # Retry-Loop faengt solche Einmal-Aussetzer ab.
+          #
+          # Mechanik: gh_retry capture-st stdout und exitcode. Bei Erfolg
+          # gibt es stdout aus und exit 0. Bei Fehler: bis zu RETRY_MAX
+          # weitere Versuche mit Backoff. Erst nach finalem Fehlschlag
+          # wird exitcode != 0 zurueckgegeben (laesst set -e greifen).
+          #
+          # Backoff: 5s, 10s, 20s (exponentiell). Insgesamt max 35s
+          # Verzoegerung im Worst Case - watchdog hat 5min Timeout, passt.
+          RETRY_MAX=3
+          gh_retry() {
+            local attempt=1
+            local backoff=5
+            local out=""
+            local rc=0
+            while [ "$attempt" -le "$RETRY_MAX" ]; do
+              # stderr in tmp-file leiten damit wir bei Fehler darauf zugreifen
+              # koennen; stdout normal capturen.
+              out=$("$@" 2>/tmp/gh_retry_err) && rc=0 || rc=$?
+              if [ "$rc" -eq 0 ]; then
+                printf '%s' "$out"
+                return 0
+              fi
+              # Letzter Versuch: kein Sleep, Fehler-Output an stderr durchreichen
+              if [ "$attempt" -eq "$RETRY_MAX" ]; then
+                echo "gh_retry: Endgueltig fehlgeschlagen nach ${attempt} Versuchen (exit=${rc})" >&2
+                cat /tmp/gh_retry_err >&2
+                return "$rc"
+              fi
+              echo "gh_retry: Versuch ${attempt}/${RETRY_MAX} fehlgeschlagen (exit=${rc}), retry in ${backoff}s" >&2
+              cat /tmp/gh_retry_err >&2
+              sleep "$backoff"
+              attempt=$((attempt + 1))
+              backoff=$((backoff * 2))
+            done
+            return "$rc"
+          }
+
           # ── 1. Letzten echten Combined-Run finden ──────────────────────
           # Hole die letzten 100 erfolgreichen Runs und filtere clientseitig
           # auf echte Runs (Laufzeit > MIN_REAL_RUN_SECONDS). Skip-Runs
@@ -117,7 +161,7 @@ jobs:
           # zwar "most recent first" aber ohne klare Doku nach welchem Feld.
           # Bei lang laufenden Runs koennte sonst .[0] nicht der zeitlich
           # zuletzt gestartete Run sein.
-          last_real_json=$(gh run list \
+          last_real_json=$(gh_retry gh run list \
             --repo "${{ github.repository }}" \
             --workflow=update_combined_blacklist.yml \
             --status=success \
@@ -182,14 +226,14 @@ jobs:
           # "TRIGGER"-Log) und dann in Step 4 der active-Check abgebrochen.
           # Das fuehrte zu irrefuehrenden Logs: "TRIGGER ..." obwohl gar
           # nichts getriggert wurde.
-          running_count=$(gh run list \
+          running_count=$(gh_retry gh run list \
             --repo "${{ github.repository }}" \
             --workflow=update_combined_blacklist.yml \
             --status=in_progress \
             --limit=5 \
             --json databaseId \
             --jq 'length')
-          queued_count=$(gh run list \
+          queued_count=$(gh_retry gh run list \
             --repo "${{ github.repository }}" \
             --workflow=update_combined_blacklist.yml \
             --status=queued \
@@ -258,7 +302,7 @@ jobs:
           if [ "$should_trigger" = "true" ]; then
             echo "Trigger-Grund: $reason"
             echo "Triggere update_combined_blacklist.yml via workflow_dispatch"
-            gh workflow run update_combined_blacklist.yml \
+            gh_retry gh workflow run update_combined_blacklist.yml \
               --repo "${{ github.repository }}" \
               --ref main
             echo "Triggered."
