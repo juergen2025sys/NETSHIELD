@@ -1,29 +1,30 @@
 # Auto Feed Discovery – Report
-**Aktualisiert:** 2026-05-24 15:02 UTC
+**Aktualisiert:** 2026-05-24 15:26 UTC
 
 ---
 ## Zusammenfassung
 
 | Metrik | Wert |
 |---|---|
-| Kandidaten gesamt | **3109** |
-| davon GitHub (Topics+Code) | **3072** |
+| Kandidaten gesamt | **3103** |
+| davon GitHub (Topics+Code) | **3066** |
 | davon GitLab | **37** |
-| davon Awesome-Lists | **1038** |
+| davon Awesome-Lists | **1037** |
+| Tools/Libraries vor Eval gefiltert | **274** |
 | EVAL-Kandidaten (nach Stratifizierung) | **200** |
-| davon bereits rejected (übersprungen) | **121** |
-| davon bereits approved (übersprungen) | **1** |
-| tatsächlich evaluiert | **86** |
+| davon bereits rejected (übersprungen) | **172** |
+| davon bereits approved (übersprungen) | **0** |
+| tatsächlich evaluiert | **36** |
 | Neu angenommen | **7** |
 | davon aus GitLab | **0** |
 | davon aus Awesome-Lists | **0** |
 | Bekannte Feeds re-fetched | **1** |
-| Abgelehnt (dieser Run) | **78** |
-| davon GitLab abgelehnt | **20** |
+| Abgelehnt (dieser Run) | **28** |
+| davon GitLab abgelehnt | **2** |
 | Feeds gesamt (aktiv) | **30** |
-| IPs in seen_db bestätigt | **715769** |
-| Neue IPs eingetragen | **1188** |
-| seen_db gesamt | **4,752,149** |
+| IPs in seen_db bestätigt | **717019** |
+| Neue IPs eingetragen | **403** |
+| seen_db gesamt | **4,752,552** |
 | HQ-Referenz-IPs (6 Quellen) | **134930** |
 
 ---
@@ -31,10 +32,9 @@
 
 | Grund | Anzahl |
 |---|---|
-| Keine IP-Datei im Repo | **56** |
-| Repo zu alt (>30d) | **16** |
-| IP-Datei veraltet (>30d) | **4** |
-| Falsche Größe (<100 / >500k IPs) | **2** |
+| Keine IP-Datei im Repo | **23** |
+| IP-Datei veraltet (>30d) | **3** |
+| Repo zu alt (>30d) | **2** |
 
 ---
 ## ✅ Angenommene Feeds
@@ -48,91 +48,79 @@
 | `mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v2` | [mitchellkrogza/nginx-ultimate-bad-bot-blocker](https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker) | GITHUB | 10,633 | 75.0% | 0.0% | 4721 | 🆕 NEU |
 | `mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v3` | [mitchellkrogza/nginx-ultimate-bad-bot-blocker](https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker) | GITHUB | 10,633 | 75.0% | 0.0% | 4721 | 🆕 NEU |
 | `kamalmjt_emerging_attackers_badips_txt` | [kamalmjt/emerging-attackers](https://github.com/kamalmjt/emerging-attackers) | GITHUB | 172,704 | 18.9% | 0.0% | 1 | 🆕 NEU |
-| `ziyadnz_threat_intel_ip_feeds_ipv4_blacklist` | [ziyadnz/threat-intel-ip-feeds](https://github.com/ziyadnz/threat-intel-ip-feeds) | GITHUB | 104,718 | 36.7% | 0.0% | 8 | 🆕 NEU |
+| `ziyadnz_threat_intel_ip_feeds_ipv4_blacklist` | [ziyadnz/threat-intel-ip-feeds](https://github.com/ziyadnz/threat-intel-ip-feeds) | GITHUB | 105,024 | 36.7% | 0.0% | 8 | 🆕 NEU |
 
 ---
 ## ❌ Abgelehnte Repos
 
 | Repo | Plattform | Grund |
 |---|---|---|
-| `backbay-labs/clawdstrike` | GITHUB | Keine IP-Datei |
-| `bingcool/swoolefy` | GITHUB | Keine IP-Datei |
-| `Safe3/uusec-waf` | GITHUB | Keine IP-Datei |
-| `pavel-odintsov/fastnetmon` | GITHUB | IP-Datei 940d alt |
-| `mahdibland/V2RayAggregator` | GITHUB | Keine IP-Datei |
-| `trickest/resolvers` | GITHUB | Keine IP-Datei |
-| `0sec-labs/foxguard` | GITHUB | Keine IP-Datei |
-| `sroberts/cacador` | GITHUB | Keine IP-Datei |
-| `dougiep16/actortrackr` | GITHUB | Keine IP-Datei |
-| `QTek/QRadio` | GITHUB | Keine IP-Datei |
-| `spacepatcher/softrace` | GITHUB | Keine IP-Datei |
-| `sroberts/jager` | GITHUB | Keine IP-Datei |
-| `BinaryDefense/goatrider` | GITHUB | Keine IP-Datei |
-| `STIXProject/openioc-to-stix` | GITHUB | Keine IP-Datei |
-| `Yelp/threat_intel` | GITHUB | Keine IP-Datei |
-| `abusesa/abusehelper` | GITHUB | Keine IP-Datei |
-| `ciscocsirt/gosint` | GITHUB | Keine IP-Datei |
-| `TAXIIProject/yeti` | GITHUB | Keine IP-Datei |
-| `EclecticIQ/OpenTAXII` | GITHUB | Keine IP-Datei |
-| `MISP/misp-workbench` | GITHUB | Keine IP-Datei |
-| `Lookingglass/opentpx` | GITHUB | Keine IP-Datei |
-| `Neo23x0/Fenrir` | GITHUB | IP-Datei 1623d alt |
-| `byt3smith/Forager` | GITHUB | Keine IP-Datei |
-| `aboutsecurity/rastrea2r` | GITHUB | Keine IP-Datei |
-| `SecurityRiskAdvisors/sra-taxii2-server` | GITHUB | Keine IP-Datei |
-| `stephenbrannon/IOCextractor` | GITHUB | Keine IP-Datei |
-| `byt3smith/malstrom` | GITHUB | Keine IP-Datei |
-| `CylanceSPEAR/CyBot` | GITHUB | Keine IP-Datei |
-| `ocmdev/rita` | GITHUB | Keine IP-Datei |
-| `cuckoosandbox/cuckoo` | GITHUB | Keine IP-Datei |
-| `TheHive-Project/Hippocampe` | GITHUB | Keine IP-Datei |
-| `csirtgadgets/massive-octo-spice` | GITHUB | IP-Datei 3954d alt |
-| `johestephan/ibmxforceex.checker.py` | GITHUB | Keine IP-Datei |
-| `Neo23x0/Loki` | GITHUB | Keine IP-Datei |
-| `paulpc/nyx` | GITHUB | Keine IP-Datei |
-| `mitre/cti` | GITHUB | Keine IP-Datei |
-| `Neo23x0/signature-base` | GITHUB | Größe: 1 IPs |
-| `mgeide/poortego` | GITHUB | Keine IP-Datei |
-| `TAXIIProject/libtaxii` | GITHUB | Keine IP-Datei |
-| `cert-se/megatron-java` | GITHUB | Keine IP-Datei |
-| `spacepatcher/FireHOL-IP-Aggregator` | GITHUB | Keine IP-Datei |
-| `Yara-Rules/rules` | GITHUB | Keine IP-Datei |
-| `syphon1c/Threatelligence` | GITHUB | Keine IP-Datei |
-| `kbandla/APTnotes` | GITHUB | Keine IP-Datei |
-| `jheise/threatcmd` | GITHUB | Keine IP-Datei |
-| `facebook/ThreatExchange` | GITHUB | Keine IP-Datei |
-| `fhightower/onemillion` | GITHUB | Keine IP-Datei |
-| `gitlab:cyber-dojo-academy/pocket-canary` | GITLAB | Zu alt: 139d |
-| `gitlab:ngaro/beerpot` | GITLAB | Zu alt: 1615d |
-| `gitlab:iiTONELOC/sigint` | GITLAB | Keine IP-Datei |
-| `gitlab:OphiteCorp/H4ck1t/vhackos-b0tnet` | GITLAB | Zu alt: 2700d |
-| `gitlab:Oseguera12/cowrie-honeypot-digitalocean` | GITLAB | Keine IP-Datei |
-| `gitlab:xakepnz/enterpriseattack` | GITLAB | Zu alt: 181d |
-| `gitlab:jilguerillo/honeypot-rust` | GITLAB | Zu alt: 1078d |
-| `gitlab:__JuJu__/DecoyService` | GITLAB | Zu alt: 1597d |
-| `gitlab:braineering/ares` | GITLAB | Zu alt: 2882d |
-| `gitlab:swe_toast/malware-filter` | GITLAB | Zu alt: 3136d |
-| `gitlab:hounge.mobile/awesome-honeypots` | GITLAB | Zu alt: 3699d |
-| `gitlab:ayinedjimi-consultants/YaraGen-AI` | GITLAB | Keine IP-Datei |
-| `gitlab:ayinedjimi-consultants/ThreatIntel-GPT` | GITLAB | Keine IP-Datei |
-| `gitlab:HackingLZ/svg_phishing_tools` | GITLAB | Zu alt: 51d |
-| `gitlab:HackingLZ/panrapidcheck` | GITLAB | Zu alt: 51d |
-| `gitlab:HackingLZ/AgentProvocateur` | GITLAB | Zu alt: 51d |
-| `gitlab:defend-it-solutions-group/sigint` | GITLAB | Zu alt: 55d |
-| `gitlab:DanDawson/cf-404-defender` | GITLAB | Zu alt: 186d |
-| `gitlab:Dioptas/blacklists` | GITLAB | Zu alt: 235d |
-| `gitlab:BigFunnyGiant/crowdsec-ipsum-blocklist` | GITLAB | Zu alt: 362d |
-| `bunkerity/bunkerweb` | GITHUB | Größe: 0 IPs |
-| `bluesaphire76/sovereign-ai-soc` | GITHUB | Keine IP-Datei |
-| `schmug/dmarcheck` | GITHUB | Keine IP-Datei |
-| `Ashveil1/Elengenix` | GITHUB | Keine IP-Datei |
-| `adasd223/anonymous-proxy-list-free` | GITHUB | Keine IP-Datei |
-| `ahahaabas/anonymous-proxy-list-free` | GITHUB | Keine IP-Datei |
-| `blamejs/exceptd-skills` | GITHUB | Keine IP-Datei |
-| `ipanalytics/BogonForge` | GITHUB | Keine IP-Datei |
-| `hookzof/socks5_list` | GITHUB | Keine IP-Datei |
-| `Synapsecom/aggregated-blacklist-netset` | GITHUB | IP-Datei 199d alt |
-| `OWASP/cve-lite-cli` | GITHUB | Keine IP-Datei |
+| `dreddsa5dies/goHackTools` | GITHUB | Keine IP-Datei |
+| `0x4d31/sqhunter` | GITHUB | Keine IP-Datei |
+| `InQuest/python-iocextract` | GITHUB | Keine IP-Datei |
+| `SupportIntelligence/Icewater` | GITHUB | Keine IP-Datei |
+| `tripwire/tardis` | GITHUB | Keine IP-Datei |
+| `HurricaneLabs/machinae` | GITHUB | Keine IP-Datei |
+| `KasperskyLab/klara` | GITHUB | Keine IP-Datei |
+| `STIXProject/stix-viz` | GITHUB | Keine IP-Datei |
+| `yahoo/PyIOCe` | GITHUB | Keine IP-Datei |
+| `PaloAltoNetworks/minemeld` | GITHUB | Keine IP-Datei |
+| `CERT-Polska/n6` | GITHUB | IP-Datei 250d alt |
+| `Ptr32Void/OSTrICa` | GITHUB | Keine IP-Datei |
+| `stratosphereips/Manati` | GITHUB | Keine IP-Datei |
+| `mlsecproject/tiq-test` | GITHUB | Keine IP-Datei |
+| `davidonzo/Threat-Intel` | GITHUB | IP-Datei 587d alt |
+| `CrowdStrike/CrowdFMS` | GITHUB | Keine IP-Datei |
+| `gitlab:devswanson-create-crypto-token/how-to-create-crypto-token` | GITLAB | Zu alt: 601d |
+| `gitlab:devswanson-create-crypto-token/smart-contract-honeypot` | GITLAB | Zu alt: 601d |
+| `TurboLabIt/webstackup` | GITHUB | IP-Datei 1330d alt |
+| `NullSecHQ/nullsec-framework` | GITHUB | Keine IP-Datei |
+| `iamutaki/dompeng-web` | GITHUB | Keine IP-Datei |
+| `froggychips/sre-ai-copilot` | GITHUB | Keine IP-Datei |
+| `karimhabush/cyberowl` | GITHUB | Keine IP-Datei |
+| `soapbucket/sbproxy` | GITHUB | Keine IP-Datei |
+| `maxtattonbrown/sundial` | GITHUB | Keine IP-Datei |
+| `Bes-js/public-proxy-list` | GITHUB | Keine IP-Datei |
+| `ErcinDedeoglu/proxies` | GITHUB | Keine IP-Datei |
+| `mtheuma/epson2paperless` | GITHUB | Keine IP-Datei |
+
+---
+## 🦊 Codeberg-Kandidaten (manuelle Kuration)
+
+Diese Repos wurden auf Codeberg per Keyword-Suche gefunden. Codeberg-Integration in die Eval-Pipeline ist noch nicht umgesetzt - die Liste dient als Hinweis fuer manuelles Review.
+
+| Repo | Stars | Updated | Found via |
+|---|---|---|---|
+| [CloudyyUw/adblock-to-pihole-blocklist](https://codeberg.org/CloudyyUw/adblock-to-pihole-blocklist) | 0 | 2024-12-03 | `blocklist` |
+| [ScryptKidd0/adguard-blocklist](https://codeberg.org/ScryptKidd0/adguard-blocklist) | 0 | 2026-01-25 | `blocklist` |
+| [celenity/adguard-dns-settings](https://codeberg.org/celenity/adguard-dns-settings) | 5 | 2025-09-01 | `blocklist` |
+| [celenity/adguard-home-settings](https://codeberg.org/celenity/adguard-home-settings) | 9 | 2024-12-17 | `blocklist` |
+| [josh/AdGuard.blocklists](https://codeberg.org/josh/AdGuard.blocklists) | 0 | 2024-10-05 | `blocklist` |
+| [HalfofBilly/AI-Blocklist-for-SearXNG](https://codeberg.org/HalfofBilly/AI-Blocklist-for-SearXNG) | 2 | 2024-12-19 | `blocklist` |
+| [fausty/AIBlocklist](https://codeberg.org/fausty/AIBlocklist) | 2 | 2024-12-03 | `blocklist` |
+| [111934321/anti-murdoch-blocklist](https://codeberg.org/111934321/anti-murdoch-blocklist) | 1 | 2024-12-03 | `blocklist` |
+| [polarhive/arceo](https://codeberg.org/polarhive/arceo) | 1 | 2025-05-29 | `blocklist` |
+| [Lanre/Artemis](https://codeberg.org/Lanre/Artemis) | 0 | 2026-05-21 | `blocklist` |
+| [syedsharjeel/automated-ip-blocklist-dns-filtering](https://codeberg.org/syedsharjeel/automated-ip-blocklist-dns-filtering) | 0 | 2025-05-01 | `blocklist` |
+| [badandugly/badandugly](https://codeberg.org/badandugly/badandugly) | 6 | 2025-08-03 | `blocklist` |
+| [celenity/BadBlock](https://codeberg.org/celenity/BadBlock) | 86 | 2026-05-18 | `blocklist` |
+| [knyz/based-christian-blocklist](https://codeberg.org/knyz/based-christian-blocklist) | 0 | 2024-12-03 | `blocklist` |
+| [nithou/begone-blocklist](https://codeberg.org/nithou/begone-blocklist) | 0 | 2026-02-09 | `blocklist` |
+| [blackfoxpl/blackfox_blocklist](https://codeberg.org/blackfoxpl/blackfox_blocklist) | 0 | 2026-05-22 | `blocklist` |
+| [gzachariadis/Blacklist](https://codeberg.org/gzachariadis/Blacklist) | 5 | 2024-08-16 | `blocklist` |
+| [fabriziosalmi/blacklists](https://codeberg.org/fabriziosalmi/blacklists) | 0 | 2025-03-01 | `blocklist` |
+| [spootle/blocklist](https://codeberg.org/spootle/blocklist) | 5 | 2024-12-03 | `blocklist` |
+| [rad4day/blocklist](https://codeberg.org/rad4day/blocklist) | 0 | 2024-12-03 | `blocklist` |
+| [bbbhltz/16CompaniesFilters](https://codeberg.org/bbbhltz/16CompaniesFilters) | 12 | 2026-04-12 | `blacklist` |
+| [parlortricks/blacklist](https://codeberg.org/parlortricks/blacklist) | 0 | 2024-12-03 | `blacklist` |
+| [Sergey_Paradox/blacklist](https://codeberg.org/Sergey_Paradox/blacklist) | 0 | 2024-12-03 | `blacklist` |
+| [wysnzhang/blacklist](https://codeberg.org/wysnzhang/blacklist) | 0 | 2026-05-24 | `blacklist` |
+| [sciss/Blacklist](https://codeberg.org/sciss/Blacklist) | 0 | 2024-07-13 | `blacklist` |
+| [amassivus/Blacklist](https://codeberg.org/amassivus/Blacklist) | 0 | 2024-08-02 | `blacklist` |
+| [andersaardvark/blacklist-check-unix-linux-utility](https://codeberg.org/andersaardvark/blacklist-check-unix-linux-utility) | 0 | 2025-09-29 | `blacklist` |
+| [fabiux/blacklist-user-agents-conf](https://codeberg.org/fabiux/blacklist-user-agents-conf) | 0 | 2026-05-21 | `blacklist` |
+| [ig3/blacklistd](https://codeberg.org/ig3/blacklistd) | 0 | 2025-08-11 | `blacklist` |
+| [SugusGuard/Blacklists](https://codeberg.org/SugusGuard/Blacklists) | 0 | 2026-05-11 | `blacklist` |
 
 ---
 ## 📋 Alle aktiven Auto-Feeds
@@ -144,7 +132,7 @@
 | `cbuijs_accomplist_adblock_ip` | GITHUB | 134,746 | 0.6% | 20 | 2026-05-24 |
 | `cbuijs_accomplist_adblock_ip_v2` | GITHUB | 66,503 | 0.6% | 20 | 2026-05-24 |
 | `cbuijs_accomplist_adblock_ip_v3` | GITHUB | 113 | 0.6% | 20 | 2026-05-24 |
-| `ziyadnz_threat_intel_ip_feeds_blacklist` | GITHUB | 104,718 | 36.7% | 8 | 2026-05-24 |
+| `ziyadnz_threat_intel_ip_feeds_blacklist` | GITHUB | 105,024 | 36.7% | 8 | 2026-05-24 |
 | `turntuptechnologies_iocs` | GITHUB | 155 | 97.4% | 4 | 2026-03-29 |
 | `cbuijs_badip` | GITHUB | 36,171 | 60.7% | 4 | 2026-03-29 |
 | `maximewewer_heimdallblocklists` | GITHUB | 94,521 | 69.0% | 4 | 2026-03-29 |
@@ -171,4 +159,4 @@
 | `turbolabit_zzfirewall_blacklist` | GITHUB | 85 | 66.4% | 0 | 2026-05-24 |
 
 ---
-*Generiert: 2026-05-24 15:02 UTC*
+*Generiert: 2026-05-24 15:26 UTC*
