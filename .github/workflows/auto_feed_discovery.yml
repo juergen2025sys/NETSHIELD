@@ -2114,12 +2114,12 @@ jobs:
               if _existing and _existing in approved_feeds:
                   _existing_added = approved_feeds[_existing].get("added", "9999-99-99")
                   # Älteren (früher hinzugefügten) behalten, jüngeren entfernen
-                  if _added >= _existing_added:
-                      # Aktueller Eintrag ist jünger oder gleich → entfernen
+                  if _added <= _existing_added:
+                      # Aktueller Eintrag ist älter oder gleich → entfernen, Neueres behalten
                       del approved_feeds[_fn]
                       _dedup_removed.append(f"{_fn} (Duplikat von {_existing})")
                   else:
-                      # Aktueller Eintrag ist älter → Original ersetzen
+                      # Aktueller Eintrag ist neuer → Altes ersetzen
                       del approved_feeds[_existing]
                       _dedup_removed.append(f"{_existing} (Duplikat von {_fn})")
                       _dedup_by_url[_dup_key_url]  = _fn
