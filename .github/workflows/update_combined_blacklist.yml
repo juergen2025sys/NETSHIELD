@@ -299,7 +299,7 @@ jobs:
           now_stamp  = now.strftime("%Y-%m-%d %H:%M UTC")
           EXPIRY_DAYS = 180
           DB_FILE     = "seen_db.json"
-          READ_LIMIT  = 25 * 1024 * 1024   # 25 MB pro Feed
+          READ_LIMIT  = 50 * 1024 * 1024   # 50 MB pro Feed (war 25 MB - firehol_anonymous.netset überschritt das mit ~26 MB, Datenverlust)
 
           # IPV4_RE wird aus netshield_common importiert; lokale Re-Definition
           # entfernt (war ungenutzt, hätte aber bei Wiederverwendung den
