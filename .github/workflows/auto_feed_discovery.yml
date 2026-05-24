@@ -658,6 +658,11 @@ jobs:
                   # _looks_like_tool_not_list weiter unten). Bei Awesome-Repos
                   # fehlt das Feld - Default leerer String, keine Bestrafung.
                   "language":    repo.get("language",         existing.get("language", "")) or "",
+                  # NEU v4: full_name explizit speichern, damit der Tool-Filter
+                  # auch bei GitHub-Kandidaten Zugriff auf "owner/repo" hat
+                  # (vorher konnte der Filter den Repo-Namen nur fuer GitLab
+                  # via gl_path lesen - GitHub-Suffix-Check war effektiv tot).
+                  "full_name":   full_name,
                   "sources":     sorted(sources),
                   "platform":    existing.get("platform", "github"),
               }
@@ -691,6 +696,9 @@ jobs:
                   "pushed":       pushed,
                   "description":  project.get("description",   existing.get("description", "")),
                   "topics":       project.get("tag_list",       existing.get("topics", [])),
+                  # NEU v4: full_name unified mit GitHub-Pfad, damit Tool-Filter
+                  # auch bei GitLab-Kandidaten den Namen sieht.
+                  "full_name":    path,
                   "sources":      sorted(sources),
                   "platform":     "gitlab",
                   "gl_path":      path,
@@ -713,6 +721,13 @@ jobs:
           # Das spart API-Calls und gibt Awesome/GitLab/Fresh-Slots fuer
           # echte Listen frei. Verlust einzelner echter Feeds ist akzeptabel,
           # weil sie ohnehin keine IP-Datei haben wuerden.
+          #
+          # v4.1: Hard-Reject vorgeschaltet. Bei eindeutigen Namens-Mustern
+          # (z.B. "awesome-" im Namen) ueberspringen wir die Punkte-Logik und
+          # filtern sofort. Empirisch: 18 awesome-Repos in rejected_repos -
+          # alle waren falsch positive Kandidaten aus Awesome-List-Scraping
+          # (die echten 9 Awesome-Quellen sind in AWESOME_LISTS hartkodiert,
+          # die hier gefangenen sind Tochterlisten *innerhalb* der Awesome-Repos).
           _TOOL_INDICATOR_KEYWORDS = (
               # Im Description / Name finden sich Tool-Begriffe
               "library", "framework", "toolkit", "sdk", "api client",
@@ -725,6 +740,9 @@ jobs:
               "ids ", "ips ", "siem ", "soar ",  # Tool-Kategorien
               "intel platform", "tip platform",
               "yara rules", "sigma rules", "stix package",
+              # v4.1: Curated-List-Phrasen aus Beschreibungen
+              "curated list", "awesome list", "collection of",
+              "list of resources", "list of tools", "list of awesome",
           )
 
           # Repos mit diesen Sprachen sind fast immer Tools (Listen sind
@@ -739,23 +757,46 @@ jobs:
           # ein Tool waere. Geben nur 1 Punkt statt 2.
           _AMBIGUOUS_LANGUAGES = {"python", "go", "javascript", "typescript"}
 
-          # Repos mit diesen Begriffen im Namen sind fast sicher Tools
-          _TOOL_NAME_SUFFIXES = ("-cli", "-tool", "-api", "-server", "-daemon",
-                                  "-sandbox", "-scanner", "-extractor", "-parser")
+          # Repos mit diesen Begriffen im Namen sind fast sicher Tools.
+          # v4.1: -framework und Listen-Suffixe ergaenzt (empirisch belegt
+          # in rejected_repos-Auswertung: 14 *-tool/-tools, 5 *-framework,
+          # 20 *-list/-lists, 13 *-scanner/-scanners).
+          _TOOL_NAME_SUFFIXES = ("-cli", "-tool", "-tools", "-api", "-server",
+                                  "-daemon", "-sandbox", "-scanner", "-scanners",
+                                  "-extractor", "-parser", "-framework")
+          # Listen-Suffixe sind separat: viele Maintainer nennen ihren echten
+          # IP-Feed *-list (z.B. "phishing-list") - darum NICHT als Tool werten.
+          # Aber: -lists (Plural) ist fast immer Meta-Sammlung.
+          _LIST_COLLECTION_SUFFIXES = ("-lists", "-collection", "-resources")
+
+          # v4.1: Hard-Reject-Patterns - bei diesen Namens-Mustern wird das
+          # Repo unabhaengig vom Punkte-Score aussortiert.
+          _HARD_REJECT_NAME_PATTERNS = (
+              "awesome-",       # GitHub-Konvention fuer kuratierte Linksammlungen
+              "/awesome",       # Variante: am Beginn des Repo-Namens
+              "fucking-awesome", # Forks der awesome-* Listen
+          )
 
           def _looks_like_tool_not_list(meta):
-              """Punkte-basierte Heuristik. >=3 Punkte -> wahrscheinlich Tool."""
-              score = 0
-              name = (meta.get("gl_path") or "").lower()
-              # Fuer GitHub gibt es kein gl_path - dann full_name aus Source-Tags
-              if not name:
-                  for s in meta.get("sources", []):
-                      if "/" in s and ":" in s:
-                          # Format "topic:xyz" - kein full_name verfuegbar
-                          pass
+              """Punkte-basierte Heuristik. >=3 Punkte -> wahrscheinlich Tool.
+              Zusaetzlich Hard-Reject bei eindeutigen Awesome-Listen-Mustern.
+              """
+              # FIX BUG: full_name lesen statt nur gl_path - bei GitHub war
+              # name vorher immer leer, also griff der Suffix-Check nie.
+              name = (meta.get("full_name") or meta.get("gl_path") or "").lower()
               desc = (meta.get("description") or "").lower()
               lang = (meta.get("language") or "").lower()
               topics = [t.lower() for t in (meta.get("topics") or [])]
+
+              # Hard-Reject: Repo-Name matcht eindeutiges Sammlungs-Muster.
+              # "awesome-" trifft sowohl "awesome-honeypots" als auch
+              # "owner/awesome-foo" - 99% dieser Repos sind kuratierte Listen,
+              # keine IP-Feeds.
+              for pat in _HARD_REJECT_NAME_PATTERNS:
+                  if pat in name:
+                      return True
+
+              score = 0
 
               # Indikator 1: Sprache
               if lang in _TOOL_LANGUAGES:
@@ -773,9 +814,18 @@ jobs:
               if any(name.endswith(sfx) for sfx in _TOOL_NAME_SUFFIXES):
                   score += 2
 
+              # Indikator 3b: Name endet auf Meta-Sammlungs-Suffix (-lists,
+              # -collection, -resources). +2 Punkte da das fast nie eine
+              # IP-Liste ist.
+              if any(name.endswith(sfx) for sfx in _LIST_COLLECTION_SUFFIXES):
+                  score += 2
+
               # Indikator 4: Topics enthalten Tool-Klassifikation
               _TOOL_TOPICS = {"cli", "library", "framework", "sdk", "tool",
-                              "honeypot", "sandbox", "platform"}
+                              "honeypot", "sandbox", "platform",
+                              # v4.1: Sammlungs-Topics
+                              "awesome", "awesome-list", "curated-list",
+                              "collection"}
               if any(t in _TOOL_TOPICS for t in topics):
                   score += 1
 
@@ -836,10 +886,9 @@ jobs:
 
           # ── Schritt 1b: Bestehende auto_discovered_feeds.json laden ───────
           # FIX BUG-EXISTING-FEEDS-ORDER: Dieser Block stand frueher als
-          # "Schritt 4" weiter unten, nach allen Discovery-Schritten. Der
-          # neue Org-Crawl (Schritt 3a2) braucht aber existing_feeds, um
-          # die Owner bekannter Feeds zu kennen. Daher hier nach vorne
-          # gezogen - chronologisch sauber: erst alles laden, dann suchen.
+          # "Schritt 4" weiter unten. Vorgezogen weil mehrere fruehe Schritte
+          # (Tool-Filter, ehemaliger Org-Crawl) auf existing_feeds zugreifen
+          # koennen sollen - chronologisch sauber: erst alles laden, dann suchen.
           AUTO_FILE = "auto_discovered_feeds.json"
           existing_feeds = {}
           existing_rejected = set()
@@ -1291,163 +1340,6 @@ jobs:
 
           print(f"Awesome-List-Scraping: {_awesome_found} neue Kandidaten hinzugefügt")
           print(f"Kandidaten gesamt nach Awesome-Scraping: {len(candidate_repos)}")
-
-          # ── Schritt 3a2: Org-Crawl ────────────────────────────────────────
-          # NEU v4: Maintainer mit einem guten Feed haben oft weitere Feed-Repos
-          # in derselben Org. Wir sammeln die Owner aller bereits-approved Repos
-          # (Vorlauf aus existing_feeds) und listen deren oeffentliche Repos.
-          # IP_FILE_PATTERNS-Match auf Repo-Namen ist hier zu eng - wir nutzen
-          # Beschreibung + Topics als Heuristik und lassen die spaetere
-          # Evaluations-Phase die echte Filterung machen.
-          print("\n── Schritt 3a2: Org-Crawl bekannter Maintainer ───────────────────")
-
-          _org_owners = set()
-          for _f in existing_feeds.values():
-              _repo = _f.get("repo", "")
-              if not _repo or "/" not in _repo:
-                  continue
-              if _f.get("platform", "github") != "github":
-                  continue
-              _org_owners.add(_repo.split("/", 1)[0])
-
-          _ORG_CRAWL_HINT_KEYWORDS = (
-              "ip", "blocklist", "blacklist", "threat", "malicious",
-              "ioc", "c2", "botnet", "honeypot", "abuse", "scanner",
-              "feed", "block", "deny",
-          )
-
-          # Begrenzung: max. 50 Owners, pro Owner max. 30 Repos. Schuetzt vor
-          # Rate-Limit-Spike bei Orgs mit hunderten Repos (z.B. forks).
-          _MAX_ORG_OWNERS = 50
-          _MAX_REPOS_PER_OWNER = 30
-          _org_found = 0
-          _owners_to_crawl = sorted(_org_owners)[:_MAX_ORG_OWNERS]
-
-          for _owner in _owners_to_crawl:
-              if _check_timeout("Org-Crawl"):
-                  break
-              _user_repos = gh_api(
-                  f"/users/{urllib.parse.quote(_owner)}/repos"
-                  f"?type=owner&sort=pushed&direction=desc&per_page={_MAX_REPOS_PER_OWNER}"
-              )
-              time.sleep(2)
-              if not _user_repos or not isinstance(_user_repos, list):
-                  continue
-              _added_for_owner = 0
-              for _ur in _user_repos:
-                  _ur_name = _ur.get("full_name", "")
-                  if not _ur_name or _ur_name in KNOWN_REPOS:
-                      continue
-                  if _ur_name in candidate_repos:
-                      continue
-                  if _ur.get("fork", False):
-                      continue  # Forks haben fast immer dieselben Inhalte
-                  if _ur.get("archived", False):
-                      continue
-                  # Heuristik: Name, Description oder Topics enthalten ein
-                  # Threat-Intel-Keyword. Strenger als reine Topic-Suche, da
-                  # wir hier breiter scannen.
-                  _haystack = " ".join([
-                      _ur_name.lower(),
-                      (_ur.get("description") or "").lower(),
-                      " ".join(_ur.get("topics", []) or []),
-                  ])
-                  if not any(kw in _haystack for kw in _ORG_CRAWL_HINT_KEYWORDS):
-                      continue
-                  add_repo_candidate(candidate_repos, _ur, f"org-crawl:{_owner}")
-                  _org_found += 1
-                  _added_for_owner += 1
-              if _added_for_owner:
-                  print(f"  {_owner}: {_added_for_owner} neue Kandidaten")
-
-          print(f"Org-Crawl: {_owners_to_crawl and len(_owners_to_crawl) or 0} Owners gescannt, "
-                f"{_org_found} neue Kandidaten")
-
-          # ── Schritt 3a3: Codeberg-Suche ───────────────────────────────────
-          # NEU v4: Codeberg (Forgejo-Fork von Gitea) hostet zunehmend
-          # EU-Security-Projekte. Gitea-API ist GitHub-aehnlich, kein Token
-          # noetig fuer oeffentliche Suche. Wir nutzen die issue/repo-Suche
-          # mit Threat-Intel-Keywords und bauen analog zu add_repo_candidate
-          # Pseudo-GitHub-Repos auf - Vorsicht: Raw-URLs unterscheiden sich,
-          # daher eigener platform-Wert "codeberg" mit eigener URL-Logik.
-          #
-          # Hinweis: Wir registrieren Codeberg-Repos hier NICHT, weil die
-          # Evaluations-Pipeline (_evaluate_one) momentan nur github+gitlab
-          # versteht. Stattdessen geben wir die Treffer als Log aus, damit
-          # ein menschlicher Kurator sie bewerten kann. Vollintegration
-          # waere ein groesseres Refactoring (Tree-API, Raw-URL-Schema,
-          # Commit-Date-Endpoint pro Plattform).
-          print("\n── Schritt 3a3: Codeberg-Suche (informativ, manuelle Kuration) ───")
-          # FIX CODEBERG v4: Gitea's repos/search akzeptiert nur Single-Token-
-          # Queries zuverlaessig. Mehrwort-Phrasen wie "ip blocklist" liefern
-          # 0 Treffer (Vermutung: ElasticSearch-Tokenizer matcht den
-          # zusammengesetzten String als Ganzes). Daher Single-Words. Zusaetzlich
-          # nutzen wir den /repos/search?topic=...&keyword=... Endpoint, um
-          # auf Topics zu filtern - das matcht Tag-basiert sauberer.
-          CODEBERG_KEYWORDS = [
-              "blocklist", "blacklist", "threatfeed",
-              "honeypot", "bruteforce", "abuseipdb",
-              "ioc", "threat-intel",
-          ]
-          _codeberg_hits = []
-          for _cb_kw in CODEBERG_KEYWORDS:
-              if _check_timeout("Codeberg"):
-                  break
-              try:
-                  _cb_url = (
-                      "https://codeberg.org/api/v1/repos/search"
-                      f"?q={urllib.parse.quote(_cb_kw)}&limit=20&type=source"
-                  )
-                  # Sicherheitscheck analog zu gitlab_api: nur codeberg.org-API.
-                  # urllib folgt Redirects standardmaessig; bei Redirect zu
-                  # privater IP / anderem Host wuerden wir leaken. Daher
-                  # zusaetzlich einen restriktiven Opener mit Redirect-Handler,
-                  # der nur same-host Redirects erlaubt.
-                  if not _cb_url.startswith("https://codeberg.org/api/v1/"):
-                      print(f"  SICHERHEIT: ungueltige Codeberg-URL: {_cb_url}", file=sys.stderr)
-                      continue
-
-                  class _CodebergRedirectHandler(urllib.request.HTTPRedirectHandler):
-                      def redirect_request(self, req, fp, code, msg, headers, newurl):
-                          if not newurl.startswith("https://codeberg.org/"):
-                              # Cross-Host-Redirect blockieren
-                              return None
-                          return super().redirect_request(req, fp, code, msg, headers, newurl)
-
-                  _cb_opener = urllib.request.build_opener(_CodebergRedirectHandler())
-                  _cb_req = urllib.request.Request(
-                      _cb_url, headers={"Accept": "application/json"}
-                  )
-                  with _cb_opener.open(_cb_req, timeout=15) as _r:
-                      _cb_data = json.loads(_r.read().decode("utf-8"))
-                  time.sleep(2)
-              except Exception as _cb_err:
-                  print(f"  Codeberg-Suche '{_cb_kw}' fehlgeschlagen: {_cb_err}")
-                  continue
-              for _cb_item in (_cb_data.get("data") or []):
-                  _cb_name = _cb_item.get("full_name", "")
-                  _cb_desc = (_cb_item.get("description") or "")[:80]
-                  _cb_updated = _cb_item.get("updated_at", "")[:10]
-                  if _cb_name:
-                      _codeberg_hits.append({
-                          "name":    _cb_name,
-                          "desc":    _cb_desc,
-                          "updated": _cb_updated,
-                          "stars":   _cb_item.get("stars_count", 0),
-                          "via":     _cb_kw,
-                      })
-
-          # Dedupe by name, behalte den ersten Treffer
-          _seen_cb = set()
-          _codeberg_unique = []
-          for _cbh in _codeberg_hits:
-              if _cbh["name"] not in _seen_cb:
-                  _seen_cb.add(_cbh["name"])
-                  _codeberg_unique.append(_cbh)
-          _codeberg_hits = _codeberg_unique
-
-          print(f"Codeberg-Suche: {len(_codeberg_hits)} eindeutige Treffer "
-                f"(siehe Report-Sektion 'Codeberg-Kandidaten' fuer manuelle Pruefung)")
 
           # ── Schritt 3b: GitLab-Suche ──────────────────────────────────────
           # NEU v3: GitLab public API durchsuchen – viele EU- und
@@ -1936,10 +1828,23 @@ jobs:
           # Repos haben sich verdient richtig geprueft zu werden, auch wenn
           # die Heuristik sie als Tool einschaetzt. Schutz vor Falsch-Positiven
           # bei beruehmten Maintainern.
+          #
+          # v4.1: Aber: Hard-Reject (z.B. "awesome-" im Namen) greift IMMER -
+          # auch fuer hochbewertete Repos. Eine Awesome-Liste mit 9000 Stars
+          # ist trotzdem keine IP-Liste, und die teure Tree-API-Abfrage waere
+          # garantiert verschwendet.
           _tool_filtered_count = 0
+          _hard_reject_count   = 0
           _all_items = []
           for k, v in _all_items_raw:
-              # Reputation-Pool-Kandidaten umgehen den Filter
+              name_lc = (v.get("full_name") or v.get("gl_path") or "").lower()
+              # Hard-Reject: greift unabhaengig vom Reputation-Score
+              if any(pat in name_lc for pat in _HARD_REJECT_NAME_PATTERNS):
+                  _hard_reject_count += 1
+                  _tool_filtered_count += 1
+                  continue
+              # Reputation-Pool-Kandidaten umgehen die Punkte-Heuristik
+              # (aber Hard-Reject oben hat schon gegriffen, falls relevant)
               if not _is_gitlab(v) and not _is_awesome(v) and _rep_score(v) >= 20:
                   _all_items.append((k, v))
                   continue
@@ -1949,8 +1854,8 @@ jobs:
                   continue
               _all_items.append((k, v))
           print(f"Tool-Filter: {_tool_filtered_count} mutmassliche Tools/Libraries "
-                f"aussortiert (von {len(_all_items_raw)} Kandidaten, "
-                f"Rest: {len(_all_items)})")
+                f"aussortiert (davon {_hard_reject_count} via Hard-Reject) "
+                f"von {len(_all_items_raw)} Kandidaten, Rest: {len(_all_items)}")
 
           _picked_keys = set()
           _sorted_candidates = []
@@ -2591,6 +2496,7 @@ jobs:
           lines.append(f"| davon GitLab | **{_gitlab_unique}** |")
           lines.append(f"| davon Awesome-Lists | **{_awesome_found}** |")
           lines.append(f"| Tools/Libraries vor Eval gefiltert | **{_tool_filtered_count}** |")
+          lines.append(f"| davon Hard-Reject (awesome-Liste etc.) | **{_hard_reject_count}** |")
           lines.append(f"| EVAL-Kandidaten (nach Stratifizierung) | **{len(_sorted_candidates)}** |")
           lines.append(f"| davon bereits rejected (übersprungen) | **{_skipped_already_rejected}** |")
           lines.append(f"| davon bereits approved (übersprungen) | **{_skipped_already_approved}** |")
@@ -2641,27 +2547,6 @@ jobs:
               for e in new_rejected:
                   _pl = e.get("platform", "github").upper()
                   lines.append(f"| `{e['repo']}` | {_pl} | {e['reason']} |")
-
-          # NEU v4: Codeberg-Treffer als manueller Kuratierungs-Hint im Report.
-          # Diese Repos sind NICHT automatisch in der Evaluation, weil
-          # _evaluate_one momentan nur GitHub+GitLab unterstuetzt. Wer Lust
-          # hat, kann interessante Repos in KNOWN_REPOS / aktive Feeds
-          # uebernehmen oder als feature-Erweiterung Codeberg integrieren.
-          if _codeberg_hits:
-              lines.append("\n---")
-              lines.append("## 🦊 Codeberg-Kandidaten (manuelle Kuration)\n")
-              lines.append(
-                  "Diese Repos wurden auf Codeberg per Keyword-Suche gefunden. "
-                  "Codeberg-Integration in die Eval-Pipeline ist noch nicht "
-                  "umgesetzt - die Liste dient als Hinweis fuer manuelles Review.\n"
-              )
-              lines.append("| Repo | Stars | Updated | Found via |")
-              lines.append("|---|---|---|---|")
-              for _cbh in _codeberg_hits[:30]:
-                  lines.append(
-                      f"| [{_cbh['name']}](https://codeberg.org/{_cbh['name']}) | "
-                      f"{_cbh['stars']} | {_cbh['updated']} | `{_cbh['via']}` |"
-                  )
 
           if approved_feeds:
               lines.append("\n---")
