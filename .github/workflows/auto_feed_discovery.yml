@@ -455,16 +455,11 @@ jobs:
 
               # ── 4. XML / HTML ─────────────────────────────────────────────
               if re.search(r"<[a-zA-Z][^>]{0,50}>", stripped):
-                  # Alle Text-Inhalte zwischen Tags und in Attributen extrahieren.
-                  # Regex als Variable um YAML-Sonderzeichen-Probleme zu vermeiden.
+                  # Tag-Inhalt extrahieren (IPs stehen in XML fast immer darin)
                   _tag_content = re.findall(r">([^<]{1,80})<", stripped)
-                  # Attributwerte: alles nach = bis zum naechsten Leerzeichen/>
-                  _attr_content = re.findall(r"=([^\s<>"']{3,40})", stripped)
-                  xml_strings = list(_tag_content) + _attr_content
-                  ips = _ips_from_strings(xml_strings)
-                  if ips:
-                      return ips
-
+                  # Attributwerte: nur Ziffern/Punkte nach = (kein Quote-Problem)
+                  _attr_tokens = re.findall(r"=([\d.]{7,15})", stripped)
+                  xml_strings = list(_tag_content) + _attr_tokens
                   ips = _ips_from_strings(xml_strings)
                   if ips:
                       return ips
