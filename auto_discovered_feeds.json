@@ -1,7 +1,7 @@
 {
-  "updated": "2026-05-24 09:19 UTC",
-  "total_feeds": 50,
-  "new_this_run": 32,
+  "updated": "2026-05-24 09:40 UTC",
+  "total_feeds": 30,
+  "new_this_run": -20,
   "rejected_repos": [
     "00nx/exodus-decryptor",
     "0x4139/iplist",
@@ -1398,6 +1398,7 @@
     "jeeberrr/Vyper",
     "jeelanqadri/DependencyInjection.Lifetime.Analyzers",
     "jeffreywpli/convex_case",
+    "jegly/globalcve",
     "jeonggyukim/pyathena",
     "jerrykan/firehol-formula",
     "jesuslopezreynosa/useful-scripts",
@@ -1827,6 +1828,7 @@
     "satwik-coder/nullsec-netprobe",
     "saycc1982/stresscc",
     "sbeltos/phishing-ir-simulation",
+    "schorschii/RemotePointer-Android",
     "schumilo/vUSBf",
     "scmmishra/ipshield",
     "scoobydont-666/monero-farm",
@@ -2241,26 +2243,6 @@
       "file_days_old": 0
     },
     {
-      "name": "kamalmjt_emerging_attackers",
-      "url": "https://raw.githubusercontent.com/kamalmjt/emerging-attackers/HEAD/badips.txt",
-      "repo": "kamalmjt/emerging-attackers",
-      "file": "badips.txt",
-      "added": "2026-03-29",
-      "last_checked": "2026-05-24",
-      "ip_count": 172704,
-      "overlap_pct": 18.9,
-      "fp_rate": 0.0,
-      "rep_score": 2,
-      "stars": 1,
-      "days_old": 1,
-      "search_sources": [
-        "topic:ipset"
-      ],
-      "hq": false,
-      "consecutive_fails": 0,
-      "file_days_old": 6
-    },
-    {
       "name": "fadouse_clash_threat_intel",
       "url": "https://raw.githubusercontent.com/Fadouse/clash-threat-intel/HEAD/clash/generated/botnet.txt",
       "repo": "Fadouse/clash-threat-intel",
@@ -2276,27 +2258,6 @@
       "search_sources": [
         "code:filename:ransomware.txt ip",
         "topic:threat-intelligence"
-      ],
-      "hq": false,
-      "consecutive_fails": 0,
-      "file_days_old": 0
-    },
-    {
-      "name": "ziyadnz_threat_intel_ip_feeds",
-      "url": "https://raw.githubusercontent.com/ziyadnz/threat-intel-ip-feeds/HEAD/output/blacklist.csv",
-      "repo": "ziyadnz/threat-intel-ip-feeds",
-      "file": "output/blacklist.csv",
-      "added": "2026-04-05",
-      "last_checked": "2026-05-24",
-      "ip_count": 102721,
-      "overlap_pct": 36.7,
-      "fp_rate": 0.0,
-      "rep_score": 34,
-      "stars": 8,
-      "days_old": 0,
-      "search_sources": [
-        "topic:ip-blacklist",
-        "topic:soc"
       ],
       "hq": false,
       "consecutive_fails": 0,
@@ -2322,46 +2283,6 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0
-    },
-    {
-      "name": "wintergate_ic_wic_resources",
-      "url": "https://raw.githubusercontent.com/WinterGate-IC/wic-resources/HEAD/blacklists/permanent_blacklist.txt",
-      "repo": "WinterGate-IC/wic-resources",
-      "file": "blacklists/permanent_blacklist.txt",
-      "added": "2026-04-26",
-      "last_checked": "2026-05-24",
-      "ip_count": 508,
-      "overlap_pct": 67.0,
-      "fp_rate": 0.0,
-      "rep_score": 0,
-      "stars": 0,
-      "days_old": 0,
-      "search_sources": [
-        "topic:blacklist"
-      ],
-      "hq": false,
-      "consecutive_fails": 0,
-      "file_days_old": 21
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/dev-tools/test2_conf_files/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": "dev-tools/test2_conf_files/conf.d/globalblacklist.conf",
-      "added": "2026-04-26",
-      "last_checked": "2026-05-24",
-      "ip_count": 10635,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "topic:malware"
-      ],
-      "hq": false,
-      "consecutive_fails": 0,
-      "file_days_old": 1
     },
     {
       "name": "turbolabit_zzfirewall",
@@ -2421,7 +2342,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 0
     },
     {
       "name": "maximewewer_heimdallblocklists_romainmarcoux_malicious_ip",
@@ -2440,7 +2363,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 0
     },
     {
       "name": "maximewewer_heimdallblocklists_romainmarcoux_alienvault_ssh_bruteforce",
@@ -2459,7 +2384,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 0
     },
     {
       "name": "cbuijs_accomplist_adblock_ip",
@@ -2478,45 +2405,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
-    },
-    {
-      "name": "cbuijs_accomplist_plain_black_ipcidr",
-      "url": "https://raw.githubusercontent.com/cbuijs/accomplist/HEAD/malicious-ip/plain.black.ipcidr.list",
-      "repo": "cbuijs/accomplist",
-      "file": "malicious-ip/plain.black.ipcidr.list",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 134746,
-      "overlap_pct": 0.6,
-      "fp_rate": 1.5,
-      "rep_score": 40,
-      "stars": 20,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "cbuijs_accomplist_plain_black_ip4cidr",
-      "url": "https://raw.githubusercontent.com/cbuijs/accomplist/HEAD/malicious-ip/plain.black.ip4cidr.list",
-      "repo": "cbuijs/accomplist",
-      "file": "malicious-ip/plain.black.ip4cidr.list",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 134746,
-      "overlap_pct": 0.6,
-      "fp_rate": 1.5,
-      "rep_score": 40,
-      "stars": 20,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 0
     },
     {
       "name": "cbuijs_accomplist_adblock_ip_v2",
@@ -2535,7 +2426,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 0
     },
     {
       "name": "cbuijs_accomplist_adblock_ip_v3",
@@ -2554,7 +2447,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 0
     },
     {
       "name": "kamalmjt_emerging_attackers_badips_txt",
@@ -2573,7 +2468,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 6
     },
     {
       "name": "fadouse_clash_threat_intel_c2",
@@ -2592,7 +2489,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 0
     },
     {
       "name": "ziyadnz_threat_intel_ip_feeds_ipv4_blacklist",
@@ -2611,7 +2510,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 0
     },
     {
       "name": "wintergate_ic_wic_resources_permanent_blacklist",
@@ -2630,7 +2531,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 21
     },
     {
       "name": "wintergate_ic_wic_resources_permanent_blacklist_v2",
@@ -2649,7 +2552,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 21
     },
     {
       "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist",
@@ -2668,292 +2573,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v2",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/_sample_config_files/Engintron_for_cPanel_WHM_Configuration_Example/etc/nginx/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": "_sample_config_files/Engintron_for_cPanel_WHM_Configuration_Example/etc/nginx/conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 10635,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v3",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": "conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 10635,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v4",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/dev-tools/test1_conf_files/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": "dev-tools/test1_conf_files/conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 10635,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v5",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/dev-tools/test1_conf_files_ip_whitelist/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": "dev-tools/test1_conf_files_ip_whitelist/conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 10635,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v6",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/dev-tools/test1_conf_files_ratelimiting/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": "dev-tools/test1_conf_files_ratelimiting/conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 10635,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v7",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/dev-tools/test1_conf_files_whitelist/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": "dev-tools/test1_conf_files_whitelist/conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 10635,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v8",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/dev-tools/beta_conf_files/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": "dev-tools/beta_conf_files/conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 10312,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v9",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/dev-tools/beta_conf_files_ip_whitelist/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": "dev-tools/beta_conf_files_ip_whitelist/conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 10312,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v10",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/dev-tools/beta_conf_files_ratelimiting/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": "dev-tools/beta_conf_files_ratelimiting/conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 10312,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v11",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/dev-tools/beta_conf_files_whitelist/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": "dev-tools/beta_conf_files_whitelist/conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 10312,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v12",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/dev-tools/test4_conf_files/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": "dev-tools/test4_conf_files/conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 10046,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v13",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/dev-tools/test5_conf_files/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": "dev-tools/test5_conf_files/conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 10046,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v14",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/.deprecated/.dev-tools/test2_conf_files/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": ".deprecated/.dev-tools/test2_conf_files/conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 10048,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist_v15",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/.deprecated/.dev-tools/test3_conf_files/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": ".deprecated/.dev-tools/test3_conf_files/conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 10048,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
-    },
-    {
-      "name": "turbolabit_zzfirewall_blacklist",
-      "url": "https://raw.githubusercontent.com/TurboLabIt/zzfirewall/HEAD/lists/blacklist.txt",
-      "repo": "TurboLabIt/zzfirewall",
-      "file": "lists/blacklist.txt",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 85,
-      "overlap_pct": 66.4,
-      "fp_rate": 0.0,
-      "rep_score": 0,
-      "stars": 0,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 1
     },
     {
       "name": "kraloveckey_ipsets_blocklist_r2_drop2_scanners",
@@ -2972,7 +2594,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_iblocklist_ciarmy_malicious",
@@ -2991,7 +2615,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_et_tor",
@@ -3010,7 +2636,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 1
     },
     {
       "name": "kraloveckey_ipsets_blocklist_dm_tor",
@@ -3029,7 +2657,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_blocklist_de_ssh",
@@ -3048,7 +2678,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_blocklist_de_bruteforce",
@@ -3067,7 +2699,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_snort_ip_blocklist",
@@ -3086,7 +2720,9 @@
       "search_sources": [
         "extra_file_scan"
       ],
-      "hq": false
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 10
     },
     {
       "name": "kraloveckey_ipsets_blocklist_alienvault_reputation",
@@ -3102,6 +2738,27 @@
       "rep_score": 0,
       "stars": 0,
       "days_old": 1,
+      "search_sources": [
+        "extra_file_scan"
+      ],
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 14
+    },
+    {
+      "name": "turbolabit_zzfirewall_blacklist",
+      "url": "https://raw.githubusercontent.com/TurboLabIt/zzfirewall/HEAD/lists/blacklist.txt",
+      "repo": "TurboLabIt/zzfirewall",
+      "file": "lists/blacklist.txt",
+      "platform": "github",
+      "added": "2026-05-24",
+      "last_checked": "2026-05-24",
+      "ip_count": 85,
+      "overlap_pct": 66.4,
+      "fp_rate": 0.0,
+      "rep_score": 0,
+      "stars": 0,
+      "days_old": 0,
       "search_sources": [
         "extra_file_scan"
       ],
