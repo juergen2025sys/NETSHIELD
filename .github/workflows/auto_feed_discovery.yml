@@ -2147,8 +2147,15 @@ jobs:
           # Fingerprint: ip_count + repo. Neuestes behalten, ältere entfernen.
           _content_dedup_removed = []
           _seen_content = {}  # (repo, ip_count) → feed_name
+          # Sort: neuestes Datum zuerst. Bei gleichem Datum: kürzerer Name zuerst
+          # (Original ohne _v2-Suffix bevorzugen). So bleibt immer die sauberste
+          # Variante erhalten wenn Datum identisch, sonst die neueste.
+          import re as _re
           for _fn, _fd in sorted(approved_feeds.items(),
-                                  key=lambda x: x[1].get("added", ""), reverse=True):
+                                  key=lambda x: (x[1].get("added", ""),
+                                                 -len(x[0]),
+                                                 -len(_re.findall(r"_v\d+$", x[0]))),
+                                  reverse=True):
               if _fn not in approved_feeds:
                   continue
               _ckey = (_fd.get("repo", ""), _fd.get("ip_count", -1))
