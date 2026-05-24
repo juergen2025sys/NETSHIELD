@@ -1,7 +1,7 @@
 {
-  "updated": "2026-05-24 09:40 UTC",
+  "updated": "2026-05-24 10:28 UTC",
   "total_feeds": 30,
-  "new_this_run": -20,
+  "new_this_run": 0,
   "rejected_repos": [
     "00nx/exodus-decryptor",
     "0x4139/iplist",
@@ -1319,6 +1319,7 @@
     "gustavoesper/vision-hud-controller",
     "hackingyseguridad/fuzzer",
     "hackingyseguridad/puertatrasera",
+    "hahwul/smugglex",
     "halfdollarylangylang981/Network-Inventory-Scanner",
     "hamzamalik3461/CVE-2026-20841",
     "handeveloper1/DailyProxy---Auto-Update-List",
@@ -1365,6 +1366,7 @@
     "injae8669/SafeWeights-ACL",
     "insightglacier/Dictionary-Of-Pentesting",
     "intell917/indicators_of_compromise",
+    "inversify/monorepo",
     "ion-storm/emotet-malware-killer",
     "ipalunos776-stack/vault-cookie-sweeper",
     "isabellagrajales08/Mirai",
@@ -1778,6 +1780,7 @@
     "rickroll747/NanoHash",
     "ritepro/Zenith-Basic-RAT",
     "rivitna/Malware",
+    "rix4uni/cvemapping",
     "rix4uni/medium-writeups",
     "rjrosario-pixel/Phishing-Plugin",
     "rknightion/opnsense-exporter",
@@ -2270,7 +2273,7 @@
       "file": "unifiedblocklist.list",
       "added": "2026-04-09",
       "last_checked": "2026-05-24",
-      "ip_count": 53294,
+      "ip_count": 52726,
       "overlap_pct": 41.9,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -2452,27 +2455,6 @@
       "file_days_old": 0
     },
     {
-      "name": "kamalmjt_emerging_attackers_badips_txt",
-      "url": "https://raw.githubusercontent.com/kamalmjt/emerging-attackers/HEAD/badips.txt.gz",
-      "repo": "kamalmjt/emerging-attackers",
-      "file": "badips.txt.gz",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 172704,
-      "overlap_pct": 18.9,
-      "fp_rate": 0.0,
-      "rep_score": 2,
-      "stars": 1,
-      "days_old": 1,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false,
-      "consecutive_fails": 0,
-      "file_days_old": 6
-    },
-    {
       "name": "fadouse_clash_threat_intel_c2",
       "url": "https://raw.githubusercontent.com/Fadouse/clash-threat-intel/HEAD/clash/generated/c2.txt",
       "repo": "Fadouse/clash-threat-intel",
@@ -2485,27 +2467,6 @@
       "fp_rate": 0.0,
       "rep_score": 4,
       "stars": 2,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false,
-      "consecutive_fails": 0,
-      "file_days_old": 0
-    },
-    {
-      "name": "ziyadnz_threat_intel_ip_feeds_ipv4_blacklist",
-      "url": "https://raw.githubusercontent.com/ziyadnz/threat-intel-ip-feeds/HEAD/output/ipv4_blacklist.txt",
-      "repo": "ziyadnz/threat-intel-ip-feeds",
-      "file": "output/ipv4_blacklist.txt",
-      "platform": "github",
-      "added": "2026-05-24",
-      "last_checked": "2026-05-24",
-      "ip_count": 102721,
-      "overlap_pct": 36.7,
-      "fp_rate": 0.0,
-      "rep_score": 34,
-      "stars": 8,
       "days_old": 0,
       "search_sources": [
         "extra_file_scan"
@@ -2758,6 +2719,44 @@
       "fp_rate": 0.0,
       "rep_score": 0,
       "stars": 0,
+      "days_old": 0,
+      "search_sources": [
+        "extra_file_scan"
+      ],
+      "hq": false
+    },
+    {
+      "name": "kamalmjt_emerging_attackers_badips",
+      "url": "https://raw.githubusercontent.com/kamalmjt/emerging-attackers/HEAD/badips.txt",
+      "repo": "kamalmjt/emerging-attackers",
+      "file": "badips.txt",
+      "platform": "github",
+      "added": "2026-05-24",
+      "last_checked": "2026-05-24",
+      "ip_count": 172704,
+      "overlap_pct": 18.9,
+      "fp_rate": 0.0,
+      "rep_score": 2,
+      "stars": 1,
+      "days_old": 1,
+      "search_sources": [
+        "extra_file_scan"
+      ],
+      "hq": false
+    },
+    {
+      "name": "ziyadnz_threat_intel_ip_feeds_blacklist",
+      "url": "https://raw.githubusercontent.com/ziyadnz/threat-intel-ip-feeds/HEAD/output/blacklist.csv",
+      "repo": "ziyadnz/threat-intel-ip-feeds",
+      "file": "output/blacklist.csv",
+      "platform": "github",
+      "added": "2026-05-24",
+      "last_checked": "2026-05-24",
+      "ip_count": 103818,
+      "overlap_pct": 36.7,
+      "fp_rate": 0.0,
+      "rep_score": 34,
+      "stars": 8,
       "days_old": 0,
       "search_sources": [
         "extra_file_scan"
