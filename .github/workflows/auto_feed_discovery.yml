@@ -654,6 +654,10 @@ jobs:
                   "pushed":      repo.get("pushed_at",        existing.get("pushed", "")),
                   "description": repo.get("description",      existing.get("description", "")),
                   "topics":      repo.get("topics",           existing.get("topics", [])),
+                  # NEU v4: language fuer Tool-vs-Liste-Heuristik (siehe
+                  # _looks_like_tool_not_list weiter unten). Bei Awesome-Repos
+                  # fehlt das Feld - Default leerer String, keine Bestrafung.
+                  "language":    repo.get("language",         existing.get("language", "")) or "",
                   "sources":     sorted(sources),
                   "platform":    existing.get("platform", "github"),
               }
@@ -693,6 +697,89 @@ jobs:
                   "gl_id":        project.get("id"),
                   "gl_default_branch": project.get("default_branch", "main"),
               }
+
+          # NEU v4: Tool-vs-Liste-Heuristik.
+          # Hintergrund (Mai 2026): Von 86 tatsaechlich evaluierten Kandidaten
+          # scheiterten 56 (~65%) am "Keine IP-Datei"-Check. Analyse der Reject-
+          # Liste zeigte: das sind fast alle Tools/Libraries/Frameworks aus
+          # Awesome-Listen (cuckoosandbox, TAXIIProject/yeti, MISP/misp-workbench,
+          # Yara-Rules/rules, STIXProject/openioc-to-stix, mitre/cti etc).
+          # Diese Repos enthalten Code, der mit IPs *arbeitet*, aber sind selbst
+          # keine IP-Listen. Wir filtern sie hier raus *bevor* sie die teure
+          # Tree-API-Abfrage in _evaluate_one auslosen.
+          #
+          # Strategie: Punkte-System. Ein Repo gilt als "wahrscheinlich Tool",
+          # wenn es mehrere Indikatoren sammelt. Strenge: mindestens 3 Punkte.
+          # Das spart API-Calls und gibt Awesome/GitLab/Fresh-Slots fuer
+          # echte Listen frei. Verlust einzelner echter Feeds ist akzeptabel,
+          # weil sie ohnehin keine IP-Datei haben wuerden.
+          _TOOL_INDICATOR_KEYWORDS = (
+              # Im Description / Name finden sich Tool-Begriffe
+              "library", "framework", "toolkit", "sdk", "api client",
+              "client library", "python library", "go library",
+              "platform", "workbench", "dashboard", "ui", "gui",
+              "sandbox", "scanner tool", "parser", "extractor",
+              "converter", "translator", "interpreter",
+              "plugin for", "module for", "extension for",
+              "honeypot software", "honeypot framework",
+              "ids ", "ips ", "siem ", "soar ",  # Tool-Kategorien
+              "intel platform", "tip platform",
+              "yara rules", "sigma rules", "stix package",
+          )
+
+          # Repos mit diesen Sprachen sind fast immer Tools (Listen sind
+          # typischerweise reine .txt/.csv ohne erkannte Sprache, oder
+          # Markdown). Punkte nur fuer "echte" Programmiersprachen.
+          _TOOL_LANGUAGES = {
+              "java", "c", "c++", "c#", "rust", "ruby",
+              "scala", "kotlin", "swift", "php",
+          }
+          # Python/Go/JavaScript sind grenzwertig - viele Listen-Maintainer
+          # nutzen sie fuer ihren Build-Prozess, ohne dass das Repo selbst
+          # ein Tool waere. Geben nur 1 Punkt statt 2.
+          _AMBIGUOUS_LANGUAGES = {"python", "go", "javascript", "typescript"}
+
+          # Repos mit diesen Begriffen im Namen sind fast sicher Tools
+          _TOOL_NAME_SUFFIXES = ("-cli", "-tool", "-api", "-server", "-daemon",
+                                  "-sandbox", "-scanner", "-extractor", "-parser")
+
+          def _looks_like_tool_not_list(meta):
+              """Punkte-basierte Heuristik. >=3 Punkte -> wahrscheinlich Tool."""
+              score = 0
+              name = (meta.get("gl_path") or "").lower()
+              # Fuer GitHub gibt es kein gl_path - dann full_name aus Source-Tags
+              if not name:
+                  for s in meta.get("sources", []):
+                      if "/" in s and ":" in s:
+                          # Format "topic:xyz" - kein full_name verfuegbar
+                          pass
+              desc = (meta.get("description") or "").lower()
+              lang = (meta.get("language") or "").lower()
+              topics = [t.lower() for t in (meta.get("topics") or [])]
+
+              # Indikator 1: Sprache
+              if lang in _TOOL_LANGUAGES:
+                  score += 2
+              elif lang in _AMBIGUOUS_LANGUAGES:
+                  score += 1
+
+              # Indikator 2: Tool-Keywords in Beschreibung
+              for kw in _TOOL_INDICATOR_KEYWORDS:
+                  if kw in desc:
+                      score += 2
+                      break  # Einmal reicht
+
+              # Indikator 3: Name endet auf Tool-Suffix
+              if any(name.endswith(sfx) for sfx in _TOOL_NAME_SUFFIXES):
+                  score += 2
+
+              # Indikator 4: Topics enthalten Tool-Klassifikation
+              _TOOL_TOPICS = {"cli", "library", "framework", "sdk", "tool",
+                              "honeypot", "sandbox", "platform"}
+              if any(t in _TOOL_TOPICS for t in topics):
+                  score += 1
+
+              return score >= 3
 
           # ── Schritt 1: seen_db laden ──────────────────────────────────────
           # FIX BUG-CACHE-RESTORE: Identisch zu update_combined_blacklist.yml.
@@ -1291,9 +1378,16 @@ jobs:
           # waere ein groesseres Refactoring (Tree-API, Raw-URL-Schema,
           # Commit-Date-Endpoint pro Plattform).
           print("\n── Schritt 3a3: Codeberg-Suche (informativ, manuelle Kuration) ───")
+          # FIX CODEBERG v4: Gitea's repos/search akzeptiert nur Single-Token-
+          # Queries zuverlaessig. Mehrwort-Phrasen wie "ip blocklist" liefern
+          # 0 Treffer (Vermutung: ElasticSearch-Tokenizer matcht den
+          # zusammengesetzten String als Ganzes). Daher Single-Words. Zusaetzlich
+          # nutzen wir den /repos/search?topic=...&keyword=... Endpoint, um
+          # auf Topics zu filtern - das matcht Tag-basiert sauberer.
           CODEBERG_KEYWORDS = [
-              "ip blocklist", "threat feed", "malicious ip",
-              "honeypot ip", "bruteforce blacklist",
+              "blocklist", "blacklist", "threatfeed",
+              "honeypot", "bruteforce", "abuseipdb",
+              "ioc", "threat-intel",
           ]
           _codeberg_hits = []
           for _cb_kw in CODEBERG_KEYWORDS:
@@ -1834,7 +1928,30 @@ jobs:
               # ISO-Datum sortiert lexikografisch korrekt; leere Werte ans Ende
               return meta.get("pushed", "") or "0000-00-00"
 
-          _all_items = list(candidate_repos.items())
+          _all_items_raw = list(candidate_repos.items())
+
+          # NEU v4: Tool-Filter vor der Pool-Bildung. Spart API-Calls in der
+          # teuren _evaluate_one-Phase (Tree-API + Commit-Date pro Kandidat).
+          # Filter wird NICHT auf den Reputation-Pool angewendet - hochbewertete
+          # Repos haben sich verdient richtig geprueft zu werden, auch wenn
+          # die Heuristik sie als Tool einschaetzt. Schutz vor Falsch-Positiven
+          # bei beruehmten Maintainern.
+          _tool_filtered_count = 0
+          _all_items = []
+          for k, v in _all_items_raw:
+              # Reputation-Pool-Kandidaten umgehen den Filter
+              if not _is_gitlab(v) and not _is_awesome(v) and _rep_score(v) >= 20:
+                  _all_items.append((k, v))
+                  continue
+              # Awesome/GitLab/Fresh: Tool-Filter aktiv
+              if _looks_like_tool_not_list(v):
+                  _tool_filtered_count += 1
+                  continue
+              _all_items.append((k, v))
+          print(f"Tool-Filter: {_tool_filtered_count} mutmassliche Tools/Libraries "
+                f"aussortiert (von {len(_all_items_raw)} Kandidaten, "
+                f"Rest: {len(_all_items)})")
+
           _picked_keys = set()
           _sorted_candidates = []
 
@@ -2473,6 +2590,7 @@ jobs:
           lines.append(f"| davon GitHub (Topics+Code) | **{sum(1 for v in candidate_repos.values() if v.get('platform','github')=='github')}** |")
           lines.append(f"| davon GitLab | **{_gitlab_unique}** |")
           lines.append(f"| davon Awesome-Lists | **{_awesome_found}** |")
+          lines.append(f"| Tools/Libraries vor Eval gefiltert | **{_tool_filtered_count}** |")
           lines.append(f"| EVAL-Kandidaten (nach Stratifizierung) | **{len(_sorted_candidates)}** |")
           lines.append(f"| davon bereits rejected (übersprungen) | **{_skipped_already_rejected}** |")
           lines.append(f"| davon bereits approved (übersprungen) | **{_skipped_already_approved}** |")
