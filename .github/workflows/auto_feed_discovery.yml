@@ -1031,6 +1031,14 @@ jobs:
                           return None
               return None
 
+          # REFRESH-Limit: 3 MB statt 512 KB.
+          # 512 KB war zu knapp – viele aktive Feeds (data_shield, blocklist.de,
+          # romainmarcoux u.a.) sind groesser. fetch_url schnitt ab und warnte
+          # "Response > 524288 bytes". Folge: Feeds wie cbuijs_badip lieferten
+          # 0 IPs weil im ersten 512-KB-Chunk keine gueltigen IPs lagen.
+          # 3 MB deckt ~200k IPs sicher ab.
+          _REFRESH_READ_LIMIT = 3 * 1024 * 1024  # 3 MB
+
           def _refresh_one(item):
               _name, _feed = item
               _url = _build_raw_url_for_feed(_feed)
@@ -1038,16 +1046,20 @@ jobs:
                   "name": _name, "feed": _feed, "url": _url,
                   "skip": not _url, "content": None,
                   "file_days": None, "ips": set(),
+                  "zero_ips": False,
               }
               if result["skip"]:
                   return result
-              result["content"] = fetch_raw(_url, limit=512 * 1024, timeout=15)
+              result["content"] = fetch_raw(_url, limit=_REFRESH_READ_LIMIT, timeout=20)
               if result["content"] is None:
                   return result
               _file_dt = _get_commit_date_for_feed(_feed)
               if _file_dt is not None:
                   result["file_days"] = (now - _file_dt).days
               result["ips"] = extract_ips(result["content"])
+              # Merker: Download OK aber 0 IPs extrahiert
+              if not result["ips"]:
+                  result["zero_ips"] = True
               return result
 
           if existing_feeds:
@@ -1088,6 +1100,24 @@ jobs:
                   continue
 
               _ips = _r["ips"]
+              _age_str = f", Datei {_file_days}d alt" if _file_days is not None else ""
+
+              # 0 IPs nach erfolgreichem Download = Format-Problem oder Feed leer.
+              # Als Soft-Fail behandeln: consecutive_fails hochzaehlen wie bei
+              # echtem Download-Fehler. So werden dauerhaft leere Feeds nach 3
+              # Versuchen automatisch entfernt statt ewig als "OK" zu erscheinen.
+              if _r.get("zero_ips"):
+                  _fails = _feed.get("consecutive_fails", 0) + 1
+                  approved_feeds[_name]["consecutive_fails"] = _fails
+                  approved_feeds[_name]["last_checked"] = now_day
+                  print(f"  REFRESH {_name}: WARN 0 IPs trotz erfolgreichem Download "
+                        f"({_fails}. Versuch{_age_str}) – Format-Problem?")
+                  if _fails >= 3:
+                      del approved_feeds[_name]
+                      removed_stale.append(_name)
+                      print(f"  REFRESH {_name}: 3x 0 IPs – entfernt")
+                  continue
+
               approved_feeds[_name]["consecutive_fails"] = 0
               approved_feeds[_name]["last_checked"] = now_day
               approved_feeds[_name]["ip_count"] = len(_ips)
@@ -1096,7 +1126,6 @@ jobs:
               all_known_ips.update(_ips)
               for _ip in _ips:
                   ip_auto_feed_count[_ip] = ip_auto_feed_count.get(_ip, 0) + 1
-              _age_str = f", Datei {_file_days}d alt" if _file_days is not None else ""
               print(f"  REFRESH {_name}: OK ({len(_ips)} IPs{_age_str})")
 
           if removed_stale:
