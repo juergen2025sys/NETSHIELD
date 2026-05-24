@@ -747,6 +747,74 @@ jobs:
           elif not db:
               print("Keine seen_db gefunden, kein Backup vorhanden – starte neu.")
 
+          # ── Schritt 1b: Bestehende auto_discovered_feeds.json laden ───────
+          # FIX BUG-EXISTING-FEEDS-ORDER: Dieser Block stand frueher als
+          # "Schritt 4" weiter unten, nach allen Discovery-Schritten. Der
+          # neue Org-Crawl (Schritt 3a2) braucht aber existing_feeds, um
+          # die Owner bekannter Feeds zu kennen. Daher hier nach vorne
+          # gezogen - chronologisch sauber: erst alles laden, dann suchen.
+          AUTO_FILE = "auto_discovered_feeds.json"
+          existing_feeds = {}
+          existing_rejected = set()
+          # NEU v4: rejected_repos_meta speichert pro Repo {reason, rejected_at}.
+          # Erlaubt TTL-basierten Re-Try: Aktualitaets-Rejects ("Zu alt", "IP-Datei
+          # Xd alt") werden nach REJECT_TTL_DAYS aus der Reject-Liste entfernt,
+          # damit reanimierte Feeds wieder eine Chance bekommen. Strukturelle
+          # Rejects ("Keine IP-Datei", "FP-Rate", "Format", "Klon-Verdacht",
+          # "Overlap zu gering") bleiben permanent - die aendern sich selten.
+          existing_rejected_meta = {}
+          REJECT_TTL_DAYS = 90
+          # Reject-Gruende, die als "transient" gelten und nach TTL ablaufen.
+          # Identifikation via Substring im reason-Feld (vgl. _evaluate_one).
+          TRANSIENT_REJECT_SUBSTRINGS = (
+              "Zu alt:",            # Repo-Push > 30d
+              "IP-Datei",           # IP-Datei selbst > 30d ("IP-Datei 378d alt")
+              "Download-Fehler",    # transient: Netz/CDN-Fehler
+          )
+
+          def _is_transient_reject(reason):
+              return any(sub in reason for sub in TRANSIENT_REJECT_SUBSTRINGS)
+
+          if os.path.exists(AUTO_FILE):
+              try:
+                  with open(AUTO_FILE) as f:
+                      auto_data = json.load(f)
+                  for feed in auto_data.get("feeds", []):
+                      existing_feeds[feed["name"]] = feed
+                  _raw_rejected = auto_data.get("rejected_repos", [])
+                  existing_rejected = set(_raw_rejected)
+                  # Meta-Dict laden (neues Feld, kann bei alten JSONs fehlen)
+                  existing_rejected_meta = dict(auto_data.get("rejected_repos_meta", {}))
+
+                  # TTL-Bereinigung: transiente Rejects, die aelter als
+                  # REJECT_TTL_DAYS sind, aus rejected_repos entfernen damit
+                  # sie diesen Run neu evaluiert werden.
+                  _ttl_expired = []
+                  for _r, _info in list(existing_rejected_meta.items()):
+                      if not isinstance(_info, dict):
+                          continue
+                      _reason = _info.get("reason", "")
+                      _at = _info.get("rejected_at", "")
+                      if not _is_transient_reject(_reason):
+                          continue
+                      try:
+                          _at_dt = datetime.strptime(_at[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      except Exception:
+                          continue
+                      if (now - _at_dt).days >= REJECT_TTL_DAYS:
+                          _ttl_expired.append(_r)
+                  for _r in _ttl_expired:
+                      existing_rejected.discard(_r)
+                      existing_rejected_meta.pop(_r, None)
+
+                  print(f"Bestehende auto_discovered_feeds: {len(existing_feeds)} Feeds, "
+                        f"{len(existing_rejected)} abgelehnte Repos")
+                  if _ttl_expired:
+                      print(f"TTL-Re-Try: {len(_ttl_expired)} transiente Rejects "
+                            f"nach {REJECT_TTL_DAYS}d abgelaufen → werden neu evaluiert")
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+
           # ── Schritt 2: HQ-Referenz-Set laden (Overlap-Check) ─────────────
           print("\nLade HQ-Referenz-Sets für Overlap-Check...")
           hq_ref_ips = set()
@@ -1095,8 +1163,6 @@ jobs:
               "https://raw.githubusercontent.com/sbilly/awesome-security/master/README.md",
               # NEU v4: Cybersecurity Blue-Team Tools & Feeds
               "https://raw.githubusercontent.com/fabacab/awesome-cybersecurity-blueteam/master/README.md",
-              # NEU v4: SOC-/Detection-Tools mit Threat-Feed-Sektionen
-              "https://raw.githubusercontent.com/correia-jpv/fucking-awesome-soc/main/README.md",
           ]
 
           # GitHub-URL-Pattern für Markdown-Links: [Text](https://github.com/owner/repo)
@@ -1352,68 +1418,9 @@ jobs:
           print(f"GitLab-Suche: {_gitlab_found} Treffer → {_gitlab_unique} GitLab-Kandidaten")
           print(f"Kandidaten gesamt: {len(candidate_repos)}\n")
 
-          # ── Schritt 4: Bestehende auto_discovered_feeds.json laden ────────
-          AUTO_FILE = "auto_discovered_feeds.json"
-          existing_feeds = {}
-          existing_rejected = set()
-          # NEU v4: rejected_repos_meta speichert pro Repo {reason, rejected_at}.
-          # Erlaubt TTL-basierten Re-Try: Aktualitaets-Rejects ("Zu alt", "IP-Datei
-          # Xd alt") werden nach REJECT_TTL_DAYS aus der Reject-Liste entfernt,
-          # damit reanimierte Feeds wieder eine Chance bekommen. Strukturelle
-          # Rejects ("Keine IP-Datei", "FP-Rate", "Format", "Klon-Verdacht",
-          # "Overlap zu gering") bleiben permanent - die aendern sich selten.
-          existing_rejected_meta = {}
-          REJECT_TTL_DAYS = 90
-          # Reject-Gruende, die als "transient" gelten und nach TTL ablaufen.
-          # Identifikation via Substring im reason-Feld (vgl. _evaluate_one).
-          TRANSIENT_REJECT_SUBSTRINGS = (
-              "Zu alt:",            # Repo-Push > 30d
-              "IP-Datei",           # IP-Datei selbst > 30d ("IP-Datei 378d alt")
-              "Download-Fehler",    # transient: Netz/CDN-Fehler
-          )
-
-          def _is_transient_reject(reason):
-              return any(sub in reason for sub in TRANSIENT_REJECT_SUBSTRINGS)
-
-          if os.path.exists(AUTO_FILE):
-              try:
-                  with open(AUTO_FILE) as f:
-                      auto_data = json.load(f)
-                  for feed in auto_data.get("feeds", []):
-                      existing_feeds[feed["name"]] = feed
-                  _raw_rejected = auto_data.get("rejected_repos", [])
-                  existing_rejected = set(_raw_rejected)
-                  # Meta-Dict laden (neues Feld, kann bei alten JSONs fehlen)
-                  existing_rejected_meta = dict(auto_data.get("rejected_repos_meta", {}))
-
-                  # TTL-Bereinigung: transiente Rejects, die aelter als
-                  # REJECT_TTL_DAYS sind, aus rejected_repos entfernen damit
-                  # sie diesen Run neu evaluiert werden.
-                  _ttl_expired = []
-                  for _r, _info in list(existing_rejected_meta.items()):
-                      if not isinstance(_info, dict):
-                          continue
-                      _reason = _info.get("reason", "")
-                      _at = _info.get("rejected_at", "")
-                      if not _is_transient_reject(_reason):
-                          continue
-                      try:
-                          _at_dt = datetime.strptime(_at[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                      except Exception:
-                          continue
-                      if (now - _at_dt).days >= REJECT_TTL_DAYS:
-                          _ttl_expired.append(_r)
-                  for _r in _ttl_expired:
-                      existing_rejected.discard(_r)
-                      existing_rejected_meta.pop(_r, None)
-
-                  print(f"Bestehende auto_discovered_feeds: {len(existing_feeds)} Feeds, "
-                        f"{len(existing_rejected)} abgelehnte Repos")
-                  if _ttl_expired:
-                      print(f"TTL-Re-Try: {len(_ttl_expired)} transiente Rejects "
-                            f"nach {REJECT_TTL_DAYS}d abgelaufen → werden neu evaluiert")
-              except Exception as _suppressed:
-                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+          # Schritt 4 (auto_discovered_feeds.json laden) wurde nach oben
+          # gezogen - siehe direkt nach Schritt 1. Grund: Org-Crawl (Schritt
+          # 3a2) braucht existing_feeds um die Owner bekannter Feeds zu kennen.
 
           # ── Schritt 5: Kandidaten bewerten & IPs extrahieren ─────────────
           approved_feeds  = dict(existing_feeds)
