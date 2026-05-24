@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-23 20:11 UTC
+**Aktualisiert:** 2026-05-24 05:12 UTC
 
 **Workflows:** 23 | ✅ 23 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
@@ -10,16 +10,14 @@
 |---|---|---|
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Workflow-Reihenfolge / Puffer zu knapp | 00:30 UTC → 00:47 UTC (17min < 60min); 06:30 UTC → 06:47 UTC (17min < 60min); 12:30 UTC → 12:47 UTC (17min < 60min); 18:30 UTC → 18:47 UTC (17min < 60min) |
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:30 UTC → 00:47 UTC (17min < 60min Mindestpuffer); 06:30 UTC → 06:47 UTC (17min < 60min Mindestpuffer); 12:30 UTC → 12:47 UTC (17min < 60min Mindestpuffer); 18:30 UTC → 18:47 UTC (17min < 60min Mindestpuffer) |
-| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 135,406 → 112,743 (-17%) – deutlicher Rückgang |
 | `Production Health` | Push-Limit Naehe | blacklist_geo_enriched.json: 85.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 2 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🟡 WARN | Drift: honeypot_ips.txt | honeypot_ips.txt: 135,406 → 112,743 (-17%) – deutlicher Rückgang |
 | 🟡 WARN | Push-Limit Naehe | blacklist_geo_enriched.json: 85.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
@@ -51,4 +49,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-05-23 20:11 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-05-24 05:12 UTC | 23 Workflow-Dateien geprüft*
