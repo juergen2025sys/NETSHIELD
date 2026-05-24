@@ -1579,6 +1579,42 @@ jobs:
               rep_score = min(stars * 2 + forks * 3, 100)
               _log_lines.append(f"  ⭐ Reputation: {stars} Stars / {forks} Forks → Score {rep_score} [{_platform}]")
 
+              # ── Multi-File: weitere IP-Dateien aus demselben Repo ────────
+              # Das Repo ist bereits als vertrauenswürdig validiert (Aktualität,
+              # FP-Rate, Overlap der Hauptdatei OK). Alle weiteren passenden
+              # Dateien werden jetzt ohne erneute Strenge-Checks übernommen –
+              # nur Mindestgröße (>=50 IPs) und erfolgreicher Download werden
+              # geprüft. Kein FP/Overlap-Check nötig da Repo bereits trusted.
+              # Max. 15 Extra-Dateien pro Repo (Schutz gegen zu breite Repos).
+              MAX_EXTRA_FILES = 15
+              extra_files = []
+              _extra_candidates = [f for f in ip_files[1:] if f != best_file][:MAX_EXTRA_FILES]
+              for _ef in _extra_candidates:
+                  if _platform == "gitlab":
+                      _ef_url = (f"https://gitlab.com/{_gl_path}/-/raw/{_gl_branch}/"
+                                 f"{urllib.parse.quote(_ef['path'], safe='/')}")
+                  else:
+                      _ef_url = (f"https://raw.githubusercontent.com/{full_name}/"
+                                 f"HEAD/{urllib.parse.quote(_ef['path'], safe='/')}")
+                  _ef_text = fetch_raw(_ef_url, timeout=12)
+                  if not _ef_text:
+                      _log_lines.append(f"  ⚠ Extra-Datei Download fehlgeschlagen: {_ef['path']}")
+                      continue
+                  _ef_ips = extract_ips(_ef_text)
+                  if len(_ef_ips) < 50:
+                      _log_lines.append(f"  ⚠ Extra-Datei zu klein ({len(_ef_ips)} IPs): {_ef['path']}")
+                      continue
+                  extra_files.append({
+                      "file":    _ef["path"],
+                      "url":     _ef_url,
+                      "ips":     _ef_ips,
+                      "size":    _ef["size"],
+                  })
+                  _log_lines.append(f"  ✅ Extra-Datei: {_ef['path']} ({len(_ef_ips)} IPs)")
+
+              if extra_files:
+                  _log_lines.append(f"  → {len(extra_files)} Extra-Datei(en) aus demselben Repo")
+
               return {
                   "action":      "approve",
                   "repo":        _reject_key,
@@ -1601,6 +1637,7 @@ jobs:
                   "gl_id":       _gl_id,
                   "gl_branch":   _gl_branch,
                   "logs":        _log_lines,
+                  "extra_files":  extra_files,
               }
 
           # Parallele Ausführung
@@ -1624,7 +1661,7 @@ jobs:
                                          "platform": _platform_res})
                   continue
 
-              # APPROVE
+              # APPROVE – Hauptdatei + alle Extra-Dateien aus demselben Repo
               full_name   = _res["repo_display"]
               reject_key  = _res["repo"]
               meta        = _res["meta"]
@@ -1637,62 +1674,70 @@ jobs:
               forks       = _res["forks"]
               rep_score   = _res["rep_score"]
               days_old    = _res["days_old"]
+              extra_files = _res.get("extra_files", [])
 
-              # Feed-Name: bei GitLab "gl_" Prefix um Kollisionen zu vermeiden
-              _name_base = full_name if _platform_res == "github" else f"gl_{_res['gl_path']}"
-              base_name = re.sub(r'[^a-z0-9_]', '_', _name_base.lower().replace('/', '_'))
-              feed_name = base_name
-              suffix = 2
-              while (feed_name in approved_feeds and
-                     approved_feeds[feed_name].get("repo") != reject_key):
-                  feed_name = f"{base_name}_v{suffix}"
-                  suffix += 1
+              # Hilfsfunktion: einen Feed-Eintrag anlegen und in approved_feeds eintragen
+              def _register_feed(f_url, f_path, f_ips, f_name_suffix=""):
+                  _name_base = full_name if _platform_res == "github" else f"gl_{_res['gl_path']}"
+                  _base = re.sub(r'[^a-z0-9_]', '_', _name_base.lower().replace('/', '_'))
+                  if f_name_suffix:
+                      _base = f"{_base}_{f_name_suffix}"
+                  _fname = _base
+                  _sfx = 2
+                  while (_fname in approved_feeds and
+                         approved_feeds[_fname].get("repo") != reject_key):
+                      _fname = f"{_base}_v{_sfx}"
+                      _sfx += 1
+                  _is_new = _fname not in existing_feeds
+                  _entry = {
+                      "name":          _fname,
+                      "url":           f_url,
+                      "repo":          full_name,
+                      "file":          f_path,
+                      "platform":      _platform_res,
+                      "added":         existing_feeds[_fname]["added"] if not _is_new and _fname in existing_feeds else now_day,
+                      "last_checked":  now_day,
+                      "ip_count":      len(f_ips),
+                      "overlap_pct":   round(overlap_pct * 100, 1),
+                      "fp_rate":       round(fp * 100, 2),
+                      "rep_score":     rep_score,
+                      "stars":         stars,
+                      "days_old":      days_old,
+                      "search_sources": meta.get("sources", []),
+                      "hq":            False,
+                  }
+                  if _platform_res == "gitlab":
+                      _entry["gl_id"]            = _res["gl_id"]
+                      _entry["gl_default_branch"] = _res["gl_branch"]
+                  approved_feeds[_fname] = _entry
+                  if _is_new:
+                      all_new_ips.update(f_ips)
+                  else:
+                      all_known_ips.update(f_ips)
+                  for _ip in f_ips:
+                      ip_auto_feed_count[_ip] = ip_auto_feed_count.get(_ip, 0) + 1
+                  evaluation_log.append({
+                      "repo":        full_name,
+                      "result":      "APPROVED",
+                      "feed_name":   _fname,
+                      "ips":         len(f_ips),
+                      "new_feed":    _is_new,
+                      "overlap_pct": round(overlap_pct * 100, 1),
+                      "fp_rate":     round(fp * 100, 2),
+                      "stars":       stars,
+                      "platform":    _platform_res,
+                  })
+                  print(f"  ✅ ANGENOMMEN als '{_fname}' ({len(f_ips)} IPs, "
+                        f"{'NEU' if _is_new else 'bekannt'}, {_platform_res.upper()})")
 
-              is_new_feed = feed_name not in existing_feeds
+              # Hauptdatei registrieren (kein Suffix – bleibt rückwärtskompatibel)
+              _register_feed(raw_url, best_file["path"], ips)
 
-              _feed_entry = {
-                  "name":          feed_name,
-                  "url":           raw_url,
-                  "repo":          full_name,
-                  "file":          best_file["path"],
-                  "platform":      _platform_res,
-                  "added":         existing_feeds[feed_name]["added"] if not is_new_feed and feed_name in existing_feeds else now_day,
-                  "last_checked":  now_day,
-                  "ip_count":      len(ips),
-                  "overlap_pct":   round(overlap_pct * 100, 1),
-                  "fp_rate":       round(fp * 100, 2),
-                  "rep_score":     rep_score,
-                  "stars":         stars,
-                  "days_old":      days_old,
-                  "search_sources": meta.get("sources", []),
-                  "hq":            False,
-              }
-              # GitLab-spezifische Felder
-              if _platform_res == "gitlab":
-                  _feed_entry["gl_id"]             = _res["gl_id"]
-                  _feed_entry["gl_default_branch"]  = _res["gl_branch"]
-
-              approved_feeds[feed_name] = _feed_entry
-
-              if is_new_feed:
-                  all_new_ips.update(ips)
-              else:
-                  all_known_ips.update(ips)
-              for _ip in ips:
-                  ip_auto_feed_count[_ip] = ip_auto_feed_count.get(_ip, 0) + 1
-
-              evaluation_log.append({
-                  "repo":        full_name,
-                  "result":      "APPROVED",
-                  "feed_name":   feed_name,
-                  "ips":         len(ips),
-                  "new_feed":    is_new_feed,
-                  "overlap_pct": round(overlap_pct * 100, 1),
-                  "fp_rate":     round(fp * 100, 2),
-                  "stars":       stars,
-                  "platform":    _platform_res,
-              })
-              print(f"  ✅ ANGENOMMEN als '{feed_name}' ({len(ips)} IPs, {'NEU' if is_new_feed else 'bekannt'}, {_platform_res.upper()})")
+              # Extra-Dateien registrieren mit Dateiname-Stem als Suffix
+              for _ef in extra_files:
+                  _stem = re.sub(r'[^a-z0-9_]', '_',
+                                 _ef["file"].split("/")[-1].rsplit(".", 1)[0].lower())
+                  _register_feed(_ef["url"], _ef["file"], _ef["ips"], f_name_suffix=_stem)
 
           # ── Schritt 6: seen_db aktualisieren ──────────────────────────────
           SOURCE_LABEL = "auto_feed_discovery"
