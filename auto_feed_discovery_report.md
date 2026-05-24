@@ -1,26 +1,34 @@
 # Auto Feed Discovery – Report
-**Aktualisiert:** 2026-05-24 07:15 UTC
+**Aktualisiert:** 2026-05-24 07:48 UTC
 
 ---
 ## Zusammenfassung
 
 | Metrik | Wert |
 |---|---|
-| Kandidaten gesamt | **2720** |
-| davon GitHub (Topics+Code) | **2683** |
+| Kandidaten gesamt | **2723** |
+| davon GitHub (Topics+Code) | **2686** |
 | davon GitLab | **37** |
-| davon Awesome-Lists | **705** |
+| davon Awesome-Lists | **704** |
 | Neu angenommen | **0** |
 | davon aus GitLab | **0** |
 | davon aus Awesome-Lists | **0** |
 | Bekannte Feeds re-fetched | **0** |
-| Abgelehnt (dieser Run) | **0** |
+| Abgelehnt (dieser Run) | **2** |
 | davon GitLab abgelehnt | **0** |
 | Feeds gesamt (aktiv) | **18** |
-| IPs in seen_db bestätigt | **226096** |
-| Neue IPs eingetragen | **96559** |
-| seen_db gesamt | **4,525,629** |
-| HQ-Referenz-IPs (6 Quellen) | **134457** |
+| IPs in seen_db bestätigt | **340294** |
+| Neue IPs eingetragen | **4519** |
+| seen_db gesamt | **4,530,148** |
+| HQ-Referenz-IPs (6 Quellen) | **134537** |
+
+---
+## ❌ Abgelehnte Repos
+
+| Repo | Plattform | Grund |
+|---|---|---|
+| `openwrt-xiaomi/xmir-patcher` | GITHUB | Keine IP-Datei |
+| `vigolium/vigolium` | GITHUB | Keine IP-Datei |
 
 ---
 ## 📋 Alle aktiven Auto-Feeds
@@ -30,7 +38,7 @@
 | `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | GITHUB | 10,635 | 75.0% | 4721 | 2026-04-26 |
 | `cbuijs_accomplist` | GITHUB | 0 | 0.6% | 20 | 2026-03-27 |
 | `cbuijs_accomplist_v2` | GITHUB | 0 | 0.5% | 18 | 2026-03-12 |
-| `ziyadnz_threat_intel_ip_feeds` | GITHUB | 21,502 | 36.7% | 8 | 2026-04-05 |
+| `ziyadnz_threat_intel_ip_feeds` | GITHUB | 101,826 | 36.7% | 8 | 2026-04-05 |
 | `turntuptechnologies_iocs` | GITHUB | 155 | 97.4% | 4 | 2026-03-29 |
 | `cbuijs_badip` | GITHUB | 0 | 60.7% | 4 | 2026-03-29 |
 | `maximewewer_heimdallblocklists` | GITHUB | 93,058 | 69.0% | 4 | 2026-03-29 |
@@ -47,4 +55,4 @@
 | `kraloveckey_ipsets_blocklist` | GITHUB | 16,854 | 13.1% | 0 | 2026-05-10 |
 
 ---
-*Generiert: 2026-05-24 07:15 UTC*
+*Generiert: 2026-05-24 07:48 UTC*

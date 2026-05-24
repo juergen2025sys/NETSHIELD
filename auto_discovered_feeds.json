@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-24 07:15 UTC",
+  "updated": "2026-05-24 07:48 UTC",
   "total_feeds": 18,
   "new_this_run": 0,
   "rejected_repos": [
@@ -1674,6 +1674,7 @@
     "onionj/pybotnet",
     "onzack/grafana-dashboards",
     "openprotest/protest",
+    "openwrt-xiaomi/xmir-patcher",
     "opnsense/docs",
     "orangeok77/chrysalis-ioc-triage",
     "outspokennesscamellia722/vector-embedded-finder",
@@ -2024,6 +2025,7 @@
     "vexsx/SSH_VBruter",
     "vgg-dev/shadowscan",
     "viglianesed/ip-blocklist",
+    "vigolium/vigolium",
     "vin67/govhack2025",
     "vincentkoc/autosecure",
     "vineeth0216/alpenguard-security-framework",
@@ -2166,7 +2168,7 @@
         "topic:ioc"
       ],
       "hq": false,
-      "consecutive_fails": 1,
+      "consecutive_fails": 2,
       "file_days_old": 0
     },
     {
@@ -2229,7 +2231,7 @@
         "topic:blacklist"
       ],
       "hq": false,
-      "consecutive_fails": 1,
+      "consecutive_fails": 2,
       "file_days_old": 0
     },
     {
@@ -2249,7 +2251,7 @@
         "topic:ioc"
       ],
       "hq": false,
-      "consecutive_fails": 1,
+      "consecutive_fails": 2,
       "file_days_old": 0
     },
     {
@@ -2289,7 +2291,7 @@
         "topic:blacklist"
       ],
       "hq": false,
-      "consecutive_fails": 1,
+      "consecutive_fails": 2,
       "file_days_old": 0
     },
     {
@@ -2370,7 +2372,7 @@
         "topic:threat-intelligence"
       ],
       "hq": false,
-      "consecutive_fails": 1,
+      "consecutive_fails": 2,
       "file_days_old": 0
     },
     {
@@ -2380,7 +2382,7 @@
       "file": "output/blacklist.csv",
       "added": "2026-04-05",
       "last_checked": "2026-05-24",
-      "ip_count": 21502,
+      "ip_count": 101826,
       "overlap_pct": 36.7,
       "fp_rate": 0.0,
       "rep_score": 34,
