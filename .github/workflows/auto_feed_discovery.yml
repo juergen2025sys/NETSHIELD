@@ -2015,6 +2015,88 @@ jobs:
           # ── Schritt 7: seen_db speichern ──────────────────────────────────
           write_json_atomic(DB_FILE, db, separators=(",", ":"))
 
+          # ── Deduplizierung: identische URLs / gleiche Repo+Datei entfernen ──
+          # Ursache: Discovery-Runs über mehrere Wochen können dasselbe Repo
+          # mehrfach unter verschiedenen Namen aufnehmen (_v2, _v3 Suffixe).
+          # Kriterien (Priorität):
+          #   1. Gleiche URL → exakter Duplikat → älteren behalten (früheres "added")
+          #   2. Gleiche (repo, file) → inhaltlich identisch → gleiche Logik
+          # Bei Gleichstand: längerer Name ist der jüngere Duplikat → entfernen.
+          _dedup_by_url  = {}   # url → feed_name des Originals
+          _dedup_by_file = {}   # (repo, file) → feed_name des Originals
+          _dedup_removed = []
+
+          for _fn, _fd in list(approved_feeds.items()):
+              _url  = _fd.get("url", "")
+              _repo = _fd.get("repo", "")
+              _file = _fd.get("file", "")
+              _added = _fd.get("added", "9999-99-99")
+
+              _dup_key_url  = _url
+              _dup_key_file = (_repo, _file)
+
+              _existing_url  = _dedup_by_url.get(_dup_key_url)
+              _existing_file = _dedup_by_file.get(_dup_key_file) if _dup_key_file[1] else None
+              _existing = _existing_url or _existing_file
+
+              if _existing and _existing in approved_feeds:
+                  _existing_added = approved_feeds[_existing].get("added", "9999-99-99")
+                  # Älteren (früher hinzugefügten) behalten, jüngeren entfernen
+                  if _added <= _existing_added:
+                      # Aktueller Eintrag ist älter oder gleich → entfernen, Neueres behalten
+                      del approved_feeds[_fn]
+                      _dedup_removed.append(f"{_fn} (Duplikat von {_existing})")
+                  else:
+                      # Aktueller Eintrag ist neuer → Altes ersetzen
+                      del approved_feeds[_existing]
+                      _dedup_removed.append(f"{_existing} (Duplikat von {_fn})")
+                      _dedup_by_url[_dup_key_url]  = _fn
+                      if _dup_key_file[1]:
+                          _dedup_by_file[_dup_key_file] = _fn
+              else:
+                  _dedup_by_url[_dup_key_url] = _fn
+                  if _dup_key_file[1]:
+                      _dedup_by_file[_dup_key_file] = _fn
+
+          # Content-Dedup: Feeds mit identischem IP-Count UND gleichem Repo
+          # → wahrscheinlich verschiedene Formate derselben Liste (plain, cidr, ipset)
+          # Fingerprint: ip_count + repo. Neuestes behalten, ältere entfernen.
+          _content_dedup_removed = []
+          _seen_content = {}  # (repo, ip_count) → feed_name
+          # Sort: neuestes Datum zuerst. Bei gleichem Datum: kürzerer Name zuerst
+          # (Original ohne _v2-Suffix bevorzugen). So bleibt immer die sauberste
+          # Variante erhalten wenn Datum identisch, sonst die neueste.
+          import re as _re
+          for _fn, _fd in sorted(approved_feeds.items(),
+                                  key=lambda x: (x[1].get("added", ""),
+                                                 -len(x[0]),
+                                                 -len(_re.findall(r"_v\d+$", x[0]))),
+                                  reverse=True):
+              if _fn not in approved_feeds:
+                  continue
+              _ckey = (_fd.get("repo", ""), _fd.get("ip_count", -1))
+              if _ckey[1] <= 0:
+                  continue
+              if _ckey in _seen_content:
+                  _orig = _seen_content[_ckey]
+                  if _orig in approved_feeds:
+                      # Älteren entfernen (aktueller ist neuer wegen reverse=True)
+                      del approved_feeds[_fn]
+                      _content_dedup_removed.append(
+                          f"{_fn} (gleiche {_ckey[1]} IPs wie {_orig})")
+              else:
+                  _seen_content[_ckey] = _fn
+
+          if _content_dedup_removed:
+              _dedup_removed.extend(_content_dedup_removed)
+
+          if _dedup_removed:
+              print(f"\nDeduplizierung: {len(_dedup_removed)} Duplikat(e) entfernt:")
+              for _d in _dedup_removed:
+                  print(f"  🗑 {_d}")
+          else:
+              print("\nDeduplizierung: keine Duplikate gefunden")
+
           # ── Schritt 8: Report ──────────────────────────────────────────────
           new_approved = [e for e in evaluation_log if e["result"] == "APPROVED"]
           new_rejected = [e for e in evaluation_log if e["result"] == "REJECTED"]
@@ -2098,88 +2180,6 @@ jobs:
               print(f"::warning file=auto_feed_discovery.yml::{_msg}")
               print(f"WARNUNG: {_msg}")
               sys.exit(1)
-
-          # ── Deduplizierung: identische URLs / gleiche Repo+Datei entfernen ──
-          # Ursache: Discovery-Runs über mehrere Wochen können dasselbe Repo
-          # mehrfach unter verschiedenen Namen aufnehmen (_v2, _v3 Suffixe).
-          # Kriterien (Priorität):
-          #   1. Gleiche URL → exakter Duplikat → älteren behalten (früheres "added")
-          #   2. Gleiche (repo, file) → inhaltlich identisch → gleiche Logik
-          # Bei Gleichstand: längerer Name ist der jüngere Duplikat → entfernen.
-          _dedup_by_url  = {}   # url → feed_name des Originals
-          _dedup_by_file = {}   # (repo, file) → feed_name des Originals
-          _dedup_removed = []
-
-          for _fn, _fd in list(approved_feeds.items()):
-              _url  = _fd.get("url", "")
-              _repo = _fd.get("repo", "")
-              _file = _fd.get("file", "")
-              _added = _fd.get("added", "9999-99-99")
-
-              _dup_key_url  = _url
-              _dup_key_file = (_repo, _file)
-
-              _existing_url  = _dedup_by_url.get(_dup_key_url)
-              _existing_file = _dedup_by_file.get(_dup_key_file) if _dup_key_file[1] else None
-              _existing = _existing_url or _existing_file
-
-              if _existing and _existing in approved_feeds:
-                  _existing_added = approved_feeds[_existing].get("added", "9999-99-99")
-                  # Älteren (früher hinzugefügten) behalten, jüngeren entfernen
-                  if _added <= _existing_added:
-                      # Aktueller Eintrag ist älter oder gleich → entfernen, Neueres behalten
-                      del approved_feeds[_fn]
-                      _dedup_removed.append(f"{_fn} (Duplikat von {_existing})")
-                  else:
-                      # Aktueller Eintrag ist neuer → Altes ersetzen
-                      del approved_feeds[_existing]
-                      _dedup_removed.append(f"{_existing} (Duplikat von {_fn})")
-                      _dedup_by_url[_dup_key_url]  = _fn
-                      if _dup_key_file[1]:
-                          _dedup_by_file[_dup_key_file] = _fn
-              else:
-                  _dedup_by_url[_dup_key_url] = _fn
-                  if _dup_key_file[1]:
-                      _dedup_by_file[_dup_key_file] = _fn
-
-          # Content-Dedup: Feeds mit identischem IP-Count UND gleichem Repo
-          # → wahrscheinlich verschiedene Formate derselben Liste (plain, cidr, ipset)
-          # Fingerprint: ip_count + repo. Neuestes behalten, ältere entfernen.
-          _content_dedup_removed = []
-          _seen_content = {}  # (repo, ip_count) → feed_name
-          # Sort: neuestes Datum zuerst. Bei gleichem Datum: kürzerer Name zuerst
-          # (Original ohne _v2-Suffix bevorzugen). So bleibt immer die sauberste
-          # Variante erhalten wenn Datum identisch, sonst die neueste.
-          import re as _re
-          for _fn, _fd in sorted(approved_feeds.items(),
-                                  key=lambda x: (x[1].get("added", ""),
-                                                 -len(x[0]),
-                                                 -len(_re.findall(r"_v\d+$", x[0]))),
-                                  reverse=True):
-              if _fn not in approved_feeds:
-                  continue
-              _ckey = (_fd.get("repo", ""), _fd.get("ip_count", -1))
-              if _ckey[1] <= 0:
-                  continue
-              if _ckey in _seen_content:
-                  _orig = _seen_content[_ckey]
-                  if _orig in approved_feeds:
-                      # Älteren entfernen (aktueller ist neuer wegen reverse=True)
-                      del approved_feeds[_fn]
-                      _content_dedup_removed.append(
-                          f"{_fn} (gleiche {_ckey[1]} IPs wie {_orig})")
-              else:
-                  _seen_content[_ckey] = _fn
-
-          if _content_dedup_removed:
-              _dedup_removed.extend(_content_dedup_removed)
-
-          if _dedup_removed:
-              print(f"\nDeduplizierung: {len(_dedup_removed)} Duplikat(e) entfernt:")
-              for _d in _dedup_removed:
-                  print(f"  🗑 {_d}")
-          else:
-              print("\nDeduplizierung: keine Duplikate gefunden")
 
           MIN_APPROVED_FEEDS = 10
           if len(approved_feeds) < MIN_APPROVED_FEEDS:
