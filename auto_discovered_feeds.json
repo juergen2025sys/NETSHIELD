@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-24 07:48 UTC",
+  "updated": "2026-05-24 08:07 UTC",
   "total_feeds": 18,
   "new_this_run": 0,
   "rejected_repos": [
@@ -2158,7 +2158,7 @@
       "file": "badip.list",
       "added": "2026-03-29",
       "last_checked": "2026-05-24",
-      "ip_count": 0,
+      "ip_count": 35813,
       "overlap_pct": 60.7,
       "fp_rate": 0.0,
       "rep_score": 8,
@@ -2168,7 +2168,7 @@
         "topic:ioc"
       ],
       "hq": false,
-      "consecutive_fails": 2,
+      "consecutive_fails": 0,
       "file_days_old": 0
     },
     {
@@ -2221,7 +2221,7 @@
       "file": "chris/project-honeypot.list",
       "added": "2026-03-27",
       "last_checked": "2026-05-24",
-      "ip_count": 0,
+      "ip_count": 96584,
       "overlap_pct": 0.6,
       "fp_rate": 1.5,
       "rep_score": 40,
@@ -2231,7 +2231,7 @@
         "topic:blacklist"
       ],
       "hq": false,
-      "consecutive_fails": 2,
+      "consecutive_fails": 0,
       "file_days_old": 0
     },
     {
@@ -2241,7 +2241,7 @@
       "file": "badip.list",
       "added": "2026-03-13",
       "last_checked": "2026-05-24",
-      "ip_count": 0,
+      "ip_count": 35813,
       "overlap_pct": 61.5,
       "fp_rate": 3.0,
       "rep_score": 8,
@@ -2251,7 +2251,7 @@
         "topic:ioc"
       ],
       "hq": false,
-      "consecutive_fails": 2,
+      "consecutive_fails": 0,
       "file_days_old": 0
     },
     {
@@ -2281,7 +2281,7 @@
       "file": "chris/project-honeypot.list",
       "added": "2026-03-12",
       "last_checked": "2026-05-24",
-      "ip_count": 0,
+      "ip_count": 96584,
       "overlap_pct": 0.5,
       "fp_rate": 1.5,
       "rep_score": 36,
@@ -2291,7 +2291,7 @@
         "topic:blacklist"
       ],
       "hq": false,
-      "consecutive_fails": 2,
+      "consecutive_fails": 0,
       "file_days_old": 0
     },
     {
@@ -2361,7 +2361,7 @@
       "file": "clash/generated/botnet.txt",
       "added": "2026-03-17",
       "last_checked": "2026-05-24",
-      "ip_count": 0,
+      "ip_count": 5035,
       "overlap_pct": 12.7,
       "fp_rate": 0.0,
       "rep_score": 4,
@@ -2372,7 +2372,7 @@
         "topic:threat-intelligence"
       ],
       "hq": false,
-      "consecutive_fails": 2,
+      "consecutive_fails": 0,
       "file_days_old": 0
     },
     {
@@ -2382,7 +2382,7 @@
       "file": "output/blacklist.csv",
       "added": "2026-04-05",
       "last_checked": "2026-05-24",
-      "ip_count": 101826,
+      "ip_count": 102721,
       "overlap_pct": 36.7,
       "fp_rate": 0.0,
       "rep_score": 34,
