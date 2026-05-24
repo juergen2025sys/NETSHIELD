@@ -458,8 +458,9 @@ jobs:
                   # Alle Text-Inhalte zwischen Tags und in Attributen extrahieren.
                   # Regex als Variable um YAML-Sonderzeichen-Probleme zu vermeiden.
                   _tag_content = re.findall(r">([^<]{1,80})<", stripped)
-                  _attr_content = re.findall(r'(?:=)(["'])([^"']{3,40})\1', stripped)
-                  xml_strings = list(_tag_content) + [v for _, v in _attr_content]
+                  # Attributwerte: alles nach = bis zum naechsten Leerzeichen/>
+                  _attr_content = re.findall(r"=([^\s<>"']{3,40})", stripped)
+                  xml_strings = list(_tag_content) + _attr_content
                   ips = _ips_from_strings(xml_strings)
                   if ips:
                       return ips
