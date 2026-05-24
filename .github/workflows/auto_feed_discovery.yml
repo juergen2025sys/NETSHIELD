@@ -355,12 +355,20 @@ jobs:
           # sie auch von anderen Stellen genutzt werden können.
 
           def _ips_from_strings(strings):
-              """IP-Validierung auf beliebiger String-Liste via parse_entries."""
+              """IP-Validierung auf beliebiger String-Liste via parse_entries.
+              /32-CIDRs werden als plain IPs behandelt (Strip des Suffix).
+              Andere CIDRs (/24 etc.) werden ignoriert – nur Host-IPs zaehlen.
+              """
               result = set()
               for s in strings:
                   if not isinstance(s, str) or not s.strip():
                       continue
-                  result.update(e for e in _parse_entries(s) if "/" not in e)
+                  for e in _parse_entries(s):
+                      if "/" not in e:
+                          result.add(e)  # plain IP
+                      elif e.endswith("/32"):
+                          result.add(e[:-3])  # /32 → plain IP
+                      # andere CIDRs (/8 bis /31) werden ignoriert
               return result
 
           def _json_all_strings(obj, depth=0):
@@ -526,6 +534,25 @@ jobs:
                   ips = _ips_from_strings(fw_strings)
                   if ips:
                       return ips
+
+              # ── 6b. Clash / Proxy-Listen-Format ────────────────────────────
+              # Erkennung: Zeilen mit "IP-CIDR," oder "IP," Prefix (Clash/Surge/Quantumult)
+              # Format: IP-CIDR,1.2.3.4/32,no-resolve oder IP,1.2.3.4
+              _clash_lines = [l for l in data_lines
+                              if l.upper().startswith(("IP-CIDR,", "IP,", "IP6-CIDR,"))]
+              if len(_clash_lines) >= 5:
+                  clash_ips = set()
+                  for cl in _clash_lines:
+                      parts = cl.split(",")
+                      if len(parts) >= 2:
+                          token = parts[1].strip()
+                          if token.endswith("/32"):
+                              clash_ips.add(token[:-3])
+                          elif "/" not in token:
+                              clash_ips.update(e for e in _parse_entries(token) if "/" not in e)
+                          # /24 etc. → ignorieren, nur Host-IPs
+                  if clash_ips:
+                      return clash_ips
 
               # ── 7. YAML / TOML / INI / Clash-Config ──────────────────────
               _kv_count = sum(1 for l in data_lines if ":" in l or "=" in l)
