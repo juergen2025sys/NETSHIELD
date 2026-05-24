@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-05-24 22:28 UTC
+**Aktualisiert:** 2026-05-24 23:34 UTC
 
 ---
 ## 📊 Listen-Übersicht
@@ -13,7 +13,7 @@
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **36,398** | 2026-05-24 06:53 UTC |
 | ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,949** | 2026-05-23 23:42 UTC |
 | ✅ `honeypot_ips.txt` | Honeypot IPs | **135,325** | 2026-05-24 19:45 UTC |
-| ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **22,110** | 2026-05-24 17:18 UTC |
+| ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **16,295** | 2026-05-24 23:16 UTC |
 
 ---
 ## 🔗 OPNsense Alias URL
@@ -37,4 +37,4 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 *Details: [workflow_health_report.md](workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-05-24 22:28 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-05-24 23:34 UTC*
