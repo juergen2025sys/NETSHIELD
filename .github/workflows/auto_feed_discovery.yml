@@ -1454,11 +1454,23 @@ jobs:
 
               _extra_repos_scanned += 1
 
-              # IP-Dateien die noch nicht registriert sind
+              # IP-Dateien die noch nicht registriert sind.
+              # Ausschluss: .deprecated, dev-tools/test*, backup, archive, sample
+              # Ordner um Duplikat-Testdateien zu vermeiden (z.B. mitchellkrogza).
+              _SKIP_PATH_PARTS = {
+                  ".deprecated", "deprecated", "dev-tools", "test", "sample",
+                  "example", "backup", "archive", "old", "legacy", "beta",
+                  "_sample", "test1", "test2", "test3", "test4", "test5",
+              }
+              def _skip_path(path):
+                  return any(part.lower() in _SKIP_PATH_PARTS
+                             for part in path.split("/")[:-1])
+
               _new_files = [
                   item for item in _tree_items
                   if IP_FILE_PATTERNS.search(item["path"].split("/")[-1])
                   and (_repo, item["path"]) not in _registered_files
+                  and not _skip_path(item["path"])
               ]
 
               if not _new_files:
@@ -1481,7 +1493,7 @@ jobs:
                       continue
 
                   time.sleep(0.3)
-                  _nf_text = fetch_raw(_nf_url, timeout=12)
+                  _nf_text = fetch_raw(_nf_url, limit=30 * 1024 * 1024, timeout=20)
                   if not _nf_text:
                       continue
 
@@ -2129,6 +2141,31 @@ jobs:
                   _dedup_by_url[_dup_key_url] = _fn
                   if _dup_key_file[1]:
                       _dedup_by_file[_dup_key_file] = _fn
+
+          # Content-Dedup: Feeds mit identischem IP-Count UND gleichem Repo
+          # → wahrscheinlich verschiedene Formate derselben Liste (plain, cidr, ipset)
+          # Fingerprint: ip_count + repo. Neuestes behalten, ältere entfernen.
+          _content_dedup_removed = []
+          _seen_content = {}  # (repo, ip_count) → feed_name
+          for _fn, _fd in sorted(approved_feeds.items(),
+                                  key=lambda x: x[1].get("added", ""), reverse=True):
+              if _fn not in approved_feeds:
+                  continue
+              _ckey = (_fd.get("repo", ""), _fd.get("ip_count", -1))
+              if _ckey[1] <= 0:
+                  continue
+              if _ckey in _seen_content:
+                  _orig = _seen_content[_ckey]
+                  if _orig in approved_feeds:
+                      # Älteren entfernen (aktueller ist neuer wegen reverse=True)
+                      del approved_feeds[_fn]
+                      _content_dedup_removed.append(
+                          f"{_fn} (gleiche {_ckey[1]} IPs wie {_orig})")
+              else:
+                  _seen_content[_ckey] = _fn
+
+          if _content_dedup_removed:
+              _dedup_removed.extend(_content_dedup_removed)
 
           if _dedup_removed:
               print(f"\nDeduplizierung: {len(_dedup_removed)} Duplikat(e) entfernt:")
