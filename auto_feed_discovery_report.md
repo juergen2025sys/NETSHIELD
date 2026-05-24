@@ -1,26 +1,35 @@
 # Auto Feed Discovery – Report
-**Aktualisiert:** 2026-05-24 08:07 UTC
+**Aktualisiert:** 2026-05-24 08:50 UTC
 
 ---
 ## Zusammenfassung
 
 | Metrik | Wert |
 |---|---|
-| Kandidaten gesamt | **2730** |
-| davon GitHub (Topics+Code) | **2693** |
+| Kandidaten gesamt | **2733** |
+| davon GitHub (Topics+Code) | **2696** |
 | davon GitLab | **37** |
 | davon Awesome-Lists | **704** |
 | Neu angenommen | **0** |
 | davon aus GitLab | **0** |
 | davon aus Awesome-Lists | **0** |
 | Bekannte Feeds re-fetched | **0** |
-| Abgelehnt (dieser Run) | **0** |
+| Abgelehnt (dieser Run) | **3** |
 | davon GitLab abgelehnt | **0** |
 | Feeds gesamt (aktiv) | **18** |
-| IPs in seen_db bestätigt | **393814** |
-| Neue IPs eingetragen | **67098** |
-| seen_db gesamt | **4,597,246** |
+| IPs in seen_db bestätigt | **461011** |
+| Neue IPs eingetragen | **215** |
+| seen_db gesamt | **4,597,461** |
 | HQ-Referenz-IPs (6 Quellen) | **134537** |
+
+---
+## ❌ Abgelehnte Repos
+
+| Repo | Plattform | Grund |
+|---|---|---|
+| `phishingclub/phishingclub` | GITHUB | Keine IP-Datei |
+| `NiREvil/vless` | GITHUB | Keine IP-Datei |
+| `Cryakl/Ultimate-RAT-Collection` | GITHUB | Keine IP-Datei |
 
 ---
 ## 📋 Alle aktiven Auto-Feeds
@@ -33,10 +42,10 @@
 | `ziyadnz_threat_intel_ip_feeds` | GITHUB | 102,721 | 36.7% | 8 | 2026-04-05 |
 | `turntuptechnologies_iocs` | GITHUB | 155 | 97.4% | 4 | 2026-03-29 |
 | `cbuijs_badip` | GITHUB | 35,813 | 60.7% | 4 | 2026-03-29 |
-| `maximewewer_heimdallblocklists` | GITHUB | 93,058 | 69.0% | 4 | 2026-03-29 |
+| `maximewewer_heimdallblocklists` | GITHUB | 93,688 | 69.0% | 4 | 2026-03-29 |
 | `agent6_6_6_wordpress_login_blocklist` | GITHUB | 21,126 | 1.4% | 4 | 2026-03-29 |
 | `cbuijs_badip_v2` | GITHUB | 35,813 | 61.5% | 4 | 2026-03-13 |
-| `maximewewer_heimdallblocklists_v2` | GITHUB | 93,058 | 58.7% | 4 | 2026-03-12 |
+| `maximewewer_heimdallblocklists_v2` | GITHUB | 93,688 | 58.7% | 4 | 2026-03-12 |
 | `turntuptechnologies_iocs_v2` | GITHUB | 155 | 67.1% | 4 | 2026-03-13 |
 | `agent6_6_6_wordpress_login_blocklist_v2` | GITHUB | 21,126 | 1.6% | 4 | 2026-03-13 |
 | `fadouse_clash_threat_intel` | GITHUB | 5,035 | 12.7% | 2 | 2026-03-17 |
@@ -47,4 +56,4 @@
 | `kraloveckey_ipsets_blocklist` | GITHUB | 16,854 | 13.1% | 0 | 2026-05-10 |
 
 ---
-*Generiert: 2026-05-24 08:07 UTC*
+*Generiert: 2026-05-24 08:50 UTC*
