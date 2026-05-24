@@ -1088,6 +1088,15 @@ jobs:
               "https://raw.githubusercontent.com/jivoi/awesome-osint/master/README.md",
               # Incident Response (enthält Feed-Aggregatoren)
               "https://raw.githubusercontent.com/meirwah/awesome-incident-response/master/README.md",
+              # NEU v4: Threat Detection - Blue-Team-Detection-Repos enthalten
+              # oft kuratierte IOC-Feeds als Beispieldaten
+              "https://raw.githubusercontent.com/0x4D31/awesome-threat-detection/master/README.md",
+              # NEU v4: Security-Sammlung mit breitem Defense-Fokus
+              "https://raw.githubusercontent.com/sbilly/awesome-security/master/README.md",
+              # NEU v4: Cybersecurity Blue-Team Tools & Feeds
+              "https://raw.githubusercontent.com/fabacab/awesome-cybersecurity-blueteam/master/README.md",
+              # NEU v4: SOC-/Detection-Tools mit Threat-Feed-Sektionen
+              "https://raw.githubusercontent.com/correia-jpv/fucking-awesome-soc/main/README.md",
           ]
 
           # GitHub-URL-Pattern für Markdown-Links: [Text](https://github.com/owner/repo)
@@ -1129,6 +1138,156 @@ jobs:
 
           print(f"Awesome-List-Scraping: {_awesome_found} neue Kandidaten hinzugefügt")
           print(f"Kandidaten gesamt nach Awesome-Scraping: {len(candidate_repos)}")
+
+          # ── Schritt 3a2: Org-Crawl ────────────────────────────────────────
+          # NEU v4: Maintainer mit einem guten Feed haben oft weitere Feed-Repos
+          # in derselben Org. Wir sammeln die Owner aller bereits-approved Repos
+          # (Vorlauf aus existing_feeds) und listen deren oeffentliche Repos.
+          # IP_FILE_PATTERNS-Match auf Repo-Namen ist hier zu eng - wir nutzen
+          # Beschreibung + Topics als Heuristik und lassen die spaetere
+          # Evaluations-Phase die echte Filterung machen.
+          print("\n── Schritt 3a2: Org-Crawl bekannter Maintainer ───────────────────")
+
+          _org_owners = set()
+          for _f in existing_feeds.values():
+              _repo = _f.get("repo", "")
+              if not _repo or "/" not in _repo:
+                  continue
+              if _f.get("platform", "github") != "github":
+                  continue
+              _org_owners.add(_repo.split("/", 1)[0])
+
+          _ORG_CRAWL_HINT_KEYWORDS = (
+              "ip", "blocklist", "blacklist", "threat", "malicious",
+              "ioc", "c2", "botnet", "honeypot", "abuse", "scanner",
+              "feed", "block", "deny",
+          )
+
+          # Begrenzung: max. 50 Owners, pro Owner max. 30 Repos. Schuetzt vor
+          # Rate-Limit-Spike bei Orgs mit hunderten Repos (z.B. forks).
+          _MAX_ORG_OWNERS = 50
+          _MAX_REPOS_PER_OWNER = 30
+          _org_found = 0
+          _owners_to_crawl = sorted(_org_owners)[:_MAX_ORG_OWNERS]
+
+          for _owner in _owners_to_crawl:
+              if _check_timeout("Org-Crawl"):
+                  break
+              _user_repos = gh_api(
+                  f"/users/{urllib.parse.quote(_owner)}/repos"
+                  f"?type=owner&sort=pushed&direction=desc&per_page={_MAX_REPOS_PER_OWNER}"
+              )
+              time.sleep(2)
+              if not _user_repos or not isinstance(_user_repos, list):
+                  continue
+              _added_for_owner = 0
+              for _ur in _user_repos:
+                  _ur_name = _ur.get("full_name", "")
+                  if not _ur_name or _ur_name in KNOWN_REPOS:
+                      continue
+                  if _ur_name in candidate_repos:
+                      continue
+                  if _ur.get("fork", False):
+                      continue  # Forks haben fast immer dieselben Inhalte
+                  if _ur.get("archived", False):
+                      continue
+                  # Heuristik: Name, Description oder Topics enthalten ein
+                  # Threat-Intel-Keyword. Strenger als reine Topic-Suche, da
+                  # wir hier breiter scannen.
+                  _haystack = " ".join([
+                      _ur_name.lower(),
+                      (_ur.get("description") or "").lower(),
+                      " ".join(_ur.get("topics", []) or []),
+                  ])
+                  if not any(kw in _haystack for kw in _ORG_CRAWL_HINT_KEYWORDS):
+                      continue
+                  add_repo_candidate(candidate_repos, _ur, f"org-crawl:{_owner}")
+                  _org_found += 1
+                  _added_for_owner += 1
+              if _added_for_owner:
+                  print(f"  {_owner}: {_added_for_owner} neue Kandidaten")
+
+          print(f"Org-Crawl: {_owners_to_crawl and len(_owners_to_crawl) or 0} Owners gescannt, "
+                f"{_org_found} neue Kandidaten")
+
+          # ── Schritt 3a3: Codeberg-Suche ───────────────────────────────────
+          # NEU v4: Codeberg (Forgejo-Fork von Gitea) hostet zunehmend
+          # EU-Security-Projekte. Gitea-API ist GitHub-aehnlich, kein Token
+          # noetig fuer oeffentliche Suche. Wir nutzen die issue/repo-Suche
+          # mit Threat-Intel-Keywords und bauen analog zu add_repo_candidate
+          # Pseudo-GitHub-Repos auf - Vorsicht: Raw-URLs unterscheiden sich,
+          # daher eigener platform-Wert "codeberg" mit eigener URL-Logik.
+          #
+          # Hinweis: Wir registrieren Codeberg-Repos hier NICHT, weil die
+          # Evaluations-Pipeline (_evaluate_one) momentan nur github+gitlab
+          # versteht. Stattdessen geben wir die Treffer als Log aus, damit
+          # ein menschlicher Kurator sie bewerten kann. Vollintegration
+          # waere ein groesseres Refactoring (Tree-API, Raw-URL-Schema,
+          # Commit-Date-Endpoint pro Plattform).
+          print("\n── Schritt 3a3: Codeberg-Suche (informativ, manuelle Kuration) ───")
+          CODEBERG_KEYWORDS = [
+              "ip blocklist", "threat feed", "malicious ip",
+              "honeypot ip", "bruteforce blacklist",
+          ]
+          _codeberg_hits = []
+          for _cb_kw in CODEBERG_KEYWORDS:
+              if _check_timeout("Codeberg"):
+                  break
+              try:
+                  _cb_url = (
+                      "https://codeberg.org/api/v1/repos/search"
+                      f"?q={urllib.parse.quote(_cb_kw)}&limit=20&type=source"
+                  )
+                  # Sicherheitscheck analog zu gitlab_api: nur codeberg.org-API.
+                  # urllib folgt Redirects standardmaessig; bei Redirect zu
+                  # privater IP / anderem Host wuerden wir leaken. Daher
+                  # zusaetzlich einen restriktiven Opener mit Redirect-Handler,
+                  # der nur same-host Redirects erlaubt.
+                  if not _cb_url.startswith("https://codeberg.org/api/v1/"):
+                      print(f"  SICHERHEIT: ungueltige Codeberg-URL: {_cb_url}", file=sys.stderr)
+                      continue
+
+                  class _CodebergRedirectHandler(urllib.request.HTTPRedirectHandler):
+                      def redirect_request(self, req, fp, code, msg, headers, newurl):
+                          if not newurl.startswith("https://codeberg.org/"):
+                              # Cross-Host-Redirect blockieren
+                              return None
+                          return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+                  _cb_opener = urllib.request.build_opener(_CodebergRedirectHandler())
+                  _cb_req = urllib.request.Request(
+                      _cb_url, headers={"Accept": "application/json"}
+                  )
+                  with _cb_opener.open(_cb_req, timeout=15) as _r:
+                      _cb_data = json.loads(_r.read().decode("utf-8"))
+                  time.sleep(2)
+              except Exception as _cb_err:
+                  print(f"  Codeberg-Suche '{_cb_kw}' fehlgeschlagen: {_cb_err}")
+                  continue
+              for _cb_item in (_cb_data.get("data") or []):
+                  _cb_name = _cb_item.get("full_name", "")
+                  _cb_desc = (_cb_item.get("description") or "")[:80]
+                  _cb_updated = _cb_item.get("updated_at", "")[:10]
+                  if _cb_name:
+                      _codeberg_hits.append({
+                          "name":    _cb_name,
+                          "desc":    _cb_desc,
+                          "updated": _cb_updated,
+                          "stars":   _cb_item.get("stars_count", 0),
+                          "via":     _cb_kw,
+                      })
+
+          # Dedupe by name, behalte den ersten Treffer
+          _seen_cb = set()
+          _codeberg_unique = []
+          for _cbh in _codeberg_hits:
+              if _cbh["name"] not in _seen_cb:
+                  _seen_cb.add(_cbh["name"])
+                  _codeberg_unique.append(_cbh)
+          _codeberg_hits = _codeberg_unique
+
+          print(f"Codeberg-Suche: {len(_codeberg_hits)} eindeutige Treffer "
+                f"(siehe Report-Sektion 'Codeberg-Kandidaten' fuer manuelle Pruefung)")
 
           # ── Schritt 3b: GitLab-Suche ──────────────────────────────────────
           # NEU v3: GitLab public API durchsuchen – viele EU- und
@@ -1197,21 +1356,72 @@ jobs:
           AUTO_FILE = "auto_discovered_feeds.json"
           existing_feeds = {}
           existing_rejected = set()
+          # NEU v4: rejected_repos_meta speichert pro Repo {reason, rejected_at}.
+          # Erlaubt TTL-basierten Re-Try: Aktualitaets-Rejects ("Zu alt", "IP-Datei
+          # Xd alt") werden nach REJECT_TTL_DAYS aus der Reject-Liste entfernt,
+          # damit reanimierte Feeds wieder eine Chance bekommen. Strukturelle
+          # Rejects ("Keine IP-Datei", "FP-Rate", "Format", "Klon-Verdacht",
+          # "Overlap zu gering") bleiben permanent - die aendern sich selten.
+          existing_rejected_meta = {}
+          REJECT_TTL_DAYS = 90
+          # Reject-Gruende, die als "transient" gelten und nach TTL ablaufen.
+          # Identifikation via Substring im reason-Feld (vgl. _evaluate_one).
+          TRANSIENT_REJECT_SUBSTRINGS = (
+              "Zu alt:",            # Repo-Push > 30d
+              "IP-Datei",           # IP-Datei selbst > 30d ("IP-Datei 378d alt")
+              "Download-Fehler",    # transient: Netz/CDN-Fehler
+          )
+
+          def _is_transient_reject(reason):
+              return any(sub in reason for sub in TRANSIENT_REJECT_SUBSTRINGS)
+
           if os.path.exists(AUTO_FILE):
               try:
                   with open(AUTO_FILE) as f:
                       auto_data = json.load(f)
                   for feed in auto_data.get("feeds", []):
                       existing_feeds[feed["name"]] = feed
-                  existing_rejected = set(auto_data.get("rejected_repos", []))
+                  _raw_rejected = auto_data.get("rejected_repos", [])
+                  existing_rejected = set(_raw_rejected)
+                  # Meta-Dict laden (neues Feld, kann bei alten JSONs fehlen)
+                  existing_rejected_meta = dict(auto_data.get("rejected_repos_meta", {}))
+
+                  # TTL-Bereinigung: transiente Rejects, die aelter als
+                  # REJECT_TTL_DAYS sind, aus rejected_repos entfernen damit
+                  # sie diesen Run neu evaluiert werden.
+                  _ttl_expired = []
+                  for _r, _info in list(existing_rejected_meta.items()):
+                      if not isinstance(_info, dict):
+                          continue
+                      _reason = _info.get("reason", "")
+                      _at = _info.get("rejected_at", "")
+                      if not _is_transient_reject(_reason):
+                          continue
+                      try:
+                          _at_dt = datetime.strptime(_at[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      except Exception:
+                          continue
+                      if (now - _at_dt).days >= REJECT_TTL_DAYS:
+                          _ttl_expired.append(_r)
+                  for _r in _ttl_expired:
+                      existing_rejected.discard(_r)
+                      existing_rejected_meta.pop(_r, None)
+
                   print(f"Bestehende auto_discovered_feeds: {len(existing_feeds)} Feeds, "
                         f"{len(existing_rejected)} abgelehnte Repos")
+                  if _ttl_expired:
+                      print(f"TTL-Re-Try: {len(_ttl_expired)} transiente Rejects "
+                            f"nach {REJECT_TTL_DAYS}d abgelaufen → werden neu evaluiert")
               except Exception as _suppressed:
                   print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
           # ── Schritt 5: Kandidaten bewerten & IPs extrahieren ─────────────
           approved_feeds  = dict(existing_feeds)
           rejected_repos  = set(existing_rejected) | set(KNOWN_REPOS)
+          # NEU v4: Meta-Tracking spiegelt rejected_repos. Bei jedem add() auch
+          # rejected_meta updaten, bei discard() auch hier entfernen. Wird am
+          # Ende ins JSON geschrieben fuer TTL-Re-Try im naechsten Run.
+          rejected_meta   = dict(existing_rejected_meta)
           evaluation_log  = []
 
           all_new_ips = set()
@@ -1339,6 +1549,8 @@ jobs:
                   removed_aged.append(f"{_name} ({_file_days}d)")
                   rejected_repos.discard(_repo)
                   rejected_repos.discard(f"gitlab:{_repo}")
+                  rejected_meta.pop(_repo, None)
+                  rejected_meta.pop(f"gitlab:{_repo}", None)
                   existing_rejected.discard(_repo)
                   print(f"  REFRESH {_name}: IP-Datei {_file_days}d alt – "
                         f"entfernt (Re-Discovery bei Aktivität möglich)")
@@ -1581,17 +1793,107 @@ jobs:
               print("auto_feed_discovery_report.md geschrieben (Timeout-Report)")
               sys.exit(0)
 
-          # FIX PERF-EVAL: Kandidaten auf Top 120 nach Reputation begrenzen.
-          # Erhöht von 100 auf 120 da GitLab + Awesome-Listen mehr Kandidaten
-          # mit möglicherweise niedrigen Star-Zahlen liefern – GitLab-Repos
-          # haben generell weniger Stars als GitHub-Äquivalente, auch wenn
-          # der Feed qualitativ hochwertig ist.
-          _sorted_candidates = sorted(
-              candidate_repos.items(),
-              key=lambda x: min(x[1].get("stars", 0) * 2 + x[1].get("forks", 0) * 3, 100),
+          # FIX PERF-EVAL v2: Stratifizierte Kandidaten-Auswahl statt reines
+          # Reputation-Ranking. Hintergrund (Mai 2026): Vorher wurden Top-120
+          # nach stars*2+forks*3 gewählt - GitHub-Topic-Repos mit vielen Stars
+          # dominierten. Folge: Aus 705 Awesome-Kandidaten und 37 GitLab-Repos
+          # wurde im letzten Run 0 angenommen, weil keiner es in die Top-120
+          # schaffte. Stratifizierung gibt jeder Quell-Klasse eigene Quote.
+          #
+          # Aufteilung (insgesamt EVAL_BUDGET=200):
+          #   - GH_REP: Top-120 nach Reputation (wie bisher, Best-of-Best)
+          #   - AWESOME: 40 Slots ausschliesslich für Awesome-List-Kandidaten
+          #   - GITLAB: 20 Slots ausschliesslich für GitLab-Kandidaten
+          #   - GH_FRESH: 20 Slots nach Pushed-Datum aus Rest-GitHub (frische,
+          #              evtl. neue Maintainer ohne Stars)
+          # Bei zu wenig Kandidaten in einer Quote werden ungenutzte Slots
+          # NICHT umverteilt - das wuerde den Reputation-Bias wiederherstellen.
+          EVAL_BUDGET   = 200   # war 120; mit 4 Workern + ~5s pro Eval ≈ 4-5 min
+          QUOTA_REP     = 120
+          QUOTA_AWESOME = 40
+          QUOTA_GITLAB  = 20
+          QUOTA_FRESH   = 20
+
+          def _is_awesome(meta):
+              return any(s.startswith("awesome:") for s in meta.get("sources", []))
+
+          def _is_gitlab(meta):
+              return meta.get("platform") == "gitlab"
+
+          def _rep_score(meta):
+              return min(meta.get("stars", 0) * 2 + meta.get("forks", 0) * 3, 100)
+
+          def _pushed_key(meta):
+              # ISO-Datum sortiert lexikografisch korrekt; leere Werte ans Ende
+              return meta.get("pushed", "") or "0000-00-00"
+
+          _all_items = list(candidate_repos.items())
+          _picked_keys = set()
+          _sorted_candidates = []
+
+          # Pool 1: Top-Reputation aus GitHub (Awesome und GitLab ausgeschlossen,
+          # damit deren Quote nicht doppelt zaehlt)
+          _rep_pool = [
+              (k, v) for k, v in _all_items
+              if not _is_gitlab(v) and not _is_awesome(v)
+          ]
+          _rep_pool.sort(key=lambda x: _rep_score(x[1]), reverse=True)
+          for k, v in _rep_pool[:QUOTA_REP]:
+              if k not in _picked_keys:
+                  _sorted_candidates.append((k, v))
+                  _picked_keys.add(k)
+
+          # Pool 2: Awesome-List-Kandidaten (typischerweise stars=0, sortiert
+          # nach Pushed-Datum - frischere Repos zuerst)
+          _aw_pool = [
+              (k, v) for k, v in _all_items
+              if _is_awesome(v) and k not in _picked_keys
+          ]
+          _aw_pool.sort(key=lambda x: _pushed_key(x[1]), reverse=True)
+          _aw_added = 0
+          for k, v in _aw_pool[:QUOTA_AWESOME]:
+              _sorted_candidates.append((k, v))
+              _picked_keys.add(k)
+              _aw_added += 1
+
+          # Pool 3: GitLab-Kandidaten (eigene Quote, da Stars dort generell
+          # niedriger sind und sie sonst nie evaluiert wuerden)
+          _gl_pool = [
+              (k, v) for k, v in _all_items
+              if _is_gitlab(v) and k not in _picked_keys
+          ]
+          _gl_pool.sort(
+              key=lambda x: (_rep_score(x[1]), _pushed_key(x[1])),
               reverse=True
-          )[:120]
-          print(f"Bewerte Top-120 von {len(candidate_repos)} Kandidaten nach Reputation")
+          )
+          _gl_added = 0
+          for k, v in _gl_pool[:QUOTA_GITLAB]:
+              _sorted_candidates.append((k, v))
+              _picked_keys.add(k)
+              _gl_added += 1
+
+          # Pool 4: Frische GitHub-Repos die nicht ins Reputation-Top-120 kamen
+          # - oft kleine, junge Feeds, die im normalen Ranking untergehen
+          _fresh_pool = [
+              (k, v) for k, v in _all_items
+              if not _is_gitlab(v) and not _is_awesome(v)
+              and k not in _picked_keys
+          ]
+          _fresh_pool.sort(key=lambda x: _pushed_key(x[1]), reverse=True)
+          _fresh_added = 0
+          for k, v in _fresh_pool[:QUOTA_FRESH]:
+              _sorted_candidates.append((k, v))
+              _picked_keys.add(k)
+              _fresh_added += 1
+
+          print(
+              f"Stratifizierte Auswahl aus {len(candidate_repos)} Kandidaten:\n"
+              f"  Reputation-Pool (GH):     {min(QUOTA_REP, len(_rep_pool))}\n"
+              f"  Awesome-Pool:             {_aw_added} (von {len(_aw_pool)} verfuegbar)\n"
+              f"  GitLab-Pool:              {_gl_added} (von {len(_gl_pool)} verfuegbar)\n"
+              f"  Fresh-Pool (GH):          {_fresh_added} (von {len(_fresh_pool)} verfuegbar)\n"
+              f"  → EVAL-Total:             {len(_sorted_candidates)} (Budget {EVAL_BUDGET})"
+          )
 
           _eval_lock = _threading.Lock()
 
@@ -1855,6 +2157,11 @@ jobs:
 
               if _res["action"] == "reject":
                   rejected_repos.add(_res["repo"])
+                  # Meta-Eintrag fuer TTL-Re-Try im naechsten Run.
+                  rejected_meta[_res["repo"]] = {
+                      "reason":      _res["reason"],
+                      "rejected_at": now_day,
+                  }
                   evaluation_log.append({"repo": _res["repo"], "result": "REJECTED",
                                          "reason": _res["reason"],
                                          "platform": _platform_res})
@@ -2106,6 +2413,48 @@ jobs:
           _aw_approved = sum(1 for e in new_approved
                             if any("awesome:" in s for s in candidate_repos.get(e["repo"], {}).get("sources", [])))
 
+          # NEU v4: Reject-Gruende aggregieren, damit erkennbar ist wo Kandidaten
+          # verloren gehen. Gruppen leiten sich aus den reason-Strings in
+          # _evaluate_one ab. Was nicht zuordenbar ist landet in "Sonstige".
+          def _categorize_reason(reason):
+              r = reason or ""
+              if r.startswith("Zu alt:"):
+                  return "Repo zu alt (>30d)"
+              if r.startswith("IP-Datei"):
+                  return "IP-Datei veraltet (>30d)"
+              if r == "Keine IP-Datei":
+                  return "Keine IP-Datei im Repo"
+              if r == "Download-Fehler":
+                  return "Download fehlgeschlagen"
+              if r.startswith("Größe:"):
+                  return "Falsche Größe (<100 / >500k IPs)"
+              if r.startswith("FP-Rate:"):
+                  return "False-Positive-Rate zu hoch (>5%)"
+              if r.startswith("Overlap zu gering:"):
+                  return "Overlap mit HQ-Feeds zu gering (<20%)"
+              if r.startswith("Klon-Verdacht:"):
+                  return "Klon-Verdacht (Overlap >95%)"
+              if r.startswith("Format:"):
+                  return "Format-Qualität zu niedrig (<30% IP-Zeilen)"
+              return "Sonstige"
+
+          from collections import Counter as _Counter
+          _reject_reasons = _Counter(_categorize_reason(e.get("reason", "")) for e in new_rejected)
+
+          # Selektions-Diagnostik: wieviele der EVAL-Kandidaten waren bereits in
+          # rejected_repos und wurden gar nicht erst getestet. _sorted_candidates
+          # ist die finale Eval-Liste vor _evaluate_one. existing_repo_set
+          # enthaelt Repos die bereits approved sind.
+          _skipped_already_rejected = sum(
+              1 for k, v in _sorted_candidates
+              if k in existing_rejected
+              or (v.get("platform") == "gitlab" and f"gitlab:{v.get('gl_path','')}" in existing_rejected)
+          )
+          _skipped_already_approved = sum(
+              1 for k, v in _sorted_candidates if k in existing_repo_set
+          )
+          _actually_evaluated = len(new_approved) + len(new_rejected)
+
           lines = []
           lines.append("# Auto Feed Discovery – Report")
           lines.append(f"**Aktualisiert:** {now_str}\n")
@@ -2117,6 +2466,10 @@ jobs:
           lines.append(f"| davon GitHub (Topics+Code) | **{sum(1 for v in candidate_repos.values() if v.get('platform','github')=='github')}** |")
           lines.append(f"| davon GitLab | **{_gitlab_unique}** |")
           lines.append(f"| davon Awesome-Lists | **{_awesome_found}** |")
+          lines.append(f"| EVAL-Kandidaten (nach Stratifizierung) | **{len(_sorted_candidates)}** |")
+          lines.append(f"| davon bereits rejected (übersprungen) | **{_skipped_already_rejected}** |")
+          lines.append(f"| davon bereits approved (übersprungen) | **{_skipped_already_approved}** |")
+          lines.append(f"| tatsächlich evaluiert | **{_actually_evaluated}** |")
           lines.append(f"| Neu angenommen | **{len([e for e in new_approved if e['new_feed']])}** |")
           lines.append(f"| davon aus GitLab | **{_gl_approved}** |")
           lines.append(f"| davon aus Awesome-Lists | **{_aw_approved}** |")
@@ -2128,6 +2481,15 @@ jobs:
           lines.append(f"| Neue IPs eingetragen | **{ingested_new}** |")
           lines.append(f"| seen_db gesamt | **{len(db):,}** |")
           lines.append(f"| HQ-Referenz-IPs (6 Quellen) | **{len(hq_ref_ips)}** |")
+
+          # Reject-Gruende-Tabelle (nur wenn was passiert ist)
+          if _reject_reasons:
+              lines.append("\n---")
+              lines.append("## 📊 Reject-Gründe (dieser Run)\n")
+              lines.append("| Grund | Anzahl |")
+              lines.append("|---|---|")
+              for _reason, _count in _reject_reasons.most_common():
+                  lines.append(f"| {_reason} | **{_count}** |")
 
           if new_approved:
               lines.append("\n---")
@@ -2154,6 +2516,27 @@ jobs:
               for e in new_rejected:
                   _pl = e.get("platform", "github").upper()
                   lines.append(f"| `{e['repo']}` | {_pl} | {e['reason']} |")
+
+          # NEU v4: Codeberg-Treffer als manueller Kuratierungs-Hint im Report.
+          # Diese Repos sind NICHT automatisch in der Evaluation, weil
+          # _evaluate_one momentan nur GitHub+GitLab unterstuetzt. Wer Lust
+          # hat, kann interessante Repos in KNOWN_REPOS / aktive Feeds
+          # uebernehmen oder als feature-Erweiterung Codeberg integrieren.
+          if _codeberg_hits:
+              lines.append("\n---")
+              lines.append("## 🦊 Codeberg-Kandidaten (manuelle Kuration)\n")
+              lines.append(
+                  "Diese Repos wurden auf Codeberg per Keyword-Suche gefunden. "
+                  "Codeberg-Integration in die Eval-Pipeline ist noch nicht "
+                  "umgesetzt - die Liste dient als Hinweis fuer manuelles Review.\n"
+              )
+              lines.append("| Repo | Stars | Updated | Found via |")
+              lines.append("|---|---|---|---|")
+              for _cbh in _codeberg_hits[:30]:
+                  lines.append(
+                      f"| [{_cbh['name']}](https://codeberg.org/{_cbh['name']}) | "
+                      f"{_cbh['stars']} | {_cbh['updated']} | `{_cbh['via']}` |"
+                  )
 
           if approved_feeds:
               lines.append("\n---")
@@ -2198,15 +2581,18 @@ jobs:
               relevant_rejected = (rejected_repos & set(candidate_repos.keys())) | this_run_rejected | set(KNOWN_REPOS)
               trimmed = len(rejected_repos) - len(relevant_rejected)
               rejected_repos = relevant_rejected
+              # Meta-Dict konsistent halten - nur Eintraege fuer noch aktive Rejects behalten
+              rejected_meta = {k: v for k, v in rejected_meta.items() if k in rejected_repos}
               print(f"rejected_repos getrimmt: {trimmed} veraltete Einträge entfernt, "
                     f"{len(rejected_repos)} behalten (MAX_REJECTED={MAX_REJECTED})")
 
           output = {
-              "updated":        now_str,
-              "total_feeds":    len(approved_feeds),
-              "new_this_run":   new_feeds_count,
-              "rejected_repos": sorted(rejected_repos),
-              "feeds":          list(approved_feeds.values()),
+              "updated":             now_str,
+              "total_feeds":         len(approved_feeds),
+              "new_this_run":        new_feeds_count,
+              "rejected_repos":      sorted(rejected_repos),
+              "rejected_repos_meta": rejected_meta,
+              "feeds":               list(approved_feeds.values()),
           }
           write_json_atomic(AUTO_FILE, output, indent=2, ensure_ascii=False)
 
