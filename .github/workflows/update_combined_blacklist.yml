@@ -391,6 +391,9 @@ jobs:
               # diesem täglich aktualisierten Feed nicht als HQ erkannt → last-Feld
               # wird nie gesetzt → IPs altern nach 180 Tagen still aus.
               "blocklist_net_ua",
+              # Fadouse clash-threat-intel – alle 8 Kategorien
+              "fadouse_malware", "fadouse_c2", "fadouse_botnet", "fadouse_rat",
+              "fadouse_stealer", "fadouse_ransomware", "fadouse_loader", "fadouse_worm",
           }
 
           # ══════════════════════════════════════════════════════════════════
@@ -473,6 +476,17 @@ jobs:
               # ein und dieselbe IP doppelt zur Confidence beitraegt.
               "threatfox_ioc":     "threatfox",
               "threatfox_direct":  "threatfox",
+              # Fadouse – 8 Kategorien aus derselben ThreatFox-Quelle.
+              # Eigene Familie "fadouse" statt "threatfox" damit sie als
+              # unabhängige Bestätigung zählen (anderer Aggregator-Pfad).
+              "fadouse_malware":    "fadouse",
+              "fadouse_c2":         "fadouse",
+              "fadouse_botnet":     "fadouse",
+              "fadouse_rat":        "fadouse",
+              "fadouse_stealer":    "fadouse",
+              "fadouse_ransomware": "fadouse",
+              "fadouse_loader":     "fadouse",
+              "fadouse_worm":       "fadouse",
           }
 
           def _hq_families_of(hq_feed_names):
@@ -616,6 +630,27 @@ jobs:
               # im Health-Check als 404 gemeldet). C2-Abdeckung bleibt via
               # c2_iplist (drb-ra/C2IntelFeeds).
               "c2_iplist":                  ("https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/feeds/IPC2s.csv", True),
+
+              # ── Fadouse clash-threat-intel (ThreatFox API, confidence ≥ 90) ─
+              # Täglich via GitHub Actions aktualisiert. Alle Dateien im selben
+              # Clash-Format: IP-CIDR,x.x.x.x/32,no-resolve
+              # parse_entries() extrahiert die IPs korrekt per IPV4_RE.
+              # Quelle: ausschließlich ThreatFox API (abuse.ch) + URLhaus →
+              # selbe Datenbasis wie threatfox_ioc/direct, aber kategorisiert
+              # nach Malware-Typ. Dadurch zählen diese Feeds als eigene
+              # HQ-Familie "fadouse" (nicht als "threatfox") – sie liefern
+              # ergänzende Bestätigung ohne doppelte Familien-Credits.
+              # HQ=True: abuse.ch ist etablierte HQ-Quelle.
+              # HQ_FEED_FAMILIES-Eintrag unten ergänzen!
+              "fadouse_malware":            ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/malware.txt", True),
+              "fadouse_c2":                 ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/c2.txt", True),
+              "fadouse_botnet":             ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/botnet.txt", True),
+              "fadouse_rat":                ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/rat.txt", True),
+              "fadouse_stealer":            ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/stealer.txt", True),
+              "fadouse_ransomware":         ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/ransomware.txt", True),
+              "fadouse_loader":             ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/loader.txt", True),
+              "fadouse_worm":               ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/worm.txt", True),
+
 
               # ── SSH / Brute-Force ─────────────────────────────────────────
               "stopforumspam_toxic":        ("https://www.stopforumspam.com/downloads/toxic_ip_cidr.txt", False),
