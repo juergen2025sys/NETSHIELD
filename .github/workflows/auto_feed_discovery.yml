@@ -198,8 +198,19 @@ jobs:
 
           # ── Dateinamen-Muster für IP-Listen ───────────────────────────────
           # Erlaubt optional .gz-Suffix – fetch_url dekomprimiert transparent.
+          # IP_FILE_PATTERNS: erkennt IP-Listen-Dateien anhand Name/Extension.
+          # Zwei Pfade:
+          #   1. Jede Datei mit Endung .ip oder .ips gilt als IP-Liste (domains.ips,
+          #      tif.domains.ips, badip.ips etc. – cbuijs/hagezi-Stil)
+          #   2. Bekannte Stems (blacklist, blocklist, honeypot etc.) mit Standard-Endungen
+          # Erlaubt optional .gz-Suffix – fetch_url dekomprimiert transparent.
           IP_FILE_PATTERNS = re.compile(
               r'(?i)(?:'
+              # Pfad 1: .ip/.ips-Endung = immer eine IP-Liste
+              r'[^/]+\.ips?(?:\.gz)?$'
+              r'|'
+              # Pfad 2: bekannte Stems mit anderen Endungen
+              r'(?:'
               r'ip[s_-]?(?:black|block|ban|threat|malicious|bad|abuse|deny|reputation|ioc)?list|'
               r'blacklist|blocklist|denylist|banlist|'
               r'threat[-_]?feed|threatintel|threat[-_]?intel|'
@@ -207,8 +218,13 @@ jobs:
               r'suspicious[-_]?ips?|'
               r'ipblock|ioc|iocs|c2|botnet|scanner|scanners|'
               r'bruteforce|ssh|rdp|attack|attackers|'
-              r'tor|honeypot|reputation'
+              r'tor|honeypot|reputation|'
+              r'adblock[-_.]ip|'
+              r'(?:plain|optimized|sorted)[-.].+ip[46]?cidr|'
+              r'ip[46]?cidr|ipv4cidr|ipv6cidr|'
+              r'black[-.]ip|plain[-.]black[-.]ip'
               r')\.(?:txt|csv|ipset|netset|list|conf|sh|dat)(?:\.gz)?$'
+              r')'
           )
 
           # ── Whitelist-CIDRs (False-Positive-Schutz) ──────────────────────
