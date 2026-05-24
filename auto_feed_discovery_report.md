@@ -1,40 +1,41 @@
 # Auto Feed Discovery – Report
-**Aktualisiert:** 2026-05-24 15:26 UTC
+**Aktualisiert:** 2026-05-24 15:56 UTC
 
 ---
 ## Zusammenfassung
 
 | Metrik | Wert |
 |---|---|
-| Kandidaten gesamt | **3103** |
-| davon GitHub (Topics+Code) | **3066** |
+| Kandidaten gesamt | **3050** |
+| davon GitHub (Topics+Code) | **3013** |
 | davon GitLab | **37** |
-| davon Awesome-Lists | **1037** |
-| Tools/Libraries vor Eval gefiltert | **274** |
+| davon Awesome-Lists | **1036** |
+| Tools/Libraries vor Eval gefiltert | **372** |
+| davon Hard-Reject (awesome-Liste etc.) | **68** |
 | EVAL-Kandidaten (nach Stratifizierung) | **200** |
-| davon bereits rejected (übersprungen) | **172** |
+| davon bereits rejected (übersprungen) | **181** |
 | davon bereits approved (übersprungen) | **0** |
-| tatsächlich evaluiert | **36** |
+| tatsächlich evaluiert | **27** |
 | Neu angenommen | **7** |
 | davon aus GitLab | **0** |
 | davon aus Awesome-Lists | **0** |
 | Bekannte Feeds re-fetched | **1** |
-| Abgelehnt (dieser Run) | **28** |
-| davon GitLab abgelehnt | **2** |
+| Abgelehnt (dieser Run) | **19** |
+| davon GitLab abgelehnt | **1** |
 | Feeds gesamt (aktiv) | **30** |
-| IPs in seen_db bestätigt | **717019** |
-| Neue IPs eingetragen | **403** |
+| IPs in seen_db bestätigt | **717422** |
+| Neue IPs eingetragen | **0** |
 | seen_db gesamt | **4,752,552** |
-| HQ-Referenz-IPs (6 Quellen) | **134930** |
+| HQ-Referenz-IPs (6 Quellen) | **135075** |
 
 ---
 ## 📊 Reject-Gründe (dieser Run)
 
 | Grund | Anzahl |
 |---|---|
-| Keine IP-Datei im Repo | **23** |
-| IP-Datei veraltet (>30d) | **3** |
-| Repo zu alt (>30d) | **2** |
+| Keine IP-Datei im Repo | **17** |
+| IP-Datei veraltet (>30d) | **1** |
+| Repo zu alt (>30d) | **1** |
 
 ---
 ## ✅ Angenommene Feeds
@@ -55,72 +56,25 @@
 
 | Repo | Plattform | Grund |
 |---|---|---|
-| `dreddsa5dies/goHackTools` | GITHUB | Keine IP-Datei |
-| `0x4d31/sqhunter` | GITHUB | Keine IP-Datei |
-| `InQuest/python-iocextract` | GITHUB | Keine IP-Datei |
-| `SupportIntelligence/Icewater` | GITHUB | Keine IP-Datei |
-| `tripwire/tardis` | GITHUB | Keine IP-Datei |
-| `HurricaneLabs/machinae` | GITHUB | Keine IP-Datei |
-| `KasperskyLab/klara` | GITHUB | Keine IP-Datei |
-| `STIXProject/stix-viz` | GITHUB | Keine IP-Datei |
-| `yahoo/PyIOCe` | GITHUB | Keine IP-Datei |
-| `PaloAltoNetworks/minemeld` | GITHUB | Keine IP-Datei |
-| `CERT-Polska/n6` | GITHUB | IP-Datei 250d alt |
-| `Ptr32Void/OSTrICa` | GITHUB | Keine IP-Datei |
-| `stratosphereips/Manati` | GITHUB | Keine IP-Datei |
-| `mlsecproject/tiq-test` | GITHUB | Keine IP-Datei |
-| `davidonzo/Threat-Intel` | GITHUB | IP-Datei 587d alt |
-| `CrowdStrike/CrowdFMS` | GITHUB | Keine IP-Datei |
-| `gitlab:devswanson-create-crypto-token/how-to-create-crypto-token` | GITLAB | Zu alt: 601d |
-| `gitlab:devswanson-create-crypto-token/smart-contract-honeypot` | GITLAB | Zu alt: 601d |
-| `TurboLabIt/webstackup` | GITHUB | IP-Datei 1330d alt |
-| `NullSecHQ/nullsec-framework` | GITHUB | Keine IP-Datei |
-| `iamutaki/dompeng-web` | GITHUB | Keine IP-Datei |
-| `froggychips/sre-ai-copilot` | GITHUB | Keine IP-Datei |
-| `karimhabush/cyberowl` | GITHUB | Keine IP-Datei |
-| `soapbucket/sbproxy` | GITHUB | Keine IP-Datei |
-| `maxtattonbrown/sundial` | GITHUB | Keine IP-Datei |
-| `Bes-js/public-proxy-list` | GITHUB | Keine IP-Datei |
-| `ErcinDedeoglu/proxies` | GITHUB | Keine IP-Datei |
-| `mtheuma/epson2paperless` | GITHUB | Keine IP-Datei |
-
----
-## 🦊 Codeberg-Kandidaten (manuelle Kuration)
-
-Diese Repos wurden auf Codeberg per Keyword-Suche gefunden. Codeberg-Integration in die Eval-Pipeline ist noch nicht umgesetzt - die Liste dient als Hinweis fuer manuelles Review.
-
-| Repo | Stars | Updated | Found via |
-|---|---|---|---|
-| [CloudyyUw/adblock-to-pihole-blocklist](https://codeberg.org/CloudyyUw/adblock-to-pihole-blocklist) | 0 | 2024-12-03 | `blocklist` |
-| [ScryptKidd0/adguard-blocklist](https://codeberg.org/ScryptKidd0/adguard-blocklist) | 0 | 2026-01-25 | `blocklist` |
-| [celenity/adguard-dns-settings](https://codeberg.org/celenity/adguard-dns-settings) | 5 | 2025-09-01 | `blocklist` |
-| [celenity/adguard-home-settings](https://codeberg.org/celenity/adguard-home-settings) | 9 | 2024-12-17 | `blocklist` |
-| [josh/AdGuard.blocklists](https://codeberg.org/josh/AdGuard.blocklists) | 0 | 2024-10-05 | `blocklist` |
-| [HalfofBilly/AI-Blocklist-for-SearXNG](https://codeberg.org/HalfofBilly/AI-Blocklist-for-SearXNG) | 2 | 2024-12-19 | `blocklist` |
-| [fausty/AIBlocklist](https://codeberg.org/fausty/AIBlocklist) | 2 | 2024-12-03 | `blocklist` |
-| [111934321/anti-murdoch-blocklist](https://codeberg.org/111934321/anti-murdoch-blocklist) | 1 | 2024-12-03 | `blocklist` |
-| [polarhive/arceo](https://codeberg.org/polarhive/arceo) | 1 | 2025-05-29 | `blocklist` |
-| [Lanre/Artemis](https://codeberg.org/Lanre/Artemis) | 0 | 2026-05-21 | `blocklist` |
-| [syedsharjeel/automated-ip-blocklist-dns-filtering](https://codeberg.org/syedsharjeel/automated-ip-blocklist-dns-filtering) | 0 | 2025-05-01 | `blocklist` |
-| [badandugly/badandugly](https://codeberg.org/badandugly/badandugly) | 6 | 2025-08-03 | `blocklist` |
-| [celenity/BadBlock](https://codeberg.org/celenity/BadBlock) | 86 | 2026-05-18 | `blocklist` |
-| [knyz/based-christian-blocklist](https://codeberg.org/knyz/based-christian-blocklist) | 0 | 2024-12-03 | `blocklist` |
-| [nithou/begone-blocklist](https://codeberg.org/nithou/begone-blocklist) | 0 | 2026-02-09 | `blocklist` |
-| [blackfoxpl/blackfox_blocklist](https://codeberg.org/blackfoxpl/blackfox_blocklist) | 0 | 2026-05-22 | `blocklist` |
-| [gzachariadis/Blacklist](https://codeberg.org/gzachariadis/Blacklist) | 5 | 2024-08-16 | `blocklist` |
-| [fabriziosalmi/blacklists](https://codeberg.org/fabriziosalmi/blacklists) | 0 | 2025-03-01 | `blocklist` |
-| [spootle/blocklist](https://codeberg.org/spootle/blocklist) | 5 | 2024-12-03 | `blocklist` |
-| [rad4day/blocklist](https://codeberg.org/rad4day/blocklist) | 0 | 2024-12-03 | `blocklist` |
-| [bbbhltz/16CompaniesFilters](https://codeberg.org/bbbhltz/16CompaniesFilters) | 12 | 2026-04-12 | `blacklist` |
-| [parlortricks/blacklist](https://codeberg.org/parlortricks/blacklist) | 0 | 2024-12-03 | `blacklist` |
-| [Sergey_Paradox/blacklist](https://codeberg.org/Sergey_Paradox/blacklist) | 0 | 2024-12-03 | `blacklist` |
-| [wysnzhang/blacklist](https://codeberg.org/wysnzhang/blacklist) | 0 | 2026-05-24 | `blacklist` |
-| [sciss/Blacklist](https://codeberg.org/sciss/Blacklist) | 0 | 2024-07-13 | `blacklist` |
-| [amassivus/Blacklist](https://codeberg.org/amassivus/Blacklist) | 0 | 2024-08-02 | `blacklist` |
-| [andersaardvark/blacklist-check-unix-linux-utility](https://codeberg.org/andersaardvark/blacklist-check-unix-linux-utility) | 0 | 2025-09-29 | `blacklist` |
-| [fabiux/blacklist-user-agents-conf](https://codeberg.org/fabiux/blacklist-user-agents-conf) | 0 | 2026-05-21 | `blacklist` |
-| [ig3/blacklistd](https://codeberg.org/ig3/blacklistd) | 0 | 2025-08-11 | `blacklist` |
-| [SugusGuard/Blacklists](https://codeberg.org/SugusGuard/Blacklists) | 0 | 2026-05-11 | `blacklist` |
+| `kevoreilly/CAPEv2` | GITHUB | Keine IP-Datei |
+| `foospidy/HoneyPy` | GITHUB | Keine IP-Datei |
+| `InQuest/omnibus` | GITHUB | Keine IP-Datei |
+| `S03D4-164/Hiryu` | GITHUB | Keine IP-Datei |
+| `jheise/threatcrowd_api` | GITHUB | Keine IP-Datei |
+| `mandiant/ioc_writer` | GITHUB | Keine IP-Datei |
+| `brianwarehime/threatnote` | GITHUB | Keine IP-Datei |
+| `armbues/ioc_parser` | GITHUB | Keine IP-Datei |
+| `exp0se/bro-intel-generator` | GITHUB | IP-Datei 3821d alt |
+| `Netflix/Scumblr` | GITHUB | Keine IP-Datei |
+| `EclecticIQ/cabby` | GITHUB | Keine IP-Datei |
+| `gitlab:devswanson-create-crypto-token/create-honeypot-token` | GITLAB | Zu alt: 601d |
+| `OneUptime/oneuptime` | GITHUB | Keine IP-Datei |
+| `koala73/worldmonitor` | GITHUB | Keine IP-Datei |
+| `Ian-Lusule/Proxies` | GITHUB | Keine IP-Datei |
+| `notfaj/ester` | GITHUB | Keine IP-Datei |
+| `ebogdum/terraform-provider-routeros` | GITHUB | Keine IP-Datei |
+| `vqmpjayZ/Vadrifts` | GITHUB | Keine IP-Datei |
+| `officialputuid/ProxyForEveryone` | GITHUB | Keine IP-Datei |
 
 ---
 ## 📋 Alle aktiven Auto-Feeds
@@ -159,4 +113,4 @@ Diese Repos wurden auf Codeberg per Keyword-Suche gefunden. Codeberg-Integration
 | `turbolabit_zzfirewall_blacklist` | GITHUB | 85 | 66.4% | 0 | 2026-05-24 |
 
 ---
-*Generiert: 2026-05-24 15:26 UTC*
+*Generiert: 2026-05-24 15:56 UTC*
