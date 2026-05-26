@@ -1,9 +1,16 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-26 05:13 UTC
+**Aktualisiert:** 2026-05-26 16:52 UTC
 
-**Workflows:** 23 | ✅ 22 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
+**Workflows:** 23 | ✅ 22 OK | ⚠️ 2 Warnung | ❌ 1 Fehler
 
 ---
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
+| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 16,697 IPs in active fehlen in conf40 (3.710% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
@@ -11,16 +18,16 @@
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Workflow-Reihenfolge / Puffer zu knapp | 00:30 UTC → 00:47 UTC (17min < 60min); 06:30 UTC → 06:47 UTC (17min < 60min); 12:30 UTC → 12:47 UTC (17min < 60min); 18:30 UTC → 18:47 UTC (17min < 60min) |
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 6 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "fadouse_malware" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_c2" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_rat" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_stealer" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_loader" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_worm" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel) |
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:30 UTC → 00:47 UTC (17min < 60min Mindestpuffer); 06:30 UTC → 06:47 UTC (17min < 60min Mindestpuffer); 12:30 UTC → 12:47 UTC (17min < 60min Mindestpuffer); 18:30 UTC → 18:47 UTC (17min < 60min Mindestpuffer) |
-| `Production Health` | Drift: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt: 608,358 → 432,561 (-29%) – deutlicher Rückgang |
 | `Production Health` | Push-Limit Naehe | blacklist_geo_enriched.json: 84.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 2 WARN
+**Status:** 🔴 2 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🟡 WARN | Drift: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt: 608,358 → 432,561 (-29%) – deutlicher Rückgang |
+| 🔴 CRITICAL | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
+| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 16,697 IPs in active fehlen in conf40 (3.710% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 | 🟡 WARN | Push-Limit Naehe | blacklist_geo_enriched.json: 84.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
@@ -52,4 +59,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-05-26 05:13 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-05-26 16:52 UTC | 23 Workflow-Dateien geprüft*
