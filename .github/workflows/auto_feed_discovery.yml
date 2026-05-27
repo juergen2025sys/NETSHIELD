@@ -196,6 +196,12 @@ jobs:
               "dns-blocklist", "domain", "pihole",
           }
 
+          # Zusätzliche Repo-Ausschlüsse: reine Whitelist/Allowlist-Repos
+          # (ergänzt WHITELIST_REPO_KEYWORDS in add_repo_candidate)
+          EXCLUDE_KEYWORDS.update({
+              "whitelist", "allowlist", "safelist", "greenlist",
+          })
+
           # ── Dateinamen-Muster für IP-Listen ───────────────────────────────
           # Erlaubt optional .gz-Suffix – fetch_url dekomprimiert transparent.
           # IP_FILE_PATTERNS: erkennt IP-Listen-Dateien anhand Name/Extension.
@@ -226,6 +232,32 @@ jobs:
               r')\.(?:txt|csv|ipset|netset|list|conf|sh|dat)(?:\.gz)?$'
               r')'
           )
+
+          # ── Whitelist/Allowlist-Erkennung ────────────────────────────────
+          # Dateinamen, die auf eine ALLOW-Liste (nicht Blocklist) hinweisen.
+          # Solche Dateien werden aus ip_files herausgefiltert, damit ein Repo
+          # mit gemischten Dateien (blacklist.txt + whitelist.txt) nicht seine
+          # eigene Whitelist als Feed aufnimmt.
+          WHITELIST_FILE_RE = re.compile(
+              r'(?i)(?:white[_-]?list|allowlist|allow[_-]?list|safelist|'
+              r'trusted[_-]?ip|good[_-]?ip|legit[_-]?ip|'
+              r'clean[_-]?ip|safe[_-]?ip|'
+              r'cloudflare[_-]?ip|cdn[_-]?ip|'
+              r'permit[_-]?list|greenlist|'
+              r'whitelist|wl[_-]?ip)',
+              re.IGNORECASE
+          )
+
+          # Keywords im Repo-Namen/Beschreibung/Topics, die auf eine reine
+          # Whitelist- oder Allow-Liste hinweisen → Kandidat wird verworfen.
+          WHITELIST_REPO_KEYWORDS = {
+              "whitelist", "white-list", "white_list",
+              "allowlist", "allow-list", "allow_list",
+              "safelist", "safe-list",
+              "trusted-ip", "trusted_ip",
+              "ip-whitelist", "ip-allowlist",
+              "greenlist", "clean-ip",
+          }
 
           # ── Whitelist-CIDRs (False-Positive-Schutz) ──────────────────────
           # FIX SSOT4: whitelist.json als Single Source of Truth laden.
@@ -644,6 +676,9 @@ jobs:
               ])
               if any(kw in combined for kw in EXCLUDE_KEYWORDS):
                   return
+              # Whitelist/Allowlist-Repos direkt ausschließen
+              if any(kw in combined for kw in WHITELIST_REPO_KEYWORDS):
+                  return
               existing = candidate_repos.get(full_name, {})
               sources = set(existing.get("sources", []))
               sources.add(source_label)
@@ -899,14 +934,17 @@ jobs:
           # Rejects ("Keine IP-Datei", "FP-Rate", "Format", "Klon-Verdacht",
           # "Overlap zu gering") bleiben permanent - die aendern sich selten.
           existing_rejected_meta = {}
-          REJECT_TTL_DAYS = 90
+          REJECT_TTL_DAYS      = 90    # Standard-TTL (Aktualitäts-Rejects)
+          REJECT_TTL_DAYS_LONG = 180   # Langer TTL für "Keine IP-Datei"
           # Reject-Gruende, die als "transient" gelten und nach TTL ablaufen.
           # Identifikation via Substring im reason-Feld (vgl. _evaluate_one).
           TRANSIENT_REJECT_SUBSTRINGS = (
               "Zu alt:",            # Repo-Push > 30d
               "IP-Datei",           # IP-Datei selbst > 30d ("IP-Datei 378d alt")
               "Download-Fehler",    # transient: Netz/CDN-Fehler
+              "Keine IP-Datei",     # Repo könnte Liste nachträglich hinzugefügt haben
           )
+          LONG_TTL_SUBSTRINGS = ("Keine IP-Datei",)  # nutzen REJECT_TTL_DAYS_LONG
 
           def _is_transient_reject(reason):
               return any(sub in reason for sub in TRANSIENT_REJECT_SUBSTRINGS)
@@ -921,6 +959,22 @@ jobs:
                   existing_rejected = set(_raw_rejected)
                   # Meta-Dict laden (neues Feld, kann bei alten JSONs fehlen)
                   existing_rejected_meta = dict(auto_data.get("rejected_repos_meta", {}))
+
+                  # Backfill: Repos ohne Meta-Eintrag (permanent blockiert) bekommen
+                  # einen Meta-Eintrag mit backdatiertem Datum, damit der TTL-Mechanismus
+                  # greift und sie nach 180d neu evaluiert werden.
+                  _backfill_date = (now - timedelta(days=91)).strftime("%Y-%m-%d")
+                  _backfilled = 0
+                  for _pr in list(existing_rejected):
+                      if _pr not in existing_rejected_meta and _pr not in KNOWN_REPOS:
+                          existing_rejected_meta[_pr] = {
+                              "reason": "Keine IP-Datei",
+                              "date": _backfill_date,
+                          }
+                          _backfilled += 1
+                  if _backfilled:
+                      print(f"Backfill: {_backfilled} permanente Rejects mit Meta versehen "
+                            f"(TTL-Datum: {_backfill_date})")
 
                   # TTL-Bereinigung: transiente Rejects, die aelter als
                   # REJECT_TTL_DAYS sind, aus rejected_repos entfernen damit
@@ -937,7 +991,10 @@ jobs:
                           _at_dt = datetime.strptime(_at[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
                       except Exception:
                           continue
-                      if (now - _at_dt).days >= REJECT_TTL_DAYS:
+                      _this_ttl = REJECT_TTL_DAYS_LONG if any(
+                      s in (_info.get("reason") or "") for s in LONG_TTL_SUBSTRINGS
+                  ) else REJECT_TTL_DAYS
+                  if (now - _at_dt).days >= _this_ttl:
                           _ttl_expired.append(_r)
                   for _r in _ttl_expired:
                       existing_rejected.discard(_r)
@@ -1060,6 +1117,12 @@ jobs:
               # NEU v3: Honeypot-Typen
               "cowrie", "dionaea", "glastopf", "conpot", "elastichoney",
               "opencanary", "tpot", "hpfeeds",
+              # NEU v5: weitere nützliche Topics
+              "network-blocklist", "firewall-rules", "ip-reputation",
+              "threat-list", "badip", "ioc-database",
+              "security-blocklist", "attack-ip", "intrusion-prevention",
+              "ip-intelligence", "malicious-traffic", "darknet",
+              "shodan-scanner", "mass-scan", "internet-scanner",
           ]
 
           # Code-Search-Queries: Dateinamen + Inhaltsbegriff
@@ -1178,7 +1241,7 @@ jobs:
 
           for topic in SEARCH_TOPICS:
               print(f"Suche GitHub-Topic: {topic}...")
-              data = gh_api(f"/search/repositories?q=topic:{topic}&sort=updated&order=desc&per_page=30")
+              data = gh_api(f"/search/repositories?q=topic:{topic}&sort=updated&order=desc&per_page=100")
               time.sleep(2)
               if not data:
                   continue
@@ -1793,19 +1856,19 @@ jobs:
           # wurde im letzten Run 0 angenommen, weil keiner es in die Top-120
           # schaffte. Stratifizierung gibt jeder Quell-Klasse eigene Quote.
           #
-          # Aufteilung (insgesamt EVAL_BUDGET=200):
-          #   - GH_REP: Top-120 nach Reputation (wie bisher, Best-of-Best)
-          #   - AWESOME: 40 Slots ausschliesslich für Awesome-List-Kandidaten
-          #   - GITLAB: 20 Slots ausschliesslich für GitLab-Kandidaten
-          #   - GH_FRESH: 20 Slots nach Pushed-Datum aus Rest-GitHub (frische,
+          # Aufteilung (insgesamt EVAL_BUDGET=240):
+          #   - GH_REP: Top-100 nach Reputation (war 120)
+          #   - AWESOME: 60 Slots ausschliesslich für Awesome-List-Kandidaten (war 40)
+          #   - GITLAB: 30 Slots ausschliesslich für GitLab-Kandidaten (war 20)
+          #   - GH_FRESH: 50 Slots nach Pushed-Datum aus Rest-GitHub (frische, (war 20)
           #              evtl. neue Maintainer ohne Stars)
           # Bei zu wenig Kandidaten in einer Quote werden ungenutzte Slots
           # NICHT umverteilt - das wuerde den Reputation-Bias wiederherstellen.
-          EVAL_BUDGET   = 200   # war 120; mit 4 Workern + ~5s pro Eval ≈ 4-5 min
-          QUOTA_REP     = 120
-          QUOTA_AWESOME = 40
-          QUOTA_GITLAB  = 20
-          QUOTA_FRESH   = 20
+          EVAL_BUDGET   = 240   # erhöht: mehr Diversität (war 200)
+          QUOTA_REP     = 100   # reduziert: weniger Reputation-Bias (war 120)
+          QUOTA_AWESOME = 60    # erhöht: kuratierte Listen besser abdecken (war 40)
+          QUOTA_GITLAB  = 30    # erhöht: mehr EU/Sicherheitsforscher (war 20)
+          QUOTA_FRESH   = 50    # erhöht: mehr neue unbekannte Feeds (war 20)
 
           def _is_awesome(meta):
               return any(s.startswith("awesome:") for s in meta.get("sources", []))
@@ -1976,6 +2039,7 @@ jobs:
                           for item in _gl_tree
                           if item.get("type") == "blob"
                           and IP_FILE_PATTERNS.search(item["path"].split("/")[-1])
+                          and not WHITELIST_FILE_RE.search(item["path"])
                       ]
               else:
                   tree = gh_api(f"/repos/{full_name}/git/trees/HEAD?recursive=1")
@@ -1985,6 +2049,7 @@ jobs:
                           for item in tree.get("tree", [])
                           if item.get("type") == "blob"
                           and IP_FILE_PATTERNS.search(item["path"].split("/")[-1])
+                          and not WHITELIST_FILE_RE.search(item["path"])
                       ]
 
               if not ip_files:
@@ -2072,6 +2137,16 @@ jobs:
                           "platform": _platform}
               _log_lines.append(f"  ✅ False-Positive-Rate: {fp:.1%}")
 
+              # Kriterium 3b: Whitelist-Inhalt prüfen – wenn der Dateiname
+              # nicht schon rausgefiltert wurde, check ob der Datei-Pfad
+              # whitelist-typische Begriffe enthält.
+              _file_path_lc = best_file["path"].lower()
+              if WHITELIST_FILE_RE.search(_file_path_lc):
+                  _log_lines.append(f"  ❌ Whitelist-Dateiname: {best_file['path']}")
+                  return {"action": "reject", "repo": _reject_key,
+                          "reason": "Whitelist-Datei", "logs": _log_lines,
+                          "platform": _platform}
+
               # Kriterium 4: Overlap mit HQ-Feeds (min. 20% oder 50 IPs, max. 95%)
               if hq_ref_ready:
                   overlap     = len(ips & hq_ref_ips)
@@ -2129,6 +2204,10 @@ jobs:
                   _ef_text = fetch_raw(_ef_url, timeout=12)
                   if not _ef_text:
                       _log_lines.append(f"  ⚠ Extra-Datei Download fehlgeschlagen: {_ef['path']}")
+                      continue
+                  # Whitelist-Dateinamen auch bei Extra-Dateien überspringen
+                  if WHITELIST_FILE_RE.search(_ef["path"]):
+                      _log_lines.append(f"  ⚠ Extra-Datei übersprungen (Whitelist-Name): {_ef['path']}")
                       continue
                   _ef_ips = extract_ips(_ef_text)
                   if len(_ef_ips) < 50:
@@ -2501,10 +2580,18 @@ jobs:
           lines.append(f"| davon bereits rejected (übersprungen) | **{_skipped_already_rejected}** |")
           lines.append(f"| davon bereits approved (übersprungen) | **{_skipped_already_approved}** |")
           lines.append(f"| tatsächlich evaluiert | **{_actually_evaluated}** |")
-          lines.append(f"| Neu angenommen | **{len([e for e in new_approved if e['new_feed']])}** |")
+          # Post-Dedup-Zähler: approved_feeds enthält den finalen Stand nach Deduplizierung.
+          # evaluation_log-basierte Zähler würden Duplikate doppelt zählen.
+          _post_dedup_new     = sum(1 for f in approved_feeds.values()
+                                    if f.get("added") == now_day
+                                    and f["name"] not in existing_feeds)
+          _post_dedup_refetch = sum(1 for f in approved_feeds.values()
+                                    if f.get("last_checked") == now_day
+                                    and f["name"] in existing_feeds)
+          lines.append(f"| Neu angenommen | **{_post_dedup_new}** |")
           lines.append(f"| davon aus GitLab | **{_gl_approved}** |")
           lines.append(f"| davon aus Awesome-Lists | **{_aw_approved}** |")
-          lines.append(f"| Bekannte Feeds re-fetched | **{len([e for e in new_approved if not e['new_feed']])}** |")
+          lines.append(f"| Bekannte Feeds re-fetched | **{_post_dedup_refetch}** |")
           lines.append(f"| Abgelehnt (dieser Run) | **{len(new_rejected)}** |")
           lines.append(f"| davon GitLab abgelehnt | **{_gl_rejected}** |")
           lines.append(f"| Feeds gesamt (aktiv) | **{len(approved_feeds)}** |")
