@@ -731,6 +731,19 @@ jobs:
               "ipsum_master":               ("https://raw.githubusercontent.com/stamparm/ipsum/refs/heads/master/ipsum.txt", False),
               # "shodan_scanners" entfernt: jgamblin/Shodan-Malware-Scanning-IPs Repo gelöscht – Shodan via binaryedge_scanners
               "binaryedge_scanners":        ("https://raw.githubusercontent.com/stamparm/maltrail/master/trails/static/mass_scanner.txt", False),
+              # NebLink Known Scanners – Aggregiert 6 Quellen:
+              # 5 SANS-ISC-Threatlists (erratasec, shodan, rapid7sonar,
+              # shadowserver, onyphe) + stamparm/maltrail mass_scanner.
+              # Format: plain IP/Zeile, ~5500 IPs, stuendlich aktualisiert.
+              # Inhaltlich Forschungs-Scanner (Shodan, Censys, ShadowServer,
+              # Rapid7 Sonar) – nicht klassisch malicious, aber Noise/Recon.
+              # non-HQ (False): konsistent mit binaryedge_scanners und der
+              # generellen Policy "Scanner != malicious". Eintraege fliessen
+              # ins Confidence-Scoring, Promotion in active nur via
+              # Bestaetigung durch andere Feeds. Overlap mit binaryedge_scanners
+              # erwartet (eine der 6 NebLink-Quellen ist mass_scanner selbst),
+              # Solo-Beitrag aus den 5 SANS-ISC-Threatlists.
+              "neblink_known_scanners":     ("https://www.neblink.net/blocklist/KnownScanners.txt", False),
               # "normshield_ssh" entfernt: normshield_all_ssh.ipset bei firehol nicht mehr verfügbar
 
               # ── Spam / Phishing ───────────────────────────────────────────
