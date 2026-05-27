@@ -1,18 +1,18 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-05-27 01:33 UTC
+**Aktualisiert:** 2026-05-27 06:44 UTC
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **5,684,062** | 2026-05-26 22:36 UTC |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **457,444** | 2026-05-26 22:36 UTC |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **4,441,233** | 2026-05-26 23:01 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **173,589** | 2026-05-26 23:01 UTC |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **5,686,507** | 2026-05-27 04:43 UTC |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **433,321** | 2026-05-27 04:43 UTC |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **4,445,166** | 2026-05-27 05:07 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **173,269** | 2026-05-27 05:07 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **36,356** | 2026-05-26 07:36 UTC |
 | ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,949** | 2026-05-26 23:48 UTC |
-| ✅ `honeypot_ips.txt` | Honeypot IPs | **112,361** | 2026-05-26 20:28 UTC |
+| ✅ `honeypot_ips.txt` | Honeypot IPs | **110,188** | 2026-05-27 04:53 UTC |
 | ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **13,599** | 2026-05-26 23:34 UTC |
 
 ---
@@ -23,11 +23,13 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 ```
 
 ---
-## 🔍 Feed Health: ✅ 109 OK | ⚠️ 4 leer | ❌ 0 Fehler
+## 🔍 Feed Health: ✅ 109 OK | ⚠️ 3 leer | ❌ 1 Fehler
 
-**⚠️ Leer:** `avastel_proxy_bot_8d`, `bdix_prefix_ipv4`, `bluetack_blacklist`, `spamhaus_drop`
+**❌ Ausgefallen:** `trcert_malware`
 
-*Letzter Check: 2026-05-26 04:57 UTC – Details: [feed_health_report.md](feed_health_report.md)*
+**⚠️ Leer:** `avastel_proxy_bot_8d`, `bdix_prefix_ipv4`, `spamhaus_drop`
+
+*Letzter Check: 2026-05-27 05:10 UTC – Details: [feed_health_report.md](feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -35,4 +37,4 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 *Details: [workflow_health_report.md](workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-05-27 01:33 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-05-27 06:44 UTC*
