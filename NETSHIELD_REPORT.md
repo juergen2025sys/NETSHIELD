@@ -1,19 +1,19 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-05-26 21:09 UTC
+**Aktualisiert:** 2026-05-27 01:33 UTC
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **5,681,695** | 2026-05-26 19:37 UTC |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **454,831** | 2026-05-26 19:37 UTC |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **4,436,027** | 2026-05-26 17:00 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **173,666** | 2026-05-26 17:00 UTC |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **5,684,062** | 2026-05-26 22:36 UTC |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **457,444** | 2026-05-26 22:36 UTC |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **4,441,233** | 2026-05-26 23:01 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **173,589** | 2026-05-26 23:01 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **36,356** | 2026-05-26 07:36 UTC |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,949** | 2026-05-25 23:45 UTC |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,949** | 2026-05-26 23:48 UTC |
 | ✅ `honeypot_ips.txt` | Honeypot IPs | **112,361** | 2026-05-26 20:28 UTC |
-| ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **19,591** | 2026-05-26 18:38 UTC |
+| ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **13,599** | 2026-05-26 23:34 UTC |
 
 ---
 ## 🔗 OPNsense Alias URL
@@ -35,4 +35,4 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 *Details: [workflow_health_report.md](workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-05-26 21:09 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-05-27 01:33 UTC*
