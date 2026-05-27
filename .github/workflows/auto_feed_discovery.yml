@@ -121,13 +121,12 @@ jobs:
           from datetime import datetime, timezone, timedelta
           from collections import defaultdict
           from concurrent.futures import ThreadPoolExecutor
-          import random as _random
 
           # FIX PERF-TIMEOUT: Globale Timeout-Sicherheit.
           # Workflow hat 60-Minuten-Limit. Skript exitiert sauber bei 52min
           # um Report noch committen zu können (if: always()).
           _JOB_START = time.time()
-          _MAX_RUNTIME_SECONDS = 55 * 60  # 55 Minuten = harter Cutoff (war 52; mehr Zeit für größeres Eval-Budget)
+          _MAX_RUNTIME_SECONDS = 52 * 60  # 52 Minuten = harter Cutoff (war 40)
           def _check_timeout(label=""):
               elapsed = time.time() - _JOB_START
               if elapsed > _MAX_RUNTIME_SECONDS:
@@ -646,7 +645,7 @@ jobs:
               # oft denselben /24-Block, was die FP-Rate verzerrt.
               # Seed=42 für deterministische Reproduzierbarkeit zwischen Runs:
               # Borderline-Feeds bei ~5% FP-Rate flackern sonst zwischen accept/reject.
-              # (random bereits global importiert)
+              import random as _random
               ips_list = list(ips)
               if not ips_list:
                   return 1.0
@@ -900,7 +899,7 @@ jobs:
               if any(t in _TOOL_TOPICS for t in topics):
                   score += 1
 
-              return score >= 4  # erhöht: war 3; weniger legitime Feeds fälschlicherweise als Tool gewertet
+              return score >= 3
 
           # ── Schritt 1: seen_db laden ──────────────────────────────────────
           # FIX BUG-CACHE-RESTORE: Identisch zu update_combined_blacklist.yml.
@@ -970,7 +969,7 @@ jobs:
           # Rejects ("Keine IP-Datei", "FP-Rate", "Format", "Klon-Verdacht",
           # "Overlap zu gering") bleiben permanent - die aendern sich selten.
           existing_rejected_meta = {}
-          REJECT_TTL_DAYS      = 60    # gesenkt: war 90; schnellerer Re-Try für reaktivierte Feeds
+          REJECT_TTL_DAYS      = 90    # Standard-TTL (Aktualitäts-Rejects)
           REJECT_TTL_DAYS_LONG = 180   # Langer TTL für "Keine IP-Datei"
           # Reject-Gruende, die als "transient" gelten und nach TTL ablaufen.
           # Identifikation via Substring im reason-Feld (vgl. _evaluate_one).
@@ -1028,9 +1027,9 @@ jobs:
                       except Exception:
                           continue
                       _this_ttl = REJECT_TTL_DAYS_LONG if any(
-                          s in (_info.get("reason") or "") for s in LONG_TTL_SUBSTRINGS
-                      ) else REJECT_TTL_DAYS
-                      if (now - _at_dt).days >= _this_ttl:
+                      s in (_info.get("reason") or "") for s in LONG_TTL_SUBSTRINGS
+                  ) else REJECT_TTL_DAYS
+                  if (now - _at_dt).days >= _this_ttl:
                           _ttl_expired.append(_r)
                   for _r in _ttl_expired:
                       existing_rejected.discard(_r)
@@ -1297,30 +1296,16 @@ jobs:
 
           candidate_repos = {}
           _github_found = 0
-          _topic_lock = _threading.Lock()
 
-          # FIX PERF-TOPIC: Parallelisierung der Topic-Suche mit 3 Workern.
-          # Sequential: 173 Topics × 2s = 346s Wartezeit.
-          # Mit 3 Workern und 1s Pause pro Worker: ~120s.
-          # Rate-Limit: GitHub erlaubt 5000 Req/h mit Token (~1.4/s).
-          # 3 Worker × 0.5/s = 1.5 Req/s – deutlich unter dem Limit.
-          # Lock schützt candidate_repos vor concurrent writes.
-          def _search_topic_one(topic):
+          for topic in SEARCH_TOPICS:
+              print(f"Suche GitHub-Topic: {topic}...")
               data = gh_api(f"/search/repositories?q=topic:{topic}&sort=updated&order=desc&per_page=100")
-              time.sleep(1)  # war 2s sequential; mit 3 Workern ~gleiche Gesamtlast
+              time.sleep(2)
               if not data:
-                  return 0
-              count = 0
-              with _topic_lock:
-                  for repo in data.get("items", []):
-                      add_repo_candidate(candidate_repos, repo, f"topic:{topic}")
-                      count += 1
-              return count
-
-          print(f"GitHub-Topic-Suche ({len(SEARCH_TOPICS)} Topics, 3 Worker)...")
-          with ThreadPoolExecutor(max_workers=3) as _topic_ex:
-              _topic_counts = list(_topic_ex.map(_search_topic_one, SEARCH_TOPICS))
-          _github_found = sum(_topic_counts)
+                  continue
+              for repo in data.get("items", []):
+                  add_repo_candidate(candidate_repos, repo, f"topic:{topic}")
+                  _github_found += 1
 
           print(f"\nGitHub-Topic-Suche: {_github_found} Treffer → {len(candidate_repos)} Kandidaten")
 
@@ -1338,7 +1323,7 @@ jobs:
           #   3. Circuit-Breaker auf 2 statt 5 reduziert – beim ersten Doppel-429
           #      sofort abbrechen statt 5× 65s zu warten
           #   4. Nur 1 Worker statt 2 – verhindert parallele 429-Bursts
-          CODE_SEARCH_CANDIDATE_THRESHOLD = 600  # erhöht: Code-Search findet Topic-fremde Repos
+          CODE_SEARCH_CANDIDATE_THRESHOLD = 300
           import threading as _threading
           _cs_skip_lock = _threading.Lock()
           _cs_consecutive_skips = [0]
@@ -1444,40 +1429,35 @@ jobs:
           )
 
           _awesome_found = 0
-          _awesome_lock = _threading.Lock()
-
-          # FIX PERF-AWESOME: 8 Awesome-Listen parallel statt sequential.
-          # Netzwerklatenz dominiert (raw.githubusercontent.com CDN).
-          # 3 Worker decken alle 8 Listen in ~2-3 Runden statt 8× sequentiell.
-          def _fetch_awesome_one(aw_url):
+          for _aw_url in AWESOME_LISTS:
               if _check_timeout("Awesome-List"):
-                  return 0
-              _aw_text = fetch_raw(aw_url, limit=512 * 1024, timeout=10)
+                  break
+              _aw_text = fetch_raw(_aw_url, limit=512 * 1024, timeout=10)
               if not _aw_text:
-                  print(f"  SKIP (Download fehlgeschlagen): {aw_url.split('/')[-2]}")
-                  return 0
+                  print(f"  SKIP (Download fehlgeschlagen): {_aw_url.split('/')[-2]}")
+                  continue
               _aw_repos = set(_GH_LINK_RE.findall(_aw_text))
               _new_from_aw = 0
-              with _awesome_lock:
-                  for _repo_path in _aw_repos:
-                      if _repo_path in KNOWN_REPOS or _repo_path in candidate_repos:
-                          continue
-                      add_repo_candidate(candidate_repos, {
-                          "full_name":        _repo_path,
-                          "stargazers_count": 0,
-                          "forks_count":      0,
-                          "updated_at":       now_day,
-                          "pushed_at":        now_day,
-                          "description":      "",
-                          "topics":           [],
-                      }, f"awesome:{aw_url.split('/')[-2]}")
-                      _new_from_aw += 1
-              print(f"  {aw_url.split('/')[-2]}: {len(_aw_repos)} Links, {_new_from_aw} neue Kandidaten")
-              return _new_from_aw
-
-          with ThreadPoolExecutor(max_workers=3) as _aw_ex:
-              _aw_counts = list(_aw_ex.map(_fetch_awesome_one, AWESOME_LISTS))
-          _awesome_found = sum(_aw_counts)
+              for _repo_path in _aw_repos:
+                  if _repo_path in KNOWN_REPOS:
+                      continue
+                  if _repo_path in candidate_repos:
+                      continue
+                  # Pseudo-Repo-Dict: Stars/Forks unbekannt, pushed=now (zur
+                  # Überwindung des 30-Tage-Guards wird pushed auf heute gesetzt;
+                  # das tatsächliche Datum prüft die Evaluations-Phase via API).
+                  add_repo_candidate(candidate_repos, {
+                      "full_name":        _repo_path,
+                      "stargazers_count": 0,
+                      "forks_count":      0,
+                      "updated_at":       now_day,
+                      "pushed_at":        now_day,  # Guard wird in _evaluate_one per API geprüft
+                      "description":      "",
+                      "topics":           [],
+                  }, f"awesome:{_aw_url.split('/')[-2]}")
+                  _new_from_aw += 1
+                  _awesome_found += 1
+              print(f"  {_aw_url.split('/')[-2]}: {len(_aw_repos)} Links, {_new_from_aw} neue Kandidaten")
 
           print(f"Awesome-List-Scraping: {_awesome_found} neue Kandidaten hinzugefügt")
           print(f"Kandidaten gesamt nach Awesome-Scraping: {len(candidate_repos)}")
@@ -1502,47 +1482,44 @@ jobs:
               "blacklist-ip", "ip-ban", "ip-abuse",
           ]
 
-          # GitLab-Topic + Keyword-Suche parallelisiert mit 2 Workern.
-          # FIX PERF-GITLAB: Sequential war 26 Terms × 2s = 52s Wartezeit.
-          # GitLab-Rate-Limit ohne Auth: 500 Req/h (~8/min).
-          # 2 Worker × 1s/Call = ~2 Req/s → 120 Req/min – unter Limit.
-          # Lock schützt candidate_repos vor concurrent writes.
+          # Nur Topics-Suche – GitLab-Code-Search ist ohne Auth sehr limitiert
           _gitlab_found = 0
-          _gitlab_lock = _threading.Lock()
+          for _gl_term in GITLAB_SEARCH_TERMS:
+              if _check_timeout("GitLab-Suche"):
+                  break
+              print(f"  Suche GitLab-Topic: {_gl_term}...")
+              _gl_data = gitlab_api(
+                  f"/projects?topic={urllib.parse.quote(_gl_term)}"
+                  f"&order_by=last_activity_at&sort=desc&per_page=20&visibility=public"
+              )
+              time.sleep(2)
+              if not _gl_data or not isinstance(_gl_data, list):
+                  continue
+              for _gl_project in _gl_data:
+                  add_gitlab_candidate(candidate_repos, _gl_project, f"gitlab-topic:{_gl_term}")
+                  _gitlab_found += 1
 
+          # GitLab-Keyword-Suche (ergänzend zur Topic-Suche)
           GITLAB_KEYWORDS = [
               "ip blocklist malicious",
               "threat feed ipv4",
               "honeypot ip list",
               "bruteforce blacklist",
           ]
-
-          def _search_gitlab_one(item):
-              """item = ("topic", term) oder ("search", kw)"""
-              kind, val = item
-              if _check_timeout("GitLab-Suche"):
-                  return 0
-              if kind == "topic":
-                  path = f"/projects?topic={urllib.parse.quote(val)}&order_by=last_activity_at&sort=desc&per_page=20&visibility=public"
-                  label = f"gitlab-topic:{val}"
-              else:
-                  path = f"/projects?search={urllib.parse.quote(val)}&order_by=last_activity_at&sort=desc&per_page=20&visibility=public"
-                  label = f"gitlab-search:{val}"
-              _gl_data = gitlab_api(path)
-              time.sleep(1)  # war 2s sequential; 2 Worker = ~gleiche Last
+          for _gl_kw in GITLAB_KEYWORDS:
+              if _check_timeout("GitLab-Keyword"):
+                  break
+              print(f"  Suche GitLab-Keyword: {_gl_kw}...")
+              _gl_data = gitlab_api(
+                  f"/projects?search={urllib.parse.quote(_gl_kw)}"
+                  f"&order_by=last_activity_at&sort=desc&per_page=20&visibility=public"
+              )
+              time.sleep(2)
               if not _gl_data or not isinstance(_gl_data, list):
-                  return 0
-              count = len(_gl_data)
-              with _gitlab_lock:
-                  for _gl_project in _gl_data:
-                      add_gitlab_candidate(candidate_repos, _gl_project, label)
-              return count
-
-          _gl_items = [("topic", t) for t in GITLAB_SEARCH_TERMS] + [("search", k) for k in GITLAB_KEYWORDS]
-          print(f"  GitLab-Suche: {len(_gl_items)} Anfragen, 2 Worker...")
-          with ThreadPoolExecutor(max_workers=2) as _gl_ex:
-              _gl_counts = list(_gl_ex.map(_search_gitlab_one, _gl_items))
-          _gitlab_found = sum(_gl_counts)
+                  continue
+              for _gl_project in _gl_data:
+                  add_gitlab_candidate(candidate_repos, _gl_project, f"gitlab-search:{_gl_kw}")
+                  _gitlab_found += 1
 
           _gitlab_unique = sum(1 for v in candidate_repos.values() if v.get("platform") == "gitlab")
           print(f"GitLab-Suche: {_gitlab_found} Treffer → {_gitlab_unique} GitLab-Kandidaten")
@@ -1945,11 +1922,11 @@ jobs:
           #              evtl. neue Maintainer ohne Stars)
           # Bei zu wenig Kandidaten in einer Quote werden ungenutzte Slots
           # NICHT umverteilt - das wuerde den Reputation-Bias wiederherstellen.
-          EVAL_BUDGET   = 350   # erhöht: mehr Kandidaten evaluieren (war 240)
-          QUOTA_REP     = 130   # erhöht: mehr Reputation-Kandidaten (war 100)
-          QUOTA_AWESOME = 90    # erhöht: mehr aus Awesome-Listen (war 60)
-          QUOTA_GITLAB  = 50    # erhöht: EU/Sicherheitsforscher (war 30)
-          QUOTA_FRESH   = 80    # erhöht: neue unbekannte Feeds (war 50)
+          EVAL_BUDGET   = 240   # erhöht: mehr Diversität (war 200)
+          QUOTA_REP     = 100   # reduziert: weniger Reputation-Bias (war 120)
+          QUOTA_AWESOME = 60    # erhöht: kuratierte Listen besser abdecken (war 40)
+          QUOTA_GITLAB  = 30    # erhöht: mehr EU/Sicherheitsforscher (war 20)
+          QUOTA_FRESH   = 50    # erhöht: mehr neue unbekannte Feeds (war 20)
 
           def _is_awesome(meta):
               return any(s.startswith("awesome:") for s in meta.get("sources", []))
@@ -2107,7 +2084,7 @@ jobs:
               _log_lines.append(f"  ✅ Aktualität: {days_old} Tage alt")
 
               # IP-Dateien im Repo suchen (plattformabhängig)
-              time.sleep(0.1)  # FIX PERF: war 0.5s; 0.1s reicht als API-Puffer
+              time.sleep(0.5)
               ip_files = []
 
               if _platform == "gitlab" and _gl_id:
@@ -2153,7 +2130,7 @@ jobs:
               _log_lines.append(f"  Datei: {best_file['path']} ({best_file['size']:,} Bytes)")
 
               # Kriterium 1b: Aktualität der IP-Datei selbst (max. 30 Tage)
-              time.sleep(0.1)  # FIX PERF: war 0.5s
+              time.sleep(0.5)
               file_days_old = 999
               if _platform == "gitlab" and _gl_id:
                   _gl_commits = gitlab_api(
@@ -2184,13 +2161,14 @@ jobs:
                           pass
 
               if file_days_old > 30:
-                  _log_lines.append(f"  ❌ IP-Datei veraltet: {file_days_old} Tage (Repo-Push frisch, aber Blocklist stale)")
+                  _log_lines.append(f"  ❌ IP-Datei veraltet: {file_days_old} Tage "
+                                    f"(Repo-Push frisch, aber Blocklist stale)")
                   return {"action": "reject", "repo": _reject_key,
                           "reason": f"IP-Datei {file_days_old}d alt", "logs": _log_lines,
                           "platform": _platform}
               _log_lines.append(f"  ✅ IP-Datei frisch: {file_days_old} Tage alt")
 
-              time.sleep(0.1)  # FIX PERF: war 0.5s
+              time.sleep(0.5)
               text = fetch_raw(raw_url, timeout=12)
               if not text:
                   _log_lines.append("  ❌ Download fehlgeschlagen")
@@ -2201,8 +2179,8 @@ jobs:
               ips = extract_ips(text)
 
               # Kriterium 2: Größe (100 – 500.000 IPs)
-              if not (50 <= len(ips) <= 500_000):  # Min gesenkt: war 100; nischige C2/APT-Feeds sind oft kleiner
-                  _log_lines.append(f"  ❌ Größe: {len(ips)} IPs (erwartet 50–500.000)")
+              if not (100 <= len(ips) <= 500_000):
+                  _log_lines.append(f"  ❌ Größe: {len(ips)} IPs (erwartet 100–500.000)")
                   return {"action": "reject", "repo": _reject_key,
                           "reason": f"Größe: {len(ips)} IPs", "logs": _log_lines,
                           "platform": _platform}
@@ -2231,8 +2209,8 @@ jobs:
               if hq_ref_ready:
                   overlap     = len(ips & hq_ref_ips)
                   overlap_pct = overlap / len(ips) if ips else 0
-                  if overlap_pct < 0.10 and overlap < 20:  # gesenkt: war 20%/50; CERT/APT-Feeds haben naturgemäß geringen Overlap mit generischen HQ-Refs
-                      _log_lines.append(f"  ❌ Overlap: {overlap_pct:.1%} / {overlap} IPs (min. 10% oder 20)")
+                  if overlap_pct < 0.20 and overlap < 50:
+                      _log_lines.append(f"  ❌ Overlap: {overlap_pct:.1%} / {overlap} IPs (min. 20% oder 50)")
                       return {"action": "reject", "repo": _reject_key,
                               "reason": f"Overlap zu gering: {overlap_pct:.1%}", "logs": _log_lines,
                               "platform": _platform}
@@ -2252,8 +2230,8 @@ jobs:
                   if l.strip() and not l.startswith("#")
               )
               ip_ratio = len(ips) / max(len(unique_lines), 1)
-              if ip_ratio < 0.20:  # gesenkt: war 30%; Feeds mit ausführlichen Kommentaren/Headern fallen sonst raus
-                  _log_lines.append(f"  ❌ Format-Qualität: {ip_ratio:.1%} IP-Zeilen (min. 20%)")
+              if ip_ratio < 0.30:
+                  _log_lines.append(f"  ❌ Format-Qualität: {ip_ratio:.1%} IP-Zeilen (min. 30%)")
                   return {"action": "reject", "repo": _reject_key,
                           "reason": f"Format: {ip_ratio:.1%}", "logs": _log_lines,
                           "platform": _platform}
