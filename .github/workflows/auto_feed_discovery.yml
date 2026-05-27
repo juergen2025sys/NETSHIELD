@@ -1518,7 +1518,8 @@ jobs:
           ]
 
           def _search_gitlab_one(item):
-              """item = ("topic", term) oder ("search", kw)"""              kind, val = item
+              """item = ("topic", term) oder ("search", kw)"""
+              kind, val = item
               if _check_timeout("GitLab-Suche"):
                   return 0
               if kind == "topic":
@@ -1679,7 +1680,7 @@ jobs:
                   continue
 
               _file_days = _r["file_days"]
-              if _file_days is not None and _file_days > 7:  # verschärft: IP-Listen älter 7d aus Rotation
+              if _file_days is not None and _file_days > 30:
                   _repo = _feed.get("repo", "")
                   del approved_feeds[_name]
                   removed_aged.append(f"{_name} ({_file_days}d)")
@@ -2095,8 +2096,8 @@ jobs:
                   days_old = (now - pushed_dt).days
               except Exception:
                   days_old = 999
-              if days_old > 14:  # verschärft: war 30d; Repo ohne Push in 14d pflegt seinen Feed nicht aktiv
-                  _log_lines.append(f"  ❌ Aktualität: {days_old} Tage alt (max. 14)")
+              if days_old > 30:
+                  _log_lines.append(f"  ❌ Aktualität: {days_old} Tage alt (max. 30)")
                   return {"action": "reject", "repo": _reject_key,
                           "reason": f"Zu alt: {days_old}d", "logs": _log_lines,
                           "platform": _platform}
@@ -2157,7 +2158,7 @@ jobs:
               if _platform == "gitlab" and _gl_id:
                   _gl_commits = gitlab_api(
                       f"/projects/{_gl_id}/repository/commits"
-                      f"?path={urllib.parse.quote(best_file['path'])}&per_page=5"
+                      f"?path={urllib.parse.quote(best_file['path'])}&per_page=1"
                   )
                   if _gl_commits and isinstance(_gl_commits, list) and _gl_commits:
                       _date_str = _gl_commits[0].get("committed_date", "")
@@ -2165,23 +2166,12 @@ jobs:
                           _file_dt = datetime.strptime(
                               _date_str[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
                           file_days_old = (now - _file_dt).days
-                          if len(_gl_commits) >= 2:
-                              _fc_dates = []
-                              for _fc in _gl_commits:
-                                  try:
-                                      _fc_dates.append(datetime.strptime(
-                                          (_fc.get("committed_date") or "")[:10], "%Y-%m-%d"))
-                                  except Exception:
-                                      pass
-                              if len(_fc_dates) >= 2:
-                                  _span = (_fc_dates[0] - _fc_dates[-1]).days
-                                  _commit_interval_days = _span / max(len(_fc_dates) - 1, 1)
                       except Exception:
                           pass
               else:
                   file_commits = gh_api(
                       f"/repos/{full_name}/commits"
-                      f"?path={urllib.parse.quote(best_file['path'])}&per_page=5"
+                      f"?path={urllib.parse.quote(best_file['path'])}&per_page=1"
                   )
                   if file_commits and isinstance(file_commits, list) and file_commits:
                       file_date_str = (file_commits[0].get("commit", {})
@@ -2190,23 +2180,11 @@ jobs:
                           file_dt = datetime.strptime(
                               file_date_str[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
                           file_days_old = (now - file_dt).days
-                          # NEU: Commit-Frequenz aus letzten 5 Commits berechnen
-                          if len(file_commits) >= 2:
-                              _fc_dates = []
-                              for _fc in file_commits:
-                                  try:
-                                      _fc_d = _fc.get("commit",{}).get("committer",{}).get("date","")
-                                      _fc_dates.append(datetime.strptime(_fc_d[:10], "%Y-%m-%d"))
-                                  except Exception:
-                                      pass
-                              if len(_fc_dates) >= 2:
-                                  _span = (_fc_dates[0] - _fc_dates[-1]).days
-                                  _commit_interval_days = _span / max(len(_fc_dates) - 1, 1)
                       except Exception:
                           pass
 
-              if file_days_old > 7:  # verschärft: war 30d; IP-Listen älter als 7d sind nutzlos
-                  _log_lines.append(f"  ❌ IP-Datei veraltet: {file_days_old} Tage (max. 7d – ältere IPs sind nutzlos)")
+              if file_days_old > 30:
+                  _log_lines.append(f"  ❌ IP-Datei veraltet: {file_days_old} Tage (Repo-Push frisch, aber Blocklist stale)")
                   return {"action": "reject", "repo": _reject_key,
                           "reason": f"IP-Datei {file_days_old}d alt", "logs": _log_lines,
                           "platform": _platform}
