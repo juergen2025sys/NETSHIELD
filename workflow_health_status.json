@@ -1,10 +1,16 @@
 {
-  "updated": "2026-05-27 16:45 UTC",
+  "updated": "2026-05-27 21:08 UTC",
   "total": 23,
   "ok": 22,
-  "warn": 3,
-  "error": 0,
-  "errors": [],
+  "warn": 2,
+  "error": 1,
+  "errors": [
+    {
+      "file": "Production Health",
+      "check": "active \u2286 conf40 Subset-Invariante verletzt",
+      "detail": "2,061 IPs in active fehlen in conf40 (0.453% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+    }
+  ],
   "warnings": [
     {
       "file": "honeypot_monitor.yml \u2192 update_combined_blacklist.yml",
@@ -28,21 +34,26 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 5706948,
-    "active_blacklist_ipv4.txt": 452642,
+    "combined_threat_blacklist_ipv4.txt": 5709073,
+    "active_blacklist_ipv4.txt": 454894,
     "blacklist_confidence40_ipv4.txt": 4463647,
     "cve_exploit_ips.txt": 36357,
-    "honeypot_ips.txt": 109644,
+    "honeypot_ips.txt": 108241,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
-    "critical": 0,
+    "critical": 1,
     "warn": 1,
     "checks": [
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
         "detail": "blacklist_geo_enriched.json: 84.0 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      },
+      {
+        "level": "CRITICAL",
+        "check": "active \u2286 conf40 Subset-Invariante verletzt",
+        "detail": "2,061 IPs in active fehlen in conf40 (0.453% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
       }
     ]
   },
