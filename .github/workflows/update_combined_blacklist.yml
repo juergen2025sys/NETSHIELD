@@ -631,6 +631,31 @@ jobs:
               # c2_iplist (drb-ra/C2IntelFeeds).
               "c2_iplist":                  ("https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/feeds/IPC2s.csv", True),
 
+              # JMousqueton/C2-Tracker NICHT aufgenommen: letzter Commit 22.02.2025,
+              # 15+ Monate stale trotz "Nightly Update"-Commit-Message und README-
+              # Behauptung "weekly on Monday". C2-IPs rotieren in Tagen/Wochen –
+              # eine 15 Monate alte Liste ist gefaehrlich (FP-Risiko hoch, da IPs
+              # laengst legitimen Diensten zugewiesen sein koennen).
+              # Verifiziert via https://github.com/JMousqueton/C2-Tracker/commits/main.atom
+
+              # ViriBack C2 Tracker – Daniel Bunce (etablierter Researcher).
+              # Tracked C2-Panels von Stealern/RATs/Loadern (Amadey, Lumma,
+              # Supershell, HookBot, Chaos, Lokibot, Unam, Matanbuchus u.v.m.).
+              # Format: CSV "Family,URL,IP,FirstSeen" mit Header-Zeile.
+              # parse_entries() extrahiert via IPV4_RE alle IPs in der Zeile.
+              # STOLPERFALLE: Manche URLs in Spalte 2 enthalten Cloudflare-
+              # Resolver-IPs (104.21.x.x, 172.67.x.x) der Frontend-Domain,
+              # nicht die echte C2-Backend-IP. Cloudflare-Ranges fehlen aktuell
+              # in der Whitelist – Solo-Treffer dieser IPs koennen FPs gegen
+              # Cloudflare-Frontends ergeben. Mitigation: non-HQ (False),
+              # Confidence-Scoring blockt Solo-Promotion. Bei Bedarf spaeter
+              # Cloudflare-CIDRs (104.16.0.0/13, 172.64.0.0/13) in
+              # whitelist.json ergaenzen. Datenquelle von abuse.ch ThreatFox
+              # ingested - Familienkonflikt moeglich, daher non-HQ konservativ.
+              "viriback_c2":                ("https://tracker.viriback.com/dump.php", False),
+
+
+
               # ── Fadouse clash-threat-intel (ThreatFox API, confidence ≥ 90) ─
               # Täglich via GitHub Actions aktualisiert. Alle Dateien im selben
               # Clash-Format: IP-CIDR,x.x.x.x/32,no-resolve
