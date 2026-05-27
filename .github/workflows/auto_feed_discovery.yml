@@ -778,6 +778,27 @@ jobs:
               # v4.1: Curated-List-Phrasen aus Beschreibungen
               "curated list", "awesome list", "collection of",
               "list of resources", "list of tools", "list of awesome",
+              # v5: Dependency Injection / IoC Container ("ioc" triggert c2-Topic-Suche)
+              "dependency injection", "di container", "ioc container",
+              "inversion of control", "service locator",
+              # v5: Compiler / Programmiersprachen-Tools
+              "compiler", "programming language", "transpiler", "code generator",
+              "bytecode", "runtime environment", "virtual machine",
+              # v5: Pentest / Red-Team-Tools (haben keine IP-Listen)
+              "penetration testing", "pentest framework", "red team",
+              "post-exploitation", "c2 framework", "command and control framework",
+              "payload generator", "exploit framework", "offensive security tool",
+              # v5: Vulnerability-Scanner-Tools
+              "vulnerability scanner", "vuln scanner", "security scanner",
+              "cve scanner", "exploit scanner", "osv scanner",
+              # v5: Frontend / UI / Electron-Apps
+              "electron app", "desktop app", "web application", "frontend",
+              "graphical interface", "web ui", "react app",
+              # v5: Allgemeine Software-Kategorien ohne IP-Bezug
+              "utility library", "helper library", "utils library",
+              "open source tool", "cli tool", "command line tool",
+              "monitoring tool", "logging tool", "observability",
+              "orchestration", "automation tool", "devops tool",
           )
 
           # Repos mit diesen Sprachen sind fast immer Tools (Listen sind
@@ -786,6 +807,9 @@ jobs:
           _TOOL_LANGUAGES = {
               "java", "c", "c++", "c#", "rust", "ruby",
               "scala", "kotlin", "swift", "php",
+              # v5: weitere eindeutige Tool-Sprachen
+              "dart", "elixir", "erlang", "haskell", "ocaml",
+              "f#", "nim", "d", "lua", "r",
           }
           # Python/Go/JavaScript sind grenzwertig - viele Listen-Maintainer
           # nutzen sie fuer ihren Build-Prozess, ohne dass das Repo selbst
@@ -798,7 +822,13 @@ jobs:
           # 20 *-list/-lists, 13 *-scanner/-scanners).
           _TOOL_NAME_SUFFIXES = ("-cli", "-tool", "-tools", "-api", "-server",
                                   "-daemon", "-sandbox", "-scanner", "-scanners",
-                                  "-extractor", "-parser", "-framework")
+                                  "-extractor", "-parser", "-framework",
+                                  # v5: Zusätzliche Tool-Suffixe
+                                  "-compiler", "-teamserver", "-c2server",
+                                  "-platform", "-workbench", "-studio",
+                                  "-di", "-ioc", "-kit", "-suite",
+                                  "-next", "-lite", "-pro",  # Versions-/Varianten-Suffixe bei Frameworks
+                                  "-monitor", "-dashboard", "-ui")
           # Listen-Suffixe sind separat: viele Maintainer nennen ihren echten
           # IP-Feed *-list (z.B. "phishing-list") - darum NICHT als Tool werten.
           # Aber: -lists (Plural) ist fast immer Meta-Sammlung.
@@ -810,6 +840,11 @@ jobs:
               "awesome-",       # GitHub-Konvention fuer kuratierte Linksammlungen
               "/awesome",       # Variante: am Beginn des Repo-Namens
               "fucking-awesome", # Forks der awesome-* Listen
+              # v5: Compiler / Sprachen-Repos ("c2" trifft C2-Programmiersprache)
+              "/c2compiler", "/c2lang",
+              # v5: Bekannte Tool-Repos die immer wieder auftauchen
+              "/yakit", "/velociraptor", "/intelowl", "/starkiller",
+              "/osv-scanner", "/zdns", "/loopback-next",
           )
 
           def _looks_like_tool_not_list(meta):
@@ -2591,7 +2626,7 @@ jobs:
           lines.append(f"| Neu angenommen | **{_post_dedup_new}** |")
           lines.append(f"| davon aus GitLab | **{_gl_approved}** |")
           lines.append(f"| davon aus Awesome-Lists | **{_aw_approved}** |")
-          lines.append(f"| Bekannte Feeds re-fetched | **{_post_dedup_refetch}** |")
+          lines.append(f"| Bestehende Feeds aktualisiert | **{_post_dedup_refetch}** |")
           lines.append(f"| Abgelehnt (dieser Run) | **{len(new_rejected)}** |")
           lines.append(f"| davon GitLab abgelehnt | **{_gl_rejected}** |")
           lines.append(f"| Feeds gesamt (aktiv) | **{len(approved_feeds)}** |")
