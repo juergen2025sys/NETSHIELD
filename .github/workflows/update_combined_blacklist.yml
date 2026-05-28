@@ -299,7 +299,7 @@ jobs:
           now_stamp  = now.strftime("%Y-%m-%d %H:%M UTC")
           EXPIRY_DAYS = 180
           DB_FILE     = "seen_db.json"
-          READ_LIMIT  = 50 * 1024 * 1024   # 50 MB pro Feed (war 25 MB - firehol_anonymous.netset überschritt das mit ~26 MB, Datenverlust)
+          READ_LIMIT  = 100 * 1024 * 1024  # 100 MB pro Feed (war 50 MB - bitwire_ipblocklist überschritt das mit ~50,04 MB, Datenverlust)
 
           # IPV4_RE wird aus netshield_common importiert; lokale Re-Definition
           # entfernt (war ungenutzt, hätte aber bei Wiederverwendung den
@@ -359,7 +359,7 @@ jobs:
               "firehol_anonymous", "dshield", "cloudzy",
               "urlhaus_ips", "firehol_level1", "firehol_level2", "firehol_level3",
               "firehol_webclient", "firehol_webserver", "firehol_abusers_1d",
-              "et_block", "et_compromised", "spamhaus_drop",
+              "et_block", "et_compromised",
               "blocklist_de_all", "blocklist_de_export", "blocklist_de_strongips",
               "blocklist_de_ssh", "c2_iplist",
               "ipsum_level5", "ipsum_level7", "abuseipdb_s100_30d", "abuseipdb_s100_7d",
@@ -533,7 +533,6 @@ jobs:
               "data_shield_full":           ("https://raw.githubusercontent.com/duggytuxy/Data-Shield_IPv4_Blocklist/refs/heads/main/prod_data-shield_ipv4_blocklist.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
               "interserver":                ("https://sigs.interserver.net/ip.txt", False),
               "crowdsec_ssh":               ("https://raw.githubusercontent.com/Y3ll0w/CrowdSec-CAPI-Decisions/refs/heads/main/ssh-bf.json.txt", True),
-              "trcert_malware":             ("https://raw.githubusercontent.com/cenk/trcert-malware/refs/heads/main/trcert-ips.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
               "danger_bruteforce":          ("https://danger.rulez.sk/projects/bruteforceblocker/blist.php", True),
               "threatview_high_conf":       ("https://threatview.io/Downloads/IP-High-Confidence-Feed.txt", True),
               "florent_banned":             ("https://raw.githubusercontent.com/florentvinai/bad-ips-on-my-vps/refs/heads/main/banned_ips.txt", False),
@@ -581,7 +580,6 @@ jobs:
               # dolutech_blacklist entfernt: 100% Redundanz mit HQ-Feeds, 0 Solo-IPs (Audit 2026-05-17, 38k IPs)
               "zerof_ipextractor":          ("https://raw.githubusercontent.com/ZEROF/ipextractor/refs/heads/main/ipexdbl.txt", False),
               "subnet_blocklist_new":       ("https://raw.githubusercontent.com/coyote-nl/blocklist/refs/heads/main/subnet-blocklist-new", False),
-              "bdix_prefix_ipv4":           ("https://raw.githubusercontent.com/tushroy/bdix-isp-blocks/refs/heads/master/bdix-prefix_ipv4.txt", False),
 
               # ── Abuse.ch ──────────────────────────────────────────────────
               # bazaar_c2 entfernt: Endpunkt liefert Hash-Listen, keine IPs → 0 Treffer
@@ -599,7 +597,6 @@ jobs:
               "firehol_abusers_1d":         ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_abusers_1d.netset", True),
               "et_block":                   ("https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt", True),
               "et_compromised":             ("https://rules.emergingthreats.net/blockrules/compromised-ips.txt", True),
-              "spamhaus_drop":              ("https://www.spamhaus.org/drop/drop.txt", True),
               # "spamhaus_edrop" entfernt: seit 10.04.2024 in DROP konsolidiert, edrop.txt ist leer
               # myip_ms: kommerzieller Aggregator, "Last 10 days" Scam-IPs. Format:
               #   "IP # date, host, countryID, blacklistID" → parse_entries nimmt Spalte 1.
@@ -755,7 +752,6 @@ jobs:
               # (ip;asn;confidence) – parse_entries() schneidet bei ';' ab,
               # kommt damit klar. Fokus: Proxy-Netze, Bot-Traffic.
               # non-HQ (False): Einzelperson-Repo (antoinevastel), Scoring intern.
-              "avastel_proxy_bot_8d":       ("https://raw.githubusercontent.com/antoinevastel/avastel-bot-ips-lists/refs/heads/master/avastel-proxy-bot-ips-blocklist-8days.txt", False),
 
               # ── Scanning / Recon ──────────────────────────────────────────
               # ipsum_level3 entfernt: 100% Subset von ipsum_level5/7 (Audit 2026-05-17, 72k IPs, 0 Solo)
