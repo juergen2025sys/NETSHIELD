@@ -1,19 +1,19 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-05-28 05:45 UTC
+**Aktualisiert:** 2026-05-28 10:37 UTC
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **5,713,491** | 2026-05-28 04:23 UTC |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **396,133** | 2026-05-28 04:23 UTC |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **4,471,366** | 2026-05-28 04:49 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **152,480** | 2026-05-28 04:49 UTC |
-| ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **36,357** | 2026-05-27 07:55 UTC |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **5,728,924** | 2026-05-28 09:55 UTC |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **401,234** | 2026-05-28 09:55 UTC |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **4,476,161** | 2026-05-28 07:31 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **153,489** | 2026-05-28 07:31 UTC |
+| ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **36,317** | 2026-05-28 07:49 UTC |
 | ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,949** | 2026-05-27 23:47 UTC |
-| ✅ `honeypot_ips.txt` | Honeypot IPs | **108,220** | 2026-05-28 04:47 UTC |
-| ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **14,987** | 2026-05-27 23:38 UTC |
+| ✅ `honeypot_ips.txt` | Honeypot IPs | **108,103** | 2026-05-28 10:36 UTC |
+| ✅ `honeydb_ips.txt` | HoneyDB Community Honeypot (API) | **17,835** | 2026-05-28 08:13 UTC |
 
 ---
 ## 🔗 OPNsense Alias URL
@@ -37,4 +37,4 @@ https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confid
 *Details: [workflow_health_report.md](workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-05-28 05:45 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-05-28 10:37 UTC*
