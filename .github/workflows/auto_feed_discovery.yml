@@ -118,9 +118,23 @@ jobs:
           import sys
           import time
           import ipaddress
+          import hashlib
           from datetime import datetime, timezone, timedelta
           from collections import defaultdict
           from concurrent.futures import ThreadPoolExecutor
+
+          # ── IP-Fingerprint (Content-Dedup) ────────────────────────────────
+          # Hasht die TATSAECHLICHE, sortierte IP-Menge eines Feeds. Zwei Feeds
+          # gelten nur dann als Dublette, wenn ihre IP-Listen byte-genau gleich
+          # sind. Unterschied auch nur in einer IP → andere Fingerprints → beide
+          # bleiben. Ersetzt den fehlerhaften (repo, ip_count)-Dedup, der schon
+          # bei zufaellig gleicher IP-Zahl kollabierte. Leere Menge → "" (wird
+          # vom Dedup ignoriert, damit 0-IP-Feeds nicht alle zusammenfallen).
+          def _ip_fingerprint(ip_set):
+              if not ip_set:
+                  return ""
+              joined = "\n".join(sorted(ip_set))
+              return hashlib.sha1(joined.encode("utf-8")).hexdigest()[:16]
 
           # FIX PERF-TIMEOUT: Globale Timeout-Sicherheit.
           # Workflow hat 60-Minuten-Limit. Skript exitiert sauber bei 52min
@@ -1695,6 +1709,7 @@ jobs:
               approved_feeds[_name]["consecutive_fails"] = 0
               approved_feeds[_name]["last_checked"] = now_day
               approved_feeds[_name]["ip_count"] = len(_ips)
+              approved_feeds[_name]["ip_fingerprint"] = _ip_fingerprint(_ips)
               if _file_days is not None:
                   approved_feeds[_name]["file_days_old"] = _file_days
               all_known_ips.update(_ips)
@@ -1827,6 +1842,22 @@ jobs:
                   if len(_nf_ips) < 50:
                       continue
 
+                  # Loop-Schutz: Wenn diese Datei inhaltlich identisch (gleicher
+                  # IP-Fingerprint) zu einem bereits registrierten Feed DESSELBEN
+                  # Repos ist, NICHT erneut aufnehmen. Sonst wuerde der end-of-run
+                  # Fingerprint-Dedup sie loeschen und dieser Scan sie im naechsten
+                  # Lauf wieder hinzufuegen → dieselbe Endlosschleife wie beim
+                  # alten ip_count-Dedup. So wird die Dublette gar nicht erst
+                  # registriert und der Loser bleibt stabil draussen.
+                  _nf_fp = _ip_fingerprint(_nf_ips)
+                  if _nf_fp and any(
+                      _ex.get("repo") == _repo and _ex.get("ip_fingerprint") == _nf_fp
+                      for _ex in approved_feeds.values()
+                  ):
+                      print(f"    ⏭ {_nf['path']}: identische IP-Liste bereits "
+                            f"registriert (Fingerprint {_nf_fp}) – uebersprungen")
+                      continue
+
                   # Feed-Name: repo_base + Dateiname-Stem
                   _name_base = re.sub(r'[^a-z0-9_]', '_',
                                       _repo.lower().replace('/', '_'))
@@ -1849,6 +1880,7 @@ jobs:
                       "added":         now_day,
                       "last_checked":  now_day,
                       "ip_count":      len(_nf_ips),
+                      "ip_fingerprint": _ip_fingerprint(_nf_ips),
                       "overlap_pct":   _rmeta["overlap_pct"],
                       "fp_rate":       _rmeta["fp_rate"],
                       "rep_score":     _rmeta["rep_score"],
@@ -2394,6 +2426,7 @@ jobs:
                       "added":         existing_feeds[_fname]["added"] if not _is_new and _fname in existing_feeds else now_day,
                       "last_checked":  now_day,
                       "ip_count":      len(f_ips),
+                      "ip_fingerprint": _ip_fingerprint(f_ips),
                       "overlap_pct":   round(overlap_pct * 100, 1),
                       "fp_rate":       round(fp * 100, 2),
                       "rep_score":     rep_score,
@@ -2555,19 +2588,38 @@ jobs:
                   if _dup_key_file[1]:
                       _dedup_by_file[_dup_key_file] = _fn
 
-          # Content-Dedup nach (repo, ip_count) ENTFERNT (Mai 2026).
-          # Frueher wurden hier Feeds mit gleichem Repo UND gleicher IP-Zahl als
-          # "Format-Duplikat" zusammengeworfen. Das war fehlerhaft: zwei genuin
-          # VERSCHIEDENE Dateien koennen zufaellig dieselbe IP-Zahl haben
-          # (z.B. cbuijs/accomplist: plain.black.ipcidr und plain.black.ip4cidr,
-          # beide 127.705 IPs). Eine davon wurde geloescht → der Extra-Datei-Scan
-          # fand sie im naechsten Run wieder als "unregistriert" → fuegte sie als
-          # NEU hinzu → Content-Dedup loeschte sie erneut. Ergebnis: dieselben
-          # Feeds tauchten in JEDEM Run unter "angenommen" auf und wurden nie
-          # stabil gespeichert (Namens-Drift _v2/_v3 inklusive).
-          # Echte Duplikate (identische URL oder gleiche repo+datei) faengt die
-          # Dedup oben (URL/File) bereits korrekt ab. Verschiedene Dateien =
-          # verschiedene Feeds, auch bei gleicher IP-Zahl.
+          # Content-Dedup nach echtem Inhalt (Fingerprint der IP-Menge).
+          # Ersetzt den alten (repo, ip_count)-Dedup, der schon bei zufaellig
+          # gleicher IP-ZAHL verschiedene Dateien kollabierte (z.B. cbuijs
+          # plain.black.ipcidr vs ip4cidr, beide 127.705 IPs aber anderer Inhalt)
+          # und damit einen Loesch-/Wiederfind-Kreislauf ausloeste.
+          # Jetzt werden nur Feeds mit BYTE-GENAU identischer IP-Menge
+          # zusammengefasst (gleicher ip_fingerprint = SHA1 der sortierten IPs).
+          # Unterschied auch nur in EINER IP → andere Fingerprints → beide bleiben.
+          # Feeds ohne Fingerprint (0 IPs / Alt-Eintraege ohne Feld) werden
+          # uebersprungen, damit sie nicht faelschlich zusammenfallen.
+          # Der Loop-Schutz im Extra-Scan (oben) verhindert, dass ein hier
+          # entfernter Duplikat im naechsten Lauf wieder aufgenommen wird.
+          _seen_fp = {}   # ip_fingerprint → behaltener feed_name
+          # Reihenfolge: aeltestes "added" zuerst (das bleibt erhalten); bei
+          # gleichem Datum kuerzerer Name (Original ohne _v2-Suffix) zuerst.
+          for _fn, _fd in sorted(
+                  approved_feeds.items(),
+                  key=lambda x: (x[1].get("added", "9999-99-99"), len(x[0]))):
+              if _fn not in approved_feeds:
+                  continue
+              _fp = _fd.get("ip_fingerprint", "")
+              if not _fp:
+                  continue
+              _orig = _seen_fp.get(_fp)
+              if _orig and _orig in approved_feeds and _orig != _fn:
+                  del approved_feeds[_fn]
+                  _dedup_removed.append(
+                      f"{_fn} (identische IP-Liste wie {_orig})")
+              else:
+                  _seen_fp[_fp] = _fn
+
+          if _dedup_removed:
               print(f"\nDeduplizierung: {len(_dedup_removed)} Duplikat(e) entfernt:")
               for _d in _dedup_removed:
                   print(f"  🗑 {_d}")
