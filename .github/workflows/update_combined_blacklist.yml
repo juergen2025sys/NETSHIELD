@@ -543,6 +543,14 @@ jobs:
               "cloudzy":                    ("https://raw.githubusercontent.com/CriticalPathSecurity/Public-Intelligence-Feeds/refs/heads/master/cloudzy.txt", True),
               "bbcan177":                   ("https://gist.githubusercontent.com/BBcan177/d7105c242f17f4498f81/raw", False),
               "kevinmarx":                  ("https://kevinmarx.org/malicious-ip-list.txt", False),
+              # bsdly.net (Peter N. M. Hansteen) – Einzelbetreiber, Single-Sensor, alle HQ=False.
+              # Listen werden stuendlich neu generiert, 6-Wochen-Verfall (Ausnahme: traplist 24h).
+              # Betreiber bittet um Kontakt (peter@bsdly.net) vor Integration in andere Datensaetze.
+              # bruteforcers.withcc.txt bewusst NICHT aufgenommen: identische IPs wie bruteforcers.txt
+              # (nur mit Country-Code-Spalte) -> waere Doppelzaehlung im feed_count (vgl. BUG-9).
+              "bsdly_pop3":                 ("https://nxdomain.no/~peter/pop3_sixweeks.txt", False),
+              "bsdly_bruteforcers":         ("https://nxdomain.no/~peter/bruteforcers.txt", False),
+              "bsdly_traplist":             ("https://nxdomain.no/~peter/bsdly.net.traplist", False),
               # "honeypot_blocklist" entfernt: yuexuana521/honeypot-blocklist Repo gelöscht
               "edanwong":                   ("https://raw.githubusercontent.com/EdanWong/ip_list/refs/heads/main/my_ips.txt", False),
               "nixbear_malicious":          ("https://raw.githubusercontent.com/nixbear/malicious_ips/refs/heads/main/malicious_ips.txt", False),
