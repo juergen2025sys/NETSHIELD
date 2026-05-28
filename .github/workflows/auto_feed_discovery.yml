@@ -1027,9 +1027,9 @@ jobs:
                       except Exception:
                           continue
                       _this_ttl = REJECT_TTL_DAYS_LONG if any(
-                      s in (_info.get("reason") or "") for s in LONG_TTL_SUBSTRINGS
-                  ) else REJECT_TTL_DAYS
-                  if (now - _at_dt).days >= _this_ttl:
+                          s in (_info.get("reason") or "") for s in LONG_TTL_SUBSTRINGS
+                      ) else REJECT_TTL_DAYS
+                      if (now - _at_dt).days >= _this_ttl:
                           _ttl_expired.append(_r)
                   for _r in _ttl_expired:
                       existing_rejected.discard(_r)
@@ -1956,6 +1956,7 @@ jobs:
           # garantiert verschwendet.
           _tool_filtered_count = 0
           _hard_reject_count   = 0
+          _skipped_known_pre   = 0
           _all_items = []
           for k, v in _all_items_raw:
               name_lc = (v.get("full_name") or v.get("gl_path") or "").lower()
@@ -1963,6 +1964,20 @@ jobs:
               if any(pat in name_lc for pat in _HARD_REJECT_NAME_PATTERNS):
                   _hard_reject_count += 1
                   _tool_filtered_count += 1
+                  continue
+              # FIX EVAL-BUDGET: Bereits rejected/known/approved Repos VOR der
+              # Pool-Bildung rausfiltern. Frueher belegten sie Eval-Slots und
+              # wurden von _evaluate_one nur per `return None` sofort wieder
+              # uebersprungen - im letzten Run gingen so 211 von 240 Slots leer
+              # aus (nur 36 echte Evaluierungen). Jetzt fliessen alle Slots in
+              # noch nicht getestete Kandidaten. Skip-Logik identisch zu der in
+              # _evaluate_one (rejected_repos enthaelt bereits KNOWN_REPOS).
+              _full = v.get("full_name", "") or k
+              _reject_key = f"gitlab:{v.get('gl_path', '')}" if _is_gitlab(v) else _full
+              if (k in rejected_repos or _reject_key in rejected_repos
+                      or _full in rejected_repos
+                      or k in existing_repo_set or _full in existing_repo_set):
+                  _skipped_known_pre += 1
                   continue
               # Reputation-Pool-Kandidaten umgehen die Punkte-Heuristik
               # (aber Hard-Reject oben hat schon gegriffen, falls relevant)
@@ -1977,6 +1992,8 @@ jobs:
           print(f"Tool-Filter: {_tool_filtered_count} mutmassliche Tools/Libraries "
                 f"aussortiert (davon {_hard_reject_count} via Hard-Reject) "
                 f"von {len(_all_items_raw)} Kandidaten, Rest: {len(_all_items)}")
+          print(f"Pre-Filter bekannt/rejected/approved: {_skipped_known_pre} Repos "
+                f"uebersprungen (Eval-Budget bleibt fuer frische Kandidaten frei)")
 
           _picked_keys = set()
           _sorted_candidates = []
@@ -2049,6 +2066,13 @@ jobs:
 
           def _evaluate_one(args):
               full_name, meta = args
+              # FIX TIMEOUT-EVAL: Da die Eval-Phase jetzt mit echten Kandidaten
+              # gefuellt ist (statt grossteils leerlaufender Rejects), kann sie
+              # deutlich laenger dauern. Greift die globale Laufzeit-Sicherung,
+              # geben wir hier sauber None zurueck statt weiter API-Calls zu
+              # feuern - so bleibt Zeit fuer Report + Commit (if: always).
+              if _check_timeout("Eval-Phase"):
+                  return None
               _platform = meta.get("platform", "github")
               _gl_path   = meta.get("gl_path", "")
               _gl_id     = meta.get("gl_id")
