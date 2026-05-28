@@ -2555,39 +2555,19 @@ jobs:
                   if _dup_key_file[1]:
                       _dedup_by_file[_dup_key_file] = _fn
 
-          # Content-Dedup: Feeds mit identischem IP-Count UND gleichem Repo
-          # → wahrscheinlich verschiedene Formate derselben Liste (plain, cidr, ipset)
-          # Fingerprint: ip_count + repo. Neuestes behalten, ältere entfernen.
-          _content_dedup_removed = []
-          _seen_content = {}  # (repo, ip_count) → feed_name
-          # Sort: neuestes Datum zuerst. Bei gleichem Datum: kürzerer Name zuerst
-          # (Original ohne _v2-Suffix bevorzugen). So bleibt immer die sauberste
-          # Variante erhalten wenn Datum identisch, sonst die neueste.
-          import re as _re
-          for _fn, _fd in sorted(approved_feeds.items(),
-                                  key=lambda x: (x[1].get("added", ""),
-                                                 -len(x[0]),
-                                                 -len(_re.findall(r"_v\d+$", x[0]))),
-                                  reverse=True):
-              if _fn not in approved_feeds:
-                  continue
-              _ckey = (_fd.get("repo", ""), _fd.get("ip_count", -1))
-              if _ckey[1] <= 0:
-                  continue
-              if _ckey in _seen_content:
-                  _orig = _seen_content[_ckey]
-                  if _orig in approved_feeds:
-                      # Älteren entfernen (aktueller ist neuer wegen reverse=True)
-                      del approved_feeds[_fn]
-                      _content_dedup_removed.append(
-                          f"{_fn} (gleiche {_ckey[1]} IPs wie {_orig})")
-              else:
-                  _seen_content[_ckey] = _fn
-
-          if _content_dedup_removed:
-              _dedup_removed.extend(_content_dedup_removed)
-
-          if _dedup_removed:
+          # Content-Dedup nach (repo, ip_count) ENTFERNT (Mai 2026).
+          # Frueher wurden hier Feeds mit gleichem Repo UND gleicher IP-Zahl als
+          # "Format-Duplikat" zusammengeworfen. Das war fehlerhaft: zwei genuin
+          # VERSCHIEDENE Dateien koennen zufaellig dieselbe IP-Zahl haben
+          # (z.B. cbuijs/accomplist: plain.black.ipcidr und plain.black.ip4cidr,
+          # beide 127.705 IPs). Eine davon wurde geloescht → der Extra-Datei-Scan
+          # fand sie im naechsten Run wieder als "unregistriert" → fuegte sie als
+          # NEU hinzu → Content-Dedup loeschte sie erneut. Ergebnis: dieselben
+          # Feeds tauchten in JEDEM Run unter "angenommen" auf und wurden nie
+          # stabil gespeichert (Namens-Drift _v2/_v3 inklusive).
+          # Echte Duplikate (identische URL oder gleiche repo+datei) faengt die
+          # Dedup oben (URL/File) bereits korrekt ab. Verschiedene Dateien =
+          # verschiedene Feeds, auch bei gleicher IP-Zahl.
               print(f"\nDeduplizierung: {len(_dedup_removed)} Duplikat(e) entfernt:")
               for _d in _dedup_removed:
                   print(f"  🗑 {_d}")
