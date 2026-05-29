@@ -984,7 +984,12 @@ jobs:
           # "Overlap zu gering") bleiben permanent - die aendern sich selten.
           existing_rejected_meta = {}
           REJECT_TTL_DAYS      = 90    # Standard-TTL (Aktualitäts-Rejects)
-          REJECT_TTL_DAYS_LONG = 180   # Langer TTL für "Keine IP-Datei"
+          REJECT_TTL_DAYS_LONG = 30    # Kurzer TTL für "Keine IP-Datei":
+          # Ein Repo das heute keine IP-Liste hat, kann morgen eine haben.
+          # 30d = 4 wöchentliche Discovery-Runs bis zur Neuevaluierung.
+          # Vorher war dieser Wert 180d – zu lang für einen Zustandscheck
+          # der sich täglich ändern kann (im Gegensatz zu FP-Rate oder Klon-
+          # Verdacht, die strukturell sind und sich selten ändern).
           # Reject-Gruende, die als "transient" gelten und nach TTL ablaufen.
           # Identifikation via Substring im reason-Feld (vgl. _evaluate_one).
           TRANSIENT_REJECT_SUBSTRINGS = (
@@ -1009,16 +1014,23 @@ jobs:
                   # Meta-Dict laden (neues Feld, kann bei alten JSONs fehlen)
                   existing_rejected_meta = dict(auto_data.get("rejected_repos_meta", {}))
 
-                  # Backfill: Repos ohne Meta-Eintrag (permanent blockiert) bekommen
-                  # einen Meta-Eintrag mit backdatiertem Datum, damit der TTL-Mechanismus
-                  # greift und sie nach 180d neu evaluiert werden.
-                  _backfill_date = (now - timedelta(days=91)).strftime("%Y-%m-%d")
+                  # Backfill: Repos ohne Meta-Eintrag bekommen einen Meta-Eintrag
+                  # mit backdatiertem Datum, damit der TTL-Mechanismus greift.
+                  # FIX BUG-BACKFILL-KEY: Vorher wurde "date" statt "rejected_at"
+                  # geschrieben. Die TTL-Prüfung liest ausschließlich "rejected_at"
+                  # (_info.get("rejected_at", "")) → leerer String → strptime-
+                  # Exception → continue → TTL lief für alle Backfill-Einträge
+                  # NIEMALS ab. Repos blieben dauerhaft in rejected_repos blockiert.
+                  # Rückdatierung auf 16d: bei REJECT_TTL_DAYS_LONG=30d läuft der
+                  # Eintrag nach 14 weiteren Tagen (2 Discovery-Runs) ab. Vorher
+                  # war die Rückdatierung auf 91d bei 180d-TTL – gleiches Verhältnis.
+                  _backfill_date = (now - timedelta(days=16)).strftime("%Y-%m-%d")
                   _backfilled = 0
                   for _pr in list(existing_rejected):
                       if _pr not in existing_rejected_meta and _pr not in KNOWN_REPOS:
                           existing_rejected_meta[_pr] = {
                               "reason": "Keine IP-Datei",
-                              "date": _backfill_date,
+                              "rejected_at": _backfill_date,
                           }
                           _backfilled += 1
                   if _backfilled:

@@ -203,6 +203,11 @@ jobs:
           # fehlt/korrupt – Schwelle dort entsprechend großzügiger (24h+3h
           # Worst-Case durch Tagesgranularität).
           db_age_hours = None
+          _used_meta_path = False   # FIX BUG-STALE-HARDCAP: True nur wenn Meta
+          # erfolgreich geparst wurde. Vorher: _used_fallback = not os.path.exists(META_FILE)
+          # → wenn Meta existiert aber korrupt ist, landet db_age_hours vom Fallback-Pfad
+          # (tagesgenau, Schwelle 48h), aber _cap wurde auf STALE_HARDCAP_META_H (8h)
+          # gesetzt. Bei 20h altem last-Datum → 20 > 8 → sys.exit(1) obwohl Pipeline läuft.
           META_FILE = "seen_db_meta.json"
           if os.path.exists(META_FILE):
               try:
@@ -212,6 +217,7 @@ jobs:
                   if _meta_upd:
                       _meta_dt = datetime.strptime(_meta_upd.replace(" UTC", ""), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
                       db_age_hours = (now - _meta_dt).total_seconds() / 3600
+                      _used_meta_path = True
                       print(f"seen_db zuletzt aktualisiert: {_meta_upd} ({db_age_hours:.1f}h alt)")
                       # Combined läuft alle 3h, plus Wallzeit (~30 min) plus
                       # Cache-Save → 4,5h ist eine sichere Schwelle bei
@@ -260,14 +266,11 @@ jobs:
           STALE_HARDCAP_META_H     = 8.0
           STALE_HARDCAP_FALLBACK_H = 48.0
           if db_age_hours is not None:
-              # Welcher Pfad lieferte db_age_hours? Meta hat Vorrang (gesetzt zuerst).
-              # Wir unterscheiden anhand der Schwelle: war Meta-Pfad ueberhaupt aktiv?
-              _used_fallback = not os.path.exists(META_FILE)
-              _cap = STALE_HARDCAP_FALLBACK_H if _used_fallback else STALE_HARDCAP_META_H
+              _cap = STALE_HARDCAP_META_H if _used_meta_path else STALE_HARDCAP_FALLBACK_H
               if db_age_hours > _cap:
                   _stale_msg = (
                       f"seen_db ist {db_age_hours:.1f}h alt (Schwelle: {_cap:.0f}h, "
-                      f"{'Fallback' if _used_fallback else 'Meta'}-Quelle). "
+                      f"{'Meta' if _used_meta_path else 'Fallback'}-Quelle). "
                       f"confidence-Workflow wird abgebrochen, damit keine veralteten "
                       f"Daten als 'frisch' ins Repo committet werden. Bestehende "
                       f"{OUT_40} + {OUT_WATCH} bleiben unveraendert. "
@@ -707,7 +710,7 @@ jobs:
           # nicht der evtl. truncatierten Hauptdatei. Bei Truncate muessen
           # die Parts zwingend existieren, weil sie die einzige vollstaendige
           # Quelle sind.
-          import glob as _glob_conf40
+          _glob_conf40 = _glob  # kein zweiter Import – _glob wurde oben bereits geladen
           _existing_parts_conf40 = sorted(
               _glob_conf40.glob("blacklist_confidence40_ipv4_part*.txt"))
 
