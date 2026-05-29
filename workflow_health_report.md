@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-29 16:52 UTC
+**Aktualisiert:** 2026-05-29 21:15 UTC
 
 **Workflows:** 23 | ✅ 22 OK | ⚠️ 2 Warnung | ❌ 1 Fehler
 
@@ -8,8 +8,8 @@
 
 | Datei | Check | Detail |
 |---|---|---|
-| `Production Health` | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
-| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 19,593 IPs in active fehlen in conf40 (4.681% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| `Production Health` | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 16h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
+| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 23,607 IPs in active fehlen in conf40 (5.584% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 
 ## ⚠️ Warnungen
 
@@ -26,8 +26,8 @@
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 12h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
-| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 19,593 IPs in active fehlen in conf40 (4.681% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| 🔴 CRITICAL | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 16h alt (CRITICAL-Schwelle: 10h) – Pipeline-Stillstand |
+| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 23,607 IPs in active fehlen in conf40 (5.584% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 | 🟡 WARN | Push-Limit Naehe | blacklist_geo_enriched.json: 84.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
@@ -59,4 +59,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-05-29 16:52 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-05-29 21:15 UTC | 23 Workflow-Dateien geprüft*
