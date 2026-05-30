@@ -6,11 +6,11 @@
 
 <br>
 
-![Status](https://img.shields.io/badge/status-active-success?style=flat-square)
-![Update](https://img.shields.io/badge/update-8%C3%97%20daily-blue?style=flat-square)
-![Retention](https://img.shields.io/badge/retention-180%20days-orange?style=flat-square)
-![Sources](https://img.shields.io/badge/sources-120%2B%20(dynamisch)-purple?style=flat-square)
-![Coverage](https://img.shields.io/badge/coverage-250%2B%20countries-teal?style=flat-square)
+![Status](https://img.shields.io/badge/status-active-success?style=flat-square)![Update](https://img.shields.io/badge/update-8%C3%97%20daily-blue?style=flat-square)
+![Retention](https://img.shields.io/badge/retention-180%20days-orange?style=flat-square)![Sources](https://img.shields.io/badge/sources-120%2B%20(dynamisch)-purple?style=flat-square)
+                                ![Coverage](https://img.shields.io/badge/coverage-250%2B%20countries-teal?style=flat-square)
+
+
 
 <br>
 
