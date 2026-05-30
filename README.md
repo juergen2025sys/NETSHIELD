@@ -2,7 +2,7 @@
 
 
 
-<div align="center">
+
 
 # 🛡️ NETSHIELD
 
