@@ -1,14 +1,20 @@
 {
-  "updated": "2026-05-30 04:45 UTC",
+  "updated": "2026-05-30 14:15 UTC",
   "summary": {
-    "ok": 113,
+    "ok": 115,
     "warn": 1,
-    "error": 0
+    "error": 1
   },
-  "failed_feeds": [],
+  "failed_feeds": [
+    "rutgers_drop"
+  ],
   "warned_feeds": [
     "bluetack_blacklist"
   ],
+  "dead_feeds": [],
+  "dead_threshold": 3,
+  "stale_feeds": [],
+  "stale_threshold_days": 14,
   "dataplane_status": {
     "healthy": true,
     "expected": 17,
@@ -24,8 +30,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 71844,
-      "ms": 2340
+      "sample_ips": 75003,
+      "ms": 1350,
+      "fingerprint": "904f8c11b7b6e3de",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "abuseipdb_axllent",
@@ -33,8 +45,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 84787,
-      "ms": 1860
+      "sample_ips": 85361,
+      "ms": 3630,
+      "fingerprint": "8c4b6d69259812ac",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "abuseipdb_s100_30d",
@@ -42,8 +60,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 37744,
-      "ms": 3120
+      "sample_ips": 37780,
+      "ms": 2570,
+      "fingerprint": "8180f0eae337c70d",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "abuseipdb_s100_7d",
@@ -51,8 +75,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 37580,
-      "ms": 3880
+      "sample_ips": 37660,
+      "ms": 2680,
+      "fingerprint": "711bec5c190b8f6d",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "abuseipdb_score100",
@@ -60,8 +90,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 8350,
-      "ms": 560
+      "sample_ips": 8686,
+      "ms": 620,
+      "fingerprint": "168e1b7bb5959c9a",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "amitambekar_threats",
@@ -70,7 +106,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 139988,
-      "ms": 12200
+      "ms": 12050,
+      "fingerprint": "56713c9a4cbba3f9",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "amitambekar_threats_aa",
@@ -78,8 +120,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 6558,
-      "ms": 2029
+      "sample_ips": 6608,
+      "ms": 4990,
+      "fingerprint": "986cbc841f045e1c",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "bbcan177",
@@ -88,7 +136,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 1258,
-      "ms": 1110
+      "ms": 880,
+      "fingerprint": "1f800bdcd3c793e0",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "binary_defense",
@@ -97,7 +151,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 889,
-      "ms": 560
+      "ms": 380,
+      "fingerprint": "77c93f93029128da",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "binaryedge_scanners",
@@ -106,7 +166,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 16857,
-      "ms": 1450
+      "ms": 520,
+      "fingerprint": "106d70ed7c180eab",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "bitwire_ipblocklist",
@@ -114,8 +180,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 160929,
-      "ms": 6040
+      "sample_ips": 160926,
+      "ms": 4860,
+      "fingerprint": "1f1e01ae2626b009",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "black_mirror",
@@ -124,7 +196,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 143084,
-      "ms": 6300
+      "ms": 8940,
+      "fingerprint": "1ba49f2c3c36c1cf",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "blacksnowdot_packets",
@@ -133,7 +211,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 24497,
-      "ms": 18150
+      "ms": 19070,
+      "fingerprint": "1a2d27611c66240e",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "blocklist_de_all",
@@ -141,8 +225,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 23996,
-      "ms": 7840
+      "sample_ips": 25367,
+      "ms": 4820,
+      "fingerprint": "0cb2e1ba761613b2",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "blocklist_de_export",
@@ -150,8 +240,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 23996,
-      "ms": 6790
+      "sample_ips": 25364,
+      "ms": 4700,
+      "fingerprint": "53f0d342ebdd9875",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "blocklist_de_ssh",
@@ -159,8 +255,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 5667,
-      "ms": 2600
+      "sample_ips": 7360,
+      "ms": 3310,
+      "fingerprint": "b49f3fb22a1b3bca",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "blocklist_de_strongips",
@@ -168,8 +270,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 304,
-      "ms": 1320
+      "sample_ips": 324,
+      "ms": 1010,
+      "fingerprint": "702aed8a5d31a372",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "blocklist_net_ua",
@@ -177,8 +285,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 88325,
-      "ms": 9400
+      "sample_ips": 88096,
+      "ms": 8760,
+      "fingerprint": "49452517d24cf316",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "bluetack_blacklist",
@@ -187,7 +301,13 @@
       "ok": true,
       "has_ips": false,
       "sample_ips": 0,
-      "ms": 17050
+      "ms": 12230,
+      "fingerprint": "",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": null,
+      "days_unchanged": 0
     },
     {
       "name": "bruteforceblocker",
@@ -195,8 +315,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 525,
-      "ms": 2070
+      "sample_ips": 532,
+      "ms": 2610,
+      "fingerprint": "06bfd12fb4c4ddfc",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "bsdly_bruteforcers",
@@ -204,8 +330,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 96522,
-      "ms": 5950
+      "sample_ips": 96598,
+      "ms": 12840,
+      "fingerprint": "ec1f1b0774e5544f",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "bsdly_pop3",
@@ -213,8 +345,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 18504,
-      "ms": 2370
+      "sample_ips": 18603,
+      "ms": 3910,
+      "fingerprint": "100e027d13d197ce",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "bsdly_traplist",
@@ -222,8 +360,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 717,
-      "ms": 1110
+      "sample_ips": 686,
+      "ms": 2520,
+      "fingerprint": "cb148412e8a3b8ec",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "c2_iplist",
@@ -231,8 +375,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 215,
-      "ms": 1360
+      "sample_ips": 204,
+      "ms": 1060,
+      "fingerprint": "7b7ce54ab04c6518",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "cinsarmy",
@@ -241,7 +391,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 15000,
-      "ms": 310
+      "ms": 1580,
+      "fingerprint": "872d1430b55006a2",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "cinsscore",
@@ -250,7 +406,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 15000,
-      "ms": 560
+      "ms": 490,
+      "fingerprint": "9c6e3b441f1f93c4",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "cloudzy",
@@ -259,7 +421,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 3578,
-      "ms": 1200
+      "ms": 990,
+      "fingerprint": "0e849242393386f1",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "crowdsec_ssh",
@@ -268,7 +436,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 298,
-      "ms": 510
+      "ms": 290,
+      "fingerprint": "a2b1ee1738b27f7e",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "cyna_malicious",
@@ -276,8 +450,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 4274,
-      "ms": 860
+      "sample_ips": 4281,
+      "ms": 1180,
+      "fingerprint": "8bf083c8201b3c2c",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "danger_bruteforce",
@@ -285,8 +465,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 525,
-      "ms": 1830
+      "sample_ips": 532,
+      "ms": 1330,
+      "fingerprint": "06bfd12fb4c4ddfc",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "data_shield",
@@ -294,8 +480,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 104919,
-      "ms": 1450
+      "sample_ips": 106170,
+      "ms": 2830,
+      "fingerprint": "03bb393eb133124a",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "data_shield_full",
@@ -303,8 +495,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 93400,
-      "ms": 2530
+      "sample_ips": 94557,
+      "ms": 1360,
+      "fingerprint": "b1065b6a01cfe0d6",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_dnsrd",
@@ -312,8 +510,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 6673,
-      "ms": 2620
+      "sample_ips": 6676,
+      "ms": 2440,
+      "fingerprint": "d4975c76233d4636",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_dnsrdany",
@@ -322,7 +526,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 272,
-      "ms": 680
+      "ms": 630,
+      "fingerprint": "d64994d7d4b786de",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_dnstcp",
@@ -330,8 +540,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 890,
-      "ms": 760
+      "sample_ips": 867,
+      "ms": 770,
+      "fingerprint": "563720b929a03a60",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_dnsversion",
@@ -339,8 +555,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 5921,
-      "ms": 2180
+      "sample_ips": 5966,
+      "ms": 2180,
+      "fingerprint": "0abfc9af56714016",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_ntpmode3",
@@ -348,8 +570,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 3313,
-      "ms": 960
+      "sample_ips": 3174,
+      "ms": 910,
+      "fingerprint": "c050940e4b7a5bb3",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_ntpmode6",
@@ -357,8 +585,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 727,
-      "ms": 390
+      "sample_ips": 722,
+      "ms": 740,
+      "fingerprint": "9974aea9727202ac",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_ntpmode7",
@@ -366,8 +600,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 777,
-      "ms": 500
+      "sample_ips": 776,
+      "ms": 760,
+      "fingerprint": "176fa902d8738e56",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_proto41",
@@ -376,7 +616,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 16487,
-      "ms": 5680
+      "ms": 5680,
+      "fingerprint": "ccb58799b7a90c84",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_sipinvitation",
@@ -385,7 +631,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 134,
-      "ms": 270
+      "ms": 370,
+      "fingerprint": "f840b56d0134a84d",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_sipquery",
@@ -393,8 +645,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 4518,
-      "ms": 1470
+      "sample_ips": 4572,
+      "ms": 1440,
+      "fingerprint": "f02d3c57c36bb388",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_sipregistration",
@@ -402,8 +660,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 385,
-      "ms": 310
+      "sample_ips": 380,
+      "ms": 470,
+      "fingerprint": "77b461950623d4a9",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_smtpdata",
@@ -411,8 +675,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 377,
-      "ms": 560
+      "sample_ips": 382,
+      "ms": 550,
+      "fingerprint": "9c38f7496b099a1e",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_smtpgreet",
@@ -420,8 +690,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 9957,
-      "ms": 3430
+      "sample_ips": 9850,
+      "ms": 3210,
+      "fingerprint": "38fb0edd9d1c6fec",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_sshclient",
@@ -429,8 +705,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 19767,
-      "ms": 7430
+      "sample_ips": 19770,
+      "ms": 5860,
+      "fingerprint": "1d87bb2e4d1b7cfb",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_sshpwauth",
@@ -438,8 +720,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 14279,
-      "ms": 6070
+      "sample_ips": 14209,
+      "ms": 4910,
+      "fingerprint": "d409c375d63291f9",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_telnetlogin",
@@ -448,7 +736,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 19570,
-      "ms": 6580
+      "ms": 6300,
+      "fingerprint": "cf99e4ec53b63e55",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dataplane_vncrfb",
@@ -456,8 +750,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 2131,
-      "ms": 1660
+      "sample_ips": 2343,
+      "ms": 2280,
+      "fingerprint": "ac5ec6701adbb486",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "ddrimus_http_threats",
@@ -466,7 +766,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 506,
-      "ms": 990
+      "ms": 1370,
+      "fingerprint": "ec7c2d3caf05406d",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "dshield",
@@ -475,7 +781,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 40,
-      "ms": 430
+      "ms": 460,
+      "fingerprint": "4223f42e16e27b0f",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "edanwong",
@@ -483,8 +795,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 1194,
-      "ms": 800
+      "sample_ips": 1200,
+      "ms": 1030,
+      "fingerprint": "f2526985b278d437",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "et_block",
@@ -493,7 +811,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 5,
-      "ms": 2090
+      "ms": 960,
+      "fingerprint": "2a09cb3533e4f46a",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "et_compromised",
@@ -502,7 +826,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 540,
-      "ms": 1790
+      "ms": 820,
+      "fingerprint": "dbcb3c7597e6e6eb",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "f3csystems",
@@ -510,8 +840,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 1859,
-      "ms": 840
+      "sample_ips": 1854,
+      "ms": 650,
+      "fingerprint": "7db3a8551fbfe0cc",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "fadouse_botnet",
@@ -519,8 +855,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 5228,
-      "ms": 2090
+      "sample_ips": 5242,
+      "ms": 3370,
+      "fingerprint": "253c5fe7dd49dc6a",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "fadouse_c2",
@@ -528,8 +870,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 5398,
-      "ms": 2440
+      "sample_ips": 5414,
+      "ms": 3100,
+      "fingerprint": "9bc192a94dd98436",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "fadouse_loader",
@@ -538,7 +886,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 300,
-      "ms": 3270
+      "ms": 3990,
+      "fingerprint": "2b25360426f346c5",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "fadouse_malware",
@@ -546,8 +900,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 19285,
-      "ms": 7950
+      "sample_ips": 19229,
+      "ms": 9320,
+      "fingerprint": "ebd4d32b4a4d1d49",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "fadouse_ransomware",
@@ -556,7 +916,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 266,
-      "ms": 1570
+      "ms": 2029,
+      "fingerprint": "fd7a02bce3860659",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "fadouse_rat",
@@ -564,8 +930,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 1816,
-      "ms": 3210
+      "sample_ips": 1817,
+      "ms": 2820,
+      "fingerprint": "ff3290599be59c42",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "fadouse_stealer",
@@ -574,7 +946,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 918,
-      "ms": 1780
+      "ms": 4019,
+      "fingerprint": "5ee253d5235af84d",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "fadouse_worm",
@@ -583,7 +961,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 117,
-      "ms": 1240
+      "ms": 1280,
+      "fingerprint": "c300f86d38b09057",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "feodo_aggressive",
@@ -592,7 +976,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 7607,
-      "ms": 1110
+      "ms": 570,
+      "fingerprint": "fa3e35201be5fb40",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "feodo_recommended",
@@ -601,7 +991,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 5,
-      "ms": 610
+      "ms": 400,
+      "fingerprint": "2a09cb3533e4f46a",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "firehol_abusers_1d",
@@ -609,8 +1005,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 3700,
-      "ms": 4800
+      "sample_ips": 3682,
+      "ms": 2190,
+      "fingerprint": "925fc34f72ce7ef5",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "firehol_anonymous",
@@ -618,8 +1020,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 158281,
-      "ms": 5920
+      "sample_ips": 158158,
+      "ms": 3440,
+      "fingerprint": "ce95c57311490fee",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "firehol_cybercrime",
@@ -627,8 +1035,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 335,
-      "ms": 400
+      "sample_ips": 336,
+      "ms": 270,
+      "fingerprint": "24b77552c49d5a05",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "firehol_level1",
@@ -637,7 +1051,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 1,
-      "ms": 3600
+      "ms": 4590,
+      "fingerprint": "2f446cf1246fa1a8",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "firehol_level2",
@@ -645,8 +1065,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 17120,
-      "ms": 6620
+      "sample_ips": 18875,
+      "ms": 4420,
+      "fingerprint": "edd38834e6cac67e",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "firehol_level3",
@@ -654,8 +1080,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 13379,
-      "ms": 7180
+      "sample_ips": 12551,
+      "ms": 4680,
+      "fingerprint": "5febe4bc61dae508",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "firehol_level4",
@@ -663,8 +1095,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 77035,
-      "ms": 8380
+      "sample_ips": 76993,
+      "ms": 5830,
+      "fingerprint": "49b4dd650809c1e7",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "firehol_webclient",
@@ -672,8 +1110,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 335,
-      "ms": 1830
+      "sample_ips": 336,
+      "ms": 1020,
+      "fingerprint": "24b77552c49d5a05",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "firehol_webserver",
@@ -681,8 +1125,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 1110,
-      "ms": 2150
+      "sample_ips": 1024,
+      "ms": 1450,
+      "fingerprint": "e9cd8b2ebd9d8b64",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "florent_banned",
@@ -690,8 +1140,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 10250,
-      "ms": 830
+      "sample_ips": 10257,
+      "ms": 500,
+      "fingerprint": "df4216ddb9d3c4ff",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "fortigate_azure",
@@ -699,8 +1155,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 48,
-      "ms": 480
+      "sample_ips": 51,
+      "ms": 400,
+      "fingerprint": "ee8c94ddc4da0da8",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "freakuency_threatfeed",
@@ -708,8 +1170,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 14837,
-      "ms": 6440
+      "sample_ips": 14870,
+      "ms": 9550,
+      "fingerprint": "3c7b54cb00526408",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "greedybear_recent",
@@ -718,7 +1186,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 5000,
-      "ms": 4230
+      "ms": 2710,
+      "fingerprint": "d7565321270c3504",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "greensnow",
@@ -726,8 +1200,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 5624,
-      "ms": 1330
+      "sample_ips": 4648,
+      "ms": 990,
+      "fingerprint": "b6300581901c590a",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "interserver",
@@ -735,8 +1215,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 829,
-      "ms": 630
+      "sample_ips": 1181,
+      "ms": 330,
+      "fingerprint": "57647bba0fcfb034",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "ipsum_level5",
@@ -745,7 +1231,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 3413,
-      "ms": 1270
+      "ms": 700,
+      "fingerprint": "3845c78519351040",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "ipsum_level7",
@@ -754,7 +1246,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 46,
-      "ms": 360
+      "ms": 380,
+      "fingerprint": "1c88aab8b1c2f942",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "ipsum_master",
@@ -763,7 +1261,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 125070,
-      "ms": 3490
+      "ms": 2080,
+      "fingerprint": "903b9a5c8a24b7d5",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "kevinmarx",
@@ -772,7 +1276,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 45,
-      "ms": 1130
+      "ms": 400,
+      "fingerprint": "48a5ed1c169a897a",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "l7_ddos",
@@ -781,7 +1291,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 1138,
-      "ms": 590
+      "ms": 550,
+      "fingerprint": "8421f9cabc1fa914",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "littlejake_all_blacklist",
@@ -790,7 +1306,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 13543,
-      "ms": 1100
+      "ms": 1480,
+      "fingerprint": "0cf6e97b3d0e7da9",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "magicteamc_bad_ips",
@@ -798,8 +1320,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 140177,
-      "ms": 13790
+      "sample_ips": 140181,
+      "ms": 17130,
+      "fingerprint": "94c4d366167222c1",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "myip_ms",
@@ -807,8 +1335,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 1255,
-      "ms": 2470
+      "sample_ips": 1251,
+      "ms": 2990,
+      "fingerprint": "eb08fda22c070390",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "neblink_known_scanners",
@@ -817,7 +1351,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 5001,
-      "ms": 730
+      "ms": 240,
+      "fingerprint": "cc510763e6f9401c",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "netmountains_blocklist",
@@ -825,8 +1365,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 62857,
-      "ms": 3820
+      "sample_ips": 64848,
+      "ms": 6980,
+      "fingerprint": "d6c32721f525cca2",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "nixbear_malicious",
@@ -835,7 +1381,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 8136,
-      "ms": 1000
+      "ms": 950,
+      "fingerprint": "f185ad4eef0f5917",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "pgl_yoyo_adservers",
@@ -844,7 +1396,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 8867,
-      "ms": 1390
+      "ms": 1780,
+      "fingerprint": "37fb2c589501ae71",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "romain_marcoux",
@@ -853,7 +1411,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 40000,
-      "ms": 2640
+      "ms": 3400,
+      "fingerprint": "a009744356c6d754",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "romainmarcoux_aa",
@@ -861,8 +1425,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 146987,
-      "ms": 5570
+      "sample_ips": 147164,
+      "ms": 4540,
+      "fingerprint": "d2b85d1b288b40ca",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "romainmarcoux_ab",
@@ -870,8 +1440,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 142928,
-      "ms": 3670
+      "sample_ips": 142987,
+      "ms": 3010,
+      "fingerprint": "48e3fc5402e5488a",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "romainmarcoux_outgoing_aa",
@@ -880,7 +1456,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 131072,
-      "ms": 4480
+      "ms": 5110,
+      "fingerprint": "46746dcfba096a51",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "romainmarcoux_outgoing_ab",
@@ -888,8 +1470,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 60782,
-      "ms": 1500
+      "sample_ips": 60837,
+      "ms": 3230,
+      "fingerprint": "45207a3b05320a6a",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "rtbh_output",
@@ -897,17 +1485,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 55523,
-      "ms": 13440
-    },
-    {
-      "name": "rutgers_drop",
-      "url": "https://report.cs.rutgers.edu/DROP/attackers",
-      "status": 200,
-      "ok": true,
-      "has_ips": true,
-      "sample_ips": 1904,
-      "ms": 1090
+      "sample_ips": 56275,
+      "ms": 9170,
+      "fingerprint": "0ff3d833723839da",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "sefinek_malicious",
@@ -915,17 +1500,74 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 137795,
-      "ms": 9400
+      "sample_ips": 137792,
+      "ms": 12810,
+      "fingerprint": "9a65479b9af86ea0",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
-      "name": "shadowwhisperer_hackers",
-      "url": "https://raw.githubusercontent.com/ShadowWhisperer/IPs/refs/heads/master/Malware/Hackers",
+      "name": "shadowwhisperer_probes",
+      "url": "https://raw.githubusercontent.com/ShadowWhisperer/IPs/master/Lists/Probes",
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 6893,
-      "ms": 1090
+      "sample_ips": 20770,
+      "ms": 2970,
+      "fingerprint": "267d661d7d5d4554",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
+    },
+    {
+      "name": "shadowwhisperer_scanners",
+      "url": "https://raw.githubusercontent.com/ShadowWhisperer/IPs/master/Lists/Scanners",
+      "status": 200,
+      "ok": true,
+      "has_ips": true,
+      "sample_ips": 42341,
+      "ms": 3160,
+      "fingerprint": "3834654b1b742ca5",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
+    },
+    {
+      "name": "shadowwhisperer_threats",
+      "url": "https://raw.githubusercontent.com/ShadowWhisperer/IPs/master/Lists/Threats",
+      "status": 200,
+      "ok": true,
+      "has_ips": true,
+      "sample_ips": 19400,
+      "ms": 960,
+      "fingerprint": "be63f3c9628ee6c8",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
+    },
+    {
+      "name": "shadowwhisperer_threats_uncl",
+      "url": "https://raw.githubusercontent.com/ShadowWhisperer/IPs/master/Lists/Threats_Unclassified",
+      "status": 200,
+      "ok": true,
+      "has_ips": true,
+      "sample_ips": 12456,
+      "ms": 1480,
+      "fingerprint": "983188d73cd5698e",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "stopforumspam_toxic",
@@ -934,7 +1576,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 4,
-      "ms": 270
+      "ms": 1230,
+      "fingerprint": "2fe5b77faa545136",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "subnet_blocklist_new",
@@ -943,7 +1591,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 37,
-      "ms": 2510
+      "ms": 4310,
+      "fingerprint": "774c2282da7c4f49",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "threatfox_direct",
@@ -951,8 +1605,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 1654,
-      "ms": 2300
+      "sample_ips": 1645,
+      "ms": 1770,
+      "fingerprint": "bb9f730b45ce7d01",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "threatfox_ioc",
@@ -960,8 +1620,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 27054,
-      "ms": 800
+      "sample_ips": 27073,
+      "ms": 230,
+      "fingerprint": "16b509df41442ceb",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "threathive_blocklist",
@@ -969,8 +1635,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 137109,
-      "ms": 5520
+      "sample_ips": 136986,
+      "ms": 2680,
+      "fingerprint": "0a7ef3d1169fae9a",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "threatview_high_conf",
@@ -979,7 +1651,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 16878,
-      "ms": 1570
+      "ms": 1290,
+      "fingerprint": "41efe648583c4ded",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "turris_greylist",
@@ -988,7 +1666,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 8556,
-      "ms": 1640
+      "ms": 1900,
+      "fingerprint": "03709aa12a848804",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "ufukart_blacklist",
@@ -997,7 +1681,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 145990,
-      "ms": 4350
+      "ms": 5130,
+      "fingerprint": "bf5481915fbb92fd",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "ultimate_hosts_ips0",
@@ -1006,7 +1696,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 142829,
-      "ms": 13200
+      "ms": 14040,
+      "fingerprint": "b4be008b1f011137",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "urlhaus_ips",
@@ -1014,8 +1710,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 703,
-      "ms": 12010
+      "sample_ips": 705,
+      "ms": 10830,
+      "fingerprint": "0c64f79598d874c8",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "viriback_c2",
@@ -1024,7 +1726,13 @@
       "ok": true,
       "has_ips": true,
       "sample_ips": 7963,
-      "ms": 6910
+      "ms": 8050,
+      "fingerprint": "0e6b8cd03c5d1041",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "yuexuan_hfish",
@@ -1032,8 +1740,14 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 250,
-      "ms": 760
+      "sample_ips": 278,
+      "ms": 370,
+      "fingerprint": "8d5c49ec999d0fcd",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
     },
     {
       "name": "zerof_ipextractor",
@@ -1041,8 +1755,30 @@
       "status": 200,
       "ok": true,
       "has_ips": true,
-      "sample_ips": 27286,
-      "ms": 3340
+      "sample_ips": 29071,
+      "ms": 4590,
+      "fingerprint": "34fbc89cdade14c9",
+      "consecutive_fails": 0,
+      "first_failed": null,
+      "last_ok": "2026-05-30 14:15 UTC",
+      "fingerprint_since": "2026-05-30 14:15 UTC",
+      "days_unchanged": 0
+    },
+    {
+      "name": "rutgers_drop",
+      "url": "https://report.cs.rutgers.edu/DROP/attackers",
+      "status": 0,
+      "ok": false,
+      "has_ips": false,
+      "sample_ips": 0,
+      "ms": 20234,
+      "fingerprint": "",
+      "err": "<urlopen error [Errno 101] Network is unreachable>",
+      "consecutive_fails": 1,
+      "first_failed": "2026-05-30 14:15 UTC",
+      "last_ok": null,
+      "fingerprint_since": null,
+      "days_unchanged": 0
     }
   ]
 }
