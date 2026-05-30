@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-30 05:00 UTC",
+  "updated": "2026-05-30 09:25 UTC",
   "total": 23,
   "ok": 22,
   "warn": 2,
@@ -8,12 +8,12 @@
     {
       "file": "Production Health",
       "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
-      "detail": "blacklist_confidence40_ipv4.txt ist 24h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
+      "detail": "blacklist_confidence40_ipv4.txt ist 28h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
     },
     {
       "file": "Production Health",
       "check": "active \u2286 conf40 Subset-Invariante verletzt",
-      "detail": "29,326 IPs in active fehlen in conf40 (7.354% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+      "detail": "32,135 IPs in active fehlen in conf40 (7.997% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
     }
   ],
   "warnings": [
@@ -39,11 +39,11 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 5786339,
-    "active_blacklist_ipv4.txt": 398802,
+    "combined_threat_blacklist_ipv4.txt": 5789952,
+    "active_blacklist_ipv4.txt": 401822,
     "blacklist_confidence40_ipv4.txt": 4504150,
-    "cve_exploit_ips.txt": 36231,
-    "honeypot_ips.txt": 107822,
+    "cve_exploit_ips.txt": 36177,
+    "honeypot_ips.txt": 107954,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
@@ -53,7 +53,7 @@
       {
         "level": "CRITICAL",
         "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
-        "detail": "blacklist_confidence40_ipv4.txt ist 24h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
+        "detail": "blacklist_confidence40_ipv4.txt ist 28h alt (CRITICAL-Schwelle: 10h) \u2013 Pipeline-Stillstand"
       },
       {
         "level": "WARN",
@@ -63,7 +63,7 @@
       {
         "level": "CRITICAL",
         "check": "active \u2286 conf40 Subset-Invariante verletzt",
-        "detail": "29,326 IPs in active fehlen in conf40 (7.354% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+        "detail": "32,135 IPs in active fehlen in conf40 (7.997% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
       }
     ]
   },
