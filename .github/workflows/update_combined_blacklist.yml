@@ -1041,6 +1041,12 @@ jobs:
           # ──────────────────────────────────────────────────────────────
 
           # parse_feed_entries() → importiert aus netshield_common
+          # FEED-MOVE-RESOLVER: gefundene Relocations dieses Laufs sammeln
+          # (alt → neu), damit sie persistent in relocated_feeds.md landen.
+          # Mutation einer Liste aus dem Closure heraus – thread-safe genug
+          # (list.append ist unter CPython atomar).
+          relocations = []
+
           def fetch_ips(name, url):
               # FIX BUG-WF1-FETCHURL: Vorher direktes urllib.request.urlopen –
               # damit umging dieser Pfad alle Sicherheits-Hardenings, die
@@ -1072,6 +1078,10 @@ jobs:
                           raw = fetch_url(new_url, timeout=22, retries=3,
                                           user_agent="NETSHIELD/3.0",
                                           read_limit=READ_LIMIT)
+                          relocations.append({
+                              "name": name, "old_url": url, "new_url": new_url,
+                              "fetched_ok": raw is not None,
+                          })
                   if raw is None:
                       print(f"ERR  {name}: fetch_url returned None")
                       print(f"::warning file=update_combined_blacklist.yml::Feed fetch failed [{name}]")
@@ -1173,6 +1183,33 @@ jobs:
               print(f"::warning file=update_combined_blacklist.yml::Slow-Feed-Timeout nach 2400s – {len(pending)} Feed(s) abgebrochen: {', '.join(pending)}")
               print(f"WARNUNG: Slow-Feed-Block Timeout – {len(pending)} Feed(s) abgebrochen")
           slow_ex.shutdown(wait=False)
+
+          # ── FEED-MOVE-RESOLVER: Relocation-Report ──────────────────────────
+          # Nur schreiben, wenn der Resolver in diesem Lauf mind. einen Feed
+          # an einen neuen Pfad umgeleitet hat. Ohne Treffer wird die Datei
+          # NICHT angefasst (kein Commit-Churn alle 3h). Der Report ist der
+          # dauerhafte Hinweis: "Quelle X liegt jetzt unter Y – SOURCES-URL
+          # fest nachziehen, dann entfaellt das erneute Aufloesen pro Lauf."
+          if relocations:
+              _rl = ["# NETSHIELD – Auto-relocated Feeds",
+                     f"**Lauf:** {now_stamp}",
+                     "",
+                     f"Der Move-Resolver hat {len(relocations)} Feed(s) an einen neuen "
+                     "Pfad umgeleitet. Die neue URL wurde nur fuer diesen Lauf genutzt – "
+                     "fuer eine dauerhafte Loesung die `SOURCES`-URL in "
+                     "`update_combined_blacklist.yml` entsprechend aktualisieren.",
+                     "",
+                     "| Feed | Alt | Neu | Daten geladen |",
+                     "|---|---|---|---|"]
+              for r in relocations:
+                  _rl.append(f"| `{r['name']}` | {r['old_url']} | {r['new_url']} | "
+                             f"{'ja' if r['fetched_ok'] else 'nein'} |")
+              _rl.append("")
+              _rl.append(f"*Generiert: {now_stamp}*")
+              write_text_atomic("relocated_feeds.md", "\n".join(_rl))
+              print(f"relocated_feeds.md geschrieben ({len(relocations)} Relocation(s))")
+          else:
+              print("Keine Relocations in diesem Lauf – relocated_feeds.md unveraendert")
 
           # ── Lokale Sub-Workflow-Dateien einlesen ───────────────────────────
           LOCAL_FEEDS = {
@@ -2086,6 +2123,9 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
+          # relocated_feeds.md nur vorhanden, wenn der Move-Resolver diesen Lauf
+          # etwas umgeleitet hat – dann mitcommitten (sonst No-Op).
+          git add relocated_feeds.md 2>/dev/null || true
           # Split-Parts (falls erzeugt) und geloeschte Parts auch stagen
           git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
           git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
