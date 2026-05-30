@@ -193,12 +193,6 @@ jobs:
                   total = count
 
           lines.append("")
-          lines.append("---")
-          lines.append("## 🔗 OPNsense Alias URL\n")
-          lines.append("```")
-          lines.append("https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt")
-          lines.append("```")
-          lines.append("")
 
           if os.path.exists("feed_health_status.json"):
               try:
