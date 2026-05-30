@@ -1431,12 +1431,77 @@ jobs:
           # aber summiert messbar. Einmal vor der Schleife reicht.
           _HQ_AND_LOCAL = HIGH_QUALITY | LOCAL_HQ_NAMES
 
+          # ── FIX STALE-QUARANTINE: eingefrorene HQ-Feeds einlesen ──────────
+          # Der Feed Health Monitor schreibt in feed_health_status.json eine
+          # Liste "stale_feeds" (Feeds deren IP-Menge sich seit N Tagen nicht
+          # mehr aendert). Solche Feeds bestaetigen ihre IPs zwar weiter, aber
+          # mit veralteten Daten. Bei >=2 eingefrorenen HQ-Familien wuerde das
+          # die "last"-Uhr dauerhaft auf heute halten und den 180-Tage-Expiry
+          # blockieren (Recency bleibt auf Maximum). Hier werden diese Feeds
+          # gesammelt, damit der Ingest-Loop ihre heutige Bestaetigung NICHT
+          # als frisch zaehlt – die IPs altern dann ueber die normale Recency-/
+          # Expiry-Logik aus, sofern kein lebender Feed sie noch bestaetigt.
+          #
+          # Bewusst konservativ:
+          #   - nur HQ-Feeds: non-HQ-Feeds setzen "last" ohnehin nie alleine
+          #     (strongly_confirmed_today braucht >=2 HQ-Familien) → schon harmlos.
+          #   - erst ab QUARANTINE_THRESHOLD_DAYS – strenger als die 14-Tage-
+          #     Flag-Schwelle des Monitors, weil das Ignorieren eines Feeds
+          #     folgenreicher ist als nur ein Report-Eintrag (analog DEAD_THRESHOLD
+          #     vs. Move-Resolver).
+          #   - fail-open: fehlt/kaputt die Datei → leeres Set, Build laeuft normal.
+          #   - selbstheilend: taut der Feed wieder auf (neue IPs → days_unchanged
+          #     faellt auf 0 im Monitor), verschwindet er automatisch aus dem Set.
+          QUARANTINE_THRESHOLD_DAYS = 21
+          _QUARANTINE = set()
+          try:
+              with open("feed_health_status.json", encoding="utf-8") as _hf:
+                  _hs = json.load(_hf)
+              for _sf in _hs.get("stale_feeds", []):
+                  if not isinstance(_sf, dict):
+                      continue
+                  _name = _sf.get("name")
+                  try:
+                      _days = int(_sf.get("days_unchanged", 0))
+                  except (TypeError, ValueError):
+                      _days = 0
+                  if _name in HIGH_QUALITY and _days >= QUARANTINE_THRESHOLD_DAYS:
+                      _QUARANTINE.add(_name)
+              if _QUARANTINE:
+                  print(f"STALE-QUARANTINE: {len(_QUARANTINE)} eingefrorene(r) HQ-Feed(s) "
+                        f"zaehlen heute NICHT als frische Bestaetigung: {sorted(_QUARANTINE)}")
+          except (FileNotFoundError, ValueError, OSError) as _qe:
+              print(f"STALE-QUARANTINE: feed_health_status.json nicht lesbar ({_qe}) – "
+                    f"keine Quarantaene angewendet (fail-open)")
+
           for ip, today_feeds in ip_feeds_today.items():
               # FIX PERF-COMBINED: Binary-Search statt is_whitelisted() + is_in_fp_set()
               if _fast_is_wl_or_fp(ip):
                   continue
+              # FIX STALE-QUARANTINE: eingefrorene HQ-Feeds aus der HEUTIGEN
+              # Bestaetigung herausrechnen, BEVOR today_count / HQ-Familien /
+              # strongly_confirmed_today berechnet werden. Die historische
+              # feeds-Liste (existing_feeds | today_feeds, weiter unten) wird
+              # dadurch NICHT geschrumpft – der Feed-Name bleibt aus frueheren
+              # Laeufen erhalten, die IP faellt also nicht schlagartig aus dem
+              # Aufnahme-Filter, sondern altert ueber Recency/Expiry aus.
+              # Wird eine IP HEUTE nur von eingefrorenen Feeds gemeldet, wird sie
+              # wie "heute nicht bestaetigt" behandelt (skip) – konsistent mit
+              # dem Verhalten fuer ueberhaupt nicht gemeldete IPs (die stehen gar
+              # nicht erst in ip_feeds_today).
+              if _QUARANTINE:
+                  today_feeds = today_feeds - _QUARANTINE
+                  if not today_feeds:
+                      continue
               today_count = len(today_feeds)
               today_is_hq = ip in ip_in_hq
+              # today_is_hq herabstufen, falls die Quarantaene heute ALLE HQ-Feeds
+              # dieser IP entfernt hat. ip_in_hq ist ein Tages-Set, das die
+              # Quarantaene nicht kennt; ohne diese Korrektur bekaeme eine IP, die
+              # heute nur noch von einem eingefrorenen HQ-Feed kam, faelschlich
+              # den HQ-Bonus. No-op wenn _QUARANTINE leer ist.
+              if _QUARANTINE and today_is_hq and not (today_feeds & _HQ_AND_LOCAL):
+                  today_is_hq = False
 
               # HQ-Feed-Anzahl für diese IP heute (benannte Feeds + lokale HQ-Dateien)
               # FIX: LOCAL_HQ_NAMES ergänzt – Dateinamen wie "honeydb_ips.txt" sind
