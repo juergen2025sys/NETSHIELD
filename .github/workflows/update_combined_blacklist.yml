@@ -1125,6 +1125,36 @@ jobs:
               "firehol_anonymous",
               "magicteamc_bad_ips",
           }
+          # ── FEED-URL-OVERRIDES: dauerhaft erneuerte URLs anwenden ──────────
+          # Vom Move-Resolver bestaetigte Relocations werden in
+          # feed_url_overrides.json persistiert (s. nach den Fetch-Phasen) und
+          # hier ALS LAYER ueber SOURCES gelegt, BEVOR die Feeds geladen werden.
+          # Damit nutzt ein verschobener Feed die neue URL dauerhaft, ohne dass
+          # der Resolver sie jeden Lauf neu aufloesen muss. Bewusst KEIN
+          # Umschreiben der SOURCES-Zeile im Workflow (kein self-modifying YAML):
+          # die Override-Datei ist eine reine Datendatei – auditierbar und durch
+          # Loeschen revidierbar. _SOURCES_ORIG_URLS = Schnappschuss VOR dem
+          # Override (fuer spaeteres Pruning).
+          FEED_OVERRIDES_FILE = "feed_url_overrides.json"
+          _SOURCES_ORIG_URLS = {n: u for n, (u, _h) in SOURCES.items()}
+          feed_overrides = {}
+          try:
+              if os.path.exists(FEED_OVERRIDES_FILE):
+                  with open(FEED_OVERRIDES_FILE) as _of:
+                      feed_overrides = json.load(_of).get("overrides", {}) or {}
+          except (ValueError, OSError) as _e:
+              print(f"::warning file=update_combined_blacklist.yml::"
+                    f"feed_url_overrides.json nicht lesbar: {_e}")
+              feed_overrides = {}
+
+          for _fn, _ov in list(feed_overrides.items()):
+              if _fn in SOURCES and isinstance(_ov, dict) and _ov.get("url"):
+                  _cur_url, _hq = SOURCES[_fn]
+                  if _ov["url"] != _cur_url:
+                      SOURCES[_fn] = (_ov["url"], _hq)
+                      print(f"  OVERRIDE: {_fn} → {_ov['url']} (Quelle verschoben, "
+                            f"seit {_ov.get('since', '?')})")
+
           SLOW_SOURCES = {n: u for n, (u, _) in SOURCES.items() if n in SLOW_FEED_NAMES}
           DP_SOURCES   = {n: u for n, (u, _) in SOURCES.items() if n.startswith("dataplane_")}
           REST_SOURCES = {n: (u, hq) for n, (u, hq) in SOURCES.items()
@@ -1210,6 +1240,36 @@ jobs:
               print(f"relocated_feeds.md geschrieben ({len(relocations)} Relocation(s))")
           else:
               print("Keine Relocations in diesem Lauf – relocated_feeds.md unveraendert")
+
+          # ── FEED-URL-OVERRIDES aktualisieren (Auto-Erneuerung) ─────────────
+          # Bestaetigte Relocations (fetched_ok=True → neue URL lieferte echte
+          # Daten) dauerhaft in feed_url_overrides.json eintragen, damit der
+          # Feed kuenftig direkt die neue URL nutzt. Sicherheits-Regeln:
+          #   - Nur fetched_ok=True wird uebernommen (kein Festschreiben einer
+          #     URL, die selbst nichts lieferte).
+          #   - Pruning: Override faellt weg, sobald (a) sein Feed nicht mehr in
+          #     SOURCES existiert ODER (b) die ORIGINAL-SOURCES-URL bereits der
+          #     Override-URL entspricht (= du hast die Zeile manuell nachgezogen)
+          #     → Datei bleibt sauber, kein Dauer-Override.
+          #   - Datei wird NUR geschrieben, wenn sich der overrides-Inhalt
+          #     aendert (kein Commit-Churn alle 3h).
+          _overrides_before = json.dumps(feed_overrides, sort_keys=True)
+          for r in (x for x in relocations if x["fetched_ok"]):
+              feed_overrides[r["name"]] = {
+                  "url": r["new_url"], "old_url": r["old_url"], "since": now_stamp}
+          feed_overrides = {
+              _fn: _ov for _fn, _ov in feed_overrides.items()
+              if _fn in _SOURCES_ORIG_URLS
+              and isinstance(_ov, dict) and _ov.get("url")
+              and _ov["url"] != _SOURCES_ORIG_URLS[_fn]
+          }
+          if json.dumps(feed_overrides, sort_keys=True) != _overrides_before:
+              write_json_atomic(FEED_OVERRIDES_FILE,
+                                {"updated": now_stamp, "overrides": feed_overrides},
+                                indent=2)
+              print(f"feed_url_overrides.json aktualisiert ({len(feed_overrides)} aktive Override(s))")
+          else:
+              print("Keine Override-Aenderung – feed_url_overrides.json unveraendert")
 
           # ── Lokale Sub-Workflow-Dateien einlesen ───────────────────────────
           LOCAL_FEEDS = {
@@ -2126,6 +2186,8 @@ jobs:
           # relocated_feeds.md nur vorhanden, wenn der Move-Resolver diesen Lauf
           # etwas umgeleitet hat – dann mitcommitten (sonst No-Op).
           git add relocated_feeds.md 2>/dev/null || true
+          # feed_url_overrides.json: persistente Auto-Erneuerung verschobener URLs.
+          git add feed_url_overrides.json 2>/dev/null || true
           # Split-Parts (falls erzeugt) und geloeschte Parts auch stagen
           git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
           git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true

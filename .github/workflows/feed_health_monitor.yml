@@ -142,6 +142,26 @@ jobs:
           IP_RE = IPV4_RE   # Alias auf strikte Variante aus netshield_common
                             # (frühere lokale \b-Definition entfernt)
 
+          # ── FEED-URL-OVERRIDES anwenden ────────────────────────────────────
+          # update_combined_blacklist.yml legt vom Move-Resolver bestaetigte,
+          # dauerhaft erneuerte URLs in feed_url_overrides.json ab und nutzt sie
+          # statt der SOURCES-Zeile. Der Monitor MUSS dieselbe effektive URL
+          # testen, sonst meldet er einen erfolgreich auto-erneuerten Feed
+          # faelschlich als tot (die alte 404-URL). Nur lesen, nicht prunen –
+          # die Datei gehoert dem Combined-Workflow.
+          try:
+              if os.path.exists("feed_url_overrides.json"):
+                  with open("feed_url_overrides.json") as _of:
+                      _ovr = json.load(_of).get("overrides", {}) or {}
+                  _applied = 0
+                  for _fn, _o in _ovr.items():
+                      if _fn in FEEDS and isinstance(_o, dict) and _o.get("url"):
+                          FEEDS[_fn] = _o["url"]; _applied += 1
+                  if _applied:
+                      print(f"  {_applied} URL-Override(s) aus feed_url_overrides.json angewendet")
+          except (ValueError, OSError) as _e:
+              print(f"::warning file=feed_health_monitor.yml::feed_url_overrides.json nicht lesbar: {_e}")
+
           def check_feed(name, url):
               t0 = time.time()
               try:
