@@ -213,6 +213,37 @@ jobs:
                       lines.append(f"**❌ Ausgefallen:** {', '.join(f'`{n}`' for n in failed[:10])}{'…' if len(failed) > 10 else ''}\n")
                   if warned:
                       lines.append(f"**⚠️ Leer:** {', '.join(f'`{n}`' for n in warned[:10])}{'…' if len(warned) > 10 else ''}\n")
+                  # ── Stale-/Quarantäne-Status (Selbstregulierungs-Schleife) ──
+                  # Zeigt eingefrorene Feeds (liefern HTTP 200 + IPs, aber seit
+                  # Tagen unveränderte IP-Menge). stale_feeds stammt aus dem Feed
+                  # Health Monitor. Feeds, die die Quarantäne-Schwelle (21 T) des
+                  # Combined-Builds erreichen, werden dort automatisch nicht mehr
+                  # als frische Bestätigung gezählt – das wird hier sichtbar.
+                  stale = fh.get("stale_feeds", [])
+                  if stale:
+                      def _du(x):
+                          try:
+                              return int(x.get("days_unchanged", 0) or 0)
+                          except (TypeError, ValueError):
+                              return 0
+                      _parts = []
+                      for x in stale[:10]:
+                          if not isinstance(x, dict):
+                              continue
+                          _mark = " ⚠️DP" if x.get("is_dataplane") else ""
+                          _parts.append(f"`{x.get('name', '?')}` {_du(x)}T{_mark}")
+                      lines.append(f"**🧊 Eingefroren ({len(stale)}):** "
+                                   + ", ".join(_parts)
+                                   + ("…" if len(stale) > 10 else "") + "\n")
+                      _quar = [x for x in stale if isinstance(x, dict) and _du(x) >= 21]
+                      if _quar:
+                          lines.append(f"*{len(_quar)} davon ≥21 Tage → im Combined automatisch in Quarantäne "
+                                       f"(eingefrorene HQ-Feeds zählen nicht mehr als frische Bestätigung, "
+                                       f"betroffene IPs altern normal aus). Details: "
+                                       f"[stale_feed_report.md](stale_feed_report.md)*\n")
+                      else:
+                          lines.append(f"*Noch unter der 21-Tage-Quarantäne-Schwelle – nur beobachtet. "
+                                       f"Details: [stale_feed_report.md](stale_feed_report.md)*\n")
                   lines.append(f"*Letzter Check: {fh.get('updated', '–')} – Details: [feed_health_report.md](feed_health_report.md)*\n")
               except Exception as e:
                   print(f"WARNUNG: feed_health_status.json konnte nicht gelesen werden: {e}")
