@@ -913,7 +913,11 @@ jobs:
               if any(t in _TOOL_TOPICS for t in topics):
                   score += 1
 
-              return score >= 3
+              # Schwelle auf 2 gesenkt (war 3): aggressiver gegen Tools im
+              # Awesome/Fresh/GitLab-Pool, gibt Eval-Slots fuer echte Listen
+              # frei. Reputation-Pool umgeht diesen Filter weiterhin (nur
+              # Hard-Reject greift dort) - siehe Pool-Bildung.
+              return score >= 2
 
           # ── Schritt 1: seen_db laden ──────────────────────────────────────
           # FIX BUG-CACHE-RESTORE: Identisch zu update_combined_blacklist.yml.
@@ -1207,9 +1211,21 @@ jobs:
               "ip-ban-list",
               "firewall-list",
               "network-blacklist",
+              # NEU: produkt-/marken-nahe Tags etablierter Feeds
+              "greensnow", "cinsscore", "ci-army", "blocklist-de",
+              "stopforumspam", "darklist", "emergingthreats", "et-intelligence",
+              "dshield", "feodotracker", "sslbl", "urlhaus", "sslblacklist",
+              "talos", "greynoise", "spamhaus-drop", "drop-list", "edrop",
+              "ipthreat", "binarydefense", "abuse-ch", "threatfox-ioc",
+              "myip-ms", "interserver", "nullsecure", "bruteforceblocker",
+              "sshblacklist", "openbl", "voipbl", "haley-blocklist",
+              # NEU: Angriffs-/Quellklassen
+              "scanning-ip", "internet-scanner-ip", "shodan-ip", "censys-ip",
+              "malware-c2", "phishing-ip", "spambot", "spam-source",
+              "compromised-ip", "infected-host", "tor-exit", "tor-node",
+              "proxy-ip", "open-relay", "dnsbl", "rbl", "sinkhole",
           ]
 
-          # Code-Search-Queries: Dateinamen + Inhaltsbegriff
           # FIX API1: Queries ohne Body-Keyword wurden entfernt (HTTP 422).
           SEARCH_CODE_QUERIES = [
               # Klassische Blacklist-Dateinamen
@@ -1318,6 +1334,31 @@ jobs:
               "filename:ips_today.txt malicious",
               "filename:daily.txt malicious ip",
               "filename:weekly.txt malicious ip",
+              # NEU: marken-/feed-typische Dateinamen (mit Body-Keyword wegen 422)
+              "filename:drop.txt malicious ip",
+              "filename:edrop.txt malicious ip",
+              "filename:greensnow.txt ip malicious",
+              "filename:ci-badguys.txt ip",
+              "filename:ciarmy.txt ip malicious",
+              "filename:level3.netset ip",
+              "filename:level4.netset ip",
+              "filename:firehol_level1.netset ip",
+              "filename:botnet_filter.netset ip",
+              "filename:ssh.netset ip malicious",
+              "filename:sslbl.csv ip malicious",
+              "filename:scanners.netset ip",
+              "filename:reputation.txt ip malicious",
+              "filename:dnsbl.txt ip malicious",
+              "filename:tor-exit-nodes.txt ip",
+              "filename:tor.txt ip malicious",
+              "filename:proxies.txt ip malicious",
+              "filename:open-proxy.txt ip",
+              "filename:spam-ips.txt malicious",
+              "filename:spambots.txt ip",
+              "filename:infected.txt ip malicious",
+              "filename:compromised-ips.txt ip",
+              "filename:c2-servers.txt ip",
+              "filename:botnet-c2.txt ip malicious",
           ]
 
           candidate_repos = {}
@@ -1506,6 +1547,10 @@ jobs:
               "attacker-ips", "scanner-ips", "bruteforce-ips",
               "threat-intelligence", "security-feed",
               "blacklist-ip", "ip-ban", "ip-abuse",
+              # NEU: weitere Quellklassen
+              "drop-list", "spam-ip", "ddos-ip", "tor-exit",
+              "proxy-list", "c2-feed", "malware-ip", "ip-reputation",
+              "fail2ban", "crowdsec", "ip-deny", "firewall-blocklist",
           ]
 
           # Nur Topics-Suche – GitLab-Code-Search ist ohne Auth sehr limitiert
@@ -1966,11 +2011,11 @@ jobs:
           #              evtl. neue Maintainer ohne Stars)
           # Bei zu wenig Kandidaten in einer Quote werden ungenutzte Slots
           # NICHT umverteilt - das wuerde den Reputation-Bias wiederherstellen.
-          EVAL_BUDGET   = 240   # erhöht: mehr Diversität (war 200)
-          QUOTA_REP     = 100   # reduziert: weniger Reputation-Bias (war 120)
-          QUOTA_AWESOME = 60    # erhöht: kuratierte Listen besser abdecken (war 40)
-          QUOTA_GITLAB  = 30    # erhöht: mehr EU/Sicherheitsforscher (war 20)
-          QUOTA_FRESH   = 50    # erhöht: mehr neue unbekannte Feeds (war 20)
+          EVAL_BUDGET   = 380   # erhöht: mehr Eval-Slots = mehr Annahme-Chancen (war 240)
+          QUOTA_REP     = 160   # erhöht: Reputation-Pool tiefer prüfen (war 100)
+          QUOTA_AWESOME = 100   # erhöht: kuratierte Listen breiter abdecken (war 60)
+          QUOTA_GITLAB  = 40    # leicht erhöht: nur ~37 GitLab-Kandidaten existieren (war 30)
+          QUOTA_FRESH   = 80    # erhöht: mehr frische unbekannte Feeds (war 50)
 
           def _is_awesome(meta):
               return any(s.startswith("awesome:") for s in meta.get("sources", []))
