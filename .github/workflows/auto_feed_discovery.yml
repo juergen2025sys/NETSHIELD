@@ -913,11 +913,7 @@ jobs:
               if any(t in _TOOL_TOPICS for t in topics):
                   score += 1
 
-              # Schwelle auf 2 gesenkt (war 3): aggressiver gegen Tools im
-              # Awesome/Fresh/GitLab-Pool, gibt Eval-Slots fuer echte Listen
-              # frei. Reputation-Pool umgeht diesen Filter weiterhin (nur
-              # Hard-Reject greift dort) - siehe Pool-Bildung.
-              return score >= 2
+              return score >= 3
 
           # ── Schritt 1: seen_db laden ──────────────────────────────────────
           # FIX BUG-CACHE-RESTORE: Identisch zu update_combined_blacklist.yml.
