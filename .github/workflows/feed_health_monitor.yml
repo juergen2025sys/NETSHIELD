@@ -52,7 +52,7 @@ jobs:
           load_fp_set()
 
           import pathlib
-          import urllib.request, urllib.error, time, re, json, os
+          import urllib.request, urllib.error, time, re, json, os, hashlib
           from datetime import datetime, timezone
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -162,6 +162,28 @@ jobs:
           except (ValueError, OSError) as _e:
               print(f"::warning file=feed_health_monitor.yml::feed_url_overrides.json nicht lesbar: {_e}")
 
+          # ── Sample-Fingerprint (Stale-Feed-Erkennung) ─────────────────────
+          # Hasht die SORTIERTE, geparste IP-Menge des Samples. Sortierung macht
+          # den Fingerprint ordnungs-unabhaengig: ein Feed der nur seine Zeilen
+          # umsortiert (gleiche IP-Menge) gilt NICHT als geaendert. Aenderung
+          # auch nur einer IP → anderer Fingerprint. Analog zu _ip_fingerprint
+          # in auto_feed_discovery.yml, aber hier ueber die ZEIT statt zwischen
+          # Feeds verglichen.
+          #
+          # LIMITATION (bewusst): basiert auf demselben 2-MB-Sample wie der
+          # has_ips-Check (Feld heisst nicht umsonst sample_ips). Fuer Feeds die
+          # in 2 MB passen ist der Fingerprint exakt; bei sehr grossen Feeds
+          # (>~140k IPs) ist es eine Heuristik auf dem Praefix. Bei der 14-Tage-
+          # Schwelle ist ein echt aktualisierter Grossfeed praktisch immer
+          # irgendwo in den ersten 2 MB veraendert (neue IPs / Re-Sort), daher
+          # geringe False-Positive-Gefahr. Das Flag ist ohnehin nur advisory
+          # ("moeglicherweise eingefroren"), kein Auto-Remove.
+          def _sample_fingerprint(entries):
+              if not entries:
+                  return ""   # leere Menge → kein Fingerprint (von Stale-Check ignoriert)
+              joined = "\n".join(sorted(entries))
+              return hashlib.sha1(joined.encode("utf-8")).hexdigest()[:16]
+
           def check_feed(name, url):
               t0 = time.time()
               try:
@@ -176,16 +198,21 @@ jobs:
                   # parse_entries() filtert IPv6-Tokens via _is_in_ipv6_token.
                   # Niedrige Praxis-Relevanz weil ip_count nur fuer Health-
                   # Watchdog (Boolean), nicht fuer Datenfluss in Blacklists.
-                  ip_count = len(_parse_entries(sample))
+                  entries  = _parse_entries(sample)
+                  ip_count = len(entries)
                   has_ips  = ip_count > 0
+                  fp       = _sample_fingerprint(entries)
                   return {"name": name, "url": url, "status": code, "ok": code == 200,
-                          "has_ips": has_ips, "sample_ips": ip_count, "ms": int(elapsed*1000)}
+                          "has_ips": has_ips, "sample_ips": ip_count, "ms": int(elapsed*1000),
+                          "fingerprint": fp}
               except urllib.error.HTTPError as e:
                   return {"name": name, "url": url, "status": e.code, "ok": False,
-                          "has_ips": False, "sample_ips": 0, "ms": int((time.time()-t0)*1000)}
+                          "has_ips": False, "sample_ips": 0, "ms": int((time.time()-t0)*1000),
+                          "fingerprint": ""}
               except Exception as e:
                   return {"name": name, "url": url, "status": 0, "ok": False,
-                          "has_ips": False, "sample_ips": 0, "ms": int((time.time()-t0)*1000), "err": str(e)[:80]}
+                          "has_ips": False, "sample_ips": 0, "ms": int((time.time()-t0)*1000),
+                          "fingerprint": "", "err": str(e)[:80]}
 
           results = []
           with ThreadPoolExecutor(max_workers=15) as ex:
@@ -220,6 +247,17 @@ jobs:
           # False-Positives).
           DEAD_THRESHOLD = 3
 
+          # ── Stale-Feed-Schwelle ────────────────────────────────────────────
+          # Ein Feed der HTTP 200 + IPs liefert, aber dessen IP-Menge sich
+          # STALE_THRESHOLD_DAYS Tage nicht aendert, gilt als "moeglicherweise
+          # eingefroren". Anders als Dead-Feeds (fehlende URL) ist das kein
+          # harter Fehler: kleine kuratierte Listen aendern sich legitim selten.
+          # Daher grosszuegige Schwelle + nur advisory-Flag, KEIN Auto-Remove.
+          # DataPlane-Feeds (Phase-1-Honeypot-Signal) sollten sich taeglich
+          # aendern → dort ist ein eingefrorener Stand das eigentliche Alarm-
+          # signal und wird unten als ::error:: statt ::warning:: eskaliert.
+          STALE_THRESHOLD_DAYS = 14
+
           prior_by_name = {}
           try:
               with open("feed_health_status.json") as _pf:
@@ -229,6 +267,16 @@ jobs:
                       prior_by_name[_e["name"]] = _e
           except (FileNotFoundError, ValueError, OSError):
               prior_by_name = {}   # erster Lauf / kaputte Datei → leer starten
+
+          # Helfer: now_str ("%Y-%m-%d %H:%M UTC") zurueck in datetime parsen,
+          # um Tage-Differenz fuer den Stale-Check zu rechnen. Robust gegen
+          # kaputte/alte Werte → None (Stale-Check ueberspringt den Feed dann).
+          def _parse_now_str(s):
+              try:
+                  return datetime.strptime(str(s).replace(" UTC", ""),
+                                           "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+              except (ValueError, TypeError):
+                  return None
 
           for r in results:
               prev = prior_by_name.get(r["name"], {})
@@ -240,6 +288,31 @@ jobs:
                   r["consecutive_fails"] = int(prev.get("consecutive_fails", 0)) + 1
                   r["first_failed"]      = prev.get("first_failed") or now_str
                   r["last_ok"]           = prev.get("last_ok")   # unveraendert
+
+              # ── Fingerprint-/Stale-Tracking ───────────────────────────────
+              # Nur fuer OK-Feeds MIT nicht-leerem Fingerprint. Fehlende/leere
+              # Feeds sind bereits durch dead/warn abgedeckt – sie hier zusaetz-
+              # lich als "stale" zu fuehren waere doppelt und wuerde bei einem
+              # transienten Blip die Freeze-Historie verfaelschen.
+              fp      = r.get("fingerprint", "")
+              prev_fp = prev.get("fingerprint", "")
+              if r["ok"] and fp:
+                  if prev_fp and prev_fp == fp:
+                      # Inhalt unveraendert → Startzeitpunkt der Unveraendertheit
+                      # uebernehmen und Tage-Differenz rechnen.
+                      since = prev.get("fingerprint_since") or now_str
+                      since_dt = _parse_now_str(since)
+                      r["fingerprint_since"] = since
+                      r["days_unchanged"]    = (now - since_dt).days if since_dt else 0
+                  else:
+                      # Erste Sichtung dieses Fingerprints (oder Inhalt hat sich
+                      # geaendert) → Streak zuruecksetzen.
+                      r["fingerprint_since"] = now_str
+                      r["days_unchanged"]    = 0
+              else:
+                  # Nicht-OK oder leerer Fingerprint → Stale-Check nicht anwendbar.
+                  r["fingerprint_since"] = None
+                  r["days_unchanged"]    = 0
 
           dead_feeds = [r for r in results if r["consecutive_fails"] >= DEAD_THRESHOLD]
           for r in dead_feeds:
@@ -276,6 +349,62 @@ jobs:
           _dl.append(f"*Generiert: {now_str}*")
           write_text_atomic("dead_feed_report.md", "\n".join(_dl))
           print(f"dead_feed_report.md geschrieben ({len(dead_feeds)} tote Feeds)")
+
+          # ── Stale-Feed-Erkennung (Gegenstueck zum Dead-Feed-Report) ────────
+          # Feeds die antworten + IPs liefern, deren IP-Menge sich aber
+          # STALE_THRESHOLD_DAYS Tage nicht geaendert hat. Das ist der Fall den
+          # der reine status/has_ips-Check NICHT sieht: ein "eingefrorener"
+          # Feed besteht beide Checks, haelt seine IPs aber dauerhaft auf voller
+          # Aktualitaet (days_since_last≈0) und entgeht so dem Score-Decay.
+          stale_feeds = [r for r in results
+                         if r.get("days_unchanged", 0) >= STALE_THRESHOLD_DAYS]
+          _dp_names = {n for n in FEEDS if n.startswith("dataplane_")}
+          for r in sorted(stale_feeds, key=lambda x: -x["days_unchanged"]):
+              # DataPlane-Feeds sollten sich taeglich aendern → ::error::.
+              # Alle anderen → ::warning:: (kuratierte Listen aendern sich
+              # legitim selten, daher kein harter Fehler).
+              _lvl = "error" if r["name"] in _dp_names else "warning"
+              print(f"::{_lvl} file=feed_health_monitor.yml::Stale feed [{r['name']}]: "
+                    f"IP-Menge seit {r['days_unchanged']} Tagen unveraendert "
+                    f"(seit {r['fingerprint_since']}) – moeglicherweise eingefroren. "
+                    f"Quelle/URL pruefen: {r['url']}")
+
+          # ── stale_feed_report.md schreiben ─────────────────────────────────
+          _sl = [f"# NETSHIELD – Stale-Feed-Report",
+                 f"**Aktualisiert:** {now_str}",
+                 f"**Schwelle:** IP-Menge ≥ {STALE_THRESHOLD_DAYS} Tage unveraendert",
+                 "",
+                 "Erkennt Feeds, die zwar antworten und IPs liefern, deren Inhalt "
+                 "sich aber lange nicht mehr aendert. Solche Feeds bestehen den "
+                 "Status-/has_ips-Check, halten ihre IPs aber kuenstlich auf voller "
+                 "Aktualitaet und entgehen so dem Score-Decay → Risiko veralteter "
+                 "Dauer-Blocks. Flag ist **advisory**, kein Auto-Remove.",
+                 ""]
+          if stale_feeds:
+              _sl.append(f"## ⚠️ {len(stale_feeds)} moeglicherweise eingefrorene(r) Feed(s)")
+              _sl.append("")
+              _sl.append("| Feed | Tage unveraendert | Seit | IPs (Sample) | Typ | URL |")
+              _sl.append("|---|---|---|---|---|---|")
+              for r in sorted(stale_feeds, key=lambda x: -x["days_unchanged"]):
+                  _typ = "DataPlane" if r["name"] in _dp_names else "normal"
+                  _sl.append(f"| `{r['name']}` | {r['days_unchanged']} | "
+                             f"{r['fingerprint_since']} | ~{r['sample_ips']} | {_typ} | {r['url']} |")
+              _sl.append("")
+              _sl.append("Hinweis: Kleine kuratierte Listen aendern sich legitim selten – "
+                         "ein Flag hier ist nicht automatisch ein Defekt. Bei DataPlane-Feeds "
+                         "(taegliches Honeypot-Signal) ist ein eingefrorener Stand dagegen "
+                         "ein echtes Alarmsignal. Der Fingerprint basiert auf dem 2-MB-Sample "
+                         "(wie sample_ips); bei sehr grossen Feeds ist er eine Praefix-Heuristik.")
+          else:
+              _sl.append("## ✅ Keine eingefrorenen Feeds")
+              _sl.append("")
+              _sl.append(f"Alle Feeds haben ihre IP-Menge innerhalb der letzten "
+                         f"{STALE_THRESHOLD_DAYS} Tage geaendert (oder sind noch unterhalb der Schwelle).")
+          _sl.append("")
+          _sl.append(f"*Generiert: {now_str}*")
+          write_text_atomic("stale_feed_report.md", "\n".join(_sl))
+          print(f"stale_feed_report.md geschrieben ({len(stale_feeds)} stale Feeds)")
+
 
           ok_count   = sum(1 for r in results if r["ok"] and r["has_ips"])
           warn_count = sum(1 for r in results if r["ok"] and not r["has_ips"])
@@ -389,6 +518,14 @@ jobs:
                       for r in dead_feeds
                   ],
                   "dead_threshold": DEAD_THRESHOLD,
+                  "stale_feeds": [
+                      {"name": r["name"], "url": r["url"],
+                       "days_unchanged": r["days_unchanged"],
+                       "fingerprint_since": r["fingerprint_since"],
+                       "is_dataplane": r["name"] in _dp_names}
+                      for r in sorted(stale_feeds, key=lambda x: -x["days_unchanged"])
+                  ],
+                  "stale_threshold_days": STALE_THRESHOLD_DAYS,
                   "dataplane_status": {
                       "healthy": dp_healthy,
                       "expected": len(DATAPLANE_FEEDS),
@@ -409,6 +546,7 @@ jobs:
           git add feed_health_report.md 2>/dev/null || true
           git add feed_health_status.json 2>/dev/null || true
           git add dead_feed_report.md 2>/dev/null || true
+          git add stale_feed_report.md 2>/dev/null || true
           git add feed_urls_cache.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
@@ -427,9 +565,9 @@ jobs:
               else
                 git stash pop 2>/dev/null || true
                 git checkout --theirs feed_health_report.md \
-                  feed_health_status.json feed_urls_cache.json dead_feed_report.md 2>/dev/null || true
+                  feed_health_status.json feed_urls_cache.json dead_feed_report.md stale_feed_report.md 2>/dev/null || true
                 git add feed_health_report.md \
-                  feed_health_status.json feed_urls_cache.json dead_feed_report.md 2>/dev/null || true
+                  feed_health_status.json feed_urls_cache.json dead_feed_report.md stale_feed_report.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))
