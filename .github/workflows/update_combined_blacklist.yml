@@ -246,6 +246,9 @@ jobs:
         if: steps.idempotency.outputs.already_ran != 'true'
         env:
           PYTHONUNBUFFERED: "1"
+          # FEED-MOVE-RESOLVER: Token fuer authentifizierte Git-Tree-API
+          # (5000/h statt 60/h). Wird nur bei 404-Feeds ueberhaupt genutzt.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -257,6 +260,7 @@ jobs:
               safe_get_date, parse_date, sort_ips, write_ip_list,
               write_json_atomic, write_text_atomic,
               fetch_url, check_local_feed_age,
+              resolve_github_moved_url,
               validate_auto_feeds,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -565,7 +569,17 @@ jobs:
               # "alienvault" entfernt: OTX/AlienVault laut Ausschluss-Policy deaktiviert
               "bitwire_ipblocklist":        ("https://raw.githubusercontent.com/bitwire-it/ipblocklist/refs/heads/main/inbound.txt", False),
               "littlejake_all_blacklist":   ("https://cdn.jsdelivr.net/gh/LittleJake/ip-blacklist/all_blacklist.txt", False),
-              "shadowwhisperer_hackers":    ("https://raw.githubusercontent.com/ShadowWhisperer/IPs/refs/heads/master/Malware/Hackers", False),
+              # ShadowWhisperer/IPs: Legacy-Ordner Malware/, BruteForce/, Other/
+              # werden seit dem Repo-Umbau (README: "Lists/ is the only actively
+              # maintained section") NICHT mehr aktualisiert – alte Pfade liefern
+              # weiter HTTP 200, aber eingefrorene Daten. Umgestellt auf die
+              # gepflegten Lists/-Listen. Ads/DNS/Trackers/Tunnels bewusst NICHT
+              # aufgenommen (keine Threats; DNS = legitime Resolver). Alle non-HQ
+              # (False): Community-Repo ohne verifizierten Betreiber/Scoring.
+              "shadowwhisperer_threats":      ("https://raw.githubusercontent.com/ShadowWhisperer/IPs/master/Lists/Threats", False),
+              "shadowwhisperer_threats_uncl": ("https://raw.githubusercontent.com/ShadowWhisperer/IPs/master/Lists/Threats_Unclassified", False),
+              "shadowwhisperer_scanners":     ("https://raw.githubusercontent.com/ShadowWhisperer/IPs/master/Lists/Scanners", False),
+              "shadowwhisperer_probes":       ("https://raw.githubusercontent.com/ShadowWhisperer/IPs/master/Lists/Probes", False),
               "netmountains_blocklist":     ("https://raw.githubusercontent.com/NETMOUNTAINS/Curated-IP-Blocklist/main/ip-blacklist.list", False),  # Community-Repo, kein verifizierter Betreiber
               "bluetack_blacklist":         ("https://raw.githubusercontent.com/actuallymentor/bluetack-ip-blacklist-generator/refs/heads/master/blacklist", False),
               "rtbh_output":                ("https://list.rtbh.com.tr/output.txt", False),
@@ -1043,6 +1057,21 @@ jobs:
                   raw = fetch_url(url, timeout=22, retries=3,
                                   user_agent="NETSHIELD/3.0",
                                   read_limit=READ_LIMIT)
+                  if raw is None:
+                      # FEED-MOVE-RESOLVER: Persistenter Fehler (i.d.R. 404 nach
+                      # GH-raw-Retry). Falls GitHub-raw: pruefen ob die Datei in
+                      # einen anderen Ordner verschoben wurde und einmalig unter
+                      # der neuen URL nachladen. Greift NUR im Fehlerfall – kein
+                      # Overhead im Normalbetrieb. Bei Nicht-GitHub-URLs oder
+                      # nicht auffindbarer Datei liefert der Resolver None.
+                      new_url = resolve_github_moved_url(
+                          url, token=os.environ.get("GH_TOKEN", "") or None)
+                      if new_url and new_url != url:
+                          print(f"::warning file=update_combined_blacklist.yml::"
+                                f"Feed [{name}] verschoben – nutze neue URL: {new_url}")
+                          raw = fetch_url(new_url, timeout=22, retries=3,
+                                          user_agent="NETSHIELD/3.0",
+                                          read_limit=READ_LIMIT)
                   if raw is None:
                       print(f"ERR  {name}: fetch_url returned None")
                       print(f"::warning file=update_combined_blacklist.yml::Feed fetch failed [{name}]")

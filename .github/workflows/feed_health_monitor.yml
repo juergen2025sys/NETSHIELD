@@ -186,6 +186,77 @@ jobs:
 
           results.sort(key=lambda x: (not x["ok"], x["name"]))
 
+          # ── Dead-Feed-Tracking (Consecutive-Failure ueber Laeufe) ──────────
+          # Der Monitor lief bisher nur als Momentaufnahme. Hier wird der
+          # vorherige feed_health_status.json gelesen und pro Feed ein
+          # consecutive_fails-Zaehler gepflegt: failt der Feed → prev+1, sonst
+          # → 0. Ab DEAD_THRESHOLD aufeinanderfolgenden Fehl-Laeufen gilt ein
+          # Feed als "tot" (Quelle hat die Datei wohl verschoben/entfernt und
+          # KEINEN Redirect gesetzt → bei Nicht-GitHub-Quellen nicht automatisch
+          # auffindbar, braucht manuellen Fix). Daily-Cron → 3 Laeufe = 3 Tage.
+          # Feeds die in einem Lauf nicht geprueft wurden (Timeout) erscheinen
+          # nicht in results → ihr Zaehler wird diesen Lauf weder erhoeht noch
+          # zurueckgesetzt (konservativ: verzoegert Erkennung, erzeugt keine
+          # False-Positives).
+          DEAD_THRESHOLD = 3
+
+          prior_by_name = {}
+          try:
+              with open("feed_health_status.json") as _pf:
+                  _prior = json.load(_pf)
+              for _e in _prior.get("feeds", []):
+                  if isinstance(_e, dict) and "name" in _e:
+                      prior_by_name[_e["name"]] = _e
+          except (FileNotFoundError, ValueError, OSError):
+              prior_by_name = {}   # erster Lauf / kaputte Datei → leer starten
+
+          for r in results:
+              prev = prior_by_name.get(r["name"], {})
+              if r["ok"]:
+                  r["consecutive_fails"] = 0
+                  r["first_failed"]      = None
+                  r["last_ok"]           = now_str
+              else:
+                  r["consecutive_fails"] = int(prev.get("consecutive_fails", 0)) + 1
+                  r["first_failed"]      = prev.get("first_failed") or now_str
+                  r["last_ok"]           = prev.get("last_ok")   # unveraendert
+
+          dead_feeds = [r for r in results if r["consecutive_fails"] >= DEAD_THRESHOLD]
+          for r in dead_feeds:
+              # ::error:: damit es im Actions-Log nicht im Rauschen untergeht.
+              print(f"::error file=feed_health_monitor.yml::Dead feed [{r['name']}]: "
+                    f"{r['consecutive_fails']} Laeufe in Folge fehlgeschlagen "
+                    f"(seit {r['first_failed']}, zuletzt HTTP {r['status']}) – "
+                    f"URL pruefen/aktualisieren: {r['url']}")
+
+          # ── dead_feed_report.md schreiben ──────────────────────────────────
+          _dl = [f"# NETSHIELD – Dead-Feed-Report",
+                 f"**Aktualisiert:** {now_str}",
+                 f"**Schwelle:** {DEAD_THRESHOLD} Fehl-Laeufe in Folge (Daily-Cron → {DEAD_THRESHOLD} Tage)",
+                 ""]
+          if dead_feeds:
+              _dl.append(f"## ❌ {len(dead_feeds)} tote Feed(s) – manueller Fix noetig")
+              _dl.append("")
+              _dl.append("| Feed | Fehl-Laeufe | Seit | Letzter Status | URL |")
+              _dl.append("|---|---|---|---|---|")
+              for r in sorted(dead_feeds, key=lambda x: -x["consecutive_fails"]):
+                  _status = r["status"] if r["status"] else (r.get("err", "Fehler"))
+                  _dl.append(f"| `{r['name']}` | {r['consecutive_fails']} | "
+                             f"{r['first_failed']} | {_status} | {r['url']} |")
+              _dl.append("")
+              _dl.append("Hinweis: GitHub-raw-Feeds werden bei einem 404 zusaetzlich vom "
+                         "Move-Resolver automatisch im Repo gesucht. Steht ein Feed hier, "
+                         "ist die Datei dort entweder weg oder die Quelle ist keine "
+                         "GitHub-raw-URL (Webseite) – dann hilft nur eine neue URL.")
+          else:
+              _dl.append("## ✅ Keine toten Feeds")
+              _dl.append("")
+              _dl.append("Alle geprueften Feeds antworten oder sind unterhalb der Schwelle.")
+          _dl.append("")
+          _dl.append(f"*Generiert: {now_str}*")
+          write_text_atomic("dead_feed_report.md", "\n".join(_dl))
+          print(f"dead_feed_report.md geschrieben ({len(dead_feeds)} tote Feeds)")
+
           ok_count   = sum(1 for r in results if r["ok"] and r["has_ips"])
           warn_count = sum(1 for r in results if r["ok"] and not r["has_ips"])
           err_count  = sum(1 for r in results if not r["ok"])
@@ -290,6 +361,14 @@ jobs:
                   "summary": {"ok": ok_count, "warn": warn_count, "error": err_count},
                   "failed_feeds": failed_feeds,
                   "warned_feeds": warned_feeds,
+                  "dead_feeds": [
+                      {"name": r["name"], "url": r["url"],
+                       "consecutive_fails": r["consecutive_fails"],
+                       "first_failed": r["first_failed"],
+                       "status": r["status"]}
+                      for r in dead_feeds
+                  ],
+                  "dead_threshold": DEAD_THRESHOLD,
                   "dataplane_status": {
                       "healthy": dp_healthy,
                       "expected": len(DATAPLANE_FEEDS),
@@ -309,6 +388,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add feed_health_report.md 2>/dev/null || true
           git add feed_health_status.json 2>/dev/null || true
+          git add dead_feed_report.md 2>/dev/null || true
           git add feed_urls_cache.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
@@ -327,9 +407,9 @@ jobs:
               else
                 git stash pop 2>/dev/null || true
                 git checkout --theirs feed_health_report.md \
-                  feed_health_status.json feed_urls_cache.json 2>/dev/null || true
+                  feed_health_status.json feed_urls_cache.json dead_feed_report.md 2>/dev/null || true
                 git add feed_health_report.md \
-                  feed_health_status.json feed_urls_cache.json 2>/dev/null || true
+                  feed_health_status.json feed_urls_cache.json dead_feed_report.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))
