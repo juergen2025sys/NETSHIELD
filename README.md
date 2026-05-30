@@ -1,27 +1,19 @@
 
 
+<img src=".github/assets/banner.svg" alt="NETSHIELD — Automated Threat Intelligence" width="100%">
 
+<br><br>
 
+![Status](https://img.shields.io/badge/status-active-2dd4bf?style=for-the-badge&labelColor=0d1626)
+![Update](https://img.shields.io/badge/update-8%C3%97%20daily-38bdf8?style=for-the-badge&labelColor=0d1626)
+![Retention](https://img.shields.io/badge/retention-180%20days-f59e0b?style=for-the-badge&labelColor=0d1626)
+![Sources](https://img.shields.io/badge/sources-120%2B%20dynamisch-8957e5?style=for-the-badge&labelColor=0d1626)
+![Coverage](https://img.shields.io/badge/coverage-250%2B%20countries-0a7ea4?style=for-the-badge&labelColor=0d1626)
 
-
-# 🛡️ NETSHIELD
-
-**Automatisiertes IP-Threat-Intelligence-System mit dynamischer Blacklist-Verwaltung.**
-
-<br>
-
-![Status](https://img.shields.io/badge/status-active-success?style=flat-square)
-![Update](https://img.shields.io/badge/update-8%C3%97%20daily-blue?style=flat-square)
-![Retention](https://img.shields.io/badge/retention-180%20days-orange?style=flat-square)
-![Sources](https://img.shields.io/badge/sources-124-purple?style=flat-square)
-![Coverage](https://img.shields.io/badge/coverage-250%2B%20countries-teal?style=flat-square)
-
-<br>
-
-[![Update Combined](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml)
-[![Feed Health](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml)
-[![Confidence Blacklist](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml)
-[![False Positive Checker](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml/badge.svg)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml)
+[![Combined](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/update_combined_blacklist.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=Combined&labelColor=0d1626)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml)
+[![Feed Health](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/feed_health_monitor.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=Feed%20Health&labelColor=0d1626)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml)
+[![Confidence](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/update_confidence_blacklist.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=Confidence&labelColor=0d1626)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml)
+[![False Positive](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/false_positive_checker.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=False%20Positive&labelColor=0d1626)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml)
 
 <br>
 
@@ -37,11 +29,11 @@
 <table>
 <tr>
 <td align="center" valign="top" width="25%">
-<h3>156</h3>
+<h3>120+</h3>
 <sub>IP-Quellen<br>(dynamisch)</sub>
 </td>
 <td align="center" valign="top" width="25%">
-<h3>415,417</h3>
+<h3>417,945</h3>
 <sub>Aktive IP-Drohungen<br>(Confidence ≥65)</sub>
 </td>
 <td align="center" valign="top" width="25%">
@@ -60,7 +52,7 @@
 <table>
 <tr>
 <td><strong>🕒 Letztes Update</strong></td>
-<td>2026-05-30 14:12 UTC</td>
+<td>2026-05-30 17:35 UTC</td>
 <td><strong>🔄 Intervall</strong></td>
 <td>8× täglich</td>
 </tr>
@@ -68,7 +60,7 @@
 <td><strong>📅 IP-Retention</strong></td>
 <td>180 Tage</td>
 <td><strong>⚙️ Aktive Workflows</strong></td>
-<td>23</td>
+<td>20+</td>
 </tr>
 <tr>
 <td><strong>🌍 Abdeckung</strong></td>
@@ -77,58 +69,25 @@
 </table>
 <!-- META_TABLE_END -->
 
-> NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus über 120 Quellen: 98 öffentliche Remote-Feeds, 5 lokale Sub-Workflow-Feeds (CVE, Honeypot, HoneyDB, Bot-Detector, AbuseIPDB API) und ~18 automatisch entdeckte GitHub-Feeds. Das System unterscheidet aktive Bedrohungen von veralteten statischen Listen und liefert daraus qualitativ hochwertige Blocklisten für OPNsense, pfSense und iptables.
+> NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus **über 120 Quellen** (dynamisch, wächst laufend durch Auto-Discovery): rund 100 öffentliche Remote-Feeds, 5 lokale Sub-Workflow-Feeds (CVE, Honeypot, HoneyDB, Bot-Detector, AbuseIPDB API) und laufend neu per GitHub-Discovery entdeckte Feeds. Das System unterscheidet aktive Bedrohungen von veralteten statischen Listen und liefert daraus qualitativ hochwertige Blocklisten für OPNsense, pfSense und iptables.
 
 ---
 
-## ⚡ Quick Start — OPNsense Alias
-
-**Firewall → Aliases → URL Table (Type: URL Table (IPs)):**
-
-1. Neuen URL Alias erstellen
-2. Listen-URL einfügen
-3. Intervall auf `Täglich` setzen
-4. Regeln anwenden
-
-```bash
-# ✅ Empfohlen – aktive Bedrohungen (Score ≥65, letzte 30 Tage)
-https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt
-
-# 🔍 Größere Abdeckung (Score ≥40)
-https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt
-
-# 👁️ Nur Monitoring (Score 25–39)
-https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/watchlist_confidence25to39_ipv4.txt
-```
-
-<details>
-<summary><strong>🐧 iptables / ipset</strong></summary>
-
-```bash
-ipset create netshield hash:ip
-curl -s https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt \
-  | grep -v '^#' | xargs -I{} ipset add netshield {}
-iptables -I INPUT -m set --match-set netshield src -j DROP
-```
-
-</details>
-
----
 
 ## 📋 Blocklisten
 
 | Datei | Zweck | Einträge | Empfohlen für |
 |---|---|---:|---|
-| 🛡️ [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen · letzte 30 Tage · Score ≥ 65 | **415,417**                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | OPNsense / pfSense / Firewall |
-| 🔶 [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres bis hohes Vertrauen · Score ≥ 40 | **4,551,551**                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Erweiterte Filterregeln |
-| 📦 [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs · 180-Tage-Fenster | **5,821,135**                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Audit / SIEM |
-| 👁️ [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist · Score 25–39 | **169,013**                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Monitoring |
-| 💣 [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploits & aktive C2-Server | **36,177**                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | IDS / IPS |
-| 🍯 [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **107,869**                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Ergänzung |
-| 🍯 [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **21,298**                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Ergänzung |
-| 🤖 [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **17,949**                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Web-Schutz |
-| 🔗 [`abuseipdb_api_blacklist.txt`](abuseipdb_api_blacklist.txt) | AbuseIPDB Top-IPs (API, Score ≥50) | **9,971**                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Ergänzung |
-| 🌐 [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥ 50 | **19**                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | ASN-Blocking |
+| 🛡️ [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen · letzte 30 Tage · Score ≥ 65 | **417,945** | OPNsense / pfSense / Firewall |
+| 🔶 [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres bis hohes Vertrauen · Score ≥ 40 | **4,553,689** | Erweiterte Filterregeln |
+| 📦 [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs · 180-Tage-Fenster | **5,824,129** | Audit / SIEM |
+| 👁️ [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist · Score 25–39 | **169,229** | Monitoring |
+| 💣 [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploits & aktive C2-Server | **36,177** | IDS / IPS |
+| 🍯 [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **107,869** | Ergänzung |
+| 🍯 [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **22,954** | Ergänzung |
+| 🤖 [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **17,949** | Web-Schutz |
+| 🔗 [`abuseipdb_api_blacklist.txt`](abuseipdb_api_blacklist.txt) | AbuseIPDB Top-IPs (API, Score ≥50) | **9,979** | Ergänzung |
+| 🌐 [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥ 50 | **19** | ASN-Blocking |
 
 > [!NOTE]
 > **`combined_threat_blacklist_ipv4.txt`:** Wenn die Datei über 90 MB wächst, werden zusätzlich Parts `combined_threat_blacklist_ipv4_part1.txt`, `_part2.txt` (etc.) mit je ca. 40 MB erzeugt. Die Hauptdatei bleibt bestehen, solange sie unter 100 MB ist (GitHub-Limit). Firewall-Konsumenten, die am GitHub-Limit angestoßen werden, sollten stattdessen die Parts als separate URLs importieren.
@@ -178,7 +137,7 @@ Score = Quellen-Qualität (40) + Aktualität (30) + Persistenz (20) + Bekannt se
 ## 🏗️ Architektur
 
 ```
-121 Quellen (98 Remote + 5 Lokal + ~18 Auto-Discovered)
+~120 Quellen · dynamisch (Remote + Lokal + Auto-Discovered)
         │
         ▼
 ┌─────────────────────────────────────────────┐
@@ -334,7 +293,7 @@ NETSHIELD bezieht Daten aus folgenden Kategorien:
 | Brute-Force-Listen | CrowdSec, danger.rulez.sk, blocklist.de/ssh | ✅ |
 
 > [!IMPORTANT]
-> **HQ-Feeds** (49 von 98 Remote-Quellen) bestimmen die Lebenszeit einer IP. Non-HQ-Feeds erhöhen den Confidence-Score, können IPs aber nicht am Leben halten.
+> **HQ-Feeds** (rund die Hälfte aller Remote-Quellen) bestimmen die Lebenszeit einer IP. Non-HQ-Feeds erhöhen den Confidence-Score, können IPs aber nicht am Leben halten.
 
 ---
 
@@ -345,7 +304,7 @@ NETSHIELD bezieht Daten aus folgenden Kategorien:
 
 ```
 NETSHIELD/
-├── .github/workflows/                   # 16 GitHub Actions Workflows
+├── .github/workflows/                   # GitHub Actions Workflows
 ├── continents/                          # IPv4-Ranges pro Kontinent
 ├── countries/                           # IPv4-Ranges pro Land
 │   ├── africa/ · asia/ · europe/
@@ -398,3 +357,4 @@ NETSHIELD/
 <sub>[⬆ Nach oben](#-netshield)</sub>
 
 </div>
+
