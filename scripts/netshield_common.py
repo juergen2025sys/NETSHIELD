@@ -1015,7 +1015,7 @@ _PIN_ABSENT = object()
 
 
 def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
-              read_limit=25 * 1024 * 1024):
+              read_limit=25 * 1024 * 1024, extra_headers=None):
     """Fetcht eine URL mit exponentiellem Backoff.
 
     Sicherheit:
@@ -1096,7 +1096,13 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
     try:
         for attempt in range(1, retries + 1):
             try:
-                req = urllib.request.Request(url, headers={"User-Agent": user_agent})
+                _req_headers = {"User-Agent": user_agent}
+                # FEED-MOVE-RESOLVER: optionale Zusatz-Header (z.B.
+                # Authorization fuer die GitHub-API). User-Agent bleibt
+                # gesetzt, extra_headers koennen ihn bei Bedarf ueberschreiben.
+                if extra_headers:
+                    _req_headers.update(extra_headers)
+                req = urllib.request.Request(url, headers=_req_headers)
                 opener = urllib.request.build_opener(_SafeRedirect())
                 with opener.open(req, timeout=timeout) as r:
                     # FIX READ-LIMIT: +1 Byte mehr lesen um Truncation zu erkennen.
@@ -1181,6 +1187,198 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
         # (LIFO), damit verschachtelte Pins korrekt aufgeloest werden.
         for h, previous in reversed(pinned_hosts):
             _restore_pin(h, previous)
+
+
+# ═══════════════════════════════════════════════════════════════
+# Feed-Move-Resolver (GitHub)
+# ═══════════════════════════════════════════════════════════════
+
+# Cache je Prozess-Run: (owner, repo, ref, basename) → neue raw-URL | None.
+# Verhindert wiederholte Git-Tree-API-Abfragen, wenn mehrere Feeds aus
+# demselben Repo im selben Run 404en. None wird ebenfalls gecacht
+# ("nicht auffindbar"), damit nicht pro Feed erneut angefragt wird.
+_GH_MOVE_CACHE = {}
+
+
+def _parse_github_raw_url(url):
+    """Zerlegt eine raw.githubusercontent.com-URL in ihre Bestandteile.
+
+    Unterstuetzt beide Ref-Formen:
+      .../{owner}/{repo}/{branch_or_sha}/{path...}
+      .../{owner}/{repo}/refs/heads/{branch}/{path...}   (auch refs/tags)
+
+    Returns:
+        dict mit owner, repo, ref (Branch/SHA fuer die API), ref_prefix
+        (Segmentliste zur URL-Rekonstruktion) und basename – oder None,
+        wenn es keine parsebare GitHub-raw-URL ist.
+    """
+    import urllib.parse
+    parsed = urllib.parse.urlparse(url)
+    if parsed.hostname != "raw.githubusercontent.com":
+        return None
+    segs = [s for s in parsed.path.split("/") if s]
+    if len(segs) < 4:
+        return None
+    owner, repo = segs[0], segs[1]
+    rest = segs[2:]
+    if len(rest) >= 4 and rest[0] == "refs" and rest[1] in ("heads", "tags"):
+        ref_prefix = rest[:3]
+        ref = rest[2]
+        file_segs = rest[3:]
+    else:
+        ref_prefix = rest[:1]
+        ref = rest[0]
+        file_segs = rest[1:]
+    if not file_segs:
+        return None
+    return {
+        "owner": owner,
+        "repo": repo,
+        "ref": ref,
+        "ref_prefix": ref_prefix,
+        "file_segs": file_segs,
+        "file_path": "/".join(file_segs),
+        "basename": file_segs[-1],
+    }
+
+
+def resolve_github_moved_url(url, token=None, timeout=20):
+    """Lokalisiert eine in einen anderen Ordner verschobene GitHub-raw-Datei neu.
+
+    Aufrufen NUR nachdem fetch_url(url) None zurueckgab. fetch_url liefert
+    bei JEDEM Fehler None (404, Timeout, 429/5xx, SSRF-Block, gzip-Abbruch),
+    nicht nur bei "Datei verschoben". Diese Funktion unterscheidet das selbst:
+
+      1. 404-Gate: per Contents-API pruefen, ob die EXAKTE Originaldatei noch
+         existiert. Existiert sie (= der fetch-Fehler war transient, kein
+         Move) → None, KEIN teurer Tree-Walk. Nur bei echtem 404 weiter.
+      2. Tree-Walk: Git-Tree-API laden, Kandidaten mit gleichem Basename
+         sammeln und per Longest-Common-Suffix zum Originalpfad ranken.
+         Eindeutiges Maximum → neue raw-URL. Sonst (0 Kandidaten oder
+         Gleichstand an der Spitze) → None + Warnung (kein Raten: ein
+         falscher Treffer koennte falsche IPs in die Blacklist ziehen).
+
+    Sicherheit:
+        - Nur fuer raw.githubusercontent.com (sonst None, kein API-Call).
+        - Nutzt fetch_url (SSRF-/Redirect-/DNS-Rebind-Schutz) fuer API-Calls;
+          token (falls vorhanden) als Authorization-Header (5000/h statt 60/h).
+        - Ergebnis (auch None) wird pro Run gecacht.
+
+    Returns:
+        str (neue raw-URL) | None.
+    """
+    import json as _json
+    import urllib.parse as _uparse
+
+    info = _parse_github_raw_url(url)
+    if info is None:
+        return None
+
+    cache_key = (info["owner"], info["repo"], info["ref"], info["file_path"])
+    if cache_key in _GH_MOVE_CACHE:
+        return _GH_MOVE_CACHE[cache_key]
+
+    headers = {"Accept": "application/vnd.github+json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+
+    # ── 1. 404-Gate: existiert die exakte Originaldatei noch? ──────────
+    # Contents-API auf genau diesen Pfad ist billig (nur Metadaten, kein
+    # rekursiver Tree). 200 → Datei da, fetch-Fehler war transient → NICHT
+    # relocaten. 404 → wirklich weg → Tree-Walk. Andere Codes (Rate-Limit
+    # etc.): fetch_url gibt None → konservativ NICHT relocaten.
+    contents_url = (f"https://api.github.com/repos/{info['owner']}/{info['repo']}"
+                    f"/contents/{_uparse.quote(info['file_path'])}"
+                    f"?ref={_uparse.quote(info['ref'])}")
+    probe = fetch_url(contents_url, timeout=timeout, retries=1,
+                      user_agent="NETSHIELD/3.0",
+                      read_limit=2 * 1024 * 1024,
+                      extra_headers=headers)
+    if probe is not None:
+        # Datei existiert weiterhin → der urspruengliche Fehler war
+        # transient (Timeout/5xx/Rate-Limit). Kein Move → kein Relocate.
+        print(f"  MOVE-RESOLVER: '{info['file_path']}' existiert noch "
+              f"({info['owner']}/{info['repo']}) – transienter Fehler, "
+              f"kein Relocate")
+        _GH_MOVE_CACHE[cache_key] = None
+        return None
+
+    # ── 2. Tree-Walk: Datei am neuen Ort suchen ────────────────────────
+    api_url = (f"https://api.github.com/repos/{info['owner']}/{info['repo']}"
+               f"/git/trees/{_uparse.quote(info['ref'])}?recursive=1")
+    raw = fetch_url(api_url, timeout=timeout, retries=2,
+                    user_agent="NETSHIELD/3.0",
+                    read_limit=20 * 1024 * 1024,
+                    extra_headers=headers)
+    if raw is None:
+        print(f"  MOVE-RESOLVER: Tree-API nicht erreichbar fuer "
+              f"{info['owner']}/{info['repo']}@{info['ref']}")
+        _GH_MOVE_CACHE[cache_key] = None
+        return None
+
+    try:
+        tree_data = _json.loads(raw)
+    except (ValueError, TypeError) as e:
+        print(f"  MOVE-RESOLVER: Tree-JSON nicht parsebar: {e}")
+        _GH_MOVE_CACHE[cache_key] = None
+        return None
+
+    tree = tree_data.get("tree", [])
+    target = info["basename"]
+    orig_segs = info["file_segs"]
+
+    def _suffix_score(cand_path):
+        """Anzahl uebereinstimmender Pfad-Segmente von hinten (inkl. Basename)."""
+        cand_segs = cand_path.split("/")
+        score = 0
+        for a, b in zip(reversed(orig_segs), reversed(cand_segs)):
+            if a == b:
+                score += 1
+            else:
+                break
+        return score
+
+    candidates = [
+        node["path"] for node in tree
+        if node.get("type") == "blob"
+        and isinstance(node.get("path"), str)
+        and node["path"].rsplit("/", 1)[-1] == target
+    ]
+
+    if not candidates:
+        if tree_data.get("truncated"):
+            print(f"  MOVE-RESOLVER: '{target}' nicht gefunden und Tree "
+                  f"truncated ({info['owner']}/{info['repo']}) – evtl. unvollstaendig")
+        else:
+            print(f"  MOVE-RESOLVER: '{target}' im Repo "
+                  f"{info['owner']}/{info['repo']} nicht mehr vorhanden")
+        _GH_MOVE_CACHE[cache_key] = None
+        return None
+
+    # Longest-Common-Suffix-Ranking: der Kandidat, dessen Pfad dem
+    # Original am aehnlichsten ist, gewinnt. Behebt das Basename-Duplikat-
+    # Problem (z.B. Legacy Other/Scanners vs. Lists/Scanners): der Pfad mit
+    # mehr uebereinstimmenden Trailing-Segmenten ist eindeutig der richtige.
+    scored = [(_suffix_score(p), p) for p in candidates]
+    top_score = max(s for s, _ in scored)
+    top = sorted(p for s, p in scored if s == top_score)
+
+    if len(top) > 1:
+        print(f"  MOVE-RESOLVER: '{target}' mehrdeutig in "
+              f"{info['owner']}/{info['repo']} – {len(top)} Pfade mit "
+              f"gleichem Suffix-Score {top_score}: {', '.join(top[:5])} "
+              f"– kein Auto-Match (FP-Schutz)")
+        _GH_MOVE_CACHE[cache_key] = None
+        return None
+
+    new_path = top[0]
+    new_url = (f"https://raw.githubusercontent.com/{info['owner']}/"
+               f"{info['repo']}/" + "/".join(info["ref_prefix"]) +
+               "/" + new_path)
+    print(f"  MOVE-RESOLVER: '{info['file_path']}' verschoben → {new_path} "
+          f"({info['owner']}/{info['repo']}, Suffix-Score {top_score})")
+    _GH_MOVE_CACHE[cache_key] = new_url
+    return new_url
 
 
 # ═══════════════════════════════════════════════════════════════
