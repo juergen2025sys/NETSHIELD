@@ -2,20 +2,15 @@
 
 <img src=".github/assets/banner.svg" alt="NETSHIELD — Automated Threat Intelligence" width="100%">
 
-<br><br>
-
-![Status](https://img.shields.io/badge/status-active-2dd4bf?style=for-the-badge&labelColor=0d1626)
-![Update](https://img.shields.io/badge/update-8%C3%97%20daily-38bdf8?style=for-the-badge&labelColor=0d1626)
-![Retention](https://img.shields.io/badge/retention-180%20days-f59e0b?style=for-the-badge&labelColor=0d1626)
-![Sources](https://img.shields.io/badge/sources-120%2B%20dynamisch-8957e5?style=for-the-badge&labelColor=0d1626)
-![Coverage](https://img.shields.io/badge/coverage-250%2B%20countries-0a7ea4?style=for-the-badge&labelColor=0d1626)
-
-[![Combined](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/update_combined_blacklist.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=Combined&labelColor=0d1626)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml)
-[![Feed Health](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/feed_health_monitor.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=Feed%20Health&labelColor=0d1626)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml)
-[![Confidence](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/update_confidence_blacklist.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=Confidence&labelColor=0d1626)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml)
-[![False Positive](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/false_positive_checker.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=False%20Positive&labelColor=0d1626)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml)
-
 <br>
+
+[![Combined](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/update_combined_blacklist.yml?style=flat-square&logo=githubactions&logoColor=white&label=Combined&labelColor=0d1626)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml)
+&nbsp;
+[![Feed Health](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/feed_health_monitor.yml?style=flat-square&logo=githubactions&logoColor=white&label=Feed%20Health&labelColor=0d1626)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml)
+&nbsp;
+[![Confidence](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/update_confidence_blacklist.yml?style=flat-square&logo=githubactions&logoColor=white&label=Confidence&labelColor=0d1626)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml)
+&nbsp;
+[![False Positive](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/false_positive_checker.yml?style=flat-square&logo=githubactions&logoColor=white&label=False%20Positive&labelColor=0d1626)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml)
 
 [**⚡ Quick Start**](#-quick-start--opnsense-alias) · [**📊 Blocklisten**](#-blocklisten) · [**🎯 Scoring**](#-wie-funktioniert-die-bewertung) · [**🏗️ Architektur**](#%EF%B8%8F-architektur) · [**⚙️ Workflows**](#%EF%B8%8F-workflows) · [**📡 Feeds**](#-feed-quellen)
 
@@ -357,4 +352,3 @@ NETSHIELD/
 <sub>[⬆ Nach oben](#-netshield)</sub>
 
 </div>
-
