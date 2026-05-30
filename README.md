@@ -80,39 +80,8 @@
 
 ---
 
-## ⚡ Quick Start — OPNsense Alias
 
-**Firewall → Aliases → URL Table (Type: URL Table (IPs)):**
 
-1. Neuen URL Alias erstellen
-2. Listen-URL einfügen
-3. Intervall auf `Täglich` setzen
-4. Regeln anwenden
-
-```bash
-# ✅ Empfohlen – aktive Bedrohungen (Score ≥65, letzte 30 Tage)
-https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt
-
-# 🔍 Größere Abdeckung (Score ≥40)
-https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/blacklist_confidence40_ipv4.txt
-
-# 👁️ Nur Monitoring (Score 25–39)
-https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/watchlist_confidence25to39_ipv4.txt
-```
-
-<details>
-<summary><strong>🐧 iptables / ipset</strong></summary>
-
-```bash
-ipset create netshield hash:ip
-curl -s https://raw.githubusercontent.com/juergen2025sys/NETSHIELD/main/active_blacklist_ipv4.txt \
-  | grep -v '^#' | xargs -I{} ipset add netshield {}
-iptables -I INPUT -m set --match-set netshield src -j DROP
-```
-
-</details>
-
----
 
 ## 📋 Blocklisten
 
