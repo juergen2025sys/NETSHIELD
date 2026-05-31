@@ -1,5 +1,5 @@
 # HoneyDB Monitor – Report
-**Aktualisiert:** 2026-05-31 21:14 UTC  
+**Aktualisiert:** 2026-05-31 22:15 UTC  
 **Modus:** `LIGHT` (nur /bad-hosts, merged mit existing)  
 **Quelle:** [honeydb.io](https://honeydb.io) – Community Honeypot Network
 
@@ -8,17 +8,17 @@
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **9,998** |
+| Bad Hosts (24h, alle Dienste) | **9,897** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt HoneyDB-IPs | **16,529** |
-| Neu | **+535** |
+| Gesamt HoneyDB-IPs | **16,881** |
+| Neu | **+352** |
 | Entfernt | **-0** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-05-31 21:14 UTC*
+*Generiert: 2026-05-31 22:15 UTC*
