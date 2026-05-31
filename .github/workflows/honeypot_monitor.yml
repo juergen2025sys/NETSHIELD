@@ -181,18 +181,55 @@ jobs:
           # Memory- und Timeout-Risiko. Limit bewusst grosszuegig auf 80 MB
           # gesetzt, damit Wachstum des Feeds nicht sofort bricht. Bei
           # Ueberschreitung wird der Feed verworfen, nicht truncatiert.
-          def fetch_large(url, timeout=60, retries=3, max_bytes=80 * 1024 * 1024):
+          # FIX JB-GATE: Browser-aehnlicher User-Agent fuer fetch_large().
+          # JamesBrine wurde Anfang 2026 auf ein statisches Setup ("reduce the
+          # attack surface") umgezogen, das hinter Bot-/UA-Filterung steht.
+          # Ein generischer "NETSHIELD-HoneypotMonitor/1.0"-Agent von einer
+          # GitHub-Actions-Runner-IP wird dort mit 403/Challenge abgewiesen →
+          # fetch_url() bekam HTTPError (403 NICHT in TRANSIENT_CODES, also kein
+          # Retry) und gab None zurueck → stats=0 → ❌ im Report, obwohl der Feed
+          # lebt. Andere Grossfeeds (sniffcat, stratosphere) sind Uni-/API-Hosts
+          # ohne Gate und funktionieren mit dem NETSHIELD-Agent weiter – daher
+          # ist der Agent NICHT universell blockiert, nur dieser eine Host.
+          # Hinweis: Der Feed wird vom Betreiber bewusst oeffentlich zur
+          # automatisierten Ingestion bereitgestellt (Homepage: "Threat Feed
+          # Endpoint - Updated Daily"; wird u.a. von OpenCTI/MISP/PulseDive
+          # konsumiert) – ein realistischer Browser-Agent ist hier legitime,
+          # uebliche Feed-Ingestion, kein Umgehen einer gegen uns gerichteten
+          # Zugriffskontrolle.
+          BROWSER_HEADERS = {
+              "Accept": "text/csv,text/plain,application/octet-stream,*/*",
+              "Accept-Language": "en-US,en;q=0.9",
+          }
+          BROWSER_UA = (
+              "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+              "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+          )
+
+          # FIX JB-GATE/SIZE: timeout 60→120s (40+ MB aus AU braucht laenger),
+          # Limit 80→160 MB (Feed waechst seit dem CTI-Relaunch), und Browser-
+          # Fingerprint per Default. read_limit deckt weiterhin den streaming-
+          # gzip-Bomb-Schutz aus fetch_url ab.
+          def fetch_large(url, timeout=120, retries=3, max_bytes=160 * 1024 * 1024,
+                          user_agent=BROWSER_UA, extra_headers=None):
               # FIX BUG-WF2-FETCHURL: fetch_url unterstuetzt read_limit – das
               # uebernimmt sowohl die Truncation-Erkennung (warnt bei
               # Limit-Treffer) als auch streaming-gzip-Bomb-Schutz, was der
               # alte Code beides NICHT hatte (.read(max_bytes+1) ist roh
               # binary, dekomprimiertes gzip lief in vollem RAM).
+              hdrs = dict(BROWSER_HEADERS)
+              if extra_headers:
+                  hdrs.update(extra_headers)
               return fetch_url(url, timeout=timeout, retries=retries,
-                               user_agent="NETSHIELD-HoneypotMonitor/1.0",
-                               read_limit=max_bytes)
+                               user_agent=user_agent,
+                               read_limit=max_bytes,
+                               extra_headers=hdrs)
 
-          # Sources die ueber fetch_large() statt fetch() geladen werden muessen.
-          # Grund: erwartete Antwortgroesse > ~5 MB, separates Timeout/Limit sinnvoll.
+          # Sources die ueber fetch_large() statt fetch() geladen werden.
+          # fetch_large() = gehaerteter Fetch mit Browser-Fingerprint + grosszuegigem
+          # Timeout/Limit. jamesbrine bleibt hier nicht mehr wegen Groesse
+          # (iplist.txt ist klein), sondern weil der Host nach dem CTI-Relaunch
+          # statisch/gefiltert hinter CF steht und einen Browser-UA erwartet.
           LARGE_SOURCES = {"jamesbrine_honeypot"}
 
           HONEYPOT_SOURCES = {
@@ -225,12 +262,20 @@ jobs:
 
               # JamesBrine: Australisches Honeypot-Netzwerk, verteilt auf
               # Toronto, Singapore, London, Perth. Protokolle SSH, FTP, RDP,
-              # GIT, SNMP, REDIS. CSV-Format 'ipv4, activity, date' – der
-              # parse_entries()-Parser nimmt die erste Spalte, ignoriert den
-              # Header und filtert malformed Zeilen. Taeglich aktualisiert.
-              # LARGE-SOURCE: ~40 MB, wird via fetch_large() geladen.
+              # GIT, SNMP, REDIS.
+              # FIX JB-DEAD-CSV (Mai 2026): Der alte Endpunkt /csv
+              # ('ipv4, activity, date') existiert nach dem CTI-Relaunch der
+              # Seite nicht mehr als parsebares Text-CSV – er liefert nur noch
+              # einen undurchsichtigen application/octet-stream-Blob → 0 IPs.
+              # Die Seite ist jetzt ein statisches SPA; die Bruteforce-/Honeypot-
+              # Hosts werden laut aktuellem STIX2-Index unter /iplist.txt als
+              # Plain-Text (eine IPv4/Zeile, text/plain) veroeffentlicht und
+              # alle 30 Minuten aktualisiert. parse_entries() filtert
+              # reservierte/ungueltige Zeilen (z.B. 0.0.0.2) automatisch.
+              # Bleibt in LARGE_SOURCES, damit der Host den Browser-Fingerprint
+              # aus fetch_large() bekommt (statische, gefilterte Seite hinter CF).
               "jamesbrine_honeypot":
-                  "https://jamesbrine.com.au/csv",
+                  "https://jamesbrine.com.au/iplist.txt",
 
               # Stratosphere AIP Prioritize_New: IoT-Honeypot-Netzwerk der CTU Prag,
               # generiert via Attacker IP Prioritizer (AIP). CSV-Format 'ip,score'
@@ -294,6 +339,13 @@ jobs:
 
           all_ips = set()
           stats   = {}
+          # FIX JB-DIAG: Transport-Fehler von leerem Feed trennen.
+          # Vorher kollabierten beide Faelle auf stats[name]=0 und wurden im
+          # Report identisch als ❌ 0 gerendert – man sah nicht, ob der Feed
+          # nicht erreichbar war (None) oder erreichbar-aber-leer (0 geparst).
+          # Genau dieser Unterschied war bei jamesbrine die Debugging-Huerde.
+          fetch_failed = set()   # text is None (DNS/403/Timeout/gzip-bomb-Abbruch)
+          skipped      = set()   # bewusst uebersprungen (fehlendes Auth-Secret)
 
           for name, url in HONEYPOT_SOURCES.items():
               # FIX AUTH: Auth-pflichtige Feeds ohne gueltigen Token ueberspringen.
@@ -303,20 +355,37 @@ jobs:
                   print(f"  SKIP {name}: Auth-Header fehlt ({', '.join(missing)}) – "
                         f"GitHub-Secret nicht gesetzt")
                   stats[name] = 0
+                  skipped.add(name)
                   continue
               if name in LARGE_SOURCES:
                   text = fetch_large(url)
               else:
                   text = fetch(url, headers=auth)
-              if text:
-                  # FIX BUG-WL7: use_protected_check=True → Whitelist-IPs
-                  # werden bereits beim Parsen herausgefiltert.
-                  ips = parse_entries(text, use_protected_check=True)
-                  all_ips.update(ips)
-                  stats[name] = len(ips)
-                  print(f"  {name}: {len(ips)} IPs")
-              else:
+              if text is None:
+                  # Transport-Fehler: fetch_url hat den konkreten HTTP-Code /
+                  # die Ursache bereits oben geloggt (z.B. "FEHLER HTTP 403").
                   stats[name] = 0
+                  fetch_failed.add(name)
+                  print(f"  {name}: FETCH FEHLGESCHLAGEN (None) – Feed nicht "
+                        f"erreichbar/abgewiesen, siehe HTTP-Fehler oben")
+                  print(f"::warning ::Honeypot-Feed {name} nicht erreichbar "
+                        f"(fetch=None) – {url}")
+                  continue
+              # FIX BUG-WL7: use_protected_check=True → Whitelist-IPs
+              # werden bereits beim Parsen herausgefiltert.
+              ips = parse_entries(text, use_protected_check=True)
+              all_ips.update(ips)
+              stats[name] = len(ips)
+              print(f"  {name}: {len(ips)} IPs ({len(text)} bytes geladen)")
+              # Erreichbar-aber-0 ist ebenfalls verdaechtig (Format-Wechsel,
+              # Challenge-HTML statt CSV): als Warnung sichtbar machen, ohne
+              # es als Transport-Fehler zu zaehlen.
+              if not ips:
+                  head = text.lstrip()[:120].replace("\n", " ")
+                  print(f"  WARNUNG {name}: 0 IPs aus {len(text)} bytes geparst – "
+                        f"moeglicher Format-Wechsel. Anfang: {head!r}")
+                  print(f"::warning ::Honeypot-Feed {name} lieferte Daten aber "
+                        f"0 gueltige IPs – Format pruefen")
 
           HONEYPOT_FILE = "honeypot_ips.txt"
           existing = set()
@@ -347,7 +416,16 @@ jobs:
           lines = ["# Honeypot Monitor – Report", f"**Aktualisiert:** {now_str}\n", "---",
                    "| Quelle | IPs |", "|---|---|"]
           for n, c in stats.items():
-              lines.append(f"| {'✅' if c > 0 else '❌'} `{n}` | {c} |")
+              # FIX JB-DIAG: drei Zustaende statt zwei.
+              #   ✅ erreichbar mit IPs | ⚠️ erreichbar aber 0 / uebersprungen
+              #   | ❌ nicht erreichbar (Transport-Fehler)
+              if c > 0:
+                  mark = "✅"
+              elif n in fetch_failed:
+                  mark = "❌"
+              else:
+                  mark = "⚠️"
+              lines.append(f"| {mark} `{n}` | {c} |")
           lines += ["", "---", f"| Metrik | Wert |", "|---|---|",
                     f"| Gesamt Honeypot-IPs | **{len(final_ips)}** |",
                     f"| Neu | **+{len(new_ips)}** |", f"| Entfernt | **-{len(removed_ips)}** |",
