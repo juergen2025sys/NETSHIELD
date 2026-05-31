@@ -2,13 +2,14 @@ name: HoneyDB Monitor
 
 on:
   schedule:
-    # Voll-Lauf: 22:15 UTC – /services + /bad-hosts + alle Service-Endpunkte (~34 Req)
-    # Liegt nach Combined 21:00, vor Honeypot Monitor 23:00 und Combined 00:00.
-    - cron: '15 22 * * *'
-    # Light-Läufe alle 6h: 04:15, 10:15, 16:15 UTC – nur /bad-hosts (1 Req)
-    # Holen frische 24h-Snapshots der All-Liste, mergen mit existing.
-    # Total: 34 + 3 = 37 Requests/Tag = 1110/Monat (Limit 1500/Monat).
-    - cron: '15 4,10,16 * * *'
+    # Stündlicher Light-Lauf (x:15 UTC) – nur /bad-hosts (1 Req je Lauf).
+    # Holt jede Stunde einen frischen 24h-Snapshot der All-Liste und merged mit
+    # existing, damit das rotierende 24h-Fenster möglichst lückenlos eingefangen
+    # wird (häufigeres Polling = mehr von der Rotation, nicht mehr Gesamt-IPs).
+    # Budget: 24 Läufe/Tag × 1 Req = ~720/Monat (Limit 1500/Monat).
+    # Voll-Lauf (/services + Service-Endpunkte) nur noch via workflow_dispatch –
+    # er liefert ohne eigene Sensoren keine zusätzlichen IPs, nur Statistik.
+    - cron: '15 * * * *'
   workflow_dispatch:
 
 env:
@@ -77,9 +78,11 @@ jobs:
           today   = now.strftime("%Y-%m-%d")
 
           # Voll- vs. Light-Lauf unterscheiden anhand des Cron-Schedules.
-          # Voll-Lauf (22:15): /services + /bad-hosts + alle Service-Endpunkte
-          # Light-Lauf (04:15/10:15/16:15): nur /bad-hosts, merged mit existing
-          # workflow_dispatch / leerer Schedule → immer Voll-Lauf
+          # Geplante Läufe (stündlich, x:15): immer Light – nur /bad-hosts, merged
+          #   mit existing. Kein geplanter Cron matcht FULL_RUN_SCHEDULE mehr.
+          # workflow_dispatch / leerer Schedule → Voll-Lauf (/services + alle
+          #   Service-Endpunkte). FULL_RUN_SCHEDULE bleibt als Marker erhalten:
+          #   wer wieder einen geplanten Voll-Lauf will, ergänzt diesen Cron oben.
           FULL_RUN_SCHEDULE = "15 22 * * *"
           SCHEDULE          = os.environ.get("GITHUB_SCHEDULE", "")
           LIGHT_RUN         = bool(SCHEDULE) and SCHEDULE != FULL_RUN_SCHEDULE
@@ -189,10 +192,10 @@ jobs:
               stats["Bad Hosts (24h, alle Dienste)"] = 0
 
           # ── 2) Bad Hosts nach Dienst ──────────────────────────────────────
-          # Request-Budget bei 4 Läufen/Tag (1 Voll + 3 Light):
-          #   Voll-Lauf  (22:15): 1 (services) + 1 (bad-hosts) + N (Service-Endpunkte) ≈ 34 Req
-          #   Light-Lauf (3×):    1 (bad-hosts) je Lauf = 3 Req
-          #   Summe: ~37 Req/Tag = ~1110/Monat (Limit 1500/Monat).
+          # Request-Budget:
+          #   Geplant (stündlich Light): 1 (bad-hosts) je Lauf × 24 = ~720/Monat.
+          #   Voll-Lauf (nur via dispatch): 1 (services) + 1 (bad-hosts)
+          #     + N (Service-Endpunkte) ≈ 34 Req – fällt nur bei manuellem Trigger an.
           #
           # Service-Liste wird DYNAMISCH aus /services gezogen, damit wir keine
           # Namen raten (404-Risiko) und nur HoneyDB-aktive Dienste abfragen.
@@ -376,8 +379,9 @@ jobs:
               all_ips -= wl_removed
               print(f"Whitelist-Filter: {len(wl_removed)} IPs entfernt")
 
-          # LIGHT_RUN: existing dazu mergen, damit Datei zwischen Voll-Läufen nicht
-          # schrumpft. Die Service-IPs aus dem letzten Voll-Lauf bleiben erhalten,
+          # LIGHT_RUN: existing dazu mergen, damit die Datei zwischen den Läufen nicht
+          # schrumpft. Die kumulierte Sammlung (inkl. Service-IPs aus einem etwaigen
+          # dispatch-Voll-Lauf) bleibt erhalten,
           # die /bad-hosts-IPs aus diesem Light-Lauf werden ergänzt.
           # WICHTIG: existing nochmal durch FP/WL-Filter, falls sich die Listen
           # zwischenzeitlich geändert haben (sonst bleiben FPs hängen).
