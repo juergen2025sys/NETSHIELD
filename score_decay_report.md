@@ -1,15 +1,15 @@
 # Score Decay Monitor – Report
-**Aktualisiert:** 2026-05-17 09:06 UTC
+**Aktualisiert:** 2026-05-31 09:47 UTC
 
 ---
 ## Übersicht
 
 | Kategorie | IPs | Bedeutung |
 |---|---|---|
-| ✅ Kürzlich aktiv (≤7 Tage) | **372229** | Frische Bedrohungen |
-| 🟡 Veraltend – Warnung | **2674681** | 30-44 Tage ohne Aktivität, Score≥25 |
-| 🔴 Veraltend – Kritisch | **625219** | 45+ Tage ohne Aktivität, Score≥40 |
-| 💀 Zombie | **1790589** | Score≥65, 30+ Tage inaktiv |
+| ✅ Kürzlich aktiv (≤7 Tage) | **433509** | Frische Bedrohungen |
+| 🟡 Veraltend – Warnung | **617501** | 30-44 Tage ohne Aktivität, Score≥25 |
+| 🔴 Veraltend – Kritisch | **2823691** | 45+ Tage ohne Aktivität, Score≥40 |
+| 💀 Zombie | **1691291** | Score≥65, 30+ Tage inaktiv |
 | ⏳ Läuft bald ab (150+ Tage) | **0** | combined entfernt bei 180 Tagen |
 
 ---
@@ -20,4 +20,4 @@ Das Entfernen aus combined + seen_db erfolgt ausschließlich durch
 `update_combined_blacklist` nach **180 Tagen** ohne Feed-Bestätigung.
 
 ---
-*Generiert: 2026-05-17 09:06 UTC | DB: 5285571 IPs*
+*Generiert: 2026-05-31 09:47 UTC | DB: 5833837 IPs*
