@@ -420,7 +420,6 @@ jobs:
           lines.append(f"| Gesamt HoneyDB-IPs | **{len(final_ips):,}** |")
           lines.append(f"| Neu | **+{len(new_ips):,}** |")
           lines.append(f"| Entfernt | **-{len(removed_ips):,}** |")
-          lines.append(f"| API Requests genutzt | **{requests_used}** von ~50/Tag (1500/Monat) |")
           lines.append("")
           lines.append("---")
           lines.append("> ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.")
