@@ -1,14 +1,24 @@
 {
-  "updated": "2026-05-31 09:50 UTC",
+  "updated": "2026-05-31 14:55 UTC",
   "total": 23,
   "ok": 22,
-  "warn": 2,
+  "warn": 3,
   "error": 1,
   "errors": [
     {
       "file": "Production Health",
+      "check": "Drift: honeypot_ips.txt",
+      "detail": "honeypot_ips.txt: 107,446 \u2192 73,097 (-32%) \u2013 starker R\u00fcckgang seit letztem Check"
+    },
+    {
+      "file": "Production Health",
+      "check": "Truncate-Erstaktivierung",
+      "detail": "blacklist_geo_enriched.json: Splitting ERSTMALS aktiviert (2 neue Parts: blacklist_geo_enriched_part1.json, blacklist_geo_enriched_part2.json). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten."
+    },
+    {
+      "file": "Production Health",
       "check": "active \u2286 conf40 Subset-Invariante verletzt",
-      "detail": "2,725 IPs in active fehlen in conf40 (0.681% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+      "detail": "16,744 IPs in active fehlen in conf40 (4.038% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
     }
   ],
   "warnings": [
@@ -23,53 +33,81 @@
       "detail": "6 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"fadouse_malware\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_c2\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_rat\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_stealer\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_loader\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_worm\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel)"
     },
     {
+      "file": "honeydb_monitor.yml \u2192 update_combined_blacklist.yml",
+      "check": "Sub-Workflow Puffer zu knapp",
+      "detail": "Sub-Workflow laueft zu knapp vor Combined \u2013 Output moeglicherweise nicht rechtzeitig verfuegbar: 00:15 UTC \u2192 00:27 UTC (12min < 60min Mindestpuffer); 02:15 UTC \u2192 03:07 UTC (52min < 60min Mindestpuffer); 03:15 UTC \u2192 03:27 UTC (12min < 60min Mindestpuffer); 05:15 UTC \u2192 06:07 UTC (52min < 60min Mindestpuffer); 06:15 UTC \u2192 06:27 UTC (12min < 60min Mindestpuffer)"
+    },
+    {
       "file": "honeypot_monitor.yml \u2192 update_combined_blacklist.yml",
       "check": "Sub-Workflow Puffer zu knapp",
       "detail": "Sub-Workflow laueft zu knapp vor Combined \u2013 Output moeglicherweise nicht rechtzeitig verfuegbar: 00:30 UTC \u2192 00:47 UTC (17min < 60min Mindestpuffer); 06:30 UTC \u2192 06:47 UTC (17min < 60min Mindestpuffer); 12:30 UTC \u2192 12:47 UTC (17min < 60min Mindestpuffer); 18:30 UTC \u2192 18:47 UTC (17min < 60min Mindestpuffer)"
     },
     {
       "file": "Production Health",
-      "check": "Push-Limit Naehe",
-      "detail": "seen_db_backup.json.gz: 80.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
+      "detail": "blacklist_confidence40_ipv4.txt ist 10h alt (WARN-Schwelle: 6h)"
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "blacklist_geo_enriched.json: 84.0 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "seen_db_backup.json.gz: 81.0 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+    },
+    {
+      "file": "Production Health",
+      "check": "Push-Limit Naehe",
+      "detail": "blacklist_geo_enriched.json: 93.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 5833837,
-    "active_blacklist_ipv4.txt": 400171,
+    "combined_threat_blacklist_ipv4.txt": 5847829,
+    "active_blacklist_ipv4.txt": 414705,
     "blacklist_confidence40_ipv4.txt": 4562636,
     "cve_exploit_ips.txt": 36206,
-    "honeypot_ips.txt": 107446,
+    "honeypot_ips.txt": 73097,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
-    "critical": 1,
-    "warn": 2,
+    "critical": 3,
+    "warn": 3,
     "checks": [
       {
         "level": "WARN",
-        "check": "Push-Limit Naehe",
-        "detail": "seen_db_backup.json.gz: 80.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
+        "detail": "blacklist_confidence40_ipv4.txt ist 10h alt (WARN-Schwelle: 6h)"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Drift: honeypot_ips.txt",
+        "detail": "honeypot_ips.txt: 107,446 \u2192 73,097 (-32%) \u2013 starker R\u00fcckgang seit letztem Check"
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "blacklist_geo_enriched.json: 84.0 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "seen_db_backup.json.gz: 81.0 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      },
+      {
+        "level": "WARN",
+        "check": "Push-Limit Naehe",
+        "detail": "blacklist_geo_enriched.json: 93.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Truncate-Erstaktivierung",
+        "detail": "blacklist_geo_enriched.json: Splitting ERSTMALS aktiviert (2 neue Parts: blacklist_geo_enriched_part1.json, blacklist_geo_enriched_part2.json). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten."
       },
       {
         "level": "CRITICAL",
         "check": "active \u2286 conf40 Subset-Invariante verletzt",
-        "detail": "2,725 IPs in active fehlen in conf40 (0.681% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+        "detail": "16,744 IPs in active fehlen in conf40 (4.038% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
       }
     ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [],
     "blacklist_confidence40_ipv4.txt": [],
-    "blacklist_geo_enriched.json": []
+    "blacklist_geo_enriched.json": [
+      "blacklist_geo_enriched_part1.json",
+      "blacklist_geo_enriched_part2.json"
+    ]
   }
 }

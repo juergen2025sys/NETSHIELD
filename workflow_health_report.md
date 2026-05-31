@@ -1,14 +1,16 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-31 09:50 UTC
+**Aktualisiert:** 2026-05-31 14:55 UTC
 
-**Workflows:** 23 | ✅ 22 OK | ⚠️ 2 Warnung | ❌ 1 Fehler
+**Workflows:** 23 | ✅ 22 OK | ⚠️ 3 Warnung | ❌ 1 Fehler
 
 ---
 ## ❌ Fehler (kritisch)
 
 | Datei | Check | Detail |
 |---|---|---|
-| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 2,725 IPs in active fehlen in conf40 (0.681% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 107,446 → 73,097 (-32%) – starker Rückgang seit letztem Check |
+| `Production Health` | Truncate-Erstaktivierung | blacklist_geo_enriched.json: Splitting ERSTMALS aktiviert (2 neue Parts: blacklist_geo_enriched_part1.json, blacklist_geo_enriched_part2.json). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten. |
+| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 16,744 IPs in active fehlen in conf40 (4.038% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 
 ## ⚠️ Warnungen
 
@@ -16,19 +18,24 @@
 |---|---|---|
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Workflow-Reihenfolge / Puffer zu knapp | 00:30 UTC → 00:47 UTC (17min < 60min); 06:30 UTC → 06:47 UTC (17min < 60min); 12:30 UTC → 12:47 UTC (17min < 60min); 18:30 UTC → 18:47 UTC (17min < 60min) |
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 6 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "fadouse_malware" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_c2" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_rat" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_stealer" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_loader" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_worm" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel) |
+| `honeydb_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:15 UTC → 00:27 UTC (12min < 60min Mindestpuffer); 02:15 UTC → 03:07 UTC (52min < 60min Mindestpuffer); 03:15 UTC → 03:27 UTC (12min < 60min Mindestpuffer); 05:15 UTC → 06:07 UTC (52min < 60min Mindestpuffer); 06:15 UTC → 06:27 UTC (12min < 60min Mindestpuffer) |
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:30 UTC → 00:47 UTC (17min < 60min Mindestpuffer); 06:30 UTC → 06:47 UTC (17min < 60min Mindestpuffer); 12:30 UTC → 12:47 UTC (17min < 60min Mindestpuffer); 18:30 UTC → 18:47 UTC (17min < 60min Mindestpuffer) |
-| `Production Health` | Push-Limit Naehe | seen_db_backup.json.gz: 80.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| `Production Health` | Push-Limit Naehe | blacklist_geo_enriched.json: 84.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 10h alt (WARN-Schwelle: 6h) |
+| `Production Health` | Push-Limit Naehe | seen_db_backup.json.gz: 81.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | blacklist_geo_enriched.json: 93.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 2 WARN
+**Status:** 🔴 3 CRITICAL | 🟡 3 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 2,725 IPs in active fehlen in conf40 (0.681% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
-| 🟡 WARN | Push-Limit Naehe | seen_db_backup.json.gz: 80.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| 🟡 WARN | Push-Limit Naehe | blacklist_geo_enriched.json: 84.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🔴 CRITICAL | Drift: honeypot_ips.txt | honeypot_ips.txt: 107,446 → 73,097 (-32%) – starker Rückgang seit letztem Check |
+| 🔴 CRITICAL | Truncate-Erstaktivierung | blacklist_geo_enriched.json: Splitting ERSTMALS aktiviert (2 neue Parts: blacklist_geo_enriched_part1.json, blacklist_geo_enriched_part2.json). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten. |
+| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 16,744 IPs in active fehlen in conf40 (4.038% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| 🟡 WARN | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 10h alt (WARN-Schwelle: 6h) |
+| 🟡 WARN | Push-Limit Naehe | seen_db_backup.json.gz: 81.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | blacklist_geo_enriched.json: 93.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
 
@@ -44,7 +51,7 @@
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `geo_tagger.yml` | ✅ OK | 0 | 0 | `45 7 * * 0` |
-| `honeydb_monitor.yml` | ✅ OK | 0 | 0 | `15 22 * * *`, `15 4,10,16 * * *` |
+| `honeydb_monitor.yml` | ✅ OK | 0 | 0 | `15 * * * *` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `30 */6 * * *` |
 | `netshield_report_generator.yml` | ✅ OK | 0 | 0 | `30 * * * *` |
 | `run_tests.yml` | ✅ OK | 0 | 0 | – |
@@ -59,4 +66,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-05-31 09:50 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-05-31 14:55 UTC | 23 Workflow-Dateien geprüft*
