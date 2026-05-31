@@ -1,111 +1,28 @@
-<svg viewBox="0 0 1280 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NETSHIELD - Automated Threat Intelligence">
+<svg viewBox="0 0 1280 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NETSHIELD">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1">
-      <stop offset="0" stop-color="#0a0f1a"/>
-      <stop offset="0.55" stop-color="#0d1626"/>
-      <stop offset="1" stop-color="#0a121f"/>
-    </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2dd4bf"/>
-      <stop offset="1" stop-color="#38bdf8"/>
-    </linearGradient>
-    <linearGradient id="accentH" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#2dd4bf"/>
-      <stop offset="1" stop-color="#38bdf8"/>
-    </linearGradient>
-    <linearGradient id="shieldFill" x1="0" y1="0" x2="0.6" y2="1">
-      <stop offset="0" stop-color="#16263d"/>
-      <stop offset="1" stop-color="#0e1a2c"/>
-    </linearGradient>
-    <linearGradient id="word" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ffffff"/>
-      <stop offset="1" stop-color="#c5d4e6"/>
-    </linearGradient>
-    <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse">
-      <path d="M34 0 H0 V34" fill="none" stroke="#1c2c46" stroke-width="1" opacity="0.5"/>
-    </pattern>
-    <radialGradient id="radialFade" cx="0.82" cy="0.5" r="0.6">
-      <stop offset="0" stop-color="#38bdf8" stop-opacity="0.10"/>
-      <stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="6"/>
-    </filter>
-    <clipPath id="card"><rect x="0" y="0" width="1280" height="340" rx="18"/></clipPath>
+    <linearGradient id="bg2" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#0b1320"/><stop offset="1" stop-color="#0d1626"/></linearGradient>
+    <pattern id="g2" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0 H0 V32" fill="none" stroke="#15233a" stroke-width="1"/></pattern>
+    <clipPath id="c2"><rect width="1280" height="300" rx="16"/></clipPath>
   </defs>
-
-  <g clip-path="url(#card)">
-    <!-- base -->
-    <rect width="1280" height="340" fill="url(#bg)"/>
-    <rect width="1280" height="340" fill="url(#grid)"/>
-    <rect width="1280" height="340" fill="url(#radialFade)"/>
-
-    <!-- radar / threat-scope motif (right) -->
-    <g transform="translate(1050,170)" fill="none" stroke="url(#accentH)">
-      <circle r="60"  stroke-opacity="0.22"/>
-      <circle r="112" stroke-opacity="0.16"/>
-      <circle r="166" stroke-opacity="0.10"/>
-      <circle r="222" stroke-opacity="0.06"/>
-      <line x1="-230" y1="0" x2="230" y2="0" stroke-opacity="0.07"/>
-      <line x1="0" y1="-230" x2="0" y2="230" stroke-opacity="0.07"/>
-      <!-- sweep wedge -->
-      <path d="M0 0 L166 -64 A178 178 0 0 1 178 0 Z" fill="url(#radialFade)" stroke="none" opacity="0.5"/>
+  <g clip-path="url(#c2)">
+    <rect width="1280" height="300" fill="url(#bg2)"/>
+    <rect width="1280" height="300" fill="url(#g2)"/>
+    <g transform="translate(1080,150)" fill="none" stroke="#1a2c47"><circle r="70"/><circle r="130"/><circle r="190"/></g>
+    <rect x="0" y="0" width="6" height="300" fill="#22d3ee"/>
+    <g transform="translate(52,74)">
+      <path d="M60 3 L116 24 L116 86 Q116 133 60 153 Q4 133 4 86 L4 24 Z" fill="#111c2e" stroke="#22d3ee" stroke-width="2.5"/>
+      <g stroke="#22d3ee" stroke-width="2"><line x1="60" y1="84" x2="40" y2="54"/><line x1="60" y1="84" x2="84" y2="58"/><line x1="60" y1="84" x2="60" y2="116"/></g>
+      <g fill="#0b1320" stroke="#22d3ee" stroke-width="2.5"><circle cx="40" cy="54" r="6"/><circle cx="84" cy="58" r="6"/><circle cx="60" cy="116" r="6"/></g>
+      <circle cx="60" cy="84" r="9" fill="#22d3ee"/>
     </g>
-    <!-- threat blips -->
-    <g>
-      <circle cx="1112" cy="120" r="3.5" fill="#2dd4bf"/>
-      <circle cx="1188" cy="206" r="3"   fill="#38bdf8"/>
-      <circle cx="1014" cy="92"  r="2.6" fill="#38bdf8" opacity="0.8"/>
-      <circle cx="1156" cy="252" r="3.2" fill="#f59e0b"/>
-      <circle cx="996"  cy="238" r="2.6" fill="#2dd4bf" opacity="0.7"/>
+    <text x="200" y="100" font-family="Consolas,Menlo,monospace" font-size="14" letter-spacing="4" fill="#22d3ee">// AUTOMATED THREAT INTELLIGENCE</text>
+    <text x="198" y="172" font-family="'Segoe UI',Helvetica,Arial,sans-serif" font-size="74" font-weight="800" letter-spacing="2" fill="#ffffff">NETSHIELD</text>
+    <text x="200" y="206" font-family="'Segoe UI',Helvetica,Arial,sans-serif" font-size="18" fill="#cbd5e1">Dynamische IP-Blocklist-Verwaltung mit Confidence-Scoring</text>
+    <g font-family="Consolas,Menlo,monospace" font-size="13" letter-spacing="1.5" fill="#9fb3c8">
+      <circle cx="204" cy="252" r="3" fill="#22d3ee"/><text x="216" y="257">8× DAILY</text>
+      <circle cx="312" cy="252" r="3" fill="#22d3ee"/><text x="324" y="257">180-DAY RETENTION</text>
+      <circle cx="534" cy="252" r="3" fill="#22d3ee"/><text x="546" y="257">250+ COUNTRIES</text>
+      <circle cx="718" cy="252" r="3" fill="#22d3ee"/><text x="730" y="257">MULTI-SOURCE SCORING</text>
     </g>
-
-    <!-- left accent bar -->
-    <rect x="0" y="0" width="6" height="340" fill="url(#accent)"/>
-
-    <!-- shield mark -->
-    <g transform="translate(58,93)">
-      <path d="M60 3 L116 24 L116 86 Q116 133 60 153 Q4 133 4 86 L4 24 Z"
-            fill="url(#shieldFill)" stroke="url(#accent)" stroke-width="2.5"/>
-      <path d="M60 3 L116 24 L116 86 Q116 133 60 153 Q4 133 4 86 L4 24 Z"
-            fill="none" stroke="url(#accent)" stroke-width="2.5" filter="url(#soft)" opacity="0.5"/>
-      <!-- node constellation inside -->
-      <g stroke="url(#accentH)" stroke-width="2" opacity="0.95">
-        <line x1="60" y1="84" x2="40" y2="54"/>
-        <line x1="60" y1="84" x2="84" y2="58"/>
-        <line x1="60" y1="84" x2="60" y2="116"/>
-      </g>
-      <g fill="#0a0f1a" stroke="url(#accentH)" stroke-width="2.5">
-        <circle cx="40" cy="54" r="6"/>
-        <circle cx="84" cy="58" r="6"/>
-        <circle cx="60" cy="116" r="6"/>
-      </g>
-      <circle cx="60" cy="84" r="9" fill="url(#accent)"/>
-    </g>
-
-    <!-- text block -->
-    <text x="200" y="118" font-family="'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace"
-          font-size="15" letter-spacing="4.5" fill="#2dd4bf">// AUTOMATED THREAT INTELLIGENCE</text>
-
-    <text x="198" y="196" font-family="'Segoe UI','Helvetica Neue',Helvetica,Arial,sans-serif"
-          font-size="78" font-weight="800" letter-spacing="3" fill="url(#word)">NETSHIELD</text>
-
-    <text x="200" y="232" font-family="'Segoe UI','Helvetica Neue',Helvetica,Arial,sans-serif"
-          font-size="19" fill="#8aa0b8">Dynamische IP-Blocklist-Verwaltung mit Confidence-Scoring</text>
-
-    <!-- stable status strip (no volatile numbers) -->
-    <g font-family="'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace" font-size="13.5" letter-spacing="1.5">
-      <circle cx="204" cy="285" r="3" fill="#2dd4bf"/>
-      <text x="216" y="290" fill="#7e93ab">8× DAILY</text>
-      <circle cx="316" cy="285" r="3" fill="#38bdf8"/>
-      <text x="328" y="290" fill="#7e93ab">180-DAY RETENTION</text>
-      <circle cx="540" cy="285" r="3" fill="#2dd4bf"/>
-      <text x="552" y="290" fill="#7e93ab">250+ COUNTRIES</text>
-      <circle cx="724" cy="285" r="3" fill="#38bdf8"/>
-      <text x="736" y="290" fill="#7e93ab">MULTI-SOURCE SCORING</text>
-    </g>
-
-    <!-- bottom hairline -->
-    <rect x="0" y="337" width="1280" height="3" fill="url(#accentH)" opacity="0.85"/>
   </g>
 </svg>
