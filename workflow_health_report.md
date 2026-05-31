@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-05-31 14:55 UTC
+**Aktualisiert:** 2026-05-31 20:19 UTC
 
 **Workflows:** 23 | ✅ 22 OK | ⚠️ 3 Warnung | ❌ 1 Fehler
 
@@ -8,9 +8,7 @@
 
 | Datei | Check | Detail |
 |---|---|---|
-| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 107,446 → 73,097 (-32%) – starker Rückgang seit letztem Check |
-| `Production Health` | Truncate-Erstaktivierung | blacklist_geo_enriched.json: Splitting ERSTMALS aktiviert (2 neue Parts: blacklist_geo_enriched_part1.json, blacklist_geo_enriched_part2.json). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten. |
-| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 16,744 IPs in active fehlen in conf40 (4.038% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 73,097 → 945,415 (+1193%) – extremes Wachstum, vermutlich Parser-/Dedup-Bug |
 
 ## ⚠️ Warnungen
 
@@ -20,22 +18,22 @@
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 6 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "fadouse_malware" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_c2" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_rat" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_stealer" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_loader" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_worm" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel) |
 | `honeydb_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:15 UTC → 00:27 UTC (12min < 60min Mindestpuffer); 02:15 UTC → 03:07 UTC (52min < 60min Mindestpuffer); 03:15 UTC → 03:27 UTC (12min < 60min Mindestpuffer); 05:15 UTC → 06:07 UTC (52min < 60min Mindestpuffer); 06:15 UTC → 06:27 UTC (12min < 60min Mindestpuffer) |
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:30 UTC → 00:47 UTC (17min < 60min Mindestpuffer); 06:30 UTC → 06:47 UTC (17min < 60min Mindestpuffer); 12:30 UTC → 12:47 UTC (17min < 60min Mindestpuffer); 18:30 UTC → 18:47 UTC (17min < 60min Mindestpuffer) |
-| `Production Health` | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 10h alt (WARN-Schwelle: 6h) |
-| `Production Health` | Push-Limit Naehe | seen_db_backup.json.gz: 81.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | seen_db_backup.json.gz: 82.3 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Push-Limit Naehe | blacklist_geo_enriched.json: 93.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 80.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Truncate aktiv | blacklist_geo_enriched.json: Splitting weiterhin aktiv (2 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 3 CRITICAL | 🟡 3 WARN
+**Status:** 🔴 1 CRITICAL | 🟡 4 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Drift: honeypot_ips.txt | honeypot_ips.txt: 107,446 → 73,097 (-32%) – starker Rückgang seit letztem Check |
-| 🔴 CRITICAL | Truncate-Erstaktivierung | blacklist_geo_enriched.json: Splitting ERSTMALS aktiviert (2 neue Parts: blacklist_geo_enriched_part1.json, blacklist_geo_enriched_part2.json). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten. |
-| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 16,744 IPs in active fehlen in conf40 (4.038% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
-| 🟡 WARN | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4.txt ist 10h alt (WARN-Schwelle: 6h) |
-| 🟡 WARN | Push-Limit Naehe | seen_db_backup.json.gz: 81.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🔴 CRITICAL | Drift: honeypot_ips.txt | honeypot_ips.txt: 73,097 → 945,415 (+1193%) – extremes Wachstum, vermutlich Parser-/Dedup-Bug |
+| 🟡 WARN | Push-Limit Naehe | seen_db_backup.json.gz: 82.3 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Push-Limit Naehe | blacklist_geo_enriched.json: 93.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 80.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Truncate aktiv | blacklist_geo_enriched.json: Splitting weiterhin aktiv (2 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
 
 ## Übersicht
 
@@ -66,4 +64,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-05-31 14:55 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-05-31 20:19 UTC | 23 Workflow-Dateien geprüft*
