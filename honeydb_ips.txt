@@ -1,7 +1,7 @@
 # NETSHIELD HoneyDB IP Blocklist
-# Aktualisiert: 2026-05-31 11:45 UTC
+# Aktualisiert: 2026-05-31 11:51 UTC
 # Quelle: honeydb.io (Community Honeypot Network)
-# Gesamt: 14310 | +1865 neu | -5381 entfernt
+# Gesamt: 14310 | +0 neu | -0 entfernt
 
 1.14.7.100
 1.14.64.225
