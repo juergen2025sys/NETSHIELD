@@ -70,10 +70,7 @@ concurrency:
 jobs:
   watchdog:
     runs-on: ubuntu-latest
-    # Erhoeht von 5 auf 20: der Re-Arm-Step (self-perpetuating Heartbeat) am
-    # Ende sleept ~13min, bevor er den naechsten Lauf anstoesst. 20min lassen
-    # Puffer fuer die gh-Calls davor und danach.
-    timeout-minutes: 20
+    timeout-minutes: 5
 
     steps:
       - name: Check Combined freshness and trigger if needed
@@ -310,41 +307,3 @@ jobs:
               --ref main
             echo "Triggered."
           fi
-
-      - name: Re-arm heartbeat (self-reschedule)
-        if: always()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Self-perpetuating Heartbeat gegen geschluckte Scheduler-Slots.
-          # Belegt (Luecke 2026-06-01 00:27->02:00): GitHub verwirft scheduled
-          # Cron-Slots unter Last OHNE Retry - auch die 15min-Watchdog-Slots
-          # selbst, mehrere in Folge. workflow_dispatch dagegen wird gequeued
-          # statt verworfen. Dieser Step stoesst den naechsten Watchdog-Lauf
-          # selbst an, entkoppelt vom Scheduler. Der 15min-schedule-Cron oben
-          # bleibt als Reanker, falls die Kette reisst (fehlgeschlagener Lauf
-          # oder unter extremer Last verzoegerter dispatch).
-          #
-          # Dedup: nur re-armen, wenn KEIN weiterer Watchdog-Lauf bereits
-          # queued/in_progress ist. Sonst haeuften sich Laeufe in der
-          # concurrency-group 'watchdog-combined' (Cron-Tick + self-Kette
-          # gleichzeitig). So haelt entweder der Cron ODER die self-Kette
-          # den Takt, nie beide doppelt.
-          sleep 780   # ~13min - etwas unter dem 15min-Cron-Takt
-
-          pending=$(gh run list --repo "${{ github.repository }}" \
-            --workflow=watchdog_combined.yml \
-            --status=queued --limit=5 --json databaseId --jq 'length' 2>/dev/null || echo 0)
-          # running zaehlt diesen Lauf selbst mit (=1). >1 = ein weiterer laeuft.
-          running=$(gh run list --repo "${{ github.repository }}" \
-            --workflow=watchdog_combined.yml \
-            --status=in_progress --limit=5 --json databaseId --jq 'length' 2>/dev/null || echo 1)
-
-          if [ "$pending" -gt 0 ] || [ "$running" -gt 1 ]; then
-            echo "Bereits ein weiterer Watchdog-Lauf aktiv (queued=$pending, running=$running) - kein Re-Arm noetig"
-            exit 0
-          fi
-
-          echo "Re-arm: stosse naechsten Watchdog-Lauf an (workflow_dispatch)"
-          gh workflow run watchdog_combined.yml --repo "${{ github.repository }}" --ref main
-          echo "Re-armed."
