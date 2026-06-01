@@ -20,14 +20,7 @@ name: Watchdog Combined Blacklist
 #    wird ein geschluckter Slot innerhalb ~25 min kompensiert statt erst
 #    nach 3h 30min.
 #
-# 2) MAX-AGE (proaktiver Zwischenlauf):
-#    Auch wenn der letzte Slot ordnungsgemaess bedient wurde, ist die
-#    Blacklist zwischen zwei 3h-Cron-Slots irgendwann bis zu ~3h alt.
-#    Wenn der letzte echte Combined-Run laenger als MAX_AGE_MINUTES (2,5h)
-#    her ist, triggert Watchdog einen Zwischenlauf - so wird die Liste nie
-#    aelter als ~2,5h, ohne den Combined-Cron selbst zu aendern.
-#
-# 3) STALE-SCHWELLE (Fallback):
+# 2) STALE-SCHWELLE (Fallback):
 #    Falls die Slot-Logik aus irgendeinem Grund nicht greift (z.B. exotische
 #    Cron-Verzoegerung, Bug), gibt es weiterhin die alte Schwellen-Logik:
 #    Wenn der letzte echte Combined-Run laenger als STALE_THRESHOLD_MINUTES
@@ -77,7 +70,10 @@ concurrency:
 jobs:
   watchdog:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # Erhoeht von 5 auf 20: der Re-Arm-Step (self-perpetuating Heartbeat) am
+    # Ende sleept ~13min, bevor er den naechsten Lauf anstoesst. 20min lassen
+    # Puffer fuer die gh-Calls davor und danach.
+    timeout-minutes: 20
 
     steps:
       - name: Check Combined freshness and trigger if needed
@@ -90,15 +86,6 @@ jobs:
           # Mindest-Laufzeit fuer "echten Run". Combined dauert normal ~22min,
           # Idempotenz-Skips 10-15s. 60s trennt sauber.
           MIN_REAL_RUN_SECONDS: "60"
-          # Max-Age: Hoechstalter des letzten ECHTEN Combined-Runs, bevor
-          # Watchdog proaktiv nachtriggert - unabhaengig vom Slot-Plan.
-          # Zweck: Combined laeuft per Cron nur alle 3h (7 */3). Zwischen zwei
-          # Slots kann die Blacklist so bis zu ~3h alt werden. 150min (2,5h)
-          # zwingt einen Zwischenlauf, sodass die Liste nie aelter als ~2,5h
-          # ist. Greift NUR wenn der erwartete Slot bereits bedient wurde
-          # (sonst uebernimmt der Slot-Waechter darueber). Muss < STALE_
-          # THRESHOLD_MINUTES bleiben, damit Max-Age vor dem Fallback greift.
-          MAX_AGE_MINUTES: "150"
           # Slot-Grace: Wie lange darf ein erwarteter primaerer Cron-Slot
           # (Combined: 7 */3 UTC) "verspaetet" sein bevor Watchdog eingreift?
           # 20min Puffer reicht fuer GitHub-Cron-Drift (typisch 0-15min) und
@@ -293,12 +280,6 @@ jobs:
             if [ "$slot_served" = "false" ] && [ "$slot_age_min" -ge "$SLOT_GRACE_MINUTES" ]; then
               should_trigger=true
               reason="Slot $slot_iso seit ${slot_age_min}min nicht bedient (Grace: ${SLOT_GRACE_MINUTES}min) - letzter echter Run startete $last_real_started"
-            elif [ "$stale_min" -ge "$MAX_AGE_MINUTES" ]; then
-              # MAX-AGE: Slot wurde zwar bedient, aber der letzte echte Run
-              # ist > MAX_AGE_MINUTES her. Proaktiv nachtriggern, damit die
-              # Blacklist zwischen den 3h-Cron-Slots nicht zu alt wird.
-              should_trigger=true
-              reason="Max-Age: letzter echter Run vor ${stale_min}min (Schwelle ${MAX_AGE_MINUTES}min) - triggere Zwischenlauf"
             elif [ "$stale_min" -ge "$STALE_THRESHOLD_MINUTES" ]; then
               # FALLBACK: Stale-Schwelle - sollte normalerweise nie greifen
               # wenn Slot-Logik funktioniert, aber als Sicherheitsnetz da.
@@ -329,3 +310,41 @@ jobs:
               --ref main
             echo "Triggered."
           fi
+
+      - name: Re-arm heartbeat (self-reschedule)
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Self-perpetuating Heartbeat gegen geschluckte Scheduler-Slots.
+          # Belegt (Luecke 2026-06-01 00:27->02:00): GitHub verwirft scheduled
+          # Cron-Slots unter Last OHNE Retry - auch die 15min-Watchdog-Slots
+          # selbst, mehrere in Folge. workflow_dispatch dagegen wird gequeued
+          # statt verworfen. Dieser Step stoesst den naechsten Watchdog-Lauf
+          # selbst an, entkoppelt vom Scheduler. Der 15min-schedule-Cron oben
+          # bleibt als Reanker, falls die Kette reisst (fehlgeschlagener Lauf
+          # oder unter extremer Last verzoegerter dispatch).
+          #
+          # Dedup: nur re-armen, wenn KEIN weiterer Watchdog-Lauf bereits
+          # queued/in_progress ist. Sonst haeuften sich Laeufe in der
+          # concurrency-group 'watchdog-combined' (Cron-Tick + self-Kette
+          # gleichzeitig). So haelt entweder der Cron ODER die self-Kette
+          # den Takt, nie beide doppelt.
+          sleep 780   # ~13min - etwas unter dem 15min-Cron-Takt
+
+          pending=$(gh run list --repo "${{ github.repository }}" \
+            --workflow=watchdog_combined.yml \
+            --status=queued --limit=5 --json databaseId --jq 'length' 2>/dev/null || echo 0)
+          # running zaehlt diesen Lauf selbst mit (=1). >1 = ein weiterer laeuft.
+          running=$(gh run list --repo "${{ github.repository }}" \
+            --workflow=watchdog_combined.yml \
+            --status=in_progress --limit=5 --json databaseId --jq 'length' 2>/dev/null || echo 1)
+
+          if [ "$pending" -gt 0 ] || [ "$running" -gt 1 ]; then
+            echo "Bereits ein weiterer Watchdog-Lauf aktiv (queued=$pending, running=$running) - kein Re-Arm noetig"
+            exit 0
+          fi
+
+          echo "Re-arm: stosse naechsten Watchdog-Lauf an (workflow_dispatch)"
+          gh workflow run watchdog_combined.yml --repo "${{ github.repository }}" --ref main
+          echo "Re-armed."
