@@ -11,12 +11,20 @@ on:
     # er liefert ohne eigene Sensoren keine zusätzlichen IPs, nur Statistik.
     - cron: '15 * * * *'
   workflow_dispatch:
+    inputs:
+      force_light:
+        description: "Light-Lauf erzwingen (nur /bad-hosts, merged mit existing). Vom Watchdog genutzt, damit ein dispatch-Trigger die Liste NICHT auf den 24h-Snapshot schrumpft. Ohne diesen Input bleibt ein manueller dispatch ein Voll-Lauf."
+        type: boolean
+        default: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   # Schedule durchreichen, damit der Python-Block Voll- vs. Light-Lauf unterscheidet.
   # Bei workflow_dispatch ist der String leer → Default Voll-Lauf.
   GITHUB_SCHEDULE: ${{ github.event.schedule }}
+  # force_light-Input durchreichen (leer bei schedule-Events). true → erzwingt
+  # Light-Merge auch bei dispatch, ohne das Voll-Lauf-Default-Verhalten zu ändern.
+  FORCE_LIGHT: ${{ github.event.inputs.force_light || 'false' }}
 
 permissions:
   contents: write
@@ -85,7 +93,13 @@ jobs:
           #   wer wieder einen geplanten Voll-Lauf will, ergänzt diesen Cron oben.
           FULL_RUN_SCHEDULE = "15 22 * * *"
           SCHEDULE          = os.environ.get("GITHUB_SCHEDULE", "")
-          LIGHT_RUN         = bool(SCHEDULE) and SCHEDULE != FULL_RUN_SCHEDULE
+          # FORCE_LIGHT: per workflow_dispatch-Input erzwungener Light-Lauf
+          # (Watchdog nutzt das). Hat Vorrang, damit ein dispatch-Trigger des
+          # Watchdogs MIT Merge läuft und die Liste nicht auf den 24h-Snapshot
+          # schrumpft. Manueller dispatch ohne Input → FORCE_LIGHT=false →
+          # weiterhin Voll-Lauf (bisheriges Verhalten unverändert).
+          FORCE_LIGHT       = os.environ.get("FORCE_LIGHT", "false").lower() == "true"
+          LIGHT_RUN         = FORCE_LIGHT or (bool(SCHEDULE) and SCHEDULE != FULL_RUN_SCHEDULE)
           run_mode_label    = "LIGHT" if LIGHT_RUN else "VOLL"
           print(f"Run-Modus: {run_mode_label} (schedule={SCHEDULE or 'manual/dispatch'})")
 
