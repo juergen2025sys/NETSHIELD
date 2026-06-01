@@ -1,16 +1,10 @@
 {
-  "updated": "2026-05-31 20:19 UTC",
+  "updated": "2026-06-01 06:18 UTC",
   "total": 23,
   "ok": 22,
-  "warn": 3,
-  "error": 1,
-  "errors": [
-    {
-      "file": "Production Health",
-      "check": "Drift: honeypot_ips.txt",
-      "detail": "honeypot_ips.txt: 73,097 \u2192 945,415 (+1193%) \u2013 extremes Wachstum, vermutlich Parser-/Dedup-Bug"
-    }
-  ],
+  "warn": 4,
+  "error": 0,
+  "errors": [],
   "warnings": [
     {
       "file": "honeypot_monitor.yml \u2192 update_combined_blacklist.yml",
@@ -35,7 +29,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "seen_db_backup.json.gz: 82.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "seen_db_backup.json.gz: 82.5 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
@@ -45,7 +39,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 80.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 80.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
@@ -54,26 +48,21 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 5936404,
-    "active_blacklist_ipv4.txt": 519690,
-    "blacklist_confidence40_ipv4.txt": 4693624,
+    "combined_threat_blacklist_ipv4.txt": 5941005,
+    "active_blacklist_ipv4.txt": 497160,
+    "blacklist_confidence40_ipv4.txt": 4702937,
     "cve_exploit_ips.txt": 36206,
-    "honeypot_ips.txt": 945415,
+    "honeypot_ips.txt": 946023,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
-    "critical": 1,
+    "critical": 0,
     "warn": 4,
     "checks": [
       {
-        "level": "CRITICAL",
-        "check": "Drift: honeypot_ips.txt",
-        "detail": "honeypot_ips.txt: 73,097 \u2192 945,415 (+1193%) \u2013 extremes Wachstum, vermutlich Parser-/Dedup-Bug"
-      },
-      {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "seen_db_backup.json.gz: 82.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "seen_db_backup.json.gz: 82.5 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
@@ -83,7 +72,7 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 80.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 80.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
