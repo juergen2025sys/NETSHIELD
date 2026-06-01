@@ -20,7 +20,14 @@ name: Watchdog Combined Blacklist
 #    wird ein geschluckter Slot innerhalb ~25 min kompensiert statt erst
 #    nach 3h 30min.
 #
-# 2) STALE-SCHWELLE (Fallback):
+# 2) MAX-AGE (proaktiver Zwischenlauf):
+#    Auch wenn der letzte Slot ordnungsgemaess bedient wurde, ist die
+#    Blacklist zwischen zwei 3h-Cron-Slots irgendwann bis zu ~3h alt.
+#    Wenn der letzte echte Combined-Run laenger als MAX_AGE_MINUTES (2,5h)
+#    her ist, triggert Watchdog einen Zwischenlauf - so wird die Liste nie
+#    aelter als ~2,5h, ohne den Combined-Cron selbst zu aendern.
+#
+# 3) STALE-SCHWELLE (Fallback):
 #    Falls die Slot-Logik aus irgendeinem Grund nicht greift (z.B. exotische
 #    Cron-Verzoegerung, Bug), gibt es weiterhin die alte Schwellen-Logik:
 #    Wenn der letzte echte Combined-Run laenger als STALE_THRESHOLD_MINUTES
@@ -83,6 +90,15 @@ jobs:
           # Mindest-Laufzeit fuer "echten Run". Combined dauert normal ~22min,
           # Idempotenz-Skips 10-15s. 60s trennt sauber.
           MIN_REAL_RUN_SECONDS: "60"
+          # Max-Age: Hoechstalter des letzten ECHTEN Combined-Runs, bevor
+          # Watchdog proaktiv nachtriggert - unabhaengig vom Slot-Plan.
+          # Zweck: Combined laeuft per Cron nur alle 3h (7 */3). Zwischen zwei
+          # Slots kann die Blacklist so bis zu ~3h alt werden. 150min (2,5h)
+          # zwingt einen Zwischenlauf, sodass die Liste nie aelter als ~2,5h
+          # ist. Greift NUR wenn der erwartete Slot bereits bedient wurde
+          # (sonst uebernimmt der Slot-Waechter darueber). Muss < STALE_
+          # THRESHOLD_MINUTES bleiben, damit Max-Age vor dem Fallback greift.
+          MAX_AGE_MINUTES: "150"
           # Slot-Grace: Wie lange darf ein erwarteter primaerer Cron-Slot
           # (Combined: 7 */3 UTC) "verspaetet" sein bevor Watchdog eingreift?
           # 20min Puffer reicht fuer GitHub-Cron-Drift (typisch 0-15min) und
@@ -277,6 +293,12 @@ jobs:
             if [ "$slot_served" = "false" ] && [ "$slot_age_min" -ge "$SLOT_GRACE_MINUTES" ]; then
               should_trigger=true
               reason="Slot $slot_iso seit ${slot_age_min}min nicht bedient (Grace: ${SLOT_GRACE_MINUTES}min) - letzter echter Run startete $last_real_started"
+            elif [ "$stale_min" -ge "$MAX_AGE_MINUTES" ]; then
+              # MAX-AGE: Slot wurde zwar bedient, aber der letzte echte Run
+              # ist > MAX_AGE_MINUTES her. Proaktiv nachtriggern, damit die
+              # Blacklist zwischen den 3h-Cron-Slots nicht zu alt wird.
+              should_trigger=true
+              reason="Max-Age: letzter echter Run vor ${stale_min}min (Schwelle ${MAX_AGE_MINUTES}min) - triggere Zwischenlauf"
             elif [ "$stale_min" -ge "$STALE_THRESHOLD_MINUTES" ]; then
               # FALLBACK: Stale-Schwelle - sollte normalerweise nie greifen
               # wenn Slot-Logik funktioniert, aber als Sicherheitsnetz da.
