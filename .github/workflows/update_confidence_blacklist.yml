@@ -14,19 +14,22 @@ name: Confidence Blacklist
 # Hinweis: workflow_dispatch bleibt fuer manuelle Trigger erhalten.
 
 on:
-  workflow_run:
-    workflows: ["Update Combined Blacklist"]
-    types: [completed]
-    branches: [main]
+  # workflow_run-Trigger ENTFERNT (2026-06-02): Confidence wird jetzt direkt
+  # vom Combined-Workflow am Ende eines echten Laufs per workflow_dispatch
+  # getriggert (siehe Step "Trigger Confidence Blacklist" in
+  # update_combined_blacklist.yml). Grund: workflow_run feuerte zwar, aber bei
+  # einem per concurrency-Gruppe verdraengten (cancelled) Combined-Run war die
+  # 'conclusion == success'-Bedingung false -> Confidence wurde uebersprungen,
+  # conf40 veraltete (active⊆conf40-Subset-Invariante brach). Der explizite
+  # Trigger deckt ALLE echten Combined-Laeufe ab (Cron, Watchdog, manuell) und
+  # vermeidet Doppel-Trigger (sonst wuerden workflow_run + expliziter Trigger
+  # je einen Confidence-Run starten, von denen die concurrency-Gruppe einen
+  # verdraengt).
   workflow_dispatch:
-  # Fallback-Cron (2026-06-02): Confidence wurde per workflow_run nach Combined
-  # getriggert, aber der Job hatte 'if: workflow_run.conclusion == success'. Wenn
-  # der Combined-Run durch die geteilte concurrency-group netshield-seen-db-writers
-  # als 'cancelled' verdraengt wurde (Queue-Tiefe 1), feuerte zwar workflow_run,
-  # die if-Bedingung war aber false -> Confidence uebersprungen, conf40 veraltete
-  # (Folge: active⊆conf40-Subset-Invariante brach). Dieser Cron stellt sicher,
-  # dass Confidence unabhaengig vom Combined-Trigger laeuft - 40min nach den
-  # Combined-Slots (07/27/47 */3), damit frischer Combined-Output meist vorliegt.
+  # Fallback-Cron (2026-06-02): laeuft 40min nach den Combined-Slots, damit
+  # Confidence selbst dann laeuft, wenn der explizite Trigger aus Combined mal
+  # nicht abgesetzt wurde (z.B. Push-Fehler). Frischer Combined-Output liegt
+  # dann meist vor.
   schedule:
     - cron: '47 1,4,7,10,13,16,19,22 * * *'
 
@@ -56,8 +59,7 @@ jobs:
     # in dem Fall soll Confidence nicht laufen, weil keine neuen Daten existieren.
     if: >
       github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'schedule' ||
-      github.event.workflow_run.conclusion == 'success'
+      github.event_name == 'schedule'
 
     steps:
       # FIX SKIP-RUN-DETECT (2026-05-21): Confidence wird per workflow_run

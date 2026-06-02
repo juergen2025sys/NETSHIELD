@@ -19,7 +19,7 @@ env:
 
 permissions:
   contents: write
-  actions: read
+  actions: write    # write noetig fuer 'gh workflow run' (Confidence-Trigger am Ende)
   issues: none
   packages: none
   pull-requests: none
@@ -2331,3 +2331,31 @@ jobs:
             echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
             exit 1
           fi
+
+      - name: Trigger Confidence Blacklist
+        # Stoesst Confidence nach JEDEM echten Combined-Lauf an - egal ob
+        # dieser per Cron, per Watchdog (workflow_dispatch) oder manuell
+        # gestartet wurde. Ersetzt den frueheren workflow_run-Trigger in
+        # update_confidence_blacklist.yml (2026-06-02).
+        #
+        # WARUM expliziter Trigger statt workflow_run:
+        # - workflow_run feuerte zwar, aber Confidence hatte
+        #   'if: workflow_run.conclusion == success'. Bei einem per
+        #   concurrency-Gruppe verdraengten (cancelled) Combined-Run war die
+        #   Bedingung false -> Confidence wurde uebersprungen -> conf40 veraltete.
+        # - Ausserdem unsicher, ob workflow_run bei einem per workflow_dispatch
+        #   (Watchdog/GITHUB_TOKEN) gestarteten Combined zuverlaessig feuert.
+        # workflow_dispatch via gh ist die dokumentierte GITHUB_TOKEN-Ausnahme
+        # und startet den Run zuverlaessig.
+        #
+        # if: success() stellt sicher, dass NUR nach erfolgreichem Push
+        # getriggert wird (bei Push-Fehler ist der Output nicht im Repo).
+        # already_ran != 'true' => kein Trigger nach einem Idempotenz-Skip-Run.
+        if: success() && steps.idempotency.outputs.already_ran != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Echter Combined-Run abgeschlossen - triggere Confidence Blacklist"
+          gh workflow run update_confidence_blacklist.yml \
+            --repo "${{ github.repository }}" \
+            --ref "${GITHUB_REF_NAME}"
