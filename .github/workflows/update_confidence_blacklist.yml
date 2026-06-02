@@ -38,7 +38,7 @@ env:
 
 permissions:
   contents: write
-  actions: read
+  actions: write    # write noetig fuer 'gh workflow run' (Report-Generator-Trigger am Ende)
   issues: none
   packages: none
   pull-requests: none
@@ -843,3 +843,20 @@ jobs:
             echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
             exit 1
           fi
+
+      - name: Trigger Report Generator
+        # Stoesst den README-/Stats-Generator nach jedem erfolgreichen
+        # Confidence-Lauf an (2026-06-02). Confidence ist das letzte Glied der
+        # Daten-Kette (Combined -> Confidence), danach sind active + conf40
+        # frisch. So wird das README sofort nach dem Daten-Update erneuert,
+        # statt nur am stuendlichen Generator-Cron zu haengen (der unter Last
+        # geschluckt werden kann). Der Stundencron im Generator bleibt als
+        # Fallback. workflow_dispatch via gh ist die GITHUB_TOKEN-Ausnahme.
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Confidence abgeschlossen - triggere Report Generator (README/Stats frisch)"
+          gh workflow run netshield_report_generator.yml \
+            --repo "${{ github.repository }}" \
+            --ref "${GITHUB_REF_NAME}"
