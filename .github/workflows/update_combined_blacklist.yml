@@ -581,7 +581,14 @@ jobs:
               "shadowwhisperer_scanners":     ("https://raw.githubusercontent.com/ShadowWhisperer/IPs/master/Lists/Scanners", False),
               "shadowwhisperer_probes":       ("https://raw.githubusercontent.com/ShadowWhisperer/IPs/master/Lists/Probes", False),
               "netmountains_blocklist":     ("https://raw.githubusercontent.com/NETMOUNTAINS/Curated-IP-Blocklist/main/ip-blacklist.list", False),  # Community-Repo, kein verifizierter Betreiber
-              "bluetack_blacklist":         ("https://raw.githubusercontent.com/actuallymentor/bluetack-ip-blacklist-generator/refs/heads/master/blacklist", False),
+              # ENTFERNT bluetack_blacklist (2026-06-02): CIDR-Range-Liste im
+              # PeerGuardian/Bluetack-Format. Liefert keine echten Angreifer-IPs,
+              # sondern ~718k Range-Grenzen (Netz-/Broadcast-Adressen wie
+              # x.x.x.0 / x.x.x.255). parse_entries extrahiert diese faelschlich
+              # als Einzel-IPs (empirisch verifiziert: 717.801 Eintraege). Die
+              # CIDR-Bloecke selbst werden korrekt verworfen (is_valid_public_cidr
+              # akzeptiert nur /32, bluetack hat 0x /32). Der feed_health_monitor
+              # meldete has_ips=False (False Negative - sampelt nur CIDR-Anfang).
               "rtbh_output":                ("https://list.rtbh.com.tr/output.txt", False),
               "sefinek_malicious":          ("https://raw.githubusercontent.com/sefinek/Malicious-IP-Addresses/main/lists/main.txt", False),
               "magicteamc_bad_ips":         ("https://raw.githubusercontent.com/MagicTeaMC/bad-ips/refs/heads/main/bad-ips.txt", False),
@@ -1121,7 +1128,6 @@ jobs:
           SLOW_FEED_NAMES = {
               "bitwire_ipblocklist",
               "black_mirror",
-              "bluetack_blacklist",
               "firehol_anonymous",
               "magicteamc_bad_ips",
           }

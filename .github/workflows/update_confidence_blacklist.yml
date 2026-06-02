@@ -19,6 +19,16 @@ on:
     types: [completed]
     branches: [main]
   workflow_dispatch:
+  # Fallback-Cron (2026-06-02): Confidence wurde per workflow_run nach Combined
+  # getriggert, aber der Job hatte 'if: workflow_run.conclusion == success'. Wenn
+  # der Combined-Run durch die geteilte concurrency-group netshield-seen-db-writers
+  # als 'cancelled' verdraengt wurde (Queue-Tiefe 1), feuerte zwar workflow_run,
+  # die if-Bedingung war aber false -> Confidence uebersprungen, conf40 veraltete
+  # (Folge: active⊆conf40-Subset-Invariante brach). Dieser Cron stellt sicher,
+  # dass Confidence unabhaengig vom Combined-Trigger laeuft - 40min nach den
+  # Combined-Slots (07/27/47 */3), damit frischer Combined-Output meist vorliegt.
+  schedule:
+    - cron: '47 1,4,7,10,13,16,19,22 * * *'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -46,6 +56,7 @@ jobs:
     # in dem Fall soll Confidence nicht laufen, weil keine neuen Daten existieren.
     if: >
       github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
       github.event.workflow_run.conclusion == 'success'
 
     steps:

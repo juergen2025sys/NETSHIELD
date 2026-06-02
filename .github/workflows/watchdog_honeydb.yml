@@ -39,7 +39,10 @@ on:
     # Alle 15min (96x taeglich). Hohe Frequenz, damit selbst bei mehreren
     # geschluckten Watchdog-Slots in Folge ein geschluckter HoneyDB-Slot
     # rechtzeitig erkannt wird.
-    - cron: '*/15 * * * *'
+    # Versetzt auf :07/:22/:37/:52 (2026-06-02), damit dieser Watchdog NICHT
+    # zeitgleich mit watchdog_combined ('*/15' = :00/:15/:30/:45) startet -
+    # vermeidet die Cron-Kollision und gleichzeitige Last.
+    - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
 
 env:
