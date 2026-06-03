@@ -92,9 +92,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Fallback-Schwelle: Wenn aus irgendeinem Grund die Slot-Logik
-          # nicht greift, springt diese Schwelle ein. 210min = 3h 30min,
-          # passt zum 3h-Combined-Intervall + Puffer fuer Run-Laufzeit.
-          STALE_THRESHOLD_MINUTES: "210"
+          # nicht greift, springt diese Schwelle ein. Von 210 auf 190min
+          # gesenkt (2026-06-02): laesst das Netz frueher greifen, wenn GitHub
+          # Combined- UND Watchdog-Cron-Slots gemeinsam schluckt (Restluecke
+          # wird ~190 statt 210+ min). 190 liegt noch knapp ueber dem 3h-Takt
+          # (180min) + Run-Laufzeit, loest also bei normalem Betrieb keine
+          # verfruehten Trigger aus. Tiefer waere riskant (Combined liefe dann
+          # oefter als alle 3h). Vollstaendig schliessen laesst sich die Luecke
+          # rein intern nicht - dafuer braeuchte es den externen Tick.
+          STALE_THRESHOLD_MINUTES: "190"
           # Mindest-Laufzeit fuer "echten Run". Combined dauert normal ~22min,
           # Idempotenz-Skips 10-15s. 60s trennt sauber.
           MIN_REAL_RUN_SECONDS: "60"
