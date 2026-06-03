@@ -16,6 +16,17 @@ on:
         description: "Light-Lauf erzwingen (nur /bad-hosts, merged mit existing). Vom Watchdog genutzt, damit ein dispatch-Trigger die Liste NICHT auf den 24h-Snapshot schrumpft. Ohne diesen Input bleibt ein manueller dispatch ein Voll-Lauf."
         type: boolean
         default: false
+  # Piggyback-Trigger (2026-06-02): zweite, vom HoneyDB-eigenen Cron unabhaengige
+  # Tick-Quelle gegen HoneyDB-Ausfaelle (Slots werden teils mehrere Stunden
+  # geschluckt). Report Generator laeuft stuendlich; bei jedem Abschluss laeuft
+  # damit auch HoneyDB. WICHTIG: workflow_run hat (wie dispatch) leeren
+  # GITHUB_SCHEDULE -> der Python-Block erzwingt deshalb LIGHT bei event_name
+  # 'workflow_run' (sonst VOLL-Lauf = Liste schrumpft + ~34 Req). Ein
+  # Idempotenz-Guard (Step "Skip if HoneyDB ran recently") verhindert, dass
+  # dieser Trigger zusaetzliche Requests kostet, wenn der eigene Cron eh lief.
+  workflow_run:
+    workflows: ["NETSHIELD Report Generator"]
+    types: [completed]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -25,6 +36,9 @@ env:
   # force_light-Input durchreichen (leer bei schedule-Events). true → erzwingt
   # Light-Merge auch bei dispatch, ohne das Voll-Lauf-Default-Verhalten zu ändern.
   FORCE_LIGHT: ${{ github.event.inputs.force_light || 'false' }}
+  # Event-Name durchreichen: bei 'workflow_run' (Report-Piggyback) wird LIGHT
+  # erzwungen, damit der Trigger keinen Voll-Lauf (Schrumpfen) ausloest.
+  GITHUB_EVENT_NAME: ${{ github.event_name }}
 
 permissions:
   contents: write
@@ -49,7 +63,35 @@ jobs:
         with:
           persist-credentials: true
 
+      - name: Skip if HoneyDB ran recently
+        # Nur fuer den Report-Piggyback (workflow_run) relevant: verhindert
+        # doppelte HoneyDB-Laeufe/Requests, wenn der eigene Cron (x:15) eh
+        # gerade lief. Schuetzt das Request-Budget (Limit 1500/Monat) und
+        # daempft die Trigger-Kette Report->HoneyDB->Watchdog. Bei Cron/dispatch
+        # laeuft dieser Step nicht -> HoneyDB laeuft normal.
+        id: recent
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cutoff=$(date -u -d '45 min ago' +%s)
+          recent=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=honeydb_monitor.yml \
+            --status=success \
+            --limit=15 \
+            --json startedAt \
+            --jq "[.[] | select((.startedAt|fromdateiso8601) > $cutoff)] | length" 2>/dev/null || echo 0)
+          if [ "$recent" -gt 0 ]; then
+            echo "HoneyDB lief in den letzten 45min schon ($recent Lauf/Laeufe) - skip, kein Request"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Kein HoneyDB-Lauf in den letzten 45min - fuehre aus"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Fetch HoneyDB Threat Data
+        if: steps.recent.outputs.skip != 'true'
         env:
           HONEYDB_API_ID:  ${{ secrets.HONEYDB_API_ID }}
           HONEYDB_API_KEY: ${{ secrets.HONEYDB_API_KEY }}
@@ -99,7 +141,11 @@ jobs:
           # schrumpft. Manueller dispatch ohne Input → FORCE_LIGHT=false →
           # weiterhin Voll-Lauf (bisheriges Verhalten unverändert).
           FORCE_LIGHT       = os.environ.get("FORCE_LIGHT", "false").lower() == "true"
-          LIGHT_RUN         = FORCE_LIGHT or (bool(SCHEDULE) and SCHEDULE != FULL_RUN_SCHEDULE)
+          # EVENT == 'workflow_run' (Report-Piggyback) -> LIGHT erzwingen.
+          # workflow_run hat leeren GITHUB_SCHEDULE; ohne diese Zeile waere es
+          # ein Voll-Lauf (kein Merge -> Liste schrumpft auf 24h-Snapshot).
+          EVENT             = os.environ.get("GITHUB_EVENT_NAME", "")
+          LIGHT_RUN         = FORCE_LIGHT or EVENT == "workflow_run" or (bool(SCHEDULE) and SCHEDULE != FULL_RUN_SCHEDULE)
           run_mode_label    = "LIGHT" if LIGHT_RUN else "VOLL"
           print(f"Run-Modus: {run_mode_label} (schedule={SCHEDULE or 'manual/dispatch'})")
 
