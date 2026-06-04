@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-06-03 22:04 UTC
+**Aktualisiert:** 2026-06-04 06:06 UTC
 
 **Workflows:** 24 | ✅ 23 OK | ⚠️ 4 Warnung | ❌ 0 Fehler
 
@@ -10,10 +10,10 @@
 |---|---|---|
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Workflow-Reihenfolge / Puffer zu knapp | 00:30 UTC → 00:47 UTC (17min < 60min); 06:30 UTC → 06:47 UTC (17min < 60min); 12:30 UTC → 12:47 UTC (17min < 60min); 18:30 UTC → 18:47 UTC (17min < 60min) |
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 6 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "fadouse_malware" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_c2" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_rat" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_stealer" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_loader" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_worm" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel) |
-| `honeydb_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:15 UTC → 00:27 UTC (12min < 60min Mindestpuffer); 02:15 UTC → 03:07 UTC (52min < 60min Mindestpuffer); 03:15 UTC → 03:27 UTC (12min < 60min Mindestpuffer); 05:15 UTC → 06:07 UTC (52min < 60min Mindestpuffer); 06:15 UTC → 06:27 UTC (12min < 60min Mindestpuffer) |
+| `honigtopf.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:15 UTC → 00:27 UTC (12min < 60min Mindestpuffer); 02:15 UTC → 03:07 UTC (52min < 60min Mindestpuffer); 03:15 UTC → 03:27 UTC (12min < 60min Mindestpuffer); 05:15 UTC → 06:07 UTC (52min < 60min Mindestpuffer); 06:15 UTC → 06:27 UTC (12min < 60min Mindestpuffer) |
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:30 UTC → 00:47 UTC (17min < 60min Mindestpuffer); 06:30 UTC → 06:47 UTC (17min < 60min Mindestpuffer); 12:30 UTC → 12:47 UTC (17min < 60min Mindestpuffer); 18:30 UTC → 18:47 UTC (17min < 60min Mindestpuffer) |
-| `Production Health` | Feed-Ausfälle | 2 von 116 Feeds ausgefallen: neblink_known_scanners, rutgers_drop |
-| `Production Health` | Push-Limit Naehe | seen_db_backup.json.gz: 83.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Drift: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt: 516,257 → 409,516 (-21%) – deutlicher Rückgang |
+| `Production Health` | Push-Limit Naehe | seen_db_backup.json.gz: 83.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Push-Limit Naehe | blacklist_geo_enriched.json: 93.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 82.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Truncate aktiv | blacklist_geo_enriched.json: Splitting weiterhin aktiv (2 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
@@ -24,8 +24,8 @@
 
 | Level | Check | Detail |
 |---|---|---|
-| 🟡 WARN | Feed-Ausfälle | 2 von 116 Feeds ausgefallen: neblink_known_scanners, rutgers_drop |
-| 🟡 WARN | Push-Limit Naehe | seen_db_backup.json.gz: 83.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Drift: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt: 516,257 → 409,516 (-21%) – deutlicher Rückgang |
+| 🟡 WARN | Push-Limit Naehe | seen_db_backup.json.gz: 83.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Push-Limit Naehe | blacklist_geo_enriched.json: 93.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 82.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Truncate aktiv | blacklist_geo_enriched.json: Splitting weiterhin aktiv (2 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
@@ -44,8 +44,8 @@
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `geo_tagger.yml` | ✅ OK | 0 | 0 | `45 7 * * 0` |
-| `honeydb_monitor.yml` | ✅ OK | 0 | 0 | `15 * * * *` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `30 */6 * * *` |
+| `honigtopf.yml` | ✅ OK | 0 | 0 | `15 * * * *` |
 | `netshield_report_generator.yml` | ✅ OK | 0 | 0 | `30 * * * *` |
 | `run_tests.yml` | ✅ OK | 0 | 0 | – |
 | `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
@@ -55,9 +55,9 @@
 | `update_combined_blacklist.yml` | ✅ OK | 0 | 0 | `7 */3 * * *`, `27 */3 * * *`, `47 */3 * * *` |
 | `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | `47 1,4,7,10,13,16,19,22 * * *` |
 | `watchdog_combined.yml` | ✅ OK | 0 | 0 | `*/15 * * * *` |
-| `watchdog_honeydb.yml` | ✅ OK | 0 | 0 | `7,22,37,52 * * * *` |
+| `watchdog_honigtopf.yml` | ✅ OK | 0 | 0 | `7,22,37,52 * * * *` |
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-06-03 22:04 UTC | 24 Workflow-Dateien geprüft*
+*Generiert: 2026-06-04 06:06 UTC | 24 Workflow-Dateien geprüft*

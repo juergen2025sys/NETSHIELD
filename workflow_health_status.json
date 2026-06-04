@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-03 22:04 UTC",
+  "updated": "2026-06-04 06:06 UTC",
   "total": 24,
   "ok": 23,
   "warn": 4,
@@ -17,7 +17,7 @@
       "detail": "6 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"fadouse_malware\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_c2\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_rat\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_stealer\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_loader\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_worm\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel)"
     },
     {
-      "file": "honeydb_monitor.yml \u2192 update_combined_blacklist.yml",
+      "file": "honigtopf.yml \u2192 update_combined_blacklist.yml",
       "check": "Sub-Workflow Puffer zu knapp",
       "detail": "Sub-Workflow laueft zu knapp vor Combined \u2013 Output moeglicherweise nicht rechtzeitig verfuegbar: 00:15 UTC \u2192 00:27 UTC (12min < 60min Mindestpuffer); 02:15 UTC \u2192 03:07 UTC (52min < 60min Mindestpuffer); 03:15 UTC \u2192 03:27 UTC (12min < 60min Mindestpuffer); 05:15 UTC \u2192 06:07 UTC (52min < 60min Mindestpuffer); 06:15 UTC \u2192 06:27 UTC (12min < 60min Mindestpuffer)"
     },
@@ -28,13 +28,13 @@
     },
     {
       "file": "Production Health",
-      "check": "Feed-Ausf\u00e4lle",
-      "detail": "2 von 116 Feeds ausgefallen: neblink_known_scanners, rutgers_drop"
+      "check": "Drift: active_blacklist_ipv4.txt",
+      "detail": "active_blacklist_ipv4.txt: 516,257 \u2192 409,516 (-21%) \u2013 deutlicher R\u00fcckgang"
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "seen_db_backup.json.gz: 83.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "seen_db_backup.json.gz: 83.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
@@ -53,11 +53,11 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6022730,
-    "active_blacklist_ipv4.txt": 516257,
-    "blacklist_confidence40_ipv4.txt": 4781045,
+    "combined_threat_blacklist_ipv4.txt": 6024175,
+    "active_blacklist_ipv4.txt": 409516,
+    "blacklist_confidence40_ipv4.txt": 4785716,
     "cve_exploit_ips.txt": 35157,
-    "honeypot_ips.txt": 944295,
+    "honeypot_ips.txt": 945109,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
@@ -66,13 +66,13 @@
     "checks": [
       {
         "level": "WARN",
-        "check": "Feed-Ausf\u00e4lle",
-        "detail": "2 von 116 Feeds ausgefallen: neblink_known_scanners, rutgers_drop"
+        "check": "Drift: active_blacklist_ipv4.txt",
+        "detail": "active_blacklist_ipv4.txt: 516,257 \u2192 409,516 (-21%) \u2013 deutlicher R\u00fcckgang"
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "seen_db_backup.json.gz: 83.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "seen_db_backup.json.gz: 83.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
