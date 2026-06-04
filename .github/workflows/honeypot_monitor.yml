@@ -145,6 +145,10 @@ jobs:
           # - stratosphere_aip_alpha7 ergänzt (April 2026): 7-Tage-Fenster aller
           #   Attacker aus demselben CTU-Honeypot-Netzwerk. Komplementär zu _New
           #   (das auf neue Angreifer fokussiert). CSV 'ip,score', tägl. rotiert.
+          # - stratosphere_aip_alpha ergänzt (Juni 2026): 24h-Fenster ALLER
+          #   Attacker (ohne Ranking) aus demselben CTU-Honeypot-Netzwerk.
+          #   Direktestes Aequivalent zum bisherigen HoneyDB-24h-bad-hosts-
+          #   Snapshot. Format: Header 'attacker' + eine IPv4/Zeile (kein score).
           # - honeysec_ip2 ergänzt (April 2026): Honeypot-Netzwerk der UCM Trnava
           #   (SK), Institut für Computertechnik und Informatik. ip_2 = IPs mit
           #   ≥2 Login-Versuchen (vom Betreiber als Standard empfohlen). Plain
@@ -171,6 +175,7 @@ jobs:
           # - jamesbrine_honeypot: AU-Honeypot-Netzwerk, SSH/FTP/RDP/GIT/SNMP/REDIS
           # - stratosphere_aip: CTU Prag IoT-Honeypot, Prioritize_New (emerging Attacker)
           # - stratosphere_aip_alpha7: CTU Prag IoT-Honeypot, 7-Tage-Fenster
+          # - stratosphere_aip_alpha: CTU Prag IoT-Honeypot, 24h alle Attacker (kein Ranking)
           # - honeysec_ip2: UCM Trnava Honeypot-Netzwerk, ≥2 Login-Versuche
           # - crash0v3r1de_mikrotik: Mikrotik-Bruteforce-Honeypot (Single-Operator)
           # ══════════════════════════════════════════════════════════════════
@@ -292,6 +297,16 @@ jobs:
               # persistenter Angreifer ab. CSV 'ip,score', tägl. rotiert.
               "stratosphere_aip_alpha7":
                   "https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Alpha7-latest.csv",
+
+              # Stratosphere AIP Alpha: Alle Attacker-IPs der letzten 24h aus
+              # demselben CTU-Honeypot-Netzwerk, OHNE Ranking (reine IP-Liste).
+              # Direktestes Aequivalent zum 24h-bad-hosts-Snapshot, den frueher
+              # HoneyDB lieferte. Format: Header-Zeile 'attacker', dann eine IPv4
+              # pro Zeile (kein score) – parse_entries() filtert den Header via
+              # IPv4-Regex automatisch. Gleicher Host wie _New/_alpha7, kein
+              # Bot-Gate → normaler fetch(), NICHT in LARGE_SOURCES.
+              "stratosphere_aip_alpha":
+                  "https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Alpha-latest.csv",
 
               # HoneySEC ip_2: Honeypot-Netzwerk der Universität der hl. Cyrill
               # und Method in Trnava (UCM, SK), Fakultaet fuer Naturwissenschaften,
