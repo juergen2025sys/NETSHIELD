@@ -172,7 +172,7 @@ jobs:
               "cve_exploit_ips.txt": "CVE Exploit IPs",
               "bot_detector_blacklist_ipv4.txt": "Bot-Detector Blacklist",
               "honeypot_ips.txt": "Honeypot IPs",
-              "honeydb_ips.txt": "HoneyDB Community Honeypot (API)",
+              "honigtopf_ips.txt": "Honigtopf Community Honeypot (API)",
           }
 
           lines = []
@@ -546,7 +546,7 @@ jobs:
               "bot_detector_blacklist_ipv4.txt": lambda n: f"**{n:,}**",
               "abuseipdb_api_blacklist.txt": lambda n: f"**{n:,}**",
               "honeypot_ips.txt": lambda n: f"**{n:,}**",
-              "honeydb_ips.txt": lambda n: f"**{n:,}**",
+              "honigtopf_ips.txt": lambda n: f"**{n:,}**",
               "asn_blocklist_firewall.txt": lambda n: f"**{n:,}**",
           }
 

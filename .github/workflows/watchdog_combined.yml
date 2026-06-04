@@ -59,16 +59,16 @@ on:
   # Belegt (Luecke 2026-06-01 00:27->02:00): GitHub verwirft scheduled Slots
   # unter Last ohne Retry - auch die 15min-Watchdog-Slots selbst. workflow_run
   # ist EVENT-getrieben (Abschluss eines anderen Workflows), haengt also nicht
-  # in der zeitgesteuerten Cron-Queue. HoneyDB Monitor laeuft stuendlich; bei
+  # in der zeitgesteuerten Cron-Queue. Honigtopf laeuft stuendlich; bei
   # jedem Abschluss laeuft damit auch der Watchdog - eine zweite, vom Watchdog-
-  # Cron unabhaengige Tick-Quelle. Greift nur, wenn HoneyDB selbst durchkam;
+  # Cron unabhaengige Tick-Quelle. Greift nur, wenn Honigtopf selbst durchkam;
   # bei breiter GitHub-Last koennen beide ausfallen (kein 100%-Fix). Der
   # 15min-schedule-Cron oben bleibt als Redundanz erhalten.
   # WICHTIG: 'workflows' referenziert den name: des Quell-Workflows, nicht
   # den Dateinamen. Die Watchdog-Datei muss dafuer auf dem Default-Branch
   # (main) liegen.
   workflow_run:
-    workflows: ["HoneyDB Monitor"]
+    workflows: ["Honigtopf"]
     types: [completed]
 
 env:

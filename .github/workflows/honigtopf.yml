@@ -1,0 +1,553 @@
+name: Honigtopf
+
+on:
+  schedule:
+    # Stündlicher Light-Lauf (x:15 UTC) – nur /bad-hosts (1 Req je Lauf).
+    # Holt jede Stunde einen frischen 24h-Snapshot der All-Liste und merged mit
+    # existing, damit das rotierende 24h-Fenster möglichst lückenlos eingefangen
+    # wird (häufigeres Polling = mehr von der Rotation, nicht mehr Gesamt-IPs).
+    # Budget: 24 Läufe/Tag × 1 Req = ~720/Monat (Limit 1500/Monat).
+    # Voll-Lauf (/services + Service-Endpunkte) nur noch via workflow_dispatch –
+    # er liefert ohne eigene Sensoren keine zusätzlichen IPs, nur Statistik.
+    - cron: '15 * * * *'
+  workflow_dispatch:
+    inputs:
+      force_light:
+        description: "Light-Lauf erzwingen (nur /bad-hosts, merged mit existing). Vom Watchdog genutzt, damit ein dispatch-Trigger die Liste NICHT auf den 24h-Snapshot schrumpft. Ohne diesen Input bleibt ein manueller dispatch ein Voll-Lauf."
+        type: boolean
+        default: false
+  # Piggyback-Trigger (2026-06-02): zweite, vom Honigtopf-eigenen Cron unabhaengige
+  # Tick-Quelle gegen Honigtopf-Ausfaelle (Slots werden teils mehrere Stunden
+  # geschluckt). Report Generator laeuft stuendlich; bei jedem Abschluss laeuft
+  # damit auch Honigtopf. WICHTIG: workflow_run hat (wie dispatch) leeren
+  # GITHUB_SCHEDULE -> der Python-Block erzwingt deshalb LIGHT bei event_name
+  # 'workflow_run' (sonst VOLL-Lauf = Liste schrumpft + ~34 Req). Ein
+  # Idempotenz-Guard (Step "Skip if Honigtopf ran recently") verhindert, dass
+  # dieser Trigger zusaetzliche Requests kostet, wenn der eigene Cron eh lief.
+  workflow_run:
+    workflows: ["NETSHIELD Report Generator"]
+    types: [completed]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # Schedule durchreichen, damit der Python-Block Voll- vs. Light-Lauf unterscheidet.
+  # Bei workflow_dispatch ist der String leer → Default Voll-Lauf.
+  GITHUB_SCHEDULE: ${{ github.event.schedule }}
+  # force_light-Input durchreichen (leer bei schedule-Events). true → erzwingt
+  # Light-Merge auch bei dispatch, ohne das Voll-Lauf-Default-Verhalten zu ändern.
+  FORCE_LIGHT: ${{ github.event.inputs.force_light || 'false' }}
+  # Event-Name durchreichen: bei 'workflow_run' (Report-Piggyback) wird LIGHT
+  # erzwungen, damit der Trigger keinen Voll-Lauf (Schrumpfen) ausloest.
+  GITHUB_EVENT_NAME: ${{ github.event_name }}
+
+permissions:
+  contents: write
+  actions: read
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  honigtopf-monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: true
+
+      - name: Skip if Honigtopf ran recently
+        # Nur fuer den Report-Piggyback (workflow_run) relevant: verhindert
+        # doppelte Honigtopf-Laeufe/Requests, wenn der eigene Cron (x:15) eh
+        # gerade lief. Schuetzt das Request-Budget (Limit 1500/Monat) und
+        # daempft die Trigger-Kette Report->Honigtopf->Watchdog. Bei Cron/dispatch
+        # laeuft dieser Step nicht -> Honigtopf laeuft normal.
+        id: recent
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cutoff=$(date -u -d '45 min ago' +%s)
+          recent=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=honigtopf.yml \
+            --status=success \
+            --limit=15 \
+            --json startedAt \
+            --jq "[.[] | select((.startedAt|fromdateiso8601) > $cutoff)] | length" 2>/dev/null || echo 0)
+          if [ "$recent" -gt 0 ]; then
+            echo "Honigtopf lief in den letzten 45min schon ($recent Lauf/Laeufe) - skip, kein Request"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Kein Honigtopf-Lauf in den letzten 45min - fuehre aus"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fetch Honigtopf Threat Data
+        if: steps.recent.outputs.skip != 'true'
+        env:
+          HONEYDB_API_ID:  ${{ secrets.HONEYDB_API_ID }}
+          HONEYDB_API_KEY: ${{ secrets.HONEYDB_API_KEY }}
+        run: |
+          python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries as _parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+
+              write_text_atomic,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
+          import urllib.request
+          import urllib.error
+          import json
+          import os
+          import sys
+          import time
+          import ipaddress
+          from datetime import datetime, timezone, timedelta
+
+          now     = datetime.now(timezone.utc)
+          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+          today   = now.strftime("%Y-%m-%d")
+
+          # Voll- vs. Light-Lauf unterscheiden anhand des Cron-Schedules.
+          # Geplante Läufe (stündlich, x:15): immer Light – nur /bad-hosts, merged
+          #   mit existing. Kein geplanter Cron matcht FULL_RUN_SCHEDULE mehr.
+          # workflow_dispatch / leerer Schedule → Voll-Lauf (/services + alle
+          #   Service-Endpunkte). FULL_RUN_SCHEDULE bleibt als Marker erhalten:
+          #   wer wieder einen geplanten Voll-Lauf will, ergänzt diesen Cron oben.
+          FULL_RUN_SCHEDULE = "15 22 * * *"
+          SCHEDULE          = os.environ.get("GITHUB_SCHEDULE", "")
+          # FORCE_LIGHT: per workflow_dispatch-Input erzwungener Light-Lauf
+          # (Watchdog nutzt das). Hat Vorrang, damit ein dispatch-Trigger des
+          # Watchdogs MIT Merge läuft und die Liste nicht auf den 24h-Snapshot
+          # schrumpft. Manueller dispatch ohne Input → FORCE_LIGHT=false →
+          # weiterhin Voll-Lauf (bisheriges Verhalten unverändert).
+          FORCE_LIGHT       = os.environ.get("FORCE_LIGHT", "false").lower() == "true"
+          # EVENT == 'workflow_run' (Report-Piggyback) -> LIGHT erzwingen.
+          # workflow_run hat leeren GITHUB_SCHEDULE; ohne diese Zeile waere es
+          # ein Voll-Lauf (kein Merge -> Liste schrumpft auf 24h-Snapshot).
+          EVENT             = os.environ.get("GITHUB_EVENT_NAME", "")
+          LIGHT_RUN         = FORCE_LIGHT or EVENT == "workflow_run" or (bool(SCHEDULE) and SCHEDULE != FULL_RUN_SCHEDULE)
+          run_mode_label    = "LIGHT" if LIGHT_RUN else "VOLL"
+          print(f"Run-Modus: {run_mode_label} (schedule={SCHEDULE or 'manual/dispatch'})")
+
+          API_ID  = os.environ.get("HONEYDB_API_ID",  "")
+          API_KEY = os.environ.get("HONEYDB_API_KEY", "")
+
+          if not API_ID or not API_KEY:
+              print("FEHLER: HONEYDB_API_ID oder HONEYDB_API_KEY nicht gesetzt!")
+              print("GitHub Secret anlegen: Settings → Secrets and variables → Actions")
+              sys.exit(1)
+
+          BASE_URL = "https://honeydb.io/api"
+
+          # ── IP-Validierung via ipaddress-Modul (korrekt für alle Sonderfälle) ──
+          def is_private(ip):
+              try:
+                  obj = ipaddress.ip_address(ip)
+                  return (obj.version != 4
+                          or obj.is_private
+                          or obj.is_loopback
+                          or obj.is_multicast
+                          or obj.is_reserved
+                          or obj.is_link_local
+                          or obj.is_unspecified)
+              except Exception:
+                  return True
+
+          def is_valid_ipv4(ip):
+              try:
+                  obj = ipaddress.ip_address(ip)
+                  return obj.version == 4
+              except Exception:
+                  return False
+
+          # FP-Set wird oben via load_fp_set() geladen – is_in_fp_set() greift
+          # auf die globalen Strukturen in netshield_common zu. Frühere lokale
+          # Re-Implementierung entfernt (war ungenutzt, _fp_ips/_fp_networks
+          # wurden nirgends gelesen).
+
+          # is_in_fp_set() → importiert aus netshield_common
+          # ── API-Helper ────────────────────────────────────────────────────
+          requests_used = 0
+
+          def api_get(endpoint, label="", retries=3):
+              global requests_used
+              url = f"{BASE_URL}{endpoint}"
+              for attempt in range(1, retries + 1):
+                  req = urllib.request.Request(url, headers={
+                      "X-HoneyDb-ApiId":  API_ID,
+                      "X-HoneyDb-ApiKey": API_KEY,
+                      "User-Agent":       "NETSHIELD-Honigtopf/1.0",
+                  })
+                  try:
+                      with urllib.request.urlopen(req, timeout=30) as r:
+                          remaining = r.headers.get("honeydb-qpm-remaining", "?")
+                          consumed  = r.headers.get("honeydb-qpm-consumed",  "?")
+                          requests_used += 1
+                          print(f"  [{label or endpoint}] HTTP {r.status} | verbraucht: {consumed} | verbleibend: {remaining}/1500")
+                          return json.loads(r.read().decode("utf-8", errors="ignore"))
+                  except urllib.error.HTTPError as e:
+                      if e.code == 429:
+                          print(f"  RATE LIMIT [{label or endpoint}] – übersprungen")
+                          return None
+                      if e.code == 401:
+                          print(f"  AUTHENTIFIZIERUNG FEHLGESCHLAGEN [{label or endpoint}] – API Key prüfen!")
+                          return None
+                      if e.code in (500, 502, 503, 504) and attempt < retries:
+                          wait_s = 2 ** attempt
+                          print(f"  HTTP {e.code} [{label or endpoint}] – Retry in {wait_s}s ({attempt}/{retries})")
+                          time.sleep(wait_s)
+                          continue
+                      print(f"  HTTP {e.code} [{label or endpoint}]: {e.reason}")
+                      return None
+                  except Exception as e:
+                      if attempt < retries:
+                          wait_s = 2 ** attempt
+                          print(f"  FEHLER [{label or endpoint}]: {e} – Retry in {wait_s}s ({attempt}/{retries})")
+                          time.sleep(wait_s)
+                          continue
+                      print(f"  FEHLER [{label or endpoint}]: {e}")
+                      return None
+
+          def extract_ips_from_list(data):
+              ips = set()
+              if isinstance(data, list):
+                  for entry in data:
+                      ip = entry.get("remote_host", "") if isinstance(entry, dict) else ""
+                      if ip and is_valid_ipv4(ip) and not is_private(ip):
+                          ips.add(ip)
+              return ips
+
+          all_ips = set()
+          stats   = {}
+
+          # ── 1) Bad Hosts – alle (letzte 24h) ─────────────────────────────
+          print("\n[1/5] Bad Hosts (alle, letzte 24h)...")
+          data = api_get("/bad-hosts", "bad-hosts")
+          if data:
+              ips = extract_ips_from_list(data)
+              all_ips.update(ips)
+              stats["Bad Hosts (24h, alle Dienste)"] = len(ips)
+              print(f"  → {len(ips)} IPs")
+          else:
+              stats["Bad Hosts (24h, alle Dienste)"] = 0
+
+          # ── 2) Bad Hosts nach Dienst ──────────────────────────────────────
+          # Request-Budget:
+          #   Geplant (stündlich Light): 1 (bad-hosts) je Lauf × 24 = ~720/Monat.
+          #   Voll-Lauf (nur via dispatch): 1 (services) + 1 (bad-hosts)
+          #     + N (Service-Endpunkte) ≈ 34 Req – fällt nur bei manuellem Trigger an.
+          #
+          # Service-Liste wird DYNAMISCH aus /services gezogen, damit wir keine
+          # Namen raten (404-Risiko) und nur Honigtopf-aktive Dienste abfragen.
+          #
+          # FP-Block-Liste (case-insensitive): Diese Dienste werden BEWUSST
+          # ausgeschlossen, weil legitimer Traffic gegen unbekannte Hosts
+          # auf diesen Ports nennenswert vorkommt:
+          #   SMTP → Mailserver-zu-Mailserver-Probes (SPF/DKIM, Spam-Filter,
+          #          Backscatter, Mailing-List-Software)
+          #   DNS  → legitime Recursion-Probes von DNS-Resolvern
+          #   NTP  → legitime Time-Pollers (pool.ntp.org-Teilnehmer pollen
+          #          weltweit gegen unbekannte Hosts)
+          #   IMAP/POP3/HTTPS → ähnliche Mail-/Web-Client-Risiken
+          FP_BLOCK_SERVICES = {"SMTP", "DNS", "NTP", "IMAP", "POP3", "HTTPS"}
+          FALLBACK_SERVICES = ["SSH", "HTTP", "TELNET", "FTP"]
+
+          # /services + alle Service-spezifischen Endpunkte – nur im Voll-Lauf
+          # Bei LIGHT_RUN: skip → spart ~33 Requests, hält Tageslimit ein
+          if LIGHT_RUN:
+              svc_data      = None
+              SERVICES      = []
+              service_stats = {}
+              print(f"\n[2a/5] Services-Liste – LIGHT_RUN, übersprungen")
+              print(f"[2/5]  Bad Hosts nach Dienst – LIGHT_RUN, übersprungen")
+          else:
+              # /services zuerst holen → liefert aktuell aktive Services
+              print(f"\n[2a/5] Services-Liste abrufen...")
+              svc_data = api_get("/services", "services")
+
+              def _extract_service_name(entry):
+                  """Defensiv: Service-Name aus Eintrag extrahieren."""
+                  if isinstance(entry, str):
+                      return entry
+                  if isinstance(entry, dict):
+                      for key in ("service", "name", "service_name"):
+                          v = entry.get(key)
+                          if isinstance(v, str) and v:
+                              return v
+                  return None
+
+              SERVICES = []
+              if svc_data and isinstance(svc_data, list):
+                  for entry in svc_data:
+                      name = _extract_service_name(entry)
+                      if name and name.upper() not in {s.upper() for s in FP_BLOCK_SERVICES}:
+                          SERVICES.append(name)
+                  print(f"  → {len(svc_data)} Services gemeldet, {len(SERVICES)} nach FP-Filter")
+              if not SERVICES:
+                  print(f"  WARNUNG: /services lieferte nichts Brauchbares – Fallback-Liste")
+                  SERVICES = FALLBACK_SERVICES[:]
+              print(f"\n[2/5] Bad Hosts nach Dienst ({', '.join(SERVICES)})...")
+              service_stats = {}
+              for svc in SERVICES:
+                  data = api_get(f"/bad-hosts/{svc}", f"bad-hosts/{svc}")
+                  if data:
+                      ips = extract_ips_from_list(data)
+                      all_ips.update(ips)
+                      service_stats[svc] = len(ips)
+                      stats[f"Bad Hosts – {svc}"] = len(ips)
+                      print(f"  → {svc}: {len(ips)} IPs")
+                  else:
+                      service_stats[svc] = 0
+                      stats[f"Bad Hosts – {svc}"] = 0
+
+          # ── 3) Sensor Event Data – gestern (letzter vollständiger Tag) ────
+          # WICHTIG: /sensor-data/{date} liefert NUR Events deiner eigenen
+          # honeydb-agent-Sensoren zurück (laut Honigtopf-Doku: "all of YOUR
+          # sensor event data"). Ohne eigene Sensoren ist count immer 0.
+          # Default: skip → spart 1 Request/Tag (count-Call).
+          # Wer eigene Sensoren betreibt: HONIGTOPF_OWN_SENSORS=true setzen.
+          OWN_SENSORS    = os.environ.get("HONIGTOPF_OWN_SENSORS", "false").lower() == "true"
+          yesterday      = (now - timedelta(days=1)).strftime("%Y-%m-%d")
+          sensor_ips     = set()
+          sensor_total   = 0   # Gesamt-Events (inkl. Duplikate) für Report-Transparenz
+          sensor_skipped = not OWN_SENSORS
+
+          if sensor_skipped:
+              print(f"\n[3/5] Sensor Event Data – übersprungen (HONIGTOPF_OWN_SENSORS != true)")
+              print(f"  Endpunkt liefert nur eigene Sensor-Events; ohne eigene Agents immer 0.")
+          else:
+              print(f"\n[3/5] Sensor Event Data – {yesterday} (mit Paging)...")
+
+          # Zuerst Count abrufen (1 Request) – nur wenn eigene Sensoren konfiguriert
+          count_data = api_get(f"/sensor-data/{yesterday}/count", f"sensor-data/{yesterday}/count") if not sensor_skipped else None
+          if count_data and isinstance(count_data, dict):
+              total_events = count_data.get("count", 0)
+              print(f"  Gesamt Events am {yesterday}: {total_events}")
+
+              # Paging: max. 5 Pages (5000 Events) um Request-Limit zu schonen
+              MAX_PAGES = 5
+              from_id   = 0
+              page      = 0
+              while page < MAX_PAGES:
+                  endpoint = f"/sensor-data/{yesterday}"
+                  if from_id > 0:
+                      endpoint += f"?from_id={from_id}"
+                  data = api_get(endpoint, f"sensor-data page {page+1}")
+                  if not data or not isinstance(data, dict):
+                      break
+                  events  = data.get("data", [])
+                  # API liefert "from_id" als next-page-Cursor; fehlt er → keine weiteren Seiten.
+                  # Fallback: wenn "next_from_id" statt "from_id" geliefert wird, beide prüfen.
+                  # FIX CURSOR1: Cursor-Extraktion mit expliziter None-Prüfung.
+                  # "from_id" hat Vorrang vor "next_from_id"; fehlt beides → None.
+                  if "from_id" in data:
+                      next_from_id = data["from_id"]
+                  elif "next_from_id" in data:
+                      next_from_id = data["next_from_id"]
+                  else:
+                      next_from_id = None
+                  for event in events:
+                      ip = event.get("remote_host", "")
+                      if ip and is_valid_ipv4(ip) and not is_private(ip):
+                          sensor_ips.add(ip)
+                  sensor_total += len(events)
+                  print(f"  Page {page+1}: {len(events)} Events, from_id={next_from_id}")
+                  page += 1
+                  # FIX CURSOR1: Abbruchbedingungen VOR from_id-Zuweisung prüfen.
+                  # Vorher stand `from_id = next_from_id` nach dem break → bei
+                  # next_from_id=0 wurde 0 zugewiesen und die nächste Iteration
+                  # rief ?from_id=0 auf (= erster Request) → Duplikat-Seiten.
+                  # Jetzt: erst prüfen, dann nur bei Fortschritt zuweisen.
+                  if next_from_id is None:
+                      break   # Kein Cursor → letzte Seite
+                  if not events:
+                      break   # Leere Seite → keine weiteren Daten
+                  if not isinstance(next_from_id, int):
+                      break   # Unerwarteter Typ → sicher abbrechen
+                  from_id = next_from_id
+          elif not sensor_skipped:
+              print(f"  Sensor-Count für {yesterday} nicht verfügbar")
+
+          all_ips.update(sensor_ips)
+          if not sensor_skipped:
+              stats[f"Sensor Events – {yesterday} (bis 5000)"] = len(sensor_ips)
+              stats[f"Sensor Events – {yesterday} (gesamt, m. Duplikaten)"] = sensor_total
+              print(f"  → {len(sensor_ips)} einzigartige Sensor-IPs ({sensor_total} Events gesamt)")
+
+          # ── 4) Services (aktive Dienste, letzte 24h) ──────────────────────
+          # Liefert Übersicht welche Dienste aktiv angegriffen werden.
+          # Wiederverwendung von svc_data aus Schritt [2a/5] – kein neuer Request.
+          print(f"\n[4/5] Services (aktive Dienste, letzte 24h)...")
+          top_services = []
+          if svc_data and isinstance(svc_data, list):
+              top_services = sorted(svc_data, key=lambda x: x.get("count", 0) if isinstance(x, dict) else 0, reverse=True)[:10]
+              print(f"  → {len(svc_data)} aktive Dienste (aus Schritt [2a/5] übernommen)")
+          else:
+              print("  → Keine Dienst-Daten verfügbar")
+
+          # ── 5) Zusammenfassung ────────────────────────────────────────────
+          print(f"\n[5/5] Zusammenfassung...")
+          print(f"  Gesamt einzigartige IPs: {len(all_ips)}")
+          print(f"  API Requests verbraucht: {requests_used}")
+
+          # ── Ausgabedatei schreiben ────────────────────────────────────────
+          HONIGTOPF_FILE = "honigtopf_ips.txt"
+          existing = set()
+          if os.path.exists(HONIGTOPF_FILE):
+              with open(HONIGTOPF_FILE) as f:
+                  existing = {l.strip() for l in f if l.strip() and not l.startswith("#")}
+
+          # FIX BUG#3: FP- und Whitelist-Filter VOR der Delta-Berechnung anwenden.
+          # Vorher wurden new_ips/removed_ips vor dem Filtern berechnet → Report
+          # zeigte überhöhte +neu/-entfernt-Zahlen (gefilterte IPs zählten als "neu").
+          # Blacklist-Inhalt war korrekt; nur Statistik war falsch.
+          # FP-Filter: IPs aus false_positives_set.json entfernen
+          fp_removed = {ip for ip in all_ips if is_in_fp_set(ip)}
+          if fp_removed:
+              all_ips -= fp_removed
+              print(f"FP-Filter: {len(fp_removed)} IPs entfernt")
+          # FIX BUG-WL-HONIGTOPF (2026-04-19): Whitelist-Filter fehlte komplett.
+          # Ohne diesen Filter landeten IPs aus whitelist.json (Google 172.217/16,
+          # 74.125/16, 173.194/16, Cloudflare 141.101.64/18, 103.22.200/22 etc.)
+          # in honigtopf_ips.txt. Downstream (combined) filtert zwar via
+          # parse_entries(use_protected_check=True), aber die Zwischendatei selbst
+          # ist dann verunreinigt – wer honigtopf_ips.txt direkt als Firewall-
+          # Blocklist nutzt, sperrt damit Google/Cloudflare.
+          # Analog zu honeypot_monitor.yml und update_bot_detector.yml.
+          wl_removed = {ip for ip in all_ips if is_whitelisted(ip)}
+          if wl_removed:
+              all_ips -= wl_removed
+              print(f"Whitelist-Filter: {len(wl_removed)} IPs entfernt")
+
+          # LIGHT_RUN: existing dazu mergen, damit die Datei zwischen den Läufen nicht
+          # schrumpft. Die kumulierte Sammlung (inkl. Service-IPs aus einem etwaigen
+          # dispatch-Voll-Lauf) bleibt erhalten,
+          # die /bad-hosts-IPs aus diesem Light-Lauf werden ergänzt.
+          # WICHTIG: existing nochmal durch FP/WL-Filter, falls sich die Listen
+          # zwischenzeitlich geändert haben (sonst bleiben FPs hängen).
+          if LIGHT_RUN and existing:
+              existing_clean = {
+                  ip for ip in existing
+                  if is_valid_ipv4(ip)
+                  and not is_private(ip)
+                  and not is_in_fp_set(ip)
+                  and not is_whitelisted(ip)
+              }
+              before_merge = len(all_ips)
+              all_ips |= existing_clean
+              dropped = len(existing) - len(existing_clean)
+              print(f"LIGHT_RUN-Merge: +{len(all_ips) - before_merge} IPs aus existing übernommen "
+                    f"({dropped} aus existing gefiltert)")
+
+          # Delta NACH allen Filtern berechnen → korrekte Report-Statistik
+          new_ips     = all_ips - existing
+          removed_ips = existing - all_ips
+          final_ips   = sorted(all_ips, key=lambda ip: (tuple(int(o) for o in ip.split('/')[0].split('.')), ip))
+
+          # ── Report immer zuerst schreiben ────────────────────────────────
+          lines = []
+          lines.append("# Honigtopf – Report")
+          lines.append(f"**Aktualisiert:** {now_str}  ")
+          lines.append(f"**Modus:** `{run_mode_label}` "
+                       f"({'nur /bad-hosts, merged mit existing' if LIGHT_RUN else 'voll: /services + /bad-hosts + alle Service-Endpunkte'})  ")
+          lines.append(f"**Quelle:** [honeydb.io](https://honeydb.io) – Community Honeypot Network\n")
+          lines.append("---")
+          lines.append("## Endpunkte & Ergebnisse\n")
+          lines.append("| Endpunkt | Treffer |")
+          lines.append("|---|---:|")
+          for key, value in stats.items():
+              lines.append(f"| {key} | **{value:,}** |")
+          lines.append("")
+          lines.append("---")
+          lines.append("| Metrik | Wert |")
+          lines.append("|---|---|")
+          lines.append(f"| Gesamt Honigtopf-IPs | **{len(final_ips):,}** |")
+          lines.append(f"| Neu | **+{len(new_ips):,}** |")
+          lines.append(f"| Entfernt | **-{len(removed_ips):,}** |")
+          lines.append("")
+          lines.append("---")
+          lines.append("> ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.")
+          lines.append(f"\n---\n*Generiert: {now_str}*")
+
+          write_text_atomic("honigtopf_report.md", "\n".join(lines))
+          print("  honigtopf_report.md geschrieben")
+
+          # ── Leerungsschutz ────────────────────────────────────────────────
+          # FIX #11 / FIX LS2: MIN_ENTRIES auf 500 erhöht (entspricht unterer Normalwert
+          # 500–5000 IPs). sys.exit(1) statt sys.exit(0) damit GitHub Actions den
+          # Step als fehlgeschlagen markiert und im UI sichtbar wird.
+          MIN_ENTRIES = 500
+          if len(final_ips) < MIN_ENTRIES:
+              msg = f"Nur {len(final_ips)} Honigtopf-IPs (< {MIN_ENTRIES}) – behalte bestehende Datei"
+              print(f"::warning file=honigtopf.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(1)
+
+          # FIX ATOMIC: write_ip_list statt open("w") – Crash-sicher.
+          write_ip_list(
+              HONIGTOPF_FILE,
+              final_ips,
+              header_lines=[
+                  "NETSHIELD Honigtopf IP Blocklist",
+                  f"Aktualisiert: {now_str}",
+                  "Quelle: honeydb.io (Community Honeypot Network)",
+                  f"Gesamt: {len(final_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt",
+              ],
+          )
+
+          print(f"  {HONIGTOPF_FILE}: {len(final_ips)} IPs geschrieben")
+
+          print(f"\nFERTIG: {len(final_ips)} IPs | {requests_used} API Requests")
+          EOF
+
+      - name: Commit
+        if: always()  # FIX: auch bei Leerungsschutz-Exit den Report committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add honigtopf_ips.txt honigtopf_report.md
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Honigtopf: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                git checkout --theirs honigtopf_ips.txt honigtopf_report.md 2>/dev/null || true
+                git add honigtopf_ips.txt honigtopf_report.md 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi

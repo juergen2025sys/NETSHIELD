@@ -5,7 +5,7 @@ on:
     - cron: '15 1 * * *'   # 01:15 UTC (15 Min nach Feed Health Monitor 01:00)
     - cron: '15 7 * * *'   # 07:15 UTC (nach Score Decay 07:00; VOR Geo-Tagger 07:45 – Geo-Status erst ab 13:15 sichtbar)
     - cron: '15 13 * * *'  # 13:15 UTC (Tagesmitte – Pipeline-Stillstand erkennen)
-    - cron: '15 19 * * *'  # 19:15 UTC (Abend – vor HoneyDB 22:15 + Combined 00:00)
+    - cron: '15 19 * * *'  # 19:15 UTC (Abend – vor Honigtopf 22:15 + Combined 00:00)
   workflow_dispatch:
 
 env:
@@ -209,7 +209,7 @@ jobs:
               # Dateien ausschliesslich ueber write_text_atomic / write_json_atomic
               # (Crash-Sicherheit). Ohne diese Erweiterung wurde jeder guard-exit
               # hinter einem atomaren Write faelschlicherweise als "stale Report
-              # moeglich" gemeldet (z.B. auto_feed_discovery, honeydb, honeypot,
+              # moeglich" gemeldet (z.B. auto_feed_discovery, honigtopf, honeypot,
               # geo_tagger, cve_to_ip_mapper).
               atomic_writers = r'(?:write_text_atomic|write_json_atomic|write_ip_list)'
               for report_path in report_paths:
@@ -301,7 +301,7 @@ jobs:
 
           expected_sequence = [
               ("feed_health_monitor.yml",       "workflow_health_checker.yml",   15),
-              ("honeydb_monitor.yml",           "update_bot_detector.yml",       15),
+              ("honigtopf.yml",           "update_bot_detector.yml",       15),
               ("update_bot_detector.yml",       "honeypot_monitor.yml",          15),
               ("honeypot_monitor.yml",          "update_combined_blacklist.yml", 60),
               ("update_combined_blacklist.yml", "update_confidence_blacklist.yml", 45),
@@ -558,7 +558,7 @@ jobs:
               # print(f"::warning file=...::...") ausgeben damit das Problem
               # im GitHub-Actions-UI sichtbar wird ohne den Log zu öffnen.
               _guarded_files = {
-                  "honeydb_monitor.yml", "honeypot_monitor.yml",
+                  "honigtopf.yml", "honeypot_monitor.yml",
                   "update_bot_detector.yml", "update-blocklist.yml",
                   "update_combined_blacklist.yml", "geo_tagger.yml",
                   "asn_reputation_scorer.yml", "cve_to_ip_mapper.yml",
@@ -605,7 +605,7 @@ jobs:
               # ── Check 13: Mindestschwellen / Leerungsschutz-Thresholds ───
               # Prüft bekannte Guard-Variablen pro Workflow auf zu niedrige Werte.
               _threshold_specs = {
-                  "honeydb_monitor.yml": {
+                  "honigtopf.yml": {
                       "MIN_ENTRIES": 500,
                   },
                   "update-blocklist.yml": {
@@ -963,7 +963,7 @@ jobs:
                               file_errors.append(msg)
                               errors.append({"file": fname, "check": "INTERNAL_ERROR Branch fehlt", "detail": msg})
 
-              if fname == "honeydb_monitor.yml":
+              if fname == "honigtopf.yml":
                   if 'data.get("from_id") or data.get("next_from_id")' in content:
                       msg = ("Paging-Cursor nutzt boolean 'or' – Wert 0 ist falsy und kann auf das falsche Feld zurückfallen")
                       file_errors.append(msg)
@@ -1222,10 +1222,10 @@ jobs:
                               file_warnings.append(msg)
                               warnings.append({"file": fname, "check": "required_protection unvollständig", "detail": msg})
 
-              # ── Check 35: sensor_total toter Code in honeydb_monitor ─────────
+              # ── Check 35: sensor_total toter Code in honigtopf ─────────
               # FIX-HDB1: Regression-Check – sensor_total muss in stats{} einfließen
               # oder anderweitig verwendet werden, nicht nur akkumuliert werden.
-              if fname == "honeydb_monitor.yml":
+              if fname == "honigtopf.yml":
                   _has_sensor_total_acc = 'sensor_total +=' in content
                   # FIX CHK35: Suche ab dem LETZTEN sensor_total += (Paging-Schleife
                   # hat mehrere). find() liefert die ERSTE Stelle – bei mehreren +=
@@ -1522,7 +1522,7 @@ jobs:
           _TRUSTED_HQ_KEYWORDS = {
               "abuseipdb", "emerging", "feodo", "blocklist.de", "spamhaus",
               "cinsscore", "cinsarmy", "dshield", "abuse.ch", "urlhaus", "sslbl",
-              "bruteforce", "eicar", "mirai", "honeypot", "honeydb",
+              "bruteforce", "eicar", "mirai", "honeypot", "honigtopf",
               "cve", "ransomware", "botnet", "threatfox", "openphish",
               "myip.ms", "stopforumspam", "greensnow", "binarydefense",
               "torproject", "dan.me", "ipsum", "stamparm", "firehol",
@@ -1808,7 +1808,7 @@ jobs:
           # Combined braucht ~20min – 60min Puffer ist konservativ sicher.
           _DEP_MIN_GAP = 60
           _dependency_chain = {
-              "honeydb_monitor.yml":     "update_combined_blacklist.yml",
+              "honigtopf.yml":     "update_combined_blacklist.yml",
               "honeypot_monitor.yml":    "update_combined_blacklist.yml",
               "update_bot_detector.yml": "update_combined_blacklist.yml",
               "cve_to_ip_mapper.yml":    "update_combined_blacklist.yml",

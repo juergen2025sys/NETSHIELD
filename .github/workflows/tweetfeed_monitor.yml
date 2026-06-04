@@ -209,7 +209,7 @@ jobs:
               print(f"  FP-Filter: {len(fp_removed)} IPs entfernt")
 
           # Whitelist-Filter (CDN/Cloud-Ranges)
-          # Analog zu honeydb_monitor (FIX BUG-WL-HONEYDB) und honeypot_monitor:
+          # Analog zu honigtopf (FIX BUG-WL-HONIGTOPF) und honeypot_monitor:
           # Ohne diesen Filter könnten z.B. Cloudflare/Google-IPs aus Phishing-Tweets
           # in tweetfeed_ips.txt landen und nachgelagert Probleme machen.
           wl_removed = {ip for ip in public_ips if is_whitelisted(ip)}

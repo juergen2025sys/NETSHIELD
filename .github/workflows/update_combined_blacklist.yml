@@ -1283,7 +1283,7 @@ jobs:
               "cve_exploit_ips.txt":             True,
               "bot_detector_blacklist_ipv4.txt": False,
               "honeypot_ips.txt":                True,
-              "honeydb_ips.txt":                 True,   # HoneyDB Community Honeypot Network (API)
+              "honigtopf_ips.txt":                 True,   # Honigtopf Community Honeypot Network (API)
               "abuseipdb_api_blacklist.txt":     True,   # AbuseIPDB API (Round-Robin, HQ)
               # FIX CACHE-LOSS: Community-gemeldete IPs werden von community_ip_report.yml
               # in diese Datei geschrieben und hier als LOCAL_FEED eingelesen.
@@ -1298,7 +1298,7 @@ jobs:
               "tweetfeed_ips.txt":               False,
           }
           # FIX: Lokale HQ-Dateinamen für hq_feed_names_today-Berechnung.
-          # Dateinamen wie "honeydb_ips.txt" sind nicht in HIGH_QUALITY (Feed-Namen),
+          # Dateinamen wie "honigtopf_ips.txt" sind nicht in HIGH_QUALITY (Feed-Namen),
           # werden aber als HQ-Quelle behandelt → müssen separat erfasst werden damit
           # hq_feeds-Zähler in seen_db die lokalen HQ-Dateien korrekt mitzählt.
           LOCAL_HQ_NAMES = {name for name, is_hq in LOCAL_FEEDS.items() if is_hq}
@@ -1510,7 +1510,7 @@ jobs:
                   today_is_hq = False
 
               # HQ-Feed-Anzahl für diese IP heute (benannte Feeds + lokale HQ-Dateien)
-              # FIX: LOCAL_HQ_NAMES ergänzt – Dateinamen wie "honeydb_ips.txt" sind
+              # FIX: LOCAL_HQ_NAMES ergänzt – Dateinamen wie "honigtopf_ips.txt" sind
               # nicht in HIGH_QUALITY, müssen aber als HQ-Quelle mitzählen.
               # WICHTIG: Muss VOR strongly_confirmed_today berechnet werden.
               hq_feed_names_today = today_feeds & _HQ_AND_LOCAL

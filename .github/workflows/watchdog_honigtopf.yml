@@ -1,0 +1,222 @@
+name: Watchdog Honigtopf
+
+# Zweck:
+# Sicherstellen dass Honigtopf tatsaechlich zu seinem geplanten
+# stuendlichen Cron-Slot (x:15 UTC) laeuft - auch wenn GitHub Actions
+# Schedule-Trigger ueberspringt (bekanntes Verhalten bei hoher Last).
+#
+# WICHTIG - force_light:
+# Der Watchdog triggert Honigtopf via workflow_dispatch. OHNE force_light=true
+# wuerde Honigtopf dann einen VOLL-Lauf machen (LIGHT_RUN=False bei leerem
+# Schedule), der die Liste NICHT mit existing merged und damit auf den
+# rotierenden 24h-/bad-hosts-Snapshot schrumpft. Deshalb wird hier IMMER
+# mit --field force_light=true getriggert -> erzwungener Light-Merge, die
+# akkumulierte honigtopf_ips.txt bleibt erhalten.
+#
+# Funktion (zwei Sicherheitsebenen, analog watchdog_combined):
+#
+# 1) SLOT-WAECHTER (primaere Logik):
+#    Honigtopf-Cron ist '15 * * * *' = jede Stunde x:15 UTC. Bei jedem Lauf
+#    prueft Watchdog: "Wurde der letzte erwartete Slot (x:15) bedient?"
+#    Wenn ein Slot mehr als SLOT_GRACE_MINUTES her ist und kein erfolgreicher
+#    Honigtopf-Run seit diesem Slot startete -> triggern.
+#
+# 2) MAX-AGE (Sicherheitsnetz):
+#    Falls die Slot-Logik nicht greift: wenn der letzte erfolgreiche Run
+#    laenger als MAX_AGE_MINUTES her ist, triggern.
+#
+# Hinweise:
+# - Request-Budget Honigtopf: geplant ~720/Monat (24 Laeufe/Tag x 1 Req,
+#   Limit 1500/Monat). Watchdog-Nachtrigger fallen NUR bei tatsaechlich
+#   geschluckten Slots an und kosten je 1 Light-Request - Budget bleibt
+#   mit Reserve unter dem Limit. Der active-Check (running/queued) verhindert
+#   zusaetzlich Doppel-Trigger.
+# - Faellt der Watchdog selbst aus, bleibt der stuendliche Honigtopf-Cron als
+#   Basis bestehen - nichts wird schlechter.
+
+on:
+  schedule:
+    # Alle 15min (96x taeglich). Hohe Frequenz, damit selbst bei mehreren
+    # geschluckten Watchdog-Slots in Folge ein geschluckter Honigtopf-Slot
+    # rechtzeitig erkannt wird.
+    # Versetzt auf :07/:22/:37/:52 (2026-06-02), damit dieser Watchdog NICHT
+    # zeitgleich mit watchdog_combined ('*/15' = :00/:15/:30/:45) startet -
+    # vermeidet die Cron-Kollision und gleichzeitige Last.
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: read
+  actions: write    # Pflicht fuer gh workflow run (Schreibrecht auf Actions API)
+
+concurrency:
+  group: watchdog-honigtopf
+  cancel-in-progress: false
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check Honigtopf freshness and trigger if needed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Fallback-/Max-Age-Schwelle: Hoechstalter des letzten erfolgreichen
+          # Honigtopf-Runs, bevor Watchdog nachtriggert. 90min = 1,5h, passt zum
+          # stuendlichen Plan + Puffer fuer Run-Laufzeit und Cron-Drift.
+          MAX_AGE_MINUTES: "90"
+          # Slot-Grace: Wie lange darf der erwartete stuendliche Slot (x:15)
+          # verspaetet sein, bevor Watchdog eingreift? 15min Puffer deckt
+          # typische GitHub-Cron-Drift (0-15min) ab; ab x:30 greift Watchdog.
+          SLOT_GRACE_MINUTES: "15"
+        run: |
+          set -e
+          set -o pipefail
+
+          # ── 0. Retry-Helper fuer gh-API-Calls ──────────────────────────
+          # Faengt transiente gh-API-Aussetzer (z.B. einmaliger HTTP 401)
+          # ab, die sonst set -e ausloesen und den Watchdog abbrechen wuerden.
+          RETRY_MAX=3
+          gh_retry() {
+            local attempt=1
+            local backoff=5
+            local out=""
+            local rc=0
+            while [ "$attempt" -le "$RETRY_MAX" ]; do
+              out=$("$@" 2>/tmp/gh_retry_err) && rc=0 || rc=$?
+              if [ "$rc" -eq 0 ]; then
+                printf '%s' "$out"
+                return 0
+              fi
+              if [ "$attempt" -eq "$RETRY_MAX" ]; then
+                echo "gh_retry: Endgueltig fehlgeschlagen nach ${attempt} Versuchen (exit=${rc})" >&2
+                cat /tmp/gh_retry_err >&2
+                return "$rc"
+              fi
+              echo "gh_retry: Versuch ${attempt}/${RETRY_MAX} fehlgeschlagen (exit=${rc}), retry in ${backoff}s" >&2
+              cat /tmp/gh_retry_err >&2
+              sleep "$backoff"
+              attempt=$((attempt + 1))
+              backoff=$((backoff * 2))
+            done
+            return "$rc"
+          }
+
+          # ── 1. Letzten erfolgreichen Honigtopf-Run finden ────────────────
+          # Honigtopf hat keine Idempotenz-Skip-Runs (jeder Lauf macht echte
+          # Arbeit und committet), daher kein Laufzeit-Filter noetig - wir
+          # nehmen schlicht den zuletzt gestarteten Erfolgs-Run.
+          # Der Leerungsschutz im Monitor beendet zu kleine Laeufe mit exit 1
+          # (= failure), die fallen hier also ohnehin raus (--status=success).
+          last_real_json=$(gh_retry gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=honigtopf.yml \
+            --status=success \
+            --limit=50 \
+            --json startedAt,updatedAt \
+            --jq "sort_by(.startedAt) | reverse | .[0]")
+
+          last_real_started=""
+          last_real_updated=""
+          if [ -n "$last_real_json" ] && [ "$last_real_json" != "null" ]; then
+            last_real_started=$(echo "$last_real_json" | jq -r '.startedAt // empty')
+            last_real_updated=$(echo "$last_real_json" | jq -r '.updatedAt // empty')
+          fi
+
+          # ── 2. Letzten erwarteten Slot bestimmen (stuendlich x:15) ─────
+          now_epoch=$(date -u +%s)
+          current_min=$(date -u +%M)
+          current_min=$((10#$current_min))   # fuehrende Null entfernen (Oktal-Falle)
+
+          # Wenn aktuelle Minute >= 15: Slot ist die aktuelle Stunde :15.
+          # Sonst: der x:15-Slot der aktuellen Stunde liegt noch in der
+          # Zukunft -> letzter Slot war die vorige Stunde :15.
+          if [ "$current_min" -ge 15 ]; then
+            slot_iso=$(date -u +%Y-%m-%dT%H:15:00Z)
+          else
+            slot_iso=$(date -u -d '1 hour ago' +%Y-%m-%dT%H:15:00Z)
+          fi
+          slot_epoch=$(date -u -d "$slot_iso" +%s)
+          slot_age_min=$(( (now_epoch - slot_epoch) / 60 ))
+
+          echo "Letzter erwarteter Slot: $slot_iso (vor ${slot_age_min} min)"
+          if [ -n "$last_real_started" ]; then
+            echo "Letzter erfolgreicher Honigtopf-Run: gestartet $last_real_started, beendet $last_real_updated"
+          else
+            echo "Kein erfolgreicher Honigtopf-Run in den letzten 50 Erfolgs-Eintraegen gefunden"
+          fi
+
+          # ── 3. Honigtopf-Status pruefen ──────────────────────────────────
+          # Laeuft Honigtopf gerade oder ist gequeued? Dann kein Eingriff.
+          running_count=$(gh_retry gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=honigtopf.yml \
+            --status=in_progress \
+            --limit=5 \
+            --json databaseId \
+            --jq 'length')
+          queued_count=$(gh_retry gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=honigtopf.yml \
+            --status=queued \
+            --limit=5 \
+            --json databaseId \
+            --jq 'length')
+          active=$(( running_count + queued_count ))
+
+          if [ "$active" -gt 0 ]; then
+            echo "Honigtopf hat bereits ${active} aktive(n) Lauf/Laeufe (running=${running_count}, queued=${queued_count}) - kein Eingriff noetig"
+            exit 0
+          fi
+
+          # ── 4. Entscheidungs-Logik ─────────────────────────────────────
+          should_trigger=false
+          reason=""
+
+          if [ -z "$last_real_started" ]; then
+            should_trigger=true
+            reason="Kein erfolgreicher Honigtopf-Run in den letzten 50 Erfolgen - triggere zur Sicherheit"
+          else
+            last_started_epoch=$(date -u -d "$last_real_started" +%s)
+            last_updated_epoch=$(date -u -d "$last_real_updated" +%s)
+            stale_min=$(( (now_epoch - last_updated_epoch) / 60 ))
+
+            # SLOT-WAECHTER: Run zum Slot-Zeitpunkt oder spaeter gestartet?
+            slot_served=false
+            if [ "$last_started_epoch" -ge "$slot_epoch" ]; then
+              slot_served=true
+            fi
+
+            if [ "$slot_served" = "false" ] && [ "$slot_age_min" -ge "$SLOT_GRACE_MINUTES" ]; then
+              should_trigger=true
+              reason="Slot $slot_iso seit ${slot_age_min}min nicht bedient (Grace: ${SLOT_GRACE_MINUTES}min) - letzter Run startete $last_real_started"
+            elif [ "$stale_min" -ge "$MAX_AGE_MINUTES" ]; then
+              should_trigger=true
+              reason="Max-Age: letzter erfolgreicher Run vor ${stale_min}min (Schwelle ${MAX_AGE_MINUTES}min)"
+            else
+              if [ "$slot_served" = "true" ]; then
+                echo "Slot $slot_iso wurde bedient (Run startete $last_real_started) - kein Eingriff"
+              else
+                echo "Slot $slot_iso seit ${slot_age_min}min nicht bedient - noch innerhalb Grace (${SLOT_GRACE_MINUTES}min), warte ab"
+              fi
+            fi
+          fi
+
+          # ── 5. Trigger durchfuehren ────────────────────────────────────
+          # IMMER mit force_light=true -> erzwingt im Honigtopf-Monitor den
+          # Light-Merge (nur /bad-hosts, merged mit existing). Ohne dieses
+          # Flag wuerde der dispatch-Trigger einen Voll-Lauf ausloesen, der
+          # die Liste auf den 24h-Snapshot schrumpft.
+          if [ "$should_trigger" = "true" ]; then
+            echo "Trigger-Grund: $reason"
+            echo "Triggere honigtopf.yml via workflow_dispatch (force_light=true)"
+            gh_retry gh workflow run honigtopf.yml \
+              --repo "${{ github.repository }}" \
+              --ref main \
+              --field force_light=true
+            echo "Triggered."
+          fi
