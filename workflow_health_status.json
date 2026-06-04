@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-04 16:28 UTC",
+  "updated": "2026-06-04 21:02 UTC",
   "total": 24,
   "ok": 23,
   "warn": 4,
@@ -48,11 +48,11 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6043858,
-    "active_blacklist_ipv4.txt": 428041,
-    "blacklist_confidence40_ipv4.txt": 4803561,
+    "combined_threat_blacklist_ipv4.txt": 6046735,
+    "active_blacklist_ipv4.txt": 430530,
+    "blacklist_confidence40_ipv4.txt": 4805931,
     "cve_exploit_ips.txt": 35162,
-    "honeypot_ips.txt": 945197,
+    "honeypot_ips.txt": 945268,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
