@@ -1,8 +1,8 @@
 {
-  "updated": "2026-06-05 10:54 UTC",
+  "updated": "2026-06-05 16:08 UTC",
   "total": 24,
   "ok": 23,
-  "warn": 4,
+  "warn": 3,
   "error": 0,
   "errors": [],
   "warnings": [
@@ -13,13 +13,13 @@
     },
     {
       "file": "update_combined_blacklist.yml",
-      "check": "Untrusted Feed hq=True",
-      "detail": "6 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"fadouse_malware\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_c2\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_rat\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_stealer\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_loader\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_worm\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel)"
+      "check": "MIN_ABUSEIPDB fehlt",
+      "detail": "MIN_ABUSEIPDB nicht gefunden \u2013 Leerungsschutz-Regressionscheck unvollst\u00e4ndig"
     },
     {
-      "file": "honigtopf.yml \u2192 update_combined_blacklist.yml",
-      "check": "Sub-Workflow Puffer zu knapp",
-      "detail": "Sub-Workflow laueft zu knapp vor Combined \u2013 Output moeglicherweise nicht rechtzeitig verfuegbar: 00:15 UTC \u2192 00:27 UTC (12min < 60min Mindestpuffer); 02:15 UTC \u2192 03:07 UTC (52min < 60min Mindestpuffer); 03:15 UTC \u2192 03:27 UTC (12min < 60min Mindestpuffer); 05:15 UTC \u2192 06:07 UTC (52min < 60min Mindestpuffer); 06:15 UTC \u2192 06:27 UTC (12min < 60min Mindestpuffer)"
+      "file": "update_combined_blacklist.yml",
+      "check": "Untrusted Feed hq=True",
+      "detail": "6 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"fadouse_malware\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_c2\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_rat\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_stealer\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_loader\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); \"fadouse_worm\" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel)"
     },
     {
       "file": "honeypot_monitor.yml \u2192 update_combined_blacklist.yml",
@@ -29,7 +29,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "seen_db_backup.json.gz: 84.5 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "seen_db_backup.json.gz: 84.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
@@ -39,7 +39,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 82.5 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 82.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
@@ -48,11 +48,11 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6057775,
-    "active_blacklist_ipv4.txt": 410226,
-    "blacklist_confidence40_ipv4.txt": 4827682,
+    "combined_threat_blacklist_ipv4.txt": 6074330,
+    "active_blacklist_ipv4.txt": 427299,
+    "blacklist_confidence40_ipv4.txt": 4845004,
     "cve_exploit_ips.txt": 35178,
-    "honeypot_ips.txt": 946001,
+    "honeypot_ips.txt": 946103,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
@@ -62,7 +62,7 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "seen_db_backup.json.gz: 84.5 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "seen_db_backup.json.gz: 84.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
@@ -72,7 +72,7 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 82.5 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 82.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
