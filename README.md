@@ -1,5 +1,9 @@
 
 
+
+
+<img src=".github/assets/banner.svg" alt="NETSHIELD — Automated Threat Intelligence" width="100%">
+
 <br>
 
 [![Combined](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/update_combined_blacklist.yml?style=flat-square&logo=githubactions&logoColor=white&label=Combined&labelColor=0d1626)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml)
