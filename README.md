@@ -1,6 +1,7 @@
 
 
 
+
 <img src=".github/assets/banner.svg" alt="NETSHIELD — Automated Threat Intelligence" width="100%">
 
 <br>
@@ -82,7 +83,7 @@
 | 🍯 [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **946,001**                                                                             | Ergänzung |
 | 🍯 [`honigtopf_ips.txt`](honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **14,708**                                                       | Ergänzung |
 | 🤖 [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **17,949**                                                                             | Web-Schutz |
-| 🔗 [`abuseipdb_api_blacklist.txt`](abuseipdb_api_blacklist.txt) | AbuseIPDB Top-IPs (API, Score ≥50) | **9,966**                                                                             | Ergänzung |
+| 🔗 [`reputation_blacklist.txt`](reputation_blacklist.txt) | Reputation Top-IPs (API, Score ≥50) | **9,966**                                                                             | Ergänzung |
 | 🌐 [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥ 50 | **19**                                                                             | ASN-Blocking |
 
 > [!NOTE]
@@ -315,7 +316,7 @@ NETSHIELD/
 ├── honeypot_ips.txt                     # Honeypot-Feeds (täglich)
 ├── honigtopf_ips.txt                    # Honigtopf API (täglich)
 ├── bot_detector_blacklist_ipv4.txt      # Bot-Detector (täglich)
-├── abuseipdb_api_blacklist.txt          # AbuseIPDB API (Round-Robin)
+├── reputation_blacklist.txt          # Reputation API (Round-Robin)
 ├── asn_blocklist_firewall.txt           # ASN-Blocking (Score ≥50)
 │
 ├── asn_reputation_db.json               # ASN-Scoring-Daten
