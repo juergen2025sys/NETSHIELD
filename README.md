@@ -1,5 +1,6 @@
 
 
+
 <img src=".github/assets/banner.svg" alt="NETSHIELD — Automated Threat Intelligence" width="100%">
 
 <br>
@@ -64,7 +65,7 @@
 </table>
 <!-- META_TABLE_END -->
 
-> NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus **über 120 Quellen** (dynamisch, wächst laufend durch Auto-Discovery): rund 100 öffentliche Remote-Feeds, 5 lokale Sub-Workflow-Feeds (CVE, Honeypot, HoneyDB, Bot-Detector, AbuseIPDB API) und laufend neu per GitHub-Discovery entdeckte Feeds. Das System unterscheidet aktive Bedrohungen von veralteten statischen Listen und liefert daraus qualitativ hochwertige Blocklisten für OPNsense, pfSense und iptables.
+> NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus **über 120 Quellen** (dynamisch, wächst laufend durch Auto-Discovery): rund 100 öffentliche Remote-Feeds, 5 lokale Sub-Workflow-Feeds (CVE, Honeypot, Honigtopf, Bot-Detector, AbuseIPDB API) und laufend neu per GitHub-Discovery entdeckte Feeds. Das System unterscheidet aktive Bedrohungen von veralteten statischen Listen und liefert daraus qualitativ hochwertige Blocklisten für OPNsense, pfSense und iptables.
 
 ---
 
@@ -79,7 +80,7 @@
 | 👁️ [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist · Score 25–39 | **123,934**                                                                       | Monitoring |
 | 💣 [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploits & aktive C2-Server | **35,162**                                                                       | IDS / IPS |
 | 🍯 [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **946,023**                                                                       | Ergänzung |
-| 🍯 [`honeydb_ips.txt`](honeydb_ips.txt) | HoneyDB Community Honeypot (API) | **32,384**                                                 | Ergänzung |
+| 🍯 [`honigtopf_ips.txt`](honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **32,384**                                                 | Ergänzung |
 | 🤖 [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **17,949**                                                                       | Web-Schutz |
 | 🔗 [`abuseipdb_api_blacklist.txt`](abuseipdb_api_blacklist.txt) | AbuseIPDB Top-IPs (API, Score ≥50) | **9,970**                                                                       | Ergänzung |
 | 🌐 [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥ 50 | **19**                                                                       | ASN-Blocking |
@@ -158,7 +159,7 @@ Score = Quellen-Qualität (40) + Aktualität (30) + Persistenz (20) + Bekannt se
 Sub-Workflows (vor Combined):
   CVE Mapper ──────┐
   Honeypot Monitor ├──→ Lokale .txt-Dateien ──→ Combined liest ein
-  HoneyDB Monitor  │
+  Honigtopf        │
   Bot-Detector ────┘
 
 Enrichment (nach Combined):
@@ -190,7 +191,7 @@ Enrichment (nach Combined):
 |---|---|---|
 | **CVE-to-IP Mapper** | täglich 04:00 | C2/Exploit-IPs → cve_exploit_ips.txt |
 | **Honeypot Monitor** | täglich 23:00 | Honeypot-Feeds → honeypot_ips.txt |
-| **HoneyDB Monitor** | täglich 22:15 | HoneyDB API → honeydb_ips.txt |
+| **Honigtopf** | täglich 22:15 | Honigtopf API → honigtopf_ips.txt |
 | **Bot-Detector Blacklist** | täglich 22:45 | Bot-IPs → bot_detector_blacklist_ipv4.txt |
 | **Auto Feed Discovery** | wöchentlich So 04:30 | GitHub nach neuen Feeds durchsuchen |
 
@@ -224,7 +225,7 @@ Enrichment (nach Combined):
 ## 🕐 Datenfluss & Timing
 
 ```
-22:15  HoneyDB Monitor  ──────────────────┐
+22:15  Honigtopf ─────────────────────────┐
 22:45  Bot-Detector Blacklist ────────────┤
 23:00  Honeypot Monitor ──────────────────┤
 00:00  Update Combined Blacklist ─────────┼──→ seen_db Cache
@@ -280,7 +281,7 @@ NETSHIELD bezieht Daten aus folgenden Kategorien:
 |---|---|:---:|
 | Abuse-Tracker | Feodo, ThreatFox, URLhaus (abuse.ch) | ✅ |
 | Blocklist-Aggregatoren | FireHOL Level 1–4, blocklist.de, DShield | ✅ |
-| Honeypot-Netzwerke | DataPlane, Turris Sentinel, HoneyDB (API) | ✅ |
+| Honeypot-Netzwerke | DataPlane, Turris Sentinel, Honigtopf (API) | ✅ |
 | Reputation-Feeds | AbuseIPDB (API + Mirrors), ipsum, CINSscore | ✅ |
 | C2/Botnet-Tracker | C2-Tracker, MISP C2 Intel Feeds | ✅ |
 | Threat Intelligence | Spamhaus DROP, Emerging Threats, Threatview | ✅ |
@@ -312,7 +313,7 @@ NETSHIELD/
 │
 ├── cve_exploit_ips.txt                  # CVE/C2-IPs (täglich)
 ├── honeypot_ips.txt                     # Honeypot-Feeds (täglich)
-├── honeydb_ips.txt                      # HoneyDB API (täglich)
+├── honigtopf_ips.txt                    # Honigtopf API (täglich)
 ├── bot_detector_blacklist_ipv4.txt      # Bot-Detector (täglich)
 ├── abuseipdb_api_blacklist.txt          # AbuseIPDB API (Round-Robin)
 ├── asn_blocklist_firewall.txt           # ASN-Blocking (Score ≥50)
