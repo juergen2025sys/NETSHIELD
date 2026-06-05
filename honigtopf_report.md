@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-06-05 04:42 UTC  
+**Aktualisiert:** 2026-06-05 04:49 UTC  
 **Modus:** `LIGHT` (nur /bad-hosts, merged mit existing)  
 **Quelle:** [honeydb.io](https://honeydb.io) – Community Honeypot Network
 
@@ -8,17 +8,17 @@
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **10,743** |
+| Bad Hosts (24h, alle Dienste) | **10,703** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **25,012** |
-| Neu | **+1,046** |
+| Gesamt Honigtopf-IPs | **25,058** |
+| Neu | **+46** |
 | Entfernt | **-0** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-06-05 04:42 UTC*
+*Generiert: 2026-06-05 04:49 UTC*
