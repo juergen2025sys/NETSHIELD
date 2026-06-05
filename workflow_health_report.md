@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-06-05 05:47 UTC
+**Aktualisiert:** 2026-06-05 10:54 UTC
 
 **Workflows:** 24 | ✅ 23 OK | ⚠️ 4 Warnung | ❌ 0 Fehler
 
@@ -14,7 +14,7 @@
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:30 UTC → 00:47 UTC (17min < 60min Mindestpuffer); 06:30 UTC → 06:47 UTC (17min < 60min Mindestpuffer); 12:30 UTC → 12:47 UTC (17min < 60min Mindestpuffer); 18:30 UTC → 18:47 UTC (17min < 60min Mindestpuffer) |
 | `Production Health` | Push-Limit Naehe | seen_db_backup.json.gz: 84.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Push-Limit Naehe | blacklist_geo_enriched.json: 93.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 82.4 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 82.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Truncate aktiv | blacklist_geo_enriched.json: Splitting weiterhin aktiv (2 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
 
 ## 🏥 Production Health
@@ -25,7 +25,7 @@
 |---|---|---|
 | 🟡 WARN | Push-Limit Naehe | seen_db_backup.json.gz: 84.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Push-Limit Naehe | blacklist_geo_enriched.json: 93.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 82.4 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 82.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Truncate aktiv | blacklist_geo_enriched.json: Splitting weiterhin aktiv (2 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
 
 ## Übersicht
@@ -58,4 +58,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-06-05 05:47 UTC | 24 Workflow-Dateien geprüft*
+*Generiert: 2026-06-05 10:54 UTC | 24 Workflow-Dateien geprüft*
