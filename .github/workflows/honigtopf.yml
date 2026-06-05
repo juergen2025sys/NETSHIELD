@@ -2,14 +2,21 @@ name: Honigtopf
 
 on:
   schedule:
-    # Stündlicher Light-Lauf (x:15 UTC) – nur /bad-hosts (1 Req je Lauf).
+    # Light-Lauf (x:15 UTC) – nur /bad-hosts (1 Req je Lauf). Laeuft jede
+    # Stunde AUSSER 22 Uhr (dort der Voll-Lauf, siehe unten), damit um 22:15
+    # nicht zwei Laeufe gleichzeitig feuern und sich beim Commit blockieren.
     # Holt jede Stunde einen frischen 24h-Snapshot der All-Liste und merged mit
     # existing, damit das rotierende 24h-Fenster möglichst lückenlos eingefangen
     # wird (häufigeres Polling = mehr von der Rotation, nicht mehr Gesamt-IPs).
-    # Budget: 24 Läufe/Tag × 1 Req = ~720/Monat (Limit 1500/Monat).
-    # Voll-Lauf (/services + Service-Endpunkte) nur noch via workflow_dispatch –
-    # er liefert ohne eigene Sensoren keine zusätzlichen IPs, nur Statistik.
-    - cron: '15 * * * *'
+    - cron: '15 0-21,23 * * *'
+    # Taeglicher Voll-Lauf um 22:15 UTC – /services + Pro-Dienst-Endpunkte.
+    # Bringt die Pro-Dienst-Statistik in den Report. Dieser Cron-String MUSS
+    # exakt FULL_RUN_SCHEDULE im Python-Block entsprechen ("15 22 * * *"),
+    # sonst wuerde er als Light behandelt. Kostet ~34 Req/Tag.
+    # Budget gesamt: 23 Light + 1 Voll = ~57/Tag = ~1710/Monat. Mit den zwei
+    # rotierenden HoneyDB-Accounts (effektiv 3000/Monat) liegt das je Account
+    # bei ~855/Monat – komfortabel unter dem 1500er-Limit.
+    - cron: '15 22 * * *'
   workflow_dispatch:
     inputs:
       force_light:
@@ -136,11 +143,11 @@ jobs:
           today   = now.strftime("%Y-%m-%d")
 
           # Voll- vs. Light-Lauf unterscheiden anhand des Cron-Schedules.
-          # Geplante Läufe (stündlich, x:15): immer Light – nur /bad-hosts, merged
-          #   mit existing. Kein geplanter Cron matcht FULL_RUN_SCHEDULE mehr.
-          # workflow_dispatch / leerer Schedule → Voll-Lauf (/services + alle
-          #   Service-Endpunkte). FULL_RUN_SCHEDULE bleibt als Marker erhalten:
-          #   wer wieder einen geplanten Voll-Lauf will, ergänzt diesen Cron oben.
+          # Geplante Läufe x:15 (Cron '15 0-21,23 * * *'): Light – nur /bad-hosts,
+          #   merged mit existing.
+          # Geplanter Lauf 22:15 (Cron '15 22 * * *' == FULL_RUN_SCHEDULE): Voll-
+          #   Lauf mit /services + Pro-Dienst-Statistik.
+          # workflow_dispatch / leerer Schedule → ebenfalls Voll-Lauf.
           FULL_RUN_SCHEDULE = "15 22 * * *"
           SCHEDULE          = os.environ.get("GITHUB_SCHEDULE", "")
           # FORCE_LIGHT: per workflow_dispatch-Input erzwungener Light-Lauf
@@ -527,8 +534,7 @@ jobs:
           lines.append("# Honigtopf – Report")
           lines.append(f"**Aktualisiert:** {now_str}  ")
           lines.append(f"**Modus:** `{run_mode_label}` "
-                       f"({'nur /bad-hosts, merged mit existing' if LIGHT_RUN else 'voll: /services + /bad-hosts + alle Service-Endpunkte'})  ")
-          lines.append(f"**Quelle:** [honeydb.io](https://honeydb.io) – Community Honeypot Network\n")
+                       f"({'nur /bad-hosts, merged mit existing' if LIGHT_RUN else 'voll: /services + /bad-hosts + alle Service-Endpunkte'})\n")
           lines.append("---")
           lines.append("## Endpunkte & Ergebnisse\n")
           lines.append("| Endpunkt | Treffer |")
@@ -568,7 +574,6 @@ jobs:
               header_lines=[
                   "NETSHIELD Honigtopf IP Blocklist",
                   f"Aktualisiert: {now_str}",
-                  "Quelle: honeydb.io (Community Honeypot Network)",
                   f"Gesamt: {len(final_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt",
               ],
           )
