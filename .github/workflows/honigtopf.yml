@@ -93,8 +93,16 @@ jobs:
       - name: Fetch Honigtopf Threat Data
         if: steps.recent.outputs.skip != 'true'
         env:
-          HONEYDB_API_ID:  ${{ secrets.HONEYDB_API_ID }}
-          HONEYDB_API_KEY: ${{ secrets.HONEYDB_API_KEY }}
+          HONEYDB_API_ID:    ${{ secrets.HONEYDB_API_ID }}
+          HONEYDB_API_KEY:   ${{ secrets.HONEYDB_API_KEY }}
+          HONEYDB_API_ID_2:  ${{ secrets.HONEYDB_API_ID_2 }}
+          HONEYDB_API_KEY_2: ${{ secrets.HONEYDB_API_KEY_2 }}
+          # Optionale weitere Credentials (Round-Robin). Nicht angelegte Secrets
+          # sind leer und werden vom Python-Block automatisch uebersprungen.
+          HONEYDB_API_ID_3:  ${{ secrets.HONEYDB_API_ID_3 }}
+          HONEYDB_API_KEY_3: ${{ secrets.HONEYDB_API_KEY_3 }}
+          HONEYDB_API_ID_4:  ${{ secrets.HONEYDB_API_ID_4 }}
+          HONEYDB_API_KEY_4: ${{ secrets.HONEYDB_API_KEY_4 }}
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -149,13 +157,43 @@ jobs:
           run_mode_label    = "LIGHT" if LIGHT_RUN else "VOLL"
           print(f"Run-Modus: {run_mode_label} (schedule={SCHEDULE or 'manual/dispatch'})")
 
-          API_ID  = os.environ.get("HONEYDB_API_ID",  "")
-          API_KEY = os.environ.get("HONEYDB_API_KEY", "")
+          # ── Credential-Pool dynamisch aufbauen ────────────────────────────
+          # Basis-Credential (unsuffigiert) = Index 1, danach _2, _3, ... bis
+          # MAX_CREDS. Jede Credential braucht ID UND Key; unvollstaendige
+          # Paare werden uebersprungen. So lassen sich neue Accounts allein
+          # ueber neue Secrets (HONEYDB_API_ID_3/_KEY_3 ...) hinzufuegen, ohne
+          # dass dieser Workflow geaendert werden muss.
+          MAX_CREDS = 9
+          CREDENTIALS = []  # Liste von (api_id, api_key, label)
+          for i in range(1, MAX_CREDS + 1):
+              suffix = "" if i == 1 else f"_{i}"
+              cid = os.environ.get(f"HONEYDB_API_ID{suffix}",  "").strip()
+              key = os.environ.get(f"HONEYDB_API_KEY{suffix}", "").strip()
+              if cid and key:
+                  CREDENTIALS.append((cid, key, f"cred{i}"))
+              elif cid or key:
+                  print(f"  WARNUNG: HONEYDB_API_ID{suffix}/KEY{suffix} unvollstaendig – uebersprungen")
 
-          if not API_ID or not API_KEY:
-              print("FEHLER: HONEYDB_API_ID oder HONEYDB_API_KEY nicht gesetzt!")
+          if not CREDENTIALS:
+              print("FEHLER: Keine vollstaendige HONEYDB-Credential gefunden!")
+              print("Mindestens HONEYDB_API_ID + HONEYDB_API_KEY noetig.")
               print("GitHub Secret anlegen: Settings → Secrets and variables → Actions")
               sys.exit(1)
+
+          print(f"Credential-Pool: {len(CREDENTIALS)} Credential(s) – Round-Robin aktiv")
+
+          # Rotations-Zeiger: zeigt auf die als naechstes zu nutzende Credential.
+          # Wird bei jeder Anfrage um 1 weitergedreht (Round-Robin), sodass sich
+          # die Last gleichmaessig auf alle Accounts verteilt.
+          #
+          # STARTINDEX aus der UTC-Stunde: GitHub Actions haelt KEINEN Zustand
+          # zwischen Laeufen. Wuerde der Zeiger fix bei 0 starten, naehme jeder
+          # stuendliche Light-Lauf (nur 1 Anfrage) immer cred1 -> keine Rotation
+          # ueber die Laeufe. Durch (Stunde % Pool-Groesse) startet jeder Lauf bei
+          # einer anderen Credential: 14:15->cred(14%n), 15:15->cred(15%n) usw.
+          # So rotieren auch die Light-Laeufe ueber den Tag gleichmaessig durch.
+          _rr_index = now.hour % len(CREDENTIALS)
+          print(f"Rotations-Start: cred{_rr_index + 1} (UTC-Stunde {now.hour} % {len(CREDENTIALS)})")
 
           BASE_URL = "https://honeydb.io/api"
 
@@ -190,43 +228,63 @@ jobs:
           requests_used = 0
 
           def api_get(endpoint, label="", retries=3):
-              global requests_used
+              global requests_used, _rr_index
               url = f"{BASE_URL}{endpoint}"
-              for attempt in range(1, retries + 1):
-                  req = urllib.request.Request(url, headers={
-                      "X-HoneyDb-ApiId":  API_ID,
-                      "X-HoneyDb-ApiKey": API_KEY,
-                      "User-Agent":       "NETSHIELD-Honigtopf/1.0",
-                  })
-                  try:
-                      with urllib.request.urlopen(req, timeout=30) as r:
-                          remaining = r.headers.get("honeydb-qpm-remaining", "?")
-                          consumed  = r.headers.get("honeydb-qpm-consumed",  "?")
-                          requests_used += 1
-                          print(f"  [{label or endpoint}] HTTP {r.status} | verbraucht: {consumed} | verbleibend: {remaining}/1500")
-                          return json.loads(r.read().decode("utf-8", errors="ignore"))
-                  except urllib.error.HTTPError as e:
-                      if e.code == 429:
-                          print(f"  RATE LIMIT [{label or endpoint}] – übersprungen")
+
+              n = len(CREDENTIALS)
+              # Round-Robin: bei dieser Anfrage mit der naechsten Credential
+              # starten und den Zeiger weiterdrehen. So verteilt sich die Last
+              # ueber die Laeufe hinweg gleichmaessig auf alle Accounts.
+              start = _rr_index
+              _rr_index = (_rr_index + 1) % n
+
+              # Reihenfolge fuer DIESE Anfrage: ab start einmal rundherum.
+              # Bei 401/429 wird die naechste Credential im Ring versucht
+              # (kombiniert Rotation + Fallback). Bei 5xx wird mit derselben
+              # Credential retried (Serverproblem – Wechsel hilft nicht).
+              order = [(start + k) % n for k in range(n)]
+
+              for idx in order:
+                  cred_id, cred_key, cred_label = CREDENTIALS[idx]
+                  for attempt in range(1, retries + 1):
+                      req = urllib.request.Request(url, headers={
+                          "X-HoneyDb-ApiId":  cred_id,
+                          "X-HoneyDb-ApiKey": cred_key,
+                          "User-Agent":       "NETSHIELD-Honigtopf/1.0",
+                      })
+                      try:
+                          with urllib.request.urlopen(req, timeout=30) as r:
+                              remaining = r.headers.get("honeydb-qpm-remaining", "?")
+                              consumed  = r.headers.get("honeydb-qpm-consumed",  "?")
+                              requests_used += 1
+                              print(f"  [{label or endpoint}] HTTP {r.status} ({cred_label}) | verbraucht: {consumed} | verbleibend: {remaining}/1500")
+                              return json.loads(r.read().decode("utf-8", errors="ignore"))
+                      except urllib.error.HTTPError as e:
+                          if e.code == 429:
+                              print(f"  RATE LIMIT [{label or endpoint}] ({cred_label}) – naechste Credential")
+                              break  # naechste Credential im Ring probieren
+                          if e.code == 401:
+                              print(f"  AUTHENTIFIZIERUNG FEHLGESCHLAGEN [{label or endpoint}] ({cred_label}) – naechste Credential")
+                              break  # naechste Credential im Ring probieren
+                          if e.code in (500, 502, 503, 504) and attempt < retries:
+                              wait_s = 2 ** attempt
+                              print(f"  HTTP {e.code} [{label or endpoint}] – Retry in {wait_s}s ({attempt}/{retries})")
+                              time.sleep(wait_s)
+                              continue
+                          print(f"  HTTP {e.code} [{label or endpoint}]: {e.reason}")
                           return None
-                      if e.code == 401:
-                          print(f"  AUTHENTIFIZIERUNG FEHLGESCHLAGEN [{label or endpoint}] – API Key prüfen!")
+                      except Exception as e:
+                          if attempt < retries:
+                              wait_s = 2 ** attempt
+                              print(f"  FEHLER [{label or endpoint}]: {e} – Retry in {wait_s}s ({attempt}/{retries})")
+                              time.sleep(wait_s)
+                              continue
+                          print(f"  FEHLER [{label or endpoint}]: {e}")
                           return None
-                      if e.code in (500, 502, 503, 504) and attempt < retries:
-                          wait_s = 2 ** attempt
-                          print(f"  HTTP {e.code} [{label or endpoint}] – Retry in {wait_s}s ({attempt}/{retries})")
-                          time.sleep(wait_s)
-                          continue
-                      print(f"  HTTP {e.code} [{label or endpoint}]: {e.reason}")
-                      return None
-                  except Exception as e:
-                      if attempt < retries:
-                          wait_s = 2 ** attempt
-                          print(f"  FEHLER [{label or endpoint}]: {e} – Retry in {wait_s}s ({attempt}/{retries})")
-                          time.sleep(wait_s)
-                          continue
-                      print(f"  FEHLER [{label or endpoint}]: {e}")
-                      return None
+
+              # Alle Credentials im Ring lieferten 401/429
+              print(f"  ALLE CREDENTIALS ERSCHOEPFT [{label or endpoint}]")
+              return None
 
           def extract_ips_from_list(data):
               ips = set()
