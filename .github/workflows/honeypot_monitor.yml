@@ -147,7 +147,7 @@ jobs:
           #   (das auf neue Angreifer fokussiert). CSV 'ip,score', tägl. rotiert.
           # - stratosphere_aip_alpha ergänzt (Juni 2026): 24h-Fenster ALLER
           #   Attacker (ohne Ranking) aus demselben CTU-Honeypot-Netzwerk.
-          #   Direktestes Aequivalent zum bisherigen HoneyDB-24h-bad-hosts-
+          #   Direktestes Aequivalent zum bisherigen Honigtopf-24h-bad-hosts-
           #   Snapshot. Format: Header 'attacker' + eine IPv4/Zeile (kein score).
           # - honeysec_ip2 ergänzt (April 2026): Honeypot-Netzwerk der UCM Trnava
           #   (SK), Institut für Computertechnik und Informatik. ip_2 = IPs mit
@@ -301,7 +301,7 @@ jobs:
               # Stratosphere AIP Alpha: Alle Attacker-IPs der letzten 24h aus
               # demselben CTU-Honeypot-Netzwerk, OHNE Ranking (reine IP-Liste).
               # Direktestes Aequivalent zum 24h-bad-hosts-Snapshot, den frueher
-              # HoneyDB lieferte. Format: Header-Zeile 'attacker', dann eine IPv4
+              # Honigtopf lieferte. Format: Header-Zeile 'attacker', dann eine IPv4
               # pro Zeile (kein score) – parse_entries() filtert den Header via
               # IPv4-Regex automatisch. Gleicher Host wie _New/_alpha7, kein
               # Bot-Gate → normaler fetch(), NICHT in LARGE_SOURCES.
