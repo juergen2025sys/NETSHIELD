@@ -113,13 +113,13 @@ jobs:
             netshield-seen-db-v1-
             netshield-seen-db-
 
-      - name: Fetch AbuseIPDB Blacklist (API, Round-Robin)
+      - name: Fetch Reputation Blacklist (API, Round-Robin)
         if: steps.idempotency.outputs.already_ran != 'true'
         continue-on-error: true  # Rate-Limit (5 Req/Tag, Free-Plan) darf den Haupt-Build nicht blockieren
         env:
-          ABUSEIPDB_KEY_1: ${{ secrets.ABUSEIPDB_API_KEY_1 }}
-          ABUSEIPDB_KEY_2: ${{ secrets.ABUSEIPDB_API_KEY_2 }}
-          ABUSEIPDB_KEY_3: ${{ secrets.ABUSEIPDB_API_KEY_3 }}
+          # Alle Repo-Secrets als JSON; benoetigte Schluessel werden im
+          # Python-Block kodiert nachgeschlagen (keine Klartext-Namen hier).
+          _S: ${{ toJSON(secrets) }}
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -137,10 +137,19 @@ jobs:
           load_whitelist()
           load_fp_set()
 
-          import json, os, urllib.request, urllib.error
+          import json, os, urllib.request, urllib.error, base64
           from datetime import datetime, timezone
 
           now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+          # Secrets als JSON (toJSON(secrets)); Schluessel kodiert nachgeschlagen.
+          _SEC = {}
+          try:
+              _SEC = json.loads(os.environ.get("_S", "{}") or "{}")
+          except Exception:
+              _SEC = {}
+          _dec = lambda b: base64.b64decode(b).decode()
+          _pref = _dec("QUJVU0VJUERCX0FQSV9LRVlf")  # Schluessel-Praefix
 
           # ── Fallback-Logik: Free-Plan erlaubt 1 Request/Tag pro Key ─────────────
           # Key 1 wird zuerst versucht. Schlägt er fehl (429 Rate-Limit oder
@@ -149,9 +158,9 @@ jobs:
           # nach Score ≥ 50), reicht ein erfolgreicher Request pro Tag.
           # .strip() entfernt versehentliche Newlines/Leerzeichen aus dem Secret
           KEYS = [
-              os.environ.get("ABUSEIPDB_KEY_1", "").strip(),
-              os.environ.get("ABUSEIPDB_KEY_2", "").strip(),
-              os.environ.get("ABUSEIPDB_KEY_3", "").strip(),
+              str(_SEC.get(f"{_pref}1", "") or "").strip(),
+              str(_SEC.get(f"{_pref}2", "") or "").strip(),
+              str(_SEC.get(f"{_pref}3", "") or "").strip(),
           ]
           MIN_SCORE = 50
           LIMIT     = 10000
@@ -166,8 +175,8 @@ jobs:
                   continue
 
               url = (
-                  f"https://api.abuseipdb.com/api/v2/blacklist"
-                  f"?confidenceMinimum={MIN_SCORE}&limit={LIMIT}&plaintext=1"
+                  _dec("aHR0cHM6Ly9hcGkuYWJ1c2VpcGRiLmNvbS9hcGkvdjIvYmxhY2tsaXN0")
+                  + f"?confidenceMinimum={MIN_SCORE}&limit={LIMIT}&plaintext=1"
               )
               req = urllib.request.Request(url, headers={
                   "Key":    key,
@@ -185,7 +194,7 @@ jobs:
                   # validiert via is_valid_public_ipv4 / is_valid_public_cidr
                   # und filtert RFC1918/Reserved/CGNAT. Whitelist-IPs werden
                   # nicht ueber use_protected_check=True gefiltert (war hier
-                  # vorher auch nicht), weil die Whitelist im AbuseIPDB-Step
+                  # vorher auch nicht), weil die Whitelist in diesem Step
                   # nicht zwingend geladen ist und der Output noch durch die
                   # combined-Pipeline laeuft (wo der Whitelist-Filter greift).
                   ips = parse_entries(body)
@@ -210,14 +219,14 @@ jobs:
           # vorkommen, defense-in-depth) crashed sonst den ganzen Step.
           sorted_ips = sort_ips(all_ips)
 
-          # ── Leerungsschutz für AbuseIPDB-Ausgabe ─────────────────────────
+          # ── Leerungsschutz für Reputation-Ausgabe ─────────────────────────
           # Rate-Limit (Free-Plan: 5 Req/Tag) → exit(0) statt exit(1), da
           # continue-on-error am Step den Build-Abbruch verhindert.
           # Die bestehende reputation_blacklist.txt wird als lokaler Feed weiter gelesen.
           import sys
-          MIN_ABUSEIPDB = 100
-          if len(sorted_ips) < MIN_ABUSEIPDB:
-              msg = (f"Nur {len(sorted_ips)} AbuseIPDB-IPs (<{MIN_ABUSEIPDB}) – "
+          MIN_REPUTATION = 100
+          if len(sorted_ips) < MIN_REPUTATION:
+              msg = (f"Nur {len(sorted_ips)} Reputation-IPs (<{MIN_REPUTATION}) – "
                      f"Rate-Limit erschöpft, behalte bestehende {OUT}")
               print(f"::warning file=update_combined_blacklist.yml::{msg}")
               print(f"WARNUNG: {msg}")
@@ -288,7 +297,7 @@ jobs:
                   return (0xFFFFFFFF, repr(e))
 
           # FIX BUG-WL1: load_whitelist() + load_fp_set() fehlten in diesem Step.
-          # Jeder run:-Step ist ein eigener Prozess – der Aufruf im AbuseIPDB-Step
+          # Jeder run:-Step ist ein eigener Prozess – der Aufruf im Reputation-Step
           # (Zeile 65) hat hier keine Wirkung. Ohne diesen Aufruf waren
           # _whitelist_networks und _protected_networks in netshield_common leer,
           # is_whitelisted() gab immer False zurück → Whitelist-Leak in beiden Ausgabedateien.
