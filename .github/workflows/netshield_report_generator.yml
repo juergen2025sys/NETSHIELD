@@ -544,7 +544,7 @@ jobs:
               "watchlist_confidence25to39_ipv4.txt": lambda n: f"**{n:,}**",
               "cve_exploit_ips.txt": lambda n: f"**{n:,}**",
               "bot_detector_blacklist_ipv4.txt": lambda n: f"**{n:,}**",
-              "abuseipdb_api_blacklist.txt": lambda n: f"**{n:,}**",
+              "reputation_blacklist.txt": lambda n: f"**{n:,}**",
               "honeypot_ips.txt": lambda n: f"**{n:,}**",
               "honigtopf_ips.txt": lambda n: f"**{n:,}**",
               "asn_blocklist_firewall.txt": lambda n: f"**{n:,}**",

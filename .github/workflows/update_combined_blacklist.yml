@@ -181,7 +181,7 @@ jobs:
                   # FIX BUG-WF3-VALIDATE: Vorher rohes splitlines/strip ohne
                   # IP-Validierung – ein HTML-Errorbody, eine Cloudflare-DDoS-
                   # Page oder Whitespace-getrennte Tokens haetten direkt in
-                  # abuseipdb_api_blacklist.txt gelandet. parse_entries
+                  # reputation_blacklist.txt gelandet. parse_entries
                   # validiert via is_valid_public_ipv4 / is_valid_public_cidr
                   # und filtert RFC1918/Reserved/CGNAT. Whitelist-IPs werden
                   # nicht ueber use_protected_check=True gefiltert (war hier
@@ -203,7 +203,7 @@ jobs:
                   stats.append((idx, 0, "ERROR"))
 
           # ── Ergebnis speichern ────────────────────────────────────────────────
-          OUT = "abuseipdb_api_blacklist.txt"
+          OUT = "reputation_blacklist.txt"
           # FIX BUG-WF3-SORT: sort_ips aus netshield_common (mit Crash-Guard)
           # statt manuellem sorted(... tuple(int(x) ...) ...) – ein einzelner
           # korrupter Eintrag (sollte nach parse_entries-Filter nicht mehr
@@ -213,7 +213,7 @@ jobs:
           # ── Leerungsschutz für AbuseIPDB-Ausgabe ─────────────────────────
           # Rate-Limit (Free-Plan: 5 Req/Tag) → exit(0) statt exit(1), da
           # continue-on-error am Step den Build-Abbruch verhindert.
-          # Die bestehende abuseipdb_api_blacklist.txt wird als lokaler Feed weiter gelesen.
+          # Die bestehende reputation_blacklist.txt wird als lokaler Feed weiter gelesen.
           import sys
           MIN_ABUSEIPDB = 100
           if len(sorted_ips) < MIN_ABUSEIPDB:
@@ -226,20 +226,17 @@ jobs:
           # FIX ATOMIC: Direktes open("w") durch write_ip_list ersetzt –
           # garantiert dass die Datei bei Crash/Kill/OOM entweder komplett
           # alt oder komplett neu ist, nie halb geschrieben.
-          header_stats = [f"Key {idx}: {count} IPs [{status}]" for idx, count, status in stats]
           write_ip_list(
               OUT,
               sorted_ips,
               header_lines=[
-                  "AbuseIPDB API Blacklist – NETSHIELD",
+                  "reputation_blacklist – NETSHIELD",
                   f"Aktualisiert: {now_str}",
-                  "Quellen: 3 API-Keys (Round-Robin)",
                   f"Eintraege: {len(sorted_ips)}",
-                  *header_stats,
               ],
           )
 
-          print(f"\nAbuseIPDB gesamt: {len(sorted_ips)} einzigartige IPs → {OUT}")
+          print(f"\nReputation gesamt: {len(sorted_ips)} einzigartige IPs → {OUT}")
           EOF
 
       - name: Fetch, discover, learn and build IPv4 lists
@@ -1284,7 +1281,7 @@ jobs:
               "bot_detector_blacklist_ipv4.txt": False,
               "honeypot_ips.txt":                True,
               "honigtopf_ips.txt":                 True,   # Honigtopf Community Honeypot Network (API)
-              "abuseipdb_api_blacklist.txt":     True,   # AbuseIPDB API (Round-Robin, HQ)
+              "reputation_blacklist.txt":        True,   # Reputation API (Round-Robin, HQ)
               # FIX CACHE-LOSS: Community-gemeldete IPs werden von community_ip_report.yml
               # in diese Datei geschrieben und hier als LOCAL_FEED eingelesen.
               # HQ=False: Einzelne Community-Meldungen sind keine vertrauenswürdige Quelle;
@@ -2253,7 +2250,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json abuseipdb_api_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
+          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json reputation_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
           # relocated_feeds.md nur vorhanden, wenn der Move-Resolver diesen Lauf
           # etwas umgeleitet hat – dann mitcommitten (sonst No-Op).
           git add relocated_feeds.md 2>/dev/null || true
@@ -2313,7 +2310,7 @@ jobs:
                 git stash pop 2>/dev/null || true
                 git checkout --theirs combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md \
-                  seen_db_meta.json abuseipdb_api_blacklist.txt \
+                  seen_db_meta.json reputation_blacklist.txt \
                   community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
                 # Parts ggf. auch per theirs mergen
                 for _p in combined_threat_blacklist_ipv4_part*.txt; do
@@ -2321,7 +2318,7 @@ jobs:
                 done
                 git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   combined_threat_blacklist_report.md seen_db_meta.json \
-                  abuseipdb_api_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
+                  reputation_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
                 git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
                 git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
