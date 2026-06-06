@@ -294,6 +294,11 @@ jobs:
 
           all_ips = set()
           stats   = {}
+          # last_seen-Verteilung des /bad-hosts-Feeds → macht im Report sichtbar,
+          # wie frisch die gelieferten Daten sind (heute/gestern/aelter). Rein
+          # informativ; aendert NICHTS an der Filterung (alle remote_host gehen
+          # weiterhin in die Liste, unabhaengig von last_seen).
+          last_seen_dist = {}
 
           # ── 1) Bad Hosts – alle (letzte 24h) ─────────────────────────────
           print("\n[1/5] Bad Hosts (alle, letzte 24h)...")
@@ -302,7 +307,17 @@ jobs:
               ips = extract_ips_from_list(data)
               all_ips.update(ips)
               stats["Bad Hosts (24h, alle Dienste)"] = len(ips)
+              # last_seen pro Eintrag zaehlen (defensiv: Feld kann fehlen)
+              if isinstance(data, list):
+                  for _e in data:
+                      if isinstance(_e, dict):
+                          _ls = _e.get("last_seen") or "unbekannt"
+                          last_seen_dist[_ls] = last_seen_dist.get(_ls, 0) + 1
               print(f"  → {len(ips)} IPs")
+              if last_seen_dist:
+                  _heute = now.strftime("%Y-%m-%d")
+                  print(f"  last_seen heute ({_heute}): {last_seen_dist.get(_heute, 0)} | "
+                        f"Verteilung: {dict(sorted(last_seen_dist.items(), reverse=True))}")
           else:
               stats["Bad Hosts (24h, alle Dienste)"] = 0
 
@@ -532,6 +547,19 @@ jobs:
           for key, value in stats.items():
               lines.append(f"| {key} | **{value:,}** |")
           lines.append("")
+          # Feed-Frische: zeigt, wie aktuell die /bad-hosts-Daten sind. HoneyDB
+          # liefert ein rollierendes Fenster; heutige IPs laufen ueber den Tag
+          # auf. last_seen=heute ist der frischeste Anteil.
+          if last_seen_dist:
+              _heute = now.strftime("%Y-%m-%d")
+              lines.append("---")
+              lines.append("## Feed-Frische – /bad-hosts (last_seen)\n")
+              lines.append(f"Davon **heute ({_heute})**: **{last_seen_dist.get(_heute, 0):,}** IPs\n")
+              lines.append("| last_seen | IPs |")
+              lines.append("|---|---:|")
+              for _ls in sorted(last_seen_dist, reverse=True):
+                  lines.append(f"| {_ls} | **{last_seen_dist[_ls]:,}** |")
+              lines.append("")
           lines.append("---")
           lines.append("| Metrik | Wert |")
           lines.append("|---|---|")
