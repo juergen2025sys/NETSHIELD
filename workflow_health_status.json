@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-07 14:59 UTC",
+  "updated": "2026-06-07 20:22 UTC",
   "total": 24,
   "ok": 23,
   "warn": 3,
@@ -29,7 +29,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "seen_db_backup.json.gz: 85.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "seen_db_backup.json.gz: 86.0 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
@@ -43,16 +43,16 @@
     },
     {
       "file": "Production Health",
-      "check": "Truncate-Parts wachsen",
-      "detail": "blacklist_geo_enriched.json: 1 neue Parts hinzugekommen (3 total). Wachstumstrend pruefen."
+      "check": "Truncate aktiv",
+      "detail": "blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6124026,
-    "active_blacklist_ipv4.txt": 427457,
-    "blacklist_confidence40_ipv4.txt": 4901954,
+    "combined_threat_blacklist_ipv4.txt": 6128470,
+    "active_blacklist_ipv4.txt": 431878,
+    "blacklist_confidence40_ipv4.txt": 4906195,
     "cve_exploit_ips.txt": 34962,
-    "honeypot_ips.txt": 948655,
+    "honeypot_ips.txt": 948382,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
@@ -62,7 +62,7 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "seen_db_backup.json.gz: 85.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "seen_db_backup.json.gz: 86.0 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
@@ -76,8 +76,8 @@
       },
       {
         "level": "WARN",
-        "check": "Truncate-Parts wachsen",
-        "detail": "blacklist_geo_enriched.json: 1 neue Parts hinzugekommen (3 total). Wachstumstrend pruefen."
+        "check": "Truncate aktiv",
+        "detail": "blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar."
       }
     ]
   },
