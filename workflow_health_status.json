@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-07 10:09 UTC",
+  "updated": "2026-06-07 14:59 UTC",
   "total": 24,
   "ok": 23,
   "warn": 3,
@@ -29,30 +29,30 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "seen_db_backup.json.gz: 85.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "seen_db_backup.json.gz: 85.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "blacklist_geo_enriched.json: 93.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "blacklist_geo_enriched.json: 94.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 83.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 83.4 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
-      "check": "Truncate aktiv",
-      "detail": "blacklist_geo_enriched.json: Splitting weiterhin aktiv (2 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar."
+      "check": "Truncate-Parts wachsen",
+      "detail": "blacklist_geo_enriched.json: 1 neue Parts hinzugekommen (3 total). Wachstumstrend pruefen."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6110233,
-    "active_blacklist_ipv4.txt": 413447,
-    "blacklist_confidence40_ipv4.txt": 4888503,
+    "combined_threat_blacklist_ipv4.txt": 6124026,
+    "active_blacklist_ipv4.txt": 427457,
+    "blacklist_confidence40_ipv4.txt": 4901954,
     "cve_exploit_ips.txt": 34962,
-    "honeypot_ips.txt": 948512,
+    "honeypot_ips.txt": 948655,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
@@ -62,22 +62,22 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "seen_db_backup.json.gz: 85.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "seen_db_backup.json.gz: 85.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "blacklist_geo_enriched.json: 93.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "blacklist_geo_enriched.json: 94.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 83.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 83.4 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
-        "check": "Truncate aktiv",
-        "detail": "blacklist_geo_enriched.json: Splitting weiterhin aktiv (2 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar."
+        "check": "Truncate-Parts wachsen",
+        "detail": "blacklist_geo_enriched.json: 1 neue Parts hinzugekommen (3 total). Wachstumstrend pruefen."
       }
     ]
   },
@@ -86,7 +86,8 @@
     "blacklist_confidence40_ipv4.txt": [],
     "blacklist_geo_enriched.json": [
       "blacklist_geo_enriched_part1.json",
-      "blacklist_geo_enriched_part2.json"
+      "blacklist_geo_enriched_part2.json",
+      "blacklist_geo_enriched_part3.json"
     ]
   }
 }
