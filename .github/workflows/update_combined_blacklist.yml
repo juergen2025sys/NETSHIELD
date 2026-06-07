@@ -832,6 +832,19 @@ jobs:
               # Bogon-Ranges (nicht-routbar/reserviert) – is_valid_public_ipv4() filtert 100% heraus
               # → 0 nutzbare IPs, ~3 MB sinnloser Download pro Lauf (analog zu honeypot_monitor.yml)
 
+              # ── ScanThe.Net (internet-weite Scan-Detektion) ───────────────
+              # Aufgenommen 2026-06-07. Aggregierte Daily-Blocklist eines
+              # Threat-Intel-Dienstes (internet-weite Scans, aktiver
+              # AbuseIPDB-Contributor seit 11/2024). non-HQ (False): Scanner-/
+              # Recon-Daten, Policy "Scanner != malicious" (wie binaryedge/
+              # neblink). Format wird von parse_entries (Regex) verarbeitet,
+              # unabhaengig ob plain IP, CIDR oder JSON.
+              # HINWEIS: Endpunkt liegt hinter Cloudflare-Bot-Schutz. Im Browser
+              # als erreichbar bestaetigt; ob der headless fetch_url in Actions
+              # die Challenge passiert, zeigt erst ein echter Lauf. Falls nicht:
+              # 3x "0 IPs" -> Auto-Cleanup entfernt den Feed selbsttaetig.
+              "scanthe_net":                ("https://blacklist.scanthe.net/daily", False),
+
               # ── Tor Exit Nodes ────────────────────────────────────────────
               # tor_* entfernt: tor_exit_monitor Workflow wurde entfernt
           }
