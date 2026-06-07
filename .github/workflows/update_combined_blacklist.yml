@@ -832,6 +832,31 @@ jobs:
               # Bogon-Ranges (nicht-routbar/reserviert) – is_valid_public_ipv4() filtert 100% heraus
               # → 0 nutzbare IPs, ~3 MB sinnloser Download pro Lauf (analog zu honeypot_monitor.yml)
 
+              # ── Honeypot / aggregierte Bad-IP-Repos (cbuijs) ──────────────
+              # Beide aufgenommen 2026-06-07. Format: eine "IP/32" pro Zeile –
+              # von parse_entries als /32-CIDR erkannt (empirisch verifiziert,
+              # identisch zur Fadouse-Verarbeitung) und beim seen_db-Merge als
+              # plain IP gespeichert (FIX BUG-CIDR-AGGR). Kein Parser-Eingriff.
+              # URL nutzt HEAD: beide Repos haben sowohl master- als auch main-
+              # Branch, HEAD loest eindeutig auf den gepflegten Default-Branch auf.
+              #
+              # project_honeypot: Datenquelle Project Honeypot (projecthoneypot.org),
+              # aufbereitet im Repo cbuijs/accomplist. ~103k IPs, taeglich
+              # aktualisiert (~05:00 UTC, verifiziert via Commit-Atom-Feed).
+              # Solo-Beitrag gegen combined gemessen: ~89.700 IPs (87% neu) –
+              # erschliesst eine bisher komplett fehlende Quelle. non-HQ (False):
+              # Zugriff ueber Einzelbetreiber-Mirror, kein dokumentiertes
+              # Confidence-Scoring (konsistent mit romain_marcoux/netmountains).
+              # HINWEIS: Project-Honeypot-Daten koennen Republikations-
+              # einschraenkungen unterliegen – Lizenz der Originalquelle vor
+              # dauerhafter Veroeffentlichung pruefen.
+              "project_honeypot":           ("https://raw.githubusercontent.com/cbuijs/accomplist/HEAD/chris/project-honeypot.list", False),
+              # cbuijs_badip: aggregierte Bad-IP-Liste (cbuijs/badip). ~43k IPs,
+              # alle 6h aktualisiert (03/09/15/21 UTC, via Commit-Atom-Feed).
+              # Solo-Beitrag gegen combined: ~5.600 IPs (13% neu). non-HQ (False):
+              # Einzelbetreiber-Aggregat ohne dokumentiertes Scoring.
+              "cbuijs_badip":               ("https://raw.githubusercontent.com/cbuijs/badip/HEAD/badip.list", False),
+
               # ── Tor Exit Nodes ────────────────────────────────────────────
               # tor_* entfernt: tor_exit_monitor Workflow wurde entfernt
           }
