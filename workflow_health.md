@@ -1,6 +1,6 @@
 # Workflow Health Report
 
-**Stand:** 2026-06-08 16:14 UTC
+**Stand:** 2026-06-08 20:30 UTC
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_report.yml` alle 6h.
@@ -8,8 +8,8 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 9 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 8
+- **Echte Combined-Runs:** 10 / 8 erwartet
+- **Skip-Runs (Idempotenz-Guard):** 6
 - **Lucken (>210min zwischen echten Runs):** 3
   - 2026-06-07 21:54 UTC -> 2026-06-08 01:35 UTC (220 min)
   - 2026-06-08 07:07 UTC -> 2026-06-08 11:16 UTC (249 min)
@@ -17,24 +17,24 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 7 Tage
 
-- **Echte Combined-Runs:** 64
-- **Skip-Runs:** 55
-- **Fehlgeschlagene Runs:** 31
+- **Echte Combined-Runs:** 65
+- **Skip-Runs:** 58
+- **Fehlgeschlagene Runs:** 29
 - **Lucken >210min:** 14
 - **Groesste Lucke:** 2026-06-04 22:16 UTC -> 2026-06-05 04:41 UTC (385 min = 6h 25min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 174
-- **Watchdog-Fehler:** 2
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 42
+- **Watchdog-Laeufe insgesamt:** 176
+- **Watchdog-Fehler:** 0
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 43
 
 Letzte Watchdog-Eingriffe:
-- 2026-06-07 21:33 UTC (Run #27105458146, Laufzeit 20m 43s)
 - 2026-06-08 01:35 UTC (Run #27111182199, Laufzeit 21m 25s)
 - 2026-06-08 06:46 UTC (Run #27120751572, Laufzeit 20m 43s)
 - 2026-06-08 15:21 UTC (Run #27147941835, Laufzeit 21m 55s)
 - 2026-06-08 15:48 UTC (Run #27149558908, Laufzeit 21m 44s)
+- 2026-06-08 19:36 UTC (Run #27162133542, Laufzeit 22m 23s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
