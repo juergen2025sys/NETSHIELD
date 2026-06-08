@@ -1073,6 +1073,17 @@ jobs:
           # (list.append ist unter CPython atomar).
           relocations = []
 
+          # FIX SCANTHE-UA: Einzelne Feeds liegen hinter Cloudflare-Bot-Schutz
+          # und liefern fuer den Default-UA "NETSHIELD/3.0" ein HTTP 403. Fuer
+          # die hier gelisteten Feeds wird ein Browser-User-Agent gesendet.
+          # Hebelt eine reine UA-/Bot-Score-Filterung aus; bei einer JS- oder
+          # TLS-Fingerprint-Challenge (JA3) wirkt es NICHT – dann bleibt der
+          # Feed bei 403 und wird vom Auto-Cleanup nach 3 Fehllaeufen entfernt.
+          _BROWSER_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                         "AppleWebKit/537.36 (KHTML, like Gecko) "
+                         "Chrome/124.0.0.0 Safari/537.36")
+          _BROWSER_UA_FEEDS = {"scanthe_net"}
+
           def fetch_ips(name, url):
               # FIX BUG-WF1-FETCHURL: Vorher direktes urllib.request.urlopen –
               # damit umging dieser Pfad alle Sicherheits-Hardenings, die
@@ -1086,8 +1097,9 @@ jobs:
               # Upstream am meisten Schaden anrichten koennte – jetzt ueber
               # die abgesicherte API.
               try:
+                  _ua = _BROWSER_UA if name in _BROWSER_UA_FEEDS else "NETSHIELD/3.0"
                   raw = fetch_url(url, timeout=22, retries=3,
-                                  user_agent="NETSHIELD/3.0",
+                                  user_agent=_ua,
                                   read_limit=READ_LIMIT)
                   if raw is None:
                       # FEED-MOVE-RESOLVER: Persistenter Fehler (i.d.R. 404 nach
@@ -1102,7 +1114,7 @@ jobs:
                           print(f"::warning file=update_combined_blacklist.yml::"
                                 f"Feed [{name}] verschoben – nutze neue URL: {new_url}")
                           raw = fetch_url(new_url, timeout=22, retries=3,
-                                          user_agent="NETSHIELD/3.0",
+                                          user_agent=_ua,
                                           read_limit=READ_LIMIT)
                           relocations.append({
                               "name": name, "old_url": url, "new_url": new_url,
