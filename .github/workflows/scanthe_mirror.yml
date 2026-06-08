@@ -32,7 +32,7 @@ jobs:
 
       - name: Playwright + Chromium installieren
         run: |
-          pip install --quiet playwright
+          pip install --quiet playwright playwright-stealth
           python -m playwright install --with-deps chromium
 
       - name: Blocklist via Headless-Browser holen
