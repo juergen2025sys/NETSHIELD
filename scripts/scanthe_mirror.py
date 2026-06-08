@@ -22,6 +22,7 @@ import ipaddress
 import pathlib
 
 from playwright.sync_api import sync_playwright
+from playwright_stealth import Stealth
 
 URL = "https://blacklist.scanthe.net/daily"
 OUT = pathlib.Path("scanthe_daily.txt")
@@ -47,7 +48,11 @@ def valid_public_v4(ip: str) -> bool:
 
 
 def grab_text() -> str:
-    with sync_playwright() as pw:
+    # Stealth().use_sync(...) patcht den Playwright-Kontext: jede hier
+    # erstellte Page bekommt automatisch die Anti-Detection-Evasions
+    # (navigator.webdriver, Plugins, WebGL-Vendor etc.), an denen Cloudflare
+    # einen Headless-Chromium sonst erkennt.
+    with Stealth().use_sync(sync_playwright()) as pw:
         browser = pw.chromium.launch(
             headless=True,
             args=["--no-sandbox",
