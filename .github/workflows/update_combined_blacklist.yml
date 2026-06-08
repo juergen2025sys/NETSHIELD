@@ -832,20 +832,6 @@ jobs:
               # Bogon-Ranges (nicht-routbar/reserviert) – is_valid_public_ipv4() filtert 100% heraus
               # → 0 nutzbare IPs, ~3 MB sinnloser Download pro Lauf (analog zu honeypot_monitor.yml)
 
-              # ── ScanThe.Net (internet-weite Scan-Detektion) ───────────────
-              # Aufgenommen 2026-06-08. api-Endpunkt liefert JSON (neueste
-              # Scan-Events, rollierendes Fenster) – KEINE aggregierte Liste,
-              # die Pipeline sammelt ueber Zeit via seen_db. parse_entries zieht
-              # die source_ip-Werte per Regex (verifiziert, kein Muell aus
-              # seq/ports). non-HQ (False): Scanner-/Recon-Daten, Policy
-              # "Scanner != malicious" (wie binaryedge/neblink).
-              # HINWEIS: blacklist.scanthe.net/daily lieferte HTTP 403 (Cloudflare,
-              # auch mit Browser-UA + Headless-Stealth nicht zu knacken). Dieser
-              # api-Endpunkt ist eine andere Subdomain – ob der headless fetch_url
-              # durchkommt, zeigt erst ein echter Lauf. Falls 403: 3x "0 IPs" ->
-              # Auto-Cleanup entfernt den Feed selbsttaetig.
-              "scanthe_net":                ("https://api.scanthe.net/", False),
-
               # ── Tor Exit Nodes ────────────────────────────────────────────
               # tor_* entfernt: tor_exit_monitor Workflow wurde entfernt
           }
@@ -1074,16 +1060,6 @@ jobs:
           # (list.append ist unter CPython atomar).
           relocations = []
 
-          # FIX SCANTHE-UA: Feeds hinter Cloudflare-Bot-Schutz liefern fuer den
-          # Default-UA "NETSHIELD/3.0" ein HTTP 403. Die hier gelisteten Feeds
-          # bekommen einen Browser-User-Agent. Hebelt eine reine UA-/Bot-Score-
-          # Filterung aus; bei JS-/TLS-Fingerprint-Challenge (JA3) wirkt es NICHT
-          # -> Feed bleibt bei 403 und wird vom Auto-Cleanup entfernt.
-          _BROWSER_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                         "AppleWebKit/537.36 (KHTML, like Gecko) "
-                         "Chrome/124.0.0.0 Safari/537.36")
-          _BROWSER_UA_FEEDS = {"scanthe_net"}
-
           def fetch_ips(name, url):
               # FIX BUG-WF1-FETCHURL: Vorher direktes urllib.request.urlopen –
               # damit umging dieser Pfad alle Sicherheits-Hardenings, die
@@ -1097,9 +1073,8 @@ jobs:
               # Upstream am meisten Schaden anrichten koennte – jetzt ueber
               # die abgesicherte API.
               try:
-                  _ua = _BROWSER_UA if name in _BROWSER_UA_FEEDS else "NETSHIELD/3.0"
                   raw = fetch_url(url, timeout=22, retries=3,
-                                  user_agent=_ua,
+                                  user_agent="NETSHIELD/3.0",
                                   read_limit=READ_LIMIT)
                   if raw is None:
                       # FEED-MOVE-RESOLVER: Persistenter Fehler (i.d.R. 404 nach
@@ -1114,7 +1089,7 @@ jobs:
                           print(f"::warning file=update_combined_blacklist.yml::"
                                 f"Feed [{name}] verschoben – nutze neue URL: {new_url}")
                           raw = fetch_url(new_url, timeout=22, retries=3,
-                                          user_agent=_ua,
+                                          user_agent="NETSHIELD/3.0",
                                           read_limit=READ_LIMIT)
                           relocations.append({
                               "name": name, "old_url": url, "new_url": new_url,
