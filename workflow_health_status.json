@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-10 11:02 UTC",
+  "updated": "2026-06-10 16:45 UTC",
   "total": 24,
   "ok": 23,
   "warn": 2,
@@ -7,8 +7,8 @@
   "errors": [
     {
       "file": "Production Health",
-      "check": "Drift: honeypot_ips.txt",
-      "detail": "honeypot_ips.txt: 948,587 \u2192 73,964 (-92%) \u2013 starker R\u00fcckgang seit letztem Check"
+      "check": "active \u2286 conf40 Subset-Invariante verletzt",
+      "detail": "2,602 IPs in active fehlen in conf40 (0.610% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
     }
   ],
   "warnings": [
@@ -35,12 +35,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "seen_db_backup.json.gz: 87.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
-    },
-    {
-      "file": "Production Health",
-      "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 84.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "seen_db_backup.json.gz: 87.4 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
@@ -49,16 +44,21 @@
     },
     {
       "file": "Production Health",
+      "check": "Push-Limit Naehe",
+      "detail": "combined_threat_blacklist_ipv4.txt: 84.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+    },
+    {
+      "file": "Production Health",
       "check": "Truncate aktiv",
       "detail": "blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6191044,
-    "active_blacklist_ipv4.txt": 398742,
-    "blacklist_confidence40_ipv4.txt": 5035499,
+    "combined_threat_blacklist_ipv4.txt": 6218119,
+    "active_blacklist_ipv4.txt": 426216,
+    "blacklist_confidence40_ipv4.txt": 5059934,
     "cve_exploit_ips.txt": 34773,
-    "honeypot_ips.txt": 73964,
+    "honeypot_ips.txt": 74004,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
@@ -66,19 +66,9 @@
     "warn": 4,
     "checks": [
       {
-        "level": "CRITICAL",
-        "check": "Drift: honeypot_ips.txt",
-        "detail": "honeypot_ips.txt: 948,587 \u2192 73,964 (-92%) \u2013 starker R\u00fcckgang seit letztem Check"
-      },
-      {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "seen_db_backup.json.gz: 87.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
-      },
-      {
-        "level": "WARN",
-        "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 84.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "seen_db_backup.json.gz: 87.4 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
@@ -87,8 +77,18 @@
       },
       {
         "level": "WARN",
+        "check": "Push-Limit Naehe",
+        "detail": "combined_threat_blacklist_ipv4.txt: 84.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      },
+      {
+        "level": "WARN",
         "check": "Truncate aktiv",
         "detail": "blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar."
+      },
+      {
+        "level": "CRITICAL",
+        "check": "active \u2286 conf40 Subset-Invariante verletzt",
+        "detail": "2,602 IPs in active fehlen in conf40 (0.610% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
       }
     ]
   },
