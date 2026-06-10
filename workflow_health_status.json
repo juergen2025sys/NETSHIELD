@@ -1,16 +1,10 @@
 {
-  "updated": "2026-06-10 16:45 UTC",
+  "updated": "2026-06-10 21:27 UTC",
   "total": 24,
   "ok": 23,
-  "warn": 2,
-  "error": 1,
-  "errors": [
-    {
-      "file": "Production Health",
-      "check": "active \u2286 conf40 Subset-Invariante verletzt",
-      "detail": "2,602 IPs in active fehlen in conf40 (0.610% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
-    }
-  ],
+  "warn": 3,
+  "error": 0,
+  "errors": [],
   "warnings": [
     {
       "file": "honeypot_monitor.yml \u2192 update_combined_blacklist.yml",
@@ -45,7 +39,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 84.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 84.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
@@ -54,15 +48,15 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6218119,
-    "active_blacklist_ipv4.txt": 426216,
-    "blacklist_confidence40_ipv4.txt": 5059934,
+    "combined_threat_blacklist_ipv4.txt": 6221860,
+    "active_blacklist_ipv4.txt": 429168,
+    "blacklist_confidence40_ipv4.txt": 5065608,
     "cve_exploit_ips.txt": 34773,
-    "honeypot_ips.txt": 74004,
+    "honeypot_ips.txt": 73876,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
-    "critical": 1,
+    "critical": 0,
     "warn": 4,
     "checks": [
       {
@@ -78,17 +72,12 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 84.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 84.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
         "check": "Truncate aktiv",
         "detail": "blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar."
-      },
-      {
-        "level": "CRITICAL",
-        "check": "active \u2286 conf40 Subset-Invariante verletzt",
-        "detail": "2,602 IPs in active fehlen in conf40 (0.610% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
       }
     ]
   },

@@ -1,15 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-06-10 16:45 UTC
+**Aktualisiert:** 2026-06-10 21:27 UTC
 
-**Workflows:** 24 | ✅ 23 OK | ⚠️ 2 Warnung | ❌ 1 Fehler
+**Workflows:** 24 | ✅ 23 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 2,602 IPs in active fehlen in conf40 (0.610% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
-
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
@@ -20,19 +14,18 @@
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:30 UTC → 00:47 UTC (17min < 60min Mindestpuffer); 06:30 UTC → 06:47 UTC (17min < 60min Mindestpuffer); 12:30 UTC → 12:47 UTC (17min < 60min Mindestpuffer); 18:30 UTC → 18:47 UTC (17min < 60min Mindestpuffer) |
 | `Production Health` | Push-Limit Naehe | seen_db_backup.json.gz: 87.4 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Push-Limit Naehe | blacklist_geo_enriched.json: 94.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 84.6 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 84.7 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Truncate aktiv | blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 4 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 4 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 2,602 IPs in active fehlen in conf40 (0.610% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 | 🟡 WARN | Push-Limit Naehe | seen_db_backup.json.gz: 87.4 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Push-Limit Naehe | blacklist_geo_enriched.json: 94.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 84.6 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 84.7 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Truncate aktiv | blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
 
 ## Übersicht
@@ -65,4 +58,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-06-10 16:45 UTC | 24 Workflow-Dateien geprüft*
+*Generiert: 2026-06-10 21:27 UTC | 24 Workflow-Dateien geprüft*
