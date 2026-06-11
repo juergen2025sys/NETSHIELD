@@ -1,5 +1,5 @@
 # NETSHIELD – Stale-Feed-Report
-**Aktualisiert:** 2026-06-10 05:11 UTC
+**Aktualisiert:** 2026-06-11 05:23 UTC
 **Schwelle:** IP-Menge ≥ 14 Tage unveraendert
 
 Erkennt Feeds, die zwar antworten und IPs liefern, deren Inhalt sich aber lange nicht mehr aendert. Solche Feeds bestehen den Status-/has_ips-Check, halten ihre IPs aber kuenstlich auf voller Aktualitaet und entgehen so dem Score-Decay → Risiko veralteter Dauer-Blocks. Flag ist **advisory**, kein Auto-Remove.
@@ -8,4 +8,4 @@ Erkennt Feeds, die zwar antworten und IPs liefern, deren Inhalt sich aber lange 
 
 Alle Feeds haben ihre IP-Menge innerhalb der letzten 14 Tage geaendert (oder sind noch unterhalb der Schwelle).
 
-*Generiert: 2026-06-10 05:11 UTC*
+*Generiert: 2026-06-11 05:23 UTC*
