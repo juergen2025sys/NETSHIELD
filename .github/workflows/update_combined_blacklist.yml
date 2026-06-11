@@ -632,16 +632,20 @@ jobs:
               # rutgers_drop: akademischer Feed (Rutgers University CS-Department). Plain
               # IP-Liste, Attacker gegen Uni-Netz. non-HQ (False): wenig Metadaten zur Kuratierung.
               "rutgers_drop":               ("https://report.cs.rutgers.edu/DROP/attackers", False),
-              # bruteforceblocker (danger.rulez.sk): Perl-Tool des FreeBSD-Devs Daniel
-              # Gerzo, sammelt SSH-Bruteforce-Versuche von Nutzer-Installationen weltweit
-              # und veroeffentlicht die aggregierte Liste auf danger.rulez.sk. Plain-Text
-              # Format: "IP # last_seen count". parse_entries nimmt Spalte 1.
-              # Quelle: github.com/dgerzo/bruteforceblocker (offizielles Repo) verlinkt
-              # blist.php als public list. Auch von Maltrail genutzt (trails/feeds/).
-              # non-HQ (False): Community-aggregiert, kein dokumentiertes Confidence-
-              # Scoring. Zweck-aehnlich zu blocklist_de_ssh und rutgers_drop, aber
-              # eigenstaendige Datenquelle - kein Family-Mapping noetig.
-              "bruteforceblocker":          ("https://danger.rulez.sk/projects/bruteforceblocker/blist.php", False),
+              # ENTFERNT "bruteforceblocker" (2026-06-11): URL war BYTE-IDENTISCH
+              # mit dem bestehenden Kern-Feed "danger_bruteforce" (Zeile ~546,
+              # https://danger.rulez.sk/projects/bruteforceblocker/blist.php).
+              # Der fruehere Kommentar behauptete "eigenstaendige Datenquelle" –
+              # empirisch widerlegt (Audit 2026-06-11, programmtischer URL-
+              # Duplikat-Check ueber alle 116 SOURCES). Effekte des Duplikats:
+              #   - doppelter Fetch derselben URL pro Lauf
+              #   - jede IP des Feeds bekam 2 Feed-Namen → today_count/feed_count
+              #     um 1 inflationiert
+              #   - Aufnahme-Filter len(feeds)>=2 wurde durch EINE reale Quelle
+              #     erfuellt (praktisch entschaerft, weil danger_bruteforce HQ
+              #     ist und die IP via hq=True ohnehin gehalten wird)
+              # danger_bruteforce (HQ=True) bleibt als einziger Eintrag dieser
+              # Quelle bestehen.
               # blocklist_net_ua: BlockList.net.ua Projekt, ~90k IPs, EU-Fokus,
               # Schutz gegen SMTP-Relay-Spam und Hacking-Versuche. Aktiv gepflegt.
               # HQ (True): bekannter EU-Community-Feed mit klarer Mission-Statement.
