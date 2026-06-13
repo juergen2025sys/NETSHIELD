@@ -31,7 +31,7 @@ jobs:
         with:
           persist-credentials: true
 
-      - name: Generate NETSHIELD_REPORT.md
+      - name: Generate reports/NETSHIELD_REPORT.md
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -234,18 +234,18 @@ jobs:
                           lines.append(f"*{len(_quar)} davon ≥21 Tage → im Combined automatisch in Quarantäne "
                                        f"(eingefrorene HQ-Feeds zählen nicht mehr als frische Bestätigung, "
                                        f"betroffene IPs altern normal aus). Details: "
-                                       f"[stale_feed_report.md](stale_feed_report.md)*\n")
+                                       f"[reports/stale_feed_report.md](reports/stale_feed_report.md)*\n")
                       else:
                           lines.append(f"*Noch unter der 21-Tage-Quarantäne-Schwelle – nur beobachtet. "
-                                       f"Details: [stale_feed_report.md](stale_feed_report.md)*\n")
-                  lines.append(f"*Letzter Check: {fh.get('updated', '–')} – Details: [feed_health_report.md](feed_health_report.md)*\n")
+                                       f"Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*\n")
+                  lines.append(f"*Letzter Check: {fh.get('updated', '–')} – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*\n")
               except Exception as e:
                   print(f"WARNUNG: feed_health_status.json konnte nicht gelesen werden: {e}")
 
-          if os.path.exists("workflow_health_report.md"):
+          if os.path.exists("reports/workflow_health_report.md"):
               lines.append("---")
               lines.append("## ⚙️ Workflow Health\n")
-              lines.append("*Details: [workflow_health_report.md](workflow_health_report.md)*\n")
+              lines.append("*Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*\n")
 
           lines.append("---")
           lines.append(f"*Automatisch generiert von NETSHIELD Report Generator · {now_str}*")
@@ -261,18 +261,18 @@ jobs:
           write_report = True
           # FIX: Wenn combined_threat_blacklist_ipv4.txt fehlt oder leer ist,
           # Report nicht mit 0-Werten überschreiben (fehlgeschlagener Combined-Run).
-          if total == 0 and os.path.exists("NETSHIELD_REPORT.md"):
-              print("WARNUNG: combined=0 IPs – behalte bestehenden NETSHIELD_REPORT.md")
+          if total == 0 and os.path.exists("reports/NETSHIELD_REPORT.md"):
+              print("WARNUNG: combined=0 IPs – behalte bestehenden reports/NETSHIELD_REPORT.md")
               write_report = False
-          elif os.path.exists("NETSHIELD_REPORT.md"):
-              with open("NETSHIELD_REPORT.md", encoding="utf-8") as _old:
+          elif os.path.exists("reports/NETSHIELD_REPORT.md"):
+              with open("reports/NETSHIELD_REPORT.md", encoding="utf-8") as _old:
                   if _data_only(_old.read()) == _data_only(new_content):
                       write_report = False
-                      print(f"NETSHIELD_REPORT.md: Daten unverändert – Schreiben übersprungen")
+                      print(f"reports/NETSHIELD_REPORT.md: Daten unverändert – Schreiben übersprungen")
 
           if write_report:
-              write_text_atomic("NETSHIELD_REPORT.md", new_content)
-              print(f"NETSHIELD_REPORT.md geschrieben | combined: {total:,} IPs")
+              write_text_atomic("reports/NETSHIELD_REPORT.md", new_content)
+              print(f"reports/NETSHIELD_REPORT.md geschrieben | combined: {total:,} IPs")
           EOF
 
       - name: Update README Header Stats
@@ -645,7 +645,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add NETSHIELD_REPORT.md README.md
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch NETSHIELD_REPORT.md 2>/dev/null || true
+          git add reports/NETSHIELD_REPORT.md README.md
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -662,8 +666,8 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs NETSHIELD_REPORT.md README.md 2>/dev/null || true
-                git add NETSHIELD_REPORT.md README.md 2>/dev/null || true
+                git checkout --theirs reports/NETSHIELD_REPORT.md README.md 2>/dev/null || true
+                git add reports/NETSHIELD_REPORT.md README.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

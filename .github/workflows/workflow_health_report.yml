@@ -2,7 +2,7 @@ name: Workflow Health Report
 
 # Zweck:
 # Erstellt alle 6h einen Health-Report fuer den Combined-Blacklist-Workflow
-# als workflow_health.md im Repo. Dient als sichtbares Monitoring fuer
+# als reports/workflow_health.md im Repo. Dient als sichtbares Monitoring fuer
 # GitHub-Scheduler-Skips, Watchdog-Eingriffe und Run-Lucken.
 #
 # Datenquelle: GitHub Actions API via gh run list. Erfasst werden alle Runs
@@ -249,9 +249,9 @@ jobs:
           report = "\n".join(lines) + "\n"
 
           # Atomarer Write (tempfile + fsync + os.replace) - vom Security-
-          # Hygiene-Checker erzwungen, verhindert kaputte workflow_health.md
+          # Hygiene-Checker erzwungen, verhindert kaputte reports/workflow_health.md
           # bei Process-Abbruch waehrend des Schreibens.
-          write_text_atomic("workflow_health.md", report)
+          write_text_atomic("reports/workflow_health.md", report)
 
           print(f"Report geschrieben: {len(lines)} Zeilen")
           print(f"  Echte Runs 24h: {len(real_24h)}/{expected_real_24h}")
@@ -263,13 +263,17 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add workflow_health.md
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch workflow_health.md 2>/dev/null || true
+          git add reports/workflow_health.md
           if git diff --staged --quiet; then
             echo "Keine Aenderungen am Health Report"
           else
             git commit -m "Update workflow health report: $(date -u '+%Y-%m-%d %H:%M') UTC"
             # Push mit Retry-Logik (gleicher Pattern wie Combined-Workflow,
-            # da workflow_health.md parallel zu anderen Workflows committed
+            # da reports/workflow_health.md parallel zu anderen Workflows committed
             # werden kann und git push race conditions auftreten koennen).
             #
             # FIX UNSTAGED-CHANGES (2026-05-21): Erster Lauf scheiterte mit

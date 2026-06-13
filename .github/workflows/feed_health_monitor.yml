@@ -130,13 +130,13 @@ jobs:
                       print(f"::error file=feed_health_monitor.yml::{_err_msg}")
                       # FIX: Report immer VOR SystemExit schreiben, damit Commit-Step (if: always())
                       # einen aktuellen Fehler-Report committet statt den veralteten Stand zu behalten.
-                      write_text_atomic("feed_health_report.md", f"# Feed Health Monitor – Report\n**Aktualisiert:** {now_str}\n\n---\n\n## ❌ Kritischer Fehler\n\n*{_err_msg}*\n\n---\n*Generiert: {now_str}*\n")
+                      write_text_atomic("reports/feed_health_report.md", f"# Feed Health Monitor – Report\n**Aktualisiert:** {now_str}\n\n---\n\n## ❌ Kritischer Fehler\n\n*{_err_msg}*\n\n---\n*Generiert: {now_str}*\n")
                       raise SystemExit(1)
               else:
                   _err_msg = f"Feed-Extraktion fehlgeschlagen (kein Cache vorhanden): {_ex}"
                   print(f"::error file=feed_health_monitor.yml::{_err_msg}")
                   # FIX: Report immer VOR SystemExit schreiben
-                  write_text_atomic("feed_health_report.md", f"# Feed Health Monitor – Report\n**Aktualisiert:** {now_str}\n\n---\n\n## ❌ Kritischer Fehler\n\n*{_err_msg}*\n\n---\n*Generiert: {now_str}*\n")
+                  write_text_atomic("reports/feed_health_report.md", f"# Feed Health Monitor – Report\n**Aktualisiert:** {now_str}\n\n---\n\n## ❌ Kritischer Fehler\n\n*{_err_msg}*\n\n---\n*Generiert: {now_str}*\n")
                   raise SystemExit(1)
 
           IP_RE = IPV4_RE   # Alias auf strikte Variante aus netshield_common
@@ -322,7 +322,7 @@ jobs:
                     f"(seit {r['first_failed']}, zuletzt HTTP {r['status']}) – "
                     f"URL pruefen/aktualisieren: {r['url']}")
 
-          # ── dead_feed_report.md schreiben ──────────────────────────────────
+          # ── reports/dead_feed_report.md schreiben ──────────────────────────────────
           _dl = [f"# NETSHIELD – Dead-Feed-Report",
                  f"**Aktualisiert:** {now_str}",
                  f"**Schwelle:** {DEAD_THRESHOLD} Fehl-Laeufe in Folge (Daily-Cron → {DEAD_THRESHOLD} Tage)",
@@ -347,8 +347,8 @@ jobs:
               _dl.append("Alle geprueften Feeds antworten oder sind unterhalb der Schwelle.")
           _dl.append("")
           _dl.append(f"*Generiert: {now_str}*")
-          write_text_atomic("dead_feed_report.md", "\n".join(_dl))
-          print(f"dead_feed_report.md geschrieben ({len(dead_feeds)} tote Feeds)")
+          write_text_atomic("reports/dead_feed_report.md", "\n".join(_dl))
+          print(f"reports/dead_feed_report.md geschrieben ({len(dead_feeds)} tote Feeds)")
 
           # ── Stale-Feed-Erkennung (Gegenstueck zum Dead-Feed-Report) ────────
           # Feeds die antworten + IPs liefern, deren IP-Menge sich aber
@@ -369,7 +369,7 @@ jobs:
                     f"(seit {r['fingerprint_since']}) – moeglicherweise eingefroren. "
                     f"Quelle/URL pruefen: {r['url']}")
 
-          # ── stale_feed_report.md schreiben ─────────────────────────────────
+          # ── reports/stale_feed_report.md schreiben ─────────────────────────────────
           _sl = [f"# NETSHIELD – Stale-Feed-Report",
                  f"**Aktualisiert:** {now_str}",
                  f"**Schwelle:** IP-Menge ≥ {STALE_THRESHOLD_DAYS} Tage unveraendert",
@@ -402,8 +402,8 @@ jobs:
                          f"{STALE_THRESHOLD_DAYS} Tage geaendert (oder sind noch unterhalb der Schwelle).")
           _sl.append("")
           _sl.append(f"*Generiert: {now_str}*")
-          write_text_atomic("stale_feed_report.md", "\n".join(_sl))
-          print(f"stale_feed_report.md geschrieben ({len(stale_feeds)} stale Feeds)")
+          write_text_atomic("reports/stale_feed_report.md", "\n".join(_sl))
+          print(f"reports/stale_feed_report.md geschrieben ({len(stale_feeds)} stale Feeds)")
 
 
           ok_count   = sum(1 for r in results if r["ok"] and r["has_ips"])
@@ -495,8 +495,8 @@ jobs:
 
           lines.append(f"\n---\n*Generiert: {now_str} | {len(FEEDS)} Feeds geprüft*")
 
-          write_text_atomic("feed_health_report.md", "\n".join(lines))
-          print("feed_health_report.md geschrieben")
+          write_text_atomic("reports/feed_health_report.md", "\n".join(lines))
+          print("reports/feed_health_report.md geschrieben")
 
           # FIX #9: failed_feeds und warned_feeds im JSON – damit netshield_report_generator
           # kritische Feed-Ausfälle namentlich im Dashboard anzeigen kann.
@@ -543,10 +543,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add feed_health_report.md 2>/dev/null || true
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch dead_feed_report.md feed_health_report.md stale_feed_report.md 2>/dev/null || true
+          git add reports/feed_health_report.md 2>/dev/null || true
           git add feed_health_status.json 2>/dev/null || true
-          git add dead_feed_report.md 2>/dev/null || true
-          git add stale_feed_report.md 2>/dev/null || true
+          git add reports/dead_feed_report.md 2>/dev/null || true
+          git add reports/stale_feed_report.md 2>/dev/null || true
           git add feed_urls_cache.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
@@ -564,10 +568,10 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs feed_health_report.md \
-                  feed_health_status.json feed_urls_cache.json dead_feed_report.md stale_feed_report.md 2>/dev/null || true
-                git add feed_health_report.md \
-                  feed_health_status.json feed_urls_cache.json dead_feed_report.md stale_feed_report.md 2>/dev/null || true
+                git checkout --theirs reports/feed_health_report.md \
+                  feed_health_status.json feed_urls_cache.json reports/dead_feed_report.md reports/stale_feed_report.md 2>/dev/null || true
+                git add reports/feed_health_report.md \
+                  feed_health_status.json feed_urls_cache.json reports/dead_feed_report.md reports/stale_feed_report.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

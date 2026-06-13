@@ -2165,7 +2165,7 @@ jobs:
           for name, count in feed_stats:
               hq_mark = " ⭐" if name in HIGH_QUALITY else ""
               _report_parts.append(f"| `{name}`{hq_mark} | {count} |\n")
-          write_text_atomic("combined_threat_blacklist_report.md", "".join(_report_parts))
+          write_text_atomic("reports/combined_threat_blacklist_report.md", "".join(_report_parts))
 
           print(f"\nFertig! combined: {len(sorted_ips)} IPs | active: {len(active_ips)} IPs | zu alt: {active_skipped_old} | Score<65: {active_skipped_score} | Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}")
           EOF
@@ -2262,8 +2262,12 @@ jobs:
           PYEOF
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch combined_threat_blacklist_report.md 2>/dev/null || true
 
-          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt combined_threat_blacklist_report.md seen_db_meta.json reputation_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
+          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt reports/combined_threat_blacklist_report.md seen_db_meta.json reputation_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
           # relocated_feeds.md nur vorhanden, wenn der Move-Resolver diesen Lauf
           # etwas umgeleitet hat – dann mitcommitten (sonst No-Op).
           git add relocated_feeds.md 2>/dev/null || true
@@ -2322,7 +2326,7 @@ jobs:
               else
                 git stash pop 2>/dev/null || true
                 git checkout --theirs combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
-                  combined_threat_blacklist_report.md \
+                  reports/combined_threat_blacklist_report.md \
                   seen_db_meta.json reputation_blacklist.txt \
                   community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
                 # Parts ggf. auch per theirs mergen
@@ -2330,7 +2334,7 @@ jobs:
                   [ -f "$_p" ] && git checkout --theirs "$_p" 2>/dev/null || true
                 done
                 git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
-                  combined_threat_blacklist_report.md seen_db_meta.json \
+                  reports/combined_threat_blacklist_report.md seen_db_meta.json \
                   reputation_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
                 git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
                 git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true

@@ -1118,12 +1118,12 @@ jobs:
               print(f"::warning file=auto_feed_discovery.yml::{_msg}")
               print(f"WARNUNG: {_msg}")
               _now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-              write_text_atomic("auto_feed_discovery_report.md", f"# Auto Feed Discovery – Report\n"
+              write_text_atomic("reports/auto_feed_discovery_report.md", f"# Auto Feed Discovery – Report\n"
                            f"**Aktualisiert:** {_now_str}\n\n---\n\n"
                            f"## ❌ Abbruch: HQ-Referenz unzureichend\n\n"
                            f"*{_msg}*\n\n"
                            f"*Generiert: {_now_str}*\n")
-              print("auto_feed_discovery_report.md geschrieben (Fehler-Report)")
+              print("reports/auto_feed_discovery_report.md geschrieben (Fehler-Report)")
               sys.exit(1)
 
           # ── Schritt 3: GitHub-Suche nach neuen Feeds ──────────────────────
@@ -1988,8 +1988,8 @@ jobs:
                   f"*Evaluations-Phase abgebrochen um sauberen Exit vor dem 60min-Limit zu gewährleisten.*\n\n"
                   f"*Generiert: {_now_str}*\n"
               )
-              write_text_atomic("auto_feed_discovery_report.md", _report_md)
-              print("auto_feed_discovery_report.md geschrieben (Timeout-Report)")
+              write_text_atomic("reports/auto_feed_discovery_report.md", _report_md)
+              print("reports/auto_feed_discovery_report.md geschrieben (Timeout-Report)")
               sys.exit(0)
 
           # FIX PERF-EVAL v2: Stratifizierte Kandidaten-Auswahl statt reines
@@ -2817,8 +2817,8 @@ jobs:
 
           lines.append(f"\n---\n*Generiert: {now_str}*")
 
-          write_text_atomic("auto_feed_discovery_report.md", "\n".join(lines))
-          print("auto_feed_discovery_report.md geschrieben")
+          write_text_atomic("reports/auto_feed_discovery_report.md", "\n".join(lines))
+          print("reports/auto_feed_discovery_report.md geschrieben")
 
           # ── Schritt 9: auto_discovered_feeds.json speichern ───────────────
           if len(candidate_repos) == 0 and len(existing_feeds) > 0:
@@ -2874,7 +2874,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add auto_discovered_feeds.json auto_feed_discovery_report.md
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch auto_feed_discovery_report.md 2>/dev/null || true
+          git add auto_discovered_feeds.json reports/auto_feed_discovery_report.md
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -2892,9 +2896,9 @@ jobs:
               else
                 git stash pop 2>/dev/null || true
                 git checkout --theirs auto_discovered_feeds.json \
-                  auto_feed_discovery_report.md 2>/dev/null || true
+                  reports/auto_feed_discovery_report.md 2>/dev/null || true
                 git add auto_discovered_feeds.json \
-                  auto_feed_discovery_report.md 2>/dev/null || true
+                  reports/auto_feed_discovery_report.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

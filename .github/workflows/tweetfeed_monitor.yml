@@ -264,8 +264,8 @@ jobs:
           lines.append("> ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.")
           lines.append(f"\n---\n*Generiert: {now_str}*")
 
-          write_text_atomic("tweetfeed_report.md", "\n".join(lines))
-          print("  tweetfeed_report.md geschrieben")
+          write_text_atomic("reports/tweetfeed_report.md", "\n".join(lines))
+          print("  reports/tweetfeed_report.md geschrieben")
 
           # ── Leerungsschutz ────────────────────────────────────────────────
           # Empirisch beobachtet: ~13k IPs/Jahr, davon ~13.5k nach Dedup, ~13.5k
@@ -302,7 +302,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add tweetfeed_ips.txt tweetfeed_report.md
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch tweetfeed_report.md 2>/dev/null || true
+          git add tweetfeed_ips.txt reports/tweetfeed_report.md
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -319,8 +323,8 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs tweetfeed_ips.txt tweetfeed_report.md 2>/dev/null || true
-                git add tweetfeed_ips.txt tweetfeed_report.md 2>/dev/null || true
+                git checkout --theirs tweetfeed_ips.txt reports/tweetfeed_report.md 2>/dev/null || true
+                git add tweetfeed_ips.txt reports/tweetfeed_report.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

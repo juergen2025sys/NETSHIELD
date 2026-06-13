@@ -97,12 +97,12 @@ jobs:
               msg = "seen_db.json nicht im Cache gefunden; im Repo liegt höchstens seen_db_meta.json"
               print(f"::warning file=score_decay_monitor.yml::{msg}")
               print(f"WARNUNG: {msg}")
-              write_text_atomic("score_decay_report.md",
+              write_text_atomic("reports/score_decay_report.md",
                   f"# Score Decay Monitor\n\n*{msg}*\n\n"
                   f"*Generiert: {now_str}*\n")
               # Vorhandenen Log NICHT überschreiben – nur Report schreiben
-              if not os.path.exists("score_decay_log.txt"):
-                  write_text_atomic("score_decay_log.txt",
+              if not os.path.exists("logs/score_decay_log.txt"):
+                  write_text_atomic("logs/score_decay_log.txt",
                       f"# Score Decay Log | {now_str}\n# {msg}\n")
               print(f"ABBRUCH: {msg} – kein weiterer Score-Decay-Lauf möglich.")
               sys.exit(1)
@@ -114,11 +114,11 @@ jobs:
                   msg = f"seen_db.json ist korrupt oder nicht lesbar: {e}"
                   print(f"::warning file=score_decay_monitor.yml::{msg}")
                   print(f"FEHLER: {msg}")
-                  write_text_atomic("score_decay_report.md",
+                  write_text_atomic("reports/score_decay_report.md",
                       f"# Score Decay Monitor\n\n*{msg}*\n\n"
                       f"*Generiert: {now_str}*\n")
-                  if not os.path.exists("score_decay_log.txt"):
-                      write_text_atomic("score_decay_log.txt",
+                  if not os.path.exists("logs/score_decay_log.txt"):
+                      write_text_atomic("logs/score_decay_log.txt",
                           f"# Score Decay Log | {now_str}\n# {msg}\n")
                   sys.exit(1)
 
@@ -280,7 +280,7 @@ jobs:
           _log_lines.append("# Läuft bald ab (150+ Tage, combined entfernt bei 180T)")
           for ip, score, days, last in decay_suggest[:500]:
               _log_lines.append(f"{ip}  score={score}  last={last}  ({days}d ago)")
-          write_text_atomic("score_decay_log.txt", "\n".join(_log_lines) + "\n")
+          write_text_atomic("logs/score_decay_log.txt", "\n".join(_log_lines) + "\n")
 
           # Report
           lines = ["# Score Decay Monitor – Report", f"**Aktualisiert:** {now_str}\n", "---",
@@ -298,8 +298,8 @@ jobs:
                    "`update_combined_blacklist` nach **180 Tagen** ohne Feed-Bestätigung.\n",
                    f"---\n*Generiert: {now_str} | DB: {len(db)} IPs*"]
 
-          write_text_atomic("score_decay_report.md", "\n".join(lines))
-          print("score_decay_report.md geschrieben")
+          write_text_atomic("reports/score_decay_report.md", "\n".join(lines))
+          print("reports/score_decay_report.md geschrieben")
           EOF
 
       # Score Decay liest seen_db nur lesend – kein Cache-Write nötig.
@@ -307,12 +307,16 @@ jobs:
 
       - name: Commit
         # FIX: Auch bei sys.exit(1) im Python-Step soll der Commit-Step laufen,
-        # damit der Fehler-Report (score_decay_report.md) committet wird.
+        # damit der Fehler-Report (reports/score_decay_report.md) committet wird.
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add score_decay_log.txt score_decay_report.md
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch score_decay_log.txt score_decay_report.md 2>/dev/null || true
+          git add logs/score_decay_log.txt reports/score_decay_report.md
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -329,8 +333,8 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs score_decay_log.txt score_decay_report.md 2>/dev/null || true
-                git add score_decay_log.txt score_decay_report.md 2>/dev/null || true
+                git checkout --theirs logs/score_decay_log.txt reports/score_decay_report.md 2>/dev/null || true
+                git add logs/score_decay_log.txt reports/score_decay_report.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

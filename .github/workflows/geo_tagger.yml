@@ -310,8 +310,8 @@ jobs:
               f"*Generiert: {now_str}*",
           ]
 
-          write_text_atomic("geo_tagger_report.md", "\n".join(lines))
-          print("geo_tagger_report.md geschrieben")
+          write_text_atomic("reports/geo_tagger_report.md", "\n".join(lines))
+          print("reports/geo_tagger_report.md geschrieben")
 
           # ── Leerungsschutz ────────────────────────────────────────────────
           # Wenn ScaniteX nicht erreichbar war und alle Länder-Requests fehlschlugen,
@@ -499,6 +499,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch geo_tagger_report.md 2>/dev/null || true
           # FIX GEO-SUBDIR: einmalige Migration – alte Root-Geo-Dateien aus
           # dem Repo entfernen (Hauptdatei + variable Part-Anzahl). Idempotent:
           # nach dem ersten Lauf matchen die Globs nichts mehr, --ignore-unmatch
@@ -507,7 +511,7 @@ jobs:
           # FIX HARD-LIMIT-GEO: Parts-Pattern mitnehmen damit der Commit
           # die durch Split entstandenen Parts erfasst und alte (geloeschte)
           # Parts als Removal committet werden.
-          git add geo_enriched/blacklist_geo_enriched.json geo_tagger_report.md
+          git add geo_enriched/blacklist_geo_enriched.json reports/geo_tagger_report.md
           git add -A geo_enriched 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
@@ -525,9 +529,9 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs geo_enriched/blacklist_geo_enriched.json geo_tagger_report.md 2>/dev/null || true
+                git checkout --theirs geo_enriched/blacklist_geo_enriched.json reports/geo_tagger_report.md 2>/dev/null || true
                 git checkout --theirs geo_enriched/blacklist_geo_enriched_part*.json 2>/dev/null || true
-                git add geo_enriched/blacklist_geo_enriched.json geo_tagger_report.md 2>/dev/null || true
+                git add geo_enriched/blacklist_geo_enriched.json reports/geo_tagger_report.md 2>/dev/null || true
                 git add -A geo_enriched 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi

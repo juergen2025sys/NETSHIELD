@@ -218,8 +218,8 @@ jobs:
           lines.append(f"**Gesamt:** {len(final)} IPs | **Neu:** +{len(new_ips)}")
           lines.append(f"\n---\n*Generiert: {now_str}*")
 
-          write_text_atomic("cve_exploit_report.md", "\n".join(lines))
-          print("cve_exploit_report.md geschrieben")
+          write_text_atomic("reports/cve_exploit_report.md", "\n".join(lines))
+          print("reports/cve_exploit_report.md geschrieben")
 
           # ── Leerungsschutz ────────────────────────────────────────────────
           # Wenn alle 8 CVE-Feeds fehlgeschlagen sind, liefert final 0 Einträge.
@@ -263,7 +263,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add cve_exploit_ips.txt cve_exploit_report.md
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch cve_exploit_report.md 2>/dev/null || true
+          git add cve_exploit_ips.txt reports/cve_exploit_report.md
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -280,8 +284,8 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs cve_exploit_ips.txt cve_exploit_report.md 2>/dev/null || true
-                git add cve_exploit_ips.txt cve_exploit_report.md 2>/dev/null || true
+                git checkout --theirs cve_exploit_ips.txt reports/cve_exploit_report.md 2>/dev/null || true
+                git add cve_exploit_ips.txt reports/cve_exploit_report.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

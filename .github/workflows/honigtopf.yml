@@ -571,8 +571,8 @@ jobs:
           lines.append("> ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.")
           lines.append(f"\n---\n*Generiert: {now_str}*")
 
-          write_text_atomic("honigtopf_report.md", "\n".join(lines))
-          print("  honigtopf_report.md geschrieben")
+          write_text_atomic("reports/honigtopf_report.md", "\n".join(lines))
+          print("  reports/honigtopf_report.md geschrieben")
 
           # ── Leerungsschutz ────────────────────────────────────────────────
           # FIX #11 / FIX LS2: MIN_ENTRIES auf 500 erhöht (entspricht unterer Normalwert
@@ -606,7 +606,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add honigtopf_ips.txt honigtopf_report.md
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch honigtopf_report.md 2>/dev/null || true
+          git add honigtopf_ips.txt reports/honigtopf_report.md
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -623,8 +627,8 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs honigtopf_ips.txt honigtopf_report.md 2>/dev/null || true
-                git add honigtopf_ips.txt honigtopf_report.md 2>/dev/null || true
+                git checkout --theirs honigtopf_ips.txt reports/honigtopf_report.md 2>/dev/null || true
+                git add honigtopf_ips.txt reports/honigtopf_report.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

@@ -57,7 +57,7 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_USER: ${{ github.event.issue.user.login }}
         run: |
-          # FIX RACE1: Neuesten Stand holen bevor community_reports_log.txt gelesen
+          # FIX RACE1: Neuesten Stand holen bevor logs/community_reports_log.txt gelesen
           # wird. Ohne diesen Pull würde bei gleichzeitigen Issues desselben Users
           # der Rate-Limit-Check auf veralteten Checkout-Daten basieren und beide
           # Runs kämen durch (je nach GitHub-Scheduling-Zeitfenster ~30s Überlappung).
@@ -100,7 +100,7 @@ jobs:
           reporter     = os.environ.get("ISSUE_USER", "unknown")
 
           DB_FILE      = "seen_db.json"
-          REPORT_FILE  = "community_reports_log.txt"
+          REPORT_FILE  = "logs/community_reports_log.txt"
           RESULT_FILE  = "community_result.txt"
 
           # ── Schutzmechanismus: max. 5 Reports pro User pro Tag ─────────────
@@ -350,7 +350,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add community_reports_log.txt community_reported_ips.txt 2>/dev/null || true
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch community_reports_log.txt 2>/dev/null || true
+          git add logs/community_reports_log.txt community_reported_ips.txt 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -366,7 +370,7 @@ jobs:
             #
             # Neues Pattern: Explizit Upstream übernehmen (reset --hard),
             # eigene Appends deterministisch darauf aufbauen (mit Dedup).
-            git diff HEAD -- community_reports_log.txt | grep '^+[^+]' | sed 's/^+//' > /tmp/local_log_appends.txt 2>/dev/null || true
+            git diff HEAD -- logs/community_reports_log.txt | grep '^+[^+]' | sed 's/^+//' > /tmp/local_log_appends.txt 2>/dev/null || true
             git diff HEAD -- community_reported_ips.txt | grep '^+[^+]' | sed 's/^+//' > /tmp/local_ip_appends.txt 2>/dev/null || true
             git commit -m "Community Report #${ISSUE_NUMBER}: $(date -u '+%Y-%m-%d %H:%M') UTC"
             for attempt in 1 2 3 4 5; do
@@ -377,7 +381,7 @@ jobs:
               # Gesicherte Appends deterministisch wieder anfügen (mit Dedup)
               if [ -s /tmp/local_log_appends.txt ]; then
                 while IFS= read -r line; do
-                  grep -qxF "$line" community_reports_log.txt 2>/dev/null || echo "$line" >> community_reports_log.txt
+                  grep -qxF "$line" logs/community_reports_log.txt 2>/dev/null || echo "$line" >> logs/community_reports_log.txt
                 done < /tmp/local_log_appends.txt
               fi
               if [ -s /tmp/local_ip_appends.txt ]; then
@@ -385,7 +389,7 @@ jobs:
                   grep -qxF "$ip" community_reported_ips.txt 2>/dev/null || echo "$ip" >> community_reported_ips.txt
                 done < /tmp/local_ip_appends.txt
               fi
-              git add community_reports_log.txt community_reported_ips.txt 2>/dev/null || true
+              git add logs/community_reports_log.txt community_reported_ips.txt 2>/dev/null || true
               if git diff --staged --quiet; then
                 echo "Keine neuen Änderungen nach Reset+Re-Apply"
                 exit 0

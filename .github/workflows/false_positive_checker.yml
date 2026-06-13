@@ -205,7 +205,7 @@ jobs:
           # ── False Positive Log ────────────────────────────────────────────
           # allow-nonatomic: append-only Log, serialisiert via concurrency-group
           # 'netshield-seen-db-writers' → keine parallelen Appends moeglich
-          with open("false_positives_log.txt", "a", encoding="utf-8") as f:
+          with open("logs/false_positives_log.txt", "a", encoding="utf-8") as f:
               f.write(f"\n# Scan: {now_str} – {len(fp_set)} neue FPs\n")
               for ip in sorted(fp_set):
                   f.write(f"{ip}\n")
@@ -234,8 +234,8 @@ jobs:
 
           lines.append(f"\n---\n*Generiert: {now_str}*")
 
-          write_text_atomic("false_positive_report.md", "\n".join(lines))
-          print("false_positive_report.md geschrieben")
+          write_text_atomic("reports/false_positive_report.md", "\n".join(lines))
+          print("reports/false_positive_report.md geschrieben")
           EOF
 
       # seen_db Cache Save entfernt – FP-Checker modifiziert seen_db nicht mehr.
@@ -247,9 +247,13 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch false_positive_report.md false_positives_log.txt 2>/dev/null || true
           # combined_threat_blacklist_ipv4.txt wird NICHT mehr durch diesen Workflow
           # verändert – nur noch false_positives_set.json, Log und Report.
-          git add false_positives_log.txt false_positive_report.md false_positives_set.json
+          git add logs/false_positives_log.txt reports/false_positive_report.md false_positives_set.json
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -264,9 +268,9 @@ jobs:
             #
             # Neues Pattern: Explizit Upstream übernehmen (reset --hard),
             # eigene Appends + Overwrite-Dateien deterministisch darauf aufbauen.
-            git diff HEAD -- false_positives_log.txt | grep '^+[^+]' | sed 's/^+//' > /tmp/local_fp_log_appends.txt 2>/dev/null || true
+            git diff HEAD -- logs/false_positives_log.txt | grep '^+[^+]' | sed 's/^+//' > /tmp/local_fp_log_appends.txt 2>/dev/null || true
             # Overwrite-Dateien komplett sichern (werden nach reset zurückgeschrieben)
-            cp false_positive_report.md /tmp/local_fp_report.md 2>/dev/null || true
+            cp reports/false_positive_report.md /tmp/local_fp_report.md 2>/dev/null || true
             cp false_positives_set.json /tmp/local_fp_set.json 2>/dev/null || true
             git commit -m "False Positive Check: $(date -u '+%Y-%m-%d %H:%M') UTC"
             for attempt in 1 2 3 4 5; do
@@ -277,13 +281,13 @@ jobs:
               # Append-only Log: gesicherte Zeilen mit Dedup wieder anfügen
               if [ -s /tmp/local_fp_log_appends.txt ]; then
                 while IFS= read -r line; do
-                  grep -qxF "$line" false_positives_log.txt 2>/dev/null || echo "$line" >> false_positives_log.txt
+                  grep -qxF "$line" logs/false_positives_log.txt 2>/dev/null || echo "$line" >> logs/false_positives_log.txt
                 done < /tmp/local_fp_log_appends.txt
               fi
               # Overwrite-Dateien: gesicherte Version zurückschreiben (last-write-wins)
-              cp /tmp/local_fp_report.md false_positive_report.md 2>/dev/null || true
+              cp /tmp/local_fp_report.md reports/false_positive_report.md 2>/dev/null || true
               cp /tmp/local_fp_set.json false_positives_set.json 2>/dev/null || true
-              git add false_positives_log.txt false_positive_report.md false_positives_set.json 2>/dev/null || true
+              git add logs/false_positives_log.txt reports/false_positive_report.md false_positives_set.json 2>/dev/null || true
               if git diff --staged --quiet; then
                 echo "Keine neuen Änderungen nach Reset+Re-Apply"
                 exit 0

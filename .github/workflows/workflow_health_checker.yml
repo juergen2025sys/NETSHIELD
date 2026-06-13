@@ -66,7 +66,7 @@ jobs:
           WORKFLOWS_DIR = ".github/workflows"
           if not os.path.isdir(WORKFLOWS_DIR):
               print(f"WARNUNG: {WORKFLOWS_DIR} nicht gefunden – kein Fallback auf Root.")
-              write_text_atomic("workflow_health_report.md", "# Workflow Health Checker\n\n*Workflows-Verzeichnis nicht gefunden.*\n")
+              write_text_atomic("reports/workflow_health_report.md", "# Workflow Health Checker\n\n*Workflows-Verzeichnis nicht gefunden.*\n")
               exit(0)
 
           files = sorted(f for f in os.listdir(WORKFLOWS_DIR) if f.endswith(".yml"))
@@ -194,7 +194,7 @@ jobs:
                   return True
               prior = "\n".join(lines_before)
 
-              # Variablen-Aliases ermitteln: z.B. REPORT_FILE = "bot_detector_report.md"
+              # Variablen-Aliases ermitteln: z.B. REPORT_FILE = "reports/bot_detector_report.md"
               # → damit wird auch "with open(REPORT_FILE, 'w')" als Prior-Write erkannt
               # wenn der resolved Wert in report_paths enthalten ist.
               var_aliases = set()
@@ -224,7 +224,7 @@ jobs:
                       return True
                   if re.search(atomic_pat, prior):
                       return True
-                  # Zusatz: auch über Variablen-Alias suchen (REPORT_FILE → "bot_detector_report.md")
+                  # Zusatz: auch über Variablen-Alias suchen (REPORT_FILE → "reports/bot_detector_report.md")
                   for alias in var_aliases:
                       if re.search(rf'with open\({re.escape(alias)}\s*,\s*["\']w["\']', prior):
                           return True
@@ -855,7 +855,7 @@ jobs:
                   # (A) ALT: git checkout --theirs mit allen 3 FP-Dateien
                   # (B) NEU (FIX RACE5): git reset --hard + cp /tmp/ für Overwrite-Dateien
                   #     + Dedup-Append für Log. Kein checkout --theirs mehr nötig.
-                  _fp_files = ["false_positives_log.txt", "false_positive_report.md", "false_positives_set.json"]
+                  _fp_files = ["logs/false_positives_log.txt", "reports/false_positive_report.md", "false_positives_set.json"]
                   _has_old_pattern = 'git checkout --theirs' in content
                   _has_new_pattern = 'git reset --hard' in content and '/tmp/local_fp_' in content
 
@@ -874,7 +874,7 @@ jobs:
                           errors.append({"file": fname, "check": "Fehlende FP-Dateien im checkout", "detail": msg})
                       # Append-only Log muss vor Rebase gesichert werden
                       if '/tmp/local_fp_log_appends.txt' not in content:
-                          msg = ("Append-only Datei (false_positives_log.txt) wird bei rebase --theirs "
+                          msg = ("Append-only Datei (logs/false_positives_log.txt) wird bei rebase --theirs "
                                  "nicht gesichert – Log-Eintraege gehen bei parallelen Runs verloren "
                                  "(Regression FIX-RACE4)")
                           file_errors.append(msg)
@@ -932,7 +932,7 @@ jobs:
                   _has_old_community = 'git checkout --theirs' in content
                   _has_new_community = 'git reset --hard' in content and '/tmp/local_log_appends.txt' in content
                   if _has_old_community and '/tmp/local_log_appends.txt' not in content:
-                      msg = ("Append-only Dateien (community_reports_log.txt, community_reported_ips.txt) "
+                      msg = ("Append-only Dateien (logs/community_reports_log.txt, community_reported_ips.txt) "
                              "werden bei rebase --theirs nicht gesichert – Datenverlust bei parallelen Issues "
                              "(Regression FIX-RACE3)")
                       file_errors.append(msg)
@@ -2155,7 +2155,7 @@ jobs:
               ("active_blacklist_ipv4.txt",           6,  10, "Active Blacklist (Stufe 2)"),
               ("combined_threat_blacklist_ipv4.txt",   6,  10, "Combined Blacklist (Stufe 1)"),
               ("blacklist_confidence40_ipv4.txt",      6,  10, "Confidence-40 Blacklist"),
-              ("feed_health_report.md",               30,  50, "Feed Health Report"),
+              ("reports/feed_health_report.md",               30,  50, "Feed Health Report"),
           ]
           for _fpath, _warn_h, _crit_h, _desc in _freshness_checks:
               _age = _file_age_hours(_fpath)
@@ -2799,8 +2799,8 @@ jobs:
 
           lines.append(f"\n---\n*Generiert: {now_str} | {len(files)} Workflow-Dateien geprüft*")
 
-          write_text_atomic("workflow_health_report.md", "\n".join(lines))
-          print("workflow_health_report.md geschrieben")
+          write_text_atomic("reports/workflow_health_report.md", "\n".join(lines))
+          print("reports/workflow_health_report.md geschrieben")
 
           # IP-Counts für Drift-Erkennung beim nächsten Lauf sammeln
           _current_ip_counts = {}
@@ -2836,7 +2836,7 @@ jobs:
               }, indent=2)
 
           if err_count > 0:
-              print(f"\nFEHLER: {err_count} kritische Probleme gefunden – siehe workflow_health_report.md")
+              print(f"\nFEHLER: {err_count} kritische Probleme gefunden – siehe reports/workflow_health_report.md")
           else:
               print("\nAlle Checks bestanden.")
           EOF
@@ -2846,7 +2846,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add workflow_health_report.md workflow_health_status.json
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch workflow_health_report.md 2>/dev/null || true
+          git add reports/workflow_health_report.md workflow_health_status.json
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -2863,9 +2867,9 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs workflow_health_report.md \
+                git checkout --theirs reports/workflow_health_report.md \
                   workflow_health_status.json 2>/dev/null || true
-                git add workflow_health_report.md \
+                git add reports/workflow_health_report.md \
                   workflow_health_status.json 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
