@@ -2,6 +2,7 @@
 
 
 
+
 <img src=".github/assets/banner.svg" alt="NETSHIELD — Automated Threat Intelligence" width="100%">
 
 <br>
@@ -30,7 +31,7 @@
 <sub>IP-Quellen<br>(dynamisch)</sub>
 </td>
 <td align="center" valign="top" width="25%">
-<h3>412,103</h3>
+<h3>410,252</h3>
 <sub>Aktive IP-Drohungen<br>(Confidence ≥65)</sub>
 </td>
 <td align="center" valign="top" width="25%">
@@ -38,7 +39,7 @@
 <sub>CVE/Exploit IPs<br>&nbsp;</sub>
 </td>
 <td align="center" valign="top" width="25%">
-<h3>73,961</h3>
+<h3>73,101</h3>
 <sub>Honeypot IPs<br>&nbsp;</sub>
 </td>
 </tr>
@@ -49,7 +50,7 @@
 <table>
 <tr>
 <td><strong>🕒 Letztes Update</strong></td>
-<td>2026-06-13 05:08 UTC</td>
+<td>2026-06-13 01:58 UTC</td>
 <td><strong>🔄 Intervall</strong></td>
 <td>8× täglich</td>
 </tr>
@@ -75,16 +76,16 @@
 
 | Datei | Zweck | Einträge | Empfohlen für |
 |---|---|---:|---|
-| 🛡️ [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen · letzte 30 Tage · Score ≥ 65 | **412,103**                                                                                                                                                                                                                                                         | OPNsense / pfSense / Firewall |
-| 🔶 [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres bis hohes Vertrauen · Score ≥ 40 | **5,133,082**                                                                                                                                                                                                                                                         | Erweiterte Filterregeln |
-| 📦 [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs · 180-Tage-Fenster | **6,282,396**                                                                                                                                                                                                                                                         | Audit / SIEM |
-| 👁️ [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist · Score 25–39 | **70,397**                                                                                                                                                                                                                                                         | Monitoring |
-| 💣 [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploits & aktive C2-Server | **34,688**                                                                                                                                                                                                                                                         | IDS / IPS |
-| 🍯 [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **73,961**                                                                                                                                                                                                                                                         | Ergänzung |
-| 🍯 [`honigtopf_ips.txt`](honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **14,563**                                                                                                                                                                                                                                   | Ergänzung |
-| 🤖 [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **17,949**                                                                                                                                                                                                                                                         | Web-Schutz |
-| 🔗 [`reputation_blacklist.txt`](reputation_blacklist.txt) | Reputation Top-IPs (API, Score ≥50) | **9,980**                                                                                                                                                                                                                                                         | Ergänzung |
-| 🌐 [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥ 50 | **19**                                                                                                                                                                                                                                                         | ASN-Blocking |
+| 🛡️ [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen · letzte 30 Tage · Score ≥ 65 | **410,252**                                                                                                                                                                                                                                                        | OPNsense / pfSense / Firewall |
+| 🔶 [`blacklist_confidence40_ipv4.txt`](blacklist_confidence40_ipv4.txt) | Mittleres bis hohes Vertrauen · Score ≥ 40 | **5,131,406**                                                                                                                                                                                                                                                        | Erweiterte Filterregeln |
+| 📦 [`combined_threat_blacklist_ipv4.txt`](combined_threat_blacklist_ipv4.txt) | Alle IPs · 180-Tage-Fenster | **6,274,741**                                                                                                                                                                                                                                                        | Audit / SIEM |
+| 👁️ [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist · Score 25–39 | **70,372**                                                                                                                                                                                                                                                        | Monitoring |
+| 💣 [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploits & aktive C2-Server | **34,688**                                                                                                                                                                                                                                                        | IDS / IPS |
+| 🍯 [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **73,101**                                                                                                                                                                                                                                                        | Ergänzung |
+| 🍯 [`honigtopf_ips.txt`](honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **13,519**                                                                                                                                                                                                                                  | Ergänzung |
+| 🤖 [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **17,949**                                                                                                                                                                                                                                                        | Web-Schutz |
+| 🔗 [`reputation_blacklist.txt`](reputation_blacklist.txt) | Reputation Top-IPs (API, Score ≥50) | **9,985**                                                                                                                                                                                                                                                        | Ergänzung |
+| 🌐 [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥ 50 | **19**                                                                                                                                                                                                                                                        | ASN-Blocking |
 
 > [!NOTE]
 > **`combined_threat_blacklist_ipv4.txt`:** Wenn die Datei über 90 MB wächst, werden zusätzlich Parts `combined_threat_blacklist_ipv4_part1.txt`, `_part2.txt` (etc.) mit je ca. 40 MB erzeugt. Die Hauptdatei bleibt bestehen, solange sie unter 100 MB ist (GitHub-Limit). Firewall-Konsumenten, die am GitHub-Limit angestoßen werden, sollten stattdessen die Parts als separate URLs importieren.
@@ -164,7 +165,7 @@ Sub-Workflows (vor Combined):
   Bot-Detector ────┘
 
 Enrichment (nach Combined):
-  Geo-Tagger ──────→ blacklist_geo_enriched.json
+  Geo-Tagger ──────→ geo_enriched/blacklist_geo_enriched.json
   ASN Scorer ──────→ asn_reputation_db.json
   Score Decay ─────→ Alterungs-Report (read-only)
 ```
@@ -320,7 +321,9 @@ NETSHIELD/
 ├── asn_blocklist_firewall.txt           # ASN-Blocking (Score ≥50)
 │
 ├── asn_reputation_db.json               # ASN-Scoring-Daten
-├── blacklist_geo_enriched.json          # Geo-Anreicherung
+├── geo_enriched/                        # Geo-Anreicherung (Haupt + Parts)
+│   ├── blacklist_geo_enriched.json
+│   └── blacklist_geo_enriched_part*.json
 ├── auto_discovered_feeds.json           # Auto-entdeckte Feeds
 ├── false_positives_set.json             # FP-Whitelist
 ├── feed_health_status.json              # Feed-Status
