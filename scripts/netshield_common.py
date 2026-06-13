@@ -1557,6 +1557,8 @@ def write_json_atomic(filepath, data, **dump_kwargs):
     """
     import tempfile
     target_dir = os.path.dirname(os.path.abspath(filepath)) or "."
+    # FIX SUBDIR-MKDIR: analog write_text_atomic – Unterordner-Ziele anlegen.
+    os.makedirs(target_dir, exist_ok=True)
     fd, tmp_path = tempfile.mkstemp(
         prefix=f".{os.path.basename(filepath)}.",
         suffix=".tmp",
@@ -1590,6 +1592,10 @@ def write_text_atomic(filepath, content):
     """
     import tempfile
     target_dir = os.path.dirname(os.path.abspath(filepath)) or "."
+    # FIX SUBDIR-MKDIR: Zielverzeichnis bei Bedarf anlegen, damit Schreibziele
+    # in Unterordnern (z.B. reports/, logs/, geo_enriched/) nicht an
+    # mkstemp(dir=...) scheitern. Fuer target_dir="." ein No-op.
+    os.makedirs(target_dir, exist_ok=True)
     fd, tmp_path = tempfile.mkstemp(
         prefix=f".{os.path.basename(filepath)}.",
         suffix=".tmp",
