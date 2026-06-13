@@ -2874,9 +2874,15 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # FIX STATE-SUBDIR-MIGRATION: alte Root-Version entfernen, sobald
-          # dieser Workflow die neue state/-Version committet. Idempotent.
-          git rm -q --ignore-unmatch auto_discovered_feeds.json 2>/dev/null || true
+          # FIX STATE-SUBDIR-NOLOSS: alte Root-Version NUR entfernen, wenn die
+          # neue state/-Version existiert. Sonst – wenn der Discovery-Guard
+          # (Schritt 9) per sys.exit(1) abbricht, BEVOR state/auto_discovered_feeds.json
+          # geschrieben wurde – wuerde die Root-Datei geloescht OHNE Ersatz und
+          # die Feed-Liste waere aus dem Arbeitsbaum weg (nur ueber Git-History
+          # rekonstruierbar). Kopplung an Existenz schliesst genau dieses Loch.
+          if [ -e state/auto_discovered_feeds.json ]; then
+            git rm -q --ignore-unmatch auto_discovered_feeds.json 2>/dev/null || true
+          fi
           # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
           # Workflow die neue reports///logs/-Version committet (atomar im
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
