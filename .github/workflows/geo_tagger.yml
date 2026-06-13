@@ -319,7 +319,7 @@ jobs:
           MIN_GEO_MATCHED = 100
           if total_matched < MIN_GEO_MATCHED:
               msg = (f"Nur {total_matched} Geo-Treffer (< {MIN_GEO_MATCHED}) – "
-                     f"behalte bestehende blacklist_geo_enriched.json")
+                     f"behalte bestehende geo_enriched/blacklist_geo_enriched.json")
               print(f"::warning file=geo_tagger.yml::{msg}")
               print(f"WARNUNG: {msg}")
               sys.exit(1)
@@ -344,6 +344,16 @@ jobs:
           TRUNCATE_TARGET_MB = 95   # Sicherheitspuffer unter HARD_LIMIT_MB
           SPLIT_THRESHOLD_MB = 90   # ab hier Parts erzeugen
           PART_TARGET_MB     = 40   # Groesse pro Part
+
+          # FIX GEO-SUBDIR (Juni 2026): Haupt- und Part-Dateien liegen in
+          # einem eigenen Unterordner statt im Repo-Root, da die Part-Zahl
+          # mit dem Listenwachstum steigt und den Root sonst zumuellt.
+          # write_json_atomic nutzt tempfile.mkstemp(dir=target_dir) – das
+          # Zielverzeichnis MUSS vorher existieren, sonst FileNotFoundError
+          # beim ersten Write. Daher hier einmalig anlegen.
+          GEO_DIR  = "geo_enriched"
+          os.makedirs(GEO_DIR, exist_ok=True)
+          GEO_MAIN = f"{GEO_DIR}/blacklist_geo_enriched.json"
 
           # Stabile Item-Reihenfolge fuer deterministisches Splitting.
           # Sortierung: numerisch nach IP, CIDRs am Ende (lexikographisch).
@@ -398,7 +408,7 @@ jobs:
               )
               print(f"::warning file=geo_tagger.yml::{_g_trunc_msg}")
               print(f"WARNUNG: {_g_trunc_msg}")
-              write_json_atomic("blacklist_geo_enriched.json", {
+              write_json_atomic(GEO_MAIN, {
                   "updated":         now_str,
                   "method":          "scanitex-cidr-match",
                   "bl_total":        len(bl_addrs),
@@ -409,11 +419,11 @@ jobs:
                   "entries_total":   len(_geo_items),
                   "note":            (f"{_g_dropped} Eintraege NICHT in dieser Datei "
                                       f"(GitHub-Hard-Limit 100 MB) – siehe "
-                                      f"blacklist_geo_enriched_part*.json fuer Rest"),
+                                      f"{GEO_DIR}/blacklist_geo_enriched_part*.json fuer Rest"),
                   "ip_to_country":   _g_truncated,
               }, separators=(",", ":"))
           else:
-              write_json_atomic("blacklist_geo_enriched.json", {
+              write_json_atomic(GEO_MAIN, {
                   "updated":       now_str,
                   "method":        "scanitex-cidr-match",
                   "bl_total":      len(bl_addrs),
@@ -421,15 +431,15 @@ jobs:
                   "unmatched":     len(unmatched),
                   "ip_to_country": dict(_geo_items),
               }, separators=(",", ":"))
-          _geo_main_mb = os.path.getsize("blacklist_geo_enriched.json") / 1024 / 1024
-          print(f"blacklist_geo_enriched.json geschrieben ({_geo_main_mb:.1f} MB)")
+          _geo_main_mb = os.path.getsize(GEO_MAIN) / 1024 / 1024
+          print(f"{GEO_MAIN} geschrieben ({_geo_main_mb:.1f} MB)")
 
           # ── Split-Logik fuer grosse geo_enriched-Dateien ──────────────────
           # Identische Strategie wie combined/conf40: Split-Entscheidung auf
           # Basis der VOLLSTAENDIGEN Liste (estimated_mb), Hauptdatei bleibt
           # bei Truncate parallel als Legacy-Pfad (subset der Eintraege).
           import glob as _glob_geo
-          _geo_part_glob = "blacklist_geo_enriched_part*.json"
+          _geo_part_glob = f"{GEO_DIR}/blacklist_geo_enriched_part*.json"
           _existing_parts_geo = sorted(_glob_geo.glob(_geo_part_glob))
 
           if _geo_estimated_mb >= SPLIT_THRESHOLD_MB:
@@ -444,7 +454,7 @@ jobs:
                   _g_end   = min(_g_start + _g_chunk, len(_geo_items))
                   if _g_start >= len(_geo_items):
                       break
-                  _g_part_name = f"blacklist_geo_enriched_part{_g_idx+1}.json"
+                  _g_part_name = f"{GEO_DIR}/blacklist_geo_enriched_part{_g_idx+1}.json"
                   _g_part_items = _geo_items[_g_start:_g_end]
                   write_json_atomic(_g_part_name, {
                       "updated":         now_str,
@@ -489,11 +499,16 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX GEO-SUBDIR: einmalige Migration – alte Root-Geo-Dateien aus
+          # dem Repo entfernen (Hauptdatei + variable Part-Anzahl). Idempotent:
+          # nach dem ersten Lauf matchen die Globs nichts mehr, --ignore-unmatch
+          # verhindert den Fehler. Die neuen Dateien liegen unter geo_enriched/.
+          git rm -q --ignore-unmatch blacklist_geo_enriched.json blacklist_geo_enriched_part*.json 2>/dev/null || true
           # FIX HARD-LIMIT-GEO: Parts-Pattern mitnehmen damit der Commit
           # die durch Split entstandenen Parts erfasst und alte (geloeschte)
           # Parts als Removal committet werden.
-          git add blacklist_geo_enriched.json geo_tagger_report.md
-          git add -A blacklist_geo_enriched_part*.json 2>/dev/null || true
+          git add geo_enriched/blacklist_geo_enriched.json geo_tagger_report.md
+          git add -A geo_enriched 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -510,10 +525,10 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs blacklist_geo_enriched.json geo_tagger_report.md 2>/dev/null || true
-                git checkout --theirs blacklist_geo_enriched_part*.json 2>/dev/null || true
-                git add blacklist_geo_enriched.json geo_tagger_report.md 2>/dev/null || true
-                git add -A blacklist_geo_enriched_part*.json 2>/dev/null || true
+                git checkout --theirs geo_enriched/blacklist_geo_enriched.json geo_tagger_report.md 2>/dev/null || true
+                git checkout --theirs geo_enriched/blacklist_geo_enriched_part*.json 2>/dev/null || true
+                git add geo_enriched/blacklist_geo_enriched.json geo_tagger_report.md 2>/dev/null || true
+                git add -A geo_enriched 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

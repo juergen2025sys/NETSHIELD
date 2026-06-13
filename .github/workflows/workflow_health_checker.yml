@@ -2398,7 +2398,7 @@ jobs:
           # und ist als Health-Signal unbrauchbar.
           # Richtige Frage: Ist die Geo-Datei innerhalb des Wochen-Rhythmus frisch?
           # Schwellen: WARN >9 Tage (1 Run verpasst), CRITICAL >16 Tage (2 Runs verpasst).
-          _geo_file = "blacklist_geo_enriched.json"
+          _geo_file = "geo_enriched/blacklist_geo_enriched.json"
           if os.path.exists(_geo_file):
               _geo_age_h = _file_age_hours(_geo_file)
               if _geo_age_h is not None:
@@ -2522,8 +2522,8 @@ jobs:
                   "combined_threat_blacklist_ipv4_part*.txt",
               "blacklist_confidence40_ipv4.txt":
                   "blacklist_confidence40_ipv4_part*.txt",
-              "blacklist_geo_enriched.json":
-                  "blacklist_geo_enriched_part*.json",
+              "geo_enriched/blacklist_geo_enriched.json":
+                  "geo_enriched/blacklist_geo_enriched_part*.json",
           }
           _current_parts = {}
           for _main_file, _parts_glob in _parts_targets.items():
