@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-13 05:45 UTC",
+  "updated": "2026-06-13 10:07 UTC",
   "total": 24,
   "ok": 23,
   "warn": 2,
@@ -7,8 +7,8 @@
   "errors": [
     {
       "file": "Production Health",
-      "check": "Truncate-Erstaktivierung",
-      "detail": "geo_enriched/blacklist_geo_enriched.json: Splitting ERSTMALS aktiviert (3 neue Parts: geo_enriched/blacklist_geo_enriched_part1.json, geo_enriched/blacklist_geo_enriched_part2.json, geo_enriched/blacklist_geo_enriched_part3.json). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten."
+      "check": "Drift: honeypot_ips.txt",
+      "detail": "honeypot_ips.txt: 108,613 \u2192 74,207 (-32%) \u2013 starker R\u00fcckgang seit letztem Check"
     }
   ],
   "warnings": [
@@ -35,40 +35,50 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "seen_db_backup.json.gz: 88.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "seen_db_backup.json.gz: 88.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 85.5 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 85.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
       "detail": "geo_enriched/blacklist_geo_enriched.json: 94.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+    },
+    {
+      "file": "Production Health",
+      "check": "Truncate aktiv",
+      "detail": "geo_enriched/blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6282396,
-    "active_blacklist_ipv4.txt": 412103,
-    "blacklist_confidence40_ipv4.txt": 5133082,
-    "cve_exploit_ips.txt": 34688,
-    "honeypot_ips.txt": 108613,
+    "combined_threat_blacklist_ipv4.txt": 6288083,
+    "active_blacklist_ipv4.txt": 420130,
+    "blacklist_confidence40_ipv4.txt": 5138431,
+    "cve_exploit_ips.txt": 34344,
+    "honeypot_ips.txt": 74207,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
     "critical": 1,
-    "warn": 3,
+    "warn": 4,
     "checks": [
       {
-        "level": "WARN",
-        "check": "Push-Limit Naehe",
-        "detail": "seen_db_backup.json.gz: 88.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "level": "CRITICAL",
+        "check": "Drift: honeypot_ips.txt",
+        "detail": "honeypot_ips.txt: 108,613 \u2192 74,207 (-32%) \u2013 starker R\u00fcckgang seit letztem Check"
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 85.5 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "seen_db_backup.json.gz: 88.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      },
+      {
+        "level": "WARN",
+        "check": "Push-Limit Naehe",
+        "detail": "combined_threat_blacklist_ipv4.txt: 85.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
@@ -76,9 +86,9 @@
         "detail": "geo_enriched/blacklist_geo_enriched.json: 94.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
-        "level": "CRITICAL",
-        "check": "Truncate-Erstaktivierung",
-        "detail": "geo_enriched/blacklist_geo_enriched.json: Splitting ERSTMALS aktiviert (3 neue Parts: geo_enriched/blacklist_geo_enriched_part1.json, geo_enriched/blacklist_geo_enriched_part2.json, geo_enriched/blacklist_geo_enriched_part3.json). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten."
+        "level": "WARN",
+        "check": "Truncate aktiv",
+        "detail": "geo_enriched/blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar."
       }
     ]
   },
