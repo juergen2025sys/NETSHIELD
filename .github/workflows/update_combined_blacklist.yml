@@ -803,7 +803,11 @@ jobs:
               # Bestaetigung durch andere Feeds. Overlap mit binaryedge_scanners
               # erwartet (eine der 6 NebLink-Quellen ist mass_scanner selbst),
               # Solo-Beitrag aus den 5 SANS-ISC-Threatlists.
-              "neblink_known_scanners":     ("https://www.neblink.net/blocklist/KnownScanners.txt", False),
+              # FIX NEBLINK-MOVE (Juni 2026): Feed von www.neblink.net/blocklist/
+              # auf Subdomain blocklist.neblink.net/ umgezogen. Alte URL lief ins
+              # Timeout (HTTP 0, <urlopen error timed out>, 20s); neue URL liefert
+              # identischen Inhalt (gleicher Header, gleiche SANS-ISC+mass_scanner-Quellen).
+              "neblink_known_scanners":     ("https://blocklist.neblink.net/KnownScanners.txt", False),
               # "normshield_ssh" entfernt: normshield_all_ssh.ipset bei firehol nicht mehr verfügbar
 
               # ── Spam / Phishing ───────────────────────────────────────────
