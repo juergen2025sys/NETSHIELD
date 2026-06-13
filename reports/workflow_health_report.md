@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-06-13 15:55 UTC
+**Aktualisiert:** 2026-06-13 20:38 UTC
 
-**Workflows:** 24 | ✅ 23 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
+**Workflows:** 23 | ✅ 22 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
@@ -13,9 +13,9 @@
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 6 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "fadouse_malware" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_c2" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_rat" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_stealer" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_loader" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_worm" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel) |
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:30 UTC → 00:47 UTC (17min < 60min Mindestpuffer); 06:30 UTC → 06:47 UTC (17min < 60min Mindestpuffer); 12:30 UTC → 12:47 UTC (17min < 60min Mindestpuffer); 18:30 UTC → 18:47 UTC (17min < 60min Mindestpuffer) |
 | `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 85.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz: 88.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz: 88.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| `Production Health` | Truncate aktiv | geo_enriched/blacklist_geo_enriched.json: Splitting aktiv (3 Parts) – erste Erfassung nach PH10-Upgrade, kein Erstaktivierungs-Alarm. Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
+| `Production Health` | Truncate aktiv | geo_enriched/blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
 
 ## 🏥 Production Health
 
@@ -24,9 +24,9 @@
 | Level | Check | Detail |
 |---|---|---|
 | 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 85.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| 🟡 WARN | Push-Limit Naehe | state/seen_db_backup.json.gz: 88.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | state/seen_db_backup.json.gz: 88.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| 🟡 WARN | Truncate aktiv | geo_enriched/blacklist_geo_enriched.json: Splitting aktiv (3 Parts) – erste Erfassung nach PH10-Upgrade, kein Erstaktivierungs-Alarm. Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
+| 🟡 WARN | Truncate aktiv | geo_enriched/blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
 
 ## Übersicht
 
@@ -35,7 +35,6 @@
 | `asn_reputation_scorer.yml` | ✅ OK | 0 | 0 | `0 2 * * *` |
 | `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `37 4 * * 0`, `23 7 * * 0`, `47 11 * * 0` |
 | `codeql.yml` | ✅ OK | 0 | 0 | `0 3 * * 0` |
-| `community_ip_report.yml` | ✅ OK | 0 | 0 | – |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
 | `dependabot-auto-merge.yml` | ✅ OK | 0 | 0 | – |
 | `dependabot-heal-conflicts.yml` | ✅ OK | 0 | 0 | – |
@@ -58,4 +57,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-06-13 15:55 UTC | 24 Workflow-Dateien geprüft*
+*Generiert: 2026-06-13 20:38 UTC | 23 Workflow-Dateien geprüft*
