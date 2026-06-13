@@ -392,6 +392,10 @@ jobs:
                   grep -qxF "$ip" community_reported_ips.txt 2>/dev/null || echo "$ip" >> community_reported_ips.txt
                 done < /tmp/local_ip_appends.txt
               fi
+              # FIX SUBDIR-MIGRATION (reset-hard-safe): reset --hard oben stellt
+              # community_reports_log.txt aus dem Remote wieder her – Loeschung
+              # daher hier im Loop erneut anwenden. Idempotent nach 1. Push.
+              git rm -q --ignore-unmatch community_reports_log.txt 2>/dev/null || true
               git add logs/community_reports_log.txt community_reported_ips.txt 2>/dev/null || true
               if git diff --staged --quiet; then
                 echo "Keine neuen Änderungen nach Reset+Re-Apply"

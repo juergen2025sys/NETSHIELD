@@ -290,6 +290,11 @@ jobs:
               # Overwrite-Dateien: gesicherte Version zurückschreiben (last-write-wins)
               cp /tmp/local_fp_report.md reports/false_positive_report.md 2>/dev/null || true
               cp /tmp/local_fp_set.json false_positives_set.json 2>/dev/null || true
+              # FIX SUBDIR-MIGRATION (reset-hard-safe): reset --hard oben stellt die
+              # alten Root-Dateien aus dem Remote wieder her – daher die Loesch-
+              # ung HIER im Loop erneut anwenden, nicht nur vor dem ersten Commit
+              # (der durch reset --hard verworfen wird). Idempotent nach 1. Push.
+              git rm -q --ignore-unmatch false_positive_report.md false_positives_log.txt 2>/dev/null || true
               git add logs/false_positives_log.txt reports/false_positive_report.md false_positives_set.json 2>/dev/null || true
               if git diff --staged --quiet; then
                 echo "Keine neuen Änderungen nach Reset+Re-Apply"
