@@ -274,6 +274,9 @@ jobs:
 
           # ── Log-Eintrag ───────────────────────────────────────────────────
           # allow-nonatomic: append-only Log, siehe FIX RACE2 unten (Zeile ~306)
+          # FIX LOGS-SUBDIR: open(...,"a") legt kein Verzeichnis an → logs/
+          # sicherstellen, sonst FileNotFoundError beim ersten Lauf.
+          os.makedirs("logs", exist_ok=True)
           with open(REPORT_FILE, "a", encoding="utf-8") as f:
               f.write(f"{now_day} | issue=#{issue_number} | user={reporter} | ip={ip} | type={attack_type} | action={action} | ACCEPTED\n")
 

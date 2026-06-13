@@ -205,6 +205,9 @@ jobs:
           # ── False Positive Log ────────────────────────────────────────────
           # allow-nonatomic: append-only Log, serialisiert via concurrency-group
           # 'netshield-seen-db-writers' → keine parallelen Appends moeglich
+          # FIX LOGS-SUBDIR: open(...,"a") legt kein Verzeichnis an (anders als
+          # write_text_atomic) → logs/ hier sicherstellen, sonst FileNotFoundError.
+          os.makedirs("logs", exist_ok=True)
           with open("logs/false_positives_log.txt", "a", encoding="utf-8") as f:
               f.write(f"\n# Scan: {now_str} – {len(fp_set)} neue FPs\n")
               for ip in sorted(fp_set):

@@ -232,9 +232,8 @@ jobs:
 
           # Sources die ueber fetch_large() statt fetch() geladen werden.
           # fetch_large() = gehaerteter Fetch mit Browser-Fingerprint + grosszuegigem
-          # Timeout/Limit. jamesbrine bleibt hier nicht mehr wegen Groesse
-          # (iplist.txt ist klein), sondern weil der Host nach dem CTI-Relaunch
-          # statisch/gefiltert hinter CF steht und einen Browser-UA erwartet.
+          # Timeout/Limit. jamesbrine bleibt hier weil der Host statisch/gefiltert
+          # hinter CF steht und einen Browser-UA erwartet (ohne → 403/leerer Body).
           LARGE_SOURCES = {"jamesbrine_honeypot"}
 
           HONEYPOT_SOURCES = {
@@ -268,19 +267,22 @@ jobs:
               # JamesBrine: Australisches Honeypot-Netzwerk, verteilt auf
               # Toronto, Singapore, London, Perth. Protokolle SSH, FTP, RDP,
               # GIT, SNMP, REDIS.
-              # FIX JB-DEAD-CSV (Mai 2026): Der alte Endpunkt /csv
-              # ('ipv4, activity, date') existiert nach dem CTI-Relaunch der
-              # Seite nicht mehr als parsebares Text-CSV – er liefert nur noch
-              # einen undurchsichtigen application/octet-stream-Blob → 0 IPs.
-              # Die Seite ist jetzt ein statisches SPA; die Bruteforce-/Honeypot-
-              # Hosts werden laut aktuellem STIX2-Index unter /iplist.txt als
-              # Plain-Text (eine IPv4/Zeile, text/plain) veroeffentlicht und
-              # alle 30 Minuten aktualisiert. parse_entries() filtert
-              # reservierte/ungueltige Zeilen (z.B. 0.0.0.2) automatisch.
+              # FIX JB-REVERT-IPLIST (Juni 2026): Endpunkt zurueck auf /csv.
+              # Der zuvor (JB-DEAD-CSV) eingefuehrte /iplist.txt-Ersatz war
+              # falsch: /iplist.txt antwortet mit HTTP 200 aber LEEREM Body
+              # (0 bytes) → 0 IPs, ⚠️ im Report (empirisch: Actions-Log
+              # 'jamesbrine_honeypot: 0 IPs (0 bytes geladen)', kein HTTP-Fehler
+              # davor). /iplist.txt wird auf der Homepage nirgends als Feed
+              # gelistet; einziger dokumentierter Feed-Endpunkt ist /csv.
+              # /csv lebt: HTTP 200 mit CSV-Text 'ipv4, activity, date'.
+              # Content-Type ist application/octet-stream, ABER der Body ist
+              # parsebarer Text – fetch_url dekodiert UTF-8, parse_entries zieht
+              # Spalte 1 per IPv4-Regex. Korrupte/zusammengeklebte Zeilen werden
+              # automatisch verworfen (~51k unique IPs aus ~304k Zeilen, Rest Dups).
               # Bleibt in LARGE_SOURCES, damit der Host den Browser-Fingerprint
               # aus fetch_large() bekommt (statische, gefilterte Seite hinter CF).
               "jamesbrine_honeypot":
-                  "https://jamesbrine.com.au/iplist.txt",
+                  "https://jamesbrine.com.au/csv",
 
               # Stratosphere AIP Prioritize_New: IoT-Honeypot-Netzwerk der CTU Prag,
               # generiert via Attacker IP Prioritizer (AIP). CSV-Format 'ip,score'
