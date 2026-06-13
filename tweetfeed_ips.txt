@@ -1,9 +1,9 @@
 # NETSHIELD TweetFeed IP Watchlist
-# Aktualisiert: 2026-06-13 06:33 UTC
+# Aktualisiert: 2026-06-13 06:41 UTC
 # Quelle: tweetfeed.live (Twitter/X-Security-Community IOCs)
 # Endpoint: /v1/year/ip – letzte 365 Tage
 # WARNUNG: Confidence variabel – nicht direkt blocken, nur als Watchlist nutzen
-# Gesamt: 12120 | +23 neu | -35 entfernt
+# Gesamt: 12120 | +0 neu | -0 entfernt
 
 1.220.19.204
 2.26.53.56
