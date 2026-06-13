@@ -51,18 +51,18 @@ jobs:
 
       # Repo-Fallback ist absichtlich nur informativ:
       # update_combined_blacklist.yml committet seen_db.json NICHT ins Repo,
-      # sondern nur seen_db_meta.json. Die echte Analyse benötigt den Cache.
+      # sondern nur state/seen_db_meta.json. Die echte Analyse benötigt den Cache.
       - name: Fallback – Cache-Miss transparent melden
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: |
           if [ -f seen_db.json ]; then
             echo "Unerwartet: seen_db.json liegt im Checkout ($(wc -c < seen_db.json) Bytes)"
-          elif [ -f seen_db_meta.json ]; then
-            echo "::warning file=score_decay_monitor.yml::Cache-Miss – seen_db.json nicht verfügbar; Repo enthält nur seen_db_meta.json"
-            echo "seen_db_meta.json gefunden:"
-            cat seen_db_meta.json
+          elif [ -f state/seen_db_meta.json ]; then
+            echo "::warning file=score_decay_monitor.yml::Cache-Miss – seen_db.json nicht verfügbar; Repo enthält nur state/seen_db_meta.json"
+            echo "state/seen_db_meta.json gefunden:"
+            cat state/seen_db_meta.json
           else
-            echo "::warning file=score_decay_monitor.yml::Cache-Miss – weder seen_db.json noch seen_db_meta.json verfügbar"
+            echo "::warning file=score_decay_monitor.yml::Cache-Miss – weder seen_db.json noch state/seen_db_meta.json verfügbar"
           fi
 
       - name: Run Score Decay Analysis
@@ -94,7 +94,7 @@ jobs:
           DB_FILE = "seen_db.json"
 
           if not os.path.exists(DB_FILE):
-              msg = "seen_db.json nicht im Cache gefunden; im Repo liegt höchstens seen_db_meta.json"
+              msg = "seen_db.json nicht im Cache gefunden; im Repo liegt höchstens state/seen_db_meta.json"
               print(f"::warning file=score_decay_monitor.yml::{msg}")
               print(f"WARNUNG: {msg}")
               write_text_atomic("reports/score_decay_report.md",

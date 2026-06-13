@@ -105,7 +105,7 @@ jobs:
 
               return sources
 
-          FEED_URLS_CACHE = "feed_urls_cache.json"
+          FEED_URLS_CACHE = "state/feed_urls_cache.json"
 
           try:
               FEEDS = _extract_feeds_from_combined()
@@ -124,7 +124,7 @@ jobs:
                       FEEDS = _cached.get("feeds", {})
                       _cache_age = _cached.get("updated", "unbekannt")
                       print(f"::warning file=feed_health_monitor.yml::SOURCES-Parsing fehlgeschlagen: {_ex} – nutze Cache ({_cache_age}, {len(FEEDS)} Feeds)")
-                      print(f"WARNUNG: Fallback auf feed_urls_cache.json ({_cache_age})")
+                      print(f"WARNUNG: Fallback auf state/feed_urls_cache.json ({_cache_age})")
                   except Exception:
                       _err_msg = f"Feed-Extraktion UND Cache-Fallback fehlgeschlagen: {_ex}"
                       print(f"::error file=feed_health_monitor.yml::{_err_msg}")
@@ -235,7 +235,7 @@ jobs:
 
           # ── Dead-Feed-Tracking (Consecutive-Failure ueber Laeufe) ──────────
           # Der Monitor lief bisher nur als Momentaufnahme. Hier wird der
-          # vorherige feed_health_status.json gelesen und pro Feed ein
+          # vorherige state/feed_health_status.json gelesen und pro Feed ein
           # consecutive_fails-Zaehler gepflegt: failt der Feed → prev+1, sonst
           # → 0. Ab DEAD_THRESHOLD aufeinanderfolgenden Fehl-Laeufen gilt ein
           # Feed als "tot" (Quelle hat die Datei wohl verschoben/entfernt und
@@ -260,7 +260,7 @@ jobs:
 
           prior_by_name = {}
           try:
-              with open("feed_health_status.json") as _pf:
+              with open("state/feed_health_status.json") as _pf:
                   _prior = json.load(_pf)
               for _e in _prior.get("feeds", []):
                   if isinstance(_e, dict) and "name" in _e:
@@ -505,7 +505,7 @@ jobs:
           # FIX: atomar schreiben – netshield_report_generator und workflow_health_checker
           # lesen diese Datei. Bei Runner-Kill waehrend dem Schreiben koennten sie
           # eine halb-geschriebene JSON-Datei sehen.
-          write_json_atomic("feed_health_status.json", {
+          write_json_atomic("state/feed_health_status.json", {
                   "updated": now_str,
                   "summary": {"ok": ok_count, "warn": warn_count, "error": err_count},
                   "failed_feeds": failed_feeds,
@@ -543,15 +543,18 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX STATE-SUBDIR-MIGRATION: alte Root-Version entfernen, sobald
+          # dieser Workflow die neue state/-Version committet. Idempotent.
+          git rm -q --ignore-unmatch feed_health_status.json feed_urls_cache.json 2>/dev/null || true
           # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
           # Workflow die neue reports///logs/-Version committet (atomar im
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
           git rm -q --ignore-unmatch dead_feed_report.md feed_health_report.md stale_feed_report.md 2>/dev/null || true
           git add reports/feed_health_report.md 2>/dev/null || true
-          git add feed_health_status.json 2>/dev/null || true
+          git add state/feed_health_status.json 2>/dev/null || true
           git add reports/dead_feed_report.md 2>/dev/null || true
           git add reports/stale_feed_report.md 2>/dev/null || true
-          git add feed_urls_cache.json 2>/dev/null || true
+          git add state/feed_urls_cache.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -569,9 +572,9 @@ jobs:
               else
                 git stash pop 2>/dev/null || true
                 git checkout --theirs reports/feed_health_report.md \
-                  feed_health_status.json feed_urls_cache.json reports/dead_feed_report.md reports/stale_feed_report.md 2>/dev/null || true
+                  state/feed_health_status.json state/feed_urls_cache.json reports/dead_feed_report.md reports/stale_feed_report.md 2>/dev/null || true
                 git add reports/feed_health_report.md \
-                  feed_health_status.json feed_urls_cache.json reports/dead_feed_report.md reports/stale_feed_report.md 2>/dev/null || true
+                  state/feed_health_status.json state/feed_urls_cache.json reports/dead_feed_report.md reports/stale_feed_report.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

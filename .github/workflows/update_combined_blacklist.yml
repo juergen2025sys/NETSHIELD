@@ -849,14 +849,14 @@ jobs:
           # (7 Tage Inaktivitaet → Eviction) oder bei kaltem Repo-Klon, fehlt
           # seen_db.json im Workspace. Vorher: db={} → komplette History
           # (days_seen, first, hq_feed_names) verloren, Confidence-Scores
-          # fallen schlagartig auf Erstaufnahme-Werte. seen_db_backup.json.gz
+          # fallen schlagartig auf Erstaufnahme-Werte. state/seen_db_backup.json.gz
           # wurde zwar bei jedem Lauf ins Repo committet, aber nirgends
           # zurueckgelesen – tote Backups.
           # Jetzt: Wenn seen_db.json fehlt aber das gz-Backup im Repo liegt,
           # daraus restoren. Nur bei nicht-leerem Backup (>=1MB pre-gz Pruefung
           # erfolgte beim Schreiben → das gz selbst hat garantiert Inhalt).
           db = {}
-          BACKUP_FILE = "seen_db_backup.json.gz"
+          BACKUP_FILE = "state/seen_db_backup.json.gz"
           if os.path.exists(DB_FILE):
               try:
                   # FIX BUG-SEENDB-LIMIT: Pre-Size-Check vor json.load.
@@ -933,11 +933,11 @@ jobs:
           elif not db:
               print("Keine seen_db gefunden, kein Backup vorhanden – starte neu.")
 
-          # ── FIX #1: false_positives_set.json einlesen ─────────────────────
+          # ── FIX #1: state/false_positives_set.json einlesen ─────────────────────
           # false_positive_checker schreibt diese Datei; combined liest sie hier
           # und schließt die IPs beim Feed-Ingest aus – kein direktes Schreiben
           # in combined_threat_blacklist_ipv4.txt durch den FP-Checker mehr.
-          FP_SET_FILE = "false_positives_set.json"
+          FP_SET_FILE = "state/false_positives_set.json"
           _fp_networks = []
           _fp_ips      = set()
           if os.path.exists(FP_SET_FILE):
@@ -952,9 +952,9 @@ jobs:
                               _fp_ips.add(_e)
                       except Exception as _suppressed:
                           print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
-                  print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs als FP geladen")
+                  print(f"state/false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs als FP geladen")
               except Exception as _ex:
-                  print(f"WARNUNG: false_positives_set.json nicht lesbar: {_ex}")
+                  print(f"WARNUNG: state/false_positives_set.json nicht lesbar: {_ex}")
 
           # is_in_fp_set() → importiert aus netshield_common
           # is_valid_public_ipv4() → importiert aus netshield_common
@@ -1383,7 +1383,7 @@ jobs:
 
 
           # ── Auto-discovered Feeds einlesen ─────────────────────────────────
-          AUTO_FEEDS_FILE = "auto_discovered_feeds.json"
+          AUTO_FEEDS_FILE = "state/auto_discovered_feeds.json"
           if os.path.exists(AUTO_FEEDS_FILE):
               try:
                   with open(AUTO_FEEDS_FILE) as af:
@@ -1421,7 +1421,7 @@ jobs:
                                   future.cancel()
                           print(f"  WARNUNG: Auto-Feeds Timeout – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:8])}{'…' if len(pending) > 8 else ''}")
               except Exception as e:
-                  print(f"  WARNUNG: auto_discovered_feeds.json Fehler: {e}")
+                  print(f"  WARNUNG: state/auto_discovered_feeds.json Fehler: {e}")
           else:
               print(f"  SKIP: {AUTO_FEEDS_FILE} nicht vorhanden")
 
@@ -1452,7 +1452,7 @@ jobs:
           _HQ_AND_LOCAL = HIGH_QUALITY | LOCAL_HQ_NAMES
 
           # ── FIX STALE-QUARANTINE: eingefrorene HQ-Feeds einlesen ──────────
-          # Der Feed Health Monitor schreibt in feed_health_status.json eine
+          # Der Feed Health Monitor schreibt in state/feed_health_status.json eine
           # Liste "stale_feeds" (Feeds deren IP-Menge sich seit N Tagen nicht
           # mehr aendert). Solche Feeds bestaetigen ihre IPs zwar weiter, aber
           # mit veralteten Daten. Bei >=2 eingefrorenen HQ-Familien wuerde das
@@ -1475,7 +1475,7 @@ jobs:
           QUARANTINE_THRESHOLD_DAYS = 21
           _QUARANTINE = set()
           try:
-              with open("feed_health_status.json", encoding="utf-8") as _hf:
+              with open("state/feed_health_status.json", encoding="utf-8") as _hf:
                   _hs = json.load(_hf)
               for _sf in _hs.get("stale_feeds", []):
                   if not isinstance(_sf, dict):
@@ -1491,7 +1491,7 @@ jobs:
                   print(f"STALE-QUARANTINE: {len(_QUARANTINE)} eingefrorene(r) HQ-Feed(s) "
                         f"zaehlen heute NICHT als frische Bestaetigung: {sorted(_QUARANTINE)}")
           except (FileNotFoundError, ValueError, OSError) as _qe:
-              print(f"STALE-QUARANTINE: feed_health_status.json nicht lesbar ({_qe}) – "
+              print(f"STALE-QUARANTINE: state/feed_health_status.json nicht lesbar ({_qe}) – "
                     f"keine Quarantaene angewendet (fail-open)")
 
           for ip, today_feeds in ip_feeds_today.items():
@@ -1565,7 +1565,7 @@ jobs:
                       # einem einzigen Sweep nach der Update-Schleife (nur ueber
                       # die heute beruehrten IPs in ip_feeds_today) sortiert,
                       # bevor seen_db geschrieben wird. Byte-Stabilitaet des
-                      # seen_db_backup.json.gz bleibt dadurch erhalten – nur
+                      # state/seen_db_backup.json.gz bleibt dadurch erhalten – nur
                       # die Sortier-Arbeit wandert aus dem Hot-Loop heraus.
                       entry["feeds"]       = list(existing_feeds | today_feeds)
                       entry["today_count"] = today_count
@@ -1579,7 +1579,7 @@ jobs:
                       # fehlinterpretiert werden. Das Feld fließt NICHT ins today_count
                       # ein – es war nur ein Kommunikationskanal zwischen den Workflows.
                       # Die eigentliche Zählung auto-discovered IPs erfolgt über
-                      # ip_feeds_today via den Feed-Namen (aus auto_discovered_feeds.json).
+                      # ip_feeds_today via den Feed-Namen (aus state/auto_discovered_feeds.json).
                       entry.pop("auto_today_count", None)
                       # FIX Bug3: hq_feeds als Set einzigartiger Feed-Namen akkumulieren.
                       # Vorher: rohe Addition pro Lauf → unbegrenztes Wachstum (8 Läufe/Tag × 40 HQ-Feeds).
@@ -1812,7 +1812,7 @@ jobs:
           # 4,8 M db-Eintraege – Eintraege die heute nicht angefasst wurden,
           # sind seit dem letzten Run noch sortiert. IPs aus ip_feeds_today,
           # die durch den Cleanup-Pass entfernt wurden, werden via `if ip in
-          # db` uebersprungen. Byte-Stabilitaet des seen_db_backup.json.gz
+          # db` uebersprungen. Byte-Stabilitaet des state/seen_db_backup.json.gz
           # ist damit aequivalent zum vorherigen per-IP-sorted()-Verhalten.
           for ip in ip_feeds_today:
               entry = db.get(ip)
@@ -2217,8 +2217,11 @@ jobs:
           ")
             MIN_ENTRIES=100000
             if [ "$SIZE" -gt 1048576 ] && [ "$ENTRY_COUNT" -gt "$MIN_ENTRIES" ]; then
-              gzip -c seen_db.json > seen_db_backup.json.gz
-              echo "seen_db Backup erstellt: $(du -h seen_db_backup.json.gz | cut -f1) ($ENTRY_COUNT IPs)"
+              # FIX STATE-SUBDIR: gzip-Redirect (kein write_*_atomic) → state/
+              # muss existieren, sonst 'No such file or directory'.
+              mkdir -p state
+              gzip -c seen_db.json > state/seen_db_backup.json.gz
+              echo "seen_db Backup erstellt: $(du -h state/seen_db_backup.json.gz | cut -f1) ($ENTRY_COUNT IPs)"
             else
               echo "seen_db zu klein (Bytes=$SIZE, IPs=$ENTRY_COUNT, min=$MIN_ENTRIES) – kein Backup (möglicherweise korrupt)"
             fi
@@ -2227,7 +2230,7 @@ jobs:
       - name: Commit and Push
         # FIX BUG-AL1 (2/2): if: always() ergänzt. Ohne diesen Guard wurden bei einem
         # Python-Crash weder combined_threat_blacklist_ipv4.txt noch active_blacklist noch
-        # seen_db_meta.json committet. Das Repo zeigte dann veraltete Stände obwohl der
+        # state/seen_db_meta.json committet. Das Repo zeigte dann veraltete Stände obwohl der
         # Workflow technisch gelaufen war. Auch Fehler-Teilstände (z.B. Report ohne
         # Blacklist-Update) sollen sichtbar ins Repo committed werden.
         # NOTE: always()-Semantik bleibt - "always() && Guard" laeuft bei Crash UND
@@ -2262,16 +2265,19 @@ jobs:
                   meta["error"] = f"seen_db.json nicht lesbar: {e}"
                   meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
                   print(f"WARNUNG: seen_db.json korrupt oder nicht lesbar: {e}")
-          write_json_atomic("seen_db_meta.json", meta, indent=2)
+          write_json_atomic("state/seen_db_meta.json", meta, indent=2)
           PYEOF
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX STATE-SUBDIR-MIGRATION: alte Root-Version entfernen, sobald
+          # dieser Workflow die neue state/-Version committet. Idempotent.
+          git rm -q --ignore-unmatch seen_db_backup.json.gz seen_db_meta.json 2>/dev/null || true
           # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
           # Workflow die neue reports///logs/-Version committet (atomar im
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
           git rm -q --ignore-unmatch combined_threat_blacklist_report.md 2>/dev/null || true
 
-          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt reports/combined_threat_blacklist_report.md seen_db_meta.json reputation_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
+          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt reports/combined_threat_blacklist_report.md state/seen_db_meta.json reputation_blacklist.txt community_reported_ips.txt state/seen_db_backup.json.gz 2>/dev/null || true
           # relocated_feeds.md nur vorhanden, wenn der Move-Resolver diesen Lauf
           # etwas umgeleitet hat – dann mitcommitten (sonst No-Op).
           git add relocated_feeds.md 2>/dev/null || true
@@ -2331,15 +2337,15 @@ jobs:
                 git stash pop 2>/dev/null || true
                 git checkout --theirs combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   reports/combined_threat_blacklist_report.md \
-                  seen_db_meta.json reputation_blacklist.txt \
-                  community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
+                  state/seen_db_meta.json reputation_blacklist.txt \
+                  community_reported_ips.txt state/seen_db_backup.json.gz 2>/dev/null || true
                 # Parts ggf. auch per theirs mergen
                 for _p in combined_threat_blacklist_ipv4_part*.txt; do
                   [ -f "$_p" ] && git checkout --theirs "$_p" 2>/dev/null || true
                 done
                 git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
-                  reports/combined_threat_blacklist_report.md seen_db_meta.json \
-                  reputation_blacklist.txt community_reported_ips.txt seen_db_backup.json.gz 2>/dev/null || true
+                  reports/combined_threat_blacklist_report.md state/seen_db_meta.json \
+                  reputation_blacklist.txt community_reported_ips.txt state/seen_db_backup.json.gz 2>/dev/null || true
                 git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
                 git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip

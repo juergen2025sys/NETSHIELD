@@ -178,7 +178,7 @@ jobs:
           print(f"whitelist.json geladen: {len(protected_networks)} Einträge")
 
           # ── FP-Set laden (Defense-in-Depth) ──────────────────────────────
-          # FIX SSOT2: false_positives_set.json wird von load_fp_set() oben
+          # FIX SSOT2: state/false_positives_set.json wird von load_fp_set() oben
           # bereits in die globalen Strukturen von netshield_common geladen.
           # Hier nur Aliase auf die common-Strukturen anlegen, damit die
           # bisherige lokale Filter-Logik unverändert weiterläuft.
@@ -186,7 +186,7 @@ jobs:
           import netshield_common as _nc
           _fp_ips      = _nc._fp_ips
           _fp_networks = _nc._fp_networks
-          print(f"false_positives_set.json (via common): "
+          print(f"state/false_positives_set.json (via common): "
                 f"{len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs geladen")
 
           # is_in_fp_set() → importiert aus netshield_common
@@ -207,7 +207,7 @@ jobs:
           print(f"seen_db geladen: {len(db)} IPs")
 
           # Alter der seen_db prüfen.
-          # FIX SEEN-DB-AGE: Primär seen_db_meta.json verwenden (Stundengenauigkeit
+          # FIX SEEN-DB-AGE: Primär state/seen_db_meta.json verwenden (Stundengenauigkeit
           # via "updated"-Feld). Der vorherige Ansatz benutzte das aktuellste
           # last-Datum aus der DB; weil last nur tagesgenau ist (YYYY-MM-DD →
           # strptime ergibt Mitternacht UTC), zeigte er ab ~04:30 UTC jeden
@@ -221,7 +221,7 @@ jobs:
           # → wenn Meta existiert aber korrupt ist, landet db_age_hours vom Fallback-Pfad
           # (tagesgenau, Schwelle 48h), aber _cap wurde auf STALE_HARDCAP_META_H (8h)
           # gesetzt. Bei 20h altem last-Datum → 20 > 8 → sys.exit(1) obwohl Pipeline läuft.
-          META_FILE = "seen_db_meta.json"
+          META_FILE = "state/seen_db_meta.json"
           if os.path.exists(META_FILE):
               try:
                   with open(META_FILE) as _mf:
@@ -238,7 +238,7 @@ jobs:
                       if db_age_hours > 4.5:
                           print(f"WARNUNG: seen_db ist {db_age_hours:.1f}h alt – mindestens ein combined-Run wurde verpasst!")
               except Exception as _suppressed:
-                  print(f"WARN: seen_db_meta.json nicht lesbar – Fallback auf DB-last-Vergleich: {_suppressed}", file=sys.stderr)
+                  print(f"WARN: state/seen_db_meta.json nicht lesbar – Fallback auf DB-last-Vergleich: {_suppressed}", file=sys.stderr)
 
           if db_age_hours is None:
               # Fallback: aktuellstes last-Datum aus DB.

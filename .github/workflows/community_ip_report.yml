@@ -171,7 +171,7 @@ jobs:
               print(f"Ungültige IP: {ip}")
               sys.exit(0)
 
-          # ── FIX FP1: False-Positive-Check gegen false_positives_set.json ──
+          # ── FIX FP1: False-Positive-Check gegen state/false_positives_set.json ──
           # Verhindert dass Community-Reports bekannte legitime IPs (CDN, DNS,
           # Mail-Provider) in die seen_db eintragen.
           # FP-Set wurde oben via load_fp_set() bereits in netshield_common

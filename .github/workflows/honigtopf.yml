@@ -491,7 +491,7 @@ jobs:
           # Vorher wurden new_ips/removed_ips vor dem Filtern berechnet → Report
           # zeigte überhöhte +neu/-entfernt-Zahlen (gefilterte IPs zählten als "neu").
           # Blacklist-Inhalt war korrekt; nur Statistik war falsch.
-          # FP-Filter: IPs aus false_positives_set.json entfernen
+          # FP-Filter: IPs aus state/false_positives_set.json entfernen
           fp_removed = {ip for ip in all_ips if is_in_fp_set(ip)}
           if fp_removed:
               all_ips -= fp_removed

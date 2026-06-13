@@ -129,7 +129,7 @@ jobs:
                   total = remote_feeds + local_feeds
 
                   # Auto-discovered Feeds mitzählen
-                  auto_file = "auto_discovered_feeds.json"
+                  auto_file = "state/auto_discovered_feeds.json"
                   if os.path.exists(auto_file):
                       try:
                           with open(auto_file, encoding="utf-8") as af:
@@ -194,9 +194,9 @@ jobs:
 
           lines.append("")
 
-          if os.path.exists("feed_health_status.json"):
+          if os.path.exists("state/feed_health_status.json"):
               try:
-                  with open("feed_health_status.json", encoding="utf-8") as f:
+                  with open("state/feed_health_status.json", encoding="utf-8") as f:
                       fh = json.load(f)
                   s = fh.get("summary", {})
                   lines.append("---")
@@ -240,7 +240,7 @@ jobs:
                                        f"Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*\n")
                   lines.append(f"*Letzter Check: {fh.get('updated', '–')} – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*\n")
               except Exception as e:
-                  print(f"WARNUNG: feed_health_status.json konnte nicht gelesen werden: {e}")
+                  print(f"WARNUNG: state/feed_health_status.json konnte nicht gelesen werden: {e}")
 
           if os.path.exists("reports/workflow_health_report.md"):
               lines.append("---")
@@ -373,7 +373,7 @@ jobs:
                               if _depth == 0: _be2 = _i + 1; break
                       _local = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*(True|False)\s*,?', _wf_text[_bs2:_be2], re.MULTILINE))
                   _total = _remote + _local
-                  _auto = "auto_discovered_feeds.json"
+                  _auto = "state/auto_discovered_feeds.json"
                   if os.path.exists(_auto):
                       try:
                           with open(_auto, encoding="utf-8") as _af:

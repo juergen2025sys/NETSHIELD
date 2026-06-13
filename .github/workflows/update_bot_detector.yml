@@ -111,7 +111,7 @@ jobs:
           invalid_ips  = [ip for ip in raw_ips if not is_valid_public_ipv4(ip)]
           unique_ips   = sorted(set(valid_ips),
                                 key=lambda ip: tuple(int(o) for o in ip.split(".")))
-          # FP-Filter: IPs aus false_positives_set.json entfernen
+          # FP-Filter: IPs aus state/false_positives_set.json entfernen
           fp_before = len(unique_ips)
           unique_ips = [ip for ip in unique_ips if not is_in_fp_set(ip)]
           fp_removed_count = fp_before - len(unique_ips)

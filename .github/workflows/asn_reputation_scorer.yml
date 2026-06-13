@@ -394,7 +394,7 @@ jobs:
           write_text_atomic("asn_blocklist_firewall.txt", "\n".join(_asn_lines) + "\n")
           print(f"  {blocked} ASNs mit Score >= 50 gelistet")
 
-          # ── Schritt 5: asn_reputation_db.json ────────────────────────────
+          # ── Schritt 5: state/asn_reputation_db.json ────────────────────────────
           db = {
               "updated":  now_str,
               "method":   "scanitex-cidr-match",
@@ -420,7 +420,7 @@ jobs:
               }
 
           # FIX: atomar schreiben (~230 KB, wird von anderen Scripts gelesen)
-          write_json_atomic("asn_reputation_db.json", db, indent=2)
+          write_json_atomic("state/asn_reputation_db.json", db, indent=2)
 
           # Guard NACH allen Writes: alle drei Ausgabedateien spiegeln denselben
           # (ggf. partiellen) Run-Zustand. Der Commit-Step mit if: always()
@@ -441,11 +441,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX STATE-SUBDIR-MIGRATION: alte Root-Version entfernen, sobald
+          # dieser Workflow die neue state/-Version committet. Idempotent.
+          git rm -q --ignore-unmatch asn_reputation_db.json 2>/dev/null || true
           # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
           # Workflow die neue reports///logs/-Version committet (atomar im
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
           git rm -q --ignore-unmatch asn_reputation_report.md 2>/dev/null || true
-          git add asn_blocklist_firewall.txt asn_reputation_db.json reports/asn_reputation_report.md
+          git add asn_blocklist_firewall.txt state/asn_reputation_db.json reports/asn_reputation_report.md
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -464,11 +467,11 @@ jobs:
                 git stash pop 2>/dev/null || true
                 git checkout --theirs \
                   asn_blocklist_firewall.txt \
-                  asn_reputation_db.json \
+                  state/asn_reputation_db.json \
                   reports/asn_reputation_report.md 2>/dev/null || true
                 git add \
                   asn_blocklist_firewall.txt \
-                  asn_reputation_db.json \
+                  state/asn_reputation_db.json \
                   reports/asn_reputation_report.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi

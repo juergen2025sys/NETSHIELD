@@ -151,7 +151,7 @@ jobs:
           print(f"  Fertig. {len(false_positives)} False Positives gefunden.")
 
           # ── FIX #1/#4: Nicht mehr combined_threat_blacklist_ipv4.txt direkt schreiben.
-          # Stattdessen false_positives_set.json speichern – update_combined_blacklist
+          # Stattdessen state/false_positives_set.json speichern – update_combined_blacklist
           # liest diese Datei beim nächsten Run und filtert die IPs beim Ingest heraus.
           # Vorteile:
           #   1. Keine Race-Condition mehr mit combined (der als einzige Quelle der
@@ -159,7 +159,7 @@ jobs:
           #   2. HQ-IPs werden sauber behandelt: combined entscheidet beim nächsten
           #      Lauf ob ein HQ-Feed die IP erneut meldet – kein ewiger Add/Remove-Zyklus.
           fp_set = set(false_positives)
-          FP_JSON = "false_positives_set.json"
+          FP_JSON = "state/false_positives_set.json"
 
           existing_fp = set()
           if os.path.exists(FP_JSON):
@@ -185,7 +185,7 @@ jobs:
           removed_stale_fp = (existing_fp | fp_set) - merged_fp
           # FIX ATOMIC: write_json_atomic statt open("w") – bei Runner-Kill
           # bleibt die Datei komplett alt oder komplett neu. Eine halb
-          # geschriebene false_positives_set.json würde beim naechsten Run
+          # geschriebene state/false_positives_set.json würde beim naechsten Run
           # als korrupt erkannt (JSON-Parse-Fehler) und das gesamte FP-Set
           # stillschweigend verloren gehen.
           write_json_atomic(FP_JSON, {
@@ -193,12 +193,12 @@ jobs:
               "count":    len(merged_fp),
               "ips":      sorted(merged_fp),
           }, indent=2)
-          print(f"false_positives_set.json: {len(merged_fp)} IPs gespeichert "
+          print(f"state/false_positives_set.json: {len(merged_fp)} IPs gespeichert "
                 f"({len(fp_set)} neu erkannt, {len(existing_fp)} bereits vorhanden, {len(removed_stale_fp)} veraltete entfernt)")
 
           # ── seen_db wird NICHT mehr hier bereinigt ─────────────────────
           # Der combined-Workflow filtert FP-IPs beim nächsten Lauf selbst
-          # über is_in_fp_set() anhand von false_positives_set.json.
+          # über is_in_fp_set() anhand von state/false_positives_set.json.
           # Der fp-Cache-Prefix (netshield-seen-db-fp-*) wurde von keinem
           # anderen Workflow gelesen – die Bereinigung war wirkungslos.
 
@@ -226,7 +226,7 @@ jobs:
           lines.append(f"| FP-Set gesamt (kumuliert) | **{len(merged_fp)}** |")
           lines.append("")
           lines.append("> ℹ️ FPs werden nicht mehr direkt aus `combined_threat_blacklist_ipv4.txt` entfernt.")
-          lines.append("> `false_positives_set.json` wird beim nächsten `update_combined_blacklist`-Lauf über `is_in_fp_set()` angewendet.")
+          lines.append("> `state/false_positives_set.json` wird beim nächsten `update_combined_blacklist`-Lauf über `is_in_fp_set()` angewendet.")
 
           if whitelist_hits:
               lines.append("\n## Whitelist-Treffer\n")
@@ -255,8 +255,8 @@ jobs:
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
           git rm -q --ignore-unmatch false_positive_report.md false_positives_log.txt 2>/dev/null || true
           # combined_threat_blacklist_ipv4.txt wird NICHT mehr durch diesen Workflow
-          # verändert – nur noch false_positives_set.json, Log und Report.
-          git add logs/false_positives_log.txt reports/false_positive_report.md false_positives_set.json
+          # verändert – nur noch state/false_positives_set.json, Log und Report.
+          git add logs/false_positives_log.txt reports/false_positive_report.md state/false_positives_set.json
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -274,7 +274,7 @@ jobs:
             git diff HEAD -- logs/false_positives_log.txt | grep '^+[^+]' | sed 's/^+//' > /tmp/local_fp_log_appends.txt 2>/dev/null || true
             # Overwrite-Dateien komplett sichern (werden nach reset zurückgeschrieben)
             cp reports/false_positive_report.md /tmp/local_fp_report.md 2>/dev/null || true
-            cp false_positives_set.json /tmp/local_fp_set.json 2>/dev/null || true
+            cp state/false_positives_set.json /tmp/local_fp_set.json 2>/dev/null || true
             git commit -m "False Positive Check: $(date -u '+%Y-%m-%d %H:%M') UTC"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
@@ -288,14 +288,17 @@ jobs:
                 done < /tmp/local_fp_log_appends.txt
               fi
               # Overwrite-Dateien: gesicherte Version zurückschreiben (last-write-wins)
+              # FIX STATE-SUBDIR: reset --hard kann state/ entfernen → vor dem cp anlegen.
+              mkdir -p state
               cp /tmp/local_fp_report.md reports/false_positive_report.md 2>/dev/null || true
-              cp /tmp/local_fp_set.json false_positives_set.json 2>/dev/null || true
+              cp /tmp/local_fp_set.json state/false_positives_set.json 2>/dev/null || true
               # FIX SUBDIR-MIGRATION (reset-hard-safe): reset --hard oben stellt die
               # alten Root-Dateien aus dem Remote wieder her – daher die Loesch-
               # ung HIER im Loop erneut anwenden, nicht nur vor dem ersten Commit
               # (der durch reset --hard verworfen wird). Idempotent nach 1. Push.
-              git rm -q --ignore-unmatch false_positive_report.md false_positives_log.txt 2>/dev/null || true
-              git add logs/false_positives_log.txt reports/false_positive_report.md false_positives_set.json 2>/dev/null || true
+              # false_positives_set.json hier mit migrieren (war bisher Root).
+              git rm -q --ignore-unmatch false_positive_report.md false_positives_log.txt false_positives_set.json 2>/dev/null || true
+              git add logs/false_positives_log.txt reports/false_positive_report.md state/false_positives_set.json 2>/dev/null || true
               if git diff --staged --quiet; then
                 echo "Keine neuen Änderungen nach Reset+Re-Apply"
                 exit 0

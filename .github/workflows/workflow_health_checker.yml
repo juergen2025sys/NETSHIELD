@@ -392,7 +392,7 @@ jobs:
 
               # Python-Blöcke aus YAML-Heredocs extrahieren
               # FIX CHK-PYEOF: auch python3 - << 'PYEOF' Blöcke erkennen
-              # (z.B. seen_db_meta.json Writer in update_combined_blacklist.yml)
+              # (z.B. state/seen_db_meta.json Writer in update_combined_blacklist.yml)
               blocks = re.findall(r"python3 << 'EOF'(.*?)\n\s*EOF\b", content, re.DOTALL)
               blocks += re.findall(r"python3 - << 'PYEOF'(.*?)\n\s*PYEOF\b", content, re.DOTALL)
 
@@ -855,7 +855,7 @@ jobs:
                   # (A) ALT: git checkout --theirs mit allen 3 FP-Dateien
                   # (B) NEU (FIX RACE5): git reset --hard + cp /tmp/ für Overwrite-Dateien
                   #     + Dedup-Append für Log. Kein checkout --theirs mehr nötig.
-                  _fp_files = ["logs/false_positives_log.txt", "reports/false_positive_report.md", "false_positives_set.json"]
+                  _fp_files = ["logs/false_positives_log.txt", "reports/false_positive_report.md", "state/false_positives_set.json"]
                   _has_old_pattern = 'git checkout --theirs' in content
                   _has_new_pattern = 'git reset --hard' in content and '/tmp/local_fp_' in content
 
@@ -2083,8 +2083,8 @@ jobs:
           print("PRODUCTION HEALTH CHECKS")
           print("=" * 60)
 
-          # ── PH1: seen_db Integrität (via seen_db_meta.json) ───────────────
-          _meta_file = "seen_db_meta.json"
+          # ── PH1: seen_db Integrität (via state/seen_db_meta.json) ───────────────
+          _meta_file = "state/seen_db_meta.json"
           if os.path.exists(_meta_file):
               try:
                   with open(_meta_file, encoding="utf-8") as _mf:
@@ -2097,19 +2097,19 @@ jobs:
                   if _meta_err:
                       prod_health.append({
                           "level": "CRITICAL", "check": "seen_db Integrität",
-                          "detail": f"seen_db_meta.json meldet Fehler: {_meta_err}",
+                          "detail": f"state/seen_db_meta.json meldet Fehler: {_meta_err}",
                       })
                       print(f"  🔴 seen_db: Fehler gemeldet – {_meta_err}")
                   elif _meta_ips == 0:
                       prod_health.append({
                           "level": "CRITICAL", "check": "seen_db Integrität",
-                          "detail": "seen_db_meta.json: total_ips=0 – seen_db ist leer oder nicht vorhanden",
+                          "detail": "state/seen_db_meta.json: total_ips=0 – seen_db ist leer oder nicht vorhanden",
                       })
                       print("  🔴 seen_db: 0 IPs (leer oder fehlend)")
                   elif _meta_ips < 10_000:
                       prod_health.append({
                           "level": "WARN", "check": "seen_db Integrität",
-                          "detail": f"seen_db_meta.json: nur {_meta_ips:,} IPs (erwartet >10.000) – möglicherweise unvollständig",
+                          "detail": f"state/seen_db_meta.json: nur {_meta_ips:,} IPs (erwartet >10.000) – möglicherweise unvollständig",
                       })
                       print(f"  🟡 seen_db: {_meta_ips:,} IPs (niedrig)")
                   else:
@@ -2123,13 +2123,13 @@ jobs:
                           if _meta_age_h > 10:
                               prod_health.append({
                                   "level": "CRITICAL", "check": "seen_db Aktualität",
-                                  "detail": f"seen_db_meta.json ist {_meta_age_h:.0f}h alt (letztes Update: {_meta_upd}) – Combined-Pipeline steht still",
+                                  "detail": f"state/seen_db_meta.json ist {_meta_age_h:.0f}h alt (letztes Update: {_meta_upd}) – Combined-Pipeline steht still",
                               })
                               print(f"  🔴 seen_db Alter: {_meta_age_h:.0f}h (CRITICAL >10h)")
                           elif _meta_age_h > 6:
                               prod_health.append({
                                   "level": "WARN", "check": "seen_db Aktualität",
-                                  "detail": f"seen_db_meta.json ist {_meta_age_h:.0f}h alt (letztes Update: {_meta_upd}) – mindestens 1 Combined-Run verpasst",
+                                  "detail": f"state/seen_db_meta.json ist {_meta_age_h:.0f}h alt (letztes Update: {_meta_upd}) – mindestens 1 Combined-Run verpasst",
                               })
                               print(f"  🟡 seen_db Alter: {_meta_age_h:.0f}h (WARN >6h)")
                           else:
@@ -2139,15 +2139,15 @@ jobs:
               except Exception as _ex:
                   prod_health.append({
                       "level": "CRITICAL", "check": "seen_db Integrität",
-                      "detail": f"seen_db_meta.json nicht lesbar: {_ex}",
+                      "detail": f"state/seen_db_meta.json nicht lesbar: {_ex}",
                   })
-                  print(f"  🔴 seen_db_meta.json nicht lesbar: {_ex}")
+                  print(f"  🔴 state/seen_db_meta.json nicht lesbar: {_ex}")
           else:
               prod_health.append({
                   "level": "WARN", "check": "seen_db Integrität",
-                  "detail": "seen_db_meta.json nicht vorhanden – Combined-Workflow noch nie gelaufen?",
+                  "detail": "state/seen_db_meta.json nicht vorhanden – Combined-Workflow noch nie gelaufen?",
               })
-              print("  🟡 seen_db_meta.json nicht vorhanden")
+              print("  🟡 state/seen_db_meta.json nicht vorhanden")
 
           # ── PH2: Aktualität der Output-Listen ─────────────────────────────
           _freshness_checks = [
@@ -2217,7 +2217,7 @@ jobs:
                   print(f"  ✅ {_desc}: {_count:,} IPs")
 
           # ── PH4: Feed Health Auswirkungen ─────────────────────────────────
-          _fh_file = "feed_health_status.json"
+          _fh_file = "state/feed_health_status.json"
           if os.path.exists(_fh_file):
               try:
                   with open(_fh_file, encoding="utf-8") as _fhf:
@@ -2244,15 +2244,15 @@ jobs:
                   else:
                       print(f"  ✅ Feed Health: {_fh_ok}/{_fh_total} OK, {_fh_errors} Fehler, {_fh_warns} Warnungen")
               except Exception as _ex:
-                  print(f"  ⏭  Feed Health: feed_health_status.json nicht lesbar ({_ex})")
+                  print(f"  ⏭  Feed Health: state/feed_health_status.json nicht lesbar ({_ex})")
           else:
-              print("  ⏭  Feed Health: feed_health_status.json nicht vorhanden")
+              print("  ⏭  Feed Health: state/feed_health_status.json nicht vorhanden")
 
           # ── PH5: Drift-Erkennung (Vergleich mit letztem Health-Status) ────
-          # workflow_health_status.json speichert die letzte Zusammenfassung.
+          # state/workflow_health_status.json speichert die letzte Zusammenfassung.
           # Vergleich der IP-Anzahlen mit den gespeicherten Werten erkennt
           # ungewöhnliches Wachstum oder Schrumpfen.
-          _prev_status_file = "workflow_health_status.json"
+          _prev_status_file = "state/workflow_health_status.json"
           if os.path.exists(_prev_status_file):
               try:
                   with open(_prev_status_file, encoding="utf-8") as _psf:
@@ -2304,7 +2304,7 @@ jobs:
                   else:
                       print("  ⏭  Drift: kein vorheriger IP-Count gespeichert (erster Lauf)")
               except Exception:
-                  print("  ⏭  Drift: workflow_health_status.json nicht lesbar")
+                  print("  ⏭  Drift: state/workflow_health_status.json nicht lesbar")
           else:
               print("  ⏭  Drift: kein vorheriger Status vorhanden (erster Lauf)")
 
@@ -2423,7 +2423,7 @@ jobs:
           # ── PH9: Repo-Push-Groessen-Warnung pro Datei ─────────────────────
           # Scannt ALLE Dateien im Repo (Top-Level + Unterverzeichnisse) auf
           # die Naehe zum GitHub-100-MB-Push-Limit. Faengt auch Dateien ein
-          # die noch keinen Truncate-Schutz haben (z.B. seen_db_backup.json.gz,
+          # die noch keinen Truncate-Schutz haben (z.B. state/seen_db_backup.json.gz,
           # zukuenftige Outputs). Schwellen:
           #   WARN  >= 80 MB  – noch ~20 MB Puffer, planbar
           #   CRIT  >= 95 MB  – akut, naechster Push-Fail wahrscheinlich
@@ -2490,14 +2490,14 @@ jobs:
           # Erkennt wenn Parts-Dateien fuer combined/conf40/geo_enriched ZUM
           # ERSTEN MAL auftauchen – also wenn die Truncate+Parts-Logik in
           # Produktion aktiviert wurde. Einmaliger CRITICAL pro Datei, der
-          # ueber den Compare-mit-Vorlauf-State (workflow_health_status.json:
+          # ueber den Compare-mit-Vorlauf-State (state/workflow_health_status.json:
           # parts_history) zugleich abklingt sobald der Konsument das gesehen
           # hat – Folgeruns sind dann nur noch WARN ("Parts aktiv").
           # Loesung: Wir vergleichen die aktuelle Parts-Liste mit der zuletzt
           # gespeicherten. Neue Parts -> CRITICAL einmalig. Bestehende ->
           # WARN. Entfernte -> INFO (Datei ist wieder unter Schwelle).
           import glob as _glob_ph10
-          _parts_state_file = "workflow_health_status.json"
+          _parts_state_file = "state/workflow_health_status.json"
           _prev_parts = {}
           _parts_history_key_present = False
           if os.path.exists(_parts_state_file):
@@ -2812,7 +2812,7 @@ jobs:
           # FIX: atomar schreiben statt open("...", "w") – diese Datei wird von
           # anderen Workflows gelesen. Bei Runner-Kill waehrend dem Schreiben
           # bleibt sonst eine halb-geschriebene JSON-Datei zurueck.
-          write_json_atomic("workflow_health_status.json", {
+          write_json_atomic("state/workflow_health_status.json", {
                   "updated":           now_str,
                   "total":             len(files),
                   "ok":                ok_count,
@@ -2846,11 +2846,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX STATE-SUBDIR-MIGRATION: alte Root-Version entfernen, sobald
+          # dieser Workflow die neue state/-Version committet. Idempotent.
+          git rm -q --ignore-unmatch workflow_health_status.json 2>/dev/null || true
           # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
           # Workflow die neue reports///logs/-Version committet (atomar im
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
           git rm -q --ignore-unmatch workflow_health_report.md 2>/dev/null || true
-          git add reports/workflow_health_report.md workflow_health_status.json
+          git add reports/workflow_health_report.md state/workflow_health_status.json
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -2868,9 +2871,9 @@ jobs:
               else
                 git stash pop 2>/dev/null || true
                 git checkout --theirs reports/workflow_health_report.md \
-                  workflow_health_status.json 2>/dev/null || true
+                  state/workflow_health_status.json 2>/dev/null || true
                 git add reports/workflow_health_report.md \
-                  workflow_health_status.json 2>/dev/null || true
+                  state/workflow_health_status.json 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))

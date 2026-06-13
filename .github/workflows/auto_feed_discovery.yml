@@ -922,9 +922,9 @@ jobs:
           # dem Lauf eine fast-leere seen_db zurück in den Cache schreiben.
           # Combined würde dann beim nächsten Lauf diesen gekürzten Cache
           # laden → komplette History (days_seen, first, hq_feed_names) verloren.
-          # Backup-Restore aus seen_db_backup.json.gz (Repo-File) verhindert das.
+          # Backup-Restore aus state/seen_db_backup.json.gz (Repo-File) verhindert das.
           DB_FILE = "seen_db.json"
-          BACKUP_FILE = "seen_db_backup.json.gz"
+          BACKUP_FILE = "state/seen_db_backup.json.gz"
           db = {}
           if os.path.exists(DB_FILE):
               try:
@@ -968,12 +968,12 @@ jobs:
           elif not db:
               print("Keine seen_db gefunden, kein Backup vorhanden – starte neu.")
 
-          # ── Schritt 1b: Bestehende auto_discovered_feeds.json laden ───────
+          # ── Schritt 1b: Bestehende state/auto_discovered_feeds.json laden ───────
           # FIX BUG-EXISTING-FEEDS-ORDER: Dieser Block stand frueher als
           # "Schritt 4" weiter unten. Vorgezogen weil mehrere fruehe Schritte
           # (Tool-Filter, ehemaliger Org-Crawl) auf existing_feeds zugreifen
           # koennen sollen - chronologisch sauber: erst alles laden, dann suchen.
-          AUTO_FILE = "auto_discovered_feeds.json"
+          AUTO_FILE = "state/auto_discovered_feeds.json"
           existing_feeds = {}
           existing_rejected = set()
           # NEU v4: rejected_repos_meta speichert pro Repo {reason, rejected_at}.
@@ -1592,7 +1592,7 @@ jobs:
           print(f"GitLab-Suche: {_gitlab_found} Treffer → {_gitlab_unique} GitLab-Kandidaten")
           print(f"Kandidaten gesamt: {len(candidate_repos)}\n")
 
-          # Schritt 4 (auto_discovered_feeds.json laden) wurde nach oben
+          # Schritt 4 (state/auto_discovered_feeds.json laden) wurde nach oben
           # gezogen - siehe direkt nach Schritt 1. Grund: Org-Crawl (Schritt
           # 3a2) braucht existing_feeds um die Owner bekannter Feeds zu kennen.
 
@@ -2820,10 +2820,10 @@ jobs:
           write_text_atomic("reports/auto_feed_discovery_report.md", "\n".join(lines))
           print("reports/auto_feed_discovery_report.md geschrieben")
 
-          # ── Schritt 9: auto_discovered_feeds.json speichern ───────────────
+          # ── Schritt 9: state/auto_discovered_feeds.json speichern ───────────────
           if len(candidate_repos) == 0 and len(existing_feeds) > 0:
               _msg = (f"GitHub/GitLab-Suche lieferte 0 Kandidaten – behalte bestehende "
-                      f"auto_discovered_feeds.json ({len(existing_feeds)} Feeds)")
+                      f"state/auto_discovered_feeds.json ({len(existing_feeds)} Feeds)")
               print(f"::warning file=auto_feed_discovery.yml::{_msg}")
               print(f"WARNUNG: {_msg}")
               sys.exit(1)
@@ -2831,7 +2831,7 @@ jobs:
           MIN_APPROVED_FEEDS = 10
           if len(approved_feeds) < MIN_APPROVED_FEEDS:
               _msg = (f"Nur {len(approved_feeds)} aktive Feeds (< {MIN_APPROVED_FEEDS}) – "
-                      f"Discovery-Ausfall vermutet, behalte bestehende auto_discovered_feeds.json")
+                      f"Discovery-Ausfall vermutet, behalte bestehende state/auto_discovered_feeds.json")
               print(f"::warning file=auto_feed_discovery.yml::{_msg}")
               print(f"WARNUNG: {_msg}")
               sys.exit(1)
@@ -2874,11 +2874,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX STATE-SUBDIR-MIGRATION: alte Root-Version entfernen, sobald
+          # dieser Workflow die neue state/-Version committet. Idempotent.
+          git rm -q --ignore-unmatch auto_discovered_feeds.json 2>/dev/null || true
           # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
           # Workflow die neue reports///logs/-Version committet (atomar im
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
           git rm -q --ignore-unmatch auto_feed_discovery_report.md 2>/dev/null || true
-          git add auto_discovered_feeds.json reports/auto_feed_discovery_report.md
+          git add state/auto_discovered_feeds.json reports/auto_feed_discovery_report.md
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -2895,9 +2898,9 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs auto_discovered_feeds.json \
+                git checkout --theirs state/auto_discovered_feeds.json \
                   reports/auto_feed_discovery_report.md 2>/dev/null || true
-                git add auto_discovered_feeds.json \
+                git add state/auto_discovered_feeds.json \
                   reports/auto_feed_discovery_report.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi

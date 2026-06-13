@@ -174,7 +174,7 @@ jobs:
 
           # FIX BUG#3: FP- und Whitelist-Filter VOR der Delta-Berechnung anwenden.
           # Vorher wurde new_ips vor dem Filtern berechnet → Report-Statistik überhöht.
-          # FP-Filter: IPs aus false_positives_set.json entfernen
+          # FP-Filter: IPs aus state/false_positives_set.json entfernen
           fp_removed = {ip for ip in all_exploit_ips if is_in_fp_set(ip)}
           if fp_removed:
               all_exploit_ips -= fp_removed
