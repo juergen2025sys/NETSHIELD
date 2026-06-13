@@ -2881,7 +2881,18 @@ jobs:
           # Workflow die neue reports///logs/-Version committet (atomar im
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
           git rm -q --ignore-unmatch auto_feed_discovery_report.md 2>/dev/null || true
-          git add state/auto_discovered_feeds.json reports/auto_feed_discovery_report.md
+          # FIX MISSING-STATE-GUARD: Nur existierende Dateien stagen. Wenn der
+          # Discovery-Guard (Schritt 9, sys.exit(1) bei < MIN_APPROVED_FEEDS)
+          # zuschlaegt, wird state/auto_discovered_feeds.json bewusst NICHT
+          # geschrieben. Solange unter state/ noch keine committete Version liegt
+          # (SUBDIR-Migration nicht abgeschlossen), bricht ein unbedingtes
+          # 'git add state/...' mit exit 128 ab ("pathspec did not match") und
+          # verhindert genau das vom if:always() beabsichtigte Committen des
+          # Ausfall-Reports. Existenz-Check loest das; 'git diff --staged
+          # --quiet' unten faengt den "nichts zu committen"-Fall sauber ab.
+          for _f in state/auto_discovered_feeds.json reports/auto_feed_discovery_report.md; do
+            [ -e "$_f" ] && git add "$_f"
+          done
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
