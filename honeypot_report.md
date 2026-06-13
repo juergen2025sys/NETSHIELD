@@ -1,5 +1,5 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-06-13 04:45 UTC
+**Aktualisiert:** 2026-06-13 04:56 UTC
 
 ---
 | Quelle | IPs |
@@ -20,8 +20,8 @@
 | Metrik | Wert |
 |---|---|
 | Gesamt Honeypot-IPs | **73961** |
-| Neu | **+4049** |
-| Entfernt | **-3189** |
+| Neu | **+0** |
+| Entfernt | **-0** |
 
 ---
-*Generiert: 2026-06-13 04:45 UTC*
+*Generiert: 2026-06-13 04:56 UTC*
