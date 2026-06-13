@@ -681,7 +681,6 @@ jobs:
                   "feed_health_monitor.yml",
                   "workflow_health_checker.yml",
                   "netshield_report_generator.yml",
-                  "community_ip_report.yml",
                   "auto_feed_discovery.yml",   # hat MIN_APPROVED_FEEDS guard
               }
               if _has_external_fetch and _writes_outputs and not _has_min_guard and fname not in _quality_guard_exempt:
@@ -847,8 +846,6 @@ jobs:
               GH_EXPR_OPEN = "$" + "{{"
               issue_expr = f"{GH_EXPR_OPEN} github.event.issue.number }}"
               run_expr = f"{GH_EXPR_OPEN} github.run_id }}"
-              community_key = f"key: netshield-seen-db-community-{issue_expr}-{run_expr}"
-              community_restore_prefix = f"netshield-seen-db-community-{issue_expr}-"
 
               if fname == "false_positive_checker.yml":
                   # FIX CHK23a / RACE5: Zwei gültige Commit-Patterns:
@@ -918,50 +915,6 @@ jobs:
                       )
                       file_warnings.append(msg)
                       warnings.append({"file": fname, "check": "Null-IP SPOF-Guard fehlt", "detail": msg})
-
-              if fname == "community_ip_report.yml":
-                  restore_section = content.split('restore-keys: |', 1)[1] if 'restore-keys: |' in content else ''
-                  if community_key in content and community_restore_prefix not in restore_section:
-                      msg = ("Community-Cache nutzt issue+run_id als Key, aber kein issue-spezifisches restore-prefix – "
-                             "seen_db akkumuliert pro Issue nicht")
-                      file_errors.append(msg)
-                      errors.append({"file": fname, "check": "Community-Cache Restore-Key", "detail": msg})
-                  # FIX CHK23-RACE3 / RACE5: Zwei gültige Commit-Patterns:
-                  # (A) ALT: checkout --theirs + /tmp/local_log_appends.txt Sicherung
-                  # (B) NEU (FIX RACE5): reset --hard + Dedup-Re-Apply aus /tmp/
-                  _has_old_community = 'git checkout --theirs' in content
-                  _has_new_community = 'git reset --hard' in content and '/tmp/local_log_appends.txt' in content
-                  if _has_old_community and '/tmp/local_log_appends.txt' not in content:
-                      msg = ("Append-only Dateien (logs/community_reports_log.txt, community_reported_ips.txt) "
-                             "werden bei rebase --theirs nicht gesichert – Datenverlust bei parallelen Issues "
-                             "(Regression FIX-RACE3)")
-                      file_errors.append(msg)
-                      errors.append({"file": fname, "check": "Append-only Rebase-Schutz fehlt", "detail": msg})
-                  elif not _has_old_community and not _has_new_community:
-                      # Weder altes noch neues Pattern
-                      if 'git push' in content:
-                          msg = ("Commit-Step hat weder checkout --theirs noch reset --hard Pattern "
-                                 "– Push-Konflikte auf Append-only-Dateien werden nicht behandelt")
-                          file_warnings.append(msg)
-                          warnings.append({"file": fname, "check": "Fehlende Konfliktstrategie", "detail": msg})
-                  # FIX CHK23-CRASH1: Regression-Check – Post Issue Comment Step
-                  # muss if: always() haben und community_result.txt Existenz prüfen,
-                  # damit User bei Python-Crash trotzdem Feedback im Issue bekommt.
-                  if 'Post Issue Comment' in content:
-                      # Suche den Step-Block
-                      _pic_m = re.search(r'-\s+name:\s+Post Issue Comment.*?(?=\n\s+-\s+name:|\Z)', content, re.DOTALL)
-                      if _pic_m:
-                          _pic_block = _pic_m.group(0)
-                          if 'if: always()' not in _pic_block:
-                              msg = ("Post Issue Comment Step hat kein 'if: always()' – "
-                                     "User bekommt bei Python-Crash kein Feedback (Regression FIX-CRASH1)")
-                              file_errors.append(msg)
-                              errors.append({"file": fname, "check": "Comment-Step nicht always()", "detail": msg})
-                          if 'INTERNAL_ERROR' not in _pic_block:
-                              msg = ("Post Issue Comment Step hat keinen INTERNAL_ERROR-Branch – "
-                                     "fehlende community_result.txt erzeugt unkontrollierten Crash (Regression FIX-CRASH1)")
-                              file_errors.append(msg)
-                              errors.append({"file": fname, "check": "INTERNAL_ERROR Branch fehlt", "detail": msg})
 
               if fname == "honigtopf.yml":
                   if 'data.get("from_id") or data.get("next_from_id")' in content:
@@ -1771,7 +1724,6 @@ jobs:
               "update_combined_blacklist.yml":  "v2",
               "false_positive_checker.yml":     "fp",
               "auto_feed_discovery.yml":        "afd",
-              "community_ip_report.yml":        "community",
           }
           for _fname, _expected_prefix in _cache_write_rules.items():
               _fpath = f"{WORKFLOWS_DIR}/{_fname}"

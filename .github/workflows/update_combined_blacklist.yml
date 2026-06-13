@@ -109,7 +109,6 @@ jobs:
           key: netshield-seen-db-v2-${{ github.run_id }}
           restore-keys: |
             netshield-seen-db-v2-
-            netshield-seen-db-community-
             netshield-seen-db-v1-
             netshield-seen-db-
 
@@ -1299,11 +1298,6 @@ jobs:
               "honeypot_ips.txt":                True,
               "honigtopf_ips.txt":                 True,   # Honigtopf Community Honeypot Network (API)
               "reputation_blacklist.txt":        True,   # Reputation API (Round-Robin, HQ)
-              # FIX CACHE-LOSS: Community-gemeldete IPs werden von community_ip_report.yml
-              # in diese Datei geschrieben und hier als LOCAL_FEED eingelesen.
-              # HQ=False: Einzelne Community-Meldungen sind keine vertrauenswürdige Quelle;
-              # HQ-Promotion erfolgt erst bei community_count >= 3 (in community_ip_report.yml).
-              "community_reported_ips.txt":      False,
               # TweetFeed (tweetfeed.live): IOCs aus Twitter/X-Security-Community.
               # HQ=False: Quelle empfiehlt explizit keine direkte Blacklist-Nutzung
               # ("Confidence not always 100%, NOT for blocklist, use as Watchlist").
@@ -1727,7 +1721,7 @@ jobs:
                   # Validierung anwendet (FP-Rate <5%, HQ-Overlap >=20% oder >=50,
                   # Format-Qualitaet >=30%, Repo-Aktualitaet <=30 Tage, Groesse
                   # 100-500k IPs).
-                  if not (len(feeds) >= 2 or data.get("hq") or "community_report" in feeds
+                  if not (len(feeds) >= 2 or data.get("hq")
                           or "auto_feed_discovery" in feeds):
                       aufnahme_removed += 1
                       _to_drop.append(ip)
@@ -1770,38 +1764,6 @@ jobs:
           print(f"Abgelaufen (>{EXPIRY_DAYS} Tage / Watchlist >{WATCHLIST_EXPIRY_DAYS} Tage): {len(expired)} IPs entfernt")
           if wl_cleanup_count:
               print(f"Whitelist-Bereinigung seen_db: {wl_cleanup_count} IPs entfernt")
-
-          # ── community_reported_ips.txt Stale-Bereinigung ─────────────────
-          # FIX STALE-COMMUNITY2: community_ip_report.yml nutzt append-only
-          # (Race-Condition-Fix). Stale IPs werden hier bereinigt, nachdem
-          # seen_db-Expiry gelaufen ist. Nur IPs behalten die noch in seen_db
-          # sind – abgelaufene (30-Tage-Watchlist / 180-Tage-Ablauf) entfernen.
-          _COMMUNITY_FILE = "community_reported_ips.txt"
-          if os.path.exists(_COMMUNITY_FILE):
-              with open(_COMMUNITY_FILE, encoding="utf-8") as _cf:
-                  _community_all = {
-                      l.strip() for l in _cf
-                      if l.strip() and not l.startswith("#")
-                  }
-              _community_active = _community_all & set(db.keys())
-              _community_stale = _community_all - _community_active
-              if _community_stale:
-                  _community_sorted = sorted(
-                      _community_active,
-                      key=lambda x: (tuple(int(o) for o in x.split('/')[0].split('.')), x),
-                  )
-                  # FIX ATOMIC: write_text_atomic statt open("w") – bei
-                  # Runner-Kill bleibt die Datei komplett alt oder komplett neu.
-                  _body = (
-                      "# NETSHIELD Community Reported IPs\n"
-                      f"# Aktualisiert: {now_stamp}\n"
-                      "# Quelle: GitHub Issues (community-report Label)\n\n"
-                  )
-                  if _community_sorted:
-                      _body += "\n".join(_community_sorted) + "\n"
-                  write_text_atomic(_COMMUNITY_FILE, _body)
-                  print(f"community_reported_ips.txt: {len(_community_stale)} veraltete IPs entfernt, "
-                        f"{len(_community_active)} aktive behalten")
 
           # ── seen_db speichern ──────────────────────────────────────────────
           # FIX PERF-LAZYSORT: Sammelsortierung VOR dem JSON-Dump. In der
@@ -2277,7 +2239,7 @@ jobs:
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
           git rm -q --ignore-unmatch combined_threat_blacklist_report.md 2>/dev/null || true
 
-          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt reports/combined_threat_blacklist_report.md state/seen_db_meta.json reputation_blacklist.txt community_reported_ips.txt state/seen_db_backup.json.gz 2>/dev/null || true
+          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt reports/combined_threat_blacklist_report.md state/seen_db_meta.json reputation_blacklist.txt state/seen_db_backup.json.gz 2>/dev/null || true
           # relocated_feeds.md nur vorhanden, wenn der Move-Resolver diesen Lauf
           # etwas umgeleitet hat – dann mitcommitten (sonst No-Op).
           git add relocated_feeds.md 2>/dev/null || true
@@ -2338,14 +2300,14 @@ jobs:
                 git checkout --theirs combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   reports/combined_threat_blacklist_report.md \
                   state/seen_db_meta.json reputation_blacklist.txt \
-                  community_reported_ips.txt state/seen_db_backup.json.gz 2>/dev/null || true
+                  state/seen_db_backup.json.gz 2>/dev/null || true
                 # Parts ggf. auch per theirs mergen
                 for _p in combined_threat_blacklist_ipv4_part*.txt; do
                   [ -f "$_p" ] && git checkout --theirs "$_p" 2>/dev/null || true
                 done
                 git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   reports/combined_threat_blacklist_report.md state/seen_db_meta.json \
-                  reputation_blacklist.txt community_reported_ips.txt state/seen_db_backup.json.gz 2>/dev/null || true
+                  reputation_blacklist.txt state/seen_db_backup.json.gz 2>/dev/null || true
                 git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
                 git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
