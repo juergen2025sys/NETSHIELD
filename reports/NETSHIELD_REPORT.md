@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-06-14 19:16 UTC
+**Aktualisiert:** 2026-06-14 20:46 UTC
 
 ---
 ## 📊 Listen-Übersicht
@@ -12,8 +12,8 @@
 | ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **70,873** | 2026-06-14 19:12 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **34,159** | 2026-06-14 08:09 UTC |
 | ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,949** | 2026-06-13 23:47 UTC |
-| ✅ `honeypot_ips.txt` | Honeypot IPs | **109,491** | 2026-06-14 14:36 UTC |
-| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **18,484** | 2026-06-14 18:51 UTC |
+| ✅ `honeypot_ips.txt` | Honeypot IPs | **119,232** | 2026-06-14 20:03 UTC |
+| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **18,701** | 2026-06-14 19:58 UTC |
 
 ---
 ## 🔍 Feed Health: ✅ 114 OK | ⚠️ 0 leer | ❌ 1 Fehler
@@ -28,4 +28,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-06-14 19:16 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-06-14 20:46 UTC*
