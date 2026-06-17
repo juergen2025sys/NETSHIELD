@@ -1,9 +1,9 @@
 # Combined Threat Blacklist Report
 
-- Aktualisiert: **2026-06-17 19:31 UTC**
+- Aktualisiert: **2026-06-17 19:53 UTC**
 - Feeds gesamt: **121** (davon 6 lokale Sub-Workflow-Feeds)
-- Stufe 1 (combined): **6418170** IPs
-- Stufe 2 (active, 30T + Conf≥65): **418838** IPs | herausgefiltert: 4189454 zu alt, 950020 Score<65
+- Stufe 1 (combined): **6418185** IPs
+- Stufe 2 (active, 30T + Conf≥65): **418852** IPs | herausgefiltert: 4189454 zu alt, 950019 Score<65
 - Abgelaufen & entfernt: **0**
 
 ## Feed-Statistik
@@ -20,7 +20,7 @@
 | `ufukart_blacklist` | 206288 |
 | `sefinek_malicious` | 198021 |
 | `kamalmjt_emerging_attackers_badips` | 160474 |
-| `threathive_blocklist` | 151078 |
+| `threathive_blocklist` | 151081 |
 | `ultimate_hosts_ips0` | 148431 |
 | `amitambekar_threats` | 139975 |
 | `abuseipdb_s100_30d` ⭐ | 139171 |
@@ -33,23 +33,22 @@
 | `ziyadnz_threat_intel_ip_feeds_blacklist` | 110034 |
 | `data_shield_full` | 105322 |
 | `maximewewer_heimdallblocklists` | 105322 |
-| `cbuijs_accomplist` | 104213 |
 | `blocklist_net_ua` ⭐ | 100867 |
-| `bsdly_bruteforcers` | 99986 |
+| `bsdly_bruteforcers` | 99987 |
 | `turbolabit_zzfirewall` | 99796 |
 | `firehol_level4` | 94332 |
 | `abuseipdb_s100_7d` ⭐ | 92143 |
-| `abuseipdb_axllent` | 91087 |
+| `abuseipdb_axllent` | 91228 |
 | `netmountains_blocklist` | 81014 |
 | `4ip_high_security` | 75473 |
 | `cbuijs_accomplist_adblock_ip_v2` | 66440 |
-| `idleadmin_threatfeed` | 59821 |
+| `idleadmin_threatfeed` | 61354 |
 | `dataplane_proto41` ⭐ | 59027 |
-| `rtbh_output` | 58697 |
+| `rtbh_output` | 58757 |
 | `cbuijs_badip` | 48286 |
 | `shadowwhisperer_scanners` | 45652 |
 | `romainmarcoux_outgoing_ab` | 44124 |
-| `freakuency_threatfeed` | 43695 |
+| `freakuency_threatfeed` | 43696 |
 | `fadouse_malware` ⭐ | 42901 |
 | `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | 42555 |
 | `romain_marcoux` | 40000 |
@@ -57,8 +56,8 @@
 | `cve_exploit_ips.txt` | 33964 |
 | `blacksnowdot_packets` | 30870 |
 | `dataplane_telnetlogin` ⭐ | 30089 |
-| `blocklist_de_export` ⭐ | 27064 |
-| `blocklist_de_all` ⭐ | 27037 |
+| `blocklist_de_all` ⭐ | 27034 |
+| `blocklist_de_export` ⭐ | 27034 |
 | `threatfox_ioc` ⭐ | 24693 |
 | `shadowwhisperer_threats` | 22397 |
 | `dataplane_sshclient` ⭐ | 21828 |
@@ -73,7 +72,6 @@
 | `kraloveckey_ipsets_blocklist_maltrail_scanners` | 16854 |
 | `cinsscore` ⭐ | 15000 |
 | `cinsarmy` ⭐ | 15000 |
-| `firehol_level3` ⭐ | 14072 |
 | `kraloveckey_ipsets_blocklist_iblocklist_ciarmy_malicious` | 13803 |
 | `dataplane_sshpwauth` ⭐ | 12427 |
 | `tweetfeed_ips.txt` | 11914 |
@@ -83,6 +81,7 @@
 | `dataplane_smtpgreet` | 10055 |
 | `reputation_blacklist.txt` | 9970 |
 | `subnet_blocklist_new` | 9458 |
+| `firehol_level3` ⭐ | 9118 |
 | `bsdly_pop3` | 9114 |
 | `abuseipdb_score100` ⭐ | 9031 |
 | `maximewewer_heimdallblocklists_romainmarcoux_alienvault_ssh_bruteforce` | 8927 |
@@ -99,13 +98,13 @@
 | `fadouse_clash_threat_intel_c2` | 6498 |
 | `fadouse_botnet` ⭐ | 6248 |
 | `fadouse_clash_threat_intel` | 6248 |
-| `blocklist_de_ssh` ⭐ | 6091 |
 | `dataplane_dnsversion` ⭐ | 6086 |
+| `blocklist_de_ssh` ⭐ | 6081 |
 | `binary_defense` ⭐ | 5697 |
 | `kraloveckey_ipsets_blocklist_blocklist_de_ssh` | 5048 |
-| `greedybear_recent` ⭐ | 5000 |
 | `neblink_known_scanners` | 5000 |
-| `greensnow` ⭐ | 4898 |
+| `greedybear_recent` ⭐ | 5000 |
+| `greensnow` ⭐ | 4909 |
 | `cyna_malicious` | 4781 |
 | `dataplane_sipquery` ⭐ | 4739 |
 | `firehol_level1` ⭐ | 4547 |
@@ -116,8 +115,8 @@
 | `f3csystems` | 2187 |
 | `fadouse_rat` ⭐ | 2129 |
 | `et_block` ⭐ | 1726 |
-| `rutgers_drop` | 1713 |
-| `threatfox_direct` ⭐ | 1644 |
+| `rutgers_drop` | 1650 |
+| `threatfox_direct` ⭐ | 1645 |
 | `dataplane_vncrfb` ⭐ | 1543 |
 | `urlhaus_ips` ⭐ | 1514 |
 | `edanwong` | 1513 |
@@ -131,7 +130,7 @@
 | `kraloveckey_ipsets_blocklist_blocklist_de_bruteforce` | 959 |
 | `dataplane_dnstcp` ⭐ | 932 |
 | `bsdly_traplist` | 923 |
-| `interserver` | 770 |
+| `interserver` | 751 |
 | `dataplane_ntpmode6` ⭐ | 701 |
 | `dataplane_ntpmode7` ⭐ | 666 |
 | `kraloveckey_ipsets_blocklist_alienvault_reputation` | 609 |
