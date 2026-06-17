@@ -1,24 +1,24 @@
 # ASN Reputation Blocklist – NETSHIELD
-# Aktualisiert: 2026-06-16 07:35 UTC
+# Aktualisiert: 2026-06-17 07:21 UTC
 # Format: AS<Nummer> # Score | BL-Hits | Organisation | Land
 # Nur ASNs mit Score >= 50 (base_score + BL-Treffer + DROP/ET-Bonus)
 
-AS132203  # Score:116 | BL-Hits:28803 | Tencent Cloud | CN
-AS14061  # Score:110 | BL-Hits:325154 | DigitalOcean | US
-AS45102  # Score:105 | BL-Hits:48578 | Alibaba Cloud | CN
-AS12389  # Score:100 | BL-Hits:25444 | Rostelecom | RU
-AS51167  # Score:100 | BL-Hits:19040 | Contabo | DE
-AS20473  # Score:98 | BL-Hits:22242 | Vultr | US
-AS24940  # Score:96 | BL-Hits:29797 | Hetzner | DE
-AS63949  # Score:90 | BL-Hits:23920 | Linode (Akamai) | US
-AS16276  # Score:90 | BL-Hits:49921 | OVH | FR
+AS132203  # Score:119 | BL-Hits:28926 | Tencent Cloud | CN
+AS14061  # Score:110 | BL-Hits:326027 | DigitalOcean | US
+AS45102  # Score:105 | BL-Hits:48801 | Alibaba Cloud | CN
+AS12389  # Score:100 | BL-Hits:25508 | Rostelecom | RU
+AS51167  # Score:100 | BL-Hits:19081 | Contabo | DE
+AS20473  # Score:98 | BL-Hits:22284 | Vultr | US
+AS24940  # Score:96 | BL-Hits:29847 | Hetzner | DE
+AS16276  # Score:93 | BL-Hits:50024 | OVH | FR
+AS63949  # Score:90 | BL-Hits:24066 | Linode (Akamai) | US
 AS22612  # Score:90 | BL-Hits:2156 | Namecheap | US
-AS12876  # Score:85 | BL-Hits:11173 | Scaleway | FR
-AS16509  # Score:85 | BL-Hits:442532 | Amazon AWS | US
-AS31898  # Score:81 | BL-Hits:32257 | Oracle Cloud | US
-AS47583  # Score:75 | BL-Hits:4752 | Hostinger | LT
-AS8560  # Score:75 | BL-Hits:4322 | IONOS | DE
-AS26496  # Score:68 | BL-Hits:2481 | GoDaddy | US
+AS12876  # Score:85 | BL-Hits:11191 | Scaleway | FR
+AS16509  # Score:85 | BL-Hits:443580 | Amazon AWS | US
+AS31898  # Score:81 | BL-Hits:33220 | Oracle Cloud | US
+AS47583  # Score:75 | BL-Hits:4748 | Hostinger | LT
+AS8560  # Score:75 | BL-Hits:4343 | IONOS | DE
+AS26496  # Score:68 | BL-Hits:2483 | GoDaddy | US
 AS46606  # Score:65 | BL-Hits:1431 | Bluehost (Unified Layer) | US
-AS8075  # Score:61 | BL-Hits:51148 | Microsoft Azure | US
-AS36351  # Score:50 | BL-Hits:1579 | IBM Cloud | US
+AS8075  # Score:61 | BL-Hits:51411 | Microsoft Azure | US
+AS36351  # Score:50 | BL-Hits:1585 | IBM Cloud | US
