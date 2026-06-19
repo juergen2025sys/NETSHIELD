@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-19 11:41 UTC",
+  "updated": "2026-06-19 16:13 UTC",
   "total": 23,
   "ok": 22,
   "warn": 3,
@@ -29,7 +29,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 87.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 87.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
@@ -48,11 +48,11 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6452578,
-    "active_blacklist_ipv4.txt": 403075,
-    "blacklist_confidence40_ipv4.txt": 5301352,
+    "combined_threat_blacklist_ipv4.txt": 6455261,
+    "active_blacklist_ipv4.txt": 405812,
+    "blacklist_confidence40_ipv4.txt": 5303821,
     "cve_exploit_ips.txt": 33636,
-    "honeypot_ips.txt": 115321,
+    "honeypot_ips.txt": 115003,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
@@ -62,7 +62,7 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 87.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 87.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
