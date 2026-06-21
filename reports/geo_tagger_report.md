@@ -1,9 +1,9 @@
 # Geo-Tagger – Blacklist Enrichment Report
-**Aktualisiert:** 2026-06-14 10:39 UTC  
+**Aktualisiert:** 2026-06-21 10:55 UTC  
 **Methode:** ScaniteX Länderprefixe (kein API-Key, kein Rate-Limit)  
-**Blacklist-Einträge gesamt:** 6,315,881 (6,315,881 IPs + 0 CIDRs)  
-**Davon zugeordnet:** 5,041,420 (79.8%)  
-**Nicht zugeordnet:** 1,274,461
+**Blacklist-Einträge gesamt:** 6,486,126 (6,486,126 IPs + 0 CIDRs)  
+**Davon zugeordnet:** 5,180,497 (79.9%)  
+**Nicht zugeordnet:** 1,305,629
 
 ---
 
@@ -11,31 +11,31 @@
 
 | Land | CC | Risiko | Prefixe | Treffer |
 |---|---|---|---:|---:|
-| 🇺🇸 USA | `US` | low | 69,777 | **2,061,183** |
-| 🇨🇳 China | `CN` | high | 8,800 | **839,601** |
-| 🇧🇷 Brasilien | `BR` | medium | 12,921 | **287,423** |
-| 🇷🇺 Russland | `RU` | high | 11,394 | **279,811** |
-| 🇮🇳 Indien | `IN` | medium | 9,232 | **237,369** |
-| 🇭🇰 Hongkong | `HK` | medium | 3,360 | **198,277** |
-| 🇬🇧 Grossbritannien | `GB` | low | 9,295 | **175,339** |
-| 🇩🇪 Deutschland | `DE` | low | 11,010 | **153,002** |
-| 🇺🇦 Ukraine | `UA` | medium | 2,891 | **108,327** |
-| 🇸🇬 Singapur | `SG` | low | 1,886 | **101,326** |
-| 🇻🇳 Vietnam | `VN` | medium | 1,652 | **76,831** |
-| 🇫🇷 Frankreich | `FR` | low | 4,716 | **76,278** |
-| 🇳🇱 Niederlande | `NL` | low | 6,358 | **63,433** |
-| 🇮🇩 Indonesien | `ID` | medium | 6,105 | **62,758** |
-| 🇰🇷 Südkorea | `KR` | low | 2,427 | **57,783** |
-| 🇮🇷 Iran | `IR` | high | 1,930 | **47,750** |
-| 🇹🇷 Türkei | `TR` | medium | 2,005 | **42,926** |
-| 🇵🇰 Pakistan | `PK` | medium | 785 | **39,014** |
-| 🇯🇵 Japan | `JP` | low | 4,746 | **34,840** |
-| 🇧🇩 Bangladesch | `BD` | medium | 2,312 | **30,519** |
-| 🇷🇴 Rumänien | `RO` | medium | 2,836 | **24,714** |
-| 🇳🇬 Nigeria | `NG` | medium | 409 | **22,499** |
-| 🇰🇿 Kasachstan | `KZ` | medium | 664 | **10,896** |
-| 🇧🇾 Belarus | `BY` | high | 108 | **7,362** |
-| 🇸🇾 Syrien | `SY` | high | 213 | **2,156** |
+| 🇺🇸 USA | `US` | low | 69,806 | **2,108,489** |
+| 🇨🇳 China | `CN` | high | 8,800 | **880,750** |
+| 🇧🇷 Brasilien | `BR` | medium | 12,922 | **294,469** |
+| 🇷🇺 Russland | `RU` | high | 11,394 | **284,060** |
+| 🇮🇳 Indien | `IN` | medium | 9,238 | **248,928** |
+| 🇭🇰 Hongkong | `HK` | medium | 3,362 | **199,913** |
+| 🇬🇧 Grossbritannien | `GB` | low | 9,258 | **178,347** |
+| 🇩🇪 Deutschland | `DE` | low | 11,017 | **157,187** |
+| 🇺🇦 Ukraine | `UA` | medium | 2,890 | **110,007** |
+| 🇸🇬 Singapur | `SG` | low | 1,887 | **103,246** |
+| 🇻🇳 Vietnam | `VN` | medium | 1,652 | **78,235** |
+| 🇫🇷 Frankreich | `FR` | low | 4,720 | **78,060** |
+| 🇳🇱 Niederlande | `NL` | low | 6,362 | **64,621** |
+| 🇮🇩 Indonesien | `ID` | medium | 6,112 | **64,273** |
+| 🇰🇷 Südkorea | `KR` | low | 2,426 | **58,909** |
+| 🇮🇷 Iran | `IR` | high | 1,935 | **49,325** |
+| 🇹🇷 Türkei | `TR` | medium | 2,006 | **43,687** |
+| 🇵🇰 Pakistan | `PK` | medium | 785 | **40,821** |
+| 🇯🇵 Japan | `JP` | low | 4,747 | **35,895** |
+| 🇧🇩 Bangladesch | `BD` | medium | 2,311 | **31,273** |
+| 🇷🇴 Rumänien | `RO` | medium | 2,835 | **25,468** |
+| 🇳🇬 Nigeria | `NG` | medium | 409 | **23,647** |
+| 🇰🇿 Kasachstan | `KZ` | medium | 664 | **11,124** |
+| 🇧🇾 Belarus | `BY` | high | 107 | **7,530** |
+| 🇸🇾 Syrien | `SY` | high | 213 | **2,230** |
 | 🇰🇵 Nordkorea | `KP` | high | 1 | **3** |
 
 ---
@@ -64,7 +64,6 @@
 - `1.0.140.46`
 - `1.0.140.49`
 - `1.0.140.67`
-- `1.0.140.106`
 - `1.0.140.158`
 - `1.0.140.159`
 - `1.0.140.160`
@@ -92,8 +91,9 @@
 - `1.0.158.241`
 - `1.0.158.252`
 - `1.0.161.228`
-- … und 1,274,411 weitere
+- `1.0.163.71`
+- … und 1,305,579 weitere
 
 ---
 *Datenquelle: [ScaniteX IP Ranges](https://scanitex.com/en/resources/ip-ranges) (länderweise CIDR-Listen, kein API-Key)*  
-*Generiert: 2026-06-14 10:39 UTC*
+*Generiert: 2026-06-21 10:55 UTC*
