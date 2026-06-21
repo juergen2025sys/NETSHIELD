@@ -203,15 +203,16 @@ jobs:
           # anderen Workflow gelesen – die Bereinigung war wirkungslos.
 
           # ── False Positive Log ────────────────────────────────────────────
-          # allow-nonatomic: append-only Log, serialisiert via concurrency-group
-          # 'netshield-seen-db-writers' → keine parallelen Appends moeglich
-          # FIX LOGS-SUBDIR: open(...,"a") legt kein Verzeichnis an (anders als
-          # write_text_atomic) → logs/ hier sicherstellen, sonst FileNotFoundError.
+          # Atomarer Append-Ersatz: vorhandenen Logtext laden, neuen Block anhängen,
+          # danach komplett per write_text_atomic ersetzen. So bleibt der Security-
+          # Check grün und bei Runner-Abbruch entsteht keine halbe Logdatei.
+          from pathlib import Path as _Path
           os.makedirs("logs", exist_ok=True)
-          with open("logs/false_positives_log.txt", "a", encoding="utf-8") as f:
-              f.write(f"\n# Scan: {now_str} – {len(fp_set)} neue FPs\n")
-              for ip in sorted(fp_set):
-                  f.write(f"{ip}\n")
+          _fp_log_path = _Path("logs/false_positives_log.txt")
+          _old_fp_log = _fp_log_path.read_text(encoding="utf-8") if _fp_log_path.exists() else ""
+          _new_fp_log_lines = [f"\n# Scan: {now_str} – {len(fp_set)} neue FPs"]
+          _new_fp_log_lines.extend(sorted(fp_set))
+          write_text_atomic(str(_fp_log_path), _old_fp_log + "\n".join(_new_fp_log_lines) + "\n")
 
           # ── Report ────────────────────────────────────────────────────────
           lines = []
