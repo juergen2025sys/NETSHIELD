@@ -856,6 +856,7 @@ jobs:
           # erfolgte beim Schreiben → das gz selbst hat garantiert Inhalt).
           db = {}
           BACKUP_FILE = "state/seen_db_backup.json.gz"
+          BACKUP_PART_GLOB = "state/seen_db_backup.json.gz.part*"
           if os.path.exists(DB_FILE):
               try:
                   # FIX BUG-SEENDB-LIMIT: Pre-Size-Check vor json.load.
@@ -877,32 +878,48 @@ jobs:
               except Exception as _load_err:
                   print(f"WARN: seen_db.json korrupt ({_load_err}) – versuche Backup", file=sys.stderr)
                   db = {}
-          if not db and os.path.exists(BACKUP_FILE):
+          if not db:
               try:
-                  import gzip
-                  # FIX BUG-GZIP-BACKUP-LIMIT: Pre-Size + Streaming-Limit.
-                  # Vorher: gzip.open + json.load ohne irgendeine Groessen-
-                  # Pruefung. Wenn ein Angreifer mit Repo-Schreibrechten das
-                  # Backup durch eine zip-Bombe ersetzt (z.B. 100 MB
-                  # komprimiert -> 50 GB expandiert), erleidet der Workflow
-                  # OOM bevor der nachgelagerte _MIN_BACKUP_ENTRIES-Check
-                  # je greift. Realistisch: Repo-Write erforderlich, also
-                  # Insider-Threat-Vektor – Hardung lohnt trotzdem.
-                  # Layer 1: komprimierte Groesse hard-cap bei 200 MB
-                  #          (aktuelles Backup ist ~70 MB, 200 MB ist 3x
-                  #          headroom fuer normales Wachstum).
-                  # Layer 2: Streaming-Read mit 2 GB-Limit auf den
-                  #          dekomprimierten JSON-Text. Das echte JSON
-                  #          ist heute ~600 MB – 2 GB erlaubt 3x Wachstum.
-                  _BACKUP_COMPRESSED_LIMIT   = 200 * 1024 * 1024
+                  import gzip, glob, tempfile
+                  # FIX BUG-GZIP-BACKUP-SPLIT: Repo-Backup darf nicht als eine
+                  # Datei >=100 MB committet werden (GitHub Hard-Limit). Daher
+                  # Restore entweder aus Legacy-Datei oder aus sortierten Parts:
+                  # state/seen_db_backup.json.gz.part000, part001, ...
+                  _backup_parts = sorted(glob.glob(BACKUP_PART_GLOB))
+                  _backup_source = None
+                  _tmp_backup_path = None
+
+                  if _backup_parts:
+                      _tmp = tempfile.NamedTemporaryFile(prefix="seen_db_backup_", suffix=".json.gz", delete=False)
+                      _tmp_backup_path = _tmp.name
+                      try:
+                          for _part in _backup_parts:
+                              with open(_part, "rb") as _pf:
+                                  while True:
+                                      _chunk = _pf.read(1024 * 1024)
+                                      if not _chunk:
+                                          break
+                                      _tmp.write(_chunk)
+                      finally:
+                          _tmp.close()
+                      _backup_source = _tmp_backup_path
+                      print(f"seen_db Backup-Parts gefunden: {len(_backup_parts)} Parts")
+                  elif os.path.exists(BACKUP_FILE):
+                      _backup_source = BACKUP_FILE
+
+                  if not _backup_source:
+                      raise FileNotFoundError("kein seen_db Backup und keine Backup-Parts vorhanden")
+
+                  # Pre-Size + Streaming-Limit gegen korrupte Backups/zip bombs.
+                  _BACKUP_COMPRESSED_LIMIT   = 2 * 1024 * 1024 * 1024
                   _BACKUP_DECOMPRESSED_LIMIT = 2 * 1024 * 1024 * 1024
-                  _bsize = os.path.getsize(BACKUP_FILE)
+                  _bsize = os.path.getsize(_backup_source)
                   if _bsize > _BACKUP_COMPRESSED_LIMIT:
                       raise ValueError(
                           f"Backup zu gross: {_bsize / 1024 / 1024:.1f} MB "
                           f"> {_BACKUP_COMPRESSED_LIMIT / 1024 / 1024:.0f} MB "
                           f"(moegliche zip-Bombe oder Repo-Korruption)")
-                  with gzip.open(BACKUP_FILE, "rt", encoding="utf-8") as _bf:
+                  with gzip.open(_backup_source, "rt", encoding="utf-8") as _bf:
                       _raw = _bf.read(_BACKUP_DECOMPRESSED_LIMIT + 1)
                       if len(_raw) > _BACKUP_DECOMPRESSED_LIMIT:
                           raise ValueError(
@@ -910,11 +927,6 @@ jobs:
                               f"{_BACKUP_DECOMPRESSED_LIMIT / 1024 / 1024:.0f} MB "
                               f"nach Dekomprimierung (zip-Bombe), verworfen")
                       db = json.loads(_raw)
-                  # FIX BUG-BACKUP-GUARD: Backup ist nur dann nutzbar wenn es
-                  # eine plausible Anzahl Eintraege enthaelt. Ein winziges
-                  # Backup (durch frueheren BUG-BACKUP-GUARD-Schreibfehler oder
-                  # manuelle Manipulation) wird hier verworfen - besser von
-                  # Null beginnen als History mit kaputtem Stand zu zementieren.
                   _MIN_BACKUP_ENTRIES = 10000
                   if not isinstance(db, dict) or len(db) < _MIN_BACKUP_ENTRIES:
                       print(f"WARN: Backup hat nur {len(db) if isinstance(db, dict) else 0} "
@@ -923,12 +935,15 @@ jobs:
                       db = {}
                   else:
                       print(f"seen_db aus Backup wiederhergestellt: {len(db)} IPs (Cache war leer/korrupt)")
-                      # Backup-restored db sofort als seen_db.json schreiben, damit
-                      # downstream-Steps und Cache-Save ihn finden.
                       write_json_atomic(DB_FILE, db, separators=(",", ":"))
               except Exception as _restore_err:
                   print(f"WARN: Backup-Restore fehlgeschlagen ({_restore_err}) – starte neu", file=sys.stderr)
-                  db = {}
+              finally:
+                  try:
+                      if '_tmp_backup_path' in locals() and _tmp_backup_path and os.path.exists(_tmp_backup_path):
+                          os.remove(_tmp_backup_path)
+                  except Exception:
+                      pass
           elif not db:
               print("Keine seen_db gefunden, kein Backup vorhanden – starte neu.")
 
@@ -2179,11 +2194,16 @@ jobs:
           ")
             MIN_ENTRIES=100000
             if [ "$SIZE" -gt 1048576 ] && [ "$ENTRY_COUNT" -gt "$MIN_ENTRIES" ]; then
-              # FIX STATE-SUBDIR: gzip-Redirect (kein write_*_atomic) → state/
-              # muss existieren, sonst 'No such file or directory'.
+              # FIX BUG-GZIP-BACKUP-SPLIT: GitHub blockiert einzelne Dateien
+              # >=100 MB. Backup deshalb komprimieren und danach in Parts <95 MB
+              # splitten. Beim Restore werden die Parts wieder zusammengesetzt.
               mkdir -p state
-              gzip -c seen_db.json > state/seen_db_backup.json.gz
-              echo "seen_db Backup erstellt: $(du -h state/seen_db_backup.json.gz | cut -f1) ($ENTRY_COUNT IPs)"
+              rm -f state/seen_db_backup.json.gz state/seen_db_backup.json.gz.part*
+              gzip -c seen_db.json > state/seen_db_backup.json.gz.tmp
+              split -b 95M -d -a 3 state/seen_db_backup.json.gz.tmp state/seen_db_backup.json.gz.part
+              rm -f state/seen_db_backup.json.gz.tmp
+              PART_COUNT=$(ls state/seen_db_backup.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+              echo "seen_db Backup erstellt: ${PART_COUNT} Part(s), gesamt $(du -ch state/seen_db_backup.json.gz.part* | tail -1 | awk '{print $1}') ($ENTRY_COUNT IPs)"
             else
               echo "seen_db zu klein (Bytes=$SIZE, IPs=$ENTRY_COUNT, min=$MIN_ENTRIES) – kein Backup (möglicherweise korrupt)"
             fi
@@ -2239,7 +2259,8 @@ jobs:
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
           git rm -q --ignore-unmatch combined_threat_blacklist_report.md 2>/dev/null || true
 
-          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt reports/combined_threat_blacklist_report.md state/seen_db_meta.json reputation_blacklist.txt state/seen_db_backup.json.gz 2>/dev/null || true
+          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt reports/combined_threat_blacklist_report.md state/seen_db_meta.json reputation_blacklist.txt state/seen_db_backup.json.gz.part* 2>/dev/null || true
+          git add -u state/seen_db_backup.json.gz state/seen_db_backup.json.gz.part* 2>/dev/null || true
           # relocated_feeds.md nur vorhanden, wenn der Move-Resolver diesen Lauf
           # etwas umgeleitet hat – dann mitcommitten (sonst No-Op).
           git add relocated_feeds.md 2>/dev/null || true
@@ -2300,14 +2321,15 @@ jobs:
                 git checkout --theirs combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   reports/combined_threat_blacklist_report.md \
                   state/seen_db_meta.json reputation_blacklist.txt \
-                  state/seen_db_backup.json.gz 2>/dev/null || true
+                  state/seen_db_backup.json.gz state/seen_db_backup.json.gz.part* 2>/dev/null || true
                 # Parts ggf. auch per theirs mergen
                 for _p in combined_threat_blacklist_ipv4_part*.txt; do
                   [ -f "$_p" ] && git checkout --theirs "$_p" 2>/dev/null || true
                 done
                 git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
                   reports/combined_threat_blacklist_report.md state/seen_db_meta.json \
-                  reputation_blacklist.txt state/seen_db_backup.json.gz 2>/dev/null || true
+                  reputation_blacklist.txt state/seen_db_backup.json.gz.part* 2>/dev/null || true
+                git add -u state/seen_db_backup.json.gz state/seen_db_backup.json.gz.part* 2>/dev/null || true
                 git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
                 git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
