@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-06-22 17:47 UTC
+**Aktualisiert:** 2026-06-22 19:14 UTC
 
-**Workflows:** 24 | ✅ 23 OK | ⚠️ 1 Warnung | ❌ 3 Fehler
+**Workflows:** 24 | ✅ 23 OK | ⚠️ 2 Warnung | ❌ 2 Fehler
 
 ---
 ## ❌ Fehler (kritisch)
@@ -10,7 +10,6 @@
 |---|---|---|
 | `auto_feed_discovery.yml + auto_feed_discovery_fixed.yml` | Doppelter Workflow-Name | name: "Auto Feed Discovery" – concurrency-group schlägt fehl, Runs blockieren sich |
 | `update_combined_blacklist.yml` | IP-Listen Duplikate | combined_threat_blacklist_ipv4.txt: 6,523,914 doppelte IPs (50.0% von 13,047,828) – Scoring-Verzerrung und aufgeblähte Datei |
-| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 2,792 IPs in active fehlen in conf40 (0.681% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 
 ## ⚠️ Warnungen
 
@@ -32,11 +31,10 @@
 
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 5 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 5 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 2,792 IPs in active fehlen in conf40 (0.681% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 | 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 88.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 92.7 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
@@ -73,4 +71,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-06-22 17:47 UTC | 24 Workflow-Dateien geprüft*
+*Generiert: 2026-06-22 19:14 UTC | 24 Workflow-Dateien geprüft*

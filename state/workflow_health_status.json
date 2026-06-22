@@ -1,22 +1,37 @@
 {
-  "updated": "2026-06-21 10:45 UTC",
-  "total": 23,
-  "ok": 22,
-  "warn": 1,
+  "updated": "2026-06-22 19:14 UTC",
+  "total": 24,
+  "ok": 23,
+  "warn": 2,
   "error": 2,
   "errors": [
     {
-      "file": "update_combined_blacklist.yml",
-      "check": "IP-Listen Duplikate",
-      "detail": "combined_threat_blacklist_ipv4.txt: 6,486,126 doppelte IPs (50.0% von 12,972,252) \u2013 Scoring-Verzerrung und aufgebl\u00e4hte Datei"
+      "file": "auto_feed_discovery.yml + auto_feed_discovery_fixed.yml",
+      "check": "Doppelter Workflow-Name",
+      "detail": "name: \"Auto Feed Discovery\" \u2013 concurrency-group schl\u00e4gt fehl, Runs blockieren sich"
     },
     {
-      "file": "Production Health",
-      "check": "Truncate-Erstaktivierung",
-      "detail": "combined_threat_blacklist_ipv4.txt: Splitting ERSTMALS aktiviert (2 neue Parts: combined_threat_blacklist_ipv4_part1.txt, combined_threat_blacklist_ipv4_part2.txt). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten."
+      "file": "update_combined_blacklist.yml",
+      "check": "IP-Listen Duplikate",
+      "detail": "combined_threat_blacklist_ipv4.txt: 6,523,914 doppelte IPs (50.0% von 13,047,828) \u2013 Scoring-Verzerrung und aufgebl\u00e4hte Datei"
     }
   ],
   "warnings": [
+    {
+      "file": "auto_feed_discovery.yml + auto_feed_discovery_fixed.yml",
+      "check": "Cron-Kollision",
+      "detail": "'37 4 * * 0' \u2013 beide Workflows laufen gleichzeitig"
+    },
+    {
+      "file": "auto_feed_discovery.yml + auto_feed_discovery_fixed.yml",
+      "check": "Cron-Kollision",
+      "detail": "'23 7 * * 0' \u2013 beide Workflows laufen gleichzeitig"
+    },
+    {
+      "file": "auto_feed_discovery.yml + auto_feed_discovery_fixed.yml",
+      "check": "Cron-Kollision",
+      "detail": "'47 11 * * 0' \u2013 beide Workflows laufen gleichzeitig"
+    },
     {
       "file": "honeypot_monitor.yml \u2192 update_combined_blacklist.yml",
       "check": "Workflow-Reihenfolge / Puffer zu knapp",
@@ -26,6 +41,11 @@
       "file": "update_combined_blacklist.yml",
       "check": "MIN_ABUSEIPDB fehlt",
       "detail": "MIN_ABUSEIPDB nicht gefunden \u2013 Leerungsschutz-Regressionscheck unvollst\u00e4ndig"
+    },
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "Doppelter Import",
+      "detail": "Block 1: Doppelte Imports: glob(2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
     },
     {
       "file": "update_combined_blacklist.yml",
@@ -40,17 +60,22 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 88.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 88.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "state/seen_db_backup.json.gz: 92.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "state/seen_db_backup.json.gz.part000: 92.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "geo_enriched/blacklist_geo_enriched.json: 94.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "geo_enriched/blacklist_geo_enriched.json: 94.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+    },
+    {
+      "file": "Production Health",
+      "check": "Truncate aktiv",
+      "detail": "combined_threat_blacklist_ipv4.txt: Splitting weiterhin aktiv (2 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar."
     },
     {
       "file": "Production Health",
@@ -59,36 +84,36 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6486126,
-    "active_blacklist_ipv4.txt": 390113,
-    "blacklist_confidence40_ipv4.txt": 5343675,
-    "cve_exploit_ips.txt": 33402,
-    "honeypot_ips.txt": 113184,
+    "combined_threat_blacklist_ipv4.txt": 6523914,
+    "active_blacklist_ipv4.txt": 410173,
+    "blacklist_confidence40_ipv4.txt": 5378154,
+    "cve_exploit_ips.txt": 33364,
+    "honeypot_ips.txt": 113231,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
-    "critical": 1,
-    "warn": 4,
+    "critical": 0,
+    "warn": 5,
     "checks": [
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 88.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 88.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "state/seen_db_backup.json.gz: 92.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "state/seen_db_backup.json.gz.part000: 92.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "geo_enriched/blacklist_geo_enriched.json: 94.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "geo_enriched/blacklist_geo_enriched.json: 94.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
-        "level": "CRITICAL",
-        "check": "Truncate-Erstaktivierung",
-        "detail": "combined_threat_blacklist_ipv4.txt: Splitting ERSTMALS aktiviert (2 neue Parts: combined_threat_blacklist_ipv4_part1.txt, combined_threat_blacklist_ipv4_part2.txt). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten."
+        "level": "WARN",
+        "check": "Truncate aktiv",
+        "detail": "combined_threat_blacklist_ipv4.txt: Splitting weiterhin aktiv (2 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar."
       },
       {
         "level": "WARN",
