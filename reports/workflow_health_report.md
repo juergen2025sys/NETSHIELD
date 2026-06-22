@@ -1,23 +1,19 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-06-22 19:14 UTC
+**Aktualisiert:** 2026-06-22 21:35 UTC
 
-**Workflows:** 24 | ✅ 23 OK | ⚠️ 2 Warnung | ❌ 2 Fehler
+**Workflows:** 23 | ✅ 22 OK | ⚠️ 2 Warnung | ❌ 1 Fehler
 
 ---
 ## ❌ Fehler (kritisch)
 
 | Datei | Check | Detail |
 |---|---|---|
-| `auto_feed_discovery.yml + auto_feed_discovery_fixed.yml` | Doppelter Workflow-Name | name: "Auto Feed Discovery" – concurrency-group schlägt fehl, Runs blockieren sich |
-| `update_combined_blacklist.yml` | IP-Listen Duplikate | combined_threat_blacklist_ipv4.txt: 6,523,914 doppelte IPs (50.0% von 13,047,828) – Scoring-Verzerrung und aufgeblähte Datei |
+| `update_combined_blacklist.yml` | IP-Listen Duplikate | combined_threat_blacklist_ipv4.txt: 6,524,738 doppelte IPs (50.0% von 13,049,476) – Scoring-Verzerrung und aufgeblähte Datei |
 
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
-| `auto_feed_discovery.yml + auto_feed_discovery_fixed.yml` | Cron-Kollision | '37 4 * * 0' – beide Workflows laufen gleichzeitig |
-| `auto_feed_discovery.yml + auto_feed_discovery_fixed.yml` | Cron-Kollision | '23 7 * * 0' – beide Workflows laufen gleichzeitig |
-| `auto_feed_discovery.yml + auto_feed_discovery_fixed.yml` | Cron-Kollision | '47 11 * * 0' – beide Workflows laufen gleichzeitig |
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Workflow-Reihenfolge / Puffer zu knapp | 00:30 UTC → 00:47 UTC (17min < 60min); 06:30 UTC → 06:47 UTC (17min < 60min); 12:30 UTC → 12:47 UTC (17min < 60min); 18:30 UTC → 18:47 UTC (17min < 60min) |
 | `update_combined_blacklist.yml` | MIN_ABUSEIPDB fehlt | MIN_ABUSEIPDB nicht gefunden – Leerungsschutz-Regressionscheck unvollständig |
 | `update_combined_blacklist.yml` | Doppelter Import | Block 1: Doppelte Imports: glob(2x) – moeglicherweise Copy-Paste-Artefakt |
@@ -47,7 +43,6 @@
 |---|---|---|---|---|
 | `asn_reputation_scorer.yml` | ✅ OK | 0 | 0 | `0 2 * * *` |
 | `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `37 4 * * 0`, `23 7 * * 0`, `47 11 * * 0` |
-| `auto_feed_discovery_fixed.yml` | ✅ OK | 0 | 0 | `37 4 * * 0`, `23 7 * * 0`, `47 11 * * 0` |
 | `codeql.yml` | ✅ OK | 0 | 0 | `0 3 * * 0` |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
 | `dependabot-auto-merge.yml` | ✅ OK | 0 | 0 | – |
@@ -71,4 +66,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-06-22 19:14 UTC | 24 Workflow-Dateien geprüft*
+*Generiert: 2026-06-22 21:35 UTC | 23 Workflow-Dateien geprüft*

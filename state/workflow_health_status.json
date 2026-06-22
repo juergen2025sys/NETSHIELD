@@ -1,37 +1,17 @@
 {
-  "updated": "2026-06-22 19:14 UTC",
-  "total": 24,
-  "ok": 23,
+  "updated": "2026-06-22 21:35 UTC",
+  "total": 23,
+  "ok": 22,
   "warn": 2,
-  "error": 2,
+  "error": 1,
   "errors": [
-    {
-      "file": "auto_feed_discovery.yml + auto_feed_discovery_fixed.yml",
-      "check": "Doppelter Workflow-Name",
-      "detail": "name: \"Auto Feed Discovery\" \u2013 concurrency-group schl\u00e4gt fehl, Runs blockieren sich"
-    },
     {
       "file": "update_combined_blacklist.yml",
       "check": "IP-Listen Duplikate",
-      "detail": "combined_threat_blacklist_ipv4.txt: 6,523,914 doppelte IPs (50.0% von 13,047,828) \u2013 Scoring-Verzerrung und aufgebl\u00e4hte Datei"
+      "detail": "combined_threat_blacklist_ipv4.txt: 6,524,738 doppelte IPs (50.0% von 13,049,476) \u2013 Scoring-Verzerrung und aufgebl\u00e4hte Datei"
     }
   ],
   "warnings": [
-    {
-      "file": "auto_feed_discovery.yml + auto_feed_discovery_fixed.yml",
-      "check": "Cron-Kollision",
-      "detail": "'37 4 * * 0' \u2013 beide Workflows laufen gleichzeitig"
-    },
-    {
-      "file": "auto_feed_discovery.yml + auto_feed_discovery_fixed.yml",
-      "check": "Cron-Kollision",
-      "detail": "'23 7 * * 0' \u2013 beide Workflows laufen gleichzeitig"
-    },
-    {
-      "file": "auto_feed_discovery.yml + auto_feed_discovery_fixed.yml",
-      "check": "Cron-Kollision",
-      "detail": "'47 11 * * 0' \u2013 beide Workflows laufen gleichzeitig"
-    },
     {
       "file": "honeypot_monitor.yml \u2192 update_combined_blacklist.yml",
       "check": "Workflow-Reihenfolge / Puffer zu knapp",
@@ -84,11 +64,11 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6523914,
-    "active_blacklist_ipv4.txt": 410173,
-    "blacklist_confidence40_ipv4.txt": 5378154,
+    "combined_threat_blacklist_ipv4.txt": 6524738,
+    "active_blacklist_ipv4.txt": 411056,
+    "blacklist_confidence40_ipv4.txt": 5378950,
     "cve_exploit_ips.txt": 33364,
-    "honeypot_ips.txt": 113231,
+    "honeypot_ips.txt": 113202,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
