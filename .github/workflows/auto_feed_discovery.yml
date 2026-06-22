@@ -922,10 +922,70 @@ jobs:
           # dem Lauf eine fast-leere seen_db zurück in den Cache schreiben.
           # Combined würde dann beim nächsten Lauf diesen gekürzten Cache
           # laden → komplette History (days_seen, first, hq_feed_names) verloren.
-          # Backup-Restore aus state/seen_db_backup.json.gz (Repo-File) verhindert das.
+          # Backup-Restore aus state/seen_db_backup.json.gz oder gesplitteten
+          # state/seen_db_backup.json.gz.partNNN Repo-Dateien verhindert das.
           DB_FILE = "seen_db.json"
           BACKUP_FILE = "state/seen_db_backup.json.gz"
+          BACKUP_PART_GLOB = "state/seen_db_backup.json.gz.part*"
           db = {}
+
+          def _restore_seen_db_backup():
+              import gzip
+              import glob
+              import io
+
+              _BACKUP_COMPRESSED_LIMIT   = 512 * 1024 * 1024
+              _BACKUP_DECOMPRESSED_LIMIT = 2 * 1024 * 1024 * 1024
+              _MIN_BACKUP_ENTRIES = 10000
+
+              _parts = sorted(glob.glob(BACKUP_PART_GLOB))
+              _source = None
+
+              if _parts:
+                  _total = sum(os.path.getsize(_p) for _p in _parts)
+                  if _total > _BACKUP_COMPRESSED_LIMIT:
+                      raise ValueError(
+                          f"Backup-Parts zu gross: {_total / 1024 / 1024:.1f} MB "
+                          f"> {_BACKUP_COMPRESSED_LIMIT / 1024 / 1024:.0f} MB "
+                          f"(moegliche zip-Bombe oder Repo-Korruption)")
+                  _buf = bytearray()
+                  for _p in _parts:
+                      with open(_p, "rb") as _pf:
+                          _buf.extend(_pf.read())
+                  _source = f"{len(_parts)} Backup-Part(s)"
+                  _gz_fileobj = io.BytesIO(bytes(_buf))
+                  _opener = lambda: gzip.open(_gz_fileobj, "rt", encoding="utf-8")
+              elif os.path.exists(BACKUP_FILE):
+                  _bsize = os.path.getsize(BACKUP_FILE)
+                  if _bsize > _BACKUP_COMPRESSED_LIMIT:
+                      raise ValueError(
+                          f"Backup zu gross: {_bsize / 1024 / 1024:.1f} MB "
+                          f"> {_BACKUP_COMPRESSED_LIMIT / 1024 / 1024:.0f} MB "
+                          f"(moegliche zip-Bombe oder Repo-Korruption)")
+                  _source = BACKUP_FILE
+                  _opener = lambda: gzip.open(BACKUP_FILE, "rt", encoding="utf-8")
+              else:
+                  return {}
+
+              with _opener() as _bf:
+                  _raw = _bf.read(_BACKUP_DECOMPRESSED_LIMIT + 1)
+                  if len(_raw) > _BACKUP_DECOMPRESSED_LIMIT:
+                      raise ValueError(
+                          f"Backup-Stream > "
+                          f"{_BACKUP_DECOMPRESSED_LIMIT / 1024 / 1024:.0f} MB "
+                          f"nach Dekomprimierung (zip-Bombe), verworfen")
+                  _restored = json.loads(_raw)
+
+              if not isinstance(_restored, dict) or len(_restored) < _MIN_BACKUP_ENTRIES:
+                  print(f"WARN: Backup hat nur {len(_restored) if isinstance(_restored, dict) else 0} "
+                        f"Eintraege (<{_MIN_BACKUP_ENTRIES}) - wird verworfen, starte neu.",
+                        file=sys.stderr)
+                  return {}
+
+              print(f"seen_db aus Backup wiederhergestellt: {len(_restored)} IPs "
+                    f"(Quelle: {_source}; Cache war leer/korrupt)")
+              return _restored
+
           if os.path.exists(DB_FILE):
               try:
                   with open(DB_FILE) as f:
@@ -934,39 +994,17 @@ jobs:
               except Exception as _load_err:
                   print(f"WARN: seen_db.json korrupt ({_load_err}) – versuche Backup", file=sys.stderr)
                   db = {}
-          if not db and os.path.exists(BACKUP_FILE):
+
+          if not db:
               try:
-                  import gzip
-                  _BACKUP_COMPRESSED_LIMIT   = 200 * 1024 * 1024
-                  _BACKUP_DECOMPRESSED_LIMIT = 2 * 1024 * 1024 * 1024
-                  _bsize = os.path.getsize(BACKUP_FILE)
-                  if _bsize > _BACKUP_COMPRESSED_LIMIT:
-                      raise ValueError(
-                          f"Backup zu gross: {_bsize / 1024 / 1024:.1f} MB "
-                          f"> {_BACKUP_COMPRESSED_LIMIT / 1024 / 1024:.0f} MB "
-                          f"(moegliche zip-Bombe oder Repo-Korruption)")
-                  with gzip.open(BACKUP_FILE, "rt", encoding="utf-8") as _bf:
-                      _raw = _bf.read(_BACKUP_DECOMPRESSED_LIMIT + 1)
-                      if len(_raw) > _BACKUP_DECOMPRESSED_LIMIT:
-                          raise ValueError(
-                              f"Backup-Stream > "
-                              f"{_BACKUP_DECOMPRESSED_LIMIT / 1024 / 1024:.0f} MB "
-                              f"nach Dekomprimierung (zip-Bombe), verworfen")
-                      db = json.loads(_raw)
-                  _MIN_BACKUP_ENTRIES = 10000
-                  if not isinstance(db, dict) or len(db) < _MIN_BACKUP_ENTRIES:
-                      print(f"WARN: Backup hat nur {len(db) if isinstance(db, dict) else 0} "
-                            f"Eintraege (<{_MIN_BACKUP_ENTRIES}) - wird verworfen, starte neu.",
-                            file=sys.stderr)
-                      db = {}
-                  else:
-                      print(f"seen_db aus Backup wiederhergestellt: {len(db)} IPs (Cache war leer/korrupt)")
+                  db = _restore_seen_db_backup()
+                  if db:
                       write_json_atomic(DB_FILE, db, separators=(",", ":"))
+                  else:
+                      print("Keine seen_db gefunden, kein Backup vorhanden – starte neu.")
               except Exception as _restore_err:
                   print(f"WARN: Backup-Restore fehlgeschlagen ({_restore_err}) – starte neu", file=sys.stderr)
                   db = {}
-          elif not db:
-              print("Keine seen_db gefunden, kein Backup vorhanden – starte neu.")
 
           # ── Schritt 1b: Bestehende state/auto_discovered_feeds.json laden ───────
           # FIX BUG-EXISTING-FEEDS-ORDER: Dieser Block stand frueher als
