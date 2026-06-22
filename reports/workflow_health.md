@@ -1,6 +1,6 @@
 # Workflow Health Report
 
-**Stand:** 2026-06-22 05:24 UTC
+**Stand:** 2026-06-22 12:23 UTC
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_report.yml` alle 6h.
@@ -9,7 +9,7 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 ## Letzte 24h
 
 - **Echte Combined-Runs:** 9 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 10
+- **Skip-Runs (Idempotenz-Guard):** 11
 - **Lucken (>210min zwischen echten Runs):** 1
   - 2026-06-21 22:04 UTC -> 2026-06-22 01:41 UTC (217 min)
 
@@ -17,7 +17,7 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 - **Echte Combined-Runs:** 67
 - **Skip-Runs:** 57
-- **Fehlgeschlagene Runs:** 18
+- **Fehlgeschlagene Runs:** 19
 - **Lucken >210min:** 9
 - **Groesste Lucke:** 2026-06-18 21:49 UTC -> 2026-06-19 02:06 UTC (256 min = 4h 16min)
 
@@ -28,15 +28,14 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 - **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 37
 
 Letzte Watchdog-Eingriffe:
-- 2026-06-21 12:28 UTC (Run #27904341204, Laufzeit 21m 10s)
 - 2026-06-21 16:11 UTC (Run #27910061065, Laufzeit 21m 58s)
 - 2026-06-21 19:00 UTC (Run #27914330882, Laufzeit 21m 35s)
 - 2026-06-21 21:42 UTC (Run #27918383199, Laufzeit 21m 28s)
 - 2026-06-22 01:41 UTC (Run #27924417458, Laufzeit 22m 7s)
+- 2026-06-22 07:38 UTC (Run #27937110491, Laufzeit 21m 25s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
-- 2026-06-19 15:46 UTC - cancelled - Run #27835395108 (6m 38s)
 - 2026-06-19 15:53 UTC - cancelled - Run #27835705718 (5m 12s)
 - 2026-06-20 09:47 UTC - cancelled - Run #27867466283 (4m 47s)
 - 2026-06-20 09:52 UTC - cancelled - Run #27867575286 (3m 50s)
@@ -46,6 +45,7 @@ Letzte Watchdog-Eingriffe:
 - 2026-06-21 05:30 UTC - cancelled - Run #27894749132 (23s)
 - 2026-06-21 10:08 UTC - cancelled - Run #27901008331 (12m 44s)
 - 2026-06-21 10:21 UTC - cancelled - Run #27901299194 (2m 4s)
+- 2026-06-22 05:39 UTC - cancelled - Run #27932008625 (4m 31s)
 
 ---
 
