@@ -1,9 +1,9 @@
 # NETSHIELD – Dead-Feed-Report
-**Aktualisiert:** 2026-06-21 05:55 UTC
+**Aktualisiert:** 2026-06-22 06:22 UTC
 **Schwelle:** 3 Fehl-Laeufe in Folge (Daily-Cron → 3 Tage)
 
 ## ✅ Keine toten Feeds
 
 Alle geprueften Feeds antworten oder sind unterhalb der Schwelle.
 
-*Generiert: 2026-06-21 05:55 UTC*
+*Generiert: 2026-06-22 06:22 UTC*
