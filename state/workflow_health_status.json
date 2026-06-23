@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-23 05:13 UTC",
+  "updated": "2026-06-23 10:43 UTC",
   "total": 23,
   "ok": 22,
   "warn": 3,
@@ -34,12 +34,12 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 81.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 81.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "state/seen_db_backup.json.gz.part000: 87.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "state/seen_db_backup.json.gz.part000: 87.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
@@ -53,11 +53,11 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6006371,
-    "active_blacklist_ipv4.txt": 388992,
-    "blacklist_confidence40_ipv4.txt": 5384716,
-    "cve_exploit_ips.txt": 33364,
-    "honeypot_ips.txt": 112640,
+    "combined_threat_blacklist_ipv4.txt": 6011119,
+    "active_blacklist_ipv4.txt": 393749,
+    "blacklist_confidence40_ipv4.txt": 5389016,
+    "cve_exploit_ips.txt": 33352,
+    "honeypot_ips.txt": 112677,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
@@ -67,12 +67,12 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 81.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 81.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "state/seen_db_backup.json.gz.part000: 87.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "state/seen_db_backup.json.gz.part000: 87.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
