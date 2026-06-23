@@ -1,10 +1,21 @@
 {
-  "updated": "2026-06-23 16:06 UTC",
+  "updated": "2026-06-23 21:05 UTC",
   "total": 23,
   "ok": 22,
-  "warn": 3,
-  "error": 0,
-  "errors": [],
+  "warn": 1,
+  "error": 2,
+  "errors": [
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "IP-Listen Duplikate",
+      "detail": "combined_threat_blacklist_ipv4.txt: 6,531,527 doppelte IPs (50.0% von 13,063,054) \u2013 Scoring-Verzerrung und aufgebl\u00e4hte Datei"
+    },
+    {
+      "file": "Production Health",
+      "check": "Truncate-Erstaktivierung",
+      "detail": "combined_threat_blacklist_ipv4.txt: Splitting ERSTMALS aktiviert (2 neue Parts: combined_threat_blacklist_ipv4_part1.txt, combined_threat_blacklist_ipv4_part2.txt). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten."
+    }
+  ],
   "warnings": [
     {
       "file": "honeypot_monitor.yml \u2192 update_combined_blacklist.yml",
@@ -34,12 +45,12 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 82.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 88.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "state/seen_db_backup.json.gz.part000: 88.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "state/seen_db_backup.json.gz.part000: 92.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
@@ -53,31 +64,36 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6033204,
-    "active_blacklist_ipv4.txt": 409864,
-    "blacklist_confidence40_ipv4.txt": 5404682,
+    "combined_threat_blacklist_ipv4.txt": 6531527,
+    "active_blacklist_ipv4.txt": 412831,
+    "blacklist_confidence40_ipv4.txt": 5406998,
     "cve_exploit_ips.txt": 33352,
-    "honeypot_ips.txt": 113207,
+    "honeypot_ips.txt": 113120,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
-    "critical": 0,
+    "critical": 1,
     "warn": 4,
     "checks": [
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 82.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 88.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "state/seen_db_backup.json.gz.part000: 88.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "state/seen_db_backup.json.gz.part000: 92.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
         "detail": "geo_enriched/blacklist_geo_enriched.json: 94.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Truncate-Erstaktivierung",
+        "detail": "combined_threat_blacklist_ipv4.txt: Splitting ERSTMALS aktiviert (2 neue Parts: combined_threat_blacklist_ipv4_part1.txt, combined_threat_blacklist_ipv4_part2.txt). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten."
       },
       {
         "level": "WARN",
@@ -87,7 +103,10 @@
     ]
   },
   "parts_history": {
-    "combined_threat_blacklist_ipv4.txt": [],
+    "combined_threat_blacklist_ipv4.txt": [
+      "combined_threat_blacklist_ipv4_part1.txt",
+      "combined_threat_blacklist_ipv4_part2.txt"
+    ],
     "blacklist_confidence40_ipv4.txt": [],
     "geo_enriched/blacklist_geo_enriched.json": [
       "geo_enriched/blacklist_geo_enriched_part1.json",
