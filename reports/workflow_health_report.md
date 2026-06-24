@@ -1,15 +1,14 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-06-23 21:05 UTC
+**Aktualisiert:** 2026-06-24 05:10 UTC
 
-**Workflows:** 23 | ✅ 22 OK | ⚠️ 1 Warnung | ❌ 2 Fehler
+**Workflows:** 23 | ✅ 22 OK | ⚠️ 2 Warnung | ❌ 1 Fehler
 
 ---
 ## ❌ Fehler (kritisch)
 
 | Datei | Check | Detail |
 |---|---|---|
-| `update_combined_blacklist.yml` | IP-Listen Duplikate | combined_threat_blacklist_ipv4.txt: 6,531,527 doppelte IPs (50.0% von 13,063,054) – Scoring-Verzerrung und aufgeblähte Datei |
-| `Production Health` | Truncate-Erstaktivierung | combined_threat_blacklist_ipv4.txt: Splitting ERSTMALS aktiviert (2 neue Parts: combined_threat_blacklist_ipv4_part1.txt, combined_threat_blacklist_ipv4_part2.txt). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten. |
+| `update_combined_blacklist.yml` | IP-Listen Duplikate | combined_threat_blacklist_ipv4.txt: 6,533,517 doppelte IPs (50.0% von 13,067,034) – Scoring-Verzerrung und aufgeblähte Datei |
 
 ## ⚠️ Warnungen
 
@@ -21,20 +20,21 @@
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 6 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "fadouse_malware" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_c2" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_rat" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_stealer" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_loader" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_worm" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel) |
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:30 UTC → 00:47 UTC (17min < 60min Mindestpuffer); 06:30 UTC → 06:47 UTC (17min < 60min Mindestpuffer); 12:30 UTC → 12:47 UTC (17min < 60min Mindestpuffer); 18:30 UTC → 18:47 UTC (17min < 60min Mindestpuffer) |
 | `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 88.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 92.2 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 92.3 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Truncate aktiv | combined_threat_blacklist_ipv4.txt: Splitting weiterhin aktiv (2 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
 | `Production Health` | Truncate aktiv | geo_enriched/blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 4 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 5 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Truncate-Erstaktivierung | combined_threat_blacklist_ipv4.txt: Splitting ERSTMALS aktiviert (2 neue Parts: combined_threat_blacklist_ipv4_part1.txt, combined_threat_blacklist_ipv4_part2.txt). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten. |
 | 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 88.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| 🟡 WARN | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 92.2 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 92.3 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Truncate aktiv | combined_threat_blacklist_ipv4.txt: Splitting weiterhin aktiv (2 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
 | 🟡 WARN | Truncate aktiv | geo_enriched/blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
 
 ## Übersicht
@@ -66,4 +66,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-06-23 21:05 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-06-24 05:10 UTC | 23 Workflow-Dateien geprüft*
