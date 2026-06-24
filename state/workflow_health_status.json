@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-24 15:38 UTC",
+  "updated": "2026-06-24 20:53 UTC",
   "total": 23,
   "ok": 22,
   "warn": 2,
@@ -8,7 +8,7 @@
     {
       "file": "update_combined_blacklist.yml",
       "check": "IP-Listen Duplikate",
-      "detail": "combined_threat_blacklist_ipv4.txt: 6,549,046 doppelte IPs (50.0% von 13,098,092) \u2013 Scoring-Verzerrung und aufgebl\u00e4hte Datei"
+      "detail": "combined_threat_blacklist_ipv4.txt: 6,552,206 doppelte IPs (50.0% von 13,104,412) \u2013 Scoring-Verzerrung und aufgebl\u00e4hte Datei"
     }
   ],
   "warnings": [
@@ -40,7 +40,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 89.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 89.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
@@ -61,29 +61,24 @@
       "file": "Production Health",
       "check": "Truncate aktiv",
       "detail": "geo_enriched/blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar."
-    },
-    {
-      "file": "Production Health",
-      "check": "active \u2286 conf40 Subset-Invariante (Mini-Drift)",
-      "detail": "19 IPs in active fehlen in conf40 (unterhalb CRITICAL-Schwelle). Wahrscheinlich kleiner Cache-Drift im Toleranz-bereich oder Score-Bucket-Wechsel am Tageswechsel."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6549046,
-    "active_blacklist_ipv4.txt": 406445,
-    "blacklist_confidence40_ipv4.txt": 5425637,
+    "combined_threat_blacklist_ipv4.txt": 6552206,
+    "active_blacklist_ipv4.txt": 409440,
+    "blacklist_confidence40_ipv4.txt": 5428380,
     "cve_exploit_ips.txt": 33371,
-    "honeypot_ips.txt": 120794,
+    "honeypot_ips.txt": 120769,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
     "critical": 0,
-    "warn": 6,
+    "warn": 5,
     "checks": [
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 89.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 89.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
@@ -104,11 +99,6 @@
         "level": "WARN",
         "check": "Truncate aktiv",
         "detail": "geo_enriched/blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar."
-      },
-      {
-        "level": "WARN",
-        "check": "active \u2286 conf40 Subset-Invariante (Mini-Drift)",
-        "detail": "19 IPs in active fehlen in conf40 (unterhalb CRITICAL-Schwelle). Wahrscheinlich kleiner Cache-Drift im Toleranz-bereich oder Score-Bucket-Wechsel am Tageswechsel."
       }
     ]
   },
