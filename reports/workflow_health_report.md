@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-06-25 21:01 UTC
+**Aktualisiert:** 2026-06-26 05:20 UTC
 
 **Workflows:** 23 | ✅ 22 OK | ⚠️ 2 Warnung | ❌ 1 Fehler
 
@@ -8,7 +8,7 @@
 
 | Datei | Check | Detail |
 |---|---|---|
-| `update_combined_blacklist.yml` | IP-Listen Duplikate | combined_threat_blacklist_ipv4.txt: 6,578,155 doppelte IPs (50.0% von 13,156,310) – Scoring-Verzerrung und aufgeblähte Datei |
+| `update_combined_blacklist.yml` | IP-Listen Duplikate | combined_threat_blacklist_ipv4.txt: 6,582,803 doppelte IPs (50.0% von 13,165,606) – Scoring-Verzerrung und aufgeblähte Datei |
 
 ## ⚠️ Warnungen
 
@@ -19,8 +19,8 @@
 | `update_combined_blacklist.yml` | Doppelter Import | Block 1: Doppelte Imports: glob(2x) – moeglicherweise Copy-Paste-Artefakt |
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 6 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "fadouse_malware" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_c2" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_rat" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_stealer" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_loader" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_worm" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel) |
 | `honeypot_monitor.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:30 UTC → 00:47 UTC (17min < 60min Mindestpuffer); 06:30 UTC → 06:47 UTC (17min < 60min Mindestpuffer); 12:30 UTC → 12:47 UTC (17min < 60min Mindestpuffer); 18:30 UTC → 18:47 UTC (17min < 60min Mindestpuffer) |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 89.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 93.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 89.6 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 93.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Truncate aktiv | combined_threat_blacklist_ipv4.txt: Splitting weiterhin aktiv (2 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
 | `Production Health` | Truncate aktiv | geo_enriched/blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
@@ -31,8 +31,8 @@
 
 | Level | Check | Detail |
 |---|---|---|
-| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 89.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| 🟡 WARN | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 93.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 89.6 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 93.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Truncate aktiv | combined_threat_blacklist_ipv4.txt: Splitting weiterhin aktiv (2 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
 | 🟡 WARN | Truncate aktiv | geo_enriched/blacklist_geo_enriched.json: Splitting weiterhin aktiv (3 Parts). Vollstaendige Daten nur ueber Hauptdatei + Parts erreichbar. |
@@ -66,4 +66,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-06-25 21:01 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-06-26 05:20 UTC | 23 Workflow-Dateien geprüft*
