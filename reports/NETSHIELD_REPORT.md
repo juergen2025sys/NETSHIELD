@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-06-26 21:13 UTC
+**Aktualisiert:** 2026-06-26 21:47 UTC
 
 ---
 ## 📊 Listen-Übersicht
@@ -8,8 +8,8 @@
 |---|---|---:|---|
 | ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **6,601,769** | 2026-06-26 19:01 UTC |
 | ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **407,507** | 2026-06-26 19:01 UTC |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **5,474,453** | 2026-06-26 19:23 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **62,493** | 2026-06-26 19:23 UTC |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **5,474,453** | 2026-06-26 21:09 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **62,493** | 2026-06-26 21:09 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **33,433** | 2026-06-26 07:42 UTC |
 | ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,949** | 2026-06-25 23:58 UTC |
 | ✅ `honeypot_ips.txt` | Honeypot IPs | **119,459** | 2026-06-26 20:15 UTC |
@@ -26,4 +26,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-06-26 21:13 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-06-26 21:47 UTC*
