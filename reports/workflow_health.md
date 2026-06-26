@@ -1,6 +1,6 @@
 # Workflow Health Report
 
-**Stand:** 2026-06-26 09:47 UTC
+**Stand:** 2026-06-26 14:42 UTC
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_report.yml` alle 6h.
@@ -9,34 +9,32 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 ## Letzte 24h
 
 - **Echte Combined-Runs:** 10 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 11
+- **Skip-Runs (Idempotenz-Guard):** 12
 - **Lucken (>210min zwischen echten Runs):** 0
 
 ## Letzte 7 Tage
 
 - **Echte Combined-Runs:** 68
-- **Skip-Runs:** 70
+- **Skip-Runs:** 71
 - **Fehlgeschlagene Runs:** 17
 - **Lucken >210min:** 10
 - **Groesste Lucke:** 2026-06-22 12:43 UTC -> 2026-06-22 17:19 UTC (275 min = 4h 35min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 185
+- **Watchdog-Laeufe insgesamt:** 187
 - **Watchdog-Fehler:** 0
 - **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 39
 
 Letzte Watchdog-Eingriffe:
-- 2026-06-25 13:26 UTC (Run #28173513514, Laufzeit 21m 34s)
 - 2026-06-25 19:16 UTC (Run #28194536691, Laufzeit 22m 18s)
 - 2026-06-25 21:53 UTC (Run #28202871301, Laufzeit 22m 57s)
 - 2026-06-26 01:30 UTC (Run #28211353864, Laufzeit 22m 24s)
 - 2026-06-26 06:35 UTC (Run #28221624318, Laufzeit 22m 55s)
+- 2026-06-26 13:21 UTC (Run #28240759869, Laufzeit 21m 47s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
-- 2026-06-20 22:39 UTC - cancelled - Run #27886052818 (32s)
-- 2026-06-21 05:23 UTC - cancelled - Run #27894618936 (6m 28s)
 - 2026-06-21 05:30 UTC - cancelled - Run #27894749132 (23s)
 - 2026-06-21 10:08 UTC - cancelled - Run #27901008331 (12m 44s)
 - 2026-06-21 10:21 UTC - cancelled - Run #27901299194 (2m 4s)
@@ -45,6 +43,8 @@ Letzte Watchdog-Eingriffe:
 - 2026-06-23 15:29 UTC - cancelled - Run #28037108035 (9m 15s)
 - 2026-06-24 10:01 UTC - cancelled - Run #28090675387 (19m 15s)
 - 2026-06-25 09:50 UTC - cancelled - Run #28161741883 (7m 21s)
+- 2026-06-26 09:56 UTC - cancelled - Run #28230898725 (4m 27s)
+- 2026-06-26 10:01 UTC - cancelled - Run #28231115831 (8m 33s)
 
 ---
 
