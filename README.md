@@ -67,7 +67,7 @@
 </table>
 <!-- META_TABLE_END -->
 
-> NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus **über 120 Quellen** (dynamisch, wächst laufend durch Auto-Discovery): rund 100 öffentliche Remote-Feeds, 5 lokale Sub-Workflow-Feeds (CVE, Honeypot, Honigtopf, Bot-Detector, AbuseIPDB API) und laufend neu per GitHub-Discovery entdeckte Feeds. Das System unterscheidet aktive Bedrohungen von veralteten statischen Listen und liefert daraus qualitativ hochwertige Blocklisten für OPNsense, pfSense und iptables.
+> NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus **über 120 Quellen** (dynamisch, wächst laufend durch Auto-Discovery): rund 100 öffentliche Remote-Feeds, 5 lokale Sub-Workflow-Feeds (CVE, Honeypot, Honigtopf, Bot-Detector und laufend neu per GitHub-Discovery entdeckte Feeds. Das System unterscheidet aktive Bedrohungen von veralteten statischen Listen und liefert daraus qualitativ hochwertige Blocklisten für OPNsense, pfSense und iptables.
 
 ---
 
