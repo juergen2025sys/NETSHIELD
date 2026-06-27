@@ -1,28 +1,94 @@
-<svg viewBox="0 0 1280 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NETSHIELD">
+<svg viewBox="0 0 1280 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NETSHIELD — Dynamische IP-Blocklist-Verwaltung mit Confidence-Scoring">
   <defs>
-    <linearGradient id="bg2" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#0b1320"/><stop offset="1" stop-color="#0d1626"/></linearGradient>
-    <pattern id="g2" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0 H0 V32" fill="none" stroke="#15233a" stroke-width="1"/></pattern>
-    <clipPath id="c2"><rect width="1280" height="300" rx="16"/></clipPath>
+    <linearGradient id="accent" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2dd4bf"/>
+      <stop offset="1" stop-color="#4ade80"/>
+    </linearGradient>
+    <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1.2" fill="#16263f"/>
+    </pattern>
+    <clipPath id="frame"><rect width="1280" height="300" rx="18"/></clipPath>
   </defs>
-  <g clip-path="url(#c2)">
-    <rect width="1280" height="300" fill="url(#bg2)"/>
-    <rect width="1280" height="300" fill="url(#g2)"/>
-    <g transform="translate(1080,150)" fill="none" stroke="#1a2c47"><circle r="70"/><circle r="130"/><circle r="190"/></g>
-    <rect x="0" y="0" width="6" height="300" fill="#22d3ee"/>
-    <g transform="translate(52,74)">
-      <path d="M60 3 L116 24 L116 86 Q116 133 60 153 Q4 133 4 86 L4 24 Z" fill="#111c2e" stroke="#22d3ee" stroke-width="2.5"/>
-      <g stroke="#22d3ee" stroke-width="2"><line x1="60" y1="84" x2="40" y2="54"/><line x1="60" y1="84" x2="84" y2="58"/><line x1="60" y1="84" x2="60" y2="116"/></g>
-      <g fill="#0b1320" stroke="#22d3ee" stroke-width="2.5"><circle cx="40" cy="54" r="6"/><circle cx="84" cy="58" r="6"/><circle cx="60" cy="116" r="6"/></g>
-      <circle cx="60" cy="84" r="9" fill="#22d3ee"/>
+
+  <g clip-path="url(#frame)">
+    <!-- backdrop -->
+    <rect width="1280" height="300" fill="#0a0f1a"/>
+    <rect width="1280" height="300" fill="url(#dots)"/>
+
+    <!-- HUD corner brackets -->
+    <g stroke="#2dd4bf" stroke-width="1.5" fill="none" opacity="0.35">
+      <path d="M1182 38 H1242 V98"/>
+      <path d="M98 262 H38 V202"/>
     </g>
-    <text x="200" y="100" font-family="Consolas,Menlo,monospace" font-size="14" letter-spacing="4" fill="#22d3ee">// AUTOMATED THREAT INTELLIGENCE</text>
-    <text x="198" y="172" font-family="'Segoe UI',Helvetica,Arial,sans-serif" font-size="74" font-weight="800" letter-spacing="2" fill="#ffffff">NETSHIELD</text>
-    <text x="200" y="206" font-family="'Segoe UI',Helvetica,Arial,sans-serif" font-size="18" fill="#cbd5e1">Dynamische IP-Blocklist-Verwaltung mit Confidence-Scoring</text>
-    <g font-family="Consolas,Menlo,monospace" font-size="13" letter-spacing="1.5" fill="#9fb3c8">
-      <circle cx="204" cy="252" r="3" fill="#22d3ee"/><text x="216" y="257">8× DAILY</text>
-      <circle cx="312" cy="252" r="3" fill="#22d3ee"/><text x="324" y="257">180-DAY RETENTION</text>
-      <circle cx="534" cy="252" r="3" fill="#22d3ee"/><text x="546" y="257">250+ COUNTRIES</text>
-      <circle cx="718" cy="252" r="3" fill="#22d3ee"/><text x="730" y="257">MULTI-SOURCE SCORING</text>
+
+    <!-- left accent bar -->
+    <rect x="0" y="0" width="5" height="300" fill="url(#accent)"/>
+
+    <!-- hexagon emblem -->
+    <g transform="translate(0,0)">
+      <polygon points="96,90 44,120 44,180 96,210 148,180 148,120"
+               fill="#0e1726" stroke="#2dd4bf" stroke-width="2.5" stroke-linejoin="round"/>
+      <polygon points="96,99 53,124 53,176 96,201 139,176 139,124"
+               fill="none" stroke="#1f3a52" stroke-width="1"/>
+      <!-- shield -->
+      <path d="M96 122 L118 132 L118 156 Q118 178 96 188 Q74 178 74 156 L74 132 Z"
+            fill="#0a1320" stroke="#4ade80" stroke-width="2.5" stroke-linejoin="round"/>
+      <!-- verified check -->
+      <path d="M85 153 L93 163 L109 140" fill="none" stroke="#4ade80"
+            stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- eyebrow -->
+    <text x="210" y="96" font-family="Consolas,Menlo,monospace" font-size="14"
+          letter-spacing="4" fill="#2dd4bf">// THREAT INTELLIGENCE FEED</text>
+
+    <!-- wordmark -->
+    <text x="208" y="170" font-family="'Segoe UI',Helvetica,Arial,sans-serif"
+          font-size="74" font-weight="800" letter-spacing="1" fill="#f8fafc">NETSHIELD</text>
+
+    <!-- subtitle -->
+    <text x="210" y="204" font-family="'Segoe UI',Helvetica,Arial,sans-serif"
+          font-size="18" fill="#94a3b8">Dynamische IP-Blocklist-Verwaltung mit Confidence-Scoring</text>
+
+    <!-- stat chips -->
+    <g font-family="Consolas,Menlo,monospace" font-size="12.5" letter-spacing="1" fill="#9fb3c8">
+      <g>
+        <rect x="210" y="232" width="104" height="26" rx="13" fill="none" stroke="#23344d"/>
+        <circle cx="228" cy="245" r="3" fill="#2dd4bf"/>
+        <text x="240" y="249">8× DAILY</text>
+      </g>
+      <g>
+        <rect x="324" y="232" width="182" height="26" rx="13" fill="none" stroke="#23344d"/>
+        <circle cx="342" cy="245" r="3" fill="#2dd4bf"/>
+        <text x="354" y="249">180-DAY RETENTION</text>
+      </g>
+      <g>
+        <rect x="516" y="232" width="156" height="26" rx="13" fill="none" stroke="#23344d"/>
+        <circle cx="534" cy="245" r="3" fill="#2dd4bf"/>
+        <text x="546" y="249">250+ COUNTRIES</text>
+      </g>
+      <g>
+        <rect x="682" y="232" width="206" height="26" rx="13" fill="none" stroke="#23344d"/>
+        <circle cx="700" cy="245" r="3" fill="#2dd4bf"/>
+        <text x="712" y="249">MULTI-SOURCE SCORING</text>
+      </g>
+    </g>
+
+    <!-- signature: live feed pulse -->
+    <g>
+      <circle cx="932" cy="120" r="3.5" fill="#4ade80"/>
+      <text x="944" y="125" font-family="Consolas,Menlo,monospace" font-size="12"
+            letter-spacing="2.5" fill="#4ade80">LIVE FEED</text>
+      <!-- glow underlay -->
+      <path d="M928 156 H1004 L1016 156 L1024 124 L1036 190 L1048 156 L1112 156 L1124 156 L1132 138 L1140 174 L1148 156 H1244"
+            fill="none" stroke="#4ade80" stroke-width="9" opacity="0.14"
+            stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M928 156 H1004 L1016 156 L1024 124 L1036 190 L1048 156 L1112 156 L1124 156 L1132 138 L1140 174 L1148 156 H1244"
+            fill="none" stroke="#4ade80" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- leading edge dot -->
+      <circle cx="1244" cy="156" r="9" fill="#4ade80" opacity="0.18"/>
+      <circle cx="1244" cy="156" r="4" fill="#4ade80"/>
     </g>
   </g>
 </svg>
