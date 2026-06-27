@@ -1,16 +1,11 @@
 {
-  "updated": "2026-06-27 09:34 UTC",
+  "updated": "2026-06-27 11:53 UTC",
   "total": 23,
   "ok": 22,
   "warn": 2,
   "error": 0,
   "errors": [],
   "warnings": [
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "MIN_ABUSEIPDB fehlt",
-      "detail": "MIN_ABUSEIPDB nicht gefunden \u2013 Leerungsschutz-Regressionscheck unvollst\u00e4ndig"
-    },
     {
       "file": "update_combined_blacklist.yml",
       "check": "Doppelter Import",
@@ -38,9 +33,9 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6603883,
-    "active_blacklist_ipv4.txt": 388792,
-    "blacklist_confidence40_ipv4.txt": 5484658,
+    "combined_threat_blacklist_ipv4.txt": 6605038,
+    "active_blacklist_ipv4.txt": 389921,
+    "blacklist_confidence40_ipv4.txt": 5485722,
     "cve_exploit_ips.txt": 33355,
     "honeypot_ips.txt": 124273,
     "bot_detector_blacklist_ipv4.txt": 17949

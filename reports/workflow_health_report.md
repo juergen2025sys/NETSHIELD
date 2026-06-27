@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-06-27 09:34 UTC
+**Aktualisiert:** 2026-06-27 11:53 UTC
 
 **Workflows:** 23 | ✅ 22 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
@@ -8,7 +8,6 @@
 
 | Datei | Check | Detail |
 |---|---|---|
-| `update_combined_blacklist.yml` | MIN_ABUSEIPDB fehlt | MIN_ABUSEIPDB nicht gefunden – Leerungsschutz-Regressionscheck unvollständig |
 | `update_combined_blacklist.yml` | Doppelter Import | Block 1: Doppelte Imports: glob(2x) – moeglicherweise Copy-Paste-Artefakt |
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 6 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "fadouse_malware" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_c2" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_rat" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_stealer" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_loader" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel); "fadouse_worm" (https://raw.githubusercontent.com/Fadouse/clash-threat-intel) |
 | `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 89.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
@@ -46,7 +45,7 @@
 | `tweetfeed_monitor.yml` | ✅ OK | 0 | 0 | `45 2 * * *` |
 | `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 1 * * 1`, `30 1 * * 3` |
 | `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
-| `update_combined_blacklist.yml` | ⚠️ | 0 | 2 | `7 */3 * * *`, `27 */3 * * *`, `47 */3 * * *` |
+| `update_combined_blacklist.yml` | ⚠️ | 0 | 1 | `7 */3 * * *`, `27 */3 * * *`, `47 */3 * * *` |
 | `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | `47 1,4,7,10,13,16,19,22 * * *` |
 | `watchdog_combined.yml` | ✅ OK | 0 | 0 | `*/15 * * * *` |
 | `watchdog_honigtopf.yml` | ✅ OK | 0 | 0 | `7,22,37,52 * * * *` |
@@ -54,4 +53,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-06-27 09:34 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-06-27 11:53 UTC | 23 Workflow-Dateien geprüft*
