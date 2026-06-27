@@ -400,9 +400,9 @@ jobs:
               # diesem täglich aktualisierten Feed nicht als HQ erkannt → last-Feld
               # wird nie gesetzt → IPs altern nach 180 Tagen still aus.
               "blocklist_net_ua",
-              # Fadouse clash-threat-intel – alle 8 Kategorien
-              "fadouse_malware", "fadouse_c2", "fadouse_botnet", "fadouse_rat",
-              "fadouse_stealer", "fadouse_ransomware", "fadouse_loader", "fadouse_worm",
+              # Fadouse clash-threat-intel – BEWUSST NICHT HQ (Community-Projekt
+              # ohne institutionellen Betreiber). hq=False in SOURCES; daher hier
+              # NICHT gelistet → normales Score-Decay + 2-Feed-Aufnahmefilter.
           }
 
           # ══════════════════════════════════════════════════════════════════
@@ -698,18 +698,20 @@ jobs:
               # Quelle: ausschließlich ThreatFox API (abuse.ch) + URLhaus →
               # selbe Datenbasis wie threatfox_ioc/direct, aber kategorisiert
               # nach Malware-Typ. Dadurch zählen diese Feeds als eigene
-              # HQ-Familie "fadouse" (nicht als "threatfox") – sie liefern
+              # Familie "fadouse" (nicht als "threatfox") – sie liefern
               # ergänzende Bestätigung ohne doppelte Familien-Credits.
-              # HQ=True: abuse.ch ist etablierte HQ-Quelle.
+              # HQ=False: Fadouse/clash-threat-intel ist ein kleines Community-
+              # Projekt ohne institutionellen Betreiber. Daher normales Score-
+              # Decay und 2-Feed-Aufnahmefilter statt privilegierter Dauer-Haltung.
               # HQ_FEED_FAMILIES-Eintrag unten ergänzen!
-              "fadouse_malware":            ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/malware.txt", True),
-              "fadouse_c2":                 ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/c2.txt", True),
-              "fadouse_botnet":             ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/botnet.txt", True),
-              "fadouse_rat":                ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/rat.txt", True),
-              "fadouse_stealer":            ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/stealer.txt", True),
-              "fadouse_ransomware":         ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/ransomware.txt", True),
-              "fadouse_loader":             ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/loader.txt", True),
-              "fadouse_worm":               ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/worm.txt", True),
+              "fadouse_malware":            ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/malware.txt", False),
+              "fadouse_c2":                 ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/c2.txt", False),
+              "fadouse_botnet":             ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/botnet.txt", False),
+              "fadouse_rat":                ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/rat.txt", False),
+              "fadouse_stealer":            ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/stealer.txt", False),
+              "fadouse_ransomware":         ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/ransomware.txt", False),
+              "fadouse_loader":             ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/loader.txt", False),
+              "fadouse_worm":               ("https://raw.githubusercontent.com/Fadouse/clash-threat-intel/main/clash/generated/worm.txt", False),
 
 
               # ── SSH / Brute-Force ─────────────────────────────────────────
@@ -1922,7 +1924,7 @@ jobs:
           # PART_TARGET_MB schreiben. Die Haupt-Datei bleibt als Legacy
           # erhalten solange sie unter 100 MB ist (sonst wuerde ein
           # etablierter Download-Link brechen).
-          import glob
+          # (glob bereits oben in diesem Step importiert)
           SPLIT_THRESHOLD_MB = 90     # ab hier Parts erzeugen
           PART_TARGET_MB     = 40     # Groesse pro Part
           # HARD_LIMIT_MB bereits oben definiert (Truncate-Fallback)
