@@ -216,15 +216,6 @@ Enrichment (nach Combined):
 
 </details>
 
-<details>
-<summary><strong>🤝 Community</strong></summary>
-
-| Workflow | Trigger | Aufgabe |
-|---|---|---|
-| **Community IP Report** | Issue mit Label `community-report` | Community-gemeldete IPs validieren und eintragen |
-
-</details>
-
 ---
 
 ## 🕐 Datenfluss & Timing
@@ -245,21 +236,6 @@ Enrichment (nach Combined):
 07:00  Score Decay Monitor (So)
 07:45  Geo-Tagger (So)
 ```
-
----
-
-## 🤝 Community Reports
-
-Verdächtige IPs können über das **Issue-System** gemeldet werden:
-
-1. Issue mit Label `community-report` erstellen
-2. System validiert die IP automatisch (nur öffentliche IPv4)
-3. IP landet als Watchlist-Eintrag in der seen_db
-4. Bei **3 unabhängigen Meldungen** → Promotion zur aktiven Blacklist
-5. Issue wird automatisch geschlossen
-
-> [!TIP]
-> Limit: 5 Reports pro User pro Tag.
 
 ---
 
@@ -349,7 +325,7 @@ NETSHIELD/
 | 🏅 **HQ/Non-HQ-Trennung** | Nur verifizierte HQ-Feeds verlängern die Lebenszeit einer IP — statische Listen können IPs nicht am Leben halten |
 | 🔁 **Push-Retry** | 5 Versuche mit git rebase bei gleichzeitigen Commits |
 | 🔐 **Concurrency-Lock** | Jeder Workflow läuft max. 1× gleichzeitig |
-| 📦 **Cache-Isolation** | Verschiedene Workflows nutzen eigene Cache-Prefixe (v2, fp, afd, community) |
+| 📦 **Cache-Isolation** | Verschiedene Workflows nutzen eigene Cache-Prefixe (v2, fp, afd) |
 
 ---
 
