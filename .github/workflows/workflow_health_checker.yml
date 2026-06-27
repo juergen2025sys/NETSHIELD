@@ -525,7 +525,7 @@ jobs:
               # AUSNAHME: exit(0) ist korrekt bei Feed-Netzwerkfehlern
               # ("nicht erreichbar"), User-Fehlern (community_ip_report) und
               # fehlenden Konfigurationsdateien.
-              _leer_kws  = {"MIN_ENTRIES", "MIN_ABUSEIPDB", "Leerungsschutz"}
+              _leer_kws  = {"MIN_ENTRIES", "MIN_ABUSEIPDB", "MIN_REPUTATION", "Leerungsschutz"}
               _ok_kws    = {"nicht erreichbar", "Versuchen fehlgeschlagen",
                             "RATE_LIMITED", "Rate-Limit",  # Rate-Limit: intentionales exit(0) mit continue-on-error (z.B. AbuseIPDB)
                             "NO_IP_FOUND", "INVALID_IP",
@@ -627,7 +627,7 @@ jobs:
                       "MIN_ENTRIES": 50,
                   },
                   "update_combined_blacklist.yml": {
-                      "MIN_ABUSEIPDB": 100,
+                      "MIN_REPUTATION": 100,
                   },
                   "auto_feed_discovery.yml": {
                       "MIN_APPROVED_FEEDS": 10,
