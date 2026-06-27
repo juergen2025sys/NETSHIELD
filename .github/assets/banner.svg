@@ -4,6 +4,11 @@
       <stop offset="0" stop-color="#2dd4bf"/>
       <stop offset="1" stop-color="#4ade80"/>
     </linearGradient>
+    <linearGradient id="worm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#86efac"/>
+      <stop offset="0.55" stop-color="#22c55e"/>
+      <stop offset="1" stop-color="#15803d"/>
+    </linearGradient>
     <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
       <circle cx="1.5" cy="1.5" r="1.2" fill="#16263f"/>
     </pattern>
@@ -25,33 +30,31 @@
     <rect x="0" y="0" width="5" height="300" fill="url(#accent)"/>
 
     <!-- hexagon emblem -->
-    <g transform="translate(0,0)">
+    <g>
       <polygon points="96,90 44,120 44,180 96,210 148,180 148,120"
                fill="#0e1726" stroke="#2dd4bf" stroke-width="2.5" stroke-linejoin="round"/>
       <polygon points="96,99 53,124 53,176 96,201 139,176 139,124"
                fill="none" stroke="#1f3a52" stroke-width="1"/>
-      <!-- shield -->
       <path d="M96 122 L118 132 L118 156 Q118 178 96 188 Q74 178 74 156 L74 132 Z"
             fill="#0a1320" stroke="#4ade80" stroke-width="2.5" stroke-linejoin="round"/>
-      <!-- verified check -->
       <path d="M85 153 L93 163 L109 140" fill="none" stroke="#4ade80"
             stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
 
     <!-- eyebrow -->
     <text x="210" y="96" font-family="Consolas,Menlo,monospace" font-size="14"
-          letter-spacing="4" fill="#2dd4bf">// THREAT INTELLIGENCE FEED</text>
+          letter-spacing="4" fill="#ffffff">// AUTOMATED THREAT INTELLIGENCE</text>
 
     <!-- wordmark -->
     <text x="208" y="170" font-family="'Segoe UI',Helvetica,Arial,sans-serif"
-          font-size="74" font-weight="800" letter-spacing="1" fill="#f8fafc">NETSHIELD</text>
+          font-size="74" font-weight="800" letter-spacing="1" fill="#ffffff">NETSHIELD</text>
 
     <!-- subtitle -->
     <text x="210" y="204" font-family="'Segoe UI',Helvetica,Arial,sans-serif"
-          font-size="18" fill="#94a3b8">Dynamische IP-Blocklist-Verwaltung mit Confidence-Scoring</text>
+          font-size="18" fill="#ffffff">Dynamische IP-Blocklist-Verwaltung mit Confidence-Scoring</text>
 
     <!-- stat chips -->
-    <g font-family="Consolas,Menlo,monospace" font-size="12.5" letter-spacing="1" fill="#9fb3c8">
+    <g font-family="Consolas,Menlo,monospace" font-size="12.5" letter-spacing="1" fill="#ffffff">
       <g>
         <rect x="210" y="232" width="104" height="26" rx="13" fill="none" stroke="#23344d"/>
         <circle cx="228" cy="245" r="3" fill="#2dd4bf"/>
@@ -74,21 +77,41 @@
       </g>
     </g>
 
-    <!-- signature: live feed pulse -->
+    <!-- signature: PC worm (malware motif) crawling, caught by the shield -->
     <g>
-      <circle cx="932" cy="120" r="3.5" fill="#4ade80"/>
-      <text x="944" y="125" font-family="Consolas,Menlo,monospace" font-size="12"
-            letter-spacing="2.5" fill="#4ade80">LIVE FEED</text>
-      <!-- glow underlay -->
-      <path d="M928 156 H1004 L1016 156 L1024 124 L1036 190 L1048 156 L1112 156 L1124 156 L1132 138 L1140 174 L1148 156 H1244"
-            fill="none" stroke="#4ade80" stroke-width="9" opacity="0.14"
-            stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M928 156 H1004 L1016 156 L1024 124 L1036 190 L1048 156 L1112 156 L1124 156 L1132 138 L1140 174 L1148 156 H1244"
-            fill="none" stroke="#4ade80" stroke-width="2.5"
-            stroke-linecap="round" stroke-linejoin="round"/>
-      <!-- leading edge dot -->
-      <circle cx="1244" cy="156" r="9" fill="#4ade80" opacity="0.18"/>
-      <circle cx="1244" cy="156" r="4" fill="#4ade80"/>
+      <!-- crawl trail -->
+      <path d="M902 176 H950" stroke="#22c55e" stroke-width="2" opacity="0.35"
+            stroke-linecap="round" stroke-dasharray="2 7"/>
+      <!-- body segments (tail -> neck), thin dark seams = segmentation -->
+      <g stroke="#14532d" stroke-width="1.5">
+        <circle cx="956"  cy="176" r="7"  fill="url(#worm)"/>
+        <circle cx="982"  cy="183" r="9"  fill="url(#worm)"/>
+        <circle cx="1008" cy="188" r="10" fill="url(#worm)"/>
+        <circle cx="1034" cy="187" r="11" fill="url(#worm)"/>
+        <circle cx="1060" cy="182" r="12" fill="url(#worm)"/>
+        <circle cx="1086" cy="175" r="13" fill="url(#worm)"/>
+        <circle cx="1112" cy="168" r="13.5" fill="url(#worm)"/>
+        <circle cx="1138" cy="164" r="14" fill="url(#worm)"/>
+        <circle cx="1162" cy="165" r="15" fill="url(#worm)"/>
+      </g>
+      <!-- antennae -->
+      <g stroke="#15803d" stroke-width="2" fill="#86efac">
+        <line x1="1184" y1="154" x2="1179" y2="144"/>
+        <line x1="1194" y1="153" x2="1200" y2="143"/>
+        <circle cx="1179" cy="144" r="2.6" stroke="none"/>
+        <circle cx="1200" cy="143" r="2.6" stroke="none"/>
+      </g>
+      <!-- head -->
+      <circle cx="1188" cy="170" r="17" fill="url(#worm)" stroke="#14532d" stroke-width="1.5"/>
+      <ellipse cx="1181" cy="163" rx="4.5" ry="2.6" fill="#bbf7d0" opacity="0.6"/>
+      <!-- eyes -->
+      <circle cx="1190" cy="164" r="4" fill="#ffffff"/>
+      <circle cx="1199" cy="168" r="4" fill="#ffffff"/>
+      <circle cx="1191.5" cy="164" r="1.8" fill="#0a0f1a"/>
+      <circle cx="1200.5" cy="168" r="1.8" fill="#0a0f1a"/>
+      <!-- mouth -->
+      <path d="M1191 179 Q1197 183 1202 178" fill="none" stroke="#14532d"
+            stroke-width="1.6" stroke-linecap="round"/>
     </g>
   </g>
 </svg>
