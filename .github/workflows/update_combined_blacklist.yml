@@ -136,7 +136,7 @@ jobs:
           load_whitelist()
           load_fp_set()
 
-          import json, os, urllib.request, urllib.error, base64
+          import json, os, glob, urllib.request, urllib.error, base64
           from datetime import datetime, timezone
 
           now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
