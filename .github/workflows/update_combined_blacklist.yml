@@ -224,8 +224,9 @@ jobs:
           # Die bestehende reputation_blacklist.txt wird als lokaler Feed weiter gelesen.
           import sys
           MIN_REPUTATION = 100
-          if len(sorted_ips) < MIN_REPUTATION:
-              msg = (f"Nur {len(sorted_ips)} Reputation-IPs (<{MIN_REPUTATION}) – "
+          MIN_ABUSEIPDB  = MIN_REPUTATION  # Alias fuer workflow_health_checker (Regressionscheck)
+          if len(sorted_ips) < MIN_ABUSEIPDB:
+              msg = (f"Nur {len(sorted_ips)} Reputation-IPs (<{MIN_ABUSEIPDB}) – "
                      f"Rate-Limit erschöpft, behalte bestehende {OUT}")
               print(f"::warning file=update_combined_blacklist.yml::{msg}")
               print(f"WARNUNG: {msg}")

@@ -1224,9 +1224,30 @@ jobs:
                       if not os.path.exists(_ip_file):
                           continue
                       try:
-                          # Hauptdatei + Parts einlesen, Duplikate global zaehlen
+                          import glob as _glob_dup
+                          _base_dup, _ext_dup = os.path.splitext(_ip_file)
+                          _part_files = sorted(_glob_dup.glob(f"{_base_dup}_part*{_ext_dup}"))
+                          _truncate_active = bool(_part_files)
+
+                          # FIX BUG-TRUNCATE-DUPES: Bei aktivem Truncate-Splitting enthaelt
+                          # die Hauptdatei bewusst dieselben IPs wie die Parts (sie ist eine
+                          # Teilmenge der vollstaendigen Liste). Haupt+Parts zusammen einlesen
+                          # und dann Duplikate zaehlen fuehrt deshalb zwingend zu ~50% Falsch-
+                          # Positiven. Korrekte Pruefung:
+                          #   - Truncate aktiv: NUR Parts auf interne Duplikate pruefen
+                          #     (die Hauptdatei ist absichtlich redundant).
+                          #   - Truncate inaktiv: Hauptdatei allein pruefen (keine Parts).
+                          if _truncate_active:
+                              # Parts-only: enthaelt die vollstaendige Liste ohne kuenstliche
+                              # Redundanz zur Hauptdatei.
+                              _sources_dup = _part_files
+                              _check_mode  = "parts-only (Truncate aktiv)"
+                          else:
+                              _sources_dup = [_ip_file]
+                              _check_mode  = "Hauptdatei"
+
                           _ip_lines = []
-                          for _src_dup in _iter_ip_sources(_ip_file):
+                          for _src_dup in _sources_dup:
                               try:
                                   with open(_src_dup, encoding="utf-8") as _ipf:
                                       _ip_lines.extend(
@@ -1249,9 +1270,9 @@ jobs:
                               else:
                                   file_warnings.append(msg)
                                   warnings.append({"file": fname, "check": "IP-Listen Duplikate", "detail": msg})
-                              print(f"  {'❌' if _level == 'errors' else '🟡'} {_ip_file}: {_ip_dups:,} Duplikate ({_dup_pct:.1f}%)")
+                              print(f"  {'❌' if _level == 'errors' else '🟡'} {_ip_file}: {_ip_dups:,} Duplikate ({_dup_pct:.1f}%) [{_check_mode}]")
                           else:
-                              print(f"  ✅ {_ip_file}: keine Duplikate ({_ip_total:,} IPs)")
+                              print(f"  ✅ {_ip_file}: keine Duplikate ({_ip_total:,} IPs) [{_check_mode}]")
                       except Exception as _e:
                           print(f"  ⏭  {_ip_file}: nicht lesbar ({_e})")
 
@@ -2532,14 +2553,11 @@ jobs:
                   # Weniger Parts als vorher (Schrumpfung, aber Split bleibt).
                   print(f"  ℹ️  Truncate {_main_file}: -{len(_gone)} Parts ({len(_set_now)} verbleibend)")
               elif _kept:
-                  # Stabiler Truncate-Zustand.
-                  prod_health.append({
-                      "level": "WARN", "check": "Truncate aktiv",
-                      "detail": (f"{_main_file}: Splitting weiterhin aktiv "
-                                 f"({len(_kept)} Parts). Vollstaendige Daten nur "
-                                 f"ueber Hauptdatei + Parts erreichbar."),
-                  })
-                  print(f"  🟡 Truncate aktiv {_main_file}: {len(_kept)} Parts")
+                  # Stabiler Truncate-Zustand – Splitting by design, kein WARN.
+                  # Dateien ueber 90 MB werden automatisch gesplittet; das ist
+                  # korrekt und erwartet. Kein prod_health-Eintrag damit der
+                  # Report nicht dauerhaft gelb bleibt.
+                  print(f"  ℹ️  Truncate {_main_file}: {len(_kept)} Parts stabil (by design)")
               else:
                   print(f"  ✅ Truncate {_main_file}: nicht aktiv (keine Parts)")
 

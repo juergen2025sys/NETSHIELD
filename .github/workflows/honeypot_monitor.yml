@@ -2,12 +2,12 @@ name: Honeypot Monitor
 
 on:
   schedule:
-    - cron: '30 */6 * * *'   # FIX BUG-4: 00:30, 06:30, 12:30, 18:30 UTC.
-                             # Vorher '0 */6' kollidierte exakt mit
-                             # update_combined_blacklist.yml '0 */3' bei 00/06/12/18 UTC.
-                             # Combined las dann honeypot_ips.txt aus dem Checkout
-                             # (Stand vom vorherigen Lauf, bis zu 6h alt).
-                             # 30min nach voll → naechstes Combined 03:00 → 150min Puffer.
+    - cron: '0 5,11,17,23 * * *'  # FIX TIMING: 05:00, 11:00, 17:00, 23:00 UTC.
+                             # Gibt ≥67min Puffer zum naechsten Combined-Primaer-Slot
+                             # (06:07, 12:07, 18:07, 00:07) und ≥107min zu den Backup-
+                             # Slots (:27/:47). Vorher '30 */6' (00:30/06:30/12:30/18:30)
+                             # lief nur 17min vor dem :47-Backup-Slot – zu wenig wenn
+                             # der Honeypot-Commit noch austand.
   workflow_dispatch:
 
 env:
