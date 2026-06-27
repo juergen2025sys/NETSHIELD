@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-26 20:52 UTC",
+  "updated": "2026-06-27 05:03 UTC",
   "total": 23,
   "ok": 22,
   "warn": 2,
@@ -8,7 +8,7 @@
     {
       "file": "update_combined_blacklist.yml",
       "check": "IP-Listen Duplikate",
-      "detail": "combined_threat_blacklist_ipv4.txt: 6,601,769 doppelte IPs (50.0% von 13,203,538) \u2013 Scoring-Verzerrung und aufgebl\u00e4hte Datei"
+      "detail": "combined_threat_blacklist_ipv4.txt: 6,588,554 doppelte IPs (50.0% von 13,177,108) \u2013 Scoring-Verzerrung und aufgebl\u00e4hte Datei"
     }
   ],
   "warnings": [
@@ -40,7 +40,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 89.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 89.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
@@ -64,11 +64,11 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6601769,
-    "active_blacklist_ipv4.txt": 407507,
-    "blacklist_confidence40_ipv4.txt": 5474453,
+    "combined_threat_blacklist_ipv4.txt": 6588554,
+    "active_blacklist_ipv4.txt": 383132,
+    "blacklist_confidence40_ipv4.txt": 5480120,
     "cve_exploit_ips.txt": 33433,
-    "honeypot_ips.txt": 119459,
+    "honeypot_ips.txt": 124273,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
@@ -78,7 +78,7 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 89.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 89.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
