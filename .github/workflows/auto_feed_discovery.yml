@@ -2037,22 +2037,36 @@ jobs:
           # wurde im letzten Run 0 angenommen, weil keiner es in die Top-120
           # schaffte. Stratifizierung gibt jeder Quell-Klasse eigene Quote.
           #
-          # Aufteilung (insgesamt EVAL_BUDGET=240):
-          #   - GH_REP: Top-100 nach Reputation (war 120)
-          #   - AWESOME: 60 Slots ausschliesslich für Awesome-List-Kandidaten (war 40)
-          #   - GITLAB: 30 Slots ausschliesslich für GitLab-Kandidaten (war 20)
-          #   - GH_FRESH: 50 Slots nach Pushed-Datum aus Rest-GitHub (frische, (war 20)
-          #              evtl. neue Maintainer ohne Stars)
+          # Aufteilung (insgesamt EVAL_BUDGET=400):
+          #   - GH_CODE: 60 Slots ausschliesslich fuer Code-Search-Treffer (NEU).
+          #             Diese Kandidaten stammen aus filename:-Queries (z.B.
+          #             "filename:blocklist.txt malicious ip") und matchen damit
+          #             per Konstruktion IP_FILE_PATTERNS - hoechste Trefferquote
+          #             fuer "IP-Datei vorhanden". Laeuft als Pool 0 ZUERST, damit
+          #             diese Treffer nicht im Stars-/Pushed-Ranking untergehen.
+          #   - GH_REP: Top-160 nach Reputation
+          #   - AWESOME: 100 Slots ausschliesslich für Awesome-List-Kandidaten
+          #   - GITLAB: 40 Slots ausschliesslich für GitLab-Kandidaten
+          #   - GH_FRESH: 40 Slots nach Pushed-Datum aus Rest-GitHub (Code-Pool
+          #              uebernimmt einen Teil dieser Aufgabe mit staerkerem
+          #              Signal, daher von 80 auf 40 reduziert)
           # Bei zu wenig Kandidaten in einer Quote werden ungenutzte Slots
           # NICHT umverteilt - das wuerde den Reputation-Bias wiederherstellen.
-          EVAL_BUDGET   = 380   # erhöht: mehr Eval-Slots = mehr Annahme-Chancen (war 240)
+          EVAL_BUDGET   = 400   # 60+160+100+40+40 (Code-Pool ergaenzt, Fresh reduziert)
+          QUOTA_CODE    = 60    # NEU: dedizierte Quote fuer code:-Kandidaten
           QUOTA_REP     = 160   # erhöht: Reputation-Pool tiefer prüfen (war 100)
           QUOTA_AWESOME = 100   # erhöht: kuratierte Listen breiter abdecken (war 60)
           QUOTA_GITLAB  = 40    # leicht erhöht: nur ~37 GitLab-Kandidaten existieren (war 30)
-          QUOTA_FRESH   = 80    # erhöht: mehr frische unbekannte Feeds (war 50)
+          QUOTA_FRESH   = 40    # reduziert: Code-Pool deckt junge Feeds gezielter ab (war 80)
 
           def _is_awesome(meta):
               return any(s.startswith("awesome:") for s in meta.get("sources", []))
+
+          def _is_code(meta):
+              # Kandidat stammt (auch) aus einer Code-Search-Query (Tag "code:..."
+              # via add_repo_candidate). filename:-Treffer matchen per
+              # Konstruktion IP_FILE_PATTERNS -> hoechste Feed-Wahrscheinlichkeit.
+              return any(s.startswith("code:") for s in meta.get("sources", []))
 
           def _is_gitlab(meta):
               return meta.get("platform") == "gitlab"
@@ -2103,8 +2117,13 @@ jobs:
                   _skipped_known_pre += 1
                   continue
               # Reputation-Pool-Kandidaten umgehen die Punkte-Heuristik
-              # (aber Hard-Reject oben hat schon gegriffen, falls relevant)
-              if not _is_gitlab(v) and not _is_awesome(v) and _rep_score(v) >= 20:
+              # (aber Hard-Reject oben hat schon gegriffen, falls relevant).
+              # NEU: Code-Search-Treffer (code:) umgehen den Tool-Filter ebenfalls
+              # - ein filename:-Match ist ein staerkeres Signal als die
+              # Namens-Heuristik, sonst wuerden kleine Feeds mit 0 Stars hier
+              # faelschlich als "Tool" aussortiert.
+              if (not _is_gitlab(v) and not _is_awesome(v)
+                      and (_rep_score(v) >= 20 or _is_code(v))):
                   _all_items.append((k, v))
                   continue
               # Awesome/GitLab/Fresh: Tool-Filter aktiv
@@ -2120,6 +2139,24 @@ jobs:
 
           _picked_keys = set()
           _sorted_candidates = []
+
+          # Pool 0: Code-Search-Treffer (code:-Tag). Hoechste Prioritaet, weil
+          # diese Kandidaten aus filename:-Queries stammen und damit per
+          # Konstruktion eine IP_FILE_PATTERNS-passende Datei besitzen -> die
+          # mit Abstand hoechste Trefferquote fuer "IP-Datei vorhanden". Wird
+          # ZUERST gezogen, sortiert nach Pushed-Datum (frischere zuerst),
+          # damit sie nicht im Stars-Ranking der anderen Pools untergehen.
+          _code_pool = [
+              (k, v) for k, v in _all_items
+              if _is_code(v) and not _is_gitlab(v) and not _is_awesome(v)
+          ]
+          _code_pool.sort(key=lambda x: _pushed_key(x[1]), reverse=True)
+          _code_added = 0
+          for k, v in _code_pool[:QUOTA_CODE]:
+              if k not in _picked_keys:
+                  _sorted_candidates.append((k, v))
+                  _picked_keys.add(k)
+                  _code_added += 1
 
           # Pool 1: Top-Reputation aus GitHub (Awesome und GitLab ausgeschlossen,
           # damit deren Quote nicht doppelt zaehlt)
@@ -2178,6 +2215,7 @@ jobs:
 
           print(
               f"Stratifizierte Auswahl aus {len(candidate_repos)} Kandidaten:\n"
+              f"  Code-Search-Pool (GH):    {_code_added} (von {len(_code_pool)} verfuegbar)\n"
               f"  Reputation-Pool (GH):     {min(QUOTA_REP, len(_rep_pool))}\n"
               f"  Awesome-Pool:             {_aw_added} (von {len(_aw_pool)} verfuegbar)\n"
               f"  GitLab-Pool:              {_gl_added} (von {len(_gl_pool)} verfuegbar)\n"
