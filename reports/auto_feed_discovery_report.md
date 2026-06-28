@@ -1,42 +1,43 @@
 # Auto Feed Discovery – Report
-**Aktualisiert:** 2026-06-21 08:47 UTC
+**Aktualisiert:** 2026-06-28 08:04 UTC
 
 ---
 ## Zusammenfassung
 
 | Metrik | Wert |
 |---|---|
-| Kandidaten gesamt | **7225** |
-| davon GitHub (Topics+Code) | **7174** |
+| Kandidaten gesamt | **7269** |
+| davon GitHub (Topics+Code) | **7218** |
 | davon GitLab | **51** |
-| davon Awesome-Lists | **1013** |
-| Tools/Libraries vor Eval gefiltert | **1017** |
-| davon Hard-Reject (awesome-Liste etc.) | **99** |
-| EVAL-Kandidaten (nach Stratifizierung) | **241** |
+| davon Awesome-Lists | **1019** |
+| Tools/Libraries vor Eval gefiltert | **1041** |
+| davon Hard-Reject (awesome-Liste etc.) | **96** |
+| EVAL-Kandidaten (nach Stratifizierung) | **343** |
 | davon bereits rejected (übersprungen) | **0** |
 | davon bereits approved (übersprungen) | **0** |
-| tatsächlich evaluiert | **245** |
+| tatsächlich evaluiert | **347** |
 | Neu angenommen | **0** |
 | davon aus GitLab | **0** |
 | davon aus Awesome-Lists | **0** |
 | Bestehende Feeds aktualisiert | **30** |
-| Abgelehnt (dieser Run) | **241** |
-| davon GitLab abgelehnt | **1** |
+| Abgelehnt (dieser Run) | **343** |
+| davon GitLab abgelehnt | **3** |
 | Feeds gesamt (aktiv) | **30** |
-| IPs in seen_db bestätigt | **714397** |
-| Neue IPs eingetragen | **42607** |
-| seen_db gesamt | **4,881,554** |
-| HQ-Referenz-IPs (6 Quellen) | **146326** |
+| IPs in seen_db bestätigt | **685273** |
+| Neue IPs eingetragen | **68220** |
+| seen_db gesamt | **4,578,559** |
+| HQ-Referenz-IPs (6 Quellen) | **143031** |
 
 ---
 ## 📊 Reject-Gründe (dieser Run)
 
 | Grund | Anzahl |
 |---|---|
-| Keine IP-Datei im Repo | **205** |
-| Repo zu alt (>30d) | **17** |
-| IP-Datei veraltet (>30d) | **13** |
-| Falsche Größe (<100 / >500k IPs) | **6** |
+| Keine IP-Datei im Repo | **322** |
+| Repo zu alt (>30d) | **13** |
+| IP-Datei veraltet (>30d) | **5** |
+| Falsche Größe (<100 / >500k IPs) | **2** |
+| Overlap mit HQ-Feeds zu gering (<20%) | **1** |
 
 ---
 ## ✅ Angenommene Feeds
@@ -53,283 +54,385 @@
 
 | Repo | Plattform | Grund |
 |---|---|---|
-| `panguard-ai/panguard-ai` | GITHUB | Keine IP-Datei |
-| `The-Privacy-Commons-Institute/chrome-mal-ids` | GITHUB | Keine IP-Datei |
-| `OraclesTech/guardian-sdk` | GITHUB | Keine IP-Datei |
-| `farseer-go/fs` | GITHUB | Keine IP-Datei |
-| `z4kn4fein/stashbox` | GITHUB | Keine IP-Datei |
-| `hynek/svcs` | GITHUB | Keine IP-Datei |
-| `binghe001/BingheGuide` | GITHUB | Keine IP-Datei |
-| `ets-labs/python-dependency-injector` | GITHUB | Keine IP-Datei |
-| `zazoomauro/node-dependency-injection` | GITHUB | Keine IP-Datei |
-| `DevTeam/Pure.DI` | GITHUB | Keine IP-Datei |
-| `gustavopsantos/Reflex` | GITHUB | Keine IP-Datei |
-| `maxDcb/C2Implant` | GITHUB | Zu alt: 41d |
-| `immauss/openvas` | GITHUB | Größe: 0 IPs |
-| `AdventDevInc/kudu` | GITHUB | Keine IP-Datei |
-| `backstagephp/laravel-seo-scanner` | GITHUB | Keine IP-Datei |
-| `Ostorlab/oxo` | GITHUB | Keine IP-Datei |
-| `topscoder/nuclei-wordfence-cve` | GITHUB | Keine IP-Datei |
-| `AhmedAbokhatwa/retail-suite` | GITHUB | Keine IP-Datei |
-| `cifertech/ESP32-DIV` | GITHUB | Keine IP-Datei |
-| `greenbone/openvas-scanner` | GITHUB | Keine IP-Datei |
-| `mrousavy/react-native-vision-camera` | GITHUB | Keine IP-Datei |
-| `tegos/travian-elephant-finder` | GITHUB | Keine IP-Datei |
-| `aquasecurity/trivy-action` | GITHUB | Keine IP-Datei |
-| `wpscanteam/wpscan` | GITHUB | IP-Datei 2825d alt |
-| `RetireJS/retire.js` | GITHUB | Keine IP-Datei |
-| `Tencent/AI-Infra-Guard` | GITHUB | Keine IP-Datei |
-| `seifreed/yaraast` | GITHUB | Keine IP-Datei |
-| `owasp-dep-scan/blint` | GITHUB | Keine IP-Datei |
-| `AdvDebug/Brovan` | GITHUB | Keine IP-Datei |
-| `malwaredb/malwaredb-rs` | GITHUB | Keine IP-Datei |
-| `blackorbird/APT_REPORT` | GITHUB | IP-Datei 1639d alt |
-| `mytechnotalent/Reverse-Engineering` | GITHUB | Keine IP-Datei |
-| `r1cksec/cheatsheets` | GITHUB | Keine IP-Datei |
-| `vmkspv/lenspect` | GITHUB | Keine IP-Datei |
-| `kawaiipantsu/spamassassin-rules` | GITHUB | Keine IP-Datei |
-| `samsesh/SocialBox-Termux` | GITHUB | Keine IP-Datei |
-| `duyet/bruteforce-database` | GITHUB | Keine IP-Datei |
-| `Security-Onion-Solutions/securityonion` | GITHUB | Keine IP-Datei |
-| `neur0map/glazepkg` | GITHUB | Keine IP-Datei |
-| `openkilt/openrepo` | GITHUB | Keine IP-Datei |
-| `mexirica/aptui` | GITHUB | Keine IP-Datei |
-| `palahsu/DDoS-Ripper` | GITHUB | Keine IP-Datei |
-| `duy13/vDDoS-Protection` | GITHUB | Keine IP-Datei |
-| `Altify-Developing/Altify-Developing-Main` | GITHUB | Keine IP-Datei |
-| `m3rcer/Chisel-Strike` | GITHUB | Zu alt: 818d |
-| `ElJaviLuki/CobaltStrike_OpenBeacon` | GITHUB | Zu alt: 830d |
-| `yutianqaq/CSx3Ldr` | GITHUB | Zu alt: 890d |
-| `gloxec/CrossC2` | GITHUB | Zu alt: 944d |
-| `hlldz/Phant0m` | GITHUB | Zu alt: 1004d |
-| `intbjw/bimg-shellcode-loader` | GITHUB | Zu alt: 1005d |
-| `harleyQu1nn/AggressorScripts` | GITHUB | Zu alt: 1087d |
-| `BC-SECURITY/Malleable-C2-Profiles` | GITHUB | Zu alt: 1106d |
-| `malwarekid/OnlyShell` | GITHUB | Zu alt: 118d |
-| `Chocapikk/wpprobe` | GITHUB | Keine IP-Datei |
-| `xsscx/fuzz` | GITHUB | IP-Datei 3751d alt |
-| `htrgouvea/spellbook` | GITHUB | Keine IP-Datei |
-| `trickest/cve` | GITHUB | Keine IP-Datei |
-| `openwrt-xiaomi/xmir-patcher` | GITHUB | Keine IP-Datei |
-| `apersongithub/Duolingo-Unlimited-Hearts` | GITHUB | Keine IP-Datei |
-| `DevVj-1/Sub-Ringan-Framework` | GITHUB | Keine IP-Datei |
-| `bitsadmin/wesng` | GITHUB | Keine IP-Datei |
-| `firefart/stunner` | GITHUB | Keine IP-Datei |
-| `laluka/skillarch` | GITHUB | Keine IP-Datei |
-| `ait-testbed/attackmate` | GITHUB | Keine IP-Datei |
-| `SIA-IOTechnology/Kittysploit-framework` | GITHUB | Keine IP-Datei |
-| `k8gege/k8gege.github.io` | GITHUB | Keine IP-Datei |
-| `david942j/one_gadget` | GITHUB | Keine IP-Datei |
-| `portbuster1337/lpe-toolkit` | GITHUB | Keine IP-Datei |
-| `asset-group/Sni5Gect-5GNR-sniffing-and-exploitation` | GITHUB | IP-Datei 38d alt |
-| `blatteprince2/Void-Engine-GD` | GITHUB | Keine IP-Datei |
-| `Leon406/SubCrawler` | GITHUB | Keine IP-Datei |
-| `huijingfei/Shadowrocket-Rules` | GITHUB | Keine IP-Datei |
-| `mheidari98/.proxy` | GITHUB | Keine IP-Datei |
-| `NiREvil/vless` | GITHUB | Keine IP-Datei |
-| `sub-store-org/Sub-Store` | GITHUB | Keine IP-Datei |
-| `Kwisma/Sub-Store-node` | GITHUB | Keine IP-Datei |
-| `whoahaow/rjsxrd` | GITHUB | Keine IP-Datei |
-| `Mahdi0024/ProxyCollector` | GITHUB | Keine IP-Datei |
-| `Pwnzer0tt1/firegex` | GITHUB | Keine IP-Datei |
-| `Luffy-del/Honeypot-Spam-Buster` | GITHUB | Keine IP-Datei |
-| `anvaka/isect` | GITHUB | Keine IP-Datei |
-| `artifact-keeper/artifact-keeper` | GITHUB | Keine IP-Datei |
-| `0sec-labs/foxguard` | GITHUB | Keine IP-Datei |
-| `OWASP/DockSec` | GITHUB | Keine IP-Datei |
-| `danikf/tik4net` | GITHUB | Keine IP-Datei |
-| `hotspotbilling/phpnuxbill` | GITHUB | Keine IP-Datei |
-| `EvilFreelancer/docker-routeros` | GITHUB | Keine IP-Datei |
-| `tuconnaisyouknow/BadUSB_keyloggerInjector` | GITHUB | IP-Datei 1525d alt |
-| `Verdi38/Silent-Crypto-Miner` | GITHUB | Keine IP-Datei |
-| `miaothomas-bit/Crypto-Mining-Node-Utility` | GITHUB | Keine IP-Datei |
-| `cryptoprofitswitcher/CryptoProfitSwitcher` | GITHUB | Zu alt: 1291d |
-| `STRRL/shell-now` | GITHUB | Zu alt: 359d |
-| `tuconnaisyouknow/BadUSB_adminAccountCreator` | GITHUB | IP-Datei 498d alt |
-| `Aegrah/PANIX` | GITHUB | Zu alt: 116d |
-| `arsium/EagleMonitorRAT` | GITHUB | Zu alt: 116d |
-| `thisisnzed/Pandora` | GITHUB | Zu alt: 117d |
-| `canarddu38/DUCKSPLOIT` | GITHUB | Zu alt: 119d |
-| `por-cli/por-cli` | GITHUB | Keine IP-Datei |
-| `tjuven666-hash/Scrapper-Proxy-2026-Checker` | GITHUB | Keine IP-Datei |
-| `blacklanternsecurity/cloudcheck` | GITHUB | Keine IP-Datei |
-| `intelseclab/osintelligence` | GITHUB | Keine IP-Datei |
-| `hahwul/urx` | GITHUB | Keine IP-Datei |
-| `dootss/shodan-dorks` | GITHUB | Keine IP-Datei |
-| `Ringmast4r/Epstein` | GITHUB | Keine IP-Datei |
-| `leebaird/discover` | GITHUB | IP-Datei 48d alt |
-| `rix4uni/scope` | GITHUB | Keine IP-Datei |
-| `ipverse/as-metadata` | GITHUB | Keine IP-Datei |
-| `lord-alfred/ipranges` | GITHUB | Keine IP-Datei |
-| `jamditis/claude-skills-journalism` | GITHUB | IP-Datei 79d alt |
-| `soxoj/telegram-bot-dumper` | GITHUB | Keine IP-Datei |
-| `blackstork-io/blackstork-cli` | GITHUB | Keine IP-Datei |
-| `SEKOIA-IO/Community` | GITHUB | IP-Datei 842d alt |
-| `sherifabdlnaby/elastdocker` | GITHUB | Keine IP-Datei |
-| `FunnyWolf/agentic-soc-platform` | GITHUB | Keine IP-Datei |
-| `call518/LogSentinelAI` | GITHUB | Keine IP-Datei |
-| `Graylog2/graylog2-server` | GITHUB | Keine IP-Datei |
-| `ucb-bar/chipyard` | GITHUB | Keine IP-Datei |
-| `YuzukiTsuru/OpenixSuit` | GITHUB | Keine IP-Datei |
-| `redteamfortress/PPLShade` | GITHUB | Keine IP-Datei |
-| `theSecHunter/Hades-Windows` | GITHUB | Keine IP-Datei |
-| `trickest/wordlists` | GITHUB | Keine IP-Datei |
-| `rix4uni/WordList` | GITHUB | Keine IP-Datei |
-| `lockfale/OSINT-Framework` | GITHUB | Keine IP-Datei |
-| `Jieyab89/OSINT-Cheat-sheet` | GITHUB | Keine IP-Datei |
-| `nikitastupin/orgs-data` | GITHUB | Keine IP-Datei |
-| `pikpikcu/airecon` | GITHUB | Keine IP-Datei |
-| `pzaino/thecrowler` | GITHUB | Keine IP-Datei |
-| `projectdiscovery/urlfinder` | GITHUB | Keine IP-Datei |
-| `freelabz/secator` | GITHUB | IP-Datei 59d alt |
-| `7WaySecurity/ai_osint` | GITHUB | Keine IP-Datei |
-| `chen2he/orange-cloud` | GITHUB | Keine IP-Datei |
-| `uwaserver/uwas` | GITHUB | Keine IP-Datei |
-| `corazawaf/coraza-caddy` | GITHUB | Keine IP-Datei |
-| `buybitart/cloudflare-security-art` | GITHUB | Keine IP-Datei |
-| `fuomag9/caddy-proxy-manager` | GITHUB | Keine IP-Datei |
-| `owasp-modsecurity/ModSecurity` | GITHUB | IP-Datei 596d alt |
-| `sourcentis/mercator` | GITHUB | Keine IP-Datei |
-| `JMousqueton/github-cve-monitor` | GITHUB | Keine IP-Datei |
-| `EXP-Tools/threat-broadcast` | GITHUB | Keine IP-Datei |
-| `OWASP/cve-lite-cli` | GITHUB | Keine IP-Datei |
-| `ossf/cve-bin-tool` | GITHUB | Keine IP-Datei |
-| `ckotzbauer/vulnerability-operator` | GITHUB | Keine IP-Datei |
-| `vulnerability-lookup/vulnerability-lookup` | GITHUB | Keine IP-Datei |
-| `infobyte/faraday` | GITHUB | Keine IP-Datei |
-| `deeztek/Hermes-Secure-Email-Gateway` | GITHUB | Größe: 0 IPs |
-| `biandratti/huginn-net` | GITHUB | Keine IP-Datei |
-| `ffalcinelli/pydivert` | GITHUB | Keine IP-Datei |
-| `netalertx/NetAlertX` | GITHUB | Keine IP-Datei |
-| `batfish/batfish` | GITHUB | Größe: 1 IPs |
-| `JarryShaw/PyPCAPKit` | GITHUB | Keine IP-Datei |
-| `zcyberseclab/zscan` | GITHUB | Keine IP-Datei |
-| `mennylevinski/uspector-net` | GITHUB | Keine IP-Datei |
-| `darialebedev8/Crypto-Clipper` | GITHUB | Keine IP-Datei |
-| `roxy-wi/IncidentRelay` | GITHUB | Keine IP-Datei |
-| `OneUptime/oneuptime` | GITHUB | Keine IP-Datei |
-| `LETHAL-FORENSICS/Microsoft-Analyzer-Suite` | GITHUB | Größe: 0 IPs |
-| `ongridio/ongrid` | GITHUB | Keine IP-Datei |
-| `kil-ktovwarfuce/Panel2-collection-27` | GITHUB | Keine IP-Datei |
-| `ExtarDev/WorpGPT-Latest-2026` | GITHUB | Keine IP-Datei |
-| `fredotran/traffic-sign-detector-yolov4` | GITHUB | Zu alt: 222d |
-| `gitlab:niclas-zone/ctr/cowrie` | GITLAB | Keine IP-Datei |
-| `nidr0x/k8s-gitops` | GITHUB | Keine IP-Datei |
-| `FinnPL/Homelab-Setup` | GITHUB | Keine IP-Datei |
-| `yukariin/cluster` | GITHUB | Keine IP-Datei |
-| `SecurityRonin/dar-forensic` | GITHUB | Keine IP-Datei |
-| `SecurityRonin/qcow2-forensic` | GITHUB | Keine IP-Datei |
-| `SecurityRonin/iso9660-forensic` | GITHUB | Keine IP-Datei |
-| `SecurityRonin/ext4fs-forensic` | GITHUB | Keine IP-Datei |
-| `SecurityRonin/ntfs-forensic` | GITHUB | Keine IP-Datei |
-| `yuzeguitarist/ParallaX` | GITHUB | Keine IP-Datei |
-| `sandeepmothukuri/sandeepmothukuri` | GITHUB | Keine IP-Datei |
-| `soenneker/soenneker.cloudflare.validators.request` | GITHUB | Keine IP-Datei |
-| `AS215932/noc-agent` | GITHUB | Keine IP-Datei |
-| `runtechx/oss-stack` | GITHUB | Keine IP-Datei |
-| `giantswarm/falco-app` | GITHUB | Keine IP-Datei |
-| `punpun1207/ddos` | GITHUB | Größe: 0 IPs |
-| `CHUMENII/COM-UACBypass-Privilege-Escalation` | GITHUB | Keine IP-Datei |
-| `Daaboulex/portmaster-nix` | GITHUB | Keine IP-Datei |
-| `anpa1200/adversarygraph` | GITHUB | Keine IP-Datei |
-| `Serious-senpai/remote-access-trojan` | GITHUB | Keine IP-Datei |
-| `Cantue35/adobe-blocklist` | GITHUB | IP-Datei 310d alt |
-| `hcloud-k8s/terraform-hcloud-kubernetes` | GITHUB | Keine IP-Datei |
-| `cognis-digital/wazuhdeploy` | GITHUB | Keine IP-Datei |
-| `hackingpal/hackingpal` | GITHUB | Keine IP-Datei |
-| `canterbury-air-patrol/flight-safety-system` | GITHUB | Keine IP-Datei |
-| `ethicxlhuman/security-automation-insights` | GITHUB | Keine IP-Datei |
-| `karthik13-bot/shivora` | GITHUB | Keine IP-Datei |
-| `mukul-07/missiondebug` | GITHUB | Keine IP-Datei |
-| `SyedShaheerHussain/File-Type-Identifier_V1_GUI_Python` | GITHUB | Keine IP-Datei |
-| `kylefoxaustin/qemu-imx93` | GITHUB | Keine IP-Datei |
-| `Adam-Palacz/spaceops_mission_agent_lab` | GITHUB | Keine IP-Datei |
-| `AiursoftWeb/AnduinOS-Packages` | GITHUB | Größe: 0 IPs |
-| `Hack23/riksdagsmonitor` | GITHUB | Keine IP-Datei |
-| `Kajal-Dhanjal/sentinel-detection-lab` | GITHUB | Keine IP-Datei |
-| `Ranveerrrrr/Bug-Bounty-Notes` | GITHUB | Keine IP-Datei |
-| `apt-repositories/generator` | GITHUB | Keine IP-Datei |
-| `slok/stactus-showcase` | GITHUB | Keine IP-Datei |
-| `shuvendu9207/NetShield` | GITHUB | Keine IP-Datei |
-| `malek-alhu/marketplace-phaas-tracker` | GITHUB | Keine IP-Datei |
-| `ConfoederatioVF/Naissance` | GITHUB | Keine IP-Datei |
-| `git-mracek/talos-gitops` | GITHUB | Keine IP-Datei |
-| `vishal5589/jarvis-secops-assistant` | GITHUB | Keine IP-Datei |
-| `alessandromrc/tor-monitoring` | GITHUB | Keine IP-Datei |
-| `saqqdy/incident-commander` | GITHUB | Keine IP-Datei |
-| `cognis-digital/conflictwatch` | GITHUB | Keine IP-Datei |
-| `conchaestradamiguelangel-droid/aegis` | GITHUB | Keine IP-Datei |
-| `n0ts0cial/intel-cisa-feed` | GITHUB | Keine IP-Datei |
-| `ipanalytics/AI-Crawler-Blocklist` | GITHUB | Keine IP-Datei |
-| `cyclonite69/shadowcheck-web` | GITHUB | IP-Datei 45d alt |
-| `WaneProtocol/wane-solana` | GITHUB | Keine IP-Datei |
-| `intelseclab/poc-archive` | GITHUB | Keine IP-Datei |
-| `alaskaintel/alaskaintel-json` | GITHUB | Keine IP-Datei |
-| `tscibilia/home-ops` | GITHUB | Keine IP-Datei |
-| `0xCyberLiTech/0xcyberlitech` | GITHUB | Keine IP-Datei |
-| `milos106/icovazby` | GITHUB | Keine IP-Datei |
-| `nimbus-agent/linux-repo` | GITHUB | Keine IP-Datei |
-| `cognis-digital/convoy-or` | GITHUB | Keine IP-Datei |
-| `cognis-digital/scifops` | GITHUB | Keine IP-Datei |
-| `cognis-digital/comint-osquery` | GITHUB | Keine IP-Datei |
-| `cognis-digital/rmf-package` | GITHUB | Keine IP-Datei |
-| `SovereignSafetyLabs/vmga` | GITHUB | Keine IP-Datei |
-| `malaika-azhar/cybersecurity-lab-projects` | GITHUB | Keine IP-Datei |
-| `Zantirim/Super-Champs-Game-Crypto-Bot-Auto-Farm-Clicker-Cheat-Api-Hack` | GITHUB | Keine IP-Datei |
-| `Althariv/Legends-of-Elumia-Hack-Game-Bot-Auto-Farm-Clicker-Crypto-Elumia-Api-Cheat` | GITHUB | Keine IP-Datei |
-| `SobralCybersec/APIKeyScanner` | GITHUB | Keine IP-Datei |
-| `TechSavvy54y/Pixels-xyz-Hack-Game-Bot-Auto-Farm-Clicker-Crypto-Api-Cheat` | GITHUB | Keine IP-Datei |
-| `anujs-27/SpectreGate` | GITHUB | Keine IP-Datei |
-| `depthbrawlerspin/Voicemod-Crack-Download-2026` | GITHUB | Keine IP-Datei |
-| `aleks-sidorenko/nix-config` | GITHUB | Keine IP-Datei |
-| `Fluxenn/Cyber-Finance-Game-Bot-Auto-Farm-Clicker-Crypto-CFI-Telegram-Hack-Cheat` | GITHUB | Keine IP-Datei |
-| `xln777/home-soc-lab` | GITHUB | Keine IP-Datei |
-| `brianpelow/IncidentPilot` | GITHUB | Keine IP-Datei |
-| `brianpelow/mcp-incident-intel` | GITHUB | Keine IP-Datei |
-| `JoeRu/swarmguard` | GITHUB | Keine IP-Datei |
-| `thaynes43/haynes-ops` | GITHUB | Keine IP-Datei |
-| `AlejoTechEngineer/Cloud-Migration-Security-Article` | GITHUB | Keine IP-Datei |
-| `AlejoTechEngineer/Ciberseguridad_Delitos_Informaticos_En_Fuentes_Abiertas` | GITHUB | Keine IP-Datei |
-| `br3eze-code/br3eze-code` | GITHUB | Keine IP-Datei |
-| `peanutsee/nvd-blast-radius-analysis` | GITHUB | Keine IP-Datei |
-| `EHArviv/cloud-security-misconfiguration-checker` | GITHUB | Keine IP-Datei |
-| `Sengathirmcse/sigil-guardian` | GITHUB | Keine IP-Datei |
+| `christinminor459/OnionClaw` | GITHUB | Keine IP-Datei |
+| `mwemuorg/mwemu` | GITHUB | Keine IP-Datei |
+| `reactiveui/splat` | GITHUB | Keine IP-Datei |
+| `ioc-fang/ioc-fanger` | GITHUB | Keine IP-Datei |
+| `vercube/vercube` | GITHUB | Keine IP-Datei |
+| `modern-python/modern-di` | GITHUB | Keine IP-Datei |
+| `maksimzayats/diwire` | GITHUB | Keine IP-Datei |
+| `TAKETODAY/today-infrastructure` | GITHUB | Keine IP-Datei |
+| `midwayjs/midway` | GITHUB | Keine IP-Datei |
+| `Savory/Danet` | GITHUB | Keine IP-Datei |
+| `wix-incubator/obsidian` | GITHUB | Keine IP-Datei |
+| `28Zaaky/khaos-c2` | GITHUB | Keine IP-Datei |
+| `looCiprian/GC2-sheet` | GITHUB | Keine IP-Datei |
+| `jm33-m0/emp3r0r` | GITHUB | Keine IP-Datei |
+| `r4ulcl/Mythic-OSEP-CheatSheet` | GITHUB | Keine IP-Datei |
+| `cfs0x/Cobalt-Strike-Ultimate-Arsenal` | GITHUB | Keine IP-Datei |
+| `yankywilson/jdy-botnet-threat-analysis` | GITHUB | Größe: 10 IPs |
+| `87owo/PYAS` | GITHUB | Keine IP-Datei |
+| `Edu4rdSHL/unimap` | GITHUB | Keine IP-Datei |
+| `Kolandone/Selector` | GITHUB | Keine IP-Datei |
+| `Fabi019/hid-barcode-scanner` | GITHUB | Keine IP-Datei |
+| `Stevoisiak/Stevos-AI-Blocklist` | GITHUB | Größe: 0 IPs |
+| `NullPounce/pounce-keys` | GITHUB | Keine IP-Datei |
+| `0xDanielLopez/phishing_kits` | GITHUB | Keine IP-Datei |
+| `thalesgroup-cert/Watcher` | GITHUB | IP-Datei 62d alt |
+| `OWASP/Nettacker` | GITHUB | Keine IP-Datei |
+| `bernardladenthin/BitcoinAddressFinder` | GITHUB | Keine IP-Datei |
+| `x90skysn3k/brutespray` | GITHUB | Keine IP-Datei |
+| `samuelcaldas/Bruteforce-Bootloader-Unlocker` | GITHUB | Keine IP-Datei |
+| `chaitin/SafeLine` | GITHUB | Keine IP-Datei |
+| `X-Stuff/CudaKeeloq` | GITHUB | Keine IP-Datei |
+| `chickendrop89/OneShot-Extended` | GITHUB | Keine IP-Datei |
+| `animir/node-rate-limiter-flexible` | GITHUB | Keine IP-Datei |
+| `dreddsa5dies/goHackTools` | GITHUB | Zu alt: 35d |
+| `ghluka/username-checker` | GITHUB | Zu alt: 38d |
+| `Antu7/python-bruteForce` | GITHUB | Zu alt: 50d |
+| `BlessedRebuS/Krawl` | GITHUB | Keine IP-Datei |
+| `andreicscs/HoneyWire` | GITHUB | Keine IP-Datei |
+| `beelzebub-labs/beelzebub` | GITHUB | Keine IP-Datei |
+| `markets/invisible_captcha` | GITHUB | Keine IP-Datei |
+| `theaog/spirit` | GITHUB | Keine IP-Datei |
+| `ThreatRecall/zettelforge` | GITHUB | Keine IP-Datei |
+| `opencybersecurityalliance/stix-shifter` | GITHUB | Keine IP-Datei |
+| `mentat-is/gulp` | GITHUB | Keine IP-Datei |
+| `LJ9859/Malware-Database` | GITHUB | Keine IP-Datei |
+| `badchars/darknet-mcp-server` | GITHUB | Keine IP-Datei |
+| `iss4cf0ng/OpenPetya` | GITHUB | Keine IP-Datei |
+| `HugoLB0/Ransom0` | GITHUB | Zu alt: 44d |
+| `aptly-dev/aptly` | GITHUB | Keine IP-Datei |
+| `S3N4T0R-0X0/APTs-Adversary-Simulation` | GITHUB | Keine IP-Datei |
+| `AOSC-Dev/oma` | GITHUB | Keine IP-Datei |
+| `wimpysworld/deb-get` | GITHUB | Keine IP-Datei |
+| `avaje/avaje-inject` | GITHUB | Keine IP-Datei |
+| `darkweak/rudy` | GITHUB | Keine IP-Datei |
+| `goncalopolido/overload` | GITHUB | Keine IP-Datei |
+| `tempesta-tech/tempesta` | GITHUB | Keine IP-Datei |
+| `Safe3/uusec-waf` | GITHUB | Keine IP-Datei |
+| `SystemVll/cloudflare-uam-bypass` | GITHUB | Keine IP-Datei |
+| `lance0/prefixd` | GITHUB | Keine IP-Datei |
+| `zer-far/spurt` | GITHUB | Keine IP-Datei |
+| `RuiSiang/PoW-Shield` | GITHUB | Keine IP-Datei |
+| `aaPanel/aaWAF` | GITHUB | Keine IP-Datei |
+| `yadavnikhil17102004/CVE-Intel` | GITHUB | Keine IP-Datei |
+| `0xSteph/pentest-ai` | GITHUB | Keine IP-Datei |
+| `Gallopsled/pwntools` | GITHUB | Keine IP-Datei |
+| `J0hnTh3Kn1ght/ExploitDB-Hunter` | GITHUB | Keine IP-Datei |
+| `prosopo/captcha` | GITHUB | Keine IP-Datei |
+| `Dra-Ganzz/Premium-Call` | GITHUB | Keine IP-Datei |
+| `CleanTalk/php-antispam` | GITHUB | Keine IP-Datei |
+| `muneebwanee/InstaReporter` | GITHUB | Zu alt: 43d |
+| `2dust/v2rayN` | GITHUB | Keine IP-Datei |
+| `sandflysecurity/sandfly-setup` | GITHUB | Keine IP-Datei |
+| `wazuh/wazuh-dashboard-plugins` | GITHUB | Keine IP-Datei |
+| `wazuh/wazuh-ansible` | GITHUB | Keine IP-Datei |
+| `wazuh/wazuh-documentation` | GITHUB | Keine IP-Datei |
+| `cedricbonhomme/pyHIDS` | GITHUB | Keine IP-Datei |
+| `DCSO/fever` | GITHUB | Keine IP-Datei |
+| `joshspeagle/brutus` | GITHUB | Keine IP-Datei |
+| `trickest/resolvers` | GITHUB | Keine IP-Datei |
+| `praetorian-inc/brutus` | GITHUB | Keine IP-Datei |
+| `spmedia/PhishingSecLists` | GITHUB | Keine IP-Datei |
+| `agourlay/zip-password-finder` | GITHUB | Keine IP-Datei |
+| `silentchainai/SILENTCHAIN` | GITHUB | Keine IP-Datei |
+| `vigolium/vigolium` | GITHUB | Keine IP-Datei |
+| `shukiv/jabali-panel` | GITHUB | Keine IP-Datei |
+| `DCSO/balboa` | GITHUB | Keine IP-Datei |
+| `mirceanton/external-dns-provider-mikrotik` | GITHUB | Keine IP-Datei |
+| `eworm-de/routeros-scripts` | GITHUB | Keine IP-Datei |
+| `tikoci/restraml` | GITHUB | Keine IP-Datei |
+| `beeyev/Mikrotik-RouterOS-automatic-backup-and-update` | GITHUB | Keine IP-Datei |
+| `jeff-nasseri/mikrotik-mcp` | GITHUB | Keine IP-Datei |
+| `Opnwall/Mihomo-for-OPNsense` | GITHUB | Keine IP-Datei |
+| `gensecaihq/pfsense-mcp-server` | GITHUB | Keine IP-Datei |
+| `pfrest/pfSense-pkg-saml2-auth` | GITHUB | Keine IP-Datei |
+| `jaymzh/iptstate` | GITHUB | Keine IP-Datei |
+| `htrgouvea/nipe` | GITHUB | Keine IP-Datei |
+| `hknutzen/Netspoc` | GITHUB | Keine IP-Datei |
+| `miniupnp/miniupnp` | GITHUB | Keine IP-Datei |
+| `x-way/iptables-tracer` | GITHUB | Keine IP-Datei |
+| `Anipaleja/nginx-defender` | GITHUB | Keine IP-Datei |
+| `apache/creadur-rat` | GITHUB | Keine IP-Datei |
+| `Hacker-nk/online-hackings` | GITHUB | Keine IP-Datei |
+| `Hacker-nk/online-hacking` | GITHUB | Keine IP-Datei |
+| `marlkiller/rust-desk-light` | GITHUB | Keine IP-Datei |
+| `pathetic/async-rust-rat` | GITHUB | Zu alt: 40d |
+| `bigratmonster/bigrat.monster` | GITHUB | Zu alt: 55d |
+| `anirudhmalik/xhunter` | GITHUB | Zu alt: 57d |
+| `WangYihang/Webshell-Sniper` | GITHUB | Keine IP-Datei |
+| `Marven11/EtherGhost` | GITHUB | Keine IP-Datei |
+| `ReaJason/No-One` | GITHUB | Keine IP-Datei |
+| `carloslack/KoviD` | GITHUB | Keine IP-Datei |
+| `marcocesarato/PHP-Antimalware-Scanner` | GITHUB | Zu alt: 51d |
+| `berkay-digital/Proxy-Scraper` | GITHUB | Keine IP-Datei |
+| `fyvri/fresh-proxy-list` | GITHUB | Keine IP-Datei |
+| `ErcinDedeoglu/proxies` | GITHUB | Keine IP-Datei |
+| `hookzof/socks5_list` | GITHUB | Keine IP-Datei |
+| `iplocate/free-proxy-list` | GITHUB | Keine IP-Datei |
+| `sunny9577/proxy-scraper` | GITHUB | Keine IP-Datei |
+| `vakhov/fresh-proxy-list` | GITHUB | Keine IP-Datei |
+| `gitrecon1455/fresh-proxy-list` | GITHUB | Keine IP-Datei |
+| `papapapapdelesia/Emilia` | GITHUB | Keine IP-Datei |
+| `noctiro/getproxy` | GITHUB | Keine IP-Datei |
+| `sec0ps/va-pt` | GITHUB | Keine IP-Datei |
+| `koala73/worldmonitor` | GITHUB | Keine IP-Datei |
+| `devops-ia/helm-opencti` | GITHUB | Keine IP-Datei |
+| `fastfire/deepdarkCTI` | GITHUB | Keine IP-Datei |
+| `SEKOIA-IO/automation-library` | GITHUB | Keine IP-Datei |
+| `mitre-attack/attack-website` | GITHUB | Keine IP-Datei |
+| `mitre-attack/attack-stix-data` | GITHUB | Keine IP-Datei |
+| `mitre-attack/attack-navigator` | GITHUB | Keine IP-Datei |
+| `gripebomb/ThreatDeck` | GITHUB | Keine IP-Datei |
+| `beenuar/AiSOC` | GITHUB | Keine IP-Datei |
+| `VictoriaMetrics/VictoriaLogs` | GITHUB | Keine IP-Datei |
+| `Quang-Minh-Phung/DienTu_TKVM_Documents` | GITHUB | Keine IP-Datei |
+| `Karib0u/rustinel` | GITHUB | Keine IP-Datei |
+| `backbay-labs/clawdstrike` | GITHUB | Keine IP-Datei |
+| `niklasr22/BrightIntosh` | GITHUB | Keine IP-Datei |
+| `h4rithd/PrecompiledBinaries` | GITHUB | Keine IP-Datei |
+| `bountyyfi/lonkero` | GITHUB | Keine IP-Datei |
+| `gen0sec/synapse` | GITHUB | Keine IP-Datei |
+| `coreruleset/go-ftw` | GITHUB | Keine IP-Datei |
+| `crowdsecurity/crowdsec` | GITHUB | Keine IP-Datei |
+| `corazawaf/coraza` | GITHUB | Keine IP-Datei |
+| `sefinek/Cloudflare-WAF-Expressions` | GITHUB | Overlap zu gering: 5.0% |
+| `macadmins/sofa` | GITHUB | Keine IP-Datei |
+| `RogoLabs/cve.icu` | GITHUB | Keine IP-Datei |
+| `hijack1r/CVE_PushService` | GITHUB | Keine IP-Datei |
+| `apache/magpie` | GITHUB | Keine IP-Datei |
+| `aw-junaid/bug-bounty` | GITHUB | IP-Datei 73d alt |
+| `tyxak/remotepower` | GITHUB | Keine IP-Datei |
+| `karimhabush/cyberowl` | GITHUB | Keine IP-Datei |
+| `dmarcguardhq/dmarcguard` | GITHUB | Keine IP-Datei |
+| `D4-project/passive-ssh` | GITHUB | Zu alt: 48d |
+| `nmap/nmap` | GITHUB | Keine IP-Datei |
+| `ddddddO/packemon` | GITHUB | Keine IP-Datei |
+| `BornToBeRoot/NETworkManager` | GITHUB | Keine IP-Datei |
+| `praetorian-inc/nerva` | GITHUB | Keine IP-Datei |
+| `HaxL0p4/L0p4Map` | GITHUB | Keine IP-Datei |
+| `zmap/zmap` | GITHUB | IP-Datei 2180d alt |
+| `CodeDead/Advanced-PortChecker` | GITHUB | Keine IP-Datei |
+| `stephenbrannon/IOCextractor` | GITHUB | Keine IP-Datei |
+| `spacepatcher/FireHOL-IP-Aggregator` | GITHUB | Keine IP-Datei |
+| `cert-se/megatron-java` | GITHUB | Keine IP-Datei |
+| `sroberts/cacador` | GITHUB | Keine IP-Datei |
+| `S03D4-164/Hiryu` | GITHUB | Keine IP-Datei |
+| `jheise/threatcmd` | GITHUB | Keine IP-Datei |
+| `HurricaneLabs/machinae` | GITHUB | Keine IP-Datei |
+| `ciscocsirt/gosint` | GITHUB | Keine IP-Datei |
+| `SupportIntelligence/Icewater` | GITHUB | Keine IP-Datei |
+| `yahoo/PyIOCe` | GITHUB | Keine IP-Datei |
+| `TheHive-Project/Hippocampe` | GITHUB | Keine IP-Datei |
+| `mandiant/ioc_writer` | GITHUB | Keine IP-Datei |
+| `mlsecproject/tiq-test` | GITHUB | Keine IP-Datei |
+| `1aN0rmus/TekDefense-Automater` | GITHUB | Keine IP-Datei |
+| `mitre/cti` | GITHUB | Keine IP-Datei |
+| `TAXIIProject/yeti` | GITHUB | Keine IP-Datei |
+| `TAXIIProject/libtaxii` | GITHUB | Keine IP-Datei |
+| `brianwarehime/threatnote` | GITHUB | Keine IP-Datei |
+| `cuckoosandbox/cuckoo` | GITHUB | Keine IP-Datei |
+| `abusesa/abusehelper` | GITHUB | Keine IP-Datei |
+| `EclecticIQ/OpenTAXII` | GITHUB | Keine IP-Datei |
+| `silascutler/MalPipe` | GITHUB | Keine IP-Datei |
+| `CrowdStrike/CrowdFMS` | GITHUB | Keine IP-Datei |
+| `mgeide/poortego` | GITHUB | Keine IP-Datei |
+| `armbues/ioc_parser` | GITHUB | Keine IP-Datei |
+| `ocmdev/rita` | GITHUB | Keine IP-Datei |
+| `foospidy/HoneyPy` | GITHUB | Keine IP-Datei |
+| `BinaryDefense/goatrider` | GITHUB | Keine IP-Datei |
+| `ioc-fang/ioc_fanger` | GITHUB | Keine IP-Datei |
+| `mlsecproject/combine` | GITHUB | Keine IP-Datei |
+| `Netflix/Scumblr` | GITHUB | Keine IP-Datei |
+| `PaloAltoNetworks/minemeld` | GITHUB | Keine IP-Datei |
+| `Ptr32Void/OSTrICa` | GITHUB | Keine IP-Datei |
+| `abhinavbom/Threat-Intelligence-Hunter` | GITHUB | Keine IP-Datei |
+| `TheHive-Project/Cortex` | GITHUB | Keine IP-Datei |
+| `jpsenior/threataggregator` | GITHUB | Keine IP-Datei |
+| `KasperskyLab/klara` | GITHUB | Keine IP-Datei |
+| `fhightower/onemillion` | GITHUB | Keine IP-Datei |
+| `EclecticIQ/cabby` | GITHUB | Keine IP-Datei |
+| `johestephan/ibmxforceex.checker.py` | GITHUB | Keine IP-Datei |
+| `jheise/threatcrowd_api` | GITHUB | Keine IP-Datei |
+| `InQuest/omnibus` | GITHUB | Keine IP-Datei |
+| `kbandla/APTnotes` | GITHUB | Keine IP-Datei |
+| `InQuest/python-iocextract` | GITHUB | Keine IP-Datei |
+| `syphon1c/Threatelligence` | GITHUB | Keine IP-Datei |
+| `STIXProject/openioc-to-stix` | GITHUB | Keine IP-Datei |
+| `MISP/misp-workbench` | GITHUB | Keine IP-Datei |
+| `QTek/QRadio` | GITHUB | Keine IP-Datei |
+| `facebook/ThreatExchange` | GITHUB | Keine IP-Datei |
+| `paulpc/nyx` | GITHUB | Keine IP-Datei |
+| `aboutsecurity/rastrea2r` | GITHUB | Keine IP-Datei |
+| `michael-yip/ThreatTracker` | GITHUB | Keine IP-Datei |
+| `Yara-Rules/rules` | GITHUB | Keine IP-Datei |
+| `sroberts/jager` | GITHUB | Keine IP-Datei |
+| `stratosphereips/Manati` | GITHUB | Keine IP-Datei |
+| `Neo23x0/Loki` | GITHUB | Keine IP-Datei |
+| `Lookingglass/opentpx` | GITHUB | Keine IP-Datei |
+| `Yelp/threat_intel` | GITHUB | Keine IP-Datei |
+| `spacepatcher/softrace` | GITHUB | Keine IP-Datei |
+| `CylanceSPEAR/CyBot` | GITHUB | Keine IP-Datei |
+| `0x4d31/sqhunter` | GITHUB | Keine IP-Datei |
+| `kx499/ostip` | GITHUB | Keine IP-Datei |
+| `exp0se/harbinger` | GITHUB | Keine IP-Datei |
+| `STIXProject/stix-viz` | GITHUB | Keine IP-Datei |
+| `dougiep16/actortrackr` | GITHUB | Keine IP-Datei |
+| `byt3smith/malstrom` | GITHUB | Keine IP-Datei |
+| `byt3smith/Forager` | GITHUB | Keine IP-Datei |
+| `tripwire/tardis` | GITHUB | Keine IP-Datei |
+| `SecurityRiskAdvisors/sra-taxii2-server` | GITHUB | Keine IP-Datei |
+| `SentryPeer/SentryPeer` | GITHUB | Keine IP-Datei |
+| `0xBallpoint/trapster-community` | GITHUB | Keine IP-Datei |
+| `ls1911/GenAIPot` | GITHUB | Keine IP-Datei |
+| `citronneur/rdpy` | GITHUB | Keine IP-Datei |
+| `fofapro/fapro` | GITHUB | Keine IP-Datei |
+| `lcashdol/WAPot` | GITHUB | Keine IP-Datei |
+| `tnich/honssh` | GITHUB | Keine IP-Datei |
+| `d1str0/drupot` | GITHUB | Keine IP-Datei |
+| `jedie/django-kippo` | GITHUB | Keine IP-Datei |
+| `hexgolems/schem` | GITHUB | Keine IP-Datei |
+| `msurguy/Honeypot` | GITHUB | Keine IP-Datei |
+| `jadb/honeypot` | GITHUB | Keine IP-Datei |
+| `nsmfoo/antivmdetection` | GITHUB | Keine IP-Datei |
+| `traetox/sshForShits` | GITHUB | Keine IP-Datei |
+| `CHH/stack-honeypot` | GITHUB | Keine IP-Datei |
+| `Joss-Steward/honeypotDisplay` | GITHUB | Keine IP-Datei |
+| `katkad/Glastopf-Analytics` | GITHUB | Keine IP-Datei |
+| `rep/hpfeeds` | GITHUB | Keine IP-Datei |
+| `nsmfoo/dicompot` | GITHUB | Keine IP-Datei |
+| `amv42/sshd-honeypot` | GITHUB | Keine IP-Datei |
+| `czardoz/hornet` | GITHUB | Keine IP-Datei |
+| `0x4D31/honeyku` | GITHUB | Keine IP-Datei |
+| `hexgolems/pint` | GITHUB | Keine IP-Datei |
+| `omererdem/honeything` | GITHUB | Keine IP-Datei |
+| `Cymmetria/MTPot` | GITHUB | Keine IP-Datei |
+| `Marist-Innovation-Lab/PasitheaHoneypot` | GITHUB | Keine IP-Datei |
+| `mushorg/conpot` | GITHUB | Keine IP-Datei |
+| `honeynet/apkinspector` | GITHUB | Keine IP-Datei |
+| `JustinAzoff/ssh-auth-logger` | GITHUB | Keine IP-Datei |
+| `DataSoft/Nova` | GITHUB | Keine IP-Datei |
+| `threatstream/shockpot` | GITHUB | Keine IP-Datei |
+| `gitlab:iiTONELOC/sigint` | GITLAB | Zu alt: 46d |
+| `gitlab:ayinedjimi-consultants/YaraGen-AI` | GITLAB | Zu alt: 37d |
+| `gitlab:ayinedjimi-consultants/ThreatIntel-GPT` | GITLAB | Zu alt: 37d |
+| `cognis-digital/dealflow` | GITHUB | Keine IP-Datei |
+| `zzmzm/zzmzm.github.io` | GITHUB | Keine IP-Datei |
+| `Gabbysorn/claude-code_evil` | GITHUB | Keine IP-Datei |
+| `ezphongdo-cmyk/guardvibe` | GITHUB | Keine IP-Datei |
+| `fried-headlock977/WraithRun` | GITHUB | Keine IP-Datei |
+| `andyssm/Volans-Map` | GITHUB | Keine IP-Datei |
+| `cognis-digital/airgap-pkg` | GITHUB | Keine IP-Datei |
+| `zzmzm/tiyi` | GITHUB | Keine IP-Datei |
+| `garboiluniversity170/nessus-to-excel-nte` | GITHUB | Keine IP-Datei |
+| `unbraced-poultry941/HomeLab-VLAN-Refactor-Community` | GITHUB | Keine IP-Datei |
+| `Manipulationjuniperbush648/NetSwift` | GITHUB | Keine IP-Datei |
+| `Lowsodiumdietdevotional330/RuleScope` | GITHUB | Keine IP-Datei |
+| `uneven-freightage871/mod_doscontrol` | GITHUB | Keine IP-Datei |
+| `charming-byte/homelab` | GITHUB | Keine IP-Datei |
+| `Candradi8462/VulnHunter` | GITHUB | Keine IP-Datei |
+| `nicolerenee/infra` | GITHUB | Keine IP-Datei |
+| `wallachenonlinear561/vikramaditya` | GITHUB | Keine IP-Datei |
+| `3dcom2711/thrunt-god` | GITHUB | IP-Datei 95d alt |
+| `Ksentin9371/team-helper` | GITHUB | Keine IP-Datei |
+| `Fn-front/movie-app` | GITHUB | Keine IP-Datei |
+| `Macky9285/stripe-inspector` | GITHUB | Keine IP-Datei |
+| `vaulted-timbalecase456/cargo-trust` | GITHUB | Keine IP-Datei |
+| `mousta8559/DarkSword` | GITHUB | Keine IP-Datei |
+| `gbrobro119-star/darksword-kexploit` | GITHUB | Keine IP-Datei |
+| `miraunreformable550/pentest-with-LLM` | GITHUB | Keine IP-Datei |
+| `Rupsu357/homelab-stack` | GITHUB | Keine IP-Datei |
+| `Welshonioninfinitude16/osm-atmdui` | GITHUB | Keine IP-Datei |
+| `Archducal-woodthrush229/envleaks` | GITHUB | Keine IP-Datei |
+| `PerIPan/explorer-plus` | GITHUB | Keine IP-Datei |
+| `klarikalooseleaf988/corridorkey_ofx` | GITHUB | Keine IP-Datei |
+| `Fundamental-wintersquashplant734/zero-trust-lifestyle` | GITHUB | IP-Datei 100d alt |
+| `xqup/opencode-anthropic-oauth` | GITHUB | Keine IP-Datei |
+| `Convenient-huston624/ai-daily-digest` | GITHUB | Keine IP-Datei |
+| `Lutefredsanger944/ECC-IOT-AUTHENTICATION-PROTOCOL` | GITHUB | Keine IP-Datei |
+| `gretamutualist474/academic-skills` | GITHUB | Keine IP-Datei |
+| `Nurselogthermostat438/wstg-pentest-tracker` | GITHUB | Keine IP-Datei |
+| `ebtehaldousset-sudo/Gusto` | GITHUB | Keine IP-Datei |
+| `Zoel-Manchon/pyscan` | GITHUB | Keine IP-Datei |
+| `snapshotprogrambunt985/ip-discovery` | GITHUB | Keine IP-Datei |
+| `nyymuudi/evasion-arms-race` | GITHUB | Keine IP-Datei |
+| `MohamedElmogy25/semetsky---VP` | GITHUB | Keine IP-Datei |
+| `gabrielliaprotecting43/VendmoTech_Network_Traffic_Analysis` | GITHUB | Keine IP-Datei |
+| `ianXO0/vibe-yaml` | GITHUB | Keine IP-Datei |
+| `Destroyer-hub/zapo` | GITHUB | Keine IP-Datei |
+| `depsilo/depsilo` | GITHUB | Keine IP-Datei |
+| `estranging-straightpin511/an-open-source-application-that-supports-the-DeepSeek-API` | GITHUB | Keine IP-Datei |
+| `Juggernautsocialdancing640/AgentUAC` | GITHUB | Keine IP-Datei |
+| `theylovejay409/security-playbooks` | GITHUB | Keine IP-Datei |
+| `aryanhome13-rgb/soc-ai-telegram-bot` | GITHUB | Keine IP-Datei |
+| `Marathe-2/catchclaw` | GITHUB | Keine IP-Datei |
+| `Toriefaithful525/StealthyWMIExec.py` | GITHUB | Keine IP-Datei |
+| `Recorded-texteditor120/CVE-2026-31802` | GITHUB | Keine IP-Datei |
+| `Salmonfourierseries203/Crucix` | GITHUB | Keine IP-Datei |
+| `Immunologypinup772/AI-Check` | GITHUB | Keine IP-Datei |
+| `3xHelix/RBdoom` | GITHUB | Keine IP-Datei |
+| `Janealm7195/NWO-Analyse-Recherche-Stalking-Mobbing-Cyberraum` | GITHUB | Keine IP-Datei |
+| `Julk8200/Illuminate` | GITHUB | Keine IP-Datei |
+| `Radcliffeinsubordinate572/youtube-poop-video-maker` | GITHUB | Keine IP-Datei |
+| `Venturous-giant919/UAC-Bypass-FUD` | GITHUB | Keine IP-Datei |
+| `Maurinechaotic680/k8s-health-checker` | GITHUB | Keine IP-Datei |
+| `xcii-heaviness774/yes.md` | GITHUB | Keine IP-Datei |
+| `wqh7798/Slay-the-Spire-2-Drawing` | GITHUB | Keine IP-Datei |
+| `AdhiHub/cyber-ai-agent` | GITHUB | Keine IP-Datei |
+| `mauricegift/free-proxies` | GITHUB | Keine IP-Datei |
+| `showy-headteacher114/cve-2025-66398` | GITHUB | Keine IP-Datei |
+| `harikrishn4101/MCPScan` | GITHUB | Keine IP-Datei |
+| `Querulousnessvisualiser52/MeowCLI` | GITHUB | Keine IP-Datei |
+| `xbxh6452/-ARP-Spoofing-Detection-Active-Injection-Technique` | GITHUB | Keine IP-Datei |
+| `Isolable-confutation802/TraceAnalyzer-main` | GITHUB | Keine IP-Datei |
+| `rightsideup-buzzardsbay874/contentful-asset-malware-scan-app` | GITHUB | Keine IP-Datei |
+| `Stripmined-reflation431/testing-business-ideas-with-claude` | GITHUB | Keine IP-Datei |
+| `armmammothermography417/ContextOS` | GITHUB | Keine IP-Datei |
+| `vestalterrace911/python-check-updates` | GITHUB | Keine IP-Datei |
+| `OjasKord/url-safety-validator-mcp` | GITHUB | Keine IP-Datei |
+| `demnalatsabidze-arch/GhostBullet` | GITHUB | Keine IP-Datei |
+| `dada63924/deribit-analyzer` | GITHUB | Keine IP-Datei |
+| `Trustbustinggleefulness546/Argus` | GITHUB | Keine IP-Datei |
+| `ayushgowda121/opencode-anthropic-oauth` | GITHUB | Keine IP-Datei |
+| `judedusk/findns` | GITHUB | Keine IP-Datei |
+| `ishika-0101/entropy-chaos` | GITHUB | Keine IP-Datei |
 
 ---
 ## 📋 Alle aktiven Auto-Feeds
 
 | Feed | Plattform | IPs | Overlap | Stars | Hinzugefügt |
 |---|---|---|---|---|---|
-| `mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist` | GITHUB | 10,640 | 75.0% | 4721 | 2026-05-28 |
-| `cbuijs_accomplist` | GITHUB | 98,851 | 0.6% | 20 | 2026-03-27 |
-| `cbuijs_accomplist_adblock_ip_v2` | GITHUB | 66,468 | 0.6% | 20 | 2026-05-24 |
+| `mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist` | GITHUB | 10,647 | 75.0% | 4721 | 2026-05-28 |
+| `cbuijs_accomplist` | GITHUB | 99,416 | 0.6% | 20 | 2026-03-27 |
+| `cbuijs_accomplist_adblock_ip_v2` | GITHUB | 66,453 | 0.6% | 20 | 2026-05-24 |
 | `cbuijs_accomplist_adblock_ip_v3` | GITHUB | 113 | 0.6% | 20 | 2026-05-24 |
-| `cbuijs_accomplist_adblock_ip` | GITHUB | 118,741 | 0.6% | 20 | 2026-05-28 |
-| `ziyadnz_threat_intel_ip_feeds_blacklist` | GITHUB | 99,686 | 36.7% | 8 | 2026-05-28 |
-| `turntuptechnologies_iocs` | GITHUB | 23 | 97.4% | 4 | 2026-03-29 |
-| `cbuijs_badip` | GITHUB | 47,694 | 60.7% | 4 | 2026-03-29 |
-| `maximewewer_heimdallblocklists` | GITHUB | 102,781 | 69.0% | 4 | 2026-03-29 |
-| `agent6_6_6_wordpress_login_blocklist` | GITHUB | 21,431 | 1.4% | 4 | 2026-03-29 |
-| `turntuptechnologies_iocs_scanner` | GITHUB | 98 | 97.4% | 4 | 2026-05-24 |
-| `maximewewer_heimdallblocklists_romainmarcoux_malicious_ip` | GITHUB | 228,942 | 69.0% | 4 | 2026-05-24 |
-| `maximewewer_heimdallblocklists_romainmarcoux_alienvault_ssh_bruteforce` | GITHUB | 8,373 | 69.0% | 4 | 2026-05-24 |
-| `fadouse_clash_threat_intel` | GITHUB | 6,336 | 12.7% | 2 | 2026-03-17 |
-| `fadouse_clash_threat_intel_c2` | GITHUB | 6,593 | 12.7% | 2 | 2026-05-24 |
-| `kamalmjt_emerging_attackers_badips` | GITHUB | 159,982 | 18.9% | 1 | 2026-05-28 |
-| `idleadmin_threatfeed` | GITHUB | 49,608 | 41.9% | 0 | 2026-04-09 |
+| `cbuijs_accomplist_adblock_ip` | GITHUB | 107,987 | 0.6% | 20 | 2026-05-28 |
+| `ziyadnz_threat_intel_ip_feeds_blacklist` | GITHUB | 90,610 | 36.7% | 8 | 2026-05-28 |
+| `turntuptechnologies_iocs` | GITHUB | 39 | 97.4% | 4 | 2026-03-29 |
+| `cbuijs_badip` | GITHUB | 49,794 | 60.7% | 4 | 2026-03-29 |
+| `maximewewer_heimdallblocklists` | GITHUB | 97,815 | 69.0% | 4 | 2026-03-29 |
+| `agent6_6_6_wordpress_login_blocklist` | GITHUB | 21,495 | 1.4% | 4 | 2026-03-29 |
+| `turntuptechnologies_iocs_scanner` | GITHUB | 77 | 97.4% | 4 | 2026-05-24 |
+| `maximewewer_heimdallblocklists_romainmarcoux_malicious_ip` | GITHUB | 224,118 | 69.0% | 4 | 2026-05-24 |
+| `maximewewer_heimdallblocklists_romainmarcoux_alienvault_ssh_bruteforce` | GITHUB | 7,597 | 69.0% | 4 | 2026-05-24 |
+| `fadouse_clash_threat_intel` | GITHUB | 6,596 | 12.7% | 2 | 2026-03-17 |
+| `fadouse_clash_threat_intel_c2` | GITHUB | 6,863 | 12.7% | 2 | 2026-05-24 |
+| `kamalmjt_emerging_attackers_badips` | GITHUB | 157,069 | 18.9% | 1 | 2026-05-28 |
+| `idleadmin_threatfeed` | GITHUB | 46,946 | 41.9% | 0 | 2026-04-09 |
 | `turbolabit_zzfirewall` | GITHUB | 99,140 | 66.4% | 0 | 2026-05-03 |
-| `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | GITHUB | 43,470 | 13.1% | 0 | 2026-05-24 |
-| `kraloveckey_ipsets_blocklist_iblocklist_ciarmy_malicious` | GITHUB | 12,502 | 13.1% | 0 | 2026-05-24 |
-| `kraloveckey_ipsets_blocklist_et_tor` | GITHUB | 7,490 | 13.1% | 0 | 2026-05-24 |
-| `kraloveckey_ipsets_blocklist_dm_tor` | GITHUB | 7,406 | 13.1% | 0 | 2026-05-24 |
-| `kraloveckey_ipsets_blocklist_blocklist_de_ssh` | GITHUB | 4,701 | 13.1% | 0 | 2026-05-24 |
-| `kraloveckey_ipsets_blocklist_blocklist_de_bruteforce` | GITHUB | 695 | 13.1% | 0 | 2026-05-24 |
-| `openprx_prx_sd_signatures` | GITHUB | 121,222 | 64.5% | 0 | 2026-05-30 |
-| `openprx_prx_sd_signatures_url_blocklist` | GITHUB | 537 | 64.5% | 0 | 2026-05-30 |
-| `turbolabit_zzfirewall_blacklist` | GITHUB | 85 | 66.4% | 0 | 2026-06-21 |
-| `kraloveckey_ipsets_blocklist_maltrail_scanners` | GITHUB | 16,854 | 13.1% | 0 | 2026-06-21 |
-| `kraloveckey_ipsets_blocklist_snort_ip_blocklist` | GITHUB | 1,386 | 13.1% | 0 | 2026-06-21 |
-| `kraloveckey_ipsets_blocklist_alienvault_reputation` | GITHUB | 609 | 13.1% | 0 | 2026-06-21 |
+| `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | GITHUB | 44,872 | 13.1% | 0 | 2026-05-24 |
+| `kraloveckey_ipsets_blocklist_iblocklist_ciarmy_malicious` | GITHUB | 12,090 | 13.1% | 0 | 2026-05-24 |
+| `kraloveckey_ipsets_blocklist_et_tor` | GITHUB | 7,400 | 13.1% | 0 | 2026-05-24 |
+| `kraloveckey_ipsets_blocklist_dm_tor` | GITHUB | 7,235 | 13.1% | 0 | 2026-05-24 |
+| `kraloveckey_ipsets_blocklist_blocklist_de_ssh` | GITHUB | 4,311 | 13.1% | 0 | 2026-05-24 |
+| `kraloveckey_ipsets_blocklist_blocklist_de_bruteforce` | GITHUB | 729 | 13.1% | 0 | 2026-05-24 |
+| `openprx_prx_sd_signatures` | GITHUB | 111,548 | 64.5% | 0 | 2026-05-30 |
+| `openprx_prx_sd_signatures_url_blocklist` | GITHUB | 548 | 64.5% | 0 | 2026-05-30 |
+| `turbolabit_zzfirewall_blacklist` | GITHUB | 85 | 66.4% | 0 | 2026-06-28 |
+| `kraloveckey_ipsets_blocklist_maltrail_scanners` | GITHUB | 16,854 | 13.1% | 0 | 2026-06-28 |
+| `kraloveckey_ipsets_blocklist_snort_ip_blocklist` | GITHUB | 1,386 | 13.1% | 0 | 2026-06-28 |
+| `kraloveckey_ipsets_blocklist_alienvault_reputation` | GITHUB | 609 | 13.1% | 0 | 2026-06-28 |
 
 ---
-*Generiert: 2026-06-21 08:47 UTC*
+*Generiert: 2026-06-28 08:04 UTC*
