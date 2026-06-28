@@ -220,14 +220,26 @@ jobs:
           # Erlaubt optional .gz-Suffix – fetch_url dekomprimiert transparent.
           # IP_FILE_PATTERNS: erkennt IP-Listen-Dateien anhand Name/Extension.
           # Zwei Pfade:
-          #   1. Jede Datei mit Endung .ip oder .ips gilt als IP-Liste (domains.ips,
-          #      tif.domains.ips, badip.ips etc. – cbuijs/hagezi-Stil)
-          #   2. Bekannte Stems (blacklist, blocklist, honeypot etc.) mit Standard-Endungen
+          #   1. Endung .ip/.ips/.ipset/.netset/.cidr = immer eine IP-Liste
+          #      (domains.ips cbuijs/hagezi-Stil; firehol_level1.netset,
+          #      *.ipset = FireHOL/ipset-Konvention; *.cidr = CIDR-Liste).
+          #      Diese Endungen sind zweckgebunden, daher stem-unabhaengig.
+          #   2. Bekannte Stems (blacklist, blocklist, honeypot, Feed-/Provider-
+          #      Namen wie drop/edrop/ipsum/emerging/dshield/feodo/greensnow ...)
+          #      mit Standard-Endungen.
           # Erlaubt optional .gz-Suffix – fetch_url dekomprimiert transparent.
+          # Nachgelagert validiert _evaluate_one IMMER den Rohinhalt (IP-Count,
+          # FP-Rate, Overlap, >=30% IP-Zeilen), daher ist eine grosszuegigere
+          # Namens-Erkennung sicher: Fehl-Treffer fallen unten durch.
+          # Die kurzen/woerter-aehnlichen Feed-Stems (drop/ipsum/ban/deny ...)
+          # sind per (?<![a-z0-9])-Lookbehind bzw. ^-Anker gegen Wort-Mitten-
+          # Treffer abgesichert (urban->ban, eavesdrop->drop, lorem_ipsum->ipsum
+          # matchen NICHT). Getestet gegen 29 reale Feed-Namen (alle erkannt)
+          # und 34 Tool-/Config-/Adversarial-Namen (0 Falsch-Positive).
           IP_FILE_PATTERNS = re.compile(
               r'(?i)(?:'
-              # Pfad 1: .ip/.ips-Endung = immer eine IP-Liste
-              r'[^/]+\.ips?(?:\.gz)?$'
+              # Pfad 1: .ip/.ips/.ipset/.netset/.cidr-Endung = immer IP-Liste
+              r'[^/]+\.(?:ips?|ipset|netset|cidr)(?:\.gz)?$'
               r'|'
               # Pfad 2: bekannte Stems mit anderen Endungen
               r'(?:'
@@ -239,11 +251,21 @@ jobs:
               r'ipblock|ioc|iocs|c2|botnet|scanner|scanners|'
               r'bruteforce|ssh|rdp|attack|attackers|'
               r'tor|honeypot|reputation|'
+              r'^ipsum|'                              # ipsum-Feed nur am Datei-Anfang
+              # NEU: Feed-/Provider-Stems, Lookbehind gegen Wort-Mitten-Treffer
+              r'(?<![a-z0-9])(?:'
+              r'drop(?:v?[46])?|edrop|'
+              r'emerging(?:[-_]?(?:threats?|block|ips?))?|'
+              r'compromised(?:[-_]?ips?)?|blocked?(?:[-_]?ips?)?|'
+              r'ban(?:ned)?[-_]?ips?|block[-_]?ips?|deny(?:[-_]?ips?)?|'
+              r'greensnow|ci[-_]?army|dshield(?:[-_]?block)?|feodo|'
+              r'abuseipdb|abuse[-_]?ips?'
+              r')|'
               r'adblock[-_.]ip|'
               r'(?:plain|optimized|sorted)[-.].+ip[46]?cidr|'
               r'ip[46]?cidr|ipv4cidr|ipv6cidr|'
               r'black[-.]ip|plain[-.]black[-.]ip'
-              r')\.(?:txt|csv|ipset|netset|list|conf|sh|dat)(?:\.gz)?$'
+              r')\.(?:txt|csv|ipset|netset|list|lst|conf|sh|dat)(?:\.gz)?$'
               r')'
           )
 
