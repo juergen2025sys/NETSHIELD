@@ -1983,6 +1983,47 @@ jobs:
                   if _nf_url in _registered_urls:
                       continue
 
+                  # Frische der Datei pruefen (max. 30 Tage) – identisch zum
+                  # Hauptpfad (Kriterium 1b). Ohne diesen Check nahm der
+                  # Extra-File-Scan eingefrorene Aggregator-Dateien auf (z.B.
+                  # cps_log4j.ipset, Stand Mai ~49d alt). Default 999 => bei
+                  # fehlender/fehlerhafter Commit-Info wird die Datei verworfen
+                  # (gleiche konservative Semantik wie im Hauptpfad).
+                  # Vor dem Download, um veraltete Dateien nicht erst zu laden.
+                  time.sleep(0.3)
+                  _nf_file_days = 999
+                  if _platform == "gitlab" and _gl_id:
+                      _nf_commits = gitlab_api(
+                          f"/projects/{_gl_id}/repository/commits"
+                          f"?path={urllib.parse.quote(_nf['path'])}&per_page=1"
+                      )
+                      if _nf_commits and isinstance(_nf_commits, list) and _nf_commits:
+                          _nf_cd = _nf_commits[0].get("committed_date", "")
+                          try:
+                              _nf_dt = datetime.strptime(
+                                  _nf_cd[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                              _nf_file_days = (now - _nf_dt).days
+                          except Exception:
+                              pass
+                  else:
+                      _nf_commits = gh_api(
+                          f"/repos/{_repo}/commits"
+                          f"?path={urllib.parse.quote(_nf['path'])}&per_page=1"
+                      )
+                      if _nf_commits and isinstance(_nf_commits, list) and _nf_commits:
+                          _nf_cd = (_nf_commits[0].get("commit", {})
+                                    .get("committer", {}).get("date", ""))
+                          try:
+                              _nf_dt = datetime.strptime(
+                                  _nf_cd[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                              _nf_file_days = (now - _nf_dt).days
+                          except Exception:
+                              pass
+                  if _nf_file_days > 30:
+                      print(f"    ⏭ {_nf['path']}: IP-Datei {_nf_file_days}d alt "
+                            f"(>30) – uebersprungen")
+                      continue
+
                   time.sleep(0.3)
                   _nf_text = fetch_raw(_nf_url, limit=30 * 1024 * 1024, timeout=20)
                   if not _nf_text:
