@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-06-27 20:18 UTC
+**Aktualisiert:** 2026-06-28 05:43 UTC
 
 **Workflows:** 23 | ✅ 22 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
@@ -9,8 +9,8 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `update_combined_blacklist.yml` | Doppelter Import | Block 1: Doppelte Imports: glob(2x) – moeglicherweise Copy-Paste-Artefakt |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 90.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 93.7 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 90.2 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 93.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
@@ -19,8 +19,8 @@
 
 | Level | Check | Detail |
 |---|---|---|
-| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 90.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| 🟡 WARN | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 93.7 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 90.2 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 93.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
@@ -52,4 +52,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-06-27 20:18 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-06-28 05:43 UTC | 23 Workflow-Dateien geprüft*
