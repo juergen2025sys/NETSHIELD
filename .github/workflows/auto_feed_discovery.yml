@@ -305,6 +305,35 @@ jobs:
               r')'
           )
 
+          # ── Redundante Aggregator-Sublisten ──────────────────────────────
+          # REDUNDANT_FEED_RE: erkennt Datei-/Feednamen, die Re-Publikationen
+          # von Upstreams sind, die NETSHIELD bereits DIREKT in SOURCES zieht
+          # (verifiziert: dataplane 58x, blocklist.de 12x, abuseipdb 16x,
+          # stopforumspam, ciarmy via cinsscore, greensnow, feodo, dshield,
+          # emergingthreats stehen schon im statischen SOURCES-Block von
+          # update_combined_blacklist.yml).
+          # Warum noetig: Combined zaehlt pro IP die Anzahl unterschiedlicher
+          # Feed-NAMEN (today_count/feed_count, Aufnahme-Gate len(feeds)>=2).
+          # Aggregatoren wie kraloveckey liefern denselben Upstream unter vielen
+          # Namen (stopforumspam_7d/_30d/.../_365d = 1 reale Quelle, inhaltlich
+          # ineinander geschachtelt – per Containment-Analyse belegt: _365d ist
+          # Obermenge aller anderen). Ohne Filter wird eine Ein-Quellen-IP wie
+          # mehrere unabhaengige Feeds gewertet -> Confidence-Score-Inflation
+          # und faelschliches Passieren des >=2-Feeds-Gates (Score-Drift,
+          # vgl. BUG-9 im Combined-Workflow). Diese Namen sind Einzel-Upstreams,
+          # daher ist ein Ausschluss verlustfrei (Direktquelle bleibt erhalten).
+          # Wort-Grenze per Lookbehind, damit z.B. blocklist_net_ua NICHT matcht.
+          # Getestet: 24/24 Dubletten ausgeschlossen, 21/21 unabhaengige Feeds
+          # (blocklist_net_ua, threatview, maltrail, cleantalk, botscout ...)
+          # bleiben erhalten.
+          REDUNDANT_FEED_RE = re.compile(
+              r'(?i)(?<![a-z0-9])(?:'
+              r'dataplane|stopforumspam|blocklist[_-]?de|abuseipdb|'
+              r'ciarmy|cinsscore|greensnow|feodo|dshield|'
+              r'emergingthreats|et_(?:block|spamhaus|dshield|tor|compromised)'
+              r')'
+          )
+
           # Keywords im Repo-Namen/Beschreibung/Topics, die auf eine reine
           # Whitelist- oder Allow-Liste hinweisen → Kandidat wird verworfen.
           WHITELIST_REPO_KEYWORDS = {
@@ -1089,21 +1118,34 @@ jobs:
                   with open(AUTO_FILE) as f:
                       auto_data = json.load(f)
                   _geo_pruned = []
+                  _redundant_pruned = []
                   for feed in auto_data.get("feeds", []):
                       # Auto-Prune: bereits registrierte Geo-/Laenderlisten
                       # (file/url matcht GEO_FILE_RE) NICHT uebernehmen -> sie
                       # werden beim Speichern nicht zurueckgeschrieben und damit
                       # einmalig entfernt. Heilt frueher faelschlich aufgenommene
                       # ipip_*/dbip_*/continent_*/country_*-Feeds.
-                      _feed_loc = f"{feed.get('file','')} {feed.get('url','')}"
+                      _feed_loc = f"{feed.get('name','')} {feed.get('file','')} {feed.get('url','')}"
                       if GEO_FILE_RE.search(_feed_loc):
                           _geo_pruned.append(feed.get("name", "?"))
+                          continue
+                      # Auto-Prune: redundante Aggregator-Sublisten bereits direkt
+                      # gezogener Upstreams (dataplane_*, stopforumspam_*,
+                      # blocklist_de_*, abuseipdb_*, ciarmy, ...) entfernen ->
+                      # beendet die Score-Drift durch Mehrfachzaehlung.
+                      if REDUNDANT_FEED_RE.search(_feed_loc):
+                          _redundant_pruned.append(feed.get("name", "?"))
                           continue
                       existing_feeds[feed["name"]] = feed
                   if _geo_pruned:
                       print(f"Auto-Prune: {len(_geo_pruned)} Geo-/Laenderlisten aus "
                             f"bestehenden Feeds entfernt: {', '.join(_geo_pruned[:10])}"
                             + (" ..." if len(_geo_pruned) > 10 else ""))
+                  if _redundant_pruned:
+                      print(f"Auto-Prune: {len(_redundant_pruned)} redundante Upstream-"
+                            f"Sublisten aus bestehenden Feeds entfernt: "
+                            f"{', '.join(_redundant_pruned[:10])}"
+                            + (" ..." if len(_redundant_pruned) > 10 else ""))
                   _raw_rejected = auto_data.get("rejected_repos", [])
                   existing_rejected = set(_raw_rejected)
                   # Meta-Dict laden (neues Feld, kann bei alten JSONs fehlen)
@@ -1962,6 +2004,7 @@ jobs:
                   and not _skip_path(item["path"])
                   and not WHITELIST_FILE_RE.search(item["path"])
                   and not GEO_FILE_RE.search(item["path"])
+                  and not REDUNDANT_FEED_RE.search(item["path"])
               ]
 
               if not _new_files:
@@ -2384,6 +2427,7 @@ jobs:
                           and IP_FILE_PATTERNS.search(item["path"].split("/")[-1])
                           and not WHITELIST_FILE_RE.search(item["path"])
                           and not GEO_FILE_RE.search(item["path"])
+                          and not REDUNDANT_FEED_RE.search(item["path"])
                       ]
               else:
                   tree = gh_api(f"/repos/{full_name}/git/trees/HEAD?recursive=1")
@@ -2395,6 +2439,7 @@ jobs:
                           and IP_FILE_PATTERNS.search(item["path"].split("/")[-1])
                           and not WHITELIST_FILE_RE.search(item["path"])
                           and not GEO_FILE_RE.search(item["path"])
+                          and not REDUNDANT_FEED_RE.search(item["path"])
                       ]
 
               if not ip_files:
@@ -2500,6 +2545,15 @@ jobs:
                           "reason": "Geo-/Laenderliste", "logs": _log_lines,
                           "platform": _platform}
 
+              # Kriterium 3d: Redundante Aggregator-Subliste eines bereits
+              # direkt gezogenen Upstreams verwerfen (verhindert Score-Drift
+              # durch Mehrfachzaehlung derselben Quelle).
+              if REDUNDANT_FEED_RE.search(_file_path_lc):
+                  _log_lines.append(f"  ❌ Redundanter Upstream (schon in SOURCES): {best_file['path']}")
+                  return {"action": "reject", "repo": _reject_key,
+                          "reason": "Redundanter Upstream", "logs": _log_lines,
+                          "platform": _platform}
+
               # Kriterium 4: Overlap mit HQ-Feeds (min. 20% oder 50 IPs, max. 95%)
               if hq_ref_ready:
                   overlap     = len(ips & hq_ref_ips)
@@ -2565,6 +2619,10 @@ jobs:
                   # Geo-/Laenderlisten auch bei Extra-Dateien ueberspringen
                   if GEO_FILE_RE.search(_ef["path"]):
                       _log_lines.append(f"  ⚠ Extra-Datei übersprungen (Geo-/Laenderliste): {_ef['path']}")
+                      continue
+                  # Redundante Upstream-Sublisten auch bei Extra-Dateien ueberspringen
+                  if REDUNDANT_FEED_RE.search(_ef["path"]):
+                      _log_lines.append(f"  ⚠ Extra-Datei übersprungen (redundanter Upstream): {_ef['path']}")
                       continue
                   _ef_ips = extract_ips(_ef_text)
                   if len(_ef_ips) < 50:
