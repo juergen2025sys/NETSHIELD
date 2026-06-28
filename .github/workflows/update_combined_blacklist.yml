@@ -882,7 +882,7 @@ jobs:
                   db = {}
           if not db:
               try:
-                  import gzip, glob, tempfile
+                  import gzip, tempfile
                   # FIX BUG-GZIP-BACKUP-SPLIT: Repo-Backup darf nicht als eine
                   # Datei >=100 MB committet werden (GitHub Hard-Limit). Daher
                   # Restore entweder aus Legacy-Datei oder aus sortierten Parts:
