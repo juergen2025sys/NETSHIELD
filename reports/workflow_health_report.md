@@ -1,14 +1,13 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-06-28 05:43 UTC
+**Aktualisiert:** 2026-06-28 10:08 UTC
 
-**Workflows:** 23 | ✅ 22 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
+**Workflows:** 23 | ✅ 23 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
-| `update_combined_blacklist.yml` | Doppelter Import | Block 1: Doppelte Imports: glob(2x) – moeglicherweise Copy-Paste-Artefakt |
 | `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 90.2 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 93.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.8 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
@@ -44,7 +43,7 @@
 | `tweetfeed_monitor.yml` | ✅ OK | 0 | 0 | `45 2 * * *` |
 | `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 1 * * 1`, `30 1 * * 3` |
 | `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
-| `update_combined_blacklist.yml` | ⚠️ | 0 | 1 | `7 */3 * * *`, `27 */3 * * *`, `47 */3 * * *` |
+| `update_combined_blacklist.yml` | ✅ OK | 0 | 0 | `7 */3 * * *`, `27 */3 * * *`, `47 */3 * * *` |
 | `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | `47 1,4,7,10,13,16,19,22 * * *` |
 | `watchdog_combined.yml` | ✅ OK | 0 | 0 | `*/15 * * * *` |
 | `watchdog_honigtopf.yml` | ✅ OK | 0 | 0 | `7,22,37,52 * * * *` |
@@ -52,4 +51,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-06-28 05:43 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-06-28 10:08 UTC | 23 Workflow-Dateien geprüft*
