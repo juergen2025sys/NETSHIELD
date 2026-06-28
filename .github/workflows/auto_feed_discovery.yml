@@ -284,6 +284,27 @@ jobs:
               re.IGNORECASE
           )
 
+          # ── Geo-/Laender-Allokationslisten ───────────────────────────────
+          # GEO_FILE_RE: erkennt reine Geolokations-/Laender-/Kontinent-IP-Listen
+          # (z.B. ipip_continent_eu.ipset, dbip_country_us.ipset, GeoLite2-
+          # Country.csv, maxmind_*.netset). Das sind ALLE IPs eines Landes/
+          # Kontinents, KEINE Bedrohungslisten - sie wuerden ganze Regionen
+          # blocken. Werden wie Whitelist-Dateien aus ip_files herausgefiltert.
+          # Noetig seit .ipset/.netset stem-unabhaengig matchen: ohne diesen
+          # Filter rutschen Geo-Datenbanken (ipip.net, db-ip, MaxMind) durch,
+          # da grosse Laenderlisten das Overlap-Gate via overlap>=50-Abs.-Regel
+          # passieren (jedes Land enthaelt >=50 bekannte Bad-IPs).
+          # Getestet: 14/14 Geo-Listen ausgeschlossen, 22/22 echte Blocklisten
+          # (spamhaus_drop, greensnow, abuseipdb, firehol_level1, myip_full ...)
+          # bleiben erhalten.
+          GEO_FILE_RE = re.compile(
+              r'(?i)(?:'
+              r'continent|country|'
+              r'geo[-_]?ip|geoip|geolite|geo[-_]?location|geofeed|'
+              r'maxmind|ipip|db[-_]?ip|ip2location|ip2region'
+              r')'
+          )
+
           # Keywords im Repo-Namen/Beschreibung/Topics, die auf eine reine
           # Whitelist- oder Allow-Liste hinweisen → Kandidat wird verworfen.
           WHITELIST_REPO_KEYWORDS = {
@@ -1067,8 +1088,22 @@ jobs:
               try:
                   with open(AUTO_FILE) as f:
                       auto_data = json.load(f)
+                  _geo_pruned = []
                   for feed in auto_data.get("feeds", []):
+                      # Auto-Prune: bereits registrierte Geo-/Laenderlisten
+                      # (file/url matcht GEO_FILE_RE) NICHT uebernehmen -> sie
+                      # werden beim Speichern nicht zurueckgeschrieben und damit
+                      # einmalig entfernt. Heilt frueher faelschlich aufgenommene
+                      # ipip_*/dbip_*/continent_*/country_*-Feeds.
+                      _feed_loc = f"{feed.get('file','')} {feed.get('url','')}"
+                      if GEO_FILE_RE.search(_feed_loc):
+                          _geo_pruned.append(feed.get("name", "?"))
+                          continue
                       existing_feeds[feed["name"]] = feed
+                  if _geo_pruned:
+                      print(f"Auto-Prune: {len(_geo_pruned)} Geo-/Laenderlisten aus "
+                            f"bestehenden Feeds entfernt: {', '.join(_geo_pruned[:10])}"
+                            + (" ..." if len(_geo_pruned) > 10 else ""))
                   _raw_rejected = auto_data.get("rejected_repos", [])
                   existing_rejected = set(_raw_rejected)
                   # Meta-Dict laden (neues Feld, kann bei alten JSONs fehlen)
@@ -1925,6 +1960,8 @@ jobs:
                   if IP_FILE_PATTERNS.search(item["path"].split("/")[-1])
                   and (_repo, item["path"]) not in _registered_files
                   and not _skip_path(item["path"])
+                  and not WHITELIST_FILE_RE.search(item["path"])
+                  and not GEO_FILE_RE.search(item["path"])
               ]
 
               if not _new_files:
@@ -2305,6 +2342,7 @@ jobs:
                           if item.get("type") == "blob"
                           and IP_FILE_PATTERNS.search(item["path"].split("/")[-1])
                           and not WHITELIST_FILE_RE.search(item["path"])
+                          and not GEO_FILE_RE.search(item["path"])
                       ]
               else:
                   tree = gh_api(f"/repos/{full_name}/git/trees/HEAD?recursive=1")
@@ -2315,6 +2353,7 @@ jobs:
                           if item.get("type") == "blob"
                           and IP_FILE_PATTERNS.search(item["path"].split("/")[-1])
                           and not WHITELIST_FILE_RE.search(item["path"])
+                          and not GEO_FILE_RE.search(item["path"])
                       ]
 
               if not ip_files:
@@ -2412,6 +2451,14 @@ jobs:
                           "reason": "Whitelist-Datei", "logs": _log_lines,
                           "platform": _platform}
 
+              # Kriterium 3c: Geo-/Laender-Allokationsliste verwerfen (keine
+              # Bedrohungsliste, sondern alle IPs eines Landes/Kontinents).
+              if GEO_FILE_RE.search(_file_path_lc):
+                  _log_lines.append(f"  ❌ Geo-/Laenderliste: {best_file['path']}")
+                  return {"action": "reject", "repo": _reject_key,
+                          "reason": "Geo-/Laenderliste", "logs": _log_lines,
+                          "platform": _platform}
+
               # Kriterium 4: Overlap mit HQ-Feeds (min. 20% oder 50 IPs, max. 95%)
               if hq_ref_ready:
                   overlap     = len(ips & hq_ref_ips)
@@ -2473,6 +2520,10 @@ jobs:
                   # Whitelist-Dateinamen auch bei Extra-Dateien überspringen
                   if WHITELIST_FILE_RE.search(_ef["path"]):
                       _log_lines.append(f"  ⚠ Extra-Datei übersprungen (Whitelist-Name): {_ef['path']}")
+                      continue
+                  # Geo-/Laenderlisten auch bei Extra-Dateien ueberspringen
+                  if GEO_FILE_RE.search(_ef["path"]):
+                      _log_lines.append(f"  ⚠ Extra-Datei übersprungen (Geo-/Laenderliste): {_ef['path']}")
                       continue
                   _ef_ips = extract_ips(_ef_text)
                   if len(_ef_ips) < 50:
