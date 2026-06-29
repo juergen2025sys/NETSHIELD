@@ -4,6 +4,7 @@
 
 
 
+
 <img src=".github/assets/banner.svg" alt="NETSHIELD — Automated Threat Intelligence" width="100%">
 
 <br>
@@ -68,7 +69,7 @@
 </table>
 <!-- META_TABLE_END -->
 
-> NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus **über 120 Quellen** (dynamisch, wächst laufend durch Auto-Discovery): rund 100 öffentliche Remote-Feeds, 5 lokale Sub-Workflow-Feeds (CVE, Honeypot, Honigtopf, Bot-Detector und laufend neu per GitHub-Discovery entdeckte Feeds. Das System unterscheidet aktive Bedrohungen von veralteten statischen Listen und liefert daraus qualitativ hochwertige Blocklisten für OPNsense, pfSense und iptables.
+> NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus **über 160 Quellen** (dynamisch, wächst laufend durch Auto-Discovery): rund 120 öffentliche Remote-Feeds, 6 lokale Sub-Workflow-Feeds (CVE, Honeypot, Honigtopf, Bot-Detector, TweetFeed und laufend neu per GitHub-Discovery entdeckte Feeds. Das System unterscheidet aktive Bedrohungen von veralteten statischen Listen und liefert daraus qualitativ hochwertige Blocklisten für OPNsense, pfSense und iptables.
 
 ---
 
@@ -84,6 +85,7 @@
 | 💣 [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploits & aktive C2-Server | **33,238**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | IDS / IPS |
 | 🍯 [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **80,588**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Ergänzung |
 | 🍯 [`honigtopf_ips.txt`](honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **13,574**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Ergänzung |
+| 🐦 [`tweetfeed_ips.txt`](tweetfeed_ips.txt) | TweetFeed.live Community IOCs | **11,360** | Ergänzung |
 | 🤖 [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **17,949**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Web-Schutz |
 | 🔗 [`reputation_blacklist.txt`](reputation_blacklist.txt) | Reputation Top-IPs (API, Score ≥50) | **9,985**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Ergänzung |
 | 🌐 [`asn_blocklist_firewall.txt`](asn_blocklist_firewall.txt) | Hochrisiko-ASNs · Score ≥ 50 | **19**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | ASN-Blocking |
@@ -182,10 +184,10 @@ Enrichment (nach Combined):
 
 | Workflow | Zeitplan | Aufgabe |
 |---|---|---|
-| **Update Combined Blacklist** | 8× täglich (alle 3h) | Feeds laden, seen_db aktualisieren, combined + active Blacklists schreiben |
-| **Confidence Blacklist** | 8× täglich (+45 min) | confidence40 + watchlist aus seen_db berechnen |
-| **False Positive Checker** | 3× täglich | Whitelist-CIDRs prüfen → false_positives_set.json |
-| **NETSHIELD Report Generator** | alle 30 Minuten | NETSHIELD_REPORT.md + README-Statistiken aktualisieren |
+| **Update Combined Blacklist** | 8× täglich, alle 3h (00:07, 03:07 … 21:07 UTC; +Backups :27/:47) | Feeds laden, seen_db aktualisieren, combined + active Blacklists schreiben |
+| **Confidence Blacklist** | 8× täglich (01:47, 04:47 … 22:47 UTC) | confidence40 + watchlist aus seen_db berechnen |
+| **False Positive Checker** | 3× täglich (05:00, 13:00, 20:00 UTC) | Whitelist-CIDRs prüfen → false_positives_set.json |
+| **NETSHIELD Report Generator** | stündlich (:30) | NETSHIELD_REPORT.md + README-Statistiken aktualisieren |
 
 </details>
 
@@ -195,10 +197,11 @@ Enrichment (nach Combined):
 | Workflow | Zeitplan | Aufgabe |
 |---|---|---|
 | **CVE-to-IP Mapper** | täglich 04:00 | C2/Exploit-IPs → cve_exploit_ips.txt |
-| **Honeypot Monitor** | täglich 23:00 | Honeypot-Feeds → honeypot_ips.txt |
-| **Honigtopf** | täglich 22:15 | Honigtopf API → honigtopf_ips.txt |
+| **Honeypot Monitor** | 4× täglich (05:00, 11:00, 17:00, 23:00) | Honeypot-Feeds → honeypot_ips.txt |
+| **Honigtopf** | stündlich (:15) | Honigtopf API → honigtopf_ips.txt |
+| **TweetFeed Monitor** | täglich 02:45 | TweetFeed.live IOCs → tweetfeed_ips.txt |
 | **Bot-Detector Blacklist** | täglich 22:45 | Bot-IPs → bot_detector_blacklist_ipv4.txt |
-| **Auto Feed Discovery** | wöchentlich So 04:30 | GitHub nach neuen Feeds durchsuchen |
+| **Auto Feed Discovery** | wöchentlich So 04:37 (+Backups 07:23, 11:47) | GitHub nach neuen Feeds durchsuchen |
 
 </details>
 
@@ -211,7 +214,11 @@ Enrichment (nach Combined):
 | **ASN Reputation Scorer** | täglich 02:00 | ASN-Scoring → asn_reputation_db.json |
 | **Score Decay Monitor** | wöchentlich So 07:00 | Alterungs-Report (read-only) |
 | **Feed Health Monitor** | täglich 01:00 | Feed-URLs auf Erreichbarkeit prüfen |
-| **Workflow Health Checker** | 4× täglich | Python-Code + Production Health Checks (seen_db, Output-Sanity, Drift, Feed-Ausfälle) |
+| **Workflow Health Checker** | 4× täglich (01:15, 07:15, 13:15, 19:15) | Python-Code + Production Health Checks (seen_db, Output-Sanity, Drift, Feed-Ausfälle) |
+| **Workflow Health Report** | alle 6h (00:05, 06:05, 12:05, 18:05) | Workflow-Status-Report schreiben |
+| **Watchdog Combined** | alle 15 min | Combined-Pipeline auf Stillstand überwachen |
+| **Watchdog Honigtopf** | 4× pro Stunde (:07/:22/:37/:52) | Honigtopf-Workflow auf Stillstand überwachen |
+| **CodeQL Security Scan** | wöchentlich So 03:00 | Statische Sicherheitsanalyse des Codes |
 | **Update All Countries IPv4** | Mo + Mi 01:30 | Länder/Kontinente IPv4-Ranges synchronisieren |
 
 </details>
@@ -221,20 +228,32 @@ Enrichment (nach Combined):
 ## 🕐 Datenfluss & Timing
 
 ```
-22:15  Honigtopf ─────────────────────────┐
-22:45  Bot-Detector Blacklist ────────────┤
-23:00  Honeypot Monitor ──────────────────┤
-00:00  Update Combined Blacklist ─────────┼──→ seen_db Cache
-00:45  Confidence Blacklist ──────────────┘    (8× täglich wiederholt)
-01:00  Feed Health Monitor
-01:15  Workflow Health Checker ←──────────── (4× täglich: 01:15, 07:15, 13:15, 19:15)
-01:30  Update All Countries (Mo+Mi)
-02:00  ASN Reputation Scorer
-04:00  CVE-to-IP Mapper
-04:30  Auto Feed Discovery (So)
-05:00  False Positive Checker
-07:00  Score Decay Monitor (So)
-07:45  Geo-Tagger (So)
+── Häufig / stündlich (UTC) ───────────────────────────────────
+*/15              Watchdog Combined            (Stillstands-Check)
+:07/:22/:37/:52   Watchdog Honigtopf           (Stillstands-Check)
+:15               Honigtopf  ──────────────────┐  (stündlich)
+:30               NETSHIELD Report Generator   │  (stündlich)
+                                               │
+── Combined-Pipeline · 8× täglich, alle 3h ────┤
+00:07,03:07 … 21:07  Update Combined Blacklist ┼──→ seen_db Cache
+                     (+Backups :27 / :47)      │
+01:47,04:47 … 22:47  Confidence Blacklist ─────┘  (8× täglich)
+
+── Täglich · feste Slots (UTC) ────────────────────────────────
+00:05,06:05,12:05,18:05  Workflow Health Report
+01:00             Feed Health Monitor
+01:15,07:15,13:15,19:15  Workflow Health Checker
+01:30 (Mo+Mi)     Update All Countries
+02:00             ASN Reputation Scorer
+02:45             TweetFeed Monitor
+03:00 (So)        CodeQL Security Scan
+04:00             CVE-to-IP Mapper
+04:37 (So)        Auto Feed Discovery (+Backups 07:23, 11:47)
+05:00,11:00,17:00,23:00  Honeypot Monitor
+05:00,13:00,20:00        False Positive Checker
+07:00 (So)        Score Decay Monitor
+07:45 (So)        Geo-Tagger
+22:45             Bot-Detector Blacklist
 ```
 
 ---
@@ -290,11 +309,14 @@ NETSHIELD/
 ├── active_blacklist_ipv4.txt            # → Firewall (Score ≥65, 30 Tage)
 ├── blacklist_confidence40_ipv4.txt      # → Erweiterte Regeln (Score ≥40)
 ├── combined_threat_blacklist_ipv4.txt   # → Audit / SIEM (180 Tage)
+├── combined_threat_blacklist_ipv4_part1.txt  # → Parts bei >90 MB (GitHub-Limit)
+├── combined_threat_blacklist_ipv4_part2.txt  #   (Hauptdatei + seen_db bleiben vollständig)
 ├── watchlist_confidence25to39_ipv4.txt  # → Monitoring (Score 25–39)
 │
 ├── cve_exploit_ips.txt                  # CVE/C2-IPs (täglich)
 ├── honeypot_ips.txt                     # Honeypot-Feeds (täglich)
 ├── honigtopf_ips.txt                    # Honigtopf API (täglich)
+├── tweetfeed_ips.txt                    # TweetFeed.live IOCs (täglich)
 ├── bot_detector_blacklist_ipv4.txt      # Bot-Detector (täglich)
 ├── reputation_blacklist.txt          # Reputation API (Round-Robin)
 ├── asn_blocklist_firewall.txt           # ASN-Blocking (Score ≥50)
