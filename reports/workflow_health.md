@@ -1,6 +1,6 @@
 # Workflow Health Report
 
-**Stand:** 2026-06-29 16:05 UTC
+**Stand:** 2026-06-29 20:11 UTC
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_report.yml` alle 6h.
@@ -8,8 +8,8 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 7 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 13
+- **Echte Combined-Runs:** 8 / 8 erwartet
+- **Skip-Runs (Idempotenz-Guard):** 9
 - **Lucken (>210min zwischen echten Runs):** 2
   - 2026-06-28 21:59 UTC -> 2026-06-29 02:05 UTC (245 min)
   - 2026-06-29 10:34 UTC -> 2026-06-29 14:34 UTC (240 min)
@@ -18,26 +18,25 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 - **Echte Combined-Runs:** 67
 - **Skip-Runs:** 84
-- **Fehlgeschlagene Runs:** 21
+- **Fehlgeschlagene Runs:** 22
 - **Lucken >210min:** 9
 - **Groesste Lucke:** 2026-06-26 22:10 UTC -> 2026-06-27 04:11 UTC (360 min = 6h 0min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 198
+- **Watchdog-Laeufe insgesamt:** 200
 - **Watchdog-Fehler:** 0
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 49
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 50
 
 Letzte Watchdog-Eingriffe:
-- 2026-06-28 21:33 UTC (Run #28336720530, Laufzeit 25m 37s)
-- 2026-06-29 02:05 UTC (Run #28344130483, Laufzeit 25m 55s)
 - 2026-06-29 07:02 UTC (Run #28354509663, Laufzeit 26m 49s)
 - 2026-06-29 10:08 UTC (Run #28364456519, Laufzeit 26m 20s)
 - 2026-06-29 14:34 UTC (Run #28379846103, Laufzeit 26m 9s)
+- 2026-06-29 16:06 UTC (Run #28385830075, Laufzeit 17m 18s)
+- 2026-06-29 19:29 UTC (Run #28397331975, Laufzeit 25m 37s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
-- 2026-06-27 17:44 UTC - failure - Run #28296920740 (25m 10s)
 - 2026-06-27 18:19 UTC - cancelled - Run #28297742919 (5m 39s)
 - 2026-06-27 22:33 UTC - cancelled - Run #28303855597 (36s)
 - 2026-06-28 04:45 UTC - cancelled - Run #28311663257 (12m 26s)
@@ -47,6 +46,7 @@ Letzte Watchdog-Eingriffe:
 - 2026-06-28 14:08 UTC - cancelled - Run #28324832167 (13m 1s)
 - 2026-06-29 05:09 UTC - cancelled - Run #28350009143 (9m 4s)
 - 2026-06-29 05:18 UTC - cancelled - Run #28350351710 (1m 52s)
+- 2026-06-29 16:22 UTC - cancelled - Run #28386783548 (1m 40s)
 
 ---
 
