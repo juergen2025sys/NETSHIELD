@@ -1,10 +1,15 @@
 {
-  "updated": "2026-06-29 12:07 UTC",
+  "updated": "2026-06-29 16:41 UTC",
   "total": 23,
   "ok": 23,
   "warn": 0,
   "error": 1,
   "errors": [
+    {
+      "file": "Production Health",
+      "check": "Drift: honeypot_ips.txt",
+      "detail": "honeypot_ips.txt: 119,984 \u2192 80,588 (-33%) \u2013 starker R\u00fcckgang seit letztem Check"
+    },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
@@ -15,7 +20,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 94.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 94.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
@@ -24,17 +29,22 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6920325,
-    "active_blacklist_ipv4.txt": 386402,
-    "blacklist_confidence40_ipv4.txt": 5528000,
+    "combined_threat_blacklist_ipv4.txt": 6931336,
+    "active_blacklist_ipv4.txt": 397097,
+    "blacklist_confidence40_ipv4.txt": 5538240,
     "cve_exploit_ips.txt": 33238,
-    "honeypot_ips.txt": 119984,
+    "honeypot_ips.txt": 80588,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
-    "critical": 1,
+    "critical": 2,
     "warn": 2,
     "checks": [
+      {
+        "level": "CRITICAL",
+        "check": "Drift: honeypot_ips.txt",
+        "detail": "honeypot_ips.txt: 119,984 \u2192 80,588 (-33%) \u2013 starker R\u00fcckgang seit letztem Check"
+      },
       {
         "level": "CRITICAL",
         "check": "Push-Limit Naehe",
@@ -43,7 +53,7 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 94.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 94.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
