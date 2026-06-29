@@ -515,6 +515,19 @@ jobs:
               "feodo_aggressive":           ("https://feodotracker.abuse.ch/downloads/ipblocklist_aggressive.txt", True),
               "feodo_recommended":          ("https://feodotracker.abuse.ch/downloads/ipblocklist.txt", True),
               "threatfox_ioc":              ("https://raw.githubusercontent.com/elliotwutingfeng/ThreatFox-IOC-IPs/refs/heads/main/ips.txt", True),
+              # hagezi_tif: HaGeZi Threat Intelligence Feeds, Plain-IP-Variante (ips/tif.txt).
+              # Aggregat aus u.a. firehol/montysecurity/ipsum – also denselben Upstreams, die
+              # NETSHIELD bereits zieht. Gemessener Overlap mit dem Bestand ~96,7% (Netto-neu
+              # nur ~3% beim getesteten Snapshot), Single-Maintainer-Repo. Daher hq=False:
+              # zaehlt NICHT als unabhaengige HQ-Bestaetigung (vermeidet Confidence-Inflation
+              # via strongly_confirmed-Logik). Dedup passiert ohnehin in parse_entries().
+              "hagezi_tif":                 ("https://raw.githubusercontent.com/hagezi/dns-blocklists/main/ips/tif.txt", False),
+              # hagezi_tif_cdn: IDENTISCHE Datei wie hagezi_tif, nur ueber jsDelivr-CDN
+              # (@latest-Tag, evtl. Cache-/Tag-Versatz). Bewusst redundant als zweiter
+              # Lieferweg/Fallback eingetragen – liefert KEINE zusaetzlichen IPs (Overlap
+              # zu hagezi_tif ~100%). parse_entries() dedupliziert; hq=False -> keine
+              # Confidence-Doppelzaehlung.
+              "hagezi_tif_cdn":             ("https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/ips/tif.txt", False),
               # threatfox_direct: offizieller abuse.ch-Endpunkt (Direktquelle, kein
               # GitHub-Mirror). Selbe Datenbasis wie threatfox_ioc, aber frischer
               # (~minütlich vs. stündlich beim elliotwutingfeng-Mirror). CSV-Format
