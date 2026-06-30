@@ -1,24 +1,24 @@
 # ASN Reputation Blocklist – NETSHIELD
-# Aktualisiert: 2026-06-29 06:58 UTC
+# Aktualisiert: 2026-06-30 06:20 UTC
 # Format: AS<Nummer> # Score | BL-Hits | Organisation | Land
 # Nur ASNs mit Score >= 50 (base_score + BL-Treffer + DROP/ET-Bonus)
 
-AS132203  # Score:120 | BL-Hits:29296 | Tencent Cloud | CN
-AS14061  # Score:110 | BL-Hits:330496 | DigitalOcean | US
-AS45102  # Score:105 | BL-Hits:51050 | Alibaba Cloud | CN
-AS12389  # Score:100 | BL-Hits:28467 | Rostelecom | RU
-AS51167  # Score:100 | BL-Hits:20331 | Contabo | DE
-AS24940  # Score:99 | BL-Hits:31591 | Hetzner | DE
-AS16276  # Score:99 | BL-Hits:55015 | OVH | FR
-AS20473  # Score:98 | BL-Hits:23853 | Vultr | US
-AS63949  # Score:90 | BL-Hits:25534 | Linode (Akamai) | US
+AS132203  # Score:119 | BL-Hits:29325 | Tencent Cloud | CN
+AS14061  # Score:110 | BL-Hits:331072 | DigitalOcean | US
+AS45102  # Score:105 | BL-Hits:51178 | Alibaba Cloud | CN
+AS12389  # Score:100 | BL-Hits:28486 | Rostelecom | RU
+AS51167  # Score:100 | BL-Hits:20378 | Contabo | DE
+AS24940  # Score:99 | BL-Hits:31655 | Hetzner | DE
+AS20473  # Score:98 | BL-Hits:23891 | Vultr | US
+AS16276  # Score:96 | BL-Hits:55114 | OVH | FR
+AS63949  # Score:90 | BL-Hits:25576 | Linode (Akamai) | US
 AS22612  # Score:90 | BL-Hits:2216 | Namecheap | US
-AS12876  # Score:85 | BL-Hits:14900 | Scaleway | FR
-AS31898  # Score:85 | BL-Hits:34164 | Oracle Cloud | US
-AS16509  # Score:85 | BL-Hits:458646 | Amazon AWS | US
-AS47583  # Score:75 | BL-Hits:4596 | Hostinger | LT
-AS8560  # Score:75 | BL-Hits:4803 | IONOS | DE
+AS12876  # Score:85 | BL-Hits:14918 | Scaleway | FR
+AS31898  # Score:85 | BL-Hits:34213 | Oracle Cloud | US
+AS16509  # Score:85 | BL-Hits:459403 | Amazon AWS | US
+AS47583  # Score:75 | BL-Hits:4609 | Hostinger | LT
+AS8560  # Score:75 | BL-Hits:4809 | IONOS | DE
 AS26496  # Score:71 | BL-Hits:2647 | GoDaddy | US
-AS46606  # Score:65 | BL-Hits:1562 | Bluehost (Unified Layer) | US
-AS8075  # Score:64 | BL-Hits:52911 | Microsoft Azure | US
+AS46606  # Score:65 | BL-Hits:1563 | Bluehost (Unified Layer) | US
+AS8075  # Score:64 | BL-Hits:53098 | Microsoft Azure | US
 AS36351  # Score:50 | BL-Hits:2118 | IBM Cloud | US
