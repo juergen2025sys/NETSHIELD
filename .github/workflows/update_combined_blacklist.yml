@@ -1097,7 +1097,11 @@ jobs:
           # (list.append ist unter CPython atomar).
           relocations = []
 
-          def fetch_ips(name, url):
+          def fetch_ips(name, url, retries=3, timeout=22):
+              # retries/timeout parametrierbar: Default (3/22s) gilt fuer Haupt-,
+              # Slow- und DataPlane-Phase wie bisher. Auto-Feeds rufen mit
+              # retries=1/timeout=15 (Fail-fast), damit ein einzelner zaeher Feed
+              # die Phase nicht bis zur Timeout-Decke blockiert.
               # FIX BUG-WF1-FETCHURL: Vorher direktes urllib.request.urlopen –
               # damit umging dieser Pfad alle Sicherheits-Hardenings, die
               # netshield_common.fetch_url bietet:
@@ -1110,7 +1114,7 @@ jobs:
               # Upstream am meisten Schaden anrichten koennte – jetzt ueber
               # die abgesicherte API.
               try:
-                  raw = fetch_url(url, timeout=22, retries=3,
+                  raw = fetch_url(url, timeout=timeout, retries=retries,
                                   user_agent="NETSHIELD/3.0",
                                   read_limit=READ_LIMIT)
                   if raw is None:
@@ -1125,7 +1129,7 @@ jobs:
                       if new_url and new_url != url:
                           print(f"::warning file=update_combined_blacklist.yml::"
                                 f"Feed [{name}] verschoben – nutze neue URL: {new_url}")
-                          raw = fetch_url(new_url, timeout=22, retries=3,
+                          raw = fetch_url(new_url, timeout=timeout, retries=retries,
                                           user_agent="NETSHIELD/3.0",
                                           read_limit=READ_LIMIT)
                           relocations.append({
@@ -1425,20 +1429,22 @@ jobs:
                   print(f"  Auto-discovered Feeds: {len(auto_feeds)}")
 
                   def fetch_auto(feed):
-                      return fetch_ips(feed["name"], feed["url"])
+                      # Fail-fast: retries=1/timeout=15 → ein toter/zaeher Auto-Feed
+                      # gibt nach ~15s auf statt ~66s einen Worker zu blockieren.
+                      return fetch_ips(feed["name"], feed["url"], retries=1, timeout=15)
 
                   # FIX AUTOFEEDS-TIMEOUT: 5 Worker / 110s waren fuer 46 Auto-Feeds
-                  # massiv unterdimensioniert (Haupt-Phase nutzt 15/880s). Mit
-                  # fetch_url(timeout=22, retries=3) blockiert ein langsamer Feed
-                  # einen Worker bis ~66s -> die kraloveckey-Sublisten + cbuijs
-                  # (~23-24 Feeds) wurden chronisch gecancelt. Job-Limit ist 90 min,
-                  # Gesamtlauf ~25 min -> reichlich Puffer. 12 Worker -> ~4 Feeds je
-                  # Worker; 360s ist Sicherheits-Decke, die real meist gar nicht
-                  # erreicht wird.
+                  # massiv unterdimensioniert (Haupt-Phase nutzt 15/880s) -> ~24
+                  # Feeds wurden chronisch gecancelt. Jetzt 12 Worker + Fail-fast
+                  # (retries=1/timeout=15 in fetch_auto): gesunde Feeds laden in
+                  # <60s, ein zaeher/toter Feed gibt nach ~15s auf statt die Phase
+                  # bis zur Decke zu blockieren. 150s reicht damit locker und
+                  # begrenzt den Worst Case (vorher frass 1 haengender Feed die
+                  # volle 360s-Decke -> +4 min Laufzeit).
                   with ThreadPoolExecutor(max_workers=12) as ex:
                       futures = {ex.submit(fetch_auto, f): f["name"] for f in auto_feeds}
                       try:
-                          for future in as_completed(futures, timeout=360):
+                          for future in as_completed(futures, timeout=150):
                               name, ips = future.result()
                               for ip in ips:
                                   # Auto-discovered Feeds sind nicht HQ
