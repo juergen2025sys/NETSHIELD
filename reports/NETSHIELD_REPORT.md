@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-06-30 04:50 UTC
+**Aktualisiert:** 2026-06-30 05:59 UTC
 
 ---
 ## 📊 Listen-Übersicht
@@ -8,23 +8,21 @@
 |---|---|---:|---|
 | ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **6,948,512** | 2026-06-30 04:20 UTC |
 | ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **391,764** | 2026-06-30 04:20 UTC |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **5,553,684** | 2026-06-30 04:46 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **62,287** | 2026-06-30 04:46 UTC |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **5,553,684** | 2026-06-30 05:55 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **62,287** | 2026-06-30 05:55 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **33,238** | 2026-06-29 08:49 UTC |
 | ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,949** | 2026-06-29 23:41 UTC |
 | ✅ `honeypot_ips.txt` | Honeypot IPs | **84,769** | 2026-06-29 23:50 UTC |
-| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **10,246** | 2026-06-30 04:44 UTC |
+| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **10,560** | 2026-06-30 05:17 UTC |
 
 ---
-## 🔍 Feed Health: ✅ 114 OK | ⚠️ 0 leer | ❌ 1 Fehler
+## 🔍 Feed Health: ✅ 117 OK | ⚠️ 0 leer | ❌ 0 Fehler
 
-**❌ Ausgefallen:** `rutgers_drop`
-
-**🧊 Eingefroren (16):** `amitambekar_threats` 15T, `bbcan177` 15T, `binaryedge_scanners` 15T, `blacksnowdot_packets` 15T, `cloudzy` 15T, `et_block` 15T, `fadouse_worm` 15T, `feodo_aggressive` 15T, `feodo_recommended` 15T, `firehol_level1` 15T…
+**🧊 Eingefroren (16):** `amitambekar_threats` 16T, `bbcan177` 16T, `binaryedge_scanners` 16T, `blacksnowdot_packets` 16T, `cloudzy` 16T, `et_block` 16T, `fadouse_worm` 16T, `feodo_aggressive` 16T, `feodo_recommended` 16T, `firehol_level1` 16T…
 
 *Noch unter der 21-Tage-Quarantäne-Schwelle – nur beobachtet. Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
 
-*Letzter Check: 2026-06-29 05:24 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
+*Letzter Check: 2026-06-30 04:57 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -32,4 +30,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-06-30 04:50 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-06-30 05:59 UTC*
