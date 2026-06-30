@@ -1427,10 +1427,18 @@ jobs:
                   def fetch_auto(feed):
                       return fetch_ips(feed["name"], feed["url"])
 
-                  with ThreadPoolExecutor(max_workers=5) as ex:
+                  # FIX AUTOFEEDS-TIMEOUT: 5 Worker / 110s waren fuer 46 Auto-Feeds
+                  # massiv unterdimensioniert (Haupt-Phase nutzt 15/880s). Mit
+                  # fetch_url(timeout=22, retries=3) blockiert ein langsamer Feed
+                  # einen Worker bis ~66s -> die kraloveckey-Sublisten + cbuijs
+                  # (~23-24 Feeds) wurden chronisch gecancelt. Job-Limit ist 90 min,
+                  # Gesamtlauf ~25 min -> reichlich Puffer. 12 Worker -> ~4 Feeds je
+                  # Worker; 360s ist Sicherheits-Decke, die real meist gar nicht
+                  # erreicht wird.
+                  with ThreadPoolExecutor(max_workers=12) as ex:
                       futures = {ex.submit(fetch_auto, f): f["name"] for f in auto_feeds}
                       try:
-                          for future in as_completed(futures, timeout=110):
+                          for future in as_completed(futures, timeout=360):
                               name, ips = future.result()
                               for ip in ips:
                                   # Auto-discovered Feeds sind nicht HQ
