@@ -103,7 +103,7 @@ jobs:
 
       - name: Restore seen_db Cache
         if: steps.idempotency.outputs.already_ran != 'true'
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: seen_db.json
           key: netshield-seen-db-v2-${{ github.run_id }}
@@ -1423,6 +1423,18 @@ jobs:
                   # mit Repo-Schreibrechten konnte malicious URLs in den
                   # Feed-Loop einschleusen ohne Code-Review-Pfad ueber SOURCES.
                   auto_feeds, _rejected = validate_auto_feeds(auto_data)
+                  # AUSSCHLUSS I-BLOCKLIST: Die iblocklist_*-Listen (level1/level2/
+                  # edu/ads, via kraloveckey gespiegelt) sind P2P-Aera-Massen-CIDR-
+                  # Dumps – ueber-breit (FP-Risiko) und teils falsch kategorisiert
+                  # (edu = Bildungsnetze/Unis, ads = Ad-Server -> kein Threat-IP).
+                  # Zudem groesster Parse-Kostentreiber (iblocklist_level1 ~211k
+                  # CIDRs). Filter beim Einlesen -> greift dauerhaft, auch wenn die
+                  # Auto-Discovery sie erneut in die JSON schreibt.
+                  _iblock = [f for f in auto_feeds if "iblocklist" in f["name"].lower()]
+                  if _iblock:
+                      auto_feeds = [f for f in auto_feeds if "iblocklist" not in f["name"].lower()]
+                      print(f"  I-BlockList ausgeschlossen ({len(_iblock)}): "
+                            + ", ".join(sorted(f["name"] for f in _iblock)))
                   if _rejected:
                       print(f"  WARNUNG: {_rejected} auto-feed Eintraege wegen "
                             f"Schema-/URL-Check verworfen")
@@ -1433,18 +1445,18 @@ jobs:
                       # gibt nach ~15s auf statt ~66s einen Worker zu blockieren.
                       return fetch_ips(feed["name"], feed["url"], retries=1, timeout=15)
 
-                  # FIX AUTOFEEDS-TIMEOUT: 5 Worker / 110s waren fuer 46 Auto-Feeds
-                  # massiv unterdimensioniert (Haupt-Phase nutzt 15/880s) -> ~24
-                  # Feeds wurden chronisch gecancelt. Jetzt 12 Worker + Fail-fast
-                  # (retries=1/timeout=15 in fetch_auto): gesunde Feeds laden in
-                  # <60s, ein zaeher/toter Feed gibt nach ~15s auf statt die Phase
-                  # bis zur Decke zu blockieren. 150s reicht damit locker und
-                  # begrenzt den Worst Case (vorher frass 1 haengender Feed die
-                  # volle 360s-Decke -> +4 min Laufzeit).
+                  # FIX AUTOFEEDS-TIMEOUT: 5 Worker / 110s waren unterdimensioniert
+                  # (Haupt-Phase nutzt 15/880s) -> ~24 Feeds chronisch gecancelt.
+                  # Jetzt 12 Worker + Fail-fast (retries=1/timeout=15 in fetch_auto):
+                  # gesunde Feeds laden in <60s, tote geben nach ~15s auf. Die
+                  # parse-schweren iblocklist_*-Listen (211k CIDRs) sind oben
+                  # ausgeschlossen -> kein Parse-Hog mehr in der Phase. 240s ist
+                  # damit reichlich Decke fuer die verbleibenden, legitimen Feeds
+                  # (u.a. cbuijs) und vermeidet die fruehere 360s-Verschwendung.
                   with ThreadPoolExecutor(max_workers=12) as ex:
                       futures = {ex.submit(fetch_auto, f): f["name"] for f in auto_feeds}
                       try:
-                          for future in as_completed(futures, timeout=150):
+                          for future in as_completed(futures, timeout=240):
                               name, ips = future.result()
                               for ip in ips:
                                   # Auto-discovered Feeds sind nicht HQ
@@ -2191,7 +2203,7 @@ jobs:
         # wenn Idempotenz-Guard nicht geskippt hat. Beim Skip soll auch der Cache-
         # Save nicht laufen, da kein Build-Step ausgefuehrt wurde.
         if: always() && steps.idempotency.outputs.already_ran != 'true'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: seen_db.json
           # v2: Kein statischer "latest"-Key mehr. Restore erfolgt über Prefix
