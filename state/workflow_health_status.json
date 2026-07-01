@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-01 10:48 UTC",
+  "updated": "2026-07-01 15:48 UTC",
   "total": 23,
   "ok": 22,
   "warn": 1,
@@ -8,7 +8,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 95.0 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 95.2 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
     },
     {
       "file": "Production Health",
@@ -34,11 +34,11 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 6982430,
-    "active_blacklist_ipv4.txt": 393372,
-    "blacklist_confidence40_ipv4.txt": 5581334,
+    "combined_threat_blacklist_ipv4.txt": 6991344,
+    "active_blacklist_ipv4.txt": 402748,
+    "blacklist_confidence40_ipv4.txt": 5590238,
     "cve_exploit_ips.txt": 32980,
-    "honeypot_ips.txt": 122357,
+    "honeypot_ips.txt": 122509,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
@@ -48,7 +48,7 @@
       {
         "level": "CRITICAL",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 95.0 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 95.2 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
       },
       {
         "level": "CRITICAL",
