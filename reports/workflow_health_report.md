@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-07-01 05:53 UTC
+**Aktualisiert:** 2026-07-01 10:48 UTC
 
 **Workflows:** 23 | ✅ 22 OK | ⚠️ 1 Warnung | ❌ 1 Fehler
 
@@ -8,6 +8,7 @@
 
 | Datei | Check | Detail |
 |---|---|---|
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 
 ## ⚠️ Warnungen
@@ -16,17 +17,16 @@
 |---|---|---|
 | `update_combined_blacklist.yml` | actions/cache/restore Version-Drift | 1 Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht? |
 | `update_combined_blacklist.yml` | actions/cache/save Version-Drift | 1 Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht? |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 95.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | `Production Health` | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.7 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 2 WARN
+**Status:** 🔴 2 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
+| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🔴 CRITICAL | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
-| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 95.0 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.7 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
@@ -58,4 +58,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-07-01 05:53 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-07-01 10:48 UTC | 23 Workflow-Dateien geprüft*
