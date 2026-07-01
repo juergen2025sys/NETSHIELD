@@ -528,6 +528,16 @@ jobs:
               # zu hagezi_tif ~100%). parse_entries() dedupliziert; hq=False -> keine
               # Confidence-Doppelzaehlung.
               "hagezi_tif_cdn":             ("https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/ips/tif.txt", False),
+              # ashleykleynhans_abuseipdb: Persoenlicher AbuseIPDB-Report-Export von
+              # Ashley Kleynhans (github.com/ashleykleynhans/ipset). CSV mit Header
+              # (Date Added,IP,Abuse Confidence Score,...), IP in Spalte 2 -
+              # parse_entries() faengt das ueber den generischen IPV4-Regex-Fallback
+              # ab (CSV wird explizit unterstuetzt). Live verifiziert: Daten bis
+              # 2026-06-26, aktiv gepflegt. Gemessener Overlap mit Bestand nur
+              # ~19% -> ~80% Netto-neu (Snapshot-Test mit hochgeladener Kopie der
+              # gleichen Datei). HQ=False: Single-Maintainer-Report-Historie, keine
+              # unabhaengige Multi-Source-Bestaetigung -> keine Confidence-Inflation.
+              "ashleykleynhans_abuseipdb":  ("https://raw.githubusercontent.com/ashleykleynhans/ipset/refs/heads/main/ipv4.csv", False),
               # threatfox_direct: offizieller abuse.ch-Endpunkt (Direktquelle, kein
               # GitHub-Mirror). Selbe Datenbasis wie threatfox_ioc, aber frischer
               # (~minütlich vs. stündlich beim elliotwutingfeng-Mirror). CSV-Format
