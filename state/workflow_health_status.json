@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-02 15:28 UTC",
+  "updated": "2026-07-02 20:36 UTC",
   "total": 23,
   "ok": 22,
   "warn": 1,
@@ -14,6 +14,11 @@
       "file": "Production Health",
       "check": "Push-Limit Naehe",
       "detail": "state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+    },
+    {
+      "file": "Production Health",
+      "check": "active \u2286 conf40 Subset-Invariante verletzt",
+      "detail": "1,436 IPs in active fehlen in conf40 (0.351% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
     }
   ],
   "warnings": [
@@ -34,15 +39,15 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4.txt": 7031339,
-    "active_blacklist_ipv4.txt": 406297,
-    "blacklist_confidence40_ipv4.txt": 5614765,
+    "combined_threat_blacklist_ipv4.txt": 7034670,
+    "active_blacklist_ipv4.txt": 409091,
+    "blacklist_confidence40_ipv4.txt": 5615915,
     "cve_exploit_ips.txt": 32941,
-    "honeypot_ips.txt": 116767,
+    "honeypot_ips.txt": 116226,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
-    "critical": 2,
+    "critical": 3,
     "warn": 1,
     "checks": [
       {
@@ -59,6 +64,11 @@
         "level": "WARN",
         "check": "Push-Limit Naehe",
         "detail": "geo_enriched/blacklist_geo_enriched.json: 94.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      },
+      {
+        "level": "CRITICAL",
+        "check": "active \u2286 conf40 Subset-Invariante verletzt",
+        "detail": "1,436 IPs in active fehlen in conf40 (0.351% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
       }
     ]
   },
