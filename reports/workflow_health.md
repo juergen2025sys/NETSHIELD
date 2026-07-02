@@ -1,6 +1,6 @@
 # Workflow Health Report
 
-**Stand:** 2026-07-02 04:16 UTC
+**Stand:** 2026-07-02 09:29 UTC
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_report.yml` alle 6h.
@@ -8,34 +8,33 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 11 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 11
+- **Echte Combined-Runs:** 10 / 8 erwartet
+- **Skip-Runs (Idempotenz-Guard):** 13
 - **Lucken (>210min zwischen echten Runs):** 0
 
 ## Letzte 7 Tage
 
-- **Echte Combined-Runs:** 67
-- **Skip-Runs:** 85
-- **Fehlgeschlagene Runs:** 26
-- **Lucken >210min:** 6
+- **Echte Combined-Runs:** 66
+- **Skip-Runs:** 86
+- **Fehlgeschlagene Runs:** 27
+- **Lucken >210min:** 5
 - **Groesste Lucke:** 2026-06-26 22:10 UTC -> 2026-06-27 04:11 UTC (360 min = 6h 0min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 204
+- **Watchdog-Laeufe insgesamt:** 205
 - **Watchdog-Fehler:** 0
 - **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 52
 
 Letzte Watchdog-Eingriffe:
-- 2026-07-01 13:40 UTC (Run #28521915129, Laufzeit 22m 55s)
 - 2026-07-01 16:37 UTC (Run #28532900141, Laufzeit 23m 40s)
 - 2026-07-01 18:29 UTC (Run #28539123661, Laufzeit 24m 14s)
 - 2026-07-01 21:55 UTC (Run #28550320794, Laufzeit 23m 44s)
 - 2026-07-02 01:32 UTC (Run #28559161246, Laufzeit 23m 57s)
+- 2026-07-02 07:54 UTC (Run #28574447474, Laufzeit 23m 38s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
-- 2026-06-28 14:08 UTC - cancelled - Run #28324832167 (13m 1s)
 - 2026-06-29 05:09 UTC - cancelled - Run #28350009143 (9m 4s)
 - 2026-06-29 05:18 UTC - cancelled - Run #28350351710 (1m 52s)
 - 2026-06-29 16:22 UTC - cancelled - Run #28386783548 (1m 40s)
@@ -45,6 +44,7 @@ Letzte Watchdog-Eingriffe:
 - 2026-06-30 10:18 UTC - cancelled - Run #28437192936 (9m 2s)
 - 2026-07-01 05:02 UTC - cancelled - Run #28494739293 (8m 41s)
 - 2026-07-01 10:27 UTC - cancelled - Run #28510941905 (3m 46s)
+- 2026-07-02 04:38 UTC - cancelled - Run #28565782430 (32s)
 
 ---
 
