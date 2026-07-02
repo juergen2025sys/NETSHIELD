@@ -866,6 +866,42 @@ jobs:
 
               # ── Tor Exit Nodes ────────────────────────────────────────────
               # tor_* entfernt: tor_exit_monitor Workflow wurde entfernt
+
+              # ── Neu (2026-07-02, manuell geprüft) ──────────────────────────
+              # cypher139_ipblacklist: Minecraft-Honeypot-Blocklist (25.434 IPv4,
+              # eine IP/Zeile, live verifiziert). Enthaelt laut Repo-eigenem
+              # Report u.a. 326 Cloudflare-, ~1.800 AWS- und 2.245 DigitalOcean-
+              # IPs (in Rohdaten stichprobenartig bestaetigt, z.B. 104.22.x.x/
+              # 104.23.245.x/104.28.x.x) sowie einzelne bekannte Research-Scanner
+              # (Censys/PaloAlto-Xpanse-Range) – False-Positive-Risiko hoeher
+              # als bei den uebrigen Feeds. Einzelner Betreiber, 0 Stars/Forks,
+              # letztes Commit-Datum nicht verifizierbar (GitHub Commit-Seite
+              # per robots.txt gesperrt). hq=False: keine unabhaengige
+              # Multi-Source-Bestaetigung, um Confidence-Inflation durch die
+              # enthaltenen CDN-Ranges zu vermeiden.
+              "cypher139_ipblacklist":      ("https://raw.githubusercontent.com/cypher139/ipblacklist/main/block.txt", False),
+
+              # serp07_dude_blacklist: MikroTik-RouterOS-Skript (.rsc), keine
+              # Plain-IP-Datei – Format "add list=... address=1.2.3.0/24
+              # comment=...". parse_entries() ist format-agnostisch (findet
+              # IPs/CIDRs per Regex-Fallback in jeder Zeile, Kommentare via
+              # ';'/'#' werden abgeschnitten) und sollte das grundsaetzlich
+              # parsen koennen. ABER: Rohdaten enthalten verifiziert private
+              # IPs (192.168.8.2, 192.168.8.3 – vermutlich ungefiltert aus dem
+              # LAN des Betreibers exportiert) sowie legitime Research-/
+              # Provider-IPs (Censys, PaloAlto-Xpanse, Google, Meta). is_valid_
+              # public_ipv4() filtert die privaten IPs zwar heraus, die
+              # Google/Meta/Research-Eintraege aber nicht.
+              # WICHTIG: Dieses Repo steht bereits in state/auto_discovered_
+              # feeds.json unter rejected_repos mit reason="Keine IP-Datei"
+              # (2026-02-25) – NICHT wegen des Inhalts, sondern weil die
+              # Erkennungs-Regex IP_FILE_PATTERNS in auto_feed_discovery.yml
+              # die Endung .rsc nicht in ihrer Extension-Liste fuehrt
+              # (nur .txt/.csv/.ipset/.netset/.list/.lst/.conf/.sh/.dat bzw.
+              # .ip/.ips/.ipset/.netset/.cidr). Verifiziert im Quellcode,
+              # keine Vermutung. Manuell hier eingetragen trotz Auto-Reject –
+              # gemaess expliziter Anweisung, siehe Chat vom 2026-07-02.
+              "serp07_dude_blacklist":      ("https://raw.githubusercontent.com/Serp07/dude_blacklist_ip/refs/heads/main/dude_blacklist.rsc", False),
           }
 
           # ── seen_db laden ──────────────────────────────────────────────────

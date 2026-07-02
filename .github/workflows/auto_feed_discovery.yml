@@ -265,7 +265,16 @@ jobs:
               r'(?:plain|optimized|sorted)[-.].+ip[46]?cidr|'
               r'ip[46]?cidr|ipv4cidr|ipv6cidr|'
               r'black[-.]ip|plain[-.]black[-.]ip'
-              r')\.(?:txt|csv|ipset|netset|list|lst|conf|sh|dat)(?:\.gz)?$'
+              # rsc: MikroTik-RouterOS-Skript-Endung. Ergaenzt am 2026-07-02,
+              # nachdem Serp07/dude_blacklist_ip faelschlich als "Keine
+              # IP-Datei" verworfen wurde (reason war Extension-Luecke, kein
+              # inhaltliches Problem – parse_entries() parst .rsc korrekt
+              # ueber den generischen IPV4/CIDR-Regex-Fallback, live gegen
+              # echten Feed-Inhalt verifiziert). Format: "add list=...
+              # address=1.2.3.4 comment=..." – der Stem-Teil dieser Regex
+              # (blacklist/blocklist/ban/etc.) matcht bereits auf den
+              # Dateinamen, es fehlte nur die Endung in der Whitelist unten.
+              r')\.(?:txt|csv|ipset|netset|list|lst|conf|sh|dat|rsc)(?:\.gz)?$'
               r')'
           )
 
