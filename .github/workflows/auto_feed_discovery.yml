@@ -98,7 +98,8 @@ jobs:
               load_whitelist, load_fp_set, is_in_fp_set,
               is_valid_public_ipv4, is_valid_public_cidr,
               is_protected_entry, is_whitelisted,
-              parse_entries as _parse_entries, calculate_confidence,
+              parse_entries as _parse_entries,
+              parse_feed_entries as _parse_feed_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
               write_json_atomic, write_text_atomic,
               fetch_url, check_local_feed_age,
@@ -501,241 +502,18 @@ jobs:
           # Hilfsfunktionen außerhalb von extract_ips definiert damit
           # sie auch von anderen Stellen genutzt werden können.
 
-          def _ips_from_strings(strings):
-              """IP-Validierung auf beliebiger String-Liste via parse_entries.
-              /32-CIDRs werden als plain IPs behandelt (Strip des Suffix).
-              Andere CIDRs (/24 etc.) werden ignoriert – nur Host-IPs zaehlen.
+          def extract_ips(text, source_hint=""):
+              """Zentrale, formatbewusste Feed-Auswertung.
+
+              Auto-Discovery und Combined-Workflow verwenden damit exakt
+              denselben Parser aus scripts/netshield_common.py. Ein Feed wird
+              also bei der Aufnahme genauso interpretiert wie spaeter beim
+              Erzeugen der Combined-Liste. Nur einzelne IPv4-Hosts bzw. /32
+              werden akzeptiert; breitere Netze und Ranges bleiben abgelehnt.
               """
-              result = set()
-              for s in strings:
-                  if not isinstance(s, str) or not s.strip():
-                      continue
-                  for e in _parse_entries(s):
-                      if "/" not in e:
-                          result.add(e)  # plain IP
-                      elif e.endswith("/32"):
-                          result.add(e[:-3])  # /32 → plain IP
-                      # andere CIDRs (/8 bis /31) werden ignoriert
-              return result
-
-          def _json_all_strings(obj, depth=0):
-              """Alle String-/Zahl-Werte aus beliebig verschachteltem JSON."""
-              if depth > 15:
-                  return []
-              if isinstance(obj, str):
-                  return [obj]
-              if isinstance(obj, (int, float)):
-                  return [str(obj)]
-              if isinstance(obj, (list, tuple)):
-                  out = []
-                  for item in obj:
-                      out.extend(_json_all_strings(item, depth + 1))
-                  return out
-              if isinstance(obj, dict):
-                  out = []
-                  for v in obj.values():
-                      out.extend(_json_all_strings(v, depth + 1))
-                  return out
-              return []
-
-          def extract_ips(text):
-              """Extrahiert IPv4-Adressen aus einem Feed unabhängig vom Format.
-
-              Erkannte Formate (automatisch, Reihenfolge nach Häufigkeit):
-                1. Plain-Text   – eine IP pro Zeile, #-Kommentare
-                2. JSON         – Array, Objekt, beliebig tief verschachtelt
-                3. JSONL        – eine JSON-Zeile pro Row (Turris, ThreatFox CSV etc.)
-                4. CSV/TSV      – Komma/Tab/Semikolon/Pipe, IP in beliebiger Spalte
-                5. XML/HTML     – IPs in Tag-Inhalt und Attributen
-                6. YAML/TOML/INI/Clash – Key-Value mit ':' oder '='
-                7. Firewall-Configs:
-                     nginx (deny x;), Apache (Deny from x),
-                     iptables (-s x, --source x), ipset (add list x),
-                     nftables (elements = { x, y }), MikroTik (address=x),
-                     Cisco ACL (host x), Snort/Suricata (alert ip x),
-                     fail2ban (ignoreip = x), pfSense/OPNsense XML
-                8. Markdown/RST – IPs in Tabellen, Listen, Code-Blöcken
-                9. Brute-Force  – IPV4_RE-Regex über den gesamten Text
-
-              Rückgabe: Set[str] mit validen öffentlichen IPv4-Adressen (keine CIDRs).
-              Whitelist-Filter NICHT aktiv – Discovery evaluiert nur.
-              """
-              if not text or not text.strip():
-                  return set()
-
-              stripped = text.strip()
-              data_lines = [l.strip() for l in stripped.splitlines()
-                            if l.strip() and not l.strip().startswith("#")]
-              if not data_lines:
-                  return set()
-
-              # ── 1. Plain-Text Schnelltest ─────────────────────────────────
-              first_token = data_lines[0].split()[0] if data_lines[0].split() else ""
-              _plain_re = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(/\d{1,2})?$")
-              if _plain_re.match(first_token):
-                  result = {e for e in _parse_entries(stripped) if "/" not in e}
-                  if result:
-                      return result
-
-              # ── 2. JSON ───────────────────────────────────────────────────
-              if stripped[0] in ("{", "["):
-                  try:
-                      obj = json.loads(stripped)
-                      ips = _ips_from_strings(_json_all_strings(obj))
-                      if ips:
-                          return ips
-                      return set()  # Valides JSON ohne IPs → Domain-Liste o.ä.
-                  except (json.JSONDecodeError, ValueError):
-                      pass
-
-              # ── 3. JSONL ──────────────────────────────────────────────────
-              _jsonl_ok = 0
-              _jsonl_strings = []
-              for line in data_lines[:30]:
-                  if line and line[0] in ("{", "["):
-                      try:
-                          _jsonl_strings.extend(_json_all_strings(json.loads(line)))
-                          _jsonl_ok += 1
-                      except Exception:
-                          pass
-              if _jsonl_ok >= 3:
-                  for line in data_lines:
-                      try:
-                          _jsonl_strings.extend(_json_all_strings(json.loads(line)))
-                      except Exception:
-                          _jsonl_strings.append(line)
-                  ips = _ips_from_strings(_jsonl_strings)
-                  if ips:
-                      return ips
-
-              # ── 4. XML / HTML ─────────────────────────────────────────────
-              if re.search(r"<[a-zA-Z][^>]{0,50}>", stripped):
-                  # Tag-Inhalt extrahieren (IPs stehen in XML fast immer darin)
-                  _tag_content = re.findall(r">([^<]{1,80})<", stripped)
-                  # Attributwerte: nur Ziffern/Punkte nach = (kein Quote-Problem)
-                  _attr_tokens = re.findall(r"=([\d.]{7,15})", stripped)
-                  xml_strings = list(_tag_content) + _attr_tokens
-                  ips = _ips_from_strings(xml_strings)
-                  if ips:
-                      return ips
-
-              # ── 5. CSV / TSV / Semikolon / Pipe ──────────────────────────
-              if data_lines:
-                  first = data_lines[0]
-                  sep = None
-                  if "	" in first:
-                      sep = "	"
-                  elif first.count(",") >= 1:
-                      sep = ","
-                  elif first.count(";") >= 1:
-                      sep = ";"
-                  elif first.count("|") >= 2:
-                      sep = "|"
-                  if sep:
-                      try:
-                          import csv as _csv, io as _io
-                          reader = _csv.reader(_io.StringIO(stripped), delimiter=sep)
-                          col_ips = {}
-                          for row in reader:
-                              for idx, cell in enumerate(row):
-                                  cell = cell.strip().strip('"').strip("'")
-                                  found = {e for e in _parse_entries(cell) if "/" not in e}
-                                  if found:
-                                      col_ips.setdefault(idx, set()).update(found)
-                          if col_ips:
-                              best = max(col_ips, key=lambda k: len(col_ips[k]))
-                              if col_ips[best]:
-                                  return col_ips[best]
-                      except Exception:
-                          pass
-
-              # ── 6. Firewall-Konfig-Formate ────────────────────────────────
-              # nginx: deny 1.2.3.4;
-              # Apache: Deny from 1.2.3.4 / Allow from 1.2.3.4
-              # iptables: -s 1.2.3.4 / --source 1.2.3.4 / -A INPUT -s 1.2.3.4
-              # ipset: add <listname> 1.2.3.4
-              # nftables: elements = { 1.2.3.4, 5.6.7.8 }
-              # MikroTik: /ip firewall address-list add address=1.2.3.4
-              # Cisco ACL: deny ip host 1.2.3.4 any
-              # Snort/Suricata: alert ip 1.2.3.4 any -> any any
-              # fail2ban: ignoreip = 127.0.0.1/8 1.2.3.4
-              # pfSense/OPNsense: <address>1.2.3.4</address>
-              _fw_kw = (
-                  "deny ", "allow ", "permit ", "reject ", "drop ",
-                  "-s ", "--source ", "address=", "add ", "elements",
-                  "host ", "from ", "ignoreip", "blocklist", "acl ",
-                  "blackhole", "route ", "null0", "discard",
+              return _parse_feed_entries(
+                  text, source_hint=source_hint, use_protected_check=False
               )
-              _text_lower = stripped.lower()
-              if any(kw in _text_lower for kw in _fw_kw):
-                  fw_strings = list(data_lines)  # Zeilen für Brute-Force
-                  # Zusätzlich: Tokens nach bekannten Keywords extrahieren
-                  for line in data_lines:
-                      ll = line.lower()
-                      for kw in _fw_kw:
-                          if kw in ll:
-                              idx = ll.find(kw)
-                              tail = line[idx + len(kw):].strip()
-                              if tail:
-                                  fw_strings.append(tail.split()[0].rstrip(";,"))
-                  ips = _ips_from_strings(fw_strings)
-                  if ips:
-                      return ips
-
-              # ── 6b. Clash / Proxy-Listen-Format ────────────────────────────
-              # Erkennung: Zeilen mit "IP-CIDR," oder "IP," Prefix (Clash/Surge/Quantumult)
-              # Format: IP-CIDR,1.2.3.4/32,no-resolve oder IP,1.2.3.4
-              _clash_lines = [l for l in data_lines
-                              if l.upper().startswith(("IP-CIDR,", "IP,", "IP6-CIDR,"))]
-              if len(_clash_lines) >= 5:
-                  clash_ips = set()
-                  for cl in _clash_lines:
-                      parts = cl.split(",")
-                      if len(parts) >= 2:
-                          token = parts[1].strip()
-                          if token.endswith("/32"):
-                              clash_ips.add(token[:-3])
-                          elif "/" not in token:
-                              clash_ips.update(e for e in _parse_entries(token) if "/" not in e)
-                          # /24 etc. → ignorieren, nur Host-IPs
-                  if clash_ips:
-                      return clash_ips
-
-              # ── 7. YAML / TOML / INI / Clash-Config ──────────────────────
-              _kv_count = sum(1 for l in data_lines if ":" in l or "=" in l)
-              if _kv_count > len(data_lines) * 0.2:
-                  kv_vals = []
-                  for line in data_lines:
-                      for delim in (":", "="):
-                          if delim in line:
-                              val = line.split(delim, 1)[1].strip()
-                              val = val.strip('"').strip("'").strip("[]")
-                              for token in re.split(r"[,\s]+", val):
-                                  kv_vals.append(token.strip().strip('"').strip("'"))
-                              break
-                      kv_vals.append(line)
-                  ips = _ips_from_strings(kv_vals)
-                  if ips:
-                      return ips
-
-              # ── 8. Markdown / RST / Fließtext ────────────────────────────
-              md_tokens = []
-              for line in data_lines:
-                  if "|" in line:
-                      md_tokens.extend(c.strip() for c in line.split("|"))
-                  elif line.startswith(("-", "*", "+", ">")):
-                      md_tokens.append(line[1:].strip())
-                  else:
-                      # Code-Blöcke (```), inline-code (`x.x.x.x`)
-                      md_tokens.extend(re.split(r"[`\s]+", line))
-              ips = _ips_from_strings(md_tokens)
-              if ips:
-                  return ips
-
-              # ── 9. Brute-Force-Regex (letzter Ausweg) ────────────────────
-              # parse_entries() mit IPV4_RE über den gesamten Text –
-              # findet IPs in jedem bisher nicht erkannten Format.
-              return {e for e in _parse_entries(stripped) if "/" not in e}
 
           def fp_rate(ips, sample_size=200):
               # FIX SAMPLE-BIAS: random.sample statt list(ips)[:200]. Set-Iteration
@@ -1247,7 +1025,7 @@ jobs:
               # HQ-Ref-Limit: 8 MB – abuseipdb-s100-30d.ipv4 ist >5 MB
               text = fetch_raw(url, limit=8 * 1024 * 1024, timeout=30)
               if text:
-                  found = extract_ips(text)
+                  found = extract_ips(text, url)
                   print(f"  HQ-Ref {url.split('/')[-1]}: {len(found)} IPs")
                   return found
               print(f"  HQ-Ref {url.split('/')[-1]}: FAIL")
@@ -1903,7 +1681,7 @@ jobs:
               _file_dt = _get_commit_date_for_feed(_feed)
               if _file_dt is not None:
                   result["file_days"] = (now - _file_dt).days
-              result["ips"] = extract_ips(result["content"])
+              result["ips"] = extract_ips(result["content"], _url)
               # Merker: Download OK aber 0 IPs extrahiert.
               # Vorab-Diagnose: erste 200 Zeichen loggen damit im Report
               # sichtbar ist ob es ein Format-Problem ist (JSON, Domains etc.)
@@ -2149,7 +1927,7 @@ jobs:
                   if not _nf_text:
                       continue
 
-                  _nf_ips = extract_ips(_nf_text)
+                  _nf_ips = extract_ips(_nf_text, _nf_url)
                   if len(_nf_ips) < 50:
                       continue
 
@@ -2585,7 +2363,7 @@ jobs:
                           "reason": "Download-Fehler", "logs": _log_lines,
                           "platform": _platform}
 
-              ips = extract_ips(text)
+              ips = extract_ips(text, raw_url)
 
               # Kriterium 2: Größe (100 – 500.000 IPs)
               if not (100 <= len(ips) <= 500_000):
@@ -2701,7 +2479,7 @@ jobs:
                   if REDUNDANT_FEED_RE.search(_ef["path"]):
                       _log_lines.append(f"  ⚠ Extra-Datei übersprungen (redundanter Upstream): {_ef['path']}")
                       continue
-                  _ef_ips = extract_ips(_ef_text)
+                  _ef_ips = extract_ips(_ef_text, _ef_url)
                   if len(_ef_ips) < 50:
                       _log_lines.append(f"  ⚠ Extra-Datei zu klein ({len(_ef_ips)} IPs): {_ef['path']}")
                       continue

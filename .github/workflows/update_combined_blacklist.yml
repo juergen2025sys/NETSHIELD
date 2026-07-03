@@ -261,7 +261,7 @@ jobs:
               load_whitelist, load_fp_set, is_in_fp_set,
               is_valid_public_ipv4, is_valid_public_cidr,
               is_protected_entry, is_whitelisted,
-              parse_entries, calculate_confidence,
+              parse_entries, parse_feed_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
               write_json_atomic, write_text_atomic,
               fetch_url, check_local_feed_age,
@@ -1159,6 +1159,7 @@ jobs:
               # Diese 80 Feeds sind genau die Stelle, an der ein boesartiger
               # Upstream am meisten Schaden anrichten koennte – jetzt ueber
               # die abgesicherte API.
+              effective_url = url
               try:
                   raw = fetch_url(url, timeout=timeout, retries=retries,
                                   user_agent="NETSHIELD/3.0",
@@ -1175,6 +1176,7 @@ jobs:
                       if new_url and new_url != url:
                           print(f"::warning file=update_combined_blacklist.yml::"
                                 f"Feed [{name}] verschoben – nutze neue URL: {new_url}")
+                          effective_url = new_url
                           raw = fetch_url(new_url, timeout=timeout, retries=retries,
                                           user_agent="NETSHIELD/3.0",
                                           read_limit=READ_LIMIT)
@@ -1186,7 +1188,11 @@ jobs:
                       print(f"ERR  {name}: fetch_url returned None")
                       print(f"::warning file=update_combined_blacklist.yml::Feed fetch failed [{name}]")
                       return name, set()
-                  found = parse_entries(raw, use_protected_check=True)
+                  # Zentrale Formatlogik: identisch zur Auto-Discovery.
+                  found = parse_feed_entries(
+                      raw, source_hint=effective_url,
+                      use_protected_check=True,
+                  )
                   ips   = len([e for e in found if '/' not in e])
                   cidrs = len([e for e in found if '/' in e])
                   print(f"OK  {name}: {ips} IPs" + (f" + {cidrs} CIDRs" if cidrs else ""))
