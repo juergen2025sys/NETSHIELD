@@ -683,6 +683,522 @@ def _is_in_ipv6_token(line, start, end):
     return "::" in token or token.count(":") >= 2
 
 
+
+def parse_feed_entries(text, source_hint="", use_protected_check=False):
+    """Formatbewusster Zentral-Parser fuer externe IP-/Firewall-Feeds.
+
+    Diese Funktion ist die gemeinsame Parser-API fuer Auto-Discovery und
+    Combined-Workflow. Dadurch wird ein Feed bei der Aufnahme und bei der
+    spaeteren Verarbeitung mit exakt derselben Logik interpretiert.
+
+    Unterstuetzte Textformate umfassen unter anderem TXT/LIST, CSV/TSV,
+    JSON/JSONL, XML, YAML/TOML/INI sowie ipset, nftables, iptables,
+    MikroTik RouterOS, Cisco ACL, FortiGate, pf, nginx/Apache,
+    Snort/Suricata-Drop-Regeln und Clash/Surge-Listen. GZIP wird bereits
+    von ``fetch_url()`` entpackt; Archive wie ZIP/7z werden hier bewusst
+    nicht verarbeitet.
+
+    Sicherheits-Policy von NETSHIELD:
+      * Nur einzelne IPv4-Hosts werden zurueckgegeben.
+      * ``/32`` wird in eine einzelne IP normalisiert.
+      * Breitere CIDRs, Wildcard-Netze und IP-Ranges werden NICHT expandiert.
+      * Allow-/Whitelist-Regeln (z.B. ``ignoreip``, ``allow``, ``permit``)
+        werden nicht als Blocklist-Eintraege interpretiert.
+      * Dateien werden nur als Text geparst und niemals ausgefuehrt.
+
+    Args:
+        text: Bereits heruntergeladener und ggf. entpackter Feed-Inhalt.
+        source_hint: URL oder Dateipfad. Dient nur als Format-Hinweis.
+        use_protected_check: Wie bei :func:`parse_entries`; im Pipeline-Modus
+            werden zusaetzlich Whitelist-/Protected-Eintraege entfernt.
+
+    Returns:
+        set[str]: Validierte einzelne oeffentliche IPv4-Adressen.
+    """
+    ip_check = (lambda ip: not is_protected_entry(ip)) if use_protected_check else is_valid_public_ipv4
+
+    if text is None:
+        return set()
+    if isinstance(text, bytes):
+        try:
+            text = text.decode("utf-8", errors="replace")
+        except Exception:
+            return set()
+    if not isinstance(text, str) or not text.strip():
+        return set()
+
+    # Null-Bytes deuten auf Binärdaten/Korruption. Anders als parse_entries()
+    # verwerfen wir hier den kompletten Inhalt, weil strukturierte Parser sonst
+    # Fragmente einer Binärdatei als Text missverstehen koennten.
+    if "\x00" in text:
+        return set()
+
+    stripped = text.strip()
+    hint = str(source_hint or "").split("?", 1)[0].split("#", 1)[0].lower()
+    if hint.endswith(".gz"):
+        hint = hint[:-3]
+    ext = os.path.splitext(hint)[1]
+
+    # Schneller Pfad fuer die haeufigsten grossen Feeds: eine IP bzw. /32
+    # pro Zeile. Dadurch muss der Combined-Workflow bei Multi-MB-Listen nicht
+    # erst JSON/XML/CSV/Firewall-Erkennung ueber den gesamten Text ausfuehren.
+    import io as _io
+    _plain_sample = []
+    for _raw in _io.StringIO(stripped):
+        _line = _raw.strip()
+        if not _line or _line.startswith(("#", ";", "//")):
+            continue
+        _plain_sample.append(_line)
+        if len(_plain_sample) >= 40:
+            break
+    if not _plain_sample:
+        return set()
+    _plain_token_re = re.compile(
+        r"^\d{1,3}(?:\.\d{1,3}){3}(?:/\d{1,2}|:\d{1,5})?$"
+    )
+    _plain_hits = 0
+    for _line in _plain_sample:
+        _token = re.split(r"\s*[#;]", _line, maxsplit=1)[0].strip()
+        if _token and len(_token.split()) == 1 and _plain_token_re.fullmatch(_token):
+            _plain_hits += 1
+    if _plain_hits / len(_plain_sample) >= 0.85:
+        _parsed = parse_entries(stripped, use_protected_check=use_protected_check)
+        return {
+            entry[:-3] if entry.endswith("/32") else entry
+            for entry in _parsed
+            if "/" not in entry or entry.endswith("/32")
+        }
+
+    data_lines = [
+        line.strip() for line in stripped.splitlines()
+        if line.strip() and not line.lstrip().startswith(("#", "//"))
+    ]
+    if not data_lines:
+        return set()
+
+    def _add_hosts(fragment, target):
+        """Fuegt Host-IPs aus einem bereits als relevant erkannten Fragment ein.
+
+        Im Unterschied zu parse_entries() wird ein Semikolon hier NICHT als
+        Kommentartrenner behandelt. Das ist fuer kompakte nftables-Regeln wie
+        ``type ipv4_addr; elements = { ... };`` erforderlich.
+        """
+        if fragment is None:
+            return
+        value = str(fragment).strip()
+        if not value or "\x00" in value:
+            return
+
+        # Ranges niemals nur als Start-/End-IP missverstehen.
+        if re.search(
+            r'(?<![\d.])\d{1,3}(?:\.\d{1,3}){3}\s*(?:-|\.\.)\s*'
+            r'\d{1,3}(?:\.\d{1,3}){3}(?![\d.])',
+            value,
+        ):
+            return
+
+        cidr_spans = []
+        for cm in CIDR_RE.finditer(value):
+            cidr_spans.append((cm.start(), cm.end()))
+            cidr = cm.group(1)
+            try:
+                net = ipaddress.ip_network(cidr, strict=False)
+            except Exception:
+                continue
+            # NETSHIELD blockt absichtlich keine Netze; nur echte Hosts.
+            if net.version == 4 and net.prefixlen == 32:
+                ip = str(net.network_address)
+                if ip_check(ip):
+                    target.add(ip)
+
+        for m in IPV4_RE.finditer(value):
+            if any(start <= m.start() < end for start, end in cidr_spans):
+                continue
+            if _is_in_ipv6_token(value, m.start(), m.end()):
+                continue
+            ip = m.group(1)
+            if ip_check(ip):
+                target.add(ip)
+
+    def _hosts_from_fragments(fragments):
+        result = set()
+        for fragment in fragments:
+            _add_hosts(fragment, result)
+        return result
+
+    def _json_values(obj, depth=0):
+        if depth > 20:
+            return []
+        if isinstance(obj, str):
+            return [obj]
+        if isinstance(obj, (int, float)) and not isinstance(obj, bool):
+            return [str(obj)]
+        if isinstance(obj, (list, tuple)):
+            out = []
+            for item in obj:
+                out.extend(_json_values(item, depth + 1))
+            return out
+        if isinstance(obj, dict):
+            out = []
+            for key, value in obj.items():
+                key_lc = str(key).lower()
+                # Eindeutige Allow-/Infrastruktur-Metadaten nicht aufnehmen.
+                if any(bad in key_lc for bad in (
+                    "whitelist", "allowlist", "trusted", "ignore",
+                    "resolver", "gateway", "nameserver", "reporter",
+                )):
+                    continue
+                out.extend(_json_values(value, depth + 1))
+            return out
+        return []
+
+    # 1) JSON / JSONL -------------------------------------------------------
+    if stripped[:1] in ("{", "[") or ext in (".json", ".jsonl"):
+        try:
+            parsed = json.loads(stripped)
+        except (json.JSONDecodeError, ValueError, TypeError):
+            parsed = None
+        if parsed is not None:
+            return _hosts_from_fragments(_json_values(parsed))
+
+        jsonl_values = []
+        parsed_rows = 0
+        for line in data_lines:
+            if not line.startswith(("{", "[")):
+                continue
+            try:
+                row = json.loads(line)
+            except Exception:
+                continue
+            jsonl_values.extend(_json_values(row))
+            parsed_rows += 1
+        if parsed_rows >= 2:
+            return _hosts_from_fragments(jsonl_values)
+
+    # 2) XML / HTML-aehnliche strukturierte Listen -------------------------
+    if ext == ".xml" or re.search(r"<[A-Za-z][^>]{0,80}>", stripped):
+        xml_fragments = []
+        try:
+            import xml.etree.ElementTree as _ET
+            root = _ET.fromstring(stripped)
+            for elem in root.iter():
+                tag = str(elem.tag).lower()
+                if any(bad in tag for bad in (
+                    "whitelist", "allowlist", "trusted", "ignore",
+                    "gateway", "resolver", "nameserver",
+                )):
+                    continue
+                if elem.text:
+                    xml_fragments.append(elem.text)
+                for attr_name, attr_value in elem.attrib.items():
+                    attr_lc = str(attr_name).lower()
+                    if not any(bad in attr_lc for bad in (
+                        "whitelist", "allowlist", "trusted", "ignore",
+                        "gateway", "resolver", "nameserver",
+                    )):
+                        xml_fragments.append(attr_value)
+        except Exception:
+            # Auch einfache pfSense-/OPNsense-XML-Fragmente ohne Root-Element.
+            xml_fragments.extend(re.findall(r">([^<]{1,500})<", stripped))
+            xml_fragments.extend(re.findall(
+                r"\b(?:address|ip|host|indicator|ioc|value)\s*=\s*[\"']([^\"']+)[\"']",
+                stripped,
+                flags=re.I,
+            ))
+        xml_result = _hosts_from_fragments(xml_fragments)
+        if xml_result or ext == ".xml":
+            return xml_result
+
+    # 3) CSV / TSV / Semikolon / Pipe: nur die wahrscheinlichste IP-Spalte.
+    # Dadurch gelangt z.B. eine reporter_ip-Spalte nicht automatisch mit in
+    # die Blacklist, wenn die eigentliche IOC-Spalte separat vorhanden ist.
+    first_line = data_lines[0]
+    delimiter = None
+    if "\t" in first_line:
+        delimiter = "\t"
+    elif first_line.count(",") >= 1:
+        delimiter = ","
+    elif first_line.count(";") >= 2 and "elements" not in stripped.lower():
+        delimiter = ";"
+    elif first_line.count("|") >= 2:
+        delimiter = "|"
+
+    _csv_looks_like_firewall = any(marker in stripped.lower() for marker in (
+        "elements =", "ip saddr", "ip daddr", "iptables ",
+        "/ip firewall address-list", "config firewall address",
+        "table <",
+    )) or re.search(
+        r"^\s*(?:drop|reject|alert|pass)\s+(?:ip|tcp|udp|icmp)\s+",
+        stripped, re.I | re.M,
+    ) is not None
+    if (delimiter is not None
+            and ext not in (".nft", ".rules", ".iptables", ".pf", ".rsc")
+            and not _csv_looks_like_firewall):
+        try:
+            import csv as _csv
+            import io as _io
+            rows = list(_csv.reader(_io.StringIO(stripped), delimiter=delimiter))
+            if rows:
+                header = [str(cell).strip().lower() for cell in rows[0]]
+                column_sets = {}
+                for row in rows:
+                    for idx, cell in enumerate(row):
+                        found = set()
+                        _add_hosts(str(cell).strip().strip('"').strip("'"), found)
+                        if found:
+                            column_sets.setdefault(idx, set()).update(found)
+                if column_sets:
+                    def _column_score(idx):
+                        key = header[idx] if idx < len(header) else ""
+                        positive = any(word in key for word in (
+                            "ioc", "indicator", "malicious", "bad", "block",
+                            "deny", "threat", "attacker", "source", "src",
+                            "ip", "address", "host",
+                        ))
+                        negative = any(word in key for word in (
+                            "reporter", "resolver", "gateway", "nameserver",
+                            "whitelist", "allowlist", "trusted", "ignore",
+                        ))
+                        return (1 if positive else 0, -1 if negative else 0,
+                                len(column_sets[idx]), -idx)
+                    best_idx = max(column_sets, key=_column_score)
+                    return column_sets[best_idx]
+        except Exception:
+            pass
+
+    # 4) Firewall-/Router-Formate ------------------------------------------
+    result = set()
+    firewall_detected = False
+    lower_text = stripped.lower()
+
+    # Explizite Allowlist-Konfigurationen niemals als Blocklist behandeln.
+    allowlist_detected = any(re.search(pattern, lower_text, flags=re.M) for pattern in (
+        r"^\s*ignoreip\s*=", r"^\s*allow\s+from\s+", r"^\s*permit\s+",
+        r"^\s*whitelist\b", r"^\s*allowlist\b",
+    ))
+
+    # nftables: kompakte und mehrzeilige Sets sowie Drop-/Reject-Regeln.
+    nft_content = (
+        "nftables" in lower_text
+        or re.search(
+            r"\b(?:set|map)\s+[\w.-]+\s*\{[^}]*\belements\s*=",
+            lower_text, re.S,
+        ) is not None
+        or "ip saddr" in lower_text
+        or "ip daddr" in lower_text
+    )
+    if ext == ".nft" or nft_content:
+        for match in re.finditer(r"\belements\s*=\s*\{(.*?)\}", stripped, re.I | re.S):
+            _add_hosts(match.group(1), result)
+        for line in data_lines:
+            ll = line.lower()
+            if ("ip saddr" in ll or "ip daddr" in ll) and any(
+                action in ll for action in (" drop", " reject", " blackhole", " discard")
+            ):
+                for match in re.finditer(r"\bip\s+(?:saddr|daddr)\s+([^;]+)", line, re.I):
+                    _add_hosts(match.group(1), result)
+        if nft_content or result:
+            firewall_detected = True
+
+    # ipset restore: add <setname> <host-or-/32> [Optionen]
+    ipset_content = any(
+        re.match(r"^\s*(?:add|del)\s+\S+\s+", line, re.I)
+        for line in data_lines[:50]
+    )
+    if ext == ".ipset" or ipset_content:
+        for line in data_lines:
+            match = re.match(r"^\s*add\s+\S+\s+([^\s#;]+)", line, re.I)
+            if match:
+                _add_hosts(match.group(1), result)
+        if ipset_content or result:
+            firewall_detected = True
+
+    # MikroTik RouterOS Address-Lists.
+    mikrotik_content = "/ip firewall address-list" in lower_text
+    if ext == ".rsc" or mikrotik_content:
+        for line in data_lines:
+            ll = line.lower()
+            if "address-list" not in ll or " add " not in f" {ll} ":
+                continue
+            match = re.search(r"\baddress\s*=\s*([^\s;]+)", line, re.I)
+            if match:
+                _add_hosts(match.group(1), result)
+        if mikrotik_content or result:
+            firewall_detected = True
+
+    # iptables: nur DROP/REJECT-Regeln. Quelle bevorzugen; Destination nur
+    # fuer OUTPUT-Regeln ohne explizite Quelle (typische C2-Blockliste).
+    iptables_content = "iptables " in lower_text or re.search(
+        r"^\s*-a\s+\S+", lower_text, re.M
+    ) is not None
+    if ext == ".iptables" or iptables_content:
+        for line in data_lines:
+            ll = line.lower()
+            if not re.search(r"(?:-j|--jump)\s+(?:drop|reject)\b", ll):
+                continue
+            sources = re.findall(r"(?:^|\s)(?:-s|--source)\s+([^\s;]+)", line, re.I)
+            for value in sources:
+                _add_hosts(value, result)
+            if not sources and ("-a output" in ll or "--append output" in ll):
+                for value in re.findall(r"(?:^|\s)(?:-d|--destination)\s+([^\s;]+)", line, re.I):
+                    _add_hosts(value, result)
+        if iptables_content or result:
+            firewall_detected = True
+
+    # Cisco ACL: nur explizite host-Eintraege. Wildcard-Netze werden nicht
+    # auf eine scheinbare Einzel-IP reduziert.
+    cisco_content = re.search(
+        r"^\s*(?:access-list\s+\S+\s+)?(?:deny|permit)\s+(?:ip|tcp|udp|icmp)\b",
+        lower_text, re.M,
+    ) is not None
+    if ext == ".acl" or cisco_content:
+        for line in data_lines:
+            ll = line.lower()
+            if "deny" not in ll:
+                continue
+            for host in re.findall(r"\bhost\s+(\d{1,3}(?:\.\d{1,3}){3})\b", line, re.I):
+                _add_hosts(host, result)
+        if cisco_content or result:
+            firewall_detected = True
+
+    # FortiGate Address-Objekte: nur echte Hostmasken /32.
+    fortigate_detected = "config firewall address" in lower_text or re.search(
+        r"^\s*set\s+subnet\s+\d{1,3}(?:\.\d{1,3}){3}\s+\d{1,3}(?:\.\d{1,3}){3}",
+        lower_text, re.M,
+    ) is not None
+    if fortigate_detected:
+        for line in data_lines:
+            match = re.match(
+                r"^\s*set\s+subnet\s+(\d{1,3}(?:\.\d{1,3}){3})\s+"
+                r"(\d{1,3}(?:\.\d{1,3}){3})\b",
+                line,
+                re.I,
+            )
+            if match and match.group(2) == "255.255.255.255":
+                _add_hosts(match.group(1), result)
+        firewall_detected = True
+
+    # pf / OpenBSD: table-Inhalte und block-from-Regeln.
+    pf_content = (
+        re.search(r"\btable\s+<[^>]+>\s*\{", lower_text) is not None
+        or re.search(r"^\s*block\b", lower_text, re.M) is not None
+    )
+    if ext == ".pf" or pf_content:
+        for match in re.finditer(r"\btable\s+<[^>]+>\s*\{(.*?)\}", stripped, re.I | re.S):
+            _add_hosts(match.group(1), result)
+        for line in data_lines:
+            if re.match(r"^\s*block\b", line, re.I):
+                match = re.search(r"\bfrom\s+([^\s,;]+)", line, re.I)
+                if match:
+                    _add_hosts(match.group(1), result)
+        if pf_content or result:
+            firewall_detected = True
+
+    # nginx / Apache: ausschliesslich deny-Regeln, niemals allow.
+    web_acl_detected = re.search(r"^\s*(?:deny\s+|deny\s+from\s+)", lower_text, re.M) is not None
+    if web_acl_detected:
+        firewall_detected = True
+        for line in data_lines:
+            match = re.match(r"^\s*deny(?:\s+from)?\s+([^\s;]+)", line, re.I)
+            if match:
+                _add_hosts(match.group(1), result)
+
+    # Snort/Suricata: nur Drop-/Reject-Regeln; aus dem Regel-Header wird die
+    # Quellseite vor dem Pfeil ausgewertet. alert/pass-Regeln werden ignoriert.
+    ids_content = re.search(
+        r"^\s*(?:alert|drop|reject|pass)\s+(?:ip|tcp|udp|icmp)\s+",
+        lower_text, re.M,
+    ) is not None
+    if ext in (".rules", ".rule") or ids_content:
+        for line in data_lines:
+            if not re.match(r"^\s*(?:drop|reject)\s+", line, re.I):
+                continue
+            header = line.split("(", 1)[0]
+            source_side = header.split("->", 1)[0]
+            # action + protocol entfernen; verbleibend: source + source-port
+            source_side = re.sub(r"^\s*(?:drop|reject)\s+\S+\s+", "", source_side, flags=re.I)
+            _add_hosts(source_side, result)
+        if ids_content or result:
+            firewall_detected = True
+
+    # Null-Routes / Blackhole-Routen.
+    route_detected = any(word in lower_text for word in (" null0", " blackhole", " discard"))
+    if route_detected:
+        firewall_detected = True
+        for line in data_lines:
+            ll = line.lower()
+            if any(word in ll for word in ("null0", "blackhole", "discard")):
+                _add_hosts(line, result)
+
+    # Clash / Surge / Quantumult: nur IP und IP-CIDR /32.
+    clash_lines = [
+        line for line in data_lines
+        if line.upper().startswith(("IP,", "IP-CIDR,"))
+    ]
+    if clash_lines:
+        firewall_detected = True
+        for line in clash_lines:
+            parts = line.split(",")
+            if len(parts) >= 2:
+                _add_hosts(parts[1].strip(), result)
+
+    if firewall_detected:
+        # Bei eindeutigem Firewall-Format bewusst kein generischer Fallback:
+        # sonst wuerde z.B. die Netzadresse aus Cisco-Wildcard- oder
+        # FortiGate-/24-Regeln als einzelne Host-IP aufgenommen.
+        if allowlist_detected and not result:
+            return set()
+        return result
+
+    if allowlist_detected:
+        return set()
+
+    # 5) YAML / TOML / INI / generische Key-Value-Listen -------------------
+    kv_fragments = []
+    kv_seen = False
+    for line in data_lines:
+        match = re.match(r"^\s*[\-]?\s*([A-Za-z0-9_.-]{1,80})\s*[:=]\s*(.+)$", line)
+        if not match:
+            continue
+        kv_seen = True
+        key = match.group(1).lower()
+        if any(bad in key for bad in (
+            "whitelist", "allowlist", "trusted", "ignore", "gateway",
+            "resolver", "nameserver", "reporter",
+        )):
+            continue
+        if any(good in key for good in (
+            "ip", "address", "host", "ioc", "indicator", "block", "deny",
+            "threat", "malicious", "bad", "attacker", "source", "src",
+            "target", "destination", "dst", "element", "member",
+        )):
+            kv_fragments.append(match.group(2))
+    if kv_seen:
+        kv_result = _hosts_from_fragments(kv_fragments)
+        if kv_result or ext in (".yaml", ".yml", ".toml", ".ini"):
+            return kv_result
+
+    # 6) Plain-Text / Markdown / sonstige Listen ---------------------------
+    # Der bewaehrte Universal-Parser bleibt der letzte Fallback. /32 wird
+    # normalisiert, breitere CIDRs sind dort bereits durch die NETSHIELD-
+    # Policy abgelehnt.
+    # IP-Ranges vor dem Fallback entfernen, damit nicht nur Start und Ende
+    # faelschlich als zwei einzelne Hosts in die Liste gelangen.
+    fallback_text = re.sub(
+        r'(?<![\d.])\d{1,3}(?:\.\d{1,3}){3}\s*(?:-|\.\.)\s*'
+        r'\d{1,3}(?:\.\d{1,3}){3}(?![\d.])',
+        ' ',
+        stripped,
+    )
+    parsed = parse_entries(fallback_text, use_protected_check=use_protected_check)
+    result = set()
+    for entry in parsed:
+        if "/" not in entry:
+            result.add(entry)
+        elif entry.endswith("/32"):
+            result.add(entry[:-3])
+    return result
+
 def parse_entries_for_blacklist(text):
     """Pipeline-Modus-Wrapper um parse_entries(use_protected_check=True).
 
