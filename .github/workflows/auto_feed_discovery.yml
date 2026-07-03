@@ -265,6 +265,10 @@ jobs:
               r'(?:plain|optimized|sorted)[-.].+ip[46]?cidr|'
               r'ip[46]?cidr|ipv4cidr|ipv6cidr|'
               r'black[-.]ip|plain[-.]black[-.]ip'
+              # Firewall-Formate: zusätzlich .acl/.rules/.nft/.iptables/.pf/.fw,
+              # strukturierte Feeds (.json/.jsonl/.xml/.yaml/.toml/.ini) sowie
+              # .tsv/.cfg/.block/.deny. Der Inhalt wird weiterhin streng durch
+              # _evaluate_one validiert; eine passende Endung allein genügt nie.
               # rsc: MikroTik-RouterOS-Skript-Endung. Ergaenzt am 2026-07-02,
               # nachdem Serp07/dude_blacklist_ip faelschlich als "Keine
               # IP-Datei" verworfen wurde (reason war Extension-Luecke, kein
@@ -274,7 +278,7 @@ jobs:
               # address=1.2.3.4 comment=..." – der Stem-Teil dieser Regex
               # (blacklist/blocklist/ban/etc.) matcht bereits auf den
               # Dateinamen, es fehlte nur die Endung in der Whitelist unten.
-              r')\.(?:txt|csv|ipset|netset|list|lst|conf|sh|dat|rsc)(?:\.gz)?$'
+              r')\.(?:txt|csv|tsv|json|jsonl|xml|yaml|yml|toml|ini|ipset|netset|list|lst|conf|cfg|sh|dat|rsc|acl|rules?|nft|iptables|pf|fw|block|deny)(?:\.gz)?$'
               r')'
           )
 
@@ -1291,7 +1295,8 @@ jobs:
               "threatfox", "spamhaus", "firehol", "emergingthreats",
               "pfblockerng", "pihole", "fail2ban", "crowdsec",
               "suricata", "snort", "mikrotik", "opnsense", "pfsense",
-              "firewalla", "iptables", "ipset",
+              "firewalla", "iptables", "ipset", "nftables", "pf-firewall",
+              "cisco-acl", "fortigate", "palo-alto", "routeros", "firewall-address-list",
               # Threat-Actor / Malware-Familien
               "mirai", "emotet", "trickbot", "qakbot", "stealer",
               "cryptominer", "xmrig", "rat", "webshell", "backdoor",
@@ -1471,6 +1476,19 @@ jobs:
               # NEU v3: Firewall-Regel-Dateien mit IP-Listen
               "filename:firewall.txt malicious ip",
               "filename:iptables.txt malicious ip",
+              "filename:firewall.rules malicious ip",
+              "filename:blocklist.rules malicious ip",
+              "filename:blacklist.acl malicious ip",
+              "filename:blocklist.acl malicious ip",
+              "filename:rules.nft malicious ip",
+              "filename:blacklist.nft malicious ip",
+              "filename:iptables.rules malicious ip",
+              "filename:pf.conf block ip",
+              "filename:firewall.rsc malicious ip",
+              "filename:address-list.rsc malicious ip",
+              "filename:blacklist.xml malicious ip",
+              "filename:blacklist.yaml malicious ip",
+              "filename:blacklist.jsonl malicious ip",
               "filename:fail2ban.txt ip",
               # NEU v3: Data-Feeds mit Datumsformat im Namen
               "filename:ips_today.txt malicious",
@@ -1517,6 +1535,44 @@ jobs:
                   _github_found += 1
 
           print(f"\nGitHub-Topic-Suche: {_github_found} Treffer → {len(candidate_repos)} Kandidaten")
+
+          # ── Bewährte Feed-Betreiber weiter durchsuchen ───────────────────
+          # Eigentümer bereits bekannter, funktionierender Feeds veröffentlichen
+          # häufig weitere Listen in Schwester-Repositories. Maximal 15 Owner und
+          # je 50 zuletzt aktualisierte Repositories, damit API-Budget und Laufzeit
+          # kontrollierbar bleiben. Alle Treffer durchlaufen die unveränderte
+          # Dateinamen-, Inhalts-, Geo-/Whitelist- und Qualitätsprüfung.
+          TRUSTED_OWNER_LIMIT = 15
+          TRUSTED_OWNER_REPO_LIMIT = 50
+          _trusted_owners = []
+          for _known_repo in sorted(KNOWN_REPOS):
+              if "/" not in _known_repo:
+                  continue
+              _owner = _known_repo.split("/", 1)[0]
+              if _owner.lower() not in {x.lower() for x in _trusted_owners}:
+                  _trusted_owners.append(_owner)
+              if len(_trusted_owners) >= TRUSTED_OWNER_LIMIT:
+                  break
+
+          _owner_found = 0
+          for _owner in _trusted_owners:
+              if _check_timeout("Trusted-Owner-Suche"):
+                  break
+              print(f"  Suche weitere Repositories von bewährtem Betreiber: {_owner}...")
+              _owner_data = gh_api(
+                  f"/search/repositories?q=user:{urllib.parse.quote(_owner)}+archived:false"
+                  f"&sort=updated&order=desc&per_page={TRUSTED_OWNER_REPO_LIMIT}"
+              )
+              time.sleep(1)
+              if not _owner_data:
+                  continue
+              for _repo in _owner_data.get("items", []):
+                  _before = len(candidate_repos)
+                  add_repo_candidate(candidate_repos, _repo, f"trusted-owner:{_owner}")
+                  if len(candidate_repos) > _before:
+                      _owner_found += 1
+
+          print(f"Trusted-Owner-Suche: {_owner_found} zusätzliche Kandidaten")
 
           # Code-Search: nur starten wenn Topic-Suche wenige Kandidaten fand.
           # Bei >300 Kandidaten aus Topic-Suche ist Code-Search reiner Zeitverlust –
@@ -1701,16 +1757,22 @@ jobs:
               if _check_timeout("GitLab-Suche"):
                   break
               print(f"  Suche GitLab-Topic: {_gl_term}...")
-              _gl_data = gitlab_api(
-                  f"/projects?topic={urllib.parse.quote(_gl_term)}"
-                  f"&order_by=last_activity_at&sort=desc&per_page=20&visibility=public"
-              )
-              time.sleep(2)
-              if not _gl_data or not isinstance(_gl_data, list):
-                  continue
-              for _gl_project in _gl_data:
-                  add_gitlab_candidate(candidate_repos, _gl_project, f"gitlab-topic:{_gl_term}")
-                  _gitlab_found += 1
+              for _gl_page in (1, 2):
+                  if _check_timeout("GitLab-Topic-Paginierung"):
+                      break
+                  _gl_data = gitlab_api(
+                      f"/projects?topic={urllib.parse.quote(_gl_term)}"
+                      f"&order_by=last_activity_at&sort=desc&per_page=50"
+                      f"&page={_gl_page}&visibility=public"
+                  )
+                  time.sleep(1)
+                  if not _gl_data or not isinstance(_gl_data, list):
+                      break
+                  for _gl_project in _gl_data:
+                      add_gitlab_candidate(candidate_repos, _gl_project, f"gitlab-topic:{_gl_term}:p{_gl_page}")
+                      _gitlab_found += 1
+                  if len(_gl_data) < 50:
+                      break
 
           # GitLab-Keyword-Suche (ergänzend zur Topic-Suche)
           GITLAB_KEYWORDS = [
@@ -1723,16 +1785,22 @@ jobs:
               if _check_timeout("GitLab-Keyword"):
                   break
               print(f"  Suche GitLab-Keyword: {_gl_kw}...")
-              _gl_data = gitlab_api(
-                  f"/projects?search={urllib.parse.quote(_gl_kw)}"
-                  f"&order_by=last_activity_at&sort=desc&per_page=20&visibility=public"
-              )
-              time.sleep(2)
-              if not _gl_data or not isinstance(_gl_data, list):
-                  continue
-              for _gl_project in _gl_data:
-                  add_gitlab_candidate(candidate_repos, _gl_project, f"gitlab-search:{_gl_kw}")
-                  _gitlab_found += 1
+              for _gl_page in (1, 2):
+                  if _check_timeout("GitLab-Keyword-Paginierung"):
+                      break
+                  _gl_data = gitlab_api(
+                      f"/projects?search={urllib.parse.quote(_gl_kw)}"
+                      f"&order_by=last_activity_at&sort=desc&per_page=50"
+                      f"&page={_gl_page}&visibility=public"
+                  )
+                  time.sleep(1)
+                  if not _gl_data or not isinstance(_gl_data, list):
+                      break
+                  for _gl_project in _gl_data:
+                      add_gitlab_candidate(candidate_repos, _gl_project, f"gitlab-search:{_gl_kw}:p{_gl_page}")
+                      _gitlab_found += 1
+                  if len(_gl_data) < 50:
+                      break
 
           _gitlab_unique = sum(1 for v in candidate_repos.values() if v.get("platform") == "gitlab")
           print(f"GitLab-Suche: {_gitlab_found} Treffer → {_gitlab_unique} GitLab-Kandidaten")
