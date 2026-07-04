@@ -580,7 +580,11 @@ jobs:
               return fetch_url(url, timeout=timeout, retries=1,
                                user_agent="NETSHIELD-AutoDiscovery/3.0",
                                read_limit=limit,
-                               fail_on_truncation=not allow_partial)
+                               fail_on_truncation=not allow_partial,
+                               # Content-Sniff/Awesome-List sind bewusst begrenzte
+                               # Stichproben. Dort ist > limit erwartbar und kein
+                               # Datenverlust eines Voll-Downloads.
+                               warn_on_truncation=not allow_partial)
 
           # is_valid_public_ipv4() → importiert aus netshield_common
           # ── Universeller Format-Detektor ──────────────────────────────────
