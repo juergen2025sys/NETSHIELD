@@ -212,6 +212,28 @@ class TestFeedParserSourceHint(unittest.TestCase):
 
 
 # ═══════════════════════════════════════════════════════════════
+# Gemischte Honeypot-/Logdateien
+# ═══════════════════════════════════════════════════════════════
+
+class TestFeedParserMixedLogs(unittest.TestCase):
+    """Neutrale .log-Dateien duerfen nicht durch einzelne <...>-Tokens
+    versehentlich als XML klassifiziert und dadurch unvollstaendig geparst
+    werden."""
+
+    def test_log_with_accidental_angle_tokens_keeps_all_ips(self):
+        text = (
+            '[7/4/2026 05:00:00] Connection attempt from IP: 45.83.12.7\n'
+            'fake shell output: <blank>91.219.29.8</blank>\n'
+            '[7/4/2026 05:00:02] ***REJECTED*** {ip: "185.220.101.5"}\n'
+        )
+        result = parse_feed_entries(text, source_hint="big.log")
+        self.assertEqual(
+            result,
+            {"45.83.12.7", "91.219.29.8", "185.220.101.5"},
+        )
+
+
+# ═══════════════════════════════════════════════════════════════
 # Pipeline-Modus (use_protected_check=True, Combined-Workflow)
 # ═══════════════════════════════════════════════════════════════
 
