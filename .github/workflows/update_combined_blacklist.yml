@@ -311,6 +311,21 @@ jobs:
           DB_FILE     = "seen_db.json"
           READ_LIMIT  = 100 * 1024 * 1024  # 100 MB pro Feed (war 50 MB - bitwire_ipblocklist überschritt das mit ~50,04 MB, Datenverlust)
 
+          # FIX PERF-PARALLEL-2026-07-04:
+          # Worker-Anzahl zentral steuerbar. GitHub-Runner laden viele Feeds I/O-lastig,
+          # daher sind mehr Download-Worker als CPU-Kerne sinnvoll. Werte bleiben moderat,
+          # damit Parsing/Netzwerk nicht instabil wird. Bei Bedarf per Repository-Variable
+          # NETSHIELD_FEED_WORKERS / NETSHIELD_AUTO_WORKERS tunen.
+          def _env_int(name, default, lo, hi):
+              try:
+                  v = int(os.environ.get(name, str(default)))
+              except Exception:
+                  return default
+              return max(lo, min(hi, v))
+
+          FEED_WORKERS = _env_int("NETSHIELD_FEED_WORKERS", 24, 8, 40)
+          AUTO_WORKERS = _env_int("NETSHIELD_AUTO_WORKERS", 20, 6, 32)
+
           # IPV4_RE wird aus netshield_common importiert; lokale Re-Definition
           # entfernt (war ungenutzt, hätte aber bei Wiederverwendung den
           # Versions-String-Filter umgangen).
@@ -1275,35 +1290,51 @@ jobs:
           # die HQ-Bestätigungen früh in ip_in_hq landen sollen. Filter via
           # n.startswith("dataplane_") greift automatisch bei neuen Feeds.
           print("── Phase 1: DataPlane-Feeds ──────────────────────────────────────")
-          with ThreadPoolExecutor(max_workers=len(DP_SOURCES)) as dp_ex:
-              dp_futures = {dp_ex.submit(fetch_ips, n, u): n for n, u in DP_SOURCES.items()}
-              try:
-                  for future in as_completed(dp_futures, timeout=60):
-                      name, ips = future.result()
-                      _ingest(name, ips)
-              except TimeoutError:
-                  pending = sorted(n for f, n in dp_futures.items() if not f.done())
-                  for f in dp_futures:
-                      if not f.done():
-                          f.cancel()
-                  print(f"::warning file=update_combined_blacklist.yml::DataPlane-Timeout – {len(pending)} Feed(s) abgebrochen: {', '.join(pending)}")
-                  print(f"WARNUNG: DataPlane-Phase Timeout – {', '.join(pending)} abgebrochen")
+          # FIX PERF-DP-NOWAIT: Kein `with ThreadPoolExecutor` mehr. Der Context-
+          # Manager wartet beim Verlassen trotz cancel() auf bereits laufende
+          # Threads. Dadurch war der 60s-Timeout faktisch weich und der Workflow
+          # hing weiter an zaehen Feeds. shutdown(wait=False, cancel_futures=True)
+          # laesst den Run weiterlaufen; laufende fetch_url-Calls enden durch ihr
+          # eigenes Timeout. DP-Timeout auf 90s, weil dataplane_proto41 in Logs
+          # ~66s brauchte und sonst nutzlos verworfen wurde.
+          dp_ex = ThreadPoolExecutor(max_workers=max(1, len(DP_SOURCES)))
+          dp_futures = {dp_ex.submit(fetch_ips, n, u): n for n, u in DP_SOURCES.items()}
+          try:
+              for future in as_completed(dp_futures, timeout=90):
+                  name, ips = future.result()
+                  _ingest(name, ips)
+          except TimeoutError:
+              pending = sorted(n for f, n in dp_futures.items() if not f.done())
+              for f in dp_futures:
+                  if not f.done():
+                      f.cancel()
+              print(f"::warning file=update_combined_blacklist.yml::DataPlane-Timeout – {len(pending)} Feed(s) abgebrochen: {', '.join(pending)}")
+              print(f"WARNUNG: DataPlane-Phase Timeout – {', '.join(pending)} abgebrochen")
+          finally:
+              dp_ex.shutdown(wait=False, cancel_futures=True)
 
           # Phase 2 – Alle übrigen Feeds parallel (ohne Slow-Feeds und DataPlane)
           print("── Phase 2: Restliche Feeds ──────────────────────────────────────")
-          with ThreadPoolExecutor(max_workers=15) as executor:
-              futures = {executor.submit(fetch_ips, n, u): n for n, (u, _) in REST_SOURCES.items()}
-              try:
-                  for future in as_completed(futures, timeout=880):
-                      name, ips = future.result()
-                      _ingest(name, ips)
-              except TimeoutError:
-                  pending = sorted(n for f, n in futures.items() if not f.done())
-                  for f in futures:
-                      if not f.done():
-                          f.cancel()
-                  print(f"::warning file=update_combined_blacklist.yml::Haupt-Feed-Timeout nach 900s – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:10])}{'…' if len(pending) > 10 else ''}")
-                  print(f"WARNUNG: Haupt-Feed-Block Timeout – {len(pending)} Feed(s) abgebrochen, bereits geladene Feeds werden weiterverarbeitet")
+          print(f"  Haupt-Feed-Worker: {FEED_WORKERS}")
+          # FIX PERF-REST-NOWAIT: Wie bei DataPlane nicht mit `with`, sonst wartet
+          # Python nach Timeout trotzdem auf haengende Threads. Mehr Worker (24)
+          # reduzieren Queue-Latenz fuer kleine Feeds, waehrend Slow-Feeds separat
+          # im Hintergrund laufen.
+          executor = ThreadPoolExecutor(max_workers=FEED_WORKERS)
+          futures = {executor.submit(fetch_ips, n, u): n for n, (u, _) in REST_SOURCES.items()}
+          try:
+              for future in as_completed(futures, timeout=880):
+                  name, ips = future.result()
+                  _ingest(name, ips)
+          except TimeoutError:
+              pending = sorted(n for f, n in futures.items() if not f.done())
+              for f in futures:
+                  if not f.done():
+                      f.cancel()
+              print(f"::warning file=update_combined_blacklist.yml::Haupt-Feed-Timeout nach 900s – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:10])}{'…' if len(pending) > 10 else ''}")
+              print(f"WARNUNG: Haupt-Feed-Block Timeout – {len(pending)} Feed(s) abgebrochen, bereits geladene Feeds werden weiterverarbeitet")
+          finally:
+              executor.shutdown(wait=False, cancel_futures=True)
 
           # Phase 3 – Slow-Feeds einsammeln (laufen seit Phase 0 im Hintergrund)
           print("── Phase 3: Slow-Feeds einsammeln ────────────────────────────────")
@@ -1506,23 +1537,31 @@ jobs:
                   # ausgeschlossen -> kein Parse-Hog mehr in der Phase. 240s ist
                   # damit reichlich Decke fuer die verbleibenden, legitimen Feeds
                   # (u.a. cbuijs) und vermeidet die fruehere 360s-Verschwendung.
-                  with ThreadPoolExecutor(max_workers=12) as ex:
-                      futures = {ex.submit(fetch_auto, f): f["name"] for f in auto_feeds}
-                      try:
-                          for future in as_completed(futures, timeout=240):
-                              name, ips = future.result()
-                              for ip in ips:
-                                  # Auto-discovered Feeds sind nicht HQ
-                                  if ip not in ip_feeds_today:
-                                      ip_feeds_today[ip] = set()
-                                  ip_feeds_today[ip].add(name)
-                              feed_stats.append((name, len(ips)))
-                      except TimeoutError:
-                          pending = sorted(name for future, name in futures.items() if not future.done())
-                          for future in futures:
-                              if not future.done():
-                                  future.cancel()
-                          print(f"  WARNUNG: Auto-Feeds Timeout – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:8])}{'…' if len(pending) > 8 else ''}")
+                  print(f"  Auto-Feed-Worker: {AUTO_WORKERS}")
+                  # FIX PERF-AUTO-NOWAIT: Der alte `with ThreadPoolExecutor` wartete
+                  # nach Timeout trotzdem auf laufende Downloads. Genau deshalb
+                  # wurden in den Logs abgebrochene ConfigServer-Feeds spaeter noch
+                  # minutenlang fertiggeladen. Jetzt werden Pending-Futures sauber
+                  # gecancelt und der Executor wartet nicht blockierend.
+                  ex = ThreadPoolExecutor(max_workers=AUTO_WORKERS)
+                  futures = {ex.submit(fetch_auto, f): f["name"] for f in auto_feeds}
+                  try:
+                      for future in as_completed(futures, timeout=220):
+                          name, ips = future.result()
+                          for ip in ips:
+                              # Auto-discovered Feeds sind nicht HQ
+                              if ip not in ip_feeds_today:
+                                  ip_feeds_today[ip] = set()
+                              ip_feeds_today[ip].add(name)
+                          feed_stats.append((name, len(ips)))
+                  except TimeoutError:
+                      pending = sorted(name for future, name in futures.items() if not future.done())
+                      for future in futures:
+                          if not future.done():
+                              future.cancel()
+                      print(f"  WARNUNG: Auto-Feeds Timeout – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:8])}{'…' if len(pending) > 8 else ''}")
+                  finally:
+                      ex.shutdown(wait=False, cancel_futures=True)
               except Exception as e:
                   print(f"  WARNUNG: state/auto_discovered_feeds.json Fehler: {e}")
           else:
