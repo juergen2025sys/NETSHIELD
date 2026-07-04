@@ -887,8 +887,17 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
     # haben Deklaration/Root-Tag am Anfang, zufaellige ``<...>``-Tokens in
     # Logs dagegen typischerweise nicht.
     _xml_probe = stripped[:256 * 1024].lstrip("\ufeff \t\r\n")
+    # ReDoS-Fix (CWE-1333 / py/redos): Der Kommentar-Lauf wird in eine ATOMARE
+    # Gruppe (?>...) gekapselt. Grund: unter re.S matcht `.` auch `-`/`>`, sodass
+    # das `.*?` eines Kommentars spaeter `-->`-Sequenzen mitfressen kann. Ein Lauf
+    # aus `<!---->`-Tokens liesse sich dadurch exponentiell viele Male aufteilen;
+    # scheitert am Ende der geforderte Root-Tag, arbeitet die Engine alle
+    # Aufteilungen ab (katastrophales Backtracking, >5s ab ~180 Byte Angriffs-
+    # input). Die atomare Gruppe verbietet das Re-Partitionieren bereits
+    # gematchter Kommentare -> lineares Verhalten. Match-Semantik unveraendert.
+    # Hinweis: (?>...) erfordert Python >= 3.11.
     _xml_root_re = re.compile(
-        r"^(?:<\?xml[^>]*>\s*)?(?:<!--.*?-->\s*)*"
+        r"^(?:<\?xml[^>]*>\s*)?(?>(?:<!--.*?-->\s*)*)"
         r"<[A-Za-z_][A-Za-z0-9_.:-]*(?:\s[^<>]{0,4096})?>",
         re.S,
     )
