@@ -294,8 +294,14 @@ jobs:
                   print(f"FEHLER: {_stale_msg}")
                   sys.exit(1)
 
-          if not os.path.exists(BLACKLIST):
-              msg = f"{BLACKLIST} nicht gefunden – combined-Workflow muss zuerst laufen."
+          # CHANGE ZWEI-FESTE-PARTS: Hauptdatei wird nicht mehr committet –
+          # die Parts (part1/part2) sind kanonisch. Der Guard akzeptiert daher
+          # auch den Fall "nur Parts vorhanden"; die Lese-Schleife unten liest
+          # ohnehin [Hauptdatei] + alle Parts mit Existenzfilter.
+          import glob as _guard_glob
+          if (not os.path.exists(BLACKLIST)
+                  and not _guard_glob.glob("combined_threat_blacklist_ipv4_part*.txt")):
+              msg = f"{BLACKLIST} und Parts nicht gefunden – combined-Workflow muss zuerst laufen."
               print(f"::warning file=update_confidence_blacklist.yml::{msg}")
               print(f"FEHLER: {msg}")
               sys.exit(1)

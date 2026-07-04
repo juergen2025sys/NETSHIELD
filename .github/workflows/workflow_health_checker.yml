@@ -1209,6 +1209,22 @@ jobs:
                       "blacklist_confidence40_ipv4.txt",
                   ],
               }
+              # CHANGE ZWEI-FESTE-PARTS: Hauptdatei wird nicht mehr committet
+              # (Parts part1/part2 sind kanonisch). Die Checks unten guarden auf
+              # Existenz der Hauptdatei und wuerden sie sonst ueberspringen –
+              # daher einmalig aus den committeten Parts rekonstruieren
+              # (idempotent, guarded). Frische-/Sanity-Checks lesen bewusst
+              # Part 1 (committet, echte mtime), s. weiter unten.
+              import glob as _rc_glob_hc
+              _rc_main_hc = "combined_threat_blacklist_ipv4.txt"
+              if not os.path.exists(_rc_main_hc):
+                  _rc_parts_hc = sorted(_rc_glob_hc.glob(
+                      "combined_threat_blacklist_ipv4_part*.txt"))
+                  if _rc_parts_hc:
+                      with open(_rc_main_hc, "w", encoding="utf-8") as _rc_out_hc:
+                          for _rc_p_hc in _rc_parts_hc:
+                              with open(_rc_p_hc, encoding="utf-8") as _rc_in_hc:
+                                  _rc_out_hc.write(_rc_in_hc.read())
               # FIX TRUNCATE-PARTS-COUNT: Helper liefert IPs aus Hauptdatei +
               # allen Parts. Bei aktivem Truncate liegen Eintraege gezielt nur
               # in den Parts – Hauptdatei allein ist unvollstaendig. Identische
@@ -2126,7 +2142,7 @@ jobs:
           _freshness_checks = [
               # (datei, warn_h, crit_h, beschreibung)
               ("active_blacklist_ipv4.txt",           6,  10, "Active Blacklist (Stufe 2)"),
-              ("combined_threat_blacklist_ipv4.txt",   6,  10, "Combined Blacklist (Stufe 1)"),
+              ("combined_threat_blacklist_ipv4_part1.txt",   6,  10, "Combined Blacklist (Stufe 1, Part 1)"),
               ("blacklist_confidence40_ipv4.txt",      6,  10, "Confidence-40 Blacklist"),
               ("reports/feed_health_report.md",               30,  50, "Feed Health Report"),
           ]
@@ -2163,7 +2179,7 @@ jobs:
           # oder Pipeline-Fehler hin, nicht auf normale Schwankungen.
           _sanity_checks = [
               # (datei, min_warn, min_crit, beschreibung)
-              ("combined_threat_blacklist_ipv4.txt",   50_000,  10_000, "Combined Blacklist"),
+              ("combined_threat_blacklist_ipv4_part1.txt",   50_000,  10_000, "Combined Blacklist (Part 1)"),
               ("active_blacklist_ipv4.txt",             5_000,   1_000, "Active Blacklist"),
               ("blacklist_confidence40_ipv4.txt",       5_000,   1_000, "Confidence-40 Blacklist"),
               ("cve_exploit_ips.txt",                     500,     100, "CVE Exploit IPs"),

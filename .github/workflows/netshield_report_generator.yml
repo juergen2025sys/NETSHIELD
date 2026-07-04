@@ -59,6 +59,21 @@ jobs:
           now = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
 
+          # CHANGE ZWEI-FESTE-PARTS: Die Hauptdatei wird nicht mehr committet
+          # (Parts part1/part2 sind kanonisch). Fuer die Report-Funktionen
+          # (count_ips, file_age) hier einmalig aus den committeten Parts
+          # rekonstruieren, falls sie fehlt (numerische Reihenfolge via sort).
+          import glob as _rc_glob
+          _rc_main = "combined_threat_blacklist_ipv4.txt"
+          if not os.path.exists(_rc_main):
+              _rc_parts = sorted(_rc_glob.glob("combined_threat_blacklist_ipv4_part*.txt"))
+              if _rc_parts:
+                  with open(_rc_main, "w", encoding="utf-8") as _rc_out:
+                      for _rc_p in _rc_parts:
+                          with open(_rc_p, encoding="utf-8") as _rc_in:
+                              _rc_out.write(_rc_in.read())
+                  print(f"Rekonstruiert: {_rc_main} aus {len(_rc_parts)} Part(s)")
+
           def count_ips(filepath):
               # FIX TRUNCATE-PARTS-COUNT: Liest Hauptdatei + alle Parts,
               # dedupliziert via set. Vorher zaehlte die Funktion nur die

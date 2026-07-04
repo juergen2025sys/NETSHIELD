@@ -2030,11 +2030,14 @@ jobs:
           # (estimated_mb), nicht der evtl. truncatierten Hauptdatei. Bei Truncate
           # muessen die Parts zwingend existieren, weil sie die einzige
           # vollstaendige Quelle sind.
-          if estimated_mb >= SPLIT_THRESHOLD_MB:
-              # Ziel: ~PART_TARGET_MB pro Part. Wir splitten nach Zeilen-Anzahl
-              # proportional zur Gesamtgroesse (deterministisch auf der bereits
-              # sortierten Liste – die Reihenfolge bleibt stabil).
-              num_parts = max(2, int((estimated_mb / PART_TARGET_MB) + 0.5))
+          # CHANGE ZWEI-FESTE-PARTS: Die Parts sind jetzt die kanonische
+          # Quelle (die Hauptdatei wird nicht mehr committet, s. git-add unten).
+          # Daher IMMER splitten und auf GENAU 2 Parts klemmen – kein
+          # groessenbasiertes Anlegen von Part 3/4 mehr. Die 200-MiB-Decke
+          # (2×100 MiB GitHub-Limit pro Datei) wird durch die Fruehwarnung
+          # unten ueberwacht; die Retention-Entscheidung ist bewusst manuell.
+          if True:
+              num_parts = 2
               chunk_size = (len(sorted_ips) + num_parts - 1) // num_parts
 
               print(f"  -> Split aktiv: {num_parts} Parts a ~{PART_TARGET_MB} MB "
@@ -2085,6 +2088,24 @@ jobs:
                       print(f"  Alten Part entfernt (unter Schwelle): {old}")
                   except OSError:
                       pass
+
+          # ── Fruehwarnung Part-Groesse + Deckel-Policy ─────────────────
+          # POLICY-CEILING: Bei fix 2 kanonischen Parts liegt die harte Decke
+          # bei 2×100 MiB GitHub-Limit pro Datei (~200 MiB gesamt). Danach gibt
+          # es KEIN automatisches Ueberlaufventil mehr (kein Part 3). Wenn die
+          # Warnung unten greift, bewusst entscheiden: Part 3 zulassen (OPNsense
+          # 3. URL) ODER Datenmenge deckeln (hoehere Confidence-Schwelle /
+          # kuerzere Retention). Diese Entscheidung ist NICHT automatisiert.
+          PART_EARLY_WARN_MB = 90  # deutlich vor dem 100-MiB-Limit warnen
+          for _pf in sorted(glob.glob("combined_threat_blacklist_ipv4_part*.txt")):
+              _pmb = os.path.getsize(_pf) / 1024 / 1024
+              if _pmb >= PART_EARLY_WARN_MB:
+                  _wmsg = (f"{_pf} ist {_pmb:.1f} MB (>= {PART_EARLY_WARN_MB} MB) – "
+                           f"naehert sich dem 100-MiB-Limit pro Datei. Deckel-Policy "
+                           f"entscheiden (Part 3 zulassen ODER Datenmenge deckeln); "
+                           f"kein automatischer Ueberlauf mehr.")
+                  print(f"::warning file=update_combined_blacklist.yml::{_wmsg}")
+                  print(f"WARNUNG: {_wmsg}")
 
           # ── Stufe 2: active_blacklist_ipv4.txt (30 Tage + Confidence >= 65) ──
           # Kriterien kombiniert:
@@ -2351,8 +2372,13 @@ jobs:
           # Workflow die neue reports///logs/-Version committet (atomar im
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
           git rm -q --ignore-unmatch combined_threat_blacklist_report.md 2>/dev/null || true
+          # CHANGE ZWEI-FESTE-PARTS: Hauptdatei nicht mehr committen (Parts sind
+          # kanonisch). Einmalig aus dem Index nehmen (idempotent), damit sie
+          # nicht ueber 100 MB waechst und den Push blockiert. Working-Copy
+          # bleibt erhalten (--cached); .gitignore verhindert Re-Tracking.
+          git rm -q --cached --ignore-unmatch combined_threat_blacklist_ipv4.txt 2>/dev/null || true
 
-          git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt reports/combined_threat_blacklist_report.md state/seen_db_meta.json reputation_blacklist.txt state/seen_db_backup.json.gz.part* 2>/dev/null || true
+          git add active_blacklist_ipv4.txt reports/combined_threat_blacklist_report.md state/seen_db_meta.json reputation_blacklist.txt state/seen_db_backup.json.gz.part* 2>/dev/null || true
           git add -u state/seen_db_backup.json.gz state/seen_db_backup.json.gz.part* 2>/dev/null || true
           # relocated_feeds.md nur vorhanden, wenn der Move-Resolver diesen Lauf
           # etwas umgeleitet hat – dann mitcommitten (sonst No-Op).
@@ -2411,7 +2437,7 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
+                git checkout --theirs active_blacklist_ipv4.txt \
                   reports/combined_threat_blacklist_report.md \
                   state/seen_db_meta.json reputation_blacklist.txt \
                   state/seen_db_backup.json.gz state/seen_db_backup.json.gz.part* 2>/dev/null || true
@@ -2419,7 +2445,7 @@ jobs:
                 for _p in combined_threat_blacklist_ipv4_part*.txt; do
                   [ -f "$_p" ] && git checkout --theirs "$_p" 2>/dev/null || true
                 done
-                git add combined_threat_blacklist_ipv4.txt active_blacklist_ipv4.txt \
+                git add active_blacklist_ipv4.txt \
                   reports/combined_threat_blacklist_report.md state/seen_db_meta.json \
                   reputation_blacklist.txt state/seen_db_backup.json.gz.part* 2>/dev/null || true
                 git add -u state/seen_db_backup.json.gz state/seen_db_backup.json.gz.part* 2>/dev/null || true
