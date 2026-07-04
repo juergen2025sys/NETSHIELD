@@ -1234,39 +1234,38 @@ jobs:
               return any(sub in reason for sub in TRANSIENT_REJECT_SUBSTRINGS)
 
           # NETSHIELD FIX 2026-07-04:
-          # Bekannte Mirror-/Klon-Feeds nicht mehr automatisch aufnehmen.
-          # ConfigServerApps/service-blocklists spiegelt u.a. FireHOL/Bitwire-
-          # Listen unter eigenem Repo-Namen. Diese Quellen sind in NETSHIELD
-          # bereits direkt/anderweitig enthalten und blaehen Laufzeit + seen_db
-          # unnoetig auf. cbuijs/accomplist bleibt ausdruecklich erlaubt.
+          # Nur die drei wirklich problematischen ConfigServerApps-Massenfeeds
+          # hart sperren. Andere ConfigServerApps-Dateien bleiben erlaubt, bis
+          # ein echter Inhaltsvergleich zeigt, dass sie keine eigenen IPs liefern.
+          # cbuijs/accomplist bleibt ausdruecklich erlaubt.
           BLOCKED_CLONE_FEED_NAMES = {
               "configserverapps_service_blocklists",
               "configserverapps_service_blocklists_anonymous",
               "configserverapps_service_blocklists_proxies",
           }
-          BLOCKED_CLONE_REPO_PATHS = (
-              ("configserverapps/service-blocklists", "blocklists/3rdparty/firehol/"),
-              ("configserverapps/service-blocklists", "blocklists/3rdparty/bitwire/inbound.ipset"),
-          )
 
           def _is_blocked_clone_feed(name="", repo="", file_path="", url=""):
               name_l = (name or "").strip().lower()
-              repo_l = (repo or "").strip().lower()
-              path_l = (file_path or "").strip().lower()
-              url_l  = (url or "").strip().lower()
+              return name_l in BLOCKED_CLONE_FEED_NAMES
 
-              if name_l in BLOCKED_CLONE_FEED_NAMES:
-                  return True
+          def _existing_feed_for_fingerprint(ip_fp, current_name=""):
+              """Findet bereits registrierte Feeds mit exakt gleicher IP-Menge.
 
-              # Bei raw.githubusercontent.com ist der Pfad manchmal nur in der URL
-              # sichtbar; deshalb repo+file UND URL pruefen.
-              for blocked_repo, blocked_path in BLOCKED_CLONE_REPO_PATHS:
-                  if repo_l == blocked_repo and path_l.startswith(blocked_path):
-                      return True
-                  if blocked_repo in url_l and blocked_path in url_l:
-                      return True
-
-              return False
+              Das ist der wichtige Clone-Schutz fuer Auto-Discovery: nicht nur
+              gleiche URL/Repo pruefen, sondern den Inhalt. Wenn ein neuer Feed
+              bytegenau dieselbe sortierte IP-Menge wie ein vorhandener Feed hat,
+              wird er gar nicht erst aufgenommen. Unterschiede von nur einer IP
+              ergeben einen anderen Fingerprint und bleiben erlaubt.
+              """
+              if not ip_fp:
+                  return ""
+              current_name = (current_name or "").strip()
+              for _ex_name, _ex_feed in approved_feeds.items():
+                  if _ex_name == current_name:
+                      continue
+                  if _ex_feed.get("ip_fingerprint") == ip_fp:
+                      return _ex_name
+              return ""
 
           if os.path.exists(AUTO_FILE):
               try:
@@ -2413,12 +2412,11 @@ jobs:
                   # alten ip_count-Dedup. So wird die Dublette gar nicht erst
                   # registriert und der Loser bleibt stabil draussen.
                   _nf_fp = _ip_fingerprint(_nf_ips)
-                  if _nf_fp and any(
-                      _ex.get("repo") == _repo and _ex.get("ip_fingerprint") == _nf_fp
-                      for _ex in approved_feeds.values()
-                  ):
+                  _nf_existing = _existing_feed_for_fingerprint(_nf_fp)
+                  if _nf_existing:
                       print(f"    ⏭ {_nf['path']}: identische IP-Liste bereits "
-                            f"registriert (Fingerprint {_nf_fp}) – uebersprungen")
+                            f"als {_nf_existing} registriert "
+                            f"(Fingerprint {_nf_fp}) – uebersprungen")
                       continue
 
                   # Feed-Name: repo_base + Dateiname-Stem
@@ -3247,6 +3245,20 @@ jobs:
                          approved_feeds[_fname].get("repo") != reject_key):
                       _fname = f"{_base}_v{_sfx}"
                       _sfx += 1
+                  _entry_fingerprint = _ip_fingerprint(f_ips)
+                  _existing_clone = _existing_feed_for_fingerprint(_entry_fingerprint, _fname)
+                  if _existing_clone:
+                      print(f"  ⏭ {_fname}: identische IP-Liste bereits als "
+                            f"{_existing_clone} registriert "
+                            f"(Fingerprint {_entry_fingerprint}) – uebersprungen")
+                      evaluation_log.append({
+                          "repo": full_name,
+                          "result": "REJECTED",
+                          "feed_name": _fname,
+                          "reason": f"Identischer Inhalt wie {_existing_clone}",
+                          "platform": _platform_res,
+                      })
+                      return False
                   _is_new = _fname not in existing_feeds
                   _metrics = metrics or {}
                   _entry_overlap_pct = _metrics.get("overlap_pct", overlap_pct)
@@ -3261,7 +3273,7 @@ jobs:
                       "added":         existing_feeds[_fname]["added"] if not _is_new and _fname in existing_feeds else now_day,
                       "last_checked":  now_day,
                       "ip_count":      len(f_ips),
-                      "ip_fingerprint": _ip_fingerprint(f_ips),
+                      "ip_fingerprint": _entry_fingerprint,
                       "overlap_pct":   round(_entry_overlap_pct * 100, 1),
                       "fp_rate":       round(_entry_fp * 100, 2),
                       "rep_score":     rep_score,
@@ -3294,6 +3306,7 @@ jobs:
                   })
                   print(f"  ✅ ANGENOMMEN als '{_fname}' ({len(f_ips)} IPs, "
                         f"{'NEU' if _is_new else 'bekannt'}, {_platform_res.upper()})")
+                  return True
 
               # Hauptdatei registrieren (kein Suffix – bleibt rückwärtskompatibel)
               _register_feed(raw_url, best_file["path"], ips)
