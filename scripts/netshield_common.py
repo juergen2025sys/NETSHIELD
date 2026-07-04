@@ -1554,7 +1554,8 @@ _PIN_ABSENT = object()
 
 
 def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
-              read_limit=25 * 1024 * 1024, extra_headers=None):
+              read_limit=25 * 1024 * 1024, extra_headers=None,
+              fail_on_truncation=False):
     """Fetcht eine URL mit exponentiellem Backoff.
 
     Sicherheit:
@@ -1569,6 +1570,8 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
         retries: Max. Versuche.
         user_agent: User-Agent Header.
         read_limit: Max. Bytes zum Lesen.
+        fail_on_truncation: Bei True eine zu grosse normale HTTP-Antwort
+            verwerfen statt als abgeschnittenen Teiltext zurueckzugeben.
 
     Returns:
         str | None: Response-Body oder None bei Fehler.
@@ -1652,6 +1655,10 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
                     if len(data) > read_limit:
                         print(f"  WARNUNG {url}: Response > {read_limit} bytes – "
                               f"Limit erhoehen sonst gehen Daten verloren")
+                        if fail_on_truncation:
+                            print(f"  FEHLER {url}: unvollstaendige Antwort verworfen "
+                                  f"(fail_on_truncation=True)")
+                            return None
                         data = data[:read_limit]
                     # FIX GZIP: Transparent gepackte Feeds (.gz) dekomprimieren.
                     # Erkennung über Magic-Bytes (\x1f\x8b) – URL-unabhängig, greift
