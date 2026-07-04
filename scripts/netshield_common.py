@@ -229,6 +229,7 @@ def load_whitelist(path=".github/workflows/whitelist.json", min_entries=50):
         try:
             new_networks.append(ipaddress.ip_network(entry, strict=False))
         except Exception:
+            # Ungueltige/nicht parsebare Eintraege bewusst ueberspringen.
             pass
 
     # FIX BUG-WL1-STRICT: Zweite Schwelle nach der Iteration. Eine Liste
@@ -403,6 +404,7 @@ def load_fp_set(path="false_positives_set.json"):
                 else:
                     _fp_ips.add(entry)
             except Exception:
+                # Ungueltige Eintraege in der FP-Liste bewusst ueberspringen.
                 pass
         print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs geladen")
     except Exception as e:
@@ -996,6 +998,8 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
                     best_idx = max(column_sets, key=_column_score)
                     return column_sets[best_idx]
         except Exception:
+            # Spalten-Heuristik ist optional: schlaegt die Erkennung fehl,
+            # still zum naechsten Format weiter (kein Parser-Abbruch).
             pass
 
     # 4) Firewall-/Router-Formate ------------------------------------------
@@ -1969,6 +1973,8 @@ def _fsync_dir(dir_path):
     try:
         os.fsync(dir_fd)
     except OSError:
+        # dir-fsync ist best-effort (nicht auf allen FS/Plattformen
+        # verfuegbar); Fehler hier bewusst ignorieren.
         pass
     finally:
         os.close(dir_fd)
@@ -2100,6 +2106,9 @@ def write_ip_list(filepath, ips, header_lines=None):
         try:
             os.unlink(tmp_path)
         except OSError:
+            # Best-effort-Cleanup: schlaegt das Entfernen des tempfiles
+            # fehl, wird das bewusst ignoriert. Der Originalfehler wird
+            # unten via raise weitergereicht.
             pass
         raise
     return sorted_list
@@ -2138,6 +2147,9 @@ def write_json_atomic(filepath, data, **dump_kwargs):
         try:
             os.unlink(tmp_path)
         except OSError:
+            # Best-effort-Cleanup: schlaegt das Entfernen des tempfiles
+            # fehl, wird das bewusst ignoriert. Der Originalfehler wird
+            # unten via raise weitergereicht.
             pass
         raise
 
@@ -2175,6 +2187,9 @@ def write_text_atomic(filepath, content):
         try:
             os.unlink(tmp_path)
         except OSError:
+            # Best-effort-Cleanup: schlaegt das Entfernen des tempfiles
+            # fehl, wird das bewusst ignoriert. Der Originalfehler wird
+            # unten via raise weitergereicht.
             pass
         raise
 
@@ -2242,6 +2257,9 @@ def concatenate_files_atomic(filepath, source_paths, chunk_size=1024 * 1024):
         try:
             os.unlink(tmp_path)
         except OSError:
+            # Best-effort-Cleanup: schlaegt das Entfernen des tempfiles
+            # fehl, wird das bewusst ignoriert. Der Originalfehler wird
+            # unten via raise weitergereicht.
             pass
         raise
 
