@@ -2154,6 +2154,75 @@ def write_text_atomic(filepath, content):
             pass
         raise
 
+def concatenate_files_atomic(filepath, source_paths, chunk_size=1024 * 1024):
+    """Fuegt vorhandene Dateien speicherschonend und atomar zusammen.
+
+    Die Quelldateien werden in der angegebenen Reihenfolge blockweise in
+    eine temporaere Datei im Zielverzeichnis kopiert. Erst nachdem alle
+    Bytes geschrieben und per fsync() dauerhaft gesichert wurden, ersetzt
+    os.replace() die Zieldatei atomar. Damit kann auch eine grosse Combined-
+    Liste aus ihren kanonischen Parts rekonstruiert werden, ohne den gesamten
+    Inhalt gleichzeitig in den Arbeitsspeicher zu laden.
+
+    Die Funktion fuehrt eine bytegenaue Verkettung aus und fuegt selbst keine
+    zusaetzlichen Zeilenumbrueche ein. Die Part-Dateien muessen daher – wie
+    von write_ip_list() garantiert – mit einem Zeilenumbruch enden.
+
+    Args:
+        filepath: Zieldatei.
+        source_paths: Iterable der Quelldateien in gewuenschter Reihenfolge.
+        chunk_size: Groesse der Kopierbloecke in Bytes (Standard: 1 MiB).
+
+    Returns:
+        int: Anzahl der geschriebenen Bytes.
+    """
+    import tempfile
+
+    if not isinstance(chunk_size, int) or chunk_size <= 0:
+        raise ValueError("chunk_size muss eine positive Ganzzahl sein")
+
+    sources = [os.fspath(path) for path in source_paths]
+    if not sources:
+        raise ValueError("source_paths darf nicht leer sein")
+
+    target_path = os.fspath(filepath)
+    target_abs = os.path.abspath(target_path)
+    for source in sources:
+        if os.path.abspath(source) == target_abs:
+            raise ValueError("Zieldatei darf nicht zugleich Quelldatei sein")
+
+    target_dir = os.path.dirname(target_abs) or "."
+    os.makedirs(target_dir, exist_ok=True)
+    fd, tmp_path = tempfile.mkstemp(
+        prefix=f".{os.path.basename(target_path)}.",
+        suffix=".tmp",
+        dir=target_dir,
+    )
+
+    bytes_written = 0
+    try:
+        with os.fdopen(fd, "wb") as out_file:
+            for source in sources:
+                with open(source, "rb") as in_file:
+                    while True:
+                        chunk = in_file.read(chunk_size)
+                        if not chunk:
+                            break
+                        out_file.write(chunk)
+                        bytes_written += len(chunk)
+            out_file.flush()
+            os.fsync(out_file.fileno())
+        os.replace(tmp_path, target_path)
+        _fsync_dir(target_dir)
+    except Exception:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+        raise
+
+    return bytes_written
+
 # ═══════════════════════════════════════════════════════════════
 # Auto-Discovered Feeds: Schema- und URL-Validierung
 # ═══════════════════════════════════════════════════════════════
