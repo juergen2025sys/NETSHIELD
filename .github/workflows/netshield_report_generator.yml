@@ -41,7 +41,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
-              write_text_atomic,
+              write_text_atomic, concatenate_files_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -68,11 +68,11 @@ jobs:
           if not os.path.exists(_rc_main):
               _rc_parts = sorted(_rc_glob.glob("combined_threat_blacklist_ipv4_part*.txt"))
               if _rc_parts:
-                  with open(_rc_main, "w", encoding="utf-8") as _rc_out:
-                      for _rc_p in _rc_parts:
-                          with open(_rc_p, encoding="utf-8") as _rc_in:
-                              _rc_out.write(_rc_in.read())
-                  print(f"Rekonstruiert: {_rc_main} aus {len(_rc_parts)} Part(s)")
+                  _rc_bytes = concatenate_files_atomic(_rc_main, _rc_parts)
+                  print(
+                      f"Rekonstruiert: {_rc_main} aus {len(_rc_parts)} Part(s) "
+                      f"({_rc_bytes:,} Bytes, atomar)"
+                  )
 
           def count_ips(filepath):
               # FIX TRUNCATE-PARTS-COUNT: Liest Hauptdatei + alle Parts,

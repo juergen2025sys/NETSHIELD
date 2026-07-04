@@ -48,7 +48,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
-              write_json_atomic, write_text_atomic,
+              write_json_atomic, write_text_atomic, concatenate_files_atomic,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -1221,10 +1221,14 @@ jobs:
                   _rc_parts_hc = sorted(_rc_glob_hc.glob(
                       "combined_threat_blacklist_ipv4_part*.txt"))
                   if _rc_parts_hc:
-                      with open(_rc_main_hc, "w", encoding="utf-8") as _rc_out_hc:
-                          for _rc_p_hc in _rc_parts_hc:
-                              with open(_rc_p_hc, encoding="utf-8") as _rc_in_hc:
-                                  _rc_out_hc.write(_rc_in_hc.read())
+                      _rc_bytes_hc = concatenate_files_atomic(
+                          _rc_main_hc, _rc_parts_hc
+                      )
+                      print(
+                          f"Rekonstruiert: {_rc_main_hc} aus "
+                          f"{len(_rc_parts_hc)} Part(s) "
+                          f"({_rc_bytes_hc:,} Bytes, atomar)"
+                      )
               # FIX TRUNCATE-PARTS-COUNT: Helper liefert IPs aus Hauptdatei +
               # allen Parts. Bei aktivem Truncate liegen Eintraege gezielt nur
               # in den Parts – Hauptdatei allein ist unvollstaendig. Identische
