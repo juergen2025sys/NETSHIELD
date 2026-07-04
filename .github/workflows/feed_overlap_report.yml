@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
 
@@ -62,6 +62,27 @@ jobs:
               if not base:
                   base = re.sub(r"[^a-zA-Z0-9]+", "_", url.split("//", 1)[-1])[:80]
               return base[:120]
+
+          def static_feed_name(url: str) -> str:
+              # Eindeutiger, lesbarer Name pro statischer URL.
+              # FIX: Vorher bekamen ALLE statischen URLs eines Workflows denselben
+              # Namen (<stem>_static) -> z.B. 94x "update_combined_blacklist_static".
+              # Dadurch waren Klon-Tabelle und Feed-Status unlesbar (Feed schien
+              # Klon von sich selbst). Jetzt: host/user/repo/datei + kurzer URL-Hash,
+              # damit zwei verschiedene URLs garantiert nie kollidieren.
+              u = url.split("//", 1)[-1]
+              host = u.split("/", 1)[0].replace("www.", "")
+              path = u[len(u.split("/", 1)[0]):].strip("/")
+              parts = [p for p in path.split("/") if p]
+              if ("githubusercontent" in host or "github" in host) and len(parts) >= 2:
+                  label = f"{parts[0]}_{parts[1]}_{parts[-1]}"
+              elif parts:
+                  label = f"{host}_{parts[-1]}"
+              else:
+                  label = host
+              label = re.sub(r"[^a-zA-Z0-9]+", "_", label).strip("_")
+              suffix = hashlib.sha1(url.encode()).hexdigest()[:6]
+              return f"{label[:100]}_{suffix}"
 
           def collect_feeds():
               feeds = []
@@ -105,7 +126,7 @@ jobs:
                       if not any(x in low for x in (".txt", ".csv", ".list", ".ipset", ".netset", ".zone", "/raw/", "raw.githubusercontent.com")):
                           continue
                       seen_urls.add(url)
-                      feeds.append({"name": safe_name(wf.stem + "_static", url), "url": url, "source": str(wf)})
+                      feeds.append({"name": static_feed_name(url), "url": url, "source": str(wf)})
 
               return feeds[:MAX_FEEDS]
 
@@ -179,9 +200,9 @@ jobs:
                       "clone_suspect": clone_suspect,
                   })
               for x, y, pct in ((a, b, containment_large if a is large else containment_small), (b, a, containment_small if a is large else containment_large)):
-                  cur = best_for_feed.get(x["name"])
+                  cur = best_for_feed.get(x["url"])
                   if cur is None or pct > cur["pct"]:
-                      best_for_feed[x["name"]] = {"other": y["name"], "pct": pct, "common": common}
+                      best_for_feed[x["url"]] = {"other": y["name"], "pct": pct, "common": common}
 
           pair_rows.sort(key=lambda r: (r["exact"], r["small_pct"], r["common"]), reverse=True)
 
@@ -228,7 +249,7 @@ jobs:
           lines.append("| Feed | IPs geprüft | Bester Overlap | Mit Feed | Hinweis |")
           lines.append("|---|---:|---:|---|---|")
           for r in sorted(results, key=lambda x: x["count"], reverse=True)[:120]:
-              best = best_for_feed.get(r["name"], {"pct": 0.0, "other": "-", "common": 0})
+              best = best_for_feed.get(r["url"], {"pct": 0.0, "other": "-", "common": 0})
               hint = ""
               if r["error"]:
                   hint = "Fehler: " + r["error"].replace("|", "/")
