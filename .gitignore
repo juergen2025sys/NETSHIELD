@@ -17,6 +17,11 @@ venv/
 # seen_db (nur im GitHub Actions Cache, zu groß fürs Repo)
 seen_db.json
 
+# CHANGE ZWEI-FESTE-PARTS: Hauptdatei wird nur noch im Runner erzeugt/
+# rekonstruiert, nicht mehr committet (Parts part1/part2 sind kanonisch).
+# Verhindert, dass sie über 100 MB wächst und den Push blockiert.
+combined_threat_blacklist_ipv4.txt
+
 # IDE
 .vscode/
 .idea/
