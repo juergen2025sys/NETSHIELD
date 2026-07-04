@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-07-04 04:22 UTC
+**Aktualisiert:** 2026-07-04 05:06 UTC
 
 ---
 ## 📊 Listen-Übersicht
@@ -13,16 +13,18 @@
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **32,904** | 2026-07-03 06:54 UTC |
 | ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **17,949** | 2026-07-03 23:43 UTC |
 | ✅ `honeypot_ips.txt` | Honeypot IPs | **117,707** | 2026-07-03 23:53 UTC |
-| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **9,938** | 2026-07-04 01:08 UTC |
+| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **10,683** | 2026-07-04 04:51 UTC |
 
 ---
-## 🔍 Feed Health: ✅ 120 OK | ⚠️ 0 leer | ❌ 0 Fehler
+## 🔍 Feed Health: ✅ 119 OK | ⚠️ 0 leer | ❌ 1 Fehler
 
-**🧊 Eingefroren (17):** `amitambekar_threats` 19T, `bbcan177` 19T, `binaryedge_scanners` 19T, `blacksnowdot_packets` 19T, `cloudzy` 19T, `et_block` 19T, `fadouse_worm` 19T, `feodo_aggressive` 19T, `feodo_recommended` 19T, `firehol_level1` 19T…
+**❌ Ausgefallen:** `rutgers_drop`
+
+**🧊 Eingefroren (17):** `amitambekar_threats` 20T, `bbcan177` 20T, `binaryedge_scanners` 20T, `blacksnowdot_packets` 20T, `cloudzy` 20T, `et_block` 20T, `fadouse_worm` 20T, `feodo_aggressive` 20T, `feodo_recommended` 20T, `firehol_level1` 20T…
 
 *Noch unter der 21-Tage-Quarantäne-Schwelle – nur beobachtet. Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
 
-*Letzter Check: 2026-07-03 04:36 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
+*Letzter Check: 2026-07-04 04:29 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -30,4 +32,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-07-04 04:22 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-07-04 05:06 UTC*
