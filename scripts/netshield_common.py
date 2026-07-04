@@ -876,7 +876,30 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
             return _hosts_from_fragments(jsonl_values)
 
     # 2) XML / HTML-aehnliche strukturierte Listen -------------------------
-    if ext == ".xml" or re.search(r"<[A-Za-z][^>]{0,80}>", stripped):
+    # FIX CONTENT-SNIFF-XML: Frueher reichte EIN beliebiger String wie
+    # ``<blank>`` irgendwo in einer mehrmegabytegrossen Logdatei, um den
+    # gesamten Inhalt als XML zu klassifizieren. Bei Honeypot-Logs mit
+    # Shell-Ausgaben fuehrte das zu einem fruehen Return mit nur wenigen IPs.
+    #
+    # Jetzt gilt XML nur dann als plausibel, wenn die Dateiendung .xml ist
+    # ODER der Dateianfang tatsaechlich wie ein XML-Dokument/-Fragment
+    # aussieht. Der Probe-Bereich ist absichtlich begrenzt; echte XML-Dateien
+    # haben Deklaration/Root-Tag am Anfang, zufaellige ``<...>``-Tokens in
+    # Logs dagegen typischerweise nicht.
+    _xml_probe = stripped[:256 * 1024].lstrip("\ufeff \t\r\n")
+    _xml_root_re = re.compile(
+        r"^(?:<\?xml[^>]*>\s*)?(?:<!--.*?-->\s*)*"
+        r"<[A-Za-z_][A-Za-z0-9_.:-]*(?:\s[^<>]{0,4096})?>",
+        re.S,
+    )
+    _xml_close_re = re.compile(r"</[A-Za-z_][A-Za-z0-9_.:-]*\s*>")
+    _xml_plausible = (
+        ext == ".xml"
+        or (_xml_root_re.search(_xml_probe) is not None
+            and _xml_close_re.search(_xml_probe) is not None)
+    )
+
+    if _xml_plausible:
         xml_fragments = []
         try:
             import xml.etree.ElementTree as _ET
