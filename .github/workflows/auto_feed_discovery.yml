@@ -162,7 +162,14 @@ jobs:
           # Lookbehind/-ahead auf '.', filtert Versions-Strings wie '1.2.3.4.5'
           # zuverlässig). Frühere lokale Re-Definition war eine schwächere
           # Variante (nur \d-Lookbehind) und liess Versions-IPs durch.
-          READ_LIMIT = 5 * 1024 * 1024   # 5 MB Standard-Limit pro Feed
+          # Zentrale Feed-Grenzen. 500.000 IPs waren fuer grosse, legitime
+          # Blocklisten zu knapp. Das neue Limit von 2 Mio. IPs deckt grosse
+          # Aggregatoren ab, bleibt aber mit einem harten 64-MiB-Downloadlimit
+          # gegen unkontrollierte Speicher-/Netzlast abgesichert.
+          MIN_FEED_IPS = 100
+          MAX_FEED_IPS = 2_000_000
+          MAX_FEED_DOWNLOAD_BYTES = 64 * 1024 * 1024
+          READ_LIMIT = MAX_FEED_DOWNLOAD_BYTES
 
           # CONTENT-SNIFF-FALLBACK: Dateinamen bleiben der schnelle Primaerweg,
           # sind aber kein hartes Ausschlusskriterium mehr. Neutrale Dateien wie
@@ -170,11 +177,13 @@ jobs:
           # Nur wenn im Repo KEINE Datei ueber IP_FILE_PATTERNS gefunden wurde,
           # werden maximal sechs textartige Kandidaten mit 1 MiB angelesen.
           CONTENT_SNIFF_SAMPLE_LIMIT = 1 * 1024 * 1024
-          CONTENT_SNIFF_FULL_LIMIT   = 32 * 1024 * 1024
+          CONTENT_SNIFF_FULL_LIMIT   = MAX_FEED_DOWNLOAD_BYTES
           CONTENT_SNIFF_MAX_FILES    = 6
           CONTENT_SNIFF_MIN_BYTES    = 1024
-          CONTENT_SNIFF_MIN_IPS      = 100
-          CONTENT_SNIFF_STATE_VERSION = 1
+          CONTENT_SNIFF_MIN_IPS      = MIN_FEED_IPS
+          # v2: groessere Feeds erneut pruefen + sichere Infrastruktur-Sublisten
+          # aus bestehendem State entfernen.
+          CONTENT_SNIFF_STATE_VERSION = 2
 
           # ── Bekannte Repos – NICHT erneut aufnehmen ───────────────────────
           KNOWN_REPOS = {
@@ -318,7 +327,7 @@ jobs:
           THREAT_CONTEXT_RE = re.compile(
               r'(?i)\b(?:honeypot|connection\s+attempt|rejected|accepted|'
               r'disconnected|failed\s+password|invalid\s+user|authentication\s+failure|'
-              r'brute[\s_-]?force|scanner|scanning|attack(?:er|ing)?|malicious|'
+              r'brute[\s_-]?force|scanner|scanning|attack(?:er|ers|ing)?|malicious|'
               r'blocked?|deny|denied|drop(?:ped)?|blacklist|blocklist|ioc|c2|botnet)\b'
           )
           PLAIN_IP_LINE_RE = re.compile(
@@ -339,6 +348,37 @@ jobs:
               r'whitelist|wl[_-]?ip)',
               re.IGNORECASE
           )
+
+          # Eindeutig legitime Infrastruktur-/Providerlisten sind keine
+          # Angreifer-Feeds. Sie koennen in gemischten Repositories neben echten
+          # Blocklisten liegen (z.B. privacy/apple_icloud.ipset) und wuerden das
+          # reine FP-Sampling passieren, weil nicht jede Provider-IP in der
+          # lokalen Whitelist enthalten ist. Token-Grenzen verhindern Treffer in
+          # laengeren, unverbundenen Woertern.
+          NON_THREAT_INFRA_FILE_RE = re.compile(
+              r'(?i)(?:^|[/_.-])(?:'
+              r'apple[_-]?icloud|icloud|cloudflare|google(?:bot|cloud|services?)?|'
+              r'microsoft|azure|amazon(?:aws)?|aws|akamai|fastly|github|'
+              r'facebook|meta|oracle|digitalocean|linode'
+              r')(?:$|[/_.-])'
+          )
+
+          def _is_non_threat_file(path):
+              path_lc = str(path or "").lower()
+              if (WHITELIST_FILE_RE.search(path_lc)
+                      or GEO_FILE_RE.search(path_lc)
+                      or REDUNDANT_FEED_RE.search(path_lc)):
+                  return True
+              # Providername allein ist nur dann ein Ausschluss, wenn der
+              # Dateiname selbst keinen klaren Threat-Kontext wie attackers,
+              # malicious oder blocklist traegt. So bleibt z.B.
+              # amazonaws_attackers.txt zulaessig, apple_icloud.ipset aber nicht.
+              basename = path_lc.rsplit("/", 1)[-1]
+              basename_words = re.sub(r"[_\-.]+", " ", basename)
+              return bool(
+                  NON_THREAT_INFRA_FILE_RE.search(path_lc)
+                  and not THREAT_CONTEXT_RE.search(basename_words)
+              )
 
           # ── Geo-/Laender-Allokationslisten ───────────────────────────────
           # GEO_FILE_RE: erkennt reine Geolokations-/Laender-/Kontinent-IP-Listen
@@ -530,14 +570,17 @@ jobs:
                           print(f"  GitLab Fehler {path}: {ex}")
                           return None
 
-          def fetch_raw(url, limit=READ_LIMIT, timeout=25):
+          def fetch_raw(url, limit=READ_LIMIT, timeout=25, allow_partial=False):
               # FIX SEC: Nutzt fetch_url aus netshield_common – enthält SSRF-Schutz
               # (Schema-/Host-Validierung, auch bei Redirects). Ohne diesen Schutz
               # könnte eine aus GitHub-Suchergebnissen stammende URL auf
               # 169.254.169.254 / localhost / RFC1918 zeigen.
+              # Voll-Downloads sind fail-loud. Nur explizite Stichproben (Content-
+              # Sniff/Awesome-Listen) duerfen bewusst einen Prefix auswerten.
               return fetch_url(url, timeout=timeout, retries=1,
                                user_agent="NETSHIELD-AutoDiscovery/3.0",
-                               read_limit=limit)
+                               read_limit=limit,
+                               fail_on_truncation=not allow_partial)
 
           # is_valid_public_ipv4() → importiert aus netshield_common
           # ── Universeller Format-Detektor ──────────────────────────────────
@@ -571,9 +614,7 @@ jobs:
               path_lc = path.lower()
               if CONTENT_SNIFF_SKIP_RE.search(path_lc):
                   return False
-              if (WHITELIST_FILE_RE.search(path_lc)
-                      or GEO_FILE_RE.search(path_lc)
-                      or REDUNDANT_FEED_RE.search(path_lc)):
+              if _is_non_threat_file(path_lc):
                   return False
 
               size = int(item.get("size", 0) or 0)
@@ -744,6 +785,85 @@ jobs:
                   except ValueError as _suppressed:
                       print(f"WARN: suppressed ValueError: {_suppressed}", file=sys.stderr)
               return hits / len(sample)
+
+          def _validate_individual_feed(text, ips, path, source_url="",
+                                        detected_by="filename"):
+              """Validiert jede Feed-Datei einzeln, auch Repo-Extra-Dateien.
+
+              Ein vertrauenswuerdiges Repository macht nicht automatisch jede
+              darin enthaltene Datei zu einer Bedrohungsliste. Diese Funktion
+              erzwingt fuer Haupt- und Extra-Dateien dieselben Kern-Gates:
+              Groesse, legitime Infrastruktur, FP-Rate, HQ-Overlap und Format.
+              """
+              result = {
+                  "ok": False,
+                  "reason": "unbekannt",
+                  "fp": 1.0,
+                  "overlap": 0,
+                  "overlap_pct": 0.0,
+                  "ip_ratio": 0.0,
+                  "legacy_ip_ratio": 0.0,
+                  "line_ip_ratio": 0.0,
+                  "profile": None,
+              }
+              count = len(ips)
+              if not (MIN_FEED_IPS <= count <= MAX_FEED_IPS):
+                  result["reason"] = (
+                      f"Groesse {count} IPs ausserhalb "
+                      f"{MIN_FEED_IPS}-{MAX_FEED_IPS}"
+                  )
+                  return result
+              if _is_non_threat_file(path):
+                  result["reason"] = "legitime Infrastruktur-/Nicht-Threat-Datei"
+                  return result
+
+              fp = fp_rate(ips)
+              result["fp"] = fp
+              if fp > 0.05:
+                  result["reason"] = f"FP-Rate {fp:.1%} > 5%"
+                  return result
+
+              profile = _content_profile(text, source_url)
+              result["profile"] = profile
+              if hq_ref_ready:
+                  overlap = len(ips & hq_ref_ips)
+                  overlap_pct = overlap / count if count else 0.0
+                  result["overlap"] = overlap
+                  result["overlap_pct"] = overlap_pct
+                  if overlap_pct < 0.20 and overlap < 50:
+                      result["reason"] = (
+                          f"HQ-Overlap {overlap_pct:.1%}/{overlap} IPs zu gering"
+                      )
+                      return result
+                  if overlap_pct > 0.95:
+                      independent_threat_log = (
+                          detected_by == "content"
+                          and profile.get("looks_like_feed", False)
+                          and profile.get("plain_line_ratio", 0.0) < 0.70
+                          and profile.get("threat_lines", 0) >= 3
+                          and profile.get("ip_line_ratio", 0.0) >= 0.30
+                      )
+                      if not independent_threat_log:
+                          result["reason"] = (
+                              f"HQ-Overlap {overlap_pct:.1%} > 95% (Klon-Verdacht)"
+                          )
+                          return result
+
+              ip_ratio, legacy_ratio, line_ratio = _format_quality(
+                  text, ips, source_url, profile=profile
+              )
+              result.update({
+                  "ip_ratio": ip_ratio,
+                  "legacy_ip_ratio": legacy_ratio,
+                  "line_ip_ratio": line_ratio,
+              })
+              if ip_ratio < 0.30:
+                  result["reason"] = f"Format-Qualitaet {ip_ratio:.1%} < 30%"
+                  return result
+
+              result["ok"] = True
+              result["reason"] = "OK"
+              return result
 
           def add_repo_candidate(candidate_repos, repo, source_label):
               if not repo:
@@ -1115,6 +1235,7 @@ jobs:
                       auto_data = json.load(f)
                   _geo_pruned = []
                   _redundant_pruned = []
+                  _non_threat_pruned = []
                   for feed in auto_data.get("feeds", []):
                       # Auto-Prune: bereits registrierte Geo-/Laenderlisten
                       # (file/url matcht GEO_FILE_RE) NICHT uebernehmen -> sie
@@ -1132,6 +1253,13 @@ jobs:
                       if REDUNDANT_FEED_RE.search(_feed_loc):
                           _redundant_pruned.append(feed.get("name", "?"))
                           continue
+                      _feed_path_for_policy = feed.get("file", "") or feed.get("name", "")
+                      _feed_basename = _feed_path_for_policy.rsplit("/", 1)[-1]
+                      _feed_basename_words = re.sub(r"[_\-.]+", " ", _feed_basename)
+                      if (NON_THREAT_INFRA_FILE_RE.search(_feed_path_for_policy)
+                              and not THREAT_CONTEXT_RE.search(_feed_basename_words)):
+                          _non_threat_pruned.append(feed.get("name", "?"))
+                          continue
                       existing_feeds[feed["name"]] = feed
                   if _geo_pruned:
                       print(f"Auto-Prune: {len(_geo_pruned)} Geo-/Laenderlisten aus "
@@ -1142,6 +1270,11 @@ jobs:
                             f"Sublisten aus bestehenden Feeds entfernt: "
                             f"{', '.join(_redundant_pruned[:10])}"
                             + (" ..." if len(_redundant_pruned) > 10 else ""))
+                  if _non_threat_pruned:
+                      print(f"Auto-Prune: {len(_non_threat_pruned)} legitime Infrastruktur-"
+                            f"Sublisten aus bestehenden Feeds entfernt: "
+                            f"{', '.join(_non_threat_pruned[:10])}"
+                            + (" ..." if len(_non_threat_pruned) > 10 else ""))
                   _raw_rejected = auto_data.get("rejected_repos", [])
                   existing_rejected = set(_raw_rejected)
                   # Meta-Dict laden (neues Feld, kann bei alten JSONs fehlen)
@@ -1177,7 +1310,9 @@ jobs:
                               _info.get("reason", "")
                               if isinstance(_info, dict) else ""
                           )
-                          if "Keine IP-Datei" not in _reason:
+                          if ("Keine IP-Datei" not in _reason
+                                  and not _reason.startswith("Größe:")
+                                  and not _reason.startswith("Groesse:")):
                               continue
                           existing_rejected.discard(_r)
                           existing_rejected_meta.pop(_r, None)
@@ -1185,7 +1320,7 @@ jobs:
                       if _content_retries_unlocked:
                           print(
                               f"Content-Sniff-Migration v{CONTENT_SNIFF_STATE_VERSION}: "
-                              f"{_content_retries_unlocked} alte Dateinamen-Rejects "
+                              f"{_content_retries_unlocked} alte Dateinamen-/Groessen-Rejects "
                               f"zur sofortigen Neuevaluierung freigegeben"
                           )
 
@@ -1743,7 +1878,9 @@ jobs:
           for _aw_url in AWESOME_LISTS:
               if _check_timeout("Awesome-List"):
                   break
-              _aw_text = fetch_raw(_aw_url, limit=512 * 1024, timeout=10)
+              _aw_text = fetch_raw(
+                  _aw_url, limit=512 * 1024, timeout=10, allow_partial=True
+              )
               if not _aw_text:
                   print(f"  SKIP (Download fehlgeschlagen): {_aw_url.split('/')[-2]}")
                   continue
@@ -1924,13 +2061,10 @@ jobs:
                           return None
               return None
 
-          # REFRESH-Limit: 3 MB statt 512 KB.
-          # 512 KB war zu knapp – viele aktive Feeds (data_shield, blocklist.de,
-          # romainmarcoux u.a.) sind groesser. fetch_url schnitt ab und warnte
-          # "Response > 524288 bytes". Folge: Feeds wie cbuijs_badip lieferten
-          # 0 IPs weil im ersten 512-KB-Chunk keine gueltigen IPs lagen.
-          # 3 MB deckt ~200k IPs sicher ab.
-          _REFRESH_READ_LIMIT = 30 * 1024 * 1024  # 30 MB
+          # REFRESH muss denselben vollstaendigen Download wie die Erstpruefung
+          # nutzen. Bei Ueberschreitung wird fail-loud verworfen statt eine
+          # abgeschnittene Teilliste als vollstaendigen Feed zu speichern.
+          _REFRESH_READ_LIMIT = MAX_FEED_DOWNLOAD_BYTES
 
           def _refresh_one(item):
               _name, _feed = item
@@ -2043,8 +2177,8 @@ jobs:
           # IP-Dateien im selben Repo werden nie entdeckt.
           # Lösung: Für jedes Repo mit aktivem Feed einmal den Tree scannen und
           # alle IP-Dateien finden die NICHT bereits in approved_feeds stehen.
-          # Pro neu gefundener Datei: download + minimal validieren (>=50 IPs)
-          # und als neuen Feed-Eintrag aufnehmen.
+          # Pro neu gefundener Datei: vollstaendig laden und mit denselben
+          # Kern-Gates wie eine Hauptdatei validieren.
           # Timeout-bewusst: max. 1 API-Call pro Repo, Skip bei Timeout.
           print("\n── Schritt 5a.5: Extra-Dateien in bestehenden Repos ────────────")
           _extra_found_total = 0
@@ -2125,9 +2259,7 @@ jobs:
                   if IP_FILE_PATTERNS.search(item["path"].split("/")[-1])
                   and (_repo, item["path"]) not in _registered_files
                   and not _skip_path(item["path"])
-                  and not WHITELIST_FILE_RE.search(item["path"])
-                  and not GEO_FILE_RE.search(item["path"])
-                  and not REDUNDANT_FEED_RE.search(item["path"])
+                  and not _is_non_threat_file(item["path"])
               ]
 
               if not _new_files:
@@ -2190,13 +2322,31 @@ jobs:
                             f"(>30) – uebersprungen")
                       continue
 
+                  _nf_size = int(_nf.get("size", 0) or 0)
+                  if _nf_size > MAX_FEED_DOWNLOAD_BYTES:
+                      print(f"    ⏭ {_nf['path']}: {_nf_size:,} Bytes > "
+                            f"{MAX_FEED_DOWNLOAD_BYTES:,} – uebersprungen")
+                      continue
+                  _nf_limit = (
+                      MAX_FEED_DOWNLOAD_BYTES
+                      if _nf_size <= 0
+                      else min(MAX_FEED_DOWNLOAD_BYTES, _nf_size + 1024 * 1024)
+                  )
                   time.sleep(0.3)
-                  _nf_text = fetch_raw(_nf_url, limit=30 * 1024 * 1024, timeout=20)
+                  _nf_text = fetch_raw(
+                      _nf_url, limit=_nf_limit,
+                      timeout=40 if _nf_size > 8 * 1024 * 1024 else 25,
+                  )
                   if not _nf_text:
                       continue
 
                   _nf_ips = extract_ips(_nf_text, _nf_url)
-                  if len(_nf_ips) < 50:
+                  _nf_validation = _validate_individual_feed(
+                      _nf_text, _nf_ips, _nf["path"], _nf_url,
+                      detected_by=_nf.get("detected_by", "filename"),
+                  )
+                  if not _nf_validation["ok"]:
+                      print(f"    ⏭ {_nf['path']}: {_nf_validation['reason']}")
                       continue
 
                   # Loop-Schutz: Wenn diese Datei inhaltlich identisch (gleicher
@@ -2238,8 +2388,8 @@ jobs:
                       "last_checked":  now_day,
                       "ip_count":      len(_nf_ips),
                       "ip_fingerprint": _ip_fingerprint(_nf_ips),
-                      "overlap_pct":   _rmeta["overlap_pct"],
-                      "fp_rate":       _rmeta["fp_rate"],
+                      "overlap_pct":   round(_nf_validation["overlap_pct"] * 100, 1),
+                      "fp_rate":       round(_nf_validation["fp"] * 100, 2),
                       "rep_score":     _rmeta["rep_score"],
                       "stars":         _rmeta["stars"],
                       "days_old":      _rmeta["days_old"],
@@ -2266,8 +2416,8 @@ jobs:
                       "feed_name":   _nf_name,
                       "ips":         len(_nf_ips),
                       "new_feed":    _is_new,
-                      "overlap_pct": round(_rmeta["overlap_pct"], 1),
-                      "fp_rate":     round(_rmeta["fp_rate"], 2),
+                      "overlap_pct": round(_nf_validation["overlap_pct"] * 100, 1),
+                      "fp_rate":     round(_nf_validation["fp"] * 100, 2),
                       "stars":       _rmeta["stars"],
                       "platform":    _platform,
                   })
@@ -2560,9 +2710,7 @@ jobs:
               ip_files = [
                   item for item in all_blob_files
                   if IP_FILE_PATTERNS.search(item["path"].split("/")[-1])
-                  and not WHITELIST_FILE_RE.search(item["path"])
-                  and not GEO_FILE_RE.search(item["path"])
-                  and not REDUNDANT_FEED_RE.search(item["path"])
+                  and not _is_non_threat_file(item["path"])
               ]
               for item in ip_files:
                   item["detected_by"] = "filename"
@@ -2600,6 +2748,7 @@ jobs:
                           candidate_url,
                           limit=CONTENT_SNIFF_SAMPLE_LIMIT,
                           timeout=12,
+                          allow_partial=True,
                       )
                       if not sample:
                           _log_lines.append(
@@ -2694,31 +2843,24 @@ jobs:
               _log_lines.append(f"  ✅ IP-Datei frisch: {file_days_old} Tage alt")
 
               time.sleep(0.5)
-              fetch_limit = READ_LIMIT
-              fetch_timeout = 12
-              if best_file.get("detected_by") == "content":
-                  file_size = int(best_file.get("size", 0) or 0)
-                  if file_size > CONTENT_SNIFF_FULL_LIMIT:
-                      _log_lines.append(
-                          f"  ❌ Content-Datei zu gross: {file_size:,} Bytes "
-                          f"(max. {CONTENT_SNIFF_FULL_LIMIT:,})"
-                      )
-                      return {"action": "reject", "repo": _reject_key,
-                              "reason": "Content-Datei zu gross", "logs": _log_lines,
-                              "platform": _platform}
-                  # Bei GitHub ist die Blob-Groesse bekannt. 1 MiB Reserve
-                  # verhindert Truncation wenn die Datei zwischen Tree-Abfrage
-                  # und Raw-Fetch leicht gewachsen ist. GitLab size=0 nutzt
-                  # das harte 32-MiB-Limit.
-                  fetch_limit = (
-                      CONTENT_SNIFF_FULL_LIMIT
-                      if file_size <= 0
-                      else min(
-                          CONTENT_SNIFF_FULL_LIMIT,
-                          max(READ_LIMIT, file_size + 1024 * 1024),
-                      )
+              file_size = int(best_file.get("size", 0) or 0)
+              if file_size > MAX_FEED_DOWNLOAD_BYTES:
+                  _log_lines.append(
+                      f"  ❌ Feed-Datei zu gross: {file_size:,} Bytes "
+                      f"(max. {MAX_FEED_DOWNLOAD_BYTES:,})"
                   )
-                  fetch_timeout = 25
+                  return {"action": "reject", "repo": _reject_key,
+                          "reason": "Feed-Datei zu gross", "logs": _log_lines,
+                          "platform": _platform}
+              # Fuer alle Erkennungswege vollstaendig laden. Bei bekannter
+              # Blob-Groesse reicht Datei + 1 MiB Reserve; unbekannte GitLab-
+              # Groessen nutzen das harte 64-MiB-Limit.
+              fetch_limit = (
+                  MAX_FEED_DOWNLOAD_BYTES
+                  if file_size <= 0
+                  else min(MAX_FEED_DOWNLOAD_BYTES, file_size + 1024 * 1024)
+              )
+              fetch_timeout = 40 if file_size > 8 * 1024 * 1024 else 25
 
               text = fetch_raw(
                   raw_url,
@@ -2734,9 +2876,12 @@ jobs:
               ips = extract_ips(text, raw_url)
               full_content_profile = _content_profile(text, raw_url)
 
-              # Kriterium 2: Größe (100 – 500.000 IPs)
-              if not (100 <= len(ips) <= 500_000):
-                  _log_lines.append(f"  ❌ Größe: {len(ips)} IPs (erwartet 100–500.000)")
+              # Kriterium 2: Groesse (100 – 2.000.000 IPs)
+              if not (MIN_FEED_IPS <= len(ips) <= MAX_FEED_IPS):
+                  _log_lines.append(
+                      f"  ❌ Größe: {len(ips)} IPs "
+                      f"(erwartet {MIN_FEED_IPS:,}–{MAX_FEED_IPS:,})"
+                  )
                   return {"action": "reject", "repo": _reject_key,
                           "reason": f"Größe: {len(ips)} IPs", "logs": _log_lines,
                           "platform": _platform}
@@ -2776,6 +2921,13 @@ jobs:
                   _log_lines.append(f"  ❌ Redundanter Upstream (schon in SOURCES): {best_file['path']}")
                   return {"action": "reject", "repo": _reject_key,
                           "reason": "Redundanter Upstream", "logs": _log_lines,
+                          "platform": _platform}
+              if NON_THREAT_INFRA_FILE_RE.search(_file_path_lc):
+                  _log_lines.append(
+                      f"  ❌ Legitime Infrastruktur-/Providerliste: {best_file['path']}"
+                  )
+                  return {"action": "reject", "repo": _reject_key,
+                          "reason": "Legitime Infrastruktur-Datei", "logs": _log_lines,
                           "platform": _platform}
 
               # Kriterium 4: Overlap mit HQ-Feeds (min. 20% oder 50 IPs, max. 95%)
@@ -2844,11 +2996,10 @@ jobs:
               _log_lines.append(f"  ⭐ Reputation: {stars} Stars / {forks} Forks → Score {rep_score} [{_platform}]")
 
               # ── Multi-File: weitere IP-Dateien aus demselben Repo ────────
-              # Das Repo ist bereits als vertrauenswürdig validiert (Aktualität,
-              # FP-Rate, Overlap der Hauptdatei OK). Alle weiteren passenden
-              # Dateien werden jetzt ohne erneute Strenge-Checks übernommen –
-              # nur Mindestgröße (>=50 IPs) und erfolgreicher Download werden
-              # geprüft. Kein FP/Overlap-Check nötig da Repo bereits trusted.
+              # Repo-Vertrauen wird NICHT auf jede Datei vererbt. Jede Extra-Datei
+              # muss Groesse, Nicht-Threat-Pfad, FP-Rate, HQ-Overlap, Format und
+              # Aktualitaet eigenstaendig bestehen. Dadurch gelangen Provider-
+              # oder Privacy-Listen aus gemischten Repos nicht in die Blocklist.
               # Max. 15 Extra-Dateien pro Repo (Schutz gegen zu breite Repos).
               MAX_EXTRA_FILES = 15
               extra_files = []
@@ -2860,19 +3011,18 @@ jobs:
                   else:
                       _ef_url = (f"https://raw.githubusercontent.com/{full_name}/"
                                  f"HEAD/{urllib.parse.quote(_ef['path'], safe='/')}")
-                  _ef_limit = READ_LIMIT
-                  _ef_timeout = 12
-                  if _ef.get("detected_by") == "content":
-                      _ef_size = int(_ef.get("size", 0) or 0)
-                      _ef_limit = (
-                          CONTENT_SNIFF_FULL_LIMIT
-                          if _ef_size <= 0
-                          else min(
-                              CONTENT_SNIFF_FULL_LIMIT,
-                              max(READ_LIMIT, _ef_size + 1024 * 1024),
-                          )
+                  _ef_size = int(_ef.get("size", 0) or 0)
+                  if _ef_size > MAX_FEED_DOWNLOAD_BYTES:
+                      _log_lines.append(
+                          f"  ⚠ Extra-Datei zu gross ({_ef_size:,} Bytes): {_ef['path']}"
                       )
-                      _ef_timeout = 25
+                      continue
+                  _ef_limit = (
+                      MAX_FEED_DOWNLOAD_BYTES
+                      if _ef_size <= 0
+                      else min(MAX_FEED_DOWNLOAD_BYTES, _ef_size + 1024 * 1024)
+                  )
+                  _ef_timeout = 40 if _ef_size > 8 * 1024 * 1024 else 25
                   _ef_text = fetch_raw(
                       _ef_url,
                       limit=_ef_limit,
@@ -2881,29 +3031,69 @@ jobs:
                   if not _ef_text:
                       _log_lines.append(f"  ⚠ Extra-Datei Download fehlgeschlagen: {_ef['path']}")
                       continue
-                  # Whitelist-Dateinamen auch bei Extra-Dateien überspringen
-                  if WHITELIST_FILE_RE.search(_ef["path"]):
-                      _log_lines.append(f"  ⚠ Extra-Datei übersprungen (Whitelist-Name): {_ef['path']}")
-                      continue
-                  # Geo-/Laenderlisten auch bei Extra-Dateien ueberspringen
-                  if GEO_FILE_RE.search(_ef["path"]):
-                      _log_lines.append(f"  ⚠ Extra-Datei übersprungen (Geo-/Laenderliste): {_ef['path']}")
-                      continue
-                  # Redundante Upstream-Sublisten auch bei Extra-Dateien ueberspringen
-                  if REDUNDANT_FEED_RE.search(_ef["path"]):
-                      _log_lines.append(f"  ⚠ Extra-Datei übersprungen (redundanter Upstream): {_ef['path']}")
-                      continue
                   _ef_ips = extract_ips(_ef_text, _ef_url)
-                  if len(_ef_ips) < 50:
-                      _log_lines.append(f"  ⚠ Extra-Datei zu klein ({len(_ef_ips)} IPs): {_ef['path']}")
+                  _ef_validation = _validate_individual_feed(
+                      _ef_text, _ef_ips, _ef["path"], _ef_url,
+                      detected_by=_ef.get("detected_by", "filename"),
+                  )
+                  if not _ef_validation["ok"]:
+                      _log_lines.append(
+                          f"  ⚠ Extra-Datei verworfen ({_ef_validation['reason']}): "
+                          f"{_ef['path']}"
+                      )
                       continue
+
+                  # Aktualitaet jeder Extra-Datei separat pruefen.
+                  _ef_file_days = 999
+                  time.sleep(0.2)
+                  if _platform == "gitlab" and _gl_id:
+                      _ef_commits = gitlab_api(
+                          f"/projects/{_gl_id}/repository/commits"
+                          f"?path={urllib.parse.quote(_ef['path'])}&per_page=1"
+                      )
+                      if _ef_commits and isinstance(_ef_commits, list):
+                          _ef_date = _ef_commits[0].get("committed_date", "")
+                      else:
+                          _ef_date = ""
+                  else:
+                      _ef_commits = gh_api(
+                          f"/repos/{full_name}/commits"
+                          f"?path={urllib.parse.quote(_ef['path'])}&per_page=1"
+                      )
+                      if _ef_commits and isinstance(_ef_commits, list):
+                          _ef_date = (_ef_commits[0].get("commit", {})
+                                      .get("committer", {}).get("date", ""))
+                      else:
+                          _ef_date = ""
+                  try:
+                      _ef_dt = datetime.strptime(
+                          _ef_date[:10], "%Y-%m-%d"
+                      ).replace(tzinfo=timezone.utc)
+                      _ef_file_days = (now - _ef_dt).days
+                  except Exception:
+                      pass
+                  if _ef_file_days > 30:
+                      _log_lines.append(
+                          f"  ⚠ Extra-Datei veraltet ({_ef_file_days}d): {_ef['path']}"
+                      )
+                      continue
+
                   extra_files.append({
-                      "file":    _ef["path"],
-                      "url":     _ef_url,
-                      "ips":     _ef_ips,
-                      "size":    _ef["size"],
+                      "file":          _ef["path"],
+                      "url":           _ef_url,
+                      "ips":           _ef_ips,
+                      "size":          _ef["size"],
+                      "fp":            _ef_validation["fp"],
+                      "overlap_pct":   _ef_validation["overlap_pct"],
+                      "overlap":       _ef_validation["overlap"],
+                      "ip_ratio":      _ef_validation["ip_ratio"],
+                      "file_days_old": _ef_file_days,
                   })
-                  _log_lines.append(f"  ✅ Extra-Datei: {_ef['path']} ({len(_ef_ips)} IPs)")
+                  _log_lines.append(
+                      f"  ✅ Extra-Datei: {_ef['path']} ({len(_ef_ips)} IPs, "
+                      f"Overlap {_ef_validation['overlap_pct']:.1%}, "
+                      f"FP {_ef_validation['fp']:.1%})"
+                  )
 
               if extra_files:
                   _log_lines.append(f"  → {len(extra_files)} Extra-Datei(en) aus demselben Repo")
@@ -2972,10 +3162,12 @@ jobs:
               forks       = _res["forks"]
               rep_score   = _res["rep_score"]
               days_old    = _res["days_old"]
+              file_days_old = _res["file_days_old"]
               extra_files = _res.get("extra_files", [])
 
               # Hilfsfunktion: einen Feed-Eintrag anlegen und in approved_feeds eintragen
-              def _register_feed(f_url, f_path, f_ips, f_name_suffix=""):
+              def _register_feed(f_url, f_path, f_ips, f_name_suffix="",
+                                 metrics=None):
                   _name_base = full_name if _platform_res == "github" else f"gl_{_res['gl_path']}"
                   _base = re.sub(r'[^a-z0-9_]', '_', _name_base.lower().replace('/', '_'))
                   if f_name_suffix:
@@ -2987,6 +3179,10 @@ jobs:
                       _fname = f"{_base}_v{_sfx}"
                       _sfx += 1
                   _is_new = _fname not in existing_feeds
+                  _metrics = metrics or {}
+                  _entry_overlap_pct = _metrics.get("overlap_pct", overlap_pct)
+                  _entry_fp = _metrics.get("fp", fp)
+                  _entry_file_days = _metrics.get("file_days_old", file_days_old)
                   _entry = {
                       "name":          _fname,
                       "url":           f_url,
@@ -2997,11 +3193,12 @@ jobs:
                       "last_checked":  now_day,
                       "ip_count":      len(f_ips),
                       "ip_fingerprint": _ip_fingerprint(f_ips),
-                      "overlap_pct":   round(overlap_pct * 100, 1),
-                      "fp_rate":       round(fp * 100, 2),
+                      "overlap_pct":   round(_entry_overlap_pct * 100, 1),
+                      "fp_rate":       round(_entry_fp * 100, 2),
                       "rep_score":     rep_score,
                       "stars":         stars,
                       "days_old":      days_old,
+                      "file_days_old": _entry_file_days,
                       "search_sources": meta.get("sources", []),
                       "hq":            False,
                   }
@@ -3021,8 +3218,8 @@ jobs:
                       "feed_name":   _fname,
                       "ips":         len(f_ips),
                       "new_feed":    _is_new,
-                      "overlap_pct": round(overlap_pct * 100, 1),
-                      "fp_rate":     round(fp * 100, 2),
+                      "overlap_pct": round(_entry_overlap_pct * 100, 1),
+                      "fp_rate":     round(_entry_fp * 100, 2),
                       "stars":       stars,
                       "platform":    _platform_res,
                   })
@@ -3036,7 +3233,10 @@ jobs:
               for _ef in extra_files:
                   _stem = re.sub(r'[^a-z0-9_]', '_',
                                  _ef["file"].split("/")[-1].rsplit(".", 1)[0].lower())
-                  _register_feed(_ef["url"], _ef["file"], _ef["ips"], f_name_suffix=_stem)
+                  _register_feed(
+                      _ef["url"], _ef["file"], _ef["ips"],
+                      f_name_suffix=_stem, metrics=_ef,
+                  )
 
           # ── Schritt 6: seen_db aktualisieren ──────────────────────────────
           SOURCE_LABEL = "auto_feed_discovery"
@@ -3200,10 +3400,7 @@ jobs:
           new_approved = [e for e in evaluation_log if e["result"] == "APPROVED"]
           new_rejected = [e for e in evaluation_log if e["result"] == "REJECTED"]
 
-          _gl_approved = sum(1 for e in new_approved if e.get("platform") == "gitlab")
           _gl_rejected = sum(1 for e in new_rejected if e.get("platform") == "gitlab")
-          _aw_approved = sum(1 for e in new_approved
-                            if any("awesome:" in s for s in candidate_repos.get(e["repo"], {}).get("sources", [])))
 
           # NEU v4: Reject-Gruende aggregieren, damit erkennbar ist wo Kandidaten
           # verloren gehen. Gruppen leiten sich aus den reason-Strings in
@@ -3219,7 +3416,7 @@ jobs:
               if r == "Download-Fehler":
                   return "Download fehlgeschlagen"
               if r.startswith("Größe:"):
-                  return "Falsche Größe (<100 / >500k IPs)"
+                  return f"Falsche Größe (<{MIN_FEED_IPS} / >{MAX_FEED_IPS:,} IPs)"
               if r.startswith("FP-Rate:"):
                   return "False-Positive-Rate zu hoch (>5%)"
               if r.startswith("Overlap zu gering:"):
@@ -3245,7 +3442,17 @@ jobs:
           _skipped_already_approved = sum(
               1 for k, v in _sorted_candidates if k in existing_repo_set
           )
-          _actually_evaluated = len(new_approved) + len(new_rejected)
+          # Ein Repo kann mehrere Feed-Dateien erzeugen. Daher duerfen
+          # APPROVED-Logeintraege nicht mit abgelehnten Repos addiert werden.
+          # _eval_results enthaelt exakt ein Ergebnis je wirklich bewertetem Repo.
+          _evaluated_repo_results = [r for r in _eval_results if r is not None]
+          _actually_evaluated_repos = len(_evaluated_repo_results)
+          _approved_repo_count = sum(
+              1 for r in _evaluated_repo_results if r.get("action") == "approve"
+          )
+          _rejected_repo_count = sum(
+              1 for r in _evaluated_repo_results if r.get("action") == "reject"
+          )
 
           lines = []
           lines.append("# Auto Feed Discovery – Report")
@@ -3263,20 +3470,31 @@ jobs:
           lines.append(f"| EVAL-Kandidaten (nach Stratifizierung) | **{len(_sorted_candidates)}** |")
           lines.append(f"| davon bereits rejected (übersprungen) | **{_skipped_already_rejected}** |")
           lines.append(f"| davon bereits approved (übersprungen) | **{_skipped_already_approved}** |")
-          lines.append(f"| tatsächlich evaluiert | **{_actually_evaluated}** |")
+          lines.append(f"| tatsächlich evaluierte Repositories | **{_actually_evaluated_repos}** |")
+          lines.append(f"| davon angenommene Repositories | **{_approved_repo_count}** |")
+          lines.append(f"| davon abgelehnte Repositories | **{_rejected_repo_count}** |")
           # Post-Dedup-Zähler: approved_feeds enthält den finalen Stand nach Deduplizierung.
           # evaluation_log-basierte Zähler würden Duplikate doppelt zählen.
-          _post_dedup_new     = sum(1 for f in approved_feeds.values()
-                                    if f.get("added") == now_day
-                                    and f["name"] not in existing_feeds)
+          _post_dedup_new_feeds = [
+              f for f in approved_feeds.values()
+              if f.get("added") == now_day and f["name"] not in existing_feeds
+          ]
+          _post_dedup_new = len(_post_dedup_new_feeds)
           _post_dedup_refetch = sum(1 for f in approved_feeds.values()
                                     if f.get("last_checked") == now_day
                                     and f["name"] in existing_feeds)
-          lines.append(f"| Neu angenommen | **{_post_dedup_new}** |")
+          _gl_approved = sum(
+              1 for f in _post_dedup_new_feeds if f.get("platform") == "gitlab"
+          )
+          _aw_approved = sum(
+              1 for f in _post_dedup_new_feeds
+              if any("awesome:" in s for s in f.get("search_sources", []))
+          )
+          lines.append(f"| Neu angenommene Feed-Dateien | **{_post_dedup_new}** |")
           lines.append(f"| davon aus GitLab | **{_gl_approved}** |")
           lines.append(f"| davon aus Awesome-Lists | **{_aw_approved}** |")
-          lines.append(f"| Bestehende Feeds aktualisiert | **{_post_dedup_refetch}** |")
-          lines.append(f"| Abgelehnt (dieser Run) | **{len(new_rejected)}** |")
+          lines.append(f"| Bestehende Feed-Dateien aktualisiert | **{_post_dedup_refetch}** |")
+          lines.append(f"| Abgelehnte Repositories (dieser Run) | **{_rejected_repo_count}** |")
           lines.append(f"| davon GitLab abgelehnt | **{_gl_rejected}** |")
           lines.append(f"| Feeds gesamt (aktiv) | **{len(approved_feeds)}** |")
           lines.append(f"| IPs in seen_db bestätigt | **{ingested_seen}** |")
