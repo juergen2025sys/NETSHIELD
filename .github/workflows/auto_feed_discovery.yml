@@ -1233,6 +1233,41 @@ jobs:
           def _is_transient_reject(reason):
               return any(sub in reason for sub in TRANSIENT_REJECT_SUBSTRINGS)
 
+          # NETSHIELD FIX 2026-07-04:
+          # Bekannte Mirror-/Klon-Feeds nicht mehr automatisch aufnehmen.
+          # ConfigServerApps/service-blocklists spiegelt u.a. FireHOL/Bitwire-
+          # Listen unter eigenem Repo-Namen. Diese Quellen sind in NETSHIELD
+          # bereits direkt/anderweitig enthalten und blaehen Laufzeit + seen_db
+          # unnoetig auf. cbuijs/accomplist bleibt ausdruecklich erlaubt.
+          BLOCKED_CLONE_FEED_NAMES = {
+              "configserverapps_service_blocklists",
+              "configserverapps_service_blocklists_anonymous",
+              "configserverapps_service_blocklists_proxies",
+          }
+          BLOCKED_CLONE_REPO_PATHS = (
+              ("configserverapps/service-blocklists", "blocklists/3rdparty/firehol/"),
+              ("configserverapps/service-blocklists", "blocklists/3rdparty/bitwire/inbound.ipset"),
+          )
+
+          def _is_blocked_clone_feed(name="", repo="", file_path="", url=""):
+              name_l = (name or "").strip().lower()
+              repo_l = (repo or "").strip().lower()
+              path_l = (file_path or "").strip().lower()
+              url_l  = (url or "").strip().lower()
+
+              if name_l in BLOCKED_CLONE_FEED_NAMES:
+                  return True
+
+              # Bei raw.githubusercontent.com ist der Pfad manchmal nur in der URL
+              # sichtbar; deshalb repo+file UND URL pruefen.
+              for blocked_repo, blocked_path in BLOCKED_CLONE_REPO_PATHS:
+                  if repo_l == blocked_repo and path_l.startswith(blocked_path):
+                      return True
+                  if blocked_repo in url_l and blocked_path in url_l:
+                      return True
+
+              return False
+
           if os.path.exists(AUTO_FILE):
               try:
                   with open(AUTO_FILE) as f:
@@ -1395,6 +1430,23 @@ jobs:
                   for _r in _ttl_expired:
                       existing_rejected.discard(_r)
                       existing_rejected_meta.pop(_r, None)
+
+                  _blocked_existing = []
+                  for _fname, _feed in list(existing_feeds.items()):
+                      if _is_blocked_clone_feed(
+                          name=_fname,
+                          repo=_feed.get("repo", ""),
+                          file_path=_feed.get("file", ""),
+                          url=_feed.get("url", ""),
+                      ):
+                          existing_feeds.pop(_fname, None)
+                          _blocked_existing.append(_fname)
+
+                  if _blocked_existing:
+                      print("Blocked-Clone-Cleanup: entfernte "
+                            f"{len(_blocked_existing)} bestehende Mirror-/Klon-Feeds:")
+                      for _bf in sorted(_blocked_existing):
+                          print(f"  🗑 {_bf}")
 
                   print(f"Bestehende auto_discovered_feeds: {len(existing_feeds)} Feeds, "
                         f"{len(existing_rejected)} abgelehnte Repos")
@@ -2797,6 +2849,19 @@ jobs:
               )
               best_file = ip_files[0]
               raw_url = _raw_url_for_path(best_file["path"])
+
+              if _is_blocked_clone_feed(
+                  name=safe_name(full_name),
+                  repo=full_name,
+                  file_path=best_file.get("path", ""),
+                  url=raw_url,
+              ):
+                  _log_lines.append(
+                      f"  ❌ Bekannter Mirror-/Klon-Feed blockiert: {best_file['path']}"
+                  )
+                  return {"action": "reject", "repo": _reject_key,
+                          "reason": "Bekannter Mirror-/Klon-Feed",
+                          "logs": _log_lines, "platform": _platform}
 
               detection_label = (
                   "Inhalt" if best_file.get("detected_by") == "content"
