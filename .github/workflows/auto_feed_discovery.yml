@@ -162,7 +162,19 @@ jobs:
           # Lookbehind/-ahead auf '.', filtert Versions-Strings wie '1.2.3.4.5'
           # zuverlässig). Frühere lokale Re-Definition war eine schwächere
           # Variante (nur \d-Lookbehind) und liess Versions-IPs durch.
-          READ_LIMIT = 5 * 1024 * 1024   # 5 MB Sample pro Feed
+          READ_LIMIT = 5 * 1024 * 1024   # 5 MB Standard-Limit pro Feed
+
+          # CONTENT-SNIFF-FALLBACK: Dateinamen bleiben der schnelle Primaerweg,
+          # sind aber kein hartes Ausschlusskriterium mehr. Neutrale Dateien wie
+          # ``big.log`` werden stichprobenartig anhand ihres Inhalts erkannt.
+          # Nur wenn im Repo KEINE Datei ueber IP_FILE_PATTERNS gefunden wurde,
+          # werden maximal sechs textartige Kandidaten mit 1 MiB angelesen.
+          CONTENT_SNIFF_SAMPLE_LIMIT = 1 * 1024 * 1024
+          CONTENT_SNIFF_FULL_LIMIT   = 32 * 1024 * 1024
+          CONTENT_SNIFF_MAX_FILES    = 6
+          CONTENT_SNIFF_MIN_BYTES    = 1024
+          CONTENT_SNIFF_MIN_IPS      = 100
+          CONTENT_SNIFF_STATE_VERSION = 1
 
           # ── Bekannte Repos – NICHT erneut aufnehmen ───────────────────────
           KNOWN_REPOS = {
@@ -186,6 +198,10 @@ jobs:
               "CriticalPathSecurity/Public-Intelligence-Feeds",
               "SecOps-Institute/Tor-IP-Addresses", "Enkidu-6/tor-relay-lists",
               "yuexuana521/honeypot-blocklist", "EdanWong/ip_list",
+              # Bereits direkt ueber honeypot_monitor.yml eingebunden. Bleibt
+              # fuer die neue Content-Sniff-Logik ein Regressionstest, darf aber
+              # nicht zusaetzlich als Auto-Feed aufgenommen werden (Doppelzaehlung).
+              "timgerstel/suspicious_IPs",
               "nixbear/malicious_ips", "ufukart/Blacklist", "f3csystems/BlockList_IP",
               "IT3ngineer/FortigateBlockList", "florentvinai/bad-ips-on-my-vps",
               "Y3ll0w/CrowdSec-CAPI-Decisions", "cenk/trcert-malware",
@@ -281,6 +297,32 @@ jobs:
               # Dateinamen, es fehlte nur die Endung in der Whitelist unten.
               r')\.(?:txt|csv|tsv|json|jsonl|xml|yaml|yml|toml|ini|ipset|netset|list|lst|conf|cfg|sh|dat|rsc|acl|rules?|nft|iptables|pf|fw|block|deny)(?:\.gz)?$'
               r')'
+          )
+
+          # ── Inhaltsbasierter Fallback fuer neutrale Dateinamen ───────────
+          # Diese Endungen sind nur KANDIDATEN fuer ein 1-MiB-Content-Sniffing.
+          # Eine passende Endung allein fuehrt niemals zur Aufnahme. Archive,
+          # Binaerdateien, Quellcode und Dokumentation bleiben ausgeschlossen.
+          CONTENT_SNIFF_EXTENSIONS = {
+              "", ".txt", ".list", ".lst", ".dat", ".log", ".csv", ".tsv",
+              ".json", ".jsonl", ".xml", ".yaml", ".yml", ".toml", ".ini",
+              ".conf", ".cfg", ".block", ".deny",
+          }
+          CONTENT_SNIFF_SKIP_RE = re.compile(
+              r'(?i)(?:^|/)(?:docs?|examples?|samples?|fixtures?|tests?|testdata|'
+              r'vendor|node_modules|\.git|\.github|dist|build|coverage)(?:/|$)|'
+              r'(?:^|/)(?:readme|license|copying|changelog|contributing|authors?|'
+              r'requirements|package(?:-lock)?|poetry\.lock|pipfile(?:\.lock)?)'
+              r'(?:\.[^/]*)?$'
+          )
+          THREAT_CONTEXT_RE = re.compile(
+              r'(?i)\b(?:honeypot|connection\s+attempt|rejected|accepted|'
+              r'disconnected|failed\s+password|invalid\s+user|authentication\s+failure|'
+              r'brute[\s_-]?force|scanner|scanning|attack(?:er|ing)?|malicious|'
+              r'blocked?|deny|denied|drop(?:ped)?|blacklist|blocklist|ioc|c2|botnet)\b'
+          )
+          PLAIN_IP_LINE_RE = re.compile(
+              r'^\s*\d{1,3}(?:\.\d{1,3}){3}(?:/32|:\d{1,5})?\s*$'
           )
 
           # ── Whitelist/Allowlist-Erkennung ────────────────────────────────
@@ -514,6 +556,169 @@ jobs:
               return _parse_feed_entries(
                   text, source_hint=source_hint, use_protected_check=False
               )
+
+          def _is_content_sniff_candidate(item):
+              """True fuer kleine/mittlere textartige Dateien mit neutralem Namen.
+
+              Dieser Pfad wird nur genutzt, wenn IP_FILE_PATTERNS im Repo gar
+              nichts gefunden hat. Dadurch bleibt die bisherige schnelle
+              Namenslogik unveraendert und der zusaetzliche Download-Aufwand
+              ist hart begrenzt.
+              """
+              path = str(item.get("path", "")).strip()
+              if not path:
+                  return False
+              path_lc = path.lower()
+              if CONTENT_SNIFF_SKIP_RE.search(path_lc):
+                  return False
+              if (WHITELIST_FILE_RE.search(path_lc)
+                      or GEO_FILE_RE.search(path_lc)
+                      or REDUNDANT_FEED_RE.search(path_lc)):
+                  return False
+
+              size = int(item.get("size", 0) or 0)
+              # GitLab liefert in der Tree-API oft keine Groesse (0). Das ist
+              # unbekannt und darf daher nicht als "zu klein" gelten.
+              if size and size < CONTENT_SNIFF_MIN_BYTES:
+                  return False
+              if size > CONTENT_SNIFF_FULL_LIMIT:
+                  return False
+
+              no_gz = path_lc[:-3] if path_lc.endswith(".gz") else path_lc
+              ext = os.path.splitext(no_gz)[1]
+              return ext in CONTENT_SNIFF_EXTENSIONS
+
+          def _content_profile(text, source_hint=""):
+              """Bewertet eine Text-Stichprobe ohne Dateinamen-Vertrauen.
+
+              Akzeptiert entweder eine echte IP-pro-Zeile-Liste oder ein
+              Bedrohungs-/Honeypot-Log mit vielen IP-tragenden Zeilen. Reine
+              System-/Web-Logs ohne Threat-Kontext werden nicht allein wegen
+              vieler Client-IPs als Blockliste eingestuft.
+              """
+              profile = {
+                  "looks_like_feed": False,
+                  "unique_ips": 0,
+                  "data_lines": 0,
+                  "ip_lines": 0,
+                  "plain_ip_lines": 0,
+                  "threat_lines": 0,
+                  "ip_line_ratio": 0.0,
+                  "plain_line_ratio": 0.0,
+                  "reason": "leer",
+              }
+              if not isinstance(text, str) or not text.strip():
+                  return profile
+              if "\x00" in text:
+                  profile["reason"] = "Null-Byte/Binaerdaten"
+                  return profile
+
+              # Weitere Steuerzeichen sind ein starker Binaerindikator. Nur
+              # ein begrenzter Prefix wird betrachtet, damit das Profil auch
+              # bei grossen Dateien billig bleibt.
+              probe = text[:64 * 1024]
+              controls = sum(
+                  1 for ch in probe
+                  if ord(ch) < 32 and ch not in "\r\n\t"
+              )
+              if probe and controls / len(probe) > 0.01:
+                  profile["reason"] = "zu viele Steuerzeichen"
+                  return profile
+
+              ips = extract_ips(text, source_hint)
+              profile["unique_ips"] = len(ips)
+
+              # Max. 25k Zeilen reichen fuer eine stabile Dichte-Schaetzung und
+              # halten den Aufwand fuer strukturierte Multi-MB-Dateien klein.
+              data_lines = []
+              for raw in text.splitlines():
+                  line = raw.strip()
+                  if not line or line.startswith(("#", ";", "//")):
+                      continue
+                  data_lines.append(line)
+                  if len(data_lines) >= 25_000:
+                      break
+
+              profile["data_lines"] = len(data_lines)
+              if not data_lines:
+                  profile["reason"] = "keine Datenzeilen"
+                  return profile
+
+              ip_lines = 0
+              plain_lines = 0
+              threat_lines = 0
+              for line in data_lines:
+                  if THREAT_CONTEXT_RE.search(line):
+                      threat_lines += 1
+
+                  # Standalone-IP-/32-/ip:port-Zeilen sind das staerkste
+                  # Signal und benoetigen keinen Threat-Kontext.
+                  token = re.split(r"\s*[#;]", line, maxsplit=1)[0].strip()
+                  if PLAIN_IP_LINE_RE.fullmatch(token):
+                      raw_ip = token.split("/", 1)[0].split(":", 1)[0]
+                      if is_valid_public_ipv4(raw_ip):
+                          plain_lines += 1
+
+                  has_public_ip = False
+                  for match in IPV4_RE.finditer(line):
+                      if is_valid_public_ipv4(match.group(1)):
+                          has_public_ip = True
+                          break
+                  if has_public_ip:
+                      ip_lines += 1
+
+              total = len(data_lines)
+              ip_ratio = ip_lines / total
+              plain_ratio = plain_lines / total
+              profile.update({
+                  "ip_lines": ip_lines,
+                  "plain_ip_lines": plain_lines,
+                  "threat_lines": threat_lines,
+                  "ip_line_ratio": ip_ratio,
+                  "plain_line_ratio": plain_ratio,
+              })
+
+              enough_ips = len(ips) >= CONTENT_SNIFF_MIN_IPS
+              plain_feed = plain_ratio >= 0.70
+              # Bei Logs reichen 0,5 % Threat-Kontext-Zeilen, mindestens aber
+              # drei. big.log liegt weit darueber; normale Access-Logs ohne
+              # Honeypot-/Block-Kontext fallen hier durch.
+              min_threat_lines = max(3, int(total * 0.005))
+              threat_log = ip_ratio >= 0.30 and threat_lines >= min_threat_lines
+
+              profile["looks_like_feed"] = enough_ips and (plain_feed or threat_log)
+              if not enough_ips:
+                  profile["reason"] = (
+                      f"nur {len(ips)} eindeutige IPs (<{CONTENT_SNIFF_MIN_IPS})"
+                  )
+              elif plain_feed:
+                  profile["reason"] = "IP-Liste anhand Zeilendichte"
+              elif threat_log:
+                  profile["reason"] = "Threat-/Honeypot-Log anhand Inhalt"
+              else:
+                  profile["reason"] = (
+                      f"kein Feed-Signal (IP-Zeilen {ip_ratio:.1%}, "
+                      f"Threat-Zeilen {threat_lines}/{total})"
+                  )
+              return profile
+
+          def _format_quality(text, ips, source_hint="", profile=None):
+              """Robuste Formatqualitaet fuer Listen UND wiederholende Logs.
+
+              Der alte Quotient ``eindeutige IPs / eindeutige Zeilen`` bestrafte
+              Honeypot-Logs massiv, weil dieselbe Angreifer-IP in Connection-,
+              Auth- und Disconnect-Zeilen mehrfach vorkommt. Jetzt gilt das
+              Maximum aus altem Quotienten und Anteil IP-tragender Zeilen.
+              """
+              unique_lines = {
+                  line.strip() for line in text.splitlines()
+                  if line.strip() and not line.lstrip().startswith(("#", ";", "//"))
+              }
+              legacy_ratio = len(ips) / max(len(unique_lines), 1)
+              if profile is None:
+                  profile = _content_profile(text, source_hint)
+              line_ratio = profile.get("ip_line_ratio", 0.0)
+              return max(legacy_ratio, line_ratio), legacy_ratio, line_ratio
 
           def fp_rate(ips, sample_size=200):
               # FIX SAMPLE-BIAS: random.sample statt list(ips)[:200]. Set-Iteration
@@ -941,6 +1146,48 @@ jobs:
                   existing_rejected = set(_raw_rejected)
                   # Meta-Dict laden (neues Feld, kann bei alten JSONs fehlen)
                   existing_rejected_meta = dict(auto_data.get("rejected_repos_meta", {}))
+
+                  # Bereits fest in anderen Workflows/SOURCES integrierte Repos
+                  # duerfen nicht gleichzeitig als Reject im Auto-Feed-State
+                  # stehen. Das bereinigt u.a. timgerstel/suspicious_IPs, das
+                  # direkt ueber honeypot_monitor.yml verarbeitet wird.
+                  _known_rejects_pruned = existing_rejected & set(KNOWN_REPOS)
+                  for _kr in _known_rejects_pruned:
+                      existing_rejected.discard(_kr)
+                      existing_rejected_meta.pop(_kr, None)
+                  if _known_rejects_pruned:
+                      print(
+                          f"State-Prune: {len(_known_rejects_pruned)} bereits direkt "
+                          f"integrierte Repos aus rejected_repos entfernt"
+                      )
+
+                  # CONTENT-SNIFF-MIGRATION: Alte "Keine IP-Datei"-Rejects
+                  # entstanden unter der rein dateinamenbasierten Erkennung und
+                  # sind nach Einfuehrung des Inhalts-Fallbacks nicht mehr
+                  # belastbar. Pro State-Version einmalig freigeben, damit sie
+                  # sofort neu bewertet werden koennen statt bis zu 30 Tage zu
+                  # warten. Das Eval-Budget bleibt unveraendert bei 400 Repos.
+                  _stored_sniff_version = int(
+                      auto_data.get("content_sniff_state_version", 0) or 0
+                  )
+                  _content_retries_unlocked = 0
+                  if _stored_sniff_version < CONTENT_SNIFF_STATE_VERSION:
+                      for _r, _info in list(existing_rejected_meta.items()):
+                          _reason = (
+                              _info.get("reason", "")
+                              if isinstance(_info, dict) else ""
+                          )
+                          if "Keine IP-Datei" not in _reason:
+                              continue
+                          existing_rejected.discard(_r)
+                          existing_rejected_meta.pop(_r, None)
+                          _content_retries_unlocked += 1
+                      if _content_retries_unlocked:
+                          print(
+                              f"Content-Sniff-Migration v{CONTENT_SNIFF_STATE_VERSION}: "
+                              f"{_content_retries_unlocked} alte Dateinamen-Rejects "
+                              f"zur sofortigen Neuevaluierung freigegeben"
+                          )
 
                   # FIX BUG-LEGACY-DATE-KEY: Ältere Meta-Einträge nutzen den
                   # Schlüssel "date" statt "rejected_at". Die TTL-Prüfung liest
@@ -2289,53 +2536,123 @@ jobs:
 
               # IP-Dateien im Repo suchen (plattformabhängig)
               time.sleep(0.5)
-              ip_files = []
+              all_blob_files = []
 
               if _platform == "gitlab" and _gl_id:
                   _gl_tree = gitlab_api(
                       f"/projects/{_gl_id}/repository/tree?recursive=true&per_page=100"
                   )
                   if _gl_tree and isinstance(_gl_tree, list):
-                      ip_files = [
+                      all_blob_files = [
                           {"path": item["path"], "size": item.get("size", 0)}
                           for item in _gl_tree
                           if item.get("type") == "blob"
-                          and IP_FILE_PATTERNS.search(item["path"].split("/")[-1])
-                          and not WHITELIST_FILE_RE.search(item["path"])
-                          and not GEO_FILE_RE.search(item["path"])
-                          and not REDUNDANT_FEED_RE.search(item["path"])
                       ]
               else:
                   tree = gh_api(f"/repos/{full_name}/git/trees/HEAD?recursive=1")
                   if tree:
-                      ip_files = [
+                      all_blob_files = [
                           {"path": item["path"], "size": item.get("size", 0)}
                           for item in tree.get("tree", [])
                           if item.get("type") == "blob"
-                          and IP_FILE_PATTERNS.search(item["path"].split("/")[-1])
-                          and not WHITELIST_FILE_RE.search(item["path"])
-                          and not GEO_FILE_RE.search(item["path"])
-                          and not REDUNDANT_FEED_RE.search(item["path"])
                       ]
 
+              ip_files = [
+                  item for item in all_blob_files
+                  if IP_FILE_PATTERNS.search(item["path"].split("/")[-1])
+                  and not WHITELIST_FILE_RE.search(item["path"])
+                  and not GEO_FILE_RE.search(item["path"])
+                  and not REDUNDANT_FEED_RE.search(item["path"])
+              ]
+              for item in ip_files:
+                  item["detected_by"] = "filename"
+
+              def _raw_url_for_path(path):
+                  if _platform == "gitlab":
+                      return (f"https://gitlab.com/{_gl_path}/-/raw/{_gl_branch}/"
+                              f"{urllib.parse.quote(path, safe='/')}")
+                  return (f"https://raw.githubusercontent.com/{full_name}/"
+                          f"HEAD/{urllib.parse.quote(path, safe='/')}")
+
+              # CONTENT-SNIFF-FALLBACK: Nur wenn der bisherige Dateinamenweg
+              # gar nichts gefunden hat. Maximal sechs textartige Kandidaten,
+              # je 1 MiB Stichprobe. So bleibt Laufzeit/API-Budget kontrolliert.
               if not ip_files:
-                  _log_lines.append("  ❌ Keine passenden IP-Dateien gefunden")
+                  sniff_candidates = [
+                      item for item in all_blob_files
+                      if _is_content_sniff_candidate(item)
+                  ]
+                  sniff_candidates.sort(
+                      key=lambda x: (int(x.get("size", 0) or 0), x.get("path", "")),
+                      reverse=True,
+                  )
+                  if sniff_candidates:
+                      _log_lines.append(
+                          f"  ℹ Kein Dateinamen-Treffer – Content-Sniffing "
+                          f"von max. {CONTENT_SNIFF_MAX_FILES} Kandidaten"
+                      )
+
+                  for candidate in sniff_candidates[:CONTENT_SNIFF_MAX_FILES]:
+                      if _check_timeout("Content-Sniffing"):
+                          break
+                      candidate_url = _raw_url_for_path(candidate["path"])
+                      sample = fetch_raw(
+                          candidate_url,
+                          limit=CONTENT_SNIFF_SAMPLE_LIMIT,
+                          timeout=12,
+                      )
+                      if not sample:
+                          _log_lines.append(
+                              f"  ⚠ Content-Sniff Download fehlgeschlagen: "
+                              f"{candidate['path']}"
+                          )
+                          continue
+                      profile = _content_profile(sample, candidate_url)
+                      _log_lines.append(
+                          f"  {'✅' if profile['looks_like_feed'] else '↪'} "
+                          f"Content-Sniff {candidate['path']}: "
+                          f"{profile['unique_ips']} IPs, "
+                          f"{profile['ip_line_ratio']:.1%} IP-Zeilen, "
+                          f"{profile['threat_lines']} Threat-Zeilen – "
+                          f"{profile['reason']}"
+                      )
+                      if profile["looks_like_feed"]:
+                          selected = dict(candidate)
+                          selected.update({
+                              "detected_by": "content",
+                              "sniff_unique_ips": profile["unique_ips"],
+                              "sniff_ip_ratio": profile["ip_line_ratio"],
+                          })
+                          ip_files.append(selected)
+
+              if not ip_files:
+                  _log_lines.append(
+                      "  ❌ Keine IP-Datei per Dateiname oder Inhalt gefunden"
+                  )
                   return {"action": "reject", "repo": _reject_key,
-                          "reason": "Keine IP-Datei", "logs": _log_lines,
+                          "reason": "Keine IP-Datei (Name/Inhalt)", "logs": _log_lines,
                           "platform": _platform}
 
-              ip_files.sort(key=lambda x: x["size"], reverse=True)
+              # Bei Content-Treffern gewinnt die groesste Stichproben-IP-Menge;
+              # beim bisherigen Dateinamenpfad bleibt die Groessenprioritaet.
+              ip_files.sort(
+                  key=lambda x: (
+                      int(x.get("sniff_unique_ips", 0) or 0),
+                      int(x.get("size", 0) or 0),
+                  ),
+                  reverse=True,
+              )
               best_file = ip_files[0]
+              raw_url = _raw_url_for_path(best_file["path"])
 
-              # Raw-URL plattformabhängig aufbauen
-              if _platform == "gitlab":
-                  raw_url = (f"https://gitlab.com/{_gl_path}/-/raw/{_gl_branch}/"
-                             f"{urllib.parse.quote(best_file['path'], safe='/')}")
-              else:
-                  raw_url = (f"https://raw.githubusercontent.com/{full_name}/"
-                             f"HEAD/{urllib.parse.quote(best_file['path'], safe='/')}")
-
-              _log_lines.append(f"  Datei: {best_file['path']} ({best_file['size']:,} Bytes)")
+              detection_label = (
+                  "Inhalt" if best_file.get("detected_by") == "content"
+                  else "Dateiname"
+              )
+              _log_lines.append(
+                  f"  Datei: {best_file['path']} ({best_file['size']:,} Bytes, "
+                  f"erkannt über {detection_label})"
+              )
 
               # Kriterium 1b: Aktualität der IP-Datei selbst (max. 30 Tage)
               time.sleep(0.5)
@@ -2377,7 +2694,37 @@ jobs:
               _log_lines.append(f"  ✅ IP-Datei frisch: {file_days_old} Tage alt")
 
               time.sleep(0.5)
-              text = fetch_raw(raw_url, timeout=12)
+              fetch_limit = READ_LIMIT
+              fetch_timeout = 12
+              if best_file.get("detected_by") == "content":
+                  file_size = int(best_file.get("size", 0) or 0)
+                  if file_size > CONTENT_SNIFF_FULL_LIMIT:
+                      _log_lines.append(
+                          f"  ❌ Content-Datei zu gross: {file_size:,} Bytes "
+                          f"(max. {CONTENT_SNIFF_FULL_LIMIT:,})"
+                      )
+                      return {"action": "reject", "repo": _reject_key,
+                              "reason": "Content-Datei zu gross", "logs": _log_lines,
+                              "platform": _platform}
+                  # Bei GitHub ist die Blob-Groesse bekannt. 1 MiB Reserve
+                  # verhindert Truncation wenn die Datei zwischen Tree-Abfrage
+                  # und Raw-Fetch leicht gewachsen ist. GitLab size=0 nutzt
+                  # das harte 32-MiB-Limit.
+                  fetch_limit = (
+                      CONTENT_SNIFF_FULL_LIMIT
+                      if file_size <= 0
+                      else min(
+                          CONTENT_SNIFF_FULL_LIMIT,
+                          max(READ_LIMIT, file_size + 1024 * 1024),
+                      )
+                  )
+                  fetch_timeout = 25
+
+              text = fetch_raw(
+                  raw_url,
+                  limit=fetch_limit,
+                  timeout=fetch_timeout,
+              )
               if not text:
                   _log_lines.append("  ❌ Download fehlgeschlagen")
                   return {"action": "reject", "repo": _reject_key,
@@ -2385,6 +2732,7 @@ jobs:
                           "platform": _platform}
 
               ips = extract_ips(text, raw_url)
+              full_content_profile = _content_profile(text, raw_url)
 
               # Kriterium 2: Größe (100 – 500.000 IPs)
               if not (100 <= len(ips) <= 500_000):
@@ -2440,27 +2788,55 @@ jobs:
                               "reason": f"Overlap zu gering: {overlap_pct:.1%}", "logs": _log_lines,
                               "platform": _platform}
                   if overlap_pct > 0.95:
-                      _log_lines.append(f"  ❌ Overlap zu hoch: {overlap_pct:.1%} (max. 95% - reiner Klon)")
-                      return {"action": "reject", "repo": _reject_key,
-                              "reason": f"Klon-Verdacht: {overlap_pct:.1%}", "logs": _log_lines,
-                              "platform": _platform}
+                      # Ein Roh-Eventlog mit Connection-/Auth-/Disconnect-
+                      # Ereignissen ist trotz hoher Ueberschneidung kein
+                      # kopierter Feed. Gerade kleine Honeypots melden fast nur
+                      # bereits bekannte AbuseIPDB-Angreifer. Die Ausnahme gilt
+                      # ausschliesslich fuer inhalts-erkanntes Threat-Log;
+                      # neutrale Plain-IP-Listen bleiben beim 95%-Klon-Gate.
+                      _is_independent_threat_log = (
+                          best_file.get("detected_by") == "content"
+                          and full_content_profile.get("looks_like_feed", False)
+                          and full_content_profile.get("plain_line_ratio", 0.0) < 0.70
+                          and full_content_profile.get("threat_lines", 0) >= 3
+                          and full_content_profile.get("ip_line_ratio", 0.0) >= 0.30
+                      )
+                      if not _is_independent_threat_log:
+                          _log_lines.append(f"  ❌ Overlap zu hoch: {overlap_pct:.1%} (max. 95% - reiner Klon)")
+                          return {"action": "reject", "repo": _reject_key,
+                                  "reason": f"Klon-Verdacht: {overlap_pct:.1%}", "logs": _log_lines,
+                                  "platform": _platform}
+                      _log_lines.append(
+                          f"  ⚠ Hoher Overlap {overlap_pct:.1%}, aber als "
+                          f"eigenstaendiges Threat-/Honeypot-Eventlog erkannt"
+                      )
                   _log_lines.append(f"  ✅ Overlap mit HQ-Feeds: {overlap_pct:.1%} ({overlap} IPs)")
               else:
                   overlap_pct = 0
                   overlap     = 0
 
-              # Kriterium 5: Format-Qualität (min. 30% IP-Zeilen)
-              unique_lines = set(
-                  l.strip() for l in text.splitlines()
-                  if l.strip() and not l.startswith("#")
+              # Kriterium 5: Format-Qualitaet (min. 30% IP-Zeilen)
+              # Bei wiederholenden Honeypot-Logs darf nicht
+              # ``eindeutige IPs / eindeutige Zeilen`` allein entscheiden:
+              # dieselbe Angreifer-IP erscheint legitim in mehreren Events.
+              # Deshalb wird zusaetzlich der Anteil IP-tragender Zeilen genutzt.
+              ip_ratio, legacy_ip_ratio, line_ip_ratio = _format_quality(
+                  text, ips, raw_url, profile=full_content_profile
               )
-              ip_ratio = len(ips) / max(len(unique_lines), 1)
               if ip_ratio < 0.30:
-                  _log_lines.append(f"  ❌ Format-Qualität: {ip_ratio:.1%} IP-Zeilen (min. 30%)")
+                  _log_lines.append(
+                      f"  ❌ Format-Qualitaet: {ip_ratio:.1%} (min. 30%; "
+                      f"Unique-IP/Zeilen {legacy_ip_ratio:.1%}, "
+                      f"IP-tragende Zeilen {line_ip_ratio:.1%})"
+                  )
                   return {"action": "reject", "repo": _reject_key,
                           "reason": f"Format: {ip_ratio:.1%}", "logs": _log_lines,
                           "platform": _platform}
-              _log_lines.append(f"  ✅ Format-Qualität: {ip_ratio:.1%}")
+              _log_lines.append(
+                  f"  ✅ Format-Qualitaet: {ip_ratio:.1%} "
+                  f"(Unique-IP/Zeilen {legacy_ip_ratio:.1%}, "
+                  f"IP-tragende Zeilen {line_ip_ratio:.1%})"
+              )
 
               stars     = meta.get("stars", 0)
               forks     = meta.get("forks", 0)
@@ -2484,7 +2860,24 @@ jobs:
                   else:
                       _ef_url = (f"https://raw.githubusercontent.com/{full_name}/"
                                  f"HEAD/{urllib.parse.quote(_ef['path'], safe='/')}")
-                  _ef_text = fetch_raw(_ef_url, timeout=12)
+                  _ef_limit = READ_LIMIT
+                  _ef_timeout = 12
+                  if _ef.get("detected_by") == "content":
+                      _ef_size = int(_ef.get("size", 0) or 0)
+                      _ef_limit = (
+                          CONTENT_SNIFF_FULL_LIMIT
+                          if _ef_size <= 0
+                          else min(
+                              CONTENT_SNIFF_FULL_LIMIT,
+                              max(READ_LIMIT, _ef_size + 1024 * 1024),
+                          )
+                      )
+                      _ef_timeout = 25
+                  _ef_text = fetch_raw(
+                      _ef_url,
+                      limit=_ef_limit,
+                      timeout=_ef_timeout,
+                  )
                   if not _ef_text:
                       _log_lines.append(f"  ⚠ Extra-Datei Download fehlgeschlagen: {_ef['path']}")
                       continue
@@ -2980,6 +3373,7 @@ jobs:
               "new_this_run":        new_feeds_count,
               "rejected_repos":      sorted(rejected_repos),
               "rejected_repos_meta": rejected_meta,
+              "content_sniff_state_version": CONTENT_SNIFF_STATE_VERSION,
               "feeds":               list(approved_feeds.values()),
           }
           write_json_atomic(AUTO_FILE, output, indent=2, ensure_ascii=False)
