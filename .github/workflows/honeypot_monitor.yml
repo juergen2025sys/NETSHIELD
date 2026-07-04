@@ -234,7 +234,7 @@ jobs:
           # fetch_large() = gehaerteter Fetch mit Browser-Fingerprint + grosszuegigem
           # Timeout/Limit. jamesbrine bleibt hier weil der Host statisch/gefiltert
           # hinter CF steht und einen Browser-UA erwartet (ohne → 403/leerer Body).
-          LARGE_SOURCES = {"jamesbrine_honeypot"}
+          LARGE_SOURCES = {"jamesbrine_honeypot", "timgerstel_suspicious_ips"}
 
           HONEYPOT_SOURCES = {
               # ipsum Level 4: IPs auf mindestens 4 Blacklists gleichzeitig.
@@ -332,6 +332,14 @@ jobs:
               # Mikrotik-spezifische Telemetrie.
               "crash0v3r1de_mikrotik":
                   "https://raw.githubusercontent.com/Crash0v3r1de/HoneypotIPLists/main/ip.list",
+
+              # Tim Gerstel suspicious_IPs: große, fortlaufend gepflegte Liste
+              # verdächtiger IPv4-Adressen aus dem Repository suspicious_IPs.
+              # big.log wird über fetch_large() geladen, damit auch bei einer
+              # größeren Datei das 160-MB-Limit, der Streaming-Schutz und der
+              # verlängerte Timeout des Workflows greifen.
+              "timgerstel_suspicious_ips":
+                  "https://raw.githubusercontent.com/timgerstel/suspicious_IPs/main/big.log",
 
               # SniffCat: Community-Honeypot-DB von Sefinek (sniffcat.com).
               # Eigenständige Plattform (NICHT identisch mit sefinek_malicious in
