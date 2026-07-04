@@ -1,0 +1,326 @@
+name: Weekly Feed Overlap Report
+
+on:
+  schedule:
+    # Jeden Sonntag um 03:25 UTC laufen lassen
+    - cron: '25 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      max_feeds:
+        description: 'Maximale Anzahl Feeds fuer den Report'
+        required: false
+        default: '160'
+      overlap_warn_pct:
+        description: 'Warnschwelle fuer Klon-Verdacht in Prozent'
+        required: false
+        default: '95'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-feed-overlap-report
+  cancel-in-progress: true
+
+jobs:
+  overlap-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Generate weekly overlap report
+        shell: python
+        env:
+          MAX_FEEDS: ${{ github.event.inputs.max_feeds || '160' }}
+          OVERLAP_WARN_PCT: ${{ github.event.inputs.overlap_warn_pct || '95' }}
+        run: |
+          import os, re, json, gzip, hashlib, urllib.request, urllib.error
+          from datetime import datetime, timezone
+          from pathlib import Path
+          from itertools import combinations
+
+          MAX_FEEDS = int(os.getenv("MAX_FEEDS", "160") or 160)
+          OVERLAP_WARN_PCT = float(os.getenv("OVERLAP_WARN_PCT", "95") or 95.0)
+          MIN_COMMON = 50
+          MAX_BYTES = 35 * 1024 * 1024
+          MAX_IPS_PER_FEED = 350_000
+          TIMEOUT = 35
+
+          IP_RE = re.compile(r"(?<!\d)(?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3}(?!\d)")
+          URL_RE = re.compile(r"https?://[^\s'\"<>]+")
+
+          def clean_url(u: str) -> str:
+              return u.strip().rstrip(",)]}'\"")
+
+          def safe_name(name: str, url: str) -> str:
+              base = (name or "").strip()
+              if not base:
+                  base = re.sub(r"[^a-zA-Z0-9]+", "_", url.split("//", 1)[-1])[:80]
+              return base[:120]
+
+          def static_feed_name(url: str) -> str:
+              # Eindeutiger, lesbarer Name pro statischer URL.
+              # FIX: Vorher bekamen ALLE statischen URLs eines Workflows denselben
+              # Namen (<stem>_static) -> z.B. 94x "update_combined_blacklist_static".
+              # Dadurch waren Klon-Tabelle und Feed-Status unlesbar (Feed schien
+              # Klon von sich selbst). Jetzt: host/user/repo/datei + kurzer URL-Hash,
+              # damit zwei verschiedene URLs garantiert nie kollidieren.
+              u = url.split("//", 1)[-1]
+              host = u.split("/", 1)[0].replace("www.", "")
+              path = u[len(u.split("/", 1)[0]):].strip("/")
+              parts = [p for p in path.split("/") if p]
+              if ("githubusercontent" in host or "github" in host) and len(parts) >= 2:
+                  label = f"{parts[0]}_{parts[1]}_{parts[-1]}"
+              elif parts:
+                  label = f"{host}_{parts[-1]}"
+              else:
+                  label = host
+              label = re.sub(r"[^a-zA-Z0-9]+", "_", label).strip("_")
+              suffix = hashlib.sha1(url.encode()).hexdigest()[:6]
+              return f"{label[:100]}_{suffix}"
+
+          def collect_feeds():
+              feeds = []
+              seen_urls = set()
+
+              state = Path("state/auto_discovered_feeds.json")
+              if state.exists():
+                  try:
+                      data = json.loads(state.read_text(encoding="utf-8"))
+                      for item in data.get("feeds", []):
+                          url = clean_url(str(item.get("url", "")))
+                          if not url or url in seen_urls:
+                              continue
+                          seen_urls.add(url)
+                          feeds.append({
+                              "name": safe_name(item.get("name") or item.get("repo"), url),
+                              "url": url,
+                              "source": "auto_discovered_feeds.json",
+                              "repo": item.get("repo", ""),
+                          })
+                  except Exception as exc:
+                      print(f"::warning::Kann state/auto_discovered_feeds.json nicht lesen: {exc}")
+
+              # Statische URLs aus Workflows als Vergleichsreferenz einbeziehen.
+              # Dadurch sieht man auch Overlap gegen FireHOL/Bitwirez/andere feste Quellen.
+              for wf in Path(".github/workflows").glob("*.yml"):
+                  try:
+                      text = wf.read_text(encoding="utf-8", errors="ignore")
+                  except Exception:
+                      continue
+                  for url in URL_RE.findall(text):
+                      url = clean_url(url)
+                      if "raw.githubusercontent.com" not in url and "http" not in url:
+                          continue
+                      if any(x in url.lower() for x in ("github.com/actions/", "api.github.com", "github.com/marketplace")):
+                          continue
+                      if url in seen_urls:
+                          continue
+                      # Nur typische Feed-Dateien/Raw-Dateien aufnehmen, keine Doku/API-Links.
+                      low = url.lower()
+                      if not any(x in low for x in (".txt", ".csv", ".list", ".ipset", ".netset", ".zone", "/raw/", "raw.githubusercontent.com")):
+                          continue
+                      seen_urls.add(url)
+                      feeds.append({"name": static_feed_name(url), "url": url, "source": str(wf)})
+
+              return feeds[:MAX_FEEDS]
+
+          def fetch_text(url: str):
+              req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD-overlap-report/1.0"})
+              try:
+                  with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+                      raw = r.read(MAX_BYTES + 1)
+                      truncated_bytes = len(raw) > MAX_BYTES
+                      raw = raw[:MAX_BYTES]
+                      enc = (r.headers.get("Content-Encoding") or "").lower()
+                      if url.lower().endswith(".gz") or "gzip" in enc:
+                          try:
+                              raw = gzip.decompress(raw)
+                          except Exception:
+                              pass
+                      return raw.decode("utf-8", errors="ignore"), truncated_bytes, None
+              except Exception as exc:
+                  return "", False, str(exc)[:180]
+
+          def parse_ips(text: str):
+              ips = set()
+              truncated_ips = False
+              for m in IP_RE.finditer(text):
+                  ips.add(m.group(0))
+                  if len(ips) >= MAX_IPS_PER_FEED:
+                      truncated_ips = True
+                      break
+              return ips, truncated_ips
+
+          def fingerprint(ips):
+              if not ips:
+                  return ""
+              h = hashlib.sha256()
+              for ip in sorted(ips):
+                  h.update(ip.encode())
+                  h.update(b"\n")
+              return h.hexdigest()[:16]
+
+          feeds = collect_feeds()
+          results = []
+          for idx, f in enumerate(feeds, 1):
+              print(f"[{idx}/{len(feeds)}] Lade {f['name']} -> {f['url']}")
+              text, byte_trunc, err = fetch_text(f["url"])
+              if err:
+                  results.append({**f, "ips": set(), "count": 0, "fingerprint": "", "error": err, "truncated": False})
+                  continue
+              ips, ip_trunc = parse_ips(text)
+              results.append({**f, "ips": ips, "count": len(ips), "fingerprint": fingerprint(ips), "error": "", "truncated": bool(byte_trunc or ip_trunc)})
+
+          usable = [r for r in results if r["count"] >= MIN_COMMON]
+          pair_rows = []
+          best_for_feed = {}
+
+          for a, b in combinations(usable, 2):
+              small, large = (a, b) if a["count"] <= b["count"] else (b, a)
+              common = len(small["ips"] & large["ips"])
+              if common < MIN_COMMON:
+                  continue
+              containment_small = common / small["count"] * 100.0 if small["count"] else 0.0
+              containment_large = common / large["count"] * 100.0 if large["count"] else 0.0
+              union = small["count"] + large["count"] - common
+              jaccard = common / union * 100.0 if union else 0.0
+              exact = (a["fingerprint"] and a["fingerprint"] == b["fingerprint"] and not a["truncated"] and not b["truncated"])
+              clone_suspect = exact or containment_small >= OVERLAP_WARN_PCT
+              if clone_suspect or containment_small >= 85.0 or jaccard >= 80.0:
+                  pair_rows.append({
+                      "a": a, "b": b, "small": small, "large": large, "common": common,
+                      "small_pct": containment_small, "large_pct": containment_large,
+                      "jaccard": jaccard, "exact": exact,
+                      "clone_suspect": clone_suspect,
+                  })
+              for x, y, pct in ((a, b, containment_large if a is large else containment_small), (b, a, containment_small if a is large else containment_large)):
+                  cur = best_for_feed.get(x["url"])
+                  if cur is None or pct > cur["pct"]:
+                      best_for_feed[x["url"]] = {"other": y["name"], "pct": pct, "common": common}
+
+          pair_rows.sort(key=lambda r: (r["exact"], r["small_pct"], r["common"]), reverse=True)
+
+          now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+          lines = []
+          lines.append("# NETSHIELD Weekly Feed Overlap Report")
+          lines.append("")
+          lines.append(f"Erzeugt: **{now}**")
+          lines.append("")
+          lines.append("## Kurzfazit")
+          lines.append("")
+          lines.append(f"- Geprüfte Feeds: **{len(results)}**")
+          lines.append(f"- Erfolgreich mit IPs: **{len(usable)}**")
+          lines.append(f"- Fehler/keine IPs: **{len(results) - len(usable)}**")
+          lines.append(f"- Klon-Warnschwelle: **{OVERLAP_WARN_PCT:.1f}%** Abdeckung des kleineren Feeds")
+          lines.append(f"- Max. IPs je Feed für den Wochencheck: **{MAX_IPS_PER_FEED:,}**")
+          lines.append("")
+
+          clone_rows = [r for r in pair_rows if r["clone_suspect"]]
+          lines.append("## Klon-Verdacht / sehr hoher Overlap")
+          lines.append("")
+          if clone_rows:
+              lines.append("| Kleiner Feed | Größerer Feed | Gemeinsame IPs | Abdeckung kleiner Feed | Jaccard | Exakt gleich |")
+              lines.append("|---|---:|---:|---:|---:|---:|")
+              for r in clone_rows[:40]:
+                  lines.append(f"| `{r['small']['name']}` | `{r['large']['name']}` | {r['common']:,} | {r['small_pct']:.2f}% | {r['jaccard']:.2f}% | {'ja' if r['exact'] else 'nein'} |")
+          else:
+              lines.append("Keine Feed-Paare über der Klon-Warnschwelle gefunden.")
+          lines.append("")
+
+          lines.append("## Top Overlap-Paare ab 85%")
+          lines.append("")
+          if pair_rows:
+              lines.append("| Feed A | Feed B | Gemeinsame IPs | Abdeckung kleiner Feed | Abdeckung größerer Feed | Jaccard |")
+              lines.append("|---|---|---:|---:|---:|---:|")
+              for r in pair_rows[:60]:
+                  lines.append(f"| `{r['a']['name']}` | `{r['b']['name']}` | {r['common']:,} | {r['small_pct']:.2f}% | {r['large_pct']:.2f}% | {r['jaccard']:.2f}% |")
+          else:
+              lines.append("Keine auffälligen Overlap-Paare gefunden.")
+          lines.append("")
+
+          lines.append("## Feed-Status")
+          lines.append("")
+          lines.append("| Feed | IPs geprüft | Bester Overlap | Mit Feed | Hinweis |")
+          lines.append("|---|---:|---:|---|---|")
+          for r in sorted(results, key=lambda x: x["count"], reverse=True)[:120]:
+              best = best_for_feed.get(r["url"], {"pct": 0.0, "other": "-", "common": 0})
+              hint = ""
+              if r["error"]:
+                  hint = "Fehler: " + r["error"].replace("|", "/")
+              elif r["truncated"]:
+                  hint = "gekürzt geprüft"
+              elif best["pct"] >= OVERLAP_WARN_PCT:
+                  hint = "Klon-Verdacht"
+              lines.append(f"| `{r['name']}` | {r['count']:,} | {best['pct']:.2f}% | `{best['other']}` | {hint} |")
+
+          lines.append("")
+          lines.append("## Bewertung")
+          lines.append("")
+          lines.append("Der Report löscht keine Feeds automatisch. Er markiert nur exakte oder nahezu komplette Überschneidungen. Entfernen sollte man einen Feed erst, wenn er wiederholt kaum einzigartige IPs liefert.")
+          lines.append("")
+
+          Path("reports").mkdir(exist_ok=True)
+          out = Path("reports/feed_overlap_report.md")
+          out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+          print(f"Report geschrieben: {out}")
+
+      - name: Commit overlap report
+        shell: bash
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          REPORT_FILE="reports/feed_overlap_report.md"
+          BRANCH="${GITHUB_REF_NAME:-main}"
+
+          if [ ! -f "$REPORT_FILE" ]; then
+            echo "Overlap-Report wurde nicht erzeugt: $REPORT_FILE"
+            exit 1
+          fi
+
+          # Report sichern, dann den aktuellen Stand von main holen.
+          # Dadurch scheitert der Push nicht mehr mit "fetch first", wenn
+          # waehrend des Workflow-Laufs ein anderer Commit auf main gelandet ist.
+          TMP_REPORT="$(mktemp)"
+          cp "$REPORT_FILE" "$TMP_REPORT"
+
+          git fetch origin "$BRANCH"
+          git reset --hard "origin/$BRANCH"
+
+          mkdir -p reports
+          cp "$TMP_REPORT" "$REPORT_FILE"
+
+          git add "$REPORT_FILE"
+          if git diff --cached --quiet; then
+            echo "Keine Änderungen am Overlap-Report."
+            exit 0
+          fi
+
+          git commit -m "Update weekly feed overlap report"
+
+          # Kleiner Retry, falls GitHub genau in dem Moment noch einen Commit bekommt.
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$BRANCH"; then
+              echo "Overlap-Report erfolgreich gepusht."
+              exit 0
+            fi
+            echo "Push fehlgeschlagen, versuche erneut ($attempt/3)..."
+            cp "$REPORT_FILE" "$TMP_REPORT"
+            git fetch origin "$BRANCH"
+            git reset --hard "origin/$BRANCH"
+            mkdir -p reports
+            cp "$TMP_REPORT" "$REPORT_FILE"
+            git add "$REPORT_FILE"
+            git commit -m "Update weekly feed overlap report" || true
+            sleep 5
+          done
+
+          echo "Push nach 3 Versuchen fehlgeschlagen."
+          exit 1
