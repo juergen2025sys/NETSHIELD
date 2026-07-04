@@ -530,16 +530,22 @@ jobs:
           import re
 
           def count_ips(filepath):
-              # FIX TRUNCATE-PARTS-COUNT: Hauptdatei + Parts deduplizieren.
-              # Diese Variante gibt None bei fehlender Hauptdatei zurueck (vom
-              # umgebenden Code als "Datei abwesend" interpretiert). Parts ohne
-              # Hauptdatei werden ignoriert – ein Truncate-Stand mit fehlender
-              # Hauptdatei waere ein Pipeline-Fehler, kein gueltiger Zustand.
-              if not os.path.exists(filepath):
-                  return None
+              # FIX COMBINED-PARTS-COUNT: Die Combined-Liste wird nur noch als
+              # zwei kanonische Parts committet. Deshalb muessen die Parts auch
+              # dann gezaehlt werden, wenn die fruehere Hauptdatei fehlt.
+              # Existiert eine rekonstruierte Combined-Hauptdatei im Runner,
+              # werden nur die Parts gelesen, damit dieselben ~7 Mio. IPs nicht
+              # dreifach (Hauptdatei + Part 1 + Part 2) verarbeitet werden.
               import glob as _glob
               _base, _ext = os.path.splitext(filepath)
-              _sources = [filepath] + sorted(_glob.glob(f"{_base}_part*{_ext}"))
+              _parts = sorted(_glob.glob(f"{_base}_part*{_ext}"))
+              if filepath == "combined_threat_blacklist_ipv4.txt" and _parts:
+                  _sources = _parts
+              elif os.path.exists(filepath):
+                  _sources = [filepath] + _parts
+              else:
+                  return None
+
               _seen = set()
               for _src in _sources:
                   try:
@@ -552,17 +558,20 @@ jobs:
                       continue
               return len(_seen)
 
+          # Wert: (Quelldatei fuer die Zaehlung, Link-Ziel als README-Anker,
+          # Formatierung). Bei Combined wird aus beiden kanonischen Parts gezaehlt,
+          # die Tabellenzeile aber ueber den Part-1-Link gefunden.
           README_COUNTS = {
-              "combined_threat_blacklist_ipv4.txt": lambda n: f"**{n:,}**",
-              "active_blacklist_ipv4.txt": lambda n: f"**{n:,}**",
-              "blacklist_confidence40_ipv4.txt": lambda n: f"**{n:,}**",
-              "watchlist_confidence25to39_ipv4.txt": lambda n: f"**{n:,}**",
-              "cve_exploit_ips.txt": lambda n: f"**{n:,}**",
-              "bot_detector_blacklist_ipv4.txt": lambda n: f"**{n:,}**",
-              "reputation_blacklist.txt": lambda n: f"**{n:,}**",
-              "honeypot_ips.txt": lambda n: f"**{n:,}**",
-              "honigtopf_ips.txt": lambda n: f"**{n:,}**",
-              "asn_blocklist_firewall.txt": lambda n: f"**{n:,}**",
+              "combined_threat_blacklist_ipv4.txt": ("combined_threat_blacklist_ipv4_part1.txt", lambda n: f"**{n:,}**"),
+              "active_blacklist_ipv4.txt": ("active_blacklist_ipv4.txt", lambda n: f"**{n:,}**"),
+              "blacklist_confidence40_ipv4.txt": ("blacklist_confidence40_ipv4.txt", lambda n: f"**{n:,}**"),
+              "watchlist_confidence25to39_ipv4.txt": ("watchlist_confidence25to39_ipv4.txt", lambda n: f"**{n:,}**"),
+              "cve_exploit_ips.txt": ("cve_exploit_ips.txt", lambda n: f"**{n:,}**"),
+              "bot_detector_blacklist_ipv4.txt": ("bot_detector_blacklist_ipv4.txt", lambda n: f"**{n:,}**"),
+              "reputation_blacklist.txt": ("reputation_blacklist.txt", lambda n: f"**{n:,}**"),
+              "honeypot_ips.txt": ("honeypot_ips.txt", lambda n: f"**{n:,}**"),
+              "honigtopf_ips.txt": ("honigtopf_ips.txt", lambda n: f"**{n:,}**"),
+              "asn_blocklist_firewall.txt": ("asn_blocklist_firewall.txt", lambda n: f"**{n:,}**"),
           }
 
           if not os.path.exists("README.md"):
@@ -586,7 +595,7 @@ jobs:
               readme = f.read()
 
           changes = 0
-          for filename, fmt in README_COUNTS.items():
+          for filename, (readme_anchor, fmt) in README_COUNTS.items():
               count = count_ips(filename)
               if count is None:
                   print(f"  SKIP: {filename} nicht vorhanden")
@@ -601,11 +610,14 @@ jobs:
               # Tabelle bei jedem Run "infiziert": "Gewicht" wurde durch
               # die IP-Anzahl von combined_threat_blacklist (4,779,997)
               # ueberschrieben. Fix: [^|\n] statt [^|].
+              # Der sichtbare Linktext kann vom Dateinamen abweichen
+              # (Combined zeigt nur _part1.txt/_part2.txt). Deshalb wird die
+              # Tabellenzeile robust ueber das Link-Ziel in (...) gefunden.
               pattern_link = (
-                  r'(\|\s*\[`?' + re.escape(filename) + r'`?\]\([^)\n]*\)\s*\|[^|\n]*\|)\s*[^|\n]+?(\s*\|)'
+                  r'(\|[^|\n]*\]\(' + re.escape(readme_anchor) + r'\)[^|\n]*\|[^|\n]*\|)\s*[^|\n]+?(\s*\|)'
               )
               pattern_code = (
-                  r'(\|[^|\n]*`' + re.escape(filename) + r'`[^|\n]*\|[^|\n]*\|)\s*[^|\n]+?(\s*\|)'
+                  r'(\|[^|\n]*`' + re.escape(readme_anchor) + r'`[^|\n]*\|[^|\n]*\|)\s*[^|\n]+?(\s*\|)'
               )
 
               matched = False
@@ -629,7 +641,7 @@ jobs:
               lines_out = []
               replaced = False
               for line in readme.splitlines(keepends=True):
-                  if f"`{filename}`" in line or f"({filename})" in line:
+                  if f"`{readme_anchor}`" in line or f"({readme_anchor})" in line:
                       cols = line.split("|")
                       if len(cols) >= 5:
                           for idx in range(1, len(cols) - 1):
