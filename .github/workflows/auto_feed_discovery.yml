@@ -942,6 +942,27 @@ jobs:
                   # Meta-Dict laden (neues Feld, kann bei alten JSONs fehlen)
                   existing_rejected_meta = dict(auto_data.get("rejected_repos_meta", {}))
 
+                  # FIX BUG-LEGACY-DATE-KEY: Ältere Meta-Einträge nutzen den
+                  # Schlüssel "date" statt "rejected_at". Die TTL-Prüfung liest
+                  # ausschließlich "rejected_at" (_info.get("rejected_at", "")) →
+                  # bei diesen Einträgen leerer String → strptime-Exception →
+                  # continue → TTL lief NIE ab. Der Backfill unten heilt nur
+                  # Repos OHNE Meta-Eintrag, nicht solche mit "date"-Meta, daher
+                  # blieben sie dauerhaft blockiert (Stand-Analyse: 955 Repos,
+                  # alle reason="Keine IP-Datei"). Migration beim Laden: date →
+                  # rejected_at. Dadurch greift der TTL und der Schlüssel wird
+                  # künftig konsistent zurückgeschrieben.
+                  _legacy_key_migrated = 0
+                  for _mrepo, _minfo in existing_rejected_meta.items():
+                      if (isinstance(_minfo, dict)
+                              and "rejected_at" not in _minfo
+                              and _minfo.get("date")):
+                          _minfo["rejected_at"] = _minfo["date"]
+                          _legacy_key_migrated += 1
+                  if _legacy_key_migrated:
+                      print(f"Meta-Migration: {_legacy_key_migrated} Legacy-'date'-"
+                            f"Rejects auf 'rejected_at' normalisiert (TTL greift jetzt)")
+
                   # Backfill: Repos ohne Meta-Eintrag bekommen einen Meta-Eintrag
                   # mit backdatiertem Datum, damit der TTL-Mechanismus greift.
                   # FIX BUG-BACKFILL-KEY: Vorher wurde "date" statt "rejected_at"
