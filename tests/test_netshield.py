@@ -1292,6 +1292,14 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
         # read_limit=5 → nur die ersten 5 Bytes
         self.assertEqual(len(result), 5)
 
+    def test_read_limit_fail_on_truncation(self):
+        """Optionaler Fail-Loud-Modus darf keine Teildatei ausliefern."""
+        from netshield_common import fetch_url
+        result = fetch_url(
+            self._url("/ok"), read_limit=5, fail_on_truncation=True
+        )
+        self.assertIsNone(result)
+
     # ─── Regression: FIX BUG-GZIP-BOMB ──────────────────────────────────
     # Vorher: gzip.decompress(data) lud das gesamte expandierte Ergebnis in
     # den Speicher, BEVOR der Limit-Check griff. Eine 50 KB komprimierte
