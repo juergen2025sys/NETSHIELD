@@ -2848,8 +2848,9 @@ jobs:
               best_file = ip_files[0]
               raw_url = _raw_url_for_path(best_file["path"])
 
+              _clone_check_name = re.sub(r'[^a-z0-9_]', '_', full_name.lower().replace('/', '_'))
               if _is_blocked_clone_feed(
-                  name=safe_name(full_name),
+                  name=_clone_check_name,
                   repo=full_name,
                   file_path=best_file.get("path", ""),
                   url=raw_url,
