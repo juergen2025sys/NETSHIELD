@@ -1555,7 +1555,7 @@ _PIN_ABSENT = object()
 
 def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
               read_limit=25 * 1024 * 1024, extra_headers=None,
-              fail_on_truncation=False):
+              fail_on_truncation=False, warn_on_truncation=True):
     """Fetcht eine URL mit exponentiellem Backoff.
 
     Sicherheit:
@@ -1572,6 +1572,9 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
         read_limit: Max. Bytes zum Lesen.
         fail_on_truncation: Bei True eine zu grosse normale HTTP-Antwort
             verwerfen statt als abgeschnittenen Teiltext zurueckzugeben.
+        warn_on_truncation: Bei False die Warnung fuer eine bewusst begrenzte
+            Stichprobe unterdruecken. Der Rueckgabewert bleibt auf read_limit
+            Bytes begrenzt. Fuer Voll-Downloads sollte der Standard True bleiben.
 
     Returns:
         str | None: Response-Body oder None bei Fehler.
@@ -1653,8 +1656,13 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
                     # Das wurde sonst nie sichtbar und Feeds konnten IPs verlieren.
                     data = r.read(read_limit + 1)
                     if len(data) > read_limit:
-                        print(f"  WARNUNG {url}: Response > {read_limit} bytes – "
-                              f"Limit erhoehen sonst gehen Daten verloren")
+                        # Bei Voll-Downloads ist Truncation ein echter Fehler und
+                        # bleibt sichtbar. Content-Sniff/Awesome-List laden dagegen
+                        # absichtlich nur eine Stichprobe; dort waere die gleiche
+                        # Warnung irrefuehrend und erzeugte bei jedem Lauf Log-Spam.
+                        if warn_on_truncation:
+                            print(f"  WARNUNG {url}: Response > {read_limit} bytes – "
+                                  f"Limit erhoehen sonst gehen Daten verloren")
                         if fail_on_truncation:
                             print(f"  FEHLER {url}: unvollstaendige Antwort verworfen "
                                   f"(fail_on_truncation=True)")
