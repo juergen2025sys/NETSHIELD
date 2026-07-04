@@ -59,6 +59,7 @@ jobs:
 
           import re, textwrap, os, json, ast, sys, shlex, ipaddress
           from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
 
           now     = datetime.now(timezone.utc)
           now_str = now.strftime("%Y-%m-%d %H:%M UTC")
@@ -2028,7 +2029,11 @@ jobs:
 
           prod_health = []  # list of {"level": "WARN"|"CRITICAL", "check": ..., "detail": ...}
 
-          _TS_RE_HEALTH = re.compile(r'#\s*Aktualisiert:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\s*UTC')
+          # Akzeptiert alte UTC-Header und neue deutsche Ortszeit-Header.
+          _TS_RE_HEALTH = re.compile(
+              r'#\s*Aktualisiert:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})'
+              r'\s*(UTC|CET|CEST)(?:\s*\(Europe/Berlin\))?'
+          )
 
           def _file_age_hours(filepath):
               """Liest Aktualisiert-Timestamp aus Datei-Header, gibt Alter in Stunden zurück."""
@@ -2042,8 +2047,10 @@ jobs:
                               break
                           _m = _TS_RE_HEALTH.search(_line)
                           if _m:
-                              _dt = datetime.strptime(_m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
-                              return (now - _dt).total_seconds() / 3600
+                              _zone = _m.group(2)
+                              _tz = timezone.utc if _zone == "UTC" else ZoneInfo("Europe/Berlin")
+                              _dt = datetime.strptime(_m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=_tz)
+                              return (now - _dt.astimezone(timezone.utc)).total_seconds() / 3600
               except Exception as _suppressed:
                   print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
               return None

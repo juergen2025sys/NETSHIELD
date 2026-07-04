@@ -1962,11 +1962,11 @@ jobs:
           # liegen. Der Header soll den Erzeugungszeitpunkt der Ausgabedateien
           # zeigen, deshalb hier direkt vor dem Schreiben neu bestimmen.
           #
-          # Die UTC-Zeile bleibt fuer Report-Generator und Health-Checker erhalten.
-          # Zusaetzlich wird die deutsche Ortszeit ausgegeben. Europe/Berlin
-          # wechselt automatisch zwischen CET (Winter) und CEST (Sommer).
+          # Ausgabedateien verwenden ausschliesslich deutsche Ortszeit.
+          # Europe/Berlin wechselt automatisch zwischen CET (Winter) und
+          # CEST (Sommer). Report-Generator und Health-Checker akzeptieren
+          # UTC sowie CET/CEST und bleiben damit rueckwaertskompatibel.
           output_now_utc = datetime.now(timezone.utc)
-          output_stamp = output_now_utc.strftime("%Y-%m-%d %H:%M UTC")
           output_stamp_de = (
               output_now_utc.astimezone(ZoneInfo("Europe/Berlin"))
               .strftime("%Y-%m-%d %H:%M %Z")
@@ -2004,8 +2004,7 @@ jobs:
                   truncated_ips,
                   header_lines=[
                       "NETSHIELD Combined Threat Blacklist (IPv4) – Stufe 1 [TRUNCATED]",
-                      f"Aktualisiert: {output_stamp}",
-                      f"Deutsche Zeit: {output_stamp_de}",
+                      f"Aktualisiert: {output_stamp_de}",
                       f"Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}",
                       f"Eintraege in dieser Datei: {max_ips} (von {len(sorted_ips)} gesamt)",
                       f"WICHTIG: {dropped} IPs NICHT in dieser Datei enthalten "
@@ -2020,8 +2019,7 @@ jobs:
                   sorted_ips,
                   header_lines=[
                       "NETSHIELD Combined Threat Blacklist (IPv4) – Stufe 1",
-                      f"Aktualisiert: {output_stamp}",
-                      f"Deutsche Zeit: {output_stamp_de}",
+                      f"Aktualisiert: {output_stamp_de}",
                       f"Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}",
                       f"Eintraege: {len(sorted_ips)}",
                       f"Abgelaufen entfernt: {len(expired)}",
@@ -2074,9 +2072,7 @@ jobs:
                       sorted_ips[start:end],
                       header_lines=[
                           f"NETSHIELD Combined Threat Blacklist – Part {idx+1}/{num_parts}",
-                          f"Aktualisiert: {output_stamp}",
-                          f"Deutsche Zeit: {output_stamp_de}",
-                      f"Deutsche Zeit: {output_stamp_de}",
+                          f"Aktualisiert: {output_stamp_de}",
                           f"IP-Bereich: {sorted_ips[start]} bis {sorted_ips[end-1]}",
                           f"Eintraege: {end - start}",
                           "Siehe README fuer Nutzung mit allen Parts.",
@@ -2263,8 +2259,7 @@ jobs:
                   active_ips,
                   header_lines=[
                       "NETSHIELD Active Blacklist (IPv4) – Stufe 2",
-                      f"Aktualisiert: {output_stamp}",
-                      f"Deutsche Zeit: {output_stamp_de}",
+                      f"Aktualisiert: {output_stamp_de}",
                       "Kriterien: last_seen <= 30 Tage UND Confidence-Score >= 65/100",
                       f"Eintraege: {len(active_ips)}",
                       f"Herausgefiltert (zu alt >30T): {active_skipped_old} | (Score <65): {active_skipped_score}",
@@ -2273,8 +2268,7 @@ jobs:
 
           # ── Report ─────────────────────────────────────────────────────────
           _report_parts = ["# Combined Threat Blacklist Report\n\n"]
-          _report_parts.append(f"- Aktualisiert: **{output_stamp}**\n")
-          _report_parts.append(f"- Deutsche Zeit: **{output_stamp_de}**\n")
+          _report_parts.append(f"- Aktualisiert: **{output_stamp_de}**\n")
           _report_parts.append(f"- Feeds gesamt: **{len(SOURCES) + len(LOCAL_FEEDS)}** (davon {len(LOCAL_FEEDS)} lokale Sub-Workflow-Feeds)\n")
           _report_parts.append(f"- Stufe 1 (combined): **{len(sorted_ips)}** IPs\n")
           _report_parts.append(f"- Stufe 2 (active, 30T + Conf≥65): **{len(active_ips)}** IPs | herausgefiltert: {active_skipped_old} zu alt, {active_skipped_score} Score<65\n")

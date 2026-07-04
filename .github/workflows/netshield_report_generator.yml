@@ -157,10 +157,15 @@ jobs:
               except Exception:
                   return "–"
 
-          _TS_RE = re.compile(r'#\s*Aktualisiert:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\s*UTC')
+          # Rueckwaertskompatibel: alte Dateien tragen UTC, die Combined-/Active-
+          # Ausgaben verwenden deutsche Ortszeit (CET/CEST, Europe/Berlin).
+          _TS_RE = re.compile(
+              r'#\s*Aktualisiert:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})'
+              r'\s*(UTC|CET|CEST)(\s*\(Europe/Berlin\))?'
+          )
 
           def file_age(filepath):
-              """Liest den '# Aktualisiert: YYYY-MM-DD HH:MM UTC' Header aus der Datei.
+              """Liest den Aktualisiert-Header (UTC oder Europe/Berlin).
               Fallback auf os.path.getmtime() wäre falsch – git checkout setzt mtime
               immer auf den Checkout-Zeitpunkt, nicht auf das letzte echte Update."""
               if not os.path.exists(filepath):
@@ -174,7 +179,9 @@ jobs:
                               break
                           m = _TS_RE.search(line)
                           if m:
-                              return m.group(1) + " UTC"
+                              zone = m.group(2)
+                              suffix = " (Europe/Berlin)" if zone in ("CET", "CEST") else ""
+                              return f"{m.group(1)} {zone}{suffix}"
               except Exception as _suppressed:
                   print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
               return "–"
