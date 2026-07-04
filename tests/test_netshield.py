@@ -1300,6 +1300,25 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
         )
         self.assertIsNone(result)
 
+    def test_read_limit_intentional_sample_can_be_quiet(self):
+        """Bewusst begrenzte Stichproben duerfen ohne irrefuehrende Warnung laufen."""
+        from netshield_common import fetch_url
+        import contextlib
+        import io
+
+        captured = io.StringIO()
+        with contextlib.redirect_stdout(captured):
+            result = fetch_url(
+                self._url("/ok"),
+                read_limit=5,
+                fail_on_truncation=False,
+                warn_on_truncation=False,
+            )
+
+        self.assertEqual(len(result), 5)
+        self.assertNotIn("Limit erhoehen", captured.getvalue())
+        self.assertNotIn("Daten verloren", captured.getvalue())
+
     # ─── Regression: FIX BUG-GZIP-BOMB ──────────────────────────────────
     # Vorher: gzip.decompress(data) lud das gesamte expandierte Ergebnis in
     # den Speicher, BEVOR der Limit-Check griff. Eine 50 KB komprimierte
