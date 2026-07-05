@@ -1,5 +1,5 @@
 {
-  "_description": "NETSHIELD Whitelist – IPs/CIDRs die NIE auf die Blacklist kommen. 662 Eintraege (633 vorheriger Bestand + 29 neu aus lokaler Firewall-Alias 'IP_AdressenFreigaben' (aliases.json), gemerged 2026-07-05 19:39 UTC. 56 Eintraege aus der Quelle waren bereits vorhanden oder durch ein bestehendes groesseres Netz abgedeckt und wurden nicht redundant hinzugefuegt.",
+  "_description": "NETSHIELD Whitelist – IPs/CIDRs die NIE auf die Blacklist kommen. 668 Eintraege. Update 2026-07-05 20:59 UTC: 6 IPs auf Nutzeranweisung hinzugefuegt, als angebliche Battlefield-6-IPs deklariert – NICHT verifiziert. Gegenbeweis vorhanden: keine dieser IPs erschien in zwei unabhaengigen bf6.exe-Traffic-Captures (April 2026 + Juli 2026); 3.86.4.188 stand zum Zeitpunkt der Aufnahme aktiv auf der NETSHIELD-eigenen Bedrohungsliste (combined_threat_blacklist / blacklist_confidence40, Score >=40). Manuelle Nutzerentscheidung, gegen Empfehlung uebernommen.",
   "entries": [
     "1.0.0.1",
     "1.0.0.2",
@@ -434,6 +434,7 @@
     "3.72.77.0/24",
     "3.79.188.0/24",
     "3.85.196.232",
+    "3.86.4.188",
     "34.104.35.0/24",
     "34.110.236.123",
     "34.120.68.241",
@@ -476,6 +477,11 @@
     "44.237.224.0/24",
     "45.43.142.7",
     "45.79.43.192",
+    "5.60.100.101",
+    "5.60.100.112",
+    "5.60.102.106",
+    "5.60.102.71",
+    "5.60.103.15",
     "51.118.107.0/24",
     "51.118.66.0/24",
     "51.132.193.104",
