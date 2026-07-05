@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-07-05 04:45 UTC
+**Aktualisiert:** 2026-07-05 05:35 UTC
 
 ---
 ## 📊 Listen-Übersicht
@@ -20,11 +20,11 @@
 
 **❌ Ausgefallen:** `rutgers_drop`
 
-**🧊 Eingefroren (17):** `amitambekar_threats` 20T, `bbcan177` 20T, `binaryedge_scanners` 20T, `blacksnowdot_packets` 20T, `cloudzy` 20T, `et_block` 20T, `fadouse_worm` 20T, `feodo_aggressive` 20T, `feodo_recommended` 20T, `firehol_level1` 20T…
+**🧊 Eingefroren (17):** `amitambekar_threats` 21T, `bbcan177` 21T, `binaryedge_scanners` 21T, `blacksnowdot_packets` 21T, `cloudzy` 21T, `et_block` 21T, `fadouse_worm` 21T, `feodo_aggressive` 21T, `feodo_recommended` 21T, `firehol_level1` 21T…
 
-*Noch unter der 21-Tage-Quarantäne-Schwelle – nur beobachtet. Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
+*15 davon ≥21 Tage → im Combined automatisch in Quarantäne (eingefrorene HQ-Feeds zählen nicht mehr als frische Bestätigung, betroffene IPs altern normal aus). Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
 
-*Letzter Check: 2026-07-04 04:29 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
+*Letzter Check: 2026-07-05 04:51 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -32,4 +32,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-07-05 04:45 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-07-05 05:35 UTC*
