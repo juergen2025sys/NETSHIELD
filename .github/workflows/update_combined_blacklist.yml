@@ -1558,14 +1558,14 @@ jobs:
                   # "bot_detector_blacklist_ipv4.txt" (LOCAL_FEEDS-Loop weiter
                   # oben) -> verzerrtes Confidence-Scoring (mehr "Quellen
                   # heute" als real vorhanden). WICHTIG: is_bot_detector_feed_name()
-                  # ist eine Namensheuristik (mehrere Schluesselwoerter im
-                  # Namen), keine perfekte Klassifikation – Grenzfaelle siehe
-                  # Docstring in netshield_common.py. update_bot_detector.yml
+                  # ist eine Namens-/Datei-Pfad-Heuristik (mehrere Schluesselwoerter
+                  # in name ODER file), keine perfekte Klassifikation – Grenzfaelle
+                  # siehe Docstring in netshield_common.py. update_bot_detector.yml
                   # MUSS dieselbe Funktion importieren, keine eigene Kopie
                   # pflegen.
-                  _proxy_excl = [f for f in auto_feeds if is_bot_detector_feed_name(f["name"])]
+                  _proxy_excl = [f for f in auto_feeds if is_bot_detector_feed_name(f["name"], f.get("file", ""))]
                   if _proxy_excl:
-                      auto_feeds = [f for f in auto_feeds if not is_bot_detector_feed_name(f["name"])]
+                      auto_feeds = [f for f in auto_feeds if not is_bot_detector_feed_name(f["name"], f.get("file", ""))]
                       print(f"  Proxy-Feeds ausgeschlossen ({len(_proxy_excl)}, siehe update_bot_detector.yml): "
                             + ", ".join(sorted(f["name"] for f in _proxy_excl)))
                   if _rejected:

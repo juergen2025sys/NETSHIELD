@@ -17,9 +17,10 @@ name: Bot-Detector Blacklist (Proxy-Feeds)
 # gesammelt, einmal einzeln ueber den Auto-Feed-Namen. Beide Seiten
 # importieren dieselbe is_bot_detector_feed_name() aus netshield_common.py,
 # damit die Auswahl nicht auseinanderlaeuft.
-# GRENZEN: is_bot_detector_feed_name() ist eine Namensheuristik (Substring-
-# Check gegen mehrere Schluesselwoerter), keine perfekte Klassifikation.
-# Siehe Docstring der Funktion fuer Validierung und bekannte Grenzfaelle.
+# GRENZEN: is_bot_detector_feed_name() ist eine Namens-/Datei-Pfad-
+# Heuristik (Substring-Check gegen mehrere Schluesselwoerter in name ODER
+# file), keine perfekte Klassifikation. Siehe Docstring der Funktion fuer
+# Validierung und bekannte Grenzfaelle.
 
 on:
   schedule:
@@ -115,9 +116,10 @@ jobs:
                   for _f in _auto_data.get("feeds", []):
                       _name = _f.get("name")
                       _url  = _f.get("url")
+                      _file = _f.get("file")
                       if (isinstance(_name, str) and isinstance(_url, str)
                               and _url.startswith(("http://", "https://"))
-                              and is_bot_detector_feed_name(_name)):
+                              and is_bot_detector_feed_name(_name, _file)):
                           PROXY_SOURCES[_name] = _url
                   print(f"  {len(PROXY_SOURCES)} Proxy-Feeds aus {AUTO_FEEDS_FILE} ausgewaehlt "
                         f"(von {len(_auto_data.get('feeds', []))} Auto-discovered Feeds gesamt)")
