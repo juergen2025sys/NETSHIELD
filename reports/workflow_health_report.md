@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-07-05 14:52 UTC
+**Aktualisiert:** 2026-07-05 20:20 UTC
 
 **Workflows:** 24 | ✅ 22 OK | ⚠️ 1 Warnung | ❌ 2 Fehler
 
@@ -9,8 +9,10 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `feed_overlap_report.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
-| `Production Health` | Drift: bot_detector_blacklist_ipv4.txt | bot_detector_blacklist_ipv4.txt: 200,550 → 1,263,741 (+530%) – extremes Wachstum, vermutlich Parser-/Dedup-Bug |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 99.4 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 3.251.217.112, 3.253.182.133, 3.254.239.211, 23.99.12.158, 23.227.38.74… – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 188.114.96.3, 188.114.97.3 – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 188.114.96.3, 188.114.97.3, 142.251.210.138, 142.251.214.123, 142.251.218.123… – Filterung wirkungslos! |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 100.2 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 
 ## ⚠️ Warnungen
@@ -24,12 +26,14 @@
 
 ## 🏥 Production Health
 
-**Status:** 🔴 3 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 5 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Drift: bot_detector_blacklist_ipv4.txt | bot_detector_blacklist_ipv4.txt: 200,550 → 1,263,741 (+530%) – extremes Wachstum, vermutlich Parser-/Dedup-Bug |
-| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 99.4 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 3.251.217.112, 3.253.182.133, 3.254.239.211, 23.99.12.158, 23.227.38.74… – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 188.114.96.3, 188.114.97.3 – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 188.114.96.3, 188.114.97.3, 142.251.210.138, 142.251.214.123, 142.251.218.123… – Filterung wirkungslos! |
+| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 100.2 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🔴 CRITICAL | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🟡 WARN | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
@@ -63,4 +67,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-07-05 14:52 UTC | 24 Workflow-Dateien geprüft*
+*Generiert: 2026-07-05 20:20 UTC | 24 Workflow-Dateien geprüft*
