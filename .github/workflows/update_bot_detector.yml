@@ -3,10 +3,11 @@ name: Bot-Detector Blacklist (Proxy-Feeds)
 # MIGRATION 2026-07-05: lula73/bot-detector liefert keine IPs mehr
 # (blacklist.json leer/nicht erreichbar laut Betreiber-Beobachtung in den
 # Actions-Logs). Ersatz: dieser Workflow liest jetzt state/auto_discovered_
-# feeds.json direkt ein und waehlt per is_proxy_feed_name() (scripts/
-# netshield_common.py) automatisch alle Proxy-Listen-Feeds aus – keine
-# statische, manuell zu pflegende Namensliste mehr (Stand vor 2026-07-05:
-# 29 fest kodierte Feeds; das ist jetzt dynamisch).
+# feeds.json direkt ein und waehlt per is_bot_detector_feed_name() (scripts/
+# netshield_common.py) automatisch alle relevanten Feeds aus (Proxy-, Bot-,
+# Crawler- und Scanner-Listen) – keine statische, manuell zu
+# pflegende Namensliste mehr (Stand vor 2026-07-05: 29 fest kodierte Feeds;
+# das ist jetzt dynamisch).
 # WICHTIG: bot_detector_blacklist_ipv4.txt wird von update_combined_
 # blacklist.yml als LOCAL_FEEDS-Eintrag eingelesen (combined bekommt die
 # Proxy-IPs also GENAU EINMAL, gesammelt, ueber diese Datei). Die einzelnen
@@ -14,11 +15,11 @@ name: Bot-Detector Blacklist (Proxy-Feeds)
 # ausgeschlossen (Kommentar dort, Abschnitt "AUSSCHLUSS PROXY-FEEDS") –
 # sonst wuerde jede IP am selben Tag ZWEIMAL gezaehlt: einmal hier
 # gesammelt, einmal einzeln ueber den Auto-Feed-Namen. Beide Seiten
-# importieren dieselbe is_proxy_feed_name() aus netshield_common.py, damit
-# die Auswahl nicht auseinanderlaeuft.
-# GRENZEN: is_proxy_feed_name() ist eine Namensheuristik (Substring "prox"
-# oder "socks"), keine perfekte Klassifikation. Siehe Docstring der
-# Funktion fuer Validierung und bekannte Grenzfaelle.
+# importieren dieselbe is_bot_detector_feed_name() aus netshield_common.py,
+# damit die Auswahl nicht auseinanderlaeuft.
+# GRENZEN: is_bot_detector_feed_name() ist eine Namensheuristik (Substring-
+# Check gegen mehrere Schluesselwoerter), keine perfekte Klassifikation.
+# Siehe Docstring der Funktion fuer Validierung und bekannte Grenzfaelle.
 
 on:
   schedule:
@@ -68,7 +69,7 @@ jobs:
               safe_get_date, parse_date, sort_ips, write_ip_list,
               write_text_atomic,
               fetch_url, check_local_feed_age,
-              is_proxy_feed_name,
+              is_bot_detector_feed_name,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
 
@@ -100,11 +101,12 @@ jobs:
 
           # ── PROXY_SOURCES dynamisch aus state/auto_discovered_feeds.json ──
           # Ersatz fuer den toten lula73/bot-detector-Feed (2026-07-05).
-          # is_proxy_feed_name() (netshield_common.py) waehlt Proxy-Listen-
-          # Feeds per Namensheuristik aus. update_combined_blacklist.yml
-          # nutzt DIESELBE Funktion um genau diese Feeds aus seinem
-          # Auto-Feed-Loop auszuschliessen (Doppelzaehlungs-Schutz) – siehe
-          # Kommentar dort. NICHT unabhaengig voneinander aendern.
+          # is_bot_detector_feed_name() (netshield_common.py) waehlt relevante
+          # Feeds (Proxy-, Bot-, Crawler-, Scanner-Listen) per
+          # Namensheuristik aus. update_combined_blacklist.yml nutzt DIESELBE
+          # Funktion um genau diese Feeds aus seinem Auto-Feed-Loop
+          # auszuschliessen (Doppelzaehlungs-Schutz) – siehe Kommentar dort.
+          # NICHT unabhaengig voneinander aendern.
           PROXY_SOURCES = {}
           if os.path.exists(AUTO_FEEDS_FILE):
               try:
@@ -115,7 +117,7 @@ jobs:
                       _url  = _f.get("url")
                       if (isinstance(_name, str) and isinstance(_url, str)
                               and _url.startswith(("http://", "https://"))
-                              and is_proxy_feed_name(_name)):
+                              and is_bot_detector_feed_name(_name)):
                           PROXY_SOURCES[_name] = _url
                   print(f"  {len(PROXY_SOURCES)} Proxy-Feeds aus {AUTO_FEEDS_FILE} ausgewaehlt "
                         f"(von {len(_auto_data.get('feeds', []))} Auto-discovered Feeds gesamt)")
@@ -202,7 +204,7 @@ jobs:
           lines.append("# Bot-Detector Blacklist – Report")
           lines.append(f"**Aktualisiert:** {now_str}  ")
           lines.append("**Quelle:** Proxy-Feeds aus auto_feed_discovery "
-                        "(dynamisch ausgewaehlt via is_proxy_feed_name())\n")
+                        "(dynamisch ausgewaehlt via is_bot_detector_feed_name())\n")
           lines.append("---")
           lines.append("## Ergebnis\n")
           lines.append("| Metrik | Wert |")
