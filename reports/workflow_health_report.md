@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-07-04 20:15 UTC
+**Aktualisiert:** 2026-07-05 05:07 UTC
 
 **Workflows:** 24 | ✅ 22 OK | ⚠️ 1 Warnung | ❌ 2 Fehler
 
@@ -16,7 +16,6 @@
 
 | Datei | Check | Detail |
 |---|---|---|
-| `feed_overlap_report.yml` | Action nicht SHA-pinned | uses: actions/checkout@v4 – Tag statt SHA-Hash (Supply-Chain-Risiko) |
 | `feed_overlap_report.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `update_combined_blacklist.yml` | actions/cache/restore Version-Drift | 1 Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht? |
 | `update_combined_blacklist.yml` | actions/cache/save Version-Drift | 1 Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht? |
@@ -44,7 +43,7 @@
 | `dependabot-heal-conflicts.yml` | ✅ OK | 0 | 0 | – |
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
-| `feed_overlap_report.yml` | ❌ | 1 | 2 | `25 3 * * 0` |
+| `feed_overlap_report.yml` | ❌ | 1 | 1 | `25 3 * * 0` |
 | `geo_tagger.yml` | ✅ OK | 0 | 0 | `45 7 * * 0` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 5,11,17,23 * * *` |
 | `honigtopf.yml` | ✅ OK | 0 | 0 | `15 22 * * *` |
@@ -62,4 +61,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-07-04 20:15 UTC | 24 Workflow-Dateien geprüft*
+*Generiert: 2026-07-05 05:07 UTC | 24 Workflow-Dateien geprüft*

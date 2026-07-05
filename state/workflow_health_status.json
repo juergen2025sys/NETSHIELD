@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04 20:15 UTC",
+  "updated": "2026-07-05 05:07 UTC",
   "total": 24,
   "ok": 22,
   "warn": 1,
@@ -24,11 +24,6 @@
   "warnings": [
     {
       "file": "feed_overlap_report.yml",
-      "check": "Action nicht SHA-pinned",
-      "detail": "uses: actions/checkout@v4 \u2013 Tag statt SHA-Hash (Supply-Chain-Risiko)"
-    },
-    {
-      "file": "feed_overlap_report.yml",
       "check": "Node24 env fehlt",
       "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
     },
@@ -49,11 +44,11 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 3621367,
-    "active_blacklist_ipv4.txt": 403562,
-    "blacklist_confidence40_ipv4.txt": 5673403,
+    "combined_threat_blacklist_ipv4_part1.txt": 3624526,
+    "active_blacklist_ipv4.txt": 386262,
+    "blacklist_confidence40_ipv4.txt": 5679001,
     "cve_exploit_ips.txt": 32883,
-    "honeypot_ips.txt": 117559,
+    "honeypot_ips.txt": 117614,
     "bot_detector_blacklist_ipv4.txt": 17949
   },
   "production_health": {
