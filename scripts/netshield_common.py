@@ -500,47 +500,73 @@ def is_valid_public_cidr(cidr):
 # Feed-Klassifikation (Auto-discovered Feeds)
 # ═══════════════════════════════════════════════════════════════
 
-def is_proxy_feed_name(name):
+def is_bot_detector_feed_name(name):
     """Heuristik: ist ein Auto-discovered-Feed-Name (aus
-    state/auto_discovered_feeds.json) ein Proxy-Listen-Feed?
+    state/auto_discovered_feeds.json) ein fuer den Bot-Detector relevanter
+    Feed (Proxy-, Bot-, Crawler- oder Scanner-Liste)?
 
     HERKUNFT (2026-07-05): lula73/bot-detector lieferte keine IPs mehr.
     Ersatz: update_bot_detector.yml liest jetzt state/auto_discovered_feeds.json
-    dynamisch und wählt per dieser Funktion Proxy-Feeds aus, statt einer
+    dynamisch und wählt per dieser Funktion passende Feeds aus, statt einer
     statischen, manuell zu pflegenden Namensliste. update_combined_blacklist.yml
     nutzt DIESELBE Funktion, um genau diese Feeds aus dem Auto-Feed-Loop
     auszuschließen (Doppelzaehlungs-Schutz). Beide Seiten MÜSSEN dieselbe
     Funktion importieren statt eigener Kopien, sonst laufen sie wieder
     auseinander.
 
-    Validiert gegen die 132 Feeds in state/auto_discovered_feeds.json
-    (Stand 2026-07-05): 32 Treffer, alle inhaltlich Proxy-Listen (u.a.
-    ercindedeoglu_proxies, tuanminpay_live_proxy, skillter_proxygather,
-    kraloveckey_ipsets_blocklist_socks_proxy_7d/30d, ...). KEIN Fehltreffer
-    bei antoinevastel_avastel_bot_ips_lists, obwohl dessen search_sources
-    fälschlich 'topic:proxy-list' enthält (das GitHub-Topic ist also KEIN
-    zuverlässiges Signal – deshalb Namens-Substring statt Topic-Check).
+    UMBENENNUNG (2026-07-05): vorher is_proxy_feed_name(), Substring-Check
+    nur auf "prox"/"socks". Erweitert um weitere Schluesselwoerter (siehe
+    KEYWORDS unten), damit auch Bot-, Crawler- und Scanner-Feeds erfasst
+    werden, die sonst ungefiltert (und unerkannt) durch den Auto-Feed-Loop
+    liefen.
+
+    KEYWORDS: prox, proxy, socks, bot, crawler, scanner, mikroblack, prx.
+    "attack"/"attacker" und "badip"/"badips" wurden bewusst NICHT aufgenommen
+    (Entscheidung 2026-07-05): ein "attacker"- oder "badip"-benannter Feed
+    ist nicht per Definition ein Bot-Feed, das waere eine zu unspezifische
+    Vermischung. "mikroblack" und "prx" bleiben trotz kryptischem Namen
+    drin, weil die zugehoerigen Feeds (darzanebor_mikroblack,
+    openprx_prx_sd_signatures) inhaltlich Bot-IP-Listen liefern – hier ist
+    ausschliesslich der Feed-Name das Problem, nicht der Inhalt.
+
+    Validiert gegen die 146 Feeds in state/auto_discovered_feeds.json
+    (Stand 2026-07-05): 51 Treffer (vorher mit reinem "prox"/"socks"-Check:
+    41). Neu erfasst u.a. antoinevastel_avastel_bot_ips_lists,
+    darzanebor_mikroblack, openprx_prx_sd_signatures/_url_blocklist,
+    kraloveckey_ipsets_blocklist_r2_drop2_scanners,
+    mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist,
+    configserverapps_service_blocklists_blocklist_webcrawlers,
+    ipanalytics_ai_crawler_blocklist, leon406_subcrawler,
+    turntuptechnologies_iocs_scanner. Alle bisherigen 41 Treffer bleiben
+    weiterhin erfasst (keine Regression). Bewusst NICHT mehr erfasst (da
+    nur ueber attack/badip gematcht hätten): kamalmjt_emerging_attackers_badips,
+    cbuijs_badip, configserverapps_service_blocklists_attacks_mail.
 
     GRENZEN (bewusst nicht verschwiegen): Reine Namensheuristik. Ein künftig
-    neu gefundener Proxy-Feed mit untypischem Namen (ohne "prox"/"socks")
-    würde NICHT erfasst und liefe stattdessen normal durch den
-    Auto-Feed-Loop in update_combined_blacklist.yml – das ist unkritisch
+    neu gefundener relevanter Feed mit untypischem Namen (ohne eines der
+    Schluesselwoerter) würde NICHT erfasst und liefe stattdessen normal durch
+    den Auto-Feed-Loop in update_combined_blacklist.yml – das ist unkritisch
     (keine Doppelzählung), bedeutet aber, dass er nicht zusätzlich in
     bot_detector_blacklist_ipv4.txt auftaucht. Umgekehrt könnte ein
-    zukünftiger, komplett unverwandter Feed mit "prox" oder "socks" im
-    generierten Namen fälschlich als Proxy-Feed behandelt werden. Bei
-    Zweifeln: reports/bot_detector_report.md (Pro-Quelle-Tabelle) prüfen.
+    zukünftiger, komplett unverwandter Feed mit einem dieser Schluesselwoerter
+    im generierten Namen fälschlich erfasst werden. Bei Zweifeln:
+    reports/bot_detector_report.md (Pro-Quelle-Tabelle) prüfen.
 
     Args:
         name: Feed-Name aus state/auto_discovered_feeds.json (Feld "name").
 
     Returns:
-        bool: True wenn der Name auf einen Proxy-Listen-Feed hindeutet.
+        bool: True wenn der Name auf einen fuer den Bot-Detector relevanten
+        Feed hindeutet.
     """
     if not isinstance(name, str):
         return False
     n = name.lower()
-    return "prox" in n or "socks" in n
+    keywords = (
+        "prox", "proxy", "socks", "bot", "crawler", "scanner",
+        "mikroblack", "prx",
+    )
+    return any(k in n for k in keywords)
 
 
 # ═══════════════════════════════════════════════════════════════
