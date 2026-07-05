@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-07-05 05:07 UTC
+**Aktualisiert:** 2026-07-05 09:46 UTC
 
 **Workflows:** 24 | ✅ 22 OK | ⚠️ 1 Warnung | ❌ 2 Fehler
 
@@ -9,7 +9,8 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `feed_overlap_report.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 98.6 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| `Production Health` | Drift: bot_detector_blacklist_ipv4.txt | bot_detector_blacklist_ipv4.txt: 17,949 → 200,550 (+1017%) – extremes Wachstum, vermutlich Parser-/Dedup-Bug |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 98.9 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 
 ## ⚠️ Warnungen
@@ -23,11 +24,12 @@
 
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 3 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 98.6 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| 🔴 CRITICAL | Drift: bot_detector_blacklist_ipv4.txt | bot_detector_blacklist_ipv4.txt: 17,949 → 200,550 (+1017%) – extremes Wachstum, vermutlich Parser-/Dedup-Bug |
+| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 98.9 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🔴 CRITICAL | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🟡 WARN | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.7 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
@@ -61,4 +63,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-07-05 05:07 UTC | 24 Workflow-Dateien geprüft*
+*Generiert: 2026-07-05 09:46 UTC | 24 Workflow-Dateien geprüft*
