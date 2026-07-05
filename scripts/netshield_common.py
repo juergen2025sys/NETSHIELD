@@ -500,8 +500,8 @@ def is_valid_public_cidr(cidr):
 # Feed-Klassifikation (Auto-discovered Feeds)
 # ═══════════════════════════════════════════════════════════════
 
-def is_bot_detector_feed_name(name):
-    """Heuristik: ist ein Auto-discovered-Feed-Name (aus
+def is_bot_detector_feed_name(name, file=None):
+    """Heuristik: ist ein Auto-discovered-Feed (aus
     state/auto_discovered_feeds.json) ein fuer den Bot-Detector relevanter
     Feed (Proxy-, Bot-, Crawler- oder Scanner-Liste)?
 
@@ -520,6 +520,23 @@ def is_bot_detector_feed_name(name):
     werden, die sonst ungefiltert (und unerkannt) durch den Auto-Feed-Loop
     liefen.
 
+    ERWEITERUNG (2026-07-05): zusaetzlicher optionaler `file`-Parameter
+    (Feld "file" aus state/auto_discovered_feeds.json, der Datei-Pfad
+    innerhalb des Repos). Grund: der generierte Feed-*Name* (aus Owner/Repo
+    zusammengesetzt) verraet manchmal nichts, waehrend der tatsaechliche
+    Datei-*Pfad* das Schluesselwort enthaelt. Verifiziert an 3 echten
+    Faellen in state/auto_discovered_feeds.json (Stand 2026-07-05):
+      - alsyundawy_mikrotik_blacklist  -> file "antiscanner.rsc" ("scanner")
+      - celestialbrain_worldpool       -> file "proxies/hijacked.txt" ("prox")
+      - fadouse_clash_threat_intel     -> file "clash/generated/botnet.txt" ("bot")
+    Bewusst NICHT verwendet: das Feld "search_sources" (GitHub-Topics).
+    Das ist nachweislich unzuverlässig – antoinevastel_avastel_bot_ips_lists
+    trägt dort fälschlich "topic:proxy-list", obwohl es kein Proxy-Feed ist
+    (matcht hier korrekt trotzdem, aber ueber "bot", nicht ueber das
+    fehlerhafte Topic). Ausserdem sind generische Topics wie
+    "topic:blocklist"/"topic:ioc" bei >15 Feeds vorhanden, die inhaltlich
+    nichts Bot-Spezifisches sind – darueber wuerde man zu breit matchen.
+
     KEYWORDS: prox, proxy, socks, bot, crawler, scanner, mikroblack, prx.
     "attack"/"attacker" und "badip"/"badips" wurden bewusst NICHT aufgenommen
     (Entscheidung 2026-07-05): ein "attacker"- oder "badip"-benannter Feed
@@ -530,43 +547,45 @@ def is_bot_detector_feed_name(name):
     ausschliesslich der Feed-Name das Problem, nicht der Inhalt.
 
     Validiert gegen die 146 Feeds in state/auto_discovered_feeds.json
-    (Stand 2026-07-05): 51 Treffer (vorher mit reinem "prox"/"socks"-Check:
-    41). Neu erfasst u.a. antoinevastel_avastel_bot_ips_lists,
-    darzanebor_mikroblack, openprx_prx_sd_signatures/_url_blocklist,
-    kraloveckey_ipsets_blocklist_r2_drop2_scanners,
-    mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist,
-    configserverapps_service_blocklists_blocklist_webcrawlers,
-    ipanalytics_ai_crawler_blocklist, leon406_subcrawler,
-    turntuptechnologies_iocs_scanner. Alle bisherigen 41 Treffer bleiben
-    weiterhin erfasst (keine Regression). Bewusst NICHT mehr erfasst (da
-    nur ueber attack/badip gematcht hätten): kamalmjt_emerging_attackers_badips,
-    cbuijs_badip, configserverapps_service_blocklists_attacks_mail.
+    (Stand 2026-07-05): 51 Treffer nur ueber `name`, 54 Treffer mit
+    zusaetzlicher `file`-Pruefung (die 3 oben genannten kommen dazu, sonst
+    keine Aenderung – 0 neue Fehltreffer, da dieselbe enge Keyword-Liste
+    verwendet wird). Alle bisherigen 41 Treffer (Stand vor dieser gesamten
+    Aenderung, reiner "prox"/"socks"-Check) bleiben weiterhin erfasst
+    (keine Regression). Bewusst NICHT erfasst (matchten nur ueber
+    attack/badip): kamalmjt_emerging_attackers_badips, cbuijs_badip,
+    configserverapps_service_blocklists_attacks_mail.
 
-    GRENZEN (bewusst nicht verschwiegen): Reine Namensheuristik. Ein künftig
-    neu gefundener relevanter Feed mit untypischem Namen (ohne eines der
-    Schluesselwoerter) würde NICHT erfasst und liefe stattdessen normal durch
-    den Auto-Feed-Loop in update_combined_blacklist.yml – das ist unkritisch
+    GRENZEN (bewusst nicht verschwiegen): Reine Namens-/Pfad-Heuristik. Ein
+    künftig neu gefundener relevanter Feed mit untypischem Namen UND
+    untypischem Datei-Pfad (ohne eines der Schluesselwoerter in beiden)
+    würde NICHT erfasst und liefe stattdessen normal durch den
+    Auto-Feed-Loop in update_combined_blacklist.yml – das ist unkritisch
     (keine Doppelzählung), bedeutet aber, dass er nicht zusätzlich in
     bot_detector_blacklist_ipv4.txt auftaucht. Umgekehrt könnte ein
     zukünftiger, komplett unverwandter Feed mit einem dieser Schluesselwoerter
-    im generierten Namen fälschlich erfasst werden. Bei Zweifeln:
+    im Namen oder Datei-Pfad fälschlich erfasst werden. Bei Zweifeln:
     reports/bot_detector_report.md (Pro-Quelle-Tabelle) prüfen.
 
     Args:
         name: Feed-Name aus state/auto_discovered_feeds.json (Feld "name").
+        file: Optional. Datei-Pfad aus state/auto_discovered_feeds.json
+            (Feld "file"). Wird nur geprueft, wenn `name` allein nicht
+            matcht. None/nicht-str wird ignoriert (kein Fehler).
 
     Returns:
-        bool: True wenn der Name auf einen fuer den Bot-Detector relevanten
-        Feed hindeutet.
+        bool: True wenn Name ODER Datei-Pfad auf einen fuer den
+        Bot-Detector relevanten Feed hindeutet.
     """
-    if not isinstance(name, str):
-        return False
-    n = name.lower()
     keywords = (
         "prox", "proxy", "socks", "bot", "crawler", "scanner",
         "mikroblack", "prx",
     )
-    return any(k in n for k in keywords)
+    if isinstance(name, str) and any(k in name.lower() for k in keywords):
+        return True
+    if isinstance(file, str) and any(k in file.lower() for k in keywords):
+        return True
+    return False
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -2363,7 +2382,12 @@ def validate_auto_feeds(auto_data):
         auto_data: Geparstes JSON aus auto_discovered_feeds.json.
 
     Returns:
-        tuple[list[dict], int]: (akzeptierte_feeds, anzahl_verworfen)
+        tuple[list[dict], int]: (akzeptierte_feeds, anzahl_verworfen).
+            Jeder akzeptierte Feed ist {"name":..., "url":..., "file":...}.
+            "file" (Datei-Pfad im Repo, fuer is_bot_detector_feed_name()
+            gedacht) wird durchgereicht wenn vorhanden und str, sonst "".
+            Kein Sicherheitsmerkmal – nur Metadaten fuer die Namens-/Pfad-
+            Heuristik, wird nirgends gefetcht oder ausgefuehrt.
 
     Raises:
         ValueError: Wenn Root nicht dict oder feeds nicht list ist
@@ -2406,5 +2430,8 @@ def validate_auto_feeds(auto_data):
         if any(ord(c) < 0x20 or ord(c) == 0x7F for c in url):
             rejected += 1
             continue
-        accepted.append({"name": name, "url": url})
+        _file = feed.get("file")
+        if not isinstance(_file, str):
+            _file = ""
+        accepted.append({"name": name, "url": url, "file": _file})
     return accepted, rejected
