@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-05 11:19 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-05 11:27 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_proxy_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **200,551** |
-| Neu (heute) | **+62** |
-| Entfernt | **-84** |
+| Gesamt IPs | **200,550** |
+| Neu (heute) | **+3** |
+| Entfernt | **-4** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 32 |
@@ -33,11 +33,11 @@
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_https_anonymous` | 4,656 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 4,008 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 886 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,615 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,483 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 1,000 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 935 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 850 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 499 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 941 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 840 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 501 |
 | ✅ `officialputuid_proxyforeveryone` | 6,034 |
 | ✅ `officialputuid_proxyforeveryone_https` | 4,870 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 6,063 |
@@ -57,4 +57,4 @@
 > Diese 32 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-05 11:19 CEST (Europe/Berlin)*
+*Generiert: 2026-07-05 11:27 CEST (Europe/Berlin)*
