@@ -267,6 +267,7 @@ jobs:
               fetch_url, check_local_feed_age,
               resolve_github_moved_url,
               validate_auto_feeds,
+              is_proxy_feed_name,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
           import ipaddress, json, os, glob, re, sys, urllib.request
@@ -1411,6 +1412,15 @@ jobs:
           # ── Lokale Sub-Workflow-Dateien einlesen ───────────────────────────
           LOCAL_FEEDS = {
               # tor_exit_nodes.txt entfernt
+              # bot_detector_blacklist_ipv4.txt (2026-07-05): enthaelt jetzt
+              # nur noch Proxy-Feeds statt lula73/bot-detector (siehe
+              # update_bot_detector.yml). combined liest die Proxy-IPs
+              # bewusst genau EINMAL ueber diesen LOCAL_FEEDS-Eintrag ein.
+              # Die einzelnen Proxy-Feeds sind deshalb aus dem Auto-Feed-Loop
+              # unten ausgeschlossen (Abschnitt "AUSSCHLUSS PROXY-FEEDS") –
+              # sonst wuerden dieselben IPs ZWEIMAL gezaehlt: einmal hier
+              # ueber die aggregierte Datei, einmal einzeln ueber den
+              # Auto-Feed-Namen.
               "cve_exploit_ips.txt":             True,
               "bot_detector_blacklist_ipv4.txt": False,
               "honeypot_ips.txt":                True,
@@ -1519,6 +1529,29 @@ jobs:
                       auto_feeds = [f for f in auto_feeds if "iblocklist" not in f["name"].lower()]
                       print(f"  I-BlockList ausgeschlossen ({len(_iblock)}): "
                             + ", ".join(sorted(f["name"] for f in _iblock)))
+                  # AUSSCHLUSS PROXY-FEEDS (2026-07-05): Diese auto-discovered
+                  # Feeds werden bereits gesammelt ueber update_bot_detector.yml
+                  # (bot_detector_blacklist_ipv4.txt, siehe LOCAL_FEEDS oben)
+                  # in combined eingelesen. lula73/bot-detector lieferte keine
+                  # IPs mehr; update_bot_detector.yml aggregiert seither
+                  # Proxy-Feeds, die per is_proxy_feed_name() (netshield_
+                  # common.py, dieselbe Funktion wie hier) aus state/
+                  # auto_discovered_feeds.json ausgewaehlt werden. Ohne diesen
+                  # Ausschluss hier wuerde jede betroffene IP am selben Tag
+                  # ZWEIMAL in ip_feeds_today gezaehlt: einmal ueber den
+                  # Auto-Feed-Namen (dieser Loop), einmal ueber
+                  # "bot_detector_blacklist_ipv4.txt" (LOCAL_FEEDS-Loop weiter
+                  # oben) -> verzerrtes Confidence-Scoring (mehr "Quellen
+                  # heute" als real vorhanden). WICHTIG: is_proxy_feed_name()
+                  # ist eine Namensheuristik ("prox"/"socks" im Namen), keine
+                  # perfekte Klassifikation – Grenzfaelle siehe Docstring in
+                  # netshield_common.py. update_bot_detector.yml MUSS dieselbe
+                  # Funktion importieren, keine eigene Kopie pflegen.
+                  _proxy_excl = [f for f in auto_feeds if is_proxy_feed_name(f["name"])]
+                  if _proxy_excl:
+                      auto_feeds = [f for f in auto_feeds if not is_proxy_feed_name(f["name"])]
+                      print(f"  Proxy-Feeds ausgeschlossen ({len(_proxy_excl)}, siehe update_bot_detector.yml): "
+                            + ", ".join(sorted(f["name"] for f in _proxy_excl)))
                   if _rejected:
                       print(f"  WARNUNG: {_rejected} auto-feed Eintraege wegen "
                             f"Schema-/URL-Check verworfen")

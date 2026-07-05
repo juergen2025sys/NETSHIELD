@@ -10,7 +10,7 @@ env:
 
 permissions:
   contents: write
-  actions: read
+  actions: write    # write noetig fuer 'gh workflow run' (Bot-Detector-Trigger am Ende, 2026-07-05)
   issues: none
   packages: none
   pull-requests: none
@@ -709,3 +709,26 @@ jobs:
             echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
             exit 1
           fi
+
+      - name: Trigger Bot-Detector
+        # Stoesst update_bot_detector.yml direkt nach jedem erfolgreichen
+        # Report-Lauf an (2026-07-05). Gleiches Muster wie der bereits
+        # etablierte "Trigger Report Generator"-Step in
+        # update_confidence_blacklist.yml: expliziter workflow_dispatch via
+        # gh statt workflow_run-Event, weil workflow_run in diesem Repo
+        # nachweislich Probleme macht (feuert nicht zuverlaessig bei per
+        # workflow_dispatch gestarteten oder von der Concurrency-Gruppe
+        # verdraengten Laeufen – siehe Kommentar in
+        # update_confidence_blacklist.yml). Der taegliche Cron in
+        # update_bot_detector.yml (22:45 UTC) bleibt als Fallback erhalten;
+        # durch diesen Trigger laeuft der Proxy-Feed-Fetch jetzt effektiv
+        # bis zu stuendlich (wann immer dieser Report-Workflow erfolgreich
+        # durchlaeuft).
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Report abgeschlossen - triggere Bot-Detector (Proxy-Feeds)"
+          gh workflow run update_bot_detector.yml \
+            --repo "${{ github.repository }}" \
+            --ref "${GITHUB_REF_NAME}"
