@@ -161,7 +161,16 @@ jobs:
           if wl_removed_count:
               print(f"Whitelist-Filter: {wl_removed_count} IPs entfernt")
 
-          unique_ips = sorted(all_ips, key=lambda ip: tuple(int(o) for o in ip.split(".")))
+          # FIX 2026-07-05 (verifiziert per echtem Actions-Lauf, run 77658608732):
+          # kraloveckey_ipsets_blocklist_socks_proxy_30d/_7d und _sslproxies_30d
+          # sind .ipset-Dateien und enthalten legitim CIDR-Notation (z.B.
+          # "x.x.x.10/31") gemischt mit einzelnen IPs, da parse_entries()
+          # sowohl IPs als auch CIDRs zurueckgibt. Die vorherige Sortierung
+          # (nur ip.split(".")) crashte darauf mit
+          # "ValueError: invalid literal for int() with base 10: '10/31'".
+          # Fix analog zum bereits bestehenden Muster in honeypot_monitor.yml:
+          # Netzmaske vor dem Splitten abtrennen.
+          unique_ips = sorted(all_ips, key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
 
           print(f"  Quellen: {len(PROXY_SOURCES)} | Erreichbar: {len(PROXY_SOURCES) - len(fetch_failed)} | "
                 f"Gesamt eindeutige IPs: {len(unique_ips)}")
