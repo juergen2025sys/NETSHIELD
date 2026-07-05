@@ -1439,7 +1439,9 @@ jobs:
           # hq_feeds-Zähler in seen_db die lokalen HQ-Dateien korrekt mitzählt.
           LOCAL_HQ_NAMES = {name for name, is_hq in LOCAL_FEEDS.items() if is_hq}
           # FIX STALE1: Alters-Check für lokale Feed-Dateien.
-          # Sub-Workflows schreiben einen "# Aktualisiert: YYYY-MM-DD HH:MM UTC"-Header.
+          # Sub-Workflows schreiben einen "# Aktualisiert: YYYY-MM-DD HH:MM UTC"-
+          # oder (seit 2026-07-05, z.B. bot_detector_blacklist_ipv4.txt) einen
+          # deutschen Ortszeit-Header "YYYY-MM-DD HH:MM CET/CEST (Europe/Berlin)".
           # Bei > 48h Alter (sub-workflow ausgefallen) GitHub Warning ausgeben.
           #
           # FIX STALE2: update_confidence_blacklist fehlte im Alters-Check.
@@ -1448,7 +1450,16 @@ jobs:
           # deshalb nie auf Aktualität geprüft. Fehlt ein confidence-Run, merkt
           # combined das nicht. Beide Dateien werden jetzt separat überwacht.
           _LOCAL_FEED_MAX_AGE_HOURS = 48
-          _ts_re = re.compile(r'#\s*Aktualisiert:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\s*UTC')
+          # FIX TS-TZ (2026-07-05): vorher nur "UTC" akzeptiert. Seit
+          # bot_detector_blacklist_ipv4.txt auf deutsche Ortszeit umgestellt
+          # wurde (siehe update_bot_detector.yml), matchte diese Regex dort
+          # nie mehr -> Frische-Check lief still leer statt zu warnen. Gleiches
+          # Muster wie _TS_RE_HEALTH in workflow_health_checker.yml und _TS_RE
+          # in netshield_report_generator.yml uebernommen.
+          _ts_re = re.compile(
+              r'#\s*Aktualisiert:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})'
+              r'\s*(UTC|CET|CEST)(?:\s*\(Europe/Berlin\))?'
+          )
           _EXTRA_AGE_CHECK_FILES = [
               "blacklist_confidence40_ipv4.txt",       # update_confidence_blacklist
               "watchlist_confidence25to39_ipv4.txt",   # update_confidence_blacklist
@@ -1461,11 +1472,13 @@ jobs:
               _ts_m_extra = _ts_re.search(_extra_raw)
               if _ts_m_extra:
                   try:
-                      _extra_dt = datetime.strptime(_ts_m_extra.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
-                      _extra_age_h = (now - _extra_dt).total_seconds() / 3600
+                      _zone_extra = _ts_m_extra.group(2)
+                      _tz_extra = timezone.utc if _zone_extra == "UTC" else ZoneInfo("Europe/Berlin")
+                      _extra_dt = datetime.strptime(_ts_m_extra.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=_tz_extra)
+                      _extra_age_h = (now - _extra_dt.astimezone(timezone.utc)).total_seconds() / 3600
                       if _extra_age_h > _LOCAL_FEED_MAX_AGE_HOURS:
                           _extra_msg = (f"{_extra_file} ist {_extra_age_h:.0f}h alt "
-                                        f"(letztes Update: {_ts_m_extra.group(1)} UTC) – "
+                                        f"(letztes Update: {_ts_m_extra.group(1)} {_zone_extra}) – "
                                         f"update_confidence_blacklist möglicherweise ausgefallen")
                           print(f"::warning file=update_combined_blacklist.yml::{_extra_msg}")
                           print(f"WARNUNG: {_extra_msg}")
@@ -1481,11 +1494,13 @@ jobs:
               _ts_m = _ts_re.search(raw_local)
               if _ts_m:
                   try:
-                      _file_dt = datetime.strptime(_ts_m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
-                      _age_h = (now - _file_dt).total_seconds() / 3600
+                      _zone = _ts_m.group(2)
+                      _tz = timezone.utc if _zone == "UTC" else ZoneInfo("Europe/Berlin")
+                      _file_dt = datetime.strptime(_ts_m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=_tz)
+                      _age_h = (now - _file_dt.astimezone(timezone.utc)).total_seconds() / 3600
                       if _age_h > _LOCAL_FEED_MAX_AGE_HOURS:
                           _stale_msg = (f"{local_file} ist {_age_h:.0f}h alt "
-                                        f"(letztes Update: {_ts_m.group(1)} UTC) – "
+                                        f"(letztes Update: {_ts_m.group(1)} {_zone}) – "
                                         f"Sub-Workflow möglicherweise ausgefallen")
                           print(f"::warning file=update_combined_blacklist.yml::{_stale_msg}")
                           print(f"WARNUNG: {_stale_msg}")

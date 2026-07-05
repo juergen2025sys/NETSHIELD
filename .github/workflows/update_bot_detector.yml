@@ -78,9 +78,19 @@ jobs:
 
           import json, os, sys, time
           from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
 
           now     = datetime.now(timezone.utc)
-          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+          # Ausgabedateien verwenden deutsche Ortszeit, identisch zum Muster
+          # in update_combined_blacklist.yml (dort: output_stamp_de). Europe/
+          # Berlin wechselt automatisch zwischen CET (Winter) und CEST
+          # (Sommer). "now" bleibt UTC-aware fuer interne Alters-/Delta-
+          # Berechnungen weiter unten.
+          now_str = (
+              now.astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z")
+              + " (Europe/Berlin)"
+          )
 
           OUT_FILE    = "bot_detector_blacklist_ipv4.txt"
           REPORT_FILE = "reports/bot_detector_report.md"
@@ -192,7 +202,7 @@ jobs:
           lines.append("# Bot-Detector Blacklist – Report")
           lines.append(f"**Aktualisiert:** {now_str}  ")
           lines.append("**Quelle:** Proxy-Feeds aus auto_feed_discovery "
-                        "(ersetzt lula73/bot-detector, seit 2026-07-05 ohne Daten)\n")
+                        "(dynamisch ausgewaehlt via is_proxy_feed_name())\n")
           lines.append("---")
           lines.append("## Ergebnis\n")
           lines.append("| Metrik | Wert |")
@@ -231,7 +241,7 @@ jobs:
           write_ip_list(OUT_FILE, unique_ips, header_lines=[
               "NETSHIELD Bot-Detector Blacklist (Proxy-Feeds)",
               f"Aktualisiert: {now_str}",
-              f"Quellen: {len(PROXY_SOURCES)} Proxy-Feeds (ersetzt lula73/bot-detector)",
+              f"Quellen: {len(PROXY_SOURCES)} Proxy-Feeds",
               f"Gesamt: {len(unique_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt",
           ])
 
