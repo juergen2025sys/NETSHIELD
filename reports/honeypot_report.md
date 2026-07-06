@@ -1,28 +1,28 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-07-05 23:53 UTC
+**Aktualisiert:** 2026-07-06 08:54 UTC
 
 ---
 | Quelle | IPs |
 |---|---|
-| ✅ `ipsum_level4` | 6951 |
+| ✅ `ipsum_level4` | 6743 |
 | ✅ `dshield_1d` | 27 |
-| ✅ `blocklist_de_bots` | 4243 |
-| ✅ `blocklist_de_bruteforce` | 699 |
+| ✅ `blocklist_de_bots` | 5136 |
+| ✅ `blocklist_de_bruteforce` | 783 |
 | ✅ `jamesbrine_honeypot` | 52770 |
 | ✅ `stratosphere_aip` | 10533 |
 | ✅ `stratosphere_aip_alpha7` | 24774 |
 | ✅ `stratosphere_aip_alpha` | 7778 |
-| ✅ `honeysec_ip2` | 29203 |
+| ✅ `honeysec_ip2` | 29284 |
 | ✅ `crash0v3r1de_mikrotik` | 542 |
-| ✅ `timgerstel_suspicious_ips` | 755 |
-| ✅ `sniffcat` | 32313 |
+| ✅ `timgerstel_suspicious_ips` | 765 |
+| ✅ `sniffcat` | 32459 |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honeypot-IPs | **116974** |
-| Neu | **+1877** |
-| Entfernt | **-1568** |
+| Gesamt Honeypot-IPs | **117559** |
+| Neu | **+2505** |
+| Entfernt | **-1920** |
 
 ---
-*Generiert: 2026-07-05 23:53 UTC*
+*Generiert: 2026-07-06 08:54 UTC*
