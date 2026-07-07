@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-07-07 15:50 UTC
+**Aktualisiert:** 2026-07-07 20:56 UTC
 
-**Workflows:** 24 | ✅ 22 OK | ⚠️ 1 Warnung | ❌ 2 Fehler
+**Workflows:** 24 | ✅ 23 OK | ⚠️ 0 Warnung | ❌ 2 Fehler
 
 ---
 ## ❌ Fehler (kritisch)
@@ -17,8 +17,6 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `feed_overlap_report.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
-| `update_combined_blacklist.yml` | actions/cache/restore Version-Drift | 1 Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht? |
-| `update_combined_blacklist.yml` | actions/cache/save Version-Drift | 1 Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht? |
 | `Production Health` | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
@@ -61,4 +59,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-07-07 15:50 UTC | 24 Workflow-Dateien geprüft*
+*Generiert: 2026-07-07 20:56 UTC | 24 Workflow-Dateien geprüft*

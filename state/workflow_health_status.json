@@ -1,8 +1,8 @@
 {
-  "updated": "2026-07-07 15:50 UTC",
+  "updated": "2026-07-07 20:56 UTC",
   "total": 24,
-  "ok": 22,
-  "warn": 1,
+  "ok": 23,
+  "warn": 0,
   "error": 2,
   "errors": [
     {
@@ -28,28 +28,18 @@
       "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
     },
     {
-      "file": "update_combined_blacklist.yml",
-      "check": "actions/cache/restore Version-Drift",
-      "detail": "1 Datei(en) weichen von der Mehrheits-SHA ab \u2013 Update vergessen oder verfrueht?"
-    },
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "actions/cache/save Version-Drift",
-      "detail": "1 Datei(en) weichen von der Mehrheits-SHA ab \u2013 Update vergessen oder verfrueht?"
-    },
-    {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
       "detail": "geo_enriched/blacklist_geo_enriched.json: 94.5 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 3714413,
-    "active_blacklist_ipv4.txt": 411106,
-    "blacklist_confidence40_ipv4.txt": 5742317,
+    "combined_threat_blacklist_ipv4_part1.txt": 3715971,
+    "active_blacklist_ipv4.txt": 413953,
+    "blacklist_confidence40_ipv4.txt": 5744878,
     "cve_exploit_ips.txt": 32478,
-    "honeypot_ips.txt": 119820,
-    "bot_detector_blacklist_ipv4.txt": 1266999
+    "honeypot_ips.txt": 119993,
+    "bot_detector_blacklist_ipv4.txt": 1267353
   },
   "production_health": {
     "critical": 2,
