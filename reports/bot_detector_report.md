@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-08 01:37 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-08 01:41 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,267,862** |
-| Neu (heute) | **+28** |
-| Entfernt | **-11** |
+| Gesamt IPs | **1,267,878** |
+| Neu (heute) | **+55** |
+| Entfernt | **-39** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 55 |
@@ -29,9 +29,9 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_7d` | 1,365 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,650 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 500,000 |
-| ✅ `skillter_proxygather` | 17,271 |
-| ✅ `skillter_proxygather_working_proxies_all` | 474 |
-| ✅ `skillter_proxygather_working_proxies_http` | 298 |
+| ✅ `skillter_proxygather` | 17,555 |
+| ✅ `skillter_proxygather_working_proxies_all` | 431 |
+| ✅ `skillter_proxygather_working_proxies_http` | 256 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,334 |
 | ✅ `ebrasha_abdal_proxy_hub` | 5,705 |
 | ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,510 |
@@ -80,4 +80,4 @@
 > Diese 55 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-08 01:37 CEST (Europe/Berlin)*
+*Generiert: 2026-07-08 01:41 CEST (Europe/Berlin)*
