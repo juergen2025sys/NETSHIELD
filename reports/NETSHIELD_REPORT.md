@@ -1,19 +1,19 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-07-07 18:28 UTC
+**Aktualisiert:** 2026-07-07 19:03 UTC
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **7,430,812** | 2026-07-07 20:05 CEST (Europe/Berlin) |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **412,831** | 2026-07-07 20:05 CEST (Europe/Berlin) |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **5,742,934** | 2026-07-07 18:10 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **50,862** | 2026-07-07 18:10 UTC |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **7,431,941** | 2026-07-07 20:52 CEST (Europe/Berlin) |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **413,953** | 2026-07-07 20:52 CEST (Europe/Berlin) |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **5,744,878** | 2026-07-07 18:57 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **50,067** | 2026-07-07 18:57 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **32,478** | 2026-07-07 07:29 UTC |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,267,330** | 2026-07-07 20:16 CEST (Europe/Berlin) |
-| ✅ `honeypot_ips.txt` | Honeypot IPs | **119,820** | 2026-07-07 13:09 UTC |
-| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **15,915** | 2026-07-07 17:27 UTC |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,267,258** | 2026-07-07 20:29 CEST (Europe/Berlin) |
+| ✅ `honeypot_ips.txt` | Honeypot IPs | **119,993** | 2026-07-07 18:53 UTC |
+| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **16,136** | 2026-07-07 18:29 UTC |
 
 ---
 ## 🔍 Feed Health: ✅ 119 OK | ⚠️ 0 leer | ❌ 1 Fehler
@@ -32,4 +32,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-07-07 18:28 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-07-07 19:03 UTC*
