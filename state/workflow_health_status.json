@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-08 04:30 UTC",
+  "updated": "2026-07-08 09:35 UTC",
   "total": 24,
   "ok": 23,
   "warn": 0,
@@ -39,12 +39,12 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 3720547,
-    "active_blacklist_ipv4.txt": 399462,
-    "blacklist_confidence40_ipv4.txt": 5751062,
-    "cve_exploit_ips.txt": 32478,
-    "honeypot_ips.txt": 120075,
-    "bot_detector_blacklist_ipv4.txt": 1262255
+    "combined_threat_blacklist_ipv4_part1.txt": 3722754,
+    "active_blacklist_ipv4.txt": 403372,
+    "blacklist_confidence40_ipv4.txt": 5752653,
+    "cve_exploit_ips.txt": 32452,
+    "honeypot_ips.txt": 120787,
+    "bot_detector_blacklist_ipv4.txt": 1262778
   },
   "production_health": {
     "critical": 2,
