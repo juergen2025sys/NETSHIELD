@@ -164,6 +164,22 @@ jobs:
           #   wieder entfernen. Mehrwert: spezifische Mikrotik-Bruteforce-
           #   Telemetrie, die in den großen Aggregatoren (ipsum/firehol)
           #   meist mit Verzögerung auftaucht.
+          # - siberkapan_fortigate ergänzt (Juli 2026): SiberKapan (TR),
+          #   community-basierte Threat-Intel-Plattform mit Fokus auf tuerkische
+          #   Infrastruktur. Live verifiziert (08.07.2026): URL erreichbar,
+          #   Generated-Header im File = Abrufzeitpunkt, mehrere tausend
+          #   IP-Eintraege. ACHTUNG: KEIN reiner Community-Webhook-Feed, sondern
+          #   SiberKapans komplette Misch-Ausgabe aller eigenen Quellen (Feodo,
+          #   URLhaus, Emerging Threats, GreenSnow, Blocklist.de, Binary Defense,
+          #   CINS, BotScout via firehol/blocklist-ipsets, CISA KEV,
+          #   FortiGate-Community-Webhooks). Moegliche Teil-Ueberschneidung mit
+          #   combined SOURCES NICHT geprueft (state/*.json und
+          #   update_combined_blacklist.yml lagen bei Einpflege nicht vor -
+          #   vor Aktivierung gegenpruefen). Format: FortiGate-CLI
+          #   ("config firewall address ... set subnet ..."), NICHT Plain-IPv4 -
+          #   ob parse_entries()/IPV4_RE das korrekt aus dem CLI-Text extrahiert,
+          #   ist UNGETESTET und muss vor dem ersten produktiven Lauf verifiziert
+          #   werden (ggf. testweise via workflow_dispatch pruefen).
           #
           # Aktuelle Quellen (alle auf bewährten Repos/Diensten):
           # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
@@ -353,6 +369,13 @@ jobs:
               # IPv4 eine pro Zeile. limit=100000 = Maximum.
               "sniffcat":
                   "https://api.sniffcat.com/api/v1/blacklist?confidenceMin=30&ipVersion=4&limit=100000",
+
+              # SiberKapan FortiGate-Feed: kombinierte Misch-Ausgabe der
+              # tuerkischen Threat-Intel-Plattform (siehe Changelog oben fuer
+              # volle Quellen-Liste + offene Caveats zu Format/Dedup).
+              # UNGETESTET, VOR AKTIVIERUNG PRUEFEN.
+              "siberkapan_fortigate":
+                  "https://siberkapan.org/api/v1/list/fortigate",
           }
 
           # Auth-pflichtige Feeds: name -> dict mit HTTP-Headern.
