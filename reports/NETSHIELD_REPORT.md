@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-07-08 04:07 UTC
+**Aktualisiert:** 2026-07-08 04:43 UTC
 
 ---
 ## 📊 Listen-Übersicht
@@ -11,20 +11,20 @@
 | ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **5,751,062** | 2026-07-08 04:02 UTC |
 | ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **50,075** | 2026-07-08 04:02 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **32,478** | 2026-07-07 07:29 UTC |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,267,883** | 2026-07-08 03:36 CEST (Europe/Berlin) |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,262,255** | 2026-07-08 06:08 CEST (Europe/Berlin) |
 | ✅ `honeypot_ips.txt` | Honeypot IPs | **120,075** | 2026-07-07 23:43 UTC |
 | ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **12,171** | 2026-07-08 03:45 UTC |
 
 ---
-## 🔍 Feed Health: ✅ 119 OK | ⚠️ 0 leer | ❌ 1 Fehler
+## 🔍 Feed Health: ✅ 117 OK | ⚠️ 0 leer | ❌ 3 Fehler
 
-**❌ Ausgefallen:** `rutgers_drop`
+**❌ Ausgefallen:** `4ip_high_security`, `fadouse_loader`, `fadouse_stealer`
 
-**🧊 Eingefroren (17):** `amitambekar_threats` 23T, `bbcan177` 23T, `binaryedge_scanners` 23T, `blacksnowdot_packets` 23T, `cloudzy` 23T, `et_block` 23T, `feodo_aggressive` 23T, `feodo_recommended` 23T, `firehol_level1` 23T, `l7_ddos` 23T…
+**🧊 Eingefroren (17):** `amitambekar_threats` 24T, `bbcan177` 24T, `binaryedge_scanners` 24T, `blacksnowdot_packets` 24T, `cloudzy` 24T, `et_block` 24T, `feodo_aggressive` 24T, `feodo_recommended` 24T, `firehol_level1` 24T, `l7_ddos` 24T…
 
 *15 davon ≥21 Tage → im Combined automatisch in Quarantäne (eingefrorene HQ-Feeds zählen nicht mehr als frische Bestätigung, betroffene IPs altern normal aus). Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
 
-*Letzter Check: 2026-07-07 04:43 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
+*Letzter Check: 2026-07-08 04:09 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -32,4 +32,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-07-08 04:07 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-07-08 04:43 UTC*
