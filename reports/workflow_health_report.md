@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-07-09 10:36 UTC
+**Aktualisiert:** 2026-07-09 16:08 UTC
 
 **Workflows:** 24 | ✅ 23 OK | ⚠️ 0 Warnung | ❌ 2 Fehler
 
@@ -9,7 +9,8 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `feed_overlap_report.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 102.1 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 172.66.40.157, 172.66.43.99, 188.114.97.4, 172.66.40.157, 172.66.43.99… – Filterung wirkungslos! |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 102.3 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 
 ## ⚠️ Warnungen
@@ -17,18 +18,17 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `feed_overlap_report.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
-| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 140,325 → 228,041 (+63%) – ungewöhnliches Wachstum |
 | `Production Health` | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 2 WARN
+**Status:** 🔴 3 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 102.1 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 172.66.40.157, 172.66.43.99, 188.114.97.4, 172.66.40.157, 172.66.43.99… – Filterung wirkungslos! |
+| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 102.3 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🔴 CRITICAL | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
-| 🟡 WARN | Drift: honeypot_ips.txt | honeypot_ips.txt: 140,325 → 228,041 (+63%) – ungewöhnliches Wachstum |
 | 🟡 WARN | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
@@ -61,4 +61,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-07-09 10:36 UTC | 24 Workflow-Dateien geprüft*
+*Generiert: 2026-07-09 16:08 UTC | 24 Workflow-Dateien geprüft*

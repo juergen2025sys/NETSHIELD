@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-09 10:36 UTC",
+  "updated": "2026-07-09 16:08 UTC",
   "total": 24,
   "ok": 23,
   "warn": 0,
@@ -12,8 +12,13 @@
     },
     {
       "file": "Production Health",
+      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 172.66.40.157, 172.66.43.99, 188.114.97.4, 172.66.40.157, 172.66.43.99\u2026 \u2013 Filterung wirkungslos!"
+    },
+    {
+      "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 102.1 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 102.3 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
     },
     {
       "file": "Production Health",
@@ -29,36 +34,31 @@
     },
     {
       "file": "Production Health",
-      "check": "Drift: honeypot_ips.txt",
-      "detail": "honeypot_ips.txt: 140,325 \u2192 228,041 (+63%) \u2013 ungew\u00f6hnliches Wachstum"
-    },
-    {
-      "file": "Production Health",
       "check": "Push-Limit Naehe",
       "detail": "geo_enriched/blacklist_geo_enriched.json: 94.5 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 3753318,
-    "active_blacklist_ipv4.txt": 417988,
-    "blacklist_confidence40_ipv4.txt": 5788106,
+    "combined_threat_blacklist_ipv4_part1.txt": 3758014,
+    "active_blacklist_ipv4.txt": 427617,
+    "blacklist_confidence40_ipv4.txt": 5797349,
     "cve_exploit_ips.txt": 32348,
-    "honeypot_ips.txt": 228041,
-    "bot_detector_blacklist_ipv4.txt": 1271429
+    "honeypot_ips.txt": 227910,
+    "bot_detector_blacklist_ipv4.txt": 1271206
   },
   "production_health": {
-    "critical": 2,
-    "warn": 2,
+    "critical": 3,
+    "warn": 1,
     "checks": [
       {
-        "level": "WARN",
-        "check": "Drift: honeypot_ips.txt",
-        "detail": "honeypot_ips.txt: 140,325 \u2192 228,041 (+63%) \u2013 ungew\u00f6hnliches Wachstum"
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 172.66.40.157, 172.66.43.99, 188.114.97.4, 172.66.40.157, 172.66.43.99\u2026 \u2013 Filterung wirkungslos!"
       },
       {
         "level": "CRITICAL",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 102.1 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 102.3 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
       },
       {
         "level": "CRITICAL",
