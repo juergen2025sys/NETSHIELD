@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-09 16:08 UTC",
+  "updated": "2026-07-09 20:55 UTC",
   "total": 24,
   "ok": 23,
   "warn": 0,
@@ -9,11 +9,6 @@
       "file": "feed_overlap_report.yml",
       "check": "persist-credentials fehlt",
       "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
-    },
-    {
-      "file": "Production Health",
-      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
-      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 172.66.40.157, 172.66.43.99, 188.114.97.4, 172.66.40.157, 172.66.43.99\u2026 \u2013 Filterung wirkungslos!"
     },
     {
       "file": "Production Health",
@@ -39,22 +34,17 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 3758014,
-    "active_blacklist_ipv4.txt": 427617,
-    "blacklist_confidence40_ipv4.txt": 5797349,
+    "combined_threat_blacklist_ipv4_part1.txt": 3760626,
+    "active_blacklist_ipv4.txt": 432831,
+    "blacklist_confidence40_ipv4.txt": 5802033,
     "cve_exploit_ips.txt": 32348,
-    "honeypot_ips.txt": 227910,
-    "bot_detector_blacklist_ipv4.txt": 1271206
+    "honeypot_ips.txt": 197662,
+    "bot_detector_blacklist_ipv4.txt": 1273083
   },
   "production_health": {
-    "critical": 3,
+    "critical": 2,
     "warn": 1,
     "checks": [
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
-        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 172.66.40.157, 172.66.43.99, 188.114.97.4, 172.66.40.157, 172.66.43.99\u2026 \u2013 Filterung wirkungslos!"
-      },
       {
         "level": "CRITICAL",
         "check": "Push-Limit Naehe",
