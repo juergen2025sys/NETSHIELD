@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-11 01:38 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-11 01:43 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,274,671** |
-| Neu (heute) | **+26** |
-| Entfernt | **-16** |
+| Gesamt IPs | **1,274,677** |
+| Neu (heute) | **+6** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 56 |
@@ -66,7 +66,7 @@
 | ✅ `mohammedcha_proxripper_socks4` | 112,400 |
 | ✅ `mohammedcha_proxripper_http` | 118,286 |
 | ✅ `mohammedcha_proxripper_socks5` | 115,068 |
-| ✅ `celestialbrain_worldpool` | 79,621 |
+| ✅ `celestialbrain_worldpool` | 79,632 |
 | ✅ `dinoz0rg_proxy_list` | 82,559 |
 | ✅ `dinoz0rg_proxy_list_http` | 2,099 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 80,849 |
@@ -81,4 +81,4 @@
 > Diese 56 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-11 01:38 CEST (Europe/Berlin)*
+*Generiert: 2026-07-11 01:43 CEST (Europe/Berlin)*
