@@ -1,19 +1,19 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-07-10 13:21 UTC
+**Aktualisiert:** 2026-07-10 15:20 UTC
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **7,547,566** | 2026-07-10 15:04 CEST (Europe/Berlin) |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **429,392** | 2026-07-10 15:04 CEST (Europe/Berlin) |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **5,824,900** | 2026-07-10 13:15 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **51,578** | 2026-07-10 13:15 UTC |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **7,549,453** | 2026-07-10 17:09 CEST (Europe/Berlin) |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **431,495** | 2026-07-10 17:09 CEST (Europe/Berlin) |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **5,826,758** | 2026-07-10 15:15 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **51,563** | 2026-07-10 15:15 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **32,108** | 2026-07-10 07:26 UTC |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,273,035** | 2026-07-10 15:16 CEST (Europe/Berlin) |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,273,035** | 2026-07-10 15:22 CEST (Europe/Berlin) |
 | ✅ `honeypot_ips.txt` | Honeypot IPs | **200,334** | 2026-07-10 13:02 UTC |
-| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **13,646** | 2026-07-10 12:08 UTC |
+| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **14,298** | 2026-07-10 14:51 UTC |
 
 ---
 ## 🔍 Feed Health: ✅ 119 OK | ⚠️ 0 leer | ❌ 1 Fehler
@@ -32,4 +32,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-07-10 13:21 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-07-10 15:20 UTC*
