@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-10 12:34 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-10 12:44 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,272,089** |
-| Neu (heute) | **+235** |
-| Entfernt | **-153** |
+| Gesamt IPs | **1,272,070** |
+| Neu (heute) | **+36** |
+| Entfernt | **-55** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 56 |
@@ -29,9 +29,9 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_7d` | 1,514 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,650 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 500,000 |
-| ✅ `skillter_proxygather` | 18,516 |
-| ✅ `skillter_proxygather_working_proxies_all` | 140 |
-| ✅ `skillter_proxygather_working_proxies_http` | 100 |
+| ✅ `skillter_proxygather` | 18,408 |
+| ✅ `skillter_proxygather_working_proxies_all` | 56 |
+| ✅ `skillter_proxygather_working_proxies_http` | 32 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,344 |
 | ✅ `ebrasha_abdal_proxy_hub` | 5,691 |
 | ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,496 |
@@ -43,11 +43,11 @@
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 4,911 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,547 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 917 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,614 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 1,168 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 1,110 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 993 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 466 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,604 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 1,129 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 1,084 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 974 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 465 |
 | ✅ `leon406_subcrawler` | 110,650 |
 | ✅ `officialputuid_proxyforeveryone` | 5,335 |
 | ✅ `officialputuid_proxyforeveryone_https` | 3,685 |
@@ -81,4 +81,4 @@
 > Diese 56 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-10 12:34 CEST (Europe/Berlin)*
+*Generiert: 2026-07-10 12:44 CEST (Europe/Berlin)*
