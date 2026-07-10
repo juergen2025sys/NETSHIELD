@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-10 22:58 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-10 23:35 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,274,607** |
-| Neu (heute) | **+224** |
-| Entfernt | **-240** |
+| Gesamt IPs | **1,275,166** |
+| Neu (heute) | **+831** |
+| Entfernt | **-272** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 56 |
@@ -34,32 +34,32 @@
 | ✅ `skillter_proxygather_working_proxies_http` | 236 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,344 |
 | ✅ `ebrasha_abdal_proxy_hub` | 5,702 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,513 |
-| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,615 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,516 |
+| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,629 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,774 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 6,212 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 5,855 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https_anonymous` | 5,852 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 5,244 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 6,186 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 5,856 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https_anonymous` | 5,854 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 5,014 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,547 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 917 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,631 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 1,131 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 1,081 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 947 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 413 |
-| ✅ `leon406_subcrawler` | 110,681 |
-| ✅ `officialputuid_proxyforeveryone` | 4,819 |
-| ✅ `officialputuid_proxyforeveryone_https` | 3,656 |
-| ✅ `officialputuid_proxyforeveryone_proxies` | 4,861 |
-| ✅ `ercindedeoglu_proxies` | 24,971 |
-| ✅ `ercindedeoglu_proxies_socks4` | 5,377 |
-| ✅ `ercindedeoglu_proxies_socks5` | 3,147 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,598 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 1,087 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 1,047 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 924 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 451 |
+| ✅ `leon406_subcrawler` | 110,697 |
+| ✅ `officialputuid_proxyforeveryone` | 4,888 |
+| ✅ `officialputuid_proxyforeveryone_https` | 3,670 |
+| ✅ `officialputuid_proxyforeveryone_proxies` | 4,819 |
+| ✅ `ercindedeoglu_proxies` | 24,980 |
+| ✅ `ercindedeoglu_proxies_socks4` | 5,381 |
+| ✅ `ercindedeoglu_proxies_socks5` | 3,158 |
 | ✅ `tuanminpay_live_proxy` | 8,988 |
 | ✅ `tuanminpay_live_proxy_http` | 6,581 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,950 |
 | ✅ `tuanminpay_live_proxy_socks5` | 3,234 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 198,006 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 197,144 |
 | ✅ `noctiro_getproxy` | 4,434 |
 | ✅ `noctiro_getproxy_socks5` | 3,251 |
 | ✅ `mohammedcha_proxripper` | 54,963 |
@@ -73,12 +73,12 @@
 | ✅ `darzanebor_mikroblack` | 47,484 |
 | ✅ `ian_lusule_proxies` | 3,844 |
 | ✅ `ian_lusule_proxies_socks5` | 1,698 |
-| ✅ `configserverapps_service_blocklists_attacks_bots` | 10,261 |
-| ✅ `configserverapps_service_blocklists_botscout_30d` | 4,109 |
+| ✅ `configserverapps_service_blocklists_attacks_bots` | 10,469 |
+| ✅ `configserverapps_service_blocklists_botscout_30d` | 4,113 |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 > Diese 56 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-10 22:58 CEST (Europe/Berlin)*
+*Generiert: 2026-07-10 23:35 CEST (Europe/Berlin)*
