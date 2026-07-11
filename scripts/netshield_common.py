@@ -1658,9 +1658,75 @@ _PIN_ABSENT = object()
 # Toter Code mit irrefuehrendem Backward-Compat-Argument geloescht.
 
 
+def fetch_parallel_daemon(fetch_fn, items, max_workers, overall_timeout):
+    """Parallele Ausfuehrung mit echter Wall-Clock-Deadline, ohne dass
+    haengende Downloads das Skriptende blockieren.
+
+    FIX BUG-ATEXIT-JOIN: concurrent.futures.ThreadPoolExecutor registriert
+    intern einen atexit-Hook (concurrent.futures.thread._python_exit), der
+    beim Interpreter-Shutdown ALLE jemals erzeugten Worker-Threads joint –
+    unabhaengig davon, ob shutdown(wait=False) aufgerufen oder ein Future
+    per future.cancel() "abgebrochen" wurde. cancel() wirkt nur auf noch
+    nicht gestartete Futures; ein bereits laufender Thread (z.B. mitten in
+    einem blockierenden Netzwerk-Read) wird dadurch NICHT gestoppt und
+    blockiert am Skriptende trotzdem den Prozessexit. Beobachtet im Log:
+    Auto-Feeds meldeten "Timeout - abgebrochen", liefen aber 2-4,5 Min
+    im Hintergrund weiter, bevor sie fertig wurden (siehe Kommentar bei
+    fetch_auto). Diese Funktion verwendet echte daemon=True Threads statt
+    ThreadPoolExecutor – Daemon-Threads werden von Python beim
+    Interpreter-Exit NICHT gejoint, der Prozess kann sich sofort beenden,
+    auch wenn einzelne Downloads im Hintergrund noch haengen. Nicht
+    rechtzeitig fertige Items werden schlicht nicht in die Ergebnisliste
+    aufgenommen (ihre Daten gehen fuer diesen Lauf verloren – das ist bei
+    Best-Effort-Feeds wie Auto-Discovered-Feeds akzeptabel).
+
+    Args:
+        fetch_fn: Callable(item) -> Ergebnis. Muss Fehler selbst abfangen
+            (siehe fetch_auto/fetch_ips – dort wird bei Fehlern (name, set())
+            zurueckgegeben statt eine Exception zu werfen).
+        items: Liste von Eingabe-Items fuer fetch_fn.
+        max_workers: Max. gleichzeitig laufende Threads (Semaphore-basiert).
+        overall_timeout: Gesamt-Deadline in Sekunden ab Funktionsstart.
+
+    Returns:
+        list: Ergebnisse der Items, die innerhalb der Deadline fertig
+        wurden (Reihenfolge = Fertigstellungsreihenfolge, nicht Input-
+        Reihenfolge). Items, die die Deadline reissen, fehlen einfach.
+    """
+    import threading
+    import queue as _queue
+    import time as _time
+
+    sem = threading.Semaphore(max_workers)
+    result_q = _queue.Queue()
+
+    def _worker(item):
+        sem.acquire()
+        try:
+            result_q.put(fetch_fn(item))
+        finally:
+            sem.release()
+
+    for _item in items:
+        threading.Thread(target=_worker, args=(_item,), daemon=True).start()
+
+    deadline = _time.monotonic() + overall_timeout
+    results = []
+    while len(results) < len(items):
+        remaining = deadline - _time.monotonic()
+        if remaining <= 0:
+            break
+        try:
+            results.append(result_q.get(timeout=remaining))
+        except _queue.Empty:
+            break
+    return results
+
+
 def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
               read_limit=25 * 1024 * 1024, extra_headers=None,
-              fail_on_truncation=False, warn_on_truncation=True):
+              fail_on_truncation=False, warn_on_truncation=True,
+              total_timeout=None):
     """Fetcht eine URL mit exponentiellem Backoff.
 
     Sicherheit:
@@ -1671,7 +1737,13 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
 
     Args:
         url: Ziel-URL.
-        timeout: Timeout in Sekunden.
+        timeout: Timeout in Sekunden. WICHTIG: Das ist der Socket-Timeout
+            fuer eine EINZELNE blockierende Operation (Connect oder ein
+            einzelner recv()), NICHT fuer die Gesamtdauer von r.read().
+            Ein Server, der Daten langsam-aber-stetig liefert (jeder
+            einzelne Chunk kommt innerhalb von `timeout` Sekunden an),
+            kann r.read() beliebig lange laufen lassen, ohne dass dieser
+            Timeout je greift.
         retries: Max. Versuche.
         user_agent: User-Agent Header.
         read_limit: Max. Bytes zum Lesen.
@@ -1680,6 +1752,20 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
         warn_on_truncation: Bei False die Warnung fuer eine bewusst begrenzte
             Stichprobe unterdruecken. Der Rueckgabewert bleibt auf read_limit
             Bytes begrenzt. Fuer Voll-Downloads sollte der Standard True bleiben.
+        total_timeout: Optionale Gesamt-Deadline in Sekunden fuer den
+            kompletten Lesevorgang (Connect + alle Chunks zusammen).
+            FIX BUG-TRICKLE-TIMEOUT: `timeout` allein reicht bei langsam
+            tropfenden Feeds nicht aus (siehe oben) – ein Auto-Discovered-
+            Feed konnte dadurch trotz retries=1/timeout=15 mehrere Minuten
+            im Hintergrund weiterlaufen (beobachtet: cbuijs_accomplist ~8
+            Min. statt der erwarteten ~15s Fail-fast-Grenze), weil einzelne
+            recv()-Calls immer knapp unter 15s blieben. Default None =
+            alte Semantik (kein Gesamt-Limit) – WICHTIG fuer legitim grosse/
+            langsame Feeds wie firehol_anonymous oder bitwire_ipblocklist,
+            die im normalen Betrieb mehrere Minuten fuer den vollen Download
+            brauchen und bei einem generischen Gesamt-Limit faelschlich
+            abbrechen wuerden. Nur explizit setzen, wo Fail-fast wirklich
+            gewuenscht ist (z.B. Auto-Discovered-Feeds).
 
     Returns:
         str | None: Response-Body oder None bei Fehler.
@@ -1759,7 +1845,37 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
                     # Wenn genau read_limit+1 gelesen werden konnte, war die Antwort
                     # groesser als der Limit und wir haben stillschweigend getrimmt.
                     # Das wurde sonst nie sichtbar und Feeds konnten IPs verlieren.
-                    data = r.read(read_limit + 1)
+                    #
+                    # FIX BUG-TRICKLE-TIMEOUT: r.read(read_limit + 1) in einem
+                    # einzigen Call unterliegt nur dem Socket-Timeout pro
+                    # blockierender recv()-Operation, nicht der Gesamtdauer.
+                    # Wenn total_timeout gesetzt ist, lesen wir stattdessen in
+                    # Chunks und pruefen nach jedem Chunk eine Wall-Clock-
+                    # Deadline – so begrenzt total_timeout tatsaechlich die
+                    # GESAMTE Lesezeit, nicht nur einzelne Netzwerk-Calls.
+                    # Ohne total_timeout (Default) bleibt das alte Verhalten
+                    # unveraendert (kein Risiko fuer bestehende Slow-Feeds).
+                    if total_timeout is not None:
+                        _deadline = time.monotonic() + total_timeout
+                        _chunks = []
+                        _total = 0
+                        _CHUNK = 65536
+                        while True:
+                            if time.monotonic() >= _deadline:
+                                raise TimeoutError(
+                                    f"Gesamt-Timeout ({total_timeout}s) beim "
+                                    f"Lesen ueberschritten (bisher {_total} bytes)")
+                            _to_read = min(_CHUNK, read_limit + 1 - _total)
+                            if _to_read <= 0:
+                                break
+                            piece = r.read(_to_read)
+                            if not piece:
+                                break
+                            _chunks.append(piece)
+                            _total += len(piece)
+                        data = b"".join(_chunks)
+                    else:
+                        data = r.read(read_limit + 1)
                     if len(data) > read_limit:
                         # Bei Voll-Downloads ist Truncation ein echter Fehler und
                         # bleibt sichtbar. Content-Sniff/Awesome-List laden dagegen
