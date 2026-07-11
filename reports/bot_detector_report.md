@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-12 01:37 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-12 01:42 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,258,053** |
-| Neu (heute) | **+15** |
-| Entfernt | **-55** |
+| Gesamt IPs | **1,258,060** |
+| Neu (heute) | **+9** |
+| Entfernt | **-2** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 56 |
@@ -55,10 +55,10 @@
 | ✅ `ercindedeoglu_proxies` | 24,906 |
 | ✅ `ercindedeoglu_proxies_socks4` | 5,451 |
 | ✅ `ercindedeoglu_proxies_socks5` | 3,647 |
-| ✅ `tuanminpay_live_proxy` | 8,798 |
-| ✅ `tuanminpay_live_proxy_http` | 6,440 |
-| ✅ `tuanminpay_live_proxy_socks4` | 4,926 |
-| ✅ `tuanminpay_live_proxy_socks5` | 3,223 |
+| ✅ `tuanminpay_live_proxy` | 8,750 |
+| ✅ `tuanminpay_live_proxy_http` | 6,425 |
+| ✅ `tuanminpay_live_proxy_socks4` | 4,681 |
+| ✅ `tuanminpay_live_proxy_socks5` | 3,007 |
 | ✅ `gitrecon1455_fresh_proxy_list` | 186,587 |
 | ✅ `noctiro_getproxy` | 4,622 |
 | ✅ `noctiro_getproxy_socks5` | 3,451 |
@@ -81,4 +81,4 @@
 > Diese 56 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-12 01:37 CEST (Europe/Berlin)*
+*Generiert: 2026-07-12 01:42 CEST (Europe/Berlin)*
