@@ -1598,14 +1598,32 @@ jobs:
 
                   def fetch_auto(feed):
                       # Fail-fast: retries=1/timeout=15 → ein toter/zaeher Auto-Feed
-                      # gibt nach ~15s auf statt ~66s einen Worker zu blockieren.
-                      # FIX BUG-TRICKLE-TIMEOUT: timeout=15 allein garantierte das
-                      # nicht (Socket-Timeout gilt nur pro recv(), nicht fuer die
-                      # Gesamtdauer von r.read() – siehe fetch_ips-Kommentar oben).
-                      # total_timeout=15 erzwingt jetzt eine echte Wall-Clock-
-                      # Deadline ueber den kompletten Download.
+                      # gibt nach ~15s pro Socket-Operation auf statt lange zu haengen.
+                      #
+                      # FIX BUG-TOTALTIMEOUT-REGRESSION: total_timeout=15 (aus FIX
+                      # BUG-TRICKLE-TIMEOUT) wieder entfernt. Es hat einen echten
+                      # Datenverlust verursacht: ankaboot_source_email_open_data
+                      # (497.903 IPs), gazpitchy92_ip_blocklist (301.305 IPs),
+                      # gazpitchy92_ip_blocklist_blacklist (287.170 IPs) und
+                      # ziyadnz_threat_intel_ip_feeds_blacklist (114.995 IPs) –
+                      # zusammen ueber 1,2 Mio. IPs – liefen VOR diesem Fix
+                      # erfolgreich durch, schlugen aber in JEDEM Lauf danach
+                      # fehl ("Gesamt-Timeout (15s) beim Lesen ueberschritten",
+                      # bei 3,7-4,5 MB bereits gelesen). Diese Feeds sind schlicht
+                      # groesser (mehrere MB) und brauchen ueber normale GitHub-raw-
+                      # Bandbreite laenger als 15s Gesamtdauer, OHNE zu haengen oder
+                      # zu tropfeln - total_timeout=15 killte sie also grundlos.
+                      # Der eigentliche Zweck von total_timeout (verhindern, dass
+                      # ein haengender Feed den gesamten Job blockiert) wird bereits
+                      # vollstaendig durch fetch_parallel_daemon geloest: echte
+                      # daemon=True-Threads plus die Phasen-Deadline (overall_timeout=
+                      # 220 unten) sorgen dafuer, dass ein zaeher Feed weder den
+                      # Hauptthread noch den Prozessexit blockiert - unabhaengig
+                      # davon, wie lange der einzelne Download braucht. Ein
+                      # zusaetzliches Pro-Feed-Limit auf Lesezeit-Ebene ist dafuer
+                      # nicht mehr noetig und hat nur Kollateralschaden verursacht.
                       return fetch_ips(feed["name"], feed["url"], retries=1,
-                                       timeout=15, total_timeout=15)
+                                       timeout=15)
 
                   # FIX AUTOFEEDS-TIMEOUT: 5 Worker / 110s waren unterdimensioniert
                   # (Haupt-Phase nutzt 15/880s) -> ~24 Feeds chronisch gecancelt.
