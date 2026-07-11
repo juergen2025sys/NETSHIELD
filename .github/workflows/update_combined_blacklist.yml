@@ -1871,6 +1871,18 @@ jobs:
           WATCHLIST_EXPIRY_DAYS = 30
           cutoff      = now - timedelta(days=EXPIRY_DAYS)
           cutoff_wl   = now - timedelta(days=WATCHLIST_EXPIRY_DAYS)
+          # FIX PERF-EXPIRY: ISO-Datum als String fuer lexikographischen Compare
+          # statt strptime pro IP, analog zu FIX PERF-ACTIVE weiter unten (aktiver
+          # Blacklist-Abschnitt) - selbe Technik, hier auf den Haupt-Cleanup-Loop
+          # angewendet. safe_get_date() validiert intern bereits per strptime()
+          # (netshield_common.py) und liefert garantiert einen gueltigen
+          # "YYYY-MM-DD"-String (oder den Default) zurueck. Ein zweiter
+          # strptime()-Aufruf im Loop validierte also nichts mehr Neues, sondern
+          # parste nur einen bereits geprueften String erneut. ISO-Datumsstrings
+          # sind lexikographisch identisch sortiert wie geparste date-Objekte,
+          # der String-Vergleich ist daher verlustfrei aequivalent.
+          cutoff_str    = cutoff.strftime("%Y-%m-%d")
+          cutoff_wl_str = cutoff_wl.strftime("%Y-%m-%d")
 
           _to_drop = []
           # FIX CRASH-GUARD: Outer try/except pro IP. Eine einzelne korrupte
@@ -1959,17 +1971,16 @@ jobs:
                       _to_drop.append(ip)
                       continue
                   # 3) Expiry (Sentinel-Guard wie BUG-1)
+                  # FIX PERF-EXPIRY: siehe Kommentar bei cutoff_str oben.
                   try:
                       last_str  = safe_get_date(data, "last")
-                      first_str = safe_get_date(data, "first", last_str)
-                      last_seen  = datetime.strptime(last_str,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                      first_seen = datetime.strptime(first_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
                       if last_str == "2000-01-01":
-                          if first_seen < cutoff_wl:
+                          first_str = safe_get_date(data, "first", last_str)
+                          if first_str < cutoff_wl_str:
                               expired.append(ip)
                               _to_drop.append(ip)
                       else:
-                          if last_seen < cutoff:
+                          if last_str < cutoff_str:
                               expired.append(ip)
                               _to_drop.append(ip)
                   except Exception:
