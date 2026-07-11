@@ -2273,7 +2273,7 @@ def sort_ips(ip_list):
         return sorted(ip_list, key=str)
 
 
-def write_ip_list(filepath, ips, header_lines=None):
+def write_ip_list(filepath, ips, header_lines=None, presorted=False):
     """Schreibt eine sortierte IP-Liste mit Header – atomar.
 
     Schreibt erst in eine temporäre Datei im selben Verzeichnis und
@@ -2289,9 +2289,26 @@ def write_ip_list(filepath, ips, header_lines=None):
         filepath: Zieldatei.
         ips: Iterable von IPs/CIDRs.
         header_lines: Liste von Kommentarzeilen (ohne #-Prefix).
+        presorted: Bei True wird sort_ips() NICHT nochmal aufgerufen.
+            FIX BUG-DOUBLE-SORT: Ohne diesen Parameter hat write_ip_list()
+            IMMER per sort_ips() neu sortiert – auch wenn der Aufrufer die
+            Liste bereits per schnellerem Key (z.B. socket.inet_aton statt
+            sort_ips()' langsamerem String-Split+int()-Key) vorsortiert
+            hatte. Gemessen: bei combined_threat_blacklist_ipv4.txt (7,3M
+            IPs) + 2 Parts + active_blacklist kostete dieser unnoetige
+            Re-Sort zusammen ca. 95s pro Lauf, komplett verschwendet, weil
+            das Ergebnis identisch zur bereits sortierten Eingabe war.
+            presorted=True setzen NUR wenn die Liste garantiert schon
+            numerisch sortiert ist (z.B. via _ip_sort_key) – bei
+            unsortierter Eingabe mit presorted=True wird KEINE Sortierung
+            mehr durchgefuehrt und die Ausgabedatei waere fehlerhaft
+            sortiert. Default bleibt False (altes, sicheres Verhalten).
+
+    Returns:
+        list[str]: Die geschriebene, sortierte Liste.
     """
     import tempfile
-    sorted_list = sort_ips(ips)
+    sorted_list = list(ips) if presorted else sort_ips(ips)
     target_dir = os.path.dirname(os.path.abspath(filepath)) or "."
     fd, tmp_path = tempfile.mkstemp(
         prefix=f".{os.path.basename(filepath)}.",
