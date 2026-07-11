@@ -264,7 +264,7 @@ jobs:
               parse_entries, parse_feed_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
               write_json_atomic, write_text_atomic,
-              fetch_url, check_local_feed_age,
+              fetch_url, fetch_parallel_daemon, check_local_feed_age,
               resolve_github_moved_url,
               validate_auto_feeds,
               is_bot_detector_feed_name,
@@ -1160,11 +1160,22 @@ jobs:
           # (list.append ist unter CPython atomar).
           relocations = []
 
-          def fetch_ips(name, url, retries=3, timeout=22):
+          def fetch_ips(name, url, retries=3, timeout=22, total_timeout=None):
               # retries/timeout parametrierbar: Default (3/22s) gilt fuer Haupt-,
               # Slow- und DataPlane-Phase wie bisher. Auto-Feeds rufen mit
               # retries=1/timeout=15 (Fail-fast), damit ein einzelner zaeher Feed
               # die Phase nicht bis zur Timeout-Decke blockiert.
+              # FIX BUG-TRICKLE-TIMEOUT: timeout=15 allein bremste zaehe Feeds
+              # NICHT wirklich, weil urllib-timeout nur pro Socket-Operation
+              # gilt (siehe netshield_common.fetch_url Docstring). Beobachtet:
+              # cbuijs_accomplist/badip/hagezi liefen trotz "Timeout – abgebrochen"-
+              # Warnung noch 2-4,5 Min im Hintergrund weiter (Log 15:46:29 Warnung,
+              # tatsaechlich fertig erst 15:48:23 / 15:48:36 / 15:50:52). Neuer
+              # total_timeout-Parameter erzwingt eine echte Wall-Clock-Deadline
+              # ueber den kompletten Lesevorgang. Bewusst NICHT fuer Haupt-/Slow-
+              # Feeds gesetzt (Default None) – firehol_anonymous/bitwire_ipblocklist
+              # brauchen legitim mehrere Minuten und wuerden sonst faelschlich
+              # abbrechen.
               # FIX BUG-WF1-FETCHURL: Vorher direktes urllib.request.urlopen –
               # damit umging dieser Pfad alle Sicherheits-Hardenings, die
               # netshield_common.fetch_url bietet:
@@ -1180,7 +1191,8 @@ jobs:
               try:
                   raw = fetch_url(url, timeout=timeout, retries=retries,
                                   user_agent="NETSHIELD/3.0",
-                                  read_limit=READ_LIMIT)
+                                  read_limit=READ_LIMIT,
+                                  total_timeout=total_timeout)
                   if raw is None:
                       # FEED-MOVE-RESOLVER: Persistenter Fehler (i.d.R. 404 nach
                       # GH-raw-Retry). Falls GitHub-raw: pruefen ob die Datei in
@@ -1196,7 +1208,8 @@ jobs:
                           effective_url = new_url
                           raw = fetch_url(new_url, timeout=timeout, retries=retries,
                                           user_agent="NETSHIELD/3.0",
-                                          read_limit=READ_LIMIT)
+                                          read_limit=READ_LIMIT,
+                                          total_timeout=total_timeout)
                           relocations.append({
                               "name": name, "old_url": url, "new_url": new_url,
                               "fetched_ok": raw is not None,
@@ -1576,7 +1589,13 @@ jobs:
                   def fetch_auto(feed):
                       # Fail-fast: retries=1/timeout=15 → ein toter/zaeher Auto-Feed
                       # gibt nach ~15s auf statt ~66s einen Worker zu blockieren.
-                      return fetch_ips(feed["name"], feed["url"], retries=1, timeout=15)
+                      # FIX BUG-TRICKLE-TIMEOUT: timeout=15 allein garantierte das
+                      # nicht (Socket-Timeout gilt nur pro recv(), nicht fuer die
+                      # Gesamtdauer von r.read() – siehe fetch_ips-Kommentar oben).
+                      # total_timeout=15 erzwingt jetzt eine echte Wall-Clock-
+                      # Deadline ueber den kompletten Download.
+                      return fetch_ips(feed["name"], feed["url"], retries=1,
+                                       timeout=15, total_timeout=15)
 
                   # FIX AUTOFEEDS-TIMEOUT: 5 Worker / 110s waren unterdimensioniert
                   # (Haupt-Phase nutzt 15/880s) -> ~24 Feeds chronisch gecancelt.
@@ -1587,30 +1606,36 @@ jobs:
                   # damit reichlich Decke fuer die verbleibenden, legitimen Feeds
                   # (u.a. cbuijs) und vermeidet die fruehere 360s-Verschwendung.
                   print(f"  Auto-Feed-Worker: {AUTO_WORKERS}")
-                  # FIX PERF-AUTO-NOWAIT: Der alte `with ThreadPoolExecutor` wartete
-                  # nach Timeout trotzdem auf laufende Downloads. Genau deshalb
-                  # wurden in den Logs abgebrochene ConfigServer-Feeds spaeter noch
-                  # minutenlang fertiggeladen. Jetzt werden Pending-Futures sauber
-                  # gecancelt und der Executor wartet nicht blockierend.
-                  ex = ThreadPoolExecutor(max_workers=AUTO_WORKERS)
-                  futures = {ex.submit(fetch_auto, f): f["name"] for f in auto_feeds}
-                  try:
-                      for future in as_completed(futures, timeout=220):
-                          name, ips = future.result()
-                          for ip in ips:
-                              # Auto-discovered Feeds sind nicht HQ
-                              if ip not in ip_feeds_today:
-                                  ip_feeds_today[ip] = set()
-                              ip_feeds_today[ip].add(name)
-                          feed_stats.append((name, len(ips)))
-                  except TimeoutError:
-                      pending = sorted(name for future, name in futures.items() if not future.done())
-                      for future in futures:
-                          if not future.done():
-                              future.cancel()
-                      print(f"  WARNUNG: Auto-Feeds Timeout – {len(pending)} Feed(s) abgebrochen: {', '.join(pending[:8])}{'…' if len(pending) > 8 else ''}")
-                  finally:
-                      ex.shutdown(wait=False, cancel_futures=True)
+                  # FIX BUG-ATEXIT-JOIN: Die alte FIX-PERF-AUTO-NOWAIT-Annahme war
+                  # falsch – ex.shutdown(wait=False, cancel_futures=True) verhindert
+                  # NICHT, dass der Interpreter beim Skriptende auf laufende
+                  # ThreadPoolExecutor-Worker wartet. concurrent.futures.thread
+                  # registriert einen eigenen atexit-Hook, der ALLE jemals erzeugten
+                  # Worker-Threads joint, egal ob deren Future "gecancelt" wurde.
+                  # future.cancel() wirkt nur auf noch nicht gestartete Futures.
+                  # Beobachtet im Log: "Timeout - abgebrochen"-Warnung, aber die
+                  # betroffenen Feeds (cbuijs_accomplist/badip/hagezi) liefen 2-4,5
+                  # Min. danach im Hintergrund weiter, bevor sie "OK" meldeten.
+                  # fetch_parallel_daemon nutzt echte daemon=True Threads statt
+                  # ThreadPoolExecutor – die werden vom Interpreter beim Exit NICHT
+                  # gejoint, das Skript kann sich sofort beenden, auch wenn einzelne
+                  # Downloads im Hintergrund noch haengen (deren Ergebnis geht dann
+                  # fuer diesen Lauf einfach verloren – bei Best-Effort-Auto-Feeds
+                  # akzeptabel).
+                  _auto_results = fetch_parallel_daemon(
+                      fetch_auto, auto_feeds, max_workers=AUTO_WORKERS, overall_timeout=220)
+                  _auto_names_done = set()
+                  for name, ips in _auto_results:
+                      _auto_names_done.add(name)
+                      for ip in ips:
+                          # Auto-discovered Feeds sind nicht HQ
+                          if ip not in ip_feeds_today:
+                              ip_feeds_today[ip] = set()
+                          ip_feeds_today[ip].add(name)
+                      feed_stats.append((name, len(ips)))
+                  _auto_pending = sorted(f["name"] for f in auto_feeds if f["name"] not in _auto_names_done)
+                  if _auto_pending:
+                      print(f"  WARNUNG: Auto-Feeds Timeout – {len(_auto_pending)} Feed(s) abgebrochen: {', '.join(_auto_pending[:8])}{'…' if len(_auto_pending) > 8 else ''}")
               except Exception as e:
                   print(f"  WARNUNG: state/auto_discovered_feeds.json Fehler: {e}")
           else:
