@@ -15,16 +15,11 @@ name: Feed IP Finder (manueller IP-Check)
 # Download noetig) UND optional als CSV-Artefakt. Wird bewusst NICHT ins Repo
 # committet - das ist ein Ad-hoc-Diagnosewerkzeug, kein persistenter State.
 #
-# HINWEIS ZUR ARTEFAKT-ACTION: actions/upload-artifact wird unten mit dem
-# Versions-Tag @v4 statt einer gepinnten Commit-SHA referenziert, anders als
-# sonst im Repo ueblich (siehe z.B. actions/checkout@9c091bb...). Grund: es
-# gab bislang keine Verwendung dieser Action im Repo, aus der eine bereits
-# verifizierte SHA uebernommen werden konnte, und die SHA konnte beim
-# Erstellen dieses Workflows nicht per Netzwerkzugriff nachgeschlagen werden.
-# Bitte vor dem ersten produktiven Lauf selbst pruefen/pinnen (z.B. ueber
-# Dependabot, das im Repo bereits aktiv ist) oder den Artefakt-Schritt
-# entfernen - die Job-Summary allein liefert bereits das vollstaendige
-# Ergebnis ohne jede zusaetzliche Action.
+# HINWEIS ZUR ARTEFAKT-ACTION: actions/upload-artifact ist inzwischen auf die
+# Commit-SHA von v7.0.1 gepinnt (FIX AUDIT-E-003, 2026-07-12; SHA von der
+# offiziellen Releases-Seite verifiziert). Der fruehere Hinweis, dass die SHA
+# beim Erstellen nicht nachgeschlagen werden konnte, ist damit erledigt.
+# Dependabot (github-actions-Ecosystem, woechentlich) haelt den Pin aktuell.
 
 on:
   workflow_dispatch:
@@ -39,7 +34,7 @@ on:
         type: boolean
         default: true
       upload_csv_artifact:
-        description: 'Zusaetzlich CSV-Artefakt hochladen (nutzt ungepinnte actions/upload-artifact@v4, siehe Hinweis oben)'
+        description: 'Zusaetzlich CSV-Artefakt hochladen (actions/upload-artifact, SHA-gepinnt auf v7.0.1)'
         required: false
         type: boolean
         default: false
@@ -73,7 +68,7 @@ jobs:
         run: |
           python3 << 'PYEOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
-          from netshield_common import fetch_url, parse_entries, is_bot_detector_feed_name
+          from netshield_common import fetch_url, parse_entries, is_bot_detector_feed_name, write_text_atomic
 
           import json, os, re, ipaddress
 
@@ -156,11 +151,17 @@ jobs:
           print(f"\nFertig: {ok_count} erreichbar, {fail_count} fehlgeschlagen, {len(hits)} Treffer")
 
           # -- CSV schreiben (fuer optionalen Artefakt-Upload) --------------------
-          os.makedirs("feed_ip_finder_output", exist_ok=True)
-          with open("feed_ip_finder_output/feed_matches_report.csv", "w", encoding="utf-8") as f:
-              f.write("TargetIP,FeedName,Category,FeedURL,MatchedEntry\n")
-              for row in hits:
-                  f.write(",".join(row) + "\n")
+          # FIX AUDIT-E-007 (2026-07-12): direktes open(..., "w") durch
+          # write_text_atomic ersetzt (tmp + fsync + os.replace). Behebt den
+          # Fail des repo-eigenen Hygiene-Checks "Atomare Writes auf
+          # Blacklisten", der seit Aufnahme dieses Workflows den Gate-Step in
+          # run_tests.yml rot schaltete. write_text_atomic legt das
+          # Zielverzeichnis selbst an (FIX SUBDIR-MKDIR in netshield_common).
+          _csv_lines = ["TargetIP,FeedName,Category,FeedURL,MatchedEntry"]
+          for row in hits:
+              _csv_lines.append(",".join(row))
+          write_text_atomic("feed_ip_finder_output/feed_matches_report.csv",
+                            "\n".join(_csv_lines) + "\n")
 
           # -- Job-Summary (sofort sichtbar, kein Artefakt-Download noetig) -------
           summary_lines = []
@@ -179,16 +180,26 @@ jobs:
 
           summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
           if summary_path:
+              # FIX AUDIT-E-007 (2026-07-12): GITHUB_STEP_SUMMARY MUSS im
+              # Append-Modus beschrieben werden (GitHub-Mechanismus: mehrere
+              # Steps haengen an dieselbe Datei an). Ein atomarer
+              # os.replace-Write wuerde fruehere Summary-Inhalte verwerfen.
+              # allow-nonatomic: GITHUB_STEP_SUMMARY erfordert Append-Semantik
               with open(summary_path, "a", encoding="utf-8") as f:
                   f.write("\n".join(summary_lines) + "\n")
 
           print("\n".join(summary_lines))
           PYEOF
 
-      # Optionaler Artefakt-Upload - siehe Pinning-Hinweis im Kopfkommentar.
+      # Artefakt-Upload – FIX AUDIT-E-003 (2026-07-12): auf Commit-SHA gepinnt.
+      # SHA verifiziert von https://github.com/actions/upload-artifact/releases
+      # (Release v7.0.1 vom 10.04.2026, GitHub-signierter Commit 043fb46...).
+      # v7 laeuft nativ auf Node 24 (v4 lief auf dem ab 16.09.2026 vom Runner
+      # entfernten Node 20); die hier genutzten Inputs name/path/retention-days
+      # sind zwischen v4 und v7 unveraendert.
       - name: CSV-Report als Artefakt hochladen
         if: ${{ inputs.upload_csv_artifact == true }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: feed-ip-finder-report
           path: feed_ip_finder_output/feed_matches_report.csv
