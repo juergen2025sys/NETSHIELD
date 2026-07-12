@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-07-12 14:37 UTC
+**Aktualisiert:** 2026-07-12 20:09 UTC
 
-**Workflows:** 24 | ✅ 23 OK | ⚠️ 0 Warnung | ❌ 2 Fehler
+**Workflows:** 25 | ✅ 23 OK | ⚠️ 1 Warnung | ❌ 2 Fehler
 
 ---
 ## ❌ Fehler (kritisch)
@@ -9,13 +9,14 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `feed_overlap_report.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 103.9 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 104.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
+| `feed_ip_finder.yml` | Action nicht SHA-pinned | uses: actions/upload-artifact@v4 – Tag statt SHA-Hash (Supply-Chain-Risiko) |
 | `feed_overlap_report.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `Production Health` | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
@@ -25,7 +26,7 @@
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 103.9 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 104.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🔴 CRITICAL | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🟡 WARN | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
@@ -41,6 +42,7 @@
 | `dependabot-heal-conflicts.yml` | ✅ OK | 0 | 0 | – |
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
+| `feed_ip_finder.yml` | ⚠️ | 0 | 1 | – |
 | `feed_overlap_report.yml` | ❌ | 1 | 1 | `25 3 * * 0` |
 | `geo_tagger.yml` | ✅ OK | 0 | 0 | `45 7 * * 0` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 5,11,17,23 * * *` |
@@ -59,4 +61,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-07-12 14:37 UTC | 24 Workflow-Dateien geprüft*
+*Generiert: 2026-07-12 20:09 UTC | 25 Workflow-Dateien geprüft*
