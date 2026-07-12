@@ -989,8 +989,22 @@ jobs:
                       raise FileNotFoundError("kein seen_db Backup und keine Backup-Parts vorhanden")
 
                   # Pre-Size + Streaming-Limit gegen korrupte Backups/zip bombs.
+                  # FIX AUDIT-E-001 (2026-07-12): _BACKUP_DECOMPRESSED_LIMIT von
+                  # 2 GiB auf 5 GiB angehoben (identisch zu _SEENDB_LIMIT weiter
+                  # oben). Die reale seen_db ist laut state/seen_db_meta.json
+                  # bereits 2369,7 MB gross; das gzip-Backup dekomprimiert auf
+                  # 2.484.811.428 Bytes und lag damit ~337 MB UEBER dem alten
+                  # 2-GiB-Limit. Folge: der Restore-Pfad schlug fuer das eigene,
+                  # gesunde Backup IMMER mit "zip-Bombe" fehl -> db={} ->
+                  # kompletter Verlust der 180-Tage-Historie bei Cache-Eviction
+                  # oder korrupter seen_db.json. Reproduzierbar belegt:
+                  # zcat state/seen_db_backup.json.gz.part* | wc -c
+                  #   => 2484811428 > 2147483648 (altes Limit).
+                  # 5 GiB behaelt den Zip-Bomben-Schutz bei (Cap bleibt hart)
+                  # und ist konsistent mit dem 5-GiB-Cap des direkten
+                  # seen_db.json-Loads (_SEENDB_LIMIT).
                   _BACKUP_COMPRESSED_LIMIT   = 2 * 1024 * 1024 * 1024
-                  _BACKUP_DECOMPRESSED_LIMIT = 2 * 1024 * 1024 * 1024
+                  _BACKUP_DECOMPRESSED_LIMIT = 5 * 1024 * 1024 * 1024
                   _bsize = os.path.getsize(_backup_source)
                   if _bsize > _BACKUP_COMPRESSED_LIMIT:
                       raise ValueError(

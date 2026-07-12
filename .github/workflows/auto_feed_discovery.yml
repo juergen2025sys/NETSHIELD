@@ -3369,23 +3369,39 @@ jobs:
                   ingested_new += 1
 
           # Expiry – identisch zu update_combined_blacklist.yml
+          # FIX AUDIT-E-002 (2026-07-12): Vergleichs-Semantik exakt an den
+          # Merged-Cleanup-Pass in update_combined_blacklist.yml angeglichen.
+          # Vorher: datetime-Vergleich MIT Uhrzeit (last_seen < now-180d).
+          # last/first stehen in der seen_db als reine Datumsstrings
+          # (Mitternacht UTC); der Cutoff trug dagegen die Cron-Uhrzeit
+          # (So 04:37/07:23/11:47 UTC). Effekt: eine IP mit last exakt
+          # 180 Tage zurueck wurde HIER bereits am Tag 180 entfernt,
+          # waehrend combined sie per String-'<' erst am Tag 181 entfernt
+          # (2026-01-13 < 2026-01-13 ist False). Der woechentliche
+          # auto_feed_discovery-Lauf loeschte solche IPs also bis zu ~24h
+          # frueher als jeder combined-Lauf – gleiche Konstanten (der
+          # EXPIRY_DAYS-Konsistenz-Check im workflow_health_checker sieht
+          # nur die Zahlen), aber abweichende Grenzfall-Semantik.
+          # Jetzt: identischer lexikographischer ISO-Datums-Vergleich wie
+          # in combined (verlustfrei aequivalent zu geparsten Dates,
+          # siehe FIX PERF-EXPIRY dort); strptime entfaellt komplett.
           EXPIRY_DAYS           = 180
           WATCHLIST_EXPIRY_DAYS = 30
           cutoff    = now - timedelta(days=EXPIRY_DAYS)
           cutoff_wl = now - timedelta(days=WATCHLIST_EXPIRY_DAYS)
+          cutoff_str    = cutoff.strftime("%Y-%m-%d")
+          cutoff_wl_str = cutoff_wl.strftime("%Y-%m-%d")
           to_expire = set()
           for ip in list(db.keys()):
               try:
                   entry      = db[ip]
                   last_str   = safe_get_date(entry, "last")
                   first_str  = safe_get_date(entry, "first", last_str)
-                  last_seen  = datetime.strptime(last_str,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                  first_seen = datetime.strptime(first_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
                   if last_str == "2000-01-01":
-                      if first_seen < cutoff_wl:
+                      if first_str < cutoff_wl_str:
                           to_expire.add(ip)
                   else:
-                      if last_seen < cutoff:
+                      if last_str < cutoff_str:
                           to_expire.add(ip)
               except Exception:
                   to_expire.add(ip)
