@@ -1,6 +1,6 @@
 {
-  "updated": "2026-07-12 04:43 UTC",
-  "total_feeds": 155,
+  "updated": "2026-07-12 (manueller FeedFinder-Fix)",
+  "total_feeds": 153,
   "new_this_run": -2,
   "rejected_repos": [
     "001SPARTaN/aggressor_scripts",
@@ -764,6 +764,7 @@
     "Leeon123/CC-attack",
     "LeilaoMi/AutoMergePublicNodes-Optimized",
     "Leo4j/Invoke-SMBRemoting",
+    "Leon406/SubCrawler",
     "Liana64/home-infra",
     "Liberty91LTD/cti-skills",
     "LimerBoy/Soviet-Thief",
@@ -2989,6 +2990,7 @@
     "misiektoja/steam_monitor",
     "misiektoja/xbox_monitor",
     "misterch0c/malSploitBase",
+    "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
     "mitigative-davidbushnell562/skill-sentry",
     "mitre-attack/attack-navigator",
     "mitre-attack/bzar",
@@ -20646,6 +20648,14 @@
     "Gabbysorn/claude-code_evil": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-12"
+    },
+    "Leon406/SubCrawler": {
+      "reason": "Manuell ausgeschlossen: zu hohe False-Positive-Rate bei legitimen Cloud-/CDN-IPs (Ubisoft/EA AWS-Backends via SubCrawler-Scan-Ergebnisse; nginx-bad-bot-blocker nutzt zu grobe CIDR-Bloecke wie 172.64.0.0/13 und 162.158.0.0/15, die praktisch den gesamten Cloudflare-Adressraum abdecken). Verifiziert per FeedFinder.ps1-Scan am 2026-07-12: 13 von 23 geprueften IPs kamen allein von leon406_subcrawler.",
+      "rejected_at": "2026-07-12"
+    },
+    "mitchellkrogza/nginx-ultimate-bad-bot-blocker": {
+      "reason": "Manuell ausgeschlossen: zu hohe False-Positive-Rate bei legitimen Cloud-/CDN-IPs (Ubisoft/EA AWS-Backends via SubCrawler-Scan-Ergebnisse; nginx-bad-bot-blocker nutzt zu grobe CIDR-Bloecke wie 172.64.0.0/13 und 162.158.0.0/15, die praktisch den gesamten Cloudflare-Adressraum abdecken). Verifiziert per FeedFinder.ps1-Scan am 2026-07-12: 13 von 23 geprueften IPs kamen allein von leon406_subcrawler.",
+      "rejected_at": "2026-07-12"
     }
   },
   "content_sniff_state_version": 2,
@@ -20998,28 +21008,6 @@
       "hq": false,
       "consecutive_fails": 0,
       "ip_fingerprint": "ebb66a397a7b38c7",
-      "file_days_old": 1
-    },
-    {
-      "name": "mitchellkrogza_nginx_ultimate_bad_bot_blocker_globalblacklist",
-      "url": "https://raw.githubusercontent.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/HEAD/conf.d/globalblacklist.conf",
-      "repo": "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
-      "file": "conf.d/globalblacklist.conf",
-      "platform": "github",
-      "added": "2026-05-28",
-      "last_checked": "2026-07-12",
-      "ip_count": 10634,
-      "overlap_pct": 75.0,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 4721,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false,
-      "consecutive_fails": 0,
-      "ip_fingerprint": "6be70e806ee90b41",
       "file_days_old": 1
     },
     {
@@ -23195,28 +23183,6 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0
-    },
-    {
-      "name": "leon406_subcrawler",
-      "url": "https://raw.githubusercontent.com/Leon406/SubCrawler/HEAD/sub/socketfail",
-      "repo": "Leon406/SubCrawler",
-      "file": "sub/socketfail",
-      "platform": "github",
-      "added": "2026-07-04",
-      "last_checked": "2026-07-12",
-      "ip_count": 111329,
-      "ip_fingerprint": "d39a33b029fc3b63",
-      "overlap_pct": 0.1,
-      "fp_rate": 0.0,
-      "rep_score": 100,
-      "stars": 1542,
-      "days_old": 0,
-      "file_days_old": 0,
-      "search_sources": [
-        "topic:trojan"
-      ],
-      "hq": false,
-      "consecutive_fails": 0
     },
     {
       "name": "officialputuid_proxyforeveryone",
