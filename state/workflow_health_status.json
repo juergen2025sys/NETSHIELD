@@ -1,8 +1,8 @@
 {
-  "updated": "2026-07-12 20:09 UTC",
+  "updated": "2026-07-13 04:44 UTC",
   "total": 25,
-  "ok": 23,
-  "warn": 1,
+  "ok": 24,
+  "warn": 0,
   "error": 2,
   "errors": [
     {
@@ -13,7 +13,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 104.0 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 104.1 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
     },
     {
       "file": "Production Health",
@@ -22,11 +22,6 @@
     }
   ],
   "warnings": [
-    {
-      "file": "feed_ip_finder.yml",
-      "check": "Action nicht SHA-pinned",
-      "detail": "uses: actions/upload-artifact@v4 \u2013 Tag statt SHA-Hash (Supply-Chain-Risiko)"
-    },
     {
       "file": "feed_overlap_report.yml",
       "check": "Node24 env fehlt",
@@ -39,12 +34,12 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 3820412,
-    "active_blacklist_ipv4.txt": 402487,
-    "blacklist_confidence40_ipv4.txt": 5870601,
+    "combined_threat_blacklist_ipv4_part1.txt": 3823371,
+    "active_blacklist_ipv4.txt": 383948,
+    "blacklist_confidence40_ipv4.txt": 5875659,
     "cve_exploit_ips.txt": 32022,
-    "honeypot_ips.txt": 194282,
-    "bot_detector_blacklist_ipv4.txt": 1145323
+    "honeypot_ips.txt": 193644,
+    "bot_detector_blacklist_ipv4.txt": 1141439
   },
   "production_health": {
     "critical": 2,
@@ -53,7 +48,7 @@
       {
         "level": "CRITICAL",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 104.0 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 104.1 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
       },
       {
         "level": "CRITICAL",
