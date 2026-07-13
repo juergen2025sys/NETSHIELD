@@ -1,17 +1,17 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-07-13 05:11 UTC
+**Aktualisiert:** 2026-07-13 07:13 UTC
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **7,646,741** | 2026-07-13 06:10 CEST (Europe/Berlin) |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **383,948** | 2026-07-13 06:10 CEST (Europe/Berlin) |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **5,875,659** | 2026-07-13 05:06 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **50,610** | 2026-07-13 05:06 UTC |
-| ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **32,022** | 2026-07-12 06:26 UTC |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,141,412** | 2026-07-13 06:59 CEST (Europe/Berlin) |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **7,651,530** | 2026-07-13 09:04 CEST (Europe/Berlin) |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **386,765** | 2026-07-13 09:04 CEST (Europe/Berlin) |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **5,878,323** | 2026-07-13 07:08 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **50,601** | 2026-07-13 07:08 UTC |
+| ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **31,509** | 2026-07-13 06:45 UTC |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,141,429** | 2026-07-13 07:12 CEST (Europe/Berlin) |
 | ✅ `honeypot_ips.txt` | Honeypot IPs | **193,644** | 2026-07-12 23:40 UTC |
 | ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **12,890** | 2026-07-13 04:59 UTC |
 
@@ -30,4 +30,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-07-13 05:11 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-07-13 07:13 UTC*
