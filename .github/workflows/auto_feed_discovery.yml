@@ -1760,7 +1760,19 @@ jobs:
           candidate_repos = {}
           _github_found = 0
 
+          # FIX AUDIT-PERF-2 (2026-07-14): Diese Schleife war die einzige der
+          # Such-Phasen OHNE _check_timeout-Absicherung (Trusted-Owner-Suche,
+          # Awesome-List, GitLab-Suche, Eval-Phase haben sie alle). Bei 249
+          # Topics und dem durch das 30-Requests/Minute-Limit der Search-API
+          # vorgegebenen sleep(2) verbraucht allein diese Schleife im
+          # Minimum 249*2s = 8,3 Minuten, real durch API-Latenz eher mehr -
+          # ungebremst konnte sie das 52-Minuten-Laufzeitbudget so weit
+          # auffressen, dass fuer die Eval-Phase (die Kandidaten tatsaechlich
+          # zu genehmigten Feeds macht) keine Zeit mehr blieb. Mehr
+          # Kandidaten nuetzen nichts, wenn sie nie evaluiert werden.
           for topic in SEARCH_TOPICS:
+              if _check_timeout("Topic-Suche"):
+                  break
               print(f"Suche GitHub-Topic: {topic}...")
               data = gh_api(f"/search/repositories?q=topic:{topic}&sort=updated&order=desc&per_page=100")
               time.sleep(2)
@@ -1869,8 +1881,16 @@ jobs:
                       return None
                   print(f"Suche Code: {query}...")
                   encoded_query = urllib.parse.quote(query, safe=':+*')
+                  # FIX AUDIT-PERF-1 (2026-07-14): per_page von 30 auf den von
+                  # GitHub dokumentierten Maximalwert 100 angehoben
+                  # (docs.github.com/en/rest/search/search - "returns up to
+                  # 100 results per page"). Das Rate-Limit fuer Code-Search
+                  # ist 10 Requests/Minute PRO TOKEN, nicht pro Ergebniszeile -
+                  # bei gleicher Anzahl Requests und gleichem sleep(10) liefert
+                  # jeder Call bis zu 3,3x mehr Treffer, also mehr Kandidaten
+                  # in derselben Laufzeit ohne zusaetzliches Rate-Limit-Risiko.
                   data = _gh_code_search(
-                      f"/search/code?q={encoded_query}&sort=indexed&order=desc&per_page=30"
+                      f"/search/code?q={encoded_query}&sort=indexed&order=desc&per_page=100"
                   )
                   if data is None:
                       with _cs_skip_lock:
