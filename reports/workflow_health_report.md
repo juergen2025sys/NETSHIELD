@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-07-16 04:23 UTC
+**Aktualisiert:** 2026-07-16 09:26 UTC
 
 **Workflows:** 25 | ✅ 24 OK | ⚠️ 0 Warnung | ❌ 2 Fehler
 
@@ -62,4 +62,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-07-16 04:23 UTC | 25 Workflow-Dateien geprüft*
+*Generiert: 2026-07-16 09:26 UTC | 25 Workflow-Dateien geprüft*
