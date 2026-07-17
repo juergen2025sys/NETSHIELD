@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-07-17 14:52 UTC
+**Aktualisiert:** 2026-07-17 20:13 UTC
 
-**Workflows:** 25 | ✅ 24 OK | ⚠️ 0 Warnung | ❌ 2 Fehler
+**Workflows:** 23 | ✅ 22 OK | ⚠️ 0 Warnung | ❌ 2 Fehler
 
 ---
 ## ❌ Fehler (kritisch)
@@ -9,7 +9,7 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `feed_overlap_report.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 106.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 106.1 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 
 ## ⚠️ Warnungen
@@ -18,24 +18,21 @@
 |---|---|---|
 | `feed_overlap_report.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `Production Health` | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 81.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| `Production Health` | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 2 WARN
+**Status:** 🔴 2 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 106.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 106.1 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🔴 CRITICAL | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🟡 WARN | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 81.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| 🟡 WARN | Push-Limit Naehe | geo_enriched/blacklist_geo_enriched.json: 94.5 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
 
 | Workflow | Status | Fehler | Warnungen | Cron |
 |---|---|---|---|---|
-| `asn_reputation_scorer.yml` | ✅ OK | 0 | 0 | `0 2 * * *` |
 | `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `37 4 * * 0`, `23 7 * * 0`, `47 11 * * 0` |
 | `codeql.yml` | ✅ OK | 0 | 0 | `0 3 * * 0` |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
@@ -45,7 +42,6 @@
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `feed_ip_finder.yml` | ✅ OK | 0 | 0 | – |
 | `feed_overlap_report.yml` | ❌ | 1 | 1 | `25 3 * * 0` |
-| `geo_tagger.yml` | ✅ OK | 0 | 0 | `45 7 * * 0` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 5,11,17,23 * * *` |
 | `honigtopf.yml` | ✅ OK | 0 | 0 | `15 22 * * *` |
 | `netshield_report_generator.yml` | ✅ OK | 0 | 0 | `30 * * * *` |
@@ -62,4 +58,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-07-17 14:52 UTC | 25 Workflow-Dateien geprüft*
+*Generiert: 2026-07-17 20:13 UTC | 23 Workflow-Dateien geprüft*
