@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-17 09:02 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-17 09:11 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,145,551** |
-| Neu (heute) | **+1,331** |
-| Entfernt | **-311** |
+| Gesamt IPs | **1,145,559** |
+| Neu (heute) | **+18** |
+| Entfernt | **-10** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 58 |
@@ -32,10 +32,10 @@
 | ✅ `skillter_proxygather_working_proxies_all` | 464 |
 | ✅ `skillter_proxygather_working_proxies_http` | 253 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,344 |
-| ✅ `ebrasha_abdal_proxy_hub` | 7,076 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,956 |
+| ✅ `ebrasha_abdal_proxy_hub` | 7,073 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,951 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,629 |
-| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,351 |
+| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,332 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 5,742 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 5,147 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_https_anonymous` | 5,144 |
@@ -53,10 +53,10 @@
 | ✅ `ercindedeoglu_proxies` | 25,429 |
 | ✅ `ercindedeoglu_proxies_socks4` | 5,732 |
 | ✅ `ercindedeoglu_proxies_socks5` | 4,073 |
-| ✅ `tuanminpay_live_proxy` | 9,294 |
-| ✅ `tuanminpay_live_proxy_http` | 6,872 |
-| ✅ `tuanminpay_live_proxy_socks4` | 5,220 |
-| ✅ `tuanminpay_live_proxy_socks5` | 3,474 |
+| ✅ `tuanminpay_live_proxy` | 9,396 |
+| ✅ `tuanminpay_live_proxy_http` | 6,987 |
+| ✅ `tuanminpay_live_proxy_socks4` | 5,187 |
+| ✅ `tuanminpay_live_proxy_socks5` | 3,545 |
 | ✅ `gitrecon1455_fresh_proxy_list` | 184,546 |
 | ✅ `noctiro_getproxy` | 4,781 |
 | ✅ `noctiro_getproxy_socks5` | 2,980 |
@@ -83,4 +83,4 @@
 > Diese 58 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-17 09:02 CEST (Europe/Berlin)*
+*Generiert: 2026-07-17 09:11 CEST (Europe/Berlin)*
