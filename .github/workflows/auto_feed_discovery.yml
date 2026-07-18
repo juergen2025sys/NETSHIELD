@@ -285,7 +285,13 @@ jobs:
               r'compromised(?:[-_]?ips?)?|blocked?(?:[-_]?ips?)?|'
               r'ban(?:ned)?[-_]?ips?|block[-_]?ips?|deny(?:[-_]?ips?)?|'
               r'greensnow|ci[-_]?army|dshield(?:[-_]?block)?|feodo|'
-              r'abuseipdb|abuse[-_]?ips?'
+              r'abuseipdb|abuse[-_]?ips?|'
+              # NEU: Phishing + weitere haeufige Angriffsklassen-Stems.
+              # Lookbehind (siehe oben) verhindert Wort-Mitten-Treffer.
+              r'phishing(?:[-_]?ips?)?|'
+              r'malvertising|skimmer|magecart|'
+              r'exploit[-_]?kit|bulletproof(?:[-_]?hosting)?|'
+              r'booter|stresser|iot[-_]?botnet'
               r')|'
               r'adblock[-_.]ip|'
               r'(?:plain|optimized|sorted)[-.].+ip[46]?cidr|'
@@ -1607,6 +1613,11 @@ jobs:
               "malware-c2", "phishing-ip", "spambot", "spam-source",
               "compromised-ip", "infected-host", "tor-exit", "tor-node",
               "proxy-ip", "open-relay", "dnsbl", "rbl", "sinkhole",
+              # NEU: bisher fehlende, aber IP-relevante Angriffsklassen
+              "bulletproof-hosting", "malicious-hosting",
+              "exploit-kit", "drive-by-download", "malvertising",
+              "skimmer", "magecart", "card-skimming",
+              "booter", "stresser", "ddos-booter", "iot-botnet",
           ]
 
           # FIX API1: Queries ohne Body-Keyword wurden entfernt (HTTP 422).
@@ -1644,6 +1655,12 @@ jobs:
               "filename:abuseipdb.txt ip",
               "filename:malware.txt ip",
               "filename:phishing.txt ip",
+              "filename:phishing-ips.txt ip",
+              "filename:phishing_ips.txt ip",
+              "filename:phishing.csv ip malicious",
+              "filename:bulletproof.txt ip hosting",
+              "filename:exploit-kit.txt ip",
+              "filename:iot-botnet.txt ip",
               "filename:bruteforce.txt ip",
               "filename:ssh-attackers.txt ip",
               "filename:honeypot.txt ip",
@@ -1885,10 +1902,12 @@ jobs:
                   # GitHub dokumentierten Maximalwert 100 angehoben
                   # (docs.github.com/en/rest/search/search - "returns up to
                   # 100 results per page"). Das Rate-Limit fuer Code-Search
-                  # ist 10 Requests/Minute PRO TOKEN, nicht pro Ergebniszeile -
-                  # bei gleicher Anzahl Requests und gleichem sleep(10) liefert
-                  # jeder Call bis zu 3,3x mehr Treffer, also mehr Kandidaten
-                  # in derselben Laufzeit ohne zusaetzliches Rate-Limit-Risiko.
+                  # ist laut GitHub-Doku 9 Requests/Minute PRO TOKEN
+                  # (authentifiziert; docs.github.com/en/rest/search/search,
+                  # Stand 2026-07-18) - der vorherige Kommentar nannte
+                  # faelschlich 10. Bei gleicher Anzahl Requests und gleichem
+                  # sleep liefert jeder Call bis zu 3,3x mehr Treffer, also
+                  # mehr Kandidaten in derselben Laufzeit.
                   data = _gh_code_search(
                       f"/search/code?q={encoded_query}&sort=indexed&order=desc&per_page=100"
                   )
@@ -1907,7 +1926,13 @@ jobs:
                       for item in data.get("items", []):
                           repo = item.get("repository")
                           add_repo_candidate(candidate_repos, repo, f"code:{query}")
-                  time.sleep(10)
+                  # PERF: 10s -> 7s. Bei 9 Req/Min (siehe oben) ist die
+                  # minimale sichere Pause 60/9 = 6,67s. 7s haelt mit
+                  # kleinem Puffer sicher darunter (~8,6 Req/Min effektiv)
+                  # und spart bei ~172 Queries in Serie ca. 8,5 Minuten
+                  # gegenueber vorher (nur wirksam, wenn die Code-Search-
+                  # Phase ueberhaupt laeuft, siehe CODE_SEARCH_CANDIDATE_THRESHOLD).
+                  time.sleep(7)
                   return data
 
               # 1 Worker statt 2: verhindert parallele 429-Bursts
@@ -2007,6 +2032,10 @@ jobs:
               "drop-list", "spam-ip", "ddos-ip", "tor-exit",
               "proxy-list", "c2-feed", "malware-ip", "ip-reputation",
               "fail2ban", "crowdsec", "ip-deny", "firewall-blocklist",
+              # NEU: Phishing + weitere bisher fehlende Kategorien
+              "phishing", "phishing-ip", "bulletproof-hosting",
+              "exploit-kit", "iot-botnet", "malvertising",
+              "skimmer", "magecart", "booter", "stresser",
           ]
 
           # Nur Topics-Suche – GitLab-Code-Search ist ohne Auth sehr limitiert
@@ -2038,6 +2067,7 @@ jobs:
               "threat feed ipv4",
               "honeypot ip list",
               "bruteforce blacklist",
+              "phishing ip list",
           ]
           for _gl_kw in GITLAB_KEYWORDS:
               if _check_timeout("GitLab-Keyword"):
