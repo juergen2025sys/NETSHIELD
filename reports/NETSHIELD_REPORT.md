@@ -1,28 +1,28 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-07-18 01:26 UTC
+**Aktualisiert:** 2026-07-18 03:52 UTC
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **7,796,743** | 2026-07-18 03:14 CEST (Europe/Berlin) |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **386,972** | 2026-07-18 03:14 CEST (Europe/Berlin) |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **6,000,609** | 2026-07-18 01:20 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **51,833** | 2026-07-18 01:20 UTC |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **7,802,151** | 2026-07-18 05:43 CEST (Europe/Berlin) |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **388,252** | 2026-07-18 05:43 CEST (Europe/Berlin) |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **6,001,771** | 2026-07-18 03:47 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **51,877** | 2026-07-18 03:47 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **31,065** | 2026-07-17 06:09 UTC |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,147,206** | 2026-07-18 02:55 CEST (Europe/Berlin) |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,147,045** | 2026-07-18 03:27 CEST (Europe/Berlin) |
 | ✅ `honeypot_ips.txt` | Honeypot IPs | **199,519** | 2026-07-17 23:40 UTC |
-| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **11,710** | 2026-07-18 00:55 UTC |
+| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **13,510** | 2026-07-18 03:31 UTC |
 
 ---
 ## 🔍 Feed Health: ✅ 120 OK | ⚠️ 0 leer | ❌ 0 Fehler
 
-**🧊 Eingefroren (17):** `amitambekar_threats` 33T, `bbcan177` 33T, `binaryedge_scanners` 33T, `blacksnowdot_packets` 33T, `cloudzy` 33T, `et_block` 33T, `feodo_aggressive` 33T, `feodo_recommended` 33T, `firehol_level1` 33T, `l7_ddos` 33T…
+**🧊 Eingefroren (17):** `amitambekar_threats` 34T, `bbcan177` 34T, `binaryedge_scanners` 34T, `blacksnowdot_packets` 34T, `cloudzy` 34T, `et_block` 34T, `feodo_aggressive` 34T, `feodo_recommended` 34T, `firehol_level1` 34T, `l7_ddos` 34T…
 
 *16 davon ≥21 Tage → im Combined automatisch in Quarantäne (eingefrorene HQ-Feeds zählen nicht mehr als frische Bestätigung, betroffene IPs altern normal aus). Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
 
-*Letzter Check: 2026-07-17 03:55 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
+*Letzter Check: 2026-07-18 03:49 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -30,4 +30,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-07-18 01:26 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-07-18 03:52 UTC*
