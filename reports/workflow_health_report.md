@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-07-18 04:12 UTC
+**Aktualisiert:** 2026-07-18 08:57 UTC
 
 **Workflows:** 23 | ✅ 22 OK | ⚠️ 0 Warnung | ❌ 2 Fehler
 
@@ -17,7 +17,7 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `feed_overlap_report.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
-| `Production Health` | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 81.6 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 81.7 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
@@ -27,7 +27,7 @@
 |---|---|---|
 | 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 106.2 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🔴 CRITICAL | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
-| 🟡 WARN | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 81.6 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 81.7 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
 
@@ -58,4 +58,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-07-18 04:12 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-07-18 08:57 UTC | 23 Workflow-Dateien geprüft*
