@@ -1,16 +1,14 @@
 {
-  "updated": "2026-07-18 08:40 UTC",
-  "total_feeds": 161,
-  "new_this_run": 0,
+  "updated": "2026-07-19 07:16 UTC",
+  "total_feeds": 159,
+  "new_this_run": -2,
   "rejected_repos": [
     "001SPARTaN/aggressor_scripts",
     "00nx/exodus-decryptor",
     "00nx/fisherman",
     "01rabbit/Azazel",
     "01rabbit/Azazel-Edge",
-    "0dayInc/pwn",
     "0i41E/SharpHIDX",
-    "0liverFlow/CVE2PoC",
     "0sec-labs/foxguard",
     "0snap/dionaea-docker",
     "0x00wolf/virtual-privacy",
@@ -40,10 +38,12 @@
     "0xCBradford/Vera5",
     "0xCyberLiTech/0xcyberlitech",
     "0xDanielLopez/phishing_kits",
+    "0xDanielLopez/phishunt-mcp",
     "0xMrR0b0t/TPScanner",
     "0xPh0enix/njCrypter",
     "0xPugal/fuzz4bounty",
     "0xSums/SVB",
+    "0xYasser1/OTsecPentest",
     "0xbitx/DEDSEC_FLUX",
     "0xbitx/DEDSEC_TOR-GHOST",
     "0xbitx/OPSEC",
@@ -63,10 +63,10 @@
     "1Birdo/Gostress-Optimized",
     "1Birdo/SMB-HoneyPot",
     "1aN0rmus/TekDefense-Automater",
-    "1rhino2/RhinoWAF",
     "21Yeet21/accent-monitoring-siem-ids-pfe",
     "28Zaaky/khaos-c2",
     "2GT-Media-Group-LLC/mikrotik-manager",
+    "2dust/v2rayN",
     "2vin/yolo_annotation_tool",
     "3022-2/raccoon_clipper",
     "32u-nd/Spamhaus-DROP",
@@ -83,6 +83,7 @@
     "4kamruzzaman/r2upload-architecture",
     "4lpha-x/spambot",
     "4rkal/dmvp2p",
+    "4rubbish/C2Panel",
     "504ensicsLabs/DAMM",
     "504ensicsLabs/LiME",
     "504ensicsLabs/LiME.git",
@@ -90,8 +91,12 @@
     "5a1r0x/InstaNuke",
     "6ickzone/0x6NyxWebShell",
     "6t9xstar/ip-blacklist-remover",
+    "777genius/social-monitor",
     "782A/jinghu",
+    "7anX/AgentScan",
+    "7onez/cti-expert",
     "81Vm3/cobaltstrike-msg-qq",
+    "87owo/PYAS",
     "8884361/CHNRoute-for-FortiOS",
     "8cH9azbsFifZ/docker-cwskimmer",
     "8damon/Blackbird",
@@ -104,6 +109,7 @@
     "9b/pdfxray_lite",
     "9cb14c1ec0/BotsBeGone",
     "A3sal0n/CyberThreatHunting",
+    "A4n9g7e2l/Xway",
     "ABODR3325/caesar-cipher-python",
     "AD-Attacks/MITRE-ATT-CK",
     "ADORSYS-GIS/wazuh-snort",
@@ -132,19 +138,20 @@
     "Adminisme/ServerScan",
     "AdrMXR/KitHack",
     "AdvDebug/Brovan",
+    "AdventDevInc/kudu",
     "Affaq786/predictive-maintenance-project",
     "Afolabiebu4567/-MetaSkins-Access-All-In-Game-Skins-Exclusive-Custom-Sets",
     "AgainstTheWest/C2Break",
     "AgainstTheWest/NginxDay",
     "AgenttiX/linux-scripts",
     "Aggushub/IDS-System",
+    "Ahmedalaa9098/genaura-guard",
     "AiGptCode/AiGPT-WordPress-Exploitation-Framework",
     "AizonF/Webhook-Searcher",
     "Ajnasz/dnsbl-check",
     "Akarsolusi/inline-dlp-proxy",
     "AkbarWiraN/my-rep",
     "Alaa-abdulridha/SerpScan",
-    "Alan-Jowett/HardwareAbstractionIR",
     "Aldaviva/Fail2Ban4Win",
     "AlexanderIreland/xmrigger",
     "Alexinaja/public-api-list",
@@ -152,6 +159,7 @@
     "Alfana11/eobot-rat",
     "AlguevaraSec/Guevara-benchmark",
     "Ali-hey-0/FSociety",
+    "AliAmmar15/Velonus",
     "AliHzSec/linux-pam-auth-backdoor",
     "AliKarami/MikroMCP",
     "AlisonAGomez/alisonagomez.github.io",
@@ -166,6 +174,7 @@
     "Altyaerau/Legends-of-Elumia-Hack-Game-Bot-Auto-Farm-Clicker-Crypto-Elumia-Api-Cheat",
     "Am0rphous/Bash",
     "Am0rphous/Dark-Net-Collection",
+    "Amal-David/keyleak-detector",
     "Amalleheavy908/mcprobe",
     "AmgdGocha/AutoIT-Remcos",
     "AmgdGocha/DriveFS-Sleuth",
@@ -176,12 +185,13 @@
     "Aniqirfan-cyber/free-ip-stresser-booter",
     "AnonKryptiQuz/AKQ-PipeFS-ZeroDay-Exploit",
     "AnonShield/anonshield",
-    "Antonio131186/soc-python-labs",
     "ApliNi/IpacPanel",
+    "AppThreat/vulnerability-db",
     "Apr4h/CobaltStrikeScan",
     "Aqmar777/openclaw-competitive-intel",
     "Arash-Ariaye/netscan-abuse",
     "Archducal-woodthrush229/envleaks",
+    "ArchiveBox/abxpkg",
     "Argh94/ProxyProwler",
     "Arielsharp/25DollarPhone",
     "ArisRhiannon/goodfaith",
@@ -194,8 +204,6 @@
     "AryanVBW/ANDRO",
     "Aryma-f4/worldshellfinder",
     "Ashif4354/StreamStorm",
-    "Ashveil1/Elengenix",
-    "Asotn/VoidTerm-source",
     "Astoritin/Targeter",
     "AtharDar/smart-decoy-ransomware-defense",
     "AthenaNetworks/mymate",
@@ -260,7 +268,6 @@
     "BlathanAevon/starknet_multi_actions",
     "BlathanAevon/twitter_warmup",
     "BlessedRebuS/Krawl",
-    "BlkSword/eShield",
     "BlockhostOfficial/ddos-prot-mc-servers",
     "BlueTeamLabs/sentinel-attack",
     "BogdanIsNotAviable/Vazonez-collection",
@@ -307,6 +314,7 @@
     "Candradi8462/VulnHunter",
     "CapacitorSet/box-js",
     "CaptainBeluga/astri-dosser",
+    "CarlosTorresct24/SENTINEL-GOLD-Multi-Modal-Cyber-Physical-Threat-Fusion-Engine",
     "Casualtek/Ransomchats",
     "Casualtek/ransomch.at",
     "Catishuge/SplQueryGenerator",
@@ -316,9 +324,11 @@
     "Ch4120N/Ch4120N-Dos-Attacker",
     "Charcoal-SE/SmokeDetector",
     "Checkmarx/kics",
+    "Chill-Ethical-People/Optrasight",
     "Chimamwow/Encryptix-Crypter",
     "Chloractus/NetCheck",
     "Chrenavete/Axie-Infinity-Bot-Crypto-Cheat-Auto-Farm-Clicker-Game-Api-Hack",
+    "Christbowel/OSDC",
     "Christian93111/CVE-2026-41940",
     "Chu-c-git/Sinkhole_cause_analysis",
     "CirqueiraDev/AtomicStresser",
@@ -354,22 +364,20 @@
     "Conseguir3205/doublepulsar-rs",
     "ControlNet/pixivia",
     "Convenient-huston624/ai-daily-digest",
-    "Corgea/Sighthound",
     "Coriandrumsativumthoracicmedicine670/Acunetix-2026",
-    "Correia-jpv/fucking-Machine-Learning-Tutorials",
+    "Correia-jpv/fucking-Best-websites-a-programmer-should-visit",
     "Correia-jpv/fucking-about-SwiftUI",
+    "Correia-jpv/fucking-android-open-project",
     "Correia-jpv/fucking-android-security-awesome",
     "Correia-jpv/fucking-awesome-threat-intelligence",
     "Correia-jpv/fucking-beautiful-docs",
-    "Correia-jpv/fucking-games",
-    "Correia-jpv/fucking-magictools",
+    "Correia-jpv/fucking-build-your-own-x",
+    "Correia-jpv/fucking-design-resources-for-developers",
+    "Correia-jpv/fucking-golang-open-source-projects",
+    "Correia-jpv/fucking-lists",
     "Correia-jpv/fucking-open-source-ios-apps",
     "Correia-jpv/fucking-public-apis",
-    "Correia-jpv/fucking-quick-look-plugins",
-    "Correia-jpv/fucking-static-analysis",
-    "Correia-jpv/fucking-terminals-are-sexy",
     "Correia-jpv/fucking-the-book-of-secret-knowledge",
-    "Cr4sh/s6_pcie_microblaze",
     "CriticalPathSecurity/Public-Intelligence-Feeds",
     "CriticalPathSecurity/Suricata-Signatures",
     "CriticalPathSecurity/Zeek-Intelligence-Feeds",
@@ -423,6 +431,7 @@
     "DQIX/BattleEmulator",
     "Da2dalus/The-MALWARE-Repo",
     "DaPhatTony/crowdsec-cloud-homelab",
+    "Daaboulex/portmaster-nix",
     "Dafeigy/5GNR-indoor-sensing",
     "DakEnviy/dots",
     "DamonMohammadbagher/NativePayload_ARP2",
@@ -453,6 +462,7 @@
     "Destroyer-hub/zapo",
     "DevAlexPro/free-ip-stresser",
     "DevTeam/Pure.DI",
+    "Devcalderon/security-automation-scripts",
     "DexteR-Valentino/Mobile-O",
     "Dhanishh985/ResourcePoison",
     "Dhruv00098/sherlock",
@@ -467,10 +477,10 @@
     "DrPwner/FortiFox",
     "Dra-Ganzz/Premium-Call",
     "DragonCat1/tcp-port-scaner",
-    "DrakoLabs/drako",
     "Drasrax/npm-shai-hulud-scanner",
     "DreamVoid/Chat2QQ",
     "DreamVoid/MiraiMC",
+    "Dreamer599/ai-intelligence-hub",
     "DrowningChip2025/SentinelPy",
     "Dsevenfex/FexPass",
     "Dynamsoft/mrz-scanner-javascript",
@@ -478,13 +488,13 @@
     "E0SelmY4V/everyone-abuse",
     "EC-DIGIT-CSIRC/MISP-ThreatExchange",
     "EC-DIGIT-CSIRC/credentialLeakDB",
+    "ELI7E3-M4MUN/log-anomaly-detector",
     "ELMERIKH/Darkshell",
     "ELMERIKH/TelecordC2",
     "ELMERIKH/Web-AI-Scanner",
     "EMS-TU-Ilmenau/isac-uav-dataset",
     "EOCOnline/rangertrak",
     "ERO-HACK/WP-Ateck",
-    "EXP-Tools/threat-broadcast",
     "Earnwithalee7890/StacksRank",
     "EcjTn/http-stress",
     "EclecticIQ/OpenTAXII",
@@ -531,14 +541,17 @@
     "F1shh-sec/Pentest-Scripts",
     "FAlhumaid/DFIR_Radar_RSS",
     "FCSC-FR/couic",
+    "FCSC-FR/shovel",
     "FGRibreau/mailchecker",
     "FIRSTdotorg/automation-sig-www",
     "FWGS/xash3d-fwgs",
+    "Fabi019/hid-barcode-scanner",
     "FabioSmuu/Smuu-Booter",
     "FactorioAntigrief/FactorioAntigrief",
     "Fadavvi/Gamal",
     "Fadi002/MalwareInvestigation",
     "Fadi002/xworm-3.1-modded-by-mrpepe",
+    "Fadinlaws123/SimpleBlacklist",
     "FalconOpsLLC/goexec",
     "Farhan9488/CVE-2025-55182-research",
     "Fausto-404/AlterHive",
@@ -571,15 +584,18 @@
     "FoundryNet/mint-mcp",
     "Foundstone/ExpertInvestigationGuides",
     "FoxIO-LLC/LogSlash",
-    "FoxVR-sudo/Bug-Bounty-Arsenal-v.3",
+    "FrancisVillalon/cybersecurity-home-lab",
     "FreakuencyFive/Public-IP-ThreatFeed",
     "FriendsOfFlarum/stopforumspam",
     "FrizzleM/SideInstaller",
     "Frost-bit-star/stackedge",
     "Fundamental-wintersquashplant734/zero-trust-lifestyle",
     "FunnyWolf/Viper",
+    "FunnyWolf/agentic-soc-platform",
     "G-grbz/G-Hotspot",
     "GEANT/TRANSITS",
+    "GForceIndustries/mikrotik-cloudflare-ips",
+    "GForceIndustries/mikrotik-plex-ips",
     "GForceIndustries/mikrotik-zscaler-ips",
     "GHOSTAZADA/anonymous-web-authentication",
     "GHaaAPT/freetube-apt",
@@ -603,7 +619,6 @@
     "GetPageSpeed/nginx-honeypot",
     "Ghost-crypto-exe/2018-Malware-Repository",
     "Ghost-crypto-exe/HCRYPT-Ransomware",
-    "GhostESP-Revival/GhostESP",
     "GhostTroops/TOP",
     "Gi7w0rm/Blogposts",
     "Gi7w0rm/CobaltStrikeC2Tracker",
@@ -619,10 +634,9 @@
     "GiFXED/GiFXED-Miner",
     "GizzZmo/Enhanced-Botnet-Implementation",
     "Glyndor/apt",
-    "Glyndor/helmly",
     "GnomeMan4201/GnomeMan4201",
     "GoVanguard/legion",
-    "Goldentaspell54/TeamViewer-Premium-Enterprise-Edition",
+    "Goaskbid/parleymap",
     "Goodies365/YandexDecrypt",
     "GoogleCloudPlatform/security-analytics",
     "GovCERT-CZ/Shockpot-Frontend",
@@ -630,6 +644,7 @@
     "Gracephotovoltaic124/vlnr",
     "GraiaProject/Ariadne",
     "GrapheneOS/hardened_malloc",
+    "Graylog2/graylog2-server",
     "GreedyBear-Project/GreedyBear",
     "GreenMeteor/firewall",
     "Greg-2600/proxy_scan",
@@ -642,11 +657,11 @@
     "Guilhermecmachado/ansible-server-hardening",
     "HMAKT99/Erabi",
     "HORKimhab/poc-cve-collection",
-    "Hack23/euparliamentmonitor",
     "Hack23/lambda-in-private-vpc",
     "Hacker-nk/All-hacking-package",
     "Hacker-nk/online-hacking",
     "Hacker-nk/online-hackings",
+    "HackfutSec/Shell-Finder",
     "HackingLZ/ja4_proxy",
     "Hadrysel/WhatsApp-Network-Tracker",
     "Hagrid29/ReadWrite-DCOM",
@@ -693,8 +708,10 @@
     "IamGhost-ops/kernel-scope",
     "Iamhusna1n/Hacker-Search",
     "IanSalon23/zzyCaptcha",
+    "IbdaaTec/AndroidDeviceRiskBookData",
     "Icy-Senpal/bypass-all",
     "IllusiveNetworks-Labs/WebTrap",
+    "ImL1s/xmrig-android",
     "Immunologypinup772/AI-Check",
     "Imran404cyber/CURL-XD",
     "InQuest/ThreatIngestor",
@@ -746,6 +763,7 @@
     "JSv4/Python-Redlines",
     "JSv4/react-docxodus-viewer",
     "Jadarelaxed973/cyanide",
+    "Jaiyansh-4n6/NIDS",
     "JakeJMattson/SpamBot",
     "JameZUK/os-kea-unbound",
     "JamesDLD/AzureRm-Template",
@@ -753,6 +771,9 @@
     "JamesWoolfenden/terraform-aws-sslcert",
     "Jancarow/BypassNeo-reGeorg",
     "Janealm7195/NWO-Analyse-Recherche-Stalking-Mobbing-Cyberraum",
+    "JanusWei/phishing-email-investigation",
+    "Janusec/janusec",
+    "Janusec/janusec-admin",
     "Jarrenstyle/les-moders",
     "Jashwanth33/RAT",
     "JasonLovesDoggo/caddy-defender",
@@ -768,7 +789,6 @@
     "Jiab77/termux-xmr-mining",
     "Jieyab89/Loader-and-shell-code-AV-Evasion",
     "Joe12387/established-emails",
-    "JoeRu/federloom",
     "JoelGMSec/PyShell",
     "JohnField07/AI-Bastion",
     "Jon-Ting/online-education-certifications",
@@ -779,7 +799,6 @@
     "Judaca73/ghost-os",
     "Juggernautsocialdancing640/AgentUAC",
     "Jules182/ScaniaAPS",
-    "JuliaLang/SecurityAdvisories.jl",
     "Julk8200/Illuminate",
     "JupiterOne/starbase",
     "JusticeRage/Manalyze",
@@ -814,6 +833,7 @@
     "Khadinxc/Sigma2KQL",
     "Khadinxc/Sigma2SPL",
     "Khadinxc/TerraSigma",
+    "KhayalKoch/NetSpectra",
     "Kicksecure/repository-dist",
     "KillaStryder/cryptojack",
     "Kira00011/MTProto",
@@ -885,6 +905,7 @@
     "Lupin3000/PythonScapyExamples",
     "Lupovis/GetIPReputation",
     "Lutefredsanger944/ECC-IOT-AUTHENTICATION-PROTOCOL",
+    "Lutfifakee-Project/wp2shell",
     "Luzifer/named-blacklist",
     "Luzilla/dnsbl_exporter",
     "LyndLabs/DNS-DriveBy",
@@ -922,13 +943,12 @@
     "MParvin/bashDNSBL",
     "MVladislav/ansible-security",
     "Macky9285/stripe-inspector",
-    "MacroPower/homelab",
     "MadExploits/GECKO-FILE-MANAGER",
     "MadExploits/alfa-rce",
     "MadaBurns/bv-mcp",
     "MadokaProject/Madoka",
+    "MagicTeaMC/Arnold_Bot",
     "MagicTeaMC/CatchBall2",
-    "MagicTeaMC/ChatGPT-playground-chinese",
     "MagicTeaMC/Liquidambar",
     "MagicTeaMC/MCSTORM-IP",
     "MagicTeaMC/MagicTeaMC",
@@ -939,7 +959,6 @@
     "MagicTeaMC/bad-ips",
     "MagicTeaMC/cbmc.js",
     "MagicTeaMC/duckduckgo_bot",
-    "MagicTeaMC/grok-free-api",
     "MagicTeaMC/lavaplayer-suno",
     "MagicTeaMC/maoyue.tw",
     "MagicTeaMC/math",
@@ -968,13 +987,14 @@
     "MartinatorTime/vaultwarden",
     "Marven11/EtherGhost",
     "Masood-M/yalih",
+    "MatheuZSecurity/Furtex",
+    "MatrixRainSimulatorOfficial/hehe-go",
     "MatrixTM/FTPDumper",
     "MatrixTM/xSSHCracker",
     "MatrixTM26/VSAT",
     "MattCarothers/mhn-core-docker",
     "Mattmorris-dev/netwatch-sec",
     "Maurinechaotic680/k8s-health-checker",
-    "Maxime-BRIN/win10-cve-observatory",
     "MaximeWewer/os-sso",
     "Mayca369/CVE-2025-55182",
     "Mazzy-Stars/lain_c2",
@@ -990,6 +1010,7 @@
     "MikrotikExe/netpulse",
     "MillipedeStrut/Malwarebytes-Premium-Anti-Malware-Pro-Edition",
     "MiraiTravel/MiraiTravel",
+    "MitsuakiTora/2Bar",
     "Modules4WHMCS/IPBlackListMonitor",
     "MohamedElmogy25/semetsky---VP",
     "MohamedMostafa010/Conpot_ICS_Honeypot_Lab",
@@ -1013,12 +1034,12 @@
     "Murka007/browser-crasher",
     "MutableSecurity/mutablesecurity",
     "MyCode83/godirb",
-    "MyEtherWallet/ethereum-lists",
     "MySoulcutting/BeautyPlugin",
     "NETMOUNTAINS/Curated-IP-Blocklist",
     "NHAS/egressinator",
     "NITISHMG/talos-hetzner-k8s",
     "NInagusev47/Silent-Crypto-Miner",
+    "NOMARJ/sigil",
     "NVISOsecurity/evtx-hunter",
     "NYAN-x-CAT/njRAT-0.7d-Stub-CSharp",
     "NajmAjmal/xmrig-install-raspberrypi",
@@ -1055,6 +1076,8 @@
     "NickYan7/tcpkiller_rdi",
     "Nicolas-Delahaie/home-srv",
     "Nikopmpm/Fsociety-CVE-2024-0670-CheckMK-LPE",
+    "NishanthGSuryavamshi/thinksec",
+    "Nkrathore0799/rapid-cipher-819",
     "NoWall-572/BFI-Acquisition-Tutorial",
     "Node-Study-Guide/openjs-nodejs-application-developer-study-guide",
     "Noir0x63/OMEGA",
@@ -1084,7 +1107,6 @@
     "OSINTI4L/cupidcr4wl",
     "OTRF/ThreatHunter-Playbook",
     "OTT-Cybersecurity-LLC/lyrie-ai",
-    "OWASP/DockSec",
     "OWASP/Nettacker",
     "OWASP/Python-Honeypot",
     "OWASP/cve-lite-cli",
@@ -1103,14 +1125,14 @@
     "OpenFilters/internet-scanners",
     "OpenOSINT/OpenOSINT",
     "OpenSOC/opensoc",
-    "Oracleo/GRC-P4-Security-Control-Monitoring-Splunk",
+    "Oracleo/GRC-Project-04-SIEM-Security-Control-Monitoring-and-Risk-Assessment",
+    "Oracleo/GRC-Project-05-Network-Control-Validation-and-Risk-Assessment",
     "Orang-Studio/OrangSign",
     "OspreyProject/Osprey",
-    "Ostorlab/agent_nuclei",
-    "Ostorlab/agent_openvas",
-    "Ostorlab/agent_virustotal",
     "Ostorlab/oxo",
     "OutOfSyncStudios/express-ip-blacklist",
+    "OverTheWallNode/SSV2RayTrojanSSRClash",
+    "Oz134/perishable-inventory-risk-engine",
     "Ozark-Connect/NetworkOptimizer",
     "PBH-BTN/BTN-Collected-Rules",
     "PHPAuth/PHPAuth",
@@ -1123,7 +1145,6 @@
     "PanagiotisDrakatos/JavaRansomware",
     "ParampreetR/port_scanner_quieso",
     "Parentull/ResearchList",
-    "ParkerLee07/NetSniper",
     "Parthiban-seenu/phishing-detection",
     "Passive/Cleo",
     "PatchMon/PatchMon",
@@ -1173,6 +1194,8 @@
     "QTek/QRadio",
     "QabasAK/AWS-HaaS",
     "Quan666/ELF_RSS",
+    "Quang-Minh-Phung/DienTu_TKVM_Documents",
+    "QuantumS14/DoesTheDogWatchPlex",
     "Querulousnessvisualiser52/MeowCLI",
     "Qumaqwe/KittyNet",
     "Qwerty-Space/qbot",
@@ -1186,6 +1209,7 @@
     "R3DRUN3/vermilion",
     "R3LI4NT/RavenDoor",
     "R3LI4NT/XilentDoor",
+    "R3LI4NT/articulos",
     "R3LI4NT/http-tester",
     "RENCBERAKMAN/bytewall-academy",
     "RETR0-OS/Ecommerce_Website_Django",
@@ -1203,10 +1227,8 @@
     "RansomLook/RansomLook",
     "RaspiestSheep3/ModularStegoRAT",
     "RatInABox-Lab/RatInABox",
-    "RavinduRathnayaka/LiveThreatMap-dashboard",
     "ReaJason/MemShellParty",
     "ReaJason/No-One",
-    "RealBikiniBottom/QuicProxy",
     "Recorded-texteditor120/CVE-2026-31802",
     "Red-Hex-Consulting/Ankou",
     "RedArmory/IoT-Botnet",
@@ -1219,10 +1241,10 @@
     "Renyu106/Proxmox-DNS-IPSet-Updater",
     "RenzoMXD/tao-passport",
     "RescueSocial/Guide_Cases_Domestic_Abuse",
+    "Resgrid/Dispatch",
+    "RetireJS/retire.js",
     "RevengeComing/DemonHunter",
     "Richl-lab/recognize-unusual-logins",
-    "RidgeInspection30/Stellar-Data-Recovery-Premium-2026",
-    "Ringmast4r/Epstein",
     "Ringosystems/TractorBeeam-MCP",
     "RioMMO/ProxyFree",
     "RiskyMH/honeypot",
@@ -1237,6 +1259,7 @@
     "Rosa-Luxemburgstiftung-Berlin/ansible-opnsense",
     "Rosa-Luxemburgstiftung-Berlin/ansible-opnsense-checkmk",
     "Rosa-Luxemburgstiftung-Berlin/ansible-opnsense-plugpack",
+    "Roshenrosha/CBbot",
     "Roxi27-dising/hack-crypto-wallet",
     "RozhakDev/Facemash",
     "RudeusG110/Predict-Shoppers-Online-Purchasing-Intention",
@@ -1264,7 +1287,6 @@
     "SDCofA/mena-threat-index",
     "SEKOIA-IO/Community",
     "SEKOIA-IO/automation-library",
-    "SEKOIA-IO/documentation",
     "SHAJON-404/FILE",
     "SHAdd0WTAka/AKIR-EDR",
     "SHUKLAO/call-with-ai-agent",
@@ -1304,24 +1326,21 @@
     "Security-Onion-Solutions/security-onion",
     "Security-Onion-Solutions/securityonion",
     "SecurityBrewery/catalyst",
-    "SecurityClaw/SecurityClaw",
     "SecurityM/IntegrityGap",
     "SecurityRiskAdvisors/sra-taxii2-server",
     "SecurityRonin/blazehash",
     "SecurityRonin/forensic-vfs",
-    "SecurityRonin/issen",
-    "SecurityRonin/usnjrnl-forensic",
     "SecurityTW/delilah",
     "Seep1959/njutils",
     "SekoiaLab/Fastir_Collector",
     "SekoiaLab/Fastir_Collector_Linux",
     "SemanticMediaWiki/SemanticWatchlist",
+    "Senaraufi/Security-Log-Analyser",
     "Sengathirmcse/sigil-guardian",
     "Senku002/ObuscatedBOT",
     "SentryPeer/SentryPeer",
     "Sergeydigl3/zapret-discord-youtube-linux",
     "SergioZ3R0/Sergio-Code",
-    "Serious-senpai/remote-access-trojan",
     "Serp07/updater_list_for_mikrotik",
     "SertraFurr/Discord-Token-Stealer",
     "SertraFurr/Roblox-Client-Cookie-Stealer",
@@ -1358,12 +1377,12 @@
     "SirusDoma/Genode.IoC",
     "SitinCloud/Owlyshield",
     "Skhron-OU/abuser",
-    "SkuldNorniern/fluere",
     "Slashas632/goPort",
     "SleepTheGod/LateralusLoader",
     "SneakersInc/HoneyMalt",
     "SniffCatDB/Cloudflare-WAF-To-SniffCat",
     "SniffCatDB/T-Pot-To-SniffCat",
+    "SobralCybersec/APIKeyScanner",
     "SocolSRT/cloudflare-rules",
     "SonicWave21/Follina-CVE-2022-30190-Unofficial-patch",
     "Soontao/cds-rate-limit",
@@ -1371,14 +1390,13 @@
     "SpaceSyt/watch-tracker",
     "SpectralOps/keyscope",
     "SphericalFlower52811/endpointscanner",
-    "SreejaPuthan/ICEBERG-Threat-Intel-updator",
     "Srimanya-01/brute-force-log-analyzer",
     "StackExchange/blackbox",
     "Staffardprobable495/fleet-cve-scanner",
     "Stake2/Websites",
     "StefanKelm/yara-rules",
     "StefanLindblom/flow-to-if",
-    "StickyHashTr33/tx-surveillance-watch",
+    "Stemmed-seat433/arsenal-script-v2026",
     "StopDDoS/packet-captures",
     "Storyyeller/Krakatau",
     "Storyyeller/enjarify",
@@ -1423,6 +1441,7 @@
     "Talhaer/cloud-skills-roadmap",
     "Tanguille/cluster",
     "Tarunraj2005/oscpdb",
+    "Teakowa/blockhole",
     "TeamYukki/YukkiMultiSpamBot",
     "TechSavvy54y/Pixels-xyz-Hack-Game-Bot-Auto-Farm-Clicker-Crypto-Api-Cheat",
     "TeehanLax/Hyperlapse.js",
@@ -1486,6 +1505,7 @@
     "V-i-x-x/kernel-callback-removal",
     "V2RAYCONFIGSPOOL/TELEGRAM_PROXY_SUB",
     "V3n0mSh3ll/admin-panel-finder",
+    "VISHUKS/RSC_Detector",
     "Vasco0x4/CS-Beacon-Notifier",
     "Velocidex/velociraptor",
     "VentressAsajj/Malware",
@@ -1494,6 +1514,7 @@
     "VibeTensor/attestix",
     "VicNa559/code-offline",
     "VictoriaMetrics/VictoriaLogs",
+    "VijayakumarRavi/GitOps",
     "Vikas-Jais/NotTheNet",
     "Vikaspogu/home-ops",
     "Viralmaniar/DDWPasteRecon",
@@ -1506,6 +1527,7 @@
     "VolkanSah/x201-BatConsole",
     "Vonniecharitable529/disable-windows-defender",
     "Vulnogram/Vulnogram.github.io",
+    "Vulnogram/seaview",
     "Vulnpire/Spymap",
     "WRG-11/wrg-sigma-rules",
     "WandsgYu/auth-log-auditor",
@@ -1520,7 +1542,9 @@
     "Welshonioninfinitude16/osm-atmdui",
     "Wenonechans7825/ps-bash",
     "WestXu/qrtransfer",
+    "Whusher/HackingRoad",
     "WiLL75G/WiLL75G",
+    "WiLL75G/soc-analyst-toolkit",
     "Wikid82/Charon",
     "Willie-Conway/HACKNET",
     "Willie-Conway/IBM-Cybersecurity-Analyst-Portfolio",
@@ -1535,7 +1559,6 @@
     "XZB-1248/Spark",
     "Xart3mis/AKILT",
     "XeinTDM/TelegramRAT",
-    "XenoCoreGiger31/GEMMA-by-GOOGLE",
     "XeroExecute/ghidra-mirai-decryption",
     "XianzhenGUO/OFDM-radar-for-range-estimation",
     "XiaomingX/ddos_attack_script_demo",
@@ -1571,6 +1594,7 @@
     "Zantirim/Seekers-of-Tokane-Cheat-Crypto-Bot-Auto-Farm-Clicker-Game-Api-Hack",
     "Zantirim/Super-Champs-Game-Crypto-Bot-Auto-Farm-Clicker-Cheat-Api-Hack",
     "Zeerg/helix-honeypot",
+    "ZekXtreme/ublocklist",
     "ZeroMemoryEx/APT38-0day-Stealer",
     "Zeyad-Azima/OutlookThief",
     "ZhymabekRoman/webshare-regiter",
@@ -1583,6 +1607,7 @@
     "a11mut3d/FullMute",
     "aaPanel/aaWAF",
     "aaaastark/Intrusion-Detection-System",
+    "aaronabavi09/siem-security-monitoring-lab",
     "aaronphifer/triagewall",
     "abdelrahman835/PhishShield",
     "abdulboyprogramming-arch/crypto-price-tracker",
@@ -1631,6 +1656,7 @@
     "afrivil2644/zan",
     "agenomics-labs/protocol",
     "agourlay/zip-password-finder",
+    "ahmddd1/DetectionForge",
     "ahmedkhlief/APT-Hunter",
     "ahmedshahriar/bd-medicine-scraper",
     "ahmetilhn/express-ip-blocker",
@@ -1641,7 +1667,6 @@
     "airbnb/streamalert",
     "airlock/microgateway",
     "aishee/Yukio",
-    "aisling136/HomeLab",
     "ait-aecid/attack-manifestations-interpretation",
     "ajackal/arctic-swallow",
     "ajmeese7/spambot",
@@ -1683,6 +1708,7 @@
     "aliforever/rdpwall",
     "alihashim786/AlgoLens",
     "alivirgo/SentryLoom",
+    "all1and/C2Panel",
     "allsmog/llm-honeypot",
     "almandsky/easyautoml",
     "alonsoir/argus",
@@ -1704,6 +1730,7 @@
     "anarkrypto/badip.xyz",
     "ancailliau/SynSharp",
     "andegroundchalice/nj-r4t-build-github",
+    "andikaputradev/WP-Blitz",
     "andradelucascq/tpot2misp",
     "andrecrafts/CobaltStrike-YARA-Bypass-f0b627fc",
     "andreicscs/HoneyWire",
@@ -1725,7 +1752,7 @@
     "anirudhmalik/xhunter",
     "ankaboot-source/email-open-data",
     "anmolduainter/Diagnostic-and-Prognostic-Breast-Cancer",
-    "anpa1200/CTI",
+    "anpa1200/AIDebug",
     "anpa1200/adversarygraph",
     "anpa1200/anpa1200.github.io",
     "ans-ibrahim/Memento",
@@ -1734,11 +1761,13 @@
     "anubhavanonymous/HostOnion",
     "anxb26/angie-modsecurity-docker",
     "anxs3c/Machines",
+    "aohal3xxn/PhoenixC2",
     "aol/moloch",
     "apache/casbin-gateway",
     "apache/creadur-rat",
     "apache/incubator-metron",
     "apache/incubator-spot",
+    "apache/magpie",
     "apgmightking/Security-Audit-Framework-Shell",
     "api-evangelist/a10-networks",
     "api-evangelist/abnormal-security",
@@ -1783,6 +1812,7 @@
     "armbues/ioc_parser",
     "armmammothermography417/ContextOS",
     "arnstein99/tinypot",
+    "arshveer1208/ssh-brute-force-splunk",
     "artifact-keeper/artifact-keeper",
     "arunvignesh15/Machine-Learning",
     "aruxiee/pamper",
@@ -1807,6 +1837,7 @@
     "atiilla/OsintEye",
     "atiilla/geospy",
     "atiilla/gitrecon",
+    "aurastresser/ip-stresser",
     "auricom/home-ops",
     "austin-lai/Collection-of-AzureSentinel-Playbook",
     "austin-taylor/flare",
@@ -1814,8 +1845,8 @@
     "avast/decryptor-keys",
     "avatar198/Doofi-stealer-discord-FUD",
     "averred/nmap-full",
+    "aw-junaid/Kali-Linux",
     "aw-junaid/Malware-Analysis",
-    "aws-samples/amazon-bedrock-rag",
     "aws-samples/aws-incident-response-runbooks",
     "aws-samples/route53resolver-dns-firewall-automation-bring-your-own-lambda",
     "awslabs/git-secrets",
@@ -1827,14 +1858,15 @@
     "ayrus/afterglow-cloud",
     "ayushgowda121/opencode-anthropic-oauth",
     "ayyll/proxy_ip_spider",
+    "ayzeta/csf-autogroup",
     "azet/fail2ban_serve_notice",
     "azeth-protocol/cli",
-    "azurebeard/harbinger",
     "b0bbywan/odio-apt-repo",
     "b1t0nese/TG-RAT",
     "b1tg/cobaltstrike-beacon-rust",
     "baalmor/cve-ape",
     "baatout/tor-ip-rotation-python-example",
+    "babaannekatledici/intentguard",
     "backbay-labs/clawdstrike",
     "backchannelinc/GreyNoise-Cloudflare-Worker",
     "backendsystems/nibble",
@@ -1842,11 +1874,9 @@
     "bad-antics/nullsec-logreaper",
     "bad-antics/vortex",
     "badchars/darknet-mcp-server",
-    "badchars/fingerprint-mcp",
     "baeckertv/Clifford-Pickover-Geheimdienst",
     "baidu/openrasp",
     "balte/TelnetHoney",
-    "barbacana-waf/barbacana",
     "bariskececi/rampart",
     "bartnv/portlurker",
     "bartolemoinmost828/clickfix-builder",
@@ -1859,8 +1889,6 @@
     "bayufedra/ipti",
     "bayurifkialghifari/proxy-scraper",
     "bayvapourisable154/Stratum",
-    "bb1nfosec/Information-Security-Tasks",
-    "bb1nfosec/bheeshma",
     "bboylyg/BackdoorLLM",
     "beahunt3r/Windows-Hunting",
     "beelzebub-labs/beelzebub",
@@ -1898,6 +1926,7 @@
     "blackarrowsec/pivotnacci",
     "blackhandgluon58/Hades-II-Trainer-Max",
     "blackhatrussia3/Ultimate-Rat-collection",
+    "blacklanternsecurity/cloudcheck",
     "blackorbird/APT_REPORT",
     "blatteprince2/Void-Engine-GD",
     "blaverick62/SIREN",
@@ -1925,6 +1954,8 @@
     "brendanbank/banzai-plugins",
     "brexhq/substation",
     "briandfoy/cpan-security-advisory",
+    "brianpelow/IncidentPilot",
+    "brianpelow/mcp-incident-intel",
     "brianwarehime/threatnote",
     "bridgecrewio/checkov",
     "brimsec/brim",
@@ -1933,11 +1964,11 @@
     "browningluke/opnsense-go",
     "browningluke/terraform-provider-opnsense",
     "bruneaug/DShield-SIEM",
+    "brunoevn/kevlar-checkdeps",
     "brylee123/Twitter-Spam-Bot-Detector",
     "btwnglxs/PhpMyAdmin-csrf-login-brute",
     "btwparam/3L3Y3",
     "buanzo/crowdsec-dnsbl-service",
-    "budimanjojo/talhelper",
     "buffer/libemu",
     "buffer/pylibemu",
     "buffer/thug",
@@ -1947,6 +1978,7 @@
     "bunkerity/bunkerized-nginx",
     "bunkerity/bunkerweb",
     "bunkerity/bunkerweb-plugins",
+    "burakcanbalta/Drone-C2-Research",
     "buroa/k8s-gitops",
     "busybox11/hopperwatcher",
     "buter-chkalova/rvbbit-arsenal",
@@ -1963,6 +1995,7 @@
     "cairnscore/cairn-score-skill",
     "calc1f4r/FTP-Bruteforcer",
     "calltelemetry/calltelemetry",
+    "canyang25/AutoSRE",
     "captainzonks/spoke",
     "carloslack/KoviD",
     "carlospolop/legion",
@@ -1993,7 +2026,6 @@
     "cfdonmez/OWISAC_PRISMA_Review",
     "cfs0x/Cobalt-Strike-Ultimate-Arsenal",
     "cga-harvard/Data_Science_Big_Data_Projects",
-    "cgzones/apt-cacher-rs",
     "ch33r10/BlueSpace2021",
     "ch33r10/THOTCON0xB",
     "ch3k1/squidmagic",
@@ -2020,7 +2052,6 @@
     "chriotte/wearable_stress_classification",
     "chrismattmann/drat",
     "chrismeunier/begone-swiss-spam-blacklist",
-    "chrissiefken/osbal",
     "christinminor459/OnionClaw",
     "christophe77/express-honeypot",
     "christophe77/node-ftp-honeypot",
@@ -2055,7 +2086,6 @@
     "cniweb/xmrig-monero",
     "cnlimiter/onebot-client",
     "cobaltstrike2026/Public-release",
-    "codedeviate/sercon",
     "codeexpress/respounder",
     "codeforsanjose/heartofthevalley",
     "codekow/container-xmrig",
@@ -2066,14 +2096,15 @@
     "cognis-digital/c2detect",
     "colvert-project/colvert",
     "comfyshee/proxmox-homelab",
-    "commixproject/commix",
     "compscidr/kanonproxy",
     "conchaestradamiguelangel-droid/aegis",
     "containers/bubblewrap",
     "coolacid/docker-misp",
     "corazawaf/coraza",
+    "corazawaf/coraza-caddy",
     "corazawaf/coraza-proxy-wasm",
     "corazawaf/coraza-spoa",
+    "corazawaf/libcoraza",
     "corelight/zeek2es",
     "coreos/clair",
     "coreruleset/coreruleset",
@@ -2095,7 +2126,6 @@
     "crazy-max/docker-fail2ban",
     "criblpacks/cribl-palo-alto-networks",
     "crimsonvector/BPH_Research",
-    "cristianzsh/triager",
     "crowdsecurity/crowdsec",
     "crowdsecurity/crowdsec-docs",
     "crowdsecurity/cs-haproxy-spoa-bouncer",
@@ -2126,6 +2156,7 @@
     "curiefense/curiefense",
     "cw-l/email-corpus",
     "cwit-ae/Verlux",
+    "cyanfish/naps2",
     "cyb3rfox/Aurora-Incident-Response",
     "cybercode-dev/HawkEye-Cyber-Log-Analyzer",
     "cyberh4ck3r/free-proxy-list",
@@ -2136,7 +2167,6 @@
     "cyllective/COMfiltrat0r",
     "cymmetria/ciscoasa_honeypot",
     "cynative/cynative",
-    "cyntra360hub/test-agent-beta",
     "cypherh3x/cypher-stealer",
     "cypwnpwnsocute/RedisHoneyPot",
     "cyqsimon/IP-Block-Script",
@@ -2146,6 +2176,7 @@
     "d1dx4bnng3odytmqoew1/free-ip-stresser-booter",
     "d1str0/drupot",
     "d3ara1n/arcbot",
+    "d3fuse99/Process-Sentry",
     "d5-i/Synaptics.exe-Backdoor",
     "daanzu/kaldi-active-grammar",
     "dada63924/deribit-analyzer",
@@ -2156,11 +2187,11 @@
     "dakar1986/Dakar-Stealer",
     "daledavies/moodle-tool_registrationrules",
     "damiogunsiji/server-hardening",
+    "dancmorgan/fortigate-policy-switch-ha",
     "danibetter6297/light-up-my-life",
     "danielbohannon/Revoke-Obfuscation",
     "danielmiessler/SecLists",
     "danikf/tik4net",
-    "danisss9/Xvirus",
     "danteMorris1/SOAR-Cloud-Cryptojacking-Defense-Threat-Hunting",
     "danuez/data",
     "dapperdivers/dapper-cluster",
@@ -2169,7 +2200,6 @@
     "darkbitio/mkit",
     "darkoperator/Posh-VirusTotal",
     "darkweak/rudy",
-    "darkwizard242/ansible-role-grype",
     "dasnija/aegis-omega-ids",
     "databricks-industry-solutions/context-graph-analytics",
     "davccavalcante/bayestruth",
@@ -2182,6 +2212,7 @@
     "davydehaas98/homelab",
     "dbirks/home-k8s",
     "dblanko/honeypot-analysis",
+    "ddNSLH/PhoenixC2",
     "ddddddO/packemon",
     "ddrimus/http-threat-blocklist",
     "ddrv/php-iptool",
@@ -2219,6 +2250,7 @@
     "dfir-iris/iris-web",
     "dfirtrack/dfirtrack",
     "dgtlmoon/changedetection.io",
+    "dhyey03/elastic-detection-rules",
     "diego-mediane/RodentManualScorer",
     "diemoeve/oxide",
     "diemoeve/oxide-infra",
@@ -2240,7 +2272,6 @@
     "dn9uy3n/Modern-Red-Team-Infrastructure",
     "docbleach/DocBleach",
     "docker-mailserver/docker-mailserver",
-    "doctena-org/octorules",
     "dogoncouch/LogESP",
     "dogoncouch/logdissect",
     "dohoangtungduong24/Redline-Vidar-NJRat-Raccoon-C2-Panel",
@@ -2250,6 +2281,7 @@
     "dominicgisler/imap-spam-cleaner",
     "dominiquekiplingesque408/JWToken-analyzer",
     "donnytian/IpSet",
+    "dotcomscripts/k8s-gitops",
     "dotgibson/dotfiles-Defense",
     "dougiep16/actortrackr",
     "dovedownpat422/sanctioncheck",
@@ -2268,6 +2300,7 @@
     "droberson/ssh-honeypot",
     "dromara/orion-visor",
     "drsanwujiang/DiceRobot",
+    "dryssboy/Tyleshancloud7",
     "dseomn/rock-paper-sand",
     "dstours/OctoC2",
     "dstroke410/mikrotik-routeros-stable-config",
@@ -2278,7 +2311,7 @@
     "duggytuxy/Data-Shield_IPv4_Blocklist",
     "duggytuxy/malicious_ip_addresses",
     "duggytuxy/syswarden",
-    "duriantaco/ca9",
+    "duncte123/bruh-mark",
     "dutchcoders/troje",
     "duyet/bruteforce-database",
     "dvershinin/nginx-honeypot",
@@ -2288,7 +2321,6 @@
     "dyego63-arch/reposcan",
     "dzaczek/nftgeo",
     "dzek69/abuseipdb",
-    "e-m-b-a/emba",
     "e107inc/sfs",
     "eLvErDe/rbl2shorewall",
     "ebrasha/abdal-anydesk-remote-ip-detector",
@@ -2301,16 +2333,17 @@
     "ecstatic-nobel/Firehol-Sweep",
     "ecstatic-nobel/Not-Anti-Virus",
     "ecstatic-nobel/OSweep",
+    "edenzaraf/wp2shell",
+    "edgarfloresguerra2011-a11y/marketnow",
     "edoardottt/pphack",
     "edward2k3/RedLine-23_0-Cracked",
     "edyatl/winbox4-install-helper",
     "efxtv/L3MON",
-    "eggjs/tegg",
     "eguzmanc/sshpotbuster",
     "eiler2005/ghostroute",
+    "eitanity/kanonarion",
     "ek-mc/mini-firewall",
     "ekiojp/dfex",
-    "elastic/camera-hacks",
     "elastic/detection-rules",
     "elcattivo66/home-ops",
     "elceef/dnstwist",
@@ -2349,8 +2382,10 @@
     "epsi12-lab/gns3-infra-securisee",
     "epsylon/ufonet",
     "equinnoxy/ASDA",
+    "er4vn/CyberTrace",
+    "er4vn/TeleStrike",
+    "er4vn/i-Detector",
     "eremit4/cs-discovery",
-    "ericcornelissen/js-regex-security-scanner",
     "ericoc/gaw.sh",
     "ernie55ernie/Anomaly-Firewall-Rule-Detection-And-Resolution",
     "eset/malware-ioc",
@@ -2364,14 +2399,15 @@
     "etsy/morgue",
     "eudaldgr/homelab",
     "evania-maker/PhoneAgent",
+    "eventb-rossi/apt",
     "evidiq/evidiq",
     "evidiq/evidiq-skill",
+    "evidiq/mcp",
     "evilsocket/opensnitch",
     "evolsb/legal-redline-tools",
     "evyatarmeged/Raccoon",
     "ewatkins/talos-cluster",
     "eworm-de/routeros-scripts",
-    "exdsgift/tensionr",
     "exe-cut3/gcp-permissions-checker",
     "exp0se/bro-intel-generator",
     "exp0se/harbinger",
@@ -2402,6 +2438,7 @@
     "faisalusuf/ThreatIntelligence",
     "falon/RBL",
     "falon/rblcheck",
+    "fantasmagorikus/portscan-detection-lab",
     "farinap5/BeLix",
     "farshinekev-rgb/owly",
     "farsight-lol/farsight",
@@ -2413,7 +2450,6 @@
     "fcarvajalbrown/MuniANCI",
     "feloex/vanity-onion",
     "femboyisp/blackwall",
-    "fenio/homelab",
     "fenixvd/crowdsec-mikrotik-bouncer",
     "fernvenue/chn-cidr-list",
     "fernvenue/telegram-cidr-list",
@@ -2460,6 +2496,7 @@
     "fortra/No-Consolation",
     "fortra/nanodump",
     "forwardemail/python-arf",
+    "fosres/SecEng-Exercises",
     "fox-it/acquire",
     "fox-it/dissect",
     "foxzinnx/redfox-ftp-brute-force",
@@ -2473,7 +2510,6 @@
     "frankyfacile225/DeepZero",
     "freak3dot/smart-honeypot",
     "freak3dot/wp-smart-honeypot",
-    "fredotran/traffic-sign-detector-yolov4",
     "free5ty1e/honeypotpi",
     "frgfm/holocron",
     "frida/frida",
@@ -2490,7 +2526,6 @@
     "fyvri/fresh-proxy-list",
     "fzerorubigd/go0r",
     "g1331/xiaomai-bot",
-    "gabrielcoghi-rgb/spectre-graph",
     "gabrielliaprotecting43/VendmoTech_Network_Traffic_Analysis",
     "gaga84700/police",
     "gagaltotal/Snort-Bot-Telegram-Shell",
@@ -2506,12 +2541,15 @@
     "gbrindisi/wordpot",
     "gbrobro119-star/darksword-kexploit",
     "gcve-eu/gcve-enriched-dumps",
+    "gebruder/wirken",
     "gelven4sec/nanosploit",
     "gemesa/malware-analysis-toolkit",
     "gen0sec/synapse",
     "gensecaihq/pfsense-mcp-server",
     "genuinetools/bane",
+    "georgi-i/bg-leaks-archive",
     "georgin-shaju/Network-Infrastructure-Portfolio",
+    "gerarddiaz01/SOC-Analyst-Cybersecurity-Training",
     "gerlero/add-apt-repository",
     "gerlero/apt-install",
     "gesh75/multivendor-cli-configurator",
@@ -2522,7 +2560,6 @@
     "ghaziwali/Hulios",
     "giansalex/monero-miner-docker",
     "giantswarm/coredns-warnlist-plugin",
-    "giantswarm/falco-app",
     "gistrec-cloud/infra",
     "github/codeql-coding-standards",
     "githubixx/ansible-role-harden-linux",
@@ -2600,6 +2637,8 @@
     "gmastrantoni/mhr",
     "gmh5225/Driver-SoulExtraction",
     "gnuf0rce/github-helper",
+    "gnxD3RfTT2WE/checked-http-proxies",
+    "gnxD3RfTT2WE/checked-socks-proxies",
     "gnxD3RfTT2WE/daily-proxy-feed",
     "gnxD3RfTT2WE/fresh-proxy-list",
     "gnxD3RfTT2WE/http-proxy-list-2026",
@@ -2628,17 +2667,16 @@
     "gracicot/kangaru",
     "graneed/bwpot",
     "greatsharma/MPG",
-    "greenbone/openvas-scanner",
     "greenpdx/crmonban",
     "gregcmartin/Kippo_JunOS",
     "gregorwolf1973/crowdsec-dashboard-addon",
     "gregorwolf1973/ha-guardian",
+    "grepstrength/RansomWhere",
     "gretamutualist474/academic-skills",
     "gridinsoft/mcp-inspector",
     "grimpirate/ci4-module-abuseipdb",
     "gripebomb/ThreatDeck",
     "grisuno/LazyOwn",
-    "grlt-hub/app-compose",
     "grnet/emotet-utils",
     "groupe-edf/Jenny",
     "gsmcloner/EMV-Reader-Writer-8.6",
@@ -2667,9 +2705,11 @@
     "hackingyseguridad/certificado",
     "hackingyseguridad/email",
     "hackingyseguridad/fuzzer",
+    "hackingyseguridad/icmpflood",
     "hackingyseguridad/listanegra",
     "hackingyseguridad/minar",
     "hackingyseguridad/puertatrasera",
+    "hackingyseguridad/slowloris",
     "hackops-academy/GhostRecon",
     "hadojae/DATA",
     "hakaioffsec/coffee",
@@ -2737,7 +2777,6 @@
     "honeytrap/honeytrap",
     "honkytonknoctambulist260/jira-incident-management",
     "hookzof/socks5_list",
-    "hopesupporttempo/Burp-Suite-Professional-Web-Testing-Setup",
     "hophtien/CVE-2025-54424",
     "horsemanshipprimping590/KustoForge",
     "horsicq/Detect-It-Easy",
@@ -2759,17 +2798,18 @@
     "hunterMG/dotfiles",
     "hunters-forge/OSSEM",
     "hurricanelabs/machinae",
+    "huseyinck/SentinelBot",
     "huuck/ADBHoney",
     "hwmland/homeassistant-xmrig",
-    "hynek/svcs",
+    "hxrshdeepsingh/Deluminator",
     "hyperpolymath/safe-brute-force",
     "hypnguyen1209/intelxtealer",
-    "i-am-unbekannt/BLITZPROXY",
     "iBotPeaches/Apktool",
     "iStaffh/C2Panel",
     "iXeor/NVD-CVE-Checker",
     "iamaryanbhalsing/OverLoadX",
     "iamkhalid2/evil-py",
+    "iamvineetupadhyay/CYPR-Tech",
     "iamx-ariful-islam/PathQ",
     "ianXO0/vibe-yaml",
     "ibnaleem/gosearch",
@@ -2778,6 +2818,7 @@
     "ibrahmxsyr/Suraksha-Mirage_NexTech1.0",
     "ice-wzl/bash-malware-dropper",
     "ice-wzl/light_house",
+    "icvoss/django-waf",
     "idaholab/Malcolm",
     "identd-ng/pam_authnft",
     "idfp/go-persist",
@@ -2788,6 +2829,7 @@
     "ilyaglow/badcapt",
     "imam-055/bootstrap-form-validation",
     "imamsobirin1980/kflow",
+    "immauss/openvas",
     "imogenliu-johnston/Cabinet_of_Curiosities",
     "imperva/terraform-provider-incapsula",
     "imrk1595/metadexer",
@@ -2811,6 +2853,7 @@
     "insidersec/insider",
     "insomnimus/seo-garbage",
     "intelowlproject/IntelOwl",
+    "intelseclab/poc-archive",
     "inversify/monorepo",
     "ioc-fang/ioc-fanger",
     "ioc-fang/ioc_fanger",
@@ -2829,6 +2872,7 @@
     "isgasho/finshir",
     "ishika-0101/entropy-chaos",
     "ishioni/homelab-ops",
+    "isisisisi2/quick-it",
     "islandcontroller/droplist",
     "ispras/qemu",
     "isra-osvaldo/Evasion-SubAgents",
@@ -2851,7 +2895,6 @@
     "ixxeL-DevOps/fullstack",
     "izm1chael/Dionaea-Bistream-Rotation",
     "izm1chael/MHN-Dionaea-Deployment",
-    "izumo-m/apt-awscli-v2",
     "jaceddd/text_watermark",
     "jadb/honeypot",
     "jaegeral/RedLineTimelineDB_extractor",
@@ -2864,7 +2907,6 @@
     "jamesbower/EngagedThreat",
     "jandre/brosquery",
     "janennacircumpolar374/repo-intel",
-    "janpuc/home-ops",
     "janweis/Policy-Map.de",
     "jarivankaam/SpamTools-Python",
     "jaschadub/VectorSmuggle",
@@ -2876,13 +2918,13 @@
     "jassdack/zt-udp-puncher",
     "jay123anta/laravel-threat-detection",
     "jaydenwilliams-cyber/malware-analysis-lab",
+    "jayelbotvibe-web/hermes-forensics-lab",
     "jaymunshi/vps-sentinel",
     "jaymzh/iptstate",
     "jaywire/RBL-Checker",
     "jbboehr/dnsbl.php",
     "jbfavre/mikrotik-fleet-autopilot",
     "jbies121/IPRep",
-    "jbox-web/apt-larder",
     "jbqmag/Honeypot-Deployment-TPOT-Analysis",
     "jbremer/httpreplay",
     "jbremer/sflock",
@@ -2902,17 +2944,17 @@
     "jery0843/torforge",
     "jesparza/peepdf",
     "jessek/hashdeep",
-    "jesseopdenbrouw/thuas-riscv",
     "jfqd/dnsbl",
     "jfroy/flatops",
     "jfut/ipset-fast-update",
+    "jgamblin/CVElk",
     "jgamblin/Shodan-Malware-Scanning-IPs",
     "jgmdev/stopspam",
     "jheise/threatcmd",
     "jheise/threatcrowd_api",
     "jiangxianli/ProxyIpLib",
-    "jichangx/xingdaomeng-jichang",
     "jim-schwoebel/allie",
+    "jimmy058910/jmo-security-repo",
     "jinghang/port_scan",
     "jinsolkr/Ethical-Hacking-Course-Resources",
     "jipegit/OSXAuditor",
@@ -2924,7 +2966,6 @@
     "jm33-m0/mec",
     "jmrGrav/security-automation-go",
     "jmrplens/cs-routeros-bouncer",
-    "jmxt3/gitscape.ai",
     "jnMetaCode/shellward",
     "jnraber/VirtualDeobfuscator",
     "jnv/lists",
@@ -2947,6 +2988,7 @@
     "jonmarcorpuz/ExfilLook",
     "jordan-wright/elastichoney",
     "jordanricky1604-ship-it/malware-families-catalog",
+    "jordigilh/kubernaut",
     "jorgewgouveia/Cybersecurity-Conferences",
     "joryirving/home-ops",
     "josephjsilva/certbot",
@@ -2964,12 +3006,14 @@
     "jsvine/waybackpack",
     "jtesta/ssh-audit",
     "jtpereyda/boofuzz",
+    "juan0x/N-QUEENS_COMPLETION",
     "juanpadiaz/NVD-Monitor",
     "judedusk/findns",
     "juliobsz/twinboxd",
     "juliusmarkwei/Crypto-jacking-Classificatioin",
     "jupyterj0nes/masstin",
     "jusafing/pnaf",
+    "justcallmekoko/ESP32Marauder",
     "justikail/webshell",
     "jwardsmith/Penetration-Testing",
     "jwillberg/mef",
@@ -2981,16 +3025,17 @@
     "kadinkatilii/http-ddos",
     "kai5263499/container-security-awesome",
     "kai5263499/osx-security-awesome",
-    "kaifcodec/user-scanner",
     "kaifcodec/user-scanner.git",
     "kami2k1/ssh_scan",
     "kamikazewinner/odoomap",
+    "kamolkns/sentrybatch",
     "kamrujjamanzim/AI_Fraud_Detection",
     "kaniooo/Kali_Critic",
     "kaosagnt/pf-telemetry-macosx",
     "kaplanelad/shellfirm",
     "karimhabush/cyberowl",
     "karlonovak/whosthat",
+    "karollooool/CVE-2026-50416-writeup-and-poc",
     "karthikkbala/MISP-QRadar-Integration",
     "kassisol/twic",
     "katjahahn/PortEx",
@@ -3007,6 +3052,8 @@
     "keithjjones/fileintel",
     "keithjjones/hostintel",
     "keithjjones/visualize_logs",
+    "kejilion/sh",
+    "kelchm/home-lab",
     "kenttibusiness/scamnet",
     "kerneldroid/NleSpam",
     "kevinb361/wanctl",
@@ -3020,6 +3067,7 @@
     "khashashin/ogi",
     "khast3x/Redcloud",
     "khast3x/h8mail",
+    "khiem-nguyen-ict/Binary-Vulnerability-Detection-PoC",
     "khjxiaogu/MiraiSongPlugin",
     "khjxiaogu/TableGamePlugin",
     "khzaw/rangoonpulse",
@@ -3030,14 +3078,16 @@
     "kinomakino/ransomware_file_extensions",
     "kiw13299/portkill",
     "kizubenda/NjRAT-ShadowEdge-Controller",
-    "kkonradpl/mtscan",
+    "kkoltongi99/speedc",
     "kl1ssfa/C2Panel",
     "klayf96/routeros-abuseipdb-blacklist",
     "klezVirus/CheeseTools",
     "klinford/DDOS-PANEL-JoJo",
     "klinge/crowdsec-cloudflare-sync",
     "kljunowsky/CVE-2024-27348",
+    "kn-lim/homelab",
     "knalli/honeypot-for-tcp-32764",
+    "kneha10/cyber-forge",
     "kohitprajapat/CodeAlpha-Tasks",
     "kolide/fleet",
     "komodoooo/Lebron",
@@ -3075,7 +3125,6 @@
     "l4rm4nd/LinkedInDumper",
     "labinnah1933/CLS-Painel",
     "labring/RuiQi",
-    "lagged/apt-spy2",
     "laitoxx/Laitoxx-Multi-Tool",
     "lalitkishorepanwar/mrgadget",
     "lamy421/netwo-bust",
@@ -3092,18 +3141,21 @@
     "lcashdol/WAPot",
     "learningwithmachines/Kaggle-Titanic",
     "leconio/knockport",
+    "leebaird/discover",
     "leeyis/ip_proxy_pool",
     "leonardounproven268/FreeFCC",
     "lerjtl/Testfree",
     "lethek/FluentCertificates",
     "lexbrugman/dhcp-dns-helper",
     "libellux/Libellux-Up-and-Running",
+    "librats/rats-search",
     "libyal/winreg-kb",
     "lichess-org/leroyjenkins",
     "lidless-labs/maltego-mcp",
     "lidless-labs/misp-mcp",
     "lidless-labs/soc-stack",
     "liliasunweathered958/The-Hunter-Termux-Version",
+    "lillestump147/critical-infrastructure-threat-intel",
     "lilmond/flasshbang",
     "lilmond/sudos",
     "lilu1244/jlab-desktop",
@@ -3133,10 +3185,10 @@
     "lolexfil/lolexfil.github.io",
     "longld/peda",
     "looCiprian/GC2-sheet",
-    "lopes/cordyceps",
     "lopes/lantana",
     "lord-alfred/ipranges",
     "loseys/Oblivion",
+    "lotusnoir/ansible-apps_ufw",
     "lowwattlabs/frisk",
     "lpsm-dev/docker-crypto-miner",
     "ls1911/GenAIPot",
@@ -3147,7 +3199,6 @@
     "luisferreira97/autoautoml",
     "lukefwalton/stop-political-texts",
     "lukeslp/antisocial",
-    "lukeswitz/AntiHunter",
     "lula73/bot-detector",
     "lululepu/Ungrabber",
     "lulzddos/Lulzddos",
@@ -3164,6 +3215,7 @@
     "m4rco-/dorothy2",
     "macadmins/sofa",
     "machine1337/sshbrute",
+    "macosta88/Splunk-Dashboard-for-SSH-Logs",
     "madcoda9000/SecStore",
     "madhead341/LOSR-Logger-v2",
     "madirish/kojoney2",
@@ -3172,12 +3224,12 @@
     "magisterquis/sshhipot",
     "magisterquis/sshlowpot",
     "magisterquis/vnclowpot",
+    "mahaishu/n8n-CyberSecurity-Workflows",
     "mahdibland/V2RayAggregator",
     "majal/maj-server",
     "maksimzayats/diwire",
     "malek-alhu/marketplace-phaas-tracker",
     "maliceio/malice",
-    "malwaredb/malwaredb-rs",
     "malwaremusings/unpacker",
     "mamoe/mirai",
     "mandiant/capa",
@@ -3207,10 +3259,10 @@
     "marinov98/dotfiles",
     "mariocandela/beelzebub",
     "markets/invisible_captcha",
+    "markomicic95/repo-specialist",
     "marksowell/nmap-tailwind-xsl",
     "marlkiller/rust-desk-light",
     "marshyski/sshwatch",
-    "martinbjeldbak/home-ops",
     "martinvleisure113/vibe-vuln-scanner",
     "maryamzahra3366/log-sentinel-go",
     "masq/masq.github.io",
@@ -3229,6 +3281,7 @@
     "mauricelambert/PyWCGIshell",
     "mauricelambert/RansomWare",
     "mauricelambert/WebScriptsWebShell",
+    "maxDcb/C2TeamServer",
     "maxlerebourg/crowdsec-bouncer-traefik-plugin",
     "mayankjain0141/nixis",
     "mazay/mikromanager",
@@ -3268,11 +3321,13 @@
     "mfontani/kippo-stats",
     "mgeide/poortego",
     "mgreen27/Invoke-LiveResponse",
+    "mh37/Argos",
     "mheidari98/.proxy",
     "mia-cx/honeybot",
     "mianhu888/CISC849Final",
     "michael-yip/MaltegoVT",
     "michael-yip/ThreatTracker",
+    "michaelbeaumont/k8rn",
     "michaelgreen-0/pow-guard",
     "michaelgregoryibizugbe/PHANTOM-RECON",
     "michalstankiewicz4-cell/IPscanner",
@@ -3281,6 +3336,7 @@
     "microsoft/csharp-cert-workshop",
     "microsoft/msticpy",
     "microsoft/onefuzz",
+    "midwayjs/midway",
     "mietzen/caddy",
     "migros/fotoobo",
     "miguelraulb/spamhat",
@@ -3290,13 +3346,13 @@
     "miklosakos/fuck-uceprotect",
     "mikopbx/ModuleCTIClient",
     "milahu/darknet-git-hosting-services",
+    "milahu/hocr-files-template-repo",
     "milesrack/xmrig-tool",
     "millestrain/Pulsar-RAT",
     "milo2012/osintstalker",
     "mindphluxnet/cowrie-logviewer",
     "miniupnp/miniupnp",
     "mirak-kimko/VulnerabilitySearcher",
-    "miran248/terraform-talos-modules",
     "miraunreformable550/pentest-with-LLM",
     "mirceanton/external-dns-provider-mikrotik",
     "mirceanton/mikrotik-terraform",
@@ -3310,7 +3366,6 @@
     "misiektoja/steam_monitor",
     "misiektoja/xbox_monitor",
     "misterch0c/malSploitBase",
-    "mitchellkrogza/nginx-ultimate-bad-bot-blocker",
     "mitigative-davidbushnell562/skill-sentry",
     "mitre-attack/attack-navigator",
     "mitre-attack/attack-website",
@@ -3365,10 +3420,10 @@
     "mrichman/godnsbl",
     "mrixs/ru_asn_prefixes",
     "mrjackwills/havn",
+    "mrjeeves/lgspyware.com",
     "mrlooker/Suspicious-IPs",
     "mrodrig/firewalla-apcupsd",
     "mrodrig/firewalla-serial-console",
-    "mrousavy/react-native-vision-camera",
     "mrschyte/dockerpot",
     "msalihberk/ShadowLab",
     "mscharley/dot",
@@ -3381,6 +3436,7 @@
     "mtheuma/epson2paperless",
     "muchdogesec/obstracts",
     "muchdogesec/ransomware2stix",
+    "mukul-07/missiondebug",
     "mushorg/conpot",
     "mushorg/glastopf",
     "mushorg/glutton",
@@ -3420,10 +3476,11 @@
     "nagelboi/DDOS47",
     "naivesystems/analyze",
     "naksyn/DojoLoader",
+    "nano-rs/nano",
     "naorlivne/dshp",
-    "narayana-akula/ai-assisted-dti",
     "narkopolo/fb_friend_list_scraper",
     "nasenov/homelab",
+    "nashirulwan/intrusion-detection-ml",
     "nastaso/xmrig-zero",
     "natuleadan/sdk-ops",
     "navin-hariharan/CVE-DATABASE",
@@ -3461,6 +3518,7 @@
     "nico-ralf-ii-fpuna/tfg",
     "nicolerenee/infra",
     "nidhhoggr/ipset-blacklist-firewalld",
+    "nidr0x/k8s-gitops",
     "nigerbartus/Shai-Hulud-2.0-Detector",
     "nightcomdev/opnsense",
     "nikannafas04-sketch/slowloris",
@@ -3477,7 +3535,6 @@
     "niuhuan/rust_proc_qq",
     "nixbear/malicious_ips",
     "nkg447/cosmos-connection-docker-java",
-    "nlink-jp/cybersecurity-series",
     "nm-packages/wagtail-honeypot",
     "nmap/nmap",
     "noarche/brute",
@@ -3490,14 +3547,15 @@
     "nonPointer/uBlacklist-Subscription",
     "noobconner21/CertBot",
     "nopoz/pfsense-dnscrypt-proxy",
+    "notdodo/tools",
     "notedirequiensoyk-source/STACK-2026",
     "notfaj/ester",
     "nottoBD/netsec-honeypot",
-    "novadyne-hq/epss-cve-feed",
     "novawifi/API",
     "nox-project/nox-framework",
     "nsacyber/GRASSMARLIN",
     "nsacyber/Windows-Secure-Host-Baseline",
+    "nsasoft/nsauditor-ai",
     "nsasoft/nsauditor-ai-agent-skill",
     "nsmfoo/antivmdetection",
     "nsmfoo/dicompot",
@@ -3544,14 +3602,11 @@
     "op7ic/BlueTeam.Lab",
     "opabravo/dfuf",
     "openappsec/openappsec",
-    "opencve/opencve",
     "opendatacam/opendatacam",
     "openprotest/protest",
-    "opensoar-hq/opensoar-core",
     "opensourcesec/CIRTKit",
     "opensourcesec/Forager",
     "openspug/spug",
-    "openwrt-xiaomi/xmir-patcher",
     "opnsense/docs",
     "opsdisk/the_cyber_plumbers_handbook",
     "opsgenie/kubernetes-event-exporter",
@@ -3591,9 +3646,11 @@
     "paoloamato2/fortinet-mcp-server",
     "papapapapdelesia/Emilia",
     "paralax/awesome-honeypots",
+    "pardhuvarmax/PhishTrap",
     "parental-control-system/parental-app",
     "parkr/antispam",
     "parseword/nolovia",
+    "parth0xu/Intrusion-Detection-System-Project",
     "particlelevel/uBlacklist-fake-shops-german",
     "password123456/nvd-cve-database",
     "pathetic/async-rust-rat",
@@ -3604,7 +3661,6 @@
     "paulzroe/vtutil",
     "pavel-odintsov/fastnetmon",
     "pbmartins/nypto",
-    "pdrgds/pixma-rs",
     "peasoft/NoMoreWalls",
     "pedramamini/ThreatIngestor",
     "pedramamini/iocextract",
@@ -3614,6 +3670,7 @@
     "pentagridsec/PentagridScanController",
     "perchfuruncle656/huntkit",
     "pete731/sati",
+    "peteedoo/mac-mini-firewall",
     "peterhanily/maccrab",
     "pfitzer/dnsbl",
     "pfq/PFQ",
@@ -3631,6 +3688,7 @@
     "philcyh/pixurebyte",
     "philpof102-svg/mainstreet",
     "phin3has/mailoney",
+    "phindunk/find_hash",
     "phishing-hunter/proxypot",
     "photodoc1960/wyvern",
     "phybros/home-ops",
@@ -3645,6 +3703,7 @@
     "plasma-disassembler/plasma",
     "platformbuilds/SpamhausIPLists",
     "platinum2high/ioc-hunter",
+    "pledgeandgrow/pledgeguard",
     "plexusdentalischangtzu246/ai-email-assistant",
     "poddmo/ufw-blocklist",
     "pol4ir/MovementHound",
@@ -3664,7 +3723,6 @@
     "pr0f94/obsidian-lateral-movement-template",
     "praetorian-inc/brutus",
     "praetorian-inc/nerva",
-    "pranavkumaarofficial/venvy",
     "prashanth1716/web_scan",
     "presswizards/cloudflare-waf-rules-wizard",
     "prince112233445566/make-it-real",
@@ -3675,12 +3733,10 @@
     "profanitas/TAPAD",
     "profanitas/abuse",
     "profound-gifttax658/V-Shield",
-    "profullstack/threatcrush",
     "progprnv/ScanX",
     "programa-stic/barf-project",
     "project0/certjunkie",
     "projectdiscovery/dnsx",
-    "projectdiscovery/public-bugbounty-programs",
     "prometheus-community/fortigate_exporter",
     "proofpoint/mobile-abuse-reporting-schema",
     "proseltd/Telepathy-Community",
@@ -3691,10 +3747,12 @@
     "pry0cc/axiom",
     "ptswarm/reFlutter",
     "pudurvenu/AI-NextGen",
+    "puffyCid/artemis",
     "pwlgrzs/Mikrotik-Blacklist",
     "pwnesia/ssb",
     "pwnfo/mapchar",
     "pwnlandia/mhn",
+    "pwyde/home-ops",
     "pyclasrl/ddus",
     "pymumu/smartdns",
     "pyrrh1c/Start-RdpSessionTakeover",
@@ -3704,7 +3762,7 @@
     "qjoly/GitOps",
     "qmadev/CrabLoader",
     "qmadev/tf-mythic-azure",
-    "qmfire18-source/DEEP-STATE",
+    "quantumcore/NetworkStealer",
     "quark-engine/quark-engine",
     "quodeq/quodeq",
     "r00t-tsai/Simple-Remote-Desktop",
@@ -3742,8 +3800,10 @@
     "rapid7/metasploit-framework",
     "rapid7/recog",
     "rapidflood/Cloudflare-Bypass-DDoS",
+    "rasanfe/pbScanner",
     "rastrea2r/rastrea2r",
     "rat-genome-database/RS-Rat-Strain-Ontology",
+    "ravesnoopy/QuantiaPay-Incident-Response",
     "ravilushqa/homelab",
     "raviolini/ingpo",
     "rblaine95/docker_monero_xmrig",
@@ -3784,9 +3844,7 @@
     "rickyfazaa/MySPAMBot-OTP",
     "ridgelinecyberdefence/vanguard",
     "rieck/malheur",
-    "righel/ms-exchange-version-nse",
     "righettod/toolbox-patator",
-    "righettod/website-passive-reconnaissance",
     "rightmost-substantivedye844/flutter_secret_exposed",
     "rightsideup-buzzardsbay874/contentful-asset-malware-scan-app",
     "ringcentral/rc-unified-crm-extension",
@@ -3835,6 +3893,7 @@
     "rough007/CCF-VM",
     "rough007/CDQR",
     "rovellipaolo/NinjaDroid",
+    "roxy-wi/IncidentRelay",
     "roxy-wi/roxy-wi",
     "rozgo/anevicon",
     "rpavlyuk/miktotik-block-login-bruteforce",
@@ -3846,6 +3905,7 @@
     "rubenespadas/DionaeaFR",
     "rubennati/secure-docker-blueprint",
     "rudra00434/Advance-multilayer-bypass-DDoS-brute-force-AsyncRAT-malware-attacks",
+    "ruifung/rfhome-infrastructure",
     "rulezet/rulezet-core",
     "rumblefrog/lrthrome",
     "rumbling-pyrographer341/dropper",
@@ -3853,7 +3913,6 @@
     "run41/honey_ports",
     "runtimefailure/LuckywareReverse",
     "ruped24/tor_ip_switcher",
-    "rustscript-lang/micro-rustscript",
     "rusty-ferris-club/recon",
     "rusty-ferris-club/shellclear",
     "ruzickap/malware-cryptominer-container",
@@ -3895,27 +3954,31 @@
     "samftggr/VEN0m-Ransomware",
     "sammwyy/IonCAT",
     "sammwyy/R2SAE",
+    "samsesh/OpenHostingNOC",
     "samsesh/SocialBox-Termux",
     "samuelcaldas/Bruteforce-Bootloader-Unlocker",
-    "sanbir/evm-hack-registry",
+    "samugit83/redamon",
     "sandeepmothukuri/sandeepmothukuri",
     "sanderzegers/fortigate-extcap",
     "sandflysecurity/sandfly-setup",
     "sandialabs/scot",
     "sanfor2004/XDGe",
     "sans-blue-team/DeepBlueCLI",
+    "santhreal/truestack",
     "santhreal/wafrift",
     "santost12/nftables-examples",
     "sanushka2025/Microsoft_Windows",
     "sapphirex00/Threat-Hunting",
     "sarabelinformatika/sarabelinformatika",
     "sari3l/Poc-Monitor",
+    "satish-ayyaluri/home-soc-lab",
     "satta/gommunityid",
     "sattyamjjain/agent-audit-kit",
     "saurabhwadekar/pycrack",
     "saycc1982/stresscc",
     "sbousseaden/EVTX-ATTACK-SAMPLES",
     "sbousseaden/PCAP-ATTACK",
+    "scale600/project-techcloudup",
     "schmalle/MysqlPot",
     "schmalle/Nodepot",
     "schmalle/honeyalarmg2",
@@ -3932,6 +3995,8 @@
     "sebafvs/bof-ldap",
     "sebix/ansible-intelmq",
     "sec51/honeymail",
+    "secdev/scapy",
+    "secnotes/searchpoc",
     "secopdotdev/OpeNirvana",
     "secretsquirrel/recomposer",
     "secu-tools/unifi-network-list-sync",
@@ -3939,6 +4004,7 @@
     "securestate/king-phisher",
     "secureworks/dcept",
     "securitygeneration/Honeyport",
+    "securitytemplates/sectemplates",
     "securitywithoutborders/hardentools",
     "secwatch92/fortiweb_rce_toolkit",
     "secwexen/security-playbooks",
@@ -3948,6 +4014,7 @@
     "seekr-osint/seekr",
     "sefcom/honeyplc",
     "sefinek/Blacklisted-Emails",
+    "sefinek/Cloudflare-WAF-Expressions",
     "sefinek/Cloudflare-WAF-To-AbuseIPDB",
     "sefinek/IPDB-Integration-Scripts",
     "sefinek/Malicious-IP-Addresses",
@@ -3986,6 +4053,7 @@
     "shellkraft/Ledger",
     "shenal00/network-intrusion-detection-ml",
     "sherlock-project/sherlock",
+    "shevv1ls/PhoenixC2",
     "shgew/cs-firewall-bouncer-docker",
     "shirakun/shiraboot",
     "shiva-spampot/shiva",
@@ -4032,6 +4100,7 @@
     "sleuthkit/scalpel",
     "slezercc/silent-xmrig",
     "slok/stactus-showcase",
+    "smbonn2005/HomeOps",
     "smicallef/spiderfoot",
     "smirnovhub/my-mikrotik-scripts",
     "snapshotprogrambunt985/ip-discovery",
@@ -4081,6 +4150,7 @@
     "speisekatze/sandbagger",
     "spellshift/realm",
     "spender-sandbox/cuckoo-modified",
+    "spicebag/cryptic-stresser",
     "spidermila/mikrotik_update",
     "spithash/DD-WRT-Update-Suricata-Rules-Automatically",
     "spktrvm/CTI-Portfolio",
@@ -4136,9 +4206,10 @@
     "stratosphereips/Manati",
     "strawsle/Nextjs-RCE-exploit-kit",
     "studiogangster/CVE-2023-44487",
-    "sub-store-org/Sub-Store",
+    "studysk890/QianKunQuan",
     "sublime-security/sublime-platform",
     "sublime-security/sublime-rules",
+    "substreambc/helium-mcp",
     "subzerobo/dare-devil",
     "subzeroid/insto",
     "suchsoak/Powershell_script",
@@ -4159,7 +4230,6 @@
     "swoga/mikrotik-exporter",
     "swwwolf/wdbgark",
     "sycurelab/DECAF",
-    "syed-sameer-ul-hassan/Zenith-Sentry",
     "sylhetyhackvenger/ANST-ActiveNetworkSmashingTool",
     "syphon1c/Threatelligence",
     "szinn/k8s-homelab",
@@ -4170,6 +4240,7 @@
     "taggedzi/netset2p2p",
     "tahmidefaz/auto-predict",
     "tahovig/poc-logids",
+    "taihen/ros-exporter",
     "tairimehdi/tcp-ip-attack-lab",
     "tajiknomi/Remote_Administrative_Console",
     "tamersaid2022/firewall-policy-automator",
@@ -4183,6 +4254,7 @@
     "tcpfin-dev/terylene",
     "tdeerenberg/InlineWhispers3",
     "teal33t/poopak",
+    "techno-neighbour/focal-harvest",
     "technosophos/helm-gpg",
     "teebow1e/loganalyz3r",
     "tejado/telegram-nearby-map",
@@ -4202,7 +4274,6 @@
     "tfsec/tfsec",
     "tg12/OpenMailRelayFuzzer",
     "tg12/bad_packets_blocklist",
-    "tg12/phantomcreds",
     "tg12/phantomtide",
     "thamarai-selvi/bug-hunt",
     "thanosnm/mikrotik-blacklist",
@@ -4218,7 +4289,6 @@
     "thenoname-gurl/EcliPanel",
     "theomegasquad/16113_2020-21",
     "theonlyrafael/enigma-vs-bombe-simulator",
-    "theouterspaced/ip-blocklist",
     "theupdateframework/notary",
     "thewhiteh4t/nexfil",
     "theylovejay409/security-playbooks",
@@ -4230,8 +4300,6 @@
     "thomasleveil/doco-maltrail",
     "thomaspatzke/Log4Pot",
     "thomdefinable658/sentinel-detection-engine",
-    "threatcode/WebShell-Sniper",
-    "threathunters-io/laurel",
     "threatstream/mhn",
     "threatstream/shockpot",
     "thrifty-consonance737/ninjaXRF",
@@ -4275,7 +4343,6 @@
     "tpsaradhi/wifi_device_control",
     "tpyo/kilter",
     "traetox/sshForShits",
-    "trailofbits/it-depends",
     "trailofbits/presentations",
     "trangdata/tpot-fss-ms",
     "transvestic-velodrome9214/AgentMemshell",
@@ -4283,8 +4350,10 @@
     "travisbgreen/hunting-rules",
     "travisghansen/hass-opnsense",
     "trick77/nftables-blacklist",
+    "trickest/cve",
     "trickest/resolvers",
     "trickest/wordlists",
+    "trieck/pixienn",
     "trigat/Docker-OpenCanary",
     "trio666/proxy-checker",
     "tripwire/tardis",
@@ -4310,8 +4379,9 @@
     "tylerrosnett/homelab",
     "tymyrddin/red",
     "tyriis/home-ops",
-    "tyxak/remotepower",
+    "ubc-provenance/PIDSMaker",
     "uber-common/metta",
+    "ucb-bar/chipyard",
     "ucnl/ucnl.github.io",
     "ufrisk/MemProcFS",
     "ufukart/Blacklist",
@@ -4327,6 +4397,7 @@
     "uneven-freightage871/mod_doscontrol",
     "unf6/vryxen",
     "unfetter-analytic/unfetter",
+    "unflawed-code/route10-suricata-runner",
     "unidel2035/gift-onto",
     "unipacker/unipacker",
     "unkn0wnh4ckr/boOoter",
@@ -4337,6 +4408,7 @@
     "uppusaikiran/generic-parser",
     "uppusaikiran/malware-organiser",
     "uppusaikiran/yara-finder",
+    "upthatdose/recta-selfhosted-backend",
     "uptimejp/sql_firewall",
     "urasbi5905/repo-analyzer",
     "urremaD/C2Panel",
@@ -4347,6 +4419,7 @@
     "usrtem/Conti-Leak-Analysis",
     "usrtem/TrickBot-Analysis",
     "utkusen/reqstress",
+    "utmstack/UTMStack",
     "utopia-php/abuse",
     "v0rl0x/C-SSH-Bruter",
     "v0rl0x/CPP-SSH-Bruteforce",
@@ -4358,7 +4431,6 @@
     "vandie/isProfanity",
     "vanhauser-thc/thc-hydra",
     "vaulted-timbalecase456/cargo-trust",
-    "vdjagilev/nmap-formatter",
     "vduddu/Malware",
     "vektor-x-com/Shells-X",
     "ventz/docker-cif",
@@ -4372,7 +4444,6 @@
     "vgo0/nginx-skimmer",
     "vibheksoni/ferrox",
     "viglianesed/ip-blocklist",
-    "vigolium/vigolium",
     "viler-int10h/Sorry-Ass",
     "viler-int10h/TVCGAFix",
     "vinceAmstoutz/symfony-security-auditor",
@@ -4398,8 +4469,8 @@
     "volatilityfoundation/volatility",
     "volatilityfoundation/volatility3",
     "votal-ai-hq/wb-red-team",
-    "vowstar/qsoc",
     "vpciii/opn-mcp",
+    "vqmpjayZ/Vadrifts",
     "vrikodar/DiaLog",
     "vrikodar/Thor",
     "vrikodar/Wizard",
@@ -4413,6 +4484,7 @@
     "wadecalvin9/ByteCode",
     "waftester/waftester",
     "wagga40/Zircolite",
+    "wall-flipping/SSV2RayTrojanClashSSR",
     "wallachenonlinear561/vikramaditya",
     "wallarm/api-firewall",
     "wallarm/docker-wallarm-node",
@@ -4431,6 +4503,7 @@
     "webhippie/prom-to-apt-dater",
     "webishdev/fail2ban-dashboard",
     "webstockid/webstockid.github.io",
+    "webtorrent/load-ip-set",
     "weby-homelab/niftywall",
     "weby-homelab/voip-installer",
     "weird1337/Sakura-QBOT",
@@ -4456,7 +4529,6 @@
     "wolffcatskyy/crowdsec-blocklist-import",
     "wolffcatskyy/crowdsec-unifi-bouncer",
     "wookieb/alpha-dic",
-    "wpscanteam/wpscan",
     "wqh7798/Slay-the-Spire-2-Drawing",
     "wranders/coredns-filter",
     "wravoc/harden-dragonflybsd",
@@ -4469,6 +4541,7 @@
     "wyattowalsh/proxywhirl",
     "wyre-technology/abnormal-mcp",
     "wyre-technology/avanan-mcp",
+    "wyre-technology/ironscales-mcp",
     "wyre-technology/mimecast-mcp",
     "wyre-technology/proofpoint-mcp",
     "x-way/ctrmd",
@@ -4481,7 +4554,6 @@
     "xXMurallaXx/OpenSentry-SOAR",
     "xactai/ELI-ALPR",
     "xakepnz/STRIKEWRITER",
-    "xalgord/xalgorix",
     "xamidi/github-followership-scammers",
     "xanonDev/MinecraftMacro",
     "xbxh6452/-ARP-Spoofing-Detection-Active-Injection-Technique",
@@ -4538,12 +4610,12 @@
     "yourworstnightmare1/proxy-list",
     "ypankovych/Telegram-collector",
     "yqcs/ZheTian",
+    "ysfl/baize",
     "yt-dlp/yt-dlp",
     "ytisf/PyExfil",
     "ytisf/RainbowQR",
     "ytisf/muninn",
     "ytisf/theZoo",
-    "yuceltoluyag/GoodProxy",
     "yuchincheng/HpfeedsHoneyGraph",
     "yuexuana521/honeypot-blocklist",
     "yukariin/cluster",
@@ -4574,7 +4646,6 @@
     "zentinelproxy/zentinel-agent-denylist",
     "zentralopensource/zentral",
     "zer-far/spurt",
-    "zerodenet/zero",
     "zeroq/amun",
     "zerox9dev/TgBlaster",
     "zeuu5/cyber-threat-hub",
@@ -4600,6 +4671,7 @@
     "zykooooooooo/SeekMoney-ai",
     "zyronix/puppet-ipsets",
     "zyw-286/HoneyGPT",
+    "zywe03/realm-xwPF",
     "zzzteph/low-hanging-vulns"
   ],
   "rejected_repos_meta": {
@@ -6839,10 +6911,6 @@
       "reason": "Zu alt: 787d",
       "rejected_at": "2026-06-13"
     },
-    "Cr4sh/s6_pcie_microblaze": {
-      "reason": "Zu alt: 98d",
-      "rejected_at": "2026-06-13"
-    },
     "MaorSabag/impacket-jump": {
       "reason": "Zu alt: 188d",
       "rejected_at": "2026-06-13"
@@ -7321,10 +7389,6 @@
     },
     "tuconnaisyouknow/BadUSB_adminAccountCreator": {
       "reason": "IP-Datei 498d alt",
-      "rejected_at": "2026-06-21"
-    },
-    "fredotran/traffic-sign-detector-yolov4": {
-      "reason": "Zu alt: 222d",
       "rejected_at": "2026-06-21"
     },
     "dreddsa5dies/goHackTools": {
@@ -9043,10 +9107,6 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-04"
     },
-    "hynek/svcs": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-04"
-    },
     "abdullahbutt/deutsch-lernen-goethe-a1-c2": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-04"
@@ -9108,10 +9168,6 @@
       "rejected_at": "2026-07-04"
     },
     "drcrypterdotru/warworm-stealer": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-04"
-    },
-    "vdjagilev/nmap-formatter": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-04"
     },
@@ -12031,10 +12087,6 @@
       "reason": "Zu alt: 1066d",
       "rejected_at": "2026-07-05"
     },
-    "lagged/apt-spy2": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-05"
-    },
     "firewalla/msp-api-examples": {
       "reason": "Zu alt: 373d",
       "rejected_at": "2026-07-05"
@@ -12276,10 +12328,6 @@
       "rejected_at": "2026-07-05"
     },
     "HaxL0p4/HaxL0p4-WinDefenderBypass": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-05"
-    },
-    "syed-sameer-ul-hassan/Zenith-Sentry": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-05"
     },
@@ -13263,10 +13311,6 @@
       "reason": "Zu alt: 1944d",
       "rejected_at": "2026-07-05"
     },
-    "lopes/cordyceps": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-05"
-    },
     "Neo23x0/yarGen": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-05"
@@ -13983,10 +14027,6 @@
       "reason": "Zu alt: 49d",
       "rejected_at": "2026-07-06"
     },
-    "MagicTeaMC/grok-free-api": {
-      "reason": "Zu alt: 495d",
-      "rejected_at": "2026-07-06"
-    },
     "austin-lai/Collection-of-AzureSentinel-Playbook": {
       "reason": "Zu alt: 1515d",
       "rejected_at": "2026-07-06"
@@ -14660,10 +14700,6 @@
       "rejected_at": "2026-07-08"
     },
     "wranders/coredns-filter": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-08"
-    },
-    "DrakoLabs/drako": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-08"
     },
@@ -15365,10 +15401,6 @@
     },
     "femboyisp/blackwall": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-08"
-    },
-    "cgzones/apt-cacher-rs": {
-      "reason": "IP-Datei 50d alt",
       "rejected_at": "2026-07-08"
     },
     "yusuf-husayn/dos-ddos-lab": {
@@ -16211,10 +16243,6 @@
       "reason": "Zu alt: 715d",
       "rejected_at": "2026-07-08"
     },
-    "MagicTeaMC/ChatGPT-playground-chinese": {
-      "reason": "Zu alt: 950d",
-      "rejected_at": "2026-07-08"
-    },
     "ShadowWhisperer/AbuseIPDB_Reporter": {
       "reason": "Zu alt: 960d",
       "rejected_at": "2026-07-08"
@@ -16555,10 +16583,6 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-08"
     },
-    "giantswarm/falco-app": {
-      "reason": "Größe: 0 IPs",
-      "rejected_at": "2026-07-08"
-    },
     "jaywire/RBL-Checker": {
       "reason": "Zu alt: 2385d",
       "rejected_at": "2026-07-08"
@@ -16668,10 +16692,6 @@
       "rejected_at": "2026-07-08"
     },
     "8linkz-sec/Ransomware-Bot": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-08"
-    },
-    "jbox-web/apt-larder": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-08"
     },
@@ -17423,10 +17443,6 @@
       "reason": "IP-Datei 84d alt",
       "rejected_at": "2026-07-08"
     },
-    "theouterspaced/ip-blocklist": {
-      "reason": "Größe: 42 IPs",
-      "rejected_at": "2026-07-08"
-    },
     "jxroot/BlackWire": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-08"
@@ -17812,10 +17828,6 @@
       "rejected_at": "2026-07-09"
     },
     "ddddddO/packemon": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-09"
-    },
-    "kkonradpl/mtscan": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-09"
     },
@@ -18763,10 +18775,6 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-11"
     },
-    "anpa1200/CTI": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-11"
-    },
     "lamy421/netwo-bust": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-11"
@@ -19153,10 +19161,6 @@
     },
     "deedee-ops/home-ops": {
       "reason": "IP-Datei 36d alt",
-      "rejected_at": "2026-07-12"
-    },
-    "Ashveil1/Elengenix": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-12"
     },
     "skurhse/lucy": {
@@ -19595,10 +19599,6 @@
       "reason": "Manuell ausgeschlossen: zu hohe False-Positive-Rate bei legitimen Cloud-/CDN-IPs (Ubisoft/EA AWS-Backends via SubCrawler-Scan-Ergebnisse; nginx-bad-bot-blocker nutzt zu grobe CIDR-Bloecke wie 172.64.0.0/13 und 162.158.0.0/15, die praktisch den gesamten Cloudflare-Adressraum abdecken). Verifiziert per FeedFinder.ps1-Scan am 2026-07-12: 13 von 23 geprueften IPs kamen allein von leon406_subcrawler.",
       "rejected_at": "2026-07-12"
     },
-    "mitchellkrogza/nginx-ultimate-bad-bot-blocker": {
-      "reason": "Manuell ausgeschlossen: zu hohe False-Positive-Rate bei legitimen Cloud-/CDN-IPs (Ubisoft/EA AWS-Backends via SubCrawler-Scan-Ergebnisse; nginx-bad-bot-blocker nutzt zu grobe CIDR-Bloecke wie 172.64.0.0/13 und 162.158.0.0/15, die praktisch den gesamten Cloudflare-Adressraum abdecken). Verifiziert per FeedFinder.ps1-Scan am 2026-07-12: 13 von 23 geprueften IPs kamen allein von leon406_subcrawler.",
-      "rejected_at": "2026-07-12"
-    },
     "gracicot/kangaru": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-12"
@@ -19615,10 +19615,6 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-12"
     },
-    "openwrt-xiaomi/xmir-patcher": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-12"
-    },
     "zhuhaiuk/free-nodes": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-12"
@@ -19628,10 +19624,6 @@
       "rejected_at": "2026-07-12"
     },
     "nadoo/ipset": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-12"
-    },
-    "EXP-Tools/threat-broadcast": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-12"
     },
@@ -19689,10 +19681,6 @@
     },
     "Fausto-404/AlterHive": {
       "reason": "Größe: 0 IPs",
-      "rejected_at": "2026-07-12"
-    },
-    "Maxime-BRIN/win10-cve-observatory": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-12"
     },
     "OutOfSyncStudios/express-ip-blacklist": {
@@ -19793,10 +19781,6 @@
     },
     "Jashwanth33/RAT": {
       "reason": "Zu alt: 31d",
-      "rejected_at": "2026-07-12"
-    },
-    "threatcode/WebShell-Sniper": {
-      "reason": "Zu alt: 286d",
       "rejected_at": "2026-07-12"
     },
     "R3LI4NT/RavenDoor": {
@@ -20075,27 +20059,11 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-13"
     },
-    "eggjs/tegg": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-13"
-    },
-    "greenbone/openvas-scanner": {
-      "reason": "IP-Datei 88d alt",
-      "rejected_at": "2026-07-13"
-    },
     "topscoder/nuclei-wordfence-cve": {
       "reason": "IP-Datei 87d alt",
       "rejected_at": "2026-07-13"
     },
     "alexhraber/flowhawk": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-13"
-    },
-    "trailofbits/it-depends": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-13"
-    },
-    "Corgea/Sighthound": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-13"
     },
@@ -20147,10 +20115,6 @@
       "reason": "IP-Datei 279d alt",
       "rejected_at": "2026-07-13"
     },
-    "budimanjojo/talhelper": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-13"
-    },
     "mrhenrike/EmbedXPL-Forge": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-13"
@@ -20177,14 +20141,6 @@
     },
     "fhoekstra/home-ops": {
       "reason": "IP-Datei 148d alt",
-      "rejected_at": "2026-07-13"
-    },
-    "sanbir/evm-hack-registry": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-13"
-    },
-    "Asotn/VoidTerm-source": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-13"
     },
     "metal-stack/droptailer": {
@@ -20447,20 +20403,12 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-14"
     },
-    "0dayInc/pwn": {
-      "reason": "IP-Datei 819d alt",
-      "rejected_at": "2026-07-14"
-    },
     "FWGS/xash3d-fwgs": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-14"
     },
     "lord-alfred/ipranges": {
       "reason": "FP-Rate: 97.0%",
-      "rejected_at": "2026-07-14"
-    },
-    "righettod/website-passive-reconnaissance": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-14"
     },
     "truelockmc/Discord-RAT": {
@@ -20568,10 +20516,6 @@
       "rejected_at": "2026-07-14"
     },
     "R3LI4NT/http-tester": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-14"
-    },
-    "Glyndor/helmly": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-14"
     },
@@ -20735,10 +20679,6 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-14"
     },
-    "janpuc/home-ops": {
-      "reason": "IP-Datei 45d alt",
-      "rejected_at": "2026-07-14"
-    },
     "tony11301130/shigure-edr": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-14"
@@ -20835,28 +20775,12 @@
       "reason": "IP-Datei 878d alt",
       "rejected_at": "2026-07-14"
     },
-    "Hack23/euparliamentmonitor": {
-      "reason": "IP-Datei 96d alt",
-      "rejected_at": "2026-07-14"
-    },
-    "barbacana-waf/barbacana": {
-      "reason": "Größe: 0 IPs",
-      "rejected_at": "2026-07-14"
-    },
-    "ericcornelissen/js-regex-security-scanner": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-14"
-    },
     "rancher/scans": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-14"
     },
     "znakar/SharkTooth": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-14"
-    },
-    "zerodenet/zero": {
-      "reason": "IP-Datei 85d alt",
       "rejected_at": "2026-07-14"
     },
     "weltimistar777-crypto/MTProxy": {
@@ -20972,10 +20896,6 @@
       "rejected_at": "2026-07-14"
     },
     "power0matin/power-apt-boost": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-14"
-    },
-    "izumo-m/apt-awscli-v2": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-14"
     },
@@ -21135,10 +21055,6 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-14"
     },
-    "Oracleo/GRC-P4-Security-Control-Monitoring-Splunk": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-14"
-    },
     "zavetsec/Invoke-MBHashCheck": {
       "reason": "Zu alt: 42d",
       "rejected_at": "2026-07-14"
@@ -21237,10 +21153,6 @@
     },
     "JohnField07/AI-Bastion": {
       "reason": "IP-Datei 136d alt",
-      "rejected_at": "2026-07-14"
-    },
-    "codedeviate/sercon": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-14"
     },
     "hoelet/Omnishield_AI": {
@@ -21355,10 +21267,6 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-14"
     },
-    "Alan-Jowett/HardwareAbstractionIR": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-14"
-    },
     "christinminor459/OnionClaw": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
@@ -21371,16 +21279,8 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
-    "mrousavy/react-native-vision-camera": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
     "nyvorin/badwords": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "MyEtherWallet/ethereum-lists": {
-      "reason": "IP-Datei 1778d alt",
       "rejected_at": "2026-07-17"
     },
     "Touti-Sudo/Touti-Cracker": {
@@ -21395,23 +21295,11 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
-    "SecurityClaw/SecurityClaw": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
     "daanzu/kaldi-active-grammar": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
-    "0liverFlow/CVE2PoC": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
     "FrizzleM/SideInstaller": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "sub-store-org/Sub-Store": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
@@ -21421,10 +21309,6 @@
     },
     "sandflysecurity/sandfly-setup": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "e-m-b-a/emba": {
-      "reason": "Größe: 0 IPs",
       "rejected_at": "2026-07-17"
     },
     "metal-stack/firewall-controller": {
@@ -21439,31 +21323,11 @@
       "reason": "IP-Datei 718d alt",
       "rejected_at": "2026-07-17"
     },
-    "SEKOIA-IO/documentation": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "threathunters-io/laurel": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
     "stnolting/neorv32": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
-    "lukeswitz/AntiHunter": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
     "Mr-xn/BurpSuite-collections": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "aws-samples/amazon-bedrock-rag": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "1rhino2/RhinoWAF": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
@@ -21479,24 +21343,8 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
-    "opencve/opencve": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "GhostESP-Revival/GhostESP": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "SkuldNorniern/fluere": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
     "mrjackwills/havn": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "bb1nfosec/Information-Security-Tasks": {
-      "reason": "IP-Datei 56d alt",
       "rejected_at": "2026-07-17"
     },
     "mchestr/home-cluster": {
@@ -21523,16 +21371,8 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
-    "profullstack/threatcrush": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
     "bayufedra/ipti": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "fenio/homelab": {
-      "reason": "IP-Datei 340d alt",
       "rejected_at": "2026-07-17"
     },
     "DakEnviy/dots": {
@@ -21540,10 +21380,6 @@
       "rejected_at": "2026-07-17"
     },
     "swoga/mikrotik-exporter": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "jmxt3/gitscape.ai": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
@@ -21559,19 +21395,11 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
-    "SecurityRonin/usnjrnl-forensic": {
-      "reason": "IP-Datei 41d alt",
-      "rejected_at": "2026-07-17"
-    },
     "NotYuSheng/TracePcap": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
     "SHAJON-404/FILE": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "grlt-hub/app-compose": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
@@ -21611,19 +21439,11 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
-    "FoxVR-sudo/Bug-Bounty-Arsenal-v.3": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
     "optimuslabs-io/grokpatrol": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
     "aw-junaid/Malware-Analysis": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "XenoCoreGiger31/GEMMA-by-GOOGLE": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
@@ -21635,27 +21455,11 @@
       "reason": "Größe: 0 IPs",
       "rejected_at": "2026-07-17"
     },
-    "pdrgds/pixma-rs": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
     "pedrosilvaevangelista/Soc-from-scratch": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
-    "Ostorlab/agent_virustotal": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
     "PeterkoCZ91/HLK-LD2450-security": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "chrissiefken/osbal": {
-      "reason": "Größe: 0 IPs",
-      "rejected_at": "2026-07-17"
-    },
-    "danisss9/Xvirus": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
@@ -21707,10 +21511,6 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
-    "pranavkumaarofficial/venvy": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
     "bariskececi/rampart": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
@@ -21720,18 +21520,6 @@
       "rejected_at": "2026-07-17"
     },
     "expropriationhoorayhenry64/social-media-scraper-skill": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "azurebeard/harbinger": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "doctena-org/octorules": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "badchars/fingerprint-mcp": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
@@ -21787,10 +21575,6 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
-    "JoeRu/federloom": {
-      "reason": "Größe: 0 IPs",
-      "rejected_at": "2026-07-17"
-    },
     "kylefoxaustin/qemu-imx93": {
       "reason": "IP-Datei 73d alt",
       "rejected_at": "2026-07-17"
@@ -21823,10 +21607,6 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
-    "nlink-jp/cybersecurity-series": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
     "wallachenonlinear561/vikramaditya": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
@@ -21836,10 +21616,6 @@
       "rejected_at": "2026-07-17"
     },
     "Dorineporiferous426/OrbitalWolfCannon": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-17"
-    },
-    "Antonio131186/soc-python-labs": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
@@ -21895,10 +21671,6 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-17"
     },
-    "kaifcodec/user-scanner": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
     "vmkspv/lenspect": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
@@ -21907,16 +21679,8 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
-    "wpscanteam/wpscan": {
-      "reason": "IP-Datei 2852d alt",
-      "rejected_at": "2026-07-18"
-    },
     "ipverse/as-ip-blocks": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "malwaredb/malwaredb-rs": {
-      "reason": "Größe: 0 IPs",
       "rejected_at": "2026-07-18"
     },
     "MorDavid/BruteForceAI": {
@@ -21928,10 +21692,6 @@
       "rejected_at": "2026-07-18"
     },
     "david942j/one_gadget": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "elastic/camera-hacks": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
@@ -21947,31 +21707,11 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
-    "commixproject/commix": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
     "0sec-labs/foxguard": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
-    "OWASP/DockSec": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "vigolium/vigolium": {
-      "reason": "IP-Datei 56d alt",
-      "rejected_at": "2026-07-18"
-    },
-    "xalgord/xalgorix": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
     "crazy-max/docker-fail2ban": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "Ringmast4r/Epstein": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
@@ -21980,10 +21720,6 @@
       "rejected_at": "2026-07-18"
     },
     "nikitastupin/orgs-data": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "projectdiscovery/public-bugbounty-programs": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
@@ -21999,23 +21735,11 @@
       "reason": "IP-Datei 424d alt",
       "rejected_at": "2026-07-18"
     },
-    "tyxak/remotepower": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "righel/ms-exchange-version-nse": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
     "onedr0p/cluster-template": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
     "hcloud-talos/terraform-hcloud-talos": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "MacroPower/homelab": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
@@ -22067,22 +21791,6 @@
       "reason": "Zu alt: 991d",
       "rejected_at": "2026-07-18"
     },
-    "Correia-jpv/fucking-terminals-are-sexy": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "Correia-jpv/fucking-quick-look-plugins": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "Correia-jpv/fucking-games": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "RavinduRathnayaka/LiveThreatMap-dashboard": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
     "R00tS3c/BootMe.club-Nulled": {
       "reason": "Zu alt: 2383d",
       "rejected_at": "2026-07-18"
@@ -22119,16 +21827,8 @@
       "reason": "Zu alt: 859d",
       "rejected_at": "2026-07-18"
     },
-    "JuliaLang/SecurityAdvisories.jl": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
     "thenoname-gurl/EcliPanel": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "Correia-jpv/fucking-static-analysis": {
-      "reason": "IP-Datei 1159d alt",
       "rejected_at": "2026-07-18"
     },
     "c3l3si4n/r-u-flooded": {
@@ -22151,24 +21851,8 @@
       "reason": "Zu alt: 196d",
       "rejected_at": "2026-07-18"
     },
-    "cristianzsh/triager": {
-      "reason": "Größe: 0 IPs",
-      "rejected_at": "2026-07-18"
-    },
-    "Correia-jpv/fucking-magictools": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
     "unkn0wnh4ckr/boOoter": {
       "reason": "Zu alt: 2320d",
-      "rejected_at": "2026-07-18"
-    },
-    "opensoar-hq/opensoar-core": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "vowstar/qsoc": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
     "adjisoft/tenlight-dos": {
@@ -22180,22 +21864,6 @@
       "rejected_at": "2026-07-18"
     },
     "pgadient/TikMan": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "Correia-jpv/fucking-Machine-Learning-Tutorials": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "RealBikiniBottom/QuicProxy": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "yuceltoluyag/GoodProxy": {
-      "reason": "IP-Datei 810d alt",
-      "rejected_at": "2026-07-18"
-    },
-    "miran248/terraform-talos-modules": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
@@ -22211,16 +21879,8 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
-    "Ostorlab/agent_nuclei": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
     "Roo7K1d/Jitsi-Meet-Raider": {
       "reason": "Zu alt: 867d",
-      "rejected_at": "2026-07-18"
-    },
-    "martinbjeldbak/home-ops": {
-      "reason": "Größe: 0 IPs",
       "rejected_at": "2026-07-18"
     },
     "kevinl95/KeychainSkimmerScanner": {
@@ -22229,10 +21889,6 @@
     },
     "viler-int10h/TVCGAFix": {
       "reason": "Zu alt: 2132d",
-      "rejected_at": "2026-07-18"
-    },
-    "SecurityRonin/issen": {
-      "reason": "Größe: 0 IPs",
       "rejected_at": "2026-07-18"
     },
     "KernelCaleb/Kustonomicon": {
@@ -22245,10 +21901,6 @@
     },
     "strawsle/Nextjs-RCE-exploit-kit": {
       "reason": "Zu alt: 222d",
-      "rejected_at": "2026-07-18"
-    },
-    "Ostorlab/agent_openvas": {
-      "reason": "IP-Datei 1613d alt",
       "rejected_at": "2026-07-18"
     },
     "AkbarWiraN/my-rep": {
@@ -22283,23 +21935,11 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
-    "jesseopdenbrouw/thuas-riscv": {
-      "reason": "IP-Datei 64d alt",
-      "rejected_at": "2026-07-18"
-    },
-    "RidgeInspection30/Stellar-Data-Recovery-Premium-2026": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
     "btwparam/3L3Y3": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
     "hackops-academy/GhostRecon": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "duriantaco/ca9": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
@@ -22309,18 +21949,6 @@
     },
     "non-compliant/DemonHunter-Deobfuscated": {
       "reason": "Zu alt: 1875d",
-      "rejected_at": "2026-07-18"
-    },
-    "bb1nfosec/bheeshma": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "Serious-senpai/remote-access-trojan": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "Goldentaspell54/TeamViewer-Premium-Enterprise-Edition": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
     "stevewm/homelab": {
@@ -22333,10 +21961,6 @@
     },
     "l0RDn0s/PhoenixC2": {
       "reason": "Zu alt: 398d",
-      "rejected_at": "2026-07-18"
-    },
-    "i-am-unbekannt/BLITZPROXY": {
-      "reason": "IP-Datei 362d alt",
       "rejected_at": "2026-07-18"
     },
     "shamubernetes/home-k8s": {
@@ -22355,14 +21979,6 @@
       "reason": "Zu alt: 1147d",
       "rejected_at": "2026-07-18"
     },
-    "darkwizard242/ansible-role-grype": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "aisling136/HomeLab": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
     "d1dx4bnng3odytmqoew1/free-ip-stresser-booter": {
       "reason": "Zu alt: 279d",
       "rejected_at": "2026-07-18"
@@ -22377,10 +21993,6 @@
     },
     "imscruz/GyatC2": {
       "reason": "Zu alt: 320d",
-      "rejected_at": "2026-07-18"
-    },
-    "rustscript-lang/micro-rustscript": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
     "mortennordbye/lawless-waf": {
@@ -22447,14 +22059,6 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
-    "ParkerLee07/NetSniper": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "hopesupporttempo/Burp-Suite-Professional-Web-Testing-Setup": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
     "21Yeet21/accent-monitoring-siem-ids-pfe": {
       "reason": "IP-Datei 43d alt",
       "rejected_at": "2026-07-18"
@@ -22465,14 +22069,6 @@
     },
     "xXMurallaXx/OpenSentry-SOAR": {
       "reason": "Zu alt: 35d",
-      "rejected_at": "2026-07-18"
-    },
-    "exdsgift/tensionr": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "qmfire18-source/DEEP-STATE": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
     "dada63924/deribit-analyzer": {
@@ -22615,10 +22211,6 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
-    "narayana-akula/ai-assisted-dti": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
     "Tagoletta/Fed0gaT": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
@@ -22633,10 +22225,6 @@
     },
     "Enumber/flipscan": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "BlkSword/eShield": {
-      "reason": "Größe: 0 IPs",
       "rejected_at": "2026-07-18"
     },
     "Staffardprobable495/fleet-cve-scanner": {
@@ -22663,44 +22251,16 @@
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
-    "tg12/phantomcreds": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "novadyne-hq/epss-cve-feed": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
     "SecurityRonin/forensic-vfs": {
       "reason": "Größe: 0 IPs",
-      "rejected_at": "2026-07-18"
-    },
-    "SreejaPuthan/ICEBERG-Threat-Intel-updator": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
     "berksmbl/AirScope": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
-    "cyntra360hub/test-agent-beta": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
     "gnxD3RfTT2WE/proxies-st-http-socks": {
       "reason": "Overlap zu gering: 2.8%",
-      "rejected_at": "2026-07-18"
-    },
-    "jichangx/xingdaomeng-jichang": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "gabrielcoghi-rgb/spectre-graph": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
-      "rejected_at": "2026-07-18"
-    },
-    "StickyHashTr33/tx-surveillance-watch": {
-      "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
     },
     "SamyTouri/agent-hub": {
@@ -22766,6 +22326,806 @@
     "hieutran2511/drawbridge": {
       "reason": "Keine IP-Datei (Name/Inhalt)",
       "rejected_at": "2026-07-18"
+    },
+    "midwayjs/midway": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "maxDcb/C2TeamServer": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "RetireJS/retire.js": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "cyanfish/naps2": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "justcallmekoko/ESP32Marauder": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "librats/rats-search": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "AdventDevInc/kudu": {
+      "reason": "IP-Datei 115d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "Fabi019/hid-barcode-scanner": {
+      "reason": "IP-Datei 485d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "87owo/PYAS": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "immauss/openvas": {
+      "reason": "Größe: 0 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "er4vn/TeleStrike": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "R3LI4NT/articulos": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "aw-junaid/Kali-Linux": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "quantumcore/NetworkStealer": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Chill-Ethical-People/Optrasight": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "utmstack/UTMStack": {
+      "reason": "IP-Datei 32d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "er4vn/CyberTrace": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "trickest/cve": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "wall-flipping/SSV2RayTrojanClashSSR": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "OverTheWallNode/SSV2RayTrojanSSRClash": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "2dust/v2rayN": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "ubc-provenance/PIDSMaker": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Amal-David/keyleak-detector": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "FCSC-FR/shovel": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "zywe03/realm-xwPF": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "blacklanternsecurity/cloudcheck": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "samugit83/redamon": {
+      "reason": "Größe: 0 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "7onez/cti-expert": {
+      "reason": "Größe: 0 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "nano-rs/nano": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "gebruder/wirken": {
+      "reason": "IP-Datei 65d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "FunnyWolf/agentic-soc-platform": {
+      "reason": "Größe: 0 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "Graylog2/graylog2-server": {
+      "reason": "IP-Datei 1217d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "Quang-Minh-Phung/DienTu_TKVM_Documents": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "ucb-bar/chipyard": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "7anX/AgentScan": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "leebaird/discover": {
+      "reason": "Größe: 0 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "kejilion/sh": {
+      "reason": "IP-Datei 749d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "sefinek/Cloudflare-WAF-Expressions": {
+      "reason": "Download-Fehler",
+      "rejected_at": "2026-07-19"
+    },
+    "Janusec/janusec-admin": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Janusec/janusec": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "corazawaf/coraza-caddy": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "apache/magpie": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "jgamblin/CVElk": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "AppThreat/vulnerability-db": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "secdev/scapy": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "roxy-wi/IncidentRelay": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "puffyCid/artemis": {
+      "reason": "IP-Datei 53d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "securitytemplates/sectemplates": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "corazawaf/libcoraza": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "777genius/social-monitor": {
+      "reason": "Größe: 0 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "webtorrent/load-ip-set": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Resgrid/Dispatch": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "MatheuZSecurity/Furtex": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Correia-jpv/fucking-lists": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "ArchiveBox/abxpkg": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Correia-jpv/fucking-android-open-project": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Correia-jpv/fucking-build-your-own-x": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "nsasoft/nsauditor-ai": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "jordigilh/kubernaut": {
+      "reason": "Größe: 0 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "er4vn/i-Detector": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Correia-jpv/fucking-design-resources-for-developers": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "jimmy058910/jmo-security-repo": {
+      "reason": "IP-Datei 268d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "karollooool/CVE-2026-50416-writeup-and-poc": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "fosres/SecEng-Exercises": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "mahaishu/n8n-CyberSecurity-Workflows": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "techno-neighbour/focal-harvest": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Correia-jpv/fucking-Best-websites-a-programmer-should-visit": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "HackfutSec/Shell-Finder": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "mh37/Argos": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "SobralCybersec/APIKeyScanner": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "notdodo/tools": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "A4n9g7e2l/Xway": {
+      "reason": "Größe: 7 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "intelseclab/poc-archive": {
+      "reason": "IP-Datei 62d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "ImL1s/xmrig-android": {
+      "reason": "Zu alt: 191d",
+      "rejected_at": "2026-07-19"
+    },
+    "mukul-07/missiondebug": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "smbonn2005/HomeOps": {
+      "reason": "Größe: 0 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "anpa1200/AIDebug": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "WiLL75G/soc-analyst-toolkit": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "ruifung/rfhome-infrastructure": {
+      "reason": "IP-Datei 262d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "Vulnogram/seaview": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "NOMARJ/sigil": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Fadinlaws123/SimpleBlacklist": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "nidr0x/k8s-gitops": {
+      "reason": "IP-Datei 623d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "michaelbeaumont/k8rn": {
+      "reason": "IP-Datei 202d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "Correia-jpv/fucking-golang-open-source-projects": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Senaraufi/Security-Log-Analyser": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Christbowel/OSDC": {
+      "reason": "Größe: 0 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "brunoevn/kevlar-checkdeps": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "dotcomscripts/k8s-gitops": {
+      "reason": "IP-Datei 61d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "edenzaraf/wp2shell": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "ysfl/baize": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "kelchm/home-lab": {
+      "reason": "Größe: 0 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "Daaboulex/portmaster-nix": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "MagicTeaMC/Arnold_Bot": {
+      "reason": "Zu alt: 1118d",
+      "rejected_at": "2026-07-19"
+    },
+    "ZekXtreme/ublocklist": {
+      "reason": "Größe: 4 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "andikaputradev/WP-Blitz": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "icvoss/django-waf": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "pwyde/home-ops": {
+      "reason": "IP-Datei 61d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "milahu/hocr-files-template-repo": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "pardhuvarmax/PhishTrap": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "gerarddiaz01/SOC-Analyst-Cybersecurity-Training": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Oracleo/GRC-Project-05-Network-Control-Validation-and-Risk-Assessment": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "hxrshdeepsingh/Deluminator": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "markomicic95/repo-specialist": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "ravesnoopy/QuantiaPay-Incident-Response": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Whusher/HackingRoad": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "jayelbotvibe-web/hermes-forensics-lab": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "trieck/pixienn": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "aohal3xxn/PhoenixC2": {
+      "reason": "Zu alt: 399d",
+      "rejected_at": "2026-07-19"
+    },
+    "aurastresser/ip-stresser": {
+      "reason": "Zu alt: 456d",
+      "rejected_at": "2026-07-19"
+    },
+    "all1and/C2Panel": {
+      "reason": "Zu alt: 566d",
+      "rejected_at": "2026-07-19"
+    },
+    "shevv1ls/PhoenixC2": {
+      "reason": "Zu alt: 581d",
+      "rejected_at": "2026-07-19"
+    },
+    "ddNSLH/PhoenixC2": {
+      "reason": "Zu alt: 628d",
+      "rejected_at": "2026-07-19"
+    },
+    "4rubbish/C2Panel": {
+      "reason": "Zu alt: 664d",
+      "rejected_at": "2026-07-19"
+    },
+    "duncte123/bruh-mark": {
+      "reason": "Zu alt: 953d",
+      "rejected_at": "2026-07-19"
+    },
+    "rasanfe/pbScanner": {
+      "reason": "Größe: 0 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "wyre-technology/ironscales-mcp": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "hackingyseguridad/slowloris": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "vqmpjayZ/Vadrifts": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "taihen/ros-exporter": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "lotusnoir/ansible-apps_ufw": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "santhreal/truestack": {
+      "reason": "Größe: 0 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "brianpelow/IncidentPilot": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "brianpelow/mcp-incident-intel": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "spicebag/cryptic-stresser": {
+      "reason": "Zu alt: 1594d",
+      "rejected_at": "2026-07-19"
+    },
+    "grepstrength/RansomWhere": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "substreambc/helium-mcp": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "georgi-i/bg-leaks-archive": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "edgarfloresguerra2011-a11y/marketnow": {
+      "reason": "Größe: 0 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "pledgeandgrow/pledgeguard": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "kamolkns/sentrybatch": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "evidiq/mcp": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "mrjeeves/lgspyware.com": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "0xDanielLopez/phishunt-mcp": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "iamvineetupadhyay/CYPR-Tech": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "juan0x/N-QUEENS_COMPLETION": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "0xYasser1/OTsecPentest": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "ahmddd1/DetectionForge": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "dhyey03/elastic-detection-rules": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "hackingyseguridad/icmpflood": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "burakcanbalta/Drone-C2-Research": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "secnotes/searchpoc": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "d3fuse99/Process-Sentry": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "nashirulwan/intrusion-detection-ml": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Oracleo/GRC-Project-04-SIEM-Security-Control-Monitoring-and-Risk-Assessment": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "ayzeta/csf-autogroup": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "AliAmmar15/Velonus": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "eitanity/kanonarion": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "khiem-nguyen-ict/Binary-Vulnerability-Detection-PoC": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Lutfifakee-Project/wp2shell": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "KhayalKoch/NetSpectra": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "scale600/project-techcloudup": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "FrancisVillalon/cybersecurity-home-lab": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "samsesh/OpenHostingNOC": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "aaronabavi09/siem-security-monitoring-lab": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "fantasmagorikus/portscan-detection-lab": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "unflawed-code/route10-suricata-runner": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "satish-ayyaluri/home-soc-lab": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "parth0xu/Intrusion-Detection-System-Project": {
+      "reason": "Zu alt: 44d",
+      "rejected_at": "2026-07-19"
+    },
+    "Jaiyansh-4n6/NIDS": {
+      "reason": "Zu alt: 54d",
+      "rejected_at": "2026-07-19"
+    },
+    "kn-lim/homelab": {
+      "reason": "IP-Datei 47d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "JanusWei/phishing-email-investigation": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Stemmed-seat433/arsenal-script-v2026": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "VijayakumarRavi/GitOps": {
+      "reason": "IP-Datei 52d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "gnxD3RfTT2WE/checked-socks-proxies": {
+      "reason": "Overlap zu gering: 4.4%",
+      "rejected_at": "2026-07-19"
+    },
+    "Teakowa/blockhole": {
+      "reason": "Größe: 0 IPs",
+      "rejected_at": "2026-07-19"
+    },
+    "eventb-rossi/apt": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "dancmorgan/fortigate-policy-switch-ha": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "canyang25/AutoSRE": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "peteedoo/mac-mini-firewall": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "GForceIndustries/mikrotik-plex-ips": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "QuantumS14/DoesTheDogWatchPlex": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Dreamer599/ai-intelligence-hub": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "GForceIndustries/mikrotik-cloudflare-ips": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "isisisisi2/quick-it": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "upthatdose/recta-selfhosted-backend": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Roshenrosha/CBbot": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "babaannekatledici/intentguard": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Oz134/perishable-inventory-risk-engine": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "CarlosTorresct24/SENTINEL-GOLD-Multi-Modal-Cyber-Physical-Threat-Fusion-Engine": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Ahmedalaa9098/genaura-guard": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "studysk890/QianKunQuan": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "NishanthGSuryavamshi/thinksec": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Goaskbid/parleymap": {
+      "reason": "IP-Datei 49d alt",
+      "rejected_at": "2026-07-19"
+    },
+    "dryssboy/Tyleshancloud7": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "MitsuakiTora/2Bar": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "phindunk/find_hash": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "kkoltongi99/speedc": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "macosta88/Splunk-Dashboard-for-SSH-Logs": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "huseyinck/SentinelBot": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "arshveer1208/ssh-brute-force-splunk": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "gnxD3RfTT2WE/checked-http-proxies": {
+      "reason": "Overlap zu gering: 4.4%",
+      "rejected_at": "2026-07-19"
+    },
+    "ELI7E3-M4MUN/log-anomaly-detector": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Devcalderon/security-automation-scripts": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "MatrixRainSimulatorOfficial/hehe-go": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "kneha10/cyber-forge": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "VISHUKS/RSC_Detector": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "IbdaaTec/AndroidDeviceRiskBookData": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "lillestump147/critical-infrastructure-threat-intel": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
+    },
+    "Nkrathore0799/rapid-cipher-819": {
+      "reason": "Keine IP-Datei (Name/Inhalt)",
+      "rejected_at": "2026-07-19"
     }
   },
   "content_sniff_state_version": 2,
@@ -22776,8 +23136,8 @@
       "repo": "turntuptechnologies/iocs",
       "file": "bruteforce.txt",
       "added": "2026-03-29",
-      "last_checked": "2026-07-18",
-      "ip_count": 45,
+      "last_checked": "2026-07-19",
+      "ip_count": 55,
       "overlap_pct": 97.4,
       "fp_rate": 0.65,
       "rep_score": 8,
@@ -22789,7 +23149,7 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0,
-      "ip_fingerprint": "1398b0b3716c9564"
+      "ip_fingerprint": "6b5efcce2e1f9d56"
     },
     {
       "name": "cbuijs_badip",
@@ -22797,8 +23157,8 @@
       "repo": "cbuijs/badip",
       "file": "badip.list",
       "added": "2026-03-29",
-      "last_checked": "2026-07-18",
-      "ip_count": 56996,
+      "last_checked": "2026-07-19",
+      "ip_count": 57334,
       "overlap_pct": 60.7,
       "fp_rate": 0.0,
       "rep_score": 8,
@@ -22810,7 +23170,7 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0,
-      "ip_fingerprint": "c4c5dd1b46a412d4"
+      "ip_fingerprint": "c38c5c2d4959131c"
     },
     {
       "name": "maximewewer_heimdallblocklists",
@@ -22818,8 +23178,8 @@
       "repo": "MaximeWewer/HeimdallBlocklists",
       "file": "blocklists/prod_data-shield_ipv4_blocklist.txt",
       "added": "2026-03-29",
-      "last_checked": "2026-07-18",
-      "ip_count": 67153,
+      "last_checked": "2026-07-19",
+      "ip_count": 67460,
       "overlap_pct": 69.0,
       "fp_rate": 0.0,
       "rep_score": 8,
@@ -22834,7 +23194,7 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0,
-      "ip_fingerprint": "8097c6f0db3e72dc"
+      "ip_fingerprint": "3ee5c215b3e75f8b"
     },
     {
       "name": "agent6_6_6_wordpress_login_blocklist",
@@ -22842,8 +23202,8 @@
       "repo": "Agent6-6-6/wordpress-login-blocklist",
       "file": "WordPress_login_Blocklist.txt",
       "added": "2026-03-29",
-      "last_checked": "2026-07-18",
-      "ip_count": 21866,
+      "last_checked": "2026-07-19",
+      "ip_count": 21874,
       "overlap_pct": 1.4,
       "fp_rate": 0.0,
       "rep_score": 8,
@@ -22855,7 +23215,7 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0,
-      "ip_fingerprint": "165db0ee4bb5c5e4"
+      "ip_fingerprint": "b0af7389493872a7"
     },
     {
       "name": "cbuijs_accomplist",
@@ -22863,8 +23223,8 @@
       "repo": "cbuijs/accomplist",
       "file": "chris/project-honeypot.list",
       "added": "2026-03-27",
-      "last_checked": "2026-07-18",
-      "ip_count": 100820,
+      "last_checked": "2026-07-19",
+      "ip_count": 100855,
       "overlap_pct": 0.6,
       "fp_rate": 1.5,
       "rep_score": 40,
@@ -22876,7 +23236,7 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0,
-      "ip_fingerprint": "09770c1a5bcef3f6"
+      "ip_fingerprint": "46c15b2a6e3c4e30"
     },
     {
       "name": "fadouse_clash_threat_intel",
@@ -22884,8 +23244,8 @@
       "repo": "Fadouse/clash-threat-intel",
       "file": "clash/generated/botnet.txt",
       "added": "2026-03-17",
-      "last_checked": "2026-07-18",
-      "ip_count": 7555,
+      "last_checked": "2026-07-19",
+      "ip_count": 7576,
       "overlap_pct": 12.7,
       "fp_rate": 0.0,
       "rep_score": 4,
@@ -22898,7 +23258,7 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0,
-      "ip_fingerprint": "fd1050f22244f968"
+      "ip_fingerprint": "568592533a151f31"
     },
     {
       "name": "idleadmin_threatfeed",
@@ -22906,8 +23266,8 @@
       "repo": "idleadmin/ThreatFeed",
       "file": "unifiedblocklist.list",
       "added": "2026-04-09",
-      "last_checked": "2026-07-18",
-      "ip_count": 53741,
+      "last_checked": "2026-07-19",
+      "ip_count": 52467,
       "overlap_pct": 41.9,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -22920,7 +23280,7 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0,
-      "ip_fingerprint": "569337fa59be77ce"
+      "ip_fingerprint": "f7852af4622d216e"
     },
     {
       "name": "turntuptechnologies_iocs_scanner",
@@ -22929,8 +23289,8 @@
       "file": "scanner.txt",
       "platform": "github",
       "added": "2026-05-24",
-      "last_checked": "2026-07-18",
-      "ip_count": 95,
+      "last_checked": "2026-07-19",
+      "ip_count": 142,
       "overlap_pct": 97.4,
       "fp_rate": 0.65,
       "rep_score": 8,
@@ -22942,7 +23302,7 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0,
-      "ip_fingerprint": "8575a395ddbba395"
+      "ip_fingerprint": "a82f9e4f586673ec"
     },
     {
       "name": "maximewewer_heimdallblocklists_romainmarcoux_malicious_ip",
@@ -22951,8 +23311,8 @@
       "file": "blocklists/romainmarcoux_malicious-ip.txt",
       "platform": "github",
       "added": "2026-05-24",
-      "last_checked": "2026-07-18",
-      "ip_count": 197131,
+      "last_checked": "2026-07-19",
+      "ip_count": 197199,
       "overlap_pct": 69.0,
       "fp_rate": 0.0,
       "rep_score": 8,
@@ -22964,7 +23324,7 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0,
-      "ip_fingerprint": "8e6c5189492afe78"
+      "ip_fingerprint": "ef22699cb682dacc"
     },
     {
       "name": "maximewewer_heimdallblocklists_romainmarcoux_alienvault_ssh_bruteforce",
@@ -22973,8 +23333,8 @@
       "file": "blocklists/romainmarcoux_alienvault-ssh-bruteforce.txt",
       "platform": "github",
       "added": "2026-05-24",
-      "last_checked": "2026-07-18",
-      "ip_count": 6464,
+      "last_checked": "2026-07-19",
+      "ip_count": 6491,
       "overlap_pct": 69.0,
       "fp_rate": 0.0,
       "rep_score": 8,
@@ -22986,7 +23346,7 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0,
-      "ip_fingerprint": "b9a330430019abb3"
+      "ip_fingerprint": "58b3d6b4ebfc78ca"
     },
     {
       "name": "cbuijs_accomplist_adblock_ip_v2",
@@ -22995,8 +23355,8 @@
       "file": "doh/adblock-ip.txt",
       "platform": "github",
       "added": "2026-05-24",
-      "last_checked": "2026-07-18",
-      "ip_count": 66431,
+      "last_checked": "2026-07-19",
+      "ip_count": 66402,
       "overlap_pct": 0.6,
       "fp_rate": 1.5,
       "rep_score": 40,
@@ -23008,7 +23368,7 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0,
-      "ip_fingerprint": "af8fc36b33448abc"
+      "ip_fingerprint": "941c8f4b48a2536b"
     },
     {
       "name": "cbuijs_accomplist_adblock_ip_v3",
@@ -23017,7 +23377,7 @@
       "file": "easylist/adblock-ip.txt",
       "platform": "github",
       "added": "2026-05-24",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 113,
       "overlap_pct": 0.6,
       "fp_rate": 1.5,
@@ -23039,8 +23399,8 @@
       "file": "clash/generated/c2.txt",
       "platform": "github",
       "added": "2026-05-24",
-      "last_checked": "2026-07-18",
-      "ip_count": 7838,
+      "last_checked": "2026-07-19",
+      "ip_count": 7861,
       "overlap_pct": 12.7,
       "fp_rate": 0.0,
       "rep_score": 4,
@@ -23052,7 +23412,7 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0,
-      "ip_fingerprint": "8c1ed4da77fdefab"
+      "ip_fingerprint": "a31cebbfd1aac48a"
     },
     {
       "name": "kraloveckey_ipsets_blocklist_r2_drop2_scanners",
@@ -23061,8 +23421,8 @@
       "file": "r2_drop2_scanners.ipset",
       "platform": "github",
       "added": "2026-05-24",
-      "last_checked": "2026-07-18",
-      "ip_count": 47673,
+      "last_checked": "2026-07-19",
+      "ip_count": 47781,
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23074,7 +23434,7 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0,
-      "ip_fingerprint": "5b1bb74cd01bf053"
+      "ip_fingerprint": "275052e5036b52a0"
     },
     {
       "name": "kraloveckey_ipsets_blocklist_dm_tor",
@@ -23083,8 +23443,8 @@
       "file": "dm_tor.ipset",
       "platform": "github",
       "added": "2026-05-24",
-      "last_checked": "2026-07-18",
-      "ip_count": 7419,
+      "last_checked": "2026-07-19",
+      "ip_count": 7460,
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23096,7 +23456,7 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 0,
-      "ip_fingerprint": "467dc6fcf369bd77"
+      "ip_fingerprint": "323d9b76b9199dcf"
     },
     {
       "name": "cbuijs_accomplist_adblock_ip",
@@ -23105,8 +23465,8 @@
       "file": "malicious-ip/adblock-ip.txt",
       "platform": "github",
       "added": "2026-05-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 109788,
+      "last_checked": "2026-07-19",
+      "ip_count": 108551,
       "overlap_pct": 0.6,
       "fp_rate": 1.5,
       "rep_score": 40,
@@ -23117,7 +23477,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "ip_fingerprint": "42da577f706bc087",
+      "ip_fingerprint": "5966326675d7ca23",
       "file_days_old": 0
     },
     {
@@ -23127,8 +23487,8 @@
       "file": "badips.txt",
       "platform": "github",
       "added": "2026-05-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 168962,
+      "last_checked": "2026-07-19",
+      "ip_count": 168425,
       "overlap_pct": 18.9,
       "fp_rate": 0.0,
       "rep_score": 2,
@@ -23139,7 +23499,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "ip_fingerprint": "4ffe1a24f2014dfb",
+      "ip_fingerprint": "e8b69ccb90018bff",
       "file_days_old": 1
     },
     {
@@ -23149,8 +23509,8 @@
       "file": "output/blacklist.csv",
       "platform": "github",
       "added": "2026-05-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 100955,
+      "last_checked": "2026-07-19",
+      "ip_count": 101211,
       "overlap_pct": 36.7,
       "fp_rate": 0.0,
       "rep_score": 34,
@@ -23161,7 +23521,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "ip_fingerprint": "978a81c7c77c4343",
+      "ip_fingerprint": "1a41e8e8a989cec5",
       "file_days_old": 0
     },
     {
@@ -23171,9 +23531,9 @@
       "file": "ioc/ip-blocklist.txt",
       "platform": "github",
       "added": "2026-05-30",
-      "last_checked": "2026-07-18",
-      "ip_count": 109891,
-      "ip_fingerprint": "f643c5491012845f",
+      "last_checked": "2026-07-19",
+      "ip_count": 110963,
+      "ip_fingerprint": "fe1ee8a049cae940",
       "overlap_pct": 64.5,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23194,9 +23554,9 @@
       "file": "ioc/url-blocklist.txt",
       "platform": "github",
       "added": "2026-05-30",
-      "last_checked": "2026-07-18",
-      "ip_count": 410,
-      "ip_fingerprint": "c5b0c5b5083dd0fa",
+      "last_checked": "2026-07-19",
+      "ip_count": 401,
+      "ip_fingerprint": "131cd296c91bea4c",
       "overlap_pct": 64.5,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23217,7 +23577,7 @@
       "file": "blocklists/spamhaus_drop.txt",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 1674,
       "ip_fingerprint": "2852acba9f7ec3d2",
       "overlap_pct": 69.0,
@@ -23230,7 +23590,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 4
+      "file_days_old": 5
     },
     {
       "name": "kraloveckey_ipsets_blocklist_iblocklist_level1",
@@ -23239,9 +23599,9 @@
       "file": "iblocklist_level1.netset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 24168,
-      "ip_fingerprint": "86696c2e7167b9c7",
+      "ip_fingerprint": "f238deb6d5c36570",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23261,9 +23621,9 @@
       "file": "myip_full.ipset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 191847,
-      "ip_fingerprint": "463408f1cd2d9312",
+      "last_checked": "2026-07-19",
+      "ip_count": 191858,
+      "ip_fingerprint": "9ba3b1508991a9ab",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23283,9 +23643,9 @@
       "file": "ultimate_hosts_ips0.ipset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 144480,
-      "ip_fingerprint": "2250c8755b1cd9f8",
+      "ip_fingerprint": "779155a43cb244de",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23296,7 +23656,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 1
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_ipsum",
@@ -23305,9 +23665,9 @@
       "file": "ipsum.ipset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 106575,
-      "ip_fingerprint": "a78b8245b510cfd4",
+      "last_checked": "2026-07-19",
+      "ip_count": 110953,
+      "ip_fingerprint": "be9dd08c2ffe30dc",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23318,7 +23678,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 1
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_blocklist_net_ua",
@@ -23327,9 +23687,9 @@
       "file": "blocklist_net_ua.ipset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 126390,
-      "ip_fingerprint": "135276bf26d845ce",
+      "last_checked": "2026-07-19",
+      "ip_count": 125486,
+      "ip_fingerprint": "16422c3aebe62b95",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23349,9 +23709,9 @@
       "file": "iblocklist_level2.netset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 3103,
-      "ip_fingerprint": "4a2d819ed9607eb1",
+      "last_checked": "2026-07-19",
+      "ip_count": 3138,
+      "ip_fingerprint": "bb53fa4a8c3c8dd8",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23371,9 +23731,9 @@
       "file": "iblocklist_edu.netset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 1236,
-      "ip_fingerprint": "85e52cbf28bd29ca",
+      "last_checked": "2026-07-19",
+      "ip_count": 1239,
+      "ip_fingerprint": "204fe56e2884f5c5",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23393,9 +23753,9 @@
       "file": "ipsum_2.ipset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 32137,
-      "ip_fingerprint": "03fd44496309741f",
+      "last_checked": "2026-07-19",
+      "ip_count": 33431,
+      "ip_fingerprint": "69f8bb11ff6a4704",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23406,7 +23766,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 1
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_iblocklist_level3",
@@ -23415,9 +23775,9 @@
       "file": "iblocklist_level3.netset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 493,
-      "ip_fingerprint": "eacc8eb5472d8c61",
+      "last_checked": "2026-07-19",
+      "ip_count": 494,
+      "ip_fingerprint": "b8ee6ae750bd21fb",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23437,9 +23797,9 @@
       "file": "threatview_high_conf.ipset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 23029,
-      "ip_fingerprint": "5cfd4c6e473df99b",
+      "last_checked": "2026-07-19",
+      "ip_count": 20576,
+      "ip_fingerprint": "ddffbe47c7463e80",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23459,31 +23819,9 @@
       "file": "ipsum_3.ipset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 16077,
-      "ip_fingerprint": "5288a1b96948cfc7",
-      "overlap_pct": 13.1,
-      "fp_rate": 0.0,
-      "rep_score": 0,
-      "stars": 0,
-      "days_old": 1,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false,
-      "consecutive_fails": 0,
-      "file_days_old": 1
-    },
-    {
-      "name": "kraloveckey_ipsets_blocklist_yoyo_adservers",
-      "url": "https://raw.githubusercontent.com/kraloveckey/ipsets-blocklist/HEAD/yoyo_adservers.ipset",
-      "repo": "kraloveckey/ipsets-blocklist",
-      "file": "yoyo_adservers.ipset",
-      "platform": "github",
-      "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 8784,
-      "ip_fingerprint": "b1ae2d5b5f86d5ce",
+      "last_checked": "2026-07-19",
+      "ip_count": 18298,
+      "ip_fingerprint": "822b8d69ad035318",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23497,15 +23835,15 @@
       "file_days_old": 0
     },
     {
-      "name": "kraloveckey_ipsets_blocklist_ipsum_4",
-      "url": "https://raw.githubusercontent.com/kraloveckey/ipsets-blocklist/HEAD/ipsum_4.ipset",
+      "name": "kraloveckey_ipsets_blocklist_yoyo_adservers",
+      "url": "https://raw.githubusercontent.com/kraloveckey/ipsets-blocklist/HEAD/yoyo_adservers.ipset",
       "repo": "kraloveckey/ipsets-blocklist",
-      "file": "ipsum_4.ipset",
+      "file": "yoyo_adservers.ipset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 5879,
-      "ip_fingerprint": "be417e3e2cfff785",
+      "last_checked": "2026-07-19",
+      "ip_count": 8784,
+      "ip_fingerprint": "b1ae2d5b5f86d5ce",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23517,6 +23855,28 @@
       "hq": false,
       "consecutive_fails": 0,
       "file_days_old": 1
+    },
+    {
+      "name": "kraloveckey_ipsets_blocklist_ipsum_4",
+      "url": "https://raw.githubusercontent.com/kraloveckey/ipsets-blocklist/HEAD/ipsum_4.ipset",
+      "repo": "kraloveckey/ipsets-blocklist",
+      "file": "ipsum_4.ipset",
+      "platform": "github",
+      "added": "2026-06-28",
+      "last_checked": "2026-07-19",
+      "ip_count": 7905,
+      "ip_fingerprint": "dfef49801b9adb4e",
+      "overlap_pct": 13.1,
+      "fp_rate": 0.0,
+      "rep_score": 0,
+      "stars": 0,
+      "days_old": 1,
+      "search_sources": [
+        "extra_file_scan"
+      ],
+      "hq": false,
+      "consecutive_fails": 0,
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_cleantalk_30d",
@@ -23525,9 +23885,9 @@
       "file": "cleantalk_30d.ipset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 8031,
-      "ip_fingerprint": "314a565aa8911475",
+      "last_checked": "2026-07-19",
+      "ip_count": 8046,
+      "ip_fingerprint": "ebdacca08e02eb46",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23538,29 +23898,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 1
-    },
-    {
-      "name": "kraloveckey_ipsets_blocklist_cps_abusech",
-      "url": "https://raw.githubusercontent.com/kraloveckey/ipsets-blocklist/HEAD/cps_abusech.ipset",
-      "repo": "kraloveckey/ipsets-blocklist",
-      "file": "cps_abusech.ipset",
-      "platform": "github",
-      "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 7607,
-      "ip_fingerprint": "fa3e35201be5fb40",
-      "overlap_pct": 13.1,
-      "fp_rate": 0.0,
-      "rep_score": 0,
-      "stars": 0,
-      "days_old": 1,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false,
-      "consecutive_fails": 0,
-      "file_days_old": 30
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_iblocklist_yoyo_adservers",
@@ -23569,9 +23907,9 @@
       "file": "iblocklist_yoyo_adservers.netset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 6689,
-      "ip_fingerprint": "81e26e3007c5b20b",
+      "last_checked": "2026-07-19",
+      "ip_count": 6684,
+      "ip_fingerprint": "eb2276202959316d",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23582,7 +23920,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 6
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_urlhaus_recent",
@@ -23591,9 +23929,9 @@
       "file": "urlhaus_recent.ipset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 4219,
-      "ip_fingerprint": "4f3c900cc0551ffb",
+      "last_checked": "2026-07-19",
+      "ip_count": 4181,
+      "ip_fingerprint": "7409bbd7f0164181",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23613,9 +23951,9 @@
       "file": "cleantalk_new_30d.ipset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 4208,
-      "ip_fingerprint": "09f1a193ed265038",
+      "last_checked": "2026-07-19",
+      "ip_count": 4212,
+      "ip_fingerprint": "835e0c010e3e8121",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23626,7 +23964,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 1
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_cleantalk_updated_30d",
@@ -23635,9 +23973,9 @@
       "file": "cleantalk_updated_30d.ipset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 3948,
-      "ip_fingerprint": "85a981bc264d811f",
+      "last_checked": "2026-07-19",
+      "ip_count": 3962,
+      "ip_fingerprint": "7bc503a937aca2d4",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23648,7 +23986,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 1
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_iblocklist_ads",
@@ -23657,9 +23995,9 @@
       "file": "iblocklist_ads.netset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 2115,
-      "ip_fingerprint": "9bfdce4e70d06776",
+      "last_checked": "2026-07-19",
+      "ip_count": 2124,
+      "ip_fingerprint": "9c431cc9baae47df",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23670,7 +24008,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 1
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_iblocklist_spyware",
@@ -23679,9 +24017,9 @@
       "file": "iblocklist_spyware.netset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 2535,
-      "ip_fingerprint": "a212fd941bc0692f",
+      "last_checked": "2026-07-19",
+      "ip_count": 2533,
+      "ip_fingerprint": "514ae0108758a49c",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23701,9 +24039,9 @@
       "file": "ipsum_5.ipset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 1578,
-      "ip_fingerprint": "df8a542b95b4b63e",
+      "last_checked": "2026-07-19",
+      "ip_count": 2279,
+      "ip_fingerprint": "d742b544461cf629",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23714,7 +24052,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 1
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_socks_proxy_30d",
@@ -23723,9 +24061,9 @@
       "file": "socks_proxy_30d.ipset",
       "platform": "github",
       "added": "2026-06-28",
-      "last_checked": "2026-07-18",
-      "ip_count": 2860,
-      "ip_fingerprint": "f1e676a41a73355d",
+      "last_checked": "2026-07-19",
+      "ip_count": 2890,
+      "ip_fingerprint": "150bfbfe1afd785e",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23745,9 +24083,9 @@
       "file": "bds_atif.ipset",
       "platform": "github",
       "added": "2026-07-02",
-      "last_checked": "2026-07-18",
-      "ip_count": 2601,
-      "ip_fingerprint": "24dfa1a08a1b9975",
+      "last_checked": "2026-07-19",
+      "ip_count": 2819,
+      "ip_fingerprint": "660cf8a442fa2e5a",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23767,9 +24105,9 @@
       "file": "c2intel_unverified.ipset",
       "platform": "github",
       "added": "2026-07-02",
-      "last_checked": "2026-07-18",
-      "ip_count": 2702,
-      "ip_fingerprint": "e5fb830d04a288e8",
+      "last_checked": "2026-07-19",
+      "ip_count": 2600,
+      "ip_fingerprint": "0cfd7f5bd8384cea",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23780,7 +24118,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 1
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_gpf_comics",
@@ -23789,9 +24127,9 @@
       "file": "gpf_comics.ipset",
       "platform": "github",
       "added": "2026-07-02",
-      "last_checked": "2026-07-18",
-      "ip_count": 1926,
-      "ip_fingerprint": "1c86b179086eefe0",
+      "last_checked": "2026-07-19",
+      "ip_count": 1917,
+      "ip_fingerprint": "ff3a44688a805c36",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23802,7 +24140,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 1
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_cleantalk_7d",
@@ -23811,9 +24149,9 @@
       "file": "cleantalk_7d.ipset",
       "platform": "github",
       "added": "2026-07-02",
-      "last_checked": "2026-07-18",
-      "ip_count": 1926,
-      "ip_fingerprint": "a7914d47230e2f94",
+      "last_checked": "2026-07-19",
+      "ip_count": 1927,
+      "ip_fingerprint": "a2a863657d94045d",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23824,7 +24162,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 1
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_socks_proxy_7d",
@@ -23833,9 +24171,9 @@
       "file": "socks_proxy_7d.ipset",
       "platform": "github",
       "added": "2026-07-02",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 1404,
-      "ip_fingerprint": "13067d3cbbaa4226",
+      "ip_fingerprint": "34f0b5dd480ceca2",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23855,9 +24193,9 @@
       "file": "tor_exits.ipset",
       "platform": "github",
       "added": "2026-07-03",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 1422,
-      "ip_fingerprint": "1187657d2d20ee3b",
+      "ip_fingerprint": "090b90c2bb3b71fa",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23877,9 +24215,9 @@
       "file": "php_bad_30d.ipset",
       "platform": "github",
       "added": "2026-07-03",
-      "last_checked": "2026-07-18",
-      "ip_count": 1319,
-      "ip_fingerprint": "c8f86c34d31779f7",
+      "last_checked": "2026-07-19",
+      "ip_count": 1298,
+      "ip_fingerprint": "449517dac90aee08",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23899,9 +24237,9 @@
       "file": "php_spammers_30d.ipset",
       "platform": "github",
       "added": "2026-07-03",
-      "last_checked": "2026-07-18",
-      "ip_count": 1236,
-      "ip_fingerprint": "100dc8bd99292b45",
+      "last_checked": "2026-07-19",
+      "ip_count": 1221,
+      "ip_fingerprint": "0534d1bbb6adfd84",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23921,9 +24259,9 @@
       "file": "php_commenters_30d.ipset",
       "platform": "github",
       "added": "2026-07-03",
-      "last_checked": "2026-07-18",
-      "ip_count": 1220,
-      "ip_fingerprint": "284c22188dfb66fb",
+      "last_checked": "2026-07-19",
+      "ip_count": 1212,
+      "ip_fingerprint": "617c621650a6a4aa",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23943,7 +24281,7 @@
       "file": "output/source_cache/emerging_threats.json",
       "platform": "github",
       "added": "2026-07-03",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 578,
       "ip_fingerprint": "fb6c7304f33042fa",
       "overlap_pct": 36.7,
@@ -23965,9 +24303,9 @@
       "file": "sblam.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 1043,
-      "ip_fingerprint": "8dadab3c061c19e3",
+      "last_checked": "2026-07-19",
+      "ip_count": 1033,
+      "ip_fingerprint": "fd064e82e9761d3d",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -23987,9 +24325,9 @@
       "file": "php_dictionary_30d.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 977,
-      "ip_fingerprint": "62649d457d062e0f",
+      "last_checked": "2026-07-19",
+      "ip_count": 965,
+      "ip_fingerprint": "3865e4bebdd2deef",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -24009,9 +24347,9 @@
       "file": "cleantalk_new_7d.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 994,
-      "ip_fingerprint": "7f6850726ae2dd88",
+      "ip_fingerprint": "969a51d1f8da9351",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -24022,7 +24360,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 1
+      "file_days_old": 0
     },
     {
       "name": "cbuijs_hagezi",
@@ -24031,9 +24369,9 @@
       "file": "lists/tif-ip/domains.ips",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 46058,
-      "ip_fingerprint": "891a0068c0d378d8",
+      "last_checked": "2026-07-19",
+      "ip_count": 48895,
+      "ip_fingerprint": "54f0e83a2a8af83b",
       "overlap_pct": 40.4,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -24054,7 +24392,7 @@
       "file": "antiscanner.rsc",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 48653,
       "ip_fingerprint": "4ac8778725335e82",
       "overlap_pct": 1.8,
@@ -24079,9 +24417,9 @@
       "file": "blocklist.rsc",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 29154,
-      "ip_fingerprint": "42916594ab0add9c",
+      "last_checked": "2026-07-19",
+      "ip_count": 26764,
+      "ip_fingerprint": "4333cdb16c46b1fb",
       "overlap_pct": 1.8,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -24104,9 +24442,9 @@
       "file": "ipsum.rsc",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 16080,
-      "ip_fingerprint": "dbec64d49eddfb25",
+      "last_checked": "2026-07-19",
+      "ip_count": 18214,
+      "ip_fingerprint": "754e718a4bd4b4d5",
       "overlap_pct": 1.8,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -24129,9 +24467,9 @@
       "file": "ustc_blacklist.rsc",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 3196,
-      "ip_fingerprint": "72a6d8036980cbf1",
+      "last_checked": "2026-07-19",
+      "ip_count": 3225,
+      "ip_fingerprint": "e25e5de75883fc6f",
       "overlap_pct": 1.8,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -24154,9 +24492,9 @@
       "file": "blocklist_ssh.rsc",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 5360,
-      "ip_fingerprint": "fcdccb9607999f15",
+      "last_checked": "2026-07-19",
+      "ip_count": 5527,
+      "ip_fingerprint": "15be0c6612374ce3",
       "overlap_pct": 1.8,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -24179,7 +24517,7 @@
       "file": "emerging_threats.rsc",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 577,
       "ip_fingerprint": "f51a261bc5368479",
       "overlap_pct": 1.8,
@@ -24204,9 +24542,9 @@
       "file": "cleantalk_updated_7d.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 962,
-      "ip_fingerprint": "85405b13f3774bcb",
+      "last_checked": "2026-07-19",
+      "ip_count": 965,
+      "ip_fingerprint": "6bc8586badc55580",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -24217,7 +24555,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 1
+      "file_days_old": 0
     },
     {
       "name": "kraloveckey_ipsets_blocklist_tor_exits_30d",
@@ -24226,9 +24564,9 @@
       "file": "tor_exits_30d.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 865,
-      "ip_fingerprint": "32ee2b027a623559",
+      "last_checked": "2026-07-19",
+      "ip_count": 867,
+      "ip_fingerprint": "92690a4cb26a0755",
       "overlap_pct": 13.1,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -24248,9 +24586,9 @@
       "file": "avastel-proxy-bot-ips-1day.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 500000,
-      "ip_fingerprint": "32f17381fffbe845",
+      "ip_fingerprint": "b2d227d826ff757f",
       "overlap_pct": 0.2,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -24273,7 +24611,7 @@
       "file": "proxies/scraped-proxies.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 18364,
       "ip_fingerprint": "f76616b6b23e495f",
       "overlap_pct": 1.1,
@@ -24286,7 +24624,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 7
+      "file_days_old": 8
     },
     {
       "name": "skillter_proxygather_working_proxies_all",
@@ -24295,7 +24633,7 @@
       "file": "proxies/working-proxies-all.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 464,
       "ip_fingerprint": "c8516ce691b92c71",
       "overlap_pct": 1.1,
@@ -24308,7 +24646,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 7
+      "file_days_old": 8
     },
     {
       "name": "skillter_proxygather_working_proxies_http",
@@ -24317,7 +24655,7 @@
       "file": "proxies/working-proxies-http.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 253,
       "ip_fingerprint": "7143c235e31e61a4",
       "overlap_pct": 1.1,
@@ -24330,7 +24668,7 @@
       ],
       "hq": false,
       "consecutive_fails": 0,
-      "file_days_old": 7
+      "file_days_old": 8
     },
     {
       "name": "ipanalytics_ai_crawler_blocklist",
@@ -24339,7 +24677,7 @@
       "file": "dist/nginx-ai-deny.conf",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 2056,
       "ip_fingerprint": "309d672dda97b0f4",
       "overlap_pct": 21.9,
@@ -24361,9 +24699,9 @@
       "file": "https-proxy-list-by-EbraSha.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 7396,
-      "ip_fingerprint": "1868d294385ad7b5",
+      "last_checked": "2026-07-19",
+      "ip_count": 6565,
+      "ip_fingerprint": "823937fdbe11264b",
       "overlap_pct": 1.3,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -24383,9 +24721,9 @@
       "file": "socks4-proxy-list-by-EbraSha.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 3930,
-      "ip_fingerprint": "58f6dbdbc9eb6a0f",
+      "last_checked": "2026-07-19",
+      "ip_count": 3616,
+      "ip_fingerprint": "5a6841b5c7adb122",
       "overlap_pct": 1.3,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -24405,9 +24743,9 @@
       "file": "http-proxy-list-by-EbraSha.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 2847,
-      "ip_fingerprint": "2e6c75d4b91c2e6c",
+      "last_checked": "2026-07-19",
+      "ip_count": 2526,
+      "ip_fingerprint": "f26df551d2fba059",
       "overlap_pct": 1.3,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -24427,9 +24765,9 @@
       "file": "socks5-proxy-list-by-EbraSha.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 2349,
-      "ip_fingerprint": "803a9710b362c099",
+      "last_checked": "2026-07-19",
+      "ip_count": 2017,
+      "ip_fingerprint": "fd0429697f8d32c7",
       "overlap_pct": 1.3,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -24449,9 +24787,9 @@
       "file": "http.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 6965,
-      "ip_fingerprint": "643c8d515a3189f3",
+      "last_checked": "2026-07-19",
+      "ip_count": 4624,
+      "ip_fingerprint": "f7af5c7cb272ac23",
       "overlap_pct": 1.9,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -24471,9 +24809,9 @@
       "file": "https.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 6449,
-      "ip_fingerprint": "10d23db4ab118cf9",
+      "last_checked": "2026-07-19",
+      "ip_count": 4180,
+      "ip_fingerprint": "6ab9d5c25f90c8ac",
       "overlap_pct": 1.9,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -24493,9 +24831,9 @@
       "file": "https_anonymous.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 6446,
-      "ip_fingerprint": "f966b2a24a2ad10a",
+      "last_checked": "2026-07-19",
+      "ip_count": 4177,
+      "ip_fingerprint": "a412c74854410785",
       "overlap_pct": 1.9,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -24515,9 +24853,9 @@
       "file": "http_anonymous.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 6215,
-      "ip_fingerprint": "7045e44e29b25e48",
+      "last_checked": "2026-07-19",
+      "ip_count": 3672,
+      "ip_fingerprint": "75a16164b8998e1d",
       "overlap_pct": 1.9,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -24537,9 +24875,9 @@
       "file": "blocklists/3rdparty/myip.ms/blocklist_webcrawlers.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 218515,
-      "ip_fingerprint": "e85ba50574566b73",
+      "last_checked": "2026-07-19",
+      "ip_count": 218519,
+      "ip_fingerprint": "a397d716c27a1876",
       "overlap_pct": 2.4,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24562,9 +24900,9 @@
       "file": "blocklists/3rdparty/myip.ms/blocklist_full.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 170201,
-      "ip_fingerprint": "6f4debb1a2e20f73",
+      "last_checked": "2026-07-19",
+      "ip_count": 170212,
+      "ip_fingerprint": "273ec667edf45c84",
       "overlap_pct": 2.4,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24587,9 +24925,9 @@
       "file": "blocklists/3rdparty/bitwire/outbound.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 175208,
-      "ip_fingerprint": "d064000c3a5a80e7",
+      "last_checked": "2026-07-19",
+      "ip_count": 171906,
+      "ip_fingerprint": "904e88409296006c",
       "overlap_pct": 2.4,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24612,9 +24950,9 @@
       "file": "blocklists/3rdparty/firehol/abusers_30d.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 139170,
-      "ip_fingerprint": "d9b917f255751008",
+      "last_checked": "2026-07-19",
+      "ip_count": 139127,
+      "ip_fingerprint": "df979c43a357203c",
       "overlap_pct": 2.4,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24637,9 +24975,9 @@
       "file": "blocklists/3rdparty/firehol/level4.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 104848,
-      "ip_fingerprint": "c411f5170fc533c8",
+      "last_checked": "2026-07-19",
+      "ip_count": 103690,
+      "ip_fingerprint": "2a3a353155837d67",
       "overlap_pct": 2.4,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24662,9 +25000,9 @@
       "file": "blocklists/3rdparty/multiduplikator/blocklist_extralarge.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 84624,
-      "ip_fingerprint": "ea9fc6cf1cd4d506",
+      "last_checked": "2026-07-19",
+      "ip_count": 85319,
+      "ip_fingerprint": "27e006f409abc894",
       "overlap_pct": 2.4,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24687,9 +25025,9 @@
       "file": "blocklists/3rdparty/blackhole.monster/blacklist_all.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 93677,
-      "ip_fingerprint": "f45c0e1490dc023a",
+      "last_checked": "2026-07-19",
+      "ip_count": 93450,
+      "ip_fingerprint": "262fa09ae7bb437b",
       "overlap_pct": 2.4,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24702,7 +25040,7 @@
         "topic:ipset"
       ],
       "hq": false,
-      "consecutive_fails": 1,
+      "consecutive_fails": 0,
       "file_days_old": 0
     },
     {
@@ -24712,7 +25050,7 @@
       "file": "blocklists/3rdparty/blackhole.monster/blacklist_30d.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 85206,
       "ip_fingerprint": "9415f7cf7c9c31da",
       "overlap_pct": 2.4,
@@ -24727,7 +25065,7 @@
         "topic:ipset"
       ],
       "hq": false,
-      "consecutive_fails": 1,
+      "consecutive_fails": 2,
       "file_days_old": 0
     },
     {
@@ -24737,9 +25075,9 @@
       "file": "blocklists/3rdparty/ipsum/level1.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 83495,
-      "ip_fingerprint": "4f489e7d99db945b",
+      "last_checked": "2026-07-19",
+      "ip_count": 84051,
+      "ip_fingerprint": "c9faede897117e02",
       "overlap_pct": 2.4,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24762,9 +25100,9 @@
       "file": "blocklists/threats/http_365d.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 81669,
-      "ip_fingerprint": "1f17870b88d611ea",
+      "last_checked": "2026-07-19",
+      "ip_count": 83311,
+      "ip_fingerprint": "d1f0de6ee466f5fa",
       "overlap_pct": 2.4,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24787,9 +25125,9 @@
       "file": "blocklists/master.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 48764,
-      "ip_fingerprint": "ab08a07bc640af7e",
+      "last_checked": "2026-07-19",
+      "ip_count": 46659,
+      "ip_fingerprint": "aedf80bfc1e4cf11",
       "overlap_pct": 2.4,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24812,9 +25150,9 @@
       "file": "myip.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 896,
-      "ip_fingerprint": "919a97478899e1ed",
+      "last_checked": "2026-07-19",
+      "ip_count": 890,
+      "ip_fingerprint": "9ab965517a8a611b",
       "overlap_pct": 65.5,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -24834,9 +25172,9 @@
       "file": "sslproxies_30d.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 894,
-      "ip_fingerprint": "6f81773d160e32ea",
+      "last_checked": "2026-07-19",
+      "ip_count": 892,
+      "ip_fingerprint": "4acfa73b6088f227",
       "overlap_pct": 6.0,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -24856,7 +25194,7 @@
       "file": "blocklists/3rdparty/blackhole.monster/blacklist_15d.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 53875,
       "ip_fingerprint": "46d2d54c5bde186a",
       "overlap_pct": 47.8,
@@ -24868,7 +25206,7 @@
         "extra_file_scan"
       ],
       "hq": false,
-      "consecutive_fails": 1,
+      "consecutive_fails": 2,
       "file_days_old": 0
     },
     {
@@ -24878,9 +25216,9 @@
       "file": "blocklists/threats/telnet_365d.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 52798,
-      "ip_fingerprint": "dc9295ec2c56ee45",
+      "last_checked": "2026-07-19",
+      "ip_count": 53985,
+      "ip_fingerprint": "30ea9c8bd1b2f194",
       "overlap_pct": 29.7,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24900,9 +25238,9 @@
       "file": "blocklists/3rdparty/multiduplikator/blocklist_large.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 32641,
-      "ip_fingerprint": "7a53d6ddfae1c259",
+      "last_checked": "2026-07-19",
+      "ip_count": 30129,
+      "ip_fingerprint": "b822f90ef3cf5d52",
       "overlap_pct": 62.8,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24922,9 +25260,9 @@
       "file": "blocklists/3rdparty/multiduplikator/blocklist_core.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 25115,
-      "ip_fingerprint": "d83cad76a4a0df01",
+      "last_checked": "2026-07-19",
+      "ip_count": 22767,
+      "ip_fingerprint": "67ecba9399f739d0",
       "overlap_pct": 67.5,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24944,9 +25282,9 @@
       "file": "blocklists/threats/all_365d.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 29530,
-      "ip_fingerprint": "5dc5573372ac4e34",
+      "last_checked": "2026-07-19",
+      "ip_count": 29787,
+      "ip_fingerprint": "c9e0915f8bf47bf3",
       "overlap_pct": 77.0,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24966,9 +25304,9 @@
       "file": "blocklists/3rdparty/ipsum/level2.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 24404,
-      "ip_fingerprint": "f29cb41b3ccbf5a7",
+      "last_checked": "2026-07-19",
+      "ip_count": 24869,
+      "ip_fingerprint": "1cc31e6b73c56add",
       "overlap_pct": 94.9,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -24988,9 +25326,9 @@
       "file": "blocklists/3rdparty/firehol/level2.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 21713,
-      "ip_fingerprint": "19e0927477f37408",
+      "last_checked": "2026-07-19",
+      "ip_count": 19718,
+      "ip_fingerprint": "6fde5143530610bc",
       "overlap_pct": 62.6,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -25010,9 +25348,9 @@
       "file": "blocklists/3rdparty/blocklist.de/all.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 19747,
-      "ip_fingerprint": "b96e5660169a428d",
+      "last_checked": "2026-07-19",
+      "ip_count": 16104,
+      "ip_fingerprint": "0b07cbd6d62b692a",
       "overlap_pct": 60.8,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -25032,9 +25370,9 @@
       "file": "blocklists/threats/ftp_365d.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 25810,
-      "ip_fingerprint": "3092a75b99faa8ac",
+      "last_checked": "2026-07-19",
+      "ip_count": 26324,
+      "ip_fingerprint": "e5b9e3a4fa54eadf",
       "overlap_pct": 35.9,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -25054,9 +25392,9 @@
       "file": "blocklists/spam/forums.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 14632,
-      "ip_fingerprint": "1bf444eda318dfc8",
+      "last_checked": "2026-07-19",
+      "ip_count": 14755,
+      "ip_fingerprint": "21867b7b6e296f8f",
       "overlap_pct": 5.5,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -25076,9 +25414,9 @@
       "file": "all_proxies.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 1675,
-      "ip_fingerprint": "8ecf924383b2b9b9",
+      "last_checked": "2026-07-19",
+      "ip_count": 1281,
+      "ip_fingerprint": "12d1cf7c963eae56",
       "overlap_pct": 6.2,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -25099,9 +25437,9 @@
       "file": "all_ssl.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 1356,
-      "ip_fingerprint": "0f1282ae65c8ce0e",
+      "last_checked": "2026-07-19",
+      "ip_count": 831,
+      "ip_fingerprint": "28dddc76bb354298",
       "overlap_pct": 8.6,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -25122,9 +25460,9 @@
       "file": "all_elite.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 1130,
-      "ip_fingerprint": "e30edfc04b2ccb5e",
+      "last_checked": "2026-07-19",
+      "ip_count": 917,
+      "ip_fingerprint": "acd0634771c97d15",
       "overlap_pct": 8.5,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -25145,9 +25483,9 @@
       "file": "all_ssl_elite.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 991,
-      "ip_fingerprint": "9ede1fec75c18e17",
+      "last_checked": "2026-07-19",
+      "ip_count": 734,
+      "ip_fingerprint": "6bfca29f99308f2c",
       "overlap_pct": 9.2,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -25168,9 +25506,9 @@
       "file": "socks5_all.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 519,
-      "ip_fingerprint": "f2d61032a1a9d294",
+      "last_checked": "2026-07-19",
+      "ip_count": 411,
+      "ip_fingerprint": "abe2c35006d319c2",
       "overlap_pct": 12.8,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -25191,9 +25529,9 @@
       "file": "tor_exits_7d.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 783,
-      "ip_fingerprint": "77902847724e3657",
+      "last_checked": "2026-07-19",
+      "ip_count": 788,
+      "ip_fingerprint": "fba5c5bb2c7bce1d",
       "overlap_pct": 40.9,
       "fp_rate": 0.5,
       "rep_score": 0,
@@ -25213,9 +25551,9 @@
       "file": "blocklists/3rdparty/firehol/level3.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 12262,
-      "ip_fingerprint": "082dc008b55b47a0",
+      "last_checked": "2026-07-19",
+      "ip_count": 13008,
+      "ip_fingerprint": "d7f4f4dfc7ecb7b2",
       "overlap_pct": 65.2,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -25235,9 +25573,9 @@
       "file": "blocklists/3rdparty/blackhole.monster/blacklist_today.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 5957,
-      "ip_fingerprint": "c73170ec62aec245",
+      "last_checked": "2026-07-19",
+      "ip_count": 10559,
+      "ip_fingerprint": "2b55001e12da723e",
       "overlap_pct": 78.1,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -25247,7 +25585,7 @@
         "extra_file_scan"
       ],
       "hq": false,
-      "consecutive_fails": 1,
+      "consecutive_fails": 0,
       "file_days_old": 0
     },
     {
@@ -25257,9 +25595,9 @@
       "file": "blocklists/threats/rdp_365d.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 11235,
-      "ip_fingerprint": "1c3784decb6fa638",
+      "last_checked": "2026-07-19",
+      "ip_count": 11360,
+      "ip_fingerprint": "71998cda34b6a8f1",
       "overlap_pct": 55.4,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -25279,7 +25617,7 @@
       "file": "blocklists/highrisk.ipset",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 12722,
       "ip_fingerprint": "f56e841dc4269c90",
       "overlap_pct": 2.3,
@@ -25301,9 +25639,9 @@
       "file": "xResults/Proxies.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 6358,
-      "ip_fingerprint": "3866680aaebde438",
+      "last_checked": "2026-07-19",
+      "ip_count": 5616,
+      "ip_fingerprint": "d6e17f402aa9b5f8",
       "overlap_pct": 2.3,
       "fp_rate": 0.0,
       "rep_score": 14,
@@ -25323,9 +25661,9 @@
       "file": "https/https.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 5197,
-      "ip_fingerprint": "60da9ff61a51c83d",
+      "last_checked": "2026-07-19",
+      "ip_count": 4598,
+      "ip_fingerprint": "20664774f7bf2fd6",
       "overlap_pct": 1.7,
       "fp_rate": 0.0,
       "rep_score": 14,
@@ -25345,9 +25683,9 @@
       "file": "xResults/old-data/Proxies.txt",
       "platform": "github",
       "added": "2026-07-04",
-      "last_checked": "2026-07-18",
-      "ip_count": 4724,
-      "ip_fingerprint": "72db7dde661a04c1",
+      "last_checked": "2026-07-19",
+      "ip_count": 5410,
+      "ip_fingerprint": "c8df3c6e603d4943",
       "overlap_pct": 2.6,
       "fp_rate": 0.0,
       "rep_score": 14,
@@ -25367,9 +25705,9 @@
       "file": "tor_exits_1d.ipset",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 765,
-      "ip_fingerprint": "dd247d4352bf36ec",
+      "ip_fingerprint": "6504d7a756bf744d",
       "overlap_pct": 40.2,
       "fp_rate": 0.0,
       "rep_score": 0,
@@ -25389,9 +25727,9 @@
       "file": "iblocklist_onion_router.netset",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 747,
-      "ip_fingerprint": "058139ec43665f74",
+      "last_checked": "2026-07-19",
+      "ip_count": 760,
+      "ip_fingerprint": "e9bbdf73865ea76e",
       "overlap_pct": 41.2,
       "fp_rate": 0.5,
       "rep_score": 0,
@@ -25411,9 +25749,9 @@
       "file": "blocklists/threats/vnc_365d.ipset",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 6988,
-      "ip_fingerprint": "fb5a5ba6a283653e",
+      "last_checked": "2026-07-19",
+      "ip_count": 7062,
+      "ip_fingerprint": "b79d0673c559e173",
       "overlap_pct": 62.1,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -25433,9 +25771,9 @@
       "file": "blocklists/3rdparty/blocklist.de/attacks_mail.ipset",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 6358,
-      "ip_fingerprint": "60784f1b8e4bba83",
+      "last_checked": "2026-07-19",
+      "ip_count": 6140,
+      "ip_fingerprint": "82a25b5dd87e36a9",
       "overlap_pct": 49.8,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -25455,9 +25793,9 @@
       "file": "proxies/http.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 25637,
-      "ip_fingerprint": "2a3efc2e429996f0",
+      "last_checked": "2026-07-19",
+      "ip_count": 25060,
+      "ip_fingerprint": "a1e52a47cdeb7b95",
       "overlap_pct": 0.6,
       "fp_rate": 0.5,
       "rep_score": 100,
@@ -25477,9 +25815,9 @@
       "file": "proxies/socks4.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 5825,
-      "ip_fingerprint": "25f85da6d7c00cd5",
+      "last_checked": "2026-07-19",
+      "ip_count": 5126,
+      "ip_fingerprint": "a0df4f518c518e67",
       "overlap_pct": 1.9,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -25499,9 +25837,9 @@
       "file": "proxies/socks5.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 4150,
-      "ip_fingerprint": "fc6a3984316322ff",
+      "last_checked": "2026-07-19",
+      "ip_count": 3485,
+      "ip_fingerprint": "3e64a093b182bb80",
       "overlap_pct": 2.6,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -25521,9 +25859,9 @@
       "file": "all.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 9708,
-      "ip_fingerprint": "dd74fe4e20fa1651",
+      "last_checked": "2026-07-19",
+      "ip_count": 8479,
+      "ip_fingerprint": "eb9ebb63eeaaa3a3",
       "overlap_pct": 1.4,
       "fp_rate": 0.5,
       "rep_score": 100,
@@ -25543,9 +25881,9 @@
       "file": "http.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 7274,
-      "ip_fingerprint": "962fab1bb6a8aa8d",
+      "last_checked": "2026-07-19",
+      "ip_count": 6089,
+      "ip_fingerprint": "2b64c5759a09418b",
       "overlap_pct": 1.9,
       "fp_rate": 1.0,
       "rep_score": 100,
@@ -25565,9 +25903,9 @@
       "file": "socks4.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 5669,
-      "ip_fingerprint": "28ecb76c3c4557b0",
+      "last_checked": "2026-07-19",
+      "ip_count": 4581,
+      "ip_fingerprint": "4272b13925a9821f",
       "overlap_pct": 2.0,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -25587,9 +25925,9 @@
       "file": "socks5.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 3955,
-      "ip_fingerprint": "7cf3a9dad225e01d",
+      "last_checked": "2026-07-19",
+      "ip_count": 2874,
+      "ip_fingerprint": "0583824300ebda50",
       "overlap_pct": 2.9,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -25609,9 +25947,9 @@
       "file": "proxylist.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 197216,
-      "ip_fingerprint": "61805bc5f950e1ea",
+      "last_checked": "2026-07-19",
+      "ip_count": 195873,
+      "ip_fingerprint": "783d8a9b1189c2b4",
       "overlap_pct": 0.2,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -25631,9 +25969,9 @@
       "file": "file/http.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 3962,
-      "ip_fingerprint": "baa1abf3fe339cf7",
+      "last_checked": "2026-07-19",
+      "ip_count": 4056,
+      "ip_fingerprint": "764b3918ecc9ffbc",
       "overlap_pct": 1.3,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -25653,9 +25991,9 @@
       "file": "file/socks5.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 3125,
-      "ip_fingerprint": "c93fbaeb1b44f248",
+      "last_checked": "2026-07-19",
+      "ip_count": 2441,
+      "ip_fingerprint": "4e5683b65de6f85e",
       "overlap_pct": 2.6,
       "fp_rate": 0.0,
       "rep_score": 100,
@@ -25675,9 +26013,9 @@
       "file": "blocklists/threats/smtp_365d.ipset",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 6137,
-      "ip_fingerprint": "48c60627f46943ef",
+      "last_checked": "2026-07-19",
+      "ip_count": 6201,
+      "ip_fingerprint": "285016582aaac8bb",
       "overlap_pct": 62.2,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -25697,9 +26035,9 @@
       "file": "full_proxies/https.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 55433,
-      "ip_fingerprint": "353b3fd29eff5a28",
+      "last_checked": "2026-07-19",
+      "ip_count": 54330,
+      "ip_fingerprint": "d90b0ca42ce1e219",
       "overlap_pct": 0.3,
       "fp_rate": 1.0,
       "rep_score": 93,
@@ -25719,9 +26057,9 @@
       "file": "full_proxies/socks4.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 112842,
-      "ip_fingerprint": "e9c82d2964940640",
+      "last_checked": "2026-07-19",
+      "ip_count": 112699,
+      "ip_fingerprint": "920bee063f5f15fa",
       "overlap_pct": 0.1,
       "fp_rate": 0.5,
       "rep_score": 93,
@@ -25741,9 +26079,9 @@
       "file": "full_proxies/http.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 118824,
-      "ip_fingerprint": "6b53466398a87189",
+      "last_checked": "2026-07-19",
+      "ip_count": 117945,
+      "ip_fingerprint": "36e95632562aab1a",
       "overlap_pct": 0.2,
       "fp_rate": 0.0,
       "rep_score": 93,
@@ -25763,9 +26101,9 @@
       "file": "full_proxies/socks5.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 115213,
-      "ip_fingerprint": "cba6605d4416d5e1",
+      "last_checked": "2026-07-19",
+      "ip_count": 114969,
+      "ip_fingerprint": "3681be121f2f58a4",
       "overlap_pct": 0.2,
       "fp_rate": 0.0,
       "rep_score": 93,
@@ -25785,9 +26123,9 @@
       "file": "proxies/hijacked.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 82454,
-      "ip_fingerprint": "a131267db00a9d3e",
+      "last_checked": "2026-07-19",
+      "ip_count": 82148,
+      "ip_fingerprint": "05eb7ae87305c026",
       "overlap_pct": 0.1,
       "fp_rate": 0.0,
       "rep_score": 16,
@@ -25807,9 +26145,9 @@
       "file": "blocklists/threats/sip_365d.ipset",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 4809,
-      "ip_fingerprint": "4705a79217b71e60",
+      "last_checked": "2026-07-19",
+      "ip_count": 4879,
+      "ip_fingerprint": "0314eb64deae8f83",
       "overlap_pct": 57.4,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -25829,9 +26167,9 @@
       "file": "scraped_proxies/socks4.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 82754,
-      "ip_fingerprint": "cffcded0d01fe907",
+      "last_checked": "2026-07-19",
+      "ip_count": 82629,
+      "ip_fingerprint": "98f4666d10e0dca6",
       "overlap_pct": 0.2,
       "fp_rate": 1.5,
       "rep_score": 44,
@@ -25851,9 +26189,9 @@
       "file": "checked_proxies/http.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 2472,
-      "ip_fingerprint": "b6621ba4344e8a60",
+      "last_checked": "2026-07-19",
+      "ip_count": 1014,
+      "ip_fingerprint": "9fec640644dae833",
       "overlap_pct": 2.6,
       "fp_rate": 0.0,
       "rep_score": 44,
@@ -25873,9 +26211,9 @@
       "file": "scraped_proxies/socks5.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 81418,
-      "ip_fingerprint": "75ba7461cbf60fa4",
+      "last_checked": "2026-07-19",
+      "ip_count": 81366,
+      "ip_fingerprint": "29807a5434254274",
       "overlap_pct": 0.2,
       "fp_rate": 0.0,
       "rep_score": 44,
@@ -25895,7 +26233,7 @@
       "file": "blacklist/blacklist.rsc",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 42108,
       "ip_fingerprint": "194b5e362c1376c4",
       "overlap_pct": 26.6,
@@ -25903,7 +26241,7 @@
       "rep_score": 32,
       "stars": 13,
       "days_old": 10,
-      "file_days_old": 23,
+      "file_days_old": 24,
       "search_sources": [
         "topic:blacklist",
         "topic:dshield",
@@ -25919,9 +26257,9 @@
       "file": "proxies/all_proxies.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 3795,
-      "ip_fingerprint": "9cfb790ba3271b81",
+      "last_checked": "2026-07-19",
+      "ip_count": 3464,
+      "ip_fingerprint": "4ce2d978a58aebc3",
       "overlap_pct": 2.4,
       "fp_rate": 0.0,
       "rep_score": 18,
@@ -25941,9 +26279,9 @@
       "file": "proxies/socks5.txt",
       "platform": "github",
       "added": "2026-07-05",
-      "last_checked": "2026-07-18",
-      "ip_count": 1784,
-      "ip_fingerprint": "66f019ad341e9da1",
+      "last_checked": "2026-07-19",
+      "ip_count": 1713,
+      "ip_fingerprint": "68e364389a5f2348",
       "overlap_pct": 3.4,
       "fp_rate": 0.0,
       "rep_score": 18,
@@ -25963,9 +26301,9 @@
       "file": "blocklists/3rdparty/blocklist.de/attacks_bots.ipset",
       "platform": "github",
       "added": "2026-07-06",
-      "last_checked": "2026-07-18",
-      "ip_count": 6270,
-      "ip_fingerprint": "84a7da50e4d7d14d",
+      "last_checked": "2026-07-19",
+      "ip_count": 3011,
+      "ip_fingerprint": "f3eee02ed36728c3",
       "overlap_pct": 29.5,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -25985,9 +26323,9 @@
       "file": "mailserver-banned-ips.json",
       "platform": "github",
       "added": "2026-07-06",
-      "last_checked": "2026-07-18",
-      "ip_count": 496683,
-      "ip_fingerprint": "8f4fa321b0f4e09d",
+      "last_checked": "2026-07-19",
+      "ip_count": 496027,
+      "ip_fingerprint": "e05e1174c05403ca",
       "overlap_pct": 2.0,
       "fp_rate": 0.0,
       "rep_score": 29,
@@ -26007,9 +26345,9 @@
       "file": "blocklists/3rdparty/blocklist.de/attacks_ssh.ipset",
       "platform": "github",
       "added": "2026-07-08",
-      "last_checked": "2026-07-18",
-      "ip_count": 5194,
-      "ip_fingerprint": "bb9a5ac5f837626e",
+      "last_checked": "2026-07-19",
+      "ip_count": 5473,
+      "ip_fingerprint": "bf4a532f05230d4a",
       "overlap_pct": 86.2,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -26029,9 +26367,9 @@
       "file": "blocklists/3rdparty/firehol/abusers_1d.ipset",
       "platform": "github",
       "added": "2026-07-08",
-      "last_checked": "2026-07-18",
-      "ip_count": 3911,
-      "ip_fingerprint": "4438df300552b735",
+      "last_checked": "2026-07-19",
+      "ip_count": 3046,
+      "ip_fingerprint": "ed7f7d7a04d22b86",
       "overlap_pct": 4.1,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -26051,9 +26389,9 @@
       "file": "ustc/ustc4k.txt",
       "platform": "github",
       "added": "2026-07-08",
-      "last_checked": "2026-07-18",
-      "ip_count": 745,
-      "ip_fingerprint": "a21c66452a72564d",
+      "last_checked": "2026-07-19",
+      "ip_count": 741,
+      "ip_fingerprint": "91e6147418df5dbb",
       "overlap_pct": 17.2,
       "fp_rate": 0.0,
       "rep_score": 18,
@@ -26073,9 +26411,9 @@
       "file": "list/ublock_adguard_blacklist.txt",
       "platform": "github",
       "added": "2026-07-08",
-      "last_checked": "2026-07-18",
-      "ip_count": 377956,
-      "ip_fingerprint": "d1de21e192dd749e",
+      "last_checked": "2026-07-19",
+      "ip_count": 254603,
+      "ip_fingerprint": "afecef03126210e6",
       "overlap_pct": 22.0,
       "fp_rate": 0.0,
       "rep_score": 15,
@@ -26095,9 +26433,9 @@
       "file": "blocklists/3rdparty/firehol/botscout_30d.ipset",
       "platform": "github",
       "added": "2026-07-08",
-      "last_checked": "2026-07-18",
-      "ip_count": 3925,
-      "ip_fingerprint": "a9e8c075b9dc2fe6",
+      "last_checked": "2026-07-19",
+      "ip_count": 3903,
+      "ip_fingerprint": "483699847531edda",
       "overlap_pct": 4.6,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -26117,9 +26455,9 @@
       "file": "exits-ipv4.txt",
       "platform": "github",
       "added": "2026-07-08",
-      "last_checked": "2026-07-18",
-      "ip_count": 1552,
-      "ip_fingerprint": "b1f7e143b30ee05a",
+      "last_checked": "2026-07-19",
+      "ip_count": 1549,
+      "ip_fingerprint": "da364a80dd437238",
       "overlap_pct": 40.4,
       "fp_rate": 0.0,
       "rep_score": 9,
@@ -26139,9 +26477,9 @@
       "file": "blocklists/3rdparty/binarydefense/blocklist.ipset",
       "platform": "github",
       "added": "2026-07-08",
-      "last_checked": "2026-07-18",
-      "ip_count": 2255,
-      "ip_fingerprint": "030c3c9b76798dd4",
+      "last_checked": "2026-07-19",
+      "ip_count": 2425,
+      "ip_fingerprint": "c84b835a12502649",
       "overlap_pct": 77.2,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -26161,9 +26499,9 @@
       "file": "blocklists/3rdparty/blocklist.de/attacks_imap.ipset",
       "platform": "github",
       "added": "2026-07-09",
-      "last_checked": "2026-07-18",
-      "ip_count": 4985,
-      "ip_fingerprint": "ce686dc3229ed849",
+      "last_checked": "2026-07-19",
+      "ip_count": 4762,
+      "ip_fingerprint": "3ff9930c4b87d496",
       "overlap_pct": 40.8,
       "fp_rate": 0.0,
       "rep_score": 26,
@@ -26183,7 +26521,7 @@
       "file": "03-Threat-Intelligence/Compromised_IPs_2.txt",
       "platform": "github",
       "added": "2026-07-11",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 4331,
       "ip_fingerprint": "fcf71dbc7d343197",
       "overlap_pct": 10.5,
@@ -26191,7 +26529,7 @@
       "rep_score": 32,
       "stars": 10,
       "days_old": 0,
-      "file_days_old": 27,
+      "file_days_old": 28,
       "search_sources": [
         "topic:exploit"
       ],
@@ -26205,9 +26543,9 @@
       "file": "ips.txt",
       "platform": "github",
       "added": "2026-07-14",
-      "last_checked": "2026-07-18",
-      "ip_count": 16849,
-      "ip_fingerprint": "52d1c8fb0e2aab47",
+      "last_checked": "2026-07-19",
+      "ip_count": 16767,
+      "ip_fingerprint": "1a973f57083ec6c9",
       "overlap_pct": 4.2,
       "fp_rate": 0.0,
       "rep_score": 2,
@@ -26229,9 +26567,9 @@
       "file": "hosts-3m.txt",
       "platform": "github",
       "added": "2026-07-14",
-      "last_checked": "2026-07-18",
-      "ip_count": 17486,
-      "ip_fingerprint": "0513a2153d526b69",
+      "last_checked": "2026-07-19",
+      "ip_count": 17484,
+      "ip_fingerprint": "85cf0c69e34e15b8",
       "overlap_pct": 68.4,
       "fp_rate": 0.0,
       "rep_score": 2,
@@ -26251,15 +26589,15 @@
       "file": "proxies/http.txt",
       "platform": "github",
       "added": "2026-07-14",
-      "last_checked": "2026-07-18",
-      "ip_count": 28658,
-      "ip_fingerprint": "809165a5a6ed69dd",
+      "last_checked": "2026-07-19",
+      "ip_count": 28572,
+      "ip_fingerprint": "0efe7272487ed4fe",
       "overlap_pct": 0.6,
       "fp_rate": 0.5,
       "rep_score": 100,
       "stars": 55,
       "days_old": 0,
-      "file_days_old": 4,
+      "file_days_old": 1,
       "search_sources": [
         "topic:proxy-list"
       ],
@@ -26273,15 +26611,15 @@
       "file": "proxies/all.txt",
       "platform": "github",
       "added": "2026-07-14",
-      "last_checked": "2026-07-18",
-      "ip_count": 31474,
-      "ip_fingerprint": "f166ba22588abe22",
+      "last_checked": "2026-07-19",
+      "ip_count": 31313,
+      "ip_fingerprint": "e1dd3f11100850bb",
       "overlap_pct": 0.5,
       "fp_rate": 0.5,
       "rep_score": 100,
       "stars": 55,
       "days_old": 0,
-      "file_days_old": 4,
+      "file_days_old": 1,
       "search_sources": [
         "topic:proxy-list"
       ],
@@ -26295,15 +26633,15 @@
       "file": "proxies/socks4.txt",
       "platform": "github",
       "added": "2026-07-14",
-      "last_checked": "2026-07-18",
-      "ip_count": 6246,
-      "ip_fingerprint": "fee6f9fbf5bad773",
+      "last_checked": "2026-07-19",
+      "ip_count": 5944,
+      "ip_fingerprint": "49ffa92a966577e8",
       "overlap_pct": 1.9,
       "fp_rate": 0.0,
       "rep_score": 100,
       "stars": 55,
       "days_old": 0,
-      "file_days_old": 4,
+      "file_days_old": 1,
       "search_sources": [
         "topic:proxy-list"
       ],
@@ -26317,15 +26655,15 @@
       "file": "proxies/socks5.txt",
       "platform": "github",
       "added": "2026-07-14",
-      "last_checked": "2026-07-18",
-      "ip_count": 5432,
-      "ip_fingerprint": "0ae8b8d2586b69a6",
+      "last_checked": "2026-07-19",
+      "ip_count": 4897,
+      "ip_fingerprint": "fa56d8a2930d5a86",
       "overlap_pct": 2.2,
       "fp_rate": 0.0,
       "rep_score": 100,
       "stars": 55,
       "days_old": 0,
-      "file_days_old": 4,
+      "file_days_old": 1,
       "search_sources": [
         "topic:proxy-list"
       ],
@@ -26339,7 +26677,7 @@
       "file": "scanning",
       "platform": "github",
       "added": "2026-07-14",
-      "last_checked": "2026-07-18",
+      "last_checked": "2026-07-19",
       "ip_count": 1268,
       "ip_fingerprint": "32a9264929886209",
       "overlap_pct": 31.1,
@@ -26347,32 +26685,12 @@
       "rep_score": 2,
       "stars": 1,
       "days_old": 0,
-      "file_days_old": 1,
+      "file_days_old": 2,
       "search_sources": [
         "topic:blocklist"
       ],
       "hq": false,
       "consecutive_fails": 0
-    },
-    {
-      "name": "ziyadnz_threat_intel_ip_feeds_ipv4_blacklist",
-      "url": "https://raw.githubusercontent.com/ziyadnz/threat-intel-ip-feeds/HEAD/output/ipv4_blacklist.txt",
-      "repo": "ziyadnz/threat-intel-ip-feeds",
-      "file": "output/ipv4_blacklist.txt",
-      "platform": "github",
-      "added": "2026-07-18",
-      "last_checked": "2026-07-18",
-      "ip_count": 101961,
-      "ip_fingerprint": "d232163116407ea4",
-      "overlap_pct": 47.8,
-      "fp_rate": 1.0,
-      "rep_score": 34,
-      "stars": 8,
-      "days_old": 0,
-      "search_sources": [
-        "extra_file_scan"
-      ],
-      "hq": false
     }
   ]
 }
