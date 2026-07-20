@@ -919,6 +919,22 @@ jobs:
               # keine Vermutung. Manuell hier eingetragen trotz Auto-Reject –
               # gemaess expliziter Anweisung, siehe Chat vom 2026-07-02.
               "serp07_dude_blacklist":      ("https://raw.githubusercontent.com/Serp07/dude_blacklist_ip/refs/heads/main/dude_blacklist.rsc", False),
+
+              # ── Neu (2026-07-20, manuell geprüft) ────────────────────────────
+              # threat_live: Community-driven Real-Time-Threat-Intelligence-Feed
+              # (threat.live). Reiner Plain-Text-Endpunkt, eine IPv4 pro Zeile,
+              # via curl auf der Betreiber-Startseite selbst als Abrufmethode
+              # dokumentiert ("curl -s https://list.threat.live/"). Beim manuellen
+              # Test mehrere tausend IPv4-Eintraege (u.a. Cloud-/Hosting-Ranges
+              # wie Alibaba/Tencent/Azure/GCP/DigitalOcean/Linode/OVH sowie
+              # zahlreiche Einzel-ASNs weltweit) – parse_entries() liest das
+              # Plain-Format ueber den generischen IPV4-Regex-Fallback. Laut
+              # Betreiber-Angabe Speisung ueber eigene Sensor-Nodes in
+              # Rechenzentren weltweit (DDoS/Brute-Force/Botnet-Fokus). Keine
+              # verifizierbare Uptime-/Wartungshistorie, kein bekannter
+              # Multi-Source-Track-Record -> hq=False, um Confidence-Inflation
+              # durch eine ungeprüfte Einzelquelle zu vermeiden.
+              "threat_live":                ("https://list.threat.live/", False),
           }
 
           # ── seen_db laden ──────────────────────────────────────────────────
