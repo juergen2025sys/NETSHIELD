@@ -1,7 +1,9 @@
 # NETSHIELD – Guatemala (GT) IPv4 Ranges
-# Aktualisiert: 2026-07-15 04:25 UTC
-# IP-Ranges: 151
+# Aktualisiert: 2026-07-20 05:07 UTC
+# IP-Ranges: 153
 
+2.152.0.0/22
+2.152.4.0/23
 24.152.52.0/22
 45.4.128.0/22
 45.5.116.0/22
