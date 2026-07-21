@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-21 22:54 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-22 00:05 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,148,789** |
-| Neu (heute) | **+12** |
-| Entfernt | **-11** |
+| Gesamt IPs | **1,148,955** |
+| Neu (heute) | **+329** |
+| Entfernt | **-163** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 58 |
@@ -32,47 +32,47 @@
 | ✅ `skillter_proxygather_working_proxies_all` | 464 |
 | ✅ `skillter_proxygather_working_proxies_http` | 253 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,362 |
-| ✅ `ebrasha_abdal_proxy_hub` | 5,876 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,559 |
-| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,463 |
-| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,924 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 6,351 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 5,811 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https_anonymous` | 5,808 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 5,006 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,666 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,599 |
+| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,440 |
+| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,960 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 6,463 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 5,674 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https_anonymous` | 5,671 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 5,449 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,613 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 938 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,650 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 1,025 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 987 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 806 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 465 |
-| ✅ `officialputuid_proxyforeveryone` | 6,000 |
-| ✅ `officialputuid_proxyforeveryone_https` | 5,134 |
-| ✅ `officialputuid_proxyforeveryone_proxies` | 6,574 |
-| ✅ `ercindedeoglu_proxies` | 24,183 |
-| ✅ `ercindedeoglu_proxies_socks4` | 4,784 |
-| ✅ `ercindedeoglu_proxies_socks5` | 3,104 |
-| ✅ `tuanminpay_live_proxy` | 8,727 |
-| ✅ `tuanminpay_live_proxy_http` | 6,304 |
-| ✅ `tuanminpay_live_proxy_socks4` | 4,568 |
-| ✅ `tuanminpay_live_proxy_socks5` | 2,893 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 185,288 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,697 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 1,148 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 1,080 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 927 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 499 |
+| ✅ `officialputuid_proxyforeveryone` | 5,282 |
+| ✅ `officialputuid_proxyforeveryone_https` | 4,192 |
+| ✅ `officialputuid_proxyforeveryone_proxies` | 6,000 |
+| ✅ `ercindedeoglu_proxies` | 24,178 |
+| ✅ `ercindedeoglu_proxies_socks4` | 4,790 |
+| ✅ `ercindedeoglu_proxies_socks5` | 3,113 |
+| ✅ `tuanminpay_live_proxy` | 8,854 |
+| ✅ `tuanminpay_live_proxy_http` | 6,354 |
+| ✅ `tuanminpay_live_proxy_socks4` | 4,622 |
+| ✅ `tuanminpay_live_proxy_socks5` | 2,971 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 185,211 |
 | ✅ `noctiro_getproxy` | 4,530 |
 | ✅ `noctiro_getproxy_socks5` | 3,261 |
-| ✅ `mohammedcha_proxripper` | 44,068 |
-| ✅ `mohammedcha_proxripper_socks4` | 101,290 |
-| ✅ `mohammedcha_proxripper_http` | 107,495 |
-| ✅ `mohammedcha_proxripper_socks5` | 104,021 |
-| ✅ `celestialbrain_worldpool` | 70,573 |
-| ✅ `dinoz0rg_proxy_list` | 72,463 |
-| ✅ `dinoz0rg_proxy_list_http` | 2,174 |
-| ✅ `dinoz0rg_proxy_list_socks5` | 71,185 |
+| ✅ `mohammedcha_proxripper` | 43,881 |
+| ✅ `mohammedcha_proxripper_socks4` | 101,289 |
+| ✅ `mohammedcha_proxripper_http` | 107,436 |
+| ✅ `mohammedcha_proxripper_socks5` | 104,022 |
+| ✅ `celestialbrain_worldpool` | 70,602 |
+| ✅ `dinoz0rg_proxy_list` | 72,991 |
+| ✅ `dinoz0rg_proxy_list_http` | 2,125 |
+| ✅ `dinoz0rg_proxy_list_socks5` | 71,724 |
 | ✅ `darzanebor_mikroblack` | 47,390 |
 | ✅ `ian_lusule_proxies` | 3,287 |
 | ✅ `ian_lusule_proxies_socks5` | 1,391 |
-| ✅ `configserverapps_service_blocklists_attacks_bots` | 2,951 |
-| ✅ `configserverapps_service_blocklists_botscout_30d` | 3,930 |
+| ✅ `configserverapps_service_blocklists_attacks_bots` | 2,968 |
+| ✅ `configserverapps_service_blocklists_botscout_30d` | 3,937 |
 | ✅ `breakingtechfr_proxy_free` | 29,114 |
 | ✅ `breakingtechfr_proxy_free_all` | 31,779 |
 | ✅ `breakingtechfr_proxy_free_socks4` | 7,200 |
@@ -83,4 +83,4 @@
 > Diese 58 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-21 22:54 CEST (Europe/Berlin)*
+*Generiert: 2026-07-22 00:05 CEST (Europe/Berlin)*
