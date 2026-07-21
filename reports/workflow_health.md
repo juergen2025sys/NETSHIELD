@@ -1,6 +1,6 @@
 # Workflow Health Report
 
-**Stand:** 2026-07-20 19:53 UTC
+**Stand:** 2026-07-21 03:36 UTC
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_report.yml` alle 6h.
@@ -8,35 +8,33 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 11 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 9
-- **Lucken (>210min zwischen echten Runs):** 1
-  - 2026-07-19 22:03 UTC -> 2026-07-20 03:54 UTC (351 min)
+- **Echte Combined-Runs:** 12 / 8 erwartet
+- **Skip-Runs (Idempotenz-Guard):** 8
+- **Lucken (>210min zwischen echten Runs):** 0
 
 ## Letzte 7 Tage
 
 - **Echte Combined-Runs:** 70
-- **Skip-Runs:** 97
+- **Skip-Runs:** 96
 - **Fehlgeschlagene Runs:** 21
 - **Lucken >210min:** 2
 - **Groesste Lucke:** 2026-07-19 22:03 UTC -> 2026-07-20 03:54 UTC (351 min = 5h 51min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 281
+- **Watchdog-Laeufe insgesamt:** 278
 - **Watchdog-Fehler:** 3
 - **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 42
 
 Letzte Watchdog-Eingriffe:
-- 2026-07-19 21:31 UTC (Run #29704504045, Laufzeit 27m 0s)
 - 2026-07-20 07:29 UTC (Run #29724770292, Laufzeit 26m 50s)
 - 2026-07-20 12:37 UTC (Run #29742943841, Laufzeit 23m 15s)
 - 2026-07-20 15:28 UTC (Run #29755299384, Laufzeit 28m 24s)
 - 2026-07-20 19:13 UTC (Run #29771114480, Laufzeit 26m 37s)
+- 2026-07-21 00:57 UTC (Run #29791769961, Laufzeit 33m 34s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
-- 2026-07-18 03:40 UTC - cancelled - Run #29629224822 (5m 5s)
 - 2026-07-18 03:45 UTC - cancelled - Run #29629376425 (1m 29s)
 - 2026-07-18 19:39 UTC - cancelled - Run #29658201607 (6m 53s)
 - 2026-07-18 22:11 UTC - cancelled - Run #29663005899 (13m 32s)
@@ -46,6 +44,7 @@ Letzte Watchdog-Eingriffe:
 - 2026-07-20 04:11 UTC - cancelled - Run #29716287390 (10m 27s)
 - 2026-07-20 09:40 UTC - cancelled - Run #29732296990 (5m 15s)
 - 2026-07-20 09:45 UTC - cancelled - Run #29732613925 (12m 50s)
+- 2026-07-20 22:28 UTC - cancelled - Run #29784047205 (6m 28s)
 
 ---
 
