@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-07-24 04:06 UTC
+**Aktualisiert:** 2026-07-24 04:45 UTC
 
 ---
 ## 📊 Listen-Übersicht
@@ -11,18 +11,18 @@
 | ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **6,156,164** | 2026-07-24 04:01 UTC |
 | ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **50,033** | 2026-07-24 04:01 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **30,549** | 2026-07-23 06:23 UTC |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,174,482** | 2026-07-24 03:29 CEST (Europe/Berlin) |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,169,818** | 2026-07-24 06:07 CEST (Europe/Berlin) |
 | ✅ `honeypot_ips.txt` | Honeypot IPs | **134,374** | 2026-07-23 23:45 UTC |
-| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **10,259** | 2026-07-24 03:43 UTC |
+| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **10,259** | 2026-07-24 04:39 UTC |
 
 ---
 ## 🔍 Feed Health: ✅ 121 OK | ⚠️ 0 leer | ❌ 0 Fehler
 
-**🧊 Eingefroren (17):** `amitambekar_threats` 39T, `bbcan177` 39T, `binaryedge_scanners` 39T, `blacksnowdot_packets` 39T, `cloudzy` 39T, `et_block` 39T, `feodo_aggressive` 39T, `feodo_recommended` 39T, `firehol_level1` 39T, `l7_ddos` 39T…
+**🧊 Eingefroren (19):** `amitambekar_threats` 40T, `bbcan177` 40T, `binaryedge_scanners` 40T, `blacksnowdot_packets` 40T, `cloudzy` 40T, `et_block` 40T, `feodo_aggressive` 40T, `feodo_recommended` 40T, `firehol_level1` 40T, `l7_ddos` 40T…
 
-*16 davon ≥21 Tage → im Combined automatisch in Quarantäne (eingefrorene HQ-Feeds zählen nicht mehr als frische Bestätigung, betroffene IPs altern normal aus). Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
+*17 davon ≥21 Tage → im Combined automatisch in Quarantäne (eingefrorene HQ-Feeds zählen nicht mehr als frische Bestätigung, betroffene IPs altern normal aus). Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
 
-*Letzter Check: 2026-07-23 04:10 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
+*Letzter Check: 2026-07-24 04:08 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -30,4 +30,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-07-24 04:06 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-07-24 04:45 UTC*
