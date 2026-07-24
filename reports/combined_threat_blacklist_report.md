@@ -1,9 +1,9 @@
 # Combined Threat Blacklist Report
 
-- Aktualisiert: **2026-07-24 11:22 CEST (Europe/Berlin)**
+- Aktualisiert: **2026-07-24 11:54 CEST (Europe/Berlin)**
 - Feeds gesamt: **127** (davon 6 lokale Sub-Workflow-Feeds)
-- Stufe 1 (combined): **7505129** IPs
-- Stufe 2 (active, 30T + Conf≥65): **397849** IPs | herausgefiltert: 5443957 zu alt, 584034 Score<65
+- Stufe 1 (combined): **7505273** IPs
+- Stufe 2 (active, 30T + Conf≥65): **397997** IPs | herausgefiltert: 5443954 zu alt, 584031 Score<65
 - Abgelaufen & entfernt: **0**
 
 ## Feed-Statistik
@@ -19,7 +19,7 @@
 | `gazpitchy92_ip_blocklist` | 306795 |
 | `gazpitchy92_ip_blocklist_blacklist` | 306795 |
 | `romainmarcoux_aa` | 299185 |
-| `romainmarcoux_ab` | 226024 |
+| `romainmarcoux_ab` | 226247 |
 | `sefinek_malicious` | 207326 |
 | `ufukart_blacklist` | 200632 |
 | `maximewewer_heimdallblocklists_romainmarcoux_malicious_ip` | 197292 |
@@ -33,18 +33,18 @@
 | `configserverapps_service_blocklists_abusers_30d` | 139032 |
 | `honeypot_ips.txt` | 134692 |
 | `romainmarcoux_outgoing_aa` | 131068 |
-| `threathive_blocklist` | 129947 |
+| `threathive_blocklist` | 130026 |
 | `blocklist_net_ua` ⭐ | 128264 |
 | `kraloveckey_ipsets_blocklist_blocklist_net_ua` | 128263 |
 | `ipsum_master` | 113907 |
 | `kraloveckey_ipsets_blocklist_ipsum` | 113907 |
 | `cbuijs_accomplist_adblock_ip` | 111612 |
-| `bsdly_bruteforcers` | 108982 |
+| `bsdly_bruteforcers` | 108984 |
 | `configserverapps_service_blocklists_level4` | 106199 |
 | `firehol_level4` | 105560 |
-| `ziyadnz_threat_intel_ip_feeds_blacklist` | 103236 |
-| `ziyadnz_threat_intel_ip_feeds_ipv4_blacklist` | 103236 |
-| `abuseipdb_s100_30d` ⭐ | 102920 |
+| `ziyadnz_threat_intel_ip_feeds_blacklist` | 103922 |
+| `ziyadnz_threat_intel_ip_feeds_ipv4_blacklist` | 103922 |
+| `abuseipdb_s100_30d` ⭐ | 103048 |
 | `configserverapps_service_blocklists_blacklist_all` | 102440 |
 | `configserverapps_service_blocklists_blocklist_extralarge` | 87684 |
 | `configserverapps_service_blocklists_level1` | 85137 |
@@ -52,14 +52,14 @@
 | `data_shield` | 79185 |
 | `4ip_high_security` | 78338 |
 | `abuseipdb_axllent` | 77081 |
-| `threat_live` | 73975 |
+| `threat_live` | 73976 |
 | `maximewewer_heimdallblocklists` | 67557 |
 | `data_shield_full` | 67477 |
 | `cbuijs_accomplist_adblock_ip_v2` | 66154 |
-| `abuseipdb_s100_7d` ⭐ | 60903 |
+| `abuseipdb_s100_7d` ⭐ | 61083 |
 | `configserverapps_service_blocklists_telnet_365d` | 59224 |
-| `rtbh_output` | 58890 |
-| `netmountains_blocklist` | 58743 |
+| `rtbh_output` | 58947 |
+| `netmountains_blocklist` | 58875 |
 | `dataplane_proto41` ⭐ | 58502 |
 | `hagezi_tif` | 57899 |
 | `hagezi_tif_cdn` | 57899 |
@@ -68,7 +68,7 @@
 | `configserverapps_service_blocklists_master` | 51139 |
 | `configserverapps_service_blocklists_blocklist` | 50688 |
 | `fadouse_malware` | 49259 |
-| `romainmarcoux_outgoing_ab` | 47683 |
+| `romainmarcoux_outgoing_ab` | 47685 |
 | `dataplane_telnetlogin` ⭐ | 46957 |
 | `romain_marcoux` | 39995 |
 | `zerof_ipextractor` | 35736 |
@@ -84,8 +84,8 @@
 | `shadowwhisperer_threats_uncl` | 25149 |
 | `cypher139_ipblacklist` | 25013 |
 | `configserverapps_service_blocklists_blocklist_core` | 25007 |
-| `blocklist_de_all` ⭐ | 23812 |
-| `blocklist_de_export` ⭐ | 23812 |
+| `blocklist_de_all` ⭐ | 23807 |
+| `blocklist_de_export` ⭐ | 23807 |
 | `configserverapps_service_blocklists_level2` | 23193 |
 | `firehol_level2` ⭐ | 22067 |
 | `configserverapps_service_blocklists_level2_v2` | 21965 |
@@ -109,14 +109,14 @@
 | `configserverapps_service_blocklists_forums` | 13283 |
 | `configserverapps_service_blocklists_rdp_365d` | 12030 |
 | `dataplane_sshpwauth` ⭐ | 11554 |
-| `firehol_level3` ⭐ | 11512 |
 | `configserverapps_service_blocklists_level3` | 11512 |
+| `firehol_level3` ⭐ | 10666 |
 | `florent_banned` | 10555 |
 | `dataplane_dnsrd` ⭐ | 10309 |
 | `honigtopf_ips.txt` | 10259 |
 | `bsdly_pop3` | 10245 |
 | `tweetfeed_ips.txt` | 9968 |
-| `reputation_blacklist.txt` | 9948 |
+| `reputation_blacklist.txt` | 9949 |
 | `alsyundawy_mikrotik_blacklist_blocklist_ssh` | 9587 |
 | `configserverapps_service_blocklists_attacks_ssh` | 9354 |
 | `dataplane_smtpgreet` | 8859 |
@@ -152,7 +152,7 @@
 | `kraloveckey_ipsets_blocklist_urlhaus_recent` | 3988 |
 | `binary_defense` ⭐ | 3902 |
 | `kraloveckey_ipsets_blocklist_bds_atif` | 3902 |
-| `greensnow` ⭐ | 3793 |
+| `greensnow` ⭐ | 3796 |
 | `configserverapps_service_blocklists_abusers_1d` | 3713 |
 | `cloudzy` ⭐ | 3578 |
 | `configserverapps_service_blocklists_blocklist_v2` | 3302 |
@@ -165,14 +165,14 @@
 | `shadowwhisperer_probes` | 2342 |
 | `f3csystems` | 2304 |
 | `edanwong` | 2111 |
-| `rutgers_drop` | 2066 |
+| `rutgers_drop` | 2085 |
 | `dataplane_dnsrdany` ⭐ | 1919 |
 | `kraloveckey_ipsets_blocklist_gpf_comics` | 1854 |
+| `interserver` | 1778 |
 | `threatfox_direct` ⭐ | 1745 |
 | `ipsum_level5` ⭐ | 1704 |
 | `kraloveckey_ipsets_blocklist_ipsum_5` | 1704 |
 | `maximewewer_heimdallblocklists_spamhaus_drop` | 1666 |
-| `interserver` | 1650 |
 | `urlhaus_ips` ⭐ | 1540 |
 | `realizelol_torblocklist` | 1539 |
 | `kraloveckey_ipsets_blocklist_tor_exits_7d` | 1428 |
@@ -185,9 +185,9 @@
 | `kraloveckey_ipsets_blocklist_secops_tor_exits` | 1126 |
 | `kraloveckey_ipsets_blocklist_sblam` | 992 |
 | `kraloveckey_ipsets_blocklist_cleantalk_30d` | 977 |
-| `myip_ms` | 862 |
+| `myip_ms` | 859 |
 | `kraloveckey_ipsets_blocklist_myip` | 850 |
-| `bsdly_traplist` | 716 |
+| `bsdly_traplist` | 787 |
 | `tscci_threatips` | 701 |
 | `dataplane_ntpmode6` ⭐ | 678 |
 | `dataplane_ntpmode7` ⭐ | 663 |
