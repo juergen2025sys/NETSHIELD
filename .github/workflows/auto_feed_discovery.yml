@@ -24,6 +24,12 @@ permissions:
 concurrency:
   group: netshield-seen-db-writers
   cancel-in-progress: false
+  # FIX BUG-QUEUE-STARVE (2026-07-24): siehe score_decay_monitor.yml.
+  # Die 3 Backup-Slots hier mildern GitHub-Schedule-Skips, schuetzen aber
+  # NICHT vor dem separaten Problem, dass ein bereits "pending" Run dieser
+  # Gruppe von einem neu ankommenden Trigger (z.B. update_combined_blacklist)
+  # gecancelt wird. queue: max reiht wartende Runs stattdessen ein.
+  queue: max
 
 jobs:
   discover:

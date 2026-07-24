@@ -23,6 +23,18 @@ concurrency:
   # einen halb geschriebenen Cache lesen.
   group: netshield-seen-db-writers
   cancel-in-progress: false
+  # FIX BUG-QUEUE-STARVE (2026-07-24): Ohne "queue: max" (Default: single)
+  # canceled ein neu ankommender Trigger aus derselben Gruppe (v.a.
+  # update_combined_blacklist mit bis zu 24 Slots/Tag) sofort den hier
+  # wartenden "pending"-Run. Score Decay lief dadurch seit 2026-06-28 nicht
+  # mehr, obwohl der woechentliche Cron-Trigger korrekt feuerte - der Run
+  # wurde nur nie ausgefuehrt, weil er im Wartezustand verdraengt wurde
+  # (exakt dasselbe Muster wie in update_confidence_blacklist.yml vor dem
+  # dortigen Fix vom 2026-06-02 dokumentiert, dort aber via workflow_dispatch-
+  # Direkttrigger geloest statt via queue). "queue: max" laesst wartende
+  # Runs in der Gruppe einreihen statt sie zu canceln. Muss konsistent mit
+  # den anderen vier Workflows dieser Gruppe gesetzt sein (siehe dort).
+  queue: max
 jobs:
   score-decay:
     runs-on: ubuntu-latest

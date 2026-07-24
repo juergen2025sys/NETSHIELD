@@ -24,6 +24,10 @@ concurrency:
   # einen halb geschriebenen Cache lesen.
   group: netshield-seen-db-writers
   cancel-in-progress: false
+  # FIX BUG-QUEUE-STARVE (2026-07-24): siehe score_decay_monitor.yml.
+  # queue: max konsistent fuer alle 5 Mitglieder dieser Gruppe gesetzt,
+  # damit kein Workflow einen anderen aus der Warteschlange verdraengt.
+  queue: max
 
 jobs:
   fp-checker:
