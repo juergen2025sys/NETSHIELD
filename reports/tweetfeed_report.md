@@ -1,5 +1,5 @@
 # TweetFeed Monitor – Report
-**Aktualisiert:** 2026-07-23 05:40 UTC  
+**Aktualisiert:** 2026-07-24 05:37 UTC  
 **Quelle:** [tweetfeed.live](https://tweetfeed.live) – IOCs aus Twitter/X-Security-Community  
 **Endpoint:** `/v1/year/ip` (letzte 365 Tage, Typ=IP)
 
@@ -8,18 +8,18 @@
 
 | Schritt | Anzahl |
 |---|---:|
-| Response-Format | **csv:110956-rows** |
-| Eindeutige IPs (roh) | **10,015** |
+| Response-Format | **csv:110954-rows** |
+| Eindeutige IPs (roh) | **9,987** |
 | Private/Reserved entfernt | **10** |
 | FP-Filter entfernt | **0** |
-| Whitelist-Filter entfernt | **9** |
+| Whitelist-Filter entfernt | **7** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt TweetFeed-IPs | **9,996** |
-| Neu | **+11** |
-| Entfernt | **-100** |
+| Gesamt TweetFeed-IPs | **9,970** |
+| Neu | **+16** |
+| Entfernt | **-42** |
 
 ---
 > ⚠️ **Confidence-Hinweis (Quelle):** IOCs stammen aus Twitter/X-Posts und sind
@@ -31,4 +31,4 @@
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-07-23 05:40 UTC*
+*Generiert: 2026-07-24 05:37 UTC*
