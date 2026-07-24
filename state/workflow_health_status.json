@@ -1,8 +1,8 @@
 {
-  "updated": "2026-07-24 15:04 UTC",
-  "total": 23,
+  "updated": "2026-07-24 20:38 UTC",
+  "total": 24,
   "ok": 21,
-  "warn": 1,
+  "warn": 2,
   "error": 2,
   "errors": [
     {
@@ -13,7 +13,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 102.6 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 109.4 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
     },
     {
       "file": "Production Health",
@@ -28,6 +28,11 @@
       "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
     },
     {
+      "file": "threatfox_export_downloader.yml",
+      "check": "Kein expliziter Leerungsschutz",
+      "detail": "Externer Feed/Report ohne explizite MIN_* Guard-Variable \u2013 M\u00fcll-/Leer-Daten k\u00f6nnten unbemerkt akzeptiert werden"
+    },
+    {
       "file": "update_combined_blacklist.yml",
       "check": "Untrusted Feed hq=True",
       "detail": "1 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"threat_live\" (https://list.threat.live/)"
@@ -39,12 +44,12 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 3770409,
-    "active_blacklist_ipv4.txt": 435979,
-    "blacklist_confidence40_ipv4.txt": 6196168,
+    "combined_threat_blacklist_ipv4_part1.txt": 4021792,
+    "active_blacklist_ipv4.txt": 441639,
+    "blacklist_confidence40_ipv4.txt": 6199404,
     "cve_exploit_ips.txt": 30399,
-    "honeypot_ips.txt": 137964,
-    "bot_detector_blacklist_ipv4.txt": 1162644
+    "honeypot_ips.txt": 137908,
+    "bot_detector_blacklist_ipv4.txt": 1163962
   },
   "production_health": {
     "critical": 2,
@@ -53,7 +58,7 @@
       {
         "level": "CRITICAL",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 102.6 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 109.4 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
       },
       {
         "level": "CRITICAL",
