@@ -420,6 +420,15 @@ jobs:
               # Fadouse clash-threat-intel – BEWUSST NICHT HQ (Community-Projekt
               # ohne institutionellen Betreiber). hq=False in SOURCES; daher hier
               # NICHT gelistet → normales Score-Decay + 2-Feed-Aufnahmefilter.
+              #
+              # threat_live – UPDATE 2026-07-24: hq=True in SOURCES gesetzt
+              # (Maintainer-Ermessensentscheidung, siehe Kommentar dort).
+              # Muss hier zwingend mit ergänzt werden, sonst exaktes BUG-DP1-
+              # Szenario: hq=True in SOURCES ohne HIGH_QUALITY-Eintrag →
+              # ip_in_hq bleibt leer → strongly_confirmed_today bleibt False →
+              # "last" wird nie gesetzt → IPs altern trotz hq=True-Flag still
+              # nach 180 Tagen aus, ohne dass es auffaellt.
+              "threat_live",
           }
 
           # ══════════════════════════════════════════════════════════════════
@@ -930,11 +939,21 @@ jobs:
               # zahlreiche Einzel-ASNs weltweit) – parse_entries() liest das
               # Plain-Format ueber den generischen IPV4-Regex-Fallback. Laut
               # Betreiber-Angabe Speisung ueber eigene Sensor-Nodes in
-              # Rechenzentren weltweit (DDoS/Brute-Force/Botnet-Fokus). Keine
-              # verifizierbare Uptime-/Wartungshistorie, kein bekannter
-              # Multi-Source-Track-Record -> hq=False, um Confidence-Inflation
-              # durch eine ungeprüfte Einzelquelle zu vermeiden.
-              "threat_live":                ("https://list.threat.live/", False),
+              # Rechenzentren weltweit (DDoS/Brute-Force/Botnet-Fokus).
+              #
+              # UPDATE 2026-07-24: Auf hq=True hochgestuft. Hinweis: Dies ist
+              # eine Ermessensentscheidung des Maintainers ("Quelle ist gut"),
+              # KEINE neue empirische Verifikation gegenueber der Einschaetzung
+              # vom 20.07. – es liegt weiterhin keine verifizierbare Uptime-/
+              # Wartungshistorie und kein bekannter Multi-Source-Track-Record
+              # vor. Auswirkung: threat_live kann ab sofort "last" auf heute
+              # setzen und damit IPs eigenstaendig 180 Tage am Leben halten,
+              # zaehlt fuer strongly_confirmed_today mit, und traegt 40/100
+              # Score-Punkte (Quellen-Qualitaet) statt eines Non-HQ-Anteils
+              # bei. Sollte sich diese Einschaetzung als falsch erweisen
+              # (z.B. auffaellig hohe FP-Rate, IPs die kein anderer HQ-Feed
+              # je bestaetigt), auf hq=False zurueckstufen.
+              "threat_live":                ("https://list.threat.live/", True),
           }
 
           # ── seen_db laden ──────────────────────────────────────────────────
