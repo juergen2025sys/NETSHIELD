@@ -732,3 +732,22 @@ jobs:
           gh workflow run update_bot_detector.yml \
             --repo "${{ github.repository }}" \
             --ref "${GITHUB_REF_NAME}"
+
+      - name: Trigger ThreatFox Export Downloader
+        # Stoesst threatfox_export_downloader.yml direkt nach jedem
+        # erfolgreichen Report-Lauf an (2026-07-24). Gleiches Muster wie
+        # der "Trigger Bot-Detector"-Step oben: expliziter workflow_dispatch
+        # via gh statt workflow_run-Event, weil workflow_run in diesem Repo
+        # nachweislich Probleme macht (siehe Kommentar oben und in
+        # update_confidence_blacklist.yml). threatfox_export_downloader.yml
+        # hat aktuell KEINEN eigenen Cron - dieser Trigger ist der einzige
+        # automatische Lauf-Ausloeser (sonst nur manuell via
+        # workflow_dispatch im UI).
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Report abgeschlossen - triggere ThreatFox Export Downloader"
+          gh workflow run threatfox_export_downloader.yml \
+            --repo "${{ github.repository }}" \
+            --ref "${GITHUB_REF_NAME}"
