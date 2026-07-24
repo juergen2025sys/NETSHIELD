@@ -1,11 +1,6 @@
-# NETSHIELD ThreatFox Export IPs (TEST - ungefiltert)
-# Aktualisiert: 2026-07-24 20:13 UTC
-# Quelle: threatfox-api.abuse.ch/v2/files/exports/AUTH-KEY/full.csv.zip
-# Authentifizierter Export: komplette nicht-abgelaufene Datenbasis
-# (bis zu 6 Monate), gefiltert auf ioc_type=ip:port.
-# WARNUNG: Test-Workflow. KEINE Whitelist-/FP-Filterung,
-# KEINE Anbindung an update_combined_blacklist.yml.
-# Gesamt: 21077 IPs
+# NETSHIELD ThreatFox Export IPs (TEST)
+# Aktualisiert: 2026-07-24 22:20 CEST (Europe/Berlin)
+# Gesamt: 21077 IPs | +0 neu
 
 1.7.147.211
 1.12.42.37
