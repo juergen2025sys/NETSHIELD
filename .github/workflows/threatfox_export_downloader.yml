@@ -56,8 +56,17 @@ jobs:
           import urllib.error
           import zipfile
           from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
 
-          now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+          # Deutsche Ortszeit fuer den Datei-Header, exakt gleiches Muster
+          # wie in update_combined_blacklist.yml: Europe/Berlin wechselt
+          # automatisch zwischen CET (Winter) und CEST (Sommer).
+          now_stamp_de = (
+              datetime.now(timezone.utc)
+              .astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z")
+              + " (Europe/Berlin)"
+          )
 
           AUTH_KEY = os.environ.get("THREATFOX_AUTH_KEY", "").strip()
           if not AUTH_KEY:
@@ -218,18 +227,25 @@ jobs:
 
           print("\n[4/4] threatfox_export_ips.txt schreiben...")
 
+          # Bestehende Datei VOR dem Ueberschreiben einlesen, um zu zaehlen
+          # wie viele IPs seit dem letzten Lauf neu hinzugekommen sind.
+          existing_ips = set()
+          if os.path.exists("threatfox_export_ips.txt"):
+              with open("threatfox_export_ips.txt") as f:
+                  existing_ips = {
+                      ln.strip() for ln in f
+                      if ln.strip() and not ln.startswith("#")
+                  }
+          new_ips = ips - existing_ips
+          print(f"  Neu seit letztem Lauf: +{len(new_ips)}")
+
           final_ips = write_ip_list(
               "threatfox_export_ips.txt",
               ips,
               header_lines=[
-                  "NETSHIELD ThreatFox Export IPs (TEST - ungefiltert)",
-                  f"Aktualisiert: {now_str}",
-                  "Quelle: threatfox-api.abuse.ch/v2/files/exports/AUTH-KEY/full.csv.zip",
-                  "Authentifizierter Export: komplette nicht-abgelaufene Datenbasis",
-                  "(bis zu 6 Monate), gefiltert auf ioc_type=ip:port.",
-                  "WARNUNG: Test-Workflow. KEINE Whitelist-/FP-Filterung,",
-                  "KEINE Anbindung an update_combined_blacklist.yml.",
-                  f"Gesamt: {len(ips)} IPs",
+                  "NETSHIELD ThreatFox Export IPs (TEST)",
+                  f"Aktualisiert: {now_stamp_de}",
+                  f"Gesamt: {len(ips)} IPs | +{len(new_ips)} neu",
               ],
           )
 
@@ -245,7 +261,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Aenderungen"
           else
-            git commit -m "ThreatFox Export Downloader (Test): $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git commit -m "ThreatFox Export Downloader (Test): $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}
