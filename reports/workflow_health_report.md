@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-07-24 20:38 UTC
+**Aktualisiert:** 2026-07-25 04:25 UTC
 
 **Workflows:** 24 | ✅ 21 OK | ⚠️ 2 Warnung | ❌ 2 Fehler
 
@@ -9,7 +9,7 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `feed_overlap_report.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 109.4 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 109.6 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 
 ## ⚠️ Warnungen
@@ -19,7 +19,7 @@
 | `feed_overlap_report.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `threatfox_export_downloader.yml` | Kein expliziter Leerungsschutz | Externer Feed/Report ohne explizite MIN_* Guard-Variable – Müll-/Leer-Daten könnten unbemerkt akzeptiert werden |
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 1 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "threat_live" (https://list.threat.live/) |
-| `Production Health` | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 84.3 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 84.4 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
@@ -27,9 +27,9 @@
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 109.4 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 109.6 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🔴 CRITICAL | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
-| 🟡 WARN | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 84.3 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 84.4 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
 
@@ -61,4 +61,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-07-24 20:38 UTC | 24 Workflow-Dateien geprüft*
+*Generiert: 2026-07-25 04:25 UTC | 24 Workflow-Dateien geprüft*

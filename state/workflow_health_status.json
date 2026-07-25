@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-24 20:38 UTC",
+  "updated": "2026-07-25 04:25 UTC",
   "total": 24,
   "ok": 21,
   "warn": 2,
@@ -13,7 +13,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 109.4 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 109.6 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
     },
     {
       "file": "Production Health",
@@ -40,16 +40,16 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "blacklist_confidence40_ipv4.txt: 84.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "blacklist_confidence40_ipv4.txt: 84.4 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4021792,
-    "active_blacklist_ipv4.txt": 441639,
-    "blacklist_confidence40_ipv4.txt": 6199404,
+    "combined_threat_blacklist_ipv4_part1.txt": 4026047,
+    "active_blacklist_ipv4.txt": 415988,
+    "blacklist_confidence40_ipv4.txt": 6207800,
     "cve_exploit_ips.txt": 30399,
-    "honeypot_ips.txt": 137908,
-    "bot_detector_blacklist_ipv4.txt": 1163962
+    "honeypot_ips.txt": 138790,
+    "bot_detector_blacklist_ipv4.txt": 1160146
   },
   "production_health": {
     "critical": 2,
@@ -58,7 +58,7 @@
       {
         "level": "CRITICAL",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 109.4 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 109.6 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
       },
       {
         "level": "CRITICAL",
@@ -68,7 +68,7 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "blacklist_confidence40_ipv4.txt: 84.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "blacklist_confidence40_ipv4.txt: 84.4 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       }
     ]
   },
