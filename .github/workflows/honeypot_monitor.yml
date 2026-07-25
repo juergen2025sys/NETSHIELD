@@ -278,6 +278,11 @@ jobs:
           #   Alias) statt Auth-Sonderformat. Overlap-Audit: nur ~12% Overlap
           #   mit dem bestehenden Bestand (7-Tage-Sample, 97 IPs) -> ~88%
           #   Netto-neu. Fallback auf Vortag falls Tagesdatei (noch) 404.
+          # - turris_greylist ergaenzt (25.07.2026): CZ.NIC Turris-Sentinel-
+          #   Minipot-Netzwerk (Telnet/HTTP/FTP/SMTP), taeglicher signierter
+          #   CSV-Snapshot, kein Auth-Key. Primaere Quelle, NICHT GitHub-gehostet.
+          #   URL live verifiziert; frueherer Pfad project.turris.cz/greylist-data/
+          #   ist tot (2022 auf view.sentinel.turris.cz umgezogen).
           #
           # Aktuelle Quellen (alle auf bewährten Repos/Diensten):
           # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
@@ -292,6 +297,7 @@ jobs:
           # - stratosphere_aip_alpha: CTU Prag IoT-Honeypot, 24h alle Attacker (kein Ranking)
           # - honeysec_ip2: UCM Trnava Honeypot-Netzwerk, ≥2 Login-Versuche
           # - crash0v3r1de_mikrotik: Mikrotik-Bruteforce-Honeypot (Single-Operator)
+          # - turris_greylist: CZ.NIC Turris-Sentinel-Minipot-Netzwerk (taeglich)
           # ══════════════════════════════════════════════════════════════════
 
           # FIX SIZE: Separate fetch-Funktion mit explizitem Size-Limit fuer
@@ -446,6 +452,18 @@ jobs:
               # Mikrotik-spezifische Telemetrie.
               "crash0v3r1de_mikrotik":
                   "https://raw.githubusercontent.com/Crash0v3r1de/HoneypotIPLists/main/ip.list",
+
+              # Turris Sentinel Greylist (CZ.NIC): primaere, NICHT GitHub-gehostete
+              # Quelle. Netzwerk aus Turris-Routern mit "Minipots" (leichtgewichtige
+              # Honeypots fuer Telnet, HTTP, FTP, SMTP) + Firewall-Log-Auswertung.
+              # Taeglicher CSV-Snapshot aller als Angreifer klassifizierten IPs,
+              # PGP-signiert. Format (seit 2022): "Address,Tags" - Tags z. B.
+              # "haas" (SSH-Honeypot-Treffer), "port_scan". KEIN Auth-Key noetig,
+              # URL am 25.07.2026 live verifiziert. Aktueller Endpunkt (2022 von
+              # project.turris.cz auf view.sentinel.turris.cz umgezogen, alte URL
+              # ist tot - siehe offizielle Doku docs.turris.cz/basics/sentinel).
+              "turris_greylist":
+                  "https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv",
 
               # Tim Gerstel suspicious_IPs: große, fortlaufend gepflegte Liste
               # verdächtiger IPv4-Adressen aus dem Repository suspicious_IPs.
