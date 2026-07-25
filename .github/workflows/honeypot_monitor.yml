@@ -76,7 +76,7 @@ jobs:
           # Der Cron-Schedule oben bleibt bewusst UTC (GitHub Actions cron
           # kennt ohnehin nur UTC).
           now_local = now.astimezone(ZoneInfo("Europe/Berlin"))
-          now_str   = now_local.strftime("%Y-%m-%d %H:%M %Z")
+          now_str   = now_local.strftime("%Y-%m-%d %H:%M %Z (Berlin)")
 
           # IPV4_RE / CIDR_RE werden aus netshield_common importiert.
           # FP-Set wurde bereits oben via load_fp_set() geladen –

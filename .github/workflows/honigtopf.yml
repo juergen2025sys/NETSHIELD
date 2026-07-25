@@ -107,6 +107,7 @@ jobs:
           import base64
           import ipaddress
           from datetime import datetime, timezone, timedelta
+          from zoneinfo import ZoneInfo
 
           # Secrets als JSON (toJSON(secrets)); Schluessel werden kodiert geholt.
           _SEC = {}
@@ -119,9 +120,17 @@ jobs:
           def _sec(name):
               return str(_SEC.get(name, "") or "").strip()
 
+          # now: UTC – bleibt so fuer 'today'/'_heute' (Abgleich mit last_seen-
+          # Datumswerten aus der HoneyDB-API, die UTC-basiert sind) und fuer
+          # die Credential-Rotation (now.hour). NICHT auf Berlin-Zeit
+          # umstellen, sonst brechen diese Vergleiche/die Rotation.
           now     = datetime.now(timezone.utc)
-          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
           today   = now.strftime("%Y-%m-%d")
+
+          # now_str: deutsche Zeit (Europe/Berlin, CET/CEST inkl. DST) – NUR
+          # fuer die Anzeige in Report-Header und honigtopf_ips.txt-Header.
+          now_local = now.astimezone(ZoneInfo("Europe/Berlin"))
+          now_str   = now_local.strftime("%Y-%m-%d %H:%M %Z (Berlin)")
 
           # Voll- vs. Light-Lauf unterscheiden anhand des Cron-Schedules.
           # Geplante Läufe x:15 (Cron '15 0-21,23 * * *'): Light – nur /bad-hosts,
