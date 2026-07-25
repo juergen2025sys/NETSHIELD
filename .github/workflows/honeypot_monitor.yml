@@ -216,6 +216,14 @@ jobs:
           #   HTTP 200 mit echten Daten, MIT category-Param HTTP 401 bzw.
           #   0-Byte-Body. Vermutlich Free-Tier-Limitierung. Bleibt bei der
           #   EINEN kombinierten Quelle "reportedip" ohne category-Filter.
+          # - criminalip_c2 ergaenzt (25.07.): oeffentliches GitHub-Repo des
+          #   kommerziellen CTI-Anbieters Criminal IP (AI Spera), taeglich
+          #   50 IPs mit C2-Tag/Honeypot-Treffer, kein Auth noetig. Sonderfall
+          #   wie threatfox_export/reportedip oben, aber aus anderem Grund:
+          #   TAGESDATUM-basierte URL (.../YYYY-MM-DD.csv, kein "latest"-
+          #   Alias) statt Auth-Sonderformat. Overlap-Audit: nur ~12% Overlap
+          #   mit dem bestehenden Bestand (7-Tage-Sample, 97 IPs) -> ~88%
+          #   Netto-neu. Fallback auf Vortag falls Tagesdatei (noch) 404.
           #
           # Aktuelle Quellen (alle auf bewährten Repos/Diensten):
           # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
@@ -640,6 +648,79 @@ jobs:
                                     "moeglicher Format-Wechsel")
                               print("::warning ::Honeypot-Feed threatfox_export "
                                     "lieferte Daten aber 0 gueltige IPs")
+
+          # ══════════════════════════════════════════════════════════════════
+          # CriminalIP C2-Daily-Feed – Sonderfall, ERGAENZT 2026-07-25
+          #
+          # Laeuft NICHT ueber die generische HONEYPOT_SOURCES-Schleife oben,
+          # weil die URL TAGESDATUM-basiert ist (.../main/YYYY-MM-DD.csv) -
+          # es gibt KEINEN fixen "latest.csv"-Alias (verifiziert: 404).
+          # Offizielles GitHub-Repo des kommerziellen CTI-Anbieters Criminal
+          # IP (AI Spera, Korea) - taeglich 50 IPs mit C2-Tag (z.B.
+          # c2_meshagent) oder Honeypot-Treffer als kostenloser Auszug aus
+          # dem vollen C2_TI-Datensatz. Kein Auth noetig (oeffentliches Repo).
+          #
+          # Overlap-Audit (2026-07-25, 7-Tage-Sample 19.-25.07., 97 unique
+          # IPs gegen den bestehenden combined_threat_blacklist_ipv4-
+          # Bestand): nur 12 Treffer (~12%) -> ~88% Netto-neue IPs. Deutlich
+          # hoeherer Neuheitswert als die meisten anderen non-HQ-Quellen im
+          # Repo, trotz kleiner Menge (50 IPs/Tag).
+          #
+          # Timing-Fallback: der taegliche Commit bei criminalip/C2-Daily-Feed
+          # kann je nach deren Zeitzone erst nach diesem Lauf erfolgen. Wird
+          # die heutige Datei (UTC-Datum) noch nicht gefunden (404), wird
+          # automatisch die gestrige Datei versucht, um nicht bei jedem Lauf
+          # ins Leere zu laufen.
+          CIP_BASE = "https://raw.githubusercontent.com/criminalip/C2-Daily-Feed/main"
+          from datetime import timedelta
+
+          def _cip_fetch_for_date(d):
+              url = f"{CIP_BASE}/{d.strftime('%Y-%m-%d')}.csv"
+              return fetch(url), url
+
+          cip_text, cip_url = _cip_fetch_for_date(now)
+          if cip_text is None:
+              cip_text, cip_url = _cip_fetch_for_date(now - timedelta(days=1))
+
+          if cip_text is None:
+              stats["criminalip_c2"] = 0
+              fetch_failed.add("criminalip_c2")
+              print("  criminalip_c2: FETCH FEHLGESCHLAGEN (None) – weder "
+                    "heutige noch gestrige Tagesdatei erreichbar")
+              print("::warning ::Honeypot-Feed criminalip_c2 nicht erreichbar "
+                    "(fetch=None)")
+          else:
+              cip_reader = csv.reader(cip_text.splitlines())
+              cip_header = next(cip_reader, None)
+              cip_ips = set()
+              if cip_header and "IP" in cip_header[0]:
+                  # erste Spalte ist die IP (verifiziert: "IP,Target C2,
+                  # OpenPorts,Score(Inbound/Outbound),Country,Scan Time")
+                  for row in cip_reader:
+                      if not row:
+                          continue
+                      ip = row[0].strip()
+                      # is_valid_public_ipv4() → importiert aus netshield_common
+                      if is_valid_public_ipv4(ip):
+                          cip_ips.add(ip)
+
+                  all_ips.update(cip_ips)
+                  stats["criminalip_c2"] = len(cip_ips)
+                  feed_ip_sets["criminalip_c2"] = cip_ips
+                  print(f"  criminalip_c2: {len(cip_ips)} IPs "
+                        f"({len(cip_text)} bytes, {cip_url})")
+                  if not cip_ips:
+                      print("  WARNUNG criminalip_c2: 0 IPs geparst – "
+                            "moeglicher Format-Wechsel")
+                      print("::warning ::Honeypot-Feed criminalip_c2 lieferte "
+                            "Daten aber 0 gueltige IPs")
+              else:
+                  stats["criminalip_c2"] = 0
+                  fetch_failed.add("criminalip_c2")
+                  print(f"  criminalip_c2: unerwarteter CSV-Header "
+                        f"{cip_header!r} – Schema pruefen")
+                  print("::warning ::Honeypot-Feed criminalip_c2 – "
+                        "unerwartetes CSV-Schema")
 
           # ══════════════════════════════════════════════════════════════════
           # FRESHNESS-TRACKING – ERGAENZT 2026-07-25
