@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-25 17:39 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-25 18:07 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,161,770** |
-| Neu (heute) | **+142** |
-| Entfernt | **-121** |
+| Gesamt IPs | **1,161,858** |
+| Neu (heute) | **+141** |
+| Entfernt | **-53** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 59 |
@@ -31,42 +31,42 @@
 | ✅ `skillter_proxygather_working_proxies_all` | 464 |
 | ✅ `skillter_proxygather_working_proxies_http` | 253 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,362 |
-| ✅ `ebrasha_abdal_proxy_hub` | 7,083 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 4,109 |
+| ✅ `ebrasha_abdal_proxy_hub` | 7,437 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 4,108 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,586 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,456 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 6,560 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 6,164 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https_anonymous` | 6,161 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 5,742 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 6,782 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 6,199 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https_anonymous` | 6,196 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 5,930 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,667 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 268 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,721 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 1,104 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 1,049 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 870 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 400 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,663 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 1,181 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 1,063 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 915 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 408 |
 | ✅ `officialputuid_proxyforeveryone` | 6,052 |
 | ✅ `officialputuid_proxyforeveryone_https` | 5,137 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 6,126 |
 | ✅ `ercindedeoglu_proxies` | 24,560 |
 | ✅ `ercindedeoglu_proxies_socks4` | 5,044 |
 | ✅ `ercindedeoglu_proxies_socks5` | 3,350 |
-| ✅ `tuanminpay_live_proxy` | 9,245 |
-| ✅ `tuanminpay_live_proxy_http` | 6,707 |
-| ✅ `tuanminpay_live_proxy_socks4` | 5,165 |
-| ✅ `tuanminpay_live_proxy_socks5` | 3,455 |
+| ✅ `tuanminpay_live_proxy` | 9,764 |
+| ✅ `tuanminpay_live_proxy_http` | 7,275 |
+| ✅ `tuanminpay_live_proxy_socks4` | 5,440 |
+| ✅ `tuanminpay_live_proxy_socks5` | 3,756 |
 | ✅ `gitrecon1455_fresh_proxy_list` | 185,566 |
 | ✅ `noctiro_getproxy` | 4,413 |
 | ✅ `noctiro_getproxy_socks5` | 3,373 |
-| ✅ `mohammedcha_proxripper` | 43,906 |
-| ✅ `mohammedcha_proxripper_socks4` | 101,589 |
-| ✅ `mohammedcha_proxripper_http` | 107,204 |
-| ✅ `mohammedcha_proxripper_socks5` | 103,830 |
-| ✅ `celestialbrain_worldpool` | 71,611 |
-| ✅ `dinoz0rg_proxy_list` | 72,858 |
-| ✅ `dinoz0rg_proxy_list_http` | 2,118 |
-| ✅ `dinoz0rg_proxy_list_socks5` | 71,357 |
+| ✅ `mohammedcha_proxripper` | 44,498 |
+| ✅ `mohammedcha_proxripper_socks4` | 101,594 |
+| ✅ `mohammedcha_proxripper_http` | 107,613 |
+| ✅ `mohammedcha_proxripper_socks5` | 103,833 |
+| ✅ `celestialbrain_worldpool` | 71,546 |
+| ✅ `dinoz0rg_proxy_list` | 72,568 |
+| ✅ `dinoz0rg_proxy_list_http` | 2,157 |
+| ✅ `dinoz0rg_proxy_list_socks5` | 71,328 |
 | ✅ `darzanebor_mikroblack` | 47,484 |
 | ✅ `ian_lusule_proxies` | 4,067 |
 | ✅ `ian_lusule_proxies_socks5` | 1,925 |
@@ -84,4 +84,4 @@
 > Diese 59 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-25 17:39 CEST (Europe/Berlin)*
+*Generiert: 2026-07-25 18:07 CEST (Europe/Berlin)*
