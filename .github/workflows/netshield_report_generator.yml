@@ -751,3 +751,26 @@ jobs:
           gh workflow run threatfox_export_downloader.yml \
             --repo "${{ github.repository }}" \
             --ref "${GITHUB_REF_NAME}"
+
+      - name: Trigger Honeypot Monitor
+        # Stoesst honeypot_monitor.yml direkt nach jedem erfolgreichen
+        # Report-Lauf an (2026-07-25). Gleiches Muster wie die Trigger oben:
+        # expliziter workflow_dispatch via gh statt workflow_run-Event.
+        # WICHTIG: honeypot_monitor.yml hat bereits einen eigenen Cron
+        # (05/11/17/23 UTC, bewusst mit Puffer vor den Combined-Slots
+        # getimt - siehe Kommentar dort). Dieser Trigger laeuft ZUSAETZLICH
+        # dazu, nicht statt dessen. Da dieser Report-Workflow effektiv
+        # stuendlich laeuft, bedeutet das: honeypot_monitor.yml laeuft ab
+        # jetzt de facto bis zu stuendlich statt nur 4x/Tag. Die
+        # concurrency-Gruppe in honeypot_monitor.yml (group: ${{
+        # github.workflow }}, cancel-in-progress: false) verhindert
+        # ueberlappende Laeufe - bei zu kurzem Abstand wird der naechste
+        # Trigger einfach in die Warteschlange gestellt, nicht verworfen.
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Report abgeschlossen - triggere Honeypot Monitor"
+          gh workflow run honeypot_monitor.yml \
+            --repo "${{ github.repository }}" \
+            --ref "${GITHUB_REF_NAME}"
