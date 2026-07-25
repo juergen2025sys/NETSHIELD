@@ -62,9 +62,21 @@ jobs:
 
           import urllib.request, urllib.error, re, os, sys, ipaddress, json, time, csv
           from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
 
-          now     = datetime.now(timezone.utc)
-          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+          # now/now_str_utc: UTC – wird NUR fuer interne Freshness-Logik
+          # (state/honeypot_feed_freshness.json, Feld "last_changed_utc")
+          # verwendet. NICHT fuer die Anzeige aendern, sonst driftet der
+          # Feldname ("_utc") vom tatsaechlichen Zeitwert auseinander.
+          now         = datetime.now(timezone.utc)
+          now_str_utc = now.strftime("%Y-%m-%d %H:%M UTC")
+
+          # now_str: deutsche Zeit (Europe/Berlin, CET/CEST inkl. DST) –
+          # NUR fuer die Anzeige in Report-Header und honeypot_ips.txt-Header.
+          # Der Cron-Schedule oben bleibt bewusst UTC (GitHub Actions cron
+          # kennt ohnehin nur UTC).
+          now_local = now.astimezone(ZoneInfo("Europe/Berlin"))
+          now_str   = now_local.strftime("%Y-%m-%d %H:%M %Z")
 
           # IPV4_RE / CIDR_RE werden aus netshield_common importiert.
           # FP-Set wurde bereits oben via load_fp_set() geladen –
@@ -669,10 +681,10 @@ jobs:
               old = freshness.get(name, {})
               if old.get("hash") == ip_hash:
                   unchanged_runs = old.get("unchanged_runs", 0) + 1
-                  last_changed   = old.get("last_changed_utc", now_str)
+                  last_changed   = old.get("last_changed_utc", now_str_utc)
               else:
                   unchanged_runs = 0
-                  last_changed   = now_str
+                  last_changed   = now_str_utc
               freshness[name] = {
                   "hash": ip_hash,
                   "unchanged_runs": unchanged_runs,
@@ -728,7 +740,7 @@ jobs:
                   fresh = "–"
               else:
                   ur = freshness.get(n, {}).get("unchanged_runs", 0)
-                  lc = freshness.get(n, {}).get("last_changed_utc", now_str)[:10]
+                  lc = freshness.get(n, {}).get("last_changed_utc", now_str_utc)[:10]
                   if ur == 0:
                       fresh = f"🟢 neu ({lc})"
                   elif ur < 12:
