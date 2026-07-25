@@ -198,10 +198,12 @@ jobs:
           #   (Made in Germany, GDPR-konform), Blacklist mit Confidence>=75%
           #   + 48h-FP-Cooldown. Auth via Header "X-Key" (verifiziert aus
           #   offizieller Doku, NICHT Bearer/X-Api-Key). Secret: REPORTEDIP_KEY.
-          #   UPDATE (25.07.): statt 1 kombinierter Quelle jetzt 9 einzelne
-          #   Kategorie-Quellen (reportedip_spam, reportedip_bruteforce, ...) -
-          #   je ein API-Call pro Blacklist-Kategorie-Slug, siehe
-          #   REPORTEDIP_CATEGORIES-Schleife unten.
+          #   UPDATE (25.07.): Versuch, per &category=<slug> in 9 einzelne
+          #   Kategorie-Quellen aufzuteilen, wieder zurueckgebaut - manuell
+          #   verifiziert (PowerShell, gleicher Key): ohne category-Param
+          #   HTTP 200 mit echten Daten, MIT category-Param HTTP 401 bzw.
+          #   0-Byte-Body. Vermutlich Free-Tier-Limitierung. Bleibt bei der
+          #   EINEN kombinierten Quelle "reportedip" ohne category-Filter.
           #
           # Aktuelle Quellen (alle auf bewährten Repos/Diensten):
           # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
@@ -398,6 +400,32 @@ jobs:
               # UNGETESTET, VOR AKTIVIERUNG PRUEFEN.
               "siberkapan_fortigate":
                   "https://siberkapan.org/api/v1/list/fortigate",
+
+              # ReportedIP: community-driven IP-Reputations-Plattform (Made in
+              # Germany, GDPR-konform). Blacklist besteht nur aus IPs mit
+              # Confidence >=75% (Doku-Standard, hier bewusst OHNE
+              # confidence_minimum-Parameter verwendet -> Server-Default),
+              # die mind. 48h beobachtet wurden (False-Positive-Cooldown) und
+              # nicht auf der eigenen Whitelist stehen (CDNs, DNS-Resolver
+              # etc. bereits ausgeschlossen). TXT-Format: Kommentarzeilen mit
+              # '#' (Generierungszeit, Gesamtzahl), danach eine IP pro Zeile -
+              # parse_entries() faengt das automatisch ab. Auth via
+              # GitHub-Secret REPORTEDIP_KEY, Header "X-Key" (verifiziert aus
+              # offizieller Doku, NICHT Bearer/X-Api-Key); fehlt der Key,
+              # wird der Feed automatisch geskippt (siehe AUTH_HEADERS).
+              #
+              # FIX 2026-07-25 (REVERT): Versuch, die Blacklist per
+              # &category=<slug> in 9 Einzelabfragen aufzuteilen ist wieder
+              # entfernt. Manuell per PowerShell verifiziert (gleicher Key):
+              # OHNE category-Parameter -> HTTP 200, echte Daten (142570
+              # Bytes). MIT &category=spam (und allen anderen 8 getesteten
+              # Slugs im echten Workflow-Lauf) -> HTTP 401 bzw. 0-Byte-Body.
+              # Vermutlich ist Kategorie-Filterung ein Feature eines
+              # hoeheren Tarifs, das der aktuelle Free-Tier-Key nicht
+              # freischaltet. Bleibt daher bei der EINEN kombinierten
+              # Quelle ohne category-Filter.
+              "reportedip":
+                  "https://reportedip.de/wp-json/reportedip/v2/blacklist?format=txt",
           }
 
           # Auth-pflichtige Feeds: name -> dict mit HTTP-Headern.
@@ -405,49 +433,8 @@ jobs:
           # uebersprungen statt 401 zu erzeugen.
           AUTH_HEADERS = {
               "sniffcat": {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN", "")},
+              "reportedip": {"X-Key": os.environ.get("REPORTEDIP_KEY", "")},
           }
-
-          # ReportedIP: community-driven IP-Reputations-Plattform (Made in
-          # Germany, GDPR-konform). Blacklist besteht nur aus IPs mit
-          # Confidence >=75% (Doku-Standard, hier bewusst OHNE
-          # confidence_minimum-Parameter verwendet -> Server-Default), die
-          # mind. 48h beobachtet wurden (False-Positive-Cooldown) und nicht
-          # auf der eigenen Whitelist stehen (CDNs, DNS-Resolver etc.
-          # bereits ausgeschlossen). TXT-Format: Kommentarzeilen mit '#'
-          # (Generierungszeit, Gesamtzahl), danach eine IP pro Zeile -
-          # parse_entries() faengt das automatisch ab. Auth via GitHub-
-          # Secret REPORTEDIP_KEY, Header "X-Key" (verifiziert aus
-          # offizieller Doku, NICHT Bearer/X-Api-Key); fehlt der Key,
-          # werden alle 9 Kategorien automatisch geskippt.
-          #
-          # FIX 2026-07-25: statt der EINEN kombinierten Blacklist
-          # (?format=txt ohne category-Filter) jetzt alle 9 Kategorie-Slugs
-          # einzeln abgefragt (?category=<slug>), damit jede Kategorie als
-          # eigene Zeile im Report + eigener Freshness-Tracking-Eintrag
-          # sichtbar ist. Slugs verifiziert aus der GitHub-Repo-Struktur in
-          # reportedip.de/docs/blacklist/ (lists/*.txt). ACHTUNG: das sind
-          # die 9 BLACKLIST-Kategorie-Slugs, NICHT zu verwechseln mit den 58
-          # nummerierten REPORT-Kategorien aus /docs/categories/ (die gelten
-          # nur fuer den /report-Endpunkt beim Einreichen einzelner IPs).
-          REPORTEDIP_CATEGORIES = {
-              "reportedip_spam":          "spam",
-              "reportedip_bruteforce":    "brute-force",
-              "reportedip_cmslogin":      "cms-login",
-              "reportedip_webattacks":    "web-attacks",
-              "reportedip_scanning":      "scanning",
-              "reportedip_exploitation":  "exploitation",
-              "reportedip_honeypot":      "honeypot",
-              "reportedip_phishing":      "phishing",
-              "reportedip_malware":       "malware",
-          }
-          for _rip_name, _rip_cat in REPORTEDIP_CATEGORIES.items():
-              HONEYPOT_SOURCES[_rip_name] = (
-                  "https://reportedip.de/wp-json/reportedip/v2/blacklist"
-                  f"?format=txt&category={_rip_cat}"
-              )
-              AUTH_HEADERS[_rip_name] = {
-                  "X-Key": os.environ.get("REPORTEDIP_KEY", "")
-              }
 
           all_ips = set()
           stats   = {}
