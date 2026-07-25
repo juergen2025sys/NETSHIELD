@@ -1,42 +1,47 @@
 {
   "blocklist_de_bots": {
-    "hash": "23de7d5bdb1ce6637d28b5593c8e7c7cfd48e61584415b1b94d7bd29fbee7169",
-    "last_changed_utc": "2026-07-25 07:52 UTC",
+    "hash": "c48e11bf9759e4f0de98df7ecbcfe105289b8bd022cc8e23909d08ea08743dbe",
+    "last_changed_utc": "2026-07-25 08:12 UTC",
     "unchanged_runs": 0
   },
   "blocklist_de_bruteforce": {
-    "hash": "03df5b45e2fc008cc5393b9eda201fa9c5e726354bb49bd4cccddbb0e368a9d7",
-    "last_changed_utc": "2026-07-25 07:52 UTC",
+    "hash": "30fa7207bde3ff9113e4553fb0210e9e91debfb25e66bad0f22ead773848608d",
+    "last_changed_utc": "2026-07-25 08:12 UTC",
     "unchanged_runs": 0
   },
   "crash0v3r1de_mikrotik": {
     "hash": "6bb8246440e174e65b73cf1e61eced73305dd7463ea96d5409844776b3c38ac7",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 7
+    "unchanged_runs": 8
+  },
+  "criminalip_c2": {
+    "hash": "787046a891c46d79aea316db30451d321aae835143b39e50695cb9896b01d555",
+    "last_changed_utc": "2026-07-25 08:12 UTC",
+    "unchanged_runs": 0
   },
   "dshield_1d": {
     "hash": "233aaecadde6cc4f6db65e4c9539f84e33386c3efe9f4231d72dec12c550e3a6",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 7
+    "unchanged_runs": 8
   },
   "honeysec_ip2": {
     "hash": "13394f86515545a20c6b9d2c4dd11cde89032aad1eff2aa6617da380600ca6a1",
     "last_changed_utc": "2026-07-25 05:56 UTC",
-    "unchanged_runs": 3
+    "unchanged_runs": 4
   },
   "ipsum_level4": {
     "hash": "ac17968741b0c134a1ddce0e6d6386aeda686b0f235ada826c1df43eed1a269f",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 7
+    "unchanged_runs": 8
   },
   "jamesbrine_honeypot": {
     "hash": "c06a1eb5a3981eb3f964055d4903b4bec61e1b4ae80e48c7477b8ba4a28de0e5",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 7
+    "unchanged_runs": 8
   },
   "reportedip": {
-    "hash": "9dca0d2c7fd24e0c892050a4d70c5202ff86b255082d26ca6f129db7fde45d5f",
-    "last_changed_utc": "2026-07-25 07:52 UTC",
+    "hash": "0b101dbb7cd37daaff39062aeda348187fedc51be266e715e3214fe9dacc0e99",
+    "last_changed_utc": "2026-07-25 08:12 UTC",
     "unchanged_runs": 0
   },
   "reportedip_bruteforce": {
@@ -85,38 +90,38 @@
     "unchanged_runs": 0
   },
   "siberkapan_fortigate": {
-    "hash": "326e6b2b368da9f3f81f6d53280fd659b2a5897aee1f38e12e2b18a7f981d92e",
-    "last_changed_utc": "2026-07-25 07:52 UTC",
+    "hash": "390db8fa08934359e469fe226f65c967117d809a09e1bc0dac3bfc01f8c42ffa",
+    "last_changed_utc": "2026-07-25 08:12 UTC",
     "unchanged_runs": 0
   },
   "sniffcat": {
     "hash": "c1a0b2d29a2a74c8a62c93bdf3a19ce216fd9c1816fbfbf80a6b4f8f8e78ede6",
     "last_changed_utc": "2026-07-25 07:52 UTC",
-    "unchanged_runs": 0
+    "unchanged_runs": 1
   },
   "stratosphere_aip": {
     "hash": "7344aa9a58d5ee229fe8ef63db41d336fcef2b657db532306a04af47d047878b",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 7
+    "unchanged_runs": 8
   },
   "stratosphere_aip_alpha": {
     "hash": "b44dd8c6996f6886a18e412b3c790d7cf79e06b2bbd0dd00256c93ce7233a759",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 7
+    "unchanged_runs": 8
   },
   "stratosphere_aip_alpha7": {
     "hash": "73ec139ca3e154e67ca3bea00c5e332062d75f9f0750dd46d62bb782c112aede",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 7
+    "unchanged_runs": 8
   },
   "threatfox_export": {
     "hash": "99c952d523ca1f358ce566c4bba41d0f88a929baa59c2dd8ab8157f6feaa5314",
     "last_changed_utc": "2026-07-25 07:52 UTC",
-    "unchanged_runs": 0
+    "unchanged_runs": 1
   },
   "timgerstel_suspicious_ips": {
-    "hash": "f093bb2fd972c2efd8b8cd5a610a9a1537c6cf8785e69965de7e547d17949784",
-    "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 7
+    "hash": "6f1ecbd25f4f0c9818340108db95dcc88e45ff769b35f1c8bf93f973928f88db",
+    "last_changed_utc": "2026-07-25 08:12 UTC",
+    "unchanged_runs": 0
   }
 }
