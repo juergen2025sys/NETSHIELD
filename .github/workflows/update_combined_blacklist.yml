@@ -384,7 +384,14 @@ jobs:
           # is_protected_entry() → importiert aus netshield_common
           HIGH_QUALITY = {
               "cinsscore", "cinsarmy", "greensnow", "feodo_aggressive", "feodo_recommended",
-              "threatfox_ioc", "threatfox_direct", "binary_defense", "crowdsec_ssh",
+              # FIX 2026-07-25: threatfox_ioc/threatfox_direct entfernt - nach
+              # honeypot_monitor.yml verlagert (authentifizierter full.csv.zip-
+              # Export, 6-Monats-Fenster statt hier nur ~2 Wochen). Grund: ThreatFox
+              # war hier bereits zweifach vertreten (Mirror + Direct-CSV); eine
+              # dritte Quelle haette die eigene HIGH_QUALITY/Confidence-Logik
+              # gegen die im Datei-Header dokumentierte Dedup-Regel verstossen
+              # (LOCAL_FEED honeypot_ips.txt darf keine SOURCES-Duplikate haben).
+              "binary_defense", "crowdsec_ssh",
               "danger_bruteforce", "threatview_high_conf", "firehol_cybercrime",
               "firehol_anonymous", "dshield", "cloudzy",
               "urlhaus_ips", "firehol_level1", "firehol_level2", "firehol_level3",
@@ -510,11 +517,8 @@ jobs:
               # aliased unter zwei Domains.
               "cinsscore":  "cins",
               "cinsarmy":   "cins",
-              # threatfox – elliotwutingfeng-Mirror und abuse.ch-Direktquelle
-              # liefern dieselbe Datenbasis. Family-Mapping verhindert, dass
-              # ein und dieselbe IP doppelt zur Confidence beitraegt.
-              "threatfox_ioc":     "threatfox",
-              "threatfox_direct":  "threatfox",
+              # threatfox_ioc/threatfox_direct: FIX 2026-07-25 entfernt, siehe
+              # HIGH_QUALITY-Kommentar oben - Quelle jetzt in honeypot_monitor.yml.
               # Fadouse – 8 Kategorien aus derselben ThreatFox-Quelle.
               # Eigene Familie "fadouse" statt "threatfox" damit sie als
               # unabhängige Bestätigung zählen (anderer Aggregator-Pfad).
@@ -544,7 +548,8 @@ jobs:
               "greensnow":                  ("https://blocklist.greensnow.co/greensnow.txt", True),
               "feodo_aggressive":           ("https://feodotracker.abuse.ch/downloads/ipblocklist_aggressive.txt", True),
               "feodo_recommended":          ("https://feodotracker.abuse.ch/downloads/ipblocklist.txt", True),
-              "threatfox_ioc":              ("https://raw.githubusercontent.com/elliotwutingfeng/ThreatFox-IOC-IPs/refs/heads/main/ips.txt", True),
+              # threatfox_ioc: FIX 2026-07-25 entfernt (nach honeypot_monitor.yml
+              # verlagert, siehe HIGH_QUALITY-Kommentar oben).
               # hagezi_tif: HaGeZi Threat Intelligence Feeds, Plain-IP-Variante (ips/tif.txt).
               # Aggregat aus u.a. firehol/montysecurity/ipsum – also denselben Upstreams, die
               # NETSHIELD bereits zieht. Gemessener Overlap mit dem Bestand ~96,7% (Netto-neu
@@ -568,18 +573,9 @@ jobs:
               # gleichen Datei). HQ=False: Single-Maintainer-Report-Historie, keine
               # unabhaengige Multi-Source-Bestaetigung -> keine Confidence-Inflation.
               "ashleykleynhans_abuseipdb":  ("https://raw.githubusercontent.com/ashleykleynhans/ipset/refs/heads/main/ipv4.csv", False),
-              # threatfox_direct: offizieller abuse.ch-Endpunkt (Direktquelle, kein
-              # GitHub-Mirror). Selbe Datenbasis wie threatfox_ioc, aber frischer
-              # (~minütlich vs. stündlich beim elliotwutingfeng-Mirror). CSV-Format
-              # mit Header-Kommentaren (#) und IP:Port in Quotes; IPV4_RE extrahiert
-              # die IP korrekt (Lookbehind/Lookahead verhindern Match auf ioc_id-
-              # Zahlen und Datumsstrings). Beide Feeds gleichzeitig betreiben ist
-              # bewusst: doppelte Quelle = redundanter Pfad falls Mirror ausfaellt
-              # oder Direkt-Endpunkt geblockt wird. Deduplizierung passiert in
-              # parse_entries(); doppelte Confidence-Counts werden hier nicht
-              # erzeugt, weil IPs pro Feed-Key, nicht pro URL-Lesung gezaehlt
-              # werden. CC0-Lizenz, kommerzielle Nutzung erlaubt.
-              "threatfox_direct":           ("https://threatfox.abuse.ch/export/csv/ip-port/recent/", True),
+              # threatfox_direct: FIX 2026-07-25 entfernt (nach honeypot_monitor.yml
+              # verlagert - authentifizierter full.csv.zip-Export statt hier nur
+              # der unauthentifizierte recent-CSV, siehe HIGH_QUALITY-Kommentar oben).
               "l7_ddos":                    ("https://raw.githubusercontent.com/Tizian-Maxime-Weigt/L7-HTTP-DDoS-Flood-IP-Signature-IP-List/refs/heads/main/ddos-signatures.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
               "binary_defense":             ("https://binarydefense.com/banlist.txt", True),
               "data_shield":                ("https://raw.githubusercontent.com/duggytuxy/Data-Shield_IPv4_Blocklist/refs/heads/main/prod_critical_data-shield_ipv4_blocklist.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
@@ -749,7 +745,9 @@ jobs:
               # Clash-Format: IP-CIDR,x.x.x.x/32,no-resolve
               # parse_entries() extrahiert die IPs korrekt per IPV4_RE.
               # Quelle: ausschließlich ThreatFox API (abuse.ch) + URLhaus →
-              # selbe Datenbasis wie threatfox_ioc/direct, aber kategorisiert
+              # selbe Datenbasis wie der ThreatFox-Export in honeypot_monitor.yml
+              # (threatfox_ioc/threatfox_direct HIER entfernt seit 2026-07-25),
+              # aber kategorisiert
               # nach Malware-Typ. Dadurch zählen diese Feeds als eigene
               # Familie "fadouse" (nicht als "threatfox") – sie liefern
               # ergänzende Bestätigung ohne doppelte Familien-Credits.

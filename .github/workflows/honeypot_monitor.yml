@@ -39,6 +39,7 @@ jobs:
       - name: Fetch Honeypot IPs
         env:
           SNIFFCAT_TOKEN: ${{ secrets.SNIFFCAT_TOKEN }}
+          THREATFOX_AUTH_KEY: ${{ secrets.THREATFOX_AUTH_KEY }}
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -58,7 +59,7 @@ jobs:
           load_whitelist()
           load_fp_set()
 
-          import urllib.request, urllib.error, re, os, sys, ipaddress, json, time
+          import urllib.request, urllib.error, re, os, sys, ipaddress, json, time, csv
           from datetime import datetime, timezone
 
           now     = datetime.now(timezone.utc)
@@ -180,6 +181,18 @@ jobs:
           #   ob parse_entries()/IPV4_RE das korrekt aus dem CLI-Text extrahiert,
           #   ist UNGETESTET und muss vor dem ersten produktiven Lauf verifiziert
           #   werden (ggf. testweise via workflow_dispatch pruefen).
+          # - threatfox_export ergaenzt (Juli 2026): authentifizierter ThreatFox
+          #   full.csv.zip-Export (abuse.ch), 6-Monats-Fenster statt der vorher in
+          #   update_combined_blacklist.yml genutzten ~2-Wochen-Feeds. Laeuft als
+          #   Sonderfall NACH der HONEYPOT_SOURCES-Schleife (URL-eingebetteter
+          #   Auth-Key + binaeres ZIP statt Text -> passt nicht ins generische
+          #   fetch()/AUTH_HEADERS-Muster). Secret: THREATFOX_AUTH_KEY.
+          #   WICHTIG: threatfox_ioc und threatfox_direct wurden im GLEICHEN Zug
+          #   aus update_combined_blacklist.yml SOURCES entfernt (waren dort HQ=True) -
+          #   ThreatFox existiert jetzt nur noch als diese EINE Quelle im ganzen
+          #   Repo. Ohne diese Entfernung waeren ThreatFox-IPs dreifach gezaehlt
+          #   worden (2x combined SOURCES + 1x hier als LOCAL_FEED honeypot_ips.txt,
+          #   HQ=True) - Verstoss gegen die Dedup-Regel oben im Datei-Header.
           #
           # Aktuelle Quellen (alle auf bewährten Repos/Diensten):
           # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
@@ -434,6 +447,144 @@ jobs:
                         f"moeglicher Format-Wechsel. Anfang: {head!r}")
                   print(f"::warning ::Honeypot-Feed {name} lieferte Daten aber "
                         f"0 gueltige IPs – Format pruefen")
+
+          # ══════════════════════════════════════════════════════════════════
+          # ThreatFox Export (authentifiziert) – Sonderfall, ERGAENZT 2026-07-25
+          #
+          # Laeuft NICHT ueber die generische HONEYPOT_SOURCES-Schleife oben,
+          # weil zwei Dinge nicht ins bestehende Muster passen:
+          #   1. Auth erfolgt ueber einen in die URL eingebetteten Key
+          #      (threatfox-api.abuse.ch/v2/files/exports/{KEY}/full.csv.zip),
+          #      nicht ueber einen HTTP-Header wie bei AUTH_HEADERS/sniffcat.
+          #   2. Die Antwort ist ein binaeres ZIP, nicht Text - fetch()/
+          #      fetch_large() (und darunter fetch_url() aus netshield_common)
+          #      dekodieren IMMER als UTF-8-Text, was ein ZIP korrumpieren
+          #      wuerde. Deshalb eigener binaersicherer Download hier.
+          #
+          # WICHTIG (Architektur-Entscheidung 2026-07-25): threatfox_ioc
+          # (elliotwutingfeng-Mirror) und threatfox_direct (unauth. recent-CSV)
+          # wurden im GLEICHEN Zug aus update_combined_blacklist.yml SOURCES
+          # entfernt. Vorher waeren ThreatFox-IPs dreifach gezaehlt worden
+          # (2x dort + 1x hier als LOCAL_FEED honeypot_ips.txt, HQ=True) -
+          # genau das Duplikat-Problem, vor dem der HONEYPOT_SOURCES-Kommentar
+          # oben warnt. Jetzt gibt es nur noch DIESE eine ThreatFox-Quelle im
+          # gesamten Repo, dafuer mit dem vollen 6-Monats-Datenbestand statt
+          # der vorherigen ~2-Wochen-Fenster.
+          #
+          # full.csv.zip enthaelt ALLE IOC-Typen gemischt (ip:port, domain,
+          # url, hash) - Filterung auf ioc_type=ip:port erfolgt unten nach
+          # dem Entpacken. Header-basiertes Spalten-Mapping statt fester
+          # Positionen, weil sich das Schema zwischen ThreatFox-Exportarten
+          # unterscheiden kann (verifiziert 2026-07-24).
+          THREATFOX_AUTH_KEY = os.environ.get("THREATFOX_AUTH_KEY", "").strip()
+          if not THREATFOX_AUTH_KEY:
+              print("  SKIP threatfox_export: THREATFOX_AUTH_KEY nicht gesetzt – "
+                    "GitHub-Secret fehlt")
+              stats["threatfox_export"] = 0
+              skipped.add("threatfox_export")
+          else:
+              import zipfile
+              TF_URL = (f"https://threatfox-api.abuse.ch/v2/files/exports/"
+                        f"{THREATFOX_AUTH_KEY}/full.csv.zip")
+              TF_READ_LIMIT = 150 * 1024 * 1024  # 150 MB Sicherheitsgrenze
+
+              def _tf_fetch_binary(url, retries=3, timeout=60):
+                  for attempt in range(1, retries + 1):
+                      req = urllib.request.Request(
+                          url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor-ThreatFox/1.0"}
+                      )
+                      try:
+                          with urllib.request.urlopen(req, timeout=timeout) as r:
+                              data = r.read(TF_READ_LIMIT + 1)
+                              if len(data) > TF_READ_LIMIT:
+                                  print(f"  FEHLER threatfox_export: Antwort > "
+                                        f"{TF_READ_LIMIT} bytes – Abbruch")
+                                  return None
+                              return data
+                      except urllib.error.HTTPError as e:
+                          print(f"  HTTP {e.code} threatfox_export (Versuch {attempt}/{retries})")
+                          if e.code in (401, 403):
+                              print("  Auth-Key vermutlich ungueltig/abgelaufen – kein Retry")
+                              return None
+                          if attempt < retries:
+                              time.sleep(2 ** attempt)
+                              continue
+                          return None
+                      except Exception as e:
+                          if attempt < retries:
+                              time.sleep(2 ** attempt)
+                          else:
+                              print(f"  FEHLER threatfox_export (nach {retries} "
+                                    f"Versuchen): {e}")
+                  return None
+
+              tf_raw = _tf_fetch_binary(TF_URL)
+              if tf_raw is None:
+                  stats["threatfox_export"] = 0
+                  fetch_failed.add("threatfox_export")
+                  print("  threatfox_export: FETCH FEHLGESCHLAGEN (None)")
+                  print("::warning ::Honeypot-Feed threatfox_export nicht "
+                        "erreichbar (fetch=None)")
+              else:
+                  try:
+                      tf_zf = zipfile.ZipFile(__import__("io").BytesIO(tf_raw))
+                      tf_csv_names = [n for n in tf_zf.namelist() if n.lower().endswith(".csv")]
+                      if not tf_csv_names:
+                          raise ValueError(f"keine .csv im ZIP: {tf_zf.namelist()}")
+                      with tf_zf.open(tf_csv_names[0]) as f:
+                          tf_text = f.read().decode("utf-8", errors="ignore")
+                  except Exception as e:
+                      stats["threatfox_export"] = 0
+                      fetch_failed.add("threatfox_export")
+                      print(f"  threatfox_export: ZIP/Entpacken fehlgeschlagen: {e}")
+                      print("::warning ::Honeypot-Feed threatfox_export lieferte "
+                            "kein gueltiges ZIP – Auth-Key pruefen")
+                      tf_text = None
+
+                  if tf_text is not None:
+                      tf_lines = tf_text.splitlines()
+                      # Header dynamisch finden (Kommentarzeile "# \"first_seen_utc\",...")
+                      tf_col_index = {}
+                      for ln in tf_lines:
+                          stripped = ln.lstrip("#").strip()
+                          if stripped.startswith('"first_seen_utc"'):
+                              tf_header_row = next(csv.reader([stripped], skipinitialspace=True))
+                              tf_col_index = {n.strip(): i for i, n in enumerate(tf_header_row)}
+                              break
+
+                      if "ioc_value" not in tf_col_index or "ioc_type" not in tf_col_index:
+                          stats["threatfox_export"] = 0
+                          fetch_failed.add("threatfox_export")
+                          print(f"  threatfox_export: Header mit 'ioc_value'/"
+                                f"'ioc_type' nicht gefunden – Schema unerwartet")
+                          print("::warning ::Honeypot-Feed threatfox_export – "
+                                "unerwartetes CSV-Schema")
+                      else:
+                          tf_idx_value = tf_col_index["ioc_value"]
+                          tf_idx_type = tf_col_index["ioc_type"]
+                          tf_data_lines = [ln for ln in tf_lines if ln.startswith('"')]
+                          tf_reader = csv.reader(tf_data_lines, skipinitialspace=True)
+
+                          tf_ips = set()
+                          for row in tf_reader:
+                              if len(row) <= max(tf_idx_value, tf_idx_type):
+                                  continue
+                              if row[tf_idx_type].strip() != "ip:port":
+                                  continue
+                              ip = row[tf_idx_value].strip().rsplit(":", 1)[0].strip()
+                              # is_valid_public_ipv4() → importiert aus netshield_common
+                              if is_valid_public_ipv4(ip):
+                                  tf_ips.add(ip)
+
+                          all_ips.update(tf_ips)
+                          stats["threatfox_export"] = len(tf_ips)
+                          print(f"  threatfox_export: {len(tf_ips)} IPs "
+                                f"({len(tf_raw)} bytes ZIP, {len(tf_text)} bytes CSV)")
+                          if not tf_ips:
+                              print("  WARNUNG threatfox_export: 0 IPs geparst – "
+                                    "moeglicher Format-Wechsel")
+                              print("::warning ::Honeypot-Feed threatfox_export "
+                                    "lieferte Daten aber 0 gueltige IPs")
 
           HONEYPOT_FILE = "honeypot_ips.txt"
           existing = set()
