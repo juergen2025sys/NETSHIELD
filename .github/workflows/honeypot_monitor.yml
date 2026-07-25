@@ -745,6 +745,128 @@ jobs:
                                     "lieferte Daten aber 0 gueltige IPs")
 
           # ══════════════════════════════════════════════════════════════════
+          # URLhaus Export (authentifiziert) – Sonderfall, ERGAENZT 2026-07-25,
+          # analog zu threatfox_export.
+          #
+          # Laeuft NICHT ueber die generische HONEYPOT_SOURCES-Schleife oben,
+          # aus denselben Gruenden wie threatfox_export: Auth erfolgt ueber
+          # einen in die URL eingebetteten Key statt ueber einen HTTP-Header.
+          # Anders als bei ThreatFox ist die Antwort hier aber ein reines CSV
+          # (kein ZIP) - kein binaersicherer Download noetig.
+          #
+          # URL-Muster (offizielle abuse.ch-Doku, verifiziert):
+          #   https://urlhaus-api.abuse.ch/v2/files/exports/{KEY}/recent.csv
+          #
+          # KEY-WIEDERVERWENDUNG: ThreatFox, URLhaus und MalwareBazaar teilen
+          # sich denselben abuse.ch-Account/Auth-Key (verifiziert). Es wird
+          # deshalb bewusst KEIN eigenes URLHAUS_AUTH_KEY-Secret angelegt,
+          # sondern THREATFOX_KEYS (oben bereits eingelesen und gefiltert)
+          # wiederverwendet.
+          #
+          # SCHEMA VERIFIZIERT (2026-07-25, echter API-Abruf):
+          #   id,dateadded,url,url_status,last_online,threat,tags,urlhaus_link,reporter
+          # KEINE eigene IP/Host-Spalte vorhanden - IP wird wie beim
+          # bisherigen LOCAL_FEED-Eintrag "urlhaus_ips" (Plain-Text-Liste in
+          # update_combined_blacklist.yml) per Regex aus der 'url'-Spalte
+          # (Index 2) extrahiert, dort wo der Hostname selbst eine rohe IP
+          # ist. Liefert daher inhaltlich AEHNLICHE, nicht zwangslaeufig MEHR
+          # extrahierbare IPs als der bisherige Feed - nur mit mehr Metadaten
+          # (Tags, Reporter, Status, Zeitfenster). Vor produktivem Verlass auf
+          # "liefert mehr IPs" bitte stats["urlhaus_export"] gegen die
+          # aktuelle urlhaus_ips-Zahl in update_combined_blacklist.yml
+          # vergleichen.
+          URLHAUS_KEYS = THREATFOX_KEYS  # gleicher Account/Key, siehe oben
+          if not URLHAUS_KEYS:
+              print("  SKIP urlhaus_export: kein Auth-Key gesetzt "
+                    "(THREATFOX_AUTH_KEY/_2 fehlen)")
+              stats["urlhaus_export"] = 0
+              skipped.add("urlhaus_export")
+          else:
+              def _uh_fetch_csv(keys, retries=3, timeout=60):
+                  # Kandidaten der Reihe nach versuchen, analog zu
+                  # _tf_fetch_binary oben (401/403 = naechster Key,
+                  # 5xx/429 = Retry mit Backoff).
+                  last_fail_code = None
+                  for key_idx, key in enumerate(keys, start=1):
+                      url = (f"https://urlhaus-api.abuse.ch/v2/files/exports/"
+                             f"{key}/recent.csv")
+                      for attempt in range(1, retries + 1):
+                          req = urllib.request.Request(
+                              url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor-URLhaus/1.0"}
+                          )
+                          try:
+                              with urllib.request.urlopen(req, timeout=timeout) as r:
+                                  data = r.read().decode("utf-8", errors="ignore")
+                                  if key_idx > 1:
+                                      print(f"  urlhaus_export: Key #{key_idx} erfolgreich "
+                                            f"(Failover nach Key #{key_idx - 1})")
+                                  return data
+                          except urllib.error.HTTPError as e:
+                              if e.code in (401, 403):
+                                  last_fail_code = e.code
+                                  nxt = ("naechster Key" if key_idx < len(keys)
+                                         else "kein weiterer Key konfiguriert")
+                                  print(f"  HTTP {e.code} urlhaus_export "
+                                        f"(Key #{key_idx}) – {nxt}")
+                                  break
+                              if e.code in (429, 500, 502, 503, 504):
+                                  if attempt < retries:
+                                      print(f"  HTTP {e.code} urlhaus_export – "
+                                            f"Retry {attempt}/{retries}")
+                                      time.sleep(2 ** attempt)
+                                      continue
+                                  break
+                              print(f"  HTTP {e.code} urlhaus_export (Key #{key_idx}) – "
+                                    f"kein Retry fuer diesen Statuscode")
+                              break
+                          except Exception as e:
+                              if attempt < retries:
+                                  time.sleep(2 ** attempt)
+                              else:
+                                  print(f"  FEHLER urlhaus_export (Key #{key_idx}, "
+                                        f"nach {retries} Versuchen): {e}")
+                  if last_fail_code is not None:
+                      print(f"  FEHLER HTTP {last_fail_code} urlhaus_export – "
+                            f"alle {len(keys)} Key(s) fehlgeschlagen")
+                  return None
+
+              uh_text = _uh_fetch_csv(URLHAUS_KEYS)
+              if uh_text is None:
+                  stats["urlhaus_export"] = 0
+                  fetch_failed.add("urlhaus_export")
+                  print("  urlhaus_export: FETCH FEHLGESCHLAGEN (None)")
+                  print("::warning ::Honeypot-Feed urlhaus_export nicht "
+                        "erreichbar (fetch=None)")
+              else:
+                  # Kommentar-/Leerzeilen ueberspringen; Header-Zeile (falls
+                  # mitgeliefert, Spalte 0 == "id") wird beim Parsen erkannt
+                  # und uebersprungen statt fest vorausgesetzt.
+                  uh_data_lines = [ln for ln in uh_text.splitlines()
+                                    if ln.strip() and not ln.startswith("#")]
+                  uh_ips = set()
+                  for row in csv.reader(uh_data_lines, skipinitialspace=True):
+                      if not row or row[0].strip().lower() == "id":
+                          continue
+                      if len(row) < 3:
+                          continue
+                      # Spalte 2 = "url" (verifiziertes Schema, siehe oben).
+                      # is_valid_public_ipv4() → importiert aus netshield_common
+                      m = IPV4_RE.search(row[2])
+                      if m and is_valid_public_ipv4(m.group(0)):
+                          uh_ips.add(m.group(0))
+
+                  all_ips.update(uh_ips)
+                  stats["urlhaus_export"] = len(uh_ips)
+                  feed_ip_sets["urlhaus_export"] = uh_ips
+                  print(f"  urlhaus_export: {len(uh_ips)} IPs "
+                        f"({len(uh_data_lines)} Zeilen, {len(uh_text)} bytes CSV)")
+                  if not uh_ips:
+                      print("  WARNUNG urlhaus_export: 0 IPs geparst – "
+                            "moeglicher Format-Wechsel")
+                      print("::warning ::Honeypot-Feed urlhaus_export "
+                            "lieferte Daten aber 0 gueltige IPs")
+
+          # ══════════════════════════════════════════════════════════════════
           # CriminalIP C2-Daily-Feed – Sonderfall, ERGAENZT 2026-07-25
           #
           # Laeuft NICHT ueber die generische HONEYPOT_SOURCES-Schleife oben,
