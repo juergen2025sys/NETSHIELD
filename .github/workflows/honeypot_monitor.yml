@@ -40,6 +40,7 @@ jobs:
         env:
           SNIFFCAT_TOKEN: ${{ secrets.SNIFFCAT_TOKEN }}
           SNIFFCAT_TOKEN_2: ${{ secrets.SNIFFCAT_TOKEN_2 }}
+          SNIFFCAT_TOKEN_3: ${{ secrets.SNIFFCAT_TOKEN_3 }}
           THREATFOX_AUTH_KEY: ${{ secrets.THREATFOX_AUTH_KEY }}
           THREATFOX_AUTH_KEY_2: ${{ secrets.THREATFOX_AUTH_KEY_2 }}
           REPORTEDIP_KEY: ${{ secrets.REPORTEDIP_KEY }}
@@ -110,6 +111,18 @@ jobs:
               # vorher rausgefiltert. Einzelnes Dict bleibt weiterhin gueltig
               # (Abwaertskompatibilitaet), wird intern zu einer 1-Element-
               # Liste normalisiert.
+              #
+              # FIX 429-FAILOVER (2026-07-25): urspruenglich loeste ein 429/5xx
+              # nach Ausschoepfen der Retries ein sofortiges `return None` aus
+              # und brach damit die AEUSSERE Kandidaten-Schleife komplett ab -
+              # ein zweiter/dritter Key wurde in diesem Fall NIE probiert
+              # (Beobachtet: SniffCat antwortete durchgehend mit 429, Feed
+              # fiel trotz konfiguriertem SNIFFCAT_TOKEN_2 komplett aus).
+              # Jetzt wird bei 429/5xx nach Retry-Erschoepfung genau wie bei
+              # 401/403 zum naechsten Kandidaten gewechselt (break statt
+              # return) - ein anderer Key kann z.B. ein eigenes, noch nicht
+              # ausgeschoepftes Rate-Limit-Kontingent haben. Erst wenn ALLE
+              # Kandidaten durchprobiert wurden, gibt die Funktion None zurueck.
               if not headers:
                   return fetch_url(url, timeout=timeout, retries=retries,
                                    user_agent="NETSHIELD-HoneypotMonitor/1.0")
@@ -117,7 +130,7 @@ jobs:
               candidates = [c for c in candidates if all(c.values())]
               if not candidates:
                   return None
-              last_auth_fail_code = None
+              last_fail_code = None
               for cand_idx, cand_headers in enumerate(candidates, start=1):
                   req_hdrs = {"User-Agent": "NETSHIELD-HoneypotMonitor/1.0"}
                   req_hdrs.update(cand_headers)
@@ -134,16 +147,26 @@ jobs:
                               # Auth-Fehler: dieser Key ist ungueltig/rotiert.
                               # Kein Sinn ihn erneut zu versuchen (retries) –
                               # stattdessen sofort zum naechsten Kandidaten.
-                              last_auth_fail_code = e.code
+                              last_fail_code = e.code
                               nxt = ("naechster Key" if cand_idx < len(candidates)
                                      else "kein weiterer Key konfiguriert")
                               print(f"  HTTP {e.code} {url} (Key #{cand_idx}) – {nxt}")
                               break
                           # 5xx und 429 retryen, sonstige 4xx sofort failen.
-                          if e.code in (429, 500, 502, 503, 504) and attempt < retries:
-                              print(f"  HTTP {e.code} {url} – Retry {attempt}/{retries}")
-                              time.sleep(2 ** attempt)
-                              continue
+                          if e.code in (429, 500, 502, 503, 504):
+                              if attempt < retries:
+                                  print(f"  HTTP {e.code} {url} – Retry {attempt}/{retries}")
+                                  time.sleep(2 ** attempt)
+                                  continue
+                              # Retries fuer DIESEN Kandidaten erschoepft –
+                              # zum naechsten Kandidaten wechseln statt
+                              # komplett aufzugeben (siehe FIX 429-FAILOVER).
+                              last_fail_code = e.code
+                              nxt = ("naechster Key" if cand_idx < len(candidates)
+                                     else "kein weiterer Key konfiguriert")
+                              print(f"  HTTP {e.code} {url} (Key #{cand_idx}, "
+                                    f"Retries erschoepft) – {nxt}")
+                              break
                           print(f"  FEHLER HTTP {e.code} {url}")
                           return None
                       except Exception as e:
@@ -151,8 +174,8 @@ jobs:
                               time.sleep(2 ** attempt)
                           else:
                               print(f"  FEHLER {url} (nach {retries} Versuchen): {e}")
-              if last_auth_fail_code is not None:
-                  print(f"  FEHLER HTTP {last_auth_fail_code} {url} – "
+              if last_fail_code is not None:
+                  print(f"  FEHLER HTTP {last_fail_code} {url} – "
                         f"alle {len(candidates)} Key(s) fehlgeschlagen")
               return None
 
@@ -496,6 +519,7 @@ jobs:
               "sniffcat": [
                   {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN", "")},
                   {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN_2", "")},
+                  {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN_3", "")},
               ],
               "reportedip": [
                   {"X-Key": os.environ.get("REPORTEDIP_KEY", "")},
