@@ -1,8 +1,8 @@
 {
-  "updated": "2026-07-25 04:25 UTC",
-  "total": 24,
+  "updated": "2026-07-25 09:11 UTC",
+  "total": 23,
   "ok": 21,
-  "warn": 2,
+  "warn": 1,
   "error": 2,
   "errors": [
     {
@@ -19,6 +19,11 @@
       "file": "Production Health",
       "check": "Push-Limit Naehe",
       "detail": "state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+    },
+    {
+      "file": "Production Health",
+      "check": "active \u2286 conf40 Subset-Invariante verletzt",
+      "detail": "1,839 IPs in active fehlen in conf40 (0.437% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
     }
   ],
   "warnings": [
@@ -28,11 +33,6 @@
       "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
     },
     {
-      "file": "threatfox_export_downloader.yml",
-      "check": "Kein expliziter Leerungsschutz",
-      "detail": "Externer Feed/Report ohne explizite MIN_* Guard-Variable \u2013 M\u00fcll-/Leer-Daten k\u00f6nnten unbemerkt akzeptiert werden"
-    },
-    {
       "file": "update_combined_blacklist.yml",
       "check": "Untrusted Feed hq=True",
       "detail": "1 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"threat_live\" (https://list.threat.live/)"
@@ -40,19 +40,19 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "blacklist_confidence40_ipv4.txt: 84.4 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "blacklist_confidence40_ipv4.txt: 84.5 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4026047,
-    "active_blacklist_ipv4.txt": 415988,
-    "blacklist_confidence40_ipv4.txt": 6207800,
-    "cve_exploit_ips.txt": 30399,
-    "honeypot_ips.txt": 138790,
-    "bot_detector_blacklist_ipv4.txt": 1160146
+    "combined_threat_blacklist_ipv4_part1.txt": 4029084,
+    "active_blacklist_ipv4.txt": 421253,
+    "blacklist_confidence40_ipv4.txt": 6210481,
+    "cve_exploit_ips.txt": 30203,
+    "honeypot_ips.txt": 165302,
+    "bot_detector_blacklist_ipv4.txt": 1161077
   },
   "production_health": {
-    "critical": 2,
+    "critical": 3,
     "warn": 1,
     "checks": [
       {
@@ -68,7 +68,12 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "blacklist_confidence40_ipv4.txt: 84.4 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "blacklist_confidence40_ipv4.txt: 84.5 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      },
+      {
+        "level": "CRITICAL",
+        "check": "active \u2286 conf40 Subset-Invariante verletzt",
+        "detail": "1,839 IPs in active fehlen in conf40 (0.437% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
       }
     ]
   },
