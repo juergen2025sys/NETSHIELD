@@ -400,6 +400,9 @@ jobs:
 
           all_ips = set()
           stats   = {}
+          feed_ip_sets = {}   # FRESHNESS: pro Feed die IP-Menge behalten (nicht
+                               # nur die Anzahl), um Aenderungen zwischen Laeufen
+                               # per Hash zu erkennen (siehe Freshness-Block unten).
           # FIX JB-DIAG: Transport-Fehler von leerem Feed trennen.
           # Vorher kollabierten beide Faelle auf stats[name]=0 und wurden im
           # Report identisch als ❌ 0 gerendert – man sah nicht, ob der Feed
@@ -437,6 +440,7 @@ jobs:
               ips = parse_entries(text, use_protected_check=True)
               all_ips.update(ips)
               stats[name] = len(ips)
+              feed_ip_sets[name] = ips
               print(f"  {name}: {len(ips)} IPs ({len(text)} bytes geladen)")
               # Erreichbar-aber-0 ist ebenfalls verdaechtig (Format-Wechsel,
               # Challenge-HTML statt CSV): als Warnung sichtbar machen, ohne
@@ -578,6 +582,7 @@ jobs:
 
                           all_ips.update(tf_ips)
                           stats["threatfox_export"] = len(tf_ips)
+                          feed_ip_sets["threatfox_export"] = tf_ips
                           print(f"  threatfox_export: {len(tf_ips)} IPs "
                                 f"({len(tf_raw)} bytes ZIP, {len(tf_text)} bytes CSV)")
                           if not tf_ips:
@@ -585,6 +590,59 @@ jobs:
                                     "moeglicher Format-Wechsel")
                               print("::warning ::Honeypot-Feed threatfox_export "
                                     "lieferte Daten aber 0 gueltige IPs")
+
+          # ══════════════════════════════════════════════════════════════════
+          # FRESHNESS-TRACKING – ERGAENZT 2026-07-25
+          #
+          # Bisher zeigte der Report nur "Feed erreichbar, N IPs" (✅/⚠️/❌).
+          # Ein Feed kann aber tot/eingefroren sein und trotzdem bei jedem
+          # Lauf dieselben N IPs zurueckliefern -> waere weiterhin ✅, obwohl
+          # er keine neuen Daten mehr liefert. Hier wird pro Feed ein Hash
+          # der IP-Menge ueber Laeufe hinweg verglichen: bleibt der Hash
+          # ueber mehrere Laeufe identisch, gilt der Feed als "eingefroren"
+          # (unabhaengig davon ob die Anzahl > 0 ist).
+          #
+          # Persistiert in state/honeypot_feed_freshness.json:
+          #   {name: {"hash": sha256, "unchanged_runs": N, "last_changed_utc": iso}}
+          # unchanged_runs zaehlt aufeinanderfolgende Laeufe MIT identischem
+          # Hash. Bei jeder Aenderung wird der Counter auf 0 zurueckgesetzt
+          # und last_changed_utc aktualisiert. Cron laeuft 4x/Tag (05/11/17/23
+          # UTC) -> unchanged_runs=12 entspricht ca. 3 Tagen, 28 ca. 7 Tagen.
+          #
+          # Feeds ohne erfolgreichen Fetch in diesem Lauf (fetch_failed/
+          # skipped) werden NICHT aktualisiert - ihr alter Freshness-Stand
+          # bleibt unveraendert stehen, bis der Feed wieder erreichbar ist.
+          import hashlib
+
+          FRESHNESS_FILE = "state/honeypot_feed_freshness.json"
+          freshness = {}
+          if os.path.exists(FRESHNESS_FILE):
+              try:
+                  with open(FRESHNESS_FILE) as f:
+                      freshness = json.load(f)
+              except (json.JSONDecodeError, OSError) as e:
+                  print(f"WARNUNG: {FRESHNESS_FILE} nicht lesbar ({e}) – starte leer")
+                  freshness = {}
+
+          for name, ip_set in feed_ip_sets.items():
+              ip_hash = hashlib.sha256(
+                  "\n".join(sorted(ip_set)).encode("utf-8")
+              ).hexdigest()
+              old = freshness.get(name, {})
+              if old.get("hash") == ip_hash:
+                  unchanged_runs = old.get("unchanged_runs", 0) + 1
+                  last_changed   = old.get("last_changed_utc", now_str)
+              else:
+                  unchanged_runs = 0
+                  last_changed   = now_str
+              freshness[name] = {
+                  "hash": ip_hash,
+                  "unchanged_runs": unchanged_runs,
+                  "last_changed_utc": last_changed,
+              }
+
+          write_text_atomic(FRESHNESS_FILE, json.dumps(freshness, indent=2, sort_keys=True))
+          print(f"{FRESHNESS_FILE} aktualisiert ({len(freshness)} Feeds)")
 
           HONEYPOT_FILE = "honeypot_ips.txt"
           existing = set()
@@ -613,7 +671,7 @@ jobs:
 
           # Report immer zuerst schreiben
           lines = ["# Honeypot Monitor – Report", f"**Aktualisiert:** {now_str}\n", "---",
-                   "| Quelle | IPs |", "|---|---|"]
+                   "| Quelle | IPs | Frische |", "|---|---|---|"]
           for n, c in stats.items():
               # FIX JB-DIAG: drei Zustaende statt zwei.
               #   ✅ erreichbar mit IPs | ⚠️ erreichbar aber 0 / uebersprungen
@@ -624,7 +682,25 @@ jobs:
                   mark = "❌"
               else:
                   mark = "⚠️"
-              lines.append(f"| {mark} `{n}` | {c} |")
+
+              # FRESHNESS-Spalte: nur befuellt wenn der Feed DIESEN Lauf
+              # erfolgreich geladen wurde (n in feed_ip_sets). Schwellwerte
+              # bei 4 Laeufen/Tag: <12 = ~<3 Tage, <28 = ~<7 Tage, sonst mehr.
+              if n not in feed_ip_sets:
+                  fresh = "–"
+              else:
+                  ur = freshness.get(n, {}).get("unchanged_runs", 0)
+                  lc = freshness.get(n, {}).get("last_changed_utc", now_str)[:10]
+                  if ur == 0:
+                      fresh = f"🟢 neu ({lc})"
+                  elif ur < 12:
+                      fresh = f"🟢 aktuell (seit {lc})"
+                  elif ur < 28:
+                      fresh = f"🟡 traege (seit {lc}, {ur} Laeufe unveraendert)"
+                  else:
+                      fresh = f"🔴 EINGEFROREN (seit {lc}, {ur} Laeufe unveraendert)"
+
+              lines.append(f"| {mark} `{n}` | {c} | {fresh} |")
           lines += ["", "---", f"| Metrik | Wert |", "|---|---|",
                     f"| Gesamt Honeypot-IPs | **{len(final_ips)}** |",
                     f"| Neu | **+{len(new_ips)}** |", f"| Entfernt | **-{len(removed_ips)}** |",
@@ -665,7 +741,7 @@ jobs:
           # Workflow die neue reports///logs/-Version committet (atomar im
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
           git rm -q --ignore-unmatch honeypot_report.md 2>/dev/null || true
-          git add honeypot_ips.txt reports/honeypot_report.md
+          git add honeypot_ips.txt reports/honeypot_report.md state/honeypot_feed_freshness.json
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -682,8 +758,8 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs honeypot_ips.txt reports/honeypot_report.md 2>/dev/null || true
-                git add honeypot_ips.txt reports/honeypot_report.md 2>/dev/null || true
+                git checkout --theirs honeypot_ips.txt reports/honeypot_report.md state/honeypot_feed_freshness.json 2>/dev/null || true
+                git add honeypot_ips.txt reports/honeypot_report.md state/honeypot_feed_freshness.json 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))
