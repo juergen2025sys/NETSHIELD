@@ -829,15 +829,29 @@ jobs:
           # (unabhaengig davon ob die Anzahl > 0 ist).
           #
           # Persistiert in state/honeypot_feed_freshness.json:
-          #   {name: {"hash": sha256, "unchanged_runs": N, "last_changed_utc": iso}}
+          #   {name: {"hash": sha256, "unchanged_runs": N,
+          #           "last_changed_utc": iso, "last_changed_local": iso,
+          #           "ips": [sortierte IP-Liste dieses Feeds]}}
           # unchanged_runs zaehlt aufeinanderfolgende Laeufe MIT identischem
           # Hash. Bei jeder Aenderung wird der Counter auf 0 zurueckgesetzt
-          # und last_changed_utc aktualisiert. Cron laeuft 4x/Tag (05/11/17/23
-          # UTC) -> unchanged_runs=12 entspricht ca. 3 Tagen, 28 ca. 7 Tagen.
+          # und last_changed_utc/last_changed_local aktualisiert. Cron laeuft
+          # 4x/Tag (05/11/17/23 UTC) -> unchanged_runs=12 entspricht ca. 3
+          # Tagen, 28 ca. 7 Tagen.
           #
           # Feeds ohne erfolgreichen Fetch in diesem Lauf (fetch_failed/
           # skipped) werden NICHT aktualisiert - ihr alter Freshness-Stand
           # bleibt unveraendert stehen, bis der Feed wieder erreichbar ist.
+          #
+          # FIX PER-FEED-NEU (2026-07-25): das Feld "ips" wurde NEU ergaenzt,
+          # um pro Feed die echte Anzahl neu hinzugekommener IPs auszuweisen
+          # (nicht nur den globalen Gesamt-Delta ueber alle Feeds). Dafuer
+          # muss die komplette IP-Liste jedes Feeds persistiert werden (nicht
+          # nur ein Hash) -> state/honeypot_feed_freshness.json waechst dadurch
+          # spuerbar (aktuell insgesamt mehrere Zehntausend IPs ueber alle
+          # Feeds), Git-Commits werden entsprechend groesser. Bewusste
+          # Entscheidung fuer exakte Zahlen statt eines leichtgewichtigen,
+          # aber ungenauen Netto-Deltas (Zu-/Abgang koennten sich sonst
+          # gegenseitig verdecken).
           import hashlib
 
           FRESHNESS_FILE = "state/honeypot_feed_freshness.json"
@@ -850,21 +864,31 @@ jobs:
                   print(f"WARNUNG: {FRESHNESS_FILE} nicht lesbar ({e}) – starte leer")
                   freshness = {}
 
+          feed_new_counts     = {}  # name -> Anzahl in diesem Lauf NEU hinzugekommener IPs
+          feed_removed_counts = {}  # name -> Anzahl gegenueber letztem Lauf entfernter IPs
+
           for name, ip_set in feed_ip_sets.items():
               ip_hash = hashlib.sha256(
                   "\n".join(sorted(ip_set)).encode("utf-8")
               ).hexdigest()
               old = freshness.get(name, {})
+              old_ips = set(old.get("ips", []))
+              feed_new_counts[name]     = len(ip_set - old_ips)
+              feed_removed_counts[name] = len(old_ips - ip_set)
               if old.get("hash") == ip_hash:
-                  unchanged_runs = old.get("unchanged_runs", 0) + 1
-                  last_changed   = old.get("last_changed_utc", now_str_utc)
+                  unchanged_runs      = old.get("unchanged_runs", 0) + 1
+                  last_changed_utc    = old.get("last_changed_utc", now_str_utc)
+                  last_changed_local  = old.get("last_changed_local", now_str)
               else:
-                  unchanged_runs = 0
-                  last_changed   = now_str_utc
+                  unchanged_runs      = 0
+                  last_changed_utc    = now_str_utc
+                  last_changed_local  = now_str
               freshness[name] = {
                   "hash": ip_hash,
                   "unchanged_runs": unchanged_runs,
-                  "last_changed_utc": last_changed,
+                  "last_changed_utc": last_changed_utc,
+                  "last_changed_local": last_changed_local,
+                  "ips": sorted(ip_set),
               }
 
           write_text_atomic(FRESHNESS_FILE, json.dumps(freshness, indent=2, sort_keys=True))
@@ -897,7 +921,7 @@ jobs:
 
           # Report immer zuerst schreiben
           lines = ["# Honeypot Monitor – Report", f"**Aktualisiert:** {now_str}\n", "---",
-                   "| Quelle | IPs | Frische |", "|---|---|---|"]
+                   "| Quelle | IPs | Neu | Frische |", "|---|---|---|---|"]
           for n, c in stats.items():
               # FIX JB-DIAG: drei Zustaende statt zwei.
               #   ✅ erreichbar mit IPs | ⚠️ erreichbar aber 0 / uebersprungen
@@ -909,14 +933,25 @@ jobs:
               else:
                   mark = "⚠️"
 
+              # NEU-Spalte: exakter Mengenvergleich (aktuelle IPs dieses Feeds
+              # ./. IPs desselben Feeds aus dem letzten erfolgreichen Lauf,
+              # siehe FIX PER-FEED-NEU oben). Nur befuellt, wenn der Feed
+              # DIESEN Lauf erfolgreich geladen wurde.
+              if n not in feed_ip_sets:
+                  neu_str = "–"
+              else:
+                  neu_str = f"+{feed_new_counts.get(n, 0)}"
+
               # FRESHNESS-Spalte: nur befuellt wenn der Feed DIESEN Lauf
               # erfolgreich geladen wurde (n in feed_ip_sets). Schwellwerte
               # bei 4 Laeufen/Tag: <12 = ~<3 Tage, <28 = ~<7 Tage, sonst mehr.
+              # Zeitstempel in deutscher Lokalzeit (Europe/Berlin, CET/CEST),
+              # NICHT UTC – siehe last_changed_local oben.
               if n not in feed_ip_sets:
                   fresh = "–"
               else:
                   ur = freshness.get(n, {}).get("unchanged_runs", 0)
-                  lc = freshness.get(n, {}).get("last_changed_utc", now_str_utc)[:10]
+                  lc = freshness.get(n, {}).get("last_changed_local", now_str)
                   if ur == 0:
                       fresh = f"🟢 neu ({lc})"
                   elif ur < 12:
@@ -926,7 +961,7 @@ jobs:
                   else:
                       fresh = f"🔴 EINGEFROREN (seit {lc}, {ur} Laeufe unveraendert)"
 
-              lines.append(f"| {mark} `{n}` | {c} | {fresh} |")
+              lines.append(f"| {mark} `{n}` | {c} | {neu_str} | {fresh} |")
           lines += ["", "---", f"| Metrik | Wert |", "|---|---|",
                     f"| Gesamt Honeypot-IPs | **{len(final_ips)}** |",
                     f"| Neu | **+{len(new_ips)}** |", f"| Entfernt | **-{len(removed_ips)}** |",
