@@ -1,47 +1,47 @@
 {
   "blocklist_de_bots": {
-    "hash": "c48e11bf9759e4f0de98df7ecbcfe105289b8bd022cc8e23909d08ea08743dbe",
-    "last_changed_utc": "2026-07-25 08:12 UTC",
+    "hash": "03a79b3f424739a6dada689d1f43fd4254e5f65f70f2aa5e0ffbc1c8cf42e458",
+    "last_changed_utc": "2026-07-25 09:27 UTC",
     "unchanged_runs": 0
   },
   "blocklist_de_bruteforce": {
-    "hash": "30fa7207bde3ff9113e4553fb0210e9e91debfb25e66bad0f22ead773848608d",
-    "last_changed_utc": "2026-07-25 08:12 UTC",
+    "hash": "e5ab5be1de88db060e1dad4465863717627a2b7a919ca45472dea89769211a3d",
+    "last_changed_utc": "2026-07-25 09:27 UTC",
     "unchanged_runs": 0
   },
   "crash0v3r1de_mikrotik": {
     "hash": "6bb8246440e174e65b73cf1e61eced73305dd7463ea96d5409844776b3c38ac7",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 8
+    "unchanged_runs": 9
   },
   "criminalip_c2": {
     "hash": "787046a891c46d79aea316db30451d321aae835143b39e50695cb9896b01d555",
     "last_changed_utc": "2026-07-25 08:12 UTC",
-    "unchanged_runs": 0
+    "unchanged_runs": 1
   },
   "dshield_1d": {
     "hash": "233aaecadde6cc4f6db65e4c9539f84e33386c3efe9f4231d72dec12c550e3a6",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 8
+    "unchanged_runs": 9
   },
   "honeysec_ip2": {
     "hash": "13394f86515545a20c6b9d2c4dd11cde89032aad1eff2aa6617da380600ca6a1",
     "last_changed_utc": "2026-07-25 05:56 UTC",
-    "unchanged_runs": 4
+    "unchanged_runs": 5
   },
   "ipsum_level4": {
     "hash": "ac17968741b0c134a1ddce0e6d6386aeda686b0f235ada826c1df43eed1a269f",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 8
+    "unchanged_runs": 9
   },
   "jamesbrine_honeypot": {
     "hash": "c06a1eb5a3981eb3f964055d4903b4bec61e1b4ae80e48c7477b8ba4a28de0e5",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 8
+    "unchanged_runs": 9
   },
   "reportedip": {
-    "hash": "0b101dbb7cd37daaff39062aeda348187fedc51be266e715e3214fe9dacc0e99",
-    "last_changed_utc": "2026-07-25 08:12 UTC",
+    "hash": "56f8070e98df4165dc912eb6e5b61c2d3bd6b7c46f423d34d9264ebe661bb380",
+    "last_changed_utc": "2026-07-25 09:27 UTC",
     "unchanged_runs": 0
   },
   "reportedip_bruteforce": {
@@ -90,38 +90,38 @@
     "unchanged_runs": 0
   },
   "siberkapan_fortigate": {
-    "hash": "390db8fa08934359e469fe226f65c967117d809a09e1bc0dac3bfc01f8c42ffa",
-    "last_changed_utc": "2026-07-25 08:12 UTC",
+    "hash": "bfcfcb0ca9feab13d1acb2599c820d80746662b920089c25ef989136c2939c40",
+    "last_changed_utc": "2026-07-25 09:27 UTC",
     "unchanged_runs": 0
   },
   "sniffcat": {
-    "hash": "c1a0b2d29a2a74c8a62c93bdf3a19ce216fd9c1816fbfbf80a6b4f8f8e78ede6",
-    "last_changed_utc": "2026-07-25 07:52 UTC",
-    "unchanged_runs": 1
+    "hash": "00c2c79b7955c5d7c5770dcc73c0407e517519813ae7eeacda434419522a272b",
+    "last_changed_utc": "2026-07-25 09:27 UTC",
+    "unchanged_runs": 0
   },
   "stratosphere_aip": {
     "hash": "7344aa9a58d5ee229fe8ef63db41d336fcef2b657db532306a04af47d047878b",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 8
+    "unchanged_runs": 9
   },
   "stratosphere_aip_alpha": {
     "hash": "b44dd8c6996f6886a18e412b3c790d7cf79e06b2bbd0dd00256c93ce7233a759",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 8
+    "unchanged_runs": 9
   },
   "stratosphere_aip_alpha7": {
     "hash": "73ec139ca3e154e67ca3bea00c5e332062d75f9f0750dd46d62bb782c112aede",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 8
+    "unchanged_runs": 9
   },
   "threatfox_export": {
-    "hash": "99c952d523ca1f358ce566c4bba41d0f88a929baa59c2dd8ab8157f6feaa5314",
-    "last_changed_utc": "2026-07-25 07:52 UTC",
-    "unchanged_runs": 1
+    "hash": "14132993f6b1c3b7166d1ff119bc9db95548ee90f499dd8bf67a45823a3735f3",
+    "last_changed_utc": "2026-07-25 09:27 UTC",
+    "unchanged_runs": 0
   },
   "timgerstel_suspicious_ips": {
-    "hash": "6f1ecbd25f4f0c9818340108db95dcc88e45ff769b35f1c8bf93f973928f88db",
-    "last_changed_utc": "2026-07-25 08:12 UTC",
+    "hash": "c0a2ce596cdf08e919f025141b357dc5798b60b0dd76cacf47ca2adad053a0cb",
+    "last_changed_utc": "2026-07-25 09:27 UTC",
     "unchanged_runs": 0
   }
 }
