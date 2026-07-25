@@ -39,8 +39,11 @@ jobs:
       - name: Fetch Honeypot IPs
         env:
           SNIFFCAT_TOKEN: ${{ secrets.SNIFFCAT_TOKEN }}
+          SNIFFCAT_TOKEN_2: ${{ secrets.SNIFFCAT_TOKEN_2 }}
           THREATFOX_AUTH_KEY: ${{ secrets.THREATFOX_AUTH_KEY }}
+          THREATFOX_AUTH_KEY_2: ${{ secrets.THREATFOX_AUTH_KEY_2 }}
           REPORTEDIP_KEY: ${{ secrets.REPORTEDIP_KEY }}
+          REPORTEDIP_KEY_2: ${{ secrets.REPORTEDIP_KEY_2 }}
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -97,32 +100,60 @@ jobs:
               # weil fetch_url keine custom-Header durchreicht. Diese
               # API-Pfade haben hardcoded URLs und sind im Hygiene-Check
               # explizit als Inline-Whitelist akzeptiert.
+              #
+              # FIX KEY-ROTATION (2026-07-25): headers kann jetzt auch eine
+              # LISTE von Header-Dicts sein (Failover-Kandidaten in
+              # Prioritaets-Reihenfolge, z.B. [PrimaerKey, ZweitKey]). Bei
+              # HTTP 401/403 (Auth-Fehler = Key ungueltig/rotiert) wird NICHT
+              # sofort aufgegeben, sondern der naechste Kandidat probiert.
+              # Kandidaten mit leerem Wert (Secret nicht gesetzt) werden
+              # vorher rausgefiltert. Einzelnes Dict bleibt weiterhin gueltig
+              # (Abwaertskompatibilitaet), wird intern zu einer 1-Element-
+              # Liste normalisiert.
               if not headers:
                   return fetch_url(url, timeout=timeout, retries=retries,
                                    user_agent="NETSHIELD-HoneypotMonitor/1.0")
-              # Auth-Header-Pfad: alter Loop bleibt, mit korrigierter
-              # Retry-Strategie fuer 5xx (vorher fielen die mit 'return None'
-              # raus statt zu retryen).
-              req_hdrs = {"User-Agent": "NETSHIELD-HoneypotMonitor/1.0"}
-              req_hdrs.update(headers)
-              for attempt in range(1, retries + 1):
-                  try:
-                      req = urllib.request.Request(url, headers=req_hdrs)
-                      with urllib.request.urlopen(req, timeout=timeout) as r:
-                          return r.read().decode("utf-8", errors="ignore")
-                  except urllib.error.HTTPError as e:
-                      # 5xx und 429 retryen, 4xx sofort failen (Auth-Fehler etc.)
-                      if e.code in (429, 500, 502, 503, 504) and attempt < retries:
-                          print(f"  HTTP {e.code} {url} – Retry {attempt}/{retries}")
-                          time.sleep(2 ** attempt)
-                          continue
-                      print(f"  FEHLER HTTP {e.code} {url}")
-                      return None
-                  except Exception as e:
-                      if attempt < retries:
-                          time.sleep(2 ** attempt)
-                      else:
-                          print(f"  FEHLER {url} (nach {retries} Versuchen): {e}")
+              candidates = headers if isinstance(headers, list) else [headers]
+              candidates = [c for c in candidates if all(c.values())]
+              if not candidates:
+                  return None
+              last_auth_fail_code = None
+              for cand_idx, cand_headers in enumerate(candidates, start=1):
+                  req_hdrs = {"User-Agent": "NETSHIELD-HoneypotMonitor/1.0"}
+                  req_hdrs.update(cand_headers)
+                  for attempt in range(1, retries + 1):
+                      try:
+                          req = urllib.request.Request(url, headers=req_hdrs)
+                          with urllib.request.urlopen(req, timeout=timeout) as r:
+                              if cand_idx > 1:
+                                  print(f"  {url}: Key #{cand_idx} erfolgreich "
+                                        f"(Failover nach Key #{cand_idx - 1})")
+                              return r.read().decode("utf-8", errors="ignore")
+                      except urllib.error.HTTPError as e:
+                          if e.code in (401, 403):
+                              # Auth-Fehler: dieser Key ist ungueltig/rotiert.
+                              # Kein Sinn ihn erneut zu versuchen (retries) –
+                              # stattdessen sofort zum naechsten Kandidaten.
+                              last_auth_fail_code = e.code
+                              nxt = ("naechster Key" if cand_idx < len(candidates)
+                                     else "kein weiterer Key konfiguriert")
+                              print(f"  HTTP {e.code} {url} (Key #{cand_idx}) – {nxt}")
+                              break
+                          # 5xx und 429 retryen, sonstige 4xx sofort failen.
+                          if e.code in (429, 500, 502, 503, 504) and attempt < retries:
+                              print(f"  HTTP {e.code} {url} – Retry {attempt}/{retries}")
+                              time.sleep(2 ** attempt)
+                              continue
+                          print(f"  FEHLER HTTP {e.code} {url}")
+                          return None
+                      except Exception as e:
+                          if attempt < retries:
+                              time.sleep(2 ** attempt)
+                          else:
+                              print(f"  FEHLER {url} (nach {retries} Versuchen): {e}")
+              if last_auth_fail_code is not None:
+                  print(f"  FEHLER HTTP {last_auth_fail_code} {url} – "
+                        f"alle {len(candidates)} Key(s) fehlgeschlagen")
               return None
 
 
@@ -448,12 +479,28 @@ jobs:
                   "https://reportedip.de/wp-json/reportedip/v2/blacklist?format=txt",
           }
 
-          # Auth-pflichtige Feeds: name -> dict mit HTTP-Headern.
-          # Fehlt ein Wert (Secret nicht gesetzt), wird der Feed in der Schleife
-          # uebersprungen statt 401 zu erzeugen.
+          # Auth-pflichtige Feeds: name -> LISTE von HTTP-Header-Dicts, in
+          # Prioritaets-Reihenfolge (Primaer-Key zuerst, dann Failover-Keys).
+          # FIX KEY-ROTATION (2026-07-25): Zweiter Key pro Feed fuer nahtlose
+          # Rotation: solange der Primaer-Key gueltig ist, wird ausschliesslich
+          # er benutzt (keine Doppel-Last auf dem Provider). Liefert der
+          # Primaer-Key HTTP 401/403 (z.B. nach Ablauf/Widerruf beim Provider),
+          # greift fetch() automatisch auf den Zweit-Key zurueck – kein
+          # Feed-Ausfall waehrend des Rotations-Fensters, in dem man den alten
+          # Key beim Provider deaktiviert und den neuen als _2-Secret eintraegt.
+          # Ist ein Kandidat leer (Secret nicht gesetzt), wird er von fetch()
+          # automatisch rausgefiltert. Sind ALLE Kandidaten eines Feeds leer,
+          # wird der Feed in der Schleife unten uebersprungen statt 401 zu
+          # erzeugen (unveraendertes Verhalten ggue. vorher).
           AUTH_HEADERS = {
-              "sniffcat": {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN", "")},
-              "reportedip": {"X-Key": os.environ.get("REPORTEDIP_KEY", "")},
+              "sniffcat": [
+                  {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN", "")},
+                  {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN_2", "")},
+              ],
+              "reportedip": [
+                  {"X-Key": os.environ.get("REPORTEDIP_KEY", "")},
+                  {"X-Key": os.environ.get("REPORTEDIP_KEY_2", "")},
+              ],
           }
 
           all_ips = set()
@@ -471,9 +518,11 @@ jobs:
 
           for name, url in HONEYPOT_SOURCES.items():
               # FIX AUTH: Auth-pflichtige Feeds ohne gueltigen Token ueberspringen.
+              # auth ist jetzt eine Liste von Kandidaten-Dicts (Key-Rotation) –
+              # nur skippen wenn KEIN Kandidat einen gesetzten Wert hat.
               auth = AUTH_HEADERS.get(name)
-              if auth is not None and not all(auth.values()):
-                  missing = [k for k, v in auth.items() if not v]
+              if auth is not None and not any(all(c.values()) for c in auth):
+                  missing = sorted({k for c in auth for k, v in c.items() if not v})
                   print(f"  SKIP {name}: Auth-Header fehlt ({', '.join(missing)}) – "
                         f"GitHub-Secret nicht gesetzt")
                   stats[name] = 0
@@ -538,49 +587,71 @@ jobs:
           # dem Entpacken. Header-basiertes Spalten-Mapping statt fester
           # Positionen, weil sich das Schema zwischen ThreatFox-Exportarten
           # unterscheiden kann (verifiziert 2026-07-24).
-          THREATFOX_AUTH_KEY = os.environ.get("THREATFOX_AUTH_KEY", "").strip()
-          if not THREATFOX_AUTH_KEY:
+          # FIX KEY-ROTATION (2026-07-25): analog zu AUTH_HEADERS oben, aber
+          # der ThreatFox-Key steckt in der URL statt in einem Header ->
+          # eigene Kandidaten-Liste statt Header-Dict. Reihenfolge = Prioritaet
+          # (Primaer-Key zuerst), leere/nicht gesetzte Keys werden gefiltert.
+          THREATFOX_AUTH_KEY   = os.environ.get("THREATFOX_AUTH_KEY", "").strip()
+          THREATFOX_AUTH_KEY_2 = os.environ.get("THREATFOX_AUTH_KEY_2", "").strip()
+          THREATFOX_KEYS = [k for k in (THREATFOX_AUTH_KEY, THREATFOX_AUTH_KEY_2) if k]
+          if not THREATFOX_KEYS:
               print("  SKIP threatfox_export: THREATFOX_AUTH_KEY nicht gesetzt – "
                     "GitHub-Secret fehlt")
               stats["threatfox_export"] = 0
               skipped.add("threatfox_export")
           else:
               import zipfile
-              TF_URL = (f"https://threatfox-api.abuse.ch/v2/files/exports/"
-                        f"{THREATFOX_AUTH_KEY}/full.csv.zip")
               TF_READ_LIMIT = 150 * 1024 * 1024  # 150 MB Sicherheitsgrenze
 
-              def _tf_fetch_binary(url, retries=3, timeout=60):
-                  for attempt in range(1, retries + 1):
-                      req = urllib.request.Request(
-                          url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor-ThreatFox/1.0"}
-                      )
-                      try:
-                          with urllib.request.urlopen(req, timeout=timeout) as r:
-                              data = r.read(TF_READ_LIMIT + 1)
-                              if len(data) > TF_READ_LIMIT:
-                                  print(f"  FEHLER threatfox_export: Antwort > "
-                                        f"{TF_READ_LIMIT} bytes – Abbruch")
-                                  return None
-                              return data
-                      except urllib.error.HTTPError as e:
-                          print(f"  HTTP {e.code} threatfox_export (Versuch {attempt}/{retries})")
-                          if e.code in (401, 403):
-                              print("  Auth-Key vermutlich ungueltig/abgelaufen – kein Retry")
-                              return None
-                          if attempt < retries:
-                              time.sleep(2 ** attempt)
-                              continue
-                          return None
-                      except Exception as e:
-                          if attempt < retries:
-                              time.sleep(2 ** attempt)
-                          else:
-                              print(f"  FEHLER threatfox_export (nach {retries} "
-                                    f"Versuchen): {e}")
+              def _tf_fetch_binary(keys, retries=3, timeout=60):
+                  # Kandidaten der Reihe nach versuchen. Bei 401/403 (Key
+                  # ungueltig/rotiert) sofort zum naechsten Key wechseln statt
+                  # denselben ungueltigen Key erneut zu retryen.
+                  last_auth_fail_code = None
+                  for key_idx, key in enumerate(keys, start=1):
+                      url = (f"https://threatfox-api.abuse.ch/v2/files/exports/"
+                             f"{key}/full.csv.zip")
+                      for attempt in range(1, retries + 1):
+                          req = urllib.request.Request(
+                              url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor-ThreatFox/1.0"}
+                          )
+                          try:
+                              with urllib.request.urlopen(req, timeout=timeout) as r:
+                                  data = r.read(TF_READ_LIMIT + 1)
+                                  if len(data) > TF_READ_LIMIT:
+                                      print(f"  FEHLER threatfox_export: Antwort > "
+                                            f"{TF_READ_LIMIT} bytes – Abbruch")
+                                      return None
+                                  if key_idx > 1:
+                                      print(f"  threatfox_export: Key #{key_idx} erfolgreich "
+                                            f"(Failover nach Key #{key_idx - 1})")
+                                  return data
+                          except urllib.error.HTTPError as e:
+                              if e.code in (401, 403):
+                                  last_auth_fail_code = e.code
+                                  nxt = ("naechster Key" if key_idx < len(keys)
+                                         else "kein weiterer Key konfiguriert")
+                                  print(f"  HTTP {e.code} threatfox_export "
+                                        f"(Key #{key_idx}) – {nxt}")
+                                  break
+                              print(f"  HTTP {e.code} threatfox_export "
+                                    f"(Key #{key_idx}, Versuch {attempt}/{retries})")
+                              if attempt < retries:
+                                  time.sleep(2 ** attempt)
+                                  continue
+                              break
+                          except Exception as e:
+                              if attempt < retries:
+                                  time.sleep(2 ** attempt)
+                              else:
+                                  print(f"  FEHLER threatfox_export (Key #{key_idx}, "
+                                        f"nach {retries} Versuchen): {e}")
+                  if last_auth_fail_code is not None:
+                      print(f"  FEHLER HTTP {last_auth_fail_code} threatfox_export – "
+                            f"alle {len(keys)} Key(s) fehlgeschlagen")
                   return None
 
-              tf_raw = _tf_fetch_binary(TF_URL)
+              tf_raw = _tf_fetch_binary(THREATFOX_KEYS)
               if tf_raw is None:
                   stats["threatfox_export"] = 0
                   fetch_failed.add("threatfox_export")
