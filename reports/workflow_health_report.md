@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-07-26 14:43 UTC
+**Aktualisiert:** 2026-07-26 20:16 UTC
 
 **Workflows:** 23 | ✅ 21 OK | ⚠️ 2 Warnung | ❌ 2 Fehler
 
@@ -19,7 +19,7 @@
 | `feed_overlap_report.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 1 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "threat_live" (https://list.threat.live/) |
 | `Cross-Workflow` | Doppelte Feed-URLs | 1 URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: greylist-latest.csv in honeypot_monitor.yml+update_combined_blacklist.yml |
-| `Production Health` | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 85.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 85.2 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
@@ -29,7 +29,7 @@
 |---|---|---|
 | 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 110.3 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🔴 CRITICAL | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
-| 🟡 WARN | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 85.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 85.2 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
 
@@ -60,4 +60,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-07-26 14:43 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-07-26 20:16 UTC | 23 Workflow-Dateien geprüft*
