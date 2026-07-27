@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-27 19:05 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-27 19:17 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,163,948** |
-| Neu (heute) | **+95** |
-| Entfernt | **-403** |
+| Gesamt IPs | **1,163,947** |
+| Neu (heute) | **+19** |
+| Entfernt | **-20** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 59 |
@@ -19,7 +19,7 @@
 
 | Quelle | IPs |
 |---|---|
-| ✅ `fadouse_clash_threat_intel` | 7,838 |
+| ✅ `fadouse_clash_threat_intel` | 7,841 |
 | ✅ `turntuptechnologies_iocs_scanner` | 130 |
 | ✅ `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | 50,302 |
 | ✅ `openprx_prx_sd_signatures` | 112,758 |
@@ -31,14 +31,14 @@
 | ✅ `skillter_proxygather_working_proxies_all` | 464 |
 | ✅ `skillter_proxygather_working_proxies_http` | 253 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,362 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,935 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 4,000 |
-| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,441 |
-| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,329 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,869 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,995 |
+| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,435 |
+| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,335 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,795 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,672 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_https_anonymous` | 3,669 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,376 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,352 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,731 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 334 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,462 |
@@ -84,4 +84,4 @@
 > Diese 59 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-27 19:05 CEST (Europe/Berlin)*
+*Generiert: 2026-07-27 19:17 CEST (Europe/Berlin)*
