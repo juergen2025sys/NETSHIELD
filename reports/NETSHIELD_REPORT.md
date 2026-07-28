@@ -1,19 +1,19 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-07-28 13:34 UTC
+**Aktualisiert:** 2026-07-28 15:41 UTC
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **8,178,622** | 2026-07-28 15:24 CEST (Europe/Berlin) |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **438,487** | 2026-07-28 15:24 CEST (Europe/Berlin) |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **6,330,246** | 2026-07-28 13:29 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **51,021** | 2026-07-28 13:29 UTC |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **8,180,295** | 2026-07-28 17:28 CEST (Europe/Berlin) |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **440,337** | 2026-07-28 17:28 CEST (Europe/Berlin) |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **6,331,731** | 2026-07-28 15:35 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **51,169** | 2026-07-28 15:35 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **30,026** | 2026-07-28 06:18 UTC |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,164,095** | 2026-07-28 15:09 CEST (Europe/Berlin) |
-| ✅ `honeypot_ips.txt` | Honeypot IPs | **169,031** | 2026-07-28 15:09 CEST (Europe/Berlin) |
-| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **45,530** | 2026-07-28 15:09 CEST (Europe/Berlin) |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,164,122** | 2026-07-28 15:35 CEST (Europe/Berlin) |
+| ✅ `honeypot_ips.txt` | Honeypot IPs | **169,062** | 2026-07-28 15:35 CEST (Europe/Berlin) |
+| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **45,530** | 2026-07-28 16:40 CEST (Europe/Berlin) |
 
 ---
 ## 🔍 Feed Health: ✅ 119 OK | ⚠️ 0 leer | ❌ 0 Fehler
@@ -30,4 +30,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-07-28 13:34 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-07-28 15:41 UTC*
