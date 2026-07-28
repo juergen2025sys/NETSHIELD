@@ -54,7 +54,7 @@
 <table>
 <tr>
 <td><strong>🕒 Letztes Update</strong></td>
-<td>2026-07-28 15:41 UTC</td>
+<td>2026-07-28 15:42 UTC</td>
 <td><strong>🔄 Intervall</strong></td>
 <td>8× täglich</td>
 </tr>
