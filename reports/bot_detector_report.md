@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-28 18:14 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-28 18:20 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,164,249** |
-| Neu (heute) | **+15** |
-| Entfernt | **-23** |
+| Gesamt IPs | **1,164,255** |
+| Neu (heute) | **+13** |
+| Entfernt | **-7** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 59 |
@@ -35,17 +35,17 @@
 | ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 4,177 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,440 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,483 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,594 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,308 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,523 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,423 |
 | ❌ `vmheaven_vmheaven_io_free_proxy_list_https_anonymous` | 0 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 3,013 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,824 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,734 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 359 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,667 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 1,070 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 955 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 827 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 480 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,695 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 1,103 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 972 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 834 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 474 |
 | ✅ `officialputuid_proxyforeveryone` | 6,765 |
 | ✅ `officialputuid_proxyforeveryone_https` | 5,374 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 7,082 |
@@ -84,4 +84,4 @@
 > Diese 59 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-28 18:14 CEST (Europe/Berlin)*
+*Generiert: 2026-07-28 18:20 CEST (Europe/Berlin)*
