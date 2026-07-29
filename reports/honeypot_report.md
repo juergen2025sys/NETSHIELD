@@ -1,34 +1,34 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-07-29 20:01 CEST (Berlin)
+**Aktualisiert:** 2026-07-29 20:32 CEST (Berlin)
 
 ---
 | Quelle | IPs | Neu | Frische |
 |---|---|---|---|
-| ✅ `ipsum_level4` | 5478 | +0 | 🟡 traege (seit 2026-07-29 03:24 CEST (Berlin), 19 Laeufe unveraendert) |
+| ✅ `ipsum_level4` | 5478 | +0 | 🟡 traege (seit 2026-07-29 03:24 CEST (Berlin), 20 Laeufe unveraendert) |
 | ✅ `dshield_1d` | 32 | +0 | 🟢 aktuell (seit 2026-07-29 13:03 CEST (Berlin)) |
-| ✅ `blocklist_de_bots` | 4312 | +188 | 🟢 neu (2026-07-29 20:01 CEST (Berlin)) |
-| ✅ `blocklist_de_bruteforce` | 870 | +9 | 🟢 neu (2026-07-29 20:01 CEST (Berlin)) |
-| ✅ `jamesbrine_honeypot` | 49306 | +0 | 🔴 EINGEFROREN (seit 2026-07-27 16:34 CEST (Berlin), 65 Laeufe unveraendert) |
-| ✅ `stratosphere_aip` | 10841 | +0 | 🟡 traege (seit 2026-07-29 01:30 CEST (Berlin), 23 Laeufe unveraendert) |
-| ✅ `stratosphere_aip_alpha7` | 28088 | +0 | 🟡 traege (seit 2026-07-29 01:30 CEST (Berlin), 23 Laeufe unveraendert) |
-| ✅ `stratosphere_aip_alpha` | 7875 | +0 | 🟡 traege (seit 2026-07-29 01:30 CEST (Berlin), 23 Laeufe unveraendert) |
-| ✅ `honeysec_ip2` | 31734 | +0 | 🟡 traege (seit 2026-07-29 09:02 CEST (Berlin), 15 Laeufe unveraendert) |
-| ✅ `crash0v3r1de_mikrotik` | 542 | +0 | 🔴 EINGEFROREN (seit 2026-07-25 17:29 CEST (Berlin), 143 Laeufe unveraendert) |
-| ✅ `turris_greylist` | 8174 | +0 | 🟡 traege (seit 2026-07-29 00:13 CEST (Berlin), 24 Laeufe unveraendert) |
-| ✅ `timgerstel_suspicious_ips` | 1393 | +1 | 🟢 neu (2026-07-29 20:01 CEST (Berlin)) |
-| ✅ `sniffcat` | 29899 | +108 | 🟢 neu (2026-07-29 20:01 CEST (Berlin)) |
-| ✅ `siberkapan_fortigate` | 30853 | +26 | 🟢 neu (2026-07-29 20:01 CEST (Berlin)) |
-| ✅ `reportedip` | 9983 | +8 | 🟢 neu (2026-07-29 20:01 CEST (Berlin)) |
-| ✅ `threatfox_export` | 20686 | +3 | 🟢 neu (2026-07-29 20:01 CEST (Berlin)) |
-| ✅ `urlhaus_export` | 4248 | +4 | 🟢 neu (2026-07-29 20:01 CEST (Berlin)) |
-| ✅ `criminalip_c2` | 50 | +0 | 🟡 traege (seit 2026-07-29 03:01 CEST (Berlin), 20 Laeufe unveraendert) |
+| ✅ `blocklist_de_bots` | 4333 | +58 | 🟢 neu (2026-07-29 20:32 CEST (Berlin)) |
+| ✅ `blocklist_de_bruteforce` | 862 | +12 | 🟢 neu (2026-07-29 20:32 CEST (Berlin)) |
+| ✅ `jamesbrine_honeypot` | 49306 | +0 | 🔴 EINGEFROREN (seit 2026-07-27 16:34 CEST (Berlin), 66 Laeufe unveraendert) |
+| ✅ `stratosphere_aip` | 10841 | +0 | 🟡 traege (seit 2026-07-29 01:30 CEST (Berlin), 24 Laeufe unveraendert) |
+| ✅ `stratosphere_aip_alpha7` | 28088 | +0 | 🟡 traege (seit 2026-07-29 01:30 CEST (Berlin), 24 Laeufe unveraendert) |
+| ✅ `stratosphere_aip_alpha` | 7875 | +0 | 🟡 traege (seit 2026-07-29 01:30 CEST (Berlin), 24 Laeufe unveraendert) |
+| ✅ `honeysec_ip2` | 31734 | +0 | 🟡 traege (seit 2026-07-29 09:02 CEST (Berlin), 16 Laeufe unveraendert) |
+| ✅ `crash0v3r1de_mikrotik` | 542 | +0 | 🔴 EINGEFROREN (seit 2026-07-25 17:29 CEST (Berlin), 144 Laeufe unveraendert) |
+| ✅ `turris_greylist` | 8174 | +0 | 🟡 traege (seit 2026-07-29 00:13 CEST (Berlin), 25 Laeufe unveraendert) |
+| ✅ `timgerstel_suspicious_ips` | 1393 | +0 | 🟢 aktuell (seit 2026-07-29 20:01 CEST (Berlin)) |
+| ✅ `sniffcat` | 29897 | +26 | 🟢 neu (2026-07-29 20:32 CEST (Berlin)) |
+| ✅ `siberkapan_fortigate` | 30862 | +9 | 🟢 neu (2026-07-29 20:32 CEST (Berlin)) |
+| ✅ `reportedip` | 9983 | +3 | 🟢 neu (2026-07-29 20:32 CEST (Berlin)) |
+| ✅ `threatfox_export` | 20686 | +0 | 🟢 aktuell (seit 2026-07-29 20:01 CEST (Berlin)) |
+| ✅ `urlhaus_export` | 4250 | +2 | 🟢 neu (2026-07-29 20:32 CEST (Berlin)) |
+| ✅ `criminalip_c2` | 50 | +0 | 🟡 traege (seit 2026-07-29 03:01 CEST (Berlin), 21 Laeufe unveraendert) |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honeypot-IPs | **171379** |
-| Neu | **+289** |
-| Entfernt | **-205** |
+| Gesamt Honeypot-IPs | **171412** |
+| Neu | **+87** |
+| Entfernt | **-54** |
 
 ---
-*Generiert: 2026-07-29 20:01 CEST (Berlin)*
+*Generiert: 2026-07-29 20:32 CEST (Berlin)*
