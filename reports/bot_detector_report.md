@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-29 20:32 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-29 21:04 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,162,329** |
-| Neu (heute) | **+20** |
-| Entfernt | **-2** |
+| Gesamt IPs | **1,162,295** |
+| Neu (heute) | **+113** |
+| Entfernt | **-147** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 59 |
@@ -19,7 +19,7 @@
 
 | Quelle | IPs |
 |---|---|
-| ✅ `fadouse_clash_threat_intel` | 7,931 |
+| ✅ `fadouse_clash_threat_intel` | 7,937 |
 | ✅ `turntuptechnologies_iocs_scanner` | 105 |
 | ✅ `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | 50,857 |
 | ✅ `openprx_prx_sd_signatures` | 110,482 |
@@ -31,39 +31,39 @@
 | ✅ `skillter_proxygather_working_proxies_all` | 464 |
 | ✅ `skillter_proxygather_working_proxies_http` | 253 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,362 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,558 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,901 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,959 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,922 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,408 |
-| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,181 |
+| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,293 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,423 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,429 |
 | ❌ `vmheaven_vmheaven_io_free_proxy_list_https_anonymous` | 0 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,869 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,737 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 397 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,559 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 1,001 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 892 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 749 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 388 |
-| ✅ `officialputuid_proxyforeveryone` | 6,641 |
-| ✅ `officialputuid_proxyforeveryone_https` | 5,449 |
-| ✅ `officialputuid_proxyforeveryone_proxies` | 6,025 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,460 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 884 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 800 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 687 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 378 |
+| ✅ `officialputuid_proxyforeveryone` | 6,161 |
+| ✅ `officialputuid_proxyforeveryone_https` | 5,175 |
+| ✅ `officialputuid_proxyforeveryone_proxies` | 6,641 |
 | ✅ `ercindedeoglu_proxies` | 24,885 |
 | ✅ `ercindedeoglu_proxies_socks4` | 5,380 |
 | ✅ `ercindedeoglu_proxies_socks5` | 3,818 |
-| ✅ `tuanminpay_live_proxy` | 8,890 |
-| ✅ `tuanminpay_live_proxy_http` | 6,357 |
-| ✅ `tuanminpay_live_proxy_socks4` | 4,768 |
-| ✅ `tuanminpay_live_proxy_socks5` | 3,117 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 186,332 |
-| ✅ `noctiro_getproxy` | 4,247 |
-| ✅ `noctiro_getproxy_socks5` | 3,086 |
+| ✅ `tuanminpay_live_proxy` | 8,898 |
+| ✅ `tuanminpay_live_proxy_http` | 6,358 |
+| ✅ `tuanminpay_live_proxy_socks4` | 4,564 |
+| ✅ `tuanminpay_live_proxy_socks5` | 2,930 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 186,357 |
+| ✅ `noctiro_getproxy` | 4,300 |
+| ✅ `noctiro_getproxy_socks5` | 3,449 |
 | ✅ `mohammedcha_proxripper` | 42,212 |
 | ✅ `mohammedcha_proxripper_socks4` | 101,576 |
 | ✅ `mohammedcha_proxripper_http` | 106,380 |
 | ✅ `mohammedcha_proxripper_socks5` | 104,134 |
-| ✅ `celestialbrain_worldpool` | 71,125 |
+| ✅ `celestialbrain_worldpool` | 70,863 |
 | ✅ `dinoz0rg_proxy_list` | 73,066 |
 | ✅ `dinoz0rg_proxy_list_http` | 2,333 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 71,808 |
@@ -84,4 +84,4 @@
 > Diese 59 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-29 20:32 CEST (Europe/Berlin)*
+*Generiert: 2026-07-29 21:04 CEST (Europe/Berlin)*
