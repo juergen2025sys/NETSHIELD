@@ -4636,7 +4636,7 @@
     ],
     "last_changed_local": "2026-07-30 20:07 CEST (Berlin)",
     "last_changed_utc": "2026-07-30 18:07 UTC",
-    "unchanged_runs": 0
+    "unchanged_runs": 1
   },
   "blocklist_de_bruteforce": {
     "hash": "45049cea983fccb51ba958bb66876e112aaeed74191e591cdb689b74904b2343",
@@ -5484,7 +5484,7 @@
     ],
     "last_changed_local": "2026-07-30 20:07 CEST (Berlin)",
     "last_changed_utc": "2026-07-30 18:07 UTC",
-    "unchanged_runs": 0
+    "unchanged_runs": 1
   },
   "crash0v3r1de_mikrotik": {
     "hash": "6bb8246440e174e65b73cf1e61eced73305dd7463ea96d5409844776b3c38ac7",
@@ -6034,7 +6034,7 @@
     ],
     "last_changed_local": "2026-07-25 17:29 CEST (Berlin)",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 172
+    "unchanged_runs": 173
   },
   "criminalip_c2": {
     "hash": "335b9aa44c323f8a9915fe3191eb6e6a237e85a8b4378fd830568ccf5ea2a6d1",
@@ -6092,7 +6092,7 @@
     ],
     "last_changed_local": "2026-07-30 05:41 CEST (Berlin)",
     "last_changed_utc": "2026-07-30 03:41 UTC",
-    "unchanged_runs": 18
+    "unchanged_runs": 19
   },
   "dshield_1d": {
     "hash": "3aba71c664f220fbe30b46c19e1fd56abf13bd7cb5c568b70dcfefdd28d3465f",
@@ -6129,7 +6129,7 @@
     ],
     "last_changed_local": "2026-07-30 14:12 CEST (Berlin)",
     "last_changed_utc": "2026-07-30 12:12 UTC",
-    "unchanged_runs": 8
+    "unchanged_runs": 9
   },
   "honeysec_ip2": {
     "hash": "8e039d7c13bee8d4966ecf2606c5b3a56ab4423a34720eddc05393a4d6e1d050",
@@ -37956,7 +37956,7 @@
     ],
     "last_changed_local": "2026-07-30 08:48 CEST (Berlin)",
     "last_changed_utc": "2026-07-30 06:48 UTC",
-    "unchanged_runs": 15
+    "unchanged_runs": 16
   },
   "ipsum_level4": {
     "hash": "b6c2a35884cd9d04204c2decfe50584def8d434be27dc07e2c815e7a27ee5f04",
@@ -42766,7 +42766,7 @@
     ],
     "last_changed_local": "2026-07-30 05:41 CEST (Berlin)",
     "last_changed_utc": "2026-07-30 03:41 UTC",
-    "unchanged_runs": 18
+    "unchanged_runs": 19
   },
   "jamesbrine_honeypot": {
     "hash": "ec3d4adea771989e89f5f4cb7ae0b46db2d32e613162e569d8aec0374b96dc42",
@@ -92080,7 +92080,7 @@
     ],
     "last_changed_local": "2026-07-27 16:34 CEST (Berlin)",
     "last_changed_utc": "2026-07-27 14:34 UTC",
-    "unchanged_runs": 94
+    "unchanged_runs": 95
   },
   "reportedip": {
     "hash": "24fa0e68f6f87aae061f3407cdbdc5e5c19d83c8f832413d52726d54a9ee80fa",
@@ -102068,7 +102068,7 @@
     ],
     "last_changed_local": "2026-07-30 20:07 CEST (Berlin)",
     "last_changed_utc": "2026-07-30 18:07 UTC",
-    "unchanged_runs": 0
+    "unchanged_runs": 1
   },
   "reportedip_bruteforce": {
     "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -102116,7 +102116,7 @@
     "unchanged_runs": 0
   },
   "siberkapan_fortigate": {
-    "hash": "238fc38e4ed76a954e8aac24acffc18dfe94d765c712ff8570c0058c6aca209b",
+    "hash": "6a0b156dbeadd104a9e61594ef3692a9abecc0edc8b28704b4bcc3cc6334a8ac",
     "ips": [
       "1.0.214.209",
       "1.0.249.9",
@@ -114381,6 +114381,7 @@
       "167.250.160.139",
       "167.250.193.253",
       "167.250.49.155",
+      "167.58.84.56",
       "167.60.219.44",
       "167.71.132.111",
       "167.71.213.136",
@@ -133845,8 +133846,8 @@
       "99.6.104.157",
       "99.71.130.109"
     ],
-    "last_changed_local": "2026-07-30 20:07 CEST (Berlin)",
-    "last_changed_utc": "2026-07-30 18:07 UTC",
+    "last_changed_local": "2026-07-30 20:09 CEST (Berlin)",
+    "last_changed_utc": "2026-07-30 18:09 UTC",
     "unchanged_runs": 0
   },
   "sniffcat": {
@@ -163665,7 +163666,7 @@
     ],
     "last_changed_local": "2026-07-30 20:07 CEST (Berlin)",
     "last_changed_utc": "2026-07-30 18:07 UTC",
-    "unchanged_runs": 0
+    "unchanged_runs": 1
   },
   "stratosphere_aip": {
     "hash": "dd1ac65573728c3ac957bd2828ee17387175fa47eb155c71a14723663bc9cfd7",
@@ -174445,7 +174446,7 @@
     ],
     "last_changed_local": "2026-07-30 01:35 CEST (Berlin)",
     "last_changed_utc": "2026-07-29 23:35 UTC",
-    "unchanged_runs": 21
+    "unchanged_runs": 22
   },
   "stratosphere_aip_alpha": {
     "hash": "0a25955aff24b1299e1c3d0d9bdf6b05d0f52309d2928166bc2c43ad9faf547d",
@@ -183571,7 +183572,7 @@
     ],
     "last_changed_local": "2026-07-30 01:35 CEST (Berlin)",
     "last_changed_utc": "2026-07-29 23:35 UTC",
-    "unchanged_runs": 21
+    "unchanged_runs": 22
   },
   "stratosphere_aip_alpha7": {
     "hash": "f7473c4b6d7091181fbf8e0d8999bcb35ef77a1fd1f9af8cd4f22fda6d96f785",
@@ -212006,7 +212007,7 @@
     ],
     "last_changed_local": "2026-07-30 01:35 CEST (Berlin)",
     "last_changed_utc": "2026-07-29 23:35 UTC",
-    "unchanged_runs": 21
+    "unchanged_runs": 22
   },
   "threatfox_export": {
     "hash": "43c55897f074bf04b6aced07142d75dfe413dfcf85d11d4e74eeddae7c96f2e0",
@@ -232820,7 +232821,7 @@
     ],
     "last_changed_local": "2026-07-30 18:59 CEST (Berlin)",
     "last_changed_utc": "2026-07-30 16:59 UTC",
-    "unchanged_runs": 1
+    "unchanged_runs": 2
   },
   "timgerstel_suspicious_ips": {
     "hash": "641fa138de777e7f705e5aeff7df10579f8d478ea52cc1b2a315d3af54c1c1dd",
@@ -234245,7 +234246,7 @@
     ],
     "last_changed_local": "2026-07-30 20:07 CEST (Berlin)",
     "last_changed_utc": "2026-07-30 18:07 UTC",
-    "unchanged_runs": 0
+    "unchanged_runs": 1
   },
   "turris_greylist": {
     "hash": "48789b3af26c5e205faf9950a63ff5612d75c9ef5686c6a0f6b7853dc185419a",
@@ -242484,7 +242485,7 @@
     ],
     "last_changed_local": "2026-07-30 00:30 CEST (Berlin)",
     "last_changed_utc": "2026-07-29 22:30 UTC",
-    "unchanged_runs": 22
+    "unchanged_runs": 23
   },
   "urlhaus_export": {
     "hash": "b34e61ab7b3bceaec19f2a720586b56685bda8dd7a8371fca8b79857f01b823d",
@@ -246791,6 +246792,6 @@
     ],
     "last_changed_local": "2026-07-30 20:07 CEST (Berlin)",
     "last_changed_utc": "2026-07-30 18:07 UTC",
-    "unchanged_runs": 0
+    "unchanged_runs": 1
   }
 }
