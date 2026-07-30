@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-30 18:59 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-30 20:09 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,169,789** |
-| Neu (heute) | **+4** |
-| Entfernt | **-2** |
+| Gesamt IPs | **1,169,837** |
+| Neu (heute) | **+114** |
+| Entfernt | **-66** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 59 |
@@ -19,7 +19,7 @@
 
 | Quelle | IPs |
 |---|---|
-| ✅ `fadouse_clash_threat_intel` | 7,978 |
+| ✅ `fadouse_clash_threat_intel` | 7,984 |
 | ✅ `turntuptechnologies_iocs_scanner` | 126 |
 | ✅ `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | 51,024 |
 | ✅ `openprx_prx_sd_signatures` | 116,851 |
@@ -31,39 +31,39 @@
 | ✅ `skillter_proxygather_working_proxies_all` | 464 |
 | ✅ `skillter_proxygather_working_proxies_http` | 253 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,398 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,438 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,817 |
-| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,409 |
-| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,239 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,591 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,812 |
+| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,410 |
+| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,249 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,325 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,470 |
 | ❌ `vmheaven_vmheaven_io_free_proxy_list_https_anonymous` | 0 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,793 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,737 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 416 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,133 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 614 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 567 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 466 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 285 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 999 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 549 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 566 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 465 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 260 |
 | ✅ `officialputuid_proxyforeveryone` | 5,664 |
 | ✅ `officialputuid_proxyforeveryone_https` | 4,822 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 5,660 |
-| ✅ `ercindedeoglu_proxies` | 23,981 |
-| ✅ `ercindedeoglu_proxies_socks4` | 4,705 |
-| ✅ `ercindedeoglu_proxies_socks5` | 3,055 |
-| ✅ `tuanminpay_live_proxy` | 8,490 |
-| ✅ `tuanminpay_live_proxy_http` | 5,973 |
-| ✅ `tuanminpay_live_proxy_socks4` | 4,505 |
-| ✅ `tuanminpay_live_proxy_socks5` | 2,865 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 186,047 |
+| ✅ `ercindedeoglu_proxies` | 23,872 |
+| ✅ `ercindedeoglu_proxies_socks4` | 4,529 |
+| ✅ `ercindedeoglu_proxies_socks5` | 2,842 |
+| ✅ `tuanminpay_live_proxy` | 8,577 |
+| ✅ `tuanminpay_live_proxy_http` | 5,992 |
+| ✅ `tuanminpay_live_proxy_socks4` | 4,533 |
+| ✅ `tuanminpay_live_proxy_socks5` | 2,841 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 186,196 |
 | ✅ `noctiro_getproxy` | 4,307 |
 | ✅ `noctiro_getproxy_socks5` | 3,203 |
 | ✅ `mohammedcha_proxripper` | 42,120 |
 | ✅ `mohammedcha_proxripper_socks4` | 101,683 |
 | ✅ `mohammedcha_proxripper_http` | 106,235 |
 | ✅ `mohammedcha_proxripper_socks5` | 104,146 |
-| ✅ `celestialbrain_worldpool` | 71,414 |
+| ✅ `celestialbrain_worldpool` | 71,177 |
 | ✅ `dinoz0rg_proxy_list` | 72,359 |
 | ✅ `dinoz0rg_proxy_list_http` | 1,913 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 71,142 |
@@ -84,4 +84,4 @@
 > Diese 59 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-30 18:59 CEST (Europe/Berlin)*
+*Generiert: 2026-07-30 20:09 CEST (Europe/Berlin)*
