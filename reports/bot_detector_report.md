@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-30 05:41 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-30 05:52 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,169,698** |
-| Neu (heute) | **+494,626** |
-| Entfernt | **-487,197** |
+| Gesamt IPs | **1,169,704** |
+| Neu (heute) | **+16** |
+| Entfernt | **-10** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 59 |
@@ -31,10 +31,10 @@
 | ✅ `skillter_proxygather_working_proxies_all` | 464 |
 | ✅ `skillter_proxygather_working_proxies_http` | 253 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,362 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,731 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 4,030 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,520 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 4,028 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,432 |
-| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,387 |
+| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,392 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,423 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,429 |
 | ❌ `vmheaven_vmheaven_io_free_proxy_list_https_anonymous` | 0 |
@@ -64,9 +64,9 @@
 | ✅ `mohammedcha_proxripper_http` | 106,411 |
 | ✅ `mohammedcha_proxripper_socks5` | 104,355 |
 | ✅ `celestialbrain_worldpool` | 70,897 |
-| ✅ `dinoz0rg_proxy_list` | 73,156 |
-| ✅ `dinoz0rg_proxy_list_http` | 2,525 |
-| ✅ `dinoz0rg_proxy_list_socks5` | 71,885 |
+| ✅ `dinoz0rg_proxy_list` | 72,989 |
+| ✅ `dinoz0rg_proxy_list_http` | 2,166 |
+| ✅ `dinoz0rg_proxy_list_socks5` | 71,643 |
 | ✅ `darzanebor_mikroblack` | 47,484 |
 | ✅ `ian_lusule_proxies` | 3,749 |
 | ✅ `ian_lusule_proxies_socks5` | 1,855 |
@@ -84,4 +84,4 @@
 > Diese 59 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-30 05:41 CEST (Europe/Berlin)*
+*Generiert: 2026-07-30 05:52 CEST (Europe/Berlin)*
