@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-07-31 01:42 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-07-31 01:47 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -8,8 +8,8 @@
 | Metrik | Wert |
 |---|---|
 | Gesamt IPs | **1,170,208** |
-| Neu (heute) | **+132** |
-| Entfernt | **-60** |
+| Neu (heute) | **+16** |
+| Entfernt | **-16** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 59 |
@@ -46,9 +46,9 @@
 | ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 699 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 579 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 327 |
-| ✅ `officialputuid_proxyforeveryone` | 5,447 |
-| ✅ `officialputuid_proxyforeveryone_https` | 4,851 |
-| ✅ `officialputuid_proxyforeveryone_proxies` | 5,813 |
+| ✅ `officialputuid_proxyforeveryone` | 5,451 |
+| ✅ `officialputuid_proxyforeveryone_https` | 4,805 |
+| ✅ `officialputuid_proxyforeveryone_proxies` | 5,447 |
 | ✅ `ercindedeoglu_proxies` | 24,285 |
 | ✅ `ercindedeoglu_proxies_socks4` | 5,102 |
 | ✅ `ercindedeoglu_proxies_socks5` | 3,508 |
@@ -84,4 +84,4 @@
 > Diese 59 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-07-31 01:42 CEST (Europe/Berlin)*
+*Generiert: 2026-07-31 01:47 CEST (Europe/Berlin)*
