@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-07-31 04:18 UTC
+**Aktualisiert:** 2026-07-31 04:57 UTC
 
 ---
 ## 📊 Listen-Übersicht
@@ -11,18 +11,18 @@
 | ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **6,483,564** | 2026-07-31 04:12 UTC |
 | ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **51,086** | 2026-07-31 04:12 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **29,960** | 2026-07-30 06:19 UTC |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,170,212** | 2026-07-31 03:40 CEST (Europe/Berlin) |
-| ✅ `honeypot_ips.txt` | Honeypot IPs | **173,416** | 2026-07-31 03:40 CEST (Europe/Berlin) |
-| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **48,567** | 2026-07-31 03:04 CEST (Europe/Berlin) |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,175,572** | 2026-07-31 06:19 CEST (Europe/Berlin) |
+| ✅ `honeypot_ips.txt` | Honeypot IPs | **173,217** | 2026-07-31 06:19 CEST (Europe/Berlin) |
+| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **48,567** | 2026-07-31 06:40 CEST (Europe/Berlin) |
 
 ---
 ## 🔍 Feed Health: ✅ 119 OK | ⚠️ 0 leer | ❌ 0 Fehler
 
-**🧊 Eingefroren (19):** `amitambekar_threats` 46T, `bbcan177` 46T, `binaryedge_scanners` 46T, `blacksnowdot_packets` 46T, `cloudzy` 46T, `et_block` 46T, `feodo_aggressive` 46T, `feodo_recommended` 46T, `firehol_level1` 46T, `l7_ddos` 46T…
+**🧊 Eingefroren (20):** `amitambekar_threats` 47T, `bbcan177` 47T, `binaryedge_scanners` 47T, `blacksnowdot_packets` 47T, `cloudzy` 47T, `et_block` 47T, `feodo_aggressive` 47T, `feodo_recommended` 47T, `firehol_level1` 47T, `l7_ddos` 47T…
 
-*17 davon ≥21 Tage → im Combined automatisch in Quarantäne (eingefrorene HQ-Feeds zählen nicht mehr als frische Bestätigung, betroffene IPs altern normal aus). Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
+*19 davon ≥21 Tage → im Combined automatisch in Quarantäne (eingefrorene HQ-Feeds zählen nicht mehr als frische Bestätigung, betroffene IPs altern normal aus). Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
 
-*Letzter Check: 2026-07-30 03:51 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
+*Letzter Check: 2026-07-31 04:16 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -30,4 +30,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-07-31 04:18 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-07-31 04:57 UTC*
