@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-07-31 15:28 UTC
+**Aktualisiert:** 2026-07-31 20:35 UTC
 
 **Workflows:** 23 | ✅ 21 OK | ⚠️ 2 Warnung | ❌ 2 Fehler
 
@@ -9,10 +9,8 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `feed_overlap_report.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
-| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 172.67.142.245, 172.67.142.245 – Filterung wirkungslos! |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 112.1 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 112.2 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
-| `Production Health` | Truncate-Erstaktivierung | blacklist_confidence40_ipv4.txt: Splitting ERSTMALS aktiviert (2 neue Parts: blacklist_confidence40_ipv4_part1.txt, blacklist_confidence40_ipv4_part2.txt). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten. |
 
 ## ⚠️ Warnungen
 
@@ -21,19 +19,17 @@
 | `feed_overlap_report.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 1 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "threat_live" (https://list.threat.live/) |
 | `Cross-Workflow` | Doppelte Feed-URLs | 1 URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: greylist-latest.csv in honeypot_monitor.yml+update_combined_blacklist.yml |
-| `Production Health` | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 88.3 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 88.4 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 4 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 2 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 172.67.142.245, 172.67.142.245 – Filterung wirkungslos! |
-| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 112.1 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 112.2 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🔴 CRITICAL | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
-| 🔴 CRITICAL | Truncate-Erstaktivierung | blacklist_confidence40_ipv4.txt: Splitting ERSTMALS aktiviert (2 neue Parts: blacklist_confidence40_ipv4_part1.txt, blacklist_confidence40_ipv4_part2.txt). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten. |
-| 🟡 WARN | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 88.3 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 88.4 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
 
@@ -64,4 +60,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-07-31 15:28 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-07-31 20:35 UTC | 23 Workflow-Dateien geprüft*
