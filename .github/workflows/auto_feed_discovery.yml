@@ -34,9 +34,13 @@ concurrency:
 jobs:
   discover:
     runs-on: ubuntu-latest
-    # Erhöht von 45 auf 60 Min: GitLab-Suche + Awesome-List-Scraping
-    # benötigen zusätzliche ~10 Min im Worst-Case.
-    timeout-minutes: 60
+    # FIX RUNTIME-30MIN (2026-07-31): Von 60 auf 30 Min reduziert (Vorgabe:
+    # Gesamtlauf darf 30 Min nicht überschreiten). Erreicht durch
+    # Topic-/Code-Query-Rotation pro Kalenderwoche (siehe SEARCH_TOPICS-
+    # und SEARCH_CODE_QUERIES-Schleifen) statt vollem Scan aller Queries
+    # in jedem einzelnen Lauf. Interner Skript-Cutoff (_MAX_RUNTIME_SECONDS)
+    # liegt bei 22 Min, der Rest ist Puffer für Checkout/Cache/Commit/Push.
+    timeout-minutes: 30
 
     steps:
       # Idempotenz-Guard: Bei mehreren Cron-Slots (4:37, 7:23, 11:47 UTC) verhindert
@@ -143,11 +147,15 @@ jobs:
               joined = "\n".join(sorted(ip_set))
               return hashlib.sha1(joined.encode("utf-8")).hexdigest()[:16]
 
-          # FIX PERF-TIMEOUT: Globale Timeout-Sicherheit.
-          # Workflow hat 60-Minuten-Limit. Skript exitiert sauber bei 52min
-          # um Report noch committen zu können (if: always()).
+          # FIX RUNTIME-30MIN: Globale Timeout-Sicherheit.
+          # Workflow hat jetzt ein 30-Minuten-Limit (job.timeout-minutes).
+          # Skript exitiert sauber bei 22min, damit nach dem Python-Step
+          # noch genug Zeit fuer Cache-Save, Commit und Push-Retries bleibt
+          # (Checkout+Cache-Restore am Anfang + Commit/Push am Ende
+          # brauchen ausserhalb dieses Scripts nochmal ca. 1-2 Min, dazu
+          # Puffer fuer Runner-Start und Job-Overhead).
           _JOB_START = time.time()
-          _MAX_RUNTIME_SECONDS = 52 * 60  # 52 Minuten = harter Cutoff (war 40)
+          _MAX_RUNTIME_SECONDS = 22 * 60  # 22 Minuten = harter Cutoff (war 52)
           def _check_timeout(label=""):
               elapsed = time.time() - _JOB_START
               if elapsed > _MAX_RUNTIME_SECONDS:
@@ -1783,27 +1791,55 @@ jobs:
           candidate_repos = {}
           _github_found = 0
 
-          # FIX AUDIT-PERF-2 (2026-07-14): Diese Schleife war die einzige der
-          # Such-Phasen OHNE _check_timeout-Absicherung (Trusted-Owner-Suche,
-          # Awesome-List, GitLab-Suche, Eval-Phase haben sie alle). Bei 249
-          # Topics und dem durch das 30-Requests/Minute-Limit der Search-API
-          # vorgegebenen sleep(2) verbraucht allein diese Schleife im
-          # Minimum 249*2s = 8,3 Minuten, real durch API-Latenz eher mehr -
-          # ungebremst konnte sie das 52-Minuten-Laufzeitbudget so weit
-          # auffressen, dass fuer die Eval-Phase (die Kandidaten tatsaechlich
-          # zu genehmigten Feeds macht) keine Zeit mehr blieb. Mehr
-          # Kandidaten nuetzen nichts, wenn sie nie evaluiert werden.
-          for topic in SEARCH_TOPICS:
+          # FIX ROTATION-30MIN (2026-07-31): Vorher wurden ALLE 249 Topics
+          # JEDEN Lauf mit sort=updated&per_page=100 (nur Seite 1) abgefragt.
+          # Root-Cause-Befund: Bei sort=updated dominieren dieselben, staendig
+          # aktiven Top-100-Repos jede Woche das Ergebnis - neue/weniger
+          # aktive Repos mit demselben Topic (Platz 101+) wurden NIE erreicht,
+          # weil nie eine zweite Seite geholt wurde. Ausserdem kostete der
+          # volle Scan allein schon min. 249*2s = 8,3 Minuten und liess kaum
+          # Budget fuer die Eval-Phase (30-Minuten-Gesamtlimit).
+          #
+          # Fix: Pro Kalenderwoche wird nur 1 von 4 Topic-Chunks bearbeitet
+          # (Round-Robin ueber ISO-Kalenderwoche, kein State noetig - der
+          # woechentliche Cron sorgt fuer natuerliche Rotation). Interleaved
+          # Split (chunk = SEARCH_TOPICS[idx::4]) statt Bloecken, damit jeder
+          # Chunk Themen aus allen Kategorien enthaelt und nicht nur z.B.
+          # Malware-Familien in Woche 1 und Honeypot-Typen in Woche 3.
+          # Dafuer werden pro Topic jetzt 2 Seiten geholt (Platz 1-200 statt
+          # nur 1-100), und die Sortierung alterniert wochenweise zwischen
+          # "updated" (aktive Repos) und "created" (neu angelegte Repos) -
+          # "created" findet gezielt frische Repos, die bei "updated" nie an
+          # die Oberflaeche kommen. Damit wird der volle Topic-Katalog alle
+          # 4 Wochen einmal durchsucht, alle 8 Wochen mit beiden Sortierungen.
+          _iso_week = now.isocalendar()[1]
+          _TOPIC_CHUNK_COUNT = 4
+          _topic_chunk_idx = _iso_week % _TOPIC_CHUNK_COUNT
+          _topic_chunk = SEARCH_TOPICS[_topic_chunk_idx::_TOPIC_CHUNK_COUNT]
+          _topic_sort = "updated" if (_iso_week % 2 == 0) else "created"
+          print(f"Topic-Rotation: Woche {_iso_week}, Chunk {_topic_chunk_idx+1}/{_TOPIC_CHUNK_COUNT} "
+                f"({len(_topic_chunk)} von {len(SEARCH_TOPICS)} Topics), sort={_topic_sort}")
+
+          for topic in _topic_chunk:
               if _check_timeout("Topic-Suche"):
                   break
               print(f"Suche GitHub-Topic: {topic}...")
-              data = gh_api(f"/search/repositories?q=topic:{topic}&sort=updated&order=desc&per_page=100")
-              time.sleep(2)
-              if not data:
-                  continue
-              for repo in data.get("items", []):
-                  add_repo_candidate(candidate_repos, repo, f"topic:{topic}")
-                  _github_found += 1
+              for _page in (1, 2):
+                  if _check_timeout("Topic-Suche-Paginierung"):
+                      break
+                  data = gh_api(
+                      f"/search/repositories?q=topic:{topic}&sort={_topic_sort}"
+                      f"&order=desc&per_page=100&page={_page}"
+                  )
+                  time.sleep(2)
+                  if not data:
+                      break
+                  _items = data.get("items", [])
+                  for repo in _items:
+                      add_repo_candidate(candidate_repos, repo, f"topic:{topic}")
+                      _github_found += 1
+                  if len(_items) < 100:
+                      break  # keine weitere Seite noetig, Ergebnis erschoepft
 
           print(f"\nGitHub-Topic-Suche: {_github_found} Treffer → {len(candidate_repos)} Kandidaten")
 
@@ -1845,33 +1881,41 @@ jobs:
 
           print(f"Trusted-Owner-Suche: {_owner_found} zusätzliche Kandidaten")
 
-          # Code-Search: nur starten wenn Topic-Suche wenige Kandidaten fand.
-          # Bei >300 Kandidaten aus Topic-Suche ist Code-Search reiner Zeitverlust –
-          # die Kandidaten aus Topic-Suche decken das Feld bereits gut ab, und
-          # jeder Rate-Limit-Hit kostet 60+ Sekunden Wartezeit (wie im Log sichtbar:
-          # "Rate-Limit (HTTP 429) – warte 65s bis Reset..." ×4 → >4 min verschwendet
-          # bevor der Circuit-Breaker überhaupt feuert).
+          # FIX CODE-SEARCH-ALWAYS-ON (2026-07-31): Root-Cause-Befund war, dass
+          # die alte Schwelle (Skip sobald candidate_repos >= 300) die
+          # Code-Search PRAKTISCH BEI JEDEM LAUF verhinderte, weil die
+          # Topic-Suche allein schon tausende Kandidaten liefert. Dabei ist
+          # Code-Search laut Konstruktion (filename:-Queries matchen direkt
+          # IP_FILE_PATTERNS) der treffsicherste Suchpfad und hatte trotzdem
+          # ein eigenes, dadurch staendig leeres Eval-Budget (QUOTA_CODE).
           #
-          # FIX CODE-SEARCH-RATELIMIT:
-          #   1. Skip wenn bereits genug Kandidaten vorhanden (>300)
-          #   2. MAX_WAIT_SECONDS für Code-Search = 0 → sofortiger Skip bei 429,
+          # Fix: Schwelle entfernt, Code-Search laeuft jetzt IMMER, aber mit
+          # wochenweise rotierten Query-Chunks (analog zur Topic-Rotation
+          # oben) statt aller 135 Queries auf einmal - das haelt die Phase
+          # bei ca. 27 Queries * 7s ≈ 3,2 Minuten statt bis zu 15,75 Minuten
+          # bei vollem Durchlauf. Voller Query-Katalog wird alle 5 Wochen
+          # einmal komplett durchsucht.
+          #
+          # FIX CODE-SEARCH-RATELIMIT (unveraendert):
+          #   1. MAX_WAIT_SECONDS für Code-Search = 0 → sofortiger Skip bei 429,
           #      kein langes Warten das den Timeout auffrisst
-          #   3. Circuit-Breaker auf 2 statt 5 reduziert – beim ersten Doppel-429
+          #   2. Circuit-Breaker auf 2 statt 5 reduziert – beim ersten Doppel-429
           #      sofort abbrechen statt 5× 65s zu warten
-          #   4. Nur 1 Worker statt 2 – verhindert parallele 429-Bursts
-          CODE_SEARCH_CANDIDATE_THRESHOLD = 300
+          #   3. Nur 1 Worker statt 2 – verhindert parallele 429-Bursts
           import threading as _threading
           _cs_skip_lock = _threading.Lock()
           _cs_consecutive_skips = [0]
           _cs_break_event = _threading.Event()
 
-          if len(candidate_repos) >= CODE_SEARCH_CANDIDATE_THRESHOLD:
-              print(f"\nCode-Search ÜBERSPRUNGEN: bereits {len(candidate_repos)} Kandidaten "
-                    f"aus Topic-Suche (Schwelle: {CODE_SEARCH_CANDIDATE_THRESHOLD}) – "
-                    f"Rate-Limit-Budget wird geschont")
+          _CODE_CHUNK_COUNT = 5
+          _code_chunk_idx = _iso_week % _CODE_CHUNK_COUNT
+          _code_chunk = SEARCH_CODE_QUERIES[_code_chunk_idx::_CODE_CHUNK_COUNT]
+
+          if _check_timeout("Code-Search-Start"):
+              print("\nCode-Search ÜBERSPRUNGEN: globales Laufzeitbudget bereits ausgeschöpft")
           else:
-              print(f"\nCode-Search startet ({len(candidate_repos)} Kandidaten bisher, "
-                    f"< {CODE_SEARCH_CANDIDATE_THRESHOLD} Schwelle)...")
+              print(f"\nCode-Search startet: Woche {_iso_week}, Chunk {_code_chunk_idx+1}/"
+                    f"{_CODE_CHUNK_COUNT} ({len(_code_chunk)} von {len(SEARCH_CODE_QUERIES)} Queries)")
 
               # Eigener gh_api-Wrapper für Code-Search ohne Wartezeit bei 429.
               # Normales gh_api wartet bis zu MAX_WAIT_SECONDS (90s) – für Code-Search
@@ -1901,6 +1945,9 @@ jobs:
 
               def _search_code_one(query):
                   if _cs_break_event.is_set():
+                      return None
+                  if _check_timeout("Code-Search-Query"):
+                      _cs_break_event.set()
                       return None
                   print(f"Suche Code: {query}...")
                   encoded_query = urllib.parse.quote(query, safe=':+*')
@@ -1934,16 +1981,16 @@ jobs:
                           add_repo_candidate(candidate_repos, repo, f"code:{query}")
                   # PERF: 10s -> 7s. Bei 9 Req/Min (siehe oben) ist die
                   # minimale sichere Pause 60/9 = 6,67s. 7s haelt mit
-                  # kleinem Puffer sicher darunter (~8,6 Req/Min effektiv)
-                  # und spart bei ~172 Queries in Serie ca. 8,5 Minuten
-                  # gegenueber vorher (nur wirksam, wenn die Code-Search-
-                  # Phase ueberhaupt laeuft, siehe CODE_SEARCH_CANDIDATE_THRESHOLD).
+                  # kleinem Puffer sicher darunter (~8,6 Req/Min effektiv).
+                  # Bei ca. 27 Queries pro Wochen-Chunk (siehe _CODE_CHUNK_COUNT
+                  # oben) sind das ca. 3,2 Min pro Lauf statt bis zu 15,75 Min
+                  # bei allen 135 Queries auf einmal.
                   time.sleep(7)
                   return data
 
               # 1 Worker statt 2: verhindert parallele 429-Bursts
               with ThreadPoolExecutor(max_workers=1) as _cs_ex:
-                  list(_cs_ex.map(_search_code_one, SEARCH_CODE_QUERIES))
+                  list(_cs_ex.map(_search_code_one, _code_chunk))
 
           print(f"\nNach GitHub-Suche: {len(candidate_repos)} Kandidaten gesamt")
 
@@ -2727,6 +2774,18 @@ jobs:
 
           # Pool 4: Frische GitHub-Repos die nicht ins Reputation-Top-120 kamen
           # - oft kleine, junge Feeds, die im normalen Ranking untergehen
+          #
+          # FIX QUOTA-REDISTRIBUTE (2026-07-31): Ungenutzte Slots aus dem
+          # Code-Pool (z.B. wenn der Wochen-Chunk wenig Treffer hatte) und dem
+          # GitLab-Pool (nur ~70 GitLab-Kandidaten insgesamt vorhanden, Quote
+          # von 40 selten voll) verfallen NICHT mehr, sondern werden an den
+          # Fresh-Pool weitergereicht. Bewusst NUR an Fresh (nicht an den
+          # Reputation-Pool) - beide bevorzugen frische statt bekannte Repos,
+          # das urspruengliche Ziel der Stratifizierung (kein Reputations-
+          # Bias) bleibt damit erhalten, nur totes Budget wird genutzt.
+          _quota_fresh_effective = (
+              QUOTA_FRESH + max(0, QUOTA_CODE - _code_added) + max(0, QUOTA_GITLAB - _gl_added)
+          )
           _fresh_pool = [
               (k, v) for k, v in _all_items
               if not _is_gitlab(v) and not _is_awesome(v)
@@ -2734,7 +2793,7 @@ jobs:
           ]
           _fresh_pool.sort(key=lambda x: _pushed_key(x[1]), reverse=True)
           _fresh_added = 0
-          for k, v in _fresh_pool[:QUOTA_FRESH]:
+          for k, v in _fresh_pool[:_quota_fresh_effective]:
               _sorted_candidates.append((k, v))
               _picked_keys.add(k)
               _fresh_added += 1
@@ -2745,7 +2804,9 @@ jobs:
               f"  Reputation-Pool (GH):     {min(QUOTA_REP, len(_rep_pool))}\n"
               f"  Awesome-Pool:             {_aw_added} (von {len(_aw_pool)} verfuegbar)\n"
               f"  GitLab-Pool:              {_gl_added} (von {len(_gl_pool)} verfuegbar)\n"
-              f"  Fresh-Pool (GH):          {_fresh_added} (von {len(_fresh_pool)} verfuegbar)\n"
+              f"  Fresh-Pool (GH):          {_fresh_added} (von {len(_fresh_pool)} verfuegbar, "
+              f"Quote {_quota_fresh_effective} = {QUOTA_FRESH} Basis + "
+              f"{_quota_fresh_effective - QUOTA_FRESH} umverteilt von Code/GitLab)\n"
               f"  → EVAL-Total:             {len(_sorted_candidates)} (Budget {EVAL_BUDGET})"
           )
 
@@ -3566,7 +3627,15 @@ jobs:
                   return "Repo zu alt (>30d)"
               if r.startswith("IP-Datei"):
                   return "IP-Datei veraltet (>30d)"
-              if r == "Keine IP-Datei":
+              # FIX REASON-MISMATCH (2026-07-31): War exakter Vergleich
+              # (r == "Keine IP-Datei"), matchte aber nie den tatsaechlichen
+              # Grund "Keine IP-Datei (Name/Inhalt)" aus _evaluate_one
+              # (Content-Sniff-Reject). Dadurch landete der haeufigste
+              # Ablehnungsgrund im Report faelschlich unter "Sonstige" statt
+              # hier aufzutauchen. startswith() matcht beide Varianten
+              # (Alt-Cache-Eintraege "Keine IP-Datei" ohne Suffix UND die
+              # aktuelle Variante mit Suffix).
+              if r.startswith("Keine IP-Datei"):
                   return "Keine IP-Datei im Repo"
               if r == "Download-Fehler":
                   return "Download fehlgeschlagen"
