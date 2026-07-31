@@ -256,6 +256,20 @@ jobs:
               "whitelist", "allowlist", "safelist", "greenlist",
           })
 
+          # FIX OWNER-BLOCKLIST (2026-07-31): Repo-Owner, die wiederholt viele
+          # fast-identische Repos mit Eval-Budget verbrauchen, ohne je eine
+          # Chance auf Annahme zu haben. Konkreter Befund aus Report vom
+          # 31.07.: 10 von 12 "Overlap zu gering"-Ablehnungen kamen von
+          # `gnxD3RfTT2WE` (~10 Repos wie proxy-list-for-scraping,
+          # socks-proxy-list-free, txt-proxy-list, ...) - offene Scraping-
+          # Proxys, keine boesartigen IPs, daher strukturell nie Overlap mit
+          # den HQ-Referenz-Feeds. Owner-Sperre statt Keyword-Sperre, damit
+          # legitime Tor-Exit-/Malicious-Proxy-Feeds anderer Betreiber nicht
+          # mitbetroffen sind. Bei Bedarf einfach weitere Owner ergänzen.
+          BLOCKED_OWNERS = {
+              "gnxd3rftt2we",
+          }
+
           # ── Dateinamen-Muster für IP-Listen ───────────────────────────────
           # Erlaubt optional .gz-Suffix – fetch_url dekomprimiert transparent.
           # IP_FILE_PATTERNS: erkennt IP-Listen-Dateien anhand Name/Extension.
@@ -894,6 +908,13 @@ jobs:
                   return
               full_name = repo.get("full_name")
               if not full_name or full_name in KNOWN_REPOS:
+                  return
+              # FIX OWNER-BLOCKLIST: siehe BLOCKED_OWNERS weiter oben. Frühester
+              # moeglicher Filterpunkt - spart Eval-Budget komplett statt den
+              # Kandidaten erst durch Tool-Filter/Stratifizierung laufen zu
+              # lassen und ihn dann doch abzulehnen.
+              _owner_l = full_name.split("/", 1)[0].lower() if "/" in full_name else ""
+              if _owner_l in BLOCKED_OWNERS:
                   return
               combined = " ".join([
                   full_name.lower(),
@@ -2844,7 +2865,45 @@ jobs:
                       pushed_str[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
                   days_old = (now - pushed_dt).days
               except Exception:
+                  days_old = None  # unbekannt - siehe Live-Nachladung unten
+
+              if days_old is None and _platform == "github":
+                  # FIX CODE-SEARCH-PUSHED-MISSING (2026-07-31): Verifiziert gegen
+                  # die offizielle GitHub-Doku (docs.github.com/en/rest/search/search
+                  # #search-code) - das eingebettete "repository"-Objekt der
+                  # /search/code-Antwort enthaelt KEIN pushed_at (und auch kein
+                  # stargazers_count/forks_count/topics/language). Seit Code-Search
+                  # tatsaechlich laeuft (vorheriger Fix), wurden dadurch alle
+                  # Code-Search-Kandidaten hier faelschlich als "999 Tage alt"
+                  # abgelehnt, noch bevor ihr Inhalt geprueft wurde (im Report vom
+                  # 31.07. betraf das 58 von 300 Kandidaten). Statt das als "zu alt"
+                  # zu werten, wird das echte Datum per einzelnem, guenstigem
+                  # REST-Call nachgeladen (normales 5000/h-Limit, NICHT das enge
+                  # Search-Limit) - nur fuer den kleinen Anteil an Kandidaten ohne
+                  # brauchbares pushed-Feld, keine Mehrkosten fuer den Regelfall.
+                  _repo_meta = gh_api(f"/repos/{full_name}")
+                  if _repo_meta and _repo_meta.get("pushed_at"):
+                      try:
+                          pushed_dt = datetime.strptime(
+                              _repo_meta["pushed_at"][:10], "%Y-%m-%d"
+                          ).replace(tzinfo=timezone.utc)
+                          days_old = (now - pushed_dt).days
+                          # Stars/Forks fehlten aus demselben Grund evtl. auch -
+                          # gleich mit auffrischen, damit Reputation/Tool-Filter
+                          # spaeter nicht auf 0 statt echtem Wert basieren.
+                          meta["stars"] = _repo_meta.get("stargazers_count", meta.get("stars", 0))
+                          meta["forks"] = _repo_meta.get("forks_count", meta.get("forks", 0))
+                          _log_lines.append(
+                              f"  ℹ pushed_at fehlte (Code-Search-Herkunft) – "
+                              f"per API nachgeladen: {days_old} Tage alt"
+                          )
+                      except Exception:
+                          days_old = 999
+                  else:
+                      days_old = 999
+              elif days_old is None:
                   days_old = 999
+
               if days_old > 30:
                   _log_lines.append(f"  ❌ Aktualität: {days_old} Tage alt (max. 30)")
                   return {"action": "reject", "repo": _reject_key,
