@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-31 09:51 UTC",
+  "updated": "2026-07-31 15:28 UTC",
   "total": 23,
   "ok": 21,
   "warn": 2,
@@ -12,13 +12,23 @@
     },
     {
       "file": "Production Health",
+      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 172.67.142.245, 172.67.142.245 \u2013 Filterung wirkungslos!"
+    },
+    {
+      "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 112.0 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 112.1 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
       "detail": "state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+    },
+    {
+      "file": "Production Health",
+      "check": "Truncate-Erstaktivierung",
+      "detail": "blacklist_confidence40_ipv4.txt: Splitting ERSTMALS aktiviert (2 neue Parts: blacklist_confidence40_ipv4_part1.txt, blacklist_confidence40_ipv4_part2.txt). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten."
     }
   ],
   "warnings": [
@@ -40,25 +50,30 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "blacklist_confidence40_ipv4.txt: 88.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "blacklist_confidence40_ipv4.txt: 88.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4116535,
-    "active_blacklist_ipv4.txt": 504930,
-    "blacklist_confidence40_ipv4.txt": 6485292,
+    "combined_threat_blacklist_ipv4_part1.txt": 4122976,
+    "active_blacklist_ipv4.txt": 518226,
+    "blacklist_confidence40_ipv4.txt": 6498032,
     "cve_exploit_ips.txt": 29990,
-    "honeypot_ips.txt": 173100,
-    "bot_detector_blacklist_ipv4.txt": 1175674
+    "honeypot_ips.txt": 173113,
+    "bot_detector_blacklist_ipv4.txt": 1175922
   },
   "production_health": {
-    "critical": 2,
+    "critical": 4,
     "warn": 1,
     "checks": [
       {
         "level": "CRITICAL",
+        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 172.67.142.245, 172.67.142.245 \u2013 Filterung wirkungslos!"
+      },
+      {
+        "level": "CRITICAL",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 112.0 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 112.1 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
       },
       {
         "level": "CRITICAL",
@@ -68,7 +83,12 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "blacklist_confidence40_ipv4.txt: 88.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "blacklist_confidence40_ipv4.txt: 88.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Truncate-Erstaktivierung",
+        "detail": "blacklist_confidence40_ipv4.txt: Splitting ERSTMALS aktiviert (2 neue Parts: blacklist_confidence40_ipv4_part1.txt, blacklist_confidence40_ipv4_part2.txt). Konsumenten muessen Hauptdatei + Parts lesen, sonst unvollstaendige Daten."
       }
     ]
   },
@@ -77,7 +97,10 @@
       "combined_threat_blacklist_ipv4_part1.txt",
       "combined_threat_blacklist_ipv4_part2.txt"
     ],
-    "blacklist_confidence40_ipv4.txt": [],
+    "blacklist_confidence40_ipv4.txt": [
+      "blacklist_confidence40_ipv4_part1.txt",
+      "blacklist_confidence40_ipv4_part2.txt"
+    ],
     "geo_enriched/blacklist_geo_enriched.json": []
   }
 }
