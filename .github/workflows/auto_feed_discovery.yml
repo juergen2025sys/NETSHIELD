@@ -3063,6 +3063,44 @@ jobs:
               _picked_keys.add(k)
               _fresh_added += 1
 
+          # FIX EVAL-BUDGET-DYNAMIC (2026-08-01): Beobachtet im Lauf vom 01.08.
+          # (Job #ohne Nummer, 18:30-19:01 UTC) - der komplette Run wurde vom
+          # harten 30-Minuten-Job-Limit abgebrochen (##[error] The operation
+          # was canceled, exakt bei 30:11), OHNE dass Report oder State
+          # ueberhaupt geschrieben wurden ("Keine Aenderungen" im Commit-Log).
+          # Ursache: Die Eval-Phase (blockierender ThreadPoolExecutor.map()-
+          # Aufruf) startete um 18:56:16 - mitten im internen 26-Minuten-
+          # Cutoff (~18:57 ab Job-Start 18:30:55). Da dieser Aufruf erst
+          # zurueckkehrt, wenn ALLE Worker fertig sind, konnte _check_timeout()
+          # innerhalb einzelner _evaluate_one-Aufrufe den bereits laufenden
+          # Block nicht mehr stoppen - die Discovery-/Refresh-Phasen allein
+          # hatten schon fast das gesamte Budget verbraucht (24,5 von 26 Min).
+          # Fix: Kandidatenliste HIER, VOR dem blockierenden Aufruf, dynamisch
+          # auf die tatsaechlich verbleibende Zeit kappen (konservative
+          # Schaetzung 1,5s/Kandidat bei 4 Workern, plus 90s Sicherheitspuffer
+          # fuer Report-Schreiben/State-Save/Commit-Vorbereitung danach).
+          # Prioritaet bleibt gewahrt, da Pools in Prioritaetsreihenfolge
+          # angehaengt wurden (Code > Rep > Awesome > GitLab > Gitea > Fresh) -
+          # eine Kappung am Ende trifft zuerst die niedrigst priorisierten
+          # Fresh-Kandidaten, nicht die wertvollen Code-/Rep-Pool-Treffer.
+          _ESTIMATED_SECONDS_PER_EVAL_CANDIDATE = 1.5
+          _EVAL_PHASE_SAFETY_BUFFER_SECONDS = 90
+          _elapsed_before_eval = time.time() - _JOB_START
+          _remaining_before_cutoff = _MAX_RUNTIME_SECONDS - _elapsed_before_eval
+          _eval_time_budget = max(0, _remaining_before_cutoff - _EVAL_PHASE_SAFETY_BUFFER_SECONDS)
+          _max_candidates_fitting = int(_eval_time_budget / _ESTIMATED_SECONDS_PER_EVAL_CANDIDATE)
+          _dynamic_cap_applied = False
+          if len(_sorted_candidates) > _max_candidates_fitting:
+              _dynamic_cap_applied = True
+              _capped_at = max(20, _max_candidates_fitting)
+              print(
+                  f"WARNUNG EVAL-BUDGET-DYNAMIC: Nur noch {_remaining_before_cutoff:.0f}s bis "
+                  f"internem Cutoff ({_elapsed_before_eval:.0f}s bereits durch Discovery-/"
+                  f"Refresh-Phasen verbraucht) - Eval-Liste von {len(_sorted_candidates)} auf "
+                  f"{_capped_at} gekappt, damit Report/State/Commit garantiert noch Zeit haben."
+              )
+              _sorted_candidates = _sorted_candidates[:_capped_at]
+
           print(
               f"Stratifizierte Auswahl aus {len(candidate_repos)} Kandidaten:\n"
               f"  Code-Search-Pool (GH):    {_code_added} (von {len(_code_pool)} verfuegbar)\n"
@@ -3073,7 +3111,8 @@ jobs:
               f"  Fresh-Pool (GH):          {_fresh_added} (von {len(_fresh_pool)} verfuegbar, "
               f"Quote {_quota_fresh_effective} = {QUOTA_FRESH} Basis + "
               f"{_quota_fresh_effective - QUOTA_FRESH} umverteilt von Code/GitLab/Gitea)\n"
-              f"  → EVAL-Total:             {len(_sorted_candidates)} (Budget {EVAL_BUDGET})"
+              f"  → EVAL-Total:             {len(_sorted_candidates)} (Budget {EVAL_BUDGET}"
+              f"{', dynamisch gekappt wegen Zeitbudget' if _dynamic_cap_applied else ''})"
           )
 
           _eval_lock = _threading.Lock()
