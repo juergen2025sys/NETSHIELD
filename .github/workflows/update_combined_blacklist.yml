@@ -105,6 +105,42 @@ jobs:
         with:
           persist-credentials: true
 
+      # FIX RACE-STALE-CHECKOUT (2026-08-01): Beobachtet im Log vom 01.08.:
+      # Dieser Job startete 9s NACH einem erfolgreichen Push von
+      # auto_feed_discovery.yml, bekam laut `git log -1 --format=%H` aber
+      # trotzdem einen AELTEREN Commit als den frisch gepushten (vermutlich
+      # GitHub-interne Replikationsverzoegerung zwischen Push und der naechsten
+      # Checkout-Anfrage, nicht durch actions/checkout selbst verursacht).
+      # Folge: zwei neu entdeckte Feeds (bitwire_it_ip_list_fetch,
+      # leon406_subcrawler) fehlten in diesem Lauf komplett, obwohl ihr Commit
+      # laengst gepusht war.
+      #
+      # Fix: Nach dem Checkout einmal explizit gegen origin/main resyncen,
+      # mit kurzen Retries falls der allererste Fetch noch den alten Stand
+      # liefert. Bewusst KEIN workflow_run-Trigger (siehe Kommentar weiter
+      # unten bei "Trigger Confidence Blacklist" – workflow_run erwies sich
+      # in diesem Projekt bereits als unzuverlaessig bei workflow_dispatch-
+      # Ausloesung), sondern ein einfacher, in sich abgeschlossener Resync.
+      - name: Resync auf aktuellsten origin/main-Stand (Race-Condition-Fix)
+        if: steps.idempotency.outputs.already_ran != 'true'
+        run: |
+          BEFORE=$(git rev-parse HEAD)
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main --quiet
+            REMOTE=$(git rev-parse origin/main)
+            if [ "$(git rev-parse HEAD)" = "$REMOTE" ]; then
+              break
+            fi
+            git reset --hard "$REMOTE" --quiet
+            sleep 2
+          done
+          AFTER=$(git rev-parse HEAD)
+          if [ "$BEFORE" != "$AFTER" ]; then
+            echo "Resync: HEAD war veraltet ($BEFORE), jetzt aktuell ($AFTER)"
+          else
+            echo "Resync: HEAD war bereits aktuell ($AFTER)"
+          fi
+
       - name: Restore seen_db Cache
         if: steps.idempotency.outputs.already_ran != 'true'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
