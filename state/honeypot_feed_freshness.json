@@ -3303,7 +3303,7 @@
     ],
     "last_changed_local": "2026-08-02 01:45 CEST (Berlin)",
     "last_changed_utc": "2026-08-01 23:45 UTC",
-    "unchanged_runs": 0
+    "unchanged_runs": 1
   },
   "blocklist_de_bruteforce": {
     "hash": "4b787900402c42ade857d5fe25bbc2540d4e89b79776a4130e6d31df5118213a",
@@ -4567,7 +4567,7 @@
     ],
     "last_changed_local": "2026-08-02 01:45 CEST (Berlin)",
     "last_changed_utc": "2026-08-01 23:45 UTC",
-    "unchanged_runs": 0
+    "unchanged_runs": 1
   },
   "crash0v3r1de_mikrotik": {
     "hash": "6bb8246440e174e65b73cf1e61eced73305dd7463ea96d5409844776b3c38ac7",
@@ -5117,7 +5117,7 @@
     ],
     "last_changed_local": "2026-07-25 17:29 CEST (Berlin)",
     "last_changed_utc": "2026-07-25 04:40 UTC",
-    "unchanged_runs": 244
+    "unchanged_runs": 245
   },
   "criminalip_c2": {
     "hash": "f7f1d554d6faff04d3155cfee3eaa40381c1d94a7e5f2a60ee7053f774dcd5ad",
@@ -5175,7 +5175,7 @@
     ],
     "last_changed_local": "2026-08-01 03:08 CEST (Berlin)",
     "last_changed_utc": "2026-08-01 01:08 UTC",
-    "unchanged_runs": 32
+    "unchanged_runs": 33
   },
   "dshield_1d": {
     "hash": "13fe2b6695ab619791134bfd63aaa0db9743aab992854418270764eafec4960d",
@@ -5214,7 +5214,7 @@
     ],
     "last_changed_local": "2026-08-01 12:48 CEST (Berlin)",
     "last_changed_utc": "2026-08-01 10:48 UTC",
-    "unchanged_runs": 20
+    "unchanged_runs": 21
   },
   "honeysec_ip2": {
     "hash": "f478e251263197405dad572291006bb51dc16207f6619def81c39a6f47c6bfa6",
@@ -37174,7 +37174,7 @@
     ],
     "last_changed_local": "2026-08-01 09:21 CEST (Berlin)",
     "last_changed_utc": "2026-08-01 07:21 UTC",
-    "unchanged_runs": 26
+    "unchanged_runs": 27
   },
   "ipsum_level4": {
     "hash": "7a59660dcbbe37f535e89f55119e5c0736ce1ddef492d108230be2235af83064",
@@ -44064,7 +44064,7 @@
     ],
     "last_changed_local": "2026-08-01 03:08 CEST (Berlin)",
     "last_changed_utc": "2026-08-01 01:08 UTC",
-    "unchanged_runs": 32
+    "unchanged_runs": 33
   },
   "jamesbrine_honeypot": {
     "hash": "ec3d4adea771989e89f5f4cb7ae0b46db2d32e613162e569d8aec0374b96dc42",
@@ -93378,10 +93378,10 @@
     ],
     "last_changed_local": "2026-07-27 16:34 CEST (Berlin)",
     "last_changed_utc": "2026-07-27 14:34 UTC",
-    "unchanged_runs": 166
+    "unchanged_runs": 167
   },
   "reportedip": {
-    "hash": "d74d0d3990bdf2f1d395a73b954f61cf59794ca8b658ca12300dc81cace8601b",
+    "hash": "96b1c0bdbd18ec36573642f10a80601e473b7d2f0b59e0e3ad0f732b65a9c4ff",
     "ips": [
       "1.12.48.131",
       "1.12.55.42",
@@ -93823,7 +93823,6 @@
       "103.245.17.220",
       "103.245.19.18",
       "103.248.120.6",
-      "103.249.82.242",
       "103.249.84.242",
       "103.250.10.115",
       "103.250.10.18",
@@ -101177,6 +101176,7 @@
       "47.252.16.44",
       "47.254.156.14",
       "47.254.173.24",
+      "47.254.184.14",
       "47.254.193.225",
       "47.254.196.105",
       "47.254.213.222",
@@ -103365,8 +103365,8 @@
       "99.6.104.157",
       "99.74.53.136"
     ],
-    "last_changed_local": "2026-08-02 01:45 CEST (Berlin)",
-    "last_changed_utc": "2026-08-01 23:45 UTC",
+    "last_changed_local": "2026-08-02 01:47 CEST (Berlin)",
+    "last_changed_utc": "2026-08-01 23:47 UTC",
     "unchanged_runs": 0
   },
   "reportedip_bruteforce": {
@@ -103415,7 +103415,7 @@
     "unchanged_runs": 0
   },
   "siberkapan_fortigate": {
-    "hash": "0322bd2c72a2593e20b3dc57f0b2c0e9727e0fee0d02ce05a373d5f002432f27",
+    "hash": "43c3944e48ff03fbc81218394bf311cb7f6f68ed788d000a3d93f7c5e47073ef",
     "ips": [
       "1.0.214.209",
       "1.0.249.9",
@@ -135692,6 +135692,7 @@
       "91.208.197.30",
       "91.208.221.12",
       "91.208.73.57",
+      "91.209.24.226",
       "91.210.248.221",
       "91.214.137.24",
       "91.214.138.210",
@@ -136509,8 +136510,8 @@
       "99.6.104.157",
       "99.71.130.109"
     ],
-    "last_changed_local": "2026-08-02 01:45 CEST (Berlin)",
-    "last_changed_utc": "2026-08-01 23:45 UTC",
+    "last_changed_local": "2026-08-02 01:47 CEST (Berlin)",
+    "last_changed_utc": "2026-08-01 23:47 UTC",
     "unchanged_runs": 0
   },
   "sniffcat": {
@@ -165414,7 +165415,7 @@
     ],
     "last_changed_local": "2026-08-02 01:29 CEST (Berlin)",
     "last_changed_utc": "2026-08-01 23:29 UTC",
-    "unchanged_runs": 1
+    "unchanged_runs": 2
   },
   "stratosphere_aip": {
     "hash": "1a5f5f9209b8690f558ee1fb79f702bd9e4f825f382817b0125c027fe56dd311",
@@ -175992,7 +175993,7 @@
     ],
     "last_changed_local": "2026-08-02 01:29 CEST (Berlin)",
     "last_changed_utc": "2026-08-01 23:29 UTC",
-    "unchanged_runs": 1
+    "unchanged_runs": 2
   },
   "stratosphere_aip_alpha": {
     "hash": "2c6f1f1d524a627701d9a39caaf443b0e2421d029bb71e48508449fc7d464a73",
@@ -184453,7 +184454,7 @@
     ],
     "last_changed_local": "2026-08-02 01:29 CEST (Berlin)",
     "last_changed_utc": "2026-08-01 23:29 UTC",
-    "unchanged_runs": 1
+    "unchanged_runs": 2
   },
   "stratosphere_aip_alpha7": {
     "hash": "6d9429fde73f438b966671bac7f6ebeeade6709b2c5c5ade8a4dac32be980167",
@@ -212371,7 +212372,7 @@
     ],
     "last_changed_local": "2026-08-02 01:29 CEST (Berlin)",
     "last_changed_utc": "2026-08-01 23:29 UTC",
-    "unchanged_runs": 1
+    "unchanged_runs": 2
   },
   "threatfox_export": {
     "hash": "12d6ed6bb011350295cc1da2f26d02193eaf61c299ad502d4dd75966ad1d84ba",
@@ -233022,7 +233023,7 @@
     ],
     "last_changed_local": "2026-08-02 01:29 CEST (Berlin)",
     "last_changed_utc": "2026-08-01 23:29 UTC",
-    "unchanged_runs": 1
+    "unchanged_runs": 2
   },
   "timgerstel_suspicious_ips": {
     "hash": "40d3ebcdbec2c786bd8e884d9e2014e0c5508815b145f9022e01a1215c4fc93c",
@@ -234509,7 +234510,7 @@
     ],
     "last_changed_local": "2026-08-02 01:45 CEST (Berlin)",
     "last_changed_utc": "2026-08-01 23:45 UTC",
-    "unchanged_runs": 0
+    "unchanged_runs": 1
   },
   "turris_greylist": {
     "hash": "921d04b659938756fc4a1e5d0057c174c471892a9de705a3caee2a797476e047",
@@ -244061,7 +244062,7 @@
     ],
     "last_changed_local": "2026-08-02 00:11 CEST (Berlin)",
     "last_changed_utc": "2026-08-01 22:11 UTC",
-    "unchanged_runs": 3
+    "unchanged_runs": 4
   },
   "urlhaus_export": {
     "hash": "bf7f27fdc7d8d03a79739d96b88c1dc809f739582d3fa4d91560946eea5c42e1",
@@ -248541,6 +248542,6 @@
     ],
     "last_changed_local": "2026-08-02 01:45 CEST (Berlin)",
     "last_changed_utc": "2026-08-01 23:45 UTC",
-    "unchanged_runs": 0
+    "unchanged_runs": 1
   }
 }
