@@ -148,14 +148,18 @@ jobs:
               return hashlib.sha1(joined.encode("utf-8")).hexdigest()[:16]
 
           # FIX RUNTIME-30MIN: Globale Timeout-Sicherheit.
-          # Workflow hat jetzt ein 30-Minuten-Limit (job.timeout-minutes).
-          # Skript exitiert sauber bei 22min, damit nach dem Python-Step
-          # noch genug Zeit fuer Cache-Save, Commit und Push-Retries bleibt
-          # (Checkout+Cache-Restore am Anfang + Commit/Push am Ende
-          # brauchen ausserhalb dieses Scripts nochmal ca. 1-2 Min, dazu
-          # Puffer fuer Runner-Start und Job-Overhead).
+          # Workflow hat ein 30-Minuten-Limit (job.timeout-minutes).
+          # FIX REACH-2026-07-31: Von 22 auf 26 Min angehoben. Beide bisher
+          # beobachteten Laeufe zeigten realen Overhead ausserhalb dieses
+          # Scripts (Checkout+Cache-Restore am Anfang, Commit+Push am Ende)
+          # von nur ca. 1,5 Min statt der urspruenglich konservativ
+          # angesetzten 8 Min - der Puffer war zu grosszuegig bemessen.
+          # Die zusaetzlichen 4 Min kommen der erweiterten Suchreichweite
+          # zugute, ohne die Eval-Phase (die eigentlich Feeds findet) zu
+          # verhungern, falls Topic-/Code-Search mal nicht frueh durch
+          # Rate-Limits abbrechen. 3-4 Min Puffer bleiben trotzdem.
           _JOB_START = time.time()
-          _MAX_RUNTIME_SECONDS = 22 * 60  # 22 Minuten = harter Cutoff (war 52)
+          _MAX_RUNTIME_SECONDS = 26 * 60  # 26 Minuten = harter Cutoff (war 22)
           def _check_timeout(label=""):
               elapsed = time.time() - _JOB_START
               if elapsed > _MAX_RUNTIME_SECONDS:
@@ -1834,7 +1838,11 @@ jobs:
           # die Oberflaeche kommen. Damit wird der volle Topic-Katalog alle
           # 4 Wochen einmal durchsucht, alle 8 Wochen mit beiden Sortierungen.
           _iso_week = now.isocalendar()[1]
-          _TOPIC_CHUNK_COUNT = 4
+          # FIX REACH-2026-07-31: Von 4 auf 3 Chunks verkuerzt (mehr Topics pro
+          # Lauf, volle Abdeckung alle 3 statt 4 Wochen). Grundlage: letzter
+          # Lauf brauchte nur ~21 von 30 verfuegbaren Minuten - Headroom fuer
+          # ca. 1,5 Min mehr Topic-Suche vorhanden (87 statt 65 Topics).
+          _TOPIC_CHUNK_COUNT = 3
           _topic_chunk_idx = _iso_week % _TOPIC_CHUNK_COUNT
           _topic_chunk = SEARCH_TOPICS[_topic_chunk_idx::_TOPIC_CHUNK_COUNT]
           _topic_sort = "updated" if (_iso_week % 2 == 0) else "created"
@@ -1870,7 +1878,12 @@ jobs:
           # je 50 zuletzt aktualisierte Repositories, damit API-Budget und Laufzeit
           # kontrollierbar bleiben. Alle Treffer durchlaufen die unveränderte
           # Dateinamen-, Inhalts-, Geo-/Whitelist- und Qualitätsprüfung.
-          TRUSTED_OWNER_LIMIT = 15
+          # FIX REACH-2026-07-31: Von 15 auf 30 erhoeht. KNOWN_REPOS enthaelt
+          # 52 eindeutige, bereits verifizierte Owner (kuratiert, keine neue
+          # Quelle noetig) - bisher wurden nur die ersten 15 davon nach
+          # weiteren Repos durchsucht. Kosten: 1 zusaetzlicher API-Call +
+          # 1s sleep pro weiterem Owner (~15s fuer die 15 zusaetzlichen).
+          TRUSTED_OWNER_LIMIT = 30
           TRUSTED_OWNER_REPO_LIMIT = 50
           _trusted_owners = []
           for _known_repo in sorted(KNOWN_REPOS):
@@ -1928,7 +1941,13 @@ jobs:
           _cs_consecutive_skips = [0]
           _cs_break_event = _threading.Event()
 
-          _CODE_CHUNK_COUNT = 5
+          # FIX REACH-2026-07-31: Von 5 auf 3 Chunks verkuerzt (45 statt 27
+          # Queries pro Lauf, volle Abdeckung alle 3 statt 5 Wochen). Der
+          # Circuit-Breaker (siehe unten, jetzt 4 statt 2) faengt weiterhin
+          # ab, falls Rate-Limits frueh zuschlagen - im letzten Lauf brach
+          # die Phase nach nur 8 von 27 Queries wegen zweier 429 in Folge ab
+          # und kostete dadurch nur 57s statt der budgetierten ~3 Min.
+          _CODE_CHUNK_COUNT = 3
           _code_chunk_idx = _iso_week % _CODE_CHUNK_COUNT
           _code_chunk = SEARCH_CODE_QUERIES[_code_chunk_idx::_CODE_CHUNK_COUNT]
 
@@ -1988,10 +2007,17 @@ jobs:
                   if data is None:
                       with _cs_skip_lock:
                           _cs_consecutive_skips[0] += 1
-                          # FIX: Circuit-Breaker bei 2 statt 5 – verhindert
-                          # >2× 65s-Wartezeit bevor Abbruch (war 5× = >5 min)
-                          if _cs_consecutive_skips[0] >= 2:
-                              print(f"  CIRCUIT-BREAKER: 2 Code-Queries in Folge fehlgeschlagen "
+                          # FIX REACH-2026-07-31: Schwelle von 2 auf 4 erhoeht.
+                          # Der urspruengliche Wert 2 war fuer die ALTE Version
+                          # mit bis zu 65s Wartezeit pro 429 gedacht (5x65s =
+                          # >5 Min Kosten). Seit _gh_code_search bei 429/403/422
+                          # SOFORT ohne Warten skippt (siehe oben), kostet ein
+                          # Fehlschlag nur noch den Requestlauf selbst (~1-2s) -
+                          # 4 statt 2 Versuche kosten also kaum mehr Zeit, ueber-
+                          # stehen aber kurze/transiente Spitzen (wie im Log vom
+                          # 31.07. beobachtet: Abbruch nach nur 8 von 27 Queries).
+                          if _cs_consecutive_skips[0] >= 4:
+                              print(f"  CIRCUIT-BREAKER: 4 Code-Queries in Folge fehlgeschlagen "
                                     f"– Code-Search abgebrochen, weiter mit vorhandenen Kandidaten")
                               _cs_break_event.set()
                   else:
@@ -2040,6 +2066,14 @@ jobs:
               "https://raw.githubusercontent.com/sbilly/awesome-security/master/README.md",
               # NEU v4: Cybersecurity Blue-Team Tools & Feeds
               "https://raw.githubusercontent.com/fabacab/awesome-cybersecurity-blueteam/master/README.md",
+              # FIX REACH-2026-07-31: IOC-Sammlung (Indicators of Compromise),
+              # andere Kuration/Linkmenge als hslatman's awesome-threat-intelligence.
+              # URL verifiziert (HTTP 200, 40 GitHub-Links enthalten).
+              "https://raw.githubusercontent.com/sroberts/awesome-iocs/master/README.md",
+              # FIX REACH-2026-07-31: CSIRT-Alltagsressourcen, verlinkt u.a.
+              # C2-Tracker und Malware-Repos, die in den anderen Listen nicht
+              # auftauchen. URL verifiziert (HTTP 200).
+              "https://raw.githubusercontent.com/Spacial/awesome-csirt/master/README.md",
           ]
 
           # GitHub-URL-Pattern für Markdown-Links: [Text](https://github.com/owner/repo)
@@ -2110,6 +2144,10 @@ jobs:
               "phishing", "phishing-ip", "bulletproof-hosting",
               "exploit-kit", "iot-botnet", "malvertising",
               "skimmer", "magecart", "booter", "stresser",
+              # FIX REACH-2026-07-31: weitere themennahe Begriffe
+              "malicious-ips", "cti", "sinkhole", "webshell-ips",
+              "brute-force-ip", "reputation-list", "scan-blocklist",
+              "cobalt-strike-c2",
           ]
 
           # Nur Topics-Suche – GitLab-Code-Search ist ohne Auth sehr limitiert
