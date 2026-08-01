@@ -29,10 +29,10 @@ on:
         required: true
         type: string
       only_bot_detector:
-        description: 'Nur die Bot-Detector-Feeds pruefen (schneller). Bei "false" zusaetzlich alle Feeds aus feed_urls_cache.json.'
+        description: 'Nur die Bot-Detector-Feeds pruefen (schneller). Bei "false" ALLE Auto-Discovered-Feeds (aktuell 168) + Cache-Feeds aus feed_urls_cache.json.'
         required: false
         type: boolean
-        default: true
+        default: false
       upload_csv_artifact:
         description: 'Zusaetzlich CSV-Artefakt hochladen (actions/upload-artifact, SHA-gepinnt auf v7.0.1)'
         required: false
@@ -96,6 +96,19 @@ jobs:
                       continue
                   if is_bot_detector_feed_name(name, file_):
                       sources.append((name, url, "Bot-Detector"))
+                  elif not only_bd:
+                      # FIX ALL-FEEDS-COVERAGE (2026-08-01): Vorher wurden bei
+                      # only_bot_detector=false NUR die zusaetzlichen Feeds aus
+                      # feed_urls_cache.json ergaenzt (119 kuratierte/HQ-Feeds,
+                      # als Snapshot potenziell veraltet), die eigentlichen
+                      # Auto-Discovered-Bedrohungs-IP-Feeds (der Grossteil der
+                      # hier registrierten 168 Feeds, z.B. sereinfy_adrules,
+                      # kalidada18_threatbase) wurden dagegen NIE aufgenommen,
+                      # unabhaengig vom Schalter. Jetzt: bei false werden alle
+                      # Nicht-Bot-Detector-Auto-Feeds direkt live aus dieser
+                      # State-Datei ergaenzt statt aus einem separaten,
+                      # potenziell nachlaufenden Cache.
+                      sources.append((name, url, "Auto-Discovered"))
           else:
               print(f"::warning::{AUTO_FEEDS_FILE} nicht gefunden")
 
