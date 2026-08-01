@@ -952,6 +952,22 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
             parsed = json.loads(stripped)
         except (json.JSONDecodeError, ValueError, TypeError):
             parsed = None
+        except RecursionError:
+            # FIX RECURSION-CRASH (2026-08-01): Beobachtet im Auto-Feed-
+            # Discovery-Run vom 01.08. (#146) - eine einzelne, pathologisch
+            # tief verschachtelte JSON-Datei aus einem Fremd-Repo hat
+            # json.loads() selbst (nicht erst unseren eigenen _json_values-
+            # Walker) ueber Pythons Rekursionslimit gebracht. Der Fehler
+            # wurde vorher nicht abgefangen (nur JSONDecodeError/ValueError/
+            # TypeError), riss den kompletten Eval-Worker-Thread und damit
+            # das gesamte Script mit sich (Exit-Code 1, ##[error] nach
+            # 19m33s - Laufzeitbudget war dabei kein Faktor).
+            # Da hier grundsaetzlich ungepruefter Inhalt aus beliebigen
+            # GitHub-Repos geparst wird (potenziell adversarial), darf ein
+            # einzelner kaputter Kandidat nie den gesamten Lauf stoppen -
+            # konsistent mit dem bereits vorhandenen "except Exception:
+            # continue" im JSONL-Fallback direkt darunter.
+            parsed = None
         if parsed is not None:
             return _hosts_from_fragments(_json_values(parsed))
 
