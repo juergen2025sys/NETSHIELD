@@ -608,48 +608,6 @@ jobs:
                           print(f"  GitLab Fehler {path}: {ex}")
                           return None
 
-          # ── Gitea-API-Hilfsfunktion ────────────────────────────────────────
-          # NEU (2026-08-01): Analog zu gitlab_api(), aber instanz-parametrisiert,
-          # da Gitea (anders als GitLab) kein einzelner zentraler Dienst ist,
-          # sondern von jedem selbst gehostet werden kann. GITEA_INSTANCES
-          # (siehe unten) listet die konkret durchsuchten Server.
-          # API-Endpunkte verifiziert gegen docs.gitea.com/api sowie ein
-          # go-gitea/gitea-GitHub-Issue (#12840) zur Bestaetigung, dass es
-          # KEINEN zuverlaessigen dateispezifischen Commit-Zeitstempel-Endpunkt
-          # gibt (im Gegensatz zu GitHub/GitLab) - siehe Kommentar bei
-          # _platform == "gitea" in _evaluate_one fuer die daraus folgende
-          # Vereinfachung (Repo-Datum statt Datei-Datum als Aktualitaets-Proxy).
-          def gitea_api(instance, path, retries=2):
-              url = f"https://{instance}/api/v1{path}"
-              # Sicherheitscheck: URL muss exakt auf der erwarteten Instanz
-              # bleiben, kein SSRF ueber manipulierte Pfade moeglich.
-              if not url.startswith(f"https://{instance}/api/v1/"):
-                  print(f"  SICHERHEIT: Ungültige Gitea-URL blockiert: {url}", file=sys.stderr)
-                  return None
-              headers = {"Accept": "application/json"}
-              TRANSIENT_CODES = {500, 502, 503, 504}
-              for attempt in range(retries):
-                  try:
-                      req = urllib.request.Request(url, headers=headers)
-                      with urllib.request.urlopen(req, timeout=15) as r:
-                          return json.loads(r.read().decode("utf-8"))
-                  except urllib.error.HTTPError as e:
-                      if e.code in (429, 403):
-                          print(f"  Gitea Rate-Limit (HTTP {e.code}) – skip {path}")
-                          return None
-                      elif e.code in TRANSIENT_CODES and attempt < retries - 1:
-                          time.sleep(5)
-                          continue
-                      else:
-                          print(f"  Gitea HTTP {e.code} für {instance}{path}")
-                          return None
-                  except Exception as ex:
-                      if attempt < retries - 1:
-                          time.sleep(3)
-                      else:
-                          print(f"  Gitea Fehler {instance}{path}: {ex}")
-                          return None
-
           def fetch_raw(url, limit=READ_LIMIT, timeout=25, allow_partial=False):
               # FIX SEC: Nutzt fetch_url aus netshield_common – enthält SSRF-Schutz
               # (Schema-/Host-Validierung, auch bei Redirects). Ohne diesen Schutz
@@ -1032,44 +990,6 @@ jobs:
                   "gl_path":      path,
                   "gl_id":        project.get("id"),
                   "gl_default_branch": project.get("default_branch", "main"),
-              }
-
-          def add_gitea_candidate(candidate_repos, instance, repo, source_label):
-              """Gitea-Repo als Kandidat hinzufügen (analog zu add_gitlab_candidate)."""
-              if not repo:
-                  return
-              full_name = repo.get("full_name", "")
-              if not full_name:
-                  return
-              combined = " ".join([
-                  full_name.lower(),
-                  (repo.get("description") or "").lower(),
-                  " ".join(repo.get("topics", []) or []),
-              ])
-              if any(kw in combined for kw in EXCLUDE_KEYWORDS):
-                  return
-              # Gitea-Kandidaten bekommen ein Instanz-Prefix im Schluessel, damit
-              # (a) verschiedene Gitea-Server mit gleichnamigen Repos nicht
-              # kollidieren und (b) GitHub-Repos desselben Namens unberuehrt
-              # bleiben.
-              ge_key = f"gitea:{instance}:{full_name}"
-              existing = candidate_repos.get(ge_key, {})
-              sources = set(existing.get("sources", []))
-              sources.add(source_label)
-              pushed = repo.get("updated_at", existing.get("pushed", ""))
-              candidate_repos[ge_key] = {
-                  "stars":        repo.get("stars_count",  existing.get("stars", 0)),
-                  "forks":        repo.get("forks_count",  existing.get("forks", 0)),
-                  "updated":      pushed,
-                  "pushed":       pushed,
-                  "description":  repo.get("description",  existing.get("description", "")),
-                  "topics":       repo.get("topics",        existing.get("topics", [])),
-                  "full_name":    full_name,
-                  "sources":      sorted(sources),
-                  "platform":     "gitea",
-                  "ge_instance":  instance,
-                  "ge_full_name": full_name,
-                  "ge_branch":    repo.get("default_branch", "main"),
               }
 
           # NEU v4: Tool-vs-Liste-Heuristik.
@@ -2286,59 +2206,6 @@ jobs:
           print(f"GitLab-Suche: {_gitlab_found} Treffer → {_gitlab_unique} GitLab-Kandidaten")
           print(f"Kandidaten gesamt: {len(candidate_repos)}\n")
 
-          # ── Schritt 3c: Gitea-Suche ──────────────────────────────────────
-          # NEU (2026-08-01): Selbst gehostete Gitea-Instanzen durchsuchen.
-          # Anders als GitHub/GitLab kein zentraler Dienst - GITEA_INSTANCES
-          # muss die konkreten Server explizit auflisten. Bewusst nur ein
-          # fokussierter Begriffs-Satz (nicht die vollen 261 SEARCH_TOPICS):
-          # kleine, selbst gehostete Instanzen haben typischerweise Dutzende
-          # bis wenige Hundert Repos, nicht Millionen - erschoepfende Themen-
-          # Rotation wie bei GitHub waere hier reine Zeitverschwendung.
-          print("\n── Schritt 3c: Gitea-Suche ──────────────────────────────────────")
-
-          GITEA_INSTANCES = [
-              "git.techniverse.net",
-          ]
-
-          GITEA_SEARCH_TERMS = [
-              "blocklist", "blacklist", "ip-blocklist", "ip-blacklist",
-              "malicious-ip", "threat-feed", "threatintel", "honeypot",
-              "ipset", "denylist", "abuseipdb", "fail2ban", "crowdsec",
-              "attacker-ips", "bruteforce", "botnet", "ip-ban",
-              "firewall-blocklist", "spam-ip", "tor-exit",
-          ]
-
-          _gitea_found = 0
-          for _ge_instance in GITEA_INSTANCES:
-              for _ge_term in GITEA_SEARCH_TERMS:
-                  if _check_timeout("Gitea-Suche"):
-                      break
-                  print(f"  Suche Gitea ({_ge_instance}): {_ge_term}...")
-                  for _ge_page in (1, 2):
-                      if _check_timeout("Gitea-Suche-Paginierung"):
-                          break
-                      _ge_data = gitea_api(
-                          _ge_instance,
-                          f"/repos/search?q={urllib.parse.quote(_ge_term)}"
-                          f"&limit=50&page={_ge_page}"
-                      )
-                      time.sleep(1)
-                      if not _ge_data or not isinstance(_ge_data, dict):
-                          break
-                      _ge_items = _ge_data.get("data", [])
-                      if not isinstance(_ge_items, list):
-                          break
-                      for _ge_repo in _ge_items:
-                          add_gitea_candidate(candidate_repos, _ge_instance, _ge_repo,
-                                               f"gitea:{_ge_instance}:{_ge_term}:p{_ge_page}")
-                          _gitea_found += 1
-                      if len(_ge_items) < 50:
-                          break
-
-          _gitea_unique = sum(1 for v in candidate_repos.values() if v.get("platform") == "gitea")
-          print(f"Gitea-Suche: {_gitea_found} Treffer → {_gitea_unique} Gitea-Kandidaten")
-          print(f"Kandidaten gesamt: {len(candidate_repos)}\n")
-
           # Schritt 4 (state/auto_discovered_feeds.json laden) wurde nach oben
           # gezogen - siehe direkt nach Schritt 1. Grund: Org-Crawl (Schritt
           # 3a2) braucht existing_feeds um die Owner bekannter Feeds zu kennen.
@@ -2374,12 +2241,6 @@ jobs:
               if _platform == "gitlab":
                   _branch = feed.get("gl_default_branch", "main")
                   return f"https://gitlab.com/{_repo}/-/raw/{_branch}/{_path}"
-              if _platform == "gitea":
-                  _instance = feed.get("ge_instance", "")
-                  _branch = feed.get("ge_branch", "main")
-                  if not _instance:
-                      return ""
-                  return f"https://{_instance}/{_repo}/raw/branch/{_branch}/{_path}"
               return f"https://raw.githubusercontent.com/{_repo}/HEAD/{_path}"
 
           def _get_commit_date_for_feed(feed):
@@ -2403,18 +2264,6 @@ jobs:
                           return datetime.strptime(_date_str[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
                       except Exception:
                           return None
-              elif _platform == "gitea":
-                  # FIX GITEA-NO-FILE-COMMIT-API (2026-08-01): Verifiziert gegen
-                  # go-gitea/gitea Issue #12840 - es gibt KEINEN zuverlaessigen
-                  # API-Endpunkt fuer dateispezifische Commit-Zeitstempel (wurde
-                  # dort explizit als offener Feature-Request gefuehrt, nicht
-                  # als bestehende Funktion). Statt einen Parameter zu erfinden,
-                  # der nicht zuverlaessig existiert, wird ehrlich None
-                  # zurueckgegeben - dieselbe Behandlung wie bei fehlendem
-                  # Repo/Pfad oben. Die REFRESH-Phase nutzt dann automatisch das
-                  # Repo-Datum aus der Aktualitaets-Pruefung als Naeherung
-                  # (file_days bleibt None, kein Absturz, siehe _refresh_one).
-                  return None
               else:
                   _commits = gh_api(
                       f"/repos/{_repo}/commits"
@@ -2563,8 +2412,6 @@ jobs:
                   "platform":   _platform,
                   "gl_id":      _fdata.get("gl_id"),
                   "gl_branch":  _fdata.get("gl_default_branch", "main"),
-                  "ge_instance": _fdata.get("ge_instance", ""),
-                  "ge_branch":  _fdata.get("ge_branch", "main"),
                   "stars":      _fdata.get("stars", 0),
                   "rep_score":  _fdata.get("rep_score", 0),
                   "overlap_pct": _fdata.get("overlap_pct", 0),
@@ -2584,8 +2431,6 @@ jobs:
               _platform = _rmeta["platform"]
               _gl_id    = _rmeta["gl_id"]
               _gl_branch = _rmeta["gl_branch"]
-              _ge_instance = _rmeta["ge_instance"]
-              _ge_branch = _rmeta["ge_branch"]
 
               # Tree-Scan
               time.sleep(0.3)
@@ -2600,18 +2445,7 @@ jobs:
                           for item in _gl_tree
                           if item.get("type") == "blob"
                       ]
-              elif _platform == "gitea" and _ge_instance:
-                  _ge_tree = gitea_api(
-                      _ge_instance,
-                      f"/repos/{_repo}/git/trees/{_ge_branch}?recursive=1"
-                  )
-                  if _ge_tree and isinstance(_ge_tree, dict):
-                      _tree_items = [
-                          {"path": item["path"], "size": item.get("size", 0)}
-                          for item in _ge_tree.get("tree", [])
-                          if item.get("type") == "blob"
-                      ]
-              elif _platform == "github":
+              else:
                   _gh_tree = gh_api(f"/repos/{_repo}/git/trees/HEAD?recursive=1")
                   if _gh_tree:
                       _tree_items = [
@@ -2657,9 +2491,6 @@ jobs:
                   if _platform == "gitlab":
                       _nf_url = (f"https://gitlab.com/{_repo}/-/raw/{_gl_branch}/"
                                  f"{urllib.parse.quote(_nf['path'], safe='/')}")
-                  elif _platform == "gitea" and _ge_instance:
-                      _nf_url = (f"https://{_ge_instance}/{_repo}/raw/branch/{_ge_branch}/"
-                                 f"{urllib.parse.quote(_nf['path'], safe='/')}")
                   else:
                       _nf_url = (f"https://raw.githubusercontent.com/{_repo}/"
                                  f"HEAD/{urllib.parse.quote(_nf['path'], safe='/')}")
@@ -2689,15 +2520,6 @@ jobs:
                               _nf_file_days = (now - _nf_dt).days
                           except Exception:
                               pass
-                  elif _platform == "gitea":
-                      # Kein zuverlaessiger dateispezifischer Commit-Endpunkt bei
-                      # Gitea (siehe _get_commit_date_for_feed oben) - bewusst
-                      # bei 999 (= "zu alt") belassen statt eine falsche GitHub-
-                      # API-Anfrage fuer einen Nicht-GitHub-Pfad auszuloesen.
-                      # Praktische Folge: Der Extra-File-Scan findet bei Gitea-
-                      # Repos aktuell keine zusaetzlichen Dateien - nur die initiale
-                      # Discovery-Suche registriert neue Gitea-Feeds.
-                      pass
                   else:
                       _nf_commits = gh_api(
                           f"/repos/{_repo}/commits"
@@ -2793,9 +2615,6 @@ jobs:
                   if _platform == "gitlab":
                       approved_feeds[_nf_name]["gl_id"]            = _gl_id
                       approved_feeds[_nf_name]["gl_default_branch"] = _gl_branch
-                  elif _platform == "gitea":
-                      approved_feeds[_nf_name]["ge_instance"] = _ge_instance
-                      approved_feeds[_nf_name]["ge_branch"]   = _ge_branch
 
                   _registered_urls.add(_nf_url)
                   _registered_files.add((_repo, _nf["path"]))
@@ -2865,15 +2684,11 @@ jobs:
           #              Signal, daher von 80 auf 40 reduziert)
           # Bei zu wenig Kandidaten in einer Quote werden ungenutzte Slots
           # NICHT umverteilt - das wuerde den Reputation-Bias wiederherstellen.
-          EVAL_BUDGET   = 410   # 60+160+100+40+40+10 (Gitea NEU, kleine Instanzen -> kleine Quote)
+          EVAL_BUDGET   = 400   # 60+160+100+40+40 (Code-Pool ergaenzt, Fresh reduziert)
           QUOTA_CODE    = 60    # NEU: dedizierte Quote fuer code:-Kandidaten
           QUOTA_REP     = 160   # erhöht: Reputation-Pool tiefer prüfen (war 100)
           QUOTA_AWESOME = 100   # erhöht: kuratierte Listen breiter abdecken (war 60)
           QUOTA_GITLAB  = 40    # leicht erhöht: nur ~37 GitLab-Kandidaten existieren (war 30)
-          QUOTA_GITEA   = 10    # NEU (2026-08-01): kleine, selbst gehostete Instanzen
-          # liefern typischerweise nur Dutzende bis wenige Hundert Kandidaten
-          # gesamt (aktuell 1 Instanz) - eine grosse Quote waere reine
-          # Platzverschwendung im Eval-Budget.
           QUOTA_FRESH   = 40    # reduziert: Code-Pool deckt junge Feeds gezielter ab (war 80)
 
           def _is_awesome(meta):
@@ -2887,9 +2702,6 @@ jobs:
 
           def _is_gitlab(meta):
               return meta.get("platform") == "gitlab"
-
-          def _is_gitea(meta):
-              return meta.get("platform") == "gitea"
 
           def _rep_score(meta):
               return min(meta.get("stars", 0) * 2 + meta.get("forks", 0) * 3, 100)
@@ -2930,8 +2742,7 @@ jobs:
               # noch nicht getestete Kandidaten. Skip-Logik identisch zu der in
               # _evaluate_one (rejected_repos enthaelt bereits KNOWN_REPOS).
               _full = v.get("full_name", "") or k
-              _reject_key = (f"gitlab:{v.get('gl_path', '')}" if _is_gitlab(v)
-                             else k if _is_gitea(v) else _full)
+              _reject_key = f"gitlab:{v.get('gl_path', '')}" if _is_gitlab(v) else _full
               if (k in rejected_repos or _reject_key in rejected_repos
                       or _full in rejected_repos
                       or k in existing_repo_set or _full in existing_repo_set):
@@ -2969,7 +2780,7 @@ jobs:
           # damit sie nicht im Stars-Ranking der anderen Pools untergehen.
           _code_pool = [
               (k, v) for k, v in _all_items
-              if _is_code(v) and not _is_gitlab(v) and not _is_awesome(v) and not _is_gitea(v)
+              if _is_code(v) and not _is_gitlab(v) and not _is_awesome(v)
           ]
           _code_pool.sort(key=lambda x: _pushed_key(x[1]), reverse=True)
           _code_added = 0
@@ -2983,7 +2794,7 @@ jobs:
           # damit deren Quote nicht doppelt zaehlt)
           _rep_pool = [
               (k, v) for k, v in _all_items
-              if not _is_gitlab(v) and not _is_awesome(v) and not _is_gitea(v)
+              if not _is_gitlab(v) and not _is_awesome(v)
           ]
           _rep_pool.sort(key=lambda x: _rep_score(x[1]), reverse=True)
           for k, v in _rep_pool[:QUOTA_REP]:
@@ -3020,21 +2831,6 @@ jobs:
               _picked_keys.add(k)
               _gl_added += 1
 
-          # Pool 3.5: Gitea-Kandidaten (eigene, kleine Quote - siehe QUOTA_GITEA)
-          _ge_pool = [
-              (k, v) for k, v in _all_items
-              if _is_gitea(v) and k not in _picked_keys
-          ]
-          _ge_pool.sort(
-              key=lambda x: (_rep_score(x[1]), _pushed_key(x[1])),
-              reverse=True
-          )
-          _ge_added = 0
-          for k, v in _ge_pool[:QUOTA_GITEA]:
-              _sorted_candidates.append((k, v))
-              _picked_keys.add(k)
-              _ge_added += 1
-
           # Pool 4: Frische GitHub-Repos die nicht ins Reputation-Top-120 kamen
           # - oft kleine, junge Feeds, die im normalen Ranking untergehen
           #
@@ -3046,14 +2842,12 @@ jobs:
           # Reputation-Pool) - beide bevorzugen frische statt bekannte Repos,
           # das urspruengliche Ziel der Stratifizierung (kein Reputations-
           # Bias) bleibt damit erhalten, nur totes Budget wird genutzt.
-          # NEU (2026-08-01): Gitea-Pool-Rest ebenfalls mit umverteilt.
           _quota_fresh_effective = (
-              QUOTA_FRESH + max(0, QUOTA_CODE - _code_added)
-              + max(0, QUOTA_GITLAB - _gl_added) + max(0, QUOTA_GITEA - _ge_added)
+              QUOTA_FRESH + max(0, QUOTA_CODE - _code_added) + max(0, QUOTA_GITLAB - _gl_added)
           )
           _fresh_pool = [
               (k, v) for k, v in _all_items
-              if not _is_gitlab(v) and not _is_awesome(v) and not _is_gitea(v)
+              if not _is_gitlab(v) and not _is_awesome(v)
               and k not in _picked_keys
           ]
           _fresh_pool.sort(key=lambda x: _pushed_key(x[1]), reverse=True)
@@ -3063,56 +2857,16 @@ jobs:
               _picked_keys.add(k)
               _fresh_added += 1
 
-          # FIX EVAL-BUDGET-DYNAMIC (2026-08-01): Beobachtet im Lauf vom 01.08.
-          # (Job #ohne Nummer, 18:30-19:01 UTC) - der komplette Run wurde vom
-          # harten 30-Minuten-Job-Limit abgebrochen (##[error] The operation
-          # was canceled, exakt bei 30:11), OHNE dass Report oder State
-          # ueberhaupt geschrieben wurden ("Keine Aenderungen" im Commit-Log).
-          # Ursache: Die Eval-Phase (blockierender ThreadPoolExecutor.map()-
-          # Aufruf) startete um 18:56:16 - mitten im internen 26-Minuten-
-          # Cutoff (~18:57 ab Job-Start 18:30:55). Da dieser Aufruf erst
-          # zurueckkehrt, wenn ALLE Worker fertig sind, konnte _check_timeout()
-          # innerhalb einzelner _evaluate_one-Aufrufe den bereits laufenden
-          # Block nicht mehr stoppen - die Discovery-/Refresh-Phasen allein
-          # hatten schon fast das gesamte Budget verbraucht (24,5 von 26 Min).
-          # Fix: Kandidatenliste HIER, VOR dem blockierenden Aufruf, dynamisch
-          # auf die tatsaechlich verbleibende Zeit kappen (konservative
-          # Schaetzung 1,5s/Kandidat bei 4 Workern, plus 90s Sicherheitspuffer
-          # fuer Report-Schreiben/State-Save/Commit-Vorbereitung danach).
-          # Prioritaet bleibt gewahrt, da Pools in Prioritaetsreihenfolge
-          # angehaengt wurden (Code > Rep > Awesome > GitLab > Gitea > Fresh) -
-          # eine Kappung am Ende trifft zuerst die niedrigst priorisierten
-          # Fresh-Kandidaten, nicht die wertvollen Code-/Rep-Pool-Treffer.
-          _ESTIMATED_SECONDS_PER_EVAL_CANDIDATE = 1.5
-          _EVAL_PHASE_SAFETY_BUFFER_SECONDS = 90
-          _elapsed_before_eval = time.time() - _JOB_START
-          _remaining_before_cutoff = _MAX_RUNTIME_SECONDS - _elapsed_before_eval
-          _eval_time_budget = max(0, _remaining_before_cutoff - _EVAL_PHASE_SAFETY_BUFFER_SECONDS)
-          _max_candidates_fitting = int(_eval_time_budget / _ESTIMATED_SECONDS_PER_EVAL_CANDIDATE)
-          _dynamic_cap_applied = False
-          if len(_sorted_candidates) > _max_candidates_fitting:
-              _dynamic_cap_applied = True
-              _capped_at = max(20, _max_candidates_fitting)
-              print(
-                  f"WARNUNG EVAL-BUDGET-DYNAMIC: Nur noch {_remaining_before_cutoff:.0f}s bis "
-                  f"internem Cutoff ({_elapsed_before_eval:.0f}s bereits durch Discovery-/"
-                  f"Refresh-Phasen verbraucht) - Eval-Liste von {len(_sorted_candidates)} auf "
-                  f"{_capped_at} gekappt, damit Report/State/Commit garantiert noch Zeit haben."
-              )
-              _sorted_candidates = _sorted_candidates[:_capped_at]
-
           print(
               f"Stratifizierte Auswahl aus {len(candidate_repos)} Kandidaten:\n"
               f"  Code-Search-Pool (GH):    {_code_added} (von {len(_code_pool)} verfuegbar)\n"
               f"  Reputation-Pool (GH):     {min(QUOTA_REP, len(_rep_pool))}\n"
               f"  Awesome-Pool:             {_aw_added} (von {len(_aw_pool)} verfuegbar)\n"
               f"  GitLab-Pool:              {_gl_added} (von {len(_gl_pool)} verfuegbar)\n"
-              f"  Gitea-Pool:               {_ge_added} (von {len(_ge_pool)} verfuegbar)\n"
               f"  Fresh-Pool (GH):          {_fresh_added} (von {len(_fresh_pool)} verfuegbar, "
               f"Quote {_quota_fresh_effective} = {QUOTA_FRESH} Basis + "
-              f"{_quota_fresh_effective - QUOTA_FRESH} umverteilt von Code/GitLab/Gitea)\n"
-              f"  → EVAL-Total:             {len(_sorted_candidates)} (Budget {EVAL_BUDGET}"
-              f"{', dynamisch gekappt wegen Zeitbudget' if _dynamic_cap_applied else ''})"
+              f"{_quota_fresh_effective - QUOTA_FRESH} umverteilt von Code/GitLab)\n"
+              f"  → EVAL-Total:             {len(_sorted_candidates)} (Budget {EVAL_BUDGET})"
           )
 
           _eval_lock = _threading.Lock()
@@ -3130,15 +2884,8 @@ jobs:
               _gl_path   = meta.get("gl_path", "")
               _gl_id     = meta.get("gl_id")
               _gl_branch = meta.get("gl_default_branch", "main")
-              _ge_instance  = meta.get("ge_instance", "")
-              _ge_full_name = meta.get("ge_full_name", "")
-              _ge_branch    = meta.get("ge_branch", "main")
 
-              # Für GitLab: rejected_repos nutzt "gitlab:namespace/project"-Keys.
-              # Für Gitea: full_name (der candidate_repos-Schluessel) ist bereits
-              # "gitea:{instance}:{owner/repo}" - direkt als reject_key nutzbar,
-              # keine Rekonstruktion noetig (analog zu GitLab, wo _gl_path denselben
-              # String wie der Schluessel ergibt).
+              # Für GitLab: rejected_repos nutzt "gitlab:namespace/project"-Keys
               _reject_key = f"gitlab:{_gl_path}" if _platform == "gitlab" else full_name
               if _reject_key in rejected_repos:
                   return None
@@ -3219,17 +2966,6 @@ jobs:
                           for item in _gl_tree
                           if item.get("type") == "blob"
                       ]
-              elif _platform == "gitea" and _ge_instance:
-                  _ge_tree = gitea_api(
-                      _ge_instance,
-                      f"/repos/{_ge_full_name}/git/trees/{_ge_branch}?recursive=1"
-                  )
-                  if _ge_tree and isinstance(_ge_tree, dict):
-                      all_blob_files = [
-                          {"path": item["path"], "size": item.get("size", 0)}
-                          for item in _ge_tree.get("tree", [])
-                          if item.get("type") == "blob"
-                      ]
               else:
                   tree = gh_api(f"/repos/{full_name}/git/trees/HEAD?recursive=1")
                   if tree:
@@ -3250,9 +2986,6 @@ jobs:
               def _raw_url_for_path(path):
                   if _platform == "gitlab":
                       return (f"https://gitlab.com/{_gl_path}/-/raw/{_gl_branch}/"
-                              f"{urllib.parse.quote(path, safe='/')}")
-                  if _platform == "gitea":
-                      return (f"https://{_ge_instance}/{_ge_full_name}/raw/branch/{_ge_branch}/"
                               f"{urllib.parse.quote(path, safe='/')}")
                   return (f"https://raw.githubusercontent.com/{full_name}/"
                           f"HEAD/{urllib.parse.quote(path, safe='/')}")
@@ -3368,20 +3101,6 @@ jobs:
                           file_days_old = (now - _file_dt).days
                       except Exception:
                           pass
-              elif _platform == "gitea":
-                  # FIX GITEA-NO-FILE-COMMIT-API: Wie oben (_get_commit_date_for_feed)
-                  # begruendet, bietet Gitea keinen zuverlaessigen dateispezifischen
-                  # Commit-Zeitstempel-Endpunkt (go-gitea/gitea Issue #12840).
-                  # Ohne Fallback wuerde file_days_old bei 999 bleiben und JEDER
-                  # Gitea-Kandidat wuerde hier unabhaengig vom tatsaechlichen
-                  # Alter der Datei abgelehnt - der Suchpfad waere witzlos.
-                  # Stattdessen wird das bereits verifizierte Repo-Datum (days_old,
-                  # oben aus Kriterium 1 / meta["pushed"]) als Naeherung genutzt.
-                  # Das ist ungenau (Repo kann aktiv sein, ohne dass ausgerechnet
-                  # DIESE Datei kuerzlich geaendert wurde), aber die einzige
-                  # ehrliche Option ohne einen nicht existierenden Parameter zu
-                  # erfinden.
-                  file_days_old = days_old
               else:
                   file_commits = gh_api(
                       f"/repos/{full_name}/commits"
@@ -3571,9 +3290,6 @@ jobs:
                   if _platform == "gitlab":
                       _ef_url = (f"https://gitlab.com/{_gl_path}/-/raw/{_gl_branch}/"
                                  f"{urllib.parse.quote(_ef['path'], safe='/')}")
-                  elif _platform == "gitea":
-                      _ef_url = (f"https://{_ge_instance}/{_ge_full_name}/raw/branch/{_ge_branch}/"
-                                 f"{urllib.parse.quote(_ef['path'], safe='/')}")
                   else:
                       _ef_url = (f"https://raw.githubusercontent.com/{full_name}/"
                                  f"HEAD/{urllib.parse.quote(_ef['path'], safe='/')}")
@@ -3621,11 +3337,6 @@ jobs:
                           _ef_date = _ef_commits[0].get("committed_date", "")
                       else:
                           _ef_date = ""
-                  elif _platform == "gitea":
-                      # Siehe Begruendung bei file_days_old weiter oben - kein
-                      # zuverlaessiger dateispezifischer Endpunkt bei Gitea.
-                      _ef_file_days = days_old
-                      _ef_date = ""
                   else:
                       _ef_commits = gh_api(
                           f"/repos/{full_name}/commits"
@@ -3690,9 +3401,6 @@ jobs:
                   "gl_path":     _gl_path,
                   "gl_id":       _gl_id,
                   "gl_branch":   _gl_branch,
-                  "ge_instance": _ge_instance,
-                  "ge_full_name": _ge_full_name,
-                  "ge_branch":   _ge_branch,
                   "logs":        _log_lines,
                   "extra_files":  extra_files,
               }
@@ -3739,29 +3447,10 @@ jobs:
               file_days_old = _res["file_days_old"]
               extra_files = _res.get("extra_files", [])
 
-              # FIX REPO-FIELD-PREFIX (2026-08-01): full_name/repo_display ist bei
-              # GitLab/Gitea der PREFIXTE candidate_repos-Schluessel
-              # ("gitlab:ns/proj" bzw. "gitea:instance:owner/repo"), nicht der
-              # echte Repo-Pfad. Bisher wurde das nur bei der NAMENSBILDUNG
-              # beruecksichtigt (_name_base weiter unten), aber NICHT beim
-              # gespeicherten "repo"-Feld in approved_feeds - das haette
-              # REFRESH-Phase/Extra-File-Scan fuer jeden GitLab-Feed gebrochen
-              # (_build_raw_url_for_feed/_get_commit_date_for_feed bauen die
-              # API-Pfade direkt aus feed["repo"]). Bisher nie aufgefallen, weil
-              # GitLab in jedem bisher beobachteten Lauf 0 Kandidaten annahm.
-              # _repo_clean wird jetzt konsistent fuer Namensbildung UND das
-              # gespeicherte Feld verwendet.
-              if _platform_res == "gitlab":
-                  _repo_clean = _res.get("gl_path", "")
-              elif _platform_res == "gitea":
-                  _repo_clean = _res.get("ge_full_name", "")
-              else:
-                  _repo_clean = full_name
-
               # Hilfsfunktion: einen Feed-Eintrag anlegen und in approved_feeds eintragen
               def _register_feed(f_url, f_path, f_ips, f_name_suffix="",
                                  metrics=None):
-                  _name_base = _repo_clean if _repo_clean else full_name
+                  _name_base = full_name if _platform_res == "github" else f"gl_{_res['gl_path']}"
                   _base = re.sub(r'[^a-z0-9_]', '_', _name_base.lower().replace('/', '_'))
                   if f_name_suffix:
                       _base = f"{_base}_{f_name_suffix}"
@@ -3793,7 +3482,7 @@ jobs:
                   _entry = {
                       "name":          _fname,
                       "url":           f_url,
-                      "repo":          _repo_clean if _repo_clean else full_name,
+                      "repo":          full_name,
                       "file":          f_path,
                       "platform":      _platform_res,
                       "added":         existing_feeds[_fname]["added"] if not _is_new and _fname in existing_feeds else now_day,
@@ -3812,9 +3501,6 @@ jobs:
                   if _platform_res == "gitlab":
                       _entry["gl_id"]            = _res["gl_id"]
                       _entry["gl_default_branch"] = _res["gl_branch"]
-                  elif _platform_res == "gitea":
-                      _entry["ge_instance"] = _res.get("ge_instance", "")
-                      _entry["ge_branch"]   = _res.get("ge_branch", "main")
                   approved_feeds[_fname] = _entry
                   if _is_new:
                       all_new_ips.update(f_ips)
@@ -3823,7 +3509,7 @@ jobs:
                   for _ip in f_ips:
                       ip_auto_feed_count[_ip] = ip_auto_feed_count.get(_ip, 0) + 1
                   evaluation_log.append({
-                      "repo":        _repo_clean if _repo_clean else full_name,
+                      "repo":        full_name,
                       "result":      "APPROVED",
                       "feed_name":   _fname,
                       "ips":         len(f_ips),
@@ -3832,7 +3518,6 @@ jobs:
                       "fp_rate":     round(_entry_fp * 100, 2),
                       "stars":       stars,
                       "platform":    _platform_res,
-                      "ge_instance": _res.get("ge_instance", ""),
                   })
                   print(f"  ✅ ANGENOMMEN als '{_fname}' ({len(f_ips)} IPs, "
                         f"{'NEU' if _is_new else 'bekannt'}, {_platform_res.upper()})")
@@ -4155,12 +3840,9 @@ jobs:
               for e in new_approved:
                   status = "🆕 NEU" if e["new_feed"] else "🔄 Update"
                   _pl = e.get("platform", "github").upper()
-                  if _pl == "GITLAB":
-                      _repo_url = f"https://gitlab.com/{e['repo']}"
-                  elif _pl == "GITEA":
-                      _repo_url = f"https://{e.get('ge_instance', '')}/{e['repo']}"
-                  else:
-                      _repo_url = f"https://github.com/{e['repo']}"
+                  _repo_url = (f"https://gitlab.com/{e['repo']}"
+                               if _pl == "GITLAB"
+                               else f"https://github.com/{e['repo']}")
                   lines.append(
                       f"| `{e['feed_name']}` | [{e['repo']}]({_repo_url}) | "
                       f"{_pl} | {e['ips']:,} | {e['overlap_pct']}% | "
