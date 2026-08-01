@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-01 22:26 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-01 22:39 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,280,350** |
-| Neu (heute) | **+2** |
-| Entfernt | **-0** |
+| Gesamt IPs | **1,280,383** |
+| Neu (heute) | **+72** |
+| Entfernt | **-39** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 60 |
@@ -40,11 +40,11 @@
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,793 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,776 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 461 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,284 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 733 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 684 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,268 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 774 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 688 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 589 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 323 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 327 |
 | ✅ `officialputuid_proxyforeveryone` | 6,277 |
 | ✅ `officialputuid_proxyforeveryone_https` | 5,479 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 5,451 |
@@ -55,14 +55,14 @@
 | ✅ `tuanminpay_live_proxy_http` | 5,819 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,569 |
 | ✅ `tuanminpay_live_proxy_socks5` | 2,848 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 185,176 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 185,247 |
 | ✅ `noctiro_getproxy` | 3,710 |
 | ✅ `noctiro_getproxy_socks5` | 3,046 |
-| ✅ `mohammedcha_proxripper` | 42,100 |
-| ✅ `mohammedcha_proxripper_socks4` | 101,593 |
-| ✅ `mohammedcha_proxripper_http` | 105,868 |
-| ✅ `mohammedcha_proxripper_socks5` | 104,031 |
-| ✅ `celestialbrain_worldpool` | 71,118 |
+| ✅ `mohammedcha_proxripper` | 42,150 |
+| ✅ `mohammedcha_proxripper_socks4` | 101,597 |
+| ✅ `mohammedcha_proxripper_http` | 105,926 |
+| ✅ `mohammedcha_proxripper_socks5` | 104,034 |
+| ✅ `celestialbrain_worldpool` | 71,134 |
 | ✅ `dinoz0rg_proxy_list` | 73,191 |
 | ✅ `dinoz0rg_proxy_list_http` | 1,364 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 73,325 |
@@ -85,4 +85,4 @@
 > Diese 60 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-01 22:26 CEST (Europe/Berlin)*
+*Generiert: 2026-08-01 22:39 CEST (Europe/Berlin)*
