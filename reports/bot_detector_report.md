@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-01 17:21 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-01 17:27 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,279,936** |
-| Neu (heute) | **+102** |
-| Entfernt | **-88** |
+| Gesamt IPs | **1,279,992** |
+| Neu (heute) | **+82** |
+| Entfernt | **-26** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 60 |
@@ -55,7 +55,7 @@
 | ✅ `tuanminpay_live_proxy_http` | 5,280 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,172 |
 | ✅ `tuanminpay_live_proxy_socks5` | 2,393 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 184,925 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 185,046 |
 | ✅ `noctiro_getproxy` | 4,053 |
 | ✅ `noctiro_getproxy_socks5` | 3,023 |
 | ✅ `mohammedcha_proxripper` | 42,102 |
@@ -85,4 +85,4 @@
 > Diese 60 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-01 17:21 CEST (Europe/Berlin)*
+*Generiert: 2026-08-01 17:27 CEST (Europe/Berlin)*
