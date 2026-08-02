@@ -35,12 +35,14 @@ jobs:
   discover:
     runs-on: ubuntu-latest
     # FIX RUNTIME-30MIN (2026-07-31): Von 60 auf 30 Min reduziert (Vorgabe:
-    # Gesamtlauf darf 30 Min nicht überschreiten). Erreicht durch
-    # Topic-/Code-Query-Rotation pro Kalenderwoche (siehe SEARCH_TOPICS-
-    # und SEARCH_CODE_QUERIES-Schleifen) statt vollem Scan aller Queries
-    # in jedem einzelnen Lauf. Interner Skript-Cutoff (_MAX_RUNTIME_SECONDS)
-    # liegt bei 22 Min, der Rest ist Puffer für Checkout/Cache/Commit/Push.
-    timeout-minutes: 30
+    # FIX RUNTIME-40MIN (2026-08-02): Von 30 auf 40 Min angehoben, um mehr
+    # Suchreichweite pro Lauf zu ermoeglichen (mehr Topics/Code-Queries/
+    # Trusted Owner, groesseres Eval-Budget). Interner Skript-Cutoff
+    # (_MAX_RUNTIME_SECONDS, siehe unten) auf 35 Min gesetzt, der Rest ist
+    # Puffer fuer Checkout/Cache/Commit/Push. Der Dynamic-Cap-Fix (siehe
+    # "EVAL-BUDGET-DYNAMIC" weiter unten) bleibt als zusaetzliches
+    # Sicherheitsnetz aktiv, falls eine Woche trotzdem laenger braucht.
+    timeout-minutes: 40
 
     steps:
       # Idempotenz-Guard: Bei mehreren Cron-Slots (4:37, 7:23, 11:47 UTC) verhindert
@@ -96,6 +98,7 @@ jobs:
         if: steps.idempotency.outputs.already_ran != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
         run: |
           # FIX UNBUFFERED: -u erzwingt ungepufferten stdout. Ohne das block-puffert
           # CPython, weil GitHub Actions kein TTY ist – bei einem Job-Cancel
@@ -159,7 +162,7 @@ jobs:
           # verhungern, falls Topic-/Code-Search mal nicht frueh durch
           # Rate-Limits abbrechen. 3-4 Min Puffer bleiben trotzdem.
           _JOB_START = time.time()
-          _MAX_RUNTIME_SECONDS = 26 * 60  # 26 Minuten = harter Cutoff (war 22)
+          _MAX_RUNTIME_SECONDS = 35 * 60  # 35 Minuten = harter Cutoff (war 26)
           def _check_timeout(label=""):
               elapsed = time.time() - _JOB_START
               if elapsed > _MAX_RUNTIME_SECONDS:
@@ -1837,16 +1840,32 @@ jobs:
           # "created" findet gezielt frische Repos, die bei "updated" nie an
           # die Oberflaeche kommen. Damit wird der volle Topic-Katalog alle
           # 4 Wochen einmal durchsucht, alle 8 Wochen mit beiden Sortierungen.
-          _iso_week = now.isocalendar()[1]
+          # FIX ROTATION-RUN-BASED (2026-08-02): Vorher war die Rotation an
+          # die ISO-Kalenderwoche gekoppelt (now.isocalendar()[1]) - das
+          # bedeutete: mehrfaches manuelles Triggern am selben Tag traf IMMER
+          # denselben Topic-/Code-Chunk, unabhaengig davon wie oft man
+          # startet. "Mehr Reichweite sofort" war damit gar nicht moeglich,
+          # nur durch Abwarten auf die naechste Kalenderwoche. Jetzt an
+          # github.run_number gekoppelt (monoton steigende Lauf-Nummer,
+          # bei jedem Run - auch manuellen workflow_dispatch-Runs am selben
+          # Tag - garantiert verschieden). Mehrfaches manuelles Triggern
+          # hintereinander deckt jetzt tatsaechlich unterschiedliche Chunks
+          # ab - die komplette Rotation (2 Topic-/Code-Chunks) laesst sich
+          # so an einem einzigen Tag durch 2x manuelles Triggern abdecken,
+          # statt auf die naechste Kalenderwoche warten zu muessen.
+          _iso_week = int(os.environ.get("GITHUB_RUN_NUMBER", "0")) or now.isocalendar()[1]
           # FIX REACH-2026-07-31: Von 4 auf 3 Chunks verkuerzt (mehr Topics pro
           # Lauf, volle Abdeckung alle 3 statt 4 Wochen). Grundlage: letzter
           # Lauf brauchte nur ~21 von 30 verfuegbaren Minuten - Headroom fuer
           # ca. 1,5 Min mehr Topic-Suche vorhanden (87 statt 65 Topics).
-          _TOPIC_CHUNK_COUNT = 3
+          # FIX REACH-40MIN (2026-08-02): Von 3 auf 2 Chunks verkuerzt (mehr
+          # Topics pro Lauf dank 40-Minuten-Budget), voller Katalog jetzt
+          # alle 2 statt alle 3 Wochen komplett durchsucht.
+          _TOPIC_CHUNK_COUNT = 2
           _topic_chunk_idx = _iso_week % _TOPIC_CHUNK_COUNT
           _topic_chunk = SEARCH_TOPICS[_topic_chunk_idx::_TOPIC_CHUNK_COUNT]
           _topic_sort = "updated" if (_iso_week % 2 == 0) else "created"
-          print(f"Topic-Rotation: Woche {_iso_week}, Chunk {_topic_chunk_idx+1}/{_TOPIC_CHUNK_COUNT} "
+          print(f"Topic-Rotation: Lauf #{_iso_week}, Chunk {_topic_chunk_idx+1}/{_TOPIC_CHUNK_COUNT} "
                 f"({len(_topic_chunk)} von {len(SEARCH_TOPICS)} Topics), sort={_topic_sort}")
 
           for topic in _topic_chunk:
@@ -1883,7 +1902,9 @@ jobs:
           # Quelle noetig) - bisher wurden nur die ersten 15 davon nach
           # weiteren Repos durchsucht. Kosten: 1 zusaetzlicher API-Call +
           # 1s sleep pro weiterem Owner (~15s fuer die 15 zusaetzlichen).
-          TRUSTED_OWNER_LIMIT = 30
+          # FIX REACH-40MIN (2026-08-02): Von 30 auf 45 erhoeht (von 52
+          # bekannten Ownern in KNOWN_REPOS insgesamt).
+          TRUSTED_OWNER_LIMIT = 45
           TRUSTED_OWNER_REPO_LIMIT = 50
           _trusted_owners = []
           for _known_repo in sorted(KNOWN_REPOS):
@@ -1947,14 +1968,16 @@ jobs:
           # ab, falls Rate-Limits frueh zuschlagen - im letzten Lauf brach
           # die Phase nach nur 8 von 27 Queries wegen zweier 429 in Folge ab
           # und kostete dadurch nur 57s statt der budgetierten ~3 Min.
-          _CODE_CHUNK_COUNT = 3
+          # FIX REACH-40MIN (2026-08-02): Von 3 auf 2 Chunks verkuerzt (mehr
+          # Queries pro Lauf), voller Katalog jetzt alle 2 statt 3 Wochen.
+          _CODE_CHUNK_COUNT = 2
           _code_chunk_idx = _iso_week % _CODE_CHUNK_COUNT
           _code_chunk = SEARCH_CODE_QUERIES[_code_chunk_idx::_CODE_CHUNK_COUNT]
 
           if _check_timeout("Code-Search-Start"):
               print("\nCode-Search ÜBERSPRUNGEN: globales Laufzeitbudget bereits ausgeschöpft")
           else:
-              print(f"\nCode-Search startet: Woche {_iso_week}, Chunk {_code_chunk_idx+1}/"
+              print(f"\nCode-Search startet: Lauf #{_iso_week}, Chunk {_code_chunk_idx+1}/"
                     f"{_CODE_CHUNK_COUNT} ({len(_code_chunk)} von {len(SEARCH_CODE_QUERIES)} Queries)")
 
               # Eigener gh_api-Wrapper für Code-Search ohne Wartezeit bei 429.
@@ -2438,7 +2461,7 @@ jobs:
           _all_scan_repos = list(_repos_to_scan.items())
           _scan_chunk_idx = _iso_week % 2
           _repos_to_scan = dict(_all_scan_repos[_scan_chunk_idx::2])
-          print(f"Extra-File-Scan-Rotation: Woche {_iso_week}, Chunk {_scan_chunk_idx+1}/2 "
+          print(f"Extra-File-Scan-Rotation: Lauf #{_iso_week}, Chunk {_scan_chunk_idx+1}/2 "
                 f"({len(_repos_to_scan)} von {len(_all_scan_repos)} bekannten Repos)")
 
           # Alle bereits registrierten URLs sammeln (Duplikat-Schutz)
@@ -2706,12 +2729,18 @@ jobs:
           #              Signal, daher von 80 auf 40 reduziert)
           # Bei zu wenig Kandidaten in einer Quote werden ungenutzte Slots
           # NICHT umverteilt - das wuerde den Reputation-Bias wiederherstellen.
-          EVAL_BUDGET   = 400   # 60+160+100+40+40 (Code-Pool ergaenzt, Fresh reduziert)
-          QUOTA_CODE    = 60    # NEU: dedizierte Quote fuer code:-Kandidaten
-          QUOTA_REP     = 160   # erhöht: Reputation-Pool tiefer prüfen (war 100)
-          QUOTA_AWESOME = 100   # erhöht: kuratierte Listen breiter abdecken (war 60)
-          QUOTA_GITLAB  = 40    # leicht erhöht: nur ~37 GitLab-Kandidaten existieren (war 30)
-          QUOTA_FRESH   = 40    # reduziert: Code-Pool deckt junge Feeds gezielter ab (war 80)
+          # FIX REACH-40MIN (2026-08-02): Quoten fuer die groessere
+          # Suchreichweite (mehr Topics/Code-Queries/Owner) angehoben.
+          # EVAL_BUDGET 400 -> 500. Der Dynamic-Cap-Fix (siehe
+          # "EVAL-BUDGET-DYNAMIC" weiter unten) kappt die tatsaechliche
+          # Eval-Liste bei Bedarf ohnehin auf die verbleibende Zeit - diese
+          # Zahlen sind also obere Grenzen, kein garantierter Verbrauch.
+          EVAL_BUDGET   = 500   # 80+200+120+40+60
+          QUOTA_CODE    = 80    # war 60
+          QUOTA_REP     = 200   # war 160
+          QUOTA_AWESOME = 120   # war 100
+          QUOTA_GITLAB  = 40    # unveraendert: nur ~70 GitLab-Kandidaten insgesamt vorhanden
+          QUOTA_FRESH   = 60    # war 40
 
           def _is_awesome(meta):
               return any(s.startswith("awesome:") for s in meta.get("sources", []))
