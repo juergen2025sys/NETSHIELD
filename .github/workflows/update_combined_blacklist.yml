@@ -1393,6 +1393,29 @@ jobs:
           REST_SOURCES = {n: (u, hq) for n, (u, hq) in SOURCES.items()
                           if n not in SLOW_FEED_NAMES and not n.startswith("dataplane_")}
 
+          # FIX PERF-DP-OVERLAP + BUG-DP-RESULT-LOSS (2026-08-02): Vorher lief
+          # DataPlane in einer eigenen ThreadPoolExecutor+as_completed(timeout=90)
+          # Phase - bei Ueberschreitung wurden pending Futures per f.cancel()
+          # "abgebrochen" UND ihr Ergebnis nie eingesammelt, obwohl cancel()
+          # auf bereits laufende Futures wirkungslos ist (dieselbe Erkenntnis
+          # wie beim Auto-Feeds-Fix). Beobachtet im Log: dataplane_proto41
+          # (56.466 IPs) und dataplane_telnetlogin (76.181 IPs) liefen nach dem
+          # 90s-Timeout im Hintergrund erfolgreich fertig, wurden aber nie
+          # verrechnet - 132.647 IPs verloren. Jetzt: dasselbe start/collect-
+          # Muster wie bei Auto-Feeds - Fetch startet hier vorzeitig (laeuft
+          # mit Phase 0-3 mit statt in eigener 90s-Zwangspause), eingesammelt
+          # wird erst spaeter mit fetch_parallel_daemon_collect() (drain-first,
+          # verliert nichts mehr). ip_in_hq wird erst in der finalen Scoring-
+          # Schleife gelesen (weit nach allen Phasen) - die urspruengliche
+          # Begruendung "DataPlane zuerst laden, damit ip_in_hq frueh gefuellt
+          # ist" war fuer Performance gedacht, keine Korrektheits-Voraussetzung.
+          def fetch_dp(item):
+              name, url = item
+              return fetch_ips(name, url)
+
+          _dp_handle = fetch_parallel_daemon_start(
+              fetch_dp, list(DP_SOURCES.items()), max_workers=max(1, len(DP_SOURCES)))
+
           # FIX PERF-AUTO-OVERLAP (2026-08-02): Auto-Discovered-Feeds-Fetch wird
           # JETZT SCHON gestartet (vorher erst nach Phase 0-3, siehe Kommentar
           # bei "Phase 4: Auto-Discovered Feeds einsammeln" weiter unten fuer
@@ -1505,33 +1528,10 @@ jobs:
           slow_ex = ThreadPoolExecutor(max_workers=len(SLOW_SOURCES) or 1)
           slow_futures = {slow_ex.submit(fetch_ips, n, u): n for n, u in SLOW_SOURCES.items()}
 
-          # Phase 1 – DataPlane-Feeds zuerst (17 kleine Dateien, ~5–10 s)
-          # Werden bewusst zuerst geladen weil sie klein und schnell sind und
-          # die HQ-Bestätigungen früh in ip_in_hq landen sollen. Filter via
-          # n.startswith("dataplane_") greift automatisch bei neuen Feeds.
-          print("── Phase 1: DataPlane-Feeds ──────────────────────────────────────")
-          # FIX PERF-DP-NOWAIT: Kein `with ThreadPoolExecutor` mehr. Der Context-
-          # Manager wartet beim Verlassen trotz cancel() auf bereits laufende
-          # Threads. Dadurch war der 60s-Timeout faktisch weich und der Workflow
-          # hing weiter an zaehen Feeds. shutdown(wait=False, cancel_futures=True)
-          # laesst den Run weiterlaufen; laufende fetch_url-Calls enden durch ihr
-          # eigenes Timeout. DP-Timeout auf 90s, weil dataplane_proto41 in Logs
-          # ~66s brauchte und sonst nutzlos verworfen wurde.
-          dp_ex = ThreadPoolExecutor(max_workers=max(1, len(DP_SOURCES)))
-          dp_futures = {dp_ex.submit(fetch_ips, n, u): n for n, u in DP_SOURCES.items()}
-          try:
-              for future in as_completed(dp_futures, timeout=90):
-                  name, ips = future.result()
-                  _ingest(name, ips)
-          except TimeoutError:
-              pending = sorted(n for f, n in dp_futures.items() if not f.done())
-              for f in dp_futures:
-                  if not f.done():
-                      f.cancel()
-              print(f"::warning file=update_combined_blacklist.yml::DataPlane-Timeout – {len(pending)} Feed(s) abgebrochen: {', '.join(pending)}")
-              print(f"WARNUNG: DataPlane-Phase Timeout – {', '.join(pending)} abgebrochen")
-          finally:
-              dp_ex.shutdown(wait=False, cancel_futures=True)
+          # Phase 1 (DataPlane) entfaellt hier als eigener Block - der Fetch
+          # wurde bereits vor Phase 0 gestartet (siehe FIX PERF-DP-OVERLAP +
+          # BUG-DP-RESULT-LOSS weiter oben), eingesammelt wird in Phase 3.5
+          # unten, nachdem Phase 0-3 durchgelaufen sind.
 
           # Phase 2 – Alle übrigen Feeds parallel (ohne Slow-Feeds und DataPlane)
           print("── Phase 2: Restliche Feeds ──────────────────────────────────────")
@@ -1570,6 +1570,24 @@ jobs:
               print(f"::warning file=update_combined_blacklist.yml::Slow-Feed-Timeout nach 2400s – {len(pending)} Feed(s) abgebrochen: {', '.join(pending)}")
               print(f"WARNUNG: Slow-Feed-Block Timeout – {len(pending)} Feed(s) abgebrochen")
           slow_ex.shutdown(wait=False)
+
+          # ── Phase 3.5: DataPlane-Feeds einsammeln ───────────────────────────
+          # FIX PERF-DP-OVERLAP + BUG-DP-RESULT-LOSS (2026-08-02): Collect-
+          # Haelfte des vorzeitig gestarteten Fetches (siehe _dp_handle weiter
+          # oben). fetch_parallel_daemon_collect() raeumt zuerst alles bereits
+          # Fertige aus der Queue (drain-first, siehe netshield_common.py) -
+          # verliert also nichts mehr, selbst wenn Phase 0-3 laenger als das
+          # Zeitbudget gedauert haben.
+          print("── Phase 3.5: DataPlane-Feeds einsammeln ───────────────────────────")
+          _dp_results = fetch_parallel_daemon_collect(_dp_handle, overall_timeout=90)
+          _dp_names_done = set()
+          for name, ips in _dp_results:
+              _dp_names_done.add(name)
+              _ingest(name, ips)
+          _dp_pending = sorted(n for n in DP_SOURCES if n not in _dp_names_done)
+          if _dp_pending:
+              print(f"::warning file=update_combined_blacklist.yml::DataPlane-Timeout – {len(_dp_pending)} Feed(s) abgebrochen: {', '.join(_dp_pending)}")
+              print(f"WARNUNG: DataPlane-Phase Timeout – {', '.join(_dp_pending)} abgebrochen")
 
           # ── FEED-MOVE-RESOLVER: Relocation-Report ──────────────────────────
           # Nur schreiben, wenn der Resolver in diesem Lauf mind. einen Feed
