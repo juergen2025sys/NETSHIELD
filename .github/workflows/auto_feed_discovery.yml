@@ -2310,8 +2310,14 @@ jobs:
               return result
 
           if existing_feeds:
-              print(f"REFRESH-Phase: {len(existing_feeds)} Feeds parallel (4 Worker)...")
-              with ThreadPoolExecutor(max_workers=4) as _ex:
+              # FIX SPEED-REFRESH (2026-08-02): Von 4 auf 10 Worker erhoeht.
+              # Anders als GitHub/GitLab-API-Calls (gemeinsames Rate-Limit-
+              # Budget) sind das Fetches auf viele verschiedene externe Feed-
+              # URLs (unterschiedliche Domains, kein gemeinsames Limit) - rein
+              # I/O-gebunden, sicher hochzuskalieren fuer spuerbar kuerzere
+              # Laufzeit dieser Phase.
+              print(f"REFRESH-Phase: {len(existing_feeds)} Feeds parallel (10 Worker)...")
+              with ThreadPoolExecutor(max_workers=10) as _ex:
                   _refresh_results = list(_ex.map(_refresh_one,
                                                   list(existing_feeds.items())))
           else:
@@ -2418,6 +2424,22 @@ jobs:
                   "fp_rate":    _fdata.get("fp_rate", 0),
                   "days_old":   _fdata.get("days_old", 0),
               }
+
+          # FIX SPEED-EXTRA-SCAN (2026-08-02): Vorher wurden JEDE Woche ALLE
+          # bekannten Repos sequentiell gescannt (Tree-Fetch + ggf. Commit-
+          # Lookup + Raw-Fetch pro neuer Datei, jeweils mit sleep(0.3)) - bei
+          # 44 Repos war das der mit Abstand groesste Zeitanteil der
+          # REFRESH+Extra-File-Scan-Phase (zusammen 7:43 Min in einem
+          # beobachteten Lauf). Analog zur bereits etablierten Topic-/Code-
+          # Query-Rotation wird jetzt nur die Haelfte der bekannten Repos pro
+          # Lauf gescannt (Round-Robin ueber ISO-Kalenderwoche) - voller
+          # Bestand wird alle 2 Wochen einmal komplett abgedeckt, spart aber
+          # in jedem einzelnen Lauf ca. die Haelfte dieser Phase.
+          _all_scan_repos = list(_repos_to_scan.items())
+          _scan_chunk_idx = _iso_week % 2
+          _repos_to_scan = dict(_all_scan_repos[_scan_chunk_idx::2])
+          print(f"Extra-File-Scan-Rotation: Woche {_iso_week}, Chunk {_scan_chunk_idx+1}/2 "
+                f"({len(_repos_to_scan)} von {len(_all_scan_repos)} bekannten Repos)")
 
           # Alle bereits registrierten URLs sammeln (Duplikat-Schutz)
           _registered_urls = {v.get("url", "") for v in approved_feeds.values()}
@@ -2857,6 +2879,40 @@ jobs:
               _picked_keys.add(k)
               _fresh_added += 1
 
+          # FIX EVAL-BUDGET-DYNAMIC (2026-08-01): Beobachtet in einem Lauf, der
+          # vom harten 30-Minuten-Job-Limit abgebrochen wurde (##[error] The
+          # operation was canceled), OHNE dass Report oder State ueberhaupt
+          # geschrieben wurden. Ursache: Die Eval-Phase (blockierender
+          # ThreadPoolExecutor.map()-Aufruf) startete zu spaet, mitten im
+          # internen 26-Minuten-Cutoff - da dieser Aufruf erst zurueckkehrt,
+          # wenn ALLE Worker fertig sind, konnte _check_timeout() innerhalb
+          # einzelner _evaluate_one-Aufrufe den bereits laufenden Block nicht
+          # mehr stoppen. Fix: Kandidatenliste HIER, VOR dem blockierenden
+          # Aufruf, dynamisch auf die tatsaechlich verbleibende Zeit kappen
+          # (konservative Schaetzung 1,5s/Kandidat bei 4 Workern, plus 90s
+          # Sicherheitspuffer fuer Report-Schreiben/State-Save/Commit danach).
+          # Prioritaet bleibt gewahrt, da Pools in Prioritaetsreihenfolge
+          # angehaengt wurden (Code > Rep > Awesome > GitLab > Fresh) - eine
+          # Kappung am Ende trifft zuerst die niedrigst priorisierten
+          # Fresh-Kandidaten, nicht die wertvollen Code-/Rep-Pool-Treffer.
+          _ESTIMATED_SECONDS_PER_EVAL_CANDIDATE = 1.5
+          _EVAL_PHASE_SAFETY_BUFFER_SECONDS = 90
+          _elapsed_before_eval = time.time() - _JOB_START
+          _remaining_before_cutoff = _MAX_RUNTIME_SECONDS - _elapsed_before_eval
+          _eval_time_budget = max(0, _remaining_before_cutoff - _EVAL_PHASE_SAFETY_BUFFER_SECONDS)
+          _max_candidates_fitting = int(_eval_time_budget / _ESTIMATED_SECONDS_PER_EVAL_CANDIDATE)
+          _dynamic_cap_applied = False
+          if len(_sorted_candidates) > _max_candidates_fitting:
+              _dynamic_cap_applied = True
+              _capped_at = max(20, _max_candidates_fitting)
+              print(
+                  f"WARNUNG EVAL-BUDGET-DYNAMIC: Nur noch {_remaining_before_cutoff:.0f}s bis "
+                  f"internem Cutoff ({_elapsed_before_eval:.0f}s bereits durch Discovery-/"
+                  f"Refresh-Phasen verbraucht) - Eval-Liste von {len(_sorted_candidates)} auf "
+                  f"{_capped_at} gekappt, damit Report/State/Commit garantiert noch Zeit haben."
+              )
+              _sorted_candidates = _sorted_candidates[:_capped_at]
+
           print(
               f"Stratifizierte Auswahl aus {len(candidate_repos)} Kandidaten:\n"
               f"  Code-Search-Pool (GH):    {_code_added} (von {len(_code_pool)} verfuegbar)\n"
@@ -2866,7 +2922,8 @@ jobs:
               f"  Fresh-Pool (GH):          {_fresh_added} (von {len(_fresh_pool)} verfuegbar, "
               f"Quote {_quota_fresh_effective} = {QUOTA_FRESH} Basis + "
               f"{_quota_fresh_effective - QUOTA_FRESH} umverteilt von Code/GitLab)\n"
-              f"  → EVAL-Total:             {len(_sorted_candidates)} (Budget {EVAL_BUDGET})"
+              f"  → EVAL-Total:             {len(_sorted_candidates)} (Budget {EVAL_BUDGET}"
+              f"{', dynamisch gekappt wegen Zeitbudget' if _dynamic_cap_applied else ''})"
           )
 
           _eval_lock = _threading.Lock()
