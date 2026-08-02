@@ -299,8 +299,12 @@ jobs:
           # und 34 Tool-/Config-/Adversarial-Namen (0 Falsch-Positive).
           IP_FILE_PATTERNS = re.compile(
               r'(?i)(?:'
-              # Pfad 1: .ip/.ips/.ipset/.netset/.cidr-Endung = immer IP-Liste
-              r'[^/]+\.(?:ips?|ipset|netset|cidr)(?:\.gz)?$'
+              # Pfad 1: .ip/.ips/.ipset/.netset/.cidr/.edl-Endung = immer IP-Liste
+              # .edl (2026-08-02): Palo Alto Networks "External Dynamic List" -
+              # Dateien mit dieser Endung sind laut Konvention praktisch immer
+              # reine IP-/CIDR-Listen (siehe t11z/pan-edl, glassman2u/PA-Release),
+              # analog zu .ipset/.netset.
+              r'[^/]+\.(?:ips?|ipset|netset|cidr|edl)(?:\.gz)?$'
               r'|'
               # Pfad 2: bekannte Stems mit anderen Endungen
               r'(?:'
@@ -326,7 +330,14 @@ jobs:
               r'phishing(?:[-_]?ips?)?|'
               r'malvertising|skimmer|magecart|'
               r'exploit[-_]?kit|bulletproof(?:[-_]?hosting)?|'
-              r'booter|stresser|iot[-_]?botnet'
+              r'booter|stresser|iot[-_]?botnet|'
+              # NEU (2026-08-02): Palo Alto Networks "External Dynamic List"
+              # (EDL) - eigenes Community-Oekosystem auf GitHub (z.B.
+              # t11z/pan-edl, david-ramsden/paloalto-edl, glassman2u/PA-Release
+              # - verifiziert als echte, aktive Repos). Meist reine
+              # IP-/CIDR-Listen im selben Klartext-Format wie die uebrigen
+              # erkannten Stems, nur mit EDL-spezifischer Namensgebung.
+              r'edl(?:[-_]?ips?)?|pan[-_]?edl|palo[-_]?alto(?:[-_]?edl)?'
               r')|'
               r'adblock[-_.]ip|'
               r'(?:plain|optimized|sorted)[-.].+ip[46]?cidr|'
@@ -357,6 +368,18 @@ jobs:
               "", ".txt", ".list", ".lst", ".dat", ".log", ".csv", ".tsv",
               ".json", ".jsonl", ".xml", ".yaml", ".yml", ".toml", ".ini",
               ".conf", ".cfg", ".block", ".deny",
+              # NEU (2026-08-02): Zeek/Bro Intelligence Framework. Verifiziert
+              # gegen CriticalPathSecurity/Zeek-Intelligence-Feeds (echtes,
+              # aktives Repo mit z.B. "abuse-ch-ipblocklist.intel"). Format ist
+              # Tab-getrennt mit gemischten Indikator-Typen (Intel::ADDR,
+              # Intel::DOMAIN, Intel::URL, Intel::FILE_HASH etc.) - bewusst NICHT
+              # im Pfad-1-Schnellpfad (anders als .edl/.ipset/.netset), da nicht
+              # jede .intel-Datei eine IP-Liste ist. Der generische IPv4/CIDR-
+              # Regex-Fallback in parse_entries() extrahiert automatisch nur die
+              # Zeilen mit echten IP-Werten (Intel::ADDR/Intel::SUBNET), Domain-/
+              # Hash-Zeilen matchen den IP-Regex ohnehin nicht und werden
+              # uebersprungen - dieselbe Machanik wie bei .rsc-Dateien.
+              ".intel",
           }
           CONTENT_SNIFF_SKIP_RE = re.compile(
               r'(?i)(?:^|/)(?:docs?|examples?|samples?|fixtures?|tests?|testdata|'
@@ -1567,6 +1590,9 @@ jobs:
               "ioc", "ioc-feed", "ioc-list", "c2", "c2-feed", "botnet",
               "botnet-ip", "scanner", "scanner-ip", "abuseipdb", "blocklist",
               "blacklist", "banlist", "denylist", "reputation", "threat-feed",
+              # NEU (2026-08-02): Palo Alto Networks EDL (External Dynamic List)
+              "edl", "external-dynamic-list", "pan-edl", "paloalto-edl",
+              "palo-alto-edl", "pan-os-edl",
               "ip-feed", "malware", "malware-ip", "phishing", "bruteforce",
               "attackers", "bad-ip", "bad-ips", "suspicious-ip",
               "tor-exit-nodes", "tor-relays", "honeypot", "ssh-bruteforce",
@@ -1669,6 +1695,17 @@ jobs:
               "filename:blocklist.txt malicious ip",
               "filename:ips.txt malicious",
               "filename:malicious_ips.txt ip",
+              # NEU (2026-08-02): Palo Alto Networks EDL (External Dynamic List)
+              "filename:edl.txt ip",
+              "filename:edl.txt malicious",
+              "filename:edl_list.txt",
+              # NEU (2026-08-02): Zeek/Bro Intelligence Framework (.intel).
+              # "Intel::ADDR" ist ein eindeutiger, formatspezifischer String
+              # (Indikator-Typ-Konstante), extension:-Qualifier grenzt zusaetzlich
+              # auf die richtige Dateiendung ein.
+              "extension:intel Intel::ADDR",
+              "external dynamic list ip blocklist",
+              "pan-os edl malicious ip",
               "filename:malicious-ips.txt ip",
               "filename:suspicious_ips.txt ip",
               "filename:attackers.txt ip",
@@ -2155,6 +2192,8 @@ jobs:
               "threat-feed", "threatintel", "blocklist",
               "honeypot", "ssh-bruteforce", "botnet", "c2-ips",
               "ioc-feed", "abuseipdb", "ipset", "denylist",
+              # NEU (2026-08-02): Palo Alto Networks EDL (External Dynamic List)
+              "edl", "external-dynamic-list", "pan-edl", "palo-alto",
               # NEU: spezifischere Begriffe
               "attacker-ips", "scanner-ips", "bruteforce-ips",
               "threat-intelligence", "security-feed",
