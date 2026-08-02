@@ -1,293 +1,223 @@
 # Auto Feed Discovery – Report
-**Aktualisiert:** 2026-08-02 08:09 UTC
+**Aktualisiert:** 2026-08-02 10:31 UTC
 
 ---
 ## Zusammenfassung
 
 | Metrik | Wert |
 |---|---|
-| Kandidaten gesamt | **7574** |
-| davon GitHub (Topics+Code) | **7503** |
+| Kandidaten gesamt | **10608** |
+| davon GitHub (Topics+Code) | **10537** |
 | davon GitLab | **71** |
-| davon Awesome-Lists | **2290** |
-| Tools/Libraries vor Eval gefiltert | **522** |
-| davon Hard-Reject (awesome-Liste etc.) | **171** |
-| EVAL-Kandidaten (nach Stratifizierung) | **243** |
+| davon Awesome-Lists | **2392** |
+| Tools/Libraries vor Eval gefiltert | **1465** |
+| davon Hard-Reject (awesome-Liste etc.) | **152** |
+| EVAL-Kandidaten (nach Stratifizierung) | **165** |
 | davon bereits rejected (übersprungen) | **0** |
 | davon bereits approved (übersprungen) | **0** |
-| tatsächlich evaluierte Repositories | **243** |
+| tatsächlich evaluierte Repositories | **165** |
 | davon angenommene Repositories | **0** |
-| davon abgelehnte Repositories | **243** |
-| Neu angenommene Feed-Dateien | **0** |
+| davon abgelehnte Repositories | **165** |
+| Neu angenommene Feed-Dateien | **1** |
 | davon aus GitLab | **0** |
 | davon aus Awesome-Lists | **0** |
 | Bestehende Feed-Dateien aktualisiert | **171** |
-| Abgelehnte Repositories (dieser Run) | **243** |
+| Abgelehnte Repositories (dieser Run) | **165** |
 | davon GitLab abgelehnt | **0** |
-| Feeds gesamt (aktiv) | **171** |
-| IPs in seen_db bestätigt | **3170667** |
-| Neue IPs eingetragen | **22340** |
-| seen_db gesamt | **14,270,583** |
-| HQ-Referenz-IPs (6 Quellen) | **109548** |
+| Feeds gesamt (aktiv) | **172** |
+| IPs in seen_db bestätigt | **3192849** |
+| Neue IPs eingetragen | **1344** |
+| seen_db gesamt | **14,271,927** |
+| HQ-Referenz-IPs (6 Quellen) | **109809** |
 
 ---
 ## 📊 Reject-Gründe (dieser Run)
 
 | Grund | Anzahl |
 |---|---|
-| Repo zu alt (>30d) | **212** |
-| Keine IP-Datei im Repo | **24** |
-| IP-Datei veraltet (>30d) | **4** |
-| Falsche Größe (<100 / >2,000,000 IPs) | **3** |
+| Repo zu alt (>30d) | **83** |
+| Keine IP-Datei im Repo | **55** |
+| Falsche Größe (<100 / >2,000,000 IPs) | **13** |
+| IP-Datei veraltet (>30d) | **13** |
+| Overlap mit HQ-Feeds zu gering (<20%) | **1** |
+
+---
+## ✅ Angenommene Feeds
+
+| Feed | Repo | Plattform | IPs | Overlap | FP-Rate | Stars | Status |
+|---|---|---|---|---|---|---|---|
+| `configserverapps_service_blocklists_blocklist` | [ConfigServerApps/service-blocklists](https://github.com/ConfigServerApps/service-blocklists) | GITHUB | 47,274 | 43.0% | 0.0% | 10 | 🆕 NEU |
 
 ---
 ## ❌ Abgelehnte Repos
 
 | Repo | Plattform | Grund |
 |---|---|---|
-| `yubowen0525/maltrail-master` | GITHUB | Zu alt: 2162d |
-| `vishwanath-lab/defensive-security` | GITHUB | Zu alt: 759d |
-| `sequenceanalysis/sequenceanalysis.github.io` | GITHUB | Zu alt: 2034d |
-| `Sanae6/cobalt` | GITHUB | Zu alt: 900d |
-| `JohnnyPh/AndroidTubeEnhanced` | GITHUB | Zu alt: 139d |
-| `aman71711/Tizentube_optimize` | GITHUB | Zu alt: 228d |
-| `imbackwithrampage/TizenTubeCobalt` | GITHUB | Zu alt: 409d |
-| `epfl-ada/ada-2024-project-leszinzinsdelespace` | GITHUB | Zu alt: 590d |
-| `epfl-ada/ada-2024-project-collectifmetisser` | GITHUB | Zu alt: 590d |
-| `anassalamah/nlp-project` | GITHUB | Zu alt: 4248d |
-| `mrdkap/Amber` | GITHUB | Zu alt: 269d |
-| `DarkPacks/SevTech-Ages` | GITHUB | Zu alt: 1678d |
-| `voidsong-dragonfly/mechcanical-technology-rocketry` | GITHUB | Zu alt: 1422d |
-| `epfl-ada/ada-2023-project-amonavis` | GITHUB | Zu alt: 954d |
-| `fabio212/youtube-android-tv-mod` | GITHUB | Zu alt: 508d |
-| `HKUST-Franky/MSBD5008_Social_Computing` | GITHUB | Zu alt: 455d |
-| `p0sty/OpenWelfare` | GITHUB | Zu alt: 985d |
-| `angelpras/epfl_ADA_project` | GITHUB | Zu alt: 426d |
-| `epfl-ada/ada-2024-project-adaventure` | GITHUB | Zu alt: 328d |
-| `SophiaHan6/BigData` | GITHUB | Zu alt: 2761d |
-| `alansheu2004/Word-Embeddings` | GITHUB | Zu alt: 632d |
-| `zynthian/zynthian-data` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `cabosanlucas/document_similarity_using_tfidf` | GITHUB | Zu alt: 3104d |
-| `Matroid1998/Iterative-rag` | GITHUB | Zu alt: 61d |
-| `themanaworld/tmwa-server-data` | GITHUB | IP-Datei 3733d alt |
-| `bakulskilab/CTD_preterm_birth` | GITHUB | Zu alt: 849d |
-| `mmoult/Snippet-Sentiment-Summarizer` | GITHUB | Zu alt: 1601d |
-| `octupole/openTRJ` | GITHUB | Zu alt: 296d |
-| `misterplus/Levitated` | GITHUB | Zu alt: 545d |
-| `opensource-hisense/SmartTV-SeriesVidaaU7_NT` | GITHUB | IP-Datei 1030d alt |
-| `typenotdefined/cobalt` | GITHUB | Zu alt: 97d |
-| `yucatan/VectorSigma` | GITHUB | Zu alt: 674d |
-| `shengshengli/GScan` | GITHUB | Zu alt: 1554d |
-| `Ryanshuai/English_Chinese_online_dictionary_crawler` | GITHUB | Zu alt: 2196d |
-| `Blushister/sevtech_docker` | GITHUB | Zu alt: 739d |
-| `vilaca/synth-manuals` | GITHUB | Zu alt: 660d |
-| `jeonggyukim/pyathena` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `mhelhoseiny/MindMap` | GITHUB | Zu alt: 4229d |
-| `DannyahIA/sevtechages-server` | GITHUB | Zu alt: 235d |
-| `Phys09/mc-servers` | GITHUB | Zu alt: 1037d |
-| `vsreelasya/Search-engine` | GITHUB | Zu alt: 3383d |
-| `Chidera-Nnadiekwe/csc7644-final-project-Nnadiekwe-Chidera` | GITHUB | Zu alt: 46d |
-| `MarvinBuechel/SoK_CTI_TTP` | GITHUB | Zu alt: 361d |
-| `LiuShunBo/Alert` | GITHUB | Zu alt: 114d |
-| `ernestoBocini/Human-vs-AI` | GITHUB | Zu alt: 904d |
-| `njcx/blackip_list` | GITHUB | Größe: 2433230 IPs |
-| `scriptzteam/IP-BlockList-v2` | GITHUB | Zu alt: 3213d |
-| `n0rppa/XXMXLI` | GITHUB | Zu alt: 150d |
-| `sontek/reputation` | GITHUB | Zu alt: 1127d |
-| `ZackMcColgan/techDemo` | GITHUB | Zu alt: 2384d |
-| `LETHAL-FORENSICS/Microsoft-Analyzer-Suite` | GITHUB | IP-Datei 44d alt |
-| `bogdanticu88/ApexHunter` | GITHUB | Zu alt: 151d |
-| `meimeitou/bgo` | GITHUB | Zu alt: 200d |
-| `marinade-finance/delegation-strategy-2` | GITHUB | Größe: 0 IPs |
-| `marinade-finance/ds-sam-pipeline` | GITHUB | Größe: 0 IPs |
-| `lippmanry/Splunk-OT-Sandbox` | GITHUB | Zu alt: 158d |
-| `collinco2/sentinelforge` | GITHUB | Zu alt: 418d |
-| `HawkEyeTheRapper/reincarnated-store-nextjs` | GITHUB | Zu alt: 95d |
-| `LLMAudit/LLMSmartAuditTool` | GITHUB | Zu alt: 350d |
-| `oxygen-hunter/Flashboom` | GITHUB | Zu alt: 307d |
-| `fox-it/cisco-ios-xe-implant-detection` | GITHUB | Zu alt: 999d |
-| `arvindpj007/Suricata-Detect-DoS-Attack` | GITHUB | Zu alt: 2277d |
-| `Truvis/Suricata_Threat-Hunting-Rules` | GITHUB | Zu alt: 2149d |
-| `pfelk/pfelk` | GITHUB | Zu alt: 247d |
-| `VictorRobellini/pfSense-Dashboard` | GITHUB | Zu alt: 1215d |
-| `olivierb46/PyFRC2G` | GITHUB | Zu alt: 145d |
-| `FingerlessGlov3s/OPNsensePIAWireguard` | GITHUB | Zu alt: 109d |
-| `AthennaMind/opnsense-exporter` | GITHUB | Zu alt: 67d |
-| `vaamonde/opnsense` | GITHUB | Zu alt: 664d |
-| `mwood77/pf2opn` | GITHUB | Zu alt: 377d |
-| `EasyG0ing1/Migration` | GITHUB | Zu alt: 806d |
-| `lilchancep/att-pfsense-ipv6` | GITHUB | Zu alt: 173d |
-| `KoenZomers/pfSenseBackup` | GITHUB | Zu alt: 488d |
-| `Truvis/CheatSheets` | GITHUB | Zu alt: 1876d |
-| `Pixelworlds/opnsense-mcp-server` | GITHUB | Zu alt: 392d |
-| `IRQ10/Graylog-OPNsense_Extractors` | GITHUB | Zu alt: 550d |
-| `Lachee/opnsense-oidc` | GITHUB | Zu alt: 301d |
-| `mtreinish/pyopnsense` | GITHUB | Zu alt: 1026d |
-| `andreas-stuerz/opn-cli` | GITHUB | Zu alt: 830d |
-| `punktDe/vagrant-opnsense` | GITHUB | Zu alt: 738d |
-| `htrgouvea/nipe` | GITHUB | Zu alt: 36d |
-| `Aurora-Admin-Panel/deploy` | GITHUB | Zu alt: 418d |
-| `trimstray/iptables-essentials` | GITHUB | Zu alt: 621d |
-| `MikeWang000000/FakeHTTP` | GITHUB | Zu alt: 392d |
-| `mikeroyal/Linux-Guide` | GITHUB | Zu alt: 941d |
-| `brainfucksec/kalitorify` | GITHUB | Zu alt: 836d |
-| `EternalPain/ZJL` | GITHUB | Zu alt: 706d |
-| `benjojo/totp-ssh-fluxer` | GITHUB | Zu alt: 1432d |
-| `hongwenjun/vps_setup` | GITHUB | Zu alt: 428d |
-| `Jsitech/JShielder` | GITHUB | Zu alt: 1035d |
-| `Nudin/iptable_vis` | GITHUB | Zu alt: 1109d |
-| `pretty66/iptables-web` | GITHUB | Zu alt: 259d |
-| `geerlingguy/ansible-role-firewall` | GITHUB | Zu alt: 247d |
-| `box/kube-iptables-tailer` | GITHUB | Zu alt: 720d |
-| `aabc/ipt-netflow` | GITHUB | Zu alt: 474d |
-| `polycube-network/polycube` | GITHUB | Zu alt: 1244d |
-| `zfl9/ipt2socks` | GITHUB | Zu alt: 204d |
-| `ruped24/toriptables2` | GITHUB | Zu alt: 367d |
-| `mrash/psad` | GITHUB | Zu alt: 1148d |
-| `yangchuansheng/love-gfw` | GITHUB | Zu alt: 2182d |
-| `zw963/asuswrt-merlin-transparent-proxy` | GITHUB | Zu alt: 1019d |
-| `mikeroyal/Perfect-Ubuntu-Guide` | GITHUB | Zu alt: 941d |
-| `opiran-club/pf-tun` | GITHUB | Zu alt: 745d |
-| `m0hithreddy/Proxifier-For-Linux` | GITHUB | Zu alt: 2026d |
-| `fnzv/net-Shield` | GITHUB | Zu alt: 1727d |
-| `drsound/fault_tolerant_router` | GITHUB | Zu alt: 1930d |
-| `BenderScript/envoybigbook` | GITHUB | Zu alt: 1124d |
-| `EmreOvunc/Linux-System-Management-Scripts-Tricks` | GITHUB | Zu alt: 1717d |
-| `0vm/NetDeflect` | GITHUB | Zu alt: 310d |
-| `mbertrone/bpf-iptables` | GITHUB | Zu alt: 1004d |
-| `singchia/go-xtables` | GITHUB | Zu alt: 388d |
-| `Incognito-Coder/EPF` | GITHUB | Zu alt: 556d |
-| `janeczku/go-ipset` | GITHUB | Zu alt: 1250d |
-| `szorfein/paranoid-ninja` | GITHUB | Zu alt: 2309d |
-| `vi/tcpsocks` | GITHUB | Zu alt: 1783d |
-| `landhb/DrawBridge` | GITHUB | Zu alt: 1023d |
-| `chef-cookbooks/iptables` | GITHUB | Zu alt: 1171d |
-| `diekmann/Iptables_Semantics` | GITHUB | Zu alt: 765d |
-| `yaa110/rust-iptables` | GITHUB | Zu alt: 360d |
-| `mikegleasonjr/ansible-role-firewall` | GITHUB | Zu alt: 691d |
-| `sammwyy/ddos-mitigation` | GITHUB | Zu alt: 1677d |
-| `relaypro-open/dog` | GITHUB | Zu alt: 101d |
-| `philippecrowdsec/iptables-nftables-multiroute-firewall` | GITHUB | Zu alt: 1765d |
-| `benjojo/iptables-uwu` | GITHUB | Zu alt: 1947d |
-| `andrsharaev/xt_NAT` | GITHUB | Zu alt: 2507d |
-| `aabc/ipt-ratelimit` | GITHUB | Zu alt: 709d |
-| `milesrichardson/docker-nfqueue-scapy` | GITHUB | Zu alt: 3439d |
-| `garutilorenzo/iptables-docker` | GITHUB | Zu alt: 1315d |
-| `mrash/fwsnort` | GITHUB | Zu alt: 2806d |
-| `KCCat/DROP-ISP-TCP-Hijacking` | GITHUB | Zu alt: 3474d |
-| `zersh01/iptables_interactive_scheme` | GITHUB | Zu alt: 290d |
-| `akerouanton/iptables-tracer` | GITHUB | Zu alt: 674d |
-| `tam7t/droplan` | GITHUB | Zu alt: 3340d |
-| `Witee/Note-shadowsocks` | GITHUB | Zu alt: 2786d |
-| `ReturnFI/Port-Shifter` | GITHUB | Zu alt: 296d |
-| `bowei/k8s-custom-iptables` | GITHUB | Zu alt: 1019d |
-| `juli3nk/csf-post-docker` | GITHUB | Zu alt: 1454d |
-| `stemid/captiveportal` | GITHUB | Zu alt: 2838d |
-| `cylonchau/firewalld-gateway` | GITHUB | Zu alt: 545d |
-| `faicker/ipt_xor` | GITHUB | Zu alt: 817d |
-| `alpinelinux/awall` | GITHUB | Zu alt: 527d |
-| `dis-works/diswall-rs` | GITHUB | Zu alt: 416d |
-| `jamesmacwhite/ipset-netgear-r7000-dd-wrt` | GITHUB | Zu alt: 2755d |
-| `diekmann/net-network` | GITHUB | Zu alt: 3341d |
-| `kbknapp/iptables_exporter` | GITHUB | Zu alt: 816d |
-| `luigi1809/webfilter-ng` | GITHUB | Zu alt: 2134d |
-| `brenns10/pywall` | GITHUB | Zu alt: 1991d |
-| `tozd/docker-external-ip` | GITHUB | Zu alt: 115d |
-| `duy13/vDDoS-Layer4-Mapping` | GITHUB | Zu alt: 2615d |
-| `PaloAltoNetworks/prisma.pan.dev` | GITHUB | Zu alt: 1208d |
-| `lss233/kirara-ai` | GITHUB | Zu alt: 400d |
-| `mamoe/mirai` | GITHUB | Zu alt: 678d |
-| `FloatTech/ZeroBot-Plugin` | GITHUB | Zu alt: 37d |
-| `Mrs4s/MiraiGo` | GITHUB | Zu alt: 885d |
-| `mamoe/mirai-console` | GITHUB | Zu alt: 1502d |
-| `iTXTech/mirai-console-loader` | GITHUB | Zu alt: 952d |
-| `SAGIRI-kawaii/sagiri-bot` | GITHUB | Zu alt: 711d |
-| `lz1998/ricq` | GITHUB | Zu alt: 811d |
-| `yyuueexxiinngg/onebot-kotlin` | GITHUB | Zu alt: 1016d |
-| `Sora233/DDBOT` | GITHUB | Zu alt: 412d |
-| `MrXiaoM/Overflow` | GITHUB | Zu alt: 61d |
-| `mzdluo123/MiraiAndroid` | GITHUB | Zu alt: 1522d |
-| `GardenHamster/Theresa3rd-Bot` | GITHUB | Zu alt: 706d |
-| `iTXTech/mirai-native` | GITHUB | Zu alt: 1098d |
-| `etil2jz/Mirai` | GITHUB | Zu alt: 1282d |
-| `Colter23/bilibili-dynamic-mirai-plugin` | GITHUB | Zu alt: 41d |
-| `khjxiaogu/MiraiSongPlugin` | GITHUB | Zu alt: 64d |
-| `MrXiaoM/Aoki` | GITHUB | Zu alt: 1144d |
-| `zmh-program/web-mirai-panel` | GITHUB | Zu alt: 692d |
-| `Xwdit/RainyBot-Core` | GITHUB | Zu alt: 827d |
-| `niuhuan/rust_proc_qq` | GITHUB | Zu alt: 337d |
-| `StarWishsama/Comet-Bot` | GITHUB | Zu alt: 1017d |
-| `Mirai-NET-Shelter/Mirai.Net` | GITHUB | Zu alt: 869d |
-| `Nambers/MiraiCP` | GITHUB | Zu alt: 1004d |
-| `Nova-Committee/McBot` | GITHUB | Zu alt: 504d |
-| `YunYouJun/el-bot` | GITHUB | Zu alt: 491d |
-| `Logiase/MiraiGo-Template` | GITHUB | Zu alt: 1202d |
-| `brussell98/Mirai` | GITHUB | Zu alt: 2150d |
-| `cscs181/CAI` | GITHUB | Zu alt: 1130d |
-| `cssxsh/bilibili-helper` | GITHUB | Zu alt: 744d |
-| `cyanray/mirai-cpp` | GITHUB | Zu alt: 747d |
-| `ProtobufBot/Go-Mirai-Client` | GITHUB | Zu alt: 744d |
-| `only52607/lua-mirai` | GITHUB | Zu alt: 1130d |
-| `YiriMiraiProject/YiriMirai` | GITHUB | Zu alt: 742d |
-| `cssxsh/mirai-openai-plugin` | GITHUB | Zu alt: 956d |
-| `cssxsh/pixiv-helper` | GITHUB | Zu alt: 875d |
-| `cssxsh/mirai-device-generator` | GITHUB | Zu alt: 1039d |
-| `mgsky1/FG` | GITHUB | Zu alt: 1263d |
-| `Byaidu/QChatBot-GPT` | GITHUB | Zu alt: 1328d |
-| `Coloryr/ColorMirai` | GITHUB | Zu alt: 1269d |
-| `cnlimiter/onebot-mirai` | GITHUB | Zu alt: 864d |
-| `MrXiaoM/Eden` | GITHUB | Zu alt: 223d |
-| `MrXiaoM/mirai-console-dev-qrlogin` | GITHUB | Zu alt: 1015d |
-| `Karlatemp/LuckPerms-Mirai` | GITHUB | Zu alt: 1049d |
-| `ProtobufBot/ProtobufBot` | GITHUB | Zu alt: 1688d |
-| `theGravityLab/ProjHyperai` | GITHUB | Zu alt: 1767d |
-| `xszqxszq/maimai-bot` | GITHUB | Zu alt: 930d |
-| `ShrBox/ACGPro` | GITHUB | Zu alt: 2024d |
-| `techgaun/mirai` | GITHUB | Zu alt: 3586d |
-| `cssxsh/meme-helper` | GITHUB | Zu alt: 647d |
-| `Soung2279/Mirai-Bot-Setup` | GITHUB | Zu alt: 1809d |
-| `cnlimiter/onebot-client` | GITHUB | Zu alt: 436d |
-| `cssxsh/mirai-administrator` | GITHUB | Zu alt: 721d |
-| `Excaive/miraicle` | GITHUB | Zu alt: 1446d |
-| `g1331/xiaomai-bot` | GITHUB | Zu alt: 38d |
-| `WhiteMagic2014/WMagicBotR` | GITHUB | Zu alt: 933d |
-| `RTUStudio/Fusion` | GITHUB | Zu alt: 942d |
-| `DreamVoid/Chat2QQ` | GITHUB | Zu alt: 214d |
-| `lejolly/mirai` | GITHUB | Zu alt: 1372d |
-| `mengshouer/HoshinoBot-Plugins` | GITHUB | Zu alt: 1192d |
-| `cssxsh/arknights-helper` | GITHUB | Zu alt: 817d |
-| `super1207/KookOneBot` | GITHUB | Zu alt: 838d |
-| `rxrw/mirai-docker-starter` | GITHUB | Zu alt: 1511d |
-| `Logiase/gomirai` | GITHUB | Zu alt: 2132d |
-| `tcpfin-dev/terylene` | GITHUB | Zu alt: 104d |
-| `xmrig/xmrig` | GITHUB | Zu alt: 36d |
-| `xmrig/xmrig-nvidia` | GITHUB | Zu alt: 1936d |
-| `xmrig/xmrig-proxy` | GITHUB | Zu alt: 87d |
-| `UnamSanctam/SilentXMRMiner` | GITHUB | Zu alt: 1727d |
-| `xmrig/xmrig-cuda` | GITHUB | Zu alt: 238d |
-| `Bw3ll/JOP_ROCKET` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `trailofbits/rattle` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `christophetd/CloudFlair` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `OR-Bologna/tech-report-template` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `MaximeBeasse/KeyDecoder` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `pe3zx/my-infosec-awesome` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `artgromov/CorrectHorse` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `zeropwn/spyse.py` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `twilio-labs/socless` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `tasox/LogRM` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `xntrik/hcltm` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `cloudflare/cfssl_trust` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `oasis-tcs/cacao` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `Berkanktk/CyberSecurity` | GITHUB | IP-Datei 1626d alt |
-| `roottusk/vapi` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `ianhan/BitmapFonts` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `therealsaumil/static-arm-bins` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `SECFORCE/Tunna` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `Cryptogenic/Exploit-Writeups` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `CyberSecurityUP/Mitre-Attack-Matrix` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `google/scaaml` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `vysecurity/IPFuscator` | GITHUB | Keine IP-Datei (Name/Inhalt) |
-| `hasherezade/transacted_hollowing` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `Christbowel/OSDC` | GITHUB | Größe: 0 IPs |
+| `bb1nfosec/bheeshma` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `HydraDragonAntivirus/HydraDragonAntivirus` | GITHUB | IP-Datei 104d alt |
+| `popcar2/BadWebsiteBlocklist` | GITHUB | Größe: 0 IPs |
+| `OneLiteFeatherNET/BlockedIPsList` | GITHUB | Zu alt: 156d |
+| `Deilis/IOC-validator-deivscan` | GITHUB | Zu alt: 973d |
+| `netrunn3r/pytbull-ng` | GITHUB | Zu alt: 1888d |
+| `kursadaltan/kemalwaf` | GITHUB | Zu alt: 185d |
+| `Zstaigah/HIDS` | GITHUB | Zu alt: 258d |
+| `zoobean/heroku-buildpack-caddy` | GITHUB | Zu alt: 305d |
+| `AkshPatel14/Log-Analyzer` | GITHUB | Zu alt: 32d |
+| `FaustoRosado/aws-lab` | GITHUB | Zu alt: 309d |
+| `Vaibhavasri2005/college-network-security-idps` | GITHUB | Zu alt: 213d |
+| `Abhracodec/Tools` | GITHUB | Zu alt: 132d |
+| `LangerSword/netsieve` | GITHUB | Zu alt: 98d |
+| `munisp/farmer-data-collection` | GITHUB | IP-Datei 55d alt |
+| `kunw4r/LLM_NIDS` | GITHUB | Zu alt: 104d |
+| `johnhogan5/cybersecurity-projects` | GITHUB | Zu alt: 611d |
+| `ChristianF88/flokbn` | GITHUB | Zu alt: 45d |
+| `poudenes/skynet-blacklists` | GITHUB | Zu alt: 496d |
+| `jayachandirantv-tech/smart-network-traffic-analyzer` | GITHUB | Größe: 0 IPs |
+| `Bensaad-Yessine/NetGuard-IDS` | GITHUB | Zu alt: 139d |
+| `jakub3137/Email-Phishing-Analyser` | GITHUB | Zu alt: 151d |
+| `DPUSEC/DPUSEC-URL-Checker-Browser-Extension` | GITHUB | Zu alt: 424d |
+| `TMK-v/Automated-Threat-Detection-and-Log-Analysis-with-Bash-project-` | GITHUB | Zu alt: 441d |
+| `shiftbloom-studio/open-hallucination-index` | GITHUB | IP-Datei 198d alt |
+| `Bradford1040/aur-blacklist-scanner` | GITHUB | Größe: 0 IPs |
+| `zmike/ecef` | GITHUB | Zu alt: 3443d |
+| `ali215haider/Automate-Phishing-Detection-System` | GITHUB | Zu alt: 353d |
+| `Jess71902/Lightweight-IDS` | GITHUB | Zu alt: 364d |
+| `TechnicallyCoded/Discord-AntiPhishingBot-Public` | GITHUB | Zu alt: 1466d |
+| `c-chocolate/bachelor_thesis` | GITHUB | Zu alt: 1532d |
+| `facusora01/Pi-Hole` | GITHUB | Zu alt: 211d |
+| `stevehartwell/Configs` | GITHUB | Zu alt: 367d |
+| `ekomsSavior/network_ids` | GITHUB | Zu alt: 176d |
+| `HarikaMurali/Intelligent-Network-Packet-Analyzer` | GITHUB | Zu alt: 272d |
+| `GOKU1117/auto_upload_to_virustotal` | GITHUB | Zu alt: 921d |
+| `Donte61/firewall` | GITHUB | Zu alt: 363d |
+| `Jyot-tipsoc/honeypot-threat-lab` | GITHUB | Zu alt: 45d |
+| `Nihalgiri001/Continuous_Monitoring_IDS` | GITHUB | Zu alt: 83d |
+| `KhaledSaadeh05/SecureMesh-IPS` | GITHUB | Zu alt: 55d |
+| `DonDon7755/DonRea` | GITHUB | Zu alt: 473d |
+| `Juniorpqp/blocklist` | GITHUB | IP-Datei 1894d alt |
+| `palevian/70-_MK1` | GITHUB | Größe: 0 IPs |
+| `nextgens/Tor` | GITHUB | Zu alt: 3485d |
+| `torproject/torspec` | GITHUB | Zu alt: 132d |
+| `ekolis/FrEee` | GITHUB | Zu alt: 63d |
+| `securityinabox/siabguide` | GITHUB | Zu alt: 4108d |
+| `spurintel/spur-saas-log-enrichment` | GITHUB | Zu alt: 283d |
+| `HewlettPackard/foedus_code` | GITHUB | Zu alt: 3324d |
+| `ishell/Exploits-Archives` | GITHUB | Zu alt: 4499d |
+| `zencefilefendi/zencefil-sentinel-soc` | GITHUB | Zu alt: 185d |
+| `yao8839836/KGE-LDA` | GITHUB | Zu alt: 2897d |
+| `SamPlaysKeys/ip_whois_tool` | GITHUB | Zu alt: 433d |
+| `Shwetajagdale06/security` | GITHUB | Zu alt: 604d |
+| `ddagunts/dfirewall` | GITHUB | Zu alt: 290d |
+| `slimseidl/NetworkSecurity` | GITHUB | Zu alt: 404d |
+| `stratosphereips/Slips-tools` | GITHUB | Zu alt: 54d |
+| `rajlivee/End-point-detection-and-Response-` | GITHUB | Zu alt: 35d |
+| `rawdela/Week_5_Project` | GITHUB | Zu alt: 139d |
+| `sashafrey/topicmod` | GITHUB | Zu alt: 4334d |
+| `dimaswahyudi7/IoC-Collections` | GITHUB | Zu alt: 423d |
+| `k3nundrum/redteamtips` | GITHUB | Zu alt: 1016d |
+| `rawdela/Week_11_Project` | GITHUB | Zu alt: 108d |
+| `praisel-ekpenyong/SOC-Automation-Scripts` | GITHUB | Zu alt: 177d |
+| `khushalbhasin4488/sih_finals_2025` | GITHUB | Zu alt: 237d |
+| `debojit-dev0/ElevateLabs_CS` | GITHUB | Zu alt: 224d |
+| `rawdela/Week_10_Project` | GITHUB | Zu alt: 113d |
+| `Blackstarproject/Repos` | GITHUB | Zu alt: 607d |
+| `zpahuja/EM` | GITHUB | Zu alt: 3400d |
+| `real-horizon02/PhishGuard-AI` | GITHUB | Zu alt: 145d |
+| `Ununp3ntium115/AbuseBlacklist` | GITHUB | Größe: 0 IPs |
+| `naveen-verma18/URL_detector` | GITHUB | Zu alt: 295d |
+| `santhosheyzz/Email-Phishing-Analysis` | GITHUB | Zu alt: 431d |
+| `toronto-ai/workshops` | GITHUB | Zu alt: 3204d |
+| `aalab/paa` | GITHUB | Zu alt: 4203d |
+| `gtriggiano/envoy-authorization-service` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `sayanghosh/LDA-SCVB0` | GITHUB | Zu alt: 4326d |
+| `SilverLineFramework/benchmarks` | GITHUB | Zu alt: 1027d |
+| `Abdul-Sarim-Khan/FLARE` | GITHUB | Zu alt: 56d |
+| `poddmo/ufw-blocklist` | GITHUB | Zu alt: 499d |
+| `muchdogesec/obstracts` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `EndlessFractal/Threat-Intel-Feed` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `RavinduRathnayaka/LiveThreatMap-dashboard` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `The-Privacy-Commons-Institute/chrome-mal-ids` | GITHUB | Größe: 0 IPs |
+| `devops-ia/helm-opencti` | GITHUB | IP-Datei 328d alt |
+| `777genius/social-monitor` | GITHUB | Größe: 0 IPs |
+| `deeztek/Hermes-Secure-Email-Gateway` | GITHUB | IP-Datei 43d alt |
+| `aws-samples/sample-agentic-attack-tree-generator` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `mwakidenis/mwakidenis` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `efxtv/L3MON` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `yankywilson/jdy-botnet-threat-analysis` | GITHUB | Zu alt: 39d |
+| `drcrypterdotru/warworm-stealer` | GITHUB | Zu alt: 55d |
+| `epsylon/ufonet` | GITHUB | Zu alt: 66d |
+| `Bialomazur/Brutus` | GITHUB | Zu alt: 84d |
+| `Xart3mis/AKILT` | GITHUB | Zu alt: 125d |
+| `bmshifat/TecSpy` | GITHUB | Zu alt: 170d |
+| `hackerxphantom/hxp_photo_eye` | GITHUB | Zu alt: 268d |
+| `shivaya-dav/DogeRat-Premium` | GITHUB | Zu alt: 440d |
+| `trackmastersteve/HackServ` | GITHUB | Zu alt: 472d |
+| `GoutamHX/MAXXRAT` | GITHUB | Zu alt: 526d |
+| `Fabi019/hid-barcode-scanner` | GITHUB | IP-Datei 499d alt |
+| `topscoder/nuclei-wordfence-cve` | GITHUB | IP-Datei 107d alt |
+| `justcallmekoko/ESP32Marauder` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `NodeSecure/scanner` | GITHUB | IP-Datei 720d alt |
+| `AdventDevInc/kudu` | GITHUB | IP-Datei 129d alt |
+| `cifertech/ESP32-DIV` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `Ostorlab/oxo` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `caido-community/scanner` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `mrousavy/react-native-vision-camera` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `greenbone/openvas-scanner` | GITHUB | Größe: 0 IPs |
+| `Tencent/AI-Infra-Guard` | GITHUB | IP-Datei 230d alt |
+| `ossappscollective/OSS-DocumentScanner` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `FFXIVAPP/sharlayan` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `awslabs/automated-security-helper` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `hahwul/smugglex` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `sfan5/fi6s` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `nullt3r/udpx` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `ramonvermeulen/whosthere` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `manuc66/node-hp-scan-to` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `hounddogai/hounddog` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `aquasecurity/trivy-action` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `Symph0nia/CyberEdge` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `frontendnetwork/veganify` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `immauss/openvas` | GITHUB | Größe: 0 IPs |
+| `ZupIT/horusec` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `Samsung/CredSweeper` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `87owo/PYAS` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `maurosoria/dirsearch` | GITHUB | IP-Datei 647d alt |
+| `codingo/NoSQLMap` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `aerovato/keyscan` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `roccomuso/netcat` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `PBH-BTN/BTN-Collected-Rules` | GITHUB | Overlap zu gering: 0.0% |
+| `cbuijs/oisd` | GITHUB | Größe: 0 IPs |
+| `splorp/wordpress-comment-blocklist` | GITHUB | Größe: 0 IPs |
+| `nyvorin/badwords` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `trick77/nftables-blacklist` | GITHUB | IP-Datei 85d alt |
+| `cobaltdisco/Google-Chinese-Results-Blocklist` | GITHUB | Zu alt: 147d |
+| `EvotecIT/PSBlackListChecker` | GITHUB | Zu alt: 169d |
+| `codeesura/Anti-phishing-extension` | GITHUB | Zu alt: 180d |
+| `K3V1991/Passing-SafetyNet-with-Magisk-Zygisk-and-DenyList` | GITHUB | Zu alt: 842d |
+| `romainmarcoux/malicious-hash` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `dohoangtungduong24/Redline-Vidar-NJRat-Raccoon-C2-Panel` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `seifreed/r2morph` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `toborrm9/malicious_extension_sentry` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `0xDanielLopez/phishing_kits` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `malwaredb/malwaredb-rs` | GITHUB | Größe: 0 IPs |
+| `AdvDebug/Brovan` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `mytechnotalent/Reverse-Engineering` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `DNClub/Ultimate-Stealer-Collection` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `iDigitalFlame/XMT` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `cocomelonc/meow` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `Ansh-Vortex/Vortex-Advance-RAT` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `qundao/mirror-softcnkiller` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `CybercentreCanada/assemblyline` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `0u44/Termux-Hotspot` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `phylum-dev/cli` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `R3LI4NT/articulos` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `defended-net/malwatch` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `henriksb/ExtensionSpoofer` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `OspreyProject/Osprey` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `polkadot-js/phishing` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `kawaiipantsu/spamassassin-rules` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `Altify-Developing/Altify-Developing-Main` | GITHUB | Keine IP-Datei (Name/Inhalt) |
+| `DevVj-1/Hacking-Social_Media-Accounts` | GITHUB | Keine IP-Datei (Name/Inhalt) |
 
 ---
 ## 📋 Alle aktiven Auto-Feeds
@@ -305,38 +235,38 @@
 | `skillter_proxygather` | GITHUB | 18,364 | 1.1% | 122 | 2026-07-04 |
 | `skillter_proxygather_working_proxies_all` | GITHUB | 464 | 1.1% | 122 | 2026-07-04 |
 | `skillter_proxygather_working_proxies_http` | GITHUB | 253 | 1.1% | 122 | 2026-07-04 |
-| `ebrasha_abdal_proxy_hub` | GITHUB | 4,815 | 1.3% | 44 | 2026-07-04 |
-| `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | GITHUB | 3,659 | 1.3% | 44 | 2026-07-04 |
-| `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | GITHUB | 2,510 | 1.3% | 44 | 2026-07-04 |
+| `ebrasha_abdal_proxy_hub` | GITHUB | 4,817 | 1.3% | 44 | 2026-07-04 |
+| `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | GITHUB | 3,661 | 1.3% | 44 | 2026-07-04 |
+| `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | GITHUB | 2,489 | 1.3% | 44 | 2026-07-04 |
 | `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | GITHUB | 1,991 | 1.3% | 44 | 2026-07-04 |
 | `vmheaven_vmheaven_io_free_proxy_list` | GITHUB | 3,325 | 1.9% | 44 | 2026-07-04 |
 | `vmheaven_vmheaven_io_free_proxy_list_https` | GITHUB | 3,470 | 1.9% | 44 | 2026-07-04 |
 | `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | GITHUB | 2,793 | 1.9% | 44 | 2026-07-04 |
-| `vpslabcloud_vpslab_free_proxy_list` | GITHUB | 866 | 6.2% | 60 | 2026-07-04 |
-| `vpslabcloud_vpslab_free_proxy_list_all_ssl` | GITHUB | 543 | 8.6% | 60 | 2026-07-04 |
-| `vpslabcloud_vpslab_free_proxy_list_all_elite` | GITHUB | 558 | 8.5% | 60 | 2026-07-04 |
-| `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | GITHUB | 470 | 9.2% | 60 | 2026-07-04 |
-| `vpslabcloud_vpslab_free_proxy_list_socks5_all` | GITHUB | 270 | 12.8% | 60 | 2026-07-04 |
-| `ercindedeoglu_proxies` | GITHUB | 35,223 | 0.6% | 375 | 2026-07-05 |
-| `ercindedeoglu_proxies_socks4` | GITHUB | 10,617 | 1.9% | 375 | 2026-07-05 |
-| `ercindedeoglu_proxies_socks5` | GITHUB | 9,267 | 2.6% | 375 | 2026-07-05 |
-| `tuanminpay_live_proxy` | GITHUB | 8,660 | 1.4% | 51 | 2026-07-05 |
-| `tuanminpay_live_proxy_http` | GITHUB | 6,187 | 1.9% | 51 | 2026-07-05 |
-| `tuanminpay_live_proxy_socks4` | GITHUB | 4,377 | 2.0% | 51 | 2026-07-05 |
-| `tuanminpay_live_proxy_socks5` | GITHUB | 2,659 | 2.9% | 51 | 2026-07-05 |
-| `gitrecon1455_fresh_proxy_list` | GITHUB | 196,689 | 0.2% | 106 | 2026-07-05 |
+| `vpslabcloud_vpslab_free_proxy_list` | GITHUB | 787 | 6.2% | 60 | 2026-07-04 |
+| `vpslabcloud_vpslab_free_proxy_list_all_ssl` | GITHUB | 520 | 8.6% | 60 | 2026-07-04 |
+| `vpslabcloud_vpslab_free_proxy_list_all_elite` | GITHUB | 545 | 8.5% | 60 | 2026-07-04 |
+| `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | GITHUB | 478 | 9.2% | 60 | 2026-07-04 |
+| `vpslabcloud_vpslab_free_proxy_list_socks5_all` | GITHUB | 285 | 12.8% | 60 | 2026-07-04 |
+| `ercindedeoglu_proxies` | GITHUB | 35,452 | 0.6% | 375 | 2026-07-05 |
+| `ercindedeoglu_proxies_socks4` | GITHUB | 10,979 | 1.9% | 375 | 2026-07-05 |
+| `ercindedeoglu_proxies_socks5` | GITHUB | 9,474 | 2.6% | 375 | 2026-07-05 |
+| `tuanminpay_live_proxy` | GITHUB | 8,100 | 1.4% | 51 | 2026-07-05 |
+| `tuanminpay_live_proxy_http` | GITHUB | 5,642 | 1.9% | 51 | 2026-07-05 |
+| `tuanminpay_live_proxy_socks4` | GITHUB | 4,014 | 2.0% | 51 | 2026-07-05 |
+| `tuanminpay_live_proxy_socks5` | GITHUB | 2,323 | 2.9% | 51 | 2026-07-05 |
+| `gitrecon1455_fresh_proxy_list` | GITHUB | 196,893 | 0.2% | 106 | 2026-07-05 |
 | `noctiro_getproxy` | GITHUB | 4,456 | 1.3% | 116 | 2026-07-05 |
 | `noctiro_getproxy_socks5` | GITHUB | 3,168 | 2.6% | 116 | 2026-07-05 |
 | `breakingtechfr_proxy_free` | GITHUB | 29,347 | 0.6% | 55 | 2026-07-14 |
 | `breakingtechfr_proxy_free_all` | GITHUB | 32,012 | 0.5% | 55 | 2026-07-14 |
 | `breakingtechfr_proxy_free_socks4` | GITHUB | 7,200 | 1.9% | 55 | 2026-07-14 |
 | `breakingtechfr_proxy_free_socks5` | GITHUB | 5,942 | 2.2% | 55 | 2026-07-14 |
-| `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | GITHUB | 10,636 | 93.4% | 4764 | 2026-07-22 |
+| `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | GITHUB | 10,630 | 93.4% | 4764 | 2026-07-22 |
 | `leon406_subcrawler` | GITHUB | 116,350 | 0.1% | 1560 | 2026-08-01 |
-| `mohammedcha_proxripper` | GITHUB | 53,390 | 0.3% | 36 | 2026-07-05 |
-| `mohammedcha_proxripper_socks4` | GITHUB | 112,923 | 0.1% | 36 | 2026-07-05 |
-| `mohammedcha_proxripper_http` | GITHUB | 117,226 | 0.2% | 36 | 2026-07-05 |
-| `mohammedcha_proxripper_socks5` | GITHUB | 115,251 | 0.2% | 36 | 2026-07-05 |
+| `mohammedcha_proxripper` | GITHUB | 53,354 | 0.3% | 36 | 2026-07-05 |
+| `mohammedcha_proxripper_socks4` | GITHUB | 112,709 | 0.1% | 36 | 2026-07-05 |
+| `mohammedcha_proxripper_http` | GITHUB | 117,172 | 0.2% | 36 | 2026-07-05 |
+| `mohammedcha_proxripper_socks5` | GITHUB | 115,230 | 0.2% | 36 | 2026-07-05 |
 | `dinoz0rg_proxy_list` | GITHUB | 83,784 | 0.2% | 22 | 2026-07-05 |
 | `dinoz0rg_proxy_list_http` | GITHUB | 2,602 | 2.6% | 22 | 2026-07-05 |
 | `dinoz0rg_proxy_list_socks5` | GITHUB | 83,946 | 0.2% | 22 | 2026-07-05 |
@@ -344,77 +274,78 @@
 | `cbuijs_accomplist_adblock_ip_v2` | GITHUB | 64,888 | 0.6% | 20 | 2026-05-24 |
 | `cbuijs_accomplist_adblock_ip_v3` | GITHUB | 113 | 0.6% | 20 | 2026-05-24 |
 | `cbuijs_accomplist_adblock_ip` | GITHUB | 108,377 | 0.6% | 20 | 2026-05-28 |
-| `ziyadnz_threat_intel_ip_feeds_blacklist` | GITHUB | 102,894 | 36.7% | 8 | 2026-05-28 |
+| `ziyadnz_threat_intel_ip_feeds_blacklist` | GITHUB | 103,531 | 36.7% | 8 | 2026-05-28 |
 | `ziyadnz_threat_intel_ip_feeds_emerging_threats` | GITHUB | 586 | 36.7% | 8 | 2026-07-03 |
 | `darzanebor_mikroblack` | GITHUB | 41,628 | 26.6% | 13 | 2026-07-05 |
 | `ankaboot_source_email_open_data` | GITHUB | 491,438 | 2.0% | 13 | 2026-07-06 |
 | `configserverapps_service_blocklists_blocklist_webcrawlers` | GITHUB | 218,727 | 2.4% | 10 | 2026-07-04 |
 | `configserverapps_service_blocklists_blocklist_full` | GITHUB | 170,615 | 2.4% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_outbound` | GITHUB | 171,115 | 2.4% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_abusers_30d` | GITHUB | 140,068 | 2.4% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_level4` | GITHUB | 105,295 | 2.4% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_blocklist_extralarge` | GITHUB | 85,426 | 2.4% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_outbound` | GITHUB | 171,128 | 2.4% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_abusers_30d` | GITHUB | 140,066 | 2.4% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_level4` | GITHUB | 105,276 | 2.4% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_blocklist_extralarge` | GITHUB | 86,063 | 2.4% | 10 | 2026-07-04 |
 | `configserverapps_service_blocklists_blacklist_all` | GITHUB | 108,839 | 2.4% | 10 | 2026-07-04 |
 | `configserverapps_service_blocklists_level1` | GITHUB | 83,387 | 2.4% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_http_365d` | GITHUB | 184,826 | 2.4% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_master` | GITHUB | 46,641 | 2.4% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_telnet_365d` | GITHUB | 71,540 | 29.7% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_blocklist_large` | GITHUB | 28,039 | 62.8% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_blocklist_core` | GITHUB | 19,624 | 67.5% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_all_365d` | GITHUB | 33,399 | 77.0% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_http_365d` | GITHUB | 184,972 | 2.4% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_master` | GITHUB | 47,237 | 2.4% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_telnet_365d` | GITHUB | 71,777 | 29.7% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_blocklist_large` | GITHUB | 28,437 | 62.8% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_blocklist_core` | GITHUB | 19,752 | 67.5% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_all_365d` | GITHUB | 33,445 | 77.0% | 10 | 2026-07-04 |
 | `configserverapps_service_blocklists_level2` | GITHUB | 23,410 | 94.9% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_level2_v2` | GITHUB | 15,321 | 62.6% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_all` | GITHUB | 13,467 | 60.8% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_ftp_365d` | GITHUB | 27,490 | 35.9% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_level2_v2` | GITHUB | 15,415 | 62.6% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_all` | GITHUB | 13,481 | 60.8% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_ftp_365d` | GITHUB | 27,499 | 35.9% | 10 | 2026-07-04 |
 | `configserverapps_service_blocklists_forums` | GITHUB | 12,806 | 5.5% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_level3` | GITHUB | 14,132 | 65.2% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_blacklist_today` | GITHUB | 3,836 | 78.1% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_rdp_365d` | GITHUB | 12,886 | 55.4% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_level3` | GITHUB | 12,856 | 65.2% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_blacklist_today` | GITHUB | 5,294 | 78.1% | 10 | 2026-07-04 |
+| `configserverapps_service_blocklists_rdp_365d` | GITHUB | 12,902 | 55.4% | 10 | 2026-07-04 |
 | `configserverapps_service_blocklists_highrisk` | GITHUB | 5,631 | 2.3% | 10 | 2026-07-04 |
-| `configserverapps_service_blocklists_vnc_365d` | GITHUB | 7,797 | 62.1% | 10 | 2026-07-05 |
-| `configserverapps_service_blocklists_attacks_mail` | GITHUB | 4,691 | 49.8% | 10 | 2026-07-05 |
-| `configserverapps_service_blocklists_smtp_365d` | GITHUB | 7,040 | 62.2% | 10 | 2026-07-05 |
-| `configserverapps_service_blocklists_sip_365d` | GITHUB | 5,528 | 57.4% | 10 | 2026-07-05 |
-| `configserverapps_service_blocklists_attacks_bots` | GITHUB | 3,098 | 29.5% | 10 | 2026-07-06 |
-| `configserverapps_service_blocklists_attacks_ssh` | GITHUB | 4,302 | 86.2% | 10 | 2026-07-08 |
-| `configserverapps_service_blocklists_abusers_1d` | GITHUB | 3,686 | 4.1% | 10 | 2026-07-08 |
-| `configserverapps_service_blocklists_botscout_30d` | GITHUB | 3,595 | 4.6% | 10 | 2026-07-08 |
+| `configserverapps_service_blocklists_vnc_365d` | GITHUB | 7,801 | 62.1% | 10 | 2026-07-05 |
+| `configserverapps_service_blocklists_attacks_mail` | GITHUB | 4,766 | 49.8% | 10 | 2026-07-05 |
+| `configserverapps_service_blocklists_smtp_365d` | GITHUB | 7,054 | 62.2% | 10 | 2026-07-05 |
+| `configserverapps_service_blocklists_sip_365d` | GITHUB | 5,533 | 57.4% | 10 | 2026-07-05 |
+| `configserverapps_service_blocklists_attacks_bots` | GITHUB | 3,086 | 29.5% | 10 | 2026-07-06 |
+| `configserverapps_service_blocklists_attacks_ssh` | GITHUB | 4,314 | 86.2% | 10 | 2026-07-08 |
+| `configserverapps_service_blocklists_abusers_1d` | GITHUB | 3,801 | 4.1% | 10 | 2026-07-08 |
+| `configserverapps_service_blocklists_botscout_30d` | GITHUB | 3,589 | 4.6% | 10 | 2026-07-08 |
 | `configserverapps_service_blocklists_blocklist_v2` | GITHUB | 402 | 77.2% | 10 | 2026-07-08 |
-| `configserverapps_service_blocklists_attacks_imap` | GITHUB | 3,343 | 40.8% | 10 | 2026-07-09 |
-| `configserverapps_service_blocklists_http_1d` | GITHUB | 27,415 | 5.1% | 10 | 2026-07-31 |
+| `configserverapps_service_blocklists_attacks_imap` | GITHUB | 3,437 | 40.8% | 10 | 2026-07-09 |
+| `configserverapps_service_blocklists_http_1d` | GITHUB | 19,446 | 5.1% | 10 | 2026-07-31 |
 | `configserverapps_service_blocklists_greylist` | GITHUB | 8,545 | 78.1% | 10 | 2026-07-31 |
-| `configserverapps_service_blocklists_telnet_1d` | GITHUB | 2,671 | 29.9% | 10 | 2026-08-02 |
-| `ian_lusule_proxies` | GITHUB | 3,735 | 2.4% | 9 | 2026-07-05 |
-| `ian_lusule_proxies_socks5` | GITHUB | 1,725 | 3.4% | 9 | 2026-07-05 |
+| `configserverapps_service_blocklists_telnet_1d` | GITHUB | 2,677 | 29.9% | 10 | 2026-08-02 |
+| `configserverapps_service_blocklists_blocklist` | GITHUB | 47,274 | 43.0% | 10 | 2026-08-02 |
+| `ian_lusule_proxies` | GITHUB | 3,164 | 2.4% | 9 | 2026-07-05 |
+| `ian_lusule_proxies_socks5` | GITHUB | 1,397 | 3.4% | 9 | 2026-07-05 |
 | `tscci_threatips` | GITHUB | 865 | 17.2% | 9 | 2026-07-08 |
 | `sereinfy_adrules` | GITHUB | 1,376 | 12.2% | 7 | 2026-08-01 |
-| `celestialbrain_worldpool` | GITHUB | 83,072 | 0.1% | 8 | 2026-07-05 |
+| `celestialbrain_worldpool` | GITHUB | 82,873 | 0.1% | 8 | 2026-07-05 |
 | `gazpitchy92_ip_blocklist` | GITHUB | 262,260 | 22.0% | 6 | 2026-07-08 |
 | `officialputuid_proxyforeveryone` | GITHUB | 6,277 | 2.3% | 7 | 2026-07-04 |
 | `officialputuid_proxyforeveryone_https` | GITHUB | 5,479 | 1.7% | 7 | 2026-07-04 |
 | `officialputuid_proxyforeveryone_proxies` | GITHUB | 5,451 | 2.6% | 7 | 2026-07-04 |
-| `realizelol_torblocklist` | GITHUB | 1,564 | 40.4% | 3 | 2026-07-08 |
+| `realizelol_torblocklist` | GITHUB | 1,563 | 40.4% | 3 | 2026-07-08 |
 | `turntuptechnologies_iocs` | GITHUB | 39 | 97.4% | 4 | 2026-03-29 |
-| `cbuijs_badip` | GITHUB | 62,725 | 60.7% | 4 | 2026-03-29 |
-| `maximewewer_heimdallblocklists` | GITHUB | 67,737 | 69.0% | 4 | 2026-03-29 |
+| `cbuijs_badip` | GITHUB | 62,870 | 60.7% | 4 | 2026-03-29 |
+| `maximewewer_heimdallblocklists` | GITHUB | 67,558 | 69.0% | 4 | 2026-03-29 |
 | `agent6_6_6_wordpress_login_blocklist` | GITHUB | 22,046 | 1.4% | 4 | 2026-03-29 |
 | `turntuptechnologies_iocs_scanner` | GITHUB | 110 | 97.4% | 4 | 2026-05-24 |
-| `maximewewer_heimdallblocklists_romainmarcoux_malicious_ip` | GITHUB | 197,742 | 69.0% | 4 | 2026-05-24 |
-| `maximewewer_heimdallblocklists_romainmarcoux_alienvault_ssh_bruteforce` | GITHUB | 6,731 | 69.0% | 4 | 2026-05-24 |
+| `maximewewer_heimdallblocklists_romainmarcoux_malicious_ip` | GITHUB | 197,549 | 69.0% | 4 | 2026-05-24 |
+| `maximewewer_heimdallblocklists_romainmarcoux_alienvault_ssh_bruteforce` | GITHUB | 6,729 | 69.0% | 4 | 2026-05-24 |
 | `maximewewer_heimdallblocklists_spamhaus_drop` | GITHUB | 1,661 | 69.0% | 4 | 2026-06-28 |
-| `kalidada18_threatbase` | GITHUB | 181,383 | 16.5% | 2 | 2026-08-01 |
-| `kalidada18_threatbase_threatbase_ip_bruteforce` | GITHUB | 24,726 | 45.2% | 2 | 2026-08-01 |
-| `kalidada18_threatbase_threatbase_ip_tor` | GITHUB | 7,506 | 9.1% | 2 | 2026-08-01 |
-| `kalidada18_threatbase_threatbase_ip_botnet` | GITHUB | 3,336 | 34.1% | 2 | 2026-08-01 |
-| `kalidada18_threatbase_threatbase_ip_compromised` | GITHUB | 15,558 | 65.9% | 2 | 2026-08-01 |
-| `fadouse_clash_threat_intel` | GITHUB | 8,117 | 12.7% | 2 | 2026-03-17 |
-| `fadouse_clash_threat_intel_c2` | GITHUB | 8,484 | 12.7% | 2 | 2026-05-24 |
+| `kalidada18_threatbase` | GITHUB | 180,283 | 16.5% | 2 | 2026-08-01 |
+| `kalidada18_threatbase_threatbase_ip_bruteforce` | GITHUB | 23,911 | 45.2% | 2 | 2026-08-01 |
+| `kalidada18_threatbase_threatbase_ip_tor` | GITHUB | 7,508 | 9.1% | 2 | 2026-08-01 |
+| `kalidada18_threatbase_threatbase_ip_botnet` | GITHUB | 3,295 | 34.1% | 2 | 2026-08-01 |
+| `kalidada18_threatbase_threatbase_ip_compromised` | GITHUB | 15,563 | 65.9% | 2 | 2026-08-01 |
+| `fadouse_clash_threat_intel` | GITHUB | 8,119 | 12.7% | 2 | 2026-03-17 |
+| `fadouse_clash_threat_intel_c2` | GITHUB | 8,486 | 12.7% | 2 | 2026-05-24 |
 | `kamalmjt_emerging_attackers_badips` | GITHUB | 170,279 | 18.9% | 1 | 2026-05-28 |
 | `ipanalytics_ai_crawler_blocklist` | GITHUB | 2,056 | 21.9% | 1 | 2026-07-04 |
 | `makarson_daily_phishing_feed` | GITHUB | 15,976 | 4.2% | 1 | 2026-07-14 |
 | `toxyl_ossh_swarm_wordlists` | GITHUB | 16,508 | 68.4% | 1 | 2026-07-14 |
 | `infosecuniversity_block_list` | GITHUB | 1,287 | 31.1% | 1 | 2026-07-14 |
-| `idleadmin_threatfeed` | GITHUB | 47,040 | 41.9% | 0 | 2026-04-09 |
+| `idleadmin_threatfeed` | GITHUB | 47,841 | 41.9% | 0 | 2026-04-09 |
 | `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | GITHUB | 51,722 | 13.1% | 0 | 2026-05-24 |
 | `kraloveckey_ipsets_blocklist_dm_tor` | GITHUB | 7,451 | 13.1% | 0 | 2026-05-24 |
 | `openprx_prx_sd_signatures` | GITHUB | 111,108 | 64.5% | 0 | 2026-05-30 |
@@ -463,8 +394,8 @@
 | `kraloveckey_ipsets_blocklist_tor_exits_30d` | GITHUB | 1,504 | 46.7% | 0 | 2026-07-31 |
 | `kraloveckey_ipsets_blocklist_cleantalk_updated_7d` | GITHUB | 978 | 8.1% | 0 | 2026-07-31 |
 | `bitwire_it_ip_list_fetch` | GITHUB | 33,169 | 24.7% | 0 | 2026-08-01 |
-| `serp07_dude_blacklist_ip` | GITHUB | 4,633 | 31.6% | 0 | 2026-08-01 |
+| `serp07_dude_blacklist_ip` | GITHUB | 4,636 | 31.6% | 0 | 2026-08-01 |
 | `kraloveckey_ipsets_blocklist_tor_exits_1d` | GITHUB | 1,412 | 47.9% | 0 | 2026-08-02 |
 
 ---
-*Generiert: 2026-08-02 08:09 UTC*
+*Generiert: 2026-08-02 10:31 UTC*
