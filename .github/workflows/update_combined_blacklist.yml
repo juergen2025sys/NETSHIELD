@@ -585,6 +585,15 @@ jobs:
               "greensnow":                  ("https://blocklist.greensnow.co/greensnow.txt", True),
               "feodo_aggressive":           ("https://feodotracker.abuse.ch/downloads/ipblocklist_aggressive.txt", True),
               "feodo_recommended":          ("https://feodotracker.abuse.ch/downloads/ipblocklist.txt", True),
+              # NEU (2026-08-02): Palo Alto Networks EDL-Format, gefunden bei
+              # der EDL-Suchreichweiten-Erweiterung in auto_feed_discovery.yml.
+              # HQ=True auf Wunsch gesetzt - Vorbehalt: "ThreatsList" ist kein
+              # etablierter/bekannter Anbieter wie abuse.ch/FireHOL/Spamhaus,
+              # Kuratierungsqualitaet konnte nicht unabhaengig verifiziert
+              # werden. Als HQ-Feed beeinflusst diese Quelle sowohl die
+              # "heute frisch bestaetigt"-Logik in seen_db als auch den
+              # Overlap-Referenzwert fuer neue Auto-Discovery-Kandidaten.
+              "threatslist_paloalto_edl":   ("https://threatslist.github.io/Palo-Alto-EDL/edl_list.txt", True),
               # threatfox_ioc: FIX 2026-07-25 entfernt (nach honeypot_monitor.yml
               # verlagert, siehe HIGH_QUALITY-Kommentar oben).
               # hagezi_tif: HaGeZi Threat Intelligence Feeds, Plain-IP-Variante (ips/tif.txt).
