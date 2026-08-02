@@ -305,6 +305,7 @@ jobs:
               safe_get_date, parse_date, sort_ips, write_ip_list,
               write_json_atomic, write_text_atomic,
               fetch_url, fetch_parallel_daemon, check_local_feed_age,
+              fetch_parallel_daemon_start, fetch_parallel_daemon_collect,
               resolve_github_moved_url,
               validate_auto_feeds,
               is_bot_detector_feed_name,
@@ -1392,6 +1393,114 @@ jobs:
           REST_SOURCES = {n: (u, hq) for n, (u, hq) in SOURCES.items()
                           if n not in SLOW_FEED_NAMES and not n.startswith("dataplane_")}
 
+          # FIX PERF-AUTO-OVERLAP (2026-08-02): Auto-Discovered-Feeds-Fetch wird
+          # JETZT SCHON gestartet (vorher erst nach Phase 0-3, siehe Kommentar
+          # bei "Phase 4: Auto-Discovered Feeds einsammeln" weiter unten fuer
+          # die volle Begruendung). Die Downloads laufen ab hier im Hintergrund
+          # mit, waehrend Phase 0-3 normal durchlaufen - eingesammelt wird erst
+          # ganz am Ende, mit derselben effektiven 220s-Deadline wie vorher
+          # (fetch_parallel_daemon_collect rechnet ab DIESEM Start-Zeitpunkt,
+          # nicht ab dem spaeteren Collect-Aufruf).
+          AUTO_FEEDS_FILE = "state/auto_discovered_feeds.json"
+          _auto_handle = None
+          _auto_feeds = []
+          if os.path.exists(AUTO_FEEDS_FILE):
+              try:
+                  with open(AUTO_FEEDS_FILE) as af:
+                      auto_data = json.load(af)
+                  # FIX BUG-AUTOFEEDS-VALIDATE: validate_auto_feeds() filtert
+                  # auf safe Schema (dict mit name/url als String) und URL-
+                  # Whitelist (nur http/https). Vorher: direkter
+                  # auto_data.get("feeds", []) ohne Pruefung – ein Angreifer
+                  # mit Repo-Schreibrechten konnte malicious URLs in den
+                  # Feed-Loop einschleusen ohne Code-Review-Pfad ueber SOURCES.
+                  _auto_feeds, _rejected = validate_auto_feeds(auto_data)
+                  # AUSSCHLUSS I-BLOCKLIST: Die iblocklist_*-Listen (level1/level2/
+                  # edu/ads, via kraloveckey gespiegelt) sind P2P-Aera-Massen-CIDR-
+                  # Dumps – ueber-breit (FP-Risiko) und teils falsch kategorisiert
+                  # (edu = Bildungsnetze/Unis, ads = Ad-Server -> kein Threat-IP).
+                  # Zudem groesster Parse-Kostentreiber (iblocklist_level1 ~211k
+                  # CIDRs). Filter beim Einlesen -> greift dauerhaft, auch wenn die
+                  # Auto-Discovery sie erneut in die JSON schreibt.
+                  _iblock = [f for f in _auto_feeds if "iblocklist" in f["name"].lower()]
+                  if _iblock:
+                      _auto_feeds = [f for f in _auto_feeds if "iblocklist" not in f["name"].lower()]
+                      print(f"  I-BlockList ausgeschlossen ({len(_iblock)}): "
+                            + ", ".join(sorted(f["name"] for f in _iblock)))
+                  # AUSSCHLUSS PROXY-FEEDS (2026-07-05): Diese auto-discovered
+                  # Feeds werden bereits gesammelt ueber update_bot_detector.yml
+                  # (bot_detector_blacklist_ipv4.txt, siehe LOCAL_FEEDS oben)
+                  # in combined eingelesen. lula73/bot-detector lieferte keine
+                  # IPs mehr; update_bot_detector.yml aggregiert seither
+                  # Feeds, die per is_bot_detector_feed_name() (netshield_
+                  # common.py, dieselbe Funktion wie hier) aus state/
+                  # auto_discovered_feeds.json ausgewaehlt werden. Ohne diesen
+                  # Ausschluss hier wuerde jede betroffene IP am selben Tag
+                  # ZWEIMAL in ip_feeds_today gezaehlt: einmal ueber den
+                  # Auto-Feed-Namen (dieser Loop), einmal ueber
+                  # "bot_detector_blacklist_ipv4.txt" (LOCAL_FEEDS-Loop weiter
+                  # oben) -> verzerrtes Confidence-Scoring (mehr "Quellen
+                  # heute" als real vorhanden). WICHTIG: is_bot_detector_feed_name()
+                  # ist eine Namens-/Datei-Pfad-Heuristik (mehrere Schluesselwoerter
+                  # in name ODER file), keine perfekte Klassifikation – Grenzfaelle
+                  # siehe Docstring in netshield_common.py. update_bot_detector.yml
+                  # MUSS dieselbe Funktion importieren, keine eigene Kopie
+                  # pflegen.
+                  _proxy_excl = [f for f in _auto_feeds if is_bot_detector_feed_name(f["name"], f.get("file", ""))]
+                  if _proxy_excl:
+                      _auto_feeds = [f for f in _auto_feeds if not is_bot_detector_feed_name(f["name"], f.get("file", ""))]
+                      print(f"  Proxy-Feeds ausgeschlossen ({len(_proxy_excl)}, siehe update_bot_detector.yml): "
+                            + ", ".join(sorted(f["name"] for f in _proxy_excl)))
+                  if _rejected:
+                      print(f"  WARNUNG: {_rejected} auto-feed Eintraege wegen "
+                            f"Schema-/URL-Check verworfen")
+                  print(f"  Auto-discovered Feeds: {len(_auto_feeds)}")
+
+                  def fetch_auto(feed):
+                      # Fail-fast: retries=1/timeout=15 → ein toter/zaeher Auto-Feed
+                      # gibt nach ~15s pro Socket-Operation auf statt lange zu haengen.
+                      #
+                      # FIX BUG-TOTALTIMEOUT-REGRESSION: total_timeout=15 (aus FIX
+                      # BUG-TRICKLE-TIMEOUT) wieder entfernt. Es hat einen echten
+                      # Datenverlust verursacht: ankaboot_source_email_open_data
+                      # (497.903 IPs), gazpitchy92_ip_blocklist (301.305 IPs),
+                      # gazpitchy92_ip_blocklist_blacklist (287.170 IPs) und
+                      # ziyadnz_threat_intel_ip_feeds_blacklist (114.995 IPs) –
+                      # zusammen ueber 1,2 Mio. IPs – liefen VOR diesem Fix
+                      # erfolgreich durch, schlugen aber in JEDEM Lauf danach
+                      # fehl ("Gesamt-Timeout (15s) beim Lesen ueberschritten",
+                      # bei 3,7-4,5 MB bereits gelesen). Diese Feeds sind schlicht
+                      # groesser (mehrere MB) und brauchen ueber normale GitHub-raw-
+                      # Bandbreite laenger als 15s Gesamtdauer, OHNE zu haengen oder
+                      # zu tropfeln - total_timeout=15 killte sie also grundlos.
+                      # Der eigentliche Zweck von total_timeout (verhindern, dass
+                      # ein haengender Feed den gesamten Job blockiert) wird bereits
+                      # vollstaendig durch fetch_parallel_daemon geloest: echte
+                      # daemon=True-Threads plus die Phasen-Deadline (overall_timeout=
+                      # 220 bei der Collect-Stelle) sorgen dafuer, dass ein zaeher
+                      # Feed weder den Hauptthread noch den Prozessexit blockiert -
+                      # unabhaengig davon, wie lange der einzelne Download braucht.
+                      # Ein zusaetzliches Pro-Feed-Limit auf Lesezeit-Ebene ist dafuer
+                      # nicht mehr noetig und hat nur Kollateralschaden verursacht.
+                      return fetch_ips(feed["name"], feed["url"], retries=1,
+                                       timeout=15)
+
+                  # FIX AUTOFEEDS-TIMEOUT: 5 Worker / 110s waren unterdimensioniert
+                  # (Haupt-Phase nutzt 15/880s) -> ~24 Feeds chronisch gecancelt.
+                  # Jetzt 12 Worker + Fail-fast (retries=1/timeout=15 in fetch_auto):
+                  # gesunde Feeds laden in <60s, tote geben nach ~15s auf. Die
+                  # parse-schweren iblocklist_*-Listen (211k CIDRs) sind oben
+                  # ausgeschlossen -> kein Parse-Hog mehr in der Phase. 240s ist
+                  # damit reichlich Decke fuer die verbleibenden, legitimen Feeds
+                  # (u.a. cbuijs) und vermeidet die fruehere 360s-Verschwendung.
+                  print(f"  Auto-Feed-Worker: {AUTO_WORKERS} (Fetch startet jetzt im Hintergrund)")
+                  _auto_handle = fetch_parallel_daemon_start(
+                      fetch_auto, _auto_feeds, max_workers=AUTO_WORKERS)
+              except Exception as e:
+                  print(f"  WARNUNG: state/auto_discovered_feeds.json Fehler: {e}")
+          else:
+              print(f"  SKIP: {AUTO_FEEDS_FILE} nicht vorhanden")
+
           print("── Phase 0: Slow-Feeds (parallel, eigener Pool) ──────────────────")
           slow_ex = ThreadPoolExecutor(max_workers=len(SLOW_SOURCES) or 1)
           slow_futures = {slow_ex.submit(fetch_ips, n, u): n for n, u in SLOW_SOURCES.items()}
@@ -1629,132 +1738,35 @@ jobs:
               print(f"  Lokal: {local_file} → {ips_l} IPs" + (f" + {cidrs_l} CIDRs" if cidrs_l else "") + f" (HQ={is_hq_local})")
 
 
-          # ── Auto-discovered Feeds einlesen ─────────────────────────────────
-          AUTO_FEEDS_FILE = "state/auto_discovered_feeds.json"
-          if os.path.exists(AUTO_FEEDS_FILE):
-              try:
-                  with open(AUTO_FEEDS_FILE) as af:
-                      auto_data = json.load(af)
-                  # FIX BUG-AUTOFEEDS-VALIDATE: validate_auto_feeds() filtert
-                  # auf safe Schema (dict mit name/url als String) und URL-
-                  # Whitelist (nur http/https). Vorher: direkter
-                  # auto_data.get("feeds", []) ohne Pruefung – ein Angreifer
-                  # mit Repo-Schreibrechten konnte malicious URLs in den
-                  # Feed-Loop einschleusen ohne Code-Review-Pfad ueber SOURCES.
-                  auto_feeds, _rejected = validate_auto_feeds(auto_data)
-                  # AUSSCHLUSS I-BLOCKLIST: Die iblocklist_*-Listen (level1/level2/
-                  # edu/ads, via kraloveckey gespiegelt) sind P2P-Aera-Massen-CIDR-
-                  # Dumps – ueber-breit (FP-Risiko) und teils falsch kategorisiert
-                  # (edu = Bildungsnetze/Unis, ads = Ad-Server -> kein Threat-IP).
-                  # Zudem groesster Parse-Kostentreiber (iblocklist_level1 ~211k
-                  # CIDRs). Filter beim Einlesen -> greift dauerhaft, auch wenn die
-                  # Auto-Discovery sie erneut in die JSON schreibt.
-                  _iblock = [f for f in auto_feeds if "iblocklist" in f["name"].lower()]
-                  if _iblock:
-                      auto_feeds = [f for f in auto_feeds if "iblocklist" not in f["name"].lower()]
-                      print(f"  I-BlockList ausgeschlossen ({len(_iblock)}): "
-                            + ", ".join(sorted(f["name"] for f in _iblock)))
-                  # AUSSCHLUSS PROXY-FEEDS (2026-07-05): Diese auto-discovered
-                  # Feeds werden bereits gesammelt ueber update_bot_detector.yml
-                  # (bot_detector_blacklist_ipv4.txt, siehe LOCAL_FEEDS oben)
-                  # in combined eingelesen. lula73/bot-detector lieferte keine
-                  # IPs mehr; update_bot_detector.yml aggregiert seither
-                  # Feeds, die per is_bot_detector_feed_name() (netshield_
-                  # common.py, dieselbe Funktion wie hier) aus state/
-                  # auto_discovered_feeds.json ausgewaehlt werden. Ohne diesen
-                  # Ausschluss hier wuerde jede betroffene IP am selben Tag
-                  # ZWEIMAL in ip_feeds_today gezaehlt: einmal ueber den
-                  # Auto-Feed-Namen (dieser Loop), einmal ueber
-                  # "bot_detector_blacklist_ipv4.txt" (LOCAL_FEEDS-Loop weiter
-                  # oben) -> verzerrtes Confidence-Scoring (mehr "Quellen
-                  # heute" als real vorhanden). WICHTIG: is_bot_detector_feed_name()
-                  # ist eine Namens-/Datei-Pfad-Heuristik (mehrere Schluesselwoerter
-                  # in name ODER file), keine perfekte Klassifikation – Grenzfaelle
-                  # siehe Docstring in netshield_common.py. update_bot_detector.yml
-                  # MUSS dieselbe Funktion importieren, keine eigene Kopie
-                  # pflegen.
-                  _proxy_excl = [f for f in auto_feeds if is_bot_detector_feed_name(f["name"], f.get("file", ""))]
-                  if _proxy_excl:
-                      auto_feeds = [f for f in auto_feeds if not is_bot_detector_feed_name(f["name"], f.get("file", ""))]
-                      print(f"  Proxy-Feeds ausgeschlossen ({len(_proxy_excl)}, siehe update_bot_detector.yml): "
-                            + ", ".join(sorted(f["name"] for f in _proxy_excl)))
-                  if _rejected:
-                      print(f"  WARNUNG: {_rejected} auto-feed Eintraege wegen "
-                            f"Schema-/URL-Check verworfen")
-                  print(f"  Auto-discovered Feeds: {len(auto_feeds)}")
+          # ── Phase 4: Auto-Discovered Feeds einsammeln ───────────────────────
+          # FIX PERF-AUTO-OVERLAP (2026-08-02): Vorher wurde der komplette
+          # Auto-Feeds-Fetch (Laden, Filtern, bis zu 220s Warten) an dieser
+          # Stelle GESTARTET und BEENDET, also komplett ADDITIV zur Laufzeit
+          # von Phase 0-3 (in einem beobachteten Lauf: mehrere Minuten extra,
+          # u.a. weil cbuijs_accomplist/badip/hagezi regelmaessig ans Limit
+          # liefen). Jetzt wurde der Fetch bereits VOR Phase 0 gestartet
+          # (siehe dort) und laeuft die ganze Zeit ueber im Hintergrund mit -
+          # hier wird nur noch eingesammelt, mit derselben effektiven
+          # 220s-Gesamt-Deadline ab dem urspruenglichen Start (nicht ab hier).
+          # Bei einer Ueberlappung von z.B. 15 Minuten mit Phase 0-3 bleibt
+          # dieser Collect-Aufruf praktisch sofort fertig, weil die meisten
+          # Feeds in der Zwischenzeit laengst durch sind.
+          if _auto_handle is not None:
+              print(f"── Phase 4: Auto-Discovered Feeds einsammeln ──────────────────")
+              _auto_results = fetch_parallel_daemon_collect(_auto_handle, overall_timeout=220)
+              _auto_names_done = set()
+              for name, ips in _auto_results:
+                  _auto_names_done.add(name)
+                  for ip in ips:
+                      # Auto-discovered Feeds sind nicht HQ
+                      if ip not in ip_feeds_today:
+                          ip_feeds_today[ip] = set()
+                      ip_feeds_today[ip].add(name)
+                  feed_stats.append((name, len(ips)))
+              _auto_pending = sorted(f["name"] for f in _auto_feeds if f["name"] not in _auto_names_done)
+              if _auto_pending:
+                  print(f"  WARNUNG: Auto-Feeds Timeout – {len(_auto_pending)} Feed(s) abgebrochen: {', '.join(_auto_pending[:8])}{'…' if len(_auto_pending) > 8 else ''}")
 
-                  def fetch_auto(feed):
-                      # Fail-fast: retries=1/timeout=15 → ein toter/zaeher Auto-Feed
-                      # gibt nach ~15s pro Socket-Operation auf statt lange zu haengen.
-                      #
-                      # FIX BUG-TOTALTIMEOUT-REGRESSION: total_timeout=15 (aus FIX
-                      # BUG-TRICKLE-TIMEOUT) wieder entfernt. Es hat einen echten
-                      # Datenverlust verursacht: ankaboot_source_email_open_data
-                      # (497.903 IPs), gazpitchy92_ip_blocklist (301.305 IPs),
-                      # gazpitchy92_ip_blocklist_blacklist (287.170 IPs) und
-                      # ziyadnz_threat_intel_ip_feeds_blacklist (114.995 IPs) –
-                      # zusammen ueber 1,2 Mio. IPs – liefen VOR diesem Fix
-                      # erfolgreich durch, schlugen aber in JEDEM Lauf danach
-                      # fehl ("Gesamt-Timeout (15s) beim Lesen ueberschritten",
-                      # bei 3,7-4,5 MB bereits gelesen). Diese Feeds sind schlicht
-                      # groesser (mehrere MB) und brauchen ueber normale GitHub-raw-
-                      # Bandbreite laenger als 15s Gesamtdauer, OHNE zu haengen oder
-                      # zu tropfeln - total_timeout=15 killte sie also grundlos.
-                      # Der eigentliche Zweck von total_timeout (verhindern, dass
-                      # ein haengender Feed den gesamten Job blockiert) wird bereits
-                      # vollstaendig durch fetch_parallel_daemon geloest: echte
-                      # daemon=True-Threads plus die Phasen-Deadline (overall_timeout=
-                      # 220 unten) sorgen dafuer, dass ein zaeher Feed weder den
-                      # Hauptthread noch den Prozessexit blockiert - unabhaengig
-                      # davon, wie lange der einzelne Download braucht. Ein
-                      # zusaetzliches Pro-Feed-Limit auf Lesezeit-Ebene ist dafuer
-                      # nicht mehr noetig und hat nur Kollateralschaden verursacht.
-                      return fetch_ips(feed["name"], feed["url"], retries=1,
-                                       timeout=15)
-
-                  # FIX AUTOFEEDS-TIMEOUT: 5 Worker / 110s waren unterdimensioniert
-                  # (Haupt-Phase nutzt 15/880s) -> ~24 Feeds chronisch gecancelt.
-                  # Jetzt 12 Worker + Fail-fast (retries=1/timeout=15 in fetch_auto):
-                  # gesunde Feeds laden in <60s, tote geben nach ~15s auf. Die
-                  # parse-schweren iblocklist_*-Listen (211k CIDRs) sind oben
-                  # ausgeschlossen -> kein Parse-Hog mehr in der Phase. 240s ist
-                  # damit reichlich Decke fuer die verbleibenden, legitimen Feeds
-                  # (u.a. cbuijs) und vermeidet die fruehere 360s-Verschwendung.
-                  print(f"  Auto-Feed-Worker: {AUTO_WORKERS}")
-                  # FIX BUG-ATEXIT-JOIN: Die alte FIX-PERF-AUTO-NOWAIT-Annahme war
-                  # falsch – ex.shutdown(wait=False, cancel_futures=True) verhindert
-                  # NICHT, dass der Interpreter beim Skriptende auf laufende
-                  # ThreadPoolExecutor-Worker wartet. concurrent.futures.thread
-                  # registriert einen eigenen atexit-Hook, der ALLE jemals erzeugten
-                  # Worker-Threads joint, egal ob deren Future "gecancelt" wurde.
-                  # future.cancel() wirkt nur auf noch nicht gestartete Futures.
-                  # Beobachtet im Log: "Timeout - abgebrochen"-Warnung, aber die
-                  # betroffenen Feeds (cbuijs_accomplist/badip/hagezi) liefen 2-4,5
-                  # Min. danach im Hintergrund weiter, bevor sie "OK" meldeten.
-                  # fetch_parallel_daemon nutzt echte daemon=True Threads statt
-                  # ThreadPoolExecutor – die werden vom Interpreter beim Exit NICHT
-                  # gejoint, das Skript kann sich sofort beenden, auch wenn einzelne
-                  # Downloads im Hintergrund noch haengen (deren Ergebnis geht dann
-                  # fuer diesen Lauf einfach verloren – bei Best-Effort-Auto-Feeds
-                  # akzeptabel).
-                  _auto_results = fetch_parallel_daemon(
-                      fetch_auto, auto_feeds, max_workers=AUTO_WORKERS, overall_timeout=220)
-                  _auto_names_done = set()
-                  for name, ips in _auto_results:
-                      _auto_names_done.add(name)
-                      for ip in ips:
-                          # Auto-discovered Feeds sind nicht HQ
-                          if ip not in ip_feeds_today:
-                              ip_feeds_today[ip] = set()
-                          ip_feeds_today[ip].add(name)
-                      feed_stats.append((name, len(ips)))
-                  _auto_pending = sorted(f["name"] for f in auto_feeds if f["name"] not in _auto_names_done)
-                  if _auto_pending:
-                      print(f"  WARNUNG: Auto-Feeds Timeout – {len(_auto_pending)} Feed(s) abgebrochen: {', '.join(_auto_pending[:8])}{'…' if len(_auto_pending) > 8 else ''}")
-              except Exception as e:
-                  print(f"  WARNUNG: state/auto_discovered_feeds.json Fehler: {e}")
-          else:
-              print(f"  SKIP: {AUTO_FEEDS_FILE} nicht vorhanden")
 
           # ── seen_db aktualisieren ─────────────────────────────────────────
           #
