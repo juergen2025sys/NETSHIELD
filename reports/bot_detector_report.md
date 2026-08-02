@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-02 19:32 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-02 19:51 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,282,289** |
-| Neu (heute) | **+244** |
-| Entfernt | **-134** |
+| Gesamt IPs | **1,282,293** |
+| Neu (heute) | **+20** |
+| Entfernt | **-16** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 60 |
@@ -40,11 +40,11 @@
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,793 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,789 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 487 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 991 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 536 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 547 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 453 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 262 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 830 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 497 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 522 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 433 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 259 |
 | ✅ `officialputuid_proxyforeveryone` | 6,277 |
 | ✅ `officialputuid_proxyforeveryone_https` | 5,479 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 5,451 |
@@ -55,7 +55,7 @@
 | ✅ `tuanminpay_live_proxy_http` | 5,617 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,344 |
 | ✅ `tuanminpay_live_proxy_socks5` | 2,581 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 185,724 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 185,771 |
 | ✅ `noctiro_getproxy` | 3,694 |
 | ✅ `noctiro_getproxy_socks5` | 2,030 |
 | ✅ `mohammedcha_proxripper` | 42,095 |
@@ -85,4 +85,4 @@
 > Diese 60 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-02 19:32 CEST (Europe/Berlin)*
+*Generiert: 2026-08-02 19:51 CEST (Europe/Berlin)*
