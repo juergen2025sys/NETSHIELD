@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-02 12:15 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-02 12:19 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,282,005** |
-| Neu (heute) | **+149** |
-| Entfernt | **-14** |
+| Gesamt IPs | **1,282,044** |
+| Neu (heute) | **+39** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 60 |
@@ -78,11 +78,11 @@
 | ✅ `kraloveckey_ipsets_blocklist_maltrail_scanners` | 16,854 |
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,699 |
 | ✅ `leon406_subcrawler` | 115,101 |
-| ✅ `kalidada18_threatbase_threatbase_ip_botnet` | 3,298 |
+| ✅ `kalidada18_threatbase_threatbase_ip_botnet` | 3,258 |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 > Diese 60 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-02 12:15 CEST (Europe/Berlin)*
+*Generiert: 2026-08-02 12:19 CEST (Europe/Berlin)*
