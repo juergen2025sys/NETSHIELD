@@ -1674,6 +1674,85 @@ _PIN_ABSENT = object()
 # Toter Code mit irrefuehrendem Backward-Compat-Argument geloescht.
 
 
+def fetch_parallel_daemon_start(fetch_fn, items, max_workers):
+    """Startet Hintergrund-Fetches SOFORT, OHNE auf sie zu warten - das ist
+    die "Start"-Haelfte von fetch_parallel_daemon() (siehe dort fuer den
+    Hintergrund zu den echten daemon=True-Threads statt ThreadPoolExecutor).
+
+    FIX PERF-AUTO-OVERLAP (2026-08-02): Ermoeglicht es, den Netzwerk-Anteil
+    eines Fetch-Batches (z.B. Auto-Discovered-Feeds in
+    update_combined_blacklist.yml) mit anderen, unabhaengigen Phasen zu
+    ueberlappen, statt sequentiell NACH ihnen zu warten. Vorher blockierte
+    fetch_parallel_daemon() in einem einzigen Aufruf fuer bis zu
+    overall_timeout Sekunden, komplett additiv zur Laufzeit aller anderen
+    Phasen. Jetzt: fetch_parallel_daemon_start() ganz am Anfang aufrufen
+    (Threads laufen im Hintergrund mit), andere Phasen normal ausfuehren,
+    erst am Ende fetch_parallel_daemon_collect() mit der ORIGINAL-Deadline
+    aufrufen - die bereits waehrend der anderen Phasen verstrichene Zeit
+    wird automatisch von der Wartezeit abgezogen.
+
+    Args:
+        fetch_fn, items, max_workers: wie bei fetch_parallel_daemon().
+
+    Returns:
+        dict: Handle mit "queue", "total" und "start" (monotonic-Zeitstempel
+        des Start-Aufrufs) - an fetch_parallel_daemon_collect() weiterreichen.
+    """
+    import threading
+    import queue as _queue
+    import time as _time
+
+    sem = threading.Semaphore(max_workers)
+    result_q = _queue.Queue()
+
+    def _worker(item):
+        sem.acquire()
+        try:
+            result_q.put(fetch_fn(item))
+        finally:
+            sem.release()
+
+    for _item in items:
+        threading.Thread(target=_worker, args=(_item,), daemon=True).start()
+
+    return {"queue": result_q, "total": len(items), "start": _time.monotonic()}
+
+
+def fetch_parallel_daemon_collect(handle, overall_timeout):
+    """Sammelt Ergebnisse eines mit fetch_parallel_daemon_start() gestarteten
+    Batches ein - die "Collect"-Haelfte, siehe fetch_parallel_daemon_start().
+
+    WICHTIG: overall_timeout gilt ab dem urspruenglichen Start-Zeitpunkt
+    (handle["start"]), NICHT ab diesem Aufruf - die Zeit, die zwischen Start
+    und Collect bereits durch andere, parallel gelaufene Phasen verstrichen
+    ist, wird also korrekt von der verbleibenden Wartezeit abgezogen.
+
+    Args:
+        handle: Rueckgabewert von fetch_parallel_daemon_start().
+        overall_timeout: Gesamt-Deadline in Sekunden ab dem urspruenglichen
+            Start-Aufruf.
+
+    Returns:
+        list: siehe fetch_parallel_daemon().
+    """
+    import queue as _queue
+    import time as _time
+
+    result_q = handle["queue"]
+    total = handle["total"]
+    deadline = handle["start"] + overall_timeout
+    results = []
+    while len(results) < total:
+        remaining = deadline - _time.monotonic()
+        if remaining <= 0:
+            break
+        try:
+            results.append(result_q.get(timeout=remaining))
+        except _queue.Empty:
+            break
+    return results
+
+
 def fetch_parallel_daemon(fetch_fn, items, max_workers, overall_timeout):
     """Parallele Ausfuehrung mit echter Wall-Clock-Deadline, ohne dass
     haengende Downloads das Skriptende blockieren.
@@ -1696,6 +1775,12 @@ def fetch_parallel_daemon(fetch_fn, items, max_workers, overall_timeout):
     aufgenommen (ihre Daten gehen fuer diesen Lauf verloren – das ist bei
     Best-Effort-Feeds wie Auto-Discovered-Feeds akzeptabel).
 
+    FIX PERF-AUTO-OVERLAP (2026-08-02): Intern jetzt ein duenner Wrapper um
+    fetch_parallel_daemon_start()+fetch_parallel_daemon_collect() (siehe
+    dort). Bestehende Aufrufer (z.B. honeypot_monitor.yml) funktionieren
+    unveraendert weiter - fuer neuen Code, der Fetch-Start und -Ende
+    zeitlich trennen will, direkt die beiden Teilfunktionen nutzen.
+
     Args:
         fetch_fn: Callable(item) -> Ergebnis. Muss Fehler selbst abfangen
             (siehe fetch_auto/fetch_ips – dort wird bei Fehlern (name, set())
@@ -1709,34 +1794,8 @@ def fetch_parallel_daemon(fetch_fn, items, max_workers, overall_timeout):
         wurden (Reihenfolge = Fertigstellungsreihenfolge, nicht Input-
         Reihenfolge). Items, die die Deadline reissen, fehlen einfach.
     """
-    import threading
-    import queue as _queue
-    import time as _time
-
-    sem = threading.Semaphore(max_workers)
-    result_q = _queue.Queue()
-
-    def _worker(item):
-        sem.acquire()
-        try:
-            result_q.put(fetch_fn(item))
-        finally:
-            sem.release()
-
-    for _item in items:
-        threading.Thread(target=_worker, args=(_item,), daemon=True).start()
-
-    deadline = _time.monotonic() + overall_timeout
-    results = []
-    while len(results) < len(items):
-        remaining = deadline - _time.monotonic()
-        if remaining <= 0:
-            break
-        try:
-            results.append(result_q.get(timeout=remaining))
-        except _queue.Empty:
-            break
-    return results
+    _handle = fetch_parallel_daemon_start(fetch_fn, items, max_workers)
+    return fetch_parallel_daemon_collect(_handle, overall_timeout)
 
 
 def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
