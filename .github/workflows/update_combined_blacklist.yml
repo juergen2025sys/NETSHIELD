@@ -924,9 +924,15 @@ jobs:
               # ── AbuseIPDB ─────────────────────────────────────────────────
               "abuseipdb_s100_30d":         ("https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-30d.ipv4", True),
               "abuseipdb_s100_7d":          ("https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-7d.ipv4", True),  # ersetzt abuseipdb_s90_30d
-              # abuseipdb_tmiland entfernt: SSL Hostname-Mismatch (Cert nicht fuer
-              # abuseipdb.tmiland.com gueltig) – dauerhafter Fehler auf Server-Seite.
-              # AbuseIPDB-Daten werden durch andere abuseipdb_* Feeds abgedeckt.
+              # HINWEIS abuseipdb_tmiland (aktualisiert 2026-08-02): War frueher
+              # wegen SSL-Hostname-Mismatch entfernt (Cert nicht fuer
+              # abuseipdb.tmiland.com gueltig, dauerhafter Fehler auf
+              # Server-Seite). Am 2026-08-02 auf Wunsch neu eingetragen (siehe
+              # "abuseipdb_tmiland" weiter oben bei threatslist_paloalto_edl) -
+              # lief im ersten Testlauf erfolgreich durch (9.952 IPs). Ob das
+              # SSL-Problem dauerhaft behoben ist oder nur zeitweise auftritt,
+              # zeigt sich erst nach mehreren weiteren Laeufen - falls die
+              # SSL-Fehler wiederkehren, taucht das als Fetch-Fehler im Log auf.
               # abuseipdb_score75 entfernt: 100% Subset von abuseipdb_score100/s100 (Audit 2026-05-17, 107k IPs, 0 Solo)
               "abuseipdb_score100":         ("https://raw.githubusercontent.com/LittleJake/ip-blacklist/refs/heads/main/abuseipdb_blacklist_ip_score_100.txt", True),
               # abuseipdb_scriptzteam entfernt: 100% Redundanz zu HQ-AbuseIPDB-Feeds (Audit 2026-05-17, 103k IPs, 0 Solo)
