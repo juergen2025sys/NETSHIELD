@@ -1727,6 +1727,17 @@ def fetch_parallel_daemon_collect(handle, overall_timeout):
     und Collect bereits durch andere, parallel gelaufene Phasen verstrichen
     ist, wird also korrekt von der verbleibenden Wartezeit abgezogen.
 
+    FIX BUG-COLLECT-DRAIN (2026-08-02): Beobachtet in einem Lauf, in dem
+    Phase 0-3 laenger als overall_timeout dauerten - die Deadline war beim
+    Erreichen dieser Funktion bereits abgelaufen, und die urspruengliche
+    Implementierung brach dann SOFORT ab, OHNE auch nur die Ergebnisse
+    abzuholen, die laengst fertig in der Queue lagen (102 von 180
+    Auto-Feeds wurden faelschlich als "abgebrochen" gemeldet, obwohl die
+    meisten im Hintergrund laengst erfolgreich durchgelaufen waren). Fix:
+    Zuerst wird die Queue nicht-blockierend LEERGERAEUMT (alles, was schon
+    da ist, unabhaengig von der Deadline) - erst danach wird, falls noch
+    Zeitbudget uebrig ist, blockierend auf weitere Ergebnisse gewartet.
+
     Args:
         handle: Rueckgabewert von fetch_parallel_daemon_start().
         overall_timeout: Gesamt-Deadline in Sekunden ab dem urspruenglichen
@@ -1740,8 +1751,22 @@ def fetch_parallel_daemon_collect(handle, overall_timeout):
 
     result_q = handle["queue"]
     total = handle["total"]
-    deadline = handle["start"] + overall_timeout
     results = []
+
+    # Erst alles bereits fertige, nicht-blockierend abholen - unabhaengig
+    # davon, ob die Deadline schon verstrichen ist. Das ist der eigentliche
+    # Bugfix: vorher ging genau das verloren, wenn andere Phasen laenger
+    # als overall_timeout gebraucht hatten.
+    while len(results) < total:
+        try:
+            results.append(result_q.get_nowait())
+        except _queue.Empty:
+            break
+
+    # Danach, falls noch Zeitbudget uebrig ist, blockierend auf den Rest
+    # warten (identisches Verhalten wie vorher fuer den Normalfall, in dem
+    # die anderen Phasen kuerzer als overall_timeout waren).
+    deadline = handle["start"] + overall_timeout
     while len(results) < total:
         remaining = deadline - _time.monotonic()
         if remaining <= 0:
