@@ -41,6 +41,7 @@ jobs:
           SNIFFCAT_TOKEN: ${{ secrets.SNIFFCAT_TOKEN }}
           SNIFFCAT_TOKEN_2: ${{ secrets.SNIFFCAT_TOKEN_2 }}
           SNIFFCAT_TOKEN_3: ${{ secrets.SNIFFCAT_TOKEN_3 }}
+          SNIFFCAT_TOKEN_4: ${{ secrets.SNIFFCAT_TOKEN_4 }}
           THREATFOX_AUTH_KEY: ${{ secrets.THREATFOX_AUTH_KEY }}
           THREATFOX_AUTH_KEY_2: ${{ secrets.THREATFOX_AUTH_KEY_2 }}
           REPORTEDIP_KEY: ${{ secrets.REPORTEDIP_KEY }}
@@ -538,6 +539,7 @@ jobs:
                   {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN", "")},
                   {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN_2", "")},
                   {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN_3", "")},
+                  {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN_4", "")},
               ],
               "reportedip": [
                   {"X-Key": os.environ.get("REPORTEDIP_KEY", "")},
