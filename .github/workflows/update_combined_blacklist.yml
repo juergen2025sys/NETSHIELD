@@ -594,6 +594,13 @@ jobs:
               # "heute frisch bestaetigt"-Logik in seen_db als auch den
               # Overlap-Referenzwert fuer neue Auto-Discovery-Kandidaten.
               "threatslist_paloalto_edl":   ("https://threatslist.github.io/Palo-Alto-EDL/edl_list.txt", True),
+              # NEU (2026-08-02): AbuseIPDB-Aggregator (confidence>=90%,
+              # count>=15, max 60 Tage, auf 10.000 Eintraege gedeckelt wegen
+              # AbuseIPDB-Free-Tier-API-Limit). Ueberschneidet sich vermutlich
+              # groesstenteils mit den bereits vorhandenen abuseipdb_s100_*-
+              # Feeds (borestad/blocklist-abuseipdb, ~99-100% Confidence,
+              # also strenger gefiltert) - auf Wunsch trotzdem ergaenzt.
+              "abuseipdb_tmiland":          ("https://abuseipdb.tmiland.com/abuseipdb.txt", True),
               # threatfox_ioc: FIX 2026-07-25 entfernt (nach honeypot_monitor.yml
               # verlagert, siehe HIGH_QUALITY-Kommentar oben).
               # hagezi_tif: HaGeZi Threat Intelligence Feeds, Plain-IP-Variante (ips/tif.txt).
