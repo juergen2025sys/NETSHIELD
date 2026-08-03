@@ -258,6 +258,55 @@ jobs:
               "Correia-jpv/fucking-awesome-threat-intelligence",
           }
 
+          # FIX AUTO-SYNC-SOURCES (2026-08-03): Vorher musste jede neue Quelle
+          # in SOURCES (update_combined_blacklist.yml) MANUELL zusaetzlich in
+          # KNOWN_REPOS eingetragen werden - leicht zu vergessen (genau das
+          # ist bei threatslist_paloalto_edl/abuseipdb_tmiland passiert, 6
+          # Luecken beim Nachpruefen gefunden). Jetzt: die Datei wird zur
+          # Laufzeit aus demselben Checkout gelesen (derselbe Job hat sie
+          # sowieso schon lokal), alle referenzierten GitHub-Repos werden
+          # automatisch extrahiert und KNOWN_REPOS hinzugefuegt. Erkennt
+          # sowohl raw.githubusercontent.com/{owner}/{repo}/-URLs als auch
+          # {owner}.github.io/{repo}-URLs (GitHub-Pages-Hosting, wie bei
+          # ThreatsList/Palo-Alto-EDL). Fail-open: Datei fehlt/Parse-Fehler
+          # -> KNOWN_REPOS bleibt einfach beim statischen Stand, kein Absturz.
+          try:
+              with open(".github/workflows/update_combined_blacklist.yml") as _ucb_f:
+                  _ucb_content = _ucb_f.read()
+              _sync_added = set()
+              for _m in re.finditer(
+                  r'raw\.githubusercontent\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/',
+                  _ucb_content
+              ):
+                  _sync_added.add(f"{_m.group(1)}/{_m.group(2)}")
+              for _m in re.finditer(
+                  r'https://([A-Za-z0-9_-]+)\.github\.io/([A-Za-z0-9_.-]+)',
+                  _ucb_content
+              ):
+                  _sync_added.add(f"{_m.group(1)}/{_m.group(2)}")
+              _sync_new = _sync_added - KNOWN_REPOS
+              KNOWN_REPOS.update(_sync_added)
+              if _sync_new:
+                  print(f"AUTO-SYNC-SOURCES: {len(_sync_new)} Repo(s) aus "
+                        f"update_combined_blacklist.yml automatisch zu "
+                        f"KNOWN_REPOS ergaenzt: {', '.join(sorted(_sync_new)[:10])}"
+                        f"{' ...' if len(_sync_new) > 10 else ''}")
+          except Exception as _e:
+              print(f"AUTO-SYNC-SOURCES: übersprungen ({_e}) - "
+                    f"KNOWN_REPOS bleibt beim statischen Stand")
+
+          # FIX AUTO-SYNC-CASEFOLD (2026-08-03): GitHub-Pages-Domains
+          # (owner.github.io) sind technisch bedingt IMMER klein geschrieben,
+          # auch wenn der echte Org-/Repo-Name Grossbuchstaben hat (z.B.
+          # "ThreatsList/Palo-Alto-EDL" vs. "threatslist.github.io/..." in der
+          # URL). Ein simpler "in KNOWN_REPOS"-Vergleich (case-sensitive)
+          # wuerde bei aus .github.io-URLs automatisch synchronisierten
+          # Eintraegen regelmaessig NICHT greifen, weil full_name aus der
+          # GitHub-API die tatsaechliche Gross-/Kleinschreibung behaelt.
+          # KNOWN_REPOS_LOWER wird an allen drei Pruefstellen statt KNOWN_REPOS
+          # direkt verwendet (full_name.lower() in KNOWN_REPOS_LOWER).
+          KNOWN_REPOS_LOWER = {_r.lower() for _r in KNOWN_REPOS}
+
           # ── Bekannte GitLab-Projekte – NICHT erneut aufnehmen ─────────────
           # Format: "namespace/project" (Lowercase, wie GitLab path_with_namespace)
           KNOWN_GITLAB_REPOS = set()
@@ -950,7 +999,7 @@ jobs:
               if not repo:
                   return
               full_name = repo.get("full_name")
-              if not full_name or full_name in KNOWN_REPOS:
+              if not full_name or full_name.lower() in KNOWN_REPOS_LOWER:
                   return
               # FIX OWNER-BLOCKLIST: siehe BLOCKED_OWNERS weiter oben. Frühester
               # moeglicher Filterpunkt - spart Eval-Budget komplett statt den
@@ -1480,7 +1529,7 @@ jobs:
                   _backfill_date = (now - timedelta(days=16)).strftime("%Y-%m-%d")
                   _backfilled = 0
                   for _pr in list(existing_rejected):
-                      if _pr not in existing_rejected_meta and _pr not in KNOWN_REPOS:
+                      if _pr not in existing_rejected_meta and _pr.lower() not in KNOWN_REPOS_LOWER:
                           existing_rejected_meta[_pr] = {
                               "reason": "Keine IP-Datei",
                               "rejected_at": _backfill_date,
@@ -2192,7 +2241,7 @@ jobs:
               _aw_repos = set(_GH_LINK_RE.findall(_aw_text))
               _new_from_aw = 0
               for _repo_path in _aw_repos:
-                  if _repo_path in KNOWN_REPOS:
+                  if _repo_path.lower() in KNOWN_REPOS_LOWER:
                       continue
                   if _repo_path in candidate_repos:
                       continue
