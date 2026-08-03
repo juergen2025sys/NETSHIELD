@@ -264,42 +264,61 @@ jobs:
               "Correia-jpv/fucking-awesome-threat-intelligence",
           }
 
-          # FIX AUTO-SYNC-SOURCES (2026-08-03): Vorher musste jede neue Quelle
-          # in SOURCES (update_combined_blacklist.yml) MANUELL zusaetzlich in
-          # KNOWN_REPOS eingetragen werden - leicht zu vergessen (genau das
-          # ist bei threatslist_paloalto_edl/abuseipdb_tmiland passiert, 6
-          # Luecken beim Nachpruefen gefunden). Jetzt: die Datei wird zur
-          # Laufzeit aus demselben Checkout gelesen (derselbe Job hat sie
-          # sowieso schon lokal), alle referenzierten GitHub-Repos werden
-          # automatisch extrahiert und KNOWN_REPOS hinzugefuegt. Erkennt
-          # sowohl raw.githubusercontent.com/{owner}/{repo}/-URLs als auch
-          # {owner}.github.io/{repo}-URLs (GitHub-Pages-Hosting, wie bei
-          # ThreatsList/Palo-Alto-EDL). Fail-open: Datei fehlt/Parse-Fehler
-          # -> KNOWN_REPOS bleibt einfach beim statischen Stand, kein Absturz.
-          try:
-              with open(".github/workflows/update_combined_blacklist.yml") as _ucb_f:
-                  _ucb_content = _ucb_f.read()
-              _sync_added = set()
-              for _m in re.finditer(
-                  r'raw\.githubusercontent\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/',
-                  _ucb_content
-              ):
-                  _sync_added.add(f"{_m.group(1)}/{_m.group(2)}")
-              for _m in re.finditer(
-                  r'https://([A-Za-z0-9_-]+)\.github\.io/([A-Za-z0-9_.-]+)',
-                  _ucb_content
-              ):
-                  _sync_added.add(f"{_m.group(1)}/{_m.group(2)}")
-              _sync_new = _sync_added - KNOWN_REPOS
-              KNOWN_REPOS.update(_sync_added)
-              if _sync_new:
-                  print(f"AUTO-SYNC-SOURCES: {len(_sync_new)} Repo(s) aus "
-                        f"update_combined_blacklist.yml automatisch zu "
-                        f"KNOWN_REPOS ergaenzt: {', '.join(sorted(_sync_new)[:10])}"
-                        f"{' ...' if len(_sync_new) > 10 else ''}")
-          except Exception as _e:
-              print(f"AUTO-SYNC-SOURCES: übersprungen ({_e}) - "
-                    f"KNOWN_REPOS bleibt beim statischen Stand")
+          # FIX AUTO-SYNC-SOURCES (2026-08-03, erweitert): Vorher musste jede
+          # neue Quelle in SOURCES (update_combined_blacklist.yml) MANUELL
+          # zusaetzlich in KNOWN_REPOS eingetragen werden - leicht zu
+          # vergessen (genau das ist bei threatslist_paloalto_edl/
+          # abuseipdb_tmiland passiert, 6 Luecken beim Nachpruefen gefunden,
+          # 3 davon bereits als echte Duplikate bestaetigt). Jetzt: die
+          # Dateien werden zur Laufzeit aus demselben Checkout gelesen
+          # (derselbe Job hat sie sowieso schon lokal), alle referenzierten
+          # GitHub-Repos werden automatisch extrahiert und KNOWN_REPOS
+          # hinzugefuegt. Erkennt sowohl raw.githubusercontent.com/{owner}/
+          # {repo}/-URLs als auch {owner}.github.io/{repo}-URLs (GitHub-
+          # Pages-Hosting, wie bei ThreatsList/Palo-Alto-EDL).
+          #
+          # Erweitert um honeypot_monitor.yml (2026-08-03): hat eine EIGENE,
+          # unabhaengige HONEYPOT_SOURCES-Liste (separat von SOURCES in
+          # update_combined_blacklist.yml) - z.B. stamparm/ipsum,
+          # firehol/blocklist-ipsets. update_bot_detector.yml bewusst NICHT
+          # in dieser Liste: der hat KEINE eigene Quellenliste, sondern liest
+          # state/auto_discovered_feeds.json direkt aus und filtert per
+          # is_bot_detector_feed_name() - keine Duplikat-Gefahr, da vollstaendig
+          # von der Auto-Discovery abgeleitet statt einer zweiten, unabhaengigen
+          # Liste. honigtopf.yml noch nicht geprueft (Datei lag noch nicht vor) -
+          # falls die ebenfalls eine eigene Quellenliste hat, muss sie hier noch
+          # ergaenzt werden.
+          #
+          # Jede Datei einzeln fail-open behandelt: eine fehlende/kaputte Datei
+          # blockiert nicht die anderen, KNOWN_REPOS bleibt im Zweifel beim
+          # zuletzt erfolgreichen Stand.
+          _SYNC_SOURCE_FILES = [
+              ".github/workflows/update_combined_blacklist.yml",
+              ".github/workflows/honeypot_monitor.yml",
+          ]
+          _sync_added_total = set()
+          for _sync_path in _SYNC_SOURCE_FILES:
+              try:
+                  with open(_sync_path) as _sf:
+                      _sf_content = _sf.read()
+                  for _m in re.finditer(
+                      r'raw\.githubusercontent\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/',
+                      _sf_content
+                  ):
+                      _sync_added_total.add(f"{_m.group(1)}/{_m.group(2)}")
+                  for _m in re.finditer(
+                      r'https://([A-Za-z0-9_-]+)\.github\.io/([A-Za-z0-9_.-]+)',
+                      _sf_content
+                  ):
+                      _sync_added_total.add(f"{_m.group(1)}/{_m.group(2)}")
+              except Exception as _e:
+                  print(f"AUTO-SYNC-SOURCES: {_sync_path} übersprungen ({_e})")
+          _sync_new = _sync_added_total - KNOWN_REPOS
+          KNOWN_REPOS.update(_sync_added_total)
+          if _sync_new:
+              print(f"AUTO-SYNC-SOURCES: {len(_sync_new)} Repo(s) automatisch zu "
+                    f"KNOWN_REPOS ergaenzt: {', '.join(sorted(_sync_new)[:10])}"
+                    f"{' ...' if len(_sync_new) > 10 else ''}")
 
           # FIX AUTO-SYNC-CASEFOLD (2026-08-03): GitHub-Pages-Domains
           # (owner.github.io) sind technisch bedingt IMMER klein geschrieben,
