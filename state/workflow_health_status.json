@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-02 20:16 UTC",
+  "updated": "2026-08-03 04:45 UTC",
   "total": 23,
   "ok": 20,
   "warn": 2,
@@ -18,7 +18,7 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 113.8 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+      "detail": "combined_threat_blacklist_ipv4.txt: 113.9 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
     },
     {
       "file": "Production Health",
@@ -28,7 +28,7 @@
     {
       "file": "Production Health",
       "check": "active \u2286 conf40 Subset-Invariante verletzt",
-      "detail": "5,300 IPs in active fehlen in conf40 (1.073% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+      "detail": "1,315 IPs in active fehlen in conf40 (0.293% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
     }
   ],
   "warnings": [
@@ -55,16 +55,16 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "blacklist_confidence40_ipv4.txt: 89.4 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "blacklist_confidence40_ipv4.txt: 89.5 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4185692,
-    "active_blacklist_ipv4.txt": 493805,
-    "blacklist_confidence40_ipv4.txt": 6577021,
+    "combined_threat_blacklist_ipv4_part1.txt": 4188845,
+    "active_blacklist_ipv4.txt": 448203,
+    "blacklist_confidence40_ipv4.txt": 6586918,
     "cve_exploit_ips.txt": 29870,
-    "honeypot_ips.txt": 172398,
-    "bot_detector_blacklist_ipv4.txt": 1282395
+    "honeypot_ips.txt": 172479,
+    "bot_detector_blacklist_ipv4.txt": 1282933
   },
   "production_health": {
     "critical": 3,
@@ -73,7 +73,7 @@
       {
         "level": "CRITICAL",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 113.8 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+        "detail": "combined_threat_blacklist_ipv4.txt: 113.9 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
       },
       {
         "level": "CRITICAL",
@@ -83,12 +83,12 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "blacklist_confidence40_ipv4.txt: 89.4 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "blacklist_confidence40_ipv4.txt: 89.5 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "CRITICAL",
         "check": "active \u2286 conf40 Subset-Invariante verletzt",
-        "detail": "5,300 IPs in active fehlen in conf40 (1.073% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+        "detail": "1,315 IPs in active fehlen in conf40 (0.293% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
       }
     ]
   },
