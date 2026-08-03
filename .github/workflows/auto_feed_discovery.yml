@@ -208,6 +208,19 @@ jobs:
 
           # ── Bekannte Repos – NICHT erneut aufnehmen ───────────────────────
           KNOWN_REPOS = {
+              # NEU (2026-08-03): Systematischer Abgleich aller GitHub-Repos aus
+              # SOURCES (update_combined_blacklist.yml) gegen KNOWN_REPOS ergab
+              # 6 Luecken - diese Repos waren manuell in SOURCES integriert,
+              # aber dem Discovery-Skript nicht bekannt, konnten also potenziell
+              # erneut "entdeckt" und dupliziert als eigener Auto-Feed
+              # registriert werden (derselbe Inhalt haette dann zweimal in
+              # ip_feeds_today gezaehlt und die Confidence-Score-Berechnung
+              # verzerrt - Auslöser war die Frage, ob threatslist_paloalto_edl/
+              # abuseipdb_tmiland durch die neuen EDL-Suchbegriffe erneut
+              # gefunden werden koennten).
+              "Fadouse/clash-threat-intel", "ashleykleynhans/ipset",
+              "cypher139/ipblacklist", "hagezi/dns-blocklists",
+              "ThreatsList/Palo-Alto-EDL", "yuexuan521/honeypot-blocklist",
               "firehol/blocklist-ipsets", "stamparm/ipsum", "stamparm/maltrail",
               "montysecurity/C2-Tracker", "drb-ra/C2IntelFeeds",
               "Gi7w0rm/CobaltStrikeC2Tracker", "borestad/blocklist-abuseipdb",
@@ -2821,8 +2834,70 @@ jobs:
           def _is_gitlab(meta):
               return meta.get("platform") == "gitlab"
 
+          # ── Owner-Track-Record (selbstlernende Gewichtung) ──────────────────
+          # FIX OWNER-TRACK-RECORD (2026-08-03): Automatisch aus der eigenen
+          # Lauf-Historie abgeleiteter Owner-Score, im Gegensatz zu KNOWN_REPOS
+          # (von Hand gepflegte 52-Owner-Liste, waechst nur durch manuelles
+          # Ergaenzen). Zaehlt pro Owner:
+          #   (a) Bonus fuer aktuell aktive Feeds, gestaffelt nach Alter
+          #       (laenger aktiv = mehr Vertrauen, ein Feed der seit Monaten
+          #       nicht rausgeflogen ist, hat sich bewaehrt)
+          #   (b) Abzug fuer aktuell in rejected_repos stehende Versuche
+          #       desselben Owners (bewusst klein gehalten und gedeckelt -
+          #       ein Owner mit vielen Repos kann zufaellig mehrere
+          #       Keyword-Treffer haben, die gar keine echten Feed-Versuche
+          #       waren, das soll nicht unfair durchschlagen)
+          # Ergebnis fliesst additiv (nicht multiplikativ) in _rep_score() ein -
+          # ein sternearmes, brandneues Repo eines bewaehrten Owners bekommt so
+          # einen spuerbaren, aber begrenzten Vorsprung vor unbekannten Ownern,
+          # OHNE dass GitHub-Sterne komplett irrelevant werden.
+          def _owner_of_clean(full_name):
+              return full_name.split("/", 1)[0].lower() if "/" in (full_name or "") else ""
+
+          _owner_active_bonus = {}
+          for _fdata in existing_feeds.values():
+              _owner = _owner_of_clean(_fdata.get("repo", ""))
+              if not _owner:
+                  continue
+              try:
+                  _added_dt = datetime.strptime(
+                      _fdata.get("added", "")[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                  _age_days = (now - _added_dt).days
+              except Exception:
+                  _age_days = 0
+              if _age_days >= 180:
+                  _bonus = 20
+              elif _age_days >= 90:
+                  _bonus = 12
+              elif _age_days >= 30:
+                  _bonus = 6
+              else:
+                  _bonus = 2
+              _owner_active_bonus[_owner] = _owner_active_bonus.get(_owner, 0) + _bonus
+
+          _owner_reject_penalty = {}
+          for _rkey in existing_rejected:
+              _owner = _owner_of_clean(
+                  _rkey[len("gitlab:"):] if _rkey.startswith("gitlab:") else _rkey)
+              if not _owner:
+                  continue
+              _owner_reject_penalty[_owner] = min(
+                  _owner_reject_penalty.get(_owner, 0) + 2, 10)  # pro Owner gedeckelt
+
+          OWNER_TRACK_RECORD = {}
+          for _owner in set(_owner_active_bonus) | set(_owner_reject_penalty):
+              _score = _owner_active_bonus.get(_owner, 0) - _owner_reject_penalty.get(_owner, 0)
+              if _score != 0:
+                  OWNER_TRACK_RECORD[_owner] = max(-10, min(_score, 30))
+          print(f"Owner-Track-Record: {len(OWNER_TRACK_RECORD)} Owner mit Bonus/Malus "
+                f"(aus {len(existing_feeds)} aktiven Feeds, {len(existing_rejected)} "
+                f"aktuellen Ablehnungen abgeleitet)")
+
           def _rep_score(meta):
-              return min(meta.get("stars", 0) * 2 + meta.get("forks", 0) * 3, 100)
+              base = min(meta.get("stars", 0) * 2 + meta.get("forks", 0) * 3, 100)
+              owner = _owner_of_clean(meta.get("full_name", ""))
+              bonus = OWNER_TRACK_RECORD.get(owner, 0)
+              return max(0, min(base + bonus, 130))
 
           def _pushed_key(meta):
               # ISO-Datum sortiert lexikografisch korrekt; leere Werte ans Ende
