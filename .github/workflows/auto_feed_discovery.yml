@@ -208,25 +208,15 @@ jobs:
 
           # ── Bekannte Repos – NICHT erneut aufnehmen ───────────────────────
           KNOWN_REPOS = {
-              # NEU (2026-08-03): Systematischer Abgleich aller GitHub-Repos aus
-              # SOURCES (update_combined_blacklist.yml) gegen KNOWN_REPOS ergab
-              # 6 Luecken - diese Repos waren manuell in SOURCES integriert,
-              # aber dem Discovery-Skript nicht bekannt, konnten also potenziell
-              # erneut "entdeckt" und dupliziert als eigener Auto-Feed
-              # registriert werden (derselbe Inhalt haette dann zweimal in
-              # ip_feeds_today gezaehlt und die Confidence-Score-Berechnung
-              # verzerrt - Auslöser war die Frage, ob threatslist_paloalto_edl/
-              # abuseipdb_tmiland durch die neuen EDL-Suchbegriffe erneut
-              # gefunden werden koennten).
-              "Fadouse/clash-threat-intel", "ashleykleynhans/ipset",
-              "cypher139/ipblacklist", "hagezi/dns-blocklists",
-              "ThreatsList/Palo-Alto-EDL", "yuexuan521/honeypot-blocklist",
-              # NEU (2026-08-03): Bei der Live-Pruefung als tatsaechlich
-              # existierende Duplikate bestaetigt (serp07_dude_blacklist_ip /
-              # fadouse_clash_threat_intel / fadouse_clash_threat_intel_c2
-              # wurden parallel zu den manuellen SOURCES-Eintraegen auto-
-              # entdeckt - Fadouse steht zwar schon oben, Serp07 fehlte).
-              "Serp07/dude_blacklist_ip",
+              # HINWEIS (2026-08-03): Repo-Level-Ausschluss fuer Repos, die
+              # teilweise in SOURCES/HONEYPOT_SOURCES integriert sind, wurde
+              # hier bewusst NICHT eingetragen (siehe SOURCES_COVERED_FILES
+              # weiter unten) - ein kompletter Repo-Ausschluss haette
+              # verhindert, dass NEUE, bisher nicht manuell erfasste Dateien
+              # in einem teilweise abgedeckten Repo (z.B. Fadouse/clash-
+              # threat-intel hat 8 manuell erfasste Dateien, aber vielleicht
+              # kommen mehr dazu) jemals gefunden werden. Stattdessen wird
+              # datei-genau statt repo-genau geprueft.
               "firehol/blocklist-ipsets", "stamparm/ipsum", "stamparm/maltrail",
               "montysecurity/C2-Tracker", "drb-ra/C2IntelFeeds",
               "Gi7w0rm/CobaltStrikeC2Tracker", "borestad/blocklist-abuseipdb",
@@ -264,70 +254,69 @@ jobs:
               "Correia-jpv/fucking-awesome-threat-intelligence",
           }
 
-          # FIX AUTO-SYNC-SOURCES (2026-08-03, erweitert): Vorher musste jede
-          # neue Quelle in SOURCES (update_combined_blacklist.yml) MANUELL
-          # zusaetzlich in KNOWN_REPOS eingetragen werden - leicht zu
-          # vergessen (genau das ist bei threatslist_paloalto_edl/
-          # abuseipdb_tmiland passiert, 6 Luecken beim Nachpruefen gefunden,
-          # 3 davon bereits als echte Duplikate bestaetigt). Jetzt: die
-          # Dateien werden zur Laufzeit aus demselben Checkout gelesen
-          # (derselbe Job hat sie sowieso schon lokal), alle referenzierten
-          # GitHub-Repos werden automatisch extrahiert und KNOWN_REPOS
-          # hinzugefuegt. Erkennt sowohl raw.githubusercontent.com/{owner}/
-          # {repo}/-URLs als auch {owner}.github.io/{repo}-URLs (GitHub-
-          # Pages-Hosting, wie bei ThreatsList/Palo-Alto-EDL).
+          # FIX AUTO-SYNC-SOURCES-FILELEVEL (2026-08-03): Vorher wurde bei
+          # Ueberschneidung das GANZE Repo in KNOWN_REPOS gesperrt - das
+          # haette verhindert, dass NEUE, bisher nicht manuell erfasste
+          # Dateien in einem teilweise abgedeckten Repo jemals gefunden
+          # werden (z.B. Fadouse/clash-threat-intel hat 8 manuell erfasste
+          # Dateien - ein Repo-Sperre wuerde eine 9., zukuenftig hinzugefuegte
+          # Datei nie entdecken). Jetzt datei-genau: SOURCES_COVERED_FILES
+          # ist ein Dict {(owner/repo).lower(): {pfad.lower(), ...}}. Nur die
+          # EXAKT bereits manuell erfassten Dateien werden bei der Bewertung
+          # uebersprungen (siehe _evaluate_one und Extra-File-Scan weiter
+          # unten) - alle anderen Dateien im selben Repo bleiben normal
+          # auffindbar.
           #
-          # Erweitert um honeypot_monitor.yml (2026-08-03): hat eine EIGENE,
-          # unabhaengige HONEYPOT_SOURCES-Liste (separat von SOURCES in
-          # update_combined_blacklist.yml) - z.B. stamparm/ipsum,
-          # firehol/blocklist-ipsets. update_bot_detector.yml bewusst NICHT
-          # in dieser Liste: der hat KEINE eigene Quellenliste, sondern liest
-          # state/auto_discovered_feeds.json direkt aus und filtert per
-          # is_bot_detector_feed_name() - keine Duplikat-Gefahr, da vollstaendig
-          # von der Auto-Discovery abgeleitet statt einer zweiten, unabhaengigen
-          # Liste. honigtopf.yml noch nicht geprueft (Datei lag noch nicht vor) -
-          # falls die ebenfalls eine eigene Quellenliste hat, muss sie hier noch
-          # ergaenzt werden.
+          # Liest update_combined_blacklist.yml (SOURCES) und
+          # honeypot_monitor.yml (HONEYPOT_SOURCES) aus demselben Checkout.
+          # update_bot_detector.yml bewusst NICHT dabei: hat KEINE eigene
+          # Quellenliste, liest state/auto_discovered_feeds.json direkt aus -
+          # keine Duplikat-Gefahr, da vollstaendig von der Auto-Discovery
+          # abgeleitet. honigtopf.yml bewusst NICHT dabei: rein API-basiert,
+          # keine GitHub-Repo-URLs, die kollidieren koennten.
           #
-          # Jede Datei einzeln fail-open behandelt: eine fehlende/kaputte Datei
-          # blockiert nicht die anderen, KNOWN_REPOS bleibt im Zweifel beim
-          # zuletzt erfolgreichen Stand.
+          # Jede Datei einzeln fail-open behandelt: eine fehlende/kaputte
+          # Datei blockiert nicht die andere.
           _SYNC_SOURCE_FILES = [
               ".github/workflows/update_combined_blacklist.yml",
               ".github/workflows/honeypot_monitor.yml",
           ]
-          _sync_added_total = set()
+          SOURCES_COVERED_FILES = {}
+          _sync_file_count = 0
           for _sync_path in _SYNC_SOURCE_FILES:
               try:
                   with open(_sync_path) as _sf:
                       _sf_content = _sf.read()
                   for _m in re.finditer(
-                      r'raw\.githubusercontent\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/',
+                      r'raw\.githubusercontent\.com/([^/"]+)/([^/"]+)/'
+                      r'(?:refs/heads/[^/"]+|[^/"]+)/([^"]+)',
                       _sf_content
                   ):
-                      _sync_added_total.add(f"{_m.group(1)}/{_m.group(2)}")
+                      _owner, _repo, _path = _m.group(1), _m.group(2), _m.group(3)
+                      _key = f"{_owner}/{_repo}".lower()
+                      SOURCES_COVERED_FILES.setdefault(_key, set()).add(_path.lower())
+                      _sync_file_count += 1
                   for _m in re.finditer(
-                      r'https://([A-Za-z0-9_-]+)\.github\.io/([A-Za-z0-9_.-]+)',
+                      r'https://([A-Za-z0-9_-]+)\.github\.io/([^/"]+)/([^"]+)',
                       _sf_content
                   ):
-                      _sync_added_total.add(f"{_m.group(1)}/{_m.group(2)}")
+                      _owner, _repo, _path = _m.group(1), _m.group(2), _m.group(3)
+                      _key = f"{_owner}/{_repo}".lower()
+                      SOURCES_COVERED_FILES.setdefault(_key, set()).add(_path.lower())
+                      _sync_file_count += 1
               except Exception as _e:
                   print(f"AUTO-SYNC-SOURCES: {_sync_path} übersprungen ({_e})")
-          _sync_new = _sync_added_total - KNOWN_REPOS
-          KNOWN_REPOS.update(_sync_added_total)
-          if _sync_new:
-              print(f"AUTO-SYNC-SOURCES: {len(_sync_new)} Repo(s) automatisch zu "
-                    f"KNOWN_REPOS ergaenzt: {', '.join(sorted(_sync_new)[:10])}"
-                    f"{' ...' if len(_sync_new) > 10 else ''}")
+          if SOURCES_COVERED_FILES:
+              print(f"AUTO-SYNC-SOURCES: {_sync_file_count} Datei(en) aus "
+                    f"{len(SOURCES_COVERED_FILES)} Repo(s) als bereits manuell "
+                    f"abgedeckt erkannt (datei-genau, nicht repo-genau)")
 
-          # FIX AUTO-SYNC-CASEFOLD (2026-08-03): GitHub-Pages-Domains
-          # (owner.github.io) sind technisch bedingt IMMER klein geschrieben,
-          # auch wenn der echte Org-/Repo-Name Grossbuchstaben hat (z.B.
-          # "ThreatsList/Palo-Alto-EDL" vs. "threatslist.github.io/..." in der
-          # URL). Ein simpler "in KNOWN_REPOS"-Vergleich (case-sensitive)
-          # wuerde bei aus .github.io-URLs automatisch synchronisierten
-          # Eintraegen regelmaessig NICHT greifen, weil full_name aus der
-          # GitHub-API die tatsaechliche Gross-/Kleinschreibung behaelt.
+          # FIX AUTO-SYNC-CASEFOLD (2026-08-03): Case-insensitive Normalisierung
+          # der statischen KNOWN_REPOS-Liste (curatierte Seed-Repos fuer
+          # Trusted-Owner-Search) - ein simpler "in KNOWN_REPOS"-Vergleich
+          # (case-sensitive) koennte bei Gross-/Kleinschreibungs-Abweichungen
+          # zwischen manuellem Eintrag und tatsaechlicher GitHub-API-Antwort
+          # (full_name behaelt die echte Schreibweise) fehlschlagen.
           # KNOWN_REPOS_LOWER wird an allen drei Pruefstellen statt KNOWN_REPOS
           # direkt verwendet (full_name.lower() in KNOWN_REPOS_LOWER).
           KNOWN_REPOS_LOWER = {_r.lower() for _r in KNOWN_REPOS}
@@ -2391,34 +2380,36 @@ jobs:
           approved_feeds  = dict(existing_feeds)
           rejected_repos  = set(existing_rejected) | set(KNOWN_REPOS)
 
-          # FIX AUTO-DEDUP-EXISTING (2026-08-03): Automatische Bereinigung
-          # bereits registrierter Auto-Discovered-Feeds, die sich mit einer
-          # manuellen SOURCES-Quelle (update_combined_blacklist.yml)
-          # ueberschneiden. Ergaenzt AUTO-SYNC-SOURCES (verhindert nur neue
-          # Duplikate ab jetzt) um eine rueckwirkende Komponente: Bei der
-          # Live-Pruefung am 2026-08-03 wurden so 3 tatsaechlich bereits
-          # aktive Duplikate gefunden (serp07_dude_blacklist_ip,
-          # fadouse_clash_threat_intel, fadouse_clash_threat_intel_c2 - alle
-          # zogen exakt dieselbe Datei wie ein manueller SOURCES-Eintrag).
-          # Laeuft ab jetzt automatisch bei JEDEM Discovery-Lauf, damit
-          # zukuenftige Ueberschneidungen (z.B. durch Timing zwischen Auto-
-          # Discovery-Fund und manueller SOURCES-Ergaenzung) nicht wieder von
-          # Hand aufgespuert werden muessen. Nutzt KNOWN_REPOS_LOWER (enthaelt
-          # bereits die per AUTO-SYNC-SOURCES automatisch extrahierten
-          # SOURCES-Repos), Vergleich case-insensitive (siehe FIX
-          # AUTO-SYNC-CASEFOLD weiter oben fuer die Begruendung).
+          # FIX AUTO-DEDUP-EXISTING (2026-08-03, datei-genau): Automatische
+          # Bereinigung bereits registrierter Auto-Discovered-Feeds, die sich
+          # mit einer manuellen SOURCES-/HONEYPOT_SOURCES-Quelle DATEI-GENAU
+          # ueberschneiden (nicht nur repo-genau - siehe Begruendung bei
+          # SOURCES_COVERED_FILES weiter oben: ein Repo-Level-Ausschluss
+          # wuerde auch andere, noch nicht manuell erfasste Dateien im
+          # selben Repo unauffindbar machen). Bei der Live-Pruefung am
+          # 2026-08-03 wurden so 3 tatsaechlich bereits aktive Duplikate
+          # gefunden (serp07_dude_blacklist_ip, fadouse_clash_threat_intel,
+          # fadouse_clash_threat_intel_c2 - alle zogen exakt dieselbe Datei
+          # wie ein manueller SOURCES-Eintrag). Laeuft ab jetzt automatisch
+          # bei JEDEM Discovery-Lauf.
           _auto_dedup_removed = []
           for _fname in list(approved_feeds.keys()):
-              _frepo = approved_feeds[_fname].get("repo", "")
-              if _frepo and _frepo.lower() in KNOWN_REPOS_LOWER:
-                  _auto_dedup_removed.append((_fname, _frepo))
+              _fentry = approved_feeds[_fname]
+              _frepo = _fentry.get("repo", "")
+              _ffile = _fentry.get("file", "")
+              if not _frepo or not _ffile:
+                  continue
+              _fkey = _frepo.lower()
+              if _ffile.lower() in SOURCES_COVERED_FILES.get(_fkey, set()):
+                  _auto_dedup_removed.append((_fname, _frepo, _ffile))
                   del approved_feeds[_fname]
           if _auto_dedup_removed:
               print(f"AUTO-DEDUP-EXISTING: {len(_auto_dedup_removed)} bereits "
                     f"registrierte(r) Auto-Feed(s) entfernt, da inzwischen "
-                    f"manuell in SOURCES abgedeckt:")
-              for _fn, _fr in _auto_dedup_removed:
-                  print(f"  - {_fn} (Repo: {_fr})")
+                    f"dieselbe Datei manuell in SOURCES/HONEYPOT_SOURCES "
+                    f"abgedeckt ist:")
+              for _fn, _fr, _ff in _auto_dedup_removed:
+                  print(f"  - {_fn} (Repo: {_fr}, Datei: {_ff})")
 
           # NEU v4: Meta-Tracking spiegelt rejected_repos. Bei jedem add() auch
           # rejected_meta updaten, bei discard() auch hier entfernen. Wird am
@@ -2706,6 +2697,7 @@ jobs:
                   and (_repo, item["path"]) not in _registered_files
                   and not _skip_path(item["path"])
                   and not _is_non_threat_file(item["path"])
+                  and item["path"].lower() not in SOURCES_COVERED_FILES.get(_repo.lower(), set())
               ]
 
               if not _new_files:
@@ -3306,6 +3298,20 @@ jobs:
                           for item in tree.get("tree", [])
                           if item.get("type") == "blob"
                       ]
+
+              # FIX AUTO-SYNC-SOURCES-FILELEVEL (2026-08-03): Dateien, die
+              # bereits exakt manuell in SOURCES/HONEYPOT_SOURCES abgedeckt
+              # sind, werden hier rausgefiltert - datei-genau, nicht
+              # repo-genau, damit andere (auch zukuenftig hinzukommende)
+              # Dateien im selben Repo weiterhin normal auffindbar bleiben.
+              # Schuetzt automatisch auch extra_files weiter unten, da
+              # _extra_candidates von derselben ip_files-Liste ableitet.
+              _covered_for_repo = SOURCES_COVERED_FILES.get(full_name.lower(), set())
+              if _covered_for_repo:
+                  all_blob_files = [
+                      item for item in all_blob_files
+                      if item["path"].lower() not in _covered_for_repo
+                  ]
 
               ip_files = [
                   item for item in all_blob_files
