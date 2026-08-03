@@ -1601,6 +1601,8 @@ jobs:
               # nur als Suchbegriffe ergaenzt, keine neue Regex-Erkennung noetig.
               "fortigate", "fortios", "fortinet-blocklist",
               "sophos-firewall", "sophos-xg", "third-party-threat-feed",
+              "juniper-srx", "srx-dynamic-address", "pfblockerng",
+              "watchguard", "barracuda-firewall",
               "cisco-firepower", "cisco-security-intelligence",
               "checkpoint-blocklist", "sonicwall-blocklist",
               "ip-feed", "malware", "malware-ip", "phishing", "bruteforce",
@@ -1723,6 +1725,9 @@ jobs:
               "cisco firepower security intelligence feed ip",
               "checkpoint custom intelligence feed ip",
               "sophos firewall threat feed ip",
+              "juniper srx dynamic address ip",
+              "pfblockerng ip feed blocklist",
+              "sonicwall threat feed ip",
               "external dynamic list ip blocklist",
               "pan-os edl malicious ip",
               "filename:malicious-ips.txt ip",
@@ -2215,7 +2220,8 @@ jobs:
               "edl", "external-dynamic-list", "pan-edl", "palo-alto",
               # NEU (2026-08-02): weitere Firewall-Hersteller
               "fortigate", "fortinet", "cisco-firepower", "checkpoint",
-              "sophos", "sophos-firewall",
+              "sophos", "sophos-firewall", "juniper-srx", "pfblockerng",
+              "sonicwall", "watchguard",
               # NEU: spezifischere Begriffe
               "attacker-ips", "scanner-ips", "bruteforce-ips",
               "threat-intelligence", "security-feed",
