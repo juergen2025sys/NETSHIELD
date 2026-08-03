@@ -221,6 +221,12 @@ jobs:
               "Fadouse/clash-threat-intel", "ashleykleynhans/ipset",
               "cypher139/ipblacklist", "hagezi/dns-blocklists",
               "ThreatsList/Palo-Alto-EDL", "yuexuan521/honeypot-blocklist",
+              # NEU (2026-08-03): Bei der Live-Pruefung als tatsaechlich
+              # existierende Duplikate bestaetigt (serp07_dude_blacklist_ip /
+              # fadouse_clash_threat_intel / fadouse_clash_threat_intel_c2
+              # wurden parallel zu den manuellen SOURCES-Eintraegen auto-
+              # entdeckt - Fadouse steht zwar schon oben, Serp07 fehlte).
+              "Serp07/dude_blacklist_ip",
               "firehol/blocklist-ipsets", "stamparm/ipsum", "stamparm/maltrail",
               "montysecurity/C2-Tracker", "drb-ra/C2IntelFeeds",
               "Gi7w0rm/CobaltStrikeC2Tracker", "borestad/blocklist-abuseipdb",
@@ -2365,6 +2371,36 @@ jobs:
           # ── Schritt 5: Kandidaten bewerten & IPs extrahieren ─────────────
           approved_feeds  = dict(existing_feeds)
           rejected_repos  = set(existing_rejected) | set(KNOWN_REPOS)
+
+          # FIX AUTO-DEDUP-EXISTING (2026-08-03): Automatische Bereinigung
+          # bereits registrierter Auto-Discovered-Feeds, die sich mit einer
+          # manuellen SOURCES-Quelle (update_combined_blacklist.yml)
+          # ueberschneiden. Ergaenzt AUTO-SYNC-SOURCES (verhindert nur neue
+          # Duplikate ab jetzt) um eine rueckwirkende Komponente: Bei der
+          # Live-Pruefung am 2026-08-03 wurden so 3 tatsaechlich bereits
+          # aktive Duplikate gefunden (serp07_dude_blacklist_ip,
+          # fadouse_clash_threat_intel, fadouse_clash_threat_intel_c2 - alle
+          # zogen exakt dieselbe Datei wie ein manueller SOURCES-Eintrag).
+          # Laeuft ab jetzt automatisch bei JEDEM Discovery-Lauf, damit
+          # zukuenftige Ueberschneidungen (z.B. durch Timing zwischen Auto-
+          # Discovery-Fund und manueller SOURCES-Ergaenzung) nicht wieder von
+          # Hand aufgespuert werden muessen. Nutzt KNOWN_REPOS_LOWER (enthaelt
+          # bereits die per AUTO-SYNC-SOURCES automatisch extrahierten
+          # SOURCES-Repos), Vergleich case-insensitive (siehe FIX
+          # AUTO-SYNC-CASEFOLD weiter oben fuer die Begruendung).
+          _auto_dedup_removed = []
+          for _fname in list(approved_feeds.keys()):
+              _frepo = approved_feeds[_fname].get("repo", "")
+              if _frepo and _frepo.lower() in KNOWN_REPOS_LOWER:
+                  _auto_dedup_removed.append((_fname, _frepo))
+                  del approved_feeds[_fname]
+          if _auto_dedup_removed:
+              print(f"AUTO-DEDUP-EXISTING: {len(_auto_dedup_removed)} bereits "
+                    f"registrierte(r) Auto-Feed(s) entfernt, da inzwischen "
+                    f"manuell in SOURCES abgedeckt:")
+              for _fn, _fr in _auto_dedup_removed:
+                  print(f"  - {_fn} (Repo: {_fr})")
+
           # NEU v4: Meta-Tracking spiegelt rejected_repos. Bei jedem add() auch
           # rejected_meta updaten, bei discard() auch hier entfernen. Wird am
           # Ende ins JSON geschrieben fuer TTL-Re-Try im naechsten Run.
