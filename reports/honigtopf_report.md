@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-08-03 05:55 CEST (Berlin)  
+**Aktualisiert:** 2026-08-03 06:52 CEST (Berlin)  
 **Modus:** `LIGHT` (nur /bad-hosts, merged mit existing)
 
 ---
@@ -30,4 +30,4 @@ Davon **heute (2026-08-03)**: **0** IPs
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-08-03 05:55 CEST (Berlin)*
+*Generiert: 2026-08-03 06:52 CEST (Berlin)*
