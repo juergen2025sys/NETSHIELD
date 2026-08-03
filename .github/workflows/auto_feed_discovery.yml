@@ -1600,6 +1600,7 @@ jobs:
               # Kommentare) - kein eigenes Dateiformat wie bei EDL/.rsc, daher
               # nur als Suchbegriffe ergaenzt, keine neue Regex-Erkennung noetig.
               "fortigate", "fortios", "fortinet-blocklist",
+              "sophos-firewall", "sophos-xg", "third-party-threat-feed",
               "cisco-firepower", "cisco-security-intelligence",
               "checkpoint-blocklist", "sonicwall-blocklist",
               "ip-feed", "malware", "malware-ip", "phishing", "bruteforce",
@@ -1721,6 +1722,7 @@ jobs:
               "fortigate threat feed blocklist",
               "cisco firepower security intelligence feed ip",
               "checkpoint custom intelligence feed ip",
+              "sophos firewall threat feed ip",
               "external dynamic list ip blocklist",
               "pan-os edl malicious ip",
               "filename:malicious-ips.txt ip",
@@ -2213,6 +2215,7 @@ jobs:
               "edl", "external-dynamic-list", "pan-edl", "palo-alto",
               # NEU (2026-08-02): weitere Firewall-Hersteller
               "fortigate", "fortinet", "cisco-firepower", "checkpoint",
+              "sophos", "sophos-firewall",
               # NEU: spezifischere Begriffe
               "attacker-ips", "scanner-ips", "bruteforce-ips",
               "threat-intelligence", "security-feed",
