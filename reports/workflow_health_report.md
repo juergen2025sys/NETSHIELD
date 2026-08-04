@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-04 04:28 UTC
+**Aktualisiert:** 2026-08-04 09:49 UTC
 
 **Workflows:** 23 | ✅ 20 OK | ⚠️ 2 Warnung | ❌ 3 Fehler
 
@@ -10,9 +10,9 @@
 |---|---|---|
 | `feed_overlap_report.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
 | `update_combined_blacklist.yml` | HIGH_QUALITY ↔ SOURCES Drift | hq=True in SOURCES aber nicht in HIGH_QUALITY: abuseipdb_tmiland, threatslist_paloalto_edl – IPs altern still aus (Bug-DP1) |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 114.1 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 114.2 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | `Production Health` | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
-| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 2,315 IPs in active fehlen in conf40 (0.541% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 3,682 IPs in active fehlen in conf40 (0.846% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 
 ## ⚠️ Warnungen
 
@@ -30,9 +30,9 @@
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 114.1 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 114.2 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
 | 🔴 CRITICAL | Push-Limit Naehe | state/seen_db_backup.json.gz.part000: 95.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
-| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 2,315 IPs in active fehlen in conf40 (0.541% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 3,682 IPs in active fehlen in conf40 (0.846% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 | 🟡 WARN | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 89.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
@@ -64,4 +64,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-04 04:28 UTC | 23 Workflow-Dateien geprüft*
+*Generiert: 2026-08-04 09:49 UTC | 23 Workflow-Dateien geprüft*
