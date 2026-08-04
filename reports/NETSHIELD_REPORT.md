@@ -1,28 +1,30 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-08-04 03:46 UTC
+**Aktualisiert:** 2026-08-04 04:38 UTC
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **8,245,753** | 2026-08-04 03:35 CEST (Europe/Berlin) |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **425,218** | 2026-08-04 03:35 CEST (Europe/Berlin) |
-| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **6,612,846** | 2026-08-04 01:40 UTC |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **50,384** | 2026-08-04 01:40 UTC |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **8,394,616** | 2026-08-04 05:55 CEST (Europe/Berlin) |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **427,649** | 2026-08-04 05:55 CEST (Europe/Berlin) |
+| ✅ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **6,615,162** | 2026-08-04 04:32 UTC |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **50,398** | 2026-08-04 04:32 UTC |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **29,801** | 2026-08-03 06:52 UTC |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,280,546** | 2026-08-04 03:47 CEST (Europe/Berlin) |
-| ✅ `honeypot_ips.txt` | Honeypot IPs | **173,636** | 2026-08-04 03:47 CEST (Europe/Berlin) |
-| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **11,859** | 2026-08-04 02:16 CEST (Europe/Berlin) |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,281,022** | 2026-08-04 05:48 CEST (Europe/Berlin) |
+| ✅ `honeypot_ips.txt` | Honeypot IPs | **173,506** | 2026-08-04 05:48 CEST (Europe/Berlin) |
+| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **13,927** | 2026-08-04 06:30 CEST (Europe/Berlin) |
 
 ---
-## 🔍 Feed Health: ✅ 121 OK | ⚠️ 0 leer | ❌ 0 Fehler
+## 🔍 Feed Health: ✅ 120 OK | ⚠️ 1 leer | ❌ 0 Fehler
 
-**🧊 Eingefroren (20):** `amitambekar_threats` 50T, `bbcan177` 50T, `binaryedge_scanners` 50T, `blacksnowdot_packets` 50T, `cloudzy` 50T, `et_block` 50T, `feodo_aggressive` 50T, `feodo_recommended` 50T, `firehol_level1` 50T, `l7_ddos` 50T…
+**⚠️ Leer:** `fadouse_malware`
+
+**🧊 Eingefroren (20):** `amitambekar_threats` 51T, `bbcan177` 51T, `binaryedge_scanners` 51T, `blacksnowdot_packets` 51T, `cloudzy` 51T, `et_block` 51T, `feodo_aggressive` 51T, `feodo_recommended` 51T, `firehol_level1` 51T, `l7_ddos` 51T…
 
 *19 davon ≥21 Tage → im Combined automatisch in Quarantäne (eingefrorene HQ-Feeds zählen nicht mehr als frische Bestätigung, betroffene IPs altern normal aus). Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
 
-*Letzter Check: 2026-08-03 04:24 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
+*Letzter Check: 2026-08-04 03:59 UTC – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -30,4 +32,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-08-04 03:46 UTC*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-08-04 04:38 UTC*
