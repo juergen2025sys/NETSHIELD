@@ -583,8 +583,13 @@ jobs:
               "cinsscore":                  ("https://cinsscore.com/list/ci-badguys.txt", True),
               "cinsarmy":                   ("https://cinsarmy.com/list/ci-badguys.txt", True),
               "greensnow":                  ("https://blocklist.greensnow.co/greensnow.txt", True),
-              "feodo_aggressive":           ("https://feodotracker.abuse.ch/downloads/ipblocklist_aggressive.txt", True),
-              "feodo_recommended":          ("https://feodotracker.abuse.ch/downloads/ipblocklist.txt", True),
+              # ENTFERNT (2026-08-04): feodo_aggressive/feodo_recommended -
+              # bestaetigt eingefroren (Live-Check: "Last updated: 2026-03-04",
+              # feodotracker.abuse.ch liefert seit Monaten praktisch keine neuen
+              # Eintraege mehr). Nicht ueber GitHub gehostet - kann von
+              # auto_feed_discovery.yml strukturell nie automatisch wiedergefunden
+              # werden (durchsucht nur GitHub/GitLab/Gitea). Bei Reaktivierung der
+              # Quelle muss der Eintrag manuell wieder ergaenzt werden.
               # NEU (2026-08-02): Palo Alto Networks EDL-Format, gefunden bei
               # der EDL-Suchreichweiten-Erweiterung in auto_feed_discovery.yml.
               # HQ=True auf Wunsch gesetzt - Vorbehalt: "ThreatsList" ist kein
@@ -647,7 +652,16 @@ jobs:
               "danger_bruteforce":          ("https://danger.rulez.sk/projects/bruteforceblocker/blist.php", True),
               "threatview_high_conf":       ("https://threatview.io/Downloads/IP-High-Confidence-Feed.txt", True),
               "florent_banned":             ("https://raw.githubusercontent.com/florentvinai/bad-ips-on-my-vps/refs/heads/main/banned_ips.txt", False),
-              "firehol_cybercrime":         ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/cybercrime.ipset", True),
+              # ENTFERNT (2026-08-04): firehol_cybercrime - bestaetigt
+              # eingefroren (Live-Check: "Source File Date" >5 Wochen alt,
+              # FireHOLs eigenes Wiki warnt: "You should not use the ipsets in
+              # this repo in production systems"). Nachbar-Komponenten wie
+              # dshield.netset/spamhaus_drop.netset sind laut Live-Check weiter
+              # aktiv - nur die Aggregations-Stufe cybercrime/level1/webclient
+              # scheint zu stocken. firehol/blocklist-ipsets wurde deshalb aus
+              # KNOWN_REPOS entfernt (siehe auto_feed_discovery.yml), damit die
+              # Auto-Discovery bei Bedarf sowohl diese Datei bei Reaktivierung
+              # als auch die weiterhin aktiven Einzelkomponenten finden kann.
               "firehol_anonymous":          ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_anonymous.netset", True),
               "dshield":                    ("https://www.dshield.org/block.txt", True),
               "cloudzy":                    ("https://raw.githubusercontent.com/CriticalPathSecurity/Public-Intelligence-Feeds/refs/heads/master/cloudzy.txt", True),
@@ -714,11 +728,20 @@ jobs:
               "urlhaus_ips":                ("https://urlhaus.abuse.ch/downloads/text/", True),
 
               # ── FireHOL & Emerging Threats ────────────────────────────────
-              "firehol_level1":             ("https://iplists.firehol.org/files/firehol_level1.netset", True),
+              # ENTFERNT (2026-08-04): firehol_level1 - bestaetigt eingefroren
+              # (Live-Check: "Source File Date" >5 Wochen alt). Nicht ueber
+              # GitHub gehostet (iplists.firehol.org) - kann von auto_feed_
+              # discovery.yml strukturell nie automatisch wiedergefunden
+              # werden. Bei Reaktivierung muss der Eintrag manuell wieder
+              # ergaenzt werden.
               "firehol_level2":             ("https://iplists.firehol.org/files/firehol_level2.netset", True),
               "firehol_level3":             ("https://iplists.firehol.org/files/firehol_level3.netset", True),
               "firehol_level4":             ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level4.netset", False),
-              "firehol_webclient":          ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_webclient.netset", True),
+              # ENTFERNT (2026-08-04): firehol_webclient - bestaetigt
+              # eingefroren, siehe Begruendung bei firehol_cybercrime weiter
+              # oben (firehol/blocklist-ipsets aus KNOWN_REPOS entfernt, damit
+              # auto_feed_discovery.yml diese Datei bei Reaktivierung wieder
+              # finden kann).
               "firehol_webserver":          ("https://iplists.firehol.org/files/firehol_webserver.netset", True),
               # firehol_proxies entfernt: komplett in firehol_anonymous enthalten
               # (laut FireHOL-Doku: anonymous = anonymous + dm_tor + firehol_proxies + tor_exits)
