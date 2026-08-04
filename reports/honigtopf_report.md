@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-08-04 06:30 CEST (Berlin)  
+**Aktualisiert:** 2026-08-04 09:12 CEST (Berlin)  
 **Modus:** `LIGHT` (nur /bad-hosts, merged mit existing)
 
 ---
@@ -7,27 +7,27 @@
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **10,146** |
+| Bad Hosts (24h, alle Dienste) | **10,830** |
 
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
 
-Davon **heute (2026-08-04)**: **3,153** IPs
+Davon **heute (2026-08-04)**: **4,732** IPs
 
 | last_seen | IPs |
 |---|---:|
-| 2026-08-04 | **3,153** |
-| 2026-08-03 | **6,993** |
+| 2026-08-04 | **4,732** |
+| 2026-08-03 | **6,098** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **13,927** |
-| Neu | **+243** |
+| Gesamt Honigtopf-IPs | **15,244** |
+| Neu | **+1,317** |
 | Entfernt | **-0** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-08-04 06:30 CEST (Berlin)*
+*Generiert: 2026-08-04 09:12 CEST (Berlin)*
