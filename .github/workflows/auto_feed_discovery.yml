@@ -2380,37 +2380,6 @@ jobs:
           approved_feeds  = dict(existing_feeds)
           rejected_repos  = set(existing_rejected) | set(KNOWN_REPOS)
 
-          # FIX AUTO-DEDUP-EXISTING (2026-08-03, datei-genau): Automatische
-          # Bereinigung bereits registrierter Auto-Discovered-Feeds, die sich
-          # mit einer manuellen SOURCES-/HONEYPOT_SOURCES-Quelle DATEI-GENAU
-          # ueberschneiden (nicht nur repo-genau - siehe Begruendung bei
-          # SOURCES_COVERED_FILES weiter oben: ein Repo-Level-Ausschluss
-          # wuerde auch andere, noch nicht manuell erfasste Dateien im
-          # selben Repo unauffindbar machen). Bei der Live-Pruefung am
-          # 2026-08-03 wurden so 3 tatsaechlich bereits aktive Duplikate
-          # gefunden (serp07_dude_blacklist_ip, fadouse_clash_threat_intel,
-          # fadouse_clash_threat_intel_c2 - alle zogen exakt dieselbe Datei
-          # wie ein manueller SOURCES-Eintrag). Laeuft ab jetzt automatisch
-          # bei JEDEM Discovery-Lauf.
-          _auto_dedup_removed = []
-          for _fname in list(approved_feeds.keys()):
-              _fentry = approved_feeds[_fname]
-              _frepo = _fentry.get("repo", "")
-              _ffile = _fentry.get("file", "")
-              if not _frepo or not _ffile:
-                  continue
-              _fkey = _frepo.lower()
-              if _ffile.lower() in SOURCES_COVERED_FILES.get(_fkey, set()):
-                  _auto_dedup_removed.append((_fname, _frepo, _ffile))
-                  del approved_feeds[_fname]
-          if _auto_dedup_removed:
-              print(f"AUTO-DEDUP-EXISTING: {len(_auto_dedup_removed)} bereits "
-                    f"registrierte(r) Auto-Feed(s) entfernt, da inzwischen "
-                    f"dieselbe Datei manuell in SOURCES/HONEYPOT_SOURCES "
-                    f"abgedeckt ist:")
-              for _fn, _fr, _ff in _auto_dedup_removed:
-                  print(f"  - {_fn} (Repo: {_fr}, Datei: {_ff})")
-
           # NEU v4: Meta-Tracking spiegelt rejected_repos. Bei jedem add() auch
           # rejected_meta updaten, bei discard() auch hier entfernen. Wird am
           # Ende ins JSON geschrieben fuer TTL-Re-Try im naechsten Run.
@@ -2589,6 +2558,44 @@ jobs:
               print(f"\nAls tot entfernt: {len(removed_stale)} Feeds: {', '.join(removed_stale)}")
           if removed_aged:
               print(f"Als stale entfernt (Datei >30d): {len(removed_aged)} Feeds: {', '.join(removed_aged)}")
+
+          # FIX AUTO-DEDUP-EXISTING (2026-08-03, datei-genau, Positions-Fix
+          # 2026-08-03b): Automatische Bereinigung bereits registrierter
+          # Auto-Discovered-Feeds, die sich mit einer manuellen SOURCES-/
+          # HONEYPOT_SOURCES-Quelle DATEI-GENAU ueberschneiden (nicht nur
+          # repo-genau - siehe Begruendung bei SOURCES_COVERED_FILES weiter
+          # oben: ein Repo-Level-Ausschluss wuerde auch andere, noch nicht
+          # manuell erfasste Dateien im selben Repo unauffindbar machen).
+          #
+          # WICHTIG: Muss NACH der REFRESH-Phase laufen, nicht davor. Erster
+          # Versuch (2026-08-03) platzierte diesen Block direkt nach
+          # approved_feeds = dict(existing_feeds), VOR der REFRESH-Phase -
+          # das crashte mit KeyError: 'fadouse_clash_threat_intel', weil die
+          # REFRESH-Phase ueber das unveraenderte existing_feeds iteriert und
+          # danach bedingungslos in approved_feeds[name] zurueckschreibt; war
+          # der Name durch die Bereinigung schon vorher entfernt, existierte
+          # der Schluessel beim Zurueckschreiben nicht mehr. Jetzt: erst
+          # REFRESH komplett durchlaufen lassen, danach bereinigen - und vor
+          # der Neuberechnung von existing_repo_set direkt darunter, damit
+          # bereinigte Duplikate dort korrekt nicht mehr mitgezaehlt werden.
+          _auto_dedup_removed = []
+          for _fname in list(approved_feeds.keys()):
+              _fentry = approved_feeds[_fname]
+              _frepo = _fentry.get("repo", "")
+              _ffile = _fentry.get("file", "")
+              if not _frepo or not _ffile:
+                  continue
+              _fkey = _frepo.lower()
+              if _ffile.lower() in SOURCES_COVERED_FILES.get(_fkey, set()):
+                  _auto_dedup_removed.append((_fname, _frepo, _ffile))
+                  del approved_feeds[_fname]
+          if _auto_dedup_removed:
+              print(f"AUTO-DEDUP-EXISTING: {len(_auto_dedup_removed)} bereits "
+                    f"registrierte(r) Auto-Feed(s) entfernt, da inzwischen "
+                    f"dieselbe Datei manuell in SOURCES/HONEYPOT_SOURCES "
+                    f"abgedeckt ist:")
+              for _fn, _fr, _ff in _auto_dedup_removed:
+                  print(f"  - {_fn} (Repo: {_fr}, Datei: {_ff})")
 
           existing_repo_set = {v.get("repo") for v in approved_feeds.values() if v.get("repo")}
 
