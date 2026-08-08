@@ -517,6 +517,13 @@ jobs:
               # "last" wird nie gesetzt → IPs altern trotz hq=True-Flag still
               # nach 180 Tagen aus, ohne dass es auffaellt.
               "threat_live",
+              # FIX BUG-DP1 (2026-08-08, workflow_health_checker.yml HIGH_QUALITY
+              # ↔ SOURCES Drift): threatslist_paloalto_edl und abuseipdb_tmiland
+              # hatten hq=True in SOURCES, fehlten aber hier. Exaktes BUG-DP1-
+              # Szenario: ip_in_hq blieb leer -> strongly_confirmed_today blieb
+              # False -> "last" wurde nie gesetzt -> IPs alterten trotz hq=True
+              # still nach 180 Tagen aus. Beide hier ergaenzt.
+              "threatslist_paloalto_edl", "abuseipdb_tmiland",
           }
 
           # ══════════════════════════════════════════════════════════════════

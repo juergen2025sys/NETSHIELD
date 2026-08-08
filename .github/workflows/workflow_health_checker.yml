@@ -2449,6 +2449,30 @@ jobs:
           _push_limit_crit_mb = 95
           _push_excluded_dirs = {".git", "node_modules", "__pycache__", ".github/cache"}
 
+          # FIX PH9-GITIGNORE: Die reine Verzeichnis-Heuristik kannte .gitignore
+          # nicht und meldete dadurch False Positives fuer Dateien, die bewusst
+          # NICHT getrackt werden (z.B. combined_threat_blacklist_ipv4.txt,
+          # blacklist_confidence40_ipv4.txt - siehe .gitignore-Kommentare
+          # "CHANGE ZWEI-FESTE-PARTS" / "FIX STOP-HISTORY-BLOAT": genau diese
+          # beiden Dateien wurden aus dem Tracking genommen, WEIL sie am
+          # 100-MB-Push-Limit haengen. Der Check schlug hier also auf ein
+          # Problem an, das bereits geloest ist). git ls-files liefert
+          # getrackte + nicht-ignorierte untracked Dateien - alles ausserhalb
+          # dieser Menge ist per .gitignore ausgeschlossen und wird nie gepusht.
+          import subprocess as _subprocess_ph9
+          _git_trackable = None
+          try:
+              _git_out = _subprocess_ph9.run(
+                  ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+                  capture_output=True, check=True, cwd=".",
+              )
+              _git_trackable = {
+                  p for p in _git_out.stdout.decode("utf-8", errors="ignore").split("\0") if p
+              }
+          except Exception as _exc:
+              print(f"::warning::git ls-files fehlgeschlagen ({_exc}) – Push-Limit-Check "
+                    f"faellt auf reine Verzeichnis-Heuristik ohne .gitignore-Filter zurueck.")
+
           def _is_tracked(_p):
               # Heuristik: nur Dateien die nicht in einem Exclude-Dir liegen
               # und nicht mit .tmp/.swp/.bak enden – das matcht das was
@@ -2462,6 +2486,9 @@ jobs:
               # Hidden-tmp-Dateien von write_*_atomic (Prefix '.' und Suffix '.tmp')
               _base = os.path.basename(_norm)
               if _base.startswith(".") and _base.endswith(".tmp"):
+                  return False
+              # .gitignore-Filter: nur Dateien, die git tatsaechlich pushen wuerde.
+              if _git_trackable is not None and _norm not in _git_trackable:
                   return False
               return True
 

@@ -92,7 +92,10 @@ jobs:
           today = now.date()
 
           if not os.path.exists(DB_FILE):
-              print("::error::seen_db.json nicht vorhanden.")
+              msg = "seen_db.json nicht vorhanden - kein Cache/Release-Backup verfuegbar."
+              print(f"::error::{msg}")
+              write_text_atomic(REPORT_FILE,
+                  f"# Seen-DB Expiry Forecast\n\n*{msg}*\n\n*Lauf: {now_str}*\n")
               sys.exit(1)
 
           # ── Leerungsschutz / Groessen-Sanity ────────────────────────────
@@ -102,8 +105,11 @@ jobs:
           _SEENDB_LIMIT = 5 * 1024 * 1024 * 1024
           _dsize = os.path.getsize(DB_FILE)
           if _dsize > _SEENDB_LIMIT:
-              print(f"::error::seen_db.json zu gross: {_dsize/1024/1024:.1f} MB - "
-                    f"moegliche Korruption, breche ab.")
+              msg = (f"seen_db.json zu gross: {_dsize/1024/1024:.1f} MB - "
+                     f"moegliche Korruption, breche ab.")
+              print(f"::error::{msg}")
+              write_text_atomic(REPORT_FILE,
+                  f"# Seen-DB Expiry Forecast\n\n*{msg}*\n\n*Lauf: {now_str}*\n")
               sys.exit(1)
 
           print(f"Lade {DB_FILE} ({_dsize/1024/1024:.1f} MB)...")
