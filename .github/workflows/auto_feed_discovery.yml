@@ -202,6 +202,16 @@ jobs:
           CONTENT_SNIFF_MAX_FILES    = 6
           CONTENT_SNIFF_MIN_BYTES    = 1024
           CONTENT_SNIFF_MIN_IPS      = MIN_FEED_IPS
+          # NEU (2026-08-08, Idee 2 aus Verbesserungsvorschlaege-Dokument):
+          # Externe-URL-Fallback. Manche Security-Repos hosten die eigentliche
+          # Blockliste gar nicht selbst, sondern verlinken nur auf eine externe
+          # Quelle (typisch in README.md oder Firewall-/Config-Dateien). Nur
+          # genutzt, wenn WEDER Dateiname noch Content-Sniffing im Repo selbst
+          # etwas gefunden haben - laeuft also nie zusaetzlich zum bisherigen
+          # Pfad, nur als letzter Versuch davor "Keine IP-Datei" zu vergeben.
+          EXTERNAL_URL_SCAN_MAX_FILES     = 3          # README + max. 2 Configs
+          EXTERNAL_URL_SCAN_SAMPLE_LIMIT  = 256 * 1024  # README/Config-Dateien sind i.d.R. klein
+          EXTERNAL_URL_RE = re.compile(r'https?://[^\s\'"<>()\[\]]+')
           # v2: groessere Feeds erneut pruefen + sichere Infrastruktur-Sublisten
           # aus bestehendem State entfernen.
           CONTENT_SNIFF_STATE_VERSION = 2
@@ -3489,12 +3499,81 @@ jobs:
                           })
                           ip_files.append(selected)
 
+              # NEU (2026-08-08, Idee 2 Verbesserungsvorschlaege): Externe-URL-
+              # Fallback. Nur wenn weder Dateiname noch Content-Sniffing im
+              # Repo SELBST etwas gefunden haben - README/Config-Dateien
+              # koennen trotzdem auf eine Blockliste auf einer ANDEREN Domain
+              # verlinken (Repo kuratiert/dokumentiert, hostet aber nicht
+              # selbst). Bewusst eng begrenzt (max. 3 Dateien, 256 KiB
+              # Stichprobe) - README ist der mit Abstand haeufigste Fundort,
+              # daher kein teurer Vollscan des ganzen Baums noetig.
+              if not ip_files:
+                  _readme_like = [
+                      item for item in all_blob_files
+                      if re.match(r'(?i)^readme(\.\w+)?$', item["path"].split("/")[-1])
+                      or os.path.splitext(item["path"])[1].lower()
+                         in (".yml", ".yaml", ".json", ".sh", ".conf", ".cfg")
+                  ]
+                  # README zuerst (haeufigster Fundort), kleinere Dateien vor
+                  # groesseren (schneller, meist reicht die erste README).
+                  _readme_like.sort(key=lambda x: (
+                      0 if re.match(r'(?i)^readme', x["path"].split("/")[-1]) else 1,
+                      int(x.get("size", 0) or 0),
+                  ))
+                  if _readme_like:
+                      _log_lines.append(
+                          f"  ℹ Kein Dateinamen-/Content-Treffer – Externe-URL-Scan "
+                          f"von max. {EXTERNAL_URL_SCAN_MAX_FILES} README/Config-Datei(en)"
+                      )
+                  for _src_candidate in _readme_like[:EXTERNAL_URL_SCAN_MAX_FILES]:
+                      if _check_timeout("External-URL-Scan") or ip_files:
+                          break
+                      _src_url = _raw_url_for_path(_src_candidate["path"])
+                      _src_text = fetch_raw(
+                          _src_url, limit=EXTERNAL_URL_SCAN_SAMPLE_LIMIT,
+                          timeout=12, allow_partial=True,
+                      )
+                      if not _src_text:
+                          continue
+                      for _ext_url in EXTERNAL_URL_RE.findall(_src_text):
+                          _ext_url = _ext_url.rstrip('.,;:)\'"')
+                          _ext_path = urllib.parse.urlparse(_ext_url).path
+                          _ext_filename = _ext_path.split("/")[-1]
+                          if not _ext_filename or not IP_FILE_PATTERNS.search(_ext_filename):
+                              continue
+                          if _is_non_threat_file(_ext_path):
+                              continue
+                          _ext_sample = fetch_raw(
+                              _ext_url, limit=CONTENT_SNIFF_SAMPLE_LIMIT,
+                              timeout=12, allow_partial=True,
+                          )
+                          if not _ext_sample:
+                              continue
+                          _ext_profile = _content_profile(_ext_sample, _ext_url)
+                          _log_lines.append(
+                              f"  {'✅' if _ext_profile['looks_like_feed'] else '↪'} "
+                              f"Externe URL in {_src_candidate['path']}: {_ext_url} – "
+                              f"{_ext_profile['unique_ips']} IPs, "
+                              f"{_ext_profile['ip_line_ratio']:.1%} IP-Zeilen – "
+                              f"{_ext_profile['reason']}"
+                          )
+                          if _ext_profile["looks_like_feed"]:
+                              ip_files.append({
+                                  "path": _ext_filename,
+                                  "size": 0,  # unbekannt - Download-Limit unten greift trotzdem
+                                  "detected_by": "external_url",
+                                  "external_url": _ext_url,
+                                  "external_source_file": _src_candidate["path"],
+                                  "sniff_unique_ips": _ext_profile["unique_ips"],
+                              })
+                              break  # ein Treffer pro README/Config-Datei reicht
+
               if not ip_files:
                   _log_lines.append(
-                      "  ❌ Keine IP-Datei per Dateiname oder Inhalt gefunden"
+                      "  ❌ Keine IP-Datei per Dateiname, Inhalt oder externer URL gefunden"
                   )
                   return {"action": "reject", "repo": _reject_key,
-                          "reason": "Keine IP-Datei (Name/Inhalt)", "logs": _log_lines,
+                          "reason": "Keine IP-Datei (Name/Inhalt/Extern)", "logs": _log_lines,
                           "platform": _platform}
 
               # Bei Content-Treffern gewinnt die groesste Stichproben-IP-Menge;
@@ -3507,7 +3586,10 @@ jobs:
                   reverse=True,
               )
               best_file = ip_files[0]
-              raw_url = _raw_url_for_path(best_file["path"])
+              raw_url = (
+                  best_file["external_url"] if best_file.get("detected_by") == "external_url"
+                  else _raw_url_for_path(best_file["path"])
+              )
 
               _clone_check_name = re.sub(r'[^a-z0-9_]', '_', full_name.lower().replace('/', '_'))
               if _is_blocked_clone_feed(
@@ -3533,43 +3615,63 @@ jobs:
               )
 
               # Kriterium 1b: Aktualität der IP-Datei selbst (max. 30 Tage)
-              time.sleep(0.5)
-              file_days_old = 999
-              if _platform == "gitlab" and _gl_id:
-                  _gl_commits = gitlab_api(
-                      f"/projects/{_gl_id}/repository/commits"
-                      f"?path={urllib.parse.quote(best_file['path'])}&per_page=1"
+              # NEU (2026-08-08): Bei external_url-Kandidaten ergibt eine
+              # Commit-Historien-Abfrage keinen Sinn - full_name/_gl_id
+              # beziehen sich auf das GEPRUEFTE Repo (README/Config), nicht
+              # auf die fremde Domain der externen URL. Eine Pruefung mit
+              # best_file["path"] (nur der Dateiname, kein echter Pfad in
+              # diesem Repo) wuerde entweder nichts finden (faelschlich
+              # 999 Tage -> Reject) oder schlimmstenfalls eine zufaellig
+              # gleichnamige Datei im falschen Repo treffen. Die Aktualitaet
+              # der externen Quelle laesst sich ueber die GH/GL-API nicht
+              # verifizieren - der bereits bestandene Repo-Aktualitaets-Check
+              # (Kriterium 1, oben) plus die nachgelagerten Inhalts-Checks
+              # (Groesse/FP-Rate) bleiben als Sicherheitsnetz bestehen.
+              if best_file.get("detected_by") == "external_url":
+                  _log_lines.append(
+                      "  ℹ IP-Datei-Aktualitaet: nicht prüfbar (externe Domain, "
+                      "keine Commit-Historie via API) - übersprungen"
                   )
-                  if _gl_commits and isinstance(_gl_commits, list) and _gl_commits:
-                      _date_str = _gl_commits[0].get("committed_date", "")
-                      try:
-                          _file_dt = datetime.strptime(
-                              _date_str[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                          file_days_old = (now - _file_dt).days
-                      except Exception:
-                          pass
+                  file_days_old = None
               else:
-                  file_commits = gh_api(
-                      f"/repos/{full_name}/commits"
-                      f"?path={urllib.parse.quote(best_file['path'])}&per_page=1"
-                  )
-                  if file_commits and isinstance(file_commits, list) and file_commits:
-                      file_date_str = (file_commits[0].get("commit", {})
-                                       .get("committer", {}).get("date", ""))
-                      try:
-                          file_dt = datetime.strptime(
-                              file_date_str[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                          file_days_old = (now - file_dt).days
-                      except Exception:
-                          pass
+                  time.sleep(0.5)
+                  file_days_old = 999
+                  if _platform == "gitlab" and _gl_id:
+                      _gl_commits = gitlab_api(
+                          f"/projects/{_gl_id}/repository/commits"
+                          f"?path={urllib.parse.quote(best_file['path'])}&per_page=1"
+                      )
+                      if _gl_commits and isinstance(_gl_commits, list) and _gl_commits:
+                          _date_str = _gl_commits[0].get("committed_date", "")
+                          try:
+                              _file_dt = datetime.strptime(
+                                  _date_str[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                              file_days_old = (now - _file_dt).days
+                          except Exception:
+                              pass
+                  else:
+                      file_commits = gh_api(
+                          f"/repos/{full_name}/commits"
+                          f"?path={urllib.parse.quote(best_file['path'])}&per_page=1"
+                      )
+                      if file_commits and isinstance(file_commits, list) and file_commits:
+                          file_date_str = (file_commits[0].get("commit", {})
+                                           .get("committer", {}).get("date", ""))
+                          try:
+                              file_dt = datetime.strptime(
+                                  file_date_str[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                              file_days_old = (now - file_dt).days
+                          except Exception:
+                              pass
 
-              if file_days_old > 30:
+              if file_days_old is not None and file_days_old > 30:
                   _log_lines.append(f"  ❌ IP-Datei veraltet: {file_days_old} Tage "
                                     f"(Repo-Push frisch, aber Blocklist stale)")
                   return {"action": "reject", "repo": _reject_key,
                           "reason": f"IP-Datei {file_days_old}d alt", "logs": _log_lines,
                           "platform": _platform}
-              _log_lines.append(f"  ✅ IP-Datei frisch: {file_days_old} Tage alt")
+              if file_days_old is not None:
+                  _log_lines.append(f"  ✅ IP-Datei frisch: {file_days_old} Tage alt")
 
               time.sleep(0.5)
               file_size = int(best_file.get("size", 0) or 0)
