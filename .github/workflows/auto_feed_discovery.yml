@@ -187,7 +187,22 @@ jobs:
           # Blocklisten zu knapp. Das neue Limit von 2 Mio. IPs deckt grosse
           # Aggregatoren ab, bleibt aber mit einem harten 64-MiB-Downloadlimit
           # gegen unkontrollierte Speicher-/Netzlast abgesichert.
-          MIN_FEED_IPS = 100
+          #
+          # NEU (2026-08-08, "soll mehr IP-Listen finden"): MIN_FEED_IPS von
+          # 100 auf 30 gesenkt - vereinfachte Variante von Idee 4 aus dem
+          # Verbesserungsvorschlaege-Dokument (kein volles Qualitaets-
+          # Scoring-Modell, nur die feste Schwelle gesenkt). Kandidaten
+          # werden ohnehin schon abgerufen/geprueft (Dateiname- oder
+          # Content-Sniff-Treffer) - diese Aenderung kostet KEINE
+          # zusaetzliche Laufzeit, nur eine grosszuegigere Annahme-
+          # Entscheidung. Manuell gefundene, echte kleine Honeypot-Feeds
+          # (z.B. zenmorro/Scanner-List mit 1.274 Eintraegen, siehe
+          # honeypot_monitor.yml) waeren mit der alten Schwelle zwar auch
+          # schon durchgekommen, aber kleinere legitime Einzelperson-
+          # Honeypots (20-99 Eintraege) wurden bisher rein wegen Groesse
+          # verworfen, unabhaengig von tatsaechlicher Qualitaet. 30 filtert
+          # weiterhin reine Test-/Demo-Dateien (<30) aus.
+          MIN_FEED_IPS = 30
           MAX_FEED_IPS = 2_000_000
           MAX_FEED_DOWNLOAD_BYTES = 64 * 1024 * 1024
           READ_LIMIT = MAX_FEED_DOWNLOAD_BYTES
