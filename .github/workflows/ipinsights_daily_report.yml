@@ -30,6 +30,9 @@ on:
     - cron: '30 4 * * *'  # 04:30 UTC, einmal taeglich
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
 
@@ -97,6 +100,23 @@ jobs:
           # separates Set fuer alle Membership-Checks (O(1) pro Check).
           current_ips_set = set(current_ips)
           print(f"{len(current_ips)} IPs aktuell in ipinsights.io-Blockliste")
+
+          # ── Leerungsschutz ────────────────────────────────────────────
+          # FIX HEALTH-CHECK (2026-08-08): ohne diesen Guard wuerde eine
+          # leere/kaputte Antwort von ipinsights.io (Netzwerkfehler liefert
+          # z.B. eine HTML-Fehlerseite statt der Liste, die durch den
+          # Kommentarfilter zufaellig komplett rausgefiltert wird) dazu
+          # fuehren, dass praktisch alle bisherigen IPs als "entfernt"
+          # gelten - der naechste echte Lauf wuerde sie dann faelschlich
+          # wieder als "neu" melden. Bei verdaechtig wenigen IPs: Snapshot/
+          # State NICHT anfassen, alter Stand bleibt bestehen, naechster
+          # Lauf versucht es erneut.
+          MIN_BLOCKLIST_IPS = 1000
+          if len(current_ips) < MIN_BLOCKLIST_IPS:
+              print(f"::warning::Nur {len(current_ips)} IPs geladen (< {MIN_BLOCKLIST_IPS}) - "
+                    f"vermutlich leere/kaputte Antwort. Snapshot/State werden NICHT aktualisiert, "
+                    f"naechster Lauf versucht es erneut.")
+              sys.exit(0)
 
           # ── Letzten Snapshot laden (Stand von gestern) ─────────────────
           os.makedirs("state", exist_ok=True)

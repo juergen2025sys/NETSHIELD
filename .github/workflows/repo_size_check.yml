@@ -13,6 +13,9 @@ name: Repo Groesse pruefen
 on:
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
 
@@ -73,6 +76,20 @@ jobs:
           if size_kb is None:
               print("::error::API-Antwort enthaelt kein 'size'-Feld.")
               sys.exit(1)
+
+          # ── Leerungsschutz ────────────────────────────────────────────
+          # FIX HEALTH-CHECK (2026-08-08): ein echtes Git-Repo mit dieser
+          # Historie/diesen Datenmengen ist niemals nur wenige KB gross -
+          # ein verdaechtig kleiner Wert deutet eher auf eine fehlerhafte/
+          # unvollstaendige API-Antwort hin (z.B. GitHub liefert 0 waehrend
+          # einer internen Neuberechnung) als auf eine echte Grössenaenderung.
+          # Lieber keinen Report schreiben als einen irrefuehrenden.
+          MIN_SIZE_KB = 100
+          if size_kb < MIN_SIZE_KB:
+              print(f"::warning::Verdaechtig kleine Groesse ({size_kb} KB < {MIN_SIZE_KB} KB) - "
+                    f"vermutlich unvollstaendige API-Antwort. Report wird NICHT geschrieben.")
+              sys.exit(0)
+
           size_mb = size_kb / 1024
           size_gb = size_kb / 1024 / 1024
 
