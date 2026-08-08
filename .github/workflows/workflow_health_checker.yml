@@ -1216,20 +1216,35 @@ jobs:
               # daher einmalig aus den committeten Parts rekonstruieren
               # (idempotent, guarded). Frische-/Sanity-Checks lesen bewusst
               # Part 1 (committet, echte mtime), s. weiter unten.
+              #
+              # FIX CONF40-BLINDSPOT (2026-08-08): Vorher wurde NUR
+              # combined_threat_blacklist_ipv4.txt rekonstruiert.
+              # blacklist_confidence40_ipv4.txt (seit 06.08. ebenfalls
+              # Parts-only, siehe .gitignore) fehlte hier komplett - dadurch
+              # scheiterte os.path.exists() fuer sie ueberall im Skript
+              # (Duplikat-Check/Check 36, Whitelist-Leak-Scan,
+              # Subset-Invarianten-Check), und diese Checks wurden fuer
+              # confidence40 STILL uebersprungen statt einen echten Befund
+              # zu liefern oder "nicht vorhanden" zu melden. Generalisiert
+              # auf eine Schleife ueber beide Parts-only-Produktdateien.
               import glob as _rc_glob_hc
-              _rc_main_hc = "combined_threat_blacklist_ipv4.txt"
-              if not os.path.exists(_rc_main_hc):
-                  _rc_parts_hc = sorted(_rc_glob_hc.glob(
-                      "combined_threat_blacklist_ipv4_part*.txt"))
-                  if _rc_parts_hc:
-                      _rc_bytes_hc = concatenate_files_atomic(
-                          _rc_main_hc, _rc_parts_hc
-                      )
-                      print(
-                          f"Rekonstruiert: {_rc_main_hc} aus "
-                          f"{len(_rc_parts_hc)} Part(s) "
-                          f"({_rc_bytes_hc:,} Bytes, atomar)"
-                      )
+              for _rc_main_hc in (
+                  "combined_threat_blacklist_ipv4.txt",
+                  "blacklist_confidence40_ipv4.txt",
+              ):
+                  if not os.path.exists(_rc_main_hc):
+                      _rc_base_hc, _rc_ext_hc = os.path.splitext(_rc_main_hc)
+                      _rc_parts_hc = sorted(_rc_glob_hc.glob(
+                          f"{_rc_base_hc}_part*{_rc_ext_hc}"))
+                      if _rc_parts_hc:
+                          _rc_bytes_hc = concatenate_files_atomic(
+                              _rc_main_hc, _rc_parts_hc
+                          )
+                          print(
+                              f"Rekonstruiert: {_rc_main_hc} aus "
+                              f"{len(_rc_parts_hc)} Part(s) "
+                              f"({_rc_bytes_hc:,} Bytes, atomar)"
+                          )
               # FIX TRUNCATE-PARTS-COUNT: Helper liefert IPs aus Hauptdatei +
               # allen Parts. Bei aktivem Truncate liegen Eintraege gezielt nur
               # in den Parts – Hauptdatei allein ist unvollstaendig. Identische
@@ -2154,7 +2169,7 @@ jobs:
               # (datei, warn_h, crit_h, beschreibung)
               ("active_blacklist_ipv4.txt",           6,  10, "Active Blacklist (Stufe 2)"),
               ("combined_threat_blacklist_ipv4_part1.txt",   6,  10, "Combined Blacklist (Stufe 1, Part 1)"),
-              ("blacklist_confidence40_ipv4.txt",      6,  10, "Confidence-40 Blacklist"),
+              ("blacklist_confidence40_ipv4_part1.txt",      6,  10, "Confidence-40 Blacklist"),
               ("reports/feed_health_report.md",               30,  50, "Feed Health Report"),
           ]
           for _fpath, _warn_h, _crit_h, _desc in _freshness_checks:
@@ -2192,7 +2207,7 @@ jobs:
               # (datei, min_warn, min_crit, beschreibung)
               ("combined_threat_blacklist_ipv4_part1.txt",   50_000,  10_000, "Combined Blacklist (Part 1)"),
               ("active_blacklist_ipv4.txt",             5_000,   1_000, "Active Blacklist"),
-              ("blacklist_confidence40_ipv4.txt",       5_000,   1_000, "Confidence-40 Blacklist"),
+              ("blacklist_confidence40_ipv4_part1.txt",       5_000,   1_000, "Confidence-40 Blacklist"),
               ("cve_exploit_ips.txt",                     500,     100, "CVE Exploit IPs"),
               ("honeypot_ips.txt",                        500,     100, "Honeypot IPs"),
               ("bot_detector_blacklist_ipv4.txt",          50,      10, "Bot-Detector"),
