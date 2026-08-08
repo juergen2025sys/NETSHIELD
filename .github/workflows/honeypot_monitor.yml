@@ -564,6 +564,17 @@ jobs:
 
               "tn3w_ipblocklist":
                   "https://github.com/tn3w/IPBlocklist/releases/latest/download/blocklist.netset",
+
+              # zenmorro/Scanner-List: Node.js-Honeypot-Feed (Einzelperson-
+              # Repo, kein bekannter/etablierter Betreiber). Live verifiziert
+              # am 08.08.2026: 1.274 Eintraege, frischer Zeitstempel im
+              # Header (Updated: 2026-08-08T04:00:01Z), reine IP-pro-Zeile-
+              # Liste (auch einzelne IPv6), kein Auth noetig. Klein, aber
+              # echter Honeypot-Fund, kein Aggregator - passt zum Muster der
+              # anderen kleinen Einzelperson-Honeypot-Feeds hier
+              # (crash0v3r1de_mikrotik, timgerstel_suspicious_ips).
+              "zenmorro_scanner_list":
+                  "https://raw.githubusercontent.com/zenmorro/Scanner-List/refs/heads/main/blocklist.txt",
           }
 
           # Auth-pflichtige Feeds: name -> LISTE von HTTP-Header-Dicts, in
