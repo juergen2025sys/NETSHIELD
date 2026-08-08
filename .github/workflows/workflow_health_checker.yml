@@ -562,7 +562,7 @@ jobs:
                   "honigtopf.yml", "honeypot_monitor.yml",
                   "update_bot_detector.yml", "update-blocklist.yml",
                   "update_combined_blacklist.yml", "geo_tagger.yml",
-                  "asn_reputation_scorer.yml", "cve_to_ip_mapper.yml",
+                  "cve_to_ip_mapper.yml",
                   "update_confidence_blacklist.yml", "false_positive_checker.yml",
                   "auto_feed_discovery.yml", "feed_health_monitor.yml",
               }
@@ -617,9 +617,6 @@ jobs:
                   },
                   "honeypot_monitor.yml": {
                       "MIN_ENTRIES": 500,
-                  },
-                  "asn_reputation_scorer.yml": {
-                      "MIN_ASN_RESULTS": 5,
                   },
                   "geo_tagger.yml": {
                       "MIN_GEO_MATCHED": 100,

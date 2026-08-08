@@ -316,6 +316,7 @@ jobs:
           import re
           import sys
           from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
 
           # ── Konstanten ────────────────────────────────────────────────────
           WORKFLOW_COUNT  = len([
@@ -406,7 +407,17 @@ jobs:
               except Exception:
                   return "–"
           feed_count = derive_feed_count()
-          now_str    = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+          # FIX README-DE-ZEIT: "Letztes Update" zeigte UTC, waehrend die
+          # Ausgabedateien (combined_threat_blacklist_ipv4*.txt etc.) bereits
+          # deutsche Ortszeit verwenden (siehe update_combined_blacklist.yml,
+          # "output_stamp_de"). Fuer Konsistenz jetzt ebenfalls Europe/Berlin,
+          # inkl. automatischem CET/CEST-Wechsel.
+          now_str = (
+              datetime.now(timezone.utc)
+              .astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z")
+              + " (Europe/Berlin)"
+          )
 
           # ── Neue Tabelleninhalte (HTML – passend zum README-Format) ───────
           # FIX README-HTML: Die README verwendet <table>-HTML, nicht Markdown-Pipes.
@@ -591,7 +602,12 @@ jobs:
               "reputation_blacklist.txt": ("reputation_blacklist.txt", lambda n: f"**{n:,}**"),
               "honeypot_ips.txt": ("honeypot_ips.txt", lambda n: f"**{n:,}**"),
               "honigtopf_ips.txt": ("honigtopf_ips.txt", lambda n: f"**{n:,}**"),
-              "asn_blocklist_firewall.txt": ("asn_blocklist_firewall.txt", lambda n: f"**{n:,}**"),
+              # FIX 2026-08-08: tweetfeed_ips.txt fehlte komplett in README_COUNTS.
+              # tweetfeed_monitor.yml aktualisiert die Datei taeglich (03:57 UTC),
+              # aber ohne diesen Eintrag hat der Report-Generator die README-Zahl
+              # nie angefasst - README zeigte dauerhaft einen alten Stand
+              # (11.360 statt real 9.350 IPs), analog zum confidence40-Bug.
+              "tweetfeed_ips.txt": ("tweetfeed_ips.txt", lambda n: f"**{n:,}**"),
           }
 
           if not os.path.exists("README.md"):
