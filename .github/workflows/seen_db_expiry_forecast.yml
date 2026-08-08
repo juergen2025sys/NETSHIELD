@@ -1,0 +1,276 @@
+name: Seen-DB Expiry Forecast
+
+# ============================================================================
+# Liest seen_db.json (Cache, mit GitHub-Release-Backup als Fallback - siehe
+# Chat-Verlauf zum Backup-Off-Git-Fix) und erstellt eine Prognose, wie viele
+# IPs in den naechsten Zeitfenstern aus der Blockliste fallen:
+#   - "active"-Eintraege (last = echtes Datum): 180-Tage-Expiry
+#     (EXPIRY_DAYS in update_combined_blacklist.yml)
+#   - "watchlist"-Eintraege (last = Sentinel "2000-01-01", first-basiert):
+#     30-Tage-Expiry (WATCHLIST_EXPIRY_DAYS in update_combined_blacklist.yml)
+#
+# Reine Lesepruefung - schreibt NICHTS in seen_db.json selbst, nur einen
+# Report. Beantwortet Fragen wie "wieviele IPs verlieren am 4.9. ihre
+# Bestaetigung" datenbasiert statt aus Vermutung.
+# ============================================================================
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 6 * * 1'  # woechentlich Montags 06:30 UTC
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: netshield-seen-db-writers
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  forecast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Restore seen_db Cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: seen_db.json
+          key: netshield-seen-db-v2-${{ github.run_id }}
+          restore-keys: |
+            netshield-seen-db-v2-
+            netshield-seen-db-v1-
+            netshield-seen-db-
+
+      - name: Restore seen_db Backup from GitHub Release (falls Cache leer)
+        if: hashFiles('seen_db.json') == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p state
+          if gh release download seen-db-backup \
+              --repo "${{ github.repository }}" \
+              --pattern "seen_db_backup.json.gz.part*" \
+              --dir state/ 2>/dev/null; then
+            COUNT=$(ls state/seen_db_backup.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+            echo "seen_db Backup von Release geladen: ${COUNT} Part(s)"
+            cat state/seen_db_backup.json.gz.part* > state/seen_db_backup.json.gz
+            gzip -dc state/seen_db_backup.json.gz > seen_db.json
+            echo "seen_db.json aus Release-Backup entpackt: $(du -h seen_db.json | cut -f1)"
+          else
+            echo "::error::Weder Cache noch Release-Backup verfuegbar - kein seen_db.json zum Auswerten."
+            exit 1
+          fi
+
+      - name: Expiry-Prognose erstellen
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python3 << 'EOF'
+          import json, os, sys
+          sys.path.insert(0, "scripts")
+          from netshield_common import write_text_atomic
+          from datetime import datetime, timezone, timedelta, date
+
+          DB_FILE     = "seen_db.json"
+          REPORT_FILE = "reports/seen_db_expiry_forecast.md"
+          # Werte aus update_combined_blacklist.yml uebernommen (dort die
+          # tatsaechliche Quelle der Wahrheit - hier nur gespiegelt, damit
+          # die Prognose exakt zu deren Ablauflogik passt).
+          EXPIRY_DAYS           = 180
+          WATCHLIST_EXPIRY_DAYS = 30
+          now = datetime.now(timezone.utc)
+          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+          today = now.date()
+
+          if not os.path.exists(DB_FILE):
+              print("::error::seen_db.json nicht vorhanden.")
+              sys.exit(1)
+
+          # ── Leerungsschutz / Groessen-Sanity ────────────────────────────
+          # Gleicher 5-GiB-Cap wie in update_combined_blacklist.yml
+          # (_SEENDB_LIMIT) - Schutz gegen korrupte/boesartige Datei.
+          MIN_ENTRIES = 100_000
+          _SEENDB_LIMIT = 5 * 1024 * 1024 * 1024
+          _dsize = os.path.getsize(DB_FILE)
+          if _dsize > _SEENDB_LIMIT:
+              print(f"::error::seen_db.json zu gross: {_dsize/1024/1024:.1f} MB - "
+                    f"moegliche Korruption, breche ab.")
+              sys.exit(1)
+
+          print(f"Lade {DB_FILE} ({_dsize/1024/1024:.1f} MB)...")
+          with open(DB_FILE) as f:
+              db = json.load(f)
+          print(f"{len(db):,} IPs geladen")
+
+          if len(db) < MIN_ENTRIES:
+              print(f"::warning::Nur {len(db)} Eintraege (< {MIN_ENTRIES}) - "
+                    f"seen_db wirkt unvollstaendig. Report wird trotzdem "
+                    f"erstellt, aber mit Vorsicht zu interpretieren.")
+
+          # ── Buckets fuer aktive Eintraege (last = echtes Datum) ─────────
+          # Zeitfenster: bereits ueberfaellig (Bug-Indikator, sollte 0 sein -
+          # Cleanup-Pass in update_combined_blacklist.yml raeumt das auf),
+          # 0-7 / 8-14 / 15-30 / 31-60 / 61-90 / 91-180 Tage bis Ablauf,
+          # sowie "kein Ablauf in Sicht" (>180 Tage, kann bei falscher
+          # Datenlage theoretisch vorkommen, praktisch nicht bei korrektem
+          # last<=heute).
+          buckets_active = {
+              "bereits ueberfaellig (Cleanup-Pass sollte das entfernen)": 0,
+              "0-7 Tage": 0, "8-14 Tage": 0, "15-30 Tage": 0,
+              "31-60 Tage": 0, "61-90 Tage": 0, "91-180 Tage": 0,
+          }
+          # Watchlist-Eintraege (last=Sentinel, first-basiert, 30-Tage-Fenster)
+          buckets_watch = {
+              "bereits ueberfaellig": 0,
+              "0-3 Tage": 0, "4-7 Tage": 0, "8-14 Tage": 0, "15-30 Tage": 0,
+          }
+          corrupt = 0
+          active_total = 0
+          watch_total = 0
+          # Fuer die konkrete "was passiert am Datum X"-Frage: Zaehler pro
+          # Ablaufdatum, damit Ausreisser-Tage (z.B. durch einen einmaligen
+          # Massenimport) sichtbar werden statt nur in groben Buckets zu
+          # verschwinden.
+          per_expiry_date = {}
+
+          def _bucket_days(days_left, buckets, edges):
+              if days_left < 0:
+                  return list(buckets.keys())[0]
+              for i, edge in enumerate(edges):
+                  if days_left <= edge:
+                      return list(buckets.keys())[i + 1]
+              return list(buckets.keys())[-1]
+
+          ACTIVE_EDGES = [7, 14, 30, 60, 90, 180]
+          WATCH_EDGES  = [3, 7, 14, 30]
+
+          for ip, entry in db.items():
+              try:
+                  if not isinstance(entry, dict):
+                      corrupt += 1
+                      continue
+                  last_str = entry.get("last", "2000-01-01")
+                  if last_str == "2000-01-01":
+                      # Watchlist-Pfad: first-basiert, 30 Tage
+                      first_str = entry.get("first", last_str)
+                      try:
+                          first_dt = datetime.strptime(first_str, "%Y-%m-%d").date()
+                      except Exception:
+                          corrupt += 1
+                          continue
+                      expiry_date = first_dt + timedelta(days=WATCHLIST_EXPIRY_DAYS)
+                      days_left = (expiry_date - today).days
+                      watch_total += 1
+                      buckets_watch[_bucket_days(days_left, buckets_watch, WATCH_EDGES)] += 1
+                  else:
+                      try:
+                          last_dt = datetime.strptime(last_str, "%Y-%m-%d").date()
+                      except Exception:
+                          corrupt += 1
+                          continue
+                      expiry_date = last_dt + timedelta(days=EXPIRY_DAYS)
+                      days_left = (expiry_date - today).days
+                      active_total += 1
+                      buckets_active[_bucket_days(days_left, buckets_active, ACTIVE_EDGES)] += 1
+                      # Nur nahe Ablauftermine (<=60 Tage) einzeln zaehlen -
+                      # weiter in der Zukunft liegende Tage sind fuer eine
+                      # konkrete Tages-Prognose noch nicht relevant und
+                      # wuerden die Tabelle nur aufblaehen.
+                      if 0 <= days_left <= 60:
+                          key = expiry_date.isoformat()
+                          per_expiry_date[key] = per_expiry_date.get(key, 0) + 1
+              except Exception:
+                  corrupt += 1
+                  continue
+
+          if corrupt:
+              print(f"WARN: {corrupt} korrupte/unlesbare Eintraege uebersprungen")
+          print(f"Aktive Eintraege: {active_total:,} | Watchlist-Eintraege: {watch_total:,}")
+
+          # ── Report bauen ──────────────────────────────────────────────
+          lines = [
+              "# Seen-DB Expiry Forecast",
+              "",
+              f"Lauf: {now_str}",
+              f"Gesamt: {len(db):,} IPs in seen_db.json "
+              f"({active_total:,} aktiv/180-Tage-Pfad, {watch_total:,} Watchlist/30-Tage-Pfad"
+              + (f", {corrupt} korrupt uebersprungen" if corrupt else "") + ")",
+              "",
+              "## Aktive IPs (180-Tage-Fenster) – wann faellt die Bestaetigung aus?",
+              "",
+              "| Zeitfenster | Anzahl IPs |",
+              "|---|---:|",
+          ]
+          for k, v in buckets_active.items():
+              lines.append(f"| {k} | {v:,} |")
+
+          lines += [
+              "",
+              "## Watchlist-IPs (30-Tage-Fenster) – wann faellt die Erstsichtung aus?",
+              "",
+              "| Zeitfenster | Anzahl IPs |",
+              "|---|---:|",
+          ]
+          for k, v in buckets_watch.items():
+              lines.append(f"| {k} | {v:,} |")
+
+          if per_expiry_date:
+              lines += [
+                  "",
+                  "## Konkrete Ablauftermine, aktive IPs, naechste 60 Tage",
+                  "",
+                  "Zeigt einzelne Tage mit ueberdurchschnittlich vielen "
+                  "gleichzeitig ablaufenden IPs (z.B. durch einen "
+                  "einmaligen Massenimport an einem bestimmten Tag vor "
+                  "180 Tagen).",
+                  "",
+                  "| Datum | Anzahl IPs, die an diesem Tag ihre Bestaetigung verlieren |",
+                  "|---|---:|",
+              ]
+              for d in sorted(per_expiry_date.keys()):
+                  lines.append(f"| {d} | {per_expiry_date[d]:,} |")
+
+          write_text_atomic(REPORT_FILE, "\n".join(lines) + "\n")
+          print(f"\nReport geschrieben: {REPORT_FILE}")
+          EOF
+
+      - name: Commit and Push
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports/seen_db_expiry_forecast.md 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Seen-DB Expiry Forecast: $(date -u '+%Y-%m-%d %H:%M UTC')"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                git checkout --theirs reports/seen_db_expiry_forecast.md 2>/dev/null || true
+                git add reports/seen_db_expiry_forecast.md 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi
