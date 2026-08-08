@@ -47,8 +47,26 @@ on:
     # mit deren concurrency-Gruppe zu riskieren.
     - cron: '15 3 1 * *'
 
+# FIX HEALTH-CHECK (2026-08-08): env-Block ergaenzt, analog zu den anderen
+# Haupt-Workflows im Repo (z.B. update_combined_blacklist.yml). Ohne diese
+# Variable kann es bei den in Actions-Runnern verwendeten JavaScript-
+# Actions zu Node.js-Kompatibilitaetsproblemen kommen.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
+
+# FIX HEALTH-CHECK (2026-08-08): concurrency-Block ergaenzt. Ohne den
+# koennten ein manueller workflow_dispatch-Lauf und der monatliche
+# schedule-Lauf theoretisch gleichzeitig laufen und sich beim Force-Push
+# gegenseitig ueberschreiben/Race-Condition erzeugen. Eigene Gruppe (nicht
+# die netshield-seen-db-writers-Gruppe der anderen Workflows), weil dieser
+# Workflow keine der dortigen Dateien schreibt - nur sich selbst gegen
+# parallele Laeufe absichern.
+concurrency:
+  group: netshield-history-fresh-start
+  cancel-in-progress: false
 
 jobs:
   fresh-start:
