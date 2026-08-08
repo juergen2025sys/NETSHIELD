@@ -537,19 +537,26 @@ jobs:
           import re
 
           def count_ips(filepath):
-              # FIX COMBINED-PARTS-COUNT: Die Combined-Liste wird nur noch als
-              # zwei kanonische Parts committet. Deshalb muessen die Parts auch
-              # dann gezaehlt werden, wenn die fruehere Hauptdatei fehlt.
-              # Existiert eine rekonstruierte Combined-Hauptdatei im Runner,
-              # werden nur die Parts gelesen, damit dieselben ~7 Mio. IPs nicht
-              # dreifach (Hauptdatei + Part 1 + Part 2) verarbeitet werden.
+              # FIX COMBINED-PARTS-COUNT (generalisiert 2026-08-08): Mehrere
+              # Hauptdateien werden inzwischen nur noch als kanonische Parts
+              # committet (combined_threat_blacklist_ipv4.txt UND seit dem
+              # .gitignore-Fix "STOP-HISTORY-BLOAT" vom 2026-08-06 auch
+              # blacklist_confidence40_ipv4.txt). Der Fallback war zuvor hart
+              # auf den Combined-Dateinamen verdrahtet - fuer jede weitere
+              # Datei, deren Hauptdatei aus dem Tracking genommen wird, gab
+              # count_ips() sonst None zurueck und der README-Eintrag wurde
+              # committet still uebersprungen (eingefrorene Zahl, ohne
+              # Fehlermeldung). Jetzt generisch: Existiert eine rekonstruierte
+              # Hauptdatei im Runner, werden Hauptdatei + Parts gezaehlt
+              # (dedupliziert ueber ein Set); fehlt die Hauptdatei aber Parts
+              # sind vorhanden, werden ausschliesslich die Parts gezaehlt.
               import glob as _glob
               _base, _ext = os.path.splitext(filepath)
               _parts = sorted(_glob.glob(f"{_base}_part*{_ext}"))
-              if filepath == "combined_threat_blacklist_ipv4.txt" and _parts:
-                  _sources = _parts
-              elif os.path.exists(filepath):
+              if os.path.exists(filepath):
                   _sources = [filepath] + _parts
+              elif _parts:
+                  _sources = _parts
               else:
                   return None
 
@@ -566,12 +573,18 @@ jobs:
               return len(_seen)
 
           # Wert: (Quelldatei fuer die Zaehlung, Link-Ziel als README-Anker,
-          # Formatierung). Bei Combined wird aus beiden kanonischen Parts gezaehlt,
-          # die Tabellenzeile aber ueber den Part-1-Link gefunden.
+          # Formatierung). Bei Combined UND Confidence40 wird aus den
+          # kanonischen Parts gezaehlt, die Tabellenzeile aber ueber den
+          # Part-1-Link gefunden (README verlinkt seit dem jeweiligen
+          # Split-Umstieg nur noch auf "..._part1.txt", der alte Dateiname
+          # kommt im README gar nicht mehr vor - FIX 2026-08-08: Anker fuer
+          # blacklist_confidence40_ipv4.txt war beim Split-Umstieg vom
+          # 2026-08-06 nicht mitgezogen worden, wodurch die Regex nie
+          # matchte und die README-Zahl seither eingefroren blieb).
           README_COUNTS = {
               "combined_threat_blacklist_ipv4.txt": ("combined_threat_blacklist_ipv4_part1.txt", lambda n: f"**{n:,}**"),
               "active_blacklist_ipv4.txt": ("active_blacklist_ipv4.txt", lambda n: f"**{n:,}**"),
-              "blacklist_confidence40_ipv4.txt": ("blacklist_confidence40_ipv4.txt", lambda n: f"**{n:,}**"),
+              "blacklist_confidence40_ipv4.txt": ("blacklist_confidence40_ipv4_part1.txt", lambda n: f"**{n:,}**"),
               "watchlist_confidence25to39_ipv4.txt": ("watchlist_confidence25to39_ipv4.txt", lambda n: f"**{n:,}**"),
               "cve_exploit_ips.txt": ("cve_exploit_ips.txt", lambda n: f"**{n:,}**"),
               "bot_detector_blacklist_ipv4.txt": ("bot_detector_blacklist_ipv4.txt", lambda n: f"**{n:,}**"),
