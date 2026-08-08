@@ -1,36 +1,24 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-08 13:54 UTC
+**Aktualisiert:** 2026-08-08 19:41 UTC
 
-**Workflows:** 27 | ✅ 23 OK | ⚠️ 2 Warnung | ❌ 4 Fehler
+**Workflows:** 26 | ✅ 23 OK | ⚠️ 4 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `feed_overlap_report.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
-| `seen_db_expiry_forecast.yml` | Report nach Guard-Exit | Block 0 L~30: sys.exit(1) vor Report/Status-Write (reports/seen_db_expiry_forecast.md) – stale Report moeglich trotz Commit-Step mit if: always() |
-| `update_combined_blacklist.yml` | HIGH_QUALITY ↔ SOURCES Drift | hq=True in SOURCES aber nicht in HIGH_QUALITY: abuseipdb_tmiland, threatslist_paloalto_edl – IPs altern still aus (Bug-DP1) |
-| `Production Health` | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 95.3 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 119.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
-
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
 | `auto_feed_discovery.yml` | timeout-minutes fehlt | Job 'discover' hat kein timeout-minutes – haengende Runs verbrauchen bis zu 360min |
 | `feed_overlap_report.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
+| `update_combined_blacklist.yml` | HIGH_QUALITY ↔ SOURCES Drift | In HIGH_QUALITY aber nicht hq=True in SOURCES: cloudzy, et_block, feodo_aggressive, feodo_recommended, firehol_cybercrime, firehol_level1, firehol_webclient – toter Code |
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 2 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "threatslist_paloalto_edl" (https://threatslist.github.io/Palo-Alto-EDL/edl_list.txt); "threat_live" (https://list.threat.live/) |
-| `Cross-Workflow` | Doppelte Feed-URLs | 2 URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: blocklist.txt in honeypot_monitor.yml+ipinsights_daily_report.yml; greylist-latest.csv in honeypot_monitor.yml+update_combined_blacklist.yml |
+| `Cross-Workflow` | Doppelte Feed-URLs | 1 URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: greylist-latest.csv in honeypot_monitor.yml+update_combined_blacklist.yml |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🔴 CRITICAL | Push-Limit Naehe | blacklist_confidence40_ipv4.txt: 95.3 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
-| 🔴 CRITICAL | Push-Limit Naehe | combined_threat_blacklist_ipv4.txt: 119.0 MB (>= 95 MB) – naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen. |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -44,16 +32,15 @@
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `feed_ip_finder.yml` | ✅ OK | 0 | 0 | – |
-| `feed_overlap_report.yml` | ❌ | 1 | 1 | `25 3 * * 0` |
+| `feed_overlap_report.yml` | ⚠️ | 0 | 1 | `25 3 * * 0` |
 | `history_fresh_start.yml` | ✅ OK | 0 | 0 | `15 3 1 * *` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 5,11,17,23 * * *` |
 | `honigtopf.yml` | ✅ OK | 0 | 0 | `15 22 * * *` |
-| `ipinsights_daily_report.yml` | ✅ OK | 0 | 0 | `30 4 * * *` |
 | `netshield_report_generator.yml` | ✅ OK | 0 | 0 | `30 * * * *` |
 | `repo_size_check.yml` | ✅ OK | 0 | 0 | – |
 | `run_tests.yml` | ✅ OK | 0 | 0 | – |
 | `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
-| `seen_db_expiry_forecast.yml` | ❌ | 1 | 0 | `30 6 * * 1` |
+| `seen_db_expiry_forecast.yml` | ✅ OK | 0 | 0 | `30 6 * * 1` |
 | `tweetfeed_monitor.yml` | ✅ OK | 0 | 0 | `45 2 * * *` |
 | `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 1 * * 1`, `30 1 * * 3` |
 | `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
@@ -65,4 +52,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-08 13:54 UTC | 27 Workflow-Dateien geprüft*
+*Generiert: 2026-08-08 19:41 UTC | 26 Workflow-Dateien geprüft*

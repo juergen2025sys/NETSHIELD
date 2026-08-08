@@ -1,36 +1,10 @@
 {
-  "updated": "2026-08-08 13:54 UTC",
-  "total": 27,
+  "updated": "2026-08-08 19:41 UTC",
+  "total": 26,
   "ok": 23,
-  "warn": 2,
-  "error": 4,
-  "errors": [
-    {
-      "file": "feed_overlap_report.yml",
-      "check": "persist-credentials fehlt",
-      "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
-    },
-    {
-      "file": "seen_db_expiry_forecast.yml",
-      "check": "Report nach Guard-Exit",
-      "detail": "Block 0 L~30: sys.exit(1) vor Report/Status-Write (reports/seen_db_expiry_forecast.md) \u2013 stale Report moeglich trotz Commit-Step mit if: always()"
-    },
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "HIGH_QUALITY \u2194 SOURCES Drift",
-      "detail": "hq=True in SOURCES aber nicht in HIGH_QUALITY: abuseipdb_tmiland, threatslist_paloalto_edl \u2013 IPs altern still aus (Bug-DP1)"
-    },
-    {
-      "file": "Production Health",
-      "check": "Push-Limit Naehe",
-      "detail": "blacklist_confidence40_ipv4.txt: 95.3 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
-    },
-    {
-      "file": "Production Health",
-      "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4.txt: 119.0 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
-    }
-  ],
+  "warn": 4,
+  "error": 0,
+  "errors": [],
   "warnings": [
     {
       "file": "auto_feed_discovery.yml",
@@ -44,38 +18,32 @@
     },
     {
       "file": "update_combined_blacklist.yml",
+      "check": "HIGH_QUALITY \u2194 SOURCES Drift",
+      "detail": "In HIGH_QUALITY aber nicht hq=True in SOURCES: cloudzy, et_block, feodo_aggressive, feodo_recommended, firehol_cybercrime, firehol_level1, firehol_webclient \u2013 toter Code"
+    },
+    {
+      "file": "update_combined_blacklist.yml",
       "check": "Untrusted Feed hq=True",
       "detail": "2 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"threatslist_paloalto_edl\" (https://threatslist.github.io/Palo-Alto-EDL/edl_list.txt); \"threat_live\" (https://list.threat.live/)"
     },
     {
       "file": "Cross-Workflow",
       "check": "Doppelte Feed-URLs",
-      "detail": "2 URL(s) in mehreren Workflows \u2013 today_count Aufblaehung moeglich: blocklist.txt in honeypot_monitor.yml+ipinsights_daily_report.yml; greylist-latest.csv in honeypot_monitor.yml+update_combined_blacklist.yml"
+      "detail": "1 URL(s) in mehreren Workflows \u2013 today_count Aufblaehung moeglich: greylist-latest.csv in honeypot_monitor.yml+update_combined_blacklist.yml"
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4377752,
-    "active_blacklist_ipv4.txt": 747259,
-    "blacklist_confidence40_ipv4_part1.txt": 3505703,
+    "combined_threat_blacklist_ipv4_part1.txt": 4380352,
+    "active_blacklist_ipv4.txt": 752855,
+    "blacklist_confidence40_ipv4_part1.txt": 3508142,
     "cve_exploit_ips.txt": 29411,
-    "honeypot_ips.txt": 1138176,
-    "bot_detector_blacklist_ipv4.txt": 1285964
+    "honeypot_ips.txt": 1139379,
+    "bot_detector_blacklist_ipv4.txt": 1286486
   },
   "production_health": {
-    "critical": 2,
+    "critical": 0,
     "warn": 0,
-    "checks": [
-      {
-        "level": "CRITICAL",
-        "check": "Push-Limit Naehe",
-        "detail": "blacklist_confidence40_ipv4.txt: 95.3 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
-      },
-      {
-        "level": "CRITICAL",
-        "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4.txt: 119.0 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
-      }
-    ]
+    "checks": []
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
