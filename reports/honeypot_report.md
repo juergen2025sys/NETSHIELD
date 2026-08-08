@@ -1,13 +1,13 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-08-08 22:09 CEST (Berlin)
+**Aktualisiert:** 2026-08-08 22:15 CEST (Berlin)
 
 ---
 | Quelle | IPs | Neu | Frische |
 |---|---|---|---|
 | ✅ `ipsum_level4` | 6765 | +0 | 🔴 EINGEFROREN (seit 2026-08-08 03:40 CEST (Berlin), 34 Laeufe unveraendert) |
 | ✅ `dshield_1d` | 33 | +0 | 🟡 traege (seit 2026-08-08 13:01 CEST (Berlin), 18 Laeufe unveraendert) |
-| ✅ `blocklist_de_bots` | 3000 | +0 | 🟢 aktuell (seit 2026-08-08 22:02 CEST (Berlin)) |
-| ✅ `blocklist_de_bruteforce` | 2776 | +0 | 🟢 aktuell (seit 2026-08-08 22:02 CEST (Berlin)) |
+| ✅ `blocklist_de_bots` | 2966 | +24 | 🟢 neu (2026-08-08 22:15 CEST (Berlin)) |
+| ✅ `blocklist_de_bruteforce` | 2771 | +1 | 🟢 neu (2026-08-08 22:15 CEST (Berlin)) |
 | ✅ `jamesbrine_honeypot` | 31295 | +0 | 🔴 EINGEFROREN (seit 2026-08-07 21:29 CEST (Berlin), 45 Laeufe unveraendert) |
 | ✅ `stratosphere_aip` | 10639 | +0 | 🔴 EINGEFROREN (seit 2026-08-07 21:29 CEST (Berlin), 45 Laeufe unveraendert) |
 | ✅ `stratosphere_aip_alpha7` | 29204 | +0 | 🔴 EINGEFROREN (seit 2026-08-07 21:29 CEST (Berlin), 45 Laeufe unveraendert) |
@@ -17,9 +17,9 @@
 | ✅ `turris_greylist` | 10104 | +0 | 🔴 EINGEFROREN (seit 2026-08-08 00:50 CEST (Berlin), 38 Laeufe unveraendert) |
 | ✅ `timgerstel_suspicious_ips` | 1652 | +0 | 🟢 aktuell (seit 2026-08-08 21:08 CEST (Berlin)) |
 | ✅ `sniffcat` | 27666 | +0 | 🟢 aktuell (seit 2026-08-08 21:53 CEST (Berlin)) |
-| ✅ `siberkapan` | 36986 | +1 | 🟢 neu (2026-08-08 22:09 CEST (Berlin)) |
-| ✅ `reportedip` | 9980 | +1 | 🟢 neu (2026-08-08 22:09 CEST (Berlin)) |
-| ✅ `ipinsights` | 603303 | +0 | 🟢 aktuell (seit 2026-08-08 18:21 CEST (Berlin)) |
+| ✅ `siberkapan` | 36986 | +1 | 🟢 neu (2026-08-08 22:15 CEST (Berlin)) |
+| ✅ `reportedip` | 9980 | +1 | 🟢 neu (2026-08-08 22:15 CEST (Berlin)) |
+| ✅ `ipinsights` | 604339 | +1916 | 🟢 neu (2026-08-08 22:15 CEST (Berlin)) |
 | ✅ `bitwire_ip_list_fetch` | 31452 | +0 | 🟡 traege (seit 2026-08-08 10:08 CEST (Berlin), 23 Laeufe unveraendert) |
 | ✅ `configserverapps_365d` | 38773 | +0 | 🟢 aktuell (seit 2026-08-08 19:02 CEST (Berlin)) |
 | ✅ `kamalmjt_emerging_attackers` | 174556 | +0 | 🔴 EINGEFROREN (seit 2026-08-08 00:05 CEST (Berlin), 39 Laeufe unveraendert) |
@@ -32,9 +32,9 @@
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honeypot-IPs | **1139452** |
-| Neu | **+1** |
-| Entfernt | **-0** |
+| Gesamt Honeypot-IPs | **1140274** |
+| Neu | **+1398** |
+| Entfernt | **-575** |
 
 ---
-*Generiert: 2026-08-08 22:09 CEST (Berlin)*
+*Generiert: 2026-08-08 22:15 CEST (Berlin)*
