@@ -1,0 +1,293 @@
+name: Bot-Detector Blacklist (Proxy-Feeds)
+
+# MIGRATION 2026-07-05: lula73/bot-detector liefert keine IPs mehr
+# (blacklist.json leer/nicht erreichbar laut Betreiber-Beobachtung in den
+# Actions-Logs). Ersatz: dieser Workflow liest jetzt state/auto_discovered_
+# feeds.json direkt ein und waehlt per is_bot_detector_feed_name() (scripts/
+# netshield_common.py) automatisch alle relevanten Feeds aus (Proxy-, Bot-,
+# Crawler- und Scanner-Listen) – keine statische, manuell zu
+# pflegende Namensliste mehr (Stand vor 2026-07-05: 29 fest kodierte Feeds;
+# das ist jetzt dynamisch).
+# WICHTIG: bot_detector_blacklist_ipv4.txt wird von update_combined_
+# blacklist.yml als LOCAL_FEEDS-Eintrag eingelesen (combined bekommt die
+# Proxy-IPs also GENAU EINMAL, gesammelt, ueber diese Datei). Die einzelnen
+# Proxy-Feed-Namen sind deshalb dort zusaetzlich aus dem Auto-Feed-Loop
+# ausgeschlossen (Kommentar dort, Abschnitt "AUSSCHLUSS PROXY-FEEDS") –
+# sonst wuerde jede IP am selben Tag ZWEIMAL gezaehlt: einmal hier
+# gesammelt, einmal einzeln ueber den Auto-Feed-Namen. Beide Seiten
+# importieren dieselbe is_bot_detector_feed_name() aus netshield_common.py,
+# damit die Auswahl nicht auseinanderlaeuft.
+# GRENZEN: is_bot_detector_feed_name() ist eine Namens-/Datei-Pfad-
+# Heuristik (Substring-Check gegen mehrere Schluesselwoerter in name ODER
+# file), keine perfekte Klassifikation. Siehe Docstring der Funktion fuer
+# Validierung und bekannte Grenzfaelle.
+
+on:
+  schedule:
+    - cron: '45 22 * * *'   # täglich 22:45 UTC (90 Min vor Combined 00:00; verschoben von 23:45 – nur 15min Puffer war zu knapp)
+  workflow_dispatch:
+  # Zusätzlicher Trigger 2026-07-05: läuft jetzt auch direkt nach jedem
+  # erfolgreichen NETSHIELD-Report-Lauf (siehe "Trigger Bot-Detector"-Step in
+  # netshield_report_generator.yml), analog zum bereits etablierten Muster
+  # Confidence -> Report Generator in update_confidence_blacklist.yml. Der
+  # tägliche Cron oben bleibt als Fallback erhalten.
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: read
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Fetch Proxy Feeds
+        run: |
+          python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_text_atomic,
+              fetch_url, check_local_feed_age,
+              is_bot_detector_feed_name,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
+          import json, os, sys, time
+          from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
+
+          now     = datetime.now(timezone.utc)
+          # Ausgabedateien verwenden deutsche Ortszeit, identisch zum Muster
+          # in update_combined_blacklist.yml (dort: output_stamp_de). Europe/
+          # Berlin wechselt automatisch zwischen CET (Winter) und CEST
+          # (Sommer). "now" bleibt UTC-aware fuer interne Alters-/Delta-
+          # Berechnungen weiter unten.
+          now_str = (
+              now.astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z")
+              + " (Europe/Berlin)"
+          )
+
+          OUT_FILE    = "bot_detector_blacklist_ipv4.txt"
+          REPORT_FILE = "reports/bot_detector_report.md"
+          MIN_ENTRIES = 50   # Leerungsschutz (Wert bleibt 50 – wird von
+                              # workflow_health_checker.yml als Literal erwartet)
+          AUTO_FEEDS_FILE = "state/auto_discovered_feeds.json"
+
+          # ── PROXY_SOURCES dynamisch aus state/auto_discovered_feeds.json ──
+          # Ersatz fuer den toten lula73/bot-detector-Feed (2026-07-05).
+          # is_bot_detector_feed_name() (netshield_common.py) waehlt relevante
+          # Feeds (Proxy-, Bot-, Crawler-, Scanner-Listen) per
+          # Namensheuristik aus. update_combined_blacklist.yml nutzt DIESELBE
+          # Funktion um genau diese Feeds aus seinem Auto-Feed-Loop
+          # auszuschliessen (Doppelzaehlungs-Schutz) – siehe Kommentar dort.
+          # NICHT unabhaengig voneinander aendern.
+          PROXY_SOURCES = {}
+          if os.path.exists(AUTO_FEEDS_FILE):
+              try:
+                  with open(AUTO_FEEDS_FILE) as af:
+                      _auto_data = json.load(af)
+                  for _f in _auto_data.get("feeds", []):
+                      _name = _f.get("name")
+                      _url  = _f.get("url")
+                      _file = _f.get("file")
+                      if (isinstance(_name, str) and isinstance(_url, str)
+                              and _url.startswith(("http://", "https://"))
+                              and is_bot_detector_feed_name(_name, _file)):
+                          PROXY_SOURCES[_name] = _url
+                  print(f"  {len(PROXY_SOURCES)} Proxy-Feeds aus {AUTO_FEEDS_FILE} ausgewaehlt "
+                        f"(von {len(_auto_data.get('feeds', []))} Auto-discovered Feeds gesamt)")
+              except Exception as e:
+                  print(f"  WARNUNG: {AUTO_FEEDS_FILE} Fehler: {e}")
+          else:
+              print(f"  WARNUNG: {AUTO_FEEDS_FILE} nicht vorhanden – keine Proxy-Feeds")
+
+          if not PROXY_SOURCES:
+              msg = f"Keine Proxy-Feeds in {AUTO_FEEDS_FILE} gefunden (0 Quellen)"
+              print(f"::warning file=update_bot_detector.yml::{msg}")
+              print(f"WARNUNG: {msg} – behalte bestehende Datei")
+              sys.exit(1)
+
+          # ── Fetch mit Retry (fetch_url: SSRF-Schutz, DNS-Pin, Backoff) ─────
+          all_ips      = set()
+          stats        = {}
+          fetch_failed = set()
+
+          for name, url in PROXY_SOURCES.items():
+              text = fetch_url(url, timeout=20, retries=3, user_agent="NETSHIELD/3.0")
+              if text is None:
+                  stats[name] = 0
+                  fetch_failed.add(name)
+                  print(f"  {name}: FETCH FEHLGESCHLAGEN (None) – {url}")
+                  print(f"::warning ::Proxy-Feed {name} nicht erreichbar (fetch=None) – {url}")
+                  continue
+              # FIX BUG-WL-BOTDETECTOR (2026-04-19), weiterhin gueltig:
+              # use_protected_check=True filtert Whitelist-IPs bereits beim
+              # Parsen heraus. parse_entries() extrahiert die IP unabhaengig
+              # vom Format (ip:port, plain, CSV-Spalte etc.) ueber IPV4_RE.
+              ips = parse_entries(text, use_protected_check=True)
+              all_ips.update(ips)
+              stats[name] = len(ips)
+              print(f"  {name}: {len(ips)} IPs ({len(text)} bytes geladen)")
+              if not ips:
+                  head = text.lstrip()[:120].replace("\n", " ")
+                  print(f"  WARNUNG {name}: 0 IPs aus {len(text)} bytes geparst – "
+                        f"moeglicher Format-Wechsel. Anfang: {head!r}")
+                  print(f"::warning ::Proxy-Feed {name} lieferte Daten aber 0 gueltige IPs – Format pruefen")
+
+          # ── FP-Filter (state/false_positives_set.json) ─────────────────────
+          fp_before = len(all_ips)
+          all_ips = {ip for ip in all_ips if not is_in_fp_set(ip)}
+          fp_removed_count = fp_before - len(all_ips)
+          if fp_removed_count:
+              print(f"FP-Filter: {fp_removed_count} IPs entfernt")
+
+          # ── Whitelist-Filter (Defense-in-Depth, analog honeypot_monitor.yml) ─
+          wl_before = len(all_ips)
+          all_ips = {ip for ip in all_ips if not is_whitelisted(ip)}
+          wl_removed_count = wl_before - len(all_ips)
+          if wl_removed_count:
+              print(f"Whitelist-Filter: {wl_removed_count} IPs entfernt")
+
+          # FIX 2026-07-05 (verifiziert per echtem Actions-Lauf, run 77658608732):
+          # kraloveckey_ipsets_blocklist_socks_proxy_30d/_7d und _sslproxies_30d
+          # sind .ipset-Dateien und enthalten legitim CIDR-Notation (z.B.
+          # "x.x.x.10/31") gemischt mit einzelnen IPs, da parse_entries()
+          # sowohl IPs als auch CIDRs zurueckgibt. Die vorherige Sortierung
+          # (nur ip.split(".")) crashte darauf mit
+          # "ValueError: invalid literal for int() with base 10: '10/31'".
+          # Fix analog zum bereits bestehenden Muster in honeypot_monitor.yml:
+          # Netzmaske vor dem Splitten abtrennen.
+          unique_ips = sorted(all_ips, key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
+
+          print(f"  Quellen: {len(PROXY_SOURCES)} | Erreichbar: {len(PROXY_SOURCES) - len(fetch_failed)} | "
+                f"Gesamt eindeutige IPs: {len(unique_ips)}")
+
+          # ── Delta berechnen ───────────────────────────────────────────────
+          existing = set()
+          if os.path.exists(OUT_FILE):
+              with open(OUT_FILE) as f:
+                  existing = {l.strip() for l in f
+                              if l.strip() and not l.startswith("#")}
+
+          new_ips     = set(unique_ips) - existing
+          removed_ips = existing - set(unique_ips)
+
+          print(f"  Delta: +{len(new_ips)} neu | -{len(removed_ips)} entfernt")
+
+          # ── Report immer zuerst schreiben ─────────────────────────────────
+          lines = []
+          lines.append("# Bot-Detector Blacklist – Report")
+          lines.append(f"**Aktualisiert:** {now_str}  ")
+          lines.append("**Quelle:** Proxy-Feeds aus auto_feed_discovery "
+                        "(dynamisch ausgewaehlt via is_bot_detector_feed_name())\n")
+          lines.append("---")
+          lines.append("## Ergebnis\n")
+          lines.append("| Metrik | Wert |")
+          lines.append("|---|---|")
+          lines.append(f"| Gesamt IPs | **{len(unique_ips):,}** |")
+          lines.append(f"| Neu (heute) | **+{len(new_ips):,}** |")
+          lines.append(f"| Entfernt | **-{len(removed_ips):,}** |")
+          lines.append(f"| FP-Filter entfernt | {fp_removed_count:,} |")
+          lines.append(f"| Whitelist-Filter entfernt | {wl_removed_count:,} |")
+          lines.append(f"| Quellen gesamt | {len(PROXY_SOURCES)} |")
+          lines.append(f"| Quellen nicht erreichbar | {len(fetch_failed)} |")
+          lines.append("")
+          lines.append("### Pro Quelle\n")
+          lines.append("| Quelle | IPs |")
+          lines.append("|---|---|")
+          for n, c in stats.items():
+              mark = "✅" if c > 0 else ("❌" if n in fetch_failed else "⚠️")
+              lines.append(f"| {mark} `{n}` | {c:,} |")
+          lines.append("")
+          lines.append("---")
+          lines.append("> ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.")
+          lines.append(f"> Diese {len(PROXY_SOURCES)} Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).")
+          lines.append(f"\n---\n*Generiert: {now_str}*")
+
+          write_text_atomic(REPORT_FILE, "\n".join(lines))
+          print(f"  {REPORT_FILE} geschrieben")
+
+          # ── Leerungsschutz ────────────────────────────────────────────────
+          if len(unique_ips) < MIN_ENTRIES:
+              msg = f"Nur {len(unique_ips)} IPs (< {MIN_ENTRIES}) – behalte bestehende Datei"
+              print(f"::warning file=update_bot_detector.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(1)
+
+          # ── Blacklist schreiben ───────────────────────────────────────────
+          write_ip_list(OUT_FILE, unique_ips, header_lines=[
+              "NETSHIELD Bot-Detector Blacklist (Proxy-Feeds)",
+              f"Aktualisiert: {now_str}",
+              f"Quellen: {len(PROXY_SOURCES)} Proxy-Feeds",
+              f"Gesamt: {len(unique_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt",
+          ])
+
+          print(f"  {OUT_FILE}: {len(unique_ips)} IPs geschrieben")
+
+          print(f"\nFERTIG: {len(unique_ips)} IPs | +{len(new_ips)} neu | -{len(removed_ips)} entfernt")
+          EOF
+
+      - name: Commit
+        if: always()  # FIX: auch bei Leerungsschutz-Exit den Report committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch bot_detector_report.md 2>/dev/null || true
+          git add bot_detector_blacklist_ipv4.txt reports/bot_detector_report.md
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Bot-Detector Blacklist: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                git checkout --theirs bot_detector_blacklist_ipv4.txt \
+                  reports/bot_detector_report.md 2>/dev/null || true
+                git add bot_detector_blacklist_ipv4.txt \
+                  reports/bot_detector_report.md 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi

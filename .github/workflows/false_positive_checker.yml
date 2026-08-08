@@ -1,0 +1,320 @@
+name: False Positive Checker
+
+on:
+  schedule:
+    - cron: '0 5 * * *'    # täglich 05:00 UTC
+    - cron: '0 13 * * *'   # täglich 13:00 UTC
+    - cron: '0 20 * * *'   # täglich 20:00 UTC
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: read
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+concurrency:
+  # FIX RACE: seen_db-Leser muessen in gleicher Gruppe wie die Writer sein,
+  # sonst kann dieser Workflow parallel zum laufenden update_combined_blacklist
+  # einen halb geschriebenen Cache lesen.
+  group: netshield-seen-db-writers
+  cancel-in-progress: false
+  # FIX BUG-QUEUE-STARVE (2026-07-24): siehe score_decay_monitor.yml.
+  # queue: max konsistent fuer alle 5 Mitglieder dieser Gruppe gesetzt,
+  # damit kein Workflow einen anderen aus der Warteschlange verdraengt.
+  queue: max
+
+jobs:
+  fp-checker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Restore seen_db Cache
+        # FIX WarnB: actions/cache/restore statt actions/cache verwenden.
+        # actions/cache würde automatisch einen Post-Job-Save auslösen und dabei
+        # die noch UNBEREINIGTE seen_db speichern (bevor der FP-Bereinigungsschritt
+        # gelaufen ist). Der explizite Save-Step weiter unten ist die einzige
+        # korrekte Schreibquelle nach der FP-Bereinigung.
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: seen_db.json
+          # FIX RC1: Restore-Key liest den neuesten Combined-Cache (v2-Prefix).
+          # Der Save-Key verwendet den fp-Prefix damit FP-Checker Combined NICHT
+          # überschreibt – Combined ist immer die einzige Schreibquelle für v2.
+          key: netshield-seen-db-fp-${{ github.run_id }}
+          restore-keys: |
+            netshield-seen-db-v2-
+            netshield-seen-db-v1-
+            netshield-seen-db-
+
+      - name: Check Blacklist for False Positives
+        run: |
+          python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries as _parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+
+              write_text_atomic, write_json_atomic,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
+          import re
+          import os
+          import sys
+          import json
+          import ipaddress
+          from datetime import datetime, timezone
+
+          now = datetime.now(timezone.utc)
+          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+
+          print("Starte False Positive Prüfung (Whitelist-CIDR)...")
+
+          # ── Whitelist: IPs/CIDRs die NIE auf die Blacklist kommen ─────────
+          # Single Source of Truth: whitelist.json (synchron mit update_combined_blacklist)
+          try:
+              with open(".github/workflows/whitelist.json", encoding="utf-8") as _wl_f:
+                  WHITELIST_CIDRS = json.load(_wl_f)["entries"]
+          except Exception as _wl_err:
+              _msg = f"whitelist.json nicht ladbar: {_wl_err} – FP-Check abgebrochen"
+              print(f"::error file=false_positive_checker.yml::{_msg}")
+              print(f"FEHLER: {_msg}")
+              sys.exit(1)
+
+          whitelist_networks = []
+          for cidr in WHITELIST_CIDRS:
+              try:
+                  whitelist_networks.append(ipaddress.ip_network(cidr, strict=False))
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+
+          # is_whitelisted() → importiert aus netshield_common
+          # ── Blacklist laden ───────────────────────────────────────────────
+          # FIX BUG-TRUNCATE-PARTS: Sobald die Vollliste >= 100 MB GitHub-Push-
+          # Limit erreicht, schreibt update_combined_blacklist die Hauptdatei
+          # truncatiert und verteilt die vollstaendige Liste auf
+          # combined_threat_blacklist_ipv4_part*.txt. Wenn wir hier nur die
+          # Hauptdatei lesen, hat das KRITISCHE Konsequenzen:
+          #   merged_fp = (existing_fp | fp_set) & set(blacklist_ips)
+          # entfernt legitime FP-Eintraege deren IP nur in den Parts steht.
+          # Identische Datenverlust-Klasse wie BUG-WL1-PROPAGATION.
+          # Loesung: Hauptdatei + alle Parts einlesen, dedupen via set.
+          # Identisch zum Fix in update_confidence_blacklist.yml.
+          import glob as _glob
+          BLACKLIST = "combined_threat_blacklist_ipv4.txt"
+          _sources_read = [BLACKLIST] + sorted(
+              _glob.glob("combined_threat_blacklist_ipv4_part*.txt"))
+          _existing_sources = [s for s in _sources_read if os.path.exists(s)]
+          if not _existing_sources:
+              msg = f"{BLACKLIST} nicht gefunden – Prüfung übersprungen."
+              print(f"::warning file=false_positive_checker.yml::{msg}")
+              print(f"FEHLER: {msg}")
+              sys.exit(1)
+
+          _bl_set = set()
+          for _src in _existing_sources:
+              with open(_src) as f:
+                  for line in f:
+                      s = line.strip()
+                      if s and not s.startswith("#"):
+                          _bl_set.add(s)
+          blacklist_ips = list(_bl_set)
+          if len(_existing_sources) > 1:
+              print(f"\nBlacklist geladen: {len(blacklist_ips)} IPs "
+                    f"(Hauptdatei + {len(_existing_sources) - 1} Part(s))")
+          else:
+              print(f"\nBlacklist geladen: {len(blacklist_ips)} IPs")
+          print("Prüfe auf False Positives...")
+
+          false_positives = []
+          whitelist_hits  = []
+
+          for ip in blacklist_ips:
+              if is_whitelisted(ip):
+                  whitelist_hits.append((ip, "Bekannte legitime IP-Range (CDN/Cloud)"))
+                  false_positives.append(ip)
+
+          print(f"  Fertig. {len(false_positives)} False Positives gefunden.")
+
+          # ── FIX #1/#4: Nicht mehr combined_threat_blacklist_ipv4.txt direkt schreiben.
+          # Stattdessen state/false_positives_set.json speichern – update_combined_blacklist
+          # liest diese Datei beim nächsten Run und filtert die IPs beim Ingest heraus.
+          # Vorteile:
+          #   1. Keine Race-Condition mehr mit combined (der als einzige Quelle der
+          #      Wahrheit für combined_threat_blacklist_ipv4.txt gilt).
+          #   2. HQ-IPs werden sauber behandelt: combined entscheidet beim nächsten
+          #      Lauf ob ein HQ-Feed die IP erneut meldet – kein ewiger Add/Remove-Zyklus.
+          fp_set = set(false_positives)
+          FP_JSON = "state/false_positives_set.json"
+
+          existing_fp = set()
+          if os.path.exists(FP_JSON):
+              try:
+                  with open(FP_JSON) as f:
+                      data = json.load(f)
+                  existing_fp = set(data.get("ips", []))
+              except Exception:
+                  existing_fp = set()
+
+          # Leerungsschutz: wenn combined_threat_blacklist_ipv4.txt kurzzeitig leer oder
+          # stark geschrumpft ist (z.B. nach fehlgeschlagenem Combined-Run), darf der
+          # Schnitt-Filter keine legitimen FP-Einträge aus existing_fp löschen.
+          # Untergrenze: mind. 1000 IPs → sonst existing_fp NICHT per Schnitt beschneiden.
+          MIN_BLACKLIST_FOR_STALE_CLEANUP = 1000
+          if len(blacklist_ips) >= MIN_BLACKLIST_FOR_STALE_CLEANUP:
+              merged_fp = (existing_fp | fp_set) & set(blacklist_ips)
+          else:
+              # Blacklist zu klein → nur neue FPs hinzufügen, bestehende NICHT entfernen
+              merged_fp = existing_fp | fp_set
+              print(f"WARNUNG: Blacklist hat nur {len(blacklist_ips)} Einträge (<{MIN_BLACKLIST_FOR_STALE_CLEANUP}) "
+                    f"– existing_fp wird nicht per Schnitt bereinigt (Datenverlust-Schutz)")
+          removed_stale_fp = (existing_fp | fp_set) - merged_fp
+          # FIX ATOMIC: write_json_atomic statt open("w") – bei Runner-Kill
+          # bleibt die Datei komplett alt oder komplett neu. Eine halb
+          # geschriebene state/false_positives_set.json würde beim naechsten Run
+          # als korrupt erkannt (JSON-Parse-Fehler) und das gesamte FP-Set
+          # stillschweigend verloren gehen.
+          write_json_atomic(FP_JSON, {
+              "updated":  now_str,
+              "count":    len(merged_fp),
+              "ips":      sorted(merged_fp),
+          }, indent=2)
+          print(f"state/false_positives_set.json: {len(merged_fp)} IPs gespeichert "
+                f"({len(fp_set)} neu erkannt, {len(existing_fp)} bereits vorhanden, {len(removed_stale_fp)} veraltete entfernt)")
+
+          # ── seen_db wird NICHT mehr hier bereinigt ─────────────────────
+          # Der combined-Workflow filtert FP-IPs beim nächsten Lauf selbst
+          # über is_in_fp_set() anhand von state/false_positives_set.json.
+          # Der fp-Cache-Prefix (netshield-seen-db-fp-*) wurde von keinem
+          # anderen Workflow gelesen – die Bereinigung war wirkungslos.
+
+          # ── False Positive Log ────────────────────────────────────────────
+          # Atomarer Append-Ersatz: vorhandenen Logtext laden, neuen Block anhängen,
+          # danach komplett per write_text_atomic ersetzen. So bleibt der Security-
+          # Check grün und bei Runner-Abbruch entsteht keine halbe Logdatei.
+          from pathlib import Path as _Path
+          os.makedirs("logs", exist_ok=True)
+          _fp_log_path = _Path("logs/false_positives_log.txt")
+          _old_fp_log = _fp_log_path.read_text(encoding="utf-8") if _fp_log_path.exists() else ""
+          _new_fp_log_lines = [f"\n# Scan: {now_str} – {len(fp_set)} neue FPs"]
+          _new_fp_log_lines.extend(sorted(fp_set))
+          write_text_atomic(str(_fp_log_path), _old_fp_log + "\n".join(_new_fp_log_lines) + "\n")
+
+          # ── Report ────────────────────────────────────────────────────────
+          lines = []
+          lines.append("# False Positive Checker – Report")
+          lines.append(f"**Aktualisiert:** {now_str}\n")
+          lines.append("---")
+          lines.append("## Ergebnis\n")
+          lines.append("| Metrik | Wert |")
+          lines.append("|---|---|")
+          lines.append(f"| Geprüfte IPs (gesamt) | {len(blacklist_ips)} |")
+          lines.append(f"| Whitelist-Treffer (dieser Run) | **{len(whitelist_hits)}** |")
+          lines.append(f"| FP-Set gesamt (kumuliert) | **{len(merged_fp)}** |")
+          lines.append("")
+          lines.append("> ℹ️ FPs werden nicht mehr direkt aus `combined_threat_blacklist_ipv4.txt` entfernt.")
+          lines.append("> `state/false_positives_set.json` wird beim nächsten `update_combined_blacklist`-Lauf über `is_in_fp_set()` angewendet.")
+
+          if whitelist_hits:
+              lines.append("\n## Whitelist-Treffer\n")
+              lines.append("| IP | Grund |")
+              lines.append("|---|---|")
+              for ip, reason in whitelist_hits[:20]:
+                  lines.append(f"| `{ip}` | {reason} |")
+
+          lines.append(f"\n---\n*Generiert: {now_str}*")
+
+          write_text_atomic("reports/false_positive_report.md", "\n".join(lines))
+          print("reports/false_positive_report.md geschrieben")
+          EOF
+
+      # seen_db Cache Save entfernt – FP-Checker modifiziert seen_db nicht mehr.
+      # Combined filtert FPs selbst über is_in_fp_set(). Der fp-Prefix-Cache
+      # (netshield-seen-db-fp-*) wurde von keinem Workflow gelesen.
+
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch false_positive_report.md false_positives_log.txt 2>/dev/null || true
+          # combined_threat_blacklist_ipv4.txt wird NICHT mehr durch diesen Workflow
+          # verändert – nur noch state/false_positives_set.json, Log und Report.
+          git add logs/false_positives_log.txt reports/false_positive_report.md state/false_positives_set.json
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            # FIX RACE5: Append-only Log + Overwrite-Dateien VOR commit
+            # sichern, dann reset --hard auf Upstream + Re-Apply.
+            #
+            # Vorher (FIX RACE4): rebase -X theirs + Diff-Buffer in /tmp/.
+            # Problem: Bei git rebase bedeutet -X theirs das GEGENTEIL von
+            # git merge -X theirs – es behält den eigenen Commit und verwirft
+            # den Upstream. Der Fallback-Zweig wird nie erreicht → der gesamte
+            # RACE4-Schutz war toter Code, Remote-Appends gingen verloren.
+            #
+            # Neues Pattern: Explizit Upstream übernehmen (reset --hard),
+            # eigene Appends + Overwrite-Dateien deterministisch darauf aufbauen.
+            git diff HEAD -- logs/false_positives_log.txt | grep '^+[^+]' | sed 's/^+//' > /tmp/local_fp_log_appends.txt 2>/dev/null || true
+            # Overwrite-Dateien komplett sichern (werden nach reset zurückgeschrieben)
+            cp reports/false_positive_report.md /tmp/local_fp_report.md 2>/dev/null || true
+            cp state/false_positives_set.json /tmp/local_fp_set.json 2>/dev/null || true
+            git commit -m "False Positive Check: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              # Reset auf Upstream-Stand – übernimmt alle Remote-Änderungen
+              git reset --hard origin/${GITHUB_REF_NAME}
+              # Append-only Log: gesicherte Zeilen mit Dedup wieder anfügen
+              if [ -s /tmp/local_fp_log_appends.txt ]; then
+                while IFS= read -r line; do
+                  grep -qxF "$line" logs/false_positives_log.txt 2>/dev/null || echo "$line" >> logs/false_positives_log.txt
+                done < /tmp/local_fp_log_appends.txt
+              fi
+              # Overwrite-Dateien: gesicherte Version zurückschreiben (last-write-wins)
+              # FIX STATE-SUBDIR: reset --hard kann state/ entfernen → vor dem cp anlegen.
+              mkdir -p state
+              cp /tmp/local_fp_report.md reports/false_positive_report.md 2>/dev/null || true
+              cp /tmp/local_fp_set.json state/false_positives_set.json 2>/dev/null || true
+              # FIX SUBDIR-MIGRATION (reset-hard-safe): reset --hard oben stellt die
+              # alten Root-Dateien aus dem Remote wieder her – daher die Loesch-
+              # ung HIER im Loop erneut anwenden, nicht nur vor dem ersten Commit
+              # (der durch reset --hard verworfen wird). Idempotent nach 1. Push.
+              # false_positives_set.json hier mit migrieren (war bisher Root).
+              git rm -q --ignore-unmatch false_positive_report.md false_positives_log.txt false_positives_set.json 2>/dev/null || true
+              git add logs/false_positives_log.txt reports/false_positive_report.md state/false_positives_set.json 2>/dev/null || true
+              if git diff --staged --quiet; then
+                echo "Keine neuen Änderungen nach Reset+Re-Apply"
+                exit 0
+              fi
+              git commit -m "False Positive Check: $(date -u '+%Y-%m-%d %H:%M') UTC"
+              if git push origin HEAD:${GITHUB_REF_NAME}; then
+                echo "Push erfolgreich (Versuch $attempt)"
+                exit 0
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi

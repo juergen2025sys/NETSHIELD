@@ -1,0 +1,110 @@
+{
+  "updated": "2026-08-08 02:59 UTC",
+  "total": 24,
+  "ok": 20,
+  "warn": 3,
+  "error": 3,
+  "errors": [
+    {
+      "file": "feed_overlap_report.yml",
+      "check": "persist-credentials fehlt",
+      "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
+    },
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "HIGH_QUALITY \u2194 SOURCES Drift",
+      "detail": "hq=True in SOURCES aber nicht in HIGH_QUALITY: abuseipdb_tmiland, threatslist_paloalto_edl \u2013 IPs altern still aus (Bug-DP1)"
+    },
+    {
+      "file": "Production Health",
+      "check": "Drift: honeypot_ips.txt",
+      "detail": "honeypot_ips.txt: 123,737 \u2192 1,138,324 (+820%) \u2013 extremes Wachstum, vermutlich Parser-/Dedup-Bug"
+    },
+    {
+      "file": "Production Health",
+      "check": "Push-Limit Naehe",
+      "detail": "combined_threat_blacklist_ipv4.txt: 118.5 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+    }
+  ],
+  "warnings": [
+    {
+      "file": "auto_feed_discovery.yml",
+      "check": "timeout-minutes fehlt",
+      "detail": "Job 'discover' hat kein timeout-minutes \u2013 haengende Runs verbrauchen bis zu 360min"
+    },
+    {
+      "file": "feed_overlap_report.yml",
+      "check": "Node24 env fehlt",
+      "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
+    },
+    {
+      "file": "history_fresh_start.yml",
+      "check": "Node24 env fehlt",
+      "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
+    },
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "Untrusted Feed hq=True",
+      "detail": "2 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"threatslist_paloalto_edl\" (https://threatslist.github.io/Palo-Alto-EDL/edl_list.txt); \"threat_live\" (https://list.threat.live/)"
+    },
+    {
+      "file": "Cross-Workflow",
+      "check": "Doppelte Feed-URLs",
+      "detail": "1 URL(s) in mehreren Workflows \u2013 today_count Aufblaehung moeglich: greylist-latest.csv in honeypot_monitor.yml+update_combined_blacklist.yml"
+    },
+    {
+      "file": "Production Health",
+      "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
+      "detail": "blacklist_confidence40_ipv4.txt nicht vorhanden"
+    },
+    {
+      "file": "Production Health",
+      "check": "Drift: active_blacklist_ipv4.txt",
+      "detail": "active_blacklist_ipv4.txt: 441,542 \u2192 715,657 (+62%) \u2013 ungew\u00f6hnliches Wachstum"
+    }
+  ],
+  "ip_counts": {
+    "combined_threat_blacklist_ipv4_part1.txt": 4358542,
+    "active_blacklist_ipv4.txt": 715657,
+    "cve_exploit_ips.txt": 29675,
+    "honeypot_ips.txt": 1138324,
+    "bot_detector_blacklist_ipv4.txt": 1285033
+  },
+  "production_health": {
+    "critical": 2,
+    "warn": 2,
+    "checks": [
+      {
+        "level": "WARN",
+        "check": "Aktualit\u00e4t: Confidence-40 Blacklist",
+        "detail": "blacklist_confidence40_ipv4.txt nicht vorhanden"
+      },
+      {
+        "level": "WARN",
+        "check": "Drift: active_blacklist_ipv4.txt",
+        "detail": "active_blacklist_ipv4.txt: 441,542 \u2192 715,657 (+62%) \u2013 ungew\u00f6hnliches Wachstum"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Drift: honeypot_ips.txt",
+        "detail": "honeypot_ips.txt: 123,737 \u2192 1,138,324 (+820%) \u2013 extremes Wachstum, vermutlich Parser-/Dedup-Bug"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Push-Limit Naehe",
+        "detail": "combined_threat_blacklist_ipv4.txt: 118.5 MB (>= 95 MB) \u2013 naechster git push kann am 100 MB Limit scheitern. Splitting/Truncate-Logik fehlt oder Schwelle anpassen."
+      }
+    ]
+  },
+  "parts_history": {
+    "combined_threat_blacklist_ipv4.txt": [
+      "combined_threat_blacklist_ipv4_part1.txt",
+      "combined_threat_blacklist_ipv4_part2.txt"
+    ],
+    "blacklist_confidence40_ipv4.txt": [
+      "blacklist_confidence40_ipv4_part1.txt",
+      "blacklist_confidence40_ipv4_part2.txt"
+    ],
+    "geo_enriched/blacklist_geo_enriched.json": []
+  }
+}

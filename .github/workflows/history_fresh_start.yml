@@ -1,0 +1,115 @@
+name: History Fresh Start (EINMALIG - Git-Historie komplett zuruecksetzen)
+
+# ============================================================================
+# ACHTUNG - BITTE VOLLSTAENDIG LESEN, BEVOR DU DAS AUSFUEHRST:
+#
+# Dieser Workflow ersetzt die KOMPLETTE Git-Historie des Repos durch einen
+# einzigen neuen Commit mit dem aktuellen Dateistand. Das ist EIN
+# EINWEG-VORGANG:
+#   - ALLE bisherigen Commits gehen unwiderruflich verloren (auch die
+#     seen_db-Backup-Historie - bewusste Entscheidung, siehe Chat-Verlauf)
+#   - Jeder Klon des Repos muss danach NEU geklont werden
+#   - Offene Pull Requests / Forks werden ungueltig
+#   - Der AKTUELLE Dateistand selbst bleibt unveraendert - nur die
+#     Vergangenheit verschwindet
+#
+# Grund: Das Repository hat GitHubs Speicherkontingent ueberschritten
+# (~100 GB Historie, groesstenteils durch taeglich mehrfach komplett neu
+# committete grosse Dateien wie blacklist_confidence40_ipv4.txt) - Pushes
+# werden seither von GitHub mit "Repository is above its size quota"
+# abgelehnt.
+#
+# Nur per manuellem Trigger ausfuehrbar, mit Text-Bestaetigung.
+# ============================================================================
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_reset:
+        description: 'Tippe exakt: HISTORIE ZURUECKSETZEN'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  fresh-start:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Bestaetigung pruefen
+        run: |
+          if [ "${{ github.event.inputs.confirm_reset }}" != "HISTORIE ZURUECKSETZEN" ]; then
+            echo "::error::Bestaetigungstext stimmt nicht exakt ueberein. Abgebrochen, nichts wurde veraendert."
+            exit 1
+          fi
+          echo "Bestaetigung erhalten - fahre fort."
+
+      - name: Checkout Repository (flach - nur aktueller Stand, keine Historie)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Groesse vor der Bereinigung
+        run: |
+          echo "Aktuelle .git-Groesse (nur der flache Checkout, nicht die volle Historie):"
+          du -sh .git || true
+
+      - name: Neuen Waisen-Branch mit aktuellem Stand erstellen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          echo "Erstelle Waisen-Branch (keine Eltern-Commits, kein Historie-Bezug)..."
+          git checkout --orphan fresh-start-tmp
+
+          echo "Fuege aktuellen Dateistand hinzu (respektiert .gitignore automatisch)..."
+          git add -A
+
+          echo "Erstelle einzigen neuen Commit..."
+          git commit -m "History Fresh Start: $(date -u '+%Y-%m-%d %H:%M') UTC - Historie zurueckgesetzt wegen GitHub-Speicherkontingent (Repository is above its size quota). Aktueller Dateistand unveraendert, nur Vergangenheit entfernt."
+
+      - name: Alten main-Branch ersetzen
+        run: |
+          git branch -D main 2>/dev/null || true
+          git branch -m main
+          echo "Neuer main-Branch enthaelt jetzt genau 1 Commit:"
+          git log --oneline
+
+      - name: Force-Push
+        run: |
+          echo "Push des bereinigten Branches..."
+          # FIX HYGIENE (2026-08-07): Retry-Loop ergaenzt, damit
+          # scripts/check_security_hygiene.py den "git push mit Retry-Loop"-
+          # Check besteht. Kein git-rebase noetig wie im Commit-and-Push-
+          # Step von update_combined_blacklist.yml - Force-Push ersetzt die
+          # Historie ohnehin komplett, ein Merge-Konflikt kann hier
+          # begrifflich nicht auftreten. Der Retry deckt stattdessen
+          # transiente Netzwerk-/5xx-Fehler ab (z. B. kurzzeitige GitHub-
+          # API-Instabilitaet waehrend des Runs).
+          for attempt in 1 2 3 4 5; do
+            echo "Push-Versuch $attempt..."
+            if git push origin main --force; then
+              echo "Push erfolgreich (Versuch $attempt)"
+              exit 0
+            fi
+            sleep $((attempt * 3))
+          done
+          echo "::error::Force-Push nach 5 Versuchen fehlgeschlagen."
+          exit 1
+
+      - name: Ergebnis
+        run: |
+          echo "============================================================"
+          echo "  FERTIG"
+          echo "============================================================"
+          echo "Die Git-Historie besteht jetzt nur noch aus einem einzigen Commit."
+          echo ""
+          echo "WICHTIG:"
+          echo "  - GitHub braucht teils Minuten bis Stunden, um die freigewordene"
+          echo "    Groesse intern zu erfassen (interne Garbage Collection)"
+          echo "  - Falls das Repo woanders geklont ist: dort NEU klonen, nicht pullen"
+          echo "  - Andere Branches (falls vorhanden) sind von diesem Workflow NICHT"
+          echo "    betroffen und enthalten weiterhin die alte, grosse Historie"

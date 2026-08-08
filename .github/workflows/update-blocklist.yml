@@ -1,0 +1,534 @@
+name: Update All Countries IPv4 Blocklist
+
+on:
+  schedule:
+    - cron: '30 1 * * 1'  # Jeden Montag um 01:30 UTC (vor combined-Lauf um 03:00, 90min Puffer)
+    - cron: '30 1 * * 3'  # Jeden Mittwoch um 01:30 UTC (vor combined-Lauf um 03:00, 90min Puffer)
+  workflow_dispatch:     # Manuell startbar
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: read
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  update-blocklist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Download All Countries IPv4 Ranges
+        run: |
+          python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries as _parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
+          import urllib.request
+          import urllib.error
+          import time
+          import ipaddress
+          import os
+          import sys
+          from datetime import datetime, timezone
+
+          now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+          # ── Länder → (Kontinent, Anzeigename) ────────────────────────────
+          # Schlüssel = ISO-Alpha-2, Wert = (kontinent_slug, dateiname_ohne_ext)
+          COUNTRY_MAP = {
+              # Africa
+              "AO": ("africa", "angola"),
+              "BF": ("africa", "burkina_faso"),
+              "BI": ("africa", "burundi"),
+              "BJ": ("africa", "benin"),
+              "BW": ("africa", "botswana"),
+              "CD": ("africa", "democratic_republic_of_the_congo"),
+              "CF": ("africa", "central_african_republic"),
+              "CG": ("africa", "republic_of_the_congo"),
+              "CI": ("africa", "ivory_coast"),
+              "CM": ("africa", "cameroon"),
+              "CV": ("africa", "cape_verde"),
+              "DJ": ("africa", "djibouti"),
+              "DZ": ("africa", "algeria"),
+              "EG": ("africa", "egypt"),
+              "EH": ("africa", "western_sahara"),
+              "ER": ("africa", "eritrea"),
+              "ET": ("africa", "ethiopia"),
+              "GA": ("africa", "gabon"),
+              "GH": ("africa", "ghana"),
+              "GM": ("africa", "gambia"),
+              "GN": ("africa", "guinea"),
+              "GQ": ("africa", "equatorial_guinea"),
+              "GW": ("africa", "guinea_bissau"),
+              "KE": ("africa", "kenya"),
+              "KM": ("africa", "comoros"),
+              "LR": ("africa", "liberia"),
+              "LS": ("africa", "lesotho"),
+              "LY": ("africa", "libya"),
+              "MA": ("africa", "morocco"),
+              "MG": ("africa", "madagascar"),
+              "ML": ("africa", "mali"),
+              "MR": ("africa", "mauritania"),
+              "MU": ("africa", "mauritius"),
+              "MW": ("africa", "malawi"),
+              "MZ": ("africa", "mozambique"),
+              "NA": ("africa", "namibia"),
+              "NE": ("africa", "niger"),
+              "NG": ("africa", "nigeria"),
+              "RW": ("africa", "rwanda"),
+              "SC": ("africa", "seychelles"),
+              "SD": ("africa", "sudan"),
+              "SL": ("africa", "sierra_leone"),
+              "SN": ("africa", "senegal"),
+              "SO": ("africa", "somalia"),
+              "SS": ("africa", "south_sudan"),
+              "ST": ("africa", "sao_tome_and_principe"),
+              "SZ": ("africa", "eswatini"),
+              "TD": ("africa", "chad"),
+              "TG": ("africa", "togo"),
+              "TN": ("africa", "tunisia"),
+              "TZ": ("africa", "tanzania"),
+              "UG": ("africa", "uganda"),
+              "YT": ("africa", "mayotte"),
+              "ZA": ("africa", "south_africa"),
+              "ZM": ("africa", "zambia"),
+              "ZW": ("africa", "zimbabwe"),
+              "GS": ("oceania", "south_georgia"),  # FIX GEO1: Südgeorgien liegt im Südatlantik – mangels eigener Kategorie in oceania als Auffangbecken
+              "RE": ("africa", "reunion"),
+              "SH": ("africa", "saint_helena"),
+              # Asia
+              "AE": ("asia", "united_arab_emirates"),
+              "AF": ("asia", "afghanistan"),
+              "AM": ("asia", "armenia"),
+              "AZ": ("asia", "azerbaijan"),
+              "BD": ("asia", "bangladesh"),
+              "BH": ("asia", "bahrain"),
+              "BN": ("asia", "brunei"),
+              "BT": ("asia", "bhutan"),
+              "CN": ("asia", "china"),
+              "CY": ("asia", "cyprus"),
+              "GE": ("asia", "georgia"),
+              "HK": ("asia", "hong_kong"),
+              "ID": ("asia", "indonesia"),
+              "IL": ("asia", "israel"),
+              "IN": ("asia", "india"),
+              "IQ": ("asia", "iraq"),
+              "IR": ("asia", "iran"),
+              "JO": ("asia", "jordan"),
+              "JP": ("asia", "japan"),
+              "KG": ("asia", "kyrgyzstan"),
+              "KH": ("asia", "cambodia"),
+              "KP": ("asia", "north_korea"),
+              "KR": ("asia", "south_korea"),
+              "KW": ("asia", "kuwait"),
+              "KZ": ("asia", "kazakhstan"),
+              "LA": ("asia", "laos"),
+              "LB": ("asia", "lebanon"),
+              "LK": ("asia", "sri_lanka"),
+              "MM": ("asia", "myanmar"),
+              "MN": ("asia", "mongolia"),
+              "MO": ("asia", "macau"),
+              "MV": ("asia", "maldives"),
+              "MY": ("asia", "malaysia"),
+              "NP": ("asia", "nepal"),
+              "OM": ("asia", "oman"),
+              "PH": ("asia", "philippines"),
+              "PK": ("asia", "pakistan"),
+              "PS": ("asia", "palestine"),
+              "QA": ("asia", "qatar"),
+              "SA": ("asia", "saudi_arabia"),
+              "SG": ("asia", "singapore"),
+              "SY": ("asia", "syria"),
+              "TH": ("asia", "thailand"),
+              "TJ": ("asia", "tajikistan"),
+              "TL": ("asia", "east_timor"),
+              "TM": ("asia", "turkmenistan"),
+              "TR": ("asia", "turkey"),
+              "TW": ("asia", "taiwan"),
+              "UZ": ("asia", "uzbekistan"),
+              "VN": ("asia", "vietnam"),
+              "YE": ("asia", "yemen"),
+              "IO": ("asia", "british_indian_ocean_territory"),
+              # Europe
+              "AD": ("europe", "andorra"),
+              "AL": ("europe", "albania"),
+              "AT": ("europe", "austria"),
+              "BA": ("europe", "bosnia_and_herzegovina"),
+              "BE": ("europe", "belgium"),
+              "BG": ("europe", "bulgaria"),
+              "BY": ("europe", "belarus"),
+              "CH": ("europe", "switzerland"),
+              "CZ": ("europe", "czech_republic"),
+              "DE": ("europe", "germany"),
+              "DK": ("europe", "denmark"),
+              "EE": ("europe", "estonia"),
+              "ES": ("europe", "spain"),
+              "FI": ("europe", "finland"),
+              "FO": ("europe", "faroe_islands"),
+              "FR": ("europe", "france"),
+              "GB": ("europe", "united_kingdom"),
+              "GG": ("europe", "guernsey"),
+              "GI": ("europe", "gibraltar"),
+              "GL": ("europe", "greenland"),
+              "GR": ("europe", "greece"),
+              "HR": ("europe", "croatia"),
+              "HU": ("europe", "hungary"),
+              "IE": ("europe", "ireland"),
+              "IM": ("europe", "isle_of_man"),
+              "IS": ("europe", "iceland"),
+              "IT": ("europe", "italy"),
+              "JE": ("europe", "jersey"),
+              "LI": ("europe", "liechtenstein"),
+              "LT": ("europe", "lithuania"),
+              "LU": ("europe", "luxembourg"),
+              "LV": ("europe", "latvia"),
+              "MC": ("europe", "monaco"),
+              "MD": ("europe", "moldova"),
+              "ME": ("europe", "montenegro"),
+              "MK": ("europe", "north_macedonia"),
+              "MT": ("europe", "malta"),
+              "NL": ("europe", "netherlands"),
+              "NO": ("europe", "norway"),
+              "PL": ("europe", "poland"),
+              "PT": ("europe", "portugal"),
+              "RO": ("europe", "romania"),
+              "RS": ("europe", "serbia"),
+              "RU": ("europe", "russia"),
+              "SE": ("europe", "sweden"),
+              "SI": ("europe", "slovenia"),
+              "SJ": ("europe", "svalbard_and_jan_mayen"),
+              "SK": ("europe", "slovakia"),
+              "SM": ("europe", "san_marino"),
+              "UA": ("europe", "ukraine"),
+              "VA": ("europe", "vatican_city"),
+              "AX": ("europe", "aland_islands"),
+              # North America
+              "AG": ("north_america", "antigua_and_barbuda"),
+              "AI": ("north_america", "anguilla"),
+              "AW": ("north_america", "aruba"),
+              "BB": ("north_america", "barbados"),
+              "BL": ("north_america", "saint_barthelemy"),
+              "BM": ("north_america", "bermuda"),
+              "BQ": ("north_america", "bonaire"),
+              "BS": ("north_america", "bahamas"),
+              "BZ": ("north_america", "belize"),
+              "CA": ("north_america", "canada"),
+              "CR": ("north_america", "costa_rica"),
+              "CU": ("north_america", "cuba"),
+              "CW": ("north_america", "curacao"),
+              "DM": ("north_america", "dominica"),
+              "DO": ("north_america", "dominican_republic"),
+              "GD": ("north_america", "grenada"),
+              "GP": ("north_america", "guadeloupe"),
+              "GT": ("north_america", "guatemala"),
+              "HN": ("north_america", "honduras"),
+              "HT": ("north_america", "haiti"),
+              "JM": ("north_america", "jamaica"),
+              "KN": ("north_america", "saint_kitts_and_nevis"),
+              "KY": ("north_america", "cayman_islands"),
+              "LC": ("north_america", "saint_lucia"),
+              "MF": ("north_america", "saint_martin"),
+              "MQ": ("north_america", "martinique"),
+              "MS": ("north_america", "montserrat"),
+              "MX": ("north_america", "mexico"),
+              "NI": ("north_america", "nicaragua"),
+              "PA": ("north_america", "panama"),
+              "PM": ("north_america", "saint_pierre_and_miquelon"),
+              "PR": ("north_america", "puerto_rico"),
+              "SV": ("north_america", "el_salvador"),
+              "SX": ("north_america", "sint_maarten"),
+              "TC": ("north_america", "turks_and_caicos_islands"),
+              "TT": ("north_america", "trinidad_and_tobago"),
+              "US": ("north_america", "united_states"),
+              "VC": ("north_america", "saint_vincent_and_the_grenadines"),
+              "VG": ("north_america", "british_virgin_islands"),
+              "VI": ("north_america", "us_virgin_islands"),
+              "UM": ("north_america", "us_minor_outlying_islands"),
+              # Oceania
+              "AS": ("oceania", "american_samoa"),
+              "AU": ("oceania", "australia"),
+              "CC": ("oceania", "cocos_islands"),
+              "CK": ("oceania", "cook_islands"),
+              "CX": ("oceania", "christmas_island"),
+              "FJ": ("oceania", "fiji"),
+              "FM": ("oceania", "micronesia"),
+              "GU": ("oceania", "guam"),
+              "HM": ("oceania", "heard_island"),
+              "KI": ("oceania", "kiribati"),
+              "MH": ("oceania", "marshall_islands"),
+              "MP": ("oceania", "northern_mariana_islands"),
+              "NC": ("oceania", "new_caledonia"),
+              "NF": ("oceania", "norfolk_island"),
+              "NR": ("oceania", "nauru"),
+              "NU": ("oceania", "niue"),
+              "NZ": ("oceania", "new_zealand"),
+              "PF": ("oceania", "french_polynesia"),
+              "PG": ("oceania", "papua_new_guinea"),
+              "PN": ("oceania", "pitcairn_islands"),
+              "PW": ("oceania", "palau"),
+              "SB": ("oceania", "solomon_islands"),
+              "TF": ("oceania", "french_southern_territories"),  # Indischer Ozean – in oceania als Auffangbecken
+              "TK": ("oceania", "tokelau"),
+              "TO": ("oceania", "tonga"),
+              "TV": ("oceania", "tuvalu"),
+              "VU": ("oceania", "vanuatu"),
+              "WF": ("oceania", "wallis_and_futuna"),
+              "WS": ("oceania", "samoa"),
+              "AQ": ("oceania", "antarctica"),  # Eigener Kontinent – in oceania als Auffangbecken (kaum IP-Ranges)
+              # South America
+              "AR": ("south_america", "argentina"),
+              "BO": ("south_america", "bolivia"),
+              "BR": ("south_america", "brazil"),
+              "BV": ("south_america", "bouvet_island"),
+              "CL": ("south_america", "chile"),
+              "CO": ("south_america", "colombia"),
+              "EC": ("south_america", "ecuador"),
+              "FK": ("south_america", "falkland_islands"),
+              "GF": ("south_america", "french_guiana"),
+              "GY": ("south_america", "guyana"),
+              "PE": ("south_america", "peru"),
+              "PY": ("south_america", "paraguay"),
+              "SR": ("south_america", "suriname"),
+              "UY": ("south_america", "uruguay"),
+              "VE": ("south_america", "venezuela"),
+          }
+
+          CONTINENTS = ["africa", "asia", "europe", "north_america", "oceania", "south_america"]
+
+          base_url = "https://country-ip-blocks.hackinggate.com"
+          # Hinweis: hackinggate.com ist der einzige Datenprovider für diesen Workflow.
+          # Bei einem Totalausfall greift der Leerungsschutz (MIN_ENTRIES=240_000) und
+          # die bestehenden Dateien werden beibehalten. Eine alternative Quelle wäre
+          # z.B. https://www.ipdeny.com/ipblocks/ (CIDR-Format, länderbezogen).
+          all_ips  = set()                # für all_countries_ipv4.txt
+          continent_ips = {c: set() for c in CONTINENTS}
+          country_data  = {}              # cc → sorted list of entries
+          errors = []
+
+          def sort_key(entry):
+              try:
+                  net = ipaddress.ip_network(entry.split()[0], strict=False)
+                  return (int(net.network_address), net.prefixlen)
+              except Exception:
+                  return (0, 0)
+
+          def fetch_country(url, retries=3, timeout=15):
+              # FIX BUG-WF2-FETCHURL: vorher direkter urllib.urlopen ohne SSRF-
+              # Schutz. fetch_url uebernimmt jetzt Retry/Backoff und gzip-
+              # Streaming. Das (text, error)-Tupel wird beibehalten fuer
+              # Backward-Compat des Callers (der das error-Objekt fuer Logging
+              # nutzt) – auf einen generischen "fetch_url returned None"-
+              # Marker, da fetch_url nicht zwischen 404/Timeout/etc.
+              # unterscheidet sondern nur None/Body.
+              text = fetch_url(url, timeout=timeout, retries=retries,
+                               user_agent="NETSHIELD-Geo/2.0")
+              if text is None:
+                  return None, Exception("fetch_url returned None")
+              return text, None
+
+          countries = list(COUNTRY_MAP.keys())
+          print(f"Lade {len(countries)} Länder von hackinggate.com ...")
+
+          # FIX #14: Elapsed-time Guard – Abbruch bei >15min damit der Commit-Schritt
+          # noch innerhalb des 20min Job-Timeouts ausgeführt werden kann.
+          _loop_start = time.monotonic()
+          MAX_LOOP_SECONDS = 900  # 15 Minuten
+          _partial_load = False
+
+          for i, cc in enumerate(countries):
+              if time.monotonic() - _loop_start > MAX_LOOP_SECONDS:
+                  _partial_load = True
+                  _skipped_ccs = countries[i:]
+                  _msg = (f"Elapsed-time Guard ausgelöst nach {i} Ländern ({i}/{len(countries)}) – "
+                          f"{len(_skipped_ccs)} Länder übersprungen ({', '.join(_skipped_ccs[:10])}{'…' if len(_skipped_ccs) > 10 else ''}). "
+                          f"Bisher geladene Daten werden gespeichert.")
+                  print(f"::warning file=update-blocklist.yml::{_msg}")
+                  print(f"WARNUNG: {_msg}")
+                  break
+              continent, name = COUNTRY_MAP[cc]
+              url = f"{base_url}/{cc}_IPv4.txt"
+              raw, err = fetch_country(url)
+
+              if raw is not None:
+                  lines = [
+                      l.strip()
+                      for l in raw.splitlines()
+                      if l.strip() and l[0].isdigit()
+                  ]
+                  all_ips.update(lines)
+                  continent_ips[continent].update(lines)
+                  country_data[cc] = (continent, name, sorted(lines, key=sort_key))
+                  if lines:
+                      print(f"[{i+1}/{len(countries)}] {cc} ({name}) → {len(lines)} entries")
+                  else:
+                      # Datei vorhanden aber leer → Land/Insel hat keine registrierten IP-Ranges
+                      print(f"[{i+1}/{len(countries)}] {cc} ({name}) → 0 entries (keine IP-Ranges registriert)")
+              elif isinstance(err, urllib.error.HTTPError) and err.code == 404:
+                  # 404 = Datei existiert nicht → Land hat keine IP-Ranges bei hackinggate
+                  print(f"[{i+1}/{len(countries)}] {cc} ({name}) → 0 entries (404 – keine IP-Ranges)")
+                  country_data[cc] = (continent, name, [])
+              elif isinstance(err, urllib.error.HTTPError):
+                  print(f"[{i+1}/{len(countries)}] {cc} ({name}) → ERROR HTTP {err.code}")
+                  errors.append(cc)
+              else:
+                  print(f"[{i+1}/{len(countries)}] {cc} ({name}) → ERROR: {err}")
+                  errors.append(cc)
+
+              time.sleep(0.1)
+
+          # ── Leerungsschutz ────────────────────────────────────────────────
+          # hackinggate liefert ~255k aggregierte Ranges. Bei partiellem Ausfall
+          # könnten trotzdem 200k+ ankommen → Schwelle auf 240k erhöht für
+          # zuverlässigeren Schutz vor teilweise fehlgeschlagenen Runs.
+          MIN_ENTRIES = 240_000
+          if len(all_ips) == 0:
+              msg = "Keine IP-Ranges geladen – hackinggate.com möglicherweise ausgefallen (SPOF)"
+              print(f"::error file=update-blocklist.yml::{msg}")
+              print(f"FEHLER: {msg}")
+              sys.exit(1)
+          if len(all_ips) < MIN_ENTRIES:
+              msg = (f"Nur {len(all_ips)} IP-Ranges geladen (< {MIN_ENTRIES}) – "
+                     f"Leerungsschutz aktiv, Dateien werden NICHT überschrieben.")
+              print(f"::warning file=update-blocklist.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(1)
+
+          # ── 1) all_countries_ipv4.txt ────────────────────────────────────
+          # FIX ATOMIC: write_ip_list statt open("w") – bei Runner-Kill
+          # bleibt die Datei komplett alt oder komplett neu.
+          header_lines = []
+          if _partial_load:
+              header_lines.append(f"WARNUNG: Teildaten – Elapsed-Time Guard bei {len(country_data)}/{len(countries)} Ländern ausgelöst")
+          write_ip_list("all_countries_ipv4.txt", all_ips, header_lines=header_lines or None)
+          print(f"\nall_countries_ipv4.txt: {len(all_ips)} entries")
+
+          # ── 2) continents/*.txt ──────────────────────────────────────────
+          # FIX ATOMIC: write_ip_list pro Datei – jede Datei für sich
+          # garantiert konsistent. Bei Crash mitten in der Schleife sind
+          # bereits geschriebene Dateien vollständig, die noch nicht
+          # geschriebenen bleiben vom vorigen Lauf unverändert.
+          os.makedirs("continents", exist_ok=True)
+          for continent in CONTINENTS:
+              ips  = continent_ips[continent]
+              path = f"continents/{continent}_ipv4.txt"
+              write_ip_list(
+                  path,
+                  ips,
+                  header_lines=[
+                      f"NETSHIELD – {continent.replace('_', ' ').title()} IPv4 Ranges",
+                      f"Aktualisiert: {now_str}",
+                      f"IP-Ranges: {len(ips)}",
+                  ],
+              )
+              print(f"continents/{continent}_ipv4.txt: {len(ips)} entries")
+
+          # ── 3) countries/{continent}/{name}_ipv4.txt ─────────────────────
+          # FIX ATOMIC: siehe oben. Bei ~250 Ländern ist die Schleifen-
+          # Länge groß, deshalb ist atomares Schreiben pro Datei wichtig.
+          for cc, (continent, name, ips) in country_data.items():
+              dir_path = f"countries/{continent}"
+              os.makedirs(dir_path, exist_ok=True)
+              path = f"{dir_path}/{name}_ipv4.txt"
+              write_ip_list(
+                  path,
+                  ips,
+                  header_lines=[
+                      f"NETSHIELD – {name.replace('_', ' ').title()} ({cc}) IPv4 Ranges",
+                      f"Aktualisiert: {now_str}",
+                      f"IP-Ranges: {len(ips)}",
+                  ],
+              )
+              print(f"countries/{continent}/{name}_ipv4.txt: {len(ips)} entries")
+
+          # ── Verwaiste Länderdateien aufräumen ──────────────────────────
+          # FIX STALE-COUNTRY: Wenn ein Land in COUNTRY_MAP den Kontinent
+          # wechselt (z.B. GS von africa→oceania), bleibt die alte Datei
+          # countries/africa/south_georgia_ipv4.txt als Altlast im Repo.
+          # Lösung: Alle existierenden *_ipv4.txt-Dateien scannen und
+          # diejenigen löschen, die nicht mehr von COUNTRY_MAP erzeugt werden.
+          import glob
+          expected_paths = set()
+          for cc, (continent, name, ips) in country_data.items():
+              expected_paths.add(f"countries/{continent}/{name}_ipv4.txt")
+          # Auch Länder die übersprungen wurden (Fehler/Timeout) behalten
+          for cc, (continent, name) in COUNTRY_MAP.items():
+              expected_paths.add(f"countries/{continent}/{name}_ipv4.txt")
+
+          stale_removed = []
+          for existing_file in glob.glob("countries/*/*_ipv4.txt"):
+              if existing_file not in expected_paths:
+                  try:
+                      os.remove(existing_file)
+                      stale_removed.append(existing_file)
+                      print(f"  🗑  Verwaiste Datei entfernt: {existing_file}")
+                  except Exception as e:
+                      print(f"  ⚠️  Konnte {existing_file} nicht entfernen: {e}")
+          if stale_removed:
+              print(f"\n{len(stale_removed)} verwaiste Länderdatei(en) entfernt")
+
+          print(f"\nDone! Gesamt: {len(all_ips)} IP-Ranges")
+          if errors:
+              print(f"Fehler bei: {', '.join(errors)}")
+          EOF
+
+      - name: Commit and Push
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add all_countries_ipv4.txt continents/ countries/
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Update All Countries IPv4: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                git checkout --theirs -- all_countries_ipv4.txt 2>/dev/null || true
+                # FIX: --theirs auf Verzeichnisse schlägt bei Einzel-Konflikten still fehl.
+                # git diff --name-only --diff-filter=U liefert alle ungelösten Dateien.
+                git diff --name-only --diff-filter=U 2>/dev/null | grep -E '^(continents|countries)/' | xargs -r git checkout --theirs -- 2>/dev/null || true
+                git add all_countries_ipv4.txt continents/ countries/ 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi

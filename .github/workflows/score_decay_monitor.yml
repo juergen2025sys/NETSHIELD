@@ -1,0 +1,356 @@
+name: Score Decay Monitor
+
+on:
+  schedule:
+    - cron: '0 7 * * 0'    # wöchentlich Sonntag 07:00 UTC
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: read
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+
+concurrency:
+  # FIX RACE: seen_db-Leser muessen in gleicher Gruppe wie die Writer sein,
+  # sonst kann dieser Workflow parallel zum laufenden update_combined_blacklist
+  # einen halb geschriebenen Cache lesen.
+  group: netshield-seen-db-writers
+  cancel-in-progress: false
+  # FIX BUG-QUEUE-STARVE (2026-07-24): Ohne "queue: max" (Default: single)
+  # canceled ein neu ankommender Trigger aus derselben Gruppe (v.a.
+  # update_combined_blacklist mit bis zu 24 Slots/Tag) sofort den hier
+  # wartenden "pending"-Run. Score Decay lief dadurch seit 2026-06-28 nicht
+  # mehr, obwohl der woechentliche Cron-Trigger korrekt feuerte - der Run
+  # wurde nur nie ausgefuehrt, weil er im Wartezustand verdraengt wurde
+  # (exakt dasselbe Muster wie in update_confidence_blacklist.yml vor dem
+  # dortigen Fix vom 2026-06-02 dokumentiert, dort aber via workflow_dispatch-
+  # Direkttrigger geloest statt via queue). "queue: max" laesst wartende
+  # Runs in der Gruppe einreihen statt sie zu canceln. Muss konsistent mit
+  # den anderen vier Workflows dieser Gruppe gesetzt sein (siehe dort).
+  queue: max
+jobs:
+  score-decay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Restore seen_db Cache (read-only)
+        id: cache-restore
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        # actions/cache/restore statt actions/cache: führt KEINEN Post-Job-Save durch.
+        # Score Decay liest seen_db ausschließlich lesend – ein Cache-Write würde
+        # unnötige Einträge akkumulieren und den neueren Stand des letzten
+        # Combined-Laufs potenziell überschreiben.
+        with:
+          path: seen_db.json
+          key: netshield-seen-db-v2-${{ github.run_id }}
+          restore-keys: |
+            netshield-seen-db-v2-
+            netshield-seen-db-v1-
+            netshield-seen-db-
+
+      # Repo-Fallback ist absichtlich nur informativ:
+      # update_combined_blacklist.yml committet seen_db.json NICHT ins Repo,
+      # sondern nur state/seen_db_meta.json. Die echte Analyse benötigt den Cache.
+      - name: Fallback – Cache-Miss transparent melden
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: |
+          if [ -f seen_db.json ]; then
+            echo "Unerwartet: seen_db.json liegt im Checkout ($(wc -c < seen_db.json) Bytes)"
+          elif [ -f state/seen_db_meta.json ]; then
+            echo "::warning file=score_decay_monitor.yml::Cache-Miss – seen_db.json nicht verfügbar; Repo enthält nur state/seen_db_meta.json"
+            echo "state/seen_db_meta.json gefunden:"
+            cat state/seen_db_meta.json
+          else
+            echo "::warning file=score_decay_monitor.yml::Cache-Miss – weder seen_db.json noch state/seen_db_meta.json verfügbar"
+          fi
+
+      - name: Run Score Decay Analysis
+        run: |
+          python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries as _parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_text_atomic,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
+          import json, os, re, sys
+          from datetime import datetime, timezone, timedelta
+          from collections import defaultdict
+
+          now     = datetime.now(timezone.utc)
+          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+
+          DB_FILE = "seen_db.json"
+
+          if not os.path.exists(DB_FILE):
+              msg = "seen_db.json nicht im Cache gefunden; im Repo liegt höchstens state/seen_db_meta.json"
+              print(f"::warning file=score_decay_monitor.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              write_text_atomic("reports/score_decay_report.md",
+                  f"# Score Decay Monitor\n\n*{msg}*\n\n"
+                  f"*Generiert: {now_str}*\n")
+              # Vorhandenen Log NICHT überschreiben – nur Report schreiben
+              if not os.path.exists("logs/score_decay_log.txt"):
+                  write_text_atomic("logs/score_decay_log.txt",
+                      f"# Score Decay Log | {now_str}\n# {msg}\n")
+              print(f"ABBRUCH: {msg} – kein weiterer Score-Decay-Lauf möglich.")
+              sys.exit(1)
+
+          with open(DB_FILE) as f:
+              try:
+                  db = json.load(f)
+              except Exception as e:
+                  msg = f"seen_db.json ist korrupt oder nicht lesbar: {e}"
+                  print(f"::warning file=score_decay_monitor.yml::{msg}")
+                  print(f"FEHLER: {msg}")
+                  write_text_atomic("reports/score_decay_report.md",
+                      f"# Score Decay Monitor\n\n*{msg}*\n\n"
+                      f"*Generiert: {now_str}*\n")
+                  if not os.path.exists("logs/score_decay_log.txt"):
+                      write_text_atomic("logs/score_decay_log.txt",
+                          f"# Score Decay Log | {now_str}\n# {msg}\n")
+                  sys.exit(1)
+
+          print(f"seen_db geladen: {len(db)} IPs")
+
+          # FIX AGE1: Cache-Alter prüfen – Score Decay läuft wöchentlich (So 07:00).
+          # Bei veraltetem Cache (> 24h seit letztem HQ-Eintrag) Warnung ausgeben,
+          # damit der Report nicht auf Basis einer wochealten seen_db erstellt wird.
+          real_dates = [safe_get_date(d, "last") for d in db.values()
+                        if isinstance(d, dict) and safe_get_date(d, "last") != "2000-01-01"]
+          if real_dates:
+              newest_last = max(real_dates)
+              try:
+                  newest_dt = datetime.strptime(newest_last, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                  db_age_hours = (now - newest_dt).total_seconds() / 3600
+                  # FIX: Schwelle von 6h auf 12h angehoben. Score Decay läuft wöchentlich
+                  # sonntags um 07:00; letzter Combined-Lauf wäre 06:00 (~1h vorher).
+                  # Bei >12h wurden mindestens 4 Combined-Runs (alle 3h) verpasst – das
+                  # rechtfertigt eine Warnung. 6h war zu streng und erzeugte falsch-positive
+                  # Warnungen nach einem einzelnen verpassten Run.
+                  if db_age_hours > 12:
+                      age_msg = (f"seen_db ist {db_age_hours:.0f}h alt (letzter HQ-Eintrag: {newest_last}) "
+                                 f"– Score Decay analysiert möglicherweise veraltete Daten")
+                      print(f"::warning file=score_decay_monitor.yml::{age_msg}")
+                      print(f"WARNUNG: {age_msg}")
+                  else:
+                      print(f"seen_db Alter: {db_age_hours:.1f}h (OK)")
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+          else:
+              print("seen_db: Keine HQ-bestätigten Einträge (nur Watchlist-IPs)")
+
+          WARN_DAYS     = 30
+          CRITICAL_DAYS = 45
+          # DECAY_DAYS entfernt – Löschen aus combined/seen_db ist ausschließlich
+          # Aufgabe von combined (EXPIRY_DAYS=180). Score Decay ist reiner Monitor/Reporter.
+
+          stale_warn     = []
+          stale_critical = []
+          decay_suggest  = []
+          still_active   = []
+          zombie_high    = []
+          score_dist     = defaultdict(int)
+
+          for ip, data in db.items():
+              try:
+                  if not isinstance(data, dict):
+                      continue
+                  last_seen  = safe_get_date(data, "last")
+                  first_seen = safe_get_date(data, "first", last_seen)
+                  is_hq      = data.get("hq", False)
+                  days_seen  = data.get("days_seen", 1)  # Anzahl Tage mit echter Bestätigung
+                  # FIX BUG-1: Default 1 (vorher 0). update_combined_blacklist.yml:1351
+                  # und update_confidence_blacklist.yml:360 verwenden default 1.
+                  # Mit default 0 wurden dieselben IPs hier mit score_c=0, dort
+                  # mit score_c=2 gewertet → Reports und Blacklist widersprachen
+                  # sich um 2 Punkte fuer Eintraege ohne days_seen-Feld.
+                  try:
+                      last_dt  = datetime.strptime(last_seen,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      first_dt = datetime.strptime(first_seen, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                  except Exception:
+                      continue
+                  days_ago    = (now - last_dt).days
+
+                  # FIX BUG2: Watchlist-IPs haben last="2000-01-01" als Sentinel-Wert.
+                  # days_ago wäre dadurch ≈9591 → fälschliche Einordnung in decay_suggest,
+                  # stale_critical und zombie_high. Diese IPs überspringen – ihr Ablauf
+                  # wird über first_seen + EXPIRY_DAYS in combined_blacklist gesteuert.
+                  if last_seen == "2000-01-01":
+                      continue
+
+                  # FIX BUG-3: first="2000-01-01" ohne last-Sentinel ist ein
+                  # Datenkorruptions-Zustand (last real, first nicht). Vorher
+                  # haette der days_seen-Fallback unten (jetzt entfernt)
+                  # (last_dt - first_dt).days ≈ 9600 ergeben → Score-Inflation.
+                  # Auch nach Entfernung des Fallbacks bleibt der Skip korrekt:
+                  # days_known=(now - first_dt).days + 1 würde sonst ebenfalls
+                  # den Sentinel-Drift in die Confidence-Berechnung einspeisen.
+                  if first_seen == "2000-01-01":
+                      continue
+
+                  # FIX BUG-17: Harmonisiertes Scoring via calculate_confidence.
+                  # Vorher: ad-hoc Formel `days_seen + 20 if hq`, die unabhängig
+                  # vom zentralen Scoring-Modell war. Zwei Workflows scorten
+                  # dieselbe IP unterschiedlich → Dashboards widersprachen sich
+                  # (eine IP konnte gleichzeitig in active_blacklist als "Score 75,
+                  # aktiv" UND in score_decay_log als "Zombie, Score 25" erscheinen).
+                  # Jetzt: einheitliche 0-100-Skala aus netshield_common.
+                  feed_count  = len(data.get("feeds", []))
+                  today_count = data.get("today_count", 0)
+                  score = calculate_confidence(
+                      is_hq=is_hq,
+                      today_count=today_count,
+                      feed_count=feed_count,
+                      days_since_last=days_ago,
+                      # FIX BUG-3: Dead-Code-Fallback entfernt.
+                      # Vorher: max(1, days_seen) if days_seen > 0 else max(1, (last_dt - first_dt).days + 1)
+                      # Der else-Zweig wurde nie erreicht (Watchlist-IPs mit
+                      # days_seen=0 sind durch den last="2000-01-01"-Guard oben
+                      # bereits ausgeschlossen) und haette bei Datenkorruption
+                      # (fehlender days_seen-Key, last/first real) Score-Inflation
+                      # erzeugt: (last_dt - first_dt).days koennte Monate sein.
+                      # Mit Bug-1-Fix (default=1) ist der Wert ohnehin >=1, daher
+                      # reicht max(1, days_seen).
+                      days_seen=max(1, days_seen),
+                      days_known=(now - first_dt).days + 1,
+                  )
+                  score_dist[(score // 10) * 10] += 1
+
+                  # Schwellen angepasst auf die 0-100-Confidence-Skala:
+                  #   stale_warn        ≥ Score 25 (≈ Confidence-Watchlist-Grenze)
+                  #   stale_critical    ≥ Score 40 (≈ Confidence-Blacklist-Grenze)
+                  #   zombie_high       ≥ Score 65 (≈ active_blacklist-Schwelle)
+                  # Alte Schwellen waren auf eigene Skala (max ~70) kalibriert –
+                  # die neuen Werte ergeben äquivalente Filterung auf der
+                  # einheitlichen Skala.
+                  if days_ago <= 7:
+                      still_active.append((ip, score, days_ago))
+                  if days_ago >= 150:
+                      decay_suggest.append((ip, score, days_ago, last_seen))  # bald von combined entfernt (180T)
+                  elif days_ago >= CRITICAL_DAYS and score >= 40:
+                      stale_critical.append((ip, score, days_ago, last_seen))
+                  elif days_ago >= WARN_DAYS and score >= 25:
+                      stale_warn.append((ip, score, days_ago, last_seen))
+                  if score >= 65 and days_ago >= 30:
+                      zombie_high.append((ip, score, days_ago, last_seen))
+              except Exception as _corrupt:
+                  print(f"WARN: Korrupter seen_db-Eintrag {ip}: {_corrupt}", file=sys.stderr)
+                  continue
+
+          for lst in (stale_critical, stale_warn, zombie_high, decay_suggest):
+              lst.sort(key=lambda x: x[1], reverse=True)
+
+          print(f"Kürzlich aktiv (≤7 Tage):       {len(still_active)}")
+          print(f"Veraltend – Warnung (30-44 Tage, Score≥25): {len(stale_warn)}")
+          print(f"Veraltend – Kritisch (45+ Tage, Score≥40):  {len(stale_critical)}")
+          print(f"Zombie (Score≥65, 30+ Tage inaktiv):        {len(zombie_high)}")
+          # decay_suggest hat bewusst KEINE Score-Schwelle - alle Eintraege mit
+          # last_seen >= 150 Tage werden gelistet, weil sie naechste Woche von
+          # der combined_blacklist (180-Tage-Cutoff) entfernt werden, unabhaengig
+          # vom aktuellen Score. Das ist Cleanup-Hinweis, keine Reklassifizierung.
+          print(f"Läuft bald ab (150+ Tage, alle Scores):     {len(decay_suggest)}")
+
+          # Decay-Log
+          _log_lines = [
+              f"# Score Decay Log | {now_str}",
+              f"# DB: {len(db)} IPs",
+              f"# Scoring: harmonisiert mit calculate_confidence (0-100)",
+              "",
+              "# ZOMBIE IPs (Score≥65, 30+ Tage inaktiv)",
+          ]
+          for ip, score, days, last in zombie_high[:100]:
+              _log_lines.append(f"{ip}  score={score}  last={last}  ({days}d ago)")
+          _log_lines.append("")
+          _log_lines.append("# KRITISCH veraltend (45+ Tage, Score≥40)")
+          for ip, score, days, last in stale_critical[:200]:
+              _log_lines.append(f"{ip}  score={score}  last={last}  ({days}d ago)")
+          _log_lines.append("")
+          _log_lines.append("# Läuft bald ab (150+ Tage, combined entfernt bei 180T)")
+          for ip, score, days, last in decay_suggest[:500]:
+              _log_lines.append(f"{ip}  score={score}  last={last}  ({days}d ago)")
+          write_text_atomic("logs/score_decay_log.txt", "\n".join(_log_lines) + "\n")
+
+          # Report
+          lines = ["# Score Decay Monitor – Report", f"**Aktualisiert:** {now_str}\n", "---",
+                   "## Übersicht\n",
+                   "| Kategorie | IPs | Bedeutung |", "|---|---|---|",
+                   f"| ✅ Kürzlich aktiv (≤7 Tage) | **{len(still_active)}** | Frische Bedrohungen |",
+                   f"| 🟡 Veraltend – Warnung | **{len(stale_warn)}** | 30-44 Tage ohne Aktivität, Score≥25 |",
+                   f"| 🔴 Veraltend – Kritisch | **{len(stale_critical)}** | 45+ Tage ohne Aktivität, Score≥40 |",
+                   f"| 💀 Zombie | **{len(zombie_high)}** | Score≥65, 30+ Tage inaktiv |",
+                   f"| ⏳ Läuft bald ab (150+ Tage) | **{len(decay_suggest)}** | combined entfernt bei 180 Tagen |",
+                   "", "---",
+                   "## ℹ️ Hinweis\nScore-Berechnung harmonisiert mit `calculate_confidence` (0-100-Skala).\n"
+                   "IPs werden **nicht** durch diesen Workflow gelöscht.\n"
+                   "Das Entfernen aus combined + seen_db erfolgt ausschließlich durch\n"
+                   "`update_combined_blacklist` nach **180 Tagen** ohne Feed-Bestätigung.\n",
+                   f"---\n*Generiert: {now_str} | DB: {len(db)} IPs*"]
+
+          write_text_atomic("reports/score_decay_report.md", "\n".join(lines))
+          print("reports/score_decay_report.md geschrieben")
+          EOF
+
+      # Score Decay liest seen_db nur lesend – kein Cache-Write nötig.
+      # Ein Write würde den neueren Stand des letzten Combined-Laufs überschreiben.
+
+      - name: Commit
+        # FIX: Auch bei sys.exit(1) im Python-Step soll der Commit-Step laufen,
+        # damit der Fehler-Report (reports/score_decay_report.md) committet wird.
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch score_decay_log.txt score_decay_report.md 2>/dev/null || true
+          git add logs/score_decay_log.txt reports/score_decay_report.md
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Score Decay Monitor: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                git checkout --theirs logs/score_decay_log.txt reports/score_decay_report.md 2>/dev/null || true
+                git add logs/score_decay_log.txt reports/score_decay_report.md 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi

@@ -1,0 +1,334 @@
+name: TweetFeed Monitor
+
+on:
+  schedule:
+    # Täglicher Lauf: 02:45 UTC – /v1/year/ip (1 Request, ~13k IPs)
+    # Liegt zwischen Combined 00:00 und Honeypot Monitor – kein Konflikt.
+    - cron: '45 2 * * *'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: read
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  tweetfeed-monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Fetch TweetFeed IOC Data
+        run: |
+          python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_whitelisted,
+              write_text_atomic, write_ip_list,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
+          import urllib.request
+          import urllib.error
+          import json
+          import os
+          import sys
+          import time
+          import ipaddress
+          from datetime import datetime, timezone
+
+          now     = datetime.now(timezone.utc)
+          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+
+          # TweetFeed: keine Auth, kein API-Key.
+          # Endpoint: /v1/year/ip → IOCs Typ=ip aus den letzten 365 Tagen.
+          # Limit 10k pro Request laut Doku – deduplizierte unique IPs liegen
+          # erfahrungsgemäß bei ~13k (mit Duplikaten über Jahr) bzw. <10k unique,
+          # daher reicht ein Single-Call ohne Pagination.
+          API_URL = "https://api.tweetfeed.live/v1/year/ip"
+
+          # ── IP-Validierung via ipaddress (private/reserved/multicast raus) ──
+          def is_private(ip):
+              try:
+                  obj = ipaddress.ip_address(ip)
+                  return (obj.version != 4
+                          or obj.is_private
+                          or obj.is_loopback
+                          or obj.is_multicast
+                          or obj.is_reserved
+                          or obj.is_link_local
+                          or obj.is_unspecified)
+              except Exception:
+                  return True
+
+          def is_valid_ipv4(ip):
+              try:
+                  obj = ipaddress.ip_address(ip)
+                  return obj.version == 4
+              except Exception:
+                  return False
+
+          # ── API-Helper (kein Auth) ────────────────────────────────────────
+          # WICHTIG (empirisch, 2026-05-17): tweetfeed.live/v1/year/ip antwortet
+          # je nach Header/Routing entweder mit JSON-Array ODER mit CSV als
+          # text/plain. Beobachtet wurde im echten Run CSV-Output trotz
+          # Accept: application/json (HTTP 200, Content-Type: text/plain,
+          # erste Zeile "2025-05-18 00:52:02,user,domain,...").
+          # → api_get liefert rohen Text zurück; Parsing erfolgt unten.
+          #   Sowohl JSON als auch CSV werden unterstützt (Auto-Detection
+          #   anhand des ersten Nicht-Whitespace-Zeichens: "[" = JSON, sonst CSV).
+          import gzip as _gzip
+          def api_get(url, retries=3):
+              for attempt in range(1, retries + 1):
+                  req = urllib.request.Request(url, headers={
+                      "User-Agent":      "NETSHIELD-TweetFeed/1.0",
+                      "Accept":          "application/json, text/plain;q=0.9",
+                      "Accept-Encoding": "identity",
+                  })
+                  try:
+                      with urllib.request.urlopen(req, timeout=60) as r:
+                          status = r.status
+                          ce     = r.headers.get("Content-Encoding", "").lower()
+                          ct     = r.headers.get("Content-Type", "")
+                          raw    = r.read()
+                          print(f"  HTTP {status} | CT={ct} | CE={ce or '-'} | bytes={len(raw)}")
+                          # Falls trotz identity-Header gzip kommt: dekomprimieren.
+                          if ce == "gzip" or raw[:2] == b"\x1f\x8b":
+                              try:
+                                  raw = _gzip.decompress(raw)
+                                  print(f"  gzip dekomprimiert → bytes={len(raw)}")
+                              except Exception as ze:
+                                  print(f"  gzip-Decompress fehlgeschlagen: {ze}")
+                          return raw.decode("utf-8", errors="replace")
+                  except urllib.error.HTTPError as e:
+                      if e.code in (429, 500, 502, 503, 504) and attempt < retries:
+                          wait_s = 2 ** attempt
+                          print(f"  HTTP {e.code} – Retry in {wait_s}s ({attempt}/{retries})")
+                          time.sleep(wait_s)
+                          continue
+                      print(f"  HTTP {e.code}: {e.reason}")
+                      return None
+                  except Exception as e:
+                      if attempt < retries:
+                          wait_s = 2 ** attempt
+                          print(f"  FEHLER: {e} – Retry in {wait_s}s ({attempt}/{retries})")
+                          time.sleep(wait_s)
+                          continue
+                      print(f"  FEHLER: {e}")
+                      return None
+
+          # ── Parser: JSON ODER CSV (Auto-Detection) ────────────────────────
+          # JSON-Format (laut tweetfeed.live-Doku):
+          #   [{"date":"YYYY-MM-DD HH:MM:SS","user":"...","type":"ip",
+          #     "value":"x.x.x.x","tags":[...],"tweet":"..."}, ...]
+          # CSV-Format (empirisch beobachtet, 6 Spalten kommagetrennt):
+          #   date,user,type,value,tags,tweet
+          # Beide werden zu set(IPv4-Strings) reduziert; Filter type=ip auf
+          # Spalte 3 (CSV) bzw. entry["type"] (JSON).
+          import csv as _csv
+          def parse_response(text):
+              stripped = text.lstrip()
+              ips = set()
+              if stripped.startswith("["):
+                  # JSON-Pfad
+                  try:
+                      data = json.loads(stripped)
+                  except json.JSONDecodeError as je:
+                      snippet = stripped[:200].replace("\n", "\\n")
+                      print(f"  JSON-Parse-Fehler: {je}")
+                      print(f"  Antwort-Anfang: {snippet!r}")
+                      return None, "json-error"
+                  if not isinstance(data, list):
+                      return None, "json-not-list"
+                  for entry in data:
+                      if isinstance(entry, dict) and entry.get("type") == "ip":
+                          v = (entry.get("value") or "").strip()
+                          if v:
+                              ips.add(v)
+                  return ips, f"json:{len(data)}-rows"
+              else:
+                  # CSV-Pfad: column 3 = type, column 4 = value
+                  reader = _csv.reader(text.splitlines())
+                  row_count = 0
+                  for row in reader:
+                      row_count += 1
+                      if len(row) < 4:
+                          continue
+                      if row[2].strip().lower() != "ip":
+                          continue
+                      v = row[3].strip()
+                      if v:
+                          ips.add(v)
+                  return ips, f"csv:{row_count}-rows"
+
+          # ── 1) IOCs abrufen + parsen ──────────────────────────────────────
+          print(f"[1/3] Abruf {API_URL}...")
+          text = api_get(API_URL)
+          if not text:
+              print("FEHLER: Kein Response-Text erhalten – Abbruch")
+              sys.exit(1)
+          raw_ips, fmt = parse_response(text)
+          if raw_ips is None:
+              print(f"FEHLER: Parsing fehlgeschlagen ({fmt}) – Abbruch")
+              sys.exit(1)
+          print(f"  → Format: {fmt}, {len(raw_ips)} eindeutige IP-IOCs extrahiert")
+
+          # ── 2) IPs validieren + filtern ───────────────────────────────────
+          print(f"\n[2/3] IPs validieren + filtern...")
+          print(f"  → {len(raw_ips)} eindeutige IPs (vor Filter)")
+
+          # Public IPv4 only
+          public_ips = {ip for ip in raw_ips if is_valid_ipv4(ip) and not is_private(ip)}
+          dropped_private = len(raw_ips) - len(public_ips)
+          if dropped_private:
+              print(f"  Private/Reserved/Loopback gefiltert: {dropped_private}")
+
+          # FP-Filter
+          fp_removed = {ip for ip in public_ips if is_in_fp_set(ip)}
+          if fp_removed:
+              public_ips -= fp_removed
+              print(f"  FP-Filter: {len(fp_removed)} IPs entfernt")
+
+          # Whitelist-Filter (CDN/Cloud-Ranges)
+          # Analog zu honigtopf (FIX BUG-WL-HONIGTOPF) und honeypot_monitor:
+          # Ohne diesen Filter könnten z.B. Cloudflare/Google-IPs aus Phishing-Tweets
+          # in tweetfeed_ips.txt landen und nachgelagert Probleme machen.
+          wl_removed = {ip for ip in public_ips if is_whitelisted(ip)}
+          if wl_removed:
+              public_ips -= wl_removed
+              print(f"  Whitelist-Filter: {len(wl_removed)} IPs entfernt")
+
+          # ── 3) Zusammenfassung + Datei schreiben ──────────────────────────
+          print(f"\n[3/3] Zusammenfassung...")
+          print(f"  Finale IPs: {len(public_ips)}")
+
+          TF_FILE = "tweetfeed_ips.txt"
+          existing = set()
+          if os.path.exists(TF_FILE):
+              with open(TF_FILE) as f:
+                  existing = {l.strip() for l in f if l.strip() and not l.startswith("#")}
+
+          new_ips     = public_ips - existing
+          removed_ips = existing - public_ips
+          final_ips   = sorted(public_ips, key=lambda ip: tuple(int(o) for o in ip.split('.')))
+
+          # ── Report immer zuerst schreiben ────────────────────────────────
+          lines = []
+          lines.append("# TweetFeed Monitor – Report")
+          lines.append(f"**Aktualisiert:** {now_str}  ")
+          lines.append(f"**Quelle:** [tweetfeed.live](https://tweetfeed.live) – IOCs aus Twitter/X-Security-Community  ")
+          lines.append(f"**Endpoint:** `/v1/year/ip` (letzte 365 Tage, Typ=IP)\n")
+          lines.append("---")
+          lines.append("## Pipeline\n")
+          lines.append("| Schritt | Anzahl |")
+          lines.append("|---|---:|")
+          lines.append(f"| Response-Format | **{fmt}** |")
+          lines.append(f"| Eindeutige IPs (roh) | **{len(raw_ips):,}** |")
+          lines.append(f"| Private/Reserved entfernt | **{dropped_private:,}** |")
+          lines.append(f"| FP-Filter entfernt | **{len(fp_removed):,}** |")
+          lines.append(f"| Whitelist-Filter entfernt | **{len(wl_removed):,}** |")
+          lines.append("")
+          lines.append("---")
+          lines.append("| Metrik | Wert |")
+          lines.append("|---|---|")
+          lines.append(f"| Gesamt TweetFeed-IPs | **{len(final_ips):,}** |")
+          lines.append(f"| Neu | **+{len(new_ips):,}** |")
+          lines.append(f"| Entfernt | **-{len(removed_ips):,}** |")
+          lines.append("")
+          lines.append("---")
+          lines.append("> ⚠️ **Confidence-Hinweis (Quelle):** IOCs stammen aus Twitter/X-Posts und sind")
+          lines.append("> nicht 100% verifiziert. TweetFeed empfiehlt explizit **keine direkte Blacklist-Nutzung**,")
+          lines.append("> sondern Einsatz als Watchlist/Threat-Hunting-Quelle. Daher wird `tweetfeed_ips.txt` im")
+          lines.append("> combined-Workflow als **non-HQ** Feed eingelesen – Promotion in active/conf40 nur wenn")
+          lines.append("> andere Quellen die IP zusätzlich bestätigen (Confidence-Scoring).")
+          lines.append("")
+          lines.append("> ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.")
+          lines.append(f"\n---\n*Generiert: {now_str}*")
+
+          write_text_atomic("reports/tweetfeed_report.md", "\n".join(lines))
+          print("  reports/tweetfeed_report.md geschrieben")
+
+          # ── Leerungsschutz ────────────────────────────────────────────────
+          # Empirisch beobachtet: ~13k IPs/Jahr, davon ~13.5k nach Dedup, ~13.5k
+          # nach Private-Filter. MIN_ENTRIES = 5000 ist konservativ (>50% Drop
+          # würde auf API-Problem hinweisen). sys.exit(1) damit GitHub Actions
+          # den Step als fehlgeschlagen markiert und im UI sichtbar wird.
+          MIN_ENTRIES = 5000
+          if len(final_ips) < MIN_ENTRIES:
+              msg = f"Nur {len(final_ips)} TweetFeed-IPs (< {MIN_ENTRIES}) – behalte bestehende Datei"
+              print(f"::warning file=tweetfeed_monitor.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(1)
+
+          # FIX ATOMIC: write_ip_list statt open("w") – Crash-sicher.
+          write_ip_list(
+              "tweetfeed_ips.txt",
+              final_ips,
+              header_lines=[
+                  "NETSHIELD TweetFeed IP Watchlist",
+                  f"Aktualisiert: {now_str}",
+                  "Quelle: tweetfeed.live (Twitter/X-Security-Community IOCs)",
+                  "Endpoint: /v1/year/ip – letzte 365 Tage",
+                  "WARNUNG: Confidence variabel – nicht direkt blocken, nur als Watchlist nutzen",
+                  f"Gesamt: {len(final_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt",
+              ],
+          )
+
+          print(f"  tweetfeed_ips.txt: {len(final_ips)} IPs geschrieben")
+          print(f"\nFERTIG: {len(final_ips)} IPs")
+          EOF
+
+      - name: Commit
+        if: always()  # FIX: auch bei Leerungsschutz-Exit den Report committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch tweetfeed_report.md 2>/dev/null || true
+          git add tweetfeed_ips.txt reports/tweetfeed_report.md
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "TweetFeed Monitor: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                git checkout --theirs tweetfeed_ips.txt reports/tweetfeed_report.md 2>/dev/null || true
+                git add tweetfeed_ips.txt reports/tweetfeed_report.md 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi

@@ -1,0 +1,1217 @@
+name: Honeypot Monitor
+
+on:
+  schedule:
+    - cron: '0 5,11,17,23 * * *'  # FIX TIMING: 05:00, 11:00, 17:00, 23:00 UTC.
+                             # Gibt ≥67min Puffer zum naechsten Combined-Primaer-Slot
+                             # (06:07, 12:07, 18:07, 00:07) und ≥107min zu den Backup-
+                             # Slots (:27/:47). Vorher '30 */6' (00:30/06:30/12:30/18:30)
+                             # lief nur 17min vor dem :47-Backup-Slot – zu wenig wenn
+                             # der Honeypot-Commit noch austand.
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: read
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  honeypot-monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Fetch Honeypot IPs
+        env:
+          SNIFFCAT_TOKEN: ${{ secrets.SNIFFCAT_TOKEN }}
+          SNIFFCAT_TOKEN_2: ${{ secrets.SNIFFCAT_TOKEN_2 }}
+          SNIFFCAT_TOKEN_3: ${{ secrets.SNIFFCAT_TOKEN_3 }}
+          SNIFFCAT_TOKEN_4: ${{ secrets.SNIFFCAT_TOKEN_4 }}
+          THREATFOX_AUTH_KEY: ${{ secrets.THREATFOX_AUTH_KEY }}
+          THREATFOX_AUTH_KEY_2: ${{ secrets.THREATFOX_AUTH_KEY_2 }}
+          REPORTEDIP_KEY: ${{ secrets.REPORTEDIP_KEY }}
+          REPORTEDIP_KEY_2: ${{ secrets.REPORTEDIP_KEY_2 }}
+        run: |
+          python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+
+              write_text_atomic,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
+          import urllib.request, urllib.error, re, os, sys, ipaddress, json, time, csv
+          from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
+
+          # now/now_str_utc: UTC – wird NUR fuer interne Freshness-Logik
+          # (state/honeypot_feed_freshness.json, Feld "last_changed_utc")
+          # verwendet. NICHT fuer die Anzeige aendern, sonst driftet der
+          # Feldname ("_utc") vom tatsaechlichen Zeitwert auseinander.
+          now         = datetime.now(timezone.utc)
+          now_str_utc = now.strftime("%Y-%m-%d %H:%M UTC")
+
+          # now_str: deutsche Zeit (Europe/Berlin, CET/CEST inkl. DST) –
+          # NUR fuer die Anzeige in Report-Header und honeypot_ips.txt-Header.
+          # Der Cron-Schedule oben bleibt bewusst UTC (GitHub Actions cron
+          # kennt ohnehin nur UTC).
+          now_local = now.astimezone(ZoneInfo("Europe/Berlin"))
+          now_str   = now_local.strftime("%Y-%m-%d %H:%M %Z (Berlin)")
+
+          # IPV4_RE / CIDR_RE werden aus netshield_common importiert.
+          # FP-Set wurde bereits oben via load_fp_set() geladen –
+          # is_in_fp_set() greift auf die globalen Strukturen in common zu.
+          # Lokale Re-Definitionen waren ungenutzt und auf der schwächeren
+          # \b-Variante; entfernt um Drift mit der Single-Source-of-Truth
+          # zu vermeiden.
+
+          # is_valid_public_ipv4() → importiert aus netshield_common
+          # is_valid_public_cidr() → importiert aus netshield_common
+          # is_in_fp_set() → importiert aus netshield_common
+          # parse_entries() → importiert aus netshield_common
+          def fetch(url, timeout=30, retries=3, headers=None):
+              # FIX BUG-WF2-FETCHURL (partial): fuer Feeds OHNE Auth-Header
+              # nutzen wir fetch_url (SSRF, DNS-Pin, gzip-Streaming, korrektes
+              # 429/5xx-Retry). Feeds MIT custom headers (z.B. SniffCat
+              # X-Secret-Token-API) muessen weiter den urlopen-Pfad nutzen,
+              # weil fetch_url keine custom-Header durchreicht. Diese
+              # API-Pfade haben hardcoded URLs und sind im Hygiene-Check
+              # explizit als Inline-Whitelist akzeptiert.
+              #
+              # FIX KEY-ROTATION (2026-07-25): headers kann jetzt auch eine
+              # LISTE von Header-Dicts sein (Failover-Kandidaten in
+              # Prioritaets-Reihenfolge, z.B. [PrimaerKey, ZweitKey]). Bei
+              # HTTP 401/403 (Auth-Fehler = Key ungueltig/rotiert) wird NICHT
+              # sofort aufgegeben, sondern der naechste Kandidat probiert.
+              # Kandidaten mit leerem Wert (Secret nicht gesetzt) werden
+              # vorher rausgefiltert. Einzelnes Dict bleibt weiterhin gueltig
+              # (Abwaertskompatibilitaet), wird intern zu einer 1-Element-
+              # Liste normalisiert.
+              #
+              # FIX 429-FAILOVER (2026-07-25): urspruenglich loeste ein 429/5xx
+              # nach Ausschoepfen der Retries ein sofortiges `return None` aus
+              # und brach damit die AEUSSERE Kandidaten-Schleife komplett ab -
+              # ein zweiter/dritter Key wurde in diesem Fall NIE probiert
+              # (Beobachtet: SniffCat antwortete durchgehend mit 429, Feed
+              # fiel trotz konfiguriertem SNIFFCAT_TOKEN_2 komplett aus).
+              # Jetzt wird bei 429/5xx nach Retry-Erschoepfung genau wie bei
+              # 401/403 zum naechsten Kandidaten gewechselt (break statt
+              # return) - ein anderer Key kann z.B. ein eigenes, noch nicht
+              # ausgeschoepftes Rate-Limit-Kontingent haben. Erst wenn ALLE
+              # Kandidaten durchprobiert wurden, gibt die Funktion None zurueck.
+              if not headers:
+                  return fetch_url(url, timeout=timeout, retries=retries,
+                                   user_agent="NETSHIELD-HoneypotMonitor/1.0")
+              candidates = headers if isinstance(headers, list) else [headers]
+              candidates = [c for c in candidates if all(c.values())]
+              if not candidates:
+                  return None
+              last_fail_code = None
+              for cand_idx, cand_headers in enumerate(candidates, start=1):
+                  req_hdrs = {"User-Agent": "NETSHIELD-HoneypotMonitor/1.0"}
+                  req_hdrs.update(cand_headers)
+                  for attempt in range(1, retries + 1):
+                      try:
+                          req = urllib.request.Request(url, headers=req_hdrs)
+                          with urllib.request.urlopen(req, timeout=timeout) as r:
+                              if cand_idx > 1:
+                                  print(f"  {url}: Key #{cand_idx} erfolgreich "
+                                        f"(Failover nach Key #{cand_idx - 1})")
+                              return r.read().decode("utf-8", errors="ignore")
+                      except urllib.error.HTTPError as e:
+                          if e.code in (401, 403):
+                              # Auth-Fehler: dieser Key ist ungueltig/rotiert.
+                              # Kein Sinn ihn erneut zu versuchen (retries) –
+                              # stattdessen sofort zum naechsten Kandidaten.
+                              last_fail_code = e.code
+                              nxt = ("naechster Key" if cand_idx < len(candidates)
+                                     else "kein weiterer Key konfiguriert")
+                              print(f"  HTTP {e.code} {url} (Key #{cand_idx}) – {nxt}")
+                              break
+                          # 5xx und 429 retryen, sonstige 4xx sofort failen.
+                          if e.code in (429, 500, 502, 503, 504):
+                              if attempt < retries:
+                                  print(f"  HTTP {e.code} {url} – Retry {attempt}/{retries}")
+                                  time.sleep(2 ** attempt)
+                                  continue
+                              # Retries fuer DIESEN Kandidaten erschoepft –
+                              # zum naechsten Kandidaten wechseln statt
+                              # komplett aufzugeben (siehe FIX 429-FAILOVER).
+                              last_fail_code = e.code
+                              nxt = ("naechster Key" if cand_idx < len(candidates)
+                                     else "kein weiterer Key konfiguriert")
+                              print(f"  HTTP {e.code} {url} (Key #{cand_idx}, "
+                                    f"Retries erschoepft) – {nxt}")
+                              break
+                          print(f"  FEHLER HTTP {e.code} {url}")
+                          return None
+                      except Exception as e:
+                          if attempt < retries:
+                              time.sleep(2 ** attempt)
+                          else:
+                              print(f"  FEHLER {url} (nach {retries} Versuchen): {e}")
+              if last_fail_code is not None:
+                  print(f"  FEHLER HTTP {last_fail_code} {url} – "
+                        f"alle {len(candidates)} Key(s) fehlgeschlagen")
+              return None
+
+
+          # ══════════════════════════════════════════════════════════════════
+          # HONEYPOT_SOURCES – Honeypot-/Bot-spezifische Feeds
+          #
+          # WICHTIG: Quellen hier dürfen NICHT identisch mit SOURCES in
+          # update_combined_blacklist.yml sein, da honeypot_ips.txt als
+          # LOCAL_FEED (HQ=True) eingelesen wird → doppelter today_count.
+          #
+          # Änderungslog:
+          # - yuexuana_honeypot entfernt: Repo gelöscht (404 seit ~März 2026)
+          # - badpackets_honeypot entfernt: Repo gelöscht (404 seit ~März 2026)
+          # - threatmon_honeypot entfernt: Repo gelöscht (404 seit ~März 2026)
+          # - ipsum_level5 entfernt: identische URL bereits in combined SOURCES
+          #   (HQ=True) → doppelter today_count, Confidence-Score aufgeblasen
+          # - bi_bruteforce_30d entfernt: bi_bruteforce_2_30d.ipset existiert
+          #   nicht im firehol/blocklist-ipsets-Repo (404 seit Beginn), ersetzt
+          #   durch dshield_1d (tägliches DShield-Aggregat, nicht in combined)
+          # - jamesbrine_honeypot ergänzt (April 2026): AU-Honeypot-Netzwerk
+          #   (Toronto, Singapore, London, Perth), Protokolle SSH/FTP/RDP/GIT/
+          #   SNMP/REDIS. CSV mit Header 'ipv4, activity, date' – Parser
+          #   ignoriert Header automatisch, malformed Zeilen werden von der
+          #   IPv4-Regex gefiltert. Groesse ~40 MB → dediziertes Size-Limit
+          #   via fetch_large() unten.
+          # - stratosphere_aip ergänzt (April 2026): CTU Prag, 27-IoT-Honeypot-
+          #   Netzwerk, CSV 'ip,score' ~400 KB, täglich aktualisiert. Die gleiche
+          #   URL nutzt auch Slips (Stratosphere-IDS) als Default-Threat-Feed.
+          # - stratosphere_aip URL-Update (April 2026): von deprecated Pfad
+          #   /Todays-Blacklists/AIP_historical_blacklist_prioritized_by_newest_attackers.csv
+          #   auf offizielle /Latest/AIP-Prioritize_New-latest.csv laut offizieller
+          #   README (https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/README.html).
+          #   Gleiche Daten, zukunftssicher.
+          # - stratosphere_aip_alpha7 ergänzt (April 2026): 7-Tage-Fenster aller
+          #   Attacker aus demselben CTU-Honeypot-Netzwerk. Komplementär zu _New
+          #   (das auf neue Angreifer fokussiert). CSV 'ip,score', tägl. rotiert.
+          # - stratosphere_aip_alpha ergänzt (Juni 2026): 24h-Fenster ALLER
+          #   Attacker (ohne Ranking) aus demselben CTU-Honeypot-Netzwerk.
+          #   Direktestes Aequivalent zum bisherigen Honigtopf-24h-bad-hosts-
+          #   Snapshot. Format: Header 'attacker' + eine IPv4/Zeile (kein score).
+          # - honeysec_ip2 ergänzt (April 2026): Honeypot-Netzwerk der UCM Trnava
+          #   (SK), Institut für Computertechnik und Informatik. ip_2 = IPs mit
+          #   ≥2 Login-Versuchen (vom Betreiber als Standard empfohlen). Plain
+          #   IPv4-Format, eigene Telemetrie → validiert bestehende Feeds. ip_all
+          #   und ip_5 bewusst NICHT geladen: beide sind Teil-/Obermengen von
+          #   ip_2 und würden den Quell-Count pro IP künstlich verdoppeln.
+          # - crash0v3r1de_mikrotik ergänzt (April 2026): Mikrotik-Bruteforce-
+          #   Honeypot von Crash0v3r1de (GitHub). Eigenständige Telemetrie eines
+          #   Single-Operators, fokussiert auf Mikrotik-spezifische Angriffe
+          #   (Winbox, API, SSH). Plaintext IPv4, ein Eintrag pro Zeile, 286+
+          #   Commits → aktiv. Repo hat 0 Stars, also Vorsicht: Ausfallrisiko
+          #   höher als bei etablierten Quellen. Bei <50 IPs oder Repo-404
+          #   wieder entfernen. Mehrwert: spezifische Mikrotik-Bruteforce-
+          #   Telemetrie, die in den großen Aggregatoren (ipsum/firehol)
+          #   meist mit Verzögerung auftaucht.
+          # - siberkapan_fortigate ergänzt (Juli 2026): SiberKapan (TR),
+          #   community-basierte Threat-Intel-Plattform mit Fokus auf tuerkische
+          #   Infrastruktur. Live verifiziert (08.07.2026): URL erreichbar,
+          #   Generated-Header im File = Abrufzeitpunkt, mehrere tausend
+          #   IP-Eintraege. ACHTUNG: KEIN reiner Community-Webhook-Feed, sondern
+          #   SiberKapans komplette Misch-Ausgabe aller eigenen Quellen (Feodo,
+          #   URLhaus, Emerging Threats, GreenSnow, Blocklist.de, Binary Defense,
+          #   CINS, BotScout via firehol/blocklist-ipsets, CISA KEV,
+          #   FortiGate-Community-Webhooks). Moegliche Teil-Ueberschneidung mit
+          #   combined SOURCES NICHT geprueft (state/*.json und
+          #   update_combined_blacklist.yml lagen bei Einpflege nicht vor -
+          #   vor Aktivierung gegenpruefen). Format: FortiGate-CLI
+          #   ("config firewall address ... set subnet ..."), NICHT Plain-IPv4 -
+          #   ob parse_entries()/IPV4_RE das korrekt aus dem CLI-Text extrahiert,
+          #   ist UNGETESTET und muss vor dem ersten produktiven Lauf verifiziert
+          #   werden (ggf. testweise via workflow_dispatch pruefen).
+          # - threatfox_export ergaenzt (Juli 2026): authentifizierter ThreatFox
+          #   full.csv.zip-Export (abuse.ch), 6-Monats-Fenster statt der vorher in
+          #   update_combined_blacklist.yml genutzten ~2-Wochen-Feeds. Laeuft als
+          #   Sonderfall NACH der HONEYPOT_SOURCES-Schleife (URL-eingebetteter
+          #   Auth-Key + binaeres ZIP statt Text -> passt nicht ins generische
+          #   fetch()/AUTH_HEADERS-Muster). Secret: THREATFOX_AUTH_KEY.
+          #   WICHTIG: threatfox_ioc und threatfox_direct wurden im GLEICHEN Zug
+          #   aus update_combined_blacklist.yml SOURCES entfernt (waren dort HQ=True) -
+          #   ThreatFox existiert jetzt nur noch als diese EINE Quelle im ganzen
+          #   Repo. Ohne diese Entfernung waeren ThreatFox-IPs dreifach gezaehlt
+          #   worden (2x combined SOURCES + 1x hier als LOCAL_FEED honeypot_ips.txt,
+          #   HQ=True) - Verstoss gegen die Dedup-Regel oben im Datei-Header.
+          # - reportedip ergaenzt (Juli 2026): community-driven IP-Reputation
+          #   (Made in Germany, GDPR-konform), Blacklist mit Confidence>=75%
+          #   + 48h-FP-Cooldown. Auth via Header "X-Key" (verifiziert aus
+          #   offizieller Doku, NICHT Bearer/X-Api-Key). Secret: REPORTEDIP_KEY.
+          #   UPDATE (25.07.): Versuch, per &category=<slug> in 9 einzelne
+          #   Kategorie-Quellen aufzuteilen, wieder zurueckgebaut - manuell
+          #   verifiziert (PowerShell, gleicher Key): ohne category-Param
+          #   HTTP 200 mit echten Daten, MIT category-Param HTTP 401 bzw.
+          #   0-Byte-Body. Vermutlich Free-Tier-Limitierung. Bleibt bei der
+          #   EINEN kombinierten Quelle "reportedip" ohne category-Filter.
+          # - criminalip_c2 ergaenzt (25.07.): oeffentliches GitHub-Repo des
+          #   kommerziellen CTI-Anbieters Criminal IP (AI Spera), taeglich
+          #   50 IPs mit C2-Tag/Honeypot-Treffer, kein Auth noetig. Sonderfall
+          #   wie threatfox_export/reportedip oben, aber aus anderem Grund:
+          #   TAGESDATUM-basierte URL (.../YYYY-MM-DD.csv, kein "latest"-
+          #   Alias) statt Auth-Sonderformat. Overlap-Audit: nur ~12% Overlap
+          #   mit dem bestehenden Bestand (7-Tage-Sample, 97 IPs) -> ~88%
+          #   Netto-neu. Fallback auf Vortag falls Tagesdatei (noch) 404.
+          # - turris_greylist ergaenzt (25.07.2026): CZ.NIC Turris-Sentinel-
+          #   Minipot-Netzwerk (Telnet/HTTP/FTP/SMTP), taeglicher signierter
+          #   CSV-Snapshot, kein Auth-Key. Primaere Quelle, NICHT GitHub-gehostet.
+          #   URL live verifiziert; frueherer Pfad project.turris.cz/greylist-data/
+          #   ist tot (2022 auf view.sentinel.turris.cz umgezogen).
+          #
+          # Aktuelle Quellen (alle auf bewährten Repos/Diensten):
+          # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
+          # - dshield_1d: DShield Top-Attacker tägliches Aggregat (FireHOL),
+          #   NICHT identisch mit "dshield" in combined (dshield = block.txt, grobe
+          #   /24-Netze; dshield_1d = einzelne IPs der letzten 24h)
+          # - blocklist_de_bots: blocklist.de Bot-spezifische Liste (nicht in combined)
+          # - blocklist_de_bruteforce: blocklist.de Bruteforce-Login (nicht in combined)
+          # - jamesbrine_honeypot: AU-Honeypot-Netzwerk, SSH/FTP/RDP/GIT/SNMP/REDIS
+          # - stratosphere_aip: CTU Prag IoT-Honeypot, Prioritize_New (emerging Attacker)
+          # - stratosphere_aip_alpha7: CTU Prag IoT-Honeypot, 7-Tage-Fenster
+          # - stratosphere_aip_alpha: CTU Prag IoT-Honeypot, 24h alle Attacker (kein Ranking)
+          # - honeysec_ip2: UCM Trnava Honeypot-Netzwerk, ≥2 Login-Versuche
+          # - crash0v3r1de_mikrotik: Mikrotik-Bruteforce-Honeypot (Single-Operator)
+          # - turris_greylist: CZ.NIC Turris-Sentinel-Minipot-Netzwerk (taeglich)
+          # ══════════════════════════════════════════════════════════════════
+
+          # FIX SIZE: Separate fetch-Funktion mit explizitem Size-Limit fuer
+          # groessere CSV-Feeds (JamesBrine ~40 MB). Die Default-fetch() liest
+          # ohne Limit – bei versehentlich riesigen Antworten waere das ein
+          # Memory- und Timeout-Risiko. Limit bewusst grosszuegig auf 80 MB
+          # gesetzt, damit Wachstum des Feeds nicht sofort bricht. Bei
+          # Ueberschreitung wird der Feed verworfen, nicht truncatiert.
+          # FIX JB-GATE: Browser-aehnlicher User-Agent fuer fetch_large().
+          # JamesBrine wurde Anfang 2026 auf ein statisches Setup ("reduce the
+          # attack surface") umgezogen, das hinter Bot-/UA-Filterung steht.
+          # Ein generischer "NETSHIELD-HoneypotMonitor/1.0"-Agent von einer
+          # GitHub-Actions-Runner-IP wird dort mit 403/Challenge abgewiesen →
+          # fetch_url() bekam HTTPError (403 NICHT in TRANSIENT_CODES, also kein
+          # Retry) und gab None zurueck → stats=0 → ❌ im Report, obwohl der Feed
+          # lebt. Andere Grossfeeds (sniffcat, stratosphere) sind Uni-/API-Hosts
+          # ohne Gate und funktionieren mit dem NETSHIELD-Agent weiter – daher
+          # ist der Agent NICHT universell blockiert, nur dieser eine Host.
+          # Hinweis: Der Feed wird vom Betreiber bewusst oeffentlich zur
+          # automatisierten Ingestion bereitgestellt (Homepage: "Threat Feed
+          # Endpoint - Updated Daily"; wird u.a. von OpenCTI/MISP/PulseDive
+          # konsumiert) – ein realistischer Browser-Agent ist hier legitime,
+          # uebliche Feed-Ingestion, kein Umgehen einer gegen uns gerichteten
+          # Zugriffskontrolle.
+          BROWSER_HEADERS = {
+              "Accept": "text/csv,text/plain,application/octet-stream,*/*",
+              "Accept-Language": "en-US,en;q=0.9",
+          }
+          BROWSER_UA = (
+              "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+              "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+          )
+
+          # FIX JB-GATE/SIZE: timeout 60→120s (40+ MB aus AU braucht laenger),
+          # Limit 80→160 MB (Feed waechst seit dem CTI-Relaunch), und Browser-
+          # Fingerprint per Default. read_limit deckt weiterhin den streaming-
+          # gzip-Bomb-Schutz aus fetch_url ab.
+          def fetch_large(url, timeout=120, retries=3, max_bytes=160 * 1024 * 1024,
+                          user_agent=BROWSER_UA, extra_headers=None):
+              # FIX BUG-WF2-FETCHURL: fetch_url unterstuetzt read_limit – das
+              # uebernimmt sowohl die Truncation-Erkennung (warnt bei
+              # Limit-Treffer) als auch streaming-gzip-Bomb-Schutz, was der
+              # alte Code beides NICHT hatte (.read(max_bytes+1) ist roh
+              # binary, dekomprimiertes gzip lief in vollem RAM).
+              hdrs = dict(BROWSER_HEADERS)
+              if extra_headers:
+                  hdrs.update(extra_headers)
+              return fetch_url(url, timeout=timeout, retries=retries,
+                               user_agent=user_agent,
+                               read_limit=max_bytes,
+                               extra_headers=hdrs)
+
+          # Sources die ueber fetch_large() statt fetch() geladen werden.
+          # fetch_large() = gehaerteter Fetch mit Browser-Fingerprint + grosszuegigem
+          # Timeout/Limit. jamesbrine bleibt hier weil der Host statisch/gefiltert
+          # hinter CF steht und einen Browser-UA erwartet (ohne → 403/leerer Body).
+          LARGE_SOURCES = {"jamesbrine_honeypot", "timgerstel_suspicious_ips"}
+
+          HONEYPOT_SOURCES = {
+              # ipsum Level 4: IPs auf mindestens 4 Blacklists gleichzeitig.
+              # Level 3 und 5 sind bereits in combined SOURCES → Level 4 ist
+              # die einzige Stufe die NICHT dort enthalten ist und hier
+              # zusätzlichen Wert liefert ohne Duplikat-Problem.
+              "ipsum_level4":
+                  "https://raw.githubusercontent.com/stamparm/ipsum/master/levels/4.txt",
+
+              # DShield 1d: IPs der Top-Attacker der letzten 24h (DShield/SANS ISC).
+              # Ersatz für bi_bruteforce_2_30d (existierte nie im firehol-Repo).
+              # WICHTIG: combined SOURCES enthält "dshield" = dshield/block.txt
+              # (aggregierte /24-Netze, 3-Tage-Fenster) – das ist eine ANDERE Datei.
+              # dshield_1d.netset = einzelne IPs, tägliche Rotation → kein Duplikat.
+              "dshield_1d":
+                  "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/dshield_1d.netset",
+
+              # blocklist.de Bots: IPs die als Bots erkannt wurden (badbot,
+              # regbot, w00tw00t). Separater Feed von blocklist.de – die
+              # generischen Listen (all.txt, ssh.txt) sind in combined,
+              # aber bots.txt ist dort NICHT enthalten.
+              "blocklist_de_bots":
+                  "https://lists.blocklist.de/lists/bots.txt",
+
+              # blocklist.de Bruteforce-Login: IPs die Bruteforce-Angriffe
+              # auf Login-Formulare durchführen. Nicht in combined SOURCES.
+              "blocklist_de_bruteforce":
+                  "https://lists.blocklist.de/lists/bruteforcelogin.txt",
+
+              # JamesBrine: Australisches Honeypot-Netzwerk, verteilt auf
+              # Toronto, Singapore, London, Perth. Protokolle SSH, FTP, RDP,
+              # GIT, SNMP, REDIS.
+              # FIX JB-REVERT-IPLIST (Juni 2026): Endpunkt zurueck auf /csv.
+              # Der zuvor (JB-DEAD-CSV) eingefuehrte /iplist.txt-Ersatz war
+              # falsch: /iplist.txt antwortet mit HTTP 200 aber LEEREM Body
+              # (0 bytes) → 0 IPs, ⚠️ im Report (empirisch: Actions-Log
+              # 'jamesbrine_honeypot: 0 IPs (0 bytes geladen)', kein HTTP-Fehler
+              # davor). /iplist.txt wird auf der Homepage nirgends als Feed
+              # gelistet; einziger dokumentierter Feed-Endpunkt ist /csv.
+              # /csv lebt: HTTP 200 mit CSV-Text 'ipv4, activity, date'.
+              # Content-Type ist application/octet-stream, ABER der Body ist
+              # parsebarer Text – fetch_url dekodiert UTF-8, parse_entries zieht
+              # Spalte 1 per IPv4-Regex. Korrupte/zusammengeklebte Zeilen werden
+              # automatisch verworfen (~51k unique IPs aus ~304k Zeilen, Rest Dups).
+              # Bleibt in LARGE_SOURCES, damit der Host den Browser-Fingerprint
+              # aus fetch_large() bekommt (statische, gefilterte Seite hinter CF).
+              "jamesbrine_honeypot":
+                  "https://jamesbrine.com.au/csv",
+
+              # Stratosphere AIP Prioritize_New: IoT-Honeypot-Netzwerk der CTU Prag,
+              # generiert via Attacker IP Prioritizer (AIP). CSV-Format 'ip,score'
+              # (Score wird vom Parser ignoriert, nur Spalte 1). Taeglich rotiert.
+              # Fokus auf neue/emerging Attacker. URL-Update April 2026 von
+              # deprecated /Todays-Blacklists/AIP_historical_blacklist_prioritized_by_newest_attackers.csv
+              # auf offizielle /Latest/AIP-Prioritize_New-latest.csv laut README.html.
+              "stratosphere_aip":
+                  "https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Prioritize_New-latest.csv",
+
+              # Stratosphere AIP Alpha7: Alle Attacker-IPs der letzten 7 Tage aus
+              # demselben CTU-Honeypot-Netzwerk. Komplementaer zu _New: waehrend
+              # _New neue Angreifer priorisiert, deckt Alpha7 die 7-Tage-Historie
+              # persistenter Angreifer ab. CSV 'ip,score', tägl. rotiert.
+              "stratosphere_aip_alpha7":
+                  "https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Alpha7-latest.csv",
+
+              # Stratosphere AIP Alpha: Alle Attacker-IPs der letzten 24h aus
+              # demselben CTU-Honeypot-Netzwerk, OHNE Ranking (reine IP-Liste).
+              # Direktestes Aequivalent zum 24h-bad-hosts-Snapshot, den frueher
+              # Honigtopf lieferte. Format: Header-Zeile 'attacker', dann eine IPv4
+              # pro Zeile (kein score) – parse_entries() filtert den Header via
+              # IPv4-Regex automatisch. Gleicher Host wie _New/_alpha7, kein
+              # Bot-Gate → normaler fetch(), NICHT in LARGE_SOURCES.
+              "stratosphere_aip_alpha":
+                  "https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Alpha-latest.csv",
+
+              # HoneySEC ip_2: Honeypot-Netzwerk der Universität der hl. Cyrill
+              # und Method in Trnava (UCM, SK), Fakultaet fuer Naturwissenschaften,
+              # Institut fuer Computertechnik und Informatik. Aggregiert IPs, die
+              # sich mindestens 2x in einen Honeypot eingeloggt haben (nicht nur
+              # Port-Scan, sondern tatsaechlicher Login-Versuch). Die ≥2-Schwelle
+              # ist vom Betreiber als Standard-Empfehlung markiert (Filter fuer
+              # Tippfehler/One-Off-Scans). Format: Plain IPv4, eine pro Zeile.
+              # WICHTIG: NICHT gleichzeitig ip_all oder ip_5 laden – beide sind
+              # Teil-/Obermengen von ip_2 → dreifacher Quell-Count pro IP.
+              "honeysec_ip2":
+                  "https://honeysec.eu/lists/raw/ip_2",
+
+              # Mikrotik-Bruteforce-Honeypot von Crash0v3r1de (GitHub).
+              # Plaintext IPv4-Liste (ein Eintrag pro Zeile), gespeist aus dem
+              # eigenen Honeypot-System des Betreibers, fokussiert auf Mikrotik-
+              # spezifische Bruteforce-Angriffe (Winbox/8291, API/8728, SSH).
+              # Aktiv (286+ Commits), aber Single-Operator-Repo mit 0 Stars →
+              # erhöhtes Ausfallrisiko. Bei Repo-404 oder <50 geparsten IPs
+              # entfernen. Ergänzt die generischen SSH/Web-Honeypots um
+              # Mikrotik-spezifische Telemetrie.
+              "crash0v3r1de_mikrotik":
+                  "https://raw.githubusercontent.com/Crash0v3r1de/HoneypotIPLists/main/ip.list",
+
+              # Turris Sentinel Greylist (CZ.NIC): primaere, NICHT GitHub-gehostete
+              # Quelle. Netzwerk aus Turris-Routern mit "Minipots" (leichtgewichtige
+              # Honeypots fuer Telnet, HTTP, FTP, SMTP) + Firewall-Log-Auswertung.
+              # Taeglicher CSV-Snapshot aller als Angreifer klassifizierten IPs,
+              # PGP-signiert. Format (seit 2022): "Address,Tags" - Tags z. B.
+              # "haas" (SSH-Honeypot-Treffer), "port_scan". KEIN Auth-Key noetig,
+              # URL am 25.07.2026 live verifiziert. Aktueller Endpunkt (2022 von
+              # project.turris.cz auf view.sentinel.turris.cz umgezogen, alte URL
+              # ist tot - siehe offizielle Doku docs.turris.cz/basics/sentinel).
+              "turris_greylist":
+                  "https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv",
+
+              # Tim Gerstel suspicious_IPs: große, fortlaufend gepflegte Liste
+              # verdächtiger IPv4-Adressen aus dem Repository suspicious_IPs.
+              # big.log wird über fetch_large() geladen, damit auch bei einer
+              # größeren Datei das 160-MB-Limit, der Streaming-Schutz und der
+              # verlängerte Timeout des Workflows greifen.
+              "timgerstel_suspicious_ips":
+                  "https://raw.githubusercontent.com/timgerstel/suspicious_IPs/main/big.log",
+
+              # SniffCat: Community-Honeypot-DB von Sefinek (sniffcat.com).
+              # Eigenständige Plattform (NICHT identisch mit sefinek_malicious in
+              # combined SOURCES – das ist Sefiniks privater Honeypot-Output, dies
+              # hier ist die Community-DB mit User-Reports + WAF/T-Pot/UFW-Reporter).
+              # Auth via X-Secret-Token (GitHub-Secret SNIFFCAT_TOKEN). Fehlt der
+              # Token, wird der Feed automatisch geskippt (siehe AUTH_HEADERS).
+              # confidenceMin=30 = Minimum-Schwelle (30-100 erlaubt). NETSHIELD-
+              # eigenes Score-System filtert FPs durch Cross-Validation mit
+              # anderen Quellen ohnehin nach. type=txt (default) liefert plain
+              # IPv4 eine pro Zeile. limit=100000 = Maximum.
+              "sniffcat":
+                  "https://api.sniffcat.com/api/v1/blacklist?confidenceMin=30&ipVersion=4&limit=100000",
+
+              # SiberKapan: tuerkische Threat-Intel-Plattform (siehe Changelog
+              # oben fuer volle Quellen-Liste + offene Caveats zu Format/Dedup).
+              # FIX 2026-08-07: Endpunkt von /list/fortigate auf /list/txt
+              # umgestellt. /list/fortigate liefert FortiGate-CLI-Syntax
+              # ("config firewall address ... set subnet ...") statt reiner
+              # IP-Liste - parse_entries() haette das nur ueber den generischen
+              # Regex-Fallback grob geparst, nie live verifiziert (daher die
+              # bisherige UNGETESTET-Markierung). /list/txt ist der dedizierte
+              # Plain-Text-Endpunkt (36k+ IPs, kein Auth, live am 07.08.2026
+              # verifiziert: reine IP-pro-Zeile-Liste mit '#'-Header).
+              "siberkapan":
+                  "https://siberkapan.org/api/v1/list/txt",
+
+              # ReportedIP: community-driven IP-Reputations-Plattform (Made in
+              # Germany, GDPR-konform). Blacklist besteht nur aus IPs mit
+              # Confidence >=75% (Doku-Standard, hier bewusst OHNE
+              # confidence_minimum-Parameter verwendet -> Server-Default),
+              # die mind. 48h beobachtet wurden (False-Positive-Cooldown) und
+              # nicht auf der eigenen Whitelist stehen (CDNs, DNS-Resolver
+              # etc. bereits ausgeschlossen). TXT-Format: Kommentarzeilen mit
+              # '#' (Generierungszeit, Gesamtzahl), danach eine IP pro Zeile -
+              # parse_entries() faengt das automatisch ab. Auth via
+              # GitHub-Secret REPORTEDIP_KEY, Header "X-Key" (verifiziert aus
+              # offizieller Doku, NICHT Bearer/X-Api-Key); fehlt der Key,
+              # wird der Feed automatisch geskippt (siehe AUTH_HEADERS).
+              #
+              # FIX 2026-07-25 (REVERT): Versuch, die Blacklist per
+              # &category=<slug> in 9 Einzelabfragen aufzuteilen ist wieder
+              # entfernt. Manuell per PowerShell verifiziert (gleicher Key):
+              # OHNE category-Parameter -> HTTP 200, echte Daten (142570
+              # Bytes). MIT &category=spam (und allen anderen 8 getesteten
+              # Slugs im echten Workflow-Lauf) -> HTTP 401 bzw. 0-Byte-Body.
+              # Vermutlich ist Kategorie-Filterung ein Feature eines
+              # hoeheren Tarifs, das der aktuelle Free-Tier-Key nicht
+              # freischaltet. Bleibt daher bei der EINEN kombinierten
+              # Quelle ohne category-Filter.
+              "reportedip":
+                  "https://reportedip.de/wp-json/reportedip/v2/blacklist?format=txt",
+
+              # ipinsights.io: Threat-Intel-Plattform mit eigenem Sensor-
+              # Netzwerk (SSH/Web/SMTP/DB/ICS-Honeypots), zusaetzlich
+              # 22+ externe Feeds als Cross-Validation eingemischt (laut
+              # deren Methodology-Seite u.a. AbuseIPDB, FireHOL Level 1,
+              # ipsum, ThreatFox, Binary Defense - teils bereits in
+              # combined SOURCES enthalten -> Overlap erwartet, kein
+              # reiner Solo-Zugewinn). Alle 4h regeneriert, 675k+ IPs.
+              # Kein Auth noetig - oeffentlicher Download, kein API-Key
+              # wie bei der separaten Lookup-API (X-API-Key, anderes
+              # Feature). Reine IP-pro-Zeile-Liste, sortiert.
+              "ipinsights":
+                  "https://ipinsights.io/downloads/blocklist.txt",
+
+              # ══════════════════════════════════════════════════════════
+              # NEU (2026-08-07, manuell ergaenzt): 3 Einzelperson-/kleine
+              # Community-Repos, ueber laengere Zeit manuell im OPNsense-
+              # Firewall-Log auf False Positives geprueft (keine Blocks von
+              # legitimem Traffic beobachtet) - siehe Chat-Verlauf. KEINE
+              # der uebrigen SOURCES/HONEYPOT_SOURCES-Eintraege in diesem
+              # Repo referenziert dieselben URLs (gegengeprueft), also
+              # kein Duplikat-Risiko zu bestehenden Quellen.
+              # WICHTIG: Anders als die oben dokumentierten HQ-Kriterien
+              # (institutioneller Betreiber, Multi-Source-Track-Record)
+              # sind das bewusst Einzelperson-Repos ohne diese Absicherung
+              # - Aufnahme hier basiert auf empirischer FP-Pruefung im
+              # Log, nicht auf Betreiber-Reputation. Bei Zweifeln erneut
+              # gegen die Firewall-Logs pruefen.
+              "bitwire_ip_list_fetch":
+                  "https://raw.githubusercontent.com/bitwire-it/ip_list_fetch/main/blacklist.txt",
+
+              "configserverapps_365d":
+                  "https://raw.githubusercontent.com/ConfigServerApps/service-blocklists/refs/heads/main/blocklists/threats/all_365d.ipset",
+
+              "kamalmjt_emerging_attackers":
+                  "https://raw.githubusercontent.com/kamalmjt/emerging-attackers/refs/heads/main/badips.txt",
+
+              "tn3w_ipblocklist":
+                  "https://github.com/tn3w/IPBlocklist/releases/latest/download/blocklist.netset",
+          }
+
+          # Auth-pflichtige Feeds: name -> LISTE von HTTP-Header-Dicts, in
+          # Prioritaets-Reihenfolge (Primaer-Key zuerst, dann Failover-Keys).
+          # FIX KEY-ROTATION (2026-07-25): Zweiter Key pro Feed fuer nahtlose
+          # Rotation: solange der Primaer-Key gueltig ist, wird ausschliesslich
+          # er benutzt (keine Doppel-Last auf dem Provider). Liefert der
+          # Primaer-Key HTTP 401/403 (z.B. nach Ablauf/Widerruf beim Provider),
+          # greift fetch() automatisch auf den Zweit-Key zurueck – kein
+          # Feed-Ausfall waehrend des Rotations-Fensters, in dem man den alten
+          # Key beim Provider deaktiviert und den neuen als _2-Secret eintraegt.
+          # Ist ein Kandidat leer (Secret nicht gesetzt), wird er von fetch()
+          # automatisch rausgefiltert. Sind ALLE Kandidaten eines Feeds leer,
+          # wird der Feed in der Schleife unten uebersprungen statt 401 zu
+          # erzeugen (unveraendertes Verhalten ggue. vorher).
+          AUTH_HEADERS = {
+              "sniffcat": [
+                  {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN", "")},
+                  {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN_2", "")},
+                  {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN_3", "")},
+                  {"X-Secret-Token": os.environ.get("SNIFFCAT_TOKEN_4", "")},
+              ],
+              "reportedip": [
+                  {"X-Key": os.environ.get("REPORTEDIP_KEY", "")},
+                  {"X-Key": os.environ.get("REPORTEDIP_KEY_2", "")},
+              ],
+          }
+
+          all_ips = set()
+          stats   = {}
+          feed_ip_sets = {}   # FRESHNESS: pro Feed die IP-Menge behalten (nicht
+                               # nur die Anzahl), um Aenderungen zwischen Laeufen
+                               # per Hash zu erkennen (siehe Freshness-Block unten).
+          # FIX JB-DIAG: Transport-Fehler von leerem Feed trennen.
+          # Vorher kollabierten beide Faelle auf stats[name]=0 und wurden im
+          # Report identisch als ❌ 0 gerendert – man sah nicht, ob der Feed
+          # nicht erreichbar war (None) oder erreichbar-aber-leer (0 geparst).
+          # Genau dieser Unterschied war bei jamesbrine die Debugging-Huerde.
+          fetch_failed = set()   # text is None (DNS/403/Timeout/gzip-bomb-Abbruch)
+          skipped      = set()   # bewusst uebersprungen (fehlendes Auth-Secret)
+
+          for name, url in HONEYPOT_SOURCES.items():
+              # FIX AUTH: Auth-pflichtige Feeds ohne gueltigen Token ueberspringen.
+              # auth ist jetzt eine Liste von Kandidaten-Dicts (Key-Rotation) –
+              # nur skippen wenn KEIN Kandidat einen gesetzten Wert hat.
+              auth = AUTH_HEADERS.get(name)
+              if auth is not None and not any(all(c.values()) for c in auth):
+                  missing = sorted({k for c in auth for k, v in c.items() if not v})
+                  print(f"  SKIP {name}: Auth-Header fehlt ({', '.join(missing)}) – "
+                        f"GitHub-Secret nicht gesetzt")
+                  stats[name] = 0
+                  skipped.add(name)
+                  continue
+              if name in LARGE_SOURCES:
+                  text = fetch_large(url)
+              else:
+                  text = fetch(url, headers=auth)
+              if text is None:
+                  # Transport-Fehler: fetch_url hat den konkreten HTTP-Code /
+                  # die Ursache bereits oben geloggt (z.B. "FEHLER HTTP 403").
+                  stats[name] = 0
+                  fetch_failed.add(name)
+                  print(f"  {name}: FETCH FEHLGESCHLAGEN (None) – Feed nicht "
+                        f"erreichbar/abgewiesen, siehe HTTP-Fehler oben")
+                  print(f"::warning ::Honeypot-Feed {name} nicht erreichbar "
+                        f"(fetch=None) – {url}")
+                  continue
+              # FIX BUG-WL7: use_protected_check=True → Whitelist-IPs
+              # werden bereits beim Parsen herausgefiltert.
+              ips = parse_entries(text, use_protected_check=True)
+              all_ips.update(ips)
+              stats[name] = len(ips)
+              feed_ip_sets[name] = ips
+              print(f"  {name}: {len(ips)} IPs ({len(text)} bytes geladen)")
+              # Erreichbar-aber-0 ist ebenfalls verdaechtig (Format-Wechsel,
+              # Challenge-HTML statt CSV): als Warnung sichtbar machen, ohne
+              # es als Transport-Fehler zu zaehlen.
+              if not ips:
+                  head = text.lstrip()[:120].replace("\n", " ")
+                  print(f"  WARNUNG {name}: 0 IPs aus {len(text)} bytes geparst – "
+                        f"moeglicher Format-Wechsel. Anfang: {head!r}")
+                  print(f"::warning ::Honeypot-Feed {name} lieferte Daten aber "
+                        f"0 gueltige IPs – Format pruefen")
+
+          # ══════════════════════════════════════════════════════════════════
+          # ThreatFox Export (authentifiziert) – Sonderfall, ERGAENZT 2026-07-25
+          #
+          # Laeuft NICHT ueber die generische HONEYPOT_SOURCES-Schleife oben,
+          # weil zwei Dinge nicht ins bestehende Muster passen:
+          #   1. Auth erfolgt ueber einen in die URL eingebetteten Key
+          #      (threatfox-api.abuse.ch/v2/files/exports/{KEY}/full.csv.zip),
+          #      nicht ueber einen HTTP-Header wie bei AUTH_HEADERS/sniffcat.
+          #   2. Die Antwort ist ein binaeres ZIP, nicht Text - fetch()/
+          #      fetch_large() (und darunter fetch_url() aus netshield_common)
+          #      dekodieren IMMER als UTF-8-Text, was ein ZIP korrumpieren
+          #      wuerde. Deshalb eigener binaersicherer Download hier.
+          #
+          # WICHTIG (Architektur-Entscheidung 2026-07-25): threatfox_ioc
+          # (elliotwutingfeng-Mirror) und threatfox_direct (unauth. recent-CSV)
+          # wurden im GLEICHEN Zug aus update_combined_blacklist.yml SOURCES
+          # entfernt. Vorher waeren ThreatFox-IPs dreifach gezaehlt worden
+          # (2x dort + 1x hier als LOCAL_FEED honeypot_ips.txt, HQ=True) -
+          # genau das Duplikat-Problem, vor dem der HONEYPOT_SOURCES-Kommentar
+          # oben warnt. Jetzt gibt es nur noch DIESE eine ThreatFox-Quelle im
+          # gesamten Repo, dafuer mit dem vollen 6-Monats-Datenbestand statt
+          # der vorherigen ~2-Wochen-Fenster.
+          #
+          # full.csv.zip enthaelt ALLE IOC-Typen gemischt (ip:port, domain,
+          # url, hash) - Filterung auf ioc_type=ip:port erfolgt unten nach
+          # dem Entpacken. Header-basiertes Spalten-Mapping statt fester
+          # Positionen, weil sich das Schema zwischen ThreatFox-Exportarten
+          # unterscheiden kann (verifiziert 2026-07-24).
+          # FIX KEY-ROTATION (2026-07-25): analog zu AUTH_HEADERS oben, aber
+          # der ThreatFox-Key steckt in der URL statt in einem Header ->
+          # eigene Kandidaten-Liste statt Header-Dict. Reihenfolge = Prioritaet
+          # (Primaer-Key zuerst), leere/nicht gesetzte Keys werden gefiltert.
+          THREATFOX_AUTH_KEY   = os.environ.get("THREATFOX_AUTH_KEY", "").strip()
+          THREATFOX_AUTH_KEY_2 = os.environ.get("THREATFOX_AUTH_KEY_2", "").strip()
+          THREATFOX_KEYS = [k for k in (THREATFOX_AUTH_KEY, THREATFOX_AUTH_KEY_2) if k]
+          if not THREATFOX_KEYS:
+              print("  SKIP threatfox_export: THREATFOX_AUTH_KEY nicht gesetzt – "
+                    "GitHub-Secret fehlt")
+              stats["threatfox_export"] = 0
+              skipped.add("threatfox_export")
+          else:
+              import zipfile
+              TF_READ_LIMIT = 150 * 1024 * 1024  # 150 MB Sicherheitsgrenze
+
+              def _tf_fetch_binary(keys, retries=3, timeout=60):
+                  # Kandidaten der Reihe nach versuchen. Bei 401/403 (Key
+                  # ungueltig/rotiert) sofort zum naechsten Key wechseln statt
+                  # denselben ungueltigen Key erneut zu retryen.
+                  last_auth_fail_code = None
+                  for key_idx, key in enumerate(keys, start=1):
+                      url = (f"https://threatfox-api.abuse.ch/v2/files/exports/"
+                             f"{key}/full.csv.zip")
+                      for attempt in range(1, retries + 1):
+                          req = urllib.request.Request(
+                              url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor-ThreatFox/1.0"}
+                          )
+                          try:
+                              with urllib.request.urlopen(req, timeout=timeout) as r:
+                                  data = r.read(TF_READ_LIMIT + 1)
+                                  if len(data) > TF_READ_LIMIT:
+                                      print(f"  FEHLER threatfox_export: Antwort > "
+                                            f"{TF_READ_LIMIT} bytes – Abbruch")
+                                      return None
+                                  if key_idx > 1:
+                                      print(f"  threatfox_export: Key #{key_idx} erfolgreich "
+                                            f"(Failover nach Key #{key_idx - 1})")
+                                  return data
+                          except urllib.error.HTTPError as e:
+                              if e.code in (401, 403):
+                                  last_auth_fail_code = e.code
+                                  nxt = ("naechster Key" if key_idx < len(keys)
+                                         else "kein weiterer Key konfiguriert")
+                                  print(f"  HTTP {e.code} threatfox_export "
+                                        f"(Key #{key_idx}) – {nxt}")
+                                  break
+                              print(f"  HTTP {e.code} threatfox_export "
+                                    f"(Key #{key_idx}, Versuch {attempt}/{retries})")
+                              if attempt < retries:
+                                  time.sleep(2 ** attempt)
+                                  continue
+                              break
+                          except Exception as e:
+                              if attempt < retries:
+                                  time.sleep(2 ** attempt)
+                              else:
+                                  print(f"  FEHLER threatfox_export (Key #{key_idx}, "
+                                        f"nach {retries} Versuchen): {e}")
+                  if last_auth_fail_code is not None:
+                      print(f"  FEHLER HTTP {last_auth_fail_code} threatfox_export – "
+                            f"alle {len(keys)} Key(s) fehlgeschlagen")
+                  return None
+
+              tf_raw = _tf_fetch_binary(THREATFOX_KEYS)
+              if tf_raw is None:
+                  stats["threatfox_export"] = 0
+                  fetch_failed.add("threatfox_export")
+                  print("  threatfox_export: FETCH FEHLGESCHLAGEN (None)")
+                  print("::warning ::Honeypot-Feed threatfox_export nicht "
+                        "erreichbar (fetch=None)")
+              else:
+                  try:
+                      tf_zf = zipfile.ZipFile(__import__("io").BytesIO(tf_raw))
+                      tf_csv_names = [n for n in tf_zf.namelist() if n.lower().endswith(".csv")]
+                      if not tf_csv_names:
+                          raise ValueError(f"keine .csv im ZIP: {tf_zf.namelist()}")
+                      with tf_zf.open(tf_csv_names[0]) as f:
+                          tf_text = f.read().decode("utf-8", errors="ignore")
+                  except Exception as e:
+                      stats["threatfox_export"] = 0
+                      fetch_failed.add("threatfox_export")
+                      print(f"  threatfox_export: ZIP/Entpacken fehlgeschlagen: {e}")
+                      print("::warning ::Honeypot-Feed threatfox_export lieferte "
+                            "kein gueltiges ZIP – Auth-Key pruefen")
+                      tf_text = None
+
+                  if tf_text is not None:
+                      tf_lines = tf_text.splitlines()
+                      # Header dynamisch finden (Kommentarzeile "# \"first_seen_utc\",...")
+                      tf_col_index = {}
+                      for ln in tf_lines:
+                          stripped = ln.lstrip("#").strip()
+                          if stripped.startswith('"first_seen_utc"'):
+                              tf_header_row = next(csv.reader([stripped], skipinitialspace=True))
+                              tf_col_index = {n.strip(): i for i, n in enumerate(tf_header_row)}
+                              break
+
+                      if "ioc_value" not in tf_col_index or "ioc_type" not in tf_col_index:
+                          stats["threatfox_export"] = 0
+                          fetch_failed.add("threatfox_export")
+                          print(f"  threatfox_export: Header mit 'ioc_value'/"
+                                f"'ioc_type' nicht gefunden – Schema unerwartet")
+                          print("::warning ::Honeypot-Feed threatfox_export – "
+                                "unerwartetes CSV-Schema")
+                      else:
+                          tf_idx_value = tf_col_index["ioc_value"]
+                          tf_idx_type = tf_col_index["ioc_type"]
+                          tf_data_lines = [ln for ln in tf_lines if ln.startswith('"')]
+                          tf_reader = csv.reader(tf_data_lines, skipinitialspace=True)
+
+                          tf_ips = set()
+                          for row in tf_reader:
+                              if len(row) <= max(tf_idx_value, tf_idx_type):
+                                  continue
+                              if row[tf_idx_type].strip() != "ip:port":
+                                  continue
+                              ip = row[tf_idx_value].strip().rsplit(":", 1)[0].strip()
+                              # is_valid_public_ipv4() → importiert aus netshield_common
+                              if is_valid_public_ipv4(ip):
+                                  tf_ips.add(ip)
+
+                          all_ips.update(tf_ips)
+                          stats["threatfox_export"] = len(tf_ips)
+                          feed_ip_sets["threatfox_export"] = tf_ips
+                          print(f"  threatfox_export: {len(tf_ips)} IPs "
+                                f"({len(tf_raw)} bytes ZIP, {len(tf_text)} bytes CSV)")
+                          if not tf_ips:
+                              print("  WARNUNG threatfox_export: 0 IPs geparst – "
+                                    "moeglicher Format-Wechsel")
+                              print("::warning ::Honeypot-Feed threatfox_export "
+                                    "lieferte Daten aber 0 gueltige IPs")
+
+          # ══════════════════════════════════════════════════════════════════
+          # URLhaus Export (authentifiziert) – Sonderfall, ERGAENZT 2026-07-25,
+          # analog zu threatfox_export.
+          #
+          # Laeuft NICHT ueber die generische HONEYPOT_SOURCES-Schleife oben,
+          # aus denselben Gruenden wie threatfox_export: Auth erfolgt ueber
+          # einen in die URL eingebetteten Key statt ueber einen HTTP-Header.
+          # Anders als bei ThreatFox ist die Antwort hier aber ein reines CSV
+          # (kein ZIP) - kein binaersicherer Download noetig.
+          #
+          # URL-Muster (offizielle abuse.ch-Doku, verifiziert):
+          #   https://urlhaus-api.abuse.ch/v2/files/exports/{KEY}/recent.csv
+          #
+          # KEY-WIEDERVERWENDUNG: ThreatFox, URLhaus und MalwareBazaar teilen
+          # sich denselben abuse.ch-Account/Auth-Key (verifiziert). Es wird
+          # deshalb bewusst KEIN eigenes URLHAUS_AUTH_KEY-Secret angelegt,
+          # sondern THREATFOX_KEYS (oben bereits eingelesen und gefiltert)
+          # wiederverwendet.
+          #
+          # SCHEMA VERIFIZIERT (2026-07-25, echter API-Abruf):
+          #   id,dateadded,url,url_status,last_online,threat,tags,urlhaus_link,reporter
+          # KEINE eigene IP/Host-Spalte vorhanden - IP wird wie beim
+          # bisherigen LOCAL_FEED-Eintrag "urlhaus_ips" (Plain-Text-Liste in
+          # update_combined_blacklist.yml) per Regex aus der 'url'-Spalte
+          # (Index 2) extrahiert, dort wo der Hostname selbst eine rohe IP
+          # ist. Liefert daher inhaltlich AEHNLICHE, nicht zwangslaeufig MEHR
+          # extrahierbare IPs als der bisherige Feed - nur mit mehr Metadaten
+          # (Tags, Reporter, Status, Zeitfenster). Vor produktivem Verlass auf
+          # "liefert mehr IPs" bitte stats["urlhaus_export"] gegen die
+          # aktuelle urlhaus_ips-Zahl in update_combined_blacklist.yml
+          # vergleichen.
+          URLHAUS_KEYS = THREATFOX_KEYS  # gleicher Account/Key, siehe oben
+          if not URLHAUS_KEYS:
+              print("  SKIP urlhaus_export: kein Auth-Key gesetzt "
+                    "(THREATFOX_AUTH_KEY/_2 fehlen)")
+              stats["urlhaus_export"] = 0
+              skipped.add("urlhaus_export")
+          else:
+              def _uh_fetch_csv(keys, retries=3, timeout=60):
+                  # Kandidaten der Reihe nach versuchen, analog zu
+                  # _tf_fetch_binary oben (401/403 = naechster Key,
+                  # 5xx/429 = Retry mit Backoff).
+                  last_fail_code = None
+                  for key_idx, key in enumerate(keys, start=1):
+                      url = (f"https://urlhaus-api.abuse.ch/v2/files/exports/"
+                             f"{key}/recent.csv")
+                      for attempt in range(1, retries + 1):
+                          req = urllib.request.Request(
+                              url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor-URLhaus/1.0"}
+                          )
+                          try:
+                              with urllib.request.urlopen(req, timeout=timeout) as r:
+                                  data = r.read().decode("utf-8", errors="ignore")
+                                  if key_idx > 1:
+                                      print(f"  urlhaus_export: Key #{key_idx} erfolgreich "
+                                            f"(Failover nach Key #{key_idx - 1})")
+                                  return data
+                          except urllib.error.HTTPError as e:
+                              if e.code in (401, 403):
+                                  last_fail_code = e.code
+                                  nxt = ("naechster Key" if key_idx < len(keys)
+                                         else "kein weiterer Key konfiguriert")
+                                  print(f"  HTTP {e.code} urlhaus_export "
+                                        f"(Key #{key_idx}) – {nxt}")
+                                  break
+                              if e.code in (429, 500, 502, 503, 504):
+                                  if attempt < retries:
+                                      print(f"  HTTP {e.code} urlhaus_export – "
+                                            f"Retry {attempt}/{retries}")
+                                      time.sleep(2 ** attempt)
+                                      continue
+                                  break
+                              print(f"  HTTP {e.code} urlhaus_export (Key #{key_idx}) – "
+                                    f"kein Retry fuer diesen Statuscode")
+                              break
+                          except Exception as e:
+                              if attempt < retries:
+                                  time.sleep(2 ** attempt)
+                              else:
+                                  print(f"  FEHLER urlhaus_export (Key #{key_idx}, "
+                                        f"nach {retries} Versuchen): {e}")
+                  if last_fail_code is not None:
+                      print(f"  FEHLER HTTP {last_fail_code} urlhaus_export – "
+                            f"alle {len(keys)} Key(s) fehlgeschlagen")
+                  return None
+
+              uh_text = _uh_fetch_csv(URLHAUS_KEYS)
+              if uh_text is None:
+                  stats["urlhaus_export"] = 0
+                  fetch_failed.add("urlhaus_export")
+                  print("  urlhaus_export: FETCH FEHLGESCHLAGEN (None)")
+                  print("::warning ::Honeypot-Feed urlhaus_export nicht "
+                        "erreichbar (fetch=None)")
+              else:
+                  # Kommentar-/Leerzeilen ueberspringen; Header-Zeile (falls
+                  # mitgeliefert, Spalte 0 == "id") wird beim Parsen erkannt
+                  # und uebersprungen statt fest vorausgesetzt.
+                  uh_data_lines = [ln for ln in uh_text.splitlines()
+                                    if ln.strip() and not ln.startswith("#")]
+                  uh_ips = set()
+                  for row in csv.reader(uh_data_lines, skipinitialspace=True):
+                      if not row or row[0].strip().lower() == "id":
+                          continue
+                      if len(row) < 3:
+                          continue
+                      # Spalte 2 = "url" (verifiziertes Schema, siehe oben).
+                      # is_valid_public_ipv4() → importiert aus netshield_common
+                      m = IPV4_RE.search(row[2])
+                      if m and is_valid_public_ipv4(m.group(0)):
+                          uh_ips.add(m.group(0))
+
+                  all_ips.update(uh_ips)
+                  stats["urlhaus_export"] = len(uh_ips)
+                  feed_ip_sets["urlhaus_export"] = uh_ips
+                  print(f"  urlhaus_export: {len(uh_ips)} IPs "
+                        f"({len(uh_data_lines)} Zeilen, {len(uh_text)} bytes CSV)")
+                  if not uh_ips:
+                      print("  WARNUNG urlhaus_export: 0 IPs geparst – "
+                            "moeglicher Format-Wechsel")
+                      print("::warning ::Honeypot-Feed urlhaus_export "
+                            "lieferte Daten aber 0 gueltige IPs")
+
+          # ══════════════════════════════════════════════════════════════════
+          # CriminalIP C2-Daily-Feed – Sonderfall, ERGAENZT 2026-07-25
+          #
+          # Laeuft NICHT ueber die generische HONEYPOT_SOURCES-Schleife oben,
+          # weil die URL TAGESDATUM-basiert ist (.../main/YYYY-MM-DD.csv) -
+          # es gibt KEINEN fixen "latest.csv"-Alias (verifiziert: 404).
+          # Offizielles GitHub-Repo des kommerziellen CTI-Anbieters Criminal
+          # IP (AI Spera, Korea) - taeglich 50 IPs mit C2-Tag (z.B.
+          # c2_meshagent) oder Honeypot-Treffer als kostenloser Auszug aus
+          # dem vollen C2_TI-Datensatz. Kein Auth noetig (oeffentliches Repo).
+          #
+          # Overlap-Audit (2026-07-25, 7-Tage-Sample 19.-25.07., 97 unique
+          # IPs gegen den bestehenden combined_threat_blacklist_ipv4-
+          # Bestand): nur 12 Treffer (~12%) -> ~88% Netto-neue IPs. Deutlich
+          # hoeherer Neuheitswert als die meisten anderen non-HQ-Quellen im
+          # Repo, trotz kleiner Menge (50 IPs/Tag).
+          #
+          # Timing-Fallback: der taegliche Commit bei criminalip/C2-Daily-Feed
+          # kann je nach deren Zeitzone erst nach diesem Lauf erfolgen. Wird
+          # die heutige Datei (UTC-Datum) noch nicht gefunden (404), wird
+          # automatisch die gestrige Datei versucht, um nicht bei jedem Lauf
+          # ins Leere zu laufen.
+          CIP_BASE = "https://raw.githubusercontent.com/criminalip/C2-Daily-Feed/main"
+          from datetime import timedelta
+
+          def _cip_fetch_for_date(d):
+              url = f"{CIP_BASE}/{d.strftime('%Y-%m-%d')}.csv"
+              return fetch(url), url
+
+          cip_text, cip_url = _cip_fetch_for_date(now)
+          if cip_text is None:
+              cip_text, cip_url = _cip_fetch_for_date(now - timedelta(days=1))
+
+          if cip_text is None:
+              stats["criminalip_c2"] = 0
+              fetch_failed.add("criminalip_c2")
+              print("  criminalip_c2: FETCH FEHLGESCHLAGEN (None) – weder "
+                    "heutige noch gestrige Tagesdatei erreichbar")
+              print("::warning ::Honeypot-Feed criminalip_c2 nicht erreichbar "
+                    "(fetch=None)")
+          else:
+              cip_reader = csv.reader(cip_text.splitlines())
+              cip_header = next(cip_reader, None)
+              cip_ips = set()
+              if cip_header and "IP" in cip_header[0]:
+                  # erste Spalte ist die IP (verifiziert: "IP,Target C2,
+                  # OpenPorts,Score(Inbound/Outbound),Country,Scan Time")
+                  for row in cip_reader:
+                      if not row:
+                          continue
+                      ip = row[0].strip()
+                      # is_valid_public_ipv4() → importiert aus netshield_common
+                      if is_valid_public_ipv4(ip):
+                          cip_ips.add(ip)
+
+                  all_ips.update(cip_ips)
+                  stats["criminalip_c2"] = len(cip_ips)
+                  feed_ip_sets["criminalip_c2"] = cip_ips
+                  print(f"  criminalip_c2: {len(cip_ips)} IPs "
+                        f"({len(cip_text)} bytes, {cip_url})")
+                  if not cip_ips:
+                      print("  WARNUNG criminalip_c2: 0 IPs geparst – "
+                            "moeglicher Format-Wechsel")
+                      print("::warning ::Honeypot-Feed criminalip_c2 lieferte "
+                            "Daten aber 0 gueltige IPs")
+              else:
+                  stats["criminalip_c2"] = 0
+                  fetch_failed.add("criminalip_c2")
+                  print(f"  criminalip_c2: unerwarteter CSV-Header "
+                        f"{cip_header!r} – Schema pruefen")
+                  print("::warning ::Honeypot-Feed criminalip_c2 – "
+                        "unerwartetes CSV-Schema")
+
+          # ══════════════════════════════════════════════════════════════════
+          # FRESHNESS-TRACKING – ERGAENZT 2026-07-25
+          #
+          # Bisher zeigte der Report nur "Feed erreichbar, N IPs" (✅/⚠️/❌).
+          # Ein Feed kann aber tot/eingefroren sein und trotzdem bei jedem
+          # Lauf dieselben N IPs zurueckliefern -> waere weiterhin ✅, obwohl
+          # er keine neuen Daten mehr liefert. Hier wird pro Feed ein Hash
+          # der IP-Menge ueber Laeufe hinweg verglichen: bleibt der Hash
+          # ueber mehrere Laeufe identisch, gilt der Feed als "eingefroren"
+          # (unabhaengig davon ob die Anzahl > 0 ist).
+          #
+          # Persistiert in state/honeypot_feed_freshness.json:
+          #   {name: {"hash": sha256, "unchanged_runs": N,
+          #           "last_changed_utc": iso, "last_changed_local": iso,
+          #           "ips": [sortierte IP-Liste dieses Feeds]}}
+          # unchanged_runs zaehlt aufeinanderfolgende Laeufe MIT identischem
+          # Hash. Bei jeder Aenderung wird der Counter auf 0 zurueckgesetzt
+          # und last_changed_utc/last_changed_local aktualisiert. Cron laeuft
+          # 4x/Tag (05/11/17/23 UTC) -> unchanged_runs=12 entspricht ca. 3
+          # Tagen, 28 ca. 7 Tagen.
+          #
+          # Feeds ohne erfolgreichen Fetch in diesem Lauf (fetch_failed/
+          # skipped) werden NICHT aktualisiert - ihr alter Freshness-Stand
+          # bleibt unveraendert stehen, bis der Feed wieder erreichbar ist.
+          #
+          # FIX PER-FEED-NEU (2026-07-25): das Feld "ips" wurde NEU ergaenzt,
+          # um pro Feed die echte Anzahl neu hinzugekommener IPs auszuweisen
+          # (nicht nur den globalen Gesamt-Delta ueber alle Feeds). Dafuer
+          # muss die komplette IP-Liste jedes Feeds persistiert werden (nicht
+          # nur ein Hash) -> state/honeypot_feed_freshness.json waechst dadurch
+          # spuerbar (aktuell insgesamt mehrere Zehntausend IPs ueber alle
+          # Feeds), Git-Commits werden entsprechend groesser. Bewusste
+          # Entscheidung fuer exakte Zahlen statt eines leichtgewichtigen,
+          # aber ungenauen Netto-Deltas (Zu-/Abgang koennten sich sonst
+          # gegenseitig verdecken).
+          import hashlib
+
+          FRESHNESS_FILE = "state/honeypot_feed_freshness.json"
+          freshness = {}
+          if os.path.exists(FRESHNESS_FILE):
+              try:
+                  with open(FRESHNESS_FILE) as f:
+                      freshness = json.load(f)
+              except (json.JSONDecodeError, OSError) as e:
+                  print(f"WARNUNG: {FRESHNESS_FILE} nicht lesbar ({e}) – starte leer")
+                  freshness = {}
+
+          feed_new_counts     = {}  # name -> Anzahl in diesem Lauf NEU hinzugekommener IPs
+          feed_removed_counts = {}  # name -> Anzahl gegenueber letztem Lauf entfernter IPs
+
+          for name, ip_set in feed_ip_sets.items():
+              ip_hash = hashlib.sha256(
+                  "\n".join(sorted(ip_set)).encode("utf-8")
+              ).hexdigest()
+              old = freshness.get(name, {})
+              old_ips = set(old.get("ips", []))
+              feed_new_counts[name]     = len(ip_set - old_ips)
+              feed_removed_counts[name] = len(old_ips - ip_set)
+              if old.get("hash") == ip_hash:
+                  unchanged_runs      = old.get("unchanged_runs", 0) + 1
+                  last_changed_utc    = old.get("last_changed_utc", now_str_utc)
+                  last_changed_local  = old.get("last_changed_local", now_str)
+              else:
+                  unchanged_runs      = 0
+                  last_changed_utc    = now_str_utc
+                  last_changed_local  = now_str
+              freshness[name] = {
+                  "hash": ip_hash,
+                  "unchanged_runs": unchanged_runs,
+                  "last_changed_utc": last_changed_utc,
+                  "last_changed_local": last_changed_local,
+                  "ips": sorted(ip_set),
+              }
+
+          write_text_atomic(FRESHNESS_FILE, json.dumps(freshness, indent=2, sort_keys=True))
+          print(f"{FRESHNESS_FILE} aktualisiert ({len(freshness)} Feeds)")
+
+          HONEYPOT_FILE = "honeypot_ips.txt"
+          existing = set()
+          if os.path.exists(HONEYPOT_FILE):
+              with open(HONEYPOT_FILE) as f:
+                  existing = {l.strip() for l in f if l.strip() and not l.startswith("#")}
+
+          # FIX BUG#3: FP- und Whitelist-Filter VOR der Delta-Berechnung anwenden.
+          # Vorher wurden new_ips/removed_ips vor dem Filtern berechnet → Report
+          # zeigte überhöhte +neu/-entfernt-Zahlen (gefilterte IPs zählten als "neu").
+          # FP-Filter: IPs aus state/false_positives_set.json entfernen
+          fp_removed = {ip for ip in all_ips if is_in_fp_set(ip)}
+          if fp_removed:
+              all_ips -= fp_removed
+              print(f"FP-Filter: {len(fp_removed)} IPs entfernt")
+          # FIX BUG-WL7: Whitelist-Filter – analog zum FP-Filter (defense-in-depth).
+          wl_removed = {ip for ip in all_ips if is_whitelisted(ip)}
+          if wl_removed:
+              all_ips -= wl_removed
+              print(f"Whitelist-Filter: {len(wl_removed)} IPs entfernt")
+
+          # Delta NACH allen Filtern berechnen → korrekte Report-Statistik
+          new_ips     = all_ips - existing
+          removed_ips = existing - all_ips
+          final_ips   = sorted(all_ips, key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
+
+          # Report immer zuerst schreiben
+          lines = ["# Honeypot Monitor – Report", f"**Aktualisiert:** {now_str}\n", "---",
+                   "| Quelle | IPs | Neu | Frische |", "|---|---|---|---|"]
+          for n, c in stats.items():
+              # FIX JB-DIAG: drei Zustaende statt zwei.
+              #   ✅ erreichbar mit IPs | ⚠️ erreichbar aber 0 / uebersprungen
+              #   | ❌ nicht erreichbar (Transport-Fehler)
+              if c > 0:
+                  mark = "✅"
+              elif n in fetch_failed:
+                  mark = "❌"
+              else:
+                  mark = "⚠️"
+
+              # NEU-Spalte: exakter Mengenvergleich (aktuelle IPs dieses Feeds
+              # ./. IPs desselben Feeds aus dem letzten erfolgreichen Lauf,
+              # siehe FIX PER-FEED-NEU oben). Nur befuellt, wenn der Feed
+              # DIESEN Lauf erfolgreich geladen wurde.
+              if n not in feed_ip_sets:
+                  neu_str = "–"
+              else:
+                  neu_str = f"+{feed_new_counts.get(n, 0)}"
+
+              # FRESHNESS-Spalte: nur befuellt wenn der Feed DIESEN Lauf
+              # erfolgreich geladen wurde (n in feed_ip_sets). Schwellwerte
+              # bei 4 Laeufen/Tag: <12 = ~<3 Tage, <28 = ~<7 Tage, sonst mehr.
+              # Zeitstempel in deutscher Lokalzeit (Europe/Berlin, CET/CEST),
+              # NICHT UTC – siehe last_changed_local oben.
+              if n not in feed_ip_sets:
+                  fresh = "–"
+              else:
+                  ur = freshness.get(n, {}).get("unchanged_runs", 0)
+                  lc = freshness.get(n, {}).get("last_changed_local", now_str)
+                  if ur == 0:
+                      fresh = f"🟢 neu ({lc})"
+                  elif ur < 12:
+                      fresh = f"🟢 aktuell (seit {lc})"
+                  elif ur < 28:
+                      fresh = f"🟡 traege (seit {lc}, {ur} Laeufe unveraendert)"
+                  else:
+                      fresh = f"🔴 EINGEFROREN (seit {lc}, {ur} Laeufe unveraendert)"
+
+              lines.append(f"| {mark} `{n}` | {c} | {neu_str} | {fresh} |")
+          lines += ["", "---", f"| Metrik | Wert |", "|---|---|",
+                    f"| Gesamt Honeypot-IPs | **{len(final_ips)}** |",
+                    f"| Neu | **+{len(new_ips)}** |", f"| Entfernt | **-{len(removed_ips)}** |",
+                    f"\n---\n*Generiert: {now_str}*"]
+
+          write_text_atomic("reports/honeypot_report.md", "\n".join(lines))
+          print("reports/honeypot_report.md geschrieben")
+
+          # ── Leerungsschutz ────────────────────────────────────────────────
+          # FIX LS3: sys.exit(1) statt sys.exit(0) + GitHub Warning Annotation.
+          MIN_ENTRIES = 500
+          if len(final_ips) < MIN_ENTRIES:
+              msg = f"Nur {len(final_ips)} IPs (< {MIN_ENTRIES}) – behalte bestehende honeypot_ips.txt"
+              print(f"::warning file=honeypot_monitor.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(1)
+
+          # FIX ATOMIC: write_ip_list statt open("w") – Crash-sicher.
+          write_ip_list(
+              HONEYPOT_FILE,
+              final_ips,
+              header_lines=[
+                  "NETSHIELD Honeypot IP Blocklist",
+                  f"Aktualisiert: {now_str}",
+                  f"Quellen: {len(HONEYPOT_SOURCES)} | Gesamt: {len(final_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt",
+              ],
+          )
+
+          print(f"Fertig: {len(final_ips)} Honeypot-IPs")
+          EOF
+
+      - name: Commit
+        if: always()  # FIX: auch bei Leerungsschutz-Exit den Report committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch honeypot_report.md 2>/dev/null || true
+          git add honeypot_ips.txt reports/honeypot_report.md state/honeypot_feed_freshness.json
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Honeypot Monitor: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                git checkout --theirs honeypot_ips.txt reports/honeypot_report.md state/honeypot_feed_freshness.json 2>/dev/null || true
+                git add honeypot_ips.txt reports/honeypot_report.md state/honeypot_feed_freshness.json 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi

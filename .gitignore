@@ -1,0 +1,51 @@
+# Lokale Testdateien
+*.pyc
+__pycache__/
+*.egg-info/
+venv/
+.venv/
+
+# Temporäre Outputs
+*.tmp
+*.bak
+*.log
+
+# Secrets / Umgebungsvariablen
+.env
+.env.*
+
+# seen_db (nur im GitHub Actions Cache, zu groß fürs Repo)
+seen_db.json
+
+# CHANGE ZWEI-FESTE-PARTS: Hauptdatei wird nur noch im Runner erzeugt/
+# rekonstruiert, nicht mehr committet (Parts part1/part2 sind kanonisch).
+# Verhindert, dass sie über 100 MB wächst und den Push blockiert.
+combined_threat_blacklist_ipv4.txt
+# FIX STOP-HISTORY-BLOAT (2026-08-06): blacklist_confidence40_ipv4.txt wurde
+# 8x/Tag (alle 3h) komplett neu committet, ~94,5 MB pro Commit - allein diese
+# eine Datei hat rechnerisch ~117 GB der Repo-Groesse verursacht (Ursache fuer
+# den "Repository is above its size quota"-Push-Fehler). Parts (blacklist_
+# confidence40_ipv4_part1/2.txt) sind wie bei combined_threat_blacklist_ipv4
+# der kanonische, vollstaendige Datenstand - die Hauptdatei ist ab jetzt nur
+# noch lokales Arbeitsartefakt, nicht mehr in Git getrackt.
+#
+# FIX WATCHLIST-VERSCHWUNDEN (2026-08-08): watchlist_confidence25to39_ipv4.txt
+# stand faelschlich in derselben Zeile wie blacklist_confidence40_ipv4.txt,
+# obwohl sie bei ~725 KB nie Teil des Groessenproblems war. Ergebnis: die
+# Datei wurde aus dem Commit genommen UND durch .gitignore am Wieder-
+# Hinzufuegen gehindert - verschwand komplett aus dem Repo ohne Ersatz.
+# Eintrag entfernt, Datei wird wieder normal getrackt (siehe update_
+# confidence_blacklist.yml, "Commit and Push"-Step).
+blacklist_confidence40_ipv4.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,330 @@
+name: Watchdog Combined Blacklist
+
+# Zweck:
+# Sicherstellen dass Update Combined Blacklist tatsaechlich zu seinen
+# geplanten Cron-Slots laeuft - auch wenn GitHub Actions Schedule-Trigger
+# ueberspringt (bekanntes Verhalten bei hoher Last; siehe
+# github.com/orgs/community/discussions/52477 und andere).
+#
+# Funktion (zwei Sicherheitsebenen):
+#
+# 1) SLOT-WAECHTER (primaere Logik):
+#    Watchdog kennt den Cron-Plan von Combined (7/27/47 */3 UTC). Bei jedem
+#    Lauf prueft er: "Wurde der letzte erwartete primaere Slot (07-Minute)
+#    erfolgreich bedient?" Wenn ein primaerer Slot mehr als SLOT_GRACE_MINUTES
+#    her ist und kein echter Combined-Run seit diesem Slot startete, triggert
+#    Watchdog via workflow_dispatch.
+#
+#    Beispiel: Combined-Plan hat Slot 09:07 UTC. Wenn Watchdog um 09:30 UTC
+#    laeuft und kein Combined-Run seit 09:07 startete -> triggern. Damit
+#    wird ein geschluckter Slot innerhalb ~25 min kompensiert statt erst
+#    nach 3h 30min.
+#
+# 2) STALE-SCHWELLE (Fallback):
+#    Falls die Slot-Logik aus irgendeinem Grund nicht greift (z.B. exotische
+#    Cron-Verzoegerung, Bug), gibt es weiterhin die alte Schwellen-Logik:
+#    Wenn der letzte echte Combined-Run laenger als STALE_THRESHOLD_MINUTES
+#    her ist, triggern.
+#
+# Hinweise:
+# - 15min-Cron-Trigger des Watchdogs koennen selbst von GitHub geskippt
+#   werden, aber bei 96 Triggern/Tag ist Wahrscheinlichkeit dass mehrere
+#   in Folge ausfallen sehr gering.
+# - Falls Watchdog selbst nicht laeuft, fallen wir auf die 7/27/47 */3-
+#   Schedule von Combined zurueck - bisheriges Verhalten bleibt erhalten,
+#   nichts wird schlechter.
+# - Im Combined-Workflow steht beim Idempotenz-Guard:
+#   if: github.event_name == 'schedule'. Bei workflow_dispatch wird der
+#   Guard somit nicht ausgefuehrt - das ist hier gewuenscht, weil der
+#   Watchdog vorher selbst geprueft hat und nur dann triggert, wenn
+#   wirklich ein Lauf faellig ist.
+
+on:
+  schedule:
+    # Laeuft alle 15min (96x taeglich). Grund fuer die hohe Frequenz:
+    # GitHub-Scheduler schluckt scheduled Workflows unter Last - in der
+    # Nacht 2026-05-20/21 wurden zwei aufeinanderfolgende Watchdog-Slots
+    # komplett uebersprungen, wodurch zwischen 20:48 UTC und ~05:00 UTC
+    # kein Eingriff stattfand.
+    #
+    # Bei 15min-Intervall: selbst wenn 1h GitHub-Cron ausfaellt, kommen
+    # vorher und nachher genug Trigger durch um geschluckte Combined-Slots
+    # rechtzeitig zu erkennen.
+    #
+    # Frueher: '15 1-23/3 * * *' (8x/Tag) - zu duenn, mehrere Skips in
+    # Folge konnten 6h+ Lucken erzeugen.
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+  # Piggyback gegen geschluckte GitHub-Cron-Slots OHNE externen Dienst.
+  # Belegt (Luecke 2026-06-01 00:27->02:00): GitHub verwirft scheduled Slots
+  # unter Last ohne Retry - auch die 15min-Watchdog-Slots selbst. workflow_run
+  # ist EVENT-getrieben (Abschluss eines anderen Workflows), haengt also nicht
+  # in der zeitgesteuerten Cron-Queue. Honigtopf laeuft stuendlich; bei
+  # jedem Abschluss laeuft damit auch der Watchdog - eine zweite, vom Watchdog-
+  # Cron unabhaengige Tick-Quelle. Greift nur, wenn Honigtopf selbst durchkam;
+  # bei breiter GitHub-Last koennen beide ausfallen (kein 100%-Fix). Der
+  # 15min-schedule-Cron oben bleibt als Redundanz erhalten.
+  # WICHTIG: 'workflows' referenziert den name: des Quell-Workflows, nicht
+  # den Dateinamen. Die Watchdog-Datei muss dafuer auf dem Default-Branch
+  # (main) liegen.
+  workflow_run:
+    workflows: ["Honigtopf"]
+    types: [completed]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: read
+  actions: write    # Pflicht fuer gh workflow run (Schreibrecht auf Actions API)
+
+concurrency:
+  group: watchdog-combined
+  cancel-in-progress: false
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check Combined freshness and trigger if needed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Fallback-Schwelle: Wenn aus irgendeinem Grund die Slot-Logik
+          # nicht greift, springt diese Schwelle ein. Von 210 auf 190min
+          # gesenkt (2026-06-02): laesst das Netz frueher greifen, wenn GitHub
+          # Combined- UND Watchdog-Cron-Slots gemeinsam schluckt (Restluecke
+          # wird ~190 statt 210+ min). 190 liegt noch knapp ueber dem 3h-Takt
+          # (180min) + Run-Laufzeit, loest also bei normalem Betrieb keine
+          # verfruehten Trigger aus. Tiefer waere riskant (Combined liefe dann
+          # oefter als alle 3h). Vollstaendig schliessen laesst sich die Luecke
+          # rein intern nicht - dafuer braeuchte es den externen Tick.
+          STALE_THRESHOLD_MINUTES: "190"
+          # Mindest-Laufzeit fuer "echten Run". Combined dauert normal ~22min,
+          # Idempotenz-Skips 10-15s. 60s trennt sauber.
+          MIN_REAL_RUN_SECONDS: "60"
+          # Slot-Grace: Wie lange darf ein erwarteter primaerer Cron-Slot
+          # (Combined: 7 */3 UTC) "verspaetet" sein bevor Watchdog eingreift?
+          # 20min Puffer reicht fuer GitHub-Cron-Drift (typisch 0-15min) und
+          # gibt den 2 Backup-Slots des Combined (27/47) noch Gelegenheit
+          # zu greifen bevor Watchdog uebersteuert.
+          # Konkret: Bei Slot 09:07 UTC greift Watchdog ab 09:27 UTC, also
+          # gleichzeitig wenn der erste Backup-Slot 09:27 sowieso anstehen
+          # wuerde - aber Watchdog ist verlaesslicher als scheduled.
+          SLOT_GRACE_MINUTES: "20"
+        run: |
+          set -e
+          set -o pipefail
+
+          # ── 0. Retry-Helper fuer gh-API-Calls ──────────────────────────
+          # FIX (2026-05-23): Transienter HTTP 401 "Bad credentials" trat
+          # einmalig auf zwischen zwei aufeinander folgenden gh-Calls (Step 1
+          # ging durch, Step 3 erster Call schlug fehl). Gleicher Token, gleiche
+          # Permissions. Vermutlich GitHub-API-Hickup/Rate-Limit - hat
+          # set -e ausgeloest und ganzen Watchdog-Run abgebrochen.
+          # Retry-Loop faengt solche Einmal-Aussetzer ab.
+          #
+          # Mechanik: gh_retry capture-st stdout und exitcode. Bei Erfolg
+          # gibt es stdout aus und exit 0. Bei Fehler: bis zu RETRY_MAX
+          # weitere Versuche mit Backoff. Erst nach finalem Fehlschlag
+          # wird exitcode != 0 zurueckgegeben (laesst set -e greifen).
+          #
+          # Backoff: 5s, 10s, 20s (exponentiell). Insgesamt max 35s
+          # Verzoegerung im Worst Case - watchdog hat 5min Timeout, passt.
+          RETRY_MAX=3
+          gh_retry() {
+            local attempt=1
+            local backoff=5
+            local out=""
+            local rc=0
+            while [ "$attempt" -le "$RETRY_MAX" ]; do
+              # stderr in tmp-file leiten damit wir bei Fehler darauf zugreifen
+              # koennen; stdout normal capturen.
+              out=$("$@" 2>/tmp/gh_retry_err) && rc=0 || rc=$?
+              if [ "$rc" -eq 0 ]; then
+                printf '%s' "$out"
+                return 0
+              fi
+              # Letzter Versuch: kein Sleep, Fehler-Output an stderr durchreichen
+              if [ "$attempt" -eq "$RETRY_MAX" ]; then
+                echo "gh_retry: Endgueltig fehlgeschlagen nach ${attempt} Versuchen (exit=${rc})" >&2
+                cat /tmp/gh_retry_err >&2
+                return "$rc"
+              fi
+              echo "gh_retry: Versuch ${attempt}/${RETRY_MAX} fehlgeschlagen (exit=${rc}), retry in ${backoff}s" >&2
+              cat /tmp/gh_retry_err >&2
+              sleep "$backoff"
+              attempt=$((attempt + 1))
+              backoff=$((backoff * 2))
+            done
+            return "$rc"
+          }
+
+          # ── 1. Letzten echten Combined-Run finden ──────────────────────
+          # Hole die letzten 100 erfolgreichen Runs und filtere clientseitig
+          # auf echte Runs (Laufzeit > MIN_REAL_RUN_SECONDS). Skip-Runs
+          # (10-15s lang) wuerden sonst als "frisch" zaehlen, obwohl real
+          # seit Stunden kein Daten-Update mehr war.
+          #
+          # Wir brauchen sowohl startedAt (fuer Slot-Zuordnung) als auch
+          # updatedAt (fuer Alter zur Schwellen-Pruefung).
+          #
+          # FIX AUDIT-1 (2026-05-21): limit von 30 auf 100 erhoeht. Bei
+          # vielen Skip-Runs (zaehlen alle als "success") koennte der
+          # letzte ECHTE Run sonst aus dem Fenster fallen, was zu einem
+          # falschen "kein Run gefunden -> triggern" fuehren wuerde. Bei
+          # 100 Runs und typisch ~25 echten + ~50 Skip-Runs pro Woche
+          # haben wir Reserve.
+          #
+          # FIX AUDIT-5 (2026-05-21): explizit nach startedAt sortieren
+          # statt sich auf gh's Default-Sortierung zu verlassen. gh sortiert
+          # zwar "most recent first" aber ohne klare Doku nach welchem Feld.
+          # Bei lang laufenden Runs koennte sonst .[0] nicht der zeitlich
+          # zuletzt gestartete Run sein.
+          last_real_json=$(gh_retry gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml \
+            --status=success \
+            --limit=100 \
+            --json startedAt,updatedAt \
+            --jq "[.[] | select(((.updatedAt | fromdateiso8601) - (.startedAt | fromdateiso8601)) > ${MIN_REAL_RUN_SECONDS})] | sort_by(.startedAt) | reverse | .[0]")
+
+          last_real_started=""
+          last_real_updated=""
+          if [ -n "$last_real_json" ] && [ "$last_real_json" != "null" ]; then
+            last_real_started=$(echo "$last_real_json" | jq -r '.startedAt // empty')
+            last_real_updated=$(echo "$last_real_json" | jq -r '.updatedAt // empty')
+          fi
+
+          # ── 2. Letzten erwarteten primaeren Slot bestimmen ─────────────
+          # Combined-Cron: 7 */3 * * * = 00:07, 03:07, 06:07, 09:07, 12:07,
+          # 15:07, 18:07, 21:07 UTC. Wir berechnen den juengsten Slot der
+          # bereits in der Vergangenheit liegt.
+          #
+          # Logik: Aktuelle Stunde modulo 3 gibt Offset zum vorherigen
+          # 3h-Block. Wenn aktuelle Minute < 7, gehoert die aktuelle Stunde
+          # noch nicht zum aktuellen Slot - dann ist letzter Slot 3h frueher.
+          now_epoch=$(date -u +%s)
+          current_hour=$(date -u +%H)
+          current_min=$(date -u +%M)
+          # Fuehrende Nullen entfernen (sonst interpretiert bash als oktal)
+          current_hour=$((10#$current_hour))
+          current_min=$((10#$current_min))
+
+          # Letzte primaere Slot-Stunde (Vielfaches von 3 das <= jetzt liegt)
+          slot_hour=$(( (current_hour / 3) * 3 ))
+          # Wenn aktuelle Stunde der Slot-Stunde entspricht aber Minute < 7,
+          # ist der "aktuelle" Slot noch nicht erreicht - 3h zurueck
+          if [ "$current_hour" -eq "$slot_hour" ] && [ "$current_min" -lt 7 ]; then
+            slot_hour=$((slot_hour - 3))
+          fi
+
+          # Tag fuer Slot bestimmen - falls slot_hour negativ, war es gestern
+          if [ "$slot_hour" -lt 0 ]; then
+            slot_hour=$((slot_hour + 24))
+            slot_date=$(date -u -d 'yesterday' +%Y-%m-%d)
+          else
+            slot_date=$(date -u +%Y-%m-%d)
+          fi
+
+          # ISO-8601 fuer den letzten erwarteten Slot
+          slot_iso=$(printf '%sT%02d:07:00Z' "$slot_date" "$slot_hour")
+          slot_epoch=$(date -u -d "$slot_iso" +%s)
+          slot_age_min=$(( (now_epoch - slot_epoch) / 60 ))
+
+          echo "Letzter erwarteter primaerer Slot: $slot_iso (vor ${slot_age_min} min)"
+          if [ -n "$last_real_started" ]; then
+            echo "Letzter echter Combined-Run: gestartet $last_real_started, beendet $last_real_updated"
+          else
+            echo "Kein echter Combined-Run in den letzten 100 Erfolgs-Eintraegen gefunden"
+          fi
+
+          # ── 3. Combined-Status pruefen (FIX AUDIT-3) ──────────────────
+          # Vor der Slot-Logik pruefen, ob Combined aktuell laeuft oder
+          # gequeued ist. Wenn ja: kein Eingriff, kein verwirrendes Logging.
+          # Frueher wurde erst die Slot-Logik ausgewertet (mit moeglichem
+          # "TRIGGER"-Log) und dann in Step 4 der active-Check abgebrochen.
+          # Das fuehrte zu irrefuehrenden Logs: "TRIGGER ..." obwohl gar
+          # nichts getriggert wurde.
+          running_count=$(gh_retry gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml \
+            --status=in_progress \
+            --limit=5 \
+            --json databaseId \
+            --jq 'length')
+          queued_count=$(gh_retry gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml \
+            --status=queued \
+            --limit=5 \
+            --json databaseId \
+            --jq 'length')
+          active=$(( running_count + queued_count ))
+
+          if [ "$active" -gt 0 ]; then
+            echo "Combined hat bereits ${active} aktive(n) Lauf/Laeufe (running=${running_count}, queued=${queued_count}) - kein Eingriff noetig"
+            exit 0
+          fi
+
+          # ── 4. Entscheidungs-Logik ─────────────────────────────────────
+          should_trigger=false
+          reason=""
+
+          # Edge case: gar kein echter Run gefunden -> definitiv triggern
+          if [ -z "$last_real_started" ]; then
+            should_trigger=true
+            reason="Kein echter Combined-Run in den letzten 100 Erfolgen - triggere zur Sicherheit"
+          else
+            last_started_epoch=$(date -u -d "$last_real_started" +%s)
+            last_updated_epoch=$(date -u -d "$last_real_updated" +%s)
+            stale_min=$(( (now_epoch - last_updated_epoch) / 60 ))
+
+            # SLOT-WAECHTER: Wurde der letzte erwartete Slot bedient?
+            # "Bedient" heisst: ein echter Run startete zum Slot-Zeitpunkt
+            # oder spaeter.
+            #
+            # FIX AUDIT-2+4 (2026-05-21): Frueher gab es -180s Drift-Toleranz
+            # (last_started >= slot_epoch - 180). Das war fehlerhaft - ein
+            # Run der 1-2min VOR dem Slot startete wurde faelschlich als
+            # "bedient" gezaehlt. GitHub-Cron startet scheduled Runs nie
+            # frueher als geplant, nur spaeter. Toleranz also unnoetig.
+            slot_served=false
+            if [ "$last_started_epoch" -ge "$slot_epoch" ]; then
+              slot_served=true
+            fi
+
+            if [ "$slot_served" = "false" ] && [ "$slot_age_min" -ge "$SLOT_GRACE_MINUTES" ]; then
+              should_trigger=true
+              reason="Slot $slot_iso seit ${slot_age_min}min nicht bedient (Grace: ${SLOT_GRACE_MINUTES}min) - letzter echter Run startete $last_real_started"
+            elif [ "$stale_min" -ge "$STALE_THRESHOLD_MINUTES" ]; then
+              # FALLBACK: Stale-Schwelle - sollte normalerweise nie greifen
+              # wenn Slot-Logik funktioniert, aber als Sicherheitsnetz da.
+              should_trigger=true
+              reason="Fallback: letzter echter Run vor ${stale_min}min (Schwelle ${STALE_THRESHOLD_MINUTES}min)"
+            else
+              if [ "$slot_served" = "true" ]; then
+                echo "Slot $slot_iso wurde bedient (Run startete $last_real_started) - kein Eingriff"
+              else
+                echo "Slot $slot_iso seit ${slot_age_min}min nicht bedient - noch innerhalb Grace (${SLOT_GRACE_MINUTES}min), warte ab"
+              fi
+            fi
+          fi
+
+          # ── 5. Trigger durchfuehren ────────────────────────────────────
+          # Der active-Check (Combined laeuft bereits?) wurde in Step 3 nach
+          # vorne gezogen (FIX AUDIT-3). Hier muss er nicht nochmal sein -
+          # wir wissen seit Step 3, dass active=0 ist. Theoretisch koennte
+          # zwischen Step 3 und hier ein neuer Combined-Run gestartet sein
+          # (z.B. durch parallelen scheduled Trigger), aber:
+          # 1) Concurrency-Group im Combined verhindert dann eh Doppellauf
+          # 2) Zeitfenster ist < 1s, sehr unwahrscheinlich
+          if [ "$should_trigger" = "true" ]; then
+            echo "Trigger-Grund: $reason"
+            echo "Triggere update_combined_blacklist.yml via workflow_dispatch"
+            gh_retry gh workflow run update_combined_blacklist.yml \
+              --repo "${{ github.repository }}" \
+              --ref main
+            echo "Triggered."
+          fi

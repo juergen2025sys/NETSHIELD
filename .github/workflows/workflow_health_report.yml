@@ -1,0 +1,302 @@
+name: Workflow Health Report
+
+# Zweck:
+# Erstellt alle 6h einen Health-Report fuer den Combined-Blacklist-Workflow
+# als reports/workflow_health.md im Repo. Dient als sichtbares Monitoring fuer
+# GitHub-Scheduler-Skips, Watchdog-Eingriffe und Run-Lucken.
+#
+# Datenquelle: GitHub Actions API via gh run list. Erfasst werden alle Runs
+# von update_combined_blacklist.yml (Combined) und watchdog_combined.yml
+# (Watchdog) der letzten 7 Tage. Schreibt KEINE Workflow-Logs aus - reicht
+# voellig fuer die Health-Bewertung, da Run-Metadaten (Start/Ende/Trigger/
+# Conclusion) alle relevanten Infos enthalten.
+#
+# Klassifizierung von Runs:
+# - "Echter Run": Combined-Run mit Laufzeit > 60s (entspricht der Schwelle
+#   die auch der Watchdog nutzt, um Skip-Runs von Builds zu trennen).
+# - "Skip-Run": Combined-Run mit Laufzeit <= 60s (Idempotenz-Guard-Skip).
+# - "Watchdog-Trigger": Combined-Run mit event=workflow_dispatch (vom
+#   Watchdog ausgeloest, da kein menschlicher dispatch erwartet).
+# - "Lucke": Zeit zwischen Ende eines echten Runs und Start des naechsten
+#   echten Runs, sofern >= GAP_THRESHOLD_MINUTES (210min). Lucken sind die
+#   direkt relevante Metrik fuer "Datenstand veraltet".
+
+on:
+  schedule:
+    - cron: '5 */6 * * *'  # 00:05, 06:05, 12:05, 18:05 UTC
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: workflow-health-report
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Generate health report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Mindest-Laufzeit fuer "echten Run" - identisch zu Watchdog und
+          # Idempotenz-Guard. Konsistenz wichtig, damit der Report die
+          # gleichen Runs als "echt" zaehlt wie die Guards das tun.
+          MIN_REAL_RUN_SECONDS: "60"
+          # Schwelle fuer Lucken-Markierung in Minuten. 210min = 3h 30min,
+          # gleicher Wert wie STALE_THRESHOLD_MINUTES im Watchdog.
+          GAP_THRESHOLD_MINUTES: "210"
+          # Wie viele Tage zurueck der Report betrachtet.
+          LOOKBACK_DAYS: "7"
+        run: |
+          set -e
+
+          python3 << 'PYEOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import write_text_atomic
+
+          import json
+          import os
+          import subprocess
+          from datetime import datetime, timezone, timedelta
+
+          REPO = os.environ["GITHUB_REPOSITORY"]
+          MIN_REAL = int(os.environ["MIN_REAL_RUN_SECONDS"])
+          GAP_MIN = int(os.environ["GAP_THRESHOLD_MINUTES"])
+          LOOKBACK_DAYS = int(os.environ["LOOKBACK_DAYS"])
+
+          now = datetime.now(timezone.utc)
+          lookback_cutoff = now - timedelta(days=LOOKBACK_DAYS)
+          last_24h_cutoff = now - timedelta(hours=24)
+
+          # ── gh CLI: Runs der letzten LOOKBACK_DAYS holen ────────────────
+          # gh run list liefert maximal 1000 Runs pro Call. Bei ~24 Combined
+          # Triggern/Tag + 96 Watchdog/Tag = 120/Tag = 840/7d - passt locker
+          # in einen Call mit --limit=1000.
+          def fetch_runs(workflow_file):
+              result = subprocess.run(
+                  [
+                      "gh", "run", "list",
+                      "--repo", REPO,
+                      "--workflow", workflow_file,
+                      "--limit", "1000",
+                      "--json", "databaseId,startedAt,updatedAt,conclusion,event,status,displayTitle",
+                  ],
+                  capture_output=True, text=True, check=True,
+              )
+              return json.loads(result.stdout)
+
+          combined_runs = fetch_runs("update_combined_blacklist.yml")
+          watchdog_runs = fetch_runs("watchdog_combined.yml")
+
+          # ── Runs auf LOOKBACK_DAYS-Fenster filtern und klassifizieren ────
+          def parse_iso(s):
+              # GitHub liefert ISO-8601 mit "Z"-Suffix - datetime.fromisoformat
+              # in Python 3.11+ versteht das, aber zur Sicherheit ersetzen.
+              return datetime.fromisoformat(s.replace("Z", "+00:00"))
+
+          def classify(runs):
+              classified = []
+              for r in runs:
+                  started = parse_iso(r["startedAt"])
+                  updated = parse_iso(r["updatedAt"])
+                  if started < lookback_cutoff:
+                      continue
+                  duration_s = (updated - started).total_seconds()
+                  classified.append({
+                      "id": r["databaseId"],
+                      "started": started,
+                      "updated": updated,
+                      "duration_s": duration_s,
+                      "conclusion": r.get("conclusion") or "",
+                      "event": r.get("event") or "",
+                      "status": r.get("status") or "",
+                  })
+              classified.sort(key=lambda x: x["started"])
+              return classified
+
+          combined = classify(combined_runs)
+          watchdog = classify(watchdog_runs)
+
+          # ── Combined: echte Runs vs Skip-Runs trennen ───────────────────
+          real_runs = [r for r in combined if r["duration_s"] > MIN_REAL and r["conclusion"] == "success"]
+          skip_runs = [r for r in combined if r["duration_s"] <= MIN_REAL and r["conclusion"] == "success"]
+          failed_runs = [r for r in combined if r["conclusion"] not in ("success", "")]
+
+          # ── Watchdog: triggernde vs nicht-triggernde Runs ───────────────
+          # Watchdog-Eingriffe sind nicht direkt aus den Metadaten ablesbar -
+          # er ist immer "success". Indirekter Indikator: Combined-Runs mit
+          # event=workflow_dispatch (vom Watchdog gestartet).
+          watchdog_triggered_combined = [r for r in combined if r["event"] == "workflow_dispatch"]
+          watchdog_total = len(watchdog)
+          watchdog_failed = [r for r in watchdog if r["conclusion"] not in ("success", "")]
+
+          # ── Lucken zwischen echten Combined-Runs finden ─────────────────
+          # Lucken sind die ehrliche Metrik fuer "Datenstand veraltet": egal
+          # welcher Cron-Slot geschluckt wurde, was zaehlt ist die Zeit ohne
+          # echten Daten-Update. Geschluckte Einzel-Slots zu erkennen war
+          # frueher hier drin, ist aber unzuverlaessig wegen GitHub-Scheduler-
+          # Drift (Slots koennen 0-60min verzoegert starten - kein verlaessliches
+          # Detektions-Fenster moeglich ohne Slot-Ueberlappung). Lucken-Metrik
+          # ist sowieso die direkt relevante Information.
+          gaps = []
+          for i in range(1, len(real_runs)):
+              prev_end = real_runs[i-1]["updated"]
+              this_start = real_runs[i]["started"]
+              gap_min = (this_start - prev_end).total_seconds() / 60
+              if gap_min >= GAP_MIN:
+                  gaps.append({
+                      "from": prev_end,
+                      "to": this_start,
+                      "minutes": int(gap_min),
+                  })
+
+          # ── 24h-Statistik separat ───────────────────────────────────────
+          real_24h = [r for r in real_runs if r["started"] >= last_24h_cutoff]
+          skip_24h = [r for r in skip_runs if r["started"] >= last_24h_cutoff]
+          gaps_24h = [g for g in gaps if g["from"] >= last_24h_cutoff]
+
+          # In 24h erwartet: 24/3 = 8 echte Runs (1 pro 3h-Fenster)
+          expected_real_24h = 8
+
+
+          # ── Markdown-Report bauen ───────────────────────────────────────
+          def fmt_dt(dt):
+              return dt.strftime("%Y-%m-%d %H:%M UTC")
+
+          def fmt_duration(seconds):
+              if seconds < 60:
+                  return f"{int(seconds)}s"
+              m = int(seconds // 60)
+              s = int(seconds % 60)
+              return f"{m}m {s}s"
+
+          lines = []
+          lines.append("# Workflow Health Report")
+          lines.append("")
+          lines.append(f"**Stand:** {fmt_dt(now)}")
+          lines.append(f"**Betrachtungszeitraum:** {LOOKBACK_DAYS} Tage")
+          lines.append("")
+          lines.append("Generiert von `.github/workflows/workflow_health_report.yml` alle 6h.")
+          lines.append("Klassifizierung: Echter Run = Laufzeit > " + str(MIN_REAL) + "s, Skip-Run = kurzer Idempotenz-Guard-Skip.")
+          lines.append("")
+
+          # ── 24h-Block ────────────────────────────────────────────────────
+          lines.append("## Letzte 24h")
+          lines.append("")
+          lines.append(f"- **Echte Combined-Runs:** {len(real_24h)} / {expected_real_24h} erwartet")
+          lines.append(f"- **Skip-Runs (Idempotenz-Guard):** {len(skip_24h)}")
+          lines.append(f"- **Lucken (>{GAP_MIN}min zwischen echten Runs):** {len(gaps_24h)}")
+          for g in gaps_24h:
+              lines.append(f"  - {fmt_dt(g['from'])} -> {fmt_dt(g['to'])} ({g['minutes']} min)")
+          lines.append("")
+
+          # ── 7d-Block ─────────────────────────────────────────────────────
+          lines.append(f"## Letzte {LOOKBACK_DAYS} Tage")
+          lines.append("")
+          lines.append(f"- **Echte Combined-Runs:** {len(real_runs)}")
+          lines.append(f"- **Skip-Runs:** {len(skip_runs)}")
+          lines.append(f"- **Fehlgeschlagene Runs:** {len(failed_runs)}")
+          lines.append(f"- **Lucken >{GAP_MIN}min:** {len(gaps)}")
+          if gaps:
+              biggest = max(gaps, key=lambda g: g["minutes"])
+              lines.append(f"- **Groesste Lucke:** {fmt_dt(biggest['from'])} -> {fmt_dt(biggest['to'])} ({biggest['minutes']} min = {biggest['minutes']//60}h {biggest['minutes']%60}min)")
+          lines.append("")
+
+          # ── Watchdog-Block ───────────────────────────────────────────────
+          lines.append("## Watchdog (letzte 7 Tage)")
+          lines.append("")
+          lines.append(f"- **Watchdog-Laeufe insgesamt:** {watchdog_total}")
+          lines.append(f"- **Watchdog-Fehler:** {len(watchdog_failed)}")
+          lines.append(f"- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** {len(watchdog_triggered_combined)}")
+          if watchdog_triggered_combined:
+              lines.append("")
+              lines.append("Letzte Watchdog-Eingriffe:")
+              for r in watchdog_triggered_combined[-5:]:
+                  lines.append(f"- {fmt_dt(r['started'])} (Run #{r['id']}, Laufzeit {fmt_duration(r['duration_s'])})")
+          lines.append("")
+
+          # ── Failed Runs Details ──────────────────────────────────────────
+          if failed_runs:
+              lines.append("## Fehlgeschlagene Combined-Runs (7d)")
+              lines.append("")
+              for r in failed_runs[-10:]:
+                  lines.append(f"- {fmt_dt(r['started'])} - {r['conclusion']} - Run #{r['id']} ({fmt_duration(r['duration_s'])})")
+              lines.append("")
+
+          # ── Footer ───────────────────────────────────────────────────────
+          lines.append("---")
+          lines.append("")
+          lines.append("**Hinweise zur Interpretation:**")
+          lines.append("")
+          lines.append(f"- Echte Runs/24h sollte {expected_real_24h} sein (1 pro 3h-Fenster). Weniger = GitHub-Scheduler hat Slots geschluckt ODER Runs fehlgeschlagen.")
+          lines.append("- Skip-Runs sind normal und gewollt (Idempotenz-Guard verhindert Doppellaeufe). Hohe Zahl OK solange echte Runs auch laufen.")
+          lines.append(f"- Lucken > {GAP_MIN}min zeigen Zeitraeume ohne Daten-Update. Bei haeufigen Lucken: Watchdog-Frequenz pruefen oder externer Trigger einrichten.")
+          lines.append("- Watchdog-Eingriffe (Combined via workflow_dispatch) sind ein Indikator dass das Sicherheitsnetz greift. Zu viele Eingriffe = primaerer Schedule unzuverlaessig.")
+
+          report = "\n".join(lines) + "\n"
+
+          # Atomarer Write (tempfile + fsync + os.replace) - vom Security-
+          # Hygiene-Checker erzwungen, verhindert kaputte reports/workflow_health.md
+          # bei Process-Abbruch waehrend des Schreibens.
+          write_text_atomic("reports/workflow_health.md", report)
+
+          print(f"Report geschrieben: {len(lines)} Zeilen")
+          print(f"  Echte Runs 24h: {len(real_24h)}/{expected_real_24h}")
+          print(f"  Skip-Runs 24h: {len(skip_24h)}")
+          print(f"  Lucken 24h: {len(gaps_24h)}")
+          PYEOF
+
+      - name: Commit and Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch workflow_health.md 2>/dev/null || true
+          git add reports/workflow_health.md
+          if git diff --staged --quiet; then
+            echo "Keine Aenderungen am Health Report"
+          else
+            git commit -m "Update workflow health report: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            # Push mit Retry-Logik (gleicher Pattern wie Combined-Workflow,
+            # da reports/workflow_health.md parallel zu anderen Workflows committed
+            # werden kann und git push race conditions auftreten koennen).
+            #
+            # FIX UNSTAGED-CHANGES (2026-05-21): Erster Lauf scheiterte mit
+            # "cannot rebase: You have unstaged changes". Ursache unbekannt -
+            # vermutlich legt irgendein Step (z.B. das gh-CLI im Generate-
+            # Schritt, oder Line-Ending-Konversion durch checkout) eine
+            # Datei ab die git als modified sieht. --autostash sichert
+            # solche Aenderungen vor dem Rebase weg und stellt sie danach
+            # wieder her. Zusaetzlich git status zur Diagnose bei Fehler.
+            for attempt in 1 2 3; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin "${GITHUB_REF_NAME}"
+              if git rebase --autostash -X ours "origin/${GITHUB_REF_NAME}"; then
+                if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                echo "Rebase fehlgeschlagen bei Versuch $attempt - git status:"
+                git status --short || true
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 3 Versuchen fehlgeschlagen"
+            exit 1
+          fi

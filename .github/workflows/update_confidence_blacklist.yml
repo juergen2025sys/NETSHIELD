@@ -1,0 +1,892 @@
+name: Confidence Blacklist
+
+# Trigger: laeuft automatisch nach jedem erfolgreichen Update Combined Blacklist.
+# Vorher: 8 feste schedule-Slots (45min nach den alten Combined-Slots 0,3,6,9,12,15,18,21 UTC).
+# Problem mit dem alten Setup:
+#  - Combined laeuft seit Cron-Umstellung auf 7/27/47 min (drei Slots pro 3h-Fenster)
+#    plus Watchdog-Triggers - die 45-Min-Offsets passten nicht mehr zuverlaessig.
+#  - Wenn Combined einen Slot uebersprang, lief Confidence trotzdem auf 3-6h alten
+#    seen_db-Daten. Die Frische-Schutzlogik (FIX SEEN-DB-AGE / STALE-HARDCAP) fing
+#    das zwar mit WARN/Abort ab, aber unnoetiger Run-Lauf + Lärm im Actions-Tab.
+# Jetzt: workflow_run-Trigger laeuft genau dann, wenn Combined erfolgreich fertig
+# ist - egal ob der vom regulaeren Cron, vom Watchdog oder manuell angestossen wurde.
+# Das macht Confidence zum echten Downstream-Schritt der Combined-Pipeline.
+# Hinweis: workflow_dispatch bleibt fuer manuelle Trigger erhalten.
+
+on:
+  # workflow_run-Trigger ENTFERNT (2026-06-02): Confidence wird jetzt direkt
+  # vom Combined-Workflow am Ende eines echten Laufs per workflow_dispatch
+  # getriggert (siehe Step "Trigger Confidence Blacklist" in
+  # update_combined_blacklist.yml). Grund: workflow_run feuerte zwar, aber bei
+  # einem per concurrency-Gruppe verdraengten (cancelled) Combined-Run war die
+  # 'conclusion == success'-Bedingung false -> Confidence wurde uebersprungen,
+  # conf40 veraltete (active⊆conf40-Subset-Invariante brach). Der explizite
+  # Trigger deckt ALLE echten Combined-Laeufe ab (Cron, Watchdog, manuell) und
+  # vermeidet Doppel-Trigger (sonst wuerden workflow_run + expliziter Trigger
+  # je einen Confidence-Run starten, von denen die concurrency-Gruppe einen
+  # verdraengt).
+  workflow_dispatch:
+  # Fallback-Cron (2026-06-02): laeuft 40min nach den Combined-Slots, damit
+  # Confidence selbst dann laeuft, wenn der explizite Trigger aus Combined mal
+  # nicht abgesetzt wurde (z.B. Push-Fehler). Frischer Combined-Output liegt
+  # dann meist vor.
+  schedule:
+    - cron: '47 1,4,7,10,13,16,19,22 * * *'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: write    # write noetig fuer 'gh workflow run' (Report-Generator-Trigger am Ende)
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+concurrency:
+  group: netshield-seen-db-writers
+  cancel-in-progress: false
+  # FIX BUG-QUEUE-STARVE (2026-07-24): siehe score_decay_monitor.yml.
+  # queue: max konsistent fuer alle 5 Mitglieder dieser Gruppe gesetzt,
+  # damit kein Workflow einen anderen aus der Warteschlange verdraengt.
+  queue: max
+
+jobs:
+  update-confidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    # Nur ausfuehren wenn:
+    # - manuell via workflow_dispatch ausgeloest (event_name == 'workflow_dispatch'), ODER
+    # - vom Combined-Workflow ausgeloest UND Combined war erfolgreich.
+    # Bei workflow_run wird der Job auch bei Combined-Failure/Cancelled getriggert -
+    # in dem Fall soll Confidence nicht laufen, weil keine neuen Daten existieren.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule'
+
+    steps:
+      # FIX SKIP-RUN-DETECT (2026-05-21): Confidence wird per workflow_run
+      # nach JEDEM erfolgreichen Combined-Lauf getriggert - auch nach
+      # Idempotenz-Guard-Skip-Runs (10-15s lang, keine neuen Daten). Diese
+      # Skip-Runs haben aus GitHub-Sicht conclusion=success, deshalb greift
+      # der if:-Check oben nicht. Ergebnis vorher: Confidence lief unnoetig
+      # auf alten seen_db-Daten - wird zwar von der internen Frische-Schutz-
+      # Logik (FIX SEEN-DB-AGE) abgefangen, aber unnoetiger Run und Laerm.
+      #
+      # Logik: Bei workflow_run prueft dieser Step die Laufzeit des
+      # triggernden Combined-Runs. Wenn < MIN_REAL_RUN_SECONDS = Skip-Run,
+      # beendet den Job sauber via 'exit 0' nach Setzen eines Outputs.
+      # Folge-Steps haben 'if: steps.skip-check.outputs.is_skip != 'true''.
+      # Bei workflow_dispatch (manueller Trigger) wird der Check uebersprungen,
+      # Confidence laeuft dann immer.
+      - name: Skip if Combined was a no-op run
+        id: skip-check
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MIN_REAL_RUN_SECONDS: "60"
+          TRIGGER_RUN_STARTED: ${{ github.event.workflow_run.run_started_at }}
+          TRIGGER_RUN_UPDATED: ${{ github.event.workflow_run.updated_at }}
+          TRIGGER_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -e
+          # Laufzeit aus den vom workflow_run-Event mitgelieferten Feldern.
+          # run_started_at = Combined-Start, updated_at = Combined-Ende.
+          start_epoch=$(date -u -d "$TRIGGER_RUN_STARTED" +%s)
+          end_epoch=$(date -u -d "$TRIGGER_RUN_UPDATED" +%s)
+          duration=$((end_epoch - start_epoch))
+          echo "Triggernder Combined-Run #${TRIGGER_RUN_ID}: ${duration}s Laufzeit"
+          if [ "$duration" -lt "$MIN_REAL_RUN_SECONDS" ]; then
+            echo "is_skip=true" >> "$GITHUB_OUTPUT"
+            echo "Combined war ein Skip-Run (<${MIN_REAL_RUN_SECONDS}s) - keine neuen Daten, Confidence wird uebersprungen"
+          else
+            echo "is_skip=false" >> "$GITHUB_OUTPUT"
+            echo "Combined war ein echter Run - Confidence laeuft"
+          fi
+
+      - name: Checkout Repository
+        if: steps.skip-check.outputs.is_skip != 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Restore seen_db Cache
+        if: steps.skip-check.outputs.is_skip != 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: seen_db.json
+          # FIX: restore-keys matcht alle Varianten die Combined und auto_feed_discovery schreiben.
+          # Combined speichert: netshield-seen-db-v2-<run_id>
+          # auto_feed_discovery speichert: netshield-seen-db-afd-save-<run_id>
+          # Durch restore-keys holen wir immer den neuesten verfügbaren Cache.
+          key: netshield-seen-db-v2-${{ github.run_id }}
+          restore-keys: |
+            netshield-seen-db-v2-
+            netshield-seen-db-afd-save-
+            netshield-seen-db-v1-
+            netshield-seen-db-
+
+      - name: Build Confidence Blacklists from seen_db
+        if: steps.skip-check.outputs.is_skip != 'true'
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries as _parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_text_atomic,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
+          import json, os, sys, ipaddress, bisect
+          from datetime import datetime, timezone, timedelta
+
+          now     = datetime.now(timezone.utc)
+          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+
+          DB_FILE    = "seen_db.json"
+          BLACKLIST  = "combined_threat_blacklist_ipv4.txt"
+          OUT_40     = "blacklist_confidence40_ipv4.txt"
+          OUT_WATCH  = "watchlist_confidence25to39_ipv4.txt"
+
+          # ── Whitelist: Single Source of Truth aus whitelist.json ──────────
+          # FIX SSOT1: Hardcoded DNS_WHITELIST und PROTECTED_CIDRS durch
+          # whitelist.json ersetzt. Synchron mit update_combined_blacklist
+          # und false_positive_checker. Neue Whitelist-Einträge wirken sofort.
+          try:
+              with open(".github/workflows/whitelist.json", encoding="utf-8") as _wl_f:
+                  _WHITELIST_ENTRIES = json.load(_wl_f)["entries"]
+          except Exception as _wl_err:
+              _msg = f"whitelist.json nicht ladbar: {_wl_err} – Confidence-Berechnung abgebrochen"
+              print(f"::error file=update_confidence_blacklist.yml::{_msg}")
+              print(f"FEHLER: {_msg}")
+              sys.exit(1)
+
+          protected_networks = []
+          for _entry in _WHITELIST_ENTRIES:
+              try:
+                  protected_networks.append(ipaddress.ip_network(_entry, strict=False))
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+          print(f"whitelist.json geladen: {len(protected_networks)} Einträge")
+
+          # ── FP-Set laden (Defense-in-Depth) ──────────────────────────────
+          # FIX SSOT2: state/false_positives_set.json wird von load_fp_set() oben
+          # bereits in die globalen Strukturen von netshield_common geladen.
+          # Hier nur Aliase auf die common-Strukturen anlegen, damit die
+          # bisherige lokale Filter-Logik unverändert weiterläuft.
+          # Frühere doppelte Lade-Logik entfernt (Single Source of Truth).
+          import netshield_common as _nc
+          _fp_ips      = _nc._fp_ips
+          _fp_networks = _nc._fp_networks
+          print(f"state/false_positives_set.json (via common): "
+                f"{len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs geladen")
+
+          # is_in_fp_set() → importiert aus netshield_common
+          # is_protected_entry() → importiert aus netshield_common
+          if not os.path.exists(DB_FILE):
+              msg = f"{DB_FILE} nicht gefunden – bitte zuerst Update Combined Blacklist ausführen."
+              print(f"::warning file=update_confidence_blacklist.yml::{msg}")
+              print(f"FEHLER: {msg}")
+              sys.exit(1)
+
+          with open(DB_FILE) as f:
+              try:
+                  db = json.load(f)
+              except Exception as e:
+                  print(f"FEHLER: seen_db.json ist korrupt oder nicht lesbar: {e}")
+                  print("Behalte bestehende Confidence-Blacklists und breche ab.")
+                  sys.exit(1)  # exit(1) damit GitHub Actions den Fehler im UI anzeigt
+          print(f"seen_db geladen: {len(db)} IPs")
+
+          # Alter der seen_db prüfen.
+          # FIX SEEN-DB-AGE: Primär state/seen_db_meta.json verwenden (Stundengenauigkeit
+          # via "updated"-Feld). Der vorherige Ansatz benutzte das aktuellste
+          # last-Datum aus der DB; weil last nur tagesgenau ist (YYYY-MM-DD →
+          # strptime ergibt Mitternacht UTC), zeigte er ab ~04:30 UTC jeden
+          # Tag fälschlich >4,5h Alter, obwohl die Pipeline gerade erst
+          # bestätigt hatte. Fallback auf den DB-Vergleich nur wenn Meta
+          # fehlt/korrupt – Schwelle dort entsprechend großzügiger (24h+3h
+          # Worst-Case durch Tagesgranularität).
+          db_age_hours = None
+          _used_meta_path = False   # FIX BUG-STALE-HARDCAP: True nur wenn Meta
+          # erfolgreich geparst wurde. Vorher: _used_fallback = not os.path.exists(META_FILE)
+          # → wenn Meta existiert aber korrupt ist, landet db_age_hours vom Fallback-Pfad
+          # (tagesgenau, Schwelle 48h), aber _cap wurde auf STALE_HARDCAP_META_H (8h)
+          # gesetzt. Bei 20h altem last-Datum → 20 > 8 → sys.exit(1) obwohl Pipeline läuft.
+          META_FILE = "state/seen_db_meta.json"
+          if os.path.exists(META_FILE):
+              try:
+                  with open(META_FILE) as _mf:
+                      _meta = json.load(_mf)
+                  _meta_upd = _meta.get("updated", "")
+                  if _meta_upd:
+                      _meta_dt = datetime.strptime(_meta_upd.replace(" UTC", ""), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+                      db_age_hours = (now - _meta_dt).total_seconds() / 3600
+                      _used_meta_path = True
+                      print(f"seen_db zuletzt aktualisiert: {_meta_upd} ({db_age_hours:.1f}h alt)")
+                      # Combined läuft alle 3h, plus Wallzeit (~30 min) plus
+                      # Cache-Save → 4,5h ist eine sichere Schwelle bei
+                      # echtem Timestamp.
+                      if db_age_hours > 4.5:
+                          print(f"WARNUNG: seen_db ist {db_age_hours:.1f}h alt – mindestens ein combined-Run wurde verpasst!")
+              except Exception as _suppressed:
+                  print(f"WARN: state/seen_db_meta.json nicht lesbar – Fallback auf DB-last-Vergleich: {_suppressed}", file=sys.stderr)
+
+          if db_age_hours is None:
+              # Fallback: aktuellstes last-Datum aus DB.
+              # Nur echte HQ-Bestätigungsdaten (last != 2000-01-01) berücksichtigen,
+              # damit Watchlist-IPs (last="2000-01-01") kein falsches Alarm-Alter erzeugen.
+              real_dates = [safe_get_date(d, "last") for d in db.values() if isinstance(d, dict) and safe_get_date(d, "last") != "2000-01-01"]
+              newest_last = max(real_dates) if real_dates else None
+              try:
+                  if newest_last:
+                      newest_dt = datetime.strptime(newest_last, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      db_age_hours = (now - newest_dt).total_seconds() / 3600
+                      print(f"seen_db aktuellster Eintrag (Fallback ohne Meta): {newest_last} ({db_age_hours:.1f}h alt)")
+                      # Schwelle für den Fallback großzügig: last ist nur tagesgenau,
+                      # bei 23:59 geschriebenem Eintrag und 27h später Messung wären
+                      # das echte 27h+ – alles darunter könnte legitim sein.
+                      if db_age_hours > 27:
+                          print(f"WARNUNG: seen_db ist {db_age_hours:.1f}h alt (Fallback) – Pipeline steht vermutlich still!")
+                  else:
+                      print("seen_db: Keine HQ-bestätigten Einträge vorhanden (nur Watchlist-IPs)")
+              except Exception as _suppressed:
+                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+
+          # FIX BUG-STALE-HARDCAP: Wenn seen_db wirklich stale ist, NICHT weiterrechnen.
+          # Hintergrund: die WARN-Pfade oben warnen nur (4.5h Meta / 27h Fallback) und
+          # lassen den Workflow weiterlaufen. Bei einer mehrtaegigen combined-Outage
+          # (GitHub Actions down, oder mehrfacher combined-Crash) wuerde confidence
+          # auf einem veralteten Snapshot conf40 + watchlist neu generieren — und damit
+          # einen veralteten Stand als "frisch" ins Repo committen. Firewalls die conf40
+          # konsumieren wuerden veraltete Threats blockieren oder neue verpassen.
+          # Bessere Strategie: bei extrem stalen Daten KEINEN Output schreiben. Die
+          # alten committeten Dateien bleiben stehen — Konsumenten haben dann ehrlich
+          # alte aber konsistente Daten, nicht frisch-aussehende veraltete.
+          # Schwellen:
+          #   Meta-basiert (genau, minutengenau):  8h = 2 verpasste combined-Runs
+          #   Fallback (last-Datum, tagesgenau):  48h = 2 Tage Pipeline-Stillstand
+          # Das gibt Glitches (1 verpasster Run, ~3-4h) genug Toleranz und schlaegt
+          # erst bei echtem Pipeline-Problem zu.
+          STALE_HARDCAP_META_H     = 8.0
+          STALE_HARDCAP_FALLBACK_H = 48.0
+          if db_age_hours is not None:
+              _cap = STALE_HARDCAP_META_H if _used_meta_path else STALE_HARDCAP_FALLBACK_H
+              if db_age_hours > _cap:
+                  _stale_msg = (
+                      f"seen_db ist {db_age_hours:.1f}h alt (Schwelle: {_cap:.0f}h, "
+                      f"{'Meta' if _used_meta_path else 'Fallback'}-Quelle). "
+                      f"confidence-Workflow wird abgebrochen, damit keine veralteten "
+                      f"Daten als 'frisch' ins Repo committet werden. Bestehende "
+                      f"{OUT_40} + {OUT_WATCH} bleiben unveraendert. "
+                      f"Ursache vermutlich combined-Workflow-Stillstand: bitte "
+                      f"update_combined_blacklist.yml-Runs pruefen."
+                  )
+                  print(f"::error file=update_confidence_blacklist.yml::{_stale_msg}")
+                  print(f"FEHLER: {_stale_msg}")
+                  sys.exit(1)
+
+          # CHANGE ZWEI-FESTE-PARTS: Hauptdatei wird nicht mehr committet –
+          # die Parts (part1/part2) sind kanonisch. Der Guard akzeptiert daher
+          # auch den Fall "nur Parts vorhanden"; die Lese-Schleife unten liest
+          # ohnehin [Hauptdatei] + alle Parts mit Existenzfilter.
+          import glob as _guard_glob
+          if (not os.path.exists(BLACKLIST)
+                  and not _guard_glob.glob("combined_threat_blacklist_ipv4_part*.txt")):
+              msg = f"{BLACKLIST} und Parts nicht gefunden – combined-Workflow muss zuerst laufen."
+              print(f"::warning file=update_confidence_blacklist.yml::{msg}")
+              print(f"FEHLER: {msg}")
+              sys.exit(1)
+
+          # combined_threat_blacklist_ipv4.txt wird bereits beim Schreiben in
+          # update_combined_blacklist mit is_protected_entry() gefiltert →
+          # erneute Prüfung hier wäre 502 Netzwerk-Checks × 4,5M IPs ≈ 10 Min Zeitverschwendung.
+          #
+          # FIX BUG-TRUNCATE-PARTS: Sobald die Vollliste >= 100 MB GitHub-Push-
+          # Limit erreicht, schreibt update_combined_blacklist die Hauptdatei
+          # truncatiert (nur die ersten N IPs) und verteilt die vollstaendige
+          # Liste auf combined_threat_blacklist_ipv4_part*.txt. Wenn wir hier
+          # nur die Hauptdatei lesen, verlieren IPs die ausschliesslich in den
+          # Parts stehen ihren Confidence-Score und landen weder in
+          # blacklist_confidence40 noch in der Watchlist – obwohl sie in
+          # seen_db vorhanden sind.
+          # Loesung: Hauptdatei + alle Parts einlesen, dedupen via set-Update.
+          # Das ist auch unter Schwelle (Parts existieren nicht) safe – glob
+          # matcht dann nichts. Solange Combined unter SPLIT_THRESHOLD bleibt,
+          # ist die Hauptdatei ohnehin vollstaendig und der Loop ist ein No-Op.
+          import glob as _glob
+          combined_ips = set()
+          _sources_read = [BLACKLIST] + sorted(
+              _glob.glob("combined_threat_blacklist_ipv4_part*.txt"))
+          for _src in _sources_read:
+              if not os.path.exists(_src):
+                  continue
+              with open(_src) as f:
+                  for line in f:
+                      s = line.strip()
+                      if s and not s.startswith("#"):
+                          combined_ips.add(s)
+          if len(_sources_read) > 1:
+              print(f"Combined Blacklist: {len(combined_ips)} IPs "
+                    f"(Hauptdatei + {len(_sources_read) - 1} Part(s))")
+          else:
+              print(f"Combined Blacklist: {len(combined_ips)} IPs")
+
+          # ── FP-Vorfilter für combined_ips (einmalig, statt pro IP im Inner-Loop) ─
+          # combined_threat_blacklist_ipv4.txt ist zwar bereits mit is_in_fp_set() gefiltert,
+          # aber es kann einen Timing-Gap geben (FP-Checker läuft nach Combined).
+          # Statt is_in_fp_set(ip) im Inner-Loop (4,5M × ~2945 Netzwerk-Checks ≈ 47 Min),
+          # filtern wir combined_ips EINMAL vorab via Binary-Search O(N × log K).
+          #
+          # FIX BUG-11: Intervalle VOR bisect mergen. Ohne Merge findet
+          # bisect_right nur das zuletzt startende Intervall mit start <= ip.
+          # Bei überlappenden FP-CIDRs würde die IP in einem Eltern-CIDR
+          # übersehen. Merging garantiert: jeder IP-Treffer landet im
+          # umschließenden Intervall.
+          if _fp_ips:
+              combined_ips -= _fp_ips
+          if _fp_networks:
+              _intervals_raw = sorted(
+                  (int(n.network_address), int(n.broadcast_address))
+                  for n in _fp_networks
+              )
+              # Intervall-Merge: überlappende/benachbarte Ranges zusammenführen
+              _intervals = []
+              for _lo, _hi in _intervals_raw:
+                  if _intervals and _lo <= _intervals[-1][1] + 1:
+                      _intervals[-1] = (_intervals[-1][0], max(_intervals[-1][1], _hi))
+                  else:
+                      _intervals.append((_lo, _hi))
+              _starts = [iv[0] for iv in _intervals]
+              _fp_cidr_hits = set()
+              for _ip in combined_ips:
+                  try:
+                      # FIX BUG-11 zusatz: bei CIDR-Einträgen das gesamte Intervall
+                      # gegen FP-Ranges prüfen, nicht nur die Netzadresse.
+                      if "/" in _ip:
+                          _net = ipaddress.ip_network(_ip, strict=False)
+                          _lo = int(_net.network_address)
+                          _hi = int(_net.broadcast_address)
+                      else:
+                          _lo = _hi = int(ipaddress.ip_address(_ip))
+                      _pos = bisect.bisect_right(_starts, _hi) - 1
+                      if _pos >= 0 and _intervals[_pos][1] >= _lo:
+                          _fp_cidr_hits.add(_ip)
+                  except Exception:
+                      pass
+              if _fp_cidr_hits:
+                  combined_ips -= _fp_cidr_hits
+                  print(f"FP-Timing-Gap-Filter: {len(_fp_cidr_hits)} IPs aus combined_ips entfernt")
+          print(f"Combined Blacklist nach FP-Filter: {len(combined_ips)} IPs")
+
+          # ── Whitelist-Defense-in-Depth-Filter ─────────────────────────────
+          # FIX BUG-WL1-PROPAGATION: combined_threat_blacklist_ipv4.txt wird
+          # zwar im Upstream gefiltert, aber wenn der Upstream-Filter ausfällt
+          # (z.B. BUG-WL1: load_whitelist() im Job-Step vergessen → is_whitelisted
+          # liefert False → Filter wirkungslos), propagiert der Leak in die
+          # Confidence-Blacklist OHNE dass dieser Workflow ihn bemerkt.
+          # Genau das ist am 2026-04-26 08:37 UTC passiert: alle drei Output-
+          # Dateien (combined, active, confidence40) enthielten dieselben
+          # whitelisted Google-/Microsoft-IPs.
+          # Lösung: Eigenständiger Whitelist-Filter via Merge+Bisect, identisch
+          # zum FP-Timing-Gap-Filter darüber. Performance: O(N × log K) – bei
+          # 4,5M IPs gegen ~437 gemergte Whitelist-Intervalle <1s. Defense-in-
+          # Depth ist hier den Kosten wert.
+          if protected_networks:
+              _wl_intervals_raw = sorted(
+                  (int(n.network_address), int(n.broadcast_address))
+                  for n in protected_networks
+              )
+              _wl_intervals = []
+              for _lo, _hi in _wl_intervals_raw:
+                  if _wl_intervals and _lo <= _wl_intervals[-1][1] + 1:
+                      _wl_intervals[-1] = (_wl_intervals[-1][0], max(_wl_intervals[-1][1], _hi))
+                  else:
+                      _wl_intervals.append((_lo, _hi))
+              _wl_starts = [iv[0] for iv in _wl_intervals]
+              _wl_hits = set()
+              for _ip in combined_ips:
+                  try:
+                      if "/" in _ip:
+                          _net = ipaddress.ip_network(_ip, strict=False)
+                          _lo = int(_net.network_address)
+                          _hi = int(_net.broadcast_address)
+                      else:
+                          _lo = _hi = int(ipaddress.ip_address(_ip))
+                      _pos = bisect.bisect_right(_wl_starts, _hi) - 1
+                      if _pos >= 0 and _wl_intervals[_pos][1] >= _lo:
+                          _wl_hits.add(_ip)
+                  except Exception:
+                      pass
+              if _wl_hits:
+                  combined_ips -= _wl_hits
+                  # Lautes Logging: Wenn dieser Filter zuschlägt, liegt
+                  # upstream ein BUG-WL1-artiges Problem vor – das soll im
+                  # Workflow-Log auffallen, auch wenn die Filterung selbst
+                  # erfolgreich greift.
+                  _sample = sorted(_wl_hits)[:5]
+                  print(f"::warning file=update_confidence_blacklist.yml::"
+                        f"Whitelist-Leak im Upstream erkannt und gefiltert: "
+                        f"{len(_wl_hits)} IPs (Beispiele: {', '.join(_sample)}). "
+                        f"BUG-WL1-Klasse – Combined-Blacklist-Generator prüfen.")
+                  print(f"Whitelist-Defense-in-Depth: {len(_wl_hits)} IPs aus combined_ips entfernt")
+              else:
+                  print(f"Whitelist-Defense-in-Depth: 0 Treffer (Upstream sauber)")
+          print(f"Combined Blacklist nach Whitelist-Filter: {len(combined_ips)} IPs")
+
+          # ══════════════════════════════════════════════════════════════════
+          # KONFIDENZ-MODELL
+          #
+          # blacklist_confidence40 = mittleres bis hohes Vertrauen (≥40 Punkte)
+          #   Mehr IPs als active_blacklist, geeignet für zusätzliche Filterregeln.
+          # watchlist              = neue/unsichere Bedrohungen (25–39 Punkte)
+          #
+          # Score setzt sich aus 4 unabhängigen Dimensionen zusammen:
+          #
+          # [A] QUELLEN-QUALITÄT (max. 40 Punkte) – wie vertrauenswürdig sind
+          #     die Feeds die diese IP gemeldet haben?
+          #       hq=True (je in einem HQ-Feed)          → 40
+          #       today_count >= 5 (heute 5+ Feeds)      → 35
+          #       today_count >= 3 (heute 3+ Feeds)      → 28
+          #       today_count >= 2 (heute 2+ Feeds)      → 20
+          #       feed_count >= 5 (akkum. 5+ Feeds)      → 15
+          #       feed_count >= 3 (akkum. 3+ Feeds)      → 10
+          #       feed_count >= 2 (akkum. 2 Feeds)       →  5
+          #       1 Feed total                            →  0
+          #
+          # [B] AKTUALITÄT (max. 30 Punkte) – wie frisch ist die letzte
+          #     *starke* Bestätigung? ("last" wird in update_combined_blacklist
+          #     ausschließlich gesetzt wenn mindestens 1 HQ-Feed die IP heute meldet)
+          #       last_seen ≤ 1 Tag   → 30
+          #       last_seen ≤ 3 Tage  → 25
+          #       last_seen ≤ 7 Tage  → 20
+          #       last_seen ≤ 14 Tage → 12
+          #       last_seen ≤ 30 Tage →  6
+          #       last_seen > 30 Tage →  0
+          #
+          # [C] PERSISTENZ (max. 20 Punkte) – wurde die IP über mehrere Tage
+          #     unabhängig bestätigt? (days_seen = Anzahl verschiedener Tage
+          #     an denen "stark bestätigt" wurde)
+          #       days_seen >= 14     → 20
+          #       days_seen >= 7      → 15
+          #       days_seen >= 3      → 10
+          #       days_seen >= 2      →  6
+          #       days_seen == 1      →  2
+          #
+          # [D] BEKANNT SEIT (max. 10 Punkte) – wie lange ist die IP schon
+          #     im System?
+          #       bekannt ≥ 90 Tage   → 10
+          #       bekannt ≥ 30 Tage   →  6
+          #       bekannt ≥ 14 Tage   →  3
+          #       bekannt < 14 Tage   →  0
+          #
+          # Gesamt max. 100 Punkte.
+          # Schwellwerte:
+          #   conf >= 40 → blacklist_confidence40 (mittleres/hohes Vertrauen)
+          #   conf 25–39 → watchlist
+          #   conf < 25  → ignoriert
+          #
+          # Hinweis: active_blacklist_ipv4.txt (OPNsense) verwendet conf >= 65
+          # und ist damit deutlich restriktiver (nur echte HQ-Bedrohungen).
+          # ══════════════════════════════════════════════════════════════════
+
+          confidence40 = []
+          confidence25 = []
+          skipped      = 0
+          skipped_watchlist = 0
+
+          for ip, data in db.items():
+              try:
+                  if not isinstance(data, dict):
+                      skipped += 1
+                      continue
+                  if ip not in combined_ips:
+                      # combined_ips wurde bereits beim Laden auf is_protected_entry()
+                      # und is_in_fp_set() vorgeprüft → keine weiteren Einzelchecks nötig.
+                      continue
+
+                  is_hq       = data.get("hq", False)
+                  feed_count  = len(data.get("feeds", []))
+                  today_count = data.get("today_count", 0)
+                  # FIX BUG-DEADVAR: 'today_hq' aus seen_db wurde hier ausgelesen,
+                  # aber nirgends weiterverwendet (calculate_confidence nutzt
+                  # 'is_hq', nicht 'today_hq'). Refactoring-Rest aus einer
+                  # frueheren Score-Variante. Entfernt - die Variable ueberlebt
+                  # weiterhin in seen_db.json (Schreibseite), wird hier aber
+                  # nicht gelesen.
+                  days_seen   = data.get("days_seen", 1)
+                  last_seen   = safe_get_date(data, "last")
+                  first_seen  = safe_get_date(data, "first", last_seen)
+
+                  try:
+                      last_dt  = datetime.strptime(last_seen,  "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                      first_dt = datetime.strptime(first_seen, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                  except Exception:
+                      skipped += 1
+                      continue
+
+                  # Sentinel-Guard: last="2000-01-01" markiert Einträge ohne echtes
+                  # "last seen"-Datum. Bei einer IP die gleichzeitig in combined_ips
+                  # steht ist das inkonsistent → keine verlässliche Score-Grundlage.
+                  #
+                  # FIX BUG#2 (erweitert): Der alte Guard `last=="2000-01-01" and
+                  # not is_hq` ließ den Fall is_hq=True + Sentinel-Datum durch.
+                  # Folge: score_a=40 (HQ) + score_d=10 (Sentinel-first triggert
+                  # vollen Alter-Bonus) + score_c≥2 = Score ≥52 → fälschlicher
+                  # confidence40-Eintrag. Der is_hq-Check ist entfernt: das
+                  # Sentinel-Datum allein ist das kanonische Ausschluss-Signal,
+                  # unabhängig von anderen Feldern.
+                  if last_seen == "2000-01-01":
+                      skipped_watchlist += 1
+                      continue
+
+                  days_since_last = (now - last_dt).days
+                  # FIX BUG-2: first="2000-01-01" ist ein Sentinel, kein echtes Datum.
+                  # Ohne Neutralisierung ergibt (now - first_dt) ≈ 9600 Tage →
+                  # days_known ≥ 90 → voller Alter-Bonus +10. Eine Watchlist-IP
+                  # ohne verwertbares first-Datum bekäme Score-Inflation von 10 Punkten
+                  # für ein fiktives "26 Jahre bekannt"-Alter. Korrekt: days_known=0
+                  # → Alter-Score 0, weil die Dimension keine verwertbare Info hat.
+                  if first_seen == "2000-01-01":
+                      days_known = 0
+                  else:
+                      days_known = (now - first_dt).days + 1
+
+                  # FIX DRY: Inline-Scoring entfernt, zentrale Funktion aus
+                  # netshield_common aufgerufen. Entspricht dem identischen
+                  # Fix in update_combined_blacklist.yml. Beseitigt das
+                  # Drift-Risiko (Score-Logik war vorher dreifach dupliziert)
+                  # und ist crash-sicher gegen korrupte seen_db-Werte.
+                  conf = calculate_confidence(
+                      is_hq=is_hq,
+                      today_count=today_count,
+                      feed_count=feed_count,
+                      days_since_last=days_since_last,
+                      days_seen=days_seen,
+                      days_known=days_known,
+                  )
+
+                  # is_protected_entry()-Guard hier entfernt: Zugehörigkeit zu combined_ips
+                  # garantiert bereits dass die IP kein geschützter Eintrag ist.
+                  if conf >= 40:
+                      confidence40.append((ip, conf))
+                  elif conf >= 25:
+                      confidence25.append((ip, conf))
+              except Exception as _corrupt:
+                  skipped += 1
+                  print(f"WARN: Korrupter seen_db-Eintrag {ip}: {_corrupt}", file=sys.stderr)
+                  continue
+
+          # FIX BUG-CACHE-DRIFT: Race-Schutz gegen veralteten seen_db-Cache.
+          # Symptom: 5.921 brandneue HQ-IPs (first=last=heute) fehlten am
+          # 2026-05-11 in conf40 obwohl sie in combined.txt + active.txt
+          # standen. Empirisch verifiziert (Sim 4.137.805 vs Repo 4.131.884
+          # = exakt +5.921). Score-Berechnung war korrekt (72 in beiden
+          # Workflows), alle Filter trafen 0 dieser IPs. Ursache: das oben
+          # iterierte `db` enthielt sie nicht, weil der actions/cache/restore-
+          # Step in diesem Workflow einen aelteren seen_db-Cache erwischte
+          # als der combined-Workflow committed hatte (asynchrone Cache-
+          # Replikation auf GitHub-Seite vs synchroner Repo-Push).
+          # Asymmetrie: combined.txt im Repo ist der NEUERE Stand. Eine IP
+          # in combined_ips aber nicht in db ist eindeutig "vom letzten
+          # combined-Run als score-wuerdig anerkannt, aber im hiesigen Cache
+          # noch nicht sichtbar". Sie muss in conf40.
+          # Default-Score 72 = is_hq(40) + days_since=0(30) + days_seen=1(2)
+          # + days_known=1(0). Entspricht exakt dem Score den eine brandneue
+          # HQ-IP im naechsten regulaeren Lauf bekommt. Kein Alter-Bonus,
+          # konservativ.
+          # Cap bei 10% von combined_ips als Sicherheitsnetz: wenn der Cache
+          # komplett kaputt waere (db={}), waeren ALLE ~5,1M IPs Orphans —
+          # dann ist nicht "Cache-Drift", sondern "Cache-Total-Loss" und
+          # der Leerungsschutz weiter unten greift sowieso. Bei plausibler
+          # Drift sind es <0.5% (5.921 / 5.137.852 = 0,12%).
+          _orphans = combined_ips - set(db.keys())
+          if _orphans:
+              _orphan_pct = len(_orphans) / max(1, len(combined_ips)) * 100
+              _orphan_msg = (
+                  f"Cache-Drift erkannt: {len(_orphans):,} IPs in combined.txt "
+                  f"aber nicht in seen_db ({_orphan_pct:.2f}% von combined). "
+                  f"actions/cache/restore lieferte vermutlich einen aelteren "
+                  f"Cache als der combined-Run committeted hat."
+              )
+              if _orphan_pct > 10.0:
+                  # Keine Auto-Heilung – das ist Cache-Total-Loss, kein Drift.
+                  # Leerungsschutz unten greift, falls confidence40 dadurch
+                  # unter MIN_CONF40 faellt.
+                  print(f"::warning file=update_confidence_blacklist.yml::"
+                        f"{_orphan_msg} > 10% Schwelle – Auto-Heilung "
+                        f"deaktiviert, manueller Cache-Refresh noetig.")
+                  print(f"WARNUNG: {_orphan_msg}")
+              else:
+                  print(f"::warning file=update_confidence_blacklist.yml::"
+                        f"{_orphan_msg} Auto-Heilung: alle Orphans mit "
+                        f"Default-HQ-Score 72 in conf40 aufgenommen.")
+                  print(f"INFO: {_orphan_msg}")
+                  _DEFAULT_ORPHAN_SCORE = 72  # is_hq(40)+frisch(30)+1xseen(2)
+                  for _orphan_ip in _orphans:
+                      confidence40.append((_orphan_ip, _DEFAULT_ORPHAN_SCORE))
+                  print(f"Cache-Drift-Heilung: {len(_orphans):,} IPs nachgetragen")
+          else:
+              print(f"Cache-Drift-Check: 0 Orphans (combined.txt und seen_db konsistent)")
+
+          confidence40.sort(key=lambda x: (-x[1], x[0]))
+          confidence25.sort(key=lambda x: (-x[1], x[0]))
+
+          print(f"Konfidenz ≥40 (→ confidence40-Datei): {len(confidence40)} IPs")
+          print(f"Konfidenz 25-39 (→ watchlist):         {len(confidence25)} IPs")
+          print(f"Sentinel-Ausschluss (last=2000-01-01):  {skipped_watchlist} IPs (kein verwertbares Datum)")
+          print(f"Übersprungen:                          {skipped} IPs (Datumsfehler)")
+
+          # ── Leerungsschutz confidence40 ───────────────────────────────────
+          # Verhindert das Überschreiben bei leerem/korruptem seen_db-Cache.
+          # Schwelle identisch mit active_blacklist in update_combined_blacklist.yml.
+          MIN_CONF40 = 100
+          if len(confidence40) < MIN_CONF40:
+              msg = (f"Nur {len(confidence40)} IPs in confidence40 (< {MIN_CONF40}) – "
+                     f"Leerungsschutz aktiv, {OUT_40} wird NICHT überschrieben.")
+              print(f"::warning file=update_confidence_blacklist.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(1)
+
+          # FIX ATOMIC: write_text_atomic statt open("w") – garantiert dass
+          # die Datei bei Runner-Kill/OOM komplett alt oder komplett neu bleibt,
+          # niemals halb geschrieben. Reihenfolge ist nach Confidence-Score
+          # absteigend (nicht nach IP), deshalb write_text_atomic statt
+          # write_ip_list (das nach IP sortieren würde).
+          #
+          # FIX HARD-LIMIT-CONF40: Groesse VOR dem Schreiben schaetzen und
+          # bei >= HARD_LIMIT_MB Truncate-Fallback + Parts anwenden, analog
+          # zur Logik in update_combined_blacklist.yml. Ohne diesen Schutz
+          # wuerde git push hart fehlschlagen sobald conf40 die 100 MB
+          # GitHub-Push-Grenze reisst (derzeit ~57 MB, Wachstum proportional
+          # zu combined). Hauptdatei bleibt der Legacy-Pfad (kompletter
+          # Score-sortierter Inhalt solange unter 100 MB), Parts decken die
+          # Vollstaendigkeit ab sobald Split-Schwelle erreicht ist.
+          # Reihenfolge im File: Score-sortiert absteigend bleibt erhalten;
+          # Parts werden in Score-Bereiche aufgeteilt (Part 1 = hoechste Scores).
+          HARD_LIMIT_MB      = 100  # GitHub Push-Limit
+          TRUNCATE_TARGET_MB = 95   # Sicherheitspuffer unter HARD_LIMIT_MB
+          SPLIT_THRESHOLD_MB = 90   # ab hier Parts erzeugen
+          PART_TARGET_MB     = 40   # Groesse pro Part
+
+          # Sample-basierte Avg-Schaetzung (stratifiziert, vermeidet IP-Laengen-
+          # Bias durch sortierte Reihenfolge). Identische Methode wie combined.
+          _step = max(1, len(confidence40) // 10_000)
+          _sample = confidence40[::_step][:10_000]
+          _avg_line = (sum(len(ip) + 1 for ip, _ in _sample) / len(_sample)) if _sample else 16
+          _header_overhead = 512
+          _conf40_estimated_mb = (
+              len(confidence40) * _avg_line * 1.02 + _header_overhead
+          ) / 1024 / 1024
+          print(f"\nGeschaetzte Groesse confidence40 (ungesplittet): {_conf40_estimated_mb:.1f} MB")
+
+          if _conf40_estimated_mb >= HARD_LIMIT_MB:
+              # Truncate: hoechste Scores zuerst, Rest in Parts
+              _max_ips = int((TRUNCATE_TARGET_MB * 1024 * 1024 - _header_overhead) / _avg_line)
+              _max_ips = max(1000, min(_max_ips, len(confidence40)))
+              _truncated = confidence40[:_max_ips]
+              _dropped = len(confidence40) - _max_ips
+              _trunc_msg = (
+                  f"Hauptdatei wuerde {_conf40_estimated_mb:.1f} MB "
+                  f"(>= {HARD_LIMIT_MB} MB GitHub-Limit) – TRUNCATE auf "
+                  f"{_max_ips:,} IPs (~{TRUNCATE_TARGET_MB} MB). "
+                  f"{_dropped:,} IPs ausschliesslich in Parts. Consumer auf Parts umstellen!"
+              )
+              print(f"::warning file=update_confidence_blacklist.yml::{_trunc_msg}")
+              print(f"WARNUNG: {_trunc_msg}")
+              _conf40_body = (
+                  f"# NETSHIELD Blacklist – Mittleres/Hohes Vertrauen (Score ≥40/100) [TRUNCATED]\n"
+                  f"# Aktualisiert: {now_str}\n"
+                  f"# Scoring: Quellen-Qualität(40) + Aktualität(30) + Persistenz(20) + Alter(10)\n"
+                  f"# Eintraege in dieser Datei: {_max_ips} (von {len(confidence40)} gesamt)\n"
+                  f"# WICHTIG: {_dropped} IPs NICHT in dieser Datei (GitHub-Hard-Limit 100 MB).\n"
+                  f"# Fuer vollstaendigen Schutz: blacklist_confidence40_ipv4_part*.txt verwenden.\n\n"
+                  + "".join(f"{ip}\n" for ip, conf in _truncated)
+              )
+          else:
+              _conf40_body = (
+                  f"# NETSHIELD Blacklist – Mittleres/Hohes Vertrauen (Score ≥40/100)\n"
+                  f"# Aktualisiert: {now_str}\n"
+                  f"# Scoring: Quellen-Qualität(40) + Aktualität(30) + Persistenz(20) + Alter(10)\n"
+                  f"# Eintraege: {len(confidence40)}\n\n"
+                  + "".join(f"{ip}\n" for ip, conf in confidence40)
+              )
+          write_text_atomic(OUT_40, _conf40_body)
+          _conf40_main_mb = os.path.getsize(OUT_40) / 1024 / 1024
+          print(f"{OUT_40} (tatsaechlich): {_conf40_main_mb:.1f} MB")
+
+          # ── Split-Logik fuer grosse Confidence40-Dateien ──────────────────
+          # Identische Strategie wie in update_combined_blacklist.yml:
+          # Split-Entscheidung auf Basis der VOLLSTAENDIGEN Liste (estimated_mb),
+          # nicht der evtl. truncatierten Hauptdatei. Bei Truncate muessen
+          # die Parts zwingend existieren, weil sie die einzige vollstaendige
+          # Quelle sind.
+          _glob_conf40 = _glob  # kein zweiter Import – _glob wurde oben bereits geladen
+          _existing_parts_conf40 = sorted(
+              _glob_conf40.glob("blacklist_confidence40_ipv4_part*.txt"))
+
+          if _conf40_estimated_mb >= SPLIT_THRESHOLD_MB:
+              _num_parts = max(2, int((_conf40_estimated_mb / PART_TARGET_MB) + 0.5))
+              _chunk_size = (len(confidence40) + _num_parts - 1) // _num_parts
+              print(f"  -> Split aktiv: {_num_parts} Parts a ~{PART_TARGET_MB} MB "
+                    f"({_chunk_size:,} IPs/Part)")
+
+              _new_parts = []
+              for _idx in range(_num_parts):
+                  _start = _idx * _chunk_size
+                  _end   = min(_start + _chunk_size, len(confidence40))
+                  if _start >= len(confidence40):
+                      break
+                  _part_name = f"blacklist_confidence40_ipv4_part{_idx+1}.txt"
+                  _part_body = (
+                      f"# NETSHIELD Confidence-40 Blacklist – Part {_idx+1}/{_num_parts}\n"
+                      f"# Aktualisiert: {now_str}\n"
+                      f"# Score-Bereich: {confidence40[_start][1]} bis {confidence40[_end-1][1]}\n"
+                      f"# Eintraege: {_end - _start}\n"
+                      f"# Siehe README fuer Nutzung mit allen Parts.\n\n"
+                      + "".join(f"{ip}\n" for ip, conf in confidence40[_start:_end])
+                  )
+                  write_text_atomic(_part_name, _part_body)
+                  _new_parts.append(_part_name)
+                  print(f"  {_part_name}: {_end - _start:,} IPs, "
+                        f"{os.path.getsize(_part_name)/1024/1024:.1f} MB")
+
+              # Alte Parts entfernen, die nicht mehr erzeugt wurden
+              for _old in _existing_parts_conf40:
+                  if _old not in _new_parts:
+                      try:
+                          os.unlink(_old)
+                          print(f"  Alten Part entfernt: {_old}")
+                      except OSError:
+                          pass
+
+              if _conf40_estimated_mb < HARD_LIMIT_MB:
+                  _split_msg = (f"Vollliste waere {_conf40_estimated_mb:.1f} MB "
+                                f"(>= {SPLIT_THRESHOLD_MB} MB). Parts erzeugt als Reserve.")
+                  print(f"::warning file=update_confidence_blacklist.yml::{_split_msg}")
+                  print(f"WARNUNG: {_split_msg}")
+          else:
+              # Unter Schwelle: Eventuell vorhandene alte Parts aufraeumen
+              for _old in _existing_parts_conf40:
+                  try:
+                      os.unlink(_old)
+                      print(f"  Alten Part entfernt (unter Schwelle): {_old}")
+                  except OSError:
+                      pass
+
+          _watch_body = (
+              f"# NETSHIELD Watchlist – Niedriges Vertrauen (Score 25-39/100)\n"
+              f"# Aktualisiert: {now_str}\n"
+              f"# Eintraege: {len(confidence25)}\n\n"
+              + "".join(f"{ip}\n" for ip, conf in confidence25)
+          )
+          # ── Leerungsschutz Watchlist ──────────────────────────────────────
+          # Wenn die Watchlist plötzlich leer/sehr klein ist (Score-Verteilung-
+          # Edge-Case oder Pipeline-Anomalie), bestehende Datei behalten.
+          # Schwelle bewusst niedrig: Watchlist ist informativ, gelegentliche
+          # Schwankungen sind normal – aber 0 Einträge bei vorhandener
+          # confidence40 ist verdächtig.
+          MIN_WATCH = 10
+          if len(confidence25) < MIN_WATCH and os.path.exists(OUT_WATCH):
+              _msg = (f"Nur {len(confidence25)} IPs in watchlist (< {MIN_WATCH}) – "
+                      f"behalte bestehende {OUT_WATCH} (Leerungsschutz)")
+              print(f"::warning file=update_confidence_blacklist.yml::{_msg}")
+              print(f"WARNUNG: {_msg}")
+          else:
+              write_text_atomic(OUT_WATCH, _watch_body)
+
+          print(f"Fertig: {len(confidence40)} IPs (conf≥40) | {len(confidence25)} IPs (watchlist 25-39)")
+          EOF
+
+      - name: Commit
+        # FIX SKIP-RUN-DETECT: always() bleibt fuer Best-Effort-Commit auch
+        # bei Build-Fehler, aber NICHT wenn Confidence wegen Skip-Run gar
+        # nicht lief (dann gibt's nichts zu committen und kein Checkout).
+        if: always() && steps.skip-check.outputs.is_skip != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX STOP-HISTORY-BLOAT (2026-08-06): blacklist_confidence40_ipv4.txt
+          # wurde bei jedem der 8 taeglichen Laeufe komplett neu committet
+          # (~94,5 MB), analog zum fruehereren combined_threat_blacklist_ipv4.txt-
+          # Problem - rechnerisch ~117 GB Repo-Wachstum allein durch diese eine
+          # Datei, Ursache fuer den "Repository is above its size quota"-Fehler.
+          # Einmalig aus dem Index nehmen (idempotent dank --ignore-unmatch),
+          # Parts (blacklist_confidence40_ipv4_part1/2.txt) sind wie beim
+          # Vorbild der kanonische Datenstand. Working-Copy bleibt erhalten
+          # (--cached); .gitignore verhindert Re-Tracking.
+          #
+          # FIX WATCHLIST-VERSCHWUNDEN (2026-08-08): watchlist_confidence
+          # 25to39_ipv4.txt wurde in derselben Aktion ebenfalls aus dem
+          # Tracking genommen ("schadet nicht, haelt beide Dateien
+          # konsistent"), aber NIE wieder hinzugefuegt - weder als normale
+          # Datei noch als Parts. Ergebnis: die Datei verschwand komplett
+          # aus dem Repo, ohne Ersatz. Bei ~725 KB war sie nie Teil des
+          # eigentlichen Groessen-Problems (nur blacklist_confidence40 mit
+          # ~94,5 MB/Commit trieb die Quota) - sie braucht keine Part-Split-
+          # Logik, sondern wird ab jetzt wieder ganz normal committet.
+          git rm -q --cached --ignore-unmatch blacklist_confidence40_ipv4.txt 2>/dev/null || true
+          git add -A blacklist_confidence40_ipv4_part*.txt 2>/dev/null || true
+          git add watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Confidence Blacklist: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                # FIX STOP-HISTORY-BLOAT: blacklist_confidence40_ipv4.txt
+                # ist nicht mehr getrackt (siehe .gitignore) - nur noch die
+                # Parts sind relevant fuer Merge-Konflikte, analog zum
+                # Vorbild combined_threat_blacklist_ipv4.txt. watchlist_
+                # confidence25to39_ipv4.txt ist wieder normal getrackt
+                # (FIX WATCHLIST-VERSCHWUNDEN, 2026-08-08) und braucht daher
+                # ganz normale Konfliktbehandlung wie jede andere Datei.
+                git checkout --theirs blacklist_confidence40_ipv4_part*.txt watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
+                git add -A blacklist_confidence40_ipv4_part*.txt 2>/dev/null || true
+                git add watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi
+
+      - name: Trigger Report Generator
+        # Stoesst den README-/Stats-Generator nach jedem erfolgreichen
+        # Confidence-Lauf an (2026-06-02). Confidence ist das letzte Glied der
+        # Daten-Kette (Combined -> Confidence), danach sind active + conf40
+        # frisch. So wird das README sofort nach dem Daten-Update erneuert,
+        # statt nur am stuendlichen Generator-Cron zu haengen (der unter Last
+        # geschluckt werden kann). Der Stundencron im Generator bleibt als
+        # Fallback. workflow_dispatch via gh ist die GITHUB_TOKEN-Ausnahme.
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Confidence abgeschlossen - triggere Report Generator (README/Stats frisch)"
+          gh workflow run netshield_report_generator.yml \
+            --repo "${{ github.repository }}" \
+            --ref "${GITHUB_REF_NAME}"

@@ -1,0 +1,600 @@
+name: Feed Health Monitor
+
+on:
+  schedule:
+    - cron: '0 1 * * *'    # täglich 01:00 UTC
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: read
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+jobs:
+  feed-health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Test all Feed URLs
+        run: |
+          python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries as _parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+
+              write_text_atomic, write_json_atomic,
+              fetch_url, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
+          import pathlib
+          import urllib.request, urllib.error, time, re, json, os, hashlib
+          from datetime import datetime, timezone
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+
+          now     = datetime.now(timezone.utc)
+          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+
+          # ── Feed-Liste dynamisch aus update_combined_blacklist.yml extrahieren ──
+          # Single Source of Truth: kein doppelt gepflegter FEEDS-Dict mehr.
+          # SOURCES in combined speichert Tuples ("url", hq_bool) → nur URLs werden
+          # für den Health-Check benötigt. LOCAL_FEEDS sind Dateinamen (*.txt), keine
+          # URL-Quellen – sie werden automatisch ausgeschlossen, da sie nicht in
+          # SOURCES enthalten sind.
+
+          def _extract_feeds_from_combined(workflow_path=".github/workflows/update_combined_blacklist.yml"):
+              """Liest SOURCES aus update_combined_blacklist.yml und gibt {name: url} zurück."""
+              text = pathlib.Path(workflow_path).read_text(encoding="utf-8")
+
+              # SOURCES = { ... } per Brace-Counting isolieren (robust gegen Kommentare)
+              m = re.search(r'^\s+SOURCES\s*=\s*\{', text, re.MULTILINE)
+              if not m:
+                  raise ValueError("SOURCES-Block nicht in update_combined_blacklist.yml gefunden")
+
+              brace_start = m.start() + m.group().index('{')
+              depth = 0
+              brace_end = brace_start
+              for i, ch in enumerate(text[brace_start:], brace_start):
+                  if ch == '{':
+                      depth += 1
+                  elif ch == '}':
+                      depth -= 1
+                      if depth == 0:
+                          brace_end = i + 1
+                          break
+              else:
+                  raise ValueError("SOURCES-Block: schließende } nicht gefunden")
+
+              raw = text[brace_start:brace_end]
+
+              # Zeilenweise parsen statt ast.literal_eval: robust gegen Kommentare
+              # innerhalb des SOURCES-Dicts in update_combined_blacklist.yml.
+              feed_re = re.compile(
+                  r'^[ \t]*"([^"\n]+)"\s*:\s*\(\s*"([^"\n]+)"\s*,\s*(True|False)\s*\)\s*,?',
+                  re.MULTILINE,
+              )
+              sources = {}
+              for m in feed_re.finditer(raw):
+                  sources[m.group(1)] = m.group(2)
+              if not sources:
+                  raise ValueError("SOURCES konnte nicht geparst werden: keine URL-Einträge erkannt")
+
+              return sources
+
+          FEED_URLS_CACHE = "state/feed_urls_cache.json"
+
+          try:
+              FEEDS = _extract_feeds_from_combined()
+              print(f"✅ {len(FEEDS)} Feeds aus update_combined_blacklist.yml geladen")
+              # Cache speichern für Fallback bei zukünftigen Parse-Fehlern.
+              # FIX: atomar schreiben – sonst Risiko einer halb-geschriebenen
+              # JSON-Datei bei Runner-Kill/OOM, die dann den Fallback-Zweig
+              # (unten) zum Absturz bringt.
+              write_json_atomic(FEED_URLS_CACHE, {"updated": now_str, "feeds": FEEDS})
+          except Exception as _ex:
+              # Fallback: gespeicherten Cache laden
+              if os.path.exists(FEED_URLS_CACHE):
+                  try:
+                      with open(FEED_URLS_CACHE) as _cf:
+                          _cached = json.load(_cf)
+                      FEEDS = _cached.get("feeds", {})
+                      _cache_age = _cached.get("updated", "unbekannt")
+                      print(f"::warning file=feed_health_monitor.yml::SOURCES-Parsing fehlgeschlagen: {_ex} – nutze Cache ({_cache_age}, {len(FEEDS)} Feeds)")
+                      print(f"WARNUNG: Fallback auf state/feed_urls_cache.json ({_cache_age})")
+                  except Exception:
+                      _err_msg = f"Feed-Extraktion UND Cache-Fallback fehlgeschlagen: {_ex}"
+                      print(f"::error file=feed_health_monitor.yml::{_err_msg}")
+                      # FIX: Report immer VOR SystemExit schreiben, damit Commit-Step (if: always())
+                      # einen aktuellen Fehler-Report committet statt den veralteten Stand zu behalten.
+                      write_text_atomic("reports/feed_health_report.md", f"# Feed Health Monitor – Report\n**Aktualisiert:** {now_str}\n\n---\n\n## ❌ Kritischer Fehler\n\n*{_err_msg}*\n\n---\n*Generiert: {now_str}*\n")
+                      raise SystemExit(1)
+              else:
+                  _err_msg = f"Feed-Extraktion fehlgeschlagen (kein Cache vorhanden): {_ex}"
+                  print(f"::error file=feed_health_monitor.yml::{_err_msg}")
+                  # FIX: Report immer VOR SystemExit schreiben
+                  write_text_atomic("reports/feed_health_report.md", f"# Feed Health Monitor – Report\n**Aktualisiert:** {now_str}\n\n---\n\n## ❌ Kritischer Fehler\n\n*{_err_msg}*\n\n---\n*Generiert: {now_str}*\n")
+                  raise SystemExit(1)
+
+          IP_RE = IPV4_RE   # Alias auf strikte Variante aus netshield_common
+                            # (frühere lokale \b-Definition entfernt)
+
+          # ── FEED-URL-OVERRIDES anwenden ────────────────────────────────────
+          # update_combined_blacklist.yml legt vom Move-Resolver bestaetigte,
+          # dauerhaft erneuerte URLs in feed_url_overrides.json ab und nutzt sie
+          # statt der SOURCES-Zeile. Der Monitor MUSS dieselbe effektive URL
+          # testen, sonst meldet er einen erfolgreich auto-erneuerten Feed
+          # faelschlich als tot (die alte 404-URL). Nur lesen, nicht prunen –
+          # die Datei gehoert dem Combined-Workflow.
+          try:
+              if os.path.exists("feed_url_overrides.json"):
+                  with open("feed_url_overrides.json") as _of:
+                      _ovr = json.load(_of).get("overrides", {}) or {}
+                  _applied = 0
+                  for _fn, _o in _ovr.items():
+                      if _fn in FEEDS and isinstance(_o, dict) and _o.get("url"):
+                          FEEDS[_fn] = _o["url"]; _applied += 1
+                  if _applied:
+                      print(f"  {_applied} URL-Override(s) aus feed_url_overrides.json angewendet")
+          except (ValueError, OSError) as _e:
+              print(f"::warning file=feed_health_monitor.yml::feed_url_overrides.json nicht lesbar: {_e}")
+
+          # ── Sample-Fingerprint (Stale-Feed-Erkennung) ─────────────────────
+          # Hasht die SORTIERTE, geparste IP-Menge des Samples. Sortierung macht
+          # den Fingerprint ordnungs-unabhaengig: ein Feed der nur seine Zeilen
+          # umsortiert (gleiche IP-Menge) gilt NICHT als geaendert. Aenderung
+          # auch nur einer IP → anderer Fingerprint. Analog zu _ip_fingerprint
+          # in auto_feed_discovery.yml, aber hier ueber die ZEIT statt zwischen
+          # Feeds verglichen.
+          #
+          # LIMITATION (bewusst): basiert auf demselben 2-MB-Sample wie der
+          # has_ips-Check (Feld heisst nicht umsonst sample_ips). Fuer Feeds die
+          # in 2 MB passen ist der Fingerprint exakt; bei sehr grossen Feeds
+          # (>~140k IPs) ist es eine Heuristik auf dem Praefix. Bei der 14-Tage-
+          # Schwelle ist ein echt aktualisierter Grossfeed praktisch immer
+          # irgendwo in den ersten 2 MB veraendert (neue IPs / Re-Sort), daher
+          # geringe False-Positive-Gefahr. Das Flag ist ohnehin nur advisory
+          # ("moeglicherweise eingefroren"), kein Auto-Remove.
+          def _sample_fingerprint(entries):
+              if not entries:
+                  return ""   # leere Menge → kein Fingerprint (von Stale-Check ignoriert)
+              joined = "\n".join(sorted(entries))
+              return hashlib.sha1(joined.encode("utf-8")).hexdigest()[:16]
+
+          def check_feed(name, url):
+              t0 = time.time()
+              try:
+                  req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD-HealthMonitor/1.0"})
+                  with urllib.request.urlopen(req, timeout=20) as r:
+                      code   = r.status
+                      # FIX STALE-DETECT-PREFIX (2026-08-04): Von 2 MB auf 25 MB
+                      # angehoben, angeglichen an read_limit der echten
+                      # Dateneinlese in fetch_url() (netshield_common.py).
+                      # Vorher: Bei sehr grossen Feeds (z.B. amitambekar_threats,
+                      # ~140k IPs allein in den ersten 2 MB) sah der Fingerprint
+                      # nur einen PREFIX der Datei - Aenderungen jenseits der
+                      # 2-MB-Grenze blieben unsichtbar, der Feed konnte faelschlich
+                      # als "eingefroren" gemeldet werden, obwohl die echte
+                      # Blacklist-Einlese (25 MB Grenze) die neuen IPs laengst
+                      # korrekt erfasst hatte - der Report war dann irrefuehrend,
+                      # auch wenn die Blacklist-Daten selbst nicht betroffen waren.
+                      # Bewusster Trade-off: mehr Netzwerk-/Speicherlast bei 15
+                      # parallelen Requests (urspruenglich der Grund fuer die
+                      # Reduzierung auf 2 MB) - dafuer stimmt die Stale-Erkennung
+                      # jetzt mit dem ueberein, was tatsaechlich in die Blacklist
+                      # einfliesst.
+                      sample = r.read(25 * 1024 * 1024).decode("utf-8", errors="ignore")
+                  elapsed = round(time.time() - t0, 2)
+                  # FIX BUG-WF6-IPV6-HEALTH: vorher IP_RE.findall ohne IPv6-
+                  # Token-Schutz. ::ffff:1.2.3.4 haette den has_ips-Boolean
+                  # faelschlich auf True gesetzt (= Feed gilt als gesund).
+                  # parse_entries() filtert IPv6-Tokens via _is_in_ipv6_token.
+                  # Niedrige Praxis-Relevanz weil ip_count nur fuer Health-
+                  # Watchdog (Boolean), nicht fuer Datenfluss in Blacklists.
+                  entries  = _parse_entries(sample)
+                  ip_count = len(entries)
+                  has_ips  = ip_count > 0
+                  fp       = _sample_fingerprint(entries)
+                  return {"name": name, "url": url, "status": code, "ok": code == 200,
+                          "has_ips": has_ips, "sample_ips": ip_count, "ms": int(elapsed*1000),
+                          "fingerprint": fp}
+              except urllib.error.HTTPError as e:
+                  return {"name": name, "url": url, "status": e.code, "ok": False,
+                          "has_ips": False, "sample_ips": 0, "ms": int((time.time()-t0)*1000),
+                          "fingerprint": ""}
+              except Exception as e:
+                  return {"name": name, "url": url, "status": 0, "ok": False,
+                          "has_ips": False, "sample_ips": 0, "ms": int((time.time()-t0)*1000),
+                          "fingerprint": "", "err": str(e)[:80]}
+
+          results = []
+          with ThreadPoolExecutor(max_workers=15) as ex:
+              futures = {ex.submit(check_feed, n, u): n for n, u in FEEDS.items()}
+              # FIX BUG#6: as_completed wirft TimeoutError wenn das 300s-Limit
+              # erreicht wird. Alle anderen Workflows fangen das ab – dieser nicht.
+              # Ohne try/except crasht der gesamte Workflow statt einen Teilergebnis-
+              # Report zu schreiben.
+              try:
+                  for f in as_completed(futures, timeout=300):
+                      r = f.result()
+                      results.append(r)
+                      icon = "✅" if r["ok"] and r["has_ips"] else ("⚠️" if r["ok"] else "❌")
+                      print(f"{icon} {r['name']}: HTTP {r['status']} | {r['ms']}ms | ~{r['sample_ips']} IPs (sample)")
+              except TimeoutError:
+                  timed_out = [name for fut, name in futures.items() if fut not in {f for f in futures if f.done()}]
+                  print(f"::warning::as_completed Timeout (300s) – {len(timed_out)} Feeds nicht abgeschlossen: {timed_out}")
+
+          results.sort(key=lambda x: (not x["ok"], x["name"]))
+
+          # ── Dead-Feed-Tracking (Consecutive-Failure ueber Laeufe) ──────────
+          # Der Monitor lief bisher nur als Momentaufnahme. Hier wird der
+          # vorherige state/feed_health_status.json gelesen und pro Feed ein
+          # consecutive_fails-Zaehler gepflegt: failt der Feed → prev+1, sonst
+          # → 0. Ab DEAD_THRESHOLD aufeinanderfolgenden Fehl-Laeufen gilt ein
+          # Feed als "tot" (Quelle hat die Datei wohl verschoben/entfernt und
+          # KEINEN Redirect gesetzt → bei Nicht-GitHub-Quellen nicht automatisch
+          # auffindbar, braucht manuellen Fix). Daily-Cron → 3 Laeufe = 3 Tage.
+          # Feeds die in einem Lauf nicht geprueft wurden (Timeout) erscheinen
+          # nicht in results → ihr Zaehler wird diesen Lauf weder erhoeht noch
+          # zurueckgesetzt (konservativ: verzoegert Erkennung, erzeugt keine
+          # False-Positives).
+          DEAD_THRESHOLD = 3
+
+          # ── Stale-Feed-Schwelle ────────────────────────────────────────────
+          # Ein Feed der HTTP 200 + IPs liefert, aber dessen IP-Menge sich
+          # STALE_THRESHOLD_DAYS Tage nicht aendert, gilt als "moeglicherweise
+          # eingefroren". Anders als Dead-Feeds (fehlende URL) ist das kein
+          # harter Fehler: kleine kuratierte Listen aendern sich legitim selten.
+          # Daher grosszuegige Schwelle + nur advisory-Flag, KEIN Auto-Remove.
+          # DataPlane-Feeds (Phase-1-Honeypot-Signal) sollten sich taeglich
+          # aendern → dort ist ein eingefrorener Stand das eigentliche Alarm-
+          # signal und wird unten als ::error:: statt ::warning:: eskaliert.
+          STALE_THRESHOLD_DAYS = 14
+
+          prior_by_name = {}
+          try:
+              with open("state/feed_health_status.json") as _pf:
+                  _prior = json.load(_pf)
+              for _e in _prior.get("feeds", []):
+                  if isinstance(_e, dict) and "name" in _e:
+                      prior_by_name[_e["name"]] = _e
+          except (FileNotFoundError, ValueError, OSError):
+              prior_by_name = {}   # erster Lauf / kaputte Datei → leer starten
+
+          # Helfer: now_str ("%Y-%m-%d %H:%M UTC") zurueck in datetime parsen,
+          # um Tage-Differenz fuer den Stale-Check zu rechnen. Robust gegen
+          # kaputte/alte Werte → None (Stale-Check ueberspringt den Feed dann).
+          def _parse_now_str(s):
+              try:
+                  return datetime.strptime(str(s).replace(" UTC", ""),
+                                           "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+              except (ValueError, TypeError):
+                  return None
+
+          for r in results:
+              prev = prior_by_name.get(r["name"], {})
+              if r["ok"]:
+                  r["consecutive_fails"] = 0
+                  r["first_failed"]      = None
+                  r["last_ok"]           = now_str
+              else:
+                  r["consecutive_fails"] = int(prev.get("consecutive_fails", 0)) + 1
+                  r["first_failed"]      = prev.get("first_failed") or now_str
+                  r["last_ok"]           = prev.get("last_ok")   # unveraendert
+
+              # ── Fingerprint-/Stale-Tracking ───────────────────────────────
+              # Nur fuer OK-Feeds MIT nicht-leerem Fingerprint. Fehlende/leere
+              # Feeds sind bereits durch dead/warn abgedeckt – sie hier zusaetz-
+              # lich als "stale" zu fuehren waere doppelt und wuerde bei einem
+              # transienten Blip die Freeze-Historie verfaelschen.
+              fp      = r.get("fingerprint", "")
+              prev_fp = prev.get("fingerprint", "")
+              if r["ok"] and fp:
+                  if prev_fp and prev_fp == fp:
+                      # Inhalt unveraendert → Startzeitpunkt der Unveraendertheit
+                      # uebernehmen und Tage-Differenz rechnen.
+                      since = prev.get("fingerprint_since") or now_str
+                      since_dt = _parse_now_str(since)
+                      r["fingerprint_since"] = since
+                      r["days_unchanged"]    = (now - since_dt).days if since_dt else 0
+                  else:
+                      # Erste Sichtung dieses Fingerprints (oder Inhalt hat sich
+                      # geaendert) → Streak zuruecksetzen.
+                      r["fingerprint_since"] = now_str
+                      r["days_unchanged"]    = 0
+              else:
+                  # Nicht-OK oder leerer Fingerprint → Stale-Check nicht anwendbar.
+                  r["fingerprint_since"] = None
+                  r["days_unchanged"]    = 0
+
+          dead_feeds = [r for r in results if r["consecutive_fails"] >= DEAD_THRESHOLD]
+          for r in dead_feeds:
+              # ::error:: damit es im Actions-Log nicht im Rauschen untergeht.
+              print(f"::error file=feed_health_monitor.yml::Dead feed [{r['name']}]: "
+                    f"{r['consecutive_fails']} Laeufe in Folge fehlgeschlagen "
+                    f"(seit {r['first_failed']}, zuletzt HTTP {r['status']}) – "
+                    f"URL pruefen/aktualisieren: {r['url']}")
+
+          # ── reports/dead_feed_report.md schreiben ──────────────────────────────────
+          _dl = [f"# NETSHIELD – Dead-Feed-Report",
+                 f"**Aktualisiert:** {now_str}",
+                 f"**Schwelle:** {DEAD_THRESHOLD} Fehl-Laeufe in Folge (Daily-Cron → {DEAD_THRESHOLD} Tage)",
+                 ""]
+          if dead_feeds:
+              _dl.append(f"## ❌ {len(dead_feeds)} tote Feed(s) – manueller Fix noetig")
+              _dl.append("")
+              _dl.append("| Feed | Fehl-Laeufe | Seit | Letzter Status | URL |")
+              _dl.append("|---|---|---|---|---|")
+              for r in sorted(dead_feeds, key=lambda x: -x["consecutive_fails"]):
+                  _status = r["status"] if r["status"] else (r.get("err", "Fehler"))
+                  _dl.append(f"| `{r['name']}` | {r['consecutive_fails']} | "
+                             f"{r['first_failed']} | {_status} | {r['url']} |")
+              _dl.append("")
+              _dl.append("Hinweis: GitHub-raw-Feeds werden bei einem 404 zusaetzlich vom "
+                         "Move-Resolver automatisch im Repo gesucht. Steht ein Feed hier, "
+                         "ist die Datei dort entweder weg oder die Quelle ist keine "
+                         "GitHub-raw-URL (Webseite) – dann hilft nur eine neue URL.")
+          else:
+              _dl.append("## ✅ Keine toten Feeds")
+              _dl.append("")
+              _dl.append("Alle geprueften Feeds antworten oder sind unterhalb der Schwelle.")
+          _dl.append("")
+          _dl.append(f"*Generiert: {now_str}*")
+          write_text_atomic("reports/dead_feed_report.md", "\n".join(_dl))
+          print(f"reports/dead_feed_report.md geschrieben ({len(dead_feeds)} tote Feeds)")
+
+          # ── Stale-Feed-Erkennung (Gegenstueck zum Dead-Feed-Report) ────────
+          # Feeds die antworten + IPs liefern, deren IP-Menge sich aber
+          # STALE_THRESHOLD_DAYS Tage nicht geaendert hat. Das ist der Fall den
+          # der reine status/has_ips-Check NICHT sieht: ein "eingefrorener"
+          # Feed besteht beide Checks, haelt seine IPs aber dauerhaft auf voller
+          # Aktualitaet (days_since_last≈0) und entgeht so dem Score-Decay.
+          stale_feeds = [r for r in results
+                         if r.get("days_unchanged", 0) >= STALE_THRESHOLD_DAYS]
+          _dp_names = {n for n in FEEDS if n.startswith("dataplane_")}
+          for r in sorted(stale_feeds, key=lambda x: -x["days_unchanged"]):
+              # DataPlane-Feeds sollten sich taeglich aendern → ::error::.
+              # Alle anderen → ::warning:: (kuratierte Listen aendern sich
+              # legitim selten, daher kein harter Fehler).
+              _lvl = "error" if r["name"] in _dp_names else "warning"
+              print(f"::{_lvl} file=feed_health_monitor.yml::Stale feed [{r['name']}]: "
+                    f"IP-Menge seit {r['days_unchanged']} Tagen unveraendert "
+                    f"(seit {r['fingerprint_since']}) – moeglicherweise eingefroren. "
+                    f"Quelle/URL pruefen: {r['url']}")
+
+          # ── reports/stale_feed_report.md schreiben ─────────────────────────────────
+          _sl = [f"# NETSHIELD – Stale-Feed-Report",
+                 f"**Aktualisiert:** {now_str}",
+                 f"**Schwelle:** IP-Menge ≥ {STALE_THRESHOLD_DAYS} Tage unveraendert",
+                 "",
+                 "Erkennt Feeds, die zwar antworten und IPs liefern, deren Inhalt "
+                 "sich aber lange nicht mehr aendert. Solche Feeds bestehen den "
+                 "Status-/has_ips-Check, halten ihre IPs aber kuenstlich auf voller "
+                 "Aktualitaet und entgehen so dem Score-Decay → Risiko veralteter "
+                 "Dauer-Blocks. Flag ist **advisory**, kein Auto-Remove.",
+                 ""]
+          if stale_feeds:
+              _sl.append(f"## ⚠️ {len(stale_feeds)} moeglicherweise eingefrorene(r) Feed(s)")
+              _sl.append("")
+              _sl.append("| Feed | Tage unveraendert | Seit | IPs (Sample) | Typ | URL |")
+              _sl.append("|---|---|---|---|---|---|")
+              for r in sorted(stale_feeds, key=lambda x: -x["days_unchanged"]):
+                  _typ = "DataPlane" if r["name"] in _dp_names else "normal"
+                  _sl.append(f"| `{r['name']}` | {r['days_unchanged']} | "
+                             f"{r['fingerprint_since']} | ~{r['sample_ips']} | {_typ} | {r['url']} |")
+              _sl.append("")
+              _sl.append("Hinweis: Kleine kuratierte Listen aendern sich legitim selten – "
+                         "ein Flag hier ist nicht automatisch ein Defekt. Bei DataPlane-Feeds "
+                         "(taegliches Honeypot-Signal) ist ein eingefrorener Stand dagegen "
+                         "ein echtes Alarmsignal. Der Fingerprint basiert auf dem 2-MB-Sample "
+                         "(wie sample_ips); bei sehr grossen Feeds ist er eine Praefix-Heuristik.")
+          else:
+              _sl.append("## ✅ Keine eingefrorenen Feeds")
+              _sl.append("")
+              _sl.append(f"Alle Feeds haben ihre IP-Menge innerhalb der letzten "
+                         f"{STALE_THRESHOLD_DAYS} Tage geaendert (oder sind noch unterhalb der Schwelle).")
+          _sl.append("")
+          _sl.append(f"*Generiert: {now_str}*")
+          write_text_atomic("reports/stale_feed_report.md", "\n".join(_sl))
+          print(f"reports/stale_feed_report.md geschrieben ({len(stale_feeds)} stale Feeds)")
+
+
+          ok_count   = sum(1 for r in results if r["ok"] and r["has_ips"])
+          warn_count = sum(1 for r in results if r["ok"] and not r["has_ips"])
+          err_count  = sum(1 for r in results if not r["ok"])
+
+          print(f"\nErgebnis: ✅ {ok_count} OK | ⚠️ {warn_count} leer | ❌ {err_count} Fehler")
+
+          # ── DataPlane-Deep-Check ───────────────────────────────────────────
+          # Separate Prüfung der DataPlane-Feeds: diese 9 HQ-Feeds werden in
+          # update_combined_blacklist.yml als Phase 1 vorrangig geladen. Fällt
+          # hier einer aus, geht kritisches Honeypot-Signal verloren → als
+          # ::error:: (nicht nur ::warning::) melden, damit es nicht im
+          # Rauschen der restlichen 100+ Feeds untergeht.
+          DATAPLANE_FEEDS = sorted(n for n in FEEDS if n.startswith("dataplane_"))
+          dp_results = [r for r in results if r["name"] in set(DATAPLANE_FEEDS)]
+          dp_missing = [n for n in DATAPLANE_FEEDS if n not in {r["name"] for r in dp_results}]
+          dp_broken  = [r for r in dp_results if not r["ok"]]
+          dp_empty   = [r for r in dp_results if r["ok"] and not r["has_ips"]]
+          dp_ok      = [r for r in dp_results if r["ok"] and r["has_ips"]]
+
+          print(f"\n── DataPlane-Deep-Check ──")
+          print(f"  Gefunden: {len(dp_results)}/{len(DATAPLANE_FEEDS)} | ✅ {len(dp_ok)} | ⚠️ leer: {len(dp_empty)} | ❌ Fehler: {len(dp_broken)}")
+          for r in sorted(dp_results, key=lambda x: x["name"]):
+              icon = "✅" if r["ok"] and r["has_ips"] else ("⚠️" if r["ok"] else "❌")
+              print(f"  {icon} {r['name']}: HTTP {r['status']} | ~{r['sample_ips']} IPs | {r['ms']}ms")
+
+          # Escalation: DataPlane-Ausfall ist kritischer als andere Feed-Ausfälle
+          for r in dp_broken:
+              err_msg = r.get("err", f"HTTP {r['status']}")
+              print(f"::error file=feed_health_monitor.yml::DataPlane-Feed defekt [{r['name']}]: {err_msg}")
+          for r in dp_empty:
+              print(f"::error file=feed_health_monitor.yml::DataPlane-Feed liefert 0 IPs [{r['name']}]: HTTP {r['status']} – Format-Änderung prüfen")
+          for n in dp_missing:
+              print(f"::error file=feed_health_monitor.yml::DataPlane-Feed fehlt in FEEDS-Dict [{n}] – Health-Check konnte nicht laufen")
+
+          dp_healthy = (len(dp_broken) == 0 and len(dp_empty) == 0 and len(dp_missing) == 0)
+
+          # ── Report schreiben ───────────────────────────────────────────────
+          lines = []
+          lines.append("# Feed Health Monitor – Report")
+          lines.append(f"**Aktualisiert:** {now_str}\n")
+          lines.append(f"**Feeds gesamt:** {len(FEEDS)} | ✅ {ok_count} OK | ⚠️ {warn_count} leer | ❌ {err_count} Fehler\n")
+          lines.append("---")
+
+          # ── DataPlane-Sektion zuerst (kritisch, Phase-1-Feeds) ────────────
+          dp_icon = "✅" if dp_healthy else "❌"
+          lines.append(f"## {dp_icon} DataPlane-Feeds (Phase 1)\n")
+          if dp_healthy:
+              lines.append(f"Alle {len(DATAPLANE_FEEDS)} DataPlane-Feeds erreichbar und liefern IPs.\n")
+          else:
+              lines.append("**⚠️ Kritisch:** DataPlane-Feeds werden in `update_combined_blacklist.yml` "
+                           "als Phase 1 vorrangig geladen. Ein Ausfall hier bedeutet Verlust von "
+                           "Honeypot-Signal (SSH/VNC/Telnet/DNS/SMTP-Angriffe).\n")
+          lines.append("| Feed | Status | HTTP | IPs (Sample) | Reaktionszeit |")
+          lines.append("|---|---|---|---|---|")
+          for r in sorted(dp_results, key=lambda x: x["name"]):
+              icon = "✅" if r["ok"] and r["has_ips"] else ("⚠️" if r["ok"] else "❌")
+              lines.append(f"| `{r['name']}` | {icon} | {r['status']} | ~{r['sample_ips']} | {r['ms']}ms |")
+          for n in dp_missing:
+              lines.append(f"| `{n}` | ❌ | – | – | *fehlt im FEEDS-Dict* |")
+          lines.append("")
+
+          if err_count > 0:
+              lines.append("## ❌ Fehlerhafte Feeds\n")
+              lines.append("| Feed | HTTP | Fehler | Reaktionszeit |")
+              lines.append("|---|---|---|---|")
+              for r in results:
+                  if not r["ok"]:
+                      err_msg = r.get("err", f"HTTP {r['status']}")
+                      lines.append(f"| `{r['name']}` | {r['status']} | {err_msg} | {r['ms']}ms |")
+              lines.append("")
+
+          if warn_count > 0:
+              lines.append("## ⚠️ Feeds ohne IPs (möglicherweise leer oder falsches Format)\n")
+              lines.append("| Feed | HTTP | Reaktionszeit |")
+              lines.append("|---|---|---|")
+              for r in results:
+                  if r["ok"] and not r["has_ips"]:
+                      lines.append(f"| `{r['name']}` | {r['status']} | {r['ms']}ms |")
+              lines.append("")
+
+          lines.append("## ✅ Alle Feeds – Übersicht\n")
+          lines.append("| Feed | Status | HTTP | IPs (Sample) | Reaktionszeit |")
+          lines.append("|---|---|---|---|---|")
+          for r in results:
+              icon = "✅" if r["ok"] and r["has_ips"] else ("⚠️" if r["ok"] else "❌")
+              lines.append(f"| `{r['name']}` | {icon} | {r['status']} | ~{r['sample_ips']} | {r['ms']}ms |")
+
+          lines.append(f"\n---\n*Generiert: {now_str} | {len(FEEDS)} Feeds geprüft*")
+
+          write_text_atomic("reports/feed_health_report.md", "\n".join(lines))
+          print("reports/feed_health_report.md geschrieben")
+
+          # FIX #9: failed_feeds und warned_feeds im JSON – damit netshield_report_generator
+          # kritische Feed-Ausfälle namentlich im Dashboard anzeigen kann.
+          failed_feeds = [r["name"] for r in results if not r["ok"]]
+          warned_feeds = [r["name"] for r in results if r["ok"] and not r["has_ips"]]
+          # FIX: atomar schreiben – netshield_report_generator und workflow_health_checker
+          # lesen diese Datei. Bei Runner-Kill waehrend dem Schreiben koennten sie
+          # eine halb-geschriebene JSON-Datei sehen.
+          write_json_atomic("state/feed_health_status.json", {
+                  "updated": now_str,
+                  "summary": {"ok": ok_count, "warn": warn_count, "error": err_count},
+                  "failed_feeds": failed_feeds,
+                  "warned_feeds": warned_feeds,
+                  "dead_feeds": [
+                      {"name": r["name"], "url": r["url"],
+                       "consecutive_fails": r["consecutive_fails"],
+                       "first_failed": r["first_failed"],
+                       "status": r["status"]}
+                      for r in dead_feeds
+                  ],
+                  "dead_threshold": DEAD_THRESHOLD,
+                  "stale_feeds": [
+                      {"name": r["name"], "url": r["url"],
+                       "days_unchanged": r["days_unchanged"],
+                       "fingerprint_since": r["fingerprint_since"],
+                       "is_dataplane": r["name"] in _dp_names}
+                      for r in sorted(stale_feeds, key=lambda x: -x["days_unchanged"])
+                  ],
+                  "stale_threshold_days": STALE_THRESHOLD_DAYS,
+                  "dataplane_status": {
+                      "healthy": dp_healthy,
+                      "expected": len(DATAPLANE_FEEDS),
+                      "ok":      len(dp_ok),
+                      "empty":   [r["name"] for r in dp_empty],
+                      "broken":  [r["name"] for r in dp_broken],
+                      "missing": dp_missing,
+                  },
+                  "feeds": results,
+              }, indent=2)
+          EOF
+
+      - name: Commit
+        if: always()  # FIX: auch bei raise SystemExit(1) in _extract_feeds_from_combined() den Report committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX STATE-SUBDIR-MIGRATION: alte Root-Version entfernen, sobald
+          # dieser Workflow die neue state/-Version committet. Idempotent.
+          git rm -q --ignore-unmatch feed_health_status.json feed_urls_cache.json 2>/dev/null || true
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch dead_feed_report.md feed_health_report.md stale_feed_report.md 2>/dev/null || true
+          git add reports/feed_health_report.md 2>/dev/null || true
+          git add state/feed_health_status.json 2>/dev/null || true
+          git add reports/dead_feed_report.md 2>/dev/null || true
+          git add reports/stale_feed_report.md 2>/dev/null || true
+          git add state/feed_urls_cache.json 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Feed Health Monitor: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                git checkout --theirs reports/feed_health_report.md \
+                  state/feed_health_status.json state/feed_urls_cache.json reports/dead_feed_report.md reports/stale_feed_report.md 2>/dev/null || true
+                git add reports/feed_health_report.md \
+                  state/feed_health_status.json state/feed_urls_cache.json reports/dead_feed_report.md reports/stale_feed_report.md 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi
