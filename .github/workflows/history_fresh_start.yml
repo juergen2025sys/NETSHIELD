@@ -1,25 +1,37 @@
-name: History Fresh Start (EINMALIG - Git-Historie komplett zuruecksetzen)
+name: History Fresh Start (Git-Historie zuruecksetzen)
 
 # ============================================================================
-# ACHTUNG - BITTE VOLLSTAENDIG LESEN, BEVOR DU DAS AUSFUEHRST:
+# ACHTUNG - BITTE VOLLSTAENDIG LESEN:
 #
 # Dieser Workflow ersetzt die KOMPLETTE Git-Historie des Repos durch einen
-# einzigen neuen Commit mit dem aktuellen Dateistand. Das ist EIN
-# EINWEG-VORGANG:
-#   - ALLE bisherigen Commits gehen unwiderruflich verloren (auch die
-#     seen_db-Backup-Historie - bewusste Entscheidung, siehe Chat-Verlauf)
+# einzigen neuen Commit mit dem aktuellen Dateistand. Das ist bei JEDEM Lauf
+# (auch automatisch) ein voller History-Reset:
+#   - ALLE bisherigen Commits gehen unwiderruflich verloren
 #   - Jeder Klon des Repos muss danach NEU geklont werden
 #   - Offene Pull Requests / Forks werden ungueltig
 #   - Der AKTUELLE Dateistand selbst bleibt unveraendert - nur die
 #     Vergangenheit verschwindet
 #
-# Grund: Das Repository hat GitHubs Speicherkontingent ueberschritten
-# (~100 GB Historie, groesstenteils durch taeglich mehrfach komplett neu
-# committete grosse Dateien wie blacklist_confidence40_ipv4.txt) - Pushes
-# werden seither von GitHub mit "Repository is above its size quota"
-# abgelehnt.
+# Grund: Das Repository naehert sich wiederholt GitHubs Speicherkontingent
+# (siehe Chat-Verlauf, ~98,67 GB Stand 08.08.2026), groesstenteils durch
+# taeglich mehrfach komplett neu committete grosse Dateien wie
+# combined_threat_blacklist_ipv4_part*.txt und blacklist_confidence40_
+# ipv4_part*.txt.
 #
-# Nur per manuellem Trigger ausfuehrbar, mit Text-Bestaetigung.
+# FIX AUTO-FRESH-START (2026-08-08): Laeuft jetzt zusaetzlich zum manuellen
+# Trigger auch automatisch 1x/Monat (siehe cron unten), um die History
+# proaktiv zurueckzusetzen, BEVOR die Quota wieder eng wird - statt nur
+# reaktiv nach einem bereits eingetretenen Push-Fehler. Bei einem
+# automatischen Lauf entfaellt die Text-Bestaetigung (kann bei
+# workflow_dispatch nicht eingegeben werden) - stattdessen genuegt der
+# Trigger-Typ "schedule" als Bestaetigung.
+#
+# VORAUSSETZUNG: Ein Repository-Ruleset auf dem main-Branch mit "Restrict
+# force pushes" wuerde auch diesen automatischen Lauf mit GH013 blockieren
+# (siehe Chat-Verlauf, 08.08.2026). Muss in GitHub Settings -> Rules ->
+# Rulesets VOR dem ersten automatischen Lauf angepasst werden (Bypass fuer
+# github-actions[bot] oder Regel deaktivieren) - das kann dieser Workflow
+# nicht selbst loesen.
 # ============================================================================
 
 on:
@@ -29,6 +41,11 @@ on:
         description: 'Tippe exakt: HISTORIE ZURUECKSETZEN'
         required: true
         type: string
+  schedule:
+    # 1x monatlich, am 1. um 03:15 UTC - Zeitpunkt bewusst ausserhalb der
+    # 8x-taeglichen Combined/Confidence-Slots gewaehlt, um keine Kollision
+    # mit deren concurrency-Gruppe zu riskieren.
+    - cron: '15 3 1 * *'
 
 permissions:
   contents: write
@@ -40,11 +57,14 @@ jobs:
     steps:
       - name: Bestaetigung pruefen
         run: |
-          if [ "${{ github.event.inputs.confirm_reset }}" != "HISTORIE ZURUECKSETZEN" ]; then
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "Automatischer monatlicher Lauf (schedule-Trigger) - Bestaetigung durch Trigger-Typ selbst, fahre fort."
+          elif [ "${{ github.event.inputs.confirm_reset }}" != "HISTORIE ZURUECKSETZEN" ]; then
             echo "::error::Bestaetigungstext stimmt nicht exakt ueberein. Abgebrochen, nichts wurde veraendert."
             exit 1
+          else
+            echo "Manuelle Bestaetigung erhalten - fahre fort."
           fi
-          echo "Bestaetigung erhalten - fahre fort."
 
       - name: Checkout Repository (flach - nur aktueller Stand, keine Historie)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
