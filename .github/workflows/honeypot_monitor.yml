@@ -1089,8 +1089,39 @@ jobs:
                   "ips": sorted(ip_set),
               }
 
-          write_text_atomic(FRESHNESS_FILE, json.dumps(freshness, indent=2, sort_keys=True))
-          print(f"{FRESHNESS_FILE} aktualisiert ({len(freshness)} Feeds)")
+          # FIX FRESHNESS-SIZE-GUARD: state/honeypot_feed_freshness.json
+          # speichert pro Feed die komplette aktuelle IP-Liste (fuer exakte
+          # Neu/Entfernt-Zahlen im Report, siehe FIX PER-FEED-NEU oben) und
+          # waechst dadurch mit der Groesse der Feeds selbst - unabhaengig
+          # von der Laufzahl. Bei grossen Feeds (ipinsights, tn3w_ipblocklist
+          # etc.) kann das Richtung GitHubs hartem 100-MB-Push-Limit laufen;
+          # ueberschreitet EINE Datei 100 MB, lehnt GitHub den KOMPLETTEN
+          # Push ab (nicht nur diese Datei) - honeypot_ips.txt und der
+          # Report waeren dann ebenfalls blockiert. Einfacher Schutz statt
+          # komplexerer Speicher-Umstellung: Groesse vor dem Schreiben
+          # pruefen, bei Ueberschreiten der Schwelle leeren statt schreiben.
+          # Konsequenz eines Resets: alle Feeds verlieren ihren
+          # unchanged_runs-Zaehler (🔴 EINGEFROREN-Erkennung startet neu bei
+          # 0, braucht wieder 12-28 Laeufe) - akzeptierter Trade-off fuer
+          # Einfachheit gegenueber z.B. Actions-Cache-Auslagerung.
+          FRESHNESS_MAX_BYTES = 90 * 1024 * 1024  # 90 MB
+          _freshness_json = json.dumps(freshness, indent=2, sort_keys=True)
+          _freshness_size = len(_freshness_json.encode("utf-8"))
+          if _freshness_size > FRESHNESS_MAX_BYTES:
+              _size_mb = _freshness_size / 1024 / 1024
+              msg = (f"{FRESHNESS_FILE} waere {_size_mb:.1f} MB "
+                     f"(> {FRESHNESS_MAX_BYTES // 1024 // 1024} MB Schwelle) - "
+                     f"geleert statt geschrieben, um GitHubs 100-MB-Push-Limit "
+                     f"nicht zu riskieren. Freshness-Tracking (unchanged_runs/"
+                     f"last_changed) startet fuer alle Feeds neu bei 0.")
+              print(f"::warning file=honeypot_monitor.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              freshness = {}
+              _freshness_json = "{}"
+
+          write_text_atomic(FRESHNESS_FILE, _freshness_json)
+          print(f"{FRESHNESS_FILE} aktualisiert ({len(freshness)} Feeds, "
+                f"{len(_freshness_json.encode('utf-8')) / 1024 / 1024:.1f} MB)")
 
           HONEYPOT_FILE = "honeypot_ips.txt"
           existing = set()
