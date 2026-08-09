@@ -113,6 +113,14 @@ jobs:
           # gleichzeitig wenn der erste Backup-Slot 09:27 sowieso anstehen
           # wuerde - aber Watchdog ist verlaesslicher als scheduled.
           SLOT_GRACE_MINUTES: "20"
+          # Race-Guard (FIX WATCHDOG-RACE): Wie lange nach Erstellung eines
+          # Runs gilt "GitHub-API-Status evtl. noch nicht propagiert"? Ein
+          # frisch erstellter Combined-Run zaehlt in diesem Fenster als
+          # "aktiv", auch wenn --status=in_progress/queued ihn noch nicht
+          # zeigt. 180s (3min) ist grosszuegig genug fuer typische GitHub-
+          # Replikationsverzoegerung, aber kurz genug um einen wirklich
+          # faelligen Trigger nicht spuerbar zu verzoegern.
+          RECENT_RUN_GRACE_SECONDS: "180"
         run: |
           set -e
           set -o pipefail
@@ -265,6 +273,36 @@ jobs:
 
           if [ "$active" -gt 0 ]; then
             echo "Combined hat bereits ${active} aktive(n) Lauf/Laeufe (running=${running_count}, queued=${queued_count}) - kein Eingriff noetig"
+            exit 0
+          fi
+
+          # ── 3b. Race-Guard gegen API-Propagation-Delay ──────────────────
+          # FIX WATCHDOG-RACE (2026-08-09): Beobachtet in den Runs #2627-2631
+          # (siehe Screenshots/Analyse): Ein soeben gestarteter Cron-Run (z.B.
+          # #2627) wurde von der GitHub-API kurzzeitig noch nicht als
+          # in_progress/queued gemeldet (gleiche Art Replikationsverzoegerung
+          # wie im RACE-STALE-CHECKOUT-Fix in update_combined_blacklist.yml).
+          # Der Active-Check oben (Schritt 3) sah dadurch faelschlich
+          # active=0 und der Watchdog triggerte zusaetzlich per
+          # workflow_dispatch - Folge: mehrere overlappende Combined-Runs
+          # (#2628, #2629) obendrauf auf den ohnehin schon laufenden/
+          # gequeueten Cron-Run, die alle in der gemeinsamen Concurrency-
+          # Gruppe "netshield-seen-db-writers" aufliefen.
+          #
+          # Fix: zusaetzlich JEDEN Run (unabhaengig vom Status) pruefen, der
+          # in den letzten RECENT_RUN_GRACE_SECONDS erstellt wurde. Ein Run,
+          # der gerade erst angelegt wurde, ist so gut wie sicher derselbe
+          # Slot, den der Watchdog sonst faelschlich fuer "unbedient" haelt -
+          # unabhaengig davon, ob die API seinen Status schon korrekt fuehrt.
+          recent_any_count=$(gh_retry gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml \
+            --limit=10 \
+            --json databaseId,createdAt \
+            --jq "[.[] | select((now - (.createdAt | fromdateiso8601)) < ${RECENT_RUN_GRACE_SECONDS})] | length")
+
+          if [ "$recent_any_count" -gt 0 ]; then
+            echo "Combined hat ${recent_any_count} Run(s) die vor <${RECENT_RUN_GRACE_SECONDS}s erstellt wurden (Status evtl. noch nicht propagiert) - kein Eingriff noetig"
             exit 0
           fi
 
