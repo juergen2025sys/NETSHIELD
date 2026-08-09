@@ -325,7 +325,21 @@ def is_whitelisted(ip_str):
             except (ipaddress.AddressValueError, ValueError):
                 return False
         addr = ipaddress.ip_address(addr_str)
-        return any(addr in net for net in _whitelist_networks)
+        # FIX PERF-PARSE-CIDR2 (2026-08-09): addr_str ist bereits nur die
+        # Adresse (Prefix oben abgeschnitten) - hier wird nur EIN Punkt
+        # geprueft, kein CIDR-Range-Overlap. Der bestehende Bisect-Index
+        # deckt genau das schon ab - kein Grund fuer den linearen Scan.
+        # Verhaltensgleich zum alten `any(addr in net for net in
+        # _whitelist_networks)`: IPv6-/ungueltige addr_str scheitert an
+        # IPv4Address() und liefert False, exakt wie vorher der TypeError
+        # bei addr.in-net fuer Nicht-IPv4-Adressen (via aeusseres except).
+        try:
+            ip_int = int(addr) if addr.version == 4 else None
+        except Exception:
+            ip_int = None
+        if ip_int is None:
+            return False
+        return _interval_contains(_whitelist_starts, _whitelist_ends, ip_int)
     except Exception:
         return False
 
@@ -471,7 +485,15 @@ def is_in_fp_set(ip_str):
             except (ipaddress.AddressValueError, ValueError):
                 return False
         addr = ipaddress.ip_address(addr_str)
-        return any(addr in net for net in _fp_networks)
+        # FIX PERF-PARSE-CIDR2 (2026-08-09): siehe is_whitelisted() -
+        # gleiches Muster, gleicher Beweis: reiner Punkt-Check auf addr_str.
+        try:
+            ip_int = int(addr) if addr.version == 4 else None
+        except Exception:
+            ip_int = None
+        if ip_int is None:
+            return False
+        return _interval_contains(_fp_starts, _fp_ends, ip_int)
     except Exception:
         return False
 
