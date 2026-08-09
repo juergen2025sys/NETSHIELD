@@ -56,34 +56,34 @@
 
     <!-- text -->
     <text x="248" y="88" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15"
-          font-weight="800" letter-spacing="3.5" fill="#2563EB">AUTOMATED THREAT INTELLIGENCE</text>
+          font-weight="800" letter-spacing="3.5" fill="#2563EB">AUTOMATISIERTE BEDROHUNGSANALYSE</text>
     <text x="244" y="158" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="76"
           font-weight="900" letter-spacing="-1.5" fill="#102A43">NETSHIELD</text>
     <rect x="248" y="172" width="610" height="5" rx="2.5" fill="url(#brand)"/>
     <text x="248" y="207" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19"
-          font-weight="600" fill="#486581">Dynamische IP-Blocklisten · Confidence-Scoring · Auto-Discovery</text>
+          font-weight="600" fill="#486581">Dynamische IP-Blocklisten · Vertrauensbewertung · Auto-Erkennung</text>
 
     <!-- chips -->
     <g font-family="Inter,Segoe UI,Arial,sans-serif" font-size="13" font-weight="800">
       <g>
         <rect x="248" y="231" width="116" height="38" rx="19" fill="#E7F9FF"/>
         <circle cx="270" cy="250" r="6" fill="#00C2FF"/>
-        <text x="286" y="255" fill="#075985">8× DAILY</text>
+        <text x="286" y="255" fill="#075985">8× TÄGLICH</text>
       </g>
       <g>
         <rect x="376" y="231" width="185" height="38" rx="19" fill="#EEF2FF"/>
         <circle cx="398" cy="250" r="6" fill="#6366F1"/>
-        <text x="414" y="255" fill="#3730A3">180-DAY RETENTION</text>
+        <text x="414" y="255" fill="#3730A3">180 TAGE</text>
       </g>
       <g>
         <rect x="573" y="231" width="158" height="38" rx="19" fill="#ECFDF3"/>
         <circle cx="595" cy="250" r="6" fill="#16C784"/>
-        <text x="611" y="255" fill="#087443">250+ COUNTRIES</text>
+        <text x="611" y="255" fill="#087443">250+ LÄNDER</text>
       </g>
       <g>
         <rect x="743" y="231" width="205" height="38" rx="19" fill="#FFF4E5"/>
         <circle cx="765" cy="250" r="6" fill="#FFB800"/>
-        <text x="781" y="255" fill="#9A5800">MULTI-SOURCE</text>
+        <text x="781" y="255" fill="#9A5800">MEHRERE QUELLEN</text>
       </g>
     </g>
 
