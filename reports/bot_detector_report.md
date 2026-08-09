@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-09 09:30 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-09 09:32 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,283,501** |
-| Neu (heute) | **+168** |
-| Entfernt | **-37** |
+| Gesamt IPs | **1,283,462** |
+| Neu (heute) | **+163** |
+| Entfernt | **-71** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 60 |
@@ -54,7 +54,7 @@
 | ✅ `tuanminpay_live_proxy_http` | 6,732 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,636 |
 | ✅ `tuanminpay_live_proxy_socks5` | 2,896 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 190,627 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 190,633 |
 | ✅ `noctiro_getproxy` | 4,484 |
 | ✅ `noctiro_getproxy_socks5` | 3,402 |
 | ✅ `mohammedcha_proxripper` | 41,977 |
@@ -66,8 +66,8 @@
 | ✅ `dinoz0rg_proxy_list_http` | 2,378 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 81,147 |
 | ✅ `darzanebor_mikroblack` | 47,484 |
-| ✅ `ian_lusule_proxies` | 3,478 |
-| ✅ `ian_lusule_proxies_socks5` | 1,649 |
+| ✅ `ian_lusule_proxies` | 3,597 |
+| ✅ `ian_lusule_proxies_socks5` | 1,729 |
 | ✅ `configserverapps_service_blocklists_attacks_bots` | 2,637 |
 | ✅ `configserverapps_service_blocklists_botscout_30d` | 3,662 |
 | ✅ `breakingtechfr_proxy_free` | 43,402 |
@@ -85,4 +85,4 @@
 > Diese 60 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-09 09:30 CEST (Europe/Berlin)*
+*Generiert: 2026-08-09 09:32 CEST (Europe/Berlin)*
