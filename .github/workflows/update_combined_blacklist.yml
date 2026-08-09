@@ -26,18 +26,29 @@ permissions:
   security-events: none
 
 
-concurrency:
-  group: netshield-seen-db-writers
-  cancel-in-progress: false
-  # FIX BUG-QUEUE-STARVE (2026-07-24): siehe score_decay_monitor.yml.
-  # queue: max konsistent fuer alle 5 Mitglieder dieser Gruppe gesetzt,
-  # damit kein Workflow einen anderen aus der Warteschlange verdraengt.
-  queue: max
 jobs:
-  update:
+  # FIX QUEUE-NOOP-SKIP (2026-08-09): Der Idempotenz-Check lief bisher als
+  # erster Step INNERHALB des 'update'-Jobs - und der ganze Job traegt die
+  # geteilte Concurrency-Gruppe 'netshield-seen-db-writers' (5 Mitglieder,
+  # queue: max, cancel-in-progress: false). Das bedeutet: auch ein Run, der
+  # sich Sekunden spaeter selbst als reinen Skip herausstellt, musste vorher
+  # erst in der GEMEINSAMEN Warteschlange auf einen freien Platz warten -
+  # sichtbar als "Pending" ueber viele Minuten, obwohl am Ende gar keine
+  # echte Arbeit anfiel (siehe z.B. Run #2627-#2631, alle overlappend
+  # "Pending"/"In progress" innerhalb von ~35min).
+  #
+  # Fix: Idempotenz-Check in einen eigenen, kleinen Vorab-Job 'gate' ohne
+  # Concurrency-Gruppe ausgelagert. Der schwere 'update'-Job (der die
+  # Concurrency-Gruppe traegt) startet per 'needs'+'if' nur noch dann
+  # ueberhaupt, wenn 'gate' einen echten Lauf fuer noetig haelt. Reine
+  # Skip-Faelle (Backup-Slot, aber Slot schon bedient) blockieren die
+  # gemeinsame Warteschlange dadurch gar nicht mehr - 'gate' lief in
+  # Sekunden auf einem eigenen, sofort verfuegbaren Runner durch.
+  gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
-
+    timeout-minutes: 5
+    outputs:
+      already_ran: ${{ steps.idempotency.outputs.already_ran }}
     steps:
       # Idempotenz-Guard gegen Doppellaeufe durch Backup-Cron-Slots.
       # Bei 3 Slots pro 3h-Fenster (7/27/47 min nach voller Stunde) wuerde
@@ -99,8 +110,21 @@ jobs:
             echo "Kein echter Run (>${MIN_REAL_RUN_SECONDS}s) in den letzten 2h – fortfahren"
           fi
 
+  update:
+    needs: gate
+    if: needs.gate.outputs.already_ran != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    concurrency:
+      group: netshield-seen-db-writers
+      cancel-in-progress: false
+      # FIX BUG-QUEUE-STARVE (2026-07-24): siehe score_decay_monitor.yml.
+      # queue: max konsistent fuer alle 5 Mitglieder dieser Gruppe gesetzt,
+      # damit kein Workflow einen anderen aus der Warteschlange verdraengt.
+      queue: max
+
+    steps:
       - name: Checkout Repository
-        if: steps.idempotency.outputs.already_ran != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: true
@@ -122,7 +146,6 @@ jobs:
       # in diesem Projekt bereits als unzuverlaessig bei workflow_dispatch-
       # Ausloesung), sondern ein einfacher, in sich abgeschlossener Resync.
       - name: Resync auf aktuellsten origin/main-Stand (Race-Condition-Fix)
-        if: steps.idempotency.outputs.already_ran != 'true'
         run: |
           BEFORE=$(git rev-parse HEAD)
           for attempt in 1 2 3 4 5; do
@@ -142,7 +165,6 @@ jobs:
           fi
 
       - name: Restore seen_db Cache
-        if: steps.idempotency.outputs.already_ran != 'true'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: seen_db.json
@@ -173,7 +195,6 @@ jobs:
       # ist das unkritisch (fail-open, Warnung im Log) - nur beim allerersten
       # Lauf mit diesem Mechanismus gibt es ohnehin noch kein Release.
       - name: Restore seen_db Backup from GitHub Release (falls Cache leer)
-        if: steps.idempotency.outputs.already_ran != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -193,7 +214,6 @@ jobs:
           fi
 
       - name: Fetch Reputation Blacklist (API, Round-Robin)
-        if: steps.idempotency.outputs.already_ran != 'true'
         continue-on-error: true  # Rate-Limit (5 Req/Tag, Free-Plan) darf den Haupt-Build nicht blockieren
         env:
           # Alle Repo-Secrets als JSON; benoetigte Schluessel werden im
@@ -334,7 +354,6 @@ jobs:
           EOF
 
       - name: Fetch, discover, learn and build IPv4 lists
-        if: steps.idempotency.outputs.already_ran != 'true'
         env:
           PYTHONUNBUFFERED: "1"
           # FEED-MOVE-RESOLVER: Token fuer authentifizierte Git-Tree-API
@@ -2694,7 +2713,7 @@ jobs:
         # NOTE: always()-Semantik bleibt - "always() && Guard" laeuft bei Crash UND
         # wenn Idempotenz-Guard nicht geskippt hat. Beim Skip soll auch der Cache-
         # Save nicht laufen, da kein Build-Step ausgefuehrt wurde.
-        if: always() && steps.idempotency.outputs.already_ran != 'true'
+        if: always()
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: seen_db.json
@@ -2704,7 +2723,7 @@ jobs:
 
 
       - name: Backup seen_db to Repo (komprimiert)
-        if: always() && steps.idempotency.outputs.already_ran != 'true'
+        if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -2774,7 +2793,7 @@ jobs:
         # NOTE: always()-Semantik bleibt - "always() && Guard" laeuft bei Crash UND
         # wenn Idempotenz-Guard nicht geskippt hat. Beim Skip soll auch der Commit
         # nicht laufen, da kein Build-Step ausgefuehrt wurde.
-        if: always() && steps.idempotency.outputs.already_ran != 'true'
+        if: always()
         run: |
           python3 - << 'PYEOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -2927,7 +2946,7 @@ jobs:
         # if: success() stellt sicher, dass NUR nach erfolgreichem Push
         # getriggert wird (bei Push-Fehler ist der Output nicht im Repo).
         # already_ran != 'true' => kein Trigger nach einem Idempotenz-Skip-Run.
-        if: success() && steps.idempotency.outputs.already_ran != 'true'
+        if: success()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
