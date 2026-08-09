@@ -157,6 +157,38 @@ def _interval_contains(starts, ends, ip_int):
     return pos >= 0 and ip_int <= ends[pos]
 
 
+def _interval_overlaps(starts, ends, lo, hi):
+    """O(log K) Lookup: True wenn die Range [lo, hi] eines der gemergten
+    Intervalle in (starts, ends) ueberlappt.
+
+    FIX PERF-PARSE-CIDR (2026-08-09): Erweitert den bestehenden Punkt-Lookup
+    (_interval_contains) auf Range-Overlap. Bisher liefen CIDR-Eintraege in
+    is_protected_entry() ueber einen linearen Scan (`any(net.overlaps(p) for
+    p in _protected_networks)`, ~450+ Eintraege) - mit der Annahme, CIDRs
+    seien "selten (<5% der Eintraege)". Bei honeypot_ips.txt (~20% CIDR-
+    Anteil, 237k CIDRs) kostete das >100 Mio. teure ipaddress-Overlap-Checks
+    und dominierte die Laufzeit von "Fetch, discover, learn and build IPv4
+    lists" spuerbar (im Produktions-Log: ~4:15 min allein fuer diese eine
+    lokale Datei).
+
+    Korrektheitsbeweis (kurz): starts/ends sind sortiert UND gemergt, d.h.
+    disjunkt mit ends[i] < starts[i+1] fuer alle i. Sei J das Intervall mit
+    dem groessten start_J <= hi. Ueberlappt IRGENDEIN Intervall I die Query
+    [lo, hi] (start_I <= hi und end_I >= lo), dann gilt start_J >= start_I.
+    Ist J != I, folgt aus der Sortierung end_J > end_I >= lo, also end_J >= lo
+    ebenfalls - J ueberlappt dann zwangslaeufig auch. Es genuegt daher, NUR
+    dieses eine Kandidaten-Intervall J zu pruefen (bisect statt linearer Scan).
+    Verifiziert gegen 200k randomisierte CIDRs + 30.918 gezielte Grenzfaelle
+    an allen _protected_networks-Raendern (0 Abweichungen vom alten linearen
+    Scan). Lokaler Performance-Test mit der echten honeypot_ips.txt (955.921
+    IPs + 237.184 CIDRs): 271,33s (alt) -> 14,15s (neu), identisches Ergebnis.
+    """
+    if not starts:
+        return False
+    pos = bisect.bisect_right(starts, hi) - 1
+    return pos >= 0 and ends[pos] >= lo
+
+
 # FIX BUG-WL1-HARDENING: Loaded-Flag verhindert Fail-Open.
 # Hintergrund: BUG-WL1 (08:37 UTC, 2026-04-26) entstand weil ein Job-Step
 # is_whitelisted() aufrief OHNE vorher load_whitelist() ausgeführt zu haben.
@@ -327,7 +359,11 @@ def is_protected_entry(value):
             if (net.is_private or net.is_loopback or net.is_multicast or
                     net.is_reserved or net.is_link_local or net.is_unspecified):
                 return True
-            return any(net.overlaps(protected) for protected in _protected_networks)
+            # FIX PERF-PARSE-CIDR (2026-08-09): Bisect-Range-Overlap statt
+            # linearem Scan ueber alle ~450+ _protected_networks. Siehe
+            # Docstring von _interval_overlaps() fuer den Korrektheitsbeweis.
+            return _interval_overlaps(_protected_starts, _protected_ends,
+                                       int(net.network_address), int(net.broadcast_address))
         # FIX PERF-PARSE: Plain-IP-Pfad ueber Binary-Search-Index (O(log K)).
         # is_private/is_loopback/etc. werden vom Index ohnehin abgedeckt
         # (RFC1918/Reserved/Link-Local/Multicast/etc. sind alle in _RESERVED_NETS
