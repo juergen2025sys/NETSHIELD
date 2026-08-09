@@ -534,17 +534,15 @@ jobs:
               # Aggregator, seit 2014 in Betrieb (opendbl.net), fasst mehrere
               # Upstream-Quellen (u.a. Talos, DShield, blocklist.de - je nach
               # Teilliste unterschiedlich) zu einzelnen Textlisten zusammen.
-              # Format lt. Betreiber: reine IPs (x.x.x.x) und CIDR-Subnetze
-              # (x.x.x.x/yy) - CIDR-Eintraege werden von parse_entries()
-              # entsprechend der bestehenden Logik fuer andere netset-Feeds
-              # behandelt. HINWEIS: Die genaue Quellen-Zusammensetzung der
-              # "darknet"-Teilliste (im Unterschied zu den auf opendbl.net
+              # Format am 09.08.2026 per Live-Abruf verifiziert (Screenshot):
+              # eine Kommentarzeile "# Last updated <Zeitstempel>", danach
+              # reine IPv4-Adressen, eine pro Zeile, kein CIDR im Sample -
+              # parse_entries() filtert die Kommentarzeile automatisch per
+              # IPv4-Regex heraus. HINWEIS: Die genaue Quellen-Zusammensetzung
+              # der "darknet"-Teilliste (im Unterschied zu den auf opendbl.net
               # separat dokumentierten Listen etknown/bruteforce/talos/dshield/
-              # ipsum/sslblock) konnte nicht verifiziert werden - opendbl.net
-              # blockt automatisierten Seitenabruf per robots.txt, es gibt
-              # keine oeffentliche Detail-Doku dazu. Empfehlung: nach dem
-              # ersten Live-Lauf im Report pruefen (IP-Anzahl/Bytes plausibel?
-              # Format korrekt geparst?).
+              # ipsum/sslblock) ist weiterhin nicht oeffentlich dokumentiert -
+              # opendbl.net blockt automatisierten Seitenabruf per robots.txt.
               "opendbl_darknet":
                   "https://opendbl.net/lists/opendbl-darknet.list",
 
@@ -586,6 +584,22 @@ jobs:
               # Changelog oben).
               "zenmorro_scanner_list":
                   "https://raw.githubusercontent.com/zenmorro/Scanner-List/refs/heads/main/blocklist.txt",
+
+              # MattyRoberts.io Threatlist: Einzelperson-Projekt von Matty
+              # Roberts (GitHub-User bluerogue, Repo "threatlist" - "Threat
+              # aggregator and API", Java), kein institutioneller Betreiber.
+              # Live verifiziert am 10.08.2026 (Screenshot): /api/threatlist/
+              # latest liefert reinen Plain-Text, eine IPv4 pro Zeile, kein
+              # Kommentar-Header (im Unterschied zu opendbl_darknet). Laut
+              # oeffentlicher API-Doku (mattyroberts.io/threatlist.html) auch
+              # als JSON (?type=json) sowie datumsbasiert abrufbar - hier
+              # bewusst die "latest"-Textvariante fuer Konsistenz mit den
+              # anderen Plain-Text-Feeds. Aufnahme wie bei den anderen
+              # Einzelperson-Repos in diesem Block: kein institutioneller
+              # Track-Record, Einordnung ueber empirische FP-Pruefung im
+              # Firewall-Log statt Betreiber-Reputation.
+              "mattyroberts_threatlist":
+                  "https://www.mattyroberts.io/api/threatlist/latest",
           }
 
           # Auth-pflichtige Feeds: name -> LISTE von HTTP-Header-Dicts, in
