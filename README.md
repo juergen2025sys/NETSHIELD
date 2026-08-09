@@ -5,10 +5,10 @@
 
 <br>
 
-[![Combined](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/update_combined_blacklist.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=Combined&labelColor=2563EB&color=16C784)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml)
-[![Feed Health](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/feed_health_monitor.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=Feed%20Health&labelColor=7C3AED&color=16C784)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml)
-[![Confidence](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/update_confidence_blacklist.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=Confidence&labelColor=00A7E1&color=16C784)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml)
-[![False Positive](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/false_positive_checker.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=False%20Positive&labelColor=F97316&color=16C784)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml)
+[![Kombiniert](https://img.shields.io/badge/KOMBINIERT-ERFOLGREICH-2563EB?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_combined_blacklist.yml)
+[![Feed-Status](https://img.shields.io/badge/FEED--STATUS-ERFOLGREICH-7C3AED?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/feed_health_monitor.yml)
+[![Vertrauen](https://img.shields.io/badge/VERTRAUEN-ERFOLGREICH-00A7E1?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/update_confidence_blacklist.yml)
+[![Fehlalarm-Prüfung](https://img.shields.io/badge/FEHLALARM--PRÜFUNG-ERFOLGREICH-F97316?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml)
 
 <br>
 
@@ -16,81 +16,40 @@
 
 **Threat-Intelligence aus hunderten Quellen — bewertet, bereinigt und direkt als Firewall-Blocklisten nutzbar.**
 
-![IPv4](https://img.shields.io/badge/IPv4-BEDROHUNGSDATEN-2563EB?style=flat-square) ![Scoring](https://img.shields.io/badge/VERTRAUENSBEWERTUNG-7C3AED?style=flat-square) ![Discovery](https://img.shields.io/badge/AUTO--ERKENNUNG-00A7E1?style=flat-square) ![Firewall](https://img.shields.io/badge/FIREWALL-BEREIT-16A34A?style=flat-square)
+![IPv4](https://img.shields.io/badge/IPv4-BEDROHUNGSDATEN-2563EB?style=flat-square) ![Bewertung](https://img.shields.io/badge/VERTRAUENSBEWERTUNG-7C3AED?style=flat-square) ![Discovery](https://img.shields.io/badge/AUTO--ERKENNUNG-00A7E1?style=flat-square) ![Firewall](https://img.shields.io/badge/FIREWALL-BEREIT-16A34A?style=flat-square)
 
 <br>
 
-[**⚡ Quick Start**](#-quick-start--opnsense-alias) &nbsp; • &nbsp;
+[**⚡ Schnellstart**](#-quick-start--opnsense-alias) &nbsp; • &nbsp;
 [**📊 Blocklisten**](#-blocklisten) &nbsp; • &nbsp;
-[**🎯 Scoring**](#-wie-funktioniert-die-bewertung) &nbsp; • &nbsp;
+[**🎯 Bewertung**](#-wie-funktioniert-die-bewertung) &nbsp; • &nbsp;
 [**🏗️ Architektur**](#%EF%B8%8F-architektur) &nbsp; • &nbsp;
 [**⚙️ Workflows**](#%EF%B8%8F-workflows) &nbsp; • &nbsp;
-[**📡 Feeds**](#-feed-quellen)
+[**📡 Quellen**](#-feed-quellen)
 
 </div>
 
 ---
 
-## ⚙️ AUTOMATISIERUNG
 
-![Automatisierung](https://img.shields.io/badge/AUTOMATISIERUNG-26%20WORKFLOWS-2563EB?style=for-the-badge&logo=githubactions&logoColor=white)
-![Hauptlauf](https://img.shields.io/badge/HAUPTLAUF-8×%20TÄGLICH-00A7E1?style=for-the-badge)
-![Aufbewahrung](https://img.shields.io/badge/IP--AUFBEWAHRUNG-180%20TAGE-7C3AED?style=for-the-badge)
-![Abdeckung](https://img.shields.io/badge/ABDECKUNG-250%2B%20LÄNDER-16A34A?style=for-the-badge)
 
-> [!TIP]
-> **Vollautomatischer Betrieb:** NETSHIELD sammelt, bewertet, filtert und veröffentlicht die IP-Listen über GitHub Actions. Die Kern-Pipeline läuft achtmal täglich.
+## 📊 NETSHIELD LIVE-DASHBOARD
 
-<details open>
-<summary><strong>🔧 Kern-Pipeline anzeigen</strong></summary>
+![IP-Quellen](https://img.shields.io/badge/IP--QUELLEN-286-00A7E1?style=for-the-badge)
+![Aktive Bedrohungen](https://img.shields.io/badge/AKTIVE%20BEDROHUNGEN-722%2C444-2563EB?style=for-the-badge)
+![CVE Exploit](https://img.shields.io/badge/CVE%20%2F%20EXPLOIT-29%2C367-F97316?style=for-the-badge)
+![Honeypot](https://img.shields.io/badge/HONEYPOT-1%2C162%2C180-7C3AED?style=for-the-badge)
 
-| Workflow | Zeitplan | Aufgabe |
-|---|---|---|
-| **Update Combined Blacklist** | 8× täglich, alle 3h (00:07, 03:07 … 21:07 UTC; +Backups :27/:47) | Feeds laden, `seen_db` aktualisieren, Combined + Active Blacklists schreiben |
-| **Confidence Blacklist** | 8× täglich (01:47, 04:47 … 22:47 UTC) | Confidence40 + Watchlist aus `seen_db` berechnen |
-| **False Positive Checker** | 3× täglich (05:00, 13:00, 20:00 UTC) | Whitelist-CIDRs prüfen → `false_positives_set.json` |
-| **NETSHIELD Report Generator** | stündlich (:30) | `NETSHIELD_REPORT.md` + README-Statistiken aktualisieren |
+![Intervall](https://img.shields.io/badge/INTERVALL-8×%20TÄGLICH-00A7E1?style=flat-square)
+![Aufbewahrung](https://img.shields.io/badge/IP--AUFBEWAHRUNG-180%20TAGE-7C3AED?style=flat-square)
+![Abdeckung](https://img.shields.io/badge/ABDECKUNG-250%2B%20LÄNDER-16A34A?style=flat-square)
+![Workflows](https://img.shields.io/badge/WORKFLOWS-26-2563EB?style=flat-square)
 
-</details>
+> [!NOTE]
+> **Aktuelle Bedrohungslage:** NETSHIELD bündelt, bewertet und bereinigt Bedrohungsdaten aus über 160 Quellen und stellt daraus fertige IPv4-Blocklisten bereit.
 
 <details>
-<summary><strong>📡 Datenquellen-Workflows anzeigen</strong></summary>
-
-| Workflow | Zeitplan | Aufgabe |
-|---|---|---|
-| **CVE-to-IP Mapper** | täglich 04:00 | C2/Exploit-IPs → `cve_exploit_ips.txt` |
-| **Honeypot Monitor** | 4× täglich (05:00, 11:00, 17:00, 23:00) | Honeypot-Feeds → `honeypot_ips.txt` |
-| **Honigtopf** | stündlich (:15) | Honigtopf API → `honigtopf_ips.txt` |
-| **TweetFeed Monitor** | täglich 02:45 | TweetFeed.live IOCs → `tweetfeed_ips.txt` |
-| **Bot-Detector Blacklist** | täglich 22:45 | Bot-IPs → `bot_detector_blacklist_ipv4.txt` |
-| **Auto Feed Discovery** | wöchentlich So 04:37 (+Backups 07:23, 11:47) | GitHub nach neuen Feeds durchsuchen |
-
-</details>
-
-<details>
-<summary><strong>🔍 Überwachung & Schutz anzeigen</strong></summary>
-
-| Workflow | Zeitplan | Aufgabe |
-|---|---|---|
-| **Score Decay Monitor** | wöchentlich So 07:00 | Alterungs-Report |
-| **Feed Health Monitor** | täglich 01:00 | Feed-URLs auf Erreichbarkeit prüfen |
-| **Workflow Health Checker** | 4× täglich | Produktions- und Gesundheitsprüfungen |
-| **Workflow Health Report** | alle 6h | Workflow-Status-Report schreiben |
-| **Watchdog Combined** | alle 15 min | Combined-Pipeline auf Stillstand überwachen |
-| **Watchdog Honigtopf** | 4× pro Stunde | Honigtopf-Workflow überwachen |
-| **CodeQL Security Scan** | wöchentlich So 03:00 | Statische Sicherheitsanalyse |
-| **Update All Countries IPv4** | Mo + Mi 01:30 | Länder-/Kontinent-Ranges synchronisieren |
-
-</details>
-
----
-
-## 📊 LIVE-BEDROHUNGSLAGE
-
-![Live](https://img.shields.io/badge/STATUS-LIVE-16A34A?style=flat-square) ![Dynamisch](https://img.shields.io/badge/DATEN-DYNAMISCH-00A7E1?style=flat-square)
-
-> [!TIP]
-> **Live-Daten:** Die Tabellen darunter werden weiterhin automatisch durch NETSHIELD aktualisiert.
+<summary><strong>🔄 Automatisch aktualisierte Detailwerte</strong></summary>
 
 <!-- STATS_TABLE_START -->
 <table>
@@ -136,10 +95,37 @@
 </table>
 <!-- META_TABLE_END -->
 
-> NETSHIELD aggregiert, bewertet und bereinigt täglich IP-Bedrohungsdaten aus **über 160 Quellen** (dynamisch, wächst laufend durch Auto-Discovery): rund 120 öffentliche Remote-Feeds, 6 lokale Sub-Workflow-Feeds (CVE, Honeypot, Honigtopf, Bot-Detector, TweetFeed und laufend neu per GitHub-Discovery entdeckte Feeds. Das System unterscheidet aktive Bedrohungen von veralteten statischen Listen und liefert daraus qualitativ hochwertige Blocklisten für OPNsense, pfSense und iptables.
+</details>
 
 ---
 
+## ⚙️ AUTOMATISIERUNG & WORKFLOWS
+
+![Workflows](https://img.shields.io/badge/WORKFLOWS-26-2563EB?style=for-the-badge&logo=githubactions&logoColor=white)
+![Hauptlauf](https://img.shields.io/badge/HAUPTLAUF-8×%20TÄGLICH-00A7E1?style=for-the-badge)
+![Aufbewahrung](https://img.shields.io/badge/AUFBEWAHRUNG-180%20TAGE-7C3AED?style=for-the-badge)
+![Betrieb](https://img.shields.io/badge/BETRIEB-VOLLAUTOMATISCH-16A34A?style=for-the-badge)
+
+<details open>
+<summary><strong>🔧 Kern-Pipeline</strong></summary>
+
+| Workflow | Zeitplan | Aufgabe |
+|---|---|---|
+| **Combined-Blockliste aktualisieren** | 8× täglich | Quellen laden, Datenbank aktualisieren und Hauptlisten schreiben |
+| **Vertrauens-Blockliste** | 8× täglich | Blocklisten anhand des Vertrauenswerts berechnen |
+| **Fehlalarm-Prüfung** | 3× täglich | Whitelist-Netze prüfen und Fehlalarme herausfiltern |
+| **NETSHIELD-Bericht** | stündlich | Bericht und README-Statistiken aktualisieren |
+
+</details>
+
+<details>
+<summary><strong>📡 Datenquellen & Überwachung</strong></summary>
+
+**CVE-Zuordnung · Honeypot-Überwachung · Honigtopf · TweetFeed · Bot-Erkennung · automatische Feed-Suche · Feed-Status · Watchdogs · CodeQL**
+
+</details>
+
+---
 
 ## 🛡️ BLOCKLISTEN-ZENTRALE
 
@@ -194,13 +180,13 @@ Score = Quellen-Qualität (40) + Aktualität (30) + Persistenz (20) + Bekannt se
 
 | Dimension | **Gewicht** | Logik |
 |---|:---:|---|
-| 🏅 Quellen-Qualität | `40` | HQ-Feed = 40 · 5+ Feeds heute = 35 · 3+ heute = 28 · 2+ heute = 20 · 5+ gesamt = 15 · 3+ gesamt = 10 · 2+ gesamt = 5 |
+| 🏅 Quellen-Qualität | `40` | HQ-Feed = 40 · 5+ Quellen heute = 35 · 3+ heute = 28 · 2+ heute = 20 · 5+ gesamt = 15 · 3+ gesamt = 10 · 2+ gesamt = 5 |
 | ⏱️ Aktualität | `30` | Heute = 30 · ≤ 3 Tage = 25 · ≤ 7 Tage = 20 · ≤ 14 Tage = 12 · ≤ 30 Tage = 6 |
 | 🔁 Persistenz | `20` | 14+ Tage = 20 · 7 Tage = 15 · 3 Tage = 10 · 2 Tage = 6 · 1 Tag = 2 |
 | 📆 Bekannt seit | `10` | 90+ Tage = 10 · 30+ Tage = 6 · 14+ Tage = 3 |
 
 > [!IMPORTANT]
-> Nur **HQ-Feeds** (Feodo, AbuseIPDB, Spamhaus, DataPlane, FireHOL u. a.) bestimmen die Lebenszeit einer IP. Statische Mega-Listen erhöhen den Score, können eine IP aber nicht am Leben halten. Nach **180 Tagen** ohne HQ-Bestätigung wird eine IP automatisch entfernt. Watchlist-IPs ohne HQ-Bestätigung laufen bereits nach **30 Tagen** ab.
+> Nur **HQ-Quellen** (Feodo, AbuseIPDB, Spamhaus, DataPlane, FireHOL u. a.) bestimmen die Lebenszeit einer IP. Statische Mega-Listen erhöhen den Score, können eine IP aber nicht am Leben halten. Nach **180 Tagen** ohne HQ-Bestätigung wird eine IP automatisch entfernt. Watchlist-IPs ohne HQ-Bestätigung laufen bereits nach **30 Tagen** ab.
 
 ### 🚦 Bewertungsstufen
 
@@ -300,13 +286,13 @@ Enrichment (nach Combined):
 | ⚙️ [`workflow_health_report.md`](workflow_health_report.md) | Workflow-Analyse (Python-Syntax, Cron-Timing, Guards) |
 | 🔀 [`combined_threat_blacklist_report.md`](combined_threat_blacklist_report.md) | Feed-Statistik pro Lauf |
 | 📉 [`score_decay_report.md`](score_decay_report.md) | Alterungs-Analyse der seen_db |
-| 🔎 [`auto_feed_discovery_report.md`](auto_feed_discovery_report.md) | Neu entdeckte Feeds + Bewertung |
+| 🔎 [`auto_feed_discovery_report.md`](auto_feed_discovery_report.md) | Neu entdeckte Quellen + Bewertung |
 
 ---
 
 ## 📡 BEDROHUNGSQUELLEN
 
-![Feeds](https://img.shields.io/badge/QUELLEN-160%2B-00A7E1?style=flat-square) ![Discovery](https://img.shields.io/badge/AUTO--DISCOVERY-AKTIV-7C3AED?style=flat-square)
+![Quellen](https://img.shields.io/badge/QUELLEN-160%2B-00A7E1?style=flat-square) ![Discovery](https://img.shields.io/badge/AUTO--DISCOVERY-AKTIV-7C3AED?style=flat-square)
 
 NETSHIELD bezieht Daten aus folgenden Kategorien:
 
@@ -315,14 +301,14 @@ NETSHIELD bezieht Daten aus folgenden Kategorien:
 | Abuse-Tracker | Feodo, ThreatFox, URLhaus (abuse.ch) | ✅ |
 | Blocklist-Aggregatoren | FireHOL Level 1–4, blocklist.de, DShield | ✅ |
 | Honeypot-Netzwerke | DataPlane, Turris Sentinel, Honigtopf (API) | ✅ |
-| Reputation-Feeds | AbuseIPDB (API + Mirrors), ipsum, CINSscore | ✅ |
-| C2/Botnet-Tracker | C2-Tracker, MISP C2 Intel Feeds | ✅ |
+| Reputation-Quellen | AbuseIPDB (API + Mirrors), ipsum, CINSscore | ✅ |
+| C2/Botnet-Tracker | C2-Tracker, MISP C2 Intel Quellen | ✅ |
 | Threat Intelligence | Spamhaus DROP, Emerging Threats, Threatview | ✅ |
-| Community-Feeds | GitHub-Repos (auto-discovered), Bot-Detector | ❌ |
+| Community-Quellen | GitHub-Repos (auto-discovered), Bot-Detector | ❌ |
 | Brute-Force-Listen | CrowdSec, danger.rulez.sk, blocklist.de/ssh | ✅ |
 
 > [!IMPORTANT]
-> **HQ-Feeds** (rund die Hälfte aller Remote-Quellen) bestimmen die Lebenszeit einer IP. Non-HQ-Feeds erhöhen den Confidence-Score, können IPs aber nicht am Leben halten.
+> **HQ-Quellen** (rund die Hälfte aller Remote-Quellen) bestimmen die Lebenszeit einer IP. Non-HQ-Quellen erhöhen den Confidence-Score, können IPs aber nicht am Leben halten.
 
 ---
 
@@ -347,13 +333,13 @@ NETSHIELD/
 ├── watchlist_confidence25to39_ipv4.txt  # → Monitoring (Score 25–39)
 │
 ├── cve_exploit_ips.txt                  # CVE/C2-IPs (täglich)
-├── honeypot_ips.txt                     # Honeypot-Feeds (täglich)
+├── honeypot_ips.txt                     # Honeypot-Quellen (täglich)
 ├── honigtopf_ips.txt                    # Honigtopf API (täglich)
 ├── tweetfeed_ips.txt                    # TweetFeed.live IOCs (täglich)
 ├── bot_detector_blacklist_ipv4.txt      # Bot-Detector (täglich)
 ├── reputation_blacklist.txt          # Reputation API (Round-Robin)
 │
-├── auto_discovered_feeds.json           # Auto-entdeckte Feeds
+├── auto_discovered_feeds.json           # Auto-entdeckte Quellen
 ├── false_positives_set.json             # FP-Whitelist
 ├── feed_health_status.json              # Feed-Status
 ├── seen_db_meta.json                    # seen_db Metadaten (DB im Cache)
@@ -376,7 +362,7 @@ NETSHIELD/
 |---|---|
 | 🛑 **Leerungsschutz** | Jeder Workflow prüft MIN_ENTRIES vor dem Schreiben — bei zu wenigen Ergebnissen bleibt die alte Datei erhalten |
 | ⚪ **False-Positive-Filter** | Umfangreiche Whitelist (CDN, DNS, Mail, Cloud-Provider) verhindert Blocking legitimer Infrastruktur |
-| 🏅 **HQ/Non-HQ-Trennung** | Nur verifizierte HQ-Feeds verlängern die Lebenszeit einer IP — statische Listen können IPs nicht am Leben halten |
+| 🏅 **HQ/Non-HQ-Trennung** | Nur verifizierte HQ-Quellen verlängern die Lebenszeit einer IP — statische Listen können IPs nicht am Leben halten |
 | 🔁 **Push-Retry** | 5 Versuche mit git rebase bei gleichzeitigen Commits |
 | 🔐 **Concurrency-Lock** | Jeder Workflow läuft max. 1× gleichzeitig |
 | 📦 **Cache-Isolation** | Verschiedene Workflows nutzen eigene Cache-Prefixe (v2, fp, afd) |
