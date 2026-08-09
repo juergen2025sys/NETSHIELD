@@ -530,6 +530,24 @@ jobs:
               "ipinsights":
                   "https://ipinsights.io/downloads/blocklist.txt",
 
+              # OpenDBL (Open Dynamic Block Lists): oeffentlicher Threat-Intel-
+              # Aggregator, seit 2014 in Betrieb (opendbl.net), fasst mehrere
+              # Upstream-Quellen (u.a. Talos, DShield, blocklist.de - je nach
+              # Teilliste unterschiedlich) zu einzelnen Textlisten zusammen.
+              # Format lt. Betreiber: reine IPs (x.x.x.x) und CIDR-Subnetze
+              # (x.x.x.x/yy) - CIDR-Eintraege werden von parse_entries()
+              # entsprechend der bestehenden Logik fuer andere netset-Feeds
+              # behandelt. HINWEIS: Die genaue Quellen-Zusammensetzung der
+              # "darknet"-Teilliste (im Unterschied zu den auf opendbl.net
+              # separat dokumentierten Listen etknown/bruteforce/talos/dshield/
+              # ipsum/sslblock) konnte nicht verifiziert werden - opendbl.net
+              # blockt automatisierten Seitenabruf per robots.txt, es gibt
+              # keine oeffentliche Detail-Doku dazu. Empfehlung: nach dem
+              # ersten Live-Lauf im Report pruefen (IP-Anzahl/Bytes plausibel?
+              # Format korrekt geparst?).
+              "opendbl_darknet":
+                  "https://opendbl.net/lists/opendbl-darknet.list",
+
               # ══════════════════════════════════════════════════════════
               # NEU (2026-08-07, manuell ergaenzt): 3 Einzelperson-/kleine
               # Community-Repos, ueber laengere Zeit manuell im OPNsense-
