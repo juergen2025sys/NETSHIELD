@@ -1,6 +1,6 @@
 # Workflow Health Report
 
-**Stand:** 2026-08-08 18:53 UTC
+**Stand:** 2026-08-09 02:23 UTC
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_report.yml` alle 6h.
@@ -8,34 +8,33 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 22 / 8 erwartet
+- **Echte Combined-Runs:** 21 / 8 erwartet
 - **Skip-Runs (Idempotenz-Guard):** 4
 - **Lucken (>210min zwischen echten Runs):** 0
 
 ## Letzte 7 Tage
 
-- **Echte Combined-Runs:** 87
+- **Echte Combined-Runs:** 86
 - **Skip-Runs:** 31
-- **Fehlgeschlagene Runs:** 69
+- **Fehlgeschlagene Runs:** 70
 - **Lucken >210min:** 1
 - **Groesste Lucke:** 2026-08-05 11:58 UTC -> 2026-08-07 19:08 UTC (3309 min = 55h 9min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 290
+- **Watchdog-Laeufe insgesamt:** 299
 - **Watchdog-Fehler:** 2
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 42
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 41
 
 Letzte Watchdog-Eingriffe:
-- 2026-08-07 15:09 UTC (Run #31191234375, Laufzeit 37m 33s)
 - 2026-08-07 18:02 UTC (Run #31205138173, Laufzeit 10m 39s)
 - 2026-08-07 18:12 UTC (Run #31205878843, Laufzeit 31m 31s)
 - 2026-08-08 00:40 UTC (Run #31230748289, Laufzeit 51m 58s)
 - 2026-08-08 03:52 UTC (Run #31238164010, Laufzeit 36m 21s)
+- 2026-08-09 00:42 UTC (Run #31286757325, Laufzeit 34m 13s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
-- 2026-08-07 11:58 UTC - failure - Run #31176255079 (32m 25s)
 - 2026-08-07 13:22 UTC - failure - Run #31182310565 (27m 58s)
 - 2026-08-07 13:46 UTC - failure - Run #31184282805 (37m 37s)
 - 2026-08-07 13:59 UTC - failure - Run #31185300314 (60m 27s)
@@ -45,6 +44,7 @@ Letzte Watchdog-Eingriffe:
 - 2026-08-07 16:34 UTC - failure - Run #31198213491 (73m 55s)
 - 2026-08-07 18:02 UTC - cancelled - Run #31205138173 (10m 39s)
 - 2026-08-07 18:12 UTC - failure - Run #31205878843 (31m 31s)
+- 2026-08-08 19:06 UTC - action_required - Run #31273617530 (0s)
 
 ---
 
