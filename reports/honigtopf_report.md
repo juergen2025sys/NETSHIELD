@@ -1,62 +1,33 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-08-09 11:02 CEST (Berlin)  
-**Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
+**Aktualisiert:** 2026-08-09 11:51 CEST (Berlin)  
+**Modus:** `LIGHT` (nur /bad-hosts, merged mit existing)
 
 ---
 ## Endpunkte & Ergebnisse
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **12,975** |
-| Bad Hosts – SIP | **223** |
-| Bad Hosts – RDP | **840** |
-| Bad Hosts – SSH | **2,849** |
-| Bad Hosts – MSSQL | **428** |
-| Bad Hosts – SNMP | **323** |
-| Bad Hosts – TFTP | **175** |
-| Bad Hosts – HTTP | **3,584** |
-| Bad Hosts – VNC | **611** |
-| Bad Hosts – Telnet | **4,853** |
-| Bad Hosts – FTP | **1,467** |
-| Bad Hosts – ProConOs | **111** |
-| Bad Hosts – Kubernetes | **358** |
-| Bad Hosts – Redis | **377** |
-| Bad Hosts – MySQL | **435** |
-| Bad Hosts – PostgreSQL | **456** |
-| Bad Hosts – CouchDB | **220** |
-| Bad Hosts – Elasticsearch | **411** |
-| Bad Hosts – Oracle | **197** |
-| Bad Hosts – ClickhouseHTTP | **208** |
-| Bad Hosts – Modbus | **166** |
-| Bad Hosts – Memcached | **211** |
-| Bad Hosts – LDAP | **186** |
-| Bad Hosts – RAW | **131** |
-| Bad Hosts – MQTT | **153** |
-| Bad Hosts – IPP | **105** |
-| Bad Hosts – HashCountRandom | **102** |
-| Bad Hosts – LPD | **62** |
-| Bad Hosts – MOTD | **47** |
-| Bad Hosts – Echo | **4** |
+| Bad Hosts (24h, alle Dienste) | **12,883** |
 
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
 
-Davon **heute (2026-08-09)**: **5,443** IPs
+Davon **heute (2026-08-09)**: **5,829** IPs
 
 | last_seen | IPs |
 |---|---:|
-| 2026-08-09 | **5,443** |
-| 2026-08-08 | **7,532** |
+| 2026-08-09 | **5,829** |
+| 2026-08-08 | **7,054** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **16,008** |
-| Neu | **+111** |
-| Entfernt | **-272** |
+| Gesamt Honigtopf-IPs | **16,330** |
+| Neu | **+322** |
+| Entfernt | **-0** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-08-09 11:02 CEST (Berlin)*
+*Generiert: 2026-08-09 11:51 CEST (Berlin)*
