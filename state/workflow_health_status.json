@@ -1,24 +1,18 @@
 {
-  "updated": "2026-08-09 10:47 CEST (Europe/Berlin)",
+  "updated": "2026-08-09 14:16 CEST (Europe/Berlin)",
   "total": 26,
-  "ok": 25,
-  "warn": 1,
+  "ok": 26,
+  "warn": 0,
   "error": 0,
   "errors": [],
-  "warnings": [
-    {
-      "file": "auto_feed_discovery.yml",
-      "check": "timeout-minutes fehlt",
-      "detail": "Job 'discover' hat kein timeout-minutes \u2013 haengende Runs verbrauchen bis zu 360min"
-    }
-  ],
+  "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4386346,
-    "active_blacklist_ipv4.txt": 719346,
-    "blacklist_confidence40_ipv4_part1.txt": 3517777,
+    "combined_threat_blacklist_ipv4_part1.txt": 4387580,
+    "active_blacklist_ipv4.txt": 722444,
+    "blacklist_confidence40_ipv4_part1.txt": 3518981,
     "cve_exploit_ips.txt": 29367,
-    "honeypot_ips.txt": 1161857,
-    "bot_detector_blacklist_ipv4.txt": 1283430
+    "honeypot_ips.txt": 1162400,
+    "bot_detector_blacklist_ipv4.txt": 1283909
   },
   "production_health": {
     "critical": 0,

@@ -1,15 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-09 10:47 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-09 14:16 CEST (Europe/Berlin)
 
-**Workflows:** 26 | ✅ 25 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
+**Workflows:** 26 | ✅ 26 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
-## ⚠️ Warnungen
-
-| Datei | Check | Detail |
-|---|---|---|
-| `auto_feed_discovery.yml` | timeout-minutes fehlt | Job 'discover' hat kein timeout-minutes – haengende Runs verbrauchen bis zu 360min |
-
 ## 🏥 Production Health
 
 **Status:** 🔴 0 CRITICAL | 🟡 0 WARN
@@ -20,7 +14,7 @@
 
 | Workflow | Status | Fehler | Warnungen | Cron |
 |---|---|---|---|---|
-| `auto_feed_discovery.yml` | ⚠️ | 0 | 1 | `37 4 * * 0`, `23 7 * * 0`, `47 11 * * 0` |
+| `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `37 4 * * 0`, `23 7 * * 0`, `47 11 * * 0` |
 | `codeql.yml` | ✅ OK | 0 | 0 | `0 3 * * 0` |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
 | `dependabot-auto-merge.yml` | ✅ OK | 0 | 0 | – |
@@ -48,4 +42,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-09 10:47 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
+*Generiert: 2026-08-09 14:16 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
