@@ -218,21 +218,23 @@ jobs:
           #   Attacker (ohne Ranking) aus demselben CTU-Honeypot-Netzwerk.
           #   Direktestes Aequivalent zum bisherigen Honigtopf-24h-bad-hosts-
           #   Snapshot. Format: Header 'attacker' + eine IPv4/Zeile (kein score).
-          # - honeysec_ip2 ergänzt (April 2026): Honeypot-Netzwerk der UCM Trnava
-          #   (SK), Institut für Computertechnik und Informatik. ip_2 = IPs mit
-          #   ≥2 Login-Versuchen (vom Betreiber als Standard empfohlen). Plain
-          #   IPv4-Format, eigene Telemetrie → validiert bestehende Feeds. ip_all
-          #   und ip_5 bewusst NICHT geladen: beide sind Teil-/Obermengen von
-          #   ip_2 und würden den Quell-Count pro IP künstlich verdoppeln.
-          # - crash0v3r1de_mikrotik ergänzt (April 2026): Mikrotik-Bruteforce-
-          #   Honeypot von Crash0v3r1de (GitHub). Eigenständige Telemetrie eines
-          #   Single-Operators, fokussiert auf Mikrotik-spezifische Angriffe
-          #   (Winbox, API, SSH). Plaintext IPv4, ein Eintrag pro Zeile, 286+
-          #   Commits → aktiv. Repo hat 0 Stars, also Vorsicht: Ausfallrisiko
-          #   höher als bei etablierten Quellen. Bei <50 IPs oder Repo-404
-          #   wieder entfernen. Mehrwert: spezifische Mikrotik-Bruteforce-
-          #   Telemetrie, die in den großen Aggregatoren (ipsum/firehol)
-          #   meist mit Verzögerung auftaucht.
+          # - honeysec_ip2 ergänzt (April 2026), auf honeysec_ip_all umgestellt
+          #   (August 2026, siehe Nutzeranweisung): Honeypot-Netzwerk der UCM
+          #   Trnava (SK), Institut für Computertechnik und Informatik. ip_all
+          #   = ALLE IPs mit mindestens einem Login-Versuch (kein ≥2-Schwellwert
+          #   mehr wie bei ip_2). Plain IPv4-Format, eigene Telemetrie →
+          #   validiert bestehende Feeds. ip_2 und ip_5 bewusst NICHT (mehr)
+          #   geladen: beide sind Teilmengen von ip_all und würden den
+          #   Quell-Count pro IP künstlich verdoppeln (siehe ursprünglicher
+          #   Hinweis vom Betreiber).
+          # - crash0v3r1de_mikrotik ergänzt (April 2026), wieder ENTFERNT
+          #   (August 2026, siehe Nutzeranweisung): Repo lebt zwar noch
+          #   (286 Commits insgesamt), aber ip.list selbst wurde laut GitHub
+          #   seit 4 Jahren nicht mehr aktualisiert ("List Update Commit",
+          #   4 years ago) - der Kommentar "286+ Commits → aktiv" bei der
+          #   Einpflege war falsch/veraltet, die History-Länge sagt nichts
+          #   über Aktualität aus. Praktisch ein toter Feed, liefert
+          #   bestenfalls stale Daten. Entfernt statt nur beobachtet.
           # - siberkapan_fortigate ergänzt (Juli 2026): SiberKapan (TR),
           #   community-basierte Threat-Intel-Plattform mit Fokus auf tuerkische
           #   Infrastruktur. Live verifiziert (08.07.2026): URL erreichbar,
@@ -296,8 +298,7 @@ jobs:
           # - stratosphere_aip: CTU Prag IoT-Honeypot, Prioritize_New (emerging Attacker)
           # - stratosphere_aip_alpha7: CTU Prag IoT-Honeypot, 7-Tage-Fenster
           # - stratosphere_aip_alpha: CTU Prag IoT-Honeypot, 24h alle Attacker (kein Ranking)
-          # - honeysec_ip2: UCM Trnava Honeypot-Netzwerk, ≥2 Login-Versuche
-          # - crash0v3r1de_mikrotik: Mikrotik-Bruteforce-Honeypot (Single-Operator)
+          # - honeysec_ip_all: UCM Trnava Honeypot-Netzwerk, alle Login-Versuche (≥1)
           # - turris_greylist: CZ.NIC Turris-Sentinel-Minipot-Netzwerk (taeglich)
           # ══════════════════════════════════════════════════════════════════
 
@@ -431,28 +432,18 @@ jobs:
               "stratosphere_aip_alpha":
                   "https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Alpha-latest.csv",
 
-              # HoneySEC ip_2: Honeypot-Netzwerk der Universität der hl. Cyrill
+              # HoneySEC ip_all: Honeypot-Netzwerk der Universität der hl. Cyrill
               # und Method in Trnava (UCM, SK), Fakultaet fuer Naturwissenschaften,
-              # Institut fuer Computertechnik und Informatik. Aggregiert IPs, die
-              # sich mindestens 2x in einen Honeypot eingeloggt haben (nicht nur
-              # Port-Scan, sondern tatsaechlicher Login-Versuch). Die ≥2-Schwelle
-              # ist vom Betreiber als Standard-Empfehlung markiert (Filter fuer
-              # Tippfehler/One-Off-Scans). Format: Plain IPv4, eine pro Zeile.
-              # WICHTIG: NICHT gleichzeitig ip_all oder ip_5 laden – beide sind
-              # Teil-/Obermengen von ip_2 → dreifacher Quell-Count pro IP.
-              "honeysec_ip2":
-                  "https://honeysec.eu/lists/raw/ip_2",
-
-              # Mikrotik-Bruteforce-Honeypot von Crash0v3r1de (GitHub).
-              # Plaintext IPv4-Liste (ein Eintrag pro Zeile), gespeist aus dem
-              # eigenen Honeypot-System des Betreibers, fokussiert auf Mikrotik-
-              # spezifische Bruteforce-Angriffe (Winbox/8291, API/8728, SSH).
-              # Aktiv (286+ Commits), aber Single-Operator-Repo mit 0 Stars →
-              # erhöhtes Ausfallrisiko. Bei Repo-404 oder <50 geparsten IPs
-              # entfernen. Ergänzt die generischen SSH/Web-Honeypots um
-              # Mikrotik-spezifische Telemetrie.
-              "crash0v3r1de_mikrotik":
-                  "https://raw.githubusercontent.com/Crash0v3r1de/HoneypotIPLists/main/ip.list",
+              # Institut fuer Computertechnik und Informatik. Aggregiert ALLE IPs,
+              # die sich mindestens einmal in einen Honeypot eingeloggt haben
+              # (kein Mindest-Schwellwert wie bei ip_2/ip_5). Format: Plain IPv4,
+              # eine pro Zeile.
+              # UMSTELLUNG (August 2026, Nutzeranweisung): vorher ip_2 (≥2
+              # Login-Versuche), jetzt ip_all fuer die breitere Abdeckung.
+              # WICHTIG: NICHT gleichzeitig ip_2 oder ip_5 laden – beide sind
+              # Teilmengen von ip_all → doppelter Quell-Count pro IP.
+              "honeysec_ip_all":
+                  "https://honeysec.eu/lists/ipset/ip_all",
 
               # Turris Sentinel Greylist (CZ.NIC): primaere, NICHT GitHub-gehostete
               # Quelle. Netzwerk aus Turris-Routern mit "Minipots" (leichtgewichtige
@@ -572,7 +563,9 @@ jobs:
               # Liste (auch einzelne IPv6), kein Auth noetig. Klein, aber
               # echter Honeypot-Fund, kein Aggregator - passt zum Muster der
               # anderen kleinen Einzelperson-Honeypot-Feeds hier
-              # (crash0v3r1de_mikrotik, timgerstel_suspicious_ips).
+              # (timgerstel_suspicious_ips; frueher auch crash0v3r1de_mikrotik,
+              # im August 2026 wegen 4 Jahre Inaktivitaet entfernt - siehe
+              # Changelog oben).
               "zenmorro_scanner_list":
                   "https://raw.githubusercontent.com/zenmorro/Scanner-List/refs/heads/main/blocklist.txt",
           }
