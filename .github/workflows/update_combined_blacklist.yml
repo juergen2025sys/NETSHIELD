@@ -469,7 +469,15 @@ jobs:
 
           # is_protected_entry() → importiert aus netshield_common
           HIGH_QUALITY = {
-              "cinsscore", "cinsarmy", "greensnow", "feodo_aggressive", "feodo_recommended",
+              "cinsscore", "cinsarmy", "greensnow",
+              # FIX HQ-SOURCES-DRIFT (2026-08-09): feodo_aggressive, feodo_recommended,
+              # firehol_cybercrime, cloudzy, firehol_level1, firehol_webclient und
+              # et_block wurden aus HIGH_QUALITY entfernt. Alle 7 sind in SOURCES
+              # bereits als "ENTFERNT" (eingefroren/stale) auskommentiert - sie
+              # existierten hier nur noch als toter Code, den der
+              # workflow_health_checker.yml (HIGH_QUALITY ↔ SOURCES Konsistenz)
+              # als Drift meldete. Bei Reaktivierung der jeweiligen Quelle in
+              # SOURCES muss der Name auch hier manuell wieder ergaenzt werden.
               # FIX 2026-07-25: threatfox_ioc/threatfox_direct entfernt - nach
               # honeypot_monitor.yml verlagert (authentifizierter full.csv.zip-
               # Export, 6-Monats-Fenster statt hier nur ~2 Wochen). Grund: ThreatFox
@@ -478,15 +486,19 @@ jobs:
               # gegen die im Datei-Header dokumentierte Dedup-Regel verstossen
               # (LOCAL_FEED honeypot_ips.txt darf keine SOURCES-Duplikate haben).
               "binary_defense", "crowdsec_ssh",
-              "danger_bruteforce", "threatview_high_conf", "firehol_cybercrime",
-              "firehol_anonymous", "dshield", "cloudzy",
-              "urlhaus_ips", "firehol_level1", "firehol_level2", "firehol_level3",
-              "firehol_webclient", "firehol_webserver", "firehol_abusers_1d",
-              "et_block", "et_compromised",
+              "danger_bruteforce", "threatview_high_conf",
+              "firehol_anonymous", "dshield",
+              "urlhaus_ips", "firehol_level2", "firehol_level3",
+              "firehol_webserver", "firehol_abusers_1d",
+              "et_compromised",
               "blocklist_de_all", "blocklist_de_export", "blocklist_de_strongips",
               "blocklist_de_ssh", "c2_iplist",
               "ipsum_level5", "ipsum_level7", "abuseipdb_s100_30d", "abuseipdb_s100_7d",
-              "abuseipdb_score100", "turris_greylist",
+              "abuseipdb_score100",
+              # FIX CROSS-WF-DUP (2026-08-09): turris_greylist NICHT mehr hier,
+              # siehe Begruendung beim SOURCES-Eintrag weiter unten (Zeile ~1024,
+              # jetzt entfernt) - die Quelle wird bereits ueber honeypot_monitor.yml
+              # -> honeypot_ips.txt (LOCAL_FEED, HQ=True) erfasst.
               # FIX BUG-DP1: DataPlane-Feeds hatten hq=True in SOURCES, fehlten aber
               # in HIGH_QUALITY. Effekt: ip_in_hq wurde nie befüllt → strongly_confirmed_today
               # blieb False → das "last"-Feld wurde nie aktualisiert → IPs alterten still
@@ -1021,7 +1033,13 @@ jobs:
               # "mrlooker_threats" entfernt: mrlooker/Suspicious-IPs Repo gelöscht
               # "gridinsoft" entfernt: GridinSoft/IP-Blocklist Repo gelöscht
               # "duggytuxy_agr" entfernt: Dateiname geändert – abgedeckt durch data_shield (gleiches Repo-Netz)
-              "turris_greylist":            ("https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv", True),
+              # ENTFERNT (2026-08-09): turris_greylist - Cross-Workflow-Dopplung.
+              # Dieselbe URL (greylist-latest.csv) wird bereits in
+              # honeypot_monitor.yml abgerufen und fliesst von dort ueber
+              # honeypot_ips.txt als LOCAL_FEED (HQ=True) hier ein. Der direkte
+              # SOURCES-Eintrag fuehrte zu doppeltem today_count fuer dieselben
+              # IPs. Siehe auch Datei-Header-Regel: "LOCAL_FEED honeypot_ips.txt
+              # darf keine SOURCES-Duplikate haben".
               # "talos_intelligence" entfernt: URL zu snort.org umgezogen, Terms-Accept required – nicht automatisierbar
               # "eset_apr" entfernt: elliotwutingfeng/ESET-APR-IPs Repo gelöscht
               "romainmarcoux_outgoing_aa":  ("https://raw.githubusercontent.com/romainmarcoux/malicious-outgoing-ip/main/full-outgoing-ip-aa.txt", False),

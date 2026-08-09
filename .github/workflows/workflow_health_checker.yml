@@ -1543,6 +1543,14 @@ jobs:
               # GreedyBear (T-POT-Cluster Aggregator auf greedybear.honeynet.org).
               # Deckt greedybear_recent und zukünftige Honeynet-Feeds ab.
               "honeynet",
+              # FIX UNTRUSTED-HQ (2026-08-09): threatslist_paloalto_edl und
+              # threat_live manuell vom Maintainer als hq=True eingestuft (siehe
+              # Begruendungskommentare direkt bei den jeweiligen SOURCES-
+              # Eintraegen in update_combined_blacklist.yml). Hier als bekannt
+              # aufgenommen, damit der Guard sie nicht mehr als "ohne bekannten
+              # Betreiber" meldet. "threatslist" matcht per Namens-Teilstring,
+              # "threat.live" matcht per URL-Teilstring.
+              "threatslist", "threat.live",
           }
           if os.path.exists(_combined_path):
               _cb_text = open(_combined_path).read()
