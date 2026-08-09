@@ -17,6 +17,7 @@ import sys
 import tempfile
 import unittest
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 # Modul-Pfad einfügen
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
@@ -924,6 +925,22 @@ class TestFeedAge(unittest.TestCase):
         now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
         with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
             f.write(f"# NETSHIELD\n# Aktualisiert: {now_str} UTC\n1.2.3.4\n")
+            path = f.name
+        try:
+            age = check_local_feed_age(path, max_age_hours=48)
+            self.assertIsNotNone(age)
+            self.assertLess(age, 1)  # weniger als 1 Stunde alt
+        finally:
+            os.unlink(path)
+
+    def test_fresh_feed_cest(self):
+        # FIX TS-TZ: TIMESTAMP_RE/check_local_feed_age muss seit der
+        # Umstellung mehrerer Feed-Dateien auf deutsche Ortszeit auch
+        # "CEST (Europe/Berlin)"-Header korrekt in ein Alter umrechnen.
+        now_local_str = datetime.now(timezone.utc).astimezone(
+            ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d %H:%M %Z")
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+            f.write(f"# NETSHIELD\n# Aktualisiert: {now_local_str} (Europe/Berlin)\n1.2.3.4\n")
             path = f.name
         try:
             age = check_local_feed_age(path, max_age_hours=48)
