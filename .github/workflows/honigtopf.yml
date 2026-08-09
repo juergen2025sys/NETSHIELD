@@ -2,15 +2,27 @@ name: Honigtopf
 
 on:
   schedule:
-    # Light-Lauf stündlich (nur /bad-hosts), außer 22 Uhr.
+    # Stuendlicher Trigger. Ob ein einzelner Lauf tatsaechlich Light (nur
+    # /bad-hosts) oder Voll (/services + Pro-Dienst-Endpunkte) faehrt, wird
+    # NICHT mehr starr vom Cron-Slot bestimmt, sondern dynamisch im
+    # Python-Block: nach dem ohnehin faelligen /bad-hosts-Call wird live
+    # aus dem 'honeydb-qpm-remaining'-Header geprueft, ob genug Kontingent
+    # fuer einen Voll-Sweep uebrig ist (siehe FULL_RUN_EXTRA_COST). Grund:
+    # HoneyDB nennt auf zwei offiziellen Seiten unterschiedliche Limits fuer
+    # den kostenlosen Tier (honeydb.io/threats: 1500/Monat vs.
+    # honeydb.io/plans: 1000/Tag, Stand 2026-08) - budget-basiert statt
+    # zeitplan-basiert holt in jedem Lauf, den das ECHTE Kontingent
+    # hergibt, automatisch die maximale IP-Menge, unabhaengig davon welches
+    # der beiden Limits stimmt.
     - cron: '15 0-21,23 * * *'
-    # Voll-Lauf 22:15 UTC. Muss exakt FULL_RUN_SCHEDULE im Python-Block sein,
-    # sonst läuft er als Light.
+    # Frueher der feste "Voll-Lauf"-Slot (FULL_RUN_SCHEDULE) - dient jetzt
+    # nur noch als Fallback-Zeitplan, falls der Budget-Header aus
+    # irgendeinem Grund nicht auslesbar ist.
     - cron: '15 22 * * *'
   workflow_dispatch:
     inputs:
       force_light:
-        description: "Light-Lauf erzwingen (nur /bad-hosts, merged mit existing). Vom Watchdog genutzt, damit ein dispatch-Trigger die Liste NICHT auf den 24h-Snapshot schrumpft. Ohne diesen Input bleibt ein manueller dispatch ein Voll-Lauf."
+        description: "Light-Lauf erzwingen (nur /bad-hosts, merged mit existing), unabhaengig vom verbleibenden Budget. Vom Watchdog genutzt, damit ein dispatch-Trigger die Liste NICHT auf den 24h-Snapshot schrumpft. Ohne diesen Input entscheidet auch ein manueller dispatch budget-basiert (siehe schedule-Kommentar oben)."
         type: boolean
         default: false
   workflow_run:
@@ -132,27 +144,50 @@ jobs:
           now_local = now.astimezone(ZoneInfo("Europe/Berlin"))
           now_str   = now_local.strftime("%Y-%m-%d %H:%M %Z (Berlin)")
 
-          # Voll- vs. Light-Lauf unterscheiden anhand des Cron-Schedules.
-          # Geplante Läufe x:15 (Cron '15 0-21,23 * * *'): Light – nur /bad-hosts,
-          #   merged mit existing.
-          # Geplanter Lauf 22:15 (Cron '15 22 * * *' == FULL_RUN_SCHEDULE): Voll-
-          #   Lauf mit /services + Pro-Dienst-Statistik.
-          # workflow_dispatch / leerer Schedule → ebenfalls Voll-Lauf.
-          FULL_RUN_SCHEDULE = "15 22 * * *"
+          # ── Voll- vs. Light-Lauf: BUDGET-basiert statt starr am Cron-Slot ──
+          # FIX DYNAMIC-FULL (siehe Nutzeranfrage): HoneyDB nennt auf zwei
+          # offiziellen Seiten unterschiedliche Limits fuer den kostenlosen
+          # Tier (honeydb.io/threats: 1500/Monat: honeydb.io/plans: 1000/Tag,
+          # Stand 2026-08). Statt uns auf eine der beiden Zahlen zu verlassen,
+          # fragen wir das tatsaechliche Kontingent bei JEDEM Lauf live aus
+          # dem 'honeydb-qpm-remaining'-Header ab (kommt eh mit jeder Antwort)
+          # und entscheiden erst DANACH, ob ein Voll-Sweep passt. Dadurch
+          # bekommt der Nutzer in jedem Lauf, den das echte Kontingent
+          # hergibt, automatisch die maximale IP-Menge - unabhaengig davon,
+          # welches der beiden Limits tatsaechlich gilt.
+          #
+          # Ablauf: HARD_LIGHT-Faelle (Watchdog-Dispatch, Report-Piggyback)
+          # bleiben unbedingt Light, wie bisher - ihr Zweck ist minimaler
+          # Foodprint, nicht maximale Daten. Alle anderen Laeufe (Cron x:15,
+          # normaler Dispatch) starten mit dem oben ohnehin noetigen
+          # /bad-hosts-Call, lesen daraus 'remaining', und schalten auf VOLL,
+          # wenn genug Budget fuer den geschaetzten Rest-Bedarf eines
+          # Voll-Sweeps (/services + Pro-Dienst-Endpunkte) uebrig ist. Ist
+          # 'remaining' aus irgendeinem Grund nicht auslesbar (Header fehlt/
+          # unerwartetes Format), faellt die Entscheidung sicherheitshalber
+          # auf die alte, rein zeitplan-basierte Logik zurueck (22:15 = voll,
+          # sonst light) - kein Blindflug ohne jede Kontingent-Kenntnis.
+          FULL_RUN_SCHEDULE = "15 22 * * *"   # nur noch Fallback-Referenz
           SCHEDULE          = os.environ.get("GITHUB_SCHEDULE", "")
           # FORCE_LIGHT: per workflow_dispatch-Input erzwungener Light-Lauf
           # (Watchdog nutzt das). Hat Vorrang, damit ein dispatch-Trigger des
           # Watchdogs MIT Merge läuft und die Liste nicht auf den 24h-Snapshot
-          # schrumpft. Manueller dispatch ohne Input → FORCE_LIGHT=false →
-          # weiterhin Voll-Lauf (bisheriges Verhalten unverändert).
+          # schrumpft.
           FORCE_LIGHT       = os.environ.get("FORCE_LIGHT", "false").lower() == "true"
           # EVENT == 'workflow_run' (Report-Piggyback) -> LIGHT erzwingen.
-          # workflow_run hat leeren GITHUB_SCHEDULE; ohne diese Zeile waere es
-          # ein Voll-Lauf (kein Merge -> Liste schrumpft auf 24h-Snapshot).
           EVENT             = os.environ.get("GITHUB_EVENT_NAME", "")
-          LIGHT_RUN         = FORCE_LIGHT or EVENT == "workflow_run" or (bool(SCHEDULE) and SCHEDULE != FULL_RUN_SCHEDULE)
-          run_mode_label    = "LIGHT" if LIGHT_RUN else "VOLL"
-          print(f"Run-Modus: {run_mode_label} (schedule={SCHEDULE or 'manual/dispatch'})")
+          HARD_LIGHT        = FORCE_LIGHT or EVENT == "workflow_run"
+          # Geschaetzte ZUSAETZLICHE Kosten eines Voll-Sweeps ÜBER den bereits
+          # anfallenden /bad-hosts-Call hinaus: /services (1) + bis zu ~30
+          # Pro-Dienst-Endpunkte + Sicherheitspuffer. Siehe Kommentar weiter
+          # unten bei [2/5] ("≈ 34 Req" fuer den KOMPLETTEN Voll-Sweep inkl.
+          # bad-hosts) - hier ohne den bereits verbrauchten bad-hosts-Call.
+          FULL_RUN_EXTRA_COST = 40
+          # LIGHT_RUN wird NACH dem bad-hosts-Call (Schritt 1) final gesetzt.
+          # Platzhalter hier, damit spaeterer Code (Schritt 2 Bedingung) sich
+          # nicht aendern muss.
+          LIGHT_RUN         = True  # wird unten ueberschrieben
+          run_mode_label    = "wird nach Schritt 1 bestimmt"
 
           # ── Credential-Pool dynamisch aufbauen ────────────────────────────
           # Basis-Credential (unsuffigiert) = Index 1, danach _2, _3, ... bis
@@ -227,9 +262,13 @@ jobs:
           # is_in_fp_set() → importiert aus netshield_common
           # ── API-Helper ────────────────────────────────────────────────────
           requests_used = 0
+          # Letzter bekannter 'remaining'-Wert (numerisch, falls parsebar) -
+          # nach jedem erfolgreichen Call aktualisiert. Treibt die
+          # Voll-vs-Light-Entscheidung weiter unten (siehe FULL_RUN_EXTRA_COST).
+          last_remaining_numeric = None
 
           def api_get(endpoint, label="", retries=3):
-              global requests_used, _rr_index
+              global requests_used, _rr_index, last_remaining_numeric
               url = f"{BASE_URL}{endpoint}"
 
               n = len(CREDENTIALS)
@@ -263,7 +302,18 @@ jobs:
                                   elif _l.endswith("qpm-consumed"):
                                       consumed = _hv
                               requests_used += 1
-                              print(f"  [{label or endpoint}] HTTP {r.status} ({cred_label}) | verbraucht: {consumed} | verbleibend: {remaining}/1500")
+                              # FIX DYNAMIC-FULL: 'remaining' numerisch cachen,
+                              # damit der Aufrufer (Voll/Light-Entscheidung)
+                              # das tatsaechliche Live-Kontingent kennt, statt
+                              # sich auf eine der beiden widerspruechlichen
+                              # HoneyDB-Doku-Angaben (1500/Monat vs. 1000/Tag)
+                              # zu verlassen. "/1500" im Log-String ist nur
+                              # noch ein Anhaltspunkt, keine harte Aussage.
+                              try:
+                                  last_remaining_numeric = int(remaining)
+                              except (TypeError, ValueError):
+                                  pass  # Header fehlt/unerwartetes Format - bleibt None
+                              print(f"  [{label or endpoint}] HTTP {r.status} ({cred_label}) | verbraucht: {consumed} | verbleibend: {remaining}")
                               return json.loads(r.read().decode("utf-8", errors="ignore"))
                       except urllib.error.HTTPError as e:
                           if e.code == 429:
@@ -329,6 +379,33 @@ jobs:
                         f"Verteilung: {dict(sorted(last_seen_dist.items(), reverse=True))}")
           else:
               stats["Bad Hosts (24h, alle Dienste)"] = 0
+
+          # ── Voll-vs-Light final entscheiden (nach dem Pflicht-bad-hosts-Call) ──
+          if HARD_LIGHT:
+              LIGHT_RUN = True
+              _decision_reason = "Watchdog-Dispatch/Report-Piggyback erzwingt Light"
+          elif data is None:
+              # bad-hosts selbst ist schon fehlgeschlagen (z.B. alle
+              # Credentials erschoepft/429) - dann NICHT auf den
+              # Zeitplan-Fallback zurueckfallen (der bei 22:15 UTC sonst
+              # trotzdem einen Voll-Sweep versuchen wuerde und eine bereits
+              # angespannte Lage nur verschlimmert). Sicher: Light erzwingen.
+              LIGHT_RUN = True
+              _decision_reason = "bad-hosts-Call fehlgeschlagen (Budget/API-Problem) - erzwinge Light"
+          elif last_remaining_numeric is not None:
+              LIGHT_RUN = last_remaining_numeric < FULL_RUN_EXTRA_COST
+              _decision_reason = (
+                  f"Live-Budget: {last_remaining_numeric} verbleibend, "
+                  f"Voll-Sweep braucht ~{FULL_RUN_EXTRA_COST} weitere → "
+                  f"{'reicht NICHT, bleibe Light' if LIGHT_RUN else 'reicht, gehe auf VOLL'}"
+              )
+          else:
+              # Fallback: 'remaining'-Header nicht auslesbar - alte,
+              # zeitplan-basierte Logik als sichere Rueckfalloption.
+              LIGHT_RUN = bool(SCHEDULE) and SCHEDULE != FULL_RUN_SCHEDULE
+              _decision_reason = "Budget-Header nicht lesbar - Fallback auf Zeitplan-Logik"
+          run_mode_label = "LIGHT" if LIGHT_RUN else "VOLL"
+          print(f"\nRun-Modus: {run_mode_label} ({_decision_reason})")
 
           # ── 2) Bad Hosts nach Dienst ──────────────────────────────────────
           # Request-Budget:
