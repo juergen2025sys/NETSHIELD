@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-09 05:32 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-09 05:38 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,8 +7,8 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,283,156** |
-| Neu (heute) | **+28** |
+| Gesamt IPs | **1,283,165** |
+| Neu (heute) | **+15** |
 | Entfernt | **-6** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
@@ -39,11 +39,11 @@
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,657 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,837 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 667 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,706 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 905 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 800 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 630 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 326 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,334 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 710 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 722 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 572 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 314 |
 | ✅ `officialputuid_proxyforeveryone` | 5,871 |
 | ✅ `officialputuid_proxyforeveryone_https` | 5,016 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 5,556 |
@@ -61,7 +61,7 @@
 | ✅ `mohammedcha_proxripper_socks4` | 101,826 |
 | ✅ `mohammedcha_proxripper_http` | 106,279 |
 | ✅ `mohammedcha_proxripper_socks5` | 104,193 |
-| ✅ `celestialbrain_worldpool` | 71,661 |
+| ✅ `celestialbrain_worldpool` | 71,676 |
 | ✅ `dinoz0rg_proxy_list` | 80,745 |
 | ✅ `dinoz0rg_proxy_list_http` | 2,193 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 81,023 |
@@ -85,4 +85,4 @@
 > Diese 60 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-09 05:32 CEST (Europe/Berlin)*
+*Generiert: 2026-08-09 05:38 CEST (Europe/Berlin)*
