@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-09 23:58 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-10 00:15 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,284,626** |
-| Neu (heute) | **+47** |
-| Entfernt | **-34** |
+| Gesamt IPs | **1,284,864** |
+| Neu (heute) | **+671** |
+| Entfernt | **-433** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 60 |
@@ -30,37 +30,37 @@
 | ✅ `skillter_proxygather_working_proxies_all` | 464 |
 | ✅ `skillter_proxygather_working_proxies_http` | 253 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,352 |
-| ✅ `ebrasha_abdal_proxy_hub` | 5,559 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,841 |
+| ✅ `ebrasha_abdal_proxy_hub` | 5,608 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,860 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,557 |
-| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,119 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,263 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 2,789 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 1,943 |
+| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,162 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,408 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 2,858 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,032 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,837 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 688 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,017 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 692 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 713 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 576 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 329 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,147 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 685 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 725 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 595 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 313 |
 | ✅ `officialputuid_proxyforeveryone` | 4,631 |
 | ✅ `officialputuid_proxyforeveryone_https` | 3,851 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 4,942 |
-| ✅ `ercindedeoglu_proxies` | 43,965 |
-| ✅ `ercindedeoglu_proxies_socks4` | 18,927 |
-| ✅ `ercindedeoglu_proxies_socks5` | 17,768 |
+| ✅ `ercindedeoglu_proxies` | 44,108 |
+| ✅ `ercindedeoglu_proxies_socks4` | 18,986 |
+| ✅ `ercindedeoglu_proxies_socks5` | 17,826 |
 | ✅ `tuanminpay_live_proxy` | 8,497 |
 | ✅ `tuanminpay_live_proxy_http` | 6,013 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,599 |
 | ✅ `tuanminpay_live_proxy_socks5` | 2,867 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 190,792 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 190,805 |
 | ✅ `noctiro_getproxy` | 4,310 |
 | ✅ `noctiro_getproxy_socks5` | 3,035 |
-| ✅ `mohammedcha_proxripper` | 41,555 |
-| ✅ `mohammedcha_proxripper_socks4` | 101,496 |
-| ✅ `mohammedcha_proxripper_http` | 105,424 |
-| ✅ `mohammedcha_proxripper_socks5` | 103,912 |
+| ✅ `mohammedcha_proxripper` | 41,596 |
+| ✅ `mohammedcha_proxripper_socks4` | 101,505 |
+| ✅ `mohammedcha_proxripper_http` | 105,496 |
+| ✅ `mohammedcha_proxripper_socks5` | 103,924 |
 | ✅ `celestialbrain_worldpool` | 71,597 |
 | ✅ `dinoz0rg_proxy_list` | 81,133 |
 | ✅ `dinoz0rg_proxy_list_http` | 1,679 |
@@ -75,7 +75,7 @@
 | ✅ `breakingtechfr_proxy_free_socks4` | 16,351 |
 | ✅ `breakingtechfr_proxy_free_socks5` | 15,547 |
 | ✅ `kraloveckey_ipsets_blocklist_maltrail_scanners` | 16,854 |
-| ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,697 |
+| ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,722 |
 | ✅ `leon406_subcrawler` | 116,961 |
 | ✅ `kalidada18_threatbase_threatbase_ip_botnet` | 2,204 |
 | ✅ `hookzof_socks5_list` | 191 |
@@ -85,4 +85,4 @@
 > Diese 60 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-09 23:58 CEST (Europe/Berlin)*
+*Generiert: 2026-08-10 00:15 CEST (Europe/Berlin)*
