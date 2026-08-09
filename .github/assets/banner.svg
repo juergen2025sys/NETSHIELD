@@ -1,121 +1,117 @@
-<svg viewBox="0 0 1280 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NETSHIELD — Automated Threat Intelligence">
+<svg viewBox="0 0 1280 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NETSHIELD — Dynamische IP-Blocklist-Verwaltung mit Confidence-Scoring">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#F7FBFF"/>
-      <stop offset="0.52" stop-color="#FFFFFF"/>
-      <stop offset="1" stop-color="#FFF7FE"/>
+    <linearGradient id="accent" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2dd4bf"/>
+      <stop offset="1" stop-color="#4ade80"/>
     </linearGradient>
-    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#00C2FF"/>
-      <stop offset="0.48" stop-color="#2563EB"/>
-      <stop offset="1" stop-color="#7C3AED"/>
+    <linearGradient id="worm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#86efac"/>
+      <stop offset="0.55" stop-color="#22c55e"/>
+      <stop offset="1" stop-color="#15803d"/>
     </linearGradient>
-    <linearGradient id="lime" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#A3FF12"/>
-      <stop offset="1" stop-color="#16C784"/>
-    </linearGradient>
-    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#FFB800"/>
-      <stop offset="1" stop-color="#FF4D8D"/>
-    </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#1D4ED8" flood-opacity="0.12"/>
-    </filter>
-    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
-      <circle cx="2" cy="2" r="1.3" fill="#D9E8FF"/>
+    <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1.2" fill="#16263f"/>
     </pattern>
-    <clipPath id="frame"><rect width="1280" height="320" rx="28"/></clipPath>
+    <clipPath id="frame"><rect width="1280" height="300" rx="18"/></clipPath>
   </defs>
 
   <g clip-path="url(#frame)">
-    <rect width="1280" height="320" fill="url(#bg)"/>
-    <rect width="1280" height="320" fill="url(#dots)" opacity="0.7"/>
+    <!-- backdrop -->
+    <rect width="1280" height="300" fill="#0a0f1a"/>
+    <rect width="1280" height="300" fill="url(#dots)"/>
 
-    <!-- energetic accent shapes -->
-    <circle cx="1170" cy="-10" r="150" fill="#DDF7FF"/>
-    <circle cx="1240" cy="55" r="92" fill="#F1E8FF"/>
-    <circle cx="1090" cy="315" r="115" fill="#FFF0D6"/>
-    <path d="M0 278 C170 230 255 340 430 278 S760 220 915 285 S1130 330 1280 275 V320 H0Z"
-          fill="#EEF8FF" opacity="0.95"/>
-
-    <!-- brand rail -->
-    <rect x="0" y="0" width="10" height="320" fill="url(#brand)"/>
-
-    <!-- shield card -->
-    <g filter="url(#shadow)">
-      <rect x="54" y="62" width="152" height="152" rx="38" fill="#FFFFFF"/>
-    </g>
-    <g transform="translate(82 86)">
-      <path d="M48 0 96 22v42c0 35-21 56-48 68C21 120 0 99 0 64V22Z"
-            fill="url(#brand)"/>
-      <path d="M48 17 80 32v31c0 24-13 40-32 50-19-10-32-26-32-50V32Z"
-            fill="#FFFFFF" opacity="0.96"/>
-      <path d="M31 62 43 75 68 47" fill="none" stroke="#16C784"
-            stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- HUD corner brackets -->
+    <g stroke="#2dd4bf" stroke-width="1.5" fill="none" opacity="0.35">
+      <path d="M1182 38 H1242 V98"/>
+      <path d="M98 262 H38 V202"/>
     </g>
 
-    <!-- text -->
-    <text x="248" y="88" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15"
-          font-weight="800" letter-spacing="3.5" fill="#2563EB">AUTOMATISIERTE BEDROHUNGSANALYSE</text>
-    <text x="244" y="158" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="76"
-          font-weight="900" letter-spacing="-1.5" fill="#102A43">NETSHIELD</text>
-    <rect x="248" y="172" width="610" height="5" rx="2.5" fill="url(#brand)"/>
-    <text x="248" y="207" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19"
-          font-weight="600" fill="#486581">Dynamische IP-Blocklisten · Vertrauensbewertung · Auto-Erkennung</text>
+    <!-- left accent bar -->
+    <rect x="0" y="0" width="5" height="300" fill="url(#accent)"/>
 
-    <!-- chips -->
-    <g font-family="Inter,Segoe UI,Arial,sans-serif" font-size="13" font-weight="800">
+    <!-- hexagon emblem -->
+    <g>
+      <polygon points="96,90 44,120 44,180 96,210 148,180 148,120"
+               fill="#0e1726" stroke="#2dd4bf" stroke-width="2.5" stroke-linejoin="round"/>
+      <polygon points="96,99 53,124 53,176 96,201 139,176 139,124"
+               fill="none" stroke="#1f3a52" stroke-width="1"/>
+      <path d="M96 122 L118 132 L118 156 Q118 178 96 188 Q74 178 74 156 L74 132 Z"
+            fill="#0a1320" stroke="#4ade80" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M85 153 L93 163 L109 140" fill="none" stroke="#4ade80"
+            stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- eyebrow -->
+    <text x="210" y="96" font-family="Consolas,Menlo,monospace" font-size="14"
+          letter-spacing="4" fill="#ffffff">// AUTOMATED THREAT INTELLIGENCE</text>
+
+    <!-- wordmark -->
+    <text x="208" y="170" font-family="'Segoe UI',Helvetica,Arial,sans-serif"
+          font-size="74" font-weight="800" letter-spacing="1" fill="#ffffff">NETSHIELD</text>
+
+    <!-- subtitle -->
+    <text x="210" y="204" font-family="'Segoe UI',Helvetica,Arial,sans-serif"
+          font-size="18" fill="#ffffff">Dynamische IP-Blocklist-Verwaltung mit Confidence-Scoring</text>
+
+    <!-- stat chips -->
+    <g font-family="Consolas,Menlo,monospace" font-size="12.5" letter-spacing="1" fill="#ffffff">
       <g>
-        <rect x="248" y="231" width="116" height="38" rx="19" fill="#E7F9FF"/>
-        <circle cx="270" cy="250" r="6" fill="#00C2FF"/>
-        <text x="286" y="255" fill="#075985">8× TÄGLICH</text>
+        <rect x="210" y="232" width="104" height="26" rx="13" fill="none" stroke="#23344d"/>
+        <circle cx="228" cy="245" r="3" fill="#2dd4bf"/>
+        <text x="240" y="249">8× DAILY</text>
       </g>
       <g>
-        <rect x="376" y="231" width="185" height="38" rx="19" fill="#EEF2FF"/>
-        <circle cx="398" cy="250" r="6" fill="#6366F1"/>
-        <text x="414" y="255" fill="#3730A3">180 TAGE</text>
+        <rect x="324" y="232" width="182" height="26" rx="13" fill="none" stroke="#23344d"/>
+        <circle cx="342" cy="245" r="3" fill="#2dd4bf"/>
+        <text x="354" y="249">180-DAY RETENTION</text>
       </g>
       <g>
-        <rect x="573" y="231" width="158" height="38" rx="19" fill="#ECFDF3"/>
-        <circle cx="595" cy="250" r="6" fill="#16C784"/>
-        <text x="611" y="255" fill="#087443">250+ LÄNDER</text>
+        <rect x="516" y="232" width="156" height="26" rx="13" fill="none" stroke="#23344d"/>
+        <circle cx="534" cy="245" r="3" fill="#2dd4bf"/>
+        <text x="546" y="249">250+ COUNTRIES</text>
       </g>
       <g>
-        <rect x="743" y="231" width="205" height="38" rx="19" fill="#FFF4E5"/>
-        <circle cx="765" cy="250" r="6" fill="#FFB800"/>
-        <text x="781" y="255" fill="#9A5800">MEHRERE QUELLEN</text>
+        <rect x="682" y="232" width="206" height="26" rx="13" fill="none" stroke="#23344d"/>
+        <circle cx="700" cy="245" r="3" fill="#2dd4bf"/>
+        <text x="712" y="249">MULTI-SOURCE SCORING</text>
       </g>
     </g>
 
-    <!-- vivid threat/worm motif -->
-    <g transform="translate(995 116)">
-      <path d="M-18 70 C30 42 84 58 117 37" fill="none" stroke="#B8E6FF" stroke-width="6"
-            stroke-linecap="round" stroke-dasharray="2 15"/>
-      <g stroke="#0E9F6E" stroke-width="2">
-        <circle cx="8" cy="63" r="9" fill="url(#lime)"/>
-        <circle cx="34" cy="61" r="11" fill="url(#lime)"/>
-        <circle cx="61" cy="56" r="13" fill="url(#lime)"/>
-        <circle cx="89" cy="48" r="15" fill="url(#lime)"/>
-        <circle cx="119" cy="38" r="18" fill="url(#lime)"/>
+    <!-- signature: PC worm (malware motif) crawling, caught by the shield -->
+    <g>
+      <!-- crawl trail -->
+      <path d="M902 176 H950" stroke="#22c55e" stroke-width="2" opacity="0.35"
+            stroke-linecap="round" stroke-dasharray="2 7"/>
+      <!-- body segments (tail -> neck), thin dark seams = segmentation -->
+      <g stroke="#14532d" stroke-width="1.5">
+        <circle cx="956"  cy="176" r="7"  fill="url(#worm)"/>
+        <circle cx="982"  cy="183" r="9"  fill="url(#worm)"/>
+        <circle cx="1008" cy="188" r="10" fill="url(#worm)"/>
+        <circle cx="1034" cy="187" r="11" fill="url(#worm)"/>
+        <circle cx="1060" cy="182" r="12" fill="url(#worm)"/>
+        <circle cx="1086" cy="175" r="13" fill="url(#worm)"/>
+        <circle cx="1112" cy="168" r="13.5" fill="url(#worm)"/>
+        <circle cx="1138" cy="164" r="14" fill="url(#worm)"/>
+        <circle cx="1162" cy="165" r="15" fill="url(#worm)"/>
       </g>
-      <line x1="125" y1="20" x2="118" y2="7" stroke="#0E9F6E" stroke-width="3"/>
-      <line x1="138" y1="22" x2="148" y2="9" stroke="#0E9F6E" stroke-width="3"/>
-      <circle cx="118" cy="7" r="4" fill="#FF4D8D"/>
-      <circle cx="148" cy="9" r="4" fill="#FFB800"/>
-      <circle cx="136" cy="37" r="21" fill="url(#lime)" stroke="#0E9F6E" stroke-width="2"/>
-      <circle cx="132" cy="31" r="5" fill="#FFFFFF"/>
-      <circle cx="145" cy="34" r="5" fill="#FFFFFF"/>
-      <circle cx="134" cy="31" r="2.2" fill="#102A43"/>
-      <circle cx="147" cy="34" r="2.2" fill="#102A43"/>
-      <path d="M134 46 Q142 52 150 45" fill="none" stroke="#087443" stroke-width="2.2"
-            stroke-linecap="round"/>
-    </g>
-
-    <!-- corner spark -->
-    <g opacity="0.9">
-      <circle cx="1040" cy="52" r="7" fill="#FF4D8D"/>
-      <circle cx="1064" cy="42" r="5" fill="#FFB800"/>
-      <circle cx="1084" cy="61" r="6" fill="#00C2FF"/>
+      <!-- antennae -->
+      <g stroke="#15803d" stroke-width="2" fill="#86efac">
+        <line x1="1184" y1="154" x2="1179" y2="144"/>
+        <line x1="1194" y1="153" x2="1200" y2="143"/>
+        <circle cx="1179" cy="144" r="2.6" stroke="none"/>
+        <circle cx="1200" cy="143" r="2.6" stroke="none"/>
+      </g>
+      <!-- head -->
+      <circle cx="1188" cy="170" r="17" fill="url(#worm)" stroke="#14532d" stroke-width="1.5"/>
+      <ellipse cx="1181" cy="163" rx="4.5" ry="2.6" fill="#bbf7d0" opacity="0.6"/>
+      <!-- eyes -->
+      <circle cx="1190" cy="164" r="4" fill="#ffffff"/>
+      <circle cx="1199" cy="168" r="4" fill="#ffffff"/>
+      <circle cx="1191.5" cy="164" r="1.8" fill="#0a0f1a"/>
+      <circle cx="1200.5" cy="168" r="1.8" fill="#0a0f1a"/>
+      <!-- mouth -->
+      <path d="M1191 179 Q1197 183 1202 178" fill="none" stroke="#14532d"
+            stroke-width="1.6" stroke-linecap="round"/>
     </g>
   </g>
 </svg>
