@@ -54,10 +54,14 @@ jobs:
           import pathlib
           import urllib.request, urllib.error, time, re, json, os, hashlib
           from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
           now     = datetime.now(timezone.utc)
-          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+          now_str = (
+              now.astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
 
           # ── Feed-Liste dynamisch aus update_combined_blacklist.yml extrahieren ──
           # Single Source of Truth: kein doppelt gepflegter FEEDS-Dict mehr.
@@ -284,13 +288,25 @@ jobs:
           except (FileNotFoundError, ValueError, OSError):
               prior_by_name = {}   # erster Lauf / kaputte Datei → leer starten
 
-          # Helfer: now_str ("%Y-%m-%d %H:%M UTC") zurueck in datetime parsen,
-          # um Tage-Differenz fuer den Stale-Check zu rechnen. Robust gegen
-          # kaputte/alte Werte → None (Stale-Check ueberspringt den Feed dann).
+          # Helfer: now_str ("%Y-%m-%d %H:%M UTC" oder "... CET/CEST
+          # (Europe/Berlin)") zurueck in datetime parsen, um Tage-Differenz
+          # fuer den Stale-Check zu rechnen. Robust gegen kaputte/alte Werte
+          # → None (Stale-Check ueberspringt den Feed dann).
+          # FIX TS-TZ: akzeptiert seit Umstellung von now_str auf deutsche
+          # Ortszeit sowohl alte (UTC) als auch neue (CET/CEST) State-Werte,
+          # damit gespeicherte fingerprint_since/last_ok-Werte aus vorherigen
+          # Laeufen weiter korrekt geparst werden.
+          _parse_now_str_re = re.compile(
+              r'(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\s*(UTC|CET|CEST)')
+
           def _parse_now_str(s):
               try:
-                  return datetime.strptime(str(s).replace(" UTC", ""),
-                                           "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+                  m = _parse_now_str_re.match(str(s).strip())
+                  if not m:
+                      return None
+                  zone = m.group(2)
+                  tz = timezone.utc if zone == "UTC" else ZoneInfo("Europe/Berlin")
+                  return datetime.strptime(m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=tz).astimezone(timezone.utc)
               except (ValueError, TypeError):
                   return None
 
@@ -574,7 +590,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
-            git commit -m "Feed Health Monitor: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git commit -m "Feed Health Monitor: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}

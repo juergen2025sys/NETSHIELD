@@ -57,8 +57,13 @@ jobs:
           import os
           import sys
           from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
 
-          now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+          now_str = (
+              datetime.now(timezone.utc)
+              .astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
 
           # ── Länder → (Kontinent, Anzeigename) ────────────────────────────
           # Schlüssel = ISO-Alpha-2, Wert = (kontinent_slug, dateiname_ohne_ext)
@@ -507,7 +512,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
-            git commit -m "Update All Countries IPv4: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git commit -m "Update All Countries IPv4: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}

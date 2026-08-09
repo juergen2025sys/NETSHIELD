@@ -267,7 +267,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
-            git commit -m "Bot-Detector Blacklist: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git commit -m "Bot-Detector Blacklist: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}

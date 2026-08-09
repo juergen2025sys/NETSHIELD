@@ -149,11 +149,15 @@ jobs:
           load_whitelist()
           load_fp_set()
 
-          import json, os, sys, ipaddress, bisect
+          import json, os, sys, ipaddress, bisect, re
           from datetime import datetime, timezone, timedelta
+          from zoneinfo import ZoneInfo
 
           now     = datetime.now(timezone.utc)
-          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+          now_str = (
+              now.astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
 
           DB_FILE    = "seen_db.json"
           BLACKLIST  = "combined_threat_blacklist_ipv4.txt"
@@ -232,7 +236,21 @@ jobs:
                       _meta = json.load(_mf)
                   _meta_upd = _meta.get("updated", "")
                   if _meta_upd:
-                      _meta_dt = datetime.strptime(_meta_upd.replace(" UTC", ""), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+                      # FIX TS-TZ: state/seen_db_meta.json["updated"] wird seit
+                      # update_combined_blacklist.yml in deutscher Ortszeit
+                      # (CET/CEST, Europe/Berlin) geschrieben, nicht mehr nur
+                      # UTC. Gleiches Muster wie _ts_re in
+                      # update_combined_blacklist.yml uebernommen, damit alte
+                      # (UTC) und neue (CET/CEST) Werte beide geparst werden.
+                      _meta_ts_m = re.match(
+                          r'(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\s*(UTC|CET|CEST)',
+                          _meta_upd.strip())
+                      if _meta_ts_m:
+                          _meta_zone = _meta_ts_m.group(2)
+                          _meta_tz = timezone.utc if _meta_zone == "UTC" else ZoneInfo("Europe/Berlin")
+                          _meta_dt = datetime.strptime(_meta_ts_m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=_meta_tz).astimezone(timezone.utc)
+                      else:
+                          _meta_dt = datetime.strptime(_meta_upd.replace(" UTC", ""), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
                       db_age_hours = (now - _meta_dt).total_seconds() / 3600
                       _used_meta_path = True
                       print(f"seen_db zuletzt aktualisiert: {_meta_upd} ({db_age_hours:.1f}h alt)")
@@ -843,7 +861,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
-            git commit -m "Confidence Blacklist: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git commit -m "Confidence Blacklist: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}

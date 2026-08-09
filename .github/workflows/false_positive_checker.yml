@@ -82,9 +82,13 @@ jobs:
           import json
           import ipaddress
           from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
 
           now = datetime.now(timezone.utc)
-          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+          now_str = (
+              now.astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
 
           print("Starte False Positive Prüfung (Whitelist-CIDR)...")
 
@@ -280,7 +284,7 @@ jobs:
             # Overwrite-Dateien komplett sichern (werden nach reset zurückgeschrieben)
             cp reports/false_positive_report.md /tmp/local_fp_report.md 2>/dev/null || true
             cp state/false_positives_set.json /tmp/local_fp_set.json 2>/dev/null || true
-            git commit -m "False Positive Check: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git commit -m "False Positive Check: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}
@@ -308,7 +312,7 @@ jobs:
                 echo "Keine neuen Änderungen nach Reset+Re-Apply"
                 exit 0
               fi
-              git commit -m "False Positive Check: $(date -u '+%Y-%m-%d %H:%M') UTC"
+              git commit -m "False Positive Check: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
               if git push origin HEAD:${GITHUB_REF_NAME}; then
                 echo "Push erfolgreich (Versuch $attempt)"
                 exit 0

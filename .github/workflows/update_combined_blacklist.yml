@@ -218,8 +218,14 @@ jobs:
 
           import json, os, glob, urllib.request, urllib.error, base64
           from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
 
-          now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+          now_str = (
+              datetime.now(timezone.utc)
+              .astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z")
+              + " (Europe/Berlin)"
+          )
 
           # Secrets als JSON (toJSON(secrets)); Schluessel kodiert nachgeschlagen.
           _SEC = {}
@@ -388,7 +394,10 @@ jobs:
 
           now        = datetime.now(timezone.utc)
           now_day    = now.strftime("%Y-%m-%d")
-          now_stamp  = now.strftime("%Y-%m-%d %H:%M UTC")
+          now_stamp  = (
+              now.astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
           EXPIRY_DAYS = 180
           DB_FILE     = "seen_db.json"
           READ_LIMIT  = 100 * 1024 * 1024  # 100 MB pro Feed (war 50 MB - bitwire_ipblocklist überschritt das mit ~50,04 MB, Datenverlust)
@@ -2722,7 +2731,7 @@ jobs:
               gh release delete seen-db-backup --yes --cleanup-tag --repo "${{ github.repository }}" 2>/dev/null || true
               if gh release create seen-db-backup state/seen_db_backup.json.gz.part* \
                   --repo "${{ github.repository }}" \
-                  --title "seen_db backup ($(date -u '+%Y-%m-%d %H:%M UTC'))" \
+                  --title "seen_db backup ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
                   --notes "Automatisches seen_db-Backup (${ENTRY_COUNT} IPs). Wird bei jedem Lauf ersetzt, kein Git-History-Bestandteil."; then
                 echo "Backup als Release-Asset hochgeladen (${PART_COUNT} Part(s))"
               else
@@ -2763,7 +2772,12 @@ jobs:
           )
           import json, os
           from datetime import datetime, timezone
-          now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+          from zoneinfo import ZoneInfo
+          now_str = (
+              datetime.now(timezone.utc)
+              .astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
           meta = {"note": "seen_db.json nur im GitHub Actions Cache (zu gross fuer Repo)", "updated": now_str}
           if os.path.exists("seen_db.json"):
               try:

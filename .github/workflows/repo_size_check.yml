@@ -44,11 +44,16 @@ jobs:
           sys.path.insert(0, "scripts")
           from netshield_common import write_text_atomic
           from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
 
           GH_TOKEN = os.environ.get("GH_TOKEN", "").strip()
           REPO = os.environ.get("GITHUB_REPOSITORY", "").strip()
           REPORT_FILE = "reports/repo_size_report.md"
-          now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+          now_str = (
+              datetime.now(timezone.utc)
+              .astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
 
           if not REPO:
               print("::error::GITHUB_REPOSITORY nicht gesetzt.")
@@ -115,7 +120,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
-            git commit -m "Repo Groesse geprueft: $(date -u '+%Y-%m-%d %H:%M UTC')"
+            git commit -m "Repo Groesse geprueft: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}

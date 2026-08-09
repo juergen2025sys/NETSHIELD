@@ -62,7 +62,10 @@ jobs:
           from zoneinfo import ZoneInfo
 
           now     = datetime.now(timezone.utc)
-          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+          now_str = (
+              now.astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
 
           WORKFLOWS_DIR = ".github/workflows"
           if not os.path.isdir(WORKFLOWS_DIR):
@@ -2130,7 +2133,18 @@ jobs:
                   # Alter der seen_db_meta prüfen
                   if _meta_upd:
                       try:
-                          _meta_dt = datetime.strptime(_meta_upd.replace(" UTC", ""), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+                          # FIX TS-TZ: state/seen_db_meta.json["updated"] wird seit
+                          # update_combined_blacklist.yml in deutscher Ortszeit
+                          # (CET/CEST) geschrieben, nicht mehr nur UTC.
+                          _meta_ts_m = re.match(
+                              r'(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\s*(UTC|CET|CEST)',
+                              _meta_upd.strip())
+                          if _meta_ts_m:
+                              _meta_zone = _meta_ts_m.group(2)
+                              _meta_tz = timezone.utc if _meta_zone == "UTC" else ZoneInfo("Europe/Berlin")
+                              _meta_dt = datetime.strptime(_meta_ts_m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=_meta_tz).astimezone(timezone.utc)
+                          else:
+                              _meta_dt = datetime.strptime(_meta_upd.replace(" UTC", ""), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
                           _meta_age_h = (now - _meta_dt).total_seconds() / 3600
                           if _meta_age_h > 10:
                               prod_health.append({
@@ -2893,7 +2907,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
-            git commit -m "Workflow Health Checker: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git commit -m "Workflow Health Checker: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}

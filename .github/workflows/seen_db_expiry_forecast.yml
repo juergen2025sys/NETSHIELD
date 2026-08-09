@@ -79,6 +79,7 @@ jobs:
           sys.path.insert(0, "scripts")
           from netshield_common import write_text_atomic
           from datetime import datetime, timezone, timedelta, date
+          from zoneinfo import ZoneInfo
 
           DB_FILE     = "seen_db.json"
           REPORT_FILE = "reports/seen_db_expiry_forecast.md"
@@ -88,7 +89,10 @@ jobs:
           EXPIRY_DAYS           = 180
           WATCHLIST_EXPIRY_DAYS = 30
           now = datetime.now(timezone.utc)
-          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+          now_str = (
+              now.astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
           today = now.date()
 
           if not os.path.exists(DB_FILE):
@@ -258,7 +262,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
-            git commit -m "Seen-DB Expiry Forecast: $(date -u '+%Y-%m-%d %H:%M UTC')"
+            git commit -m "Seen-DB Expiry Forecast: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}

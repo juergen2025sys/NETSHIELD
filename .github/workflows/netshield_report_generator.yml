@@ -55,9 +55,13 @@ jobs:
           import os
           import re
           from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
 
           now = datetime.now(timezone.utc)
-          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+          now_str = (
+              now.astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
 
           # CHANGE ZWEI-FESTE-PARTS: Die Hauptdatei wird nicht mehr committet
           # (Parts part1/part2 sind kanonisch). Fuer die Report-Funktionen
@@ -518,7 +522,7 @@ jobs:
           # Das Timestamp-Muster matcht sowohl die alte Markdown-Variante ("| DATE |")
           # als auch die neue HTML-Variante ("<td>DATE</td>").
           _ts_re_readme = re.compile(
-              r'(\|\s*|<td>\s*)\d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC(\s*\||\s*</td>)'
+              r'(\|\s*|<td>\s*)\d{4}-\d{2}-\d{2} \d{2}:\d{2} (UTC|CET|CEST)(\s*\(Europe/Berlin\))?(\s*\||\s*</td>)'
           )
           _old_stripped = _ts_re_readme.sub("TS", _old_content)
           _new_stripped = _ts_re_readme.sub("TS", content)
@@ -716,7 +720,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
-            git commit -m "NETSHIELD Report Generator: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git commit -m "NETSHIELD Report Generator: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}

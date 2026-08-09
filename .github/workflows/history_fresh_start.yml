@@ -107,7 +107,7 @@ jobs:
           git add -A
 
           echo "Erstelle einzigen neuen Commit..."
-          git commit -m "History Fresh Start: $(date -u '+%Y-%m-%d %H:%M') UTC - Historie zurueckgesetzt wegen GitHub-Speicherkontingent (Repository is above its size quota). Aktueller Dateistand unveraendert, nur Vergangenheit entfernt."
+          git commit -m "History Fresh Start: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z') - Historie zurueckgesetzt wegen GitHub-Speicherkontingent (Repository is above its size quota). Aktueller Dateistand unveraendert, nur Vergangenheit entfernt."
 
       - name: Alten main-Branch ersetzen
         run: |

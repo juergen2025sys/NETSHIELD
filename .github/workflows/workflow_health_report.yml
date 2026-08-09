@@ -174,7 +174,8 @@ jobs:
 
           # ── Markdown-Report bauen ───────────────────────────────────────
           def fmt_dt(dt):
-              return dt.strftime("%Y-%m-%d %H:%M UTC")
+              from zoneinfo import ZoneInfo
+              return dt.astimezone(ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
 
           def fmt_duration(seconds):
               if seconds < 60:
@@ -271,7 +272,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Aenderungen am Health Report"
           else
-            git commit -m "Update workflow health report: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git commit -m "Update workflow health report: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             # Push mit Retry-Logik (gleicher Pattern wie Combined-Workflow,
             # da reports/workflow_health.md parallel zu anderen Workflows committed
             # werden kann und git push race conditions auftreten koennen).

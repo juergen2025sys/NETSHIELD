@@ -134,6 +134,7 @@ jobs:
           import ipaddress
           import hashlib
           from datetime import datetime, timezone, timedelta
+          from zoneinfo import ZoneInfo
           from collections import defaultdict
           from concurrent.futures import ThreadPoolExecutor
 
@@ -175,7 +176,10 @@ jobs:
 
 
           now     = datetime.now(timezone.utc)
-          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+          now_str = (
+              now.astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
           now_day = now.strftime("%Y-%m-%d")
 
           GH_TOKEN   = os.environ.get("GH_TOKEN", "")
@@ -1683,7 +1687,11 @@ jobs:
                       f"Overlap-Validierung ohne belastbare HQ-Referenz nicht sicher, Abbruch")
               print(f"::warning file=auto_feed_discovery.yml::{_msg}")
               print(f"WARNUNG: {_msg}")
-              _now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+              _now_str = (
+                  datetime.now(timezone.utc)
+                  .astimezone(ZoneInfo("Europe/Berlin"))
+                  .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+              )
               write_text_atomic("reports/auto_feed_discovery_report.md", f"# Auto Feed Discovery – Report\n"
                            f"**Aktualisiert:** {_now_str}\n\n---\n\n"
                            f"## ❌ Abbruch: HQ-Referenz unzureichend\n\n"
@@ -3063,7 +3071,11 @@ jobs:
 
           # Timeout-Check vor aufwändiger Evaluations-Phase
           if _check_timeout("Pre-Evaluation"):
-              _now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+              _now_str = (
+                  datetime.now(timezone.utc)
+                  .astimezone(ZoneInfo("Europe/Berlin"))
+                  .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+              )
               _report_md = (
                   f"# Auto Feed Discovery – Report\n"
                   f"**Aktualisiert:** {_now_str}\n\n"
@@ -4523,7 +4535,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
-            git commit -m "Auto Feed Discovery: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git commit -m "Auto Feed Discovery: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}

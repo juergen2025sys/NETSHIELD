@@ -42,6 +42,7 @@ jobs:
         run: |
           import os, re, json, gzip, hashlib, urllib.request, urllib.error
           from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
           from pathlib import Path
           from itertools import combinations
 
@@ -207,7 +208,11 @@ jobs:
 
           pair_rows.sort(key=lambda r: (r["exact"], r["small_pct"], r["common"]), reverse=True)
 
-          now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+          now = (
+              datetime.now(timezone.utc)
+              .astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
           lines = []
           lines.append("# NETSHIELD Weekly Feed Overlap Report")
           lines.append("")

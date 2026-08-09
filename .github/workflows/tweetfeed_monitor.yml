@@ -55,9 +55,13 @@ jobs:
           import time
           import ipaddress
           from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
 
           now     = datetime.now(timezone.utc)
-          now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+          now_str = (
+              now.astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
 
           # TweetFeed: keine Auth, kein API-Key.
           # Endpoint: /v1/year/ip → IOCs Typ=ip aus den letzten 365 Tagen.
@@ -310,7 +314,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
-            git commit -m "TweetFeed Monitor: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git commit -m "TweetFeed Monitor: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
               git fetch origin ${GITHUB_REF_NAME}
