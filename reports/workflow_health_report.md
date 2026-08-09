@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-09 10:00 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-09 10:47 CEST (Europe/Berlin)
 
-**Workflows:** 26 | ✅ 23 OK | ⚠️ 4 Warnung | ❌ 0 Fehler
+**Workflows:** 26 | ✅ 25 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
@@ -9,10 +9,6 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `auto_feed_discovery.yml` | timeout-minutes fehlt | Job 'discover' hat kein timeout-minutes – haengende Runs verbrauchen bis zu 360min |
-| `feed_overlap_report.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
-| `update_combined_blacklist.yml` | HIGH_QUALITY ↔ SOURCES Drift | In HIGH_QUALITY aber nicht hq=True in SOURCES: cloudzy, et_block, feodo_aggressive, feodo_recommended, firehol_cybercrime, firehol_level1, firehol_webclient – toter Code |
-| `update_combined_blacklist.yml` | Untrusted Feed hq=True | 2 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "threatslist_paloalto_edl" (https://threatslist.github.io/Palo-Alto-EDL/edl_list.txt); "threat_live" (https://list.threat.live/) |
-| `Cross-Workflow` | Doppelte Feed-URLs | 1 URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: greylist-latest.csv in honeypot_monitor.yml+update_combined_blacklist.yml |
 
 ## 🏥 Production Health
 
@@ -32,7 +28,7 @@
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `feed_ip_finder.yml` | ✅ OK | 0 | 0 | – |
-| `feed_overlap_report.yml` | ⚠️ | 0 | 1 | `25 3 * * 0` |
+| `feed_overlap_report.yml` | ✅ OK | 0 | 0 | `25 3 * * 0` |
 | `history_fresh_start.yml` | ✅ OK | 0 | 0 | `15 3 1 * *` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 5,11,17,23 * * *` |
 | `honigtopf.yml` | ✅ OK | 0 | 0 | `15 22 * * *` |
@@ -52,4 +48,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-09 10:00 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
+*Generiert: 2026-08-09 10:47 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*

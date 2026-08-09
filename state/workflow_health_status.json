@@ -1,8 +1,8 @@
 {
-  "updated": "2026-08-09 10:00 CEST (Europe/Berlin)",
+  "updated": "2026-08-09 10:47 CEST (Europe/Berlin)",
   "total": 26,
-  "ok": 23,
-  "warn": 4,
+  "ok": 25,
+  "warn": 1,
   "error": 0,
   "errors": [],
   "warnings": [
@@ -10,26 +10,6 @@
       "file": "auto_feed_discovery.yml",
       "check": "timeout-minutes fehlt",
       "detail": "Job 'discover' hat kein timeout-minutes \u2013 haengende Runs verbrauchen bis zu 360min"
-    },
-    {
-      "file": "feed_overlap_report.yml",
-      "check": "Node24 env fehlt",
-      "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
-    },
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "HIGH_QUALITY \u2194 SOURCES Drift",
-      "detail": "In HIGH_QUALITY aber nicht hq=True in SOURCES: cloudzy, et_block, feodo_aggressive, feodo_recommended, firehol_cybercrime, firehol_level1, firehol_webclient \u2013 toter Code"
-    },
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "Untrusted Feed hq=True",
-      "detail": "2 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"threatslist_paloalto_edl\" (https://threatslist.github.io/Palo-Alto-EDL/edl_list.txt); \"threat_live\" (https://list.threat.live/)"
-    },
-    {
-      "file": "Cross-Workflow",
-      "check": "Doppelte Feed-URLs",
-      "detail": "1 URL(s) in mehreren Workflows \u2013 today_count Aufblaehung moeglich: greylist-latest.csv in honeypot_monitor.yml+update_combined_blacklist.yml"
     }
   ],
   "ip_counts": {
@@ -37,8 +17,8 @@
     "active_blacklist_ipv4.txt": 719346,
     "blacklist_confidence40_ipv4_part1.txt": 3517777,
     "cve_exploit_ips.txt": 29367,
-    "honeypot_ips.txt": 1131620,
-    "bot_detector_blacklist_ipv4.txt": 1283505
+    "honeypot_ips.txt": 1161857,
+    "bot_detector_blacklist_ipv4.txt": 1283430
   },
   "production_health": {
     "critical": 0,
