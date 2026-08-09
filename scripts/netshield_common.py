@@ -22,6 +22,7 @@ import os
 import re
 import sys
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 # ═══════════════════════════════════════════════════════════════
 # Kompilierte Regex-Patterns (Modul-Ebene, einmalig)
@@ -29,7 +30,10 @@ from datetime import datetime, timezone
 
 IPV4_RE = re.compile(r'(?<![\d.])(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?![\d.])')
 CIDR_RE = re.compile(r'(?<![\d.])(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})(?!\d)')
-TIMESTAMP_RE = re.compile(r'#\s*Aktualisiert:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\s*UTC')
+TIMESTAMP_RE = re.compile(
+    r'#\s*Aktualisiert:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})'
+    r'\s*(UTC|CET|CEST)(?:\s*\(Europe/Berlin\))?'
+)
 
 # FIX BUG-PRIV2: Unifizierte Liste aller nicht-oeffentlich routbaren IPv4-Bereiche.
 # Vorher existierten zwei abweichende Listen:
@@ -2332,11 +2336,13 @@ def check_local_feed_age(filepath, max_age_hours=48):
         m = TIMESTAMP_RE.search(header)
         if not m:
             return None
-        file_dt = datetime.strptime(m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+        zone = m.group(2)
+        tz = timezone.utc if zone == "UTC" else ZoneInfo("Europe/Berlin")
+        file_dt = datetime.strptime(m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=tz).astimezone(timezone.utc)
         age_h = (datetime.now(timezone.utc) - file_dt).total_seconds() / 3600
         if age_h > max_age_hours:
             msg = (f"{filepath} ist {age_h:.0f}h alt "
-                   f"(letztes Update: {m.group(1)} UTC)")
+                   f"(letztes Update: {m.group(1)} {zone})")
             print(f"::warning ::{msg}")
             print(f"WARNUNG: {msg}")
         return age_h
