@@ -185,21 +185,37 @@ jobs:
             last_updated_epoch=$(date -u -d "$last_real_updated" +%s)
             stale_min=$(( (now_epoch - last_updated_epoch) / 60 ))
 
-            # SLOT-WAECHTER: Run zum Slot-Zeitpunkt oder spaeter gestartet?
+            # SLOT-WAECHTER: Run zum Slot-Zeitpunkt oder spaeter gestartet
+            # ODER zum Slot-Zeitpunkt oder spaeter fertig geworden?
+            #
+            # FIX AUDIT-2+4-GAP (2026-08-10): Uebernommen aus
+            # watchdog_combined.yml (dort am selben Tag gefunden und
+            # behoben). Der reine Start-Zeit-Check uebersah einen Randfall:
+            # ein Run, der VOR dem Slot startete (z.B. verzoegerter
+            # vorheriger Slot oder laufender Vorlauf), aber wegen 5xx-
+            # Retries/langsamer API erst NACH dem aktuellen Slot fertig
+            # wurde, zaehlte faelschlich als "nicht bedient", obwohl seine
+            # Ausgabedaten bereits frischer waren als vom Slot verlangt.
+            # Seit Honigtopf auf */20 * * * * getaktet ist (vorher
+            # stuendlich) und SLOT_GRACE_MINUTES hier mit 15 sogar enger
+            # ist als bei Combined (20), ist das Zeitfenster fuer diesen
+            # Randfall eher enger als vorher - daher vorsorglich hier
+            # ebenfalls gefixt, auch ohne einen bereits beobachteten
+            # konkreten Vorfall fuer Honigtopf selbst.
             slot_served=false
-            if [ "$last_started_epoch" -ge "$slot_epoch" ]; then
+            if [ "$last_started_epoch" -ge "$slot_epoch" ] || [ "$last_updated_epoch" -ge "$slot_epoch" ]; then
               slot_served=true
             fi
 
             if [ "$slot_served" = "false" ] && [ "$slot_age_min" -ge "$SLOT_GRACE_MINUTES" ]; then
               should_trigger=true
-              reason="Slot $slot_iso seit ${slot_age_min}min nicht bedient (Grace: ${SLOT_GRACE_MINUTES}min) - letzter Run startete $last_real_started"
+              reason="Slot $slot_iso seit ${slot_age_min}min nicht bedient (Grace: ${SLOT_GRACE_MINUTES}min) - letzter Run startete $last_real_started, wurde fertig $last_real_updated"
             elif [ "$stale_min" -ge "$MAX_AGE_MINUTES" ]; then
               should_trigger=true
               reason="Max-Age: letzter erfolgreicher Run vor ${stale_min}min (Schwelle ${MAX_AGE_MINUTES}min)"
             else
               if [ "$slot_served" = "true" ]; then
-                echo "Slot $slot_iso wurde bedient (Run startete $last_real_started) - kein Eingriff"
+                echo "Slot $slot_iso wurde bedient (Run startete $last_real_started, fertig $last_real_updated) - kein Eingriff"
               else
                 echo "Slot $slot_iso seit ${slot_age_min}min nicht bedient - noch innerhalb Grace (${SLOT_GRACE_MINUTES}min), warte ab"
               fi
