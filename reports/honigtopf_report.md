@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-08-11 00:57 CEST (Berlin)  
+**Aktualisiert:** 2026-08-11 01:00 CEST (Berlin)  
 **Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
@@ -9,28 +9,28 @@
 |---|---:|
 | Bad Hosts (24h, alle Dienste) | **14,021** |
 | Bad Hosts – SIP | **191** |
-| Bad Hosts – SSH | **3,404** |
+| Bad Hosts – SSH | **3,403** |
 | Bad Hosts – MSSQL | **539** |
-| Bad Hosts – RDP | **814** |
-| Bad Hosts – SNMP | **374** |
-| Bad Hosts – HTTP | **4,488** |
+| Bad Hosts – RDP | **813** |
+| Bad Hosts – SNMP | **373** |
+| Bad Hosts – HTTP | **4,490** |
 | Bad Hosts – ProConOs | **202** |
-| Bad Hosts – Telnet | **5,544** |
+| Bad Hosts – Telnet | **5,547** |
 | Bad Hosts – MySQL | **549** |
 | Bad Hosts – FTP | **760** |
 | Bad Hosts – TFTP | **165** |
-| Bad Hosts – VNC | **337** |
-| Bad Hosts – PostgreSQL | **538** |
-| Bad Hosts – Elasticsearch | **568** |
-| Bad Hosts – Kubernetes | **393** |
-| Bad Hosts – Redis | **397** |
+| Bad Hosts – VNC | **336** |
+| Bad Hosts – PostgreSQL | **540** |
+| Bad Hosts – Elasticsearch | **569** |
+| Bad Hosts – Kubernetes | **392** |
+| Bad Hosts – Redis | **396** |
 | Bad Hosts – CouchDB | **237** |
 | Bad Hosts – ClickhouseHTTP | **264** |
-| Bad Hosts – Memcached | **321** |
+| Bad Hosts – Memcached | **320** |
 | Bad Hosts – Oracle | **260** |
 | Bad Hosts – Modbus | **157** |
 | Bad Hosts – LDAP | **217** |
-| Bad Hosts – MQTT | **199** |
+| Bad Hosts – MQTT | **201** |
 | Bad Hosts – RAW | **107** |
 | Bad Hosts – IPP | **69** |
 | Bad Hosts – HashCountRandom | **95** |
@@ -54,12 +54,12 @@ Davon **heute (2026-08-10)**: **13,554** IPs
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **17,428** |
-| Neu | **+385** |
-| Entfernt | **-219** |
+| Gesamt Honigtopf-IPs | **17,443** |
+| Neu | **+19** |
+| Entfernt | **-4** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-08-11 00:57 CEST (Berlin)*
+*Generiert: 2026-08-11 01:00 CEST (Berlin)*
