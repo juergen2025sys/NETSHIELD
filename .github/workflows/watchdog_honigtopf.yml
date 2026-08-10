@@ -127,19 +127,28 @@ jobs:
             last_real_updated=$(echo "$last_real_json" | jq -r '.updatedAt // empty')
           fi
 
-          # ── 2. Letzten erwarteten Slot bestimmen (stuendlich x:15) ─────
+          # ── 2. Letzten erwarteten Slot bestimmen (alle 20 Minuten) ──────
+          # FIX SLOT-MISMATCH-20MIN (2026-08-10): War fest auf "stuendlich
+          # x:15" verdrahtet - passend zum FRUEHEREN Honigtopf-Cron
+          # (15 0-21,23 * * *). Als honigtopf.yml am selben Tag auf
+          # */20 * * * * (Slots bei :00/:20/:40) umgestellt wurde, wurde
+          # dieser Watchdog-Block dabei uebersehen und blieb bei der alten
+          # x:15-Erwartung stehen - ein Slot, den es im neuen Schema gar
+          # nicht mehr gibt. Ergebnis: der Watchdog haette nach Ablauf der
+          # Grace-Periode frueher oder spaeter einen unnoetigen Zusatz-Lauf
+          # ausgeloest, weil er auf einen Slot wartete, der nie "bedient"
+          # werden kann. Da 60 durch 20 glatt teilbar ist, genuegt eine
+          # einfache Abrundung auf den letzten :00/:20/:40-Slot der
+          # aktuellen Stunde - im Gegensatz zur alten x:15-Logik ist dabei
+          # KEIN Stundenwechsel-Sonderfall noetig (slot_min ist immer
+          # <= current_min, also immer in der gleichen Stunde).
           now_epoch=$(date -u +%s)
           current_min=$(date -u +%M)
           current_min=$((10#$current_min))   # fuehrende Null entfernen (Oktal-Falle)
 
-          # Wenn aktuelle Minute >= 15: Slot ist die aktuelle Stunde :15.
-          # Sonst: der x:15-Slot der aktuellen Stunde liegt noch in der
-          # Zukunft -> letzter Slot war die vorige Stunde :15.
-          if [ "$current_min" -ge 15 ]; then
-            slot_iso=$(date -u +%Y-%m-%dT%H:15:00Z)
-          else
-            slot_iso=$(date -u -d '1 hour ago' +%Y-%m-%dT%H:15:00Z)
-          fi
+          slot_min=$(( (current_min / 20) * 20 ))
+          slot_min_padded=$(printf "%02d" "$slot_min")
+          slot_iso=$(date -u +%Y-%m-%dT%H:${slot_min_padded}:00Z)
           slot_epoch=$(date -u -d "$slot_iso" +%s)
           slot_age_min=$(( (now_epoch - slot_epoch) / 60 ))
 
