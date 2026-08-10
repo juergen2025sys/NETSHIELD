@@ -321,21 +321,42 @@ jobs:
 
             # SLOT-WAECHTER: Wurde der letzte erwartete Slot bedient?
             # "Bedient" heisst: ein echter Run startete zum Slot-Zeitpunkt
-            # oder spaeter.
+            # oder spaeter, ODER ein echter Run wurde zum Slot-Zeitpunkt
+            # oder spaeter fertig (siehe FIX AUDIT-2+4-GAP unten).
             #
             # FIX AUDIT-2+4 (2026-05-21): Frueher gab es -180s Drift-Toleranz
             # (last_started >= slot_epoch - 180). Das war fehlerhaft - ein
             # Run der 1-2min VOR dem Slot startete wurde faelschlich als
             # "bedient" gezaehlt. GitHub-Cron startet scheduled Runs nie
             # frueher als geplant, nur spaeter. Toleranz also unnoetig.
+            #
+            # FIX AUDIT-2+4-GAP (2026-08-10): AUDIT-2+4 deckte einen
+            # anderen Randfall nicht ab. Beobachtet am 10.08.2026: der
+            # letzte echte Run startete 17:53:32Z (ein stark verzoegerter
+            # Backup-Slot aus dem VORHERIGEN 3h-Fenster), lief aber
+            # ungewoehnlich lange (~21min) und wurde erst 18:14:46Z fertig -
+            # 7min NACH dem eigentlichen 18:07Z-Slot. Die Daten waren zu dem
+            # Zeitpunkt bereits frischer als der Slot verlangt, trotzdem
+            # zaehlte der reine Start-Zeit-Check den Slot als "nicht
+            # bedient", weil last_started_epoch (17:53) < slot_epoch (18:07)
+            # war. Nach Ablauf der Grace-Periode loeste das einen unnoetigen
+            # Zusatz-Lauf aus. Fix: zusaetzlich pruefen, ob der Run zum
+            # Slot-Zeitpunkt oder spaeter FERTIG wurde (last_updated_epoch)
+            # - das deckt genau diesen "spaeter Start, aber noch spaeteres,
+            # frisches Fertigwerden"-Fall ab, ohne die urspruengliche
+            # AUDIT-2+4-Absicht zu unterlaufen: ein Run der VOR dem Slot
+            # startet UND VOR dem Slot fertig wird (der eigentliche
+            # 1-2min-Frueh-Fall von AUDIT-2+4) erfuellt weiterhin keine der
+            # beiden Bedingungen und zaehlt korrekt weiter als "nicht
+            # bedient".
             slot_served=false
-            if [ "$last_started_epoch" -ge "$slot_epoch" ]; then
+            if [ "$last_started_epoch" -ge "$slot_epoch" ] || [ "$last_updated_epoch" -ge "$slot_epoch" ]; then
               slot_served=true
             fi
 
             if [ "$slot_served" = "false" ] && [ "$slot_age_min" -ge "$SLOT_GRACE_MINUTES" ]; then
               should_trigger=true
-              reason="Slot $slot_iso seit ${slot_age_min}min nicht bedient (Grace: ${SLOT_GRACE_MINUTES}min) - letzter echter Run startete $last_real_started"
+              reason="Slot $slot_iso seit ${slot_age_min}min nicht bedient (Grace: ${SLOT_GRACE_MINUTES}min) - letzter echter Run startete $last_real_started, wurde fertig $last_real_updated"
             elif [ "$stale_min" -ge "$STALE_THRESHOLD_MINUTES" ]; then
               # FALLBACK: Stale-Schwelle - sollte normalerweise nie greifen
               # wenn Slot-Logik funktioniert, aber als Sicherheitsnetz da.
@@ -343,7 +364,7 @@ jobs:
               reason="Fallback: letzter echter Run vor ${stale_min}min (Schwelle ${STALE_THRESHOLD_MINUTES}min)"
             else
               if [ "$slot_served" = "true" ]; then
-                echo "Slot $slot_iso wurde bedient (Run startete $last_real_started) - kein Eingriff"
+                echo "Slot $slot_iso wurde bedient (Run startete $last_real_started, fertig $last_real_updated) - kein Eingriff"
               else
                 echo "Slot $slot_iso seit ${slot_age_min}min nicht bedient - noch innerhalb Grace (${SLOT_GRACE_MINUTES}min), warte ab"
               fi
