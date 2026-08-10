@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-10 20:22 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-10 20:55 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,287,420** |
-| Neu (heute) | **+165** |
-| Entfernt | **-7** |
+| Gesamt IPs | **1,287,450** |
+| Neu (heute) | **+49** |
+| Entfernt | **-19** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 60 |
@@ -30,41 +30,41 @@
 | ✅ `skillter_proxygather_working_proxies_all` | 464 |
 | ✅ `skillter_proxygather_working_proxies_http` | 253 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,347 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,291 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,742 |
-| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,674 |
-| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,059 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,315 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,880 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,673 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,107 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,672 |
+| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,756 |
+| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,014 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,102 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,662 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,589 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,853 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 703 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,659 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 899 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 756 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 579 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 293 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,376 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 781 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 747 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 604 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 318 |
 | ✅ `officialputuid_proxyforeveryone` | 5,503 |
 | ✅ `officialputuid_proxyforeveryone_https` | 4,589 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 5,657 |
 | ✅ `ercindedeoglu_proxies` | 45,065 |
 | ✅ `ercindedeoglu_proxies_socks4` | 19,772 |
 | ✅ `ercindedeoglu_proxies_socks5` | 18,660 |
-| ✅ `tuanminpay_live_proxy` | 9,183 |
-| ✅ `tuanminpay_live_proxy_http` | 6,672 |
-| ✅ `tuanminpay_live_proxy_socks4` | 4,793 |
-| ✅ `tuanminpay_live_proxy_socks5` | 3,106 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 191,600 |
-| ✅ `noctiro_getproxy` | 4,306 |
-| ✅ `noctiro_getproxy_socks5` | 3,145 |
+| ✅ `tuanminpay_live_proxy` | 9,028 |
+| ✅ `tuanminpay_live_proxy_http` | 6,495 |
+| ✅ `tuanminpay_live_proxy_socks4` | 4,574 |
+| ✅ `tuanminpay_live_proxy_socks5` | 2,864 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 191,654 |
+| ✅ `noctiro_getproxy` | 4,276 |
+| ✅ `noctiro_getproxy_socks5` | 3,227 |
 | ✅ `mohammedcha_proxripper` | 42,384 |
 | ✅ `mohammedcha_proxripper_socks4` | 101,634 |
 | ✅ `mohammedcha_proxripper_http` | 106,431 |
 | ✅ `mohammedcha_proxripper_socks5` | 104,111 |
-| ✅ `celestialbrain_worldpool` | 71,669 |
-| ✅ `dinoz0rg_proxy_list` | 81,747 |
-| ✅ `dinoz0rg_proxy_list_http` | 2,074 |
-| ✅ `dinoz0rg_proxy_list_socks5` | 82,073 |
+| ✅ `celestialbrain_worldpool` | 71,568 |
+| ✅ `dinoz0rg_proxy_list` | 81,880 |
+| ✅ `dinoz0rg_proxy_list_http` | 2,559 |
+| ✅ `dinoz0rg_proxy_list_socks5` | 82,201 |
 | ✅ `darzanebor_mikroblack` | 47,484 |
 | ✅ `ian_lusule_proxies` | 3,245 |
 | ✅ `ian_lusule_proxies_socks5` | 1,539 |
@@ -85,4 +85,4 @@
 > Diese 60 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-10 20:22 CEST (Europe/Berlin)*
+*Generiert: 2026-08-10 20:55 CEST (Europe/Berlin)*
