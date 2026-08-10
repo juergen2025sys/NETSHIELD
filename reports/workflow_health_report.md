@@ -1,13 +1,15 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-10 16:31 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-10 21:58 CEST (Europe/Berlin)
 
-**Workflows:** 26 | ✅ 26 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
+**Workflows:** 26 | ✅ 26 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
+| `honigtopf.yml → update_bot_detector.yml` | Workflow-Reihenfolge / Puffer zu knapp | 22:40 UTC → 22:45 UTC (5min < 15min) |
+| `honigtopf.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC → 00:07 UTC (7min < 60min Mindestpuffer); 00:20 UTC → 00:27 UTC (7min < 60min Mindestpuffer); 00:40 UTC → 00:47 UTC (7min < 60min Mindestpuffer); 02:20 UTC → 03:07 UTC (47min < 60min Mindestpuffer); 02:40 UTC → 03:07 UTC (27min < 60min Mindestpuffer) |
 | `Production Health` | Feed-Ausfälle | 2 von 102 Feeds ausgefallen: hagezi_tif, interserver |
 
 ## 🏥 Production Health
@@ -33,7 +35,7 @@
 | `feed_overlap_report.yml` | ✅ OK | 0 | 0 | `25 3 * * 0` |
 | `history_fresh_start.yml` | ✅ OK | 0 | 0 | `15 3 1 * *` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 5,11,17,23 * * *` |
-| `honigtopf.yml` | ✅ OK | 0 | 0 | `15 22 * * *` |
+| `honigtopf.yml` | ✅ OK | 0 | 0 | `*/20 * * * *`, `15 22 * * *` |
 | `netshield_report_generator.yml` | ✅ OK | 0 | 0 | `30 * * * *` |
 | `repo_size_check.yml` | ✅ OK | 0 | 0 | – |
 | `run_tests.yml` | ✅ OK | 0 | 0 | – |
@@ -50,4 +52,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-10 16:31 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
+*Generiert: 2026-08-10 21:58 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
