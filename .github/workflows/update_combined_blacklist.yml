@@ -73,6 +73,28 @@ jobs:
       # berechnen, nur Runs >60s zaehlen. Skip-Runs (~10s) zaehlen damit
       # nicht mehr als "erfolgreicher Run" und blockieren echte Trigger
       # nicht.
+      #
+      # FIX BUG-GATE-INFLIGHT (2026-08-10): Der bisherige Check fragte nur
+      # ABGESCHLOSSENE erfolgreiche Runs ab (--status=success). Ein Run, der
+      # noch laeuft, zaehlt dabei nicht mit - auch wenn er laengst als
+      # "echt" (>60s) erkennbar waere. Beobachtet am 10.08.2026: Run #2653
+      # startete 13:35:08 UTC und lief bis 13:55:38 UTC (~20min, echter
+      # Lauf). Der Backup-Slot-Trigger fuer #2654 fuehrte seinen Gate-Check
+      # aber bereits um 13:51:38 UTC aus - #2653 war zu dem Zeitpunkt noch
+      # nicht in der success-Liste, weil er schlicht noch nicht fertig war.
+      # success_count=0 -> already_ran=false -> #2654 lief als zweiter
+      # echter Lauf direkt im Anschluss an #2653 (dank concurrency queue:
+      # max nicht parallel, aber trotzdem komplett unnoetig durch). Folge:
+      # sowohl #2653 als auch #2654 triggerten je einen vollen Confidence-
+      # Blacklist-Lauf - zwei Confidence-Runs ~20min auseinander statt
+      # einem alle ~3h.
+      # Der Watchdog hat fuer genau dieses Problem bereits die richtige
+      # Loesung (siehe watchdog_combined.yml, Schritt "Combined-Status
+      # pruefen"): zusaetzlich zu abgeschlossenen Runs auch in_progress/
+      # queued pruefen. Dasselbe Pattern jetzt auch hier im Gate - inkl.
+      # Ausschluss des eigenen Runs (github.run_id), da dieser Gate-Job
+      # selbst Teil des aktuell laufenden Workflow-Runs ist und sonst
+      # faelschlich sich selbst als "aktiven Lauf" zaehlen wuerde.
       - name: Skip if recent successful run exists
         id: idempotency
         if: github.event_name == 'schedule'
@@ -84,6 +106,35 @@ jobs:
           # kuenftige Speed-Optimierungen versehentlich rausgefiltert wuerden.
           MIN_REAL_RUN_SECONDS: "60"
         run: |
+          # ── FIX BUG-GATE-INFLIGHT: Aktiven Lauf zuerst pruefen ──────────
+          # Wenn bereits ein anderer Run (in_progress oder queued) dieses
+          # Workflows existiert, ist der aktuelle Slot damit faktisch schon
+          # bedient bzw. wird es gleich sein - ein zweiter Lauf waere
+          # redundant und wuerde am Ende einen zweiten, unnoetigen
+          # Confidence-Blacklist-Trigger nach sich ziehen. Der eigene Run
+          # (github.run_id) wird ausgeschlossen, sonst wuerde sich dieser
+          # Gate-Job faelschlich selbst als "aktiv" zaehlen.
+          running_count=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml \
+            --status=in_progress \
+            --limit=10 \
+            --json databaseId \
+            --jq "[.[] | select(.databaseId != ${{ github.run_id }})] | length")
+          queued_count=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml \
+            --status=queued \
+            --limit=10 \
+            --json databaseId \
+            --jq "[.[] | select(.databaseId != ${{ github.run_id }})] | length")
+          active=$(( running_count + queued_count ))
+          if [ "$active" -gt 0 ]; then
+            echo "already_ran=true" >> "$GITHUB_OUTPUT"
+            echo "Combined hat bereits ${active} aktive(n) Lauf/Laeufe (running=${running_count}, queued=${queued_count}) – Skip dieses Backup-Triggers"
+            exit 0
+          fi
+
           # 2h-Fenster: Bei 3h-Cron ein erfolgreicher Run innerhalb von 2h
           # bedeutet "der aktuelle Slot wurde bereits bedient". Die 2h-
           # Schwelle laesst Raum fuer Run-Laufzeit (typ. ~25min) plus
