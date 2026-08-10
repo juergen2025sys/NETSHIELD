@@ -1,22 +1,22 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-09 21:45 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-10 05:18 CEST (Europe/Berlin)
 
-**Workflows:** 26 | ✅ 26 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
+**Workflows:** 26 | ✅ 26 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
+## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
-| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 2,260 IPs in active fehlen in conf40 (0.304% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| `Production Health` | Feed-Ausfälle | 2 von 102 Feeds ausgefallen: hagezi_tif, interserver |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 2,260 IPs in active fehlen in conf40 (0.304% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| 🟡 WARN | Feed-Ausfälle | 2 von 102 Feeds ausgefallen: hagezi_tif, interserver |
 
 ## Übersicht
 
@@ -50,4 +50,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-09 21:45 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
+*Generiert: 2026-08-10 05:18 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
