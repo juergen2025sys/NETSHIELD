@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-11 01:18 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-11 01:24 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,8 +7,8 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,288,509** |
-| Neu (heute) | **+5** |
+| Gesamt IPs | **1,288,516** |
+| Neu (heute) | **+8** |
 | Entfernt | **-1** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
@@ -30,10 +30,10 @@
 | ✅ `skillter_proxygather_working_proxies_all` | 464 |
 | ✅ `skillter_proxygather_working_proxies_http` | 253 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,352 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,393 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,932 |
-| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,647 |
-| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,196 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,204 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,920 |
+| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,618 |
+| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 2,214 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,799 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,092 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,299 |
@@ -50,10 +50,10 @@
 | ✅ `ercindedeoglu_proxies` | 45,238 |
 | ✅ `ercindedeoglu_proxies_socks4` | 19,856 |
 | ✅ `ercindedeoglu_proxies_socks5` | 18,746 |
-| ✅ `tuanminpay_live_proxy` | 9,100 |
-| ✅ `tuanminpay_live_proxy_http` | 6,582 |
-| ✅ `tuanminpay_live_proxy_socks4` | 4,742 |
-| ✅ `tuanminpay_live_proxy_socks5` | 3,009 |
+| ✅ `tuanminpay_live_proxy` | 8,849 |
+| ✅ `tuanminpay_live_proxy_http` | 6,294 |
+| ✅ `tuanminpay_live_proxy_socks4` | 4,553 |
+| ✅ `tuanminpay_live_proxy_socks5` | 2,807 |
 | ✅ `gitrecon1455_fresh_proxy_list` | 191,904 |
 | ✅ `noctiro_getproxy` | 4,276 |
 | ✅ `noctiro_getproxy_socks5` | 3,227 |
@@ -88,4 +88,4 @@
 > Diese 63 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-11 01:18 CEST (Europe/Berlin)*
+*Generiert: 2026-08-11 01:24 CEST (Europe/Berlin)*
