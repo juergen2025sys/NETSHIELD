@@ -2,22 +2,37 @@ name: Honigtopf
 
 on:
   schedule:
-    # Stuendlicher Trigger. Ob ein einzelner Lauf tatsaechlich Light (nur
-    # /bad-hosts) oder Voll (/services + Pro-Dienst-Endpunkte) faehrt, wird
-    # NICHT mehr starr vom Cron-Slot bestimmt, sondern dynamisch im
-    # Python-Block: nach dem ohnehin faelligen /bad-hosts-Call wird live
-    # aus dem 'honeydb-qpm-remaining'-Header geprueft, ob genug Kontingent
-    # fuer einen Voll-Sweep uebrig ist (siehe FULL_RUN_EXTRA_COST). Grund:
-    # HoneyDB nennt auf zwei offiziellen Seiten unterschiedliche Limits fuer
-    # den kostenlosen Tier (honeydb.io/threats: 1500/Monat vs.
-    # honeydb.io/plans: 1000/Tag, Stand 2026-08) - budget-basiert statt
-    # zeitplan-basiert holt in jedem Lauf, den das ECHTE Kontingent
-    # hergibt, automatisch die maximale IP-Menge, unabhaengig davon welches
-    # der beiden Limits stimmt.
-    - cron: '15 0-21,23 * * *'
+    # FIX FREQ-20MIN (2026-08-10): Von stuendlich auf alle 20 Minuten erhoeht.
+    # Ob ein einzelner Lauf tatsaechlich Light (nur /bad-hosts) oder Voll
+    # (/services + Pro-Dienst-Endpunkte) faehrt, wird NICHT starr vom
+    # Cron-Slot bestimmt, sondern dynamisch im Python-Block: nach dem
+    # ohnehin faelligen /bad-hosts-Call wird live aus dem
+    # 'honeydb-qpm-remaining'-Header geprueft, ob genug Kontingent fuer
+    # einen Voll-Sweep uebrig ist (siehe FULL_RUN_EXTRA_COST).
+    #
+    # Kontingent-Rechnung (Stand 2026-08-10, bestaetigt per HoneyDB-API-Doku
+    # https://honeydb.io/threats, Abschnitt "Request Limits"): Community-
+    # Accounts haben 1.000 gezaehlte Requests/Tag, Reset um Mitternacht UTC
+    # (das fruehere "1500/Monat vs. 1000/Tag"-Dokuwidersprueche-Zitat unten
+    # war eine veraltete Doku-Version - die aktuelle Doku ist eindeutig:
+    # taeglich, nicht monatlich). Aktuell 3 Credentials im Round-Robin-Pool
+    # (siehe CREDENTIALS-Aufbau unten) = 3.000 Requests/Tag Gesamtkapazitaet.
+    # Ein Voll-Lauf kostet ~32 Requests (beobachtet in echten Laeufen).
+    # Bei */20 * * * * (72 Laeufe/Tag) im ungebremsten Worst-Case (JEDER
+    # Lauf geht VOLL): 72 x 32 = 2.304 Requests/Tag = ~77% Pool-Auslastung -
+    # laesst ~700 Requests/Tag Puffer fuer 5xx-Retries und Watchdog-
+    # Backup-Laeufe (die ohnehin via force_light=true nur 1 Request kosten,
+    # siehe watchdog_honigtopf.yml). Bei */15 waere der Pool bereits im
+    # Idealfall (3.072 von 3.000) rechnerisch ueberzogen - deshalb bewusst
+    # 20 statt 15 Minuten gewaehlt.
+    - cron: '*/20 * * * *'
     # Frueher der feste "Voll-Lauf"-Slot (FULL_RUN_SCHEDULE) - dient jetzt
     # nur noch als Fallback-Zeitplan, falls der Budget-Header aus
-    # irgendeinem Grund nicht auslesbar ist.
+    # irgendeinem Grund nicht auslesbar ist. Bleibt bei diesem einen
+    # taeglichen Slot, unabhaengig vom FIX FREQ-20MIN oben - der Fallback-
+    # Pfad ist bereits konservativ (erzwingt LIGHT fuer alle anderen
+    # Cron-Trigger, siehe LIGHT_RUN-Logik weiter unten) und muss nicht
+    # mitskaliert werden.
     - cron: '15 22 * * *'
   workflow_dispatch:
     inputs:
