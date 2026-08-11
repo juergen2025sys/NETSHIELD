@@ -1,7 +1,7 @@
 # Feed Health Monitor – Report
-**Aktualisiert:** 2026-08-10 05:07 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-11 05:00 CEST (Europe/Berlin)
 
-**Feeds gesamt:** 102 | ✅ 100 OK | ⚠️ 0 leer | ❌ 2 Fehler
+**Feeds gesamt:** 102 | ✅ 101 OK | ⚠️ 0 leer | ❌ 1 Fehler
 
 ---
 ## ✅ DataPlane-Feeds (Phase 1)
@@ -10,137 +10,136 @@ Alle 17 DataPlane-Feeds erreichbar und liefern IPs.
 
 | Feed | Status | HTTP | IPs (Sample) | Reaktionszeit |
 |---|---|---|---|---|
-| `dataplane_dnsrd` | ✅ | 200 | ~8194 | 2640ms |
-| `dataplane_dnsrdany` | ✅ | 200 | ~1293 | 580ms |
-| `dataplane_dnstcp` | ✅ | 200 | ~1073 | 570ms |
-| `dataplane_dnsversion` | ✅ | 200 | ~6361 | 2670ms |
-| `dataplane_ntpmode3` | ✅ | 200 | ~3135 | 1680ms |
-| `dataplane_ntpmode6` | ✅ | 200 | ~687 | 1050ms |
-| `dataplane_ntpmode7` | ✅ | 200 | ~778 | 870ms |
-| `dataplane_proto41` | ✅ | 200 | ~54615 | 36210ms |
-| `dataplane_sipinvitation` | ✅ | 200 | ~50 | 310ms |
-| `dataplane_sipquery` | ✅ | 200 | ~5397 | 3140ms |
-| `dataplane_sipregistration` | ✅ | 200 | ~198 | 460ms |
-| `dataplane_smtpdata` | ✅ | 200 | ~445 | 400ms |
-| `dataplane_smtpgreet` | ✅ | 200 | ~9076 | 4540ms |
-| `dataplane_sshclient` | ✅ | 200 | ~20963 | 8250ms |
-| `dataplane_sshpwauth` | ✅ | 200 | ~11285 | 3400ms |
-| `dataplane_telnetlogin` | ✅ | 200 | ~97040 | 51440ms |
-| `dataplane_vncrfb` | ✅ | 200 | ~3943 | 1170ms |
+| `dataplane_dnsrd` | ✅ | 200 | ~7690 | 3100ms |
+| `dataplane_dnsrdany` | ✅ | 200 | ~1212 | 810ms |
+| `dataplane_dnstcp` | ✅ | 200 | ~1038 | 690ms |
+| `dataplane_dnsversion` | ✅ | 200 | ~5913 | 1970ms |
+| `dataplane_ntpmode3` | ✅ | 200 | ~3134 | 1450ms |
+| `dataplane_ntpmode6` | ✅ | 200 | ~694 | 1010ms |
+| `dataplane_ntpmode7` | ✅ | 200 | ~778 | 710ms |
+| `dataplane_proto41` | ✅ | 200 | ~54558 | 36190ms |
+| `dataplane_sipinvitation` | ✅ | 200 | ~54 | 200ms |
+| `dataplane_sipquery` | ✅ | 200 | ~5499 | 3180ms |
+| `dataplane_sipregistration` | ✅ | 200 | ~200 | 610ms |
+| `dataplane_smtpdata` | ✅ | 200 | ~433 | 450ms |
+| `dataplane_smtpgreet` | ✅ | 200 | ~9256 | 3120ms |
+| `dataplane_sshclient` | ✅ | 200 | ~20813 | 6550ms |
+| `dataplane_sshpwauth` | ✅ | 200 | ~10984 | 3690ms |
+| `dataplane_telnetlogin` | ✅ | 200 | ~97160 | 53010ms |
+| `dataplane_vncrfb` | ✅ | 200 | ~4436 | 1400ms |
 
 ## ❌ Fehlerhafte Feeds
 
 | Feed | HTTP | Fehler | Reaktionszeit |
 |---|---|---|---|
-| `hagezi_tif` | 404 | HTTP 404 | 361ms |
-| `interserver` | 0 | <urlopen error timed out> | 20503ms |
+| `hagezi_tif` | 404 | HTTP 404 | 285ms |
 
 ## ✅ Alle Feeds – Übersicht
 
 | Feed | Status | HTTP | IPs (Sample) | Reaktionszeit |
 |---|---|---|---|---|
-| `4ip_high_security` | ✅ | 200 | ~72301 | 1200ms |
-| `abuseipdb_axllent` | ✅ | 200 | ~83582 | 3040ms |
-| `abuseipdb_s100_30d` | ✅ | 200 | ~108994 | 19450ms |
-| `abuseipdb_s100_7d` | ✅ | 200 | ~69731 | 10120ms |
-| `abuseipdb_score100` | ✅ | 200 | ~8686 | 810ms |
-| `abuseipdb_tmiland` | ✅ | 200 | ~9975 | 2100ms |
-| `amitambekar_threats_aa` | ✅ | 200 | ~8650 | 1520ms |
-| `ashleykleynhans_abuseipdb` | ✅ | 200 | ~31614 | 7980ms |
-| `binary_defense` | ✅ | 200 | ~2818 | 550ms |
-| `bitwire_ipblocklist` | ✅ | 200 | ~1799986 | 51330ms |
-| `black_mirror` | ✅ | 200 | ~1437011 | 34890ms |
-| `blacksnowdot_packets` | ✅ | 200 | ~30907 | 10540ms |
-| `blocklist_de_all` | ✅ | 200 | ~21321 | 2480ms |
-| `blocklist_de_export` | ✅ | 200 | ~21321 | 2570ms |
-| `blocklist_de_ssh` | ✅ | 200 | ~4874 | 1550ms |
-| `blocklist_de_strongips` | ✅ | 200 | ~344 | 530ms |
-| `blocklist_net_ua` | ✅ | 200 | ~131341 | 7200ms |
-| `bsdly_bruteforcers` | ✅ | 200 | ~111791 | 10320ms |
-| `bsdly_pop3` | ✅ | 200 | ~11104 | 6650ms |
-| `bsdly_traplist` | ✅ | 200 | ~909 | 5170ms |
-| `c2_iplist` | ✅ | 200 | ~134 | 970ms |
-| `cinsarmy` | ✅ | 200 | ~15000 | 330ms |
-| `cinsscore` | ✅ | 200 | ~15000 | 600ms |
-| `crowdsec_ssh` | ✅ | 200 | ~13714 | 690ms |
-| `cypher139_ipblacklist` | ✅ | 200 | ~25990 | 4480ms |
-| `danger_bruteforce` | ✅ | 200 | ~552 | 1900ms |
-| `data_shield` | ✅ | 200 | ~88788 | 1460ms |
-| `data_shield_full` | ✅ | 200 | ~74456 | 2530ms |
-| `dataplane_dnsrd` | ✅ | 200 | ~8194 | 2640ms |
-| `dataplane_dnsrdany` | ✅ | 200 | ~1293 | 580ms |
-| `dataplane_dnstcp` | ✅ | 200 | ~1073 | 570ms |
-| `dataplane_dnsversion` | ✅ | 200 | ~6361 | 2670ms |
-| `dataplane_ntpmode3` | ✅ | 200 | ~3135 | 1680ms |
-| `dataplane_ntpmode6` | ✅ | 200 | ~687 | 1050ms |
-| `dataplane_ntpmode7` | ✅ | 200 | ~778 | 870ms |
-| `dataplane_proto41` | ✅ | 200 | ~54615 | 36210ms |
-| `dataplane_sipinvitation` | ✅ | 200 | ~50 | 310ms |
-| `dataplane_sipquery` | ✅ | 200 | ~5397 | 3140ms |
-| `dataplane_sipregistration` | ✅ | 200 | ~198 | 460ms |
-| `dataplane_smtpdata` | ✅ | 200 | ~445 | 400ms |
-| `dataplane_smtpgreet` | ✅ | 200 | ~9076 | 4540ms |
-| `dataplane_sshclient` | ✅ | 200 | ~20963 | 8250ms |
-| `dataplane_sshpwauth` | ✅ | 200 | ~11285 | 3400ms |
-| `dataplane_telnetlogin` | ✅ | 200 | ~97040 | 51440ms |
-| `dataplane_vncrfb` | ✅ | 200 | ~3943 | 1170ms |
-| `ddrimus_http_threats` | ✅ | 200 | ~287 | 550ms |
-| `dshield` | ✅ | 200 | ~40 | 460ms |
-| `edanwong` | ✅ | 200 | ~2464 | 640ms |
-| `et_compromised` | ✅ | 200 | ~555 | 720ms |
-| `f3csystems` | ✅ | 200 | ~2358 | 750ms |
-| `fadouse_botnet` | ✅ | 200 | ~8421 | 1240ms |
-| `fadouse_c2` | ✅ | 200 | ~8787 | 2200ms |
-| `fadouse_loader` | ✅ | 200 | ~565 | 3330ms |
-| `fadouse_malware` | ✅ | 200 | ~52787 | 8900ms |
-| `fadouse_ransomware` | ✅ | 200 | ~298 | 840ms |
-| `fadouse_rat` | ✅ | 200 | ~2840 | 910ms |
-| `fadouse_stealer` | ✅ | 200 | ~1232 | 1630ms |
-| `fadouse_worm` | ✅ | 200 | ~124 | 1190ms |
-| `firehol_abusers_1d` | ✅ | 200 | ~3550 | 980ms |
-| `firehol_anonymous` | ✅ | 200 | ~1720076 | 38930ms |
-| `firehol_level2` | ✅ | 200 | ~14651 | 2029ms |
-| `firehol_level3` | ✅ | 200 | ~14316 | 2070ms |
-| `firehol_level4` | ✅ | 200 | ~108720 | 3820ms |
-| `firehol_webserver` | ✅ | 200 | ~1110 | 430ms |
-| `fortigate_azure` | ✅ | 200 | ~48 | 450ms |
-| `freakuency_threatfeed` | ✅ | 200 | ~18314 | 1760ms |
-| `greedybear_recent` | ✅ | 200 | ~5000 | 1470ms |
-| `greensnow` | ✅ | 200 | ~3793 | 18920ms |
-| `hagezi_tif_cdn` | ✅ | 200 | ~59044 | 820ms |
-| `ipsum_level5` | ✅ | 200 | ~1697 | 840ms |
-| `ipsum_level7` | ✅ | 200 | ~51 | 200ms |
-| `ipsum_master` | ✅ | 200 | ~114621 | 4640ms |
-| `kevinmarx` | ✅ | 200 | ~44 | 470ms |
-| `magicteamc_bad_ips` | ✅ | 200 | ~1031500 | 29130ms |
-| `myip_ms` | ✅ | 200 | ~1701 | 1420ms |
-| `netmountains_blocklist` | ✅ | 200 | ~62162 | 2660ms |
-| `pgl_yoyo_adservers` | ✅ | 200 | ~8774 | 1630ms |
-| `romain_marcoux` | ✅ | 200 | ~40000 | 1390ms |
-| `romainmarcoux_aa` | ✅ | 200 | ~300000 | 4730ms |
-| `romainmarcoux_ab` | ✅ | 200 | ~238248 | 3480ms |
-| `romainmarcoux_outgoing_aa` | ✅ | 200 | ~131072 | 4580ms |
-| `romainmarcoux_outgoing_ab` | ✅ | 200 | ~46309 | 1960ms |
-| `rtbh_output` | ✅ | 200 | ~54228 | 4470ms |
-| `rutgers_drop` | ✅ | 200 | ~1350 | 620ms |
-| `sefinek_malicious` | ✅ | 200 | ~211425 | 6750ms |
-| `serp07_dude_blacklist` | ✅ | 200 | ~4752 | 3080ms |
-| `shadowwhisperer_probes` | ✅ | 200 | ~6080 | 850ms |
-| `shadowwhisperer_scanners` | ✅ | 200 | ~57600 | 1920ms |
-| `shadowwhisperer_threats` | ✅ | 200 | ~20574 | 760ms |
-| `shadowwhisperer_threats_uncl` | ✅ | 200 | ~30139 | 1370ms |
-| `threat_live` | ✅ | 200 | ~79370 | 6110ms |
-| `threathive_blocklist` | ✅ | 200 | ~135273 | 6390ms |
-| `threatslist_paloalto_edl` | ✅ | 200 | ~33395 | 630ms |
-| `threatview_high_conf` | ✅ | 200 | ~19511 | 1900ms |
-| `ufukart_blacklist` | ✅ | 200 | ~204432 | 3100ms |
-| `ultimate_hosts_ips0` | ✅ | 200 | ~144525 | 4450ms |
-| `urlhaus_ips` | ✅ | 200 | ~1571 | 6070ms |
-| `viriback_c2` | ✅ | 200 | ~8044 | 5170ms |
-| `yuexuan_hfish` | ✅ | 200 | ~296 | 1220ms |
-| `zerof_ipextractor` | ✅ | 200 | ~26294 | 1650ms |
-| `hagezi_tif` | ❌ | 404 | ~0 | 361ms |
-| `interserver` | ❌ | 0 | ~0 | 20503ms |
+| `4ip_high_security` | ✅ | 200 | ~73518 | 2800ms |
+| `abuseipdb_axllent` | ✅ | 200 | ~84574 | 2620ms |
+| `abuseipdb_s100_30d` | ✅ | 200 | ~110455 | 14350ms |
+| `abuseipdb_s100_7d` | ✅ | 200 | ~71501 | 8189ms |
+| `abuseipdb_score100` | ✅ | 200 | ~8706 | 660ms |
+| `abuseipdb_tmiland` | ✅ | 200 | ~9976 | 2430ms |
+| `amitambekar_threats_aa` | ✅ | 200 | ~8650 | 2170ms |
+| `ashleykleynhans_abuseipdb` | ✅ | 200 | ~31614 | 14030ms |
+| `binary_defense` | ✅ | 200 | ~3036 | 750ms |
+| `bitwire_ipblocklist` | ✅ | 200 | ~1799826 | 60250ms |
+| `black_mirror` | ✅ | 200 | ~1437011 | 45590ms |
+| `blacksnowdot_packets` | ✅ | 200 | ~30907 | 17350ms |
+| `blocklist_de_all` | ✅ | 200 | ~22062 | 6450ms |
+| `blocklist_de_export` | ✅ | 200 | ~22062 | 5030ms |
+| `blocklist_de_ssh` | ✅ | 200 | ~4951 | 1630ms |
+| `blocklist_de_strongips` | ✅ | 200 | ~345 | 750ms |
+| `blocklist_net_ua` | ✅ | 200 | ~132141 | 9460ms |
+| `bsdly_bruteforcers` | ✅ | 200 | ~111957 | 5510ms |
+| `bsdly_pop3` | ✅ | 200 | ~11380 | 2320ms |
+| `bsdly_traplist` | ✅ | 200 | ~731 | 900ms |
+| `c2_iplist` | ✅ | 200 | ~133 | 830ms |
+| `cinsarmy` | ✅ | 200 | ~15000 | 430ms |
+| `cinsscore` | ✅ | 200 | ~15000 | 750ms |
+| `crowdsec_ssh` | ✅ | 200 | ~13922 | 990ms |
+| `cypher139_ipblacklist` | ✅ | 200 | ~26018 | 1630ms |
+| `danger_bruteforce` | ✅ | 200 | ~545 | 2230ms |
+| `data_shield` | ✅ | 200 | ~89816 | 1930ms |
+| `data_shield_full` | ✅ | 200 | ~75662 | 1010ms |
+| `dataplane_dnsrd` | ✅ | 200 | ~7690 | 3100ms |
+| `dataplane_dnsrdany` | ✅ | 200 | ~1212 | 810ms |
+| `dataplane_dnstcp` | ✅ | 200 | ~1038 | 690ms |
+| `dataplane_dnsversion` | ✅ | 200 | ~5913 | 1970ms |
+| `dataplane_ntpmode3` | ✅ | 200 | ~3134 | 1450ms |
+| `dataplane_ntpmode6` | ✅ | 200 | ~694 | 1010ms |
+| `dataplane_ntpmode7` | ✅ | 200 | ~778 | 710ms |
+| `dataplane_proto41` | ✅ | 200 | ~54558 | 36190ms |
+| `dataplane_sipinvitation` | ✅ | 200 | ~54 | 200ms |
+| `dataplane_sipquery` | ✅ | 200 | ~5499 | 3180ms |
+| `dataplane_sipregistration` | ✅ | 200 | ~200 | 610ms |
+| `dataplane_smtpdata` | ✅ | 200 | ~433 | 450ms |
+| `dataplane_smtpgreet` | ✅ | 200 | ~9256 | 3120ms |
+| `dataplane_sshclient` | ✅ | 200 | ~20813 | 6550ms |
+| `dataplane_sshpwauth` | ✅ | 200 | ~10984 | 3690ms |
+| `dataplane_telnetlogin` | ✅ | 200 | ~97160 | 53010ms |
+| `dataplane_vncrfb` | ✅ | 200 | ~4436 | 1400ms |
+| `ddrimus_http_threats` | ✅ | 200 | ~287 | 1140ms |
+| `dshield` | ✅ | 200 | ~40 | 1170ms |
+| `edanwong` | ✅ | 200 | ~2493 | 1980ms |
+| `et_compromised` | ✅ | 200 | ~549 | 810ms |
+| `f3csystems` | ✅ | 200 | ~2339 | 1090ms |
+| `fadouse_botnet` | ✅ | 200 | ~8466 | 2800ms |
+| `fadouse_c2` | ✅ | 200 | ~8834 | 1700ms |
+| `fadouse_loader` | ✅ | 200 | ~567 | 2690ms |
+| `fadouse_malware` | ✅ | 200 | ~53017 | 7590ms |
+| `fadouse_ransomware` | ✅ | 200 | ~300 | 660ms |
+| `fadouse_rat` | ✅ | 200 | ~2870 | 730ms |
+| `fadouse_stealer` | ✅ | 200 | ~1241 | 1810ms |
+| `fadouse_worm` | ✅ | 200 | ~125 | 390ms |
+| `firehol_abusers_1d` | ✅ | 200 | ~3662 | 2090ms |
+| `firehol_anonymous` | ✅ | 200 | ~1719626 | 58030ms |
+| `firehol_level2` | ✅ | 200 | ~15275 | 4820ms |
+| `firehol_level3` | ✅ | 200 | ~13943 | 2760ms |
+| `firehol_level4` | ✅ | 200 | ~108983 | 4790ms |
+| `firehol_webserver` | ✅ | 200 | ~1081 | 1460ms |
+| `fortigate_azure` | ✅ | 200 | ~39 | 710ms |
+| `freakuency_threatfeed` | ✅ | 200 | ~18316 | 5770ms |
+| `greedybear_recent` | ✅ | 200 | ~5000 | 4380ms |
+| `greensnow` | ✅ | 200 | ~3707 | 1510ms |
+| `hagezi_tif_cdn` | ✅ | 200 | ~59044 | 240ms |
+| `interserver` | ✅ | 200 | ~1359 | 700ms |
+| `ipsum_level5` | ✅ | 200 | ~2092 | 1680ms |
+| `ipsum_level7` | ✅ | 200 | ~131 | 820ms |
+| `ipsum_master` | ✅ | 200 | ~121421 | 4860ms |
+| `kevinmarx` | ✅ | 200 | ~44 | 830ms |
+| `magicteamc_bad_ips` | ✅ | 200 | ~1035621 | 38130ms |
+| `myip_ms` | ✅ | 200 | ~1786 | 2110ms |
+| `netmountains_blocklist` | ✅ | 200 | ~62537 | 2160ms |
+| `pgl_yoyo_adservers` | ✅ | 200 | ~8774 | 1720ms |
+| `romain_marcoux` | ✅ | 200 | ~40000 | 3920ms |
+| `romainmarcoux_aa` | ✅ | 200 | ~300000 | 8410ms |
+| `romainmarcoux_ab` | ✅ | 200 | ~243605 | 5810ms |
+| `romainmarcoux_outgoing_aa` | ✅ | 200 | ~131072 | 3840ms |
+| `romainmarcoux_outgoing_ab` | ✅ | 200 | ~46557 | 2480ms |
+| `rtbh_output` | ✅ | 200 | ~54400 | 6920ms |
+| `rutgers_drop` | ✅ | 200 | ~1654 | 1350ms |
+| `sefinek_malicious` | ✅ | 200 | ~211684 | 11380ms |
+| `serp07_dude_blacklist` | ✅ | 200 | ~4772 | 4120ms |
+| `shadowwhisperer_probes` | ✅ | 200 | ~6237 | 520ms |
+| `shadowwhisperer_scanners` | ✅ | 200 | ~57604 | 2190ms |
+| `shadowwhisperer_threats` | ✅ | 200 | ~20555 | 540ms |
+| `shadowwhisperer_threats_uncl` | ✅ | 200 | ~30512 | 420ms |
+| `threat_live` | ✅ | 200 | ~79624 | 12030ms |
+| `threathive_blocklist` | ✅ | 200 | ~135568 | 6670ms |
+| `threatslist_paloalto_edl` | ✅ | 200 | ~32322 | 1660ms |
+| `threatview_high_conf` | ✅ | 200 | ~20137 | 2850ms |
+| `ufukart_blacklist` | ✅ | 200 | ~214701 | 5340ms |
+| `ultimate_hosts_ips0` | ✅ | 200 | ~144525 | 7120ms |
+| `urlhaus_ips` | ✅ | 200 | ~1574 | 11750ms |
+| `viriback_c2` | ✅ | 200 | ~8044 | 3500ms |
+| `yuexuan_hfish` | ✅ | 200 | ~288 | 300ms |
+| `zerof_ipextractor` | ✅ | 200 | ~27293 | 2350ms |
+| `hagezi_tif` | ❌ | 404 | ~0 | 285ms |
 
 ---
-*Generiert: 2026-08-10 05:07 CEST (Europe/Berlin) | 102 Feeds geprüft*
+*Generiert: 2026-08-11 05:00 CEST (Europe/Berlin) | 102 Feeds geprüft*
