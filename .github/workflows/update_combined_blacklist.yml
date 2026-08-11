@@ -746,18 +746,28 @@ jobs:
               "abuseipdb_tmiland":          ("https://abuseipdb.tmiland.com/abuseipdb.txt", True),
               # threatfox_ioc: FIX 2026-07-25 entfernt (nach honeypot_monitor.yml
               # verlagert, siehe HIGH_QUALITY-Kommentar oben).
-              # hagezi_tif: HaGeZi Threat Intelligence Feeds, Plain-IP-Variante (ips/tif.txt).
-              # Aggregat aus u.a. firehol/montysecurity/ipsum – also denselben Upstreams, die
-              # NETSHIELD bereits zieht. Gemessener Overlap mit dem Bestand ~96,7% (Netto-neu
-              # nur ~3% beim getesteten Snapshot), Single-Maintainer-Repo. Daher hq=False:
-              # zaehlt NICHT als unabhaengige HQ-Bestaetigung (vermeidet Confidence-Inflation
-              # via strongly_confirmed-Logik). Dedup passiert ohnehin in parse_entries().
-              "hagezi_tif":                 ("https://raw.githubusercontent.com/hagezi/dns-blocklists/main/ips/tif.txt", False),
-              # hagezi_tif_cdn: IDENTISCHE Datei wie hagezi_tif, nur ueber jsDelivr-CDN
-              # (@latest-Tag, evtl. Cache-/Tag-Versatz). Bewusst redundant als zweiter
-              # Lieferweg/Fallback eingetragen – liefert KEINE zusaetzlichen IPs (Overlap
-              # zu hagezi_tif ~100%). parse_entries() dedupliziert; hq=False -> keine
-              # Confidence-Doppelzaehlung.
+              # ENTFERNT (2026-08-11): hagezi_tif (raw.githubusercontent-Variante) -
+              # feed_health_monitor.yml meldete 3 Laeufe in Folge HTTP 404 (seit
+              # 2026-08-10 05:07). Vermutlich hat HaGeZi die Datei aehnlich wie
+              # rpz/tif.txt (dort bestaetigt wegen GitHub-Dateigroessenlimit
+              # gesplittet) umbenannt/gesplittet - der alte Einzeldatei-Pfad
+              # existiert im Repo (github.com/hagezi/dns-blocklists) nicht mehr,
+              # obwohl das Projekt selbst weiterhin aktiv gepflegt wird (22,8k
+              # Stars, Stand 2026-08-11). Der bereits vorhandene hagezi_tif_cdn-
+              # Fallback (identischer Inhalt, jsDelivr-CDN statt raw.github) bleibt
+              # unten stehen und uebernimmt die Quelle komplett - dort ist die
+              # Datei ueber @latest-Tag weiterhin per Community-Berichten aktiv
+              # abrufbar.
+              # hagezi_tif_cdn: HaGeZi Threat Intelligence Feeds, Plain-IP-Variante,
+              # ueber jsDelivr-CDN (@latest-Tag). War urspruenglich nur redundanter
+              # Fallback neben hagezi_tif (raw.githubusercontent), das seit
+              # 2026-08-11 der einzige verbleibende Lieferweg ist (siehe ENTFERNT-
+              # Kommentar oben). Aggregat aus u.a. firehol/montysecurity/ipsum -
+              # also denselben Upstreams, die NETSHIELD bereits zieht. Gemessener
+              # Overlap mit dem Bestand ~96,7% (Netto-neu nur ~3% beim getesteten
+              # Snapshot), Single-Maintainer-Repo. Daher hq=False: zaehlt NICHT als
+              # unabhaengige HQ-Bestaetigung (vermeidet Confidence-Inflation via
+              # strongly_confirmed-Logik). Dedup passiert ohnehin in parse_entries().
               "hagezi_tif_cdn":             ("https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/ips/tif.txt", False),
               # ashleykleynhans_abuseipdb: Persoenlicher AbuseIPDB-Report-Export von
               # Ashley Kleynhans (github.com/ashleykleynhans/ipset). CSV mit Header
@@ -804,7 +814,10 @@ jobs:
               "dshield":                    ("https://www.dshield.org/block.txt", True),
               # ENTFERNT (2026-08-05): cloudzy - 52 Tage unveraendert lt. Stale-Feed-Report.
               # ENTFERNT (2026-08-05): bbcan177 - 52 Tage unveraendert lt. Stale-Feed-Report (GitHub Gist).
-              "kevinmarx":                  ("https://kevinmarx.org/malicious-ip-list.txt", False),
+              # ENTFERNT (2026-08-11): kevinmarx - 20 Tage unveraendert lt.
+              # feed_health_monitor.yml Stale-Feed-Report (seit 2026-07-22
+              # 04:12 UTC), IP-Menge eingefroren trotz HTTP 200 - klassisches
+              # Zeichen einer verwaisten/nicht mehr gepflegten Quelle.
               # bsdly.net (Peter N. M. Hansteen) – Einzelbetreiber, Single-Sensor, alle HQ=False.
               # Listen werden stuendlich neu generiert, 6-Wochen-Verfall (Ausnahme: traplist 24h).
               # Betreiber bittet um Kontakt (peter@bsdly.net) vor Integration in andere Datensaetze.
