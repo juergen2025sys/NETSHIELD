@@ -1,13 +1,13 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-08-11 13:35 CEST (Berlin)
+**Aktualisiert:** 2026-08-11 13:37 CEST (Berlin)
 
 ---
 | Quelle | IPs | Neu | Frische |
 |---|---|---|---|
 | ✅ `ipsum_level4` | 7043 | +0 | 🟡 traege (seit 2026-08-11 03:22 CEST (Berlin), 15 Laeufe unveraendert) |
 | ✅ `dshield_1d` | 32 | +0 | 🟢 aktuell (seit 2026-08-11 13:20 CEST (Berlin)) |
-| ✅ `blocklist_de_bots` | 3245 | +8 | 🟢 neu (2026-08-11 13:35 CEST (Berlin)) |
-| ✅ `blocklist_de_bruteforce` | 1019 | +1 | 🟢 neu (2026-08-11 13:35 CEST (Berlin)) |
+| ✅ `blocklist_de_bots` | 3245 | +8 | 🟢 neu (2026-08-11 13:37 CEST (Berlin)) |
+| ✅ `blocklist_de_bruteforce` | 1019 | +1 | 🟢 neu (2026-08-11 13:37 CEST (Berlin)) |
 | ✅ `jamesbrine_honeypot` | 33189 | +0 | 🟢 aktuell (seit 2026-08-11 07:44 CEST (Berlin)) |
 | ✅ `stratosphere_aip` | 10639 | +0 | 🔴 EINGEFROREN (seit 2026-08-07 21:29 CEST (Berlin), 148 Laeufe unveraendert) |
 | ✅ `stratosphere_aip_alpha7` | 29204 | +0 | 🔴 EINGEFROREN (seit 2026-08-07 21:29 CEST (Berlin), 148 Laeufe unveraendert) |
@@ -16,8 +16,8 @@
 | ✅ `turris_greylist` | 9755 | +0 | 🟡 traege (seit 2026-08-11 00:07 CEST (Berlin), 20 Laeufe unveraendert) |
 | ✅ `timgerstel_suspicious_ips` | 1712 | +0 | 🟢 aktuell (seit 2026-08-11 13:20 CEST (Berlin)) |
 | ✅ `sniffcat` | 27744 | +0 | 🟢 aktuell (seit 2026-08-11 13:20 CEST (Berlin)) |
-| ✅ `siberkapan` | 38187 | +1 | 🟢 neu (2026-08-11 13:35 CEST (Berlin)) |
-| ✅ `reportedip` | 9979 | +2 | 🟢 neu (2026-08-11 13:35 CEST (Berlin)) |
+| ✅ `siberkapan` | 38187 | +1 | 🟢 neu (2026-08-11 13:37 CEST (Berlin)) |
+| ✅ `reportedip` | 9979 | +2 | 🟢 neu (2026-08-11 13:37 CEST (Berlin)) |
 | ✅ `ipinsights` | 605636 | +0 | 🟢 aktuell (seit 2026-08-11 10:43 CEST (Berlin)) |
 | ✅ `opendbl_darknet` | 41726 | +0 | 🟢 aktuell (seit 2026-08-11 13:20 CEST (Berlin)) |
 | ✅ `bitwire_ip_list_fetch` | 31315 | +0 | 🟢 aktuell (seit 2026-08-11 10:43 CEST (Berlin)) |
@@ -38,4 +38,4 @@
 | Entfernt | **-0** |
 
 ---
-*Generiert: 2026-08-11 13:35 CEST (Berlin)*
+*Generiert: 2026-08-11 13:37 CEST (Berlin)*
