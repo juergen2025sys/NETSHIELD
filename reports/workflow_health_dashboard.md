@@ -1,15 +1,15 @@
-# Workflow Health Report
+# Workflow Health Dashboard
 
-**Stand:** 2026-08-11 21:15 CEST (Europe/Berlin)
+**Stand:** 2026-08-11 21:31 CEST (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
-Generiert von `.github/workflows/workflow_health_report.yml` alle 6h.
+Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
 Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard-Skip.
 
 ## Letzte 24h
 
 - **Echte Combined-Runs:** 8 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 23
+- **Skip-Runs (Idempotenz-Guard):** 22
 - **Lucken (>210min zwischen echten Runs):** 1
   - 2026-08-11 11:54 CEST (Europe/Berlin) -> 2026-08-11 15:24 CEST (Europe/Berlin) (210 min)
 
