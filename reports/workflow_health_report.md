@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-10 21:58 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-11 05:10 CEST (Europe/Berlin)
 
-**Workflows:** 26 | ✅ 26 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
+**Workflows:** 26 | ✅ 26 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
@@ -10,15 +10,12 @@
 |---|---|---|
 | `honigtopf.yml → update_bot_detector.yml` | Workflow-Reihenfolge / Puffer zu knapp | 22:40 UTC → 22:45 UTC (5min < 15min) |
 | `honigtopf.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC → 00:07 UTC (7min < 60min Mindestpuffer); 00:20 UTC → 00:27 UTC (7min < 60min Mindestpuffer); 00:40 UTC → 00:47 UTC (7min < 60min Mindestpuffer); 02:20 UTC → 03:07 UTC (47min < 60min Mindestpuffer); 02:40 UTC → 03:07 UTC (27min < 60min Mindestpuffer) |
-| `Production Health` | Feed-Ausfälle | 2 von 102 Feeds ausgefallen: hagezi_tif, interserver |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🟡 WARN | Feed-Ausfälle | 2 von 102 Feeds ausgefallen: hagezi_tif, interserver |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -52,4 +49,4 @@
 | `workflow_health_report.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-10 21:58 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
+*Generiert: 2026-08-11 05:10 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
