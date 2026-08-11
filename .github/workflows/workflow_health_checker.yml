@@ -2363,82 +2363,75 @@ jobs:
           # tatsächlich in einer ausgelieferten Blacklist vor, ist das der
           # schmerzhafteste Bug, den dieses System haben kann (Kunden blocken
           # legitime Dienste). Single Source of Truth: whitelist.json.
-          _wl_file = ".github/workflows/whitelist.json"
-          if os.path.exists(_wl_file):
-              try:
-                  with open(_wl_file, encoding="utf-8") as _wlf:
-                      _wl_entries = json.load(_wlf).get("entries", [])
-                  _wl_nets = []
-                  _wl_singles = set()
-                  for _e in _wl_entries:
+          #
+          # FIX PERF-PH7-LINEAR-SCAN (2026-08-11): Dieser Check baute sich
+          # bislang eine EIGENE, unindizierte Whitelist-Pruefung
+          # (_ip_is_whitelisted mit any(_addr in _n for _n in _wl_nets) -
+          # linearer Scan ueber ~1000 Whitelist-Netze) - obwohl
+          # is_whitelisted() aus netshield_common (Bisect-Index, O(log K))
+          # bereits oben importiert UND durch den load_whitelist()-Aufruf
+          # ganz am Skriptanfang bereits initialisiert ist. Bei Millionen
+          # von IPs in combined_threat_blacklist_ipv4.txt (+active+conf40,
+          # je inkl. aller Parts) summierte sich das zu Milliarden von
+          # in-Operationen und dominierte die Laufzeit dieses Workflows
+          # (~39min statt Sekunden fuer reine Regex-Analyse, siehe echter
+          # Lauf 2026-08-11 03:10-03:49 UTC). Exakt derselbe Anti-Pattern,
+          # der bereits einmal in netshield_common.py selbst gefunden und
+          # behoben wurde (siehe NETSHIELD_Performance-Fix_CIDR-Overlap.docx,
+          # Abschnitt 3) - hier aber in einer lokalen Re-Implementierung
+          # innerhalb dieses Health-Checkers uebersehen. Fix: eigene
+          # _wl_nets/_wl_singles/_ip_is_whitelisted-Bloecke komplett entfernt,
+          # direkt is_whitelisted() aus dem bestehenden Import verwenden.
+          try:
+              _leak_targets = [
+                  "combined_threat_blacklist_ipv4.txt",
+                  "active_blacklist_ipv4.txt",
+                  "blacklist_confidence40_ipv4.txt",
+              ]
+              # FIX TRUNCATE-PARTS-COUNT: Lokale Helper-Definition (der
+              # globale _iter_ip_sources oben ist in einem anderen
+              # for-Scope und hier nicht erreichbar). Hauptdatei + Parts
+              # scannen, damit ein Leak in einem Part-only-Eintrag nicht
+              # uebersehen wird.
+              import glob as _glob_lk
+              def _leak_sources(lf):
+                  _b, _x = os.path.splitext(lf)
+                  return [lf] + sorted(_glob_lk.glob(f"{_b}_part*{_x}"))
+
+              for _lf in _leak_targets:
+                  if not os.path.exists(_lf):
+                      continue
+                  _leaks = []
+                  _scanned = 0
+                  _stop_outer = False
+                  for _lf_src in _leak_sources(_lf):
+                      if _stop_outer:
+                          break
                       try:
-                          if "/" in _e:
-                              _wl_nets.append(ipaddress.ip_network(_e, strict=False))
-                          else:
-                              _wl_singles.add(_e.strip())
-                      except Exception as _suppressed:
-                          print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
-
-                  def _ip_is_whitelisted(ip_str):
-                      if ip_str in _wl_singles:
-                          return True
-                      try:
-                          _addr = ipaddress.ip_address(ip_str.split("/")[0])
-                          return any(_addr in _n for _n in _wl_nets)
-                      except Exception:
-                          return False
-
-                  _leak_targets = [
-                      "combined_threat_blacklist_ipv4.txt",
-                      "active_blacklist_ipv4.txt",
-                      "blacklist_confidence40_ipv4.txt",
-                  ]
-                  # FIX TRUNCATE-PARTS-COUNT: Lokale Helper-Definition (der
-                  # globale _iter_ip_sources oben ist in einem anderen
-                  # for-Scope und hier nicht erreichbar). Hauptdatei + Parts
-                  # scannen, damit ein Leak in einem Part-only-Eintrag nicht
-                  # uebersehen wird.
-                  import glob as _glob_lk
-                  def _leak_sources(lf):
-                      _b, _x = os.path.splitext(lf)
-                      return [lf] + sorted(_glob_lk.glob(f"{_b}_part*{_x}"))
-
-                  for _lf in _leak_targets:
-                      if not os.path.exists(_lf):
+                          with open(_lf_src, encoding="utf-8", errors="ignore") as _lfh:
+                              for _line in _lfh:
+                                  _line = _line.strip()
+                                  if not _line or _line.startswith("#"):
+                                      continue
+                                  _scanned += 1
+                                  if is_whitelisted(_line):
+                                      _leaks.append(_line)
+                                      if len(_leaks) >= 10:  # Stichprobe reicht – Beweis ist Beweis
+                                          _stop_outer = True
+                                          break
+                      except Exception as _le:
+                          print(f"  ⏭  Whitelist-Leak Scan {_lf_src}: Lese-Fehler ({_le})")
                           continue
-                      _leaks = []
-                      _scanned = 0
-                      _stop_outer = False
-                      for _lf_src in _leak_sources(_lf):
-                          if _stop_outer:
-                              break
-                          try:
-                              with open(_lf_src, encoding="utf-8", errors="ignore") as _lfh:
-                                  for _line in _lfh:
-                                      _line = _line.strip()
-                                      if not _line or _line.startswith("#"):
-                                          continue
-                                      _scanned += 1
-                                      if _ip_is_whitelisted(_line):
-                                          _leaks.append(_line)
-                                          if len(_leaks) >= 10:  # Stichprobe reicht – Beweis ist Beweis
-                                              _stop_outer = True
-                                              break
-                          except Exception as _le:
-                              print(f"  ⏭  Whitelist-Leak Scan {_lf_src}: Lese-Fehler ({_le})")
-                              continue
-                      if _leaks:
-                          prod_health.append({
-                              "level": "CRITICAL", "check": f"Whitelist-Leak: {_lf}",
-                              "detail": f"{_lf} enthält whitelisted IPs: {', '.join(_leaks[:5])}{'…' if len(_leaks) > 5 else ''} – Filterung wirkungslos!",
-                          })
-                          print(f"  🔴 Whitelist-Leak {_lf}: {len(_leaks)}+ Treffer ({_leaks[0]} …)")
-                      else:
-                          print(f"  ✅ Whitelist-Leak {_lf}: 0 Treffer ({_scanned:,} IPs gescannt)")
-              except Exception as _wle:
-                  print(f"  ⏭  Whitelist-Leak: whitelist.json nicht lesbar ({_wle})")
-          else:
-              print(f"  ⏭  Whitelist-Leak: {_wl_file} nicht vorhanden")
+                  if _leaks:
+                      prod_health.append({
+                          "level": "CRITICAL", "check": f"Whitelist-Leak: {_lf}",
+                          "detail": f"{_lf} enthält whitelisted IPs: {', '.join(_leaks[:5])}{'…' if len(_leaks) > 5 else ''} – Filterung wirkungslos!",
+                      })
+                      print(f"  🔴 Whitelist-Leak {_lf}: {len(_leaks)}+ Treffer ({_leaks[0]} …)")
+                  else:
+                      print(f"  ✅ Whitelist-Leak {_lf}: 0 Treffer ({_scanned:,} IPs gescannt)")
+          except Exception as _wle:
+              print(f"  ⏭  Whitelist-Leak: {_wle}")
 
           # ── PH8: Geo-Tagger Aktualität ────────────────────────────────────
           # FIX: Ursprünglich als Coverage-Quote (geo_count / combined_count)
