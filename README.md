@@ -57,7 +57,7 @@
 <table>
 <tr>
 <td><strong>🕒 Letztes Update</strong></td>
-<td>2026-08-12 05:03 CEST (Europe/Berlin)</td>
+<td>2026-08-12 05:04 CEST (Europe/Berlin)</td>
 <td><strong>🔄 Intervall</strong></td>
 <td>8× täglich</td>
 </tr>
