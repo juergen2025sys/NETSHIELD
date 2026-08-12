@@ -1,6 +1,6 @@
 # NETSHIELD – Kyrgyzstan (KG) IPv4 Ranges
-# Aktualisiert: 2026-08-10 05:27 CEST (Europe/Berlin)
-# IP-Ranges: 124
+# Aktualisiert: 2026-08-12 05:36 CEST (Europe/Berlin)
+# IP-Ranges: 125
 
 5.57.8.0/21
 31.3.216.0/24
@@ -92,6 +92,7 @@
 193.106.48.0/22
 193.151.226.0/24
 193.176.239.0/24
+194.1.132.0/22
 194.56.214.0/24
 194.76.192.0/24
 194.76.217.0/24

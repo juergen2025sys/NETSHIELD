@@ -1,6 +1,6 @@
 # NETSHIELD – Ireland (IE) IPv4 Ranges
-# Aktualisiert: 2026-08-10 05:27 CEST (Europe/Berlin)
-# IP-Ranges: 740
+# Aktualisiert: 2026-08-12 05:36 CEST (Europe/Berlin)
+# IP-Ranges: 739
 
 2.57.24.0/22
 2.58.180.0/22
@@ -209,7 +209,6 @@
 89.100.0.0/15
 89.106.136.0/21
 89.124.0.0/21
-89.124.16.0/20
 89.124.240.0/23
 89.124.242.0/23
 89.124.244.0/24
