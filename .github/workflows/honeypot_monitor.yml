@@ -76,6 +76,13 @@ jobs:
           now         = datetime.now(timezone.utc)
           now_str_utc = now.strftime("%Y-%m-%d %H:%M UTC")
 
+          # FIX TIME-BUDGET-2026-08-12: Startzeit fuer das globale Zeitbudget
+          # der Fetch-Schleife unten (siehe Kommentar dort). Muss VOR der
+          # Schleife gesetzt sein, damit auch Setup-Zeit (Whitelist laden,
+          # Imports) mitgezaehlt wird - der Job-Timeout selbst laeuft ja
+          # bereits ab dem allerersten Setup-Step, nicht erst ab hier.
+          _script_start_monotonic = time.monotonic()
+
           # now_str: deutsche Zeit (Europe/Berlin, CET/CEST inkl. DST) –
           # NUR fuer die Anzeige in Report-Header und honeypot_ips.txt-Header.
           # Der Cron-Schedule oben bleibt bewusst UTC (GitHub Actions cron
@@ -641,7 +648,37 @@ jobs:
           fetch_failed = set()   # text is None (DNS/403/Timeout/gzip-bomb-Abbruch)
           skipped      = set()   # bewusst uebersprungen (fehlendes Auth-Secret)
 
+          # FIX TIME-BUDGET-2026-08-12: Der Job-Timeout (timeout-minutes: 10)
+          # killt den kompletten Prozess hart, wenn die Summe aller
+          # Fetch-Versuche (je mit eigenem Timeout+Retries, aber OHNE
+          # gemeinsames Gesamtbudget) die 10 Minuten ueberschreitet. Beobachtet
+          # am 12.08.2026: mehrere Laeufe hintereinander liefen komplett leer
+          # (keine einzige Log-Zeile vor dem Abbruch) - vermutlich weil die
+          # drei stratosphere_aip*-Feeds kurz nach ihrem eigenen Ausfall noch
+          # instabil/langsam antworteten und dadurch mit vollen Retry-Zyklen
+          # (bis zu 3x Timeout + Backoff-Sleeps) mehrere Minuten pro Feed
+          # verbrannten - in Summe ueber die 10-Minuten-Grenze, OHNE dass ein
+          # einzelner Call fuer sich genommen haengen blieb. Ergebnis: alle
+          # Feeds dieses Laufs gingen verloren, nicht nur der langsame.
+          # Fix: weiches Gesamtbudget INNERHALB der Schleife. Sobald die
+          # verstrichene Zeit die Schwelle erreicht, werden die restlichen
+          # Feeds bewusst uebersprungen (mit klarer Log-Zeile) statt vom
+          # Runner-Timeout hart gekillt zu werden - der Job committet dann
+          # wenigstens die bereits erfolgreich geholten Feeds, statt gar
+          # nichts. TIME_BUDGET_SECONDS = 420s (7min) laesst bei 10min
+          # Job-Timeout ca. 3min Puffer fuer Whitelist-Laden/Setup (vor der
+          # Schleife) und Commit/Push (nach der Schleife).
+          TIME_BUDGET_SECONDS = 420
           for name, url in HONEYPOT_SOURCES.items():
+              _elapsed = time.monotonic() - _script_start_monotonic
+              if _elapsed >= TIME_BUDGET_SECONDS:
+                  _remaining = [n for n in HONEYPOT_SOURCES if n not in stats]
+                  print(f"  ⏭  Zeitbudget erreicht ({_elapsed:.0f}s >= {TIME_BUDGET_SECONDS}s) - "
+                        f"{len(_remaining)} verbleibende Feed(s) uebersprungen: {', '.join(_remaining)}")
+                  for _rn in _remaining:
+                      stats[_rn] = 0
+                      skipped.add(_rn)
+                  break
               # FIX AUTH: Auth-pflichtige Feeds ohne gueltigen Token ueberspringen.
               # auth ist jetzt eine Liste von Kandidaten-Dicts (Key-Rotation) –
               # nur skippen wenn KEIN Kandidat einen gesetzten Wert hat.
