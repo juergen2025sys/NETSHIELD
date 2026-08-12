@@ -1,15 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-12 05:28 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-12 10:38 CEST (Europe/Berlin)
 
-**Workflows:** 26 | ✅ 26 OK | ⚠️ 2 Warnung | ❌ 1 Fehler
+**Workflows:** 26 | ✅ 26 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Drift: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt: 779,235 → 517,102 (-34%) – starker Rückgang seit letztem Check |
-
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
@@ -19,11 +13,9 @@
 
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🔴 CRITICAL | Drift: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt: 779,235 → 517,102 (-34%) – starker Rückgang seit letztem Check |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -57,4 +49,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-12 05:28 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
+*Generiert: 2026-08-12 10:38 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
