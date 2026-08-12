@@ -443,31 +443,16 @@ jobs:
               "jamesbrine_honeypot":
                   "https://jamesbrine.com.au/csv",
 
-              # Stratosphere AIP Prioritize_New: IoT-Honeypot-Netzwerk der CTU Prag,
-              # generiert via Attacker IP Prioritizer (AIP). CSV-Format 'ip,score'
-              # (Score wird vom Parser ignoriert, nur Spalte 1). Taeglich rotiert.
-              # Fokus auf neue/emerging Attacker. URL-Update April 2026 von
-              # deprecated /Todays-Blacklists/AIP_historical_blacklist_prioritized_by_newest_attackers.csv
-              # auf offizielle /Latest/AIP-Prioritize_New-latest.csv laut README.html.
-              "stratosphere_aip":
-                  "https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Prioritize_New-latest.csv",
-
-              # Stratosphere AIP Alpha7: Alle Attacker-IPs der letzten 7 Tage aus
-              # demselben CTU-Honeypot-Netzwerk. Komplementaer zu _New: waehrend
-              # _New neue Angreifer priorisiert, deckt Alpha7 die 7-Tage-Historie
-              # persistenter Angreifer ab. CSV 'ip,score', tägl. rotiert.
-              "stratosphere_aip_alpha7":
-                  "https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Alpha7-latest.csv",
-
-              # Stratosphere AIP Alpha: Alle Attacker-IPs der letzten 24h aus
-              # demselben CTU-Honeypot-Netzwerk, OHNE Ranking (reine IP-Liste).
-              # Direktestes Aequivalent zum 24h-bad-hosts-Snapshot, den frueher
-              # Honigtopf lieferte. Format: Header-Zeile 'attacker', dann eine IPv4
-              # pro Zeile (kein score) – parse_entries() filtert den Header via
-              # IPv4-Regex automatisch. Gleicher Host wie _New/_alpha7, kein
-              # Bot-Gate → normaler fetch(), NICHT in LARGE_SOURCES.
-              "stratosphere_aip_alpha":
-                  "https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Alpha-latest.csv",
+              # ENTFERNT (2026-08-12): stratosphere_aip, stratosphere_aip_alpha7,
+              # stratosphere_aip_alpha - alle drei zeigten auf denselben Host
+              # (mcfp.felk.cvut.cz, CTU Prag). Quelle war zeitweise eingefroren
+              # (Latest/-Verzeichnis unveraendert), zudem vermutlich Mit-
+              # verursacher der Timeout-Haenger in diesem Workflow (siehe FIX
+              # TIME-BUDGET-2026-08-12 / FIX FAIL-FAST-2026-08-12 weiter unten).
+              # Bei Bedarf koennen alle drei URLs unveraendert reaktiviert werden:
+              #   https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Prioritize_New-latest.csv
+              #   https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Alpha7-latest.csv
+              #   https://mcfp.felk.cvut.cz/publicDatasets/CTU-AIPP-BlackList/Latest/AIP-Alpha-latest.csv
 
               # HoneySEC ip_all: Honeypot-Netzwerk der Universität der hl. Cyrill
               # und Method in Trnava (UCM, SK), Fakultaet fuer Naturwissenschaften,
