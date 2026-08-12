@@ -47,7 +47,18 @@ jobs:
           REPORTEDIP_KEY: ${{ secrets.REPORTEDIP_KEY }}
           REPORTEDIP_KEY_2: ${{ secrets.REPORTEDIP_KEY_2 }}
         run: |
-          python3 << 'EOF'
+          # FIX UNBUFFERED-2026-08-12: -u statt reinem "python3" erzwingt
+          # zeilenweises Flushen von stdout. Ohne -u puffert Python bei
+          # Nicht-TTY-Ausgabe (wie in Actions-Runner-Logs) oft den kompletten
+          # Output und schreibt ihn erst gebuendelt beim naechsten Flush/
+          # Prozessende - das war der Grund, warum die haengenden Laeufe vom
+          # 12.08. im Live-Log ueber die vollen 10 Minuten hinweg KOMPLETT
+          # leer aussahen (keine einzige Zeile vor dem Timeout-Abbruch), obwohl
+          # das Skript vermutlich die ganze Zeit aktiv am Fetchen war. Mit -u
+          # erscheint jeder print() sofort im Live-Log - beim naechsten Haenger
+          # sieht man live, an welchem Feed es genau haengt, statt danach nur
+          # zu raten.
+          python3 -u << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
           from netshield_common import (
               load_whitelist, load_fp_set, is_in_fp_set,
@@ -101,7 +112,24 @@ jobs:
           # is_valid_public_cidr() → importiert aus netshield_common
           # is_in_fp_set() → importiert aus netshield_common
           # parse_entries() → importiert aus netshield_common
-          def fetch(url, timeout=30, retries=3, headers=None):
+          def fetch(url, timeout=30, retries=3, headers=None, total_timeout=None):
+              # FIX FAIL-FAST-2026-08-12: total_timeout durchgereicht an
+              # fetch_url() (existierte dort schon fuer genau diesen Zweck,
+              # siehe BUG-TRICKLE-TIMEOUT-Kommentar in netshield_common.py -
+              # wurde hier bisher nie gesetzt). Ohne total_timeout begrenzt
+              # `timeout` nur EINE einzelne blockierende Netzwerk-Operation,
+              # nicht die Gesamtdauer von r.read() - ein Server, der Daten
+              # langsam-aber-stetig tropfen laesst (z.B. eine Quelle kurz nach
+              # eigenem Ausfall, noch nicht voll erholt), kann r.read() trotz
+              # timeout=30 beliebig lange laufen lassen. Mit total_timeout
+              # gesetzt bricht der Read nach spaetestens dieser Wall-Clock-
+              # Zeit hart ab (TimeoutError -> wie ein normaler Fehlschlag
+              # behandelt, naechster Retry/Feed), STATT dass der Fetch
+              # mehrere Minuten pro Feed frisst und in Summe (bei mehreren
+              # betroffenen Feeds hintereinander) den kompletten Job-Timeout
+              # ausloest - genau das Muster vom 12.08.2026 (leere Logs ueber
+              # 10 Minuten). Wird von den Call-Sites unten pro Feed-Kategorie
+              # gesetzt (Normal-Feeds vs. LARGE_SOURCES).
               # FIX BUG-WF2-FETCHURL (partial): fuer Feeds OHNE Auth-Header
               # nutzen wir fetch_url (SSRF, DNS-Pin, gzip-Streaming, korrektes
               # 429/5xx-Retry). Feeds MIT custom headers (z.B. SniffCat
@@ -133,7 +161,8 @@ jobs:
               # Kandidaten durchprobiert wurden, gibt die Funktion None zurueck.
               if not headers:
                   return fetch_url(url, timeout=timeout, retries=retries,
-                                   user_agent="NETSHIELD-HoneypotMonitor/1.0")
+                                   user_agent="NETSHIELD-HoneypotMonitor/1.0",
+                                   total_timeout=total_timeout)
               candidates = headers if isinstance(headers, list) else [headers]
               candidates = [c for c in candidates if all(c.values())]
               if not candidates:
@@ -345,7 +374,7 @@ jobs:
           # Fingerprint per Default. read_limit deckt weiterhin den streaming-
           # gzip-Bomb-Schutz aus fetch_url ab.
           def fetch_large(url, timeout=120, retries=3, max_bytes=160 * 1024 * 1024,
-                          user_agent=BROWSER_UA, extra_headers=None):
+                          user_agent=BROWSER_UA, extra_headers=None, total_timeout=None):
               # FIX BUG-WF2-FETCHURL: fetch_url unterstuetzt read_limit – das
               # uebernimmt sowohl die Truncation-Erkennung (warnt bei
               # Limit-Treffer) als auch streaming-gzip-Bomb-Schutz, was der
@@ -357,7 +386,8 @@ jobs:
               return fetch_url(url, timeout=timeout, retries=retries,
                                user_agent=user_agent,
                                read_limit=max_bytes,
-                               extra_headers=hdrs)
+                               extra_headers=hdrs,
+                               total_timeout=total_timeout)
 
           # Sources die ueber fetch_large() statt fetch() geladen werden.
           # fetch_large() = gehaerteter Fetch mit Browser-Fingerprint + grosszuegigem
@@ -690,10 +720,38 @@ jobs:
                   stats[name] = 0
                   skipped.add(name)
                   continue
+              # FIX FAIL-FAST-2026-08-12: total_timeout als harte
+              # Wall-Clock-Deadline pro Feed. Normale Feeds sind ueblicherweise
+              # in wenigen Sekunden fertig - 45s laesst genug Luft fuer
+              # langsamere, aber gesunde Quellen, killt aber einen tropfenden/
+              # haengenden Fetch (z.B. eine Quelle kurz nach eigenem Ausfall)
+              # zuverlaessig, statt dass er retries=3 x timeout=30s + Backoff-
+              # Sleeps voll ausschoepft. LARGE_SOURCES (JamesBrine 40-160MB
+              # etc.) bekommen grosszuegigere 180s, weil die legitim laenger
+              # brauchen - hier geht's nur ums Abfangen von echten Haengern,
+              # nicht ums Erzwingen von Schnelligkeit bei grossen, aber
+              # gesunden Downloads.
+              #
+              # WICHTIG: retries=1 zusaetzlich zu total_timeout gesetzt.
+              # total_timeout allein reicht NICHT fuer "sofort skippen" - ein
+              # TimeoutError aus der Deadline-Pruefung faellt in
+              # fetch_url()s generischen except-Zweig und wird dort genau wie
+              # jeder andere transiente Fehler bis zu `retries`-mal erneut
+              # versucht (mit 2^attempt Sekunden Backoff dazwischen). Ohne
+              # retries=1 waere das Worst-Case-Budget also nicht 45s, sondern
+              # bis zu 3x45s + Backoff-Pausen (~2,5min) - immer noch besser
+              # als vorher (unbegrenzt), aber nicht das gewuenschte "sofort
+              # weiter". Mit retries=1 bekommt ein haengender Feed genau
+              # EINEN Versuch, dann geht's direkt zum naechsten Feed. Kosten:
+              # ein einzelner 429/5xx-Ausrutscher (der sich beim 2. Versuch
+              # normalerweise erholt haette) wird jetzt nicht mehr intern
+              # retried - unkritisch, da dieser Workflow 4x/Tag laeuft und
+              # ein verpasster Feed beim naechsten reguleren Lauf in wenigen
+              # Stunden ohnehin erneut versucht wird.
               if name in LARGE_SOURCES:
-                  text = fetch_large(url)
+                  text = fetch_large(url, total_timeout=180, retries=1)
               else:
-                  text = fetch(url, headers=auth)
+                  text = fetch(url, headers=auth, total_timeout=45, retries=1)
               if text is None:
                   # Transport-Fehler: fetch_url hat den konkreten HTTP-Code /
                   # die Ursache bereits oben geloggt (z.B. "FEHLER HTTP 403").
