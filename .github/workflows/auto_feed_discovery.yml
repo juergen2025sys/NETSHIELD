@@ -3564,7 +3564,37 @@ jobs:
                           continue
                       for _ext_url in EXTERNAL_URL_RE.findall(_src_text):
                           _ext_url = _ext_url.rstrip('.,;:)\'"')
-                          _ext_path = urllib.parse.urlparse(_ext_url).path
+                          # FIX CRASH-GUARD-URLPARSE (2026-08-12): _ext_url
+                          # kommt aus Freitext-READMEs FREMDER Repos (per
+                          # Regex "sieht aus wie eine URL" extrahiert, nicht
+                          # validiert). Beobachtet 2026-08-12: eine Kandidaten-
+                          # URL enthielt einen Vollbreite-Doppelpunkt statt
+                          # normalem ':' (z.B. aus einem Copy-Paste-Fehler
+                          # oder absichtlich als SSRF-/Scanner-Koeder
+                          # platziert) - Pythons eigener NFKC-Normalisierungs-
+                          # Schutz in urlparse() wirft dafuer ValueError. Die
+                          # Exception passierte in einem ThreadPoolExecutor-
+                          # Worker und wurde von dort NICHT abgefangen -
+                          # riss dadurch den kompletten ~24min-Lauf mit exit
+                          # code 1 ab, obwohl nur eine einzelne von hunderten
+                          # gescannten Kandidaten-URLs betroffen war. Jetzt:
+                          # ungueltige URL wird als das behandelt was sie ist
+                          # (kein brauchbarer Kandidat) und einfach
+                          # uebersprungen, statt den ganzen Discovery-Lauf zu
+                          # crashen. urlparse() kann neben ValueError auch
+                          # weitere Fehlerarten bei genuin kaputten Strings
+                          # werfen - daher bewusst breites Exception statt nur
+                          # ValueError, hier geht es nicht um Fehlerdiagnose,
+                          # sondern nur darum "ist das ueberhaupt eine
+                          # brauchbare URL".
+                          try:
+                              _ext_path = urllib.parse.urlparse(_ext_url).path
+                          except Exception as _urlparse_err:
+                              _log_lines.append(
+                                  f"    SKIP kaputte External-URL "
+                                  f"({_urlparse_err.__class__.__name__}): "
+                                  f"{_ext_url[:80]!r}")
+                              continue
                           _ext_filename = _ext_path.split("/")[-1]
                           if not _ext_filename or not IP_FILE_PATTERNS.search(_ext_filename):
                               continue
