@@ -1,10 +1,16 @@
 {
-  "updated": "2026-08-11 22:03 CEST (Europe/Berlin)",
+  "updated": "2026-08-12 05:28 CEST (Europe/Berlin)",
   "total": 26,
   "ok": 26,
   "warn": 2,
-  "error": 0,
-  "errors": [],
+  "error": 1,
+  "errors": [
+    {
+      "file": "Production Health",
+      "check": "Drift: active_blacklist_ipv4.txt",
+      "detail": "active_blacklist_ipv4.txt: 779,235 \u2192 517,102 (-34%) \u2013 starker R\u00fcckgang seit letztem Check"
+    }
+  ],
   "warnings": [
     {
       "file": "honigtopf.yml \u2192 update_bot_detector.yml",
@@ -18,17 +24,23 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4409655,
-    "active_blacklist_ipv4.txt": 779235,
-    "blacklist_confidence40_ipv4_part1.txt": 3568669,
+    "combined_threat_blacklist_ipv4_part1.txt": 4413167,
+    "active_blacklist_ipv4.txt": 517102,
+    "blacklist_confidence40_ipv4_part1.txt": 3572838,
     "cve_exploit_ips.txt": 29178,
-    "honeypot_ips.txt": 1166909,
-    "bot_detector_blacklist_ipv4.txt": 1291265
+    "honeypot_ips.txt": 1204282,
+    "bot_detector_blacklist_ipv4.txt": 1293267
   },
   "production_health": {
-    "critical": 0,
+    "critical": 1,
     "warn": 0,
-    "checks": []
+    "checks": [
+      {
+        "level": "CRITICAL",
+        "check": "Drift: active_blacklist_ipv4.txt",
+        "detail": "active_blacklist_ipv4.txt: 779,235 \u2192 517,102 (-34%) \u2013 starker R\u00fcckgang seit letztem Check"
+      }
+    ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
