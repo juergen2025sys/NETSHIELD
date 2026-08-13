@@ -1,7 +1,7 @@
 # Repo Groesse
 
-Stand: 2026-08-09 14:51 CEST (Europe/Berlin)
+Stand: 2026-08-13 22:49 CEST (Europe/Berlin)
 
-**22.18 GB** (22,712.5 MB / 23,257,630 KB)
+**23.24 GB** (23,802.6 MB / 24,373,847 KB)
 
 Quelle: GitHub-API `GET /repos/{owner}/{repo}` (Feld "size"). Manuell per workflow_dispatch abgefragt.
