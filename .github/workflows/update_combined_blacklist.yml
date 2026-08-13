@@ -411,6 +411,7 @@ jobs:
           # (5000/h statt 60/h). Wird nur bei 404-Feeds ueberhaupt genutzt.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "BASH-DIAG-A: python3-Prozess wird gestartet um $(date -u +%Y-%m-%dT%H:%M:%S.%6NZ)"
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
           from netshield_common import (
@@ -1783,7 +1784,14 @@ jobs:
           # verliert also nichts mehr, selbst wenn Phase 0-3 laenger als das
           # Zeitbudget gedauert haben.
           print("── Phase 3.5: DataPlane-Feeds einsammeln ───────────────────────────")
-          _dp_results = fetch_parallel_daemon_collect(_dp_handle, overall_timeout=90)
+          # FIX LIVE-PROGRESS-2026-08-13: Gleicher Fix wie bei Phase 4 (dort
+          # ausfuehrlicher kommentiert) - _ingest() selbst druckt nichts,
+          # also war diese Phase bislang komplett still bis zum Ende.
+          def _dp_progress(_result):
+              _name, _ips = _result
+              print(f"  OK  {_name}: {len(_ips)} IPs")
+          _dp_results = fetch_parallel_daemon_collect(
+              _dp_handle, overall_timeout=90, progress_callback=_dp_progress)
           _dp_names_done = set()
           for name, ips in _dp_results:
               _dp_names_done.add(name)
@@ -1975,7 +1983,20 @@ jobs:
           # Feeds in der Zwischenzeit laengst durch sind.
           if _auto_handle is not None:
               print(f"── Phase 4: Auto-Discovered Feeds einsammeln ──────────────────")
-              _auto_results = fetch_parallel_daemon_collect(_auto_handle, overall_timeout=220)
+              # FIX LIVE-PROGRESS-2026-08-13: Vorher war diese Phase im
+              # Live-Log komplett still, bis ALLE Auto-Feeds fertig waren
+              # (bis zu 220s Gesamt-Deadline) - sah nach Stillstand aus,
+              # obwohl im Hintergrund laengst einzelne Feeds erfolgreich
+              # durchliefen. Callback druckt jetzt live "OK <name>: N IPs"
+              # sobald ein einzelner Feed fertig ist, genau wie Phase 0-3
+              # das schon immer tun. PYTHONUNBUFFERED=1 ist fuer diesen Step
+              # bereits gesetzt (siehe env: oben) - Ausgabe erscheint also
+              # sofort im Actions-Log, nicht erst gepuffert am Step-Ende.
+              def _auto_progress(_result):
+                  _name, _ips = _result
+                  print(f"  OK  {_name}: {len(_ips)} IPs")
+              _auto_results = fetch_parallel_daemon_collect(
+                  _auto_handle, overall_timeout=220, progress_callback=_auto_progress)
               _auto_names_done = set()
               for name, ips in _auto_results:
                   _auto_names_done.add(name)
@@ -2846,6 +2867,17 @@ jobs:
           print(f"DIAG-6: ECHTES SKRIPTENDE erreicht um {_time.monotonic():.2f} (monotonic)", flush=True)
           _sys.stdout.flush()
           EOF
+          # FIX DIAG-THREAD-2026-08-13: Diese Zeile laeuft erst, NACHDEM der
+          # python3-Prozess wirklich beendet ist (Bash wartet auf Exit-Code).
+          # Vergleich mit BASH-DIAG-A oben ergibt die reine Python-Prozess-
+          # laufzeit inkl. OS-seitigem Aufraeumen (Socket-/FD-Schliessen) -
+          # unabhaengig davon, was innerhalb von Python passiert ist. Bleibt
+          # zwischen dieser Zeile und dem naechsten Step (Save seen_db Cache)
+          # IMMER NOCH eine mehrminuetige Luecke, ist die Ursache zweifelsfrei
+          # ausserhalb dieses Steps (GitHub-Runner-Infrastruktur, Step-
+          # Uebergang, Log-Upload etc.), nicht im Python-Code oder im
+          # Python-Prozess-Exit selbst.
+          echo "BASH-DIAG-B: python3-Prozess beendet (Exit-Code $?) um $(date -u +%Y-%m-%dT%H:%M:%S.%6NZ)"
 
       - name: Save seen_db Cache
         # FIX BUG-AL1: if: always() ergänzt. Ohne dieses Guard wurde der Cache-Save
