@@ -2866,6 +2866,49 @@ jobs:
           # im hier sichtbaren Skript-Code.
           print(f"DIAG-6: ECHTES SKRIPTENDE erreicht um {_time.monotonic():.2f} (monotonic)", flush=True)
           _sys.stdout.flush()
+
+          # FIX SHUTDOWN-DELAY-2026-08-13: Live-Messung vom 13.08.2026 (siehe
+          # DIAG-1 bis DIAG-6 oben) bewies zweifelsfrei: zwischen DIESER
+          # letzten Codezeile und dem tatsaechlichen Prozess-Ende lagen
+          # 4:32min - OBWOHL zu dem Zeitpunkt 0 Threads mehr aktiv waren
+          # (DIAG-1). Bash-Zeitstempel direkt vor/nach dem python3-Aufruf
+          # (BASH-DIAG-A/B) bestaetigten: die Luecke liegt zu 100% INNERHALB
+          # des Python-Prozesses selbst (der naechste Step startete sofort
+          # nach BASH-DIAG-B), nicht in der GitHub-Runner-Infrastruktur.
+          # Einzig verbleibende Erklaerung: CPythons normaler Interpreter-
+          # Shutdown muss beim Beenden den kompletten Objektgraphen der
+          # riesigen db-Struktur (34,7 Mio. GC-Objekte laut DIAG-4, aus
+          # 8,9 Mio. verschachtelten seen_db-Eintraegen) per Referenz-
+          # zaehlung + zyklischer Garbage Collection sauber abbauen - reine
+          # Buchhaltung, kein Fehler, aber bei dieser Groessenordnung
+          # spuerbar langsam.
+          #
+          # Zwei Massnahmen kombiniert:
+          #   1) gc.disable() - verhindert einen finalen zyklischen
+          #      Erkennungsdurchlauf des GC ueber Millionen Objekte beim
+          #      Shutdown (typischerweise der teuerste Teil bei komplexen,
+          #      tief verschachtelten Strukturen wie unserer db).
+          #   2) os._exit(0) - umgeht Pythons kompletten normalen Shutdown
+          #      (Referenzzaehlungs-Abbau jedes einzelnen Objekts, Modul-
+          #      Teardown, atexit-Hooks) komplett. Das Betriebssystem gibt
+          #      den kompletten Prozessspeicher sofort und pauschal frei,
+          #      ohne dass Python jedes Objekt einzeln deallozieren muss.
+          #
+          # Sicher an dieser Stelle, weil (alle drei explizit geprueft):
+          #   - keine atexit.register()-Hooks im gesamten Skript
+          #   - keine __del__-Methoden auf eigenen Klassen
+          #   - kein subprocess-Modul verwendet (keine Kind-Prozesse zum
+          #     Einsammeln/Warten)
+          # UND: alle Datei-Schreibvorgaenge (write_ip_list, write_text_atomic,
+          # write_json_atomic - alle nutzen "with open(...)") sind laengst
+          # VOR "Fertig!" abgeschlossen, ihre Handles bereits per with-Block
+          # geschlossen und die Daten damit schon sicher ans Betriebssystem
+          # uebergeben, BEVOR wir hier ankommen. os._exit() umgeht also nur
+          # unnoetige interne Python-Aufraeumarbeit an bereits toten
+          # Objekten im Speicher - nicht die eigentlichen, laengst
+          # abgeschlossenen Dateischreibvorgaenge.
+          _gc.disable()
+          os._exit(0)
           EOF
           # FIX DIAG-THREAD-2026-08-13: Diese Zeile laeuft erst, NACHDEM der
           # python3-Prozess wirklich beendet ist (Bash wartet auf Exit-Code).
