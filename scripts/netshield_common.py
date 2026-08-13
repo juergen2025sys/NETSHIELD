@@ -1753,6 +1753,26 @@ def fetch_parallel_daemon_start(fetch_fn, items, max_workers):
     aufrufen - die bereits waehrend der anderen Phasen verstrichene Zeit
     wird automatisch von der Wartezeit abgezogen.
 
+    FIX BOUNDED-POOL-2026-08-13: Vorher wurde fuer JEDES Item in items SOFORT
+    ein echter OS-Thread erzeugt (max_workers begrenzte nur, wie viele davon
+    GLEICHZEITIG per Semaphore arbeiten durften - alle anderen existierten
+    trotzdem schon als blockierte Threads). Bei z.B. 120-180 Auto-Discovered-
+    Feeds (typische Groessenordnung, siehe update_combined_blacklist.yml)
+    bedeutete das 120-180 gleichzeitig existierende Threads statt der
+    gewuenschten max_workers (typ. 20-40). Das kostet nicht nur unnoetig
+    Speicher/Scheduling-Overhead, sondern wurde auch als moeglicher
+    Mitverursacher einer seit mehreren Laeufen beobachteten 5-6min-
+    Verzoegerung beim Skriptende von update_combined_blacklist.yml vermutet
+    (mehr offene Threads/Sockets = potenziell laengeres OS-seitiges
+    Aufraeumen beim Prozess-Exit). Jetzt: echter begrenzter Pool - es werden
+    NIE mehr als max_workers Threads erzeugt, jeder Worker zieht sich seine
+    Items nacheinander aus einer gemeinsamen Warteschlange. Ein Fehler in
+    fetch_fn() fuer ein einzelnes Item beendet NICHT mehr den kompletten
+    Worker-Thread (der wuerde sonst keine weiteren Items mehr abarbeiten) -
+    das Item fehlt dann einfach im Ergebnis, exakt wie bei der alten
+    Implementierung (dort crashte bei einem Fehler der jeweilige 1-Item-
+    Thread und das Item fehlte ebenso im Ergebnis).
+
     Args:
         fetch_fn, items, max_workers: wie bei fetch_parallel_daemon().
 
@@ -1764,23 +1784,37 @@ def fetch_parallel_daemon_start(fetch_fn, items, max_workers):
     import queue as _queue
     import time as _time
 
-    sem = threading.Semaphore(max_workers)
+    work_q = _queue.Queue()
+    for _item in items:
+        work_q.put(_item)
     result_q = _queue.Queue()
 
-    def _worker(item):
-        sem.acquire()
-        try:
-            result_q.put(fetch_fn(item))
-        finally:
-            sem.release()
+    def _worker():
+        while True:
+            try:
+                item = work_q.get_nowait()
+            except _queue.Empty:
+                return
+            try:
+                result_q.put(fetch_fn(item))
+            except Exception:
+                # Wie bei der alten Implementierung: ein fehlgeschlagenes
+                # Item fehlt einfach im Ergebnis, statt den ganzen Prozess
+                # zu stoeren. Anders als vorher stirbt dabei aber NICHT der
+                # komplette Worker - er macht mit dem naechsten Item weiter,
+                # sonst wuerden bei mehreren Fehlern nach und nach immer
+                # weniger Worker uebrig bleiben und die Warteschlange am
+                # Ende gar nicht mehr abgearbeitet.
+                pass
 
-    for _item in items:
-        threading.Thread(target=_worker, args=(_item,), daemon=True).start()
+    _actual_workers = min(max_workers, len(items)) if items else 0
+    for _ in range(_actual_workers):
+        threading.Thread(target=_worker, daemon=True).start()
 
     return {"queue": result_q, "total": len(items), "start": _time.monotonic()}
 
 
-def fetch_parallel_daemon_collect(handle, overall_timeout):
+def fetch_parallel_daemon_collect(handle, overall_timeout, progress_callback=None):
     """Sammelt Ergebnisse eines mit fetch_parallel_daemon_start() gestarteten
     Batches ein - die "Collect"-Haelfte, siehe fetch_parallel_daemon_start().
 
@@ -1800,10 +1834,28 @@ def fetch_parallel_daemon_collect(handle, overall_timeout):
     da ist, unabhaengig von der Deadline) - erst danach wird, falls noch
     Zeitbudget uebrig ist, blockierend auf weitere Ergebnisse gewartet.
 
+    FIX LIVE-PROGRESS-2026-08-13: Vorher gab diese Funktion NICHTS aus,
+    bis wirklich alle Ergebnisse da waren (oder die Deadline riss) - der
+    Aufrufer (z.B. Phase 4 in update_combined_blacklist.yml) konnte daher
+    erst NACH dem kompletten Warten (bis zu mehrere Minuten) ueberhaupt
+    einen Fortschritt drucken. Im Live-Log sah das wie ein kompletter
+    Stillstand aus, obwohl im Hintergrund laengst Feeds erfolgreich
+    durchliefen. Optionaler progress_callback(result) wird jetzt bei JEDEM
+    einzelnen eingesammelten Ergebnis aufgerufen - sowohl beim initialen
+    nicht-blockierenden Drain als auch waehrend des blockierenden Wartens
+    auf den Rest. Default None -> exakt das alte Verhalten, kein Bruch
+    fuer bestehende Aufrufer (z.B. fetch_parallel_daemon() weiter unten,
+    das diese Funktion intern nutzt und den Parameter nicht setzt).
+
     Args:
         handle: Rueckgabewert von fetch_parallel_daemon_start().
         overall_timeout: Gesamt-Deadline in Sekunden ab dem urspruenglichen
             Start-Aufruf.
+        progress_callback: Optional. Callable(result), wird fuer jedes
+            einzelne eingesammelte Ergebnis aufgerufen, sobald es verfuegbar
+            ist (nicht erst am Ende). Muss selbst robust gegen Fehler sein -
+            eine Exception im Callback wird HIER nicht abgefangen und wuerde
+            den Collect-Vorgang abbrechen.
 
     Returns:
         list: siehe fetch_parallel_daemon().
@@ -1821,9 +1873,12 @@ def fetch_parallel_daemon_collect(handle, overall_timeout):
     # als overall_timeout gebraucht hatten.
     while len(results) < total:
         try:
-            results.append(result_q.get_nowait())
+            _item = result_q.get_nowait()
         except _queue.Empty:
             break
+        results.append(_item)
+        if progress_callback is not None:
+            progress_callback(_item)
 
     # Danach, falls noch Zeitbudget uebrig ist, blockierend auf den Rest
     # warten (identisches Verhalten wie vorher fuer den Normalfall, in dem
@@ -1834,9 +1889,12 @@ def fetch_parallel_daemon_collect(handle, overall_timeout):
         if remaining <= 0:
             break
         try:
-            results.append(result_q.get(timeout=remaining))
+            _item = result_q.get(timeout=remaining)
         except _queue.Empty:
             break
+        results.append(_item)
+        if progress_callback is not None:
+            progress_callback(_item)
     return results
 
 
