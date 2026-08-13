@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-13 22:22 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-13 22:29 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -8,8 +8,8 @@
 | Metrik | Wert |
 |---|---|
 | Gesamt IPs | **1,296,919** |
-| Neu (heute) | **+26** |
-| Entfernt | **-16** |
+| Neu (heute) | **+0** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 63 |
@@ -75,7 +75,7 @@
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,719 |
 | ✅ `leon406_subcrawler` | 117,958 |
 | ✅ `kalidada18_threatbase_threatbase_ip_botnet` | 3,230 |
-| ✅ `hookzof_socks5_list` | 136 |
+| ✅ `hookzof_socks5_list` | 169 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,228 |
 | ✅ `claudiusdecimius_ioc_ipsets_botscout_30d` | 3,734 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,945 |
@@ -88,4 +88,4 @@
 > Diese 63 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-13 22:22 CEST (Europe/Berlin)*
+*Generiert: 2026-08-13 22:29 CEST (Europe/Berlin)*
