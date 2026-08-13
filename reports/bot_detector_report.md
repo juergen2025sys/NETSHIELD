@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-14 00:02 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-14 00:10 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,299,694** |
-| Neu (heute) | **+212** |
-| Entfernt | **-10** |
+| Gesamt IPs | **1,299,691** |
+| Neu (heute) | **+0** |
+| Entfernt | **-3** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 63 |
@@ -27,10 +27,10 @@
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,606 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,758 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,326 |
-| ✅ `ebrasha_abdal_proxy_hub` | 7,043 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,698 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,681 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,689 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,785 |
-| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,923 |
+| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,939 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,312 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,447 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,663 |
@@ -79,13 +79,13 @@
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,228 |
 | ✅ `claudiusdecimius_ioc_ipsets_botscout_30d` | 3,734 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,945 |
-| ✅ `cyberh4ck3r_free_proxy_list` | 3,054 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,243 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 1,724 |
+| ✅ `cyberh4ck3r_free_proxy_list` | 3,005 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,199 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 1,686 |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 > Diese 63 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-14 00:02 CEST (Europe/Berlin)*
+*Generiert: 2026-08-14 00:10 CEST (Europe/Berlin)*
