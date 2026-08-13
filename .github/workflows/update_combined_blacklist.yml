@@ -435,6 +435,7 @@ jobs:
           # fuer IP→int und ~10x schneller als int(ipaddress.IPv4Address(s)). Wird im
           # Sort-Key fuer combined_threat_blacklist und active_blacklist verwendet.
           import socket as _socket, struct as _struct
+          import threading as _threading
 
           def _ip_sort_key(e):
               """O(1) Sort-Key per inet_aton. CIDRs (selten) werden anhand ihrer
@@ -2763,6 +2764,24 @@ jobs:
               hq_mark = " ⭐" if name in HIGH_QUALITY else ""
               _report_parts.append(f"| `{name}`{hq_mark} | {count} |\n")
           write_text_atomic("reports/combined_threat_blacklist_report.md", "".join(_report_parts))
+
+          # FIX DIAG-THREAD-2026-08-13: Diagnose fuer die seit 15 Laeufen in Folge
+          # beobachtete ~5-6min stille Luecke zwischen diesem Print und dem
+          # naechsten Step (Save seen_db Cache) - siehe Log-Analyse 2026-08-13.
+          # Alle sichtbaren Datei-Schreibvorgaenge (write_ip_list etc.) sind zu
+          # diesem Zeitpunkt bereits abgeschlossen, die Luecke liegt danach im
+          # Prozess-Beenden selbst. Verdacht: fetch_parallel_daemon_start()
+          # (2x verwendet - DataPlane- und Auto-Discovered-Feeds) startet echte
+          # OS-Threads, die nach Ablauf des jeweiligen overall_timeout in
+          # fetch_parallel_daemon_collect() (90s/220s) aufgegeben, aber nicht
+          # aktiv beendet werden - ein noch an einer langsamen/haengenden
+          # Verbindung blockierter Thread koennte trotz daemon=True den
+          # sauberen Prozess-Exit verzoegern. Diese Zeile bestaetigt oder
+          # widerlegt das beim naechsten Lauf: Threads > 1 (nur Main-Thread
+          # waere 1) direkt vor Skriptende beweist genau das.
+          _remaining_threads = [t.name for t in _threading.enumerate() if t is not _threading.main_thread()]
+          print(f"DIAG: Aktive Threads vor Skriptende: {_threading.active_count()} "
+                f"(davon Nicht-Main: {len(_remaining_threads)}: {_remaining_threads[:20]})")
 
           print(f"\nFertig! combined: {len(sorted_ips)} IPs | active: {len(active_ips)} IPs | zu alt: {active_skipped_old} | Score<65: {active_skipped_score} | Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}")
           EOF
