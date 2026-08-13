@@ -439,6 +439,30 @@ jobs:
           import threading as _threading
           import gc as _gc, time as _time, traceback as _traceback
 
+          # FIX PHASE-TIMING-LOG-2026-08-13: Waehrend der Suche nach der
+          # Shutdown-Verzoegerung (siehe FIX SHUTDOWN-DELAY-2026-08-13 weiter
+          # unten) mussten Phasen-Uebergaenge muehsam manuell aus rohen
+          # Zeitstempeln im Log herausgesucht und von Hand verglichen werden.
+          # Dieser Helper macht das dauerhaft: jeder Phasenuebergang traegt
+          # sich selbst mit Name+Zeitstempel in _phase_log ein, eine saubere
+          # Zusammenfassungstabelle wird direkt vor "Fertig!" gedruckt -
+          # klare Phasen-Dauer auf einen Blick, ohne Log-Archaeologie.
+          _phase_log = []
+          def _phase_mark(name):
+              _phase_log.append((name, _time.monotonic()))
+
+          def _print_phase_summary():
+              if len(_phase_log) < 2:
+                  return
+              print("\n── Phasen-Zeitübersicht ──────────────────────────────────────────")
+              _total = _phase_log[-1][1] - _phase_log[0][1]
+              for i in range(1, len(_phase_log)):
+                  _name, _ts = _phase_log[i]
+                  _dauer = _ts - _phase_log[i - 1][1]
+                  print(f"  {_phase_log[i-1][0]:<45} -> {_dauer:>7.1f}s")
+              print(f"  {'─'*45}    {'─'*8}")
+              print(f"  {'GESAMT':<45}    {_total:>7.1f}s")
+
           def _ip_sort_key(e):
               """O(1) Sort-Key per inet_aton. CIDRs (selten) werden anhand ihrer
               Netz-Adresse sortiert – genau wie der alte tuple()-Key. Bei
@@ -1730,6 +1754,7 @@ jobs:
               print(f"  SKIP: {AUTO_FEEDS_FILE} nicht vorhanden")
 
           print("── Phase 0: Slow-Feeds (parallel, eigener Pool) ──────────────────")
+          _phase_mark("Setup (seen_db laden + init)")
           slow_ex = ThreadPoolExecutor(max_workers=len(SLOW_SOURCES) or 1)
           slow_futures = {slow_ex.submit(fetch_ips, n, u): n for n, u in SLOW_SOURCES.items()}
 
@@ -1740,6 +1765,7 @@ jobs:
 
           # Phase 2 – Alle übrigen Feeds parallel (ohne Slow-Feeds und DataPlane)
           print("── Phase 2: Restliche Feeds ──────────────────────────────────────")
+          _phase_mark("Phase 0: Slow-Feeds (Start)")
           print(f"  Haupt-Feed-Worker: {FEED_WORKERS}")
           # FIX PERF-REST-NOWAIT: Wie bei DataPlane nicht mit `with`, sonst wartet
           # Python nach Timeout trotzdem auf haengende Threads. Mehr Worker (24)
@@ -1763,6 +1789,7 @@ jobs:
 
           # Phase 3 – Slow-Feeds einsammeln (laufen seit Phase 0 im Hintergrund)
           print("── Phase 3: Slow-Feeds einsammeln ────────────────────────────────")
+          _phase_mark("Phase 2: Restliche Feeds")
           try:
               for future in as_completed(slow_futures, timeout=2400):
                   name, ips = future.result()
@@ -1784,6 +1811,7 @@ jobs:
           # verliert also nichts mehr, selbst wenn Phase 0-3 laenger als das
           # Zeitbudget gedauert haben.
           print("── Phase 3.5: DataPlane-Feeds einsammeln ───────────────────────────")
+          _phase_mark("Phase 3: Slow-Feeds einsammeln")
           # FIX LIVE-PROGRESS-2026-08-13: Gleicher Fix wie bei Phase 4 (dort
           # ausfuehrlicher kommentiert) - _ingest() selbst druckt nichts,
           # also war diese Phase bislang komplett still bis zum Ende.
@@ -1800,6 +1828,7 @@ jobs:
           if _dp_pending:
               print(f"::warning file=update_combined_blacklist.yml::DataPlane-Timeout – {len(_dp_pending)} Feed(s) abgebrochen: {', '.join(_dp_pending)}")
               print(f"WARNUNG: DataPlane-Phase Timeout – {', '.join(_dp_pending)} abgebrochen")
+          _phase_mark("Phase 3.5: DataPlane-Feeds einsammeln")
 
           # ── FEED-MOVE-RESOLVER: Relocation-Report ──────────────────────────
           # Nur schreiben, wenn der Resolver in diesem Lauf mind. einen Feed
@@ -1983,6 +2012,7 @@ jobs:
           # Feeds in der Zwischenzeit laengst durch sind.
           if _auto_handle is not None:
               print(f"── Phase 4: Auto-Discovered Feeds einsammeln ──────────────────")
+              _phase_mark("Zwischenarbeit (Relocation-/Override-Reports, lokale Feeds)")
               # FIX LIVE-PROGRESS-2026-08-13: Vorher war diese Phase im
               # Live-Log komplett still, bis ALLE Auto-Feeds fertig waren
               # (bis zu 220s Gesamt-Deadline) - sah nach Stillstand aus,
@@ -2009,6 +2039,7 @@ jobs:
               _auto_pending = sorted(f["name"] for f in _auto_feeds if f["name"] not in _auto_names_done)
               if _auto_pending:
                   print(f"  WARNUNG: Auto-Feeds Timeout – {len(_auto_pending)} Feed(s) abgebrochen: {', '.join(_auto_pending[:8])}{'…' if len(_auto_pending) > 8 else ''}")
+              _phase_mark("Phase 4: Auto-Discovered Feeds einsammeln")
 
 
           # ── seen_db aktualisieren ─────────────────────────────────────────
@@ -2479,6 +2510,7 @@ jobs:
           # +2% Sicherheitsaufschlag fuer Sample-Restunschaerfe
           estimated_mb = (len(sorted_ips) * _avg_line * 1.02 + _header_overhead) / 1024 / 1024
           print(f"\nGeschaetzte Groesse combined (ungesplittet): {estimated_mb:.1f} MB")
+          _phase_mark("seen_db Update + Cleanup + Scoring")
 
           if estimated_mb >= HARD_LIMIT_MB:
               # Truncate: wie viele IPs passen in TRUNCATE_TARGET_MB?
@@ -2795,6 +2827,7 @@ jobs:
           # abgeschlossen - die Luecke liegt danach, im Prozess-Beenden
           # selbst. Fuenf unabhaengige Messungen, um die Ursache einzugrenzen
           # statt nur zu vermuten:
+          _phase_mark("Output-Schreiben (write_ip_list etc.)")
           _diag_t0 = _time.monotonic()
 
           # 1) Wer ist noch aktiv, und WORAN genau haengt er (Stack-Trace,
@@ -2850,6 +2883,8 @@ jobs:
                 f"(sollte nahe 0 sein - falls nicht, haengt schon DAS)")
 
           print(f"\nFertig! combined: {len(sorted_ips)} IPs | active: {len(active_ips)} IPs | zu alt: {active_skipped_old} | Score<65: {active_skipped_score} | Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}")
+          _phase_mark("Diagnose-Block (DIAG-1 bis DIAG-5)")
+          _print_phase_summary()
 
           # FIX DIAG-THREAD-2026-08-13: Echter End-Marker als aller-aller-
           # letzte Anweisung des gesamten Skripts, MIT explizitem flush.
