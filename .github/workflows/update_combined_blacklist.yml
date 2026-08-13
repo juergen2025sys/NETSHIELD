@@ -436,6 +436,7 @@ jobs:
           # Sort-Key fuer combined_threat_blacklist und active_blacklist verwendet.
           import socket as _socket, struct as _struct
           import threading as _threading
+          import gc as _gc, time as _time, traceback as _traceback
 
           def _ip_sort_key(e):
               """O(1) Sort-Key per inet_aton. CIDRs (selten) werden anhand ihrer
@@ -2765,25 +2766,85 @@ jobs:
               _report_parts.append(f"| `{name}`{hq_mark} | {count} |\n")
           write_text_atomic("reports/combined_threat_blacklist_report.md", "".join(_report_parts))
 
-          # FIX DIAG-THREAD-2026-08-13: Diagnose fuer die seit 15 Laeufen in Folge
-          # beobachtete ~5-6min stille Luecke zwischen diesem Print und dem
-          # naechsten Step (Save seen_db Cache) - siehe Log-Analyse 2026-08-13.
-          # Alle sichtbaren Datei-Schreibvorgaenge (write_ip_list etc.) sind zu
-          # diesem Zeitpunkt bereits abgeschlossen, die Luecke liegt danach im
-          # Prozess-Beenden selbst. Verdacht: fetch_parallel_daemon_start()
-          # (2x verwendet - DataPlane- und Auto-Discovered-Feeds) startet echte
-          # OS-Threads, die nach Ablauf des jeweiligen overall_timeout in
-          # fetch_parallel_daemon_collect() (90s/220s) aufgegeben, aber nicht
-          # aktiv beendet werden - ein noch an einer langsamen/haengenden
-          # Verbindung blockierter Thread koennte trotz daemon=True den
-          # sauberen Prozess-Exit verzoegern. Diese Zeile bestaetigt oder
-          # widerlegt das beim naechsten Lauf: Threads > 1 (nur Main-Thread
-          # waere 1) direkt vor Skriptende beweist genau das.
-          _remaining_threads = [t.name for t in _threading.enumerate() if t is not _threading.main_thread()]
-          print(f"DIAG: Aktive Threads vor Skriptende: {_threading.active_count()} "
-                f"(davon Nicht-Main: {len(_remaining_threads)}: {_remaining_threads[:20]})")
+          # FIX DIAG-THREAD-2026-08-13 (erweitert): Diagnose fuer die seit 15
+          # Laeufen in Folge beobachtete ~5-6min stille Luecke zwischen dem
+          # Fertig!-Print und dem naechsten Step (Save seen_db Cache) - siehe
+          # Log-Analyse 2026-08-13. Alle sichtbaren Datei-Schreibvorgaenge
+          # (write_ip_list etc.) sind zu diesem Zeitpunkt bereits
+          # abgeschlossen - die Luecke liegt danach, im Prozess-Beenden
+          # selbst. Fuenf unabhaengige Messungen, um die Ursache einzugrenzen
+          # statt nur zu vermuten:
+          _diag_t0 = _time.monotonic()
+
+          # 1) Wer ist noch aktiv, und WORAN genau haengt er (Stack-Trace,
+          #    nicht nur der Name)? sys._current_frames() gibt fuer jeden
+          #    laufenden Thread den aktuellen Frame zurueck - damit sehen wir
+          #    exakt die Codezeile, in der ein Thread haengt (z.B. "blockiert
+          #    in socket.recv()" vs. irgendwo ganz anders).
+          _frames = _sys._current_frames()
+          _other_threads = [t for t in _threading.enumerate() if t is not _threading.main_thread()]
+          print(f"DIAG-1: Aktive Threads vor Skriptende: {_threading.active_count()} "
+                f"(davon Nicht-Main: {len(_other_threads)})")
+          for _t in _other_threads[:15]:
+              _frame = _frames.get(_t.ident)
+              if _frame is not None:
+                  _stack = _traceback.format_stack(_frame, limit=3)
+                  _last_line = _stack[-1].strip().replace("\n", " | ") if _stack else "?"
+              else:
+                  _last_line = "(kein Frame gefunden)"
+              print(f"DIAG-1b:   Thread {_t.name!r} (daemon={_t.daemon}, alive={_t.is_alive()}) "
+                    f"haengt bei: {_last_line}")
+
+          # 2) Offene File-/Socket-Deskriptoren zaehlen (Linux-spezifisch,
+          #    auf dem Runner verfuegbar). Viele offene, nie geschlossene
+          #    Sockets aus abgebrochenen Fetches waeren ein Hinweis auf
+          #    Ressourcen-Leaks aus fetch_parallel_daemon_start().
+          try:
+              _fd_count = len(os.listdir("/proc/self/fd"))
+          except Exception as _fd_err:
+              _fd_count = f"nicht ermittelbar ({_fd_err})"
+          print(f"DIAG-2: Offene File-Deskriptoren: {_fd_count}")
+
+          # 3) Versuch, jeden Nicht-Main-Thread mit kurzem Timeout zu joinen.
+          #    Antwortet er sofort (< 0.5s), war er in Wahrheit schon fertig -
+          #    dann liegt die Luecke NICHT an haengenden Threads, sondern an
+          #    etwas anderem (GC, Interpreter-Shutdown, Runner-Infrastruktur).
+          #    Antwortet er nicht, ist er der Bremsklotz.
+          for _t in _other_threads[:10]:
+              _join_start = _time.monotonic()
+              _t.join(timeout=0.5)
+              _join_elapsed = _time.monotonic() - _join_start
+              _responded = not _t.is_alive()
+              print(f"DIAG-3:   Join-Versuch {_t.name!r}: "
+                    f"{'beendet' if _responded else 'LAEUFT WEITER'} nach {_join_elapsed:.2f}s")
+
+          # 4) Garbage-Collector-Objektzahl - falls eine riesige Datenstruktur
+          #    (z.B. db mit 8,9 Mio. Eintraegen) beim Interpreter-Shutdown
+          #    langsame __del__-Aufrufe/Zyklen-Erkennung ausloest, waere das
+          #    hier sichtbar als ungewoehnlich hohe Objektzahl.
+          print(f"DIAG-4: GC-Objektzahl: {len(_gc.get_objects())}, "
+                f"gc.garbage (unloesbare Zyklen): {len(_gc.garbage)}")
+
+          print(f"DIAG-5: Diagnose-Block-Laufzeit selbst: {_time.monotonic() - _diag_t0:.2f}s "
+                f"(sollte nahe 0 sein - falls nicht, haengt schon DAS)")
 
           print(f"\nFertig! combined: {len(sorted_ips)} IPs | active: {len(active_ips)} IPs | zu alt: {active_skipped_old} | Score<65: {active_skipped_score} | Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}")
+
+          # FIX DIAG-THREAD-2026-08-13: Echter End-Marker als aller-aller-
+          # letzte Anweisung des gesamten Skripts, MIT explizitem flush.
+          # Taucht diese Zeile im Log NICHT unmittelbar (Sekundenbruchteile)
+          # nach den DIAG-Zeilen oben auf, sondern erst nach der ueblichen
+          # 5-6min-Verzoegerung, beweist das: Python selbst braucht so lange
+          # bis zu dieser letzten Zeile - die Ursache liegt dann zwingend
+          # VOR diesem Punkt (im interpretierten Code oder einem hier nicht
+          # erfassten Nicht-Thread-Mechanismus), nicht im Interpreter-
+          # Shutdown/GC danach. Taucht sie dagegen sofort auf und die Luecke
+          # kommt trotzdem noch (zwischen DIESER Zeile und dem naechsten
+          # Step), liegt die Ursache zweifelsfrei im Python-Interpreter-
+          # Shutdown selbst oder in der GitHub-Runner-Infrastruktur, nicht
+          # im hier sichtbaren Skript-Code.
+          print(f"DIAG-6: ECHTES SKRIPTENDE erreicht um {_time.monotonic():.2f} (monotonic)", flush=True)
+          _sys.stdout.flush()
           EOF
 
       - name: Save seen_db Cache
