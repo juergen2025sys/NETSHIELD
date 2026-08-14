@@ -874,7 +874,23 @@ jobs:
           # ~94,5 MB/Commit trieb die Quota) - sie braucht keine Part-Split-
           # Logik, sondern wird ab jetzt wieder ganz normal committet.
           git rm -q --cached --ignore-unmatch blacklist_confidence40_ipv4.txt 2>/dev/null || true
-          git add -A blacklist_confidence40_ipv4_part*.txt 2>/dev/null || true
+          # FIX GLOB-DELETE-BUG-2026-08-14: War unquoted
+          # (blacklist_confidence40_ipv4_part*.txt ohne Anfuehrungszeichen).
+          # Live beobachtet am 14.08.2026: blacklist_confidence40_ipv4_part3.txt
+          # wurde vom Build-Step per os.unlink() geloescht, blieb aber nach dem
+          # Push weiterhin im Repo sichtbar. Ursache, per echtem git direkt
+          # verifiziert (nicht nur vermutet): Bash expandiert das Glob-Muster
+          # SELBST, BEVOR git ueberhaupt aufgerufen wird - und expandiert dabei
+          # nur auf Dateien, die noch auf der Platte EXISTIEREN. Eine geloeschte
+          # Datei taucht in der Expansion gar nicht erst auf, git bekommt sie
+          # also nie als Argument uebergeben und kann ihre Loeschung folglich
+          # auch nicht erkennen/stagen - "git add -A" mit -A (Loeschungen
+          # erkennen) funktioniert nur, wenn GIT selbst das Pathspec-Matching
+          # macht (gegen den Index), nicht wenn Bash das Muster vorher schon
+          # auf existierende Dateien einschraenkt. Fix: Anfuehrungszeichen -
+          # git sieht dann das rohe "*"-Muster und matcht selbst gegen den
+          # Index, wo part3.txt noch als getrackt gilt.
+          git add -A "blacklist_confidence40_ipv4_part*.txt" 2>/dev/null || true
           git add watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
@@ -886,6 +902,21 @@ jobs:
               git stash --include-untracked 2>/dev/null || true
               if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
                 git stash pop 2>/dev/null || true
+                # FIX GLOB-DELETE-BUG-2026-08-14 (Sicherheitsnetz nach Rebase):
+                # Die eigentliche Ursache fuer das Wiederauftauchen geloeschter
+                # Parts ist das Quoting-Problem oben (git add -A mit unquotetem
+                # Glob sieht geloeschte Dateien nie). Als zusaetzliche
+                # Absicherung wird hier trotzdem nochmal der Ist-Zustand
+                # gestagt - falls der Rebase selbst (z.B. bei einem echten
+                # Inhalts-Konflikt) den Dateistand veraendert haben sollte,
+                # wird das VOR dem Push noch festgehalten statt stillschweigend
+                # durchgereicht.
+                git add -A "blacklist_confidence40_ipv4_part*.txt" 2>/dev/null || true
+                git add watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
+                if ! git diff --staged --quiet; then
+                  echo "Rebase hat Dateistand von unserem Ist-Zustand abweichen lassen - Korrektur-Commit"
+                  git commit -m "Confidence Blacklist: Korrektur nach Rebase (-X theirs)"
+                fi
                 if git push origin HEAD:${GITHUB_REF_NAME}; then
                   echo "Push erfolgreich (Versuch $attempt)"
                   exit 0
@@ -899,8 +930,8 @@ jobs:
                 # confidence25to39_ipv4.txt ist wieder normal getrackt
                 # (FIX WATCHLIST-VERSCHWUNDEN, 2026-08-08) und braucht daher
                 # ganz normale Konfliktbehandlung wie jede andere Datei.
-                git checkout --theirs blacklist_confidence40_ipv4_part*.txt watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
-                git add -A blacklist_confidence40_ipv4_part*.txt 2>/dev/null || true
+                git checkout --theirs "blacklist_confidence40_ipv4_part*.txt" watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
+                git add -A "blacklist_confidence40_ipv4_part*.txt" 2>/dev/null || true
                 git add watchlist_confidence25to39_ipv4.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
