@@ -1,38 +1,38 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-08-14 22:05 CEST (Berlin)
+**Aktualisiert:** 2026-08-14 22:10 CEST (Berlin)
 
 ---
 | Quelle | IPs | Neu | Frische |
 |---|---|---|---|
-| ✅ `ipsum_level4` | 6825 | +0 | 🔴 EINGEFROREN (seit 2026-08-14 03:18 CEST (Berlin), 30 Laeufe unveraendert) |
-| ✅ `dshield_1d` | 28 | +0 | 🟡 traege (seit 2026-08-14 12:33 CEST (Berlin), 17 Laeufe unveraendert) |
-| ✅ `blocklist_de_bots` | 3910 | +63 | 🟢 neu (2026-08-14 22:05 CEST (Berlin)) |
-| ✅ `blocklist_de_bruteforce` | 4862 | +5 | 🟢 neu (2026-08-14 22:05 CEST (Berlin)) |
-| ✅ `jamesbrine_honeypot` | 23602 | +0 | 🔴 EINGEFROREN (seit 2026-08-14 05:31 CEST (Berlin), 28 Laeufe unveraendert) |
-| ✅ `honeysec_ip_all` | 46391 | +0 | 🟡 traege (seit 2026-08-14 07:15 CEST (Berlin), 26 Laeufe unveraendert) |
-| ✅ `turris_greylist` | 9442 | +0 | 🔴 EINGEFROREN (seit 2026-08-14 00:11 CEST (Berlin), 35 Laeufe unveraendert) |
-| ✅ `timgerstel_suspicious_ips` | 1789 | +2 | 🟢 neu (2026-08-14 22:05 CEST (Berlin)) |
-| ✅ `sniffcat` | 27423 | +57 | 🟢 neu (2026-08-14 22:05 CEST (Berlin)) |
-| ✅ `siberkapan` | 39687 | +8 | 🟢 neu (2026-08-14 22:05 CEST (Berlin)) |
-| ✅ `reportedip` | 9977 | +1 | 🟢 neu (2026-08-14 22:05 CEST (Berlin)) |
+| ✅ `ipsum_level4` | 6825 | +0 | 🔴 EINGEFROREN (seit 2026-08-14 03:18 CEST (Berlin), 31 Laeufe unveraendert) |
+| ✅ `dshield_1d` | 28 | +0 | 🟡 traege (seit 2026-08-14 12:33 CEST (Berlin), 18 Laeufe unveraendert) |
+| ✅ `blocklist_de_bots` | 3916 | +18 | 🟢 neu (2026-08-14 22:10 CEST (Berlin)) |
+| ✅ `blocklist_de_bruteforce` | 4862 | +0 | 🟢 aktuell (seit 2026-08-14 22:05 CEST (Berlin)) |
+| ✅ `jamesbrine_honeypot` | 23602 | +0 | 🔴 EINGEFROREN (seit 2026-08-14 05:31 CEST (Berlin), 29 Laeufe unveraendert) |
+| ✅ `honeysec_ip_all` | 46391 | +0 | 🟡 traege (seit 2026-08-14 07:15 CEST (Berlin), 27 Laeufe unveraendert) |
+| ✅ `turris_greylist` | 9442 | +0 | 🔴 EINGEFROREN (seit 2026-08-14 00:11 CEST (Berlin), 36 Laeufe unveraendert) |
+| ✅ `timgerstel_suspicious_ips` | 1789 | +0 | 🟢 aktuell (seit 2026-08-14 22:05 CEST (Berlin)) |
+| ✅ `sniffcat` | 27423 | +0 | 🟢 aktuell (seit 2026-08-14 22:05 CEST (Berlin)) |
+| ✅ `siberkapan` | 39688 | +1 | 🟢 neu (2026-08-14 22:10 CEST (Berlin)) |
+| ✅ `reportedip` | 9977 | +2 | 🟢 neu (2026-08-14 22:10 CEST (Berlin)) |
 | ✅ `ipinsights` | 619486 | +0 | 🟢 aktuell (seit 2026-08-14 18:23 CEST (Berlin)) |
-| ✅ `opendbl_darknet` | 46790 | +1274 | 🟢 neu (2026-08-14 22:05 CEST (Berlin)) |
-| ✅ `bitwire_ip_list_fetch` | 30480 | +0 | 🟡 traege (seit 2026-08-14 10:44 CEST (Berlin), 20 Laeufe unveraendert) |
+| ✅ `opendbl_darknet` | 46790 | +0 | 🟢 aktuell (seit 2026-08-14 22:05 CEST (Berlin)) |
+| ✅ `bitwire_ip_list_fetch` | 30480 | +0 | 🟡 traege (seit 2026-08-14 10:44 CEST (Berlin), 21 Laeufe unveraendert) |
 | ✅ `configserverapps_365d` | 49165 | +0 | 🟢 aktuell (seit 2026-08-14 19:28 CEST (Berlin)) |
-| ✅ `kamalmjt_emerging_attackers` | 172857 | +0 | 🔴 EINGEFROREN (seit 2026-08-14 01:12 CEST (Berlin), 34 Laeufe unveraendert) |
-| ✅ `tn3w_ipblocklist` | 383712 | +0 | 🟡 traege (seit 2026-08-14 07:15 CEST (Berlin), 26 Laeufe unveraendert) |
-| ✅ `zenmorro_scanner_list` | 1313 | +0 | 🟡 traege (seit 2026-08-14 05:58 CEST (Berlin), 27 Laeufe unveraendert) |
-| ✅ `mattyroberts_threatlist` | 30983 | +0 | 🔴 EINGEFROREN (seit 2026-08-14 05:06 CEST (Berlin), 29 Laeufe unveraendert) |
-| ✅ `threatfox_export` | 19468 | +1 | 🟢 neu (2026-08-14 22:05 CEST (Berlin)) |
-| ✅ `urlhaus_export` | 4740 | +1 | 🟢 neu (2026-08-14 22:05 CEST (Berlin)) |
-| ✅ `criminalip_c2` | 50 | +0 | 🔴 EINGEFROREN (seit 2026-08-14 02:07 CEST (Berlin), 31 Laeufe unveraendert) |
+| ✅ `kamalmjt_emerging_attackers` | 172857 | +0 | 🔴 EINGEFROREN (seit 2026-08-14 01:12 CEST (Berlin), 35 Laeufe unveraendert) |
+| ✅ `tn3w_ipblocklist` | 383712 | +0 | 🟡 traege (seit 2026-08-14 07:15 CEST (Berlin), 27 Laeufe unveraendert) |
+| ✅ `zenmorro_scanner_list` | 1313 | +0 | 🔴 EINGEFROREN (seit 2026-08-14 05:58 CEST (Berlin), 28 Laeufe unveraendert) |
+| ✅ `mattyroberts_threatlist` | 30983 | +0 | 🔴 EINGEFROREN (seit 2026-08-14 05:06 CEST (Berlin), 30 Laeufe unveraendert) |
+| ✅ `threatfox_export` | 19468 | +0 | 🟢 aktuell (seit 2026-08-14 22:05 CEST (Berlin)) |
+| ✅ `urlhaus_export` | 4740 | +0 | 🟢 aktuell (seit 2026-08-14 22:05 CEST (Berlin)) |
+| ✅ `criminalip_c2` | 50 | +0 | 🔴 EINGEFROREN (seit 2026-08-14 02:07 CEST (Berlin), 32 Laeufe unveraendert) |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honeypot-IPs | **1102402** |
-| Neu | **+961** |
-| Entfernt | **-1153** |
+| Gesamt Honeypot-IPs | **1102417** |
+| Neu | **+15** |
+| Entfernt | **-0** |
 
 ---
-*Generiert: 2026-08-14 22:05 CEST (Berlin)*
+*Generiert: 2026-08-14 22:10 CEST (Berlin)*
