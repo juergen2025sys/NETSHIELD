@@ -1,16 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-14 05:29 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-14 10:36 CEST (Europe/Berlin)
 
-**Workflows:** 26 | ✅ 25 OK | ⚠️ 3 Warnung | ❌ 1 Fehler
+**Workflows:** 26 | ✅ 25 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Drift: blacklist_confidence40_ipv4_part1.txt | blacklist_confidence40_ipv4_part1.txt: 3,607,087 → 2,406,778 (-33%) – starker Rückgang seit letztem Check |
-| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 5,188 IPs in active fehlen in conf40 (0.961% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
-
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
@@ -21,12 +14,9 @@
 
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🔴 CRITICAL | Drift: blacklist_confidence40_ipv4_part1.txt | blacklist_confidence40_ipv4_part1.txt: 3,607,087 → 2,406,778 (-33%) – starker Rückgang seit letztem Check |
-| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 5,188 IPs in active fehlen in conf40 (0.961% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -60,4 +50,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-14 05:29 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
+*Generiert: 2026-08-14 10:36 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
