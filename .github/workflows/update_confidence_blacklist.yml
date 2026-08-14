@@ -756,7 +756,25 @@ jobs:
               _glob_conf40.glob("blacklist_confidence40_ipv4_part*.txt"))
 
           if _conf40_estimated_mb >= SPLIT_THRESHOLD_MB:
-              _num_parts = max(2, int((_conf40_estimated_mb / PART_TARGET_MB) + 0.5))
+              # FIX FIXED-2-PARTS-2026-08-14: War max(2, int(MB/40 + 0.5)) -
+              # bei genug Wachstum wurde daraus automatisch 3 statt 2 Parts.
+              # Das aendert die Konsumenten-Konfiguration (z.B. OPNsense-
+              # Alias mit fest 2 eingetragenen Part-URLs) unangekuendigt -
+              # ein 3. Part existiert dann zwar als Datei im Repo, wird aber
+              # von niemandem abgerufen, der nur die 2 urspruenglich
+              # bekannten URLs kennt. Gleicher Fix wie bereits in
+              # update_combined_blacklist.yml ("CHANGE ZWEI-FESTE-PARTS").
+              # PARTS-BEI-WEITEREM-WACHSTUM: Feste 2 Parts statt
+              # groessenabhaengiger Anzahl. Bei weiterem Wachstum werden die
+              # 2 Parts einfach groesser statt dass ein 3. dazukommt.
+              # EHRLICHER HINWEIS: Anders als update_combined_blacklist.yml
+              # hat DIESE Datei keine eigene Fruehwarnung-Sektion, die vor
+              # Erreichen der 200-MiB-Decke (2x100MB GitHub-Limit pro Datei)
+              # warnt - die Entscheidung fuer einen echten 3. Part muesste
+              # hier manuell anhand von _conf40_estimated_mb im Log erkannt
+              # werden, es gibt (Stand 2026-08-14) keinen automatisierten
+              # Alarm dafuer wie bei Combined.
+              _num_parts = 2
               _chunk_size = (len(confidence40) + _num_parts - 1) // _num_parts
               print(f"  -> Split aktiv: {_num_parts} Parts a ~{PART_TARGET_MB} MB "
                     f"({_chunk_size:,} IPs/Part)")
