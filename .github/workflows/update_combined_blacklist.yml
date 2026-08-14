@@ -456,10 +456,17 @@ jobs:
                   return
               print("\n── Phasen-Zeitübersicht ──────────────────────────────────────────")
               _total = _phase_log[-1][1] - _phase_log[0][1]
+              # FIX PHASE-TABLE-LABEL-BUG-2026-08-14: War _phase_log[i-1][0]
+              # (das Label der VORHERIGEN Marke) - beobachtet am 14.08.2026
+              # anhand roher Log-Zeitstempel: die als "Phase 2: Restliche
+              # Feeds -> 219.0s" ausgewiesene Zeile war in Wahrheit Phase 3s
+              # echte Dauer (Phase-3-Header bis Phase-3.5-Header). Jede Marke
+              # beschreibt "diese Phase ist JETZT zu Ende" - das Label muss
+              # also mit der Zeitspanne VOR sich selbst gepaart werden
+              # (_phase_log[i], nicht [i-1]), nicht danach.
               for i in range(1, len(_phase_log)):
-                  _name, _ts = _phase_log[i]
-                  _dauer = _ts - _phase_log[i - 1][1]
-                  print(f"  {_phase_log[i-1][0]:<45} -> {_dauer:>7.1f}s")
+                  _dauer = _phase_log[i][1] - _phase_log[i - 1][1]
+                  print(f"  {_phase_log[i][0]:<45} -> {_dauer:>7.1f}s")
               print(f"  {'─'*45}    {'─'*8}")
               print(f"  {'GESAMT':<45}    {_total:>7.1f}s")
 
@@ -2027,6 +2034,17 @@ jobs:
                   print(f"  OK  {_name}: {len(_ips)} IPs")
               _auto_results = fetch_parallel_daemon_collect(
                   _auto_handle, overall_timeout=220, progress_callback=_auto_progress)
+              # FIX PHASE4-SUBTIMING-2026-08-14: Beobachtet am 14.08.2026 -
+              # Phase 4 gesamt brauchte 827s, obwohl fetch_parallel_daemon_collect()
+              # rechnerisch fast sofort haette zurueckkommen muessen (die
+              # 220s-Deadline war zu diesem Zeitpunkt laengst verstrichen).
+              # Verdacht: die Ingestion-Schleife danach (128 Feeds, teils mit
+              # hunderttausenden IPs, reine Python dict/set-Operationen pro
+              # IP) ist der eigentliche Zeitfresser, nicht das Warten selbst.
+              # Diese Marke trennt beide Anteile auf, damit der naechste Lauf
+              # zeigt, welcher der beiden es wirklich ist, statt weiter zu
+              # vermuten.
+              _phase_mark("Phase 4a: Collect-Aufruf (Warten auf Hintergrund-Fetches)")
               _auto_names_done = set()
               for name, ips in _auto_results:
                   _auto_names_done.add(name)
@@ -2039,7 +2057,7 @@ jobs:
               _auto_pending = sorted(f["name"] for f in _auto_feeds if f["name"] not in _auto_names_done)
               if _auto_pending:
                   print(f"  WARNUNG: Auto-Feeds Timeout – {len(_auto_pending)} Feed(s) abgebrochen: {', '.join(_auto_pending[:8])}{'…' if len(_auto_pending) > 8 else ''}")
-              _phase_mark("Phase 4: Auto-Discovered Feeds einsammeln")
+              _phase_mark("Phase 4b: Ingestion-Schleife (ip_feeds_today befuellen)")
 
 
           # ── seen_db aktualisieren ─────────────────────────────────────────
