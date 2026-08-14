@@ -2300,6 +2300,7 @@ jobs:
           # abbrechen und den Run nach 45 min ohne Output beenden.
           # Bei Crash: IP wird als korrupt markiert und gedroppt.
           _corrupt_dropped = 0
+          _phase_mark("Update-Loop (seen_db aktualisieren)")
           for ip in list(db.keys()):
               try:
                   # FIX BUG-CIDR-AGGR: Schritt 0 - Non-/32-CIDRs aus Altbestand austragen.
@@ -2405,6 +2406,7 @@ jobs:
 
           for ip in _to_drop:
               db.pop(ip, None)
+          _phase_mark("Cleanup-Pass (WL/FP/Protected/Expiry)")
 
           if _corrupt_dropped:
               print(f"Korrupte seen_db-Einträge entfernt: {_corrupt_dropped}")
@@ -2528,7 +2530,7 @@ jobs:
           # +2% Sicherheitsaufschlag fuer Sample-Restunschaerfe
           estimated_mb = (len(sorted_ips) * _avg_line * 1.02 + _header_overhead) / 1024 / 1024
           print(f"\nGeschaetzte Groesse combined (ungesplittet): {estimated_mb:.1f} MB")
-          _phase_mark("seen_db Update + Cleanup + Scoring")
+          _phase_mark("Sortieren + Größenschätzung (combined)")
 
           if estimated_mb >= HARD_LIMIT_MB:
               # Truncate: wie viele IPs passen in TRUNCATE_TARGET_MB?
@@ -2796,6 +2798,7 @@ jobs:
               active_ips.sort(key=_ip_sort_key)
           except Exception:
               active_ips.sort()
+          _phase_mark("Scoring-Loop (active_ips berechnen)")
 
           # ── Leerungsschutz active ─────────────────────────────────────────
           # active_blacklist kann bei einem frischen Repo (noch keine HQ-Daten) oder
