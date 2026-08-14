@@ -1,14 +1,19 @@
 {
-  "updated": "2026-08-13 21:58 CEST (Europe/Berlin)",
+  "updated": "2026-08-14 05:29 CEST (Europe/Berlin)",
   "total": 26,
-  "ok": 24,
-  "warn": 4,
+  "ok": 25,
+  "warn": 3,
   "error": 1,
   "errors": [
     {
-      "file": "update_confidence_blacklist.yml",
-      "check": "IP-Listen Duplikate",
-      "detail": "blacklist_confidence40_ipv4.txt: 2,404,522 doppelte IPs (25.0% von 9,618,695) \u2013 Scoring-Verzerrung und aufgebl\u00e4hte Datei"
+      "file": "Production Health",
+      "check": "Drift: blacklist_confidence40_ipv4_part1.txt",
+      "detail": "blacklist_confidence40_ipv4_part1.txt: 3,607,087 \u2192 2,406,778 (-33%) \u2013 starker R\u00fcckgang seit letztem Check"
+    },
+    {
+      "file": "Production Health",
+      "check": "active \u2286 conf40 Subset-Invariante verletzt",
+      "detail": "5,188 IPs in active fehlen in conf40 (0.961% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
     }
   ],
   "warnings": [
@@ -26,29 +31,29 @@
       "file": "honigtopf.yml \u2192 update_combined_blacklist.yml",
       "check": "Sub-Workflow Puffer zu knapp",
       "detail": "Sub-Workflow laueft zu knapp vor Combined \u2013 Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC \u2192 00:07 UTC (7min < 60min Mindestpuffer); 00:20 UTC \u2192 00:27 UTC (7min < 60min Mindestpuffer); 00:40 UTC \u2192 00:47 UTC (7min < 60min Mindestpuffer); 02:20 UTC \u2192 03:07 UTC (47min < 60min Mindestpuffer); 02:40 UTC \u2192 03:07 UTC (27min < 60min Mindestpuffer)"
-    },
-    {
-      "file": "Production Health",
-      "check": "Truncate-Parts wachsen",
-      "detail": "blacklist_confidence40_ipv4.txt: 1 neue Parts hinzugekommen (3 total). Wachstumstrend pruefen."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4452365,
-    "active_blacklist_ipv4.txt": 559294,
-    "blacklist_confidence40_ipv4_part1.txt": 3607087,
+    "combined_threat_blacklist_ipv4_part1.txt": 4455997,
+    "active_blacklist_ipv4.txt": 540072,
+    "blacklist_confidence40_ipv4_part1.txt": 2406778,
     "cve_exploit_ips.txt": 28850,
-    "honeypot_ips.txt": 1208702,
-    "bot_detector_blacklist_ipv4.txt": 1296909
+    "honeypot_ips.txt": 1208922,
+    "bot_detector_blacklist_ipv4.txt": 1298729
   },
   "production_health": {
-    "critical": 0,
-    "warn": 1,
+    "critical": 2,
+    "warn": 0,
     "checks": [
       {
-        "level": "WARN",
-        "check": "Truncate-Parts wachsen",
-        "detail": "blacklist_confidence40_ipv4.txt: 1 neue Parts hinzugekommen (3 total). Wachstumstrend pruefen."
+        "level": "CRITICAL",
+        "check": "Drift: blacklist_confidence40_ipv4_part1.txt",
+        "detail": "blacklist_confidence40_ipv4_part1.txt: 3,607,087 \u2192 2,406,778 (-33%) \u2013 starker R\u00fcckgang seit letztem Check"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "active \u2286 conf40 Subset-Invariante verletzt",
+        "detail": "5,188 IPs in active fehlen in conf40 (0.961% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
       }
     ]
   },
