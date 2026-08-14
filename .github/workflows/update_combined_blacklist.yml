@@ -412,6 +412,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "BASH-DIAG-A: python3-Prozess wird gestartet um $(date -u +%Y-%m-%dT%H:%M:%S.%6NZ)"
+          export _PY_LAUNCH_EPOCH="$(date -u +%s.%N)"
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
           from netshield_common import (
@@ -450,6 +451,30 @@ jobs:
           _phase_log = []
           def _phase_mark(name):
               _phase_log.append((name, _time.monotonic()))
+
+          # FIX PHASE-BRIDGE-2026-08-14: Vorher begann die Phasen-Tabelle erst
+          # bei "Setup (seen_db laden + init)" (Phase-0-Print) - alles davor
+          # (Python-Interpreter-Start, alle Imports, seen_db.json laden) war
+          # unsichtbar, auch im GESAMT-Wert nicht enthalten. _PY_LAUNCH_EPOCH
+          # (Unix-Epoch, von Bash exportiert unmittelbar vor dem python3-
+          # Aufruf) und ein gepaartes (monotonic, wall-clock)-Zeitpaar HIER
+          # erlauben es, einen synthetischen monotonic-Zeitpunkt fuer
+          # "Bash hat Python gestartet" zu berechnen - in derselben
+          # monotonic-Zeitbasis wie alle anderen Marken, obwohl er technisch
+          # aus einem Bash-Epoch-Zeitstempel stammt. monotonic() und time()
+          # ticken mit identischer Rate (nur unterschiedlicher Nullpunkt) -
+          # die Differenz zwischen zwei nah beieinander liegenden Messungen
+          # ist deshalb in beiden Uhren praktisch identisch.
+          try:
+              _bash_launch_epoch = float(os.environ.get("_PY_LAUNCH_EPOCH", ""))
+              _bridge_mono, _bridge_wall = _time.monotonic(), _time.time()
+              _bash_launch_mono = _bridge_mono - (_bridge_wall - _bash_launch_epoch)
+              _phase_log.append(("Bash-Start (vor Python-Interpreter)", _bash_launch_mono))
+          except (ValueError, TypeError):
+              # Env-Var fehlt/kaputt (z.B. lokaler Testlauf ohne den Bash-
+              # Wrapper) - dann faengt die Tabelle wie vorher erst bei der
+              # ersten echten Phase an, kein Absturz.
+              pass
 
           def _print_phase_summary():
               if len(_phase_log) < 2:
@@ -1495,6 +1520,14 @@ jobs:
           relocations = []
 
           def fetch_ips(name, url, retries=3, timeout=22, total_timeout=None):
+              # FIX PER-FEED-TIMING-2026-08-14: Live-Log zeigte bisher nur
+              # "OK <name>: N IPs" ohne Zeitangabe - welcher einzelne Feed
+              # ungewoehnlich lange braucht, musste man muehsam durch
+              # Timestamp-Differenzen zwischen aufeinanderfolgenden Log-
+              # Zeilen erschliessen. _fetch_t0 haengt jetzt an jeder OK/ERR-
+              # Zeile die Dauer dieses einen Feeds dran - gilt fuer alle
+              # Phasen, die fetch_ips() nutzen (Phase 0, 2, DataPlane).
+              _fetch_t0 = _time.monotonic()
               # retries/timeout parametrierbar: Default (3/22s) gilt fuer Haupt-,
               # Slow- und DataPlane-Phase wie bisher. Auto-Feeds rufen mit
               # retries=1/timeout=15 (Fail-fast), damit ein einzelner zaeher Feed
@@ -1549,7 +1582,7 @@ jobs:
                               "fetched_ok": raw is not None,
                           })
                   if raw is None:
-                      print(f"ERR  {name}: fetch_url returned None")
+                      print(f"ERR  {name}: fetch_url returned None ({_time.monotonic()-_fetch_t0:.1f}s)")
                       print(f"::warning file=update_combined_blacklist.yml::Feed fetch failed [{name}]")
                       return name, set()
                   # Zentrale Formatlogik: identisch zur Auto-Discovery.
@@ -1559,10 +1592,10 @@ jobs:
                   )
                   ips   = len([e for e in found if '/' not in e])
                   cidrs = len([e for e in found if '/' in e])
-                  print(f"OK  {name}: {ips} IPs" + (f" + {cidrs} CIDRs" if cidrs else ""))
+                  print(f"OK  {name}: {ips} IPs" + (f" + {cidrs} CIDRs" if cidrs else "") + f" ({_time.monotonic()-_fetch_t0:.1f}s)")
                   return name, found
               except Exception as e:
-                  print(f"ERR  {name}: {type(e).__name__}: {e}")
+                  print(f"ERR  {name}: {type(e).__name__}: {e} ({_time.monotonic()-_fetch_t0:.1f}s)")
                   print(f"::warning file=update_combined_blacklist.yml::Feed fetch failed [{name}]: {type(e).__name__}: {e}")
                   return name, set()
 
@@ -2440,12 +2473,14 @@ jobs:
               _h = entry.get("hq_feed_names")
               if isinstance(_h, list):
                   entry["hq_feed_names"] = sorted(_h)
+          _phase_mark("Feed-Listen normalisieren (ip_feeds_today)")
 
           # Atomar via write_json_atomic (tmp-Datei + fsync + os.replace).
           # Verhindert korrupte seen_db.json bei Runner-OOM/SIGKILL/Timeout.
           # Ohne Atomicity wuerde eine halb geschriebene Datei naechsten Run
           # als korrupt erkannt → db={} → Leerungsschutz → kein Update.
           write_json_atomic(DB_FILE, db, separators=(",", ":"))
+          _phase_mark("seen_db.json schreiben (write_json_atomic)")
 
           # ── Stufe 1: combined_threat_blacklist_ipv4.txt (alle DB-IPs) ─────
           # FIX Bug6: Numerische IP-Sortierung (1.2.3.4 vor 10.0.0.1),
@@ -2565,6 +2600,7 @@ jobs:
                       f"Abgelaufen entfernt: {len(expired)}",
                   ],
               )
+              _phase_mark("combined_threat_blacklist_ipv4.txt geschrieben")
           else:
               write_ip_list(
                   "combined_threat_blacklist_ipv4.txt",
@@ -2580,6 +2616,7 @@ jobs:
                       f"Abgelaufen entfernt: {len(expired)}",
                   ],
               )
+          _phase_mark("combined_threat_blacklist_ipv4.txt geschrieben")
 
           # ── Split-Logik fuer grosse Dateien ───────────────────────────
           # GitHub lehnt Push bei Dateien > 100 MB ab. Sobald combined
@@ -2662,6 +2699,7 @@ jobs:
                       print(f"  Alten Part entfernt (unter Schwelle): {old}")
                   except OSError:
                       pass
+          _phase_mark("Part-Dateien geschrieben (combined_threat_blacklist_ipv4_part*.txt)")
 
           # ── Fruehwarnung Part-Groesse + Deckel-Policy ─────────────────
           # POLICY-CEILING: Bei fix 2 kanonischen Parts liegt die harte Decke
@@ -2810,6 +2848,7 @@ jobs:
                      f"active_blacklist_ipv4.txt wird NICHT überschrieben (behalte vorherigen Stand).")
               print(f"::warning file=update_combined_blacklist.yml::{msg}")
               print(f"WARNUNG: {msg}")
+              _phase_mark("active_blacklist_ipv4.txt geschrieben")
           else:
               # FIX ATOMIC: write_ip_list statt open("w") – Crash-sicher.
               write_ip_list(
@@ -2826,6 +2865,7 @@ jobs:
                       f"Herausgefiltert (zu alt >30T): {active_skipped_old} | (Score <65): {active_skipped_score}",
                   ],
               )
+          _phase_mark("active_blacklist_ipv4.txt geschrieben")
 
           # ── Report ─────────────────────────────────────────────────────────
           _report_parts = ["# Combined Threat Blacklist Report\n\n"]
@@ -2848,7 +2888,7 @@ jobs:
           # abgeschlossen - die Luecke liegt danach, im Prozess-Beenden
           # selbst. Fuenf unabhaengige Messungen, um die Ursache einzugrenzen
           # statt nur zu vermuten:
-          _phase_mark("Output-Schreiben (write_ip_list etc.)")
+          _phase_mark("Report schreiben (combined_threat_blacklist_report.md)")
           _diag_t0 = _time.monotonic()
 
           # 1) Wer ist noch aktiv, und WORAN genau haengt er (Stack-Trace,
@@ -3229,3 +3269,52 @@ jobs:
           gh workflow run update_confidence_blacklist.yml \
             --repo "${{ github.repository }}" \
             --ref "${GITHUB_REF_NAME}"
+
+      # FIX JOB-STEP-TIMING-2026-08-14: Die Phasen-Tabelle oben deckt nur den
+      # einen grossen Python-Step ab ("Fetch, discover, learn and build IPv4
+      # lists"). Die umliegenden Steps (Checkout, Cache Restore/Save, Backup,
+      # Commit&Push, Reputation-Feed-Fetch) haben zwar automatisch eigene
+      # Zeitstempel im Actions-Log, aber nirgends an einer Stelle gesammelt -
+      # bisher musste man dafuer durch mehrere einzelne Step-Logs manuell
+      # blaettern. Dieser Step fragt die GitHub-API nach Abschluss aller
+      # vorherigen Steps ab und druckt eine kompakte Uebersicht alter Steps
+      # dieses Jobs in EINER Stelle.
+      #
+      # if: always() - soll auch bei einem fehlgeschlagenen Lauf noch die
+      # Zeiten der bis dahin gelaufenen Steps zeigen (Debugging-Hilfe genau
+      # dann am wichtigsten, wenn etwas schiefging).
+      #
+      # continue-on-error: true - reine Diagnose-Ausgabe, darf den Job
+      # niemals zum Scheitern bringen (z.B. falls die API kurzzeitig nicht
+      # erreichbar ist oder sich das jobs-JSON-Schema mal aendert).
+      #
+      # WICHTIG (ehrlich dokumentiert): Diese gh/jq-Kombination wurde nur
+      # lokal auf Syntax geprueft (bash -n, jq-Filter gegen ein von Hand
+      # nachgebautes Beispiel-JSON) - nicht live gegen die echte GitHub-API
+      # verifiziert, weil dieses Environment keinen echten Actions-Runner-
+      # Kontext hat. Erster echter Lauf zeigt, ob das jobs-JSON-Schema exakt
+      # so aussieht wie angenommen.
+      - name: Step-Zeitübersicht (gesamter Job)
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -o pipefail
+          # FIX PIPEFAIL-2026-08-14 (waehrend Validierung entdeckt, vor dem
+          # ersten echten Lauf): Ohne pipefail wertet Bash bei "a | b | c ||
+          # fallback" nur den Exit-Code von c (hier: awk). awk gibt bei
+          # leerer Eingabe exit 0 zurueck, selbst wenn gh/jq davor in der
+          # Pipe fehlgeschlagen sind - der Fallback wuerde dann NIE greifen,
+          # nur eine leere Ueberschrift ohne Erklaerung zeigen. Mit pipefail
+          # zaehlt der erste fehlgeschlagene Befehl in der Pipe.
+          echo "── Step-Zeitübersicht (kompletter update-Job) ──────────────────────"
+          gh run view "${{ github.run_id }}" --json jobs 2>/dev/null | \
+            jq -r '
+              .jobs[] | select(.name == "update") | .steps[] |
+              select(.completedAt != null and .startedAt != null) |
+              [.name, ((.completedAt | fromdateiso8601) - (.startedAt | fromdateiso8601))] |
+              @tsv
+            ' 2>/dev/null | \
+            awk -F'\t' '{printf "  %-50s -> %6ds\n", $1, $2}' \
+            || echo "  (nicht verfügbar - gh/jq-Fehler, Berechtigung fehlt, oder Job noch nicht vollständig erfasst)"
