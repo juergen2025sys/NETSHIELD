@@ -2600,7 +2600,6 @@ jobs:
                       f"Abgelaufen entfernt: {len(expired)}",
                   ],
               )
-              _phase_mark("combined_threat_blacklist_ipv4.txt geschrieben")
           else:
               write_ip_list(
                   "combined_threat_blacklist_ipv4.txt",
@@ -2848,7 +2847,6 @@ jobs:
                      f"active_blacklist_ipv4.txt wird NICHT überschrieben (behalte vorherigen Stand).")
               print(f"::warning file=update_combined_blacklist.yml::{msg}")
               print(f"WARNUNG: {msg}")
-              _phase_mark("active_blacklist_ipv4.txt geschrieben")
           else:
               # FIX ATOMIC: write_ip_list statt open("w") – Crash-sicher.
               write_ip_list(
@@ -3314,6 +3312,18 @@ jobs:
               .jobs[] | select(.name == "update") | .steps[] |
               select(.completedAt != null and .startedAt != null) |
               [.name, ((.completedAt | fromdateiso8601) - (.startedAt | fromdateiso8601))] |
+              # FIX GO-ZERO-DATE-2026-08-14: Live bestaetigt am 14.08.2026 -
+              # GitHubs Backend (Go) liefert fuer noch nicht abgeschlossene
+              # Steps (z.B. diesen Step selbst, waehrend er noch laeuft, oder
+              # Post-Steps die erst spaeter dranmkommen) NICHT echtes JSON
+              # null fuer completedAt, sondern den Go-Zero-Value-Zeitstempel
+              # "0001-01-01T00:00:00Z". Der select() oben (!= null) greift
+              # dagegen nicht, weil das Feld ja technisch gesetzt ist - nur
+              # mit einem sinnlosen Platzhalter. Ergebnis im ersten echten
+              # Lauf: "Step-Zeitübersicht (gesamter Job) -> -63922332321s"
+              # (Differenz zwischen echter Startzeit und Jahr 1). Fix: nur
+              # Zeilen mit plausibler (positiver, unter 24h) Dauer durchlassen.
+              select(.[1] > 0 and .[1] < 86400) |
               @tsv
             ' 2>/dev/null | \
             awk -F'\t' '{printf "  %-50s -> %6ds\n", $1, $2}' \
