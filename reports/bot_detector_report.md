@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-16 00:47 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-16 00:59 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,322,597** |
-| Neu (heute) | **+77** |
-| Entfernt | **-73** |
+| Gesamt IPs | **1,322,605** |
+| Neu (heute) | **+45** |
+| Entfernt | **-37** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 63 |
@@ -27,10 +27,10 @@
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 500,000 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,308 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,270 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,642 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,606 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,661 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,814 |
-| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,945 |
+| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,949 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,967 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,370 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,413 |
@@ -51,14 +51,14 @@
 | ✅ `tuanminpay_live_proxy_http` | 6,290 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,501 |
 | ✅ `tuanminpay_live_proxy_socks5` | 2,796 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 208,063 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 208,065 |
 | ✅ `noctiro_getproxy` | 4,225 |
 | ✅ `noctiro_getproxy_socks5` | 3,365 |
-| ✅ `mohammedcha_proxripper` | 53,297 |
-| ✅ `mohammedcha_proxripper_socks4` | 113,036 |
-| ✅ `mohammedcha_proxripper_http` | 117,584 |
-| ✅ `mohammedcha_proxripper_socks5` | 115,512 |
-| ✅ `celestialbrain_worldpool` | 83,014 |
+| ✅ `mohammedcha_proxripper` | 53,404 |
+| ✅ `mohammedcha_proxripper_socks4` | 113,039 |
+| ✅ `mohammedcha_proxripper_http` | 117,607 |
+| ✅ `mohammedcha_proxripper_socks5` | 115,520 |
+| ✅ `celestialbrain_worldpool` | 83,029 |
 | ✅ `dinoz0rg_proxy_list` | 96,397 |
 | ✅ `dinoz0rg_proxy_list_http` | 1,455 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 95,288 |
@@ -75,17 +75,17 @@
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,750 |
 | ✅ `leon406_subcrawler` | 119,640 |
 | ✅ `kalidada18_threatbase_threatbase_ip_botnet` | 5,974 |
-| ✅ `hookzof_socks5_list` | 143 |
+| ✅ `hookzof_socks5_list` | 192 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,233 |
 | ✅ `claudiusdecimius_ioc_ipsets_botscout_30d` | 3,775 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,654 |
-| ✅ `cyberh4ck3r_free_proxy_list` | 3,044 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,140 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 1,694 |
+| ✅ `cyberh4ck3r_free_proxy_list` | 3,202 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,145 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 1,692 |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 > Diese 63 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-16 00:47 CEST (Europe/Berlin)*
+*Generiert: 2026-08-16 00:59 CEST (Europe/Berlin)*
