@@ -1126,6 +1126,143 @@ jobs:
                         "unerwartetes CSV-Schema")
 
           # ══════════════════════════════════════════════════════════════════
+          # CZ.NIC HaaS (Honeypot as a Service) SSH-Sensor-Export – Sonderfall,
+          # ERGAENZT 2026-08-15 auf Nutzerwunsch
+          #
+          # Laeuft NICHT ueber die generische HONEYPOT_SOURCES-Schleife oben,
+          # aus denselben strukturellen Gruenden wie criminalip_c2 UND
+          # threatfox_export kombiniert:
+          #   1. TAGESDATUM-basierte URL, kein fixer "latest"-Alias:
+          #      https://haas.nic.cz/stats/export/{JAHR}/{JAHR}-{MM}-{TT}.json.gz
+          #      (Muster aus der offiziellen IntelMQ-Feed-Doku uebernommen;
+          #      https://haas.nic.cz/stats/ dokumentiert denselben Pfad fuer
+          #      den rekursiven wget-Bulk-Download). Analog zu criminalip_c2:
+          #      heutige Datei zuerst versuchen, bei 404 (Tagesdump laut
+          #      CZ.NIC "einmal taeglich" veroeffentlicht, kann je nach
+          #      Cron-Slot noch nicht existieren) auf gestern zurueckfallen -
+          #      SO holt der Feed bei jedem Lauf zuverlaessig den jeweils
+          #      neuesten verfuegbaren Dump, ohne ein Datum hart zu kodieren.
+          #   2. Antwort ist binaeres GZIP (kein Text) - wie bei threatfox_export
+          #      darf das NICHT ueber fetch()/fetch_large() laufen (die
+          #      dekodieren immer als UTF-8-Text, was ein GZIP korrumpieren
+          #      wuerde). Eigener binaersicherer Download + gzip.decompress()
+          #      hier, analog zu _tf_fetch_binary() oben.
+          #
+          # SCHEMA-UNSICHERHEIT (bewusst konservativ geloest): das exakte
+          # JSON-Schema des taeglichen Exports ist NICHT offiziell dokumentiert
+          # (haas.nic.cz/stats/ zeigt nur den Download-Befehl, keine Feld-
+          # referenz). Der einzige belegte Feldname stammt aus dem Quellcode-
+          # Kommentar des zugrundeliegenden cowrie-multiport-Forks
+          # (gitlab.nic.cz/turris/cowrie-multiport: "remoteIP is ip of
+          # attacker") - das ist aber die DB-Spalte, nicht zwingend identisch
+          # mit dem Export-JSON-Key. Statt auf einen einzelnen vermuteten
+          # Feldnamen zu wetten (Bruch bei jedem Schema-Wechsel, wie es vorher
+          # bei CTU/stratosphere_aip passiert ist - siehe Changelog "ENTFERNT
+          # 2026-08-12" oben), wird das komplette JSON rekursiv nach
+          # String-Werten durchsucht, die eine gueltige oeffentliche
+          # IPv4-Adresse sind (is_valid_public_ipv4() bleibt die eigentliche
+          # Qualitaetsschranke). Robuster gegenueber Feldnamen-Drift, dafuer
+          # potenziell auch IPs aus Nicht-Angreifer-Feldern, falls das Schema
+          # z.B. auch "kippoIP" (= eigener Turris-Router, siehe Kommentar
+          # oben) als Public-IP fuehren sollte - deshalb bewusst NICHT in
+          # LARGE_SOURCES/HQ, sondern als normale Zusatzquelle mit
+          # Cross-Validation durch die anderen Feeds. Falls sich das Schema
+          # spaeter als stabil herausstellt, kann hier gezielt auf ein festes
+          # Feld (z.B. "remoteIP") verengt werden - siehe TODO unten.
+          HAAS_READ_LIMIT = 100 * 1024 * 1024  # 100 MB Sicherheitsgrenze (komprimiert)
+
+          def _haas_fetch_gz(d, retries=3, timeout=30):
+              url = (f"https://haas.nic.cz/stats/export/"
+                     f"{d.strftime('%Y')}/{d.strftime('%Y-%m-%d')}.json.gz")
+              for attempt in range(1, retries + 1):
+                  req = urllib.request.Request(
+                      url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor-HaaS/1.0"}
+                  )
+                  try:
+                      with urllib.request.urlopen(req, timeout=timeout) as r:
+                          data = r.read(HAAS_READ_LIMIT + 1)
+                          if len(data) > HAAS_READ_LIMIT:
+                              print(f"  FEHLER haas_ssh: Antwort > "
+                                    f"{HAAS_READ_LIMIT} bytes – Abbruch")
+                              return None, url
+                          return data, url
+                  except urllib.error.HTTPError as e:
+                      if e.code == 404:
+                          # Tagesdatei existiert (noch) nicht - kein Retry
+                          # sinnvoll, sofort an Caller zurueckgeben (der
+                          # versucht dann ggf. den Vortag).
+                          return None, url
+                      print(f"  HTTP {e.code} haas_ssh ({url}, "
+                            f"Versuch {attempt}/{retries})")
+                      if attempt < retries:
+                          time.sleep(2 ** attempt)
+                  except Exception as e:
+                      if attempt < retries:
+                          time.sleep(2 ** attempt)
+                      else:
+                          print(f"  FEHLER haas_ssh (nach {retries} Versuchen, "
+                                f"{url}): {e}")
+              return None, url
+
+          # Heute zuerst, bei 404/Fehler automatisch Fallback auf gestern -
+          # garantiert den jeweils neuesten verfuegbaren Tagesdump ohne
+          # manuelles Nachpflegen eines Datums.
+          haas_raw, haas_url = _haas_fetch_gz(now)
+          if haas_raw is None:
+              haas_raw, haas_url = _haas_fetch_gz(now - timedelta(days=1))
+
+          if haas_raw is None:
+              stats["haas_ssh"] = 0
+              fetch_failed.add("haas_ssh")
+              print("  haas_ssh: FETCH FEHLGESCHLAGEN (None) – weder heutiger "
+                    "noch gestriger Tagesdump erreichbar")
+              print("::warning ::Honeypot-Feed haas_ssh nicht erreichbar "
+                    "(fetch=None)")
+          else:
+              try:
+                  import gzip as _gzip
+                  haas_json_bytes = _gzip.decompress(haas_raw)
+                  haas_data = json.loads(haas_json_bytes.decode("utf-8", errors="ignore"))
+              except Exception as e:
+                  stats["haas_ssh"] = 0
+                  fetch_failed.add("haas_ssh")
+                  print(f"  haas_ssh: GZIP/JSON-Entpacken fehlgeschlagen "
+                        f"({haas_url}): {e}")
+                  print("::warning ::Honeypot-Feed haas_ssh lieferte kein "
+                        "gueltiges gzip-JSON – Format pruefen")
+                  haas_data = None
+
+              if haas_data is not None:
+                  haas_ips = set()
+
+                  def _haas_walk(node):
+                      # Rekursiver Scan statt festem Feldnamen-Zugriff, siehe
+                      # SCHEMA-UNSICHERHEIT-Kommentar oben.
+                      if isinstance(node, dict):
+                          for v in node.values():
+                              _haas_walk(v)
+                      elif isinstance(node, list):
+                          for v in node:
+                              _haas_walk(v)
+                      elif isinstance(node, str):
+                          m = IPV4_RE.search(node)
+                          if m and is_valid_public_ipv4(m.group(0)):
+                              haas_ips.add(m.group(0))
+
+                  _haas_walk(haas_data)
+
+                  all_ips.update(haas_ips)
+                  stats["haas_ssh"] = len(haas_ips)
+                  feed_ip_sets["haas_ssh"] = haas_ips
+                  print(f"  haas_ssh: {len(haas_ips)} IPs "
+                        f"({len(haas_raw)} bytes gzip, {haas_url})")
+                  if not haas_ips:
+                      print("  WARNUNG haas_ssh: 0 IPs geparst – Schema "
+                            "pruefen (siehe SCHEMA-UNSICHERHEIT-Kommentar oben)")
+                      print("::warning ::Honeypot-Feed haas_ssh lieferte "
+                            "Daten aber 0 gueltige IPs")
+
+          # ══════════════════════════════════════════════════════════════════
           # FRESHNESS-TRACKING – ERGAENZT 2026-07-25
           #
           # Bisher zeigte der Report nur "Feed erreichbar, N IPs" (✅/⚠️/❌).
