@@ -520,7 +520,28 @@ jobs:
               _bash_launch_epoch = float(os.environ.get("_PY_LAUNCH_EPOCH", ""))
               _bridge_mono, _bridge_wall = _time.monotonic(), _time.time()
               _bash_launch_mono = _bridge_mono - (_bridge_wall - _bash_launch_epoch)
-              _phase_log.append(("Bash-Start (vor Python-Interpreter)", _bash_launch_mono))
+              # FIX DIAG-BOTTLENECK-BUGFIX-2026-08-15: Beobachtet live am
+              # 15.08.2026 - IndexError: tuple index out of range in
+              # _print_phase_summary. Ursache: dieser synthetische Bash-
+              # Start-Eintrag wurde noch als 2-Tupel (name, monotonic)
+              # angehaengt, waehrend _phase_mark() seit der DIAG-BOTTLENECK-
+              # Erweiterung ueberall 4-Tupel (name, monotonic, process_time,
+              # rss_kb) erzeugt - _print_phase_summary griff beim ALLERERSTEN
+              # Tabelleneintrag (i=1, _phase_log[0] = dieser hier) auf Index
+              # 2/3 zu und fand nur 2 Elemente vor. Fuer den Zeitpunkt VOR
+              # dem Python-Start gibt es naturgemaess keine echte CPU-Zeit/
+              # RSS-Messung - 0.0 CPU-Zeit ist sachlich korrekt (Prozess
+              # existierte noch nicht), fuer RSS wird ersatzweise der
+              # aktuelle Stand direkt nach den Imports genommen (der
+              # naechstbeste verfuegbare Wert, minimal ungenau, aber die
+              # Tabelle zeigt fuer DIESE eine Zeile ohnehin nur eine RSS-
+              # Differenz von ~0, das faellt nicht ins Gewicht).
+              _phase_log.append((
+                  "Bash-Start (vor Python-Interpreter)",
+                  _bash_launch_mono,
+                  0.0,
+                  _resource.getrusage(_resource.RUSAGE_SELF).ru_maxrss,
+              ))
           except (ValueError, TypeError):
               # Env-Var fehlt/kaputt (z.B. lokaler Testlauf ohne den Bash-
               # Wrapper) - dann faengt die Tabelle wie vorher erst bei der
@@ -3173,7 +3194,28 @@ jobs:
 
           print(f"\nFertig! combined: {len(sorted_ips)} IPs | active: {len(active_ips)} IPs | zu alt: {active_skipped_old} | Score<65: {active_skipped_score} | Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}")
           _phase_mark("Diagnose-Block (DIAG-1 bis DIAG-5)")
-          _print_phase_summary()
+
+          # FIX DIAG-BOTTLENECK-CRASHGUARD-2026-08-15: Live beobachtet am
+          # 15.08.2026 - ein Bug in _print_phase_summary() (IndexError, siehe
+          # FIX DIAG-BOTTLENECK-BUGFIX-2026-08-15 weiter oben) crashte den
+          # gesamten python3-Prozess NACH "Fertig!", also NACHDEM seen_db,
+          # combined/active-Listen und Parts bereits korrekt geschrieben
+          # waren. Ein nicht abgefangener Fehler hier haette trotzdem den
+          # kompletten Step mit Exit-Code != 0 beendet - "Save seen_db
+          # Cache", "Backup", "Commit and Push" waeren NICHT mehr gelaufen,
+          # obwohl alle Daten laengst korrekt vorlagen. Reiner Diagnose-Code
+          # (der die eigentliche Blacklist-Verarbeitung nicht mehr
+          # beeinflusst) darf niemals einen erfolgreichen Lauf zum Scheitern
+          # bringen. Gleiches Prinzip wie beim CRASH-GUARD im Cleanup-Pass
+          # weiter oben: Fehler wird als Warning geloggt, Skript laeuft
+          # normal zu Ende weiter.
+          try:
+              _print_phase_summary()
+          except Exception:
+              print("::warning file=update_combined_blacklist.yml::"
+                    "_print_phase_summary() ist fehlgeschlagen (Diagnose-Code, "
+                    "beeinflusst die bereits geschriebenen Ausgabedateien NICHT):")
+              _traceback.print_exc()
 
           # FIX DIAG-THREAD-2026-08-13: Echter End-Marker als aller-aller-
           # letzte Anweisung des gesamten Skripts, MIT explizitem flush.
