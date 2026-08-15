@@ -439,6 +439,7 @@ jobs:
           import socket as _socket, struct as _struct
           import threading as _threading
           import gc as _gc, time as _time, traceback as _traceback
+          import resource as _resource
 
           # FIX PHASE-TIMING-LOG-2026-08-13: Waehrend der Suche nach der
           # Shutdown-Verzoegerung (siehe FIX SHUTDOWN-DELAY-2026-08-13 weiter
@@ -448,9 +449,59 @@ jobs:
           # sich selbst mit Name+Zeitstempel in _phase_log ein, eine saubere
           # Zusammenfassungstabelle wird direkt vor "Fertig!" gedruckt -
           # klare Phasen-Dauer auf einen Blick, ohne Log-Archaeologie.
+          #
+          # FIX DIAG-BOTTLENECK-2026-08-15: Reine Wanduhr-Zeit (monotonic)
+          # beantwortet NICHT die Frage "rechnet der Prozess wirklich, oder
+          # wartet/haengt er nur (GC-Pause, Swapping, vom Runner gedrosselte
+          # CPU)?". Beobachtet am 15.08.2026: ein 65min-Lauf bei praktisch
+          # unveraenderter seen_db-Groesse gegenueber einem 25min-Lauf
+          # desselben Tages - im Code selbst liess sich kein Mehr an Arbeit
+          # finden (siehe insb. die 500s-Luecke in der alten "Phase 3.5"
+          # weiter unten, die sich mit den print()-Anweisungen im Code NICHT
+          # erklaeren liess). Jede Marke erfasst deshalb zusaetzlich zur
+          # Wanduhr-Zeit die tatsaechlich verbrauchte Prozess-CPU-Zeit
+          # (process_time()) und den aktuellen Speicherstand (RSS, ru_maxrss
+          # ist unter Linux ein monoton wachsendes Peak-RSS in KB, daher wird
+          # hier nur die Differenz zwischen zwei Marken interessant). Klafft
+          # Wanduhr- und CPU-Zeit einer Phase deutlich auseinander (CPU-Zeit
+          # << Wanduhr-Zeit), rechnet der Prozess in diesem Fenster NICHT -
+          # er wartet auf etwas (I/O, Scheduler, gedrosselte CPU-Quota). Das
+          # ist der zentrale Indikator, um "unser Code ist langsamer
+          # geworden" von "der Runner hat uns in diesem Fenster ausgebremst"
+          # zu unterscheiden, ohne dass wir das im Vorfeld erraten muessten.
           _phase_log = []
           def _phase_mark(name):
-              _phase_log.append((name, _time.monotonic()))
+              _phase_log.append((
+                  name,
+                  _time.monotonic(),
+                  _time.process_time(),
+                  _resource.getrusage(_resource.RUSAGE_SELF).ru_maxrss,
+              ))
+
+          # FIX DIAG-BOTTLENECK-2026-08-15: cgroup-CPU-Throttling direkt an
+          # der Quelle auslesen. GitHub-hosted ubuntu-latest-Runner laufen in
+          # einem cgroup-v2-Container mit CPU-Quota; wird die Quota
+          # ueberschritten, drosselt der Kernel den Prozess, OHNE dass davon
+          # irgendetwas im Python-Prozess selbst sichtbar waere (kein Fehler,
+          # keine Exception - der Prozess wird einfach fuer Zeitfenster
+          # angehalten). /sys/fs/cgroup/cpu.stat fuehrt genau das mit:
+          # nr_throttled (wie oft gedrosselt) und throttled_usec (wie lange
+          # insgesamt). Fail-open: existiert die Datei nicht (aeltere
+          # Runner-Images, cgroup v1, lokaler Testlauf) oder ist sie nicht
+          # lesbar, liefert die Funktion None - der Rest des Skripts laeuft
+          # unveraendert weiter, es fehlt nur dieser eine Diagnose-Wert.
+          def _cgroup_cpu_stat():
+              try:
+                  with open("/sys/fs/cgroup/cpu.stat", encoding="utf-8") as _cf:
+                      _vals = {}
+                      for _line in _cf:
+                          _k, _, _v = _line.strip().partition(" ")
+                          if _k:
+                              _vals[_k] = int(_v)
+                      return _vals.get("nr_throttled"), _vals.get("throttled_usec")
+              except (FileNotFoundError, OSError, ValueError):
+                  return None, None
+          _cgroup_nr_throttled_start, _cgroup_throttled_usec_start = _cgroup_cpu_stat()
 
           # FIX PHASE-BRIDGE-2026-08-14: Vorher begann die Phasen-Tabelle erst
           # bei "Setup (seen_db laden + init)" (Phase-0-Print) - alles davor
@@ -481,6 +532,7 @@ jobs:
                   return
               print("\n── Phasen-Zeitübersicht ──────────────────────────────────────────")
               _total = _phase_log[-1][1] - _phase_log[0][1]
+              _total_cpu = _phase_log[-1][2] - _phase_log[0][2]
               # FIX PHASE-TABLE-LABEL-BUG-2026-08-14: War _phase_log[i-1][0]
               # (das Label der VORHERIGEN Marke) - beobachtet am 14.08.2026
               # anhand roher Log-Zeitstempel: die als "Phase 2: Restliche
@@ -489,11 +541,66 @@ jobs:
               # beschreibt "diese Phase ist JETZT zu Ende" - das Label muss
               # also mit der Zeitspanne VOR sich selbst gepaart werden
               # (_phase_log[i], nicht [i-1]), nicht danach.
+              #
+              # FIX DIAG-BOTTLENECK-2026-08-15: Spalten CPU-Zeit und
+              # RSS-Delta ergaenzt (siehe Kommentar bei _phase_mark). Eine
+              # Phase, bei der Wand << CPU liegt (z.B. Wand=8.3min, CPU=0.4s),
+              # ist der eindeutige Beweis, dass in genau diesem Fenster
+              # gewartet statt gerechnet wurde - der naechste Blick geht dann
+              # zu "Lücke(Wand-CPU)" ganz rechts, nicht zurueck in den Code.
+              print(f"  {'Phase':<45} {'Wand':>8} {'CPU':>8} {'Lücke(Wand-CPU)':>16} {'RSS-Δ':>10}")
               for i in range(1, len(_phase_log)):
                   _dauer = _phase_log[i][1] - _phase_log[i - 1][1]
-                  print(f"  {_phase_log[i][0]:<45} -> {_dauer:>7.1f}s")
-              print(f"  {'─'*45}    {'─'*8}")
-              print(f"  {'GESAMT':<45}    {_total:>7.1f}s")
+                  _cpu   = _phase_log[i][2] - _phase_log[i - 1][2]
+                  _rss_delta_mb = (_phase_log[i][3] - _phase_log[i - 1][3]) / 1024
+                  _luecke = _dauer - _cpu
+                  print(f"  {_phase_log[i][0]:<45} {_dauer:>7.1f}s {_cpu:>7.1f}s "
+                        f"{_luecke:>15.1f}s {_rss_delta_mb:>+9.0f}MB")
+              print(f"  {'─'*45} {'─'*8} {'─'*8} {'─'*16} {'─'*10}")
+              print(f"  {'GESAMT':<45} {_total:>7.1f}s {_total_cpu:>7.1f}s "
+                    f"{_total - _total_cpu:>15.1f}s")
+
+              # FIX DIAG-BOTTLENECK-2026-08-15: cgroup-Throttling-Delta ueber
+              # den GESAMTEN Lauf, direkt unter der Tabelle - das ist die
+              # konkrete Antwort auf "war es der GitHub-Runner?": > 0s
+              # throttled_delta heisst, der Kernel hat die CPU-Quota dieses
+              # Containers in diesem Lauf tatsaechlich gedrosselt.
+              _cur_nr, _cur_usec = _cgroup_cpu_stat()
+              if _cur_usec is not None and _cgroup_throttled_usec_start is not None:
+                  _thr_delta_s = (_cur_usec - _cgroup_throttled_usec_start) / 1_000_000
+                  _thr_count = (_cur_nr or 0) - (_cgroup_nr_throttled_start or 0)
+                  print(f"\n  cgroup CPU-Throttling in diesem Lauf: {_thr_delta_s:.1f}s "
+                        f"gedrosselt ({_thr_count}x) "
+                        f"{'← Runner hat die CPU-Quota gedrosselt!' if _thr_delta_s > 5 else ''}")
+              else:
+                  print("\n  cgroup CPU-Throttling: nicht verfuegbar (kein cgroup-v2 cpu.stat lesbar)")
+
+              # FIX DIAG-BOTTLENECK-2026-08-15: Automatische Warnung als
+              # GitHub-Annotation, wenn der Lauf eine Schwelle ueberschreitet.
+              # Damit ist die Ursache sofort in der Actions-UI sichtbar
+              # (Warnungs-Banner), ohne dass jemand das volle Log oeffnen und
+              # die Tabelle oben von Hand suchen muss. Schwelle bewusst
+              # oberhalb der normalen ~22min (siehe watchdog_combined.yml)
+              # aber unterhalb der bisher beobachteten Ausreisser (~65min)
+              # gewaehlt.
+              RUNTIME_WARN_THRESHOLD_S = 2400  # 40min
+              if _total > RUNTIME_WARN_THRESHOLD_S:
+                  _sorted_phases = sorted(
+                      ((_phase_log[i][0],
+                        _phase_log[i][1] - _phase_log[i - 1][1],
+                        (_phase_log[i][1] - _phase_log[i - 1][1]) - (_phase_log[i][2] - _phase_log[i - 1][2]))
+                       for i in range(1, len(_phase_log))),
+                      key=lambda x: -x[1]
+                  )[:3]
+                  _top3 = "; ".join(f"{n}: {d:.0f}s (davon {l:.0f}s Lücke)" for n, d, l in _sorted_phases)
+                  _thr_note = ""
+                  if _cur_usec is not None and _cgroup_throttled_usec_start is not None:
+                      _thr_delta_s = (_cur_usec - _cgroup_throttled_usec_start) / 1_000_000
+                      if _thr_delta_s > 5:
+                          _thr_note = f" | cgroup-Throttling: {_thr_delta_s:.0f}s"
+                  print(f"::warning file=update_combined_blacklist.yml::Lauf dauerte "
+                        f"{_total/60:.1f}min (> {RUNTIME_WARN_THRESHOLD_S/60:.0f}min-Schwelle). "
+                        f"Top-3-Phasen: {_top3}{_thr_note}")
 
           def _ip_sort_key(e):
               """O(1) Sort-Key per inet_aton. CIDRs (selten) werden anhand ihrer
@@ -1860,6 +1967,17 @@ jobs:
               print(f"  OK  {_name}: {len(_ips)} IPs")
           _dp_results = fetch_parallel_daemon_collect(
               _dp_handle, overall_timeout=90, progress_callback=_dp_progress)
+          # FIX DIAG-BOTTLENECK-2026-08-15: Bislang war "Phase 3.5" EINE
+          # Marke ueber collect() UND die anschliessende _ingest()-Schleife.
+          # Im Lauf vom 15.08.2026 lag dazwischen eine stille 500s-Luecke
+          # (499.4s laut damaliger Tabelle), fuer die sich im Code keine
+          # einzige print()-Anweisung fand, die sie erklaert haette - collect()
+          # selbst druckt alle "OK ..."-Zeilen quasi augenblicklich (drain-
+          # first), die Ingest-Schleife danach ist fuer ~200k IPs trivial
+          # billig. Split in zwei Marken schliesst die Luecke beim naechsten
+          # Mal exakt einer der beiden Haelften zu, statt wieder raten zu
+          # muessen.
+          _phase_mark("Phase 3.5a: DataPlane collect() (fetch_parallel_daemon_collect)")
           _dp_names_done = set()
           for name, ips in _dp_results:
               _dp_names_done.add(name)
@@ -1868,7 +1986,7 @@ jobs:
           if _dp_pending:
               print(f"::warning file=update_combined_blacklist.yml::DataPlane-Timeout – {len(_dp_pending)} Feed(s) abgebrochen: {', '.join(_dp_pending)}")
               print(f"WARNUNG: DataPlane-Phase Timeout – {', '.join(_dp_pending)} abgebrochen")
-          _phase_mark("Phase 3.5: DataPlane-Feeds einsammeln")
+          _phase_mark("Phase 3.5b: DataPlane _ingest()-Schleife")
 
           # ── FEED-MOVE-RESOLVER: Relocation-Report ──────────────────────────
           # Nur schreiben, wenn der Resolver in diesem Lauf mind. einen Feed
@@ -2940,6 +3058,28 @@ jobs:
 
           print(f"DIAG-5: Diagnose-Block-Laufzeit selbst: {_time.monotonic() - _diag_t0:.2f}s "
                 f"(sollte nahe 0 sein - falls nicht, haengt schon DAS)")
+
+          # FIX DIAG-BOTTLENECK-2026-08-15: Peak-RSS und Runner-Kontext
+          # (Kernzahl, Load-Average) am Skriptende. ru_maxrss ist unter Linux
+          # das ueber den GESAMTEN Prozess bislang groesste RSS in KB (nicht
+          # der aktuelle Stand) - zusammen mit den RSS-Δ-Spalten der
+          # Phasentabelle oben zeigt das, OB und WANN der Speicherbedarf
+          # (aktuell seen_db ~9,1 Mio. Eintraege / 3,1 GB) in Richtung der
+          # 7GB-RAM-Grenze der Standard-ubuntu-latest-Runner läuft - das
+          # waere ein weiterer Kandidat fuer Wand-CPU-Luecken (Swapping statt
+          # OOM-Kill). Fail-open: os.cpu_count()/loadavg fehlen im
+          # Container ohnehin selten, aber sicherheitshalber try/except.
+          try:
+              _peak_rss_mb = _resource.getrusage(_resource.RUSAGE_SELF).ru_maxrss / 1024
+              _ncpu = os.cpu_count()
+              _load1, _load5, _load15 = os.getloadavg()
+              print(f"DIAG-7: Peak-RSS: {_peak_rss_mb:.0f} MB | "
+                    f"CPU-Kerne (os.cpu_count): {_ncpu} | "
+                    f"Load-Average: {_load1:.2f} / {_load5:.2f} / {_load15:.2f} "
+                    f"(1/5/15min - Werte deutlich > Kernzahl deuten auf "
+                    f"Ueberbuchung/Nachbarn auf demselben Host hin)")
+          except (OSError, AttributeError) as _diag7_e:
+              print(f"DIAG-7: nicht verfuegbar ({_diag7_e})")
 
           print(f"\nFertig! combined: {len(sorted_ips)} IPs | active: {len(active_ips)} IPs | zu alt: {active_skipped_old} | Score<65: {active_skipped_score} | Feeds: {len(SOURCES) + len(LOCAL_FEEDS)}")
           _phase_mark("Diagnose-Block (DIAG-1 bis DIAG-5)")
