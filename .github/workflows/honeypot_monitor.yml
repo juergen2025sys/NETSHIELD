@@ -594,6 +594,11 @@ jobs:
               "tn3w_ipblocklist":
                   "https://github.com/tn3w/IPBlocklist/releases/latest/download/blocklist.netset",
 
+              # ipblocklist.eu: oeffentliche IPv4-Blocklist ohne CIDR,
+              # eine IP-Adresse pro Zeile.
+              "ipblocklist_eu":
+                  "https://ipblocklist.eu/ipblocklist_no_cidr.txt",
+
               # zenmorro/Scanner-List: Node.js-Honeypot-Feed (Einzelperson-
               # Repo, kein bekannter/etablierter Betreiber). Live verifiziert
               # am 08.08.2026: 1.274 Eintraege, frischer Zeitstempel im
