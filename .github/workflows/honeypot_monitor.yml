@@ -1195,14 +1195,23 @@ jobs:
                           if len(data) > HAAS_READ_LIMIT:
                               print(f"  FEHLER haas_ssh: Antwort > "
                                     f"{HAAS_READ_LIMIT} bytes – Abbruch")
-                              return None, url
-                          return data, url
+                              return None, url, None
+                          # FIX HAAS-PUBLISH-TIME-2026-08-15: Last-Modified
+                          # mitschreiben, weil CZ.NIC keine dokumentierte
+                          # Veroeffentlichungszeit fuer den Tagesdump angibt
+                          # (haas.nic.cz/stats/ nennt nur "einmal taeglich",
+                          # keine Uhrzeit). Ueber diesen Header laesst sich
+                          # die tatsaechliche Publish-Zeit empirisch aus den
+                          # Actions-Logs mehrerer Laeufe ablesen, statt sie
+                          # zu erraten - siehe Log-Zeile bei "haas_ssh: N IPs".
+                          last_mod = r.headers.get("Last-Modified")
+                          return data, url, last_mod
                   except urllib.error.HTTPError as e:
                       if e.code == 404:
                           # Tagesdatei existiert (noch) nicht - kein Retry
                           # sinnvoll, sofort an Caller zurueckgeben (der
                           # versucht dann ggf. den Vortag).
-                          return None, url
+                          return None, url, None
                       print(f"  HTTP {e.code} haas_ssh ({url}, "
                             f"Versuch {attempt}/{retries})")
                       if attempt < retries:
@@ -1213,14 +1222,14 @@ jobs:
                       else:
                           print(f"  FEHLER haas_ssh (nach {retries} Versuchen, "
                                 f"{url}): {e}")
-              return None, url
+              return None, url, None
 
           # Heute zuerst, bei 404/Fehler automatisch Fallback auf gestern -
           # garantiert den jeweils neuesten verfuegbaren Tagesdump ohne
           # manuelles Nachpflegen eines Datums.
-          haas_raw, haas_url = _haas_fetch_gz(now)
+          haas_raw, haas_url, haas_last_modified = _haas_fetch_gz(now)
           if haas_raw is None:
-              haas_raw, haas_url = _haas_fetch_gz(now - timedelta(days=1))
+              haas_raw, haas_url, haas_last_modified = _haas_fetch_gz(now - timedelta(days=1))
 
           if haas_raw is None:
               stats["haas_ssh"] = 0
@@ -1266,7 +1275,8 @@ jobs:
                   stats["haas_ssh"] = len(haas_ips)
                   feed_ip_sets["haas_ssh"] = haas_ips
                   print(f"  haas_ssh: {len(haas_ips)} IPs "
-                        f"({len(haas_raw)} bytes gzip, {haas_url})")
+                        f"({len(haas_raw)} bytes gzip, Last-Modified: "
+                        f"{haas_last_modified or 'unbekannt'}, {haas_url})")
                   if not haas_ips:
                       print("  WARNUNG haas_ssh: 0 IPs geparst – Schema "
                             "pruefen (siehe SCHEMA-UNSICHERHEIT-Kommentar oben)")
