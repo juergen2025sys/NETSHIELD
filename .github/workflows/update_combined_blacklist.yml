@@ -503,6 +503,50 @@ jobs:
                   return None, None
           _cgroup_nr_throttled_start, _cgroup_throttled_usec_start = _cgroup_cpu_stat()
 
+          # FIX DIAG-MEMORY-2026-08-15: Ausgeloest durch den Befund im Lauf
+          # von 18:20 UTC - cgroup-CPU-Throttling war 0.0s (0x), die Runner-
+          # CPU wurde also NICHT gedrosselt, obwohl "Update-Loop" und
+          # "Sortieren" zusammen 464 von 587s Wand-CPU-Luecke ausmachten.
+          # Naechstplausibelster Kandidat: Speicherdruck. Setup laedt
+          # seen_db.json (aktuell ~11 Mio. Eintraege) und springt dabei
+          # sofort auf +14,5 GB RSS; DIAG-7 zeigte Peak-RSS 15,1 GB bei
+          # einem 4-Kern-Runner - GitHub-Standard-Runner (ubuntu-latest,
+          # 4 Kerne) haben 16 GB RAM, wir liegen also bei ~94% der Grenze.
+          # Zwei Quellen, die das direkt belegen oder widerlegen koennen,
+          # beide fail-open (verfuegbar auf so gut wie jedem Linux-Runner,
+          # aber sicherheitshalber try/except):
+          #   - /proc/vmstat: pswpin/pswpout (Seiten VOM/AUFS Swap) - ein
+          #     Anstieg waehrend des Laufs ist der direkte Beweis fuer
+          #     tatsaechliches Swapping (nicht nur "nah dran", sondern
+          #     "ist wirklich passiert").
+          #   - /sys/fs/cgroup/memory.max + memory.current: die tatsaechliche
+          #     Cgroup-Speichergrenze des Runner-Containers (kann von den
+          #     kolportierten "16 GB" abweichen) und der aktuelle Verbrauch -
+          #     zeigt, wie nah der Prozess wirklich an einem OOM-Kill war.
+          def _mem_stat():
+              _pswpin = _pswpout = None
+              try:
+                  with open("/proc/vmstat", encoding="utf-8") as _vf:
+                      for _line in _vf:
+                          _k, _, _v = _line.strip().partition(" ")
+                          if _k == "pswpin":
+                              _pswpin = int(_v)
+                          elif _k == "pswpout":
+                              _pswpout = int(_v)
+              except (FileNotFoundError, OSError, ValueError):
+                  pass
+              _cg_cur = _cg_max = None
+              try:
+                  with open("/sys/fs/cgroup/memory.current", encoding="utf-8") as _mf:
+                      _cg_cur = int(_mf.read().strip())
+                  with open("/sys/fs/cgroup/memory.max", encoding="utf-8") as _mf:
+                      _raw = _mf.read().strip()
+                      _cg_max = None if _raw == "max" else int(_raw)
+              except (FileNotFoundError, OSError, ValueError):
+                  pass
+              return _pswpin, _pswpout, _cg_cur, _cg_max
+          _mem_pswpin_start, _mem_pswpout_start, _, _mem_cg_max = _mem_stat()
+
           # FIX PHASE-BRIDGE-2026-08-14: Vorher begann die Phasen-Tabelle erst
           # bei "Setup (seen_db laden + init)" (Phase-0-Print) - alles davor
           # (Python-Interpreter-Start, alle Imports, seen_db.json laden) war
@@ -595,6 +639,31 @@ jobs:
                         f"{'← Runner hat die CPU-Quota gedrosselt!' if _thr_delta_s > 5 else ''}")
               else:
                   print("\n  cgroup CPU-Throttling: nicht verfuegbar (kein cgroup-v2 cpu.stat lesbar)")
+
+              # FIX DIAG-MEMORY-2026-08-15: Swap-Aktivitaet + cgroup-
+              # Speicherausnutzung ueber den GESAMTEN Lauf - Gegenstueck zur
+              # Throttling-Zeile oben, siehe Kommentar bei _mem_stat(). Ein
+              # Anstieg bei pswpin/pswpout > 0 ist der direkte Beweis fuer
+              # tatsaechliches Swapping in diesem Lauf (nicht nur "nah an
+              # der Grenze"). memory.current/memory.max zeigt zusaetzlich,
+              # wie nah der Prozess an der tatsaechlichen Cgroup-Grenze war
+              # (die von der landlaeufig kolportierten "16 GB" fuer
+              # Standard-Runner abweichen kann).
+              _pswpin_end, _pswpout_end, _cg_cur_end, _cg_max_end = _mem_stat()
+              if _mem_pswpin_start is not None and _pswpin_end is not None:
+                  _swap_delta = (_pswpin_end - _mem_pswpin_start) + (_pswpout_end - _mem_pswpout_start)
+                  _swap_note = " ← Swapping fand tatsaechlich statt!" if _swap_delta > 0 else " (kein Swapping)"
+                  print(f"  Swap-Aktivitaet in diesem Lauf: {_swap_delta:,} Seiten "
+                        f"(pswpin+pswpout){_swap_note}")
+              else:
+                  print("  Swap-Aktivitaet: nicht verfuegbar (/proc/vmstat nicht lesbar)")
+              if _cg_cur_end is not None:
+                  _cg_max_display = f"{_cg_max_end / 1024 / 1024 / 1024:.1f} GB" if _cg_max_end else "unbegrenzt"
+                  _cg_pct = f" ({100 * _cg_cur_end / _cg_max_end:.0f}%)" if _cg_max_end else ""
+                  print(f"  cgroup-Speicher am Skriptende: {_cg_cur_end / 1024 / 1024 / 1024:.1f} GB "
+                        f"von {_cg_max_display}{_cg_pct}")
+              else:
+                  print("  cgroup-Speichergrenze: nicht verfuegbar (kein cgroup-v2 memory.max lesbar)")
 
               # FIX DIAG-BOTTLENECK-2026-08-15: Automatische Warnung als
               # GitHub-Annotation, wenn der Lauf eine Schwelle ueberschreitet.
