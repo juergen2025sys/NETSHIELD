@@ -1,15 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-14 21:53 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-15 04:18 CEST (Europe/Berlin)
 
-**Workflows:** 26 | ✅ 24 OK | ⚠️ 4 Warnung | ❌ 1 Fehler
+**Workflows:** 26 | ✅ 25 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `update_confidence_blacklist.yml` | IP-Listen Duplikate | blacklist_confidence40_ipv4.txt: 2,422,404 doppelte IPs (25.0% von 9,691,161) – Scoring-Verzerrung und aufgeblähte Datei |
-
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
@@ -17,15 +11,12 @@
 | `honigtopf.yml → update_bot_detector.yml` | Workflow-Reihenfolge / Puffer zu knapp | 22:40 UTC → 22:45 UTC (5min < 15min) |
 | `update_combined_blacklist.yml` | LOCAL_FEEDS verwaist | LOCAL_FEEDS referenziert Dateien ohne erkennbaren Erzeuger-Workflow: honeypot_ips.txt |
 | `honigtopf.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC → 00:07 UTC (7min < 60min Mindestpuffer); 00:20 UTC → 00:27 UTC (7min < 60min Mindestpuffer); 00:40 UTC → 00:47 UTC (7min < 60min Mindestpuffer); 02:20 UTC → 03:07 UTC (47min < 60min Mindestpuffer); 02:40 UTC → 03:07 UTC (27min < 60min Mindestpuffer) |
-| `Production Health` | Drift: blacklist_confidence40_ipv4_part1.txt | blacklist_confidence40_ipv4_part1.txt: 2,419,863 → 3,634,379 (+50%) – ungewöhnliches Wachstum |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🟡 WARN | Drift: blacklist_confidence40_ipv4_part1.txt | blacklist_confidence40_ipv4_part1.txt: 2,419,863 → 3,634,379 (+50%) – ungewöhnliches Wachstum |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -52,11 +43,11 @@
 | `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 1 * * 1`, `30 1 * * 3` |
 | `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
 | `update_combined_blacklist.yml` | ✅ OK | 0 | 0 | `7 */3 * * *`, `27 */3 * * *`, `47 */3 * * *` |
-| `update_confidence_blacklist.yml` | ❌ | 1 | 0 | `47 1,4,7,10,13,16,19,22 * * *` |
+| `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | `47 1,4,7,10,13,16,19,22 * * *` |
 | `watchdog_combined.yml` | ✅ OK | 0 | 0 | `*/15 * * * *` |
 | `watchdog_honigtopf.yml` | ✅ OK | 0 | 0 | `7,22,37,52 * * * *` |
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-14 21:53 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
+*Generiert: 2026-08-15 04:18 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
