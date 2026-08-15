@@ -1825,6 +1825,25 @@ jobs:
               "layer7-ddos", "http-flood", "l7-attack",
               "network-intrusion", "ids-blocklist", "waf-blocklist",
               "cyber-threat-intelligence", "abuse-report", "abuse-tracker",
+              # NEU (2026-08-14): XDR-/EDR-/SIEM-Agent-Oekosysteme. Bisher
+              # standen nur generische Begriffe drin ("edr", "siem", "soc") -
+              # konkrete Plattform-/Produktnamen fehlten. Community-Repos,
+              # die IP-Listen speziell fuer solche Agenten aufbereiten
+              # (z.B. Wazuh Active-Response-Blocklists, XDR-Ingest-Feeds),
+              # tauchen unter diesen spezifischeren Begriffen eher auf als
+              # unter den generischen. Wazuh ist die verbreitetste Open-
+              # Source-XDR/SIEM-Plattform (Fork von OSSEC) - eigene Sektion,
+              # weil dort haeufig IP-Blocklisten fuer die "Active Response"-
+              # Firewall-Integration gepflegt werden. "/velociraptor" ist
+              # bewusst NICHT ergaenzt - steht bereits in
+              # _HARD_REJECT_NAME_PATTERNS (Tool-Repo, keine Listen-Quelle).
+              "xdr", "xdr-blocklist", "xdr-feed", "xdr-ioc",
+              "wazuh", "wazuh-blocklist", "wazuh-active-response",
+              "wazuh-rules", "wazuh-ioc",
+              "ossec", "ossec-blocklist",
+              "osquery", "osquery-ioc",
+              "elastic-security", "elastic-siem",
+              "crowdstrike-ioc", "sentinelone-ioc", "defender-xdr",
           ]
 
           # FIX API1: Queries ohne Body-Keyword wurden entfernt (HTTP 422).
@@ -2508,6 +2527,11 @@ jobs:
               "bot-blocklist", "scraper-blocklist", "residential-proxy-abuse",
               "credential-leak", "ics-honeypot", "scada-honeypot",
               "layer7-ddos", "network-intrusion", "waf-blocklist",
+              # NEU (2026-08-14): siehe SEARCH_TOPICS-Erweiterung oben,
+              # gleiche XDR-/Wazuh-/Agent-Kategorien fuer GitLab uebernommen.
+              "xdr", "xdr-blocklist", "wazuh", "wazuh-blocklist",
+              "wazuh-active-response", "ossec", "osquery",
+              "elastic-security",
           ]
 
           # Nur Topics-Suche – GitLab-Code-Search ist ohne Auth sehr limitiert
