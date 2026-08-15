@@ -2280,7 +2280,36 @@ jobs:
               print(f"STALE-QUARANTINE: state/feed_health_status.json nicht lesbar ({_qe}) – "
                     f"keine Quarantaene angewendet (fail-open)")
 
+          # FIX LIVE-PROGRESS-2026-08-15: Diese Schleife lief bislang von
+          # "STALE-QUARANTINE:" bis "Korrupte seen_db-Eintraege entfernt:"
+          # KOMPLETT still - bei ~9,1 Mio. ip_feeds_today-Eintraegen
+          # (beobachtet 15.08.2026: 1679s = ~28min) sah das im Live-Log wie
+          # ein haengender Runner aus, obwohl der Prozess durchgehend
+          # arbeitete. Gleiches Muster wie schon bei den Feed-Fetches
+          # (FIX LIVE-PROGRESS-2026-08-13) - hier zeitbasiert statt pro Item
+          # gedrosselt (alle 15s eine Zeile), weil pro-IP-Prints bei
+          # Millionen Eintraegen selbst zum Flaschenhals wuerden. Bewusst
+          # KEIN Prozentwert - ip_feeds_today.items() ist ein Dict-Iterator
+          # ohne billigen Vorab-Blick auf "wie viele bleiben noch", ein
+          # Fortschritts-Zaehler waere hier teurer als der Nutzen. Ein reiner
+          # "Ich lebe noch, hier stehe ich gerade"-Marker mit IPs/s reicht,
+          # um Stillstand von normaler Arbeit zu unterscheiden.
+          _upd_loop_t0 = _time.monotonic()
+          _upd_last_report = _upd_loop_t0
+          _upd_processed = 0
+          _UPD_PROGRESS_INTERVAL_S = 15
+          _upd_total = len(ip_feeds_today)
+
           for ip, today_feeds in ip_feeds_today.items():
+              _upd_processed += 1
+              _upd_now = _time.monotonic()
+              if _upd_now - _upd_last_report >= _UPD_PROGRESS_INTERVAL_S:
+                  _upd_rate = _upd_processed / (_upd_now - _upd_loop_t0)
+                  _upd_pct = 100 * _upd_processed / _upd_total if _upd_total else 0
+                  print(f"  ... Update-Loop laeuft: {_upd_processed:,}/{_upd_total:,} IPs "
+                        f"({_upd_pct:.0f}%), {_upd_rate:,.0f} IPs/s, "
+                        f"seit {_upd_now - _upd_loop_t0:.0f}s")
+                  _upd_last_report = _upd_now
               # FIX PERF-COMBINED: Binary-Search statt is_whitelisted() + is_in_fp_set()
               if _fast_is_wl_or_fp(ip):
                   continue
@@ -2452,7 +2481,26 @@ jobs:
           # Bei Crash: IP wird als korrupt markiert und gedroppt.
           _corrupt_dropped = 0
           _phase_mark("Update-Loop (seen_db aktualisieren)")
+
+          # FIX LIVE-PROGRESS-2026-08-15: Gleiches Muster wie beim Update-Loop
+          # weiter oben - dieser Cleanup-Pass iteriert ueber list(db.keys())
+          # (~9,1 Mio. Eintraege) und war bislang bis zum Abschluss-Print
+          # ("Korrupte seen_db-Eintraege entfernt: ...") komplett still.
+          _cln_loop_t0 = _time.monotonic()
+          _cln_last_report = _cln_loop_t0
+          _cln_processed = 0
+          _cln_total = len(db)
+
           for ip in list(db.keys()):
+              _cln_processed += 1
+              _cln_now = _time.monotonic()
+              if _cln_now - _cln_last_report >= _UPD_PROGRESS_INTERVAL_S:
+                  _cln_rate = _cln_processed / (_cln_now - _cln_loop_t0)
+                  _cln_pct = 100 * _cln_processed / _cln_total if _cln_total else 0
+                  print(f"  ... Cleanup-Pass laeuft: {_cln_processed:,}/{_cln_total:,} IPs "
+                        f"({_cln_pct:.0f}%), {_cln_rate:,.0f} IPs/s, "
+                        f"seit {_cln_now - _cln_loop_t0:.0f}s")
+                  _cln_last_report = _cln_now
               try:
                   # FIX BUG-CIDR-AGGR: Schritt 0 - Non-/32-CIDRs aus Altbestand austragen.
                   # Hintergrund: parse_entries() filtert auf dem Ingest-Pfad seit dem
