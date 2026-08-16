@@ -547,6 +547,26 @@ jobs:
               return _pswpin, _pswpout, _cg_cur, _cg_max
           _mem_pswpin_start, _mem_pswpout_start, _, _mem_cg_max = _mem_stat()
 
+          # FIX MEM-RECLAIM-2026-08-15: Ausgeloest durch den bestaetigten
+          # Swap-Befund (17,47 Mio. Page-Swaps in einem 60-min-Lauf) -
+          # ru_maxrss (oben in _phase_mark) ist ein PEAK-Wert unter Linux
+          # und faellt nie, selbst wenn Speicher freigegeben wird. Um zu
+          # beweisen, ob ein gezieltes "friuehzeitig freigeben + gc.collect()"
+          # tatsaechlich etwas bringt, wird hier der ECHTE aktuelle RSS-Stand
+          # aus /proc/self/status (VmRSS) gelesen - der einzige Wert, der
+          # nach einer Freigabe auch sichtbar sinkt. Fail-open: Datei fehlt/
+          # nicht lesbar (z.B. Nicht-Linux-Runner) -> None, Rest des Skripts
+          # unveraendert.
+          def _current_rss_mb():
+              try:
+                  with open("/proc/self/status", encoding="utf-8") as _sf:
+                      for _line in _sf:
+                          if _line.startswith("VmRSS:"):
+                              return int(_line.split()[1]) / 1024
+              except (FileNotFoundError, OSError, ValueError, IndexError):
+                  pass
+              return None
+
           # FIX PHASE-BRIDGE-2026-08-14: Vorher begann die Phasen-Tabelle erst
           # bei "Setup (seen_db laden + init)" (Phase-0-Print) - alles davor
           # (Python-Interpreter-Start, alle Imports, seen_db.json laden) war
@@ -2744,6 +2764,34 @@ jobs:
               if isinstance(_h, list):
                   entry["hq_feed_names"] = sorted(_h)
           _phase_mark("Feed-Listen normalisieren (ip_feeds_today)")
+
+          # FIX MEM-RECLAIM-2026-08-15: ip_feeds_today (Sets pro heute
+          # beruehrter IP, ~9 Mio. Eintraege) und die rohen Fetch-Ergebnis-
+          # Listen (_dp_results/_auto_results - je Feed nochmal ein eigenes
+          # IP-Set, ZUSAETZLICH zu dem was schon in ip_feeds_today/db liegt)
+          # werden ab hier nicht mehr gebraucht - alles Relevante ist
+          # bereits in db gemerged. Ohne explizites Freigeben haengen sie
+          # bis zum Skriptende weiter im Speicher, genau waehrend der
+          # beiden schwersten Phasen (Update-Loop lief VOR diesem Punkt,
+          # aber Sortieren + Schreiben laufen NOCH; jeder hier freigegebene
+          # GB reduziert das Risiko, dass genau diese Phasen in den Swap
+          # geraten). _current_rss_mb() beweist die tatsaechliche Wirkung
+          # (ru_maxrss oben zeigt sowas NIE, weil Peak-Wert).
+          _rss_before_reclaim = _current_rss_mb()
+          del ip_feeds_today
+          for _leftover in ("_dp_results", "_auto_results", "_auto_feeds",
+                             "feed_overrides", "_backup_parts"):
+              globals().pop(_leftover, None)
+          _gc_collected = _gc.collect()
+          _rss_after_reclaim = _current_rss_mb()
+          if _rss_before_reclaim is not None and _rss_after_reclaim is not None:
+              print(f"  Speicher-Reclaim: {_rss_before_reclaim:.0f} MB -> "
+                    f"{_rss_after_reclaim:.0f} MB "
+                    f"({_rss_before_reclaim - _rss_after_reclaim:+.0f} MB freigegeben, "
+                    f"{_gc_collected} Objekte per gc.collect())")
+          else:
+              print(f"  Speicher-Reclaim: RSS nicht messbar (gc.collect(): "
+                    f"{_gc_collected} Objekte)")
 
           # Atomar via write_json_atomic (tmp-Datei + fsync + os.replace).
           # Verhindert korrupte seen_db.json bei Runner-OOM/SIGKILL/Timeout.
