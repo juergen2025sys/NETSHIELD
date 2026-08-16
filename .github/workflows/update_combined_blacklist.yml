@@ -2546,11 +2546,19 @@ jobs:
               hq_families_today = _hq_families_of(hq_feed_names_today)
               strongly_confirmed_today = len(hq_families_today) >= 2
 
-              if ip in db:
+              # FIX MEM-SQLITE-PERF-2026-08-16: Ein einzelner db.get(ip)
+              # statt "if ip in db:" (Query 1) + "entry = db[ip]" (Query 2).
+              # Bei Plain-Dict war das egal (beides O(1) Hash-Lookups im
+              # selben Objekt); bei SqliteSeenDB sind das zwei getrennte
+              # SQL-Roundtrips pro existierender IP - bei ~9 Mio. IPs
+              # spuerbar. get() liefert None fuer nicht vorhandene IPs,
+              # das reicht als Unterscheidung.
+              _existing_entry = db.get(ip)
+              if _existing_entry is not None:
                   try:
                       # FIX PERF-UPDATE: db[ip] in lokale Variable cachen.
                       # Vorher: 8 separate db[ip]-Lookups pro Iteration.
-                      entry = db[ip]
+                      entry = _existing_entry
                       if not isinstance(entry, dict):
                           raise TypeError(f"db[{ip}] ist kein dict")
                       existing_feeds = set(entry.get("feeds", []))
@@ -2682,12 +2690,22 @@ jobs:
           # weiter oben - dieser Cleanup-Pass iteriert ueber list(db.keys())
           # (~9,1 Mio. Eintraege) und war bislang bis zum Abschluss-Print
           # ("Korrupte seen_db-Eintraege entfernt: ...") komplett still.
+          #
+          # FIX MEM-SQLITE-PERF-2026-08-16: db.items() statt db.keys() +
+          # spaeterem db.get(ip) - vermeidet den Pro-IP-SQL-Roundtrip fuer
+          # data = db.get(ip) weiter unten (jetzt kommt data direkt aus
+          # derselben Zeile wie ip). Sicher: keine Loeschung waehrend der
+          # Iteration (bulk_delete() laeuft erst NACH der Schleife, siehe
+          # db.items()-Docstring in netshield_common.py). list() bewusst
+          # WEGGELASSEN - items() ist ein Generator ueber gestreamte
+          # SQL-Batches, list() wuerde wieder alle ~9 Mio. Dicts gleichzeitig
+          # materialisieren und den RAM-Vorteil zunichtemachen.
           _cln_loop_t0 = _time.monotonic()
           _cln_last_report = _cln_loop_t0
           _cln_processed = 0
           _cln_total = len(db)
 
-          for ip in list(db.keys()):
+          for ip, data in db.items():
               _cln_processed += 1
               _cln_now = _time.monotonic()
               if _cln_now - _cln_last_report >= _UPD_PROGRESS_INTERVAL_S:
@@ -2741,7 +2759,9 @@ jobs:
                       protected_removed_runtime += 1
                       _to_drop.append(ip)
                       continue
-                  data = db.get(ip)
+                  # FIX MEM-SQLITE-PERF-2026-08-16: data kommt jetzt bereits
+                  # aus der items()-Iteration oben (siehe dortiger Kommentar) -
+                  # der vorherige separate db.get(ip)-Aufruf hier ist entfallen.
                   if not isinstance(data, dict):
                       aufnahme_removed += 1
                       _to_drop.append(ip)
