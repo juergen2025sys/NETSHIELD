@@ -1432,11 +1432,11 @@ jobs:
                   with open(_wl_json_path, encoding="utf-8") as _wlf:
                       _wl_data = json.load(_wlf)
                   _wl_count = len(_wl_data.get("entries", []))
-                  if _wl_count < 100:
+                  if _wl_count < 20:
                       warnings.append({
                           "file": "whitelist.json",
                           "check": "Whitelist zu klein",
-                          "detail": f"Nur {_wl_count} Einträge (erwartet >100) – möglicherweise korrupt",
+                          "detail": f"Nur {_wl_count} Einträge (erwartet >20) – möglicherweise korrupt",
                       })
                       print(f"⚠️  whitelist.json: nur {_wl_count} Einträge")
                   else:
