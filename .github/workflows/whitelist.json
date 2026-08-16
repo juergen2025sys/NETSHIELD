@@ -27,33 +27,5 @@
     "185.56.65.200",
     "199.232.210.172",
     "199.232.214.172"
-  ],
-  "labels": {
-    "3.75.182.16": "bf6.exe (Battlefield 6), Signer EA/DICE",
-    "5.60.100.223": "bf6.exe (Battlefield 6), Signer EA/DICE",
-    "13.224.68.27": "ACBlackFlag.exe -> ubisoft.com",
-    "13.224.68.39": "ACBlackFlag.exe -> ubisoft.com",
-    "13.224.68.74": "ACBlackFlag.exe -> ubisoft.com",
-    "13.224.68.92": "ACBlackFlag.exe -> ubisoft.com",
-    "16.15.183.252": "Assassins Creed Black Flag Resynced (Nutzerkontext, Domain unbestaetigt, AWS us-east-1)",
-    "16.15.207.224": "Assassins Creed Black Flag Resynced (Nutzerkontext, Domain unbestaetigt, AWS us-east-1)",
-    "16.15.223.17": "Assassins Creed Black Flag Resynced (Nutzerkontext, Domain unbestaetigt, AWS us-east-1)",
-    "16.15.228.151": "Assassins Creed Black Flag Resynced (Nutzerkontext, Domain unbestaetigt, AWS us-east-1)",
-    "16.15.236.60": "Assassins Creed Black Flag Resynced (Nutzerkontext, Domain unbestaetigt, AWS us-east-1)",
-    "16.15.237.176": "Assassins Creed Black Flag Resynced (Nutzerkontext, Domain unbestaetigt, AWS us-east-1)",
-    "16.15.244.46": "Assassins Creed Black Flag Resynced (Nutzerkontext, Domain unbestaetigt, AWS us-east-1)",
-    "16.15.253.40": "Assassins Creed Black Flag Resynced (Nutzerkontext, Domain unbestaetigt, AWS us-east-1)",
-    "23.59.18.5": "ACBlackFlag.exe -> ubiservices.cdn.ubi.com",
-    "76.223.19.28": "ACBlackFlag.exe -> public-im-ubiservices.ubi.com",
-    "166.117.30.225": "ACBlackFlag.exe -> public-im-ubiservices.ubi.com",
-    "185.56.65.167": "GTA5.exe / Rockstar Games Launcher (P2P, Port 61456)",
-    "185.56.65.168": "GTA5.exe / Rockstar Games Launcher (P2P, Port 61456)",
-    "185.56.65.169": "GTA5.exe / Rockstar Games Launcher (P2P, Port 61456)",
-    "185.56.65.170": "GTA5.exe / Rockstar Games Launcher (P2P, Port 61456)",
-    "185.56.65.171": "GTA5.exe / Rockstar Games Launcher (P2P, Port 61456)",
-    "185.56.65.172": "GTA5.exe / Rockstar Games Launcher (P2P, Port 61456)",
-    "185.56.65.200": "GTA5.exe -> prod.p01ams.pod.rockstargames.com (DNS-bestaetigt)",
-    "199.232.210.172": "svchost.exe/DoSvc -> dl.delivery.mp.microsoft.com (Windows Update Delivery Optimization)",
-    "199.232.214.172": "svchost.exe/DoSvc -> dl.delivery.mp.microsoft.com (Windows Update Delivery Optimization)"
-  }
+  ]
 }
