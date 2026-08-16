@@ -2776,6 +2776,15 @@ class SqliteSeenDB(_MutableMapping):
         self._conn.commit()
 
     def close(self):
+        # FIX MEM-SQLITE-2026-08-16 / CodeQL py/empty-except (Alert #20):
+        # Best-effort-Schliessen. Diese Methode wird ausschliesslich im
+        # Cleanup-Abschnitt am Skriptende aufgerufen, NACHDEM seen_db.json
+        # bereits erfolgreich via export_json_atomic() geschrieben wurde -
+        # ein Fehler beim Schliessen der Scratch-Datenbank-Verbindung kann
+        # an diesem Punkt keine Daten mehr gefaehrden (die Scratch-Datei
+        # stirbt ohnehin mit dem ephemeren Runner). Absichtlich stumm statt
+        # zu propagieren, damit ein rein kosmetisches Close-Problem nicht
+        # den DIAG-Block/Report-Schritt am Skriptende zum Scheitern bringt.
         try:
             self._conn.close()
         except _sqlite3.Error:
@@ -2841,6 +2850,11 @@ class SqliteSeenDB(_MutableMapping):
             os.replace(tmp_path, filepath)
             _fsync_dir(target_dir)
         except Exception:
+            # FIX MEM-SQLITE-2026-08-16 / CodeQL py/empty-except (Alert #21):
+            # Identisches Muster wie in write_json_atomic() weiter unten -
+            # Best-effort-Cleanup: schlaegt das Entfernen des tempfiles
+            # fehl, wird das bewusst ignoriert. Der Originalfehler wird
+            # unten via raise weitergereicht, geht also nicht verloren.
             try:
                 os.unlink(tmp_path)
             except OSError:
