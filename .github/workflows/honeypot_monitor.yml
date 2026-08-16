@@ -576,6 +576,20 @@ jobs:
               "opendbl_darknet":
                   "https://opendbl.net/lists/opendbl-darknet.list",
 
+              # OpenDBL Full-Spectrum: Union ALLER primaeren OpenDBL-Feeds
+              # (u.a. IPSum, DShield, Blocklist.de, ThreatFox, Spamhaus DROP,
+              # BruteforceBlocker, Emerging Threats), inkl. TOR-Exit-Nodes und
+              # Single-Report-Scannern. Laut opendbl.net selbst "Medium Risk"
+              # False-Positive-Einstufung (im Unterschied zu high-confidence.list
+              # "Very Low Risk" und broad-coverage.list "Low Risk", die TOR-
+              # Exit-Nodes explizit ausschliessen) - bewusst trotzdem aufgenommen.
+              # Kein Auth noetig, oeffentlicher Download. Ueberschneidungen mit
+              # anderen bereits vorhandenen Feeds sind unproblematisch, da
+              # all_ips ein Python-set() ist (Duplikate werden automatisch
+              # entfernt).
+              "opendbl_all_threats":
+                  "https://opendbl.net/lists/all-threats.list",
+
               # ══════════════════════════════════════════════════════════
               # NEU (2026-08-07, manuell ergaenzt): 3 Einzelperson-/kleine
               # Community-Repos, ueber laengere Zeit manuell im OPNsense-
