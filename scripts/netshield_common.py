@@ -220,7 +220,7 @@ def _reset_whitelist_for_testing():
     _rebuild_protected_index()
 
 
-def load_whitelist(path=".github/workflows/whitelist.json", min_entries=50):
+def load_whitelist(path=".github/workflows/whitelist.json", min_entries=20):
     """Lädt whitelist.json und baut Netzwerk-Listen.
 
     Returns:
