@@ -21,6 +21,9 @@ import json
 import os
 import re
 import sys
+import sqlite3 as _sqlite3
+import tempfile as _tempfile
+from collections.abc import MutableMapping as _MutableMapping
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
@@ -2559,6 +2562,261 @@ def write_ip_list(filepath, ips, header_lines=None, presorted=False):
             pass
         raise
     return sorted_list
+
+
+class SqliteSeenDB(_MutableMapping):
+    """SQLite-gestuetzter Drop-in-Ersatz fuer den seen_db-Dict in
+    update_combined_blacklist.yml.
+
+    FIX MEM-SQLITE-2026-08-16: Ausgeloest durch den bestaetigten Swap-Befund
+    vom 15./16.08.2026 (bis zu 17,47 Mio. Page-Swaps in einem einzigen Lauf,
+    siehe FIX DIAG-MEMORY-2026-08-15 und FIX MEM-RECLAIM-2026-08-15 in
+    update_combined_blacklist.yml). Ursache: seen_db.json wird komplett in
+    einen verschachtelten Python-Dict (Dict aus Dicts mit Listen) geladen -
+    bei ~9,1 Mio. Eintraegen springt der RSS beim Laden sofort auf ~14,5 GB
+    und bleibt fuer die GESAMTE restliche Laufzeit (Update-Loop, Cleanup-
+    Pass, Sortieren, Schreiben) so hoch, weil Python jedes Dict/jede Liste/
+    jeden String als eigenes Objekt mit erheblichem Overhead haelt.
+
+    Diese Klasse ersetzt den Python-Dict durch eine SQLite-Datei (Scratch-
+    Datei, NICHT die persistente seen_db.json - die bleibt als Austausch-
+    format fuer die anderen 5 Workflows, die seen_db.json UNABHAENGIG von
+    diesem Skript direkt lesen, unveraendert bestehen). SQLite verwaltet
+    Speicher ueber den Datei-/Seiten-Cache des Betriebssystems, nicht ueber
+    Python-Objekte - der Python-Prozess haelt zu jedem Zeitpunkt nur die
+    gerade angefragten Eintraege als materialisierte Dicts im RAM, nicht
+    alle 9 Mio. gleichzeitig.
+
+    WICHTIG fuer Aufrufer (siehe Kommentare an den beiden betroffenen
+    Stellen in update_combined_blacklist.yml): __getitem__/get() geben bei
+    jedem Aufruf ein FRISCHES Dict zurueck, KEINE lebende Referenz auf
+    gespeicherte Daten wie beim eingebauten dict. Wer ein per get()/[]
+    geholtes Entry-Dict in-place mutiert (z.B. entry["last"] = ...), MUSS
+    es anschliessend explizit zurueckschreiben (db[ip] = entry), sonst geht
+    die Aenderung stillschweigend verloren. Alle rein lesenden Zugriffe
+    (Scoring-Loop, Cleanup-Pass-Filter) sind davon nicht betroffen.
+
+    Unterstuetzt dieselben Operationen wie der vorherige Plain-Dict:
+    db[ip], db.get(ip), ip in db, db[ip] = {...}, db.pop(ip, None),
+    len(db), list(db.keys()), db.items() - via MutableMapping-Mixin,
+    das aus den fuenf hier implementierten Kernmethoden automatisch
+    get/pop/keys/items/values/update/__contains__ ableitet.
+    """
+
+    _COLUMNS = ("ip", "first", "last", "hq", "feeds", "hq_feed_names",
+                "hq_feeds", "today_count", "today_hq", "days_seen")
+
+    def __init__(self, db_path):
+        self._path = db_path
+        self._conn = _sqlite3.connect(db_path)
+        # PRAGMA synchronous=OFF + journal_mode=MEMORY: bewusst KEINE
+        # Crash-Durabilitaet fuer diese Scratch-Datei - die Datei existiert
+        # nur fuer die Dauer dieses einen Laufs (siehe Aufrufstelle: Pfad
+        # unter tempfile.gettempdir(), nicht im Repo-Checkout). Echte
+        # Crash-Sicherheit kommt weiterhin von export_json_atomic() weiter
+        # unten (identisches tmp+fsync+os.replace-Muster wie
+        # write_json_atomic). Ohne diese Pragmas wuerde SQLite bei
+        # Millionen Einzel-Writes selbst fsync-gebunden und damit
+        # potenziell langsamer als der bisherige Plain-Dict-Ansatz sein -
+        # das WAERE eine Regression, die den ganzen Umbau ad absurdum
+        # fuehren wuerde.
+        self._conn.execute("PRAGMA synchronous=OFF")
+        self._conn.execute("PRAGMA journal_mode=MEMORY")
+        self._conn.execute(
+            "CREATE TABLE IF NOT EXISTS seen_db ("
+            "ip TEXT PRIMARY KEY, first TEXT, last TEXT, hq INTEGER, "
+            "feeds TEXT, hq_feed_names TEXT, hq_feeds INTEGER, "
+            "today_count INTEGER, today_hq INTEGER, days_seen INTEGER)"
+        )
+        self._conn.commit()
+
+    def _row_to_dict(self, row):
+        (_ip, first, last, hq, feeds, hq_feed_names, hq_feeds,
+         today_count, today_hq, days_seen) = row
+        return {
+            "first": first,
+            "last": last,
+            "hq": bool(hq),
+            "feeds": json.loads(feeds) if feeds else [],
+            "hq_feed_names": json.loads(hq_feed_names) if hq_feed_names else [],
+            "hq_feeds": hq_feeds,
+            "today_count": today_count,
+            "today_hq": bool(today_hq),
+            "days_seen": days_seen,
+        }
+
+    def _dict_to_row(self, ip, d):
+        # FIX MEM-SQLITE-2026-08-16: .get() mit Defaults statt direktem
+        # Zugriff - manche Alt-Eintraege (siehe Update-Loop-Except-Zweig
+        # "Korrupter seen_db-Eintrag") koennen unvollstaendige Dicts sein.
+        # Fail-open statt KeyError, analog zum bisherigen dict-Verhalten
+        # (fehlende Keys wurden dort auch nur ueber .get() abgefragt).
+        return (
+            ip,
+            d.get("first"),
+            d.get("last"),
+            1 if d.get("hq") else 0,
+            json.dumps(d.get("feeds") or []),
+            json.dumps(d.get("hq_feed_names") or []),
+            d.get("hq_feeds", 0),
+            d.get("today_count", 0),
+            1 if d.get("today_hq") else 0,
+            d.get("days_seen", 0),
+        )
+
+    def __getitem__(self, ip):
+        cur = self._conn.execute(
+            "SELECT " + ", ".join(self._COLUMNS) +
+            " FROM seen_db WHERE ip = ?", (ip,))
+        row = cur.fetchone()
+        if row is None:
+            raise KeyError(ip)
+        return self._row_to_dict(row)
+
+    def __setitem__(self, ip, value):
+        if not isinstance(value, dict):
+            raise TypeError(f"SqliteSeenDB[{ip!r}] erwartet ein dict, bekam {type(value)}")
+        row = self._dict_to_row(ip, value)
+        self._conn.execute(
+            "INSERT INTO seen_db (" + ", ".join(self._COLUMNS) + ") "
+            "VALUES (?,?,?,?,?,?,?,?,?,?) "
+            "ON CONFLICT(ip) DO UPDATE SET "
+            "first=excluded.first, last=excluded.last, hq=excluded.hq, "
+            "feeds=excluded.feeds, hq_feed_names=excluded.hq_feed_names, "
+            "hq_feeds=excluded.hq_feeds, today_count=excluded.today_count, "
+            "today_hq=excluded.today_hq, days_seen=excluded.days_seen",
+            row,
+        )
+
+    def __delitem__(self, ip):
+        cur = self._conn.execute("DELETE FROM seen_db WHERE ip = ?", (ip,))
+        if cur.rowcount == 0:
+            raise KeyError(ip)
+
+    def __iter__(self):
+        cur = self._conn.execute("SELECT ip FROM seen_db")
+        for (ip,) in cur:
+            yield ip
+
+    def __len__(self):
+        return self._conn.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]
+
+    def __contains__(self, ip):
+        cur = self._conn.execute("SELECT 1 FROM seen_db WHERE ip = ? LIMIT 1", (ip,))
+        return cur.fetchone() is not None
+
+    def bulk_import(self, plain_dict, batch_size=100_000):
+        """Einmaliger Massen-Import aus einem bestehenden Plain-Dict
+        (z.B. frisch aus json.load()). Nutzt executemany statt einzelner
+        __setitem__-Aufrufe - deutlich schneller fuer Millionen Zeilen.
+        Committet in Batches, damit die Transaktion nicht unbegrenzt
+        waechst (SQLite haelt uncommittete Aenderungen im journal_mode=
+        MEMORY-Fall selbst im RAM - ohne Batching wuerde der Import den
+        RAM-Vorteil dieser ganzen Klasse fuer sich selbst wieder auffressen).
+        """
+        _batch = []
+        _n = 0
+        for ip, entry in plain_dict.items():
+            if not isinstance(entry, dict):
+                continue
+            _batch.append(self._dict_to_row(ip, entry))
+            if len(_batch) >= batch_size:
+                self._conn.executemany(
+                    "INSERT OR REPLACE INTO seen_db (" + ", ".join(self._COLUMNS) + ") "
+                    "VALUES (?,?,?,?,?,?,?,?,?,?)", _batch)
+                self._conn.commit()
+                _n += len(_batch)
+                _batch = []
+        if _batch:
+            self._conn.executemany(
+                "INSERT OR REPLACE INTO seen_db (" + ", ".join(self._COLUMNS) + ") "
+                "VALUES (?,?,?,?,?,?,?,?,?,?)", _batch)
+            self._conn.commit()
+            _n += len(_batch)
+        return _n
+
+    def bulk_delete(self, ips):
+        """Massen-Loeschung (Cleanup-Pass sammelt zu loeschende IPs vorher
+        in einer Liste - eine executemany-Transaktion statt Hunderttausende
+        einzelner db.pop()-Aufrufe mit je eigenem SQL-Roundtrip)."""
+        self._conn.executemany(
+            "DELETE FROM seen_db WHERE ip = ?", ((ip,) for ip in ips))
+        self.commit()
+
+    def commit(self):
+        self._conn.commit()
+
+    def close(self):
+        try:
+            self._conn.close()
+        except _sqlite3.Error:
+            pass
+
+    def export_json_atomic(self, filepath, batch_size=50_000):
+        """Schreibt den kompletten Inhalt als JSON-Datei, byte-kompatibel
+        zu dem, was write_json_atomic(filepath, plain_dict, separators=
+        (",", ":")) vorher erzeugt haette - aber GESTREAMT direkt aus
+        SQLite-Cursor-Batches, OHNE jemals den kompletten Inhalt als
+        Plain-Dict im Python-Speicher zu materialisieren. Das ist der
+        Punkt, an dem der eigentliche RAM-Vorteil dieser Klasse verpufft
+        waere, wenn man stattdessen erst wieder alles einsammeln und dann
+        json.dump() aufrufen wuerde. Atomizitaet identisch zu
+        write_json_atomic (tmp-Datei im selben Verzeichnis + fsync +
+        os.replace + _fsync_dir), damit ein Runner-Crash waehrend des
+        Schreibens weiterhin nie eine halb geschriebene seen_db.json
+        hinterlaesst.
+        """
+        target_dir = os.path.dirname(os.path.abspath(filepath)) or "."
+        os.makedirs(target_dir, exist_ok=True)
+        fd, tmp_path = _tempfile.mkstemp(
+            prefix=f".{os.path.basename(filepath)}.", suffix=".tmp", dir=target_dir)
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write("{")
+                cur = self._conn.execute(
+                    "SELECT " + ", ".join(self._COLUMNS) + " FROM seen_db")
+                _first = True
+                while True:
+                    rows = cur.fetchmany(batch_size)
+                    if not rows:
+                        break
+                    _chunks = []
+                    for row in rows:
+                        entry = self._row_to_dict(row)
+                        # FIX MEM-SQLITE-2026-08-16: feeds/hq_feed_names hier
+                        # sortieren statt in einem separaten vorgelagerten
+                        # Full-DB-Sweep (wie es der Plain-Dict-Vorgaenger tat,
+                        # siehe FIX PERF-LAZYSORT-Kommentare in
+                        # update_combined_blacklist.yml). export_json_atomic
+                        # liest ohnehin JEDE Zeile genau einmal - Sortieren
+                        # hier kostet keinen zusaetzlichen DB-Zugriff, waehrend
+                        # ein eigener Sweep bei SQLite-Backing einen teuren
+                        # Get+Set-Roundtrip PRO IP bedeuten wuerde (bei ~9 Mio.
+                        # heute beruehrten IPs spuerbar, siehe Kommentar an der
+                        # entfernten Schleife im Workflow). Reine Kosmetik fuer
+                        # Byte-Stabilitaet der Ausgabe - beeinflusst keine
+                        # Scoring-/Cleanup-Logik, die liest feeds nur ueber
+                        # len()/Set-Operationen, nie ordnungsabhaengig.
+                        entry["feeds"] = sorted(entry["feeds"])
+                        entry["hq_feed_names"] = sorted(entry["hq_feed_names"])
+                        _chunks.append(
+                            json.dumps(row[0]) + ":" +
+                            json.dumps(entry, separators=(",", ":")))
+                    if not _first:
+                        f.write(",")
+                    _first = False
+                    f.write(",".join(_chunks))
+                f.write("}")
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp_path, filepath)
+            _fsync_dir(target_dir)
+        except Exception:
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
+            raise
 
 
 def write_json_atomic(filepath, data, **dump_kwargs):
