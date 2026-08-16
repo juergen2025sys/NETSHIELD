@@ -1,6 +1,6 @@
 # Workflow Health Dashboard
 
-**Stand:** 2026-08-16 03:54 CEST (Europe/Berlin)
+**Stand:** 2026-08-16 08:55 CEST (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
@@ -14,7 +14,7 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 7 Tage
 
-- **Echte Combined-Runs:** 80
+- **Echte Combined-Runs:** 78
 - **Skip-Runs:** 135
 - **Fehlgeschlagene Runs:** 16
 - **Lucken >210min:** 4
@@ -22,20 +22,19 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 520
+- **Watchdog-Laeufe insgesamt:** 526
 - **Watchdog-Fehler:** 1
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 62
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 61
 
 Letzte Watchdog-Eingriffe:
-- 2026-08-15 19:35 CEST (Europe/Berlin) (Run #31898703429, Laufzeit 40m 20s)
-- 2026-08-15 20:19 CEST (Europe/Berlin) (Run #31900786960, Laufzeit 29m 44s)
 - 2026-08-15 23:53 CEST (Europe/Berlin) (Run #31910681421, Laufzeit 64m 40s)
 - 2026-08-16 02:16 CEST (Europe/Berlin) (Run #31916806609, Laufzeit 18m 49s)
 - 2026-08-16 02:57 CEST (Europe/Berlin) (Run #31918436179, Laufzeit 25m 7s)
+- 2026-08-16 05:50 CEST (Europe/Berlin) (Run #31925208669, Laufzeit 18m 29s)
+- 2026-08-16 08:44 CEST (Europe/Berlin) (Run #31932126288, Laufzeit 13s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
-- 2026-08-09 21:19 CEST (Europe/Berlin) - cancelled - Run #31331350528 (27m 32s)
 - 2026-08-10 18:05 CEST (Europe/Berlin) - action_required - Run #31407080526 (0s)
 - 2026-08-12 05:10 CEST (Europe/Berlin) - failure - Run #31559262855 (10s)
 - 2026-08-13 13:36 CEST (Europe/Berlin) - cancelled - Run #31696234312 (95m 18s)
@@ -45,6 +44,7 @@ Letzte Watchdog-Eingriffe:
 - 2026-08-15 19:35 CEST (Europe/Berlin) - cancelled - Run #31898703429 (40m 20s)
 - 2026-08-15 23:28 CEST (Europe/Berlin) - failure - Run #31909546443 (24m 11s)
 - 2026-08-16 03:51 CEST (Europe/Berlin) - action_required - Run #31920533372 (0s)
+- 2026-08-16 04:03 CEST (Europe/Berlin) - action_required - Run #31920993786 (0s)
 
 ---
 
