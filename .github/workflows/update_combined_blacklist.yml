@@ -411,6 +411,23 @@ jobs:
           # (5000/h statt 60/h). Wird nur bei 404-Feeds ueberhaupt genutzt.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # FIX MEM-SQLITE-STREAM-2026-08-16: ijson (Streaming-JSON-Parser)
+          # wird fuer den speichersicheren seen_db.json-Import gebraucht
+          # (siehe SqliteSeenDB.import_from_json_streaming() in
+          # netshield_common.py). Bewusst NUR hier per pip installiert,
+          # nicht als eigener Workflow-Step - ijson wird ausschliesslich
+          # von diesem einen Skript importiert (lokaler Import, siehe
+          # dortiger Kommentar), die anderen 5 Workflows die
+          # netshield_common.py nutzen brauchen es nicht und sollen davon
+          # unberuehrt bleiben. --break-system-packages: ubuntu-latest-
+          # Runner sind (wie diese Entwicklungsumgebung) Ubuntu 24.04-
+          # basiert und haben damit vermutlich PEP-668 "externally-managed-
+          # environment" aktiv - ohne das Flag wuerde pip install sonst
+          # hart fehlschlagen. Kein isoliertes venv noetig: dieser Schritt
+          # lebt nur fuer die Dauer des Runner-Jobs, ein System-weiter
+          # pip-Install-Nebeneffekt ist hier unkritisch.
+          pip install --quiet --disable-pip-version-check --break-system-packages ijson 2>/dev/null \
+            || pip install --quiet --disable-pip-version-check ijson
           echo "BASH-DIAG-A: python3-Prozess wird gestartet um $(date -u +%Y-%m-%dT%H:%M:%S.%6NZ)"
           export _PY_LAUNCH_EPOCH="$(date -u +%s.%N)"
           python3 << 'EOF'
@@ -1528,6 +1545,17 @@ jobs:
           db = {}
           BACKUP_FILE = "state/seen_db_backup.json.gz"
           BACKUP_PART_GLOB = "state/seen_db_backup.json.gz.part*"
+
+          # FIX MEM-SQLITE-STREAM-2026-08-16: _sqlite_db_path frueher
+          # angelegt (vorher erst kurz vor "seen_db nach SQLite
+          # ueberfuehrt" weiter unten definiert) - wird jetzt schon hier
+          # gebraucht, weil sowohl der Haupt-Ladepfad als auch der
+          # Backup-Restore-Pfad direkt in diese SQLite-Datei streamen,
+          # statt erst einen kompletten Plain-Dict im RAM aufzubauen.
+          _sqlite_db_path = os.path.join(_tempfile.gettempdir(), "netshield_seen_db_working.sqlite3")
+          if os.path.exists(_sqlite_db_path):
+              os.remove(_sqlite_db_path)  # Ueberrest eines evtl. abgebrochenen Vorlaufs
+
           if os.path.exists(DB_FILE):
               try:
                   # FIX BUG-SEENDB-LIMIT: Pre-Size-Check vor json.load.
@@ -1543,12 +1571,33 @@ jobs:
                           f"seen_db.json zu gross: {_dsize / 1024 / 1024:.1f} MB "
                           f"> {_SEENDB_LIMIT / 1024 / 1024 / 1024:.0f} GB "
                           f"(moegliche Korruption oder Cache-Mismatch)")
-                  with open(DB_FILE) as f:
-                      db = json.load(f)
-                  print(f"seen_db geladen: {len(db)} IPs")
+                  # FIX MEM-SQLITE-STREAM-2026-08-16: Streaming-Import
+                  # (ijson) direkt in SQLite statt "db = json.load(f)".
+                  # Ausgangspunkt war der bestaetigte +14,5-GB-RSS-Ausschlag
+                  # dieses einen Ladeschritts (siehe SqliteSeenDB.
+                  # import_from_json_streaming()-Docstring in
+                  # netshield_common.py fuer Details/Messwerte: bei 2 Mio.
+                  # Eintraegen +1 MB statt +1685 MB, dabei ~35% schneller).
+                  # db wird bei Erfolg direkt zur fertigen SqliteSeenDB -
+                  # kein Plain-Dict-Zwischenschritt mehr noetig. Bei
+                  # Fehlschlag (kaputtes JSON, Limit ueberschritten) faengt
+                  # der except-Block wie bisher ab und setzt db={} zurueck,
+                  # was den bestehenden "if not db:"-Backup-Fallback
+                  # unveraendert auslöst - Fehlerverhalten identisch zum
+                  # bisherigen json.load()-Weg.
+                  _db_candidate = SqliteSeenDB(_sqlite_db_path)
+                  with open(DB_FILE, "rb") as f:
+                      _db_candidate.import_from_json_streaming(f, size_limit_bytes=_SEENDB_LIMIT)
+                  db = _db_candidate
+                  print(f"seen_db geladen (Streaming): {len(db)} IPs")
               except Exception as _load_err:
                   print(f"WARN: seen_db.json korrupt ({_load_err}) – versuche Backup", file=sys.stderr)
                   db = {}
+                  try:
+                      if os.path.exists(_sqlite_db_path):
+                          os.remove(_sqlite_db_path)
+                  except OSError:
+                      pass
           if not db:
               try:
                   import gzip, tempfile
@@ -1604,23 +1653,41 @@ jobs:
                           f"Backup zu gross: {_bsize / 1024 / 1024:.1f} MB "
                           f"> {_BACKUP_COMPRESSED_LIMIT / 1024 / 1024:.0f} MB "
                           f"(moegliche zip-Bombe oder Repo-Korruption)")
-                  with gzip.open(_backup_source, "rt", encoding="utf-8") as _bf:
-                      _raw = _bf.read(_BACKUP_DECOMPRESSED_LIMIT + 1)
-                      if len(_raw) > _BACKUP_DECOMPRESSED_LIMIT:
-                          raise ValueError(
-                              f"Backup-Stream > "
-                              f"{_BACKUP_DECOMPRESSED_LIMIT / 1024 / 1024:.0f} MB "
-                              f"nach Dekomprimierung (zip-Bombe), verworfen")
-                      db = json.loads(_raw)
+                  # FIX MEM-SQLITE-STREAM-2026-08-16: Streaming-Import auch
+                  # hier im Backup-Restore-Pfad - ausgerechnet der Pfad, der
+                  # bei Speicherproblemen als Notfall-Rettung dienen soll,
+                  # duerfte selbst kein RAM-Risiko mehr sein. gzip.open() im
+                  # Binaermodus ("rb" statt "rt") - ijson braucht Bytes, kein
+                  # dekodierter Text. _ByteLimitedReader (siehe
+                  # netshield_common.py) zaehlt waehrend des Streamens
+                  # dekomprimierte Bytes mit und wirft ValueError beim
+                  # Ueberschreiten - identische Zip-Bomben-Schutzwirkung wie
+                  # das bisherige "_raw = f.read(LIMIT+1)"-Muster, nur ohne
+                  # die kompletten (bis zu 5 GB!) dekomprimierten Bytes
+                  # jemals gleichzeitig im Speicher zu halten.
+                  if os.path.exists(_sqlite_db_path):
+                      os.remove(_sqlite_db_path)
+                  _db_candidate = SqliteSeenDB(_sqlite_db_path)
+                  with gzip.open(_backup_source, "rb") as _bf:
+                      _db_candidate.import_from_json_streaming(
+                          _bf, size_limit_bytes=_BACKUP_DECOMPRESSED_LIMIT)
                   _MIN_BACKUP_ENTRIES = 10000
-                  if not isinstance(db, dict) or len(db) < _MIN_BACKUP_ENTRIES:
-                      print(f"WARN: Backup hat nur {len(db) if isinstance(db, dict) else 0} "
+                  if len(_db_candidate) < _MIN_BACKUP_ENTRIES:
+                      print(f"WARN: Backup hat nur {len(_db_candidate)} "
                             f"Eintraege (<{_MIN_BACKUP_ENTRIES}) - wird verworfen, starte neu.",
                             file=sys.stderr)
+                      _db_candidate.close()
+                      os.remove(_sqlite_db_path)
                       db = {}
                   else:
+                      db = _db_candidate
                       print(f"seen_db aus Backup wiederhergestellt: {len(db)} IPs (Cache war leer/korrupt)")
-                      write_json_atomic(DB_FILE, db, separators=(",", ":"))
+                      # FIX MEM-SQLITE-STREAM-2026-08-16: export_json_atomic()
+                      # statt write_json_atomic(DB_FILE, db, ...) - db ist ab
+                      # hier eine SqliteSeenDB, kein json.dump()-faehiges
+                      # Plain-Dict mehr (siehe gleichnamiger Kommentar am
+                      # Haupt-Ladepfad weiter oben).
+                      db.export_json_atomic(DB_FILE)
               except Exception as _restore_err:
                   print(f"WARN: Backup-Restore fehlgeschlagen ({_restore_err}) – starte neu", file=sys.stderr)
               finally:
@@ -1632,18 +1699,15 @@ jobs:
           elif not db:
               print("Keine seen_db gefunden, kein Backup vorhanden – starte neu.")
 
-          # FIX MEM-SQLITE-2026-08-16: Ab hier wird db von einem Plain-Dict
-          # auf eine SqliteSeenDB umgestellt (siehe Klassen-Docstring in
-          # netshield_common.py fuer die vollstaendige Begruendung -
-          # Kurzfassung: bestaetigter Swap-Befund, bis zu 17,47 Mio.
-          # Page-Swaps in einem Lauf, weil der Plain-Dict mit ~9,1 Mio.
-          # Eintraegen die GESAMTE restliche Laufzeit ueber im RAM bleibt).
-          # Die gesamte vorherige Lade-/Backup-Restore-Logik oben bleibt
-          # UNVERAENDERT (geringstes Risiko: dieser komplexe, schon oft
-          # gehaertete Code-Pfad - Cache-Miss, Backup-Parts, zip-Bomben-
-          # Schutz, Korruptions-Erkennung - wird nicht angefasst). Erst
-          # NACHDEM db als fertiger Plain-Dict feststeht, wird er einmalig
-          # in SQLite importiert und sofort danach freigegeben.
+          # FIX MEM-SQLITE-2026-08-16 / FIX MEM-SQLITE-STREAM-2026-08-16:
+          # db ist an dieser Stelle in aller Regel BEREITS eine fertige
+          # SqliteSeenDB (Streaming-Import ist im Haupt-Ladepfad und im
+          # Backup-Restore-Pfad weiter oben passiert - siehe dortige
+          # Kommentare). Nur im echten Fresh-Start-Fall (weder seen_db.json
+          # noch Backup vorhanden bzw. beide leer/verworfen) ist db noch
+          # das anfaengliche leere Plain-Dict {} - dafuer bleibt bulk_import
+          # als Fallback bestehen (auf einem leeren/fast leeren Dict ist das
+          # ohnehin trivial billig, kein RAM-Risiko).
           #
           # WICHTIG: Ab hier gilt fuer den Rest des Skripts die im
           # SqliteSeenDB-Docstring beschriebene Regel - db[ip]/db.get(ip)
@@ -1652,15 +1716,25 @@ jobs:
           # mutieren (Update-Loop, Feed-Listen normalisieren), wurden
           # entsprechend um ein explizites db[ip] = entry ergaenzt - siehe
           # dortige FIX MEM-SQLITE-2026-08-16-Kommentare.
-          _sqlite_db_path = os.path.join(_tempfile.gettempdir(), "netshield_seen_db_working.sqlite3")
-          if os.path.exists(_sqlite_db_path):
-              os.remove(_sqlite_db_path)  # Ueberrest eines evtl. abgebrochenen Vorlaufs
           _sqlite_import_t0 = _time.monotonic()
-          db_sqlite = SqliteSeenDB(_sqlite_db_path)
-          _sqlite_imported_n = db_sqlite.bulk_import(db)
-          del db
-          _gc.collect()
-          db = db_sqlite
+          if isinstance(db, dict):
+              # Fresh-Start-Fall (oder theoretisch: beide Streaming-Importe
+              # sind fehlgeschlagen und auf {} zurueckgefallen) - db_path
+              # kann bereits existieren (von einem gescheiterten Versuch
+              # oben), also idempotent neu anlegen.
+              if os.path.exists(_sqlite_db_path):
+                  os.remove(_sqlite_db_path)
+              db_sqlite = SqliteSeenDB(_sqlite_db_path)
+              _sqlite_imported_n = db_sqlite.bulk_import(db)
+              del db
+              _gc.collect()
+              db = db_sqlite
+          else:
+              # Bereits eine SqliteSeenDB aus dem Streaming-Import oben -
+              # NICHTS mehr zu tun, insbesondere _sqlite_db_path NICHT
+              # anfassen/loeschen (db haelt bereits eine offene Verbindung
+              # genau dorthin).
+              _sqlite_imported_n = len(db)
           _rss_after_sqlite_import = _current_rss_mb()
           _rss_note = f" ({_rss_after_sqlite_import:.0f} MB RSS danach)" if _rss_after_sqlite_import is not None else ""
           print(f"  seen_db nach SQLite ueberfuehrt: {_sqlite_imported_n:,} Eintraege "
