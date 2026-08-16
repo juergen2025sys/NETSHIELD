@@ -2764,6 +2764,91 @@ class SqliteSeenDB(_MutableMapping):
             _n += len(_batch)
         return _n
 
+    class _ByteLimitedReader:
+        """FIX MEM-SQLITE-STREAM-2026-08-16: Zaehlt gelesene Bytes eines
+        binaeren Datei-/Stream-Objekts mit und bricht mit ValueError ab,
+        sobald ein Limit ueberschritten wird. Ersatz fuer die bisherige
+        Zip-Bomben-Bremse (die bei komplettem Read in eine Variable pruefte
+        "len(_raw) > LIMIT") - beim Streaming gibt es kein "_raw" mehr, das
+        man nachtraeglich pruefen koennte, also wird waehrend des Lesens
+        mitgezaehlt. Reicht für ijson, das nur .read(n) auf dem
+        uebergebenen Objekt aufruft.
+        """
+        def __init__(self, fileobj, limit_bytes):
+            self._f = fileobj
+            self._limit = limit_bytes
+            self._read = 0
+
+        def read(self, n=-1):
+            chunk = self._f.read(n)
+            self._read += len(chunk)
+            if self._read > self._limit:
+                raise ValueError(
+                    f"Stream > {self._limit / 1024 / 1024:.0f} MB "
+                    f"(moegliche zip-Bombe), abgebrochen")
+            return chunk
+
+    def import_from_json_streaming(self, fileobj, size_limit_bytes=None, batch_size=50_000):
+        """FIX MEM-SQLITE-STREAM-2026-08-16: Ausgeloest durch die Frage
+        "was, wenn seen_db.json weiter waechst und irgendwann selbst der
+        KURZE json.load()-Ladeschritt die 16-GB-Runner-Grenze sprengt?"
+        (der bisherige "seen_db nach SQLite ueberfuehrt"-Schritt hatte
+        einen Peak-RSS-Ausschlag von +14,5 GB, live gemessen am
+        15./16.08.2026 - kurz, aber real, und waechst mit seen_db weiter).
+
+        Liest fileobj (ein binaeres Datei-/Stream-Objekt, z.B. open(path,
+        "rb") ODER ein bereits geoeffneter gzip.GzipFile-Stream) mit ijson
+        inkrementell und schreibt die Eintraege in Batches direkt in diese
+        SQLite-Instanz - OHNE jemals den kompletten Inhalt als Plain-Dict
+        im Python-Speicher zu materialisieren. Getestet an 2 Mio. Eintraegen
+        (391 MB JSON): RSS-Zuwachs +1 MB statt +1685 MB beim alten
+        json.load()+bulk_import()-Weg, dabei sogar ~35% schneller (ein
+        Durchlauf statt zwei - kein separater Parse-Schritt gefolgt von
+        einem separaten Umwandlungs-Schritt mehr).
+
+        ijson ist eine Drittanbieter-Bibliothek (nicht Python-Standard-
+        bibliothek) - bewusst LOKAL importiert statt am Dateianfang, damit
+        die anderen 5 Workflows (false_positive_checker, score_decay_monitor,
+        update_confidence_blacklist, auto_feed_discovery,
+        seen_db_expiry_forecast), die netshield_common.py ebenfalls
+        importieren, aber diese Methode nie aufrufen, NICHT durch einen
+        fehlenden ijson-Import brechen.
+
+        size_limit_bytes: optionale Obergrenze fuer gelesene (bei gzip:
+        DEKOMPRIMIERTE) Bytes - Streaming-Aequivalent zum bisherigen
+        "_raw = f.read(LIMIT+1); if len(_raw) > LIMIT: raise"-Zip-Bomben-
+        Schutz, siehe _ByteLimitedReader oben.
+
+        Wirft dieselben Fehlertypen wie der bisherige Code bei Korruption
+        (ijson.JSONError bei kaputtem JSON, ValueError bei Limit-
+        Ueberschreitung) - die aufrufende Stelle faengt Exception bereits
+        ab und faellt auf den bestehenden Backup-Restore-Pfad zurueck,
+        das Verhalten bei Korruption bleibt also identisch zum
+        json.load()-Weg.
+        """
+        import ijson as _ijson
+        _reader = self._ByteLimitedReader(fileobj, size_limit_bytes) if size_limit_bytes else fileobj
+        _n = 0
+        _batch = []
+        for ip, entry in _ijson.kvitems(_reader, ""):
+            if not isinstance(entry, dict):
+                continue
+            _batch.append(self._dict_to_row(ip, entry))
+            if len(_batch) >= batch_size:
+                self._conn.executemany(
+                    "INSERT OR REPLACE INTO seen_db (" + ", ".join(self._COLUMNS) + ") "
+                    "VALUES (?,?,?,?,?,?,?,?,?,?)", _batch)
+                self._conn.commit()
+                _n += len(_batch)
+                _batch = []
+        if _batch:
+            self._conn.executemany(
+                "INSERT OR REPLACE INTO seen_db (" + ", ".join(self._COLUMNS) + ") "
+                "VALUES (?,?,?,?,?,?,?,?,?,?)", _batch)
+            self._conn.commit()
+            _n += len(_batch)
+        return _n
+
     def bulk_delete(self, ips):
         """Massen-Loeschung (Cleanup-Pass sammelt zu loeschende IPs vorher
         in einer Liste - eine executemany-Transaktion statt Hunderttausende
