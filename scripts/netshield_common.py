@@ -2705,6 +2705,35 @@ class SqliteSeenDB(_MutableMapping):
         cur = self._conn.execute("SELECT 1 FROM seen_db WHERE ip = ? LIMIT 1", (ip,))
         return cur.fetchone() is not None
 
+    def items(self, batch_size=50_000):
+        """FIX MEM-SQLITE-PERF-2026-08-16: Ueberschreibt das generische
+        MutableMapping-Mixin-Verhalten. Der geerbte ItemsView.__iter__
+        wuerde "for key in self: yield (key, self[key])" tun - das ist
+        EINE SQL-Query pro Schluessel, bei ~9 Mio. Eintraegen also 9 Mio.
+        Einzel-Roundtrips. Live gemessen im ersten SQLite-Lauf: Scoring-
+        Loop (nutzt db.items()) brauchte dadurch 155,6s CPU statt vorher
+        29,6s CPU mit Plain-Dict - der Swap-Vorteil dieses ganzen Umbaus
+        waere so grossenteils durch neue Query-Overhead-Kosten wieder
+        aufgefressen worden.
+        Diese Methode macht stattdessen EINE gestreamte SELECT-Abfrage mit
+        fetchmany()-Batches und yieldet (ip, dict)-Paare direkt daraus -
+        weiterhin lazy/generatorbasiert (kein list(), keine Materialisierung
+        aller 9 Mio. Eintraege gleichzeitig als Python-Dicts), aber ohne den
+        Pro-Zeile-Query-Overhead. Sicher fuer Aufrufer, die waehrend der
+        Iteration NICHT gleichzeitig in dieselbe db schreiben/loeschen
+        (Scoring-Loop und Cleanup-Pass tun das nicht - Loeschungen dort
+        sind ueber _to_drop/bulk_delete() bewusst auf NACH der Schleife
+        verschoben, exakt aus diesem Grund).
+        """
+        cur = self._conn.execute(
+            "SELECT " + ", ".join(self._COLUMNS) + " FROM seen_db")
+        while True:
+            rows = cur.fetchmany(batch_size)
+            if not rows:
+                return
+            for row in rows:
+                yield row[0], self._row_to_dict(row)
+
     def bulk_import(self, plain_dict, batch_size=100_000):
         """Einmaliger Massen-Import aus einem bestehenden Plain-Dict
         (z.B. frisch aus json.load()). Nutzt executemany statt einzelner
