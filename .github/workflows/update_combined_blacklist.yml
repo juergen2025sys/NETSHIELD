@@ -427,9 +427,11 @@ jobs:
               resolve_github_moved_url,
               validate_auto_feeds,
               is_bot_detector_feed_name,
+              SqliteSeenDB,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
           import ipaddress, json, os, glob, re, sys, urllib.request
+          import tempfile as _tempfile
           from datetime import datetime, timezone, timedelta
           from zoneinfo import ZoneInfo
           from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
@@ -1630,6 +1632,41 @@ jobs:
           elif not db:
               print("Keine seen_db gefunden, kein Backup vorhanden – starte neu.")
 
+          # FIX MEM-SQLITE-2026-08-16: Ab hier wird db von einem Plain-Dict
+          # auf eine SqliteSeenDB umgestellt (siehe Klassen-Docstring in
+          # netshield_common.py fuer die vollstaendige Begruendung -
+          # Kurzfassung: bestaetigter Swap-Befund, bis zu 17,47 Mio.
+          # Page-Swaps in einem Lauf, weil der Plain-Dict mit ~9,1 Mio.
+          # Eintraegen die GESAMTE restliche Laufzeit ueber im RAM bleibt).
+          # Die gesamte vorherige Lade-/Backup-Restore-Logik oben bleibt
+          # UNVERAENDERT (geringstes Risiko: dieser komplexe, schon oft
+          # gehaertete Code-Pfad - Cache-Miss, Backup-Parts, zip-Bomben-
+          # Schutz, Korruptions-Erkennung - wird nicht angefasst). Erst
+          # NACHDEM db als fertiger Plain-Dict feststeht, wird er einmalig
+          # in SQLite importiert und sofort danach freigegeben.
+          #
+          # WICHTIG: Ab hier gilt fuer den Rest des Skripts die im
+          # SqliteSeenDB-Docstring beschriebene Regel - db[ip]/db.get(ip)
+          # liefern ein FRISCHES Dict, keine lebende Referenz. Die zwei
+          # Stellen im Skript, die ein geholtes Entry-Dict in-place
+          # mutieren (Update-Loop, Feed-Listen normalisieren), wurden
+          # entsprechend um ein explizites db[ip] = entry ergaenzt - siehe
+          # dortige FIX MEM-SQLITE-2026-08-16-Kommentare.
+          _sqlite_db_path = os.path.join(_tempfile.gettempdir(), "netshield_seen_db_working.sqlite3")
+          if os.path.exists(_sqlite_db_path):
+              os.remove(_sqlite_db_path)  # Ueberrest eines evtl. abgebrochenen Vorlaufs
+          _sqlite_import_t0 = _time.monotonic()
+          db_sqlite = SqliteSeenDB(_sqlite_db_path)
+          _sqlite_imported_n = db_sqlite.bulk_import(db)
+          del db
+          _gc.collect()
+          db = db_sqlite
+          _rss_after_sqlite_import = _current_rss_mb()
+          _rss_note = f" ({_rss_after_sqlite_import:.0f} MB RSS danach)" if _rss_after_sqlite_import is not None else ""
+          print(f"  seen_db nach SQLite ueberfuehrt: {_sqlite_imported_n:,} Eintraege "
+                f"in {_time.monotonic() - _sqlite_import_t0:.1f}s{_rss_note}")
+          _phase_mark("seen_db nach SQLite ueberfuehrt (MEM-SQLITE)")
+
           # ── FIX #1: state/false_positives_set.json einlesen ─────────────────────
           # false_positive_checker schreibt diese Datei; combined liest sie hier
           # und schließt die IPs beim Feed-Ingest aus – kein direktes Schreiben
@@ -2554,6 +2591,16 @@ jobs:
                       # nach der Schleife.
                       entry["hq_feed_names"] = list(existing_hq_names)
                       entry["hq_feeds"]      = len(existing_hq_names)
+                      # FIX MEM-SQLITE-2026-08-16: Explizites Rueckschreiben.
+                      # Seit db eine SqliteSeenDB ist (siehe weiter oben),
+                      # liefert db[ip] ein FRISCHES Dict statt einer lebenden
+                      # Referenz - alle Mutationen an "entry" oben (last,
+                      # days_seen, feeds, today_count, today_hq, hq,
+                      # hq_feed_names, hq_feeds) wuerden ohne diese Zeile
+                      # stillschweigend verloren gehen, sobald der naechste
+                      # Cleanup-Pass/Export darauf zugreift. Mit eingebautem
+                      # dict war das nie noetig (entry war db[ip] selbst).
+                      db[ip] = entry
                   except Exception as _corrupt:
                       print(f"WARN: Korrupter seen_db-Eintrag {ip}, wird neu angelegt: {_corrupt}", file=sys.stderr)
                       # FIX PERF-LAZYSORT: list() statt sorted() – Sweep nach
@@ -2752,8 +2799,13 @@ jobs:
                   _corrupt_dropped += 1
                   _to_drop.append(ip)
 
-          for ip in _to_drop:
-              db.pop(ip, None)
+          # FIX MEM-SQLITE-2026-08-16: bulk_delete() statt Einzel-db.pop()
+          # pro IP - bei einer SqliteSeenDB waere jeder pop() ein eigener
+          # SQL-DELETE-Roundtrip; bulk_delete() fasst alle _to_drop-IPs in
+          # einer einzigen executemany-Transaktion zusammen. Funktional
+          # identisch (MutableMapping.pop() mit Default=None haette bei
+          # bereits fehlenden IPs ohnehin nur still nichts getan).
+          db.bulk_delete(_to_drop)
           _phase_mark("Cleanup-Pass (WL/FP/Protected/Expiry)")
 
           if _corrupt_dropped:
@@ -2781,6 +2833,19 @@ jobs:
           # FIX LIVE-PROGRESS-2026-08-15: dieselbe zeitbasierte Drosselung
           # wie beim Update-Loop/Cleanup-Pass - diese Schleife lief bislang
           # (bisher gemessen: 69.5s) komplett still.
+          #
+          # FIX MEM-SQLITE-2026-08-16: Der eigentliche Sortier-Schritt (feeds/
+          # hq_feed_names) ist nach export_json_atomic() in netshield_common.py
+          # umgezogen (siehe dortiger Kommentar) - export liest ohnehin jede
+          # Zeile genau einmal, Sortieren dort kostet keinen zusaetzlichen
+          # DB-Zugriff. Ein separater Sweep HIER wuerde bei der SQLite-
+          # gestuetzten db jetzt einen Get+Set-SQL-Roundtrip PRO heute
+          # beruehrter IP bedeuten (bei ~9 Mio. IPs spuerbar teurer als der
+          # bisherige reine Python-Dict-Zugriff) - fuer eine rein kosmetische
+          # Sortierung, die ohnehin gleich nochmal beim Export passieren
+          # wuerde. Die Schleife bleibt als Fortschritts-/Zeit-Checkpoint
+          # bestehen (Phasentabelle vergleichbar mit fruaheren Laeufen), tut
+          # aber nichts mehr mit db.
           _fln_t0 = _time.monotonic()
           _fln_last_report = _fln_t0
           _fln_processed = 0
@@ -2793,15 +2858,6 @@ jobs:
                   print(f"  ... Feed-Listen normalisieren: {_fln_processed:,}/{_fln_total:,} "
                         f"({_fln_pct:.0f}%), seit {_fln_now - _fln_t0:.0f}s")
                   _fln_last_report = _fln_now
-              entry = db.get(ip)
-              if not isinstance(entry, dict):
-                  continue
-              _f = entry.get("feeds")
-              if isinstance(_f, list):
-                  entry["feeds"] = sorted(_f)
-              _h = entry.get("hq_feed_names")
-              if isinstance(_h, list):
-                  entry["hq_feed_names"] = sorted(_h)
           _phase_mark("Feed-Listen normalisieren (ip_feeds_today)")
 
           # FIX MEM-RECLAIM-2026-08-15: ip_feeds_today (Sets pro heute
@@ -2844,9 +2900,20 @@ jobs:
           # wenigstens sichtbar, DASS und WIE LANGE hier geschrieben wird,
           # statt dass die naechste Log-Zeile kommentarlos aus dem Nichts
           # nach X Minuten auftaucht.
+          #
+          # FIX MEM-SQLITE-2026-08-16: write_json_atomic(DB_FILE, db, ...)
+          # durch db.export_json_atomic(DB_FILE) ersetzt. write_json_atomic
+          # erwartet ein normales JSON-serialisierbares Objekt - bei db als
+          # SqliteSeenDB haette json.dump() entweder gecrasht oder (schlimmer)
+          # erst intern alles zu einem Plain-Dict materialisieren muessen,
+          # was den kompletten RAM-Vorteil dieses Umbaus in genau dem Moment
+          # wieder zunichte gemacht haette. export_json_atomic() streamt
+          # stattdessen direkt aus SQLite-Cursor-Batches - identische
+          # Atomizitaets-Garantien (tmp-Datei + fsync + os.replace), siehe
+          # Docstring in netshield_common.py.
           print(f"  Schreibe seen_db.json ({len(db):,} Eintraege) ...")
           _wjs_t0 = _time.monotonic()
-          write_json_atomic(DB_FILE, db, separators=(",", ":"))
+          db.export_json_atomic(DB_FILE)
           print(f"  seen_db.json geschrieben in {_time.monotonic() - _wjs_t0:.1f}s")
           _phase_mark("seen_db.json schreiben (write_json_atomic)")
 
@@ -3272,6 +3339,24 @@ jobs:
           # selbst. Fuenf unabhaengige Messungen, um die Ursache einzugrenzen
           # statt nur zu vermuten:
           _phase_mark("Report schreiben (combined_threat_blacklist_report.md)")
+
+          # FIX MEM-SQLITE-2026-08-16: db (SqliteSeenDB) wird ab hier nicht
+          # mehr gebraucht - alle spaeteren Konsumenten (Sortieren, Scoring-
+          # Loop) sind bereits durchgelaufen. Verbindung schliessen und die
+          # Scratch-Datei entfernen, statt sie bis Skriptende/Interpreter-
+          # Shutdown offen zu lassen - reiner Aufraeum-Schritt, betrifft
+          # nicht mehr seen_db.json (die liegt seit export_json_atomic()
+          # bereits fertig auf Platte). Fail-open: falls das aus irgendeinem
+          # Grund schief geht, ist das reine Kosmetik (Datei stirbt ohnehin
+          # mit dem ephemeren Runner) - kein Grund, den Rest des DIAG-Blocks
+          # zu gefaehrden.
+          try:
+              db.close()
+              if os.path.exists(_sqlite_db_path):
+                  os.remove(_sqlite_db_path)
+          except Exception as _sqlite_cleanup_err:
+              print(f"  Hinweis: SQLite-Scratch-Datei-Aufraeumen fehlgeschlagen "
+                    f"(unkritisch): {_sqlite_cleanup_err}")
 
           # FIX MEM-LIVE-WATCH-2026-08-16: Watcher-Thread sauber stoppen,
           # BEVOR DIAG-1 die aktiven Threads zaehlt - sonst meldet DIAG-1
