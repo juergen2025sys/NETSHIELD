@@ -567,6 +567,45 @@ jobs:
                   pass
               return None
 
+          # FIX MEM-LIVE-WATCH-2026-08-16: Bisherige RSS-Werte (RSS-Δ pro
+          # Phase, DIAG-7 Peak-RSS, Speicher-Reclaim vorher/nachher) sind
+          # alle Momentaufnahmen an festen Punkten - waehrend eines Laufs
+          # LIVE im Actions-Log mitzuverfolgen, wie der Speicher steigt
+          # (insbesondere in den beiden bestaetigt swap-anfaelligen Phasen
+          # Update-Loop und Sortieren, siehe FIX DIAG-MEMORY-2026-08-15),
+          # ging bisher nicht - man musste auf das Laufende warten. Ein
+          # Daemon-Thread, der unabhaengig von der gerade laufenden Phase
+          # (auch waehrend der stillen sorted()/write_json_atomic()-Aufrufe,
+          # die selbst keine Zwischen-Prints erlauben) alle 30s den
+          # aktuellen RSS-Stand + Swap-Delta seit Laufbeginn druckt, macht
+          # den Speicherverlauf live sichtbar, ohne auf einen der bereits
+          # vorhandenen Fortschritts-Checkpoints angewiesen zu sein.
+          # daemon=True: haelt den Prozessexit nicht auf, falls der Stop
+          # (_mem_watch_stop.set() weiter unten) aus irgendeinem Grund nicht
+          # erreicht wird (z.B. weil ein frueherer sys.exit() den Rest des
+          # Skripts ueberspringt - siehe Leerungsschutz-Faelle oben/unten).
+          _MEM_WATCH_INTERVAL_S = 30
+          _mem_watch_stop = _threading.Event()
+          _mem_watch_t0 = _time.monotonic()
+
+          def _mem_watch_loop():
+              while not _mem_watch_stop.wait(_MEM_WATCH_INTERVAL_S):
+                  _rss = _current_rss_mb()
+                  _pin, _pout, _cur, _ = _mem_stat()
+                  _elapsed = _time.monotonic() - _mem_watch_t0
+                  if _rss is None:
+                      continue
+                  _swap_note = ""
+                  if _pin is not None and _mem_pswpin_start is not None:
+                      _swap_delta_live = (_pin - _mem_pswpin_start) + (_pout - _mem_pswpout_start)
+                      if _swap_delta_live > 0:
+                          _swap_note = f" | Swap seit Start: {_swap_delta_live:,} Seiten"
+                  print(f"  [MEM] t+{_elapsed:.0f}s: RSS {_rss:,.0f} MB{_swap_note}")
+
+          _mem_watch_thread = _threading.Thread(
+              target=_mem_watch_loop, daemon=True, name="mem-watch")
+          _mem_watch_thread.start()
+
           # FIX PHASE-BRIDGE-2026-08-14: Vorher begann die Phasen-Tabelle erst
           # bei "Setup (seen_db laden + init)" (Phase-0-Print) - alles davor
           # (Python-Interpreter-Start, alle Imports, seen_db.json laden) war
@@ -3233,6 +3272,19 @@ jobs:
           # selbst. Fuenf unabhaengige Messungen, um die Ursache einzugrenzen
           # statt nur zu vermuten:
           _phase_mark("Report schreiben (combined_threat_blacklist_report.md)")
+
+          # FIX MEM-LIVE-WATCH-2026-08-16: Watcher-Thread sauber stoppen,
+          # BEVOR DIAG-1 die aktiven Threads zaehlt - sonst meldet DIAG-1
+          # faelschlich einen zusaetzlichen "Nicht-Main"-Thread und
+          # verwaessert genau die Diagnose, fuer die DIAG-1 urspruenglich
+          # gebaut wurde (siehe FIX DIAG-THREAD-2026-08-13 direkt darunter).
+          # join() mit kurzem Timeout: der Thread wacht max. alle 30s auf
+          # (Event.wait), sollte also praktisch sofort reagieren - Timeout
+          # ist nur ein Sicherheitsnetz, damit ein ausbleibendes join() den
+          # restlichen DIAG-Block nicht blockiert.
+          _mem_watch_stop.set()
+          _mem_watch_thread.join(timeout=5)
+
           _diag_t0 = _time.monotonic()
 
           # 1) Wer ist noch aktiv, und WORAN genau haengt er (Stack-Trace,
