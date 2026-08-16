@@ -497,8 +497,16 @@ jobs:
               # eigenes Score-System filtert FPs durch Cross-Validation mit
               # anderen Quellen ohnehin nach. type=txt (default) liefert plain
               # IPv4 eine pro Zeile. limit=100000 = Maximum.
-              "sniffcat":
-                  "https://api.sniffcat.com/api/v1/blacklist?confidenceMin=30&ipVersion=4&limit=100000",
+              # DEAKTIVIERT (2026-08-16): SniffCat-Feed vorerst raus, siehe
+              # Chat-Verlauf (haeufige False Positives durch die UFW/UFW-
+              # SniffCat-Reporter-Integrationen, u.a. Google/CDN-IPs wie
+              # 172.217.113.4 wegen fehlender State-/Threshold-Pruefung in
+              # diesen Reportern - Details: github.com/SniffCatDB/
+              # UFW-SniffCat-Reporter Issue). Einfach wieder einkommentieren,
+              # falls das dort gefixt wird oder confidenceMin hochgesetzt
+              # werden soll.
+              # "sniffcat":
+              #     "https://api.sniffcat.com/api/v1/blacklist?confidenceMin=30&ipVersion=4&limit=100000",
 
               # SiberKapan: tuerkische Threat-Intel-Plattform (siehe Changelog
               # oben fuer volle Quellen-Liste + offene Caveats zu Format/Dedup).
