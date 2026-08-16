@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-17 00:46 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-17 00:57 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,318,552** |
-| Neu (heute) | **+104** |
-| Entfernt | **-49** |
+| Gesamt IPs | **1,318,551** |
+| Neu (heute) | **+3** |
+| Entfernt | **-4** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 63 |
@@ -54,11 +54,11 @@
 | ✅ `gitrecon1455_fresh_proxy_list` | 208,521 |
 | ✅ `noctiro_getproxy` | 4,519 |
 | ✅ `noctiro_getproxy_socks5` | 3,082 |
-| ✅ `mohammedcha_proxripper` | 52,847 |
-| ✅ `mohammedcha_proxripper_socks4` | 113,062 |
-| ✅ `mohammedcha_proxripper_http` | 117,309 |
+| ✅ `mohammedcha_proxripper` | 52,876 |
+| ✅ `mohammedcha_proxripper_socks4` | 113,049 |
+| ✅ `mohammedcha_proxripper_http` | 117,313 |
 | ✅ `mohammedcha_proxripper_socks5` | 115,404 |
-| ✅ `celestialbrain_worldpool` | 83,186 |
+| ✅ `celestialbrain_worldpool` | 83,189 |
 | ✅ `dinoz0rg_proxy_list` | 96,769 |
 | ✅ `dinoz0rg_proxy_list_http` | 2,189 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 95,684 |
@@ -75,17 +75,17 @@
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,757 |
 | ✅ `leon406_subcrawler` | 119,871 |
 | ✅ `kalidada18_threatbase_threatbase_ip_botnet` | 3,210 |
-| ✅ `hookzof_socks5_list` | 161 |
+| ✅ `hookzof_socks5_list` | 173 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,274 |
 | ✅ `claudiusdecimius_ioc_ipsets_botscout_30d` | 3,660 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,654 |
-| ✅ `cyberh4ck3r_free_proxy_list` | 2,971 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,410 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 1,987 |
+| ✅ `cyberh4ck3r_free_proxy_list` | 2,893 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,400 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 1,970 |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 > Diese 63 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-17 00:46 CEST (Europe/Berlin)*
+*Generiert: 2026-08-17 00:57 CEST (Europe/Berlin)*
