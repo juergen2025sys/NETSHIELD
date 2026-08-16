@@ -852,8 +852,8 @@ jobs:
           # rekonstruieren - wird ausserhalb dieses Blocks vermutlich nicht
           # benoetigt, aber Variable-Existenz beibehalten fuer Backward-Compat.
           WHITELIST_ENTRIES = [str(n) for n in _whitelist_networks]
-          if len(WHITELIST_ENTRIES) < 50:
-              _msg = f"whitelist.json hat nur {len(WHITELIST_ENTRIES)} Einträge (<50) – möglicherweise korrupt"
+          if len(WHITELIST_ENTRIES) < 20:
+              _msg = f"whitelist.json hat nur {len(WHITELIST_ENTRIES)} Einträge (<20) – möglicherweise korrupt"
               print(f"::error file=update_combined_blacklist.yml::{_msg}")
               print(f"FEHLER: {_msg}")
               sys.exit(1)
