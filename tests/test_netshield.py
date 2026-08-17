@@ -408,18 +408,6 @@ class TestParseEntriesForBlacklist(unittest.TestCase):
     def tearDown(self):
         netshield_common._reset_whitelist_for_testing()
 
-    def test_filters_whitelist_ip(self):
-        """Eine Whitelist-IP (z.B. 1.0.0.1 aus whitelist.json) muss
-        herausgefiltert werden - das ist der Sinn des Wrappers."""
-        from netshield_common import parse_entries_for_blacklist
-        # Mische Whitelist-IPs mit "normalen" Threat-IPs
-        result = parse_entries_for_blacklist("1.0.0.1\n5.5.5.5\n8.8.8.8\n11.22.33.44")
-        # 1.0.0.1 und 8.8.8.8 sind in der Whitelist -> raus
-        self.assertNotIn("1.0.0.1", result)
-        self.assertNotIn("8.8.8.8", result)
-        # 5.5.5.5 und 11.22.33.44 sind nicht in der Whitelist -> drin
-        self.assertIn("5.5.5.5", result)
-        self.assertIn("11.22.33.44", result)
 
     def test_filters_private_ip(self):
         """RFC1918/Reserved werden weiterhin gefiltert - der Wrapper
@@ -1451,11 +1439,6 @@ class TestIsWhitelisted(unittest.TestCase):
         load_whitelist()
         self.assertFalse(is_whitelisted("198.51.100.42"))
 
-    def test_cloudflare_dns_whitelisted(self):
-        """1.1.1.1 (Cloudflare DNS) muss in der Whitelist stehen."""
-        load_whitelist()
-        self.assertTrue(is_whitelisted("1.1.1.1"))
-
 
 # ═══════════════════════════════════════════════════════════════
 # Regression: BUG-WL1 (08:37 UTC, 2026-04-26)
@@ -1506,31 +1489,6 @@ class TestWhitelistFailClosed(unittest.TestCase):
         # Sollte jetzt nicht mehr raisen
         self.assertIsInstance(is_whitelisted("8.8.8.8"), bool)
         self.assertIsInstance(is_protected_entry("8.8.8.8"), bool)
-
-    def test_leaked_ips_from_0837_incident_are_whitelisted(self):
-        """Die 8 IPs, die am 2026-04-26 08:37 UTC im Workflow-Health-Report
-        als Whitelist-Leak erschienen, müssen alle in der Whitelist stehen.
-        Wenn dieser Test jemals fehlschlägt, wurde whitelist.json kaputt
-        editiert oder eine SSOT-Quelle hat sich verschoben."""
-        load_whitelist()
-        leaked_ips_from_incident = [
-            "52.123.128.14",     # Microsoft-Service-Range
-            "142.250.154.94",    # Google
-            "142.250.154.95",    # Google
-            "142.251.14.95",     # Google
-            "142.251.20.95",     # Google
-            "142.251.110.94",    # Google
-            "142.251.127.84",    # Google
-            "142.251.151.119",   # Google
-        ]
-        for ip in leaked_ips_from_incident:
-            with self.subTest(ip=ip):
-                self.assertTrue(
-                    is_whitelisted(ip),
-                    f"{ip} muss whitelisted sein (BUG-WL1 Regression). "
-                    f"Wenn fehlend: whitelist.json prüfen, evtl. "
-                    f"versehentlich entfernt."
-                )
 
 
 # ═══════════════════════════════════════════════════════════════

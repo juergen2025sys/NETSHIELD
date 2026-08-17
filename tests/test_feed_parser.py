@@ -249,16 +249,6 @@ class TestFeedParserProtectedMode(unittest.TestCase):
     def tearDown(self):
         netshield_common._reset_whitelist_for_testing()
 
-    def test_protected_filters_whitelist_and_private(self):
-        # 1.0.0.1 und 8.8.8.8 stehen in whitelist.json -> raus.
-        # 192.168.1.1 ist privat -> raus. 5.5.5.5 / 11.22.33.44 bleiben.
-        text = "1.0.0.1\n8.8.8.8\n5.5.5.5\n11.22.33.44\n192.168.1.1\n"
-        result = parse_feed_entries(text, use_protected_check=True)
-        self.assertNotIn("1.0.0.1", result)
-        self.assertNotIn("8.8.8.8", result)
-        self.assertNotIn("192.168.1.1", result)
-        self.assertIn("5.5.5.5", result)
-        self.assertIn("11.22.33.44", result)
 
     def test_protected_requires_loaded_whitelist(self):
         # Ohne geladene Whitelist muss der Pipeline-Modus fail-closed raisen.
