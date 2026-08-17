@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-17 23:50 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-17 23:56 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,316,635** |
-| Neu (heute) | **+154** |
-| Entfernt | **-70** |
+| Gesamt IPs | **1,316,636** |
+| Neu (heute) | **+10** |
+| Entfernt | **-9** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 63 |
@@ -36,14 +36,14 @@
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,372 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 230,387 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 861 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,265 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 677 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 597 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 481 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 272 |
-| ✅ `officialputuid_proxyforeveryone` | 6,492 |
-| ✅ `officialputuid_proxyforeveryone_https` | 5,308 |
-| ✅ `officialputuid_proxyforeveryone_proxies` | 5,932 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,065 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 601 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 620 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 502 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 273 |
+| ✅ `officialputuid_proxyforeveryone` | 6,215 |
+| ✅ `officialputuid_proxyforeveryone_https` | 5,194 |
+| ✅ `officialputuid_proxyforeveryone_proxies` | 6,492 |
 | ✅ `ercindedeoglu_proxies` | 47,993 |
 | ✅ `ercindedeoglu_proxies_socks4` | 4,617 |
 | ✅ `ercindedeoglu_proxies_socks5` | 2,988 |
@@ -88,4 +88,4 @@
 > Diese 63 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-17 23:50 CEST (Europe/Berlin)*
+*Generiert: 2026-08-17 23:56 CEST (Europe/Berlin)*
