@@ -493,20 +493,23 @@ jobs:
               # hier ist die Community-DB mit User-Reports + WAF/T-Pot/UFW-Reporter).
               # Auth via X-Secret-Token (GitHub-Secret SNIFFCAT_TOKEN). Fehlt der
               # Token, wird der Feed automatisch geskippt (siehe AUTH_HEADERS).
-              # confidenceMin=30 = Minimum-Schwelle (30-100 erlaubt). NETSHIELD-
-              # eigenes Score-System filtert FPs durch Cross-Validation mit
-              # anderen Quellen ohnehin nach. type=txt (default) liefert plain
-              # IPv4 eine pro Zeile. limit=100000 = Maximum.
-              # DEAKTIVIERT (2026-08-16): SniffCat-Feed vorerst raus, siehe
-              # Chat-Verlauf (haeufige False Positives durch die UFW/UFW-
+              # confidenceMin=70 = Minimum-Schwelle (30-100 erlaubt, per API-Doku
+              # requiredes Pflichtfeld). NETSHIELD-eigenes Score-System filtert
+              # FPs durch Cross-Validation mit anderen Quellen ohnehin nach.
+              # type=txt (default) liefert plain IPv4 eine pro Zeile.
+              # limit=100000 = Maximum.
+              # REAKTIVIERT (2026-08-17): war vom 2026-08-16 bis 2026-08-17
+              # deaktiviert (haeufige False Positives durch die UFW/UFW-
               # SniffCat-Reporter-Integrationen, u.a. Google/CDN-IPs wie
               # 172.217.113.4 wegen fehlender State-/Threshold-Pruefung in
               # diesen Reportern - Details: github.com/SniffCatDB/
-              # UFW-SniffCat-Reporter Issue). Einfach wieder einkommentieren,
-              # falls das dort gefixt wird oder confidenceMin hochgesetzt
-              # werden soll.
-              # "sniffcat":
-              #     "https://api.sniffcat.com/api/v1/blacklist?confidenceMin=30&ipVersion=4&limit=100000",
+              # UFW-SniffCat-Reporter Issue, Fix-Status dort nicht verifiziert).
+              # confidenceMin von 30 auf 70 angehoben statt auf den Issue-Fix
+              # zu warten, um das FP-Risiko zu senken. Bei weiterhin auffaelligen
+              # FPs (z.B. via false_positives_set.json) ggf. weiter hochsetzen
+              # oder erneut deaktivieren.
+              "sniffcat":
+                  "https://api.sniffcat.com/api/v1/blacklist?confidenceMin=70&ipVersion=4&limit=100000",
 
               # SiberKapan: tuerkische Threat-Intel-Plattform (siehe Changelog
               # oben fuer volle Quellen-Liste + offene Caveats zu Format/Dedup).
