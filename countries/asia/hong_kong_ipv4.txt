@@ -1,6 +1,6 @@
 # NETSHIELD – Hong Kong (HK) IPv4 Ranges
-# Aktualisiert: 2026-08-12 05:36 CEST (Europe/Berlin)
-# IP-Ranges: 3420
+# Aktualisiert: 2026-08-17 04:42 CEST (Europe/Berlin)
+# IP-Ranges: 3421
 
 1.36.0.0/16
 1.64.0.0/15
@@ -481,6 +481,7 @@
 45.159.56.0/22
 45.248.68.0/22
 45.248.200.0/22
+45.249.63.0/24
 45.249.92.0/22
 45.249.96.0/22
 45.249.244.0/22

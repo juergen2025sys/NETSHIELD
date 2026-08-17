@@ -1,6 +1,6 @@
 # NETSHIELD – Tanzania (TZ) IPv4 Ranges
-# Aktualisiert: 2026-08-12 05:36 CEST (Europe/Berlin)
-# IP-Ranges: 201
+# Aktualisiert: 2026-08-17 04:42 CEST (Europe/Berlin)
+# IP-Ranges: 202
 
 41.59.0.0/16
 41.73.160.0/19
@@ -36,6 +36,7 @@
 102.69.164.0/22
 102.165.191.0/24
 102.177.80.0/21
+102.201.171.0/24
 102.202.60.0/22
 102.202.72.0/22
 102.202.88.0/22

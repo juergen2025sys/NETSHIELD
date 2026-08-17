@@ -1,6 +1,6 @@
 # NETSHIELD – Myanmar (MM) IPv4 Ranges
-# Aktualisiert: 2026-08-12 05:36 CEST (Europe/Berlin)
-# IP-Ranges: 234
+# Aktualisiert: 2026-08-17 04:42 CEST (Europe/Berlin)
+# IP-Ranges: 235
 
 27.109.116.0/22
 37.111.0.0/17
@@ -207,6 +207,7 @@
 160.30.186.0/23
 160.30.212.0/23
 161.248.234.0/23
+163.52.0.0/23
 163.128.28.0/23
 163.227.60.0/23
 163.227.90.0/23

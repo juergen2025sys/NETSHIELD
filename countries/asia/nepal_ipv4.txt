@@ -1,6 +1,6 @@
 # NETSHIELD – Nepal (NP) IPv4 Ranges
-# Aktualisiert: 2026-08-12 05:36 CEST (Europe/Berlin)
-# IP-Ranges: 279
+# Aktualisiert: 2026-08-17 04:42 CEST (Europe/Berlin)
+# IP-Ranges: 280
 
 27.34.0.0/17
 27.111.16.0/20
@@ -229,6 +229,7 @@
 162.4.196.0/24
 162.4.232.0/23
 163.47.148.0/22
+163.52.4.0/23
 163.53.24.0/23
 163.61.40.0/23
 163.61.118.0/23

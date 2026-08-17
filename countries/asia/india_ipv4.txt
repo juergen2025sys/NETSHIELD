@@ -1,6 +1,6 @@
 # NETSHIELD – India (IN) IPv4 Ranges
-# Aktualisiert: 2026-08-12 05:36 CEST (Europe/Berlin)
-# IP-Ranges: 9258
+# Aktualisiert: 2026-08-17 04:42 CEST (Europe/Berlin)
+# IP-Ranges: 9259
 
 1.6.0.0/15
 1.10.10.0/24
@@ -108,6 +108,7 @@
 27.122.60.0/22
 27.123.64.0/18
 27.123.216.0/22
+27.123.227.0/24
 27.123.240.0/22
 27.123.248.0/22
 27.124.64.0/23

@@ -1,6 +1,6 @@
 # NETSHIELD – Ghana (GH) IPv4 Ranges
-# Aktualisiert: 2026-08-12 05:36 CEST (Europe/Berlin)
-# IP-Ranges: 154
+# Aktualisiert: 2026-08-17 04:42 CEST (Europe/Berlin)
+# IP-Ranges: 155
 
 41.66.192.0/18
 41.74.80.0/20
@@ -40,6 +40,7 @@
 102.164.123.0/24
 102.176.0.0/17
 102.177.100.0/22
+102.201.170.0/24
 102.201.176.0/22
 102.201.253.0/24
 102.202.198.0/23
