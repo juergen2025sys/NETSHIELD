@@ -1,10 +1,26 @@
 {
-  "updated": "2026-08-17 15:51 CEST (Europe/Berlin)",
+  "updated": "2026-08-17 21:37 CEST (Europe/Berlin)",
   "total": 26,
   "ok": 25,
   "warn": 3,
-  "error": 0,
-  "errors": [],
+  "error": 1,
+  "errors": [
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 20.42.72.131, 104.19.229.21, 104.19.230.21, 142.251.155.119, 20.42.72.131\u2026 \u2013 Filterung wirkungslos!"
+    },
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
+      "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 142.251.155.119 \u2013 Filterung wirkungslos!"
+    },
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
+      "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 142.251.155.119, 20.42.72.131, 142.251.155.119, 20.42.72.131 \u2013 Filterung wirkungslos!"
+    }
+  ],
   "warnings": [
     {
       "file": "honigtopf.yml \u2192 update_bot_detector.yml",
@@ -23,17 +39,33 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4606496,
-    "active_blacklist_ipv4.txt": 856516,
-    "blacklist_confidence40_ipv4_part1.txt": 3756898,
+    "combined_threat_blacklist_ipv4_part1.txt": 4609280,
+    "active_blacklist_ipv4.txt": 863216,
+    "blacklist_confidence40_ipv4_part1.txt": 3759825,
     "cve_exploit_ips.txt": 28476,
-    "honeypot_ips.txt": 1770694,
-    "bot_detector_blacklist_ipv4.txt": 1315815
+    "honeypot_ips.txt": 1788498,
+    "bot_detector_blacklist_ipv4.txt": 1316245
   },
   "production_health": {
-    "critical": 0,
+    "critical": 3,
     "warn": 0,
-    "checks": []
+    "checks": [
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 20.42.72.131, 104.19.229.21, 104.19.230.21, 142.251.155.119, 20.42.72.131\u2026 \u2013 Filterung wirkungslos!"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
+        "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 142.251.155.119 \u2013 Filterung wirkungslos!"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
+        "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 142.251.155.119, 20.42.72.131, 142.251.155.119, 20.42.72.131 \u2013 Filterung wirkungslos!"
+      }
+    ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [

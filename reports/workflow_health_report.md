@@ -1,9 +1,17 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-17 15:51 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-17 21:37 CEST (Europe/Berlin)
 
-**Workflows:** 26 | ✅ 25 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
+**Workflows:** 26 | ✅ 25 OK | ⚠️ 3 Warnung | ❌ 1 Fehler
 
 ---
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 20.42.72.131, 104.19.229.21, 104.19.230.21, 142.251.155.119, 20.42.72.131… – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 142.251.155.119 – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 142.251.155.119, 20.42.72.131, 142.251.155.119, 20.42.72.131 – Filterung wirkungslos! |
+
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
@@ -14,9 +22,13 @@
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 3 CRITICAL | 🟡 0 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 20.42.72.131, 104.19.229.21, 104.19.230.21, 142.251.155.119, 20.42.72.131… – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 142.251.155.119 – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 142.251.155.119, 20.42.72.131, 142.251.155.119, 20.42.72.131 – Filterung wirkungslos! |
 
 ## Übersicht
 
@@ -50,4 +62,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-17 15:51 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
+*Generiert: 2026-08-17 21:37 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
