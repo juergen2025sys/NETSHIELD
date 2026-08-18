@@ -505,11 +505,13 @@ jobs:
               # diesen Reportern - Details: github.com/SniffCatDB/
               # UFW-SniffCat-Reporter Issue, Fix-Status dort nicht verifiziert).
               # confidenceMin von 30 auf 70 angehoben statt auf den Issue-Fix
-              # zu warten, um das FP-Risiko zu senken. Bei weiterhin auffaelligen
-              # FPs (z.B. via false_positives_set.json) ggf. weiter hochsetzen
-              # oder erneut deaktivieren.
+              # zu warten, um das FP-Risiko zu senken.
+              # ANGEPASST (2026-08-18): 70 -> 50 gesenkt (mehr Coverage, FP-Risiko
+              # bewusst wieder etwas erhoeht). Bei erneut auffaelligen FPs
+              # (z.B. via false_positives_set.json) ggf. wieder hochsetzen
+              # oder Feed erneut deaktivieren.
               "sniffcat":
-                  "https://api.sniffcat.com/api/v1/blacklist?confidenceMin=70&ipVersion=4&limit=100000",
+                  "https://api.sniffcat.com/api/v1/blacklist?confidenceMin=50&ipVersion=4&limit=100000",
 
               # SiberKapan: tuerkische Threat-Intel-Plattform (siehe Changelog
               # oben fuer volle Quellen-Liste + offene Caveats zu Format/Dedup).
