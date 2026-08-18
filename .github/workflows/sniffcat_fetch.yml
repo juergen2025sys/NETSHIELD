@@ -7,7 +7,7 @@ on:
       confidence_min:
         description: 'confidenceMin-Parameter fuer die SniffCat-API (30-100)'
         required: false
-        default: '70'
+        default: '50'
       retention_days:
         description: 'Wie lange das Artifact aufbewahrt wird (Tage)'
         required: false
@@ -127,7 +127,7 @@ jobs:
                         f"alle {len(candidates)} Key(s) fehlgeschlagen")
               return None
 
-          confidence_min = os.environ.get("CONFIDENCE_MIN", "70").strip() or "70"
+          confidence_min = os.environ.get("CONFIDENCE_MIN", "50").strip() or "50"
           SNIFFCAT_URL = (
               f"https://api.sniffcat.com/api/v1/blacklist"
               f"?confidenceMin={confidence_min}&ipVersion=4&limit=100000"
@@ -180,7 +180,7 @@ jobs:
           EOF
 
       - name: Upload als Artifact (kein Repo-Commit)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: sniffcat-ips-${{ github.run_id }}
           path: sniffcat_ips.txt
