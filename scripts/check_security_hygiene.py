@@ -652,18 +652,48 @@ def check_fetch_usage() -> list[str]:
                     tree = ast.parse(source)
                 except SyntaxError:
                     continue
+                # Request(...)-Aufrufe MIT "headers="-Keyword als authenti-
+                # fizierten Fetch erkennen. Dokumentiertes, bewusstes Muster
+                # im Repo (siehe honeypot_monitor.yml-Kommentar: "Feeds MIT
+                # custom headers ... muessen weiter den urlopen-Pfad nutzen,
+                # weil fetch_url keine custom-Header durchreicht"). Diese
+                # Aufrufe sind kein SSRF-Risiko (Auth-Header, keine
+                # nutzergesteuerte URL) und werden daher NICHT mehr als
+                # Info-Eintrag gelistet – nur noch echte header-lose
+                # urlopen()/requests.*()-Aufrufe in Workflows werden
+                # angezeigt.
+                request_with_headers_names = set()
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.Assign) and isinstance(node.value, ast.Call):
+                        cn = _qualified_name(node.value.func)
+                        if cn in ("urllib.request.Request", "Request"):
+                            has_headers_kw = any(
+                                kw.arg == "headers" for kw in node.value.keywords)
+                            if has_headers_kw:
+                                for tgt in node.targets:
+                                    if isinstance(tgt, ast.Name):
+                                        request_with_headers_names.add(tgt.id)
+
                 for node in ast.walk(tree):
                     if not isinstance(node, ast.Call):
                         continue
                     name = _qualified_name(node.func)
-                    if name in {"urllib.request.urlopen",
+                    if name not in {"urllib.request.urlopen",
                                 "requests.get", "requests.post",
                                 "requests.put", "requests.delete",
                                 "requests.head", "requests.request"}:
-                        workflow_info.append(
-                            f"{wf.relative_to(REPO_ROOT)}:{node.lineno + start_line}: "
-                            f"{name}(...) in inline-Python – URLs sollten aus "
-                            f"hardcoded dict kommen (Review empfohlen)")
+                        continue
+                    # urlopen(req) wobei req = Request(url, headers=...) → erlaubt
+                    if node.args and isinstance(node.args[0], ast.Name):
+                        if node.args[0].id in request_with_headers_names:
+                            continue
+                    # requests.get(url, headers=...) direkt mit headers-Keyword → erlaubt
+                    if any(kw.arg == "headers" for kw in node.keywords):
+                        continue
+                    workflow_info.append(
+                        f"{wf.relative_to(REPO_ROOT)}:{node.lineno + start_line}: "
+                        f"{name}(...) in inline-Python – URLs sollten aus "
+                        f"hardcoded dict kommen (Review empfohlen)")
 
     return errors
 
