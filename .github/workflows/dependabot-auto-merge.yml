@@ -4,11 +4,17 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
-# Least-Privilege: contents: read reicht – auto-merge geht über die
-# GitHub-API (gh pr merge), nicht per git push. Kein Commit-Schreibrecht
-# nötig.
+# WICHTIG (2026-08-18): "contents: read reicht" war FALSCH – der GraphQL-
+# Mutation mergePullRequest (genutzt von "gh pr merge --auto") braucht
+# contents: write, nicht nur pull-requests: write. Mit nur contents: read
+# schlug der automerge-Job fehl: "GraphQL: Resource not accessible by
+# integration (mergePullRequest)" (Run 87225542137, PR #31).
+# Quelle: docs.github.com/.../troubleshooting-dependabot-on-github-actions
+# ("By default ... GITHUB_TOKEN ... read-only ... permissions key ...
+# increase the access") + community.github.com Diskussionen zu
+# mergePullRequest & contents:write.
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:
