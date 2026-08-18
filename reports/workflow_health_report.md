@@ -1,34 +1,24 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-17 21:37 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-18 04:20 CEST (Europe/Berlin)
 
-**Workflows:** 26 | ✅ 25 OK | ⚠️ 3 Warnung | ❌ 1 Fehler
+**Workflows:** 27 | ✅ 25 OK | ⚠️ 4 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 20.42.72.131, 104.19.229.21, 104.19.230.21, 142.251.155.119, 20.42.72.131… – Filterung wirkungslos! |
-| `Production Health` | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 142.251.155.119 – Filterung wirkungslos! |
-| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 142.251.155.119, 20.42.72.131, 142.251.155.119, 20.42.72.131 – Filterung wirkungslos! |
-
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
 | `honigtopf.yml → update_bot_detector.yml` | Workflow-Reihenfolge / Puffer zu knapp | 22:40 UTC → 22:45 UTC (5min < 15min) |
+| `sniffcat_fetch.yml` | Kein expliziter Leerungsschutz | Externer Feed/Report ohne explizite MIN_* Guard-Variable – Müll-/Leer-Daten könnten unbemerkt akzeptiert werden |
+| `sniffcat_fetch.yml` | Action nicht SHA-pinned | uses: actions/upload-artifact@v4 – Tag statt SHA-Hash (Supply-Chain-Risiko) |
 | `update_combined_blacklist.yml` | LOCAL_FEEDS verwaist | LOCAL_FEEDS referenziert Dateien ohne erkennbaren Erzeuger-Workflow: honeypot_ips.txt |
 | `honigtopf.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC → 00:07 UTC (7min < 60min Mindestpuffer); 00:20 UTC → 00:27 UTC (7min < 60min Mindestpuffer); 00:40 UTC → 00:47 UTC (7min < 60min Mindestpuffer); 02:20 UTC → 03:07 UTC (47min < 60min Mindestpuffer); 02:40 UTC → 03:07 UTC (27min < 60min Mindestpuffer) |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 3 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 20.42.72.131, 104.19.229.21, 104.19.230.21, 142.251.155.119, 20.42.72.131… – Filterung wirkungslos! |
-| 🔴 CRITICAL | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 142.251.155.119 – Filterung wirkungslos! |
-| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 142.251.155.119, 20.42.72.131, 142.251.155.119, 20.42.72.131 – Filterung wirkungslos! |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -51,6 +41,7 @@
 | `run_tests.yml` | ✅ OK | 0 | 0 | – |
 | `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
 | `seen_db_expiry_forecast.yml` | ✅ OK | 0 | 0 | `30 6 * * 1` |
+| `sniffcat_fetch.yml` | ⚠️ | 0 | 2 | – |
 | `tweetfeed_monitor.yml` | ✅ OK | 0 | 0 | `45 2 * * *` |
 | `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 1 * * 1`, `30 1 * * 3` |
 | `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
@@ -62,4 +53,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-17 21:37 CEST (Europe/Berlin) | 26 Workflow-Dateien geprüft*
+*Generiert: 2026-08-18 04:20 CEST (Europe/Berlin) | 27 Workflow-Dateien geprüft*

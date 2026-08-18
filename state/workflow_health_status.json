@@ -1,31 +1,25 @@
 {
-  "updated": "2026-08-17 21:37 CEST (Europe/Berlin)",
-  "total": 26,
+  "updated": "2026-08-18 04:20 CEST (Europe/Berlin)",
+  "total": 27,
   "ok": 25,
-  "warn": 3,
-  "error": 1,
-  "errors": [
-    {
-      "file": "Production Health",
-      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
-      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 20.42.72.131, 104.19.229.21, 104.19.230.21, 142.251.155.119, 20.42.72.131\u2026 \u2013 Filterung wirkungslos!"
-    },
-    {
-      "file": "Production Health",
-      "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
-      "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 142.251.155.119 \u2013 Filterung wirkungslos!"
-    },
-    {
-      "file": "Production Health",
-      "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
-      "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 142.251.155.119, 20.42.72.131, 142.251.155.119, 20.42.72.131 \u2013 Filterung wirkungslos!"
-    }
-  ],
+  "warn": 4,
+  "error": 0,
+  "errors": [],
   "warnings": [
     {
       "file": "honigtopf.yml \u2192 update_bot_detector.yml",
       "check": "Workflow-Reihenfolge / Puffer zu knapp",
       "detail": "22:40 UTC \u2192 22:45 UTC (5min < 15min)"
+    },
+    {
+      "file": "sniffcat_fetch.yml",
+      "check": "Kein expliziter Leerungsschutz",
+      "detail": "Externer Feed/Report ohne explizite MIN_* Guard-Variable \u2013 M\u00fcll-/Leer-Daten k\u00f6nnten unbemerkt akzeptiert werden"
+    },
+    {
+      "file": "sniffcat_fetch.yml",
+      "check": "Action nicht SHA-pinned",
+      "detail": "uses: actions/upload-artifact@v4 \u2013 Tag statt SHA-Hash (Supply-Chain-Risiko)"
     },
     {
       "file": "update_combined_blacklist.yml",
@@ -39,33 +33,17 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4609280,
-    "active_blacklist_ipv4.txt": 863216,
-    "blacklist_confidence40_ipv4_part1.txt": 3759825,
+    "combined_threat_blacklist_ipv4_part1.txt": 4608571,
+    "active_blacklist_ipv4.txt": 819985,
+    "blacklist_confidence40_ipv4_part1.txt": 3762831,
     "cve_exploit_ips.txt": 28476,
-    "honeypot_ips.txt": 1788498,
-    "bot_detector_blacklist_ipv4.txt": 1316245
+    "honeypot_ips.txt": 1789964,
+    "bot_detector_blacklist_ipv4.txt": 1316525
   },
   "production_health": {
-    "critical": 3,
+    "critical": 0,
     "warn": 0,
-    "checks": [
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
-        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 20.42.72.131, 104.19.229.21, 104.19.230.21, 142.251.155.119, 20.42.72.131\u2026 \u2013 Filterung wirkungslos!"
-      },
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
-        "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 142.251.155.119 \u2013 Filterung wirkungslos!"
-      },
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
-        "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 142.251.155.119, 20.42.72.131, 142.251.155.119, 20.42.72.131 \u2013 Filterung wirkungslos!"
-      }
-    ]
+    "checks": []
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
