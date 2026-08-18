@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-18 13:48 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-18 13:51 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -8,8 +8,8 @@
 | Metrik | Wert |
 |---|---|
 | Gesamt IPs | **1,317,772** |
-| Neu (heute) | **+462,805** |
-| Entfernt | **-462,758** |
+| Neu (heute) | **+0** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 63 |
@@ -27,7 +27,7 @@
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 500,000 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,308 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,640 |
+| ✅ `ebrasha_abdal_proxy_hub` | 4,642 |
 | ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,711 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,634 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,952 |
@@ -79,13 +79,13 @@
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,283 |
 | ✅ `claudiusdecimius_ioc_ipsets_botscout_30d` | 3,640 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,811 |
-| ✅ `cyberh4ck3r_free_proxy_list` | 3,182 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,348 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 1,914 |
+| ✅ `cyberh4ck3r_free_proxy_list` | 3,129 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,354 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 1,903 |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 > Diese 63 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-18 13:48 CEST (Europe/Berlin)*
+*Generiert: 2026-08-18 13:51 CEST (Europe/Berlin)*
