@@ -1,8 +1,8 @@
 {
-  "updated": "2026-08-18 15:55 CEST (Europe/Berlin)",
+  "updated": "2026-08-18 21:36 CEST (Europe/Berlin)",
   "total": 27,
-  "ok": 25,
-  "warn": 4,
+  "ok": 24,
+  "warn": 5,
   "error": 0,
   "errors": [],
   "warnings": [
@@ -12,14 +12,14 @@
       "detail": "22:40 UTC \u2192 22:45 UTC (5min < 15min)"
     },
     {
-      "file": "sniffcat_fetch.yml",
-      "check": "Kein expliziter Leerungsschutz",
-      "detail": "Externer Feed/Report ohne explizite MIN_* Guard-Variable \u2013 M\u00fcll-/Leer-Daten k\u00f6nnten unbemerkt akzeptiert werden"
+      "file": "dependabot-auto-merge.yml",
+      "check": "Permissions zu breit",
+      "detail": "permissions: contents: write gesetzt aber kein git commit/push erkennbar \u2013 Least-Privilege-Verletzung"
     },
     {
       "file": "sniffcat_fetch.yml",
-      "check": "Action nicht SHA-pinned",
-      "detail": "uses: actions/upload-artifact@v4 \u2013 Tag statt SHA-Hash (Supply-Chain-Risiko)"
+      "check": "Kein expliziter Leerungsschutz",
+      "detail": "Externer Feed/Report ohne explizite MIN_* Guard-Variable \u2013 M\u00fcll-/Leer-Daten k\u00f6nnten unbemerkt akzeptiert werden"
     },
     {
       "file": "update_combined_blacklist.yml",
@@ -33,12 +33,12 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4623049,
-    "active_blacklist_ipv4.txt": 842573,
-    "blacklist_confidence40_ipv4_part1.txt": 3772996,
+    "combined_threat_blacklist_ipv4_part1.txt": 4632569,
+    "active_blacklist_ipv4.txt": 863621,
+    "blacklist_confidence40_ipv4_part1.txt": 3782566,
     "cve_exploit_ips.txt": 28390,
-    "honeypot_ips.txt": 1790818,
-    "bot_detector_blacklist_ipv4.txt": 1317798
+    "honeypot_ips.txt": 1809219,
+    "bot_detector_blacklist_ipv4.txt": 1318247
   },
   "production_health": {
     "critical": 0,
