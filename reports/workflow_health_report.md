@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-19 15:55 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-19 21:35 CEST (Europe/Berlin)
 
-**Workflows:** 27 | ✅ 24 OK | ⚠️ 6 Warnung | ❌ 0 Fehler
+**Workflows:** 27 | ✅ 24 OK | ⚠️ 5 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
@@ -13,19 +13,13 @@
 | `sniffcat_fetch.yml` | Kein expliziter Leerungsschutz | Externer Feed/Report ohne explizite MIN_* Guard-Variable – Müll-/Leer-Daten könnten unbemerkt akzeptiert werden |
 | `update_combined_blacklist.yml` | LOCAL_FEEDS verwaist | LOCAL_FEEDS referenziert Dateien ohne erkennbaren Erzeuger-Workflow: honeypot_ips.txt |
 | `honigtopf.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC → 00:07 UTC (7min < 60min Mindestpuffer); 00:20 UTC → 00:27 UTC (7min < 60min Mindestpuffer); 00:40 UTC → 00:47 UTC (7min < 60min Mindestpuffer); 02:20 UTC → 03:07 UTC (47min < 60min Mindestpuffer); 02:40 UTC → 03:07 UTC (27min < 60min Mindestpuffer) |
-| `Production Health` | seen_db Aktualität | state/seen_db_meta.json ist 10h alt (letztes Update: 2026-08-19 06:12 CEST (Europe/Berlin)) – mindestens 1 Combined-Run verpasst |
-| `Production Health` | Aktualität: Active Blacklist (Stufe 2) | active_blacklist_ipv4.txt ist 10h alt (WARN-Schwelle: 6h) |
-| `Production Health` | Aktualität: Combined Blacklist (Stufe 1, Part 1) | combined_threat_blacklist_ipv4_part1.txt ist 10h alt (WARN-Schwelle: 6h) |
+| `sniffcat_fetch.yml` | actions/upload-artifact Version-Drift | 1 Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht? |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 3 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🟡 WARN | seen_db Aktualität | state/seen_db_meta.json ist 10h alt (letztes Update: 2026-08-19 06:12 CEST (Europe/Berlin)) – mindestens 1 Combined-Run verpasst |
-| 🟡 WARN | Aktualität: Active Blacklist (Stufe 2) | active_blacklist_ipv4.txt ist 10h alt (WARN-Schwelle: 6h) |
-| 🟡 WARN | Aktualität: Combined Blacklist (Stufe 1, Part 1) | combined_threat_blacklist_ipv4_part1.txt ist 10h alt (WARN-Schwelle: 6h) |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -60,4 +54,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-19 15:55 CEST (Europe/Berlin) | 27 Workflow-Dateien geprüft*
+*Generiert: 2026-08-19 21:35 CEST (Europe/Berlin) | 27 Workflow-Dateien geprüft*
