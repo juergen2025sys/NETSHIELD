@@ -1,6 +1,6 @@
 # NETSHIELD – Mozambique (MZ) IPv4 Ranges
-# Aktualisiert: 2026-08-17 04:42 CEST (Europe/Berlin)
-# IP-Ranges: 58
+# Aktualisiert: 2026-08-19 04:37 CEST (Europe/Berlin)
+# IP-Ranges: 59
 
 41.76.0.0/21
 41.76.144.0/21
@@ -19,6 +19,7 @@
 102.36.146.0/24
 102.67.188.0/22
 102.176.248.0/23
+102.201.140.0/22
 102.202.10.0/24
 102.202.76.0/24
 102.202.112.0/22

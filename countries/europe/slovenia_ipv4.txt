@@ -1,6 +1,6 @@
 # NETSHIELD – Slovenia (SI) IPv4 Ranges
-# Aktualisiert: 2026-08-17 04:42 CEST (Europe/Berlin)
-# IP-Ranges: 544
+# Aktualisiert: 2026-08-19 04:37 CEST (Europe/Berlin)
+# IP-Ranges: 545
 
 2.58.48.0/22
 2.59.118.0/24
@@ -510,6 +510,7 @@
 195.250.192.0/20
 195.250.208.0/21
 195.250.216.0/21
+198.60.216.0/24
 198.203.198.0/23
 202.92.212.0/24
 203.19.252.0/24
