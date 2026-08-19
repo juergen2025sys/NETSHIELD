@@ -117,7 +117,7 @@ jobs:
               safe_get_date, parse_date, sort_ips, write_ip_list,
 
               write_text_atomic,
-              fetch_url, check_local_feed_age,
+              fetch_url, safe_urlopen, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
 
@@ -302,13 +302,12 @@ jobs:
               for idx in order:
                   cred_id, cred_key, cred_label = CREDENTIALS[idx]
                   for attempt in range(1, retries + 1):
-                      req = urllib.request.Request(url, headers={
-                          HDR_ID:        cred_id,
-                          HDR_KEY:       cred_key,
-                          "User-Agent":  "NETSHIELD-Honigtopf/1.0",
-                      })
                       try:
-                          with urllib.request.urlopen(req, timeout=30) as r:
+                          with safe_urlopen(url, headers={
+                              HDR_ID:        cred_id,
+                              HDR_KEY:       cred_key,
+                              "User-Agent":  "NETSHIELD-Honigtopf/1.0",
+                          }, timeout=30) as r:
                               remaining = consumed = "?"
                               for _hk, _hv in r.headers.items():
                                   _l = _hk.lower()

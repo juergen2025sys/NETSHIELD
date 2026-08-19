@@ -279,7 +279,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
-              fetch_url, check_local_feed_age,
+              fetch_url, safe_urlopen, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
 
@@ -334,12 +334,11 @@ jobs:
                   _dec("aHR0cHM6Ly9hcGkuYWJ1c2VpcGRiLmNvbS9hcGkvdjIvYmxhY2tsaXN0")
                   + f"?confidenceMinimum={MIN_SCORE}&limit={LIMIT}&plaintext=1"
               )
-              req = urllib.request.Request(url, headers={
-                  "Key":    key,
-                  "Accept": "text/plain",
-              })
               try:
-                  with urllib.request.urlopen(req, timeout=30) as r:
+                  with safe_urlopen(url, headers={
+                      "Key":    key,
+                      "Accept": "text/plain",
+                  }, timeout=30) as r:
                       status = r.status
                       body   = r.read().decode("utf-8", errors="ignore")
 

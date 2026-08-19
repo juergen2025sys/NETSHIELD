@@ -68,7 +68,7 @@ jobs:
               safe_get_date, parse_date, sort_ips, write_ip_list,
 
               write_text_atomic,
-              fetch_url, check_local_feed_age,
+              fetch_url, safe_urlopen, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
 
@@ -173,8 +173,7 @@ jobs:
                   req_hdrs.update(cand_headers)
                   for attempt in range(1, retries + 1):
                       try:
-                          req = urllib.request.Request(url, headers=req_hdrs)
-                          with urllib.request.urlopen(req, timeout=timeout) as r:
+                          with safe_urlopen(url, headers=req_hdrs, timeout=timeout) as r:
                               if cand_idx > 1:
                                   print(f"  {url}: Key #{cand_idx} erfolgreich "
                                         f"(Failover nach Key #{cand_idx - 1})")
@@ -849,11 +848,8 @@ jobs:
                       url = (f"https://threatfox-api.abuse.ch/v2/files/exports/"
                              f"{key}/full.csv.zip")
                       for attempt in range(1, retries + 1):
-                          req = urllib.request.Request(
-                              url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor-ThreatFox/1.0"}
-                          )
                           try:
-                              with urllib.request.urlopen(req, timeout=timeout) as r:
+                              with safe_urlopen(url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor-ThreatFox/1.0"}, timeout=timeout) as r:
                                   data = r.read(TF_READ_LIMIT + 1)
                                   if len(data) > TF_READ_LIMIT:
                                       print(f"  FEHLER threatfox_export: Antwort > "
@@ -1004,11 +1000,8 @@ jobs:
                       url = (f"https://urlhaus-api.abuse.ch/v2/files/exports/"
                              f"{key}/recent.csv")
                       for attempt in range(1, retries + 1):
-                          req = urllib.request.Request(
-                              url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor-URLhaus/1.0"}
-                          )
                           try:
-                              with urllib.request.urlopen(req, timeout=timeout) as r:
+                              with safe_urlopen(url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor-URLhaus/1.0"}, timeout=timeout) as r:
                                   data = r.read().decode("utf-8", errors="ignore")
                                   if key_idx > 1:
                                       print(f"  urlhaus_export: Key #{key_idx} erfolgreich "
@@ -1213,11 +1206,8 @@ jobs:
                      f"{d.strftime('%Y')}/{d.strftime('%m')}/"
                      f"{d.strftime('%Y-%m-%d')}.json.gz")
               for attempt in range(1, retries + 1):
-                  req = urllib.request.Request(
-                      url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor-HaaS/1.0"}
-                  )
                   try:
-                      with urllib.request.urlopen(req, timeout=timeout) as r:
+                      with safe_urlopen(url, headers={"User-Agent": "NETSHIELD-HoneypotMonitor-HaaS/1.0"}, timeout=timeout) as r:
                           data = r.read(HAAS_READ_LIMIT + 1)
                           if len(data) > HAAS_READ_LIMIT:
                               print(f"  FEHLER haas_ssh: Antwort > "

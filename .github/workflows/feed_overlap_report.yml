@@ -49,6 +49,18 @@ jobs:
           from pathlib import Path
           from itertools import combinations
 
+          # FIX AUTH-HEADER-SSRF (2026-08-19): Dieser Workflow fetchte bisher
+          # via rohem urllib.request.urlopen() OHNE jede SSRF-/DNS-Rebind-
+          # Pruefung - im Unterschied zu den anderen Feed-Workflows, die
+          # ueber netshield_common.fetch_url()/safe_urlopen() geschuetzt
+          # sind. Die hier gefetchten URLs werden per Regex aus anderen
+          # Workflow-Dateien im Repo extrahiert (siehe find_feed_urls unten)
+          # - kein direkter externer Angriffsvektor, aber inkonsistent zum
+          # Rest des Repos. Import ergaenzt, urlopen unten ersetzt.
+          import sys as _sys
+          _sys.path.insert(0, "scripts")
+          from netshield_common import safe_urlopen
+
           MAX_FEEDS = int(os.getenv("MAX_FEEDS", "160") or 160)
           OVERLAP_WARN_PCT = float(os.getenv("OVERLAP_WARN_PCT", "95") or 95.0)
           MIN_COMMON = 50
@@ -136,9 +148,8 @@ jobs:
               return feeds[:MAX_FEEDS]
 
           def fetch_text(url: str):
-              req = urllib.request.Request(url, headers={"User-Agent": "NETSHIELD-overlap-report/1.0"})
               try:
-                  with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+                  with safe_urlopen(url, headers={"User-Agent": "NETSHIELD-overlap-report/1.0"}, timeout=TIMEOUT) as r:
                       raw = r.read(MAX_BYTES + 1)
                       truncated_bytes = len(raw) > MAX_BYTES
                       raw = raw[:MAX_BYTES]
