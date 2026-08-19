@@ -16,6 +16,7 @@ Verwendung in Workflows:
 """
 
 import bisect
+import contextlib
 import ipaddress
 import json
 import os
@@ -2183,6 +2184,78 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
         # Aufrufe mit anderen URLs nicht gestale IPs bekommen.
         # FIX BUG-PIN-RESTORE: Restore in umgekehrter Reihenfolge des Pinnens
         # (LIFO), damit verschachtelte Pins korrekt aufgeloest werden.
+        for h, previous in reversed(pinned_hosts):
+            _restore_pin(h, previous)
+
+
+@contextlib.contextmanager
+def safe_urlopen(url, headers=None, timeout=30):
+    """SSRF-sicherer Drop-in-Ersatz fuer
+    urllib.request.urlopen(urllib.request.Request(url, headers=...)).
+
+    FIX AUTH-HEADER-SSRF (2026-08-19): Alle Workflow-Feeds mit Custom-
+    Auth-Headern (SniffCat, HaaS, GitHub-API-Calls u.a. - 13 Stellen,
+    siehe check_security_hygiene.py Workflow-Inline-Info-Liste) nutzten
+    bisher rohes urllib.request.urlopen() OHNE jede SSRF-/DNS-Rebind-
+    Pruefung. Grund laut den Kommentaren dort: "fetch_url() kann keine
+    Custom-Header durchreichen" - das stimmt aber nicht (mehr): fetch_url()
+    hat laengst einen extra_headers-Parameter, nur wurde das in den
+    Workflow-Kommentaren nie nachgezogen.
+    Fuer die einfachen Faelle (Response als Text, kein eigenes Retry-
+    Verhalten noetig) ist fetch_url(url, extra_headers=...) die richtige
+    Wahl. safe_urlopen() ist fuer die Faelle da, wo Aufrufer die rohe
+    Response/HTTPError-Codes brauchen (z.B. SniffCat-Multi-Token-
+    Failover: bei 401/403 naechsten Key probieren, bei 429/5xx den
+    GLEICHEN Key retryen - das bildet fetch_url()s "bei jedem Fehler nur
+    None" nicht ab).
+
+    Fuehrt dieselbe Host-Validierung + DNS-Rebind-Pinning wie fetch_url()
+    durch (siehe dortige Kommentare zu FIX DNS-REBIND fuer Details) -
+    inklusive erneuter Validierung bei Redirects. Wirft urllib.error.URLError
+    bei SSRF-Block (kein localhost/RFC1918/Link-Local/Cloud-Metadata) oder
+    ungueltigem Schema, urllib.error.HTTPError bei HTTP-Fehlerstatus (wie
+    normales urlopen) - Aufrufer koennen also ihre bestehende except-Logik
+    unveraendert weiterverwenden.
+
+    Usage:
+        with safe_urlopen(url, headers=my_headers, timeout=30) as r:
+            data = r.read()
+    """
+    import urllib.request
+    import urllib.error
+    import urllib.parse
+
+    pinned_hosts = []
+
+    def _validate(u):
+        parsed = urllib.parse.urlparse(u)
+        if parsed.scheme not in ("http", "https"):
+            raise urllib.error.URLError(f"Schema nicht erlaubt: {parsed.scheme}://")
+        if not parsed.hostname:
+            raise urllib.error.URLError(f"kein Hostname in URL: {u}")
+        safe_ips = _is_safe_public_host(parsed.hostname)
+        if not safe_ips:
+            raise urllib.error.URLError(
+                f"Host nicht öffentlich (SSRF-Schutz): {parsed.hostname}")
+        # Gleiche Backward-Compat-Ausnahme wie in fetch_url()._validate:
+        # wenn _is_safe_public_host in Tests auf lambda h: True gepatcht
+        # ist (legacy API), wird nicht gepinnt.
+        if isinstance(safe_ips, list):
+            previous = _pin_host(parsed.hostname, safe_ips)
+            pinned_hosts.append((parsed.hostname, previous))
+
+    class _SafeRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, hdrs, newurl):
+            _validate(newurl)
+            return super().redirect_request(req, fp, code, msg, hdrs, newurl)
+
+    try:
+        _validate(url)
+        req = urllib.request.Request(url, headers=dict(headers or {}))
+        opener = urllib.request.build_opener(_SafeRedirect())
+        with opener.open(req, timeout=timeout) as r:
+            yield r
+    finally:
         for h, previous in reversed(pinned_hosts):
             _restore_pin(h, previous)
 
