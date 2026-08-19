@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-19 20:58 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-19 21:03 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,321,062** |
-| Neu (heute) | **+376** |
-| Entfernt | **-149** |
+| Gesamt IPs | **1,321,061** |
+| Neu (heute) | **+0** |
+| Entfernt | **-1** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 63 |
@@ -55,8 +55,8 @@
 | ✅ `noctiro_getproxy` | 4,553 |
 | ✅ `noctiro_getproxy_socks5` | 2,723 |
 | ✅ `mohammedcha_proxripper` | 53,261 |
-| ✅ `mohammedcha_proxripper_socks4` | 112,757 |
-| ✅ `mohammedcha_proxripper_http` | 117,009 |
+| ✅ `mohammedcha_proxripper_socks4` | 113,244 |
+| ✅ `mohammedcha_proxripper_http` | 117,848 |
 | ✅ `mohammedcha_proxripper_socks5` | 114,838 |
 | ✅ `celestialbrain_worldpool` | 83,818 |
 | ✅ `dinoz0rg_proxy_list` | 86,402 |
@@ -88,4 +88,4 @@
 > Diese 63 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-19 20:58 CEST (Europe/Berlin)*
+*Generiert: 2026-08-19 21:03 CEST (Europe/Berlin)*
