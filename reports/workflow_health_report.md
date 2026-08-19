@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-18 21:36 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-19 04:31 CEST (Europe/Berlin)
 
-**Workflows:** 27 | ✅ 24 OK | ⚠️ 5 Warnung | ❌ 0 Fehler
+**Workflows:** 27 | ✅ 24 OK | ⚠️ 6 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
@@ -13,12 +13,15 @@
 | `sniffcat_fetch.yml` | Kein expliziter Leerungsschutz | Externer Feed/Report ohne explizite MIN_* Guard-Variable – Müll-/Leer-Daten könnten unbemerkt akzeptiert werden |
 | `update_combined_blacklist.yml` | LOCAL_FEEDS verwaist | LOCAL_FEEDS referenziert Dateien ohne erkennbaren Erzeuger-Workflow: honeypot_ips.txt |
 | `honigtopf.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC → 00:07 UTC (7min < 60min Mindestpuffer); 00:20 UTC → 00:27 UTC (7min < 60min Mindestpuffer); 00:40 UTC → 00:47 UTC (7min < 60min Mindestpuffer); 02:20 UTC → 03:07 UTC (47min < 60min Mindestpuffer); 02:40 UTC → 03:07 UTC (27min < 60min Mindestpuffer) |
+| `Production Health` | Drift: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt: 863,621 → 694,938 (-20%) – deutlicher Rückgang |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🟡 WARN | Drift: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt: 863,621 → 694,938 (-20%) – deutlicher Rückgang |
 
 ## Übersicht
 
@@ -53,4 +56,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-18 21:36 CEST (Europe/Berlin) | 27 Workflow-Dateien geprüft*
+*Generiert: 2026-08-19 04:31 CEST (Europe/Berlin) | 27 Workflow-Dateien geprüft*
