@@ -73,6 +73,17 @@ jobs:
           # verspaetet sein, bevor Watchdog eingreift? 15min Puffer deckt
           # typische GitHub-Cron-Drift (0-15min) ab; ab x:30 greift Watchdog.
           SLOT_GRACE_MINUTES: "15"
+          # FIX STUCK-QUEUE (2026-08-19): Uebernommen aus watchdog_combined.yml
+          # (dort am selben Tag gefunden: ein Combined-Run haengte >10h in
+          # "queued" fest, running=0, queued=1, ohne je zu starten oder zu
+          # failen - der active-Check unten hielt den Watchdog trotzdem
+          # dauerhaft vom Eingreifen ab). Gleiche Klasse Bug kann Honigtopf
+          # genauso treffen (gleicher GitHub-seitiger Ghost-Run-Mechanismus,
+          # nicht Workflow-spezifisch). Wenn der aelteste aktive/gequeuete
+          # Honigtopf-Run laenger als STUCK_ACTIVE_THRESHOLD_MINUTES existiert,
+          # gilt er als haengend: Watchdog versucht Cancel + triggert neu,
+          # statt unbegrenzt zu warten. 180min = 3h.
+          STUCK_ACTIVE_THRESHOLD_MINUTES: "180"
         run: |
           set -e
           set -o pipefail
@@ -159,33 +170,50 @@ jobs:
             echo "Kein erfolgreicher Honigtopf-Run in den letzten 50 Erfolgs-Eintraegen gefunden"
           fi
 
-          # ── 3. Honigtopf-Status pruefen ──────────────────────────────────
-          # Laeuft Honigtopf gerade oder ist gequeued? Dann kein Eingriff.
-          running_count=$(gh_retry gh run list \
-            --repo "${{ github.repository }}" \
-            --workflow=honigtopf.yml \
-            --status=in_progress \
-            --limit=5 \
-            --json databaseId \
-            --jq 'length')
-          queued_count=$(gh_retry gh run list \
-            --repo "${{ github.repository }}" \
-            --workflow=honigtopf.yml \
-            --status=queued \
-            --limit=5 \
-            --json databaseId \
-            --jq 'length')
-          active=$(( running_count + queued_count ))
-
-          if [ "$active" -gt 0 ]; then
-            echo "Honigtopf hat bereits ${active} aktive(n) Lauf/Laeufe (running=${running_count}, queued=${queued_count}) - kein Eingriff noetig"
-            exit 0
-          fi
-
-          # ── 4. Entscheidungs-Logik ─────────────────────────────────────
+          # ── 3. Honigtopf-Status pruefen (erweitert FIX STUCK-QUEUE) ──────
+          # Laeuft Honigtopf gerade oder ist gequeued? Normalerweise: kein
+          # Eingriff. ABER: Wenn der aktive/gequeuete Run selbst schon laenger
+          # als STUCK_ACTIVE_THRESHOLD_MINUTES existiert (haengender Ghost-Run,
+          # siehe Kommentar oben), gilt das "aktiv"-Signal nicht mehr als
+          # Entwarnung - Cancel-Versuch + Neu-Trigger statt endlos warten.
           should_trigger=false
           reason=""
 
+          active_json=$(gh_retry gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=honigtopf.yml \
+            --json databaseId,status,createdAt \
+            --limit=10 \
+            --jq '[.[] | select(.status=="in_progress" or .status=="queued")]')
+          active=$(echo "$active_json" | jq 'length')
+          running_count=$(echo "$active_json" | jq '[.[] | select(.status=="in_progress")] | length')
+          queued_count=$(echo "$active_json" | jq '[.[] | select(.status=="queued")] | length')
+
+          if [ "$active" -gt 0 ]; then
+            oldest_active_created=$(echo "$active_json" | jq -r 'sort_by(.createdAt) | .[0].createdAt')
+            oldest_active_id=$(echo "$active_json" | jq -r 'sort_by(.createdAt) | .[0].databaseId')
+            oldest_active_epoch=$(date -u -d "$oldest_active_created" +%s)
+            active_age_min=$(( (now_epoch - oldest_active_epoch) / 60 ))
+
+            if [ "$active_age_min" -ge "$STUCK_ACTIVE_THRESHOLD_MINUTES" ]; then
+              echo "Honigtopf hat ${active} aktive(n) Lauf/Laeufe (running=${running_count}, queued=${queued_count}), aeltester (Run #${oldest_active_id}) haengt seit ${active_age_min}min (Schwelle: ${STUCK_ACTIVE_THRESHOLD_MINUTES}min) - vermutlich eingefroren. Cancel-Versuch + Re-Trigger."
+              for _id in $(echo "$active_json" | jq -r '.[].databaseId'); do
+                gh_retry gh run cancel "$_id" --repo "${{ github.repository }}" \
+                  || echo "  Cancel von Run #${_id} fehlgeschlagen (evtl. serverseitig eingefroren) - triggere trotzdem neu"
+              done
+              should_trigger=true
+              reason="Haengender aktiver Run seit ${active_age_min}min (Schwelle ${STUCK_ACTIVE_THRESHOLD_MINUTES}min, Run #${oldest_active_id}) - Cancel versucht, neu getriggert"
+            else
+              echo "Honigtopf hat bereits ${active} aktive(n) Lauf/Laeufe (running=${running_count}, queued=${queued_count}), aeltester seit ${active_age_min}min (< Schwelle ${STUCK_ACTIVE_THRESHOLD_MINUTES}min) - kein Eingriff noetig"
+              exit 0
+            fi
+          fi
+
+          # ── 4. Entscheidungs-Logik ─────────────────────────────────────
+          # FIX STUCK-QUEUE: uebersprungen, wenn Step 3 bereits wegen eines
+          # haengenden aktiven Runs should_trigger=true gesetzt hat - sonst
+          # wuerde dieser Block das wieder auf false zuruecksetzen.
+          if [ "$should_trigger" != "true" ]; then
           if [ -z "$last_real_started" ]; then
             should_trigger=true
             reason="Kein erfolgreicher Honigtopf-Run in den letzten 50 Erfolgen - triggere zur Sicherheit"
@@ -229,6 +257,7 @@ jobs:
                 echo "Slot $slot_iso seit ${slot_age_min}min nicht bedient - noch innerhalb Grace (${SLOT_GRACE_MINUTES}min), warte ab"
               fi
             fi
+          fi
           fi
 
           # ── 5. Trigger durchfuehren ────────────────────────────────────
