@@ -121,6 +121,20 @@ jobs:
           # Replikationsverzoegerung, aber kurz genug um einen wirklich
           # faelligen Trigger nicht spuerbar zu verzoegern.
           RECENT_RUN_GRACE_SECONDS: "180"
+          # FIX STUCK-QUEUE (2026-08-19): Beobachtet ab 2026-08-19 03:52Z -
+          # ein Combined-Run haengte >10h im Status "queued" fest (running=0,
+          # queued=1), ohne je zu starten oder zu failen. Der aktiv/gequeued-
+          # Check in Schritt 3 hielt den Watchdog deshalb dauerhaft davon ab
+          # einzugreifen ("kein Eingriff noetig"), obwohl gar nichts lief.
+          # Vermutlich GitHub-seitiger Ghost-Run (vgl.
+          # github.com/orgs/community/discussions/204152 - Runs frieren in
+          # queued/in_progress ein und lassen sich teils weder canceln noch
+          # rerunnen). Wenn der aelteste aktive/gequeuete Run laenger als
+          # STUCK_ACTIVE_THRESHOLD_MINUTES existiert, gilt er als haengend:
+          # Watchdog versucht ihn zu canceln (best effort) und triggert einen
+          # neuen Lauf, statt weiter unbegrenzt zu warten. 180min = 3h, wie
+          # vom Nutzer gewuenscht.
+          STUCK_ACTIVE_THRESHOLD_MINUTES: "180"
         run: |
           set -e
           set -o pipefail
@@ -248,32 +262,48 @@ jobs:
             echo "Kein echter Combined-Run in den letzten 100 Erfolgs-Eintraegen gefunden"
           fi
 
-          # ── 3. Combined-Status pruefen (FIX AUDIT-3) ──────────────────
+          # ── 3. Combined-Status pruefen (FIX AUDIT-3, erweitert FIX STUCK-QUEUE) ──
           # Vor der Slot-Logik pruefen, ob Combined aktuell laeuft oder
-          # gequeued ist. Wenn ja: kein Eingriff, kein verwirrendes Logging.
-          # Frueher wurde erst die Slot-Logik ausgewertet (mit moeglichem
-          # "TRIGGER"-Log) und dann in Step 4 der active-Check abgebrochen.
-          # Das fuehrte zu irrefuehrenden Logs: "TRIGGER ..." obwohl gar
-          # nichts getriggert wurde.
-          running_count=$(gh_retry gh run list \
+          # gequeued ist. Normalerweise: kein Eingriff, kein verwirrendes
+          # Logging (FIX AUDIT-3).
+          #
+          # FIX STUCK-QUEUE (2026-08-19): ABER ein "aktiver" Run kann selbst
+          # haengen (GitHub-seitiger Ghost-Run, siehe Erklaerung oben bei
+          # STUCK_ACTIVE_THRESHOLD_MINUTES). Deshalb zusaetzlich pruefen, wie
+          # alt der AELTESTE aktive/gequeuete Run ist. Ist er aelter als
+          # STUCK_ACTIVE_THRESHOLD_MINUTES (3h), gilt das "aktiv"-Signal nicht
+          # mehr als Entwarnung - stattdessen Cancel-Versuch + Neu-Trigger.
+          should_trigger=false
+          reason=""
+
+          active_json=$(gh_retry gh run list \
             --repo "${{ github.repository }}" \
             --workflow=update_combined_blacklist.yml \
-            --status=in_progress \
-            --limit=5 \
-            --json databaseId \
-            --jq 'length')
-          queued_count=$(gh_retry gh run list \
-            --repo "${{ github.repository }}" \
-            --workflow=update_combined_blacklist.yml \
-            --status=queued \
-            --limit=5 \
-            --json databaseId \
-            --jq 'length')
-          active=$(( running_count + queued_count ))
+            --json databaseId,status,createdAt \
+            --limit=10 \
+            --jq '[.[] | select(.status=="in_progress" or .status=="queued")]')
+          active=$(echo "$active_json" | jq 'length')
+          running_count=$(echo "$active_json" | jq '[.[] | select(.status=="in_progress")] | length')
+          queued_count=$(echo "$active_json" | jq '[.[] | select(.status=="queued")] | length')
 
           if [ "$active" -gt 0 ]; then
-            echo "Combined hat bereits ${active} aktive(n) Lauf/Laeufe (running=${running_count}, queued=${queued_count}) - kein Eingriff noetig"
-            exit 0
+            oldest_active_created=$(echo "$active_json" | jq -r 'sort_by(.createdAt) | .[0].createdAt')
+            oldest_active_id=$(echo "$active_json" | jq -r 'sort_by(.createdAt) | .[0].databaseId')
+            oldest_active_epoch=$(date -u -d "$oldest_active_created" +%s)
+            active_age_min=$(( (now_epoch - oldest_active_epoch) / 60 ))
+
+            if [ "$active_age_min" -ge "$STUCK_ACTIVE_THRESHOLD_MINUTES" ]; then
+              echo "Combined hat ${active} aktive(n) Lauf/Laeufe (running=${running_count}, queued=${queued_count}), aeltester (Run #${oldest_active_id}) haengt seit ${active_age_min}min (Schwelle: ${STUCK_ACTIVE_THRESHOLD_MINUTES}min) - vermutlich eingefroren. Cancel-Versuch + Re-Trigger."
+              for _id in $(echo "$active_json" | jq -r '.[].databaseId'); do
+                gh_retry gh run cancel "$_id" --repo "${{ github.repository }}" \
+                  || echo "  Cancel von Run #${_id} fehlgeschlagen (evtl. serverseitig eingefroren) - triggere trotzdem neu"
+              done
+              should_trigger=true
+              reason="Haengender aktiver Run seit ${active_age_min}min (Schwelle ${STUCK_ACTIVE_THRESHOLD_MINUTES}min, Run #${oldest_active_id}) - Cancel versucht, neu getriggert"
+            else
+              echo "Combined hat bereits ${active} aktive(n) Lauf/Laeufe (running=${running_count}, queued=${queued_count}), aeltester seit ${active_age_min}min (< Schwelle ${STUCK_ACTIVE_THRESHOLD_MINUTES}min) - kein Eingriff noetig"
+              exit 0
+            fi
           fi
 
           # ── 3b. Race-Guard gegen API-Propagation-Delay ──────────────────
@@ -294,81 +324,86 @@ jobs:
           # der gerade erst angelegt wurde, ist so gut wie sicher derselbe
           # Slot, den der Watchdog sonst faelschlich fuer "unbedient" haelt -
           # unabhaengig davon, ob die API seinen Status schon korrekt fuehrt.
-          recent_any_count=$(gh_retry gh run list \
-            --repo "${{ github.repository }}" \
-            --workflow=update_combined_blacklist.yml \
-            --limit=10 \
-            --json databaseId,createdAt \
-            --jq "[.[] | select((now - (.createdAt | fromdateiso8601)) < ${RECENT_RUN_GRACE_SECONDS})] | length")
+          #
+          # FIX STUCK-QUEUE (2026-08-19): Beide Bloecke (3b + 4) werden jetzt
+          # uebersprungen, wenn Step 3 bereits wegen eines haengenden aktiven
+          # Runs should_trigger=true gesetzt hat - sonst wuerde Step 4 das
+          # wieder auf false zuruecksetzen und den Cancel+Re-Trigger-Entscheid
+          # verwerfen.
+          if [ "$should_trigger" != "true" ]; then
+            recent_any_count=$(gh_retry gh run list \
+              --repo "${{ github.repository }}" \
+              --workflow=update_combined_blacklist.yml \
+              --limit=10 \
+              --json databaseId,createdAt \
+              --jq "[.[] | select((now - (.createdAt | fromdateiso8601)) < ${RECENT_RUN_GRACE_SECONDS})] | length")
 
-          if [ "$recent_any_count" -gt 0 ]; then
-            echo "Combined hat ${recent_any_count} Run(s) die vor <${RECENT_RUN_GRACE_SECONDS}s erstellt wurden (Status evtl. noch nicht propagiert) - kein Eingriff noetig"
-            exit 0
-          fi
-
-          # ── 4. Entscheidungs-Logik ─────────────────────────────────────
-          should_trigger=false
-          reason=""
-
-          # Edge case: gar kein echter Run gefunden -> definitiv triggern
-          if [ -z "$last_real_started" ]; then
-            should_trigger=true
-            reason="Kein echter Combined-Run in den letzten 100 Erfolgen - triggere zur Sicherheit"
-          else
-            last_started_epoch=$(date -u -d "$last_real_started" +%s)
-            last_updated_epoch=$(date -u -d "$last_real_updated" +%s)
-            stale_min=$(( (now_epoch - last_updated_epoch) / 60 ))
-
-            # SLOT-WAECHTER: Wurde der letzte erwartete Slot bedient?
-            # "Bedient" heisst: ein echter Run startete zum Slot-Zeitpunkt
-            # oder spaeter, ODER ein echter Run wurde zum Slot-Zeitpunkt
-            # oder spaeter fertig (siehe FIX AUDIT-2+4-GAP unten).
-            #
-            # FIX AUDIT-2+4 (2026-05-21): Frueher gab es -180s Drift-Toleranz
-            # (last_started >= slot_epoch - 180). Das war fehlerhaft - ein
-            # Run der 1-2min VOR dem Slot startete wurde faelschlich als
-            # "bedient" gezaehlt. GitHub-Cron startet scheduled Runs nie
-            # frueher als geplant, nur spaeter. Toleranz also unnoetig.
-            #
-            # FIX AUDIT-2+4-GAP (2026-08-10): AUDIT-2+4 deckte einen
-            # anderen Randfall nicht ab. Beobachtet am 10.08.2026: der
-            # letzte echte Run startete 17:53:32Z (ein stark verzoegerter
-            # Backup-Slot aus dem VORHERIGEN 3h-Fenster), lief aber
-            # ungewoehnlich lange (~21min) und wurde erst 18:14:46Z fertig -
-            # 7min NACH dem eigentlichen 18:07Z-Slot. Die Daten waren zu dem
-            # Zeitpunkt bereits frischer als der Slot verlangt, trotzdem
-            # zaehlte der reine Start-Zeit-Check den Slot als "nicht
-            # bedient", weil last_started_epoch (17:53) < slot_epoch (18:07)
-            # war. Nach Ablauf der Grace-Periode loeste das einen unnoetigen
-            # Zusatz-Lauf aus. Fix: zusaetzlich pruefen, ob der Run zum
-            # Slot-Zeitpunkt oder spaeter FERTIG wurde (last_updated_epoch)
-            # - das deckt genau diesen "spaeter Start, aber noch spaeteres,
-            # frisches Fertigwerden"-Fall ab, ohne die urspruengliche
-            # AUDIT-2+4-Absicht zu unterlaufen: ein Run der VOR dem Slot
-            # startet UND VOR dem Slot fertig wird (der eigentliche
-            # 1-2min-Frueh-Fall von AUDIT-2+4) erfuellt weiterhin keine der
-            # beiden Bedingungen und zaehlt korrekt weiter als "nicht
-            # bedient".
-            slot_served=false
-            if [ "$last_started_epoch" -ge "$slot_epoch" ] || [ "$last_updated_epoch" -ge "$slot_epoch" ]; then
-              slot_served=true
+            if [ "$recent_any_count" -gt 0 ]; then
+              echo "Combined hat ${recent_any_count} Run(s) die vor <${RECENT_RUN_GRACE_SECONDS}s erstellt wurden (Status evtl. noch nicht propagiert) - kein Eingriff noetig"
+              exit 0
             fi
 
-            if [ "$slot_served" = "false" ] && [ "$slot_age_min" -ge "$SLOT_GRACE_MINUTES" ]; then
+            # ── 4. Entscheidungs-Logik ─────────────────────────────────────
+            # Edge case: gar kein echter Run gefunden -> definitiv triggern
+            if [ -z "$last_real_started" ]; then
               should_trigger=true
-              reason="Slot $slot_iso seit ${slot_age_min}min nicht bedient (Grace: ${SLOT_GRACE_MINUTES}min) - letzter echter Run startete $last_real_started, wurde fertig $last_real_updated"
-            elif [ "$stale_min" -ge "$STALE_THRESHOLD_MINUTES" ]; then
-              # FALLBACK: Stale-Schwelle - sollte normalerweise nie greifen
-              # wenn Slot-Logik funktioniert, aber als Sicherheitsnetz da.
-              should_trigger=true
-              reason="Fallback: letzter echter Run vor ${stale_min}min (Schwelle ${STALE_THRESHOLD_MINUTES}min)"
+              reason="Kein echter Combined-Run in den letzten 100 Erfolgen - triggere zur Sicherheit"
             else
-              if [ "$slot_served" = "true" ]; then
-                echo "Slot $slot_iso wurde bedient (Run startete $last_real_started, fertig $last_real_updated) - kein Eingriff"
-              else
-                echo "Slot $slot_iso seit ${slot_age_min}min nicht bedient - noch innerhalb Grace (${SLOT_GRACE_MINUTES}min), warte ab"
+              last_started_epoch=$(date -u -d "$last_real_started" +%s)
+              last_updated_epoch=$(date -u -d "$last_real_updated" +%s)
+              stale_min=$(( (now_epoch - last_updated_epoch) / 60 ))
+
+              # SLOT-WAECHTER: Wurde der letzte erwartete Slot bedient?
+              # "Bedient" heisst: ein echter Run startete zum Slot-Zeitpunkt
+              # oder spaeter, ODER ein echter Run wurde zum Slot-Zeitpunkt
+              # oder spaeter fertig (siehe FIX AUDIT-2+4-GAP unten).
+              #
+              # FIX AUDIT-2+4 (2026-05-21): Frueher gab es -180s Drift-Toleranz
+              # (last_started >= slot_epoch - 180). Das war fehlerhaft - ein
+              # Run der 1-2min VOR dem Slot startete wurde faelschlich als
+              # "bedient" gezaehlt. GitHub-Cron startet scheduled Runs nie
+              # frueher als geplant, nur spaeter. Toleranz also unnoetig.
+              #
+              # FIX AUDIT-2+4-GAP (2026-08-10): AUDIT-2+4 deckte einen
+              # anderen Randfall nicht ab. Beobachtet am 10.08.2026: der
+              # letzte echte Run startete 17:53:32Z (ein stark verzoegerter
+              # Backup-Slot aus dem VORHERIGEN 3h-Fenster), lief aber
+              # ungewoehnlich lange (~21min) und wurde erst 18:14:46Z fertig -
+              # 7min NACH dem eigentlichen 18:07Z-Slot. Die Daten waren zu dem
+              # Zeitpunkt bereits frischer als der Slot verlangt, trotzdem
+              # zaehlte der reine Start-Zeit-Check den Slot als "nicht
+              # bedient", weil last_started_epoch (17:53) < slot_epoch (18:07)
+              # war. Nach Ablauf der Grace-Periode loeste das einen unnoetigen
+              # Zusatz-Lauf aus. Fix: zusaetzlich pruefen, ob der Run zum
+              # Slot-Zeitpunkt oder spaeter FERTIG wurde (last_updated_epoch)
+              # - das deckt genau diesen "spaeter Start, aber noch spaeteres,
+              # frisches Fertigwerden"-Fall ab, ohne die urspruengliche
+              # AUDIT-2+4-Absicht zu unterlaufen: ein Run der VOR dem Slot
+              # startet UND VOR dem Slot fertig wird (der eigentliche
+              # 1-2min-Frueh-Fall von AUDIT-2+4) erfuellt weiterhin keine der
+              # beiden Bedingungen und zaehlt korrekt weiter als "nicht
+              # bedient".
+              slot_served=false
+              if [ "$last_started_epoch" -ge "$slot_epoch" ] || [ "$last_updated_epoch" -ge "$slot_epoch" ]; then
+                slot_served=true
               fi
+
+              if [ "$slot_served" = "false" ] && [ "$slot_age_min" -ge "$SLOT_GRACE_MINUTES" ]; then
+                should_trigger=true
+                reason="Slot $slot_iso seit ${slot_age_min}min nicht bedient (Grace: ${SLOT_GRACE_MINUTES}min) - letzter echter Run startete $last_real_started, wurde fertig $last_real_updated"
+              elif [ "$stale_min" -ge "$STALE_THRESHOLD_MINUTES" ]; then
+                # FALLBACK: Stale-Schwelle - sollte normalerweise nie greifen
+                # wenn Slot-Logik funktioniert, aber als Sicherheitsnetz da.
+                should_trigger=true
+                reason="Fallback: letzter echter Run vor ${stale_min}min (Schwelle ${STALE_THRESHOLD_MINUTES}min)"
+              else
+                if [ "$slot_served" = "true" ]; then
+                  echo "Slot $slot_iso wurde bedient (Run startete $last_real_started, fertig $last_real_updated) - kein Eingriff"
+                else
+                  echo "Slot $slot_iso seit ${slot_age_min}min nicht bedient - noch innerhalb Grace (${SLOT_GRACE_MINUTES}min), warte ab"
+                fi
             fi
+          fi
           fi
 
           # ── 5. Trigger durchfuehren ────────────────────────────────────
