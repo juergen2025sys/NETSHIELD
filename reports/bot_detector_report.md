@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-20 19:08 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-20 19:14 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,318,159** |
-| Neu (heute) | **+1** |
-| Entfernt | **-0** |
+| Gesamt IPs | **1,318,162** |
+| Neu (heute) | **+9** |
+| Entfernt | **-6** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 62 |
@@ -27,7 +27,7 @@
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 500,000 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,311 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,641 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,644 |
 | ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,724 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,607 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,952 |
@@ -58,7 +58,7 @@
 | ✅ `mohammedcha_proxripper_socks4` | 113,253 |
 | ✅ `mohammedcha_proxripper_http` | 117,233 |
 | ✅ `mohammedcha_proxripper_socks5` | 115,883 |
-| ✅ `celestialbrain_worldpool` | 83,947 |
+| ✅ `celestialbrain_worldpool` | 83,836 |
 | ✅ `dinoz0rg_proxy_list` | 87,922 |
 | ✅ `dinoz0rg_proxy_list_http` | 1,065 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 86,573 |
@@ -78,13 +78,13 @@
 | ✅ `hookzof_socks5_list` | 118 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,240 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,836 |
-| ✅ `cyberh4ck3r_free_proxy_list` | 2,647 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,480 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 2,065 |
+| ✅ `cyberh4ck3r_free_proxy_list` | 2,649 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,498 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 2,064 |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 > Diese 62 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-20 19:08 CEST (Europe/Berlin)*
+*Generiert: 2026-08-20 19:14 CEST (Europe/Berlin)*
