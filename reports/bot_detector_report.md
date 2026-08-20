@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-20 19:01 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-20 19:03 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,8 +7,8 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,318,160** |
-| Neu (heute) | **+370** |
+| Gesamt IPs | **1,318,159** |
+| Neu (heute) | **+369** |
 | Entfernt | **-102** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
@@ -36,11 +36,11 @@
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 1,781 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 230,457 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 931 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 991 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 667 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 604 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 506 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 300 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,095 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 666 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 592 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 491 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 273 |
 | ✅ `officialputuid_proxyforeveryone` | 5,811 |
 | ✅ `officialputuid_proxyforeveryone_https` | 4,999 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 5,753 |
@@ -78,13 +78,13 @@
 | ✅ `hookzof_socks5_list` | 118 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,240 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,836 |
-| ✅ `cyberh4ck3r_free_proxy_list` | 2,889 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,495 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 2,098 |
+| ✅ `cyberh4ck3r_free_proxy_list` | 2,647 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,480 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 2,065 |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 > Diese 62 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-20 19:01 CEST (Europe/Berlin)*
+*Generiert: 2026-08-20 19:03 CEST (Europe/Berlin)*
