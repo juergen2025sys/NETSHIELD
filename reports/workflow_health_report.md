@@ -1,15 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-20 21:41 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-21 04:36 CEST (Europe/Berlin)
 
-**Workflows:** 27 | ✅ 24 OK | ⚠️ 5 Warnung | ❌ 1 Fehler
+**Workflows:** 27 | ✅ 24 OK | ⚠️ 5 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 104.21.4.98, 172.67.153.249, 104.21.4.98, 172.67.153.249 – Filterung wirkungslos! |
-
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
@@ -23,11 +17,9 @@
 
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 104.21.4.98, 172.67.153.249, 104.21.4.98, 172.67.153.249 – Filterung wirkungslos! |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -62,4 +54,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-20 21:41 CEST (Europe/Berlin) | 27 Workflow-Dateien geprüft*
+*Generiert: 2026-08-21 04:36 CEST (Europe/Berlin) | 27 Workflow-Dateien geprüft*
