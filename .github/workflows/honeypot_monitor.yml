@@ -478,28 +478,6 @@ jobs:
               "turris_greylist":
                   "https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv",
 
-              # GreedyBear (The Honeynet Project): Threat-Intel-Plattform fuer
-              # einen Cluster von T-Pot-Honeypots (u.a. Cowrie SSH/Telnet,
-              # Log4Pot, Glutton, Suricata). Oeffentlicher Feed der gemein-
-              # nuetzigen Honeynet-Organisation, kein Auth noetig.
-              # URL-Schema (offizielle Doku, verifiziert 2026-08-21):
-              #   https://<site>/api/feeds/<feed_type>/<attack_type>/<age>.<format>
-              # feed_type=all, attack_type=all -> alle Honeypot-Typen und
-              # Angriffsarten kombiniert. age=recent -> IOCs der letzten 3
-              # Tage (Alternative "persistent" = regelmaessig gesehene IOCs,
-              # startet leer und waechst ueber Zeit - fuer diesen 4x/Tag-Lauf
-              # ist "recent" die passendere Wahl).
-              # format=txt: eine Zeile pro IOC (statt des vollen JSON mit
-              # ASN/Score/Metadaten) - parse_entries() extrahiert die IPv4
-              # direkt per Regex, kein Sonderfall/JSON-Parsing noetig.
-              # Feeds werden It. Doku alle 10 Minuten aktualisiert; bei 4
-              # Laeufen/Tag (aktueller Cron) weit unter der "nicht haeufiger
-              # als alle 10 Min" Vorgabe der Betreiber.
-              # Live verifiziert (Screenshot 2026-08-21, .json-Variante):
-              # echte, aktuelle IOCs mit first_seen/last_seen bis 2026-08-21.
-              "greedybear_honeynet":
-                  "https://greedybear.honeynet.org/api/feeds/all/all/recent.txt",
-
               # Tim Gerstel suspicious_IPs: große, fortlaufend gepflegte Liste
               # verdächtiger IPv4-Adressen aus dem Repository suspicious_IPs.
               # big.log wird über fetch_large() geladen, damit auch bei einer
