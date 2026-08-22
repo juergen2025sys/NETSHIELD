@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-22 23:46 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-22 23:58 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -8,8 +8,8 @@
 | Metrik | Wert |
 |---|---|
 | Gesamt IPs | **1,321,401** |
-| Neu (heute) | **+76** |
-| Entfernt | **-75** |
+| Neu (heute) | **+36** |
+| Entfernt | **-36** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 62 |
@@ -54,10 +54,10 @@
 | ✅ `gitrecon1455_fresh_proxy_list` | 209,861 |
 | ✅ `noctiro_getproxy` | 4,525 |
 | ✅ `noctiro_getproxy_socks5` | 3,319 |
-| ✅ `mohammedcha_proxripper` | 52,862 |
-| ✅ `mohammedcha_proxripper_socks4` | 113,472 |
-| ✅ `mohammedcha_proxripper_http` | 117,242 |
-| ✅ `mohammedcha_proxripper_socks5` | 115,546 |
+| ✅ `mohammedcha_proxripper` | 53,143 |
+| ✅ `mohammedcha_proxripper_socks4` | 113,473 |
+| ✅ `mohammedcha_proxripper_http` | 117,398 |
+| ✅ `mohammedcha_proxripper_socks5` | 115,563 |
 | ✅ `celestialbrain_worldpool` | 83,901 |
 | ✅ `dinoz0rg_proxy_list` | 89,791 |
 | ✅ `dinoz0rg_proxy_list_http` | 2,058 |
@@ -75,16 +75,16 @@
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,749 |
 | ✅ `leon406_subcrawler` | 121,380 |
 | ✅ `kalidada18_threatbase_threatbase_ip_botnet` | 6,225 |
-| ✅ `hookzof_socks5_list` | 164 |
+| ✅ `hookzof_socks5_list` | 137 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,184 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,750 |
-| ✅ `cyberh4ck3r_free_proxy_list` | 3,208 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,538 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 2,087 |
+| ✅ `cyberh4ck3r_free_proxy_list` | 3,138 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,526 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 2,071 |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 > Diese 62 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-22 23:46 CEST (Europe/Berlin)*
+*Generiert: 2026-08-22 23:58 CEST (Europe/Berlin)*
