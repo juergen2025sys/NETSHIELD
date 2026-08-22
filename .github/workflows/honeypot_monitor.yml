@@ -478,6 +478,17 @@ jobs:
               "turris_greylist":
                   "https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv",
 
+              # Sblam!: Server-seitiger Spam-Filter fuer HTML-Formulare
+              # (Blog-Kommentare, Foren, Gaestebuecher). Andere Kategorie als
+              # die uebrigen Quellen hier: HTTP-Formular-Spam-Bots, KEINE
+              # E-Mail-Spam-Quelle (steht explizit so im Header der Datei).
+              # Eigene Domain, kein GitHub. Live verifiziert am 2026-08-22:
+              # reine IP-Liste (eine pro Zeile), ~700 Eintraege, Datei mit
+              # Generierungs-Zeitstempel vom selben Tag. Nicht bereits im
+              # Repo vorhanden (geprueft gegen alle bestehenden Workflows).
+              "sblam":
+                  "http://sblam.com/blacklist.txt",
+
               # Tim Gerstel suspicious_IPs: große, fortlaufend gepflegte Liste
               # verdächtiger IPv4-Adressen aus dem Repository suspicious_IPs.
               # big.log wird über fetch_large() geladen, damit auch bei einer
