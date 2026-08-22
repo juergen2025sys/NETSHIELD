@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-08-22 12:44 CEST (Berlin)  
+**Aktualisiert:** 2026-08-22 13:16 CEST (Berlin)  
 **Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
@@ -7,32 +7,32 @@
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **11,925** |
-| Bad Hosts – SIP | **141** |
-| Bad Hosts – RDP | **804** |
-| Bad Hosts – SSH | **3,799** |
-| Bad Hosts – MSSQL | **411** |
-| Bad Hosts – HTTP | **3,810** |
-| Bad Hosts – FTP | **525** |
+| Bad Hosts (24h, alle Dienste) | **11,915** |
+| Bad Hosts – SIP | **139** |
+| Bad Hosts – RDP | **801** |
+| Bad Hosts – SSH | **3,808** |
+| Bad Hosts – MSSQL | **407** |
+| Bad Hosts – HTTP | **3,802** |
+| Bad Hosts – FTP | **540** |
 | Bad Hosts – SNMP | **351** |
-| Bad Hosts – ProConOs | **165** |
-| Bad Hosts – Telnet | **3,825** |
+| Bad Hosts – ProConOs | **167** |
+| Bad Hosts – Telnet | **3,812** |
 | Bad Hosts – TFTP | **159** |
 | Bad Hosts – VNC | **381** |
-| Bad Hosts – MySQL | **595** |
-| Bad Hosts – Kubernetes | **512** |
-| Bad Hosts – PostgreSQL | **406** |
-| Bad Hosts – Redis | **383** |
+| Bad Hosts – MySQL | **590** |
+| Bad Hosts – Kubernetes | **508** |
+| Bad Hosts – PostgreSQL | **380** |
+| Bad Hosts – Redis | **388** |
 | Bad Hosts – Elasticsearch | **477** |
-| Bad Hosts – ClickhouseHTTP | **300** |
-| Bad Hosts – CouchDB | **194** |
-| Bad Hosts – Oracle | **270** |
-| Bad Hosts – Modbus | **202** |
-| Bad Hosts – RAW | **159** |
+| Bad Hosts – ClickhouseHTTP | **308** |
+| Bad Hosts – CouchDB | **189** |
+| Bad Hosts – Oracle | **269** |
+| Bad Hosts – Modbus | **215** |
+| Bad Hosts – RAW | **158** |
 | Bad Hosts – Memcached | **221** |
-| Bad Hosts – LDAP | **195** |
+| Bad Hosts – LDAP | **194** |
 | Bad Hosts – MQTT | **186** |
-| Bad Hosts – IPP | **141** |
+| Bad Hosts – IPP | **151** |
 | Bad Hosts – HashCountRandom | **169** |
 | Bad Hosts – LPD | **78** |
 | Bad Hosts – MOTD | **56** |
@@ -41,22 +41,22 @@
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
 
-Davon **heute (2026-08-22)**: **6,188** IPs
+Davon **heute (2026-08-22)**: **6,514** IPs
 
 | last_seen | IPs |
 |---|---:|
-| 2026-08-22 | **6,188** |
-| 2026-08-21 | **5,737** |
+| 2026-08-22 | **6,514** |
+| 2026-08-21 | **5,401** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **14,943** |
-| Neu | **+194** |
-| Entfernt | **-127** |
+| Gesamt Honigtopf-IPs | **14,839** |
+| Neu | **+239** |
+| Entfernt | **-343** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-08-22 12:44 CEST (Berlin)*
+*Generiert: 2026-08-22 13:16 CEST (Berlin)*
