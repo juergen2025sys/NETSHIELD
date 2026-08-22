@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-22 15:02 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-22 15:10 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,320,629** |
-| Neu (heute) | **+292** |
-| Entfernt | **-414** |
+| Gesamt IPs | **1,320,626** |
+| Neu (heute) | **+2** |
+| Entfernt | **-5** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 62 |
@@ -54,11 +54,11 @@
 | ✅ `gitrecon1455_fresh_proxy_list` | 206,974 |
 | ✅ `noctiro_getproxy` | 4,498 |
 | ✅ `noctiro_getproxy_socks5` | 3,272 |
-| ✅ `mohammedcha_proxripper` | 53,422 |
-| ✅ `mohammedcha_proxripper_socks4` | 112,977 |
-| ✅ `mohammedcha_proxripper_http` | 117,415 |
-| ✅ `mohammedcha_proxripper_socks5` | 115,206 |
-| ✅ `celestialbrain_worldpool` | 84,328 |
+| ✅ `mohammedcha_proxripper` | 53,527 |
+| ✅ `mohammedcha_proxripper_socks4` | 113,028 |
+| ✅ `mohammedcha_proxripper_http` | 117,895 |
+| ✅ `mohammedcha_proxripper_socks5` | 115,456 |
+| ✅ `celestialbrain_worldpool` | 84,317 |
 | ✅ `dinoz0rg_proxy_list` | 89,466 |
 | ✅ `dinoz0rg_proxy_list_http` | 1,779 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 88,263 |
@@ -78,13 +78,13 @@
 | ✅ `hookzof_socks5_list` | 151 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,184 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,750 |
-| ✅ `cyberh4ck3r_free_proxy_list` | 3,487 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,496 |
-| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 2,044 |
+| ✅ `cyberh4ck3r_free_proxy_list` | 3,425 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks4_proxies` | 2,499 |
+| ✅ `cyberh4ck3r_free_proxy_list_socks5_proxies` | 2,062 |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 > Diese 62 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-22 15:02 CEST (Europe/Berlin)*
+*Generiert: 2026-08-22 15:10 CEST (Europe/Berlin)*
