@@ -1,42 +1,42 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-08-22 09:09 CEST (Berlin)
+**Aktualisiert:** 2026-08-22 09:53 CEST (Berlin)
 
 ---
 | Quelle | IPs | Neu | Frische |
 |---|---|---|---|
-| ✅ `ipsum_level4` | 5354 | +0 | 🟢 aktuell (seit 2026-08-22 03:58 CEST (Berlin)) |
-| ✅ `dshield_1d` | 36 | +0 | 🔴 EINGEFROREN (seit 2026-08-21 12:58 CEST (Berlin), 39 Laeufe unveraendert) |
-| ✅ `blocklist_de_bots` | 6010 | +23 | 🟢 neu (2026-08-22 09:09 CEST (Berlin)) |
-| ✅ `blocklist_de_bruteforce` | 954 | +5 | 🟢 neu (2026-08-22 09:09 CEST (Berlin)) |
+| ✅ `ipsum_level4` | 5354 | +0 | 🟡 traege (seit 2026-08-22 03:58 CEST (Berlin), 12 Laeufe unveraendert) |
+| ✅ `dshield_1d` | 36 | +0 | 🔴 EINGEFROREN (seit 2026-08-21 12:58 CEST (Berlin), 40 Laeufe unveraendert) |
+| ✅ `blocklist_de_bots` | 6050 | +89 | 🟢 neu (2026-08-22 09:53 CEST (Berlin)) |
+| ✅ `blocklist_de_bruteforce` | 951 | +9 | 🟢 neu (2026-08-22 09:53 CEST (Berlin)) |
 | ✅ `jamesbrine_honeypot` | 25214 | +0 | 🟢 aktuell (seit 2026-08-22 07:52 CEST (Berlin)) |
 | ✅ `honeysec_ip_all` | 49775 | +0 | 🟢 aktuell (seit 2026-08-22 07:10 CEST (Berlin)) |
-| ✅ `turris_greylist` | 10207 | +0 | 🟡 traege (seit 2026-08-22 00:12 CEST (Berlin), 17 Laeufe unveraendert) |
+| ✅ `turris_greylist` | 10207 | +0 | 🟡 traege (seit 2026-08-22 00:12 CEST (Berlin), 18 Laeufe unveraendert) |
 | ✅ `sblam` | 937 | +0 | 🟢 aktuell (seit 2026-08-22 07:03 CEST (Berlin)) |
 | ✅ `timgerstel_suspicious_ips` | 1966 | +0 | 🟢 aktuell (seit 2026-08-22 07:52 CEST (Berlin)) |
-| ✅ `sniffcat` | 5980 | +0 | 🟢 aktuell (seit 2026-08-22 09:00 CEST (Berlin)) |
-| ✅ `siberkapan` | 41050 | +4 | 🟢 neu (2026-08-22 09:09 CEST (Berlin)) |
-| ✅ `reportedip` | 9973 | +1 | 🟢 neu (2026-08-22 09:09 CEST (Berlin)) |
+| ✅ `sniffcat` | 5983 | +17 | 🟢 neu (2026-08-22 09:53 CEST (Berlin)) |
+| ✅ `siberkapan` | 41059 | +9 | 🟢 neu (2026-08-22 09:53 CEST (Berlin)) |
+| ✅ `reportedip` | 9973 | +1 | 🟢 neu (2026-08-22 09:53 CEST (Berlin)) |
 | ✅ `ipinsights` | 624264 | +0 | 🟢 aktuell (seit 2026-08-22 06:21 CEST (Berlin)) |
-| ✅ `opendbl_darknet` | 37418 | +0 | 🟢 aktuell (seit 2026-08-22 09:00 CEST (Berlin)) |
-| ✅ `opendbl_all_threats` | 54672 | +0 | 🟢 aktuell (seit 2026-08-22 09:00 CEST (Berlin)) |
+| ✅ `opendbl_darknet` | 37259 | +946 | 🟢 neu (2026-08-22 09:53 CEST (Berlin)) |
+| ✅ `opendbl_all_threats` | 54620 | +1354 | 🟢 neu (2026-08-22 09:53 CEST (Berlin)) |
 | ✅ `bitwire_ip_list_fetch` | 32698 | +0 | 🟢 aktuell (seit 2026-08-22 06:05 CEST (Berlin)) |
 | ✅ `configserverapps_365d` | 61784 | +0 | 🟢 aktuell (seit 2026-08-22 06:59 CEST (Berlin)) |
-| ✅ `kamalmjt_emerging_attackers` | 104091 | +0 | 🟡 traege (seit 2026-08-22 01:48 CEST (Berlin), 13 Laeufe unveraendert) |
-| ✅ `tn3w_ipblocklist` | 384741 | +0 | 🔴 EINGEFROREN (seit 2026-08-20 21:03 CEST (Berlin), 66 Laeufe unveraendert) |
+| ✅ `kamalmjt_emerging_attackers` | 104091 | +0 | 🟡 traege (seit 2026-08-22 01:48 CEST (Berlin), 14 Laeufe unveraendert) |
+| ✅ `tn3w_ipblocklist` | 384741 | +0 | 🔴 EINGEFROREN (seit 2026-08-20 21:03 CEST (Berlin), 67 Laeufe unveraendert) |
 | ✅ `ipblocklist_eu` | 1054847 | +0 | 🟢 aktuell (seit 2026-08-22 09:00 CEST (Berlin)) |
 | ✅ `zenmorro_scanner_list` | 1444 | +0 | 🟢 aktuell (seit 2026-08-22 06:05 CEST (Berlin)) |
-| ✅ `mattyroberts_threatlist` | 30482 | +0 | 🟢 aktuell (seit 2026-08-22 03:58 CEST (Berlin)) |
-| ✅ `threatfox_export` | 19705 | +0 | 🟢 aktuell (seit 2026-08-22 09:00 CEST (Berlin)) |
-| ✅ `urlhaus_export` | 4789 | +1 | 🟢 neu (2026-08-22 09:09 CEST (Berlin)) |
-| ✅ `criminalip_c2` | 50 | +0 | 🟡 traege (seit 2026-08-22 03:03 CEST (Berlin), 12 Laeufe unveraendert) |
-| ✅ `haas_ssh` | 1483 | +0 | 🟡 traege (seit 2026-08-22 03:03 CEST (Berlin), 12 Laeufe unveraendert) |
+| ✅ `mattyroberts_threatlist` | 30482 | +0 | 🟡 traege (seit 2026-08-22 03:58 CEST (Berlin), 12 Laeufe unveraendert) |
+| ✅ `threatfox_export` | 19770 | +65 | 🟢 neu (2026-08-22 09:53 CEST (Berlin)) |
+| ✅ `urlhaus_export` | 4795 | +6 | 🟢 neu (2026-08-22 09:53 CEST (Berlin)) |
+| ✅ `criminalip_c2` | 50 | +0 | 🟡 traege (seit 2026-08-22 03:03 CEST (Berlin), 13 Laeufe unveraendert) |
+| ✅ `haas_ssh` | 1483 | +0 | 🟡 traege (seit 2026-08-22 03:03 CEST (Berlin), 13 Laeufe unveraendert) |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honeypot-IPs | **1795473** |
-| Neu | **+21** |
-| Entfernt | **-0** |
+| Gesamt Honeypot-IPs | **1795541** |
+| Neu | **+1940** |
+| Entfernt | **-1872** |
 
 ---
-*Generiert: 2026-08-22 09:09 CEST (Berlin)*
+*Generiert: 2026-08-22 09:53 CEST (Berlin)*
