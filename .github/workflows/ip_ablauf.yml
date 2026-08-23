@@ -803,6 +803,22 @@ jobs:
           # Kommt aus combined_reliability.json (siehe Step "Combined-
           # Blacklist Run-Log holen" oben, gh run list mit conclusion+
           # createdAt fuer die letzten RELIABILITY_N Laeufe).
+          # FIX BUG-RELIABILITY-CANCELLED (2026-08-23, im echten Betrieb
+          # entdeckt): Der Kommentar unten sagte schon immer "nur echte
+          # failure-Conclusions fliessen hier ein" - der Code tat das aber
+          # NICHT: _quote wurde als success/TOTAL berechnet, wobei TOTAL
+          # auch "cancelled"-Laeufe (durch ueberlappende Trigger abgebrochen,
+          # siehe watchdog_combined.yml-Kommentare zur Concurrency-Gruppe
+          # "netshield-seen-db-writers") mitzaehlte. Ein cancelled-Lauf ist
+          # aber kein echter Fehler - GitHub bricht ihn absichtlich ab, weil
+          # schon ein anderer combined-Lauf aktiv war, nicht weil etwas
+          # kaputt ist. Das senkte die Quote faelschlich unter die 75%-
+          # Schwelle und loeste Alarme aus, obwohl real KEIN einziger Lauf
+          # mit echtem Fehler crashte (siehe Issue #33 - der zugehoerige
+          # combined_run.log-Fehlschlag war eine Woche alt, nicht aktuell).
+          # Fix: Quote jetzt success / (success + failure), "cancelled" und
+          # sonstige Conclusions (skipped, timed_out, etc.) komplett aus
+          # Zaehler UND Nenner raus - fliessen nur noch informativ mit ein.
           reliability_text = "n/a (keine Lauf-Historie abrufbar)"
           reliability_auffaellig = False
           if os.path.exists("combined_reliability.json"):
@@ -810,12 +826,30 @@ jobs:
                   with open("combined_reliability.json") as f:
                       _runs = json.load(f)
                   if _runs:
-                      _total = len(_runs)
+                      _total_gesehen = len(_runs)
                       _success = sum(1 for r in _runs if r.get("conclusion") == "success")
-                      _quote = _success / _total * 100
+                      _cancelled = sum(1 for r in _runs if r.get("conclusion") == "cancelled")
+                      _failure = sum(1 for r in _runs if r.get("conclusion") == "failure")
+                      _sonstige = _total_gesehen - _success - _cancelled - _failure
                       _aeltester = min((r["createdAt"] for r in _runs), default=None)
                       _neuester = max((r["createdAt"] for r in _runs), default=None)
-                      reliability_text = f"{_success}/{_total} erfolgreich ({_quote:.0f}%)"
+                      _relevante_basis = _success + _failure
+                      if _relevante_basis > 0:
+                          _quote = _success / _relevante_basis * 100
+                          reliability_text = (
+                              f"{_success}/{_relevante_basis} erfolgreich ({_quote:.0f}%, "
+                              f"nur echte Erfolge/Fehlschläge gezählt)"
+                          )
+                      else:
+                          _quote = None
+                          reliability_text = (
+                              "n/a (keine Läufe mit echtem Erfolg/Fehlschlag im Fenster - "
+                              f"nur {_cancelled} cancelled)"
+                          )
+                      if _cancelled:
+                          reliability_text += f" | zusätzlich {_cancelled} cancelled (nicht gewertet)"
+                      if _sonstige:
+                          reliability_text += f" | {_sonstige} sonstige"
                       if _aeltester and _neuester:
                           reliability_text += f", Zeitraum {_aeltester[:16]} bis {_neuester[:16]} UTC"
                       # Schwelle bewusst grosszuegig (75%) - combined hat
@@ -823,13 +857,13 @@ jobs:
                       # Guard bei ueberlappenden Laeufen, siehe watchdog_
                       # combined.yml) die NICHT als echtes Problem zaehlen,
                       # nur echte "failure"-Conclusions fliessen hier ein.
-                      if _quote < 75:
+                      if _quote is not None and _quote < 75:
                           reliability_auffaellig = True
                           diagnose_probleme.append(
                               f"⚠️ **Niedrige combined-Erfolgsquote:** nur {reliability_text} "
-                              f"in den letzten {_total} Läufen (Schwelle: 75%) - auch wenn der "
-                              f"neueste Stand frisch wirkt, lief das System zuletzt nicht "
-                              f"zuverlässig."
+                              f"in den letzten {_total_gesehen} Läufen (Schwelle: 75%, cancelled "
+                              f"nicht mitgezaehlt) - auch wenn der neueste Stand frisch wirkt, "
+                              f"lief das System zuletzt nicht zuverlässig."
                           )
               except Exception as e:
                   print(f"WARNUNG: combined_reliability.json nicht auswertbar: {e}")
