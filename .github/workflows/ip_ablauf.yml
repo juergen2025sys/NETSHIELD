@@ -581,6 +581,19 @@ jobs:
             echo "WARNUNG: Kein erfolgreicher update_combined_blacklist.yml-Run gefunden"
           fi
 
+          # DIAGNOSE 4 (2026-08-23, Nutzerwunsch "was kann man noch
+          # einbauen"): Erfolgsquote der letzten N combined-Läufe. Der
+          # Staleness-Check weiter unten (im Python-Step) prueft nur, ob
+          # der NEUESTE Stand frisch genug ist - ein System, das z.B. 3 von
+          # 8 Laeufen verliert, aber der letzte zufaellig durchkam, saehe
+          # dort "gesund" aus. Diese Quote deckt genau das ab.
+          RELIABILITY_N=16
+          gh run list --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml --limit=$RELIABILITY_N \
+            --json conclusion,createdAt > combined_reliability.json 2>/dev/null \
+            || echo "[]" > combined_reliability.json
+          echo "combined_reliability.json geschrieben ($(python3 -c "import json; print(len(json.load(open('combined_reliability.json'))))") Läufe)"
+
       - name: Wiederauftauch-Prüfung + Bericht erstellen
         env:
           PYTHONUNBUFFERED: "1"
@@ -711,11 +724,19 @@ jobs:
           # ── seen_db-Gesamtzahl (Trend) ──────────────────────────────────
           gesamt_ips_jetzt = None
           meta_alter_stunden = None
+          cleanup_stats = None
           if os.path.exists("state/seen_db_meta.json"):
               try:
                   with open("state/seen_db_meta.json") as f:
                       _meta = json.load(f)
                   gesamt_ips_jetzt = _meta.get("total_ips")
+                  # FIX 2026-08-23 (Nutzerwunsch "wieviel ips entfernt wurden
+                  # das ich nicht manuell pruefen muss"): Cleanup-Statistik
+                  # aus dem letzten combined-Lauf direkt uebernehmen - siehe
+                  # cleanup_stats.json/meta["cleanup"] in update_combined_
+                  # blacklist.yml. Ersetzt das manuelle Log-Durchsuchen nach
+                  # der Zeile "Abgelaufen (...): N IPs entfernt".
+                  cleanup_stats = _meta.get("cleanup")
                   # DIAGNOSE 2 (2026-08-23, Nutzerwunsch "was fehlt noch zur
                   # Diagnose"): Staleness-Check. "0 Rückfälle"/"Ledger wächst
                   # nicht" kann auch bedeuten: update_combined_blacklist.yml
@@ -736,6 +757,57 @@ jobs:
                           "(alter Stand vor diesem Fix?) - Staleness-Check uebersprungen")
               except Exception as e:
                   print(f"WARNUNG: state/seen_db_meta.json nicht lesbar: {e}")
+
+          if cleanup_stats:
+              cleanup_text = (
+                  f"{cleanup_stats.get('expired_removed', 0):,} IPs durch Ablauf entfernt"
+              )
+              _extra = []
+              if cleanup_stats.get("wl_cleanup_count"):
+                  _extra.append(f"{cleanup_stats['wl_cleanup_count']:,} Whitelist-Bereinigung")
+              if cleanup_stats.get("protected_removed_runtime"):
+                  _extra.append(f"{cleanup_stats['protected_removed_runtime']:,} geschützt entfernt")
+              if cleanup_stats.get("cidr_aggr_removed"):
+                  _extra.append(f"{cleanup_stats['cidr_aggr_removed']:,} CIDR-Aggregate")
+              if _extra:
+                  cleanup_text += " (zusätzlich: " + ", ".join(_extra) + ")"
+          else:
+              cleanup_text = "n/a (kein combined-Lauf mit Cleanup-Statistik gefunden)"
+
+          # DIAGNOSE 4: Erfolgsquote der letzten N combined-Läufe auswerten.
+          # Kommt aus combined_reliability.json (siehe Step "Combined-
+          # Blacklist Run-Log holen" oben, gh run list mit conclusion+
+          # createdAt fuer die letzten RELIABILITY_N Laeufe).
+          reliability_text = "n/a (keine Lauf-Historie abrufbar)"
+          reliability_auffaellig = False
+          if os.path.exists("combined_reliability.json"):
+              try:
+                  with open("combined_reliability.json") as f:
+                      _runs = json.load(f)
+                  if _runs:
+                      _total = len(_runs)
+                      _success = sum(1 for r in _runs if r.get("conclusion") == "success")
+                      _quote = _success / _total * 100
+                      _aeltester = min((r["createdAt"] for r in _runs), default=None)
+                      _neuester = max((r["createdAt"] for r in _runs), default=None)
+                      reliability_text = f"{_success}/{_total} erfolgreich ({_quote:.0f}%)"
+                      if _aeltester and _neuester:
+                          reliability_text += f", Zeitraum {_aeltester[:16]} bis {_neuester[:16]} UTC"
+                      # Schwelle bewusst grosszuegig (75%) - combined hat
+                      # bekannte, dokumentierte Skip-Faelle (Idempotenz-
+                      # Guard bei ueberlappenden Laeufen, siehe watchdog_
+                      # combined.yml) die NICHT als echtes Problem zaehlen,
+                      # nur echte "failure"-Conclusions fliessen hier ein.
+                      if _quote < 75:
+                          reliability_auffaellig = True
+                          diagnose_probleme.append(
+                              f"⚠️ **Niedrige combined-Erfolgsquote:** nur {reliability_text} "
+                              f"in den letzten {_total} Läufen (Schwelle: 75%) - auch wenn der "
+                              f"neueste Stand frisch wirkt, lief das System zuletzt nicht "
+                              f"zuverlässig."
+                          )
+              except Exception as e:
+                  print(f"WARNUNG: combined_reliability.json nicht auswertbar: {e}")
 
           # combined laeuft alle 3h - 6h Schwelle = 2 verpasste Laeufe in
           # Folge, konservativ genug um normale Verzoegerungen (langsamer
@@ -946,6 +1018,9 @@ jobs:
               f"- Seit letztem Lauf: {_delta_letzter_txt}"
               + (f" (jetzt {gesamt_ips_jetzt:,} IPs)" if gesamt_ips_jetzt is not None else ""),
               f"- Seit Zyklus-Start ({zyklus_start_str}): {_delta_zyklus_txt}",
+              f"- Letzter combined-Cleanup-Pass: {cleanup_text}",
+              f"- Erfolgsquote letzte 16 combined-Läufe: "
+              + ("🔍 " if reliability_auffaellig else "") + reliability_text,
               "",
               "## Verlauf (letzte 20 Läufe)",
               "",
@@ -981,6 +1056,9 @@ jobs:
               f"- seit letztem Lauf: {_delta_letzter_txt}"
               + (f" (jetzt {gesamt_ips_jetzt:,})" if gesamt_ips_jetzt is not None else ""),
               f"- seit Zyklus-Start ({zyklus_start_str}): {_delta_zyklus_txt}",
+              f"- letzter combined-Cleanup-Pass: {cleanup_text}",
+              f"- Erfolgsquote letzte 16 combined-Läufe: "
+              + ("🔍 " if reliability_auffaellig else "") + reliability_text,
           ]
           if diagnose_probleme:
               _status_zeilen = [
