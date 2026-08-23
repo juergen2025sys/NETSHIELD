@@ -466,13 +466,36 @@ jobs:
                   # "for x in d.keys()" + "del d[k]" – UNSICHER → Fehler
                   # "for x in d"        + "del d[k]" – UNSICHER → Fehler
                   # "for x in other"    + "del d[k]" – SICHER → kein Match (verschiedene Namen)
+                  # FIX CHK6e (2026-08-23, im workflow_health_report.md
+                  # entdeckt): Ein mehrzeiliges Set-/Dict-Comprehension wie
+                  #   _registered_files = {(...)
+                  #                         for v in approved_feeds.values()}
+                  # hat seine Fortsetzungszeile ("for v in approved_feeds.values()}")
+                  # OHNE fuehrenden Ausdruck vor dem "for" - die Zeile selbst
+                  # SIEHT aus wie ein eigenstaendiges for-Statement, ist aber
+                  # nur die zweite Haelfte eines Comprehensions (read-only,
+                  # keine Schleife im klassischen Sinn, kein Mutation-Risiko).
+                  # Ein ECHTES for-Statement endet (nach Entfernen von
+                  # Inline-Kommentaren) immer mit ':' - eine Comprehension-
+                  # Fortsetzungszeile nie (endet mit '}', ')', ']' o.ae.).
+                  # Dieser Unterschied trennt beide Faelle zuverlaessig.
                   code_lines = [l for l in dedented.splitlines()
                                 if l.strip() and not l.strip().startswith('#')]
                   code_only = '\n'.join(code_lines)
-                  _unsafe_for_matches = re.findall(
+                  _unsafe_for_pattern = re.compile(
                       r'^\s*for \w+ in (?!list\()([A-Za-z_]\w*)(?:\.keys\(\))?',
-                      code_only, re.MULTILINE
+                      re.MULTILINE
                   )
+                  _unsafe_for_matches = []
+                  _code_only_lines = code_only.splitlines()
+                  for _m in _unsafe_for_pattern.finditer(code_only):
+                      _line_no = code_only[:_m.start()].count('\n')
+                      _line_text = _code_only_lines[_line_no]
+                      # Inline-Kommentar (falls vorhanden) fuer den Endungs-
+                      # Check abschneiden, dann auf echtes for-Statement pruefen.
+                      _line_no_comment = _line_text.split('#', 1)[0].rstrip()
+                      if _line_no_comment.endswith(':'):
+                          _unsafe_for_matches.append(_m.group(1))
                   _del_targets = set(re.findall(r'\bdel (\w+)\[', code_only))
                   _conflicts = [v for v in _unsafe_for_matches if v in _del_targets]
                   if _conflicts:
