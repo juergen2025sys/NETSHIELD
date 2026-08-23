@@ -364,6 +364,14 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || github.event.schedule == '55 */3 * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # FIX 2026-08-23 (Nutzerwunsch "Meldung waere recht"): issues:write nur
+    # fuer diesen Job ueberschrieben (Workflow-Level hat nur contents:write) -
+    # noetig fuer den automatischen Rueckfall-Alarm als GitHub Issue weiter
+    # unten. Der Job "prognose" braucht das nicht, bekommt also weiterhin nur
+    # das Workflow-Level-Permission-Set.
+    permissions:
+      contents: write
+      issues: write
     concurrency:
       group: netshield-ip-ablauf-verifikation
       cancel-in-progress: true
@@ -632,6 +640,30 @@ jobs:
                 f"({_tage_im_zyklus}/{ZYKLUS_TAGE} Tage))")
 
           if rueckfaelle:
+              # FIX 2026-08-23 (Nutzerwunsch "Meldung waere recht"): kompakte
+              # Detail-Datei fuer den Alarm-Step unten (separater Shell-Step,
+              # kein Python-Zugriff mehr auf diese Variablen). Bewusst
+              # eigenstaendig statt REPORT_FILE wiederzuverwenden - der volle
+              # Bericht enthaelt auch die 20-Zeilen-Verlaufstabelle, die in
+              # einem GitHub-Issue nur unnoetig Platz braucht.
+              _alarm_zeilen = [
+                  f"**{len(alle_rueckfall_ips)} eingefrorene IP(s)** stehen trotzdem in "
+                  f"aktuellen Output-Dateien - der Anti-Churn-Fix greift hier NICHT "
+                  f"wie erwartet.",
+                  "",
+                  f"Lauf: {now_str}",
+                  "",
+                  "| Datei | Anzahl Rückfälle | Beispiele |",
+                  "|---|---:|---|",
+              ]
+              for fname, ips in rueckfaelle.items():
+                  beispiele = ", ".join(ips[:5]) + (", ..." if len(ips) > 5 else "")
+                  _alarm_zeilen.append(f"| {fname} | {len(ips)} | {beispiele} |")
+              _alarm_zeilen += [
+                  "",
+                  f"Voller Bericht: `{REPORT_FILE}` bzw. `{ZIP_FILE}` im Repo.",
+              ]
+              write_text_atomic("rueckfall_alarm.md", "\n".join(_alarm_zeilen) + "\n")
               sys.exit(1)  # Job rot markieren, wenn ein Rückfall gefunden wurde
           EOF
 
@@ -685,4 +717,56 @@ jobs:
             done
             echo "FEHLER: Push nach 3 Versuchen fehlgeschlagen"
             exit 1
+          fi
+
+      - name: Rückfall-Alarm (GitHub Issue) öffnen/aktualisieren
+        # FIX 2026-08-23 (Nutzerwunsch "Meldung waere recht"): failure()
+        # prueft den Status ALLER vorherigen Steps im Job - da nur der
+        # Python-Step oben ueberhaupt fehlschlagen kann (Commit/Zip-Upload
+        # laufen mit if:always() und schlagen bei einem reinen Rueckfall-
+        # Fund selbst nicht fehl), zeigt failure() hier zuverlaessig genau
+        # den Rueckfall-Fall an - unabhaengig davon, dass diese Steps hier
+        # NACH dem "immer laufenden" Commit-Step stehen.
+        # Sucht per REST-Liste (nicht gh-Suchindex, der verzoegert sein
+        # kann) nach einem bereits offenen Issue mit exakt diesem Titel -
+        # kommentiert es dann nur, statt bei jedem 3h-Lauf ein neues Issue
+        # aufzumachen (kein Spam bei anhaltendem Problem).
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 IP-Ablauf: Rückfall erkannt"
+          if [ ! -f rueckfall_alarm.md ]; then
+            echo "WARNUNG: rueckfall_alarm.md fehlt (unerwarteter anderer Fehler?) - generischer Alarmtext."
+            echo "Ein Rückfall wurde erkannt, aber die Detail-Datei fehlt. Siehe Workflow-Log dieses Laufs für Details." > rueckfall_alarm.md
+          fi
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Bestehendes Alarm-Issue #$EXISTING gefunden - kommentiere statt neu zu erstellen."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" --body-file rueckfall_alarm.md
+          else
+            echo "Kein offenes Alarm-Issue gefunden - erstelle neues."
+            gh issue create --repo "${{ github.repository }}" --title "$TITLE" --body-file rueckfall_alarm.md
+          fi
+
+      - name: Rückfall-Alarm schließen, falls behoben
+        # success() ist hier nur dann true, wenn der Python-Step (der
+        # einzige Step, der bei einem Rueckfall fehlschlaegt) tatsaechlich
+        # 0 Rueckfaelle gemeldet hat - unabhaengig vom Status der dazwischen
+        # liegenden if:always()-Steps.
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 IP-Ablauf: Rückfall erkannt"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Offenes Alarm-Issue #$EXISTING gefunden - aktueller Lauf zeigt 0 Rückfälle, schließe."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" \
+              --body "✅ Behoben: Lauf vom $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z') zeigt 0 Rückfälle. Issue wird automatisch geschlossen."
+            gh issue close "$EXISTING" --repo "${{ github.repository }}"
+          else
+            echo "Kein offenes Alarm-Issue vorhanden - nichts zu tun."
           fi
