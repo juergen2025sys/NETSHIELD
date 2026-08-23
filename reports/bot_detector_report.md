@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-24 00:48 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-24 00:51 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,308,149** |
-| Neu (heute) | **+764** |
-| Entfernt | **-523** |
+| Gesamt IPs | **1,308,150** |
+| Neu (heute) | **+1** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 62 |
@@ -58,7 +58,7 @@
 | ✅ `mohammedcha_proxripper_socks4` | 112,814 |
 | ✅ `mohammedcha_proxripper_http` | 117,119 |
 | ✅ `mohammedcha_proxripper_socks5` | 115,206 |
-| ✅ `celestialbrain_worldpool` | 83,856 |
+| ✅ `celestialbrain_worldpool` | 83,853 |
 | ✅ `dinoz0rg_proxy_list` | 90,411 |
 | ✅ `dinoz0rg_proxy_list_http` | 1,263 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 89,214 |
@@ -74,7 +74,7 @@
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,734 |
 | ✅ `leon406_subcrawler` | 121,583 |
 | ✅ `kalidada18_threatbase_threatbase_ip_botnet` | 6,468 |
-| ✅ `hookzof_socks5_list` | 151 |
+| ✅ `hookzof_socks5_list` | 127 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,162 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,664 |
 | ❌ `cyberh4ck3r_free_proxy_list` | 0 |
@@ -87,4 +87,4 @@
 > Diese 62 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-24 00:48 CEST (Europe/Berlin)*
+*Generiert: 2026-08-24 00:51 CEST (Europe/Berlin)*
