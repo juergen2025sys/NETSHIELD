@@ -541,12 +541,23 @@ jobs:
 
       - name: Combined-Blacklist Run-Log holen
         # FIX 2026-08-23 (Nutzerwunsch "run an dem tag des ip rückgang [...]
-        # in der anderen zip speichern"): Konsolenausgabe des neuesten
-        # erfolgreichen update_combined_blacklist.yml-Laufs abrufen, damit
-        # man am Tag eines auffaelligen seen_db-Rueckgangs direkt nachsehen
-        # kann, was in DIESEM Lauf tatsaechlich passiert ist (Cleanup-Pass-
-        # Zahlen, Ledger-Eintraege, etc.) - ohne selbst in der Actions-UI
-        # danach suchen zu muessen.
+        # in der anderen zip speichern"): Konsolenausgabe eines aktuellen
+        # update_combined_blacklist.yml-Laufs abrufen, damit man am Tag
+        # eines auffaelligen seen_db-Rueckgangs direkt nachsehen kann, was
+        # in DIESEM Lauf tatsaechlich passiert ist - ohne selbst in der
+        # Actions-UI danach suchen zu muessen.
+        # FIX 2026-08-23 (Nutzerwunsch "Log vom FEHLGESCHLAGENEN statt
+        # erfolgreichen Lauf"): urspruenglich wurde immer der neueste
+        # ERFOLGREICHE Lauf geholt - bei sinkender Erfolgsquote (siehe
+        # DIAGNOSE 4 unten) aber nutzlos fuer die Fehlersuche, weil ein
+        # "erfolgreicher" Lauf oft nur ein selbst uebersprungener Backup-
+        # Slot-Gate-Job ist (3 Zeilen Log, keine echte Verarbeitung) - im
+        # Praxistest so beobachtet. Jetzt: primaer der neueste FEHL-
+        # GESCHLAGENE Lauf (zeigt direkt, woran es tatsaechlich hakt).
+        # Fallback auf den neuesten erfolgreichen Lauf NUR wenn es aktuell
+        # gar keinen fehlgeschlagenen gibt (z.B. Erfolgsquote 100%) - dann
+        # ist ohnehin nichts zu debuggen, aber die Datei soll nicht leer/
+        # fehlend sein.
         # continue-on-error: true - das Log ist ein Komfort-Extra, kein
         # kritischer Bestandteil der eigentlichen Rueckfall-Pruefung unten.
         # Schlaegt der Log-Abruf fehl (z.B. API-Rate-Limit, Log bereits
@@ -555,12 +566,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LATEST_RUN_ID=$(gh run list --repo "${{ github.repository }}" \
-            --workflow=update_combined_blacklist.yml --status=success --limit=1 \
+          TARGET_RUN_ID=$(gh run list --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml --status=failure --limit=1 \
             --json databaseId --jq '.[0].databaseId')
-          if [ -n "$LATEST_RUN_ID" ] && [ "$LATEST_RUN_ID" != "null" ]; then
-            echo "Neuester erfolgreicher combined-Run: #$LATEST_RUN_ID"
-            if gh run view "$LATEST_RUN_ID" --repo "${{ github.repository }}" \
+          TARGET_LABEL="fehlgeschlagener"
+          if [ -z "$TARGET_RUN_ID" ] || [ "$TARGET_RUN_ID" = "null" ]; then
+            echo "Kein fehlgeschlagener Lauf gefunden - falle zurueck auf neuesten erfolgreichen."
+            TARGET_RUN_ID=$(gh run list --repo "${{ github.repository }}" \
+              --workflow=update_combined_blacklist.yml --status=success --limit=1 \
+              --json databaseId --jq '.[0].databaseId')
+            TARGET_LABEL="erfolgreicher (kein fehlgeschlagener vorhanden)"
+          fi
+          if [ -n "$TARGET_RUN_ID" ] && [ "$TARGET_RUN_ID" != "null" ]; then
+            echo "Neuester $TARGET_LABEL combined-Run: #$TARGET_RUN_ID"
+            if gh run view "$TARGET_RUN_ID" --repo "${{ github.repository }}" \
                 --log > combined_run_full.log 2>/dev/null; then
               # Groessenbegrenzung: combined kann bis zu 90min laufen und
               # druckt regelmaessige Fortschrittszeilen (Update-/Cleanup-
@@ -569,16 +588,21 @@ jobs:
               # anderen Ledger-/Report-Dateien hier. Letzte 2000 Zeilen
               # reichen fuer die interessanten Teile (Cleanup-Pass-
               # Zusammenfassung, Fehler/Warnungen stehen meist am Ende).
-              tail -n 2000 combined_run_full.log > combined_run.log
+              {
+                echo "# Quelle: $TARGET_LABEL Lauf #$TARGET_RUN_ID"
+                echo "# (letzte 2000 Zeilen des vollen Logs)"
+                echo ""
+                tail -n 2000 combined_run_full.log
+              } > combined_run.log
               rm -f combined_run_full.log
               echo "combined_run.log geschrieben ($(wc -l < combined_run.log) Zeilen, "
-              echo "  Run #$LATEST_RUN_ID, $(du -h combined_run.log | cut -f1))"
+              echo "  Run #$TARGET_RUN_ID, $(du -h combined_run.log | cut -f1))"
             else
-              echo "WARNUNG: Log-Download fuer Run #$LATEST_RUN_ID fehlgeschlagen "
+              echo "WARNUNG: Log-Download fuer Run #$TARGET_RUN_ID fehlgeschlagen "
               echo "  (evtl. bereits abgelaufen/geloescht) - wird ausgelassen"
             fi
           else
-            echo "WARNUNG: Kein erfolgreicher update_combined_blacklist.yml-Run gefunden"
+            echo "WARNUNG: Weder fehlgeschlagener noch erfolgreicher update_combined_blacklist.yml-Run gefunden"
           fi
 
           # DIAGNOSE 4 (2026-08-23, Nutzerwunsch "was kann man noch
