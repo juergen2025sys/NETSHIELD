@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-08-23 18:16 CEST (Europe/Berlin)
+Lauf: 2026-08-23 18:34 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -26,8 +26,8 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 - Seit letztem Lauf: ➡️ unverändert (jetzt 9,406,053 IPs)
 - Seit Zyklus-Start (2026-08-23): 📈 +10,014 (Anstieg)
 - Letzter combined-Cleanup-Pass: n/a (kein combined-Lauf mit Cleanup-Statistik gefunden)
-- Neue IPs (Summe letzter Läufe): n/a (0/7 Läufe im Fenster mit Daten)
-- Entfernte IPs (Summe letzter Läufe): n/a (0/7 Läufe im Fenster mit Daten)
+- Neue IPs (Summe letzter Läufe): n/a (0/8 Läufe im Fenster mit Daten)
+- Entfernte IPs (Summe letzter Läufe): n/a (0/8 Läufe im Fenster mit Daten)
 - Erfolgsquote letzte 16 combined-Läufe: 🔍 10/16 erfolgreich (62%), Zeitraum 2026-08-23T07:20 bis 2026-08-23T15:58 UTC
 
 ## Verlauf (letzte 20 Läufe)
@@ -41,3 +41,4 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | 2026-08-23 15:26 CEST (Europe/Berlin) | 9,396,039 | 0 | 0 | 0 |
 | 2026-08-23 17:29 CEST (Europe/Berlin) | 9,406,053 | 0 | 0 | 0 |
 | 2026-08-23 18:16 CEST (Europe/Berlin) | 9,406,053 | 0 | 0 | 0 |
+| 2026-08-23 18:34 CEST (Europe/Berlin) | 9,406,053 | 0 | 0 | 0 |
