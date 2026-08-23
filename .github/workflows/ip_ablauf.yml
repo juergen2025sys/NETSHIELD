@@ -783,10 +783,14 @@ jobs:
                   print(f"WARNUNG: state/seen_db_meta.json nicht lesbar: {e}")
 
           if cleanup_stats:
+              _exp_wl = cleanup_stats.get("expired_watchlist")
+              _exp_act = cleanup_stats.get("expired_active")
               cleanup_text = (
-                  f"{cleanup_stats.get('expired_removed', 0):,} IPs durch Ablauf entfernt, "
-                  f"{cleanup_stats.get('neu_angelegt', 0):,} neue IPs hinzugekommen"
+                  f"{cleanup_stats.get('expired_removed', 0):,} IPs durch Ablauf entfernt"
               )
+              if _exp_wl is not None and _exp_act is not None:
+                  cleanup_text += f" (davon {_exp_wl:,} Watchlist/30T, {_exp_act:,} Active/180T)"
+              cleanup_text += f", {cleanup_stats.get('neu_angelegt', 0):,} neue IPs hinzugekommen"
               _extra = []
               if cleanup_stats.get("wl_cleanup_count"):
                   _extra.append(f"{cleanup_stats['wl_cleanup_count']:,} Whitelist-Bereinigung")
@@ -1000,6 +1004,11 @@ jobs:
               # Tagessumme bilden laesst (siehe neu_angelegt_24h unten).
               "neu_angelegt":            (cleanup_stats or {}).get("neu_angelegt"),
               "expired_removed":         (cleanup_stats or {}).get("expired_removed"),
+              # FIX 2026-08-23 (Nutzerwunsch "tagesstatistik 30/180 tage
+              # getrennt"): dieselbe Aufschluesselung wie expired_removed,
+              # nur pro Pfad statt kombiniert.
+              "expired_watchlist":       (cleanup_stats or {}).get("expired_watchlist"),
+              "expired_active":          (cleanup_stats or {}).get("expired_active"),
           })
           # Grobe 24h-Summe: letzte 8 Laeufe (alle 3h = 1 Tag), NACH dem
           # Anhaengen des aktuellen Laufs, damit dieser mitzaehlt. Nur ein
@@ -1019,6 +1028,20 @@ jobs:
               entfernt_24h_text = f"{sum(_entfernt_24h_werte):,} (Summe letzte {len(_letzte_8)} Läufe / {_fenster_label})"
           else:
               entfernt_24h_text = f"n/a ({len(_entfernt_24h_werte)}/{len(_letzte_8)} Läufe im Fenster mit Daten)"
+
+          # FIX 2026-08-23 (Nutzerwunsch "tagesstatistik 30/180 tage
+          # getrennt"): dieselbe 24h-Naeherung wie oben, aber getrennt nach
+          # Watchlist- und Active-Pfad statt nur kombiniert.
+          _entfernt_wl_werte = [l.get("expired_watchlist") for l in _letzte_8 if l.get("expired_watchlist") is not None]
+          _entfernt_act_werte = [l.get("expired_active") for l in _letzte_8 if l.get("expired_active") is not None]
+          if len(_entfernt_wl_werte) == len(_letzte_8) and len(_letzte_8) > 0:
+              entfernt_wl_24h_text = f"{sum(_entfernt_wl_werte):,} (Summe letzte {len(_letzte_8)} Läufe / {_fenster_label})"
+          else:
+              entfernt_wl_24h_text = f"n/a ({len(_entfernt_wl_werte)}/{len(_letzte_8)} Läufe im Fenster mit Daten)"
+          if len(_entfernt_act_werte) == len(_letzte_8) and len(_letzte_8) > 0:
+              entfernt_act_24h_text = f"{sum(_entfernt_act_werte):,} (Summe letzte {len(_letzte_8)} Läufe / {_fenster_label})"
+          else:
+              entfernt_act_24h_text = f"n/a ({len(_entfernt_act_werte)}/{len(_letzte_8)} Läufe im Fenster mit Daten)"
           # Sicherheitsnetz GEGEN den Zyklus-Reset (nicht statt ihm): falls der
           # Cron aus irgendeinem Grund viel oefter als alle 3h laeuft, waechst
           # die Datei innerhalb eines Zyklus trotzdem nicht unbegrenzt.
@@ -1103,6 +1126,8 @@ jobs:
               f"- Letzter combined-Cleanup-Pass: {cleanup_text}",
               f"- Neue IPs (Summe letzter Läufe): {neu_24h_text}",
               f"- Entfernte IPs (Summe letzter Läufe): {entfernt_24h_text}",
+              f"  - davon Watchlist/30 Tage: {entfernt_wl_24h_text}",
+              f"  - davon Active/180 Tage: {entfernt_act_24h_text}",
               f"- Erfolgsquote letzte 16 combined-Läufe: "
               + ("🔍 " if reliability_auffaellig else "") + reliability_text,
               "",
@@ -1143,6 +1168,8 @@ jobs:
               f"- letzter combined-Cleanup-Pass: {cleanup_text}",
               f"- neue IPs (Summe letzter Läufe): {neu_24h_text}",
               f"- entfernte IPs (Summe letzter Läufe): {entfernt_24h_text}",
+              f"  - davon Watchlist/30 Tage: {entfernt_wl_24h_text}",
+              f"  - davon Active/180 Tage: {entfernt_act_24h_text}",
               f"- Erfolgsquote letzte 16 combined-Läufe: "
               + ("🔍 " if reliability_auffaellig else "") + reliability_text,
           ]

@@ -95,30 +95,6 @@ jobs:
       # Ausschluss des eigenen Runs (github.run_id), da dieser Gate-Job
       # selbst Teil des aktuell laufenden Workflow-Runs ist und sonst
       # faelschlich sich selbst als "aktiven Lauf" zaehlen wuerde.
-      #
-      # FIX GATE-STUCK-QUEUE (2026-08-23): Der active-Check unten skippte
-      # bisher IMMER, sobald irgendein anderer Run in_progress/queued war -
-      # ohne Altersgrenze. Das ist fuer den Normalfall richtig (Run laeuft
-      # halt gerade), war aber eine Einzelpunkt-Abhaengigkeit vom separaten
-      # Watchdog (watchdog_combined.yml) fuer den bereits dokumentierten
-      # STUCK-QUEUE-Fall (ab 2026-08-19 beobachtet: ein Run haengt >10h in
-      # "queued" fest, running=0, ohne je zu starten oder zu failen -
-      # vermutlich GitHub-seitiger Ghost-Run, siehe
-      # github.com/orgs/community/discussions/204152). Ohne den Watchdog
-      # (z.B. wenn der selbst mal laengere Zeit ausfaellt) haetten die
-      # regulaeren 7/27/47-Cron-Slots hier ewig geskippt, weil sie einen
-      # haengenden Ghost-Run faelschlich fuer "wird gleich fertig" halten.
-      #
-      # Fix: dieselbe Alters-/Stuck-Logik wie im Watchdog (Schritt "Combined-
-      # Status pruefen", STUCK_ACTIVE_THRESHOLD_MINUTES) jetzt zusaetzlich
-      # direkt hier im Gate - als zweite, vom Watchdog unabhaengige
-      # Absicherung. Ist der AELTESTE aktive/gequeuete Run laenger als die
-      # Schwelle alt, gilt er als haengend: Cancel-Versuch (best effort,
-      # kann bei echtem Ghost-Run serverseitig fehlschlagen) + NICHT
-      # skippen, sondern regulaer weiter zur 2h-Erfolgspruefung und ggf.
-      # echten Lauf starten. Schwelle bewusst identisch zum Watchdog (180min)
-      # gehalten, damit beide Mechanismen zum gleichen Zeitpunkt eingreifen
-      # und sich nicht gegenseitig unterlaufen.
       - name: Skip if recent successful run exists
         id: idempotency
         if: github.event_name == 'schedule'
@@ -129,10 +105,12 @@ jobs:
           # 60s trennt zuverlaessig zwischen Skip und echtem Build, ohne dass
           # kuenftige Speed-Optimierungen versehentlich rausgefiltert wuerden.
           MIN_REAL_RUN_SECONDS: "60"
-          # FIX GATE-STUCK-QUEUE: identisch zur Watchdog-Schwelle gehalten
-          # (siehe watchdog_combined.yml). Nicht niedriger waehlen, sonst
-          # koennten Gate und Watchdog gegenlaeufig entscheiden (einer
-          # cancelt/triggert, der andere haelt den Run noch fuer "normal").
+          # FIX GATE-STUCK-QUEUE (2026-08-23, vom Nutzer gefunden und
+          # dokumentiert - NETSHIELD_Bug_Watchdog_Stuck_Queue.docx): identisch
+          # zur Watchdog-Schwelle gehalten (siehe watchdog_combined.yml).
+          # Nicht niedriger waehlen, sonst koennten Gate und Watchdog
+          # gegenlaeufig entscheiden (einer cancelt/triggert, der andere
+          # haelt den Run noch fuer "normal").
           STUCK_ACTIVE_THRESHOLD_MINUTES: "180"
         run: |
           # ── FIX BUG-GATE-INFLIGHT: Aktiven Lauf zuerst pruefen ──────────
@@ -143,6 +121,15 @@ jobs:
           # Confidence-Blacklist-Trigger nach sich ziehen. Der eigene Run
           # (github.run_id) wird ausgeschlossen, sonst wuerde sich dieser
           # Gate-Job faelschlich selbst als "aktiv" zaehlen.
+          # FIX GATE-STUCK-QUEUE: createdAt zusaetzlich mit abfragen, um
+          # gleich unten das Alter des aeltesten aktiven Runs pruefen zu
+          # koennen - vorher wurde bei JEDEM aktiven Run bedingungslos
+          # geskippt, auch bei einem seit Stunden eingefrorenen Ghost-Run
+          # (dokumentierter Stuck-Queue-Fall, siehe github.com/orgs/
+          # community/discussions/204152). Die Erkennung eines solchen
+          # Falls hing bislang ausschliesslich vom separaten Watchdog-
+          # Workflow ab - das hier ist die zweite, unabhaengige Absicherung
+          # direkt in Combined selbst.
           active_json=$(gh run list \
             --repo "${{ github.repository }}" \
             --workflow=update_combined_blacklist.yml \
@@ -2662,18 +2649,18 @@ jobs:
           _UPD_PROGRESS_INTERVAL_S = 15
           _upd_total = len(ip_feeds_today)
 
-          # FIX NAMEERROR-2026-08-23 (dieser Fix): neu_angelegt_ohne_ledger
-          # wird HIER initialisiert statt erst 250+ Zeilen weiter unten in
-          # der Cleanup-Sektion (siehe Kommentar dort). Die Schleife direkt
-          # unter dieser Zeile inkrementiert die Variable bereits (Zweig
-          # "echte Neuanlage" weiter unten) - ohne diese Initialisierung
-          # HIER schlug der allererste echte Lauf nach Einfuehrung des
-          # Zaehlers (23.08.2026) mit "NameError: name
-          # 'neu_angelegt_ohne_ledger' is not defined" fehl (Traceback bei
-          # der ersten Neuanlage einer IP, Zeile ~2401 im ausgefuehrten
-          # Skript). Die spaetere Zuweisung in der Cleanup-Sektion kam
-          # zeitlich NACH dieser Schleife und damit zu spaet - Python wertet
-          # Variablen zur Laufzeit aus, nicht per Vorab-Deklaration.
+          # FIX BUG-NAMEERROR-NEUANGELEGT (2026-08-23, vom Nutzer gefunden
+          # und dokumentiert - NETSHIELD_Fixes_update_combined_blacklist.docx):
+          # Die Initialisierung stand vorher ~250 Zeilen weiter unten in der
+          # separaten Cleanup-Sektion, WEIT NACH diesem Ingest-Loop, der die
+          # Variable bereits per "neu_angelegt_ohne_ledger += 1" verwendet.
+          # Echter Absturz im Produktivbetrieb: NameError: name
+          # 'neu_angelegt_ohne_ledger' is not defined (Zeile ~2401 im
+          # gerenderten Skript). Jetzt hier, VOR der ersten Verwendung,
+          # initialisiert - die alte, zu späte Zuweisung weiter unten wurde
+          # entfernt (nicht nur duplizieren: sie hätte den waehrend der
+          # Schleife bereits gezaehlten Wert vor dem Report wieder auf 0
+          # zurückgesetzt).
           neu_angelegt_ohne_ledger = 0
 
           for ip, today_feeds in ip_feeds_today.items():
@@ -2904,23 +2891,18 @@ jobs:
           aufnahme_removed = 0
           wl_cleanup_count = 0
           cidr_aggr_removed = 0   # FIX BUG-CIDR-AGGR: Counter fuer ausgetragene Non-/32-Ranges
-          # FIX 2026-08-23 (Nutzerwunsch "kommen ja neue ips hinzu, wird das
-          # beruecksichtigt"): Zaehler fuer ECHTE Neuanlagen. Bewusst NICHT
-          # jede Zeile gezaehlt, die in den "else"-Neuanlage-Zweig laeuft -
-          # eine durch den Anti-Churn-Ledger "wiederauferstandene" IP (siehe
-          # FIX CHURN-WATCHLIST/-ACTIVE) laeuft im selben Lauf sofort wieder
-          # ab und ist keine echte neue Bedrohung, sondern derselbe alte
-          # Fall - wuerde sonst die "neue IPs"-Zahl verfaelschen (zaehlt
-          # gleichzeitig als "neu" UND als "entfernt" im selben Lauf).
-          #
-          # FIX NAMEERROR-2026-08-23: Initialisierung war urspruenglich HIER
-          # platziert - zeitlich NACH der Schleife, die die Variable bereits
-          # inkrementiert (siehe oben bei "for ip, today_feeds in
-          # ip_feeds_today.items()"). Dadurch NameError beim ersten echten
-          # Lauf. Initialisierung jetzt vor die Schleife verschoben; diese
-          # Zeile hier entfernt (nicht einfach stehen gelassen), weil sie
-          # den waehrend der Schleife bereits gezaehlten Wert sonst wieder
-          # auf 0 zurueckgesetzt haette, bevor der Report ihn liest.
+          # FIX BUG-NAMEERROR-NEUANGELEGT: "neu_angelegt_ohne_ledger = 0"
+          # stand hier vorher (zu spaet, siehe FIX-Kommentar VOR dem
+          # Ingest-Loop weiter oben, wo die Variable tatsaechlich erstmals
+          # verwendet wird). Absichtlich NICHT hier dupliziert - das wuerde
+          # den waehrend der Schleife bereits gezaehlten Wert wieder auf 0
+          # zuruecksetzen, bevor er in den Report einfliesst.
+          # FIX 2026-08-23 (Nutzerwunsch "tagesstatistik 30/180 tage
+          # getrennt"): expired zaehlt bisher nur die Gesamtzahl (Watchlist
+          # + Active zusammen). Fuer eine getrennte Statistik zusaetzlich
+          # pro Pfad zaehlen.
+          expired_watchlist_count = 0
+          expired_active_count = 0
           expired = []
           WATCHLIST_EXPIRY_DAYS = 30
           cutoff      = now - timedelta(days=EXPIRY_DAYS)
@@ -3064,6 +3046,7 @@ jobs:
                           first_str = safe_get_date(data, "first", last_str)
                           if first_str < cutoff_wl_str:
                               expired.append(ip)
+                              expired_watchlist_count += 1
                               _to_drop.append(ip)
                               # FIX CHURN-WATCHLIST: Original-"first" einfrieren,
                               # BEVOR die IP aus seen_db verschwindet - siehe
@@ -3080,6 +3063,7 @@ jobs:
                       else:
                           if last_str < cutoff_str:
                               expired.append(ip)
+                              expired_active_count += 1
                               _to_drop.append(ip)
                               # FIX CHURN-ACTIVE: Original-"last" einfrieren,
                               # BEVOR die IP aus seen_db verschwindet - analog
@@ -3137,6 +3121,13 @@ jobs:
               # echte Neuanlagen dieses Laufs, OHNE Ledger-Wiederauferstehungen
               # (siehe Zaehler-Kommentar weiter oben).
               "neu_angelegt":                neu_angelegt_ohne_ledger,
+              # FIX 2026-08-23 (Nutzerwunsch "tagesstatistik 30/180 tage
+              # getrennt"): Aufschluesselung von expired_removed nach Pfad.
+              # Summe beider Werte kann kleiner als expired_removed sein -
+              # der Rest sind korrupte Eintraege (Exception-Fallback), die
+              # keinem der beiden Pfade zugeordnet werden koennen.
+              "expired_watchlist":          expired_watchlist_count,
+              "expired_active":             expired_active_count,
           }, indent=2)
 
           # ── FIX CHURN-WATCHLIST: Ledger speichern + pruning ─────────────────
