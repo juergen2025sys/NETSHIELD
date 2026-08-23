@@ -95,6 +95,30 @@ jobs:
       # Ausschluss des eigenen Runs (github.run_id), da dieser Gate-Job
       # selbst Teil des aktuell laufenden Workflow-Runs ist und sonst
       # faelschlich sich selbst als "aktiven Lauf" zaehlen wuerde.
+      #
+      # FIX GATE-STUCK-QUEUE (2026-08-23): Der active-Check unten skippte
+      # bisher IMMER, sobald irgendein anderer Run in_progress/queued war -
+      # ohne Altersgrenze. Das ist fuer den Normalfall richtig (Run laeuft
+      # halt gerade), war aber eine Einzelpunkt-Abhaengigkeit vom separaten
+      # Watchdog (watchdog_combined.yml) fuer den bereits dokumentierten
+      # STUCK-QUEUE-Fall (ab 2026-08-19 beobachtet: ein Run haengt >10h in
+      # "queued" fest, running=0, ohne je zu starten oder zu failen -
+      # vermutlich GitHub-seitiger Ghost-Run, siehe
+      # github.com/orgs/community/discussions/204152). Ohne den Watchdog
+      # (z.B. wenn der selbst mal laengere Zeit ausfaellt) haetten die
+      # regulaeren 7/27/47-Cron-Slots hier ewig geskippt, weil sie einen
+      # haengenden Ghost-Run faelschlich fuer "wird gleich fertig" halten.
+      #
+      # Fix: dieselbe Alters-/Stuck-Logik wie im Watchdog (Schritt "Combined-
+      # Status pruefen", STUCK_ACTIVE_THRESHOLD_MINUTES) jetzt zusaetzlich
+      # direkt hier im Gate - als zweite, vom Watchdog unabhaengige
+      # Absicherung. Ist der AELTESTE aktive/gequeuete Run laenger als die
+      # Schwelle alt, gilt er als haengend: Cancel-Versuch (best effort,
+      # kann bei echtem Ghost-Run serverseitig fehlschlagen) + NICHT
+      # skippen, sondern regulaer weiter zur 2h-Erfolgspruefung und ggf.
+      # echten Lauf starten. Schwelle bewusst identisch zum Watchdog (180min)
+      # gehalten, damit beide Mechanismen zum gleichen Zeitpunkt eingreifen
+      # und sich nicht gegenseitig unterlaufen.
       - name: Skip if recent successful run exists
         id: idempotency
         if: github.event_name == 'schedule'
@@ -105,6 +129,11 @@ jobs:
           # 60s trennt zuverlaessig zwischen Skip und echtem Build, ohne dass
           # kuenftige Speed-Optimierungen versehentlich rausgefiltert wuerden.
           MIN_REAL_RUN_SECONDS: "60"
+          # FIX GATE-STUCK-QUEUE: identisch zur Watchdog-Schwelle gehalten
+          # (siehe watchdog_combined.yml). Nicht niedriger waehlen, sonst
+          # koennten Gate und Watchdog gegenlaeufig entscheiden (einer
+          # cancelt/triggert, der andere haelt den Run noch fuer "normal").
+          STUCK_ACTIVE_THRESHOLD_MINUTES: "180"
         run: |
           # ── FIX BUG-GATE-INFLIGHT: Aktiven Lauf zuerst pruefen ──────────
           # Wenn bereits ein anderer Run (in_progress oder queued) dieses
@@ -114,25 +143,38 @@ jobs:
           # Confidence-Blacklist-Trigger nach sich ziehen. Der eigene Run
           # (github.run_id) wird ausgeschlossen, sonst wuerde sich dieser
           # Gate-Job faelschlich selbst als "aktiv" zaehlen.
-          running_count=$(gh run list \
+          active_json=$(gh run list \
             --repo "${{ github.repository }}" \
             --workflow=update_combined_blacklist.yml \
-            --status=in_progress \
-            --limit=10 \
-            --json databaseId \
-            --jq "[.[] | select(.databaseId != ${{ github.run_id }})] | length")
-          queued_count=$(gh run list \
-            --repo "${{ github.repository }}" \
-            --workflow=update_combined_blacklist.yml \
-            --status=queued \
-            --limit=10 \
-            --json databaseId \
-            --jq "[.[] | select(.databaseId != ${{ github.run_id }})] | length")
+            --limit=20 \
+            --json databaseId,status,createdAt \
+            --jq "[.[] | select(.databaseId != ${{ github.run_id }}) | select(.status==\"in_progress\" or .status==\"queued\")]")
+          running_count=$(echo "$active_json" | jq '[.[] | select(.status=="in_progress")] | length')
+          queued_count=$(echo "$active_json" | jq '[.[] | select(.status=="queued")] | length')
           active=$(( running_count + queued_count ))
+
           if [ "$active" -gt 0 ]; then
-            echo "already_ran=true" >> "$GITHUB_OUTPUT"
-            echo "Combined hat bereits ${active} aktive(n) Lauf/Laeufe (running=${running_count}, queued=${queued_count}) – Skip dieses Backup-Triggers"
-            exit 0
+            # FIX GATE-STUCK-QUEUE: Alter des aeltesten aktiven Runs pruefen,
+            # bevor wir skippen - siehe Kommentar oben am Step.
+            now_epoch=$(date -u +%s)
+            oldest_created=$(echo "$active_json" | jq -r 'sort_by(.createdAt) | .[0].createdAt')
+            oldest_id=$(echo "$active_json" | jq -r 'sort_by(.createdAt) | .[0].databaseId')
+            oldest_epoch=$(date -u -d "$oldest_created" +%s)
+            active_age_min=$(( (now_epoch - oldest_epoch) / 60 ))
+
+            if [ "$active_age_min" -ge "$STUCK_ACTIVE_THRESHOLD_MINUTES" ]; then
+              echo "Combined hat ${active} aktive(n) Lauf/Laeufe (running=${running_count}, queued=${queued_count}), aeltester (Run #${oldest_id}) haengt seit ${active_age_min}min (Schwelle: ${STUCK_ACTIVE_THRESHOLD_MINUTES}min) - vermutlich eingefroren. Cancel-Versuch, dann normal weiter statt zu skippen."
+              for _id in $(echo "$active_json" | jq -r '.[].databaseId'); do
+                gh run cancel "$_id" --repo "${{ github.repository }}" \
+                  || echo "  Cancel von Run #${_id} fehlgeschlagen (evtl. serverseitig eingefroren) - fahre trotzdem fort"
+              done
+              # Nicht skippen - weiter zur 2h-Erfolgspruefung unten, damit
+              # dieser Slot ggf. einen echten Ersatz-Lauf startet.
+            else
+              echo "already_ran=true" >> "$GITHUB_OUTPUT"
+              echo "Combined hat bereits ${active} aktive(n) Lauf/Laeufe (running=${running_count}, queued=${queued_count}), aeltester seit ${active_age_min}min (< Schwelle ${STUCK_ACTIVE_THRESHOLD_MINUTES}min) - Skip dieses Backup-Triggers"
+              exit 0
+            fi
           fi
 
           # 2h-Fenster: Bei 3h-Cron ein erfolgreicher Run innerhalb von 2h
@@ -2620,6 +2662,20 @@ jobs:
           _UPD_PROGRESS_INTERVAL_S = 15
           _upd_total = len(ip_feeds_today)
 
+          # FIX NAMEERROR-2026-08-23 (dieser Fix): neu_angelegt_ohne_ledger
+          # wird HIER initialisiert statt erst 250+ Zeilen weiter unten in
+          # der Cleanup-Sektion (siehe Kommentar dort). Die Schleife direkt
+          # unter dieser Zeile inkrementiert die Variable bereits (Zweig
+          # "echte Neuanlage" weiter unten) - ohne diese Initialisierung
+          # HIER schlug der allererste echte Lauf nach Einfuehrung des
+          # Zaehlers (23.08.2026) mit "NameError: name
+          # 'neu_angelegt_ohne_ledger' is not defined" fehl (Traceback bei
+          # der ersten Neuanlage einer IP, Zeile ~2401 im ausgefuehrten
+          # Skript). Die spaetere Zuweisung in der Cleanup-Sektion kam
+          # zeitlich NACH dieser Schleife und damit zu spaet - Python wertet
+          # Variablen zur Laufzeit aus, nicht per Vorab-Deklaration.
+          neu_angelegt_ohne_ledger = 0
+
           for ip, today_feeds in ip_feeds_today.items():
               _upd_processed += 1
               _upd_now = _time.monotonic()
@@ -2856,7 +2912,15 @@ jobs:
           # ab und ist keine echte neue Bedrohung, sondern derselbe alte
           # Fall - wuerde sonst die "neue IPs"-Zahl verfaelschen (zaehlt
           # gleichzeitig als "neu" UND als "entfernt" im selben Lauf).
-          neu_angelegt_ohne_ledger = 0
+          #
+          # FIX NAMEERROR-2026-08-23: Initialisierung war urspruenglich HIER
+          # platziert - zeitlich NACH der Schleife, die die Variable bereits
+          # inkrementiert (siehe oben bei "for ip, today_feeds in
+          # ip_feeds_today.items()"). Dadurch NameError beim ersten echten
+          # Lauf. Initialisierung jetzt vor die Schleife verschoben; diese
+          # Zeile hier entfernt (nicht einfach stehen gelassen), weil sie
+          # den waehrend der Schleife bereits gezaehlten Wert sonst wieder
+          # auf 0 zurueckgesetzt haette, bevor der Report ihn liest.
           expired = []
           WATCHLIST_EXPIRY_DAYS = 30
           cutoff      = now - timedelta(days=EXPIRY_DAYS)
