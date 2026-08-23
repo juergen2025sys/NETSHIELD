@@ -3117,6 +3117,17 @@ jobs:
               "protected_removed_runtime":  protected_removed_runtime,
               "cidr_aggr_removed":          cidr_aggr_removed,
               "wl_cleanup_count":           wl_cleanup_count,
+              # FIX 2026-08-23 (im Betrieb entdeckt - status.md zeigte
+              # 1.863.994 "neue IPs", aber seen_db-Gesamtzahl nur +5.648:
+              # der fehlende Teil war aufnahme_removed, bislang intern
+              # gezaehlt, aber NIRGENDS im Report sichtbar. IPs mit <2 Feeds
+              # und ohne HQ-Feed werden im selben Lauf, in dem sie neu
+              # angelegt wurden, durch den Aufnahme-Filter sofort wieder
+              # entfernt - das ist kein Ablauf (expired_removed erfasst das
+              # nicht) und kein Bug, aber ohne diesen Wert im Report nicht
+              # nachvollziehbar, warum "neu" und der tatsaechliche seen_db-
+              # Trend so stark auseinanderlaufen koennen.
+              "aufnahme_removed":            aufnahme_removed,
               # FIX 2026-08-23 (Nutzerwunsch "werden neue ips beruecksichtigt"):
               # echte Neuanlagen dieses Laufs, OHNE Ledger-Wiederauferstehungen
               # (siehe Zaehler-Kommentar weiter oben).

@@ -585,16 +585,27 @@ jobs:
               # druckt regelmaessige Fortschrittszeilen (Update-/Cleanup-
               # Loop bei ~9 Mio. IPs) - das Rohlog kann mehrere MB gross
               # werden. Passt nicht zur "kleine ZIP"-Philosophie der
-              # anderen Ledger-/Report-Dateien hier. Letzte 2000 Zeilen
-              # reichen fuer die interessanten Teile (Cleanup-Pass-
-              # Zusammenfassung, Fehler/Warnungen stehen meist am Ende).
+              # anderen Ledger-/Report-Dateien hier.
+              # FIX 2026-08-23 (im Betrieb entdeckt): Ein Live-Fall zeigte,
+              # dass bei einem langen, erfolgreichen Lauf ~74% der letzten
+              # 2000 Zeilen reines QUELLCODE-ECHO waren (GitHub faerbt beim
+              # Einspeisen des Python-Heredocs jede Zeile mit dem Marker
+              # "^[[36;1m" ein) - keine echte Laufzeit-Ausgabe. Die
+              # eigentlich interessanten print()-Ergebnisse (Cleanup-Zahlen,
+              # Fehler) wurden dadurch aus dem 2000-Zeilen-Fenster verdraengt.
+              # Fix: Echo-Zeilen (erkennbar am Marker) zuerst rausfiltern,
+              # ECHTE Ausgabe hat diesen Marker nie - dann erst die letzten
+              # 2000 Zeilen NACH dem Filtern nehmen. Deutlich weniger
+              # Rauschen, mehr tatsaechlicher Inhalt im gleichen Zeilenbudget.
+              grep -v '\^\[\[36;1m' combined_run_full.log > combined_run_filtered.log || \
+                cp combined_run_full.log combined_run_filtered.log
               {
                 echo "# Quelle: $TARGET_LABEL Lauf #$TARGET_RUN_ID"
-                echo "# (letzte 2000 Zeilen des vollen Logs)"
+                echo "# (letzte 2000 Zeilen NACH Herausfiltern von Quellcode-Echo-Zeilen)"
                 echo ""
-                tail -n 2000 combined_run_full.log
+                tail -n 2000 combined_run_filtered.log
               } > combined_run.log
-              rm -f combined_run_full.log
+              rm -f combined_run_full.log combined_run_filtered.log
               echo "combined_run.log geschrieben ($(wc -l < combined_run.log) Zeilen, "
               echo "  Run #$TARGET_RUN_ID, $(du -h combined_run.log | cut -f1))"
             else
@@ -791,6 +802,18 @@ jobs:
               if _exp_wl is not None and _exp_act is not None:
                   cleanup_text += f" (davon {_exp_wl:,} Watchlist/30T, {_exp_act:,} Active/180T)"
               cleanup_text += f", {cleanup_stats.get('neu_angelegt', 0):,} neue IPs hinzugekommen"
+              # FIX 2026-08-23 (im Betrieb entdeckt): aufnahme_removed direkt
+              # neben "neue IPs" zeigen, nicht nur in der "zusaetzlich"-Liste
+              # versteckt - das ist haeufig der Grund, warum "neue IPs" und
+              # der tatsaechliche seen_db-Trend stark auseinanderlaufen (IPs
+              # mit <2 Feeds/kein HQ werden im selben Lauf sofort wieder
+              # durch den Aufnahme-Filter entfernt, nicht als "Ablauf"
+              # gezaehlt).
+              if cleanup_stats.get("aufnahme_removed"):
+                  cleanup_text += (
+                      f" (davon {cleanup_stats['aufnahme_removed']:,} direkt wieder "
+                      f"durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ)"
+                  )
               _extra = []
               if cleanup_stats.get("wl_cleanup_count"):
                   _extra.append(f"{cleanup_stats['wl_cleanup_count']:,} Whitelist-Bereinigung")
