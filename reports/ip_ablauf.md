@@ -1,7 +1,7 @@
 # Seen-DB Expiry Forecast
 
-Lauf: 2026-08-23 21:43 CEST (Europe/Berlin)
-Gesamt: 9,411,701 IPs in seen_db.json (8,019,697 aktiv/180-Tage-Pfad, 1,392,004 Watchlist/30-Tage-Pfad)
+Lauf: 2026-08-23 22:16 CEST (Europe/Berlin)
+Gesamt: 9,411,830 IPs in seen_db.json (8,019,785 aktiv/180-Tage-Pfad, 1,392,045 Watchlist/30-Tage-Pfad)
 
 ## Aktive IPs (180-Tage-Fenster) – wann faellt die Bestaetigung aus?
 
@@ -10,10 +10,10 @@ Gesamt: 9,411,701 IPs in seen_db.json (8,019,697 aktiv/180-Tage-Pfad, 1,392,004 
 | bereits ueberfaellig (Cleanup-Pass sollte das entfernen) | 0 |
 | 0-7 Tage | 0 |
 | 8-14 Tage | 173,769 |
-| 15-30 Tage | 685,769 |
-| 31-60 Tage | 2,511,940 |
-| 61-90 Tage | 1,028,392 |
-| 91-180 Tage | 3,619,827 |
+| 15-30 Tage | 685,768 |
+| 31-60 Tage | 2,511,937 |
+| 61-90 Tage | 1,028,386 |
+| 91-180 Tage | 3,619,925 |
 
 ## Watchlist-IPs (30-Tage-Fenster) – wann faellt die Erstsichtung aus?
 
@@ -22,8 +22,8 @@ Gesamt: 9,411,701 IPs in seen_db.json (8,019,697 aktiv/180-Tage-Pfad, 1,392,004 
 | bereits ueberfaellig | 0 |
 | 0-3 Tage | 679,867 |
 | 4-7 Tage | 224,724 |
-| 8-14 Tage | 328,962 |
-| 15-30 Tage | 158,451 |
+| 8-14 Tage | 328,961 |
+| 15-30 Tage | 158,493 |
 
 ## Konkrete Ablauftermine, Watchlist-IPs, naechste 30 Tage
 
@@ -42,14 +42,14 @@ Tagesgenau, im Gegensatz zu den groben Zeitfenstern oben - damit sich der Anti-C
 | 2026-08-31 | 53,157 |
 | 2026-09-01 | 9,404 |
 | 2026-09-02 | 11,063 |
-| 2026-09-03 | 148,325 |
+| 2026-09-03 | 148,324 |
 | 2026-09-04 | 69,785 |
 | 2026-09-05 | 20,669 |
 | 2026-09-06 | 16,559 |
-| 2026-09-07 | 13,229 |
+| 2026-09-07 | 13,228 |
 | 2026-09-08 | 17,137 |
 | 2026-09-09 | 8,969 |
-| 2026-09-10 | 11,532 |
+| 2026-09-10 | 11,531 |
 | 2026-09-11 | 12,088 |
 | 2026-09-12 | 12,267 |
 | 2026-09-13 | 13,159 |
@@ -57,11 +57,11 @@ Tagesgenau, im Gegensatz zu den groben Zeitfenstern oben - damit sich der Anti-C
 | 2026-09-15 | 6,372 |
 | 2026-09-16 | 5,903 |
 | 2026-09-17 | 8,977 |
-| 2026-09-18 | 5,285 |
+| 2026-09-18 | 5,284 |
 | 2026-09-19 | 5,178 |
 | 2026-09-20 | 5,196 |
-| 2026-09-21 | 11,573 |
-| 2026-09-22 | 5,688 |
+| 2026-09-21 | 11,572 |
+| 2026-09-22 | 5,734 |
 
 ## Konkrete Ablauftermine, aktive IPs, naechste 60 Tage
 
@@ -70,11 +70,11 @@ Zeigt einzelne Tage mit ueberdurchschnittlich vielen gleichzeitig ablaufenden IP
 | Datum | Anzahl IPs, die an diesem Tag ihre Bestaetigung verlieren |
 |---|---:|
 | 2026-09-04 | 173,769 |
-| 2026-09-07 | 665,961 |
+| 2026-09-07 | 665,960 |
 | 2026-09-21 | 6,534 |
 | 2026-09-22 | 13,274 |
 | 2026-09-23 | 16,999 |
-| 2026-09-24 | 21,286 |
+| 2026-09-24 | 21,284 |
 | 2026-09-25 | 17,774 |
 | 2026-09-26 | 15,354 |
 | 2026-09-27 | 11,732 |
@@ -98,7 +98,7 @@ Zeigt einzelne Tage mit ueberdurchschnittlich vielen gleichzeitig ablaufenden IP
 | 2026-10-15 | 51,630 |
 | 2026-10-16 | 24,596 |
 | 2026-10-17 | 14,491 |
-| 2026-10-18 | 23,076 |
+| 2026-10-18 | 23,075 |
 | 2026-10-19 | 11,308 |
 | 2026-10-20 | 11,312 |
 | 2026-10-21 | 31,151 |
