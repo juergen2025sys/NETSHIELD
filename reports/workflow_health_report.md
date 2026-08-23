@@ -1,19 +1,22 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-23 09:46 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-23 15:43 CEST (Europe/Berlin)
 
-**Workflows:** 27 | ✅ 24 OK | ⚠️ 5 Warnung | ❌ 0 Fehler
+**Workflows:** 27 | ✅ 25 OK | ⚠️ 3 Warnung | ❌ 1 Fehler
 
 ---
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `auto_feed_discovery.yml` | Dict-Mutation in Schleife | Block 0: 'del' in for-Schleife ohne list()-Kopie (approved_feeds) – RuntimeError bei Dict-Größenänderung |
+
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
-| `honigtopf.yml → update_bot_detector.yml` | Workflow-Reihenfolge / Puffer zu knapp | 22:40 UTC → 22:45 UTC (5min < 15min) |
-| `dependabot-auto-merge.yml` | Permissions zu breit | permissions: contents: write gesetzt aber kein git commit/push erkennbar – Least-Privilege-Verletzung |
-| `sniffcat_fetch.yml` | Kein expliziter Leerungsschutz | Externer Feed/Report ohne explizite MIN_* Guard-Variable – Müll-/Leer-Daten könnten unbemerkt akzeptiert werden |
-| `update_combined_blacklist.yml` | LOCAL_FEEDS verwaist | LOCAL_FEEDS referenziert Dateien ohne erkennbaren Erzeuger-Workflow: honeypot_ips.txt |
+| `ip_ablauf.yml` | continue-on-error aktiv | continue-on-error=true gesetzt – Fehler können still bleiben; Review ob das wirklich beabsichtigt ist |
+| `Cross-Workflow` | Doppelte Feed-URLs | 5 URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: strongips.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; abuseipdb-s100-30d.ipv4 in auto_feed_discovery.yml+update_combined_blacklist.yml; 5.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; greylist-latest.csv in auto_feed_discovery.yml+honeypot_monitor.yml; block.txt in auto_feed_discovery.yml+update_combined_blacklist.yml |
 | `honigtopf.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC → 00:07 UTC (7min < 60min Mindestpuffer); 00:20 UTC → 00:27 UTC (7min < 60min Mindestpuffer); 00:40 UTC → 00:47 UTC (7min < 60min Mindestpuffer); 02:20 UTC → 03:07 UTC (47min < 60min Mindestpuffer); 02:40 UTC → 03:07 UTC (27min < 60min Mindestpuffer) |
-| `sniffcat_fetch.yml` | actions/upload-artifact Version-Drift | 1 Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht? |
 
 ## 🏥 Production Health
 
@@ -25,10 +28,10 @@
 
 | Workflow | Status | Fehler | Warnungen | Cron |
 |---|---|---|---|---|
-| `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `37 4 * * 0`, `23 7 * * 0`, `47 11 * * 0` |
+| `auto_feed_discovery.yml` | ❌ | 1 | 0 | `37 4 * * 0`, `23 7 * * 0`, `47 11 * * 0` |
 | `codeql.yml` | ✅ OK | 0 | 0 | `0 3 * * 0` |
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
-| `dependabot-auto-merge.yml` | ⚠️ | 0 | 1 | – |
+| `dependabot-auto-merge.yml` | ✅ OK | 0 | 0 | – |
 | `dependabot-heal-conflicts.yml` | ✅ OK | 0 | 0 | – |
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
@@ -37,15 +40,15 @@
 | `history_fresh_start.yml` | ✅ OK | 0 | 0 | `15 3 1 * *` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 5,11,17,23 * * *` |
 | `honigtopf.yml` | ✅ OK | 0 | 0 | `*/20 * * * *`, `15 22 * * *` |
+| `ip_ablauf.yml` | ⚠️ | 0 | 1 | `30 6 * * 1`, `55 */3 * * *` |
 | `netshield_report_generator.yml` | ✅ OK | 0 | 0 | `30 * * * *` |
 | `repo_size_check.yml` | ✅ OK | 0 | 0 | – |
 | `run_tests.yml` | ✅ OK | 0 | 0 | – |
 | `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
-| `seen_db_expiry_forecast.yml` | ✅ OK | 0 | 0 | `30 6 * * 1` |
-| `sniffcat_fetch.yml` | ⚠️ | 0 | 1 | – |
+| `sniffcat_fetch.yml` | ✅ OK | 0 | 0 | – |
 | `tweetfeed_monitor.yml` | ✅ OK | 0 | 0 | `45 2 * * *` |
 | `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 1 * * 1`, `30 1 * * 3` |
-| `update_bot_detector.yml` | ✅ OK | 0 | 0 | `45 22 * * *` |
+| `update_bot_detector.yml` | ✅ OK | 0 | 0 | `35 22 * * *` |
 | `update_combined_blacklist.yml` | ✅ OK | 0 | 0 | `7 */3 * * *`, `27 */3 * * *`, `47 */3 * * *` |
 | `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | `47 1,4,7,10,13,16,19,22 * * *` |
 | `watchdog_combined.yml` | ✅ OK | 0 | 0 | `*/15 * * * *` |
@@ -54,4 +57,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-23 09:46 CEST (Europe/Berlin) | 27 Workflow-Dateien geprüft*
+*Generiert: 2026-08-23 15:43 CEST (Europe/Berlin) | 27 Workflow-Dateien geprüft*

@@ -1,49 +1,40 @@
 {
-  "updated": "2026-08-23 09:46 CEST (Europe/Berlin)",
+  "updated": "2026-08-23 15:43 CEST (Europe/Berlin)",
   "total": 27,
-  "ok": 24,
-  "warn": 5,
-  "error": 0,
-  "errors": [],
+  "ok": 25,
+  "warn": 3,
+  "error": 1,
+  "errors": [
+    {
+      "file": "auto_feed_discovery.yml",
+      "check": "Dict-Mutation in Schleife",
+      "detail": "Block 0: 'del' in for-Schleife ohne list()-Kopie (approved_feeds) \u2013 RuntimeError bei Dict-Gr\u00f6\u00dfen\u00e4nderung"
+    }
+  ],
   "warnings": [
     {
-      "file": "honigtopf.yml \u2192 update_bot_detector.yml",
-      "check": "Workflow-Reihenfolge / Puffer zu knapp",
-      "detail": "22:40 UTC \u2192 22:45 UTC (5min < 15min)"
+      "file": "ip_ablauf.yml",
+      "check": "continue-on-error aktiv",
+      "detail": "continue-on-error=true gesetzt \u2013 Fehler k\u00f6nnen still bleiben; Review ob das wirklich beabsichtigt ist"
     },
     {
-      "file": "dependabot-auto-merge.yml",
-      "check": "Permissions zu breit",
-      "detail": "permissions: contents: write gesetzt aber kein git commit/push erkennbar \u2013 Least-Privilege-Verletzung"
-    },
-    {
-      "file": "sniffcat_fetch.yml",
-      "check": "Kein expliziter Leerungsschutz",
-      "detail": "Externer Feed/Report ohne explizite MIN_* Guard-Variable \u2013 M\u00fcll-/Leer-Daten k\u00f6nnten unbemerkt akzeptiert werden"
-    },
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "LOCAL_FEEDS verwaist",
-      "detail": "LOCAL_FEEDS referenziert Dateien ohne erkennbaren Erzeuger-Workflow: honeypot_ips.txt"
+      "file": "Cross-Workflow",
+      "check": "Doppelte Feed-URLs",
+      "detail": "5 URL(s) in mehreren Workflows \u2013 today_count Aufblaehung moeglich: strongips.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; abuseipdb-s100-30d.ipv4 in auto_feed_discovery.yml+update_combined_blacklist.yml; 5.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; greylist-latest.csv in auto_feed_discovery.yml+honeypot_monitor.yml; block.txt in auto_feed_discovery.yml+update_combined_blacklist.yml"
     },
     {
       "file": "honigtopf.yml \u2192 update_combined_blacklist.yml",
       "check": "Sub-Workflow Puffer zu knapp",
       "detail": "Sub-Workflow laueft zu knapp vor Combined \u2013 Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC \u2192 00:07 UTC (7min < 60min Mindestpuffer); 00:20 UTC \u2192 00:27 UTC (7min < 60min Mindestpuffer); 00:40 UTC \u2192 00:47 UTC (7min < 60min Mindestpuffer); 02:20 UTC \u2192 03:07 UTC (47min < 60min Mindestpuffer); 02:40 UTC \u2192 03:07 UTC (27min < 60min Mindestpuffer)"
-    },
-    {
-      "file": "sniffcat_fetch.yml",
-      "check": "actions/upload-artifact Version-Drift",
-      "detail": "1 Datei(en) weichen von der Mehrheits-SHA ab \u2013 Update vergessen oder verfrueht?"
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4696229,
-    "active_blacklist_ipv4.txt": 724520,
-    "blacklist_confidence40_ipv4_part1.txt": 3860816,
+    "combined_threat_blacklist_ipv4_part1.txt": 4698020,
+    "active_blacklist_ipv4.txt": 728369,
+    "blacklist_confidence40_ipv4_part1.txt": 3862492,
     "cve_exploit_ips.txt": 29237,
-    "honeypot_ips.txt": 1797164,
-    "bot_detector_blacklist_ipv4.txt": 1306915
+    "honeypot_ips.txt": 1800600,
+    "bot_detector_blacklist_ipv4.txt": 1307194
   },
   "production_health": {
     "critical": 0,
