@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-24 01:04 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-24 01:10 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,308,120** |
-| Neu (heute) | **+31** |
-| Entfernt | **-61** |
+| Gesamt IPs | **1,308,121** |
+| Neu (heute) | **+1** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 62 |
@@ -28,7 +28,7 @@
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 500,000 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,311 |
 | ✅ `ebrasha_abdal_proxy_hub` | 6,655 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,726 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,724 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,718 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,951 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,667 |
@@ -47,10 +47,10 @@
 | ✅ `ercindedeoglu_proxies` | 50,607 |
 | ✅ `ercindedeoglu_proxies_socks4` | 14,788 |
 | ✅ `ercindedeoglu_proxies_socks5` | 13,489 |
-| ✅ `tuanminpay_live_proxy` | 8,754 |
-| ✅ `tuanminpay_live_proxy_http` | 6,277 |
-| ✅ `tuanminpay_live_proxy_socks4` | 4,348 |
-| ✅ `tuanminpay_live_proxy_socks5` | 2,639 |
+| ✅ `tuanminpay_live_proxy` | 8,706 |
+| ✅ `tuanminpay_live_proxy_http` | 6,237 |
+| ✅ `tuanminpay_live_proxy_socks4` | 4,487 |
+| ✅ `tuanminpay_live_proxy_socks5` | 2,727 |
 | ✅ `gitrecon1455_fresh_proxy_list` | 210,064 |
 | ✅ `noctiro_getproxy` | 4,014 |
 | ✅ `noctiro_getproxy_socks5` | 3,007 |
@@ -74,7 +74,7 @@
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,734 |
 | ✅ `leon406_subcrawler` | 121,583 |
 | ✅ `kalidada18_threatbase_threatbase_ip_botnet` | 6,468 |
-| ✅ `hookzof_socks5_list` | 127 |
+| ✅ `hookzof_socks5_list` | 75 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,162 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,664 |
 | ❌ `cyberh4ck3r_free_proxy_list` | 0 |
@@ -87,4 +87,4 @@
 > Diese 62 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-24 01:04 CEST (Europe/Berlin)*
+*Generiert: 2026-08-24 01:10 CEST (Europe/Berlin)*
