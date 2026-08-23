@@ -522,9 +522,14 @@ jobs:
     # noetig fuer den automatischen Rueckfall-Alarm als GitHub Issue weiter
     # unten. Der Job "prognose" braucht das nicht, bekommt also weiterhin nur
     # das Workflow-Level-Permission-Set.
+    # FIX 2026-08-23 (Nutzerwunsch "Log vom combined-Lauf mit in die ZIP"):
+    # actions:read ergaenzt - noetig fuer "gh run list"/"gh run view" auf
+    # update_combined_blacklist.yml (einen ANDEREN Workflow), siehe Step
+    # "Combined-Blacklist Run-Log holen" unten.
     permissions:
       contents: write
       issues: write
+      actions: read
     concurrency:
       group: netshield-ip-ablauf-verifikation
       cancel-in-progress: true
@@ -533,6 +538,48 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: true
+
+      - name: Combined-Blacklist Run-Log holen
+        # FIX 2026-08-23 (Nutzerwunsch "run an dem tag des ip rückgang [...]
+        # in der anderen zip speichern"): Konsolenausgabe des neuesten
+        # erfolgreichen update_combined_blacklist.yml-Laufs abrufen, damit
+        # man am Tag eines auffaelligen seen_db-Rueckgangs direkt nachsehen
+        # kann, was in DIESEM Lauf tatsaechlich passiert ist (Cleanup-Pass-
+        # Zahlen, Ledger-Eintraege, etc.) - ohne selbst in der Actions-UI
+        # danach suchen zu muessen.
+        # continue-on-error: true - das Log ist ein Komfort-Extra, kein
+        # kritischer Bestandteil der eigentlichen Rueckfall-Pruefung unten.
+        # Schlaegt der Log-Abruf fehl (z.B. API-Rate-Limit, Log bereits
+        # abgelaufen/geloescht), soll das NICHT den ganzen Job rot machen.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LATEST_RUN_ID=$(gh run list --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml --status=success --limit=1 \
+            --json databaseId --jq '.[0].databaseId')
+          if [ -n "$LATEST_RUN_ID" ] && [ "$LATEST_RUN_ID" != "null" ]; then
+            echo "Neuester erfolgreicher combined-Run: #$LATEST_RUN_ID"
+            if gh run view "$LATEST_RUN_ID" --repo "${{ github.repository }}" \
+                --log > combined_run_full.log 2>/dev/null; then
+              # Groessenbegrenzung: combined kann bis zu 90min laufen und
+              # druckt regelmaessige Fortschrittszeilen (Update-/Cleanup-
+              # Loop bei ~9 Mio. IPs) - das Rohlog kann mehrere MB gross
+              # werden. Passt nicht zur "kleine ZIP"-Philosophie der
+              # anderen Ledger-/Report-Dateien hier. Letzte 2000 Zeilen
+              # reichen fuer die interessanten Teile (Cleanup-Pass-
+              # Zusammenfassung, Fehler/Warnungen stehen meist am Ende).
+              tail -n 2000 combined_run_full.log > combined_run.log
+              rm -f combined_run_full.log
+              echo "combined_run.log geschrieben ($(wc -l < combined_run.log) Zeilen, "
+              echo "  Run #$LATEST_RUN_ID, $(du -h combined_run.log | cut -f1))"
+            else
+              echo "WARNUNG: Log-Download fuer Run #$LATEST_RUN_ID fehlgeschlagen "
+              echo "  (evtl. bereits abgelaufen/geloescht) - wird ausgelassen"
+            fi
+          else
+            echo "WARNUNG: Kein erfolgreicher update_combined_blacklist.yml-Run gefunden"
+          fi
 
       - name: Wiederauftauch-Prüfung + Bericht erstellen
         env:
@@ -1000,6 +1047,12 @@ jobs:
               # Lauf ueberhaupt (vor dem ersten prognose-Durchlauf) noch
               # fehlen - der existierende Existenz-Check unten faengt das ab.
               "reports/ip_ablauf.md",
+              # FIX 2026-08-23 (Nutzerwunsch "run [...] in der anderen zip
+              # speichern"): Log des neuesten combined-Laufs, siehe Step
+              # "Combined-Blacklist Run-Log holen" oben. Existenz-Check
+              # faengt sowohl den Fall "Log-Abruf fehlgeschlagen" als auch
+              # "combined lief noch nie" ab.
+              "combined_run.log",
           ]
           with zipfile.ZipFile(ZIP_FILE, "w", zipfile.ZIP_DEFLATED) as zf:
               for pfad in ZIP_INHALT:
