@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-08-23 21:17 CEST (Europe/Berlin)
+Lauf: 2026-08-23 21:43 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -21,12 +21,14 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: ➡️ unverändert (jetzt 9,406,053 IPs)
-- Seit Zyklus-Start (2026-08-23): 📈 +10,014 (Anstieg)
-- Letzter combined-Cleanup-Pass: n/a (kein combined-Lauf mit Cleanup-Statistik gefunden)
-- Neue IPs (Summe letzter Läufe): n/a (0/8 Läufe im Fenster mit Daten)
-- Entfernte IPs (Summe letzter Läufe): n/a (0/8 Läufe im Fenster mit Daten)
-- Erfolgsquote letzte 16 combined-Läufe: 7/9 erfolgreich (78%, nur echte Erfolge/Fehlschläge gezählt) | 7 sonstige, Zeitraum 2026-08-23T12:40 bis 2026-08-23T19:08 UTC
+- Seit letztem Lauf: 📈 +5,648 (Anstieg) (jetzt 9,411,701 IPs)
+- Seit Zyklus-Start (2026-08-23): 📈 +15,662 (Anstieg)
+- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt, 1,863,994 neue IPs hinzugekommen (zusätzlich: 186,911 CIDR-Aggregate)
+- Neue IPs (Summe letzter Läufe): n/a (1/8 Läufe im Fenster mit Daten)
+- Entfernte IPs (Summe letzter Läufe): n/a (1/8 Läufe im Fenster mit Daten)
+  - davon Watchlist/30 Tage: n/a (0/8 Läufe im Fenster mit Daten)
+  - davon Active/180 Tage: n/a (0/8 Läufe im Fenster mit Daten)
+- Erfolgsquote letzte 16 combined-Läufe: 8/10 erfolgreich (80%, nur echte Erfolge/Fehlschläge gezählt) | 6 sonstige, Zeitraum 2026-08-23T12:40 bis 2026-08-23T19:08 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
@@ -44,3 +46,4 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | 2026-08-23 19:11 CEST (Europe/Berlin) | 9,406,053 | 0 | 0 | 0 |
 | 2026-08-23 19:21 CEST (Europe/Berlin) | 9,406,053 | 0 | 0 | 0 |
 | 2026-08-23 21:17 CEST (Europe/Berlin) | 9,406,053 | 0 | 0 | 0 |
+| 2026-08-23 21:43 CEST (Europe/Berlin) | 9,411,701 | 0 | 0 | 0 |
