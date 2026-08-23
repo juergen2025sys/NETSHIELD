@@ -1,6 +1,6 @@
 # Seen-DB Expiry Forecast
 
-Lauf: 2026-08-23 13:25 CEST (Europe/Berlin)
+Lauf: 2026-08-23 13:30 CEST (Europe/Berlin)
 Gesamt: 9,396,039 IPs in seen_db.json (8,004,616 aktiv/180-Tage-Pfad, 1,391,423 Watchlist/30-Tage-Pfad)
 
 ## Aktive IPs (180-Tage-Fenster) – wann faellt die Bestaetigung aus?
