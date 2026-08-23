@@ -1,6 +1,6 @@
 # Seen-DB Expiry Forecast
 
-Lauf: 2026-08-23 13:30 CEST (Europe/Berlin)
+Lauf: 2026-08-23 14:03 CEST (Europe/Berlin)
 Gesamt: 9,396,039 IPs in seen_db.json (8,004,616 aktiv/180-Tage-Pfad, 1,391,423 Watchlist/30-Tage-Pfad)
 
 ## Aktive IPs (180-Tage-Fenster) – wann faellt die Bestaetigung aus?
@@ -103,3 +103,9 @@ Zeigt einzelne Tage mit ueberdurchschnittlich vielen gleichzeitig ablaufenden IP
 | 2026-10-20 | 11,313 |
 | 2026-10-21 | 31,154 |
 | 2026-10-22 | 50,828 |
+
+## Ledger-Konsistenz (gegen aktuelle seen_db geprüft)
+
+✅ Keine Inkonsistenzen - alle Ablauf-Listen-IPs, die noch/wieder in seen_db stehen, haben das erwartete eingefrorene Datum (oder eine plausible echte Neubestätigung).
+
+*Hinweis: Fuer den Active-Pfad kann eine legitime Zweitbestaetigung (2+ HQ-Feed-Familien) nicht von einem Bug unterschieden werden, daher wird dort nur der eindeutig unplausible Fall (Rueckfall auf den Watchlist-Pfad) geprueft.*
