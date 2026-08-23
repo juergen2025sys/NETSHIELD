@@ -159,8 +159,26 @@ jobs:
           print(f"SniffCat: {len(final_ips)} IPs "
                 f"({len(fp_removed)} FP-gefiltert, {len(wl_removed)} whitelist-gefiltert)")
 
-          if not final_ips:
-              print("::warning ::0 IPs aus SniffCat geparst – kein Artifact-Inhalt")
+          # FIX 2026-08-23: Leerungsschutz ergaenzt (analog MIN_ENTRIES in
+          # honeypot_monitor.yml/honigtopf.yml, dort 500 als "unterer
+          # Normalwert" etabliert). Aktueller Ist-Stand laut
+          # reports/honeypot_report.md: ~5900 SniffCat-IPs, 500 laesst also
+          # grosszuegigen Puffer, faengt aber echte Muell-/Leer-Antworten der
+          # API zuverlaessig ab. Anders als honeypot_monitor.yml/honigtopf.yml
+          # gibt es hier KEINE bestehende Repo-Datei zum Zurueckfallen (dieser
+          # Workflow committet nichts, siehe Header-Kommentar) - bei Unterschreitung
+          # daher harter Abbruch (SystemExit) statt stillem Weiterschreiben.
+          # Der nachfolgende "if-no-files-found: error"-Schritt wuerde einen
+          # fehlenden Artifact-Inhalt zwar ohnehin als Fehler markieren, aber
+          # erst spaeter und mit einer generischen Meldung statt dieser klaren
+          # Diagnose.
+          MIN_ENTRIES = 500
+          if len(final_ips) < MIN_ENTRIES:
+              msg = (f"Nur {len(final_ips)} SniffCat-IPs (< {MIN_ENTRIES}) - "
+                     f"moeglicherweise Muell-/Leer-Antwort der API. Abbruch "
+                     f"statt Schreiben eines potenziell unbrauchbaren Artifacts.")
+              print(f"::error ::{msg}")
+              raise SystemExit(1)
 
           # WICHTIG: Datei wird bewusst NICHT im Repo-Arbeitsverzeichnis
           # committet/gepusht – sie existiert nur im Runner-Dateisystem und
@@ -180,7 +198,7 @@ jobs:
           EOF
 
       - name: Upload als Artifact (kein Repo-Commit)
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1 (FIX 2026-08-23: angeglichen an feed_ip_finder.yml, war v4.6.2)
         with:
           name: sniffcat-ips-${{ github.run_id }}
           path: sniffcat_ips.txt

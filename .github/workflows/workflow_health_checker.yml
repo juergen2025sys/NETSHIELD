@@ -397,7 +397,14 @@ jobs:
               # Python-Blöcke aus YAML-Heredocs extrahieren
               # FIX CHK-PYEOF: auch python3 - << 'PYEOF' Blöcke erkennen
               # (z.B. state/seen_db_meta.json Writer in update_combined_blacklist.yml)
-              blocks = re.findall(r"python3 << 'EOF'(.*?)\n\s*EOF\b", content, re.DOTALL)
+              # FIX CHK-PYEOF-U (2026-08-23): auch python3 -u << 'EOF' (unbuffered,
+              # fuer Live-Logs) erkennen. Ohne diesen Fix waren auto_feed_discovery.yml,
+              # honeypot_monitor.yml und sniffcat_fetch.yml KOMPLETT unsichtbar fuer
+              # alle blockbasierten Checks (Syntax, Shell-Checks, LOCAL_FEEDS-Zuordnung,
+              # URL-Dedup) – nicht nur fuer den LOCAL_FEEDS-Check. Beispiel: honeypot_ips.txt
+              # wurde faelschlich als "verwaist" gemeldet, obwohl honeypot_monitor.yml es
+              # nachweislich schreibt (HONEYPOT_FILE = "honeypot_ips.txt").
+              blocks = re.findall(r"python3(?: -u)? << 'EOF'(.*?)\n\s*EOF\b", content, re.DOTALL)
               blocks += re.findall(r"python3 - << 'PYEOF'(.*?)\n\s*PYEOF\b", content, re.DOTALL)
 
               for i, block in enumerate(blocks):
@@ -491,8 +498,12 @@ jobs:
               # FIX False Positive: Python-Heredocs (python3 << 'EOF'...EOF) vor der
               # Shell-Suche entfernen – sonst triggert "git push" als Python-String-
               # Literal (z.B. if "git push" in part) fälschlicherweise den Check.
+              # FIX CHK-PYEOF-U (2026-08-23): auch "python3 -u << 'EOF'" entfernen,
+              # sonst bleiben Python-String-Literale wie "git push" in den 3
+              # betroffenen Dateien (siehe FIX CHK-PYEOF-U oben) im Shell-Teil stehen
+              # und koennten dort faelschlich Shell-Checks (z.B. Check 8) triggern.
               content_shell_only = re.sub(
-                  r"python3 << 'EOF'.*?\n\s*EOF\b", "", content, flags=re.DOTALL
+                  r"python3(?: -u)? << 'EOF'.*?\n\s*EOF\b", "", content, flags=re.DOTALL
               )
               # FIX CHK26: Kommentare (YAML '#...' und Shell '#...') entfernen,
               # sonst triggert z.B. ein Kommentar "# nicht per git push, sondern
@@ -1054,8 +1065,18 @@ jobs:
 
               # ── Check 27: Permissions-Audit ──────────────────────────────
               # contents: write nur wenn der Workflow tatsaechlich committet.
+              # FIX FP-GHMERGE (2026-08-23): "gh pr merge" (GraphQL mergePullRequest,
+              # z.B. in dependabot-auto-merge.yml) braucht ebenfalls contents: write,
+              # schreibt aber ueber die GitHub-API statt per "git commit"/"git push" -
+              # wurde bisher faelschlich als Least-Privilege-Verletzung gemeldet.
+              # Quelle: docs.github.com (mergePullRequest-Mutation), siehe Kommentar
+              # in dependabot-auto-merge.yml selbst.
               _has_contents_write = 'contents: write' in content
-              _has_commit = 'git commit' in content_shell_no_comments or 'git push' in content_shell_no_comments
+              _has_commit = (
+                  'git commit' in content_shell_no_comments
+                  or 'git push' in content_shell_no_comments
+                  or 'gh pr merge' in content_shell_no_comments
+              )
               if _has_contents_write and not _has_commit:
                   msg = "permissions: contents: write gesetzt aber kein git commit/push erkennbar – Least-Privilege-Verletzung"
                   file_warnings.append(msg)
@@ -1679,11 +1700,14 @@ jobs:
                       _local_feed_files.add(_m.group(1))
 
               # Prüfe welche LOCAL_FEED-Dateien von keinem Workflow geschrieben werden
+              # FIX CHK-PYEOF-U (2026-08-23): python3 -u << 'EOF' wurde hier nicht
+              # erkannt -> honeypot_ips.txt (geschrieben in honeypot_monitor.yml, das
+              # "python3 -u << 'EOF'" nutzt) wurde faelschlich als "verwaist" gemeldet.
               _all_written = set()
               for _fname in files:
                   _fpath = f"{WORKFLOWS_DIR}/{_fname}"
                   _ftext = open(_fpath).read()
-                  _fblocks = re.findall(r"python3 << 'EOF'(.*?)\n\s*EOF", _ftext, re.DOTALL)
+                  _fblocks = re.findall(r"python3(?: -u)? << 'EOF'(.*?)\n\s*EOF", _ftext, re.DOTALL)
                   for _blk in _fblocks:
                       for _m in re.finditer(r'open\(\s*["\']([a-z0-9_.\-]+\.txt)["\']', _blk):
                           _all_written.add(_m.group(1))
@@ -1709,7 +1733,10 @@ jobs:
           for _fname in files:
               _fpath = f"{WORKFLOWS_DIR}/{_fname}"
               _ftext = open(_fpath).read()
-              _fblocks = re.findall(r"python3 << 'EOF'(.*?)\n\s*EOF", _ftext, re.DOTALL)
+              # FIX CHK-PYEOF-U (2026-08-23): siehe LOCAL_FEEDS-Check oben – ohne
+              # den (?: -u)?-Teil wurden auto_feed_discovery.yml, honeypot_monitor.yml
+              # und sniffcat_fetch.yml hier komplett uebersprungen.
+              _fblocks = re.findall(r"python3(?: -u)? << 'EOF'(.*?)\n\s*EOF", _ftext, re.DOTALL)
               for _blk in _fblocks:
                   # Nur URLs in SOURCES/CVE_SOURCES/HONEYPOT_SOURCES-artigen Dicts
                   for _line in _blk.splitlines():

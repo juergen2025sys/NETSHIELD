@@ -24,7 +24,11 @@ name: Bot-Detector Blacklist (Proxy-Feeds)
 
 on:
   schedule:
-    - cron: '45 22 * * *'   # täglich 22:45 UTC (90 Min vor Combined 00:00; verschoben von 23:45 – nur 15min Puffer war zu knapp)
+    - cron: '35 22 * * *'   # täglich 22:35 UTC (FIX 2026-08-23: von 22:45 verschoben - honigtopf.yml
+                             # laeuft per */20 auch um 22:40, das ergab nur 5min Puffer statt
+                             # geforderter 15min. 22:35 haelt 15min Abstand zu honigtopf 22:20
+                             # (naechster */20-Slot vor 22:35) UND 25min Abstand zu
+                             # honeypot_monitor.yml 23:00 (statt vorher nur 15min bei 22:45->23:00) ein.
   workflow_dispatch:
   # Zusätzlicher Trigger 2026-07-05: läuft jetzt auch direkt nach jedem
   # erfolgreichen NETSHIELD-Report-Lauf (siehe "Trigger Bot-Detector"-Step in
