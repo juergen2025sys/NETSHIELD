@@ -1,7 +1,7 @@
 # NETSHIELD Bot-Detector Blacklist (Proxy-Feeds)
-# Aktualisiert: 2026-08-23 09:08 CEST (Europe/Berlin)
+# Aktualisiert: 2026-08-23 09:11 CEST (Europe/Berlin)
 # Quellen: 62 Proxy-Feeds
-# Gesamt: 1306916 | +104 neu | -52 entfernt
+# Gesamt: 1306915 | +0 neu | -1 entfernt
 
 1.0.0.0
 1.0.0.1
@@ -474037,7 +474037,6 @@
 70.34.200.116
 70.34.200.171
 70.34.200.180
-70.34.200.196
 70.34.201.81
 70.34.201.151
 70.34.201.158
