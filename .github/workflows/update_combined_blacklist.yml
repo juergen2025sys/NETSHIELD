@@ -3874,14 +3874,72 @@ jobs:
               # GitHub-Release-Asset hochladen. Vorheriges Release+Tag wird
               # geloescht und neu angelegt, damit das Asset ERSETZT statt
               # akkumuliert wird - kein Git-History-Wachstum mehr dadurch.
-              gh release delete seen-db-backup --yes --cleanup-tag --repo "${{ github.repository }}" 2>/dev/null || true
-              if gh release create seen-db-backup state/seen_db_backup.json.gz.part* \
-                  --repo "${{ github.repository }}" \
-                  --title "seen_db backup ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
-                  --notes "Automatisches seen_db-Backup (${ENTRY_COUNT} IPs). Wird bei jedem Lauf ersetzt, kein Git-History-Bestandteil."; then
-                echo "Backup als Release-Asset hochgeladen (${PART_COUNT} Part(s))"
+              # FIX 2026-08-23 (Bug gefunden: Release verschwand ohne
+              # ersichtlichen Grund): Die vorherige Reihenfolge war
+              # "delete" DANN "create" - schlug create aus irgendeinem
+              # Grund fehl (Netzwerk-Flake, Rate-Limit, Tag-Loeschung noch
+              # nicht propagiert), war das Release schlicht WEG, bis zum
+              # naechsten erfolgreichen Lauf. Der Kommentar/die Warnung
+              # weiter unten ("vorheriges Backup bleibt bestehen") stimmte
+              # in diesem Fall nicht - das Backup war zu dem Zeitpunkt
+              # bereits geloescht.
+              # Jetzt: Falls das Release schon existiert, nur die Assets
+              # per "upload --clobber" ersetzen (atomar, kein Loesch-
+              # Fenster). Nur beim ALLERERSTEN Mal (Release existiert noch
+              # gar nicht) wird "create" verwendet.
+              if gh release view seen-db-backup --repo "${{ github.repository }}" >/dev/null 2>&1; then
+                if gh release upload seen-db-backup state/seen_db_backup.json.gz.part* \
+                    --repo "${{ github.repository }}" --clobber; then
+                  # FIX 2026-08-23 (Screenshot-Fund: Release wurde als Draft
+                  # angelegt und tauchte deshalb NICHT in der Repo-Sidebar
+                  # auf - GitHub zeigt dort nur veroeffentlichte Releases).
+                  # Ursache unklar (kein --draft-Flag im Code gefunden),
+                  # daher hier defensiv erzwungen statt nur vermutet zu
+                  # reparieren: --draft=false unabhaengig vom Ausgangs-
+                  # zustand.
+                  gh release edit seen-db-backup --repo "${{ github.repository }}" \
+                    --title "seen_db backup ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
+                    --notes "Automatisches seen_db-Backup (${ENTRY_COUNT} IPs). Wird bei jedem Lauf ersetzt, kein Git-History-Bestandteil." \
+                    --draft=false \
+                    2>/dev/null || true
+                  # FIX 2026-08-23: "--clobber" ersetzt nur Assets mit
+                  # GLEICHEM Dateinamen. Hatte der vorherige Lauf MEHR Parts
+                  # als dieser (z.B. seen_db kurzzeitig groesser), wuerden
+                  # ueberzaehlige alte part-Dateien als Leichen liegen
+                  # bleiben - beim Zusammensetzen (part000..N in Reihenfolge
+                  # verketten) wuerde ein zusaetzlicher, alter part den
+                  # gzip-Stream korrumpieren. Nach erfolgreichem Upload daher
+                  # gezielt nur die Assets loeschen, die NICHT zu diesem Lauf
+                  # gehoeren.
+                  _lokale_parts=$(ls state/seen_db_backup.json.gz.part* 2>/dev/null | xargs -n1 basename)
+                  gh release view seen-db-backup --repo "${{ github.repository }}" \
+                      --json assets --jq '.assets[].name' 2>/dev/null \
+                    | grep '^seen_db_backup\.json\.gz\.part' \
+                    | while read -r _remote_asset; do
+                        if ! echo "$_lokale_parts" | grep -qxF "$_remote_asset"; then
+                          echo "Entferne verwaisten alten Part: $_remote_asset"
+                          gh release delete-asset seen-db-backup "$_remote_asset" \
+                            --repo "${{ github.repository }}" --yes 2>/dev/null || true
+                        fi
+                      done
+                  echo "Backup als Release-Asset aktualisiert (${PART_COUNT} Part(s))"
+                else
+                  echo "::warning file=update_combined_blacklist.yml::Release-Upload des seen_db-Backups fehlgeschlagen – vorheriges Backup bleibt garantiert bestehen (kein Delete vorher)"
+                fi
               else
-                echo "::warning file=update_combined_blacklist.yml::Release-Upload des seen_db-Backups fehlgeschlagen – vorheriges Backup (falls vorhanden) bleibt bestehen"
+                echo "Kein bestehendes seen-db-backup-Release gefunden - lege neu an (erster Lauf)."
+                if gh release create seen-db-backup state/seen_db_backup.json.gz.part* \
+                    --repo "${{ github.repository }}" \
+                    --title "seen_db backup ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
+                    --notes "Automatisches seen_db-Backup (${ENTRY_COUNT} IPs). Wird bei jedem Lauf ersetzt, kein Git-History-Bestandteil."; then
+                  echo "Backup als Release-Asset hochgeladen (${PART_COUNT} Part(s))"
+                  # FIX 2026-08-23: siehe Kommentar oben - auch nach der
+                  # Erstanlage defensiv erzwingen, dass es kein Draft ist.
+                  gh release edit seen-db-backup --repo "${{ github.repository }}" \
+                    --draft=false 2>/dev/null || true
+                else
+                  echo "::warning file=update_combined_blacklist.yml::Erstanlage des seen_db-Backup-Release fehlgeschlagen"
+                fi
               fi
               # Lokale Parts entfernen, damit sie unter keinen Umstaenden
               # versehentlich vom "Commit and Push"-Step mitgenommen werden
