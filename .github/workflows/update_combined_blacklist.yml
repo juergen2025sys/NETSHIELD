@@ -1768,6 +1768,67 @@ jobs:
           # CIDR_RE wird aus netshield_common importiert (strikte Lookbehind-
           # Variante); lokale \b-Definition entfernt – ungenutzt und schwächer.
 
+          # ── FIX CHURN-WATCHLIST (2026-08-23): state/watchlist_expired_history.json ──
+          # Hintergrund: Eine Watchlist-IP (last=Sentinel "2000-01-01"), die nach
+          # WATCHLIST_EXPIRY_DAYS (30) ohne Zweitbestaetigung (2+ HQ-Feed-Familien
+          # am selben Tag) aus seen_db geloescht wird, aber weiterhin von
+          # irgendeinem (schwachen) Feed gemeldet wird, wurde bisher beim naechsten
+          # Lauf als KOMPLETT NEUE IP angelegt ("first": now_day) – der 30-Tage-
+          # Zaehler startete unbemerkt neu. Sichtbarer Effekt: Die IP verschwand
+          # fuer einen Lauf (bis zu 3h) aus den Output-Dateien und tauchte danach
+          # mit zurueckgesetzter Uhr wieder auf – potenziell endlos, ohne je
+          # tatsaechlich zu graduieren oder final zu verschwinden.
+          # Fix: Das ORIGINALE "first"-Datum wird hier persistiert (unabhaengig
+          # von seen_db, das die IP ja gerade verliert). Wird die IP spaeter
+          # wieder als neue Watchlist-IP angelegt, bekommt sie ihr eingefrorenes
+          # Original-"first" statt now_day – dadurch faellt sie im selben oder
+          # naechsten Cleanup-Pass sofort wieder raus (first_str bleibt fuer immer
+          # in der Vergangenheit), statt zu flackern. Aendert NICHT die 30-Tage-
+          # ohne-Zweitbestaetigung-Regel selbst, verhindert nur den Uhr-Reset.
+          # Wird die IP hingegen ueber einen HQ-Feed neu gesehen, geht sie direkt
+          # auf den Active-Pfad (last=now_day) - dort greift der Ledger bewusst
+          # NICHT, das ist eine echte Promotion per starkem Signal.
+          WL_EXPIRED_HISTORY_FILE = "state/watchlist_expired_history.json"
+          _wl_expired_first = {}
+          if os.path.exists(WL_EXPIRED_HISTORY_FILE):
+              try:
+                  with open(WL_EXPIRED_HISTORY_FILE) as _f:
+                      _wl_hist_data = json.load(_f)
+                  _wl_expired_first = dict(_wl_hist_data.get("entries", {}))
+                  print(f"state/watchlist_expired_history.json: "
+                        f"{len(_wl_expired_first)} dauerhaft abgelaufene Watchlist-IPs geladen")
+              except Exception as _ex:
+                  print(f"WARNUNG: state/watchlist_expired_history.json nicht lesbar: {_ex}")
+          _wl_expired_first_dirty = False  # wird True, sobald neue Eintraege dazukommen
+
+          # ── FIX CHURN-ACTIVE (2026-08-23): state/active_expired_history.json ──
+          # Gleiches Problem wie beim Watchlist-Ledger oben, aber auf dem
+          # Active-Pfad (last != Sentinel, 180-Tage-Fenster) - mit einer
+          # schaerferen Auswirkung: Eine Active-IP, die "last" nie REFRESHT
+          # bekommt (das braucht 2+ HQ-Feed-FAMILIEN am selben Tag,
+          # strongly_confirmed_today), aeltert nach 180 Tagen aus seen_db raus.
+          # Wird sie danach weiterhin von auch nur EINEM HQ-Feed gemeldet
+          # (today_is_hq=True reicht fuer NEUE Eintraege, siehe FIX
+          # AGGREGATOR1-Kommentar unten), bekam sie bisher sofort wieder volle
+          # 180 Tage ("last": now_day) - die Alterung griff dadurch faktisch
+          # NIE, solange irgendein einzelner HQ-Feed sie weiterlistete.
+          # Fix: analog zum Watchlist-Ledger wird das eingefrorene "last"-Datum
+          # bei Wiedereintritt verwendet, AUSSER die IP wird heute tatsaechlich
+          # strongly_confirmed (2+ Familien) - das bleibt eine echte Promotion
+          # und bypassed den Ledger bewusst (siehe Verwendung weiter unten).
+          ACTIVE_EXPIRED_HISTORY_FILE = "state/active_expired_history.json"
+          _active_expired_last = {}
+          if os.path.exists(ACTIVE_EXPIRED_HISTORY_FILE):
+              try:
+                  with open(ACTIVE_EXPIRED_HISTORY_FILE) as _f:
+                      _active_hist_data = json.load(_f)
+                  _active_expired_last = dict(_active_hist_data.get("entries", {}))
+                  print(f"state/active_expired_history.json: "
+                        f"{len(_active_expired_last)} dauerhaft abgelaufene Active-IPs geladen")
+              except Exception as _ex:
+                  print(f"WARNUNG: state/active_expired_history.json nicht lesbar: {_ex}")
+          _active_expired_last_dirty = False
+
           # ── FIX PERF-COMBINED: Batch-Filter mit Binary-Search ────────────
           # is_protected_entry(), is_whitelisted(), is_in_fp_set() iterieren
           # jeweils über 502-2945 Netzwerk-Ranges pro IP-Aufruf.
@@ -2686,9 +2747,25 @@ jobs:
                       print(f"WARN: Korrupter seen_db-Eintrag {ip}, wird neu angelegt: {_corrupt}", file=sys.stderr)
                       # FIX PERF-LAZYSORT: list() statt sorted() – Sweep nach
                       # der Schleife sortiert.
+                      # FIX CHURN-WATCHLIST: nur fuer den Watchlist-Pfad (kein
+                      # today_is_hq) relevant - siehe Ledger-Kommentar oben.
+                      _wl_first = now_day
+                      if not today_is_hq and ip in _wl_expired_first:
+                          _wl_first = _wl_expired_first[ip]
+                      # FIX CHURN-ACTIVE: siehe Ledger-Kommentar weiter oben.
+                      # strongly_confirmed_today = echte Promotion -> immer now_day.
+                      # today_is_hq allein (nur 1 Familie) -> eingefrorenes "last"
+                      # verwenden, falls vorhanden, statt sofort wieder volle
+                      # 180 Tage zu vergeben.
+                      if strongly_confirmed_today:
+                          _entry_last = now_day
+                      elif today_is_hq:
+                          _entry_last = _active_expired_last.get(ip, now_day)
+                      else:
+                          _entry_last = "2000-01-01"
                       db[ip] = {
-                          "first":          now_day,
-                          "last":           now_day if today_is_hq else "2000-01-01",
+                          "first":          _wl_first,
+                          "last":           _entry_last,
                           "hq":             today_is_hq,
                           "feeds":          list(today_feeds),
                           "hq_feed_names":  list(hq_feed_names_today),
@@ -2700,14 +2777,39 @@ jobs:
               else:
                   # FIX PERF-LAZYSORT: list() statt sorted() – Sweep nach
                   # der Schleife sortiert.
+                  # FIX CHURN-WATCHLIST: siehe Ledger-Kommentar weiter oben -
+                  # eine dauerhaft (ohne Zweitbestaetigung) abgelaufene
+                  # Watchlist-IP bekommt beim Wiedereintritt ihr eingefrorenes
+                  # Original-"first" statt now_day, damit sie nicht erneut
+                  # 30 Tage lang im Output auftaucht ("first" bleibt in der
+                  # Vergangenheit -> faellt im naechsten Cleanup sofort wieder
+                  # raus). Gilt NICHT, wenn die IP heute per HQ-Feed reinkommt
+                  # (today_is_hq=True) - das ist eine echte Promotion, siehe
+                  # "last"-Zeile direkt darunter.
+                  _wl_first = now_day
+                  if not today_is_hq and ip in _wl_expired_first:
+                      _wl_first = _wl_expired_first[ip]
+                  # FIX CHURN-ACTIVE: analog zum corrupt-Zweig oben - siehe
+                  # Ledger-Kommentar. Ohne diesen Fix bekam eine IP, die nach
+                  # 180 Tagen ohne Zweitbestaetigung ausgealtert war, bei
+                  # jedem erneuten Auftauchen in nur EINEM HQ-Feed sofort
+                  # wieder volle 180 Tage - die Alterung griff nie.
+                  if strongly_confirmed_today:
+                      _entry_last = now_day
+                  elif today_is_hq:
+                      _entry_last = _active_expired_last.get(ip, now_day)
+                  else:
+                      _entry_last = "2000-01-01"
                   db[ip] = {
-                      "first":          now_day,
+                      "first":          _wl_first,
                       # FIX AGGREGATOR1: Neue IPs bekommen last=heute bei 1+ HQ-Feed.
                       # Nur das REFRESHEN von last bei bestehenden IPs braucht 2+ HQ-Feeds
                       # (strongly_confirmed_today). So kommen frische Feodo/ThreatFox-IPs
                       # sofort in active, altern aber nach 30 Tagen raus wenn nur 1
                       # Aggregator-Feed sie weitermeldet.
-                      "last":           now_day if today_is_hq else "2000-01-01",
+                      # FIX CHURN-ACTIVE: _entry_last beruecksichtigt jetzt zusaetzlich
+                      # den Active-Ledger (siehe oben) statt hartcodiert now_day.
+                      "last":           _entry_last,
                       "hq":             today_is_hq,
                       "feeds":          list(today_feeds),
                       "hq_feed_names":  list(hq_feed_names_today),   # FIX Bug3: auch bei Neu-Einträgen
@@ -2877,10 +2979,28 @@ jobs:
                           if first_str < cutoff_wl_str:
                               expired.append(ip)
                               _to_drop.append(ip)
+                              # FIX CHURN-WATCHLIST: Original-"first" einfrieren,
+                              # BEVOR die IP aus seen_db verschwindet - siehe
+                              # Ledger-Kommentar weiter oben. Nur beim ERSTEN
+                              # Ablauf schreiben (spaetere Wiedereintritte
+                              # verwenden ja bereits das eingefrorene Datum als
+                              # "first", das waere sonst kein neuerer Wert -
+                              # der Check ip not in _wl_expired_first ist hier
+                              # eigentlich nur eine Doppelschreib-Vermeidung,
+                              # der Wert waere ohnehin identisch).
+                              if ip not in _wl_expired_first:
+                                  _wl_expired_first[ip] = first_str
+                                  _wl_expired_first_dirty = True
                       else:
                           if last_str < cutoff_str:
                               expired.append(ip)
                               _to_drop.append(ip)
+                              # FIX CHURN-ACTIVE: Original-"last" einfrieren,
+                              # BEVOR die IP aus seen_db verschwindet - analog
+                              # zum Watchlist-Ledger oben, siehe Kommentar dort.
+                              if ip not in _active_expired_last:
+                                  _active_expired_last[ip] = last_str
+                                  _active_expired_last_dirty = True
                   except Exception:
                       expired.append(ip)
                       _to_drop.append(ip)
@@ -2911,6 +3031,63 @@ jobs:
           print(f"Abgelaufen (>{EXPIRY_DAYS} Tage / Watchlist >{WATCHLIST_EXPIRY_DAYS} Tage): {len(expired)} IPs entfernt")
           if wl_cleanup_count:
               print(f"Whitelist-Bereinigung seen_db: {wl_cleanup_count} IPs entfernt")
+
+          # ── FIX CHURN-WATCHLIST: Ledger speichern + pruning ─────────────────
+          # Pruning gegen unbegrenztes Wachstum: Eintraege, deren eingefrorenes
+          # "first"-Datum sehr lange zurueckliegt (WL_HISTORY_PRUNE_DAYS), werden
+          # entfernt - wird eine so alte IP doch nochmal gesehen, bekommt sie
+          # einmalig wieder ein frisches "first" (kurzes Wiederaufflackern moeglich,
+          # aber selten und deutlich seltener als vorher bei JEDEM Wiedereintritt).
+          # 400 Tage bewusst > EXPIRY_DAYS (180) gewaehlt, damit auch Active-IPs,
+          # die zwischenzeitlich mal auf dem Watchlist-Pfad waren, genug Puffer haben.
+          WL_HISTORY_PRUNE_DAYS = 400
+          if _wl_expired_first:
+              _wl_prune_cutoff_str = (now - timedelta(days=WL_HISTORY_PRUNE_DAYS)).strftime("%Y-%m-%d")
+              _wl_before = len(_wl_expired_first)
+              _wl_expired_first = {
+                  _ip: _d for _ip, _d in _wl_expired_first.items()
+                  if _d >= _wl_prune_cutoff_str
+              }
+              _wl_pruned = _wl_before - len(_wl_expired_first)
+              if _wl_pruned:
+                  _wl_expired_first_dirty = True
+                  print(f"watchlist_expired_history: {_wl_pruned} Eintraege "
+                        f"(> {WL_HISTORY_PRUNE_DAYS} Tage alt) geprunt")
+          if _wl_expired_first_dirty:
+              write_json_atomic(WL_EXPIRED_HISTORY_FILE, {
+                  "updated": now_str,
+                  "count":   len(_wl_expired_first),
+                  "entries": _wl_expired_first,
+              }, indent=2)
+              print(f"state/watchlist_expired_history.json geschrieben "
+                    f"({len(_wl_expired_first)} Eintraege)")
+
+          # ── FIX CHURN-ACTIVE: Active-Ledger speichern + pruning ─────────────
+          # Gleiches Pruning-Prinzip wie beim Watchlist-Ledger, aber mit
+          # laengerem Horizont: der Active-Ledger schuetzt vor Reset ueber ein
+          # 180-Tage-Fenster, muss also entsprechend laenger vorhalten. 400
+          # Tage > 180 Tage EXPIRY_DAYS gewaehlt (gleicher Puffer-Gedanke wie
+          # beim Watchlist-Pruning oben).
+          if _active_expired_last:
+              _active_prune_cutoff_str = (now - timedelta(days=WL_HISTORY_PRUNE_DAYS)).strftime("%Y-%m-%d")
+              _active_before = len(_active_expired_last)
+              _active_expired_last = {
+                  _ip: _d for _ip, _d in _active_expired_last.items()
+                  if _d >= _active_prune_cutoff_str
+              }
+              _active_pruned = _active_before - len(_active_expired_last)
+              if _active_pruned:
+                  _active_expired_last_dirty = True
+                  print(f"active_expired_history: {_active_pruned} Eintraege "
+                        f"(> {WL_HISTORY_PRUNE_DAYS} Tage alt) geprunt")
+          if _active_expired_last_dirty:
+              write_json_atomic(ACTIVE_EXPIRED_HISTORY_FILE, {
+                  "updated": now_str,
+                  "count":   len(_active_expired_last),
+                  "entries": _active_expired_last,
+              }, indent=2)
+              print(f"state/active_expired_history.json geschrieben "
+                    f"({len(_active_expired_last)} Eintraege)")
 
           # ── seen_db speichern ──────────────────────────────────────────────
           # FIX PERF-LAZYSORT: Sammelsortierung VOR dem JSON-Dump. In der
@@ -3777,6 +3954,12 @@ jobs:
           git rm -q --cached --ignore-unmatch combined_threat_blacklist_ipv4.txt 2>/dev/null || true
 
           git add active_blacklist_ipv4.txt reports/combined_threat_blacklist_report.md state/seen_db_meta.json reputation_blacklist.txt 2>/dev/null || true
+          # FIX CHURN-WATCHLIST: Ledger fuer dauerhaft abgelaufene Watchlist-IPs
+          # mitcommitten (nur vorhanden/geaendert, wenn der obige Block etwas
+          # geschrieben hat - sonst No-Op).
+          git add state/watchlist_expired_history.json 2>/dev/null || true
+          # FIX CHURN-ACTIVE: gleiches Prinzip fuer den Active-Pfad-Ledger.
+          git add state/active_expired_history.json 2>/dev/null || true
           # CHANGE BACKUP-OFF-GIT: seen_db-Backup liegt jetzt als GitHub-Release-Asset
           # (siehe "Backup seen_db to Repo"-Step), nicht mehr im Git-Index. Falls aus
           # einem AELTEREN Commit noch Backup-Dateien im Index stehen (Migration von
@@ -3841,14 +4024,17 @@ jobs:
                 git stash pop 2>/dev/null || true
                 git checkout --theirs active_blacklist_ipv4.txt \
                   reports/combined_threat_blacklist_report.md \
-                  state/seen_db_meta.json reputation_blacklist.txt 2>/dev/null || true
+                  state/seen_db_meta.json reputation_blacklist.txt \
+                  state/watchlist_expired_history.json \
+                  state/active_expired_history.json 2>/dev/null || true
                 # Parts ggf. auch per theirs mergen
                 for _p in combined_threat_blacklist_ipv4_part*.txt; do
                   [ -f "$_p" ] && git checkout --theirs "$_p" 2>/dev/null || true
                 done
                 git add active_blacklist_ipv4.txt \
                   reports/combined_threat_blacklist_report.md state/seen_db_meta.json \
-                  reputation_blacklist.txt 2>/dev/null || true
+                  reputation_blacklist.txt state/watchlist_expired_history.json \
+                  state/active_expired_history.json 2>/dev/null || true
                 git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
                 git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
