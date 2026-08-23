@@ -65,6 +65,13 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || github.event.schedule == '30 6 * * 1'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # DIAGNOSE 5 (2026-08-23, Nutzerwunsch "was fehlt noch zur Diagnose"):
+    # issues:write ergaenzt - analog zum Job "verifikation", fuer den
+    # Alarm-Mechanismus weiter unten (deckt sowohl fehlendes seen_db.json/
+    # Cache/Backup als auch die Ledger-Konsistenzpruefung ab).
+    permissions:
+      contents: write
+      issues: write
     concurrency:
       group: netshield-seen-db-writers
       cancel-in-progress: false
@@ -160,6 +167,68 @@ jobs:
               print(f"::warning::Nur {len(db)} Eintraege (< {MIN_ENTRIES}) - "
                     f"seen_db wirkt unvollstaendig. Report wird trotzdem "
                     f"erstellt, aber mit Vorsicht zu interpretieren.")
+
+          # DIAGNOSE 3 (2026-08-23, Nutzerwunsch "was fehlt noch zur
+          # Diagnose"): Tiefe Ledger-Konsistenzpruefung. Der Job "verifikation"
+          # (alle 3h) prueft nur die Output-Dateien gegen die Ablauf-Listen -
+          # ein guter, schneller Rueckfall-Detektor, aber er sieht nicht die
+          # rohe seen_db.json selbst. Hier, wo wir seen_db ohnehin geladen
+          # haben, koennen wir direkt auf Datenbank-Ebene pruefen: Steht eine
+          # Ablauf-Listen-IP noch/wieder in seen_db, aber NICHT mit dem
+          # eingefrorenen Datum? Das waere ein noch frueheres Warnsignal -
+          # der Fix waere schon auf DB-Ebene umgangen worden, BEVOR es
+          # ueberhaupt in einer Output-Datei sichtbar wird.
+          ledger_bugs = []
+          for _ledger_datei, _ledger_label in [
+              ("state/watchlist_expired_history.json", "Watchlist"),
+              ("state/active_expired_history.json", "Active"),
+          ]:
+              if not os.path.exists(_ledger_datei):
+                  continue
+              try:
+                  with open(_ledger_datei) as f:
+                      _ledger_eintraege = json.load(f).get("entries", {})
+              except Exception as e:
+                  print(f"WARNUNG: {_ledger_datei} nicht lesbar fuer Konsistenzpruefung: {e}")
+                  continue
+              for _ip, _frozen_datum in _ledger_eintraege.items():
+                  _entry = db.get(_ip)
+                  if _entry is None or not isinstance(_entry, dict):
+                      continue  # nicht in seen_db - genau wie erwartet, kein Bug
+                  _entry_last = _entry.get("last", "2000-01-01")
+                  if _ledger_label == "Watchlist":
+                      # Erwartung: wenn ueberhaupt in db, dann NUR mit last=
+                      # Sentinel UND first=exakt dem eingefrorenen Datum
+                      # (sofortiger Re-Expiry im selben Lauf haette den
+                      # Eintrag laengst wieder entfernt - bleibt er trotzdem
+                      # drin mit einem ANDEREN first, wurde der Freeze
+                      # umgangen).
+                      if _entry_last == "2000-01-01" and _entry.get("first") != _frozen_datum:
+                          ledger_bugs.append(
+                              f"{_ip} (Watchlist-Ledger, eingefroren auf first={_frozen_datum}): "
+                              f"steht in seen_db mit first={_entry.get('first')} - "
+                              f"Freeze wurde umgangen"
+                          )
+                  else:  # Active
+                      # Erwartung: bleibt entweder ganz draussen, oder mit
+                      # last=exakt dem eingefrorenen Datum (Freeze wirkt),
+                      # oder mit einem NEUEREN last-Datum durch echte
+                      # Zweitbestaetigung (legitime Promotion, kein Bug -
+                      # laesst sich von hier aus nicht von einem Bug
+                      # unterscheiden, siehe Kommentar unten). Ein Rueckfall
+                      # auf last=Sentinel (Watchlist-Pfad) waere aber in
+                      # jedem Fall unplausibel und wird gemeldet.
+                      if _entry_last == "2000-01-01":
+                          ledger_bugs.append(
+                              f"{_ip} (Active-Ledger, eingefroren auf last={_frozen_datum}): "
+                              f"steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - "
+                              f"unplausibler Pfadwechsel"
+                          )
+          if ledger_bugs:
+              print(f"::error ::{len(ledger_bugs)} Ledger-Konsistenz-Problem(e) gefunden "
+                    f"(Freeze auf DB-Ebene umgangen)")
+          else:
+              print("Ledger-Konsistenzpruefung: keine Probleme gefunden")
 
           # ── Buckets fuer aktive Eintraege (last = echtes Datum) ─────────
           # Zeitfenster: bereits ueberfaellig (Bug-Indikator, sollte 0 sein -
@@ -320,8 +389,44 @@ jobs:
               for d in sorted(per_expiry_date.keys()):
                   lines.append(f"| {d} | {per_expiry_date[d]:,} |")
 
+          # DIAGNOSE 3: Ergebnis der tiefen Ledger-Konsistenzpruefung von
+          # oben. Anders als der schnelle 3h-Rueckfall-Check in "verifikation"
+          # (der nur Output-Dateien sieht) prueft dies gegen die rohe
+          # seen_db.json selbst - laeuft aber nur woechentlich mit, da nur
+          # dieser Job vollen seen_db-Zugriff hat.
+          lines += [
+              "",
+              "## Ledger-Konsistenz (gegen aktuelle seen_db geprüft)",
+              "",
+          ]
+          if ledger_bugs:
+              lines.append(
+                  f"❌ **{len(ledger_bugs)} Inkonsistenz(en) gefunden** - der Anti-Churn-Freeze "
+                  f"wurde auf Datenbank-Ebene umgangen (frueher/schwerwiegender als ein "
+                  f"Rueckfall in einer Output-Datei):"
+              )
+              lines.append("")
+              for _bug in ledger_bugs:
+                  lines.append(f"- {_bug}")
+          else:
+              lines.append(
+                  f"✅ Keine Inkonsistenzen - alle Ablauf-Listen-IPs, die noch/wieder in "
+                  f"seen_db stehen, haben das erwartete eingefrorene Datum "
+                  f"(oder eine plausible echte Neubestätigung)."
+              )
+              lines.append("")
+              lines.append(
+                  "*Hinweis: Fuer den Active-Pfad kann eine legitime Zweitbestaetigung "
+                  "(2+ HQ-Feed-Familien) nicht von einem Bug unterschieden werden, daher "
+                  "wird dort nur der eindeutig unplausible Fall (Rueckfall auf den "
+                  "Watchlist-Pfad) geprueft.*"
+              )
+
           write_text_atomic(REPORT_FILE, "\n".join(lines) + "\n")
           print(f"\nReport geschrieben: {REPORT_FILE}")
+
+          if ledger_bugs:
+              sys.exit(1)  # Job rot markieren, wenn der Freeze umgangen wurde
           EOF
 
       - name: Commit and Push
@@ -354,6 +459,54 @@ jobs:
             done
             echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
             exit 1
+          fi
+
+      - name: Prognose-Alarm (GitHub Issue) öffnen/aktualisieren
+        # DIAGNOSE 5 (2026-08-23, Nutzerwunsch "was fehlt noch zur
+        # Diagnose"): analog zum Alarm-Mechanismus im Job "verifikation" -
+        # deckt beide Fehlerursachen dieses Jobs ab: (a) weder Cache noch
+        # Release-Backup fuer seen_db.json verfuegbar, (b) Ledger-
+        # Konsistenzpruefung hat eine Umgehung des Freeze gefunden. Anders
+        # als beim Job "verifikation" gibt es hier keine strukturierte
+        # Detail-Datei (die zwei Fehlerursachen sind zu unterschiedlich fuer
+        # ein gemeinsames Format) - der Issue-Body verweist stattdessen auf
+        # das Workflow-Log dieses Laufs und den (falls vorhanden) Report.
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 IP-Ablauf: Prognose-Job fehlgeschlagen"
+          BODY="Der Job \"prognose\" (Seen-DB Expiry Forecast) ist fehlgeschlagen.
+
+          Moegliche Ursachen: seen_db.json weder aus Cache noch aus dem Release-Backup ladbar, ODER die Ledger-Konsistenzpruefung hat eine Umgehung des Anti-Churn-Freeze gefunden (Details im Log oder in reports/ip_ablauf.md, Sektion \"Ledger-Konsistenz\").
+
+          Lauf: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')
+          Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Bestehendes Alarm-Issue #$EXISTING gefunden - kommentiere statt neu zu erstellen."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" --body "$BODY"
+          else
+            echo "Kein offenes Alarm-Issue gefunden - erstelle neues."
+            gh issue create --repo "${{ github.repository }}" --title "$TITLE" --body "$BODY"
+          fi
+
+      - name: Prognose-Alarm schließen, falls behoben
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 IP-Ablauf: Prognose-Job fehlgeschlagen"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Offenes Alarm-Issue #$EXISTING gefunden - aktueller Lauf war erfolgreich, schließe."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" \
+              --body "✅ Behoben: Lauf vom $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z') war erfolgreich. Issue wird automatisch geschlossen."
+            gh issue close "$EXISTING" --repo "${{ github.repository }}"
+          else
+            echo "Kein offenes Alarm-Issue vorhanden - nichts zu tun."
           fi
 
   # ══════════════════════════════════════════════════════════════════════
@@ -408,6 +561,10 @@ jobs:
           }
           eingefrorene_ips = set()
           listen_groessen = {}
+          # DIAGNOSE 4 (2026-08-23): einzelne Sets pro Liste behalten (nicht
+          # nur die vereinigte Menge), um eine Ueberschneidung zu erkennen -
+          # siehe Check weiter unten.
+          listen_ips = {}
           for label, pfad in ABLAUFLISTEN.items():
               if os.path.exists(pfad):
                   try:
@@ -415,13 +572,42 @@ jobs:
                           daten = json.load(f)
                       eintraege = daten.get("entries", {})
                       listen_groessen[label] = len(eintraege)
+                      listen_ips[label] = set(eintraege.keys())
                       eingefrorene_ips.update(eintraege.keys())
                   except Exception as e:
                       listen_groessen[label] = None
+                      listen_ips[label] = set()
                       print(f"WARNUNG: {pfad} nicht lesbar: {e}")
               else:
                   listen_groessen[label] = 0
+                  listen_ips[label] = set()
                   print(f"{pfad} existiert noch nicht (normal vor dem ersten Ablauf-Ereignis)")
+
+          # DIAGNOSE 4: Ueberschneidung zwischen den beiden Ablauf-Listen.
+          # Sollte laut Logik NIE passieren (eine IP ist zu jedem Zeitpunkt
+          # entweder auf dem Watchlist- ODER dem Active-Pfad, "last" ist
+          # entweder Sentinel oder echtes Datum, nie beides) - waere ein
+          # direkter Hinweis auf einen Logikfehler in update_combined_
+          # blacklist.yml, wenn hier doch mal was auftaucht.
+          _wl_label, _act_label = "Watchlist (30-Tage-Pfad)", "Active (180-Tage-Pfad)"
+          # DIAGNOSE: zentrale Sammelstelle fuer alles, was Alarm ausloesen
+          # soll (Job-Exit-Code + GitHub-Issue). Ersetzt die vorher einzelne
+          # "if rueckfaelle:"-Bedingung, damit weitere Diagnose-Checks (siehe
+          # unten: Ledger-Ueberschneidung, Staleness) denselben Alarm-Pfad
+          # nutzen koennen, statt jeweils eigene Exit-Bedingungen zu bauen.
+          diagnose_probleme = []
+
+          ledger_ueberschneidung = listen_ips.get(_wl_label, set()) & listen_ips.get(_act_label, set())
+          if ledger_ueberschneidung:
+              print(f"::error ::LOGIKFEHLER: {len(ledger_ueberschneidung)} IP(s) stehen "
+                    f"gleichzeitig in BEIDEN Ablauf-Listen (sollte unmoeglich sein): "
+                    f"{sorted(ledger_ueberschneidung)[:10]}")
+              diagnose_probleme.append(
+                  f"❌ **Logikfehler:** {len(ledger_ueberschneidung)} IP(s) stehen gleichzeitig "
+                  f"in BEIDEN Ablauf-Listen (sollte laut Design unmöglich sein): "
+                  f"{', '.join(sorted(ledger_ueberschneidung)[:10])}"
+                  + (", ..." if len(ledger_ueberschneidung) > 10 else "")
+              )
 
           print(f"Insgesamt {len(eingefrorene_ips)} eindeutige, dauerhaft eingefrorene IPs in beiden Ablauf-Listen")
 
@@ -466,18 +652,60 @@ jobs:
           if rueckfaelle:
               print(f"::error ::RÜCKFALL gefunden: {len(alle_rueckfall_ips)} eingefrorene IP(s) "
                     f"stehen trotzdem in aktuellen Output-Dateien - Fix greift nicht wie erwartet")
+              diagnose_probleme.append(
+                  f"❌ **Rückfall:** {len(alle_rueckfall_ips)} eingefrorene IP(s) stehen "
+                  f"trotzdem in aktuellen Output-Dateien - der Anti-Churn-Fix greift hier "
+                  f"NICHT wie erwartet."
+              )
           else:
               print(f"OK: keine der {len(eingefrorene_ips)} eingefrorenen IPs taucht in "
                     f"{len(geprueft_dateien)} geprueften Output-Dateien auf")
 
           # ── seen_db-Gesamtzahl (Trend) ──────────────────────────────────
           gesamt_ips_jetzt = None
+          meta_alter_stunden = None
           if os.path.exists("state/seen_db_meta.json"):
               try:
                   with open("state/seen_db_meta.json") as f:
-                      gesamt_ips_jetzt = json.load(f).get("total_ips")
+                      _meta = json.load(f)
+                  gesamt_ips_jetzt = _meta.get("total_ips")
+                  # DIAGNOSE 2 (2026-08-23, Nutzerwunsch "was fehlt noch zur
+                  # Diagnose"): Staleness-Check. "0 Rückfälle"/"Ledger wächst
+                  # nicht" kann auch bedeuten: update_combined_blacklist.yml
+                  # laeuft seit Stunden gar nicht mehr (Fehler, Quota,
+                  # Cache-Problem) - dann passiert einfach nichts mehr, und
+                  # dieser Job meldet faelschlich Ruhe statt Stillstand.
+                  # updated_utc_iso wurde extra dafuer ergaenzt (siehe FIX
+                  # dort - "updated" allein laesst sich wegen CEST/CET nicht
+                  # robust zurueckparsen).
+                  _updated_iso = _meta.get("updated_utc_iso")
+                  if _updated_iso:
+                      _meta_zeit = datetime.fromisoformat(_updated_iso)
+                      if _meta_zeit.tzinfo is None:
+                          _meta_zeit = _meta_zeit.replace(tzinfo=timezone.utc)
+                      meta_alter_stunden = (now - _meta_zeit).total_seconds() / 3600
+                  else:
+                      print("WARNUNG: state/seen_db_meta.json hat kein 'updated_utc_iso' "
+                          "(alter Stand vor diesem Fix?) - Staleness-Check uebersprungen")
               except Exception as e:
                   print(f"WARNUNG: state/seen_db_meta.json nicht lesbar: {e}")
+
+          # combined laeuft alle 3h - 6h Schwelle = 2 verpasste Laeufe in
+          # Folge, konservativ genug um normale Verzoegerungen (langsamer
+          # Lauf, kurzer Retry) nicht faelschlich zu melden.
+          STALE_SCHWELLE_STUNDEN = 6
+          ist_stale = meta_alter_stunden is not None and meta_alter_stunden > STALE_SCHWELLE_STUNDEN
+          if ist_stale:
+              print(f"::warning ::seen_db_meta.json ist {meta_alter_stunden:.1f}h alt "
+                    f"(> {STALE_SCHWELLE_STUNDEN}h) - update_combined_blacklist.yml "
+                    f"laeuft moeglicherweise nicht mehr planmaessig")
+              diagnose_probleme.append(
+                  f"⚠️ **Veraltete Daten:** `state/seen_db_meta.json` ist "
+                  f"{meta_alter_stunden:.1f}h alt (Schwelle: {STALE_SCHWELLE_STUNDEN}h). "
+                  f"`update_combined_blacklist.yml` (Cron alle 3h) läuft möglicherweise "
+                  f"nicht mehr planmäßig - alle Aussagen dieses Berichts basieren auf "
+                  f"diesem veralteten Stand."
+              )
 
           # ── Zeitreihe fortschreiben ──────────────────────────────────────
           # Kein endloses Sliding-Window: echter 30-Tage-Zyklus. Sobald seit
@@ -492,11 +720,18 @@ jobs:
           today = now.date()
           verlauf = []
           zyklus_start_str = today.isoformat()
+          # Bewusst VOR einem moeglichen Zyklus-Reset gesichert: der
+          # Kurzfrist-Vergleich ("seit letztem Lauf") soll auch am
+          # Reset-Tag selbst noch funktionieren, waehrend der Zyklus-Start-
+          # Vergleich an diesem einen Tag bewusst neu bei sich selbst
+          # beginnt (siehe Trend-Berechnung weiter unten).
+          _letzter_lauf_ueberhaupt = None
           if os.path.exists(VERLAUF_FILE):
               try:
                   with open(VERLAUF_FILE) as f:
                       _alt = json.load(f)
                   verlauf = _alt.get("laeufe", [])
+                  _letzter_lauf_ueberhaupt = verlauf[-1] if verlauf else None
                   zyklus_start_str = _alt.get("zyklus_start", today.isoformat())
                   zyklus_start = datetime.strptime(zyklus_start_str, "%Y-%m-%d").date()
                   _alter_tage = (today - zyklus_start).days
@@ -509,6 +744,72 @@ jobs:
                   print(f"WARNUNG: {VERLAUF_FILE} nicht lesbar, starte neue Historie: {e}")
                   verlauf = []
                   zyklus_start_str = today.isoformat()
+
+          # FIX 2026-08-23 (Nutzerwunsch "einbauen ob die seen_db zurueck-
+          # gegangen sind"): Vergleichswerte VOR dem Anhaengen des aktuellen
+          # Laufs sichern - sonst wuerde sich der neue Eintrag mit sich
+          # selbst vergleichen. Zwei Referenzpunkte:
+          #   - "seit letztem Lauf" (kurzfristig, 3h-Delta)
+          #   - "seit Zyklus-Start" (der aussagekraeftigere Wert - zeigt den
+          #     Effekt ueber den vollen laufenden 30-Tage-Beobachtungs-
+          #     zeitraum, nicht nur zwischen zwei Laeufen)
+          _erster_lauf_zyklus = verlauf[0] if verlauf else None
+
+          # DIAGNOSE 1 (2026-08-23, Nutzerwunsch "was fehlt noch zur
+          # Diagnose"): Sanity-Schwelle fuer den Trend. Bisher wurde JEDER
+          # Rueckgang unterschiedslos als 📉 "gut" dargestellt - aber ein
+          # Cache-Problem, ein fehlgeschlagener Restore oder ein Bug, der
+          # versehentlich zu viel loescht, saehe genauso aus. Bewusst NUR
+          # als sichtbare Markierung, NICHT als Alarm/Exit-Code-Ausloeser:
+          # wir haben am ersten Tag bereits einen echten, legitimen Cluster
+          # von ~7% Tagesrueckgang gesehen, und die Prognose zeigt fuer
+          # einzelne Tage (z.B. 12.10.) bis zu ~17% - eine harte Alarm-
+          # Schwelle wuerde also bei GENAU den erwarteten grossen Clustern
+          # faelschlich anschlagen, die dieser Fix ja ermoeglichen soll.
+          # Die Schwelle hier dient nur dazu, ungewoehnlich grosse Aus-
+          # schlaege sichtbar zu machen, damit man sie GEZIELT gegen
+          # reports/ip_ablauf.md (die Cluster-Prognose) pruefen kann - nicht
+          # um automatisch "gut" von "schlecht" zu unterscheiden, das kann
+          # dieser Check aus den Zahlen allein nicht zuverlaessig leisten.
+          TREND_AUFFAELLIG_PROZENT = 20
+
+          def _delta_text(jetzt, frueher, sanity_check=False):
+              if jetzt is None or frueher is None:
+                  return None, "n/a (kein Vergleichswert)", False
+              delta = jetzt - frueher
+              auffaellig = (
+                  sanity_check and frueher > 0
+                  and abs(delta) / frueher * 100 >= TREND_AUFFAELLIG_PROZENT
+              )
+              _praefix = "🔍 " if auffaellig else ""
+              if delta < 0:
+                  txt = f"{_praefix}📉 -{abs(delta):,} (Rückgang)"
+              elif delta > 0:
+                  txt = f"{_praefix}📈 +{delta:,} (Anstieg)"
+              else:
+                  txt = "➡️ unverändert"
+              if auffaellig:
+                  txt += (f" - ungewöhnlich groß (≥{TREND_AUFFAELLIG_PROZENT}% seit letztem "
+                          f"Lauf), bitte gegen reports/ip_ablauf.md prüfen ob ein bekannter "
+                          f"Cluster das erklärt")
+              return delta, txt, auffaellig
+
+          # sanity_check=True NUR fuer "seit letztem Lauf" (3h-Fenster,
+          # einzelner Ausreisser gut erkennbar) - NICHT fuer "seit Zyklus-
+          # Start" (30-Tage-Fenster, wo sich viele kleine UND grosse Cluster
+          # normal aufsummieren und ein hoher kumulierter Wert fuer sich
+          # genommen nichts Verdaechtiges bedeutet).
+          _delta_letzter, _delta_letzter_txt, _letzter_auffaellig = _delta_text(
+              gesamt_ips_jetzt,
+              _letzter_lauf_ueberhaupt.get("gesamt_ips_seen_db") if _letzter_lauf_ueberhaupt else None,
+              sanity_check=True,
+          )
+          _delta_zyklus, _delta_zyklus_txt, _ = _delta_text(
+              gesamt_ips_jetzt,
+              _erster_lauf_zyklus.get("gesamt_ips_seen_db") if _erster_lauf_zyklus else None,
+          )
+          print(f"seen_db-Trend seit letztem Lauf: {_delta_letzter_txt} | "
+                f"seit Zyklus-Start: {_delta_zyklus_txt}")
 
           verlauf.append({
               "zeitpunkt":               now_str,
@@ -550,6 +851,19 @@ jobs:
           for label, anzahl in listen_groessen.items():
               zeilen.append(f"| {label} | {anzahl if anzahl is not None else 'Fehler'} |")
 
+          # DIAGNOSE: zentrale Uebersicht ueber ALLE gesammelten Probleme
+          # (Rueckfall, Ledger-Ueberschneidung, veraltete Daten) an einer
+          # Stelle - Details zu jedem einzelnen Punkt stehen weiterhin in
+          # den jeweils eigenen Sektionen weiter unten.
+          zeilen += ["", "## Diagnose-Status", ""]
+          if diagnose_probleme:
+              zeilen.append(f"❌ **{len(diagnose_probleme)} Problem(e) erkannt:**")
+              zeilen.append("")
+              for _p in diagnose_probleme:
+                  zeilen.append(f"- {_p}")
+          else:
+              zeilen.append("✅ Keine Probleme erkannt (Rückfälle, Ledger-Konsistenz, Datenaktualität).")
+
           zeilen += ["", "## Wiederauftauch-Prüfung", ""]
           if not eingefrorene_ips:
               zeilen.append(
@@ -580,6 +894,12 @@ jobs:
 
           zeilen += [
               "",
+              "## seen_db-Trend",
+              "",
+              f"- Seit letztem Lauf: {_delta_letzter_txt}"
+              + (f" (jetzt {gesamt_ips_jetzt:,} IPs)" if gesamt_ips_jetzt is not None else ""),
+              f"- Seit Zyklus-Start ({zyklus_start_str}): {_delta_zyklus_txt}",
+              "",
               "## Verlauf (letzte 20 Läufe)",
               "",
               "| Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |",
@@ -599,6 +919,58 @@ jobs:
           write_text_atomic(REPORT_FILE, "\n".join(zeilen) + "\n")
           print(f"{REPORT_FILE} geschrieben")
 
+          # ── Statusdatei: IMMER geschrieben (OK oder Alarm), damit man den
+          # Zustand direkt aus der ZIP lesen kann, ohne den ganzen Bericht
+          # zu oeffnen. FIX 2026-08-23 (Nutzerwunsch "in der zip soll auch
+          # eine Meldung rein, Alarm es funktioniert nicht oder sonst was").
+          # Wird auch als Body fuer den GitHub-Issue-Alarm-Step unten
+          # wiederverwendet. Nutzt jetzt diagnose_probleme statt nur
+          # rueckfaelle, damit Ledger-Ueberschneidung und Staleness genauso
+          # zuverlaessig alarmieren wie ein Rueckfall-Fund.
+          STATUS_FILE = "status.md"
+          _trend_zeilen = [
+              "",
+              "**seen_db-Trend:**",
+              f"- seit letztem Lauf: {_delta_letzter_txt}"
+              + (f" (jetzt {gesamt_ips_jetzt:,})" if gesamt_ips_jetzt is not None else ""),
+              f"- seit Zyklus-Start ({zyklus_start_str}): {_delta_zyklus_txt}",
+          ]
+          if diagnose_probleme:
+              _status_zeilen = [
+                  "# ❌ ALARM",
+                  "",
+                  f"**{len(diagnose_probleme)} Problem(e) erkannt:**",
+                  "",
+              ] + [f"- {p}" for p in diagnose_probleme] + [
+                  "",
+                  f"Lauf: {now_str}",
+              ] + _trend_zeilen
+              if rueckfaelle:
+                  _status_zeilen += [
+                      "",
+                      "| Datei | Anzahl Rückfälle | Beispiele |",
+                      "|---|---:|---|",
+                  ]
+                  for fname, ips in rueckfaelle.items():
+                      beispiele = ", ".join(ips[:5]) + (", ..." if len(ips) > 5 else "")
+                      _status_zeilen.append(f"| {fname} | {len(ips)} | {beispiele} |")
+              _status_zeilen += [
+                  "",
+                  f"Voller Bericht: `{REPORT_FILE}` bzw. `reports/ip_ablauf_verifikation_report.zip` im Repo.",
+              ]
+          else:
+              _status_zeilen = [
+                  "# ✅ OK",
+                  "",
+                  f"0 Rückfälle - keine der {len(eingefrorene_ips):,} eingefrorenen IPs "
+                  f"taucht in {len(geprueft_dateien)} geprueften Output-Dateien auf. "
+                  f"Der Fix hält. Keine Ledger-Überschneidung, keine veralteten Daten.",
+                  "",
+                  f"Lauf: {now_str}",
+              ] + _trend_zeilen
+          write_text_atomic(STATUS_FILE, "\n".join(_status_zeilen) + "\n")
+          print(f"{STATUS_FILE} geschrieben ({'ALARM' if diagnose_probleme else 'OK'})")
+
           # ── Report-ZIP: fester Pfad im Repo, ueberschreibt sich selbst ──
           # Ein per-Run-Artifact (siehe Upload-Step weiter unten) ist NICHT
           # "immer aktuell" - jeder Lauf erzeugt ein neues, eigenes Artifact,
@@ -613,6 +985,7 @@ jobs:
           import zipfile
           ZIP_FILE = "reports/ip_ablauf_verifikation_report.zip"
           ZIP_INHALT = [
+              STATUS_FILE,
               REPORT_FILE,
               VERLAUF_FILE,
               "state/watchlist_expired_history.json",
@@ -639,32 +1012,8 @@ jobs:
                 f"{len(verlauf)} Läufe seit Zyklus-Start {zyklus_start_str} "
                 f"({_tage_im_zyklus}/{ZYKLUS_TAGE} Tage))")
 
-          if rueckfaelle:
-              # FIX 2026-08-23 (Nutzerwunsch "Meldung waere recht"): kompakte
-              # Detail-Datei fuer den Alarm-Step unten (separater Shell-Step,
-              # kein Python-Zugriff mehr auf diese Variablen). Bewusst
-              # eigenstaendig statt REPORT_FILE wiederzuverwenden - der volle
-              # Bericht enthaelt auch die 20-Zeilen-Verlaufstabelle, die in
-              # einem GitHub-Issue nur unnoetig Platz braucht.
-              _alarm_zeilen = [
-                  f"**{len(alle_rueckfall_ips)} eingefrorene IP(s)** stehen trotzdem in "
-                  f"aktuellen Output-Dateien - der Anti-Churn-Fix greift hier NICHT "
-                  f"wie erwartet.",
-                  "",
-                  f"Lauf: {now_str}",
-                  "",
-                  "| Datei | Anzahl Rückfälle | Beispiele |",
-                  "|---|---:|---|",
-              ]
-              for fname, ips in rueckfaelle.items():
-                  beispiele = ", ".join(ips[:5]) + (", ..." if len(ips) > 5 else "")
-                  _alarm_zeilen.append(f"| {fname} | {len(ips)} | {beispiele} |")
-              _alarm_zeilen += [
-                  "",
-                  f"Voller Bericht: `{REPORT_FILE}` bzw. `{ZIP_FILE}` im Repo.",
-              ]
-              write_text_atomic("rueckfall_alarm.md", "\n".join(_alarm_zeilen) + "\n")
-              sys.exit(1)  # Job rot markieren, wenn ein Rückfall gefunden wurde
+          if diagnose_probleme:
+              sys.exit(1)  # Job rot markieren, wenn irgendein Diagnose-Problem gefunden wurde
           EOF
 
       - name: Report-ZIP zusätzlich als Run-Artifact hochladen
@@ -736,18 +1085,18 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TITLE="🔴 IP-Ablauf: Rückfall erkannt"
-          if [ ! -f rueckfall_alarm.md ]; then
-            echo "WARNUNG: rueckfall_alarm.md fehlt (unerwarteter anderer Fehler?) - generischer Alarmtext."
-            echo "Ein Rückfall wurde erkannt, aber die Detail-Datei fehlt. Siehe Workflow-Log dieses Laufs für Details." > rueckfall_alarm.md
+          if [ ! -f status.md ]; then
+            echo "WARNUNG: status.md fehlt (unerwarteter anderer Fehler?) - generischer Alarmtext."
+            echo "Ein Rückfall wurde erkannt, aber die Detail-Datei fehlt. Siehe Workflow-Log dieses Laufs für Details." > status.md
           fi
           EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
             --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
           if [ -n "$EXISTING" ]; then
             echo "Bestehendes Alarm-Issue #$EXISTING gefunden - kommentiere statt neu zu erstellen."
-            gh issue comment "$EXISTING" --repo "${{ github.repository }}" --body-file rueckfall_alarm.md
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" --body-file status.md
           else
             echo "Kein offenes Alarm-Issue gefunden - erstelle neues."
-            gh issue create --repo "${{ github.repository }}" --title "$TITLE" --body-file rueckfall_alarm.md
+            gh issue create --repo "${{ github.repository }}" --title "$TITLE" --body-file status.md
           fi
 
       - name: Rückfall-Alarm schließen, falls behoben

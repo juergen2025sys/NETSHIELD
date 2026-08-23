@@ -3919,12 +3919,23 @@ jobs:
           import json, os
           from datetime import datetime, timezone
           from zoneinfo import ZoneInfo
+          _now_utc = datetime.now(timezone.utc)
           now_str = (
-              datetime.now(timezone.utc)
+              _now_utc
               .astimezone(ZoneInfo("Europe/Berlin"))
               .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
           )
-          meta = {"note": "seen_db.json nur im GitHub Actions Cache (zu gross fuer Repo)", "updated": now_str}
+          # FIX 2026-08-23 (Staleness-Check in ip_ablauf.yml): "updated" oben
+          # ist nur fuer Menschen lesbar (CEST/CET wechselt je nach Sommer-/
+          # Winterzeit, laesst sich nicht robust zurueckparsen). Zusaetzlich
+          # ISO-8601 in UTC speichern, damit andere Workflows das Alter
+          # zuverlaessig berechnen koennen, ohne Zeitzonen-Abkuerzungen zu
+          # parsen.
+          meta = {
+              "note": "seen_db.json nur im GitHub Actions Cache (zu gross fuer Repo)",
+              "updated": now_str,
+              "updated_utc_iso": _now_utc.isoformat(),
+          }
           if os.path.exists("seen_db.json"):
               try:
                   with open("seen_db.json") as f:
