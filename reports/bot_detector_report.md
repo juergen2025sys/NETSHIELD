@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-23 15:53 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-23 15:55 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -74,7 +74,7 @@
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,746 |
 | ✅ `leon406_subcrawler` | 121,505 |
 | ✅ `kalidada18_threatbase_threatbase_ip_botnet` | 6,959 |
-| ✅ `hookzof_socks5_list` | 172 |
+| ✅ `hookzof_socks5_list` | 113 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,162 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,664 |
 | ✅ `cyberh4ck3r_free_proxy_list` | 2,685 |
@@ -87,4 +87,4 @@
 > Diese 62 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-23 15:53 CEST (Europe/Berlin)*
+*Generiert: 2026-08-23 15:55 CEST (Europe/Berlin)*
