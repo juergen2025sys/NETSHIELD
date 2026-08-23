@@ -1,14 +1,14 @@
 {
-  "updated": "2026-08-23 18:15 CEST (Europe/Berlin)",
+  "updated": "2026-08-23 21:31 CEST (Europe/Berlin)",
   "total": 28,
-  "ok": 26,
+  "ok": 27,
   "warn": 3,
   "error": 1,
   "errors": [
     {
-      "file": "auto_feed_discovery.yml",
-      "check": "Dict-Mutation in Schleife",
-      "detail": "Block 0: 'del' in for-Schleife ohne list()-Kopie (approved_feeds) \u2013 RuntimeError bei Dict-Gr\u00f6\u00dfen\u00e4nderung"
+      "file": "Production Health",
+      "check": "active \u2286 conf40 Subset-Invariante verletzt",
+      "detail": "6,610 IPs in active fehlen in conf40 (0.887% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
     }
   ],
   "warnings": [
@@ -29,17 +29,23 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4703027,
-    "active_blacklist_ipv4.txt": 737968,
+    "combined_threat_blacklist_ipv4_part1.txt": 4705851,
+    "active_blacklist_ipv4.txt": 745279,
     "blacklist_confidence40_ipv4_part1.txt": 3866763,
     "cve_exploit_ips.txt": 29237,
-    "honeypot_ips.txt": 1801475,
-    "bot_detector_blacklist_ipv4.txt": 1307565
+    "honeypot_ips.txt": 1805294,
+    "bot_detector_blacklist_ipv4.txt": 1307989
   },
   "production_health": {
-    "critical": 0,
+    "critical": 1,
     "warn": 0,
-    "checks": []
+    "checks": [
+      {
+        "level": "CRITICAL",
+        "check": "active \u2286 conf40 Subset-Invariante verletzt",
+        "detail": "6,610 IPs in active fehlen in conf40 (0.887% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+      }
+    ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
