@@ -609,6 +609,16 @@ jobs:
               VERLAUF_FILE,
               "state/watchlist_expired_history.json",
               "state/active_expired_history.json",
+              # FIX 2026-08-23 (Nutzerwunsch "alles Erfasste an einer Stelle"):
+              # Prognose-Bericht aus dem Job "prognose" (derselben Datei,
+              # anderer Job/Zeitplan) mit reinpacken. Kein Zusatzaufwand
+              # noetig - "Checkout Repository" oben holt bei JEDEM
+              # verifikation-Lauf ohnehin den zuletzt committeten Stand
+              # dieser Datei mit, unabhaengig davon wie lange der letzte
+              # woechentliche prognose-Lauf her ist. Kann beim allerersten
+              # Lauf ueberhaupt (vor dem ersten prognose-Durchlauf) noch
+              # fehlen - der existierende Existenz-Check unten faengt das ab.
+              "reports/ip_ablauf.md",
           ]
           with zipfile.ZipFile(ZIP_FILE, "w", zipfile.ZIP_DEFLATED) as zf:
               for pfad in ZIP_INHALT:
