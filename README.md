@@ -135,7 +135,6 @@ Score = Quellen-Qualität (40) + Aktualität (30) + Persistenz (20) + Bekannt se
 > - **Watchlist-Pfad (30T):** 1 beliebiger HQ-Feed reicht, um wieder aufgenommen zu werden – das ist dieselbe Schwelle wie bei der Erstaufnahme.
 > - **Active-Pfad (180T):** Es braucht **2+ verschiedene HQ-Feed-Familien am selben Tag** (Zweitbestätigung). Ein einzelner HQ-Feed reicht hier bewusst **nicht** – sonst würde genau der ursprüngliche Fehler (IP bekommt bei jedem erneuten Auftauchen sofort wieder volle 180 Tage) zurückkehren.
 >
-> Details und Hintergrund: `NETSHIELD_Anti_Churn_Fix.docx` bzw. der laufende Kontroll-Report unter `reports/ip_ablauf_verifikation_report.md`.
 
 ### Score-Schwellen
 
