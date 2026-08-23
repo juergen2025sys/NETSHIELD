@@ -112,30 +112,9 @@ jobs:
             exit 1
           fi
 
-      - name: 7z sicherstellen (fuer AES-256-verschlüsselte Beweis-ZIP)
-        # FIX 2026-08-23 (Nutzerwunsch "AES-Verschluesselung"): zip -P
-        # (ZipCrypto) ist kryptographisch schwach - 7z mit -mem=AES256
-        # ist der Standardweg fuer echte AES-Verschluesselung auf einem
-        # Ubuntu-Runner. p7zip-full ist auf ubuntu-latest nicht immer
-        # vorinstalliert, daher hier absichern statt anzunehmen.
-        run: |
-          if ! command -v 7z >/dev/null 2>&1; then
-            echo "7z nicht gefunden - installiere p7zip-full..."
-            sudo apt-get update -qq && sudo apt-get install -y -qq p7zip-full
-          else
-            echo "7z bereits vorhanden: $(7z | head -2 | tail -1)"
-          fi
-
       - name: Expiry-Prognose erstellen
         env:
           PYTHONUNBUFFERED: "1"
-          # FIX 2026-08-23 (Nutzerwunsch "Beweisdatei soll nicht jeder lesen
-          # koennen"): Passwort fuer die verschluesselte Beweis-ZIP. MUSS
-          # vorher manuell als Repo-Secret angelegt werden (Settings ->
-          # Secrets and variables -> Actions -> New repository secret).
-          # Fehlt das Secret, wird unten KEINE ZIP erzeugt (kein
-          # unverschluesseltes Beweismaterial wird versehentlich committet).
-          ABLAUF_BEWEIS_ZIP_PASSWORT: ${{ secrets.ABLAUF_BEWEIS_ZIP_PASSWORT }}
         run: |
           python3 << 'EOF'
           import json, os, sys
@@ -288,18 +267,6 @@ jobs:
           # Erwartung/Prognose dazu).
           per_expiry_date_watch = {}
 
-          # FIX 2026-08-23 (Nutzerwunsch "die ips wo ablaufen vorher schon
-          # in einer txt datei sammeln, das ist die beweisstelle"): echte
-          # IP-Adressen (nicht nur Zaehlung) fuer nahe Ablauftermine, als
-          # VORHER (per Commit-Zeitstempel belegbar) gesicherter Beleg.
-          # 14 Tage Fenster: reicht komfortabel, um jeden bekannten Cluster
-          # (z.B. 04.09., 12 Tage nach dem 23.08.) mindestens einen
-          # woechentlichen Lauf vorher zu erfassen, haelt die Dateigroesse
-          # aber ueberschaubar (nicht das gesamte 60/30-Tage-Fenster).
-          BEWEIS_FENSTER_TAGE = 14
-          beweis_ips_watch = {}   # {datum: [ip, ip, ...]}
-          beweis_ips_active = {}  # {datum: [ip, ip, ...]}
-
           def _bucket_days(days_left, buckets, edges):
               if days_left < 0:
                   return list(buckets.keys())[0]
@@ -335,19 +302,6 @@ jobs:
                       if 0 <= days_left <= WATCHLIST_EXPIRY_DAYS:
                           key = expiry_date.isoformat()
                           per_expiry_date_watch[key] = per_expiry_date_watch.get(key, 0) + 1
-                          # FIX 2026-08-23 (Nutzerwunsch "beweisstelle vorher
-                          # sammeln"): tatsaechliche IP-Adressen fuer die
-                          # naechsten BEWEIS_FENSTER_TAGE Tage zusaetzlich
-                          # zur reinen Zaehlung sichern - als VORHER
-                          # committeter, konkreter Beleg. Nach dem Ablauf-
-                          # Datum laesst sich diese Liste 1:1 gegen die
-                          # Ablauf-Listen (state/*_expired_history.json)
-                          # oder die Output-Dateien pruefen: jede hier
-                          # genannte IP MUSS danach entweder im Ledger
-                          # auftauchen (abgelaufen, wie vorhergesagt) oder
-                          # eine nachvollziehbare Zweitbestaetigung haben.
-                          if 0 <= days_left <= BEWEIS_FENSTER_TAGE:
-                              beweis_ips_watch.setdefault(key, []).append(ip)
                   else:
                       try:
                           last_dt = datetime.strptime(last_str, "%Y-%m-%d").date()
@@ -365,8 +319,6 @@ jobs:
                       if 0 <= days_left <= 60:
                           key = expiry_date.isoformat()
                           per_expiry_date[key] = per_expiry_date.get(key, 0) + 1
-                          if 0 <= days_left <= BEWEIS_FENSTER_TAGE:
-                              beweis_ips_active.setdefault(key, []).append(ip)
               except Exception:
                   corrupt += 1
                   continue
@@ -470,157 +422,8 @@ jobs:
                   "Watchlist-Pfad) geprueft.*"
               )
 
-          # ── Beweis-ZIP: konkrete IP-Listen VOR dem Ablauf-Datum ─────────
-          # FIX 2026-08-23 (Nutzerwunsch): dynamische, AES-256-verschluesselte
-          # Sammel-ZIP statt einzelner Klartext-Dateien im Repo. Zwei
-          # Aenderungen ggue. der ersten Version:
-          #   1) "dynamische Liste, die sich automatisch refresht und alte
-          #      Eintraege loescht" - bei JEDEM Lauf wird die bestehende ZIP
-          #      entschluesselt, um RETENTION_TAGE alte Eintraege bereinigt,
-          #      um die aktuelle Vorschau ergaenzt und komplett neu
-          #      geschrieben. Kein manuelles Aufraeumen noetig.
-          #   2) "nicht jeder soll das lesen koennen, sonst weiss der Hacker
-          #      die IP kommt weg" - AES-256 statt Klartext im Repo. Ohne
-          #      das Repo-Secret ABLAUF_BEWEIS_ZIP_PASSWORT wird GAR KEINE
-          #      ZIP erzeugt (lieber kein Beweis als ein versehentlich
-          #      unverschluesselter).
-          import subprocess, shutil
-
-          _ZIP_PFAD = "reports/ablauf_beweis.zip"
-          _BEWEIS_STAGING = "/tmp/ablauf_beweis_staging"
-          # RETENTION_TAGE > 7 (woechentlicher Lauf-Rhythmus), damit zwischen
-          # zwei prognose-Laeufen keine Luecke entsteht, in der ein Eintrag
-          # schon rausfaellt bevor er ueberhaupt einmal im "vergangen, aber
-          # noch pruefbar"-Zustand in einer ZIP gelandet ist.
-          RETENTION_TAGE = 10
-          _beweis_passwort = os.environ.get("ABLAUF_BEWEIS_ZIP_PASSWORT", "")
-
-          if shutil.which("7z") is None:
-              print("::warning ::7z nicht verfuegbar (Step 'p7zip sicherstellen' fehlgeschlagen?) - "
-                    "Beweis-ZIP wird uebersprungen.")
-          elif not _beweis_passwort:
-              print("WARNUNG: ABLAUF_BEWEIS_ZIP_PASSWORT nicht gesetzt (Repo-Secret fehlt) - "
-                    "Beweis-ZIP wird NICHT erzeugt/aktualisiert, um kein unverschluesseltes "
-                    "Beweismaterial versehentlich zu committen. Secret anlegen unter "
-                    "Settings -> Secrets and variables -> Actions.")
-          else:
-              if os.path.exists(_BEWEIS_STAGING):
-                  shutil.rmtree(_BEWEIS_STAGING)
-              os.makedirs(_BEWEIS_STAGING, exist_ok=True)
-
-              # 1) Bestehende ZIP entschluesseln, nur noch relevante (nicht zu
-              #    alte) Eintraege ins Staging retten.
-              if os.path.exists(_ZIP_PFAD):
-                  _extract = subprocess.run(
-                      ["7z", "x", f"-p{_beweis_passwort}", f"-o{_BEWEIS_STAGING}", _ZIP_PFAD, "-y"],
-                      capture_output=True, text=True,
-                  )
-                  if _extract.returncode != 0:
-                      print(f"WARNUNG: bestehende {_ZIP_PFAD} nicht entschluesselbar "
-                            f"(falsches/geaendertes Passwort, oder korrupt?) - alte Eintraege "
-                            f"gehen verloren, nur die aktuelle Vorschau wird erfasst. "
-                            f"Details: {_extract.stderr.strip()[:200]}")
-                      # Sauberer Neustart, falls teilweise entpackt.
-                      shutil.rmtree(_BEWEIS_STAGING, ignore_errors=True)
-                      os.makedirs(_BEWEIS_STAGING, exist_ok=True)
-
-              # 2) Aktuelle Vorschau-Dateien schreiben (ueberschreibt ggf.
-              #    aus der alten ZIP gerettete gleichnamige Dateien mit dem
-              #    aktuelleren Stand).
-              for _datum, _ips in sorted(beweis_ips_watch.items()):
-                  with open(os.path.join(_BEWEIS_STAGING, f"{_datum}_watchlist.txt"), "w") as f:
-                      f.write(
-                          f"# Beweis-Datei - Watchlist-Pfad (30-Tage-Fenster)\n"
-                          f"# Erwartetes Ablaufdatum: {_datum}\n"
-                          f"# Erfasst bei Prognose-Lauf: {now_str}\n"
-                          f"# Anzahl IPs: {len(_ips)}\n"
-                          f"# Diese IPs sollten am {_datum} ohne Zweitbestaetigung "
-                          f"aus der Blockliste fallen und NICHT zurueckkommen.\n"
-                          + "\n".join(sorted(_ips)) + "\n"
-                      )
-              for _datum, _ips in sorted(beweis_ips_active.items()):
-                  with open(os.path.join(_BEWEIS_STAGING, f"{_datum}_active.txt"), "w") as f:
-                      f.write(
-                          f"# Beweis-Datei - Active-Pfad (180-Tage-Fenster)\n"
-                          f"# Erwartetes Ablaufdatum: {_datum}\n"
-                          f"# Erfasst bei Prognose-Lauf: {now_str}\n"
-                          f"# Anzahl IPs: {len(_ips)}\n"
-                          f"# Diese IPs sollten am {_datum} ohne Zweitbestaetigung "
-                          f"aus der Blockliste fallen und NICHT zurueckkommen.\n"
-                          + "\n".join(sorted(_ips)) + "\n"
-                      )
-
-              # 3) Aufraeumen: alles ausserhalb [heute-RETENTION_TAGE,
-              #    heute+BEWEIS_FENSTER_TAGE] fliegt raus - das ist der
-              #    "loescht automatisch was nicht mehr gebraucht wird"-Teil.
-              for _fname in list(os.listdir(_BEWEIS_STAGING)):
-                  _drop = False
-                  try:
-                      _datum_teil = _fname.rsplit("_", 1)[0]
-                      _datum_dt = datetime.strptime(_datum_teil, "%Y-%m-%d").date()
-                      _alter_tage = (today - _datum_dt).days
-                      if _alter_tage > RETENTION_TAGE or _alter_tage < -BEWEIS_FENSTER_TAGE:
-                          _drop = True
-                  except Exception:
-                      _drop = True  # unbekanntes Dateiformat - nicht mitschleppen
-                  if _drop:
-                      os.remove(os.path.join(_BEWEIS_STAGING, _fname))
-
-              _staged_files = sorted(os.listdir(_BEWEIS_STAGING))
-              _zip_pfad_absolut = os.path.abspath(_ZIP_PFAD)
-              if os.path.exists(_ZIP_PFAD):
-                  os.remove(_ZIP_PFAD)
-
-              if _staged_files:
-                  # FIX 2026-08-23 (beim Testen gefunden): OHNE cwd landet
-                  # der komplette Pfad (z.B. "/tmp/ablauf_beweis_staging/
-                  # 2026-09-04_active.txt") als Eintragsname in der ZIP,
-                  # nicht nur der Dateiname - bricht die spaetere Retention-
-                  # Logik (die von blanken "{datum}_{pfad}.txt"-Namen
-                  # ausgeht) beim naechsten Entschluesseln. Mit cwd=Staging
-                  # und rein relativen Dateinamen als Argumente speichert 7z
-                  # nur die blanken Namen; das Ziel-ZIP wird per absolutem
-                  # Pfad angegeben, damit es trotz cwd-Wechsel am richtigen
-                  # Ort landet.
-                  _zip_cmd = [
-                      "7z", "a", "-tzip", f"-p{_beweis_passwort}", "-mem=AES256",
-                      _zip_pfad_absolut,
-                  ] + _staged_files
-                  _pack = subprocess.run(_zip_cmd, capture_output=True, text=True, cwd=_BEWEIS_STAGING)
-                  if _pack.returncode == 0:
-                      print(f"{_ZIP_PFAD} AES-256-verschlüsselt geschrieben "
-                            f"({len(_staged_files)} Datei(en), Fenster "
-                            f"-{RETENTION_TAGE}/+{BEWEIS_FENSTER_TAGE} Tage)")
-                  else:
-                      print(f"::warning ::Beweis-ZIP-Erstellung fehlgeschlagen: "
-                            f"{_pack.stderr.strip()[:300]}")
-                      _staged_files = []
-              else:
-                  print("Keine Beweis-Dateien im aktuellen Fenster - keine ZIP geschrieben "
-                        f"(alte {_ZIP_PFAD} entfernt, falls vorhanden)")
-
-              shutil.rmtree(_BEWEIS_STAGING, ignore_errors=True)
-
-              if _staged_files:
-                  lines += [
-                      "",
-                      "## Beweis-ZIP (konkrete IP-Listen, AES-256-verschlüsselt)",
-                      "",
-                      f"`{_ZIP_PFAD}` enthält pro nahem Ablauftermin "
-                      f"(-{RETENTION_TAGE}/+{BEWEIS_FENSTER_TAGE} Tage um heute) eine Datei mit "
-                      f"den tatsächlichen IP-Adressen (nicht nur der Anzahl) - AES-256-verschlüsselt, "
-                      f"Passwort nur über das Repo-Secret bekannt. Der Git-Commit-Zeitstempel "
-                      f"dieser Datei belegt, dass die Liste VOR dem jeweiligen Ablaufdatum "
-                      f"festgehalten wurde. Wird bei jedem Lauf automatisch neu aufgebaut - "
-                      f"abgelaufene, nicht mehr relevante Einträge fallen dabei automatisch raus.",
-                      "",
-                      f"Aktuell enthalten: {len(_staged_files)} Datei(en).",
-                  ]
-
           write_text_atomic(REPORT_FILE, "\n".join(lines) + "\n")
           print(f"\nReport geschrieben: {REPORT_FILE}")
-          if _beweis_dateien_geschrieben:
-              print(f"{len(_beweis_dateien_geschrieben)} Beweis-Datei(en) unter {_BEWEIS_DIR}/ geschrieben")
 
           if ledger_bugs:
               sys.exit(1)  # Job rot markieren, wenn der Freeze umgangen wurde
@@ -631,7 +434,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add reports/ip_ablauf.md reports/ablauf_beweis.zip 2>/dev/null || true
+          git add reports/ip_ablauf.md 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -648,8 +451,8 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs reports/ip_ablauf.md reports/ablauf_beweis.zip 2>/dev/null || true
-                git add reports/ip_ablauf.md reports/ablauf_beweis.zip 2>/dev/null || true
+                git checkout --theirs reports/ip_ablauf.md 2>/dev/null || true
+                git add reports/ip_ablauf.md 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))
