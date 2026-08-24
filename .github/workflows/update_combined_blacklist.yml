@@ -3164,7 +3164,7 @@ jobs:
                         f"(> {WL_HISTORY_PRUNE_DAYS} Tage alt) geprunt")
           if _wl_expired_first_dirty:
               write_json_atomic(WL_EXPIRED_HISTORY_FILE, {
-                  "updated": now_str,
+                  "updated": now_stamp,
                   "count":   len(_wl_expired_first),
                   "entries": _wl_expired_first,
               }, indent=2)
@@ -3191,7 +3191,7 @@ jobs:
                         f"(> {WL_HISTORY_PRUNE_DAYS} Tage alt) geprunt")
           if _active_expired_last_dirty:
               write_json_atomic(ACTIVE_EXPIRED_HISTORY_FILE, {
-                  "updated": now_str,
+                  "updated": now_stamp,
                   "count":   len(_active_expired_last),
                   "entries": _active_expired_last,
               }, indent=2)
