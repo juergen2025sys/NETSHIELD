@@ -1,6 +1,6 @@
 # NETSHIELD – Bhutan (BT) IPv4 Ranges
-# Aktualisiert: 2026-08-19 04:37 CEST (Europe/Berlin)
-# IP-Ranges: 59
+# Aktualisiert: 2026-08-24 04:46 CEST (Europe/Berlin)
+# IP-Ranges: 60
 
 36.50.37.0/24
 43.226.8.0/22
@@ -46,6 +46,7 @@
 160.191.60.0/23
 160.236.194.0/24
 162.4.252.0/24
+163.52.32.0/23
 163.128.96.0/24
 163.128.114.0/24
 163.223.203.0/24

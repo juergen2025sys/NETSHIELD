@@ -1,6 +1,6 @@
 # NETSHIELD – Iceland (IS) IPv4 Ranges
-# Aktualisiert: 2026-08-19 04:37 CEST (Europe/Berlin)
-# IP-Ranges: 172
+# Aktualisiert: 2026-08-24 04:46 CEST (Europe/Berlin)
+# IP-Ranges: 173
 
 5.23.64.0/19
 31.15.112.0/21
@@ -121,6 +121,7 @@
 185.179.76.0/22
 185.179.108.0/22
 185.191.232.0/22
+185.192.128.0/22
 185.198.144.0/22
 185.208.202.0/24
 185.219.128.0/24

@@ -1,6 +1,6 @@
 # NETSHIELD – North Macedonia (MK) IPv4 Ranges
-# Aktualisiert: 2026-08-19 04:37 CEST (Europe/Berlin)
-# IP-Ranges: 143
+# Aktualisiert: 2026-08-24 04:46 CEST (Europe/Berlin)
+# IP-Ranges: 144
 
 5.32.176.0/23
 5.32.178.0/23
@@ -31,6 +31,7 @@
 79.126.128.0/17
 79.141.112.0/20
 80.77.144.0/20
+85.8.244.0/24
 85.30.64.0/18
 88.85.96.0/19
 89.31.152.0/21

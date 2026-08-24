@@ -1,6 +1,6 @@
 # NETSHIELD – China (CN) IPv4 Ranges
-# Aktualisiert: 2026-08-19 04:37 CEST (Europe/Berlin)
-# IP-Ranges: 8809
+# Aktualisiert: 2026-08-24 04:46 CEST (Europe/Berlin)
+# IP-Ranges: 8810
 
 1.0.1.0/24
 1.0.2.0/23
@@ -6377,6 +6377,7 @@
 162.105.0.0/16
 163.0.0.0/16
 163.47.4.0/22
+163.52.28.0/23
 163.53.0.0/22
 163.53.4.0/22
 163.53.8.0/22

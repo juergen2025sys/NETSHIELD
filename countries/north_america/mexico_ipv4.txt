@@ -1,6 +1,6 @@
 # NETSHIELD – Mexico (MX) IPv4 Ranges
-# Aktualisiert: 2026-08-19 04:37 CEST (Europe/Berlin)
-# IP-Ranges: 1387
+# Aktualisiert: 2026-08-24 04:46 CEST (Europe/Berlin)
+# IP-Ranges: 1388
 
 23.137.188.0/24
 23.156.104.0/24
@@ -16,6 +16,7 @@
 45.65.152.0/22
 45.68.64.0/22
 45.68.68.0/22
+45.68.136.0/24
 45.163.120.0/22
 45.163.124.0/22
 45.164.20.0/22

@@ -1,6 +1,6 @@
 # NETSHIELD – Seychelles (SC) IPv4 Ranges
-# Aktualisiert: 2026-08-19 04:37 CEST (Europe/Berlin)
-# IP-Ranges: 877
+# Aktualisiert: 2026-08-24 04:46 CEST (Europe/Berlin)
+# IP-Ranges: 876
 
 2.56.10.0/24
 2.56.100.0/22
@@ -484,7 +484,6 @@
 167.94.164.0/23
 168.80.0.0/15
 168.113.0.0/16
-168.113.176.0/18
 169.239.20.0/22
 169.239.128.0/22
 169.239.200.0/22
