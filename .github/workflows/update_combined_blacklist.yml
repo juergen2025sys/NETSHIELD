@@ -2883,6 +2883,29 @@ jobs:
                       _wl_first = now_day
                       if not today_is_hq and ip in _wl_expired_first:
                           _wl_first = _wl_expired_first[ip]
+                      # FIX BUG-STALE-LEDGER-ENTRY (2026-08-24, im echten
+                      # Betrieb entdeckt - Verifikations-Report zeigte einen
+                      # langsam WACHSENDEN "Rueckfall"-Zaehler, obwohl die
+                      # Ledger-Groesse konstant blieb): Kommt eine IP heute
+                      # legitim per HQ-Feed rein (today_is_hq=True), wird der
+                      # eingefrorene Watchlist-Eintrag zwar oben korrekt NICHT
+                      # mehr fuer _wl_first verwendet - er blieb bisher aber
+                      # trotzdem fuer immer im Ledger stehen (kein Aufraeumen).
+                      # Der leichtgewichtige "verifikation"-Job (kein Zugriff
+                      # auf seen_db.json) sah dadurch die IP weiterhin als
+                      # "eingefroren" markiert, obwohl sie laengst legitim
+                      # aktiv ist - False-Positive-Rueckfall, der sich mit
+                      # jeder neuen legitimen Promotion weiter aufsummierte.
+                      if today_is_hq and ip in _wl_expired_first:
+                          del _wl_expired_first[ip]
+                          _wl_expired_first_dirty = True
+                      # Analog fuer den Active-Ledger: eine echte Zweitbestae-
+                      # tigung (strongly_confirmed_today) macht einen evtl.
+                      # vorhandenen alten Active-Ledger-Eintrag ebenfalls
+                      # ungueltig.
+                      if strongly_confirmed_today and ip in _active_expired_last:
+                          del _active_expired_last[ip]
+                          _active_expired_last_dirty = True
                       # FIX CHURN-ACTIVE: siehe Ledger-Kommentar weiter oben.
                       # strongly_confirmed_today = echte Promotion -> immer now_day.
                       # today_is_hq allein (nur 1 Familie) -> eingefrorenes "last"
@@ -2920,6 +2943,17 @@ jobs:
                   _wl_first = now_day
                   if not today_is_hq and ip in _wl_expired_first:
                       _wl_first = _wl_expired_first[ip]
+                  # FIX BUG-STALE-LEDGER-ENTRY: siehe ausfuehrlicher Kommentar
+                  # im "existierender Eintrag"-Zweig oben - identische
+                  # Bereinigung auch fuer den Fall, dass die IP als komplett
+                  # neuer db-Eintrag angelegt wird (z.B. nach Pruning oder
+                  # falls sie zwischenzeitlich ganz aus seen_db verschwunden war).
+                  if today_is_hq and ip in _wl_expired_first:
+                      del _wl_expired_first[ip]
+                      _wl_expired_first_dirty = True
+                  if strongly_confirmed_today and ip in _active_expired_last:
+                      del _active_expired_last[ip]
+                      _active_expired_last_dirty = True
                   # FIX CHURN-ACTIVE: analog zum corrupt-Zweig oben - siehe
                   # Ledger-Kommentar. Ohne diesen Fix bekam eine IP, die nach
                   # 180 Tagen ohne Zweitbestaetigung ausgealtert war, bei
