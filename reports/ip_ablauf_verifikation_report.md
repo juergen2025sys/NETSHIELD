@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-08-24 12:30 CEST (Europe/Berlin)
+Lauf: 2026-08-24 12:48 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -16,8 +16,8 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 ❌ **3 Problem(e) erkannt:**
 
 - ❌ **Rückfall:** 62668 eingefrorene IP(s) stehen trotzdem in aktuellen Output-Dateien - der Anti-Churn-Fix greift hier NICHT wie erwartet.
-- ⚠️ **Niedrige combined-Erfolgsquote:** nur 6/14 erfolgreich (43%, nur echte Erfolge/Fehlschläge gezählt) | zusätzlich 1 cancelled (nicht gewertet) | 1 sonstige, Zeitraum 2026-08-24T03:32 bis 2026-08-24T10:21 UTC in den letzten 16 Läufen (Schwelle: 75%, cancelled nicht mitgezaehlt) - auch wenn der neueste Stand frisch wirkt, lief das System zuletzt nicht zuverlässig.
-- ⚠️ **Veraltete Daten:** `state/seen_db_meta.json` ist 6.0h alt (Schwelle: 6h). `update_combined_blacklist.yml` (Cron alle 3h) läuft möglicherweise nicht mehr planmäßig - alle Aussagen dieses Berichts basieren auf diesem veralteten Stand.
+- ⚠️ **Niedrige combined-Erfolgsquote:** nur 6/15 erfolgreich (40%, nur echte Erfolge/Fehlschläge gezählt) | zusätzlich 1 cancelled (nicht gewertet), Zeitraum 2026-08-24T03:32 bis 2026-08-24T10:21 UTC in den letzten 16 Läufen (Schwelle: 75%, cancelled nicht mitgezaehlt) - auch wenn der neueste Stand frisch wirkt, lief das System zuletzt nicht zuverlässig.
+- ⚠️ **Veraltete Daten:** `state/seen_db_meta.json` ist 6.3h alt (Schwelle: 6h). `update_combined_blacklist.yml` (Cron alle 3h) läuft möglicherweise nicht mehr planmäßig - alle Aussagen dieses Berichts basieren auf diesem veralteten Stand.
 
 ## Wiederauftauch-Prüfung
 
@@ -35,17 +35,16 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 - Seit letztem Lauf: ➡️ unverändert (jetzt 8,772,949 IPs)
 - Seit Zyklus-Start (2026-08-23): 📉 -623,090 (Rückgang)
 - Letzter combined-Cleanup-Pass: 657,370 IPs durch Ablauf entfernt (davon 657,370 Watchlist/30T, 0 Active/180T), 1,968,228 neue IPs hinzugekommen (davon 1,767,036 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) (zusätzlich: 187,059 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 15,638,308 (Summe letzte 8 Läufe / ~24h)
-- Entfernte IPs (Summe letzter Läufe): 5,258,964 (Summe letzte 8 Läufe / ~24h)
-  - davon Watchlist/30 Tage: 5,258,964 (Summe letzte 8 Läufe / ~24h)
+- Neue IPs (Summe letzter Läufe): 15,745,361 (Summe letzte 8 Läufe / ~24h)
+- Entfernte IPs (Summe letzter Läufe): 5,258,962 (Summe letzte 8 Läufe / ~24h)
+  - davon Watchlist/30 Tage: 5,258,962 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 🔍 6/14 erfolgreich (43%, nur echte Erfolge/Fehlschläge gezählt) | zusätzlich 1 cancelled (nicht gewertet) | 1 sonstige, Zeitraum 2026-08-24T03:32 bis 2026-08-24T10:21 UTC
+- Erfolgsquote letzte 16 combined-Läufe: 🔍 6/15 erfolgreich (40%, nur echte Erfolge/Fehlschläge gezählt) | zusätzlich 1 cancelled (nicht gewertet), Zeitraum 2026-08-24T03:32 bis 2026-08-24T10:21 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-08-23 17:29 CEST (Europe/Berlin) | 9,406,053 | 0 | 0 | 0 |
 | 2026-08-23 18:16 CEST (Europe/Berlin) | 9,406,053 | 0 | 0 | 0 |
 | 2026-08-23 18:34 CEST (Europe/Berlin) | 9,406,053 | 0 | 0 | 0 |
 | 2026-08-23 18:44 CEST (Europe/Berlin) | 9,406,053 | 0 | 0 | 0 |
@@ -65,3 +64,4 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | 2026-08-24 09:40 CEST (Europe/Berlin) | 8,772,949 | 657370 | 0 | 62641 |
 | 2026-08-24 09:52 CEST (Europe/Berlin) | 8,772,949 | 657370 | 0 | 62641 |
 | 2026-08-24 12:30 CEST (Europe/Berlin) | 8,772,949 | 657370 | 0 | 62668 |
+| 2026-08-24 12:48 CEST (Europe/Berlin) | 8,772,949 | 657370 | 0 | 62668 |
