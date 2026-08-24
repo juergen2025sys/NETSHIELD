@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-08-24 16:20 CEST (Europe/Berlin)
+Lauf: 2026-08-24 17:12 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -15,18 +15,18 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 
 ❌ **3 Problem(e) erkannt:**
 
-- ❌ **Rückfall:** 62658 eingefrorene IP(s) stehen trotzdem in aktuellen Output-Dateien - der Anti-Churn-Fix greift hier NICHT wie erwartet.
-- ⚠️ **Niedrige combined-Erfolgsquote:** nur 4/16 erfolgreich (25%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-08-24T07:13 bis 2026-08-24T13:37 UTC in den letzten 16 Läufen (Schwelle: 75%, cancelled nicht mitgezaehlt) - auch wenn der neueste Stand frisch wirkt, lief das System zuletzt nicht zuverlässig.
-- ⚠️ **Veraltete Daten:** `state/seen_db_meta.json` ist 9.8h alt (Schwelle: 6h). `update_combined_blacklist.yml` (Cron alle 3h) läuft möglicherweise nicht mehr planmäßig - alle Aussagen dieses Berichts basieren auf diesem veralteten Stand.
+- ❌ **Rückfall:** 62659 eingefrorene IP(s) stehen trotzdem in aktuellen Output-Dateien - der Anti-Churn-Fix greift hier NICHT wie erwartet.
+- ⚠️ **Niedrige combined-Erfolgsquote:** nur 4/15 erfolgreich (27%, nur echte Erfolge/Fehlschläge gezählt) | 1 sonstige, Zeitraum 2026-08-24T07:43 bis 2026-08-24T14:54 UTC in den letzten 16 Läufen (Schwelle: 75%, cancelled nicht mitgezaehlt) - auch wenn der neueste Stand frisch wirkt, lief das System zuletzt nicht zuverlässig.
+- ⚠️ **Veraltete Daten:** `state/seen_db_meta.json` ist 10.7h alt (Schwelle: 6h). `update_combined_blacklist.yml` (Cron alle 3h) läuft möglicherweise nicht mehr planmäßig - alle Aussagen dieses Berichts basieren auf diesem veralteten Stand.
 
 ## Wiederauftauch-Prüfung
 
-❌ **62658 IP(s) gefunden, die laut Ablauf-Liste dauerhaft draussen sein sollten, aber trotzdem in einer aktuellen Output-Datei stehen - der Fix greift hier NICHT wie erwartet:**
+❌ **62659 IP(s) gefunden, die laut Ablauf-Liste dauerhaft draussen sein sollten, aber trotzdem in einer aktuellen Output-Datei stehen - der Fix greift hier NICHT wie erwartet:**
 
 | Datei | Anzahl Rückfälle | Beispiele |
 |---|---:|---|
 | bot_detector_blacklist_ipv4.txt | 29510 | 1.0.0.104, 1.0.171.2, 1.0.215.7, 1.0.227.38, 1.1.187.152, ... |
-| honeypot_ips.txt | 34723 | 1.0.218.230, 1.1.202.148, 1.11.62.185, 1.11.62.186, 1.116.214.66, ... |
+| honeypot_ips.txt | 34724 | 1.0.218.230, 1.1.202.148, 1.11.62.185, 1.11.62.186, 1.116.214.66, ... |
 | honigtopf_ips.txt | 12 | 111.250.240.29, 119.4.109.82, 122.97.137.17, 129.226.193.45, 147.182.205.127, ... |
 | tweetfeed_ips.txt | 64 | 1.0.2.0, 103.214.172.14, 115.226.251.119, 123.5.149.113, 13.140.8.25, ... |
 
@@ -39,13 +39,12 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 - Entfernte IPs (Summe letzter Läufe): 5,258,960 (Summe letzte 8 Läufe / ~24h)
   - davon Watchlist/30 Tage: 5,258,960 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 🔍 4/16 erfolgreich (25%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-08-24T07:13 bis 2026-08-24T13:37 UTC
+- Erfolgsquote letzte 16 combined-Läufe: 🔍 4/15 erfolgreich (27%, nur echte Erfolge/Fehlschläge gezählt) | 1 sonstige, Zeitraum 2026-08-24T07:43 bis 2026-08-24T14:54 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-08-23 19:21 CEST (Europe/Berlin) | 9,406,053 | 0 | 0 | 0 |
 | 2026-08-23 21:17 CEST (Europe/Berlin) | 9,406,053 | 0 | 0 | 0 |
 | 2026-08-23 21:43 CEST (Europe/Berlin) | 9,411,701 | 0 | 0 | 0 |
 | 2026-08-23 22:16 CEST (Europe/Berlin) | 9,411,830 | 0 | 0 | 0 |
@@ -65,3 +64,4 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | 2026-08-24 15:05 CEST (Europe/Berlin) | 8,772,949 | 657370 | 0 | 62658 |
 | 2026-08-24 15:44 CEST (Europe/Berlin) | 8,772,949 | 657370 | 0 | 62658 |
 | 2026-08-24 16:20 CEST (Europe/Berlin) | 8,772,949 | 657370 | 0 | 62658 |
+| 2026-08-24 17:12 CEST (Europe/Berlin) | 8,772,949 | 657370 | 0 | 62659 |
