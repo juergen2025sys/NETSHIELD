@@ -707,6 +707,21 @@ jobs:
           print(f"Insgesamt {len(eingefrorene_ips)} eindeutige, dauerhaft eingefrorene IPs in beiden Ablauf-Listen")
 
           # ── Alle aktuellen Output-Dateien einlesen und gegen die Ablauf-Listen pruefen ──
+          # FIX RUECKFALL-FALSCHPOSITIV (2026-08-24, im echten Betrieb
+          # entdeckt - 62.659 gemeldete "Rueckfaelle", alle in 4 Dateien
+          # konzentriert): Vorher wurden auch reine Rohquellen-Dateien
+          # geprueft (bot_detector_blacklist_ipv4.txt, honeypot_ips.txt,
+          # honigtopf_ips.txt, tweetfeed_ips.txt, cve_exploit_ips.txt,
+          # reputation_blacklist.txt) - die werden aber von KOMPLETT
+          # SEPARATEN Workflows geschrieben (update_bot_detector.yml,
+          # honeypot_monitor.yml, honigtopf.yml, tweetfeed_monitor.yml,
+          # cve_to_ip_mapper.yml) bzw. sind selbst nur ein roher Feed-Input
+          # FUER update_combined_blacklist.yml (reputation_blacklist.txt) -
+          # keine dieser Dateien kennt state/watchlist_expired_history.json
+          # oder state/active_expired_history.json, sie listen einfach
+          # immer wieder, was ihr jeweiliger Feed gerade meldet. Der Ledger
+          # schuetzt nur die KONSOLIDIERTEN, aus dem nachbereinigten
+          # seen_db.json abgeleiteten Ausgaben - genau die bleiben hier.
           OUTPUT_DATEIEN = [
               "active_blacklist_ipv4.txt",
               "combined_threat_blacklist_ipv4_part1.txt",
@@ -714,12 +729,6 @@ jobs:
               "blacklist_confidence40_ipv4_part1.txt",
               "blacklist_confidence40_ipv4_part2.txt",
               "watchlist_confidence25to39_ipv4.txt",
-              "bot_detector_blacklist_ipv4.txt",
-              "honeypot_ips.txt",
-              "honigtopf_ips.txt",
-              "tweetfeed_ips.txt",
-              "cve_exploit_ips.txt",
-              "reputation_blacklist.txt",
           ]
 
           rueckfaelle = {}
@@ -813,6 +822,16 @@ jobs:
                   cleanup_text += (
                       f" (davon {cleanup_stats['aufnahme_removed']:,} direkt wieder "
                       f"durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ)"
+                  )
+              # FIX AUFNAHME-CROSS-DAY-V2 (Anzeige): wie viele der oben
+              # abgelehnten (bzw. in frueheren Laeufen abgelehnten) IPs
+              # heute per Warteliste (jetzt Release-Asset statt Git-Commit)
+              # doch noch aufgenommen wurden, weil ein zweiter, anderer
+              # Feed sie innerhalb von 7 Tagen ebenfalls gemeldet hat.
+              if cleanup_stats.get("aufnahme_cross_bestaetigt"):
+                  cleanup_text += (
+                      f" | {cleanup_stats['aufnahme_cross_bestaetigt']:,} IPs heute "
+                      f"per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen"
                   )
               _extra = []
               if cleanup_stats.get("wl_cleanup_count"):

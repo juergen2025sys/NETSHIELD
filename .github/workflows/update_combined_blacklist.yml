@@ -293,6 +293,36 @@ jobs:
             echo "state/seen_db_backup* liegt bereits im Checkout – kein Download noetig"
           fi
 
+      - name: Restore Aufnahme-Warteliste from GitHub Release (falls vorhanden)
+        # FIX AUFNAHME-CROSS-DAY-V2 (2026-08-24, Nutzerwunsch "Moeglichkeit
+        # wegen den 1,6 Mio. IPs die nicht gefiltert sind"): Warteliste
+        # jetzt als GitHub-Release-Asset statt als Git-committete Datei -
+        # identisches Muster zum seen_db-Backup oben. Grund fuer die
+        # Umstellung: die erste Version (state/aufnahme_warteliste.json
+        # direkt committet) wuchs beim ersten echten Lauf auf 130 MB PRO
+        # COMMIT (alle 3h) - das haette den Git-Verlauf in Tagen um
+        # mehrere GB aufgeblaeht. Als Release-Asset entsteht KEIN Git-
+        # Verlauf-Wachstum, weil Assets nicht Teil der Commit-Historie
+        # sind (gleicher Vorteil, der beim seen_db-Backup schon genutzt
+        # wird - siehe "CHANGE BACKUP-OFF-GIT" an anderer Stelle).
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p state
+          if [ ! -f state/aufnahme_warteliste.json.gz ] && ! ls state/aufnahme_warteliste.json.gz.part* >/dev/null 2>&1; then
+            if gh release download aufnahme-warteliste-backup \
+                --repo "${{ github.repository }}" \
+                --pattern "aufnahme_warteliste.json.gz.part*" \
+                --dir state/ 2>/dev/null; then
+              COUNT=$(ls state/aufnahme_warteliste.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+              echo "Aufnahme-Warteliste-Backup von Release geladen: ${COUNT} Part(s)"
+            else
+              echo "Kein Warteliste-Release gefunden (erster Lauf mit diesem Mechanismus, oder noch nie beschrieben) – starte mit leerer Warteliste"
+            fi
+          else
+            echo "state/aufnahme_warteliste.json.gz* liegt bereits im Checkout – kein Download noetig"
+          fi
+
       - name: Fetch Reputation Blacklist (API, Round-Robin)
         continue-on-error: true  # Rate-Limit (5 Req/Tag, Free-Plan) darf den Haupt-Build nicht blockieren
         env:
@@ -1858,6 +1888,66 @@ jobs:
                   print(f"WARNUNG: state/active_expired_history.json nicht lesbar: {_ex}")
           _active_expired_last_dirty = False
 
+          # ── FIX AUFNAHME-CROSS-DAY-V2 (2026-08-24): Warteliste als
+          # Release-Asset statt Git-Commit ──────────────────────────────
+          # Analog zum Anti-Churn-Ledger, aber am "Eingang" statt am
+          # "Ausgang". Eine IP, die nur von EINEM Feed an EINEM Tag
+          # gemeldet wird (kein HQ-Feed), faellt sofort wieder aus dem
+          # Aufnahme-Filter raus (siehe aufnahme_removed weiter unten) -
+          # OHNE jede Erinnerung. Meldet ein ZWEITER, anderer Feed dieselbe
+          # IP an einem SPAETEREN Tag, wird sie erneut als komplett neu
+          # behandelt (wieder nur 1 Feed) und wieder abgelehnt - das kann
+          # sich endlos wiederholen, obwohl die IP technisch laengst
+          # kreuzbestaetigt waere, nur eben nie am exakt selben Tag.
+          # Fix: abgelehnte IPs werden hier mit {Feed: Datum} gemerkt.
+          # Meldet ein zweiter, ANDERER Feed dieselbe IP innerhalb von
+          # AUFNAHME_WARTEN_TAGE, gilt das als echte Kreuzbestaetigung -
+          # die IP wird dann doch aufgenommen, mit dem vollen Feed-Verlauf.
+          # V2 GEGENUEBER DER ERSTEN VERSION: Speicherung als GitHub-
+          # Release-Asset (state/aufnahme_warteliste.json.gz.part*,
+          # geladen vom Step "Restore Aufnahme-Warteliste from GitHub
+          # Release" oben) statt als Git-committete Datei. Die erste
+          # Version wuchs beim ersten echten Lauf auf 130 MB PRO COMMIT -
+          # als Release-Asset entsteht dagegen KEIN Git-Verlauf-Wachstum.
+          # Kein hartes Entries-Limit mehr noetig (das war nur ein
+          # Kompromiss gegen Git-Bloat) - AUFNAHME_WARTEN_TAGE (7 Tage)
+          # bleibt trotzdem als natuerliche Begrenzung bestehen (IPs ohne
+          # zweite Bestaetigung faellen nach 7 Tagen ohnehin wieder raus),
+          # zusaetzlich eine grosszuegige Sicherheits-Obergrenze gegen
+          # unerwartet unbegrenztes Wachstum (Speicher/Laufzeit-Schutz,
+          # nicht mehr Git-Groessen-Schutz).
+          AUFNAHME_WARTEN_TAGE = 7
+          AUFNAHME_WARTEN_SICHERHEITSGRENZE = 20_000_000
+          AUFNAHME_WARTELISTE_BACKUP_GLOB = "state/aufnahme_warteliste.json.gz.part*"
+          _aufnahme_wartend = {}
+          _aufn_backup_parts = sorted(glob.glob(AUFNAHME_WARTELISTE_BACKUP_GLOB))
+          if _aufn_backup_parts:
+              try:
+                  import gzip as _aufn_gzip
+                  _aufn_tmp_gz = "state/aufnahme_warteliste_restore.json.gz"
+                  with open(_aufn_tmp_gz, "wb") as _out:
+                      for _part in _aufn_backup_parts:
+                          with open(_part, "rb") as _pf:
+                              while True:
+                                  _chunk = _pf.read(1024 * 1024)
+                                  if not _chunk:
+                                      break
+                                  _out.write(_chunk)
+                  with _aufn_gzip.open(_aufn_tmp_gz, "rt", encoding="utf-8") as _f:
+                      _aufn_data = json.load(_f)
+                  _aufnahme_wartend = dict(_aufn_data.get("entries", {}))
+                  os.remove(_aufn_tmp_gz)
+                  print(f"aufnahme_warteliste (Release-Asset): "
+                        f"{len(_aufnahme_wartend):,} wartende IPs geladen "
+                        f"({len(_aufn_backup_parts)} Part(s))")
+              except Exception as _ex:
+                  print(f"WARNUNG: aufnahme_warteliste-Release-Backup nicht lesbar: {_ex}")
+                  _aufnahme_wartend = {}
+          else:
+              print("aufnahme_warteliste: kein Release-Backup vorhanden - starte leer")
+          _aufnahme_wartend_dirty = False
+          aufnahme_cross_bestaetigt = 0  # Zaehler: heute per Warteliste doch aufgenommen
+
           # jeweils über 502-2945 Netzwerk-Ranges pro IP-Aufruf.
           # Bei 4,5M IPs × (502+502+2945) Checks = ~45 Min verschwendet.
           # Lösung: sortierte Intervall-Listen + bisect → O(N × log K).
@@ -3033,9 +3123,37 @@ jobs:
                   # 100-500k IPs).
                   if not (len(feeds) >= 2 or data.get("hq")
                           or "auto_feed_discovery" in feeds):
-                      aufnahme_removed += 1
-                      _to_drop.append(ip)
-                      continue
+                      # FIX AUFNAHME-CROSS-DAY-V2: vor dem endgueltigen
+                      # Ablehnen in der Warteliste nachsehen, ob ein
+                      # ANDERER Feed dieselbe IP innerhalb der letzten
+                      # AUFNAHME_WARTEN_TAGE Tage schon gemeldet hat - dann
+                      # zusammen 2+ Feeds, also echte Kreuzbestaetigung,
+                      # auch wenn nicht am selben Tag.
+                      _wartend_eintrag = _aufnahme_wartend.get(ip, {})
+                      for _f in feeds:
+                          _wartend_eintrag[_f] = now_day
+                      _cutoff_wartend = (now - timedelta(days=AUFNAHME_WARTEN_TAGE)).strftime("%Y-%m-%d")
+                      _wartend_eintrag = {
+                          _f: _d for _f, _d in _wartend_eintrag.items()
+                          if _d >= _cutoff_wartend
+                      }
+                      if len(_wartend_eintrag) >= 2:
+                          # Kreuzbestaetigt! IP bleibt drin, mit dem vollen
+                          # bekannten Feed-Verlauf (nicht nur den heutigen).
+                          data["feeds"] = sorted(set(feeds) | set(_wartend_eintrag.keys()))
+                          aufnahme_cross_bestaetigt += 1
+                          if ip in _aufnahme_wartend:
+                              del _aufnahme_wartend[ip]
+                              _aufnahme_wartend_dirty = True
+                      else:
+                          if _wartend_eintrag:
+                              _aufnahme_wartend[ip] = _wartend_eintrag
+                          elif ip in _aufnahme_wartend:
+                              del _aufnahme_wartend[ip]
+                          _aufnahme_wartend_dirty = True
+                          aufnahme_removed += 1
+                          _to_drop.append(ip)
+                          continue
                   # 3) Expiry (Sentinel-Guard wie BUG-1)
                   # FIX PERF-EXPIRY: siehe Kommentar bei cutoff_str oben.
                   try:
@@ -3126,6 +3244,11 @@ jobs:
               # nachvollziehbar, warum "neu" und der tatsaechliche seen_db-
               # Trend so stark auseinanderlaufen koennen.
               "aufnahme_removed":            aufnahme_removed,
+              # FIX AUFNAHME-CROSS-DAY-V2: wie viele der oben genannten
+              # "neuen" IPs wurden NICHT durch den Aufnahme-Filter
+              # verloren, weil ein zweiter Feed sie innerhalb der letzten
+              # AUFNAHME_WARTEN_TAGE Tage schon gemeldet hatte.
+              "aufnahme_cross_bestaetigt":   aufnahme_cross_bestaetigt,
               # FIX 2026-08-23 (Nutzerwunsch "werden neue ips beruecksichtigt"):
               # echte Neuanlagen dieses Laufs, OHNE Ledger-Wiederauferstehungen
               # (siehe Zaehler-Kommentar weiter oben).
@@ -3195,6 +3318,61 @@ jobs:
               }, indent=2)
               print(f"state/active_expired_history.json geschrieben "
                     f"({len(_active_expired_last)} Eintraege)")
+
+          # ── FIX AUFNAHME-CROSS-DAY-V2: Warteliste bereinigen + lokal
+          # schreiben (Release-Upload passiert in einem separaten Bash-
+          # Step, siehe "Aufnahme-Warteliste zu Release sichern") ────────
+          # Zeitfenster-Bereinigung bleibt bestehen (natuerliche
+          # Begrenzung: IPs ohne zweite Bestaetigung faellen nach 7 Tagen
+          # ohnehin wieder raus). Zusaetzlich eine grosszuegige
+          # Sicherheitsgrenze (20 Mio.) NUR noch als Schutz gegen
+          # unerwartetes Laufzeit-/Speicher-Wachstum - NICHT mehr gegen
+          # Git-Bloat, da die Datei kein Git-Commit mehr ist.
+          if _aufnahme_wartend:
+              _aufn_cutoff_final = (now - timedelta(days=AUFNAHME_WARTEN_TAGE)).strftime("%Y-%m-%d")
+              _aufn_before = len(_aufnahme_wartend)
+              _aufnahme_wartend = {
+                  _ip: {_f: _d for _f, _d in _feeds.items() if _d >= _aufn_cutoff_final}
+                  for _ip, _feeds in _aufnahme_wartend.items()
+              }
+              _aufnahme_wartend = {_ip: _feeds for _ip, _feeds in _aufnahme_wartend.items() if _feeds}
+              _aufn_zeitfenster_pruned = _aufn_before - len(_aufnahme_wartend)
+              if _aufn_zeitfenster_pruned:
+                  _aufnahme_wartend_dirty = True
+                  print(f"aufnahme_warteliste: {_aufn_zeitfenster_pruned:,} Eintraege "
+                        f"(> {AUFNAHME_WARTEN_TAGE} Tage alt) geprunt")
+
+              if len(_aufnahme_wartend) > AUFNAHME_WARTEN_SICHERHEITSGRENZE:
+                  _aufn_vor_cap = len(_aufnahme_wartend)
+                  _sortiert = sorted(
+                      _aufnahme_wartend.items(),
+                      key=lambda kv: max(kv[1].values()),  # juengstes Feed-Datum dieser IP
+                      reverse=True,
+                  )
+                  _aufnahme_wartend = dict(_sortiert[:AUFNAHME_WARTEN_SICHERHEITSGRENZE])
+                  print(f"aufnahme_warteliste: Sicherheitsgrenze erreicht ({_aufn_vor_cap:,} > "
+                        f"{AUFNAHME_WARTEN_SICHERHEITSGRENZE:,}) - "
+                        f"{_aufn_vor_cap - len(_aufnahme_wartend):,} am laengsten inaktive Eintraege entfernt")
+                  _aufnahme_wartend_dirty = True
+
+          if _aufnahme_wartend_dirty:
+              # Bewusst NICHT write_json_atomic in state/aufnahme_warteliste.json
+              # (das waere wieder eine Git-committete Datei) - stattdessen ein
+              # eigener Dateiname, den NUR der Release-Upload-Step (Bash,
+              # nach diesem Python-Block) anfasst und danach wieder loescht.
+              with open("state/aufnahme_warteliste_upload.json", "w") as _f:
+                  json.dump({
+                      "updated": now_stamp,
+                      "count":   len(_aufnahme_wartend),
+                      "entries": _aufnahme_wartend,
+                  }, _f)
+              print(f"state/aufnahme_warteliste_upload.json geschrieben "
+                    f"({len(_aufnahme_wartend):,} Eintraege, {aufnahme_cross_bestaetigt:,} "
+                    f"IP(s) heute per Kreuzbestaetigung aufgenommen) - wird als "
+                    f"Release-Asset hochgeladen (siehe Step danach)")
+          else:
+              print(f"aufnahme_warteliste: keine Aenderung, kein Upload noetig "
+                    f"({aufnahme_cross_bestaetigt:,} IP(s) heute per Kreuzbestaetigung aufgenommen)")
 
           # ── seen_db speichern ──────────────────────────────────────────────
           # FIX PERF-LAZYSORT: Sammelsortierung VOR dem JSON-Dump. In der
@@ -4002,6 +4180,30 @@ jobs:
                     --notes "Automatisches seen_db-Backup (${ENTRY_COUNT} IPs). Wird bei jedem Lauf ersetzt, kein Git-History-Bestandteil." \
                     --draft=false \
                     2>/dev/null || true
+                  # FIX 2026-08-24 (Nutzerwunsch "vor X ago soll sich wieder
+                  # aktualisieren"): GitHub zeigt in der Sidebar/Release-Liste
+                  # das "published_at"-Datum, das nur beim Uebergang Draft ->
+                  # veroeffentlicht gesetzt wird - "upload --clobber" aendert
+                  # das NICHT (bewusst, das war ja der Sinn des vorherigen
+                  # Fixes: kein Delete mehr, das Release + seine Assets
+                  # bleiben durchgehend bestehen). Um den Anzeige-Zeitstempel
+                  # trotzdem aufzufrischen, kurz auf Draft setzen und SOFORT
+                  # wieder zurueck - loescht dabei nichts (Assets bleiben am
+                  # Release haengen), im Gegensatz zum alten "delete dann
+                  # create"-Bug. Falls der Rueck-Schritt (draft=false)
+                  # fehlschlaegt, explizite Warnung - das Release wuerde dann
+                  # als Draft haengen bleiben (gleiches Symptom wie der
+                  # urspruengliche Draft-Bug), daher NICHT stillschweigend
+                  # mit "|| true" uebergehen wie sonst ueblich.
+                  if gh release edit seen-db-backup --repo "${{ github.repository }}" --draft=true 2>/dev/null; then
+                    if gh release edit seen-db-backup --repo "${{ github.repository }}" --draft=false 2>/dev/null; then
+                      echo "Anzeige-Zeitstempel aufgefrischt (kurzer Draft-Uebergang)"
+                    else
+                      echo "::warning file=update_combined_blacklist.yml::Draft-Toggle fuer seen-db-backup: draft=false nach draft=true fehlgeschlagen - Release koennte als Draft haengen! Bitte manuell in GitHub pruefen (Releases -> seen-db-backup -> 'Publish release')."
+                    fi
+                  else
+                    echo "Draft-Toggle uebersprungen (draft=true fehlgeschlagen) - Release bleibt unveraendert wie zuvor, kein Schaden"
+                  fi
                   # FIX 2026-08-23: "--clobber" ersetzt nur Assets mit
                   # GLEICHEM Dateinamen. Hatte der vorherige Lauf MEHR Parts
                   # als dieser (z.B. seen_db kurzzeitig groesser), wuerden
@@ -4049,6 +4251,82 @@ jobs:
             else
               echo "seen_db zu klein (Bytes=$SIZE, IPs=$ENTRY_COUNT, min=$MIN_ENTRIES) – kein Backup (möglicherweise korrupt)"
             fi
+          fi
+
+      - name: Aufnahme-Warteliste zu Release sichern (komprimiert)
+        # FIX AUFNAHME-CROSS-DAY-V2 (2026-08-24): identisches Muster zum
+        # "Backup seen_db to Repo"-Step oben (gzip + Split + Release-
+        # Asset statt Git-Commit) - hier fuer die Aufnahme-Warteliste
+        # statt fuer seen_db. Laeuft NUR, wenn der Python-Block oben eine
+        # Aenderung hatte (state/aufnahme_warteliste_upload.json existiert
+        # dann) - sonst kein unnoetiger Upload.
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f state/aufnahme_warteliste_upload.json ]; then
+            rm -f state/aufnahme_warteliste.json.gz state/aufnahme_warteliste.json.gz.part*
+            gzip -c state/aufnahme_warteliste_upload.json > state/aufnahme_warteliste.json.gz.tmp
+            split -b 95M -d -a 3 state/aufnahme_warteliste.json.gz.tmp state/aufnahme_warteliste.json.gz.part
+            rm -f state/aufnahme_warteliste.json.gz.tmp state/aufnahme_warteliste_upload.json
+            PART_COUNT=$(ls state/aufnahme_warteliste.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+            echo "Aufnahme-Warteliste komprimiert: ${PART_COUNT} Part(s), gesamt $(du -ch state/aufnahme_warteliste.json.gz.part* | tail -1 | awk '{print $1}')"
+
+            if gh release view aufnahme-warteliste-backup --repo "${{ github.repository }}" >/dev/null 2>&1; then
+              if gh release upload aufnahme-warteliste-backup state/aufnahme_warteliste.json.gz.part* \
+                  --repo "${{ github.repository }}" --clobber; then
+                gh release edit aufnahme-warteliste-backup --repo "${{ github.repository }}" \
+                  --title "Aufnahme-Warteliste ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
+                  --notes "Automatische Warteliste fuer noch nicht kreuzbestaetigte IPs (Aufnahme-Filter). Wird bei jeder Aenderung ersetzt, kein Git-History-Bestandteil." \
+                  --draft=false \
+                  2>/dev/null || true
+                # FIX 2026-08-24: gleicher Zeitstempel-Refresh wie beim
+                # seen-db-backup-Release, siehe ausfuehrlicher Kommentar dort.
+                if gh release edit aufnahme-warteliste-backup --repo "${{ github.repository }}" --draft=true 2>/dev/null; then
+                  if gh release edit aufnahme-warteliste-backup --repo "${{ github.repository }}" --draft=false 2>/dev/null; then
+                    echo "Anzeige-Zeitstempel aufgefrischt (kurzer Draft-Uebergang)"
+                  else
+                    echo "::warning file=update_combined_blacklist.yml::Draft-Toggle fuer aufnahme-warteliste-backup: draft=false nach draft=true fehlgeschlagen - Release koennte als Draft haengen! Bitte manuell in GitHub pruefen."
+                  fi
+                else
+                  echo "Draft-Toggle uebersprungen (draft=true fehlgeschlagen) - Release bleibt unveraendert wie zuvor, kein Schaden"
+                fi
+                # Verwaiste alte Parts aufraeumen (gleicher Grund wie beim
+                # seen_db-Backup: --clobber ersetzt nur gleichnamige Assets).
+                _lokale_parts=$(ls state/aufnahme_warteliste.json.gz.part* 2>/dev/null | xargs -n1 basename)
+                gh release view aufnahme-warteliste-backup --repo "${{ github.repository }}" \
+                    --json assets --jq '.assets[].name' 2>/dev/null \
+                  | grep '^aufnahme_warteliste\.json\.gz\.part' \
+                  | while read -r _remote_asset; do
+                      if ! echo "$_lokale_parts" | grep -qxF "$_remote_asset"; then
+                        echo "Entferne verwaisten alten Part: $_remote_asset"
+                        gh release delete-asset aufnahme-warteliste-backup "$_remote_asset" \
+                          --repo "${{ github.repository }}" --yes 2>/dev/null || true
+                      fi
+                    done
+                echo "Aufnahme-Warteliste als Release-Asset aktualisiert (${PART_COUNT} Part(s))"
+              else
+                echo "::warning file=update_combined_blacklist.yml::Release-Upload der Aufnahme-Warteliste fehlgeschlagen – vorherige Warteliste bleibt garantiert bestehen (kein Delete vorher)"
+              fi
+            else
+              echo "Kein bestehendes aufnahme-warteliste-backup-Release gefunden - lege neu an (erster Lauf)."
+              if gh release create aufnahme-warteliste-backup state/aufnahme_warteliste.json.gz.part* \
+                  --repo "${{ github.repository }}" \
+                  --title "Aufnahme-Warteliste ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
+                  --notes "Automatische Warteliste fuer noch nicht kreuzbestaetigte IPs (Aufnahme-Filter). Wird bei jeder Aenderung ersetzt, kein Git-History-Bestandteil."; then
+                echo "Aufnahme-Warteliste als Release-Asset hochgeladen (${PART_COUNT} Part(s))"
+                gh release edit aufnahme-warteliste-backup --repo "${{ github.repository }}" \
+                  --draft=false 2>/dev/null || true
+              else
+                echo "::warning file=update_combined_blacklist.yml::Erstanlage des Aufnahme-Warteliste-Release fehlgeschlagen"
+              fi
+            fi
+            # Lokale Parts entfernen - duerfen unter keinen Umstaenden vom
+            # "Commit and Push"-Step versehentlich mitgenommen werden (kein
+            # git add dafuer vorgesehen, aber zusaetzliche Absicherung).
+            rm -f state/aufnahme_warteliste.json.gz.part*
+          else
+            echo "Keine Aenderung an der Aufnahme-Warteliste in diesem Lauf - kein Upload noetig"
           fi
 
       - name: Commit and Push
