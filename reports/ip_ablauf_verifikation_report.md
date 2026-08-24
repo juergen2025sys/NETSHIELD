@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-08-24 18:06 CEST (Europe/Berlin)
+Lauf: 2026-08-24 18:27 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -16,7 +16,7 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 ❌ **2 Problem(e) erkannt:**
 
 - ❌ **Rückfall:** 35387 eingefrorene IP(s) stehen trotzdem in aktuellen Output-Dateien - der Anti-Churn-Fix greift hier NICHT wie erwartet.
-- ⚠️ **Niedrige combined-Erfolgsquote:** nur 7/16 erfolgreich (44%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-08-24T09:28 bis 2026-08-24T16:02 UTC in den letzten 16 Läufen (Schwelle: 75%, cancelled nicht mitgezaehlt) - auch wenn der neueste Stand frisch wirkt, lief das System zuletzt nicht zuverlässig.
+- ⚠️ **Niedrige combined-Erfolgsquote:** nur 8/16 erfolgreich (50%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-08-24T09:56 bis 2026-08-24T16:16 UTC in den letzten 16 Läufen (Schwelle: 75%, cancelled nicht mitgezaehlt) - auch wenn der neueste Stand frisch wirkt, lief das System zuletzt nicht zuverlässig.
 
 ## Wiederauftauch-Prüfung
 
@@ -31,20 +31,19 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +151,089 (Anstieg) (jetzt 8,924,038 IPs)
+- Seit letztem Lauf: ➡️ unverändert (jetzt 8,924,038 IPs)
 - Seit Zyklus-Start (2026-08-23): 📉 -472,001 (Rückgang)
 - Letzter combined-Cleanup-Pass: 616,864 IPs durch Ablauf entfernt (davon 616,864 Watchlist/30T, 0 Active/180T), 1,856,916 neue IPs hinzugekommen (davon 1,670,728 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) (zusätzlich: 188,290 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 15,634,512 (Summe letzte 8 Läufe / ~24h)
-- Entfernte IPs (Summe letzter Läufe): 5,218,454 (Summe letzte 8 Läufe / ~24h)
-  - davon Watchlist/30 Tage: 5,218,454 (Summe letzte 8 Läufe / ~24h)
+- Neue IPs (Summe letzter Läufe): 15,523,200 (Summe letzte 8 Läufe / ~24h)
+- Entfernte IPs (Summe letzter Läufe): 5,177,948 (Summe letzte 8 Läufe / ~24h)
+  - davon Watchlist/30 Tage: 5,177,948 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 🔍 7/16 erfolgreich (44%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-08-24T09:28 bis 2026-08-24T16:02 UTC
+- Erfolgsquote letzte 16 combined-Läufe: 🔍 8/16 erfolgreich (50%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-08-24T09:56 bis 2026-08-24T16:16 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-08-23 21:43 CEST (Europe/Berlin) | 9,411,701 | 0 | 0 | 0 |
 | 2026-08-23 22:16 CEST (Europe/Berlin) | 9,411,830 | 0 | 0 | 0 |
 | 2026-08-24 00:14 CEST (Europe/Berlin) | 9,415,235 | 0 | 0 | 0 |
 | 2026-08-24 03:48 CEST (Europe/Berlin) | 9,416,186 | 0 | 0 | 0 |
@@ -64,3 +63,4 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | 2026-08-24 16:20 CEST (Europe/Berlin) | 8,772,949 | 657370 | 0 | 62658 |
 | 2026-08-24 17:12 CEST (Europe/Berlin) | 8,772,949 | 657370 | 0 | 62659 |
 | 2026-08-24 18:06 CEST (Europe/Berlin) | 8,924,038 | 657370 | 0 | 35387 |
+| 2026-08-24 18:27 CEST (Europe/Berlin) | 8,924,038 | 657370 | 0 | 35387 |
