@@ -34,6 +34,16 @@ jobs:
         with:
           persist-credentials: true
 
+      - name: pyflakes installieren (fuer Check 41 - undefined name)
+        # FIX 2026-08-24 (Nutzerwunsch "sowas muesste der checker erkennen"):
+        # Zwei echte NameError-Abstuerze in Produktion (neu_angelegt_ohne_
+        # ledger, now_str/now_stamp) waren beides klassische "Variable vor
+        # Definition benutzt"-Fehler - genau das erkennt pyflakes zuverlaessig,
+        # eigene Regex-Heuristiken (wie die anderen Checks hier) waeren dafuer
+        # unnoetig fehleranfaellig. pyflakes ist auf ubuntu-latest nicht
+        # vorinstalliert.
+        run: pip install --break-system-packages -q pyflakes
+
       - name: Check Python Code in all Workflow Files
         env:
           # FIX #10: Workflow-Dateiname aus github-Kontext ableiten statt hartcodiert.
@@ -512,6 +522,53 @@ jobs:
                           file_warnings.append(msg)
                           warnings.append({"file": fname, "check": "as_completed ohne timeout", "detail": msg})
                           break
+
+                  # ── Check 41: undefined name (pyflakes) ────────────────────
+                  # FIX 2026-08-24 (Nutzerwunsch "sowas muesste der checker
+                  # erkennen"): zwei echte NameError-Abstuerze in Produktion
+                  # (neu_angelegt_ohne_ledger, now_str/now_stamp) waren beide
+                  # klassische "Variable vor Definition benutzt"-Fehler im
+                  # sequenziellen Hauptfluss (kein Funktionsaufruf dazwischen,
+                  # der die Ausfuehrung natuerlich aufschiebt). pyflakes
+                  # erkennt genau diese Klasse zuverlaessig.
+                  # WICHTIGER BEKANNTER FALSCHALARM (manuell verifiziert,
+                  # 2026-08-24): pyflakes markiert Variablen als "undefined",
+                  # wenn sie im KOERPER einer Funktion referenziert werden,
+                  # die TEXTUELL vor der Zuweisung der Variable definiert ist
+                  # - obwohl das voellig gueltiges Python ist (Funktionskoerper
+                  # werden erst beim AUFRUF ausgewertet, nicht bei der
+                  # Definition). Eine reine Einrueckungs-Schwelle reicht dafuer
+                  # NICHT (unsere echten Bugs waren auch eingerueckt - in for/
+                  # if-Bloecken auf Modulebene, nicht in Funktionen) - deshalb
+                  # hier eine echte AST-basierte Pruefung: liegt die Fundzeile
+                  # innerhalb des Zeilenbereichs eines "def"/"async def", wird
+                  # sie unterdrueckt; nur echte Modulebene-Treffer (ausserhalb
+                  # jeder Funktion) werden gemeldet. Mit den zwei realen Bugs
+                  # nachgebaut und bestaetigt, dass sie erkannt worden waeren.
+                  try:
+                      import ast as _ast
+                      from pyflakes.checker import Checker as _PyflakesChecker
+                      from pyflakes.messages import UndefinedName as _UndefinedName
+                      _tree = _ast.parse(dedented)
+                      _funktions_bereiche = []
+                      for _node in _ast.walk(_tree):
+                          if isinstance(_node, (_ast.FunctionDef, _ast.AsyncFunctionDef)):
+                              _ende = getattr(_node, "end_lineno", _node.lineno)
+                              _funktions_bereiche.append((_node.lineno, _ende))
+                      _pf_checker = _PyflakesChecker(_tree, filename=fname)
+                      for _msg in _pf_checker.messages:
+                          if not isinstance(_msg, _UndefinedName):
+                              continue
+                          if any(_start <= _msg.lineno <= _end for _start, _end in _funktions_bereiche):
+                              continue  # innerhalb einer Funktion - bekannter Fehlalarm-Fall, siehe oben
+                          _msg_text = str(_msg).split(":", 3)[-1].strip()
+                          msg = f"Block {i}, Zeile {_msg.lineno}: {_msg_text} – NameError-Risiko (Variable vor Definition benutzt?)"
+                          file_errors.append(msg)
+                          errors.append({"file": fname, "check": "Undefined Name (pyflakes)", "detail": msg})
+                  except SyntaxError:
+                      pass  # Syntaxfehler faengt bereits Check 1 ab, hier nicht doppelt melden
+                  except ImportError:
+                      print("::warning ::pyflakes nicht installiert - Check 41 (undefined name) uebersprungen")
 
               # ── Check 8: git push ohne Retry-Schleife (Shell-Teil) ───────────
               # Korrekte Implementierung: for-Schleife mit mehreren Versuchen + git push darin.
