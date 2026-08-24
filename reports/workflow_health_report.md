@@ -1,15 +1,9 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-23 21:31 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-24 04:36 CEST (Europe/Berlin)
 
-**Workflows:** 28 | ✅ 27 OK | ⚠️ 3 Warnung | ❌ 1 Fehler
+**Workflows:** 28 | ✅ 27 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 6,610 IPs in active fehlen in conf40 (0.887% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
-
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
@@ -20,11 +14,9 @@
 
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 6,610 IPs in active fehlen in conf40 (0.887% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -60,4 +52,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-23 21:31 CEST (Europe/Berlin) | 28 Workflow-Dateien geprüft*
+*Generiert: 2026-08-24 04:36 CEST (Europe/Berlin) | 28 Workflow-Dateien geprüft*
