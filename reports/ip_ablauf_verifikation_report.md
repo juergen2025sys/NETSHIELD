@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-08-25 01:28 CEST (Europe/Berlin)
+Lauf: 2026-08-25 01:52 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -33,9 +33,9 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 - Seit letztem Lauf: ➡️ unverändert (jetzt 8,932,302 IPs)
 - Seit Zyklus-Start (2026-08-23): 📉 -463,737 (Rückgang)
 - Letzter combined-Cleanup-Pass: 616,821 IPs durch Ablauf entfernt (davon 616,821 Watchlist/30T, 0 Active/180T), 1,858,123 neue IPs hinzugekommen (davon 1,671,499 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 43 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 187,897 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 14,866,368 (Summe letzte 8 Läufe / ~24h)
-- Entfernte IPs (Summe letzter Läufe): 4,934,658 (Summe letzte 8 Läufe / ~24h)
-  - davon Watchlist/30 Tage: 4,934,658 (Summe letzte 8 Läufe / ~24h)
+- Neue IPs (Summe letzter Läufe): 14,865,216 (Summe letzte 8 Läufe / ~24h)
+- Entfernte IPs (Summe letzter Läufe): 4,934,630 (Summe letzte 8 Läufe / ~24h)
+  - davon Watchlist/30 Tage: 4,934,630 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
 - Erfolgsquote letzte 16 combined-Läufe: 14/15 erfolgreich (93%, nur echte Erfolge/Fehlschläge gezählt) | zusätzlich 1 cancelled (nicht gewertet), Zeitraum 2026-08-24T14:21 bis 2026-08-24T22:01 UTC
 
@@ -43,7 +43,6 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-08-24 12:48 CEST (Europe/Berlin) | 8,772,949 | 657370 | 0 | 62668 |
 | 2026-08-24 13:36 CEST (Europe/Berlin) | 8,772,949 | 657370 | 0 | 62656 |
 | 2026-08-24 15:05 CEST (Europe/Berlin) | 8,772,949 | 657370 | 0 | 62658 |
 | 2026-08-24 15:44 CEST (Europe/Berlin) | 8,772,949 | 657370 | 0 | 62658 |
@@ -63,3 +62,4 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | 2026-08-25 00:17 CEST (Europe/Berlin) | 8,932,302 | 657348 | 0 | 35410 |
 | 2026-08-25 00:35 CEST (Europe/Berlin) | 8,932,302 | 657348 | 0 | 35410 |
 | 2026-08-25 01:28 CEST (Europe/Berlin) | 8,932,302 | 657348 | 0 | 35410 |
+| 2026-08-25 01:52 CEST (Europe/Berlin) | 8,932,302 | 657348 | 0 | 35410 |
