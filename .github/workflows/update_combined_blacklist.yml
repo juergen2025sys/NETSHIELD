@@ -1858,43 +1858,6 @@ jobs:
                   print(f"WARNUNG: state/active_expired_history.json nicht lesbar: {_ex}")
           _active_expired_last_dirty = False
 
-          # ── FIX AUFNAHME-CROSS-DAY (2026-08-23, Nutzerwunsch): ───────────
-          # Analog zum Anti-Churn-Ledger, aber am "Eingang" statt am
-          # "Ausgang". Bisher: eine IP, die nur von EINEM Feed an EINEM Tag
-          # gemeldet wird (kein HQ-Feed), faellt sofort wieder aus dem
-          # Aufnahme-Filter raus (siehe aufnahme_removed weiter unten) - OHNE
-          # jede Erinnerung. Meldet ein ZWEITER, anderer Feed dieselbe IP an
-          # einem SPAETEREN Tag, wird sie erneut als komplett neu behandelt
-          # (wieder nur 1 Feed) und wieder abgelehnt - das kann sich endlos
-          # wiederholen, obwohl die IP technisch laengst kreuzbestaetigt
-          # waere, nur eben nie am exakt selben Tag.
-          # Fix: abgelehnte IPs werden hier mit {Feed: Datum} gemerkt. Meldet
-          # ein zweiter, ANDERER Feed dieselbe IP innerhalb von
-          # AUFNAHME_WARTEN_TAGE, gilt das als echte Kreuzbestaetigung -
-          # die IP wird dann doch aufgenommen, mit dem vollen Feed-Verlauf.
-          # GROESSEN-RISIKO (Nutzerwunsch nach Ruecksprache): Ein einzelner
-          # Lauf kann >1,6 Mio. abgelehnte IPs produzieren (siehe status.md-
-          # Beobachtung 23.08.2026) - eine unbegrenzte Warteliste waere
-          # potenziell GROESSER als seen_db selbst. Daher bewusst kurzes
-          # Fenster (7 statt z.B. 30 Tage) UND eine harte Obergrenze
-          # (AUFNAHME_WARTEN_MAX_EINTRAEGE) mit Verdraengung der am
-          # laengsten inaktiven Eintraege, statt nur eines der beiden.
-          AUFNAHME_WARTEN_TAGE = 7
-          AUFNAHME_WARTEN_MAX_EINTRAEGE = 2_000_000
-          AUFNAHME_WARTELISTE_FILE = "state/aufnahme_warteliste.json"
-          _aufnahme_wartend = {}
-          if os.path.exists(AUFNAHME_WARTELISTE_FILE):
-              try:
-                  with open(AUFNAHME_WARTELISTE_FILE) as _f:
-                      _aufn_data = json.load(_f)
-                  _aufnahme_wartend = dict(_aufn_data.get("entries", {}))
-                  print(f"state/aufnahme_warteliste.json: "
-                        f"{len(_aufnahme_wartend)} wartende IPs geladen")
-              except Exception as _ex:
-                  print(f"WARNUNG: state/aufnahme_warteliste.json nicht lesbar: {_ex}")
-          _aufnahme_wartend_dirty = False
-          aufnahme_cross_bestaetigt = 0  # Zaehler: heute per Warteliste doch aufgenommen
-
           # jeweils über 502-2945 Netzwerk-Ranges pro IP-Aufruf.
           # Bei 4,5M IPs × (502+502+2945) Checks = ~45 Min verschwendet.
           # Lösung: sortierte Intervall-Listen + bisect → O(N × log K).
@@ -3070,37 +3033,9 @@ jobs:
                   # 100-500k IPs).
                   if not (len(feeds) >= 2 or data.get("hq")
                           or "auto_feed_discovery" in feeds):
-                      # FIX AUFNAHME-CROSS-DAY: vor dem endgueltigen Ablehnen
-                      # in der Warteliste nachsehen, ob ein ANDERER Feed
-                      # dieselbe IP innerhalb der letzten AUFNAHME_WARTEN_TAGE
-                      # Tage schon gemeldet hat - dann zusammen 2+ Feeds,
-                      # also echte Kreuzbestaetigung, auch wenn nicht am
-                      # selben Tag.
-                      _wartend_eintrag = _aufnahme_wartend.get(ip, {})
-                      for _f in feeds:
-                          _wartend_eintrag[_f] = now_day
-                      _cutoff_wartend = (now - timedelta(days=AUFNAHME_WARTEN_TAGE)).strftime("%Y-%m-%d")
-                      _wartend_eintrag = {
-                          _f: _d for _f, _d in _wartend_eintrag.items()
-                          if _d >= _cutoff_wartend
-                      }
-                      if len(_wartend_eintrag) >= 2:
-                          # Kreuzbestaetigt! IP bleibt drin, mit dem vollen
-                          # bekannten Feed-Verlauf (nicht nur den heutigen).
-                          data["feeds"] = sorted(set(feeds) | set(_wartend_eintrag.keys()))
-                          aufnahme_cross_bestaetigt += 1
-                          if ip in _aufnahme_wartend:
-                              del _aufnahme_wartend[ip]
-                              _aufnahme_wartend_dirty = True
-                      else:
-                          if _wartend_eintrag:
-                              _aufnahme_wartend[ip] = _wartend_eintrag
-                          elif ip in _aufnahme_wartend:
-                              del _aufnahme_wartend[ip]
-                          _aufnahme_wartend_dirty = True
-                          aufnahme_removed += 1
-                          _to_drop.append(ip)
-                          continue
+                      aufnahme_removed += 1
+                      _to_drop.append(ip)
+                      continue
                   # 3) Expiry (Sentinel-Guard wie BUG-1)
                   # FIX PERF-EXPIRY: siehe Kommentar bei cutoff_str oben.
                   try:
@@ -3191,11 +3126,6 @@ jobs:
               # nachvollziehbar, warum "neu" und der tatsaechliche seen_db-
               # Trend so stark auseinanderlaufen koennen.
               "aufnahme_removed":            aufnahme_removed,
-              # FIX AUFNAHME-CROSS-DAY: wie viele der oben genannten
-              # "neuen" IPs wurden NICHT durch den Aufnahme-Filter verloren,
-              # weil ein zweiter Feed sie innerhalb der letzten
-              # AUFNAHME_WARTEN_TAGE Tage schon gemeldet hatte.
-              "aufnahme_cross_bestaetigt":   aufnahme_cross_bestaetigt,
               # FIX 2026-08-23 (Nutzerwunsch "werden neue ips beruecksichtigt"):
               # echte Neuanlagen dieses Laufs, OHNE Ledger-Wiederauferstehungen
               # (siehe Zaehler-Kommentar weiter oben).
@@ -3265,51 +3195,6 @@ jobs:
               }, indent=2)
               print(f"state/active_expired_history.json geschrieben "
                     f"({len(_active_expired_last)} Eintraege)")
-
-          # ── FIX AUFNAHME-CROSS-DAY: Warteliste bereinigen + speichern ────
-          # Zwei Schutzmechanismen gegen unbegrenztes Wachstum (siehe
-          # Kommentar beim Laden weiter oben):
-          #   1) Zeitfenster (bereits laufend beim Eintragen durchgesetzt -
-          #      hier nochmal als Sicherheitsnetz, falls ein Eintrag durch
-          #      einen Code-Pfad ohne die Fenster-Pruefung reinkam).
-          #   2) Harte Obergrenze: werden trotzdem mehr als
-          #      AUFNAHME_WARTEN_MAX_EINTRAEGE IPs gehalten, fliegen die am
-          #      laengsten INAKTIVEN zuerst raus (juengstes bekanntes
-          #      Feed-Datum pro IP als Sortierschluessel).
-          if _aufnahme_wartend:
-              _aufn_cutoff_final = (now - timedelta(days=AUFNAHME_WARTEN_TAGE)).strftime("%Y-%m-%d")
-              _aufn_before = len(_aufnahme_wartend)
-              _aufnahme_wartend = {
-                  _ip: {_f: _d for _f, _d in _feeds.items() if _d >= _aufn_cutoff_final}
-                  for _ip, _feeds in _aufnahme_wartend.items()
-              }
-              _aufnahme_wartend = {_ip: _feeds for _ip, _feeds in _aufnahme_wartend.items() if _feeds}
-              _aufn_zeitfenster_pruned = _aufn_before - len(_aufnahme_wartend)
-              if _aufn_zeitfenster_pruned:
-                  _aufnahme_wartend_dirty = True
-
-              if len(_aufnahme_wartend) > AUFNAHME_WARTEN_MAX_EINTRAEGE:
-                  _aufn_vor_cap = len(_aufnahme_wartend)
-                  _sortiert = sorted(
-                      _aufnahme_wartend.items(),
-                      key=lambda kv: max(kv[1].values()),  # juengstes Feed-Datum dieser IP
-                      reverse=True,
-                  )
-                  _aufnahme_wartend = dict(_sortiert[:AUFNAHME_WARTEN_MAX_EINTRAEGE])
-                  print(f"aufnahme_warteliste: Obergrenze erreicht ({_aufn_vor_cap} > "
-                        f"{AUFNAHME_WARTEN_MAX_EINTRAEGE}) - "
-                        f"{_aufn_vor_cap - len(_aufnahme_wartend)} am laengsten inaktive Eintraege entfernt")
-                  _aufnahme_wartend_dirty = True
-
-          if _aufnahme_wartend_dirty:
-              write_json_atomic(AUFNAHME_WARTELISTE_FILE, {
-                  "updated": now_stamp,
-                  "count":   len(_aufnahme_wartend),
-                  "entries": _aufnahme_wartend,
-              }, indent=2)
-              print(f"state/aufnahme_warteliste.json geschrieben "
-                    f"({len(_aufnahme_wartend)} Eintraege, {aufnahme_cross_bestaetigt} "
-                    f"IP(s) heute per Kreuzbestaetigung aufgenommen)")
 
           # ── seen_db speichern ──────────────────────────────────────────────
           # FIX PERF-LAZYSORT: Sammelsortierung VOR dem JSON-Dump. In der
@@ -4257,9 +4142,6 @@ jobs:
           git add state/watchlist_expired_history.json 2>/dev/null || true
           # FIX CHURN-ACTIVE: gleiches Prinzip fuer den Active-Pfad-Ledger.
           git add state/active_expired_history.json 2>/dev/null || true
-          # FIX AUFNAHME-CROSS-DAY: Warteliste fuer abgelehnte, aber
-          # potenziell kreuzbestaetigbare IPs.
-          git add state/aufnahme_warteliste.json 2>/dev/null || true
           # CHANGE BACKUP-OFF-GIT: seen_db-Backup liegt jetzt als GitHub-Release-Asset
           # (siehe "Backup seen_db to Repo"-Step), nicht mehr im Git-Index. Falls aus
           # einem AELTEREN Commit noch Backup-Dateien im Index stehen (Migration von

@@ -814,17 +814,6 @@ jobs:
                       f" (davon {cleanup_stats['aufnahme_removed']:,} direkt wieder "
                       f"durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ)"
                   )
-              # FIX AUFNAHME-CROSS-DAY (Anzeige): wie viele der oben
-              # abgelehnten (bzw. in frueheren Laeufen abgelehnten) IPs
-              # heute per Warteliste doch noch aufgenommen wurden, weil
-              # ein zweiter, anderer Feed sie innerhalb von 7 Tagen
-              # ebenfalls gemeldet hat - echte Kreuzbestaetigung, nur eben
-              # nicht am selben Tag.
-              if cleanup_stats.get("aufnahme_cross_bestaetigt"):
-                  cleanup_text += (
-                      f" | {cleanup_stats['aufnahme_cross_bestaetigt']:,} IPs heute "
-                      f"per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen"
-                  )
               _extra = []
               if cleanup_stats.get("wl_cleanup_count"):
                   _extra.append(f"{cleanup_stats['wl_cleanup_count']:,} Whitelist-Bereinigung")
