@@ -30,5 +30,16 @@ jobs:
       - name: Security hygiene (SHA-Pinning, atomic writes, SSRF)
         run: python3 scripts/check_security_hygiene.py
 
+      - name: defusedxml installieren (fuer XML-Feed-Parsing-Tests)
+        # FIX BUG-XML-FALLBACK-FILTER (2026-08-25): ohne dieses Paket landet
+        # parse_feed_entries() beim XML-Parsen immer im Regex-Fallback-Pfad
+        # (siehe Kommentar in netshield_common.py) - der ist zwar inzwischen
+        # ebenfalls gegen die Gateway/Resolver-Ausschlussliste abgesichert,
+        # aber der eigentliche ElementTree-Pfad (ueber defusedxml) sollte
+        # hier trotzdem mitgetestet werden, nicht nur der Fallback.
+        run: |
+          pip install --quiet --disable-pip-version-check --break-system-packages defusedxml 2>/dev/null \
+            || pip install --quiet --disable-pip-version-check defusedxml
+
       - name: Run Unit Tests
         run: python3 -m unittest discover -s tests -v
