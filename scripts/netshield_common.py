@@ -1087,7 +1087,36 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
     if _xml_plausible:
         xml_fragments = []
         try:
-            import xml.etree.ElementTree as _ET
+            # FIX SEC-XML-BILLION-LAUGHS (2026-08-25, per Review gefunden):
+            # xml.etree.ElementTree.fromstring() verarbeitet interne Entity-
+            # Definitionen ohne Begrenzung - ein boesartiger/kompromittierter
+            # Feed koennte mit einem winzigen "Billion Laughs"-Payload (ein
+            # paar hundert Bytes, verschachtelte interne Entities) den
+            # Speicher des Runners exponentiell aufblaehen (empirisch
+            # getestet: 313 Bytes -> 3000 Zeichen bei nur 4 Ebenen: bei den
+            # ueblichen ~9 Ebenen eines echten Angriffs reicht das bis in
+            # den GB-Bereich). Da hier garantiert EXTERN abgerufene, nicht
+            # vertrauenswuerdige Feed-Inhalte geparst werden (siehe Kommentar
+            # unten zu pfSense/OPNsense-Fragmenten), zaehlt das als echtes
+            # Denial-of-Service-Risiko gegen die eigene Pipeline - kein
+            # Datenklau (klassisches XXE/externe Entities ist bei ElementTree
+            # bereits von Haus aus nicht moeglich), aber ein Runner-Crash-
+            # Risiko. Fix: defusedxml (speziell dafuer gebaut) bevorzugt
+            # verwenden; falls das Paket in der jeweiligen Laufzeitumgebung
+            # nicht installiert ist, KEIN unsicherer Fallback auf das
+            # verwundbare xml.etree - stattdessen wird der Fragment-Extrakt
+            # bewusst uebersprungen und faellt auf die ohnehin vorhandene
+            # Regex-Fallback-Logik im except-Zweig unten zurueck (kein
+            # kompletter Ausfall, nur diese eine Extraktionsmethode fehlt).
+            try:
+                import defusedxml.ElementTree as _ET
+            except ImportError:
+                raise RuntimeError(
+                    "defusedxml nicht installiert - ueberspringe XML-"
+                    "Elementbaum-Extraktion zugunsten der Regex-Fallback-"
+                    "Logik unten, statt das verwundbare xml.etree.ElementTree "
+                    "auf ungeprueften externen Feed-Daten zu verwenden"
+                )
             root = _ET.fromstring(stripped)
             for elem in root.iter():
                 tag = str(elem.tag).lower()
