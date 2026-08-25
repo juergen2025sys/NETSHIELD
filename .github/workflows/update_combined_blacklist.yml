@@ -1932,19 +1932,32 @@ jobs:
           if _aufn_backup_parts:
               try:
                   import gzip as _aufn_gzip
-                  _aufn_tmp_gz = "state/aufnahme_warteliste_restore.json.gz"
-                  with open(_aufn_tmp_gz, "wb") as _out:
-                      for _part in _aufn_backup_parts:
-                          with open(_part, "rb") as _pf:
-                              while True:
-                                  _chunk = _pf.read(1024 * 1024)
-                                  if not _chunk:
-                                      break
-                                  _out.write(_chunk)
-                  with _aufn_gzip.open(_aufn_tmp_gz, "rt", encoding="utf-8") as _f:
-                      _aufn_data = json.load(_f)
+                  import io as _aufn_io
+                  # FIX SEC-HYGIENE-ATOMIC (2026-08-25, von check_security_
+                  # hygiene.py im echten Betrieb gemeldet): vorher wurden die
+                  # heruntergeladenen Parts erst zu einer temporaeren Datei
+                  # auf der Platte zusammengefuegt (nicht-atomarer open(...,
+                  # "wb")) und dann wieder gelesen + geloescht. Da diese
+                  # Datei ohnehin nur ein fluechtiger Zwischenspeicher ist
+                  # (sofort danach gelesen und geloescht, nie ein
+                  # persistenter Output), gibt's eine sauberere Loesung als
+                  # "atomar schreiben": gar nicht erst auf die Platte
+                  # schreiben. Die Parts werden jetzt direkt im Speicher
+                  # zusammengefuegt (BytesIO) - kein Schreibvorgang, kein
+                  # Korruptionsrisiko bei einem Absturz mittendrin, kein
+                  # Aufraeumen noetig.
+                  _aufn_buffer = _aufn_io.BytesIO()
+                  for _part in _aufn_backup_parts:
+                      with open(_part, "rb") as _pf:
+                          while True:
+                              _chunk = _pf.read(1024 * 1024)
+                              if not _chunk:
+                                  break
+                              _aufn_buffer.write(_chunk)
+                  _aufn_buffer.seek(0)
+                  with _aufn_gzip.GzipFile(fileobj=_aufn_buffer, mode="rb") as _gz:
+                      _aufn_data = json.loads(_gz.read().decode("utf-8"))
                   _aufnahme_wartend = dict(_aufn_data.get("entries", {}))
-                  os.remove(_aufn_tmp_gz)
                   print(f"aufnahme_warteliste (Release-Asset): "
                         f"{len(_aufnahme_wartend):,} wartende IPs geladen "
                         f"({len(_aufn_backup_parts)} Part(s))")
@@ -3445,12 +3458,20 @@ jobs:
               # (das waere wieder eine Git-committete Datei) - stattdessen ein
               # eigener Dateiname, den NUR der Release-Upload-Step (Bash,
               # nach diesem Python-Block) anfasst und danach wieder loescht.
-              with open("state/aufnahme_warteliste_upload.json", "w") as _f:
-                  json.dump({
-                      "updated": now_stamp,
-                      "count":   len(_aufnahme_wartend),
-                      "entries": _aufnahme_wartend,
-                  }, _f)
+              # FIX SEC-HYGIENE-ATOMIC (2026-08-25, von check_security_
+              # hygiene.py im echten Betrieb gemeldet): war vorher direktes
+              # open(..., "w") - anders als beim reinen Zwischenspeicher
+              # oben ueberlebt DIESE Datei bewusst das Ende dieses Python-
+              # Blocks (wird vom SPAETEREN Bash-Step "Aufnahme-Warteliste zu
+              # Release sichern" gelesen) - ein Crash mitten im Schreiben
+              # wuerde dort eine kaputte/halbe Datei vorfinden und
+              # moeglicherweise korrupte Daten hochladen. write_json_atomic
+              # (tempfile + fsync + os.replace) verhindert das.
+              write_json_atomic("state/aufnahme_warteliste_upload.json", {
+                  "updated": now_stamp,
+                  "count":   len(_aufnahme_wartend),
+                  "entries": _aufnahme_wartend,
+              })
               print(f"state/aufnahme_warteliste_upload.json geschrieben "
                     f"({len(_aufnahme_wartend):,} Eintraege, {aufnahme_cross_bestaetigt:,} "
                     f"IP(s) heute per Kreuzbestaetigung aufgenommen) - wird als "
