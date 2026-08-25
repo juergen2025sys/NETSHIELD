@@ -3366,9 +3366,19 @@ jobs:
                         f"legitim befoerderte IPs rueckwirkend bereinigt (waren nicht Teil "
                         f"des heutigen Ingest-Loops)")
 
-          # 400 Tage bewusst > EXPIRY_DAYS (180) gewaehlt, damit auch Active-IPs,
-          # die zwischenzeitlich mal auf dem Watchlist-Pfad waren, genug Puffer haben.
-          WL_HISTORY_PRUNE_DAYS = 400
+          # FIX PRUNE-SPLIT (2026-08-25, Nutzerwunsch "400 Tage sind zu
+          # lange" fuer den Watchlist-Ledger, wegen Dateigroesse - siehe
+          # state/watchlist_expired_history.json, 21+ MB): vorher teilten
+          # sich Watchlist- und Active-Ledger dieselbe Prune-Konstante. Der
+          # Active-Ledger braucht wegen seines 180-Tage-Fensters zwingend
+          # einen deutlich laengeren Puffer als der Watchlist-Ledger (30-
+          # Tage-Fenster) - ein einheitlich verkuerzter Wert haette beim
+          # Active-Pfad fast exakt den urspruenglichen BUG-CHURN-ACTIVE
+          # zurueckgebracht (IP bekommt nach Speicher-Verlust von nur EINEM
+          # HQ-Feed wieder volle 180 Tage). Deshalb jetzt zwei getrennte
+          # Konstanten statt einer gemeinsamen.
+          WL_HISTORY_PRUNE_DAYS = 14
+          ACTIVE_HISTORY_PRUNE_DAYS = 400
           if _wl_expired_first:
               _wl_prune_cutoff_str = (now - timedelta(days=WL_HISTORY_PRUNE_DAYS)).strftime("%Y-%m-%d")
               _wl_before = len(_wl_expired_first)
@@ -3392,12 +3402,11 @@ jobs:
 
           # ── FIX CHURN-ACTIVE: Active-Ledger speichern + pruning ─────────────
           # Gleiches Pruning-Prinzip wie beim Watchlist-Ledger, aber mit
-          # laengerem Horizont: der Active-Ledger schuetzt vor Reset ueber ein
-          # 180-Tage-Fenster, muss also entsprechend laenger vorhalten. 400
-          # Tage > 180 Tage EXPIRY_DAYS gewaehlt (gleicher Puffer-Gedanke wie
-          # beim Watchlist-Pruning oben).
+          # eigener, deutlich laengerer Konstante (ACTIVE_HISTORY_PRUNE_DAYS,
+          # siehe Kommentar oben) - der Active-Ledger schuetzt vor Reset ueber
+          # ein 180-Tage-Fenster, muss also entsprechend laenger vorhalten.
           if _active_expired_last:
-              _active_prune_cutoff_str = (now - timedelta(days=WL_HISTORY_PRUNE_DAYS)).strftime("%Y-%m-%d")
+              _active_prune_cutoff_str = (now - timedelta(days=ACTIVE_HISTORY_PRUNE_DAYS)).strftime("%Y-%m-%d")
               _active_before = len(_active_expired_last)
               _active_expired_last = {
                   _ip: _d for _ip, _d in _active_expired_last.items()
@@ -3407,7 +3416,7 @@ jobs:
               if _active_pruned:
                   _active_expired_last_dirty = True
                   print(f"active_expired_history: {_active_pruned} Eintraege "
-                        f"(> {WL_HISTORY_PRUNE_DAYS} Tage alt) geprunt")
+                        f"(> {ACTIVE_HISTORY_PRUNE_DAYS} Tage alt) geprunt")
           if _active_expired_last_dirty:
               write_json_atomic(ACTIVE_EXPIRED_HISTORY_FILE, {
                   "updated": now_stamp,
