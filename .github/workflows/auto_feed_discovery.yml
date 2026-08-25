@@ -94,6 +94,15 @@ jobs:
             netshield-seen-db-v1-
             netshield-seen-db-
 
+      - name: defusedxml sicherstellen (fuer sichere XML-Feed-Extraktion)
+        # FIX SEC-XML-BILLION-LAUGHS (2026-08-25): siehe ausfuehrlicher
+        # Kommentar in netshield_common.py bei parse_feed_entries(). Fehlt
+        # das Paket, faellt der Code automatisch auf eine sichere Regex-
+        # Extraktion zurueck - kein Absturz, nur etwas ungenauer.
+        run: |
+          pip install --quiet --disable-pip-version-check --break-system-packages defusedxml 2>/dev/null \
+            || pip install --quiet --disable-pip-version-check defusedxml
+
       - name: Discover, Validate and Ingest IP Feeds
         if: steps.idempotency.outputs.already_ran != 'true'
         env:

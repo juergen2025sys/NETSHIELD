@@ -486,6 +486,14 @@ jobs:
           # pip-Install-Nebeneffekt ist hier unkritisch.
           pip install --quiet --disable-pip-version-check --break-system-packages ijson 2>/dev/null \
             || pip install --quiet --disable-pip-version-check ijson
+          # FIX SEC-XML-BILLION-LAUGHS (2026-08-25): defusedxml wird von
+          # parse_feed_entries() in netshield_common.py bevorzugt verwendet,
+          # um extern abgerufene Feed-Inhalte sicher zu parsen (Schutz vor
+          # XML-Entity-Expansion-Angriffen). Fehlt das Paket, faellt der
+          # Code automatisch auf eine sichere Regex-Extraktion zurueck
+          # (siehe Kommentar dort) - kein Absturz, nur etwas ungenauer.
+          pip install --quiet --disable-pip-version-check --break-system-packages defusedxml 2>/dev/null \
+            || pip install --quiet --disable-pip-version-check defusedxml
           echo "BASH-DIAG-A: python3-Prozess wird gestartet um $(date -u +%Y-%m-%dT%H:%M:%S.%6NZ)"
           export _PY_LAUNCH_EPOCH="$(date -u +%s.%N)"
           python3 << 'EOF'
