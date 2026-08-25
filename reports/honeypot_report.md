@@ -1,42 +1,42 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-08-25 07:58 CEST (Berlin)
+**Aktualisiert:** 2026-08-25 09:07 CEST (Berlin)
 
 ---
 | Quelle | IPs | Neu | Frische |
 |---|---|---|---|
 | ✅ `ipsum_level4` | 4937 | +0 | 🟢 aktuell (seit 2026-08-25 03:11 CEST (Berlin)) |
-| ✅ `dshield_1d` | 27 | +0 | 🔴 EINGEFROREN (seit 2026-08-24 13:02 CEST (Berlin), 34 Laeufe unveraendert) |
-| ✅ `blocklist_de_bots` | 4559 | +29 | 🟢 neu (2026-08-25 07:58 CEST (Berlin)) |
-| ✅ `blocklist_de_bruteforce` | 1104 | +5 | 🟢 neu (2026-08-25 07:58 CEST (Berlin)) |
-| ✅ `jamesbrine_honeypot` | 34733 | +5732 | 🟢 neu (2026-08-25 07:58 CEST (Berlin)) |
+| ✅ `dshield_1d` | 27 | +0 | 🔴 EINGEFROREN (seit 2026-08-24 13:02 CEST (Berlin), 35 Laeufe unveraendert) |
+| ✅ `blocklist_de_bots` | 4494 | +54 | 🟢 neu (2026-08-25 09:07 CEST (Berlin)) |
+| ✅ `blocklist_de_bruteforce` | 1096 | +19 | 🟢 neu (2026-08-25 09:07 CEST (Berlin)) |
+| ✅ `jamesbrine_honeypot` | 34733 | +0 | 🟢 aktuell (seit 2026-08-25 07:58 CEST (Berlin)) |
 | ✅ `honeysec_ip_all` | 50816 | +0 | 🟢 aktuell (seit 2026-08-25 07:05 CEST (Berlin)) |
-| ✅ `turris_greylist` | 9142 | +0 | 🟡 traege (seit 2026-08-25 00:17 CEST (Berlin), 15 Laeufe unveraendert) |
+| ✅ `turris_greylist` | 9142 | +0 | 🟡 traege (seit 2026-08-25 00:17 CEST (Berlin), 16 Laeufe unveraendert) |
 | ✅ `sblam` | 947 | +0 | 🟢 aktuell (seit 2026-08-25 05:27 CEST (Berlin)) |
-| ✅ `timgerstel_suspicious_ips` | 2017 | +1 | 🟢 neu (2026-08-25 07:58 CEST (Berlin)) |
-| ✅ `sniffcat` | 6853 | +73 | 🟢 neu (2026-08-25 07:58 CEST (Berlin)) |
-| ✅ `siberkapan` | 41709 | +9 | 🟢 neu (2026-08-25 07:58 CEST (Berlin)) |
-| ✅ `reportedip` | 9966 | +4 | 🟢 neu (2026-08-25 07:58 CEST (Berlin)) |
+| ✅ `timgerstel_suspicious_ips` | 2019 | +2 | 🟢 neu (2026-08-25 09:07 CEST (Berlin)) |
+| ✅ `sniffcat` | 6983 | +131 | 🟢 neu (2026-08-25 09:07 CEST (Berlin)) |
+| ✅ `siberkapan` | 41727 | +18 | 🟢 neu (2026-08-25 09:07 CEST (Berlin)) |
+| ✅ `reportedip` | 9966 | +6 | 🟢 neu (2026-08-25 09:07 CEST (Berlin)) |
 | ✅ `ipinsights` | 632965 | +0 | 🟢 aktuell (seit 2026-08-25 06:43 CEST (Berlin)) |
-| ✅ `opendbl_darknet` | 37756 | +1116 | 🟢 neu (2026-08-25 07:58 CEST (Berlin)) |
-| ✅ `opendbl_all_threats` | 55071 | +1160 | 🟢 neu (2026-08-25 07:58 CEST (Berlin)) |
+| ✅ `opendbl_darknet` | 37985 | +1240 | 🟢 neu (2026-08-25 09:07 CEST (Berlin)) |
+| ✅ `opendbl_all_threats` | 55158 | +1924 | 🟢 neu (2026-08-25 09:07 CEST (Berlin)) |
 | ✅ `bitwire_ip_list_fetch` | 34825 | +0 | 🟢 aktuell (seit 2026-08-25 06:09 CEST (Berlin)) |
 | ✅ `configserverapps_365d` | 66290 | +0 | 🟢 aktuell (seit 2026-08-25 07:05 CEST (Berlin)) |
-| ✅ `kamalmjt_emerging_attackers` | 63839 | +0 | 🔴 EINGEFROREN (seit 2026-08-24 01:45 CEST (Berlin), 47 Laeufe unveraendert) |
-| ✅ `tn3w_ipblocklist` | 384741 | +0 | 🔴 EINGEFROREN (seit 2026-08-20 21:03 CEST (Berlin), 188 Laeufe unveraendert) |
-| ✅ `ipblocklist_eu` | 1053283 | +298 | 🟢 neu (2026-08-25 07:58 CEST (Berlin)) |
+| ✅ `kamalmjt_emerging_attackers` | 63839 | +0 | 🔴 EINGEFROREN (seit 2026-08-24 01:45 CEST (Berlin), 48 Laeufe unveraendert) |
+| ✅ `tn3w_ipblocklist` | 384741 | +0 | 🔴 EINGEFROREN (seit 2026-08-20 21:03 CEST (Berlin), 189 Laeufe unveraendert) |
+| ✅ `ipblocklist_eu` | 1053506 | +528 | 🟢 neu (2026-08-25 09:07 CEST (Berlin)) |
 | ✅ `zenmorro_scanner_list` | 1488 | +0 | 🟢 aktuell (seit 2026-08-25 06:09 CEST (Berlin)) |
 | ✅ `mattyroberts_threatlist` | 30797 | +0 | 🟢 aktuell (seit 2026-08-25 04:00 CEST (Berlin)) |
-| ✅ `threatfox_export` | 19675 | +0 | 🟢 aktuell (seit 2026-08-25 07:05 CEST (Berlin)) |
-| ✅ `urlhaus_export` | 4840 | +1 | 🟢 neu (2026-08-25 07:58 CEST (Berlin)) |
+| ✅ `threatfox_export` | 19677 | +2 | 🟢 neu (2026-08-25 09:07 CEST (Berlin)) |
+| ✅ `urlhaus_export` | 4847 | +7 | 🟢 neu (2026-08-25 09:07 CEST (Berlin)) |
 | ✅ `criminalip_c2` | 50 | +0 | 🟢 aktuell (seit 2026-08-25 03:11 CEST (Berlin)) |
 | ✅ `haas_ssh` | 1491 | +0 | 🟢 aktuell (seit 2026-08-25 03:11 CEST (Berlin)) |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honeypot-IPs | **1787319** |
-| Neu | **+2332** |
-| Entfernt | **-2263** |
+| Gesamt Honeypot-IPs | **1787830** |
+| Neu | **+2873** |
+| Entfernt | **-2362** |
 
 ---
-*Generiert: 2026-08-25 07:58 CEST (Berlin)*
+*Generiert: 2026-08-25 09:07 CEST (Berlin)*
