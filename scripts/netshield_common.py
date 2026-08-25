@@ -1135,8 +1135,28 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
                     )):
                         xml_fragments.append(attr_value)
         except Exception:
-            # Auch einfache pfSense-/OPNsense-XML-Fragmente ohne Root-Element.
-            xml_fragments.extend(re.findall(r">([^<]{1,500})<", stripped))
+            # FIX BUG-XML-FALLBACK-FILTER (2026-08-25, von einem echten
+            # Unit-Test in der CI gefangen: run_tests.yml hat KEIN pip
+            # install defusedxml - anders als die beiden betroffenen
+            # Workflows update_combined_blacklist.yml/auto_feed_discovery.yml,
+            # wo ich es ergaenzt hatte. Faellt defusedxml als ImportError
+            # aus, landet der Code IMMER in diesem except-Zweig - und der
+            # alte Regex-Fallback kannte die Gateway/Resolver/Nameserver-
+            # Ausschlussliste von oben gar nicht, sondern extrahierte JEDEN
+            # Text zwischen "<" und ">" blind. Ergebnis im Test: der
+            # <gateway>-Wert 23.129.64.6 wurde faelschlich mit aufgenommen.
+            # Fix: Tag-Name UND Inhalt gemeinsam erfassen, dieselbe
+            # Ausschlussliste wie oben anwenden - Verteidigung in der Tiefe,
+            # damit dieser Fallback-Pfad auch OHNE defusedxml sicher bleibt
+            # (zusaetzlich zur separaten Installation in run_tests.yml).
+            for _xm in re.finditer(r'<([A-Za-z_][A-Za-z0-9_.:-]*)[^<>]{0,256}>([^<]{1,500})<', stripped):
+                _tag_name, _content = _xm.group(1), _xm.group(2)
+                if any(bad in _tag_name.lower() for bad in (
+                    "whitelist", "allowlist", "trusted", "ignore",
+                    "gateway", "resolver", "nameserver",
+                )):
+                    continue
+                xml_fragments.append(_content)
             xml_fragments.extend(re.findall(
                 r"\b(?:address|ip|host|indicator|ioc|value)\s*=\s*[\"']([^\"']+)[\"']",
                 stripped,
