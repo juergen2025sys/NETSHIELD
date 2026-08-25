@@ -3302,6 +3302,49 @@ jobs:
           # entfernt - wird eine so alte IP doch nochmal gesehen, bekommt sie
           # einmalig wieder ein frisches "first" (kurzes Wiederaufflackern moeglich,
           # aber selten und deutlich seltener als vorher bei JEDEM Wiedereintritt).
+          # ── FIX BUG-STALE-LEDGER-RETROAKTIV (2026-08-25, im echten Betrieb
+          # entdeckt - Rueckfall-Zaehler blieb ueber mehrere erfolgreiche
+          # Laeufe hinweg konstant bei 35.410, exakt dieselben IPs): Der
+          # reaktive Fix von gestern (Ledger-Eintrag loeschen, wenn eine IP
+          # HEUTE per HQ-Feed/Zweitbestaetigung erneut verarbeitet wird)
+          # greift nur, wenn die IP TATSAECHLICH im heutigen Ingest-Loop
+          # auftaucht (ip_feeds_today). Eine IP, die schon VOR diesem Fix
+          # legitim befoerdert wurde und seither von KEINEM Feed mehr
+          # gemeldet wird, wird vom Ingest-Loop gar nicht mehr beruehrt -
+          # ihr veralteter Ledger-Eintrag blieb dadurch fuer immer stehen,
+          # obwohl sie laengst korrekt (mit frischem Datum) in seen_db
+          # steht. Fix: zusaetzlicher REAKTIVER Sweep, unabhaengig vom
+          # heutigen Ingest, der JEDEN Ledger-Eintrag gegen den aktuellen
+          # seen_db-Stand prueft - stimmt das gespeicherte Anker-Datum
+          # nicht mehr mit dem eingefrorenen ueberein, wurde die IP
+          # zwischenzeitlich legitim neu angelegt (das eingefrorene Datum
+          # wird nur bei einer echten Ledger-Wiederauferstehung wieder
+          # verwendet, nie bei einer legitimen Neubestaetigung).
+          if _wl_expired_first:
+              _wl_retro_removed = 0
+              for _frozen_ip in list(_wl_expired_first.keys()):
+                  _aktueller_eintrag = db.get(_frozen_ip)
+                  if _aktueller_eintrag is not None and _aktueller_eintrag.get("first") != _wl_expired_first[_frozen_ip]:
+                      del _wl_expired_first[_frozen_ip]
+                      _wl_retro_removed += 1
+              if _wl_retro_removed:
+                  _wl_expired_first_dirty = True
+                  print(f"watchlist_expired_history: {_wl_retro_removed} bereits frueher "
+                        f"legitim befoerderte IPs rueckwirkend bereinigt (waren nicht Teil "
+                        f"des heutigen Ingest-Loops)")
+          if _active_expired_last:
+              _active_retro_removed = 0
+              for _frozen_ip in list(_active_expired_last.keys()):
+                  _aktueller_eintrag = db.get(_frozen_ip)
+                  if _aktueller_eintrag is not None and _aktueller_eintrag.get("last") != _active_expired_last[_frozen_ip]:
+                      del _active_expired_last[_frozen_ip]
+                      _active_retro_removed += 1
+              if _active_retro_removed:
+                  _active_expired_last_dirty = True
+                  print(f"active_expired_history: {_active_retro_removed} bereits frueher "
+                        f"legitim befoerderte IPs rueckwirkend bereinigt (waren nicht Teil "
+                        f"des heutigen Ingest-Loops)")
+
           # 400 Tage bewusst > EXPIRY_DAYS (180) gewaehlt, damit auch Active-IPs,
           # die zwischenzeitlich mal auf dem Watchlist-Pfad waren, genug Puffer haben.
           WL_HISTORY_PRUNE_DAYS = 400
