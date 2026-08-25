@@ -1162,6 +1162,58 @@ jobs:
                   file_warnings.append(msg)
                   warnings.append({"file": fname, "check": "Permissions zu breit", "detail": msg})
 
+              # ── Check 42: Permissions-Audit, Gegenrichtung (zu ENG) ──────────
+              # FIX 2026-08-25 (Nutzerwunsch "Permission-Scoping systematisch
+              # durch alle Dateien"): Check 27 oben prueft nur "zu BREITE"
+              # Rechte (contents:write ohne erkennbaren Commit). Die
+              # Gegenrichtung fehlte bisher: ein Job nutzt "gh issue create"
+              # o.ae., hat aber gar kein issues:write in seinen EFFEKTIVEN
+              # Permissions (Job-Level ueberschreibt Top-Level KOMPLETT,
+              # falls vorhanden - nicht additiv!). Bei einer manuellen
+              # Pruefung aller 28 Workflow-Dateien (Job-Level-Permissions
+              # gegen tatsaechlich verwendete privilegierte gh-Befehle
+              # abgeglichen) wurden keine echten Luecken gefunden - dieser
+              # Check haelt das dauerhaft so, statt einer einmaligen Momentaufnahme.
+              # Deckt bewusst nur issues/pull-requests ab (gh issue/gh pr) -
+              # actions:write (gh api .../dispatches, gh run cancel) hat kein
+              # einheitliches "gh api <verb>"-Muster wie issue/pr und wurde
+              # nur manuell geprueft, nicht automatisiert.
+              # Heuristik gegen Fehlalarme wie "'gh pr merge' in content" (ein
+              # Python-String-Vergleich, kein echter Befehl - siehe FIX
+              # FP-GHMERGE-Kommentar bei Check 27): ein "gh"-Aufruf zaehlt nur
+              # als echter Befehl, wenn ihm KEIN Anführungszeichen unmittelbar
+              # vorausgeht.
+              try:
+                  import yaml as _yaml42
+                  _cfg42 = _yaml42.safe_load(content)
+                  _top_perms42 = _cfg42.get("permissions") if isinstance(_cfg42, dict) else None
+                  # Bewusst nur "issue"/"pr" - fuer "gh api ...dispatches" bzw.
+                  # "gh run cancel" (actions:write) braeuchte es eine eigene,
+                  # andere Erkennung (kein einheitliches "gh api <verb>"-Muster
+                  # wie bei issue/pr) - das manuell geprueft, hier nicht
+                  # automatisiert, um keinen halbfunktionierenden Check zu haben.
+                  _GH_CMD_RE42 = re.compile(r'(?<![\'"])\bgh\s+(issue|pr)\s+(create|comment|close|edit|merge)\b')
+                  _SCOPE_MAP42 = {"issue": "issues", "pr": "pull-requests"}
+                  for _job_name42, _job42 in (_cfg42.get("jobs") or {}).items():
+                      if not isinstance(_job42, dict):
+                          continue
+                      _job_perms42 = _job42.get("permissions", _top_perms42)
+                      _job_text42 = _yaml42.dump(_job42)
+                      _fehlende_scopes42 = set()
+                      for _m42 in _GH_CMD_RE42.finditer(_job_text42):
+                          _scope42 = _SCOPE_MAP42[_m42.group(1)]
+                          _hat_scope42 = isinstance(_job_perms42, dict) and _job_perms42.get(_scope42) == "write"
+                          if not _hat_scope42:
+                              _fehlende_scopes42.add(_scope42)
+                      if _fehlende_scopes42:
+                          msg = (f"Job '{_job_name42}': nutzt gh-Befehle die {sorted(_fehlende_scopes42)} "
+                                 f"brauchen, aber effektive permissions haben das nicht auf 'write' - "
+                                 f"Aufruf wuerde mit 403 fehlschlagen")
+                          file_errors.append(msg)
+                          errors.append({"file": fname, "check": "Permissions zu eng", "detail": msg})
+              except Exception as _e42:
+                  print(f"::warning ::Check 42 (Permissions zu eng) uebersprungen fuer {fname}: {_e42}")
+
               # ── Check 28: Doppelter Import im selben Block ───────────────
               # Doppeltes "import re" oder "import sys" in einem Block deutet auf
               # Copy-Paste-Fehler hin (os und sys sind ausgenommen da haeufig
