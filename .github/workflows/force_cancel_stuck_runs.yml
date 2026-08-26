@@ -1,0 +1,120 @@
+name: Force Cancel Stuck Runs
+
+# NOTFALL-WERKZEUG (2026-08-26, Nutzerwunsch "manuelles Schließen geht
+# nicht"): Nach dem GitHub-Actions-Vorfall vom 26.08. (siehe
+# githubstatus.com, "Incident with Actions", 15:11-15:23 UTC) blieben
+# mehrere Laeufe dauerhaft im Status "Queued" haengen, OHNE je einen
+# Runner zugewiesen zu bekommen - bekanntes GitHub-Verhalten nach
+# solchen Vorfaellen: der normale "Cancel workflow"-Button in der Web-
+# UI schlaegt bei echt "eingefrorenen" Queued-Laeufen manchmal fehl,
+# weil im Backend kein tatsaechlicher Job-Zustand existiert, an den
+# der Cancel-Request andocken koennte.
+#
+# Dieser Workflow versucht denselben Abbruch stattdessen ueber die
+# GitHub-API (gh run cancel), was einen anderen Codepfad als der reine
+# UI-Button nutzt und dadurch teils erfolgreich ist, wo die UI
+# fehlschlaegt. GARANTIE gibt es dafuer aber NICHT - trifft der echte
+# Bug auf GitHub-Seite (siehe Community-Berichte zu genau diesem
+# Vorfall-Typ: "cancel and force-cancel failing"), kann auch dieser
+# Weg fehlschlagen. In dem Fall bleibt nur Abwarten, bis GitHub selbst
+# die haengenden Eintraege aufraeumt (typischerweise nach einigen
+# Stunden) oder der bereits bestehende watchdog_combined.yml bei
+# Erreichen seiner 180-Minuten-Schwelle eingreift.
+#
+# Bewusst NUR manuell ausloesbar (workflow_dispatch) - kein Zeitplan,
+# kein automatischer Trigger. Das ist ein Werkzeug fuer den Ausnahme-
+# fall, nicht Teil der regulaeren Automatisierung.
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_ids:
+        description: >-
+          Run-IDs der festhaengenden Laeufe, durch Komma getrennt
+          (z.B. aus der URL: github.com/OWNER/REPO/actions/runs/DIESE_ZAHL).
+          Mehrere IDs auf einmal moeglich.
+        required: true
+        type: string
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: read
+  actions: write    # Pflicht fuer gh run cancel (Schreibrecht auf Actions API)
+
+jobs:
+  force-cancel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Festhaengende Läufe per API abbrechen
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_IDS_INPUT: ${{ inputs.run_ids }}
+        run: |
+          set +e  # bewusst kein Abbruch bei einzelnen Fehlern - alle IDs durchprobieren
+          IFS=',' read -ra RUN_ID_ARRAY <<< "$RUN_IDS_INPUT"
+
+          ERFOLG=0
+          FEHLGESCHLAGEN=0
+
+          for RAW_ID in "${RUN_ID_ARRAY[@]}"; do
+            RUN_ID=$(echo "$RAW_ID" | tr -d '[:space:]')
+            if [ -z "$RUN_ID" ]; then
+              continue
+            fi
+
+            echo "=== Run #$RUN_ID ==="
+
+            # Aktuellen Status abfragen, bevor wir versuchen abzubrechen -
+            # nuetzlich fuer die Diagnose, falls der Cancel-Versuch fehlschlaegt.
+            STATUS_JSON=$(gh api "repos/${{ github.repository }}/actions/runs/$RUN_ID" 2>&1)
+            if echo "$STATUS_JSON" | jq -e '.status' >/dev/null 2>&1; then
+              CURRENT_STATUS=$(echo "$STATUS_JSON" | jq -r '.status')
+              CURRENT_NAME=$(echo "$STATUS_JSON" | jq -r '.name')
+              echo "Aktueller Status: $CURRENT_STATUS ($CURRENT_NAME)"
+            else
+              echo "WARNUNG: Run #$RUN_ID nicht gefunden oder nicht lesbar - falsche ID? Übersprungen."
+              FEHLGESCHLAGEN=$((FEHLGESCHLAGEN + 1))
+              continue
+            fi
+
+            if [ "$CURRENT_STATUS" == "completed" ]; then
+              echo "Run #$RUN_ID ist bereits abgeschlossen - kein Abbruch nötig."
+              continue
+            fi
+
+            # Der eigentliche Abbruch-Versuch ueber die API (anderer Codepfad
+            # als der UI-Button, siehe Kommentar oben).
+            if gh api -X POST "repos/${{ github.repository }}/actions/runs/$RUN_ID/cancel" 2>/tmp/cancel_err_$RUN_ID.txt; then
+              echo "✅ Run #$RUN_ID: Abbruch-Anfrage erfolgreich gesendet."
+              ERFOLG=$((ERFOLG + 1))
+            else
+              echo "❌ Run #$RUN_ID: Abbruch-Anfrage fehlgeschlagen:"
+              cat /tmp/cancel_err_$RUN_ID.txt
+              FEHLGESCHLAGEN=$((FEHLGESCHLAGEN + 1))
+            fi
+            echo
+          done
+
+          echo "=== Zusammenfassung ==="
+          echo "Erfolgreich abgebrochen (Anfrage gesendet): $ERFOLG"
+          echo "Fehlgeschlagen / nicht gefunden: $FEHLGESCHLAGEN"
+
+          if [ "$ERFOLG" -gt 0 ]; then
+            echo ""
+            echo "Hinweis: 'Abbruch-Anfrage gesendet' heisst nicht sofort 'beendet' -"
+            echo "GitHub braucht dafuer oft noch 10-30 Sekunden. Bitte die Actions-"
+            echo "Übersicht kurz neu laden, um den finalen Status zu sehen."
+          fi
+
+          if [ "$FEHLGESCHLAGEN" -gt 0 ] && [ "$ERFOLG" -eq 0 ]; then
+            echo ""
+            echo "::warning ::Alle Abbruch-Versuche sind fehlgeschlagen. Das deckt sich"
+            echo "mit einem bekannten GitHub-seitigen Verhalten nach Actions-Vorfaellen:"
+            echo "manche Queued-Laeufe lassen sich weder ueber die UI noch die API"
+            echo "abbrechen, bis GitHub sie selbst intern aufraeumt (oft nach einigen"
+            echo "Stunden). In dem Fall bitte einfach abwarten - kein Handlungsbedarf"
+            echo "auf eurer Seite, kein Hinweis auf ein Problem im eigenen Code."
+          fi
