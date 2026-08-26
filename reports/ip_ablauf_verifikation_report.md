@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-08-26 00:18 CEST (Europe/Berlin)
+Lauf: 2026-08-26 03:49 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -21,20 +21,19 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +3,817 (Anstieg) (jetzt 8,961,921 IPs)
-- Seit Zyklus-Start (2026-08-23): 📉 -434,118 (Rückgang)
-- Letzter combined-Cleanup-Pass: 618,673 IPs durch Ablauf entfernt (davon 618,673 Watchlist/30T, 0 Active/180T), 1,862,370 neue IPs hinzugekommen (davon 1,675,114 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 5 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 189,397 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 14,851,095 (Summe letzte 8 Läufe / ~24h)
-- Entfernte IPs (Summe letzter Läufe): 4,950,831 (Summe letzte 8 Läufe / ~24h)
-  - davon Watchlist/30 Tage: 4,950,831 (Summe letzte 8 Läufe / ~24h)
+- Seit letztem Lauf: 📈 +615,749 (Anstieg) (jetzt 9,577,670 IPs)
+- Seit Zyklus-Start (2026-08-23): 📈 +181,631 (Anstieg)
+- Letzter combined-Cleanup-Pass: 5,743 IPs durch Ablauf entfernt (davon 5,743 Watchlist/30T, 0 Active/180T), 2,486,141 neue IPs hinzugekommen (davon 1,674,856 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 97 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 189,793 CIDR-Aggregate)
+- Neue IPs (Summe letzter Läufe): 15,482,531 (Summe letzte 8 Läufe / ~24h)
+- Entfernte IPs (Summe letzter Läufe): 4,337,469 (Summe letzte 8 Läufe / ~24h)
+  - davon Watchlist/30 Tage: 4,337,469 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 15/15 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt) | zusätzlich 1 cancelled (nicht gewertet), Zeitraum 2026-08-25T13:03 bis 2026-08-25T21:59 UTC
+- Erfolgsquote letzte 16 combined-Läufe: 15/15 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt) | zusätzlich 1 cancelled (nicht gewertet), Zeitraum 2026-08-25T13:25 bis 2026-08-26T00:44 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-08-24 22:39 CEST (Europe/Berlin) | 8,927,370 | 657370 | 0 | 35410 |
 | 2026-08-24 22:58 CEST (Europe/Berlin) | 8,930,835 | 657355 | 0 | 35410 |
 | 2026-08-24 23:37 CEST (Europe/Berlin) | 8,930,835 | 657355 | 0 | 35410 |
 | 2026-08-25 00:17 CEST (Europe/Berlin) | 8,932,302 | 657348 | 0 | 35410 |
@@ -54,3 +53,4 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | 2026-08-25 18:27 CEST (Europe/Berlin) | 8,952,071 | 627009 | 0 | 0 |
 | 2026-08-25 21:27 CEST (Europe/Berlin) | 8,958,104 | 626983 | 0 | 0 |
 | 2026-08-26 00:18 CEST (Europe/Berlin) | 8,961,921 | 0 | 0 | 0 |
+| 2026-08-26 03:49 CEST (Europe/Berlin) | 9,577,670 | 0 | 0 | 0 |
