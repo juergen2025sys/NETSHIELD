@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-08-26 15:19 CEST (Berlin)  
+**Aktualisiert:** 2026-08-26 16:09 CEST (Berlin)  
 **Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
@@ -7,56 +7,56 @@
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **10,694** |
-| Bad Hosts – SIP | **105** |
+| Bad Hosts (24h, alle Dienste) | **10,718** |
+| Bad Hosts – SIP | **109** |
 | Bad Hosts – TFTP | **182** |
-| Bad Hosts – SSH | **3,731** |
-| Bad Hosts – RDP | **1,017** |
-| Bad Hosts – HTTP | **2,801** |
-| Bad Hosts – SNMP | **374** |
-| Bad Hosts – MSSQL | **399** |
-| Bad Hosts – Telnet | **3,374** |
-| Bad Hosts – MySQL | **630** |
-| Bad Hosts – ProConOs | **166** |
-| Bad Hosts – VNC | **392** |
-| Bad Hosts – FTP | **568** |
-| Bad Hosts – PostgreSQL | **388** |
-| Bad Hosts – Kubernetes | **501** |
-| Bad Hosts – Redis | **391** |
-| Bad Hosts – ClickhouseHTTP | **312** |
-| Bad Hosts – Elasticsearch | **385** |
-| Bad Hosts – CouchDB | **152** |
-| Bad Hosts – LDAP | **180** |
-| Bad Hosts – Oracle | **271** |
-| Bad Hosts – Modbus | **186** |
-| Bad Hosts – Memcached | **203** |
-| Bad Hosts – MQTT | **161** |
-| Bad Hosts – IPP | **142** |
+| Bad Hosts – SSH | **3,752** |
+| Bad Hosts – RDP | **1,011** |
+| Bad Hosts – HTTP | **2,795** |
+| Bad Hosts – SNMP | **378** |
+| Bad Hosts – MSSQL | **405** |
+| Bad Hosts – Telnet | **3,371** |
+| Bad Hosts – MySQL | **621** |
+| Bad Hosts – ProConOs | **163** |
+| Bad Hosts – VNC | **394** |
+| Bad Hosts – FTP | **544** |
+| Bad Hosts – PostgreSQL | **376** |
+| Bad Hosts – Kubernetes | **499** |
+| Bad Hosts – Redis | **400** |
+| Bad Hosts – ClickhouseHTTP | **309** |
+| Bad Hosts – Elasticsearch | **381** |
+| Bad Hosts – CouchDB | **158** |
+| Bad Hosts – LDAP | **183** |
+| Bad Hosts – Oracle | **268** |
+| Bad Hosts – Modbus | **183** |
+| Bad Hosts – Memcached | **208** |
+| Bad Hosts – MQTT | **159** |
+| Bad Hosts – IPP | **143** |
 | Bad Hosts – RAW | **135** |
-| Bad Hosts – HashCountRandom | **89** |
-| Bad Hosts – LPD | **67** |
+| Bad Hosts – HashCountRandom | **87** |
+| Bad Hosts – LPD | **65** |
 | Bad Hosts – MOTD | **25** |
 | Bad Hosts – Echo | **4** |
 
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
 
-Davon **heute (2026-08-26)**: **6,724** IPs
+Davon **heute (2026-08-26)**: **7,116** IPs
 
 | last_seen | IPs |
 |---|---:|
-| 2026-08-26 | **6,724** |
-| 2026-08-25 | **3,970** |
+| 2026-08-26 | **7,116** |
+| 2026-08-25 | **3,602** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **13,802** |
-| Neu | **+488** |
-| Entfernt | **-509** |
+| Gesamt Honigtopf-IPs | **13,749** |
+| Neu | **+309** |
+| Entfernt | **-362** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-08-26 15:19 CEST (Berlin)*
+*Generiert: 2026-08-26 16:09 CEST (Berlin)*
