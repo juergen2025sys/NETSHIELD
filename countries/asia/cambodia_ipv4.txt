@@ -1,6 +1,6 @@
 # NETSHIELD – Cambodia (KH) IPv4 Ranges
-# Aktualisiert: 2026-08-24 04:46 CEST (Europe/Berlin)
-# IP-Ranges: 282
+# Aktualisiert: 2026-08-26 04:45 CEST (Europe/Berlin)
+# IP-Ranges: 281
 
 5.28.32.0/21
 27.96.84.0/22
@@ -111,7 +111,6 @@
 103.138.52.0/24
 103.138.84.0/23
 103.138.192.0/23
-103.138.225.0/24
 103.139.16.0/23
 103.139.20.0/23
 103.140.236.0/23
