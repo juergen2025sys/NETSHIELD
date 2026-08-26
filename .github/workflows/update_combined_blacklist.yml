@@ -323,6 +323,34 @@ jobs:
             echo "state/aufnahme_warteliste.json.gz* liegt bereits im Checkout – kein Download noetig"
           fi
 
+      - name: Restore Anti-Churn-Ledger from GitHub Release (falls vorhanden)
+        # CHANGE LEDGER-OFF-GIT (2026-08-26, Nutzerwunsch "die json soll
+        # nicht im repo gespeichert werden"): identisches Muster wie bei der
+        # Aufnahme-Warteliste oben - state/watchlist_expired_history.json
+        # war auf 21+ MB angewachsen und blaehte den Git-Verlauf bei jedem
+        # Commit weiter auf. Beide Ledger (Watchlist + Active) liegen jetzt
+        # in EINEM gemeinsamen Release ("anti-churn-ledger-backup"), als
+        # zwei separat benannte Part-Praefixe unterscheidbar.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p state
+          if [ ! -f state/watchlist_expired_history.json.gz ] && ! ls state/watchlist_expired_history.json.gz.part* >/dev/null 2>&1 \
+             && [ ! -f state/active_expired_history.json.gz ] && ! ls state/active_expired_history.json.gz.part* >/dev/null 2>&1; then
+            if gh release download anti-churn-ledger-backup \
+                --repo "${{ github.repository }}" \
+                --pattern "*_expired_history.json.gz.part*" \
+                --dir state/ 2>/dev/null; then
+              WL_COUNT=$(ls state/watchlist_expired_history.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+              AC_COUNT=$(ls state/active_expired_history.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+              echo "Anti-Churn-Ledger von Release geladen: Watchlist ${WL_COUNT} Part(s), Active ${AC_COUNT} Part(s)"
+            else
+              echo "Kein Ledger-Release gefunden (erster Lauf mit diesem Mechanismus, oder noch nie beschrieben) – starte mit leeren Ledgern"
+            fi
+          else
+            echo "state/*_expired_history.json.gz* liegt bereits im Checkout – kein Download noetig"
+          fi
+
       - name: Fetch Reputation Blacklist (API, Round-Robin)
         continue-on-error: true  # Rate-Limit (5 Req/Tag, Free-Plan) darf den Haupt-Build nicht blockieren
         env:
@@ -1855,17 +1883,81 @@ jobs:
           # Wird die IP hingegen ueber einen HQ-Feed neu gesehen, geht sie direkt
           # auf den Active-Pfad (last=now_day) - dort greift der Ledger bewusst
           # NICHT, das ist eine echte Promotion per starkem Signal.
+          # CHANGE LEDGER-OFF-GIT (2026-08-26, Nutzerwunsch "die json soll
+          # nicht im repo gespeichert werden"): Beide Ledger-Dateien werden
+          # jetzt als GitHub-Release-Assets geladen (Release-Tag "anti-churn-
+          # ledger-backup", je zwei Part-Dateien-Praefixe fuer Watchlist und
+          # Active) - identisches Muster wie bei der Aufnahme-Warteliste
+          # (siehe dort fuer den ausfuehrlichen Kommentar zur Begruendung).
+          # Download passiert in einem eigenen Bash-Step VOR diesem Python-
+          # Block (siehe "Ledger von GitHub Release wiederherstellen"), hier
+          # wird nur noch aus den bereits heruntergeladenen, lokalen Part-
+          # Dateien gelesen - direkt im Speicher entpackt (BytesIO), kein
+          # Zwischenschreibvorgang auf die Platte noetig (gleiche Ueberlegung
+          # wie beim Sicherheits-Hygiene-Fix der Aufnahme-Warteliste).
+          import glob as _glob_ledger
+          import gzip as _gzip_ledger
+          import io as _io_ledger
+
+          def _lade_ledger_von_release(_glob_muster):
+              _teile = sorted(_glob_ledger.glob(_glob_muster))
+              if not _teile:
+                  return {}, 0
+              _puffer = _io_ledger.BytesIO()
+              for _teil in _teile:
+                  with open(_teil, "rb") as _tf:
+                      while True:
+                          _chunk = _tf.read(1024 * 1024)
+                          if not _chunk:
+                              break
+                          _puffer.write(_chunk)
+              _puffer.seek(0)
+              with _gzip_ledger.GzipFile(fileobj=_puffer, mode="rb") as _gz:
+                  _daten = json.loads(_gz.read().decode("utf-8"))
+              return dict(_daten.get("entries", {})), len(_teile)
+
           WL_EXPIRED_HISTORY_FILE = "state/watchlist_expired_history.json"
           _wl_expired_first = {}
-          if os.path.exists(WL_EXPIRED_HISTORY_FILE):
-              try:
-                  with open(WL_EXPIRED_HISTORY_FILE) as _f:
-                      _wl_hist_data = json.load(_f)
-                  _wl_expired_first = dict(_wl_hist_data.get("entries", {}))
-                  print(f"state/watchlist_expired_history.json: "
-                        f"{len(_wl_expired_first)} dauerhaft abgelaufene Watchlist-IPs geladen")
-              except Exception as _ex:
-                  print(f"WARNUNG: state/watchlist_expired_history.json nicht lesbar: {_ex}")
+          try:
+              _wl_expired_first_raw, _wl_part_count = _lade_ledger_von_release(
+                  "state/watchlist_expired_history.json.gz.part*"
+              )
+              # FIX BUG-PRUNE-WRONG-DATE (2026-08-26, im echten Betrieb
+              # entdeckt - der GESAMTE Ledger fiel bei einem Lauf von
+              # 657.370 auf 0 Eintraege): Vorher wurde hier direkt ein
+              # Datums-STRING gespeichert (das urspruengliche "first"-
+              # Datum der IP). Das Pruning verglich dieses "first"-Datum
+              # gegen die Prune-Schwelle - aber "first" ist naturgemaess
+              # IMMER mindestens 30 Tage alt (das ist ja die Voraus-
+              # setzung fuers Watchlist-Ablaufen ueberhaupt), unabhaengig
+              # davon, WANN die IP tatsaechlich eingefroren wurde. Bei
+              # einer Verkuerzung von WL_HISTORY_PRUNE_DAYS auf 14 fiel
+              # dadurch praktisch JEDER Eintrag sofort durch - ein reiner
+              # Modellierungsfehler, kein Zufall. Fix: jeder Eintrag ist
+              # jetzt ein Dict {"first": <urspruengliches Datum>,
+              # "eingefroren_am": <Datum der tatsaechlichen Einfrierung>}
+              # - Pruning vergleicht ab jetzt "eingefroren_am", nicht mehr
+              # "first". Rueckwaerts-kompatibel: alte, reine String-
+              # Eintraege (aus Laeufen vor diesem Fix) werden beim Laden
+              # automatisch in das neue Format konvertiert.
+              for _ip_wl, _wert_wl in _wl_expired_first_raw.items():
+                  if isinstance(_wert_wl, dict):
+                      _wl_expired_first[_ip_wl] = _wert_wl
+                  else:
+                      # Altformat (reiner String) - "first" und
+                      # "eingefroren_am" auf denselben (einzigen
+                      # bekannten) Wert setzen; kein Datenverlust, nur
+                      # keine praezise Einfrier-Historie fuer diese
+                      # Alt-Eintraege verfuegbar.
+                      _wl_expired_first[_ip_wl] = {"first": _wert_wl, "eingefroren_am": _wert_wl}
+              if _wl_part_count:
+                  print(f"watchlist_expired_history (Release-Asset): "
+                        f"{len(_wl_expired_first)} dauerhaft abgelaufene Watchlist-IPs geladen "
+                        f"({_wl_part_count} Part(s))")
+              else:
+                  print("watchlist_expired_history: kein Release-Backup vorhanden - starte leer")
+          except Exception as _ex:
+              print(f"WARNUNG: watchlist_expired_history-Release-Backup nicht lesbar: {_ex}")
           _wl_expired_first_dirty = False  # wird True, sobald neue Eintraege dazukommen
 
           # ── FIX CHURN-ACTIVE (2026-08-23): state/active_expired_history.json ──
@@ -1885,15 +1977,25 @@ jobs:
           # und bypassed den Ledger bewusst (siehe Verwendung weiter unten).
           ACTIVE_EXPIRED_HISTORY_FILE = "state/active_expired_history.json"
           _active_expired_last = {}
-          if os.path.exists(ACTIVE_EXPIRED_HISTORY_FILE):
-              try:
-                  with open(ACTIVE_EXPIRED_HISTORY_FILE) as _f:
-                      _active_hist_data = json.load(_f)
-                  _active_expired_last = dict(_active_hist_data.get("entries", {}))
-                  print(f"state/active_expired_history.json: "
-                        f"{len(_active_expired_last)} dauerhaft abgelaufene Active-IPs geladen")
-              except Exception as _ex:
-                  print(f"WARNUNG: state/active_expired_history.json nicht lesbar: {_ex}")
+          try:
+              _active_expired_last_raw, _active_part_count = _lade_ledger_von_release(
+                  "state/active_expired_history.json.gz.part*"
+              )
+              # FIX BUG-PRUNE-WRONG-DATE: siehe ausfuehrlicher Kommentar
+              # beim Watchlist-Ledger oben - dieselbe Normalisierung hier.
+              for _ip_ac, _wert_ac in _active_expired_last_raw.items():
+                  if isinstance(_wert_ac, dict):
+                      _active_expired_last[_ip_ac] = _wert_ac
+                  else:
+                      _active_expired_last[_ip_ac] = {"last": _wert_ac, "eingefroren_am": _wert_ac}
+              if _active_part_count:
+                  print(f"active_expired_history (Release-Asset): "
+                        f"{len(_active_expired_last)} dauerhaft abgelaufene Active-IPs geladen "
+                        f"({_active_part_count} Part(s))")
+              else:
+                  print("active_expired_history: kein Release-Backup vorhanden - starte leer")
+          except Exception as _ex:
+              print(f"WARNUNG: active_expired_history-Release-Backup nicht lesbar: {_ex}")
           _active_expired_last_dirty = False
 
           # ── FIX AUFNAHME-CROSS-DAY-V2 (2026-08-24): Warteliste als
@@ -2899,25 +3001,42 @@ jobs:
                       print(f"WARN: Korrupter seen_db-Eintrag {ip}, wird neu angelegt: {_corrupt}", file=sys.stderr)
                       # FIX PERF-LAZYSORT: list() statt sorted() – Sweep nach
                       # der Schleife sortiert.
+                      # FIX WL-REENTRY-5FEEDS (2026-08-26, Nutzerwunsch): Eine
+                      # bereits im Watchlist-Ledger eingefrorene IP wurde bisher
+                      # durch einen EINZELNEN HQ-Feed sofort wieder legitim
+                      # aufgenommen (today_is_hq=True reichte). Das war der
+                      # Hauptgrund fuer den beobachteten ~44-Tage-Wiederholungs-
+                      # zyklus bei chronisch gemeldeten IPs (ablaufen ->
+                      # einfrieren -> 14 Tage spaeter geprunt -> von vorne).
+                      # Ab jetzt braucht eine BEREITS EINGEFRORENE IP eine
+                      # deutlich hoehere Huerde: mindestens 5 verschiedene Feeds
+                      # (beliebig, nicht zwingend HQ) am selben Tag - eine
+                      # einzelne, evtl. unzuverlaessige Quelle reicht nicht mehr,
+                      # um eine bereits einmal als schwach eingestufte IP wieder
+                      # zu "vergeben". Betrifft NUR den Wiedereintritt bereits
+                      # eingefrorener IPs - fuer brandneue IPs (nie im Ledger)
+                      # bleibt die normale Aufnahmeschwelle (2+ Feeds oder 1
+                      # HQ-Feed) unveraendert, siehe Aufnahme-Filter weiter unten.
+                      _wl_reentry_erlaubt = today_count >= 5
                       # FIX CHURN-WATCHLIST: nur fuer den Watchlist-Pfad (kein
                       # today_is_hq) relevant - siehe Ledger-Kommentar oben.
                       _wl_first = now_day
-                      if not today_is_hq and ip in _wl_expired_first:
-                          _wl_first = _wl_expired_first[ip]
+                      if not _wl_reentry_erlaubt and ip in _wl_expired_first:
+                          _wl_first = _wl_expired_first[ip]["first"]
                       # FIX BUG-STALE-LEDGER-ENTRY (2026-08-24, im echten
                       # Betrieb entdeckt - Verifikations-Report zeigte einen
                       # langsam WACHSENDEN "Rueckfall"-Zaehler, obwohl die
                       # Ledger-Groesse konstant blieb): Kommt eine IP heute
-                      # legitim per HQ-Feed rein (today_is_hq=True), wird der
-                      # eingefrorene Watchlist-Eintrag zwar oben korrekt NICHT
-                      # mehr fuer _wl_first verwendet - er blieb bisher aber
-                      # trotzdem fuer immer im Ledger stehen (kein Aufraeumen).
-                      # Der leichtgewichtige "verifikation"-Job (kein Zugriff
-                      # auf seen_db.json) sah dadurch die IP weiterhin als
-                      # "eingefroren" markiert, obwohl sie laengst legitim
-                      # aktiv ist - False-Positive-Rueckfall, der sich mit
-                      # jeder neuen legitimen Promotion weiter aufsummierte.
-                      if today_is_hq and ip in _wl_expired_first:
+                      # legitim wieder rein (siehe FIX WL-REENTRY-5FEEDS oben),
+                      # wird der eingefrorene Watchlist-Eintrag zwar oben korrekt
+                      # NICHT mehr fuer _wl_first verwendet - er blieb bisher
+                      # aber trotzdem fuer immer im Ledger stehen (kein
+                      # Aufraeumen). Der leichtgewichtige "verifikation"-Job
+                      # (kein Zugriff auf seen_db.json) sah dadurch die IP
+                      # weiterhin als "eingefroren" markiert, obwohl sie laengst
+                      # legitim aktiv ist - False-Positive-Rueckfall, der sich
+                      # mit jeder neuen legitimen Promotion weiter aufsummierte.
+                      if _wl_reentry_erlaubt and ip in _wl_expired_first:
                           del _wl_expired_first[ip]
                           _wl_expired_first_dirty = True
                       # Analog fuer den Active-Ledger: eine echte Zweitbestae-
@@ -2935,7 +3054,7 @@ jobs:
                       if strongly_confirmed_today:
                           _entry_last = now_day
                       elif today_is_hq:
-                          _entry_last = _active_expired_last.get(ip, now_day)
+                          _entry_last = _active_expired_last[ip]["last"] if ip in _active_expired_last else now_day
                       else:
                           _entry_last = "2000-01-01"
                       db[ip] = {
@@ -2952,24 +3071,31 @@ jobs:
               else:
                   # FIX PERF-LAZYSORT: list() statt sorted() – Sweep nach
                   # der Schleife sortiert.
+                  # FIX WL-REENTRY-5FEEDS: siehe ausfuehrlicher Kommentar im
+                  # "existierender Eintrag"-Zweig oben - identische Regel auch
+                  # fuer den Neuanlage-Fall (z.B. nach Pruning des Ledger-
+                  # Eintrags oder falls die IP zwischenzeitlich ganz aus
+                  # seen_db verschwunden war). 5+ Feeds statt nur 1 HQ-Feed
+                  # noetig, um eine bereits eingefrorene IP wieder aufzunehmen.
+                  _wl_reentry_erlaubt = today_count >= 5
                   # FIX CHURN-WATCHLIST: siehe Ledger-Kommentar weiter oben -
                   # eine dauerhaft (ohne Zweitbestaetigung) abgelaufene
                   # Watchlist-IP bekommt beim Wiedereintritt ihr eingefrorenes
                   # Original-"first" statt now_day, damit sie nicht erneut
                   # 30 Tage lang im Output auftaucht ("first" bleibt in der
                   # Vergangenheit -> faellt im naechsten Cleanup sofort wieder
-                  # raus). Gilt NICHT, wenn die IP heute per HQ-Feed reinkommt
-                  # (today_is_hq=True) - das ist eine echte Promotion, siehe
-                  # "last"-Zeile direkt darunter.
+                  # raus). Gilt NICHT, wenn die IP heute per 5+ Feeds reinkommt
+                  # (siehe FIX WL-REENTRY-5FEEDS oben) - das ist eine echte
+                  # Promotion, siehe "last"-Zeile direkt darunter.
                   _wl_first = now_day
-                  if not today_is_hq and ip in _wl_expired_first:
-                      _wl_first = _wl_expired_first[ip]
+                  if not _wl_reentry_erlaubt and ip in _wl_expired_first:
+                      _wl_first = _wl_expired_first[ip]["first"]
                   # FIX BUG-STALE-LEDGER-ENTRY: siehe ausfuehrlicher Kommentar
                   # im "existierender Eintrag"-Zweig oben - identische
                   # Bereinigung auch fuer den Fall, dass die IP als komplett
                   # neuer db-Eintrag angelegt wird (z.B. nach Pruning oder
                   # falls sie zwischenzeitlich ganz aus seen_db verschwunden war).
-                  if today_is_hq and ip in _wl_expired_first:
+                  if _wl_reentry_erlaubt and ip in _wl_expired_first:
                       del _wl_expired_first[ip]
                       _wl_expired_first_dirty = True
                   if strongly_confirmed_today and ip in _active_expired_last:
@@ -2983,7 +3109,7 @@ jobs:
                   if strongly_confirmed_today:
                       _entry_last = now_day
                   elif today_is_hq:
-                      _entry_last = _active_expired_last.get(ip, now_day)
+                      _entry_last = _active_expired_last[ip]["last"] if ip in _active_expired_last else now_day
                   else:
                       _entry_last = "2000-01-01"
                   db[ip] = {
@@ -3013,7 +3139,7 @@ jobs:
                   _ist_ledger_wiederauferstehung = (
                       (_wl_first != now_day and _entry_last == "2000-01-01")
                       or (today_is_hq and not strongly_confirmed_today
-                          and ip in _active_expired_last and _entry_last == _active_expired_last[ip])
+                          and ip in _active_expired_last and _entry_last == _active_expired_last[ip]["last"])
                   )
                   if not _ist_ledger_wiederauferstehung:
                       neu_angelegt_ohne_ledger += 1
@@ -3229,7 +3355,7 @@ jobs:
                               # eigentlich nur eine Doppelschreib-Vermeidung,
                               # der Wert waere ohnehin identisch).
                               if ip not in _wl_expired_first:
-                                  _wl_expired_first[ip] = first_str
+                                  _wl_expired_first[ip] = {"first": first_str, "eingefroren_am": now_day}
                                   _wl_expired_first_dirty = True
                       else:
                           if last_str < cutoff_str:
@@ -3240,7 +3366,7 @@ jobs:
                               # BEVOR die IP aus seen_db verschwindet - analog
                               # zum Watchlist-Ledger oben, siehe Kommentar dort.
                               if ip not in _active_expired_last:
-                                  _active_expired_last[ip] = last_str
+                                  _active_expired_last[ip] = {"last": last_str, "eingefroren_am": now_day}
                                   _active_expired_last_dirty = True
                   except Exception:
                       expired.append(ip)
@@ -3345,7 +3471,7 @@ jobs:
               _wl_retro_removed = 0
               for _frozen_ip in list(_wl_expired_first.keys()):
                   _aktueller_eintrag = db.get(_frozen_ip)
-                  if _aktueller_eintrag is not None and _aktueller_eintrag.get("first") != _wl_expired_first[_frozen_ip]:
+                  if _aktueller_eintrag is not None and _aktueller_eintrag.get("first") != _wl_expired_first[_frozen_ip]["first"]:
                       del _wl_expired_first[_frozen_ip]
                       _wl_retro_removed += 1
               if _wl_retro_removed:
@@ -3357,7 +3483,7 @@ jobs:
               _active_retro_removed = 0
               for _frozen_ip in list(_active_expired_last.keys()):
                   _aktueller_eintrag = db.get(_frozen_ip)
-                  if _aktueller_eintrag is not None and _aktueller_eintrag.get("last") != _active_expired_last[_frozen_ip]:
+                  if _aktueller_eintrag is not None and _aktueller_eintrag.get("last") != _active_expired_last[_frozen_ip]["last"]:
                       del _active_expired_last[_frozen_ip]
                       _active_retro_removed += 1
               if _active_retro_removed:
@@ -3366,56 +3492,79 @@ jobs:
                         f"legitim befoerderte IPs rueckwirkend bereinigt (waren nicht Teil "
                         f"des heutigen Ingest-Loops)")
 
-          # 400 Tage bewusst > EXPIRY_DAYS (180) gewaehlt, damit auch Active-IPs,
-          # die zwischenzeitlich mal auf dem Watchlist-Pfad waren, genug Puffer haben.
-          WL_HISTORY_PRUNE_DAYS = 400
+          # FIX PRUNE-SPLIT (2026-08-25, Nutzerwunsch "400 Tage sind zu
+          # lange" fuer den Watchlist-Ledger, wegen Dateigroesse - siehe
+          # state/watchlist_expired_history.json, 21+ MB): vorher teilten
+          # sich Watchlist- und Active-Ledger dieselbe Prune-Konstante. Der
+          # Active-Ledger braucht wegen seines 180-Tage-Fensters zwingend
+          # einen deutlich laengeren Puffer als der Watchlist-Ledger (30-
+          # Tage-Fenster) - ein einheitlich verkuerzter Wert haette beim
+          # Active-Pfad fast exakt den urspruenglichen BUG-CHURN-ACTIVE
+          # zurueckgebracht (IP bekommt nach Speicher-Verlust von nur EINEM
+          # HQ-Feed wieder volle 180 Tage). Deshalb jetzt zwei getrennte
+          # Konstanten statt einer gemeinsamen.
+          WL_HISTORY_PRUNE_DAYS = 14
+          ACTIVE_HISTORY_PRUNE_DAYS = 400
           if _wl_expired_first:
               _wl_prune_cutoff_str = (now - timedelta(days=WL_HISTORY_PRUNE_DAYS)).strftime("%Y-%m-%d")
               _wl_before = len(_wl_expired_first)
+              # FIX BUG-PRUNE-WRONG-DATE (siehe ausfuehrlicher Kommentar beim
+              # Laden oben): Filter vergleicht jetzt "eingefroren_am" (wann
+              # der Eintrag tatsaechlich in den Ledger kam), NICHT mehr
+              # "first" (das urspruengliche Erstsichtungs-Datum der IP, das
+              # naturgemaess immer >= 30 Tage alt ist und daher bei jedem
+              # Lauf sofort durchgefallen waere).
               _wl_expired_first = {
-                  _ip: _d for _ip, _d in _wl_expired_first.items()
-                  if _d >= _wl_prune_cutoff_str
+                  _ip: _eintrag for _ip, _eintrag in _wl_expired_first.items()
+                  if _eintrag.get("eingefroren_am", _eintrag.get("first")) >= _wl_prune_cutoff_str
               }
               _wl_pruned = _wl_before - len(_wl_expired_first)
               if _wl_pruned:
                   _wl_expired_first_dirty = True
                   print(f"watchlist_expired_history: {_wl_pruned} Eintraege "
-                        f"(> {WL_HISTORY_PRUNE_DAYS} Tage alt) geprunt")
+                        f"(> {WL_HISTORY_PRUNE_DAYS} Tage seit Einfrierung) geprunt")
           if _wl_expired_first_dirty:
-              write_json_atomic(WL_EXPIRED_HISTORY_FILE, {
+              # CHANGE LEDGER-OFF-GIT: NICHT mehr write_json_atomic auf
+              # WL_EXPIRED_HISTORY_FILE selbst (das waere wieder eine Git-
+              # committete Datei) - stattdessen ein eigener Upload-Dateiname,
+              # den NUR der Release-Upload-Step (Bash, nach diesem Python-
+              # Block) anfasst und danach wieder loescht. Identisches Muster
+              # wie bei der Aufnahme-Warteliste.
+              write_json_atomic("state/watchlist_expired_history_upload.json", {
                   "updated": now_stamp,
                   "count":   len(_wl_expired_first),
                   "entries": _wl_expired_first,
               }, indent=2)
-              print(f"state/watchlist_expired_history.json geschrieben "
-                    f"({len(_wl_expired_first)} Eintraege)")
+              print(f"state/watchlist_expired_history_upload.json geschrieben "
+                    f"({len(_wl_expired_first)} Eintraege) - wird als Release-Asset "
+                    f"hochgeladen (siehe Step danach)")
 
           # ── FIX CHURN-ACTIVE: Active-Ledger speichern + pruning ─────────────
           # Gleiches Pruning-Prinzip wie beim Watchlist-Ledger, aber mit
-          # laengerem Horizont: der Active-Ledger schuetzt vor Reset ueber ein
-          # 180-Tage-Fenster, muss also entsprechend laenger vorhalten. 400
-          # Tage > 180 Tage EXPIRY_DAYS gewaehlt (gleicher Puffer-Gedanke wie
-          # beim Watchlist-Pruning oben).
+          # eigener, deutlich laengerer Konstante (ACTIVE_HISTORY_PRUNE_DAYS,
+          # siehe Kommentar oben) - der Active-Ledger schuetzt vor Reset ueber
+          # ein 180-Tage-Fenster, muss also entsprechend laenger vorhalten.
           if _active_expired_last:
-              _active_prune_cutoff_str = (now - timedelta(days=WL_HISTORY_PRUNE_DAYS)).strftime("%Y-%m-%d")
+              _active_prune_cutoff_str = (now - timedelta(days=ACTIVE_HISTORY_PRUNE_DAYS)).strftime("%Y-%m-%d")
               _active_before = len(_active_expired_last)
               _active_expired_last = {
-                  _ip: _d for _ip, _d in _active_expired_last.items()
-                  if _d >= _active_prune_cutoff_str
+                  _ip: _eintrag for _ip, _eintrag in _active_expired_last.items()
+                  if _eintrag.get("eingefroren_am", _eintrag.get("last")) >= _active_prune_cutoff_str
               }
               _active_pruned = _active_before - len(_active_expired_last)
               if _active_pruned:
                   _active_expired_last_dirty = True
                   print(f"active_expired_history: {_active_pruned} Eintraege "
-                        f"(> {WL_HISTORY_PRUNE_DAYS} Tage alt) geprunt")
+                        f"(> {ACTIVE_HISTORY_PRUNE_DAYS} Tage seit Einfrierung) geprunt")
           if _active_expired_last_dirty:
-              write_json_atomic(ACTIVE_EXPIRED_HISTORY_FILE, {
+              write_json_atomic("state/active_expired_history_upload.json", {
                   "updated": now_stamp,
                   "count":   len(_active_expired_last),
                   "entries": _active_expired_last,
               }, indent=2)
-              print(f"state/active_expired_history.json geschrieben "
-                    f"({len(_active_expired_last)} Eintraege)")
+              print(f"state/active_expired_history_upload.json geschrieben "
+                    f"({len(_active_expired_last)} Eintraege) - wird als Release-Asset "
+                    f"hochgeladen (siehe Step danach)")
 
           # ── FIX AUFNAHME-CROSS-DAY-V2: Warteliste bereinigen + lokal
           # schreiben (Release-Upload passiert in einem separaten Bash-
@@ -4435,6 +4584,98 @@ jobs:
             echo "Keine Aenderung an der Aufnahme-Warteliste in diesem Lauf - kein Upload noetig"
           fi
 
+      - name: Anti-Churn-Ledger zu Release sichern (komprimiert)
+        # CHANGE LEDGER-OFF-GIT (2026-08-26): identisches Muster zum
+        # "Aufnahme-Warteliste zu Release sichern"-Step oben - hier fuer
+        # beide Anti-Churn-Ledger (Watchlist + Active) statt fuer die
+        # Warteliste. Beide teilen sich EIN gemeinsames Release
+        # ("anti-churn-ledger-backup"), da sie inhaltlich zusammengehoeren
+        # und beide typischerweise klein/mittelgross sind (anders als
+        # seen_db). Laeuft NUR fuer jeweils den Ledger, der in diesem Lauf
+        # tatsaechlich geaendert wurde (state/<name>_upload.json existiert
+        # dann) - der jeweils andere bleibt unangetastet im Release stehen.
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          GEAENDERTE_LEDGER=""
+          for LEDGER_NAME in watchlist_expired_history active_expired_history; do
+            if [ -f "state/${LEDGER_NAME}_upload.json" ]; then
+              rm -f "state/${LEDGER_NAME}.json.gz" state/${LEDGER_NAME}.json.gz.part*
+              gzip -c "state/${LEDGER_NAME}_upload.json" > "state/${LEDGER_NAME}.json.gz.tmp"
+              split -b 95M -d -a 3 "state/${LEDGER_NAME}.json.gz.tmp" "state/${LEDGER_NAME}.json.gz.part"
+              rm -f "state/${LEDGER_NAME}.json.gz.tmp" "state/${LEDGER_NAME}_upload.json"
+              PART_COUNT=$(ls state/${LEDGER_NAME}.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+              echo "${LEDGER_NAME}: komprimiert, ${PART_COUNT} Part(s), $(du -ch state/${LEDGER_NAME}.json.gz.part* | tail -1 | awk '{print $1}')"
+              GEAENDERTE_LEDGER="${GEAENDERTE_LEDGER} ${LEDGER_NAME}"
+            fi
+          done
+
+          if [ -n "$GEAENDERTE_LEDGER" ]; then
+            ALLE_PARTS=$(ls state/watchlist_expired_history.json.gz.part* state/active_expired_history.json.gz.part* 2>/dev/null)
+
+            if gh release view anti-churn-ledger-backup --repo "${{ github.repository }}" >/dev/null 2>&1; then
+              if gh release upload anti-churn-ledger-backup $ALLE_PARTS \
+                  --repo "${{ github.repository }}" --clobber; then
+                gh release edit anti-churn-ledger-backup --repo "${{ github.repository }}" \
+                  --title "Anti-Churn-Ledger ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
+                  --notes "Automatische Anti-Churn-Ledger fuer Watchlist- (30T) und Active-Pfad (180T). Wird bei jeder Aenderung ersetzt, kein Git-History-Bestandteil." \
+                  --draft=false \
+                  2>/dev/null || true
+                # FIX 2026-08-24-artig: gleicher Zeitstempel-Refresh wie beim
+                # seen-db-backup/Warteliste-Release, siehe ausfuehrlicher
+                # Kommentar dort.
+                if gh release edit anti-churn-ledger-backup --repo "${{ github.repository }}" --draft=true 2>/dev/null; then
+                  if gh release edit anti-churn-ledger-backup --repo "${{ github.repository }}" --draft=false 2>/dev/null; then
+                    echo "Anzeige-Zeitstempel aufgefrischt (kurzer Draft-Uebergang)"
+                  else
+                    echo "::warning file=update_combined_blacklist.yml::Draft-Toggle fuer anti-churn-ledger-backup: draft=false nach draft=true fehlgeschlagen - Release koennte als Draft haengen! Bitte manuell in GitHub pruefen."
+                  fi
+                else
+                  echo "Draft-Toggle uebersprungen (draft=true fehlgeschlagen) - Release bleibt unveraendert wie zuvor, kein Schaden"
+                fi
+                # Verwaiste alte Parts aufraeumen - NUR fuer die Ledger, die
+                # in DIESEM Lauf tatsaechlich neu geschrieben wurden (der
+                # jeweils andere Ledger bleibt unberuehrt, seine Parts sind
+                # kein "verwaist", nur schlicht nicht Teil dieses Uploads).
+                for LEDGER_NAME in $GEAENDERTE_LEDGER; do
+                  _lokale_parts=$(ls state/${LEDGER_NAME}.json.gz.part* 2>/dev/null | xargs -n1 basename)
+                  gh release view anti-churn-ledger-backup --repo "${{ github.repository }}" \
+                      --json assets --jq '.assets[].name' 2>/dev/null \
+                    | grep "^${LEDGER_NAME}\.json\.gz\.part" \
+                    | while read -r _remote_asset; do
+                        if ! echo "$_lokale_parts" | grep -qxF "$_remote_asset"; then
+                          echo "Entferne verwaisten alten Part: $_remote_asset"
+                          gh release delete-asset anti-churn-ledger-backup "$_remote_asset" \
+                            --repo "${{ github.repository }}" --yes 2>/dev/null || true
+                        fi
+                      done
+                done
+                echo "Anti-Churn-Ledger als Release-Asset aktualisiert (${GEAENDERTE_LEDGER})"
+              else
+                echo "::warning file=update_combined_blacklist.yml::Release-Upload des Anti-Churn-Ledgers fehlgeschlagen – vorheriger Stand bleibt garantiert bestehen (kein Delete vorher)"
+              fi
+            else
+              echo "Kein bestehendes anti-churn-ledger-backup-Release gefunden - lege neu an (erster Lauf)."
+              if gh release create anti-churn-ledger-backup $ALLE_PARTS \
+                  --repo "${{ github.repository }}" \
+                  --title "Anti-Churn-Ledger ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
+                  --notes "Automatische Anti-Churn-Ledger fuer Watchlist- (30T) und Active-Pfad (180T). Wird bei jeder Aenderung ersetzt, kein Git-History-Bestandteil."; then
+                echo "Anti-Churn-Ledger als Release-Asset hochgeladen (${GEAENDERTE_LEDGER})"
+                gh release edit anti-churn-ledger-backup --repo "${{ github.repository }}" \
+                  --draft=false 2>/dev/null || true
+              else
+                echo "::warning file=update_combined_blacklist.yml::Erstanlage des Anti-Churn-Ledger-Release fehlgeschlagen"
+              fi
+            fi
+            # Lokale Parts entfernen - duerfen unter keinen Umstaenden vom
+            # "Commit and Push"-Step versehentlich mitgenommen werden (kein
+            # git add dafuer vorgesehen, aber zusaetzliche Absicherung).
+            rm -f state/watchlist_expired_history.json.gz.part* state/active_expired_history.json.gz.part*
+          else
+            echo "Keine Aenderung an den Anti-Churn-Ledgern in diesem Lauf - kein Upload noetig"
+          fi
+
       - name: Commit and Push
         # FIX BUG-AL1 (2/2): if: always() ergänzt. Ohne diesen Guard wurden bei einem
         # Python-Crash weder combined_threat_blacklist_ipv4.txt noch active_blacklist noch
@@ -4520,12 +4761,18 @@ jobs:
           git rm -q --cached --ignore-unmatch combined_threat_blacklist_ipv4.txt 2>/dev/null || true
 
           git add active_blacklist_ipv4.txt reports/combined_threat_blacklist_report.md state/seen_db_meta.json reputation_blacklist.txt 2>/dev/null || true
-          # FIX CHURN-WATCHLIST: Ledger fuer dauerhaft abgelaufene Watchlist-IPs
-          # mitcommitten (nur vorhanden/geaendert, wenn der obige Block etwas
-          # geschrieben hat - sonst No-Op).
-          git add state/watchlist_expired_history.json 2>/dev/null || true
-          # FIX CHURN-ACTIVE: gleiches Prinzip fuer den Active-Pfad-Ledger.
-          git add state/active_expired_history.json 2>/dev/null || true
+          # CHANGE LEDGER-OFF-GIT (2026-08-26, Nutzerwunsch "die json soll
+          # nicht im repo gespeichert werden"): Beide Anti-Churn-Ledger
+          # (watchlist_expired_history.json, active_expired_history.json)
+          # liegen jetzt als GitHub-Release-Assets (siehe "Ledger zu Release
+          # sichern"-Step weiter unten), nicht mehr im Git-Index. Grund:
+          # watchlist_expired_history.json war auf 21+ MB angewachsen und
+          # blaehte den Git-Verlauf bei jedem Commit weiter auf - exakt das
+          # gleiche Muster, das schon beim seen_db-Backup und der Aufnahme-
+          # Warteliste zu dieser Loesung gefuehrt hat. Falls aus einem
+          # AELTEREN Commit noch die Ledger-Dateien im Index stehen (Migration
+          # von der alten Vorgehensweise), hier einmalig idempotent entfernen.
+          git rm -q --cached --ignore-unmatch state/watchlist_expired_history.json state/active_expired_history.json 2>/dev/null || true
           # CHANGE BACKUP-OFF-GIT: seen_db-Backup liegt jetzt als GitHub-Release-Asset
           # (siehe "Backup seen_db to Repo"-Step), nicht mehr im Git-Index. Falls aus
           # einem AELTEREN Commit noch Backup-Dateien im Index stehen (Migration von
