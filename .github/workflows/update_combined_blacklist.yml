@@ -1861,7 +1861,36 @@ jobs:
               try:
                   with open(WL_EXPIRED_HISTORY_FILE) as _f:
                       _wl_hist_data = json.load(_f)
-                  _wl_expired_first = dict(_wl_hist_data.get("entries", {}))
+                  _wl_expired_first_raw = dict(_wl_hist_data.get("entries", {}))
+                  # FIX BUG-PRUNE-WRONG-DATE (2026-08-26, im echten Betrieb
+                  # entdeckt - der GESAMTE Ledger fiel bei einem Lauf von
+                  # 657.370 auf 0 Eintraege): Vorher wurde hier direkt ein
+                  # Datums-STRING gespeichert (das urspruengliche "first"-
+                  # Datum der IP). Das Pruning verglich dieses "first"-Datum
+                  # gegen die Prune-Schwelle - aber "first" ist naturgemaess
+                  # IMMER mindestens 30 Tage alt (das ist ja die Voraus-
+                  # setzung fuers Watchlist-Ablaufen ueberhaupt), unabhaengig
+                  # davon, WANN die IP tatsaechlich eingefroren wurde. Bei
+                  # einer Verkuerzung von WL_HISTORY_PRUNE_DAYS auf 14 fiel
+                  # dadurch praktisch JEDER Eintrag sofort durch - ein reiner
+                  # Modellierungsfehler, kein Zufall. Fix: jeder Eintrag ist
+                  # jetzt ein Dict {"first": <urspruengliches Datum>,
+                  # "eingefroren_am": <Datum der tatsaechlichen Einfrierung>}
+                  # - Pruning vergleicht ab jetzt "eingefroren_am", nicht mehr
+                  # "first". Rueckwaerts-kompatibel: alte, reine String-
+                  # Eintraege (aus Laeufen vor diesem Fix) werden beim Laden
+                  # automatisch in das neue Format konvertiert.
+                  _wl_expired_first = {}
+                  for _ip_wl, _wert_wl in _wl_expired_first_raw.items():
+                      if isinstance(_wert_wl, dict):
+                          _wl_expired_first[_ip_wl] = _wert_wl
+                      else:
+                          # Altformat (reiner String) - "first" und
+                          # "eingefroren_am" auf denselben (einzigen
+                          # bekannten) Wert setzen; kein Datenverlust, nur
+                          # keine praezise Einfrier-Historie fuer diese
+                          # Alt-Eintraege verfuegbar.
+                          _wl_expired_first[_ip_wl] = {"first": _wert_wl, "eingefroren_am": _wert_wl}
                   print(f"state/watchlist_expired_history.json: "
                         f"{len(_wl_expired_first)} dauerhaft abgelaufene Watchlist-IPs geladen")
               except Exception as _ex:
@@ -1889,7 +1918,15 @@ jobs:
               try:
                   with open(ACTIVE_EXPIRED_HISTORY_FILE) as _f:
                       _active_hist_data = json.load(_f)
-                  _active_expired_last = dict(_active_hist_data.get("entries", {}))
+                  _active_expired_last_raw = dict(_active_hist_data.get("entries", {}))
+                  # FIX BUG-PRUNE-WRONG-DATE: siehe ausfuehrlicher Kommentar
+                  # beim Watchlist-Ledger oben - dieselbe Normalisierung hier.
+                  _active_expired_last = {}
+                  for _ip_ac, _wert_ac in _active_expired_last_raw.items():
+                      if isinstance(_wert_ac, dict):
+                          _active_expired_last[_ip_ac] = _wert_ac
+                      else:
+                          _active_expired_last[_ip_ac] = {"last": _wert_ac, "eingefroren_am": _wert_ac}
                   print(f"state/active_expired_history.json: "
                         f"{len(_active_expired_last)} dauerhaft abgelaufene Active-IPs geladen")
               except Exception as _ex:
@@ -2903,7 +2940,7 @@ jobs:
                       # today_is_hq) relevant - siehe Ledger-Kommentar oben.
                       _wl_first = now_day
                       if not today_is_hq and ip in _wl_expired_first:
-                          _wl_first = _wl_expired_first[ip]
+                          _wl_first = _wl_expired_first[ip]["first"]
                       # FIX BUG-STALE-LEDGER-ENTRY (2026-08-24, im echten
                       # Betrieb entdeckt - Verifikations-Report zeigte einen
                       # langsam WACHSENDEN "Rueckfall"-Zaehler, obwohl die
@@ -2935,7 +2972,7 @@ jobs:
                       if strongly_confirmed_today:
                           _entry_last = now_day
                       elif today_is_hq:
-                          _entry_last = _active_expired_last.get(ip, now_day)
+                          _entry_last = _active_expired_last[ip]["last"] if ip in _active_expired_last else now_day
                       else:
                           _entry_last = "2000-01-01"
                       db[ip] = {
@@ -2963,7 +3000,7 @@ jobs:
                   # "last"-Zeile direkt darunter.
                   _wl_first = now_day
                   if not today_is_hq and ip in _wl_expired_first:
-                      _wl_first = _wl_expired_first[ip]
+                      _wl_first = _wl_expired_first[ip]["first"]
                   # FIX BUG-STALE-LEDGER-ENTRY: siehe ausfuehrlicher Kommentar
                   # im "existierender Eintrag"-Zweig oben - identische
                   # Bereinigung auch fuer den Fall, dass die IP als komplett
@@ -2983,7 +3020,7 @@ jobs:
                   if strongly_confirmed_today:
                       _entry_last = now_day
                   elif today_is_hq:
-                      _entry_last = _active_expired_last.get(ip, now_day)
+                      _entry_last = _active_expired_last[ip]["last"] if ip in _active_expired_last else now_day
                   else:
                       _entry_last = "2000-01-01"
                   db[ip] = {
@@ -3013,7 +3050,7 @@ jobs:
                   _ist_ledger_wiederauferstehung = (
                       (_wl_first != now_day and _entry_last == "2000-01-01")
                       or (today_is_hq and not strongly_confirmed_today
-                          and ip in _active_expired_last and _entry_last == _active_expired_last[ip])
+                          and ip in _active_expired_last and _entry_last == _active_expired_last[ip]["last"])
                   )
                   if not _ist_ledger_wiederauferstehung:
                       neu_angelegt_ohne_ledger += 1
@@ -3229,7 +3266,7 @@ jobs:
                               # eigentlich nur eine Doppelschreib-Vermeidung,
                               # der Wert waere ohnehin identisch).
                               if ip not in _wl_expired_first:
-                                  _wl_expired_first[ip] = first_str
+                                  _wl_expired_first[ip] = {"first": first_str, "eingefroren_am": now_day}
                                   _wl_expired_first_dirty = True
                       else:
                           if last_str < cutoff_str:
@@ -3240,7 +3277,7 @@ jobs:
                               # BEVOR die IP aus seen_db verschwindet - analog
                               # zum Watchlist-Ledger oben, siehe Kommentar dort.
                               if ip not in _active_expired_last:
-                                  _active_expired_last[ip] = last_str
+                                  _active_expired_last[ip] = {"last": last_str, "eingefroren_am": now_day}
                                   _active_expired_last_dirty = True
                   except Exception:
                       expired.append(ip)
@@ -3345,7 +3382,7 @@ jobs:
               _wl_retro_removed = 0
               for _frozen_ip in list(_wl_expired_first.keys()):
                   _aktueller_eintrag = db.get(_frozen_ip)
-                  if _aktueller_eintrag is not None and _aktueller_eintrag.get("first") != _wl_expired_first[_frozen_ip]:
+                  if _aktueller_eintrag is not None and _aktueller_eintrag.get("first") != _wl_expired_first[_frozen_ip]["first"]:
                       del _wl_expired_first[_frozen_ip]
                       _wl_retro_removed += 1
               if _wl_retro_removed:
@@ -3357,7 +3394,7 @@ jobs:
               _active_retro_removed = 0
               for _frozen_ip in list(_active_expired_last.keys()):
                   _aktueller_eintrag = db.get(_frozen_ip)
-                  if _aktueller_eintrag is not None and _aktueller_eintrag.get("last") != _active_expired_last[_frozen_ip]:
+                  if _aktueller_eintrag is not None and _aktueller_eintrag.get("last") != _active_expired_last[_frozen_ip]["last"]:
                       del _active_expired_last[_frozen_ip]
                       _active_retro_removed += 1
               if _active_retro_removed:
@@ -3382,15 +3419,21 @@ jobs:
           if _wl_expired_first:
               _wl_prune_cutoff_str = (now - timedelta(days=WL_HISTORY_PRUNE_DAYS)).strftime("%Y-%m-%d")
               _wl_before = len(_wl_expired_first)
+              # FIX BUG-PRUNE-WRONG-DATE (siehe ausfuehrlicher Kommentar beim
+              # Laden oben): Filter vergleicht jetzt "eingefroren_am" (wann
+              # der Eintrag tatsaechlich in den Ledger kam), NICHT mehr
+              # "first" (das urspruengliche Erstsichtungs-Datum der IP, das
+              # naturgemaess immer >= 30 Tage alt ist und daher bei jedem
+              # Lauf sofort durchgefallen waere).
               _wl_expired_first = {
-                  _ip: _d for _ip, _d in _wl_expired_first.items()
-                  if _d >= _wl_prune_cutoff_str
+                  _ip: _eintrag for _ip, _eintrag in _wl_expired_first.items()
+                  if _eintrag.get("eingefroren_am", _eintrag.get("first")) >= _wl_prune_cutoff_str
               }
               _wl_pruned = _wl_before - len(_wl_expired_first)
               if _wl_pruned:
                   _wl_expired_first_dirty = True
                   print(f"watchlist_expired_history: {_wl_pruned} Eintraege "
-                        f"(> {WL_HISTORY_PRUNE_DAYS} Tage alt) geprunt")
+                        f"(> {WL_HISTORY_PRUNE_DAYS} Tage seit Einfrierung) geprunt")
           if _wl_expired_first_dirty:
               write_json_atomic(WL_EXPIRED_HISTORY_FILE, {
                   "updated": now_stamp,
@@ -3409,14 +3452,14 @@ jobs:
               _active_prune_cutoff_str = (now - timedelta(days=ACTIVE_HISTORY_PRUNE_DAYS)).strftime("%Y-%m-%d")
               _active_before = len(_active_expired_last)
               _active_expired_last = {
-                  _ip: _d for _ip, _d in _active_expired_last.items()
-                  if _d >= _active_prune_cutoff_str
+                  _ip: _eintrag for _ip, _eintrag in _active_expired_last.items()
+                  if _eintrag.get("eingefroren_am", _eintrag.get("last")) >= _active_prune_cutoff_str
               }
               _active_pruned = _active_before - len(_active_expired_last)
               if _active_pruned:
                   _active_expired_last_dirty = True
                   print(f"active_expired_history: {_active_pruned} Eintraege "
-                        f"(> {ACTIVE_HISTORY_PRUNE_DAYS} Tage alt) geprunt")
+                        f"(> {ACTIVE_HISTORY_PRUNE_DAYS} Tage seit Einfrierung) geprunt")
           if _active_expired_last_dirty:
               write_json_atomic(ACTIVE_EXPIRED_HISTORY_FILE, {
                   "updated": now_stamp,

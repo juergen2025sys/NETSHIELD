@@ -191,7 +191,17 @@ jobs:
               except Exception as e:
                   print(f"WARNUNG: {_ledger_datei} nicht lesbar fuer Konsistenzpruefung: {e}")
                   continue
-              for _ip, _frozen_datum in _ledger_eintraege.items():
+              for _ip, _frozen_eintrag in _ledger_eintraege.items():
+                  # FIX BUG-PRUNE-WRONG-DATE (2026-08-26): Ledger-Eintraege
+                  # sind jetzt Dicts {"first"/"last": ..., "eingefroren_am": ...}
+                  # statt reiner Datums-Strings - siehe ausfuehrlicher
+                  # Kommentar in update_combined_blacklist.yml. Rueckwaerts-
+                  # kompatibel: alte reine String-Eintraege werden hier
+                  # genauso behandelt wie das relevante Feld eines neuen Dicts.
+                  if isinstance(_frozen_eintrag, dict):
+                      _frozen_datum = _frozen_eintrag.get("first" if _ledger_label == "Watchlist" else "last")
+                  else:
+                      _frozen_datum = _frozen_eintrag
                   _entry = db.get(_ip)
                   if _entry is None or not isinstance(_entry, dict):
                       continue  # nicht in seen_db - genau wie erwartet, kein Bug
