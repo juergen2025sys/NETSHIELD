@@ -3505,6 +3505,30 @@ jobs:
           # Konstanten statt einer gemeinsamen.
           WL_HISTORY_PRUNE_DAYS = 14
           ACTIVE_HISTORY_PRUNE_DAYS = 400
+
+          # ── FIX BUG-17-GUARD (2026-08-26, Nutzerwunsch "sowas wie mit den
+          # 650.000 IPs nie wieder passiert"): Bug 17 hat gezeigt, dass ein
+          # einziger falscher Datumsvergleich einen ganzen Ledger (657.370
+          # Eintraege) in EINEM Lauf auf 0 pruen konnte - unwiederbringlich,
+          # da es keinen Git-Verlauf mehr gibt (CHANGE LEDGER-OFF-GIT), der
+          # das haette retten koennen. Diese Schwelle ist ein reiner
+          # Sicherheitsnetz-Backstop gegen genau diese Fehlerklasse (falscher
+          # Vergleichswert, falsches Feld, kaputte Uhr etc.), NICHT gegen
+          # normales, graduelles Pruning - im stationaeren Betrieb sollte pro
+          # Lauf immer nur ein kleiner Bruchteil (~1/14 des Bestands bei
+          # taeglich aehnlicher Einfrier-Rate) herausfallen. Ein Lauf, der
+          # mehr als die Haelfte des Ledgers auf einen Schlag entfernen will,
+          # ist per Definition anomal genug, um lieber NICHTS zu tun als
+          # falsch (und unwiderruflich) zu loeschen.
+          # Bewusst absolute UND relative Schwelle kombiniert: nur relativ
+          # (z.B. "80%") wuerde bei einem winzigen Ledger (5 von 6 Eintraegen)
+          # dauernd faelschlich anschlagen; nur absolut wuerde bei einem
+          # inzwischen sehr grossen Ledger zu spaet greifen.
+          LEDGER_PRUNE_GUARD_PROZENT = 50
+          LEDGER_PRUNE_GUARD_MIN_ENTRIES = 1000
+          _wl_prune_guard_ausgeloest = False
+          _active_prune_guard_ausgeloest = False
+
           if _wl_expired_first:
               _wl_prune_cutoff_str = (now - timedelta(days=WL_HISTORY_PRUNE_DAYS)).strftime("%Y-%m-%d")
               _wl_before = len(_wl_expired_first)
@@ -3514,12 +3538,29 @@ jobs:
               # "first" (das urspruengliche Erstsichtungs-Datum der IP, das
               # naturgemaess immer >= 30 Tage alt ist und daher bei jedem
               # Lauf sofort durchgefallen waere).
-              _wl_expired_first = {
+              # WICHTIG (FIX BUG-17-GUARD): erst in eine NEUE Variable pruefen,
+              # NICHT direkt in _wl_expired_first ueberschreiben - sonst
+              # koennten wir einen zu grossen Prune nicht mehr verwerfen,
+              # ohne die Originaldaten schon verloren zu haben.
+              _wl_expired_first_kandidat = {
                   _ip: _eintrag for _ip, _eintrag in _wl_expired_first.items()
                   if _eintrag.get("eingefroren_am", _eintrag.get("first")) >= _wl_prune_cutoff_str
               }
-              _wl_pruned = _wl_before - len(_wl_expired_first)
-              if _wl_pruned:
+              _wl_pruned = _wl_before - len(_wl_expired_first_kandidat)
+              _wl_pruned_prozent = (_wl_pruned / _wl_before * 100) if _wl_before else 0
+              if (_wl_before >= LEDGER_PRUNE_GUARD_MIN_ENTRIES
+                      and _wl_pruned_prozent >= LEDGER_PRUNE_GUARD_PROZENT):
+                  _wl_prune_guard_ausgeloest = True
+                  print(f"::error::SANITY-GUARD ausgeloest (watchlist_expired_history): "
+                        f"Pruning wuerde {_wl_pruned:,}/{_wl_before:,} Eintraege "
+                        f"({_wl_pruned_prozent:.1f}%) auf einen Schlag entfernen - "
+                        f"(>= {LEDGER_PRUNE_GUARD_PROZENT}% bei >= {LEDGER_PRUNE_GUARD_MIN_ENTRIES:,} "
+                        f"Eintraegen). Pruning wird NICHT angewendet, alter Ledger-Stand "
+                        f"bleibt erhalten. Vermutlich ein Bug (falscher Vergleichswert/"
+                        f"falsches Feld) statt echtem Alterungs-Effekt - siehe Bug 17.")
+                  # Kandidat bewusst verworfen - _wl_expired_first bleibt unveraendert.
+              elif _wl_pruned:
+                  _wl_expired_first = _wl_expired_first_kandidat
                   _wl_expired_first_dirty = True
                   print(f"watchlist_expired_history: {_wl_pruned} Eintraege "
                         f"(> {WL_HISTORY_PRUNE_DAYS} Tage seit Einfrierung) geprunt")
@@ -3547,12 +3588,28 @@ jobs:
           if _active_expired_last:
               _active_prune_cutoff_str = (now - timedelta(days=ACTIVE_HISTORY_PRUNE_DAYS)).strftime("%Y-%m-%d")
               _active_before = len(_active_expired_last)
-              _active_expired_last = {
+              # FIX BUG-17-GUARD: gleiches Prinzip wie beim Watchlist-Ledger
+              # oben - erst Kandidat bilden, nur bei plausibler Groesse
+              # uebernehmen.
+              _active_expired_last_kandidat = {
                   _ip: _eintrag for _ip, _eintrag in _active_expired_last.items()
                   if _eintrag.get("eingefroren_am", _eintrag.get("last")) >= _active_prune_cutoff_str
               }
-              _active_pruned = _active_before - len(_active_expired_last)
-              if _active_pruned:
+              _active_pruned = _active_before - len(_active_expired_last_kandidat)
+              _active_pruned_prozent = (_active_pruned / _active_before * 100) if _active_before else 0
+              if (_active_before >= LEDGER_PRUNE_GUARD_MIN_ENTRIES
+                      and _active_pruned_prozent >= LEDGER_PRUNE_GUARD_PROZENT):
+                  _active_prune_guard_ausgeloest = True
+                  print(f"::error::SANITY-GUARD ausgeloest (active_expired_history): "
+                        f"Pruning wuerde {_active_pruned:,}/{_active_before:,} Eintraege "
+                        f"({_active_pruned_prozent:.1f}%) auf einen Schlag entfernen - "
+                        f"(>= {LEDGER_PRUNE_GUARD_PROZENT}% bei >= {LEDGER_PRUNE_GUARD_MIN_ENTRIES:,} "
+                        f"Eintraegen). Pruning wird NICHT angewendet, alter Ledger-Stand "
+                        f"bleibt erhalten. Vermutlich ein Bug statt echtem Alterungs-Effekt "
+                        f"- siehe Bug 17.")
+                  # Kandidat bewusst verworfen - _active_expired_last bleibt unveraendert.
+              elif _active_pruned:
+                  _active_expired_last = _active_expired_last_kandidat
                   _active_expired_last_dirty = True
                   print(f"active_expired_history: {_active_pruned} Eintraege "
                         f"(> {ACTIVE_HISTORY_PRUNE_DAYS} Tage seit Einfrierung) geprunt")
@@ -3565,6 +3622,29 @@ jobs:
               print(f"state/active_expired_history_upload.json geschrieben "
                     f"({len(_active_expired_last)} Eintraege) - wird als Release-Asset "
                     f"hochgeladen (siehe Step danach)")
+
+          # ── FIX BUG-17-GUARD: Guard-Ergebnis in cleanup_stats.json nachtragen ──
+          # cleanup_stats.json wurde weiter oben (vor diesem Prune-Block)
+          # bereits geschrieben und dabei schon in state/seen_db_meta.json
+          # unter "cleanup" eingebettet (Step "Commit and Push" weiter
+          # unten, separater python3-Prozess) - das ist der einzige Kanal,
+          # ueber den ip_ablauf.yml (anderer Workflow, anderer Job, alle 3h)
+          # ueberhaupt etwas aus diesem Lauf erfaehrt. Deshalb hier NICHT neu
+          # schreiben (wuerde die bereits vorhandenen Werte wie
+          # expired_removed verwerfen), sondern die zwei Guard-Felder
+          # nachtraeglich in dieselbe Datei einfuegen, bevor der spaetere
+          # Step sie liest.
+          if _wl_prune_guard_ausgeloest or _active_prune_guard_ausgeloest:
+              try:
+                  with open("cleanup_stats.json") as f:
+                      _cleanup_stats_patch = json.load(f)
+              except Exception:
+                  _cleanup_stats_patch = {}
+              _cleanup_stats_patch["wl_prune_guard_ausgeloest"] = _wl_prune_guard_ausgeloest
+              _cleanup_stats_patch["active_prune_guard_ausgeloest"] = _active_prune_guard_ausgeloest
+              write_json_atomic("cleanup_stats.json", _cleanup_stats_patch, indent=2)
+              print("cleanup_stats.json um Sanity-Guard-Status ergaenzt "
+                    "(wird von ip_ablauf.yml als Alarm ausgewertet)")
 
           # ── FIX AUFNAHME-CROSS-DAY-V2: Warteliste bereinigen + lokal
           # schreiben (Release-Upload passiert in einem separaten Bash-

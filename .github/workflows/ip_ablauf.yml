@@ -904,6 +904,40 @@ jobs:
                   _extra.append(f"{cleanup_stats['cidr_aggr_removed']:,} CIDR-Aggregate")
               if _extra:
                   cleanup_text += " (zusätzlich: " + ", ".join(_extra) + ")"
+
+              # FIX BUG-17-GUARD (2026-08-26, Nutzerwunsch "sowas wie mit den
+              # 650.000 IPs nie wieder passiert"): update_combined_blacklist.yml
+              # blockiert seit diesem Fix selbst schon einen zu grossen
+              # Ledger-Prune (siehe LEDGER_PRUNE_GUARD_PROZENT/
+              # LEDGER_PRUNE_GUARD_MIN_ENTRIES dort) - das verhindert den
+              # Datenverlust, aber ohne diese Meldung hier wuerde der Guard
+              # still im combined-Log verschwinden und erst auffallen, wenn
+              # jemand zufaellig hineinschaut (genau das Problem, das der
+              # Nutzer ausdruecklich vermeiden wollte). Deshalb hier an
+              # denselben Alarm-Mechanismus (diagnose_probleme -> GitHub-
+              # Issue) angehaengt wie Rueckfall/Ledger-Konsistenz/Staleness -
+              # spaetestens beim naechsten 3h-Verifikations-Lauf sichtbar,
+              # nicht erst beim naechsten Blick auf GitHub.
+              if cleanup_stats.get("wl_prune_guard_ausgeloest"):
+                  diagnose_probleme.append(
+                      "🛑 **Ledger-Sanity-Guard ausgelöst (Watchlist):** Ein "
+                      "combined-Lauf wollte mehr als die Hälfte des "
+                      "watchlist_expired_history-Ledgers auf einen Schlag "
+                      "entfernen - wurde blockiert, alter Stand bleibt "
+                      "erhalten (siehe Bug 17: exakt so ist der Ledger vorher "
+                      "von 657.370 auf 0 gefallen). Wahrscheinlich ein neuer "
+                      "Bug im Prune-Vergleich - combined-Log dieses Laufs "
+                      "prüfen, bevor der Guard-Schwellenwert angefasst wird."
+                  )
+              if cleanup_stats.get("active_prune_guard_ausgeloest"):
+                  diagnose_probleme.append(
+                      "🛑 **Ledger-Sanity-Guard ausgelöst (Active):** Ein "
+                      "combined-Lauf wollte mehr als die Hälfte des "
+                      "active_expired_history-Ledgers auf einen Schlag "
+                      "entfernen - wurde blockiert, alter Stand bleibt "
+                      "erhalten (siehe Bug 17). combined-Log dieses Laufs "
+                      "prüfen, bevor der Guard-Schwellenwert angefasst wird."
+                  )
           else:
               cleanup_text = "n/a (kein combined-Lauf mit Cleanup-Statistik gefunden)"
 
