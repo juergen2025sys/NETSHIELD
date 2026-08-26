@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-26 16:01 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-26 23:48 CEST (Europe/Berlin)
 
-**Workflows:** 28 | ✅ 27 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
+**Workflows:** 29 | ✅ 28 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
@@ -31,6 +31,7 @@
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `feed_ip_finder.yml` | ✅ OK | 0 | 0 | – |
 | `feed_overlap_report.yml` | ✅ OK | 0 | 0 | `25 3 * * 0` |
+| `force_cancel_stuck_runs.yml` | ✅ OK | 0 | 0 | – |
 | `history_fresh_start.yml` | ✅ OK | 0 | 0 | `15 3 1 * *` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 5,11,17,23 * * *` |
 | `honigtopf.yml` | ✅ OK | 0 | 0 | `*/20 * * * *`, `15 22 * * *` |
@@ -52,4 +53,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-26 16:01 CEST (Europe/Berlin) | 28 Workflow-Dateien geprüft*
+*Generiert: 2026-08-26 23:48 CEST (Europe/Berlin) | 29 Workflow-Dateien geprüft*
