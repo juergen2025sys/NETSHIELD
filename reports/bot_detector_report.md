@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-26 13:02 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-26 13:13 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -8,8 +8,8 @@
 | Metrik | Wert |
 |---|---|
 | Gesamt IPs | **1,309,878** |
-| Neu (heute) | **+233** |
-| Entfernt | **-497** |
+| Neu (heute) | **+0** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 62 |
@@ -27,10 +27,10 @@
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 500,000 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,310 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,643 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,739 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,644 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,736 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,809 |
-| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,953 |
+| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,954 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,807 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,403 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,356 |
@@ -44,7 +44,7 @@
 | ✅ `officialputuid_proxyforeveryone` | 6,373 |
 | ✅ `officialputuid_proxyforeveryone_https` | 5,252 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 6,156 |
-| ✅ `ercindedeoglu_proxies` | 51,549 |
+| ✅ `ercindedeoglu_proxies` | 51,551 |
 | ✅ `ercindedeoglu_proxies_socks4` | 17,110 |
 | ✅ `ercindedeoglu_proxies_socks5` | 15,832 |
 | ✅ `tuanminpay_live_proxy` | 8,934 |
@@ -74,7 +74,7 @@
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,741 |
 | ✅ `leon406_subcrawler` | 122,103 |
 | ✅ `kalidada18_threatbase_threatbase_ip_botnet` | 3,593 |
-| ✅ `hookzof_socks5_list` | 127 |
+| ✅ `hookzof_socks5_list` | 232 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,152 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,209 |
 | ❌ `cyberh4ck3r_free_proxy_list` | 0 |
@@ -87,4 +87,4 @@
 > Diese 62 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-26 13:02 CEST (Europe/Berlin)*
+*Generiert: 2026-08-26 13:13 CEST (Europe/Berlin)*
