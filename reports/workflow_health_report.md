@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-27 13:10 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-27 20:17 CEST (Europe/Berlin)
 
-**Workflows:** 29 | ✅ 28 OK | ⚠️ 4 Warnung | ❌ 0 Fehler
+**Workflows:** 29 | ✅ 28 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
@@ -11,21 +11,12 @@
 | `ip_ablauf.yml` | continue-on-error aktiv | continue-on-error=true gesetzt – Fehler können still bleiben; Review ob das wirklich beabsichtigt ist |
 | `Cross-Workflow` | Doppelte Feed-URLs | 5 URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: strongips.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; abuseipdb-s100-30d.ipv4 in auto_feed_discovery.yml+update_combined_blacklist.yml; 5.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; greylist-latest.csv in auto_feed_discovery.yml+honeypot_monitor.yml; block.txt in auto_feed_discovery.yml+update_combined_blacklist.yml |
 | `honigtopf.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC → 00:07 UTC (7min < 60min Mindestpuffer); 00:20 UTC → 00:27 UTC (7min < 60min Mindestpuffer); 00:40 UTC → 00:47 UTC (7min < 60min Mindestpuffer); 02:20 UTC → 03:07 UTC (47min < 60min Mindestpuffer); 02:40 UTC → 03:07 UTC (27min < 60min Mindestpuffer) |
-| `Production Health` | seen_db Aktualität | state/seen_db_meta.json ist 7h alt (letztes Update: 2026-08-27 05:49 CEST (Europe/Berlin)) – mindestens 1 Combined-Run verpasst |
-| `Production Health` | Aktualität: Active Blacklist (Stufe 2) | active_blacklist_ipv4.txt ist 7h alt (WARN-Schwelle: 6h) |
-| `Production Health` | Aktualität: Combined Blacklist (Stufe 1, Part 1) | combined_threat_blacklist_ipv4_part1.txt ist 7h alt (WARN-Schwelle: 6h) |
-| `Production Health` | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4_part1.txt ist 7h alt (WARN-Schwelle: 6h) |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 4 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🟡 WARN | seen_db Aktualität | state/seen_db_meta.json ist 7h alt (letztes Update: 2026-08-27 05:49 CEST (Europe/Berlin)) – mindestens 1 Combined-Run verpasst |
-| 🟡 WARN | Aktualität: Active Blacklist (Stufe 2) | active_blacklist_ipv4.txt ist 7h alt (WARN-Schwelle: 6h) |
-| 🟡 WARN | Aktualität: Combined Blacklist (Stufe 1, Part 1) | combined_threat_blacklist_ipv4_part1.txt ist 7h alt (WARN-Schwelle: 6h) |
-| 🟡 WARN | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4_part1.txt ist 7h alt (WARN-Schwelle: 6h) |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -62,4 +53,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-27 13:10 CEST (Europe/Berlin) | 29 Workflow-Dateien geprüft*
+*Generiert: 2026-08-27 20:17 CEST (Europe/Berlin) | 29 Workflow-Dateien geprüft*
