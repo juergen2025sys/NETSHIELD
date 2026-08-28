@@ -4692,7 +4692,34 @@ jobs:
           done
 
           if [ -n "$GEAENDERTE_LEDGER" ]; then
-            ALLE_PARTS=$(ls state/watchlist_expired_history.json.gz.part* state/active_expired_history.json.gz.part* 2>/dev/null)
+            # FIX BUG-19-LEDGER-GLOB-CRASH (2026-08-28, im echten Betrieb
+            # entdeckt: Lauf mit 14.827 neu abgelaufenen Watchlist-IPs -
+            # erster echter Ledger-Zuwachs seit Bug 17 - ist genau hieran
+            # gescheitert): vorher wurden hier IMMER beide Ledger-Glob-Muster
+            # kombiniert, unabhaengig davon, welcher Ledger in $GEAENDERTE_LEDGER
+            # stand. War nur EINER der beiden geaendert (Normalfall - meist
+            # aendert sich Watchlist ODER Active, selten beide im selben Lauf),
+            # passte das Glob-Muster des UNVERAENDERTEN Ledgers zu keiner
+            # Datei. Unter "bash -e" liess das die komplette Zuweisung
+            # ALLE_PARTS=$(...) mit Exit-Code 2 fehlschlagen (ls liefert 2,
+            # wenn eines von mehreren Argumenten nicht existiert - auch mit
+            # 2>/dev/null unterdrueckt das nur die Fehlermeldung, nicht den
+            # Exit-Code) - und riss damit den gesamten Schritt ab, NOCH VOR
+            # dem eigentlichen "gh release upload". Ergebnis: die frisch
+            # abgelaufenen IPs wurden bereits aus seen_db entfernt (das commit-
+            # tet unabhaengig davon ganz normal), ihr Ledger-Eintrag landete
+            # aber nie im Release - faktisch derselbe Datenverlust wie bei
+            # Bug 17, nur in kleinerem Massstab (diese eine Charge statt des
+            # gesamten Ledgers).
+            # Fix: nur ueber die tatsaechlich in diesem Lauf geaenderten
+            # Ledger iterieren (GEAENDERTE_LEDGER ist an dieser Stelle schon
+            # bekannt) statt beide Glob-Muster blind zu kombinieren - fuer den
+            # jeweils unveraenderten Ledger wird gar kein Muster mehr
+            # ausgewertet, kann also auch nicht leer laufen.
+            ALLE_PARTS=""
+            for LEDGER_NAME in $GEAENDERTE_LEDGER; do
+              ALLE_PARTS="${ALLE_PARTS} $(ls state/${LEDGER_NAME}.json.gz.part* 2>/dev/null)"
+            done
 
             if gh release view anti-churn-ledger-backup --repo "${{ github.repository }}" >/dev/null 2>&1; then
               if gh release upload anti-churn-ledger-backup $ALLE_PARTS \
