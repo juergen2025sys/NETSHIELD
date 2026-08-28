@@ -3276,6 +3276,13 @@ jobs:
           # pro Pfad zaehlen.
           expired_watchlist_count = 0
           expired_active_count = 0
+          # FIX NEXT-EXPIRY-INFO (2026-08-28): Wird waehrend des Cleanup-Passes
+          # mitgefuehrt (kein zweiter Durchlauf noetig). Startwert "9999-99-99"
+          # ist lexikografisch groesser als jedes echte ISO-Datum, damit der
+          # erste Vergleich immer greift; bleibt er stehen, gab es keine
+          # Eintraege auf dem jeweiligen Pfad.
+          _wl_aeltestes_first = "9999-99-99"
+          _ac_aeltestes_last = "9999-99-99"
           expired = []
           WATCHLIST_EXPIRY_DAYS = 30
           cutoff      = now - timedelta(days=EXPIRY_DAYS)
@@ -3445,6 +3452,15 @@ jobs:
                       last_str  = safe_get_date(data, "last")
                       if last_str == "2000-01-01":
                           first_str = safe_get_date(data, "first", last_str)
+                          # FIX NEXT-EXPIRY-INFO (2026-08-28): aeltestes noch
+                          # nicht abgelaufenes "first" mitfuehren. Kostet nichts
+                          # extra - laeuft in der bestehenden Cleanup-Schleife
+                          # mit, statt einen zweiten Pass ueber ~9,7 Mio.
+                          # Eintraege zu brauchen. Zweck siehe Ausgabe weiter
+                          # unten: "0 abgelaufen" ist sonst nicht von einem
+                          # kaputten Cleanup zu unterscheiden.
+                          if first_str >= cutoff_wl_str and first_str < _wl_aeltestes_first:
+                              _wl_aeltestes_first = first_str
                           if first_str < cutoff_wl_str:
                               expired.append(ip)
                               expired_watchlist_count += 1
@@ -3491,6 +3507,10 @@ jobs:
                               }
                               _wl_expired_first_dirty = True
                       else:
+                          # FIX NEXT-EXPIRY-INFO: analog zum Watchlist-Zweig -
+                          # aeltestes noch nicht abgelaufenes "last" mitfuehren.
+                          if last_str >= cutoff_str and last_str < _ac_aeltestes_last:
+                              _ac_aeltestes_last = last_str
                           if last_str < cutoff_str:
                               expired.append(ip)
                               expired_active_count += 1
@@ -3541,6 +3561,36 @@ jobs:
           if cidr_aggr_removed:
               print(f"Non-/32-CIDR-Aggregate aus seen_db entfernt (BUG-CIDR-AGGR): {cidr_aggr_removed}")
           print(f"Abgelaufen (>{EXPIRY_DAYS} Tage / Watchlist >{WATCHLIST_EXPIRY_DAYS} Tage): {len(expired)} IPs entfernt")
+          if expired:
+              print(f"    davon Watchlist-Pfad ({WATCHLIST_EXPIRY_DAYS} Tage): {expired_watchlist_count:,} | "
+                    f"Active-Pfad ({EXPIRY_DAYS} Tage): {expired_active_count:,}")
+          # FIX NEXT-EXPIRY-INFO (2026-08-28): "0 IPs entfernt" allein ist
+          # nicht von einem kaputten Cleanup zu unterscheiden - genau diese
+          # Frage kam im Betrieb auf, als der Ledger dauerhaft leer blieb und
+          # nicht klar war, ob nichts ablaufen KANN oder ob etwas klemmt.
+          # Deshalb hier zusaetzlich, wann der naechste Ablauf faellig ist.
+          # Die beiden Werte werden im Cleanup-Pass oben mitgefuehrt, kosten
+          # also keinen zweiten Durchlauf ueber die ~9,7 Mio. Eintraege.
+          for _pfad_name, _aeltestes, _fenster in (
+                  ("Watchlist", _wl_aeltestes_first, WATCHLIST_EXPIRY_DAYS),
+                  ("Active", _ac_aeltestes_last, EXPIRY_DAYS)):
+              if _aeltestes == "9999-99-99":
+                  print(f"    Naechster {_pfad_name}-Ablauf: keine Eintraege auf diesem Pfad")
+                  continue
+              try:
+                  _faellig = (datetime.strptime(_aeltestes, "%Y-%m-%d")
+                              + timedelta(days=_fenster + 1)).date()
+                  _tage_hin = (_faellig - now.date()).days
+                  print(f"    Naechster {_pfad_name}-Ablauf: ~{_faellig.isoformat()} "
+                        f"(in {_tage_hin} Tag(en)) - aeltestes aktives Anker-Datum: {_aeltestes}")
+              except (ValueError, TypeError):
+                  print(f"    Naechster {_pfad_name}-Ablauf: nicht berechenbar "
+                        f"(unerwartetes Datum {_aeltestes!r})")
+          if not expired:
+              print("    Hinweis: 0 Ablaeufe ist erwartbar, solange das aelteste Anker-Datum "
+                    "juenger als das jeweilige Fenster ist (siehe Termine oben). "
+                    "Erst ab dann werden die Anti-Churn-Ledger beschrieben und "
+                    "als Release-Asset angelegt.")
           if wl_cleanup_count:
               print(f"Whitelist-Bereinigung seen_db: {wl_cleanup_count} IPs entfernt")
 
