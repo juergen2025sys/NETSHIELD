@@ -3379,9 +3379,38 @@ jobs:
                               # der Check ip not in _wl_expired_first ist hier
                               # eigentlich nur eine Doppelschreib-Vermeidung,
                               # der Wert waere ohnehin identisch).
-                              if ip not in _wl_expired_first:
-                                  _wl_expired_first[ip] = {"first": first_str, "eingefroren_am": now_day}
-                                  _wl_expired_first_dirty = True
+                              # FIX WL-LEDGER-REFRESH (2026-08-28): Der Guard
+                              # "if ip not in _wl_expired_first" stammt aus der
+                              # Zeit VOR dem Bug-17-Umbau, als ein Ledger-Eintrag
+                              # nur ein Datums-STRING ("first") war - damals war
+                              # der Wert beim erneuten Ablauf tatsaechlich
+                              # identisch, der Guard also reine Doppelschreib-
+                              # Vermeidung (siehe alten Kommentar oben). Seit
+                              # Bug 17 enthaelt der Eintrag zusaetzlich
+                              # "eingefroren_am", und DAS ist beim erneuten
+                              # Ablauf NICHT identisch. Der Guard verhinderte
+                              # dadurch, dass die Einfrier-Uhr je aufgefrischt
+                              # wird: die Ledger-Erinnerung lief immer genau
+                              # WL_HISTORY_PRUNE_DAYS (14) nach dem ERSTEN
+                              # Einfrieren ab - egal wie oft die IP danach noch
+                              # ablief. Folge: eine chronisch von schwachen
+                              # Feeds gemeldete IP wurde nach dem Pruning wieder
+                              # als brandneu behandelt (die 5-Feeds-Huerde
+                              # greift nur solange ein Ledger-Eintrag existiert)
+                              # und bekam volle 30 Tage - der im Bericht
+                              # beschriebene ~44-Tage-Zyklus, gemessen 47 Tage.
+                              # Jetzt: "first" (das geschuetzte Anker-Datum)
+                              # bleibt unveraendert erhalten, nur
+                              # "eingefroren_am" wird auf den heutigen Ablauf
+                              # gesetzt. Semantik damit: "vergiss eine IP erst
+                              # 14 Tage nachdem sie zuletzt abgelaufen ist",
+                              # statt "14 Tage nach ihrem ersten Ablauf".
+                              _wl_vorheriger = _wl_expired_first.get(ip)
+                              _wl_expired_first[ip] = {
+                                  "first": _wl_vorheriger["first"] if _wl_vorheriger else first_str,
+                                  "eingefroren_am": now_day,
+                              }
+                              _wl_expired_first_dirty = True
                       else:
                           if last_str < cutoff_str:
                               expired.append(ip)
@@ -3390,9 +3419,21 @@ jobs:
                               # FIX CHURN-ACTIVE: Original-"last" einfrieren,
                               # BEVOR die IP aus seen_db verschwindet - analog
                               # zum Watchlist-Ledger oben, siehe Kommentar dort.
-                              if ip not in _active_expired_last:
-                                  _active_expired_last[ip] = {"last": last_str, "eingefroren_am": now_day}
-                                  _active_expired_last_dirty = True
+                              # FIX WL-LEDGER-REFRESH: identisches Problem im
+                              # Active-Ledger - siehe ausfuehrlichen Kommentar
+                              # beim Watchlist-Ledger oben. Hier faellt es nur
+                              # deutlich spaeter auf, weil
+                              # ACTIVE_HISTORY_PRUNE_DAYS (400) groesser ist als
+                              # das 180-Tage-Fenster; der Zyklus betraegt hier
+                              # ~580 statt ~47 Tage, existiert aber genauso.
+                              # "last" (geschuetztes Anker-Datum) bleibt
+                              # erhalten, nur die Einfrier-Uhr wird gesetzt.
+                              _ac_vorheriger = _active_expired_last.get(ip)
+                              _active_expired_last[ip] = {
+                                  "last": _ac_vorheriger["last"] if _ac_vorheriger else last_str,
+                                  "eingefroren_am": now_day,
+                              }
+                              _active_expired_last_dirty = True
                   except Exception:
                       expired.append(ip)
                       _to_drop.append(ip)
