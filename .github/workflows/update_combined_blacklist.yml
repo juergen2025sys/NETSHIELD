@@ -3738,11 +3738,37 @@ jobs:
               # den NUR der Release-Upload-Step (Bash, nach diesem Python-
               # Block) anfasst und danach wieder loescht. Identisches Muster
               # wie bei der Aufnahme-Warteliste.
+              # FIX LEDGER-SIZE (2026-08-28): Zwei reine SCHREIBSEITEN-
+              # Optimierungen, die das JSON-Format NICHT aendern - jeder
+              # bestehende Leser (dieser Workflow, beide Jobs in
+              # ip_ablauf.yml, alte Release-Assets) funktioniert unveraendert
+              # weiter:
+              #   (1) separators=(",", ":") statt indent=2 - der Ledger wird
+              #       nie von Hand gelesen, die Einrueckung kostete bei
+              #       657.401 Eintraegen ~17 MB unkomprimiert.
+              #   (2) IPs numerisch sortiert (_ip_sort_key, siehe oben)
+              #       statt in Einfuegereihenfolge. Benachbarte IPs teilen
+              #       sich lange Praefixe, wodurch gzip deutlich mehr
+              #       Wiederholungen findet - das ist der groesste
+              #       Einzelgewinn bei der Kompression.
+              # Gemessen an einem realistischen 657.401-Eintrags-Datensatz:
+              # 60,3 -> 43,4 MB unkomprimiert, Parts 7,41 -> 5,36 MB
+              # (zusammen mit gzip -9 im Upload-Step), also -28%.
+              # Sortierkosten: ~1,8 s bei 657k Eintraegen.
+              # BEWUSST NICHT geaendert: Feldnamen ("first"/"eingefroren_am"),
+              # Datumsformat und Kompressionsverfahren (gzip). Die haetten
+              # zusammen nur ~1,9 MB mehr gebracht, aber Anpassungen an
+              # ALLEN Lesern plus Rueckwaertskompatibilitaet erfordert -
+              # genau die Fehlerklasse von Bug 17 (Datenstruktur) und
+              # Bug 19 (Release-Upload).
               write_json_atomic("state/watchlist_expired_history_upload.json", {
                   "updated": now_stamp,
                   "count":   len(_wl_expired_first),
-                  "entries": _wl_expired_first,
-              }, indent=2)
+                  "entries": {
+                      _k: _wl_expired_first[_k]
+                      for _k in sorted(_wl_expired_first, key=_ip_sort_key)
+                  },
+              }, separators=(",", ":"))
               print(f"state/watchlist_expired_history_upload.json geschrieben "
                     f"({len(_wl_expired_first)} Eintraege) - wird als Release-Asset "
                     f"hochgeladen (siehe Step danach)")
@@ -3781,11 +3807,17 @@ jobs:
                   print(f"active_expired_history: {_active_pruned} Eintraege "
                         f"(> {ACTIVE_HISTORY_PRUNE_DAYS} Tage seit Einfrierung) geprunt")
           if _active_expired_last_dirty:
+              # FIX LEDGER-SIZE: identisch zum Watchlist-Ledger oben -
+              # kompakte Separatoren und numerisch sortierte IPs. Format
+              # unveraendert, alle Leser bleiben kompatibel.
               write_json_atomic("state/active_expired_history_upload.json", {
                   "updated": now_stamp,
                   "count":   len(_active_expired_last),
-                  "entries": _active_expired_last,
-              }, indent=2)
+                  "entries": {
+                      _k: _active_expired_last[_k]
+                      for _k in sorted(_active_expired_last, key=_ip_sort_key)
+                  },
+              }, separators=(",", ":"))
               print(f"state/active_expired_history_upload.json geschrieben "
                     f"({len(_active_expired_last)} Eintraege) - wird als Release-Asset "
                     f"hochgeladen (siehe Step danach)")
@@ -4849,7 +4881,13 @@ jobs:
           for LEDGER_NAME in watchlist_expired_history active_expired_history; do
             if [ -f "state/${LEDGER_NAME}_upload.json" ]; then
               rm -f "state/${LEDGER_NAME}.json.gz" state/${LEDGER_NAME}.json.gz.part*
-              gzip -c "state/${LEDGER_NAME}_upload.json" > "state/${LEDGER_NAME}.json.gz.tmp"
+              # FIX LEDGER-SIZE (2026-08-28): -9 statt Default (-6). Der
+              # Ledger wird pro Lauf einmal komprimiert und ist mit wenigen
+              # MB klein genug, dass die hoehere CPU-Zeit nicht ins Gewicht
+              # faellt. Erzeugt weiterhin regulaeres gzip - Lesepfad
+              # (gzip.GzipFile in diesem Workflow, gunzip in ip_ablauf.yml)
+              # bleibt unveraendert, alte Assets bleiben lesbar.
+              gzip -9 -c "state/${LEDGER_NAME}_upload.json" > "state/${LEDGER_NAME}.json.gz.tmp"
               split -b 95M -d -a 3 "state/${LEDGER_NAME}.json.gz.tmp" "state/${LEDGER_NAME}.json.gz.part"
               rm -f "state/${LEDGER_NAME}.json.gz.tmp" "state/${LEDGER_NAME}_upload.json"
               PART_COUNT=$(ls state/${LEDGER_NAME}.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
