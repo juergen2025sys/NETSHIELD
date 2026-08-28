@@ -3036,7 +3036,25 @@ jobs:
                       # weiterhin als "eingefroren" markiert, obwohl sie laengst
                       # legitim aktiv ist - False-Positive-Rueckfall, der sich
                       # mit jeder neuen legitimen Promotion weiter aufsummierte.
-                      if _wl_reentry_erlaubt and ip in _wl_expired_first:
+                      # FIX WL-LEDGER-STRONGCONF (2026-08-28): Bedingung war
+                      # vorher NUR "_wl_reentry_erlaubt" (today_count >= 5).
+                      # today_count zaehlt ALLE Feeds, strongly_confirmed_today
+                      # dagegen 2+ HQ-Feed-FAMILIEN - beides sind unabhaengige
+                      # Wege. Eine IP, die heute von genau 2 HQ-Familien und
+                      # sonst keinem Feed gemeldet wird, ist eine echte, starke
+                      # Neubestaetigung (wird direkt unten mit last=now_day auf
+                      # den Active-Pfad gehoben), erreichte aber today_count=2
+                      # < 5 - ihr veralteter Watchlist-Ledger-Eintrag blieb
+                      # dadurch stehen. Der retroaktive Sweep weiter unten
+                      # faengt das NICHT ab: der vergleicht nur "first", und
+                      # "first" bleibt in genau diesem Fall unveraendert (es
+                      # wird ja das eingefrorene Datum uebernommen, weil
+                      # _wl_reentry_erlaubt False ist). Folge waere exakt das
+                      # Symptom von BUG-STALE-LEDGER-ENTRY: die IP steht
+                      # legitim in active_blacklist_ipv4.txt UND weiterhin im
+                      # Watchlist-Ledger -> Dauerhafter False-Positive-
+                      # "Rueckfall" im verifikation-Job von ip_ablauf.yml.
+                      if (_wl_reentry_erlaubt or strongly_confirmed_today) and ip in _wl_expired_first:
                           del _wl_expired_first[ip]
                           _wl_expired_first_dirty = True
                       # Analog fuer den Active-Ledger: eine echte Zweitbestae-
@@ -3095,7 +3113,14 @@ jobs:
                   # Bereinigung auch fuer den Fall, dass die IP als komplett
                   # neuer db-Eintrag angelegt wird (z.B. nach Pruning oder
                   # falls sie zwischenzeitlich ganz aus seen_db verschwunden war).
-                  if _wl_reentry_erlaubt and ip in _wl_expired_first:
+                  # FIX WL-LEDGER-STRONGCONF (2026-08-28): siehe ausfuehrlicher
+                  # Kommentar im corrupt-Zweig oben - identische Ergaenzung.
+                  # strongly_confirmed_today (2+ HQ-Familien) ist ein zweiter,
+                  # unabhaengiger Weg zur legitimen Neubestaetigung neben der
+                  # 5-Feeds-Schwelle und muss den veralteten Ledger-Eintrag
+                  # ebenfalls raeumen, sonst bleibt die IP dauerhaft als
+                  # "eingefroren" markiert, obwohl sie aktiv ist.
+                  if (_wl_reentry_erlaubt or strongly_confirmed_today) and ip in _wl_expired_first:
                       del _wl_expired_first[ip]
                       _wl_expired_first_dirty = True
                   if strongly_confirmed_today and ip in _active_expired_last:
