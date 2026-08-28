@@ -1762,6 +1762,110 @@ jobs:
                   else:
                       print(f"⏭  Untrusted Feed hq-Guard: keine SOURCES gefunden")
 
+          # ── Check 43: HQ-Feed-Familien-Drift ─────────────────────────────
+          # FIX FAMILY-CHECK (2026-08-28), Anlass Bug 25:
+          # strongly_confirmed_today (2+ verschiedene HQ-Feed-FAMILIEN am
+          # selben Tag) ist der einzige Mechanismus, der die 180-Tage-Uhr
+          # zuruecksetzt - und seit FIX WL-TO-ACTIVE-2HQ auch der einzige Weg,
+          # auf dem eine zuvor eingefrorene IP ueberhaupt noch auf den
+          # Active-Pfad kommt. Fehlt ein HQ-Feed in HQ_FEED_FAMILIES, zaehlt
+          # er als EIGENE Familie. Zwei Feeds desselben Upstreams ergeben dann
+          # faelschlich "2 Familien" - ein einzelner Anbieter kann die Huerde
+          # allein nehmen und IPs dauerhaft aktiv halten (genau das Szenario,
+          # gegen das BUG-9 gebaut wurde).
+          # Bug 25 (abuseipdb_tmiland, blocklist_net_ua) blieb unbemerkt, weil
+          # der bestehende Drift-Check nur HIGH_QUALITY <-> SOURCES abdeckt,
+          # nicht HIGH_QUALITY <-> HQ_FEED_FAMILIES.
+          # Dieser Check meldet zwei Muster:
+          #   (a) Ein ungemappter HQ-Feed teilt sich den Upstream-Host mit
+          #       einem Feed, der bereits einer Familie zugeordnet ist.
+          #   (b) Ein ungemappter HQ-Feed traegt den Namen einer bestehenden
+          #       Familie im Bezeichner (z.B. "abuseipdb_tmiland" bei
+          #       vorhandener Familie "abuseipdb").
+          # Bewusst nur Warnung, kein harter Fehler: Ob zwei Feeds wirklich
+          # denselben Upstream haben, ist eine inhaltliche Entscheidung
+          # (bei blocklist_net_ua etwa ist FireHOL nur der Ausliefernde,
+          # Datenproduzent ist BlockList.net.ua). Der Check soll die Stelle
+          # sichtbar machen, nicht sie selbst entscheiden.
+          if os.path.exists(_combined_path):
+              try:
+                  from urllib.parse import urlparse as _urlparse
+
+                  def _block_zwischen(_text, _start_marker):
+                      _i = _text.index(_start_marker)
+                      _j = _text.index("\n" + " " * 10 + "}", _i)
+                      return _text[_i:_j]
+
+                  _cbt = open(_combined_path).read()
+                  _hq_set = set(re.findall(
+                      r'"([a-z0-9_]+)"', re.sub(r'#.*', '', _block_zwischen(_cbt, "HIGH_QUALITY = {"))))
+                  _fam_map = dict(re.findall(
+                      r'"([a-z0-9_]+)"\s*:\s*"([a-z0-9_]+)"',
+                      re.sub(r'#.*', '', _block_zwischen(_cbt, "HQ_FEED_FAMILIES = {"))))
+                  _url_map = {}
+                  for _m43 in re.finditer(
+                          r'^\s*"([a-z0-9_]+)"\s*:\s*\(\s*"([^"\n]+)"\s*,\s*(True|False)\s*\)',
+                          _cbt, re.MULTILINE):
+                      _url_map[_m43.group(1)] = _m43.group(2)
+
+                  def _familie(_f):
+                      return _fam_map.get(_f, _f)
+
+                  def _host_von(_f):
+                      _u = _url_map.get(_f, "")
+                      _h = _urlparse(_u).netloc.lower()
+                      # GitHub-Rohdateien nach Repo-Owner gruppieren, nicht
+                      # nach dem gemeinsamen raw.githubusercontent.com-Host.
+                      if "github" in _h:
+                          _teile = _urlparse(_u).path.strip("/").split("/")
+                          return f"github:{_teile[0]}" if _teile and _teile[0] else _h
+                      return _h
+
+                  _host_gruppen = {}
+                  for _f in sorted(_hq_set):
+                      _host_gruppen.setdefault(_host_von(_f), []).append(_f)
+
+                  _fam_probleme = []
+                  # (a) gleicher Host, aber verschiedene Familien
+                  for _h43, _feeds43 in sorted(_host_gruppen.items()):
+                      if not _h43 or len(_feeds43) < 2:
+                          continue
+                      if len({_familie(_x) for _x in _feeds43}) > 1:
+                          _ungemappt = [_x for _x in _feeds43 if _x not in _fam_map]
+                          if _ungemappt:
+                              _fam_probleme.append(
+                                  f"Host {_h43}: {', '.join(_ungemappt)} ohne Familien-Zuordnung, "
+                                  f"waehrend {', '.join(sorted({_familie(_x) for _x in _feeds43 if _x in _fam_map}))} "
+                                  f"dort bereits gemappt ist")
+
+                  # (b) ungemappter Feed traegt Namen einer bestehenden Familie
+                  _bestehende_fam = set(_fam_map.values())
+                  for _f in sorted(_hq_set - set(_fam_map)):
+                      for _fam43 in sorted(_bestehende_fam):
+                          if _f.startswith(_fam43 + "_") or _fam43 in _f.split("_"):
+                              _fam_probleme.append(
+                                  f"{_f} enthaelt den Familiennamen '{_fam43}', ist aber nicht gemappt")
+                              break
+
+                  if _fam_probleme:
+                      warnings.append({
+                          "file": "update_combined_blacklist.yml",
+                          "check": "HQ-Feed-Familien-Drift",
+                          "detail": (
+                              f"{len(_fam_probleme)} moegliche(r) Familien-Drift(s) - ein einzelner Upstream "
+                              f"koennte dadurch strongly_confirmed_today allein ausloesen und die "
+                              f"180-Tage-Uhr zuruecksetzen: " + "; ".join(_fam_probleme[:5])
+                          ),
+                      })
+                      print(f"⚠️  HQ-Feed-Familien-Drift: {len(_fam_probleme)} Fund(e)")
+                      for _p43 in _fam_probleme[:5]:
+                          print(f"     - {_p43}")
+                  else:
+                      print(f"✅ HQ-Feed-Familien: {len(_hq_set)} HQ-Feeds, {len(_fam_map)} Mappings, "
+                            f"{len(set(_fam_map.values()))} Familien - kein Drift erkennbar")
+              except (ValueError, KeyError, IndexError) as _e43:
+                  print(f"::warning ::Check 43 (HQ-Feed-Familien-Drift) uebersprungen: {_e43}")
+
           # ── DNS_WHITELIST Konsistenz ───────────────────────────────────────
           # Mehrere Workflows definieren DNS_WHITELIST eigenstaendig.
           # Alle muessen identisch sein.
