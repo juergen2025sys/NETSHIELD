@@ -139,7 +139,7 @@ Score = Quellen-Qualität (40) + Aktualität (30) + Persistenz (20) + Bekannt se
 >
 > **Aufnahme-Warteliste (Kreuzbestätigung über mehrere Tage):** Eine IP mit nur 1 (nicht-HQ) Feed schafft die reguläre Aufnahmeschwelle (2+ Feeds oder 1 HQ-Feed) nicht und würde sofort wieder verworfen. Statt sie zu vergessen, merkt sich das System sie für **7 Tage** – meldet in diesem Fenster ein zweiter, unabhängiger Feed dieselbe IP, gilt das als echte Kreuzbestätigung und sie wird doch aufgenommen (Watchlist-Pfad). Liegt als eigenes GitHub-Release-Asset (`aufnahme-warteliste-backup`), nicht im Git-Verlauf.
 >
-> Details und Hintergrund: `NETSHIELD_Anti_Churn_Fix_2026-08-26.docx` bzw. der laufende Kontroll-Report unter `reports/ip_ablauf_verifikation_report.md`.
+> Details und Hintergrund: reports/ip_ablauf_verifikation_report.md.
 
 ### Score-Schwellen
 
