@@ -918,6 +918,27 @@ jobs:
               # Issue) angehaengt wie Rueckfall/Ledger-Konsistenz/Staleness -
               # spaetestens beim naechsten 3h-Verifikations-Lauf sichtbar,
               # nicht erst beim naechsten Blick auf GitHub.
+              # FIX BUG-20-GUARD-ALARM-WORDING (2026-08-28, beim gezielten
+              # Suchen nach Logikfehlern gefunden, kein Betriebsvorfall):
+              # "eingefroren_am" speichert nur ein Datum (kein Zeitstempel) -
+              # alle IPs, die am selben Kalendertag ablaufen, teilen sich
+              # denselben Wert und werden dadurch zwangslaeufig GESCHLOSSEN
+              # (nicht gleichmaessig verteilt) prune-faellig, sobald das
+              # 14-Tage-Fenster (Watchlist) um ist. Eine grosse, an einem
+              # Tag entstandene Kohorte (z.B. die 14.827 vom 28.08., erste
+              # echte Expiry seit Bug 17) sieht fuer den Guard GENAUSO aus
+              # wie ein echter Bug (>=50% verschwinden in einem Lauf) - ist
+              # es aber nicht zwangslaeufig. Die alte Formulierung
+              # unterstellte "wahrscheinlich ein neuer Bug" - das waere am
+              # Tag, an dem genau diese Kohorte faellig wird (rechnerisch:
+              # 12.09.2026, 14 Tage nach dem 28.08.), voraussichtlich ein
+              # Fehlalarm gewesen. Der Guard blockiert bewusst weiter (fail-
+              # safe - im Zweifel waechst der Ledger nur, es geht nichts
+              # verloren), aber die Meldung nennt jetzt beide moeglichen
+              # Ursachen, damit niemand blind den Schwellenwert hochsetzt
+              # oder den Guard abschaltet, ohne die Log-Daten (Verteilung
+              # der eingefroren_am-Werte im entfernten Kandidaten-Set)
+              # tatsaechlich geprueft zu haben.
               if cleanup_stats.get("wl_prune_guard_ausgeloest"):
                   diagnose_probleme.append(
                       "🛑 **Ledger-Sanity-Guard ausgelöst (Watchlist):** Ein "
@@ -925,9 +946,16 @@ jobs:
                       "watchlist_expired_history-Ledgers auf einen Schlag "
                       "entfernen - wurde blockiert, alter Stand bleibt "
                       "erhalten (siehe Bug 17: exakt so ist der Ledger vorher "
-                      "von 657.370 auf 0 gefallen). Wahrscheinlich ein neuer "
-                      "Bug im Prune-Vergleich - combined-Log dieses Laufs "
-                      "prüfen, bevor der Guard-Schwellenwert angefasst wird."
+                      "von 657.370 auf 0 gefallen). Zwei mögliche Ursachen, "
+                      "beide erfordern einen Blick ins combined-Log dieses "
+                      "Laufs: (1) ein neuer Bug im Prune-Vergleich, oder "
+                      "(2) eine große, an einem einzigen Kalendertag "
+                      "entstandene Kohorte wird 14 Tage später geschlossen "
+                      "prune-fällig (eingefroren_am ist datumsgranular, "
+                      "keine Uhrzeit) - das wäre legitim, kein Bug. Vor "
+                      "jeder Änderung am Schwellenwert prüfen, ob die "
+                      "betroffenen Einträge tatsächlich alle exakt "
+                      "denselben eingefroren_am-Wert haben."
                   )
               if cleanup_stats.get("active_prune_guard_ausgeloest"):
                   diagnose_probleme.append(
@@ -935,8 +963,11 @@ jobs:
                       "combined-Lauf wollte mehr als die Hälfte des "
                       "active_expired_history-Ledgers auf einen Schlag "
                       "entfernen - wurde blockiert, alter Stand bleibt "
-                      "erhalten (siehe Bug 17). combined-Log dieses Laufs "
-                      "prüfen, bevor der Guard-Schwellenwert angefasst wird."
+                      "erhalten (siehe Bug 17). Wie beim Watchlist-Guard: "
+                      "kann ein echter Bug sein, oder eine an einem Tag "
+                      "entstandene Kohorte, die 400 Tage später geschlossen "
+                      "abläuft - combined-Log prüfen, bevor der "
+                      "Schwellenwert angefasst wird."
                   )
           else:
               cleanup_text = "n/a (kein combined-Lauf mit Cleanup-Statistik gefunden)"
