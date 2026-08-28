@@ -741,11 +741,25 @@ jobs:
                   print(f"{pfad} existiert noch nicht (normal vor dem ersten Ablauf-Ereignis)")
 
           # DIAGNOSE 4: Ueberschneidung zwischen den beiden Ablauf-Listen.
-          # Sollte laut Logik NIE passieren (eine IP ist zu jedem Zeitpunkt
-          # entweder auf dem Watchlist- ODER dem Active-Pfad, "last" ist
-          # entweder Sentinel oder echtes Datum, nie beides) - waere ein
-          # direkter Hinweis auf einen Logikfehler in update_combined_
-          # blacklist.yml, wenn hier doch mal was auftaucht.
+          # FIX AC-SWEEP-SENTINEL-FOLGE (2026-08-28): Diese Pruefung war
+          # frueher als harter Logikfehler-Alarm formuliert ("sollte NIE
+          # passieren, eine IP ist entweder auf dem Watchlist- ODER dem
+          # Active-Pfad"). Das stimmte fuer den seen_db-EINTRAG, aber die
+          # Ablauf-Listen sind HISTORIEN, keine Momentaufnahme: eine IP kann
+          # nacheinander beide Pfade durchlaufen haben.
+          # Konkret: IP laeuft nach 180 Tagen auf dem Active-Pfad ab ->
+          # Eintrag im Active-Ledger. Danach melden sie nur noch schwache
+          # Feeds -> sie kommt als Watchlist-IP (last=Sentinel) neu rein und
+          # laeuft dort nach 30 Tagen ebenfalls ab -> zusaetzlicher Eintrag
+          # im Watchlist-Ledger. Beide Eintraege sind GEWOLLT und noetig:
+          # der Active-Eintrag verhindert, dass ein einzelner HQ-Feed wieder
+          # volle 180 Tage vergibt, der Watchlist-Eintrag verhindert den
+          # 30-Tage-Reset. Vorher trat dieser Zustand nie auf, weil der
+          # retroaktive Sweep in update_combined_blacklist.yml den
+          # Active-Eintrag beim Sentinel-Rueckfall faelschlich geloescht hat
+          # (genau der dort behobene Bug) - die Ueberschneidung war also nur
+          # deshalb "unmoeglich", weil ein anderer Fehler sie verdeckte.
+          # Jetzt: nur noch informativ im Report, kein Alarm mehr.
           _wl_label, _act_label = "Watchlist (30-Tage-Pfad)", "Active (180-Tage-Pfad)"
           # DIAGNOSE: zentrale Sammelstelle fuer alles, was Alarm ausloesen
           # soll (Job-Exit-Code + GitHub-Issue). Ersetzt die vorher einzelne
@@ -756,15 +770,11 @@ jobs:
 
           ledger_ueberschneidung = listen_ips.get(_wl_label, set()) & listen_ips.get(_act_label, set())
           if ledger_ueberschneidung:
-              print(f"::error ::LOGIKFEHLER: {len(ledger_ueberschneidung)} IP(s) stehen "
-                    f"gleichzeitig in BEIDEN Ablauf-Listen (sollte unmoeglich sein): "
+              print(f"INFO: {len(ledger_ueberschneidung)} IP(s) stehen in BEIDEN "
+                    f"Ablauf-Listen - legitim fuer IPs, die nacheinander auf beiden "
+                    f"Pfaden abgelaufen sind (Active zuerst, danach Rueckfall auf "
+                    f"Watchlist). Kein Alarm. Beispiele: "
                     f"{sorted(ledger_ueberschneidung)[:10]}")
-              diagnose_probleme.append(
-                  f"❌ **Logikfehler:** {len(ledger_ueberschneidung)} IP(s) stehen gleichzeitig "
-                  f"in BEIDEN Ablauf-Listen (sollte laut Design unmöglich sein): "
-                  f"{', '.join(sorted(ledger_ueberschneidung)[:10])}"
-                  + (", ..." if len(ledger_ueberschneidung) > 10 else "")
-              )
 
           print(f"Insgesamt {len(eingefrorene_ips)} eindeutige, dauerhaft eingefrorene IPs in beiden Ablauf-Listen")
 

@@ -1072,6 +1072,27 @@ jobs:
               "firehol_webclient":   "firehol",
               "firehol_webserver":   "firehol",
               "firehol_abusers_1d":  "firehol",
+              # FIX FAMILY-NETUA (2026-08-28): blocklist_net_ua wird ueber
+              # https://iplists.firehol.org/files/blocklist_net_ua.ipset
+              # bezogen - also ueber DIESELBE Infrastruktur wie die
+              # firehol_*-Feeds oben. Ungemappt zaehlte der Feed als eigene
+              # Familie, wodurch blocklist_net_ua + ein beliebiger
+              # firehol_*-Feed 2 "Familien" ergaben -> strongly_confirmed_today
+              # -> 180-Tage-Uhr zurueckgesetzt, obwohl beide Listen vom selben
+              # Aggregator ausgeliefert werden. Genau die im BUG-9-Kommentar
+              # beschriebene Situation ("IPs bleiben ewig in active, solange
+              # FireHOL sie in seinem Cache hat, auch wenn der urspruengliche
+              # Quell-Feed sie laengst droppt").
+              # BEWUSSTE ABWAEGUNG: der DATENPRODUZENT ist ein anderer
+              # (BlockList.net.ua), nur die AUSLIEFERUNG laeuft ueber FireHOL.
+              # Man koennte den Feed daher auch als unabhaengige Quelle
+              # verstehen. Hier bewusst die konservative Richtung gewaehlt -
+              # eine faelschlich als unabhaengig gezaehlte Bestaetigung haelt
+              # IPs 180 Tage am Leben, eine faelschlich zusammengelegte
+              # Familie kostet nur etwas Empfindlichkeit. Wird der Feed
+              # jemals direkt von blocklist.net.ua bezogen (nicht ueber
+              # FireHOL), sollte diese Zeile wieder entfernt werden.
+              "blocklist_net_ua":    "firehol",
               # DataPlane (dataplane.org) – einzelner Betreiber, alle Feeds
               # sind Sensor-Ausgaben derselben Infrastruktur.
               "dataplane_sshclient":    "dataplane",
@@ -1104,6 +1125,24 @@ jobs:
               "abuseipdb_s100_30d":  "abuseipdb",
               "abuseipdb_s100_7d":   "abuseipdb",
               "abuseipdb_score100":  "abuseipdb",
+              # FIX FAMILY-TMILAND (2026-08-28): abuseipdb_tmiland fehlte hier.
+              # Der Feed ist ein weiterer Spiegel derselben AbuseIPDB-Datenbank
+              # (abuseipdb.tmiland.com/abuseipdb.txt), war aber ungemappt und
+              # zaehlte dadurch als EIGENE Familie. Folge: abuseipdb_tmiland +
+              # ein beliebiger anderer abuseipdb-Feed ergaben 2 "Familien" ->
+              # strongly_confirmed_today=True -> "last" wurde auf heute gesetzt
+              # -> volle 180 Tage, obwohl nur EINE Upstream-Quelle (AbuseIPDB)
+              # dahinterstand. Exakt das Szenario, gegen das BUG-9 gebaut wurde.
+              # Besonders relevant seit FIX WL-TO-ACTIVE-2HQ: seitdem ist
+              # strongly_confirmed_today der einzige Weg, auf dem eine zuvor
+              # eingefrorene IP ueberhaupt noch auf den 180-Tage-Pfad kommt -
+              # ein falsch gezaehlter Familien-Split wiegt damit schwerer als
+              # frueher. Der Feed war am 2026-08-02 nachtraeglich wieder in
+              # SOURCES eingetragen worden (siehe Kommentar dort); die
+              # Familien-Zuordnung wurde dabei uebersehen. Der bestehende
+              # Health-Check deckt nur HIGH_QUALITY <-> SOURCES ab, nicht
+              # HIGH_QUALITY <-> HQ_FEED_FAMILIES - deshalb fiel es nicht auf.
+              "abuseipdb_tmiland":   "abuseipdb",
               # feodotracker.abuse.ch – aggressive/recommended sind zwei
               # Aggregations-Stufen derselben Datenbank.
               "feodo_aggressive":    "feodo",
@@ -3018,6 +3057,10 @@ jobs:
                       # bleibt die normale Aufnahmeschwelle (2+ Feeds oder 1
                       # HQ-Feed) unveraendert, siehe Aufnahme-Filter weiter unten.
                       _wl_reentry_erlaubt = today_count >= 5
+                      # FIX WL-TO-ACTIVE-2HQ (2026-08-28): Zustand VOR der
+                      # Ledger-Loeschung weiter unten festhalten - wird fuer
+                      # die _entry_last-Entscheidung gebraucht.
+                      _war_wl_eingefroren = ip in _wl_expired_first
                       # FIX CHURN-WATCHLIST: nur fuer den Watchlist-Pfad (kein
                       # today_is_hq) relevant - siehe Ledger-Kommentar oben.
                       _wl_first = now_day
@@ -3064,15 +3107,36 @@ jobs:
                       if strongly_confirmed_today and ip in _active_expired_last:
                           del _active_expired_last[ip]
                           _active_expired_last_dirty = True
-                      # FIX CHURN-ACTIVE: siehe Ledger-Kommentar weiter oben.
-                      # strongly_confirmed_today = echte Promotion -> immer now_day.
-                      # today_is_hq allein (nur 1 Familie) -> eingefrorenes "last"
-                      # verwenden, falls vorhanden, statt sofort wieder volle
-                      # 180 Tage zu vergeben.
+                      # FIX WL-TO-ACTIVE-2HQ (2026-08-28, Nutzerentscheidung
+                      # "mindestens 2 HQ-Familien noetig"): Eine im WATCHLIST-
+                      # Ledger eingefrorene IP (also schon einmal als zu
+                      # schwach ausgemustert) bekam durch einen EINZELNEN
+                      # HQ-Feed volle 180 Tage. Grund: der else-Zweig unten
+                      # griff, weil die IP zwar im Watchlist-, aber nicht im
+                      # Active-Ledger stand - der Watchlist-Ledger schuetzt nur
+                      # "first", der Active-Ledger nur "last", und beim Wechsel
+                      # vom Watchlist- auf den Active-Pfad fasste keiner von
+                      # beiden zu. Auch die 5-Feeds-Schwelle half nicht, die
+                      # wirkt ausschliesslich auf _wl_first.
+                      # Ab jetzt: fuer eine zuvor eingefrorene IP ist der
+                      # Active-Pfad nur ueber eine echte Zweitbestaetigung
+                      # (strongly_confirmed_today, 2+ HQ-Familien) erreichbar.
+                      # Ein einzelner HQ-Feed laesst sie auf dem Watchlist-Pfad
+                      # (Sentinel) - zusammen mit dem eingefrorenen "first"
+                      # faellt sie damit im selben Cleanup-Pass wieder raus.
+                      # BRANDNEUE IPs (nie im Ledger) sind NICHT betroffen -
+                      # fuer die gilt FIX AGGREGATOR1 unveraendert weiter
+                      # (1 HQ-Feed -> sofort active), damit frische
+                      # Feodo/ThreatFox-IPs nicht ausgebremst werden.
                       if strongly_confirmed_today:
                           _entry_last = now_day
                       elif today_is_hq:
-                          _entry_last = _active_expired_last[ip]["last"] if ip in _active_expired_last else now_day
+                          if ip in _active_expired_last:
+                              _entry_last = _active_expired_last[ip]["last"]
+                          elif _war_wl_eingefroren:
+                              _entry_last = "2000-01-01"
+                          else:
+                              _entry_last = now_day
                       else:
                           _entry_last = "2000-01-01"
                       db[ip] = {
@@ -3096,6 +3160,9 @@ jobs:
                   # seen_db verschwunden war). 5+ Feeds statt nur 1 HQ-Feed
                   # noetig, um eine bereits eingefrorene IP wieder aufzunehmen.
                   _wl_reentry_erlaubt = today_count >= 5
+                  # FIX WL-TO-ACTIVE-2HQ: Zustand VOR der Ledger-Loeschung
+                  # festhalten - siehe Kommentar im corrupt-Zweig oben.
+                  _war_wl_eingefroren = ip in _wl_expired_first
                   # FIX CHURN-WATCHLIST: siehe Ledger-Kommentar weiter oben -
                   # eine dauerhaft (ohne Zweitbestaetigung) abgelaufene
                   # Watchlist-IP bekommt beim Wiedereintritt ihr eingefrorenes
@@ -3131,10 +3198,22 @@ jobs:
                   # 180 Tagen ohne Zweitbestaetigung ausgealtert war, bei
                   # jedem erneuten Auftauchen in nur EINEM HQ-Feed sofort
                   # wieder volle 180 Tage - die Alterung griff nie.
+                  # FIX WL-TO-ACTIVE-2HQ (Nutzerentscheidung "mindestens 2
+                  # HQ-Familien noetig"): siehe ausfuehrlichen Kommentar im
+                  # corrupt-Zweig oben - identische Regel hier. Eine zuvor im
+                  # Watchlist-Ledger eingefrorene IP erreicht den Active-Pfad
+                  # nur noch ueber strongly_confirmed_today; ein einzelner
+                  # HQ-Feed laesst sie auf dem Watchlist-Pfad. Brandneue IPs
+                  # bleiben von FIX AGGREGATOR1 unberuehrt.
                   if strongly_confirmed_today:
                       _entry_last = now_day
                   elif today_is_hq:
-                      _entry_last = _active_expired_last[ip]["last"] if ip in _active_expired_last else now_day
+                      if ip in _active_expired_last:
+                          _entry_last = _active_expired_last[ip]["last"]
+                      elif _war_wl_eingefroren:
+                          _entry_last = "2000-01-01"
+                      else:
+                          _entry_last = now_day
                   else:
                       _entry_last = "2000-01-01"
                   db[ip] = {
@@ -3549,9 +3628,31 @@ jobs:
               _active_retro_removed = 0
               for _frozen_ip in list(_active_expired_last.keys()):
                   _aktueller_eintrag = db.get(_frozen_ip)
-                  if _aktueller_eintrag is not None and _aktueller_eintrag.get("last") != _active_expired_last[_frozen_ip]["last"]:
-                      del _active_expired_last[_frozen_ip]
-                      _active_retro_removed += 1
+                  # FIX AC-SWEEP-SENTINEL (2026-08-28): Bedingung war vorher
+                  # nur "!=" gegen das eingefrorene Datum. Die Annahme
+                  # ("Anker-Datum stimmt nicht mehr ueberein -> IP wurde
+                  # zwischenzeitlich legitim neu angelegt") gilt aber NUR,
+                  # wenn der aktuelle Wert ein echtes, NEUERES Datum ist.
+                  # Faellt eine active-abgelaufene IP auf den Watchlist-Pfad
+                  # zurueck (heute melden sie nur noch schwache Feeds ->
+                  # "last" = Sentinel "2000-01-01"), war der Wert ebenfalls
+                  # "ungleich" - der Ledger-Eintrag wurde geloescht, obwohl
+                  # das GEGENTEIL einer Befoerderung vorlag. Folge: der
+                  # 180-Tage-Schutz war weg, und meldete danach wieder auch
+                  # nur EIN HQ-Feed die IP, griff im Neuanlage-Zweig der
+                  # else-Fall (ip nicht mehr im Ledger) -> volle 180 Tage.
+                  # Das ist exakt der urspruengliche BUG-CHURN-ACTIVE, nur
+                  # ueber den Umweg "ein paar Tage nur schwache Feeds".
+                  # Jetzt: Sentinel explizit ausgenommen UND ">" statt "!=",
+                  # damit auch ein versehentlich zurueckgeschriebenes
+                  # aelteres Datum den Schutz nicht mehr entfernt. Im Zweifel
+                  # bleibt der Ledger-Eintrag stehen - die sichere Richtung.
+                  if _aktueller_eintrag is not None:
+                      _akt_last = _aktueller_eintrag.get("last")
+                      if (isinstance(_akt_last, str) and _akt_last != "2000-01-01"
+                              and _akt_last > _active_expired_last[_frozen_ip]["last"]):
+                          del _active_expired_last[_frozen_ip]
+                          _active_retro_removed += 1
               if _active_retro_removed:
                   _active_expired_last_dirty = True
                   print(f"active_expired_history: {_active_retro_removed} bereits frueher "
