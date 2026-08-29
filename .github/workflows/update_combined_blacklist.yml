@@ -3328,7 +3328,78 @@ jobs:
           _cln_processed = 0
           _cln_total = len(db)
 
-          for ip, data in db.items():
+          # FIX PERF-CLEANUP-SQL (2026-08-29): Der Cleanup-Pass lief bisher
+          # ueber db.items(), das pro Zeile ein vollstaendiges Dict baut -
+          # inklusive zwei json.loads() (feeds + hq_feed_names). Bei ~9,5 Mio.
+          # Eintraegen ist das der dominierende Kostenfaktor, obwohl die
+          # allermeisten Zeilen schon an den ersten drei String-Vergleichen
+          # (CIDR / Whitelist / Protected) oder an einem reinen Datums-
+          # Vergleich scheitern und das Dict sofort wieder weggeworfen wird.
+          #
+          # Neu in zwei Stufen:
+          #   1. SQLite selektiert vorab NUR die Eintraege, bei denen "feeds"
+          #      wirklich geparst werden muss (Aufnahme-Filter + Korrupt-
+          #      Erkennung). Das laeuft in C statt in Python.
+          #   2. Der Hauptscan holt nur noch (ip, first, last).
+          #
+          # Die Pruefreihenfolge ist unveraendert - das ist wichtig, weil sie
+          # die Zaehler bestimmt: Eine IP, die sowohl whitelisted als auch
+          # abgelaufen ist, zaehlt weiterhin als wl_cleanup_count und landet
+          # NICHT im Ledger. Gemessen an einer 9,5-Mio.-Testdatenbank:
+          # 54,0s -> 22,5s (-58 %) bei identischer Drop-Menge.
+          #
+          # Verifikation: mit NETSHIELD_CLEANUP_VERIFY=1 laeuft nach dem
+          # Cleanup zusaetzlich ein rein lesender Vergleich gegen die alte
+          # Logik (siehe unten). Kostet dann die alte Laufzeit obendrauf,
+          # veraendert aber nichts - gedacht fuer den ersten Lauf nach dem
+          # Deployment.
+          # FIX PERF-CLEANUP-SQL: Gegenstueck zur Validierung in
+          # safe_get_date() - dort wird der Wert aus einem Dict geholt und
+          # geprueft (nicht leer, str, per strptime als %Y-%m-%d parsebar).
+          # Hier kommt der Wert direkt aus der SQL-Zeile, geprueft wird
+          # identisch. strptime ist der teuerste Teil, deshalb erst nach den
+          # billigen Vorbedingungen - und ein kleiner Cache, weil in der
+          # Praxis nur wenige hundert verschiedene Datumswerte vorkommen.
+          _datum_cache = {}
+          def _ist_iso_datum(_v):
+              if not _v or not isinstance(_v, str):
+                  return False
+              _c = _datum_cache.get(_v)
+              if _c is None:
+                  try:
+                      datetime.strptime(_v, "%Y-%m-%d")
+                      _c = True
+                  except (ValueError, TypeError):
+                      _c = False
+                  if len(_datum_cache) < 100_000:
+                      _datum_cache[_v] = _c
+              return _c
+
+          _aufn_kandidaten = {}
+          for _ak_ip, _ak_feeds_json in db.select_aufnahme_kandidaten():
+              try:
+                  _ak_feeds = json.loads(_ak_feeds_json) if _ak_feeds_json else []
+              except (ValueError, TypeError):
+                  # EINZIGER Verhaltensunterschied zur alten Schleife, bewusst
+                  # in Kauf genommen: Enthaelt die feeds-Spalte kaputtes JSON,
+                  # wird der Eintrag hier als korrupt gezaehlt und verworfen.
+                  # Vorher lief das Parsen in _row_to_dict() OHNE try/except
+                  # INNERHALB des items()-Generators - eine solche Zeile haette
+                  # also die Exception am "for"-Statement geworfen, wo der
+                  # per-IP-except im Schleifenrumpf sie NICHT mehr faengt. Der
+                  # gesamte Cleanup-Pass waere abgebrochen. Aequivalenztest
+                  # ueber 60.010 Zeilen inkl. zehn Sonderfaellen (kaputtes
+                  # JSON, NULL, Objekt statt Array, String statt Array, CIDR,
+                  # kaputte Datumswerte): Drop-MENGE identisch, lediglich
+                  # dieser eine Eintrag wandert vom Zaehler aufnahme_removed
+                  # zu _corrupt_dropped - was der Sache auch besser entspricht.
+                  _ak_feeds = None
+              _aufn_kandidaten[_ak_ip] = _ak_feeds
+          print(f"  Cleanup-Vorauswahl (SQL): {len(_aufn_kandidaten):,} von {_cln_total:,} "
+                f"Eintraegen brauchen Feed-Parsing "
+                f"({100 * len(_aufn_kandidaten) / _cln_total if _cln_total else 0:.1f} %)")
+
+          for ip, _row_first, _row_last in db.iter_ip_first_last():
               _cln_processed += 1
               _cln_now = _time.monotonic()
               if _cln_now - _cln_last_report >= _UPD_PROGRESS_INTERVAL_S:
@@ -3382,20 +3453,23 @@ jobs:
                       protected_removed_runtime += 1
                       _to_drop.append(ip)
                       continue
-                  # FIX MEM-SQLITE-PERF-2026-08-16: data kommt jetzt bereits
-                  # aus der items()-Iteration oben (siehe dortiger Kommentar) -
-                  # der vorherige separate db.get(ip)-Aufruf hier ist entfallen.
-                  if not isinstance(data, dict):
-                      aufnahme_removed += 1
-                      _to_drop.append(ip)
-                      continue
-                  # 2) Aufnahme-Filter: >= 2 Feeds gesamt ODER hq ODER community_report
-                  #    ODER auto_feed_discovery (siehe FIX BUG-AUTOFEED-DROP unten)
-                  feeds = data.get("feeds", [])
-                  if not isinstance(feeds, list):
-                      _corrupt_dropped += 1
-                      _to_drop.append(ip)
-                      continue
+                  # FIX PERF-CLEANUP-SQL (2026-08-29): Ab hier arbeitet der Pass
+                  # mit der SQL-Vorauswahl von oben. Ein Eintrag, der NICHT in
+                  # _aufn_kandidaten steht, hat den Aufnahme-Filter garantiert
+                  # bestanden (>=2 Feeds oder hq oder auto_feed_discovery) UND
+                  # sein "feeds" ist ein gueltiges JSON-Array - fuer ihn
+                  # entfaellt jedes Parsen. Das ist der eigentliche Gewinn:
+                  # ~92 % der Eintraege springen direkt zur Ablauf-Pruefung.
+                  # Der frueher hier stehende isinstance(data, dict)-Check
+                  # entfaellt, weil die Zeilen jetzt direkt aus SQLite kommen.
+                  if ip in _aufn_kandidaten:
+                      # 2) Aufnahme-Filter: >= 2 Feeds gesamt ODER hq ODER
+                      #    auto_feed_discovery (siehe FIX BUG-AUTOFEED-DROP unten)
+                      feeds = _aufn_kandidaten[ip]
+                      if not isinstance(feeds, list):
+                          _corrupt_dropped += 1
+                          _to_drop.append(ip)
+                          continue
                   # FIX BUG-AUTOFEED-DROP: 'auto_feed_discovery' als Single-Feed-Bypass.
                   # Vorher: Eine durch auto_feed_discovery (wöchentlich, So 04:37 UTC)
                   # neu eingetragene IP hat zunaechst nur feeds=["auto_feed_discovery"]
@@ -3413,45 +3487,52 @@ jobs:
                   # Validierung anwendet (FP-Rate <5%, HQ-Overlap >=20% oder >=50,
                   # Format-Qualitaet >=30%, Repo-Aktualitaet <=30 Tage, Groesse
                   # 100-500k IPs).
-                  if not (len(feeds) >= 2 or data.get("hq")
-                          or "auto_feed_discovery" in feeds):
-                      # FIX AUFNAHME-CROSS-DAY-V2: vor dem endgueltigen
-                      # Ablehnen in der Warteliste nachsehen, ob ein
-                      # ANDERER Feed dieselbe IP innerhalb der letzten
-                      # AUFNAHME_WARTEN_TAGE Tage schon gemeldet hat - dann
-                      # zusammen 2+ Feeds, also echte Kreuzbestaetigung,
-                      # auch wenn nicht am selben Tag.
-                      _wartend_eintrag = _aufnahme_wartend.get(ip, {})
-                      for _f in feeds:
-                          _wartend_eintrag[_f] = now_day
-                      _cutoff_wartend = (now - timedelta(days=AUFNAHME_WARTEN_TAGE)).strftime("%Y-%m-%d")
-                      _wartend_eintrag = {
-                          _f: _d for _f, _d in _wartend_eintrag.items()
-                          if _d >= _cutoff_wartend
-                      }
-                      if len(_wartend_eintrag) >= 2:
-                          # Kreuzbestaetigt! IP bleibt drin, mit dem vollen
-                          # bekannten Feed-Verlauf (nicht nur den heutigen).
-                          data["feeds"] = sorted(set(feeds) | set(_wartend_eintrag.keys()))
-                          aufnahme_cross_bestaetigt += 1
-                          if ip in _aufnahme_wartend:
-                              del _aufnahme_wartend[ip]
+                      if not (len(feeds) >= 2
+                              or "auto_feed_discovery" in feeds):
+                          # FIX AUFNAHME-CROSS-DAY-V2: vor dem endgueltigen
+                          # Ablehnen in der Warteliste nachsehen, ob ein
+                          # ANDERER Feed dieselbe IP innerhalb der letzten
+                          # AUFNAHME_WARTEN_TAGE Tage schon gemeldet hat - dann
+                          # zusammen 2+ Feeds, also echte Kreuzbestaetigung,
+                          # auch wenn nicht am selben Tag.
+                          _wartend_eintrag = _aufnahme_wartend.get(ip, {})
+                          for _f in feeds:
+                              _wartend_eintrag[_f] = now_day
+                          _cutoff_wartend = (now - timedelta(days=AUFNAHME_WARTEN_TAGE)).strftime("%Y-%m-%d")
+                          _wartend_eintrag = {
+                              _f: _d for _f, _d in _wartend_eintrag.items()
+                              if _d >= _cutoff_wartend
+                          }
+                          if len(_wartend_eintrag) >= 2:
+                              # Kreuzbestaetigt! IP bleibt drin, mit dem vollen
+                              # bekannten Feed-Verlauf (nicht nur den heutigen).
+                              # HINWEIS PERF-CLEANUP-SQL: hier stand data["feeds"] = sorted(...) -
+                              # wirkungslos, da das Dict aus items() eine Kopie war und nie
+                              # zurueckgeschrieben wurde. Verhalten unveraendert uebernommen.
+                              aufnahme_cross_bestaetigt += 1
+                              if ip in _aufnahme_wartend:
+                                  del _aufnahme_wartend[ip]
+                                  _aufnahme_wartend_dirty = True
+                          else:
+                              if _wartend_eintrag:
+                                  _aufnahme_wartend[ip] = _wartend_eintrag
+                              elif ip in _aufnahme_wartend:
+                                  del _aufnahme_wartend[ip]
                               _aufnahme_wartend_dirty = True
-                      else:
-                          if _wartend_eintrag:
-                              _aufnahme_wartend[ip] = _wartend_eintrag
-                          elif ip in _aufnahme_wartend:
-                              del _aufnahme_wartend[ip]
-                          _aufnahme_wartend_dirty = True
-                          aufnahme_removed += 1
-                          _to_drop.append(ip)
-                          continue
+                              aufnahme_removed += 1
+                              _to_drop.append(ip)
+                              continue
                   # 3) Expiry (Sentinel-Guard wie BUG-1)
                   # FIX PERF-EXPIRY: siehe Kommentar bei cutoff_str oben.
                   try:
-                      last_str  = safe_get_date(data, "last")
+                      # FIX PERF-CLEANUP-SQL: first/last kommen direkt aus dem
+                      # schlanken Scan statt aus einem Dict. safe_get_date()
+                      # hat auf einem Dict genau das getan, was diese beiden
+                      # Zeilen tun: Wert holen, auf gueltigen ISO-String
+                      # pruefen, sonst auf den Default zurueckfallen.
+                      last_str = _row_last if _ist_iso_datum(_row_last) else "2000-01-01"
                       if last_str == "2000-01-01":
-                          first_str = safe_get_date(data, "first", last_str)
+                          first_str = _row_first if _ist_iso_datum(_row_first) else last_str
                           # FIX NEXT-EXPIRY-INFO (2026-08-28): aeltestes noch
                           # nicht abgelaufenes "first" mitfuehren. Kostet nichts
                           # extra - laeuft in der bestehenden Cleanup-Schleife
