@@ -489,8 +489,14 @@ jobs:
           # WICHTIG: Grace MUSS kleiner als der Slot-Takt sein. Bei Takt 20
           # kann das Slot-Alter hoechstens 19 Minuten erreichen - eine Grace
           # von 20 wuerde nie ausloesen. Deshalb 12 fuer honigtopf.
+          # Takt 0 = KEINE Slot-Pruefung, nur Max-Age. Fuer Ziele, deren
+          # Rhythmus sich nicht als Minuten-Raster ausdruecken laesst
+          # (mehrstuendlich oder taeglich). Slot-Takt/Offset werden dann
+          # ignoriert.
           ZIELE="honigtopf.yml|20|0|12|90|--field force_light=true
-          netshield_report_generator.yml|60|30|25|150|"
+          netshield_report_generator.yml|60|30|25|150|
+          honeypot_monitor.yml|0|0|0|420|
+          update_bot_detector.yml|0|0|0|1560|"
 
           now_epoch=$(date -u +%s)
           gesamt_getriggert=0
@@ -526,7 +532,12 @@ jobs:
             # der Offset-Minute der aktuellen bzw. der Vorstunde; bei
             # kuerzeren Takten wird auf das Raster abgerundet.
             cur_min=$(date -u +%M); cur_min=$((10#$cur_min))
-            if [ "$takt" -ge 60 ]; then
+            if [ "$takt" -eq 0 ]; then
+              # Nur-Max-Age-Modus: Slot-Pruefung deaktiviert.
+              slot_iso="(keine Slot-Pruefung)"
+              slot_epoch=0
+              slot_age_min=0
+            elif [ "$takt" -ge 60 ]; then
               if [ "$cur_min" -ge "$offset" ]; then
                 slot_iso=$(date -u +%Y-%m-%dT%H:$(printf "%02d" "$offset"):00Z)
               else
@@ -536,15 +547,20 @@ jobs:
               slot_min=$(( (cur_min / takt) * takt ))
               slot_iso=$(date -u +%Y-%m-%dT%H:$(printf "%02d" "$slot_min"):00Z)
             fi
-            slot_epoch=$(date -u -d "$slot_iso" +%s)
-            slot_age_min=$(( (now_epoch - slot_epoch) / 60 ))
+            if [ "$takt" -ne 0 ]; then
+              slot_epoch=$(date -u -d "$slot_iso" +%s)
+              slot_age_min=$(( (now_epoch - slot_epoch) / 60 ))
+            fi
 
             echo "  Letzter Erfolg: $last_started (fertig $last_updated, vor ${stale_min}min)"
             echo "  Erwarteter Slot: $slot_iso (vor ${slot_age_min}min)"
 
-            slot_served=false
-            if [ "$last_started_epoch" -ge "$slot_epoch" ] || [ "$last_updated_epoch" -ge "$slot_epoch" ]; then
-              slot_served=true
+            slot_served=true
+            if [ "$takt" -ne 0 ]; then
+              slot_served=false
+              if [ "$last_started_epoch" -ge "$slot_epoch" ] || [ "$last_updated_epoch" -ge "$slot_epoch" ]; then
+                slot_served=true
+              fi
             fi
 
             # Laeuft gerade schon einer? Dann nicht nochmal anstossen.
@@ -559,7 +575,7 @@ jobs:
             fi
 
             grund=""
-            if [ "$slot_served" = "false" ] && [ "$slot_age_min" -ge "$grace" ]; then
+            if [ "$takt" -ne 0 ] && [ "$slot_served" = "false" ] && [ "$slot_age_min" -ge "$grace" ]; then
               grund="Slot $slot_iso seit ${slot_age_min}min nicht bedient (Grace ${grace}min)"
             elif [ "$stale_min" -ge "$maxage" ]; then
               grund="Max-Age: letzter Erfolg vor ${stale_min}min (Schwelle ${maxage}min)"
@@ -570,6 +586,8 @@ jobs:
               # shellcheck disable=SC2086
               gh_retry gh workflow run "$wf" --repo "${{ github.repository }}" --ref main $extra || true
               echo "  Getriggert."
+            elif [ "$takt" -eq 0 ]; then
+              echo "  Innerhalb Max-Age (${maxage}min) - kein Eingriff"
             elif [ "$slot_served" = "true" ]; then
               echo "  Slot bedient - kein Eingriff"
             else
@@ -579,3 +597,91 @@ jobs:
 
           echo ""
           echo "Sekundaer-Watchdog durchgelaufen."
+
+          # ══════════════════════════════════════════════════════════
+          # VORLAUF-TRIGGER (FIX FEED-FRISCHE 2026-08-29)
+          #
+          # Ziel: Die lokalen IP-Listen sollen beim Start des
+          # combined-Laufs hoechstens ~1 Stunde alt sein.
+          #
+          # Ausgangslage: Die Kette lief bisher in der falschen
+          # Richtung - combined -> confidence -> report generator ->
+          # honigtopf/honeypot/bot_detector. Die Feed-Listen wurden also
+          # NACH dem combined-Lauf aktualisiert. Beim naechsten
+          # combined-Lauf drei Stunden spaeter waren sie ein bis zwei
+          # Stunden alt, was funktioniert, aber Zufall war.
+          #
+          # Jetzt: Naehert sich der naechste primaere combined-Slot
+          # (Minute 7 der Stunden 0,3,6,...) auf VORLAUF_FENSTER_MIN,
+          # werden die Feed-Workflows angestossen, deren letzter Erfolg
+          # aelter als VORLAUF_MAX_ALTER_MIN ist. Sie laufen dann fertig,
+          # bevor combined startet.
+          #
+          # honigtopf ist NICHT dabei - der laeuft ohnehin alle 20 Min
+          # und ist nie aelter als eine Stunde.
+          #
+          # Kosten dieser Entscheidung (bewusst in Kauf genommen):
+          #   honeypot_monitor    4x/Tag -> bis zu 8x/Tag
+          #   update_bot_detector 1x/Tag -> bis zu 8x/Tag
+          #   cve_to_ip_mapper    1x/Tag -> bis zu 8x/Tag
+          # Die regulaeren Zeitplaene der drei bleiben unveraendert
+          # bestehen; dieser Block kommt additiv dazu.
+          # ══════════════════════════════════════════════════════════
+          VORLAUF_FENSTER_MIN=55      # ab wann vor dem Slot getriggert wird
+          VORLAUF_MIN_ABSTAND_MIN=15  # nicht mehr triggern, wenn Slot zu nah
+          VORLAUF_MAX_ALTER_MIN=60    # Liste gilt ab hier als zu alt
+
+          next_slot_epoch=""
+          next_slot_iso=""
+          for _add in 0 1 2 3; do
+            _h=$(date -u -d "+${_add} hour" +%H); _h=$((10#$_h))
+            [ $((_h % 3)) -ne 0 ] && continue
+            _cand=$(date -u -d "+${_add} hour" +%Y-%m-%dT%H:07:00Z)
+            _cand_epoch=$(date -u -d "$_cand" +%s)
+            if [ "$_cand_epoch" -gt "$now_epoch" ]; then
+              next_slot_epoch=$_cand_epoch; next_slot_iso=$_cand; break
+            fi
+          done
+
+          if [ -z "$next_slot_epoch" ]; then
+            echo ""
+            echo "Vorlauf-Trigger: naechster combined-Slot nicht bestimmbar - uebersprungen"
+          else
+            bis_slot=$(( (next_slot_epoch - now_epoch) / 60 ))
+            echo ""
+            echo "── Vorlauf-Trigger ───────────────────────────────────"
+            echo "  Naechster combined-Slot: $next_slot_iso (in ${bis_slot} min)"
+
+            if [ "$bis_slot" -gt "$VORLAUF_FENSTER_MIN" ] || [ "$bis_slot" -lt "$VORLAUF_MIN_ABSTAND_MIN" ]; then
+              echo "  Ausserhalb des Vorlauf-Fensters (${VORLAUF_MIN_ABSTAND_MIN}-${VORLAUF_FENSTER_MIN} min) - kein Eingriff"
+            else
+              for vwf in honeypot_monitor.yml update_bot_detector.yml cve_to_ip_mapper.yml; do
+                v_last=$(gh_retry gh run list \
+                  --repo "${{ github.repository }}" \
+                  --workflow "$vwf" --status success --limit 1 \
+                  --json updatedAt --jq '.[0].updatedAt // empty') || { echo "  $vwf: API-Fehler"; continue; }
+
+                v_aktiv=$(gh_retry gh run list \
+                  --repo "${{ github.repository }}" \
+                  --workflow "$vwf" --limit 10 --json status \
+                  --jq '[.[] | select(.status=="in_progress" or .status=="queued")] | length') || v_aktiv=0
+                if [ "${v_aktiv:-0}" -gt 0 ]; then
+                  echo "  $vwf: laeuft bereits - kein Eingriff"
+                  continue
+                fi
+
+                if [ -z "$v_last" ]; then
+                  echo "  $vwf: kein erfolgreicher Lauf bekannt - triggere"
+                  gh_retry gh workflow run "$vwf" --repo "${{ github.repository }}" --ref main || true
+                  continue
+                fi
+                v_age=$(( (now_epoch - $(date -u -d "$v_last" +%s)) / 60 ))
+                if [ "$v_age" -ge "$VORLAUF_MAX_ALTER_MIN" ]; then
+                  echo "  $vwf: letzter Erfolg vor ${v_age}min (Schwelle ${VORLAUF_MAX_ALTER_MIN}min) - triggere fuer den Slot um ${next_slot_iso}"
+                  gh_retry gh workflow run "$vwf" --repo "${{ github.repository }}" --ref main || true
+                else
+                  echo "  $vwf: letzter Erfolg vor ${v_age}min - frisch genug"
+                fi
+              done
+            fi
+          fi
