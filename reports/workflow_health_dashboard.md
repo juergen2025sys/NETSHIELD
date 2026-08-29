@@ -1,6 +1,6 @@
 # Workflow Health Dashboard
 
-**Stand:** 2026-08-29 08:59 CEST (Europe/Berlin)
+**Stand:** 2026-08-29 18:40 CEST (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
@@ -8,32 +8,31 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 9 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 4
-- **Lucken (>210min zwischen echten Runs):** 2
-  - 2026-08-28 10:59 CEST (Europe/Berlin) -> 2026-08-28 14:30 CEST (Europe/Berlin) (211 min)
+- **Echte Combined-Runs:** 10 / 8 erwartet
+- **Skip-Runs (Idempotenz-Guard):** 6
+- **Lucken (>210min zwischen echten Runs):** 1
   - 2026-08-28 20:44 CEST (Europe/Berlin) -> 2026-08-29 00:41 CEST (Europe/Berlin) (236 min)
 
 ## Letzte 7 Tage
 
-- **Echte Combined-Runs:** 65
-- **Skip-Runs:** 102
+- **Echte Combined-Runs:** 66
+- **Skip-Runs:** 95
 - **Fehlgeschlagene Runs:** 37
 - **Lucken >210min:** 9
 - **Groesste Lucke:** 2026-08-24 06:31 CEST (Europe/Berlin) -> 2026-08-24 16:55 CEST (Europe/Berlin) (623 min = 10h 23min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 486
+- **Watchdog-Laeufe insgesamt:** 441
 - **Watchdog-Fehler:** 0
 - **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 81
 
 Letzte Watchdog-Eingriffe:
-- 2026-08-28 16:21 CEST (Europe/Berlin) (Run #33179752342, Laufzeit 24m 33s)
-- 2026-08-28 19:41 CEST (Europe/Berlin) (Run #33195851703, Laufzeit 26m 26s)
-- 2026-08-28 20:18 CEST (Europe/Berlin) (Run #33198652856, Laufzeit 26m 30s)
-- 2026-08-29 03:24 CEST (Europe/Berlin) (Run #33226334270, Laufzeit 23m 48s)
 - 2026-08-29 05:44 CEST (Europe/Berlin) (Run #33232138351, Laufzeit 23m 44s)
+- 2026-08-29 11:11 CEST (Europe/Berlin) (Run #33244884557, Laufzeit 24m 21s)
+- 2026-08-29 11:50 CEST (Europe/Berlin) (Run #33246396733, Laufzeit 21m 8s)
+- 2026-08-29 15:09 CEST (Europe/Berlin) (Run #33254280854, Laufzeit 23m 55s)
+- 2026-08-29 17:46 CEST (Europe/Berlin) (Run #33261141236, Laufzeit 22m 5s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
