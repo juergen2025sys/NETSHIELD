@@ -1,15 +1,36 @@
 {
-  "updated": "2026-08-29 04:08 CEST (Europe/Berlin)",
-  "total": 29,
+  "updated": "2026-08-29 09:51 CEST (Europe/Berlin)",
+  "total": 30,
   "ok": 28,
-  "warn": 3,
-  "error": 0,
-  "errors": [],
+  "warn": 4,
+  "error": 1,
+  "errors": [
+    {
+      "file": "Production Health",
+      "check": "active \u2286 conf40 Subset-Invariante verletzt",
+      "detail": "1,939 IPs in active fehlen in conf40 (0.257% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+    }
+  ],
   "warnings": [
     {
       "file": "ip_ablauf.yml",
       "check": "continue-on-error aktiv",
       "detail": "continue-on-error=true gesetzt \u2013 Fehler k\u00f6nnen still bleiben; Review ob das wirklich beabsichtigt ist"
+    },
+    {
+      "file": "ledger_diagnose.yml",
+      "check": "Encoding fehlt (append)",
+      "detail": "Block 0: open(..., 'a') ohne encoding= \u2013 UnicodeEncodeError m\u00f6glich bei non-ASCII"
+    },
+    {
+      "file": "ledger_diagnose.yml",
+      "check": "Action nicht SHA-pinned",
+      "detail": "uses: actions/checkout@v4 \u2013 Tag statt SHA-Hash (Supply-Chain-Risiko)"
+    },
+    {
+      "file": "ledger_diagnose.yml",
+      "check": "Node24 env fehlt",
+      "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
     },
     {
       "file": "Cross-Workflow",
@@ -23,17 +44,23 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4756982,
-    "active_blacklist_ipv4.txt": 751838,
-    "blacklist_confidence40_ipv4_part1.txt": 4031878,
+    "combined_threat_blacklist_ipv4_part1.txt": 4762548,
+    "active_blacklist_ipv4.txt": 755609,
+    "blacklist_confidence40_ipv4_part1.txt": 4032533,
     "cve_exploit_ips.txt": 29317,
-    "honeypot_ips.txt": 1858829,
-    "bot_detector_blacklist_ipv4.txt": 1321082
+    "honeypot_ips.txt": 1855223,
+    "bot_detector_blacklist_ipv4.txt": 1321260
   },
   "production_health": {
-    "critical": 0,
+    "critical": 1,
     "warn": 0,
-    "checks": []
+    "checks": [
+      {
+        "level": "CRITICAL",
+        "check": "active \u2286 conf40 Subset-Invariante verletzt",
+        "detail": "1,939 IPs in active fehlen in conf40 (0.257% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+      }
+    ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
