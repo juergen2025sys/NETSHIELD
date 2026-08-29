@@ -1,13 +1,15 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-29 19:06 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-29 23:42 CEST (Europe/Berlin)
 
-**Workflows:** 29 | ✅ 27 OK | ⚠️ 4 Warnung | ❌ 0 Fehler
+**Workflows:** 29 | ✅ 26 OK | ⚠️ 5 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
+| `honigtopf.yml` | Encoding fehlt | Block 0: open(..., 'w') ohne encoding= – UnicodeEncodeError möglich |
+| `honigtopf.yml` | urlopen ohne timeout | Block 0: urllib.urlopen() ohne timeout= – hängt ewig bei totem Host/Netzwerkausfall |
 | `ip_ablauf.yml` | continue-on-error aktiv | continue-on-error=true gesetzt – Fehler können still bleiben; Review ob das wirklich beabsichtigt ist |
 | `ledger_diagnose.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `Cross-Workflow` | Doppelte Feed-URLs | 5 URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: strongips.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; abuseipdb-s100-30d.ipv4 in auto_feed_discovery.yml+update_combined_blacklist.yml; 5.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; greylist-latest.csv in auto_feed_discovery.yml+honeypot_monitor.yml; block.txt in auto_feed_discovery.yml+update_combined_blacklist.yml |
@@ -35,7 +37,7 @@
 | `force_cancel_stuck_runs.yml` | ✅ OK | 0 | 0 | – |
 | `history_fresh_start.yml` | ✅ OK | 0 | 0 | `15 3 1 * *` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 5,11,17,23 * * *` |
-| `honigtopf.yml` | ✅ OK | 0 | 0 | `*/20 * * * *`, `15 22 * * *` |
+| `honigtopf.yml` | ⚠️ | 0 | 2 | `*/20 * * * *` |
 | `ip_ablauf.yml` | ⚠️ | 0 | 1 | `30 6 * * 1`, `55 */3 * * *` |
 | `ledger_diagnose.yml` | ⚠️ | 0 | 1 | – |
 | `netshield_report_generator.yml` | ✅ OK | 0 | 0 | `30 * * * *` |
@@ -54,4 +56,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-29 19:06 CEST (Europe/Berlin) | 29 Workflow-Dateien geprüft*
+*Generiert: 2026-08-29 23:42 CEST (Europe/Berlin) | 29 Workflow-Dateien geprüft*

@@ -1,11 +1,21 @@
 {
-  "updated": "2026-08-29 19:06 CEST (Europe/Berlin)",
+  "updated": "2026-08-29 23:42 CEST (Europe/Berlin)",
   "total": 29,
-  "ok": 27,
-  "warn": 4,
+  "ok": 26,
+  "warn": 5,
   "error": 0,
   "errors": [],
   "warnings": [
+    {
+      "file": "honigtopf.yml",
+      "check": "Encoding fehlt",
+      "detail": "Block 0: open(..., 'w') ohne encoding= \u2013 UnicodeEncodeError m\u00f6glich"
+    },
+    {
+      "file": "honigtopf.yml",
+      "check": "urlopen ohne timeout",
+      "detail": "Block 0: urllib.urlopen() ohne timeout= \u2013 h\u00e4ngt ewig bei totem Host/Netzwerkausfall"
+    },
     {
       "file": "ip_ablauf.yml",
       "check": "continue-on-error aktiv",
@@ -28,12 +38,12 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4767660,
-    "active_blacklist_ipv4.txt": 770418,
-    "blacklist_confidence40_ipv4_part1.txt": 4040159,
-    "cve_exploit_ips.txt": 21759,
-    "honeypot_ips.txt": 1858847,
-    "bot_detector_blacklist_ipv4.txt": 1318895
+    "combined_threat_blacklist_ipv4_part1.txt": 4771444,
+    "active_blacklist_ipv4.txt": 774924,
+    "blacklist_confidence40_ipv4_part1.txt": 4042071,
+    "cve_exploit_ips.txt": 21776,
+    "honeypot_ips.txt": 1860751,
+    "bot_detector_blacklist_ipv4.txt": 1319363
   },
   "production_health": {
     "critical": 0,
