@@ -4420,9 +4420,23 @@ jobs:
           _fromiso = _date.fromisoformat
           _now_date = now.date()
 
-          for ip, data in db.items():
+          # FIX PERF-SCORING-SQL (2026-08-29): Wie beim Cleanup-Pass - statt
+          # db.items() (volles Dict je Zeile, zwei json.loads) nur noch die
+          # sieben tatsaechlich gebrauchten Werte, mit SQL-seitiger
+          # Feed-Zaehlung. Die Confidence-Formel selbst bleibt unveraendert in
+          # Python (_calc_conf), es wird KEINE Scoring-Logik nach SQL
+          # dupliziert - genau das waere die Stelle, an der beide Seiten
+          # spaeter auseinanderlaufen koennten.
+          for (ip, _sc_first, _sc_last, _sc_hq, _sc_feed_count,
+               _sc_today_count, _sc_days_seen) in db.iter_scoring_rows():
               try:
-                  if not isinstance(data, dict):
+                  # FIX PERF-SCORING-SQL: -1 = feeds war kein gueltiges
+                  # JSON-Array (siehe iter_scoring_rows). Als korrupt zaehlen
+                  # und ueberspringen - nicht mit feed_count=0 bewerten, sonst
+                  # koennte eine hq-IP mit frischem "last" trotz kaputter
+                  # Feed-Liste Confidence 100 erreichen und in die aktive
+                  # Blockliste rutschen.
+                  if _sc_feed_count < 0:
                       active_skipped_corrupt += 1
                       continue
                   # FIX BUG-CIDR-AGGR (Defense-in-Depth): Non-/32-CIDRs niemals
@@ -4441,7 +4455,7 @@ jobs:
                   # FIX PERF-ACTIVE: Sentinel-Check + lexikographischer
                   # Datums-Compare BEVOR strptime. Watchlist-IPs (last=Sentinel)
                   # und zu alte IPs werden ohne Parse aussortiert.
-                  last_str = data.get("last", "")
+                  last_str = _sc_last
                   if not isinstance(last_str, str) or last_str == "2000-01-01":
                       continue
                   if last_str < cutoff_30_str:
@@ -4451,7 +4465,10 @@ jobs:
                   # FIX PERF-ACTIVE: first_seen erst hier parsen – nicht vorher.
                   # Bei IPs die durch den lex-Compare oben rausfallen wurden
                   # vorher 2 strptime-Aufrufe gemacht.
-                  first_seen = safe_get_date(data, "first", last_str)
+                  # FIX PERF-SCORING-SQL: entspricht safe_get_date(data, "first",
+                  # last_str) - Wert vorhanden, String, gueltiges ISO-Datum,
+                  # sonst Fallback auf last_str.
+                  first_seen = _sc_first if _ist_iso_datum(_sc_first) else last_str
                   try:
                       last_dt  = _fromiso(last_str)
                       first_dt = _fromiso(first_seen)
@@ -4459,10 +4476,10 @@ jobs:
                       active_skipped_corrupt += 1
                       continue
 
-                  is_hq       = data.get("hq", False)
-                  feed_count  = len(data.get("feeds", []))
-                  today_count = data.get("today_count", 0)
-                  days_seen   = data.get("days_seen", 1)
+                  is_hq       = bool(_sc_hq)
+                  feed_count  = _sc_feed_count
+                  today_count = _sc_today_count or 0
+                  days_seen   = _sc_days_seen if _sc_days_seen is not None else 1
                   days_since_last = (_now_date - last_dt).days
                   # FIX BUG-2: first="2000-01-01" ist ein Sentinel, kein echtes Datum.
                   # Ohne Neutralisierung würde days_known ≈ 9600 den vollen Alter-Bonus
