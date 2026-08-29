@@ -42,7 +42,33 @@ on:
     # Versetzt auf :07/:22/:37/:52 (2026-06-02), damit dieser Watchdog NICHT
     # zeitgleich mit watchdog_combined ('*/15' = :00/:15/:30/:45) startet -
     # vermeidet die Cron-Kollision und gleichzeitige Last.
-    - cron: '7,22,37,52 * * * *'
+    #
+    # FIX WD-SLOT-DECKUNG (2026-08-29): Die alten Zeiten :07/:22/:37/:52
+    # konnten von den drei Honigtopf-Slots (:00/:20/:40) nur EINEN einzigen
+    # durchsetzen. Rechnung: Der Watchdog rundet auf den letzten
+    # 20-Minuten-Slot ab und vergleicht dessen Alter gegen
+    # SLOT_GRACE_MINUTES (15).
+    #     :07 -> Slot :00, Alter  7min -> innerhalb Grace, wartet ab
+    #     :22 -> Slot :20, Alter  2min -> innerhalb Grace, wartet ab
+    #     :37 -> Slot :20, Alter 17min -> Trigger moeglich
+    #     :52 -> Slot :40, Alter 12min -> innerhalb Grace, wartet ab
+    # Ein verpasster :00-Slot wurde also NUR um :07 betrachtet (Alter 7min,
+    # zu jung) - beim naechsten Lauf um :22 war der Slot-Zeiger bereits auf
+    # :20 weitergerueckt und :00 nie wieder Thema. Dasselbe fuer :40.
+    # Aufgefangen wurde das nur noch von MAX_AGE_MINUTES (90), also erst
+    # nach anderthalb Stunden statt nach 20 Minuten - genau das im Betrieb
+    # beobachtete Bild (letzter Lauf 09:16 statt :00/:20/:40).
+    #
+    # Jetzt :17/:37/:57 - jede Pruefung liegt exakt 17 Minuten nach IHREM
+    # Slot und damit ueber der Grace von 15:
+    #     :17 -> Slot :00, Alter 17min
+    #     :37 -> Slot :20, Alter 17min
+    #     :57 -> Slot :40, Alter 17min
+    # Damit ist jeder der drei Slots genau einmal mit korrektem Abstand
+    # abgedeckt. Die Grace-Logik bleibt unveraendert - nur die Pruefzeiten
+    # passen jetzt zum 20-Minuten-Raster. Kollision mit watchdog_combined
+    # (:00/:15/:30/:45) besteht weiterhin nicht.
+    - cron: '17,37,57 * * * *'
   workflow_dispatch:
 
 env:
