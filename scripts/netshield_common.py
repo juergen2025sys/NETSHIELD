@@ -2827,6 +2827,48 @@ class SqliteSeenDB(_MutableMapping):
         cur = self._conn.execute("SELECT 1 FROM seen_db WHERE ip = ? LIMIT 1", (ip,))
         return cur.fetchone() is not None
 
+    def iter_scoring_rows(self, batch_size=100_000):
+        """FIX PERF-SCORING-SQL (2026-08-29): Gestreamter Scan mit exakt den
+        Werten, die der Scoring-Loop braucht - und nur denen.
+
+        Gleiche Ausgangslage wie beim Cleanup-Pass (siehe
+        iter_ip_first_last): Der Scoring-Loop lief ueber items(), das pro
+        Zeile ein volles Dict baut - inklusive zwei json.loads() fuer feeds
+        und hq_feed_names. Gebraucht wird davon aber nur die ANZAHL der
+        Feeds, und die kann SQLite mit json_array_length() selbst zaehlen,
+        in C statt in Python. hq_feed_names wird ueberhaupt nicht gebraucht.
+
+        json_valid()/json_type() als Guard: Ist feeds kein gueltiges
+        JSON-Array, liefert die Query -1 statt einen Fehler zu werfen. Die
+        aufrufende Seite behandelt -1 als korrupten Eintrag und ueberspringt
+        ihn - bewusst NICHT als feed_count=0 durchrechnen, denn eine IP mit
+        hq=1 und frischem "last" erreicht auch ohne Feeds Confidence 100 und
+        landet damit in active_blacklist_ipv4.txt. Genau das ist beim Test
+        aufgefallen. Vorher waere ein solcher Eintrag gar nicht so weit
+        gekommen: json.loads() in _row_to_dict() haette INNERHALB des
+        items()-Generators geworfen und den ganzen Scoring-Loop abgebrochen.
+        Der Cleanup-Pass raeumt solche Eintraege ohnehin vorher aus - das
+        hier ist die zweite Linie.
+
+        Rueckgabe je Zeile: (ip, first, last, hq, feed_count, today_count,
+        days_seen).
+        """
+        cur = self._conn.execute(
+            "SELECT ip, first, last, hq, "
+            "  CASE WHEN feeds IS NULL OR feeds = '' THEN 0 "
+            "       WHEN json_valid(feeds) AND json_type(feeds) = 'array' "
+            "       THEN json_array_length(feeds) "
+            "       ELSE -1 END, "
+            "  today_count, days_seen "
+            "FROM seen_db"
+        )
+        while True:
+            rows = cur.fetchmany(batch_size)
+            if not rows:
+                break
+            for row in rows:
+                yield row
+
     def iter_ip_first_last(self, batch_size=100_000):
         """FIX PERF-CLEANUP-SQL (2026-08-29): Gestreamter Scan ueber NUR die
         drei Spalten, die der Cleanup-Pass fuer CIDR-/Whitelist-/Protected-
