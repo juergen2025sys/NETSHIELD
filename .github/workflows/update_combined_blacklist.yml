@@ -2893,6 +2893,85 @@ jobs:
           # Fortschritts-Zaehler waere hier teurer als der Nutzen. Ein reiner
           # "Ich lebe noch, hier stehe ich gerade"-Marker mit IPs/s reicht,
           # um Stillstand von normaler Arbeit zu unterscheiden.
+          # ── MESSUNG UPD-DIAG (2026-08-29) ────────────────────────────────
+          # Rein beobachtend, kein Eingriff in die Logik. Anlass: Der
+          # Update-Loop lag im Lauf vom 29.08. bei 380,7s Wanduhr gegenueber
+          # 319,4s CPU - also 61,3s echtes I/O-Warten, bei +3,2 GB RSS. Im
+          # Lauf davor war diese Luecke 0,4s. Die bestehende Phasen-Tabelle
+          # zeigt das, sagt aber nicht, WOHER es kommt. Diese Messung trennt
+          # drei Fragen:
+          #   (a) Wird tatsaechlich geswappt, und wie viel WAEHREND dieser
+          #       Phase (die vorhandene Swap-Zahl gilt fuer den ganzen Lauf)?
+          #   (b) Welche Struktur haelt den Speicher - ip_feeds_today, die
+          #       Feed-Rohdaten, oder die SQLite-Verbindung?
+          #   (c) Wie verteilt sich die Zeit innerhalb des Loops zwischen
+          #       SQL-Schreibzugriffen und reiner Python-Logik?
+          # Ergebnis geht als Block ins Log, direkt vor der Phasen-Tabelle.
+          def _upd_diag_vmstat():
+              """pswpin/pswpout aus /proc/vmstat - Seiten, die zwischen RAM
+              und Swap bewegt wurden. Differenz ueber die Phase = Swapping
+              genau in diesem Fenster."""
+              _v = {}
+              try:
+                  with open("/proc/vmstat") as _f:
+                      for _z in _f:
+                          _t = _z.split()
+                          if len(_t) == 2 and _t[0] in ("pswpin", "pswpout"):
+                              _v[_t[0]] = int(_t[1])
+              except OSError:
+                  pass
+              return _v
+
+          def _upd_diag_mem():
+              """VmRSS und VmSwap des eigenen Prozesses in MB."""
+              _m = {}
+              try:
+                  with open("/proc/self/status") as _f:
+                      for _z in _f:
+                          if _z.startswith(("VmRSS:", "VmSwap:", "VmHWM:")):
+                              _k, _val = _z.split(":", 1)
+                              _m[_k] = int(_val.strip().split()[0]) / 1024.0
+              except OSError:
+                  pass
+              return _m
+
+          def _upd_diag_groesse(_obj, _tiefe=2):
+              """Grobe Groessenschaetzung in MB. Bewusst NICHT rekursiv ueber
+              alles (das waere bei ~11 Mio. Eintraegen selbst minutenlang) -
+              stattdessen Stichprobe: sys.getsizeof() des Containers plus
+              hochgerechnete Elementgroesse aus den ersten 1000 Eintraegen."""
+              try:
+                  _basis = sys.getsizeof(_obj)
+                  _n = len(_obj)
+                  if _n == 0:
+                      return _basis / 1024.0 / 1024.0
+                  _probe = 0
+                  _z = 0
+                  for _k in _obj:
+                      _probe += sys.getsizeof(_k)
+                      if isinstance(_obj, dict) and _tiefe > 1:
+                          _w = _obj[_k]
+                          _probe += sys.getsizeof(_w)
+                          if isinstance(_w, (list, set, tuple)):
+                              for _e in _w:
+                                  _probe += sys.getsizeof(_e)
+                      _z += 1
+                      if _z >= 1000:
+                          break
+                  return (_basis + _probe / _z * _n) / 1024.0 / 1024.0
+              except Exception:
+                  return float("nan")
+
+          _upd_diag_vm0 = _upd_diag_vmstat()
+          _upd_diag_mem0 = _upd_diag_mem()
+          _upd_diag_sql_s = 0.0
+          _upd_diag_sql_n = 0
+          print(f"  [UPD-DIAG] vor dem Loop: RSS {_upd_diag_mem0.get('VmRSS', 0):,.0f} MB, "
+                f"Swap {_upd_diag_mem0.get('VmSwap', 0):,.0f} MB, "
+                f"Hochwasser {_upd_diag_mem0.get('VmHWM', 0):,.0f} MB")
+          print(f"  [UPD-DIAG] ip_feeds_today: {len(ip_feeds_today):,} Eintraege, "
+                f"geschaetzt {_upd_diag_groesse(ip_feeds_today):,.0f} MB")
+
           _upd_loop_t0 = _time.monotonic()
           _upd_last_report = _upd_loop_t0
           _upd_processed = 0
@@ -3035,7 +3114,10 @@ jobs:
                       # stillschweigend verloren gehen, sobald der naechste
                       # Cleanup-Pass/Export darauf zugreift. Mit eingebautem
                       # dict war das nie noetig (entry war db[ip] selbst).
+                      _upd_diag_t = _time.monotonic()
                       db[ip] = entry
+                      _upd_diag_sql_s += _time.monotonic() - _upd_diag_t
+                      _upd_diag_sql_n += 1
                   except Exception as _corrupt:
                       print(f"WARN: Korrupter seen_db-Eintrag {ip}, wird neu angelegt: {_corrupt}", file=sys.stderr)
                       # FIX PERF-LAZYSORT: list() statt sorted() – Sweep nach
@@ -3139,6 +3221,7 @@ jobs:
                               _entry_last = now_day
                       else:
                           _entry_last = "2000-01-01"
+                      _upd_diag_t = _time.monotonic()
                       db[ip] = {
                           "first":          _wl_first,
                           "last":           _entry_last,
@@ -3150,6 +3233,8 @@ jobs:
                           "today_hq":       today_is_hq,
                           "days_seen":      1 if today_is_hq else 0,
                       }
+                      _upd_diag_sql_s += _time.monotonic() - _upd_diag_t
+                      _upd_diag_sql_n += 1
               else:
                   # FIX PERF-LAZYSORT: list() statt sorted() – Sweep nach
                   # der Schleife sortiert.
@@ -3216,6 +3301,7 @@ jobs:
                           _entry_last = now_day
                   else:
                       _entry_last = "2000-01-01"
+                  _upd_diag_t = _time.monotonic()
                   db[ip] = {
                       "first":          _wl_first,
                       # FIX AGGREGATOR1: Neue IPs bekommen last=heute bei 1+ HQ-Feed.
@@ -3234,6 +3320,8 @@ jobs:
                       "today_hq":       today_is_hq,
                       "days_seen":      1 if today_is_hq else 0,
                   }
+                  _upd_diag_sql_s += _time.monotonic() - _upd_diag_t
+                  _upd_diag_sql_n += 1
                   # FIX 2026-08-23: nur zaehlen wenn KEINE Ledger-Wiederauf-
                   # erstehung (siehe Kommentar bei der Initialisierung oben).
                   # _wl_first != now_day bzw. _entry_last != now_day/
@@ -3306,6 +3394,40 @@ jobs:
           # NaN-Datum etc.) wuerde sonst die komplette Cleanup-Schleife
           # abbrechen und den Run nach 45 min ohne Output beenden.
           # Bei Crash: IP wird als korrupt markiert und gedroppt.
+          # ── MESSUNG UPD-DIAG: Auswertung ─────────────────────────────────
+          _upd_diag_dauer = _time.monotonic() - _upd_loop_t0
+          _upd_diag_vm1 = _upd_diag_vmstat()
+          _upd_diag_mem1 = _upd_diag_mem()
+          _upd_diag_in = _upd_diag_vm1.get("pswpin", 0) - _upd_diag_vm0.get("pswpin", 0)
+          _upd_diag_out = _upd_diag_vm1.get("pswpout", 0) - _upd_diag_vm0.get("pswpout", 0)
+          print("  ── [UPD-DIAG] Update-Loop: Speicher und Zeitverteilung ──────────")
+          print(f"     Dauer gesamt                : {_upd_diag_dauer:8.1f}s")
+          print(f"     davon SQL-Schreibzugriffe   : {_upd_diag_sql_s:8.1f}s "
+                f"({100 * _upd_diag_sql_s / _upd_diag_dauer if _upd_diag_dauer else 0:.0f} %) "
+                f"bei {_upd_diag_sql_n:,} Schreibvorgaengen")
+          print(f"     davon Python-Logik          : {_upd_diag_dauer - _upd_diag_sql_s:8.1f}s "
+                f"({100 * (_upd_diag_dauer - _upd_diag_sql_s) / _upd_diag_dauer if _upd_diag_dauer else 0:.0f} %)")
+          print(f"     RSS   vorher/nachher        : {_upd_diag_mem0.get('VmRSS', 0):,.0f} MB "
+                f"-> {_upd_diag_mem1.get('VmRSS', 0):,.0f} MB")
+          print(f"     Swap  vorher/nachher        : {_upd_diag_mem0.get('VmSwap', 0):,.0f} MB "
+                f"-> {_upd_diag_mem1.get('VmSwap', 0):,.0f} MB")
+          print(f"     Hochwasser (VmHWM)          : {_upd_diag_mem1.get('VmHWM', 0):,.0f} MB")
+          print(f"     Swap-Seiten IN diesem Loop  : {_upd_diag_in:,} rein / {_upd_diag_out:,} raus "
+                f"({(_upd_diag_in + _upd_diag_out) * 4 / 1024:.1f} MB bewegt)")
+          if _upd_diag_in + _upd_diag_out > 1000:
+              print("     -> Deutliches Swapping in dieser Phase. Der Engpass ist Speicher, "
+                    "nicht Rechenleistung.")
+          elif _upd_diag_dauer - _upd_diag_sql_s > _upd_diag_sql_s:
+              print("     -> Zeit geht ueberwiegend in die Python-Logik, nicht in SQL "
+                    "und nicht in Swapping.")
+          print(f"     ip_feeds_today              : {len(ip_feeds_today):,} Eintraege, "
+                f"geschaetzt {_upd_diag_groesse(ip_feeds_today):,.0f} MB")
+          try:
+              print(f"     seen_db (SQLite)            : {len(db):,} Eintraege")
+          except Exception:
+              pass
+          print("  ─────────────────────────────────────────────────────────────────")
+
           _corrupt_dropped = 0
           _phase_mark("Update-Loop (seen_db aktualisieren)")
 
