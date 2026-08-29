@@ -53,7 +53,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Anti-Churn-Ledger aus Release laden (nur lesen)
         run: |
@@ -313,11 +313,22 @@ jobs:
               sag()
 
           # ══ Ausgabe ═══════════════════════════════════════════════
-          summary = os.environ.get("GITHUB_STEP_SUMMARY")
-          if summary:
-              with open(summary, "a") as f:
-                  f.write("\n".join(zeilen) + "\n")
-              print("\nErgebnis in die Job-Summary geschrieben.")
+          # FIX HYGIENE-APPEND (2026-08-29): Vorher stand hier ein direktes
+          # open(summary, "a"). Das hat check_security_hygiene.py zu Recht
+          # beanstandet - die Regel verlangt write_text_atomic() fuer
+          # Schreibzugriffe. Fuer GITHUB_STEP_SUMMARY passt ein atomares
+          # Ersetzen aber nicht: Die Datei gehoert dem Runner, andere Steps
+          # haengen ebenfalls an, und os.replace() wuerde deren Inhalt
+          # verwerfen. Deshalb hier gar nicht mehr in die Datei schreiben,
+          # sondern die Auswertung schlicht auf die Standardausgabe geben -
+          # das Log enthaelt ohnehin alles, und der Workflow bleibt damit
+          # vollstaendig ohne Dateischreibzugriff.
+          print()
+          print("═" * 70)
+          print("ERGEBNIS (auch im Log oben, hier nochmal am Stueck)")
+          print("═" * 70)
+          for _z in zeilen:
+              print(_z)
           EOF
 
       - name: Geladene Daten entfernen
