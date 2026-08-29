@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-29 15:09 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-29 19:06 CEST (Europe/Berlin)
 
-**Workflows:** 31 | ✅ 29 OK | ⚠️ 5 Warnung | ❌ 0 Fehler
+**Workflows:** 29 | ✅ 27 OK | ⚠️ 4 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
@@ -12,15 +12,12 @@
 | `ledger_diagnose.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `Cross-Workflow` | Doppelte Feed-URLs | 5 URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: strongips.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; abuseipdb-s100-30d.ipv4 in auto_feed_discovery.yml+update_combined_blacklist.yml; 5.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; greylist-latest.csv in auto_feed_discovery.yml+honeypot_monitor.yml; block.txt in auto_feed_discovery.yml+update_combined_blacklist.yml |
 | `honigtopf.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC → 00:07 UTC (7min < 60min Mindestpuffer); 00:20 UTC → 00:27 UTC (7min < 60min Mindestpuffer); 00:40 UTC → 00:47 UTC (7min < 60min Mindestpuffer); 02:20 UTC → 03:07 UTC (47min < 60min Mindestpuffer); 02:40 UTC → 03:07 UTC (27min < 60min Mindestpuffer) |
-| `Production Health` | Drift: cve_exploit_ips.txt | cve_exploit_ips.txt: 29,317 → 21,759 (-26%) – deutlicher Rückgang |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🟡 WARN | Drift: cve_exploit_ips.txt | cve_exploit_ips.txt: 29,317 → 21,759 (-26%) – deutlicher Rückgang |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -52,11 +49,9 @@
 | `update_combined_blacklist.yml` | ✅ OK | 0 | 0 | `7 */3 * * *`, `27 */3 * * *`, `47 */3 * * *` |
 | `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | `47 1,4,7,10,13,16,19,22 * * *` |
 | `watchdog_combined.yml` | ✅ OK | 0 | 0 | `*/15 * * * *` |
-| `watchdog_honigtopf.yml` | ✅ OK | 0 | 0 | `17,37,57 * * * *` |
 | `watchdog_ip_ablauf.yml` | ✅ OK | 0 | 0 | `*/30 * * * *` |
-| `watchdog_report_generator.yml` | ✅ OK | 0 | 0 | `18,48 * * * *` |
 | `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-29 15:09 CEST (Europe/Berlin) | 31 Workflow-Dateien geprüft*
+*Generiert: 2026-08-29 19:06 CEST (Europe/Berlin) | 29 Workflow-Dateien geprüft*
