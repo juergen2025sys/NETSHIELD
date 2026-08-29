@@ -98,6 +98,67 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: WireGuard – Tunnel für Feed-Abfrage aufbauen
+        # FIX WG-TUNNEL (2026-08-29, Nutzeranfrage "traffic soll durch
+        # meinen eigenen Server/VPN-Anbieter geroutet werden"): baut vor der
+        # eigentlichen HoneyDB-Abfrage einen WireGuard-Tunnel auf. Bewusst
+        # NUR um den Fetch-Step herum (dieser Step + der Abbau-Step direkt
+        # nach "Fetch Honigtopf Threat Data") - Checkout/Commit/Push laufen
+        # weiter direkt ueber GitHub, damit ein VPN-Ausfall/-Blocking beim
+        # Provider nicht den Git-Teil des Jobs mitreisst.
+        #
+        # Secret WG_CONF = kompletter Inhalt der vom VPN-Anbieter (z.B.
+        # ProtonVPN, Mullvad, AirVPN, eigener WireGuard-Server) exportierten
+        # .conf-Datei im wg-quick-Format ([Interface] PrivateKey/Address/DNS,
+        # [Peer] PublicKey/Endpoint/AllowedIPs). Wird 1:1 nach
+        # /etc/wireguard/wg0.conf geschrieben - KEIN Parsen/Zusammenbauen
+        # aus Einzel-Secrets, damit ein frisch heruntergeladener Anbieter-
+        # Export ohne Anpassung funktioniert.
+        #
+        # Fail-CLOSED: nach 'wg-quick up' wird die oeffentliche IP vor/nach
+        # dem Tunnelaufbau verglichen (via ipify.org). Sind sie identisch,
+        # bricht der Job HART ab, statt still ueber die normale GitHub-
+        # Runner-IP weiterzulaufen - sonst waere ein kaputter/falsch
+        # konfigurierter Tunnel unbemerkt wirkungslos (genau das Gegenteil
+        # von Anonymisierung).
+        id: wg_up
+        if: steps.recent.outputs.skip != 'true'
+        env:
+          WG_CONF: ${{ secrets.WG_CONF }}
+        run: |
+          if [ -z "$WG_CONF" ]; then
+            echo "::error::Secret WG_CONF ist leer/nicht gesetzt - kann keinen WireGuard-Tunnel aufbauen."
+            exit 1
+          fi
+
+          echo "Installiere wireguard-tools..."
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq wireguard resolvconf
+
+          echo "Ausgangs-IP (vor Tunnel) ermitteln..."
+          IP_BEFORE=$(curl -s --max-time 10 https://api.ipify.org || echo "unbekannt")
+          echo "IP vor Tunnel: $IP_BEFORE"
+
+          # Config-Datei mit Secret-Inhalt schreiben - NIE den Inhalt selbst
+          # loggen (enthaelt den privaten WireGuard-Key).
+          sudo mkdir -p /etc/wireguard
+          printf '%s\n' "$WG_CONF" | sudo tee /etc/wireguard/wg0.conf > /dev/null
+          sudo chmod 600 /etc/wireguard/wg0.conf
+
+          echo "Baue WireGuard-Tunnel auf..."
+          sudo wg-quick up wg0
+
+          echo "Ausgangs-IP (nach Tunnel) ermitteln..."
+          IP_AFTER=$(curl -s --max-time 10 https://api.ipify.org || echo "unbekannt")
+          echo "IP nach Tunnel: $IP_AFTER"
+
+          if [ "$IP_BEFORE" = "$IP_AFTER" ] || [ "$IP_AFTER" = "unbekannt" ]; then
+            echo "::error::WireGuard-Tunnel steht laut 'wg-quick up' zwar, aber die oeffentliche IP hat sich NICHT geaendert (vorher: $IP_BEFORE, nachher: $IP_AFTER). Breche ab, statt ungeschuetzt ueber die Runner-IP weiterzulaufen."
+            sudo wg-quick down wg0 2>/dev/null || true
+            exit 1
+          fi
+          echo "Tunnel aktiv - Traffic laeuft jetzt ueber $IP_AFTER"
+
       - name: Fetch Honigtopf Threat Data
         if: steps.recent.outputs.skip != 'true'
         id: fetch
@@ -853,6 +914,18 @@ jobs:
           rm -f /tmp/honigtopf_invalid_creds.txt
 
           exit "$PY_EXIT"
+
+      - name: WireGuard – Tunnel für Feed-Abfrage abbauen
+        # Gegenstueck zu "WireGuard - Tunnel fuer Feed-Abfrage aufbauen".
+        # always(), damit der Tunnel auch bei einem fehlgeschlagenen Fetch
+        # sauber abgebaut wird (Hygiene/Log-Klarheit; der Runner wird zwar
+        # ohnehin nach dem Job weggeworfen, aber ein sauberer Abbau
+        # verhindert z.B. dass 'Skip if Honigtopf ran recently' bei
+        # zukuenftigen Debugging-Reruns auf demselben Runner-Image
+        # (Self-Hosted-Fall) einen haengenden Tunnel vorfindet.
+        if: always() && steps.wg_up.outcome != 'skipped'
+        run: |
+          sudo wg-quick down wg0 2>/dev/null || echo "Tunnel war nicht (mehr) aktiv - nichts abzubauen."
 
       - name: Commit
         if: always()  # FIX: auch bei Leerungsschutz-Exit den Report committen
