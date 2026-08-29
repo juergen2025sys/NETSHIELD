@@ -422,3 +422,160 @@ jobs:
               --ref main
             echo "Triggered."
           fi
+
+      # ══════════════════════════════════════════════════════════════
+      # FIX WD-SAMMEL (2026-08-29): Sekundaer-Pruefung fuer weitere
+      # Workflows, die eigene Watchdogs hatten.
+      #
+      # ANLASS: Messung an der echten Actions-Historie von
+      # watchdog_honigtopf.yml (cron '7,22,37,52', also 96 geplante
+      # Laeufe/Tag):
+      #     29.08.  12:13, 05:19
+      #     28.08.  23:26, 13:14, 01:56
+      #     27.08.  16:34, 05:22, 00:18
+      #     26.08.  21:13, 18:53, 17:56
+      # Tatsaechlich 2-3 Laeufe pro Tag statt 96 - rund 97 % Ausfall,
+      # mit Luecken von 7 bis 11 Stunden. Der Watchdog konnte seine
+      # Aufgabe damit nicht erfuellen: Er soll nach 15 Minuten
+      # nachtriggern, bekam dafuer aber nur alle paar Stunden eine
+      # Gelegenheit. Auch die MAX_AGE-Ebene lief ins Leere, weil sie
+      # einen laufenden Watchdog voraussetzt.
+      #
+      # URSACHE: GitHub drosselt geplante Workflows. Das Repo hatte 35
+      # Zeitplaene in 23 Workflows, die um dieselbe Zuteilung
+      # konkurrierten. watchdog_combined ('*/15') laeuft dabei
+      # zuverlaessig genug - deshalb haengen die Pruefungen jetzt hier
+      # mit dran, statt eigene Zeitplaene zu belegen.
+      #
+      # BEWUSST NICHT geaendert: An Cron-Zeiten oder Karenzwerten zu
+      # schrauben bringt nichts, solange nur jeder dreissigste geplante
+      # Lauf stattfindet. Der Hebel ist die Anzahl der Zeitplaene.
+      #
+      # watchdog_ip_ablauf.yml bleibt eigenstaendig - der laeuft laut
+      # Historie regelmaessig genug ('*/30').
+      #
+      # Dieser Step laeuft mit "if: always()", damit er auch dann
+      # arbeitet, wenn die Combined-Pruefung oben abgebrochen ist -
+      # die Ziele haengen nicht von deren Ergebnis ab.
+      # ══════════════════════════════════════════════════════════════
+      - name: Sekundaer-Watchdog (Honigtopf, Report Generator)
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          set -o pipefail
+
+          RETRY_MAX=3
+          gh_retry() {
+            local attempt=1 backoff=5 out="" rc=0
+            while [ "$attempt" -le "$RETRY_MAX" ]; do
+              out=$("$@" 2>/tmp/gh_sek_err) && rc=0 || rc=$?
+              if [ "$rc" -eq 0 ]; then printf '%s' "$out"; return 0; fi
+              if [ "$attempt" -eq "$RETRY_MAX" ]; then
+                echo "gh_retry: fehlgeschlagen nach ${attempt} Versuchen (exit=${rc})" >&2
+                cat /tmp/gh_sek_err >&2
+                return "$rc"
+              fi
+              sleep "$backoff"
+              attempt=$((attempt + 1)); backoff=$((backoff * 2))
+            done
+          }
+
+          # Ein Ziel je Zeile:
+          #   Datei | Slot-Takt Min | Slot-Offset Min | Grace Min | MaxAge Min | Dispatch-Zusatz
+          # Slot-Takt 20 + Offset 0  -> Slots :00/:20/:40 (honigtopf, cron '*/20')
+          # Slot-Takt 60 + Offset 30 -> Slot x:30         (report generator, cron '30 * * * *')
+          # WICHTIG: Grace MUSS kleiner als der Slot-Takt sein. Bei Takt 20
+          # kann das Slot-Alter hoechstens 19 Minuten erreichen - eine Grace
+          # von 20 wuerde nie ausloesen. Deshalb 12 fuer honigtopf.
+          ZIELE="honigtopf.yml|20|0|12|90|--field force_light=true
+          netshield_report_generator.yml|60|30|25|150|"
+
+          now_epoch=$(date -u +%s)
+          gesamt_getriggert=0
+
+          echo "$ZIELE" | while IFS='|' read -r wf takt offset grace maxage extra; do
+            wf=$(echo "$wf" | xargs)
+            [ -z "$wf" ] && continue
+            echo ""
+            echo "── $wf ────────────────────────────────────────────"
+
+            letzter=$(gh_retry gh run list \
+              --repo "${{ github.repository }}" \
+              --workflow "$wf" \
+              --status success \
+              --limit 1 \
+              --json startedAt,updatedAt \
+              --jq '.[0] // empty') || { echo "  API-Fehler - uebersprungen"; continue; }
+
+            if [ -z "$letzter" ]; then
+              echo "  Kein erfolgreicher Lauf gefunden - triggere vorsorglich"
+              # shellcheck disable=SC2086
+              gh_retry gh workflow run "$wf" --repo "${{ github.repository }}" --ref main $extra || true
+              continue
+            fi
+
+            last_started=$(echo "$letzter" | jq -r '.startedAt')
+            last_updated=$(echo "$letzter" | jq -r '.updatedAt')
+            last_started_epoch=$(date -u -d "$last_started" +%s)
+            last_updated_epoch=$(date -u -d "$last_updated" +%s)
+            stale_min=$(( (now_epoch - last_updated_epoch) / 60 ))
+
+            # Erwarteten Slot bestimmen. Bei Takt 60 liegt der Slot auf
+            # der Offset-Minute der aktuellen bzw. der Vorstunde; bei
+            # kuerzeren Takten wird auf das Raster abgerundet.
+            cur_min=$(date -u +%M); cur_min=$((10#$cur_min))
+            if [ "$takt" -ge 60 ]; then
+              if [ "$cur_min" -ge "$offset" ]; then
+                slot_iso=$(date -u +%Y-%m-%dT%H:$(printf "%02d" "$offset"):00Z)
+              else
+                slot_iso=$(date -u -d '1 hour ago' +%Y-%m-%dT%H:$(printf "%02d" "$offset"):00Z)
+              fi
+            else
+              slot_min=$(( (cur_min / takt) * takt ))
+              slot_iso=$(date -u +%Y-%m-%dT%H:$(printf "%02d" "$slot_min"):00Z)
+            fi
+            slot_epoch=$(date -u -d "$slot_iso" +%s)
+            slot_age_min=$(( (now_epoch - slot_epoch) / 60 ))
+
+            echo "  Letzter Erfolg: $last_started (fertig $last_updated, vor ${stale_min}min)"
+            echo "  Erwarteter Slot: $slot_iso (vor ${slot_age_min}min)"
+
+            slot_served=false
+            if [ "$last_started_epoch" -ge "$slot_epoch" ] || [ "$last_updated_epoch" -ge "$slot_epoch" ]; then
+              slot_served=true
+            fi
+
+            # Laeuft gerade schon einer? Dann nicht nochmal anstossen.
+            aktiv=$(gh_retry gh run list \
+              --repo "${{ github.repository }}" \
+              --workflow "$wf" --limit 10 \
+              --json status \
+              --jq '[.[] | select(.status=="in_progress" or .status=="queued")] | length') || aktiv=0
+            if [ "${aktiv:-0}" -gt 0 ]; then
+              echo "  ${aktiv} Lauf/Laeufe bereits aktiv - kein Eingriff"
+              continue
+            fi
+
+            grund=""
+            if [ "$slot_served" = "false" ] && [ "$slot_age_min" -ge "$grace" ]; then
+              grund="Slot $slot_iso seit ${slot_age_min}min nicht bedient (Grace ${grace}min)"
+            elif [ "$stale_min" -ge "$maxage" ]; then
+              grund="Max-Age: letzter Erfolg vor ${stale_min}min (Schwelle ${maxage}min)"
+            fi
+
+            if [ -n "$grund" ]; then
+              echo "  TRIGGER: $grund"
+              # shellcheck disable=SC2086
+              gh_retry gh workflow run "$wf" --repo "${{ github.repository }}" --ref main $extra || true
+              echo "  Getriggert."
+            elif [ "$slot_served" = "true" ]; then
+              echo "  Slot bedient - kein Eingriff"
+            else
+              echo "  Slot offen, aber noch innerhalb Grace (${grace}min) - warte ab"
+            fi
+          done
+
+          echo ""
+          echo "Sekundaer-Watchdog durchgelaufen."
