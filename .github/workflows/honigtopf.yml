@@ -963,6 +963,59 @@ jobs:
             exit 1
           fi
 
+      - name: WireGuard-Alarm (GitHub Issue) öffnen/aktualisieren
+        # FIX WG-ALARM (2026-08-29, Nutzeranfrage "sollte wireguard nicht
+        # gehen kommt dann ein issue"): analog zum Key-Alarm-Muster - wenn
+        # der Tunnelaufbau-Step (id: wg_up) fehlschlaegt (WG_CONF fehlt,
+        # 'wg-quick up' scheitert, oder der Fail-Closed-IP-Check keine
+        # Aenderung feststellt), wird automatisch ein GitHub Issue
+        # aufgemacht bzw. aktualisiert. steps.wg_up.outcome == 'failure'
+        # feuert NUR bei echtem Fehlschlag - bei Piggyback-Skip
+        # (steps.recent.outputs.skip=true) ist wg_up 'skipped', nicht
+        # 'failure', loest also KEINEN Alarm aus.
+        if: always() && steps.wg_up.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 Honigtopf: WireGuard-Tunnel fehlgeschlagen"
+          BODY="Der WireGuard-Tunnelaufbau (Step \"WireGuard – Tunnel für Feed-Abfrage aufbauen\") ist fehlgeschlagen.
+
+          Moegliche Ursachen: Secret WG_CONF fehlt/leer, 'wg-quick up' schlaegt fehl (ungueltige Config, Server nicht erreichbar), oder der Fail-Closed-IP-Check hat KEINE Aenderung der oeffentlichen IP festgestellt (Tunnel stand zwar, hat aber nichts geroutet). Details im Log dieses Laufs.
+
+          Der Job wurde daraufhin abgebrochen, BEVOR die HoneyDB-Abfrage lief - es wurde also nichts ungeschuetzt ueber die normale GitHub-Runner-IP abgefragt.
+
+          Lauf: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')
+          Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Bestehendes WireGuard-Alarm-Issue #$EXISTING gefunden - kommentiere statt neu zu erstellen."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" --body "$BODY"
+          else
+            echo "Kein offenes WireGuard-Alarm-Issue gefunden - erstelle neues."
+            gh issue create --repo "${{ github.repository }}" --title "$TITLE" --body "$BODY"
+          fi
+
+      - name: WireGuard-Alarm schließen, falls behoben
+        # Gegenrichtung: sobald ein Lauf den Tunnel wieder erfolgreich
+        # aufbaut, wird ein offenes WireGuard-Alarm-Issue automatisch
+        # kommentiert und geschlossen.
+        if: always() && steps.wg_up.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 Honigtopf: WireGuard-Tunnel fehlgeschlagen"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Offenes WireGuard-Alarm-Issue #$EXISTING gefunden - aktueller Lauf hat den Tunnel erfolgreich aufgebaut, schließe."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" \
+              --body "✅ Behoben: Lauf vom $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z') hat den WireGuard-Tunnel erfolgreich aufgebaut. Issue wird automatisch geschlossen."
+            gh issue close "$EXISTING" --repo "${{ github.repository }}"
+          else
+            echo "Kein offenes WireGuard-Alarm-Issue vorhanden - nichts zu tun."
+          fi
+
       - name: Key-Alarm (GitHub Issue) öffnen/aktualisieren
         # FIX KEY-ALARM (2026-08-29, Nutzeranfrage "sollten die keys nimmer
         # angenommen werden kann doch ein issue erstellt werden"): sobald der
