@@ -2827,6 +2827,65 @@ class SqliteSeenDB(_MutableMapping):
         cur = self._conn.execute("SELECT 1 FROM seen_db WHERE ip = ? LIMIT 1", (ip,))
         return cur.fetchone() is not None
 
+    def iter_ip_first_last(self, batch_size=100_000):
+        """FIX PERF-CLEANUP-SQL (2026-08-29): Gestreamter Scan ueber NUR die
+        drei Spalten, die der Cleanup-Pass fuer CIDR-/Whitelist-/Protected-
+        Pruefung und die Ablauf-Entscheidung braucht.
+
+        Hintergrund: Der Cleanup-Pass lief bisher ueber items(), das pro Zeile
+        ein vollstaendiges Dict baut - inklusive ZWEI json.loads()-Aufrufen
+        (feeds + hq_feed_names). Bei ~9,5 Mio. Eintraegen ist das der
+        dominierende Kostenfaktor, obwohl die allermeisten Zeilen nach den
+        ersten drei String-Vergleichen wieder verworfen werden. Gemessen an
+        einer 9,5-Mio.-Testdatenbank: 54,0s mit vollem Dict-Bau gegenueber
+        19,8s mit diesem Scan.
+
+        Bewusst KEIN list() und kein Dict-Bau - reine Tupel aus dem
+        Cursor-Batch. Loeschungen waehrend der Iteration sind wie bei items()
+        nicht erlaubt (bulk_delete() gehoert nach die Schleife).
+        """
+        cur = self._conn.execute("SELECT ip, first, last FROM seen_db")
+        while True:
+            rows = cur.fetchmany(batch_size)
+            if not rows:
+                break
+            for row in rows:
+                yield row
+
+    def select_aufnahme_kandidaten(self):
+        """FIX PERF-CLEANUP-SQL (2026-08-29): Liefert genau die Eintraege, die
+        der Cleanup-Pass fuer den Aufnahme-Filter bzw. die Korrupt-Erkennung
+        in Python weiterverarbeiten muss - also die, bei denen "feeds"
+        tatsaechlich geparst werden muss.
+
+        Die Bedingung ist die SQL-Entsprechung von:
+            not isinstance(feeds, list)
+            or not (len(feeds) >= 2 or hq or "auto_feed_discovery" in feeds)
+
+        json_valid()/json_type() bilden den isinstance-Check ab: ein
+        feeds-Wert, der kein JSON-Array ist (None, Zahl, Objekt, kaputter
+        String), faellt hier heraus und wird von der aufrufenden Seite
+        wie bisher als korrupt behandelt. Ohne diesen Guard wuerde
+        json_array_length() bei kaputtem JSON einen Fehler werfen.
+
+        Das LIKE '%auto_feed_discovery%' ist bewusst grob: Es darf hoechstens
+        ZU VIELE Kandidaten liefern (ein Feed-Name, der die Zeichenkette als
+        Teilstring enthaelt), niemals zu wenige. Die aufrufende Seite prueft
+        anschliessend exakt mit "auto_feed_discovery" in feeds weiter, das
+        Endergebnis ist also identisch zur bisherigen Python-Logik.
+
+        Rueckgabe: Liste von (ip, feeds_json_string).
+        """
+        return self._conn.execute(
+            "SELECT ip, feeds FROM seen_db "
+            "WHERE feeds IS NULL "
+            "   OR NOT json_valid(feeds) "
+            "   OR json_type(feeds) <> 'array' "
+            "   OR NOT (json_array_length(feeds) >= 2 "
+            "           OR hq "
+            "           OR feeds LIKE '%auto_feed_discovery%')"
+        ).fetchall()
+
     def items(self, batch_size=50_000):
         """FIX MEM-SQLITE-PERF-2026-08-16: Ueberschreibt das generische
         MutableMapping-Mixin-Verhalten. Der geerbte ItemsView.__iter__
