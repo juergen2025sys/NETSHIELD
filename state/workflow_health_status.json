@@ -1,31 +1,15 @@
 {
-  "updated": "2026-08-29 09:51 CEST (Europe/Berlin)",
-  "total": 30,
-  "ok": 28,
-  "warn": 4,
-  "error": 1,
-  "errors": [
-    {
-      "file": "Production Health",
-      "check": "active \u2286 conf40 Subset-Invariante verletzt",
-      "detail": "1,939 IPs in active fehlen in conf40 (0.257% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
-    }
-  ],
+  "updated": "2026-08-29 15:09 CEST (Europe/Berlin)",
+  "total": 31,
+  "ok": 29,
+  "warn": 5,
+  "error": 0,
+  "errors": [],
   "warnings": [
     {
       "file": "ip_ablauf.yml",
       "check": "continue-on-error aktiv",
       "detail": "continue-on-error=true gesetzt \u2013 Fehler k\u00f6nnen still bleiben; Review ob das wirklich beabsichtigt ist"
-    },
-    {
-      "file": "ledger_diagnose.yml",
-      "check": "Encoding fehlt (append)",
-      "detail": "Block 0: open(..., 'a') ohne encoding= \u2013 UnicodeEncodeError m\u00f6glich bei non-ASCII"
-    },
-    {
-      "file": "ledger_diagnose.yml",
-      "check": "Action nicht SHA-pinned",
-      "detail": "uses: actions/checkout@v4 \u2013 Tag statt SHA-Hash (Supply-Chain-Risiko)"
     },
     {
       "file": "ledger_diagnose.yml",
@@ -41,24 +25,29 @@
       "file": "honigtopf.yml \u2192 update_combined_blacklist.yml",
       "check": "Sub-Workflow Puffer zu knapp",
       "detail": "Sub-Workflow laueft zu knapp vor Combined \u2013 Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC \u2192 00:07 UTC (7min < 60min Mindestpuffer); 00:20 UTC \u2192 00:27 UTC (7min < 60min Mindestpuffer); 00:40 UTC \u2192 00:47 UTC (7min < 60min Mindestpuffer); 02:20 UTC \u2192 03:07 UTC (47min < 60min Mindestpuffer); 02:40 UTC \u2192 03:07 UTC (27min < 60min Mindestpuffer)"
+    },
+    {
+      "file": "Production Health",
+      "check": "Drift: cve_exploit_ips.txt",
+      "detail": "cve_exploit_ips.txt: 29,317 \u2192 21,759 (-26%) \u2013 deutlicher R\u00fcckgang"
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4762548,
-    "active_blacklist_ipv4.txt": 755609,
-    "blacklist_confidence40_ipv4_part1.txt": 4032533,
-    "cve_exploit_ips.txt": 29317,
-    "honeypot_ips.txt": 1855223,
-    "bot_detector_blacklist_ipv4.txt": 1321260
+    "combined_threat_blacklist_ipv4_part1.txt": 4762932,
+    "active_blacklist_ipv4.txt": 759237,
+    "blacklist_confidence40_ipv4_part1.txt": 4035138,
+    "cve_exploit_ips.txt": 21759,
+    "honeypot_ips.txt": 1857930,
+    "bot_detector_blacklist_ipv4.txt": 1318788
   },
   "production_health": {
-    "critical": 1,
-    "warn": 0,
+    "critical": 0,
+    "warn": 1,
     "checks": [
       {
-        "level": "CRITICAL",
-        "check": "active \u2286 conf40 Subset-Invariante verletzt",
-        "detail": "1,939 IPs in active fehlen in conf40 (0.257% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+        "level": "WARN",
+        "check": "Drift: cve_exploit_ips.txt",
+        "detail": "cve_exploit_ips.txt: 29,317 \u2192 21,759 (-26%) \u2013 deutlicher R\u00fcckgang"
       }
     ]
   },
