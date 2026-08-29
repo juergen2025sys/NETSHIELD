@@ -51,7 +51,7 @@ env:
 permissions:
   contents: write
   actions: read
-  issues: none
+  issues: write   # FIX KEY-ALARM (2026-08-29, Nutzeranfrage): Issue bei ungueltigen Credentials
   packages: none
   pull-requests: none
   security-events: none
@@ -100,11 +100,20 @@ jobs:
 
       - name: Fetch Honigtopf Threat Data
         if: steps.recent.outputs.skip != 'true'
+        id: fetch
         env:
           # Alle Repo-Secrets als JSON; die benoetigten Schluessel werden im
           # Python-Block kodiert nachgeschlagen (keine Klartext-Namen hier).
           _S: ${{ toJSON(secrets) }}
         run: |
+          # FIX KEY-ALARM (2026-08-29): 'set +e' rund um den Python-Block,
+          # damit auch bei sys.exit(1) (z.B. "keine gueltige Credential
+          # mehr") noch der GITHUB_OUTPUT fuer den Issue-Alarm-Step gesetzt
+          # wird, BEVOR der urspruengliche Exit-Code weitergereicht wird.
+          # Standardmaessig laeuft dieser Step mit 'bash -e' (GitHub-Actions-
+          # Default) - ohne 'set +e' wuerde er bei python3-Fehlschlag SOFORT
+          # abbrechen, die Zeilen danach wuerden nie erreicht.
+          set +e
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
           from netshield_common import (
@@ -255,6 +264,19 @@ jobs:
           _n_bad = sum(1 for c in credential_status if c["ok"] is False)
           _n_unk = len(credential_status) - _n_ok - _n_bad
           print(f"Key-Health-Zusammenfassung: {_n_ok} OK, {_n_bad} ungueltig, {_n_unk} unklar")
+
+          # FIX KEY-ALARM (2026-08-29, Nutzeranfrage "kann doch ein issue
+          # erstellt werden"): ungueltige Credential-Labels in eine Datei
+          # schreiben, damit der Bash-Teil DIESES Steps (nach dem Python-
+          # Heredoc) sie per GITHUB_OUTPUT an den nachfolgenden Issue-Step
+          # weiterreichen kann. Wird VOR dem sys.exit(1)-Fall unten
+          # geschrieben, damit der Alarm auch greift, wenn ALLE Credentials
+          # ungueltig sind und der Job deshalb abbricht.
+          try:
+              with open("/tmp/honigtopf_invalid_creds.txt", "w") as _f:
+                  _f.write(",".join(c["label"] for c in credential_status if c["ok"] is False))
+          except OSError as _e:
+              print(f"  WARNUNG: Konnte invalid_creds-Marker nicht schreiben: {_e}")
 
           if not _valid_credentials:
               print("FEHLER: Keine gueltige Credential nach Key-Health-Check uebrig!")
@@ -816,6 +838,21 @@ jobs:
 
           print(f"\nFERTIG: {len(final_ips)} IPs | {requests_used} API Requests")
           EOF
+          PY_EXIT=$?
+          set -e
+
+          # FIX KEY-ALARM: invalid_creds-Marker (von Python geschrieben,
+          # siehe Key-Health-Check oben) als Step-Output durchreichen -
+          # leer, wenn die Datei fehlt oder keine Credential ungueltig war.
+          if [ -f /tmp/honigtopf_invalid_creds.txt ]; then
+            INVALID_CREDS="$(cat /tmp/honigtopf_invalid_creds.txt)"
+          else
+            INVALID_CREDS=""
+          fi
+          echo "invalid_creds=${INVALID_CREDS}" >> "$GITHUB_OUTPUT"
+          rm -f /tmp/honigtopf_invalid_creds.txt
+
+          exit "$PY_EXIT"
 
       - name: Commit
         if: always()  # FIX: auch bei Leerungsschutz-Exit den Report committen
@@ -851,4 +888,63 @@ jobs:
             done
             echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
             exit 1
+          fi
+
+      - name: Key-Alarm (GitHub Issue) öffnen/aktualisieren
+        # FIX KEY-ALARM (2026-08-29, Nutzeranfrage "sollten die keys nimmer
+        # angenommen werden kann doch ein issue erstellt werden"): sobald der
+        # Key-Health-Check (siehe Fetch-Step) mindestens eine Credential als
+        # ungueltig (401/403) markiert, wird automatisch ein GitHub Issue
+        # aufgemacht bzw. aktualisiert - analog zum bestehenden Alarm-Muster
+        # in ip_ablauf.yml (Job "prognose"/"verifikation"). Laeuft auch wenn
+        # der Fetch-Step insgesamt fehlgeschlagen ist (z.B. ALLE Credentials
+        # ungueltig) - siehe 'always()' plus outcome-Check unten, der einen
+        # reinen Piggyback-Skip (steps.recent.outputs.skip=true) ausschliesst.
+        if: >-
+          always() &&
+          steps.fetch.outcome != 'skipped' &&
+          steps.fetch.outputs.invalid_creds != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 Honigtopf: HoneyDB-API-Key(s) werden nicht mehr angenommen"
+          BODY="Der Key-Health-Check im Honigtopf-Workflow hat mindestens eine ungueltige/gesperrte HoneyDB-Credential festgestellt (HTTP 401/403 beim Auth-Check gegen den uncounted netinfo-Endpunkt).
+
+          Betroffene Credential(s): \`${{ steps.fetch.outputs.invalid_creds }}\`
+
+          Diese Credential(s) wurden fuer den aktuellen Lauf aus dem Round-Robin-Pool entfernt. Bitte pruefen/erneuern unter honeydb.io und das zugehoerige GitHub Secret (HONEYDB_API_ID[_N] / HONEYDB_API_KEY[_N]) aktualisieren.
+
+          Lauf: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')
+          Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Bestehendes Key-Alarm-Issue #$EXISTING gefunden - kommentiere statt neu zu erstellen."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" --body "$BODY"
+          else
+            echo "Kein offenes Key-Alarm-Issue gefunden - erstelle neues."
+            gh issue create --repo "${{ github.repository }}" --title "$TITLE" --body "$BODY"
+          fi
+
+      - name: Key-Alarm schließen, falls behoben
+        # Gegenrichtung: sobald ein Lauf wieder ALLE Credentials als gueltig
+        # meldet, wird ein offenes Key-Alarm-Issue automatisch kommentiert
+        # und geschlossen - kein manuelles Aufraeumen noetig.
+        if: >-
+          always() &&
+          steps.fetch.outcome != 'skipped' &&
+          steps.fetch.outputs.invalid_creds == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 Honigtopf: HoneyDB-API-Key(s) werden nicht mehr angenommen"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Offenes Key-Alarm-Issue #$EXISTING gefunden - aktueller Lauf meldet alle Credentials gueltig, schließe."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" \
+              --body "✅ Behoben: Lauf vom $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z') meldet alle Credentials wieder gueltig. Issue wird automatisch geschlossen."
+            gh issue close "$EXISTING" --repo "${{ github.repository }}"
+          else
+            echo "Kein offenes Key-Alarm-Issue vorhanden - nichts zu tun."
           fi
