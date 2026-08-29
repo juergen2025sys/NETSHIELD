@@ -3,37 +3,35 @@ name: Honigtopf
 on:
   schedule:
     # FIX FREQ-20MIN (2026-08-10): Von stuendlich auf alle 20 Minuten erhoeht.
-    # Ob ein einzelner Lauf tatsaechlich Light (nur /bad-hosts) oder Voll
-    # (/services + Pro-Dienst-Endpunkte) faehrt, wird NICHT starr vom
-    # Cron-Slot bestimmt, sondern dynamisch im Python-Block: nach dem
-    # ohnehin faelligen /bad-hosts-Call wird live aus dem
-    # 'honeydb-qpm-remaining'-Header geprueft, ob genug Kontingent fuer
-    # einen Voll-Sweep uebrig ist (siehe FULL_RUN_EXTRA_COST).
     #
-    # Kontingent-Rechnung (Stand 2026-08-10, bestaetigt per HoneyDB-API-Doku
-    # https://honeydb.io/threats, Abschnitt "Request Limits"): Community-
-    # Accounts haben 1.000 gezaehlte Requests/Tag, Reset um Mitternacht UTC
-    # (das fruehere "1500/Monat vs. 1000/Tag"-Dokuwidersprueche-Zitat unten
-    # war eine veraltete Doku-Version - die aktuelle Doku ist eindeutig:
-    # taeglich, nicht monatlich). Aktuell 3 Credentials im Round-Robin-Pool
-    # (siehe CREDENTIALS-Aufbau unten) = 3.000 Requests/Tag Gesamtkapazitaet.
-    # Ein Voll-Lauf kostet ~32 Requests (beobachtet in echten Laeufen).
-    # Bei */20 * * * * (72 Laeufe/Tag) im ungebremsten Worst-Case (JEDER
-    # Lauf geht VOLL): 72 x 32 = 2.304 Requests/Tag = ~77% Pool-Auslastung -
-    # laesst ~700 Requests/Tag Puffer fuer 5xx-Retries und Watchdog-
-    # Backup-Laeufe (die ohnehin via force_light=true nur 1 Request kosten,
-    # siehe watchdog_honigtopf.yml). Bei */15 waere der Pool bereits im
-    # Idealfall (3.072 von 3.000) rechnerisch ueberzogen - deshalb bewusst
-    # 20 statt 15 Minuten gewaehlt.
+    # FIX ALWAYS-FULL (2026-08-29, Nutzeranfrage): Jeder normale Cron-/
+    # Dispatch-Lauf faehrt jetzt IMMER Voll (/services + Pro-Dienst-
+    # Endpunkte), keine budget-basierte Voll/Light-Abwaegung mehr. Die
+    # bisherige Live-Header-Logik (aus 'honeydb-qpm-remaining' vor jedem
+    # Lauf entscheiden, ob ein Voll-Sweep passt) wurde entfernt. Ausnahmen
+    # bleiben unveraendert Light: Watchdog-Dispatch (force_light=true) und
+    # Report-Piggyback (workflow_run) - siehe HARD_LIGHT weiter unten -
+    # sowie ein fehlgeschlagener /bad-hosts-Call (Sicherheitsnetz).
+    #
+    # Kontingent-Rechnung (Stand 2026-08-29, bestaetigt per HoneyDB-API-Doku
+    # https://honeydb.io/threats, Abschnitt "Request Limits" - live
+    # abgerufen, nicht aus Training-Wissen): Community-Accounts haben
+    # EINDEUTIG 1.000 gezaehlte Requests/Tag PRO Credential, Reset um
+    # Mitternacht UTC. Der fruehere Kommentar hier ("1500/Monat vs.
+    # 1000/Tag"-Dokuwiderspruch) ist damit aufgeloest - 1.500 ist NICHT die
+    # aktuelle Zahl, auf keiner der beiden Seiten. Bei N Credentials im
+    # Round-Robin-Pool (siehe CREDENTIALS-Aufbau unten) ergibt das N x 1.000
+    # Requests/Tag Gesamtkapazitaet.
+    # Ein Voll-Lauf kostet ~32-34 Requests (beobachtet in echten Laeufen:
+    # 1 bad-hosts + 1 services + ~30 Pro-Dienst-Endpunkte). Bei */20 * * * *
+    # (72 Laeufe/Tag) IMMER Voll: 72 x 34 = 2.448 Requests/Tag.
+    # Das passt bei >= 3 Credentials (3.000/Tag Kapazitaet, ~550 Requests
+    # Puffer fuer 5xx-Retries + Watchdog-Backup-Laeufe). Bei WENIGER als 3
+    # Credentials reicht das Kontingent im Dauer-Voll-Betrieb NICHT mehr
+    # sicher aus - dann im Report/Log auf gehaeufte 429/"ALLE CREDENTIALS
+    # ERSCHOEPFT"-Meldungen achten und ggf. Cron-Frequenz senken oder
+    # weitere Credentials (Secret-Suffix _N) ergaenzen.
     - cron: '*/20 * * * *'
-    # Frueher der feste "Voll-Lauf"-Slot (FULL_RUN_SCHEDULE) - dient jetzt
-    # nur noch als Fallback-Zeitplan, falls der Budget-Header aus
-    # irgendeinem Grund nicht auslesbar ist. Bleibt bei diesem einen
-    # taeglichen Slot, unabhaengig vom FIX FREQ-20MIN oben - der Fallback-
-    # Pfad ist bereits konservativ (erzwingt LIGHT fuer alle anderen
-    # Cron-Trigger, siehe LIGHT_RUN-Logik weiter unten) und muss nicht
-    # mitskaliert werden.
-    - cron: '15 22 * * *'
   workflow_dispatch:
     inputs:
       force_light:
@@ -159,45 +157,21 @@ jobs:
           now_local = now.astimezone(ZoneInfo("Europe/Berlin"))
           now_str   = now_local.strftime("%Y-%m-%d %H:%M %Z (Berlin)")
 
-          # ── Voll- vs. Light-Lauf: BUDGET-basiert statt starr am Cron-Slot ──
-          # FIX DYNAMIC-FULL (siehe Nutzeranfrage): HoneyDB nennt auf zwei
-          # offiziellen Seiten unterschiedliche Limits fuer den kostenlosen
-          # Tier (honeydb.io/threats: 1500/Monat: honeydb.io/plans: 1000/Tag,
-          # Stand 2026-08). Statt uns auf eine der beiden Zahlen zu verlassen,
-          # fragen wir das tatsaechliche Kontingent bei JEDEM Lauf live aus
-          # dem 'honeydb-qpm-remaining'-Header ab (kommt eh mit jeder Antwort)
-          # und entscheiden erst DANACH, ob ein Voll-Sweep passt. Dadurch
-          # bekommt der Nutzer in jedem Lauf, den das echte Kontingent
-          # hergibt, automatisch die maximale IP-Menge - unabhaengig davon,
-          # welches der beiden Limits tatsaechlich gilt.
-          #
-          # Ablauf: HARD_LIGHT-Faelle (Watchdog-Dispatch, Report-Piggyback)
-          # bleiben unbedingt Light, wie bisher - ihr Zweck ist minimaler
-          # Foodprint, nicht maximale Daten. Alle anderen Laeufe (Cron x:15,
-          # normaler Dispatch) starten mit dem oben ohnehin noetigen
-          # /bad-hosts-Call, lesen daraus 'remaining', und schalten auf VOLL,
-          # wenn genug Budget fuer den geschaetzten Rest-Bedarf eines
-          # Voll-Sweeps (/services + Pro-Dienst-Endpunkte) uebrig ist. Ist
-          # 'remaining' aus irgendeinem Grund nicht auslesbar (Header fehlt/
-          # unerwartetes Format), faellt die Entscheidung sicherheitshalber
-          # auf die alte, rein zeitplan-basierte Logik zurueck (22:15 = voll,
-          # sonst light) - kein Blindflug ohne jede Kontingent-Kenntnis.
-          FULL_RUN_SCHEDULE = "15 22 * * *"   # nur noch Fallback-Referenz
-          SCHEDULE          = os.environ.get("GITHUB_SCHEDULE", "")
-          # FORCE_LIGHT: per workflow_dispatch-Input erzwungener Light-Lauf
-          # (Watchdog nutzt das). Hat Vorrang, damit ein dispatch-Trigger des
-          # Watchdogs MIT Merge läuft und die Liste nicht auf den 24h-Snapshot
-          # schrumpft.
+          # ── Voll- vs. Light-Lauf ────────────────────────────────────────────
+          # FIX ALWAYS-FULL (2026-08-29, Nutzeranfrage): Kein Budget-Check
+          # mehr. Jeder normale Lauf ist VOLL. Nur zwei Ausnahmen bleiben
+          # Light (siehe Entscheidung nach Schritt 1 weiter unten):
+          #   1) HARD_LIGHT (Watchdog-Dispatch force_light=true, oder
+          #      Report-Piggyback workflow_run) - bewusst minimaler
+          #      Footprint, nicht maximale Daten.
+          #   2) Der /bad-hosts-Call selbst schlaegt fehl (z.B. alle
+          #      Credentials 401/429) - Sicherheitsnetz, damit ein
+          #      Voll-Sweep nicht auf ohnehin schon kaputten Credentials
+          #      aufbaut.
           FORCE_LIGHT       = os.environ.get("FORCE_LIGHT", "false").lower() == "true"
           # EVENT == 'workflow_run' (Report-Piggyback) -> LIGHT erzwingen.
           EVENT             = os.environ.get("GITHUB_EVENT_NAME", "")
           HARD_LIGHT        = FORCE_LIGHT or EVENT == "workflow_run"
-          # Geschaetzte ZUSAETZLICHE Kosten eines Voll-Sweeps ÜBER den bereits
-          # anfallenden /bad-hosts-Call hinaus: /services (1) + bis zu ~30
-          # Pro-Dienst-Endpunkte + Sicherheitspuffer. Siehe Kommentar weiter
-          # unten bei [2/5] ("≈ 34 Req" fuer den KOMPLETTEN Voll-Sweep inkl.
-          # bad-hosts) - hier ohne den bereits verbrauchten bad-hosts-Call.
-          FULL_RUN_EXTRA_COST = 40
           # LIGHT_RUN wird NACH dem bad-hosts-Call (Schritt 1) final gesetzt.
           # Platzhalter hier, damit spaeterer Code (Schritt 2 Bedingung) sich
           # nicht aendern muss.
@@ -230,6 +204,63 @@ jobs:
               sys.exit(1)
 
           print(f"Credential-Pool: {len(CREDENTIALS)} Credential(s) – Round-Robin aktiv")
+
+          # ── API-Key-Health-Check (Nutzeranfrage, 2026-08-29) ───────────────
+          # FIX KEY-HEALTH: Prueft VOR dem eigentlichen Sweep jede Credential
+          # einzeln auf Gueltigkeit (401/403 = ungueltig/gesperrt/revoked).
+          # Nutzt bewusst einen laut aktueller HoneyDB-Doku (honeydb.io/
+          # threats, Abschnitt "Uncounted Endpoints", live abgerufen
+          # 2026-08-29) NICHT gezaehlten netinfo-Endpunkt - der Check
+          # verbraucht also KEIN Tages-Kontingent, unabhaengig davon wie oft
+          # er laeuft. Ungueltige Credentials werden aus dem Round-Robin-Pool
+          # fuer DIESEN Lauf entfernt, damit sie den Voll-Sweep nicht durch
+          # wiederholte 401-Fehlversuche verlangsamen. Reine Netzwerkfehler
+          # (Timeout etc.) disqualifizieren NICHT - nur ein expliziter
+          # 401/403 gilt als "ungueltig", alles andere bleibt im Pool (kann
+          # ein voruebergehendes Problem sein, kein Grund die Credential zu
+          # verwerfen).
+          KEY_HEALTH_ENDPOINT = "/netinfo/geolocation/8.8.8.8"  # uncounted lt. Doku
+          credential_status = []  # fuer Report/Log: [{"label", "ok", "http"/"error"}]
+          _valid_credentials = []
+          for _cid, _key, _label in CREDENTIALS:
+              try:
+                  with safe_urlopen(
+                      f"{_dec('aHR0cHM6Ly9ob25leWRiLmlvL2FwaQ==')}{KEY_HEALTH_ENDPOINT}",
+                      headers={
+                          _dec("WC1Ib25leURiLUFwaUlk"):  _cid,
+                          _dec("WC1Ib25leURiLUFwaUtleQ=="): _key,
+                          "User-Agent": "NETSHIELD-Honigtopf/1.0",
+                      },
+                      timeout=15,
+                  ) as _r:
+                      credential_status.append({"label": _label, "ok": True, "http": _r.status})
+                      _valid_credentials.append((_cid, _key, _label))
+                      print(f"  Key-Health [{_label}]: OK (HTTP {_r.status})")
+              except urllib.error.HTTPError as _e:
+                  if _e.code in (401, 403):
+                      credential_status.append({"label": _label, "ok": False, "http": _e.code})
+                      print(f"  ::warning::Key-Health [{_label}]: UNGUELTIG (HTTP {_e.code}) – aus Pool entfernt")
+                  else:
+                      # Anderer HTTP-Fehler (z.B. 5xx) - kein Auth-Problem,
+                      # Credential bleibt im Pool.
+                      credential_status.append({"label": _label, "ok": None, "http": _e.code})
+                      _valid_credentials.append((_cid, _key, _label))
+                      print(f"  Key-Health [{_label}]: unklar (HTTP {_e.code}, kein Auth-Fehler) – bleibt im Pool")
+              except Exception as _e:
+                  credential_status.append({"label": _label, "ok": None, "error": str(_e)})
+                  _valid_credentials.append((_cid, _key, _label))
+                  print(f"  Key-Health [{_label}]: Netzwerkfehler ({_e}) – bleibt im Pool")
+
+          _n_ok  = sum(1 for c in credential_status if c["ok"] is True)
+          _n_bad = sum(1 for c in credential_status if c["ok"] is False)
+          _n_unk = len(credential_status) - _n_ok - _n_bad
+          print(f"Key-Health-Zusammenfassung: {_n_ok} OK, {_n_bad} ungueltig, {_n_unk} unklar")
+
+          if not _valid_credentials:
+              print("FEHLER: Keine gueltige Credential nach Key-Health-Check uebrig!")
+              sys.exit(1)
+
+          CREDENTIALS = _valid_credentials
 
           # Rotations-Zeiger: zeigt auf die als naechstes zu nutzende Credential.
           # Wird bei jeder Anfrage um 1 weitergedreht (Round-Robin), sodass sich
@@ -400,24 +431,18 @@ jobs:
               _decision_reason = "Watchdog-Dispatch/Report-Piggyback erzwingt Light"
           elif data is None:
               # bad-hosts selbst ist schon fehlgeschlagen (z.B. alle
-              # Credentials erschoepft/429) - dann NICHT auf den
-              # Zeitplan-Fallback zurueckfallen (der bei 22:15 UTC sonst
-              # trotzdem einen Voll-Sweep versuchen wuerde und eine bereits
-              # angespannte Lage nur verschlimmert). Sicher: Light erzwingen.
+              # Credentials erschoepft/429/401) - dann keinen Voll-Sweep
+              # hinterherschicken, der auf denselben kaputten Credentials
+              # nur weiter scheitern wuerde. Sicher: Light erzwingen.
               LIGHT_RUN = True
-              _decision_reason = "bad-hosts-Call fehlgeschlagen (Budget/API-Problem) - erzwinge Light"
-          elif last_remaining_numeric is not None:
-              LIGHT_RUN = last_remaining_numeric < FULL_RUN_EXTRA_COST
-              _decision_reason = (
-                  f"Live-Budget: {last_remaining_numeric} verbleibend, "
-                  f"Voll-Sweep braucht ~{FULL_RUN_EXTRA_COST} weitere → "
-                  f"{'reicht NICHT, bleibe Light' if LIGHT_RUN else 'reicht, gehe auf VOLL'}"
-              )
+              _decision_reason = "bad-hosts-Call fehlgeschlagen (Credential/API-Problem) - erzwinge Light"
           else:
-              # Fallback: 'remaining'-Header nicht auslesbar - alte,
-              # zeitplan-basierte Logik als sichere Rueckfalloption.
-              LIGHT_RUN = bool(SCHEDULE) and SCHEDULE != FULL_RUN_SCHEDULE
-              _decision_reason = "Budget-Header nicht lesbar - Fallback auf Zeitplan-Logik"
+              # FIX ALWAYS-FULL (2026-08-29, Nutzeranfrage): kein Budget-Check
+              # mehr - jeder erfolgreiche, nicht-HARD_LIGHT-Lauf ist VOLL.
+              # Kontingent-Deckung siehe Kommentar am Cron-Schedule oben
+              # (>= 3 Credentials empfohlen fuer Dauer-Voll-Betrieb bei */20).
+              LIGHT_RUN = False
+              _decision_reason = "FIX ALWAYS-FULL: immer Voll-Sweep (Budget-Check entfernt)"
           run_mode_label = "LIGHT" if LIGHT_RUN else "VOLL"
           print(f"\nRun-Modus: {run_mode_label} ({_decision_reason})")
 
@@ -609,6 +634,15 @@ jobs:
               all_ips -= wl_removed
               print(f"Whitelist-Filter: {len(wl_removed)} IPs entfernt")
 
+          # FIX FRESHNESS (2026-08-29, Nutzeranfrage): rohen, UNGEMERGTEN
+          # IP-Satz dieses API-Abrufs sichern - Basis fuer den Freshness-
+          # Check weiter unten. Muss VOR dem LIGHT_RUN-Merge (naechster
+          # Block) erfasst werden, sonst wuerde bei Light-Laeufen staendig
+          # die alte 'existing'-Menge mit reingezaehlt und der Hash wuerde
+          # sich nie/kaum aendern - das waere kein echtes Freshness-Signal
+          # mehr, sondern nur ein Abbild der Merge-Logik.
+          fetched_ips_raw = set(all_ips)
+
           # LIGHT_RUN: existing dazu mergen, damit die Datei zwischen den Läufen nicht
           # schrumpft. Die kumulierte Sammlung (inkl. Service-IPs aus einem etwaigen
           # dispatch-Voll-Lauf) bleibt erhalten,
@@ -634,12 +668,94 @@ jobs:
           removed_ips = existing - all_ips
           final_ips   = sorted(all_ips, key=lambda ip: (tuple(int(o) for o in ip.split('/')[0].split('.')), ip))
 
+          # ── Freshness-Check (Nutzeranfrage, 2026-08-29) ────────────────────
+          # FIX FRESHNESS: erkennt, ob die HoneyDB-API ueber mehrere Laeufe
+          # hinweg WIRKLICH neue Daten liefert, oder ob der Feed "einfriert"
+          # (z.B. gecachte/veraltete Antworten, API-seitiges Problem). Basis
+          # ist ein sha256-Hash von fetched_ips_raw (der rohe API-Abruf
+          # DIESES Laufs, VOR Light-Run-Merge mit der alten Datei - siehe
+          # Kommentar oben). Bleibt der Hash ueber mehrere aufeinanderfolgende
+          # Laeufe identisch, zaehlt unchanged_runs hoch; bei jeder Aenderung
+          # wird er zurueckgesetzt. Analog zum bestehenden Muster in
+          # honeypot_monitor.yml (state/honeypot_feed_freshness.json),
+          # aber als eigene Datei, da Honigtopf nur EINE Quelle (HoneyDB)
+          # hat statt vieler einzelner Feeds.
+          import hashlib
+          FRESHNESS_FILE = "state/honigtopf_freshness.json"
+          _freshness = {}
+          if os.path.exists(FRESHNESS_FILE):
+              try:
+                  with open(FRESHNESS_FILE) as f:
+                      _freshness = json.load(f)
+              except (json.JSONDecodeError, OSError) as e:
+                  print(f"WARNUNG: {FRESHNESS_FILE} nicht lesbar ({e}) – starte leer")
+                  _freshness = {}
+
+          _fresh_hash = hashlib.sha256(
+              "\n".join(sorted(fetched_ips_raw)).encode("utf-8")
+          ).hexdigest()
+          _old_fresh = _freshness.get("honeydb", {})
+          if _old_fresh.get("hash") == _fresh_hash:
+              _unchanged_runs     = _old_fresh.get("unchanged_runs", 0) + 1
+              _last_changed_utc   = _old_fresh.get("last_changed_utc", now.isoformat())
+              _last_changed_local = _old_fresh.get("last_changed_local", now_str)
+          else:
+              _unchanged_runs     = 0
+              _last_changed_utc   = now.isoformat()
+              _last_changed_local = now_str
+          _freshness["honeydb"] = {
+              "hash": _fresh_hash,
+              "unchanged_runs": _unchanged_runs,
+              "last_changed_utc": _last_changed_utc,
+              "last_changed_local": _last_changed_local,
+              "raw_fetch_count": len(fetched_ips_raw),
+              "run_mode": run_mode_label,
+          }
+          write_text_atomic(FRESHNESS_FILE, json.dumps(_freshness, indent=2, sort_keys=True))
+          print(f"{FRESHNESS_FILE} aktualisiert (unchanged_runs={_unchanged_runs})")
+
+          # Schwelle: 6 aufeinanderfolgende Laeufe mit identischem Roh-Hash.
+          # Bei */20-Cron (alle Laeufe jetzt VOLL, siehe FIX ALWAYS-FULL) sind
+          # das 2 Stunden ohne jede Aenderung im API-Rohabruf - bei einem
+          # aktiven Honeypot-Netzwerk ein starkes Stale-Signal, aber lang
+          # genug, um normale ruhige Phasen nicht faelschlich zu meckern.
+          FRESHNESS_STALE_THRESHOLD = 6
+          _feed_is_stale = _unchanged_runs >= FRESHNESS_STALE_THRESHOLD
+          if _feed_is_stale:
+              _msg = (f"HoneyDB liefert seit {_unchanged_runs} aufeinanderfolgenden Laeufen "
+                      f"IDENTISCHE Roh-Daten (letzte Aenderung: {_last_changed_local}) - "
+                      f"moeglicherweise gecachte/veraltete API-Antworten oder Feed-Problem.")
+              print(f"::warning file=honigtopf.yml::{_msg}")
+              print(f"WARNUNG: {_msg}")
+
           # ── Report immer zuerst schreiben ────────────────────────────────
           lines = []
           lines.append("# Honigtopf – Report")
           lines.append(f"**Aktualisiert:** {now_str}  ")
           lines.append(f"**Modus:** `{run_mode_label}` "
                        f"({'nur /bad-hosts, merged mit existing' if LIGHT_RUN else 'voll: /services + /bad-hosts + alle Service-Endpunkte'})\n")
+          lines.append("---")
+          lines.append("## API-Key-Status\n")
+          lines.append("| Credential | Status |")
+          lines.append("|---|---|")
+          for _c in credential_status:
+              if _c["ok"] is True:
+                  _status_txt = f"✅ gültig (HTTP {_c.get('http', '?')})"
+              elif _c["ok"] is False:
+                  _status_txt = f"❌ ungültig (HTTP {_c.get('http', '?')}) – aus Pool entfernt"
+              else:
+                  _status_txt = f"⚠️ unklar ({_c.get('error', _c.get('http', '?'))}) – im Pool belassen"
+              lines.append(f"| {_c['label']} | {_status_txt} |")
+          lines.append("")
+          lines.append("---")
+          lines.append("## Freshness (liefert die API wirklich neue Daten?)\n")
+          if _feed_is_stale:
+              lines.append(f"🔴 **EINGEFROREN** – seit **{_unchanged_runs}** Läufen identische Roh-Daten "
+                            f"(letzte Änderung: {_last_changed_local}).")
+          else:
+              lines.append(f"🟢 Aktiv – letzte Änderung im Roh-Abruf: {_last_changed_local} "
+                            f"({_unchanged_runs} unveränderte Läufe seither).")
+          lines.append("")
           lines.append("---")
           lines.append("## Endpunkte & Ergebnisse\n")
           lines.append("| Endpunkt | Treffer |")
@@ -710,7 +826,7 @@ jobs:
           # Workflow die neue reports///logs/-Version committet (atomar im
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
           git rm -q --ignore-unmatch honigtopf_report.md 2>/dev/null || true
-          git add honigtopf_ips.txt reports/honigtopf_report.md
+          git add honigtopf_ips.txt reports/honigtopf_report.md state/honigtopf_freshness.json
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -727,8 +843,8 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs honigtopf_ips.txt reports/honigtopf_report.md 2>/dev/null || true
-                git add honigtopf_ips.txt reports/honigtopf_report.md 2>/dev/null || true
+                git checkout --theirs honigtopf_ips.txt reports/honigtopf_report.md state/honigtopf_freshness.json 2>/dev/null || true
+                git add honigtopf_ips.txt reports/honigtopf_report.md state/honigtopf_freshness.json 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))
