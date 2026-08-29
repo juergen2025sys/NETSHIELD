@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-29 20:19 CEST (Europe/Berlin)",
+  "updated": "2026-08-29 21:02 CEST (Europe/Berlin)",
   "zyklus_start": "2026-08-23",
   "laeufe": [
     {
@@ -894,6 +894,17 @@
     },
     {
       "zeitpunkt": "2026-08-29 20:19 CEST (Europe/Berlin)",
+      "gesamt_ips_seen_db": 9535319,
+      "watchlist_liste_groesse": 183247,
+      "active_liste_groesse": 0,
+      "rueckfall_ip_anzahl": 0,
+      "neu_angelegt": 1857199,
+      "expired_removed": 162296,
+      "expired_watchlist": 162296,
+      "expired_active": 0
+    },
+    {
+      "zeitpunkt": "2026-08-29 21:02 CEST (Europe/Berlin)",
       "gesamt_ips_seen_db": 9535319,
       "watchlist_liste_groesse": 183247,
       "active_liste_groesse": 0,
