@@ -147,7 +147,7 @@ jobs:
           python3 << 'EOF'
           import json, os, sys
           sys.path.insert(0, "scripts")
-          from netshield_common import write_text_atomic
+          from netshield_common import write_text_atomic, write_json_atomic
           from datetime import datetime, timezone, timedelta, date
           from zoneinfo import ZoneInfo
 
@@ -411,6 +411,46 @@ jobs:
               for d in sorted(per_expiry_date_watch.keys()):
                   lines.append(f"| {d} | {per_expiry_date_watch[d]:,} |")
 
+          # ── FIX PROGNOSE-GENAUIGKEIT (2026-08-30, Nutzerwunsch "was einbauen
+          # das man das besser feststellen kann") ──────────────────────────────
+          # Zweck: die Tages-Prognose oben ist eine reine Momentaufnahme ("wenn
+          # sich nichts mehr aendert") - sie zeigt NICHT, wie gut sie im
+          # Nachhinein wirklich getroffen hat. Hier wird pro Ablaufdatum die
+          # LETZTE (aktuellste) Prognose persistiert. Der Job "verifikation"
+          # (laeuft alle 3h, hat Zugriff auf den Ledger mit den echten
+          # "eingefroren_am"-Zeitstempeln) gleicht das spaeter gegen die Realitaet
+          # ab und schreibt das Ergebnis (vorhergesagt vs. tatsaechlich, "Rettungs-
+          # quote" = per Zweitbestaetigung gerettete IPs) in einen eigenen
+          # Report-Abschnitt. Absichtlich als eigene, kleine State-Datei (nicht in
+          # state/watchlist_expired_history.json o.ae.) - unabhaengig vom
+          # Anti-Churn-Ledger, da eine andere Frage beantwortet wird (Prognose-
+          # Genauigkeit statt Rueckfall-Erkennung).
+          FORECAST_HISTORY_FILE = "state/ip_ablauf_forecast_verlauf.json"
+          _forecast_hist = {"pending": {}, "resolved": []}
+          if os.path.exists(FORECAST_HISTORY_FILE):
+              try:
+                  with open(FORECAST_HISTORY_FILE) as _ff:
+                      _geladen = json.load(_ff)
+                  if isinstance(_geladen, dict):
+                      _forecast_hist["pending"]  = _geladen.get("pending", {})
+                      _forecast_hist["resolved"] = _geladen.get("resolved", [])
+              except Exception as _e:
+                  print(f"WARNUNG: {FORECAST_HISTORY_FILE} nicht lesbar, starte leer: {_e}")
+
+          # Fuer jedes Ablaufdatum in den naechsten 30 Tagen die LETZTE Prognose
+          # ueberschreiben (nicht anhaengen) - wir wollen die aktuellste
+          # Einschaetzung je Datum, nicht jede Zwischen-Prognose seit Wochen.
+          for _d, _cnt in per_expiry_date_watch.items():
+              _forecast_hist["pending"][_d] = {
+                  "predicted": _cnt,
+                  "forecast_made_on": today.isoformat(),
+              }
+
+          write_json_atomic(FORECAST_HISTORY_FILE, _forecast_hist)
+          print(f"{FORECAST_HISTORY_FILE} aktualisiert: "
+                f"{len(_forecast_hist['pending'])} ausstehende Prognosen, "
+                f"{len(_forecast_hist['resolved'])} bereits abgeglichene Tage")
+
           if per_expiry_date:
               lines += [
                   "",
@@ -472,7 +512,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add reports/ip_ablauf.md 2>/dev/null || true
+          git add reports/ip_ablauf.md state/ip_ablauf_forecast_verlauf.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -489,8 +529,8 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs reports/ip_ablauf.md 2>/dev/null || true
-                git add reports/ip_ablauf.md 2>/dev/null || true
+                git checkout --theirs reports/ip_ablauf.md state/ip_ablauf_forecast_verlauf.json 2>/dev/null || true
+                git add reports/ip_ablauf.md state/ip_ablauf_forecast_verlauf.json 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))
@@ -722,6 +762,12 @@ jobs:
           # nur die vereinigte Menge), um eine Ueberschneidung zu erkennen -
           # siehe Check weiter unten.
           listen_ips = {}
+          # FIX PROGNOSE-GENAUIGKEIT (2026-08-30): fuer den Watchlist-Ledger
+          # zusaetzlich die VOLLEN Eintraege (mit "eingefroren_am") behalten,
+          # nicht nur die Keys - noetig, um weiter unten pro Ablaufdatum zu
+          # zaehlen, wie viele IPs an genau diesem Tag wirklich eingefroren
+          # wurden (Abgleich gegen die Prognose aus dem Job "prognose").
+          wl_eintraege_voll = {}
           for label, pfad in ABLAUFLISTEN.items():
               if os.path.exists(pfad):
                   try:
@@ -731,6 +777,8 @@ jobs:
                       listen_groessen[label] = len(eintraege)
                       listen_ips[label] = set(eintraege.keys())
                       eingefrorene_ips.update(eintraege.keys())
+                      if label == "Watchlist (30-Tage-Pfad)":
+                          wl_eintraege_voll = eintraege
                   except Exception as e:
                       listen_groessen[label] = None
                       listen_ips[label] = set()
@@ -1208,6 +1256,31 @@ jobs:
           else:
               entfernt_24h_text = f"n/a ({len(_entfernt_24h_werte)}/{len(_letzte_8)} Läufe im Fenster mit Daten)"
 
+          # ── FIX NETTO-WACHSTUM (2026-08-30, Nutzerwunsch "werden mir zuviele
+          # ips gelöscht das frische ips weniger sind als gelöscht werden" -
+          # aber AUSDRUECKLICH "kein issue dan erstellen lese es in der zip
+          # dan aus"): reine Report-Anzeige, bewusst NICHT in
+          # diagnose_probleme aufgenommen - das wuerde den GitHub-Issue-Alarm
+          # (siehe Schritt "Diagnose-Alarm") ausloesen, was der Nutzer explizit
+          # NICHT wollte. Nur sichtbar beim manuellen Nachschauen im Report
+          # (bzw. im Artefakt-ZIP, das an ip_ablauf_verifikation_report.zip
+          # haengt).
+          _netto_verfuegbar = (
+              len(_neu_24h_werte) == len(_letzte_8) and len(_entfernt_24h_werte) == len(_letzte_8)
+              and len(_letzte_8) > 0
+          )
+          if _netto_verfuegbar:
+              _netto_24h = sum(_neu_24h_werte) - sum(_entfernt_24h_werte)
+              _netto_negativ = _netto_24h < 0
+              _netto_text = (
+                  f"{'📉' if _netto_negativ else '📈'} {_netto_24h:+,} "
+                  f"(Neue minus Entfernte, {_fenster_label})"
+              )
+              if _netto_negativ:
+                  _netto_text += " ⚠️ **schrumpft aktuell netto** - mehr entfernt als neu aufgenommen"
+          else:
+              _netto_text = f"n/a (siehe Neue/Entfernte IPs oben - nicht fuer alle {len(_letzte_8)} Läufe im Fenster Daten vorhanden)"
+
           # FIX 2026-08-23 (Nutzerwunsch "tagesstatistik 30/180 tage
           # getrennt"): dieselbe 24h-Naeherung wie oben, aber getrennt nach
           # Watchlist- und Active-Pfad statt nur kombiniert.
@@ -1235,6 +1308,99 @@ jobs:
               "laeufe": verlauf,
           }, indent=2)
 
+          # ── FIX PROGNOSE-GENAUIGKEIT (2026-08-30, Nutzerwunsch) ─────────────
+          # Gleicht die vom Job "prognose" hinterlegten Tages-Vorhersagen gegen
+          # die tatsaechlichen "eingefroren_am"-Zeitstempel im Watchlist-Ledger
+          # ab, sobald das jeweilige Datum erreicht/vergangen ist. So laesst
+          # sich konkret feststellen, ob z.B. "morgen fallen 52.997 IPs weg"
+          # wirklich eingetroffen ist, und wie viele durch eine Zweitbestaetigung
+          # (5+ Feeds / 2+ HQ-Familien) vorher noch "gerettet" wurden.
+          FORECAST_HISTORY_FILE = "state/ip_ablauf_forecast_verlauf.json"
+          _forecast_hist = {"pending": {}, "resolved": []}
+          if os.path.exists(FORECAST_HISTORY_FILE):
+              try:
+                  with open(FORECAST_HISTORY_FILE) as _ff:
+                      _geladen = json.load(_ff)
+                  if isinstance(_geladen, dict):
+                      _forecast_hist["pending"]  = _geladen.get("pending", {})
+                      _forecast_hist["resolved"] = _geladen.get("resolved", [])
+              except Exception as _e:
+                  print(f"WARNUNG: {FORECAST_HISTORY_FILE} nicht lesbar, starte leer: {_e}")
+
+          # Tatsaechliche Anzahl pro Ablaufdatum aus dem echten Ledger zaehlen.
+          _tatsaechlich_pro_tag = {}
+          for _eintrag in wl_eintraege_voll.values():
+              if isinstance(_eintrag, dict):
+                  _tag = _eintrag.get("eingefroren_am")
+                  if _tag:
+                      _tatsaechlich_pro_tag[_tag] = _tatsaechlich_pro_tag.get(_tag, 0) + 1
+
+          _heute_str = now.astimezone(ZoneInfo("Europe/Berlin")).date().isoformat()
+          _neu_aufgeloest = []
+          for _datum in list(_forecast_hist["pending"].keys()):
+              # Erst aufloesen, wenn das Datum wirklich VORBEI ist (nicht am
+              # Tag selbst - der Cleanup-Pass fuer "heute" koennte zum
+              # Lauf-Zeitpunkt noch gar nicht gelaufen sein, das wuerde die
+              # tatsaechliche Zahl faelschlich zu niedrig ausweisen).
+              if _datum >= _heute_str:
+                  continue
+              _eintrag = _forecast_hist["pending"].pop(_datum)
+              _vorhergesagt = _eintrag.get("predicted", 0)
+              _tatsaechlich = _tatsaechlich_pro_tag.get(_datum, 0)
+              _gerettet = max(0, _vorhergesagt - _tatsaechlich)
+              _quote = (_gerettet / _vorhergesagt * 100) if _vorhergesagt else 0.0
+              _resolved_eintrag = {
+                  "datum": _datum,
+                  "vorhergesagt": _vorhergesagt,
+                  "tatsaechlich": _tatsaechlich,
+                  "gerettet": _gerettet,
+                  "rettungsquote_prozent": round(_quote, 1),
+                  "forecast_made_on": _eintrag.get("forecast_made_on"),
+                  "aufgeloest_am": _heute_str,
+              }
+              _forecast_hist["resolved"].append(_resolved_eintrag)
+              _neu_aufgeloest.append(_resolved_eintrag)
+
+          # Historie begrenzen (nur juengste 60 aufgeloeste Tage behalten) -
+          # analog zum WL_HISTORY_PRUNE_DAYS-Gedanken in update_combined_
+          # blacklist.yml: nur begrenzt wachsen lassen, alte Eintraege sind
+          # fuer die aktuelle Genauigkeits-Einschaetzung nicht mehr relevant.
+          _forecast_hist["resolved"] = _forecast_hist["resolved"][-60:]
+          _forecast_hist["resolved"].sort(key=lambda e: e["datum"])
+
+          write_json_atomic(FORECAST_HISTORY_FILE, _forecast_hist)
+          if _neu_aufgeloest:
+              print(f"Prognose-Abgleich: {len(_neu_aufgeloest)} Tag(e) neu aufgeloest")
+              for _r in _neu_aufgeloest:
+                  print(f"  {_r['datum']}: vorhergesagt {_r['vorhergesagt']:,} | "
+                        f"tatsaechlich {_r['tatsaechlich']:,} | "
+                        f"gerettet {_r['gerettet']:,} ({_r['rettungsquote_prozent']}%)")
+          else:
+              print("Prognose-Abgleich: kein faelliges Datum zum Aufloesen")
+
+          # ── FIX PROGNOSE-LIVE (2026-08-30, Nutzerwunsch "will das nicht erst
+          # morgen frueh wissen, schon eher als vor prognose") ────────────────
+          # Zusaetzlich zur finalen Aufloesung (erst wenn ein Tag WIRKLICH vorbei
+          # ist) hier ein laufend aktualisierter Zwischenstand fuer heute und die
+          # naechsten Tage: wie viele der vorhergesagten IPs sind JETZT SCHON
+          # eingefroren, auch wenn der Tag noch nicht um ist. Aktualisiert sich
+          # bei jedem verifikation-Lauf (alle 3h), nicht erst am naechsten Tag.
+          # Bewusst getrennt von _forecast_hist["resolved"]: das bleibt die
+          # SAUBERE Endauswertung (nur nach echtem Tagesabschluss), hier geht es
+          # nur um Sichtbarkeit waehrend des laufenden Tages, ohne die Endzahl
+          # zu verfaelschen.
+          _live_fortschritt = []
+          for _datum in sorted(_forecast_hist["pending"].keys())[:4]:
+              _eintrag = _forecast_hist["pending"][_datum]
+              _vorhergesagt = _eintrag.get("predicted", 0)
+              _bisher = _tatsaechlich_pro_tag.get(_datum, 0)
+              _live_fortschritt.append({
+                  "datum": _datum,
+                  "vorhergesagt": _vorhergesagt,
+                  "bisher_eingefroren": _bisher,
+                  "ist_heute": _datum == _heute_str,
+              })
+
           # ── Bericht ────────────────────────────────────────────────────
           zeilen = [
               "# IP-Ablauf-Verifikationsbericht",
@@ -1253,6 +1419,33 @@ jobs:
           ]
           for label, anzahl in listen_groessen.items():
               zeilen.append(f"| {label} | {anzahl if anzahl is not None else 'Fehler'} |")
+
+          zeilen += ["", "## Live-Fortschritt (heute + nächste Tage)", ""]
+          zeilen.append(
+              "Zwischenstand, aktualisiert bei JEDEM Lauf (alle 3h) - nicht erst "
+              "wenn der Tag vorbei ist. \"Bisher eingefroren\" zaehlt echte "
+              "`eingefroren_am`-Eintraege im Ledger, die schon JETZT existieren; "
+              "fuer zukuenftige Tage ist das naturgemaess 0, bis der Tag "
+              "beginnt. Fuer heute steigt die Zahl im Laufe des Tages, sobald "
+              "weitere combined-Cleanup-Passes laufen."
+          )
+          zeilen.append("")
+          if _live_fortschritt:
+              zeilen.append("| Datum | Vorhergesagt | Bisher eingefroren | Fortschritt |")
+              zeilen.append("|---|---:|---:|---:|")
+              for _lf in _live_fortschritt:
+                  _tag_label = f"{_lf['datum']} (heute)" if _lf["ist_heute"] else _lf["datum"]
+                  _pct = (_lf["bisher_eingefroren"] / _lf["vorhergesagt"] * 100) if _lf["vorhergesagt"] else 0.0
+                  zeilen.append(
+                      f"| {_tag_label} | {_lf['vorhergesagt']:,} | "
+                      f"{_lf['bisher_eingefroren']:,} | {_pct:.0f}% |"
+                  )
+          else:
+              zeilen.append(
+                  "Keine ausstehenden Vorhersagen - entweder laeuft der Job "
+                  "\"prognose\" noch nicht, oder alle bisherigen Vorhersagen "
+                  "sind schon final aufgeloest (siehe Sektion weiter unten)."
+              )
 
           # DIAGNOSE: zentrale Uebersicht ueber ALLE gesammelten Probleme
           # (Rueckfall, Ledger-Ueberschneidung, veraltete Daten) an einer
@@ -1295,6 +1488,36 @@ jobs:
                   f"Der Fix haelt."
               )
 
+          zeilen += ["", "## Prognose-Genauigkeit (Vorhersage vs. Realität)", ""]
+          zeilen.append(
+              "Gleicht die Tages-Vorhersagen aus reports/ip_ablauf.md (Job "
+              "\"prognose\") gegen die tatsaechlichen `eingefroren_am`-"
+              "Zeitstempel im Watchlist-Ledger ab, sobald das jeweilige Datum "
+              "erreicht ist. \"Gerettet\" = per Zweitbestaetigung (5+ Feeds "
+              "oder 2+ HQ-Familien) doch nicht abgelaufen."
+          )
+          zeilen.append("")
+          if _forecast_hist["resolved"]:
+              zeilen.append("| Datum | Vorhergesagt | Tatsächlich | Gerettet | Rettungsquote |")
+              zeilen.append("|---|---:|---:|---:|---:|")
+              for _r in _forecast_hist["resolved"][-14:]:
+                  zeilen.append(
+                      f"| {_r['datum']} | {_r['vorhergesagt']:,} | {_r['tatsaechlich']:,} | "
+                      f"{_r['gerettet']:,} | {_r['rettungsquote_prozent']}% |"
+                  )
+          else:
+              zeilen.append(
+                  "Noch keine aufgeloesten Tage - entweder laeuft der Job "
+                  "\"prognose\" noch nicht lange genug (woechentlich, siehe "
+                  "Cron), oder es ist noch kein vorhergesagtes Datum vergangen."
+              )
+          if _forecast_hist["pending"]:
+              zeilen.append("")
+              zeilen.append(
+                  f"_{len(_forecast_hist['pending'])} Tag(e) noch ausstehend "
+                  f"(Ablaufdatum liegt noch in der Zukunft)._"
+              )
+
           zeilen += [
               "",
               "## seen_db-Trend",
@@ -1307,6 +1530,7 @@ jobs:
               f"- Entfernte IPs (Summe letzter Läufe): {entfernt_24h_text}",
               f"  - davon Watchlist/30 Tage: {entfernt_wl_24h_text}",
               f"  - davon Active/180 Tage: {entfernt_act_24h_text}",
+              f"- Netto-Wachstum ({_fenster_label}): {_netto_text}",
               f"- Erfolgsquote letzte 16 combined-Läufe: "
               + ("🔍 " if reliability_auffaellig else "") + reliability_text,
               "",
@@ -1407,6 +1631,7 @@ jobs:
               VERLAUF_FILE,
               "state/watchlist_expired_history.json",
               "state/active_expired_history.json",
+              "state/ip_ablauf_forecast_verlauf.json",
               # FIX 2026-08-23 (Nutzerwunsch "alles Erfasste an einer Stelle"):
               # Prognose-Bericht aus dem Job "prognose" (derselben Datei,
               # anderer Job/Zeitplan) mit reinpacken. Kein Zusatzaufwand
@@ -1461,7 +1686,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add reports/ip_ablauf_verifikation_report.md \
             reports/ip_ablauf_verifikation_report.zip \
-            state/ip_ablauf_verifikation_verlauf.json 2>/dev/null || true
+            state/ip_ablauf_verifikation_verlauf.json \
+            state/ip_ablauf_forecast_verlauf.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -1479,10 +1705,12 @@ jobs:
                 git stash pop 2>/dev/null || true
                 git checkout --theirs reports/ip_ablauf_verifikation_report.md \
                   reports/ip_ablauf_verifikation_report.zip \
-                  state/ip_ablauf_verifikation_verlauf.json 2>/dev/null || true
+                  state/ip_ablauf_verifikation_verlauf.json \
+                  state/ip_ablauf_forecast_verlauf.json 2>/dev/null || true
                 git add reports/ip_ablauf_verifikation_report.md \
                   reports/ip_ablauf_verifikation_report.zip \
-                  state/ip_ablauf_verifikation_verlauf.json 2>/dev/null || true
+                  state/ip_ablauf_verifikation_verlauf.json \
+                  state/ip_ablauf_forecast_verlauf.json 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))
