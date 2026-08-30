@@ -591,8 +591,26 @@ jobs:
   # JOB 2: Verifikation (vorher ip_ablauf_verifikation.yml)
   # ══════════════════════════════════════════════════════════════════════
   verifikation:
-    # Laeuft bei manuellem Dispatch IMMER, per Cron NUR beim 3h-Slot.
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '55 */3 * * *'
+    # FIX RACE-PROGNOSE-VERIFIKATION (2026-08-30, im echten Betrieb entdeckt):
+    # Ohne "needs" liefen prognose und verifikation bei manuellem Dispatch
+    # PARALLEL auf zwei getrennten Runnern. Wenn verifikations eigener
+    # "Checkout Repository"-Schritt VOR dem Commit+Push von prognose lief,
+    # sah verifikation noch die alte (leere) state/ip_ablauf_forecast_
+    # verlauf.json - Symptom: "Live-Fortschritt" zeigte "Keine ausstehenden
+    # Vorhersagen", obwohl prognose im selben Lauf frische Daten geschrieben
+    # hatte. Unter normalem Cron-Betrieb trat das NIE auf (die beiden Cron-
+    # Zeitpunkte ueberschneiden sich nie, pro Trigger laeuft nur einer der
+    # beiden Jobs) - nur bei manuellem workflow_dispatch beider Jobs
+    # gleichzeitig.
+    # Fix: "needs: prognose" erzwingt eine Reihenfolge (verifikation startet
+    # erst, wenn prognose fertig ist - inkl. dessen Commit+Push, VOR
+    # verifikations eigenem Checkout). "always()" ist zwingend noetig, sonst
+    # wuerde verifikation im normalen 3h-Cron-Betrieb automatisch mit-
+    # uebersprungen, weil prognose dort (anderer Cron-Zeitpunkt) selbst
+    # uebersprungen wird - ein uebersprungener Dependency-Job wuerde ohne
+    # always() den abhaengigen Job standardmaessig ebenfalls uebergehen.
+    needs: prognose
+    if: always() && (github.event_name == 'workflow_dispatch' || github.event.schedule == '55 */3 * * *')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     # FIX 2026-08-23 (Nutzerwunsch "Meldung waere recht"): issues:write nur
@@ -1256,30 +1274,42 @@ jobs:
           else:
               entfernt_24h_text = f"n/a ({len(_entfernt_24h_werte)}/{len(_letzte_8)} Läufe im Fenster mit Daten)"
 
-          # ── FIX NETTO-WACHSTUM (2026-08-30, Nutzerwunsch "werden mir zuviele
-          # ips gelöscht das frische ips weniger sind als gelöscht werden" -
-          # aber AUSDRUECKLICH "kein issue dan erstellen lese es in der zip
-          # dan aus"): reine Report-Anzeige, bewusst NICHT in
-          # diagnose_probleme aufgenommen - das wuerde den GitHub-Issue-Alarm
-          # (siehe Schritt "Diagnose-Alarm") ausloesen, was der Nutzer explizit
-          # NICHT wollte. Nur sichtbar beim manuellen Nachschauen im Report
-          # (bzw. im Artefakt-ZIP, das an ip_ablauf_verifikation_report.zip
-          # haengt).
-          _netto_verfuegbar = (
-              len(_neu_24h_werte) == len(_letzte_8) and len(_entfernt_24h_werte) == len(_letzte_8)
-              and len(_letzte_8) > 0
-          )
-          if _netto_verfuegbar:
-              _netto_24h = sum(_neu_24h_werte) - sum(_entfernt_24h_werte)
-              _netto_negativ = _netto_24h < 0
-              _netto_text = (
-                  f"{'📉' if _netto_negativ else '📈'} {_netto_24h:+,} "
-                  f"(Neue minus Entfernte, {_fenster_label})"
+          # ── FIX NETTO-WACHSTUM (2026-08-30) ─────────────────────────────────
+          # BUGFIX (im echten Betrieb entdeckt, Report zeigte falsch
+          # "+13.526.124" statt der plausiblen ~+50.000 bis +200.000): Die
+          # urspruengliche Berechnung (sum(neu_angelegt) - sum(expired_removed))
+          # verglich zwei UNVERGLEICHBARE Groessen. "neu_angelegt" zaehlt laut
+          # update_combined_blacklist.yml (Zeile ~3358) JEDE Neuanlage in
+          # seen_db, BEVOR der Aufnahme-Filter (>=2 Feeds oder HQ) greift - der
+          # Filter laeuft in einem SPAETEREN Schritt und entfernt einen
+          # Grossteil davon sofort wieder (siehe "davon X direkt wieder durch
+          # Aufnahme-Filter entfernt" im Cleanup-Text oben). "expired_removed"
+          # ist dagegen bereits eine NACH-Filter-Zahl. Die Differenz war
+          # dadurch um Groessenordnungen zu hoch.
+          # Fix: direkter Snapshot-Vergleich (wie bei "Seit Zyklus-Start" oben)
+          # - vergleicht den ECHTEN seen_db-Gesamtstand jetzt gegen den
+          # Gesamtstand vor ~24h (aeltester Lauf im 8-Läufe-Fenster). Das ist
+          # zwangslaeufig korrekt, weil es einfach zwei reale Zaehlstaende
+          # subtrahiert, statt Zwischen-Statistiken mit unterschiedlicher
+          # Filter-Stufe zu kombinieren.
+          if _letzte_8 and gesamt_ips_jetzt is not None:
+              _netto_delta, _netto_delta_txt, _ = _delta_text(
+                  gesamt_ips_jetzt,
+                  _letzte_8[0].get("gesamt_ips_seen_db"),
               )
-              if _netto_negativ:
-                  _netto_text += " ⚠️ **schrumpft aktuell netto** - mehr entfernt als neu aufgenommen"
+              if _netto_delta is not None:
+                  _netto_negativ = _netto_delta < 0
+                  _netto_text = _netto_delta_txt.replace(
+                      "(Anstieg)", f"({_fenster_label})"
+                  ).replace(
+                      "(Rückgang)", f"({_fenster_label})"
+                  )
+                  if _netto_negativ:
+                      _netto_text += " ⚠️ **schrumpft aktuell netto** - mehr entfernt als neu aufgenommen"
+              else:
+                  _netto_text = "n/a (kein Vergleichswert am Fensteranfang)"
           else:
-              _netto_text = f"n/a (siehe Neue/Entfernte IPs oben - nicht fuer alle {len(_letzte_8)} Läufe im Fenster Daten vorhanden)"
+              _netto_text = "n/a (noch keine 8 Läufe Historie)"
 
           # FIX 2026-08-23 (Nutzerwunsch "tagesstatistik 30/180 tage
           # getrennt"): dieselbe 24h-Naeherung wie oben, aber getrennt nach
