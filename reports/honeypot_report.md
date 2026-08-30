@@ -1,42 +1,42 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-08-30 15:48 CEST (Berlin)
+**Aktualisiert:** 2026-08-30 17:05 CEST (Berlin)
 
 ---
 | Quelle | IPs | Neu | Frische |
 |---|---|---|---|
-| ✅ `ipsum_level4` | 6771 | +0 | 🟢 aktuell (seit 2026-08-30 03:15 CEST (Berlin)) |
+| ✅ `ipsum_level4` | 6771 | +0 | 🟡 traege (seit 2026-08-30 03:15 CEST (Berlin), 12 Laeufe unveraendert) |
 | ✅ `dshield_1d` | 29 | +0 | 🟢 aktuell (seit 2026-08-30 12:49 CEST (Berlin)) |
-| ✅ `blocklist_de_bots` | 3025 | +17 | 🟢 neu (2026-08-30 15:48 CEST (Berlin)) |
-| ✅ `blocklist_de_bruteforce` | 1210 | +2 | 🟢 neu (2026-08-30 15:48 CEST (Berlin)) |
+| ✅ `blocklist_de_bots` | 3014 | +70 | 🟢 neu (2026-08-30 17:05 CEST (Berlin)) |
+| ✅ `blocklist_de_bruteforce` | 1203 | +19 | 🟢 neu (2026-08-30 17:05 CEST (Berlin)) |
 | ✅ `jamesbrine_honeypot` | 55801 | +0 | 🟢 aktuell (seit 2026-08-30 15:06 CEST (Berlin)) |
 | ✅ `honeysec_ip_all` | 52476 | +0 | 🟢 aktuell (seit 2026-08-30 09:03 CEST (Berlin)) |
-| ✅ `turris_greylist` | 9595 | +0 | 🟡 traege (seit 2026-08-30 01:45 CEST (Berlin), 15 Laeufe unveraendert) |
+| ✅ `turris_greylist` | 9595 | +0 | 🟡 traege (seit 2026-08-30 01:45 CEST (Berlin), 16 Laeufe unveraendert) |
 | ✅ `sblam` | 956 | +0 | 🟢 aktuell (seit 2026-08-30 06:47 CEST (Berlin)) |
 | ✅ `timgerstel_suspicious_ips` | 2128 | +0 | 🟢 aktuell (seit 2026-08-30 15:06 CEST (Berlin)) |
 | ❌ `sniffcat` | 0 | – | – |
-| ✅ `siberkapan` | 43394 | +1 | 🟢 neu (2026-08-30 15:48 CEST (Berlin)) |
-| ✅ `reportedip` | 9965 | +2 | 🟢 neu (2026-08-30 15:48 CEST (Berlin)) |
+| ✅ `siberkapan` | 43419 | +25 | 🟢 neu (2026-08-30 17:05 CEST (Berlin)) |
+| ✅ `reportedip` | 9965 | +10 | 🟢 neu (2026-08-30 17:05 CEST (Berlin)) |
 | ✅ `ipinsights` | 657497 | +0 | 🟢 aktuell (seit 2026-08-30 15:06 CEST (Berlin)) |
-| ✅ `opendbl_darknet` | 38126 | +0 | 🟢 aktuell (seit 2026-08-30 15:06 CEST (Berlin)) |
-| ✅ `opendbl_all_threats` | 55700 | +0 | 🟢 aktuell (seit 2026-08-30 15:06 CEST (Berlin)) |
+| ✅ `opendbl_darknet` | 38502 | +2064 | 🟢 neu (2026-08-30 17:05 CEST (Berlin)) |
+| ✅ `opendbl_all_threats` | 55827 | +2430 | 🟢 neu (2026-08-30 17:05 CEST (Berlin)) |
 | ✅ `bitwire_ip_list_fetch` | 34649 | +0 | 🟢 aktuell (seit 2026-08-30 06:47 CEST (Berlin)) |
 | ✅ `configserverapps_365d` | 75481 | +0 | 🟢 aktuell (seit 2026-08-30 12:09 CEST (Berlin)) |
-| ✅ `kamalmjt_emerging_attackers` | 161930 | +0 | 🟡 traege (seit 2026-08-30 01:45 CEST (Berlin), 15 Laeufe unveraendert) |
-| ✅ `tn3w_ipblocklist` | 384741 | +0 | 🔴 EINGEFROREN (seit 2026-08-20 21:03 CEST (Berlin), 321 Laeufe unveraendert) |
-| ✅ `ipblocklist_eu` | 1084340 | +0 | 🟢 aktuell (seit 2026-08-30 15:06 CEST (Berlin)) |
+| ✅ `kamalmjt_emerging_attackers` | 161930 | +0 | 🟡 traege (seit 2026-08-30 01:45 CEST (Berlin), 16 Laeufe unveraendert) |
+| ✅ `tn3w_ipblocklist` | 384741 | +0 | 🔴 EINGEFROREN (seit 2026-08-20 21:03 CEST (Berlin), 322 Laeufe unveraendert) |
+| ✅ `ipblocklist_eu` | 1083957 | +525 | 🟢 neu (2026-08-30 17:05 CEST (Berlin)) |
 | ✅ `zenmorro_scanner_list` | 1554 | +0 | 🟢 aktuell (seit 2026-08-30 06:47 CEST (Berlin)) |
 | ✅ `mattyroberts_threatlist` | 30035 | +0 | 🟢 aktuell (seit 2026-08-30 06:47 CEST (Berlin)) |
-| ✅ `threatfox_export` | 19977 | +0 | 🟢 aktuell (seit 2026-08-30 15:06 CEST (Berlin)) |
-| ✅ `urlhaus_export` | 4802 | +0 | 🟢 aktuell (seit 2026-08-30 15:06 CEST (Berlin)) |
-| ✅ `criminalip_c2` | 50 | +0 | 🟡 traege (seit 2026-08-30 02:33 CEST (Berlin), 14 Laeufe unveraendert) |
-| ✅ `haas_ssh` | 2158 | +0 | 🟡 traege (seit 2026-08-30 03:07 CEST (Berlin), 12 Laeufe unveraendert) |
+| ✅ `threatfox_export` | 19979 | +2 | 🟢 neu (2026-08-30 17:05 CEST (Berlin)) |
+| ✅ `urlhaus_export` | 4808 | +6 | 🟢 neu (2026-08-30 17:05 CEST (Berlin)) |
+| ✅ `criminalip_c2` | 50 | +0 | 🟡 traege (seit 2026-08-30 02:33 CEST (Berlin), 15 Laeufe unveraendert) |
+| ✅ `haas_ssh` | 2158 | +0 | 🟡 traege (seit 2026-08-30 03:07 CEST (Berlin), 13 Laeufe unveraendert) |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honeypot-IPs | **1866059** |
-| Neu | **+10** |
-| Entfernt | **-0** |
+| Gesamt Honeypot-IPs | **1865950** |
+| Neu | **+3660** |
+| Entfernt | **-3769** |
 
 ---
-*Generiert: 2026-08-30 15:48 CEST (Berlin)*
+*Generiert: 2026-08-30 17:05 CEST (Berlin)*
