@@ -127,6 +127,34 @@ jobs:
             netshield-seen-db-v1-
             netshield-seen-db-
 
+      - name: Restore Anti-Churn-Ledger from GitHub Release (falls vorhanden)
+        # FIX CACHE-DRIFT-STALE-FROZEN (2026-08-30, Nutzeranfrage): siehe
+        # ausfuehrlichen Kommentar im Python-Block unten ("_wl_expired_first
+        # laden"). Identischer Restore-Mechanismus wie in
+        # update_combined_blacklist.yml (nur lesend - dieser Workflow
+        # schreibt/aktualisiert den Ledger selbst nicht, nur combined tut
+        # das). Anders als der seen_db-Cache oben (actions/cache, mit
+        # dokumentierter asynchroner Replikationsverzoegerung, siehe
+        # BUG-CACHE-DRIFT-Kommentar weiter unten) ist ein GitHub-Release-
+        # Download eine direkte API-Abfrage ohne bekannte Verzoegerung -
+        # sollte also zuverlaessiger den STAND NACH dem letzten combined-
+        # Lauf widerspiegeln als der seen_db-Cache selbst.
+        if: steps.skip-check.outputs.is_skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p state
+          if gh release download anti-churn-ledger-backup \
+              --repo "${{ github.repository }}" \
+              --pattern "*_expired_history.json.gz.part*" \
+              --dir state/ --clobber 2>/dev/null; then
+            WL_COUNT=$(ls state/watchlist_expired_history.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+            AC_COUNT=$(ls state/active_expired_history.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+            echo "Anti-Churn-Ledger von Release geladen: Watchlist ${WL_COUNT} Part(s), Active ${AC_COUNT} Part(s)"
+          else
+            echo "Kein Ledger-Release gefunden - Stale-Frozen-Schutz startet ohne Ledger (kein Fehler, nur kein zusaetzlicher Schutz fuer diesen Lauf)"
+          fi
+
       - name: Build Confidence Blacklists from seen_db
         if: steps.skip-check.outputs.is_skip != 'true'
         env:
@@ -199,6 +227,72 @@ jobs:
 
           # is_in_fp_set() → importiert aus netshield_common
           # is_protected_entry() → importiert aus netshield_common
+
+          # ── FIX CACHE-DRIFT-STALE-FROZEN (2026-08-30, Nutzeranfrage) ────────
+          # Hintergrund: der seen_db-Cache oben (actions/cache/restore) kann
+          # nachweislich AELTER sein als der letzte combined-Commit (siehe
+          # BUG-CACHE-DRIFT-Kommentar weiter unten - dort bereits fuer die
+          # Gegenrichtung geloest: fehlende NEUE IPs nachtragen). Diese
+          # Ledger-Pruefung deckt die andere Richtung ab: eine IP, die der
+          # NEUESTE combined-Lauf bereits eingefroren/entfernt hat, aber im
+          # (veralteten) seen_db-Cache noch mit ihrem alten first/last-Datum
+          # existiert, wuerde ohne diesen Check hier trotzdem faelschlich in
+          # blacklist_confidence40_ipv4.txt landen. Symptom war ein
+          # Rueckfall-Alarm im ip_ablauf.yml-Verifikations-Job (2687 IPs am
+          # 2026-08-30) - verifiziert per Abgleich mit dem aktuellen
+          # Ledger-Stand. Erkennung: db[ip]["first"]/["last"] entspricht
+          # EXAKT dem im Ledger eingefrorenen Wert -> der Cache hat die
+          # Einfrierung schlicht noch nicht mitbekommen, die IP raus.
+          # Stimmt das Datum NICHT mehr ueberein, wurde die IP zwischen-
+          # zeitlich legitim neu bestaetigt (Ledger-Bereinigung in combined
+          # laeuft dann separat) - dann NICHT ausschliessen.
+          import glob as _glob_ledger, gzip as _gzip_ledger, io as _io_ledger
+
+          def _lade_ledger_von_release(_glob_muster):
+              _teile = sorted(_glob_ledger.glob(_glob_muster))
+              if not _teile:
+                  return {}, 0
+              _puffer = _io_ledger.BytesIO()
+              for _teil in _teile:
+                  with open(_teil, "rb") as _tf:
+                      while True:
+                          _chunk = _tf.read(1024 * 1024)
+                          if not _chunk:
+                              break
+                          _puffer.write(_chunk)
+              _puffer.seek(0)
+              with _gzip_ledger.GzipFile(fileobj=_puffer, mode="rb") as _gz:
+                  _daten = json.loads(_gz.read().decode("utf-8"))
+              return dict(_daten.get("entries", {})), len(_teile)
+
+          _wl_expired_first = {}
+          try:
+              _wl_raw, _wl_part_count = _lade_ledger_von_release(
+                  "state/watchlist_expired_history.json.gz.part*"
+              )
+              for _ip_wl, _wert_wl in _wl_raw.items():
+                  _wl_expired_first[_ip_wl] = _wert_wl if isinstance(_wert_wl, dict) \
+                      else {"first": _wert_wl, "eingefroren_am": _wert_wl}
+              print(f"Stale-Frozen-Schutz: watchlist-Ledger geladen "
+                    f"({len(_wl_expired_first)} Eintraege, {_wl_part_count} Part(s))")
+          except Exception as _ex:
+              print(f"WARN: watchlist-Ledger nicht ladbar (Stale-Frozen-Schutz eingeschraenkt): {_ex}", file=sys.stderr)
+
+          _active_expired_last = {}
+          try:
+              _active_raw, _active_part_count = _lade_ledger_von_release(
+                  "state/active_expired_history.json.gz.part*"
+              )
+              for _ip_ac, _wert_ac in _active_raw.items():
+                  _active_expired_last[_ip_ac] = _wert_ac if isinstance(_wert_ac, dict) \
+                      else {"last": _wert_ac, "eingefroren_am": _wert_ac}
+              print(f"Stale-Frozen-Schutz: active-Ledger geladen "
+                    f"({len(_active_expired_last)} Eintraege, {_active_part_count} Part(s))")
+          except Exception as _ex:
+              print(f"WARN: active-Ledger nicht ladbar (Stale-Frozen-Schutz eingeschraenkt): {_ex}", file=sys.stderr)
+
+          skipped_stale_frozen = 0
+
           if not os.path.exists(DB_FILE):
               msg = f"{DB_FILE} nicht gefunden – bitte zuerst Update Combined Blacklist ausführen."
               print(f"::warning file=update_confidence_blacklist.yml::{msg}")
@@ -596,6 +690,21 @@ jobs:
                       days_known=days_known,
                   )
 
+                  # FIX CACHE-DRIFT-STALE-FROZEN: db[ip] stammt aus dem
+                  # (moeglicherweise veralteten) seen_db-Cache. Pruefen, ob
+                  # first/last exakt dem Wert entspricht, mit dem der
+                  # NEUESTE combined-Lauf diese IP bereits eingefroren hat -
+                  # falls ja, hat der Cache die Einfrierung nur noch nicht
+                  # mitbekommen, die IP gehoert NICHT in den Output.
+                  _wl_frozen = _wl_expired_first.get(ip)
+                  if _wl_frozen is not None and _wl_frozen.get("first") == first_seen:
+                      skipped_stale_frozen += 1
+                      continue
+                  _active_frozen = _active_expired_last.get(ip)
+                  if _active_frozen is not None and _active_frozen.get("last") == last_seen:
+                      skipped_stale_frozen += 1
+                      continue
+
                   # is_protected_entry()-Guard hier entfernt: Zugehörigkeit zu combined_ips
                   # garantiert bereits dass die IP kein geschützter Eintrag ist.
                   if conf >= 40:
@@ -663,6 +772,8 @@ jobs:
           confidence25.sort(key=lambda x: (-x[1], x[0]))
 
           print(f"Konfidenz ≥40 (→ confidence40-Datei): {len(confidence40)} IPs")
+          print(f"Stale-Frozen-Schutz: {skipped_stale_frozen} IP(s) ausgeschlossen "
+                f"(seen_db-Cache veraltet - laut aktuellem Ledger bereits eingefroren)")
           print(f"Konfidenz 25-39 (→ watchlist):         {len(confidence25)} IPs")
           print(f"Sentinel-Ausschluss (last=2000-01-01):  {skipped_watchlist} IPs (kein verwertbares Datum)")
           print(f"Übersprungen:                          {skipped} IPs (Datumsfehler)")

@@ -1345,6 +1345,30 @@ jobs:
               # bazaar_c2 entfernt: Endpunkt liefert Hash-Listen, keine IPs → 0 Treffer
               "urlhaus_ips":                ("https://urlhaus.abuse.ch/downloads/text/", True),
 
+              # NEU (2026-08-30, Nutzerwunsch "als hq höchste stufe"): RTBH
+              # (Remote-Triggered-Black-Hole)-Liste, tuerkischer Betreiber
+              # list.rtbh.com.tr. Live per web_fetch geprueft (2026-08-30):
+              # reine IP/CIDR-Liste, mehrere zehntausend Eintraege, kein
+              # HTML/JSON-Wrapper. HQ=True auf Nutzereinschaetzung: Liste
+              # liefert bestaetigte Angreifer-IPs (kein reines automatisches
+              # Netzwerk-Rauschen wie z.B. offene Resolver). Ich selbst
+              # (Claude) konnte die Kuratierung nicht unabhaengig verifizieren
+              # (kein bekannter Anbieter wie abuse.ch/FireHOL/Spamhaus) - HQ
+              # basiert auf der Einschaetzung des Repo-Betreibers, nicht auf
+              # eigener Pruefung. Als HQ-Feed beeinflusst diese Quelle sowohl
+              # die "heute frisch bestaetigt"-Logik in seen_db als auch den
+              # Overlap-Referenzwert fuer neue Auto-Discovery-Kandidaten.
+              "rtbh_com_tr":                ("https://list.rtbh.com.tr/output.txt", True),
+
+              # NEU (2026-08-30, Nutzerwunsch): threat.live-Community-Feed.
+              # Live per web_fetch geprueft (2026-08-30): reine IP-Liste,
+              # mehrere tausend Eintraege, kein HTML/JSON-Wrapper. HQ=True
+              # aus demselben Grund wie rtbh_com_tr oben: liefert laut
+              # Nutzereinschaetzung bestaetigte Angreifer-IPs. Gleicher
+              # Vorbehalt: von mir (Claude) nicht unabhaengig verifizierbar,
+              # HQ-Status basiert auf der Einschaetzung des Repo-Betreibers.
+              "threat_live":                ("https://list.threat.live/", True),
+
               # ── FireHOL & Emerging Threats ────────────────────────────────
               # ENTFERNT (2026-08-04): firehol_level1 - bestaetigt eingefroren
               # (Live-Check: "Source File Date" >5 Wochen alt). Nicht ueber
