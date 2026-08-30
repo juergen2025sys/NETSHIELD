@@ -31,7 +31,32 @@ on:
     # sicher aus - dann im Report/Log auf gehaeufte 429/"ALLE CREDENTIALS
     # ERSCHOEPFT"-Meldungen achten und ggf. Cron-Frequenz senken oder
     # weitere Credentials (Secret-Suffix _N) ergaenzen.
-    - cron: '*/20 * * * *'
+    # FIX CRON-REDUNDANZ (2026-08-30, Nutzeranfrage "finde eine loesung das
+    # der oefters startet"): GitHub verwirft geplante schedule-Events bei
+    # Last - gemessen an der echten Actions-Historie am 2026-08-30 liefen
+    # nur ~5 statt der erwarteten ~48 Scheduled-Laeufe in 16 Stunden
+    # (~90% Ausfall), mit Luecken von 3-5 Stunden zwischen zwei
+    # Cron-Laeufen. Das ist NICHT in diesem Workflow behebbar (kein
+    # Konfigurationsfehler - Cron-Ausdruck, Skip-Step und concurrency sind
+    # korrekt), sondern eine dokumentierte GitHub-Eigenschaft.
+    #
+    # Gegenmassnahme: dasselbe Redundanz-Muster wie in
+    # update_combined_blacklist.yml ('7/27/47 */3') und
+    # auto_feed_discovery.yml (3 Slots, Kommentar dort: "Backup falls
+    # primaerer Slot von GitHub uebersprungen"). Jede cron-Zeile ist fuer
+    # GitHub ein EIGENES Event - faellt der primaere Slot aus, hat der
+    # Backup-Slot 5 bzw. 10 Minuten spaeter eine unabhaengige Chance.
+    #
+    # WICHTIG: Die Mehrfach-Trigger vervielfachen NICHT den API-Verbrauch.
+    # Der Idempotenz-Gate im Step "Skip if Honigtopf ran recently" (weiter
+    # unten) ueberspringt jeden Lauf, der weniger als 12 Minuten nach einem
+    # erfolgreichen Lauf startet - die Backups feuern also nur, wenn der
+    # primaere Slot tatsaechlich ausgefallen ist. Die Obergrenze bleibt
+    # damit bei ~72 Laeufen/Tag (= 2.448 Requests), exakt wie in der
+    # Kontingent-Rechnung unten kalkuliert.
+    - cron: '*/20 * * * *'      # primaer:   :00, :20, :40
+    - cron: '5,25,45 * * * *'   # Backup #1: +5min,  falls primaerer Slot verworfen
+    - cron: '10,30,50 * * * *'  # Backup #2: +10min, falls auch Backup #1 verworfen
   workflow_dispatch:
     inputs:
       force_light:
@@ -72,29 +97,48 @@ jobs:
           persist-credentials: true
 
       - name: Skip if Honigtopf ran recently
-        # Nur fuer den Report-Piggyback (workflow_run) relevant: verhindert
-        # doppelte Honigtopf-Laeufe/Requests, wenn der eigene Cron (x:15) eh
-        # gerade lief. Schuetzt das Request-Budget (Limit 1500/Monat) und
-        # daempft die Trigger-Kette Report->Honigtopf->Watchdog. Bei Cron/dispatch
-        # laeuft dieser Step nicht -> Honigtopf laeuft normal.
+        # Zwei Aufgaben in einem Step:
+        #
+        # 1) Report-Piggyback (workflow_run), UNVERAENDERT: verhindert
+        #    doppelte Laeufe/Requests, wenn der eigene Cron eh gerade lief.
+        #    Fenster: 45 Minuten. Daempft zusaetzlich die Trigger-Kette
+        #    Report->Honigtopf->Watchdog.
+        #
+        # 2) FIX CRON-REDUNDANZ (2026-08-30): Idempotenz-Gate fuer die neuen
+        #    Backup-Cron-Slots (+5/+10min, siehe Kommentar am schedule-Block
+        #    oben). Fenster: 12 Minuten. Damit feuern die Backups NUR, wenn
+        #    der primaere Slot tatsaechlich von GitHub verworfen wurde -
+        #    lief er normal, werden +5 und +10 uebersprungen, ohne einen
+        #    einzigen API-Request zu verbrauchen (der Skip greift VOR dem
+        #    Fetch-Step).
+        #    Warum genau 12 Minuten: kleiner als der 20-Minuten-Slot-Abstand
+        #    (sonst wuerde ein regulaerer Folge-Slot faelschlich geskippt)
+        #    und kleiner-gleich der Watchdog-Grace von 12min aus
+        #    watchdog_combined.yml (ZIELE-Zeile "honigtopf.yml|20|0|12|90"),
+        #    damit ein berechtigter Watchdog-Nachhol-Trigger nicht von
+        #    diesem Gate blockiert wird.
         id: recent
-        if: github.event_name == 'workflow_run'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cutoff=$(date -u -d '45 min ago' +%s)
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_run" ]; then
+            FENSTER_MIN=45
+          else
+            FENSTER_MIN=12
+          fi
+          cutoff=$(date -u -d "${FENSTER_MIN} min ago" +%s)
           recent=$(gh run list \
             --repo "${{ github.repository }}" \
             --workflow=honigtopf.yml \
             --status=success \
             --limit=15 \
-            --json startedAt \
-            --jq "[.[] | select((.startedAt|fromdateiso8601) > $cutoff)] | length" 2>/dev/null || echo 0)
+            --json databaseId,startedAt \
+            --jq "[.[] | select(.databaseId != ${{ github.run_id }}) | select((.startedAt|fromdateiso8601) > $cutoff)] | length" 2>/dev/null || echo 0)
           if [ "$recent" -gt 0 ]; then
-            echo "Honigtopf lief in den letzten 45min schon ($recent Lauf/Laeufe) - skip, kein Request"
+            echo "Honigtopf lief in den letzten ${FENSTER_MIN}min schon ($recent Lauf/Laeufe) - skip, kein Request"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Kein Honigtopf-Lauf in den letzten 45min - fuehre aus"
+            echo "Kein Honigtopf-Lauf in den letzten ${FENSTER_MIN}min - fuehre aus"
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 

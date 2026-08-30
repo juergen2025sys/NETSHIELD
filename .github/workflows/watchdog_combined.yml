@@ -493,7 +493,26 @@ jobs:
           # Rhythmus sich nicht als Minuten-Raster ausdruecken laesst
           # (mehrstuendlich oder taeglich). Slot-Takt/Offset werden dann
           # ignoriert.
-          ZIELE="honigtopf.yml|20|0|12|90|--field force_light=true
+          # FIX WD-ALWAYS-FULL (2026-08-30, Nutzerwunsch "immer volllauf"):
+          # Der Dispatch-Zusatz "--field force_light=true" wurde fuer
+          # honigtopf.yml ENTFERNT. Hintergrund: seit FIX ALWAYS-FULL
+          # (2026-08-29) faehrt Honigtopf bei Cron/Dispatch grundsaetzlich
+          # Voll (siehe honigtopf.yml, Entscheidung nach dem bad-hosts-Call).
+          # Der Watchdog hat diese Umstellung aber unterlaufen: seine
+          # Nachhol-Trigger setzten weiterhin force_light=true und landeten
+          # damit im HARD_LIGHT-Zweig - ein nachgeholter Slot lieferte also
+          # nur /bad-hosts statt des vollen Sweeps. Da die Cron-Slots laut
+          # Actions-Historie ohnehin ueberwiegend ausfallen (beobachtet
+          # 2026-08-30: ~5 statt ~48 Scheduled-Laeufe in 16h), sind die
+          # Watchdog-Trigger faktisch ein Grossteil der tatsaechlichen
+          # Laeufe - die duerfen dann nicht die abgespeckte Variante sein.
+          # KONTINGENT: ein Voll-Lauf kostet ~34 Requests statt 1 (Light).
+          # Bei 3 Credentials = 3.000 Requests/Tag Kapazitaet und maximal
+          # 96 Watchdog-Laeufen/Tag (cron '*/15', wobei realistisch weit
+          # weniger durchkommen) bleibt das im Rahmen; die Obergrenze
+          # entspricht dem bereits in honigtopf.yml kalkulierten Fall
+          # "jeder Slot faehrt Voll" (72 x 34 = 2.448/Tag).
+          ZIELE="honigtopf.yml|20|0|12|90|
           netshield_report_generator.yml|60|30|25|150|
           honeypot_monitor.yml|0|0|0|420|
           update_bot_detector.yml|0|0|0|1560|"
