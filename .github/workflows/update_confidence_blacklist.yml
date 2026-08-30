@@ -53,17 +53,104 @@ concurrency:
   queue: max
 
 jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      proceed: ${{ steps.check.outputs.proceed }}
+    steps:
+      # FIX IDEMPOTENZ-GATE-CONFIDENCE (2026-08-30, Nutzeranfrage): Vorbild
+      # ist das Gate in update_combined_blacklist.yml. Hintergrund: Confidence
+      # wird aus zwei unabhaengigen Quellen getriggert (expliziter Trigger aus
+      # Combined UND Fallback-Cron alle 3h). Wegen der workflow-weiten
+      # concurrency-Gruppe 'netshield-seen-db-writers' (queue: max,
+      # cancel-in-progress: false) kann ein wartender Fallback-Cron-Lauf erst
+      # deutlich verzoegert an die Reihe kommen - dann aber auf praktisch
+      # demselben seen_db-Snapshot nochmal komplett neu bauen, den der
+      # explizite Trigger gerade erst verarbeitet hat.
+      # Live beobachtet am 2026-08-30: expliziter Trigger startete 13:32:31Z
+      # (Run 90274481608, fertig 13:38), Fallback-Cron-Lauf startete direkt
+      # danach um 13:38:38Z (Run 90276258269, fertig 13:46) und committete
+      # denselben Datenstand ein zweites Mal (7.774 Insertions/3.613
+      # Deletions nur durch Score-Neuberechnung auf identischer Datenbasis) -
+      # zwei volle ~7-Minuten-Laeufe binnen 6 Minuten, keine inhaltliche
+      # Aenderung, nur Laufzeit- und Commit-Laerm.
+      #
+      # Loesung: eigener Gate-Job VOR update-confidence, analog zum
+      # Combined-Gate. Ueberspringt den Lauf, wenn:
+      #   (a) bereits ein anderer Lauf dieses Workflows aktiv ist
+      #       (queued/in_progress, sich selbst ausgenommen), ODER
+      #   (b) der zuletzt abgeschlossene Lauf juenger als RECENT_MINUTES ist.
+      # Gilt fuer JEDEN Trigger (workflow_dispatch UND schedule) - "egal von
+      # welchem Trigger" war die explizite Anforderung, weil sowohl der
+      # explizite Trigger aus Combined als auch der Fallback-Cron denselben
+      # seen_db-Snapshot verarbeiten koennen.
+      - name: Idempotenz-Gate - anderer Lauf aktiv oder kuerzlich fertig?
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 15 Min: kleiner als der 3h-Abstand des Fallback-Crons, aber groesser
+          # als eine normale Laufzeit (~7 Min laut obiger Beobachtung), damit
+          # ein wirklich neuer, spaeter folgender Lauf nicht faelschlich
+          # uebersprungen wird.
+          RECENT_MINUTES: "15"
+        run: |
+          set -e
+          REPO="${{ github.repository }}"
+          SELF_RUN_ID="${{ github.run_id }}"
+
+          echo "Pruefe auf aktive Laeufe von update_confidence_blacklist.yml..."
+          ACTIVE_COUNT=$(gh run list --repo "$REPO" \
+            --workflow update_confidence_blacklist.yml \
+            --json databaseId,status \
+            --jq "[.[] | select(.databaseId != ${SELF_RUN_ID}) | select(.status == \"in_progress\" or .status == \"queued\")] | length")
+
+          if [ "$ACTIVE_COUNT" -gt 0 ]; then
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "Ueberspringe: ${ACTIVE_COUNT} anderer Lauf/Laeufe bereits aktiv (queued/in_progress)."
+            exit 0
+          fi
+
+          echo "Kein anderer aktiver Lauf. Pruefe Zeitpunkt des letzten abgeschlossenen Laufs..."
+          LAST_FINISHED=$(gh run list --repo "$REPO" \
+            --workflow update_confidence_blacklist.yml \
+            --status completed \
+            --json databaseId,updatedAt \
+            --jq "[.[] | select(.databaseId != ${SELF_RUN_ID})] | sort_by(.updatedAt) | reverse | .[0].updatedAt // empty")
+
+          if [ -z "$LAST_FINISHED" ]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "Kein frueherer abgeschlossener Lauf gefunden - Lauf startet."
+            exit 0
+          fi
+
+          LAST_EPOCH=$(date -u -d "$LAST_FINISHED" +%s)
+          NOW_EPOCH=$(date -u +%s)
+          AGE_MIN=$(( (NOW_EPOCH - LAST_EPOCH) / 60 ))
+          echo "Letzter abgeschlossener Lauf endete: ${LAST_FINISHED} (vor ${AGE_MIN} Min.)"
+
+          if [ "$AGE_MIN" -lt "$RECENT_MINUTES" ]; then
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "Ueberspringe: letzter Lauf ist erst ${AGE_MIN} Min. alt (Schwelle ${RECENT_MINUTES} Min.) - seen_db-Snapshot wurde bereits frisch verarbeitet."
+          else
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "Letzter Lauf ist ${AGE_MIN} Min. alt (>= ${RECENT_MINUTES} Min. Schwelle) - Lauf startet."
+          fi
+
   update-confidence:
+    needs: gate
     runs-on: ubuntu-latest
     timeout-minutes: 40
     # Nur ausfuehren wenn:
+    # - das Idempotenz-Gate gruenes Licht gibt (kein anderer Lauf aktiv/kuerzlich fertig), UND
     # - manuell via workflow_dispatch ausgeloest (event_name == 'workflow_dispatch'), ODER
-    # - vom Combined-Workflow ausgeloest UND Combined war erfolgreich.
+    #   vom Combined-Workflow ausgeloest UND Combined war erfolgreich.
     # Bei workflow_run wird der Job auch bei Combined-Failure/Cancelled getriggert -
     # in dem Fall soll Confidence nicht laufen, weil keine neuen Daten existieren.
     if: >
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'schedule'
+      needs.gate.outputs.proceed == 'true' &&
+      (github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule')
 
     steps:
       # FIX SKIP-RUN-DETECT (2026-05-21): Confidence wird per workflow_run
