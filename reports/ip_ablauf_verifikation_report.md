@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-08-30 12:38 CEST (Europe/Berlin)
+Lauf: 2026-08-30 13:19 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -8,8 +8,14 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 
 | Liste | Anzahl |
 |---|---:|
-| Watchlist (30-Tage-Pfad) | 197953 |
+| Watchlist (30-Tage-Pfad) | 197532 |
 | Active (180-Tage-Pfad) | 0 |
+
+## Live-Fortschritt (heute + nächste Tage)
+
+Zwischenstand, aktualisiert bei JEDEM Lauf (alle 3h) - nicht erst wenn der Tag vorbei ist. "Bisher eingefroren" zaehlt echte `eingefroren_am`-Eintraege im Ledger, die schon JETZT existieren; fuer zukuenftige Tage ist das naturgemaess 0, bis der Tag beginnt. Fuer heute steigt die Zahl im Laufe des Tages, sobald weitere combined-Cleanup-Passes laufen.
+
+Keine ausstehenden Vorhersagen - entweder laeuft der Job "prognose" noch nicht, oder alle bisherigen Vorhersagen sind schon final aufgeloest (siehe Sektion weiter unten).
 
 ## Diagnose-Status
 
@@ -17,24 +23,30 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 
 ## Wiederauftauch-Prüfung
 
-✅ 0 Rückfälle - keine der 197,953 eingefrorenen IPs taucht in 6 geprueften Output-Dateien auf. Der Fix haelt.
+✅ 0 Rückfälle - keine der 197,532 eingefrorenen IPs taucht in 6 geprueften Output-Dateien auf. Der Fix haelt.
+
+## Prognose-Genauigkeit (Vorhersage vs. Realität)
+
+Gleicht die Tages-Vorhersagen aus reports/ip_ablauf.md (Job "prognose") gegen die tatsaechlichen `eingefroren_am`-Zeitstempel im Watchlist-Ledger ab, sobald das jeweilige Datum erreicht ist. "Gerettet" = per Zweitbestaetigung (5+ Feeds oder 2+ HQ-Familien) doch nicht abgelaufen.
+
+Noch keine aufgeloesten Tage - entweder laeuft der Job "prognose" noch nicht lange genug (woechentlich, siehe Cron), oder es ist noch kein vorhergesagtes Datum vergangen.
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +366 (Anstieg) (jetzt 9,541,268 IPs)
-- Seit Zyklus-Start (2026-08-23): 📈 +145,229 (Anstieg)
-- Letzter combined-Cleanup-Pass: 171,825 IPs durch Ablauf entfernt (davon 171,825 Watchlist/30T, 0 Active/180T), 1,858,743 neue IPs hinzugekommen (davon 1,687,820 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 39 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 192,538 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 14,869,727 (Summe letzte 8 Läufe / ~24h)
-- Entfernte IPs (Summe letzter Läufe): 1,332,321 (Summe letzte 8 Läufe / ~24h)
-  - davon Watchlist/30 Tage: 1,332,321 (Summe letzte 8 Läufe / ~24h)
+- Seit letztem Lauf: 📈 +52,240 (Anstieg) (jetzt 9,593,508 IPs)
+- Seit Zyklus-Start (2026-08-23): 📈 +197,469 (Anstieg)
+- Letzter combined-Cleanup-Pass: 171,412 IPs durch Ablauf entfernt (davon 171,412 Watchlist/30T, 0 Active/180T), 1,860,966 neue IPs hinzugekommen (davon 1,639,784 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 43 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 190,907 CIDR-Aggregate)
+- Neue IPs (Summe letzter Läufe): 14,867,558 (Summe letzte 8 Läufe / ~24h)
+- Entfernte IPs (Summe letzter Läufe): 1,341,434 (Summe letzte 8 Läufe / ~24h)
+  - davon Watchlist/30 Tage: 1,341,434 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-08-29T15:46 bis 2026-08-30T07:13 UTC
+- Netto-Wachstum (~24h): 📈 +13,526,124 (Neue minus Entfernte, ~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-08-29T16:39 bis 2026-08-30T10:47 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-08-27 13:07 CEST (Europe/Berlin) | 9,621,174 | 0 | 0 | 0 |
 | 2026-08-27 16:53 CEST (Europe/Berlin) | 9,637,615 | 0 | 0 | 0 |
 | 2026-08-27 23:08 CEST (Europe/Berlin) | 9,644,064 | 0 | 0 | 0 |
 | 2026-08-28 02:42 CEST (Europe/Berlin) | 9,651,010 | 0 | 0 | 0 |
@@ -54,3 +66,4 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | 2026-08-30 07:06 CEST (Europe/Berlin) | 9,532,594 | 198223 | 0 | 2687 |
 | 2026-08-30 08:07 CEST (Europe/Berlin) | 9,540,902 | 197970 | 0 | 0 |
 | 2026-08-30 12:38 CEST (Europe/Berlin) | 9,541,268 | 197953 | 0 | 0 |
+| 2026-08-30 13:19 CEST (Europe/Berlin) | 9,593,508 | 197532 | 0 | 0 |
