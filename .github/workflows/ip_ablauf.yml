@@ -412,44 +412,74 @@ jobs:
                   lines.append(f"| {d} | {per_expiry_date_watch[d]:,} |")
 
           # ── FIX PROGNOSE-GENAUIGKEIT (2026-08-30, Nutzerwunsch "was einbauen
-          # das man das besser feststellen kann") ──────────────────────────────
+          # das man das besser feststellen kann", erweitert auf "fuer die
+          # 30tage regel und 180tage regel fehlt das noch") ───────────────────
           # Zweck: die Tages-Prognose oben ist eine reine Momentaufnahme ("wenn
           # sich nichts mehr aendert") - sie zeigt NICHT, wie gut sie im
           # Nachhinein wirklich getroffen hat. Hier wird pro Ablaufdatum die
-          # LETZTE (aktuellste) Prognose persistiert. Der Job "verifikation"
-          # (laeuft alle 3h, hat Zugriff auf den Ledger mit den echten
-          # "eingefroren_am"-Zeitstempeln) gleicht das spaeter gegen die Realitaet
-          # ab und schreibt das Ergebnis (vorhergesagt vs. tatsaechlich, "Rettungs-
+          # LETZTE (aktuellste) Prognose persistiert - fuer BEIDE Pfade
+          # getrennt (Watchlist/30T und Active/180T), da beide unterschiedliche
+          # Formeln (first+30 bzw. last+180) und unterschiedliche Ledger
+          # (state/watchlist_expired_history.json bzw.
+          # state/active_expired_history.json) haben. Der Job "verifikation"
+          # (laeuft alle 3h) gleicht das spaeter gegen die Realitaet ab und
+          # schreibt das Ergebnis (vorhergesagt vs. tatsaechlich, "Rettungs-
           # quote" = per Zweitbestaetigung gerettete IPs) in einen eigenen
-          # Report-Abschnitt. Absichtlich als eigene, kleine State-Datei (nicht in
-          # state/watchlist_expired_history.json o.ae.) - unabhaengig vom
-          # Anti-Churn-Ledger, da eine andere Frage beantwortet wird (Prognose-
-          # Genauigkeit statt Rueckfall-Erkennung).
+          # Report-Abschnitt, je Pfad. Absichtlich als eigene, kleine State-
+          # Datei (nicht in den Anti-Churn-Ledgern selbst) - unabhaengig davon,
+          # da eine andere Frage beantwortet wird (Prognose-Genauigkeit statt
+          # Rueckfall-Erkennung).
           FORECAST_HISTORY_FILE = "state/ip_ablauf_forecast_verlauf.json"
-          _forecast_hist = {"pending": {}, "resolved": []}
+          _forecast_hist = {
+              "watchlist": {"pending": {}, "resolved": []},
+              "active":    {"pending": {}, "resolved": []},
+          }
           if os.path.exists(FORECAST_HISTORY_FILE):
               try:
                   with open(FORECAST_HISTORY_FILE) as _ff:
                       _geladen = json.load(_ff)
                   if isinstance(_geladen, dict):
-                      _forecast_hist["pending"]  = _geladen.get("pending", {})
-                      _forecast_hist["resolved"] = _geladen.get("resolved", [])
+                      if "watchlist" in _geladen or "active" in _geladen:
+                          # Neues Format (verschachtelt nach Pfad).
+                          for _pfad_key in ("watchlist", "active"):
+                              _teil = _geladen.get(_pfad_key, {})
+                              if isinstance(_teil, dict):
+                                  _forecast_hist[_pfad_key]["pending"]  = _teil.get("pending", {})
+                                  _forecast_hist[_pfad_key]["resolved"] = _teil.get("resolved", [])
+                      else:
+                          # FIX FORECAST-MIGRATION: altes Format (nur Watchlist,
+                          # flach "pending"/"resolved" auf oberster Ebene) - vor
+                          # dieser Erweiterung geschrieben. Uebernehmen statt
+                          # verwerfen, damit bereits gesammelte Watchlist-
+                          # Prognosen nicht verloren gehen.
+                          _forecast_hist["watchlist"]["pending"]  = _geladen.get("pending", {})
+                          _forecast_hist["watchlist"]["resolved"] = _geladen.get("resolved", [])
               except Exception as _e:
                   print(f"WARNUNG: {FORECAST_HISTORY_FILE} nicht lesbar, starte leer: {_e}")
 
-          # Fuer jedes Ablaufdatum in den naechsten 30 Tagen die LETZTE Prognose
-          # ueberschreiben (nicht anhaengen) - wir wollen die aktuellste
-          # Einschaetzung je Datum, nicht jede Zwischen-Prognose seit Wochen.
+          # Fuer jedes Ablaufdatum die LETZTE Prognose ueberschreiben (nicht
+          # anhaengen) - wir wollen die aktuellste Einschaetzung je Datum,
+          # nicht jede Zwischen-Prognose seit Wochen. Watchlist: naechste 30
+          # Tage (komplettes Fenster). Active: nur Tage mit days_left <= 60
+          # (siehe per_expiry_date oben - weiter in der Zukunft liegende Tage
+          # werden dort bewusst nicht einzeln erfasst, gilt hier also genauso).
           for _d, _cnt in per_expiry_date_watch.items():
-              _forecast_hist["pending"][_d] = {
+              _forecast_hist["watchlist"]["pending"][_d] = {
+                  "predicted": _cnt,
+                  "forecast_made_on": today.isoformat(),
+              }
+          for _d, _cnt in per_expiry_date.items():
+              _forecast_hist["active"]["pending"][_d] = {
                   "predicted": _cnt,
                   "forecast_made_on": today.isoformat(),
               }
 
           write_json_atomic(FORECAST_HISTORY_FILE, _forecast_hist)
           print(f"{FORECAST_HISTORY_FILE} aktualisiert: "
-                f"{len(_forecast_hist['pending'])} ausstehende Prognosen, "
-                f"{len(_forecast_hist['resolved'])} bereits abgeglichene Tage")
+                f"Watchlist {len(_forecast_hist['watchlist']['pending'])} ausstehend/"
+                f"{len(_forecast_hist['watchlist']['resolved'])} abgeglichen | "
+                f"Active {len(_forecast_hist['active']['pending'])} ausstehend/"
+                f"{len(_forecast_hist['active']['resolved'])} abgeglichen")
 
           if per_expiry_date:
               lines += [
@@ -786,6 +816,10 @@ jobs:
           # zaehlen, wie viele IPs an genau diesem Tag wirklich eingefroren
           # wurden (Abgleich gegen die Prognose aus dem Job "prognose").
           wl_eintraege_voll = {}
+          # FIX PROGNOSE-GENAUIGKEIT-ACTIVE (2026-08-30, Nutzerwunsch "fuer die
+          # 30tage regel und 180tage regel fehlt das noch"): dasselbe fuer den
+          # Active-Ledger.
+          ac_eintraege_voll = {}
           for label, pfad in ABLAUFLISTEN.items():
               if os.path.exists(pfad):
                   try:
@@ -797,6 +831,8 @@ jobs:
                       eingefrorene_ips.update(eintraege.keys())
                       if label == "Watchlist (30-Tage-Pfad)":
                           wl_eintraege_voll = eintraege
+                      elif label == "Active (180-Tage-Pfad)":
+                          ac_eintraege_voll = eintraege
                   except Exception as e:
                       listen_groessen[label] = None
                       listen_ips[label] = set()
@@ -1338,97 +1374,117 @@ jobs:
               "laeufe": verlauf,
           }, indent=2)
 
-          # ── FIX PROGNOSE-GENAUIGKEIT (2026-08-30, Nutzerwunsch) ─────────────
+          # ── FIX PROGNOSE-GENAUIGKEIT (2026-08-30, Nutzerwunsch, erweitert auf
+          # "fuer die 30tage regel und 180tage regel fehlt das noch") ────────
           # Gleicht die vom Job "prognose" hinterlegten Tages-Vorhersagen gegen
-          # die tatsaechlichen "eingefroren_am"-Zeitstempel im Watchlist-Ledger
-          # ab, sobald das jeweilige Datum erreicht/vergangen ist. So laesst
-          # sich konkret feststellen, ob z.B. "morgen fallen 52.997 IPs weg"
-          # wirklich eingetroffen ist, und wie viele durch eine Zweitbestaetigung
-          # (5+ Feeds / 2+ HQ-Familien) vorher noch "gerettet" wurden.
+          # die tatsaechlichen Ledger-Eintraege ab, sobald das jeweilige Datum
+          # erreicht/vergangen ist. So laesst sich konkret feststellen, ob z.B.
+          # "morgen fallen 52.997 IPs weg" wirklich eingetroffen ist, und wie
+          # viele durch eine Zweitbestaetigung (5+ Feeds / 2+ HQ-Familien)
+          # vorher noch "gerettet" wurden. Fuer BEIDE Pfade (Watchlist/30T,
+          # Active/180T) - jeweils eigene Formel (first+30 bzw. last+180) und
+          # eigener Ledger.
           FORECAST_HISTORY_FILE = "state/ip_ablauf_forecast_verlauf.json"
-          _forecast_hist = {"pending": {}, "resolved": []}
+          _forecast_hist = {
+              "watchlist": {"pending": {}, "resolved": []},
+              "active":    {"pending": {}, "resolved": []},
+          }
           if os.path.exists(FORECAST_HISTORY_FILE):
               try:
                   with open(FORECAST_HISTORY_FILE) as _ff:
                       _geladen = json.load(_ff)
                   if isinstance(_geladen, dict):
-                      _forecast_hist["pending"]  = _geladen.get("pending", {})
-                      _forecast_hist["resolved"] = _geladen.get("resolved", [])
+                      if "watchlist" in _geladen or "active" in _geladen:
+                          for _pfad_key in ("watchlist", "active"):
+                              _teil = _geladen.get(_pfad_key, {})
+                              if isinstance(_teil, dict):
+                                  _forecast_hist[_pfad_key]["pending"]  = _teil.get("pending", {})
+                                  _forecast_hist[_pfad_key]["resolved"] = _teil.get("resolved", [])
+                      else:
+                          # FIX FORECAST-MIGRATION: altes Format (nur Watchlist,
+                          # flach) - vor dieser Erweiterung geschrieben.
+                          _forecast_hist["watchlist"]["pending"]  = _geladen.get("pending", {})
+                          _forecast_hist["watchlist"]["resolved"] = _geladen.get("resolved", [])
               except Exception as _e:
                   print(f"WARNUNG: {FORECAST_HISTORY_FILE} nicht lesbar, starte leer: {_e}")
 
-          # Tatsaechliche Anzahl pro Ablaufdatum aus dem echten Ledger zaehlen.
-          # BUGFIX (2026-08-30, im echten Betrieb entdeckt - Report zeigte
-          # "10.057 vorhergesagt, 176.810 tatsaechlich" = 1758%, unmoeglich):
-          # Urspruenglich wurde nach "eingefroren_am" gruppiert. Das ist aber
-          # KEIN "wann ist diese IP zum ersten Mal ueber die 30-Tage-Frist
-          # gefallen"-Datum - laut update_combined_blacklist.yml (FIX
-          # WL-LEDGER-REFRESH, 2026-08-28) wird "eingefroren_am" bei JEDEM
-          # erneuten Ablauf einer chronisch schwach gemeldeten IP auf HEUTE
-          # aufgefrischt, waehrend "first" (das eigentliche Anker-Datum)
-          # bewusst unveraendert bleibt. Ergebnis: "eingefroren_am == heute"
-          # zaehlte auch tausende IPs, die schon vor Wochen erstmals abliefen
-          # und seither nur wiederholt kurz auftauchen und sofort wieder
-          # rausfallen - eine ganz andere Grundgesamtheit als die Prognose
-          # (die ausschliesslich auf first+30 Tage rechnet).
-          # Fix: dieselbe Formel wie im Job "prognose" verwenden (first + 30
-          # Tage) - "first" ist im Ledger garantiert stabil, damit ist das
-          # ein echter Apples-to-Apples-Vergleich mit der Vorhersage.
-          _tatsaechlich_pro_tag = {}
-          for _eintrag in wl_eintraege_voll.values():
-              if isinstance(_eintrag, dict):
-                  _first_str = _eintrag.get("first")
-                  if not _first_str:
+          _heute_str = now.astimezone(ZoneInfo("Europe/Berlin")).date().isoformat()
+
+          def _tatsaechlich_pro_tag_berechnen(eintraege_voll, anker_feld, fenster_tage):
+              """Zaehlt Ledger-Eintraege pro Ablaufdatum, nach anker_feld (z.B.
+              'first' oder 'last') + fenster_tage gruppiert - dieselbe Formel
+              wie die jeweilige Prognose selbst (first+30 bzw. last+180).
+              BUGFIX-Hintergrund (2026-08-30, im echten Betrieb entdeckt):
+              NICHT nach 'eingefroren_am' gruppieren - das wird laut
+              update_combined_blacklist.yml (FIX WL-LEDGER-REFRESH) bei jedem
+              erneuten Ablauf einer chronisch schwach gemeldeten IP auf HEUTE
+              aufgefrischt, waehrend das Anker-Feld (first/last) bewusst
+              unveraendert bleibt - eine andere, viel groessere Grundgesamtheit
+              als "IPs, die HEUTE zum ersten Mal ihre Frist ueberschreiten".
+              """
+              _ergebnis = {}
+              for _eintrag in eintraege_voll.values():
+                  if not isinstance(_eintrag, dict):
+                      continue
+                  _anker_str = _eintrag.get(anker_feld)
+                  if not _anker_str:
                       continue
                   try:
-                      _first_dt = datetime.strptime(_first_str, "%Y-%m-%d").date()
+                      _anker_dt = datetime.strptime(_anker_str, "%Y-%m-%d").date()
                   except Exception:
                       continue
-                  _tag = (_first_dt + timedelta(days=30)).isoformat()
-                  _tatsaechlich_pro_tag[_tag] = _tatsaechlich_pro_tag.get(_tag, 0) + 1
+                  _tag = (_anker_dt + timedelta(days=fenster_tage)).isoformat()
+                  _ergebnis[_tag] = _ergebnis.get(_tag, 0) + 1
+              return _ergebnis
 
-          _heute_str = now.astimezone(ZoneInfo("Europe/Berlin")).date().isoformat()
-          _neu_aufgeloest = []
-          for _datum in list(_forecast_hist["pending"].keys()):
-              # Erst aufloesen, wenn das Datum wirklich VORBEI ist (nicht am
-              # Tag selbst - der Cleanup-Pass fuer "heute" koennte zum
-              # Lauf-Zeitpunkt noch gar nicht gelaufen sein, das wuerde die
-              # tatsaechliche Zahl faelschlich zu niedrig ausweisen).
-              if _datum >= _heute_str:
-                  continue
-              _eintrag = _forecast_hist["pending"].pop(_datum)
-              _vorhergesagt = _eintrag.get("predicted", 0)
-              _tatsaechlich = _tatsaechlich_pro_tag.get(_datum, 0)
-              _gerettet = max(0, _vorhergesagt - _tatsaechlich)
-              _quote = (_gerettet / _vorhergesagt * 100) if _vorhergesagt else 0.0
-              _resolved_eintrag = {
-                  "datum": _datum,
-                  "vorhergesagt": _vorhergesagt,
-                  "tatsaechlich": _tatsaechlich,
-                  "gerettet": _gerettet,
-                  "rettungsquote_prozent": round(_quote, 1),
-                  "forecast_made_on": _eintrag.get("forecast_made_on"),
-                  "aufgeloest_am": _heute_str,
-              }
-              _forecast_hist["resolved"].append(_resolved_eintrag)
-              _neu_aufgeloest.append(_resolved_eintrag)
+          def _pfad_aufloesen(pfad_key, tatsaechlich_pro_tag):
+              """Loest alle faelligen (vergangenen) pending-Datumseintraege
+              fuer einen Pfad auf, verschiebt sie nach resolved. Gibt die Liste
+              der neu aufgeloesten Eintraege zurueck."""
+              _neu = []
+              for _datum in list(_forecast_hist[pfad_key]["pending"].keys()):
+                  # Erst aufloesen, wenn das Datum wirklich VORBEI ist (nicht am
+                  # Tag selbst - der Cleanup-Pass koennte zum Lauf-Zeitpunkt noch
+                  # gar nicht durchgelaufen sein).
+                  if _datum >= _heute_str:
+                      continue
+                  _eintrag = _forecast_hist[pfad_key]["pending"].pop(_datum)
+                  _vorhergesagt = _eintrag.get("predicted", 0)
+                  _tatsaechlich = tatsaechlich_pro_tag.get(_datum, 0)
+                  _gerettet = max(0, _vorhergesagt - _tatsaechlich)
+                  _quote = (_gerettet / _vorhergesagt * 100) if _vorhergesagt else 0.0
+                  _resolved_eintrag = {
+                      "datum": _datum,
+                      "vorhergesagt": _vorhergesagt,
+                      "tatsaechlich": _tatsaechlich,
+                      "gerettet": _gerettet,
+                      "rettungsquote_prozent": round(_quote, 1),
+                      "forecast_made_on": _eintrag.get("forecast_made_on"),
+                      "aufgeloest_am": _heute_str,
+                  }
+                  _forecast_hist[pfad_key]["resolved"].append(_resolved_eintrag)
+                  _neu.append(_resolved_eintrag)
+              # Historie begrenzen (nur juengste 60 aufgeloeste Tage behalten).
+              _forecast_hist[pfad_key]["resolved"] = _forecast_hist[pfad_key]["resolved"][-60:]
+              _forecast_hist[pfad_key]["resolved"].sort(key=lambda e: e["datum"])
+              return _neu
 
-          # Historie begrenzen (nur juengste 60 aufgeloeste Tage behalten) -
-          # analog zum WL_HISTORY_PRUNE_DAYS-Gedanken in update_combined_
-          # blacklist.yml: nur begrenzt wachsen lassen, alte Eintraege sind
-          # fuer die aktuelle Genauigkeits-Einschaetzung nicht mehr relevant.
-          _forecast_hist["resolved"] = _forecast_hist["resolved"][-60:]
-          _forecast_hist["resolved"].sort(key=lambda e: e["datum"])
+          _tatsaechlich_pro_tag = _tatsaechlich_pro_tag_berechnen(wl_eintraege_voll, "first", 30)
+          _tatsaechlich_pro_tag_active = _tatsaechlich_pro_tag_berechnen(ac_eintraege_voll, "last", 180)
+
+          _neu_aufgeloest = _pfad_aufloesen("watchlist", _tatsaechlich_pro_tag)
+          _neu_aufgeloest_active = _pfad_aufloesen("active", _tatsaechlich_pro_tag_active)
 
           write_json_atomic(FORECAST_HISTORY_FILE, _forecast_hist)
-          if _neu_aufgeloest:
-              print(f"Prognose-Abgleich: {len(_neu_aufgeloest)} Tag(e) neu aufgeloest")
-              for _r in _neu_aufgeloest:
-                  print(f"  {_r['datum']}: vorhergesagt {_r['vorhergesagt']:,} | "
-                        f"tatsaechlich {_r['tatsaechlich']:,} | "
-                        f"gerettet {_r['gerettet']:,} ({_r['rettungsquote_prozent']}%)")
-          else:
-              print("Prognose-Abgleich: kein faelliges Datum zum Aufloesen")
+          for _label, _liste in (("Watchlist", _neu_aufgeloest), ("Active", _neu_aufgeloest_active)):
+              if _liste:
+                  print(f"Prognose-Abgleich ({_label}): {len(_liste)} Tag(e) neu aufgeloest")
+                  for _r in _liste:
+                      print(f"  {_r['datum']}: vorhergesagt {_r['vorhergesagt']:,} | "
+                            f"tatsaechlich {_r['tatsaechlich']:,} | "
+                            f"gerettet {_r['gerettet']:,} ({_r['rettungsquote_prozent']}%)")
+              else:
+                  print(f"Prognose-Abgleich ({_label}): kein faelliges Datum zum Aufloesen")
 
           # ── FIX PROGNOSE-LIVE (2026-08-30, Nutzerwunsch "will das nicht erst
           # morgen frueh wissen, schon eher als vor prognose") ────────────────
@@ -1437,21 +1493,26 @@ jobs:
           # naechsten Tage: wie viele der vorhergesagten IPs sind JETZT SCHON
           # eingefroren, auch wenn der Tag noch nicht um ist. Aktualisiert sich
           # bei jedem verifikation-Lauf (alle 3h), nicht erst am naechsten Tag.
-          # Bewusst getrennt von _forecast_hist["resolved"]: das bleibt die
+          # Bewusst getrennt von _forecast_hist[...]["resolved"]: das bleibt die
           # SAUBERE Endauswertung (nur nach echtem Tagesabschluss), hier geht es
           # nur um Sichtbarkeit waehrend des laufenden Tages, ohne die Endzahl
-          # zu verfaelschen.
-          _live_fortschritt = []
-          for _datum in sorted(_forecast_hist["pending"].keys())[:4]:
-              _eintrag = _forecast_hist["pending"][_datum]
-              _vorhergesagt = _eintrag.get("predicted", 0)
-              _bisher = _tatsaechlich_pro_tag.get(_datum, 0)
-              _live_fortschritt.append({
-                  "datum": _datum,
-                  "vorhergesagt": _vorhergesagt,
-                  "bisher_eingefroren": _bisher,
-                  "ist_heute": _datum == _heute_str,
-              })
+          # zu verfaelschen. Fuer BEIDE Pfade.
+          def _live_fortschritt_berechnen(pfad_key, tatsaechlich_pro_tag, anzahl_tage):
+              _ergebnis = []
+              for _datum in sorted(_forecast_hist[pfad_key]["pending"].keys())[:anzahl_tage]:
+                  _eintrag = _forecast_hist[pfad_key]["pending"][_datum]
+                  _vorhergesagt = _eintrag.get("predicted", 0)
+                  _bisher = tatsaechlich_pro_tag.get(_datum, 0)
+                  _ergebnis.append({
+                      "datum": _datum,
+                      "vorhergesagt": _vorhergesagt,
+                      "bisher_eingefroren": _bisher,
+                      "ist_heute": _datum == _heute_str,
+                  })
+              return _ergebnis
+
+          _live_fortschritt = _live_fortschritt_berechnen("watchlist", _tatsaechlich_pro_tag, 4)
+          _live_fortschritt_active = _live_fortschritt_berechnen("active", _tatsaechlich_pro_tag_active, 4)
 
           # ── Bericht ────────────────────────────────────────────────────
           zeilen = [
@@ -1475,12 +1536,19 @@ jobs:
           zeilen += ["", "## Live-Fortschritt (heute + nächste Tage)", ""]
           zeilen.append(
               "Zwischenstand, aktualisiert bei JEDEM Lauf (alle 3h) - nicht erst "
-              "wenn der Tag vorbei ist. \"Bisher eingefroren\" zaehlt echte "
-              "`eingefroren_am`-Eintraege im Ledger, die schon JETZT existieren; "
-              "fuer zukuenftige Tage ist das naturgemaess 0, bis der Tag "
-              "beginnt. Fuer heute steigt die Zahl im Laufe des Tages, sobald "
-              "weitere combined-Cleanup-Passes laufen."
+              "wenn der Tag vorbei ist. \"Bisher eingefroren\" zaehlt Ledger-"
+              "Eintraege, deren Anker-Datum (`first` bzw. `last`) + Fenster "
+              "(30 bzw. 180 Tage) auf dieses Datum faellt (exakt dieselbe "
+              "Formel wie die Prognose selbst - NICHT `eingefroren_am`, das "
+              "bei chronisch schwach bestaetigten IPs bei jedem erneuten "
+              "Ablauf aufgefrischt wird und daher kein verlaesslicher Tages-"
+              "Marker waere). Da ein Cleanup-Pass ueberfaellige Eintraege ohne "
+              "feste Tages-Reihenfolge nachholt, kann \"heute\" laenger bei 0% "
+              "bleiben, waehrend Rueckstand aus den letzten Tagen erst noch "
+              "verarbeitet wird - das ist normal, keine Fehlfunktion."
           )
+          zeilen.append("")
+          zeilen.append("**Watchlist (30-Tage-Pfad):**")
           zeilen.append("")
           if _live_fortschritt:
               zeilen.append("| Datum | Vorhergesagt | Bisher eingefroren | Fortschritt |")
@@ -1497,6 +1565,24 @@ jobs:
                   "Keine ausstehenden Vorhersagen - entweder laeuft der Job "
                   "\"prognose\" noch nicht, oder alle bisherigen Vorhersagen "
                   "sind schon final aufgeloest (siehe Sektion weiter unten)."
+              )
+          zeilen.append("")
+          zeilen.append("**Active (180-Tage-Pfad):**")
+          zeilen.append("")
+          if _live_fortschritt_active:
+              zeilen.append("| Datum | Vorhergesagt | Bisher eingefroren | Fortschritt |")
+              zeilen.append("|---|---:|---:|---:|")
+              for _lf in _live_fortschritt_active:
+                  _tag_label = f"{_lf['datum']} (heute)" if _lf["ist_heute"] else _lf["datum"]
+                  _pct = (_lf["bisher_eingefroren"] / _lf["vorhergesagt"] * 100) if _lf["vorhergesagt"] else 0.0
+                  zeilen.append(
+                      f"| {_tag_label} | {_lf['vorhergesagt']:,} | "
+                      f"{_lf['bisher_eingefroren']:,} | {_pct:.0f}% |"
+                  )
+          else:
+              zeilen.append(
+                  "Keine ausstehenden Vorhersagen (aktuell keine Active-IP "
+                  "laeuft in den naechsten Tagen ab - siehe reports/ip_ablauf.md)."
               )
 
           # DIAGNOSE: zentrale Uebersicht ueber ALLE gesammelten Probleme
@@ -1543,16 +1629,20 @@ jobs:
           zeilen += ["", "## Prognose-Genauigkeit (Vorhersage vs. Realität)", ""]
           zeilen.append(
               "Gleicht die Tages-Vorhersagen aus reports/ip_ablauf.md (Job "
-              "\"prognose\") gegen die tatsaechlichen `eingefroren_am`-"
-              "Zeitstempel im Watchlist-Ledger ab, sobald das jeweilige Datum "
-              "erreicht ist. \"Gerettet\" = per Zweitbestaetigung (5+ Feeds "
-              "oder 2+ HQ-Familien) doch nicht abgelaufen."
+              "\"prognose\") gegen die tatsaechlichen Ledger-Eintraege ab (nach "
+              "Anker-Datum + Fenster gruppiert, dieselbe Formel wie die "
+              "jeweilige Prognose: `first`+30 Tage fuer Watchlist, `last`+180 "
+              "Tage fuer Active), sobald das jeweilige Datum erreicht ist. "
+              "\"Gerettet\" = per Zweitbestaetigung (5+ Feeds oder 2+ "
+              "HQ-Familien) doch nicht abgelaufen."
           )
           zeilen.append("")
-          if _forecast_hist["resolved"]:
+          zeilen.append("**Watchlist (30-Tage-Pfad):**")
+          zeilen.append("")
+          if _forecast_hist["watchlist"]["resolved"]:
               zeilen.append("| Datum | Vorhergesagt | Tatsächlich | Gerettet | Rettungsquote |")
               zeilen.append("|---|---:|---:|---:|---:|")
-              for _r in _forecast_hist["resolved"][-14:]:
+              for _r in _forecast_hist["watchlist"]["resolved"][-14:]:
                   zeilen.append(
                       f"| {_r['datum']} | {_r['vorhergesagt']:,} | {_r['tatsaechlich']:,} | "
                       f"{_r['gerettet']:,} | {_r['rettungsquote_prozent']}% |"
@@ -1563,11 +1653,36 @@ jobs:
                   "\"prognose\" noch nicht lange genug (woechentlich, siehe "
                   "Cron), oder es ist noch kein vorhergesagtes Datum vergangen."
               )
-          if _forecast_hist["pending"]:
+          if _forecast_hist["watchlist"]["pending"]:
               zeilen.append("")
               zeilen.append(
-                  f"_{len(_forecast_hist['pending'])} Tag(e) noch ausstehend "
-                  f"(Ablaufdatum liegt noch in der Zukunft)._"
+                  f"_{len(_forecast_hist['watchlist']['pending'])} Tag(e) noch "
+                  f"ausstehend (Ablaufdatum liegt noch in der Zukunft)._"
+              )
+          zeilen.append("")
+          zeilen.append("**Active (180-Tage-Pfad):**")
+          zeilen.append("")
+          if _forecast_hist["active"]["resolved"]:
+              zeilen.append("| Datum | Vorhergesagt | Tatsächlich | Gerettet | Rettungsquote |")
+              zeilen.append("|---|---:|---:|---:|---:|")
+              for _r in _forecast_hist["active"]["resolved"][-14:]:
+                  zeilen.append(
+                      f"| {_r['datum']} | {_r['vorhergesagt']:,} | {_r['tatsaechlich']:,} | "
+                      f"{_r['gerettet']:,} | {_r['rettungsquote_prozent']}% |"
+                  )
+          else:
+              zeilen.append(
+                  "Noch keine aufgeloesten Tage - entweder laeuft der Job "
+                  "\"prognose\" noch nicht lange genug, oder es ist noch kein "
+                  "vorhergesagtes Active-Ablaufdatum vergangen (aktuell zeigt "
+                  "die Active-Liste konstant 0, siehe oben - das 180-Tage-"
+                  "Fenster hat noch nicht scharf geschaltet)."
+              )
+          if _forecast_hist["active"]["pending"]:
+              zeilen.append("")
+              zeilen.append(
+                  f"_{len(_forecast_hist['active']['pending'])} Tag(e) noch "
+                  f"ausstehend (Ablaufdatum liegt noch in der Zukunft)._"
               )
 
           zeilen += [
