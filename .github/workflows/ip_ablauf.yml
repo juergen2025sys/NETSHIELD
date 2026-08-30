@@ -665,6 +665,43 @@ jobs:
         with:
           persist-credentials: true
 
+      - name: Resync auf aktuellsten origin/main-Stand (Race-Condition-Fix)
+        # FIX RACE-PROGNOSE-VERIFIKATION-V2 (2026-08-30, im echten Betrieb
+        # entdeckt): "needs: prognose" (siehe Job-Header oben) sorgt zwar
+        # dafuer, dass dieser Job erst STARTET, wenn prognose vollstaendig
+        # abgeschlossen ist (inkl. dessen Push) - das reicht aber NICHT immer
+        # aus. Beobachtet im echten Lauf: prognose meldete "Push erfolgreich"
+        # um 12:06:11 UTC, dieser Job wertete seine eigene if-Bedingung erst
+        # um 12:06:14 aus (danach) - trotzdem zeigte der GLEICH DANACH von
+        # "Checkout Repository" oben ausgefuehrte "git rev-parse
+        # refs/remotes/origin/main" noch den ALTEN Commit (7a083c7 statt dem
+        # neuen 84abce6). Ursache: GitHub-seitige Propagationsverzoegerung
+        # zwischen "git push hat lokal Erfolg zurueckgemeldet" und "von einem
+        # FRISCHEN git fetch auf einem ANDEREN Runner sichtbar" - eine reine
+        # Job-Reihenfolge-Garantie (needs:) schuetzt davor nicht, das ist eine
+        # Ebene tiefer im Git-Backend. Identisches, bereits bewaehrtes Muster
+        # wie in update_combined_blacklist.yml ("Resync auf aktuellsten
+        # origin/main-Stand"): wiederholt fetchen + hart auf origin/main
+        # zuruecksetzen, mit kurzer Pause dazwischen, bis sich die
+        # Propagationsverzoegerung von selbst aufgeloest hat.
+        run: |
+          BEFORE=$(git rev-parse HEAD)
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main --quiet
+            REMOTE=$(git rev-parse origin/main)
+            if [ "$(git rev-parse HEAD)" = "$REMOTE" ]; then
+              break
+            fi
+            git reset --hard "$REMOTE" --quiet
+            sleep 2
+          done
+          AFTER=$(git rev-parse HEAD)
+          if [ "$BEFORE" != "$AFTER" ]; then
+            echo "Resync: HEAD war veraltet ($BEFORE), jetzt aktuell ($AFTER)"
+          else
+            echo "Resync: HEAD war bereits aktuell ($AFTER)"
+          fi
+
       - name: Restore Anti-Churn-Ledger from GitHub Release (falls vorhanden)
         # CHANGE LEDGER-OFF-GIT (2026-08-26): siehe ausfuehrlicher Kommentar
         # im "prognose"-Job oben - identischer Step, hier fuer den
