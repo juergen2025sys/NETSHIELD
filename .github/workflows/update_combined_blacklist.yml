@@ -1036,6 +1036,20 @@ jobs:
               # "last" wird nie gesetzt → IPs altern trotz hq=True-Flag still
               # nach 180 Tagen aus, ohne dass es auffaellt.
               "threat_live",
+              # UPDATE (2026-08-30, Nutzerwunsch "als hq höchste stufe" +
+              # "die listen liefer bestätigte hacker ips"): rtbh_com_tr neu
+              # mit hq=True in SOURCES angelegt. Analog zu threat_live oben
+              # zwingend hier mit ergaenzen, sonst BUG-DP1-Szenario.
+              "rtbh_com_tr",
+              # UPDATE (2026-08-30, Nutzerwunsch): myip_ms und rutgers_drop
+              # von hq=False auf hq=True umgestellt (siehe Kommentare bei den
+              # jeweiligen SOURCES-Eintraegen). Beide zwingend hier mit
+              # ergaenzen, sonst BUG-DP1-Szenario: hq=True in SOURCES ohne
+              # HIGH_QUALITY-Eintrag -> ip_in_hq bleibt leer ->
+              # strongly_confirmed_today bleibt False -> "last" wird nie
+              # gesetzt -> IPs altern trotz hq=True-Flag still nach 180 Tagen
+              # aus, ohne dass es auffaellt.
+              "myip_ms", "rutgers_drop",
               # FIX BUG-DP1 (2026-08-08, workflow_health_checker.yml HIGH_QUALITY
               # ↔ SOURCES Drift): threatslist_paloalto_edl und abuseipdb_tmiland
               # hatten hq=True in SOURCES, fehlten aber hier. Exaktes BUG-DP1-
@@ -1328,7 +1342,6 @@ jobs:
               # CIDR-Bloecke selbst werden korrekt verworfen (is_valid_public_cidr
               # akzeptiert nur /32, bluetack hat 0x /32). Der feed_health_monitor
               # meldete has_ips=False (False Negative - sampelt nur CIDR-Anfang).
-              "rtbh_output":                ("https://list.rtbh.com.tr/output.txt", False),
               "sefinek_malicious":          ("https://raw.githubusercontent.com/sefinek/Malicious-IP-Addresses/main/lists/main.txt", False),
               "magicteamc_bad_ips":         ("https://raw.githubusercontent.com/MagicTeaMC/bad-ips/refs/heads/main/bad-ips.txt", False),
               "ddrimus_http_threats":       ("https://raw.githubusercontent.com/ddrimus/http-threat-blocklist/refs/heads/main/blocklist.txt", False),
@@ -1345,29 +1358,26 @@ jobs:
               # bazaar_c2 entfernt: Endpunkt liefert Hash-Listen, keine IPs → 0 Treffer
               "urlhaus_ips":                ("https://urlhaus.abuse.ch/downloads/text/", True),
 
-              # NEU (2026-08-30, Nutzerwunsch "als hq höchste stufe"): RTBH
+              # NEU (2026-08-30, Nutzerwunsch "als hq höchste stufe" +
+              # "die listen liefer bestätigte hacker ips"): RTBH
               # (Remote-Triggered-Black-Hole)-Liste, tuerkischer Betreiber
               # list.rtbh.com.tr. Live per web_fetch geprueft (2026-08-30):
               # reine IP/CIDR-Liste, mehrere zehntausend Eintraege, kein
               # HTML/JSON-Wrapper. HQ=True auf Nutzereinschaetzung: Liste
-              # liefert bestaetigte Angreifer-IPs (kein reines automatisches
-              # Netzwerk-Rauschen wie z.B. offene Resolver). Ich selbst
-              # (Claude) konnte die Kuratierung nicht unabhaengig verifizieren
-              # (kein bekannter Anbieter wie abuse.ch/FireHOL/Spamhaus) - HQ
-              # basiert auf der Einschaetzung des Repo-Betreibers, nicht auf
-              # eigener Pruefung. Als HQ-Feed beeinflusst diese Quelle sowohl
-              # die "heute frisch bestaetigt"-Logik in seen_db als auch den
-              # Overlap-Referenzwert fuer neue Auto-Discovery-Kandidaten.
+              # liefert bestaetigte Angreifer-IPs. Von mir (Claude) nicht
+              # unabhaengig verifizierbar (kein bekannter Anbieter wie
+              # abuse.ch/FireHOL/Spamhaus) - HQ basiert auf der Einschaetzung
+              # des Repo-Betreibers. Als HQ-Feed beeinflusst diese Quelle
+              # sowohl die "heute frisch bestaetigt"-Logik in seen_db als
+              # auch den Overlap-Referenzwert fuer Auto-Discovery-Kandidaten.
+              # MUSS mit HIGH_QUALITY-Eintrag (siehe dort) zusammenpassen,
+              # sonst BUG-DP1-Szenario.
               "rtbh_com_tr":                ("https://list.rtbh.com.tr/output.txt", True),
 
-              # NEU (2026-08-30, Nutzerwunsch): threat.live-Community-Feed.
-              # Live per web_fetch geprueft (2026-08-30): reine IP-Liste,
-              # mehrere tausend Eintraege, kein HTML/JSON-Wrapper. HQ=True
-              # aus demselben Grund wie rtbh_com_tr oben: liefert laut
-              # Nutzereinschaetzung bestaetigte Angreifer-IPs. Gleicher
-              # Vorbehalt: von mir (Claude) nicht unabhaengig verifizierbar,
-              # HQ-Status basiert auf der Einschaetzung des Repo-Betreibers.
-              "threat_live":                ("https://list.threat.live/", True),
+              # threat_live: HQ=True bereits seit 2026-07-24 gesetzt, siehe
+              # ausfuehrlicher Kommentar beim eigentlichen SOURCES-Eintrag
+              # weiter unten - hier absichtlich KEIN zweiter Eintrag mehr
+              # (frueher versehentlich dupliziert, jetzt bereinigt).
 
               # ── FireHOL & Emerging Threats ────────────────────────────────
               # ENTFERNT (2026-08-04): firehol_level1 - bestaetigt eingefroren
@@ -1393,11 +1403,18 @@ jobs:
               # "spamhaus_edrop" entfernt: seit 10.04.2024 in DROP konsolidiert, edrop.txt ist leer
               # myip_ms: kommerzieller Aggregator, "Last 10 days" Scam-IPs. Format:
               #   "IP # date, host, countryID, blacklistID" → parse_entries nimmt Spalte 1.
-              # non-HQ (False): Scoring-Kriterien nicht transparent dokumentiert.
-              "myip_ms":                    ("https://myip.ms/files/blacklist/general/latest_blacklist.txt", False),
+              # UPDATE (2026-08-30, Nutzerwunsch): HQ auf True umgestellt (war
+              # False, "Scoring-Kriterien nicht transparent dokumentiert" -
+              # bleibt als Kontext stehen). MUSS mit HIGH_QUALITY-Eintrag
+              # (siehe dort) zusammenpassen, sonst BUG-DP1-Szenario.
+              "myip_ms":                    ("https://myip.ms/files/blacklist/general/latest_blacklist.txt", True),
               # rutgers_drop: akademischer Feed (Rutgers University CS-Department). Plain
-              # IP-Liste, Attacker gegen Uni-Netz. non-HQ (False): wenig Metadaten zur Kuratierung.
-              "rutgers_drop":               ("https://report.cs.rutgers.edu/DROP/attackers", False),
+              # IP-Liste, Attacker gegen Uni-Netz.
+              # UPDATE (2026-08-30, Nutzerwunsch): HQ auf True umgestellt (war
+              # False, "wenig Metadaten zur Kuratierung" - bleibt als Kontext
+              # stehen). MUSS mit HIGH_QUALITY-Eintrag (siehe dort)
+              # zusammenpassen, sonst BUG-DP1-Szenario.
+              "rutgers_drop":               ("https://report.cs.rutgers.edu/DROP/attackers", True),
               # ENTFERNT "bruteforceblocker" (2026-06-11): URL war BYTE-IDENTISCH
               # mit dem bestehenden Kern-Feed "danger_bruteforce" (Zeile ~546,
               # https://danger.rulez.sk/projects/bruteforceblocker/blist.php).
