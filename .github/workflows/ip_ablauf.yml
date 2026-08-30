@@ -757,7 +757,7 @@ jobs:
           import json, os, sys
           sys.path.insert(0, "scripts")
           from netshield_common import write_json_atomic, write_text_atomic
-          from datetime import datetime, timezone
+          from datetime import datetime, timezone, timedelta
           from zoneinfo import ZoneInfo
 
           REPORT_FILE  = "reports/ip_ablauf_verifikation_report.md"
@@ -1358,12 +1358,34 @@ jobs:
                   print(f"WARNUNG: {FORECAST_HISTORY_FILE} nicht lesbar, starte leer: {_e}")
 
           # Tatsaechliche Anzahl pro Ablaufdatum aus dem echten Ledger zaehlen.
+          # BUGFIX (2026-08-30, im echten Betrieb entdeckt - Report zeigte
+          # "10.057 vorhergesagt, 176.810 tatsaechlich" = 1758%, unmoeglich):
+          # Urspruenglich wurde nach "eingefroren_am" gruppiert. Das ist aber
+          # KEIN "wann ist diese IP zum ersten Mal ueber die 30-Tage-Frist
+          # gefallen"-Datum - laut update_combined_blacklist.yml (FIX
+          # WL-LEDGER-REFRESH, 2026-08-28) wird "eingefroren_am" bei JEDEM
+          # erneuten Ablauf einer chronisch schwach gemeldeten IP auf HEUTE
+          # aufgefrischt, waehrend "first" (das eigentliche Anker-Datum)
+          # bewusst unveraendert bleibt. Ergebnis: "eingefroren_am == heute"
+          # zaehlte auch tausende IPs, die schon vor Wochen erstmals abliefen
+          # und seither nur wiederholt kurz auftauchen und sofort wieder
+          # rausfallen - eine ganz andere Grundgesamtheit als die Prognose
+          # (die ausschliesslich auf first+30 Tage rechnet).
+          # Fix: dieselbe Formel wie im Job "prognose" verwenden (first + 30
+          # Tage) - "first" ist im Ledger garantiert stabil, damit ist das
+          # ein echter Apples-to-Apples-Vergleich mit der Vorhersage.
           _tatsaechlich_pro_tag = {}
           for _eintrag in wl_eintraege_voll.values():
               if isinstance(_eintrag, dict):
-                  _tag = _eintrag.get("eingefroren_am")
-                  if _tag:
-                      _tatsaechlich_pro_tag[_tag] = _tatsaechlich_pro_tag.get(_tag, 0) + 1
+                  _first_str = _eintrag.get("first")
+                  if not _first_str:
+                      continue
+                  try:
+                      _first_dt = datetime.strptime(_first_str, "%Y-%m-%d").date()
+                  except Exception:
+                      continue
+                  _tag = (_first_dt + timedelta(days=30)).isoformat()
+                  _tatsaechlich_pro_tag[_tag] = _tatsaechlich_pro_tag.get(_tag, 0) + 1
 
           _heute_str = now.astimezone(ZoneInfo("Europe/Berlin")).date().isoformat()
           _neu_aufgeloest = []
