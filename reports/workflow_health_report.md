@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-08-30 19:26 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-08-30 23:54 CEST (Europe/Berlin)
 
-**Workflows:** 29 | ✅ 25 OK | ⚠️ 7 Warnung | ❌ 0 Fehler
+**Workflows:** 29 | ✅ 25 OK | ⚠️ 8 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
@@ -15,12 +15,15 @@
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 2 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "rtbh_com_tr" (https://list.rtbh.com.tr/output.txt); "rutgers_drop" (https://report.cs.rutgers.edu/DROP/attackers) |
 | `Cross-Workflow` | Doppelte Feed-URLs | 5 URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: strongips.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; abuseipdb-s100-30d.ipv4 in auto_feed_discovery.yml+update_combined_blacklist.yml; 5.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; greylist-latest.csv in auto_feed_discovery.yml+honeypot_monitor.yml; block.txt in auto_feed_discovery.yml+update_combined_blacklist.yml |
 | `honigtopf.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC → 00:07 UTC (7min < 60min Mindestpuffer); 00:05 UTC → 00:07 UTC (2min < 60min Mindestpuffer); 00:10 UTC → 00:27 UTC (17min < 60min Mindestpuffer); 00:20 UTC → 00:27 UTC (7min < 60min Mindestpuffer); 00:25 UTC → 00:27 UTC (2min < 60min Mindestpuffer) |
+| `Production Health` | active ⊆ conf40 Subset-Invariante (Mini-Drift) | 2 IPs in active fehlen in conf40 (unterhalb CRITICAL-Schwelle). Wahrscheinlich kleiner Cache-Drift im Toleranz-bereich oder Score-Bucket-Wechsel am Tageswechsel. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🟡 WARN | active ⊆ conf40 Subset-Invariante (Mini-Drift) | 2 IPs in active fehlen in conf40 (unterhalb CRITICAL-Schwelle). Wahrscheinlich kleiner Cache-Drift im Toleranz-bereich oder Score-Bucket-Wechsel am Tageswechsel. |
 
 ## Übersicht
 
@@ -57,4 +60,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-08-30 19:26 CEST (Europe/Berlin) | 29 Workflow-Dateien geprüft*
+*Generiert: 2026-08-30 23:54 CEST (Europe/Berlin) | 29 Workflow-Dateien geprüft*

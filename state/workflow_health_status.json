@@ -1,8 +1,8 @@
 {
-  "updated": "2026-08-30 19:26 CEST (Europe/Berlin)",
+  "updated": "2026-08-30 23:54 CEST (Europe/Berlin)",
   "total": 29,
   "ok": 25,
-  "warn": 7,
+  "warn": 8,
   "error": 0,
   "errors": [],
   "warnings": [
@@ -40,20 +40,31 @@
       "file": "honigtopf.yml \u2192 update_combined_blacklist.yml",
       "check": "Sub-Workflow Puffer zu knapp",
       "detail": "Sub-Workflow laueft zu knapp vor Combined \u2013 Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC \u2192 00:07 UTC (7min < 60min Mindestpuffer); 00:05 UTC \u2192 00:07 UTC (2min < 60min Mindestpuffer); 00:10 UTC \u2192 00:27 UTC (17min < 60min Mindestpuffer); 00:20 UTC \u2192 00:27 UTC (7min < 60min Mindestpuffer); 00:25 UTC \u2192 00:27 UTC (2min < 60min Mindestpuffer)"
+    },
+    {
+      "file": "Production Health",
+      "check": "active \u2286 conf40 Subset-Invariante (Mini-Drift)",
+      "detail": "2 IPs in active fehlen in conf40 (unterhalb CRITICAL-Schwelle). Wahrscheinlich kleiner Cache-Drift im Toleranz-bereich oder Score-Bucket-Wechsel am Tageswechsel."
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4799989,
-    "active_blacklist_ipv4.txt": 772925,
-    "blacklist_confidence40_ipv4_part1.txt": 4055507,
+    "combined_threat_blacklist_ipv4_part1.txt": 4793040,
+    "active_blacklist_ipv4.txt": 762655,
+    "blacklist_confidence40_ipv4_part1.txt": 4052129,
     "cve_exploit_ips.txt": 29360,
-    "honeypot_ips.txt": 1867339,
-    "bot_detector_blacklist_ipv4.txt": 1296120
+    "honeypot_ips.txt": 1868791,
+    "bot_detector_blacklist_ipv4.txt": 1296512
   },
   "production_health": {
     "critical": 0,
-    "warn": 0,
-    "checks": []
+    "warn": 1,
+    "checks": [
+      {
+        "level": "WARN",
+        "check": "active \u2286 conf40 Subset-Invariante (Mini-Drift)",
+        "detail": "2 IPs in active fehlen in conf40 (unterhalb CRITICAL-Schwelle). Wahrscheinlich kleiner Cache-Drift im Toleranz-bereich oder Score-Bucket-Wechsel am Tageswechsel."
+      }
+    ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
