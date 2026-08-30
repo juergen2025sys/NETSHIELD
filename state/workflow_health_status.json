@@ -1,16 +1,11 @@
 {
-  "updated": "2026-08-29 23:42 CEST (Europe/Berlin)",
+  "updated": "2026-08-30 08:37 CEST (Europe/Berlin)",
   "total": 29,
-  "ok": 26,
-  "warn": 5,
+  "ok": 25,
+  "warn": 6,
   "error": 0,
   "errors": [],
   "warnings": [
-    {
-      "file": "honigtopf.yml",
-      "check": "Encoding fehlt",
-      "detail": "Block 0: open(..., 'w') ohne encoding= \u2013 UnicodeEncodeError m\u00f6glich"
-    },
     {
       "file": "honigtopf.yml",
       "check": "urlopen ohne timeout",
@@ -27,6 +22,11 @@
       "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
     },
     {
+      "file": "update_combined_blacklist.yml",
+      "check": "Untrusted Feed hq=True",
+      "detail": "2 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"rtbh_com_tr\" (https://list.rtbh.com.tr/output.txt); \"rutgers_drop\" (https://report.cs.rutgers.edu/DROP/attackers)"
+    },
+    {
       "file": "Cross-Workflow",
       "check": "Doppelte Feed-URLs",
       "detail": "5 URL(s) in mehreren Workflows \u2013 today_count Aufblaehung moeglich: strongips.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; abuseipdb-s100-30d.ipv4 in auto_feed_discovery.yml+update_combined_blacklist.yml; 5.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; greylist-latest.csv in auto_feed_discovery.yml+honeypot_monitor.yml; block.txt in auto_feed_discovery.yml+update_combined_blacklist.yml"
@@ -38,12 +38,12 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4771444,
-    "active_blacklist_ipv4.txt": 774924,
-    "blacklist_confidence40_ipv4_part1.txt": 4042071,
+    "combined_threat_blacklist_ipv4_part1.txt": 4770451,
+    "active_blacklist_ipv4.txt": 748862,
+    "blacklist_confidence40_ipv4_part1.txt": 4046456,
     "cve_exploit_ips.txt": 21776,
-    "honeypot_ips.txt": 1860751,
-    "bot_detector_blacklist_ipv4.txt": 1319363
+    "honeypot_ips.txt": 1863245,
+    "bot_detector_blacklist_ipv4.txt": 1319148
   },
   "production_health": {
     "critical": 0,
