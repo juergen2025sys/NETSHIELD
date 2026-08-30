@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-08-30 14:06 CEST (Europe/Berlin)
+Lauf: 2026-08-30 14:21 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -26,7 +26,12 @@ Zwischenstand, aktualisiert bei JEDEM Lauf (alle 3h) - nicht erst wenn der Tag v
 
 **Active (180-Tage-Pfad):**
 
-Keine ausstehenden Vorhersagen (aktuell keine Active-IP laeuft in den naechsten Tagen ab - siehe reports/ip_ablauf.md).
+| Datum | Vorhergesagt | Bisher eingefroren | Fortschritt |
+|---|---:|---:|---:|
+| 2026-09-04 | 173,698 | 0 | 0% |
+| 2026-09-07 | 664,099 | 0 | 0% |
+| 2026-09-21 | 6,508 | 0 | 0% |
+| 2026-09-22 | 13,226 | 0 | 0% |
 
 ## Diagnose-Status
 
@@ -50,23 +55,24 @@ _31 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 Noch keine aufgeloesten Tage - entweder laeuft der Job "prognose" noch nicht lange genug, oder es ist noch kein vorhergesagtes Active-Ablaufdatum vergangen (aktuell zeigt die Active-Liste konstant 0, siehe oben - das 180-Tage-Fenster hat noch nicht scharf geschaltet).
 
+_41 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
+
 ## seen_db-Trend
 
 - Seit letztem Lauf: ➡️ unverändert (jetzt 9,593,508 IPs)
 - Seit Zyklus-Start (2026-08-23): 📈 +197,469 (Anstieg)
 - Letzter combined-Cleanup-Pass: 171,412 IPs durch Ablauf entfernt (davon 171,412 Watchlist/30T, 0 Active/180T), 1,860,966 neue IPs hinzugekommen (davon 1,639,784 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 43 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 190,907 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 14,879,170 (Summe letzte 8 Läufe / ~24h)
-- Entfernte IPs (Summe letzter Läufe): 1,368,815 (Summe letzte 8 Läufe / ~24h)
-  - davon Watchlist/30 Tage: 1,368,815 (Summe letzte 8 Läufe / ~24h)
+- Neue IPs (Summe letzter Läufe): 14,881,885 (Summe letzte 8 Läufe / ~24h)
+- Entfernte IPs (Summe letzter Läufe): 1,377,975 (Summe letzte 8 Läufe / ~24h)
+  - davon Watchlist/30 Tage: 1,377,975 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +47,309 (~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-08-29T18:45 bis 2026-08-30T12:04 UTC
+- Netto-Wachstum (~24h): 📈 +60,914 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-08-29T18:52 bis 2026-08-30T12:14 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-08-28 07:35 CEST (Europe/Berlin) | 9,658,059 | 0 | 0 | 0 |
 | 2026-08-28 14:24 CEST (Europe/Berlin) | 9,666,280 | 0 | 0 | 0 |
 | 2026-08-28 20:31 CEST (Europe/Berlin) | 9,688,653 | 0 | 0 | 0 |
 | 2026-08-29 00:49 CEST (Europe/Berlin) | 9,688,982 | 0 | 0 | 0 |
@@ -86,3 +92,4 @@ Noch keine aufgeloesten Tage - entweder laeuft der Job "prognose" noch nicht lan
 | 2026-08-30 13:39 CEST (Europe/Berlin) | 9,593,508 | 197532 | 0 | 0 |
 | 2026-08-30 13:48 CEST (Europe/Berlin) | 9,593,508 | 197532 | 0 | 0 |
 | 2026-08-30 14:06 CEST (Europe/Berlin) | 9,593,508 | 197532 | 0 | 0 |
+| 2026-08-30 14:21 CEST (Europe/Berlin) | 9,593,508 | 197532 | 0 | 0 |
