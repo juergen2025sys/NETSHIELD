@@ -333,9 +333,20 @@ jobs:
           # weiterreichen kann. Wird VOR dem sys.exit(1)-Fall unten
           # geschrieben, damit der Alarm auch greift, wenn ALLE Credentials
           # ungueltig sind und der Job deshalb abbricht.
+          # FIX SECURITY-HYGIENE (2026-08-30, automatisierter Check
+          # scripts/check_security_hygiene.py meldete Verstoss): direktes
+          # open(...).write() durch write_text_atomic() ersetzt - konsistent
+          # mit dem Rest des Repos (tempfile + fsync + os.replace statt
+          # potenziell unvollstaendigem Write bei Absturz/SIGKILL mitten im
+          # Schreibvorgang). Fuer eine so kleine, fluechtige Marker-Datei in
+          # /tmp waere ein Crash-Risiko zwar gering, aber der Check macht
+          # keine Ausnahme fuer /tmp - und Konsistenz zum Rest des Codes ist
+          # ohnehin sinnvoll.
           try:
-              with open("/tmp/honigtopf_invalid_creds.txt", "w") as _f:
-                  _f.write(",".join(c["label"] for c in credential_status if c["ok"] is False))
+              write_text_atomic(
+                  "/tmp/honigtopf_invalid_creds.txt",
+                  ",".join(c["label"] for c in credential_status if c["ok"] is False),
+              )
           except OSError as _e:
               print(f"  WARNUNG: Konnte invalid_creds-Marker nicht schreiben: {_e}")
 
