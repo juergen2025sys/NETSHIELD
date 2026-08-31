@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-08-31 07:53 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-08-31 07:56 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -37,10 +37,10 @@
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 230,609 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 970 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,359 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 807 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 738 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 738 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 605 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 345 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 557 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 327 |
 | ✅ `officialputuid_proxyforeveryone` | 7,010 |
 | ✅ `officialputuid_proxyforeveryone_https` | 5,783 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 7,013 |
@@ -88,4 +88,4 @@
 > Diese 63 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-08-31 07:53 CEST (Europe/Berlin)*
+*Generiert: 2026-08-31 07:56 CEST (Europe/Berlin)*
