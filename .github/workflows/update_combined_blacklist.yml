@@ -3810,6 +3810,28 @@ jobs:
               _wl_kandidaten.sort(key=_wl_muell_zuerst_key)
               _wl_zu_entfernen = _wl_kandidaten[:WATCHLIST_DAILY_CAP]
 
+          # FAIL-CLOSED nur fuer die Watchlist-Entfernung: Den Tages-State
+          # schreiben, BEVOR irgendeine der ausgewaehlten Watchlist-IPs aus
+          # seen_db entfernt bzw. ins Ledger uebernommen wird. Schlaegt das
+          # persistente Merken fehl, laeuft der combined-Run NORMAL weiter,
+          # aber in diesem Lauf werden aus Sicherheitsgruenden 0 Watchlist-IPs
+          # ueber die 30-Tage-Regel entfernt. So kann ein spaeterer Lauf nicht
+          # versehentlich einen nicht gespeicherten 2.000er-Block verdoppeln.
+          if not _wl_cap_heute_bereits_gelaufen:
+              try:
+                  write_json_atomic(WATCHLIST_CAP_STATE_FILE, {
+                      "letzter_lauf": now_day,
+                      "kandidaten_gesamt": len(_wl_kandidaten),
+                      "entfernt": len(_wl_zu_entfernen),
+                  })
+              except Exception as _e:
+                  print(
+                      f"WARNUNG: WATCHLIST-DAILY-CAP-State konnte nicht gespeichert werden; "
+                      f"der combined-Run laeuft weiter, aber es werden in diesem Lauf "
+                      f"keine Watchlist-IPs ueber die 30-Tage-Regel entfernt: {_e}"
+                  )
+                  _wl_zu_entfernen = []
+
           print(f"WATCHLIST-DAILY-CAP: {len(_wl_kandidaten):,} Kandidaten "
                 f"(first < {cutoff_wl_str}) gefunden, {len(_wl_zu_entfernen):,} "
                 f"davon heute entfernt (Deckel {WATCHLIST_DAILY_CAP:,}/Tag), "
@@ -3831,17 +3853,6 @@ jobs:
                   "eingefroren_am": now_day,
               }
               _wl_expired_first_dirty = True
-
-          if not _wl_cap_heute_bereits_gelaufen:
-              try:
-                  write_json_atomic(WATCHLIST_CAP_STATE_FILE, {
-                      "letzter_lauf": now_day,
-                      "kandidaten_gesamt": len(_wl_kandidaten),
-                      "entfernt": len(_wl_zu_entfernen),
-                  })
-              except Exception as _e:
-                  print(f"WARNUNG: {WATCHLIST_CAP_STATE_FILE} konnte nicht "
-                        f"geschrieben werden: {_e}")
 
           # FIX MEM-SQLITE-2026-08-16: bulk_delete() statt Einzel-db.pop()
           # pro IP - bei einer SqliteSeenDB waere jeder pop() ein eigener
