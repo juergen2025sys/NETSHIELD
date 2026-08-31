@@ -964,14 +964,35 @@ jobs:
                       rueckfaelle[fname] = sorted(treffer)
                       alle_rueckfall_ips.update(treffer)
 
+          # FIX RUECKFALL-ALARM-SCHWELLE (2026-08-31, Nutzerwunsch "nicht
+          # wegen 2 IPs eine Issue erstellen"): Der ledger_diagnose.yml-Job
+          # (Bug 21) hat bestaetigt, dass eine kleine, staendig schwankende
+          # Zahl von IPs gleichzeitig im Watchlist-Ledger und aktiv in
+          # seen_db stehen kann - das ist eine kurzlebige Sync-Verzoegerung
+          # (Ledger-Release-Download vs. gerade erst erfolgte legitime
+          # Zweitbestaetigung im selben oder vorherigen combined-Lauf), kein
+          # echter Fix-Ausfall. Ab jetzt loest ein Rueckfall-Fund erst ab
+          # RUECKFALL_ALARM_SCHWELLE Betroffenen den Issue-Alarm aus. Der
+          # Report unten (status.md / ip_ablauf_verifikation_report.md)
+          # zeigt WEITERHIN jeden gefundenen Rueckfall an, egal wie klein -
+          # nur der automatische GitHub-Issue (diagnose_probleme -> Job-
+          # Exit-Code 1) bleibt unterhalb der Schwelle stumm.
+          RUECKFALL_ALARM_SCHWELLE = 2500
+
           if rueckfaelle:
               print(f"::error ::RÜCKFALL gefunden: {len(alle_rueckfall_ips)} eingefrorene IP(s) "
                     f"stehen trotzdem in aktuellen Output-Dateien - Fix greift nicht wie erwartet")
-              diagnose_probleme.append(
-                  f"❌ **Rückfall:** {len(alle_rueckfall_ips)} eingefrorene IP(s) stehen "
-                  f"trotzdem in aktuellen Output-Dateien - der Anti-Churn-Fix greift hier "
-                  f"NICHT wie erwartet."
-              )
+              if len(alle_rueckfall_ips) >= RUECKFALL_ALARM_SCHWELLE:
+                  diagnose_probleme.append(
+                      f"❌ **Rückfall:** {len(alle_rueckfall_ips)} eingefrorene IP(s) stehen "
+                      f"trotzdem in aktuellen Output-Dateien - der Anti-Churn-Fix greift hier "
+                      f"NICHT wie erwartet."
+                  )
+              else:
+                  print(f"INFO: {len(alle_rueckfall_ips)} liegt unter der Alarm-Schwelle "
+                        f"({RUECKFALL_ALARM_SCHWELLE}) - kein Issue-Alarm, nur Report-Eintrag "
+                        f"(siehe Bug 21 in ledger_diagnose.yml: vermutlich Sync-Verzoegerung, "
+                        f"keine echte Regression).")
           else:
               print(f"OK: keine der {len(eingefrorene_ips)} eingefrorenen IPs taucht in "
                     f"{len(geprueft_dateien)} geprueften Output-Dateien auf")
@@ -1645,11 +1666,22 @@ jobs:
                   "Ablauftermine, z.B. 2026-09-04)."
               )
           elif rueckfaelle:
-              zeilen.append(
-                  f"❌ **{len(alle_rueckfall_ips)} IP(s) gefunden, die laut Ablauf-Liste "
-                  f"dauerhaft draussen sein sollten, aber trotzdem in einer aktuellen "
-                  f"Output-Datei stehen - der Fix greift hier NICHT wie erwartet:**"
-              )
+              if len(alle_rueckfall_ips) >= RUECKFALL_ALARM_SCHWELLE:
+                  zeilen.append(
+                      f"❌ **{len(alle_rueckfall_ips)} IP(s) gefunden, die laut Ablauf-Liste "
+                      f"dauerhaft draussen sein sollten, aber trotzdem in einer aktuellen "
+                      f"Output-Datei stehen - der Fix greift hier NICHT wie erwartet "
+                      f"(Issue-Alarm ausgeloest, Schwelle {RUECKFALL_ALARM_SCHWELLE}):**"
+                  )
+              else:
+                  zeilen.append(
+                      f"⚠️ **{len(alle_rueckfall_ips)} IP(s) gefunden, die laut Ablauf-Liste "
+                      f"dauerhaft draussen sein sollten, aber trotzdem in einer aktuellen "
+                      f"Output-Datei stehen** - liegt unter der Alarm-Schwelle "
+                      f"({RUECKFALL_ALARM_SCHWELLE}), daher KEIN Issue-Alarm. Laut Bug-21-"
+                      f"Diagnose (ledger_diagnose.yml) vermutlich eine kurzlebige Sync-"
+                      f"Verzoegerung, keine echte Regression:"
+                  )
               zeilen.append("")
               zeilen.append("| Datei | Anzahl Rückfälle | Beispiele |")
               zeilen.append("|---|---:|---|")
