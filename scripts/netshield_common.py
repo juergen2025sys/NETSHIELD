@@ -2894,6 +2894,39 @@ class SqliteSeenDB(_MutableMapping):
             for row in rows:
                 yield row
 
+    def iter_ip_first_last_feedcount(self, batch_size=100_000):
+        """FIX WATCHLIST-DAILY-CAP (2026-08-31, Nutzerwunsch "einmal
+        taeglich max. 2000 IPs ueber die 30-Tage-Regel entfernen, aber die
+        'wirklich Muell-IPs' zuerst"): wie iter_ip_first_last(), zusaetzlich
+        feed_count und hq_feeds je IP - noetig, damit der Cleanup-Pass in
+        update_combined_blacklist.yml unter mehreren Ablauf-Kandidaten am
+        selben Tag die schwaechsten zuerst auswaehlen kann, ohne "feeds"
+        oder "hq_feed_names" per json.loads() in Python zu parsen (gleicher
+        Performance-Grund wie bei iter_scoring_rows()).
+
+        feed_count: wie bei iter_scoring_rows() per json_array_length()
+        berechnet, -1 bei kaputtem/fehlendem JSON-Array (konservativ als
+        "viele Feeds" NICHT werten - siehe Aufrufstelle).
+        hq_feeds: eigene Spalte, kein JSON-Parsing noetig.
+
+        Rueckgabe je Zeile: (ip, first, last, feed_count, hq_feeds).
+        """
+        cur = self._conn.execute(
+            "SELECT ip, first, last, "
+            "  CASE WHEN feeds IS NULL OR feeds = '' THEN 0 "
+            "       WHEN json_valid(feeds) AND json_type(feeds) = 'array' "
+            "       THEN json_array_length(feeds) "
+            "       ELSE -1 END, "
+            "  hq_feeds "
+            "FROM seen_db"
+        )
+        while True:
+            rows = cur.fetchmany(batch_size)
+            if not rows:
+                break
+            for row in rows:
+                yield row
+
     def select_aufnahme_kandidaten(self):
         """FIX PERF-CLEANUP-SQL (2026-08-29): Liefert genau die Eintraege, die
         der Cleanup-Pass fuer den Aufnahme-Filter bzw. die Korrupt-Erkennung
