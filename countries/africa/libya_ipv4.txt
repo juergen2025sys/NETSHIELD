@@ -1,6 +1,6 @@
 # NETSHIELD – Libya (LY) IPv4 Ranges
-# Aktualisiert: 2026-08-26 04:45 CEST (Europe/Berlin)
-# IP-Ranges: 71
+# Aktualisiert: 2026-08-31 09:23 CEST (Europe/Berlin)
+# IP-Ranges: 72
 
 5.63.0.0/21
 41.74.64.0/20
@@ -14,6 +14,7 @@
 102.68.128.0/21
 102.69.0.0/17
 102.164.96.0/21
+102.201.116.0/22
 102.202.56.0/22
 102.202.236.0/22
 102.203.56.0/22

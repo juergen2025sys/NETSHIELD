@@ -1,6 +1,6 @@
 # NETSHIELD – Vietnam (VN) IPv4 Ranges
-# Aktualisiert: 2026-08-26 04:45 CEST (Europe/Berlin)
-# IP-Ranges: 1660
+# Aktualisiert: 2026-08-31 09:23 CEST (Europe/Berlin)
+# IP-Ranges: 1661
 
 1.52.0.0/14
 14.0.16.0/20
@@ -1465,6 +1465,7 @@
 163.47.30.0/23
 163.52.6.0/23
 163.52.14.0/23
+163.52.58.0/23
 163.61.68.0/23
 163.61.70.0/23
 163.61.72.0/23

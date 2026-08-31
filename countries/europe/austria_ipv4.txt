@@ -1,6 +1,6 @@
 # NETSHIELD – Austria (AT) IPv4 Ranges
-# Aktualisiert: 2026-08-26 04:45 CEST (Europe/Berlin)
-# IP-Ranges: 2056
+# Aktualisiert: 2026-08-31 09:23 CEST (Europe/Berlin)
+# IP-Ranges: 2057
 
 2.56.160.0/22
 2.56.208.0/22
@@ -38,6 +38,7 @@
 5.253.136.0/22
 5.253.216.0/22
 5.254.184.0/21
+13.140.96.0/19
 31.3.214.0/23
 31.7.92.0/22
 31.12.0.0/21

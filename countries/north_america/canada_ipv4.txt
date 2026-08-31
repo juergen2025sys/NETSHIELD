@@ -1,6 +1,6 @@
 # NETSHIELD – Canada (CA) IPv4 Ranges
-# Aktualisiert: 2026-08-26 04:45 CEST (Europe/Berlin)
-# IP-Ranges: 9299
+# Aktualisiert: 2026-08-31 09:23 CEST (Europe/Berlin)
+# IP-Ranges: 9300
 
 2.59.21.0/24
 2.59.22.0/24
@@ -2472,6 +2472,7 @@
 148.66.40.0/21
 148.66.241.0/24
 148.66.252.0/22
+148.85.176.0/21
 148.113.0.0/16
 148.117.0.0/16
 148.163.160.0/20

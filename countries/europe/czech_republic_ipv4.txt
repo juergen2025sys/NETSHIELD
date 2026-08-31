@@ -1,6 +1,6 @@
 # NETSHIELD – Czech Republic (CZ) IPv4 Ranges
-# Aktualisiert: 2026-08-26 04:45 CEST (Europe/Berlin)
-# IP-Ranges: 1774
+# Aktualisiert: 2026-08-31 09:23 CEST (Europe/Berlin)
+# IP-Ranges: 1775
 
 2.59.220.0/22
 5.1.56.0/21
@@ -1627,6 +1627,7 @@
 195.133.196.0/22
 195.133.200.0/23
 195.137.182.0/24
+195.137.215.0/24
 195.140.252.0/22
 195.144.96.0/19
 195.146.96.0/19

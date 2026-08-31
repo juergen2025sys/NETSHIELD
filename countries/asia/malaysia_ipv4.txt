@@ -1,6 +1,6 @@
 # NETSHIELD – Malaysia (MY) IPv4 Ranges
-# Aktualisiert: 2026-08-26 04:45 CEST (Europe/Berlin)
-# IP-Ranges: 913
+# Aktualisiert: 2026-08-31 09:23 CEST (Europe/Berlin)
+# IP-Ranges: 914
 
 1.9.0.0/16
 1.32.0.0/17
@@ -637,6 +637,7 @@
 163.47.88.0/22
 163.47.192.0/22
 163.47.200.0/22
+163.52.66.0/23
 163.53.152.0/22
 163.53.224.0/22
 163.61.18.0/24

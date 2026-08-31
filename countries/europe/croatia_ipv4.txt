@@ -1,6 +1,6 @@
 # NETSHIELD – Croatia (HR) IPv4 Ranges
-# Aktualisiert: 2026-08-26 04:45 CEST (Europe/Berlin)
-# IP-Ranges: 288
+# Aktualisiert: 2026-08-31 09:23 CEST (Europe/Berlin)
+# IP-Ranges: 289
 
 5.39.128.0/19
 5.43.160.0/19
@@ -16,6 +16,7 @@
 37.205.96.0/20
 37.244.128.0/17
 45.8.106.0/24
+45.9.156.0/24
 45.87.24.0/22
 45.95.168.0/22
 45.136.142.0/23
