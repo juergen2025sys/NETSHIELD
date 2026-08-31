@@ -246,6 +246,9 @@ jobs:
         if: steps.skip-check.outputs.is_skip != 'true'
         env:
           PYTHONUNBUFFERED: "1"
+          # TESTVERSION: 1 = SQLite-Benchmark + Live-Performance-Log.
+          # Auf 0 setzen, um nur die normale Confidence-Logik mit Timing laufen zu lassen.
+          NETSHIELD_SQLITE_TEST: "1"
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -265,9 +268,40 @@ jobs:
           load_fp_set()
 
           import json, os, sys, ipaddress, bisect, re
+          import sqlite3, time, resource
           from datetime import datetime, timezone, timedelta
           from zoneinfo import ZoneInfo
 
+          # ── PERF/SQLITE TESTVERSION (nur Diagnose, Outputs bleiben JSON-kanonisch) ──
+          # Ziel: im GitHub-Live-Log exakt sichtbar machen, wo die Laufzeit entsteht,
+          # und SQLite auf demselben seen_db-Snapshot benchmarken, OHNE die produktive
+          # Ergebnislogik zu veraendern. Die SQLite-Datei liegt nur unter /tmp und wird
+          # weder committed noch als Source of Truth benutzt.
+          _PERF_T0 = time.perf_counter()
+          _PERF = []
+          def _rss_mb():
+              try:
+                  # Linux: ru_maxrss in KiB
+                  return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0
+              except Exception:
+                  return 0.0
+          def _perf(label, started):
+              sec = time.perf_counter() - started
+              _PERF.append((label, sec, _rss_mb()))
+              print(f"::notice ::[PERF] {label}: {sec:.2f}s | Peak-RSS {_rss_mb():.0f} MB", flush=True)
+              return sec
+          def _live(label, current, total=None, started=None):
+              elapsed = (time.perf_counter() - started) if started is not None else 0.0
+              if total:
+                  pct = current / total * 100.0
+                  rate = current / elapsed if elapsed > 0 else 0.0
+                  eta = (total-current) / rate if rate > 0 else 0.0
+                  print(f"[LIVE] {label}: {current:,}/{total:,} ({pct:.1f}%) | "
+                        f"{elapsed:.1f}s | {rate:,.0f}/s | ETA {eta/60:.1f} min | RSS {_rss_mb():.0f} MB", flush=True)
+              else:
+                  print(f"[LIVE] {label}: {current:,} | {elapsed:.1f}s | RSS {_rss_mb():.0f} MB", flush=True)
+
+          print("[LIVE] Confidence-Testversion gestartet: Timing + SQLite-Benchmark aktiv", flush=True)
           now     = datetime.now(timezone.utc)
           now_str = (
               now.astimezone(ZoneInfo("Europe/Berlin"))
@@ -386,6 +420,8 @@ jobs:
               print(f"FEHLER: {msg}")
               sys.exit(1)
 
+          _t_json_load = time.perf_counter()
+          print(f"[LIVE] Lade {DB_FILE} ({os.path.getsize(DB_FILE)/1024/1024:.1f} MB) ...", flush=True)
           with open(DB_FILE) as f:
               try:
                   db = json.load(f)
@@ -393,7 +429,8 @@ jobs:
                   print(f"FEHLER: seen_db.json ist korrupt oder nicht lesbar: {e}")
                   print("Behalte bestehende Confidence-Blacklists und breche ab.")
                   sys.exit(1)  # exit(1) damit GitHub Actions den Fehler im UI anzeigt
-          print(f"seen_db geladen: {len(db)} IPs")
+          _perf("JSON load seen_db.json", _t_json_load)
+          print(f"seen_db geladen: {len(db)} IPs", flush=True)
 
           # Alter der seen_db prüfen.
           # FIX SEEN-DB-AGE: Primär state/seen_db_meta.json verwenden (Stundengenauigkeit
@@ -645,6 +682,104 @@ jobs:
                   print(f"Whitelist-Defense-in-Depth: 0 Treffer (Upstream sauber)")
           print(f"Combined Blacklist nach Whitelist-Filter: {len(combined_ips)} IPs")
 
+          # ── SQLITE-BENCHMARK (TESTVERSION, KEIN Einfluss auf Outputs) ─────
+          # Baut einmalig eine temporaere SQLite-Projektion der fuer Confidence
+          # benoetigten Felder. Damit messen wir live: Importdauer, DB-Groesse,
+          # SQL-Scan und Lookup-Geschwindigkeit. Erst wenn diese Zahlen im echten
+          # GitHub-Runner klar besser sind, lohnt sich die Migration im Combined-
+          # Writer. Wichtig: Weil wir hier aus JSON importieren, wird DIESER Test-
+          # Run absichtlich laenger; er misst das Potential fuer zukuenftige Runs,
+          # in denen Combined SQLite direkt pflegen wuerde.
+          SQLITE_TEST = os.environ.get("NETSHIELD_SQLITE_TEST", "1") != "0"
+          _sqlite_stats = {}
+          if SQLITE_TEST:
+              _sql_path = "/tmp/netshield_seen_confidence_test.sqlite"
+              try:
+                  if os.path.exists(_sql_path):
+                      os.remove(_sql_path)
+                  _t_sql_build = time.perf_counter()
+                  print(f"[LIVE][SQL] Erzeuge temporaere SQLite-Projektion: {_sql_path}", flush=True)
+                  _con = sqlite3.connect(_sql_path)
+                  _cur = _con.cursor()
+                  _cur.executescript("""
+                      PRAGMA journal_mode=OFF;
+                      PRAGMA synchronous=OFF;
+                      PRAGMA temp_store=MEMORY;
+                      PRAGMA locking_mode=EXCLUSIVE;
+                      PRAGMA cache_size=-262144;
+                      CREATE TABLE seen (
+                          ip TEXT PRIMARY KEY,
+                          hq INTEGER NOT NULL,
+                          feed_count INTEGER NOT NULL,
+                          today_count INTEGER NOT NULL,
+                          days_seen INTEGER NOT NULL,
+                          last_seen TEXT NOT NULL,
+                          first_seen TEXT NOT NULL
+                      ) WITHOUT ROWID;
+                  """)
+                  _batch=[]
+                  _sql_n=0
+                  _sql_total=len(db)
+                  _sql_live_t=time.perf_counter()
+                  for _sip, _sd in db.items():
+                      if not isinstance(_sd, dict):
+                          continue
+                      _slast=safe_get_date(_sd, "last")
+                      _sfirst=safe_get_date(_sd, "first", _slast)
+                      _batch.append((
+                          _sip, 1 if _sd.get("hq", False) else 0,
+                          len(_sd.get("feeds", [])), int(_sd.get("today_count", 0) or 0),
+                          int(_sd.get("days_seen", 1) or 1), _slast, _sfirst
+                      ))
+                      if len(_batch) >= 50000:
+                          _cur.executemany("INSERT INTO seen VALUES (?,?,?,?,?,?,?)", _batch)
+                          _sql_n += len(_batch); _batch.clear()
+                          if _sql_n % 500000 == 0:
+                              _live("SQLite import", _sql_n, _sql_total, _sql_live_t)
+                  if _batch:
+                      _cur.executemany("INSERT INTO seen VALUES (?,?,?,?,?,?,?)", _batch)
+                      _sql_n += len(_batch); _batch.clear()
+                  _con.commit()
+                  _sqlite_stats["build_s"]=_perf("SQLite build aus bereits geparstem JSON", _t_sql_build)
+                  _sqlite_stats["size_mb"]=os.path.getsize(_sql_path)/1024/1024
+                  print(f"[LIVE][SQL] SQLite fertig: {_sql_n:,} Zeilen | {_sqlite_stats['size_mb']:.1f} MB", flush=True)
+
+                  # Indexe entsprechen den wahrscheinlich nuetzlichen Filterpfaden.
+                  _t_idx=time.perf_counter()
+                  _cur.execute("CREATE INDEX idx_seen_last ON seen(last_seen)")
+                  _cur.execute("CREATE INDEX idx_seen_first ON seen(first_seen)")
+                  _con.commit()
+                  _sqlite_stats["index_s"]=_perf("SQLite Indexaufbau last/first", _t_idx)
+
+                  _t_q=time.perf_counter()
+                  _sql_non_sentinel=_cur.execute(
+                      "SELECT COUNT(*) FROM seen WHERE last_seen <> '2000-01-01'"
+                  ).fetchone()[0]
+                  _sqlite_stats["count_s"]=_perf("SQLite COUNT non-sentinel", _t_q)
+                  print(f"[LIVE][SQL] non-sentinel: {_sql_non_sentinel:,}", flush=True)
+
+                  # Membership-Lookups gegen eine Stichprobe aus combined_ips.
+                  _probe=list(combined_ips)[:100000]
+                  _t_probe=time.perf_counter(); _hits=0
+                  for _pip in _probe:
+                      if _cur.execute("SELECT 1 FROM seen WHERE ip=?", (_pip,)).fetchone():
+                          _hits += 1
+                  _sqlite_stats["lookup100k_s"]=_perf("SQLite 100k PK-Lookups", _t_probe)
+                  print(f"[LIVE][SQL] PK-Probe: {_hits:,}/{len(_probe):,} Treffer", flush=True)
+                  _con.close()
+              except Exception as _sql_e:
+                  print(f"::warning file=update_confidence_blacklist.yml::SQLite-Test fehlgeschlagen: {_sql_e}", flush=True)
+                  print(f"WARNUNG [SQLITE-TEST]: {_sql_e} -- produktive JSON-Logik laeuft weiter.", flush=True)
+              finally:
+                  # Testdatei nicht in Git/Workspace liegen lassen.
+                  try:
+                      if os.path.exists(_sql_path):
+                          os.remove(_sql_path)
+                  except Exception:
+                      pass
+          else:
+              print("[LIVE][SQL] SQLite-Test per NETSHIELD_SQLITE_TEST=0 deaktiviert", flush=True)
+
           # ══════════════════════════════════════════════════════════════════
           # KONFIDENZ-MODELL
           #
@@ -706,7 +841,14 @@ jobs:
           skipped      = 0
           skipped_watchlist = 0
 
+          _t_conf_loop = time.perf_counter()
+          _conf_total = len(db)
+          _conf_n = 0
+          print(f"[LIVE] Starte Confidence-Scan ueber {_conf_total:,} seen_db-Eintraege ...", flush=True)
           for ip, data in db.items():
+              _conf_n += 1
+              if _conf_n % 500000 == 0:
+                  _live("Confidence-Scan", _conf_n, _conf_total, _t_conf_loop)
               try:
                   if not isinstance(data, dict):
                       skipped += 1
@@ -803,6 +945,8 @@ jobs:
                   print(f"WARN: Korrupter seen_db-Eintrag {ip}: {_corrupt}", file=sys.stderr)
                   continue
 
+          _perf("Confidence Python-Scan", _t_conf_loop)
+
           # FIX BUG-CACHE-DRIFT: Race-Schutz gegen veralteten seen_db-Cache.
           # Symptom: 5.921 brandneue HQ-IPs (first=last=heute) fehlten am
           # 2026-05-11 in conf40 obwohl sie in combined.txt + active.txt
@@ -855,8 +999,11 @@ jobs:
           else:
               print(f"Cache-Drift-Check: 0 Orphans (combined.txt und seen_db konsistent)")
 
+          _t_sort = time.perf_counter()
+          print(f"[LIVE] Sortiere {len(confidence40):,} conf40 + {len(confidence25):,} watchlist Eintraege ...", flush=True)
           confidence40.sort(key=lambda x: (-x[1], x[0]))
           confidence25.sort(key=lambda x: (-x[1], x[0]))
+          _perf("Sortierung Confidence-Ergebnisse", _t_sort)
 
           print(f"Konfidenz ≥40 (→ confidence40-Datei): {len(confidence40)} IPs")
           print(f"Stale-Frozen-Schutz: {skipped_stale_frozen} IP(s) ausgeschlossen "
@@ -1042,6 +1189,17 @@ jobs:
               write_text_atomic(OUT_WATCH, _watch_body)
 
           print(f"Fertig: {len(confidence40)} IPs (conf≥40) | {len(confidence25)} IPs (watchlist 25-39)")
+
+          # ── LIVE-PERF-ZUSAMMENFASSUNG ────────────────────────────────────
+          _total_s = time.perf_counter() - _PERF_T0
+          print("\n========== NETSHIELD LIVE PERFORMANCE REPORT ==========", flush=True)
+          for _label, _sec, _rss in _PERF:
+              print(f"[PERF-SUMMARY] {_label:<42} {_sec:8.2f}s | Peak-RSS {_rss:7.0f} MB", flush=True)
+          if _sqlite_stats:
+              print(f"[PERF-SUMMARY] SQLite temporaere DB-Groesse         {_sqlite_stats.get('size_mb', 0):8.1f} MB", flush=True)
+              print("[PERF-SUMMARY] HINWEIS: SQLite-Build ist Test-Overhead. Fuer echten Speedup muss Combined SQLite direkt schreiben/pflegen.", flush=True)
+          print(f"[PERF-SUMMARY] Python-Block gesamt                  {_total_s:8.2f}s ({_total_s/60:.2f} min)", flush=True)
+          print("========================================================", flush=True)
           EOF
 
       - name: Commit
