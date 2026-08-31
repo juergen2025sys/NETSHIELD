@@ -198,8 +198,38 @@ jobs:
         with:
           persist-credentials: true
 
-      - name: Restore seen_db Cache
+      - name: Restore seen_db SQLite Cache
         if: steps.skip-check.outputs.is_skip != 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: seen_db.sqlite3
+          key: netshield-seen-db-sqlite-v1-${{ github.run_id }}
+          restore-keys: |
+            netshield-seen-db-sqlite-v1-
+
+      - name: Restore seen_db SQLite from GitHub Release (falls Cache leer)
+        if: steps.skip-check.outputs.is_skip != 'true' && hashFiles('seen_db.sqlite3') == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          rm -f seen_db.sqlite3.gz
+          if gh release download seen-db-sqlite-backup               --repo "${{ github.repository }}"               --pattern "seen_db.sqlite3.gz"               --dir . --clobber 2>/dev/null; then
+            gzip -dc seen_db.sqlite3.gz > seen_db.sqlite3
+            rm -f seen_db.sqlite3.gz
+            if python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); print(f"SQLite-Release-Fallback validiert: {n:,} Eintraege"); assert q and q[0]=="ok" and n>=100000, (q,n)'
+            then
+              echo "SQLite-Release-Fallback einsatzbereit"
+            else
+              echo "::warning::SQLite-Release-Fallback ungueltig - verwende JSON-Fallback"
+              rm -f seen_db.sqlite3
+            fi
+          else
+            echo "Kein SQLite-Release-Fallback vorhanden - verwende JSON-Fallback"
+          fi
+
+      - name: Restore seen_db Cache
+        if: steps.skip-check.outputs.is_skip != 'true' && hashFiles('seen_db.sqlite3') == ''
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: seen_db.json
@@ -248,7 +278,7 @@ jobs:
           PYTHONUNBUFFERED: "1"
           # TESTVERSION: 1 = SQLite-Benchmark + Live-Performance-Log.
           # Auf 0 setzen, um nur die normale Confidence-Logik mit Timing laufen zu lassen.
-          NETSHIELD_SQLITE_TEST: "1"
+          NETSHIELD_SQLITE_TEST: "0"
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -258,7 +288,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
-              write_text_atomic,
+              write_text_atomic, SqliteSeenDB,
               fetch_url, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
@@ -301,7 +331,7 @@ jobs:
               else:
                   print(f"[LIVE] {label}: {current:,} | {elapsed:.1f}s | RSS {_rss_mb():.0f} MB", flush=True)
 
-          print("[LIVE] Confidence-Testversion gestartet: Timing + SQLite-Benchmark aktiv", flush=True)
+          print("[LIVE] Confidence gestartet: persistenter SQLite-RAM-Sparmodus bevorzugt", flush=True)
           now     = datetime.now(timezone.utc)
           now_str = (
               now.astimezone(ZoneInfo("Europe/Berlin"))
@@ -309,6 +339,7 @@ jobs:
           )
 
           DB_FILE    = "seen_db.json"
+          SQLITE_DB_FILE = "seen_db.sqlite3"
           BLACKLIST  = "combined_threat_blacklist_ipv4.txt"
           OUT_40     = "blacklist_confidence40_ipv4.txt"
           OUT_WATCH  = "watchlist_confidence25to39_ipv4.txt"
@@ -414,23 +445,47 @@ jobs:
 
           skipped_stale_frozen = 0
 
-          if not os.path.exists(DB_FILE):
-              msg = f"{DB_FILE} nicht gefunden – bitte zuerst Update Combined Blacklist ausführen."
-              print(f"::warning file=update_confidence_blacklist.yml::{msg}")
-              print(f"FEHLER: {msg}")
-              sys.exit(1)
-
-          _t_json_load = time.perf_counter()
-          print(f"[LIVE] Lade {DB_FILE} ({os.path.getsize(DB_FILE)/1024/1024:.1f} MB) ...", flush=True)
-          with open(DB_FILE) as f:
+          _db_is_sqlite = False
+          if os.path.exists(SQLITE_DB_FILE):
+              _t_sql_open = time.perf_counter()
               try:
-                  db = json.load(f)
+                  _check_con = sqlite3.connect(SQLITE_DB_FILE)
+                  try:
+                      _q = _check_con.execute("PRAGMA quick_check").fetchone()
+                      _n = _check_con.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]
+                  finally:
+                      _check_con.close()
+                  if not _q or _q[0] != "ok" or _n < 100000:
+                      raise ValueError(f"quick_check={_q!r}, rows={_n}")
+                  db = SqliteSeenDB(SQLITE_DB_FILE)
+                  _db_is_sqlite = True
+                  _perf("SQLite persistent open", _t_sql_open)
+                  print(f"[LIVE][SQL] Persistente seen_db.sqlite3 aktiv: {_n:,} IPs | "
+                        f"{os.path.getsize(SQLITE_DB_FILE)/1024/1024:.1f} MB", flush=True)
               except Exception as e:
-                  print(f"FEHLER: seen_db.json ist korrupt oder nicht lesbar: {e}")
-                  print("Behalte bestehende Confidence-Blacklists und breche ab.")
-                  sys.exit(1)  # exit(1) damit GitHub Actions den Fehler im UI anzeigt
-          _perf("JSON load seen_db.json", _t_json_load)
-          print(f"seen_db geladen: {len(db)} IPs", flush=True)
+                  print(f"::warning file=update_confidence_blacklist.yml::"
+                        f"Persistente SQLite nicht verwendbar ({e}) - JSON-Fallback")
+                  _db_is_sqlite = False
+
+          if not _db_is_sqlite:
+              if not os.path.exists(DB_FILE):
+                  msg = (f"Weder {SQLITE_DB_FILE} noch {DB_FILE} vorhanden – "
+                         f"bitte zuerst Update Combined Blacklist ausführen.")
+                  print(f"::warning file=update_confidence_blacklist.yml::{msg}")
+                  print(f"FEHLER: {msg}")
+                  sys.exit(1)
+              _t_json_load = time.perf_counter()
+              print(f"[LIVE] SQLite nicht verfuegbar; lade JSON-Fallback {DB_FILE} "
+                    f"({os.path.getsize(DB_FILE)/1024/1024:.1f} MB) ...", flush=True)
+              with open(DB_FILE) as f:
+                  try:
+                      db = json.load(f)
+                  except Exception as e:
+                      print(f"FEHLER: seen_db.json ist korrupt oder nicht lesbar: {e}")
+                      print("Behalte bestehende Confidence-Blacklists und breche ab.")
+                      sys.exit(1)
+              _perf("JSON fallback load seen_db.json", _t_json_load)
+              print(f"seen_db JSON-Fallback geladen: {len(db):,} IPs", flush=True)
 
           # Alter der seen_db prüfen.
           # FIX SEEN-DB-AGE: Primär state/seen_db_meta.json verwenden (Stundengenauigkeit
@@ -484,8 +539,16 @@ jobs:
               # Fallback: aktuellstes last-Datum aus DB.
               # Nur echte HQ-Bestätigungsdaten (last != 2000-01-01) berücksichtigen,
               # damit Watchlist-IPs (last="2000-01-01") kein falsches Alarm-Alter erzeugen.
-              real_dates = [safe_get_date(d, "last") for d in db.values() if isinstance(d, dict) and safe_get_date(d, "last") != "2000-01-01"]
-              newest_last = max(real_dates) if real_dates else None
+              if _db_is_sqlite:
+                  newest_last = db._conn.execute(
+                      "SELECT MAX(last) FROM seen_db WHERE last IS NOT NULL "
+                      "AND last <> '2000-01-01'"
+                  ).fetchone()[0]
+              else:
+                  real_dates = [safe_get_date(d, "last") for d in db.values()
+                                if isinstance(d, dict)
+                                and safe_get_date(d, "last") != "2000-01-01"]
+                  newest_last = max(real_dates) if real_dates else None
               try:
                   if newest_last:
                       newest_dt = datetime.strptime(newest_last, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -926,7 +989,9 @@ jobs:
                   # falls ja, hat der Cache die Einfrierung nur noch nicht
                   # mitbekommen, die IP gehoert NICHT in den Output.
                   _wl_frozen = _wl_expired_first.get(ip)
-                  if _wl_frozen is not None and _wl_frozen.get("first") == first_seen:
+                  if (_wl_frozen is not None
+                          and last_seen == "2000-01-01"
+                          and _wl_frozen.get("first") == first_seen):
                       skipped_stale_frozen += 1
                       continue
                   _active_frozen = _active_expired_last.get(ip)
@@ -947,57 +1012,9 @@ jobs:
 
           _perf("Confidence Python-Scan", _t_conf_loop)
 
-          # FIX BUG-CACHE-DRIFT: Race-Schutz gegen veralteten seen_db-Cache.
-          # Symptom: 5.921 brandneue HQ-IPs (first=last=heute) fehlten am
-          # 2026-05-11 in conf40 obwohl sie in combined.txt + active.txt
-          # standen. Empirisch verifiziert (Sim 4.137.805 vs Repo 4.131.884
-          # = exakt +5.921). Score-Berechnung war korrekt (72 in beiden
-          # Workflows), alle Filter trafen 0 dieser IPs. Ursache: das oben
-          # iterierte `db` enthielt sie nicht, weil der actions/cache/restore-
-          # Step in diesem Workflow einen aelteren seen_db-Cache erwischte
-          # als der combined-Workflow committed hatte (asynchrone Cache-
-          # Replikation auf GitHub-Seite vs synchroner Repo-Push).
-          # Asymmetrie: combined.txt im Repo ist der NEUERE Stand. Eine IP
-          # in combined_ips aber nicht in db ist eindeutig "vom letzten
-          # combined-Run als score-wuerdig anerkannt, aber im hiesigen Cache
-          # noch nicht sichtbar". Sie muss in conf40.
-          # Default-Score 72 = is_hq(40) + days_since=0(30) + days_seen=1(2)
-          # + days_known=1(0). Entspricht exakt dem Score den eine brandneue
-          # HQ-IP im naechsten regulaeren Lauf bekommt. Kein Alter-Bonus,
-          # konservativ.
-          # Cap bei 10% von combined_ips als Sicherheitsnetz: wenn der Cache
-          # komplett kaputt waere (db={}), waeren ALLE ~5,1M IPs Orphans —
-          # dann ist nicht "Cache-Drift", sondern "Cache-Total-Loss" und
-          # der Leerungsschutz weiter unten greift sowieso. Bei plausibler
-          # Drift sind es <0.5% (5.921 / 5.137.852 = 0,12%).
-          _orphans = combined_ips - set(db.keys())
-          if _orphans:
-              _orphan_pct = len(_orphans) / max(1, len(combined_ips)) * 100
-              _orphan_msg = (
-                  f"Cache-Drift erkannt: {len(_orphans):,} IPs in combined.txt "
-                  f"aber nicht in seen_db ({_orphan_pct:.2f}% von combined). "
-                  f"actions/cache/restore lieferte vermutlich einen aelteren "
-                  f"Cache als der combined-Run committeted hat."
-              )
-              if _orphan_pct > 10.0:
-                  # Keine Auto-Heilung – das ist Cache-Total-Loss, kein Drift.
-                  # Leerungsschutz unten greift, falls confidence40 dadurch
-                  # unter MIN_CONF40 faellt.
-                  print(f"::warning file=update_confidence_blacklist.yml::"
-                        f"{_orphan_msg} > 10% Schwelle – Auto-Heilung "
-                        f"deaktiviert, manueller Cache-Refresh noetig.")
-                  print(f"WARNUNG: {_orphan_msg}")
-              else:
-                  print(f"::warning file=update_confidence_blacklist.yml::"
-                        f"{_orphan_msg} Auto-Heilung: alle Orphans mit "
-                        f"Default-HQ-Score 72 in conf40 aufgenommen.")
-                  print(f"INFO: {_orphan_msg}")
-                  _DEFAULT_ORPHAN_SCORE = 72  # is_hq(40)+frisch(30)+1xseen(2)
-                  for _orphan_ip in _orphans:
-                      confidence40.append((_orphan_ip, _DEFAULT_ORPHAN_SCORE))
-                  print(f"Cache-Drift-Heilung: {len(_orphans):,} IPs nachgetragen")
-          else:
-              print(f"Cache-Drift-Check: 0 Orphans (combined.txt und seen_db konsistent)")
+          # Cache-Drift: keine synthetischen HQ-Scores mehr erfinden.
+          # combined.txt beweist nur Mitgliedschaft, nicht HQ-Status.
+          print("Cache-Drift-Autoheilung: deaktiviert (keine erfundenen HQ-Scores).")
 
           _t_sort = time.perf_counter()
           print(f"[LIVE] Sortiere {len(confidence40):,} conf40 + {len(confidence25):,} watchlist Eintraege ...", flush=True)

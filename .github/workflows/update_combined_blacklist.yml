@@ -491,6 +491,7 @@ jobs:
           EOF
 
       - name: Fetch, discover, learn and build IPv4 lists
+        id: build_combined
         env:
           PYTHONUNBUFFERED: "1"
           # FEED-MOVE-RESOLVER: Token fuer authentifizierte Git-Tree-API
@@ -3430,19 +3431,23 @@ jobs:
           # laengsten ueberfaelligen (aeltestes "first" zuerst).
           WATCHLIST_DAILY_CAP = 2000
           WATCHLIST_CAP_STATE_FILE = "state/watchlist_daily_cap_state.json"
+          _wl_cap_day = now.astimezone(ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d")
           _wl_cap_heute_bereits_gelaufen = False
           try:
               if os.path.exists(WATCHLIST_CAP_STATE_FILE):
                   with open(WATCHLIST_CAP_STATE_FILE) as _f:
                       _wl_cap_state = json.load(_f)
-                  if _wl_cap_state.get("letzter_lauf") == now_day:
+                  if _wl_cap_state.get("letzter_lauf") == _wl_cap_day:
                       _wl_cap_heute_bereits_gelaufen = True
           except Exception as _e:
-              print(f"WARNUNG: {WATCHLIST_CAP_STATE_FILE} nicht lesbar, "
-                    f"behandle als 'heute noch nicht gelaufen': {_e}")
+              _wl_cap_heute_bereits_gelaufen = True
+              print(f"WARNUNG: {WATCHLIST_CAP_STATE_FILE} nicht lesbar; "
+                    f"FAIL-CLOSED: heute ({_wl_cap_day}) keine weitere "
+                    f"Watchlist-30-Tage-Entfernung: {_e}")
           if _wl_cap_heute_bereits_gelaufen:
-              print(f"WATCHLIST-DAILY-CAP: heute ({now_day}) bereits gelaufen "
-                    f"- keine weitere Watchlist-30-Tage-Entfernung in diesem Lauf")
+              print(f"WATCHLIST-DAILY-CAP: heute ({_wl_cap_day}) bereits gelaufen "
+                    f"oder State unbekannt - keine weitere Watchlist-30-Tage-Entfernung "
+                    f"in diesem Lauf")
           # Kandidaten werden waehrend des Cleanup-Passes gesammelt (nicht
           # sofort entfernt) und erst NACH der Schleife auf WATCHLIST_DAILY_CAP
           # reduziert - siehe dort.
@@ -3820,7 +3825,7 @@ jobs:
           if not _wl_cap_heute_bereits_gelaufen:
               try:
                   write_json_atomic(WATCHLIST_CAP_STATE_FILE, {
-                      "letzter_lauf": now_day,
+                      "letzter_lauf": _wl_cap_day,
                       "kandidaten_gesamt": len(_wl_kandidaten),
                       "entfernt": len(_wl_zu_entfernen),
                   })
@@ -4816,6 +4821,35 @@ jobs:
           # Grund schief geht, ist das reine Kosmetik (Datei stirbt ohnehin
           # mit dem ephemeren Runner) - kein Grund, den Rest des DIAG-Blocks
           # zu gefaehrden.
+          # Persistenten SQLite-Snapshot fuer Confidence erzeugen.
+          _persistent_sqlite_path = "seen_db.sqlite3"
+          try:
+              import sqlite3 as _sqlite3
+              if os.path.exists(_persistent_sqlite_path):
+                  os.remove(_persistent_sqlite_path)
+              _sqlite_snapshot_con = _sqlite3.connect(_persistent_sqlite_path)
+              try:
+                  db._conn.commit()
+                  db._conn.backup(_sqlite_snapshot_con)
+                  _quick = _sqlite_snapshot_con.execute("PRAGMA quick_check").fetchone()
+                  if not _quick or _quick[0] != "ok":
+                      raise RuntimeError(f"PRAGMA quick_check={_quick!r}")
+                  _snapshot_count = _sqlite_snapshot_con.execute(
+                      "SELECT COUNT(*) FROM seen_db").fetchone()[0]
+              finally:
+                  _sqlite_snapshot_con.close()
+              print(f"  Persistenter SQLite-Snapshot: {_snapshot_count:,} Eintraege -> "
+                    f"{_persistent_sqlite_path} "
+                    f"({os.path.getsize(_persistent_sqlite_path)/1024/1024:.1f} MB)")
+          except Exception as _sqlite_snapshot_err:
+              print(f"::warning file=update_combined_blacklist.yml::"
+                    f"SQLite-Snapshot konnte nicht erzeugt werden: {_sqlite_snapshot_err}")
+              try:
+                  if os.path.exists(_persistent_sqlite_path):
+                      os.remove(_persistent_sqlite_path)
+              except OSError:
+                  pass
+
           try:
               db.close()
               if os.path.exists(_sqlite_db_path):
@@ -5018,7 +5052,7 @@ jobs:
         # NOTE: always()-Semantik bleibt - "always() && Guard" laeuft bei Crash UND
         # wenn Idempotenz-Guard nicht geskippt hat. Beim Skip soll auch der Cache-
         # Save nicht laufen, da kein Build-Step ausgefuehrt wurde.
-        if: always()
+        if: steps.build_combined.outcome == 'success'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: seen_db.json
@@ -5027,8 +5061,30 @@ jobs:
           key: netshield-seen-db-v2-${{ github.run_id }}
 
 
+      - name: Save seen_db SQLite Cache
+        if: steps.build_combined.outcome == 'success' && hashFiles('seen_db.sqlite3') != ''
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: seen_db.sqlite3
+          key: netshield-seen-db-sqlite-v1-${{ github.run_id }}
+
+      - name: Backup seen_db SQLite to GitHub Release
+        if: steps.build_combined.outcome == 'success' && hashFiles('seen_db.sqlite3') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); print(f"SQLite-Snapshot validiert: {n:,} Eintraege"); assert q and q[0]=="ok" and n>=100000, (q,n)'
+          rm -f seen_db.sqlite3.gz
+          gzip -1 -c seen_db.sqlite3 > seen_db.sqlite3.gz
+          if ! gh release view seen-db-sqlite-backup --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release create seen-db-sqlite-backup               --repo "${{ github.repository }}"               --title "NETSHIELD seen_db SQLite Backup"               --notes "Automatisch gepflegter SQLite-Fallback fuer Confidence."               --latest=false
+          fi
+          gh release upload seen-db-sqlite-backup seen_db.sqlite3.gz             --repo "${{ github.repository }}" --clobber
+          echo "SQLite-Release-Backup aktualisiert: $(du -h seen_db.sqlite3.gz | cut -f1)"
+
       - name: Backup seen_db to Repo (komprimiert)
-        if: always()
+        if: steps.build_combined.outcome == 'success'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -5042,15 +5098,7 @@ jobs:
             # Backup im Repo ueberschreiben - Recovery damit unmoeglich.
             # Jetzt: Byte-Check UND Eintrags-Mindestzahl muessen passen.
             SIZE=$(stat -c%s seen_db.json 2>/dev/null || echo 0)
-            ENTRY_COUNT=$(python3 -c "
-          import json, sys
-          try:
-              with open('seen_db.json') as f:
-                  d = json.load(f)
-              print(len(d) if isinstance(d, dict) else 0)
-          except Exception:
-              print(0)
-          ")
+            ENTRY_COUNT=$(python3 -c 'import sqlite3,os; p="seen_db.sqlite3"; c=sqlite3.connect(p) if os.path.exists(p) else None; print(c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0] if c else 0); c.close() if c else None' 2>/dev/null || echo 0)
             MIN_ENTRIES=100000
             if [ "$SIZE" -gt 1048576 ] && [ "$ENTRY_COUNT" -gt "$MIN_ENTRIES" ]; then
               # FIX BUG-GZIP-BACKUP-SPLIT: GitHub blockiert einzelne Dateien

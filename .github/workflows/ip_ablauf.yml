@@ -257,11 +257,10 @@ jobs:
                       # auf last=Sentinel (Watchlist-Pfad) waere aber in
                       # jedem Fall unplausibel und wird gemeldet.
                       if _entry_last == "2000-01-01":
-                          ledger_bugs.append(
-                              f"{_ip} (Active-Ledger, eingefroren auf last={_frozen_datum}): "
-                              f"steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - "
-                              f"unplausibler Pfadwechsel"
-                          )
+                          # Erlaubter Active→Watchlist-Pfadwechsel: Der Active-Ledger
+                          # bleibt absichtlich bestehen und verhindert einen spaeteren
+                          # 180-Tage-Reset durch nur einen HQ-Feed.
+                          pass
           if ledger_bugs:
               print(f"::error ::{len(ledger_bugs)} Ledger-Konsistenz-Problem(e) gefunden "
                     f"(Freeze auf DB-Ebene umgangen)")
@@ -330,7 +329,7 @@ jobs:
                       except Exception:
                           corrupt += 1
                           continue
-                      expiry_date = first_dt + timedelta(days=WATCHLIST_EXPIRY_DAYS)
+                      expiry_date = first_dt + timedelta(days=WATCHLIST_EXPIRY_DAYS + 1)
                       days_left = (expiry_date - today).days
                       watch_total += 1
                       buckets_watch[_bucket_days(days_left, buckets_watch, WATCH_EDGES)] += 1
@@ -346,7 +345,7 @@ jobs:
                       except Exception:
                           corrupt += 1
                           continue
-                      expiry_date = last_dt + timedelta(days=EXPIRY_DAYS)
+                      expiry_date = last_dt + timedelta(days=EXPIRY_DAYS + 1)
                       days_left = (expiry_date - today).days
                       active_total += 1
                       buckets_active[_bucket_days(days_left, buckets_active, ACTIVE_EDGES)] += 1
@@ -419,7 +418,7 @@ jobs:
           # Nachhinein wirklich getroffen hat. Hier wird pro Ablaufdatum die
           # LETZTE (aktuellste) Prognose persistiert - fuer BEIDE Pfade
           # getrennt (Watchlist/30T und Active/180T), da beide unterschiedliche
-          # Formeln (first+30 bzw. last+180) und unterschiedliche Ledger
+          # Formeln (first+31 bzw. last+181; Cleanup nutzt >30/>180) und unterschiedliche Ledger
           # (state/watchlist_expired_history.json bzw.
           # state/active_expired_history.json) haben. Der Job "verifikation"
           # (laeuft alle 3h) gleicht das spaeter gegen die Realitaet ab und
@@ -1440,7 +1439,7 @@ jobs:
           # "morgen fallen 52.997 IPs weg" wirklich eingetroffen ist, und wie
           # viele durch eine Zweitbestaetigung (5+ Feeds / 2+ HQ-Familien)
           # vorher noch "gerettet" wurden. Fuer BEIDE Pfade (Watchlist/30T,
-          # Active/180T) - jeweils eigene Formel (first+30 bzw. last+180) und
+          # Active/180T) - jeweils eigene Formel (first+31 bzw. last+181; Cleanup >30/>180) und
           # eigener Ledger.
           FORECAST_HISTORY_FILE = "state/ip_ablauf_forecast_verlauf.json"
           _forecast_hist = {
@@ -1470,8 +1469,8 @@ jobs:
 
           def _tatsaechlich_pro_tag_berechnen(eintraege_voll, anker_feld, fenster_tage):
               """Zaehlt Ledger-Eintraege pro Ablaufdatum, nach anker_feld (z.B.
-              'first' oder 'last') + fenster_tage gruppiert - dieselbe Formel
-              wie die jeweilige Prognose selbst (first+30 bzw. last+180).
+              'first' oder 'last') + fenster_tage + 1 gruppiert - passend zur
+              echten Cleanup-Regel 'älter als' (>30 bzw. >180 Tage).
               BUGFIX-Hintergrund (2026-08-30, im echten Betrieb entdeckt):
               NICHT nach 'eingefroren_am' gruppieren - das wird laut
               update_combined_blacklist.yml (FIX WL-LEDGER-REFRESH) bei jedem
@@ -1491,7 +1490,7 @@ jobs:
                       _anker_dt = datetime.strptime(_anker_str, "%Y-%m-%d").date()
                   except Exception:
                       continue
-                  _tag = (_anker_dt + timedelta(days=fenster_tage)).isoformat()
+                  _tag = (_anker_dt + timedelta(days=fenster_tage + 1)).isoformat()
                   _ergebnis[_tag] = _ergebnis.get(_tag, 0) + 1
               return _ergebnis
 
@@ -1700,7 +1699,7 @@ jobs:
               "Gleicht die Tages-Vorhersagen aus reports/ip_ablauf.md (Job "
               "\"prognose\") gegen die tatsaechlichen Ledger-Eintraege ab (nach "
               "Anker-Datum + Fenster gruppiert, dieselbe Formel wie die "
-              "jeweilige Prognose: `first`+30 Tage fuer Watchlist, `last`+180 "
+              "jeweilige Prognose: `first`+31 Tage fuer Watchlist, `last`+181 "
               "Tage fuer Active), sobald das jeweilige Datum erreicht ist. "
               "\"Gerettet\" = per Zweitbestaetigung (5+ Feeds oder 2+ "
               "HQ-Familien) doch nicht abgelaufen."
