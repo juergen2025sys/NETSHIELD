@@ -3414,6 +3414,39 @@ jobs:
           _ac_aeltestes_last = "9999-99-99"
           expired = []
           WATCHLIST_EXPIRY_DAYS = 30
+          # FIX WATCHLIST-DAILY-CAP (2026-08-31, Nutzerwunsch "einmal
+          # taeglich max. 2000 IPs ueber die 30-Tage-Regel entfernen, aber
+          # die wirklich Muell-IPs zuerst"): Die 30-Tage-Regel selbst bleibt
+          # unveraendert (Frist, Anker-Datum "first", betroffener Pfad -
+          # alles wie vorher). Neu ist NUR, dass pro Kalendertag hoechstens
+          # WATCHLIST_DAILY_CAP IPs TATSAECHLICH entfernt werden, auch wenn
+          # mehr Kandidaten (first < cutoff_wl) vorliegen. Die uebrigen
+          # Kandidaten bleiben in seen_db und werden am naechsten Tag erneut
+          # bewertet (sie fallen nicht "durch", sie ruecken nur nach hinten).
+          # Auswahl unter den Kandidaten (siehe unten, "_wl_muell_key"):
+          # zuerst IPs, die NIE von einem HQ-Feed gemeldet wurden
+          # (hq_feeds == 0 - das schwaechste moegliche Signal), darunter
+          # die mit den wenigsten Feeds insgesamt, darunter die am
+          # laengsten ueberfaelligen (aeltestes "first" zuerst).
+          WATCHLIST_DAILY_CAP = 2000
+          WATCHLIST_CAP_STATE_FILE = "state/watchlist_daily_cap_state.json"
+          _wl_cap_heute_bereits_gelaufen = False
+          try:
+              if os.path.exists(WATCHLIST_CAP_STATE_FILE):
+                  with open(WATCHLIST_CAP_STATE_FILE) as _f:
+                      _wl_cap_state = json.load(_f)
+                  if _wl_cap_state.get("letzter_lauf") == now_day:
+                      _wl_cap_heute_bereits_gelaufen = True
+          except Exception as _e:
+              print(f"WARNUNG: {WATCHLIST_CAP_STATE_FILE} nicht lesbar, "
+                    f"behandle als 'heute noch nicht gelaufen': {_e}")
+          if _wl_cap_heute_bereits_gelaufen:
+              print(f"WATCHLIST-DAILY-CAP: heute ({now_day}) bereits gelaufen "
+                    f"- keine weitere Watchlist-30-Tage-Entfernung in diesem Lauf")
+          # Kandidaten werden waehrend des Cleanup-Passes gesammelt (nicht
+          # sofort entfernt) und erst NACH der Schleife auf WATCHLIST_DAILY_CAP
+          # reduziert - siehe dort.
+          _wl_kandidaten = []
           cutoff      = now - timedelta(days=EXPIRY_DAYS)
           cutoff_wl   = now - timedelta(days=WATCHLIST_EXPIRY_DAYS)
           # FIX PERF-EXPIRY: ISO-Datum als String fuer lexikographischen Compare
@@ -3562,7 +3595,11 @@ jobs:
                 f"Eintraegen brauchen Feed-Parsing "
                 f"({100 * len(_aufn_kandidaten) / _cln_total if _cln_total else 0:.1f} %)")
 
-          for ip, _row_first, _row_last in db.iter_ip_first_last():
+          # FIX WATCHLIST-DAILY-CAP: iter_ip_first_last() -> die
+          # feedcount-Variante, liefert zusaetzlich feed_count und hq_feeds
+          # fuer die "Muell zuerst"-Auswahl unten (in SQL berechnet, kein
+          # Python-Parsing).
+          for ip, _row_first, _row_last, _row_feed_count, _row_hq_feeds in db.iter_ip_first_last_feedcount():
               _cln_processed += 1
               _cln_now = _time.monotonic()
               if _cln_now - _cln_last_report >= _UPD_PROGRESS_INTERVAL_S:
@@ -3706,50 +3743,14 @@ jobs:
                           if first_str >= cutoff_wl_str and first_str < _wl_aeltestes_first:
                               _wl_aeltestes_first = first_str
                           if first_str < cutoff_wl_str:
-                              expired.append(ip)
-                              expired_watchlist_count += 1
-                              _to_drop.append(ip)
-                              # FIX CHURN-WATCHLIST: Original-"first" einfrieren,
-                              # BEVOR die IP aus seen_db verschwindet - siehe
-                              # Ledger-Kommentar weiter oben. Nur beim ERSTEN
-                              # Ablauf schreiben (spaetere Wiedereintritte
-                              # verwenden ja bereits das eingefrorene Datum als
-                              # "first", das waere sonst kein neuerer Wert -
-                              # der Check ip not in _wl_expired_first ist hier
-                              # eigentlich nur eine Doppelschreib-Vermeidung,
-                              # der Wert waere ohnehin identisch).
-                              # FIX WL-LEDGER-REFRESH (2026-08-28): Der Guard
-                              # "if ip not in _wl_expired_first" stammt aus der
-                              # Zeit VOR dem Bug-17-Umbau, als ein Ledger-Eintrag
-                              # nur ein Datums-STRING ("first") war - damals war
-                              # der Wert beim erneuten Ablauf tatsaechlich
-                              # identisch, der Guard also reine Doppelschreib-
-                              # Vermeidung (siehe alten Kommentar oben). Seit
-                              # Bug 17 enthaelt der Eintrag zusaetzlich
-                              # "eingefroren_am", und DAS ist beim erneuten
-                              # Ablauf NICHT identisch. Der Guard verhinderte
-                              # dadurch, dass die Einfrier-Uhr je aufgefrischt
-                              # wird: die Ledger-Erinnerung lief immer genau
-                              # WL_HISTORY_PRUNE_DAYS (14) nach dem ERSTEN
-                              # Einfrieren ab - egal wie oft die IP danach noch
-                              # ablief. Folge: eine chronisch von schwachen
-                              # Feeds gemeldete IP wurde nach dem Pruning wieder
-                              # als brandneu behandelt (die 5-Feeds-Huerde
-                              # greift nur solange ein Ledger-Eintrag existiert)
-                              # und bekam volle 30 Tage - der im Bericht
-                              # beschriebene ~44-Tage-Zyklus, gemessen 47 Tage.
-                              # Jetzt: "first" (das geschuetzte Anker-Datum)
-                              # bleibt unveraendert erhalten, nur
-                              # "eingefroren_am" wird auf den heutigen Ablauf
-                              # gesetzt. Semantik damit: "vergiss eine IP erst
-                              # 14 Tage nachdem sie zuletzt abgelaufen ist",
-                              # statt "14 Tage nach ihrem ersten Ablauf".
-                              _wl_vorheriger = _wl_expired_first.get(ip)
-                              _wl_expired_first[ip] = {
-                                  "first": _wl_vorheriger["first"] if _wl_vorheriger else first_str,
-                                  "eingefroren_am": now_day,
-                              }
-                              _wl_expired_first_dirty = True
+                              # FIX WATCHLIST-DAILY-CAP: NICHT mehr sofort
+                              # entfernen - nur als Kandidat sammeln. Die
+                              # tatsaechliche Auswahl (max. WATCHLIST_DAILY_CAP
+                              # pro Kalendertag, "Muell zuerst") passiert erst
+                              # NACH dieser Schleife, siehe dort. Bis dahin
+                              # bleibt die IP unangetastet in seen_db (kein
+                              # _to_drop, kein Ledger-Eintrag).
+                              _wl_kandidaten.append((ip, first_str, _row_feed_count, _row_hq_feeds))
                       else:
                           # FIX NEXT-EXPIRY-INFO: analog zum Watchlist-Zweig -
                           # aeltestes noch nicht abgelaufenes "last" mitfuehren.
@@ -3787,6 +3788,60 @@ jobs:
                       print(f"WARN: Korrupter seen_db-Eintrag {ip!r} beim Cleanup übersprungen: {_per_ip_err}", file=sys.stderr)
                   _corrupt_dropped += 1
                   _to_drop.append(ip)
+
+          # FIX WATCHLIST-DAILY-CAP: aus allen gesammelten Kandidaten
+          # (first < cutoff_wl, siehe Schleife oben) pro Kalendertag
+          # hoechstens WATCHLIST_DAILY_CAP tatsaechlich entfernen. Auswahl
+          # "Muell zuerst": nie von einem HQ-Feed gemeldet (hq_feeds == 0)
+          # zuerst, darunter die wenigsten Feeds insgesamt zuerst, darunter
+          # das aelteste "first" zuerst (am laengsten ueberfaellig). Der
+          # Rest bleibt unangetastet in seen_db und wird beim naechsten Lauf
+          # erneut bewertet - nichts geht verloren, es wird nur gestreckt.
+          # feed_count == -1 (korrupter/fehlender feeds-Wert) wird wie 0
+          # behandelt, NICHT wie "viele Feeds" - ein kaputter Eintrag soll
+          # nicht zufaellig verschont bleiben.
+          if _wl_cap_heute_bereits_gelaufen:
+              _wl_zu_entfernen = []
+          else:
+              def _wl_muell_zuerst_key(_kandidat):
+                  _, _first_k, _feedcount_k, _hqfeeds_k = _kandidat
+                  _feedcount_sort = _feedcount_k if _feedcount_k >= 0 else 0
+                  return (0 if _hqfeeds_k == 0 else 1, _feedcount_sort, _first_k)
+              _wl_kandidaten.sort(key=_wl_muell_zuerst_key)
+              _wl_zu_entfernen = _wl_kandidaten[:WATCHLIST_DAILY_CAP]
+
+          print(f"WATCHLIST-DAILY-CAP: {len(_wl_kandidaten):,} Kandidaten "
+                f"(first < {cutoff_wl_str}) gefunden, {len(_wl_zu_entfernen):,} "
+                f"davon heute entfernt (Deckel {WATCHLIST_DAILY_CAP:,}/Tag), "
+                f"{len(_wl_kandidaten) - len(_wl_zu_entfernen):,} warten bis morgen")
+
+          for _ip_cap, _first_cap, _feedcount_cap, _hqfeeds_cap in _wl_zu_entfernen:
+              expired.append(_ip_cap)
+              expired_watchlist_count += 1
+              _to_drop.append(_ip_cap)
+              # FIX CHURN-WATCHLIST / FIX WL-LEDGER-REFRESH (siehe
+              # ausfuehrliche Begruendung in den Originalkommentaren dieser
+              # Datei, unveraendert uebernommen): Original-"first" bleibt
+              # als Anker erhalten, nur "eingefroren_am" wird aufgefrischt -
+              # verhindert den 30-Tage-Reset bei spaeteren schwachen
+              # Wiedereintritten.
+              _wl_vorheriger_cap = _wl_expired_first.get(_ip_cap)
+              _wl_expired_first[_ip_cap] = {
+                  "first": _wl_vorheriger_cap["first"] if _wl_vorheriger_cap else _first_cap,
+                  "eingefroren_am": now_day,
+              }
+              _wl_expired_first_dirty = True
+
+          if not _wl_cap_heute_bereits_gelaufen:
+              try:
+                  write_json_atomic(WATCHLIST_CAP_STATE_FILE, {
+                      "letzter_lauf": now_day,
+                      "kandidaten_gesamt": len(_wl_kandidaten),
+                      "entfernt": len(_wl_zu_entfernen),
+                  })
+              except Exception as _e:
+                  print(f"WARNUNG: {WATCHLIST_CAP_STATE_FILE} konnte nicht "
+                        f"geschrieben werden: {_e}")
 
           # FIX MEM-SQLITE-2026-08-16: bulk_delete() statt Einzel-db.pop()
           # pro IP - bei einer SqliteSeenDB waere jeder pop() ein eigener
@@ -5383,7 +5438,7 @@ jobs:
           # bleibt erhalten (--cached); .gitignore verhindert Re-Tracking.
           git rm -q --cached --ignore-unmatch combined_threat_blacklist_ipv4.txt 2>/dev/null || true
 
-          git add active_blacklist_ipv4.txt reports/combined_threat_blacklist_report.md state/seen_db_meta.json reputation_blacklist.txt 2>/dev/null || true
+          git add active_blacklist_ipv4.txt reports/combined_threat_blacklist_report.md state/seen_db_meta.json state/watchlist_daily_cap_state.json reputation_blacklist.txt 2>/dev/null || true
           # CHANGE LEDGER-OFF-GIT (2026-08-26, Nutzerwunsch "die json soll
           # nicht im repo gespeichert werden"): Beide Anti-Churn-Ledger
           # (watchlist_expired_history.json, active_expired_history.json)
@@ -5488,12 +5543,14 @@ jobs:
                 # Begruendung oben.
                 git checkout --theirs active_blacklist_ipv4.txt \
                   reports/combined_threat_blacklist_report.md \
-                  state/seen_db_meta.json reputation_blacklist.txt 2>/dev/null || true
+                  state/seen_db_meta.json state/watchlist_daily_cap_state.json \
+                  reputation_blacklist.txt 2>/dev/null || true
                 for _p in combined_threat_blacklist_ipv4_part*.txt; do
                   [ -f "$_p" ] && git checkout --theirs "$_p" 2>/dev/null || true
                 done
                 git add active_blacklist_ipv4.txt \
                   reports/combined_threat_blacklist_report.md state/seen_db_meta.json \
+                  state/watchlist_daily_cap_state.json \
                   reputation_blacklist.txt 2>/dev/null || true
                 git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
                 git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
