@@ -1,0 +1,219 @@
+name: Feed IP Finder (manueller IP-Check)
+
+# Manuelles On-Demand-Tool: findet heraus, welcher NETSHIELD-Feed eine
+# bestimmte IP tatsaechlich meldet - laeuft komplett auf GitHub-Servern statt
+# lokal (Server-seitiges Gegenstueck zum lokalen FeedFinder.ps1-Tool). Nutzt
+# denselben Feed-Auswahlmechanismus wie update_bot_detector.yml
+# (is_bot_detector_feed_name() aus scripts/netshield_common.py) sowie
+# dieselben fetch_url()/parse_entries()-Funktionen wie die uebrigen
+# Update-Workflows.
+#
+# Aufruf: Actions-Tab -> "Feed IP Finder (manueller IP-Check)" -> "Run workflow"
+# -> Ziel-IPs eintragen (komma- oder zeilengetrennt).
+#
+# Ergebnis erscheint als Job-Summary (sofort im Actions-Lauf sichtbar, kein
+# Download noetig) UND optional als CSV-Artefakt. Wird bewusst NICHT ins Repo
+# committet - das ist ein Ad-hoc-Diagnosewerkzeug, kein persistenter State.
+#
+# HINWEIS ZUR ARTEFAKT-ACTION: actions/upload-artifact ist inzwischen auf die
+# Commit-SHA von v7.0.1 gepinnt (FIX AUDIT-E-003, 2026-07-12; SHA von der
+# offiziellen Releases-Seite verifiziert). Der fruehere Hinweis, dass die SHA
+# beim Erstellen nicht nachgeschlagen werden konnte, ist damit erledigt.
+# Dependabot (github-actions-Ecosystem, woechentlich) haelt den Pin aktuell.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_ips:
+        description: 'Zu pruefende IPs, kommagetrennt oder mit Zeilenumbruch (z.B. 16.15.191.167,5.60.100.101)'
+        required: true
+        type: string
+      only_bot_detector:
+        description: 'Nur die Bot-Detector-Feeds pruefen (schneller). Bei "false" ALLE Auto-Discovered-Feeds (aktuell 168) + Cache-Feeds aus feed_urls_cache.json.'
+        required: false
+        type: boolean
+        default: false
+      upload_csv_artifact:
+        description: 'Zusaetzlich CSV-Artefakt hochladen (actions/upload-artifact, SHA-gepinnt auf v7.0.1)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  find:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Feeds gegen Ziel-IPs pruefen
+        env:
+          TARGET_IPS_INPUT: ${{ inputs.target_ips }}
+          ONLY_BOT_DETECTOR: ${{ inputs.only_bot_detector }}
+        run: |
+          python3 << 'PYEOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import fetch_url, parse_entries, is_bot_detector_feed_name, write_text_atomic
+
+          import json, os, re, ipaddress
+
+          # -- Ziel-IPs parsen (Komma UND/ODER Zeilenumbruch getrennt) --------
+          raw = os.environ.get("TARGET_IPS_INPUT", "")
+          target_ips = [t.strip() for t in re.split(r"[,\n]+", raw) if t.strip()]
+          if not target_ips:
+              print("::error::Keine Ziel-IPs angegeben")
+              _sys.exit(1)
+          print(f"Ziel-IPs ({len(target_ips)}): {', '.join(target_ips)}")
+
+          only_bd = os.environ.get("ONLY_BOT_DETECTOR", "true").strip().lower() == "true"
+
+          # -- Feed-Quellen zusammenstellen -----------------------------------
+          sources = []  # (name, url, category)
+
+          AUTO_FEEDS_FILE = "state/auto_discovered_feeds.json"
+          if os.path.exists(AUTO_FEEDS_FILE):
+              with open(AUTO_FEEDS_FILE) as f:
+                  auto_data = json.load(f)
+              for feed in auto_data.get("feeds", []):
+                  name = feed.get("name"); url = feed.get("url"); file_ = feed.get("file")
+                  if not (isinstance(name, str) and isinstance(url, str)
+                          and url.startswith(("http://", "https://"))):
+                      continue
+                  if is_bot_detector_feed_name(name, file_):
+                      sources.append((name, url, "Bot-Detector"))
+                  elif not only_bd:
+                      # FIX ALL-FEEDS-COVERAGE (2026-08-01): Vorher wurden bei
+                      # only_bot_detector=false NUR die zusaetzlichen Feeds aus
+                      # feed_urls_cache.json ergaenzt (119 kuratierte/HQ-Feeds,
+                      # als Snapshot potenziell veraltet), die eigentlichen
+                      # Auto-Discovered-Bedrohungs-IP-Feeds (der Grossteil der
+                      # hier registrierten 168 Feeds, z.B. sereinfy_adrules,
+                      # kalidada18_threatbase) wurden dagegen NIE aufgenommen,
+                      # unabhaengig vom Schalter. Jetzt: bei false werden alle
+                      # Nicht-Bot-Detector-Auto-Feeds direkt live aus dieser
+                      # State-Datei ergaenzt statt aus einem separaten,
+                      # potenziell nachlaufenden Cache.
+                      sources.append((name, url, "Auto-Discovered"))
+          else:
+              print(f"::warning::{AUTO_FEEDS_FILE} nicht gefunden")
+
+          if not only_bd:
+              CACHE_FILE = "state/feed_urls_cache.json"
+              if os.path.exists(CACHE_FILE):
+                  with open(CACHE_FILE) as f:
+                      cache_data = json.load(f)
+                  for name, url in cache_data.get("feeds", {}).items():
+                      sources.append((name, url, "Allgemein"))
+              else:
+                  print(f"::warning::{CACHE_FILE} nicht gefunden")
+
+          print(f"Zu pruefende Feeds: {len(sources)} "
+                f"({'nur Bot-Detector' if only_bd else 'Bot-Detector + Allgemein'})")
+
+          # -- IP/CIDR-Match-Helfer --------------------------------------------
+          target_addrs = []
+          for t in target_ips:
+              try:
+                  target_addrs.append((t, ipaddress.ip_address(t)))
+              except ValueError:
+                  print(f"::warning::'{t}' ist keine gueltige IPv4-Adresse, wird uebersprungen")
+
+          def matches(entry, addr):
+              try:
+                  if "/" in entry:
+                      return addr in ipaddress.ip_network(entry, strict=False)
+                  return ipaddress.ip_address(entry) == addr
+              except ValueError:
+                  return False
+
+          # -- Download + Abgleich -----------------------------------------------
+          hits = []  # (target_ip, feed_name, category, url, matched_entry)
+          ok_count = 0
+          fail_count = 0
+
+          for i, (name, url, category) in enumerate(sources, 1):
+              print(f"[{i}/{len(sources)}] {name} ...", flush=True)
+              text = fetch_url(url, timeout=20, retries=2, user_agent="NETSHIELD-FeedIPFinder/1.0")
+              if text is None:
+                  fail_count += 1
+                  print(f"  FEHLGESCHLAGEN: {url}")
+                  continue
+              ok_count += 1
+              entries = parse_entries(text, use_protected_check=False)
+              for entry in entries:
+                  for target_ip, addr in target_addrs:
+                      if matches(entry, addr):
+                          hits.append((target_ip, name, category, url, entry))
+                          print(f"  TREFFER: {target_ip} in {name} (Eintrag: {entry})")
+
+          print(f"\nFertig: {ok_count} erreichbar, {fail_count} fehlgeschlagen, {len(hits)} Treffer")
+
+          # -- CSV schreiben (fuer optionalen Artefakt-Upload) --------------------
+          # FIX AUDIT-E-007 (2026-07-12): direktes open(..., "w") durch
+          # write_text_atomic ersetzt (tmp + fsync + os.replace). Behebt den
+          # Fail des repo-eigenen Hygiene-Checks "Atomare Writes auf
+          # Blacklisten", der seit Aufnahme dieses Workflows den Gate-Step in
+          # run_tests.yml rot schaltete. write_text_atomic legt das
+          # Zielverzeichnis selbst an (FIX SUBDIR-MKDIR in netshield_common).
+          _csv_lines = ["TargetIP,FeedName,Category,FeedURL,MatchedEntry"]
+          for row in hits:
+              _csv_lines.append(",".join(row))
+          write_text_atomic("feed_ip_finder_output/feed_matches_report.csv",
+                            "\n".join(_csv_lines) + "\n")
+
+          # -- Job-Summary (sofort sichtbar, kein Artefakt-Download noetig) -------
+          summary_lines = []
+          summary_lines.append("## Feed IP Finder - Ergebnis\n")
+          summary_lines.append(f"**Ziel-IPs:** {', '.join(target_ips)}  ")
+          summary_lines.append(f"**Feeds geprueft:** {len(sources)} "
+                                f"({ok_count} erreichbar, {fail_count} fehlgeschlagen)  ")
+          summary_lines.append(f"**Treffer:** {len(hits)}\n")
+          if hits:
+              summary_lines.append("| Ziel-IP | Feed | Kategorie | Eintrag |")
+              summary_lines.append("|---|---|---|---|")
+              for target_ip, name, category, url, entry in hits:
+                  summary_lines.append(f"| `{target_ip}` | [{name}]({url}) | {category} | `{entry}` |")
+          else:
+              summary_lines.append("Keine Treffer - keiner der geprueften Feeds meldet eine der Ziel-IPs.")
+
+          summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+          if summary_path:
+              # FIX AUDIT-E-007 (2026-07-12): GITHUB_STEP_SUMMARY MUSS im
+              # Append-Modus beschrieben werden (GitHub-Mechanismus: mehrere
+              # Steps haengen an dieselbe Datei an). Ein atomarer
+              # os.replace-Write wuerde fruehere Summary-Inhalte verwerfen.
+              # allow-nonatomic: GITHUB_STEP_SUMMARY erfordert Append-Semantik
+              with open(summary_path, "a", encoding="utf-8") as f:
+                  f.write("\n".join(summary_lines) + "\n")
+
+          print("\n".join(summary_lines))
+          PYEOF
+
+      # Artefakt-Upload – FIX AUDIT-E-003 (2026-07-12): auf Commit-SHA gepinnt.
+      # SHA verifiziert von https://github.com/actions/upload-artifact/releases
+      # (Release v7.0.1 vom 10.04.2026, GitHub-signierter Commit 043fb46...).
+      # v7 laeuft nativ auf Node 24 (v4 lief auf dem ab 16.09.2026 vom Runner
+      # entfernten Node 20); die hier genutzten Inputs name/path/retention-days
+      # sind zwischen v4 und v7 unveraendert.
+      - name: CSV-Report als Artefakt hochladen
+        if: ${{ inputs.upload_csv_artifact == true }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: feed-ip-finder-report
+          path: feed_ip_finder_output/feed_matches_report.csv
+          retention-days: 14

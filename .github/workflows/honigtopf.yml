@@ -1,0 +1,1131 @@
+name: Honigtopf
+
+on:
+  schedule:
+    # FIX FREQ-20MIN (2026-08-10): Von stuendlich auf alle 20 Minuten erhoeht.
+    #
+    # FIX ALWAYS-FULL (2026-08-29, Nutzeranfrage): Jeder normale Cron-/
+    # Dispatch-Lauf faehrt jetzt IMMER Voll (/services + Pro-Dienst-
+    # Endpunkte), keine budget-basierte Voll/Light-Abwaegung mehr. Die
+    # bisherige Live-Header-Logik (aus 'honeydb-qpm-remaining' vor jedem
+    # Lauf entscheiden, ob ein Voll-Sweep passt) wurde entfernt. Ausnahmen
+    # bleiben unveraendert Light: Watchdog-Dispatch (force_light=true) und
+    # Report-Piggyback (workflow_run) - siehe HARD_LIGHT weiter unten -
+    # sowie ein fehlgeschlagener /bad-hosts-Call (Sicherheitsnetz).
+    #
+    # Kontingent-Rechnung (Stand 2026-08-29, bestaetigt per HoneyDB-API-Doku
+    # https://honeydb.io/threats, Abschnitt "Request Limits" - live
+    # abgerufen, nicht aus Training-Wissen): Community-Accounts haben
+    # EINDEUTIG 1.000 gezaehlte Requests/Tag PRO Credential, Reset um
+    # Mitternacht UTC. Der fruehere Kommentar hier ("1500/Monat vs.
+    # 1000/Tag"-Dokuwiderspruch) ist damit aufgeloest - 1.500 ist NICHT die
+    # aktuelle Zahl, auf keiner der beiden Seiten. Bei N Credentials im
+    # Round-Robin-Pool (siehe CREDENTIALS-Aufbau unten) ergibt das N x 1.000
+    # Requests/Tag Gesamtkapazitaet.
+    # Ein Voll-Lauf kostet ~32-34 Requests (beobachtet in echten Laeufen:
+    # 1 bad-hosts + 1 services + ~30 Pro-Dienst-Endpunkte). Bei */20 * * * *
+    # (72 Laeufe/Tag) IMMER Voll: 72 x 34 = 2.448 Requests/Tag.
+    # Das passt bei >= 3 Credentials (3.000/Tag Kapazitaet, ~550 Requests
+    # Puffer fuer 5xx-Retries + Watchdog-Backup-Laeufe). Bei WENIGER als 3
+    # Credentials reicht das Kontingent im Dauer-Voll-Betrieb NICHT mehr
+    # sicher aus - dann im Report/Log auf gehaeufte 429/"ALLE CREDENTIALS
+    # ERSCHOEPFT"-Meldungen achten und ggf. Cron-Frequenz senken oder
+    # weitere Credentials (Secret-Suffix _N) ergaenzen.
+    # FIX CRON-REDUNDANZ (2026-08-30, Nutzeranfrage "finde eine loesung das
+    # der oefters startet"): GitHub verwirft geplante schedule-Events bei
+    # Last - gemessen an der echten Actions-Historie am 2026-08-30 liefen
+    # nur ~5 statt der erwarteten ~48 Scheduled-Laeufe in 16 Stunden
+    # (~90% Ausfall), mit Luecken von 3-5 Stunden zwischen zwei
+    # Cron-Laeufen. Das ist NICHT in diesem Workflow behebbar (kein
+    # Konfigurationsfehler - Cron-Ausdruck, Skip-Step und concurrency sind
+    # korrekt), sondern eine dokumentierte GitHub-Eigenschaft.
+    #
+    # Gegenmassnahme: dasselbe Redundanz-Muster wie in
+    # update_combined_blacklist.yml ('7/27/47 */3') und
+    # auto_feed_discovery.yml (3 Slots, Kommentar dort: "Backup falls
+    # primaerer Slot von GitHub uebersprungen"). Jede cron-Zeile ist fuer
+    # GitHub ein EIGENES Event - faellt der primaere Slot aus, hat der
+    # Backup-Slot 5 bzw. 10 Minuten spaeter eine unabhaengige Chance.
+    #
+    # WICHTIG: Die Mehrfach-Trigger vervielfachen NICHT den API-Verbrauch.
+    # Der Idempotenz-Gate im Step "Skip if Honigtopf ran recently" (weiter
+    # unten) ueberspringt jeden Lauf, der weniger als 12 Minuten nach einem
+    # erfolgreichen Lauf startet - die Backups feuern also nur, wenn der
+    # primaere Slot tatsaechlich ausgefallen ist. Die Obergrenze bleibt
+    # damit bei ~72 Laeufen/Tag (= 2.448 Requests), exakt wie in der
+    # Kontingent-Rechnung unten kalkuliert.
+    - cron: '*/20 * * * *'      # primaer:   :00, :20, :40
+    - cron: '5,25,45 * * * *'   # Backup #1: +5min,  falls primaerer Slot verworfen
+    - cron: '10,30,50 * * * *'  # Backup #2: +10min, falls auch Backup #1 verworfen
+  workflow_dispatch:
+    inputs:
+      force_light:
+        description: "Light-Lauf erzwingen (nur /bad-hosts, merged mit existing), unabhaengig vom verbleibenden Budget. Vom Watchdog genutzt, damit ein dispatch-Trigger die Liste NICHT auf den 24h-Snapshot schrumpft. Ohne diesen Input entscheidet auch ein manueller dispatch budget-basiert (siehe schedule-Kommentar oben)."
+        type: boolean
+        default: false
+  workflow_run:
+    workflows: ["NETSHIELD Report Generator"]
+    types: [completed]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  GITHUB_SCHEDULE: ${{ github.event.schedule }}
+  FORCE_LIGHT: ${{ github.event.inputs.force_light || 'false' }}
+  GITHUB_EVENT_NAME: ${{ github.event_name }}
+
+permissions:
+  contents: write
+  actions: read
+  issues: write   # FIX KEY-ALARM (2026-08-29, Nutzeranfrage): Issue bei ungueltigen Credentials
+  packages: none
+  pull-requests: none
+  security-events: none
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  honigtopf-monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Skip if Honigtopf ran recently
+        # Zwei Aufgaben in einem Step:
+        #
+        # 1) Report-Piggyback (workflow_run), UNVERAENDERT: verhindert
+        #    doppelte Laeufe/Requests, wenn der eigene Cron eh gerade lief.
+        #    Fenster: 45 Minuten. Daempft zusaetzlich die Trigger-Kette
+        #    Report->Honigtopf->Watchdog.
+        #
+        # 2) FIX CRON-REDUNDANZ (2026-08-30): Idempotenz-Gate fuer die neuen
+        #    Backup-Cron-Slots (+5/+10min, siehe Kommentar am schedule-Block
+        #    oben). Fenster: 12 Minuten. Damit feuern die Backups NUR, wenn
+        #    der primaere Slot tatsaechlich von GitHub verworfen wurde -
+        #    lief er normal, werden +5 und +10 uebersprungen, ohne einen
+        #    einzigen API-Request zu verbrauchen (der Skip greift VOR dem
+        #    Fetch-Step).
+        #    Warum genau 12 Minuten: kleiner als der 20-Minuten-Slot-Abstand
+        #    (sonst wuerde ein regulaerer Folge-Slot faelschlich geskippt)
+        #    und kleiner-gleich der Watchdog-Grace von 12min aus
+        #    watchdog_combined.yml (ZIELE-Zeile "honigtopf.yml|20|0|12|90"),
+        #    damit ein berechtigter Watchdog-Nachhol-Trigger nicht von
+        #    diesem Gate blockiert wird.
+        id: recent
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_run" ]; then
+            FENSTER_MIN=45
+          else
+            FENSTER_MIN=12
+          fi
+          cutoff=$(date -u -d "${FENSTER_MIN} min ago" +%s)
+          recent=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=honigtopf.yml \
+            --status=success \
+            --limit=15 \
+            --json databaseId,startedAt \
+            --jq "[.[] | select(.databaseId != ${{ github.run_id }}) | select((.startedAt|fromdateiso8601) > $cutoff)] | length" 2>/dev/null || echo 0)
+          if [ "$recent" -gt 0 ]; then
+            echo "Honigtopf lief in den letzten ${FENSTER_MIN}min schon ($recent Lauf/Laeufe) - skip, kein Request"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Kein Honigtopf-Lauf in den letzten ${FENSTER_MIN}min - fuehre aus"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: WireGuard – Tunnel für Feed-Abfrage aufbauen
+        # FIX WG-TUNNEL (2026-08-29, Nutzeranfrage "traffic soll durch
+        # meinen eigenen Server/VPN-Anbieter geroutet werden"): baut vor der
+        # eigentlichen HoneyDB-Abfrage einen WireGuard-Tunnel auf. Bewusst
+        # NUR um den Fetch-Step herum (dieser Step + der Abbau-Step direkt
+        # nach "Fetch Honigtopf Threat Data") - Checkout/Commit/Push laufen
+        # weiter direkt ueber GitHub, damit ein VPN-Ausfall/-Blocking beim
+        # Provider nicht den Git-Teil des Jobs mitreisst.
+        #
+        # Secret WG_CONF = kompletter Inhalt der vom VPN-Anbieter (z.B.
+        # ProtonVPN, Mullvad, AirVPN, eigener WireGuard-Server) exportierten
+        # .conf-Datei im wg-quick-Format ([Interface] PrivateKey/Address/DNS,
+        # [Peer] PublicKey/Endpoint/AllowedIPs). Wird 1:1 nach
+        # /etc/wireguard/wg0.conf geschrieben - KEIN Parsen/Zusammenbauen
+        # aus Einzel-Secrets, damit ein frisch heruntergeladener Anbieter-
+        # Export ohne Anpassung funktioniert.
+        #
+        # Fail-CLOSED: nach 'wg-quick up' wird die oeffentliche IP vor/nach
+        # dem Tunnelaufbau verglichen (via ipify.org). Sind sie identisch,
+        # bricht der Job HART ab, statt still ueber die normale GitHub-
+        # Runner-IP weiterzulaufen - sonst waere ein kaputter/falsch
+        # konfigurierter Tunnel unbemerkt wirkungslos (genau das Gegenteil
+        # von Anonymisierung).
+        id: wg_up
+        if: steps.recent.outputs.skip != 'true'
+        env:
+          WG_CONF: ${{ secrets.WG_CONF }}
+        run: |
+          if [ -z "$WG_CONF" ]; then
+            echo "::error::Secret WG_CONF ist leer/nicht gesetzt - kann keinen WireGuard-Tunnel aufbauen."
+            exit 1
+          fi
+
+          echo "Installiere wireguard-tools..."
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq wireguard resolvconf
+
+          echo "Ausgangs-IP (vor Tunnel) ermitteln..."
+          IP_BEFORE=$(curl -s --max-time 10 https://api.ipify.org || echo "unbekannt")
+          echo "IP vor Tunnel: $IP_BEFORE"
+
+          # Config-Datei mit Secret-Inhalt schreiben - NIE den Inhalt selbst
+          # loggen (enthaelt den privaten WireGuard-Key).
+          sudo mkdir -p /etc/wireguard
+          printf '%s\n' "$WG_CONF" | sudo tee /etc/wireguard/wg0.conf > /dev/null
+          sudo chmod 600 /etc/wireguard/wg0.conf
+
+          echo "Baue WireGuard-Tunnel auf..."
+          sudo wg-quick up wg0
+
+          echo "Ausgangs-IP (nach Tunnel) ermitteln..."
+          IP_AFTER=$(curl -s --max-time 10 https://api.ipify.org || echo "unbekannt")
+          echo "IP nach Tunnel: $IP_AFTER"
+
+          if [ "$IP_BEFORE" = "$IP_AFTER" ] || [ "$IP_AFTER" = "unbekannt" ]; then
+            echo "::error::WireGuard-Tunnel steht laut 'wg-quick up' zwar, aber die oeffentliche IP hat sich NICHT geaendert (vorher: $IP_BEFORE, nachher: $IP_AFTER). Breche ab, statt ungeschuetzt ueber die Runner-IP weiterzulaufen."
+            sudo wg-quick down wg0 2>/dev/null || true
+            exit 1
+          fi
+          echo "Tunnel aktiv - Traffic laeuft jetzt ueber $IP_AFTER"
+
+      - name: Fetch Honigtopf Threat Data
+        if: steps.recent.outputs.skip != 'true'
+        id: fetch
+        env:
+          # Alle Repo-Secrets als JSON; die benoetigten Schluessel werden im
+          # Python-Block kodiert nachgeschlagen (keine Klartext-Namen hier).
+          _S: ${{ toJSON(secrets) }}
+        run: |
+          # FIX KEY-ALARM (2026-08-29): 'set +e' rund um den Python-Block,
+          # damit auch bei sys.exit(1) (z.B. "keine gueltige Credential
+          # mehr") noch der GITHUB_OUTPUT fuer den Issue-Alarm-Step gesetzt
+          # wird, BEVOR der urspruengliche Exit-Code weitergereicht wird.
+          # Standardmaessig laeuft dieser Step mit 'bash -e' (GitHub-Actions-
+          # Default) - ohne 'set +e' wuerde er bei python3-Fehlschlag SOFORT
+          # abbrechen, die Zeilen danach wuerden nie erreicht.
+          set +e
+          python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries as _parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+
+              write_text_atomic,
+              fetch_url, safe_urlopen, check_local_feed_age,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
+          import urllib.request
+          import urllib.error
+          import json
+          import os
+          import sys
+          import time
+          import base64
+          import ipaddress
+          from datetime import datetime, timezone, timedelta
+          from zoneinfo import ZoneInfo
+
+          # Secrets als JSON (toJSON(secrets)); Schluessel werden kodiert geholt.
+          _SEC = {}
+          try:
+              _SEC = json.loads(os.environ.get("_S", "{}") or "{}")
+          except Exception:
+              _SEC = {}
+          def _dec(b):
+              return base64.b64decode(b).decode()
+          def _sec(name):
+              return str(_SEC.get(name, "") or "").strip()
+
+          # now: UTC – bleibt so fuer 'today'/'_heute' (Abgleich mit last_seen-
+          # Datumswerten aus der HoneyDB-API, die UTC-basiert sind) und fuer
+          # die Credential-Rotation (now.hour). NICHT auf Berlin-Zeit
+          # umstellen, sonst brechen diese Vergleiche/die Rotation.
+          now     = datetime.now(timezone.utc)
+          today   = now.strftime("%Y-%m-%d")
+
+          # now_str: deutsche Zeit (Europe/Berlin, CET/CEST inkl. DST) – NUR
+          # fuer die Anzeige in Report-Header und honigtopf_ips.txt-Header.
+          now_local = now.astimezone(ZoneInfo("Europe/Berlin"))
+          now_str   = now_local.strftime("%Y-%m-%d %H:%M %Z (Berlin)")
+
+          # ── Voll- vs. Light-Lauf ────────────────────────────────────────────
+          # FIX ALWAYS-FULL (2026-08-29, Nutzeranfrage): Kein Budget-Check
+          # mehr. Jeder normale Lauf ist VOLL. Nur zwei Ausnahmen bleiben
+          # Light (siehe Entscheidung nach Schritt 1 weiter unten):
+          #   1) HARD_LIGHT (Watchdog-Dispatch force_light=true, oder
+          #      Report-Piggyback workflow_run) - bewusst minimaler
+          #      Footprint, nicht maximale Daten.
+          #   2) Der /bad-hosts-Call selbst schlaegt fehl (z.B. alle
+          #      Credentials 401/429) - Sicherheitsnetz, damit ein
+          #      Voll-Sweep nicht auf ohnehin schon kaputten Credentials
+          #      aufbaut.
+          FORCE_LIGHT       = os.environ.get("FORCE_LIGHT", "false").lower() == "true"
+          # EVENT == 'workflow_run' (Report-Piggyback) -> LIGHT erzwingen.
+          EVENT             = os.environ.get("GITHUB_EVENT_NAME", "")
+          HARD_LIGHT        = FORCE_LIGHT or EVENT == "workflow_run"
+          # LIGHT_RUN wird NACH dem bad-hosts-Call (Schritt 1) final gesetzt.
+          # Platzhalter hier, damit spaeterer Code (Schritt 2 Bedingung) sich
+          # nicht aendern muss.
+          LIGHT_RUN         = True  # wird unten ueberschrieben
+          run_mode_label    = "wird nach Schritt 1 bestimmt"
+
+          # ── Credential-Pool dynamisch aufbauen ────────────────────────────
+          # Basis-Credential (unsuffigiert) = Index 1, danach _2, _3, ... bis
+          # MAX_CREDS. Jede Credential braucht ID UND Key; unvollstaendige
+          # Paare werden uebersprungen. So lassen sich neue Accounts allein
+          # ueber neue Secrets (kodierter Praefix + _3/_4 ...) hinzufuegen, ohne
+          # dass dieser Workflow geaendert werden muss.
+          MAX_CREDS = 9
+          _K_ID  = _dec("SE9ORVlEQl9BUElfSUQ=")   # ID-Schluesselname
+          _K_KEY = _dec("SE9ORVlEQl9BUElfS0VZ")   # Key-Schluesselname
+          CREDENTIALS = []  # Liste von (api_id, api_key, label)
+          for i in range(1, MAX_CREDS + 1):
+              suffix = "" if i == 1 else f"_{i}"
+              cid = _sec(f"{_K_ID}{suffix}")
+              key = _sec(f"{_K_KEY}{suffix}")
+              if cid and key:
+                  CREDENTIALS.append((cid, key, f"cred{i}"))
+              elif cid or key:
+                  print(f"  WARNUNG: Credential{suffix} unvollstaendig – uebersprungen")
+
+          if not CREDENTIALS:
+              print("FEHLER: Keine vollstaendige API-Credential gefunden!")
+              print("Mindestens das Basis-Credential-Paar noetig.")
+              print("GitHub Secret anlegen: Settings → Secrets and variables → Actions")
+              sys.exit(1)
+
+          print(f"Credential-Pool: {len(CREDENTIALS)} Credential(s) – Round-Robin aktiv")
+
+          # ── API-Key-Health-Check (Nutzeranfrage, 2026-08-29) ───────────────
+          # FIX KEY-HEALTH: Prueft VOR dem eigentlichen Sweep jede Credential
+          # einzeln auf Gueltigkeit (401/403 = ungueltig/gesperrt/revoked).
+          # Nutzt bewusst einen laut aktueller HoneyDB-Doku (honeydb.io/
+          # threats, Abschnitt "Uncounted Endpoints", live abgerufen
+          # 2026-08-29) NICHT gezaehlten netinfo-Endpunkt - der Check
+          # verbraucht also KEIN Tages-Kontingent, unabhaengig davon wie oft
+          # er laeuft. Ungueltige Credentials werden aus dem Round-Robin-Pool
+          # fuer DIESEN Lauf entfernt, damit sie den Voll-Sweep nicht durch
+          # wiederholte 401-Fehlversuche verlangsamen. Reine Netzwerkfehler
+          # (Timeout etc.) disqualifizieren NICHT - nur ein expliziter
+          # 401/403 gilt als "ungueltig", alles andere bleibt im Pool (kann
+          # ein voruebergehendes Problem sein, kein Grund die Credential zu
+          # verwerfen).
+          KEY_HEALTH_ENDPOINT = "/netinfo/geolocation/8.8.8.8"  # uncounted lt. Doku
+          credential_status = []  # fuer Report/Log: [{"label", "ok", "http"/"error"}]
+          _valid_credentials = []
+          for _cid, _key, _label in CREDENTIALS:
+              try:
+                  with safe_urlopen(
+                      f"{_dec('aHR0cHM6Ly9ob25leWRiLmlvL2FwaQ==')}{KEY_HEALTH_ENDPOINT}",
+                      headers={
+                          _dec("WC1Ib25leURiLUFwaUlk"):  _cid,
+                          _dec("WC1Ib25leURiLUFwaUtleQ=="): _key,
+                          "User-Agent": "NETSHIELD-Honigtopf/1.0",
+                      },
+                      timeout=15,
+                  ) as _r:
+                      credential_status.append({"label": _label, "ok": True, "http": _r.status})
+                      _valid_credentials.append((_cid, _key, _label))
+                      print(f"  Key-Health [{_label}]: OK (HTTP {_r.status})")
+              except urllib.error.HTTPError as _e:
+                  if _e.code in (401, 403):
+                      credential_status.append({"label": _label, "ok": False, "http": _e.code})
+                      print(f"  ::warning::Key-Health [{_label}]: UNGUELTIG (HTTP {_e.code}) – aus Pool entfernt")
+                  else:
+                      # Anderer HTTP-Fehler (z.B. 5xx) - kein Auth-Problem,
+                      # Credential bleibt im Pool.
+                      credential_status.append({"label": _label, "ok": None, "http": _e.code})
+                      _valid_credentials.append((_cid, _key, _label))
+                      print(f"  Key-Health [{_label}]: unklar (HTTP {_e.code}, kein Auth-Fehler) – bleibt im Pool")
+              except Exception as _e:
+                  credential_status.append({"label": _label, "ok": None, "error": str(_e)})
+                  _valid_credentials.append((_cid, _key, _label))
+                  print(f"  Key-Health [{_label}]: Netzwerkfehler ({_e}) – bleibt im Pool")
+
+          _n_ok  = sum(1 for c in credential_status if c["ok"] is True)
+          _n_bad = sum(1 for c in credential_status if c["ok"] is False)
+          _n_unk = len(credential_status) - _n_ok - _n_bad
+          print(f"Key-Health-Zusammenfassung: {_n_ok} OK, {_n_bad} ungueltig, {_n_unk} unklar")
+
+          # FIX KEY-ALARM (2026-08-29, Nutzeranfrage "kann doch ein issue
+          # erstellt werden"): ungueltige Credential-Labels in eine Datei
+          # schreiben, damit der Bash-Teil DIESES Steps (nach dem Python-
+          # Heredoc) sie per GITHUB_OUTPUT an den nachfolgenden Issue-Step
+          # weiterreichen kann. Wird VOR dem sys.exit(1)-Fall unten
+          # geschrieben, damit der Alarm auch greift, wenn ALLE Credentials
+          # ungueltig sind und der Job deshalb abbricht.
+          # FIX SECURITY-HYGIENE (2026-08-30, automatisierter Check
+          # scripts/check_security_hygiene.py meldete Verstoss): direktes
+          # open(...).write() durch write_text_atomic() ersetzt - konsistent
+          # mit dem Rest des Repos (tempfile + fsync + os.replace statt
+          # potenziell unvollstaendigem Write bei Absturz/SIGKILL mitten im
+          # Schreibvorgang). Fuer eine so kleine, fluechtige Marker-Datei in
+          # /tmp waere ein Crash-Risiko zwar gering, aber der Check macht
+          # keine Ausnahme fuer /tmp - und Konsistenz zum Rest des Codes ist
+          # ohnehin sinnvoll.
+          try:
+              write_text_atomic(
+                  "/tmp/honigtopf_invalid_creds.txt",
+                  ",".join(c["label"] for c in credential_status if c["ok"] is False),
+              )
+          except OSError as _e:
+              print(f"  WARNUNG: Konnte invalid_creds-Marker nicht schreiben: {_e}")
+
+          if not _valid_credentials:
+              print("FEHLER: Keine gueltige Credential nach Key-Health-Check uebrig!")
+              sys.exit(1)
+
+          CREDENTIALS = _valid_credentials
+
+          # Rotations-Zeiger: zeigt auf die als naechstes zu nutzende Credential.
+          # Wird bei jeder Anfrage um 1 weitergedreht (Round-Robin), sodass sich
+          # die Last gleichmaessig auf alle Accounts verteilt.
+          #
+          # STARTINDEX aus der UTC-Stunde: GitHub Actions haelt KEINEN Zustand
+          # zwischen Laeufen. Wuerde der Zeiger fix bei 0 starten, naehme jeder
+          # stuendliche Light-Lauf (nur 1 Anfrage) immer cred1 -> keine Rotation
+          # ueber die Laeufe. Durch (Stunde % Pool-Groesse) startet jeder Lauf bei
+          # einer anderen Credential: 14:15->cred(14%n), 15:15->cred(15%n) usw.
+          # So rotieren auch die Light-Laeufe ueber den Tag gleichmaessig durch.
+          _rr_index = now.hour % len(CREDENTIALS)
+          print(f"Rotations-Start: cred{_rr_index + 1} (UTC-Stunde {now.hour} % {len(CREDENTIALS)})")
+
+          BASE_URL = _dec("aHR0cHM6Ly9ob25leWRiLmlvL2FwaQ==")
+          HDR_ID   = _dec("WC1Ib25leURiLUFwaUlk")
+          HDR_KEY  = _dec("WC1Ib25leURiLUFwaUtleQ==")
+
+          # ── IP-Validierung via ipaddress-Modul (korrekt für alle Sonderfälle) ──
+          def is_private(ip):
+              try:
+                  obj = ipaddress.ip_address(ip)
+                  return (obj.version != 4
+                          or obj.is_private
+                          or obj.is_loopback
+                          or obj.is_multicast
+                          or obj.is_reserved
+                          or obj.is_link_local
+                          or obj.is_unspecified)
+              except Exception:
+                  return True
+
+          def is_valid_ipv4(ip):
+              try:
+                  obj = ipaddress.ip_address(ip)
+                  return obj.version == 4
+              except Exception:
+                  return False
+
+          # FP-Set wird oben via load_fp_set() geladen – is_in_fp_set() greift
+          # auf die globalen Strukturen in netshield_common zu. Frühere lokale
+          # Re-Implementierung entfernt (war ungenutzt, _fp_ips/_fp_networks
+          # wurden nirgends gelesen).
+
+          # is_in_fp_set() → importiert aus netshield_common
+          # ── API-Helper ────────────────────────────────────────────────────
+          requests_used = 0
+          # Letzter bekannter 'remaining'-Wert (numerisch, falls parsebar) -
+          # nach jedem erfolgreichen Call aktualisiert. Treibt die
+          # Voll-vs-Light-Entscheidung weiter unten (siehe FULL_RUN_EXTRA_COST).
+          last_remaining_numeric = None
+
+          def api_get(endpoint, label="", retries=3):
+              global requests_used, _rr_index, last_remaining_numeric
+              url = f"{BASE_URL}{endpoint}"
+
+              n = len(CREDENTIALS)
+              # Round-Robin: bei dieser Anfrage mit der naechsten Credential
+              # starten und den Zeiger weiterdrehen. So verteilt sich die Last
+              # ueber die Laeufe hinweg gleichmaessig auf alle Accounts.
+              start = _rr_index
+              _rr_index = (_rr_index + 1) % n
+
+              # Reihenfolge fuer DIESE Anfrage: ab start einmal rundherum.
+              # Bei 401/429 wird die naechste Credential im Ring versucht
+              # (kombiniert Rotation + Fallback). Bei 5xx wird mit derselben
+              # Credential retried (Serverproblem – Wechsel hilft nicht).
+              order = [(start + k) % n for k in range(n)]
+
+              for idx in order:
+                  cred_id, cred_key, cred_label = CREDENTIALS[idx]
+                  for attempt in range(1, retries + 1):
+                      try:
+                          with safe_urlopen(url, headers={
+                              HDR_ID:        cred_id,
+                              HDR_KEY:       cred_key,
+                              "User-Agent":  "NETSHIELD-Honigtopf/1.0",
+                          }, timeout=30) as r:
+                              remaining = consumed = "?"
+                              for _hk, _hv in r.headers.items():
+                                  _l = _hk.lower()
+                                  if _l.endswith("qpm-remaining"):
+                                      remaining = _hv
+                                  elif _l.endswith("qpm-consumed"):
+                                      consumed = _hv
+                              requests_used += 1
+                              # FIX DYNAMIC-FULL: 'remaining' numerisch cachen,
+                              # damit der Aufrufer (Voll/Light-Entscheidung)
+                              # das tatsaechliche Live-Kontingent kennt, statt
+                              # sich auf eine der beiden widerspruechlichen
+                              # HoneyDB-Doku-Angaben (1500/Monat vs. 1000/Tag)
+                              # zu verlassen. "/1500" im Log-String ist nur
+                              # noch ein Anhaltspunkt, keine harte Aussage.
+                              try:
+                                  last_remaining_numeric = int(remaining)
+                              except (TypeError, ValueError):
+                                  pass  # Header fehlt/unerwartetes Format - bleibt None
+                              print(f"  [{label or endpoint}] HTTP {r.status} ({cred_label}) | verbraucht: {consumed} | verbleibend: {remaining}")
+                              return json.loads(r.read().decode("utf-8", errors="ignore"))
+                      except urllib.error.HTTPError as e:
+                          if e.code == 429:
+                              print(f"  RATE LIMIT [{label or endpoint}] ({cred_label}) – naechste Credential")
+                              break  # naechste Credential im Ring probieren
+                          if e.code == 401:
+                              print(f"  AUTHENTIFIZIERUNG FEHLGESCHLAGEN [{label or endpoint}] ({cred_label}) – naechste Credential")
+                              break  # naechste Credential im Ring probieren
+                          if e.code in (500, 502, 503, 504) and attempt < retries:
+                              wait_s = 2 ** attempt
+                              print(f"  HTTP {e.code} [{label or endpoint}] – Retry in {wait_s}s ({attempt}/{retries})")
+                              time.sleep(wait_s)
+                              continue
+                          print(f"  HTTP {e.code} [{label or endpoint}]: {e.reason}")
+                          return None
+                      except Exception as e:
+                          if attempt < retries:
+                              wait_s = 2 ** attempt
+                              print(f"  FEHLER [{label or endpoint}]: {e} – Retry in {wait_s}s ({attempt}/{retries})")
+                              time.sleep(wait_s)
+                              continue
+                          print(f"  FEHLER [{label or endpoint}]: {e}")
+                          return None
+
+              # Alle Credentials im Ring lieferten 401/429
+              print(f"  ALLE CREDENTIALS ERSCHOEPFT [{label or endpoint}]")
+              return None
+
+          def extract_ips_from_list(data):
+              ips = set()
+              if isinstance(data, list):
+                  for entry in data:
+                      ip = entry.get("remote_host", "") if isinstance(entry, dict) else ""
+                      if ip and is_valid_ipv4(ip) and not is_private(ip):
+                          ips.add(ip)
+              return ips
+
+          all_ips = set()
+          stats   = {}
+          # last_seen-Verteilung des /bad-hosts-Feeds → macht im Report sichtbar,
+          # wie frisch die gelieferten Daten sind (heute/gestern/aelter). Rein
+          # informativ; aendert NICHTS an der Filterung (alle remote_host gehen
+          # weiterhin in die Liste, unabhaengig von last_seen).
+          last_seen_dist = {}
+
+          # ── 1) Bad Hosts – alle (letzte 24h) ─────────────────────────────
+          print("\n[1/5] Bad Hosts (alle, letzte 24h)...")
+          data = api_get("/bad-hosts", "bad-hosts")
+          if data:
+              ips = extract_ips_from_list(data)
+              all_ips.update(ips)
+              stats["Bad Hosts (24h, alle Dienste)"] = len(ips)
+              # last_seen pro Eintrag zaehlen (defensiv: Feld kann fehlen)
+              if isinstance(data, list):
+                  for _e in data:
+                      if isinstance(_e, dict):
+                          _ls = _e.get("last_seen") or "unbekannt"
+                          last_seen_dist[_ls] = last_seen_dist.get(_ls, 0) + 1
+              print(f"  → {len(ips)} IPs")
+              if last_seen_dist:
+                  _heute = now.strftime("%Y-%m-%d")
+                  print(f"  last_seen heute ({_heute}): {last_seen_dist.get(_heute, 0)} | "
+                        f"Verteilung: {dict(sorted(last_seen_dist.items(), reverse=True))}")
+          else:
+              stats["Bad Hosts (24h, alle Dienste)"] = 0
+
+          # ── Voll-vs-Light final entscheiden (nach dem Pflicht-bad-hosts-Call) ──
+          if HARD_LIGHT:
+              LIGHT_RUN = True
+              _decision_reason = "Watchdog-Dispatch/Report-Piggyback erzwingt Light"
+          elif data is None:
+              # bad-hosts selbst ist schon fehlgeschlagen (z.B. alle
+              # Credentials erschoepft/429/401) - dann keinen Voll-Sweep
+              # hinterherschicken, der auf denselben kaputten Credentials
+              # nur weiter scheitern wuerde. Sicher: Light erzwingen.
+              LIGHT_RUN = True
+              _decision_reason = "bad-hosts-Call fehlgeschlagen (Credential/API-Problem) - erzwinge Light"
+          else:
+              # FIX ALWAYS-FULL (2026-08-29, Nutzeranfrage): kein Budget-Check
+              # mehr - jeder erfolgreiche, nicht-HARD_LIGHT-Lauf ist VOLL.
+              # Kontingent-Deckung siehe Kommentar am Cron-Schedule oben
+              # (>= 3 Credentials empfohlen fuer Dauer-Voll-Betrieb bei */20).
+              LIGHT_RUN = False
+              _decision_reason = "FIX ALWAYS-FULL: immer Voll-Sweep (Budget-Check entfernt)"
+          run_mode_label = "LIGHT" if LIGHT_RUN else "VOLL"
+          print(f"\nRun-Modus: {run_mode_label} ({_decision_reason})")
+
+          # ── 2) Bad Hosts nach Dienst ──────────────────────────────────────
+          # Request-Budget:
+          #   Geplant (stündlich Light): 1 (bad-hosts) je Lauf × 24 = ~720/Monat.
+          #   Voll-Lauf (nur via dispatch): 1 (services) + 1 (bad-hosts)
+          #     + N (Service-Endpunkte) ≈ 34 Req – fällt nur bei manuellem Trigger an.
+          #
+          # Service-Liste wird DYNAMISCH aus /services gezogen, damit wir keine
+          # Namen raten (404-Risiko) und nur Honigtopf-aktive Dienste abfragen.
+          #
+          # FP-Block-Liste (case-insensitive): Diese Dienste werden BEWUSST
+          # ausgeschlossen, weil legitimer Traffic gegen unbekannte Hosts
+          # auf diesen Ports nennenswert vorkommt:
+          #   SMTP → Mailserver-zu-Mailserver-Probes (SPF/DKIM, Spam-Filter,
+          #          Backscatter, Mailing-List-Software)
+          #   DNS  → legitime Recursion-Probes von DNS-Resolvern
+          #   NTP  → legitime Time-Pollers (pool.ntp.org-Teilnehmer pollen
+          #          weltweit gegen unbekannte Hosts)
+          #   IMAP/POP3/HTTPS → ähnliche Mail-/Web-Client-Risiken
+          FP_BLOCK_SERVICES = {"SMTP", "DNS", "NTP", "IMAP", "POP3", "HTTPS"}
+          FALLBACK_SERVICES = ["SSH", "HTTP", "TELNET", "FTP"]
+
+          # /services + alle Service-spezifischen Endpunkte – nur im Voll-Lauf
+          # Bei LIGHT_RUN: skip → spart ~33 Requests, hält Tageslimit ein
+          if LIGHT_RUN:
+              svc_data      = None
+              SERVICES      = []
+              service_stats = {}
+              print(f"\n[2a/5] Services-Liste – LIGHT_RUN, übersprungen")
+              print(f"[2/5]  Bad Hosts nach Dienst – LIGHT_RUN, übersprungen")
+          else:
+              # /services zuerst holen → liefert aktuell aktive Services
+              print(f"\n[2a/5] Services-Liste abrufen...")
+              svc_data = api_get("/services", "services")
+
+              def _extract_service_name(entry):
+                  """Defensiv: Service-Name aus Eintrag extrahieren."""
+                  if isinstance(entry, str):
+                      return entry
+                  if isinstance(entry, dict):
+                      for key in ("service", "name", "service_name"):
+                          v = entry.get(key)
+                          if isinstance(v, str) and v:
+                              return v
+                  return None
+
+              SERVICES = []
+              if svc_data and isinstance(svc_data, list):
+                  for entry in svc_data:
+                      name = _extract_service_name(entry)
+                      if name and name.upper() not in {s.upper() for s in FP_BLOCK_SERVICES}:
+                          SERVICES.append(name)
+                  print(f"  → {len(svc_data)} Services gemeldet, {len(SERVICES)} nach FP-Filter")
+              if not SERVICES:
+                  print(f"  WARNUNG: /services lieferte nichts Brauchbares – Fallback-Liste")
+                  SERVICES = FALLBACK_SERVICES[:]
+              print(f"\n[2/5] Bad Hosts nach Dienst ({', '.join(SERVICES)})...")
+              service_stats = {}
+              for svc in SERVICES:
+                  data = api_get(f"/bad-hosts/{svc}", f"bad-hosts/{svc}")
+                  if data:
+                      ips = extract_ips_from_list(data)
+                      all_ips.update(ips)
+                      service_stats[svc] = len(ips)
+                      stats[f"Bad Hosts – {svc}"] = len(ips)
+                      print(f"  → {svc}: {len(ips)} IPs")
+                  else:
+                      service_stats[svc] = 0
+                      stats[f"Bad Hosts – {svc}"] = 0
+
+          # ── 3) Sensor Event Data – gestern (letzter vollständiger Tag) ────
+          # WICHTIG: /sensor-data/{date} liefert NUR Events deiner eigenen
+          # Agent-Sensoren zurück (laut API-Doku: "all of YOUR
+          # sensor event data"). Ohne eigene Sensoren ist count immer 0.
+          # Default: skip → spart 1 Request/Tag (count-Call).
+          # Wer eigene Sensoren betreibt: HONIGTOPF_OWN_SENSORS=true setzen.
+          OWN_SENSORS    = os.environ.get("HONIGTOPF_OWN_SENSORS", "false").lower() == "true"
+          yesterday      = (now - timedelta(days=1)).strftime("%Y-%m-%d")
+          sensor_ips     = set()
+          sensor_total   = 0   # Gesamt-Events (inkl. Duplikate) für Report-Transparenz
+          sensor_skipped = not OWN_SENSORS
+
+          if sensor_skipped:
+              print(f"\n[3/5] Sensor Event Data – übersprungen (HONIGTOPF_OWN_SENSORS != true)")
+              print(f"  Endpunkt liefert nur eigene Sensor-Events; ohne eigene Agents immer 0.")
+          else:
+              print(f"\n[3/5] Sensor Event Data – {yesterday} (mit Paging)...")
+
+          # Zuerst Count abrufen (1 Request) – nur wenn eigene Sensoren konfiguriert
+          count_data = api_get(f"/sensor-data/{yesterday}/count", f"sensor-data/{yesterday}/count") if not sensor_skipped else None
+          if count_data and isinstance(count_data, dict):
+              total_events = count_data.get("count", 0)
+              print(f"  Gesamt Events am {yesterday}: {total_events}")
+
+              # Paging: max. 5 Pages (5000 Events) um Request-Limit zu schonen
+              MAX_PAGES = 5
+              from_id   = 0
+              page      = 0
+              while page < MAX_PAGES:
+                  endpoint = f"/sensor-data/{yesterday}"
+                  if from_id > 0:
+                      endpoint += f"?from_id={from_id}"
+                  data = api_get(endpoint, f"sensor-data page {page+1}")
+                  if not data or not isinstance(data, dict):
+                      break
+                  events  = data.get("data", [])
+                  # API liefert "from_id" als next-page-Cursor; fehlt er → keine weiteren Seiten.
+                  # Fallback: wenn "next_from_id" statt "from_id" geliefert wird, beide prüfen.
+                  # FIX CURSOR1: Cursor-Extraktion mit expliziter None-Prüfung.
+                  # "from_id" hat Vorrang vor "next_from_id"; fehlt beides → None.
+                  if "from_id" in data:
+                      next_from_id = data["from_id"]
+                  elif "next_from_id" in data:
+                      next_from_id = data["next_from_id"]
+                  else:
+                      next_from_id = None
+                  for event in events:
+                      ip = event.get("remote_host", "")
+                      if ip and is_valid_ipv4(ip) and not is_private(ip):
+                          sensor_ips.add(ip)
+                  sensor_total += len(events)
+                  print(f"  Page {page+1}: {len(events)} Events, from_id={next_from_id}")
+                  page += 1
+                  # FIX CURSOR1: Abbruchbedingungen VOR from_id-Zuweisung prüfen.
+                  # Vorher stand `from_id = next_from_id` nach dem break → bei
+                  # next_from_id=0 wurde 0 zugewiesen und die nächste Iteration
+                  # rief ?from_id=0 auf (= erster Request) → Duplikat-Seiten.
+                  # Jetzt: erst prüfen, dann nur bei Fortschritt zuweisen.
+                  if next_from_id is None:
+                      break   # Kein Cursor → letzte Seite
+                  if not events:
+                      break   # Leere Seite → keine weiteren Daten
+                  if not isinstance(next_from_id, int):
+                      break   # Unerwarteter Typ → sicher abbrechen
+                  from_id = next_from_id
+          elif not sensor_skipped:
+              print(f"  Sensor-Count für {yesterday} nicht verfügbar")
+
+          all_ips.update(sensor_ips)
+          if not sensor_skipped:
+              stats[f"Sensor Events – {yesterday} (bis 5000)"] = len(sensor_ips)
+              stats[f"Sensor Events – {yesterday} (gesamt, m. Duplikaten)"] = sensor_total
+              print(f"  → {len(sensor_ips)} einzigartige Sensor-IPs ({sensor_total} Events gesamt)")
+
+          # ── 4) Services (aktive Dienste, letzte 24h) ──────────────────────
+          # Liefert Übersicht welche Dienste aktiv angegriffen werden.
+          # Wiederverwendung von svc_data aus Schritt [2a/5] – kein neuer Request.
+          print(f"\n[4/5] Services (aktive Dienste, letzte 24h)...")
+          top_services = []
+          if svc_data and isinstance(svc_data, list):
+              top_services = sorted(svc_data, key=lambda x: x.get("count", 0) if isinstance(x, dict) else 0, reverse=True)[:10]
+              print(f"  → {len(svc_data)} aktive Dienste (aus Schritt [2a/5] übernommen)")
+          else:
+              print("  → Keine Dienst-Daten verfügbar")
+
+          # ── 5) Zusammenfassung ────────────────────────────────────────────
+          print(f"\n[5/5] Zusammenfassung...")
+          print(f"  Gesamt einzigartige IPs: {len(all_ips)}")
+          print(f"  API Requests verbraucht: {requests_used}")
+
+          # ── Ausgabedatei schreiben ────────────────────────────────────────
+          HONIGTOPF_FILE = "honigtopf_ips.txt"
+          existing = set()
+          if os.path.exists(HONIGTOPF_FILE):
+              with open(HONIGTOPF_FILE) as f:
+                  existing = {l.strip() for l in f if l.strip() and not l.startswith("#")}
+
+          # FIX BUG#3: FP- und Whitelist-Filter VOR der Delta-Berechnung anwenden.
+          # Vorher wurden new_ips/removed_ips vor dem Filtern berechnet → Report
+          # zeigte überhöhte +neu/-entfernt-Zahlen (gefilterte IPs zählten als "neu").
+          # Blacklist-Inhalt war korrekt; nur Statistik war falsch.
+          # FP-Filter: IPs aus state/false_positives_set.json entfernen
+          fp_removed = {ip for ip in all_ips if is_in_fp_set(ip)}
+          if fp_removed:
+              all_ips -= fp_removed
+              print(f"FP-Filter: {len(fp_removed)} IPs entfernt")
+          # FIX BUG-WL-HONIGTOPF (2026-04-19): Whitelist-Filter fehlte komplett.
+          # Ohne diesen Filter landeten IPs aus whitelist.json (Google 172.217/16,
+          # 74.125/16, 173.194/16, Cloudflare 141.101.64/18, 103.22.200/22 etc.)
+          # in honigtopf_ips.txt. Downstream (combined) filtert zwar via
+          # parse_entries(use_protected_check=True), aber die Zwischendatei selbst
+          # ist dann verunreinigt – wer honigtopf_ips.txt direkt als Firewall-
+          # Blocklist nutzt, sperrt damit Google/Cloudflare.
+          # Analog zu honeypot_monitor.yml und update_bot_detector.yml.
+          wl_removed = {ip for ip in all_ips if is_whitelisted(ip)}
+          if wl_removed:
+              all_ips -= wl_removed
+              print(f"Whitelist-Filter: {len(wl_removed)} IPs entfernt")
+
+          # FIX FRESHNESS (2026-08-29, Nutzeranfrage): rohen, UNGEMERGTEN
+          # IP-Satz dieses API-Abrufs sichern - Basis fuer den Freshness-
+          # Check weiter unten. Muss VOR dem LIGHT_RUN-Merge (naechster
+          # Block) erfasst werden, sonst wuerde bei Light-Laeufen staendig
+          # die alte 'existing'-Menge mit reingezaehlt und der Hash wuerde
+          # sich nie/kaum aendern - das waere kein echtes Freshness-Signal
+          # mehr, sondern nur ein Abbild der Merge-Logik.
+          fetched_ips_raw = set(all_ips)
+
+          # LIGHT_RUN: existing dazu mergen, damit die Datei zwischen den Läufen nicht
+          # schrumpft. Die kumulierte Sammlung (inkl. Service-IPs aus einem etwaigen
+          # dispatch-Voll-Lauf) bleibt erhalten,
+          # die /bad-hosts-IPs aus diesem Light-Lauf werden ergänzt.
+          # WICHTIG: existing nochmal durch FP/WL-Filter, falls sich die Listen
+          # zwischenzeitlich geändert haben (sonst bleiben FPs hängen).
+          if LIGHT_RUN and existing:
+              existing_clean = {
+                  ip for ip in existing
+                  if is_valid_ipv4(ip)
+                  and not is_private(ip)
+                  and not is_in_fp_set(ip)
+                  and not is_whitelisted(ip)
+              }
+              before_merge = len(all_ips)
+              all_ips |= existing_clean
+              dropped = len(existing) - len(existing_clean)
+              print(f"LIGHT_RUN-Merge: +{len(all_ips) - before_merge} IPs aus existing übernommen "
+                    f"({dropped} aus existing gefiltert)")
+
+          # Delta NACH allen Filtern berechnen → korrekte Report-Statistik
+          new_ips     = all_ips - existing
+          removed_ips = existing - all_ips
+          final_ips   = sorted(all_ips, key=lambda ip: (tuple(int(o) for o in ip.split('/')[0].split('.')), ip))
+
+          # ── Freshness-Check (Nutzeranfrage, 2026-08-29) ────────────────────
+          # FIX FRESHNESS: erkennt, ob die HoneyDB-API ueber mehrere Laeufe
+          # hinweg WIRKLICH neue Daten liefert, oder ob der Feed "einfriert"
+          # (z.B. gecachte/veraltete Antworten, API-seitiges Problem). Basis
+          # ist ein sha256-Hash von fetched_ips_raw (der rohe API-Abruf
+          # DIESES Laufs, VOR Light-Run-Merge mit der alten Datei - siehe
+          # Kommentar oben). Bleibt der Hash ueber mehrere aufeinanderfolgende
+          # Laeufe identisch, zaehlt unchanged_runs hoch; bei jeder Aenderung
+          # wird er zurueckgesetzt. Analog zum bestehenden Muster in
+          # honeypot_monitor.yml (state/honeypot_feed_freshness.json),
+          # aber als eigene Datei, da Honigtopf nur EINE Quelle (HoneyDB)
+          # hat statt vieler einzelner Feeds.
+          import hashlib
+          FRESHNESS_FILE = "state/honigtopf_freshness.json"
+          _freshness = {}
+          if os.path.exists(FRESHNESS_FILE):
+              try:
+                  with open(FRESHNESS_FILE) as f:
+                      _freshness = json.load(f)
+              except (json.JSONDecodeError, OSError) as e:
+                  print(f"WARNUNG: {FRESHNESS_FILE} nicht lesbar ({e}) – starte leer")
+                  _freshness = {}
+
+          _fresh_hash = hashlib.sha256(
+              "\n".join(sorted(fetched_ips_raw)).encode("utf-8")
+          ).hexdigest()
+          _old_fresh = _freshness.get("honeydb", {})
+          if _old_fresh.get("hash") == _fresh_hash:
+              _unchanged_runs     = _old_fresh.get("unchanged_runs", 0) + 1
+              _last_changed_utc   = _old_fresh.get("last_changed_utc", now.isoformat())
+              _last_changed_local = _old_fresh.get("last_changed_local", now_str)
+          else:
+              _unchanged_runs     = 0
+              _last_changed_utc   = now.isoformat()
+              _last_changed_local = now_str
+          _freshness["honeydb"] = {
+              "hash": _fresh_hash,
+              "unchanged_runs": _unchanged_runs,
+              "last_changed_utc": _last_changed_utc,
+              "last_changed_local": _last_changed_local,
+              "raw_fetch_count": len(fetched_ips_raw),
+              "run_mode": run_mode_label,
+          }
+          write_text_atomic(FRESHNESS_FILE, json.dumps(_freshness, indent=2, sort_keys=True))
+          print(f"{FRESHNESS_FILE} aktualisiert (unchanged_runs={_unchanged_runs})")
+
+          # Schwelle: 6 aufeinanderfolgende Laeufe mit identischem Roh-Hash.
+          # Bei */20-Cron (alle Laeufe jetzt VOLL, siehe FIX ALWAYS-FULL) sind
+          # das 2 Stunden ohne jede Aenderung im API-Rohabruf - bei einem
+          # aktiven Honeypot-Netzwerk ein starkes Stale-Signal, aber lang
+          # genug, um normale ruhige Phasen nicht faelschlich zu meckern.
+          FRESHNESS_STALE_THRESHOLD = 6
+          _feed_is_stale = _unchanged_runs >= FRESHNESS_STALE_THRESHOLD
+          if _feed_is_stale:
+              _msg = (f"HoneyDB liefert seit {_unchanged_runs} aufeinanderfolgenden Laeufen "
+                      f"IDENTISCHE Roh-Daten (letzte Aenderung: {_last_changed_local}) - "
+                      f"moeglicherweise gecachte/veraltete API-Antworten oder Feed-Problem.")
+              print(f"::warning file=honigtopf.yml::{_msg}")
+              print(f"WARNUNG: {_msg}")
+
+          # ── Report immer zuerst schreiben ────────────────────────────────
+          lines = []
+          lines.append("# Honigtopf – Report")
+          lines.append(f"**Aktualisiert:** {now_str}  ")
+          lines.append(f"**Modus:** `{run_mode_label}` "
+                       f"({'nur /bad-hosts, merged mit existing' if LIGHT_RUN else 'voll: /services + /bad-hosts + alle Service-Endpunkte'})\n")
+          lines.append("---")
+          lines.append("## API-Key-Status\n")
+          lines.append("| Credential | Status |")
+          lines.append("|---|---|")
+          for _c in credential_status:
+              if _c["ok"] is True:
+                  _status_txt = f"✅ gültig (HTTP {_c.get('http', '?')})"
+              elif _c["ok"] is False:
+                  _status_txt = f"❌ ungültig (HTTP {_c.get('http', '?')}) – aus Pool entfernt"
+              else:
+                  _status_txt = f"⚠️ unklar ({_c.get('error', _c.get('http', '?'))}) – im Pool belassen"
+              lines.append(f"| {_c['label']} | {_status_txt} |")
+          lines.append("")
+          lines.append("---")
+          lines.append("## Freshness (liefert die API wirklich neue Daten?)\n")
+          if _feed_is_stale:
+              lines.append(f"🔴 **EINGEFROREN** – seit **{_unchanged_runs}** Läufen identische Roh-Daten "
+                            f"(letzte Änderung: {_last_changed_local}).")
+          else:
+              lines.append(f"🟢 Aktiv – letzte Änderung im Roh-Abruf: {_last_changed_local} "
+                            f"({_unchanged_runs} unveränderte Läufe seither).")
+          lines.append("")
+          lines.append("---")
+          lines.append("## Endpunkte & Ergebnisse\n")
+          lines.append("| Endpunkt | Treffer |")
+          lines.append("|---|---:|")
+          for key, value in stats.items():
+              lines.append(f"| {key} | **{value:,}** |")
+          lines.append("")
+          # Feed-Frische: zeigt, wie aktuell die /bad-hosts-Daten sind. HoneyDB
+          # liefert ein rollierendes Fenster; heutige IPs laufen ueber den Tag
+          # auf. last_seen=heute ist der frischeste Anteil.
+          if last_seen_dist:
+              _heute = now.strftime("%Y-%m-%d")
+              lines.append("---")
+              lines.append("## Feed-Frische – /bad-hosts (last_seen)\n")
+              lines.append(f"Davon **heute ({_heute})**: **{last_seen_dist.get(_heute, 0):,}** IPs\n")
+              lines.append("| last_seen | IPs |")
+              lines.append("|---|---:|")
+              for _ls in sorted(last_seen_dist, reverse=True):
+                  lines.append(f"| {_ls} | **{last_seen_dist[_ls]:,}** |")
+              lines.append("")
+          lines.append("---")
+          lines.append("| Metrik | Wert |")
+          lines.append("|---|---|")
+          lines.append(f"| Gesamt Honigtopf-IPs | **{len(final_ips):,}** |")
+          lines.append(f"| Neu | **+{len(new_ips):,}** |")
+          lines.append(f"| Entfernt | **-{len(removed_ips):,}** |")
+          lines.append("")
+          lines.append("---")
+          lines.append("> ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.")
+          lines.append(f"\n---\n*Generiert: {now_str}*")
+
+          write_text_atomic("reports/honigtopf_report.md", "\n".join(lines))
+          print("  reports/honigtopf_report.md geschrieben")
+
+          # ── Leerungsschutz ────────────────────────────────────────────────
+          # FIX #11 / FIX LS2: MIN_ENTRIES auf 500 erhöht (entspricht unterer Normalwert
+          # 500–5000 IPs). sys.exit(1) statt sys.exit(0) damit GitHub Actions den
+          # Step als fehlgeschlagen markiert und im UI sichtbar wird.
+          MIN_ENTRIES = 500
+          if len(final_ips) < MIN_ENTRIES:
+              msg = f"Nur {len(final_ips)} Honigtopf-IPs (< {MIN_ENTRIES}) – behalte bestehende Datei"
+              print(f"::warning file=honigtopf.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(1)
+
+          # FIX ATOMIC: write_ip_list statt open("w") – Crash-sicher.
+          write_ip_list(
+              HONIGTOPF_FILE,
+              final_ips,
+              header_lines=[
+                  "NETSHIELD Honigtopf IP Blocklist",
+                  f"Aktualisiert: {now_str}",
+                  f"Gesamt: {len(final_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt",
+              ],
+          )
+
+          print(f"  {HONIGTOPF_FILE}: {len(final_ips)} IPs geschrieben")
+
+          print(f"\nFERTIG: {len(final_ips)} IPs | {requests_used} API Requests")
+          EOF
+          PY_EXIT=$?
+          set -e
+
+          # FIX KEY-ALARM: invalid_creds-Marker (von Python geschrieben,
+          # siehe Key-Health-Check oben) als Step-Output durchreichen -
+          # leer, wenn die Datei fehlt oder keine Credential ungueltig war.
+          if [ -f /tmp/honigtopf_invalid_creds.txt ]; then
+            INVALID_CREDS="$(cat /tmp/honigtopf_invalid_creds.txt)"
+          else
+            INVALID_CREDS=""
+          fi
+          echo "invalid_creds=${INVALID_CREDS}" >> "$GITHUB_OUTPUT"
+          rm -f /tmp/honigtopf_invalid_creds.txt
+
+          exit "$PY_EXIT"
+
+      - name: WireGuard – Tunnel für Feed-Abfrage abbauen
+        # Gegenstueck zu "WireGuard - Tunnel fuer Feed-Abfrage aufbauen".
+        # always(), damit der Tunnel auch bei einem fehlgeschlagenen Fetch
+        # sauber abgebaut wird (Hygiene/Log-Klarheit; der Runner wird zwar
+        # ohnehin nach dem Job weggeworfen, aber ein sauberer Abbau
+        # verhindert z.B. dass 'Skip if Honigtopf ran recently' bei
+        # zukuenftigen Debugging-Reruns auf demselben Runner-Image
+        # (Self-Hosted-Fall) einen haengenden Tunnel vorfindet.
+        if: always() && steps.wg_up.outcome != 'skipped'
+        run: |
+          sudo wg-quick down wg0 2>/dev/null || echo "Tunnel war nicht (mehr) aktiv - nichts abzubauen."
+
+      - name: Commit
+        if: always()  # FIX: auch bei Leerungsschutz-Exit den Report committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch honigtopf_report.md 2>/dev/null || true
+          git add honigtopf_ips.txt reports/honigtopf_report.md state/honigtopf_freshness.json
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Honigtopf: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                git checkout --theirs honigtopf_ips.txt reports/honigtopf_report.md state/honigtopf_freshness.json 2>/dev/null || true
+                git add honigtopf_ips.txt reports/honigtopf_report.md state/honigtopf_freshness.json 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi
+
+      - name: WireGuard-Alarm (GitHub Issue) öffnen/aktualisieren
+        # FIX WG-ALARM (2026-08-29, Nutzeranfrage "sollte wireguard nicht
+        # gehen kommt dann ein issue"): analog zum Key-Alarm-Muster - wenn
+        # der Tunnelaufbau-Step (id: wg_up) fehlschlaegt (WG_CONF fehlt,
+        # 'wg-quick up' scheitert, oder der Fail-Closed-IP-Check keine
+        # Aenderung feststellt), wird automatisch ein GitHub Issue
+        # aufgemacht bzw. aktualisiert. steps.wg_up.outcome == 'failure'
+        # feuert NUR bei echtem Fehlschlag - bei Piggyback-Skip
+        # (steps.recent.outputs.skip=true) ist wg_up 'skipped', nicht
+        # 'failure', loest also KEINEN Alarm aus.
+        if: always() && steps.wg_up.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 Honigtopf: WireGuard-Tunnel fehlgeschlagen"
+          BODY="Der WireGuard-Tunnelaufbau (Step \"WireGuard – Tunnel für Feed-Abfrage aufbauen\") ist fehlgeschlagen.
+
+          Moegliche Ursachen: Secret WG_CONF fehlt/leer, 'wg-quick up' schlaegt fehl (ungueltige Config, Server nicht erreichbar), oder der Fail-Closed-IP-Check hat KEINE Aenderung der oeffentlichen IP festgestellt (Tunnel stand zwar, hat aber nichts geroutet). Details im Log dieses Laufs.
+
+          Der Job wurde daraufhin abgebrochen, BEVOR die HoneyDB-Abfrage lief - es wurde also nichts ungeschuetzt ueber die normale GitHub-Runner-IP abgefragt.
+
+          Lauf: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')
+          Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Bestehendes WireGuard-Alarm-Issue #$EXISTING gefunden - kommentiere statt neu zu erstellen."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" --body "$BODY"
+          else
+            echo "Kein offenes WireGuard-Alarm-Issue gefunden - erstelle neues."
+            gh issue create --repo "${{ github.repository }}" --title "$TITLE" --body "$BODY"
+          fi
+
+      - name: WireGuard-Alarm schließen, falls behoben
+        # Gegenrichtung: sobald ein Lauf den Tunnel wieder erfolgreich
+        # aufbaut, wird ein offenes WireGuard-Alarm-Issue automatisch
+        # kommentiert und geschlossen.
+        if: always() && steps.wg_up.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 Honigtopf: WireGuard-Tunnel fehlgeschlagen"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Offenes WireGuard-Alarm-Issue #$EXISTING gefunden - aktueller Lauf hat den Tunnel erfolgreich aufgebaut, schließe."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" \
+              --body "✅ Behoben: Lauf vom $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z') hat den WireGuard-Tunnel erfolgreich aufgebaut. Issue wird automatisch geschlossen."
+            gh issue close "$EXISTING" --repo "${{ github.repository }}"
+          else
+            echo "Kein offenes WireGuard-Alarm-Issue vorhanden - nichts zu tun."
+          fi
+
+      - name: Key-Alarm (GitHub Issue) öffnen/aktualisieren
+        # FIX KEY-ALARM (2026-08-29, Nutzeranfrage "sollten die keys nimmer
+        # angenommen werden kann doch ein issue erstellt werden"): sobald der
+        # Key-Health-Check (siehe Fetch-Step) mindestens eine Credential als
+        # ungueltig (401/403) markiert, wird automatisch ein GitHub Issue
+        # aufgemacht bzw. aktualisiert - analog zum bestehenden Alarm-Muster
+        # in ip_ablauf.yml (Job "prognose"/"verifikation"). Laeuft auch wenn
+        # der Fetch-Step insgesamt fehlgeschlagen ist (z.B. ALLE Credentials
+        # ungueltig) - siehe 'always()' plus outcome-Check unten, der einen
+        # reinen Piggyback-Skip (steps.recent.outputs.skip=true) ausschliesst.
+        if: >-
+          always() &&
+          steps.fetch.outcome != 'skipped' &&
+          steps.fetch.outputs.invalid_creds != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 Honigtopf: HoneyDB-API-Key(s) werden nicht mehr angenommen"
+          BODY="Der Key-Health-Check im Honigtopf-Workflow hat mindestens eine ungueltige/gesperrte HoneyDB-Credential festgestellt (HTTP 401/403 beim Auth-Check gegen den uncounted netinfo-Endpunkt).
+
+          Betroffene Credential(s): \`${{ steps.fetch.outputs.invalid_creds }}\`
+
+          Diese Credential(s) wurden fuer den aktuellen Lauf aus dem Round-Robin-Pool entfernt. Bitte pruefen/erneuern unter honeydb.io und das zugehoerige GitHub Secret (HONEYDB_API_ID[_N] / HONEYDB_API_KEY[_N]) aktualisieren.
+
+          Lauf: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')
+          Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Bestehendes Key-Alarm-Issue #$EXISTING gefunden - kommentiere statt neu zu erstellen."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" --body "$BODY"
+          else
+            echo "Kein offenes Key-Alarm-Issue gefunden - erstelle neues."
+            gh issue create --repo "${{ github.repository }}" --title "$TITLE" --body "$BODY"
+          fi
+
+      - name: Key-Alarm schließen, falls behoben
+        # Gegenrichtung: sobald ein Lauf wieder ALLE Credentials als gueltig
+        # meldet, wird ein offenes Key-Alarm-Issue automatisch kommentiert
+        # und geschlossen - kein manuelles Aufraeumen noetig.
+        if: >-
+          always() &&
+          steps.fetch.outcome != 'skipped' &&
+          steps.fetch.outputs.invalid_creds == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 Honigtopf: HoneyDB-API-Key(s) werden nicht mehr angenommen"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Offenes Key-Alarm-Issue #$EXISTING gefunden - aktueller Lauf meldet alle Credentials gueltig, schließe."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" \
+              --body "✅ Behoben: Lauf vom $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z') meldet alle Credentials wieder gueltig. Issue wird automatisch geschlossen."
+            gh issue close "$EXISTING" --repo "${{ github.repository }}"
+          else
+            echo "Kein offenes Key-Alarm-Issue vorhanden - nichts zu tun."
+          fi

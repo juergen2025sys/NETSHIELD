@@ -1,0 +1,61 @@
+# Workflow Health Checker – Report
+**Aktualisiert:** 2026-09-01 08:13 CEST (Europe/Berlin)
+
+**Workflows:** 29 | ✅ 25 OK | ⚠️ 7 Warnung | ❌ 0 Fehler
+
+---
+## ⚠️ Warnungen
+
+| Datei | Check | Detail |
+|---|---|---|
+| `honigtopf.yml → update_bot_detector.yml` | Workflow-Reihenfolge / Puffer zu knapp | 22:25 UTC → 22:35 UTC (10min < 15min); 22:30 UTC → 22:35 UTC (5min < 15min) |
+| `honigtopf.yml` | urlopen ohne timeout | Block 0: urllib.urlopen() ohne timeout= – hängt ewig bei totem Host/Netzwerkausfall |
+| `ip_ablauf.yml` | continue-on-error aktiv | continue-on-error=true gesetzt – Fehler können still bleiben; Review ob das wirklich beabsichtigt ist |
+| `ledger_diagnose.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
+| `update_combined_blacklist.yml` | Untrusted Feed hq=True | 2 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "rtbh_com_tr" (https://list.rtbh.com.tr/output.txt); "rutgers_drop" (https://report.cs.rutgers.edu/DROP/attackers) |
+| `Cross-Workflow` | Doppelte Feed-URLs | 5 URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: strongips.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; abuseipdb-s100-30d.ipv4 in auto_feed_discovery.yml+update_combined_blacklist.yml; 5.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; greylist-latest.csv in auto_feed_discovery.yml+honeypot_monitor.yml; block.txt in auto_feed_discovery.yml+update_combined_blacklist.yml |
+| `update_combined_blacklist.yml` | Cache-Key Prefix falsch | Save-Key 'netshield-seen-db-sqlite-v1-${{' hat nicht den erwarteten Prefix 'v2' – potenzieller Cache-Overwrite |
+| `honigtopf.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC → 00:07 UTC (7min < 60min Mindestpuffer); 00:05 UTC → 00:07 UTC (2min < 60min Mindestpuffer); 00:10 UTC → 00:27 UTC (17min < 60min Mindestpuffer); 00:20 UTC → 00:27 UTC (7min < 60min Mindestpuffer); 00:25 UTC → 00:27 UTC (2min < 60min Mindestpuffer) |
+
+## 🏥 Production Health
+
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+
+*Alle Production Health Checks bestanden.*
+
+## Übersicht
+
+| Workflow | Status | Fehler | Warnungen | Cron |
+|---|---|---|---|---|
+| `auto_feed_discovery.yml` | ✅ OK | 0 | 0 | `37 4 * * 0`, `23 7 * * 0`, `47 11 * * 0` |
+| `codeql.yml` | ✅ OK | 0 | 0 | `0 3 * * 0` |
+| `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
+| `dependabot-auto-merge.yml` | ✅ OK | 0 | 0 | – |
+| `dependabot-heal-conflicts.yml` | ✅ OK | 0 | 0 | – |
+| `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
+| `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
+| `feed_ip_finder.yml` | ✅ OK | 0 | 0 | – |
+| `feed_overlap_report.yml` | ✅ OK | 0 | 0 | `25 3 * * 0` |
+| `force_cancel_stuck_runs.yml` | ✅ OK | 0 | 0 | – |
+| `history_fresh_start.yml` | ✅ OK | 0 | 0 | `15 3 1 * *` |
+| `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 5,11,17,23 * * *` |
+| `honigtopf.yml` | ⚠️ | 0 | 1 | `*/20 * * * *`, `5,25,45 * * * *`, `10,30,50 * * * *` |
+| `ip_ablauf.yml` | ⚠️ | 0 | 1 | `30 6 * * 1`, `55 */3 * * *` |
+| `ledger_diagnose.yml` | ⚠️ | 0 | 1 | – |
+| `netshield_report_generator.yml` | ✅ OK | 0 | 0 | `30 * * * *` |
+| `repo_size_check.yml` | ✅ OK | 0 | 0 | – |
+| `run_tests.yml` | ✅ OK | 0 | 0 | – |
+| `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
+| `sniffcat_fetch.yml` | ✅ OK | 0 | 0 | – |
+| `tweetfeed_monitor.yml` | ✅ OK | 0 | 0 | `45 2 * * *` |
+| `update-blocklist.yml` | ✅ OK | 0 | 0 | `30 1 * * 1`, `30 1 * * 3` |
+| `update_bot_detector.yml` | ✅ OK | 0 | 0 | `35 22 * * *` |
+| `update_combined_blacklist.yml` | ✅ OK | 0 | 0 | `7 */3 * * *`, `27 */3 * * *`, `47 */3 * * *` |
+| `update_confidence_blacklist.yml` | ✅ OK | 0 | 0 | `47 1,4,7,10,13,16,19,22 * * *` |
+| `watchdog_combined.yml` | ✅ OK | 0 | 0 | `*/15 * * * *` |
+| `watchdog_ip_ablauf.yml` | ✅ OK | 0 | 0 | `*/30 * * * *` |
+| `workflow_health_checker.yml` | ✅ OK | 0 | 0 | – |
+| `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
+
+---
+*Generiert: 2026-09-01 08:13 CEST (Europe/Berlin) | 29 Workflow-Dateien geprüft*

@@ -1,0 +1,2134 @@
+name: IP-Ablauf
+
+# ============================================================================
+# FIX 2026-08-23 (Nutzerwunsch "alles in einer Datei"): Zusammengeführt aus
+# den vorherigen Dateien seen_db_expiry_forecast.yml und
+# ip_ablauf_verifikation.yml. Bewusst weiterhin ZWEI GETRENNTE JOBS mit
+# eigenem Zeitplan statt einem gemeinsamen Lauf - Grund: unterschiedliche
+# Kosten und Taktung waeren sonst nicht vereinbar:
+#   - "prognose" braucht das komplette seen_db.json (~9,3 Mio. Eintraege,
+#     Cache/Release-Backup-Restore) - das 8x/Tag zu laden waere unnoetig
+#     teuer, woechentlich reicht fuer eine Vorschau voellig.
+#   - "verifikation" braucht NUR die paar bereits committeten Kleindateien
+#     (keine seen_db.json noetig) und soll bewusst haeufig laufen (alle 3h),
+#     damit ein Rueckfall (siehe unten) schnell auffaellt - auf woechentlich
+#     runterzubremsen wuerde genau den Zweck des Checks untergraben.
+# Ein gemeinsamer Job/Trigger haette also entweder unnoetige Kosten (Job 1
+# 8x/Tag) oder verzoegerte Fehlererkennung (Job 2 nur 1x/Woche) bedeutet -
+# stattdessen: eine Datei, zwei Jobs, jeder mit seinem eigenen Rhythmus.
+#
+# ── Job "prognose" ──────────────────────────────────────────────────────
+# Liest seen_db.json und erstellt eine Prognose, wie viele IPs in den
+# naechsten Zeitfenstern aus der Blockliste fallen:
+#   - "active"-Eintraege (last = echtes Datum): 180-Tage-Expiry
+#     (EXPIRY_DAYS in update_combined_blacklist.yml)
+#   - "watchlist"-Eintraege (last = Sentinel "2000-01-01", first-basiert):
+#     30-Tage-Expiry (WATCHLIST_EXPIRY_DAYS in update_combined_blacklist.yml)
+# Reine Lesepruefung - schreibt NICHTS in seen_db.json selbst, nur einen
+# Report. Beantwortet Fragen wie "wieviele IPs verlieren am 4.9. ihre
+# Bestaetigung" datenbasiert statt aus Vermutung.
+#
+# ── Job "verifikation" ──────────────────────────────────────────────────
+# Prueft, ob der FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE in
+# update_combined_blacklist.yml tatsaechlich haelt, was er verspricht: IPs,
+# die einmal ohne Zweitbestaetigung abgelaufen sind (und deshalb in
+# state/watchlist_expired_history.json bzw. state/active_expired_history.json
+# mit ihrem eingefrorenen first/last-Datum stehen), duerfen NIE WIEDER in
+# einer aktuellen Output-Datei auftauchen. Genau DAS war der Bug vor dem Fix
+# (Loeschung -> Wiederauftauchen Stunden spaeter mit zurueckgesetzter Uhr).
+# Schreibt reports/ip_ablauf_verifikation_report.md + reports/ip_ablauf_
+# verifikation_report.zip (fester Pfad, ueberschreibt sich selbst - siehe
+# Kommentare im Job) sowie state/ip_ablauf_verifikation_verlauf.json als
+# 30-Tage-Zyklus-Zeitreihe (Reset alle 30 Tage, kein endloses Wachstum).
+# ============================================================================
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 6 * * 1'    # woechentlich Montags 06:30 UTC - Job "prognose"
+    - cron: '55 */3 * * *'  # alle 3h, 55min nach Combined - Job "verifikation"
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  # ══════════════════════════════════════════════════════════════════════
+  # JOB 1: Prognose (vorher seen_db_expiry_forecast.yml)
+  # ══════════════════════════════════════════════════════════════════════
+  prognose:
+    # Laeuft bei manuellem Dispatch IMMER, per Cron NUR beim woechentlichen
+    # Slot - sonst wuerde dieser teure Job auch bei jedem 3h-Verifikations-
+    # Trigger unnoetig mitlaufen.
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '30 6 * * 1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # DIAGNOSE 5 (2026-08-23, Nutzerwunsch "was fehlt noch zur Diagnose"):
+    # issues:write ergaenzt - analog zum Job "verifikation", fuer den
+    # Alarm-Mechanismus weiter unten (deckt sowohl fehlendes seen_db.json/
+    # Cache/Backup als auch die Ledger-Konsistenzpruefung ab).
+    permissions:
+      contents: write
+      issues: write
+    concurrency:
+      group: netshield-seen-db-writers
+      cancel-in-progress: false
+      queue: max
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Restore seen_db Cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: seen_db.json
+          key: netshield-seen-db-v2-${{ github.run_id }}
+          restore-keys: |
+            netshield-seen-db-v2-
+            netshield-seen-db-v1-
+            netshield-seen-db-
+
+      - name: Restore seen_db Backup from GitHub Release (falls Cache leer)
+        if: hashFiles('seen_db.json') == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p state
+          if gh release download seen-db-backup \
+              --repo "${{ github.repository }}" \
+              --pattern "seen_db_backup.json.gz.part*" \
+              --dir state/ 2>/dev/null; then
+            COUNT=$(ls state/seen_db_backup.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+            echo "seen_db Backup von Release geladen: ${COUNT} Part(s)"
+            cat state/seen_db_backup.json.gz.part* > state/seen_db_backup.json.gz
+            gzip -dc state/seen_db_backup.json.gz > seen_db.json
+            echo "seen_db.json aus Release-Backup entpackt: $(du -h seen_db.json | cut -f1)"
+          else
+            echo "::error::Weder Cache noch Release-Backup verfuegbar - kein seen_db.json zum Auswerten."
+            exit 1
+          fi
+
+      - name: Restore Anti-Churn-Ledger from GitHub Release (falls vorhanden)
+        # CHANGE LEDGER-OFF-GIT (2026-08-26): beide Ledger-Dateien liegen
+        # jetzt als Release-Assets (siehe update_combined_blacklist.yml),
+        # nicht mehr im Git-Checkout. Dieser Step laedt sie herunter und
+        # entpackt sie zu genau denselben lokalen Pfaden, die der
+        # bestehende Python-Code weiter unten erwartet (state/watchlist_
+        # expired_history.json, state/active_expired_history.json) - dadurch
+        # muss an der eigentlichen Lese-Logik NICHTS geaendert werden.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p state
+          if gh release download anti-churn-ledger-backup \
+              --repo "${{ github.repository }}" \
+              --pattern "*_expired_history.json.gz.part*" \
+              --dir state/ 2>/dev/null; then
+            for LEDGER_NAME in watchlist_expired_history active_expired_history; do
+              if ls state/${LEDGER_NAME}.json.gz.part* >/dev/null 2>&1; then
+                cat state/${LEDGER_NAME}.json.gz.part* > state/${LEDGER_NAME}.json.gz
+                gzip -dc state/${LEDGER_NAME}.json.gz > state/${LEDGER_NAME}.json
+                rm -f state/${LEDGER_NAME}.json.gz.part* state/${LEDGER_NAME}.json.gz
+                echo "${LEDGER_NAME}.json wiederhergestellt: $(du -h state/${LEDGER_NAME}.json | cut -f1)"
+              fi
+            done
+          else
+            echo "Kein anti-churn-ledger-backup-Release gefunden - Ledger-Dateien bleiben leer (normal vor dem ersten Ablauf-Ereignis)"
+          fi
+
+      - name: Expiry-Prognose erstellen
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python3 << 'EOF'
+          import json, os, sys
+          sys.path.insert(0, "scripts")
+          from netshield_common import write_text_atomic, write_json_atomic
+          from datetime import datetime, timezone, timedelta, date
+          from zoneinfo import ZoneInfo
+
+          DB_FILE     = "seen_db.json"
+          REPORT_FILE = "reports/ip_ablauf.md"
+          # Werte aus update_combined_blacklist.yml uebernommen (dort die
+          # tatsaechliche Quelle der Wahrheit - hier nur gespiegelt, damit
+          # die Prognose exakt zu deren Ablauflogik passt).
+          EXPIRY_DAYS           = 180
+          WATCHLIST_EXPIRY_DAYS = 30
+          now = datetime.now(timezone.utc)
+          now_str = (
+              now.astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
+          today = now.date()
+
+          if not os.path.exists(DB_FILE):
+              msg = "seen_db.json nicht vorhanden - kein Cache/Release-Backup verfuegbar."
+              print(f"::error::{msg}")
+              write_text_atomic(REPORT_FILE,
+                  f"# Seen-DB Expiry Forecast\n\n*{msg}*\n\n*Lauf: {now_str}*\n")
+              sys.exit(1)
+
+          # ── Leerungsschutz / Groessen-Sanity ────────────────────────────
+          # Gleicher 5-GiB-Cap wie in update_combined_blacklist.yml
+          # (_SEENDB_LIMIT) - Schutz gegen korrupte/boesartige Datei.
+          MIN_ENTRIES = 100_000
+          _SEENDB_LIMIT = 5 * 1024 * 1024 * 1024
+          _dsize = os.path.getsize(DB_FILE)
+          if _dsize > _SEENDB_LIMIT:
+              msg = (f"seen_db.json zu gross: {_dsize/1024/1024:.1f} MB - "
+                     f"moegliche Korruption, breche ab.")
+              print(f"::error::{msg}")
+              write_text_atomic(REPORT_FILE,
+                  f"# Seen-DB Expiry Forecast\n\n*{msg}*\n\n*Lauf: {now_str}*\n")
+              sys.exit(1)
+
+          print(f"Lade {DB_FILE} ({_dsize/1024/1024:.1f} MB)...")
+          with open(DB_FILE) as f:
+              db = json.load(f)
+          print(f"{len(db):,} IPs geladen")
+
+          if len(db) < MIN_ENTRIES:
+              print(f"::warning::Nur {len(db)} Eintraege (< {MIN_ENTRIES}) - "
+                    f"seen_db wirkt unvollstaendig. Report wird trotzdem "
+                    f"erstellt, aber mit Vorsicht zu interpretieren.")
+
+          # DIAGNOSE 3 (2026-08-23, Nutzerwunsch "was fehlt noch zur
+          # Diagnose"): Tiefe Ledger-Konsistenzpruefung. Der Job "verifikation"
+          # (alle 3h) prueft nur die Output-Dateien gegen die Ablauf-Listen -
+          # ein guter, schneller Rueckfall-Detektor, aber er sieht nicht die
+          # rohe seen_db.json selbst. Hier, wo wir seen_db ohnehin geladen
+          # haben, koennen wir direkt auf Datenbank-Ebene pruefen: Steht eine
+          # Ablauf-Listen-IP noch/wieder in seen_db, aber NICHT mit dem
+          # eingefrorenen Datum? Das waere ein noch frueheres Warnsignal -
+          # der Fix waere schon auf DB-Ebene umgangen worden, BEVOR es
+          # ueberhaupt in einer Output-Datei sichtbar wird.
+          ledger_bugs = []
+          for _ledger_datei, _ledger_label in [
+              ("state/watchlist_expired_history.json", "Watchlist"),
+              ("state/active_expired_history.json", "Active"),
+          ]:
+              if not os.path.exists(_ledger_datei):
+                  continue
+              try:
+                  with open(_ledger_datei) as f:
+                      _ledger_eintraege = json.load(f).get("entries", {})
+              except Exception as e:
+                  print(f"WARNUNG: {_ledger_datei} nicht lesbar fuer Konsistenzpruefung: {e}")
+                  continue
+              for _ip, _frozen_eintrag in _ledger_eintraege.items():
+                  # FIX BUG-PRUNE-WRONG-DATE (2026-08-26): Ledger-Eintraege
+                  # sind jetzt Dicts {"first"/"last": ..., "eingefroren_am": ...}
+                  # statt reiner Datums-Strings - siehe ausfuehrlicher
+                  # Kommentar in update_combined_blacklist.yml. Rueckwaerts-
+                  # kompatibel: alte reine String-Eintraege werden hier
+                  # genauso behandelt wie das relevante Feld eines neuen Dicts.
+                  if isinstance(_frozen_eintrag, dict):
+                      _frozen_datum = _frozen_eintrag.get("first" if _ledger_label == "Watchlist" else "last")
+                  else:
+                      _frozen_datum = _frozen_eintrag
+                  _entry = db.get(_ip)
+                  if _entry is None or not isinstance(_entry, dict):
+                      continue  # nicht in seen_db - genau wie erwartet, kein Bug
+                  _entry_last = _entry.get("last", "2000-01-01")
+                  if _ledger_label == "Watchlist":
+                      # Erwartung: wenn ueberhaupt in db, dann NUR mit last=
+                      # Sentinel UND first=exakt dem eingefrorenen Datum
+                      # (sofortiger Re-Expiry im selben Lauf haette den
+                      # Eintrag laengst wieder entfernt - bleibt er trotzdem
+                      # drin mit einem ANDEREN first, wurde der Freeze
+                      # umgangen).
+                      if _entry_last == "2000-01-01" and _entry.get("first") != _frozen_datum:
+                          ledger_bugs.append(
+                              f"{_ip} (Watchlist-Ledger, eingefroren auf first={_frozen_datum}): "
+                              f"steht in seen_db mit first={_entry.get('first')} - "
+                              f"Freeze wurde umgangen"
+                          )
+                  else:  # Active
+                      # Erwartung: bleibt entweder ganz draussen, oder mit
+                      # last=exakt dem eingefrorenen Datum (Freeze wirkt),
+                      # oder mit einem NEUEREN last-Datum durch echte
+                      # Zweitbestaetigung (legitime Promotion, kein Bug -
+                      # laesst sich von hier aus nicht von einem Bug
+                      # unterscheiden, siehe Kommentar unten). Ein Rueckfall
+                      # auf last=Sentinel (Watchlist-Pfad) waere aber in
+                      # jedem Fall unplausibel und wird gemeldet.
+                      if _entry_last == "2000-01-01":
+                          ledger_bugs.append(
+                              f"{_ip} (Active-Ledger, eingefroren auf last={_frozen_datum}): "
+                              f"steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - "
+                              f"unplausibler Pfadwechsel"
+                          )
+          if ledger_bugs:
+              print(f"::error ::{len(ledger_bugs)} Ledger-Konsistenz-Problem(e) gefunden "
+                    f"(Freeze auf DB-Ebene umgangen)")
+          else:
+              print("Ledger-Konsistenzpruefung: keine Probleme gefunden")
+
+          # ── Buckets fuer aktive Eintraege (last = echtes Datum) ─────────
+          # Zeitfenster: bereits ueberfaellig (Bug-Indikator, sollte 0 sein -
+          # Cleanup-Pass in update_combined_blacklist.yml raeumt das auf),
+          # 0-7 / 8-14 / 15-30 / 31-60 / 61-90 / 91-180 Tage bis Ablauf,
+          # sowie "kein Ablauf in Sicht" (>180 Tage, kann bei falscher
+          # Datenlage theoretisch vorkommen, praktisch nicht bei korrektem
+          # last<=heute).
+          buckets_active = {
+              "bereits ueberfaellig (Cleanup-Pass sollte das entfernen)": 0,
+              "0-7 Tage": 0, "8-14 Tage": 0, "15-30 Tage": 0,
+              "31-60 Tage": 0, "61-90 Tage": 0, "91-180 Tage": 0,
+          }
+          # Watchlist-Eintraege (last=Sentinel, first-basiert, 30-Tage-Fenster)
+          buckets_watch = {
+              "bereits ueberfaellig": 0,
+              "0-3 Tage": 0, "4-7 Tage": 0, "8-14 Tage": 0, "15-30 Tage": 0,
+          }
+          corrupt = 0
+          active_total = 0
+          watch_total = 0
+          # Fuer die konkrete "was passiert am Datum X"-Frage: Zaehler pro
+          # Ablaufdatum, damit Ausreisser-Tage (z.B. durch einen einmaligen
+          # Massenimport) sichtbar werden statt nur in groben Buckets zu
+          # verschwinden.
+          per_expiry_date = {}
+          # Analoge Tages-Aufschluesselung fuer den Watchlist-Pfad. Zweck:
+          # der Anti-Churn-Fix in update_combined_blacklist.yml (eingefrorene
+          # first/last-Daten, siehe state/watchlist_expired_history.json)
+          # wirkt sich HIER zuerst sichtbar aus, weil das Watchlist-Fenster
+          # (30 Tage) viel kuerzer ist als das Active-Fenster (180 Tage). Mit
+          # den exakten Tagen laesst sich Tag fuer Tag pruefen, ob die
+          # vorhergesagten Abgaenge auch WIRKLICH nicht mehr zurueckkommen
+          # (siehe dazu auch Job "verifikation" unten in dieser Datei, der
+          # die Rueckkehr aktiv prueft - diese Tabelle hier liefert nur die
+          # Erwartung/Prognose dazu).
+          per_expiry_date_watch = {}
+
+          def _bucket_days(days_left, buckets, edges):
+              if days_left < 0:
+                  return list(buckets.keys())[0]
+              for i, edge in enumerate(edges):
+                  if days_left <= edge:
+                      return list(buckets.keys())[i + 1]
+              return list(buckets.keys())[-1]
+
+          ACTIVE_EDGES = [7, 14, 30, 60, 90, 180]
+          WATCH_EDGES  = [3, 7, 14, 30]
+
+          for ip, entry in db.items():
+              try:
+                  if not isinstance(entry, dict):
+                      corrupt += 1
+                      continue
+                  last_str = entry.get("last", "2000-01-01")
+                  if last_str == "2000-01-01":
+                      # Watchlist-Pfad: first-basiert, 30 Tage
+                      first_str = entry.get("first", last_str)
+                      try:
+                          first_dt = datetime.strptime(first_str, "%Y-%m-%d").date()
+                      except Exception:
+                          corrupt += 1
+                          continue
+                      expiry_date = first_dt + timedelta(days=WATCHLIST_EXPIRY_DAYS + 1)
+                      days_left = (expiry_date - today).days
+                      watch_total += 1
+                      buckets_watch[_bucket_days(days_left, buckets_watch, WATCH_EDGES)] += 1
+                      # Watchlist-Fenster ist mit 30 Tagen ohnehin kurz - anders
+                      # als beim Active-Pfad (60 von 180 Tagen) wird hier das
+                      # GESAMTE Fenster tagesgenau erfasst, keine Kappung noetig.
+                      if 0 <= days_left <= WATCHLIST_EXPIRY_DAYS:
+                          key = expiry_date.isoformat()
+                          per_expiry_date_watch[key] = per_expiry_date_watch.get(key, 0) + 1
+                  else:
+                      try:
+                          last_dt = datetime.strptime(last_str, "%Y-%m-%d").date()
+                      except Exception:
+                          corrupt += 1
+                          continue
+                      expiry_date = last_dt + timedelta(days=EXPIRY_DAYS + 1)
+                      days_left = (expiry_date - today).days
+                      active_total += 1
+                      buckets_active[_bucket_days(days_left, buckets_active, ACTIVE_EDGES)] += 1
+                      # Nur nahe Ablauftermine (<=60 Tage) einzeln zaehlen -
+                      # weiter in der Zukunft liegende Tage sind fuer eine
+                      # konkrete Tages-Prognose noch nicht relevant und
+                      # wuerden die Tabelle nur aufblaehen.
+                      if 0 <= days_left <= 60:
+                          key = expiry_date.isoformat()
+                          per_expiry_date[key] = per_expiry_date.get(key, 0) + 1
+              except Exception:
+                  corrupt += 1
+                  continue
+
+          if corrupt:
+              print(f"WARN: {corrupt} korrupte/unlesbare Eintraege uebersprungen")
+          print(f"Aktive Eintraege: {active_total:,} | Watchlist-Eintraege: {watch_total:,}")
+
+          # ── Report bauen ──────────────────────────────────────────────
+          lines = [
+              "# Seen-DB Expiry Forecast",
+              "",
+              f"Lauf: {now_str}",
+              f"Gesamt: {len(db):,} IPs in seen_db.json "
+              f"({active_total:,} aktiv/180-Tage-Pfad, {watch_total:,} Watchlist/30-Tage-Pfad"
+              + (f", {corrupt} korrupt uebersprungen" if corrupt else "") + ")",
+              "",
+              "## Aktive IPs (180-Tage-Fenster) – wann faellt die Bestaetigung aus?",
+              "",
+              "| Zeitfenster | Anzahl IPs |",
+              "|---|---:|",
+          ]
+          for k, v in buckets_active.items():
+              lines.append(f"| {k} | {v:,} |")
+
+          lines += [
+              "",
+              "## Watchlist-IPs (30-Tage-Fenster) – wann faellt die Erstsichtung aus?",
+              "",
+              "| Zeitfenster | Anzahl IPs |",
+              "|---|---:|",
+          ]
+          for k, v in buckets_watch.items():
+              lines.append(f"| {k} | {v:,} |")
+
+          if per_expiry_date_watch:
+              lines += [
+                  "",
+                  "## Konkrete Ablauftermine, Watchlist-IPs, naechste 30 Tage",
+                  "",
+                  "Tagesgenau, im Gegensatz zu den groben Zeitfenstern oben - "
+                  "damit sich der Anti-Churn-Fix (eingefrorene first-Daten bei "
+                  "erneutem Auftauchen, siehe state/watchlist_expired_history.json) "
+                  "konkret nachvollziehen laesst: Faellt die IP-Zahl an einem "
+                  "vorhergesagten Tag tatsaechlich, und bleibt sie danach unten "
+                  "(pruefbar zusaetzlich mit dem Job \"verifikation\" in dieser "
+                  "Datei, der aktiv auf Rueckkehrer prueft)?",
+                  "",
+                  "| Datum | Anzahl IPs, die an diesem Tag ihre Erstsichtungs-Frist verlieren |",
+                  "|---|---:|",
+              ]
+              for d in sorted(per_expiry_date_watch.keys()):
+                  lines.append(f"| {d} | {per_expiry_date_watch[d]:,} |")
+
+          # ── FIX PROGNOSE-GENAUIGKEIT (2026-08-30, Nutzerwunsch "was einbauen
+          # das man das besser feststellen kann", erweitert auf "fuer die
+          # 30tage regel und 180tage regel fehlt das noch") ───────────────────
+          # Zweck: die Tages-Prognose oben ist eine reine Momentaufnahme ("wenn
+          # sich nichts mehr aendert") - sie zeigt NICHT, wie gut sie im
+          # Nachhinein wirklich getroffen hat. Hier wird pro Ablaufdatum die
+          # LETZTE (aktuellste) Prognose persistiert - fuer BEIDE Pfade
+          # getrennt (Watchlist/30T und Active/180T), da beide unterschiedliche
+          # Formeln (first+31 bzw. last+181; Cleanup nutzt >30/>180) und unterschiedliche Ledger
+          # (state/watchlist_expired_history.json bzw.
+          # state/active_expired_history.json) haben. Der Job "verifikation"
+          # (laeuft alle 3h) gleicht das spaeter gegen die Realitaet ab und
+          # schreibt das Ergebnis (vorhergesagt vs. tatsaechlich, "Rettungs-
+          # quote" = per Zweitbestaetigung gerettete IPs) in einen eigenen
+          # Report-Abschnitt, je Pfad. Absichtlich als eigene, kleine State-
+          # Datei (nicht in den Anti-Churn-Ledgern selbst) - unabhaengig davon,
+          # da eine andere Frage beantwortet wird (Prognose-Genauigkeit statt
+          # Rueckfall-Erkennung).
+          FORECAST_HISTORY_FILE = "state/ip_ablauf_forecast_verlauf.json"
+          _forecast_hist = {
+              "watchlist": {"pending": {}, "resolved": []},
+              "active":    {"pending": {}, "resolved": []},
+          }
+          if os.path.exists(FORECAST_HISTORY_FILE):
+              try:
+                  with open(FORECAST_HISTORY_FILE) as _ff:
+                      _geladen = json.load(_ff)
+                  if isinstance(_geladen, dict):
+                      if "watchlist" in _geladen or "active" in _geladen:
+                          # Neues Format (verschachtelt nach Pfad).
+                          for _pfad_key in ("watchlist", "active"):
+                              _teil = _geladen.get(_pfad_key, {})
+                              if isinstance(_teil, dict):
+                                  _forecast_hist[_pfad_key]["pending"]  = _teil.get("pending", {})
+                                  _forecast_hist[_pfad_key]["resolved"] = _teil.get("resolved", [])
+                      else:
+                          # FIX FORECAST-MIGRATION: altes Format (nur Watchlist,
+                          # flach "pending"/"resolved" auf oberster Ebene) - vor
+                          # dieser Erweiterung geschrieben. Uebernehmen statt
+                          # verwerfen, damit bereits gesammelte Watchlist-
+                          # Prognosen nicht verloren gehen.
+                          _forecast_hist["watchlist"]["pending"]  = _geladen.get("pending", {})
+                          _forecast_hist["watchlist"]["resolved"] = _geladen.get("resolved", [])
+              except Exception as _e:
+                  print(f"WARNUNG: {FORECAST_HISTORY_FILE} nicht lesbar, starte leer: {_e}")
+
+          # Fuer jedes Ablaufdatum die LETZTE Prognose ueberschreiben (nicht
+          # anhaengen) - wir wollen die aktuellste Einschaetzung je Datum,
+          # nicht jede Zwischen-Prognose seit Wochen. Watchlist: naechste 30
+          # Tage (komplettes Fenster). Active: nur Tage mit days_left <= 60
+          # (siehe per_expiry_date oben - weiter in der Zukunft liegende Tage
+          # werden dort bewusst nicht einzeln erfasst, gilt hier also genauso).
+          for _d, _cnt in per_expiry_date_watch.items():
+              _forecast_hist["watchlist"]["pending"][_d] = {
+                  "predicted": _cnt,
+                  "forecast_made_on": today.isoformat(),
+              }
+          for _d, _cnt in per_expiry_date.items():
+              _forecast_hist["active"]["pending"][_d] = {
+                  "predicted": _cnt,
+                  "forecast_made_on": today.isoformat(),
+              }
+
+          write_json_atomic(FORECAST_HISTORY_FILE, _forecast_hist)
+          print(f"{FORECAST_HISTORY_FILE} aktualisiert: "
+                f"Watchlist {len(_forecast_hist['watchlist']['pending'])} ausstehend/"
+                f"{len(_forecast_hist['watchlist']['resolved'])} abgeglichen | "
+                f"Active {len(_forecast_hist['active']['pending'])} ausstehend/"
+                f"{len(_forecast_hist['active']['resolved'])} abgeglichen")
+
+          if per_expiry_date:
+              lines += [
+                  "",
+                  "## Konkrete Ablauftermine, aktive IPs, naechste 60 Tage",
+                  "",
+                  "Zeigt einzelne Tage mit ueberdurchschnittlich vielen "
+                  "gleichzeitig ablaufenden IPs (z.B. durch einen "
+                  "einmaligen Massenimport an einem bestimmten Tag vor "
+                  "180 Tagen).",
+                  "",
+                  "| Datum | Anzahl IPs, die an diesem Tag ihre Bestaetigung verlieren |",
+                  "|---|---:|",
+              ]
+              for d in sorted(per_expiry_date.keys()):
+                  lines.append(f"| {d} | {per_expiry_date[d]:,} |")
+
+          # DIAGNOSE 3: Ergebnis der tiefen Ledger-Konsistenzpruefung von
+          # oben. Anders als der schnelle 3h-Rueckfall-Check in "verifikation"
+          # (der nur Output-Dateien sieht) prueft dies gegen die rohe
+          # seen_db.json selbst - laeuft aber nur woechentlich mit, da nur
+          # dieser Job vollen seen_db-Zugriff hat.
+          lines += [
+              "",
+              "## Ledger-Konsistenz (gegen aktuelle seen_db geprüft)",
+              "",
+          ]
+          if ledger_bugs:
+              lines.append(
+                  f"❌ **{len(ledger_bugs)} Inkonsistenz(en) gefunden** - der Anti-Churn-Freeze "
+                  f"wurde auf Datenbank-Ebene umgangen (frueher/schwerwiegender als ein "
+                  f"Rueckfall in einer Output-Datei):"
+              )
+              lines.append("")
+              for _bug in ledger_bugs:
+                  lines.append(f"- {_bug}")
+          else:
+              lines.append(
+                  f"✅ Keine Inkonsistenzen - alle Ablauf-Listen-IPs, die noch/wieder in "
+                  f"seen_db stehen, haben das erwartete eingefrorene Datum "
+                  f"(oder eine plausible echte Neubestätigung)."
+              )
+              lines.append("")
+              lines.append(
+                  "*Hinweis: Fuer den Active-Pfad kann eine legitime Zweitbestaetigung "
+                  "(2+ HQ-Feed-Familien) nicht von einem Bug unterschieden werden, daher "
+                  "wird dort nur der eindeutig unplausible Fall (Rueckfall auf den "
+                  "Watchlist-Pfad) geprueft.*"
+              )
+
+          write_text_atomic(REPORT_FILE, "\n".join(lines) + "\n")
+          print(f"\nReport geschrieben: {REPORT_FILE}")
+
+          if ledger_bugs:
+              sys.exit(1)  # Job rot markieren, wenn der Freeze umgangen wurde
+          EOF
+
+      - name: Commit and Push
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports/ip_ablauf.md state/ip_ablauf_forecast_verlauf.json 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Seen-DB Expiry Forecast: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                git checkout --theirs reports/ip_ablauf.md state/ip_ablauf_forecast_verlauf.json 2>/dev/null || true
+                git add reports/ip_ablauf.md state/ip_ablauf_forecast_verlauf.json 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi
+
+      - name: Prognose-Alarm (GitHub Issue) öffnen/aktualisieren
+        # DIAGNOSE 5 (2026-08-23, Nutzerwunsch "was fehlt noch zur
+        # Diagnose"): analog zum Alarm-Mechanismus im Job "verifikation" -
+        # deckt beide Fehlerursachen dieses Jobs ab: (a) weder Cache noch
+        # Release-Backup fuer seen_db.json verfuegbar, (b) Ledger-
+        # Konsistenzpruefung hat eine Umgehung des Freeze gefunden. Anders
+        # als beim Job "verifikation" gibt es hier keine strukturierte
+        # Detail-Datei (die zwei Fehlerursachen sind zu unterschiedlich fuer
+        # ein gemeinsames Format) - der Issue-Body verweist stattdessen auf
+        # das Workflow-Log dieses Laufs und den (falls vorhanden) Report.
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 IP-Ablauf: Prognose-Job fehlgeschlagen"
+          BODY="Der Job \"prognose\" (Seen-DB Expiry Forecast) ist fehlgeschlagen.
+
+          Moegliche Ursachen: seen_db.json weder aus Cache noch aus dem Release-Backup ladbar, ODER die Ledger-Konsistenzpruefung hat eine Umgehung des Anti-Churn-Freeze gefunden (Details im Log oder in reports/ip_ablauf.md, Sektion \"Ledger-Konsistenz\").
+
+          Lauf: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')
+          Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Bestehendes Alarm-Issue #$EXISTING gefunden - kommentiere statt neu zu erstellen."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" --body "$BODY"
+          else
+            echo "Kein offenes Alarm-Issue gefunden - erstelle neues."
+            gh issue create --repo "${{ github.repository }}" --title "$TITLE" --body "$BODY"
+          fi
+
+      - name: Prognose-Alarm schließen, falls behoben
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 IP-Ablauf: Prognose-Job fehlgeschlagen"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Offenes Alarm-Issue #$EXISTING gefunden - aktueller Lauf war erfolgreich, schließe."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" \
+              --body "✅ Behoben: Lauf vom $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z') war erfolgreich. Issue wird automatisch geschlossen."
+            gh issue close "$EXISTING" --repo "${{ github.repository }}"
+          else
+            echo "Kein offenes Alarm-Issue vorhanden - nichts zu tun."
+          fi
+
+  # ══════════════════════════════════════════════════════════════════════
+  # JOB 2: Verifikation (vorher ip_ablauf_verifikation.yml)
+  # ══════════════════════════════════════════════════════════════════════
+  verifikation:
+    # FIX RACE-PROGNOSE-VERIFIKATION (2026-08-30, im echten Betrieb entdeckt):
+    # Ohne "needs" liefen prognose und verifikation bei manuellem Dispatch
+    # PARALLEL auf zwei getrennten Runnern. Wenn verifikations eigener
+    # "Checkout Repository"-Schritt VOR dem Commit+Push von prognose lief,
+    # sah verifikation noch die alte (leere) state/ip_ablauf_forecast_
+    # verlauf.json - Symptom: "Live-Fortschritt" zeigte "Keine ausstehenden
+    # Vorhersagen", obwohl prognose im selben Lauf frische Daten geschrieben
+    # hatte. Unter normalem Cron-Betrieb trat das NIE auf (die beiden Cron-
+    # Zeitpunkte ueberschneiden sich nie, pro Trigger laeuft nur einer der
+    # beiden Jobs) - nur bei manuellem workflow_dispatch beider Jobs
+    # gleichzeitig.
+    # Fix: "needs: prognose" erzwingt eine Reihenfolge (verifikation startet
+    # erst, wenn prognose fertig ist - inkl. dessen Commit+Push, VOR
+    # verifikations eigenem Checkout). "always()" ist zwingend noetig, sonst
+    # wuerde verifikation im normalen 3h-Cron-Betrieb automatisch mit-
+    # uebersprungen, weil prognose dort (anderer Cron-Zeitpunkt) selbst
+    # uebersprungen wird - ein uebersprungener Dependency-Job wuerde ohne
+    # always() den abhaengigen Job standardmaessig ebenfalls uebergehen.
+    needs: prognose
+    if: always() && (github.event_name == 'workflow_dispatch' || github.event.schedule == '55 */3 * * *')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # FIX 2026-08-23 (Nutzerwunsch "Meldung waere recht"): issues:write nur
+    # fuer diesen Job ueberschrieben (Workflow-Level hat nur contents:write) -
+    # noetig fuer den automatischen Rueckfall-Alarm als GitHub Issue weiter
+    # unten. Der Job "prognose" braucht das nicht, bekommt also weiterhin nur
+    # das Workflow-Level-Permission-Set.
+    # FIX 2026-08-23 (Nutzerwunsch "Log vom combined-Lauf mit in die ZIP"):
+    # actions:read ergaenzt - noetig fuer "gh run list"/"gh run view" auf
+    # update_combined_blacklist.yml (einen ANDEREN Workflow), siehe Step
+    # "Combined-Blacklist Run-Log holen" unten.
+    permissions:
+      contents: write
+      issues: write
+      actions: read
+    concurrency:
+      group: netshield-ip-ablauf-verifikation
+      cancel-in-progress: true
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Resync auf aktuellsten origin/main-Stand (Race-Condition-Fix)
+        # FIX RACE-PROGNOSE-VERIFIKATION-V2 (2026-08-30, im echten Betrieb
+        # entdeckt): "needs: prognose" (siehe Job-Header oben) sorgt zwar
+        # dafuer, dass dieser Job erst STARTET, wenn prognose vollstaendig
+        # abgeschlossen ist (inkl. dessen Push) - das reicht aber NICHT immer
+        # aus. Beobachtet im echten Lauf: prognose meldete "Push erfolgreich"
+        # um 12:06:11 UTC, dieser Job wertete seine eigene if-Bedingung erst
+        # um 12:06:14 aus (danach) - trotzdem zeigte der GLEICH DANACH von
+        # "Checkout Repository" oben ausgefuehrte "git rev-parse
+        # refs/remotes/origin/main" noch den ALTEN Commit (7a083c7 statt dem
+        # neuen 84abce6). Ursache: GitHub-seitige Propagationsverzoegerung
+        # zwischen "git push hat lokal Erfolg zurueckgemeldet" und "von einem
+        # FRISCHEN git fetch auf einem ANDEREN Runner sichtbar" - eine reine
+        # Job-Reihenfolge-Garantie (needs:) schuetzt davor nicht, das ist eine
+        # Ebene tiefer im Git-Backend. Identisches, bereits bewaehrtes Muster
+        # wie in update_combined_blacklist.yml ("Resync auf aktuellsten
+        # origin/main-Stand"): wiederholt fetchen + hart auf origin/main
+        # zuruecksetzen, mit kurzer Pause dazwischen, bis sich die
+        # Propagationsverzoegerung von selbst aufgeloest hat.
+        run: |
+          BEFORE=$(git rev-parse HEAD)
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main --quiet
+            REMOTE=$(git rev-parse origin/main)
+            if [ "$(git rev-parse HEAD)" = "$REMOTE" ]; then
+              break
+            fi
+            git reset --hard "$REMOTE" --quiet
+            sleep 2
+          done
+          AFTER=$(git rev-parse HEAD)
+          if [ "$BEFORE" != "$AFTER" ]; then
+            echo "Resync: HEAD war veraltet ($BEFORE), jetzt aktuell ($AFTER)"
+          else
+            echo "Resync: HEAD war bereits aktuell ($AFTER)"
+          fi
+
+      - name: Restore Watchlist Daily Cap State Cache
+        # FIX CAP-BACKLOG-CACHE-PARITY 31.08.2026: Combined speichert den
+        # Tages-State vor dem Git-Push separat im Actions Cache. Wenn dessen
+        # Push spaeter fehlschlaegt, waere der Repo-Checkout absichtlich stale.
+        # Die Verifikation muss deshalb denselben State-Cache restaurieren wie
+        # Combined selbst, sonst kann sie den legitimen Backlog nicht erkennen.
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: state/watchlist_daily_cap_state.json
+          key: netshield-watchlist-cap-state-v1-${{ github.run_id }}
+          restore-keys: |
+            netshield-watchlist-cap-state-v1-
+
+      - name: Restore Anti-Churn-Ledger from GitHub Release (falls vorhanden)
+        # CHANGE LEDGER-OFF-GIT (2026-08-26): siehe ausfuehrlicher Kommentar
+        # im "prognose"-Job oben - identischer Step, hier fuer den
+        # leichtgewichtigen "verifikation"-Job.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p state
+          if gh release download anti-churn-ledger-backup \
+              --repo "${{ github.repository }}" \
+              --pattern "*_expired_history.json.gz.part*" \
+              --dir state/ 2>/dev/null; then
+            for LEDGER_NAME in watchlist_expired_history active_expired_history; do
+              if ls state/${LEDGER_NAME}.json.gz.part* >/dev/null 2>&1; then
+                cat state/${LEDGER_NAME}.json.gz.part* > state/${LEDGER_NAME}.json.gz
+                gzip -dc state/${LEDGER_NAME}.json.gz > state/${LEDGER_NAME}.json
+                rm -f state/${LEDGER_NAME}.json.gz.part* state/${LEDGER_NAME}.json.gz
+                echo "${LEDGER_NAME}.json wiederhergestellt: $(du -h state/${LEDGER_NAME}.json | cut -f1)"
+              fi
+            done
+          else
+            echo "Kein anti-churn-ledger-backup-Release gefunden - Ledger-Dateien bleiben leer (normal vor dem ersten Ablauf-Ereignis)"
+          fi
+
+      - name: Combined-Blacklist Run-Log holen
+        # FIX 2026-08-23 (Nutzerwunsch "run an dem tag des ip rückgang [...]
+        # in der anderen zip speichern"): Konsolenausgabe eines aktuellen
+        # update_combined_blacklist.yml-Laufs abrufen, damit man am Tag
+        # eines auffaelligen seen_db-Rueckgangs direkt nachsehen kann, was
+        # in DIESEM Lauf tatsaechlich passiert ist - ohne selbst in der
+        # Actions-UI danach suchen zu muessen.
+        # FIX 2026-08-23 (Nutzerwunsch "Log vom FEHLGESCHLAGENEN statt
+        # erfolgreichen Lauf"): urspruenglich wurde immer der neueste
+        # ERFOLGREICHE Lauf geholt - bei sinkender Erfolgsquote (siehe
+        # DIAGNOSE 4 unten) aber nutzlos fuer die Fehlersuche, weil ein
+        # "erfolgreicher" Lauf oft nur ein selbst uebersprungener Backup-
+        # Slot-Gate-Job ist (3 Zeilen Log, keine echte Verarbeitung) - im
+        # Praxistest so beobachtet. Jetzt: primaer der neueste FEHL-
+        # GESCHLAGENE Lauf (zeigt direkt, woran es tatsaechlich hakt).
+        # Fallback auf den neuesten erfolgreichen Lauf NUR wenn es aktuell
+        # gar keinen fehlgeschlagenen gibt (z.B. Erfolgsquote 100%) - dann
+        # ist ohnehin nichts zu debuggen, aber die Datei soll nicht leer/
+        # fehlend sein.
+        # continue-on-error: true - das Log ist ein Komfort-Extra, kein
+        # kritischer Bestandteil der eigentlichen Rueckfall-Pruefung unten.
+        # Schlaegt der Log-Abruf fehl (z.B. API-Rate-Limit, Log bereits
+        # abgelaufen/geloescht), soll das NICHT den ganzen Job rot machen.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TARGET_RUN_ID=$(gh run list --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml --status=failure --limit=1 \
+            --json databaseId --jq '.[0].databaseId')
+          TARGET_LABEL="fehlgeschlagener"
+          if [ -z "$TARGET_RUN_ID" ] || [ "$TARGET_RUN_ID" = "null" ]; then
+            echo "Kein fehlgeschlagener Lauf gefunden - falle zurueck auf neuesten erfolgreichen."
+            TARGET_RUN_ID=$(gh run list --repo "${{ github.repository }}" \
+              --workflow=update_combined_blacklist.yml --status=success --limit=1 \
+              --json databaseId --jq '.[0].databaseId')
+            TARGET_LABEL="erfolgreicher (kein fehlgeschlagener vorhanden)"
+          fi
+          if [ -n "$TARGET_RUN_ID" ] && [ "$TARGET_RUN_ID" != "null" ]; then
+            echo "Neuester $TARGET_LABEL combined-Run: #$TARGET_RUN_ID"
+            if gh run view "$TARGET_RUN_ID" --repo "${{ github.repository }}" \
+                --log > combined_run_full.log 2>/dev/null; then
+              # Groessenbegrenzung: combined kann bis zu 90min laufen und
+              # druckt regelmaessige Fortschrittszeilen (Update-/Cleanup-
+              # Loop bei ~9 Mio. IPs) - das Rohlog kann mehrere MB gross
+              # werden. Passt nicht zur "kleine ZIP"-Philosophie der
+              # anderen Ledger-/Report-Dateien hier.
+              # FIX 2026-08-23 (im Betrieb entdeckt): Ein Live-Fall zeigte,
+              # dass bei einem langen, erfolgreichen Lauf ~74% der letzten
+              # 2000 Zeilen reines QUELLCODE-ECHO waren (GitHub faerbt beim
+              # Einspeisen des Python-Heredocs jede Zeile mit dem Marker
+              # "^[[36;1m" ein) - keine echte Laufzeit-Ausgabe. Die
+              # eigentlich interessanten print()-Ergebnisse (Cleanup-Zahlen,
+              # Fehler) wurden dadurch aus dem 2000-Zeilen-Fenster verdraengt.
+              # Fix: Echo-Zeilen (erkennbar am Marker) zuerst rausfiltern,
+              # ECHTE Ausgabe hat diesen Marker nie - dann erst die letzten
+              # 2000 Zeilen NACH dem Filtern nehmen. Deutlich weniger
+              # Rauschen, mehr tatsaechlicher Inhalt im gleichen Zeilenbudget.
+              grep -v '\^\[\[36;1m' combined_run_full.log > combined_run_filtered.log || \
+                cp combined_run_full.log combined_run_filtered.log
+              {
+                echo "# Quelle: $TARGET_LABEL Lauf #$TARGET_RUN_ID"
+                echo "# (letzte 2000 Zeilen NACH Herausfiltern von Quellcode-Echo-Zeilen)"
+                echo ""
+                tail -n 2000 combined_run_filtered.log
+              } > combined_run.log
+              rm -f combined_run_full.log combined_run_filtered.log
+              echo "combined_run.log geschrieben ($(wc -l < combined_run.log) Zeilen, "
+              echo "  Run #$TARGET_RUN_ID, $(du -h combined_run.log | cut -f1))"
+            else
+              echo "WARNUNG: Log-Download fuer Run #$TARGET_RUN_ID fehlgeschlagen "
+              echo "  (evtl. bereits abgelaufen/geloescht) - wird ausgelassen"
+            fi
+          else
+            echo "WARNUNG: Weder fehlgeschlagener noch erfolgreicher update_combined_blacklist.yml-Run gefunden"
+          fi
+
+          # DIAGNOSE 4 (2026-08-23, Nutzerwunsch "was kann man noch
+          # einbauen"): Erfolgsquote der letzten N combined-Läufe. Der
+          # Staleness-Check weiter unten (im Python-Step) prueft nur, ob
+          # der NEUESTE Stand frisch genug ist - ein System, das z.B. 3 von
+          # 8 Laeufen verliert, aber der letzte zufaellig durchkam, saehe
+          # dort "gesund" aus. Diese Quote deckt genau das ab.
+          RELIABILITY_N=16
+          gh run list --repo "${{ github.repository }}" \
+            --workflow=update_combined_blacklist.yml --limit=$RELIABILITY_N \
+            --json conclusion,createdAt > combined_reliability.json 2>/dev/null \
+            || echo "[]" > combined_reliability.json
+          echo "combined_reliability.json geschrieben ($(python3 -c "import json; print(len(json.load(open('combined_reliability.json'))))") Läufe)"
+
+      - name: Wiederauftauch-Prüfung + Bericht erstellen
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python3 << 'EOF'
+          import json, os, sys
+          sys.path.insert(0, "scripts")
+          from netshield_common import write_json_atomic, write_text_atomic
+          from datetime import datetime, timezone, timedelta
+          from zoneinfo import ZoneInfo
+
+          REPORT_FILE  = "reports/ip_ablauf_verifikation_report.md"
+          VERLAUF_FILE = "state/ip_ablauf_verifikation_verlauf.json"
+
+          now = datetime.now(timezone.utc)
+          now_str = (
+              now.astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
+          )
+
+          # ── Ablauf-Listen laden: "diese IPs muessen fuer immer draussen bleiben" ──
+          ABLAUFLISTEN = {
+              "Watchlist (30-Tage-Pfad)": "state/watchlist_expired_history.json",
+              "Active (180-Tage-Pfad)":   "state/active_expired_history.json",
+          }
+          eingefrorene_ips = set()
+          listen_groessen = {}
+          # DIAGNOSE 4 (2026-08-23): einzelne Sets pro Liste behalten (nicht
+          # nur die vereinigte Menge), um eine Ueberschneidung zu erkennen -
+          # siehe Check weiter unten.
+          listen_ips = {}
+          # FIX PROGNOSE-GENAUIGKEIT (2026-08-30): fuer den Watchlist-Ledger
+          # zusaetzlich die VOLLEN Eintraege (mit "eingefroren_am") behalten,
+          # nicht nur die Keys - noetig, um weiter unten pro Ablaufdatum zu
+          # zaehlen, wie viele IPs an genau diesem Tag wirklich eingefroren
+          # wurden (Abgleich gegen die Prognose aus dem Job "prognose").
+          wl_eintraege_voll = {}
+          # FIX PROGNOSE-GENAUIGKEIT-ACTIVE (2026-08-30, Nutzerwunsch "fuer die
+          # 30tage regel und 180tage regel fehlt das noch"): dasselbe fuer den
+          # Active-Ledger.
+          ac_eintraege_voll = {}
+          for label, pfad in ABLAUFLISTEN.items():
+              if os.path.exists(pfad):
+                  try:
+                      with open(pfad) as f:
+                          daten = json.load(f)
+                      eintraege = daten.get("entries", {})
+                      listen_groessen[label] = len(eintraege)
+                      listen_ips[label] = set(eintraege.keys())
+                      eingefrorene_ips.update(eintraege.keys())
+                      if label == "Watchlist (30-Tage-Pfad)":
+                          wl_eintraege_voll = eintraege
+                      elif label == "Active (180-Tage-Pfad)":
+                          ac_eintraege_voll = eintraege
+                  except Exception as e:
+                      listen_groessen[label] = None
+                      listen_ips[label] = set()
+                      print(f"WARNUNG: {pfad} nicht lesbar: {e}")
+              else:
+                  listen_groessen[label] = 0
+                  listen_ips[label] = set()
+                  print(f"{pfad} existiert noch nicht (normal vor dem ersten Ablauf-Ereignis)")
+
+          # DIAGNOSE 4: Ueberschneidung zwischen den beiden Ablauf-Listen.
+          # FIX AC-SWEEP-SENTINEL-FOLGE (2026-08-28): Diese Pruefung war
+          # frueher als harter Logikfehler-Alarm formuliert ("sollte NIE
+          # passieren, eine IP ist entweder auf dem Watchlist- ODER dem
+          # Active-Pfad"). Das stimmte fuer den seen_db-EINTRAG, aber die
+          # Ablauf-Listen sind HISTORIEN, keine Momentaufnahme: eine IP kann
+          # nacheinander beide Pfade durchlaufen haben.
+          # Konkret: IP laeuft nach 180 Tagen auf dem Active-Pfad ab ->
+          # Eintrag im Active-Ledger. Danach melden sie nur noch schwache
+          # Feeds -> sie kommt als Watchlist-IP (last=Sentinel) neu rein und
+          # laeuft dort nach 30 Tagen ebenfalls ab -> zusaetzlicher Eintrag
+          # im Watchlist-Ledger. Beide Eintraege sind GEWOLLT und noetig:
+          # der Active-Eintrag verhindert, dass ein einzelner HQ-Feed wieder
+          # volle 180 Tage vergibt, der Watchlist-Eintrag verhindert den
+          # 30-Tage-Reset. Vorher trat dieser Zustand nie auf, weil der
+          # retroaktive Sweep in update_combined_blacklist.yml den
+          # Active-Eintrag beim Sentinel-Rueckfall faelschlich geloescht hat
+          # (genau der dort behobene Bug) - die Ueberschneidung war also nur
+          # deshalb "unmoeglich", weil ein anderer Fehler sie verdeckte.
+          # Jetzt: nur noch informativ im Report, kein Alarm mehr.
+          _wl_label, _act_label = "Watchlist (30-Tage-Pfad)", "Active (180-Tage-Pfad)"
+          # DIAGNOSE: zentrale Sammelstelle fuer alles, was Alarm ausloesen
+          # soll (Job-Exit-Code + GitHub-Issue). Ersetzt die vorher einzelne
+          # "if rueckfaelle:"-Bedingung, damit weitere Diagnose-Checks (siehe
+          # unten: Ledger-Ueberschneidung, Staleness) denselben Alarm-Pfad
+          # nutzen koennen, statt jeweils eigene Exit-Bedingungen zu bauen.
+          diagnose_probleme = []
+
+          ledger_ueberschneidung = listen_ips.get(_wl_label, set()) & listen_ips.get(_act_label, set())
+          if ledger_ueberschneidung:
+              print(f"INFO: {len(ledger_ueberschneidung)} IP(s) stehen in BEIDEN "
+                    f"Ablauf-Listen - legitim fuer IPs, die nacheinander auf beiden "
+                    f"Pfaden abgelaufen sind (Active zuerst, danach Rueckfall auf "
+                    f"Watchlist). Kein Alarm. Beispiele: "
+                    f"{sorted(ledger_ueberschneidung)[:10]}")
+
+          print(f"Insgesamt {len(eingefrorene_ips)} eindeutige, dauerhaft eingefrorene IPs in beiden Ablauf-Listen")
+
+          # ── Alle aktuellen Output-Dateien einlesen und gegen die Ablauf-Listen pruefen ──
+          # FIX RUECKFALL-FALSCHPOSITIV (2026-08-24, im echten Betrieb
+          # entdeckt - 62.659 gemeldete "Rueckfaelle", alle in 4 Dateien
+          # konzentriert): Vorher wurden auch reine Rohquellen-Dateien
+          # geprueft (bot_detector_blacklist_ipv4.txt, honeypot_ips.txt,
+          # honigtopf_ips.txt, tweetfeed_ips.txt, cve_exploit_ips.txt,
+          # reputation_blacklist.txt) - die werden aber von KOMPLETT
+          # SEPARATEN Workflows geschrieben (update_bot_detector.yml,
+          # honeypot_monitor.yml, honigtopf.yml, tweetfeed_monitor.yml,
+          # cve_to_ip_mapper.yml) bzw. sind selbst nur ein roher Feed-Input
+          # FUER update_combined_blacklist.yml (reputation_blacklist.txt) -
+          # keine dieser Dateien kennt state/watchlist_expired_history.json
+          # oder state/active_expired_history.json, sie listen einfach
+          # immer wieder, was ihr jeweiliger Feed gerade meldet. Der Ledger
+          # schuetzt nur die KONSOLIDIERTEN, aus dem nachbereinigten
+          # seen_db.json abgeleiteten Ausgaben - genau die bleiben hier.
+          OUTPUT_DATEIEN = [
+              "active_blacklist_ipv4.txt",
+              "combined_threat_blacklist_ipv4_part1.txt",
+              "combined_threat_blacklist_ipv4_part2.txt",
+              "blacklist_confidence40_ipv4_part1.txt",
+              "blacklist_confidence40_ipv4_part2.txt",
+              "watchlist_confidence25to39_ipv4.txt",
+          ]
+
+          rueckfaelle = {}
+          alle_rueckfall_ips_roh = set()
+          geprueft_dateien = []
+          output_ips = {}
+          if eingefrorene_ips:
+              for fname in OUTPUT_DATEIEN:
+                  if not os.path.exists(fname):
+                      continue
+                  geprueft_dateien.append(fname)
+                  try:
+                      with open(fname) as f:
+                          datei_ips = {
+                              zeile.strip() for zeile in f
+                              if zeile.strip() and not zeile.startswith("#")
+                          }
+                  except Exception as e:
+                      print(f"WARNUNG: {fname} nicht lesbar: {e}")
+                      continue
+                  output_ips[fname] = datei_ips
+                  treffer = datei_ips & eingefrorene_ips
+                  if treffer:
+                      rueckfaelle[fname] = sorted(treffer)
+                      alle_rueckfall_ips_roh.update(treffer)
+
+          # FIX CAP-BACKLOG-FALSCHPOSITIV (2026-08-31, echter Lauf #90594673967):
+          # Seit WATCHLIST_DAILY_CAP=2000 kann eine bereits frueher eingefrorene
+          # Watchlist-IP legitim wieder in seen_db/Outputs stehen, wenn sie mit
+          # ihrem eingefrorenen first-Datum erneut auftaucht, erneut prune-faellig
+          # ist, aber wegen des Tageslimits erst an einem spaeteren Tag entfernt
+          # werden darf. Der alte Verifikator kannte diesen Zwischenzustand nicht
+          # und meldete 176.575 vermeintliche Rueckfaelle - nahezu identisch zum
+          # Combined-Backlog.
+          #
+          # Konservativer Guard gegen Wegfiltern echter Regressionen:
+          #  1) aktueller Cap-State muss einen echten offenen Backlog melden,
+          #  2) IP muss im Watchlist-Ledger stehen,
+          #  3) IP darf NICHT in active_blacklist_ipv4.txt stehen,
+          #  4) die Zahl der so erklaerbaren Treffer darf den vom Combined-State
+          #     gemeldeten Backlog nur geringfuegig ueberschreiten (Sync-Toleranz).
+          # Andernfalls bleibt alles im normalen Rueckfall-Alarm. Die tiefe
+          # Ledger-Konsistenzpruefung im prognose-Job bleibt unveraendert aktiv.
+          cap_backlog_ips = set()
+          cap_backlog_erwartet = 0
+          cap_state_tag = None
+          cap_state_aktuell = False
+          CAP_STATE_FILE = "state/watchlist_daily_cap_state.json"
+          if os.path.exists(CAP_STATE_FILE):
+              try:
+                  with open(CAP_STATE_FILE) as _f:
+                      _cap_state = json.load(_f)
+                  cap_state_tag = str(_cap_state.get("letzter_lauf") or "")
+                  _cap_kandidaten = int(_cap_state.get("kandidaten_gesamt") or 0)
+                  _cap_entfernt = int(_cap_state.get("entfernt") or 0)
+                  cap_backlog_erwartet = max(0, _cap_kandidaten - _cap_entfernt)
+                  _berlin_heute = now.astimezone(ZoneInfo("Europe/Berlin")).date()
+                  try:
+                      _cap_tag_date = datetime.strptime(cap_state_tag, "%Y-%m-%d").date()
+                      _cap_alter_tage = (_berlin_heute - _cap_tag_date).days
+                  except Exception:
+                      _cap_alter_tage = 999999
+                  # Ein State von heute ODER gestern ist absichtlich gueltig.
+                  # Das deckt Mitternacht/Skip-Runs und einen fehlenden neuen
+                  # State nach fail-closed ab, ohne beliebig alte Backlogs zu
+                  # verstecken. Ledger-Mitgliedschaft, Active-Ausschluss und
+                  # Mengen-Toleranz bleiben als weitere harte Bedingungen aktiv.
+                  cap_state_aktuell = (0 <= _cap_alter_tage <= 1 and cap_backlog_erwartet > 0)
+              except Exception as _e:
+                  print(f"WARNUNG: {CAP_STATE_FILE} nicht lesbar fuer Cap-Backlog-Abgleich: {_e}")
+
+          if alle_rueckfall_ips_roh and cap_state_aktuell:
+              _wl_ledger_ips = listen_ips.get(_wl_label, set())
+              _active_output_ips = output_ips.get("active_blacklist_ipv4.txt", set())
+              _cap_erklaerbar = {
+                  _ip for _ip in alle_rueckfall_ips_roh
+                  if _ip in _wl_ledger_ips and _ip not in _active_output_ips
+              }
+              _cap_toleranz = max(100, int(cap_backlog_erwartet * 0.01))
+              if len(_cap_erklaerbar) <= cap_backlog_erwartet + _cap_toleranz:
+                  cap_backlog_ips = _cap_erklaerbar
+                  if cap_backlog_ips:
+                      print(
+                          f"INFO: {len(cap_backlog_ips):,} Output-Treffer als legitimer "
+                          f"Watchlist-Tages-Cap-Backlog klassifiziert "
+                          f"(Combined-State: {cap_backlog_erwartet:,} wartend, "
+                          f"Toleranz {_cap_toleranz:,}; kein Rueckfall-Alarm)."
+                      )
+              elif _cap_erklaerbar:
+                  print(
+                      f"WARNUNG: {_cap_erklaerbar.__len__():,} Treffer sehen nach Cap-Backlog aus, "
+                      f"ueberschreiten aber den erwarteten Backlog von {cap_backlog_erwartet:,} "
+                      f"plus Toleranz {_cap_toleranz:,}; NICHT automatisch freigestellt."
+                  )
+
+          alle_rueckfall_ips = alle_rueckfall_ips_roh - cap_backlog_ips
+
+          # Rueckfall-Details pro Datei um die als Cap-Backlog bestaetigten IPs
+          # bereinigen; die Backlog-Zahl bekommt weiter unten einen eigenen
+          # informativen Report-Abschnitt.
+          if cap_backlog_ips and rueckfaelle:
+              _rueckfaelle_bereinigt = {}
+              for _fname, _ips in rueckfaelle.items():
+                  _rest = [x for x in _ips if x not in cap_backlog_ips]
+                  if _rest:
+                      _rueckfaelle_bereinigt[_fname] = _rest
+              rueckfaelle = _rueckfaelle_bereinigt
+
+          # FIX RUECKFALL-ALARM-SCHWELLE (2026-08-31, Nutzerwunsch "nicht
+          # wegen 2 IPs eine Issue erstellen"): Der ledger_diagnose.yml-Job
+          # (Bug 21) hat bestaetigt, dass eine kleine, staendig schwankende
+          # Zahl von IPs gleichzeitig im Watchlist-Ledger und aktiv in
+          # seen_db stehen kann - das ist eine kurzlebige Sync-Verzoegerung
+          # (Ledger-Release-Download vs. gerade erst erfolgte legitime
+          # Zweitbestaetigung im selben oder vorherigen combined-Lauf), kein
+          # echter Fix-Ausfall. Ab jetzt loest ein Rueckfall-Fund erst ab
+          # RUECKFALL_ALARM_SCHWELLE Betroffenen den Issue-Alarm aus. Nach
+          # dem realen 2.687-IP-Vorfall wurde die Schwelle am 31.08.2026
+          # bewusst auf 300 gesenkt: klein genug fuer fruehe Erkennung, aber
+          # hoch genug gegen einzelne/kleine Diagnose-Ausreisser. Der grosse
+          # Tages-Cap-Backlog wird vorher separat herausklassifiziert.
+          # Report unten (status.md / ip_ablauf_verifikation_report.md)
+          # zeigt WEITERHIN jeden gefundenen Rueckfall an, egal wie klein -
+          # nur der automatische GitHub-Issue (diagnose_probleme -> Job-
+          # Exit-Code 1) bleibt unterhalb der Schwelle stumm.
+          RUECKFALL_ALARM_SCHWELLE = 300
+
+          if rueckfaelle:
+              print(f"::error ::RÜCKFALL gefunden: {len(alle_rueckfall_ips)} eingefrorene IP(s) "
+                    f"stehen trotz Cap-Backlog-Bereinigung in aktuellen Output-Dateien - "
+                    f"Fix greift nicht wie erwartet")
+              if len(alle_rueckfall_ips) >= RUECKFALL_ALARM_SCHWELLE:
+                  diagnose_probleme.append(
+                      f"❌ **Rückfall:** {len(alle_rueckfall_ips)} eingefrorene IP(s) stehen "
+                      f"trotzdem in aktuellen Output-Dateien - der Anti-Churn-Fix greift hier "
+                      f"NICHT wie erwartet."
+                  )
+              else:
+                  print(f"INFO: {len(alle_rueckfall_ips)} liegt unter der Alarm-Schwelle "
+                        f"({RUECKFALL_ALARM_SCHWELLE}) - kein Issue-Alarm, nur Report-Eintrag "
+                        f"(siehe Bug 21 in ledger_diagnose.yml: vermutlich Sync-Verzoegerung, "
+                        f"keine echte Regression).")
+          else:
+              print(f"OK: keine der {len(eingefrorene_ips)} eingefrorenen IPs taucht in "
+                    f"{len(geprueft_dateien)} geprueften Output-Dateien auf")
+
+          # ── seen_db-Gesamtzahl (Trend) ──────────────────────────────────
+          gesamt_ips_jetzt = None
+          meta_alter_stunden = None
+          cleanup_stats = None
+          if os.path.exists("state/seen_db_meta.json"):
+              try:
+                  with open("state/seen_db_meta.json") as f:
+                      _meta = json.load(f)
+                  gesamt_ips_jetzt = _meta.get("total_ips")
+                  # FIX 2026-08-23 (Nutzerwunsch "wieviel ips entfernt wurden
+                  # das ich nicht manuell pruefen muss"): Cleanup-Statistik
+                  # aus dem letzten combined-Lauf direkt uebernehmen - siehe
+                  # cleanup_stats.json/meta["cleanup"] in update_combined_
+                  # blacklist.yml. Ersetzt das manuelle Log-Durchsuchen nach
+                  # der Zeile "Abgelaufen (...): N IPs entfernt".
+                  cleanup_stats = _meta.get("cleanup")
+                  # DIAGNOSE 2 (2026-08-23, Nutzerwunsch "was fehlt noch zur
+                  # Diagnose"): Staleness-Check. "0 Rückfälle"/"Ledger wächst
+                  # nicht" kann auch bedeuten: update_combined_blacklist.yml
+                  # laeuft seit Stunden gar nicht mehr (Fehler, Quota,
+                  # Cache-Problem) - dann passiert einfach nichts mehr, und
+                  # dieser Job meldet faelschlich Ruhe statt Stillstand.
+                  # updated_utc_iso wurde extra dafuer ergaenzt (siehe FIX
+                  # dort - "updated" allein laesst sich wegen CEST/CET nicht
+                  # robust zurueckparsen).
+                  _updated_iso = _meta.get("updated_utc_iso")
+                  if _updated_iso:
+                      _meta_zeit = datetime.fromisoformat(_updated_iso)
+                      if _meta_zeit.tzinfo is None:
+                          _meta_zeit = _meta_zeit.replace(tzinfo=timezone.utc)
+                      meta_alter_stunden = (now - _meta_zeit).total_seconds() / 3600
+                  else:
+                      print("WARNUNG: state/seen_db_meta.json hat kein 'updated_utc_iso' "
+                          "(alter Stand vor diesem Fix?) - Staleness-Check uebersprungen")
+              except Exception as e:
+                  print(f"WARNUNG: state/seen_db_meta.json nicht lesbar: {e}")
+
+          if cleanup_stats:
+              _exp_wl = cleanup_stats.get("expired_watchlist")
+              _exp_act = cleanup_stats.get("expired_active")
+              cleanup_text = (
+                  f"{cleanup_stats.get('expired_removed', 0):,} IPs durch Ablauf entfernt"
+              )
+              if _exp_wl is not None and _exp_act is not None:
+                  cleanup_text += f" (davon {_exp_wl:,} Watchlist/30T, {_exp_act:,} Active/180T)"
+              cleanup_text += f", {cleanup_stats.get('neu_angelegt', 0):,} neue IPs hinzugekommen"
+              # FIX 2026-08-23 (im Betrieb entdeckt): aufnahme_removed direkt
+              # neben "neue IPs" zeigen, nicht nur in der "zusaetzlich"-Liste
+              # versteckt - das ist haeufig der Grund, warum "neue IPs" und
+              # der tatsaechliche seen_db-Trend stark auseinanderlaufen (IPs
+              # mit <2 Feeds/kein HQ werden im selben Lauf sofort wieder
+              # durch den Aufnahme-Filter entfernt, nicht als "Ablauf"
+              # gezaehlt).
+              if cleanup_stats.get("aufnahme_removed"):
+                  cleanup_text += (
+                      f" (davon {cleanup_stats['aufnahme_removed']:,} direkt wieder "
+                      f"durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ)"
+                  )
+              # FIX AUFNAHME-CROSS-DAY-V2 (Anzeige): wie viele der oben
+              # abgelehnten (bzw. in frueheren Laeufen abgelehnten) IPs
+              # heute per Warteliste (jetzt Release-Asset statt Git-Commit)
+              # doch noch aufgenommen wurden, weil ein zweiter, anderer
+              # Feed sie innerhalb von 7 Tagen ebenfalls gemeldet hat.
+              if cleanup_stats.get("aufnahme_cross_bestaetigt"):
+                  cleanup_text += (
+                      f" | {cleanup_stats['aufnahme_cross_bestaetigt']:,} IPs heute "
+                      f"per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen"
+                  )
+              _extra = []
+              if cleanup_stats.get("wl_cleanup_count"):
+                  _extra.append(f"{cleanup_stats['wl_cleanup_count']:,} Whitelist-Bereinigung")
+              if cleanup_stats.get("protected_removed_runtime"):
+                  _extra.append(f"{cleanup_stats['protected_removed_runtime']:,} geschützt entfernt")
+              if cleanup_stats.get("cidr_aggr_removed"):
+                  _extra.append(f"{cleanup_stats['cidr_aggr_removed']:,} CIDR-Aggregate")
+              if _extra:
+                  cleanup_text += " (zusätzlich: " + ", ".join(_extra) + ")"
+
+              # FIX BUG-17-GUARD (2026-08-26, Nutzerwunsch "sowas wie mit den
+              # 650.000 IPs nie wieder passiert"): update_combined_blacklist.yml
+              # blockiert seit diesem Fix selbst schon einen zu grossen
+              # Ledger-Prune (siehe LEDGER_PRUNE_GUARD_PROZENT/
+              # LEDGER_PRUNE_GUARD_MIN_ENTRIES dort) - das verhindert den
+              # Datenverlust, aber ohne diese Meldung hier wuerde der Guard
+              # still im combined-Log verschwinden und erst auffallen, wenn
+              # jemand zufaellig hineinschaut (genau das Problem, das der
+              # Nutzer ausdruecklich vermeiden wollte). Deshalb hier an
+              # denselben Alarm-Mechanismus (diagnose_probleme -> GitHub-
+              # Issue) angehaengt wie Rueckfall/Ledger-Konsistenz/Staleness -
+              # spaetestens beim naechsten 3h-Verifikations-Lauf sichtbar,
+              # nicht erst beim naechsten Blick auf GitHub.
+              # FIX BUG-20-GUARD-ALARM-WORDING (2026-08-28, beim gezielten
+              # Suchen nach Logikfehlern gefunden, kein Betriebsvorfall):
+              # "eingefroren_am" speichert nur ein Datum (kein Zeitstempel) -
+              # alle IPs, die am selben Kalendertag ablaufen, teilen sich
+              # denselben Wert und werden dadurch zwangslaeufig GESCHLOSSEN
+              # (nicht gleichmaessig verteilt) prune-faellig, sobald das
+              # 14-Tage-Fenster (Watchlist) um ist. Eine grosse, an einem
+              # Tag entstandene Kohorte (z.B. die 14.827 vom 28.08., erste
+              # echte Expiry seit Bug 17) sieht fuer den Guard GENAUSO aus
+              # wie ein echter Bug (>=50% verschwinden in einem Lauf) - ist
+              # es aber nicht zwangslaeufig. Die alte Formulierung
+              # unterstellte "wahrscheinlich ein neuer Bug" - das waere am
+              # Tag, an dem genau diese Kohorte faellig wird (rechnerisch:
+              # 12.09.2026, 14 Tage nach dem 28.08.), voraussichtlich ein
+              # Fehlalarm gewesen. Der Guard blockiert bewusst weiter (fail-
+              # safe - im Zweifel waechst der Ledger nur, es geht nichts
+              # verloren), aber die Meldung nennt jetzt beide moeglichen
+              # Ursachen, damit niemand blind den Schwellenwert hochsetzt
+              # oder den Guard abschaltet, ohne die Log-Daten (Verteilung
+              # der eingefroren_am-Werte im entfernten Kandidaten-Set)
+              # tatsaechlich geprueft zu haben.
+              if cleanup_stats.get("wl_prune_guard_ausgeloest"):
+                  diagnose_probleme.append(
+                      "🛑 **Ledger-Sanity-Guard ausgelöst (Watchlist):** Ein "
+                      "combined-Lauf wollte mehr als die Hälfte des "
+                      "watchlist_expired_history-Ledgers auf einen Schlag "
+                      "entfernen - wurde blockiert, alter Stand bleibt "
+                      "erhalten (siehe Bug 17: exakt so ist der Ledger vorher "
+                      "von 657.370 auf 0 gefallen). Zwei mögliche Ursachen, "
+                      "beide erfordern einen Blick ins combined-Log dieses "
+                      "Laufs: (1) ein neuer Bug im Prune-Vergleich, oder "
+                      "(2) eine große, an einem einzigen Kalendertag "
+                      "entstandene Kohorte wird 14 Tage später geschlossen "
+                      "prune-fällig (eingefroren_am ist datumsgranular, "
+                      "keine Uhrzeit) - das wäre legitim, kein Bug. Vor "
+                      "jeder Änderung am Schwellenwert prüfen, ob die "
+                      "betroffenen Einträge tatsächlich alle exakt "
+                      "denselben eingefroren_am-Wert haben."
+                  )
+              if cleanup_stats.get("active_prune_guard_ausgeloest"):
+                  diagnose_probleme.append(
+                      "🛑 **Ledger-Sanity-Guard ausgelöst (Active):** Ein "
+                      "combined-Lauf wollte mehr als die Hälfte des "
+                      "active_expired_history-Ledgers auf einen Schlag "
+                      "entfernen - wurde blockiert, alter Stand bleibt "
+                      "erhalten (siehe Bug 17). Wie beim Watchlist-Guard: "
+                      "kann ein echter Bug sein, oder eine an einem Tag "
+                      "entstandene Kohorte, die 400 Tage später geschlossen "
+                      "abläuft - combined-Log prüfen, bevor der "
+                      "Schwellenwert angefasst wird."
+                  )
+          else:
+              cleanup_text = "n/a (kein combined-Lauf mit Cleanup-Statistik gefunden)"
+
+          # DIAGNOSE 4: Erfolgsquote der letzten N combined-Läufe auswerten.
+          # Kommt aus combined_reliability.json (siehe Step "Combined-
+          # Blacklist Run-Log holen" oben, gh run list mit conclusion+
+          # createdAt fuer die letzten RELIABILITY_N Laeufe).
+          # FIX BUG-RELIABILITY-CANCELLED (2026-08-23, im echten Betrieb
+          # entdeckt): Der Kommentar unten sagte schon immer "nur echte
+          # failure-Conclusions fliessen hier ein" - der Code tat das aber
+          # NICHT: _quote wurde als success/TOTAL berechnet, wobei TOTAL
+          # auch "cancelled"-Laeufe (durch ueberlappende Trigger abgebrochen,
+          # siehe watchdog_combined.yml-Kommentare zur Concurrency-Gruppe
+          # "netshield-seen-db-writers") mitzaehlte. Ein cancelled-Lauf ist
+          # aber kein echter Fehler - GitHub bricht ihn absichtlich ab, weil
+          # schon ein anderer combined-Lauf aktiv war, nicht weil etwas
+          # kaputt ist. Das senkte die Quote faelschlich unter die 75%-
+          # Schwelle und loeste Alarme aus, obwohl real KEIN einziger Lauf
+          # mit echtem Fehler crashte (siehe Issue #33 - der zugehoerige
+          # combined_run.log-Fehlschlag war eine Woche alt, nicht aktuell).
+          # Fix: Quote jetzt success / (success + failure), "cancelled" und
+          # sonstige Conclusions (skipped, timed_out, etc.) komplett aus
+          # Zaehler UND Nenner raus - fliessen nur noch informativ mit ein.
+          reliability_text = "n/a (keine Lauf-Historie abrufbar)"
+          reliability_auffaellig = False
+          if os.path.exists("combined_reliability.json"):
+              try:
+                  with open("combined_reliability.json") as f:
+                      _runs = json.load(f)
+                  if _runs:
+                      _total_gesehen = len(_runs)
+                      _success = sum(1 for r in _runs if r.get("conclusion") == "success")
+                      _cancelled = sum(1 for r in _runs if r.get("conclusion") == "cancelled")
+                      _failure = sum(1 for r in _runs if r.get("conclusion") == "failure")
+                      _sonstige = _total_gesehen - _success - _cancelled - _failure
+                      _aeltester = min((r["createdAt"] for r in _runs), default=None)
+                      _neuester = max((r["createdAt"] for r in _runs), default=None)
+                      _relevante_basis = _success + _failure
+                      if _relevante_basis > 0:
+                          _quote = _success / _relevante_basis * 100
+                          reliability_text = (
+                              f"{_success}/{_relevante_basis} erfolgreich ({_quote:.0f}%, "
+                              f"nur echte Erfolge/Fehlschläge gezählt)"
+                          )
+                      else:
+                          _quote = None
+                          reliability_text = (
+                              "n/a (keine Läufe mit echtem Erfolg/Fehlschlag im Fenster - "
+                              f"nur {_cancelled} cancelled)"
+                          )
+                      if _cancelled:
+                          reliability_text += f" | zusätzlich {_cancelled} cancelled (nicht gewertet)"
+                      if _sonstige:
+                          reliability_text += f" | {_sonstige} sonstige"
+                      if _aeltester and _neuester:
+                          reliability_text += f", Zeitraum {_aeltester[:16]} bis {_neuester[:16]} UTC"
+                      # Schwelle bewusst grosszuegig (75%) - combined hat
+                      # bekannte, dokumentierte Skip-Faelle (Idempotenz-
+                      # Guard bei ueberlappenden Laeufen, siehe watchdog_
+                      # combined.yml) die NICHT als echtes Problem zaehlen,
+                      # nur echte "failure"-Conclusions fliessen hier ein.
+                      if _quote is not None and _quote < 75:
+                          reliability_auffaellig = True
+                          diagnose_probleme.append(
+                              f"⚠️ **Niedrige combined-Erfolgsquote:** nur {reliability_text} "
+                              f"in den letzten {_total_gesehen} Läufen (Schwelle: 75%, cancelled "
+                              f"nicht mitgezaehlt) - auch wenn der neueste Stand frisch wirkt, "
+                              f"lief das System zuletzt nicht zuverlässig."
+                          )
+              except Exception as e:
+                  print(f"WARNUNG: combined_reliability.json nicht auswertbar: {e}")
+
+          # combined laeuft alle 3h - 6h Schwelle = 2 verpasste Laeufe in
+          # Folge, konservativ genug um normale Verzoegerungen (langsamer
+          # Lauf, kurzer Retry) nicht faelschlich zu melden.
+          STALE_SCHWELLE_STUNDEN = 6
+          ist_stale = meta_alter_stunden is not None and meta_alter_stunden > STALE_SCHWELLE_STUNDEN
+          if ist_stale:
+              print(f"::warning ::seen_db_meta.json ist {meta_alter_stunden:.1f}h alt "
+                    f"(> {STALE_SCHWELLE_STUNDEN}h) - update_combined_blacklist.yml "
+                    f"laeuft moeglicherweise nicht mehr planmaessig")
+              diagnose_probleme.append(
+                  f"⚠️ **Veraltete Daten:** `state/seen_db_meta.json` ist "
+                  f"{meta_alter_stunden:.1f}h alt (Schwelle: {STALE_SCHWELLE_STUNDEN}h). "
+                  f"`update_combined_blacklist.yml` (Cron alle 3h) läuft möglicherweise "
+                  f"nicht mehr planmäßig - alle Aussagen dieses Berichts basieren auf "
+                  f"diesem veralteten Stand."
+              )
+
+          # ── Zeitreihe fortschreiben ──────────────────────────────────────
+          # Kein endloses Sliding-Window: echter 30-Tage-Zyklus. Sobald seit
+          # "zyklus_start" 30 Tage vergangen sind, wird die Historie KOMPLETT
+          # geleert und neu begonnen - die ZIP faengt dann wieder bei 0 an,
+          # statt nur alte Eintraege am Rand abzuschneiden. Grund: jeder Lauf
+          # committet die ZIP als neuen Binaer-Blob in die Git-Historie
+          # (siehe repo_size_check.yml/history_fresh_start.yml-Kontext) - ein
+          # sauberer periodischer Reset der INHALTLICHEN Groesse ist der
+          # Gegenpart dazu auf Daten-Ebene.
+          ZYKLUS_TAGE = 30
+          today = now.date()
+          verlauf = []
+          zyklus_start_str = today.isoformat()
+          # Bewusst VOR einem moeglichen Zyklus-Reset gesichert: der
+          # Kurzfrist-Vergleich ("seit letztem Lauf") soll auch am
+          # Reset-Tag selbst noch funktionieren, waehrend der Zyklus-Start-
+          # Vergleich an diesem einen Tag bewusst neu bei sich selbst
+          # beginnt (siehe Trend-Berechnung weiter unten).
+          _letzter_lauf_ueberhaupt = None
+          if os.path.exists(VERLAUF_FILE):
+              try:
+                  with open(VERLAUF_FILE) as f:
+                      _alt = json.load(f)
+                  verlauf = _alt.get("laeufe", [])
+                  _letzter_lauf_ueberhaupt = verlauf[-1] if verlauf else None
+                  zyklus_start_str = _alt.get("zyklus_start", today.isoformat())
+                  zyklus_start = datetime.strptime(zyklus_start_str, "%Y-%m-%d").date()
+                  _alter_tage = (today - zyklus_start).days
+                  if _alter_tage >= ZYKLUS_TAGE:
+                      print(f"Zyklus abgelaufen ({_alter_tage} >= {ZYKLUS_TAGE} Tage seit "
+                            f"{zyklus_start_str}) - Historie wird komplett zurueckgesetzt")
+                      verlauf = []
+                      zyklus_start_str = today.isoformat()
+              except Exception as e:
+                  print(f"WARNUNG: {VERLAUF_FILE} nicht lesbar, starte neue Historie: {e}")
+                  verlauf = []
+                  zyklus_start_str = today.isoformat()
+
+          # FIX 2026-08-23 (Nutzerwunsch "einbauen ob die seen_db zurueck-
+          # gegangen sind"): Vergleichswerte VOR dem Anhaengen des aktuellen
+          # Laufs sichern - sonst wuerde sich der neue Eintrag mit sich
+          # selbst vergleichen. Zwei Referenzpunkte:
+          #   - "seit letztem Lauf" (kurzfristig, 3h-Delta)
+          #   - "seit Zyklus-Start" (der aussagekraeftigere Wert - zeigt den
+          #     Effekt ueber den vollen laufenden 30-Tage-Beobachtungs-
+          #     zeitraum, nicht nur zwischen zwei Laeufen)
+          _erster_lauf_zyklus = verlauf[0] if verlauf else None
+
+          # DIAGNOSE 1 (2026-08-23, Nutzerwunsch "was fehlt noch zur
+          # Diagnose"): Sanity-Schwelle fuer den Trend. Bisher wurde JEDER
+          # Rueckgang unterschiedslos als 📉 "gut" dargestellt - aber ein
+          # Cache-Problem, ein fehlgeschlagener Restore oder ein Bug, der
+          # versehentlich zu viel loescht, saehe genauso aus. Bewusst NUR
+          # als sichtbare Markierung, NICHT als Alarm/Exit-Code-Ausloeser:
+          # wir haben am ersten Tag bereits einen echten, legitimen Cluster
+          # von ~7% Tagesrueckgang gesehen, und die Prognose zeigt fuer
+          # einzelne Tage (z.B. 12.10.) bis zu ~17% - eine harte Alarm-
+          # Schwelle wuerde also bei GENAU den erwarteten grossen Clustern
+          # faelschlich anschlagen, die dieser Fix ja ermoeglichen soll.
+          # Die Schwelle hier dient nur dazu, ungewoehnlich grosse Aus-
+          # schlaege sichtbar zu machen, damit man sie GEZIELT gegen
+          # reports/ip_ablauf.md (die Cluster-Prognose) pruefen kann - nicht
+          # um automatisch "gut" von "schlecht" zu unterscheiden, das kann
+          # dieser Check aus den Zahlen allein nicht zuverlaessig leisten.
+          TREND_AUFFAELLIG_PROZENT = 20
+
+          def _delta_text(jetzt, frueher, sanity_check=False):
+              if jetzt is None or frueher is None:
+                  return None, "n/a (kein Vergleichswert)", False
+              delta = jetzt - frueher
+              auffaellig = (
+                  sanity_check and frueher > 0
+                  and abs(delta) / frueher * 100 >= TREND_AUFFAELLIG_PROZENT
+              )
+              _praefix = "🔍 " if auffaellig else ""
+              if delta < 0:
+                  txt = f"{_praefix}📉 -{abs(delta):,} (Rückgang)"
+              elif delta > 0:
+                  txt = f"{_praefix}📈 +{delta:,} (Anstieg)"
+              else:
+                  txt = "➡️ unverändert"
+              if auffaellig:
+                  txt += (f" - ungewöhnlich groß (≥{TREND_AUFFAELLIG_PROZENT}% seit letztem "
+                          f"Lauf), bitte gegen reports/ip_ablauf.md prüfen ob ein bekannter "
+                          f"Cluster das erklärt")
+              return delta, txt, auffaellig
+
+          # sanity_check=True NUR fuer "seit letztem Lauf" (3h-Fenster,
+          # einzelner Ausreisser gut erkennbar) - NICHT fuer "seit Zyklus-
+          # Start" (30-Tage-Fenster, wo sich viele kleine UND grosse Cluster
+          # normal aufsummieren und ein hoher kumulierter Wert fuer sich
+          # genommen nichts Verdaechtiges bedeutet).
+          _delta_letzter, _delta_letzter_txt, _letzter_auffaellig = _delta_text(
+              gesamt_ips_jetzt,
+              _letzter_lauf_ueberhaupt.get("gesamt_ips_seen_db") if _letzter_lauf_ueberhaupt else None,
+              sanity_check=True,
+          )
+          _delta_zyklus, _delta_zyklus_txt, _ = _delta_text(
+              gesamt_ips_jetzt,
+              _erster_lauf_zyklus.get("gesamt_ips_seen_db") if _erster_lauf_zyklus else None,
+          )
+          print(f"seen_db-Trend seit letztem Lauf: {_delta_letzter_txt} | "
+                f"seit Zyklus-Start: {_delta_zyklus_txt}")
+
+          verlauf.append({
+              "zeitpunkt":               now_str,
+              "gesamt_ips_seen_db":      gesamt_ips_jetzt,
+              "watchlist_liste_groesse": listen_groessen.get("Watchlist (30-Tage-Pfad)"),
+              "active_liste_groesse":    listen_groessen.get("Active (180-Tage-Pfad)"),
+              "rueckfall_ip_anzahl":     len(alle_rueckfall_ips),
+              # FIX 2026-08-23 (Nutzerwunsch "kommen ja neue ips hinzu"): mit
+              # in den Verlauf aufnehmen, damit sich daraus eine grobe
+              # Tagessumme bilden laesst (siehe neu_angelegt_24h unten).
+              "neu_angelegt":            (cleanup_stats or {}).get("neu_angelegt"),
+              "expired_removed":         (cleanup_stats or {}).get("expired_removed"),
+              # FIX 2026-08-23 (Nutzerwunsch "tagesstatistik 30/180 tage
+              # getrennt"): dieselbe Aufschluesselung wie expired_removed,
+              # nur pro Pfad statt kombiniert.
+              "expired_watchlist":       (cleanup_stats or {}).get("expired_watchlist"),
+              "expired_active":          (cleanup_stats or {}).get("expired_active"),
+          })
+          # Grobe 24h-Summe: letzte 8 Laeufe (alle 3h = 1 Tag), NACH dem
+          # Anhaengen des aktuellen Laufs, damit dieser mitzaehlt. Nur ein
+          # Naeherungswert - liefert "n/a" statt einer falschen Zahl, wenn
+          # einzelne Laeufe in dem Fenster keine cleanup-Daten hatten
+          # (z.B. vor diesem Fix, oder ein combined-Lauf ohne Backup-Guard-
+          # Durchlauf).
+          _letzte_8 = verlauf[-8:]
+          _fenster_label = "~24h" if len(_letzte_8) == 8 else f"{len(_letzte_8)} Lauf(e), noch keine 24h Historie seit Zyklus-Start"
+          _neu_24h_werte = [l.get("neu_angelegt") for l in _letzte_8 if l.get("neu_angelegt") is not None]
+          _entfernt_24h_werte = [l.get("expired_removed") for l in _letzte_8 if l.get("expired_removed") is not None]
+          if len(_neu_24h_werte) == len(_letzte_8) and len(_letzte_8) > 0:
+              neu_24h_text = f"{sum(_neu_24h_werte):,} (Summe letzte {len(_letzte_8)} Läufe / {_fenster_label})"
+          else:
+              neu_24h_text = f"n/a ({len(_neu_24h_werte)}/{len(_letzte_8)} Läufe im Fenster mit Daten)"
+          if len(_entfernt_24h_werte) == len(_letzte_8) and len(_letzte_8) > 0:
+              entfernt_24h_text = f"{sum(_entfernt_24h_werte):,} (Summe letzte {len(_letzte_8)} Läufe / {_fenster_label})"
+          else:
+              entfernt_24h_text = f"n/a ({len(_entfernt_24h_werte)}/{len(_letzte_8)} Läufe im Fenster mit Daten)"
+
+          # ── FIX NETTO-WACHSTUM (2026-08-30) ─────────────────────────────────
+          # BUGFIX (im echten Betrieb entdeckt, Report zeigte falsch
+          # "+13.526.124" statt der plausiblen ~+50.000 bis +200.000): Die
+          # urspruengliche Berechnung (sum(neu_angelegt) - sum(expired_removed))
+          # verglich zwei UNVERGLEICHBARE Groessen. "neu_angelegt" zaehlt laut
+          # update_combined_blacklist.yml (Zeile ~3358) JEDE Neuanlage in
+          # seen_db, BEVOR der Aufnahme-Filter (>=2 Feeds oder HQ) greift - der
+          # Filter laeuft in einem SPAETEREN Schritt und entfernt einen
+          # Grossteil davon sofort wieder (siehe "davon X direkt wieder durch
+          # Aufnahme-Filter entfernt" im Cleanup-Text oben). "expired_removed"
+          # ist dagegen bereits eine NACH-Filter-Zahl. Die Differenz war
+          # dadurch um Groessenordnungen zu hoch.
+          # Fix: direkter Snapshot-Vergleich (wie bei "Seit Zyklus-Start" oben)
+          # - vergleicht den ECHTEN seen_db-Gesamtstand jetzt gegen den
+          # Gesamtstand vor ~24h (aeltester Lauf im 8-Läufe-Fenster). Das ist
+          # zwangslaeufig korrekt, weil es einfach zwei reale Zaehlstaende
+          # subtrahiert, statt Zwischen-Statistiken mit unterschiedlicher
+          # Filter-Stufe zu kombinieren.
+          if _letzte_8 and gesamt_ips_jetzt is not None:
+              _netto_delta, _netto_delta_txt, _ = _delta_text(
+                  gesamt_ips_jetzt,
+                  _letzte_8[0].get("gesamt_ips_seen_db"),
+              )
+              if _netto_delta is not None:
+                  _netto_negativ = _netto_delta < 0
+                  _netto_text = _netto_delta_txt.replace(
+                      "(Anstieg)", f"({_fenster_label})"
+                  ).replace(
+                      "(Rückgang)", f"({_fenster_label})"
+                  )
+                  if _netto_negativ:
+                      _netto_text += " ⚠️ **schrumpft aktuell netto** - mehr entfernt als neu aufgenommen"
+              else:
+                  _netto_text = "n/a (kein Vergleichswert am Fensteranfang)"
+          else:
+              _netto_text = "n/a (noch keine 8 Läufe Historie)"
+
+          # FIX 2026-08-23 (Nutzerwunsch "tagesstatistik 30/180 tage
+          # getrennt"): dieselbe 24h-Naeherung wie oben, aber getrennt nach
+          # Watchlist- und Active-Pfad statt nur kombiniert.
+          _entfernt_wl_werte = [l.get("expired_watchlist") for l in _letzte_8 if l.get("expired_watchlist") is not None]
+          _entfernt_act_werte = [l.get("expired_active") for l in _letzte_8 if l.get("expired_active") is not None]
+          if len(_entfernt_wl_werte) == len(_letzte_8) and len(_letzte_8) > 0:
+              entfernt_wl_24h_text = f"{sum(_entfernt_wl_werte):,} (Summe letzte {len(_letzte_8)} Läufe / {_fenster_label})"
+          else:
+              entfernt_wl_24h_text = f"n/a ({len(_entfernt_wl_werte)}/{len(_letzte_8)} Läufe im Fenster mit Daten)"
+          if len(_entfernt_act_werte) == len(_letzte_8) and len(_letzte_8) > 0:
+              entfernt_act_24h_text = f"{sum(_entfernt_act_werte):,} (Summe letzte {len(_letzte_8)} Läufe / {_fenster_label})"
+          else:
+              entfernt_act_24h_text = f"n/a ({len(_entfernt_act_werte)}/{len(_letzte_8)} Läufe im Fenster mit Daten)"
+          # Sicherheitsnetz GEGEN den Zyklus-Reset (nicht statt ihm): falls der
+          # Cron aus irgendeinem Grund viel oefter als alle 3h laeuft, waechst
+          # die Datei innerhalb eines Zyklus trotzdem nicht unbegrenzt.
+          # 300 statt der theoretischen 240 (8/Tag * 30 Tage) als Puffer nach
+          # oben, damit der Zyklus-Reset selbst der normale Beendigungsweg
+          # bleibt, nicht dieses Sicherheitsnetz.
+          SICHERHEITS_MAX_LAEUFE = 300
+          verlauf = verlauf[-SICHERHEITS_MAX_LAEUFE:]
+          write_json_atomic(VERLAUF_FILE, {
+              "updated": now_str,
+              "zyklus_start": zyklus_start_str,
+              "laeufe": verlauf,
+          }, indent=2)
+
+          # ── FIX PROGNOSE-GENAUIGKEIT (2026-08-30, Nutzerwunsch, erweitert auf
+          # "fuer die 30tage regel und 180tage regel fehlt das noch") ────────
+          # Gleicht die vom Job "prognose" hinterlegten Tages-Vorhersagen gegen
+          # die tatsaechlichen Ledger-Eintraege ab, sobald das jeweilige Datum
+          # erreicht/vergangen ist. So laesst sich konkret feststellen, ob z.B.
+          # "morgen fallen 52.997 IPs weg" wirklich eingetroffen ist, und wie
+          # viele durch eine Zweitbestaetigung (5+ Feeds / 2+ HQ-Familien)
+          # vorher noch "gerettet" wurden. Fuer BEIDE Pfade (Watchlist/30T,
+          # Active/180T) - jeweils eigene Formel (first+30 bzw. last+180) und
+          # eigener Ledger.
+          FORECAST_HISTORY_FILE = "state/ip_ablauf_forecast_verlauf.json"
+          _forecast_hist = {
+              "watchlist": {"pending": {}, "resolved": []},
+              "active":    {"pending": {}, "resolved": []},
+          }
+          if os.path.exists(FORECAST_HISTORY_FILE):
+              try:
+                  with open(FORECAST_HISTORY_FILE) as _ff:
+                      _geladen = json.load(_ff)
+                  if isinstance(_geladen, dict):
+                      if "watchlist" in _geladen or "active" in _geladen:
+                          for _pfad_key in ("watchlist", "active"):
+                              _teil = _geladen.get(_pfad_key, {})
+                              if isinstance(_teil, dict):
+                                  _forecast_hist[_pfad_key]["pending"]  = _teil.get("pending", {})
+                                  _forecast_hist[_pfad_key]["resolved"] = _teil.get("resolved", [])
+                      else:
+                          # FIX FORECAST-MIGRATION: altes Format (nur Watchlist,
+                          # flach) - vor dieser Erweiterung geschrieben.
+                          _forecast_hist["watchlist"]["pending"]  = _geladen.get("pending", {})
+                          _forecast_hist["watchlist"]["resolved"] = _geladen.get("resolved", [])
+              except Exception as _e:
+                  print(f"WARNUNG: {FORECAST_HISTORY_FILE} nicht lesbar, starte leer: {_e}")
+
+          _heute_str = now.astimezone(ZoneInfo("Europe/Berlin")).date().isoformat()
+
+          def _tatsaechlich_pro_tag_berechnen(eintraege_voll, anker_feld, fenster_tage):
+              """Zaehlt Ledger-Eintraege pro Ablaufdatum, nach anker_feld (z.B.
+              'first' oder 'last') + fenster_tage + 1 gruppiert - passend zur
+              echten Cleanup-Regel 'älter als' (>30 bzw. >180 Tage).
+              BUGFIX-Hintergrund (2026-08-30, im echten Betrieb entdeckt):
+              NICHT nach 'eingefroren_am' gruppieren - das wird laut
+              update_combined_blacklist.yml (FIX WL-LEDGER-REFRESH) bei jedem
+              erneuten Ablauf einer chronisch schwach gemeldeten IP auf HEUTE
+              aufgefrischt, waehrend das Anker-Feld (first/last) bewusst
+              unveraendert bleibt - eine andere, viel groessere Grundgesamtheit
+              als "IPs, die HEUTE zum ersten Mal ihre Frist ueberschreiten".
+              """
+              _ergebnis = {}
+              for _eintrag in eintraege_voll.values():
+                  if not isinstance(_eintrag, dict):
+                      continue
+                  _anker_str = _eintrag.get(anker_feld)
+                  if not _anker_str:
+                      continue
+                  try:
+                      _anker_dt = datetime.strptime(_anker_str, "%Y-%m-%d").date()
+                  except Exception:
+                      continue
+                  _tag = (_anker_dt + timedelta(days=fenster_tage + 1)).isoformat()
+                  _ergebnis[_tag] = _ergebnis.get(_tag, 0) + 1
+              return _ergebnis
+
+          def _pfad_aufloesen(pfad_key, tatsaechlich_pro_tag):
+              """Loest alle faelligen (vergangenen) pending-Datumseintraege
+              fuer einen Pfad auf, verschiebt sie nach resolved. Gibt die Liste
+              der neu aufgeloesten Eintraege zurueck."""
+              _neu = []
+              for _datum in list(_forecast_hist[pfad_key]["pending"].keys()):
+                  # Erst aufloesen, wenn das Datum wirklich VORBEI ist (nicht am
+                  # Tag selbst - der Cleanup-Pass koennte zum Lauf-Zeitpunkt noch
+                  # gar nicht durchgelaufen sein).
+                  if _datum >= _heute_str:
+                      continue
+                  _eintrag = _forecast_hist[pfad_key]["pending"].pop(_datum)
+                  _vorhergesagt = _eintrag.get("predicted", 0)
+                  _tatsaechlich = tatsaechlich_pro_tag.get(_datum, 0)
+                  _gerettet = max(0, _vorhergesagt - _tatsaechlich)
+                  _quote = (_gerettet / _vorhergesagt * 100) if _vorhergesagt else 0.0
+                  _resolved_eintrag = {
+                      "datum": _datum,
+                      "vorhergesagt": _vorhergesagt,
+                      "tatsaechlich": _tatsaechlich,
+                      "gerettet": _gerettet,
+                      "rettungsquote_prozent": round(_quote, 1),
+                      "forecast_made_on": _eintrag.get("forecast_made_on"),
+                      "aufgeloest_am": _heute_str,
+                  }
+                  _forecast_hist[pfad_key]["resolved"].append(_resolved_eintrag)
+                  _neu.append(_resolved_eintrag)
+              # Historie begrenzen (nur juengste 60 aufgeloeste Tage behalten).
+              _forecast_hist[pfad_key]["resolved"] = _forecast_hist[pfad_key]["resolved"][-60:]
+              _forecast_hist[pfad_key]["resolved"].sort(key=lambda e: e["datum"])
+              return _neu
+
+          _tatsaechlich_pro_tag = _tatsaechlich_pro_tag_berechnen(wl_eintraege_voll, "first", 30)
+          _tatsaechlich_pro_tag_active = _tatsaechlich_pro_tag_berechnen(ac_eintraege_voll, "last", 180)
+
+          _neu_aufgeloest = _pfad_aufloesen("watchlist", _tatsaechlich_pro_tag)
+          _neu_aufgeloest_active = _pfad_aufloesen("active", _tatsaechlich_pro_tag_active)
+
+          write_json_atomic(FORECAST_HISTORY_FILE, _forecast_hist)
+          for _label, _liste in (("Watchlist", _neu_aufgeloest), ("Active", _neu_aufgeloest_active)):
+              if _liste:
+                  print(f"Prognose-Abgleich ({_label}): {len(_liste)} Tag(e) neu aufgeloest")
+                  for _r in _liste:
+                      print(f"  {_r['datum']}: vorhergesagt {_r['vorhergesagt']:,} | "
+                            f"tatsaechlich {_r['tatsaechlich']:,} | "
+                            f"gerettet {_r['gerettet']:,} ({_r['rettungsquote_prozent']}%)")
+              else:
+                  print(f"Prognose-Abgleich ({_label}): kein faelliges Datum zum Aufloesen")
+
+          # ── FIX PROGNOSE-LIVE (2026-08-30, Nutzerwunsch "will das nicht erst
+          # morgen frueh wissen, schon eher als vor prognose") ────────────────
+          # Zusaetzlich zur finalen Aufloesung (erst wenn ein Tag WIRKLICH vorbei
+          # ist) hier ein laufend aktualisierter Zwischenstand fuer heute und die
+          # naechsten Tage: wie viele der vorhergesagten IPs sind JETZT SCHON
+          # eingefroren, auch wenn der Tag noch nicht um ist. Aktualisiert sich
+          # bei jedem verifikation-Lauf (alle 3h), nicht erst am naechsten Tag.
+          # Bewusst getrennt von _forecast_hist[...]["resolved"]: das bleibt die
+          # SAUBERE Endauswertung (nur nach echtem Tagesabschluss), hier geht es
+          # nur um Sichtbarkeit waehrend des laufenden Tages, ohne die Endzahl
+          # zu verfaelschen. Fuer BEIDE Pfade.
+          def _live_fortschritt_berechnen(pfad_key, tatsaechlich_pro_tag, anzahl_tage):
+              _ergebnis = []
+              for _datum in sorted(_forecast_hist[pfad_key]["pending"].keys())[:anzahl_tage]:
+                  _eintrag = _forecast_hist[pfad_key]["pending"][_datum]
+                  _vorhergesagt = _eintrag.get("predicted", 0)
+                  _bisher = tatsaechlich_pro_tag.get(_datum, 0)
+                  _ergebnis.append({
+                      "datum": _datum,
+                      "vorhergesagt": _vorhergesagt,
+                      "bisher_eingefroren": _bisher,
+                      "ist_heute": _datum == _heute_str,
+                  })
+              return _ergebnis
+
+          _live_fortschritt = _live_fortschritt_berechnen("watchlist", _tatsaechlich_pro_tag, 4)
+          _live_fortschritt_active = _live_fortschritt_berechnen("active", _tatsaechlich_pro_tag_active, 4)
+
+          # ── Bericht ────────────────────────────────────────────────────
+          zeilen = [
+              "# IP-Ablauf-Verifikationsbericht",
+              "",
+              f"Lauf: {now_str}",
+              "",
+              "Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind "
+              "(FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft "
+              "draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr "
+              "wieder aufzutauchen.",
+              "",
+              "## Größe der Ablauf-Listen (aktuell eingefrorene IPs)",
+              "",
+              "| Liste | Anzahl |",
+              "|---|---:|",
+          ]
+          for label, anzahl in listen_groessen.items():
+              zeilen.append(f"| {label} | {anzahl if anzahl is not None else 'Fehler'} |")
+
+          zeilen += ["", "## Live-Fortschritt (heute + nächste Tage)", ""]
+          zeilen.append(
+              "Zwischenstand, aktualisiert bei JEDEM Lauf (alle 3h) - nicht erst "
+              "wenn der Tag vorbei ist. \"Bisher eingefroren\" zaehlt Ledger-"
+              "Eintraege, deren Anker-Datum (`first` bzw. `last`) + Fenster "
+              "(30 bzw. 180 Tage) auf dieses Datum faellt (exakt dieselbe "
+              "Formel wie die Prognose selbst - NICHT `eingefroren_am`, das "
+              "bei chronisch schwach bestaetigten IPs bei jedem erneuten "
+              "Ablauf aufgefrischt wird und daher kein verlaesslicher Tages-"
+              "Marker waere). Da ein Cleanup-Pass ueberfaellige Eintraege ohne "
+              "feste Tages-Reihenfolge nachholt, kann \"heute\" laenger bei 0% "
+              "bleiben, waehrend Rueckstand aus den letzten Tagen erst noch "
+              "verarbeitet wird - das ist normal, keine Fehlfunktion."
+          )
+          zeilen.append("")
+          zeilen.append("**Watchlist (30-Tage-Pfad):**")
+          zeilen.append("")
+          if _live_fortschritt:
+              zeilen.append("| Datum | Vorhergesagt | Bisher eingefroren | Fortschritt |")
+              zeilen.append("|---|---:|---:|---:|")
+              for _lf in _live_fortschritt:
+                  _tag_label = f"{_lf['datum']} (heute)" if _lf["ist_heute"] else _lf["datum"]
+                  _pct = (_lf["bisher_eingefroren"] / _lf["vorhergesagt"] * 100) if _lf["vorhergesagt"] else 0.0
+                  zeilen.append(
+                      f"| {_tag_label} | {_lf['vorhergesagt']:,} | "
+                      f"{_lf['bisher_eingefroren']:,} | {_pct:.0f}% |"
+                  )
+          else:
+              zeilen.append(
+                  "Keine ausstehenden Vorhersagen - entweder laeuft der Job "
+                  "\"prognose\" noch nicht, oder alle bisherigen Vorhersagen "
+                  "sind schon final aufgeloest (siehe Sektion weiter unten)."
+              )
+          zeilen.append("")
+          zeilen.append("**Active (180-Tage-Pfad):**")
+          zeilen.append("")
+          if _live_fortschritt_active:
+              zeilen.append("| Datum | Vorhergesagt | Bisher eingefroren | Fortschritt |")
+              zeilen.append("|---|---:|---:|---:|")
+              for _lf in _live_fortschritt_active:
+                  _tag_label = f"{_lf['datum']} (heute)" if _lf["ist_heute"] else _lf["datum"]
+                  _pct = (_lf["bisher_eingefroren"] / _lf["vorhergesagt"] * 100) if _lf["vorhergesagt"] else 0.0
+                  zeilen.append(
+                      f"| {_tag_label} | {_lf['vorhergesagt']:,} | "
+                      f"{_lf['bisher_eingefroren']:,} | {_pct:.0f}% |"
+                  )
+          else:
+              zeilen.append(
+                  "Keine ausstehenden Vorhersagen (aktuell keine Active-IP "
+                  "laeuft in den naechsten Tagen ab - siehe reports/ip_ablauf.md)."
+              )
+
+          # DIAGNOSE: zentrale Uebersicht ueber ALLE gesammelten Probleme
+          # (Rueckfall, Ledger-Ueberschneidung, veraltete Daten) an einer
+          # Stelle - Details zu jedem einzelnen Punkt stehen weiterhin in
+          # den jeweils eigenen Sektionen weiter unten.
+          zeilen += ["", "## Diagnose-Status", ""]
+          if diagnose_probleme:
+              zeilen.append(f"❌ **{len(diagnose_probleme)} Problem(e) erkannt:**")
+              zeilen.append("")
+              for _p in diagnose_probleme:
+                  zeilen.append(f"- {_p}")
+          else:
+              zeilen.append("✅ Keine Probleme erkannt (Rückfälle, Ledger-Konsistenz, Datenaktualität).")
+
+          zeilen += ["", "## Wiederauftauch-Prüfung", ""]
+          if cap_backlog_ips:
+              zeilen.append(
+                  f"ℹ️ **{len(cap_backlog_ips):,} Treffer sind ein legitimer Watchlist-"
+                  f"Tages-Cap-Backlog und kein Anti-Churn-Rückfall.** Der aktuelle "
+                  f"Combined-State meldet {cap_backlog_erwartet:,} noch wartende "
+                  f"30-Tage-Kandidaten (State-Tag: {cap_state_tag}). Diese IPs stehen im "
+                  f"Watchlist-Ledger, aber nicht in `active_blacklist_ipv4.txt`; sie duerfen "
+                  f"bis zu einem spaeteren 2.000er-Tages-Slot voruebergehend im Output bleiben."
+              )
+              zeilen.append("")
+          if not eingefrorene_ips:
+              zeilen.append(
+                  "ℹ️ Noch keine IPs in den Ablauf-Listen - entweder ist der Fix noch nicht "
+                  "lange genug aktiv, oder es ist noch keine IP ohne Zweitbestaetigung "
+                  "abgelaufen. Keine Pruefung moeglich, bis der erste Ablauf passiert "
+                  "ist (siehe reports/ip_ablauf.md fuer die naechsten "
+                  "Ablauftermine, z.B. 2026-09-04)."
+              )
+          elif rueckfaelle:
+              if len(alle_rueckfall_ips) >= RUECKFALL_ALARM_SCHWELLE:
+                  zeilen.append(
+                      f"❌ **{len(alle_rueckfall_ips)} IP(s) gefunden, die laut Ablauf-Liste "
+                      f"dauerhaft draussen sein sollten, aber trotzdem in einer aktuellen "
+                      f"Output-Datei stehen - der Fix greift hier NICHT wie erwartet "
+                      f"(Issue-Alarm ausgeloest, Schwelle {RUECKFALL_ALARM_SCHWELLE}):**"
+                  )
+              else:
+                  zeilen.append(
+                      f"⚠️ **{len(alle_rueckfall_ips)} IP(s) gefunden, die laut Ablauf-Liste "
+                      f"dauerhaft draussen sein sollten, aber trotzdem in einer aktuellen "
+                      f"Output-Datei stehen** - liegt unter der Alarm-Schwelle "
+                      f"({RUECKFALL_ALARM_SCHWELLE}), daher KEIN Issue-Alarm. Laut Bug-21-"
+                      f"Diagnose (ledger_diagnose.yml) vermutlich eine kurzlebige Sync-"
+                      f"Verzoegerung, keine echte Regression:"
+                  )
+              zeilen.append("")
+              zeilen.append("| Datei | Anzahl Rückfälle | Beispiele |")
+              zeilen.append("|---|---:|---|")
+              for fname, ips in rueckfaelle.items():
+                  beispiele = ", ".join(ips[:5]) + (", ..." if len(ips) > 5 else "")
+                  zeilen.append(f"| {fname} | {len(ips)} | {beispiele} |")
+          else:
+              if cap_backlog_ips:
+                  zeilen.append(
+                      f"✅ 0 echte Rückfälle nach Cap-Bereinigung - "
+                      f"{len(cap_backlog_ips):,} erklaerte Watchlist-Cap-Backlog-Treffer, "
+                      f"sonst keine Auffaelligkeit. Der Fix haelt."
+                  )
+              else:
+                  zeilen.append(
+                      f"✅ 0 Rückfälle - keine der {len(eingefrorene_ips):,} eingefrorenen IPs "
+                      f"taucht in {len(geprueft_dateien)} geprueften Output-Dateien auf. "
+                      f"Der Fix haelt."
+                  )
+
+          zeilen += ["", "## Prognose-Genauigkeit (Vorhersage vs. Realität)", ""]
+          zeilen.append(
+              "Gleicht die Tages-Vorhersagen aus reports/ip_ablauf.md (Job "
+              "\"prognose\") gegen die tatsaechlichen Ledger-Eintraege ab (nach "
+              "Anker-Datum + Fenster gruppiert, dieselbe Formel wie die "
+              "jeweilige Prognose: `first`+31 Tage fuer Watchlist, `last`+181 "
+              "Tage fuer Active), sobald das jeweilige Datum erreicht ist. "
+              "\"Gerettet\" = per Zweitbestaetigung (5+ Feeds oder 2+ "
+              "HQ-Familien) doch nicht abgelaufen."
+          )
+          zeilen.append("")
+          zeilen.append("**Watchlist (30-Tage-Pfad):**")
+          zeilen.append("")
+          if _forecast_hist["watchlist"]["resolved"]:
+              zeilen.append("| Datum | Vorhergesagt | Tatsächlich | Gerettet | Rettungsquote |")
+              zeilen.append("|---|---:|---:|---:|---:|")
+              for _r in _forecast_hist["watchlist"]["resolved"][-14:]:
+                  zeilen.append(
+                      f"| {_r['datum']} | {_r['vorhergesagt']:,} | {_r['tatsaechlich']:,} | "
+                      f"{_r['gerettet']:,} | {_r['rettungsquote_prozent']}% |"
+                  )
+          else:
+              zeilen.append(
+                  "Noch keine aufgeloesten Tage - entweder laeuft der Job "
+                  "\"prognose\" noch nicht lange genug (woechentlich, siehe "
+                  "Cron), oder es ist noch kein vorhergesagtes Datum vergangen."
+              )
+          if _forecast_hist["watchlist"]["pending"]:
+              zeilen.append("")
+              zeilen.append(
+                  f"_{len(_forecast_hist['watchlist']['pending'])} Tag(e) noch "
+                  f"ausstehend (Ablaufdatum liegt noch in der Zukunft)._"
+              )
+          zeilen.append("")
+          zeilen.append("**Active (180-Tage-Pfad):**")
+          zeilen.append("")
+          if _forecast_hist["active"]["resolved"]:
+              zeilen.append("| Datum | Vorhergesagt | Tatsächlich | Gerettet | Rettungsquote |")
+              zeilen.append("|---|---:|---:|---:|---:|")
+              for _r in _forecast_hist["active"]["resolved"][-14:]:
+                  zeilen.append(
+                      f"| {_r['datum']} | {_r['vorhergesagt']:,} | {_r['tatsaechlich']:,} | "
+                      f"{_r['gerettet']:,} | {_r['rettungsquote_prozent']}% |"
+                  )
+          else:
+              zeilen.append(
+                  "Noch keine aufgeloesten Tage - entweder laeuft der Job "
+                  "\"prognose\" noch nicht lange genug, oder es ist noch kein "
+                  "vorhergesagtes Active-Ablaufdatum vergangen (aktuell zeigt "
+                  "die Active-Liste konstant 0, siehe oben - das 180-Tage-"
+                  "Fenster hat noch nicht scharf geschaltet)."
+              )
+          if _forecast_hist["active"]["pending"]:
+              zeilen.append("")
+              zeilen.append(
+                  f"_{len(_forecast_hist['active']['pending'])} Tag(e) noch "
+                  f"ausstehend (Ablaufdatum liegt noch in der Zukunft)._"
+              )
+
+          zeilen += [
+              "",
+              "## seen_db-Trend",
+              "",
+              f"- Seit letztem Lauf: {_delta_letzter_txt}"
+              + (f" (jetzt {gesamt_ips_jetzt:,} IPs)" if gesamt_ips_jetzt is not None else ""),
+              f"- Seit Zyklus-Start ({zyklus_start_str}): {_delta_zyklus_txt}",
+              f"- Letzter combined-Cleanup-Pass: {cleanup_text}",
+              f"- Neue IPs (Summe letzter Läufe): {neu_24h_text}",
+              f"- Entfernte IPs (Summe letzter Läufe): {entfernt_24h_text}",
+              f"  - davon Watchlist/30 Tage: {entfernt_wl_24h_text}",
+              f"  - davon Active/180 Tage: {entfernt_act_24h_text}",
+              f"- Netto-Wachstum ({_fenster_label}): {_netto_text}",
+              f"- Erfolgsquote letzte 16 combined-Läufe: "
+              + ("🔍 " if reliability_auffaellig else "") + reliability_text,
+              "",
+              "## Verlauf (letzte 20 Läufe)",
+              "",
+              "| Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |",
+              "|---|---:|---:|---:|---:|",
+          ]
+          for lauf in verlauf[-20:]:
+              _gesamt = f"{lauf['gesamt_ips_seen_db']:,}" if lauf.get("gesamt_ips_seen_db") is not None else "-"
+              _wl     = lauf.get("watchlist_liste_groesse")
+              _act    = lauf.get("active_liste_groesse")
+              zeilen.append(
+                  f"| {lauf['zeitpunkt']} | {_gesamt} | "
+                  f"{_wl if _wl is not None else '-'} | "
+                  f"{_act if _act is not None else '-'} | "
+                  f"{lauf.get('rueckfall_ip_anzahl', 0)} |"
+              )
+
+          write_text_atomic(REPORT_FILE, "\n".join(zeilen) + "\n")
+          print(f"{REPORT_FILE} geschrieben")
+
+          # ── Statusdatei: IMMER geschrieben (OK oder Alarm), damit man den
+          # Zustand direkt aus der ZIP lesen kann, ohne den ganzen Bericht
+          # zu oeffnen. FIX 2026-08-23 (Nutzerwunsch "in der zip soll auch
+          # eine Meldung rein, Alarm es funktioniert nicht oder sonst was").
+          # Wird auch als Body fuer den GitHub-Issue-Alarm-Step unten
+          # wiederverwendet. Nutzt jetzt diagnose_probleme statt nur
+          # rueckfaelle, damit Ledger-Ueberschneidung und Staleness genauso
+          # zuverlaessig alarmieren wie ein Rueckfall-Fund.
+          STATUS_FILE = "status.md"
+          _trend_zeilen = [
+              "",
+              "**seen_db-Trend:**",
+              f"- seit letztem Lauf: {_delta_letzter_txt}"
+              + (f" (jetzt {gesamt_ips_jetzt:,})" if gesamt_ips_jetzt is not None else ""),
+              f"- seit Zyklus-Start ({zyklus_start_str}): {_delta_zyklus_txt}",
+              f"- letzter combined-Cleanup-Pass: {cleanup_text}",
+              f"- neue IPs (Summe letzter Läufe): {neu_24h_text}",
+              f"- entfernte IPs (Summe letzter Läufe): {entfernt_24h_text}",
+              f"  - davon Watchlist/30 Tage: {entfernt_wl_24h_text}",
+              f"  - davon Active/180 Tage: {entfernt_act_24h_text}",
+              f"- Erfolgsquote letzte 16 combined-Läufe: "
+              + ("🔍 " if reliability_auffaellig else "") + reliability_text,
+          ]
+          if diagnose_probleme:
+              _status_zeilen = [
+                  "# ❌ ALARM",
+                  "",
+                  f"**{len(diagnose_probleme)} Problem(e) erkannt:**",
+                  "",
+              ] + [f"- {p}" for p in diagnose_probleme] + [
+                  "",
+                  f"Lauf: {now_str}",
+              ] + _trend_zeilen
+              if rueckfaelle:
+                  _status_zeilen += [
+                      "",
+                      "| Datei | Anzahl Rückfälle | Beispiele |",
+                      "|---|---:|---|",
+                  ]
+                  for fname, ips in rueckfaelle.items():
+                      beispiele = ", ".join(ips[:5]) + (", ..." if len(ips) > 5 else "")
+                      _status_zeilen.append(f"| {fname} | {len(ips)} | {beispiele} |")
+              _status_zeilen += [
+                  "",
+                  f"Voller Bericht: `{REPORT_FILE}` bzw. `reports/ip_ablauf_verifikation_report.zip` im Repo.",
+              ]
+          else:
+              _status_zeilen = [
+                  "# ✅ OK",
+                  "",
+                  f"0 Rückfälle - keine der {len(eingefrorene_ips):,} eingefrorenen IPs "
+                  f"taucht in {len(geprueft_dateien)} geprueften Output-Dateien auf. "
+                  f"Der Fix hält. Keine Ledger-Überschneidung, keine veralteten Daten.",
+                  "",
+                  f"Lauf: {now_str}",
+              ] + _trend_zeilen
+          write_text_atomic(STATUS_FILE, "\n".join(_status_zeilen) + "\n")
+          print(f"{STATUS_FILE} geschrieben ({'ALARM' if diagnose_probleme else 'OK'})")
+
+          # ── Report-ZIP: fester Pfad im Repo, ueberschreibt sich selbst ──
+          # Ein per-Run-Artifact (siehe Upload-Step weiter unten) ist NICHT
+          # "immer aktuell" - jeder Lauf erzeugt ein neues, eigenes Artifact,
+          # das nach retention-days verfaellt und nur ueber die jeweilige
+          # Run-Seite auffindbar ist. Wer nur alle paar Tage reinschaut,
+          # muesste sich sonst den richtigen Run raussuchen. Deshalb
+          # zusaetzlich an einem FESTEN Pfad im Repo, der bei JEDEM Lauf
+          # ueberschrieben wird - ein Download-Link, immer aktuell, keine
+          # Suche noetig. Enthaelt (via VERLAUF_FILE) die laufende 30-Tage-
+          # Zyklus-Historie (siehe Zyklus-Reset-Logik oben) - startet alle
+          # 30 Tage bewusst wieder bei 0, statt endlos weiterzuwachsen.
+          import zipfile
+          ZIP_FILE = "reports/ip_ablauf_verifikation_report.zip"
+          ZIP_INHALT = [
+              STATUS_FILE,
+              REPORT_FILE,
+              VERLAUF_FILE,
+              "state/watchlist_expired_history.json",
+              "state/active_expired_history.json",
+              "state/ip_ablauf_forecast_verlauf.json",
+              # FIX 2026-08-23 (Nutzerwunsch "alles Erfasste an einer Stelle"):
+              # Prognose-Bericht aus dem Job "prognose" (derselben Datei,
+              # anderer Job/Zeitplan) mit reinpacken. Kein Zusatzaufwand
+              # noetig - "Checkout Repository" oben holt bei JEDEM
+              # verifikation-Lauf ohnehin den zuletzt committeten Stand
+              # dieser Datei mit, unabhaengig davon wie lange der letzte
+              # woechentliche prognose-Lauf her ist. Kann beim allerersten
+              # Lauf ueberhaupt (vor dem ersten prognose-Durchlauf) noch
+              # fehlen - der existierende Existenz-Check unten faengt das ab.
+              "reports/ip_ablauf.md",
+              # FIX 2026-08-23 (Nutzerwunsch "run [...] in der anderen zip
+              # speichern"): Log des neuesten combined-Laufs, siehe Step
+              # "Combined-Blacklist Run-Log holen" oben. Existenz-Check
+              # faengt sowohl den Fall "Log-Abruf fehlgeschlagen" als auch
+              # "combined lief noch nie" ab.
+              "combined_run.log",
+          ]
+          with zipfile.ZipFile(ZIP_FILE, "w", zipfile.ZIP_DEFLATED) as zf:
+              for pfad in ZIP_INHALT:
+                  if os.path.exists(pfad):
+                      zf.write(pfad, arcname=os.path.basename(pfad))
+                  else:
+                      print(f"WARNUNG: {pfad} existiert nicht, wird nicht ins ZIP aufgenommen")
+          _tage_im_zyklus = (today - datetime.strptime(zyklus_start_str, "%Y-%m-%d").date()).days
+          print(f"{ZIP_FILE} geschrieben ({os.path.getsize(ZIP_FILE) / 1024:.1f} KB, "
+                f"{len(verlauf)} Läufe seit Zyklus-Start {zyklus_start_str} "
+                f"({_tage_im_zyklus}/{ZYKLUS_TAGE} Tage))")
+
+          if diagnose_probleme:
+              sys.exit(1)  # Job rot markieren, wenn irgendein Diagnose-Problem gefunden wurde
+          EOF
+
+      - name: Report-ZIP zusätzlich als Run-Artifact hochladen
+        # if: always() - auch bei gefundenen Rueckfaellen (Job-Exit-Code 1
+        # oben) soll das ZIP zum Download verfuegbar sein, gerade DANN ist
+        # es fuer die Fehlersuche am wichtigsten.
+        # WICHTIG: Das ist NUR eine Kopie dieses einen Laufs, 30 Tage gueltig.
+        # Fuer den "immer aktuellen" Stand siehe reports/ip_ablauf_
+        # verifikation_report.zip im Repo (wird unten mitcommittet).
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ip-ablauf-verifikation-report-${{ github.run_id }}
+          path: reports/ip_ablauf_verifikation_report.zip
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Commit and Push
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports/ip_ablauf_verifikation_report.md \
+            reports/ip_ablauf_verifikation_report.zip \
+            state/ip_ablauf_verifikation_verlauf.json \
+            state/ip_ablauf_forecast_verlauf.json 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "IP-Ablauf-Verifikation: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
+            for attempt in 1 2 3; do
+              git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                git checkout --theirs reports/ip_ablauf_verifikation_report.md \
+                  reports/ip_ablauf_verifikation_report.zip \
+                  state/ip_ablauf_verifikation_verlauf.json \
+                  state/ip_ablauf_forecast_verlauf.json 2>/dev/null || true
+                git add reports/ip_ablauf_verifikation_report.md \
+                  reports/ip_ablauf_verifikation_report.zip \
+                  state/ip_ablauf_verifikation_verlauf.json \
+                  state/ip_ablauf_forecast_verlauf.json 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 3 Versuchen fehlgeschlagen"
+            exit 1
+          fi
+
+      - name: Diagnose-Alarm (GitHub Issue) öffnen/aktualisieren
+        # FIX 2026-08-23 (Nutzerwunsch "Meldung waere recht"): failure()
+        # prueft den Status ALLER vorherigen Steps im Job - da nur der
+        # Python-Step oben ueberhaupt fehlschlagen kann (Commit/Zip-Upload
+        # laufen mit if:always() und schlagen bei einem reinen Diagnose-
+        # Fund selbst nicht fehl), zeigt failure() hier zuverlaessig genau
+        # den Diagnose-Fall an - unabhaengig davon, dass diese Steps hier
+        # NACH dem "immer laufenden" Commit-Step stehen.
+        # Sucht per REST-Liste (nicht gh-Suchindex, der verzoegert sein
+        # kann) nach einem bereits offenen Issue mit exakt diesem Titel -
+        # kommentiert es dann nur, statt bei jedem 3h-Lauf ein neues Issue
+        # aufzumachen (kein Spam bei anhaltendem Problem).
+        # FIX BUG-ALARM-TITEL (2026-08-23, im Issue-Screenshot entdeckt):
+        # Titel hiess vorher fest "Rückfall erkannt", obwohl diagnose_probleme
+        # laengst mehrere unabhaengige Problemtypen abdeckt (Ledger-
+        # Ueberschneidung, veraltete Daten, niedrige Erfolgsquote) - ein
+        # Issue zu einer niedrigen Erfolgsquote hiess dadurch faelschlich
+        # "Rückfall erkannt", obwohl gar kein Rueckfall vorlag. Titel jetzt
+        # generisch, der tatsaechliche Problemtyp steht im Body (status.md).
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 IP-Ablauf: Problem erkannt"
+          if [ ! -f status.md ]; then
+            echo "WARNUNG: status.md fehlt (unerwarteter anderer Fehler?) - generischer Alarmtext."
+            echo "Ein Problem wurde erkannt, aber die Detail-Datei fehlt. Siehe Workflow-Log dieses Laufs für Details." > status.md
+          fi
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Bestehendes Alarm-Issue #$EXISTING gefunden - kommentiere statt neu zu erstellen."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" --body-file status.md
+          else
+            echo "Kein offenes Alarm-Issue gefunden - erstelle neues."
+            gh issue create --repo "${{ github.repository }}" --title "$TITLE" --body-file status.md
+          fi
+
+      - name: Diagnose-Alarm schließen, falls behoben
+        # success() ist hier nur dann true, wenn der Python-Step (der
+        # einzige Step, der bei einem Diagnose-Problem fehlschlaegt)
+        # tatsaechlich 0 Probleme gemeldet hat - unabhaengig vom Status der
+        # dazwischen liegenden if:always()-Steps.
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🔴 IP-Ablauf: Problem erkannt"
+          EXISTING=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -n1)
+          if [ -n "$EXISTING" ]; then
+            echo "Offenes Alarm-Issue #$EXISTING gefunden - aktueller Lauf zeigt keine Probleme, schließe."
+            gh issue comment "$EXISTING" --repo "${{ github.repository }}" \
+              --body "✅ Behoben: Lauf vom $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z') zeigt keine Probleme mehr. Issue wird automatisch geschlossen."
+            gh issue close "$EXISTING" --repo "${{ github.repository }}"
+          else
+            echo "Kein offenes Alarm-Issue vorhanden - nichts zu tun."
+          fi

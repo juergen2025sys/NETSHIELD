@@ -1,0 +1,223 @@
+name: Watchdog IP-Ablauf
+
+# Zweck:
+# Sicherstellen, dass ip_ablauf.yml (beide Jobs: "prognose" woechentlich,
+# "verifikation" alle 3h) tatsaechlich zu seinen geplanten Cron-Slots
+# laeuft - auch wenn GitHub Actions Schedule-Trigger uebersprungen werden
+# (bekanntes Verhalten bei hoher Last, siehe watchdog_combined.yml fuer
+# ausfuehrliche Historie dazu).
+#
+# BEWUSST EINFACHER als watchdog_combined.yml:
+# Dieser Watchdog uebernimmt daraus nur den grundlegenden Slot-Waechter +
+# Stale-Fallback + den gh_retry-Wrapper gegen transiente API-Fehler.
+# Nicht uebernommen: Stuck-Queue-Erkennung (Cancel haengender Runs),
+# Race-Guard gegen API-Propagation-Delay, Piggyback via workflow_run.
+# Begruendung: Diese Zusatzmechanismen in watchdog_combined.yml sind das
+# Ergebnis vieler realer Vorfaelle ueber Monate bei einem Job, dessen
+# Ausfall den KOMPLETTEN Blacklist-Datenfluss stoppt. Ein verpasster
+# ip_ablauf.yml-Lauf ist dagegen unkritisch (nur Prognose/Verifikation
+# verzoegert sich um ein paar Stunden, keine Daten gehen verloren) - die
+# zusaetzliche Komplexitaet waere hier nicht gerechtfertigt. Falls sich
+# das durch echte Vorfaelle aendert, kann dieselbe Logik hierher
+# uebernommen werden.
+#
+# Zwei UNABHAENGIGE Slot-Waechter, weil ip_ablauf.yml zwei Jobs mit ganz
+# unterschiedlicher Taktung in einer Datei sind (siehe dortige Kommentare):
+#   - "prognose": woechentlich Montags 06:30 UTC
+#   - "verifikation": alle 3h, Slot :55
+# Ein einfacher "letzter Lauf ueberhaupt"-Check wuerde "prognose" nicht
+# zuverlaessig abdecken, weil "verifikation" so viel haeufiger laeuft,
+# dass ein einzelner ausgefallener woechentlicher prognose-Lauf im
+# Rauschen der 3h-Laeufe untergehen wuerde. Fuer "prognose" wird daher
+# gezielt der JOB-Status (nicht nur der WORKFLOW-Status) geprueft.
+
+on:
+  schedule:
+    # Alle 30min - unkritischer als combined (siehe oben), daher lockerer
+    # getaktet als watchdog_combined.yml (dort alle 15min).
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: read
+  actions: write    # Pflicht fuer gh workflow run (Schreibrecht auf Actions API)
+
+concurrency:
+  group: watchdog-ip-ablauf
+  cancel-in-progress: false
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check ip_ablauf.yml freshness (beide Jobs) und trigger falls noetig
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # verifikation: alle 3h (Slot :55), Grace 20min analog combined.
+          VERIFIKATION_SLOT_GRACE_MINUTES: "20"
+          # Fallback-Schwelle falls die Slot-Logik aus irgendeinem Grund
+          # nicht greift - 220min liegt knapp ueber 3h-Takt (180min) +
+          # Lauf-/Grace-Puffer.
+          VERIFIKATION_STALE_THRESHOLD_MINUTES: "220"
+          # prognose: woechentlich Montags 06:30 UTC. Grosszuegigere Grace
+          # (3h) - ein woechentlicher Job hat keinen enagen Nachfolge-Slot,
+          # der sonst ohnehin bald greifen wuerde.
+          PROGNOSE_SLOT_GRACE_MINUTES: "180"
+        run: |
+          set -e
+          set -o pipefail
+
+          # ── 0. Retry-Helper fuer gh-API-Calls (uebernommen aus watchdog_combined.yml) ──
+          RETRY_MAX=3
+          gh_retry() {
+            local attempt=1
+            local backoff=5
+            local out=""
+            local rc=0
+            while [ "$attempt" -le "$RETRY_MAX" ]; do
+              out=$("$@" 2>/tmp/gh_retry_err) && rc=0 || rc=$?
+              if [ "$rc" -eq 0 ]; then
+                printf '%s' "$out"
+                return 0
+              fi
+              if [ "$attempt" -eq "$RETRY_MAX" ]; then
+                echo "gh_retry: Endgueltig fehlgeschlagen nach ${attempt} Versuchen (exit=${rc})" >&2
+                cat /tmp/gh_retry_err >&2
+                return "$rc"
+              fi
+              echo "gh_retry: Versuch ${attempt}/${RETRY_MAX} fehlgeschlagen (exit=${rc}), retry in ${backoff}s" >&2
+              sleep "$backoff"
+              attempt=$((attempt + 1))
+            done
+          }
+
+          now_epoch=$(date -u +%s)
+          should_trigger=false
+          reasons=""
+
+          # ── 1. Aktive Laeufe? Dann sowieso nichts zu tun ────────────────
+          active_json=$(gh_retry gh run list --repo "${{ github.repository }}" \
+            --workflow=ip_ablauf.yml --status=in_progress --status=queued \
+            --limit=5 --json databaseId,createdAt)
+          active=$(echo "$active_json" | jq 'length')
+          if [ "$active" -gt 0 ]; then
+            echo "ip_ablauf.yml hat bereits ${active} aktive(n) Lauf/Laeufe - kein Eingriff noetig"
+            exit 0
+          fi
+
+          # ── 2. verifikation-Slot pruefen (alle 3h, Slot :55) ─────────────
+          # Analog zum Slot-Waechter in watchdog_combined.yml, aber ohne
+          # Job-Unterscheidung - "verifikation" laeuft so haeufig, dass ein
+          # simpler "letzter WORKFLOW-Run"-Check hierfuer ausreicht.
+          hour=$(date -u +%H)
+          hour_block_start=$(( (10#$hour / 3) * 3 ))
+          slot_iso=$(date -u -d "$(date -u +%Y-%m-%d) ${hour_block_start}:55:00" +%Y-%m-%dT%H:%M:%SZ)
+          slot_epoch=$(date -u -d "$slot_iso" +%s)
+          if [ "$slot_epoch" -gt "$now_epoch" ]; then
+            slot_iso=$(date -u -d "$slot_iso -3 hours" +%Y-%m-%dT%H:%M:%SZ)
+            slot_epoch=$(date -u -d "$slot_iso" +%s)
+          fi
+          slot_age_min=$(( (now_epoch - slot_epoch) / 60 ))
+
+          last_run_json=$(gh_retry gh run list --repo "${{ github.repository }}" \
+            --workflow=ip_ablauf.yml --status=success --limit=1 \
+            --json databaseId,createdAt,updatedAt)
+          last_started=$(echo "$last_run_json" | jq -r '.[0].createdAt // empty')
+          last_updated=$(echo "$last_run_json" | jq -r '.[0].updatedAt // empty')
+
+          verifikation_served=false
+          if [ -n "$last_started" ]; then
+            last_started_epoch=$(date -u -d "$last_started" +%s)
+            last_updated_epoch=$(date -u -d "$last_updated" +%s)
+            if [ "$last_started_epoch" -ge "$slot_epoch" ] || [ "$last_updated_epoch" -ge "$slot_epoch" ]; then
+              verifikation_served=true
+            fi
+          fi
+
+          if [ "$verifikation_served" = "false" ] && [ "$slot_age_min" -ge "$VERIFIKATION_SLOT_GRACE_MINUTES" ]; then
+            should_trigger=true
+            reasons="verifikation-Slot ${slot_iso} seit ${slot_age_min}min nicht bedient (Grace: ${VERIFIKATION_SLOT_GRACE_MINUTES}min)"
+          elif [ -n "$last_started" ]; then
+            stale_min=$(( (now_epoch - $(date -u -d "$last_updated" +%s)) / 60 ))
+            if [ "$stale_min" -ge "$VERIFIKATION_STALE_THRESHOLD_MINUTES" ]; then
+              should_trigger=true
+              reasons="Fallback: letzter erfolgreicher ip_ablauf.yml-Run vor ${stale_min}min (Schwelle ${VERIFIKATION_STALE_THRESHOLD_MINUTES}min)"
+            fi
+          else
+            should_trigger=true
+            reasons="Kein erfolgreicher ip_ablauf.yml-Run in den letzten 100 Versuchen gefunden"
+          fi
+
+          if [ "$should_trigger" = "true" ]; then
+            echo "Trigger-Grund (verifikation): $reasons"
+          else
+            echo "verifikation-Slot ${slot_iso} wurde bedient (oder noch innerhalb Grace) - kein Eingriff noetig"
+          fi
+
+          # ── 3. prognose-Slot pruefen (woechentlich Montags 06:30 UTC) ───
+          # Gezielter JOB-Status-Check (nicht nur Workflow-Status), weil
+          # "verifikation" den letzten Workflow-Run sonst faelschlich als
+          # "alles gut" erscheinen liesse, selbst wenn "prognose" seit
+          # Wochen kaputt ist - siehe Begruendung im Datei-Header.
+          weekday=$(date -u +%u)  # 1=Montag
+          days_since_monday=$(( (weekday - 1 + 7) % 7 ))
+          prognose_slot_iso=$(date -u -d "$(date -u +%Y-%m-%d) -${days_since_monday} days 06:30:00" +%Y-%m-%dT%H:%M:%SZ)
+          prognose_slot_epoch=$(date -u -d "$prognose_slot_iso" +%s)
+          if [ "$prognose_slot_epoch" -gt "$now_epoch" ]; then
+            prognose_slot_iso=$(date -u -d "$prognose_slot_iso -7 days" +%Y-%m-%dT%H:%M:%SZ)
+            prognose_slot_epoch=$(date -u -d "$prognose_slot_iso" +%s)
+          fi
+          prognose_slot_age_min=$(( (now_epoch - prognose_slot_epoch) / 60 ))
+
+          if [ "$prognose_slot_age_min" -ge "$PROGNOSE_SLOT_GRACE_MINUTES" ]; then
+            # Runs seit dem prognose-Slot einsammeln und deren "prognose"-
+            # Job-Conclusion pruefen (bis zu 5 Kandidaten, mehr sollte es
+            # in dem Zeitfenster nicht geben).
+            candidate_ids=$(gh_retry gh run list --repo "${{ github.repository }}" \
+              --workflow=ip_ablauf.yml --limit=20 \
+              --json databaseId,createdAt \
+              --jq "[.[] | select((.createdAt | fromdateiso8601) >= ${prognose_slot_epoch})] | .[].databaseId")
+
+            prognose_served=false
+            for _id in $candidate_ids; do
+              _concl=$(gh_retry gh run view "$_id" --repo "${{ github.repository }}" \
+                --json jobs --jq '.jobs[] | select(.name=="prognose") | .conclusion' 2>/dev/null || echo "")
+              if [ "$_concl" = "success" ]; then
+                prognose_served=true
+                break
+              fi
+            done
+
+            if [ "$prognose_served" = "false" ]; then
+              should_trigger=true
+              if [ -n "$reasons" ]; then
+                reasons="${reasons}; "
+              fi
+              reasons="${reasons}prognose-Slot ${prognose_slot_iso} seit ${prognose_slot_age_min}min ohne erfolgreichen prognose-Job-Lauf (Grace: ${PROGNOSE_SLOT_GRACE_MINUTES}min)"
+              echo "Trigger-Grund (prognose): prognose-Slot ${prognose_slot_iso} nicht bedient"
+            else
+              echo "prognose-Slot ${prognose_slot_iso} wurde bedient (mind. 1 erfolgreicher prognose-Job seitdem)"
+            fi
+          else
+            echo "prognose-Slot ${prognose_slot_iso} noch innerhalb Grace (${PROGNOSE_SLOT_GRACE_MINUTES}min) - noch kein Check faellig"
+          fi
+
+          # ── 4. Trigger durchfuehren ──────────────────────────────────────
+          # workflow_dispatch loest laut den if:-Bedingungen in ip_ablauf.yml
+          # BEIDE Jobs aus (prognose UND verifikation) - das ist hier
+          # bewusst in Kauf genommen: die woechentliche prognose ist selbst
+          # bei einem unnoetigen Zusatzlauf guenstig genug, um das nicht
+          # weiter zu verfeinern.
+          if [ "$should_trigger" = "true" ]; then
+            echo "Trigger-Gruende gesamt: $reasons"
+            echo "Triggere ip_ablauf.yml via workflow_dispatch"
+            gh_retry gh workflow run ip_ablauf.yml \
+              --repo "${{ github.repository }}" \
+              --ref main
+            echo "Triggered."
+          fi
