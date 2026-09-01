@@ -2193,3 +2193,76 @@ class TestSqliteSeenDBMigrationRegression(unittest.TestCase):
         if not isinstance(feeds, list) and hq:
             feeds = []
         self.assertTrue(len(feeds) >= 2 or hq or "auto_feed_discovery" in feeds)
+
+
+class TestRamOptimizationSep01(unittest.TestCase):
+    def test_sqlite_seen_db_uses_disk_backed_journal(self):
+        import tempfile, os
+        from scripts.netshield_common import SqliteSeenDB
+        fd, path = tempfile.mkstemp(suffix=".sqlite3")
+        os.close(fd)
+        try:
+            db = SqliteSeenDB(path)
+            mode = db._conn.execute("PRAGMA journal_mode").fetchone()[0].lower()
+            self.assertEqual(mode, "truncate")
+            db.close()
+        finally:
+            for suffix in ("", "-journal", "-wal", "-shm"):
+                try: os.unlink(path + suffix)
+                except FileNotFoundError: pass
+
+    def test_write_ip_list_presorted_keeps_bytes_and_reuses_list(self):
+        import tempfile, os
+        from scripts.netshield_common import write_ip_list
+        fd, path = tempfile.mkstemp(suffix=".txt")
+        os.close(fd)
+        try:
+            ips = ["1.1.1.1", "2.2.2.2", "10.0.0.1"]
+            ret = write_ip_list(path, ips, header_lines=["RAM test"], presorted=True)
+            self.assertIs(ret, ips)
+            with open(path, encoding="utf-8") as f:
+                self.assertEqual(f.read(), "# RAM test\n\n1.1.1.1\n2.2.2.2\n10.0.0.1\n")
+        finally:
+            try: os.unlink(path)
+            except FileNotFoundError: pass
+
+    def test_write_ip_list_empty_preserves_old_newline_semantics(self):
+        import tempfile, os
+        from scripts.netshield_common import write_ip_list
+        fd, path = tempfile.mkstemp(suffix=".txt")
+        os.close(fd)
+        try:
+            write_ip_list(path, [], presorted=True)
+            with open(path, "rb") as f:
+                self.assertEqual(f.read(), b"\n")
+        finally:
+            try: os.unlink(path)
+            except FileNotFoundError: pass
+
+    def test_sqlite_commit_during_temp_cursor_iteration_is_safe(self):
+        import tempfile, os
+        from scripts.netshield_common import SqliteSeenDB
+        fd, path = tempfile.mkstemp(suffix=".sqlite3")
+        os.close(fd)
+        try:
+            db = SqliteSeenDB(path)
+            db._conn.execute("CREATE TEMP TABLE hits(ip TEXT PRIMARY KEY)")
+            db._conn.executemany("INSERT INTO hits(ip) VALUES (?)", [(f"1.2.3.{i}",) for i in range(1, 51)])
+            db.commit()
+            seen = []
+            cur = db._conn.execute("SELECT ip FROM hits ORDER BY ip")
+            for n, (ip,) in enumerate(cur, 1):
+                db[ip] = {"first":"2026-09-01","last":"2026-09-01","hq":False,
+                          "feeds":["test"],"hq_feed_names":[],"hq_feeds":0,
+                          "today_count":1,"today_hq":False,"days_seen":0}
+                if n % 10 == 0:
+                    db.commit()
+                seen.append(ip)
+            db.commit()
+            self.assertEqual(len(seen), 50)
+            self.assertEqual(len(db), 50)
+            db.close()
+        finally:
+            for suffix in ("", "-journal", "-wal", "-shm"):
+                try: os.unlink(path + suffix)
+                except FileNotFoundError: pass
