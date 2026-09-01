@@ -86,7 +86,13 @@ jobs:
       - name: Auswertung
         run: |
           python3 << 'EOF'
-          import glob, gzip, json, os, sys, sqlite3
+          # FIX MISSING-IO-IMPORT 01.09.2026: "io" war beim SQLite-only-Umbau
+          # aus dieser Zeile gefallen (vorher: glob, gzip, io, json, os, sys).
+          # lade() benutzt io.BytesIO() weiterhin fuer die Ledger-Parts. Ohne
+          # den Import lief die Funktion nur solange durch, wie gar keine Parts
+          # vorhanden waren - sobald welche da sind, NameError. Faellt durch
+          # keine Syntaxpruefung, weil es ein reiner Laufzeitfehler ist.
+          import glob, gzip, io, json, os, sys, sqlite3
           from collections import Counter
           from datetime import date, datetime, timedelta, timezone
 

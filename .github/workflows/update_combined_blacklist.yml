@@ -266,8 +266,19 @@ jobs:
       # Fuer seen_db existiert nur noch EIN GitHub-Release-Fallback:
       # seen-db-sqlite-backup / seen_db.sqlite3.gz. JSON bleibt lediglich
       # Actions-Cache fuer den normalen Combined-Pfad.
-      - name: Restore seen_db SQLite Cache (falls JSON-Cache leer)
-        if: hashFiles('seen_db.json') == ''
+      #
+      # FIX CORRUPT-JSON-FALLBACK 01.09.2026: Diese drei Steps liefen frueher
+      # nur bei hashFiles('seen_db.json') == ''. Damit war der SQLite-Fallback
+      # ausgerechnet im gefaehrlichsten Fall nicht verfuegbar: GitHub liefert
+      # einen VORHANDENEN, aber beschaedigten JSON-Cache, der Streaming-Import
+      # scheitert, db wird {} - und auf der Platte liegt keine SQLite-Datei zum
+      # Zurueckfallen. Combined haette dann aus den Tagesfeeds eine neue seen_db
+      # ohne History aufgebaut (Millionen IPs, also weit ueber der 100k-Schwelle
+      # der Upload-Guards) und Cache UND Release-Asset damit ueberschrieben -
+      # days_seen, first und hq_feed_names waeren unwiederbringlich weg.
+      # Der Restore laeuft deshalb jetzt immer. Kostet einen Cache-Restore pro
+      # Lauf, ist aber die einzige Absicherung gegen genau diesen Fall.
+      - name: Restore seen_db SQLite Cache (immer, als Korruptions-Fallback)
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: seen_db.sqlite3
@@ -276,15 +287,15 @@ jobs:
             netshield-seen-db-sqlite-v1-
 
       - name: Validiere restaurierte seen_db SQLite
-        if: hashFiles('seen_db.json') == '' && hashFiles('seen_db.sqlite3') != ''
+        if: hashFiles('seen_db.sqlite3') != ''
         run: |
           if ! python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); print(f"SQLite-Fallback validiert: {n:,} Eintraege"); assert q and q[0]=="ok" and n>=100000, (q,n)'; then
             echo "::warning::Restaurierter SQLite-Cache ungueltig - verwerfe und versuche Release-Fallback"
             rm -f seen_db.sqlite3
           fi
 
-      - name: Restore seen_db SQLite from GitHub Release (falls beide Caches leer)
-        if: hashFiles('seen_db.json') == '' && hashFiles('seen_db.sqlite3') == ''
+      - name: Restore seen_db SQLite from GitHub Release (falls SQLite-Cache leer)
+        if: hashFiles('seen_db.sqlite3') == ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -1733,7 +1744,18 @@ jobs:
           if os.path.exists(_sqlite_db_path):
               os.remove(_sqlite_db_path)  # Ueberrest eines evtl. abgebrochenen Vorlaufs
 
-          if not os.path.exists(DB_FILE) and os.path.exists(SQLITE_FALLBACK_FILE):
+          # FIX CORRUPT-JSON-FALLBACK 01.09.2026: Der SQLite-Fallback steckt
+          # jetzt in einer Funktion statt in einem einmaligen if-Block. Grund:
+          # er wurde frueher NUR probiert, wenn seen_db.json gar nicht
+          # existierte. Bei vorhandener, aber beschaedigter JSON lief der
+          # Streaming-Import in den except-Zweig, setzte db={} - und danach
+          # gab es keinen zweiten Versuch mehr. Die Funktion wird deshalb an
+          # zwei Stellen aufgerufen: vor dem JSON-Versuch (wenn gar keine JSON
+          # da ist) und noch einmal danach, falls der JSON-Versuch db leer
+          # gelassen hat.
+          def _sqlite_fallback_laden():
+              if not os.path.exists(SQLITE_FALLBACK_FILE):
+                  return None
               try:
                   import shutil as _shutil
                   _src = SqliteSeenDB(SQLITE_FALLBACK_FILE)
@@ -1741,16 +1763,23 @@ jobs:
                   _src.close()
                   if _n < 100000:
                       raise ValueError(f"SQLite-Fallback hat nur {_n} Eintraege")
+                  if os.path.exists(_sqlite_db_path):
+                      os.remove(_sqlite_db_path)
                   _shutil.copy2(SQLITE_FALLBACK_FILE, _sqlite_db_path)
-                  db = SqliteSeenDB(_sqlite_db_path)
-                  print(f"seen_db aus persistentem SQLite-Fallback geladen: {len(db)} IPs")
+                  _fallback_db = SqliteSeenDB(_sqlite_db_path)
+                  print(f"seen_db aus persistentem SQLite-Fallback geladen: {len(_fallback_db)} IPs")
+                  return _fallback_db
               except Exception as _sqlite_restore_err:
                   print(f"WARN: SQLite-Fallback nicht nutzbar ({_sqlite_restore_err})", file=sys.stderr)
-                  db = {}
                   try:
-                      if os.path.exists(_sqlite_db_path): os.remove(_sqlite_db_path)
+                      if os.path.exists(_sqlite_db_path):
+                          os.remove(_sqlite_db_path)
                   except OSError:
                       pass
+                  return None
+
+          if not os.path.exists(DB_FILE):
+              db = _sqlite_fallback_laden() or {}
 
           if not db and os.path.exists(DB_FILE):
               try:
@@ -1787,13 +1816,22 @@ jobs:
                   db = _db_candidate
                   print(f"seen_db geladen (Streaming): {len(db)} IPs")
               except Exception as _load_err:
-                  print(f"WARN: seen_db.json korrupt ({_load_err}) – versuche Backup", file=sys.stderr)
+                  print(f"WARN: seen_db.json korrupt ({_load_err}) – versuche SQLite-Fallback", file=sys.stderr)
                   db = {}
                   try:
                       if os.path.exists(_sqlite_db_path):
                           os.remove(_sqlite_db_path)
                   except OSError:
                       pass
+
+          # FIX CORRUPT-JSON-FALLBACK 01.09.2026: Zweiter Anlauf. Greift genau
+          # dann, wenn seen_db.json zwar vorhanden war, der Streaming-Import
+          # aber gescheitert ist. Ohne diesen Aufruf waere Combined hier mit
+          # db={} weitergelaufen und haette anschliessend eine historienlose
+          # seen_db in Cache und Release-Asset geschrieben.
+          if not db:
+              db = _sqlite_fallback_laden() or {}
+
           if not db:
               print("WARN: Keine bestehende seen_db gefunden - starte mit leerem Datenbestand", file=sys.stderr)
 
@@ -4965,6 +5003,49 @@ jobs:
           # Python-Prozess-Exit selbst.
           echo "BASH-DIAG-B: python3-Prozess beendet (Exit-Code $?) um $(date -u +%Y-%m-%dT%H:%M:%S.%6NZ)"
 
+      # FIX SHRINK-GUARD 01.09.2026: Letzte Verteidigungslinie, falls der
+      # Fallback-Pfad oben doch einmal versagt. Die Upload-Guards pruefen bisher
+      # nur n >= 100000. Nach einem ungewollten Fresh-Start baut Combined aus den
+      # Tagesfeeds aber Millionen IPs auf - diese Schwelle wird also locker
+      # passiert, und Cache wie Release-Asset wuerden mit dem historienlosen
+      # Stand ueberschrieben. Hier wird deshalb gegen die Eintragszahl des
+      # VORLAUFS verglichen. state/seen_db_meta.json stammt aus dem Checkout und
+      # wird erst im spaeteren Commit-Step dieses Laufs aktualisiert, enthaelt
+      # hier also noch den alten Wert - genau was gebraucht wird.
+      # Schwelle 50%: die groesste beobachtete regulaere Tagesbewegung lag bei
+      # rund 1,8 Mio. von 9,8 Mio. (etwa 18%), also reichlich Abstand.
+      - name: Schrumpfungswache vor Cache- und Release-Schreibvorgaengen
+        id: shrink_guard
+        if: steps.build_combined.outcome == 'success'
+        run: |
+          set -uo pipefail
+          AKTUELL=0
+          if [ -f seen_db.sqlite3 ]; then
+            AKTUELL=$(python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); print(c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]); c.close()' 2>/dev/null || echo 0)
+          elif [ -f seen_db.json ]; then
+            echo "Kein SQLite-Snapshot vorhanden - Wache kann nicht zaehlen, lasse durch."
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          VORLAUF=0
+          if [ -f state/seen_db_meta.json ]; then
+            VORLAUF=$(python3 -c 'import json; print(int(json.load(open("state/seen_db_meta.json", encoding="utf-8")).get("total_ips", 0)))' 2>/dev/null || echo 0)
+          fi
+          echo "Eintraege aktuell: ${AKTUELL} | Vorlauf laut Meta: ${VORLAUF}"
+          if [ "${VORLAUF:-0}" -le 0 ]; then
+            echo "Kein Vergleichswert vorhanden (erster Lauf?) - lasse durch."
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          SCHWELLE=$(( VORLAUF / 2 ))
+          if [ "${AKTUELL:-0}" -lt "$SCHWELLE" ]; then
+            echo "::error::Schrumpfungswache: seen_db ist von ${VORLAUF} auf ${AKTUELL} IPs gefallen (<50%). Cache und Release-Asset werden NICHT ueberschrieben. Wahrscheinliche Ursache: beschaedigter Cache und ungewollter Fresh-Start."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Schrumpfungswache: unauffaellig."
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Save seen_db Cache
         # FIX BUG-AL1: if: always() ergänzt. Ohne dieses Guard wurde der Cache-Save
         # übersprungen wenn der Haupt-Python-Step mit einer unbehandelten Exception
@@ -4975,7 +5056,7 @@ jobs:
         # NOTE: always()-Semantik bleibt - "always() && Guard" laeuft bei Crash UND
         # wenn Idempotenz-Guard nicht geskippt hat. Beim Skip soll auch der Cache-
         # Save nicht laufen, da kein Build-Step ausgefuehrt wurde.
-        if: steps.build_combined.outcome == 'success'
+        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: seen_db.json
@@ -4996,14 +5077,14 @@ jobs:
           key: netshield-watchlist-cap-state-v1-${{ github.run_id }}
 
       - name: Save seen_db SQLite Cache
-        if: steps.build_combined.outcome == 'success' && hashFiles('seen_db.sqlite3') != ''
+        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.sqlite3') != ''
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: seen_db.sqlite3
           key: netshield-seen-db-sqlite-v1-${{ github.run_id }}
 
       - name: Backup seen_db SQLite to GitHub Release
-        if: steps.build_combined.outcome == 'success' && hashFiles('seen_db.sqlite3') != ''
+        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.sqlite3') != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

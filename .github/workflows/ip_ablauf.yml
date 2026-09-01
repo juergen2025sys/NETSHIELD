@@ -92,8 +92,13 @@ jobs:
             netshield-seen-db-v1-
             netshield-seen-db-
 
-      - name: Restore seen_db SQLite Cache (falls JSON-Cache leer)
-        if: hashFiles('seen_db.json') == ''
+      # FIX CORRUPT-JSON-FALLBACK 01.09.2026: analog zu Combined. Der Restore
+      # lief frueher nur bei fehlender JSON. Bei vorhandener, aber beschaedigter
+      # seen_db.json lag deshalb keine SQLite-Datei bereit und json.load() liess
+      # den Job sterben, obwohl ein gueltiger SQLite-Stand verfuegbar gewesen
+      # waere. Hier ist der Schaden zwar nur der fehlende Prognose-Report und
+      # kein Datenverlust - aber der Fallback kostet nichts.
+      - name: Restore seen_db SQLite Cache (immer, als Korruptions-Fallback)
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: seen_db.sqlite3
@@ -101,20 +106,37 @@ jobs:
           restore-keys: |
             netshield-seen-db-sqlite-v1-
 
-      - name: Restore seen_db SQLite from GitHub Release (falls Caches leer)
-        if: hashFiles('seen_db.json') == '' && hashFiles('seen_db.sqlite3') == ''
+      # FIX CORRUPT-JSON-FALLBACK-2 01.09.2026: Bedingung an Combined
+      # angeglichen. Vorher stand hier zusaetzlich hashFiles('seen_db.json')
+      # == '' - damit blieb genau der Fall offen, fuer den der Fallback da ist:
+      # seen_db.json vorhanden aber korrupt, SQLite-Cache fehlt (abgelaufen
+      # oder per LRU verdraengt). Der Release wurde dann uebersprungen, weil
+      # eine JSON formal existierte, und der Python-Block fand nichts zum
+      # Zurueckfallen.
+      #
+      # Der else-Zweig darf dabei NICHT mehr toedlich sein. Sonst wuerde die
+      # gelockerte Bedingung einen neuen Fehler einbauen: gesunde JSON, kein
+      # SQLite-Cache und (noch) kein Release-Asset haetten den Job abgebrochen,
+      # obwohl die JSON voellig brauchbar ist. Fehlt am Ende wirklich jede
+      # Quelle, meldet das der Python-Block unten sauber inklusive Report.
+      - name: Restore seen_db SQLite from GitHub Release (falls SQLite-Cache leer)
+        if: hashFiles('seen_db.sqlite3') == ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -euo pipefail
+          set -uo pipefail
           if gh release download seen-db-sqlite-backup \
               --repo "${{ github.repository }}" \
               --pattern "seen_db.sqlite3.gz" \
               --dir . --clobber 2>/dev/null; then
-            gzip -df seen_db.sqlite3.gz
+            if gzip -df seen_db.sqlite3.gz; then
+              echo "SQLite-Release-Fallback bereitgestellt."
+            else
+              echo "::warning::seen_db.sqlite3.gz nicht entpackbar - verwerfe."
+              rm -f seen_db.sqlite3 seen_db.sqlite3.gz
+            fi
           else
-            echo "::error::Weder JSON-Cache, SQLite-Cache noch SQLite-Release verfuegbar."
-            exit 1
+            echo "Kein SQLite-Release-Asset verfuegbar - es wird ohne SQLite-Fallback fortgefahren."
           fi
 
       - name: Restore Anti-Churn-Ledger from GitHub Release (falls vorhanden)
@@ -234,23 +256,50 @@ jobs:
                       if self._has_auto and row[8] is not None: d["auto_today_count"] = row[8]
                       yield row[0], d
 
+          db = None
+          db_quelle = None
           if os.path.exists(DB_FILE):
               _dsize = os.path.getsize(DB_FILE)
               if _dsize > _SEENDB_LIMIT:
-                  msg = (f"seen_db.json zu gross: {_dsize/1024/1024:.1f} MB - "
-                         f"moegliche Korruption, breche ab.")
-                  print(f"::error::{msg}")
-                  write_text_atomic(REPORT_FILE,
-                      f"# Seen-DB Expiry Forecast\n\n*{msg}*\n\n*Lauf: {now_str}*\n")
-                  sys.exit(1)
-              print(f"Lade {DB_FILE} ({_dsize/1024/1024:.1f} MB)...")
-              with open(DB_FILE) as f:
-                  db = json.load(f)
-              db_quelle = "JSON-Cache"
-          else:
-              print(f"Oeffne {SQLITE_FILE} als einzigen Release-Fallback...")
-              db = _SqliteForecastDB(SQLITE_FILE)
-              db_quelle = "SQLite-Cache/Release"
+                  print(f"::warning::seen_db.json zu gross: {_dsize/1024/1024:.1f} MB - "
+                        f"moegliche Korruption, versuche SQLite-Fallback.")
+              else:
+                  print(f"Lade {DB_FILE} ({_dsize/1024/1024:.1f} MB)...")
+                  # FIX CORRUPT-JSON-FALLBACK 01.09.2026: json.load() stand hier
+                  # ungeschuetzt. Eine beschaedigte JSON aus dem Actions-Cache
+                  # liess damit den ganzen Job sterben, obwohl daneben ein
+                  # gueltiger SQLite-Stand liegen kann.
+                  try:
+                      with open(DB_FILE) as f:
+                          db = json.load(f)
+                      db_quelle = "JSON-Cache"
+                  except Exception as _json_err:
+                      print(f"::warning::seen_db.json nicht lesbar ({_json_err}) - "
+                            f"versuche SQLite-Fallback.")
+                      db = None
+
+          if db is None and os.path.exists(SQLITE_FILE):
+              # _SqliteForecastDB fuehrt beim Oeffnen PRAGMA quick_check aus und
+              # wirft bei Korruption. Das hier abfangen, sonst stirbt der Block
+              # mit Traceback statt ueber den sauberen Report-Pfad unten - und
+              # dieser Zweig wird gerade dann betreten, wenn ohnehin schon etwas
+              # kaputt ist.
+              print(f"Oeffne {SQLITE_FILE} als Fallback...")
+              try:
+                  db = _SqliteForecastDB(SQLITE_FILE)
+                  db_quelle = "SQLite-Cache/Release"
+              except Exception as _sqlite_err:
+                  print(f"::warning::{SQLITE_FILE} nicht nutzbar ({_sqlite_err}).")
+                  db = None
+
+          if db is None:
+              msg = ("Keine lesbare seen_db verfuegbar - JSON fehlt oder ist "
+                     "beschaedigt und es liegt kein SQLite-Fallback vor.")
+              print(f"::error::{msg}")
+              write_text_atomic(REPORT_FILE,
+                  f"# Seen-DB Expiry Forecast\n\n*{msg}*\n\n*Lauf: {now_str}*\n")
+              sys.exit(1)
+
           print(f"{len(db):,} IPs geladen ({db_quelle})")
 
           if len(db) < MIN_ENTRIES:
