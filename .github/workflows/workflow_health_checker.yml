@@ -2729,7 +2729,7 @@ jobs:
           # ── PH9: Repo-Push-Groessen-Warnung pro Datei ─────────────────────
           # Scannt ALLE Dateien im Repo (Top-Level + Unterverzeichnisse) auf
           # die Naehe zum GitHub-100-MB-Push-Limit. Faengt auch Dateien ein
-          # die noch keinen Truncate-Schutz haben (z.B. state/seen_db_backup.json.gz,
+          # die noch keinen Truncate-Schutz haben (z.B. grosse generierte State-Dateien,
           # zukuenftige Outputs). Schwellen:
           #   WARN  >= 80 MB  – noch ~20 MB Puffer, planbar
           #   CRIT  >= 95 MB  – akut, naechster Push-Fail wahrscheinlich

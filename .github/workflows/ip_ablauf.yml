@@ -92,23 +92,28 @@ jobs:
             netshield-seen-db-v1-
             netshield-seen-db-
 
-      - name: Restore seen_db Backup from GitHub Release (falls Cache leer)
+      - name: Restore seen_db SQLite Cache (falls JSON-Cache leer)
         if: hashFiles('seen_db.json') == ''
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: seen_db.sqlite3
+          key: netshield-seen-db-sqlite-v1-ip-ablauf-${{ github.run_id }}
+          restore-keys: |
+            netshield-seen-db-sqlite-v1-
+
+      - name: Restore seen_db SQLite from GitHub Release (falls Caches leer)
+        if: hashFiles('seen_db.json') == '' && hashFiles('seen_db.sqlite3') == ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir -p state
-          if gh release download seen-db-backup \
+          set -euo pipefail
+          if gh release download seen-db-sqlite-backup \
               --repo "${{ github.repository }}" \
-              --pattern "seen_db_backup.json.gz.part*" \
-              --dir state/ 2>/dev/null; then
-            COUNT=$(ls state/seen_db_backup.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
-            echo "seen_db Backup von Release geladen: ${COUNT} Part(s)"
-            cat state/seen_db_backup.json.gz.part* > state/seen_db_backup.json.gz
-            gzip -dc state/seen_db_backup.json.gz > seen_db.json
-            echo "seen_db.json aus Release-Backup entpackt: $(du -h seen_db.json | cut -f1)"
+              --pattern "seen_db.sqlite3.gz" \
+              --dir . --clobber 2>/dev/null; then
+            gzip -df seen_db.sqlite3.gz
           else
-            echo "::error::Weder Cache noch Release-Backup verfuegbar - kein seen_db.json zum Auswerten."
+            echo "::error::Weder JSON-Cache, SQLite-Cache noch SQLite-Release verfuegbar."
             exit 1
           fi
 
@@ -145,13 +150,14 @@ jobs:
           PYTHONUNBUFFERED: "1"
         run: |
           python3 << 'EOF'
-          import json, os, sys
+          import json, os, sys, sqlite3
           sys.path.insert(0, "scripts")
           from netshield_common import write_text_atomic, write_json_atomic
           from datetime import datetime, timezone, timedelta, date
           from zoneinfo import ZoneInfo
 
           DB_FILE     = "seen_db.json"
+          SQLITE_FILE = "seen_db.sqlite3"
           REPORT_FILE = "reports/ip_ablauf.md"
           # Werte aus update_combined_blacklist.yml uebernommen (dort die
           # tatsaechliche Quelle der Wahrheit - hier nur gespiegelt, damit
@@ -165,31 +171,87 @@ jobs:
           )
           today = now.date()
 
-          if not os.path.exists(DB_FILE):
-              msg = "seen_db.json nicht vorhanden - kein Cache/Release-Backup verfuegbar."
+          if not os.path.exists(DB_FILE) and not os.path.exists(SQLITE_FILE):
+              msg = "Keine seen_db verfuegbar - weder JSON-Cache noch SQLite-Cache/Release."
               print(f"::error::{msg}")
               write_text_atomic(REPORT_FILE,
                   f"# Seen-DB Expiry Forecast\n\n*{msg}*\n\n*Lauf: {now_str}*\n")
               sys.exit(1)
 
-          # ── Leerungsschutz / Groessen-Sanity ────────────────────────────
-          # Gleicher 5-GiB-Cap wie in update_combined_blacklist.yml
-          # (_SEENDB_LIMIT) - Schutz gegen korrupte/boesartige Datei.
           MIN_ENTRIES = 100_000
           _SEENDB_LIMIT = 5 * 1024 * 1024 * 1024
-          _dsize = os.path.getsize(DB_FILE)
-          if _dsize > _SEENDB_LIMIT:
-              msg = (f"seen_db.json zu gross: {_dsize/1024/1024:.1f} MB - "
-                     f"moegliche Korruption, breche ab.")
-              print(f"::error::{msg}")
-              write_text_atomic(REPORT_FILE,
-                  f"# Seen-DB Expiry Forecast\n\n*{msg}*\n\n*Lauf: {now_str}*\n")
-              sys.exit(1)
 
-          print(f"Lade {DB_FILE} ({_dsize/1024/1024:.1f} MB)...")
-          with open(DB_FILE) as f:
-              db = json.load(f)
-          print(f"{len(db):,} IPs geladen")
+          class _SqliteForecastDB:
+              def __init__(self, path):
+                  self.conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+                  q = self.conn.execute("PRAGMA quick_check").fetchone()
+                  if not q or q[0] != "ok":
+                      raise ValueError(f"SQLite quick_check fehlgeschlagen: {q}")
+                  self._len = int(self.conn.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0])
+                  # FIX FORECAST-SCHEMA-TOLERANZ 01.09.2026: auto_today_count kam
+                  # erst mit der Schema-Erweiterung vom 31.08.2026 dazu.
+                  # SqliteSeenDB migriert beim Oeffnen per ALTER TABLE - dieser
+                  # Wrapper oeffnet aber bewusst mode=ro und kann das nicht.
+                  # Ein Release-Asset, das noch vor der Erweiterung erzeugt
+                  # wurde, haette hier sonst "no such column: auto_today_count"
+                  # ausgeloest und die komplette Prognose abgebrochen. Die Spalte
+                  # wird deshalb nur selektiert, wenn sie wirklich existiert.
+                  _cols = {r[1] for r in self.conn.execute("PRAGMA table_info(seen_db)")}
+                  self._has_auto = "auto_today_count" in _cols
+                  self._auto_sql = ",auto_today_count" if self._has_auto else ""
+              def __len__(self):
+                  return self._len
+              def get(self, ip, default=None):
+                  row = self.conn.execute(
+                      "SELECT first,last,hq,feeds,hq_feed_names,today_count,days_seen"
+                      + self._auto_sql + " FROM seen_db WHERE ip=?",
+                      (ip,)).fetchone()
+                  if row is None:
+                      return default
+                  feeds=[]; hq_names=[]
+                  try: feeds=json.loads(row[3]) if row[3] else []
+                  except Exception: pass
+                  try: hq_names=json.loads(row[4]) if row[4] else []
+                  except Exception: pass
+                  d={"first":row[0], "last":row[1], "hq":bool(row[2]),
+                     "feeds":feeds, "hq_feed_names":hq_names,
+                     "today_count":row[5], "days_seen":row[6]}
+                  if self._has_auto and row[7] is not None: d["auto_today_count"] = row[7]
+                  return d
+              def items(self):
+                  cur=self.conn.execute(
+                      "SELECT ip,first,last,hq,feeds,hq_feed_names,today_count,days_seen"
+                      + self._auto_sql + " FROM seen_db")
+                  for row in cur:
+                      feeds=[]; hq_names=[]
+                      try: feeds=json.loads(row[4]) if row[4] else []
+                      except Exception: pass
+                      try: hq_names=json.loads(row[5]) if row[5] else []
+                      except Exception: pass
+                      d={"first":row[1], "last":row[2], "hq":bool(row[3]),
+                         "feeds":feeds, "hq_feed_names":hq_names,
+                         "today_count":row[6], "days_seen":row[7]}
+                      if self._has_auto and row[8] is not None: d["auto_today_count"] = row[8]
+                      yield row[0], d
+
+          if os.path.exists(DB_FILE):
+              _dsize = os.path.getsize(DB_FILE)
+              if _dsize > _SEENDB_LIMIT:
+                  msg = (f"seen_db.json zu gross: {_dsize/1024/1024:.1f} MB - "
+                         f"moegliche Korruption, breche ab.")
+                  print(f"::error::{msg}")
+                  write_text_atomic(REPORT_FILE,
+                      f"# Seen-DB Expiry Forecast\n\n*{msg}*\n\n*Lauf: {now_str}*\n")
+                  sys.exit(1)
+              print(f"Lade {DB_FILE} ({_dsize/1024/1024:.1f} MB)...")
+              with open(DB_FILE) as f:
+                  db = json.load(f)
+              db_quelle = "JSON-Cache"
+          else:
+              print(f"Oeffne {SQLITE_FILE} als einzigen Release-Fallback...")
+              db = _SqliteForecastDB(SQLITE_FILE)
+              db_quelle = "SQLite-Cache/Release"
+          print(f"{len(db):,} IPs geladen ({db_quelle})")
 
           if len(db) < MIN_ENTRIES:
               print(f"::warning::Nur {len(db)} Eintraege (< {MIN_ENTRIES}) - "
@@ -586,7 +648,7 @@ jobs:
           TITLE="🔴 IP-Ablauf: Prognose-Job fehlgeschlagen"
           BODY="Der Job \"prognose\" (Seen-DB Expiry Forecast) ist fehlgeschlagen.
 
-          Moegliche Ursachen: seen_db.json weder aus Cache noch aus dem Release-Backup ladbar, ODER die Ledger-Konsistenzpruefung hat eine Umgehung des Anti-Churn-Freeze gefunden (Details im Log oder in reports/ip_ablauf.md, Sektion \"Ledger-Konsistenz\").
+          Moegliche Ursachen: seen_db weder aus Cache noch aus dem SQLite-Release ladbar, ODER die Ledger-Konsistenzpruefung hat eine Umgehung des Anti-Churn-Freeze gefunden (Details im Log oder in reports/ip_ablauf.md, Sektion \"Ledger-Konsistenz\").
 
           Lauf: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')
           Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

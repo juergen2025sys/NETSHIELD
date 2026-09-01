@@ -262,43 +262,41 @@ jobs:
           restore-keys: |
             netshield-watchlist-cap-state-v1-
 
-      # ══════════════════════════════════════════════════════════════════
-      # CHANGE BACKUP-OFF-GIT (2026-08-07): Das seen_db-Backup (~2,4 GB
-      # unkomprimiert, siehe state/seen_db_meta.json) wurde bisher bei
-      # praktisch jedem der ~8 echten Laeufe/Tag als
-      # state/seen_db_backup.json.gz.part* committet und gepusht. Weil sich
-      # die Datei bei jedem Lauf grossflaechig aendert, erzeugte GENAU DIESER
-      # Mechanismus mehrere hundert MB NEUER Git-Objekt-Historie pro Tag -
-      # identifiziert als Hauptursache dafuer, dass GitHub das Repository mit
-      # "Repository is above its size quota" blockiert hat.
-      #
-      # Fix: Backup liegt jetzt als GitHub-Release-Asset (Tag "seen-db-backup"),
-      # nicht mehr in der Git-Historie. Das Asset wird bei jedem Lauf ERSETZT
-      # statt akkumuliert (siehe "Backup seen_db to Repo"-Step weiter unten) -
-      # kein Git-History-Wachstum mehr dadurch.
-      #
-      # WICHTIG: Einmalig per workflow_dispatch testen, ob GITHUB_TOKEN
-      # ausreichende Rechte fuer Release-Erstellung hat (contents: write ist
-      # in permissions: bereits gesetzt). Schlaegt der Download hier fehl,
-      # ist das unkritisch (fail-open, Warnung im Log) - nur beim allerersten
-      # Lauf mit diesem Mechanismus gibt es ohnehin noch kein Release.
-      - name: Restore seen_db Backup from GitHub Release (falls Cache leer)
+      # SINGLE-SEENDB-RELEASE 2026-09-01:
+      # Fuer seen_db existiert nur noch EIN GitHub-Release-Fallback:
+      # seen-db-sqlite-backup / seen_db.sqlite3.gz. JSON bleibt lediglich
+      # Actions-Cache fuer den normalen Combined-Pfad.
+      - name: Restore seen_db SQLite Cache (falls JSON-Cache leer)
+        if: hashFiles('seen_db.json') == ''
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: seen_db.sqlite3
+          key: netshield-seen-db-sqlite-v1-combined-fallback-${{ github.run_id }}
+          restore-keys: |
+            netshield-seen-db-sqlite-v1-
+
+      - name: Validiere restaurierte seen_db SQLite
+        if: hashFiles('seen_db.json') == '' && hashFiles('seen_db.sqlite3') != ''
+        run: |
+          if ! python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); print(f"SQLite-Fallback validiert: {n:,} Eintraege"); assert q and q[0]=="ok" and n>=100000, (q,n)'; then
+            echo "::warning::Restaurierter SQLite-Cache ungueltig - verwerfe und versuche Release-Fallback"
+            rm -f seen_db.sqlite3
+          fi
+
+      - name: Restore seen_db SQLite from GitHub Release (falls beide Caches leer)
+        if: hashFiles('seen_db.json') == '' && hashFiles('seen_db.sqlite3') == ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir -p state
-          if [ ! -f state/seen_db_backup.json.gz ] && ! ls state/seen_db_backup.json.gz.part* >/dev/null 2>&1; then
-            if gh release download seen-db-backup \
-                --repo "${{ github.repository }}" \
-                --pattern "seen_db_backup.json.gz.part*" \
-                --dir state/ 2>/dev/null; then
-              COUNT=$(ls state/seen_db_backup.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
-              echo "seen_db Backup von Release geladen: ${COUNT} Part(s)"
-            else
-              echo "Kein Release-Backup gefunden (evtl. erster Lauf mit diesem Mechanismus) – fahre ohne fort"
-            fi
+          set -euo pipefail
+          if gh release download seen-db-sqlite-backup \
+              --repo "${{ github.repository }}" \
+              --pattern "seen_db.sqlite3.gz" \
+              --dir . --clobber 2>/dev/null; then
+            gzip -df seen_db.sqlite3.gz
+            python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); print(f"SQLite-Release-Fallback validiert: {n:,} Eintraege"); assert q and q[0]=="ok" and n>=100000, (q,n)'
           else
-            echo "state/seen_db_backup* liegt bereits im Checkout – kein Download noetig"
+            echo "Kein SQLite-Release-Fallback vorhanden - nur bei einem echten Fresh-Start wird leer begonnen."
           fi
 
       - name: Restore Aufnahme-Warteliste from GitHub Release (falls vorhanden)
@@ -1719,15 +1717,11 @@ jobs:
           # (7 Tage Inaktivitaet → Eviction) oder bei kaltem Repo-Klon, fehlt
           # seen_db.json im Workspace. Vorher: db={} → komplette History
           # (days_seen, first, hq_feed_names) verloren, Confidence-Scores
-          # fallen schlagartig auf Erstaufnahme-Werte. state/seen_db_backup.json.gz
-          # wurde zwar bei jedem Lauf ins Repo committet, aber nirgends
-          # zurueckgelesen – tote Backups.
-          # Jetzt: Wenn seen_db.json fehlt aber das gz-Backup im Repo liegt,
-          # daraus restoren. Nur bei nicht-leerem Backup (>=1MB pre-gz Pruefung
-          # erfolgte beim Schreiben → das gz selbst hat garantiert Inhalt).
+          # fallen schlagartig auf Erstaufnahme-Werte. Heute gilt daher:
+          # JSON-Actions-Cache als Normalpfad; bei Cache-Ausfall direkter
+          # Restore aus dem persistenten SQLite-Cache/Release.
           db = {}
-          BACKUP_FILE = "state/seen_db_backup.json.gz"
-          BACKUP_PART_GLOB = "state/seen_db_backup.json.gz.part*"
+          SQLITE_FALLBACK_FILE = "seen_db.sqlite3"
 
           # FIX MEM-SQLITE-STREAM-2026-08-16: _sqlite_db_path frueher
           # angelegt (vorher erst kurz vor "seen_db nach SQLite
@@ -1739,7 +1733,26 @@ jobs:
           if os.path.exists(_sqlite_db_path):
               os.remove(_sqlite_db_path)  # Ueberrest eines evtl. abgebrochenen Vorlaufs
 
-          if os.path.exists(DB_FILE):
+          if not os.path.exists(DB_FILE) and os.path.exists(SQLITE_FALLBACK_FILE):
+              try:
+                  import shutil as _shutil
+                  _src = SqliteSeenDB(SQLITE_FALLBACK_FILE)
+                  _n = len(_src)
+                  _src.close()
+                  if _n < 100000:
+                      raise ValueError(f"SQLite-Fallback hat nur {_n} Eintraege")
+                  _shutil.copy2(SQLITE_FALLBACK_FILE, _sqlite_db_path)
+                  db = SqliteSeenDB(_sqlite_db_path)
+                  print(f"seen_db aus persistentem SQLite-Fallback geladen: {len(db)} IPs")
+              except Exception as _sqlite_restore_err:
+                  print(f"WARN: SQLite-Fallback nicht nutzbar ({_sqlite_restore_err})", file=sys.stderr)
+                  db = {}
+                  try:
+                      if os.path.exists(_sqlite_db_path): os.remove(_sqlite_db_path)
+                  except OSError:
+                      pass
+
+          if not db and os.path.exists(DB_FILE):
               try:
                   # FIX BUG-SEENDB-LIMIT: Pre-Size-Check vor json.load.
                   # seen_db.json ist heute ~600 MB. 5 GB Hard-Cap erlaubt
@@ -1782,105 +1795,7 @@ jobs:
                   except OSError:
                       pass
           if not db:
-              try:
-                  import gzip, tempfile
-                  # FIX BUG-GZIP-BACKUP-SPLIT: Repo-Backup darf nicht als eine
-                  # Datei >=100 MB committet werden (GitHub Hard-Limit). Daher
-                  # Restore entweder aus Legacy-Datei oder aus sortierten Parts:
-                  # state/seen_db_backup.json.gz.part000, part001, ...
-                  _backup_parts = sorted(glob.glob(BACKUP_PART_GLOB))
-                  _backup_source = None
-                  _tmp_backup_path = None
-
-                  if _backup_parts:
-                      _tmp = tempfile.NamedTemporaryFile(prefix="seen_db_backup_", suffix=".json.gz", delete=False)
-                      _tmp_backup_path = _tmp.name
-                      try:
-                          for _part in _backup_parts:
-                              with open(_part, "rb") as _pf:
-                                  while True:
-                                      _chunk = _pf.read(1024 * 1024)
-                                      if not _chunk:
-                                          break
-                                      _tmp.write(_chunk)
-                      finally:
-                          _tmp.close()
-                      _backup_source = _tmp_backup_path
-                      print(f"seen_db Backup-Parts gefunden: {len(_backup_parts)} Parts")
-                  elif os.path.exists(BACKUP_FILE):
-                      _backup_source = BACKUP_FILE
-
-                  if not _backup_source:
-                      raise FileNotFoundError("kein seen_db Backup und keine Backup-Parts vorhanden")
-
-                  # Pre-Size + Streaming-Limit gegen korrupte Backups/zip bombs.
-                  # FIX AUDIT-E-001 (2026-07-12): _BACKUP_DECOMPRESSED_LIMIT von
-                  # 2 GiB auf 5 GiB angehoben (identisch zu _SEENDB_LIMIT weiter
-                  # oben). Die reale seen_db ist laut state/seen_db_meta.json
-                  # bereits 2369,7 MB gross; das gzip-Backup dekomprimiert auf
-                  # 2.484.811.428 Bytes und lag damit ~337 MB UEBER dem alten
-                  # 2-GiB-Limit. Folge: der Restore-Pfad schlug fuer das eigene,
-                  # gesunde Backup IMMER mit "zip-Bombe" fehl -> db={} ->
-                  # kompletter Verlust der 180-Tage-Historie bei Cache-Eviction
-                  # oder korrupter seen_db.json. Reproduzierbar belegt:
-                  # zcat state/seen_db_backup.json.gz.part* | wc -c
-                  #   => 2484811428 > 2147483648 (altes Limit).
-                  # 5 GiB behaelt den Zip-Bomben-Schutz bei (Cap bleibt hart)
-                  # und ist konsistent mit dem 5-GiB-Cap des direkten
-                  # seen_db.json-Loads (_SEENDB_LIMIT).
-                  _BACKUP_COMPRESSED_LIMIT   = 2 * 1024 * 1024 * 1024
-                  _BACKUP_DECOMPRESSED_LIMIT = 5 * 1024 * 1024 * 1024
-                  _bsize = os.path.getsize(_backup_source)
-                  if _bsize > _BACKUP_COMPRESSED_LIMIT:
-                      raise ValueError(
-                          f"Backup zu gross: {_bsize / 1024 / 1024:.1f} MB "
-                          f"> {_BACKUP_COMPRESSED_LIMIT / 1024 / 1024:.0f} MB "
-                          f"(moegliche zip-Bombe oder Repo-Korruption)")
-                  # FIX MEM-SQLITE-STREAM-2026-08-16: Streaming-Import auch
-                  # hier im Backup-Restore-Pfad - ausgerechnet der Pfad, der
-                  # bei Speicherproblemen als Notfall-Rettung dienen soll,
-                  # duerfte selbst kein RAM-Risiko mehr sein. gzip.open() im
-                  # Binaermodus ("rb" statt "rt") - ijson braucht Bytes, kein
-                  # dekodierter Text. _ByteLimitedReader (siehe
-                  # netshield_common.py) zaehlt waehrend des Streamens
-                  # dekomprimierte Bytes mit und wirft ValueError beim
-                  # Ueberschreiten - identische Zip-Bomben-Schutzwirkung wie
-                  # das bisherige "_raw = f.read(LIMIT+1)"-Muster, nur ohne
-                  # die kompletten (bis zu 5 GB!) dekomprimierten Bytes
-                  # jemals gleichzeitig im Speicher zu halten.
-                  if os.path.exists(_sqlite_db_path):
-                      os.remove(_sqlite_db_path)
-                  _db_candidate = SqliteSeenDB(_sqlite_db_path)
-                  with gzip.open(_backup_source, "rb") as _bf:
-                      _db_candidate.import_from_json_streaming(
-                          _bf, size_limit_bytes=_BACKUP_DECOMPRESSED_LIMIT)
-                  _MIN_BACKUP_ENTRIES = 10000
-                  if len(_db_candidate) < _MIN_BACKUP_ENTRIES:
-                      print(f"WARN: Backup hat nur {len(_db_candidate)} "
-                            f"Eintraege (<{_MIN_BACKUP_ENTRIES}) - wird verworfen, starte neu.",
-                            file=sys.stderr)
-                      _db_candidate.close()
-                      os.remove(_sqlite_db_path)
-                      db = {}
-                  else:
-                      db = _db_candidate
-                      print(f"seen_db aus Backup wiederhergestellt: {len(db)} IPs (Cache war leer/korrupt)")
-                      # FIX MEM-SQLITE-STREAM-2026-08-16: export_json_atomic()
-                      # statt write_json_atomic(DB_FILE, db, ...) - db ist ab
-                      # hier eine SqliteSeenDB, kein json.dump()-faehiges
-                      # Plain-Dict mehr (siehe gleichnamiger Kommentar am
-                      # Haupt-Ladepfad weiter oben).
-                      db.export_json_atomic(DB_FILE)
-              except Exception as _restore_err:
-                  print(f"WARN: Backup-Restore fehlgeschlagen ({_restore_err}) – starte neu", file=sys.stderr)
-              finally:
-                  try:
-                      if '_tmp_backup_path' in locals() and _tmp_backup_path and os.path.exists(_tmp_backup_path):
-                          os.remove(_tmp_backup_path)
-                  except Exception:
-                      pass
-          elif not db:
-              print("Keine seen_db gefunden, kein Backup vorhanden – starte neu.")
+              print("WARN: Keine bestehende seen_db gefunden - starte mit leerem Datenbestand", file=sys.stderr)
 
           # FIX MEM-SQLITE-2026-08-16 / FIX MEM-SQLITE-STREAM-2026-08-16:
           # db ist an dieser Stelle in aller Regel BEREITS eine fertige
@@ -3130,7 +3045,7 @@ jobs:
                       # einem einzigen Sweep nach der Update-Schleife (nur ueber
                       # die heute beruehrten IPs in ip_feeds_today) sortiert,
                       # bevor seen_db geschrieben wird. Byte-Stabilitaet des
-                      # state/seen_db_backup.json.gz bleibt dadurch erhalten – nur
+                      # der persistente SQLite-Snapshot bleibt dadurch erhalten – nur
                       # die Sortier-Arbeit wandert aus dem Hot-Loop heraus.
                       entry["feeds"]       = list(existing_feeds | today_feeds)
                       entry["today_count"] = today_count
@@ -4290,7 +4205,7 @@ jobs:
           # 4,8 M db-Eintraege – Eintraege die heute nicht angefasst wurden,
           # sind seit dem letzten Run noch sortiert. IPs aus ip_feeds_today,
           # die durch den Cleanup-Pass entfernt wurden, werden via `if ip in
-          # db` uebersprungen. Byte-Stabilitaet des state/seen_db_backup.json.gz
+          # db` uebersprungen. Byte-Stabilitaet des seen_db-SQLite-Snapshots
           # ist damit aequivalent zum vorherigen per-IP-sorted()-Verhalten.
           # FIX LIVE-PROGRESS-2026-08-15: dieselbe zeitbasierte Drosselung
           # wie beim Update-Loop/Cleanup-Pass - diese Schleife lief bislang
@@ -5102,163 +5017,13 @@ jobs:
           gh release upload seen-db-sqlite-backup seen_db.sqlite3.gz             --repo "${{ github.repository }}" --clobber
           echo "SQLite-Release-Backup aktualisiert: $(du -h seen_db.sqlite3.gz | cut -f1)"
 
-      - name: Backup seen_db to Repo (komprimiert)
-        if: steps.build_combined.outcome == 'success'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if [ -f seen_db.json ]; then
-            # FIX BUG-BACKUP-GUARD: IP-Mindestcheck zusaetzlich zum Byte-Check.
-            # Vorher nur SIZE > 1MB als einzige Schranke. Eine seen_db mit nur
-            # ~200 grossen Eintraegen (lange feed_names-Listen, hq_feed_names)
-            # passiert die 1MB-Schranke obwohl 99,995% der erwarteten ~4,5M
-            # Eintraege fehlen. Folge: ein durch Software-Korruption oder
-            # Migrations-Bug stark geschrumpfter Stand wuerde das gesunde
-            # Backup im Repo ueberschreiben - Recovery damit unmoeglich.
-            # Jetzt: Byte-Check UND Eintrags-Mindestzahl muessen passen.
-            SIZE=$(stat -c%s seen_db.json 2>/dev/null || echo 0)
-            ENTRY_COUNT=0
-            META_SIZE_BYTES=0
-            COUNT_SOURCE="sqlite"
-            if [ -f seen_db.sqlite3 ]; then
-              ENTRY_COUNT=$(python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); print(c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]); c.close()' 2>/dev/null || echo 0)
-            fi
-            if [ "${ENTRY_COUNT:-0}" -le 0 ] && [ -f state/seen_db_meta.json ]; then
-              COUNT_SOURCE="meta-vorlauf"
-              ENTRY_COUNT=$(python3 -c 'import json; m=json.load(open("state/seen_db_meta.json", encoding="utf-8")); print(int(m.get("total_ips",0)))' 2>/dev/null || echo 0)
-              META_SIZE_BYTES=$(python3 -c 'import json; m=json.load(open("state/seen_db_meta.json", encoding="utf-8")); print(int(float(m.get("size_mb",0))*1024*1024))' 2>/dev/null || echo 0)
-              echo "SQLite-Zaehler nicht verfuegbar - Backup-Guard nutzt Vorlauf-Meta (${ENTRY_COUNT} IPs, ${META_SIZE_BYTES} Bytes Referenzgroesse)"
-            fi
-            MIN_ENTRIES=100000
-            SIZE_PLAUSIBLE=1
-            # Das Meta stammt bei diesem Step noch vom Vorlauf. Es darf daher
-            # nicht als aktuelle Eintragszahl missverstanden werden. Als billige
-            # Schrumpfungswache ist seine Dateigroesse aber nuetzlich: faellt die
-            # aktuelle JSON bei fehlender SQLite unter 50% des Vorlaufs, wird das
-            # Backup NICHT ersetzt. Normale Tagesbewegungen liegen weit darunter.
-            if [ "$COUNT_SOURCE" = "meta-vorlauf" ] && [ "${META_SIZE_BYTES:-0}" -gt 0 ]; then
-              MIN_PLAUSIBLE_SIZE=$(( META_SIZE_BYTES / 2 ))
-              if [ "$SIZE" -lt "$MIN_PLAUSIBLE_SIZE" ]; then
-                SIZE_PLAUSIBLE=0
-                echo "::warning::Backup-Guard: seen_db.json mit ${SIZE} Bytes ist <50% der Vorlaufgroesse ${META_SIZE_BYTES}; Backup wird nicht ersetzt"
-              fi
-            fi
-            if [ "$SIZE" -gt 1048576 ] && [ "$ENTRY_COUNT" -gt "$MIN_ENTRIES" ] && [ "$SIZE_PLAUSIBLE" -eq 1 ]; then
-              # FIX BUG-GZIP-BACKUP-SPLIT: GitHub blockiert einzelne Dateien
-              # >=100 MB. Backup deshalb komprimieren und danach in Parts <95 MB
-              # splitten. Beim Restore werden die Parts wieder zusammengesetzt.
-              mkdir -p state
-              rm -f state/seen_db_backup.json.gz state/seen_db_backup.json.gz.part*
-              gzip -c seen_db.json > state/seen_db_backup.json.gz.tmp
-              split -b 95M -d -a 3 state/seen_db_backup.json.gz.tmp state/seen_db_backup.json.gz.part
-              rm -f state/seen_db_backup.json.gz.tmp
-              PART_COUNT=$(ls state/seen_db_backup.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
-              echo "seen_db Backup erstellt: ${PART_COUNT} Part(s), gesamt $(du -ch state/seen_db_backup.json.gz.part* | tail -1 | awk '{print $1}') ($ENTRY_COUNT IPs)"
-
-              # ══════════════════════════════════════════════════════════
-              # CHANGE BACKUP-OFF-GIT: Parts NICHT mehr committen (git add
-              # dafuer im "Commit and Push"-Step entfernt), stattdessen als
-              # GitHub-Release-Asset hochladen. Vorheriges Release+Tag wird
-              # geloescht und neu angelegt, damit das Asset ERSETZT statt
-              # akkumuliert wird - kein Git-History-Wachstum mehr dadurch.
-              # FIX 2026-08-23 (Bug gefunden: Release verschwand ohne
-              # ersichtlichen Grund, siehe Screenshot-Analyse): Die
-              # vorherige Reihenfolge war "delete" DANN "create" - schlug
-              # create aus irgendeinem Grund fehl (Netzwerk-Flake, Rate-
-              # Limit, Tag-Loeschung noch nicht propagiert), war das
-              # Release schlicht WEG, bis zum naechsten erfolgreichen Lauf.
-              # Der Kommentar/die Warnung weiter unten ("vorheriges Backup
-              # bleibt bestehen") stimmte in diesem Fall nicht - das
-              # Backup war zu dem Zeitpunkt bereits geloescht.
-              # Jetzt: Falls das Release schon existiert, nur die Assets
-              # per "upload --clobber" ersetzen (atomar, kein Loesch-
-              # Fenster). Nur beim ALLERERSTEN Mal (Release existiert noch
-              # gar nicht) wird "create" verwendet.
-              if gh release view seen-db-backup --repo "${{ github.repository }}" >/dev/null 2>&1; then
-                if gh release upload seen-db-backup state/seen_db_backup.json.gz.part* \
-                    --repo "${{ github.repository }}" --clobber; then
-                  gh release edit seen-db-backup --repo "${{ github.repository }}" \
-                    --title "seen_db backup ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
-                    --notes "Automatisches seen_db-Backup (${ENTRY_COUNT} IPs). Wird bei jedem Lauf ersetzt, kein Git-History-Bestandteil." \
-                    --draft=false \
-                    2>/dev/null || true
-                  # FIX 2026-08-24 (Nutzerwunsch "vor X ago soll sich wieder
-                  # aktualisieren"): GitHub zeigt in der Sidebar/Release-Liste
-                  # das "published_at"-Datum, das nur beim Uebergang Draft ->
-                  # veroeffentlicht gesetzt wird - "upload --clobber" aendert
-                  # das NICHT (bewusst, das war ja der Sinn des vorherigen
-                  # Fixes: kein Delete mehr, das Release + seine Assets
-                  # bleiben durchgehend bestehen). Um den Anzeige-Zeitstempel
-                  # trotzdem aufzufrischen, kurz auf Draft setzen und SOFORT
-                  # wieder zurueck - loescht dabei nichts (Assets bleiben am
-                  # Release haengen), im Gegensatz zum alten "delete dann
-                  # create"-Bug. Falls der Rueck-Schritt (draft=false)
-                  # fehlschlaegt, explizite Warnung - das Release wuerde dann
-                  # als Draft haengen bleiben (gleiches Symptom wie der
-                  # urspruengliche Draft-Bug), daher NICHT stillschweigend
-                  # mit "|| true" uebergehen wie sonst ueblich.
-                  if gh release edit seen-db-backup --repo "${{ github.repository }}" --draft=true 2>/dev/null; then
-                    if gh release edit seen-db-backup --repo "${{ github.repository }}" --draft=false 2>/dev/null; then
-                      echo "Anzeige-Zeitstempel aufgefrischt (kurzer Draft-Uebergang)"
-                    else
-                      echo "::warning file=update_combined_blacklist.yml::Draft-Toggle fuer seen-db-backup: draft=false nach draft=true fehlgeschlagen - Release koennte als Draft haengen! Bitte manuell in GitHub pruefen (Releases -> seen-db-backup -> 'Publish release')."
-                    fi
-                  else
-                    echo "Draft-Toggle uebersprungen (draft=true fehlgeschlagen) - Release bleibt unveraendert wie zuvor, kein Schaden"
-                  fi
-                  # FIX 2026-08-23: "--clobber" ersetzt nur Assets mit
-                  # GLEICHEM Dateinamen. Hatte der vorherige Lauf MEHR Parts
-                  # als dieser (z.B. seen_db kurzzeitig groesser), wuerden
-                  # ueberzaehlige alte part-Dateien als Leichen liegen
-                  # bleiben - beim Zusammensetzen (part000..N in Reihenfolge
-                  # verketten) wuerde ein zusaetzlicher, alter part den
-                  # gzip-Stream korrumpieren. Nach erfolgreichem Upload daher
-                  # gezielt nur die Assets loeschen, die NICHT zu diesem Lauf
-                  # gehoeren.
-                  _lokale_parts=$(ls state/seen_db_backup.json.gz.part* 2>/dev/null | xargs -n1 basename)
-                  gh release view seen-db-backup --repo "${{ github.repository }}" \
-                      --json assets --jq '.assets[].name' 2>/dev/null \
-                    | grep '^seen_db_backup\.json\.gz\.part' \
-                    | while read -r _remote_asset; do
-                        if ! echo "$_lokale_parts" | grep -qxF "$_remote_asset"; then
-                          echo "Entferne verwaisten alten Part: $_remote_asset"
-                          gh release delete-asset seen-db-backup "$_remote_asset" \
-                            --repo "${{ github.repository }}" --yes 2>/dev/null || true
-                        fi
-                      done
-                  echo "Backup als Release-Asset aktualisiert (${PART_COUNT} Part(s))"
-                else
-                  echo "::warning file=update_combined_blacklist.yml::Release-Upload des seen_db-Backups fehlgeschlagen – vorheriges Backup bleibt garantiert bestehen (kein Delete vorher)"
-                fi
-              else
-                echo "Kein bestehendes seen-db-backup-Release gefunden - lege neu an (erster Lauf)."
-                if gh release create seen-db-backup state/seen_db_backup.json.gz.part* \
-                    --repo "${{ github.repository }}" \
-                    --title "seen_db backup ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
-                    --notes "Automatisches seen_db-Backup (${ENTRY_COUNT} IPs). Wird bei jedem Lauf ersetzt, kein Git-History-Bestandteil."; then
-                  echo "Backup als Release-Asset hochgeladen (${PART_COUNT} Part(s))"
-                  # FIX 2026-08-23: siehe Kommentar oben - auch nach der
-                  # Erstanlage defensiv erzwingen, dass es kein Draft ist.
-                  gh release edit seen-db-backup --repo "${{ github.repository }}" \
-                    --draft=false 2>/dev/null || true
-                else
-                  echo "::warning file=update_combined_blacklist.yml::Erstanlage des seen_db-Backup-Release fehlgeschlagen"
-                fi
-              fi
-              # Lokale Parts entfernen, damit sie unter keinen Umstaenden
-              # versehentlich vom "Commit and Push"-Step mitgenommen werden
-              # (dort ist der git-add-Befehl dafuer ohnehin entfernt - dies
-              # ist zusaetzliche Absicherung).
-              rm -f state/seen_db_backup.json.gz.part*
-            else
-              echo "seen_db zu klein (Bytes=$SIZE, IPs=$ENTRY_COUNT, min=$MIN_ENTRIES) – kein Backup (möglicherweise korrupt)"
-            fi
-          fi
+      # Separates JSON-Release-Backup fuer seen_db entfernt (2026-09-01).
+      # Einziger seen_db-Release ist ab hier der SQLite-Release oben.
 
       - name: Aufnahme-Warteliste zu Release sichern (komprimiert)
         # FIX AUFNAHME-CROSS-DAY-V2 (2026-08-24): identisches Muster zum
-        # "Backup seen_db to Repo"-Step oben (gzip + Split + Release-
-        # Asset statt Git-Commit) - hier fuer die Aufnahme-Warteliste
+        # Eigenstaendiges Release-Asset fuer die Aufnahme-Warteliste;
+        # unabhaengig vom einzigen seen_db-SQLite-Release.
         # statt fuer seen_db. Laeuft NUR, wenn der Python-Block oben eine
         # Aenderung hatte (state/aufnahme_warteliste_upload.json existiert
         # dann) - sonst kein unnoetiger Upload.
@@ -5283,7 +5048,7 @@ jobs:
                   --draft=false \
                   2>/dev/null || true
                 # FIX 2026-08-24: gleicher Zeitstempel-Refresh wie beim
-                # seen-db-backup-Release, siehe ausfuehrlicher Kommentar dort.
+                # seen_db-SQLite-Release, siehe ausfuehrlicher Kommentar dort.
                 if gh release edit aufnahme-warteliste-backup --repo "${{ github.repository }}" --draft=true 2>/dev/null; then
                   if gh release edit aufnahme-warteliste-backup --repo "${{ github.repository }}" --draft=false 2>/dev/null; then
                     echo "Anzeige-Zeitstempel aufgefrischt (kurzer Draft-Uebergang)"
@@ -5403,7 +5168,7 @@ jobs:
                   --draft=false \
                   2>/dev/null || true
                 # FIX 2026-08-24-artig: gleicher Zeitstempel-Refresh wie beim
-                # seen-db-backup/Warteliste-Release, siehe ausfuehrlicher
+                # Warteliste-Release, siehe ausfuehrlicher
                 # Kommentar dort.
                 if gh release edit anti-churn-ledger-backup --repo "${{ github.repository }}" --draft=true 2>/dev/null; then
                   if gh release edit anti-churn-ledger-backup --repo "${{ github.repository }}" --draft=false 2>/dev/null; then
@@ -5529,7 +5294,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           # FIX STATE-SUBDIR-MIGRATION: alte Root-Version entfernen, sobald
           # dieser Workflow die neue state/-Version committet. Idempotent.
-          git rm -q --ignore-unmatch seen_db_backup.json.gz seen_db_meta.json 2>/dev/null || true
+          git rm -q --ignore-unmatch seen_db_meta.json 2>/dev/null || true
           # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
           # Workflow die neue reports///logs/-Version committet (atomar im
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
@@ -5553,11 +5318,6 @@ jobs:
           # AELTEREN Commit noch die Ledger-Dateien im Index stehen (Migration
           # von der alten Vorgehensweise), hier einmalig idempotent entfernen.
           git rm -q --cached --ignore-unmatch state/watchlist_expired_history.json state/active_expired_history.json 2>/dev/null || true
-          # CHANGE BACKUP-OFF-GIT: seen_db-Backup liegt jetzt als GitHub-Release-Asset
-          # (siehe "Backup seen_db to Repo"-Step), nicht mehr im Git-Index. Falls aus
-          # einem AELTEREN Commit noch Backup-Dateien im Index stehen (Migration von
-          # der alten Vorgehensweise), hier einmalig idempotent entfernen.
-          git rm -q --cached --ignore-unmatch state/seen_db_backup.json.gz state/seen_db_backup.json.gz.part* 2>/dev/null || true
           # relocated_feeds.md nur vorhanden, wenn der Move-Resolver diesen Lauf
           # etwas umgeleitet hat – dann mitcommitten (sonst No-Op).
           git add relocated_feeds.md 2>/dev/null || true

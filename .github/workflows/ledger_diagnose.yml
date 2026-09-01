@@ -69,25 +69,24 @@ jobs:
             echo "::warning ::Kein anti-churn-ledger-backup-Release gefunden - Diagnose laeuft mit leeren Ledgern"
           fi
 
-      - name: seen_db aus Release laden (nur lesen)
+      - name: seen_db SQLite aus Release laden (nur lesen)
         if: inputs.mit_seen_db
         run: |
           set -euo pipefail
-          mkdir -p state
-          if gh release download seen-db-backup \
+          if gh release download seen-db-sqlite-backup \
               --repo "${{ github.repository }}" \
-              --pattern "seen_db_backup.json.gz.part*" \
-              --dir state/ 2>/dev/null; then
-            COUNT=$(ls state/seen_db_backup.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
-            echo "seen_db geladen: ${COUNT} Part(s)"
+              --pattern "seen_db.sqlite3.gz" \
+              --dir . --clobber 2>/dev/null; then
+            gzip -df seen_db.sqlite3.gz
+            python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); print(f"seen_db SQLite geladen: {n:,} IPs"); assert q and q[0]=="ok" and n>=100000, (q,n)'
           else
-            echo "::warning ::Kein seen-db-backup-Release gefunden - Bug-21/24-Analyse wird uebersprungen"
+            echo "::warning ::Kein seen-db-sqlite-backup-Release gefunden - Bug-21/23/24-Analyse wird uebersprungen"
           fi
 
       - name: Auswertung
         run: |
           python3 << 'EOF'
-          import glob, gzip, io, json, os, sys
+          import glob, gzip, json, os, sys, sqlite3
           from collections import Counter
           from datetime import date, datetime, timedelta, timezone
 
@@ -204,24 +203,30 @@ jobs:
           sag("## Teil A — Auswirkungsanalyse der Bugs 21–25")
           sag()
 
-          db = {}
-          seen_parts = sorted(glob.glob("state/seen_db_backup.json.gz.part*"))
-          if seen_parts:
-              puffer = io.BytesIO()
-              for t in seen_parts:
-                  with open(t, "rb") as f:
-                      puffer.write(f.read())
-              puffer.seek(0)
-              with gzip.GzipFile(fileobj=puffer, mode="rb") as gz:
-                  roh = json.loads(gz.read().decode("utf-8"))
-              db = roh.get("entries", roh) if isinstance(roh, dict) else {}
-              sag(f"seen_db geladen: **{len(db):,}** IPs")
-              sag()
+          db_conn = None
+          db_count = 0
+          if os.path.exists("seen_db.sqlite3"):
+              db_conn = sqlite3.connect("file:seen_db.sqlite3?mode=ro", uri=True)
+              q = db_conn.execute("PRAGMA quick_check").fetchone()
+              if q and q[0] == "ok":
+                  db_count = int(db_conn.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0])
+                  sag(f"seen_db SQLite geladen: **{db_count:,}** IPs")
+                  sag()
+              else:
+                  db_conn.close(); db_conn = None
+                  sag("> seen_db SQLite ist ungueltig — Auswertung wird uebersprungen.")
+                  sag()
           else:
               sag("> seen_db nicht geladen — die Bug-21/23/24-Auswertung wird uebersprungen.")
               sag()
 
-          if db:
+          def db_get(ip):
+              if db_conn is None:
+                  return None
+              row = db_conn.execute("SELECT first,last FROM seen_db WHERE ip=?", (ip,)).fetchone()
+              return None if row is None else {"first": row[0], "last": row[1]}
+
+          if db_conn is not None:
               wl = ledger.get("Watchlist", {})
               ac = ledger.get("Active", {})
 
@@ -233,7 +238,7 @@ jobs:
               # ── Bug 21: IP gleichzeitig im WL-Ledger und aktiv in seen_db
               b21 = []
               for ip in wl:
-                  e = db.get(ip)
+                  e = db_get(ip)
                   if e is None:
                       continue
                   if e.get("last") not in (None, SENTINEL):
@@ -279,7 +284,7 @@ jobs:
               # ── Bug 23: Active-Ledger-Eintraege mit Sentinel-Rueckfall
               b23 = []
               for ip, w in ac.items():
-                  e = db.get(ip)
+                  e = db_get(ip)
                   if e is None:
                       continue
                   if e.get("last") == SENTINEL:
@@ -302,7 +307,7 @@ jobs:
               sag(f"IPs in BEIDEN Ledgern: **{len(in_beiden):,}** "
                   f"(legitimer Zustand, seit dem Bug-23-Fix moeglich)")
               sag()
-              nur_wl = set(wl) - set(db)
+              nur_wl = {ip for ip in wl if db_get(ip) is None}
               sag(f"Eingefrorene Watchlist-IPs, die aktuell NICHT in seen_db stehen: "
                   f"**{len(nur_wl):,}**")
               sag()
@@ -334,5 +339,5 @@ jobs:
       - name: Geladene Daten entfernen
         if: always()
         run: |
-          rm -f state/*_expired_history.json.gz.part* state/seen_db_backup.json.gz.part*
+          rm -f state/*_expired_history.json.gz.part* seen_db.sqlite3
           echo "Temporaer geladene Release-Daten entfernt (es wurde nichts geschrieben oder gepusht)"
