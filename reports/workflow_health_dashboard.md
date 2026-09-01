@@ -1,6 +1,6 @@
 # Workflow Health Dashboard
 
-**Stand:** 2026-09-01 06:59 CEST (Europe/Berlin)
+**Stand:** 2026-09-01 13:33 CEST (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
@@ -8,31 +8,31 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 9 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 9
+- **Echte Combined-Runs:** 10 / 8 erwartet
+- **Skip-Runs (Idempotenz-Guard):** 10
 - **Lucken (>210min zwischen echten Runs):** 1
-  - 2026-08-31 10:04 CEST (Europe/Berlin) -> 2026-08-31 14:34 CEST (Europe/Berlin) (270 min)
+  - 2026-09-01 02:53 CEST (Europe/Berlin) -> 2026-09-01 06:59 CEST (Europe/Berlin) (246 min)
 
 ## Letzte 7 Tage
 
-- **Echte Combined-Runs:** 63
-- **Skip-Runs:** 73
+- **Echte Combined-Runs:** 64
+- **Skip-Runs:** 71
 - **Fehlgeschlagene Runs:** 9
-- **Lucken >210min:** 9
+- **Lucken >210min:** 10
 - **Groesste Lucke:** 2026-08-27 05:52 CEST (Europe/Berlin) -> 2026-08-27 13:14 CEST (Europe/Berlin) (441 min = 7h 21min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 240
+- **Watchdog-Laeufe insgesamt:** 221
 - **Watchdog-Fehler:** 0
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 53
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 55
 
 Letzte Watchdog-Eingriffe:
-- 2026-08-31 18:05 CEST (Europe/Berlin) (Run #33412114787, Laufzeit 24m 49s)
-- 2026-08-31 20:18 CEST (Europe/Berlin) (Run #33424254279, Laufzeit 21m 35s)
-- 2026-08-31 20:58 CEST (Europe/Berlin) (Run #33427949524, Laufzeit 23m 44s)
 - 2026-08-31 22:53 CEST (Europe/Berlin) (Run #33438466768, Laufzeit 6m 40s)
 - 2026-08-31 23:22 CEST (Europe/Berlin) (Run #33441029337, Laufzeit 21m 8s)
+- 2026-09-01 06:59 CEST (Europe/Berlin) (Run #33471906248, Laufzeit 23m 37s)
+- 2026-09-01 09:10 CEST (Europe/Berlin) (Run #33480834501, Laufzeit 27m 41s)
+- 2026-09-01 12:01 CEST (Europe/Berlin) (Run #33495228007, Laufzeit 26m 53s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
