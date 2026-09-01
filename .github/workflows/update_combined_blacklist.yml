@@ -5019,8 +5019,12 @@ jobs:
           fi
           SCHWELLE=$(( VORLAUF / 2 ))
           if [ "${AKTUELL:-0}" -lt "$SCHWELLE" ]; then
-            echo "::error::Schrumpfungswache: seen_db ist von ${VORLAUF} auf ${AKTUELL} IPs gefallen (<50%). Cache und Release-Asset werden NICHT ueberschrieben. Wahrscheinliche Ursache: beschaedigter Cache und ungewollter Fresh-Start."
+            echo "::error::Schrumpfungswache: seen_db ist von ${VORLAUF} auf ${AKTUELL} IPs gefallen (<50%). Cache, Release-Asset UND Repo-Push werden blockiert."
             echo "ok=false" >> "$GITHUB_OUTPUT"
+            # FINAL-FAIL-CLOSED 2026-09-01: Ein expliziter Shrink-Alarm ist
+            # ein harter Datenintegritaetsfehler. Der Job muss rot werden und
+            # darf weder den historischen State noch Repo-Ausgaben ersetzen.
+            exit 1
           else
             echo "Schrumpfungswache: unauffaellig."
             echo "ok=true" >> "$GITHUB_OUTPUT"
@@ -5282,10 +5286,10 @@ jobs:
         # state/seen_db_meta.json committet. Das Repo zeigte dann veraltete Stände obwohl der
         # Workflow technisch gelaufen war. Auch Fehler-Teilstände (z.B. Report ohne
         # Blacklist-Update) sollen sichtbar ins Repo committed werden.
-        # NOTE: always()-Semantik bleibt - "always() && Guard" laeuft bei Crash UND
-        # wenn Idempotenz-Guard nicht geskippt hat. Beim Skip soll auch der Commit
-        # nicht laufen, da kein Build-Step ausgefuehrt wurde.
-        if: always()
+        # NOTE: always()-Semantik bleibt fuer normale Crash-/Diagnose-Teilstaende.
+        # FINAL-FAIL-CLOSED 2026-09-01: Wenn die Schrumpfungswache explizit
+        # ok=false meldet, darf dagegen GAR NICHT gepusht werden.
+        if: always() && steps.shrink_guard.outputs.ok != 'false'
         run: |
           python3 - << 'PYEOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -5314,6 +5318,15 @@ jobs:
           # ISO-8601 in UTC speichern, damit andere Workflows das Alter
           # zuverlaessig berechnen koennen, ohne Zeitzonen-Abkuerzungen zu
           # parsen.
+          # Vorherigen total_ips-Wert nur als Crash-Fallback merken. Im normalen
+          # erfolgreichen Lauf wird die Zahl direkt aus SQLite gelesen.
+          _previous_total_ips = None
+          if os.path.exists("state/seen_db_meta.json"):
+              try:
+                  with open("state/seen_db_meta.json", encoding="utf-8") as _mf:
+                      _previous_total_ips = int(json.load(_mf).get("total_ips", 0)) or None
+              except Exception:
+                  _previous_total_ips = None
           meta = {
               "note": "seen_db.json nur im GitHub Actions Cache (zu gross fuer Repo)",
               "updated": now_str,
@@ -5332,17 +5345,33 @@ jobs:
                       meta["cleanup"] = json.load(f)
               except Exception as e:
                   print(f"WARNUNG: cleanup_stats.json nicht lesbar: {e}")
-          if os.path.exists("seen_db.json"):
+          # FINAL-META-RAM-FIX 2026-09-01: Fuer die Meta-Zahl niemals mehr
+          # die ~GB-grosse seen_db.json komplett per json.load() materialisieren.
+          # SQLite ist kanonisch und liefert COUNT(*) mit sehr kleinem RAM-Footprint.
+          if os.path.exists("seen_db.sqlite3"):
               try:
-                  with open("seen_db.json") as f:
-                      db = json.load(f)
-                  meta["total_ips"] = len(db)
-                  meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
-                  print(f"seen_db: {len(db)} IPs, {meta['size_mb']} MB")
+                  import sqlite3
+                  _c = sqlite3.connect("seen_db.sqlite3")
+                  _q = _c.execute("PRAGMA quick_check").fetchone()
+                  _n = _c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]
+                  _c.close()
+                  if not _q or _q[0] != "ok":
+                      raise RuntimeError(f"PRAGMA quick_check={_q!r}")
+                  meta["total_ips"] = int(_n)
+                  meta["sqlite_size_mb"] = round(os.path.getsize("seen_db.sqlite3") / 1024 / 1024, 1)
+                  print(f"seen_db SQLite: {_n} IPs, {meta['sqlite_size_mb']} MB")
               except Exception as e:
-                  meta["error"] = f"seen_db.json nicht lesbar: {e}"
-                  meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
-                  print(f"WARNUNG: seen_db.json korrupt oder nicht lesbar: {e}")
+                  meta["error"] = f"seen_db.sqlite3 nicht lesbar: {e}"
+                  print(f"WARNUNG: seen_db.sqlite3 nicht lesbar: {e}")
+          elif _previous_total_ips is not None:
+              # Nur fuer einen fruehen Build-Crash, bei dem der Commit-Step aus
+              # Diagnosegruenden weiterhin laufen darf. Keine erfundene neue Zahl.
+              meta["total_ips"] = _previous_total_ips
+              meta["total_ips_source"] = "previous_meta_after_early_failure"
+
+          if os.path.exists("seen_db.json"):
+              # Kompatibilitaets-Export nur per stat erfassen; kein json.load().
+              meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
           write_json_atomic("state/seen_db_meta.json", meta, indent=2)
           PYEOF
           git config user.name "github-actions[bot]"

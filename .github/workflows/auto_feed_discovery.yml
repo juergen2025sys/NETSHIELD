@@ -78,34 +78,29 @@ jobs:
         with:
           persist-credentials: true
 
-      - name: Restore seen_db Cache
-        if: steps.idempotency.outputs.already_ran != 'true'
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: seen_db.json
-          # Gemeinsamer v2-Prefix mit Combined: so gewinnt beim Restore
-          # immer der zeitlich neueste JSON-Stand (Combined ODER AFD), statt
-          # dass ein separater AFD-Prefix einen neueren Combined-Stand verdeckt.
-          key: netshield-seen-db-v2-afd-${{ github.run_id }}
-          restore-keys: |
-            netshield-seen-db-v2-
-            netshield-seen-db-v1-
-            netshield-seen-db-
-
       - name: Restore seen_db SQLite Cache
         if: steps.idempotency.outputs.already_ran != 'true'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: seen_db.sqlite3
-          # Gleicher Prefix wie Combined. Der Suffix "afd" bleibt nur zur
-          # Lesbarkeit des Cache-Keys; restore-keys sieht beide Produzenten
-          # chronologisch in einem Namensraum.
+          # AFD ist ab 01.09.2026 vollstaendig SQLite-native. Gleicher
+          # Cache-Namensraum wie Combined/Confidence: der neueste Snapshot
+          # gewinnt unabhaengig davon, welcher Workflow ihn erzeugt hat.
           key: netshield-seen-db-sqlite-v1-afd-${{ github.run_id }}
           restore-keys: |
             netshield-seen-db-sqlite-v1-
 
+      - name: Validiere seen_db SQLite Cache
+        if: steps.idempotency.outputs.already_ran != 'true' && hashFiles('seen_db.sqlite3') != ''
+        run: |
+          set -euo pipefail
+          if ! python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); assert q and q[0]=="ok" and n>=100000, (q,n); print(f"SQLite-Cache validiert: {n:,} Eintraege")'; then
+            echo "::warning::AFD SQLite-Cache ungueltig - verwerfe und nutze Release-Fallback"
+            rm -f seen_db.sqlite3
+          fi
+
       - name: Restore seen_db SQLite from GitHub Release (falls Caches leer)
-        if: steps.idempotency.outputs.already_ran != 'true' && hashFiles('seen_db.json') == '' && hashFiles('seen_db.sqlite3') == ''
+        if: steps.idempotency.outputs.already_ran != 'true' && hashFiles('seen_db.sqlite3') == ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -117,7 +112,7 @@ jobs:
             gzip -df seen_db.sqlite3.gz
             python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); print(f"SQLite-Release-Fallback validiert: {n:,} Eintraege"); assert q and q[0]=="ok" and n>=100000, (q,n)'
           else
-            echo "Kein SQLite-Release-Fallback vorhanden - nur bei echtem Fresh-Start wird leer begonnen."
+            echo "Kein SQLite-Release-Fallback vorhanden - AFD bricht im Build-Step fail-closed ab."
           fi
 
       - name: defusedxml sicherstellen (fuer sichere XML-Feed-Extraktion)
@@ -130,6 +125,7 @@ jobs:
             || pip install --quiet --disable-pip-version-check defusedxml
 
       - name: Discover, Validate and Ingest IP Feeds
+        id: afd_sqlite
         if: steps.idempotency.outputs.already_ran != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -1324,42 +1320,28 @@ jobs:
 
               return score >= 3
 
-          # ── Schritt 1: seen_db laden ──────────────────────────────────────
-          # JSON-Actions-Cache bleibt der normale AFD-Pfad. Falls er leer oder
-          # korrupt ist, wird der restaurierte SQLite-Cache/Release als einziger
-          # persistenter Release-Fallback verwendet. Ein separates JSON-Release
-          # fuer seen_db existiert nicht mehr.
-          DB_FILE = "seen_db.json"
-          SQLITE_FALLBACK_FILE = "seen_db.sqlite3"
-          db = {}
+          # ── Schritt 1: seen_db SQLite-native oeffnen ─────────────────────
+          # AFD-SQLITE-NATIVE 01.09.2026:
+          # Auto Feed Discovery arbeitet ab hier ausschliesslich direkt auf
+          # seen_db.sqlite3. Kein json.load(), kein JSON-Materialisieren und
+          # kein seen_db.json-Cache mehr. Cache und Release wurden vor diesem
+          # Step bereits restauriert. Fehlt die SQLite trotzdem, wird bewusst
+          # FAIL-CLOSED abgebrochen statt mit einer leeren History zu starten.
+          SQLITE_DB_FILE = "seen_db.sqlite3"
+          if not os.path.exists(SQLITE_DB_FILE):
+              raise RuntimeError(
+                  "Keine seen_db.sqlite3 verfuegbar (Cache und SQLite-Release fehlen) - "
+                  "AFD startet aus Sicherheitsgruenden NICHT mit leerer Datenbank")
 
-          if os.path.exists(DB_FILE):
-              try:
-                  with open(DB_FILE) as f:
-                      db = json.load(f)
-                  print(f"seen_db geladen: {len(db)} IPs")
-              except Exception as _load_err:
-                  print(f"WARN: seen_db.json korrupt ({_load_err}) - versuche SQLite-Fallback", file=sys.stderr)
-                  db = {}
-
-          if not db and os.path.exists(SQLITE_FALLBACK_FILE):
-              try:
-                  _sqlite_source = SqliteSeenDB(SQLITE_FALLBACK_FILE)
-                  if len(_sqlite_source) < 10000:
-                      raise ValueError(f"SQLite-Fallback hat nur {len(_sqlite_source)} Eintraege")
-                  # AFD arbeitet historisch mit einem Dict und mutiert Eintraege
-                  # intensiv. Der seltene Cold-Cache-Fallback materialisiert daher
-                  # einmalig aus SQLite; im Normalbetrieb kommt weiterhin JSON-Cache.
-                  db = {ip: entry for ip, entry in _sqlite_source.items()}
-                  _sqlite_source.close()
-                  print(f"seen_db aus SQLite-Fallback wiederhergestellt: {len(db)} IPs")
-                  write_json_atomic(DB_FILE, db, separators=(",", ":"))
-              except Exception as _restore_err:
-                  print(f"WARN: SQLite-Fallback fehlgeschlagen ({_restore_err}) - starte neu", file=sys.stderr)
-                  db = {}
-
-          if not db:
-              print("Keine seen_db gefunden - starte neu.")
+          db = SqliteSeenDB(SQLITE_DB_FILE)
+          _q_start = db._conn.execute("PRAGMA quick_check").fetchone()
+          _rows_start = len(db)
+          if not _q_start or _q_start[0] != "ok" or _rows_start < 100000:
+              db.close()
+              raise RuntimeError(
+                  f"seen_db.sqlite3 ungueltig: quick_check={_q_start}, "
+                  f"rows={_rows_start:,}")
+          print(f"AFD SQLite-native aktiv: {_rows_start:,} Ausgangseintraege")
 
           # ── Schritt 1b: Bestehende state/auto_discovered_feeds.json laden ───────
           # FIX BUG-EXISTING-FEEDS-ORDER: Dieser Block stand frueher als
@@ -4143,46 +4125,22 @@ jobs:
                       f_name_suffix=_stem, metrics=_ef,
                   )
 
-          # ── SQLite-Spiegel fuer Confidence synchron halten ────────────────
-          # FIX AFD-SQLITE-DRIFT 31.08.2026: Confidence bevorzugt SQLite.
-          # AFD pflegt deshalb jede in diesem Lauf veraenderte/geloeschte IP
-          # auch im wiederhergestellten SQLite-Snapshot und speichert einen
-          # eigenen AFD-SQLite-Cache. Fehlt/ist die SQLite kaputt, bleibt JSON
-          # kanonisch; der naechste Combined-Lauf erzeugt wieder einen vollen
-          # Snapshot.
-          _sqlite_sync = None
-          try:
-              if os.path.exists("seen_db.sqlite3"):
-                  _sqlite_sync = SqliteSeenDB("seen_db.sqlite3")
-                  _q = _sqlite_sync._conn.execute("PRAGMA quick_check").fetchone()
-                  _n = len(_sqlite_sync)
-                  if not _q or _q[0] != "ok" or _n < 100000:
-                      raise ValueError(f"ungueltige SQLite: quick_check={_q}, rows={_n}")
-                  print(f"AFD SQLite-Sync aktiv: {_n:,} Ausgangseintraege")
-          except Exception as _sql_e:
-              print(f"WARN: AFD SQLite-Sync deaktiviert: {_sql_e}", file=sys.stderr)
-              try:
-                  if _sqlite_sync is not None:
-                      _sqlite_sync.close()
-              except Exception:
-                  pass
-              _sqlite_sync = None
-              try:
-                  os.remove("seen_db.sqlite3")
-              except OSError:
-                  pass
-
-          # ── Schritt 6: seen_db aktualisieren ──────────────────────────────
+          # ── Schritt 6: seen_db direkt in SQLite aktualisieren ───────────────
+          # Kein zweiter Spiegel und kein Plain-Dict mehr: db IST die persistente
+          # seen_db.sqlite3. Wichtig: SqliteSeenDB.__getitem__ liefert ein frisches
+          # Dict. In-place-Aenderungen werden daher immer ueber db[ip] = entry
+          # explizit zurueckgeschrieben.
           SOURCE_LABEL = "auto_feed_discovery"
           ingested_new  = 0
           ingested_seen = 0
 
-          for ip in list(all_new_ips | all_known_ips):
+          for ip in (all_new_ips | all_known_ips):
               auto_count = ip_auto_feed_count.get(ip, 1)
               if ip in db:
                   try:
-                      if not isinstance(db[ip], dict):
-                          db[ip] = {
+                      entry = db[ip]
+                      if not isinstance(entry, dict):
+                          entry = {
                               "first":             now_day,
                               "last":              "2000-01-01",
                               "hq":                False,
@@ -4194,16 +4152,15 @@ jobs:
                               "days_seen":         0,
                               "auto_today_count":  auto_count,
                           }
-                          if _sqlite_sync is not None:
-                              _sqlite_sync[ip] = db[ip]
+                          db[ip] = entry
                           ingested_new += 1
                           continue
-                      existing_f = set(db[ip].get("feeds", []))
+
+                      existing_f = set(entry.get("feeds", []))
                       if SOURCE_LABEL not in existing_f:
-                          db[ip]["feeds"] = sorted(existing_f | {SOURCE_LABEL})
-                      db[ip]["auto_today_count"] = auto_count
-                      if _sqlite_sync is not None:
-                          _sqlite_sync[ip] = db[ip]
+                          entry["feeds"] = sorted(existing_f | {SOURCE_LABEL})
+                      entry["auto_today_count"] = auto_count
+                      db[ip] = entry
                       ingested_seen += 1
                   except Exception as _corrupt:
                       print(f"WARN: Korrupter seen_db-Eintrag {ip}: {_corrupt}", file=sys.stderr)
@@ -4221,8 +4178,6 @@ jobs:
                       "days_seen":         0,
                       "auto_today_count":  auto_count,
                   }
-                  if _sqlite_sync is not None:
-                      _sqlite_sync[ip] = db[ip]
                   ingested_new += 1
 
           # Expiry – identisch zu update_combined_blacklist.yml
@@ -4248,60 +4203,30 @@ jobs:
           cutoff_wl = now - timedelta(days=WATCHLIST_EXPIRY_DAYS)
           cutoff_str    = cutoff.strftime("%Y-%m-%d")
           cutoff_wl_str = cutoff_wl.strftime("%Y-%m-%d")
-          to_expire = set()
-          for ip in list(db.keys()):
+          to_expire = []
+          # SQLite-native Streaming-Scan: keine list(db.keys())-Materialisierung
+          # von ~10 Mio. IP-Strings im RAM. Loeschungen erfolgen erst nach dem
+          # Cursor-Scan gesammelt per bulk_delete().
+          for ip, first_raw, last_raw in db.iter_ip_first_last():
               try:
-                  entry      = db[ip]
-                  last_str   = safe_get_date(entry, "last")
-                  first_str  = safe_get_date(entry, "first", last_str)
+                  last_str = safe_get_date({"last": last_raw}, "last")
+                  first_str = safe_get_date({"first": first_raw}, "first", last_str)
                   if last_str == "2000-01-01":
                       if first_str < cutoff_wl_str:
-                          to_expire.add(ip)
-                  else:
-                      if last_str < cutoff_str:
-                          to_expire.add(ip)
+                          to_expire.append(ip)
+                  elif last_str < cutoff_str:
+                      to_expire.append(ip)
               except Exception:
-                  to_expire.add(ip)
-          for ip in to_expire:
-              db.pop(ip, None)
-              if _sqlite_sync is not None:
-                  _sqlite_sync.pop(ip, None)
+                  to_expire.append(ip)
 
-          if _sqlite_sync is not None:
-              try:
-                  _sqlite_sync._conn.commit()
-                  _q = _sqlite_sync._conn.execute("PRAGMA quick_check").fetchone()
-                  _sqlite_rows = len(_sqlite_sync)
-                  if not _q or _q[0] != "ok" or _sqlite_rows < 100000:
-                      raise RuntimeError(
-                          f"AFD SQLite-Snapshot nach Sync ungueltig: "
-                          f"quick_check={_q}, rows={_sqlite_rows}")
-                  _sqlite_sync.close()
-                  _sqlite_sync = None
-                  print(f"AFD SQLite-Sync gespeichert: {_sqlite_rows:,} Eintraege")
-              except Exception as _sql_sync_e:
-                  # FIX AFD-BROKEN-CACHE 31.08.2026: Der Save-Step laeuft
-                  # absichtlich mit always(). Deshalb MUSS eine nach commit()
-                  # als ungueltig erkannte Datei hier geloescht werden, sonst
-                  # wuerde genau der defekte Snapshot in actions/cache landen.
-                  print(f"WARN: AFD SQLite-Snapshot nach Sync verworfen: {_sql_sync_e}",
-                        file=sys.stderr)
-                  try:
-                      if _sqlite_sync is not None:
-                          _sqlite_sync.close()
-                  except Exception:
-                      pass
-                  _sqlite_sync = None
-                  try:
-                      os.remove("seen_db.sqlite3")
-                  except OSError:
-                      pass
+          if to_expire:
+              db.bulk_delete(to_expire)
+          else:
+              db.commit()
 
-          print(f"\nseen_db: +{ingested_seen} bestätigt | +{ingested_new} neu eingetragen | "
-                f"{len(to_expire)} abgelaufen | Gesamt: {len(db)} IPs")
-
-          # ── Schritt 7: seen_db speichern ──────────────────────────────────
-          write_json_atomic(DB_FILE, db, separators=(",", ":"))
+          _rows_after_ingest = len(db)
+          print(f"\nseen_db SQLite: +{ingested_seen} bestaetigt | +{ingested_new} neu eingetragen | "
+                f"{len(to_expire)} abgelaufen | Gesamt: {_rows_after_ingest:,} IPs")
 
           # ── Deduplizierung: identische URLs / gleiche Repo+Datei entfernen ──
           # Ursache: Discovery-Runs über mehrere Wochen können dasselbe Repo
@@ -4592,23 +4517,25 @@ jobs:
           }
           write_json_atomic(AUTO_FILE, output, indent=2, ensure_ascii=False)
 
+          # ── Finale SQLite-Validierung ─────────────────────────────────────
+          # Nur ein vollstaendig erfolgreicher AFD-Step darf danach einen neuen
+          # Actions-Cache publizieren. Bei Fehlern wirft dieser Block und der
+          # Save-Step bleibt wegen steps.afd_sqlite.outcome != success aus.
+          db.commit()
+          _q_final = db._conn.execute("PRAGMA quick_check").fetchone()
+          _rows_final = len(db)
+          if not _q_final or _q_final[0] != "ok" or _rows_final < 100000:
+              db.close()
+              raise RuntimeError(
+                  f"AFD SQLite-Endstand ungueltig: quick_check={_q_final}, "
+                  f"rows={_rows_final:,}")
+          db.close()
+          print(f"AFD SQLite-Endstand validiert: {_rows_final:,} Eintraege")
+
           EOF
 
-      - name: Save seen_db Cache
-        if: always() && steps.idempotency.outputs.already_ran != 'true'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: seen_db.json
-          key: netshield-seen-db-v2-afd-${{ github.run_id }}
-
-      - name: Save seen_db SQLite Cache
-        if: always() && steps.idempotency.outputs.already_ran != 'true' && hashFiles('seen_db.sqlite3') != ''
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: seen_db.sqlite3
-          key: netshield-seen-db-sqlite-v1-afd-${{ github.run_id }}
-
       - name: Commit
+        id: commit_afd
         if: always() && steps.idempotency.outputs.already_ran != 'true'
         run: |
           git config user.name "github-actions[bot]"
@@ -4665,3 +4592,10 @@ jobs:
             echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
             exit 1
           fi
+
+      - name: Save seen_db SQLite Cache
+        if: steps.idempotency.outputs.already_ran != 'true' && steps.afd_sqlite.outcome == 'success' && steps.commit_afd.outcome == 'success' && hashFiles('seen_db.sqlite3') != ''
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: seen_db.sqlite3
+          key: netshield-seen-db-sqlite-v1-afd-${{ github.run_id }}
