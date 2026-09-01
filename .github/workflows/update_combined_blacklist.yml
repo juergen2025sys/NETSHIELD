@@ -201,7 +201,13 @@ jobs:
       # FIX BUG-QUEUE-STARVE (2026-07-24): siehe score_decay_monitor.yml.
       # queue: max konsistent fuer alle 5 Mitglieder dieser Gruppe gesetzt,
       # damit kein Workflow einen anderen aus der Warteschlange verdraengt.
-      queue: max
+      # FIX QUEUE-KEY-NOOP 01.09.2026 (Review-Fund NIEDRIG): hier stand
+      # 'queue: max'. Diesen Schluessel gibt es in der GitHub-Actions-
+      # concurrency-Syntax nicht - erlaubt sind nur 'group' und
+      # 'cancel-in-progress'. Der Wert wurde stillschweigend ignoriert
+      # und suggerierte eine Warteschlangen-Garantie, die es nie gab.
+      # Die tatsaechliche Serialisierung leistet allein 'group' zusammen
+      # mit 'cancel-in-progress: false' - das bleibt unveraendert.
 
     steps:
       - name: Checkout Repository
@@ -1783,9 +1789,22 @@ jobs:
               # SQLite-Release (und auch ein expliziter JSON-Notfallpfad),
               # muss Combined abbrechen statt Millionen Tages-IP-Adressen als
               # neue seen_db zu veroeffentlichen.
+              # KORREKTUR 01.09.2026 (Review-Fund Wartbarkeit): Die Meldung
+              # sprach von einem "expliziten JSON-Notfallpfad". Den gibt es
+              # nicht mehr - Combined hat seit dem SQLite-native-Umbau keinen
+              # Restore-Step fuer seen_db.json, die Datei liegt hier also
+              # praktisch nie im Workspace. Der JSON-Zweig oben bleibt nur
+              # fuer den Fall bestehen, dass jemand die Datei manuell
+              # bereitstellt. Die Meldung nennt jetzt die tatsaechlich
+              # relevanten Quellen.
               raise RuntimeError(
-                  "FAIL-CLOSED: keine gueltige bestehende seen_db verfuegbar "
-                  "(SQLite-Cache/Release und JSON-Fallback fehlen oder sind ungueltig)")
+                  "FAIL-CLOSED: keine gueltige bestehende seen_db verfuegbar. "
+                  "Geprueft wurden: seen_db.sqlite3 aus dem Actions Cache "
+                  "(Prefix netshield-seen-db-sqlite-v1-), seen_db.sqlite3 aus "
+                  "dem GitHub-Release seen-db-sqlite-backup, sowie eine "
+                  "manuell bereitgestellte seen_db.json. Combined bricht ab, "
+                  "statt aus den Tagesfeeds eine historienlose seen_db zu "
+                  "bauen und damit Cache und Release zu ueberschreiben.")
 
           # FIX MEM-SQLITE-2026-08-16 / FIX MEM-SQLITE-STREAM-2026-08-16:
           # db ist an dieser Stelle in aller Regel BEREITS eine fertige
@@ -1805,24 +1824,26 @@ jobs:
           # entsprechend um ein explizites db[ip] = entry ergaenzt - siehe
           # dortige FIX MEM-SQLITE-2026-08-16-Kommentare.
           _sqlite_import_t0 = _time.monotonic()
+          # FIX DEAD-FRESHSTART-BRANCH 01.09.2026 (Review-Fund NIEDRIG):
+          # Hier stand ein "if isinstance(db, dict): ... bulk_import(db)"-
+          # Zweig fuer den Fresh-Start-Fall. Der ist seit der Einfuehrung des
+          # FAIL-CLOSED-raise oben unerreichbar: _sqlite_fallback_laden() und
+          # der JSON-Streaming-Import liefern entweder eine SqliteSeenDB oder
+          # None, und None fuehrt zum RuntimeError. db ist an dieser Stelle
+          # also immer bereits eine SqliteSeenDB. Der tote Zweig wurde
+          # entfernt, weil er suggerierte, ein leerer Fresh-Start sei noch
+          # ein unterstuetzter Pfad - genau das soll er nicht mehr sein.
+          # Als Sicherung bleibt eine harte Typzusicherung stehen.
           if isinstance(db, dict):
-              # Fresh-Start-Fall (oder theoretisch: beide Streaming-Importe
-              # sind fehlgeschlagen und auf {} zurueckgefallen) - db_path
-              # kann bereits existieren (von einem gescheiterten Versuch
-              # oben), also idempotent neu anlegen.
-              if os.path.exists(_sqlite_db_path):
-                  os.remove(_sqlite_db_path)
-              db_sqlite = SqliteSeenDB(_sqlite_db_path)
-              _sqlite_imported_n = db_sqlite.bulk_import(db)
-              del db
-              _gc.collect()
-              db = db_sqlite
-          else:
-              # Bereits eine SqliteSeenDB aus dem Streaming-Import oben -
-              # NICHTS mehr zu tun, insbesondere _sqlite_db_path NICHT
-              # anfassen/loeschen (db haelt bereits eine offene Verbindung
-              # genau dorthin).
-              _sqlite_imported_n = len(db)
+              raise RuntimeError(
+                  "Interner Zustandsfehler: db ist ein Plain-Dict, obwohl der "
+                  "FAIL-CLOSED-Pfad das ausschliessen sollte. Abbruch, statt "
+                  "einen historienlosen Stand zu publizieren.")
+          # Bereits eine SqliteSeenDB aus dem Restore/Streaming-Import oben -
+          # NICHTS mehr zu tun, insbesondere _sqlite_db_path NICHT
+          # anfassen/loeschen (db haelt bereits eine offene Verbindung
+          # genau dorthin).
+          _sqlite_imported_n = len(db)
           _rss_after_sqlite_import = _current_rss_mb()
           _rss_note = f" ({_rss_after_sqlite_import:.0f} MB RSS danach)" if _rss_after_sqlite_import is not None else ""
           print(f"  seen_db nach SQLite ueberfuehrt: {_sqlite_imported_n:,} Eintraege "
@@ -4999,13 +5020,28 @@ jobs:
         if: steps.build_combined.outcome == 'success'
         run: |
           set -uo pipefail
+          # FIX SHRINK-FAILOPEN 01.09.2026 (Review-Funde MITTEL): Die Wache
+          # hatte zwei Durchlass-Zweige, die im SQLite-nativen Betrieb keine
+          # legitime Entsprechung mehr haben.
+          #   (a) "seen_db.sqlite3 fehlt, aber seen_db.json ist da" - nach
+          #       einem erfolgreichen Build MUSS die SQLite existieren, sie
+          #       IST die Arbeitsdatenbank. Fehlt sie, ist etwas grundlegend
+          #       kaputt und es darf gerade nicht publiziert werden.
+          #   (b) "VORLAUF <= 0" - war als Erstlauf-Ausnahme gedacht, liess
+          #       aber auch jeden Fall durch, in dem state/seen_db_meta.json
+          #       fehlt, leer, beschaedigt oder (siehe FIX META-TOTALIPS-LOSS)
+          #       um total_ips gebracht worden ist.
+          # Beide sind jetzt fail-closed. Fuer einen echten Erstlauf gibt es
+          # einen expliziten, versionierten Marker statt eines stillen
+          # Sonderfalls.
+          ERSTLAUF_MARKER="state/seen_db_erstlauf_ok"
           AKTUELL=0
           if [ -f seen_db.sqlite3 ]; then
             AKTUELL=$(python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); print(c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]); c.close()' 2>/dev/null || echo 0)
-          elif [ -f seen_db.json ]; then
-            echo "Kein SQLite-Snapshot vorhanden - Wache kann nicht zaehlen, lasse durch."
-            echo "ok=true" >> "$GITHUB_OUTPUT"
-            exit 0
+          else
+            echo "::error::Schrumpfungswache: seen_db.sqlite3 fehlt nach erfolgreichem Build. Cache, Release-Asset UND Repo-Push werden blockiert."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            exit 1
           fi
           VORLAUF=0
           if [ -f state/seen_db_meta.json ]; then
@@ -5013,9 +5049,14 @@ jobs:
           fi
           echo "Eintraege aktuell: ${AKTUELL} | Vorlauf laut Meta: ${VORLAUF}"
           if [ "${VORLAUF:-0}" -le 0 ]; then
-            echo "Kein Vergleichswert vorhanden (erster Lauf?) - lasse durch."
-            echo "ok=true" >> "$GITHUB_OUTPUT"
-            exit 0
+            if [ -f "$ERSTLAUF_MARKER" ]; then
+              echo "Kein Vergleichswert vorhanden, aber ${ERSTLAUF_MARKER} liegt vor - bewusst freigegebener Erstlauf."
+              echo "ok=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "::error::Schrumpfungswache: kein Vergleichswert in state/seen_db_meta.json (total_ips fehlt/0/unlesbar). FAIL-CLOSED. Fuer einen echten Erstlauf einmalig '${ERSTLAUF_MARKER}' anlegen und committen."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            exit 1
           fi
           SCHWELLE=$(( VORLAUF / 2 ))
           if [ "${AKTUELL:-0}" -lt "$SCHWELLE" ]; then
@@ -5086,7 +5127,13 @@ jobs:
         # statt fuer seen_db. Laeuft NUR, wenn der Python-Block oben eine
         # Aenderung hatte (state/aufnahme_warteliste_upload.json existiert
         # dann) - sonst kein unnoetiger Upload.
-        if: always()
+        # FIX SHRINK-ALWAYS-UPLOAD 01.09.2026 (Review-Fund MITTEL): war
+        # vorher reines if: always(). Die Warteliste wird aus DIESEM
+        # seen_db-Stand abgeleitet - meldet die Schrumpfungswache ok=false,
+        # ist dieser Stand verdaechtig und darf auch hier nicht publiziert
+        # werden. always() bleibt erhalten, damit ein normaler Crash-
+        # Teilstand weiterhin gesichert wird.
+        if: always() && steps.shrink_guard.outputs.ok != 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -5165,7 +5212,11 @@ jobs:
         # seen_db). Laeuft NUR fuer jeweils den Ledger, der in diesem Lauf
         # tatsaechlich geaendert wurde (state/<name>_upload.json existiert
         # dann) - der jeweils andere bleibt unangetastet im Release stehen.
-        if: always()
+        # FIX SHRINK-ALWAYS-UPLOAD 01.09.2026 (Review-Fund MITTEL): siehe
+        # gleichnamigen Kommentar beim Warteliste-Upload oben. Die Ledger
+        # entstehen aus den Cleanup-Entscheidungen dieses Laufs; bei
+        # ok=false sind genau diese Entscheidungen nicht vertrauenswuerdig.
+        if: always() && steps.shrink_guard.outputs.ok != 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -5363,6 +5414,22 @@ jobs:
               except Exception as e:
                   meta["error"] = f"seen_db.sqlite3 nicht lesbar: {e}"
                   print(f"WARNUNG: seen_db.sqlite3 nicht lesbar: {e}")
+                  # FIX META-TOTALIPS-LOSS 01.09.2026 (Review-Fund BLOCKER):
+                  # Der Alt-Wert-Rueckfall hing frueher ausschliesslich am
+                  # elif-Zweig unten und griff damit NUR, wenn seen_db.sqlite3
+                  # komplett fehlte. War die Datei vorhanden, aber beschaedigt
+                  # (abgebrochener Build, 0-Byte-Rest, halb entpacktes
+                  # Release-Asset), wurde state/seen_db_meta.json OHNE
+                  # "total_ips" geschrieben. Die Schrumpfungswache liest im
+                  # naechsten Lauf .get("total_ips", 0), bekam damit VORLAUF=0
+                  # und fiel in den Zweig "Kein Vergleichswert vorhanden -
+                  # lasse durch": der Guard war fuer den Folgelauf komplett
+                  # deaktiviert, obwohl er genau dann gebraucht wird.
+                  # Der Alt-Wert wird deshalb IMMER erhalten, wenn keine neue,
+                  # verifizierte Zahl ermittelt werden konnte.
+                  if _previous_total_ips is not None:
+                      meta["total_ips"] = _previous_total_ips
+                      meta["total_ips_source"] = "previous_meta_after_corrupt_sqlite"
           elif _previous_total_ips is not None:
               # Nur fuer einen fruehen Build-Crash, bei dem der Commit-Step aus
               # Diagnosegruenden weiterhin laufen darf. Keine erfundene neue Zahl.

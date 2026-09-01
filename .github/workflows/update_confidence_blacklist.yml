@@ -50,7 +50,13 @@ concurrency:
   # FIX BUG-QUEUE-STARVE (2026-07-24): siehe score_decay_monitor.yml.
   # queue: max konsistent fuer alle 5 Mitglieder dieser Gruppe gesetzt,
   # damit kein Workflow einen anderen aus der Warteschlange verdraengt.
-  queue: max
+  # FIX QUEUE-KEY-NOOP 01.09.2026 (Review-Fund NIEDRIG): hier stand
+  # 'queue: max'. Diesen Schluessel gibt es in der GitHub-Actions-
+  # concurrency-Syntax nicht - erlaubt sind nur 'group' und
+  # 'cancel-in-progress'. Der Wert wurde stillschweigend ignoriert
+  # und suggerierte eine Warteschlangen-Garantie, die es nie gab.
+  # Die tatsaechliche Serialisierung leistet allein 'group' zusammen
+  # mit 'cancel-in-progress: false' - das bleibt unveraendert.
 
 jobs:
   gate:

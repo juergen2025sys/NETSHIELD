@@ -22,7 +22,13 @@ permissions:
 concurrency:
   group: netshield-seen-db-writers
   cancel-in-progress: false
-  queue: max
+  # FIX QUEUE-KEY-NOOP 01.09.2026 (Review-Fund NIEDRIG): hier stand
+  # 'queue: max'. Diesen Schluessel gibt es in der GitHub-Actions-
+  # concurrency-Syntax nicht - erlaubt sind nur 'group' und
+  # 'cancel-in-progress'. Der Wert wurde stillschweigend ignoriert
+  # und suggerierte eine Warteschlangen-Garantie, die es nie gab.
+  # Die tatsaechliche Serialisierung leistet allein 'group' zusammen
+  # mit 'cancel-in-progress: false' - das bleibt unveraendert.
 
 jobs:
   check:

@@ -75,7 +75,13 @@ jobs:
     concurrency:
       group: netshield-seen-db-writers
       cancel-in-progress: false
-      queue: max
+      # FIX QUEUE-KEY-NOOP 01.09.2026 (Review-Fund NIEDRIG): hier stand
+      # 'queue: max'. Diesen Schluessel gibt es in der GitHub-Actions-
+      # concurrency-Syntax nicht - erlaubt sind nur 'group' und
+      # 'cancel-in-progress'. Der Wert wurde stillschweigend ignoriert
+      # und suggerierte eine Warteschlangen-Garantie, die es nie gab.
+      # Die tatsaechliche Serialisierung leistet allein 'group' zusammen
+      # mit 'cancel-in-progress: false' - das bleibt unveraendert.
     steps:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -258,39 +264,63 @@ jobs:
 
           db = None
           db_quelle = None
-          if os.path.exists(DB_FILE):
-              _dsize = os.path.getsize(DB_FILE)
-              if _dsize > _SEENDB_LIMIT:
-                  print(f"::warning::seen_db.json zu gross: {_dsize/1024/1024:.1f} MB - "
-                        f"moegliche Korruption, versuche SQLite-Fallback.")
-              else:
-                  print(f"Lade {DB_FILE} ({_dsize/1024/1024:.1f} MB)...")
-                  # FIX CORRUPT-JSON-FALLBACK 01.09.2026: json.load() stand hier
-                  # ungeschuetzt. Eine beschaedigte JSON aus dem Actions-Cache
-                  # liess damit den ganzen Job sterben, obwohl daneben ein
-                  # gueltiger SQLite-Stand liegen kann.
-                  try:
-                      with open(DB_FILE) as f:
-                          db = json.load(f)
-                      db_quelle = "JSON-Cache"
-                  except Exception as _json_err:
-                      print(f"::warning::seen_db.json nicht lesbar ({_json_err}) - "
-                            f"versuche SQLite-Fallback.")
-                      db = None
 
-          if db is None and os.path.exists(SQLITE_FILE):
+          # FIX FORECAST-SQLITE-FIRST 01.09.2026 (Review-Fund HOCH):
+          # Die Reihenfolge war vorher JSON zuerst, SQLite nur als Fallback.
+          # Das war seit der SQLite-native-Migration in zweifacher Hinsicht
+          # falsch:
+          #
+          #   1. STALE-DATEN. auto_feed_discovery.yml aktualisiert seit dem
+          #      01.09.2026 ausschliesslich seen_db.sqlite3. Nach einem
+          #      AFD-Lauf ist der SQLite-Cache also NEUER als der
+          #      JSON-Kompatibilitaets-Cache, den nur Combined schreibt.
+          #      Die Prognose rechnete dann auf dem aelteren Stand - und die
+          #      Ledger-Konsistenzpruefung weiter unten verglich die Ledger
+          #      ebenfalls gegen diesen veralteten Stand, was zu falschen
+          #      "Freeze wurde umgangen"-Meldungen fuehren konnte.
+          #   2. RAM. json.load() materialisiert die komplette Datei; bei
+          #      ~9,5 Mio. Eintraegen sind das nach eigener Messung ~14,5 GB
+          #      RSS auf einem 16-GB-Runner mit timeout-minutes: 15. Genau
+          #      dieser Peak war der Ausloeser fuer den gesamten
+          #      SQLite-Umbau (siehe SqliteSeenDB-Docstring). _SqliteForecastDB
+          #      streamt stattdessen ueber einen Read-Only-Cursor.
+          #
+          # SQLite ist der kanonische State und wird deshalb zuerst probiert.
+          # Der JSON-Pfad bleibt als Notfall-Fallback erhalten, falls weder
+          # Cache noch Release eine SQLite liefern.
+          if os.path.exists(SQLITE_FILE):
               # _SqliteForecastDB fuehrt beim Oeffnen PRAGMA quick_check aus und
               # wirft bei Korruption. Das hier abfangen, sonst stirbt der Block
-              # mit Traceback statt ueber den sauberen Report-Pfad unten - und
-              # dieser Zweig wird gerade dann betreten, wenn ohnehin schon etwas
-              # kaputt ist.
-              print(f"Oeffne {SQLITE_FILE} als Fallback...")
+              # mit Traceback statt ueber den sauberen Report-Pfad unten.
+              print(f"Oeffne {SQLITE_FILE} (kanonischer State)...")
               try:
                   db = _SqliteForecastDB(SQLITE_FILE)
                   db_quelle = "SQLite-Cache/Release"
               except Exception as _sqlite_err:
-                  print(f"::warning::{SQLITE_FILE} nicht nutzbar ({_sqlite_err}).")
+                  print(f"::warning::{SQLITE_FILE} nicht nutzbar ({_sqlite_err}) - "
+                        f"versuche JSON-Fallback.")
                   db = None
+
+          if db is None and os.path.exists(DB_FILE):
+              _dsize = os.path.getsize(DB_FILE)
+              if _dsize > _SEENDB_LIMIT:
+                  print(f"::warning::seen_db.json zu gross: {_dsize/1024/1024:.1f} MB - "
+                        f"moegliche Korruption, wird nicht geladen.")
+              else:
+                  print(f"Lade {DB_FILE} ({_dsize/1024/1024:.1f} MB) als Fallback...")
+                  print("::warning::Prognose laeuft auf dem JSON-Kompatibilitaets-Cache. "
+                        "Der kann aelter sein als der SQLite-State (AFD schreibt nur SQLite) "
+                        "und wird komplett in den RAM geladen.")
+                  # FIX CORRUPT-JSON-FALLBACK 01.09.2026: json.load() stand hier
+                  # ungeschuetzt. Eine beschaedigte JSON aus dem Actions-Cache
+                  # liess damit den ganzen Job sterben.
+                  try:
+                      with open(DB_FILE) as f:
+                          db = json.load(f)
+                      db_quelle = "JSON-Cache (Fallback, evtl. veraltet)"
+                  except Exception as _json_err:
+                      print(f"::warning::seen_db.json nicht lesbar ({_json_err}).")
+                      db = None
 
           if db is None:
               msg = ("Keine lesbare seen_db verfuegbar - JSON fehlt oder ist "
@@ -522,6 +552,65 @@ jobs:
               for d in sorted(per_expiry_date_watch.keys()):
                   lines.append(f"| {d} | {per_expiry_date_watch[d]:,} |")
 
+          # ── FIX FORECAST-CAP 01.09.2026 (Review-Fund MITTEL) ────────────────
+          # Die Tabelle oben zeigt, wie viele IPs an einem Tag ihre Frist
+          # VERLIEREN. Seit dem WATCHLIST_DAILY_CAP-Fix vom 31.08.2026
+          # ENTFERNT update_combined_blacklist.yml aber hoechstens
+          # WATCHLIST_DAILY_CAP IPs pro Kalendertag ueber die 30-Tage-Regel
+          # ("Muell zuerst", der Rest rueckt nach hinten). Die rohe Zahl oben
+          # ist damit systematisch zu hoch, und der Job "verifikation" haette
+          # gegen eine Erwartung geprueft, die Combined gar nicht einloest.
+          #
+          # Hier wird deshalb zusaetzlich der tatsaechliche Abbau simuliert:
+          # eine Warteschlange, die pro Tag um die faelligen IPs waechst und
+          # um hoechstens WATCHLIST_DAILY_CAP schrumpft. Startbestand ist der
+          # bereits ueberfaellige Rueckstau. Nur diese gedeckelten Zahlen
+          # gehen in die Forecast-Historie (siehe unten) - die rohe Tabelle
+          # bleibt als "Brutto-Faelligkeit" zur Einordnung bestehen.
+          WATCHLIST_DAILY_CAP = 2000
+          _wl_rueckstau_start = buckets_watch.get("bereits ueberfaellig", 0)
+          per_expiry_date_watch_capped = {}
+          _wl_backlog = _wl_rueckstau_start
+          for _d in sorted(per_expiry_date_watch.keys()):
+              _wl_backlog += per_expiry_date_watch[_d]
+              _wl_entfernt = min(WATCHLIST_DAILY_CAP, _wl_backlog)
+              _wl_backlog -= _wl_entfernt
+              per_expiry_date_watch_capped[_d] = _wl_entfernt
+
+          if per_expiry_date_watch_capped:
+              _wl_brutto = sum(per_expiry_date_watch.values())
+              _wl_netto = sum(per_expiry_date_watch_capped.values())
+              lines += [
+                  "",
+                  "## Erwartete tatsaechliche Watchlist-Entfernungen (mit Tagesdeckel)",
+                  "",
+                  f"update_combined_blacklist.yml entfernt ueber die 30-Tage-Regel "
+                  f"hoechstens **{WATCHLIST_DAILY_CAP:,} IPs pro Kalendertag** "
+                  f"(FIX WATCHLIST-DAILY-CAP, 31.08.2026). Ueberzaehlige Kandidaten "
+                  f"bleiben in seen_db und ruecken nach hinten - es geht nichts "
+                  f"verloren, der Abbau wird nur gestreckt. Die rechte Spalte ist "
+                  f"deshalb die realistische Erwartung, gegen die der Job "
+                  f"\"verifikation\" prueft.",
+                  "",
+                  f"Bereits ueberfaelliger Rueckstau zu Beginn: **{_wl_rueckstau_start:,}** IPs. "
+                  f"Brutto faellig in den naechsten 30 Tagen: **{_wl_brutto:,}**, "
+                  f"davon im selben Fenster tatsaechlich entfernbar: **{_wl_netto:,}**. "
+                  f"Verbleibender Rueckstau am Fensterende: **{_wl_backlog:,}**.",
+                  "",
+                  "| Datum | Brutto faellig | Erwartet entfernt (mit Deckel) |",
+                  "|---|---:|---:|",
+              ]
+              for _d in sorted(per_expiry_date_watch_capped.keys()):
+                  lines.append(
+                      f"| {_d} | {per_expiry_date_watch[_d]:,} | "
+                      f"{per_expiry_date_watch_capped[_d]:,} |")
+              if _wl_backlog > 0:
+                  lines.append("")
+                  lines.append(
+                      f"> Hinweis: Der Rueckstau von {_wl_backlog:,} IPs waechst schneller, "
+                      f"als der Tagesdeckel ihn abbauen kann. Bei dauerhaftem Trend "
+                      f"WATCHLIST_DAILY_CAP in update_combined_blacklist.yml anheben.")
+
           # ── FIX PROGNOSE-GENAUIGKEIT (2026-08-30, Nutzerwunsch "was einbauen
           # das man das besser feststellen kann", erweitert auf "fuer die
           # 30tage regel und 180tage regel fehlt das noch") ───────────────────
@@ -574,9 +663,17 @@ jobs:
           # Tage (komplettes Fenster). Active: nur Tage mit days_left <= 60
           # (siehe per_expiry_date oben - weiter in der Zukunft liegende Tage
           # werden dort bewusst nicht einzeln erfasst, gilt hier also genauso).
-          for _d, _cnt in per_expiry_date_watch.items():
+          # FIX FORECAST-CAP 01.09.2026: gedeckelte statt roher Watchlist-Zahlen
+          # persistieren. Der Job "verifikation" gleicht "predicted" spaeter
+          # gegen die real entfernten IPs ab - mit den Brutto-Faelligkeiten
+          # haette er seit dem 31.08.2026 systematisch eine Untererfuellung
+          # gemeldet, obwohl Combined exakt das tut, was der Tagesdeckel
+          # vorschreibt. "predicted_brutto" bleibt zur Diagnose daneben stehen.
+          for _d, _cnt in per_expiry_date_watch_capped.items():
               _forecast_hist["watchlist"]["pending"][_d] = {
                   "predicted": _cnt,
+                  "predicted_brutto": per_expiry_date_watch.get(_d, 0),
+                  "daily_cap": WATCHLIST_DAILY_CAP,
                   "forecast_made_on": today.isoformat(),
               }
           for _d, _cnt in per_expiry_date.items():

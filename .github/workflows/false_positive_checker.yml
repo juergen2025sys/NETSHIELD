@@ -27,7 +27,13 @@ concurrency:
   # FIX BUG-QUEUE-STARVE (2026-07-24): siehe score_decay_monitor.yml.
   # queue: max konsistent fuer alle 5 Mitglieder dieser Gruppe gesetzt,
   # damit kein Workflow einen anderen aus der Warteschlange verdraengt.
-  queue: max
+  # FIX QUEUE-KEY-NOOP 01.09.2026 (Review-Fund NIEDRIG): hier stand
+  # 'queue: max'. Diesen Schluessel gibt es in der GitHub-Actions-
+  # concurrency-Syntax nicht - erlaubt sind nur 'group' und
+  # 'cancel-in-progress'. Der Wert wurde stillschweigend ignoriert
+  # und suggerierte eine Warteschlangen-Garantie, die es nie gab.
+  # Die tatsaechliche Serialisierung leistet allein 'group' zusammen
+  # mit 'cancel-in-progress: false' - das bleibt unveraendert.
 
 jobs:
   fp-checker:
@@ -38,23 +44,17 @@ jobs:
         with:
           persist-credentials: true
 
-      - name: Restore seen_db Cache
-        # FIX WarnB: actions/cache/restore statt actions/cache verwenden.
-        # actions/cache würde automatisch einen Post-Job-Save auslösen und dabei
-        # die noch UNBEREINIGTE seen_db speichern (bevor der FP-Bereinigungsschritt
-        # gelaufen ist). Der explizite Save-Step weiter unten ist die einzige
-        # korrekte Schreibquelle nach der FP-Bereinigung.
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: seen_db.json
-          # FIX RC1: Restore-Key liest den neuesten Combined-Cache (v2-Prefix).
-          # Der Save-Key verwendet den fp-Prefix damit FP-Checker Combined NICHT
-          # überschreibt – Combined ist immer die einzige Schreibquelle für v2.
-          key: netshield-seen-db-fp-${{ github.run_id }}
-          restore-keys: |
-            netshield-seen-db-v2-
-            netshield-seen-db-v1-
-            netshield-seen-db-
+      # FIX FP-DEAD-CACHE 01.09.2026 (Review-Fund NIEDRIG):
+      # Hier stand ein "Restore seen_db Cache"-Step (path: seen_db.json,
+      # restore-keys netshield-seen-db-v2-/v1-/...). Der war seit dem Umbau
+      # ohne Funktion: der FP-Checker bereinigt seen_db nicht mehr selbst
+      # (siehe Kommentar "seen_db wird NICHT mehr hier bereinigt" im
+      # Analyse-Step) und der zugehoerige Save-Step wurde damals entfernt.
+      # Die Datei wurde in diesem Workflow nirgends mehr gelesen - der
+      # Restore zog also bei jedem Lauf einen ~1 GB grossen Cache ohne
+      # jeden Zweck. Der FP-Checker arbeitet ausschliesslich auf den
+      # Output-Listen und state/false_positives_set.json; Combined liest
+      # diese Datei und schliesst die IPs beim Ingest aus.
 
       - name: Check Blacklist for False Positives
         run: |

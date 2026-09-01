@@ -29,7 +29,13 @@ concurrency:
   # NICHT vor dem separaten Problem, dass ein bereits "pending" Run dieser
   # Gruppe von einem neu ankommenden Trigger (z.B. update_combined_blacklist)
   # gecancelt wird. queue: max reiht wartende Runs stattdessen ein.
-  queue: max
+  # FIX QUEUE-KEY-NOOP 01.09.2026 (Review-Fund NIEDRIG): hier stand
+  # 'queue: max'. Diesen Schluessel gibt es in der GitHub-Actions-
+  # concurrency-Syntax nicht - erlaubt sind nur 'group' und
+  # 'cancel-in-progress'. Der Wert wurde stillschweigend ignoriert
+  # und suggerierte eine Warteschlangen-Garantie, die es nie gab.
+  # Die tatsaechliche Serialisierung leistet allein 'group' zusammen
+  # mit 'cancel-in-progress: false' - das bleibt unveraendert.
 
 jobs:
   discover:
@@ -4203,30 +4209,61 @@ jobs:
           cutoff_wl = now - timedelta(days=WATCHLIST_EXPIRY_DAYS)
           cutoff_str    = cutoff.strftime("%Y-%m-%d")
           cutoff_wl_str = cutoff_wl.strftime("%Y-%m-%d")
-          to_expire = []
-          # SQLite-native Streaming-Scan: keine list(db.keys())-Materialisierung
-          # von ~10 Mio. IP-Strings im RAM. Loeschungen erfolgen erst nach dem
-          # Cursor-Scan gesammelt per bulk_delete().
+
+          # FIX AFD-EXPIRY-BYPASS 01.09.2026 (Review-Fund HOCH):
+          # AFD hat hier frueher selbst geloescht (bulk_delete(to_expire)).
+          # Solange AFD auf einer eigenen JSON-Kopie arbeitete, war das
+          # halbwegs folgenlos. Seit der SQLite-native-Migration schreibt AFD
+          # direkt in den kanonischen State und veroeffentlicht ihn ueber den
+          # Actions Cache - und umging damit BEIDE Schutzschichten, die in
+          # update_combined_blacklist.yml am selben Ablaufkriterium haengen:
+          #
+          #   1. WATCHLIST_DAILY_CAP (2.000/Kalendertag, "Muell zuerst",
+          #      fail-closed ueber state/watchlist_daily_cap_state.json).
+          #      AFD raeumte woechentlich ALLE ueberfaelligen Watchlist-IPs
+          #      auf einen Schlag ab - der Tagesdeckel vom 31.08.2026 war
+          #      dadurch praktisch wirkungslos.
+          #   2. Anti-Churn-Ledger (state/watchlist_expired_history.json und
+          #      state/active_expired_history.json). AFD kennt beide Dateien
+          #      ueberhaupt nicht und schrieb entsprechend keine Einfrier-
+          #      Eintraege. Von AFD entfernte IPs konnten also mit frisch
+          #      zurueckgesetztem "first"/"last" wieder auftauchen - exakt
+          #      der Wiederauftauch-Zyklus, den die Ledger verhindern sollen.
+          #
+          # AFD loescht deshalb nicht mehr. Der Ablauf ist ab sofort
+          # ausschliesslich Aufgabe des Combined-Cleanup-Passes, der beide
+          # Mechanismen implementiert und ohnehin alle 3 Stunden laeuft (AFD
+          # laeuft woechentlich) - es entsteht also keine nennenswerte
+          # Verzoegerung. Die Kandidaten werden hier nur noch GEZAEHLT, damit
+          # der AFD-Report weiterhin sichtbar macht, wie viel Ablauf ansteht.
+          faellige_watchlist = 0
+          faellige_active = 0
           for ip, first_raw, last_raw in db.iter_ip_first_last():
               try:
                   last_str = safe_get_date({"last": last_raw}, "last")
                   first_str = safe_get_date({"first": first_raw}, "first", last_str)
                   if last_str == "2000-01-01":
                       if first_str < cutoff_wl_str:
-                          to_expire.append(ip)
+                          faellige_watchlist += 1
                   elif last_str < cutoff_str:
-                      to_expire.append(ip)
+                      faellige_active += 1
               except Exception:
-                  to_expire.append(ip)
+                  # Unlesbare Datumswerte NICHT mehr stillschweigend loeschen -
+                  # der Combined-Cleanup-Pass hat dafuer die differenziertere
+                  # Korrupt-Behandlung inklusive HQ-Schutz.
+                  pass
 
-          if to_expire:
-              db.bulk_delete(to_expire)
-          else:
-              db.commit()
+          # Die AFD-Aenderungen (Ingest oben) muessen trotzdem persistiert
+          # werden - frueher passierte das als Nebeneffekt von bulk_delete()
+          # bzw. dem else-commit().
+          db.commit()
 
           _rows_after_ingest = len(db)
           print(f"\nseen_db SQLite: +{ingested_seen} bestaetigt | +{ingested_new} neu eingetragen | "
-                f"{len(to_expire)} abgelaufen | Gesamt: {_rows_after_ingest:,} IPs")
+                f"Gesamt: {_rows_after_ingest:,} IPs")
+          print(f"Ablauf-Kandidaten (werden von update_combined_blacklist.yml "
+                f"mit Tagesdeckel und Anti-Churn-Ledger abgearbeitet, NICHT hier): "
+                f"{faellige_watchlist:,} Watchlist (30d) | {faellige_active:,} Active (180d)")
 
           # ── Deduplizierung: identische URLs / gleiche Repo+Datei entfernen ──
           # Ursache: Discovery-Runs über mehrere Wochen können dasselbe Repo
@@ -4421,6 +4458,12 @@ jobs:
           lines.append(f"| IPs in seen_db bestätigt | **{ingested_seen}** |")
           lines.append(f"| Neue IPs eingetragen | **{ingested_new}** |")
           lines.append(f"| seen_db gesamt | **{len(db):,}** |")
+          # FIX AFD-EXPIRY-BYPASS 01.09.2026: AFD loescht nicht mehr selbst,
+          # sondern weist nur noch aus, was faellig ist. Die tatsaechliche
+          # Entfernung uebernimmt update_combined_blacklist.yml mit
+          # Tagesdeckel und Anti-Churn-Ledger.
+          lines.append(f"| Ablauf-Kandidaten Watchlist (30d, Abbau via Combined) | **{faellige_watchlist:,}** |")
+          lines.append(f"| Ablauf-Kandidaten Active (180d, Abbau via Combined) | **{faellige_active:,}** |")
           lines.append(f"| HQ-Referenz-IPs (6 Quellen) | **{len(hq_ref_ips)}** |")
 
           # Reject-Gruende-Tabelle (nur wenn was passiert ist)

