@@ -2976,6 +2976,17 @@ jobs:
           # zurückgesetzt).
           neu_angelegt_ohne_ledger = 0
 
+          # FIX MEM-SQLITE-JOURNAL 2026-09-01: Im ersten produktiven
+          # SQLite-native-Lauf stieg RSS im Update-Loop von 3,673 auf 6,913 MB.
+          # Millionen Writes lagen in einer einzigen Transaktion. Zusammen mit
+          # dem frueheren journal_mode=MEMORY hielt SQLite den Rollback-Journal
+          # im Prozess-RAM. Die Klasse nutzt jetzt disk-backed TRUNCATE; alle
+          # 50k Writes committen wir zusaetzlich, um Journal und Dirty-Pages
+          # strikt zu begrenzen. Extern publiziert wird weiterhin erst nach
+          # komplett erfolgreichem Build + Guards.
+          _UPD_COMMIT_EVERY = 50_000
+          _upd_since_commit = 0
+
           for ip, today_feeds, today_is_hq in _iter_today_feed_groups():
               _upd_processed += 1
               _upd_now = _time.monotonic()
@@ -3101,6 +3112,12 @@ jobs:
                       db[ip] = entry
                       _upd_diag_sql_s += _time.monotonic() - _upd_diag_t
                       _upd_diag_sql_n += 1
+                      _upd_since_commit += 1
+                      if _upd_since_commit >= _UPD_COMMIT_EVERY:
+                          _upd_diag_t = _time.monotonic()
+                          db.commit()
+                          _upd_diag_sql_s += _time.monotonic() - _upd_diag_t
+                          _upd_since_commit = 0
                   except Exception as _corrupt:
                       print(f"WARN: Korrupter seen_db-Eintrag {ip}, wird neu angelegt: {_corrupt}", file=sys.stderr)
                       # FIX PERF-LAZYSORT: list() statt sorted() – Sweep nach
@@ -3218,6 +3235,12 @@ jobs:
                       }
                       _upd_diag_sql_s += _time.monotonic() - _upd_diag_t
                       _upd_diag_sql_n += 1
+                      _upd_since_commit += 1
+                      if _upd_since_commit >= _UPD_COMMIT_EVERY:
+                          _upd_diag_t = _time.monotonic()
+                          db.commit()
+                          _upd_diag_sql_s += _time.monotonic() - _upd_diag_t
+                          _upd_since_commit = 0
               else:
                   # FIX PERF-LAZYSORT: list() statt sorted() – Sweep nach
                   # der Schleife sortiert.
@@ -3305,6 +3328,12 @@ jobs:
                   }
                   _upd_diag_sql_s += _time.monotonic() - _upd_diag_t
                   _upd_diag_sql_n += 1
+                  _upd_since_commit += 1
+                  if _upd_since_commit >= _UPD_COMMIT_EVERY:
+                      _upd_diag_t = _time.monotonic()
+                      db.commit()
+                      _upd_diag_sql_s += _time.monotonic() - _upd_diag_t
+                      _upd_since_commit = 0
                   # FIX 2026-08-23: nur zaehlen wenn KEINE Ledger-Wiederauf-
                   # erstehung (siehe Kommentar bei der Initialisierung oben).
                   # _wl_first != now_day bzw. _entry_last != now_day/
@@ -3318,6 +3347,13 @@ jobs:
                   )
                   if not _ist_ledger_wiederauferstehung:
                       neu_angelegt_ohne_ledger += 1
+
+          # Finalen Rest-Batch committen, bevor Cleanup/Export beginnen.
+          if _upd_since_commit:
+              _upd_diag_t = _time.monotonic()
+              db.commit()
+              _upd_diag_sql_s += _time.monotonic() - _upd_diag_t
+              _upd_since_commit = 0
 
           # ── FIX PERF-CLEANUP: Vier volle seen_db-Passes zu einem zusammengefasst.
           # Vorher liefen vier separate Schleifen ueber alle ~4,8M Eintraege:
@@ -4323,21 +4359,17 @@ jobs:
           print(f"  Sortiere {_sort_input_n:,} seen_db-Eintraege fuer combined "
                 f"(kein Zwischenfortschritt moeglich - einzelner sorted()-Aufruf) ...")
           _sort_t0 = _time.monotonic()
+          # FIX MEM-COMBINED-SORT 2026-09-01: EINE Liste aufbauen und
+          # in-place sortieren. sorted(listcomp) hielt kurz eine zweite Liste
+          # mit ~9,8 Mio. Referenzen gleichzeitig.
+          sorted_ips = [ip for ip in db.keys()
+                        if '/' not in ip
+                        and not _fast_is_protected(ip)
+                        and not _fast_is_wl_or_fp(ip)]
           try:
-              sorted_ips = sorted(
-                  [ip for ip in db.keys()
-                   if '/' not in ip
-                   and not _fast_is_protected(ip)
-                   and not _fast_is_wl_or_fp(ip)],
-                  key=_ip_sort_key
-              )
+              sorted_ips.sort(key=_ip_sort_key)
           except Exception:
-              sorted_ips = sorted(
-                  [ip for ip in db.keys()
-                   if '/' not in ip
-                   and not _fast_is_protected(ip)
-                   and not _fast_is_wl_or_fp(ip)]
-              )
+              sorted_ips.sort()
           feed_stats.sort(key=lambda x: -x[1])
 
           # FIX LIVE-PROGRESS-2026-08-15: Ende-Marker zum Start-Marker oben -
