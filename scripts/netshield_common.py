@@ -2829,6 +2829,22 @@ class SqliteSeenDB(_MutableMapping):
     def __init__(self, db_path):
         self._path = db_path
         self._conn = _sqlite3.connect(db_path)
+        try:
+            self._init_schema()
+        except Exception:
+            # FIX SQLITE-INIT-LEAK 01.09.2026 (Review-Fund Wartbarkeit):
+            # Scheitert CREATE TABLE / ALTER TABLE (z.B. weil die Datei zwar
+            # oeffenbar, aber keine gueltige SQLite-Datenbank ist), blieb die
+            # frisch geoeffnete Verbindung offen und der Dateideskriptor
+            # haengen. Die Aufrufer fangen den Fehler ab und probieren einen
+            # anderen Pfad - unter Umstaenden dieselbe Datei erneut.
+            try:
+                self._conn.close()
+            except _sqlite3.Error:
+                pass
+            raise
+
+    def _init_schema(self):
         # PERSISTENZ-/RAM-HINWEIS 2026-09-01: Diese Datei ist seit der
         # SQLite-native-Migration KEINE Scratch-Datei mehr, sondern der
         # persistente Combined-State. journal_mode=MEMORY war im ersten
@@ -3079,6 +3095,17 @@ class SqliteSeenDB(_MutableMapping):
         dieselbe Bedingung noch einmal kennen. Sonst koennte eine hq=1-IP
         mit beschaedigter feeds-Spalte still als "zu wenig Feeds" verworfen
         werden.
+
+        FIX HQ-NULL-PROPAGATION 01.09.2026 (Review-Fund NIEDRIG):
+        COALESCE(hq, 0) statt nacktem hq. In SQLite ergibt
+        NOT (0 OR NULL OR 0) den Wert NULL, nicht 1 - eine Zeile mit
+        hq IS NULL und nur einem Feed fiel dadurch komplett aus der
+        Kandidatenauswahl und umging den Aufnahmefilter still. Das war
+        fail-open (Eintrag blieb erhalten, kein Datenverlust), aber
+        semantisch inkonsistent zur Python-Referenzlogik, die None wie
+        False behandelt. _dict_to_row() schreibt zwar immer 0/1; ein
+        Fremdschreiber oder ein per Hand reparierter Snapshot kann NULL
+        aber sehr wohl enthalten.
         """
         return self._conn.execute(
             "SELECT ip, feeds, hq FROM seen_db "
@@ -3086,7 +3113,7 @@ class SqliteSeenDB(_MutableMapping):
             "   OR NOT json_valid(feeds) "
             "   OR json_type(feeds) <> 'array' "
             "   OR NOT (json_array_length(feeds) >= 2 "
-            "           OR hq "
+            "           OR COALESCE(hq, 0) "
             "           OR feeds LIKE '%auto_feed_discovery%')"
         ).fetchall()
 
@@ -3247,14 +3274,20 @@ class SqliteSeenDB(_MutableMapping):
 
     def close(self):
         # FIX MEM-SQLITE-2026-08-16 / CodeQL py/empty-except (Alert #20):
-        # Best-effort-Schliessen. Diese Methode wird ausschliesslich im
-        # Cleanup-Abschnitt am Skriptende aufgerufen, NACHDEM seen_db.json
-        # bereits erfolgreich via export_json_atomic() geschrieben wurde -
-        # ein Fehler beim Schliessen der Scratch-Datenbank-Verbindung kann
-        # an diesem Punkt keine Daten mehr gefaehrden (die Scratch-Datei
-        # stirbt ohnehin mit dem ephemeren Runner). Absichtlich stumm statt
-        # zu propagieren, damit ein rein kosmetisches Close-Problem nicht
-        # den DIAG-Block/Report-Schritt am Skriptende zum Scheitern bringt.
+        # Best-effort-Schliessen. Absichtlich stumm statt zu propagieren,
+        # damit ein rein kosmetisches Close-Problem nicht den
+        # DIAG-Block/Report-Schritt am Skriptende zum Scheitern bringt.
+        #
+        # KORREKTUR 01.09.2026 (Review-Fund Wartbarkeit): Der urspruengliche
+        # Kommentar sprach hier noch von einer "Scratch-Datenbank", die
+        # "ohnehin mit dem ephemeren Runner stirbt". Das gilt seit der
+        # SQLite-native-Migration NICHT mehr - die Datei IST der persistente
+        # Combined-State und wird nach dem Lauf gecacht und als Release-Asset
+        # hochgeladen. Der Aufruf ist trotzdem unkritisch, aber aus einem
+        # anderen Grund: alle Schreibvorgaenge sind zu diesem Zeitpunkt
+        # bereits committet (Rest-Batch vor dem Cleanup, bulk_delete am Ende
+        # des Cleanup-Passes), und die Publish-Steps validieren die Datei
+        # anschliessend nochmals per PRAGMA quick_check.
         try:
             self._conn.close()
         except _sqlite3.Error:
