@@ -244,16 +244,6 @@ jobs:
             echo "Resync: HEAD war bereits aktuell ($AFTER)"
           fi
 
-      - name: Restore seen_db Cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: seen_db.json
-          key: netshield-seen-db-v2-${{ github.run_id }}
-          restore-keys: |
-            netshield-seen-db-v2-
-            netshield-seen-db-v1-
-            netshield-seen-db-
-
       - name: Restore Watchlist Daily Cap State Cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -1740,9 +1730,9 @@ jobs:
           # gebraucht, weil sowohl der Haupt-Ladepfad als auch der
           # Backup-Restore-Pfad direkt in diese SQLite-Datei streamen,
           # statt erst einen kompletten Plain-Dict im RAM aufzubauen.
-          _sqlite_db_path = os.path.join(_tempfile.gettempdir(), "netshield_seen_db_working.sqlite3")
-          if os.path.exists(_sqlite_db_path):
-              os.remove(_sqlite_db_path)  # Ueberrest eines evtl. abgebrochenen Vorlaufs
+          # SQLITE-NATIVE-COMBINED 2026-09-01:
+          # Der restaurierte persistente Snapshot IST direkt die Arbeitsdatenbank.
+          _sqlite_db_path = SQLITE_FALLBACK_FILE
 
           # FIX CORRUPT-JSON-FALLBACK 01.09.2026: Der SQLite-Fallback steckt
           # jetzt in einer Funktion statt in einem einmaligen if-Block. Grund:
@@ -1754,86 +1744,48 @@ jobs:
           # da ist) und noch einmal danach, falls der JSON-Versuch db leer
           # gelassen hat.
           def _sqlite_fallback_laden():
+              """Oeffnet den restaurierten persistenten SQLite-Snapshot direkt."""
               if not os.path.exists(SQLITE_FALLBACK_FILE):
                   return None
               try:
-                  import shutil as _shutil
-                  _src = SqliteSeenDB(SQLITE_FALLBACK_FILE)
-                  _n = len(_src)
-                  _src.close()
+                  _fallback_db = SqliteSeenDB(SQLITE_FALLBACK_FILE)
+                  _n = len(_fallback_db)
                   if _n < 100000:
+                      _fallback_db.close()
                       raise ValueError(f"SQLite-Fallback hat nur {_n} Eintraege")
-                  if os.path.exists(_sqlite_db_path):
-                      os.remove(_sqlite_db_path)
-                  _shutil.copy2(SQLITE_FALLBACK_FILE, _sqlite_db_path)
-                  _fallback_db = SqliteSeenDB(_sqlite_db_path)
-                  print(f"seen_db aus persistentem SQLite-Fallback geladen: {len(_fallback_db)} IPs")
+                  print(f"seen_db SQLite-native geoeffnet: {_n:,} IPs")
                   return _fallback_db
               except Exception as _sqlite_restore_err:
                   print(f"WARN: SQLite-Fallback nicht nutzbar ({_sqlite_restore_err})", file=sys.stderr)
-                  try:
-                      if os.path.exists(_sqlite_db_path):
-                          os.remove(_sqlite_db_path)
-                  except OSError:
-                      pass
                   return None
 
-          if not os.path.exists(DB_FILE):
-              db = _sqlite_fallback_laden() or {}
-
-          if not db and os.path.exists(DB_FILE):
+          db = _sqlite_fallback_laden()
+          if db is None and os.path.exists(DB_FILE):
               try:
-                  # FIX BUG-SEENDB-LIMIT: Pre-Size-Check vor json.load.
-                  # seen_db.json ist heute ~600 MB. 5 GB Hard-Cap erlaubt
-                  # 8x Wachstum, schuetzt aber gegen ein versehentlich
-                  # oder boeswillig korruptes seen_db (z.B. via Cache-
-                  # Restore aus einem anderen Repo) das den Runner mit
-                  # 7 GB RAM via json.load OOM kippen wuerde.
                   _SEENDB_LIMIT = 5 * 1024 * 1024 * 1024
                   _dsize = os.path.getsize(DB_FILE)
                   if _dsize > _SEENDB_LIMIT:
-                      raise ValueError(
-                          f"seen_db.json zu gross: {_dsize / 1024 / 1024:.1f} MB "
-                          f"> {_SEENDB_LIMIT / 1024 / 1024 / 1024:.0f} GB "
-                          f"(moegliche Korruption oder Cache-Mismatch)")
-                  # FIX MEM-SQLITE-STREAM-2026-08-16: Streaming-Import
-                  # (ijson) direkt in SQLite statt "db = json.load(f)".
-                  # Ausgangspunkt war der bestaetigte +14,5-GB-RSS-Ausschlag
-                  # dieses einen Ladeschritts (siehe SqliteSeenDB.
-                  # import_from_json_streaming()-Docstring in
-                  # netshield_common.py fuer Details/Messwerte: bei 2 Mio.
-                  # Eintraegen +1 MB statt +1685 MB, dabei ~35% schneller).
-                  # db wird bei Erfolg direkt zur fertigen SqliteSeenDB -
-                  # kein Plain-Dict-Zwischenschritt mehr noetig. Bei
-                  # Fehlschlag (kaputtes JSON, Limit ueberschritten) faengt
-                  # der except-Block wie bisher ab und setzt db={} zurueck,
-                  # was den bestehenden "if not db:"-Backup-Fallback
-                  # unveraendert auslöst - Fehlerverhalten identisch zum
-                  # bisherigen json.load()-Weg.
+                      raise ValueError("seen_db.json zu gross")
+                  if os.path.exists(_sqlite_db_path):
+                      os.remove(_sqlite_db_path)
                   _db_candidate = SqliteSeenDB(_sqlite_db_path)
                   with open(DB_FILE, "rb") as f:
-                      _db_candidate.import_from_json_streaming(f, size_limit_bytes=_SEENDB_LIMIT)
+                      _db_candidate.import_from_json_streaming(
+                          f, size_limit_bytes=_SEENDB_LIMIT)
                   db = _db_candidate
-                  print(f"seen_db geladen (Streaming): {len(db)} IPs")
+                  print(f"seen_db JSON-Fallback nach SQLite importiert: {len(db):,} IPs")
               except Exception as _load_err:
-                  print(f"WARN: seen_db.json korrupt ({_load_err}) – versuche SQLite-Fallback", file=sys.stderr)
-                  db = {}
-                  try:
-                      if os.path.exists(_sqlite_db_path):
-                          os.remove(_sqlite_db_path)
-                  except OSError:
-                      pass
-
-          # FIX CORRUPT-JSON-FALLBACK 01.09.2026: Zweiter Anlauf. Greift genau
-          # dann, wenn seen_db.json zwar vorhanden war, der Streaming-Import
-          # aber gescheitert ist. Ohne diesen Aufruf waere Combined hier mit
-          # db={} weitergelaufen und haette anschliessend eine historienlose
-          # seen_db in Cache und Release-Asset geschrieben.
-          if not db:
-              db = _sqlite_fallback_laden() or {}
-
-          if not db:
-              print("WARN: Keine bestehende seen_db gefunden - starte mit leerem Datenbestand", file=sys.stderr)
+                  print(f"WARN: seen_db.json nicht nutzbar ({_load_err})", file=sys.stderr)
+                  db = None
+          if db is None:
+              # FAIL-CLOSED 2026-09-01: In Produktion niemals historienlos
+              # neu anfangen. Fehlen sowohl gueltiger SQLite-Cache als auch
+              # SQLite-Release (und auch ein expliziter JSON-Notfallpfad),
+              # muss Combined abbrechen statt Millionen Tages-IP-Adressen als
+              # neue seen_db zu veroeffentlichen.
+              raise RuntimeError(
+                  "FAIL-CLOSED: keine gueltige bestehende seen_db verfuegbar "
+                  "(SQLite-Cache/Release und JSON-Fallback fehlen oder sind ungueltig)")
 
           # FIX MEM-SQLITE-2026-08-16 / FIX MEM-SQLITE-STREAM-2026-08-16:
           # db ist an dieser Stelle in aller Regel BEREITS eine fertige
@@ -2308,20 +2260,29 @@ jobs:
                   print(f"::warning file=update_combined_blacklist.yml::Feed fetch failed [{name}]: {type(e).__name__}: {e}")
                   return name, set()
 
-          # ── Alle Feeds laden: DataPlane zuerst, dann den Rest parallel ────
-          ip_in_hq      = set()
-          feed_stats    = []
+          # ── Alle Feeds laden: SQLite-native Tages-Treffermatrix ──────────
+          feed_stats = []
+          _run_conn = db._conn
+          _run_conn.execute("PRAGMA temp_store=FILE")
+          _run_conn.execute("DROP TABLE IF EXISTS temp.run_feed_hits")
+          _run_conn.execute("""
+              CREATE TEMP TABLE run_feed_hits (
+                  ip TEXT NOT NULL,
+                  feed TEXT NOT NULL,
+                  is_hq INTEGER NOT NULL DEFAULT 0,
+                  PRIMARY KEY (ip, feed)
+              ) WITHOUT ROWID
+          """)
 
-          ip_feeds_today = {}   # ip → set(feed_namen) für diesen Run
-
-          def _ingest(name, ips):
-              """Ergebnis eines fetch_ips-Calls in die laufenden Datenstrukturen einpflegen."""
-              for ip in ips:
-                  if name in HIGH_QUALITY:
-                      ip_in_hq.add(ip)
-                  if ip not in ip_feeds_today:
-                      ip_feeds_today[ip] = set()
-                  ip_feeds_today[ip].add(name)
+          def _ingest(name, ips, is_hq_override=None):
+              """Schreibt Feed-Treffer disk-backed in SQLite statt in Millionen Python-Sets."""
+              _is_hq = int((name in HIGH_QUALITY)
+                           if is_hq_override is None else bool(is_hq_override))
+              _run_conn.executemany(
+                  "INSERT INTO temp.run_feed_hits(ip,feed,is_hq) VALUES (?,?,?) "
+                  "ON CONFLICT(ip,feed) DO UPDATE SET "
+                  "is_hq = MAX(run_feed_hits.is_hq, excluded.is_hq)",
+                  ((ip, name, _is_hq) for ip in ips))
               feed_stats.append((name, len(ips)))
 
           # ── Slow-Feeds (grosse Dateien mit langer Latenz) ──────────────
@@ -2535,6 +2496,10 @@ jobs:
               print(f"WARNUNG: Haupt-Feed-Block Timeout – {len(pending)} Feed(s) abgebrochen, bereits geladene Feeds werden weiterverarbeitet")
           finally:
               executor.shutdown(wait=False, cancel_futures=True)
+          # Completed Future objects retain their result sets. Release them now.
+          futures.clear()
+          del futures
+          _gc.collect()
 
           # Phase 3 – Slow-Feeds einsammeln (laufen seit Phase 0 im Hintergrund)
           print("── Phase 3: Slow-Feeds einsammeln ────────────────────────────────")
@@ -2551,6 +2516,9 @@ jobs:
               print(f"::warning file=update_combined_blacklist.yml::Slow-Feed-Timeout nach 2400s – {len(pending)} Feed(s) abgebrochen: {', '.join(pending)}")
               print(f"WARNUNG: Slow-Feed-Block Timeout – {len(pending)} Feed(s) abgebrochen")
           slow_ex.shutdown(wait=False)
+          slow_futures.clear()
+          del slow_futures
+          _gc.collect()
 
           # ── Phase 3.5: DataPlane-Feeds einsammeln ───────────────────────────
           # FIX PERF-DP-OVERLAP + BUG-DP-RESULT-LOSS (2026-08-02): Collect-
@@ -2588,7 +2556,10 @@ jobs:
           if _dp_pending:
               print(f"::warning file=update_combined_blacklist.yml::DataPlane-Timeout – {len(_dp_pending)} Feed(s) abgebrochen: {', '.join(_dp_pending)}")
               print(f"WARNUNG: DataPlane-Phase Timeout – {', '.join(_dp_pending)} abgebrochen")
-          _phase_mark("Phase 3.5b: DataPlane _ingest()-Schleife")
+          _dp_results = None
+          _dp_handle = None
+          _gc.collect()
+          _phase_mark("Phase 3.5b: DataPlane SQLite-Ingestion")
 
           # ── FEED-MOVE-RESOLVER: Relocation-Report ──────────────────────────
           # Nur schreiben, wenn der Resolver in diesem Lauf mind. einen Feed
@@ -2745,15 +2716,9 @@ jobs:
                   except Exception as _suppressed:
                       print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
               local_ips = parse_entries(raw_local, use_protected_check=True)
-              for entry in local_ips:
-                  if is_hq_local:
-                      ip_in_hq.add(entry)
-                  if entry not in ip_feeds_today:
-                      ip_feeds_today[entry] = set()
-                  ip_feeds_today[entry].add(local_file)
+              _ingest(local_file, local_ips, is_hq_override=is_hq_local)
               ips_l   = len([e for e in local_ips if '/' not in e])
               cidrs_l = len([e for e in local_ips if '/' in e])
-              feed_stats.append((local_file, len(local_ips)))
               print(f"  Lokal: {local_file} → {ips_l} IPs" + (f" + {cidrs_l} CIDRs" if cidrs_l else "") + f" (HQ={is_hq_local})")
 
 
@@ -2801,16 +2766,14 @@ jobs:
               _auto_names_done = set()
               for name, ips in _auto_results:
                   _auto_names_done.add(name)
-                  for ip in ips:
-                      # Auto-discovered Feeds sind nicht HQ
-                      if ip not in ip_feeds_today:
-                          ip_feeds_today[ip] = set()
-                      ip_feeds_today[ip].add(name)
-                  feed_stats.append((name, len(ips)))
+                  _ingest(name, ips, is_hq_override=False)
               _auto_pending = sorted(f["name"] for f in _auto_feeds if f["name"] not in _auto_names_done)
               if _auto_pending:
                   print(f"  WARNUNG: Auto-Feeds Timeout – {len(_auto_pending)} Feed(s) abgebrochen: {', '.join(_auto_pending[:8])}{'…' if len(_auto_pending) > 8 else ''}")
-              _phase_mark("Phase 4b: Ingestion-Schleife (ip_feeds_today befuellen)")
+              _auto_results = None
+              _auto_handle = None
+              _gc.collect()
+              _phase_mark("Phase 4b: SQLite-Ingestion (Tagesmatrix)")
 
 
           # ── seen_db aktualisieren ─────────────────────────────────────────
@@ -2972,14 +2935,32 @@ jobs:
           print(f"  [UPD-DIAG] vor dem Loop: RSS {_upd_diag_mem0.get('VmRSS', 0):,.0f} MB, "
                 f"Swap {_upd_diag_mem0.get('VmSwap', 0):,.0f} MB, "
                 f"Hochwasser {_upd_diag_mem0.get('VmHWM', 0):,.0f} MB")
-          print(f"  [UPD-DIAG] ip_feeds_today: {len(ip_feeds_today):,} Eintraege, "
-                f"geschaetzt {_upd_diag_groesse(ip_feeds_today):,.0f} MB")
+          _run_conn.commit()
+          _upd_total = _run_conn.execute(
+              "SELECT COUNT(*) FROM (SELECT ip FROM temp.run_feed_hits GROUP BY ip)"
+          ).fetchone()[0]
+          _run_hit_rows = _run_conn.execute(
+              "SELECT COUNT(*) FROM temp.run_feed_hits").fetchone()[0]
+          print(f"  [UPD-DIAG] SQLite-Tagesmatrix: {_upd_total:,} IPs / "
+                f"{_run_hit_rows:,} IP-Feed-Treffer; grosses Python-Dict entfaellt")
 
           _upd_loop_t0 = _time.monotonic()
           _upd_last_report = _upd_loop_t0
           _upd_processed = 0
           _UPD_PROGRESS_INTERVAL_S = 15
-          _upd_total = len(ip_feeds_today)
+
+          import itertools as _itertools
+          def _iter_today_feed_groups():
+              _cur = _run_conn.execute(
+                  "SELECT ip, feed, is_hq FROM temp.run_feed_hits ORDER BY ip, feed")
+              for _ip, _grp in _itertools.groupby(_cur, key=lambda _r: _r[0]):
+                  _feeds = set()
+                  _hq = False
+                  for _row in _grp:
+                      _feeds.add(_row[1])
+                      if _row[2]:
+                          _hq = True
+                  yield _ip, _feeds, _hq
 
           # FIX BUG-NAMEERROR-NEUANGELEGT (2026-08-23, vom Nutzer gefunden
           # und dokumentiert - NETSHIELD_Fixes_update_combined_blacklist.docx):
@@ -2995,7 +2976,7 @@ jobs:
           # zurückgesetzt).
           neu_angelegt_ohne_ledger = 0
 
-          for ip, today_feeds in ip_feeds_today.items():
+          for ip, today_feeds, today_is_hq in _iter_today_feed_groups():
               _upd_processed += 1
               _upd_now = _time.monotonic()
               if _upd_now - _upd_last_report >= _UPD_PROGRESS_INTERVAL_S:
@@ -3024,7 +3005,6 @@ jobs:
                   if not today_feeds:
                       continue
               today_count = len(today_feeds)
-              today_is_hq = ip in ip_in_hq
               # today_is_hq herabstufen, falls die Quarantaene heute ALLE HQ-Feeds
               # dieser IP entfernt hat. ip_in_hq ist ein Tages-Set, das die
               # Quarantaene nicht kennt; ohne diese Korrektur bekaeme eine IP, die
@@ -3460,8 +3440,8 @@ jobs:
           elif _upd_diag_dauer - _upd_diag_sql_s > _upd_diag_sql_s:
               print("     -> Zeit geht ueberwiegend in die Python-Logik, nicht in SQL "
                     "und nicht in Swapping.")
-          print(f"     ip_feeds_today              : {len(ip_feeds_today):,} Eintraege, "
-                f"geschaetzt {_upd_diag_groesse(ip_feeds_today):,.0f} MB")
+          print(f"     SQLite-Tagesmatrix          : {_upd_total:,} IPs / "
+                f"{_run_hit_rows:,} Feed-Treffer (disk-backed)")
           try:
               print(f"     seen_db (SQLite)            : {len(db):,} Eintraege")
           except Exception:
@@ -3538,13 +3518,16 @@ jobs:
               return _c
 
           _aufn_kandidaten = {}
-          for _ak_ip, _ak_feeds_json in db.select_aufnahme_kandidaten():
+          for _ak_ip, _ak_feeds_json, _ak_hq_raw in db.select_aufnahme_kandidaten():
+              _ak_hq = bool(_ak_hq_raw)
               try:
                   _ak_feeds = json.loads(_ak_feeds_json) if _ak_feeds_json else []
               except (ValueError, TypeError):
                   # EINZIGER Verhaltensunterschied zur alten Schleife, bewusst
                   # in Kauf genommen: Enthaelt die feeds-Spalte kaputtes JSON,
-                  # wird der Eintrag hier als korrupt gezaehlt und verworfen.
+                  # wird der Eintrag hier als korrupt erkannt. Nicht-HQ wird
+                  # verworfen; HQ wird im nachfolgenden Admission-Recheck
+                  # konservativ behalten (FIX HQ-ADMISSION-SQLITE).
                   # Vorher lief das Parsen in _row_to_dict() OHNE try/except
                   # INNERHALB des items()-Generators - eine solche Zeile haette
                   # also die Exception am "for"-Statement geworfen, wo der
@@ -3553,10 +3536,10 @@ jobs:
                   # ueber 60.010 Zeilen inkl. zehn Sonderfaellen (kaputtes
                   # JSON, NULL, Objekt statt Array, String statt Array, CIDR,
                   # kaputte Datumswerte): Drop-MENGE identisch, lediglich
-                  # dieser eine Eintrag wandert vom Zaehler aufnahme_removed
-                  # zu _corrupt_dropped - was der Sache auch besser entspricht.
+                  # Nicht-HQ wandert damit sauber in _corrupt_dropped; HQ
+                  # bleibt trotz defektem feeds-Feld erhalten.
                   _ak_feeds = None
-              _aufn_kandidaten[_ak_ip] = _ak_feeds
+              _aufn_kandidaten[_ak_ip] = (_ak_feeds, _ak_hq)
           print(f"  Cleanup-Vorauswahl (SQL): {len(_aufn_kandidaten):,} von {_cln_total:,} "
                 f"Eintraegen brauchen Feed-Parsing "
                 f"({100 * len(_aufn_kandidaten) / _cln_total if _cln_total else 0:.1f} %)")
@@ -3631,11 +3614,19 @@ jobs:
                   if ip in _aufn_kandidaten:
                       # 2) Aufnahme-Filter: >= 2 Feeds gesamt ODER hq ODER
                       #    auto_feed_discovery (siehe FIX BUG-AUTOFEED-DROP unten)
-                      feeds = _aufn_kandidaten[ip]
+                      feeds, _aufnahme_hq = _aufn_kandidaten[ip]
                       if not isinstance(feeds, list):
-                          _corrupt_dropped += 1
-                          _to_drop.append(ip)
-                          continue
+                          # FIX HQ-ADMISSION-SQLITE 2026-09-01:
+                          # kaputtes feeds darf eine bereits HQ-bestaetigte IP
+                          # nicht still loeschen. Fuer hq=1 wird das korrupte
+                          # Feld konservativ als leere Feed-Liste behandelt;
+                          # die hq-Bedingung weiter unten behaelt die IP.
+                          if _aufnahme_hq:
+                              feeds = []
+                          else:
+                              _corrupt_dropped += 1
+                              _to_drop.append(ip)
+                              continue
                   # FIX BUG-AUTOFEED-DROP: 'auto_feed_discovery' als Single-Feed-Bypass.
                   # Vorher: Eine durch auto_feed_discovery (wöchentlich, So 04:37 UTC)
                   # neu eingetragene IP hat zunaechst nur feeds=["auto_feed_discovery"]
@@ -3654,6 +3645,7 @@ jobs:
                   # Format-Qualitaet >=30%, Repo-Aktualitaet <=30 Tage, Groesse
                   # 100-500k IPs).
                       if not (len(feeds) >= 2
+                              or _aufnahme_hq
                               or "auto_feed_discovery" in feeds):
                           # FIX AUFNAHME-CROSS-DAY-V2: vor dem endgueltigen
                           # Ablehnen in der Warteliste nachsehen, ob ein
@@ -4261,47 +4253,22 @@ jobs:
           # wuerde. Die Schleife bleibt als Fortschritts-/Zeit-Checkpoint
           # bestehen (Phasentabelle vergleichbar mit fruaheren Laeufen), tut
           # aber nichts mehr mit db.
-          _fln_t0 = _time.monotonic()
-          _fln_last_report = _fln_t0
-          _fln_processed = 0
-          _fln_total = len(ip_feeds_today)
-          for ip in ip_feeds_today:
-              _fln_processed += 1
-              _fln_now = _time.monotonic()
-              if _fln_now - _fln_last_report >= _UPD_PROGRESS_INTERVAL_S:
-                  _fln_pct = 100 * _fln_processed / _fln_total if _fln_total else 0
-                  print(f"  ... Feed-Listen normalisieren: {_fln_processed:,}/{_fln_total:,} "
-                        f"({_fln_pct:.0f}%), seit {_fln_now - _fln_t0:.0f}s")
-                  _fln_last_report = _fln_now
-          _phase_mark("Feed-Listen normalisieren (ip_feeds_today)")
-
-          # FIX MEM-RECLAIM-2026-08-15: ip_feeds_today (Sets pro heute
-          # beruehrter IP, ~9 Mio. Eintraege) und die rohen Fetch-Ergebnis-
-          # Listen (_dp_results/_auto_results - je Feed nochmal ein eigenes
-          # IP-Set, ZUSAETZLICH zu dem was schon in ip_feeds_today/db liegt)
-          # werden ab hier nicht mehr gebraucht - alles Relevante ist
-          # bereits in db gemerged. Ohne explizites Freigeben haengen sie
-          # bis zum Skriptende weiter im Speicher, genau waehrend der
-          # beiden schwersten Phasen (Update-Loop lief VOR diesem Punkt,
-          # aber Sortieren + Schreiben laufen NOCH; jeder hier freigegebene
-          # GB reduziert das Risiko, dass genau diese Phasen in den Swap
-          # geraten). _current_rss_mb() beweist die tatsaechliche Wirkung
-          # (ru_maxrss oben zeigt sowas NIE, weil Peak-Wert).
+          _phase_mark("Feed-Listen normalisieren (SQLite-native: kein Extra-Pass)")
           _rss_before_reclaim = _current_rss_mb()
-          del ip_feeds_today
+          try:
+              _run_conn.execute("DROP TABLE IF EXISTS temp.run_feed_hits")
+              _run_conn.commit()
+          except Exception as _drop_err:
+              print(f"WARN: TEMP-Tagesmatrix nicht geloescht: {_drop_err}", file=sys.stderr)
           for _leftover in ("_dp_results", "_auto_results", "_auto_feeds",
-                             "feed_overrides", "_backup_parts"):
+                             "_dp_handle", "_auto_handle", "feed_overrides", "_backup_parts"):
               globals().pop(_leftover, None)
           _gc_collected = _gc.collect()
           _rss_after_reclaim = _current_rss_mb()
           if _rss_before_reclaim is not None and _rss_after_reclaim is not None:
-              print(f"  Speicher-Reclaim: {_rss_before_reclaim:.0f} MB -> "
+              print(f"  SQLite-native Reclaim: {_rss_before_reclaim:.0f} MB -> "
                     f"{_rss_after_reclaim:.0f} MB "
-                    f"({_rss_before_reclaim - _rss_after_reclaim:+.0f} MB freigegeben, "
-                    f"{_gc_collected} Objekte per gc.collect())")
-          else:
-              print(f"  Speicher-Reclaim: RSS nicht messbar (gc.collect(): "
-                    f"{_gc_collected} Objekte)")
+                    f"({_rss_before_reclaim - _rss_after_reclaim:+.0f} MB, gc={_gc_collected})")
 
           # Atomar via write_json_atomic (tmp-Datei + fsync + os.replace).
           # Verhindert korrupte seen_db.json bei Runner-OOM/SIGKILL/Timeout.
@@ -4782,42 +4749,23 @@ jobs:
           # Grund schief geht, ist das reine Kosmetik (Datei stirbt ohnehin
           # mit dem ephemeren Runner) - kein Grund, den Rest des DIAG-Blocks
           # zu gefaehrden.
-          # Persistenten SQLite-Snapshot fuer Confidence erzeugen.
+          # SQLITE-NATIVE-COMBINED: Arbeitsdatenbank ist bereits seen_db.sqlite3.
           _persistent_sqlite_path = "seen_db.sqlite3"
           try:
-              import sqlite3 as _sqlite3
-              if os.path.exists(_persistent_sqlite_path):
-                  os.remove(_persistent_sqlite_path)
-              _sqlite_snapshot_con = _sqlite3.connect(_persistent_sqlite_path)
-              try:
-                  db._conn.commit()
-                  db._conn.backup(_sqlite_snapshot_con)
-                  _quick = _sqlite_snapshot_con.execute("PRAGMA quick_check").fetchone()
-                  if not _quick or _quick[0] != "ok":
-                      raise RuntimeError(f"PRAGMA quick_check={_quick!r}")
-                  _snapshot_count = _sqlite_snapshot_con.execute(
-                      "SELECT COUNT(*) FROM seen_db").fetchone()[0]
-              finally:
-                  _sqlite_snapshot_con.close()
-              print(f"  Persistenter SQLite-Snapshot: {_snapshot_count:,} Eintraege -> "
+              db._conn.commit()
+              _quick = db._conn.execute("PRAGMA quick_check").fetchone()
+              if not _quick or _quick[0] != "ok":
+                  raise RuntimeError(f"PRAGMA quick_check={_quick!r}")
+              _snapshot_count = db._conn.execute(
+                  "SELECT COUNT(*) FROM seen_db").fetchone()[0]
+              print(f"  Persistente SQLite-Arbeitsdatenbank: {_snapshot_count:,} Eintraege -> "
                     f"{_persistent_sqlite_path} "
                     f"({os.path.getsize(_persistent_sqlite_path)/1024/1024:.1f} MB)")
-          except Exception as _sqlite_snapshot_err:
-              print(f"::warning file=update_combined_blacklist.yml::"
-                    f"SQLite-Snapshot konnte nicht erzeugt werden: {_sqlite_snapshot_err}")
-              try:
-                  if os.path.exists(_persistent_sqlite_path):
-                      os.remove(_persistent_sqlite_path)
-              except OSError:
-                  pass
-
-          try:
               db.close()
-              if os.path.exists(_sqlite_db_path):
-                  os.remove(_sqlite_db_path)
-          except Exception as _sqlite_cleanup_err:
-              print(f"  Hinweis: SQLite-Scratch-Datei-Aufraeumen fehlgeschlagen "
-                    f"(unkritisch): {_sqlite_cleanup_err}")
+          except Exception as _sqlite_snapshot_err:
+              print(f"::error file=update_combined_blacklist.yml::"
+                    f"SQLite-Arbeitsdatenbank ungueltig: {_sqlite_snapshot_err}")
+              raise
 
           # FIX MEM-LIVE-WATCH-2026-08-16: Watcher-Thread sauber stoppen,
           # BEVOR DIAG-1 die aktiven Threads zaehlt - sonst meldet DIAG-1
@@ -5046,24 +4994,18 @@ jobs:
             echo "ok=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Save seen_db Cache
-        # FIX BUG-AL1: if: always() ergänzt. Ohne dieses Guard wurde der Cache-Save
-        # übersprungen wenn der Haupt-Python-Step mit einer unbehandelten Exception
-        # crashte (z.B. während json.dump bei Netzwerkproblem). Folge: Downstream-
-        # Workflows (Confidence, Score Decay, FP-Checker) griffen auf veralteten Cache
-        # zurück – Confidence-Blacklist berechnete dann Scores auf Basis einer
-        # möglicherweise Stunden alten seen_db.
-        # NOTE: always()-Semantik bleibt - "always() && Guard" laeuft bei Crash UND
-        # wenn Idempotenz-Guard nicht geskippt hat. Beim Skip soll auch der Cache-
-        # Save nicht laufen, da kein Build-Step ausgefuehrt wurde.
-        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true'
+      - name: Save seen_db JSON Compatibility Cache
+        # SQLite bleibt der kanonische Combined-State. Dieser JSON-Cache wird
+        # nur fuer Legacy-/Diagnose-Workflows gepflegt, die noch seen_db.json
+        # erwarten (z.B. score_decay_monitor und Teile von ip_ablauf).
+        # Gespeichert wird nur nach erfolgreichem Build und bestandener
+        # Schrumpfungswache, damit kein korruptes/zu kleines Export-JSON den
+        # letzten gesunden Kompatibilitaets-Cache verdraengt.
+        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.json') != ''
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: seen_db.json
-          # v2: Kein statischer "latest"-Key mehr. Restore erfolgt über Prefix
-          # und bekommt dadurch immer den neuesten verfügbaren Cache.
           key: netshield-seen-db-v2-${{ github.run_id }}
-
 
       - name: Save Watchlist Daily Cap State Cache
         # FIX CAP-STATE-PUSH-LOSS 31.08.2026: Der State wird zusammen mit dem
