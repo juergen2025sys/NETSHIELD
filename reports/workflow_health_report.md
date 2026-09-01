@@ -1,7 +1,7 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-01 19:18 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-01 23:44 CEST (Europe/Berlin)
 
-**Workflows:** 29 | ✅ 25 OK | ⚠️ 7 Warnung | ❌ 0 Fehler
+**Workflows:** 29 | ✅ 24 OK | ⚠️ 8 Warnung | ❌ 0 Fehler
 
 ---
 ## ⚠️ Warnungen
@@ -9,6 +9,7 @@
 | Datei | Check | Detail |
 |---|---|---|
 | `honigtopf.yml → update_bot_detector.yml` | Workflow-Reihenfolge / Puffer zu knapp | 22:25 UTC → 22:35 UTC (10min < 15min); 22:30 UTC → 22:35 UTC (5min < 15min) |
+| `history_fresh_start.yml` | Kein expliziter Leerungsschutz | Externer Feed/Report ohne explizite MIN_* Guard-Variable – Müll-/Leer-Daten könnten unbemerkt akzeptiert werden |
 | `honigtopf.yml` | urlopen ohne timeout | Block 0: urllib.urlopen() ohne timeout= – hängt ewig bei totem Host/Netzwerkausfall |
 | `ip_ablauf.yml` | continue-on-error aktiv | continue-on-error=true gesetzt – Fehler können still bleiben; Review ob das wirklich beabsichtigt ist |
 | `ledger_diagnose.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
@@ -38,7 +39,7 @@
 | `feed_ip_finder.yml` | ✅ OK | 0 | 0 | – |
 | `feed_overlap_report.yml` | ✅ OK | 0 | 0 | `25 3 * * 0` |
 | `force_cancel_stuck_runs.yml` | ✅ OK | 0 | 0 | – |
-| `history_fresh_start.yml` | ✅ OK | 0 | 0 | `15 3 1 * *` |
+| `history_fresh_start.yml` | ⚠️ | 0 | 1 | `20 5 1 * *` |
 | `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 5,11,17,23 * * *` |
 | `honigtopf.yml` | ⚠️ | 0 | 1 | `*/20 * * * *`, `5,25,45 * * * *`, `10,30,50 * * * *` |
 | `ip_ablauf.yml` | ⚠️ | 0 | 1 | `30 6 * * 1`, `55 */3 * * *` |
@@ -59,4 +60,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-01 19:18 CEST (Europe/Berlin) | 29 Workflow-Dateien geprüft*
+*Generiert: 2026-09-01 23:44 CEST (Europe/Berlin) | 29 Workflow-Dateien geprüft*
