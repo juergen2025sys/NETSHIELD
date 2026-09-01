@@ -2737,7 +2737,13 @@ def write_ip_list(filepath, ips, header_lines=None, presorted=False):
         list[str]: Die geschriebene, sortierte Liste.
     """
     import tempfile
-    sorted_list = list(ips) if presorted else sort_ips(ips)
+    # FIX MEM-WRITE-IP-LIST 2026-09-01: Bei presorted=True und bereits
+    # materialisierter Liste NICHT noch einmal Millionen String-Referenzen
+    # kopieren. Combined uebergibt hier bis zu ~9,8 Mio. IPs.
+    if presorted and isinstance(ips, list):
+        sorted_list = ips
+    else:
+        sorted_list = list(ips) if presorted else sort_ips(ips)
     target_dir = os.path.dirname(os.path.abspath(filepath)) or "."
     fd, tmp_path = tempfile.mkstemp(
         prefix=f".{os.path.basename(filepath)}.",
@@ -2750,7 +2756,16 @@ def write_ip_list(filepath, ips, header_lines=None, presorted=False):
                 for line in header_lines:
                     f.write(f"# {line}\n")
                 f.write("\n")
-            f.write("\n".join(sorted_list) + "\n")
+            # FIX MEM-WRITE-IP-LIST: kein riesiger Gesamt-Join-String.
+            _WRITE_CHUNK = 100_000
+            if sorted_list:
+                for _i in range(0, len(sorted_list), _WRITE_CHUNK):
+                    _chunk = sorted_list[_i:_i + _WRITE_CHUNK]
+                    f.write("\n".join(_chunk))
+                    f.write("\n")
+            else:
+                # Byte-Kompatibilitaet zum alten "\n".join([]) + "\n".
+                f.write("\n")
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp_path, filepath)
@@ -2814,17 +2829,18 @@ class SqliteSeenDB(_MutableMapping):
     def __init__(self, db_path):
         self._path = db_path
         self._conn = _sqlite3.connect(db_path)
-        # PERSISTENZ-HINWEIS 2026-09-01: Diese Datei ist seit der
+        # PERSISTENZ-/RAM-HINWEIS 2026-09-01: Diese Datei ist seit der
         # SQLite-native-Migration KEINE Scratch-Datei mehr, sondern der
-        # persistente Combined-State. synchronous=OFF und journal_mode=MEMORY
-        # bleiben hier aus Performancegruenden bewusst gesetzt; dadurch ist
-        # ein abrupt abgebrochener laufender Snapshot selbst nicht als
-        # crash-durabel zu betrachten. Deshalb darf er NUR nach erfolgreichem
-        # Workflow und erneuter PRAGMA-quick_check-/Plausibilitaetspruefung in
-        # Actions Cache bzw. Release veroeffentlicht werden. Der vorherige
-        # Cache/Release-Snapshot bleibt bis dahin der Recovery-Punkt.
+        # persistente Combined-State. journal_mode=MEMORY war im ersten
+        # produktiven SQLite-native-Combined-Lauf der groesste verbliebene
+        # RAM-Treiber: bei ~8,55 Mio. Updates stieg RSS waehrend EINER grossen
+        # Transaktion von ~3,7 auf ~6,9 GB, weil der Rollback-Journal im RAM
+        # lag. TRUNCATE legt den Journal auf DISK ab; Combined committet
+        # zusaetzlich in Batches. synchronous=OFF bleibt fuer den ephemeren
+        # Runner bewusst aktiv. Cache/Release werden weiterhin nur nach
+        # erfolgreichem Workflow + quick_check/Plausibilitaetsguard publiziert.
         self._conn.execute("PRAGMA synchronous=OFF")
-        self._conn.execute("PRAGMA journal_mode=MEMORY")
+        self._conn.execute("PRAGMA journal_mode=TRUNCATE")
         self._conn.execute(
             "CREATE TABLE IF NOT EXISTS seen_db ("
             "ip TEXT PRIMARY KEY, first TEXT, last TEXT, hq INTEGER, "
