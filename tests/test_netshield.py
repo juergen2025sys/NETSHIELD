@@ -2266,3 +2266,40 @@ class TestRamOptimizationSep01(unittest.TestCase):
             for suffix in ("", "-journal", "-wal", "-shm"):
                 try: os.unlink(path + suffix)
                 except FileNotFoundError: pass
+
+
+class TestFinalWorkflowGuardsSep01(unittest.TestCase):
+    """Regressionstests fuer die letzten Workflow-Guards vom 01.09.2026."""
+
+    @staticmethod
+    def _repo_file(*parts):
+        from pathlib import Path
+        return Path(__file__).resolve().parents[1].joinpath(*parts)
+
+    def test_auto_feed_discovery_is_sqlite_native_and_fail_closed(self):
+        text = self._repo_file('.github', 'workflows', 'auto_feed_discovery.yml').read_text(encoding='utf-8')
+        # Kein JSON-State-Restore/-Save mehr im AFD.
+        self.assertNotIn('path: seen_db.json', text)
+        self.assertNotIn('DB_FILE = "seen_db.json"', text)
+        # Release-Fallback darf nur von SQLite abhaengen.
+        self.assertIn("hashFiles('seen_db.sqlite3') == ''", text)
+        self.assertNotIn("hashFiles('seen_db.json') == '' && hashFiles('seen_db.sqlite3') == ''", text)
+        # Build muss ohne SQLite hart abbrechen statt Fresh-Start zu erzeugen.
+        self.assertIn('Keine seen_db.sqlite3 verfuegbar', text)
+        self.assertIn('AFD bricht im Build-Step fail-closed ab', text)
+
+    def test_combined_shrink_guard_blocks_commit_and_fails_job(self):
+        text = self._repo_file('.github', 'workflows', 'update_combined_blacklist.yml').read_text(encoding='utf-8')
+        self.assertIn("if: always() && steps.shrink_guard.outputs.ok != 'false'", text)
+        shrink = text[text.index('- name: Schrumpfungswache'):text.index('- name: Save seen_db JSON Compatibility Cache')]
+        self.assertIn('echo "ok=false" >> "$GITHUB_OUTPUT"', shrink)
+        self.assertIn('exit 1', shrink)
+        self.assertIn('Repo-Push werden blockiert', shrink)
+
+    def test_combined_meta_counts_sqlite_without_loading_huge_json(self):
+        text = self._repo_file('.github', 'workflows', 'update_combined_blacklist.yml').read_text(encoding='utf-8')
+        commit = text[text.index('- name: Commit and Push'):text.index('- name: Trigger Confidence Blacklist')]
+        self.assertIn('SELECT COUNT(*) FROM seen_db', commit)
+        self.assertIn('if os.path.exists("seen_db.sqlite3")', commit)
+        self.assertNotIn('db = json.load(f)', commit)
+        self.assertIn('Kompatibilitaets-Export nur per stat erfassen', commit)
