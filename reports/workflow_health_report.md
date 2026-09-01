@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-01 14:33 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-01 19:18 CEST (Europe/Berlin)
 
 **Workflows:** 29 | ✅ 25 OK | ⚠️ 7 Warnung | ❌ 0 Fehler
 
@@ -14,6 +14,7 @@
 | `ledger_diagnose.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 2 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "rtbh_com_tr" (https://list.rtbh.com.tr/output.txt); "rutgers_drop" (https://report.cs.rutgers.edu/DROP/attackers) |
 | `Cross-Workflow` | Doppelte Feed-URLs | 5 URL(s) in mehreren Workflows – today_count Aufblaehung moeglich: strongips.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; abuseipdb-s100-30d.ipv4 in auto_feed_discovery.yml+update_combined_blacklist.yml; 5.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; greylist-latest.csv in auto_feed_discovery.yml+honeypot_monitor.yml; block.txt in auto_feed_discovery.yml+update_combined_blacklist.yml |
+| `update_combined_blacklist.yml` | Cache-Key Prefix falsch | Save-Key 'netshield-seen-db-sqlite-v1-combined-fallback-${{' hat nicht den erwarteten Prefix 'v2' – potenzieller Cache-Overwrite |
 | `update_combined_blacklist.yml` | Cache-Key Prefix falsch | Save-Key 'netshield-seen-db-sqlite-v1-${{' hat nicht den erwarteten Prefix 'v2' – potenzieller Cache-Overwrite |
 | `honigtopf.yml → update_combined_blacklist.yml` | Sub-Workflow Puffer zu knapp | Sub-Workflow laueft zu knapp vor Combined – Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC → 00:07 UTC (7min < 60min Mindestpuffer); 00:05 UTC → 00:07 UTC (2min < 60min Mindestpuffer); 00:10 UTC → 00:27 UTC (17min < 60min Mindestpuffer); 00:20 UTC → 00:27 UTC (7min < 60min Mindestpuffer); 00:25 UTC → 00:27 UTC (2min < 60min Mindestpuffer) |
 
@@ -58,4 +59,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-01 14:33 CEST (Europe/Berlin) | 29 Workflow-Dateien geprüft*
+*Generiert: 2026-09-01 19:18 CEST (Europe/Berlin) | 29 Workflow-Dateien geprüft*

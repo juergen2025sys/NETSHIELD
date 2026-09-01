@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-01 14:33 CEST (Europe/Berlin)",
+  "updated": "2026-09-01 19:18 CEST (Europe/Berlin)",
   "total": 29,
   "ok": 25,
   "warn": 7,
@@ -39,6 +39,11 @@
     {
       "file": "update_combined_blacklist.yml",
       "check": "Cache-Key Prefix falsch",
+      "detail": "Save-Key 'netshield-seen-db-sqlite-v1-combined-fallback-${{' hat nicht den erwarteten Prefix 'v2' \u2013 potenzieller Cache-Overwrite"
+    },
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "Cache-Key Prefix falsch",
       "detail": "Save-Key 'netshield-seen-db-sqlite-v1-${{' hat nicht den erwarteten Prefix 'v2' \u2013 potenzieller Cache-Overwrite"
     },
     {
@@ -48,12 +53,12 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 4906271,
-    "active_blacklist_ipv4.txt": 761040,
-    "blacklist_confidence40_ipv4_part1.txt": 4074679,
-    "cve_exploit_ips.txt": 29445,
-    "honeypot_ips.txt": 1875635,
-    "bot_detector_blacklist_ipv4.txt": 1287774
+    "combined_threat_blacklist_ipv4_part1.txt": 4912337,
+    "active_blacklist_ipv4.txt": 776276,
+    "blacklist_confidence40_ipv4_part1.txt": 4081261,
+    "cve_exploit_ips.txt": 29497,
+    "honeypot_ips.txt": 1883499,
+    "bot_detector_blacklist_ipv4.txt": 1288176
   },
   "production_health": {
     "critical": 0,
