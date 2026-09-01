@@ -2782,14 +2782,14 @@ class SqliteSeenDB(_MutableMapping):
     Pass, Sortieren, Schreiben) so hoch, weil Python jedes Dict/jede Liste/
     jeden String als eigenes Objekt mit erheblichem Overhead haelt.
 
-    Diese Klasse ersetzt den Python-Dict durch eine SQLite-Datei (Scratch-
-    Datei, NICHT die persistente seen_db.json - die bleibt als Austausch-
-    format fuer die anderen 5 Workflows, die seen_db.json UNABHAENGIG von
-    diesem Skript direkt lesen, unveraendert bestehen). SQLite verwaltet
-    Speicher ueber den Datei-/Seiten-Cache des Betriebssystems, nicht ueber
-    Python-Objekte - der Python-Prozess haelt zu jedem Zeitpunkt nur die
-    gerade angefragten Eintraege als materialisierte Dicts im RAM, nicht
-    alle 9 Mio. gleichzeitig.
+    Diese Klasse ersetzt den Python-Dict durch die persistente
+    seen_db.sqlite3-Arbeitsdatenbank. Seit der SQLite-native-Migration vom
+    01.09.2026 wird genau diese Datei aus Actions Cache bzw. GitHub Release
+    restauriert, waehrend des Combined-Laufs direkt veraendert und danach
+    wieder validiert/gecacht/released. seen_db.json bleibt nur als
+    Kompatibilitaets-Export fuer noch nicht migrierte Leser bestehen. SQLite
+    verwaltet Speicher ueber den Datei-/Seiten-Cache des Betriebssystems,
+    nicht ueber Millionen Python-Objekte.
 
     WICHTIG fuer Aufrufer (siehe Kommentare an den beiden betroffenen
     Stellen in update_combined_blacklist.yml): __getitem__/get() geben bei
@@ -2814,17 +2814,15 @@ class SqliteSeenDB(_MutableMapping):
     def __init__(self, db_path):
         self._path = db_path
         self._conn = _sqlite3.connect(db_path)
-        # PRAGMA synchronous=OFF + journal_mode=MEMORY: bewusst KEINE
-        # Crash-Durabilitaet fuer diese Scratch-Datei - die Datei existiert
-        # nur fuer die Dauer dieses einen Laufs (siehe Aufrufstelle: Pfad
-        # unter tempfile.gettempdir(), nicht im Repo-Checkout). Echte
-        # Crash-Sicherheit kommt weiterhin von export_json_atomic() weiter
-        # unten (identisches tmp+fsync+os.replace-Muster wie
-        # write_json_atomic). Ohne diese Pragmas wuerde SQLite bei
-        # Millionen Einzel-Writes selbst fsync-gebunden und damit
-        # potenziell langsamer als der bisherige Plain-Dict-Ansatz sein -
-        # das WAERE eine Regression, die den ganzen Umbau ad absurdum
-        # fuehren wuerde.
+        # PERSISTENZ-HINWEIS 2026-09-01: Diese Datei ist seit der
+        # SQLite-native-Migration KEINE Scratch-Datei mehr, sondern der
+        # persistente Combined-State. synchronous=OFF und journal_mode=MEMORY
+        # bleiben hier aus Performancegruenden bewusst gesetzt; dadurch ist
+        # ein abrupt abgebrochener laufender Snapshot selbst nicht als
+        # crash-durabel zu betrachten. Deshalb darf er NUR nach erfolgreichem
+        # Workflow und erneuter PRAGMA-quick_check-/Plausibilitaetspruefung in
+        # Actions Cache bzw. Release veroeffentlicht werden. Der vorherige
+        # Cache/Release-Snapshot bleibt bis dahin der Recovery-Punkt.
         self._conn.execute("PRAGMA synchronous=OFF")
         self._conn.execute("PRAGMA journal_mode=MEMORY")
         self._conn.execute(
@@ -3047,7 +3045,8 @@ class SqliteSeenDB(_MutableMapping):
         json_valid()/json_type() bilden den isinstance-Check ab: ein
         feeds-Wert, der kein JSON-Array ist (None, Zahl, Objekt, kaputter
         String), faellt hier heraus und wird von der aufrufenden Seite
-        wie bisher als korrupt behandelt. Ohne diesen Guard wuerde
+        explizit nach hq behandelt: Nicht-HQ kann als korrupt verworfen
+        werden, HQ wird konservativ behalten. Ohne diesen Guard wuerde
         json_array_length() bei kaputtem JSON einen Fehler werfen.
 
         Das LIKE '%auto_feed_discovery%' ist bewusst grob: Es darf hoechstens
@@ -3056,10 +3055,17 @@ class SqliteSeenDB(_MutableMapping):
         anschliessend exakt mit "auto_feed_discovery" in feeds weiter, das
         Endergebnis ist also identisch zur bisherigen Python-Logik.
 
-        Rueckgabe: Liste von (ip, feeds_json_string).
+        Rueckgabe: Liste von (ip, feeds_json_string, hq).
+
+        FIX HQ-ADMISSION-SQLITE 2026-09-01:
+        hq wird absichtlich mitgeliefert. Die SQL-Vorauswahl benutzt hq zwar
+        bereits, aber bei NULL/kaputtem feeds muss die Python-Nachpruefung
+        dieselbe Bedingung noch einmal kennen. Sonst koennte eine hq=1-IP
+        mit beschaedigter feeds-Spalte still als "zu wenig Feeds" verworfen
+        werden.
         """
         return self._conn.execute(
-            "SELECT ip, feeds FROM seen_db "
+            "SELECT ip, feeds, hq FROM seen_db "
             "WHERE feeds IS NULL "
             "   OR NOT json_valid(feeds) "
             "   OR json_type(feeds) <> 'array' "
