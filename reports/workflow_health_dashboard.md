@@ -1,6 +1,6 @@
 # Workflow Health Dashboard
 
-**Stand:** 2026-09-01 18:33 CEST (Europe/Berlin)
+**Stand:** 2026-09-01 22:58 CEST (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
@@ -23,20 +23,19 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 208
+- **Watchdog-Laeufe insgesamt:** 195
 - **Watchdog-Fehler:** 0
 - **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 55
 
 Letzte Watchdog-Eingriffe:
-- 2026-09-01 06:59 CEST (Europe/Berlin) (Run #33471906248, Laufzeit 23m 37s)
-- 2026-09-01 09:10 CEST (Europe/Berlin) (Run #33480834501, Laufzeit 27m 41s)
 - 2026-09-01 12:01 CEST (Europe/Berlin) (Run #33495228007, Laufzeit 26m 53s)
 - 2026-09-01 14:38 CEST (Europe/Berlin) (Run #33508818670, Laufzeit 20m 17s)
 - 2026-09-01 17:59 CEST (Europe/Berlin) (Run #33528834481, Laufzeit 23m 35s)
+- 2026-09-01 20:40 CEST (Europe/Berlin) (Run #33544814831, Laufzeit 20m 35s)
+- 2026-09-01 21:16 CEST (Europe/Berlin) (Run #33548559793, Laufzeit 21m 57s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
-- 2026-08-25 21:57 CEST (Europe/Berlin) - cancelled - Run #32892515314 (6m 18s)
 - 2026-08-26 17:39 CEST (Europe/Berlin) - cancelled - Run #32985778662 (4415m 46s)
 - 2026-08-26 20:39 CEST (Europe/Berlin) - cancelled - Run #33000839712 (17m 54s)
 - 2026-08-27 02:38 CEST (Europe/Berlin) - cancelled - Run #33027509309 (18m 55s)
@@ -45,6 +44,7 @@ Letzte Watchdog-Eingriffe:
 - 2026-08-28 14:14 CEST (Europe/Berlin) - cancelled - Run #33170286806 (3m 58s)
 - 2026-08-31 22:53 CEST (Europe/Berlin) - cancelled - Run #33438466768 (6m 40s)
 - 2026-08-31 23:05 CEST (Europe/Berlin) - cancelled - Run #33439515318 (9m 45s)
+- 2026-09-01 20:22 CEST (Europe/Berlin) - cancelled - Run #33543228443 (17m 24s)
 
 ---
 
