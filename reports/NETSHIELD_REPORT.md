@@ -1,18 +1,18 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-09-01 12:20 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-01 12:35 CEST (Europe/Berlin)
 
 ---
 ## 📊 Listen-Übersicht
 
 | Datei | Beschreibung | IPs | Letzte Änderung |
 |---|---|---:|---|
-| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **9,809,413** | 2026-09-01 09:30 CEST (Europe/Berlin) |
-| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **757,821** | 2026-09-01 09:30 CEST (Europe/Berlin) |
+| ✅ `combined_threat_blacklist_ipv4.txt` | Stufe 1 – Alle IPs (180 Tage) | **9,812,541** | 2026-09-01 12:21 CEST (Europe/Berlin) |
+| ✅ `active_blacklist_ipv4.txt` | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **761,040** | 2026-09-01 12:21 CEST (Europe/Berlin) |
 | ❌ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **0** | – |
-| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **60,817** | 2026-09-01 09:38 CEST (Europe/Berlin) |
+| ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **60,813** | 2026-09-01 12:29 CEST (Europe/Berlin) |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **29,445** | 2026-09-01 11:00 CEST (Europe/Berlin) |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,287,472** | 2026-09-01 12:02 CEST (Europe/Berlin) |
-| ✅ `honeypot_ips.txt` | Honeypot IPs | **1,875,603** | 2026-09-01 12:02 CEST (Europe/Berlin) |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,287,588** | 2026-09-01 12:21 CEST (Europe/Berlin) |
+| ✅ `honeypot_ips.txt` | Honeypot IPs | **1,875,629** | 2026-09-01 12:21 CEST (Europe/Berlin) |
 | ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **23,542** | 2026-09-01 12:00 CEST (Europe/Berlin) |
 
 ---
@@ -30,4 +30,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-09-01 12:20 CEST (Europe/Berlin)*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-09-01 12:35 CEST (Europe/Berlin)*
