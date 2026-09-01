@@ -2116,5 +2116,80 @@ class TestRedirectSecretHeaderProtection(unittest.TestCase):
         self.assertNotIn("x-secret-token", names)
         self.assertNotIn("key", names)
 
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
+class TestSqliteSeenDBMigrationRegression(unittest.TestCase):
+    """Gezielte Coverage fuer die SQLite-Migration (01.09.2026)."""
+
+    def _db(self):
+        import tempfile, os
+        from netshield_common import SqliteSeenDB
+        td = tempfile.TemporaryDirectory()
+        path = os.path.join(td.name, "seen.sqlite3")
+        db = SqliteSeenDB(path)
+        self.addCleanup(db.close)
+        self.addCleanup(td.cleanup)
+        return db
+
+    def test_select_aufnahme_kandidaten_liefert_hq_mit(self):
+        db = self._db()
+        db._conn.execute(
+            "INSERT INTO seen_db(ip,first,last,hq,feeds,hq_feed_names,hq_feeds,"
+            "today_count,today_hq,days_seen,auto_today_count) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            ("9.9.9.9", "2026-09-01", "2026-09-01", 1, None, "[]", 1, 1, 1, 1, None))
+        db._conn.commit()
+        self.assertEqual(db.select_aufnahme_kandidaten(), [("9.9.9.9", None, 1)])
+
+    def test_hq_with_null_feeds_is_kept_by_admission_semantics(self):
+        db = self._db()
+        db._conn.execute(
+            "INSERT INTO seen_db(ip,first,last,hq,feeds,hq_feed_names,hq_feeds,"
+            "today_count,today_hq,days_seen,auto_today_count) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            ("8.8.8.8", "2026-09-01", "2026-09-01", 1, None, "[]", 1, 1, 1, 1, None))
+        db._conn.commit()
+        _ip, feeds_json, hq_raw = db.select_aufnahme_kandidaten()[0]
+        feeds = [] if feeds_json is None else json.loads(feeds_json)
+        hq = bool(hq_raw)
+        self.assertTrue(len(feeds) >= 2 or hq or "auto_feed_discovery" in feeds)
+
+    def test_non_hq_with_null_feeds_still_fails_admission(self):
+        db = self._db()
+        db._conn.execute(
+            "INSERT INTO seen_db(ip,first,last,hq,feeds,hq_feed_names,hq_feeds,"
+            "today_count,today_hq,days_seen,auto_today_count) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            ("7.7.7.7", "2026-09-01", "2026-09-01", 0, None, "[]", 0, 1, 0, 1, None))
+        db._conn.commit()
+        _ip, feeds_json, hq_raw = db.select_aufnahme_kandidaten()[0]
+        feeds = [] if feeds_json is None else json.loads(feeds_json)
+        hq = bool(hq_raw)
+        self.assertFalse(len(feeds) >= 2 or hq or "auto_feed_discovery" in feeds)
+
+    def test_valid_hq_row_not_selected_for_python_recheck(self):
+        db = self._db()
+        db["6.6.6.6"] = {
+            "first": "2026-09-01", "last": "2026-09-01", "hq": True,
+            "feeds": ["one_feed"], "hq_feed_names": ["one_feed"],
+            "hq_feeds": 1, "today_count": 1, "today_hq": True, "days_seen": 1,
+        }
+        self.assertEqual(db.select_aufnahme_kandidaten(), [])
+
+    def test_hq_with_invalid_feeds_json_is_kept_by_admission_semantics(self):
+        db = self._db()
+        db._conn.execute(
+            "INSERT INTO seen_db(ip,first,last,hq,feeds,hq_feed_names,hq_feeds,"
+            "today_count,today_hq,days_seen,auto_today_count) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            ("5.5.5.5", "2026-09-01", "2026-09-01", 1, "{broken", "[]", 1, 1, 1, 1, None))
+        db._conn.commit()
+        rows = db.select_aufnahme_kandidaten()
+        self.assertEqual(rows, [("5.5.5.5", "{broken", 1)])
+        _ip, feeds_json, hq_raw = rows[0]
+        try:
+            feeds = json.loads(feeds_json) if feeds_json else []
+        except (ValueError, TypeError):
+            feeds = None
+        hq = bool(hq_raw)
+        if not isinstance(feeds, list) and hq:
+            feeds = []
+        self.assertTrue(len(feeds) >= 2 or hq or "auto_feed_discovery" in feeds)
