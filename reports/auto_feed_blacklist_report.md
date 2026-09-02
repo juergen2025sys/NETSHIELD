@@ -1,5 +1,5 @@
 # Auto-Feed Blacklist – Report
-**Aktualisiert:** 2026-09-02 19:27 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-02 20:01 CEST (Europe/Berlin)  
 **Quelle:** akzeptierte Feeds aus `state/auto_discovered_feeds.json` (gepflegt von auto_feed_discovery.yml)
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **3,000,708** |
-| Neu (heute) | **+118** |
-| Entfernt | **-357** |
+| Gesamt IPs | **3,000,839** |
+| Neu (heute) | **+133** |
+| Entfernt | **-2** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 125 |
@@ -22,7 +22,7 @@
 
 | Quelle | IPs |
 |---|---|
-| ✅ `agent6_6_6_wordpress_login_blocklist` | 22,369 |
+| ✅ `agent6_6_6_wordpress_login_blocklist` | 22,371 |
 | ✅ `alsyundawy_mikrotik_blacklist_blocklist` | 28,817 |
 | ✅ `alsyundawy_mikrotik_blacklist_blocklist_ssh` | 11,741 |
 | ✅ `alsyundawy_mikrotik_blacklist_ipsum` | 16,479 |
@@ -34,7 +34,7 @@
 | ✅ `cbuijs_accomplist_adblock_ip_v2` | 64,659 |
 | ✅ `cbuijs_accomplist_adblock_ip_v3` | 113 |
 | ✅ `cbuijs_badip` | 86,169 |
-| ✅ `cercatrova21_blocklist` | 15,024 |
+| ✅ `cercatrova21_blocklist` | 15,086 |
 | ✅ `claudiusdecimius_ioc_ipsets_firehol_level2` | 22,859 |
 | ✅ `claudiusdecimius_ioc_ipsets_firehol_level3` | 13,658 |
 | ✅ `claudiusdecimius_ioc_ipsets_firehol_level4` | 137,460 |
@@ -82,7 +82,7 @@
 | ✅ `feezony_feezony_ip_inbound_blocklist_split_ipinboundblocklist_part_30` | 99,999 |
 | ✅ `feezony_feezony_ip_inbound_blocklist_split_ipinboundblocklist_part_35` | 99,998 |
 | ✅ `fwahyui_masifa_ipblacklist` | 132,013 |
-| ✅ `gazpitchy92_ip_blocklist` | 260,670 |
+| ✅ `gazpitchy92_ip_blocklist` | 269,913 |
 | ✅ `hezhidong_scanguard` | 307 |
 | ✅ `idleadmin_threatfeed` | 59,690 |
 | ✅ `infosecuniversity_block_list` | 1,372 |
@@ -137,7 +137,7 @@
 | ✅ `romainmarcoux_misc_ip_lists` | 3,584 |
 | ✅ `runtechx_dns_runtech_ao` | 14,011 |
 | ✅ `runtechx_dns_runtech_ao_n2` | 14,015 |
-| ✅ `securitylist1568_fortigate` | 144 |
+| ✅ `securitylist1568_fortigate` | 154 |
 | ✅ `sereinfy_adrules` | 1,406 |
 | ✅ `taylored_itmail_blacklists` | 98,651 |
 | ✅ `theouterspaced_ip_blocklist` | 44 |
@@ -153,4 +153,4 @@
 > Diese 125 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-02 19:27 CEST (Europe/Berlin)*
+*Generiert: 2026-09-02 20:01 CEST (Europe/Berlin)*
