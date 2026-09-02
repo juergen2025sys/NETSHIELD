@@ -2276,17 +2276,17 @@ class TestFinalWorkflowGuardsSep01(unittest.TestCase):
         from pathlib import Path
         return Path(__file__).resolve().parents[1].joinpath(*parts)
 
-    def test_auto_feed_discovery_is_sqlite_native_and_fail_closed(self):
+    def test_auto_feed_discovery_is_registry_only(self):
         text = self._repo_file('.github', 'workflows', 'auto_feed_discovery.yml').read_text(encoding='utf-8')
-        # Kein JSON-State-Restore/-Save mehr im AFD.
+        # Discovery pflegt nur die Registry und darf den kanonischen State
+        # weder restaurieren noch oeffnen oder publizieren.
         self.assertNotIn('path: seen_db.json', text)
         self.assertNotIn('DB_FILE = "seen_db.json"', text)
-        # Release-Fallback darf nur von SQLite abhaengen.
-        self.assertIn("hashFiles('seen_db.sqlite3') == ''", text)
-        self.assertNotIn("hashFiles('seen_db.json') == '' && hashFiles('seen_db.sqlite3') == ''", text)
-        # Build muss ohne SQLite hart abbrechen statt Fresh-Start zu erzeugen.
-        self.assertIn('Keine seen_db.sqlite3 verfuegbar', text)
-        self.assertIn('AFD bricht im Build-Step fail-closed ab', text)
+        self.assertNotIn('path: seen_db.sqlite3', text)
+        self.assertNotIn('SqliteSeenDB(', text)
+        self.assertNotIn('db.commit()', text)
+        self.assertIn('AFD Registry-only aktiv: seen_db wird nicht gelesen oder geschrieben', text)
+        self.assertIn('AFD Registry gespeichert; seen_db bleibt unveraendert', text)
 
     def test_combined_shrink_guard_blocks_commit_and_fails_job(self):
         text = self._repo_file('.github', 'workflows', 'update_combined_blacklist.yml').read_text(encoding='utf-8')

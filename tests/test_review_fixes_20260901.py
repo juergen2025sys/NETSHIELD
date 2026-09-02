@@ -124,10 +124,11 @@ class TestAfdLoeschtNichtMehr(unittest.TestCase):
         self.assertIn("faellige_watchlist", t)
         self.assertIn("faellige_active", t)
 
-    def test_afd_committet_ingest_trotzdem(self):
+    def test_afd_hat_keinen_ingest_commit_mehr(self):
         t = _wf("auto_feed_discovery.yml")
-        self.assertIn("db.commit()", t,
-                      "Ingest-Aenderungen muessen weiterhin persistiert werden")
+        self.assertNotIn("db.commit()", t,
+                         "Registry-only Discovery darf keinen seen_db-Ingest committen")
+        self.assertIn("AFD Registry gespeichert; seen_db bleibt unveraendert", t)
 
     def test_combined_hat_cap_und_ledger_weiterhin(self):
         t = _wf("update_combined_blacklist.yml")
