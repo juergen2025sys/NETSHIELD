@@ -89,12 +89,31 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: seen_db.sqlite3
-          # AFD ist ab 01.09.2026 vollstaendig SQLite-native. Gleicher
-          # Cache-Namensraum wie Combined/Confidence: der neueste Snapshot
-          # gewinnt unabhaengig davon, welcher Workflow ihn erzeugt hat.
-          key: netshield-seen-db-sqlite-v1-afd-${{ github.run_id }}
+          # FIX AFD-CACHE-ISOLATION (2026-09-02, siehe NETSHIELD_IP_Zuwachs_
+          # Analyse Abschnitt 3): AFD hat einen EIGENEN Cache-Namensraum.
+          #
+          # Vorher lag der Save-Key in der Familie ...sqlite-v1-afd- und der
+          # Restore-Fallback in der Familie ...sqlite-v1- (also eine Ebene
+          # hoeher, ohne das afd-Segment). Der Save-Key war damit korrekt
+          # isoliert, der Restore-Fallback aber nicht: GitHub Actions matcht
+          # restore-keys per PRAEFIX, und die v1-Familie ohne afd-Segment ist
+          # ein Praefix des Save-Keys von update_combined_blacklist.yml. AFD
+          # hat dadurch regelmaessig Combineds Snapshot restauriert.
+          #
+          # Solange seen_db.sqlite3 nur eine Wegwerf-Datei pro Lauf war (neu
+          # aufgebaut aus seen_db.json), war das folgenlos. Seit der
+          # SQLITE-NATIVE-COMBINED-Migration vom 01.09.2026 ist genau diese
+          # Datei die kanonische Datenbank - restauriert, direkt veraendert,
+          # wieder gecacht. Die vorher harmlose Namenskollision ist damit
+          # wirksam geworden.
+          #
+          # HINWEIS: workflow_health_checker.yml findet diese Fehlerklasse
+          # nicht - die Cache-Key-Pruefung dort ueberspringt restore-keys
+          # ausdruecklich ('restore-keys Zeilen ignorieren'). AFD stand
+          # deshalb im Report auf OK, obwohl der Lesezugriff hier stattfand.
+          key: netshield-seen-db-sqlite-afd-${{ github.run_id }}
           restore-keys: |
-            netshield-seen-db-sqlite-v1-
+            netshield-seen-db-sqlite-afd-
 
       - name: Validiere seen_db SQLite Cache
         if: steps.idempotency.outputs.already_ran != 'true' && hashFiles('seen_db.sqlite3') != ''
@@ -4641,4 +4660,9 @@ jobs:
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: seen_db.sqlite3
-          key: netshield-seen-db-sqlite-v1-afd-${{ github.run_id }}
+          # FIX AFD-CACHE-ISOLATION (2026-09-02): identischer Namensraum wie im
+          # Restore-Step oben. Das 'v1-' faellt weg, damit Save und Restore in
+          # derselben, von Combined getrennten Familie liegen. Der Praefix
+          # enthaelt weiterhin 'afd' - die Save-Key-Pruefung in
+          # workflow_health_checker.yml (_cache_write_rules) bleibt erfuellt.
+          key: netshield-seen-db-sqlite-afd-${{ github.run_id }}

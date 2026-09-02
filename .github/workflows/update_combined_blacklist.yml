@@ -2385,9 +2385,40 @@ jobs:
           # (fetch_parallel_daemon_collect rechnet ab DIESEM Start-Zeitpunkt,
           # nicht ab dem spaeteren Collect-Aufruf).
           AUTO_FEEDS_FILE = "state/auto_discovered_feeds.json"
+          # FIX AUTO-FEEDS-VIA-LOCAL (2026-09-02): Die auto-discovered Feeds
+          # werden seit heute von auto_feed_refresh.yml taeglich gesammelt und
+          # als EINE Datei bereitgestellt (auto_feed_blacklist_ipv4.txt, siehe
+          # LOCAL_FEEDS oben). Combined liest sie deshalb genau EINMAL ueber
+          # den LOCAL_FEEDS-Loop ein - der Einzel-Fetch hier unten muss dann
+          # zwingend aus bleiben, sonst zaehlt jede IP am selben Tag ZWEIMAL
+          # in ip_feeds_today: einmal gesammelt ueber die Datei, einmal
+          # einzeln ueber den Auto-Feed-Namen -> verzerrtes Confidence-Scoring
+          # (mehr "Quellen heute" als real vorhanden). Exakt dasselbe Muster
+          # und dieselbe Begruendung wie beim Proxy-Feed-Ausschluss fuer
+          # bot_detector_blacklist_ipv4.txt (Abschnitt "AUSSCHLUSS
+          # PROXY-FEEDS", 2026-07-05).
+          #
+          # ACHTUNG SCORING-EFFEKT: vorher zaehlte JEDER auto-discovered Feed
+          # einzeln in ip_feeds_today. Jetzt zaehlt der gesamte Block als EINE
+          # Quelle - eine IP aus 5 auto-discovered Feeds hatte vorher
+          # today_count=5, danach 1. Das wirkt auf calculate_confidence() und
+          # damit auf blacklist_confidence40 / die Promotion nach
+          # active_blacklist, und der Aufnahme-Filter (len(feeds) >= 2) sieht
+          # fuer solche IPs nur noch einen Feed-Namen. Bei den ~29 Proxy-Feeds
+          # war das verkraftbar, hier sind ~160 Feeds betroffen.
+          #
+          # Der Code unten bleibt vollstaendig erhalten und ist ueber diesen
+          # einen Schalter wieder aktivierbar: AUTO_FEEDS_VIA_LOCAL_FILE =
+          # False stellt das alte Verhalten her (dann aber den LOCAL_FEEDS-
+          # Eintrag "auto_feed_blacklist_ipv4.txt" oben wieder entfernen).
+          AUTO_FEEDS_VIA_LOCAL_FILE = True
           _auto_handle = None
           _auto_feeds = []
-          if os.path.exists(AUTO_FEEDS_FILE):
+          if AUTO_FEEDS_VIA_LOCAL_FILE:
+              print("  Auto-Feed-Einzelfetch uebersprungen - die Feeds kommen "
+                    "aggregiert ueber auto_feed_blacklist_ipv4.txt "
+                    "(auto_feed_refresh.yml), siehe LOCAL_FEEDS")
+          elif os.path.exists(AUTO_FEEDS_FILE):
               try:
                   with open(AUTO_FEEDS_FILE) as af:
                       auto_data = json.load(af)
@@ -2653,6 +2684,19 @@ jobs:
               # Auto-Feed-Namen.
               "cve_exploit_ips.txt":             True,
               "bot_detector_blacklist_ipv4.txt": False,
+              # auto_feed_blacklist_ipv4.txt (2026-09-02): taeglich gesammelte
+              # auto-discovered Feeds aus state/auto_discovered_feeds.json,
+              # geschrieben von auto_feed_refresh.yml. Genau dasselbe Muster
+              # wie bot_detector_blacklist_ipv4.txt eine Zeile darueber:
+              # combined liest diese IPs bewusst genau EINMAL ueber diesen
+              # LOCAL_FEEDS-Eintrag ein, der Einzel-Fetch der auto-discovered
+              # Feeds ist deshalb weiter unten abgeschaltet (Abschnitt
+              # "FIX AUTO-FEEDS-VIA-LOCAL") - sonst wuerde jede IP ZWEIMAL
+              # gezaehlt.
+              # hq=False: es sind Community-Feeds unterschiedlicher Qualitaet,
+              # genau wie vorher im Auto-Feed-Loop (dort ebenfalls
+              # is_hq_override=False beim _ingest-Aufruf).
+              "auto_feed_blacklist_ipv4.txt":    False,
               "honeypot_ips.txt":                True,
               "honigtopf_ips.txt":                 True,   # Honigtopf Community Honeypot Network (API)
               "reputation_blacklist.txt":        True,   # Reputation API (Round-Robin, HQ)

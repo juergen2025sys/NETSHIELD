@@ -1,0 +1,387 @@
+name: Auto-Feed Blacklist (täglicher Refresh)
+
+# ENTSTEHUNG 2026-09-02 (siehe NETSHIELD_IP_Zuwachs_Analyse, Abschnitt 5):
+# auto_feed_discovery.yml lud bisher EINMAL WOECHENTLICH alle akzeptierten
+# Feeds (aktuell 191) komplett neu herunter und schrieb die IPs direkt in
+# seen_db. Im Lauf vom 01.09.2026 waren das 1.291.800 neue IPs in einem
+# einzigen Durchlauf (reports/auto_feed_discovery_report.md) - alle mit
+# demselben first-Zeitstempel. 30 Tage spaeter laufen sie als geschlossene
+# Welle ab; genau das sind die Spitzen in reports/ip_ablauf.md (624.887 am
+# 26.09., 1.312.837 am 02.10.).
+#
+# Dieser Workflow uebernimmt das taegliche Einsammeln der IP-Listen und ist
+# dafuer exakt nach dem Muster von update_bot_detector.yml gebaut: Feeds aus
+# state/auto_discovered_feeds.json waehlen, per fetch_url() laden, FP- und
+# Whitelist-Filter, Delta gegen die bestehende Datei, Report, Leerungsschutz,
+# eine aggregierte IP-Datei schreiben, committen.
+#
+# WICHTIG - DOPPELZAEHLUNGS-SCHUTZ (analog bot_detector, siehe dort):
+# auto_feed_blacklist_ipv4.txt muss in update_combined_blacklist.yml als
+# LOCAL_FEEDS-Eintrag eingelesen werden, und dieselben Feeds muessen dort
+# aus dem Auto-Feed-Loop AUSGESCHLOSSEN werden. Sonst zaehlt jede IP am
+# selben Tag ZWEIMAL in ip_feeds_today: einmal gesammelt ueber diese Datei,
+# einmal einzeln ueber den Auto-Feed-Namen -> verzerrtes Confidence-Scoring.
+# Die noetigen Aenderungen stehen in PATCH_combined_local_feed.md.
+#
+# ABGRENZUNG ZU update_bot_detector.yml:
+# Die Proxy-/Bot-/Crawler-/Scanner-Feeds werden bereits dort gesammelt
+# (bot_detector_blacklist_ipv4.txt). Sie sind hier ueber dieselbe Funktion
+# is_bot_detector_feed_name() ausgeschlossen - beide Workflows importieren
+# sie aus netshield_common.py, keine eigene Kopie pflegen.
+#
+# BEWUSST OHNE seen_db:
+# Dieser Workflow fasst seen_db.sqlite3 nicht an und legt keinen Actions-
+# Cache an. Damit kann er die in der Analyse beschriebene Cache-Kollision
+# gar nicht erst reproduzieren - es gibt keinen Cache-Slot, den er
+# ueberschreiben koennte. Die IPs gelangen ueber den LOCAL_FEEDS-Pfad in
+# update_combined_blacklist.yml in die seen_db, wo Aufnahme-Filter,
+# WATCHLIST_DAILY_CAP und die Anti-Churn-Ledger greifen.
+
+on:
+  schedule:
+    # 02:15 UTC taeglich. Slot-Begruendung:
+    #  - nach feed_health_monitor.yml (01:00 UTC)
+    #  - ~52 min vor dem naechsten update_combined_blacklist.yml-Slot
+    #    (03:07 UTC), damit die frische Datei im darauffolgenden
+    #    combined-Lauf schon eingelesen wird (STALE1-Alterscheck dort
+    #    warnt ab 48h)
+    #  - kein Konflikt mit tweetfeed_monitor.yml (02:45 UTC)
+    - cron: '15 2 * * *'
+  workflow_dispatch:
+  # Zusaetzlicher Trigger 2026-09-02: laeuft jetzt auch direkt nach jedem
+  # erfolgreichen NETSHIELD-Report-Lauf (siehe "Trigger Auto-Feed Refresh"-Step
+  # in netshield_report_generator.yml), analog zum bereits etablierten Muster
+  # Report Generator -> Bot-Detector / Honeypot Monitor. Der taegliche Cron
+  # oben bleibt als Fallback erhalten.
+  #
+  # Weil netshield_report_generator.yml stuendlich laeuft ('30 * * * *'),
+  # bedeutet das: dieser Refresh laeuft de facto bis zu stuendlich statt
+  # einmal taeglich. Die concurrency-Gruppe unten verhindert ueberlappende
+  # Laeufe (Trigger werden eingereiht, nicht verworfen). Soll es bei einem
+  # Volllauf pro Kalendertag bleiben, den auskommentierten Tages-Guard im
+  # ersten Job-Step aktivieren.
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: read
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # OPTIONALER TAGES-GUARD (standardmaessig AUS).
+      # Der Trigger aus netshield_report_generator.yml feuert stuendlich. Wer
+      # bei einem Volllauf pro Kalendertag bleiben will, entfernt die
+      # Kommentarzeichen unten UND setzt an den beiden folgenden Steps
+      # 'if: steps.idempotency.outputs.already_ran != '\''true'\'''.
+      # Muster uebernommen aus auto_feed_discovery.yml (dort begruendet unter
+      # "Idempotenz-Guard"): bei manuellem Dispatch greift der Guard bewusst
+      # nicht, damit forcierte Laeufe immer durchgehen.
+      #
+      # - name: Skip if already succeeded today
+      #   id: idempotency
+      #   if: github.event_name != 'workflow_dispatch'
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     today=$(date -u +%Y-%m-%d)
+      #     success_count=$(gh run list \
+      #       --repo "${{ github.repository }}" \
+      #       --workflow=auto_feed_refresh.yml \
+      #       --status=success \
+      #       --created="$today" \
+      #       --limit=10 \
+      #       --json databaseId \
+      #       --jq 'length')
+      #     if [ "$success_count" -gt 0 ]; then
+      #       echo "already_ran=true" >> "$GITHUB_OUTPUT"
+      #       echo "Heute bereits $success_count erfolgreiche Run(s) - Skip"
+      #     else
+      #       echo "already_ran=false" >> "$GITHUB_OUTPUT"
+      #     fi
+
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Fetch Auto-Discovered Feeds
+        run: |
+          python3 << 'EOF'
+          import sys as _sys; _sys.path.insert(0, "scripts")
+          from netshield_common import (
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
+              is_protected_entry, is_whitelisted,
+              parse_entries, calculate_confidence,
+              safe_get_date, parse_date, sort_ips, write_ip_list,
+              write_text_atomic,
+              fetch_url, check_local_feed_age,
+              is_bot_detector_feed_name,
+              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
+          )
+
+          # Init: Whitelist + FP-Set laden
+          load_whitelist()
+          load_fp_set()
+
+          import json, os, sys, time
+          from concurrent.futures import ThreadPoolExecutor
+          from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
+
+          now     = datetime.now(timezone.utc)
+          # Ausgabedateien verwenden deutsche Ortszeit, identisch zum Muster
+          # in update_bot_detector.yml / update_combined_blacklist.yml.
+          now_str = (
+              now.astimezone(ZoneInfo("Europe/Berlin"))
+              .strftime("%Y-%m-%d %H:%M %Z")
+              + " (Europe/Berlin)"
+          )
+
+          OUT_FILE    = "auto_feed_blacklist_ipv4.txt"
+          REPORT_FILE = "reports/auto_feed_blacklist_report.md"
+          # Leerungsschutz. Der woechentliche AFD-Lauf vom 01.09.2026 hat ueber
+          # dieselben Feeds 2.577.525 bekannte + 1.291.800 neue IPs gesehen -
+          # 50.000 liegt also um zwei Groessenordnungen unter dem Normalfall
+          # und schlaegt nur bei einem echten flaechigen Ausfall an.
+          MIN_ENTRIES = 50000
+          AUTO_FEEDS_FILE = "state/auto_discovered_feeds.json"
+          # Parallel statt seriell: update_bot_detector.yml holt ~29 Feeds
+          # nacheinander, hier sind es ~160 nach Ausschluss. Rein I/O-gebunden
+          # auf viele verschiedene Domains (kein gemeinsames Rate-Limit), daher
+          # sicher zu parallelisieren - gleiche Begruendung und gleicher Wert
+          # wie in der REFRESH-Phase von auto_feed_discovery.yml (FIX
+          # SPEED-REFRESH, 10 Worker).
+          MAX_WORKERS = 10
+
+          # ── AUTO_SOURCES dynamisch aus state/auto_discovered_feeds.json ───
+          AUTO_SOURCES = {}
+          _proxy_excluded = []
+          _iblock_excluded = []
+          if os.path.exists(AUTO_FEEDS_FILE):
+              try:
+                  with open(AUTO_FEEDS_FILE) as af:
+                      _auto_data = json.load(af)
+                  for _f in _auto_data.get("feeds", []):
+                      _name = _f.get("name")
+                      _url  = _f.get("url")
+                      _file = _f.get("file")
+                      if not (isinstance(_name, str) and isinstance(_url, str)
+                              and _url.startswith(("http://", "https://"))):
+                          continue
+                      # AUSSCHLUSS PROXY-FEEDS: bereits von
+                      # update_bot_detector.yml gesammelt (bot_detector_
+                      # blacklist_ipv4.txt). Dieselbe Funktion wie dort und wie
+                      # in update_combined_blacklist.yml - NICHT unabhaengig
+                      # voneinander aendern.
+                      if is_bot_detector_feed_name(_name, _file):
+                          _proxy_excluded.append(_name)
+                          continue
+                      # AUSSCHLUSS I-BLOCKLIST: identisch zu
+                      # update_combined_blacklist.yml - P2P-Aera-Massen-CIDR-
+                      # Dumps, ueber-breit (FP-Risiko), teils falsch
+                      # kategorisiert (edu/ads) und groesster Parse-Kostentreiber.
+                      if "iblocklist" in _name.lower():
+                          _iblock_excluded.append(_name)
+                          continue
+                      AUTO_SOURCES[_name] = _url
+                  print(f"  {len(AUTO_SOURCES)} Auto-Feeds aus {AUTO_FEEDS_FILE} ausgewaehlt "
+                        f"(von {len(_auto_data.get('feeds', []))} gesamt; "
+                        f"{len(_proxy_excluded)} Proxy-Feeds und "
+                        f"{len(_iblock_excluded)} I-BlockList-Feeds ausgeschlossen)")
+              except Exception as e:
+                  print(f"  WARNUNG: {AUTO_FEEDS_FILE} Fehler: {e}")
+          else:
+              print(f"  WARNUNG: {AUTO_FEEDS_FILE} nicht vorhanden – keine Auto-Feeds")
+
+          if not AUTO_SOURCES:
+              msg = f"Keine Auto-Feeds in {AUTO_FEEDS_FILE} gefunden (0 Quellen)"
+              print(f"::warning file=auto_feed_refresh.yml::{msg}")
+              print(f"WARNUNG: {msg} – behalte bestehende Datei")
+              sys.exit(1)
+
+          # ── Fetch mit Retry (fetch_url: SSRF-Schutz, DNS-Pin, Backoff) ─────
+          all_ips      = set()
+          stats        = {}
+          fetch_failed = set()
+          zero_ips     = {}
+
+          def _fetch_one(item):
+              name, url = item
+              text = fetch_url(url, timeout=20, retries=3, user_agent="NETSHIELD/3.0")
+              return name, url, text
+
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as _ex:
+              _results = list(_ex.map(_fetch_one, sorted(AUTO_SOURCES.items())))
+
+          for name, url, text in _results:
+              if text is None:
+                  stats[name] = 0
+                  fetch_failed.add(name)
+                  print(f"  {name}: FETCH FEHLGESCHLAGEN (None) – {url}")
+                  print(f"::warning ::Auto-Feed {name} nicht erreichbar (fetch=None) – {url}")
+                  continue
+              # use_protected_check=True filtert Whitelist-/geschuetzte
+              # Eintraege bereits beim Parsen heraus. parse_entries() extrahiert
+              # die IP unabhaengig vom Format (ip:port, plain, CSV-Spalte etc.)
+              # ueber IPV4_RE und liefert zusaetzlich gueltige CIDRs.
+              ips = parse_entries(text, use_protected_check=True)
+              all_ips.update(ips)
+              stats[name] = len(ips)
+              print(f"  {name}: {len(ips)} IPs ({len(text)} bytes geladen)")
+              if not ips:
+                  head = text.lstrip()[:120].replace("\n", " ")
+                  zero_ips[name] = head
+                  print(f"  WARNUNG {name}: 0 IPs aus {len(text)} bytes geparst – "
+                        f"moeglicher Format-Wechsel. Anfang: {head!r}")
+                  print(f"::warning ::Auto-Feed {name} lieferte Daten aber 0 gueltige IPs – Format pruefen")
+
+          # ── FP-Filter (state/false_positives_set.json) ─────────────────────
+          fp_before = len(all_ips)
+          all_ips = {ip for ip in all_ips if not is_in_fp_set(ip)}
+          fp_removed_count = fp_before - len(all_ips)
+          if fp_removed_count:
+              print(f"FP-Filter: {fp_removed_count} IPs entfernt")
+
+          # ── Whitelist-Filter (Defense-in-Depth) ───────────────────────────
+          wl_before = len(all_ips)
+          all_ips = {ip for ip in all_ips if not is_whitelisted(ip)}
+          wl_removed_count = wl_before - len(all_ips)
+          if wl_removed_count:
+              print(f"Whitelist-Filter: {wl_removed_count} IPs entfernt")
+
+          # Netzmaske vor dem Splitten abtrennen – parse_entries() liefert
+          # sowohl IPs als auch CIDRs, und ein reines ip.split(".") crasht auf
+          # "x.x.x.10/31" mit ValueError. Gleiches Muster wie in
+          # update_bot_detector.yml und honeypot_monitor.yml.
+          unique_ips = sorted(all_ips, key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
+
+          print(f"  Quellen: {len(AUTO_SOURCES)} | Erreichbar: {len(AUTO_SOURCES) - len(fetch_failed)} | "
+                f"Gesamt eindeutige IPs: {len(unique_ips)}")
+
+          # ── Delta berechnen ───────────────────────────────────────────────
+          existing = set()
+          if os.path.exists(OUT_FILE):
+              with open(OUT_FILE) as f:
+                  existing = {l.strip() for l in f
+                              if l.strip() and not l.startswith("#")}
+
+          new_ips     = set(unique_ips) - existing
+          removed_ips = existing - set(unique_ips)
+
+          print(f"  Delta: +{len(new_ips)} neu | -{len(removed_ips)} entfernt")
+
+          # ── Report immer zuerst schreiben ─────────────────────────────────
+          lines = []
+          lines.append("# Auto-Feed Blacklist – Report")
+          lines.append(f"**Aktualisiert:** {now_str}  ")
+          lines.append("**Quelle:** akzeptierte Feeds aus `state/auto_discovered_feeds.json` "
+                       "(gepflegt von auto_feed_discovery.yml)\n")
+          lines.append("---")
+          lines.append("## Ergebnis\n")
+          lines.append("| Metrik | Wert |")
+          lines.append("|---|---|")
+          lines.append(f"| Gesamt IPs | **{len(unique_ips):,}** |")
+          lines.append(f"| Neu (heute) | **+{len(new_ips):,}** |")
+          lines.append(f"| Entfernt | **-{len(removed_ips):,}** |")
+          lines.append(f"| FP-Filter entfernt | {fp_removed_count:,} |")
+          lines.append(f"| Whitelist-Filter entfernt | {wl_removed_count:,} |")
+          lines.append(f"| Quellen gesamt | {len(AUTO_SOURCES)} |")
+          lines.append(f"| Quellen nicht erreichbar | {len(fetch_failed)} |")
+          lines.append(f"| Quellen mit 0 geparsten IPs | {len(zero_ips)} |")
+          lines.append(f"| Proxy-Feeds ausgeschlossen | {len(_proxy_excluded)} |")
+          lines.append(f"| I-BlockList ausgeschlossen | {len(_iblock_excluded)} |")
+          lines.append("")
+          if zero_ips:
+              lines.append("### ⚠️ Daten geliefert, aber 0 IPs geparst\n")
+              lines.append("| Quelle | Anfang der Antwort |")
+              lines.append("|---|---|")
+              for n in sorted(zero_ips):
+                  lines.append(f"| `{n}` | `{zero_ips[n][:60]}` |")
+              lines.append("")
+          lines.append("### Pro Quelle\n")
+          lines.append("| Quelle | IPs |")
+          lines.append("|---|---|")
+          for n in sorted(stats):
+              c = stats[n]
+              mark = "✅" if c > 0 else ("❌" if n in fetch_failed else "⚠️")
+              lines.append(f"| {mark} `{n}` | {c:,} |")
+          lines.append("")
+          lines.append("---")
+          lines.append("> ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.")
+          lines.append(f"> Diese {len(AUTO_SOURCES)} Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).")
+          lines.append(f"\n---\n*Generiert: {now_str}*")
+
+          write_text_atomic(REPORT_FILE, "\n".join(lines))
+          print(f"  {REPORT_FILE} geschrieben")
+
+          # ── Leerungsschutz ────────────────────────────────────────────────
+          if len(unique_ips) < MIN_ENTRIES:
+              msg = f"Nur {len(unique_ips)} IPs (< {MIN_ENTRIES}) – behalte bestehende Datei"
+              print(f"::warning file=auto_feed_refresh.yml::{msg}")
+              print(f"WARNUNG: {msg}")
+              sys.exit(1)
+
+          # ── Blacklist schreiben ───────────────────────────────────────────
+          # Der Header traegt "Aktualisiert: ..." in deutscher Ortszeit - das
+          # ist das Format, das check_local_feed_age() / der STALE1-Check in
+          # update_combined_blacklist.yml erwartet (warnt ab 48h Alter).
+          write_ip_list(OUT_FILE, unique_ips, presorted=True, header_lines=[
+              "NETSHIELD Auto-Feed Blacklist (auto-discovered Feeds)",
+              f"Aktualisiert: {now_str}",
+              f"Quellen: {len(AUTO_SOURCES)} auto-discovered Feeds",
+              f"Gesamt: {len(unique_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt",
+          ])
+
+          print(f"  {OUT_FILE}: {len(unique_ips)} IPs geschrieben")
+
+          print(f"\nFERTIG: {len(unique_ips)} IPs | +{len(new_ips)} neu | -{len(removed_ips)} entfernt")
+          EOF
+
+      - name: Commit
+        if: always()  # FIX: auch bei Leerungsschutz-Exit den Report committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add auto_feed_blacklist_ipv4.txt reports/auto_feed_blacklist_report.md
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Auto-Feed Blacklist: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              git fetch origin ${GITHUB_REF_NAME}
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                git checkout --theirs auto_feed_blacklist_ipv4.txt \
+                  reports/auto_feed_blacklist_report.md 2>/dev/null || true
+                git add auto_feed_blacklist_ipv4.txt \
+                  reports/auto_feed_blacklist_report.md 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi
