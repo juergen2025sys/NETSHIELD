@@ -1,5 +1,5 @@
 # Auto-Feed Blacklist – Report
-**Aktualisiert:** 2026-09-02 20:52 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-02 21:20 CEST (Europe/Berlin)  
 **Quelle:** akzeptierte Feeds aus `state/auto_discovered_feeds.json` (gepflegt von auto_feed_discovery.yml)
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **3,001,418** |
-| Neu (heute) | **+585** |
-| Entfernt | **-6** |
+| Gesamt IPs | **3,001,276** |
+| Neu (heute) | **+5,046** |
+| Entfernt | **-5,188** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 125 |
@@ -34,7 +34,7 @@
 | ✅ `cbuijs_accomplist_adblock_ip_v2` | 64,659 |
 | ✅ `cbuijs_accomplist_adblock_ip_v3` | 113 |
 | ✅ `cbuijs_badip` | 86,169 |
-| ✅ `cercatrova21_blocklist` | 15,086 |
+| ✅ `cercatrova21_blocklist` | 15,155 |
 | ✅ `claudiusdecimius_ioc_ipsets_firehol_level2` | 22,859 |
 | ✅ `claudiusdecimius_ioc_ipsets_firehol_level3` | 13,658 |
 | ✅ `claudiusdecimius_ioc_ipsets_firehol_level4` | 137,460 |
@@ -135,9 +135,9 @@
 | ✅ `oktayalver_siberkapan_list_nginx_feed` | 5,746 |
 | ✅ `realizelol_torblocklist` | 1,554 |
 | ✅ `romainmarcoux_misc_ip_lists` | 3,584 |
-| ✅ `runtechx_dns_runtech_ao` | 14,024 |
-| ✅ `runtechx_dns_runtech_ao_n2` | 14,023 |
-| ✅ `securitylist1568_fortigate` | 163 |
+| ✅ `runtechx_dns_runtech_ao` | 14,027 |
+| ✅ `runtechx_dns_runtech_ao_n2` | 14,024 |
+| ✅ `securitylist1568_fortigate` | 171 |
 | ✅ `sereinfy_adrules` | 1,406 |
 | ✅ `taylored_itmail_blacklists` | 98,651 |
 | ✅ `theouterspaced_ip_blocklist` | 44 |
@@ -153,4 +153,4 @@
 > Diese 125 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-02 20:52 CEST (Europe/Berlin)*
+*Generiert: 2026-09-02 21:20 CEST (Europe/Berlin)*
