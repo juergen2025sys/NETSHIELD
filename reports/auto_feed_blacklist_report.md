@@ -1,5 +1,5 @@
 # Auto-Feed Blacklist – Report
-**Aktualisiert:** 2026-09-02 19:06 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-02 19:27 CEST (Europe/Berlin)  
 **Quelle:** akzeptierte Feeds aus `state/auto_discovered_feeds.json` (gepflegt von auto_feed_discovery.yml)
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **3,000,947** |
-| Neu (heute) | **+109** |
-| Entfernt | **-37** |
+| Gesamt IPs | **3,000,708** |
+| Neu (heute) | **+118** |
+| Entfernt | **-357** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 125 |
@@ -23,10 +23,10 @@
 | Quelle | IPs |
 |---|---|
 | ✅ `agent6_6_6_wordpress_login_blocklist` | 22,369 |
-| ✅ `alsyundawy_mikrotik_blacklist_blocklist` | 28,655 |
-| ✅ `alsyundawy_mikrotik_blacklist_blocklist_ssh` | 11,686 |
+| ✅ `alsyundawy_mikrotik_blacklist_blocklist` | 28,817 |
+| ✅ `alsyundawy_mikrotik_blacklist_blocklist_ssh` | 11,741 |
 | ✅ `alsyundawy_mikrotik_blacklist_ipsum` | 16,479 |
-| ✅ `alsyundawy_mikrotik_blacklist_ustc_blacklist` | 14,280 |
+| ✅ `alsyundawy_mikrotik_blacklist_ustc_blacklist` | 13,943 |
 | ✅ `ankaboot_source_email_open_data` | 487,437 |
 | ✅ `bilsectr_sgb_api_bridge` | 15,376 |
 | ✅ `cbuijs_accomplist` | 110,196 |
@@ -137,7 +137,7 @@
 | ✅ `romainmarcoux_misc_ip_lists` | 3,584 |
 | ✅ `runtechx_dns_runtech_ao` | 14,011 |
 | ✅ `runtechx_dns_runtech_ao_n2` | 14,015 |
-| ✅ `securitylist1568_fortigate` | 133 |
+| ✅ `securitylist1568_fortigate` | 144 |
 | ✅ `sereinfy_adrules` | 1,406 |
 | ✅ `taylored_itmail_blacklists` | 98,651 |
 | ✅ `theouterspaced_ip_blocklist` | 44 |
@@ -153,4 +153,4 @@
 > Diese 125 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-02 19:06 CEST (Europe/Berlin)*
+*Generiert: 2026-09-02 19:27 CEST (Europe/Berlin)*
