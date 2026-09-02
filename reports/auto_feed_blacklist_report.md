@@ -1,5 +1,5 @@
 # Auto-Feed Blacklist – Report
-**Aktualisiert:** 2026-09-02 20:01 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-02 20:52 CEST (Europe/Berlin)  
 **Quelle:** akzeptierte Feeds aus `state/auto_discovered_feeds.json` (gepflegt von auto_feed_discovery.yml)
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **3,000,839** |
-| Neu (heute) | **+133** |
-| Entfernt | **-2** |
+| Gesamt IPs | **3,001,418** |
+| Neu (heute) | **+585** |
+| Entfernt | **-6** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 125 |
@@ -86,10 +86,10 @@
 | ✅ `hezhidong_scanguard` | 307 |
 | ✅ `idleadmin_threatfeed` | 59,690 |
 | ✅ `infosecuniversity_block_list` | 1,372 |
-| ✅ `kalidada18_threatbase` | 182,888 |
-| ✅ `kalidada18_threatbase_threatbase_ip_bruteforce` | 30,996 |
+| ✅ `kalidada18_threatbase` | 188,675 |
+| ✅ `kalidada18_threatbase_threatbase_ip_bruteforce` | 32,159 |
 | ✅ `kalidada18_threatbase_threatbase_ip_compromised` | 15,511 |
-| ✅ `kalidada18_threatbase_threatbase_ip_tor` | 1,421 |
+| ✅ `kalidada18_threatbase_threatbase_ip_tor` | 7,009 |
 | ✅ `kennybayram_soc_feeds` | 45,218 |
 | ✅ `kraloveckey_ipsets_blocklist_bds_atif` | 250 |
 | ✅ `kraloveckey_ipsets_blocklist_blocklist_net_ua` | 164,774 |
@@ -135,9 +135,9 @@
 | ✅ `oktayalver_siberkapan_list_nginx_feed` | 5,746 |
 | ✅ `realizelol_torblocklist` | 1,554 |
 | ✅ `romainmarcoux_misc_ip_lists` | 3,584 |
-| ✅ `runtechx_dns_runtech_ao` | 14,011 |
-| ✅ `runtechx_dns_runtech_ao_n2` | 14,015 |
-| ✅ `securitylist1568_fortigate` | 154 |
+| ✅ `runtechx_dns_runtech_ao` | 14,024 |
+| ✅ `runtechx_dns_runtech_ao_n2` | 14,023 |
+| ✅ `securitylist1568_fortigate` | 163 |
 | ✅ `sereinfy_adrules` | 1,406 |
 | ✅ `taylored_itmail_blacklists` | 98,651 |
 | ✅ `theouterspaced_ip_blocklist` | 44 |
@@ -145,7 +145,7 @@
 | ✅ `toxyl_ossh_swarm_wordlists` | 15,016 |
 | ✅ `turntuptechnologies_iocs` | 33 |
 | ✅ `zgzyh_malicious_website_detection` | 25,063 |
-| ✅ `ziyadnz_threat_intel_ip_feeds_blacklist` | 119,015 |
+| ✅ `ziyadnz_threat_intel_ip_feeds_blacklist` | 119,969 |
 | ✅ `ziyadnz_threat_intel_ip_feeds_emerging_threats` | 533 |
 
 ---
@@ -153,4 +153,4 @@
 > Diese 125 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-02 20:01 CEST (Europe/Berlin)*
+*Generiert: 2026-09-02 20:52 CEST (Europe/Berlin)*
