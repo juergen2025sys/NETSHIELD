@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-09-02 06:53 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-02 08:26 CEST (Europe/Berlin)
 
 ---
 ## 📊 Listen-Übersicht
@@ -11,18 +11,18 @@
 | ❌ `blacklist_confidence40_ipv4.txt` | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **0** | – |
 | ✅ `watchlist_confidence25to39_ipv4.txt` | Watchlist (Score 25-39/100) | **61,810** | 2026-09-02 06:38 CEST (Europe/Berlin) |
 | ✅ `cve_exploit_ips.txt` | CVE Exploit IPs | **29,525** | 2026-09-02 01:31 CEST (Europe/Berlin) |
-| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,314,731** | 2026-09-02 06:46 CEST (Europe/Berlin) |
-| ✅ `honeypot_ips.txt` | Honeypot IPs | **1,852,212** | 2026-09-02 06:46 CEST (Europe/Berlin) |
-| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **26,068** | 2026-09-02 03:27 CEST (Europe/Berlin) |
+| ✅ `bot_detector_blacklist_ipv4.txt` | Bot-Detector Blacklist | **1,314,727** | 2026-09-02 06:54 CEST (Europe/Berlin) |
+| ✅ `honeypot_ips.txt` | Honeypot IPs | **1,852,041** | 2026-09-02 06:54 CEST (Europe/Berlin) |
+| ✅ `honigtopf_ips.txt` | Honigtopf Community Honeypot (API) | **26,194** | 2026-09-02 08:23 CEST (Europe/Berlin) |
 
 ---
 ## 🔍 Feed Health: ✅ 100 OK | ⚠️ 0 leer | ❌ 0 Fehler
 
-**🧊 Eingefroren (2):** `ashleykleynhans_abuseipdb` 27T, `blacksnowdot_packets` 27T
+**🧊 Eingefroren (2):** `ashleykleynhans_abuseipdb` 28T, `blacksnowdot_packets` 28T
 
 *2 davon ≥21 Tage → im Combined automatisch in Quarantäne (eingefrorene HQ-Feeds zählen nicht mehr als frische Bestätigung, betroffene IPs altern normal aus). Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
 
-*Letzter Check: 2026-09-01 07:55 CEST (Europe/Berlin) – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
+*Letzter Check: 2026-09-02 07:18 CEST (Europe/Berlin) – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -30,4 +30,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-09-02 06:53 CEST (Europe/Berlin)*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-09-02 08:26 CEST (Europe/Berlin)*
