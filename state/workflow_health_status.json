@@ -1,10 +1,16 @@
 {
-  "updated": "2026-09-02 19:08 CEST (Europe/Berlin)",
+  "updated": "2026-09-02 23:47 CEST (Europe/Berlin)",
   "total": 30,
-  "ok": 25,
+  "ok": 24,
   "warn": 8,
-  "error": 0,
-  "errors": [],
+  "error": 1,
+  "errors": [
+    {
+      "file": "auto_feed_refresh.yml",
+      "check": "MIN_FEED_SUCCESS_RATIO ungueltig",
+      "detail": "MIN_FEED_SUCCESS_RATIO=0 ist ungueltig \u2013 Guard muss > 0 sein"
+    }
+  ],
   "warnings": [
     {
       "file": "honigtopf.yml \u2192 update_bot_detector.yml",
@@ -49,6 +55,11 @@
     {
       "file": "update_combined_blacklist.yml",
       "check": "Cache-Key Prefix falsch",
+      "detail": "Save-Key 'netshield-auto-feed-daily-v1-combined-${{' hat nicht den erwarteten Prefix 'v2' \u2013 potenzieller Cache-Overwrite"
+    },
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "Cache-Key Prefix falsch",
       "detail": "Save-Key 'netshield-seen-db-sqlite-v1-${{' hat nicht den erwarteten Prefix 'v2' \u2013 potenzieller Cache-Overwrite"
     },
     {
@@ -58,12 +69,12 @@
     }
   ],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5569109,
-    "active_blacklist_ipv4.txt": 804696,
-    "blacklist_confidence40_ipv4_part1.txt": 4079960,
-    "cve_exploit_ips.txt": 29344,
-    "honeypot_ips.txt": 1854450,
-    "bot_detector_blacklist_ipv4.txt": 1313145
+    "combined_threat_blacklist_ipv4_part1.txt": 5574353,
+    "active_blacklist_ipv4.txt": 814692,
+    "blacklist_confidence40_ipv4_part1.txt": 4103123,
+    "cve_exploit_ips.txt": 29365,
+    "honeypot_ips.txt": 1862572,
+    "bot_detector_blacklist_ipv4.txt": 1314121
   },
   "production_health": {
     "critical": 0,
