@@ -1,5 +1,5 @@
 # Auto-Feed Blacklist – Report
-**Aktualisiert:** 2026-09-02 21:20 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-02 21:59 CEST (Europe/Berlin)  
 **Quelle:** akzeptierte Feeds aus `state/auto_discovered_feeds.json` (gepflegt von auto_feed_discovery.yml)
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **3,001,276** |
-| Neu (heute) | **+5,046** |
-| Entfernt | **-5,188** |
+| Gesamt IPs | **3,003,053** |
+| Neu (heute) | **+2,125** |
+| Entfernt | **-348** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 125 |
@@ -38,43 +38,43 @@
 | ✅ `claudiusdecimius_ioc_ipsets_firehol_level2` | 22,859 |
 | ✅ `claudiusdecimius_ioc_ipsets_firehol_level3` | 13,658 |
 | ✅ `claudiusdecimius_ioc_ipsets_firehol_level4` | 137,460 |
-| ✅ `configserverapps_service_blocklists_abusers_1d` | 5,047 |
+| ✅ `configserverapps_service_blocklists_abusers_1d` | 5,310 |
 | ✅ `configserverapps_service_blocklists_abusers_30d` | 152,361 |
-| ✅ `configserverapps_service_blocklists_all` | 20,380 |
-| ✅ `configserverapps_service_blocklists_all_1d` | 5,759 |
-| ✅ `configserverapps_service_blocklists_attacks_apache` | 1,631 |
-| ✅ `configserverapps_service_blocklists_attacks_bruteforce` | 1,079 |
-| ✅ `configserverapps_service_blocklists_attacks_imap` | 3,298 |
-| ✅ `configserverapps_service_blocklists_attacks_mail` | 4,512 |
-| ✅ `configserverapps_service_blocklists_attacks_ssh` | 11,583 |
+| ✅ `configserverapps_service_blocklists_all` | 21,223 |
+| ✅ `configserverapps_service_blocklists_all_1d` | 5,699 |
+| ✅ `configserverapps_service_blocklists_attacks_apache` | 1,767 |
+| ✅ `configserverapps_service_blocklists_attacks_bruteforce` | 1,237 |
+| ✅ `configserverapps_service_blocklists_attacks_imap` | 3,282 |
+| ✅ `configserverapps_service_blocklists_attacks_mail` | 4,487 |
+| ✅ `configserverapps_service_blocklists_attacks_ssh` | 11,508 |
 | ✅ `configserverapps_service_blocklists_blacklist_all` | 134,749 |
-| ✅ `configserverapps_service_blocklists_blacklist_today` | 10,888 |
+| ✅ `configserverapps_service_blocklists_blacklist_today` | 12,156 |
 | ✅ `configserverapps_service_blocklists_blocklist` | 61,549 |
-| ✅ `configserverapps_service_blocklists_blocklist_core` | 31,153 |
-| ✅ `configserverapps_service_blocklists_blocklist_extralarge` | 120,814 |
-| ✅ `configserverapps_service_blocklists_blocklist_full` | 178,703 |
-| ✅ `configserverapps_service_blocklists_blocklist_large` | 41,262 |
+| ✅ `configserverapps_service_blocklists_blocklist_core` | 31,790 |
+| ✅ `configserverapps_service_blocklists_blocklist_extralarge` | 121,630 |
+| ✅ `configserverapps_service_blocklists_blocklist_full` | 178,705 |
+| ✅ `configserverapps_service_blocklists_blocklist_large` | 42,159 |
 | ✅ `configserverapps_service_blocklists_blocklist_v2` | 229 |
 | ✅ `configserverapps_service_blocklists_forums` | 17,019 |
-| ✅ `configserverapps_service_blocklists_ftp_365d` | 38,325 |
+| ✅ `configserverapps_service_blocklists_ftp_365d` | 38,352 |
 | ✅ `configserverapps_service_blocklists_greylist` | 9,619 |
 | ✅ `configserverapps_service_blocklists_highrisk` | 6,341 |
-| ✅ `configserverapps_service_blocklists_http_1d` | 2,872 |
-| ✅ `configserverapps_service_blocklists_http_365d` | 225,963 |
+| ✅ `configserverapps_service_blocklists_http_1d` | 2,873 |
+| ✅ `configserverapps_service_blocklists_http_365d` | 226,100 |
 | ✅ `configserverapps_service_blocklists_level1` | 114,092 |
 | ✅ `configserverapps_service_blocklists_level2` | 29,835 |
-| ✅ `configserverapps_service_blocklists_level2_v2` | 22,801 |
-| ✅ `configserverapps_service_blocklists_level3` | 13,885 |
-| ✅ `configserverapps_service_blocklists_level4` | 137,469 |
-| ✅ `configserverapps_service_blocklists_master` | 77,782 |
-| ✅ `configserverapps_service_blocklists_outbound` | 189,567 |
-| ✅ `configserverapps_service_blocklists_rdp_365d` | 19,173 |
-| ✅ `configserverapps_service_blocklists_sip_365d` | 7,086 |
-| ✅ `configserverapps_service_blocklists_smtp_365d` | 9,990 |
-| ✅ `configserverapps_service_blocklists_ssh_365d` | 80,742 |
-| ✅ `configserverapps_service_blocklists_telnet_1d` | 3,687 |
-| ✅ `configserverapps_service_blocklists_telnet_365d` | 151,489 |
-| ✅ `configserverapps_service_blocklists_vnc_365d` | 10,641 |
+| ✅ `configserverapps_service_blocklists_level2_v2` | 22,558 |
+| ✅ `configserverapps_service_blocklists_level3` | 14,078 |
+| ✅ `configserverapps_service_blocklists_level4` | 137,602 |
+| ✅ `configserverapps_service_blocklists_master` | 78,973 |
+| ✅ `configserverapps_service_blocklists_outbound` | 187,851 |
+| ✅ `configserverapps_service_blocklists_rdp_365d` | 19,201 |
+| ✅ `configserverapps_service_blocklists_sip_365d` | 7,095 |
+| ✅ `configserverapps_service_blocklists_smtp_365d` | 9,998 |
+| ✅ `configserverapps_service_blocklists_ssh_365d` | 80,943 |
+| ✅ `configserverapps_service_blocklists_telnet_1d` | 3,667 |
+| ✅ `configserverapps_service_blocklists_telnet_365d` | 151,733 |
+| ✅ `configserverapps_service_blocklists_vnc_365d` | 10,647 |
 | ✅ `feezony_feezony_ip_inbound_blocklist_split` | 100,000 |
 | ✅ `feezony_feezony_ip_inbound_blocklist_split_ipinboundblocklist_part_19` | 99,988 |
 | ✅ `feezony_feezony_ip_inbound_blocklist_split_ipinboundblocklist_part_20` | 99,999 |
@@ -137,14 +137,14 @@
 | ✅ `romainmarcoux_misc_ip_lists` | 3,584 |
 | ✅ `runtechx_dns_runtech_ao` | 14,027 |
 | ✅ `runtechx_dns_runtech_ao_n2` | 14,024 |
-| ✅ `securitylist1568_fortigate` | 171 |
+| ✅ `securitylist1568_fortigate` | 291 |
 | ✅ `sereinfy_adrules` | 1,406 |
 | ✅ `taylored_itmail_blacklists` | 98,651 |
 | ✅ `theouterspaced_ip_blocklist` | 44 |
 | ✅ `theseuss_usom_siber_edl` | 14,740 |
 | ✅ `toxyl_ossh_swarm_wordlists` | 15,016 |
 | ✅ `turntuptechnologies_iocs` | 33 |
-| ✅ `zgzyh_malicious_website_detection` | 25,063 |
+| ✅ `zgzyh_malicious_website_detection` | 25,091 |
 | ✅ `ziyadnz_threat_intel_ip_feeds_blacklist` | 119,969 |
 | ✅ `ziyadnz_threat_intel_ip_feeds_emerging_threats` | 533 |
 
@@ -153,4 +153,4 @@
 > Diese 125 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-02 21:20 CEST (Europe/Berlin)*
+*Generiert: 2026-09-02 21:59 CEST (Europe/Berlin)*
