@@ -1,5 +1,5 @@
 # NETSHIELD – Sweden (SE) IPv4 Ranges
-# Aktualisiert: 2026-08-31 09:23 CEST (Europe/Berlin)
+# Aktualisiert: 2026-09-02 08:10 CEST (Europe/Berlin)
 # IP-Ranges: 2109
 
 2.0.0.0/15
@@ -938,7 +938,7 @@
 164.10.0.0/16
 164.37.0.0/18
 164.37.46.0/23
-164.37.48.0/22
+164.37.48.0/23
 164.37.60.0/20
 164.37.80.0/20
 164.37.128.0/18

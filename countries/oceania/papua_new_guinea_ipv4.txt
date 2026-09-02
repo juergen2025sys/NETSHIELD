@@ -1,6 +1,6 @@
 # NETSHIELD – Papua New Guinea (PG) IPv4 Ranges
-# Aktualisiert: 2026-08-31 09:23 CEST (Europe/Berlin)
-# IP-Ranges: 63
+# Aktualisiert: 2026-09-02 08:10 CEST (Europe/Berlin)
+# IP-Ranges: 64
 
 14.192.72.0/22
 27.122.16.0/20
@@ -53,6 +53,7 @@
 125.254.50.0/23
 160.20.143.0/24
 160.191.118.0/23
+163.52.92.0/23
 163.227.43.0/24
 180.150.252.0/22
 202.1.32.0/19

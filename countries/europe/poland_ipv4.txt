@@ -1,6 +1,6 @@
 # NETSHIELD – Poland (PL) IPv4 Ranges
-# Aktualisiert: 2026-08-31 09:23 CEST (Europe/Berlin)
-# IP-Ranges: 4294
+# Aktualisiert: 2026-09-02 08:10 CEST (Europe/Berlin)
+# IP-Ranges: 4295
 
 2.56.68.0/22
 2.57.8.0/23
@@ -3478,6 +3478,7 @@
 194.28.228.0/22
 194.29.128.0/18
 194.29.180.0/22
+194.29.192.0/21
 194.30.164.0/24
 194.30.179.0/24
 194.31.32.0/22

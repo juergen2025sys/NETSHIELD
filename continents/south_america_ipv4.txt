@@ -1,6 +1,6 @@
 # NETSHIELD – South America IPv4 Ranges
-# Aktualisiert: 2026-08-31 09:23 CEST (Europe/Berlin)
-# IP-Ranges: 17808
+# Aktualisiert: 2026-09-02 08:10 CEST (Europe/Berlin)
+# IP-Ranges: 17809
 
 2.152.8.0/21
 2.152.33.0/24
@@ -14076,7 +14076,8 @@
 191.7.0.0/23
 191.7.2.0/23
 191.7.4.0/23
-191.7.6.0/23
+191.7.6.0/24
+191.7.7.0/24
 191.7.8.0/21
 191.7.16.0/22
 191.7.20.0/22

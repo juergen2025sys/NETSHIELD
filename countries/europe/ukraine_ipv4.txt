@@ -1,6 +1,6 @@
 # NETSHIELD – Ukraine (UA) IPv4 Ranges
-# Aktualisiert: 2026-08-31 09:23 CEST (Europe/Berlin)
-# IP-Ranges: 2875
+# Aktualisiert: 2026-09-02 08:10 CEST (Europe/Berlin)
+# IP-Ranges: 2876
 
 2.56.108.0/22
 2.56.168.0/24
@@ -1236,6 +1236,7 @@
 159.200.233.0/24
 159.200.236.0/24
 159.200.237.0/24
+159.200.244.0/23
 159.200.246.0/23
 159.224.0.0/16
 171.25.168.0/22

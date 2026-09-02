@@ -1,6 +1,6 @@
 # NETSHIELD – Italy (IT) IPv4 Ranges
-# Aktualisiert: 2026-08-31 09:23 CEST (Europe/Berlin)
-# IP-Ranges: 3716
+# Aktualisiert: 2026-09-02 08:10 CEST (Europe/Berlin)
+# IP-Ranges: 3717
 
 2.32.0.0/12
 2.56.92.0/22
@@ -3455,6 +3455,7 @@
 204.231.237.0/24
 207.244.214.0/23
 209.227.192.0/18
+212.2.40.0/22
 212.3.160.0/19
 212.4.0.0/19
 212.6.50.0/24
