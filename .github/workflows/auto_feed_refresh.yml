@@ -1,65 +1,16 @@
-name: Auto-Feed Blacklist (täglicher Refresh)
+name: Auto-Feed Live Refresh
 
-# ENTSTEHUNG 2026-09-02 (siehe NETSHIELD_IP_Zuwachs_Analyse, Abschnitt 5):
-# auto_feed_discovery.yml lud bisher EINMAL WOECHENTLICH alle akzeptierten
-# Feeds (aktuell 191) komplett neu herunter und schrieb die IPs direkt in
-# seen_db. Im Lauf vom 01.09.2026 waren das 1.291.800 neue IPs in einem
-# einzigen Durchlauf (reports/auto_feed_discovery_report.md) - alle mit
-# demselben first-Zeitstempel. 30 Tage spaeter laufen sie als geschlossene
-# Welle ab; genau das sind die Spitzen in reports/ip_ablauf.md (624.887 am
-# 26.09., 1.312.837 am 02.10.).
-#
-# Dieser Workflow uebernimmt das taegliche Einsammeln der IP-Listen und ist
-# dafuer exakt nach dem Muster von update_bot_detector.yml gebaut: Feeds aus
-# state/auto_discovered_feeds.json waehlen, per fetch_url() laden, FP- und
-# Whitelist-Filter, Delta gegen die bestehende Datei, Report, Leerungsschutz,
-# eine aggregierte IP-Datei schreiben, committen.
-#
-# WICHTIG - DOPPELZAEHLUNGS-SCHUTZ (analog bot_detector, siehe dort):
-# auto_feed_blacklist_ipv4.txt muss in update_combined_blacklist.yml als
-# LOCAL_FEEDS-Eintrag eingelesen werden, und dieselben Feeds muessen dort
-# aus dem Auto-Feed-Loop AUSGESCHLOSSEN werden. Sonst zaehlt jede IP am
-# selben Tag ZWEIMAL in ip_feeds_today: einmal gesammelt ueber diese Datei,
-# einmal einzeln ueber den Auto-Feed-Namen -> verzerrtes Confidence-Scoring.
-# Die noetigen Aenderungen stehen in PATCH_combined_local_feed.md.
-#
-# ABGRENZUNG ZU update_bot_detector.yml:
-# Die Proxy-/Bot-/Crawler-/Scanner-Feeds werden bereits dort gesammelt
-# (bot_detector_blacklist_ipv4.txt). Sie sind hier ueber dieselbe Funktion
-# is_bot_detector_feed_name() ausgeschlossen - beide Workflows importieren
-# sie aus netshield_common.py, keine eigene Kopie pflegen.
-#
-# BEWUSST OHNE seen_db:
-# Dieser Workflow fasst seen_db.sqlite3 nicht an und legt keinen Actions-
-# Cache an. Damit kann er die in der Analyse beschriebene Cache-Kollision
-# gar nicht erst reproduzieren - es gibt keinen Cache-Slot, den er
-# ueberschreiben koennte. Die IPs gelangen ueber den LOCAL_FEEDS-Pfad in
-# update_combined_blacklist.yml in die seen_db, wo Aufnahme-Filter,
-# WATCHLIST_DAILY_CAP und die Anti-Churn-Ledger greifen.
+# Holt die von auto_feed_discovery.yml akzeptierten Feeds regelmaessig neu.
+# Der Report Generator triggert diesen Workflow stuendlich; der 02:15-UTC-Cron
+# bleibt als unabhaengiger Fallback. Wichtig: Dieser Workflow schreibt NICHT in
+# seen_db. Er erzeugt einen separaten SQLite-Snapshot mit (entry, feed), damit
+# Combined die ORIGINALEN Feed-Namen und damit today_count/Admission-Semantik
+# beibehaelt. Proxy/Bot/Crawler/Scanner-Feeds bleiben bei update_bot_detector.
 
 on:
   schedule:
-    # 02:15 UTC taeglich. Slot-Begruendung:
-    #  - nach feed_health_monitor.yml (01:00 UTC)
-    #  - ~52 min vor dem naechsten update_combined_blacklist.yml-Slot
-    #    (03:07 UTC), damit die frische Datei im darauffolgenden
-    #    combined-Lauf schon eingelesen wird (STALE1-Alterscheck dort
-    #    warnt ab 48h)
-    #  - kein Konflikt mit tweetfeed_monitor.yml (02:45 UTC)
     - cron: '15 2 * * *'
   workflow_dispatch:
-  # Zusaetzlicher Trigger 2026-09-02: laeuft jetzt auch direkt nach jedem
-  # erfolgreichen NETSHIELD-Report-Lauf (siehe "Trigger Auto-Feed Refresh"-Step
-  # in netshield_report_generator.yml), analog zum bereits etablierten Muster
-  # Report Generator -> Bot-Detector / Honeypot Monitor. Der taegliche Cron
-  # oben bleibt als Fallback erhalten.
-  #
-  # Weil netshield_report_generator.yml stuendlich laeuft ('30 * * * *'),
-  # bedeutet das: dieser Refresh laeuft de facto bis zu stuendlich statt
-  # einmal taeglich. Die concurrency-Gruppe unten verhindert ueberlappende
-  # Laeufe (Trigger werden eingereiht, nicht verworfen). Soll es bei einem
-  # Volllauf pro Kalendertag bleiben, den auskommentierten Tages-Guard im
-  # ersten Job-Step aktivieren.
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -73,315 +24,319 @@ permissions:
   security-events: none
 
 concurrency:
-  group: ${{ github.workflow }}
+  group: netshield-auto-feed-refresh
   cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
 
     steps:
-      # OPTIONALER TAGES-GUARD (standardmaessig AUS).
-      # Der Trigger aus netshield_report_generator.yml feuert stuendlich. Wer
-      # bei einem Volllauf pro Kalendertag bleiben will, entfernt die
-      # Kommentarzeichen unten UND setzt an den beiden folgenden Steps
-      # 'if: steps.idempotency.outputs.already_ran != '\''true'\'''.
-      # Muster uebernommen aus auto_feed_discovery.yml (dort begruendet unter
-      # "Idempotenz-Guard"): bei manuellem Dispatch greift der Guard bewusst
-      # nicht, damit forcierte Laeufe immer durchgehen.
-      #
-      # - name: Skip if already succeeded today
-      #   id: idempotency
-      #   if: github.event_name != 'workflow_dispatch'
-      #   env:
-      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     today=$(date -u +%Y-%m-%d)
-      #     success_count=$(gh run list \
-      #       --repo "${{ github.repository }}" \
-      #       --workflow=auto_feed_refresh.yml \
-      #       --status=success \
-      #       --created="$today" \
-      #       --limit=10 \
-      #       --json databaseId \
-      #       --jq 'length')
-      #     if [ "$success_count" -gt 0 ]; then
-      #       echo "already_ran=true" >> "$GITHUB_OUTPUT"
-      #       echo "Heute bereits $success_count erfolgreiche Run(s) - Skip"
-      #     else
-      #       echo "already_ran=false" >> "$GITHUB_OUTPUT"
-      #     fi
-
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: true
 
-      - name: Fetch Auto-Discovered Feeds
+      - name: Restore vorherigen Auto-Feed Snapshot
+        id: restore_auto_snapshot
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: state/auto_feed_daily.sqlite3
+          key: netshield-auto-feed-daily-v1-${{ github.run_id }}
+          restore-keys: |
+            netshield-auto-feed-daily-v1-
+
+      - name: defusedxml sicherstellen
         run: |
-          python3 << 'EOF'
-          import sys as _sys; _sys.path.insert(0, "scripts")
-          from netshield_common import (
-              load_whitelist, load_fp_set, is_in_fp_set,
-              is_valid_public_ipv4, is_valid_public_cidr,
-              is_protected_entry, is_whitelisted,
-              parse_entries, calculate_confidence,
-              safe_get_date, parse_date, sort_ips, write_ip_list,
-              write_text_atomic,
-              fetch_url, check_local_feed_age,
-              is_bot_detector_feed_name,
-              IPV4_RE, CIDR_RE, TIMESTAMP_RE,
-          )
+          pip install --quiet --disable-pip-version-check --break-system-packages defusedxml 2>/dev/null \
+            || pip install --quiet --disable-pip-version-check defusedxml
 
-          # Init: Whitelist + FP-Set laden
-          load_whitelist()
-          load_fp_set()
-
-          import json, os, sys, time
-          from concurrent.futures import ThreadPoolExecutor
+      - name: Auto-Feeds laden und Snapshot bauen
+        id: refresh
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          python3 << 'PY'
+          import hashlib
+          import json
+          import os
+          import sqlite3
+          import sys
+          import time
+          import tempfile
+          from concurrent.futures import ThreadPoolExecutor, as_completed
           from datetime import datetime, timezone
           from zoneinfo import ZoneInfo
 
-          now     = datetime.now(timezone.utc)
-          # Ausgabedateien verwenden deutsche Ortszeit, identisch zum Muster
-          # in update_bot_detector.yml / update_combined_blacklist.yml.
-          now_str = (
-              now.astimezone(ZoneInfo("Europe/Berlin"))
-              .strftime("%Y-%m-%d %H:%M %Z")
-              + " (Europe/Berlin)"
+          sys.path.insert(0, "scripts")
+          from netshield_common import (
+              fetch_url,
+              is_bot_detector_feed_name,
+              is_in_fp_set,
+              is_whitelisted,
+              load_fp_set,
+              load_whitelist,
+              parse_feed_entries,
+              validate_auto_feeds,
+              write_text_atomic,
           )
 
-          OUT_FILE    = "auto_feed_blacklist_ipv4.txt"
-          REPORT_FILE = "reports/auto_feed_blacklist_report.md"
-          # Leerungsschutz. Der woechentliche AFD-Lauf vom 01.09.2026 hat ueber
-          # dieselben Feeds 2.577.525 bekannte + 1.291.800 neue IPs gesehen -
-          # 50.000 liegt also um zwei Groessenordnungen unter dem Normalfall
-          # und schlaegt nur bei einem echten flaechigen Ausfall an.
-          MIN_ENTRIES = 50000
-          AUTO_FEEDS_FILE = "state/auto_discovered_feeds.json"
-          # Parallel statt seriell: update_bot_detector.yml holt ~29 Feeds
-          # nacheinander, hier sind es ~160 nach Ausschluss. Rein I/O-gebunden
-          # auf viele verschiedene Domains (kein gemeinsames Rate-Limit), daher
-          # sicher zu parallelisieren - gleiche Begruendung und gleicher Wert
-          # wie in der REFRESH-Phase von auto_feed_discovery.yml (FIX
-          # SPEED-REFRESH, 10 Worker).
-          MAX_WORKERS = 10
+          REGISTRY = "state/auto_discovered_feeds.json"
+          SNAPSHOT = "state/auto_feed_daily.sqlite3"
+          NEXT = "state/auto_feed_daily.next.sqlite3"
+          OUT_FILE = "auto_feed_blacklist_ipv4.txt"  # nur Kompatibilitaet/Einblick; Combined liest SQLite
+          REPORT = "reports/auto_feed_blacklist_report.md"
+          MAX_WORKERS = 12
+          MIN_UNIQUE = 50_000
+          MIN_FEED_SUCCESS_RATIO = 0.50
 
-          # ── AUTO_SOURCES dynamisch aus state/auto_discovered_feeds.json ───
-          AUTO_SOURCES = {}
-          _proxy_excluded = []
-          _iblock_excluded = []
-          if os.path.exists(AUTO_FEEDS_FILE):
-              try:
-                  with open(AUTO_FEEDS_FILE) as af:
-                      _auto_data = json.load(af)
-                  for _f in _auto_data.get("feeds", []):
-                      _name = _f.get("name")
-                      _url  = _f.get("url")
-                      _file = _f.get("file")
-                      if not (isinstance(_name, str) and isinstance(_url, str)
-                              and _url.startswith(("http://", "https://"))):
-                          continue
-                      # AUSSCHLUSS PROXY-FEEDS: bereits von
-                      # update_bot_detector.yml gesammelt (bot_detector_
-                      # blacklist_ipv4.txt). Dieselbe Funktion wie dort und wie
-                      # in update_combined_blacklist.yml - NICHT unabhaengig
-                      # voneinander aendern.
-                      if is_bot_detector_feed_name(_name, _file):
-                          _proxy_excluded.append(_name)
-                          continue
-                      # AUSSCHLUSS I-BLOCKLIST: identisch zu
-                      # update_combined_blacklist.yml - P2P-Aera-Massen-CIDR-
-                      # Dumps, ueber-breit (FP-Risiko), teils falsch
-                      # kategorisiert (edu/ads) und groesster Parse-Kostentreiber.
-                      if "iblocklist" in _name.lower():
-                          _iblock_excluded.append(_name)
-                          continue
-                      AUTO_SOURCES[_name] = _url
-                  print(f"  {len(AUTO_SOURCES)} Auto-Feeds aus {AUTO_FEEDS_FILE} ausgewaehlt "
-                        f"(von {len(_auto_data.get('feeds', []))} gesamt; "
-                        f"{len(_proxy_excluded)} Proxy-Feeds und "
-                        f"{len(_iblock_excluded)} I-BlockList-Feeds ausgeschlossen)")
-              except Exception as e:
-                  print(f"  WARNUNG: {AUTO_FEEDS_FILE} Fehler: {e}")
-          else:
-              print(f"  WARNUNG: {AUTO_FEEDS_FILE} nicht vorhanden – keine Auto-Feeds")
+          load_whitelist()
+          load_fp_set()
 
-          if not AUTO_SOURCES:
-              msg = f"Keine Auto-Feeds in {AUTO_FEEDS_FILE} gefunden (0 Quellen)"
-              print(f"::warning file=auto_feed_refresh.yml::{msg}")
-              print(f"WARNUNG: {msg} – behalte bestehende Datei")
-              sys.exit(1)
+          if not os.path.exists(REGISTRY):
+              raise RuntimeError(f"{REGISTRY} fehlt - kein sicherer Refresh moeglich")
+          registry_bytes = open(REGISTRY, "rb").read()
+          registry_sha = hashlib.sha256(registry_bytes).hexdigest()
+          data = json.loads(registry_bytes.decode("utf-8"))
+          feeds, rejected = validate_auto_feeds(data)
+          if rejected:
+              print(f"WARN: {rejected} Registry-Eintraege wegen Schema/URL verworfen")
 
-          # ── Fetch mit Retry (fetch_url: SSRF-Schutz, DNS-Pin, Backoff) ─────
-          all_ips      = set()
-          stats        = {}
-          fetch_failed = set()
-          zero_ips     = {}
-
-          def _fetch_one(item):
-              name, url = item
-              text = fetch_url(url, timeout=20, retries=3, user_agent="NETSHIELD/3.0")
-              return name, url, text
-
-          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as _ex:
-              _results = list(_ex.map(_fetch_one, sorted(AUTO_SOURCES.items())))
-
-          for name, url, text in _results:
-              if text is None:
-                  stats[name] = 0
-                  fetch_failed.add(name)
-                  print(f"  {name}: FETCH FEHLGESCHLAGEN (None) – {url}")
-                  print(f"::warning ::Auto-Feed {name} nicht erreichbar (fetch=None) – {url}")
+          selected = []
+          proxy_excluded = []
+          iblock_excluded = []
+          for f in feeds:
+              name = f["name"]
+              if "iblocklist" in name.lower():
+                  iblock_excluded.append(name)
                   continue
-              # use_protected_check=True filtert Whitelist-/geschuetzte
-              # Eintraege bereits beim Parsen heraus. parse_entries() extrahiert
-              # die IP unabhaengig vom Format (ip:port, plain, CSV-Spalte etc.)
-              # ueber IPV4_RE und liefert zusaetzlich gueltige CIDRs.
-              ips = parse_entries(text, use_protected_check=True)
-              all_ips.update(ips)
-              stats[name] = len(ips)
-              print(f"  {name}: {len(ips)} IPs ({len(text)} bytes geladen)")
-              if not ips:
-                  head = text.lstrip()[:120].replace("\n", " ")
-                  zero_ips[name] = head
-                  print(f"  WARNUNG {name}: 0 IPs aus {len(text)} bytes geparst – "
-                        f"moeglicher Format-Wechsel. Anfang: {head!r}")
-                  print(f"::warning ::Auto-Feed {name} lieferte Daten aber 0 gueltige IPs – Format pruefen")
+              if is_bot_detector_feed_name(name, f.get("file", "")):
+                  proxy_excluded.append(name)
+                  continue
+              selected.append(f)
+          if not selected:
+              raise RuntimeError("0 verwertbare Auto-Feeds nach Filterung")
 
-          # ── FP-Filter (state/false_positives_set.json) ─────────────────────
-          fp_before = len(all_ips)
-          all_ips = {ip for ip in all_ips if not is_in_fp_set(ip)}
-          fp_removed_count = fp_before - len(all_ips)
-          if fp_removed_count:
-              print(f"FP-Filter: {fp_removed_count} IPs entfernt")
+          os.makedirs("state", exist_ok=True)
+          os.makedirs("reports", exist_ok=True)
+          try:
+              os.remove(NEXT)
+          except FileNotFoundError:
+              pass
 
-          # ── Whitelist-Filter (Defense-in-Depth) ───────────────────────────
-          wl_before = len(all_ips)
-          all_ips = {ip for ip in all_ips if not is_whitelisted(ip)}
-          wl_removed_count = wl_before - len(all_ips)
-          if wl_removed_count:
-              print(f"Whitelist-Filter: {wl_removed_count} IPs entfernt")
+          new = sqlite3.connect(NEXT)
+          new.execute("PRAGMA journal_mode=TRUNCATE")
+          new.execute("PRAGMA synchronous=NORMAL")
+          new.execute("PRAGMA temp_store=FILE")
+          new.execute("CREATE TABLE hits(entry TEXT NOT NULL, feed TEXT NOT NULL, PRIMARY KEY(entry,feed)) WITHOUT ROWID")
+          new.execute("CREATE TABLE meta(key TEXT PRIMARY KEY, value TEXT NOT NULL) WITHOUT ROWID")
+          new.execute("CREATE TABLE feed_stats(feed TEXT PRIMARY KEY, entries INTEGER NOT NULL, status TEXT NOT NULL) WITHOUT ROWID")
 
-          # Netzmaske vor dem Splitten abtrennen – parse_entries() liefert
-          # sowohl IPs als auch CIDRs, und ein reines ip.split(".") crasht auf
-          # "x.x.x.10/31" mit ValueError. Gleiches Muster wie in
-          # update_bot_detector.yml und honeypot_monitor.yml.
-          unique_ips = sorted(all_ips, key=lambda e: (tuple(int(x) for x in e.split('/')[0].split('.')), e))
+          prev_attached = False
+          if os.path.exists(SNAPSHOT):
+              try:
+                  chk = sqlite3.connect(f"file:{SNAPSHOT}?mode=ro", uri=True)
+                  q = chk.execute("PRAGMA quick_check").fetchone()
+                  has_hits = chk.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='hits'").fetchone()
+                  chk.close()
+                  if q and q[0] == "ok" and has_hits:
+                      new.execute("ATTACH DATABASE ? AS prev", (os.path.abspath(SNAPSHOT),))
+                      prev_attached = True
+                      print("Vorheriger Auto-Feed Snapshot gueltig - Fehlerfeeds werden daraus konservativ erhalten")
+                  else:
+                      print("WARN: vorheriger Auto-Feed Snapshot ungueltig - kein Feed-Fallback")
+              except Exception as e:
+                  print(f"WARN: vorheriger Snapshot nicht nutzbar: {e}")
 
-          print(f"  Quellen: {len(AUTO_SOURCES)} | Erreichbar: {len(AUTO_SOURCES) - len(fetch_failed)} | "
-                f"Gesamt eindeutige IPs: {len(unique_ips)}")
+          def fetch_one(feed):
+              name, url = feed["name"], feed["url"]
+              text = fetch_url(url, timeout=22, retries=2, user_agent="NETSHIELD/3.0")
+              if text is None:
+                  return name, None, "fetch_failed"
+              entries = parse_feed_entries(text, source_hint=url, use_protected_check=True)
+              entries = {e for e in entries if not is_in_fp_set(e) and not is_whitelisted(e)}
+              if not entries:
+                  return name, None, "zero_entries"
+              return name, entries, "ok"
 
-          # ── Delta berechnen ───────────────────────────────────────────────
-          existing = set()
-          if os.path.exists(OUT_FILE):
-              with open(OUT_FILE) as f:
-                  existing = {l.strip() for l in f
-                              if l.strip() and not l.startswith("#")}
+          results = {}
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+              futs = {ex.submit(fetch_one, f): f["name"] for f in selected}
+              for fut in as_completed(futs):
+                  name = futs[fut]
+                  try:
+                      n, entries, status = fut.result()
+                  except Exception as e:
+                      n, entries, status = name, None, f"exception:{type(e).__name__}"
+                  results[n] = (entries, status)
+                  if entries is not None:
+                      print(f"OK  {n}: {len(entries):,} Eintraege")
+                  else:
+                      print(f"WARN {n}: {status}")
 
-          new_ips     = set(unique_ips) - existing
-          removed_ips = existing - set(unique_ips)
+          ok_feeds = 0
+          fallback_feeds = 0
+          failed_without_fallback = []
+          for f in selected:
+              name = f["name"]
+              entries, status = results.get(name, (None, "missing_result"))
+              if entries is not None:
+                  new.executemany("INSERT OR IGNORE INTO hits(entry,feed) VALUES (?,?)", ((e, name) for e in entries))
+                  new.execute("INSERT OR REPLACE INTO feed_stats(feed,entries,status) VALUES (?,?,?)", (name, len(entries), "ok"))
+                  ok_feeds += 1
+              elif prev_attached:
+                  try:
+                      cnt = new.execute("SELECT COUNT(*) FROM prev.hits WHERE feed=?", (name,)).fetchone()[0]
+                  except sqlite3.Error:
+                      cnt = 0
+                  if cnt:
+                      new.execute("INSERT OR IGNORE INTO hits(entry,feed) SELECT entry,feed FROM prev.hits WHERE feed=?", (name,))
+                      new.execute("INSERT OR REPLACE INTO feed_stats(feed,entries,status) VALUES (?,?,?)", (name, cnt, "fallback_previous"))
+                      fallback_feeds += 1
+                      continue
+                  failed_without_fallback.append(name)
+                  new.execute("INSERT OR REPLACE INTO feed_stats(feed,entries,status) VALUES (?,?,?)", (name, 0, status))
+              else:
+                  failed_without_fallback.append(name)
+                  new.execute("INSERT OR REPLACE INTO feed_stats(feed,entries,status) VALUES (?,?,?)", (name, 0, status))
 
-          print(f"  Delta: +{len(new_ips)} neu | -{len(removed_ips)} entfernt")
+          new.commit()
+          hit_count = new.execute("SELECT COUNT(*) FROM hits").fetchone()[0]
+          unique_count = new.execute("SELECT COUNT(DISTINCT entry) FROM hits").fetchone()[0]
+          active_feed_count = new.execute("SELECT COUNT(DISTINCT feed) FROM hits").fetchone()[0]
+          success_ratio = ok_feeds / max(1, len(selected))
 
-          # ── Report immer zuerst schreiben ─────────────────────────────────
-          lines = []
-          lines.append("# Auto-Feed Blacklist – Report")
-          lines.append(f"**Aktualisiert:** {now_str}  ")
-          lines.append("**Quelle:** akzeptierte Feeds aus `state/auto_discovered_feeds.json` "
-                       "(gepflegt von auto_feed_discovery.yml)\n")
-          lines.append("---")
-          lines.append("## Ergebnis\n")
-          lines.append("| Metrik | Wert |")
-          lines.append("|---|---|")
-          lines.append(f"| Gesamt IPs | **{len(unique_ips):,}** |")
-          lines.append(f"| Neu (heute) | **+{len(new_ips):,}** |")
-          lines.append(f"| Entfernt | **-{len(removed_ips):,}** |")
-          lines.append(f"| FP-Filter entfernt | {fp_removed_count:,} |")
-          lines.append(f"| Whitelist-Filter entfernt | {wl_removed_count:,} |")
-          lines.append(f"| Quellen gesamt | {len(AUTO_SOURCES)} |")
-          lines.append(f"| Quellen nicht erreichbar | {len(fetch_failed)} |")
-          lines.append(f"| Quellen mit 0 geparsten IPs | {len(zero_ips)} |")
-          lines.append(f"| Proxy-Feeds ausgeschlossen | {len(_proxy_excluded)} |")
-          lines.append(f"| I-BlockList ausgeschlossen | {len(_iblock_excluded)} |")
-          lines.append("")
-          if zero_ips:
-              lines.append("### ⚠️ Daten geliefert, aber 0 IPs geparst\n")
-              lines.append("| Quelle | Anfang der Antwort |")
-              lines.append("|---|---|")
-              for n in sorted(zero_ips):
-                  lines.append(f"| `{n}` | `{zero_ips[n][:60]}` |")
-              lines.append("")
-          lines.append("### Pro Quelle\n")
-          lines.append("| Quelle | IPs |")
-          lines.append("|---|---|")
-          for n in sorted(stats):
-              c = stats[n]
-              mark = "✅" if c > 0 else ("❌" if n in fetch_failed else "⚠️")
-              lines.append(f"| {mark} `{n}` | {c:,} |")
-          lines.append("")
-          lines.append("---")
-          lines.append("> ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.")
-          lines.append(f"> Diese {len(AUTO_SOURCES)} Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).")
-          lines.append(f"\n---\n*Generiert: {now_str}*")
+          if unique_count < MIN_UNIQUE:
+              raise RuntimeError(f"Leerungsschutz: nur {unique_count:,} eindeutige Eintraege (<{MIN_UNIQUE:,})")
+          if success_ratio < MIN_FEED_SUCCESS_RATIO and not prev_attached:
+              raise RuntimeError(f"Zu wenige erfolgreiche Feeds: {ok_feeds}/{len(selected)} ({success_ratio:.1%})")
 
-          write_text_atomic(REPORT_FILE, "\n".join(lines))
-          print(f"  {REPORT_FILE} geschrieben")
+          now_epoch = int(time.time())
+          now_berlin = datetime.now(timezone.utc).astimezone(ZoneInfo("Europe/Berlin"))
+          meta = {
+              "generated_at_epoch": str(now_epoch),
+              "generated_at": now_berlin.isoformat(),
+              "registry_sha256": registry_sha,
+              "selected_feeds": str(len(selected)),
+              "successful_feeds": str(ok_feeds),
+              "fallback_feeds": str(fallback_feeds),
+              "active_feed_count": str(active_feed_count),
+              "hit_count": str(hit_count),
+              "unique_count": str(unique_count),
+              "format_version": "1",
+          }
+          new.executemany("INSERT OR REPLACE INTO meta(key,value) VALUES (?,?)", meta.items())
+          new.commit()
 
-          # ── Leerungsschutz ────────────────────────────────────────────────
-          if len(unique_ips) < MIN_ENTRIES:
-              msg = f"Nur {len(unique_ips)} IPs (< {MIN_ENTRIES}) – behalte bestehende Datei"
-              print(f"::warning file=auto_feed_refresh.yml::{msg}")
-              print(f"WARNUNG: {msg}")
-              sys.exit(1)
+          # Delta gegen vorherigen Snapshot ohne Millionen-Eintraege in Python zu materialisieren.
+          added = removed = None
+          if prev_attached:
+              try:
+                  added = new.execute("SELECT COUNT(*) FROM (SELECT entry FROM hits EXCEPT SELECT entry FROM prev.hits)").fetchone()[0]
+                  removed = new.execute("SELECT COUNT(*) FROM (SELECT entry FROM prev.hits EXCEPT SELECT entry FROM hits)").fetchone()[0]
+              except sqlite3.Error as e:
+                  print(f"WARN: Delta gegen vorherigen Snapshot nicht berechenbar: {e}")
+              new.execute("DETACH DATABASE prev")
+          new.close()
 
-          # ── Blacklist schreiben ───────────────────────────────────────────
-          # Der Header traegt "Aktualisiert: ..." in deutscher Ortszeit - das
-          # ist das Format, das check_local_feed_age() / der STALE1-Check in
-          # update_combined_blacklist.yml erwartet (warnt ab 48h Alter).
-          write_ip_list(OUT_FILE, unique_ips, presorted=True, header_lines=[
-              "NETSHIELD Auto-Feed Blacklist (auto-discovered Feeds)",
-              f"Aktualisiert: {now_str}",
-              f"Quellen: {len(AUTO_SOURCES)} auto-discovered Feeds",
-              f"Gesamt: {len(unique_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt",
-          ])
+          os.replace(NEXT, SNAPSHOT)
 
-          print(f"  {OUT_FILE}: {len(unique_ips)} IPs geschrieben")
+          # Sichtbare Kompatibilitaetsliste. Combined liest diese Datei NICHT mehr als Feed,
+          # damit 5 Auto-Feeds auch weiterhin als 5 Feed-Treffer zaehlen.
+          ro = sqlite3.connect(f"file:{SNAPSHOT}?mode=ro", uri=True)
+          _out_dir = os.path.dirname(OUT_FILE) or "."
+          with tempfile.NamedTemporaryFile("w", encoding="utf-8", newline="\n",
+                                           dir=_out_dir, prefix=".auto_feed_",
+                                           suffix=".tmp", delete=False) as out:
+              tmp = out.name
+              out.write("# NETSHIELD Auto-Feed Blacklist (Kompatibilitaetsansicht)\n")
+              out.write(f"# Aktualisiert: {now_berlin.strftime('%Y-%m-%d %H:%M %Z')} (Europe/Berlin)\n")
+              out.write(f"# Eindeutige Eintraege: {unique_count} | Feed-Treffer: {hit_count} | Quellen: {active_feed_count}\n")
+              out.write("# HINWEIS: Combined nutzt state/auto_feed_daily.sqlite3 aus separatem Actions Cache, nicht diese aggregierte Datei.\n\n")
+              for (entry,) in ro.execute("SELECT DISTINCT entry FROM hits ORDER BY entry"):
+                  out.write(entry + "\n")
+              out.flush()
+              os.fsync(out.fileno())
+          ro.close()
+          os.replace(tmp, OUT_FILE)
 
-          print(f"\nFERTIG: {len(unique_ips)} IPs | +{len(new_ips)} neu | -{len(removed_ips)} entfernt")
-          EOF
+          lines = [
+              "# Auto-Feed Live Refresh – Report", "",
+              f"**Aktualisiert:** {now_berlin.strftime('%Y-%m-%d %H:%M %Z')} (Europe/Berlin)", "",
+              "| Metrik | Wert |", "|---|---:|",
+              f"| Registry-Feeds ausgewaehlt | {len(selected):,} |",
+              f"| Erfolgreich frisch geladen | {ok_feeds:,} |",
+              f"| Aus vorherigem Snapshot erhalten | {fallback_feeds:,} |",
+              f"| Ohne Daten/Fallback | {len(failed_without_fallback):,} |",
+              f"| Proxy/Bot/Scanner ausgeschlossen | {len(proxy_excluded):,} |",
+              f"| I-BlockList ausgeschlossen | {len(iblock_excluded):,} |",
+              f"| Feed-Treffer (IP/CIDR × Feed) | {hit_count:,} |",
+              f"| Eindeutige IP/CIDR-Eintraege | {unique_count:,} |",
+              f"| Neu ggü. vorherigem Snapshot | {('n/a' if added is None else f'{added:,}')} |",
+              f"| Entfernt ggü. vorherigem Snapshot | {('n/a' if removed is None else f'{removed:,}')} |",
+              "",
+              "**Semantik:** Der Snapshot behaelt jeden originalen Feed-Namen. Eine IP in fünf Auto-Feeds wird in Combined weiterhin als fünf Feed-Treffer verarbeitet.",
+              "",
+          ]
+          if failed_without_fallback:
+              lines += ["## Feeds ohne aktuelle oder vorherige Daten", "", ", ".join(f"`{x}`" for x in sorted(failed_without_fallback)), ""]
+          write_text_atomic(REPORT, "\n".join(lines))
+          print(f"Snapshot fertig: {unique_count:,} unique / {hit_count:,} Hits / {active_feed_count} Feeds")
+          PY
 
-      - name: Commit
-        if: always()  # FIX: auch bei Leerungsschutz-Exit den Report committen
+      - name: Validiere Auto-Feed Snapshot
+        if: steps.refresh.outcome == 'success'
         run: |
+          set -euo pipefail
+          python3 - << 'PY'
+          import sqlite3, time
+          p='state/auto_feed_daily.sqlite3'
+          c=sqlite3.connect(f'file:{p}?mode=ro', uri=True)
+          q=c.execute('PRAGMA quick_check').fetchone()
+          n=c.execute('SELECT COUNT(*) FROM hits').fetchone()[0]
+          u=c.execute('SELECT COUNT(DISTINCT entry) FROM hits').fetchone()[0]
+          ts=int(c.execute("SELECT value FROM meta WHERE key='generated_at_epoch'").fetchone()[0])
+          c.close()
+          assert q and q[0]=='ok', q
+          assert n >= 50000 and u >= 50000, (n,u)
+          assert 0 <= time.time()-ts <= 3600, time.time()-ts
+          print(f'Auto-Feed Snapshot validiert: {u:,} unique / {n:,} Feed-Treffer')
+          PY
+
+      - name: Save Auto-Feed Snapshot Cache
+        if: steps.refresh.outcome == 'success'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: state/auto_feed_daily.sqlite3
+          key: netshield-auto-feed-daily-v1-${{ github.run_id }}
+
+      - name: Commit Report und Kompatibilitaetsliste
+        if: steps.refresh.outcome == 'success'
+        run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add auto_feed_blacklist_ipv4.txt reports/auto_feed_blacklist_report.md
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
-          else
-            git commit -m "Auto-Feed Blacklist: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
-            for attempt in 1 2 3 4 5; do
-              echo "Push-Versuch $attempt..."
-              git fetch origin ${GITHUB_REF_NAME}
-              git stash --include-untracked 2>/dev/null || true
-              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
-                git stash pop 2>/dev/null || true
-                if git push origin HEAD:${GITHUB_REF_NAME}; then
-                  echo "Push erfolgreich (Versuch $attempt)"
-                  exit 0
-                fi
-              else
-                git stash pop 2>/dev/null || true
-                git checkout --theirs auto_feed_blacklist_ipv4.txt \
-                  reports/auto_feed_blacklist_report.md 2>/dev/null || true
-                git add auto_feed_blacklist_ipv4.txt \
-                  reports/auto_feed_blacklist_report.md 2>/dev/null || true
-                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
-              fi
-              sleep $((attempt * 3))
-            done
-            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
-            exit 1
+            exit 0
           fi
+          git commit -m "Auto-Feed Live Refresh: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
+          for attempt in 1 2 3 4 5; do
+            git fetch origin "${GITHUB_REF_NAME}"
+            git stash --include-untracked 2>/dev/null || true
+            if git rebase -X theirs "origin/${GITHUB_REF_NAME}"; then
+              git stash pop 2>/dev/null || true
+              if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+                echo "Push erfolgreich (Versuch $attempt)"
+                exit 0
+              fi
+            else
+              git stash pop 2>/dev/null || true
+              git rebase --abort 2>/dev/null || true
+            fi
+            sleep $((attempt * 3))
+          done
+          echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+          exit 1

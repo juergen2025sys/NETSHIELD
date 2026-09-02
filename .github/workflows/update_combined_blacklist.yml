@@ -364,6 +364,15 @@ jobs:
             echo "state/*_expired_history.json.gz* liegt bereits im Checkout – kein Download noetig"
           fi
 
+      - name: Restore Auto-Feed Live Snapshot Cache
+        id: restore_auto_feed_snapshot
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: state/auto_feed_daily.sqlite3
+          key: netshield-auto-feed-daily-v1-combined-${{ github.run_id }}
+          restore-keys: |
+            netshield-auto-feed-daily-v1-
+
       - name: Fetch Reputation Blacklist (API, Round-Robin)
         continue-on-error: true  # Rate-Limit (5 Req/Tag, Free-Plan) darf den Haupt-Build nicht blockieren
         env:
@@ -555,7 +564,7 @@ jobs:
               SqliteSeenDB,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
-          import ipaddress, json, os, glob, re, sys, urllib.request
+          import ipaddress, json, os, glob, re, sys, urllib.request, hashlib, sqlite3
           import tempfile as _tempfile
           from datetime import datetime, timezone, timedelta
           from zoneinfo import ZoneInfo
@@ -2295,6 +2304,77 @@ jobs:
               ) WITHOUT ROWID
           """)
 
+          # ── AUTO-FEED-LIVE-SNAPSHOT ─────────────────────────────────────
+          # auto_feed_refresh.yml wird nach jedem erfolgreichen Report-Generator
+          # angestossen (typisch stuendlich) und hat zusaetzlich einen taeglichen
+          # Cron-Fallback. Er schreibt NICHT in seen_db, sondern einen separaten
+          # Actions-Cache mit (entry, originaler Feed-Name). Dadurch kommt eine IP
+          # aus 5 Auto-Feeds weiterhin als 5 Feed-Treffer an statt als eine
+          # kuenstliche Sammelquelle. Snapshot ist nur ein Datenfeed, nie State.
+          AUTO_FEEDS_FILE = "state/auto_discovered_feeds.json"
+          _auto_snapshot_used = False
+          _auto_snapshot_path = "state/auto_feed_daily.sqlite3"
+          _auto_snapshot_max_age = 6 * 3600
+
+          def _warn_auto_snapshot(message):
+              """Fallback im Log und als sichtbares GitHub-Actions-Warn-Badge melden."""
+              print(f"  WARN: {message}")
+              print(f"::warning file=update_combined_blacklist.yml::{message}")
+
+          if os.path.exists(_auto_snapshot_path):
+              try:
+                  _sc = sqlite3.connect(f"file:{_auto_snapshot_path}?mode=ro", uri=True)
+                  _sq = _sc.execute("PRAGMA quick_check").fetchone()
+                  _smeta = dict(_sc.execute("SELECT key,value FROM meta"))
+                  _shit = _sc.execute("SELECT COUNT(*) FROM hits").fetchone()[0]
+                  _sfeeds = _sc.execute("SELECT COUNT(DISTINCT feed) FROM hits").fetchone()[0]
+                  _sc.close()
+                  _sts = int(_smeta.get("generated_at_epoch", "0"))
+                  _sage = max(0, int(_time.time()) - _sts)
+                  _registry_sha = ""
+                  if os.path.exists(AUTO_FEEDS_FILE):
+                      with open(AUTO_FEEDS_FILE, "rb") as _arf:
+                          _registry_sha = hashlib.sha256(_arf.read()).hexdigest()
+                  _snapshot_registry_sha = _smeta.get("registry_sha256", "")
+                  _registry_match = (not _registry_sha or _registry_sha == _snapshot_registry_sha)
+                  if (_sq and _sq[0] == "ok" and _shit >= 50000
+                          and _sage <= _auto_snapshot_max_age and _registry_match):
+                      _run_conn.execute("ATTACH DATABASE ? AS auto_daily",
+                                        (os.path.abspath(_auto_snapshot_path),))
+                      _run_conn.execute(
+                          "INSERT OR IGNORE INTO temp.run_feed_hits(ip,feed,is_hq) "
+                          "SELECT entry,feed,0 FROM auto_daily.hits")
+                      for _fn, _cnt in _run_conn.execute(
+                              "SELECT feed,COUNT(*) FROM auto_daily.hits GROUP BY feed"):
+                          feed_stats.append((_fn, int(_cnt)))
+                      # DETACH ist innerhalb einer offenen Transaktion nicht erlaubt.
+                      # Commit betrifft nur den bis hierher unveraenderten persistenten
+                      # State; die TEMP-Tabelle bleibt ueber den Commit erhalten.
+                      _run_conn.commit()
+                      _run_conn.execute("DETACH DATABASE auto_daily")
+                      _auto_snapshot_used = True
+                      print(f"  Auto-Feed Live-Snapshot: {_shit:,} Feed-Treffer / "
+                            f"{_sfeeds} Feeds geladen (Alter {_sage//60} min)")
+                  else:
+                      _reason = []
+                      if not (_sq and _sq[0] == "ok"): _reason.append("quick_check")
+                      if _shit < 50000: _reason.append(f"nur {_shit} Hits")
+                      if _sage > _auto_snapshot_max_age: _reason.append(f"{_sage//3600}h alt")
+                      if not _registry_match: _reason.append("Registry neuer als Snapshot")
+                      _warn_auto_snapshot(
+                          "Auto-Feed Snapshot nicht verwendbar ("
+                          + ", ".join(_reason)
+                          + ") - Live-Fetch-Fallback"
+                      )
+              except Exception as _ase:
+                  _warn_auto_snapshot(
+                      f"Auto-Feed Snapshot Fehler: {_ase} - Live-Fetch-Fallback"
+                  )
+          else:
+              _warn_auto_snapshot(
+                  "Auto-Feed Snapshot fehlt - Live-Fetch-Fallback"
+              )
+
           def _ingest(name, ips, is_hq_override=None):
               """Schreibt Feed-Treffer disk-backed in SQLite statt in Millionen Python-Sets."""
               _is_hq = int((name in HIGH_QUALITY)
@@ -2385,39 +2465,20 @@ jobs:
           # (fetch_parallel_daemon_collect rechnet ab DIESEM Start-Zeitpunkt,
           # nicht ab dem spaeteren Collect-Aufruf).
           AUTO_FEEDS_FILE = "state/auto_discovered_feeds.json"
-          # FIX AUTO-FEEDS-VIA-LOCAL (2026-09-02): Die auto-discovered Feeds
-          # werden seit heute von auto_feed_refresh.yml taeglich gesammelt und
-          # als EINE Datei bereitgestellt (auto_feed_blacklist_ipv4.txt, siehe
-          # LOCAL_FEEDS oben). Combined liest sie deshalb genau EINMAL ueber
-          # den LOCAL_FEEDS-Loop ein - der Einzel-Fetch hier unten muss dann
-          # zwingend aus bleiben, sonst zaehlt jede IP am selben Tag ZWEIMAL
-          # in ip_feeds_today: einmal gesammelt ueber die Datei, einmal
-          # einzeln ueber den Auto-Feed-Namen -> verzerrtes Confidence-Scoring
-          # (mehr "Quellen heute" als real vorhanden). Exakt dasselbe Muster
-          # und dieselbe Begruendung wie beim Proxy-Feed-Ausschluss fuer
-          # bot_detector_blacklist_ipv4.txt (Abschnitt "AUSSCHLUSS
-          # PROXY-FEEDS", 2026-07-05).
-          #
-          # ACHTUNG SCORING-EFFEKT: vorher zaehlte JEDER auto-discovered Feed
-          # einzeln in ip_feeds_today. Jetzt zaehlt der gesamte Block als EINE
-          # Quelle - eine IP aus 5 auto-discovered Feeds hatte vorher
-          # today_count=5, danach 1. Das wirkt auf calculate_confidence() und
-          # damit auf blacklist_confidence40 / die Promotion nach
-          # active_blacklist, und der Aufnahme-Filter (len(feeds) >= 2) sieht
-          # fuer solche IPs nur noch einen Feed-Namen. Bei den ~29 Proxy-Feeds
-          # war das verkraftbar, hier sind ~160 Feeds betroffen.
-          #
-          # Der Code unten bleibt vollstaendig erhalten und ist ueber diesen
-          # einen Schalter wieder aktivierbar: AUTO_FEEDS_VIA_LOCAL_FILE =
-          # False stellt das alte Verhalten her (dann aber den LOCAL_FEEDS-
-          # Eintrag "auto_feed_blacklist_ipv4.txt" oben wieder entfernen).
-          AUTO_FEEDS_VIA_LOCAL_FILE = True
+          # FIX AUTO-FEED-LIVE-SNAPSHOT 02.09.2026:
+          # Der haeufig gestartete auto_feed_refresh.yml lädt die registrierten
+          # Auto-Feeds ausserhalb von Combined. Anders als die fruehere flache
+          # auto_feed_blacklist_ipv4.txt behaelt der SQLite-Snapshot jeden
+          # ORIGINALEN Feed-Namen. Eine IP in 5 Auto-Feeds bleibt daher 5
+          # Feed-Treffer; today_count, Aufnahmefilter und Confidence werden nicht
+          # kuenstlich auf 1 Quelle reduziert. Ist der Snapshot nicht gueltig,
+          # zu alt (>6h) oder passt nicht zur aktuellen Registry, faellt Combined
+          # auf den bisherigen Einzel-Fetch der Auto-Feeds zurueck.
           _auto_handle = None
           _auto_feeds = []
-          if AUTO_FEEDS_VIA_LOCAL_FILE:
-              print("  Auto-Feed-Einzelfetch uebersprungen - die Feeds kommen "
-                    "aggregiert ueber auto_feed_blacklist_ipv4.txt "
-                    "(auto_feed_refresh.yml), siehe LOCAL_FEEDS")
+          if _auto_snapshot_used:
+              print("  Auto-Feed-Einzelfetch uebersprungen - frischer Live-Snapshot "
+                    "mit originalen Feed-Namen wurde in die SQLite-Tagesmatrix geladen")
           elif os.path.exists(AUTO_FEEDS_FILE):
               try:
                   with open(AUTO_FEEDS_FILE) as af:
@@ -2684,19 +2745,11 @@ jobs:
               # Auto-Feed-Namen.
               "cve_exploit_ips.txt":             True,
               "bot_detector_blacklist_ipv4.txt": False,
-              # auto_feed_blacklist_ipv4.txt (2026-09-02): taeglich gesammelte
-              # auto-discovered Feeds aus state/auto_discovered_feeds.json,
-              # geschrieben von auto_feed_refresh.yml. Genau dasselbe Muster
-              # wie bot_detector_blacklist_ipv4.txt eine Zeile darueber:
-              # combined liest diese IPs bewusst genau EINMAL ueber diesen
-              # LOCAL_FEEDS-Eintrag ein, der Einzel-Fetch der auto-discovered
-              # Feeds ist deshalb weiter unten abgeschaltet (Abschnitt
-              # "FIX AUTO-FEEDS-VIA-LOCAL") - sonst wuerde jede IP ZWEIMAL
-              # gezaehlt.
-              # hq=False: es sind Community-Feeds unterschiedlicher Qualitaet,
-              # genau wie vorher im Auto-Feed-Loop (dort ebenfalls
-              # is_hq_override=False beim _ingest-Aufruf).
-              "auto_feed_blacklist_ipv4.txt":    False,
+              # Auto-Feeds werden NICHT mehr als eine aggregierte LOCAL_FEEDS-
+              # Quelle eingelesen. Der separate Live-Refresh erzeugt einen
+              # SQLite-Snapshot mit (IP/CIDR, ORIGINALER Feed-Name). Dieser
+              # Snapshot wird direkt in temp.run_feed_hits uebernommen, damit
+              # today_count/Admission exakt die Mehrfachquellen-Semantik behalten.
               "honeypot_ips.txt":                True,
               "honigtopf_ips.txt":                 True,   # Honigtopf Community Honeypot Network (API)
               "reputation_blacklist.txt":        True,   # Reputation API (Round-Robin, HQ)

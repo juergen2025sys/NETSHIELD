@@ -2063,21 +2063,25 @@ jobs:
 
           # ── Cache-Key Prefix Validierung ──────────────────────────────────
           # Jeder Workflow darf nur in seinen eigenen Cache-Prefix schreiben.
-          # Combined → v2, FP-Checker → fp, Auto-Discovery → afd, Community → community
+          # Combined → v2, FP-Checker → fp, Auto-Feed Refresh → auto-feed-daily-v1.
+          # Auto Feed Discovery ist registry-only und schreibt keinen seen_db-
+          # oder Auto-Feed-Snapshot-Cache mehr; deshalb gibt es dafuer bewusst
+          # keine Cache-Prefix-Regel.
           _cache_write_rules = {
               "update_combined_blacklist.yml":  "v2",
               "false_positive_checker.yml":     "fp",
-              "auto_feed_discovery.yml":        "afd",
+              "auto_feed_refresh.yml":          "auto-feed-daily-v1",
           }
           for _fname, _expected_prefix in _cache_write_rules.items():
               _fpath = f"{WORKFLOWS_DIR}/{_fname}"
               if not os.path.exists(_fpath):
                   continue
               _ftext = open(_fpath).read()
-              # Cache Save-Keys extrahieren (key: netshield-seen-db-...)
+              # Cache Save-Keys extrahieren: kanonischer seen_db-State und der
+              # getrennte, feed-identitaetserhaltende Auto-Feed-Snapshot.
               # Beide Patterns: actions/cache (impliziter Save) und actions/cache/save
               _save_keys = re.findall(
-                  r'key:\s*(netshield-seen-db-[^\s\n]+)',
+                  r'key:\s*(netshield-(?:seen-db|auto-feed-daily)-[^\s\n]+)',
                   _ftext
               )
               for _sk in _save_keys:
