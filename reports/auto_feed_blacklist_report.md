@@ -1,5 +1,5 @@
 # Auto-Feed Blacklist – Report
-**Aktualisiert:** 2026-09-02 18:20 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-02 19:06 CEST (Europe/Berlin)  
 **Quelle:** akzeptierte Feeds aus `state/auto_discovered_feeds.json` (gepflegt von auto_feed_discovery.yml)
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **3,000,875** |
-| Neu (heute) | **+3,000,875** |
-| Entfernt | **-0** |
+| Gesamt IPs | **3,000,947** |
+| Neu (heute) | **+109** |
+| Entfernt | **-37** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 125 |
@@ -34,7 +34,7 @@
 | ✅ `cbuijs_accomplist_adblock_ip_v2` | 64,659 |
 | ✅ `cbuijs_accomplist_adblock_ip_v3` | 113 |
 | ✅ `cbuijs_badip` | 86,169 |
-| ✅ `cercatrova21_blocklist` | 14,933 |
+| ✅ `cercatrova21_blocklist` | 15,024 |
 | ✅ `claudiusdecimius_ioc_ipsets_firehol_level2` | 22,859 |
 | ✅ `claudiusdecimius_ioc_ipsets_firehol_level3` | 13,658 |
 | ✅ `claudiusdecimius_ioc_ipsets_firehol_level4` | 137,460 |
@@ -123,25 +123,25 @@
 | ✅ `kraloveckey_ipsets_blocklist_urlhaus_recent` | 4,629 |
 | ✅ `kraloveckey_ipsets_blocklist_yoyo_adservers` | 8,747 |
 | ✅ `makarson_daily_phishing_feed` | 15,981 |
-| ✅ `maximewewer_heimdallblocklists` | 90,949 |
-| ✅ `maximewewer_heimdallblocklists_romainmarcoux_alienvault_ssh_bruteforce` | 5,283 |
-| ✅ `maximewewer_heimdallblocklists_romainmarcoux_malicious_ip` | 220,952 |
-| ✅ `maximewewer_heimdallblocklists_spamhaus_drop` | 1,706 |
+| ✅ `maximewewer_heimdallblocklists` | 91,153 |
+| ✅ `maximewewer_heimdallblocklists_romainmarcoux_alienvault_ssh_bruteforce` | 5,274 |
+| ✅ `maximewewer_heimdallblocklists_romainmarcoux_malicious_ip` | 221,262 |
+| ✅ `maximewewer_heimdallblocklists_spamhaus_drop` | 1,703 |
 | ✅ `obarve_rr37_malicious_ip_blocklist` | 25,377 |
-| ✅ `oktayalver_siberkapan_list` | 43,489 |
-| ✅ `oktayalver_siberkapan_list_all_feed` | 20,961 |
+| ✅ `oktayalver_siberkapan_list` | 43,567 |
+| ✅ `oktayalver_siberkapan_list_all_feed` | 21,039 |
 | ✅ `oktayalver_siberkapan_list_fortigate_feed` | 52 |
-| ✅ `oktayalver_siberkapan_list_honeypot_feed` | 13,724 |
-| ✅ `oktayalver_siberkapan_list_nginx_feed` | 5,714 |
+| ✅ `oktayalver_siberkapan_list_honeypot_feed` | 13,757 |
+| ✅ `oktayalver_siberkapan_list_nginx_feed` | 5,746 |
 | ✅ `realizelol_torblocklist` | 1,554 |
 | ✅ `romainmarcoux_misc_ip_lists` | 3,584 |
 | ✅ `runtechx_dns_runtech_ao` | 14,011 |
-| ✅ `runtechx_dns_runtech_ao_n2` | 14,011 |
-| ✅ `securitylist1568_fortigate` | 132 |
+| ✅ `runtechx_dns_runtech_ao_n2` | 14,015 |
+| ✅ `securitylist1568_fortigate` | 133 |
 | ✅ `sereinfy_adrules` | 1,406 |
 | ✅ `taylored_itmail_blacklists` | 98,651 |
 | ✅ `theouterspaced_ip_blocklist` | 44 |
-| ✅ `theseuss_usom_siber_edl` | 14,700 |
+| ✅ `theseuss_usom_siber_edl` | 14,740 |
 | ✅ `toxyl_ossh_swarm_wordlists` | 15,016 |
 | ✅ `turntuptechnologies_iocs` | 33 |
 | ✅ `zgzyh_malicious_website_detection` | 25,063 |
@@ -153,4 +153,4 @@
 > Diese 125 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-02 18:20 CEST (Europe/Berlin)*
+*Generiert: 2026-09-02 19:06 CEST (Europe/Berlin)*
