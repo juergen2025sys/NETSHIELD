@@ -2841,6 +2841,10 @@ class SqliteSeenDB(_MutableMapping):
             try:
                 self._conn.close()
             except _sqlite3.Error:
+                # Sekundaerfehler beim Close bewusst ignoriert: die
+                # eigentliche Ursache (Schema-Init fehlgeschlagen) wird
+                # unten per raise ohnehin weitergereicht; ein Fehler hier
+                # soll den Aufrufer nicht zusaetzlich verwirren.
                 pass
             raise
 
