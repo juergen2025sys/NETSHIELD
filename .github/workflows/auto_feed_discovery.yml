@@ -90,8 +90,8 @@ jobs:
         # das Paket, faellt der Code automatisch auf eine sichere Regex-
         # Extraktion zurueck - kein Absturz, nur etwas ungenauer.
         run: |
-          pip install --quiet --disable-pip-version-check --break-system-packages defusedxml 2>/dev/null \
-            || pip install --quiet --disable-pip-version-check defusedxml
+          pip install --quiet --disable-pip-version-check --break-system-packages defusedxml==0.7.1 2>/dev/null \
+            || pip install --quiet --disable-pip-version-check defusedxml==0.7.1
 
       - name: Discover and Validate IP Feeds (Registry-only)
         id: afd_registry

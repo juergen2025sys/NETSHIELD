@@ -42,7 +42,7 @@ jobs:
         # eigene Regex-Heuristiken (wie die anderen Checks hier) waeren dafuer
         # unnoetig fehleranfaellig. pyflakes ist auf ubuntu-latest nicht
         # vorinstalliert.
-        run: pip install --break-system-packages -q pyflakes
+        run: pip install --break-system-packages -q pyflakes==3.4.0
 
       - name: Check Python Code in all Workflow Files
         env:

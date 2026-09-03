@@ -376,9 +376,10 @@ jobs:
       - name: Fetch Reputation Blacklist (API, Round-Robin)
         continue-on-error: true  # Rate-Limit (5 Req/Tag, Free-Plan) darf den Haupt-Build nicht blockieren
         env:
-          # Alle Repo-Secrets als JSON; benoetigte Schluessel werden im
-          # Python-Block kodiert nachgeschlagen (keine Klartext-Namen hier).
-          _S: ${{ toJSON(secrets) }}
+          # Least-Privilege: Nur die drei von diesem Step benoetigten API-Keys.
+          ABUSEIPDB_API_KEY_1: ${{ secrets.ABUSEIPDB_API_KEY_1 }}
+          ABUSEIPDB_API_KEY_2: ${{ secrets.ABUSEIPDB_API_KEY_2 }}
+          ABUSEIPDB_API_KEY_3: ${{ secrets.ABUSEIPDB_API_KEY_3 }}
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -407,14 +408,9 @@ jobs:
               + " (Europe/Berlin)"
           )
 
-          # Secrets als JSON (toJSON(secrets)); Schluessel kodiert nachgeschlagen.
-          _SEC = {}
-          try:
-              _SEC = json.loads(os.environ.get("_S", "{}") or "{}")
-          except Exception:
-              _SEC = {}
+          # Least-Privilege: Kein gesamter Secrets-Kontext mehr; nur die drei explizit
+          # uebergebenen AbuseIPDB-Schluessel sind fuer diesen Step sichtbar.
           _dec = lambda b: base64.b64decode(b).decode()
-          _pref = _dec("QUJVU0VJUERCX0FQSV9LRVlf")  # Schluessel-Praefix
 
           # ── Fallback-Logik: Free-Plan erlaubt 1 Request/Tag pro Key ─────────────
           # Key 1 wird zuerst versucht. Schlägt er fehl (429 Rate-Limit oder
@@ -423,9 +419,9 @@ jobs:
           # nach Score ≥ 50), reicht ein erfolgreicher Request pro Tag.
           # .strip() entfernt versehentliche Newlines/Leerzeichen aus dem Secret
           KEYS = [
-              str(_SEC.get(f"{_pref}1", "") or "").strip(),
-              str(_SEC.get(f"{_pref}2", "") or "").strip(),
-              str(_SEC.get(f"{_pref}3", "") or "").strip(),
+              str(os.environ.get("ABUSEIPDB_API_KEY_1", "") or "").strip(),
+              str(os.environ.get("ABUSEIPDB_API_KEY_2", "") or "").strip(),
+              str(os.environ.get("ABUSEIPDB_API_KEY_3", "") or "").strip(),
           ]
           MIN_SCORE = 50
           LIMIT     = 10000
@@ -535,16 +531,16 @@ jobs:
           # hart fehlschlagen. Kein isoliertes venv noetig: dieser Schritt
           # lebt nur fuer die Dauer des Runner-Jobs, ein System-weiter
           # pip-Install-Nebeneffekt ist hier unkritisch.
-          pip install --quiet --disable-pip-version-check --break-system-packages ijson 2>/dev/null \
-            || pip install --quiet --disable-pip-version-check ijson
+          pip install --quiet --disable-pip-version-check --break-system-packages ijson==3.5.1 2>/dev/null \
+            || pip install --quiet --disable-pip-version-check ijson==3.5.1
           # FIX SEC-XML-BILLION-LAUGHS (2026-08-25): defusedxml wird von
           # parse_feed_entries() in netshield_common.py bevorzugt verwendet,
           # um extern abgerufene Feed-Inhalte sicher zu parsen (Schutz vor
           # XML-Entity-Expansion-Angriffen). Fehlt das Paket, faellt der
           # Code automatisch auf eine sichere Regex-Extraktion zurueck
           # (siehe Kommentar dort) - kein Absturz, nur etwas ungenauer.
-          pip install --quiet --disable-pip-version-check --break-system-packages defusedxml 2>/dev/null \
-            || pip install --quiet --disable-pip-version-check defusedxml
+          pip install --quiet --disable-pip-version-check --break-system-packages defusedxml==0.7.1 2>/dev/null \
+            || pip install --quiet --disable-pip-version-check defusedxml==0.7.1
           echo "BASH-DIAG-A: python3-Prozess wird gestartet um $(date -u +%Y-%m-%dT%H:%M:%S.%6NZ)"
           export _PY_LAUNCH_EPOCH="$(date -u +%s.%N)"
           python3 << 'EOF'

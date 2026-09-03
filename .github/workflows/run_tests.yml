@@ -38,8 +38,8 @@ jobs:
         # aber der eigentliche ElementTree-Pfad (ueber defusedxml) sollte
         # hier trotzdem mitgetestet werden, nicht nur der Fallback.
         run: |
-          pip install --quiet --disable-pip-version-check --break-system-packages defusedxml 2>/dev/null \
-            || pip install --quiet --disable-pip-version-check defusedxml
+          pip install --quiet --disable-pip-version-check --break-system-packages defusedxml==0.7.1 2>/dev/null \
+            || pip install --quiet --disable-pip-version-check defusedxml==0.7.1
 
       - name: Run Unit Tests
         run: python3 -m unittest discover -s tests -v

@@ -207,9 +207,25 @@ jobs:
         if: steps.recent.outputs.skip != 'true'
         id: fetch
         env:
-          # Alle Repo-Secrets als JSON; die benoetigten Schluessel werden im
-          # Python-Block kodiert nachgeschlagen (keine Klartext-Namen hier).
-          _S: ${{ toJSON(secrets) }}
+          # Least-Privilege: Nur die von diesem Step benoetigten HoneyDB-Credentials.
+          HONEYDB_API_ID: ${{ secrets.HONEYDB_API_ID }}
+          HONEYDB_API_KEY: ${{ secrets.HONEYDB_API_KEY }}
+          HONEYDB_API_ID_2: ${{ secrets.HONEYDB_API_ID_2 }}
+          HONEYDB_API_KEY_2: ${{ secrets.HONEYDB_API_KEY_2 }}
+          HONEYDB_API_ID_3: ${{ secrets.HONEYDB_API_ID_3 }}
+          HONEYDB_API_KEY_3: ${{ secrets.HONEYDB_API_KEY_3 }}
+          HONEYDB_API_ID_4: ${{ secrets.HONEYDB_API_ID_4 }}
+          HONEYDB_API_KEY_4: ${{ secrets.HONEYDB_API_KEY_4 }}
+          HONEYDB_API_ID_5: ${{ secrets.HONEYDB_API_ID_5 }}
+          HONEYDB_API_KEY_5: ${{ secrets.HONEYDB_API_KEY_5 }}
+          HONEYDB_API_ID_6: ${{ secrets.HONEYDB_API_ID_6 }}
+          HONEYDB_API_KEY_6: ${{ secrets.HONEYDB_API_KEY_6 }}
+          HONEYDB_API_ID_7: ${{ secrets.HONEYDB_API_ID_7 }}
+          HONEYDB_API_KEY_7: ${{ secrets.HONEYDB_API_KEY_7 }}
+          HONEYDB_API_ID_8: ${{ secrets.HONEYDB_API_ID_8 }}
+          HONEYDB_API_KEY_8: ${{ secrets.HONEYDB_API_KEY_8 }}
+          HONEYDB_API_ID_9: ${{ secrets.HONEYDB_API_ID_9 }}
+          HONEYDB_API_KEY_9: ${{ secrets.HONEYDB_API_KEY_9 }}
         run: |
           # FIX KEY-ALARM (2026-08-29): 'set +e' rund um den Python-Block,
           # damit auch bei sys.exit(1) (z.B. "keine gueltige Credential
@@ -248,16 +264,12 @@ jobs:
           from datetime import datetime, timezone, timedelta
           from zoneinfo import ZoneInfo
 
-          # Secrets als JSON (toJSON(secrets)); Schluessel werden kodiert geholt.
-          _SEC = {}
-          try:
-              _SEC = json.loads(os.environ.get("_S", "{}") or "{}")
-          except Exception:
-              _SEC = {}
+          # Least-Privilege: Der Step sieht nur die oben explizit uebergebenen
+          # HoneyDB-Credentials, nicht mehr den gesamten Repository-Secrets-Kontext.
           def _dec(b):
               return base64.b64decode(b).decode()
           def _sec(name):
-              return str(_SEC.get(name, "") or "").strip()
+              return str(os.environ.get(name, "") or "").strip()
 
           # now: UTC – bleibt so fuer 'today'/'_heute' (Abgleich mit last_seen-
           # Datumswerten aus der HoneyDB-API, die UTC-basiert sind) und fuer

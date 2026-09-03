@@ -49,8 +49,8 @@ jobs:
 
       - name: defusedxml sicherstellen
         run: |
-          pip install --quiet --disable-pip-version-check --break-system-packages defusedxml 2>/dev/null \
-            || pip install --quiet --disable-pip-version-check defusedxml
+          pip install --quiet --disable-pip-version-check --break-system-packages defusedxml==0.7.1 2>/dev/null \
+            || pip install --quiet --disable-pip-version-check defusedxml==0.7.1
 
       - name: Auto-Feeds laden und Snapshot bauen
         id: refresh
