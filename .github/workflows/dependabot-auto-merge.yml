@@ -32,7 +32,26 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Enable auto-merge for Dependabot PRs
+        # FIX SUPPLY-CHAIN-AUTOMERGE-GATE (2026-09-03, Security-Review): Vorher
+        # wurde JEDER Dependabot-PR unabhaengig vom Update-Typ automatisch
+        # gemergt - "steps.metadata.outputs.update-type" wurde geholt, aber nie
+        # ausgewertet. Bei einer kompromittierten Action (Tag-Force-Push auf
+        # eine bestehende Version, siehe trivy-action-Vorfall 2026-03-19) haette
+        # ein unauffaelliger Patch/Minor-Bump so ungeprueft in main landen
+        # koennen. Ab jetzt: nur Patch- und Minor-Updates werden automatisch
+        # gemergt, Major-Updates bleiben stehen und brauchen manuelle Freigabe.
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
         run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Major-Update markieren (kein Automerge)
+        if: steps.metadata.outputs.update-type == 'version-update:semver-major'
+        run: |
+          gh pr comment "$PR_URL" --body "Major-Version-Update - kein automatischer Merge (Security-Gate). Bitte manuell pruefen, ob sich mit der neuen Major-Version etwas Grundlegendes an der Action geaendert hat, bevor gemergt wird."
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
