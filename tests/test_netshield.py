@@ -42,6 +42,20 @@ from netshield_common import (
 import netshield_common
 
 
+def _cleanup_temp(path, suffixes=("",)):
+    """Best-effort Aufraeumen von Temp-Dateien im Test-Teardown.
+
+    FileNotFoundError ist hier kein Fehler, sondern der Normalfall (die
+    Datei wurde vom Test selbst schon geloescht, existierte nie, oder
+    ein SQLite-Nebenpfad wie -journal/-wal/-shm wurde nie angelegt).
+    """
+    for suffix in suffixes:
+        try:
+            os.unlink(path + suffix)
+        except FileNotFoundError:
+            pass
+
+
 # ═══════════════════════════════════════════════════════════════
 # parse_entries – Universeller Feed-Parser
 # ═══════════════════════════════════════════════════════════════
@@ -2207,9 +2221,7 @@ class TestRamOptimizationSep01(unittest.TestCase):
             self.assertEqual(mode, "truncate")
             db.close()
         finally:
-            for suffix in ("", "-journal", "-wal", "-shm"):
-                try: os.unlink(path + suffix)
-                except FileNotFoundError: pass
+            _cleanup_temp(path, ("", "-journal", "-wal", "-shm"))
 
     def test_write_ip_list_presorted_keeps_bytes_and_reuses_list(self):
         import tempfile, os
@@ -2223,8 +2235,7 @@ class TestRamOptimizationSep01(unittest.TestCase):
             with open(path, encoding="utf-8") as f:
                 self.assertEqual(f.read(), "# RAM test\n\n1.1.1.1\n2.2.2.2\n10.0.0.1\n")
         finally:
-            try: os.unlink(path)
-            except FileNotFoundError: pass
+            _cleanup_temp(path)
 
     def test_write_ip_list_empty_preserves_old_newline_semantics(self):
         import tempfile, os
@@ -2236,8 +2247,7 @@ class TestRamOptimizationSep01(unittest.TestCase):
             with open(path, "rb") as f:
                 self.assertEqual(f.read(), b"\n")
         finally:
-            try: os.unlink(path)
-            except FileNotFoundError: pass
+            _cleanup_temp(path)
 
     def test_sqlite_commit_during_temp_cursor_iteration_is_safe(self):
         import tempfile, os
@@ -2263,9 +2273,7 @@ class TestRamOptimizationSep01(unittest.TestCase):
             self.assertEqual(len(db), 50)
             db.close()
         finally:
-            for suffix in ("", "-journal", "-wal", "-shm"):
-                try: os.unlink(path + suffix)
-                except FileNotFoundError: pass
+            _cleanup_temp(path, ("", "-journal", "-wal", "-shm"))
 
 
 class TestFinalWorkflowGuardsSep01(unittest.TestCase):
