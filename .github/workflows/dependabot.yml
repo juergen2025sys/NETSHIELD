@@ -1,0 +1,27 @@
+version: 2
+
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+    # FIX SUPPLY-CHAIN-COOLDOWN (2026-09-03, Security-Review, angepasst
+    # 2026-09-03): Dependabot legt einen PR jetzt erst an, wenn die neue
+    # Action-Version mindestens 2 Tage alt ist. Das ist die native
+    # Dependabot-Verteidigung gegen kompromittierte Releases, die absichtlich
+    # als unauffaelliger Patch/Minor-Bump getarnt werden (siehe keyv-npm-Wurm,
+    # Aug 2026: Angreifer hat bewusst nur die Patch-Version erhoeht).
+    # Kompromittierte Releases werden in der Praxis meist innerhalb von
+    # Stunden erkannt und zurueckgezogen (axios ~3h, TanStack ~1.5h) - 2 Tage
+    # deckt diese Faelle ab. Bewusst kuerzer als die oft empfohlenen 7 Tage
+    # (Nutzerentscheidung): faengt schnelle/offensichtliche Kompromittierungen
+    # ab, bietet aber weniger Puffer als 7 Tage bei langsamer erkannten
+    # Faellen. Macht dependabot-auto-merge.yml's Patch/Minor-Automerge
+    # trotzdem deutlich sicherer als ganz ohne Cooldown.
+    cooldown:
+      default-days: 2
+    groups:
+      github-actions:
+        patterns:
+          - "*"

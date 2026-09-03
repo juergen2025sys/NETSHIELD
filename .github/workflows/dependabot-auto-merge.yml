@@ -1,3 +1,16 @@
+# FIX SUPPLY-CHAIN-COOLDOWN-AUTOMERGE (2026-09-03, Security-Review): Vorherige
+# Iteration hatte Auto-Merge komplett deaktiviert, weil ein reines Semver-Gate
+# (nur Major manuell) NICHT vor einer Action schuetzt, die absichtlich als
+# unauffaelliger Patch/Minor-Bump getarnt kompromittiert wird - genau dieses
+# Muster wurde beim "keyv"-npm-Wurm (Aug 2026) beobachtet.
+# Die eigentliche Verteidigung dagegen sitzt jetzt in ../dependabot.yml
+# (cooldown: default-days: 2): Dependabot legt einen PR erst an, wenn die
+# Action-Version mindestens 2 Tage alt ist - kompromittierte Releases werden
+# in der Praxis meist innerhalb weniger Stunden erkannt und zurueckgezogen
+# (axios ~3h, TanStack ~1.5h). Ein PR, den dieser Workflow ueberhaupt zu
+# sehen bekommt, hat dieses Fenster also schon unbeschadet ueberstanden. Patch/Minor darf deshalb wieder automatisch
+# gemergt werden. Major bleibt zusaetzlich manuell (groessere Code-Aenderung
+# pro Bump, unabhaengig vom Cooldown ein sinnvoller Extra-Blick).
 name: dependabot-auto-merge
 
 on:
@@ -9,10 +22,6 @@ on:
 # contents: write, nicht nur pull-requests: write. Mit nur contents: read
 # schlug der automerge-Job fehl: "GraphQL: Resource not accessible by
 # integration (mergePullRequest)" (Run 87225542137, PR #31).
-# Quelle: docs.github.com/.../troubleshooting-dependabot-on-github-actions
-# ("By default ... GITHUB_TOKEN ... read-only ... permissions key ...
-# increase the access") + community.github.com Diskussionen zu
-# mergePullRequest & contents:write.
 permissions:
   contents: write
   pull-requests: write
@@ -31,15 +40,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Enable auto-merge for Dependabot PRs
-        # FIX SUPPLY-CHAIN-AUTOMERGE-GATE (2026-09-03, Security-Review): Vorher
-        # wurde JEDER Dependabot-PR unabhaengig vom Update-Typ automatisch
-        # gemergt - "steps.metadata.outputs.update-type" wurde geholt, aber nie
-        # ausgewertet. Bei einer kompromittierten Action (Tag-Force-Push auf
-        # eine bestehende Version, siehe trivy-action-Vorfall 2026-03-19) haette
-        # ein unauffaelliger Patch/Minor-Bump so ungeprueft in main landen
-        # koennen. Ab jetzt: nur Patch- und Minor-Updates werden automatisch
-        # gemergt, Major-Updates bleiben stehen und brauchen manuelle Freigabe.
+      - name: Enable auto-merge for Patch/Minor (cooldown-geschuetzt)
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
           steps.metadata.outputs.update-type == 'version-update:semver-minor'
@@ -51,7 +52,7 @@ jobs:
       - name: Major-Update markieren (kein Automerge)
         if: steps.metadata.outputs.update-type == 'version-update:semver-major'
         run: |
-          gh pr comment "$PR_URL" --body "Major-Version-Update - kein automatischer Merge (Security-Gate). Bitte manuell pruefen, ob sich mit der neuen Major-Version etwas Grundlegendes an der Action geaendert hat, bevor gemergt wird."
+          gh pr comment "$PR_URL" --body "Major-Version-Update - kein automatischer Merge. Bitte manuell pruefen, ob sich mit der neuen Major-Version etwas Grundlegendes an der Action geaendert hat, bevor gemergt wird. (Der 7-Tage-Cooldown in dependabot.yml gilt auch hier, ist bei einer groesseren Aenderung aber kein Ersatz fuer einen kurzen manuellen Blick.)"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
