@@ -3365,6 +3365,9 @@ class SqliteSeenDB(_MutableMapping):
             try:
                 os.unlink(tmp_path)
             except OSError:
+                # Best-effort-Cleanup: schlaegt das Entfernen des tempfiles
+                # fehl, wird das bewusst ignoriert - der Originalfehler wird
+                # oben per raise ohnehin weitergereicht.
                 pass
             raise
 
