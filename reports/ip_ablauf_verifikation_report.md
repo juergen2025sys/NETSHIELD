@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-09-03 21:25 CEST (Europe/Berlin)
+Lauf: 2026-09-03 23:32 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -39,16 +39,16 @@ Zwischenstand, aktualisiert bei JEDEM Lauf (alle 3h) - nicht erst wenn der Tag v
 
 ## Wiederauftauch-Prüfung
 
-ℹ️ **176,406 Treffer sind ein legitimer Watchlist-Tages-Cap-Backlog und kein Anti-Churn-Rückfall.** Der aktuelle Combined-State meldet 183,671 noch wartende 30-Tage-Kandidaten (State-Tag: 2026-09-03). Diese IPs stehen im Watchlist-Ledger, aber nicht in `active_blacklist_ipv4.txt`; sie duerfen bis zu einem spaeteren 2.000er-Tages-Slot voruebergehend im Output bleiben.
+ℹ️ **176,409 Treffer sind ein legitimer Watchlist-Tages-Cap-Backlog und kein Anti-Churn-Rückfall.** Der aktuelle Combined-State meldet 183,671 noch wartende 30-Tage-Kandidaten (State-Tag: 2026-09-03). Diese IPs stehen im Watchlist-Ledger, aber nicht in `active_blacklist_ipv4.txt`; sie duerfen bis zu einem spaeteren 2.000er-Tages-Slot voruebergehend im Output bleiben.
 
-⚠️ **163 IP(s) gefunden, die laut Ablauf-Liste dauerhaft draussen sein sollten, aber trotzdem in einer aktuellen Output-Datei stehen** - liegt unter der Alarm-Schwelle (300), daher KEIN Issue-Alarm. Laut Bug-21-Diagnose (ledger_diagnose.yml) vermutlich eine kurzlebige Sync-Verzoegerung, keine echte Regression:
+⚠️ **167 IP(s) gefunden, die laut Ablauf-Liste dauerhaft draussen sein sollten, aber trotzdem in einer aktuellen Output-Datei stehen** - liegt unter der Alarm-Schwelle (300), daher KEIN Issue-Alarm. Laut Bug-21-Diagnose (ledger_diagnose.yml) vermutlich eine kurzlebige Sync-Verzoegerung, keine echte Regression:
 
 | Datei | Anzahl Rückfälle | Beispiele |
 |---|---:|---|
-| active_blacklist_ipv4.txt | 163 | 101.53.250.20, 102.129.56.183, 103.125.37.253, 103.160.234.194, 103.182.69.27, ... |
-| combined_threat_blacklist_ipv4_part1.txt | 70 | 101.53.250.20, 102.129.56.183, 103.125.37.253, 103.160.234.194, 103.182.69.27, ... |
-| combined_threat_blacklist_ipv4_part2.txt | 93 | 113.23.35.151, 115.186.103.226, 115.241.25.146, 118.96.142.15, 119.152.22.139, ... |
-| blacklist_confidence40_ipv4_part1.txt | 158 | 101.53.250.20, 103.125.37.253, 103.160.234.194, 103.182.69.27, 103.82.252.62, ... |
+| active_blacklist_ipv4.txt | 167 | 101.53.250.20, 102.129.56.183, 103.125.37.253, 103.160.234.194, 103.182.69.27, ... |
+| combined_threat_blacklist_ipv4_part1.txt | 71 | 101.53.250.20, 102.129.56.183, 103.125.37.253, 103.160.234.194, 103.182.69.27, ... |
+| combined_threat_blacklist_ipv4_part2.txt | 96 | 113.23.35.151, 115.186.103.226, 115.241.25.146, 118.96.142.15, 119.152.22.139, ... |
+| blacklist_confidence40_ipv4_part1.txt | 163 | 101.53.250.20, 102.129.56.183, 103.125.37.253, 103.160.234.194, 103.182.69.27, ... |
 
 ## Prognose-Genauigkeit (Vorhersage vs. Realität)
 
@@ -73,21 +73,20 @@ _47 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +5,629 (Anstieg) (jetzt 11,160,186 IPs)
-- Seit Zyklus-Start (2026-08-23): 📈 +1,764,147 (Anstieg)
-- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 1,023,675 neue IPs hinzugekommen (davon 829,774 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 80 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 192,716 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 8,030,491 (Summe letzte 8 Läufe / ~24h)
-- Entfernte IPs (Summe letzter Läufe): 2,000 (Summe letzte 8 Läufe / ~24h)
-  - davon Watchlist/30 Tage: 2,000 (Summe letzte 8 Läufe / ~24h)
+- Seit letztem Lauf: 📈 +6,025 (Anstieg) (jetzt 11,166,211 IPs)
+- Seit Zyklus-Start (2026-08-23): 📈 +1,770,172 (Anstieg)
+- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 1,024,330 neue IPs hinzugekommen (davon 829,783 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 6 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 192,951 CIDR-Aggregate)
+- Neue IPs (Summe letzter Läufe): 8,059,356 (Summe letzte 8 Läufe / ~24h)
+- Entfernte IPs (Summe letzter Läufe): 0 (Summe letzte 8 Läufe / ~24h)
+  - davon Watchlist/30 Tage: 0 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +34,594 (~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 15/15 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt) | zusätzlich 1 cancelled (nicht gewertet), Zeitraum 2026-09-02T23:33 bis 2026-09-03T19:03 UTC
+- Netto-Wachstum (~24h): 📈 +37,276 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 15/15 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt) | zusätzlich 1 cancelled (nicht gewertet), Zeitraum 2026-09-03T04:48 bis 2026-09-03T21:21 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-09-02 01:35 CEST (Europe/Berlin) | 11,089,134 | 186490 | 0 | 101 |
 | 2026-09-02 01:42 CEST (Europe/Berlin) | 11,089,134 | 186490 | 0 | 101 |
 | 2026-09-02 06:13 CEST (Europe/Berlin) | 11,093,086 | 186489 | 0 | 176369 |
 | 2026-09-02 07:18 CEST (Europe/Berlin) | 11,096,250 | 186488 | 0 | 176424 |
@@ -107,3 +106,4 @@ _47 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-09-03 18:21 CEST (Europe/Berlin) | 11,152,005 | 186486 | 0 | 155 |
 | 2026-09-03 18:48 CEST (Europe/Berlin) | 11,154,557 | 186486 | 0 | 158 |
 | 2026-09-03 21:25 CEST (Europe/Berlin) | 11,160,186 | 186486 | 0 | 163 |
+| 2026-09-03 23:32 CEST (Europe/Berlin) | 11,166,211 | 186486 | 0 | 167 |
