@@ -53,6 +53,7 @@ def _cleanup_temp(path, suffixes=("",)):
         try:
             os.unlink(path + suffix)
         except FileNotFoundError:
+            # Kein Fehler - siehe Docstring: Datei existiert schlicht nicht.
             pass
 
 
