@@ -752,7 +752,21 @@ jobs:
               r'vendor|node_modules|\.git|\.github|dist|build|coverage)(?:/|$)|'
               r'(?:^|/)(?:readme|license|copying|changelog|contributing|authors?|'
               r'requirements|package(?:-lock)?|poetry\.lock|pipfile(?:\.lock)?)'
-              r'(?:\.[^/]*)?$'
+              r'(?:\.[^/]*)?$|'
+              # NEU (2026-09-04, Log-Fund): Rohdaten-/DB-Journal-Dumps aus
+              # Honeypot-/Log-Repos (siehe yuchincheng/HpfeedsHoneyGraph:
+              # db/thug_events_logs/db/db_<id>_<id>_<n>/rawdata/journal.gz -
+              # mehrere Treffer liefen in Read-Timeout oder wurden erst nach
+              # Download+Dekompression als moegliche Zip-Bomb verworfen).
+              # "rawdata"-Verzeichnis und der SQLite/WAL-Journal-Dateiname
+              # "journal" sind beides so gut wie nie eine kuratierte IP-Liste -
+              # spart die teure Fetch+Dekomprimier-Runde komplett, bevor sie
+              # ueberhaupt beginnt. Faengt "journal.gz" schon hier ab, weil
+              # dieser Check VOR dem .gz-Suffix-Abschneiden in
+              # _is_content_sniff_candidate laeuft (path_lc ist hier noch
+              # der volle Originalpfad inkl. ".gz").
+              r'(?:^|/)rawdata(?:/|$)|'
+              r'(?:^|/)journal(?:\.[^/]*)?$'
           )
           THREAT_CONTEXT_RE = re.compile(
               r'(?i)\b(?:honeypot|connection\s+attempt|rejected|accepted|'
