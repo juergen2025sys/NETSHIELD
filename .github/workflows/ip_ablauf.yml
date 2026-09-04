@@ -1311,6 +1311,7 @@ jobs:
           gesamt_ips_jetzt = None
           meta_alter_stunden = None
           cleanup_stats = None
+          cleanup_updated_utc_iso = None
           if os.path.exists("state/seen_db_meta.json"):
               try:
                   with open("state/seen_db_meta.json") as f:
@@ -1333,6 +1334,7 @@ jobs:
                   # dort - "updated" allein laesst sich wegen CEST/CET nicht
                   # robust zurueckparsen).
                   _updated_iso = _meta.get("updated_utc_iso")
+                  cleanup_updated_utc_iso = _updated_iso
                   if _updated_iso:
                       _meta_zeit = datetime.fromisoformat(_updated_iso)
                       if _meta_zeit.tzinfo is None:
@@ -1658,6 +1660,11 @@ jobs:
               # nur pro Pfad statt kombiniert.
               "expired_watchlist":       (cleanup_stats or {}).get("expired_watchlist"),
               "expired_active":          (cleanup_stats or {}).get("expired_active"),
+              # FIX LIVE-IST-DATUM 2026-09-04: Zeitpunkt des Combined-Laufs
+              # mitfuehren. Damit koennen Tageswerte spaeter eindeutig dem
+              # tatsaechlichen Cleanup-Tag zugeordnet und bei mehrfacher
+              # Verifikation desselben Combined-Stands dedupliziert werden.
+              "cleanup_updated_utc_iso":  cleanup_updated_utc_iso,
           })
           # Grobe 24h-Summe: letzte 8 Laeufe (alle 3h = 1 Tag), NACH dem
           # Anhaengen des aktuellen Laufs, damit dieser mitzaehlt. Nur ein
@@ -1778,18 +1785,85 @@ jobs:
 
           _heute_str = now.astimezone(ZoneInfo("Europe/Berlin")).date().isoformat()
 
-          def _tatsaechlich_pro_tag_berechnen(eintraege_voll, anker_feld, fenster_tage):
-              """Zaehlt Ledger-Eintraege pro Ablaufdatum, nach anker_feld (z.B.
-              'first' oder 'last') + fenster_tage + 1 gruppiert - passend zur
-              echten Cleanup-Regel 'älter als' (>30 bzw. >180 Tage).
-              BUGFIX-Hintergrund (2026-08-30, im echten Betrieb entdeckt):
-              NICHT nach 'eingefroren_am' gruppieren - das wird laut
-              update_combined_blacklist.yml (FIX WL-LEDGER-REFRESH) bei jedem
-              erneuten Ablauf einer chronisch schwach gemeldeten IP auf HEUTE
-              aufgefrischt, waehrend das Anker-Feld (first/last) bewusst
-              unveraendert bleibt - eine andere, viel groessere Grundgesamtheit
-              als "IPs, die HEUTE zum ersten Mal ihre Frist ueberschreiten".
-              """
+          # ── FIX LIVE-IST-DATUM 2026-09-04 ─────────────────────────────
+          # Die bisherige Ist-Auswertung gruppierte Ledger-Eintraege nach
+          # `first`+31 bzw. `last`+181. Das ist das THEORETISCHE Faelligkeits-
+          # datum, aber nicht zwingend der TATSAECHLICHE Entfernungstag.
+          # Besonders beim Watchlist-Tagesdeckel (2.000/Tag) entsteht bewusst
+          # Rueckstau: heute entfernte IPs koennen schon Tage zuvor faellig
+          # gewesen sein. Dadurch zeigte der Live-Fortschritt 0%, obwohl
+          # Combined heute tatsaechlich 2.000 Watchlist-IPs entfernt hatte.
+          #
+          # Fuer die Ist-Seite verwenden wir deshalb die vom Combined-Lauf
+          # selbst geschriebenen Zaehler `expired_watchlist`/`expired_active`
+          # aus dem Verifikationsverlauf. Das gilt fuer BEIDE Pfade. Active
+          # hat zwar keinen Tagesdeckel, kann aber bei verspaeteten/ausgefallenen
+          # Combined-Laeufen denselben Versatz zwischen Faelligkeit und realem
+          # Entfernungstag haben.
+          def _cleanup_ist_pro_tag(pfad_feld):
+              _pro_tag = {}
+              _gesehen = set()
+              for _lauf in verlauf:
+                  _wert = _lauf.get(pfad_feld)
+                  if _wert is None:
+                      continue
+
+                  # Neue Eintraege: Combined-Zeitpunkt ist die kanonische
+                  # Identitaet und zugleich der echte Cleanup-Tag. So wird ein
+                  # unveraenderter meta-Stand bei mehreren Verifikationslaeufen
+                  # nicht doppelt gezaehlt.
+                  _cleanup_iso = _lauf.get("cleanup_updated_utc_iso")
+                  if _cleanup_iso:
+                      try:
+                          _cleanup_dt = datetime.fromisoformat(_cleanup_iso)
+                          if _cleanup_dt.tzinfo is None:
+                              _cleanup_dt = _cleanup_dt.replace(tzinfo=timezone.utc)
+                          _tag = _cleanup_dt.astimezone(ZoneInfo("Europe/Berlin")).date().isoformat()
+                          _dedupe = (pfad_feld, _cleanup_iso)
+                          if _dedupe in _gesehen:
+                              continue
+                          _gesehen.add(_dedupe)
+                      except Exception:
+                          _tag = None
+                  else:
+                      _tag = None
+
+                  # Migration fuer bestehende Verlaufseintraege ohne
+                  # cleanup_updated_utc_iso: Datum aus dem Verifikations-
+                  # Zeitstempel nehmen. Das ist bei der bisherigen 3h-Taktung
+                  # die beste verfuegbare Zuordnung und erhaelt u.a. den bereits
+                  # protokollierten 2.000er-Lauf vom 04.09.2026.
+                  if not _tag:
+                      _zeitpunkt = str(_lauf.get("zeitpunkt", ""))
+                      _tag = _zeitpunkt[:10] if len(_zeitpunkt) >= 10 else None
+                  if not _tag:
+                      continue
+
+                  try:
+                      _pro_tag[_tag] = _pro_tag.get(_tag, 0) + int(_wert)
+                  except (TypeError, ValueError):
+                      continue
+              return _pro_tag
+
+          _tatsaechlich_pro_tag_live = _cleanup_ist_pro_tag("expired_watchlist")
+          _tatsaechlich_pro_tag_active_live = _cleanup_ist_pro_tag("expired_active")
+
+          # ── Kohorten-Zaehlung fuer die PROGNOSE-GENAUIGKEIT (separat vom
+          # Live-Fortschritt oben!) ───────────────────────────────────────
+          # _cleanup_ist_pro_tag (oben) beantwortet "wie viel wurde an DIESEM
+          # KALENDERTAG insgesamt per Cleanup entfernt" - richtig fuer den
+          # Live-Fortschritt, aber falsch fuer die Rettungsquote weiter unten:
+          # bei bestehendem Tagesdeckel-Rueckstau waere das praktisch immer
+          # ~Tagesdeckel-Nutzung, unabhaengig davon, ob die fuer DIESES Datum
+          # urspruenglich vorhergesagte Kohorte tatsaechlich gerettet wurde
+          # oder nicht (Beispiel echte Daten: fuer 2026-08-31 liefert die
+          # Kalendertag-Zaehlung 1.049.484 statt der kohorten-korrekten 9.838
+          # - zwei Groessenordnungen daneben, "gerettet" waere dadurch fuer
+          # praktisch jeden Tag falsch). Deshalb hier weiterhin die
+          # first+31/last+181-Kohorte aus dem Ledger-Snapshot, wie vor dem
+          # 2026-09-04-Fix - NUR fuer _pfad_aufloesen (Rettungsquote), NICHT
+          # fuer den Live-Fortschritt.
+          def _tatsaechlich_pro_tag_kohorte(eintraege_voll, anker_feld, fenster_tage):
               _ergebnis = {}
               for _eintrag in eintraege_voll.values():
                   if not isinstance(_eintrag, dict):
@@ -1805,15 +1879,17 @@ jobs:
                   _ergebnis[_tag] = _ergebnis.get(_tag, 0) + 1
               return _ergebnis
 
+          _tatsaechlich_pro_tag = _tatsaechlich_pro_tag_kohorte(wl_eintraege_voll, "first", 30)
+          _tatsaechlich_pro_tag_active = _tatsaechlich_pro_tag_kohorte(ac_eintraege_voll, "last", 180)
+
           def _pfad_aufloesen(pfad_key, tatsaechlich_pro_tag):
-              """Loest alle faelligen (vergangenen) pending-Datumseintraege
-              fuer einen Pfad auf, verschiebt sie nach resolved. Gibt die Liste
-              der neu aufgeloesten Eintraege zurueck."""
+              """Loest alle vergangenen Forecast-Tage gegen die TATSAECHLICH
+              an diesem Kalendertag vom Combined-Lauf entfernten IPs auf.
+              Damit misst die Endauswertung dieselbe Ist-Groesse wie der
+              Live-Fortschritt und verwechselt Rueckstand nicht mit Rettung.
+              """
               _neu = []
               for _datum in list(_forecast_hist[pfad_key]["pending"].keys()):
-                  # Erst aufloesen, wenn das Datum wirklich VORBEI ist (nicht am
-                  # Tag selbst - der Cleanup-Pass koennte zum Lauf-Zeitpunkt noch
-                  # gar nicht durchgelaufen sein).
                   if _datum >= _heute_str:
                       continue
                   _eintrag = _forecast_hist[pfad_key]["pending"].pop(_datum)
@@ -1832,13 +1908,9 @@ jobs:
                   }
                   _forecast_hist[pfad_key]["resolved"].append(_resolved_eintrag)
                   _neu.append(_resolved_eintrag)
-              # Historie begrenzen (nur juengste 60 aufgeloeste Tage behalten).
               _forecast_hist[pfad_key]["resolved"] = _forecast_hist[pfad_key]["resolved"][-60:]
               _forecast_hist[pfad_key]["resolved"].sort(key=lambda e: e["datum"])
               return _neu
-
-          _tatsaechlich_pro_tag = _tatsaechlich_pro_tag_berechnen(wl_eintraege_voll, "first", 30)
-          _tatsaechlich_pro_tag_active = _tatsaechlich_pro_tag_berechnen(ac_eintraege_voll, "last", 180)
 
           _neu_aufgeloest = _pfad_aufloesen("watchlist", _tatsaechlich_pro_tag)
           _neu_aufgeloest_active = _pfad_aufloesen("active", _tatsaechlich_pro_tag_active)
@@ -1854,17 +1926,9 @@ jobs:
               else:
                   print(f"Prognose-Abgleich ({_label}): kein faelliges Datum zum Aufloesen")
 
-          # ── FIX PROGNOSE-LIVE (2026-08-30, Nutzerwunsch "will das nicht erst
-          # morgen frueh wissen, schon eher als vor prognose") ────────────────
-          # Zusaetzlich zur finalen Aufloesung (erst wenn ein Tag WIRKLICH vorbei
-          # ist) hier ein laufend aktualisierter Zwischenstand fuer heute und die
-          # naechsten Tage: wie viele der vorhergesagten IPs sind JETZT SCHON
-          # eingefroren, auch wenn der Tag noch nicht um ist. Aktualisiert sich
-          # bei jedem verifikation-Lauf (alle 3h), nicht erst am naechsten Tag.
-          # Bewusst getrennt von _forecast_hist[...]["resolved"]: das bleibt die
-          # SAUBERE Endauswertung (nur nach echtem Tagesabschluss), hier geht es
-          # nur um Sichtbarkeit waehrend des laufenden Tages, ohne die Endzahl
-          # zu verfaelschen. Fuer BEIDE Pfade.
+          # Live-Zwischenstand fuer heute + kommende Forecast-Tage. Fuer
+          # zukuenftige Tage ist der Ist-Wert naturgemaess 0; fuer heute
+          # erscheint nach dem Combined-Lauf sofort die reale Entfernung.
           def _live_fortschritt_berechnen(pfad_key, tatsaechlich_pro_tag, anzahl_tage):
               _ergebnis = []
               for _datum in sorted(_forecast_hist[pfad_key]["pending"].keys())[:anzahl_tage]:
@@ -1879,8 +1943,8 @@ jobs:
                   })
               return _ergebnis
 
-          _live_fortschritt = _live_fortschritt_berechnen("watchlist", _tatsaechlich_pro_tag, 4)
-          _live_fortschritt_active = _live_fortschritt_berechnen("active", _tatsaechlich_pro_tag_active, 4)
+          _live_fortschritt = _live_fortschritt_berechnen("watchlist", _tatsaechlich_pro_tag_live, 4)
+          _live_fortschritt_active = _live_fortschritt_berechnen("active", _tatsaechlich_pro_tag_active_live, 4)
 
           # ── Bericht ────────────────────────────────────────────────────
           zeilen = [
@@ -1904,16 +1968,13 @@ jobs:
           zeilen += ["", "## Live-Fortschritt (heute + nächste Tage)", ""]
           zeilen.append(
               "Zwischenstand, aktualisiert bei JEDEM Lauf (alle 3h) - nicht erst "
-              "wenn der Tag vorbei ist. \"Bisher eingefroren\" zaehlt Ledger-"
-              "Eintraege, deren Anker-Datum (`first` bzw. `last`) + Fenster "
-              "(30 bzw. 180 Tage) auf dieses Datum faellt (exakt dieselbe "
-              "Formel wie die Prognose selbst - NICHT `eingefroren_am`, das "
-              "bei chronisch schwach bestaetigten IPs bei jedem erneuten "
-              "Ablauf aufgefrischt wird und daher kein verlaesslicher Tages-"
-              "Marker waere). Da ein Cleanup-Pass ueberfaellige Eintraege ohne "
-              "feste Tages-Reihenfolge nachholt, kann \"heute\" laenger bei 0% "
-              "bleiben, waehrend Rueckstand aus den letzten Tagen erst noch "
-              "verarbeitet wird - das ist normal, keine Fehlfunktion."
+              "wenn der Tag vorbei ist. \"Bisher eingefroren\" zeigt jetzt die "
+              "TATSAECHLICH an diesem Kalendertag vom Combined-Lauf entfernten "
+              "IPs (`expired_watchlist` bzw. `expired_active`). Damit werden "
+              "Watchlist-Rueckstaende durch den 2.000/Tag-Deckel korrekt dem "
+              "realen Entfernungstag zugerechnet. Dieselbe Ist-Logik gilt fuer "
+              "Active/180T, damit auch verspaetete Cleanup-Laeufe nicht dem "
+              "theoretischen Faelligkeitsdatum zugeschrieben werden."
           )
           zeilen.append("")
           zeilen.append("**Watchlist (30-Tage-Pfad):**")
