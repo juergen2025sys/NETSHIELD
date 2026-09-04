@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-04 06:44 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-04 06:55 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,305,799** |
-| Neu (heute) | **+13,511** |
-| Entfernt | **-31,059** |
+| Gesamt IPs | **1,305,798** |
+| Neu (heute) | **+4** |
+| Entfernt | **-5** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 58 |
@@ -36,11 +36,11 @@
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,576 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 230,634 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,019 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,440 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 862 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 835 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 702 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 338 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,548 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 931 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 812 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 674 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 380 |
 | ✅ `officialputuid_proxyforeveryone` | 7,042 |
 | ✅ `officialputuid_proxyforeveryone_https` | 5,734 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 6,938 |
@@ -58,7 +58,7 @@
 | ✅ `mohammedcha_proxripper_socks4` | 114,153 |
 | ✅ `mohammedcha_proxripper_http` | 118,917 |
 | ✅ `mohammedcha_proxripper_socks5` | 115,749 |
-| ✅ `celestialbrain_worldpool` | 84,991 |
+| ✅ `celestialbrain_worldpool` | 84,971 |
 | ✅ `dinoz0rg_proxy_list` | 93,611 |
 | ✅ `dinoz0rg_proxy_list_http` | 2,898 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 92,462 |
@@ -83,4 +83,4 @@
 > Diese 58 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-04 06:44 CEST (Europe/Berlin)*
+*Generiert: 2026-09-04 06:55 CEST (Europe/Berlin)*
