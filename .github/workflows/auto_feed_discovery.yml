@@ -367,6 +367,18 @@ jobs:
                   )
               """)
               _sqlite.execute("CREATE INDEX IF NOT EXISTS idx_feed_cache_version ON feed_ip_cache(file_version)")
+              # AFD v6: Discovery-Graph-Cache. Speichert die aus einem README
+              # extrahierten GitHub-Repo-Links zusammen mit der README-SHA.
+              # Unveraenderte READMEs muessen dadurch nicht erneut dekodiert/
+              # geparst werden; bei neuer SHA wird der Eintrag ersetzt.
+              _sqlite.execute("""
+                  CREATE TABLE IF NOT EXISTS graph_readme_cache (
+                      repo TEXT PRIMARY KEY,
+                      readme_sha TEXT NOT NULL,
+                      links_json TEXT NOT NULL,
+                      cached_at TEXT NOT NULL
+                  )
+              """)
               _sqlite.commit()
 
           def _sqlite_pack_ips(ips):
@@ -2187,24 +2199,20 @@ jobs:
 
           candidate_repos = {}
 
-          # ── NETSHIELD AFD v5: Discovery-Graph aus bereits guten Quellen ────
-          # Ziel: Nicht nur dieselben GitHub-Suchbegriffe wiederholen, sondern
-          # von bereits akzeptierten Feeds zu verwandten Repositories springen.
-          # Dazu werden die READMEs einer kleinen, qualitaetsgewichteten Auswahl
-          # bestehender GitHub-Feeds gelesen und dort verlinkte GitHub-Repos als
-          # Kandidaten aufgenommen. Das ist bewusst gedeckelt, damit API-/Runtime-
-          # Budget kontrollierbar bleiben. Alle Graph-Treffer durchlaufen danach
-          # EXAKT dieselben Security-/Qualitaets-Gates wie normale Kandidaten.
+          # ── NETSHIELD AFD v6: Discovery-Graph parallel + SQLite-Cache ──
+          # Core-GitHub-API-Aufrufe (README/Repo-Metadaten) laufen mit 6 Workern.
+          # Die Search-API selbst bleibt bewusst separat/rate-limit-schonend.
+          # README-Linklisten werden per README-SHA in SQLite gecacht.
           GRAPH_SEED_LIMIT = 30
           GRAPH_LINKED_REPO_LIMIT = 80
           GRAPH_LINKS_PER_SEED = 8
+          GRAPH_WORKERS = 6
           _graph_added = 0
           _graph_checked = 0
+          _graph_cache_hits = 0
           _graph_seen_targets = set()
 
           def _feed_seed_score(_feed):
-              # Bevorzuge etablierte, frische und groessere Quellen. Overlap wird
-              # nicht maximiert: ein sehr hoher Wert kann ein Mirror-Signal sein.
               _rep = int(_feed.get("rep_score", 0) or 0)
               _cnt = int(_feed.get("ip_count", 0) or 0)
               _age = int(_feed.get("file_days_old", 30) or 30)
@@ -2232,41 +2240,106 @@ jobs:
               re.IGNORECASE,
           )
 
-          for _seed_repo in _graph_seed_repos:
-              if _check_timeout("Discovery-Graph") or _graph_added >= GRAPH_LINKED_REPO_LIMIT:
-                  break
-              _graph_checked += 1
+          def _graph_readme_links(_seed_repo):
+              # Ein Core-API-Call pro Seed. GitHub liefert die Blob-SHA direkt
+              # im README-Objekt; bei gleicher SHA kommt die bereits extrahierte
+              # Linkliste aus SQLite.
               _readme = gh_api(f"/repos/{_seed_repo}/readme")
               if not isinstance(_readme, dict):
-                  continue
+                  return _seed_repo, [], False
+              _sha = str(_readme.get("sha", "") or "")
+              if _sha:
+                  try:
+                      with _sqlite_lock:
+                          _row = _sqlite.execute(
+                              "SELECT links_json FROM graph_readme_cache WHERE repo=? AND readme_sha=?",
+                              (_seed_repo.lower(), _sha),
+                          ).fetchone()
+                      if _row:
+                          return _seed_repo, json.loads(_row[0]), True
+                  except Exception as _e:
+                      print(f"WARN Graph-SQLite read {_seed_repo}: {_e}")
               _content_b64 = _readme.get("content", "") or ""
               try:
-                  _readme_text = base64.b64decode(_content_b64).decode("utf-8", errors="replace")
+                  _text = base64.b64decode(_content_b64).decode("utf-8", errors="replace")
               except Exception:
-                  continue
-              _seed_links = 0
-              for _m in _GH_REPO_LINK_RE.finditer(_readme_text):
-                  _owner, _repo_name = _m.group(1), _m.group(2).rstrip('.git')
+                  return _seed_repo, [], False
+              _links = []
+              _seen = set()
+              for _m in _GH_REPO_LINK_RE.finditer(_text):
+                  _owner = _m.group(1)
+                  _repo_name = _m.group(2)
+                  if _repo_name.lower().endswith(".git"):
+                      _repo_name = _repo_name[:-4]
                   _target = f"{_owner}/{_repo_name}"
-                  _tl = _target.lower()
-                  if _tl == _seed_repo.lower() or _tl in _graph_seen_targets:
+                  if _target.lower() == _seed_repo.lower() or _target.lower() in _seen:
                       continue
-                  _graph_seen_targets.add(_tl)
-                  _meta = gh_api(f"/repos/{_target}")
-                  if not isinstance(_meta, dict) or not _meta.get("full_name"):
-                      continue
-                  _before = len(candidate_repos)
-                  add_repo_candidate(candidate_repos, _meta, f"graph:{_seed_repo}")
-                  if len(candidate_repos) > _before:
-                      _graph_added += 1
-                      _seed_links += 1
-                  if (_seed_links >= GRAPH_LINKS_PER_SEED
-                          or _graph_added >= GRAPH_LINKED_REPO_LIMIT
-                          or _check_timeout("Discovery-Graph-Links")):
+                  _seen.add(_target.lower())
+                  _links.append(_target)
+                  if len(_links) >= GRAPH_LINKS_PER_SEED:
                       break
+              if _sha:
+                  try:
+                      with _sqlite_lock:
+                          _sqlite.execute(
+                              "INSERT OR REPLACE INTO graph_readme_cache(repo,readme_sha,links_json,cached_at) VALUES(?,?,?,?)",
+                              (_seed_repo.lower(), _sha, json.dumps(_links, separators=(",", ":")), now_str),
+                          )
+                          _sqlite.commit()
+                  except Exception as _e:
+                      print(f"WARN Graph-SQLite write {_seed_repo}: {_e}")
+              return _seed_repo, _links, False
 
-          print(f"Discovery-Graph: {_graph_checked} Seed-Repos geprueft, "
-                f"{_graph_added} neue verlinkte Kandidaten aufgenommen")
+          _set_live("Discovery-Graph", f"{len(_graph_seed_repos)} Seed-READMEs parallel", 0, len(_graph_seed_repos))
+          _graph_link_jobs = []
+          if _graph_seed_repos and not _check_timeout("Discovery-Graph"):
+              with ThreadPoolExecutor(max_workers=GRAPH_WORKERS) as _gx:
+                  for _seed_repo, _links, _cache_hit in _gx.map(_graph_readme_links, _graph_seed_repos):
+                      _graph_checked += 1
+                      if _cache_hit:
+                          _graph_cache_hits += 1
+                      # FIX UNDEFINED-LIVE-PROGRESS (2026-09-04, Review-Fund):
+                      # "_live_progress(...)" war nirgendwo im File definiert -
+                      # NameError bei jedem echten Lauf, sobald der erste Seed
+                      # verarbeitet wird (kein Syntax-, sondern ein Namensauf-
+                      # loesungsfehler; py_compile allein findet das nicht).
+                      # Ersetzt durch das bereits vorhandene _set_live() mit
+                      # denselben Werten (done/total/detail), Phase bleibt
+                      # unveraendert "Discovery-Graph".
+                      _set_live(done=_graph_checked, total=len(_graph_seed_repos),
+                                detail=f"Graph README: {_seed_repo}")
+                      for _target in _links:
+                          _tl = _target.lower()
+                          if _tl in _graph_seen_targets:
+                              continue
+                          _graph_seen_targets.add(_tl)
+                          _graph_link_jobs.append((_seed_repo, _target))
+
+          # Metadaten der verlinkten Repos ebenfalls parallel laden. Bereits
+          # bekannte aktive/rejected Repos werden VOR dem Netzaufruf verworfen.
+          _existing_repo_names = {str(f.get("repo", "")).lower() for f in existing_feeds.values() if f.get("repo")}
+          _rejected_repo_names = {str(x).lower() for x in existing_rejected}
+          _graph_link_jobs = [j for j in _graph_link_jobs
+                              if j[1].lower() not in _existing_repo_names
+                              and j[1].lower() not in _rejected_repo_names]
+          _graph_link_jobs = _graph_link_jobs[:GRAPH_LINKED_REPO_LIMIT]
+
+          def _graph_repo_meta(_job):
+              _seed_repo, _target = _job
+              return _seed_repo, _target, gh_api(f"/repos/{_target}")
+
+          if _graph_link_jobs and not _check_timeout("Discovery-Graph-Metadaten"):
+              with ThreadPoolExecutor(max_workers=GRAPH_WORKERS) as _gx:
+                  for _seed_repo, _target, _meta in _gx.map(_graph_repo_meta, _graph_link_jobs):
+                      if not isinstance(_meta, dict) or not _meta.get("full_name"):
+                          continue
+                      _before = len(candidate_repos)
+                      add_repo_candidate(candidate_repos, _meta, f"graph:{_seed_repo}")
+                      if len(candidate_repos) > _before:
+                          _graph_added += 1
+
+          print(f"Discovery-Graph: {_graph_checked} Seed-Repos, {_graph_cache_hits} SQLite-Hits, "
+                f"{_graph_added} neue Kandidaten ({GRAPH_WORKERS} Worker)")
           _github_found = 0
 
           # FIX ROTATION-30MIN (2026-07-31): Vorher wurden ALLE 249 Topics
@@ -4371,8 +4444,8 @@ jobs:
           with _live_lock:
               _live_state["eval_started"] = 0
           _set_live("Kandidaten bewerten", "Tree/Dateien/Qualitaet/Overlap pruefen", 0, len(_sorted_candidates))
-          print(f"EVAL-Phase: {len(_sorted_candidates)} Kandidaten parallel (4 Worker)...")
-          with ThreadPoolExecutor(max_workers=4) as _eval_ex:
+          print(f"EVAL-Phase: {len(_sorted_candidates)} Kandidaten parallel (6 Worker)...")
+          with ThreadPoolExecutor(max_workers=6) as _eval_ex:
               _eval_results = list(_eval_ex.map(_evaluate_one, _sorted_candidates))
 
           # Serielle Anwendung der Ergebnisse (kein Race)
@@ -4856,13 +4929,8 @@ jobs:
               print(f"WARN SQLite finalisieren: {_e}")
 
           _set_live("Fertig", "Auto Feed Discovery abgeschlossen")
-          # FIX LIVE-MONITOR-RACE (2026-09-04, Review-Fund): _live_stop VOR dem
-          # finalen _emit_live() setzen, nicht danach - sonst kann der Monitor-
-          # Thread im 30s-Intervall zufaellig zeitgleich aufwachen und ebenfalls
-          # _emit_live() aufrufen. _live_prev (anders als _live_state) ist nicht
-          # per Lock geschuetzt, ein gleichzeitiger Zugriff koennte zu einer
-          # verzerrten Rate-Berechnung in einer einzelnen Log-Zeile fuehren.
-          # Kein Sicherheits-, nur ein Kosmetik-Risiko, aber trivial vermeidbar.
+          # Monitor zuerst stoppen und kurz joinen; erst danach final messen.
+          # Verhindert parallelen Zugriff auf _live_prev durch Monitor + Main.
           _live_stop.set()
           try:
               _live_thread.join(timeout=1.0)
