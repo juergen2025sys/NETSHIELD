@@ -84,6 +84,16 @@ jobs:
         with:
           persist-credentials: true
 
+      - name: Restore Auto-Feed SQLite cache
+        id: afd_sqlite_restore
+        if: steps.idempotency.outputs.already_ran != 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .cache/auto_feed_discovery
+          key: netshield-auto-feed-sqlite-v1-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            netshield-auto-feed-sqlite-v1-${{ runner.os }}-
+
       - name: defusedxml sicherstellen (fuer sichere XML-Feed-Extraktion)
         # FIX SEC-XML-BILLION-LAUGHS (2026-08-25): siehe ausfuehrlicher
         # Kommentar in netshield_common.py bei parse_feed_entries(). Fehlt
@@ -133,6 +143,10 @@ jobs:
           import time
           import ipaddress
           import hashlib
+          import base64
+          import sqlite3
+          import zlib
+          import threading
           from datetime import datetime, timezone, timedelta
           from zoneinfo import ZoneInfo
           from collections import defaultdict
@@ -181,6 +195,95 @@ jobs:
               .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
           )
           now_day = now.strftime("%Y-%m-%d")
+
+          # ── SQLite-Cache fuer Auto-Feed-Refresh ─────────────────────────
+          # Ziel: Die woechentliche Discovery soll bereits bekannte, UNVERAENDERTE
+          # Feed-Dateien nicht jedes Mal erneut komplett herunterladen und parsen.
+          # Der Cache ist bewusst nur ein Performance-Cache; die kanonische Registry
+          # bleibt state/auto_discovered_feeds.json. seen_db wird weiterhin NICHT
+          # durch Auto Feed Discovery geoeffnet oder veraendert.
+          #
+          # Cache-Key pro Feed = URL + exaktes letztes Commit-Datum der Datei.
+          # Aendert sich das Commit-Datum, wird normal neu geladen und der Cache
+          # ersetzt. Kann das Commit-Datum nicht sicher ermittelt werden (z.B.
+          # externe URL), wird NICHT aus SQLite wiederverwendet -> kein Stale-Risiko.
+          AFD_SQLITE_DIR = ".cache/auto_feed_discovery"
+          AFD_SQLITE_DB  = os.path.join(AFD_SQLITE_DIR, "feed_cache.sqlite3")
+          os.makedirs(AFD_SQLITE_DIR, exist_ok=True)
+          _sqlite_lock = threading.RLock()
+          _sqlite = sqlite3.connect(AFD_SQLITE_DB, timeout=30, check_same_thread=False)
+          with _sqlite_lock:
+              _sqlite.execute("PRAGMA journal_mode=WAL")
+              _sqlite.execute("PRAGMA synchronous=NORMAL")
+              _sqlite.execute("PRAGMA temp_store=MEMORY")
+              _sqlite.execute("PRAGMA cache_size=-65536")  # ca. 64 MiB Page-Cache
+              _sqlite.execute("PRAGMA busy_timeout=30000")
+              _sqlite.execute("""
+                  CREATE TABLE IF NOT EXISTS feed_ip_cache (
+                      url TEXT PRIMARY KEY,
+                      file_version TEXT NOT NULL,
+                      ip_count INTEGER NOT NULL,
+                      ip_fingerprint TEXT NOT NULL,
+                      ip_blob BLOB NOT NULL,
+                      cached_at TEXT NOT NULL
+                  )
+              """)
+              _sqlite.execute("CREATE INDEX IF NOT EXISTS idx_feed_cache_version ON feed_ip_cache(file_version)")
+              _sqlite.commit()
+
+          def _sqlite_pack_ips(ips):
+              if not ips:
+                  return zlib.compress(b"", level=6)
+              payload = ("\n".join(sorted(ips)) + "\n").encode("ascii", "strict")
+              return zlib.compress(payload, level=6)
+
+          def _sqlite_unpack_ips(blob):
+              raw = zlib.decompress(blob)
+              if not raw:
+                  return set()
+              return set(raw.decode("ascii").splitlines())
+
+          def _sqlite_get_feed_ips(url, file_version):
+              if not url or not file_version:
+                  return None
+              try:
+                  with _sqlite_lock:
+                      row = _sqlite.execute(
+                          "SELECT ip_count, ip_fingerprint, ip_blob "
+                          "FROM feed_ip_cache WHERE url=? AND file_version=?",
+                          (url, file_version),
+                      ).fetchone()
+                  if not row:
+                      return None
+                  ips = _sqlite_unpack_ips(row[2])
+                  if len(ips) != int(row[0]):
+                      return None
+                  if _ip_fingerprint(ips) != row[1]:
+                      return None
+                  return ips
+              except Exception as _e:
+                  print(f"WARN SQLite-Cache read {url}: {_e}")
+                  return None
+
+          def _sqlite_put_feed_ips(url, file_version, ips):
+              if not url or not file_version or not ips:
+                  return
+              try:
+                  blob = _sqlite_pack_ips(ips)
+                  fp = _ip_fingerprint(ips)
+                  with _sqlite_lock:
+                      _sqlite.execute(
+                          "INSERT INTO feed_ip_cache(url,file_version,ip_count,ip_fingerprint,ip_blob,cached_at) "
+                          "VALUES(?,?,?,?,?,?) "
+                          "ON CONFLICT(url) DO UPDATE SET "
+                          "file_version=excluded.file_version, ip_count=excluded.ip_count, "
+                          "ip_fingerprint=excluded.ip_fingerprint, ip_blob=excluded.ip_blob, "
+                          "cached_at=excluded.cached_at",
+                          (url, file_version, len(ips), fp, sqlite3.Binary(blob), now_day),
+                      )
+                      _sqlite.commit()
+              except Exception as _e:
+                  print(f"WARN SQLite-Cache write {url}: {_e}")
 
           GH_TOKEN   = os.environ.get("GH_TOKEN", "")
           # IPV4_RE wird aus netshield_common importiert (strikte Variante mit
@@ -1942,6 +2045,87 @@ jobs:
           ]
 
           candidate_repos = {}
+
+          # ── NETSHIELD AFD v5: Discovery-Graph aus bereits guten Quellen ────
+          # Ziel: Nicht nur dieselben GitHub-Suchbegriffe wiederholen, sondern
+          # von bereits akzeptierten Feeds zu verwandten Repositories springen.
+          # Dazu werden die READMEs einer kleinen, qualitaetsgewichteten Auswahl
+          # bestehender GitHub-Feeds gelesen und dort verlinkte GitHub-Repos als
+          # Kandidaten aufgenommen. Das ist bewusst gedeckelt, damit API-/Runtime-
+          # Budget kontrollierbar bleiben. Alle Graph-Treffer durchlaufen danach
+          # EXAKT dieselben Security-/Qualitaets-Gates wie normale Kandidaten.
+          GRAPH_SEED_LIMIT = 30
+          GRAPH_LINKED_REPO_LIMIT = 80
+          GRAPH_LINKS_PER_SEED = 8
+          _graph_added = 0
+          _graph_checked = 0
+          _graph_seen_targets = set()
+
+          def _feed_seed_score(_feed):
+              # Bevorzuge etablierte, frische und groessere Quellen. Overlap wird
+              # nicht maximiert: ein sehr hoher Wert kann ein Mirror-Signal sein.
+              _rep = int(_feed.get("rep_score", 0) or 0)
+              _cnt = int(_feed.get("ip_count", 0) or 0)
+              _age = int(_feed.get("file_days_old", 30) or 30)
+              _fp  = float(_feed.get("fp_rate", 5.0) or 5.0)
+              _fresh = max(0, 30 - min(_age, 30))
+              _size_bonus = min(20, int((_cnt.bit_length() if _cnt > 0 else 0) * 2))
+              _fp_bonus = max(0, int(10 - min(_fp, 10)))
+              return _rep + _fresh + _size_bonus + _fp_bonus
+
+          _graph_seed_repos = []
+          _graph_seed_seen = set()
+          for _gf in sorted(existing_feeds.values(), key=_feed_seed_score, reverse=True):
+              _gr = (_gf.get("repo") or "").strip()
+              if not _gr or _gf.get("platform", "github") != "github" or "/" not in _gr:
+                  continue
+              if _gr.lower() in _graph_seed_seen:
+                  continue
+              _graph_seed_seen.add(_gr.lower())
+              _graph_seed_repos.append(_gr)
+              if len(_graph_seed_repos) >= GRAPH_SEED_LIMIT:
+                  break
+
+          _GH_REPO_LINK_RE = re.compile(
+              r'https?://github\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)',
+              re.IGNORECASE,
+          )
+
+          for _seed_repo in _graph_seed_repos:
+              if _check_timeout("Discovery-Graph") or _graph_added >= GRAPH_LINKED_REPO_LIMIT:
+                  break
+              _graph_checked += 1
+              _readme = gh_api(f"/repos/{_seed_repo}/readme")
+              if not isinstance(_readme, dict):
+                  continue
+              _content_b64 = _readme.get("content", "") or ""
+              try:
+                  _readme_text = base64.b64decode(_content_b64).decode("utf-8", errors="replace")
+              except Exception:
+                  continue
+              _seed_links = 0
+              for _m in _GH_REPO_LINK_RE.finditer(_readme_text):
+                  _owner, _repo_name = _m.group(1), _m.group(2).rstrip('.git')
+                  _target = f"{_owner}/{_repo_name}"
+                  _tl = _target.lower()
+                  if _tl == _seed_repo.lower() or _tl in _graph_seen_targets:
+                      continue
+                  _graph_seen_targets.add(_tl)
+                  _meta = gh_api(f"/repos/{_target}")
+                  if not isinstance(_meta, dict) or not _meta.get("full_name"):
+                      continue
+                  _before = len(candidate_repos)
+                  add_repo_candidate(candidate_repos, _meta, f"graph:{_seed_repo}")
+                  if len(candidate_repos) > _before:
+                      _graph_added += 1
+                      _seed_links += 1
+                  if (_seed_links >= GRAPH_LINKS_PER_SEED
+                          or _graph_added >= GRAPH_LINKED_REPO_LIMIT
+                          or _check_timeout("Discovery-Graph-Links")):
+                      break
+
+          print(f"Discovery-Graph: {_graph_checked} Seed-Repos geprueft, "
+                f"{_graph_added} neue verlinkte Kandidaten aufgenommen")
           _github_found = 0
 
           # FIX ROTATION-30MIN (2026-07-31): Vorher wurden ALLE 249 Topics
@@ -2592,17 +2776,35 @@ jobs:
                   "name": _name, "feed": _feed, "url": _url,
                   "skip": not _url, "content": None,
                   "file_days": None, "ips": set(),
-                  "zero_ips": False,
+                  "zero_ips": False, "cache_hit": False,
               }
               if result["skip"]:
                   return result
+
+              # SQLITE FAST-PATH: Commit-Datum wurde vorher ohnehin fuer jeden
+              # Feed abgefragt. Ist es identisch zum Cache, sparen wir den
+              # kompletten Feed-Download + Parsing. Externe Quellen ohne sicher
+              # bestimmbares Commit-Datum gehen immer durch den normalen Pfad.
+              _file_dt = _get_commit_date_for_feed(_feed)
+              _file_version = ""
+              if _file_dt is not None:
+                  result["file_days"] = (now - _file_dt).days
+                  _file_version = _file_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+                  _cached_ips = _sqlite_get_feed_ips(_url, _file_version)
+                  if _cached_ips is not None:
+                      result["content"] = "__SQLITE_CACHE_HIT__"
+                      result["ips"] = _cached_ips
+                      result["cache_hit"] = True
+                      return result
+
               result["content"] = fetch_raw(_url, limit=_REFRESH_READ_LIMIT, timeout=20)
               if result["content"] is None:
                   return result
-              _file_dt = _get_commit_date_for_feed(_feed)
-              if _file_dt is not None:
-                  result["file_days"] = (now - _file_dt).days
               result["ips"] = extract_ips(result["content"], _url)
+              # Nur sicher versionierbare Repo-Dateien cachen. So kann SQLite
+              # niemals einen geaenderten externen Feed verdecken.
+              if result["ips"] and _file_version:
+                  _sqlite_put_feed_ips(_url, _file_version, result["ips"])
               # Merker: Download OK aber 0 IPs extrahiert.
               # Vorab-Diagnose: erste 200 Zeichen loggen damit im Report
               # sichtbar ist ob es ein Format-Problem ist (JSON, Domains etc.)
@@ -2687,7 +2889,12 @@ jobs:
               all_known_ips.update(_ips)
               for _ip in _ips:
                   ip_auto_feed_count[_ip] = ip_auto_feed_count.get(_ip, 0) + 1
-              print(f"  REFRESH {_name}: OK ({len(_ips)} IPs{_age_str})")
+              _cache_tag = ", SQLite-HIT" if _r.get("cache_hit") else ""
+              print(f"  REFRESH {_name}: OK ({len(_ips)} IPs{_age_str}{_cache_tag})")
+
+          _sqlite_refresh_hits = sum(1 for _r in _refresh_results if _r.get("cache_hit"))
+          if _refresh_results:
+              print(f"SQLite-Refresh-Cache: {_sqlite_refresh_hits}/{len(_refresh_results)} Hits ")
 
           if removed_stale:
               print(f"\nAls tot entfernt: {len(removed_stale)} Feeds: {', '.join(removed_stale)}")
@@ -3057,12 +3264,16 @@ jobs:
           # "EVAL-BUDGET-DYNAMIC" weiter unten) kappt die tatsaechliche
           # Eval-Liste bei Bedarf ohnehin auf die verbleibende Zeit - diese
           # Zahlen sind also obere Grenzen, kein garantierter Verbrauch.
-          EVAL_BUDGET   = 500   # 80+200+120+40+60
-          QUOTA_CODE    = 80    # war 60
-          QUOTA_REP     = 200   # war 160
-          QUOTA_AWESOME = 120   # war 100
-          QUOTA_GITLAB  = 40    # unveraendert: nur ~70 GitLab-Kandidaten insgesamt vorhanden
-          QUOTA_FRESH   = 60    # war 40
+          # AFD v5: 40 Slots fuer Discovery-Graph reserviert. Gesamtbudget bleibt
+          # 500, damit die groessere Suchbreite nicht automatisch mehr Laufzeit
+          # erzwingt. Reputation leicht reduziert; Code/Awesome/GitLab/Fresh bleiben.
+          EVAL_BUDGET   = 500   # 80+160+40+120+40+60
+          QUOTA_CODE    = 80
+          QUOTA_REP     = 160
+          QUOTA_GRAPH   = 40
+          QUOTA_AWESOME = 120
+          QUOTA_GITLAB  = 40
+          QUOTA_FRESH   = 60
 
           def _is_awesome(meta):
               return any(s.startswith("awesome:") for s in meta.get("sources", []))
@@ -3072,6 +3283,9 @@ jobs:
               # via add_repo_candidate). filename:-Treffer matchen per
               # Konstruktion IP_FILE_PATTERNS -> hoechste Feed-Wahrscheinlichkeit.
               return any(s.startswith("code:") for s in meta.get("sources", []))
+
+          def _is_graph(meta):
+              return any(s.startswith("graph:") for s in meta.get("sources", []))
 
           def _is_gitlab(meta):
               return meta.get("platform") == "gitlab"
@@ -3165,6 +3379,21 @@ jobs:
                   _sorted_candidates.append((k, v))
                   _picked_keys.add(k)
                   _code_added += 1
+
+          # Pool 0b: Discovery-Graph. Verlinkungen aus bereits guten Feeds
+          # bekommen eine eigene Quote und verschwinden damit nicht im Stars-Ranking.
+          _graph_pool = [
+              (k, v) for k, v in _all_items
+              if _is_graph(v) and not _is_gitlab(v) and k not in _picked_keys
+          ]
+          _graph_pool.sort(
+              key=lambda x: (_rep_score(x[1]), _pushed_key(x[1])), reverse=True
+          )
+          _graph_eval_added = 0
+          for k, v in _graph_pool[:QUOTA_GRAPH]:
+              _sorted_candidates.append((k, v))
+              _picked_keys.add(k)
+              _graph_eval_added += 1
 
           # Pool 1: Top-Reputation aus GitHub (Awesome und GitLab ausgeschlossen,
           # damit deren Quote nicht doppelt zaehlt)
@@ -3270,6 +3499,7 @@ jobs:
           print(
               f"Stratifizierte Auswahl aus {len(candidate_repos)} Kandidaten:\n"
               f"  Code-Search-Pool (GH):    {_code_added} (von {len(_code_pool)} verfuegbar)\n"
+              f"  Discovery-Graph (GH):     {_graph_eval_added} (von {len(_graph_pool)} verfuegbar)\n"
               f"  Reputation-Pool (GH):     {min(QUOTA_REP, len(_rep_pool))}\n"
               f"  Awesome-Pool:             {_aw_added} (von {len(_aw_pool)} verfuegbar)\n"
               f"  GitLab-Pool:              {_gl_added} (von {len(_gl_pool)} verfuegbar)\n"
@@ -3819,10 +4049,39 @@ jobs:
                   f"IP-tragende Zeilen {line_ip_ratio:.1%})"
               )
 
+              # ── AFD v5: Neuheits- und Qualitaets-Score ───────────────────
+              # all_known_ips ist die Union aller erfolgreich refreshten, bereits
+              # akzeptierten Auto-Feeds. So messen wir den echten Zusatznutzen
+              # eines Kandidaten, ohne die riesige seen_db laden zu muessen.
+              # WICHTIG: geringe Neuheit ist KEIN hartes Reject-Gate; ein Feed
+              # kann als unabhaengige Bestaetigungsquelle trotzdem wertvoll sein.
+              novelty_count = len(ips - all_known_ips)
+              novelty_pct = novelty_count / len(ips) if ips else 0.0
+              _log_lines.append(
+                  f"  🆕 Neuheit ggü. Auto-Feed-Korpus: {novelty_count:,} IPs "
+                  f"({novelty_pct:.1%})"
+              )
+
               stars     = meta.get("stars", 0)
               forks     = meta.get("forks", 0)
               rep_score = min(stars * 2 + forks * 3, 100)
               _log_lines.append(f"  ⭐ Reputation: {stars} Stars / {forks} Forks → Score {rep_score} [{_platform}]")
+
+              # 0..100: Zusatznutzen + Qualitaet, ohne bestehende harten Gates
+              # zu ersetzen. Neuheit max. 30 Punkte; FP/Format/HQ/Freshness/Rep
+              # liefern den Rest. Der Score wird persistiert und im Report sichtbar.
+              _novelty_points = min(30.0, novelty_pct * 30.0 + min(novelty_count, 5000) / 5000 * 5.0)
+              _fp_points = max(0.0, 20.0 * (1.0 - min(fp, 0.05) / 0.05))
+              _format_points = min(15.0, max(0.0, (ip_ratio - 0.30) / 0.70 * 15.0))
+              if hq_ref_ready:
+                  # 20-80% Overlap ist fuer unabhaengige, aber bestaetigte Quellen ideal.
+                  _hq_points = 20.0 if 0.20 <= overlap_pct <= 0.80 else max(5.0, 20.0 - abs(overlap_pct - 0.50) * 20.0)
+              else:
+                  _hq_points = 10.0
+              _fresh_points = 10.0 if file_days_old is None else max(0.0, 10.0 * (1.0 - min(file_days_old, 30) / 30.0))
+              _rep_points = min(5.0, rep_score / 20.0)
+              quality_score = round(min(100.0, _novelty_points + _fp_points + _format_points + _hq_points + _fresh_points + _rep_points), 1)
+              _log_lines.append(f"  📊 AFD-Qualitaets-Score: {quality_score:.1f}/100")
 
               # ── Multi-File: weitere IP-Dateien aus demselben Repo ────────
               # Repo-Vertrauen wird NICHT auf jede Datei vererbt. Jede Extra-Datei
@@ -3907,6 +4166,8 @@ jobs:
                       )
                       continue
 
+                  _ef_novelty_count = len(_ef_ips - all_known_ips)
+                  _ef_novelty_pct = _ef_novelty_count / len(_ef_ips) if _ef_ips else 0.0
                   extra_files.append({
                       "file":          _ef["path"],
                       "url":           _ef_url,
@@ -3917,6 +4178,8 @@ jobs:
                       "overlap":       _ef_validation["overlap"],
                       "ip_ratio":      _ef_validation["ip_ratio"],
                       "file_days_old": _ef_file_days,
+                      "novelty_count": _ef_novelty_count,
+                      "novelty_pct":   _ef_novelty_pct,
                   })
                   _log_lines.append(
                       f"  ✅ Extra-Datei: {_ef['path']} ({len(_ef_ips)} IPs, "
@@ -3942,6 +4205,9 @@ jobs:
                   "stars":       stars,
                   "forks":       forks,
                   "rep_score":   rep_score,
+                  "novelty_count": novelty_count,
+                  "novelty_pct": novelty_pct,
+                  "quality_score": quality_score,
                   "days_old":    days_old,
                   "file_days_old": file_days_old,
                   "platform":    _platform,
@@ -3990,6 +4256,9 @@ jobs:
               stars       = _res["stars"]
               forks       = _res["forks"]
               rep_score   = _res["rep_score"]
+              novelty_count = _res.get("novelty_count", 0)
+              novelty_pct = _res.get("novelty_pct", 0.0)
+              quality_score = _res.get("quality_score", 0.0)
               days_old    = _res["days_old"]
               file_days_old = _res["file_days_old"]
               extra_files = _res.get("extra_files", [])
@@ -4026,6 +4295,9 @@ jobs:
                   _entry_overlap_pct = _metrics.get("overlap_pct", overlap_pct)
                   _entry_fp = _metrics.get("fp", fp)
                   _entry_file_days = _metrics.get("file_days_old", file_days_old)
+                  _entry_novelty_count = int(_metrics.get("novelty_count", novelty_count) or 0)
+                  _entry_novelty_pct = float(_metrics.get("novelty_pct", novelty_pct) or 0.0)
+                  _entry_quality = float(_metrics.get("quality_score", quality_score) or 0.0)
                   _entry = {
                       "name":          _fname,
                       "url":           f_url,
@@ -4039,6 +4311,9 @@ jobs:
                       "overlap_pct":   round(_entry_overlap_pct * 100, 1),
                       "fp_rate":       round(_entry_fp * 100, 2),
                       "rep_score":     rep_score,
+                      "novelty_count": _entry_novelty_count,
+                      "novelty_pct":   round(_entry_novelty_pct * 100, 1),
+                      "quality_score": round(_entry_quality, 1),
                       "stars":         stars,
                       "days_old":      days_old,
                       "file_days_old": _entry_file_days,
@@ -4063,11 +4338,15 @@ jobs:
                       "new_feed":    _is_new,
                       "overlap_pct": round(_entry_overlap_pct * 100, 1),
                       "fp_rate":     round(_entry_fp * 100, 2),
+                      "novelty_count": _entry_novelty_count,
+                      "novelty_pct": round(_entry_novelty_pct * 100, 1),
+                      "quality_score": round(_entry_quality, 1),
                       "stars":       stars,
                       "platform":    _platform_res,
                   })
                   print(f"  ✅ ANGENOMMEN als '{_fname}' ({len(f_ips)} IPs, "
-                        f"{'NEU' if _is_new else 'bekannt'}, {_platform_res.upper()})")
+                        f"{'NEU' if _is_new else 'bekannt'}, {_platform_res.upper()}, "
+                        f"Neuheit {_entry_novelty_pct:.1%}, Qualität {_entry_quality:.1f}/100)")
                   return True
 
               # Hauptdatei registrieren (kein Suffix – bleibt rückwärtskompatibel)
@@ -4077,6 +4356,21 @@ jobs:
               for _ef in extra_files:
                   _stem = re.sub(r'[^a-z0-9_]', '_',
                                  _ef["file"].split("/")[-1].rsplit(".", 1)[0].lower())
+                  # Extra-Datei: eigener kompakter Quality-Score auf Basis
+                  # ihrer individuellen Metriken. Repo-Reputation wird geteilt.
+                  _ef_nov = float(_ef.get("novelty_pct", 0.0) or 0.0)
+                  _ef_fp = float(_ef.get("fp", 0.05) or 0.05)
+                  _ef_fmt = float(_ef.get("ip_ratio", 0.30) or 0.30)
+                  _ef_ov = float(_ef.get("overlap_pct", 0.0) or 0.0)
+                  _ef_quality = min(100.0,
+                      min(30.0, _ef_nov * 30.0 + min(int(_ef.get("novelty_count",0)), 5000)/5000*5.0)
+                      + max(0.0, 20.0*(1.0-min(_ef_fp,0.05)/0.05))
+                      + min(15.0, max(0.0, (_ef_fmt-0.30)/0.70*15.0))
+                      + (20.0 if 0.20 <= _ef_ov <= 0.80 else max(5.0, 20.0-abs(_ef_ov-0.50)*20.0))
+                      + max(0.0, 10.0*(1.0-min(int(_ef.get("file_days_old",30)),30)/30.0))
+                      + min(5.0, rep_score/20.0)
+                  )
+                  _ef["quality_score"] = round(_ef_quality, 1)
                   _register_feed(
                       _ef["url"], _ef["file"], _ef["ips"],
                       f_name_suffix=_stem, metrics=_ef,
@@ -4249,6 +4543,8 @@ jobs:
           lines.append("## Zusammenfassung\n")
           lines.append("| Metrik | Wert |")
           lines.append("|---|---|")
+          lines.append(f"| Discovery-Graph Seed-Repos | {_graph_checked:,} |")
+          lines.append(f"| Discovery-Graph neue Kandidaten | {_graph_added:,} |")
           lines.append(f"| Kandidaten gesamt | **{len(candidate_repos)}** |")
           lines.append(f"| davon GitHub (Topics+Code) | **{sum(1 for v in candidate_repos.values() if v.get('platform','github')=='github')}** |")
           lines.append(f"| davon GitLab | **{_gitlab_unique}** |")
@@ -4295,6 +4591,7 @@ jobs:
           lines.append("| Ablauf-Kandidaten Watchlist (30d) | **nicht geprueft – Combined ist allein zustaendig** |")
           lines.append("| Ablauf-Kandidaten Active (180d) | **nicht geprueft – Combined ist allein zustaendig** |")
           lines.append(f"| HQ-Referenz-IPs (6 Quellen) | **{len(hq_ref_ips)}** |")
+          lines.append(f"| SQLite-Refresh-Cache-Hits | **{_sqlite_refresh_hits}/{len(_refresh_results)}** |")
 
           # Reject-Gruende-Tabelle (nur wenn was passiert ist)
           if _reject_reasons:
@@ -4392,6 +4689,18 @@ jobs:
 
           print("AFD Registry gespeichert; seen_db bleibt unveraendert")
 
+          # WAL in die Hauptdatei schreiben, damit actions/cache einen kompakten
+          # konsistenten SQLite-Stand fuer den naechsten Lauf speichert.
+          try:
+              with _sqlite_lock:
+                  _sqlite.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+                  _sqlite.commit()
+                  _sqlite.close()
+              _db_size = os.path.getsize(AFD_SQLITE_DB) if os.path.exists(AFD_SQLITE_DB) else 0
+              print(f"SQLite-Cache bereit: {_db_size/1024/1024:.1f} MiB")
+          except Exception as _e:
+              print(f"WARN SQLite finalisieren: {_e}")
+
           EOF
 
       - name: Commit
@@ -4452,3 +4761,11 @@ jobs:
             echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
             exit 1
           fi
+
+
+      - name: Save Auto-Feed SQLite cache
+        if: always() && steps.idempotency.outputs.already_ran != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .cache/auto_feed_discovery
+          key: netshield-auto-feed-sqlite-v1-${{ runner.os }}-${{ github.run_id }}
