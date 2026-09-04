@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-09-04 13:54 CEST (Europe/Berlin)
+Lauf: 2026-09-04 15:30 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -29,9 +29,9 @@ Zwischenstand, aktualisiert bei JEDEM Lauf (alle 3h) - nicht erst wenn der Tag v
 | Datum | Vorhergesagt | Bisher eingefroren | Fortschritt |
 |---|---:|---:|---:|
 | 2026-09-04 (heute) | 173,700 | 0 | 0% |
-| 2026-09-05 | 173,670 | 0 | 0% |
+| 2026-09-05 | 173,668 | 0 | 0% |
 | 2026-09-07 | 663,981 | 0 | 0% |
-| 2026-09-08 | 663,141 | 0 | 0% |
+| 2026-09-08 | 663,113 | 0 | 0% |
 
 ## Diagnose-Status
 
@@ -74,21 +74,20 @@ _48 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +3,555 (Anstieg) (jetzt 11,181,320 IPs)
+- Seit letztem Lauf: ➡️ unverändert (jetzt 11,181,320 IPs)
 - Seit Zyklus-Start (2026-08-23): 📈 +1,785,281 (Anstieg)
 - Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 1,023,766 neue IPs hinzugekommen (davon 832,321 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 33 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 192,273 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 8,145,124 (Summe letzte 8 Läufe / ~24h)
+- Neue IPs (Summe letzter Läufe): 8,184,411 (Summe letzte 8 Läufe / ~24h)
 - Entfernte IPs (Summe letzter Läufe): 2,000 (Summe letzte 8 Läufe / ~24h)
   - davon Watchlist/30 Tage: 2,000 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +26,763 (~24h)
+- Netto-Wachstum (~24h): 📈 +21,134 (~24h)
 - Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-09-03T19:03 bis 2026-09-04T11:44 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-09-02 15:36 CEST (Europe/Berlin) | 11,107,873 | 186488 | 0 | 176452 |
 | 2026-09-02 18:56 CEST (Europe/Berlin) | 11,109,436 | 186488 | 0 | 176452 |
 | 2026-09-02 19:53 CEST (Europe/Berlin) | 11,138,217 | 186488 | 0 | 176786 |
 | 2026-09-02 23:15 CEST (Europe/Berlin) | 11,148,706 | 186488 | 0 | 176803 |
@@ -108,3 +107,4 @@ _48 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-09-04 07:17 CEST (Europe/Berlin) | 11,176,453 | 186486 | 0 | 173 |
 | 2026-09-04 11:03 CEST (Europe/Berlin) | 11,177,765 | 186486 | 0 | 176 |
 | 2026-09-04 13:54 CEST (Europe/Berlin) | 11,181,320 | 186484 | 0 | 183 |
+| 2026-09-04 15:30 CEST (Europe/Berlin) | 11,181,320 | 186484 | 0 | 183 |
