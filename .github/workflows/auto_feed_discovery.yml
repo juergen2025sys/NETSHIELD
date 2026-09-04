@@ -151,6 +151,144 @@ jobs:
           from zoneinfo import ZoneInfo
           from collections import defaultdict
           from concurrent.futures import ThreadPoolExecutor
+          from pathlib import Path
+
+          # ── LIVE SYSTEM-/HARDWARE-MONITOR ───────────────────────────────
+          # Live-Status direkt im GitHub-Actions-Log. Keine Zusatzpakete: nur
+          # Linux /proc + Python-Standardbibliothek. Ausgabe alle 30 Sekunden.
+          _LIVE_INTERVAL_SEC = 30
+          _live_lock = threading.Lock()
+          _live_stop = threading.Event()
+          _live_state = {"phase": "Initialisierung", "detail": "Python gestartet",
+                         "done": 0, "total": 0, "eval_started": 0,
+                         "refresh_started": 0}
+          _live_started_mono = time.monotonic()
+          _live_samples = {"count": 0, "cpu_sum": 0.0, "cpu_max": 0.0,
+                           "rss_max": 0, "ram_used_max": 0}
+
+          def _set_live(phase=None, detail=None, done=None, total=None):
+              with _live_lock:
+                  if phase is not None: _live_state["phase"] = str(phase)
+                  if detail is not None: _live_state["detail"] = str(detail)
+                  if done is not None: _live_state["done"] = int(done)
+                  if total is not None: _live_state["total"] = int(total)
+
+          def _live_eval_started(detail=""):
+              with _live_lock:
+                  _live_state["eval_started"] += 1
+                  _live_state["done"] = _live_state["eval_started"]
+                  if detail: _live_state["detail"] = str(detail)
+
+          def _live_refresh_started(detail=""):
+              with _live_lock:
+                  _live_state["refresh_started"] += 1
+                  _live_state["done"] = _live_state["refresh_started"]
+                  if detail: _live_state["detail"] = str(detail)
+
+          def _read_proc_cpu():
+              try:
+                  vals = [int(x) for x in Path('/proc/stat').read_text().splitlines()[0].split()[1:]]
+                  idle = vals[3] + (vals[4] if len(vals) > 4 else 0)
+                  return sum(vals), idle
+              except Exception:
+                  return 0, 0
+
+          def _read_mem():
+              vals = {}
+              try:
+                  for line in Path('/proc/meminfo').read_text().splitlines():
+                      k, rest = line.split(':', 1)
+                      vals[k] = int(rest.strip().split()[0]) * 1024
+              except Exception:
+                  pass
+              total = vals.get('MemTotal', 0)
+              avail = vals.get('MemAvailable', vals.get('MemFree', 0))
+              used = max(0, total - avail)
+              swap = max(0, vals.get('SwapTotal', 0) - vals.get('SwapFree', 0))
+              return total, used, swap
+
+          def _read_rss():
+              try:
+                  for line in Path('/proc/self/status').read_text().splitlines():
+                      if line.startswith('VmRSS:'):
+                          return int(line.split()[1]) * 1024
+              except Exception:
+                  pass
+              return 0
+
+          def _read_proc_io():
+              out = {'read_bytes': 0, 'write_bytes': 0}
+              try:
+                  for line in Path('/proc/self/io').read_text().splitlines():
+                      k, v = line.split(':', 1)
+                      if k in out: out[k] = int(v.strip())
+              except Exception:
+                  pass
+              return out['read_bytes'], out['write_bytes']
+
+          def _read_net():
+              rx = tx = 0
+              try:
+                  for line in Path('/proc/net/dev').read_text().splitlines()[2:]:
+                      name, rest = line.split(':', 1)
+                      if name.strip() == 'lo': continue
+                      vals = rest.split(); rx += int(vals[0]); tx += int(vals[8])
+              except Exception:
+                  pass
+              return rx, tx
+
+          def _fmt_bytes(n):
+              n = float(max(0, n))
+              for unit in ('B', 'KiB', 'MiB', 'GiB', 'TiB'):
+                  if n < 1024.0 or unit == 'TiB': return f"{n:.1f} {unit}"
+                  n /= 1024.0
+
+          _cpu0 = _read_proc_cpu(); _io0 = _read_proc_io(); _net0 = _read_net()
+          _live_prev = {'mono': time.monotonic(), 'cpu_total': _cpu0[0], 'cpu_idle': _cpu0[1],
+                        'io_r': _io0[0], 'io_w': _io0[1],
+                        'net_rx': _net0[0], 'net_tx': _net0[1]}
+
+          def _emit_live(final=False):
+              global _live_prev
+              now_mono = time.monotonic(); dt = max(0.001, now_mono - _live_prev['mono'])
+              cpu_total, cpu_idle = _read_proc_cpu()
+              dtotal = cpu_total - _live_prev['cpu_total']; didle = cpu_idle - _live_prev['cpu_idle']
+              cpu_pct = 100.0 * (dtotal - didle) / dtotal if dtotal > 0 else 0.0
+              mem_total, mem_used, swap_used = _read_mem(); rss = _read_rss()
+              io_r, io_w = _read_proc_io(); net_rx, net_tx = _read_net()
+              io_rr = max(0, io_r - _live_prev['io_r']) / dt; io_wr = max(0, io_w - _live_prev['io_w']) / dt
+              net_rr = max(0, net_rx - _live_prev['net_rx']) / dt; net_tr = max(0, net_tx - _live_prev['net_tx']) / dt
+              _live_prev = {'mono': now_mono, 'cpu_total': cpu_total, 'cpu_idle': cpu_idle,
+                            'io_r': io_r, 'io_w': io_w, 'net_rx': net_rx, 'net_tx': net_tx}
+              with _live_lock: state = dict(_live_state)
+              try: load1, load5, load15 = os.getloadavg()
+              except Exception: load1 = load5 = load15 = 0.0
+              db_path = globals().get('AFD_SQLITE_DB', '.cache/auto_feed_discovery/feed_cache.sqlite3')
+              try: db_size = os.path.getsize(db_path)
+              except Exception: db_size = 0
+              elapsed = now_mono - _live_started_mono
+              progress = f"{state['done']}/{state['total']}" if state.get('total') else '-'
+              ram_pct = 100.0 * mem_used / mem_total if mem_total else 0.0
+              stamp = datetime.now(timezone.utc).astimezone(ZoneInfo('Europe/Berlin')).strftime('%H:%M:%S')
+              tag = 'AFD FINAL' if final else 'AFD LIVE'
+              print(f"[{tag} {stamp}] Laufzeit {elapsed/60:.1f}m | Phase: {state['phase']} | Fortschritt: {progress} | "
+                    f"CPU {cpu_pct:.0f}% | Load {load1:.2f}/{load5:.2f}/{load15:.2f} | "
+                    f"RAM {_fmt_bytes(mem_used)}/{_fmt_bytes(mem_total)} ({ram_pct:.0f}%) | AFD-RSS {_fmt_bytes(rss)} | "
+                    f"Swap {_fmt_bytes(swap_used)} | Proc-I/O R/W {_fmt_bytes(io_rr)}/s / {_fmt_bytes(io_wr)}/s | "
+                    f"Net RX/TX {_fmt_bytes(net_rr)}/s / {_fmt_bytes(net_tr)}/s | SQLite {_fmt_bytes(db_size)} | "
+                    f"{state['detail']}", flush=True)
+              _live_samples['count'] += 1; _live_samples['cpu_sum'] += max(0.0, min(100.0, cpu_pct))
+              _live_samples['cpu_max'] = max(_live_samples['cpu_max'], cpu_pct)
+              _live_samples['rss_max'] = max(_live_samples['rss_max'], rss)
+              _live_samples['ram_used_max'] = max(_live_samples['ram_used_max'], mem_used)
+
+          def _live_monitor_loop():
+              if not _live_stop.wait(5): _emit_live()
+              while not _live_stop.wait(_LIVE_INTERVAL_SEC): _emit_live()
+
+          _live_thread = threading.Thread(target=_live_monitor_loop, name='afd-live-monitor', daemon=True)
+          _live_thread.start()
+          print("AFD Live-Monitor aktiv: CPU/RAM/Load/Prozess-I/O/Netzwerk/SQLite alle 30s", flush=True)
 
           # ── IP-Fingerprint (Content-Dedup) ────────────────────────────────
           # Hasht die TATSAECHLICHE, sortierte IP-Menge eines Feeds. Zwei Feeds
@@ -1392,6 +1530,7 @@ jobs:
 
               return score >= 3
 
+          _set_live("Registry laden", "Bestehende Feed-Registry und Reject-State")
           # ── Schritt 1: Registry-only-Modus ───────────────────────────────
           # FIX AFD-ROLE-SPLIT 02.09.2026:
           # Auto Feed Discovery verwaltet ab jetzt AUSSCHLIESSLICH die Feed-
@@ -1660,6 +1799,7 @@ jobs:
               except Exception as _suppressed:
                   print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
 
+          _set_live("HQ-Referenz", "Referenz-Feeds fuer Overlap-Pruefung laden")
           # ── Schritt 2: HQ-Referenz-Set laden (Overlap-Check) ─────────────
           print("\nLade HQ-Referenz-Sets für Overlap-Check...")
           hq_ref_ips = set()
@@ -1721,6 +1861,7 @@ jobs:
               print("reports/auto_feed_discovery_report.md geschrieben (Fehler-Report)")
               sys.exit(1)
 
+          _set_live("GitHub Discovery", "Topics und Code-Suche")
           # ── Schritt 3: GitHub-Suche nach neuen Feeds ──────────────────────
           SEARCH_TOPICS = [
               "ip-blocklist", "ip-blacklist", "threat-intel", "malicious-ip",
@@ -2200,6 +2341,7 @@ jobs:
 
           print(f"\nGitHub-Topic-Suche: {_github_found} Treffer → {len(candidate_repos)} Kandidaten")
 
+          _set_live("GitHub Fresh Discovery", "Neue Repositories durchsuchen")
           # ── Schritt 2b: Kuerzlich erstellte Repos ────────────────────────
           # FIX REACH-RECENT-REPOS (2026-08-05): Die bisherige Topic-Suche
           # findet nur Repos, die MANUELL mit einem GitHub-Topic getaggt
@@ -2510,6 +2652,7 @@ jobs:
 
           print(f"\nNach GitHub-Suche: {len(candidate_repos)} Kandidaten gesamt")
 
+          _set_live("Awesome Discovery", "Security-/Threat-Intel-Sammlungen durchsuchen")
           # ── Schritt 3a: Awesome-List-Scraping ─────────────────────────────
           # NEU v3: Kuratierte Awesome-Listen enthalten handgepickte,
           # qualitativ hochwertige Security-Feed-Repos – oft unbekannt
@@ -2587,6 +2730,7 @@ jobs:
           print(f"Awesome-List-Scraping: {_awesome_found} neue Kandidaten hinzugefügt")
           print(f"Kandidaten gesamt nach Awesome-Scraping: {len(candidate_repos)}")
 
+          _set_live("GitLab Discovery", "GitLab-Projekte durchsuchen")
           # ── Schritt 3b: GitLab-Suche ──────────────────────────────────────
           # NEU v3: GitLab public API durchsuchen – viele EU- und
           # Security-Forscher hosten dort, die in GitHub-Suche nie auftauchen.
@@ -2771,6 +2915,7 @@ jobs:
 
           def _refresh_one(item):
               _name, _feed = item
+              _live_refresh_started(_name)
               _url = _build_raw_url_for_feed(_feed)
               result = {
                   "name": _name, "feed": _feed, "url": _url,
@@ -2814,6 +2959,9 @@ jobs:
               return result
 
           if existing_feeds:
+              _set_live("Bestehende Feeds refreshen", "Download/SQLite-Cache-Pruefung", 0, len(existing_feeds))
+              with _live_lock:
+                  _live_state["refresh_started"] = 0
               # FIX SPEED-REFRESH (2026-08-02): Von 4 auf 10 Worker erhoeht.
               # Anders als GitHub/GitLab-API-Calls (gemeinsames Rate-Limit-
               # Budget) sind das Fetches auf viele verschiedene externe Feed-
@@ -3514,6 +3662,7 @@ jobs:
 
           def _evaluate_one(args):
               full_name, meta = args
+              _live_eval_started(full_name)
               # FIX TIMEOUT-EVAL: Da die Eval-Phase jetzt mit echten Kandidaten
               # gefuellt ist (statt grossteils leerlaufender Rejects), kann sie
               # deutlich laenger dauern. Greift die globale Laufzeit-Sicherung,
@@ -4219,6 +4368,9 @@ jobs:
               }
 
           # Parallele Ausführung
+          with _live_lock:
+              _live_state["eval_started"] = 0
+          _set_live("Kandidaten bewerten", "Tree/Dateien/Qualitaet/Overlap pruefen", 0, len(_sorted_candidates))
           print(f"EVAL-Phase: {len(_sorted_candidates)} Kandidaten parallel (4 Worker)...")
           with ThreadPoolExecutor(max_workers=4) as _eval_ex:
               _eval_results = list(_eval_ex.map(_evaluate_one, _sorted_candidates))
@@ -4676,6 +4828,7 @@ jobs:
               print(f"rejected_repos getrimmt: {trimmed} veraltete Einträge entfernt, "
                     f"{len(rejected_repos)} behalten (MAX_REJECTED={MAX_REJECTED})")
 
+          _set_live("Ergebnisse speichern", f"{len(approved_feeds)} aktive Feeds in Registry schreiben")
           output = {
               "updated":             now_str,
               "total_feeds":         len(approved_feeds),
@@ -4689,6 +4842,7 @@ jobs:
 
           print("AFD Registry gespeichert; seen_db bleibt unveraendert")
 
+          _set_live("SQLite finalisieren", "WAL checkpoint + Cache-Datei schliessen")
           # WAL in die Hauptdatei schreiben, damit actions/cache einen kompakten
           # konsistenten SQLite-Stand fuer den naechsten Lauf speichert.
           try:
@@ -4700,6 +4854,26 @@ jobs:
               print(f"SQLite-Cache bereit: {_db_size/1024/1024:.1f} MiB")
           except Exception as _e:
               print(f"WARN SQLite finalisieren: {_e}")
+
+          _set_live("Fertig", "Auto Feed Discovery abgeschlossen")
+          # FIX LIVE-MONITOR-RACE (2026-09-04, Review-Fund): _live_stop VOR dem
+          # finalen _emit_live() setzen, nicht danach - sonst kann der Monitor-
+          # Thread im 30s-Intervall zufaellig zeitgleich aufwachen und ebenfalls
+          # _emit_live() aufrufen. _live_prev (anders als _live_state) ist nicht
+          # per Lock geschuetzt, ein gleichzeitiger Zugriff koennte zu einer
+          # verzerrten Rate-Berechnung in einer einzelnen Log-Zeile fuehren.
+          # Kein Sicherheits-, nur ein Kosmetik-Risiko, aber trivial vermeidbar.
+          _live_stop.set()
+          try:
+              _live_thread.join(timeout=1.0)
+          except Exception:
+              pass
+          _emit_live(final=True)
+          if _live_samples["count"]:
+              _avg_cpu = _live_samples["cpu_sum"] / _live_samples["count"]
+              print(f"AFD Hardware-Summary: CPU avg/max {_avg_cpu:.0f}%/{_live_samples['cpu_max']:.0f}% | "
+                    f"Peak AFD-RSS {_fmt_bytes(_live_samples['rss_max'])} | "
+                    f"Peak RAM benutzt {_fmt_bytes(_live_samples['ram_used_max'])}", flush=True)
 
           EOF
 
