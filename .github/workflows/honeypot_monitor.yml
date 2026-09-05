@@ -501,6 +501,13 @@ jobs:
               "knock_knock_30d":
                   "https://knock-knock.net/static/ip-blocklist-month.txt",
 
+              # Carpathian Threat Intelligence: oeffentlicher CC-BY-4.0-IP-Feed.
+              # Direkter Plain-Text-Feed ohne API-Key; Attribution: Carpathian, LLC.
+              # Bewusst im Honeypot-Monitor gesammelt, damit Whitelist/FP-Filter und
+              # die bestehenden Sicherheits-/Formatpruefungen unveraendert greifen.
+              "carpathian_threat_intel":
+                  "https://api.carpathian.ai/public/threat-intel/blocklist.txt",
+
               # Sblam!: Server-seitiger Spam-Filter fuer HTML-Formulare
               # (Blog-Kommentare, Foren, Gaestebuecher). Andere Kategorie als
               # die uebrigen Quellen hier: HTTP-Formular-Spam-Bots, KEINE
