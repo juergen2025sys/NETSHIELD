@@ -2452,6 +2452,12 @@ jobs:
               "malicious-ip", "threat-intel", "threat-feed", "edl",
               "honeypot", "c2-tracker", "botnet-ip", "abuseipdb",
               "ip-reputation", "denylist", "ioc-feed",
+              # 2026-09-05: gezielte Fresh-Discovery-Erweiterung fuer schnell
+              # rotierende Angreifer-Infrastruktur. Nur Recent-Suche erweitert;
+              # bestehende Quality-/FP-/HQ-/Dedup-Gates bleiben unveraendert.
+              "scanner-ip", "mass-scanner", "ssh-scanner", "port-scanner",
+              "bruteforce", "ssh-bruteforce", "attacker-ips", "compromised-ip",
+              "c2-infrastructure", "malware-c2", "iot-botnet", "abuse-feed",
           ]
           _recent_cutoff = (now - timedelta(days=RECENT_REPOS_DAYS)).strftime("%Y-%m-%d")
           _recent_found = 0
