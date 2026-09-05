@@ -1,6 +1,6 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-09-05 15:58 CEST (Berlin)  
-**Modus:** `LIGHT` (nur /bad-hosts, merged mit existing)
+**Aktualisiert:** 2026-09-05 17:21 CEST (Berlin)  
+**Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
 ## API-Key-Status
@@ -14,7 +14,7 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-09-05 15:58 CEST (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-09-05 17:21 CEST (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
@@ -22,6 +22,37 @@
 | Endpunkt | Treffer |
 |---|---:|
 | Bad Hosts (24h, alle Dienste) | **11,499** |
+| Bad Hosts – SIP | **165** |
+| Bad Hosts – RDP | **960** |
+| Bad Hosts – MSSQL | **464** |
+| Bad Hosts – SSH | **4,058** |
+| Bad Hosts – SNMP | **355** |
+| Bad Hosts – HTTP | **3,232** |
+| Bad Hosts – VNC | **357** |
+| Bad Hosts – ProConOs | **161** |
+| Bad Hosts – Telnet | **3,444** |
+| Bad Hosts – TFTP | **205** |
+| Bad Hosts – Kubernetes | **824** |
+| Bad Hosts – PostgreSQL | **561** |
+| Bad Hosts – FTP | **732** |
+| Bad Hosts – MySQL | **587** |
+| Bad Hosts – Elasticsearch | **517** |
+| Bad Hosts – CouchDB | **306** |
+| Bad Hosts – Redis | **385** |
+| Bad Hosts – Oracle | **248** |
+| Bad Hosts – ClickhouseHTTP | **280** |
+| Bad Hosts – RAW | **209** |
+| Bad Hosts – Modbus | **200** |
+| Bad Hosts – MQTT | **199** |
+| Bad Hosts – LDAP | **239** |
+| Bad Hosts – Memcached | **209** |
+| Bad Hosts – IPP | **115** |
+| Bad Hosts – HashCountRandom | **119** |
+| Bad Hosts – LPD | **48** |
+| Bad Hosts – MOTD | **67** |
+| Bad Hosts – Echo | **4** |
+| Bad Hosts – DNS.udp | **0** |
+| Bad Hosts – WebLogic | **1** |
 
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
@@ -36,12 +67,12 @@ Davon **heute (2026-09-05)**: **0** IPs
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **24,253** |
-| Neu | **+0** |
-| Entfernt | **-0** |
+| Gesamt Honigtopf-IPs | **23,957** |
+| Neu | **+1,012** |
+| Entfernt | **-1,308** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-09-05 15:58 CEST (Berlin)*
+*Generiert: 2026-09-05 17:21 CEST (Berlin)*
