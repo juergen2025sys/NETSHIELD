@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-05 21:05 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-05 21:14 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -8,8 +8,8 @@
 | Metrik | Wert |
 |---|---|
 | Gesamt IPs | **1,306,886** |
-| Neu (heute) | **+18** |
-| Entfernt | **-3** |
+| Neu (heute) | **+0** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 54 |
@@ -28,7 +28,7 @@
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,852 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,319 |
 | ✅ `ebrasha_abdal_proxy_hub` | 6,640 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,753 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,751 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,690 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,952 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,422 |
@@ -69,7 +69,7 @@
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,755 |
 | ✅ `leon406_subcrawler` | 124,060 |
 | ❌ `kalidada18_threatbase_threatbase_ip_botnet` | 0 |
-| ✅ `hookzof_socks5_list` | 205 |
+| ✅ `hookzof_socks5_list` | 181 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,007 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,065 |
 | ✅ `claudiusdecimius_ioc_ipsets_botscout_30d` | 3,874 |
@@ -79,4 +79,4 @@
 > Diese 54 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-05 21:05 CEST (Europe/Berlin)*
+*Generiert: 2026-09-05 21:14 CEST (Europe/Berlin)*
