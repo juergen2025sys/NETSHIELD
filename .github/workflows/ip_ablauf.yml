@@ -348,6 +348,14 @@ jobs:
           # der Fix waere schon auf DB-Ebene umgangen worden, BEVOR es
           # ueberhaupt in einer Output-Datei sichtbar wird.
           ledger_bugs = []
+          # FIX ACTIVE-TO-WATCHLIST-DIAG (2026-09-05): Eine IP aus dem
+          # Active-Ledger darf nach ihrem 180-Tage-Ablauf bei nur schwacher
+          # neuer Evidenz wieder als Watchlist-Eintrag (last=Sentinel) in
+          # seen_db auftauchen. update_combined_blacklist.yml erlaubt und
+          # schuetzt genau diesen Pfad absichtlich; er ist KEIN Umgehen des
+          # Active-Freeze. Diese Faelle werden deshalb separat informativ
+          # gezaehlt statt als Ledger-Bug gewertet.
+          active_zu_watchlist_info = []
           for _ledger_datei, _ledger_label in [
               ("state/watchlist_expired_history.json", "Watchlist"),
               ("state/active_expired_history.json", "Active"),
@@ -389,20 +397,22 @@ jobs:
                               f"Freeze wurde umgangen"
                           )
                   else:  # Active
-                      # Erwartung: bleibt entweder ganz draussen, oder mit
+                      # Erwartung: bleibt entweder ganz draussen, mit
                       # last=exakt dem eingefrorenen Datum (Freeze wirkt),
-                      # oder mit einem NEUEREN last-Datum durch echte
-                      # Zweitbestaetigung (legitime Promotion, kein Bug -
-                      # laesst sich von hier aus nicht von einem Bug
-                      # unterscheiden, siehe Kommentar unten). Ein Rueckfall
-                      # auf last=Sentinel (Watchlist-Pfad) waere aber in
-                      # jedem Fall unplausibel und wird gemeldet.
+                      # mit Sentinel auf dem Watchlist-Pfad bei nur schwacher
+                      # neuer Evidenz (legitimer Zwischenzustand), oder mit
+                      # einem NEUEREN last-Datum durch echte Zweitbestaetigung
+                      # (legitime Promotion). Der Sentinel-Fall ist explizit
+                      # in update_combined_blacklist.yml vorgesehen: schwache
+                      # Feeds duerfen eine Active-abgelaufene IP nur auf den
+                      # 30-Tage-Watchlist-Pfad bringen, nicht wieder fuer volle
+                      # 180 Tage aktivieren.
                       if _entry_last == "2000-01-01":
-                          ledger_bugs.append(
-                              f"{_ip} (Active-Ledger, eingefroren auf last={_frozen_datum}): "
-                              f"steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - "
-                              f"unplausibler Pfadwechsel"
-                          )
+                          active_zu_watchlist_info.append(_ip)
+          if active_zu_watchlist_info:
+              print(f"INFO: {len(active_zu_watchlist_info)} Active-Ledger-IP(s) stehen legitim "
+                    f"auf dem Watchlist-Pfad (last=Sentinel; schwache Neubestaetigung, "
+                    f"kein Freeze-Bypass). Beispiele: {sorted(active_zu_watchlist_info)[:10]}")
           if ledger_bugs:
               print(f"::error ::{len(ledger_bugs)} Ledger-Konsistenz-Problem(e) gefunden "
                     f"(Freeze auf DB-Ebene umgangen)")
@@ -732,11 +742,17 @@ jobs:
               )
               lines.append("")
               lines.append(
-                  "*Hinweis: Fuer den Active-Pfad kann eine legitime Zweitbestaetigung "
-                  "(2+ HQ-Feed-Familien) nicht von einem Bug unterschieden werden, daher "
-                  "wird dort nur der eindeutig unplausible Fall (Rueckfall auf den "
-                  "Watchlist-Pfad) geprueft.*"
+                  "*Hinweis: Beim Active-Pfad sind zwei Wiederaufnahmen legitim: "
+                  "schwache neue Evidenz darf die IP mit `last=Sentinel` auf den "
+                  "Watchlist-Pfad bringen; eine echte Zweitbestaetigung (2+ HQ-"
+                  "Feed-Familien) darf ein neueres `last` setzen und sie wieder Active "
+                  "machen. Beide Zustaende sind kein Freeze-Bypass.*"
               )
+              if active_zu_watchlist_info:
+                  lines.append(
+                      f"\nℹ️ {len(active_zu_watchlist_info)} Active-Ledger-IP(s) stehen aktuell "
+                      "legitim auf dem Watchlist-Pfad (schwache Neubestaetigung)."
+                  )
 
           write_text_atomic(REPORT_FILE, "\n".join(lines) + "\n")
           print(f"\nReport geschrieben: {REPORT_FILE}")
@@ -1187,6 +1203,35 @@ jobs:
                       rueckfaelle[fname] = sorted(treffer)
                       alle_rueckfall_ips_roh.update(treffer)
 
+          # FIX ACTIVE-TO-WATCHLIST-FALSCHPOSITIV (2026-09-05):
+          # Eine Active-IP, die nach 180 Tagen abgelaufen ist, bleibt im
+          # Active-Ledger. Taucht sie danach nur mit schwacher Evidenz wieder
+          # auf, darf update_combined_blacklist.yml sie absichtlich auf dem
+          # Watchlist-Pfad fuehren (last=Sentinel). Solche IPs stehen dann
+          # legitim in Combined/Watchlist-Ausgaben, aber NICHT in
+          # active_blacklist_ipv4.txt. Der alte 3h-Verifikator betrachtete
+          # jede Output-Ueberschneidung mit dem Active-Ledger als Rueckfall
+          # und erzeugte nach dem ersten grossen 180-Tage-Cleanup hunderte
+          # False Positives. Konservativer Filter: nur Active-Ledger-Treffer,
+          # die NICHT im Active-Output stehen, werden als legitimer
+          # Active->Watchlist-Wiedereintritt herausgerechnet. Steht die IP
+          # weiterhin/erneut im Active-Output, bleibt sie im normalen Alarm.
+          _active_output_ips = output_ips.get("active_blacklist_ipv4.txt", set())
+          _active_ledger_ips = listen_ips.get(_act_label, set())
+          active_watchlist_reentry_ips = {
+              _ip for _ip in alle_rueckfall_ips_roh
+              if _ip in _active_ledger_ips and _ip not in _active_output_ips
+          }
+          if active_watchlist_reentry_ips:
+              print(
+                  f"INFO: {len(active_watchlist_reentry_ips):,} Output-Treffer als legitimer "
+                  f"Active->Watchlist-Wiedereintritt klassifiziert "
+                  f"(Active-Ledger + nicht im Active-Output; kein Rueckfall-Alarm)."
+              )
+          alle_rueckfall_ips_nach_active_watchlist = (
+              alle_rueckfall_ips_roh - active_watchlist_reentry_ips
+          )
+
           # FIX CAP-BACKLOG-FALSCHPOSITIV (2026-08-31, echter Lauf #90594673967):
           # Seit WATCHLIST_DAILY_CAP=2000 kann eine bereits frueher eingefrorene
           # Watchlist-IP legitim wieder in seen_db/Outputs stehen, wenn sie mit
@@ -1232,11 +1277,11 @@ jobs:
               except Exception as _e:
                   print(f"WARNUNG: {CAP_STATE_FILE} nicht lesbar fuer Cap-Backlog-Abgleich: {_e}")
 
-          if alle_rueckfall_ips_roh and cap_state_aktuell:
+          if alle_rueckfall_ips_nach_active_watchlist and cap_state_aktuell:
               _wl_ledger_ips = listen_ips.get(_wl_label, set())
               _active_output_ips = output_ips.get("active_blacklist_ipv4.txt", set())
               _cap_erklaerbar = {
-                  _ip for _ip in alle_rueckfall_ips_roh
+                  _ip for _ip in alle_rueckfall_ips_nach_active_watchlist
                   if _ip in _wl_ledger_ips and _ip not in _active_output_ips
               }
               _cap_toleranz = max(100, int(cap_backlog_erwartet * 0.01))
@@ -1256,15 +1301,18 @@ jobs:
                       f"plus Toleranz {_cap_toleranz:,}; NICHT automatisch freigestellt."
                   )
 
-          alle_rueckfall_ips = alle_rueckfall_ips_roh - cap_backlog_ips
+          alle_rueckfall_ips = (
+              alle_rueckfall_ips_nach_active_watchlist - cap_backlog_ips
+          )
 
-          # Rueckfall-Details pro Datei um die als Cap-Backlog bestaetigten IPs
-          # bereinigen; die Backlog-Zahl bekommt weiter unten einen eigenen
-          # informativen Report-Abschnitt.
-          if cap_backlog_ips and rueckfaelle:
+          # Rueckfall-Details pro Datei um legitime Active->Watchlist-
+          # Wiedereintritte und den bestaetigten Cap-Backlog bereinigen.
+          # Beide Klassen bekommen weiter unten eigene informative Abschnitte.
+          _legitime_output_treffer = active_watchlist_reentry_ips | cap_backlog_ips
+          if _legitime_output_treffer and rueckfaelle:
               _rueckfaelle_bereinigt = {}
               for _fname, _ips in rueckfaelle.items():
-                  _rest = [x for x in _ips if x not in cap_backlog_ips]
+                  _rest = [x for x in _ips if x not in _legitime_output_treffer]
                   if _rest:
                       _rueckfaelle_bereinigt[_fname] = _rest
               rueckfaelle = _rueckfaelle_bereinigt
@@ -2028,6 +2076,17 @@ jobs:
               zeilen.append("✅ Keine Probleme erkannt (Rückfälle, Ledger-Konsistenz, Datenaktualität).")
 
           zeilen += ["", "## Wiederauftauch-Prüfung", ""]
+          if active_watchlist_reentry_ips:
+              zeilen.append(
+                  f"ℹ️ **{len(active_watchlist_reentry_ips):,} Treffer sind legitime "
+                  f"Active→Watchlist-Wiedereintritte und kein Anti-Churn-Rückfall.** "
+                  f"Diese IPs stehen noch im Active-Ledger, wurden aber nur schwach neu "
+                  f"bestätigt und erscheinen deshalb in konsolidierten Watchlist/Combined-"
+                  f"Ausgaben, nicht jedoch in `active_blacklist_ipv4.txt`. Der eingefrorene "
+                  f"Active-Anker bleibt erhalten; erst eine echte starke Neubestätigung darf "
+                  f"wieder einen neuen 180-Tage-Active-Pfad starten."
+              )
+              zeilen.append("")
           if cap_backlog_ips:
               zeilen.append(
                   f"ℹ️ **{len(cap_backlog_ips):,} Treffer sind ein legitimer Watchlist-"
@@ -2070,11 +2129,19 @@ jobs:
                   beispiele = ", ".join(ips[:5]) + (", ..." if len(ips) > 5 else "")
                   zeilen.append(f"| {fname} | {len(ips)} | {beispiele} |")
           else:
-              if cap_backlog_ips:
+              if cap_backlog_ips or active_watchlist_reentry_ips:
+                  _erklaerungen = []
+                  if active_watchlist_reentry_ips:
+                      _erklaerungen.append(
+                          f"{len(active_watchlist_reentry_ips):,} legitime Active→Watchlist-Treffer"
+                      )
+                  if cap_backlog_ips:
+                      _erklaerungen.append(
+                          f"{len(cap_backlog_ips):,} erklaerte Watchlist-Cap-Backlog-Treffer"
+                      )
                   zeilen.append(
-                      f"✅ 0 echte Rückfälle nach Cap-Bereinigung - "
-                      f"{len(cap_backlog_ips):,} erklaerte Watchlist-Cap-Backlog-Treffer, "
-                      f"sonst keine Auffaelligkeit. Der Fix haelt."
+                      "✅ 0 echte Rückfälle nach Bereinigung - " + "; ".join(_erklaerungen) +
+                      ". Sonst keine Auffaelligkeit. Der Fix haelt."
                   )
               else:
                   zeilen.append(
