@@ -1,29 +1,29 @@
 # Seen-DB Expiry Forecast
 
-Lauf: 2026-09-05 06:53 CEST (Europe/Berlin)
-Gesamt: 11,035,985 IPs in seen_db.json (8,379,733 aktiv/180-Tage-Pfad, 2,656,252 Watchlist/30-Tage-Pfad)
+Lauf: 2026-09-05 10:56 CEST (Europe/Berlin)
+Gesamt: 11,038,257 IPs in seen_db.json (8,383,118 aktiv/180-Tage-Pfad, 2,655,139 Watchlist/30-Tage-Pfad)
 
 ## Aktive IPs (180-Tage-Fenster) – wann faellt die Bestaetigung aus?
 
 | Zeitfenster | Anzahl IPs |
 |---|---:|
 | bereits ueberfaellig (Cleanup-Pass sollte das entfernen) | 0 |
-| 0-7 Tage | 662,965 |
+| 0-7 Tage | 662,941 |
 | 8-14 Tage | 0 |
-| 15-30 Tage | 184,538 |
-| 31-60 Tage | 2,739,922 |
-| 61-90 Tage | 1,034,079 |
-| 91-180 Tage | 3,758,229 |
+| 15-30 Tage | 184,531 |
+| 31-60 Tage | 2,739,826 |
+| 61-90 Tage | 1,034,042 |
+| 91-180 Tage | 3,761,778 |
 
 ## Watchlist-IPs (30-Tage-Fenster) – wann faellt die Erstsichtung aus?
 
 | Zeitfenster | Anzahl IPs |
 |---|---:|
 | bereits ueberfaellig | 344,782 |
-| 0-3 Tage | 119,177 |
-| 4-7 Tage | 49,218 |
-| 8-14 Tage | 67,009 |
-| 15-30 Tage | 2,076,066 |
+| 0-3 Tage | 119,167 |
+| 4-7 Tage | 49,212 |
+| 8-14 Tage | 66,997 |
+| 15-30 Tage | 2,074,981 |
 
 ## Konkrete Ablauftermine, Watchlist-IPs, naechste 30 Tage
 
@@ -31,77 +31,77 @@ Tagesgenau, im Gegensatz zu den groben Zeitfenstern oben - damit sich der Anti-C
 
 | Datum | Anzahl IPs, die an diesem Tag ihre Erstsichtungs-Frist verlieren |
 |---|---:|
-| 2026-09-05 | 69,308 |
-| 2026-09-06 | 20,507 |
-| 2026-09-07 | 16,267 |
-| 2026-09-08 | 13,095 |
-| 2026-09-09 | 17,026 |
-| 2026-09-10 | 8,817 |
-| 2026-09-11 | 11,395 |
-| 2026-09-12 | 11,980 |
-| 2026-09-13 | 12,119 |
-| 2026-09-14 | 12,956 |
-| 2026-09-15 | 15,722 |
-| 2026-09-16 | 6,299 |
-| 2026-09-17 | 5,843 |
-| 2026-09-18 | 8,875 |
+| 2026-09-05 | 69,305 |
+| 2026-09-06 | 20,506 |
+| 2026-09-07 | 16,265 |
+| 2026-09-08 | 13,091 |
+| 2026-09-09 | 17,025 |
+| 2026-09-10 | 8,815 |
+| 2026-09-11 | 11,393 |
+| 2026-09-12 | 11,979 |
+| 2026-09-13 | 12,117 |
+| 2026-09-14 | 12,954 |
+| 2026-09-15 | 15,720 |
+| 2026-09-16 | 6,296 |
+| 2026-09-17 | 5,842 |
+| 2026-09-18 | 8,873 |
 | 2026-09-19 | 5,195 |
 | 2026-09-20 | 5,108 |
-| 2026-09-21 | 5,099 |
-| 2026-09-22 | 11,283 |
-| 2026-09-23 | 5,203 |
-| 2026-09-24 | 11,488 |
+| 2026-09-21 | 5,098 |
+| 2026-09-22 | 11,280 |
+| 2026-09-23 | 5,202 |
+| 2026-09-24 | 11,487 |
 | 2026-09-25 | 5,568 |
-| 2026-09-26 | 624,752 |
-| 2026-09-27 | 6,411 |
+| 2026-09-26 | 624,747 |
+| 2026-09-27 | 6,410 |
 | 2026-09-28 | 790 |
-| 2026-09-30 | 60,138 |
-| 2026-10-01 | 7,789 |
-| 2026-10-02 | 1,311,255 |
-| 2026-10-03 | 3,043 |
-| 2026-10-04 | 7,091 |
-| 2026-10-05 | 3,569 |
+| 2026-09-30 | 60,135 |
+| 2026-10-01 | 7,786 |
+| 2026-10-02 | 1,311,215 |
+| 2026-10-03 | 3,039 |
+| 2026-10-04 | 7,071 |
+| 2026-10-05 | 3,525 |
 
 ## Erwartete tatsaechliche Watchlist-Entfernungen (mit Tagesdeckel)
 
 update_combined_blacklist.yml entfernt ueber die 30-Tage-Regel hoechstens **2,000 IPs pro Kalendertag** (FIX WATCHLIST-DAILY-CAP, 31.08.2026). Ueberzaehlige Kandidaten bleiben in seen_db und ruecken nach hinten - es geht nichts verloren, der Abbau wird nur gestreckt. Die rechte Spalte ist deshalb die realistische Erwartung, gegen die der Job "verifikation" prueft.
 
-Bereits ueberfaelliger Rueckstau zu Beginn: **344,782** IPs. Brutto faellig in den naechsten 30 Tagen: **2,303,991**, davon im selben Fenster tatsaechlich entfernbar: **60,000**. Verbleibender Rueckstau am Fensterende: **2,588,773**.
+Bereits ueberfaelliger Rueckstau zu Beginn: **344,782** IPs. Brutto faellig in den naechsten 30 Tagen: **2,303,837**, davon im selben Fenster tatsaechlich entfernbar: **60,000**. Verbleibender Rueckstau am Fensterende: **2,588,619**.
 
 | Datum | Brutto faellig | Erwartet entfernt (mit Deckel) |
 |---|---:|---:|
-| 2026-09-05 | 69,308 | 2,000 |
-| 2026-09-06 | 20,507 | 2,000 |
-| 2026-09-07 | 16,267 | 2,000 |
-| 2026-09-08 | 13,095 | 2,000 |
-| 2026-09-09 | 17,026 | 2,000 |
-| 2026-09-10 | 8,817 | 2,000 |
-| 2026-09-11 | 11,395 | 2,000 |
-| 2026-09-12 | 11,980 | 2,000 |
-| 2026-09-13 | 12,119 | 2,000 |
-| 2026-09-14 | 12,956 | 2,000 |
-| 2026-09-15 | 15,722 | 2,000 |
-| 2026-09-16 | 6,299 | 2,000 |
-| 2026-09-17 | 5,843 | 2,000 |
-| 2026-09-18 | 8,875 | 2,000 |
+| 2026-09-05 | 69,305 | 2,000 |
+| 2026-09-06 | 20,506 | 2,000 |
+| 2026-09-07 | 16,265 | 2,000 |
+| 2026-09-08 | 13,091 | 2,000 |
+| 2026-09-09 | 17,025 | 2,000 |
+| 2026-09-10 | 8,815 | 2,000 |
+| 2026-09-11 | 11,393 | 2,000 |
+| 2026-09-12 | 11,979 | 2,000 |
+| 2026-09-13 | 12,117 | 2,000 |
+| 2026-09-14 | 12,954 | 2,000 |
+| 2026-09-15 | 15,720 | 2,000 |
+| 2026-09-16 | 6,296 | 2,000 |
+| 2026-09-17 | 5,842 | 2,000 |
+| 2026-09-18 | 8,873 | 2,000 |
 | 2026-09-19 | 5,195 | 2,000 |
 | 2026-09-20 | 5,108 | 2,000 |
-| 2026-09-21 | 5,099 | 2,000 |
-| 2026-09-22 | 11,283 | 2,000 |
-| 2026-09-23 | 5,203 | 2,000 |
-| 2026-09-24 | 11,488 | 2,000 |
+| 2026-09-21 | 5,098 | 2,000 |
+| 2026-09-22 | 11,280 | 2,000 |
+| 2026-09-23 | 5,202 | 2,000 |
+| 2026-09-24 | 11,487 | 2,000 |
 | 2026-09-25 | 5,568 | 2,000 |
-| 2026-09-26 | 624,752 | 2,000 |
-| 2026-09-27 | 6,411 | 2,000 |
+| 2026-09-26 | 624,747 | 2,000 |
+| 2026-09-27 | 6,410 | 2,000 |
 | 2026-09-28 | 790 | 2,000 |
-| 2026-09-30 | 60,138 | 2,000 |
-| 2026-10-01 | 7,789 | 2,000 |
-| 2026-10-02 | 1,311,255 | 2,000 |
-| 2026-10-03 | 3,043 | 2,000 |
-| 2026-10-04 | 7,091 | 2,000 |
-| 2026-10-05 | 3,569 | 2,000 |
+| 2026-09-30 | 60,135 | 2,000 |
+| 2026-10-01 | 7,786 | 2,000 |
+| 2026-10-02 | 1,311,215 | 2,000 |
+| 2026-10-03 | 3,039 | 2,000 |
+| 2026-10-04 | 7,071 | 2,000 |
+| 2026-10-05 | 3,525 | 2,000 |
 
-> Hinweis: Der Rueckstau von 2,588,773 IPs waechst schneller, als der Tagesdeckel ihn abbauen kann. Bei dauerhaftem Trend WATCHLIST_DAILY_CAP in update_combined_blacklist.yml anheben.
+> Hinweis: Der Rueckstau von 2,588,619 IPs waechst schneller, als der Tagesdeckel ihn abbauen kann. Bei dauerhaftem Trend WATCHLIST_DAILY_CAP in update_combined_blacklist.yml anheben.
 
 ## Konkrete Ablauftermine, aktive IPs, naechste 60 Tage
 
@@ -109,55 +109,55 @@ Zeigt einzelne Tage mit ueberdurchschnittlich vielen gleichzeitig ablaufenden IP
 
 | Datum | Anzahl IPs, die an diesem Tag ihre Bestaetigung verlieren |
 |---|---:|
-| 2026-09-08 | 662,965 |
+| 2026-09-08 | 662,941 |
 | 2026-09-22 | 6,488 |
-| 2026-09-23 | 13,191 |
+| 2026-09-23 | 13,190 |
 | 2026-09-24 | 16,875 |
 | 2026-09-25 | 21,155 |
 | 2026-09-26 | 17,660 |
-| 2026-09-27 | 15,243 |
-| 2026-09-28 | 11,686 |
+| 2026-09-27 | 15,242 |
+| 2026-09-28 | 11,685 |
 | 2026-09-29 | 9,448 |
-| 2026-09-30 | 10,305 |
-| 2026-10-01 | 16,741 |
+| 2026-09-30 | 10,304 |
+| 2026-10-01 | 16,740 |
 | 2026-10-02 | 7,816 |
 | 2026-10-03 | 7,409 |
-| 2026-10-04 | 12,800 |
-| 2026-10-05 | 17,721 |
+| 2026-10-04 | 12,799 |
+| 2026-10-05 | 17,720 |
 | 2026-10-06 | 16,290 |
-| 2026-10-07 | 15,211 |
-| 2026-10-08 | 62,211 |
-| 2026-10-09 | 226,449 |
+| 2026-10-07 | 15,210 |
+| 2026-10-08 | 62,203 |
+| 2026-10-09 | 226,436 |
 | 2026-10-10 | 53,545 |
 | 2026-10-11 | 16,122 |
-| 2026-10-12 | 66,718 |
-| 2026-10-13 | 1,592,122 |
-| 2026-10-14 | 32,969 |
+| 2026-10-12 | 66,716 |
+| 2026-10-13 | 1,592,093 |
+| 2026-10-14 | 32,968 |
 | 2026-10-15 | 41,461 |
 | 2026-10-16 | 51,535 |
-| 2026-10-17 | 24,505 |
+| 2026-10-17 | 24,504 |
 | 2026-10-18 | 14,408 |
-| 2026-10-19 | 22,757 |
-| 2026-10-20 | 11,244 |
-| 2026-10-21 | 11,226 |
-| 2026-10-22 | 31,021 |
-| 2026-10-23 | 50,654 |
-| 2026-10-24 | 41,959 |
+| 2026-10-19 | 22,751 |
+| 2026-10-20 | 11,243 |
+| 2026-10-21 | 11,225 |
+| 2026-10-22 | 31,016 |
+| 2026-10-23 | 50,650 |
+| 2026-10-24 | 41,957 |
 | 2026-10-25 | 21,813 |
 | 2026-10-26 | 20,568 |
-| 2026-10-27 | 20,921 |
-| 2026-10-28 | 15,962 |
-| 2026-10-29 | 9,839 |
-| 2026-10-30 | 62,499 |
-| 2026-10-31 | 88,506 |
+| 2026-10-27 | 20,920 |
+| 2026-10-28 | 15,961 |
+| 2026-10-29 | 9,835 |
+| 2026-10-30 | 62,492 |
+| 2026-10-31 | 88,503 |
 | 2026-11-01 | 28,095 |
-| 2026-11-02 | 29,119 |
-| 2026-11-03 | 30,204 |
-| 2026-11-04 | 29,989 |
+| 2026-11-02 | 29,117 |
+| 2026-11-03 | 30,203 |
+| 2026-11-04 | 29,986 |
 
 ## Ledger-Konsistenz (gegen aktuelle seen_db geprüft)
 
-❌ **213 Inkonsistenz(en) gefunden** - der Anti-Churn-Freeze wurde auf Datenbank-Ebene umgangen (frueher/schwerwiegender als ein Rueckfall in einer Output-Datei):
+❌ **221 Inkonsistenz(en) gefunden** - der Anti-Churn-Freeze wurde auf Datenbank-Ebene umgangen (frueher/schwerwiegender als ein Rueckfall in einer Output-Datei):
 
 - 14.207.207.123 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 45.39.15.122 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
@@ -172,19 +172,26 @@ Zeigt einzelne Tage mit ueberdurchschnittlich vielen gleichzeitig ablaufenden IP
 - 85.132.117.158 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 91.132.125.109 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 92.112.236.76 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
+- 103.35.156.214 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
+- 103.84.151.83 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 103.112.122.89 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 103.147.77.82 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 142.111.113.93 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 142.111.150.135 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 143.244.48.2 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
+- 151.246.93.60 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 155.117.189.75 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 157.254.85.44 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 157.254.85.100 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
+- 158.140.219.62 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
+- 166.0.245.8 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 170.244.93.75 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 181.129.74.186 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 183.164.243.16 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 183.164.243.127 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 185.9.75.244 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
+- 185.202.171.124 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
+- 185.210.76.46 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 185.242.226.255 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 188.214.234.226 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 190.123.213.24 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
@@ -232,6 +239,7 @@ Zeigt einzelne Tage mit ueberdurchschnittlich vielen gleichzeitig ablaufenden IP
 - 216.10.27.39 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 216.10.27.164 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 216.24.57.252 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
+- 216.28.135.147 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 216.40.72.138 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 216.74.80.48 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
 - 216.74.115.144 (Active-Ledger, eingefroren auf last=2026-03-08): steht in seen_db auf dem Watchlist-Pfad (last=Sentinel) - unplausibler Pfadwechsel
