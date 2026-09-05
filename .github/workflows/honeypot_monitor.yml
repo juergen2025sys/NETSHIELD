@@ -478,6 +478,29 @@ jobs:
               "turris_greylist":
                   "https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv",
 
+              # abuseip.org: eigener Anycast-Edge-Sensor fuer automatisierte Angriffe
+              # (Credential-Scanning, WordPress/PHP-Probing, Mass-Scanning).
+              # Plain IPv4, stuendlich regeneriert, 24h seit letzter Erkennung.
+              "abuseip_org":
+                  "https://www.abuseip.org/blocklist.txt",
+
+              # JacobRakai: eigener Internet-Honeypot (SSH/Telnet/FTP/MySQL/VNC/
+              # SMTP/IMAP/POP3). Nur aktive Angreifer im 30-Tage-Fenster;
+              # Plain IPv4 mit Kommentar-Header, stuendlich regeneriert.
+              "jacobrakai_honeypot":
+                  "https://jacobrakai.org/feed/blocklist.txt",
+
+              # im.forsale: Web-Honeypot/Abuse-Liste fuer Scanner auf sensible
+              # Pfade wie .env, .git, phpMyAdmin und wp-admin. Plain IPv4, taeglich.
+              "im_forsale_probing":
+                  "https://im.forsale/blocklist.txt",
+
+              # Knock-Knock.net: Multi-Protokoll-Honeypot (SSH/Telnet/FTP/RDP/SMB/
+              # SIP/HTTP/SMTP). Bewusst die konservative 30-Tage-Liste statt 365d;
+              # Plain IPv4, stuendlich regeneriert.
+              "knock_knock_30d":
+                  "https://knock-knock.net/static/ip-blocklist-month.txt",
+
               # Sblam!: Server-seitiger Spam-Filter fuer HTML-Formulare
               # (Blog-Kommentare, Foren, Gaestebuecher). Andere Kategorie als
               # die uebrigen Quellen hier: HTTP-Formular-Spam-Bots, KEINE
