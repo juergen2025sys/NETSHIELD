@@ -1,80 +1,18 @@
 {
-  "updated": "2026-09-05 23:11 CEST (Europe/Berlin)",
+  "updated": "2026-09-06 07:54 CEST (Europe/Berlin)",
   "total": 30,
-  "ok": 24,
-  "warn": 8,
-  "error": 1,
-  "errors": [
-    {
-      "file": "auto_feed_refresh.yml",
-      "check": "MIN_FEED_SUCCESS_RATIO ungueltig",
-      "detail": "MIN_FEED_SUCCESS_RATIO=0 ist ungueltig \u2013 Guard muss > 0 sein"
-    }
-  ],
-  "warnings": [
-    {
-      "file": "honigtopf.yml \u2192 update_bot_detector.yml",
-      "check": "Workflow-Reihenfolge / Puffer zu knapp",
-      "detail": "22:25 UTC \u2192 22:35 UTC (10min < 15min); 22:30 UTC \u2192 22:35 UTC (5min < 15min)"
-    },
-    {
-      "file": "history_fresh_start.yml",
-      "check": "Kein expliziter Leerungsschutz",
-      "detail": "Externer Feed/Report ohne explizite MIN_* Guard-Variable \u2013 M\u00fcll-/Leer-Daten k\u00f6nnten unbemerkt akzeptiert werden"
-    },
-    {
-      "file": "honigtopf.yml",
-      "check": "urlopen ohne timeout",
-      "detail": "Block 0: urllib.urlopen() ohne timeout= \u2013 h\u00e4ngt ewig bei totem Host/Netzwerkausfall"
-    },
-    {
-      "file": "ip_ablauf.yml",
-      "check": "continue-on-error aktiv",
-      "detail": "continue-on-error=true gesetzt \u2013 Fehler k\u00f6nnen still bleiben; Review ob das wirklich beabsichtigt ist"
-    },
-    {
-      "file": "ledger_diagnose.yml",
-      "check": "Node24 env fehlt",
-      "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
-    },
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "Untrusted Feed hq=True",
-      "detail": "2 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"rtbh_com_tr\" (https://list.rtbh.com.tr/output.txt); \"rutgers_drop\" (https://report.cs.rutgers.edu/DROP/attackers)"
-    },
-    {
-      "file": "Cross-Workflow",
-      "check": "Doppelte Feed-URLs",
-      "detail": "5 URL(s) in mehreren Workflows \u2013 today_count Aufblaehung moeglich: strongips.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; abuseipdb-s100-30d.ipv4 in auto_feed_discovery.yml+update_combined_blacklist.yml; 5.txt in auto_feed_discovery.yml+update_combined_blacklist.yml; greylist-latest.csv in auto_feed_discovery.yml+honeypot_monitor.yml; block.txt in auto_feed_discovery.yml+update_combined_blacklist.yml"
-    },
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "Cache-Key Prefix falsch",
-      "detail": "Save-Key 'netshield-seen-db-sqlite-v1-combined-fallback-${{' hat nicht den erwarteten Prefix 'v2' \u2013 potenzieller Cache-Overwrite"
-    },
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "Cache-Key Prefix falsch",
-      "detail": "Save-Key 'netshield-auto-feed-daily-v1-combined-${{' hat nicht den erwarteten Prefix 'v2' \u2013 potenzieller Cache-Overwrite"
-    },
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "Cache-Key Prefix falsch",
-      "detail": "Save-Key 'netshield-seen-db-sqlite-v1-${{' hat nicht den erwarteten Prefix 'v2' \u2013 potenzieller Cache-Overwrite"
-    },
-    {
-      "file": "honigtopf.yml \u2192 update_combined_blacklist.yml",
-      "check": "Sub-Workflow Puffer zu knapp",
-      "detail": "Sub-Workflow laueft zu knapp vor Combined \u2013 Output moeglicherweise nicht rechtzeitig verfuegbar: 00:00 UTC \u2192 00:07 UTC (7min < 60min Mindestpuffer); 00:05 UTC \u2192 00:07 UTC (2min < 60min Mindestpuffer); 00:10 UTC \u2192 00:27 UTC (17min < 60min Mindestpuffer); 00:20 UTC \u2192 00:27 UTC (7min < 60min Mindestpuffer); 00:25 UTC \u2192 00:27 UTC (2min < 60min Mindestpuffer)"
-    }
-  ],
+  "ok": 30,
+  "warn": 0,
+  "error": 0,
+  "errors": [],
+  "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5550588,
-    "active_blacklist_ipv4.txt": 821465,
-    "blacklist_confidence40_ipv4_part1.txt": 4083588,
-    "cve_exploit_ips.txt": 28962,
-    "honeypot_ips.txt": 1978242,
-    "bot_detector_blacklist_ipv4.txt": 1307224
+    "combined_threat_blacklist_ipv4_part1.txt": 5556204,
+    "active_blacklist_ipv4.txt": 805983,
+    "blacklist_confidence40_ipv4_part1.txt": 4086719,
+    "cve_exploit_ips.txt": 28972,
+    "honeypot_ips.txt": 1946025,
+    "bot_detector_blacklist_ipv4.txt": 1307402
   },
   "production_health": {
     "critical": 0,
