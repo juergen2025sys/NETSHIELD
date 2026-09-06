@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-06 03:07 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-06 03:13 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,307,404** |
-| Neu (heute) | **+475,977** |
-| Entfernt | **-475,845** |
+| Gesamt IPs | **1,307,400** |
+| Neu (heute) | **+0** |
+| Entfernt | **-4** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 54 |
@@ -28,7 +28,7 @@
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,835 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,319 |
 | ✅ `ebrasha_abdal_proxy_hub` | 6,649 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,762 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,765 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,744 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,952 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,198 |
@@ -54,10 +54,10 @@
 | ✅ `gitrecon1455_fresh_proxy_list` | 214,045 |
 | ✅ `noctiro_getproxy` | 4,294 |
 | ✅ `noctiro_getproxy_socks5` | 3,739 |
-| ✅ `mohammedcha_proxripper` | 52,909 |
-| ✅ `mohammedcha_proxripper_socks4` | 113,740 |
-| ✅ `mohammedcha_proxripper_http` | 117,463 |
-| ✅ `mohammedcha_proxripper_socks5` | 115,969 |
+| ✅ `mohammedcha_proxripper` | 52,834 |
+| ✅ `mohammedcha_proxripper_socks4` | 113,309 |
+| ✅ `mohammedcha_proxripper_http` | 116,995 |
+| ✅ `mohammedcha_proxripper_socks5` | 115,990 |
 | ✅ `celestialbrain_worldpool` | 84,680 |
 | ✅ `dinoz0rg_proxy_list` | 93,589 |
 | ✅ `dinoz0rg_proxy_list_http` | 1,874 |
@@ -79,4 +79,4 @@
 > Diese 54 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-06 03:07 CEST (Europe/Berlin)*
+*Generiert: 2026-09-06 03:13 CEST (Europe/Berlin)*
