@@ -1,23 +1,35 @@
 {
-  "updated": "2026-09-06 13:38 CEST (Europe/Berlin)",
+  "updated": "2026-09-06 18:14 CEST (Europe/Berlin)",
   "total": 30,
   "ok": 30,
   "warn": 0,
-  "error": 0,
-  "errors": [],
+  "error": 1,
+  "errors": [
+    {
+      "file": "Production Health",
+      "check": "active \u2286 conf40 Subset-Invariante verletzt",
+      "detail": "2,843 IPs in active fehlen in conf40 (0.345% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+    }
+  ],
   "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5561674,
-    "active_blacklist_ipv4.txt": 818292,
-    "blacklist_confidence40_ipv4_part1.txt": 4092236,
-    "cve_exploit_ips.txt": 28512,
-    "honeypot_ips.txt": 1949488,
-    "bot_detector_blacklist_ipv4.txt": 1308673
+    "combined_threat_blacklist_ipv4_part1.txt": 5564441,
+    "active_blacklist_ipv4.txt": 823248,
+    "blacklist_confidence40_ipv4_part1.txt": 4092946,
+    "cve_exploit_ips.txt": 28517,
+    "honeypot_ips.txt": 1951718,
+    "bot_detector_blacklist_ipv4.txt": 1308939
   },
   "production_health": {
-    "critical": 0,
+    "critical": 1,
     "warn": 0,
-    "checks": []
+    "checks": [
+      {
+        "level": "CRITICAL",
+        "check": "active \u2286 conf40 Subset-Invariante verletzt",
+        "detail": "2,843 IPs in active fehlen in conf40 (0.345% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+      }
+    ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
