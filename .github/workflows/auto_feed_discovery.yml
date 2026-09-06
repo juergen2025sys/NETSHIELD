@@ -2013,6 +2013,20 @@ jobs:
               "layer7-ddos", "http-flood", "l7-attack",
               "network-intrusion", "ids-blocklist", "waf-blocklist",
               "cyber-threat-intelligence", "abuse-report", "abuse-tracker",
+              # NEU (2026-09-06): Behavior-/ML-orientierte Threat-Intel.
+              # Nicht nach dem unscharfen Einzelwort "ai" suchen, sondern nach
+              # Begriffen, die reale Sensorik, Verhaltenskorrelation, Scoring
+              # und schnell rotierende Angreifer-Infrastruktur beschreiben.
+              "behavioral-threat-intelligence", "behavioral-detection",
+              "behavioral-ip-reputation", "behavioral-blocklist",
+              "machine-learning-threat-intelligence", "ml-threat-intelligence",
+              "ml-ip-reputation", "anomaly-detection-threat-intel",
+              "honeypot-telemetry", "honeypot-threat-feed",
+              "distributed-honeypot", "honeypot-network", "sensor-network",
+              "attack-telemetry", "malicious-infrastructure",
+              "malicious-infrastructure-tracking", "campaign-correlation",
+              "threat-scoring", "confidence-scoring", "risk-scoring-ip",
+              "real-time-ip-reputation", "dynamic-ip-reputation",
               # NEU (2026-08-14): XDR-/EDR-/SIEM-Agent-Oekosysteme. Bisher
               # standen nur generische Begriffe drin ("edr", "siem", "soc") -
               # konkrete Plattform-/Produktnamen fehlten. Community-Repos,
@@ -2458,6 +2472,16 @@ jobs:
               "scanner-ip", "mass-scanner", "ssh-scanner", "port-scanner",
               "bruteforce", "ssh-bruteforce", "attacker-ips", "compromised-ip",
               "c2-infrastructure", "malware-c2", "iot-botnet", "abuse-feed",
+              # 2026-09-06: Fresh Discovery gezielt auf behavior-/sensorbasierte
+              # Feeds und automatisches Scoring erweitern. Die bestehenden
+              # Qualitaets-, FP-, Format- und Dedup-Gates bleiben unveraendert.
+              "behavioral-threat-intelligence", "behavioral-ip-reputation",
+              "ml-threat-intelligence", "ml-ip-reputation",
+              "honeypot-telemetry", "honeypot-threat-feed",
+              "distributed-honeypot", "honeypot-network",
+              "attack-telemetry", "malicious-infrastructure",
+              "campaign-correlation", "threat-scoring",
+              "real-time-ip-reputation", "dynamic-ip-reputation",
           ]
           _recent_cutoff = (now - timedelta(days=RECENT_REPOS_DAYS)).strftime("%Y-%m-%d")
           _recent_found = 0
@@ -2865,6 +2889,14 @@ jobs:
               "bot-blocklist", "scraper-blocklist", "residential-proxy-abuse",
               "credential-leak", "ics-honeypot", "scada-honeypot",
               "layer7-ddos", "network-intrusion", "waf-blocklist",
+              # NEU (2026-09-06): behavior-/ML-/Sensor-Feeds auch auf GitLab.
+              "behavioral-threat-intelligence", "behavioral-ip-reputation",
+              "ml-threat-intelligence", "ml-ip-reputation",
+              "honeypot-telemetry", "honeypot-threat-feed",
+              "distributed-honeypot", "honeypot-network",
+              "attack-telemetry", "malicious-infrastructure",
+              "campaign-correlation", "threat-scoring",
+              "real-time-ip-reputation", "dynamic-ip-reputation",
               # NEU (2026-08-14): siehe SEARCH_TOPICS-Erweiterung oben,
               # gleiche XDR-/Wazuh-/Agent-Kategorien fuer GitLab uebernommen.
               "xdr", "xdr-blocklist", "wazuh", "wazuh-blocklist",
