@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-06 02:03 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-06 02:10 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,307,266** |
-| Neu (heute) | **+72** |
-| Entfernt | **-257** |
+| Gesamt IPs | **1,307,273** |
+| Neu (heute) | **+7** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 54 |
@@ -19,7 +19,7 @@
 
 | Quelle | IPs |
 |---|---|
-| ✅ `turntuptechnologies_iocs_scanner` | 86 |
+| ✅ `turntuptechnologies_iocs_scanner` | 107 |
 | ✅ `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | 58,496 |
 | ✅ `openprx_prx_sd_signatures` | 137,407 |
 | ✅ `openprx_prx_sd_signatures_url_blocklist` | 496 |
@@ -36,11 +36,11 @@
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,090 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 230,638 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 999 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 910 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 619 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 696 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 572 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 327 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 931 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 623 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 677 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 546 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 291 |
 | ✅ `officialputuid_proxyforeveryone` | 6,543 |
 | ✅ `officialputuid_proxyforeveryone_https` | 5,269 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 6,503 |
@@ -79,4 +79,4 @@
 > Diese 54 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-06 02:03 CEST (Europe/Berlin)*
+*Generiert: 2026-09-06 02:10 CEST (Europe/Berlin)*
