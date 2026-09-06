@@ -37,6 +37,11 @@ on:
         required: false
         default: true
 
+# FIX HEALTH-NODE24 (2026-09-06): analog zu den produktiven Workflows.
+# Betrifft nur JavaScript-Actions (z.B. actions/checkout), keine Diagnose-Logik.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: read
 

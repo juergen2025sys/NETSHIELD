@@ -323,6 +323,9 @@ jobs:
           ]
           continue_on_error_allowlist = {
               "update_combined_blacklist.yml",  # AbuseIPDB Rate-Limit ist absichtlich non-blocking
+              # Der Combined-Run-Log-Abruf ist nur Diagnose-Komfort. Ein API-/
+              # Log-Fehler darf die eigentliche Ablauf-Verifikation nicht rot machen.
+              "ip_ablauf.yml",
           }
           for fname in files:
               content = open(f"{WORKFLOWS_DIR}/{fname}").read()
@@ -371,19 +374,24 @@ jobs:
               dst_minutes = sorted(set(dst_minutes))
               if not src_minutes or not dst_minutes:
                   continue
+              # FIX CRON-BACKUP-FP (2026-09-06): Ziel-orientiert pruefen.
+              # Bei redundanten Source-Crons (primaer + Backup-Slots) muss NICHT
+              # jeder Backup-Slot den Mindestpuffer einhalten. Entscheidend ist,
+              # dass fuer jeden Ziel-Lauf mindestens EIN bereits abgeschlossener
+              # Source-Slot mit ausreichendem Puffer existiert. Backup-Slots duerfen
+              # bewusst kurz vor dem Ziel liegen und werden per Idempotenz-Gate
+              # normalerweise ohnehin uebersprungen. Mit 24h-Wrap funktioniert
+              # die Pruefung auch ueber Mitternacht korrekt.
               bad_pairs = []
-              for _s in src_minutes:
-                  # FIX BUG-5: >= statt >, gleiches Pattern wie unten in der
-                  # _dependency_chain-Schleife. Der separate Cron-Kollisions-Check
-                  # (Z. ~331) sieht nur exakt gleiche Cron-Strings als Kollision —
-                  # '0 */6' und '0 */3' sind aber unterschiedliche Strings, die
-                  # sich an Minute 0/360/720/1080 ueberlappen. Ohne >= wuerde
-                  # diese Schleife solche Δ=0-Kollisionen ebenfalls verfehlen.
-                  later = [_d for _d in dst_minutes if _d >= _s]
-                  if later:
-                      _next = later[0]
-                      if (_next - _s) < _min_gap:
-                          bad_pairs.append(f"{_fmt_minute_of_day(_s)} → {_fmt_minute_of_day(_next)} ({_next - _s}min < {_min_gap}min)")
+              for _d in dst_minutes:
+                  gaps = [(_d - _s) % 1440 for _s in src_minutes]
+                  valid = [g for g in gaps if g >= _min_gap]
+                  if not valid:
+                      nearest = min(gaps) if gaps else 0
+                      bad_pairs.append(
+                          f"vor {_fmt_minute_of_day(_d)} kein Source-Slot mit >= {_min_gap}min Puffer "
+                          f"(naechster Abstand {nearest}min)"
+                      )
               if bad_pairs:
                   warnings.append({
                       "file": f"{_src} → {_dst}",
@@ -760,11 +768,14 @@ jobs:
               # Heuristik: Workflow lädt externe URLs und schreibt Listen/Reports,
               # aber enthält keine MIN_*-Schwelle. Das ist kein harter Fehler,
               # sondern ein Hinweis auf mögliche Datenqualitäts-Lücken.
-              _has_external_fetch = (
-                  "urllib.request.urlopen" in content
-                  or "https://" in content
-                  or "http://" in content
-              )
+              # Nur ausfuehrbaren Code betrachten. URLs in reinen Kommentaren/
+              # Beschreibungen (z.B. history_fresh_start.yml) sind kein Feed-Fetch.
+              _exec_code = "\n".join(blocks + shell_blocks)
+              _exec_no_comments = re.sub(r'(^|\s)#[^\n]*', r'\1', _exec_code)
+              _has_external_fetch = bool(re.search(
+                  r'(?:\b(?:fetch_url|safe_urlopen|urlopen|requests\.(?:get|post))\s*\(|(?:^|\s)(?:curl|wget)\s)',
+                  _exec_no_comments
+              ))
               _writes_outputs = any(tok in content for tok in [
                   ".txt", ".md", "OUT_FILE", "REPORT_FILE"
               ])
@@ -787,7 +798,8 @@ jobs:
               # urlopen ohne timeout= hängt unendlich bei toten Feeds / Netzwerkproblemen.
               # Jeder externe HTTP-Aufruf MUSS einen expliziten timeout haben.
               for _bi, _blk in enumerate(blocks):
-                  for _m in re.finditer(r'urlopen\(([^)]+)\)', _blk):
+                  # Wortgrenze nach links verhindert False Positive auf safe_urlopen(...).
+                  for _m in re.finditer(r'(?<![\w.])urlopen\(([^)]+)\)', _blk):
                       _args = _m.group(1)
                       if 'timeout=' not in _args:
                           msg = (f"Block {_bi}: urllib.urlopen() ohne timeout= – "
@@ -879,11 +891,15 @@ jobs:
               # ── Check 20: MIN_*-Guards mit ungueltigen Schwellenwerten ─────
               # Fuer neue Workflows ohne harte Baseline soll zumindest erkannt werden,
               # wenn ein Guard versehentlich auf 0 gesetzt wurde.
-              for _m in re.finditer(r'\b(MIN_[A-Z0-9_]+)\s*=\s*([\d_]+)', content):
+              # FIX DECIMAL-GUARD-FP (2026-09-06): Dezimalwerte komplett
+              # erfassen. Vorher wurde MIN_FEED_SUCCESS_RATIO = 0.50 als
+              # Integer "0" gelesen und faelschlich als kritischer Fehler gemeldet.
+              for _m in re.finditer(r'\b(MIN_[A-Z0-9_]+)\s*=\s*([\d_]+(?:\.[\d_]+)?)', content):
                   _var = _m.group(1)
-                  _val = int(_m.group(2).replace("_", ""))
+                  _raw = _m.group(2).replace("_", "")
+                  _val = float(_raw) if "." in _raw else int(_raw)
                   if _val <= 0:
-                      msg = f"{_var}={_val} ist ungueltig – Guard muss > 0 sein"
+                      msg = f"{_var}={_raw} ist ungueltig – Guard muss > 0 sein"
                       file_errors.append(msg)
                       errors.append({"file": fname,
                                      "check": f"{_var} ungueltig",
@@ -1720,6 +1736,11 @@ jobs:
               # Betreiber" meldet. "threatslist" matcht per Namens-Teilstring,
               # "threat.live" matcht per URL-Teilstring.
               "threatslist", "threat.live",
+              # FIX HQ-OPERATOR-FP (2026-09-06): beide Quellen sind im
+              # Combined-Workflow explizit dokumentierte/maintainer-freigegebene
+              # HQ-Feeds. Der Guard prueft bekannte Betreiber, nicht die
+              # inhaltliche HQ-Entscheidung erneut.
+              "rtbh.com.tr", "rutgers.edu",
           }
           if os.path.exists(_combined_path):
               _cb_text = open(_combined_path).read()
@@ -1974,6 +1995,13 @@ jobs:
               # und sniffcat_fetch.yml hier komplett uebersprungen.
               _fblocks = re.findall(r"python3(?: -u)? << 'EOF'(.*?)\n\s*EOF", _ftext, re.DOTALL)
               for _blk in _fblocks:
+                  # FIX HQ-REF-DUP-FP (2026-09-06): hq_ref_urls in Auto Feed
+                  # Discovery werden ausschliesslich fuer den Overlap-
+                  # Validierungscheck geladen und NICHT als Feed ingestiert.
+                  # Diese Referenz-URLs duerfen daher nicht als today_count-
+                  # Duplikat gegen Combined/Honeypot gewertet werden.
+                  if _fname == "auto_feed_discovery.yml":
+                      _blk = re.sub(r'hq_ref_urls\s*=\s*\[.*?\]\s*', '', _blk, flags=re.DOTALL)
                   # Nur URLs in SOURCES/CVE_SOURCES/HONEYPOT_SOURCES-artigen Dicts
                   for _line in _blk.splitlines():
                       _line_code = _line.split('#')[0]
@@ -2067,39 +2095,46 @@ jobs:
           # Auto Feed Discovery ist registry-only und schreibt keinen seen_db-
           # oder Auto-Feed-Snapshot-Cache mehr; deshalb gibt es dafuer bewusst
           # keine Cache-Prefix-Regel.
+          # FIX CACHE-FAMILY-FP (2026-09-06): Die produktive SQLite-
+          # Cache-Familie heisst netshield-seen-db-sqlite-v1-*; der separate
+          # Auto-Feed-Snapshot netshield-auto-feed-daily-v1-*. Die alte
+          # Checker-Annahme "Combined -> v2" war veraltet und meldete die
+          # korrekten Keys als potenziellen Overwrite.
           _cache_write_rules = {
-              "update_combined_blacklist.yml":  "v2",
-              "false_positive_checker.yml":     "fp",
-              "auto_feed_refresh.yml":          "auto-feed-daily-v1",
+              "update_combined_blacklist.yml": (
+                  "netshield-seen-db-sqlite-v1-",
+                  # Legacy-/Diagnose-Kompatibilitaetscache fuer seen_db.json.
+                  "netshield-seen-db-v2-",
+                  "netshield-auto-feed-daily-v1-",
+              ),
+              "auto_feed_refresh.yml": (
+                  "netshield-auto-feed-daily-v1-",
+              ),
           }
-          for _fname, _expected_prefix in _cache_write_rules.items():
+          for _fname, _allowed_prefixes in _cache_write_rules.items():
               _fpath = f"{WORKFLOWS_DIR}/{_fname}"
               if not os.path.exists(_fpath):
                   continue
               _ftext = open(_fpath).read()
-              # Cache Save-Keys extrahieren: kanonischer seen_db-State und der
-              # getrennte, feed-identitaetserhaltende Auto-Feed-Snapshot.
-              # Beide Patterns: actions/cache (impliziter Save) und actions/cache/save
               _save_keys = re.findall(
                   r'key:\s*(netshield-(?:seen-db|auto-feed-daily)-[^\s\n]+)',
                   _ftext
               )
               for _sk in _save_keys:
-                  # restore-keys Zeilen ignorieren (die dürfen andere Prefixe haben)
                   _sk_ctx_start = max(0, _ftext.find(_sk) - 200)
                   _sk_ctx = _ftext[_sk_ctx_start:_ftext.find(_sk) + len(_sk)]
                   if 'restore-keys' in _sk_ctx:
                       continue
-                  if f"-{_expected_prefix}-" not in _sk and not _sk.startswith(f"netshield-seen-db-{_expected_prefix}"):
-                      # Ausnahme: Score Decay nutzt cache/restore (read-only) – kein Write
-                      if _fname == "score_decay_monitor.yml":
-                          continue
+                  if not any(_sk.startswith(_pfx) for _pfx in _allowed_prefixes):
                       warnings.append({
                           "file": _fname,
                           "check": "Cache-Key Prefix falsch",
-                          "detail": f"Save-Key '{_sk}' hat nicht den erwarteten Prefix '{_expected_prefix}' – potenzieller Cache-Overwrite",
+                          "detail": (
+                              f"Save-Key '{_sk}' gehoert zu keiner erlaubten Cache-Familie "
+                              f"({', '.join(_allowed_prefixes)}) – potenzieller Cache-Overwrite"
+                          ),
                       })
-                      print(f"⚠️  Cache-Key: {_fname} schreibt in '{_sk}' statt '{_expected_prefix}'")
+                      print(f"⚠️  Cache-Key: {_fname} schreibt in unerwartete Familie '{_sk}'")
 
           # ── Workflow-Abhaengigkeitskette ──────────────────────────────────
           # Sub-Workflows muessen VOR update_combined_blacklist laufen.
@@ -2126,30 +2161,21 @@ jobs:
               _dst_mins = sorted(set(_dst_mins))
               if not _src_mins or not _dst_mins:
                   continue
-              # Fuer jeden Sub-Workflow-Zeitpunkt: gibt es einen Combined-Lauf
-              # mindestens _DEP_MIN_GAP Minuten spaeter (am selben Tag)?
+              # FIX DEP-BACKUP-FP (2026-09-06): Ziel-orientiert und mit
+              # 24h-Wrap pruefen. Ein haeufiger Sub-Workflow darf zusaetzliche
+              # Backup-/Folgeslots kurz vor Combined haben. Relevant ist, dass
+              # Combined bei jedem Zielslot mindestens EINEN bereits vorhandenen
+              # Source-Output mit >= Mindestpuffer lesen kann.
               _dep_bad = []
-              for _s in _src_mins:
-                  # FIX BUG-5: >= statt >, sonst werden gleichzeitige Combined-Läufe
-                  # übersprungen und der Checker meldet faelschlich OK (sieht den
-                  # naechsten Combined 3h spaeter als "valid 180min Puffer"). Δ=0
-                  # ist eine echte Kollision: Combined liest die Sub-Workflow-Files
-                  # aus dem Checkout, also den Stand vom vorherigen Lauf (bis zu
-                  # 6h alt bei honeypot). Mit >= wird gap=0 < _DEP_MIN_GAP korrekt
-                  # als Warnung gemeldet.
-                  _later = [_d for _d in _dst_mins if _d >= _s]
-                  if not _later:
-                      # Sub-Workflow laueft nach dem letzten Combined des Tages.
-                      # Combined laueft aber auch frueher (*/3h), daher kein harter Fehler –
-                      # die Daten werden beim naechsten frueheren Combined-Lauf verarbeitet.
-                      pass
-                  else:
-                      _gap = _later[0] - _s
-                      if _gap < _DEP_MIN_GAP:
-                          _dep_bad.append(
-                              f"{_fmt_minute_of_day(_s)} → {_fmt_minute_of_day(_later[0])} "
-                              f"({_gap}min < {_DEP_MIN_GAP}min Mindestpuffer)"
-                          )
+              for _d in _dst_mins:
+                  _gaps = [(_d - _s) % 1440 for _s in _src_mins]
+                  _valid = [g for g in _gaps if g >= _DEP_MIN_GAP]
+                  if not _valid:
+                      _nearest = min(_gaps) if _gaps else 0
+                      _dep_bad.append(
+                          f"vor {_fmt_minute_of_day(_d)} kein Source-Slot mit >= {_DEP_MIN_GAP}min "
+                          f"Mindestpuffer (naechster Abstand {_nearest}min)"
+                      )
               if _dep_bad:
                   warnings.append({
                       "file": f"{_dep_src} → {_dep_dst}",
