@@ -1,5 +1,5 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-09-06 10:59 CEST (Berlin)
+**Aktualisiert:** 2026-09-06 11:01 CEST (Berlin)
 
 ---
 | Quelle | IPs | Neu | Frische |
@@ -14,14 +14,14 @@
 | ✅ `abuseip_org` | 3167 | +0 | 🟢 aktuell (seit 2026-09-06 10:53 CEST (Berlin)) |
 | ✅ `jacobrakai_honeypot` | 348 | +0 | 🟢 aktuell (seit 2026-09-06 10:53 CEST (Berlin)) |
 | ✅ `im_forsale_probing` | 81256 | +0 | 🟢 aktuell (seit 2026-09-06 06:23 CEST (Berlin)) |
-| ✅ `knock_knock_30d` | 42965 | +0 | 🟢 aktuell (seit 2026-09-06 10:53 CEST (Berlin)) |
+| ✅ `knock_knock_30d` | 42946 | +38 | 🟢 neu (2026-09-06 11:01 CEST (Berlin)) |
 | ✅ `carpathian_threat_intel` | 520 | +0 | 🟢 aktuell (seit 2026-09-06 10:53 CEST (Berlin)) |
 | ✅ `welford_high_confidence` | 1374 | +0 | 🟢 aktuell (seit 2026-09-06 07:59 CEST (Berlin)) |
 | ✅ `sblam` | 965 | +0 | 🟢 aktuell (seit 2026-09-06 06:23 CEST (Berlin)) |
 | ✅ `timgerstel_suspicious_ips` | 2358 | +0 | 🟢 aktuell (seit 2026-09-06 10:53 CEST (Berlin)) |
 | ✅ `sniffcat` | 10717 | +0 | 🟢 aktuell (seit 2026-09-06 10:53 CEST (Berlin)) |
-| ✅ `siberkapan` | 43671 | +1 | 🟢 neu (2026-09-06 10:59 CEST (Berlin)) |
-| ✅ `reportedip` | 9963 | +2 | 🟢 neu (2026-09-06 10:59 CEST (Berlin)) |
+| ✅ `siberkapan` | 43672 | +2 | 🟢 neu (2026-09-06 11:01 CEST (Berlin)) |
+| ✅ `reportedip` | 9963 | +2 | 🟢 neu (2026-09-06 11:01 CEST (Berlin)) |
 | ✅ `ipinsights` | 697557 | +0 | 🟢 aktuell (seit 2026-09-06 10:53 CEST (Berlin)) |
 | ✅ `opendbl_darknet` | 36734 | +0 | 🟢 aktuell (seit 2026-09-06 10:53 CEST (Berlin)) |
 | ✅ `opendbl_all_threats` | 52346 | +0 | 🟢 aktuell (seit 2026-09-06 10:53 CEST (Berlin)) |
@@ -29,7 +29,7 @@
 | ✅ `configserverapps_365d` | 85325 | +0 | 🟢 aktuell (seit 2026-09-06 10:53 CEST (Berlin)) |
 | ✅ `kamalmjt_emerging_attackers` | 45062 | +0 | 🟡 traege (seit 2026-09-06 02:03 CEST (Berlin), 12 Laeufe unveraendert) |
 | ✅ `tn3w_ipblocklist` | 384741 | +0 | 🔴 EINGEFROREN (seit 2026-08-20 21:03 CEST (Berlin), 517 Laeufe unveraendert) |
-| ✅ `ipblocklist_eu` | 1070699 | +1340 | 🟢 neu (2026-09-06 10:59 CEST (Berlin)) |
+| ✅ `ipblocklist_eu` | 1070699 | +1340 | 🟢 neu (2026-09-06 11:01 CEST (Berlin)) |
 | ✅ `zenmorro_scanner_list` | 1668 | +0 | 🟢 aktuell (seit 2026-09-06 06:23 CEST (Berlin)) |
 | ✅ `mattyroberts_threatlist` | 30154 | +0 | 🟢 aktuell (seit 2026-09-06 03:35 CEST (Berlin)) |
 | ✅ `threatfox_export` | 19097 | +0 | 🟢 aktuell (seit 2026-09-06 10:53 CEST (Berlin)) |
@@ -40,9 +40,9 @@
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honeypot-IPs | **1948800** |
-| Neu | **+1113** |
-| Entfernt | **-133** |
+| Gesamt Honeypot-IPs | **1948790** |
+| Neu | **+1127** |
+| Entfernt | **-157** |
 
 ---
-*Generiert: 2026-09-06 10:59 CEST (Berlin)*
+*Generiert: 2026-09-06 11:01 CEST (Berlin)*
