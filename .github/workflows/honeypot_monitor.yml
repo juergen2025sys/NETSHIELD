@@ -508,6 +508,15 @@ jobs:
               "carpathian_threat_intel":
                   "https://api.carpathian.ai/public/threat-intel/blocklist.txt",
 
+              # Welford Honeypot Console: oeffentliche High-Confidence-IP-Liste
+              # aus mehreren Decoy-/Honeypot-Sensoren. Bewusst minScore=8 statt
+              # der Standardliste (minScore=6), damit nur hoch bewertete Quellen-IP
+              # in NETSHIELD einfliessen. Plain Text, eine IP pro Zeile, kein Token.
+              # Der Feed bleibt ausschliesslich hier: honeypot_ips.txt wird bereits
+              # als HQ-Quelle in Combined eingelesen, direkte Doppelaufnahme verboten.
+              "welford_high_confidence":
+                  "https://sec.welford.me/api/exports/blocklist.txt?minScore=8",
+
               # Sblam!: Server-seitiger Spam-Filter fuer HTML-Formulare
               # (Blog-Kommentare, Foren, Gaestebuecher). Andere Kategorie als
               # die uebrigen Quellen hier: HTTP-Formular-Spam-Bots, KEINE
