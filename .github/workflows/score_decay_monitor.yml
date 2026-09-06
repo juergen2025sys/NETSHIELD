@@ -218,6 +218,17 @@ jobs:
                               "days_seen": days_seen,
                           }
 
+              # FIX SCOREDB-VALUES (2026-09-06, Log-Fund): AttributeError
+              # "'_SqliteScoreDB' object has no attribute 'values'" - der
+              # FIX-AGE1-Cache-Alter-Check (unten) ruft "db.values()" auf, das
+              # hier bisher fehlte. Beim JSON-Fallback (echtes dict) ist das
+              # nie aufgefallen, weil dict.values() natuerlich existiert; der
+              # SQLite-Pfad (der kanonische, hier tatsaechlich genutzte Stand)
+              # ist damit jedes Mal abgestuerzt.
+              def values(self, batch_size=50_000):
+                  for _, v in self.items(batch_size):
+                      yield v
+
           def _abbruch(msg):
               print(f"::warning file=score_decay_monitor.yml::{msg}")
               print(f"FEHLER: {msg}")
