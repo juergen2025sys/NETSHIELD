@@ -2,7 +2,12 @@ name: NETSHIELD Report Generator
 
 on:
   schedule:
-    - cron: '30 * * * *'   # stündlich (30 Min nach der vollen Stunde – combined braucht ~20min, Puffer 10min)
+    # Drei unabhaengige Slots pro Stunde gegen von GitHub verzögerte/übersprungene
+    # schedule-Events. Die Frische-Pruefung erfolgt im Report-Job erst NACH
+    # dem Concurrency-Warten; workflow_dispatch wird nie gebremst.
+    - cron: '30 * * * *'   # primaer: :30
+    - cron: '45 * * * *'   # Backup #1: +15min
+    - cron: '55 * * * *'   # Backup #2: +25min
   workflow_dispatch:
 
 env:
@@ -16,22 +21,75 @@ permissions:
   pull-requests: none
   security-events: none
 
-concurrency:
-  group: ${{ github.workflow }}
-  cancel-in-progress: false
-
 jobs:
+  # FIX CRON-REDUNDANZ-RACE (2026-09-06): Alle drei Schedule-Slots gehen
+  # direkt durch dieselbe Concurrency. Die Frische-Pruefung findet ERST nach
+  # einem eventuellen Queue-Warten statt. Damit kann ein Backup nicht mehr
+  # mit should_run=true vorgemerkt werden, waehrend der Primaer-Lauf noch
+  # aktiv ist.
   generate-report:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    concurrency:
+      group: ${{ github.workflow }}
+      cancel-in-progress: false
 
     steps:
+      - name: Recheck freshness after concurrency wait
+        id: freshness
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Manuelle Laeufe immer zulassen.
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          now=$(date -u +%s)
+          found=0
+          # Nur Runs zaehlen, in denen die eigentliche Report-Erzeugung
+          # tatsaechlich erfolgreich lief. Reine Backup-Skips duerfen NICHT
+          # als frischer Report gelten.
+          while IFS=$'\t' read -r run_id created; do
+            [ -n "$run_id" ] || continue
+            ts=$(date -u -d "$created" +%s 2>/dev/null || echo 0)
+            age=$((now - ts))
+            [ "$age" -ge 0 ] && [ "$age" -lt 2700 ] || continue
+
+            report_ok=$(gh run view "$run_id" \
+              --repo "${{ github.repository }}" \
+              --json jobs \
+              --jq '[.jobs[].steps[]? | select(.name == "Generate reports/NETSHIELD_REPORT.md" and .conclusion == "success")] | length' \
+              2>/dev/null || echo 0)
+            if [ "${report_ok:-0}" -gt 0 ] 2>/dev/null; then
+              echo "Echter erfolgreicher Report-Lauf $run_id ist ${age}s alt - Backup/Fruehlauf wird uebersprungen."
+              found=1
+              break
+            fi
+          done < <(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow=netshield_report_generator.yml \
+            --status=success \
+            --limit=8 \
+            --json databaseId,createdAt \
+            --jq '.[] | [.databaseId,.createdAt] | @tsv')
+
+          if [ "$found" -eq 1 ]; then
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Kein echter erfolgreicher Report in den letzten 45 Minuten - Report wird erzeugt."
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout Repository
+        if: steps.freshness.outputs.proceed == 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: true
 
       - name: Generate reports/NETSHIELD_REPORT.md
+        if: steps.freshness.outputs.proceed == 'true'
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -302,6 +360,7 @@ jobs:
           EOF
 
       - name: Update README Header Stats
+        if: steps.freshness.outputs.proceed == 'true'
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -535,6 +594,7 @@ jobs:
           EOF
 
       - name: Update README IP Counts
+        if: steps.freshness.outputs.proceed == 'true'
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -708,7 +768,7 @@ jobs:
           EOF
 
       - name: Commit
-        if: always()  # FIX: auch bei unbehandelter Exception in Python-Steps den Report committen
+        if: always() && steps.freshness.outputs.proceed == 'true'  # FIX: auch bei unbehandelter Exception in Python-Steps den Report committen
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -757,7 +817,7 @@ jobs:
         # durch diesen Trigger laeuft der Proxy-Feed-Fetch jetzt effektiv
         # bis zu stuendlich (wann immer dieser Report-Workflow erfolgreich
         # durchlaeuft).
-        if: success()
+        if: success() && steps.freshness.outputs.proceed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -780,7 +840,7 @@ jobs:
         # github.workflow }}, cancel-in-progress: false) verhindert
         # ueberlappende Laeufe - bei zu kurzem Abstand wird der naechste
         # Trigger einfach in die Warteschlange gestellt, nicht verworfen.
-        if: success()
+        if: success() && steps.freshness.outputs.proceed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -812,7 +872,7 @@ jobs:
         # auto_feed_discovery.yml) - dann bleibt es bei einem Volllauf pro
         # Kalendertag und der Trigger wirkt nur noch als Nachhol-Mechanismus
         # fuer ausgefallene Cron-Slots.
-        if: success()
+        if: success() && steps.freshness.outputs.proceed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
