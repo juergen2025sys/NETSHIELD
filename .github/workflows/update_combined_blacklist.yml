@@ -5204,11 +5204,34 @@ jobs:
           python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); print(f"SQLite-Snapshot validiert: {n:,} Eintraege"); assert q and q[0]=="ok" and n>=100000, (q,n)'
           rm -f seen_db.sqlite3.gz
           gzip -1 -c seen_db.sqlite3 > seen_db.sqlite3.gz
-          if ! gh release view seen-db-sqlite-backup --repo "${{ github.repository }}" >/dev/null 2>&1; then
-            gh release create seen-db-sqlite-backup               --repo "${{ github.repository }}"               --title "NETSHIELD seen_db SQLite Backup"               --notes "Automatisch gepflegter SQLite-Fallback fuer Confidence."               --latest=false
-          fi
-          gh release upload seen-db-sqlite-backup seen_db.sqlite3.gz             --repo "${{ github.repository }}" --clobber
-          echo "SQLite-Release-Backup aktualisiert: $(du -h seen_db.sqlite3.gz | cut -f1)"
+          # FIX RELEASE-UPLOAD-RETRY (2026-09-06, Log-Fund): "gh release upload"
+          # war bisher ein einzelner, ungeschuetzter Aufruf unter "set -e" -
+          # ein transienter GitHub-API-Fehler (z.B. HTTP 502, im echten Betrieb
+          # beobachtet) hat den kompletten Step sofort abbrechen lassen, obwohl
+          # der eigentliche Produktions-Output (combined_threat_blacklist_*
+          # usw.) unabhaengig davon per Commit/Push weiterhin ankam - nur das
+          # SQLite-Release-Backup blieb einmalig veraltet. Retry-Schleife im
+          # selben Stil wie der bestehende Git-Push-Retry weiter unten in
+          # dieser Datei (5 Versuche, kurzer Backoff fuer transiente 5xx/
+          # Netzwerkfehler).
+          for attempt in 1 2 3 4 5; do
+            echo "Release-Upload-Versuch $attempt..."
+            if ! gh release view seen-db-sqlite-backup --repo "${{ github.repository }}" >/dev/null 2>&1; then
+              gh release create seen-db-sqlite-backup --repo "${{ github.repository }}" \
+                --title "NETSHIELD seen_db SQLite Backup" \
+                --notes "Automatisch gepflegter SQLite-Fallback fuer Confidence." \
+                --latest=false 2>&1 || true
+            fi
+            if gh release upload seen-db-sqlite-backup seen_db.sqlite3.gz \
+                --repo "${{ github.repository }}" --clobber; then
+              echo "SQLite-Release-Backup aktualisiert (Versuch $attempt): $(du -h seen_db.sqlite3.gz | cut -f1)"
+              exit 0
+            fi
+            echo "Release-Upload fehlgeschlagen (Versuch $attempt) - warte kurz..."
+            sleep $((attempt * 5))
+          done
+          echo "::warning file=update_combined_blacklist.yml::SQLite-Release-Backup nach 5 Versuchen fehlgeschlagen - Produktions-Output (Commit/Push) ist davon unabhaengig, nur der Release-Fallback bleibt diesen Lauf veraltet."
+          exit 1
 
       # Separates JSON-Release-Backup fuer seen_db entfernt (2026-09-01).
       # Einziger seen_db-Release ist ab hier der SQLite-Release oben.
