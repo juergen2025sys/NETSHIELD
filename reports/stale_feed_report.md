@@ -1,5 +1,5 @@
 # NETSHIELD – Stale-Feed-Report
-**Aktualisiert:** 2026-09-05 07:06 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-06 07:21 CEST (Europe/Berlin)
 **Schwelle:** IP-Menge ≥ 14 Tage unveraendert
 
 Erkennt Feeds, die zwar antworten und IPs liefern, deren Inhalt sich aber lange nicht mehr aendert. Solche Feeds bestehen den Status-/has_ips-Check, halten ihre IPs aber kuenstlich auf voller Aktualitaet und entgehen so dem Score-Decay → Risiko veralteter Dauer-Blocks. Flag ist **advisory**, kein Auto-Remove.
@@ -8,9 +8,9 @@ Erkennt Feeds, die zwar antworten und IPs liefern, deren Inhalt sich aber lange 
 
 | Feed | Tage unveraendert | Seit | IPs (Sample) | Typ | URL |
 |---|---|---|---|---|---|
-| `ashleykleynhans_abuseipdb` | 31 | 2026-08-04 15:19 UTC | ~31614 | normal | https://raw.githubusercontent.com/ashleykleynhans/ipset/refs/heads/main/ipv4.csv |
-| `blacksnowdot_packets` | 31 | 2026-08-04 15:19 UTC | ~30907 | normal | https://raw.githubusercontent.com/BlacKSnowDot0/packetsdatabase-db/refs/heads/main/ip_list.txt |
+| `ashleykleynhans_abuseipdb` | 32 | 2026-08-04 15:19 UTC | ~31614 | normal | https://raw.githubusercontent.com/ashleykleynhans/ipset/refs/heads/main/ipv4.csv |
+| `blacksnowdot_packets` | 32 | 2026-08-04 15:19 UTC | ~30907 | normal | https://raw.githubusercontent.com/BlacKSnowDot0/packetsdatabase-db/refs/heads/main/ip_list.txt |
 
 Hinweis: Kleine kuratierte Listen aendern sich legitim selten – ein Flag hier ist nicht automatisch ein Defekt. Bei DataPlane-Feeds (taegliches Honeypot-Signal) ist ein eingefrorener Stand dagegen ein echtes Alarmsignal. Der Fingerprint basiert auf dem 2-MB-Sample (wie sample_ips); bei sehr grossen Feeds ist er eine Praefix-Heuristik.
 
-*Generiert: 2026-09-05 07:06 CEST (Europe/Berlin)*
+*Generiert: 2026-09-06 07:21 CEST (Europe/Berlin)*
