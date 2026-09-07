@@ -1,6 +1,6 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-09-07 02:11 CEST (Berlin)  
-**Modus:** `LIGHT` (nur /bad-hosts, merged mit existing)
+**Aktualisiert:** 2026-09-07 02:39 CEST (Berlin)  
+**Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
 ## API-Key-Status
@@ -14,7 +14,7 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-09-07 00:42 CEST (Berlin) (1 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-09-07 02:39 CEST (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
@@ -22,6 +22,38 @@
 | Endpunkt | Treffer |
 |---|---:|
 | Bad Hosts (24h, alle Dienste) | **11,499** |
+| Bad Hosts – SIP | **166** |
+| Bad Hosts – SSH | **3,846** |
+| Bad Hosts – RDP | **802** |
+| Bad Hosts – MSSQL | **502** |
+| Bad Hosts – HTTP | **2,743** |
+| Bad Hosts – VNC | **583** |
+| Bad Hosts – SNMP | **312** |
+| Bad Hosts – Telnet | **3,390** |
+| Bad Hosts – ProConOs | **160** |
+| Bad Hosts – FTP | **371** |
+| Bad Hosts – TFTP | **168** |
+| Bad Hosts – PostgreSQL | **361** |
+| Bad Hosts – MySQL | **465** |
+| Bad Hosts – Kubernetes | **708** |
+| Bad Hosts – Redis | **401** |
+| Bad Hosts – Elasticsearch | **477** |
+| Bad Hosts – Oracle | **260** |
+| Bad Hosts – CouchDB | **209** |
+| Bad Hosts – ClickhouseHTTP | **275** |
+| Bad Hosts – RAW | **158** |
+| Bad Hosts – LDAP | **220** |
+| Bad Hosts – Memcached | **222** |
+| Bad Hosts – MQTT | **217** |
+| Bad Hosts – Modbus | **140** |
+| Bad Hosts – IPP | **98** |
+| Bad Hosts – HashCountRandom | **58** |
+| Bad Hosts – LPD | **63** |
+| Bad Hosts – MOTD | **48** |
+| Bad Hosts – WebLogic | **3** |
+| Bad Hosts – Echo | **4** |
+| Bad Hosts – DNS.udp | **0** |
+| Bad Hosts – Telnet.IoT | **2** |
 
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
@@ -36,12 +68,12 @@ Davon **heute (2026-09-07)**: **0** IPs
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **23,566** |
-| Neu | **+0** |
-| Entfernt | **-0** |
+| Gesamt Honigtopf-IPs | **23,527** |
+| Neu | **+1,361** |
+| Entfernt | **-1,400** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-09-07 02:11 CEST (Berlin)*
+*Generiert: 2026-09-07 02:39 CEST (Berlin)*
