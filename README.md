@@ -11,6 +11,7 @@
 
 
 
+
 <img src=".github/assets/banner.svg" alt="NETSHIELD — Automated Threat Intelligence" width="100%">
 
 <br>
@@ -201,7 +202,7 @@ Enrichment (nach Combined):
 | **Update Combined Blacklist** | 8× täglich, alle 3h (00:07, 03:07 … 21:07 UTC; +Backups :27/:47) | Feeds laden, seen_db aktualisieren, combined + active Blacklists schreiben |
 | **Confidence Blacklist** | 8× täglich (01:47, 04:47 … 22:47 UTC) | confidence40 + watchlist aus seen_db berechnen |
 | **False Positive Checker** | 3× täglich (05:00, 13:00, 20:00 UTC) | Whitelist-CIDRs prüfen → false_positives_set.json |
-| **NETSHIELD Report Generator** | stündlich (:30) | NETSHIELD_REPORT.md + README-Statistiken aktualisieren |
+| **NETSHIELD Report Generator** | stündlich :30 (+Backups :45/:55, Gate prüft auf bereits erfolgreichen Lauf) | NETSHIELD_REPORT.md + README-Statistiken aktualisieren |
 
 </details>
 
@@ -216,6 +217,7 @@ Enrichment (nach Combined):
 | **TweetFeed Monitor** | täglich 02:45 | TweetFeed.live IOCs → tweetfeed_ips.txt |
 | **Bot-Detector Blacklist** | täglich 22:45 | Bot-IPs → bot_detector_blacklist_ipv4.txt |
 | **Auto Feed Discovery** | wöchentlich So 04:37 (+Backups 07:23, 11:47) | GitHub nach neuen Feeds durchsuchen |
+| **Auto-Feed Live Refresh** | täglich 02:15 | Aktuelle Inhalte aller auto-entdeckten Feeds als SQLite-Snapshot bauen (Combined liest ihn identitätserhaltend ein) |
 
 </details>
 
@@ -225,16 +227,33 @@ Enrichment (nach Combined):
 | Workflow | Zeitplan | Aufgabe |
 |---|---|---|
 | **Score Decay Monitor** | wöchentlich So 07:00 | Alterungs-Report (read-only) |
+| **Feed Overlap Report** | wöchentlich So 03:25 | Analysiert Redundanz zwischen Feeds (welche Quellen liefern dieselben IPs) |
 | **Feed Health Monitor** | täglich 01:00 | Feed-URLs auf Erreichbarkeit prüfen |
 | **IP-Ablauf – Prognose** | wöchentlich Mo 06:30 | seen_db-Cluster-Vorschau + tiefe Ledger-Konsistenzprüfung → `reports/ip_ablauf.md` |
 | **IP-Ablauf – Verifikation** | alle 3h (Slot :55) | Prüft Anti-Churn-Ledger gegen alle Output-Dateien, Staleness-/Trend-Diagnose, GitHub-Issue-Alarm bei Rückfall → `reports/ip_ablauf_verifikation_report.md` (+ `.zip`) |
 | **Watchdog IP-Ablauf** | alle 30 min | Prognose- und Verifikation-Job auf verpasste Cron-Slots überwachen |
 | **Workflow Health Checker** | 4× täglich (01:15, 07:15, 13:15, 19:15) | Python-Code + Production Health Checks (seen_db, Output-Sanity, Drift, Feed-Ausfälle) |
 | **Workflow Health Report** | alle 6h (00:05, 06:05, 12:05, 18:05) | Workflow-Status-Report schreiben |
-| **Watchdog Combined** | alle 15 min | Combined-Pipeline auf Stillstand überwachen |
-| **Watchdog Honigtopf** | 4× pro Stunde (:07/:22/:37/:52) | Honigtopf-Workflow auf Stillstand überwachen |
+| **Watchdog Combined** | alle 15 min | Combined-Pipeline und weitere Ziel-Workflows (u. a. Honigtopf) auf Stillstand überwachen |
 | **CodeQL Security Scan** | wöchentlich So 03:00 | Statische Sicherheitsanalyse des Codes |
 | **Update All Countries IPv4** | Mo + Mi 01:30 | Länder/Kontinente IPv4-Ranges synchronisieren |
+
+</details>
+
+<details>
+<summary><strong>🛠️ Wartung, Tests & Supply-Chain-Sicherheit</strong></summary>
+
+| Workflow | Zeitplan | Aufgabe |
+|---|---|---|
+| **Run Tests** | bei Push/PR auf `scripts/`, `tests/`, `.github/workflows/` | 330 Python-Unit-Tests |
+| **Dependabot Auto-Merge** | bei Dependabot-PR | Patch/Minor automatisch mergen (2 Tage Cooldown gegen getarnte Kompromittierungen), Major bleibt manuell |
+| **Dependabot Heal Conflicts** | täglich 04:17 UTC + manuell | Löst Merge-Konflikte in offenen Dependabot-PRs automatisch auf |
+| **Ledger Diagnose** | manuell | Tiefe Konsistenzprüfung der Anti-Churn-Ledger (Watchlist/Active) |
+| **History Fresh Start** | monatlich (1. Tag, 05:20) + manuell | Setzt die Git-Historie zurück (Repo-Größenschutz), Dateiinhalt bleibt erhalten |
+| **Repo Größe prüfen** | manuell | Repo-Größe und größte Dateien auflisten |
+| **Feed IP Finder** | manuell | Prüft, in welchen Feeds eine bestimmte IP aktuell vorkommt |
+| **Force Cancel Stuck Runs** | manuell | Hängende Workflow-Läufe gezielt abbrechen |
+| **SniffCat Fetch** | manuell | Zusätzliche IPs aus der SniffCat-API laden (Artefakt, kein automatischer Feed) |
 
 </details>
 
@@ -372,7 +391,7 @@ NETSHIELD/
 | 🛑 **Ledger-Sanity-Guard** | Blockiert automatisch jedes Pruning, das mehr als die Hälfte eines Ledgers (≥1.000 Einträge) auf einen Schlag entfernen würde – löst statt der Löschung einen GitHub-Issue-Alarm aus |
 | 🔁 **Push-Retry** | 5 Versuche mit git rebase bei gleichzeitigen Commits |
 | 🔐 **Concurrency-Lock** | Jeder Workflow läuft max. 1× gleichzeitig |
-| 📦 **Cache-Isolation** | Verschiedene Workflows nutzen eigene Cache-Prefixe (v2, fp, afd) |
+| 📦 **Cache-Isolation** | Eigene Cache-Familien pro Zweck (`seen-db-sqlite-v1`, `seen-db-v2` als JSON-Kompat-Cache, `auto-feed-daily-v1`, `watchlist-cap-state-v1` u. a.) – kein gegenseitiges Überschreiben zwischen Workflows; alte Einträge der größten Familie (~500 MB) werden nach jedem Lauf automatisch aufgeräumt (behält die 2 neuesten) |
 
 ---
 
