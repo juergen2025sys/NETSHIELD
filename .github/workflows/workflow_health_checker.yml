@@ -2971,10 +2971,26 @@ jobs:
               _b, _x = os.path.splitext(lf)
               return [lf] + sorted(_glob_inv.glob(f"{_b}_part*{_x}"))
           def _inv_read_set(lf):
-              if not os.path.exists(lf):
+              # FIX SUBSET-INVARIANTE-SPLIT-FILES (2026-09-07, Log-Fund): Bisher
+              # wurde nur "os.path.exists(lf)" auf den literalen Basisnamen
+              # geprueft. combined_threat_blacklist_ipv4.txt und
+              # blacklist_confidence40_ipv4.txt existieren als Einzeldatei
+              # inzwischen GAR NICHT mehr (nur noch als _part1/_part2 - siehe
+              # README, "Einzeldatei nicht mehr committet") - der alte Check
+              # lieferte dafuer also entweder None (Check wird uebersprungen)
+              # oder, falls zu einem frueheren Zeitpunkt zufaellig doch ein
+              # Rest der alten Einzeldatei im Checkout lag, nur DEREN
+              # (unvollstaendigen) Inhalt statt der vollstaendigen Parts -
+              # das erzeugte den 13.065-IP-"Rueckfall", der bei korrekter
+              # Vollpruefung (beide Parts vereinigt) tatsaechlich 0 war.
+              # Jetzt: existiert entweder die Basisdatei ODER mindestens ein
+              # Part, gilt die Quelle als vorhanden; _inv_sources() liest dann
+              # ohnehin schon korrekt alle passenden Parts zusammen.
+              _quellen = _inv_sources(lf)
+              if not any(os.path.exists(_q) for _q in _quellen):
                   return None
               _s = set()
-              for _src in _inv_sources(lf):
+              for _src in _quellen:
                   try:
                       with open(_src, encoding="utf-8") as _f:
                           for _line in _f:
