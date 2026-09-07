@@ -1232,6 +1232,39 @@ jobs:
               alle_rueckfall_ips_roh - active_watchlist_reentry_ips
           )
 
+          # FIX WATCHLIST-ACTIVE-PROMOTION (2026-09-07, echter Lauf, 334 IPs,
+          # Beispiel 101.53.250.20): Spiegelbild von active_watchlist_reentry_ips
+          # oben. Eine im Watchlist-Ledger eingefrorene IP kann durch eine echte
+          # Zweitbestaetigung (strongly_confirmed_today, 2+ HQ-Familien) direkt
+          # in den Active-Pfad aufsteigen - siehe update_combined_blacklist.yml,
+          # "del _wl_expired_first[ip]" bei strongly_confirmed_today. Solche IPs
+          # stehen danach legitim in active_blacklist_ipv4.txt; ob der alte
+          # Watchlist-Ledger-Eintrag zu diesem Zeitpunkt bereits bereinigt und
+          # hochgeladen wurde, ist ein reines Timing-Detail, kein Rueckfall.
+          # Konservativer Filter, symmetrisch zum Active->Watchlist-Fall: nur
+          # Watchlist-Ledger-Treffer, die NICHT im Active-Ledger stehen (kein
+          # Doppel-Freeze - das waere ein echter Widerspruch) und JETZT im
+          # Active-Output stehen (das positive Signal fuer den Aufstieg),
+          # werden herausgerechnet. Steht die IP NICHT im Active-Output, bleibt
+          # sie im normalen Alarm (dafuer ist der Cap-Backlog-Filter unten da).
+          _wl_ledger_ips_alle = listen_ips.get(_wl_label, set())
+          watchlist_active_promotion_ips = {
+              _ip for _ip in alle_rueckfall_ips_nach_active_watchlist
+              if _ip in _wl_ledger_ips_alle
+              and _ip not in _active_ledger_ips
+              and _ip in _active_output_ips
+          }
+          if watchlist_active_promotion_ips:
+              print(
+                  f"INFO: {len(watchlist_active_promotion_ips):,} Output-Treffer als legitimer "
+                  f"Watchlist->Active-Aufstieg klassifiziert "
+                  f"(Watchlist-Ledger + im Active-Output, kein Active-Ledger-Eintrag; "
+                  f"kein Rueckfall-Alarm)."
+              )
+          alle_rueckfall_ips_nach_active_watchlist = (
+              alle_rueckfall_ips_nach_active_watchlist - watchlist_active_promotion_ips
+          )
+
           # FIX CAP-BACKLOG-FALSCHPOSITIV (2026-08-31, echter Lauf #90594673967):
           # Seit WATCHLIST_DAILY_CAP=2000 kann eine bereits frueher eingefrorene
           # Watchlist-IP legitim wieder in seen_db/Outputs stehen, wenn sie mit
@@ -1305,10 +1338,13 @@ jobs:
               alle_rueckfall_ips_nach_active_watchlist - cap_backlog_ips
           )
 
-          # Rueckfall-Details pro Datei um legitime Active->Watchlist-
-          # Wiedereintritte und den bestaetigten Cap-Backlog bereinigen.
-          # Beide Klassen bekommen weiter unten eigene informative Abschnitte.
-          _legitime_output_treffer = active_watchlist_reentry_ips | cap_backlog_ips
+          # Rueckfall-Details pro Datei um legitime Active->Watchlist- und
+          # Watchlist->Active-Wiedereintritte sowie den bestaetigten Cap-
+          # Backlog bereinigen. Alle drei Klassen bekommen weiter unten
+          # eigene informative Abschnitte.
+          _legitime_output_treffer = (
+              active_watchlist_reentry_ips | watchlist_active_promotion_ips | cap_backlog_ips
+          )
           if _legitime_output_treffer and rueckfaelle:
               _rueckfaelle_bereinigt = {}
               for _fname, _ips in rueckfaelle.items():
@@ -2087,6 +2123,17 @@ jobs:
                   f"wieder einen neuen 180-Tage-Active-Pfad starten."
               )
               zeilen.append("")
+          if watchlist_active_promotion_ips:
+              zeilen.append(
+                  f"ℹ️ **{len(watchlist_active_promotion_ips):,} Treffer sind legitime "
+                  f"Watchlist→Active-Aufstiege und kein Anti-Churn-Rückfall.** "
+                  f"Diese IPs stehen im Watchlist-Ledger, wurden aber per echter "
+                  f"Zweitbestätigung (2+ HQ-Familien) direkt in den Active-Pfad "
+                  f"aufgenommen und stehen deshalb in `active_blacklist_ipv4.txt`, "
+                  f"ohne (noch) im Active-Ledger zu stehen. Spiegelbild des "
+                  f"Active→Watchlist-Falls oben."
+              )
+              zeilen.append("")
           if cap_backlog_ips:
               zeilen.append(
                   f"ℹ️ **{len(cap_backlog_ips):,} Treffer sind ein legitimer Watchlist-"
@@ -2129,11 +2176,15 @@ jobs:
                   beispiele = ", ".join(ips[:5]) + (", ..." if len(ips) > 5 else "")
                   zeilen.append(f"| {fname} | {len(ips)} | {beispiele} |")
           else:
-              if cap_backlog_ips or active_watchlist_reentry_ips:
+              if cap_backlog_ips or active_watchlist_reentry_ips or watchlist_active_promotion_ips:
                   _erklaerungen = []
                   if active_watchlist_reentry_ips:
                       _erklaerungen.append(
                           f"{len(active_watchlist_reentry_ips):,} legitime Active→Watchlist-Treffer"
+                      )
+                  if watchlist_active_promotion_ips:
+                      _erklaerungen.append(
+                          f"{len(watchlist_active_promotion_ips):,} legitime Watchlist→Active-Treffer"
                       )
                   if cap_backlog_ips:
                       _erklaerungen.append(
