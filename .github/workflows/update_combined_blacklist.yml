@@ -5195,6 +5195,64 @@ jobs:
           path: seen_db.sqlite3
           key: netshield-seen-db-sqlite-v1-${{ github.run_id }}
 
+      - name: Alte seen_db SQLite Caches aufraeumen
+        # FIX CACHE-BUDGET-SEENDB (2026-09-07, Nutzerfund): seen_db.sqlite3
+        # kann bis zu ~500 MB gross werden. Der obige Save-Schritt nutzt
+        # "${{ github.run_id }}" - bei bis zu 24 Combined-Laeufen/Tag legt das
+        # JEDEN Lauf einen NEUEN, nie ueberschriebenen Cache-Eintrag an
+        # (GitHub-Actions-Caches sind unveraenderlich). Ohne aktives Aufraeumen
+        # waechst allein diese eine Cache-Familie schnell in Richtung des
+        # 10-GB-Gesamtbudgets des Repos, lange bevor GitHubs 7-Tage-Unbenutzt-
+        # Raeumung greift - im schlimmsten Fall raeumt GitHub dann selbst,
+        # nach "am laengsten unbenutzt" statt "am wichtigsten".
+        # "gh cache list --key" matched als PRAEFIX, nicht exakt - wuerde ohne
+        # die zusaetzliche Regex-Filterung auch die davon abgeleiteten
+        # Fremd-Familien netshield-seen-db-sqlite-v1-combined-fallback-*,
+        # -ip-ablauf-* und -score-decay-* (andere Workflows) mit erfassen.
+        # Deshalb hier zusaetzlich strikt auf "...-v1-<nur Ziffern>" gefiltert.
+        # FIX PAGINIERUNG (2026-09-07, Review-Fund): ein einzelner Aufruf mit
+        # "--limit 100" haette bei mehr als 100 alten Treffern nur die ersten
+        # 100 gesehen - der Rest waere liegen geblieben ("loescht alle alten
+        # Eintraege" stimmte dann nur fuer die ersten 100). Jetzt eine echte
+        # Schleife: jede Runde holt bis zu 100 (neueste zuerst, "--order desc
+        # --sort created_at"), behaelt darin immer die 2 allerneuesten (die
+        # sortieren wegen der festen Reihenfolge in JEDER Runde ganz vorne,
+        # solange waehrend des Laufs keine neueren Eintraege dazukommen -
+        # unkritisch, da neue Saves erst beim naechsten Workflow-Lauf
+        # entstehen), loescht den Rest der Runde. Endet, sobald eine Runde
+        # nach dem Filtern <=2 Treffer liefert (nichts mehr zu loeschen) oder
+        # eine Sicherheitsobergrenze von 20 Runden erreicht ist (schuetzt vor
+        # einer Endlosschleife, falls "gh cache delete" fuer eine ID dauerhaft
+        # fehlschlaegt, ohne die ID aus der Liste verschwinden zu lassen).
+        # Einzelne Loesch-Fehlschlaege werden ignoriert (bestes Bemuehen, kein
+        # Abbruch des Laufs wegen reiner Aufraeum-Nebensache).
+        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.sqlite3') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          _runde=0
+          while [ "$_runde" -lt 20 ]; do
+            _runde=$((_runde + 1))
+            _treffer=$(gh cache list --key "netshield-seen-db-sqlite-v1-" --limit 100 \
+                --order desc --sort created_at \
+                --json id,key,createdAt --jq '.[] | select(.key | test("^netshield-seen-db-sqlite-v1-[0-9]+$"))' \
+              | jq -s -c 'sort_by(.createdAt) | reverse')
+            _anzahl=$(echo "$_treffer" | jq 'length')
+            if [ "$_anzahl" -le 2 ]; then
+              echo "Runde ${_runde}: nur noch ${_anzahl} Treffer (<=2, die 2 Neuesten) - fertig."
+              break
+            fi
+            echo "Runde ${_runde}: ${_anzahl} Treffer, loesche $((_anzahl - 2)) davon (2 Neueste bleiben)..."
+            echo "$_treffer" | jq -r '.[2:] | .[].id' | while read -r _id; do
+              gh cache delete "$_id" >/dev/null 2>&1 \
+                && echo "  geloescht: Cache-ID $_id" \
+                || echo "  WARN: Cache-ID $_id konnte nicht geloescht werden (ignoriert)"
+            done
+          done
+          echo "seen_db-SQLite-Cache-Aufraeumung abgeschlossen (${_runde} Runde(n))."
+          exit 0
+
       - name: Backup seen_db SQLite to GitHub Release
         if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.sqlite3') != ''
         env:
