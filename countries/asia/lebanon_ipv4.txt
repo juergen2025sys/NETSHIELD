@@ -1,6 +1,6 @@
 # NETSHIELD – Lebanon (LB) IPv4 Ranges
-# Aktualisiert: 2026-09-02 08:10 CEST (Europe/Berlin)
-# IP-Ranges: 253
+# Aktualisiert: 2026-09-07 08:29 CEST (Europe/Berlin)
+# IP-Ranges: 254
 
 5.8.128.0/19
 5.45.188.0/22
@@ -231,6 +231,7 @@
 195.60.84.192/26
 195.88.19.0/24
 195.112.192.0/19
+195.254.180.0/24
 212.28.224.0/19
 212.30.32.0/19
 212.36.192.0/19

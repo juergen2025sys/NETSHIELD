@@ -1,6 +1,6 @@
 # NETSHIELD – South Africa (ZA) IPv4 Ranges
-# Aktualisiert: 2026-09-02 08:10 CEST (Europe/Berlin)
-# IP-Ranges: 2124
+# Aktualisiert: 2026-09-07 08:29 CEST (Europe/Berlin)
+# IP-Ranges: 2125
 
 2.59.96.0/22
 41.0.0.0/11
@@ -357,6 +357,7 @@
 102.177.112.0/20
 102.177.128.0/18
 102.182.0.0/16
+102.201.88.0/22
 102.201.100.0/22
 102.201.108.0/23
 102.201.112.0/22

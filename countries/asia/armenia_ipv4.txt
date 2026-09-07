@@ -1,6 +1,6 @@
 # NETSHIELD – Armenia (AM) IPv4 Ranges
-# Aktualisiert: 2026-09-02 08:10 CEST (Europe/Berlin)
-# IP-Ranges: 201
+# Aktualisiert: 2026-09-07 08:29 CEST (Europe/Berlin)
+# IP-Ranges: 202
 
 2.56.204.0/22
 5.39.204.0/22
@@ -161,6 +161,7 @@
 188.115.192.0/18
 188.164.152.0/21
 193.29.226.0/24
+193.32.54.0/24
 193.57.28.0/22
 193.104.56.0/24
 193.104.198.0/24
