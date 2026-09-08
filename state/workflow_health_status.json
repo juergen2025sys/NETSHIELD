@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-08 14:08 CEST (Europe/Berlin)",
+  "updated": "2026-09-08 19:14 CEST (Europe/Berlin)",
   "total": 30,
   "ok": 30,
   "warn": 0,
@@ -7,37 +7,67 @@
   "errors": [
     {
       "file": "Production Health",
+      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 66.33.60.67, 66.33.60.130, 76.76.21.61, 76.76.21.98, 66.33.60.67\u2026 \u2013 Filterung wirkungslos!"
+    },
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
+      "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 66.33.60.130 \u2013 Filterung wirkungslos!"
+    },
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
+      "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 66.33.60.130, 66.33.60.130 \u2013 Filterung wirkungslos!"
+    },
+    {
+      "file": "Production Health",
       "check": "conf40 \u2229 watch Disjunktheits-Invariante verletzt",
-      "detail": "3 IPs sind sowohl in conf40 als auch in watch. Logisch unmoeglich (Score>=40 UND Score<40). Deutet auf Workflow-Bug im update_confidence_blacklist.yml Score-Loop oder doppeltes Schreiben aus parallel laufenden Workflows hin."
+      "detail": "9 IPs sind sowohl in conf40 als auch in watch. Logisch unmoeglich (Score>=40 UND Score<40). Deutet auf Workflow-Bug im update_confidence_blacklist.yml Score-Loop oder doppeltes Schreiben aus parallel laufenden Workflows hin."
     },
     {
       "file": "Production Health",
       "check": "conf40 \u222a watch \u2286 combined Subset-Invariante verletzt",
-      "detail": "9,525 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows."
+      "detail": "9,523 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows."
     }
   ],
   "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5373274,
-    "active_blacklist_ipv4.txt": 899896,
-    "blacklist_confidence40_ipv4_part1.txt": 3964823,
-    "cve_exploit_ips.txt": 28437,
-    "honeypot_ips.txt": 2063191,
-    "bot_detector_blacklist_ipv4.txt": 1294547
+    "combined_threat_blacklist_ipv4_part1.txt": 5381450,
+    "active_blacklist_ipv4.txt": 916515,
+    "blacklist_confidence40_ipv4_part1.txt": 3972473,
+    "cve_exploit_ips.txt": 28441,
+    "honeypot_ips.txt": 2079450,
+    "bot_detector_blacklist_ipv4.txt": 1298220
   },
   "production_health": {
-    "critical": 2,
+    "critical": 5,
     "warn": 0,
     "checks": [
       {
         "level": "CRITICAL",
+        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 66.33.60.67, 66.33.60.130, 76.76.21.61, 76.76.21.98, 66.33.60.67\u2026 \u2013 Filterung wirkungslos!"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
+        "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 66.33.60.130 \u2013 Filterung wirkungslos!"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
+        "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 66.33.60.130, 66.33.60.130 \u2013 Filterung wirkungslos!"
+      },
+      {
+        "level": "CRITICAL",
         "check": "conf40 \u2229 watch Disjunktheits-Invariante verletzt",
-        "detail": "3 IPs sind sowohl in conf40 als auch in watch. Logisch unmoeglich (Score>=40 UND Score<40). Deutet auf Workflow-Bug im update_confidence_blacklist.yml Score-Loop oder doppeltes Schreiben aus parallel laufenden Workflows hin."
+        "detail": "9 IPs sind sowohl in conf40 als auch in watch. Logisch unmoeglich (Score>=40 UND Score<40). Deutet auf Workflow-Bug im update_confidence_blacklist.yml Score-Loop oder doppeltes Schreiben aus parallel laufenden Workflows hin."
       },
       {
         "level": "CRITICAL",
         "check": "conf40 \u222a watch \u2286 combined Subset-Invariante verletzt",
-        "detail": "9,525 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows."
+        "detail": "9,523 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows."
       }
     ]
   },

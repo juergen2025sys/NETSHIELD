@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-08 14:08 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-08 19:14 CEST (Europe/Berlin)
 
 **Workflows:** 30 | ✅ 30 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
 
@@ -8,17 +8,23 @@
 
 | Datei | Check | Detail |
 |---|---|---|
-| `Production Health` | conf40 ∩ watch Disjunktheits-Invariante verletzt | 3 IPs sind sowohl in conf40 als auch in watch. Logisch unmoeglich (Score>=40 UND Score<40). Deutet auf Workflow-Bug im update_confidence_blacklist.yml Score-Loop oder doppeltes Schreiben aus parallel laufenden Workflows hin. |
-| `Production Health` | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 9,525 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
+| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 66.33.60.67, 66.33.60.130, 76.76.21.61, 76.76.21.98, 66.33.60.67… – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 66.33.60.130 – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 66.33.60.130, 66.33.60.130 – Filterung wirkungslos! |
+| `Production Health` | conf40 ∩ watch Disjunktheits-Invariante verletzt | 9 IPs sind sowohl in conf40 als auch in watch. Logisch unmoeglich (Score>=40 UND Score<40). Deutet auf Workflow-Bug im update_confidence_blacklist.yml Score-Loop oder doppeltes Schreiben aus parallel laufenden Workflows hin. |
+| `Production Health` | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 9,523 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 5 CRITICAL | 🟡 0 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | conf40 ∩ watch Disjunktheits-Invariante verletzt | 3 IPs sind sowohl in conf40 als auch in watch. Logisch unmoeglich (Score>=40 UND Score<40). Deutet auf Workflow-Bug im update_confidence_blacklist.yml Score-Loop oder doppeltes Schreiben aus parallel laufenden Workflows hin. |
-| 🔴 CRITICAL | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 9,525 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
+| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 66.33.60.67, 66.33.60.130, 76.76.21.61, 76.76.21.98, 66.33.60.67… – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 66.33.60.130 – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 66.33.60.130, 66.33.60.130 – Filterung wirkungslos! |
+| 🔴 CRITICAL | conf40 ∩ watch Disjunktheits-Invariante verletzt | 9 IPs sind sowohl in conf40 als auch in watch. Logisch unmoeglich (Score>=40 UND Score<40). Deutet auf Workflow-Bug im update_confidence_blacklist.yml Score-Loop oder doppeltes Schreiben aus parallel laufenden Workflows hin. |
+| 🔴 CRITICAL | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 9,523 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
 
 ## Übersicht
 
@@ -56,4 +62,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-08 14:08 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*
+*Generiert: 2026-09-08 19:14 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*
