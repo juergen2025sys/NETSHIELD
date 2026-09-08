@@ -864,6 +864,18 @@ jobs:
           # und ist damit deutlich restriktiver (nur echte HQ-Bedrohungen).
           # ══════════════════════════════════════════════════════════════════
 
+          # FIX SENTINEL-WATCHLIST (2026-09-09, Nutzerfund via Workflow-Health-
+          # Report): IPs mit last="2000-01-01" (Sentinel, siehe Guard weiter
+          # unten) wurden bisher komplett aus confidence40 UND Watchlist
+          # ausgeschlossen - fachlich falsch, denn "schwach bestaetigt,
+          # wartet auf Neubestaetigung" ist exakt die Watchlist-Definition.
+          # Betraf zuletzt 2.817.950 IPs (26% von combined) und hat die
+          # Watchlist auf 0 Eintraege geleert. Fester Boden-Score statt
+          # berechnetem Score: verhindert (wie im urspruenglichen Fix
+          # beabsichtigt) jede Score-Inflation Richtung confidence40,
+          # unabhaengig von is_hq/feed_count/today_count.
+          SENTINEL_WATCHLIST_SCORE = 25
+
           confidence40 = []
           confidence25 = []
           skipped      = 0
@@ -939,6 +951,7 @@ jobs:
                   # Sentinel-Datum allein ist das kanonische Ausschluss-Signal,
                   # unabhängig von anderen Feldern.
                   if last_seen == "2000-01-01":
+                      confidence25.append((ip, SENTINEL_WATCHLIST_SCORE))
                       skipped_watchlist += 1
                       continue
 
