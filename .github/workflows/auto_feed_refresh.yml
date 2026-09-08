@@ -17,7 +17,7 @@ env:
 
 permissions:
   contents: write
-  actions: read
+  actions: write   # write noetig fuer 'gh cache delete' (Cache-Aufraeumung)
   issues: none
   packages: none
   pull-requests: none
@@ -310,6 +310,49 @@ jobs:
         with:
           path: state/auto_feed_daily.sqlite3
           key: netshield-auto-feed-daily-v1-${{ github.run_id }}
+
+      - name: Alte Auto-Feed Snapshot Caches aufraeumen
+        # FIX CACHE-BUDGET-AUTOFEED (2026-09-08, Nutzerfund via GitHub-Cache-
+        # Uebersicht: "9,3 von 10 GB belegt"): state/auto_feed_daily.sqlite3
+        # liegt bei ~51 MB je Eintrag. Der Save-Schritt oben nutzt wie alle
+        # anderen Cache-Familien "${{ github.run_id }}" - bei bis zu 24
+        # Laeufen/Tag (getriggert ueber netshield_report_generator.yml) legt
+        # das jeden Lauf einen neuen, nie ueberschriebenen Eintrag an.
+        # Gleiches Muster wie der seen_db-Cleanup in update_combined_blacklist
+        # .yml: paginierte Schleife, behaelt die 2 neuesten, loescht den Rest.
+        # WICHTIG: "gh cache list --key" matched als Praefix - es gibt eine
+        # verwandte, aber eigenstaendige Fremd-Familie
+        # netshield-auto-feed-daily-v1-combined-* (Restore-only-Fallback in
+        # update_combined_blacklist.yml, gehoert einem anderen Workflow).
+        # Die strikte Regex "...-v1-<nur Ziffern>" schliesst diese Familie
+        # sicher aus, genau wie beim seen_db-Cleanup mit seinen drei
+        # Fremd-Familien.
+        if: steps.refresh.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          _runde=0
+          while [ "$_runde" -lt 20 ]; do
+            _runde=$((_runde + 1))
+            _treffer=$(gh cache list --key "netshield-auto-feed-daily-v1-" --limit 100 \
+                --order desc --sort created_at \
+                --json id,key,createdAt --jq '.[] | select(.key | test("^netshield-auto-feed-daily-v1-[0-9]+$"))' \
+              | jq -s -c 'sort_by(.createdAt) | reverse')
+            _anzahl=$(echo "$_treffer" | jq 'length')
+            if [ "$_anzahl" -le 2 ]; then
+              echo "Runde ${_runde}: nur noch ${_anzahl} Treffer (<=2, die 2 Neuesten) - fertig."
+              break
+            fi
+            echo "Runde ${_runde}: ${_anzahl} Treffer, loesche $((_anzahl - 2)) davon (2 Neueste bleiben)..."
+            echo "$_treffer" | jq -r '.[2:] | .[].id' | while read -r _id; do
+              gh cache delete "$_id" >/dev/null 2>&1 \
+                && echo "  geloescht: Cache-ID $_id" \
+                || echo "  WARN: Cache-ID $_id konnte nicht geloescht werden (ignoriert)"
+            done
+          done
+          echo "Auto-Feed-Snapshot-Cache-Aufraeumung abgeschlossen (${_runde} Runde(n))."
+          exit 0
 
       - name: Commit Report und Kompatibilitaetsliste
         if: steps.refresh.outcome == 'success'

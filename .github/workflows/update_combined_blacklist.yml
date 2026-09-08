@@ -5177,6 +5177,48 @@ jobs:
           path: seen_db.json
           key: netshield-seen-db-v2-${{ github.run_id }}
 
+      - name: Alte seen_db JSON Compatibility Caches aufraeumen
+        # FIX CACHE-BUDGET-SEENDB-V2 (2026-09-08, Nutzerfund via GitHub-
+        # Cache-Uebersicht: "9,3 von 10 GB belegt"): seen_db.json liegt bei
+        # ~210-230 MB je Eintrag und nutzt wie die SQLite-Variante oben
+        # "${{ github.run_id }}" als Key - also ebenfalls ein neuer, nie
+        # ueberschriebener Cache-Eintrag pro Lauf. War beim urspruenglichen
+        # Cleanup-Fix (siehe "Alte seen_db SQLite Caches aufraeumen" unten)
+        # nicht mit abgedeckt, weil zu dem Zeitpunkt nur die SQLite-Familie
+        # als Grossverbraucher bekannt war. Gleiches Muster wie dort:
+        # Paginierte Schleife (bis zu 20 Runden a 100 Treffer), strikte
+        # Regex-Filterung auf "...-v2-<nur Ziffern>" (auch wenn aktuell keine
+        # abgeleitete Fremd-Familie mit diesem Praefix bekannt ist - schuetzt
+        # trotzdem vorsorglich, falls spaeter mal eine dazukommt), behaelt
+        # die 2 neuesten, loescht den Rest. Einzelne Loesch-Fehlschlaege
+        # werden ignoriert.
+        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.json') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          _runde=0
+          while [ "$_runde" -lt 20 ]; do
+            _runde=$((_runde + 1))
+            _treffer=$(gh cache list --key "netshield-seen-db-v2-" --limit 100 \
+                --order desc --sort created_at \
+                --json id,key,createdAt --jq '.[] | select(.key | test("^netshield-seen-db-v2-[0-9]+$"))' \
+              | jq -s -c 'sort_by(.createdAt) | reverse')
+            _anzahl=$(echo "$_treffer" | jq 'length')
+            if [ "$_anzahl" -le 2 ]; then
+              echo "Runde ${_runde}: nur noch ${_anzahl} Treffer (<=2, die 2 Neuesten) - fertig."
+              break
+            fi
+            echo "Runde ${_runde}: ${_anzahl} Treffer, loesche $((_anzahl - 2)) davon (2 Neueste bleiben)..."
+            echo "$_treffer" | jq -r '.[2:] | .[].id' | while read -r _id; do
+              gh cache delete "$_id" >/dev/null 2>&1 \
+                && echo "  geloescht: Cache-ID $_id" \
+                || echo "  WARN: Cache-ID $_id konnte nicht geloescht werden (ignoriert)"
+            done
+          done
+          echo "seen_db-JSON-Cache-Aufraeumung abgeschlossen (${_runde} Runde(n))."
+          exit 0
+
       - name: Save Watchlist Daily Cap State Cache
         # FIX CAP-STATE-PUSH-LOSS 31.08.2026: Der State wird zusammen mit dem
         # erfolgreichen Build ausserhalb des Git-Push gespeichert. Schlaegt
