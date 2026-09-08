@@ -1,5 +1,5 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-08 07:56 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-08 14:08 CEST (Europe/Berlin)
 
 **Workflows:** 30 | ✅ 30 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
 
@@ -8,8 +8,8 @@
 
 | Datei | Check | Detail |
 |---|---|---|
-| `Production Health` | conf40 ∩ watch Disjunktheits-Invariante verletzt | 2 IPs sind sowohl in conf40 als auch in watch. Logisch unmoeglich (Score>=40 UND Score<40). Deutet auf Workflow-Bug im update_confidence_blacklist.yml Score-Loop oder doppeltes Schreiben aus parallel laufenden Workflows hin. |
-| `Production Health` | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 9,530 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
+| `Production Health` | conf40 ∩ watch Disjunktheits-Invariante verletzt | 3 IPs sind sowohl in conf40 als auch in watch. Logisch unmoeglich (Score>=40 UND Score<40). Deutet auf Workflow-Bug im update_confidence_blacklist.yml Score-Loop oder doppeltes Schreiben aus parallel laufenden Workflows hin. |
+| `Production Health` | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 9,525 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
 
 ## 🏥 Production Health
 
@@ -17,8 +17,8 @@
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | conf40 ∩ watch Disjunktheits-Invariante verletzt | 2 IPs sind sowohl in conf40 als auch in watch. Logisch unmoeglich (Score>=40 UND Score<40). Deutet auf Workflow-Bug im update_confidence_blacklist.yml Score-Loop oder doppeltes Schreiben aus parallel laufenden Workflows hin. |
-| 🔴 CRITICAL | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 9,530 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
+| 🔴 CRITICAL | conf40 ∩ watch Disjunktheits-Invariante verletzt | 3 IPs sind sowohl in conf40 als auch in watch. Logisch unmoeglich (Score>=40 UND Score<40). Deutet auf Workflow-Bug im update_confidence_blacklist.yml Score-Loop oder doppeltes Schreiben aus parallel laufenden Workflows hin. |
+| 🔴 CRITICAL | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 9,525 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
 
 ## Übersicht
 
@@ -56,4 +56,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-08 07:56 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*
+*Generiert: 2026-09-08 14:08 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*
