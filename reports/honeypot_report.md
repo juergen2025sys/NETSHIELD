@@ -1,5 +1,5 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-09-09 16:50 CEST (Berlin)
+**Aktualisiert:** 2026-09-09 16:53 CEST (Berlin)
 
 ---
 | Quelle | IPs | Neu | Frische |
@@ -20,11 +20,11 @@
 | ✅ `sblam` | 970 | +0 | 🟢 aktuell (seit 2026-09-09 06:58 CEST (Berlin)) |
 | ✅ `timgerstel_suspicious_ips` | 2867 | +0 | 🟢 aktuell (seit 2026-09-09 16:44 CEST (Berlin)) |
 | ❌ `sniffcat` | 0 | – | – |
-| ✅ `siberkapan` | 43902 | +4 | 🟢 neu (2026-09-09 16:50 CEST (Berlin)) |
-| ✅ `reportedip` | 9959 | +0 | 🟢 aktuell (seit 2026-09-09 16:44 CEST (Berlin)) |
+| ✅ `siberkapan` | 43902 | +4 | 🟢 neu (2026-09-09 16:53 CEST (Berlin)) |
+| ✅ `reportedip` | 9959 | +3 | 🟢 neu (2026-09-09 16:53 CEST (Berlin)) |
 | ✅ `ipinsights` | 714977 | +0 | 🟢 aktuell (seit 2026-09-09 14:23 CEST (Berlin)) |
-| ✅ `opendbl_darknet` | 36204 | +0 | 🟢 aktuell (seit 2026-09-09 15:57 CEST (Berlin)) |
-| ✅ `opendbl_all_threats` | 54394 | +0 | 🟢 aktuell (seit 2026-09-09 15:57 CEST (Berlin)) |
+| ✅ `opendbl_darknet` | 36011 | +835 | 🟢 neu (2026-09-09 16:53 CEST (Berlin)) |
+| ✅ `opendbl_all_threats` | 54227 | +1107 | 🟢 neu (2026-09-09 16:53 CEST (Berlin)) |
 | ✅ `bitwire_ip_list_fetch` | 32268 | +0 | 🟢 aktuell (seit 2026-09-09 14:23 CEST (Berlin)) |
 | ✅ `configserverapps_365d` | 88695 | +0 | 🟢 aktuell (seit 2026-09-09 11:16 CEST (Berlin)) |
 | ✅ `kamalmjt_emerging_attackers` | 97018 | +0 | 🟡 traege (seit 2026-09-09 01:27 CEST (Berlin), 14 Laeufe unveraendert) |
@@ -40,9 +40,9 @@
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honeypot-IPs | **2136160** |
-| Neu | **+0** |
-| Entfernt | **-0** |
+| Gesamt Honeypot-IPs | **2136076** |
+| Neu | **+1404** |
+| Entfernt | **-1488** |
 
 ---
-*Generiert: 2026-09-09 16:50 CEST (Berlin)*
+*Generiert: 2026-09-09 16:53 CEST (Berlin)*
