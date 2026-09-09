@@ -5230,6 +5230,42 @@ jobs:
           path: state/watchlist_daily_cap_state.json
           key: netshield-watchlist-cap-state-v1-${{ github.run_id }}
 
+      - name: Alte Watchlist Daily Cap State Caches aufraeumen
+        # FIX CACHE-BUDGET-CAPSTATE (2026-09-09, Nutzerfund): letzte der vier
+        # Cache-Familien aus update_combined_blacklist.yml ohne Aufraeumung.
+        # Einzelne Eintraege sind mit ~300 Byte verschwindend klein und fuer
+        # sich kein Speicherplatzproblem, sammeln sich aber wie alle anderen
+        # "${{ github.run_id }}"-Caches unbegrenzt an (bis zu 24 neue
+        # Eintraege/Tag). Gleiches Muster wie bei den drei bereits
+        # aufgeraeumten Familien: paginierte Schleife, strikte Regex-Filterung
+        # auf "...-v1-<nur Ziffern>", behaelt die 2 neuesten.
+        if: steps.build_combined.outcome == 'success' && hashFiles('state/watchlist_daily_cap_state.json') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          _runde=0
+          while [ "$_runde" -lt 20 ]; do
+            _runde=$((_runde + 1))
+            _treffer=$(gh cache list --key "netshield-watchlist-cap-state-v1-" --limit 100 \
+                --order desc --sort created_at \
+                --json id,key,createdAt --jq '.[] | select(.key | test("^netshield-watchlist-cap-state-v1-[0-9]+$"))' \
+              | jq -s -c 'sort_by(.createdAt) | reverse')
+            _anzahl=$(echo "$_treffer" | jq 'length')
+            if [ "$_anzahl" -le 2 ]; then
+              echo "Runde ${_runde}: nur noch ${_anzahl} Treffer (<=2, die 2 Neuesten) - fertig."
+              break
+            fi
+            echo "Runde ${_runde}: ${_anzahl} Treffer, loesche $((_anzahl - 2)) davon (2 Neueste bleiben)..."
+            echo "$_treffer" | jq -r '.[2:] | .[].id' | while read -r _id; do
+              gh cache delete "$_id" >/dev/null 2>&1 \
+                && echo "  geloescht: Cache-ID $_id" \
+                || echo "  WARN: Cache-ID $_id konnte nicht geloescht werden (ignoriert)"
+            done
+          done
+          echo "Watchlist-Cap-State-Cache-Aufraeumung abgeschlossen (${_runde} Runde(n))."
+          exit 0
+
       - name: Save seen_db SQLite Cache
         if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.sqlite3') != ''
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
