@@ -1,6 +1,6 @@
 # NETSHIELD – Lithuania (LT) IPv4 Ranges
-# Aktualisiert: 2026-09-07 08:29 CEST (Europe/Berlin)
-# IP-Ranges: 1404
+# Aktualisiert: 2026-09-09 08:20 CEST (Europe/Berlin)
+# IP-Ranges: 1405
 
 2.24.0.0/15
 2.56.0.0/22
@@ -957,6 +957,7 @@
 185.69.52.0/22
 185.72.101.0/24
 185.74.252.0/22
+185.77.96.0/23
 185.77.164.0/22
 185.79.244.0/22
 185.80.90.0/24

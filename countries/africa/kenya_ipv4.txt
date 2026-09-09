@@ -1,6 +1,6 @@
 # NETSHIELD – Kenya (KE) IPv4 Ranges
-# Aktualisiert: 2026-09-07 08:29 CEST (Europe/Berlin)
-# IP-Ranges: 392
+# Aktualisiert: 2026-09-09 08:20 CEST (Europe/Berlin)
+# IP-Ranges: 393
 
 41.57.96.0/20
 41.72.160.0/19
@@ -63,6 +63,7 @@
 102.164.60.0/22
 102.166.0.0/15
 102.176.180.0/22
+102.201.84.0/22
 102.201.92.0/22
 102.201.104.0/22
 102.201.110.0/24

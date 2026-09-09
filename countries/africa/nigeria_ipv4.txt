@@ -1,6 +1,6 @@
 # NETSHIELD – Nigeria (NG) IPv4 Ranges
-# Aktualisiert: 2026-09-07 08:29 CEST (Europe/Berlin)
-# IP-Ranges: 415
+# Aktualisiert: 2026-09-09 08:20 CEST (Europe/Berlin)
+# IP-Ranges: 416
 
 41.57.120.0/22
 41.58.0.0/16
@@ -41,6 +41,7 @@
 41.190.0.0/19
 41.203.64.0/19
 41.203.96.0/19
+41.204.224.0/19
 41.206.0.0/19
 41.207.248.0/22
 41.215.244.0/22
