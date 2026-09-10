@@ -39,6 +39,61 @@ TIMESTAMP_RE = re.compile(
     r'\s*(UTC|CET|CEST)(?:\s*\(Europe/Berlin\))?'
 )
 
+# Parser security policy helpers.  Feed content is untrusted input; names and
+# actions that explicitly describe an allow/exception path must never be
+# interpreted as blocklist evidence.
+_ALLOW_LABEL_RE = re.compile(
+    r"(?<![a-z])(?:allowlist|whitelist|allow|permit|accept|trusted|"
+    r"ignoreip|ignore|exception)(?![a-z])",
+    re.I,
+)
+_XML_IGNORED_LABEL_RE = re.compile(
+    r"(?<![a-z])(?:gateway|resolver|nameserver|reporter)(?![a-z])",
+    re.I,
+)
+
+
+def _is_allowlist_label(value):
+    """True when a field/set/tag name denotes an allow/exception source."""
+    return bool(_ALLOW_LABEL_RE.search(str(value or "")))
+
+
+def _is_ignored_xml_label(value):
+    """True for allow/exception or infrastructure-only XML fields."""
+    text = str(value or "")
+    return _is_allowlist_label(text) or bool(_XML_IGNORED_LABEL_RE.search(text))
+
+
+def _is_non_blocking_rule(line):
+    """True for syntax whose address is explicitly allowed, not blocked."""
+    value = str(line or "")
+    if re.search(r"^\s*(?:allow|permit|accept|return|pass)\b", value, re.I):
+        return True
+    if re.search(r"^\s*ignoreip\s*[=:]", value, re.I):
+        return True
+    # iptables expresses an exception as either ``! -s IP`` or ``-s ! IP``.
+    if re.search(r"(?:^|\s)!\s*(?:-s|--source)\b", value, re.I):
+        return True
+    if re.search(r"(?:^|\s)(?:-s|--source)\s*!\s*", value, re.I):
+        return True
+    return False
+
+
+def coerce_bool(value):
+    """Apply the fail-closed boolean policy used by scoring and SQLite.
+
+    Only an actual True, the strings true/1/yes, or integer 1 are accepted.
+    All other values, including non-empty containers and ``"false"``, map to
+    False.  This avoids Python's surprising ``bool("false") == True``.
+    """
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in ("true", "1", "yes")
+    if isinstance(value, int):
+        return value == 1
+    return False
+
 # FIX BUG-PRIV2: Unifizierte Liste aller nicht-oeffentlich routbaren IPv4-Bereiche.
 # Vorher existierten zwei abweichende Listen:
 #   _RFC_PRIVATE_NETS (3 Eintraege, nur RFC1918)  -> genutzt von is_protected_entry
@@ -419,8 +474,11 @@ def _rebuild_fp_index():
     _fp_ends   = [iv[1] for iv in fp]
 
 
-def load_fp_set(path="false_positives_set.json"):
-    """Lädt false_positives_set.json.
+def load_fp_set(path="state/false_positives_set.json"):
+    """Lädt state/false_positives_set.json.
+
+    The state directory is the canonical location used by all workflows.  A
+    caller may still pass an explicit path for tests or migrations.
 
     Returns:
         tuple[set, list]: (fp_ips, fp_networks)
@@ -444,12 +502,12 @@ def load_fp_set(path="false_positives_set.json"):
         # lieber Workflow-Crash als silent korrumpierter State.
         if not isinstance(data, dict):
             raise ValueError(
-                f"'false_positives_set.json' Root ist {type(data).__name__}, "
+                f"'{path}' Root ist {type(data).__name__}, "
                 f"erwartet dict")
         ips_field = data.get("ips", [])
         if not isinstance(ips_field, list):
             raise ValueError(
-                f"'false_positives_set.json': 'ips' ist {type(ips_field).__name__}, "
+                f"'{path}': 'ips' ist {type(ips_field).__name__}, "
                 f"erwartet list")
         for entry in ips_field:
             # Nur String-Eintraege akzeptieren – None/int/dict silent skippen
@@ -464,13 +522,13 @@ def load_fp_set(path="false_positives_set.json"):
             except Exception:
                 # Ungueltige Eintraege in der FP-Liste bewusst ueberspringen.
                 pass
-        print(f"false_positives_set.json: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs geladen")
+        print(f"{path}: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs geladen")
     except Exception as e:
         # Bei Schema-/Parse-Fehler State zurueck auf leer (defensiv – falls
         # zwischen Init oben und except hier eine partielle Befuellung lief).
         _fp_ips = set()
         _fp_networks = []
-        print(f"WARNUNG: false_positives_set.json nicht lesbar: {e}")
+        print(f"WARNUNG: {path} nicht lesbar: {e}")
     _rebuild_fp_index()
     return _fp_ips, _fp_networks
 
@@ -715,6 +773,8 @@ def parse_entries(text, use_protected_check=False):
         line = raw_line.strip()
         if not line or line.startswith('#') or line.startswith(';') or line.startswith('//'):
             continue
+        if _is_non_blocking_rule(line):
+            continue
 
         # FIX BUG-IPSET-EAGER: Vorher gab es hier Format-spezifische
         # Fast-Pfade fuer FortiGate ("set subnet 1.2.3.4 ...") und ipset
@@ -801,9 +861,17 @@ def parse_entries(text, use_protected_check=False):
             cidr_spans.append((cm.start(), cm.end()))
             if cidr_check(cidr_str):
                 entries.add(str(ipaddress.ip_network(cidr_str, strict=False)))
+        # Both regex iterators are ordered.  Advance one span pointer instead
+        # of scanning every CIDR span for every IPv4 match (F2: quadratic
+        # behaviour on a single large fragment).
+        _span_idx = 0
         for m in IPV4_RE.finditer(line):
-            # IP innerhalb einer CIDR-Span ueberspringen (= Netzadresse der CIDR)
-            if any(start <= m.start() < end for start, end in cidr_spans):
+            while (_span_idx < len(cidr_spans)
+                   and cidr_spans[_span_idx][1] <= m.start()):
+                _span_idx += 1
+            # IP within a CIDR span: skip the network address duplicate.
+            if (_span_idx < len(cidr_spans)
+                    and cidr_spans[_span_idx][0] <= m.start() < cidr_spans[_span_idx][1]):
                 continue
             # FIX BUG-IPV6-MAPPED: '::ffff:1.2.3.4' und Verwandte (IPv4-mapped
             # IPv6) duerfen die '1.2.3.4' nicht als Phantom-Eintrag durchlassen.
@@ -902,6 +970,9 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
     # Schneller Pfad fuer die haeufigsten grossen Feeds: eine IP bzw. /32
     # pro Zeile. Dadurch muss der Combined-Workflow bei Multi-MB-Listen nicht
     # erst JSON/XML/CSV/Firewall-Erkennung ueber den gesamten Text ausfuehren.
+    # Wichtig: Nicht parse_entries() auf den gesamten Text anwenden. Das wuerde
+    # z.B. die IP in ``allow 1.2.3.4`` als Blockeintrag behandeln und die
+    # Firewall-/Allowlist-Semantik umgehen (F1).
     import io as _io
     _plain_sample = []
     for _raw in _io.StringIO(stripped):
@@ -922,12 +993,31 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
         if _token and len(_token.split()) == 1 and _plain_token_re.fullmatch(_token):
             _plain_hits += 1
     if _plain_hits / len(_plain_sample) >= 0.85:
-        _parsed = parse_entries(stripped, use_protected_check=use_protected_check)
-        return {
-            entry[:-3] if entry.endswith("/32") else entry
-            for entry in _parsed
-            if "/" not in entry or entry.endswith("/32")
-        }
+        _plain_result = set()
+        for _raw in stripped.splitlines():
+            _line = _raw.strip()
+            if (not _line or _line.startswith(("#", ";", "//"))
+                    or _is_non_blocking_rule(_line)):
+                continue
+            _token = re.split(r"\s*[#;]", _line, maxsplit=1)[0].strip()
+            if not _plain_token_re.fullmatch(_token):
+                continue
+            _candidate = _token
+            if ":" in _candidate:
+                _candidate = _candidate.rsplit(":", 1)[0]
+            if "/" in _candidate:
+                try:
+                    _net = ipaddress.ip_network(_candidate, strict=False)
+                except ValueError:
+                    continue
+                if _net.version != 4 or _net.prefixlen != 32:
+                    continue
+                _candidate = str(_net.network_address)
+            # Do not catch this call: in protected mode a missing whitelist
+            # must raise WhitelistNotLoadedError (fail-closed).
+            if ip_check(_candidate):
+                _plain_result.add(_candidate)
+        return _plain_result
 
     data_lines = [
         line.strip() for line in stripped.splitlines()
@@ -971,8 +1061,13 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
                 if ip_check(ip):
                     target.add(ip)
 
+        _span_idx = 0
         for m in IPV4_RE.finditer(value):
-            if any(start <= m.start() < end for start, end in cidr_spans):
+            while (_span_idx < len(cidr_spans)
+                   and cidr_spans[_span_idx][1] <= m.start()):
+                _span_idx += 1
+            if (_span_idx < len(cidr_spans)
+                    and cidr_spans[_span_idx][0] <= m.start() < cidr_spans[_span_idx][1]):
                 continue
             if _is_in_ipv6_token(value, m.start(), m.end()):
                 continue
@@ -1005,7 +1100,8 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
                 # Eindeutige Allow-/Infrastruktur-Metadaten nicht aufnehmen.
                 if any(bad in key_lc for bad in (
                     "whitelist", "allowlist", "trusted", "ignore",
-                    "resolver", "gateway", "nameserver", "reporter",
+                    "allow", "permit", "accept", "resolver", "gateway",
+                    "nameserver", "reporter",
                 )):
                     continue
                 out.extend(_json_values(value, depth + 1))
@@ -1118,22 +1214,23 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
                     "auf ungeprueften externen Feed-Daten zu verwenden"
                 )
             root = _ET.fromstring(stripped)
-            for elem in root.iter():
+            def _collect_xml(elem, blocked=False):
+                # A blocked parent also blocks all descendants.  Checking only
+                # the child tag allowed ``<allowlist><ip>...</ip></allowlist>``
+                # to leak its IP into the blacklist (F1).
                 tag = str(elem.tag).lower()
-                if any(bad in tag for bad in (
-                    "whitelist", "allowlist", "trusted", "ignore",
-                    "gateway", "resolver", "nameserver",
-                )):
-                    continue
+                blocked = blocked or _is_ignored_xml_label(tag)
+                if blocked:
+                    return
                 if elem.text:
                     xml_fragments.append(elem.text)
                 for attr_name, attr_value in elem.attrib.items():
-                    attr_lc = str(attr_name).lower()
-                    if not any(bad in attr_lc for bad in (
-                        "whitelist", "allowlist", "trusted", "ignore",
-                        "gateway", "resolver", "nameserver",
-                    )):
+                    if not _is_ignored_xml_label(attr_name):
                         xml_fragments.append(attr_value)
+                for child in elem:
+                    _collect_xml(child, blocked)
+
+            _collect_xml(root)
         except Exception:
             # FIX BUG-XML-FALLBACK-FILTER (2026-08-25, von einem echten
             # Unit-Test in der CI gefangen: run_tests.yml hat KEIN pip
@@ -1149,22 +1246,44 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
             # Ausschlussliste wie oben anwenden - Verteidigung in der Tiefe,
             # damit dieser Fallback-Pfad auch OHNE defusedxml sicher bleibt
             # (zusaetzlich zur separaten Installation in run_tests.yml).
-            for _xm in re.finditer(r'<([A-Za-z_][A-Za-z0-9_.:-]*)[^<>]{0,256}>([^<]{1,500})<', stripped):
-                _tag_name, _content = _xm.group(1), _xm.group(2)
-                if any(bad in _tag_name.lower() for bad in (
-                    "whitelist", "allowlist", "trusted", "ignore",
-                    "gateway", "resolver", "nameserver",
-                )):
+            # Safe token-walk fallback for environments without defusedxml.
+            # Keep a blocked-ancestor stack so an allowed XML subtree cannot
+            # be reinterpreted by a child ``ip`` tag.
+            _xml_token_re = re.compile(
+                r"<!--[\s\S]*?-->|<\?[^>]*>|<![^>]*>|"
+                r"</?([A-Za-z_][A-Za-z0-9_.:-]*)([^<>]{0,256})>|([^<]+)",
+                re.I,
+            )
+            _xml_blocked_stack = []
+            for _xm in _xml_token_re.finditer(stripped):
+                _whole = _xm.group(0)
+                if _whole.startswith("<!--") or _whole.startswith("<?") or _whole.startswith("<!"):
                     continue
-                xml_fragments.append(_content)
-            xml_fragments.extend(re.findall(
-                r"\b(?:address|ip|host|indicator|ioc|value)\s*=\s*[\"']([^\"']+)[\"']",
-                stripped,
-                flags=re.I,
-            ))
+                _tag_name = _xm.group(1)
+                if _tag_name is None:
+                    if _xm.group(3) and not any(_xml_blocked_stack):
+                        xml_fragments.append(_xm.group(3))
+                    continue
+                if _whole.startswith("</"):
+                    if _xml_blocked_stack:
+                        _xml_blocked_stack.pop()
+                    continue
+                _self_closing = _whole.rstrip().endswith("/>")
+                _blocked = (any(_xml_blocked_stack)
+                            or _is_ignored_xml_label(_tag_name))
+                if not _blocked:
+                    for _am in re.finditer(
+                            r"([A-Za-z_][A-Za-z0-9_.:-]*)\s*=\s*[\"']([^\"']*)[\"']",
+                            _xm.group(2) or ""):
+                        if not _is_ignored_xml_label(_am.group(1)):
+                            xml_fragments.append(_am.group(2))
+                if not _self_closing:
+                    _xml_blocked_stack.append(_blocked)
         xml_result = _hosts_from_fragments(xml_fragments)
-        if xml_result or ext == ".xml":
-            return xml_result
+        # Once content is plausibly XML, never fall through to the generic
+        # regex parser.  Doing so would re-extract addresses from excluded
+        # XML subtrees when the secure tree parser/fallback yields no hosts.
+        return xml_result
 
     # 3) CSV / TSV / Semikolon / Pipe: nur die wahrscheinlichste IP-Spalte.
     # Dadurch gelangt z.B. eine reporter_ip-Spalte nicht automatisch mit in
@@ -1218,7 +1337,19 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
                         ))
                         return (1 if positive else 0, -1 if negative else 0,
                                 len(column_sets[idx]), -idx)
-                    best_idx = max(column_sets, key=_column_score)
+                    _eligible = [
+                        idx for idx in column_sets
+                        if not any(word in (header[idx] if idx < len(header) else "")
+                                   for word in (
+                                       "reporter", "resolver", "gateway",
+                                       "nameserver", "whitelist", "allowlist",
+                                       "trusted", "ignore", "allow", "permit",
+                                       "accept",
+                                   ))
+                    ]
+                    if not _eligible:
+                        return set()
+                    best_idx = max(_eligible, key=_column_score)
                     return column_sets[best_idx]
         except Exception:
             # Spalten-Heuristik ist optional: schlaegt die Erkennung fehl,
@@ -1232,9 +1363,10 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
 
     # Explizite Allowlist-Konfigurationen niemals als Blocklist behandeln.
     allowlist_detected = any(re.search(pattern, lower_text, flags=re.M) for pattern in (
-        r"^\s*ignoreip\s*=", r"^\s*allow\s+from\s+", r"^\s*permit\s+",
+        r"^\s*ignoreip\s*[=:]", r"^\s*allow(?:\s+from|\s*=|\s+)",
+        r"^\s*permit\s+", r"^\s*(?:accept|return|pass)\b",
         r"^\s*whitelist\b", r"^\s*allowlist\b",
-    ))
+    )) or any(_is_non_blocking_rule(line) for line in data_lines)
 
     # nftables: kompakte und mehrzeilige Sets sowie Drop-/Reject-Regeln.
     nft_content = (
@@ -1247,8 +1379,26 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
         or "ip daddr" in lower_text
     )
     if ext == ".nft" or nft_content:
-        for match in re.finditer(r"\belements\s*=\s*\{(.*?)\}", stripped, re.I | re.S):
-            _add_hosts(match.group(1), result)
+        _nft_set_seen = False
+        for match in re.finditer(
+                r"\b(?:set|map)\s+([A-Za-z0-9_.-]+)\s*\{(.*?)\}",
+                stripped, re.I | re.S):
+            _nft_set_seen = True
+            _set_name, _set_body = match.group(1), match.group(2)
+            if _is_allowlist_label(_set_name):
+                continue
+            _set_ref = re.escape(_set_name)
+            if re.search(
+                    rf"(?:\b(?:accept|return)\b[^;{{}}]*@{_set_ref}\b|"
+                    rf"@{_set_ref}\b[^;{{}}]*(?:\b(?:accept|return)\b))",
+                    lower_text,
+                    re.I,
+            ):
+                continue
+            _add_hosts(_set_body, result)
+        if not _nft_set_seen:
+            for match in re.finditer(r"\belements\s*=\s*\{(.*?)\}", stripped, re.I | re.S):
+                _add_hosts(match.group(1), result)
         for line in data_lines:
             ll = line.lower()
             if ("ip saddr" in ll or "ip daddr" in ll) and any(
@@ -1268,7 +1418,9 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
         for line in data_lines:
             match = re.match(r"^\s*add\s+\S+\s+([^\s#;]+)", line, re.I)
             if match:
-                _add_hosts(match.group(1), result)
+                _set_name = line.split()[1] if len(line.split()) > 1 else ""
+                if not _is_allowlist_label(_set_name):
+                    _add_hosts(match.group(1), result)
         if ipset_content or result:
             firewall_detected = True
 
@@ -1294,6 +1446,8 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
         for line in data_lines:
             ll = line.lower()
             if not re.search(r"(?:-j|--jump)\s+(?:drop|reject)\b", ll):
+                continue
+            if _is_non_blocking_rule(line):
                 continue
             sources = re.findall(r"(?:^|\s)(?:-s|--source)\s+([^\s;]+)", line, re.I)
             for value in sources:
@@ -1525,24 +1679,10 @@ def calculate_confidence(is_hq=False, today_count=0, feed_count=0,
     days_since_last = _int_or(days_since_last, 999)
     days_seen       = _int_or(days_seen,       1)
     days_known      = _int_or(days_known,      0)
-    # FIX BUG-HQ-BOOL: strikte Bool-Koerzierung analog zu _int_or fuer
-    # numerische Felder. Vorher: is_hq = bool(is_hq) – Python's bool()
-    # ist truthy auf jeden nicht-leeren String, also bool("false") == True.
-    # Wenn seen_db durch Schema-Drift (fremdes Tool, manuelle Edits, alte
-    # Backup-Restore) plueztlich is_hq als String haette, wuerde "false"
-    # die volle HQ-Pruemie von 40 Punkten ausloesen statt 0. Ein einzelner
-    # Score-Sprung von 2 → 42 reicht aus um eine IP unverdient in die
-    # Konfidenz40-Liste zu heben.
-    # Akzeptiert wird nur: echtes True, oder String "true"/"1" (case-insensitive),
-    # oder int 1. Alles andere (False, 0, "false", "", None, dict, list) → False.
-    if isinstance(is_hq, bool):
-        pass  # echter bool – uebernehmen
-    elif isinstance(is_hq, str):
-        is_hq = is_hq.strip().lower() in ("true", "1", "yes")
-    elif isinstance(is_hq, int):
-        is_hq = is_hq == 1
-    else:
-        is_hq = False
+    # FIX BUG-HQ-BOOL: zentrale, fail-closed Koerzierung.  Dieselbe Policy
+    # wird auch am SQLite-Schreib-/Lesepunkt verwendet, damit "false" nicht
+    # vor dem Roundtrip zu True eskaliert.
+    is_hq = coerce_bool(is_hq)
 
     # Counts (today_count, feed_count) sind monoton nicht-negativ,
     # negativ ist hier semantisch "nichts gesehen" → 0.
@@ -2070,7 +2210,7 @@ def _strip_sensitive_headers_for_redirect(request, old_url, new_url):
 
 def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
               read_limit=25 * 1024 * 1024, extra_headers=None,
-              fail_on_truncation=False, warn_on_truncation=True,
+              fail_on_truncation=True, warn_on_truncation=True,
               total_timeout=None):
     """Fetcht eine URL mit exponentiellem Backoff.
 
@@ -2092,8 +2232,10 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
         retries: Max. Versuche.
         user_agent: User-Agent Header.
         read_limit: Max. Bytes zum Lesen.
-        fail_on_truncation: Bei True eine zu grosse normale HTTP-Antwort
-            verwerfen statt als abgeschnittenen Teiltext zurueckzugeben.
+        fail_on_truncation: Bei True (Standard) eine zu grosse normale
+            HTTP-Antwort verwerfen statt als abgeschnittenen Teiltext
+            zurueckzugeben. Nur bewusst begrenzte Stichproben duerfen diesen
+            Schalter explizit auf False setzen.
         warn_on_truncation: Bei False die Warnung fuer eine bewusst begrenzte
             Stichprobe unterdruecken. Der Rueckgabewert bleibt auf read_limit
             Bytes begrenzt. Fuer Voll-Downloads sollte der Standard True bleiben.
@@ -2105,7 +2247,9 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
             im Hintergrund weiterlaufen (beobachtet: cbuijs_accomplist ~8
             Min. statt der erwarteten ~15s Fail-fast-Grenze), weil einzelne
             recv()-Calls immer knapp unter 15s blieben. Default None =
-            alte Semantik (kein Gesamt-Limit) – WICHTIG fuer legitim grosse/
+            kein Gesamt-Limit. Wenn gesetzt, gilt die Deadline ab Funktions-
+            start und umfasst Connect, Body-Read und Backoff. WICHTIG fuer
+            legitim grosse/
             langsame Feeds wie firehol_anonymous oder bitwire_ipblocklist,
             die im normalen Betrieb mehrere Minuten fuer den vollen Download
             brauchen und bei einem generischen Gesamt-Limit faelschlich
@@ -2116,9 +2260,69 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
         str | None: Response-Body oder None bei Fehler.
     """
     import time
+    import queue as _queue
+    import threading as _threading
     import urllib.request
     import urllib.error
     import urllib.parse
+
+    if total_timeout is not None:
+        try:
+            total_timeout = float(total_timeout)
+        except (TypeError, ValueError, OverflowError):
+            return None
+        if total_timeout <= 0:
+            return None
+    _deadline = (time.monotonic() + total_timeout
+                 if total_timeout is not None else None)
+
+    def _remaining():
+        if _deadline is None:
+            return None
+        return _deadline - time.monotonic()
+
+    def _read_with_deadline(response, amount):
+        """Read at most ``amount`` bytes without letting a trickle hang us.
+
+        ``HTTPResponse.read(amount)`` may contain many recv() calls.  Checking
+        the clock only after it returns is therefore not a real overall
+        timeout.  A daemon reader lets the caller enforce the wall-clock
+        deadline even for a response that continuously sends tiny chunks.
+        """
+        if _deadline is None:
+            return response.read(amount)
+        result = _queue.Queue(maxsize=1)
+
+        def _reader():
+            try:
+                result.put((True, response.read(amount)))
+            except BaseException as exc:  # propagate the original read error
+                result.put((False, exc))
+
+        worker = _threading.Thread(target=_reader, daemon=True)
+        worker.start()
+        remaining = _remaining()
+        if remaining is None or remaining <= 0:
+            remaining = 0
+        worker.join(remaining)
+        if worker.is_alive():
+            raise TimeoutError(
+                f"Gesamt-Timeout ({total_timeout}s) beim Lesen ueberschritten")
+        ok, value = result.get_nowait()
+        if ok:
+            return value
+        raise value
+
+    def _retry_sleep(seconds):
+        """Sleep for a retry delay without exceeding the global deadline."""
+        remaining = _remaining()
+        if remaining is None:
+            time.sleep(seconds)
+            return True
+        if remaining <= 0:
+            return False
+        time.sleep(min(seconds, remaining))
+        return _remaining() > 0
 
     # Liste von (hostname, previous_pin) Paaren fuer finally-Cleanup.
     # FIX BUG-PIN-RESTORE: vorher nur Hostnames; jetzt auch der zuvor
@@ -2135,6 +2339,8 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
         ausschliesslich diese IPs zurueck – ein Angreifer-DNS kann
         nicht zwischen Check und Connect wechseln.
         """
+        if _deadline is not None and _remaining() <= 0:
+            return False
         parsed = urllib.parse.urlparse(u)
         if parsed.scheme not in ("http", "https"):
             print(f"  FEHLER Schema nicht erlaubt: {parsed.scheme}://")
@@ -2156,6 +2362,8 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
         return True
 
     if not _validate(url):
+        return None
+    if _deadline is not None and _remaining() <= 0:
         return None
 
     class _SafeRedirect(urllib.request.HTTPRedirectHandler):
@@ -2190,42 +2398,27 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
                     _req_headers.update(extra_headers)
                 req = urllib.request.Request(url, headers=_req_headers)
                 opener = urllib.request.build_opener(_SafeRedirect())
-                with opener.open(req, timeout=timeout) as r:
+                _open_timeout = timeout
+                if _deadline is not None:
+                    _remaining_before_open = _remaining()
+                    if _remaining_before_open <= 0:
+                        raise TimeoutError(
+                            f"Gesamt-Timeout ({total_timeout}s) vor Connect ueberschritten")
+                    _open_timeout = min(timeout, _remaining_before_open)
+                r = opener.open(req, timeout=_open_timeout)
+                _timed_out_read = False
+                try:
                     # FIX READ-LIMIT: +1 Byte mehr lesen um Truncation zu erkennen.
                     # Wenn genau read_limit+1 gelesen werden konnte, war die Antwort
                     # groesser als der Limit und wir haben stillschweigend getrimmt.
                     # Das wurde sonst nie sichtbar und Feeds konnten IPs verlieren.
                     #
-                    # FIX BUG-TRICKLE-TIMEOUT: r.read(read_limit + 1) in einem
-                    # einzigen Call unterliegt nur dem Socket-Timeout pro
-                    # blockierender recv()-Operation, nicht der Gesamtdauer.
-                    # Wenn total_timeout gesetzt ist, lesen wir stattdessen in
-                    # Chunks und pruefen nach jedem Chunk eine Wall-Clock-
-                    # Deadline – so begrenzt total_timeout tatsaechlich die
-                    # GESAMTE Lesezeit, nicht nur einzelne Netzwerk-Calls.
-                    # Ohne total_timeout (Default) bleibt das alte Verhalten
-                    # unveraendert (kein Risiko fuer bestehende Slow-Feeds).
-                    if total_timeout is not None:
-                        _deadline = time.monotonic() + total_timeout
-                        _chunks = []
-                        _total = 0
-                        _CHUNK = 65536
-                        while True:
-                            if time.monotonic() >= _deadline:
-                                raise TimeoutError(
-                                    f"Gesamt-Timeout ({total_timeout}s) beim "
-                                    f"Lesen ueberschritten (bisher {_total} bytes)")
-                            _to_read = min(_CHUNK, read_limit + 1 - _total)
-                            if _to_read <= 0:
-                                break
-                            piece = r.read(_to_read)
-                            if not piece:
-                                break
-                            _chunks.append(piece)
-                            _total += len(piece)
-                        data = b"".join(_chunks)
-                    else:
-                        data = r.read(read_limit + 1)
+                    # FIX BUG-TRICKLE-TIMEOUT: read() itself may perform
+                    # indefinitely many individually timely recv() calls.
+                    # The daemon reader makes total_timeout a real wall-clock
+                    # deadline instead of a check that runs only after read()
+                    # has already returned.
+                    data = _read_with_deadline(r, read_limit + 1)
                     if len(data) > read_limit:
                         # Bei Voll-Downloads ist Truncation ein echter Fehler und
                         # bleibt sichtbar. Content-Sniff/Awesome-List laden dagegen
@@ -2275,13 +2468,37 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
                             return None
                         data = decompressed
                     return data.decode("utf-8", errors="ignore")
+                except TimeoutError:
+                    _timed_out_read = True
+                    # HTTPResponse.close() can wait for a concurrent read to
+                    # release the socket.  Do not let cleanup defeat the
+                    # caller's wall-clock deadline; the daemon reader and
+                    # closer are bounded by process lifetime.
+                    _threading.Thread(
+                        target=r.close, name="netshield-fetch-close", daemon=True
+                    ).start()
+                    raise
+                finally:
+                    if not _timed_out_read:
+                        try:
+                            r.close()
+                        except Exception:
+                            pass
             except urllib.error.HTTPError as e:
                 retryable = e.code in TRANSIENT_CODES or (e.code == 404 and _host_is_gh_raw)
                 if retryable and attempt < retries:
                     print(f"  HTTP {e.code} {url} – Versuch {attempt}/{retries}, Retry...")
-                    time.sleep(2 ** attempt)
+                    if not _retry_sleep(2 ** attempt):
+                        print(f"  FEHLER {url}: Gesamt-Timeout ({total_timeout}s) vor Retry ueberschritten")
+                        return None
                     continue
                 print(f"  FEHLER HTTP {e.code} {url}")
+                return None
+            except TimeoutError as e:
+                # A total deadline is terminal for this fetch. Retrying would
+                # either exceed the caller's budget or create a false sense
+                # that the deadline covers only one attempt.
+                print(f"  FEHLER {url}: {e}")
                 return None
             except urllib.error.URLError as e:
                 # URLError kommt bei DNS-Fehlern, Connection-Refused, Timeouts
@@ -2293,15 +2510,20 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
                     "Redirect zu unsicherem Ziel blockiert" in msg
                     or "unknown url type" in msg.lower()
                 )
-                if non_transient or attempt >= retries:
+                if non_transient or attempt >= retries or (
+                        _deadline is not None and _remaining() <= 0):
                     print(f"  FEHLER {url}"
                           + (f" (nach {retries} Versuchen)" if attempt >= retries else "")
                           + f": {e}")
                     return None
-                time.sleep(2 ** attempt)
+                if not _retry_sleep(2 ** attempt):
+                    print(f"  FEHLER {url}: Gesamt-Timeout ({total_timeout}s) vor Retry ueberschritten")
+                    return None
             except Exception as e:
                 if attempt < retries:
-                    time.sleep(2 ** attempt)
+                    if not _retry_sleep(2 ** attempt):
+                        print(f"  FEHLER {url}: Gesamt-Timeout ({total_timeout}s) vor Retry ueberschritten")
+                        return None
                 else:
                     print(f"  FEHLER {url} (nach {retries} Versuchen): {e}")
         return None
@@ -2882,12 +3104,12 @@ class SqliteSeenDB(_MutableMapping):
         entry = {
             "first": first,
             "last": last,
-            "hq": bool(hq),
+            "hq": coerce_bool(hq),
             "feeds": json.loads(feeds) if feeds else [],
             "hq_feed_names": json.loads(hq_feed_names) if hq_feed_names else [],
             "hq_feeds": hq_feeds,
             "today_count": today_count,
-            "today_hq": bool(today_hq),
+            "today_hq": coerce_bool(today_hq),
             "days_seen": days_seen,
         }
         # FIX AUTO-COUNT-JSON-BLOAT 31.08.2026: auto_today_count ist ein
@@ -2916,12 +3138,12 @@ class SqliteSeenDB(_MutableMapping):
             ip,
             d.get("first"),
             d.get("last"),
-            1 if d.get("hq") else 0,
+            1 if coerce_bool(d.get("hq")) else 0,
             json.dumps(d.get("feeds") or []),
             json.dumps(d.get("hq_feed_names") or []),
             d.get("hq_feeds", 0),
             d.get("today_count", 0),
-            1 if d.get("today_hq") else 0,
+            1 if coerce_bool(d.get("today_hq")) else 0,
             d.get("days_seen", 0),
             d.get("auto_today_count"),
         )
