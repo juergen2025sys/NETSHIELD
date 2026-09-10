@@ -1,24 +1,14 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-10 14:13 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-10 18:58 CEST (Europe/Berlin)
 
-**Workflows:** 30 | ✅ 30 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
+**Workflows:** 30 | ✅ 30 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 6,321 IPs in active fehlen in conf40 (0.706% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
-| `Production Health` | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 38 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
-
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 6,321 IPs in active fehlen in conf40 (0.706% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
-| 🔴 CRITICAL | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 38 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -56,4 +46,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-10 14:13 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*
+*Generiert: 2026-09-10 18:58 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*
