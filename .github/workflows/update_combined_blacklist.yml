@@ -2325,13 +2325,28 @@ jobs:
                   _smeta = dict(_sc.execute("SELECT key,value FROM meta"))
                   _shit = _sc.execute("SELECT COUNT(*) FROM hits").fetchone()[0]
                   _sfeeds = _sc.execute("SELECT COUNT(DISTINCT feed) FROM hits").fetchone()[0]
-                  # A fallback row contains old evidence.  It must invalidate
-                  # the snapshot for this run; otherwise importing it here
-                  # would create a fresh ``today`` confirmation from stale
-                  # content (F4).
+                  _sfeed_columns = {
+                      _row[1] for _row in _sc.execute("PRAGMA table_info(feed_stats)")
+                  }
+                  _sfeed_stats_compatible = {
+                      "feed", "entries", "status", "last_success_epoch"
+                  }.issubset(_sfeed_columns)
+                  # Fallback rows contain old evidence.  They are deliberately
+                  # not imported into today's run, otherwise stale content
+                  # would create a fresh ``today`` confirmation (F4). Fresh
+                  # rows from the same snapshot remain usable.
                   _sbad_fallbacks = _sc.execute(
                       "SELECT COUNT(*) FROM feed_stats "
                       "WHERE entries > 0 AND status <> 'ok'"
+                  ).fetchone()[0]
+                  _sfresh_hits = _sc.execute(
+                      "SELECT COUNT(*) FROM hits h "
+                      "JOIN feed_stats s ON s.feed=h.feed "
+                      "WHERE s.entries > 0 AND s.status='ok'"
+                  ).fetchone()[0]
+                  _sfresh_feeds = _sc.execute(
+                      "SELECT COUNT(*) FROM feed_stats "
+                      "WHERE entries > 0 AND status='ok'"
                   ).fetchone()[0]
                   _sc.close()
                   _sts = int(_smeta.get("generated_at_epoch", "0"))
@@ -2342,16 +2357,21 @@ jobs:
                           _registry_sha = hashlib.sha256(_arf.read()).hexdigest()
                   _snapshot_registry_sha = _smeta.get("registry_sha256", "")
                   _registry_match = (not _registry_sha or _registry_sha == _snapshot_registry_sha)
-                  if (_sq and _sq[0] == "ok" and _shit >= 50000
-                          and _sbad_fallbacks == 0
+                  if (_sq and _sq[0] == "ok" and _sfeed_stats_compatible
+                          and _sfresh_hits >= 50000
                           and _sage <= _auto_snapshot_max_age and _registry_match):
                       _run_conn.execute("ATTACH DATABASE ? AS auto_daily",
                                         (os.path.abspath(_auto_snapshot_path),))
                       _run_conn.execute(
                           "INSERT OR IGNORE INTO temp.run_feed_hits(ip,feed,is_hq) "
-                          "SELECT entry,feed,0 FROM auto_daily.hits")
+                          "SELECT h.entry,h.feed,0 FROM auto_daily.hits h "
+                          "JOIN auto_daily.feed_stats s ON s.feed=h.feed "
+                          "WHERE s.entries > 0 AND s.status='ok'")
                       for _fn, _cnt in _run_conn.execute(
-                              "SELECT feed,COUNT(*) FROM auto_daily.hits GROUP BY feed"):
+                              "SELECT h.feed,COUNT(*) FROM auto_daily.hits h "
+                              "JOIN auto_daily.feed_stats s ON s.feed=h.feed "
+                              "WHERE s.entries > 0 AND s.status='ok' "
+                              "GROUP BY h.feed"):
                           feed_stats.append((_fn, int(_cnt)))
                       # DETACH ist innerhalb einer offenen Transaktion nicht erlaubt.
                       # Commit betrifft nur den bis hierher unveraenderten persistenten
@@ -2359,13 +2379,20 @@ jobs:
                       _run_conn.commit()
                       _run_conn.execute("DETACH DATABASE auto_daily")
                       _auto_snapshot_used = True
-                      print(f"  Auto-Feed Live-Snapshot: {_shit:,} Feed-Treffer / "
-                            f"{_sfeeds} Feeds geladen (Alter {_sage//60} min)")
+                      print(f"  Auto-Feed Live-Snapshot: {_sfresh_hits:,} frische "
+                            f"Feed-Treffer / {_sfresh_feeds} Feeds geladen "
+                            f"(von {_shit:,} Snapshot-Treffern, Alter {_sage//60} min)")
+                      if _sbad_fallbacks:
+                          _warn_auto_snapshot(
+                              f"{_sbad_fallbacks} Fallback-Feed(s) aus Snapshot "
+                              "nicht als heutige Bestaetigung importiert"
+                          )
                   else:
                       _reason = []
                       if not (_sq and _sq[0] == "ok"): _reason.append("quick_check")
-                      if _shit < 50000: _reason.append(f"nur {_shit} Hits")
-                      if _sbad_fallbacks: _reason.append(f"{_sbad_fallbacks} alte Fallback-Feeds")
+                      if not _sfeed_stats_compatible: _reason.append("feed_stats-Schema veraltet/ungueltig")
+                      if _sfresh_hits < 50000: _reason.append(f"nur {_sfresh_hits} frische Hits")
+                      if _sbad_fallbacks: _reason.append(f"{_sbad_fallbacks} Fallback-Feeds nicht aktuell")
                       if _sage > _auto_snapshot_max_age: _reason.append(f"{_sage//3600}h alt")
                       if not _registry_match: _reason.append("Registry neuer als Snapshot")
                       _warn_auto_snapshot(
@@ -2478,14 +2505,15 @@ jobs:
           # auto_feed_blacklist_ipv4.txt behaelt der SQLite-Snapshot jeden
           # ORIGINALEN Feed-Namen. Eine IP in 5 Auto-Feeds bleibt daher 5
           # Feed-Treffer; today_count, Aufnahmefilter und Confidence werden nicht
-          # kuenstlich auf 1 Quelle reduziert. Ist der Snapshot nicht gueltig,
-          # zu alt (>6h) oder passt nicht zur aktuellen Registry, faellt Combined
-          # auf den bisherigen Einzel-Fetch der Auto-Feeds zurueck.
+          # kuenstlich auf 1 Quelle reduziert. Aus einem gemischten Snapshot
+          # werden nur status='ok'-Feeds importiert; alte Fallback-Feeds erzeugen
+          # keine neue heutige Bestaetigung. Ist kein ausreichender frischer
+          # Anteil vorhanden, faellt Combined auf den Einzel-Fetch zurueck.
           _auto_handle = None
           _auto_feeds = []
           if _auto_snapshot_used:
-              print("  Auto-Feed-Einzelfetch uebersprungen - frischer Live-Snapshot "
-                    "mit originalen Feed-Namen wurde in die SQLite-Tagesmatrix geladen")
+              print("  Auto-Feed-Einzelfetch uebersprungen - ausreichender frischer "
+                    "Snapshot-Anteil mit originalen Feed-Namen wurde geladen")
           elif os.path.exists(AUTO_FEEDS_FILE):
               try:
                   with open(AUTO_FEEDS_FILE) as af:

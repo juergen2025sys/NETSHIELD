@@ -90,6 +90,11 @@ jobs:
           MAX_WORKERS = 12
           MIN_UNIQUE = 50_000
           MIN_FEED_SUCCESS_RATIO = 0.50
+          # Ein Fallback darf kurzfristige Feed-Ausfaelle ueberbruecken,
+          # aber niemals unbegrenzt alten Bestand konservieren. Die Frist
+          # muss mit dem Consumer in update_combined_blacklist.yml
+          # uebereinstimmen.
+          MAX_FALLBACK_AGE_SECONDS = 6 * 3600
 
           load_whitelist()
           load_fp_set()
@@ -157,7 +162,8 @@ jobs:
                   if q and q[0] == "ok" and has_hits:
                       new.execute("ATTACH DATABASE ? AS prev", (os.path.abspath(SNAPSHOT),))
                       prev_attached = True
-                      print("Vorheriger Auto-Feed Snapshot gueltig - Fehlerfeeds werden daraus konservativ erhalten")
+                      print("Vorheriger Auto-Feed Snapshot gueltig - Fehlerfeeds werden "
+                            "innerhalb der 6h-Fallback-Frist konservativ erhalten")
                   else:
                       print("WARN: vorheriger Auto-Feed Snapshot ungueltig - kein Feed-Fallback")
               except Exception as e:
@@ -193,6 +199,7 @@ jobs:
           fallback_feeds = 0
           failed_without_fallback = []
           data_epochs = []
+          fallback_cutoff_epoch = int(time.time()) - MAX_FALLBACK_AGE_SECONDS
           for f in selected:
               name = f["name"]
               entries, status, fetched_epoch = results.get(
@@ -229,7 +236,25 @@ jobs:
                           (name, cnt, "fallback_previous", previous_success_epoch),
                       )
                       if previous_success_epoch:
-                          data_epochs.append(int(previous_success_epoch))
+                          try:
+                              previous_success_epoch = int(previous_success_epoch)
+                          except (TypeError, ValueError):
+                              previous_success_epoch = None
+                      # Ein alter Fallback darf nicht als normaler Feed-Treffer
+                      # weitergereicht werden. Er wird deshalb verworfen und
+                      # als fehlender Feed dokumentiert. Gueltige Fallbacks
+                      # bleiben fuer Recovery erhalten, behalten aber ihren
+                      # alten last_success_epoch.
+                      if (previous_success_epoch is None
+                              or previous_success_epoch < fallback_cutoff_epoch
+                              or previous_success_epoch > int(time.time())):
+                          failed_without_fallback.append(name)
+                          new.execute(
+                              "INSERT OR REPLACE INTO feed_stats(feed,entries,status,last_success_epoch) VALUES (?,?,?,?)",
+                              (name, 0, "fallback_expired", previous_success_epoch),
+                          )
+                          continue
+                      data_epochs.append(previous_success_epoch)
                       fallback_feeds += 1
                       continue
                   failed_without_fallback.append(name)
@@ -344,17 +369,60 @@ jobs:
           set -euo pipefail
           python3 - << 'PY'
           import sqlite3, time
+          MAX_FALLBACK_AGE_SECONDS = 6 * 3600
+          MAX_REFRESH_AGE_SECONDS = 3600
           p='state/auto_feed_daily.sqlite3'
           c=sqlite3.connect(f'file:{p}?mode=ro', uri=True)
           q=c.execute('PRAGMA quick_check').fetchone()
           n=c.execute('SELECT COUNT(*) FROM hits').fetchone()[0]
           u=c.execute('SELECT COUNT(DISTINCT entry) FROM hits').fetchone()[0]
-          ts=int(c.execute("SELECT value FROM meta WHERE key='generated_at_epoch'").fetchone()[0])
+          meta=dict(c.execute('SELECT key,value FROM meta'))
+          generated_ts=int(meta.get('generated_at_epoch','0'))
+          refresh_ts=int(meta.get('refresh_run_at_epoch','0'))
+          feed_rows=c.execute(
+              'SELECT feed,entries,status,last_success_epoch FROM feed_stats'
+          ).fetchall()
           c.close()
+          now=int(time.time())
           assert q and q[0]=='ok', q
           assert n >= 50000 and u >= 50000, (n,u)
-          assert 0 <= time.time()-ts <= 3600, time.time()-ts
-          print(f'Auto-Feed Snapshot validiert: {u:,} unique / {n:,} Feed-Treffer')
+          # generated_at_epoch beschreibt die aelteste enthaltene Evidenz
+          # und darf bei einem begrenzten Fallback aelter als ein Refresh
+          # sein. Der Lauf selbst muss dagegen frisch sein.
+          assert 0 <= now-refresh_ts <= MAX_REFRESH_AGE_SECONDS, now-refresh_ts
+          evidence_epochs=[]
+          invalid_rows=[]
+          fallback_count=0
+          for feed,entries,status,last_success in feed_rows:
+              if entries <= 0:
+                  continue
+              try:
+                  evidence_ts=int(last_success)
+              except (TypeError, ValueError):
+                  invalid_rows.append((feed,status,'missing_timestamp'))
+                  continue
+              age=now-evidence_ts
+              if age < 0:
+                  invalid_rows.append((feed,status,'future_timestamp'))
+                  continue
+              if status == 'ok':
+                  if age > MAX_REFRESH_AGE_SECONDS:
+                      invalid_rows.append((feed,status,age))
+                      continue
+              elif status == 'fallback_previous':
+                  fallback_count += 1
+                  if age > MAX_FALLBACK_AGE_SECONDS:
+                      invalid_rows.append((feed,status,age))
+                      continue
+              else:
+                  invalid_rows.append((feed,status,'non_ok_with_entries'))
+                  continue
+              evidence_epochs.append(evidence_ts)
+          assert evidence_epochs, 'keine zeitgestempelten Feed-Daten'
+          assert generated_ts == min(evidence_epochs), (generated_ts, min(evidence_epochs))
+          assert not invalid_rows, invalid_rows[:5]
+          print(f'Auto-Feed Snapshot validiert: {u:,} unique / {n:,} Feed-Treffer; '
+                f'{fallback_count} Fallback-Feed(s) innerhalb der {MAX_FALLBACK_AGE_SECONDS//3600}h-Frist')
           PY
 
       - name: Save Auto-Feed Snapshot Cache
