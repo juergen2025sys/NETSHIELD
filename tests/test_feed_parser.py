@@ -90,6 +90,56 @@ class TestFeedParserCore(unittest.TestCase):
         result = parse_feed_entries(b"45.83.12.7\n91.219.29.8\n")
         self.assertEqual(result, {"45.83.12.7", "91.219.29.8"})
 
+    def test_many_cidrs_do_not_hide_following_host(self):
+        # Regression for the quadratic CIDR-span scan (F2).  The host after
+        # the fragment must still be found without scanning all prior spans
+        # for every IPv4 match.
+        cidrs = " ".join(
+            f"45.83.{index // 256}.{index % 256}/24"
+            for index in range(3000)
+        )
+        result = parse_feed_entries(
+            '{"items":[' + ",".join(f'"{value}"' for value in (cidrs.split() + ["8.8.8.8"])) + "]}"
+        )
+        self.assertEqual(result, {"8.8.8.8"})
+
+
+class TestFeedParserAllowBoundaries(unittest.TestCase):
+    """Allow-/exception addresses must never become blocklist entries."""
+
+    def test_fast_path_ignores_allow_line_after_plain_ip_sample(self):
+        plain = "\n".join(f"45.83.12.{index}" for index in range(1, 41))
+        result = parse_feed_entries(plain + "\nallow 8.8.8.8\n")
+        self.assertNotIn("8.8.8.8", result)
+        self.assertEqual(len(result), 40)
+
+    def test_fast_path_ignores_range_line_after_plain_ip_sample(self):
+        plain = "\n".join(f"45.83.13.{index}" for index in range(1, 41))
+        result = parse_feed_entries(plain + "\n8.8.8.8-8.8.8.9\n")
+        self.assertNotIn("8.8.8.8", result)
+        self.assertNotIn("8.8.8.9", result)
+        self.assertEqual(len(result), 40)
+
+    def test_allowlist_csv_column_is_ignored(self):
+        text = "allowlist_ip,comment\n8.8.8.8,approved\n"
+        self.assertEqual(parse_feed_entries(text), set())
+
+    def test_allowlist_xml_parent_blocks_ip_child(self):
+        text = "<root><allowlist><ip>8.8.8.8</ip></allowlist></root>"
+        self.assertEqual(parse_feed_entries(text), set())
+
+    def test_nftables_allowlist_set_used_by_accept_is_ignored(self):
+        text = (
+            "table ip filter { set allowlist { type ipv4_addr; "
+            "elements = { 8.8.8.8 } } chain input { "
+            "ip saddr @allowlist accept } }"
+        )
+        self.assertEqual(parse_feed_entries(text), set())
+
+    def test_negated_iptables_source_is_ignored(self):
+        text = "-A INPUT ! -s 8.8.8.8 -j DROP\n"
+        self.assertEqual(parse_feed_entries(text), set())
+
 
 # ═══════════════════════════════════════════════════════════════
 # Strukturierte Formate: JSON / JSONL / XML / CSV

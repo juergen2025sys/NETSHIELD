@@ -15,6 +15,7 @@ import json
 import os
 import sys
 import tempfile
+import time
 import unittest
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
@@ -717,6 +718,17 @@ class TestWhitelistLoading(unittest.TestCase):
         self.assertEqual(len(fp_ips), 0)
         self.assertEqual(len(fp_nets), 0)
 
+    def test_load_fp_set_default_uses_state_directory(self):
+        old_cwd = os.getcwd()
+        self.addCleanup(os.chdir, old_cwd)
+        os.chdir(self.tmpdir)
+        os.mkdir("state")
+        with open(os.path.join("state", "false_positives_set.json"), "w") as f:
+            json.dump({"ips": ["8.8.8.8"]}, f)
+        fp_ips, fp_nets = load_fp_set()
+        self.assertEqual(fp_ips, {"8.8.8.8"})
+        self.assertEqual(fp_nets, [])
+
     # ─── Regression: FIX BUG-FP-STRICT ──────────────────────────────────
     # Vorher genuegte ein String wie "1.2.3.4" dem data.get("ips", []),
     # die for-Schleife iterierte ueber die Zeichen, und das Set enthielt
@@ -1225,10 +1237,22 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
                     self.send_response(500)
                     self.end_headers()
                 elif self.path == "/slow":
-                    import time
                     time.sleep(2)
                     self.send_response(200)
                     self.end_headers()
+                elif self.path == "/trickle":
+                    # Every byte arrives before the socket timeout, but the
+                    # complete response takes longer than total_timeout.
+                    self.send_response(200)
+                    self.send_header("Content-Length", "10")
+                    self.end_headers()
+                    try:
+                        for byte in b"0123456789":
+                            self.wfile.write(bytes((byte,)))
+                            self.wfile.flush()
+                            time.sleep(0.04)
+                    except BrokenPipeError:
+                        pass
                 else:
                     self.send_response(404)
                     self.end_headers()
@@ -1306,11 +1330,18 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
     def test_read_limit_respected(self):
         """read_limit soll den gelesenen Body begrenzen."""
         from netshield_common import fetch_url
-        result = fetch_url(self._url("/ok"), read_limit=5)
+        result = fetch_url(
+            self._url("/ok"), read_limit=5, fail_on_truncation=False
+        )
         self.assertIsNotNone(result)
         # Body ist "feed-content\n1.2.3.4\n5.6.7.8" (>5 Bytes)
         # read_limit=5 → nur die ersten 5 Bytes
         self.assertEqual(len(result), 5)
+
+    def test_read_limit_fails_closed_by_default(self):
+        """Voll-Downloads duerfen nicht stillschweigend abgeschnitten werden."""
+        from netshield_common import fetch_url
+        self.assertIsNone(fetch_url(self._url("/ok"), read_limit=5))
 
     def test_read_limit_fail_on_truncation(self):
         """Optionaler Fail-Loud-Modus darf keine Teildatei ausliefern."""
@@ -1338,6 +1369,20 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
         self.assertEqual(len(result), 5)
         self.assertNotIn("Limit erhoehen", captured.getvalue())
         self.assertNotIn("Daten verloren", captured.getvalue())
+
+    def test_total_timeout_stops_trickle_response(self):
+        """Die Gesamtdeadline gilt auch bei regelmaessig eintreffenden Bytes."""
+        from netshield_common import fetch_url
+        started = time.monotonic()
+        result = fetch_url(
+            self._url("/trickle"),
+            timeout=0.15,
+            retries=1,
+            total_timeout=0.05,
+        )
+        elapsed = time.monotonic() - started
+        self.assertIsNone(result)
+        self.assertLess(elapsed, 0.30)
 
     # ─── Regression: FIX BUG-GZIP-BOMB ──────────────────────────────────
     # Vorher: gzip.decompress(data) lud das gesamte expandierte Ergebnis in
@@ -2188,6 +2233,33 @@ class TestSqliteSeenDBMigrationRegression(unittest.TestCase):
             "hq_feeds": 1, "today_count": 1, "today_hq": True, "days_seen": 1,
         }
         self.assertEqual(db.select_aufnahme_kandidaten(), [])
+
+    def test_boolean_policy_is_preserved_across_sqlite_roundtrip(self):
+        db = self._db()
+        db["8.8.8.8"] = {
+            "first": "2026-01-01", "last": "2026-09-01",
+            "hq": "false", "today_hq": "false",
+            "feeds": [], "hq_feed_names": [], "hq_feeds": 0,
+            "today_count": 0, "days_seen": 10,
+        }
+        db.commit()
+        row = db["8.8.8.8"]
+        self.assertFalse(row["hq"])
+        self.assertFalse(row["today_hq"])
+        self.assertEqual(db._conn.execute(
+            "SELECT hq,today_hq FROM seen_db WHERE ip='8.8.8.8'"
+        ).fetchone(), (0, 0))
+
+    def test_boolean_policy_rejects_non_scalar_truthy_values(self):
+        db = self._db()
+        for index, value in enumerate((None, [], {}, "false", 0)):
+            ip = f"8.8.8.{index + 1}"
+            db[ip] = {"hq": value, "today_hq": value}
+        db.commit()
+        rows = db._conn.execute(
+            "SELECT hq,today_hq FROM seen_db ORDER BY ip"
+        ).fetchall()
+        self.assertEqual(rows, [(0, 0)] * 5)
 
     def test_hq_with_invalid_feeds_json_is_kept_by_admission_semantics(self):
         db = self._db()
