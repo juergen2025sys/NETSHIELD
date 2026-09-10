@@ -142,7 +142,7 @@ jobs:
               load_whitelist, load_fp_set, is_in_fp_set,
               is_valid_public_ipv4, is_valid_public_cidr,
               is_protected_entry, is_whitelisted,
-              parse_entries as _parse_entries, calculate_confidence,
+              parse_entries as _parse_entries, calculate_confidence, coerce_bool,
               safe_get_date, parse_date, sort_ips, write_ip_list,
               write_text_atomic,
               fetch_url, check_local_feed_age,
@@ -212,7 +212,7 @@ jobs:
                           yield ip, {
                               "first": first,
                               "last": last,
-                              "hq": bool(hq),
+                              "hq": coerce_bool(hq),
                               "feeds": [None] * (feed_count if feed_count > 0 else 0),
                               "today_count": today_count,
                               "days_seen": days_seen,

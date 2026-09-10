@@ -550,6 +550,7 @@ jobs:
               is_valid_public_ipv4, is_valid_public_cidr,
               is_protected_entry, is_whitelisted,
               parse_entries, parse_feed_entries, calculate_confidence,
+              coerce_bool,
               safe_get_date, parse_date, sort_ips, write_ip_list,
               write_json_atomic, write_text_atomic,
               fetch_url, fetch_parallel_daemon, check_local_feed_age,
@@ -2324,6 +2325,14 @@ jobs:
                   _smeta = dict(_sc.execute("SELECT key,value FROM meta"))
                   _shit = _sc.execute("SELECT COUNT(*) FROM hits").fetchone()[0]
                   _sfeeds = _sc.execute("SELECT COUNT(DISTINCT feed) FROM hits").fetchone()[0]
+                  # A fallback row contains old evidence.  It must invalidate
+                  # the snapshot for this run; otherwise importing it here
+                  # would create a fresh ``today`` confirmation from stale
+                  # content (F4).
+                  _sbad_fallbacks = _sc.execute(
+                      "SELECT COUNT(*) FROM feed_stats "
+                      "WHERE entries > 0 AND status <> 'ok'"
+                  ).fetchone()[0]
                   _sc.close()
                   _sts = int(_smeta.get("generated_at_epoch", "0"))
                   _sage = max(0, int(_time.time()) - _sts)
@@ -2334,6 +2343,7 @@ jobs:
                   _snapshot_registry_sha = _smeta.get("registry_sha256", "")
                   _registry_match = (not _registry_sha or _registry_sha == _snapshot_registry_sha)
                   if (_sq and _sq[0] == "ok" and _shit >= 50000
+                          and _sbad_fallbacks == 0
                           and _sage <= _auto_snapshot_max_age and _registry_match):
                       _run_conn.execute("ATTACH DATABASE ? AS auto_daily",
                                         (os.path.abspath(_auto_snapshot_path),))
@@ -2355,6 +2365,7 @@ jobs:
                       _reason = []
                       if not (_sq and _sq[0] == "ok"): _reason.append("quick_check")
                       if _shit < 50000: _reason.append(f"nur {_shit} Hits")
+                      if _sbad_fallbacks: _reason.append(f"{_sbad_fallbacks} alte Fallback-Feeds")
                       if _sage > _auto_snapshot_max_age: _reason.append(f"{_sage//3600}h alt")
                       if not _registry_match: _reason.append("Registry neuer als Snapshot")
                       _warn_auto_snapshot(
@@ -2374,7 +2385,7 @@ jobs:
           def _ingest(name, ips, is_hq_override=None):
               """Schreibt Feed-Treffer disk-backed in SQLite statt in Millionen Python-Sets."""
               _is_hq = int((name in HIGH_QUALITY)
-                           if is_hq_override is None else bool(is_hq_override))
+                           if is_hq_override is None else coerce_bool(is_hq_override))
               _run_conn.executemany(
                   "INSERT INTO temp.run_feed_hits(ip,feed,is_hq) VALUES (?,?,?) "
                   "ON CONFLICT(ip,feed) DO UPDATE SET "
@@ -3669,7 +3680,7 @@ jobs:
 
           _aufn_kandidaten = {}
           for _ak_ip, _ak_feeds_json, _ak_hq_raw in db.select_aufnahme_kandidaten():
-              _ak_hq = bool(_ak_hq_raw)
+              _ak_hq = coerce_bool(_ak_hq_raw)
               try:
                   _ak_feeds = json.loads(_ak_feeds_json) if _ak_feeds_json else []
               except (ValueError, TypeError):
@@ -4784,7 +4795,10 @@ jobs:
                       active_skipped_corrupt += 1
                       continue
 
-                  is_hq       = bool(_sc_hq)
+                  # Keep the raw value until calculate_confidence() applies
+                  # the shared fail-closed boolean policy.  bool("false")
+                  # would incorrectly turn corrupt SQLite text into HQ=True.
+                  is_hq       = _sc_hq
                   feed_count  = _sc_feed_count
                   today_count = _sc_today_count or 0
                   days_seen   = _sc_days_seen if _sc_days_seen is not None else 1

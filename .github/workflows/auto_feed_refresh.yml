@@ -131,14 +131,28 @@ jobs:
           new.execute("PRAGMA temp_store=FILE")
           new.execute("CREATE TABLE hits(entry TEXT NOT NULL, feed TEXT NOT NULL, PRIMARY KEY(entry,feed)) WITHOUT ROWID")
           new.execute("CREATE TABLE meta(key TEXT PRIMARY KEY, value TEXT NOT NULL) WITHOUT ROWID")
-          new.execute("CREATE TABLE feed_stats(feed TEXT PRIMARY KEY, entries INTEGER NOT NULL, status TEXT NOT NULL) WITHOUT ROWID")
+          new.execute("CREATE TABLE feed_stats(feed TEXT PRIMARY KEY, entries INTEGER NOT NULL, status TEXT NOT NULL, last_success_epoch INTEGER) WITHOUT ROWID")
 
           prev_attached = False
+          prev_generated_epoch = 0
+          prev_has_success_epoch = False
           if os.path.exists(SNAPSHOT):
               try:
                   chk = sqlite3.connect(f"file:{SNAPSHOT}?mode=ro", uri=True)
                   q = chk.execute("PRAGMA quick_check").fetchone()
                   has_hits = chk.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='hits'").fetchone()
+                  try:
+                      prev_generated_epoch = int(dict(
+                          chk.execute("SELECT key,value FROM meta")
+                      ).get("generated_at_epoch", "0"))
+                  except (sqlite3.Error, TypeError, ValueError):
+                      prev_generated_epoch = 0
+                  try:
+                      prev_has_success_epoch = "last_success_epoch" in {
+                          row[1] for row in chk.execute("PRAGMA table_info(feed_stats)")
+                      }
+                  except sqlite3.Error:
+                      prev_has_success_epoch = False
                   chk.close()
                   if q and q[0] == "ok" and has_hits:
                       new.execute("ATTACH DATABASE ? AS prev", (os.path.abspath(SNAPSHOT),))
@@ -153,12 +167,12 @@ jobs:
               name, url = feed["name"], feed["url"]
               text = fetch_url(url, timeout=22, retries=2, user_agent="NETSHIELD/3.0")
               if text is None:
-                  return name, None, "fetch_failed"
+                  return name, None, "fetch_failed", None
               entries = parse_feed_entries(text, source_hint=url, use_protected_check=True)
               entries = {e for e in entries if not is_in_fp_set(e) and not is_whitelisted(e)}
               if not entries:
-                  return name, None, "zero_entries"
-              return name, entries, "ok"
+                  return name, None, "zero_entries", None
+              return name, entries, "ok", int(time.time())
 
           results = {}
           with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
@@ -166,10 +180,10 @@ jobs:
               for fut in as_completed(futs):
                   name = futs[fut]
                   try:
-                      n, entries, status = fut.result()
+                      n, entries, status, fetched_epoch = fut.result()
                   except Exception as e:
-                      n, entries, status = name, None, f"exception:{type(e).__name__}"
-                  results[n] = (entries, status)
+                      n, entries, status, fetched_epoch = name, None, f"exception:{type(e).__name__}", None
+                  results[n] = (entries, status, fetched_epoch)
                   if entries is not None:
                       print(f"OK  {n}: {len(entries):,} Eintraege")
                   else:
@@ -178,12 +192,19 @@ jobs:
           ok_feeds = 0
           fallback_feeds = 0
           failed_without_fallback = []
+          data_epochs = []
           for f in selected:
               name = f["name"]
-              entries, status = results.get(name, (None, "missing_result"))
+              entries, status, fetched_epoch = results.get(
+                  name, (None, "missing_result", None))
               if entries is not None:
                   new.executemany("INSERT OR IGNORE INTO hits(entry,feed) VALUES (?,?)", ((e, name) for e in entries))
-                  new.execute("INSERT OR REPLACE INTO feed_stats(feed,entries,status) VALUES (?,?,?)", (name, len(entries), "ok"))
+                  new.execute(
+                      "INSERT OR REPLACE INTO feed_stats(feed,entries,status,last_success_epoch) VALUES (?,?,?,?)",
+                      (name, len(entries), "ok", fetched_epoch),
+                  )
+                  if fetched_epoch:
+                      data_epochs.append(fetched_epoch)
                   ok_feeds += 1
               elif prev_attached:
                   try:
@@ -191,15 +212,37 @@ jobs:
                   except sqlite3.Error:
                       cnt = 0
                   if cnt:
+                      previous_success_epoch = None
+                      try:
+                          if prev_has_success_epoch:
+                              previous_success_epoch = new.execute(
+                                  "SELECT last_success_epoch FROM prev.feed_stats WHERE feed=?",
+                                  (name,),
+                              ).fetchone()[0]
+                          else:
+                              previous_success_epoch = prev_generated_epoch or None
+                      except (sqlite3.Error, TypeError, ValueError):
+                          previous_success_epoch = prev_generated_epoch or None
                       new.execute("INSERT OR IGNORE INTO hits(entry,feed) SELECT entry,feed FROM prev.hits WHERE feed=?", (name,))
-                      new.execute("INSERT OR REPLACE INTO feed_stats(feed,entries,status) VALUES (?,?,?)", (name, cnt, "fallback_previous"))
+                      new.execute(
+                          "INSERT OR REPLACE INTO feed_stats(feed,entries,status,last_success_epoch) VALUES (?,?,?,?)",
+                          (name, cnt, "fallback_previous", previous_success_epoch),
+                      )
+                      if previous_success_epoch:
+                          data_epochs.append(int(previous_success_epoch))
                       fallback_feeds += 1
                       continue
                   failed_without_fallback.append(name)
-                  new.execute("INSERT OR REPLACE INTO feed_stats(feed,entries,status) VALUES (?,?,?)", (name, 0, status))
+                  new.execute(
+                      "INSERT OR REPLACE INTO feed_stats(feed,entries,status,last_success_epoch) VALUES (?,?,?,?)",
+                      (name, 0, status, None),
+                  )
               else:
                   failed_without_fallback.append(name)
-                  new.execute("INSERT OR REPLACE INTO feed_stats(feed,entries,status) VALUES (?,?,?)", (name, 0, status))
+                  new.execute(
+                      "INSERT OR REPLACE INTO feed_stats(feed,entries,status,last_success_epoch) VALUES (?,?,?,?)",
+                      (name, 0, status, None),
+                  )
 
           new.commit()
           hit_count = new.execute("SELECT COUNT(*) FROM hits").fetchone()[0]
@@ -214,9 +257,19 @@ jobs:
 
           now_epoch = int(time.time())
           now_berlin = datetime.now(timezone.utc).astimezone(ZoneInfo("Europe/Berlin"))
+          # The snapshot timestamp describes the data, not the moment at
+          # which a failed refresh copied old rows.  A fallback therefore
+          # keeps its old timestamp and cannot make stale hits look fresh.
+          data_epoch = min(data_epochs) if data_epochs else 0
+          data_dt = (
+              datetime.fromtimestamp(data_epoch, timezone.utc).astimezone(
+                  ZoneInfo("Europe/Berlin"))
+              if data_epoch else None
+          )
           meta = {
-              "generated_at_epoch": str(now_epoch),
-              "generated_at": now_berlin.isoformat(),
+              "generated_at_epoch": str(data_epoch),
+              "generated_at": data_dt.isoformat() if data_dt else "",
+              "refresh_run_at_epoch": str(now_epoch),
               "registry_sha256": registry_sha,
               "selected_feeds": str(len(selected)),
               "successful_feeds": str(ok_feeds),
