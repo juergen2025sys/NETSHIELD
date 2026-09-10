@@ -305,7 +305,7 @@ jobs:
           PY
 
       - name: Save Auto-Feed Snapshot Cache
-        if: steps.refresh.outcome == 'success'
+        if: always() && steps.refresh.outcome == 'success'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: state/auto_feed_daily.sqlite3
@@ -355,7 +355,7 @@ jobs:
           exit 0
 
       - name: Commit Report und Kompatibilitaetsliste
-        if: steps.refresh.outcome == 'success'
+        if: always()
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"

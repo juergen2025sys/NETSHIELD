@@ -291,6 +291,7 @@ jobs:
           print(f"Report geschrieben: {out}")
 
       - name: Commit overlap report
+        if: always()
         shell: bash
         run: |
           set -e

@@ -260,7 +260,6 @@ jobs:
           import sys
           import time
           import base64
-          import ipaddress
           from datetime import datetime, timezone, timedelta
           from zoneinfo import ZoneInfo
 
@@ -429,26 +428,9 @@ jobs:
           HDR_ID   = _dec("WC1Ib25leURiLUFwaUlk")
           HDR_KEY  = _dec("WC1Ib25leURiLUFwaUtleQ==")
 
-          # ── IP-Validierung via ipaddress-Modul (korrekt für alle Sonderfälle) ──
-          def is_private(ip):
-              try:
-                  obj = ipaddress.ip_address(ip)
-                  return (obj.version != 4
-                          or obj.is_private
-                          or obj.is_loopback
-                          or obj.is_multicast
-                          or obj.is_reserved
-                          or obj.is_link_local
-                          or obj.is_unspecified)
-              except Exception:
-                  return True
-
-          def is_valid_ipv4(ip):
-              try:
-                  obj = ipaddress.ip_address(ip)
-                  return obj.version == 4
-              except Exception:
-                  return False
+          # Zentrale Public-IPv4-Policy aus netshield_common verwenden.
+          # Damit bleiben RFC1918, Loopback, Link-Local, Multicast, Reserved
+          # und CGNAT (100.64.0.0/10) workflowweit konsistent ausgeschlossen.
 
           # FP-Set wird oben via load_fp_set() geladen – is_in_fp_set() greift
           # auf die globalen Strukturen in netshield_common zu. Frühere lokale
@@ -542,7 +524,7 @@ jobs:
               if isinstance(data, list):
                   for entry in data:
                       ip = entry.get("remote_host", "") if isinstance(entry, dict) else ""
-                      if ip and is_valid_ipv4(ip) and not is_private(ip):
+                      if ip and is_valid_public_ipv4(ip):
                           ips.add(ip)
               return ips
 
@@ -713,7 +695,7 @@ jobs:
                       next_from_id = None
                   for event in events:
                       ip = event.get("remote_host", "")
-                      if ip and is_valid_ipv4(ip) and not is_private(ip):
+                      if ip and is_valid_public_ipv4(ip):
                           sensor_ips.add(ip)
                   sensor_total += len(events)
                   print(f"  Page {page+1}: {len(events)} Events, from_id={next_from_id}")
@@ -802,8 +784,7 @@ jobs:
           if LIGHT_RUN and existing:
               existing_clean = {
                   ip for ip in existing
-                  if is_valid_ipv4(ip)
-                  and not is_private(ip)
+                  if is_valid_public_ipv4(ip)
                   and not is_in_fp_set(ip)
                   and not is_whitelisted(ip)
               }

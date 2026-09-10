@@ -626,7 +626,7 @@ jobs:
               # Actions den Step als fehlgeschlagen markiert. exit(0) versteckt
               # das Problem still.
               # AUSNAHME: exit(0) ist korrekt bei Feed-Netzwerkfehlern
-              # ("nicht erreichbar"), User-Fehlern (community_ip_report) und
+              # ("nicht erreichbar"), User-Fehlern (historischer Community-Workflow) und
               # fehlenden Konfigurationsdateien.
               _leer_kws  = {"MIN_ENTRIES", "MIN_ABUSEIPDB", "MIN_REPUTATION", "Leerungsschutz"}
               _ok_kws    = {"nicht erreichbar", "Versuchen fehlgeschlagen",

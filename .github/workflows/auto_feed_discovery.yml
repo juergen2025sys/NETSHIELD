@@ -889,7 +889,7 @@ jobs:
           # FIX SSOT4: whitelist.json als Single Source of Truth laden.
           # Ersetzt hardcoded FP_CIDRS, DNS_WHITELIST und PROTECTED_CIDRS.
           # Synchron mit update_combined_blacklist, false_positive_checker
-          # und community_ip_report.
+          # und dem historischen Community-Workflow.
           try:
               with open(".github/workflows/whitelist.json", encoding="utf-8") as _wl_f:
                   _WHITELIST_ENTRIES = json.load(_wl_f)["entries"]

@@ -39,7 +39,7 @@ jobs:
           import sys as _sys; _sys.path.insert(0, "scripts")
           from netshield_common import (
               load_whitelist, load_fp_set, is_in_fp_set,
-              is_whitelisted,
+              is_whitelisted, is_valid_public_ipv4,
               write_text_atomic, write_ip_list, safe_urlopen,
           )
 
@@ -53,7 +53,6 @@ jobs:
           import os
           import sys
           import time
-          import ipaddress
           from datetime import datetime, timezone
           from zoneinfo import ZoneInfo
 
@@ -70,26 +69,9 @@ jobs:
           # daher reicht ein Single-Call ohne Pagination.
           API_URL = "https://api.tweetfeed.live/v1/year/ip"
 
-          # ── IP-Validierung via ipaddress (private/reserved/multicast raus) ──
-          def is_private(ip):
-              try:
-                  obj = ipaddress.ip_address(ip)
-                  return (obj.version != 4
-                          or obj.is_private
-                          or obj.is_loopback
-                          or obj.is_multicast
-                          or obj.is_reserved
-                          or obj.is_link_local
-                          or obj.is_unspecified)
-              except Exception:
-                  return True
-
-          def is_valid_ipv4(ip):
-              try:
-                  obj = ipaddress.ip_address(ip)
-                  return obj.version == 4
-              except Exception:
-                  return False
+          # Zentrale Public-IPv4-Policy aus netshield_common verwenden.
+          # Damit bleiben RFC1918, Loopback, Link-Local, Multicast, Reserved
+          # und CGNAT (100.64.0.0/10) workflowweit konsistent ausgeschlossen.
 
           # ── API-Helper (kein Auth) ────────────────────────────────────────
           # WICHTIG (empirisch, 2026-05-17): tweetfeed.live/v1/year/ip antwortet
@@ -200,7 +182,7 @@ jobs:
           print(f"  → {len(raw_ips)} eindeutige IPs (vor Filter)")
 
           # Public IPv4 only
-          public_ips = {ip for ip in raw_ips if is_valid_ipv4(ip) and not is_private(ip)}
+          public_ips = {ip for ip in raw_ips if is_valid_public_ipv4(ip)}
           dropped_private = len(raw_ips) - len(public_ips)
           if dropped_private:
               print(f"  Private/Reserved/Loopback gefiltert: {dropped_private}")

@@ -5171,7 +5171,7 @@ jobs:
         # Gespeichert wird nur nach erfolgreichem Build und bestandener
         # Schrumpfungswache, damit kein korruptes/zu kleines Export-JSON den
         # letzten gesunden Kompatibilitaets-Cache verdraengt.
-        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.json') != ''
+        if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.json') != ''
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: seen_db.json
@@ -5224,7 +5224,7 @@ jobs:
         # erfolgreichen Build ausserhalb des Git-Push gespeichert. Schlaegt
         # der Push spaeter fehl, stellt der naechste Lauf trotzdem den zu
         # genau diesem Datenstand gehoerenden Tagesdeckel wieder her.
-        if: steps.build_combined.outcome == 'success' && hashFiles('state/watchlist_daily_cap_state.json') != ''
+        if: always() && steps.build_combined.outcome == 'success' && hashFiles('state/watchlist_daily_cap_state.json') != ''
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: state/watchlist_daily_cap_state.json
@@ -5267,7 +5267,7 @@ jobs:
           exit 0
 
       - name: Save seen_db SQLite Cache
-        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.sqlite3') != ''
+        if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.sqlite3') != ''
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: seen_db.sqlite3
