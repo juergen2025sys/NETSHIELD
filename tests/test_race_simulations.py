@@ -3,7 +3,7 @@
 NETSHIELD Race Condition Simulation Tests
 ==========================================
 Simuliert die dokumentierten Race-Patterns (RACE2, RACE5) der Workflows
-community_ip_report.yml und false_positive_checker.yml.
+historischen Community-Workflow und false_positive_checker.yml.
 
 Testet dass die FIX-Patterns (reset --hard → re-apply) keine Daten
 verlieren, und demonstriert dass das alte RMW-Pattern Daten verliert.
@@ -211,7 +211,7 @@ class TestRace2AppendOnly(unittest.TestCase):
 # ═══════════════════════════════════════════════════════════════
 
 class TestRace5ResetReapplyAppendOnly(unittest.TestCase):
-    """Simuliert den 5-Versuch-Retry-Loop aus community_ip_report.yml
+    """Simuliert den 5-Versuch-Retry-Loop des historischen Community-Workflows.
     und false_positive_checker.yml für append-only Dateien."""
 
     def setUp(self):
