@@ -148,7 +148,7 @@ def check_action_pinning() -> list[str]:
 # open(OUT_FILE, "w"). Dadurch waren über Jahre 15 non-atomare Writes
 # in den Workflows unentdeckt geblieben. Der AST-Check findet beides.
 #
-# Bewusste Append-Stellen (z.B. FIX RACE2 in community_ip_report.yml)
+# Bewusste Append-Stellen (historisch: FIX RACE2)
 # koennen mit einem '# allow-nonatomic: <grund>'-Kommentar in derselben
 # Zeile markiert werden – diese werden vom Check uebersprungen.
 
