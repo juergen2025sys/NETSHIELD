@@ -21,6 +21,7 @@ import ipaddress
 import json
 import os
 import re
+import socket
 import sys
 import sqlite3 as _sqlite3
 import tempfile as _tempfile
@@ -536,7 +537,7 @@ def is_in_fp_set(ip_str):
 # IP-Validierung
 # ═══════════════════════════════════════════════════════════════
 
-def is_valid_public_ipv4(ip):
+def _is_valid_public_ipv4_reference(ip):
     """True wenn gültige öffentliche IPv4-Adresse (nicht private/loopback/etc).
 
     FIX BUG-CGNAT1: Prueft zusaetzlich explizit gegen _RESERVED_NETS.
@@ -561,7 +562,75 @@ def is_valid_public_ipv4(ip):
         return False
 
 
-def is_valid_public_cidr(cidr):
+def _build_public_ipv4_policy_index():
+    """Compile the running stdlib's address policy into disjoint intervals.
+
+    Millions of validation calls must not rebuild IPv4 objects and scan all
+    special networks each time. Derive boundaries from the running Python's
+    metadata (including private-network exceptions), and classify each segment
+    with the unchanged reference predicate. If metadata is unavailable or
+    inconsistent, keep using the reference predicate instead of relaxing policy.
+    """
+    try:
+        constants = ipaddress.IPv4Address._constants
+        required = ("_private_networks", "_loopback_network", "_multicast_network",
+                    "_reserved_network", "_linklocal_network", "_unspecified_address")
+        if not all(hasattr(constants, name) for name in required):
+            return None
+        boundaries = {0, 1 << 32}
+
+        def collect(value):
+            if isinstance(value, ipaddress.IPv4Network):
+                boundaries.update((int(value.network_address), int(value.broadcast_address) + 1))
+            elif isinstance(value, ipaddress.IPv4Address):
+                boundaries.update((int(value), int(value) + 1))
+            elif isinstance(value, (list, tuple, set, frozenset)):
+                for item in value:
+                    collect(item)
+
+        for value in vars(constants).values():
+            collect(value)
+        collect(_RESERVED_NETS)
+        points = sorted(boundaries)
+        intervals = []
+        for lo, stop in zip(points, points[1:]):
+            allowed = _is_valid_public_ipv4_reference(lo)
+            if any(_is_valid_public_ipv4_reference(probe) != allowed
+                   for probe in (stop - 1, (lo + stop - 1) // 2)):
+                return None
+            if not allowed:
+                if intervals and intervals[-1][1] + 1 == lo:
+                    intervals[-1] = (intervals[-1][0], stop - 1)
+                else:
+                    intervals.append((lo, stop - 1))
+        return tuple(lo for lo, _ in intervals), tuple(hi for _, hi in intervals)
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+_PUBLIC_IPV4_POLICY_INDEX = _build_public_ipv4_policy_index()
+
+
+def public_ipv4_int(ip):
+    """Return a validated public IPv4 integer, or None; strict dotted input."""
+    if not isinstance(ip, str) or _PUBLIC_IPV4_POLICY_INDEX is None:
+        # Preserve existing callers accepting IPv4Address, integers or bytes.
+        return int(ipaddress.ip_address(ip)) if _is_valid_public_ipv4_reference(ip) else None
+    try:
+        value = int.from_bytes(socket.inet_pton(socket.AF_INET, ip), "big")
+    except (OSError, ValueError):
+        return None
+    starts, ends = _PUBLIC_IPV4_POLICY_INDEX
+    pos = bisect.bisect_right(starts, value) - 1
+    return None if pos >= 0 and value <= ends[pos] else value
+
+
+def is_valid_public_ipv4(ip):
+    """Strict public IPv4 validation with the unchanged reserved-address policy."""
+    return public_ipv4_int(ip) is not None
+
+
+def _is_valid_public_cidr_reference(cidr):
     """True wenn gültiges öffentliches IPv4-CIDR mit Prefix == /32.
 
     Policy: Nur Einzel-IPs (/32) werden akzeptiert. Breitere CIDRs
@@ -590,6 +659,13 @@ def is_valid_public_cidr(cidr):
         return True
     except Exception:
         return False
+
+
+def is_valid_public_cidr(cidr):
+    """Accept public /32 hosts only; retain legacy netmask/input compatibility."""
+    if isinstance(cidr, str) and cidr.endswith("/32"):
+        return is_valid_public_ipv4(cidr[:-3])
+    return _is_valid_public_cidr_reference(cidr)
 
 
 # ═══════════════════════════════════════════════════════════════
