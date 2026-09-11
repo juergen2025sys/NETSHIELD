@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-11 14:11 CEST (Europe/Berlin)",
+  "updated": "2026-09-11 15:12 CEST (Europe/Berlin)",
   "total": 30,
   "ok": 30,
   "warn": 0,
@@ -11,7 +11,7 @@
     "active_blacklist_ipv4.txt": 909676,
     "blacklist_confidence40_ipv4_part1.txt": 4053445,
     "cve_exploit_ips.txt": 28233,
-    "honeypot_ips.txt": 2153348,
+    "honeypot_ips.txt": 2162100,
     "bot_detector_blacklist_ipv4.txt": 1271982
   },
   "production_health": {
