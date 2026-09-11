@@ -1,9 +1,15 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-11 19:01 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-11 23:42 CEST (Europe/Berlin)
 
-**Workflows:** 30 | ✅ 30 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
+**Workflows:** 30 | ✅ 29 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
 
 ---
+## ⚠️ Warnungen
+
+| Datei | Check | Detail |
+|---|---|---|
+| `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
+
 ## 🏥 Production Health
 
 **Status:** 🔴 0 CRITICAL | 🟡 0 WARN
@@ -30,7 +36,7 @@
 | `honigtopf.yml` | ✅ OK | 0 | 0 | `*/20 * * * *`, `5,25,45 * * * *`, `10,30,50 * * * *` |
 | `ip_ablauf.yml` | ✅ OK | 0 | 0 | `30 6 * * 1`, `55 */3 * * *` |
 | `ledger_diagnose.yml` | ✅ OK | 0 | 0 | – |
-| `netshield_report_generator.yml` | ✅ OK | 0 | 0 | `30 * * * *`, `45 * * * *`, `55 * * * *` |
+| `netshield_report_generator.yml` | ⚠️ | 0 | 1 | `30 * * * *`, `45 * * * *`, `55 * * * *` |
 | `repo_size_check.yml` | ✅ OK | 0 | 0 | – |
 | `run_tests.yml` | ✅ OK | 0 | 0 | – |
 | `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
@@ -46,4 +52,4 @@
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-11 19:01 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*
+*Generiert: 2026-09-11 23:42 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*
