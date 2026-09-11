@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-09-11 22:55 CEST (Europe/Berlin)
+Lauf: 2026-09-11 23:28 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -84,21 +84,20 @@ _51 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +5,325 (Anstieg) (jetzt 11,007,871 IPs)
+- Seit letztem Lauf: ➡️ unverändert (jetzt 11,007,871 IPs)
 - Seit Zyklus-Start (2026-08-23): 📈 +1,611,832 (Anstieg)
 - Letzter combined-Cleanup-Pass: 245,503 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 245,503 Active/180T), 1,072,694 neue IPs hinzugekommen (davon 939,848 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 11 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 1 geschützt entfernt, 136,424 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 8,938,344 (Summe letzte 8 Läufe / ~24h)
-- Entfernte IPs (Summe letzter Läufe): 2,047,816 (Summe letzte 8 Läufe / ~24h)
+- Neue IPs (Summe letzter Läufe): 8,850,817 (Summe letzte 8 Läufe / ~24h)
+- Entfernte IPs (Summe letzter Läufe): 2,021,436 (Summe letzte 8 Läufe / ~24h)
   - davon Watchlist/30 Tage: 2,000 (Summe letzte 8 Läufe / ~24h)
-  - davon Active/180 Tage: 2,045,816 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +101,605 (~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 15/15 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt) | zusätzlich 1 cancelled (nicht gewertet), Zeitraum 2026-09-11T05:17 bis 2026-09-11T20:53 UTC
+  - davon Active/180 Tage: 2,019,436 (Summe letzte 8 Läufe / ~24h)
+- Netto-Wachstum (~24h): 📈 +82,479 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-09-11T06:43 bis 2026-09-11T21:19 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-09-09 18:56 CEST (Europe/Berlin) | 10,829,715 | 186477 | 835128 | 0 |
 | 2026-09-09 18:57 CEST (Europe/Berlin) | 10,829,715 | 186477 | 835128 | 0 |
 | 2026-09-09 21:43 CEST (Europe/Berlin) | 10,835,343 | 186477 | 835059 | 0 |
 | 2026-09-09 23:25 CEST (Europe/Berlin) | 10,836,691 | 186477 | 835044 | 0 |
@@ -118,3 +117,4 @@ _51 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-09-11 15:49 CEST (Europe/Berlin) | 10,992,609 | 186475 | 834019 | 0 |
 | 2026-09-11 18:50 CEST (Europe/Berlin) | 11,002,546 | 186475 | 833917 | 0 |
 | 2026-09-11 22:55 CEST (Europe/Berlin) | 11,007,871 | 186474 | 833844 | 0 |
+| 2026-09-11 23:28 CEST (Europe/Berlin) | 11,007,871 | 186474 | 833844 | 0 |
