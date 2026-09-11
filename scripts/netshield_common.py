@@ -1813,6 +1813,20 @@ _original_getaddrinfo = None  # gesetzt beim ersten _install_dns_pin()
 _patched = False
 
 
+def _dns_pin_key(hostname):
+    """Use one DNS identity for validation, transport lookup and cleanup.
+
+    urllib lowercases parsed.hostname but can retain the original case in
+    HTTPConnection.host. DNS names are case-insensitive; IDNA, ASCII bytes
+    and an optional final root dot must also address the same pin.
+    """
+    if isinstance(hostname, bytes):
+        hostname = hostname.decode("ascii")
+    if not isinstance(hostname, str):
+        return hostname
+    return hostname.encode("idna").decode("ascii").lower().removesuffix(".")
+
+
 def _install_dns_pin():
     """Aktiviert den getaddrinfo-Monkey-Patch (einmalig pro Prozess)."""
     import socket
@@ -1827,9 +1841,10 @@ def _install_dns_pin():
 
         def _pinned_getaddrinfo(host, port, *args, **kwargs):
             pin_map = getattr(_pin_state, "pin_map", None)
-            if pin_map and host in pin_map:
+            key = _dns_pin_key(host)
+            if pin_map and key in pin_map:
                 # Bekanntes Pin → nur validierte IPs zurueckgeben
-                ips = pin_map[host]
+                ips = pin_map[key]
                 # Port-Normalisierung: getaddrinfo akzeptiert int, str, None
                 try:
                     port_int = int(port) if port is not None else 0
@@ -1864,6 +1879,7 @@ def _pin_host(hostname, ips):
         wenn vorher kein Mapping existierte.
     """
     _install_dns_pin()
+    hostname = _dns_pin_key(hostname)
     if not hasattr(_pin_state, "pin_map"):
         _pin_state.pin_map = {}
     previous = _pin_state.pin_map.get(hostname, _PIN_ABSENT)
@@ -1877,6 +1893,7 @@ def _restore_pin(hostname, previous):
     Wenn previous == _PIN_ABSENT war kein Mapping vorhanden → loeschen.
     Sonst → ueberschreiben.
     """
+    hostname = _dns_pin_key(hostname)
     pin_map = getattr(_pin_state, "pin_map", None)
     if pin_map is None:
         return
@@ -2268,7 +2285,11 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
         def _reader():
             try:
                 result.put((True, response.read(amount)))
-            except BaseException as exc:  # propagate the original read error
+            except Exception as exc:
+                result.put((False, exc))
+            except (KeyboardInterrupt, SystemExit, GeneratorExit) as exc:
+                # Forward process-control exceptions to the caller too;
+                # never leave it waiting on an empty queue after thread exit.
                 result.put((False, exc))
 
         worker = _threading.Thread(target=_reader, daemon=True)
@@ -2454,8 +2475,8 @@ def fetch_url(url, timeout=30, retries=3, user_agent="NETSHIELD/3.0",
                     if not _timed_out_read:
                         try:
                             r.close()
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            print(f"  WARNUNG Response-Cleanup: {type(exc).__name__}")
             except urllib.error.HTTPError as e:
                 retryable = e.code in TRANSIENT_CODES or (e.code == 404 and _host_is_gh_raw)
                 if retryable and attempt < retries:
