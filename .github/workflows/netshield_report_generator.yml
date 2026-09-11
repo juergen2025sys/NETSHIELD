@@ -121,133 +121,11 @@ jobs:
               .strftime("%Y-%m-%d %H:%M %Z") + " (Europe/Berlin)"
           )
 
-          # CHANGE ZWEI-FESTE-PARTS: Die Hauptdatei wird nicht mehr committet
-          # (Parts part1/part2 sind kanonisch). Fuer die Report-Funktionen
-          # (count_ips, file_age) hier einmalig aus den committeten Parts
-          # rekonstruieren, falls sie fehlt (numerische Reihenfolge via sort).
-          import glob as _rc_glob
-          _rc_main = "combined_threat_blacklist_ipv4.txt"
-          if not os.path.exists(_rc_main):
-              _rc_parts = sorted(_rc_glob.glob("combined_threat_blacklist_ipv4_part*.txt"))
-              if _rc_parts:
-                  _rc_bytes = concatenate_files_atomic(_rc_main, _rc_parts)
-                  print(
-                      f"Rekonstruiert: {_rc_main} aus {len(_rc_parts)} Part(s) "
-                      f"({_rc_bytes:,} Bytes, atomar)"
-                  )
-
-          def count_ips(filepath):
-              # FIX TRUNCATE-PARTS-COUNT: Liest Hauptdatei + alle Parts,
-              # dedupliziert via set. Vorher zaehlte die Funktion nur die
-              # Hauptdatei – bei aktivem Truncate (combined/conf40 >= 100 MB)
-              # zeigte der Report eine falsche, zu niedrige IP-Anzahl.
-              # Identisches Pattern wie FIX BUG-TRUNCATE-PARTS in geo_tagger.yml
-              # und update_confidence_blacklist.yml.
-              # Glob-Pattern leitet sich aus der Hauptdatei ab: foo.txt → foo_part*.txt
-              if not os.path.exists(filepath):
-                  return 0
-              import glob as _glob
-              _base, _ext = os.path.splitext(filepath)
-              _sources = [filepath] + sorted(_glob.glob(f"{_base}_part*{_ext}"))
-              _seen = set()
-              for _src in _sources:
-                  try:
-                      with open(_src, encoding="utf-8") as f:
-                          for line in f:
-                              s = line.strip()
-                              if s and not s.startswith("#"):
-                                  _seen.add(s)
-                  except OSError:
-                      continue
-              return len(_seen)
-              if not os.path.exists(workflow_path):
-                  return "–"
-              try:
-                  with open(workflow_path, encoding="utf-8") as f:
-                      workflow = f.read()
-
-                  sources_block = re.search(r'^\s+SOURCES\s*=\s*\{', workflow, re.MULTILINE)
-                  if not sources_block:
-                      return "–"
-
-                  brace_start = sources_block.start() + sources_block.group().index('{')
-                  depth = 0
-                  brace_end = brace_start
-                  for i, ch in enumerate(workflow[brace_start:], brace_start):
-                      if ch == '{':
-                          depth += 1
-                      elif ch == '}':
-                          depth -= 1
-                          if depth == 0:
-                              brace_end = i + 1
-                              break
-                  raw_sources = workflow[brace_start:brace_end]
-                  remote_feeds = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*\(\s*"([^"\n]+)"\s*,\s*(True|False)\s*\)\s*,?', raw_sources, re.MULTILINE))
-
-                  # FIX BUG1: LOCAL_FEEDS ist ein Dict ({...}), keine List ([...]).
-                  # Suche nach { statt [ und parse Dict-Einträge "name": True/False.
-                  local_block = re.search(r'^\s+LOCAL_FEEDS\s*=\s*\{', workflow, re.MULTILINE)
-                  local_feeds = 0
-                  if local_block:
-                      brace_start2 = local_block.start() + local_block.group().index('{')
-                      depth = 0
-                      brace_end2 = brace_start2
-                      for i, ch in enumerate(workflow[brace_start2:], brace_start2):
-                          if ch == '{':
-                              depth += 1
-                          elif ch == '}':
-                              depth -= 1
-                              if depth == 0:
-                                  brace_end2 = i + 1
-                                  break
-                      raw_local = workflow[brace_start2:brace_end2]
-                      local_feeds = len(re.findall(r'^[ \t]*"([^"\n]+)"\s*:\s*(True|False)\s*,?', raw_local, re.MULTILINE))
-
-                  total = remote_feeds + local_feeds
-
-                  # Auto-discovered Feeds mitzählen
-                  auto_file = "state/auto_discovered_feeds.json"
-                  if os.path.exists(auto_file):
-                      try:
-                          with open(auto_file, encoding="utf-8") as af:
-                              auto_data = json.load(af)
-                          total += auto_data.get("total_feeds", 0)
-                      except Exception as _suppressed:
-                          print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
-
-                  return str(total) if total > 0 else "–"
-              except Exception:
-                  return "–"
-
-          # Rueckwaertskompatibel: alte Dateien tragen UTC, die Combined-/Active-
-          # Ausgaben verwenden deutsche Ortszeit (CET/CEST, Europe/Berlin).
-          _TS_RE = re.compile(
-              r'#\s*Aktualisiert:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})'
-              r'\s*(UTC|CET|CEST)(\s*\(Europe/Berlin\))?'
+          from netshield_report_utils import (
+              count_published_ips as count_ips,
+              published_list_updated as file_age,
+              published_list_sources,
           )
-
-          def file_age(filepath):
-              """Liest den Aktualisiert-Header (UTC oder Europe/Berlin).
-              Fallback auf os.path.getmtime() wäre falsch – git checkout setzt mtime
-              immer auf den Checkout-Zeitpunkt, nicht auf das letzte echte Update."""
-              if not os.path.exists(filepath):
-                  return "–"
-              try:
-                  with open(filepath, encoding="utf-8") as _f:
-                      # Nur die ersten 10 Zeilen lesen – Header steht immer am Anfang
-                      for _ in range(10):
-                          line = _f.readline()
-                          if not line:
-                              break
-                          m = _TS_RE.search(line)
-                          if m:
-                              zone = m.group(2)
-                              suffix = " (Europe/Berlin)" if zone in ("CET", "CEST") else ""
-                              return f"{m.group(1)} {zone}{suffix}"
-              except Exception as _suppressed:
-                  print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
-              return "–"
-
           FILES = {
               "combined_threat_blacklist_ipv4.txt": "Stufe 1 – Alle IPs (180 Tage)",
               "active_blacklist_ipv4.txt": "Stufe 2 – Aktiv (30 Tage + Conf≥65)",
@@ -271,8 +149,10 @@ jobs:
           for fname, desc in FILES.items():
               count = count_ips(fname)
               age = file_age(fname)
-              exists = "✅" if os.path.exists(fname) else "❌"
-              lines.append(f"| {exists} `{fname}` | {desc} | **{count:,}** | {age} |")
+              sources = published_list_sources(fname)
+              exists = "✅" if sources else "❌"
+              links = " + ".join(f"[{src.name}](../{src.as_posix()})" for src in sources) or f"`{fname}`"
+              lines.append(f"| {exists} {links} | {desc} | **{count:,}** | {age} |")
               if fname == "combined_threat_blacklist_ipv4.txt":
                   total = count
 
@@ -387,33 +267,7 @@ jobs:
               if f.endswith(".yml")
           ]) if os.path.isdir(".github/workflows") else 16
 
-          def count_ips(filepath):
-              # FIX TRUNCATE-PARTS-COUNT: Hauptdatei + Parts deduplizieren.
-              # Siehe identische Funktion im vorherigen Step (Heredoc-Namespaces
-              # teilen keinen State, deshalb hier zweite Kopie). Vorher unterzaehlte
-              # die Funktion bei Truncate-aktivem combined/conf40 systematisch.
-              if not os.path.exists(filepath):
-                  return 0
-              import glob as _glob
-              _base, _ext = os.path.splitext(filepath)
-              _sources = [filepath] + sorted(_glob.glob(f"{_base}_part*{_ext}"))
-              _seen = set()
-              for _src in _sources:
-                  try:
-                      with open(_src, encoding="utf-8") as f:
-                          for line in f:
-                              s = line.strip()
-                              if s and not s.startswith("#"):
-                                  _seen.add(s)
-                  except OSError:
-                      continue
-              return len(_seen)
-          # FIX DUP1: Funktion als eigenständige Definition direkt hier, statt
-          # als unsynchronisierte Kopie. Beide EOF-Blöcke definieren die Funktion
-          # lokal – das ist unvermeidbar wegen des Heredoc-Namespaces.
-          # STAND: Beide Blöcke verwenden identischen Namen derive_feed_count()
-          # (kein abweichendes _-Präfix mehr) und identische Implementierung.
-          # Änderungen immer in BEIDEN EOF-Blöcken vornehmen (Kommentar markiert Stelle).
+          from netshield_report_utils import count_published_ips as count_ips
           if not os.path.exists("README.md"):
               print("README.md nicht gefunden – übersprungen")
               raise SystemExit(0)
@@ -427,9 +281,6 @@ jobs:
           if active == 0 and cve == 0 and honeypot == 0:
               print("WARNUNG: Alle Hauptlisten leer oder fehlend – README-Update übersprungen")
               raise SystemExit(0)
-          # FIX DUP1: Identische Logik wie derive_feed_count() im ersten EOF-Block.
-          # Separate EOF-Heredocs teilen keinen Namespace – lokale Definition nötig.
-          # !! Bei Änderungen auch derive_feed_count() im ersten EOF-Block anpassen !!
           def derive_feed_count(workflow_path=".github/workflows/update_combined_blacklist.yml"):
               if not os.path.exists(workflow_path):
                   return "–"
@@ -611,42 +462,10 @@ jobs:
           import os
           import re
 
+          from netshield_report_utils import count_published_ips
+
           def count_ips(filepath):
-              # FIX COMBINED-PARTS-COUNT (generalisiert 2026-08-08): Mehrere
-              # Hauptdateien werden inzwischen nur noch als kanonische Parts
-              # committet (combined_threat_blacklist_ipv4.txt UND seit dem
-              # .gitignore-Fix "STOP-HISTORY-BLOAT" vom 2026-08-06 auch
-              # blacklist_confidence40_ipv4.txt). Der Fallback war zuvor hart
-              # auf den Combined-Dateinamen verdrahtet - fuer jede weitere
-              # Datei, deren Hauptdatei aus dem Tracking genommen wird, gab
-              # count_ips() sonst None zurueck und der README-Eintrag wurde
-              # committet still uebersprungen (eingefrorene Zahl, ohne
-              # Fehlermeldung). Jetzt generisch: Existiert eine rekonstruierte
-              # Hauptdatei im Runner, werden Hauptdatei + Parts gezaehlt
-              # (dedupliziert ueber ein Set); fehlt die Hauptdatei aber Parts
-              # sind vorhanden, werden ausschliesslich die Parts gezaehlt.
-              import glob as _glob
-              _base, _ext = os.path.splitext(filepath)
-              _parts = sorted(_glob.glob(f"{_base}_part*{_ext}"))
-              if os.path.exists(filepath):
-                  _sources = [filepath] + _parts
-              elif _parts:
-                  _sources = _parts
-              else:
-                  return None
-
-              _seen = set()
-              for _src in _sources:
-                  try:
-                      with open(_src, encoding="utf-8") as f:
-                          for line in f:
-                              s = line.strip()
-                              if s and not s.startswith("#"):
-                                  _seen.add(s)
-                  except OSError:
-                      continue
-              return len(_seen)
-
+              return count_published_ips(filepath, missing=None)
           # Wert: (Quelldatei fuer die Zaehlung, Link-Ziel als README-Anker,
           # Formatierung). Bei Combined UND Confidence40 wird aus den
           # kanonischen Parts gezaehlt, die Tabellenzeile aber ueber den

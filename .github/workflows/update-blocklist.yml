@@ -33,6 +33,7 @@ jobs:
           persist-credentials: true
 
       - name: Download All Countries IPv4 Ranges
+        id: build_countries
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -42,7 +43,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries as _parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
-              fetch_url, check_local_feed_age,
+              fetch_url, safe_urlopen, check_local_feed_age,
               IPV4_RE, CIDR_RE, TIMESTAMP_RE,
           )
 
@@ -345,19 +346,30 @@ jobs:
                   return (0, 0)
 
           def fetch_country(url, retries=3, timeout=15):
-              # FIX BUG-WF2-FETCHURL: vorher direkter urllib.urlopen ohne SSRF-
-              # Schutz. fetch_url uebernimmt jetzt Retry/Backoff und gzip-
-              # Streaming. Das (text, error)-Tupel wird beibehalten fuer
-              # Backward-Compat des Callers (der das error-Objekt fuer Logging
-              # nutzt) – auf einen generischen "fetch_url returned None"-
-              # Marker, da fetch_url nicht zwischen 404/Timeout/etc.
-              # unterscheidet sondern nur None/Body.
-              text = fetch_url(url, timeout=timeout, retries=retries,
-                               user_agent="NETSHIELD-Geo/2.0")
-              if text is None:
-                  return None, Exception("fetch_url returned None")
-              return text, None
-
+              # 404 ist eine bekannte leere Quelle; Ausfaelle sind keine leeren Laender.
+              # Zentraler DNS-/SSRF-Schutz bleibt auch bei der Statusauswertung aktiv.
+              last_error = None
+              for attempt in range(retries):
+                  try:
+                      with safe_urlopen(url, timeout=timeout, headers={
+                          "User-Agent": "NETSHIELD-Geo/2.0", "Accept-Encoding": "identity",
+                      }) as response:
+                          body = response.read(8 * 1024 * 1024 + 1)
+                          if len(body) > 8 * 1024 * 1024:
+                              raise ValueError("Laenderdatei groesser als 8 MiB")
+                          return body.decode("utf-8-sig"), None
+                  except urllib.error.HTTPError as exc:
+                      last_error = exc
+                      exc.close()
+                      if exc.code == 404:
+                          return None, exc
+                      if exc.code not in (408, 429) and exc.code < 500:
+                          break
+                  except (OSError, ValueError, urllib.error.URLError) as exc:
+                      last_error = exc
+                  if attempt + 1 < retries:
+                      time.sleep(2 ** attempt)
+              return None, last_error
           countries = list(COUNTRY_MAP.keys())
           print(f"Lade {len(countries)} Länder von hackinggate.com ...")
 
@@ -373,7 +385,7 @@ jobs:
                   _skipped_ccs = countries[i:]
                   _msg = (f"Elapsed-time Guard ausgelöst nach {i} Ländern ({i}/{len(countries)}) – "
                           f"{len(_skipped_ccs)} Länder übersprungen ({', '.join(_skipped_ccs[:10])}{'…' if len(_skipped_ccs) > 10 else ''}). "
-                          f"Bisher geladene Daten werden gespeichert.")
+                          f"Bestehende Dateien bleiben unveraendert.")
                   print(f"::warning file=update-blocklist.yml::{_msg}")
                   print(f"WARNUNG: {_msg}")
                   break
@@ -412,6 +424,11 @@ jobs:
           # hackinggate liefert ~255k aggregierte Ranges. Bei partiellem Ausfall
           # könnten trotzdem 200k+ ankommen → Schwelle auf 240k erhöht für
           # zuverlässigeren Schutz vor teilweise fehlgeschlagenen Runs.
+          if errors or _partial_load or len(country_data) != len(COUNTRY_MAP):
+              raise RuntimeError(
+                  f"Unvollstaendiger Laenderabruf ({len(country_data)}/{len(COUNTRY_MAP)}; "
+                  f"Fehler: {errors}). Bestehende Laender- und Gesamtlisten bleiben erhalten."
+              )
           MIN_ENTRIES = 240_000
           if len(all_ips) == 0:
               msg = "Keine IP-Ranges geladen – hackinggate.com möglicherweise ausgefallen (SPOF)"
@@ -504,7 +521,7 @@ jobs:
           EOF
 
       - name: Commit and Push
-        if: always()
+        if: always() && steps.build_countries.outcome == 'success'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

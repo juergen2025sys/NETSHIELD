@@ -889,7 +889,22 @@ jobs:
               print(f"::warning file=honigtopf.yml::{_msg}")
               print(f"WARNUNG: {_msg}")
 
-          # ── Report immer zuerst schreiben ────────────────────────────────
+          # Report-Zahlen beziehen sich auf den tatsaechlich veroeffentlichten Stand.
+          MIN_ENTRIES = 500
+          _rejected_small = len(final_ips) < MIN_ENTRIES
+          _published_count = len(existing) if _rejected_small else len(final_ips)
+          if not _rejected_small:
+              # FIX ATOMIC: write_ip_list statt open("w") – Crash-sicher.
+              write_ip_list(
+                  HONIGTOPF_FILE,
+                  final_ips,
+                  header_lines=[
+                      "NETSHIELD Honigtopf IP Blocklist",
+                      f"Aktualisiert: {now_str}",
+                      f"Gesamt: {len(final_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt",
+                  ],
+              )
+
           lines = []
           lines.append("# Honigtopf – Report")
           lines.append(f"**Aktualisiert:** {now_str}  ")
@@ -940,9 +955,11 @@ jobs:
           lines.append("---")
           lines.append("| Metrik | Wert |")
           lines.append("|---|---|")
-          lines.append(f"| Gesamt Honigtopf-IPs | **{len(final_ips):,}** |")
-          lines.append(f"| Neu | **+{len(new_ips):,}** |")
-          lines.append(f"| Entfernt | **-{len(removed_ips):,}** |")
+          lines.append(f"| Gesamt Honigtopf-IPs | **{_published_count:,}** |")
+          lines.append(f"| Kandidaten dieses Abrufs | **{len(final_ips):,}** |")
+          lines.append("| Veroeffentlichung | " + ("Abgelehnt durch Leerungsschutz; bestehende Liste behalten" if _rejected_small else "Veröffentlicht") + " |")
+          lines.append(f"| Neu | **+{0 if _rejected_small else len(new_ips):,}** |")
+          lines.append(f"| Entfernt | **-{0 if _rejected_small else len(removed_ips):,}** |")
           lines.append("")
           lines.append("---")
           lines.append("> ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.")
@@ -955,23 +972,11 @@ jobs:
           # FIX #11 / FIX LS2: MIN_ENTRIES auf 500 erhöht (entspricht unterer Normalwert
           # 500–5000 IPs). sys.exit(1) statt sys.exit(0) damit GitHub Actions den
           # Step als fehlgeschlagen markiert und im UI sichtbar wird.
-          MIN_ENTRIES = 500
-          if len(final_ips) < MIN_ENTRIES:
+          if _rejected_small:
               msg = f"Nur {len(final_ips)} Honigtopf-IPs (< {MIN_ENTRIES}) – behalte bestehende Datei"
               print(f"::warning file=honigtopf.yml::{msg}")
               print(f"WARNUNG: {msg}")
               sys.exit(1)
-
-          # FIX ATOMIC: write_ip_list statt open("w") – Crash-sicher.
-          write_ip_list(
-              HONIGTOPF_FILE,
-              final_ips,
-              header_lines=[
-                  "NETSHIELD Honigtopf IP Blocklist",
-                  f"Aktualisiert: {now_str}",
-                  f"Gesamt: {len(final_ips)} | +{len(new_ips)} neu | -{len(removed_ips)} entfernt",
-              ],
-          )
 
           print(f"  {HONIGTOPF_FILE}: {len(final_ips)} IPs geschrieben")
 

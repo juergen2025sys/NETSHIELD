@@ -68,21 +68,8 @@ env:
 permissions:
   contents: write
 
-# FIX HEALTH-CHECK (2026-08-08): concurrency-Block ergaenzt. Ohne den
-# koennten ein manueller workflow_dispatch-Lauf und der monatliche
-# schedule-Lauf theoretisch gleichzeitig laufen und sich beim Force-Push
-# gegenseitig ueberschreiben/Race-Condition erzeugen. Eigene Gruppe (nicht
-# die netshield-seen-db-writers-Gruppe der anderen Workflows), weil dieser
-# Workflow keine der dortigen Dateien schreibt - nur sich selbst gegen
-# parallele Laeufe absichern.
-# FIX FRESHSTART-SLOT-KOLLISION 01.09.2026 (Review-Fund MITTEL):
-# Der Workflow hatte eine EIGENE concurrency-Gruppe mit der Begruendung, er
-# schreibe keine der Dateien der anderen Workflows. Das stimmt fuer den
-# Dateiinhalt, aber nicht fuer das Ziel: 'git push origin main --force' auf
-# einen Orphan-Branch ersetzt die gesamte Historie von main - genau des
-# Branch, auf den update_combined_blacklist.yml, update_confidence_blacklist.yml
-# und ip_ablauf.yml im selben Moment committen. Der Workflow gehoert deshalb
-# in dieselbe Serialisierungsgruppe wie alle anderen main-Schreiber.
+# Gemeinsam mit den zentralen State-Schreibern serialisieren. Weitere
+# Workflows und manuelle Pushes sind ueber die unveraenderliche Lease geschuetzt.
 concurrency:
   group: netshield-seen-db-writers
   cancel-in-progress: false
@@ -120,8 +107,16 @@ jobs:
       - name: Checkout Repository (flach - nur aktueller Stand, keine Historie)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: main
           fetch-depth: 1
           persist-credentials: true
+
+      - name: Reset-Basis main erfassen
+        id: reset_base
+        run: |
+          set -euo pipefail
+          expected_main=$(git rev-parse --verify HEAD)
+          echo "expected_main=$expected_main" >> "$GITHUB_OUTPUT"
 
       - name: Groesse vor der Bereinigung
         run: |
@@ -150,25 +145,36 @@ jobs:
           git log --oneline
 
       - name: Force-Push
+        env:
+          EXPECTED_MAIN: ${{ steps.reset_base.outputs.expected_main }}
         run: |
-          echo "Push des bereinigten Branches..."
-          # FIX HYGIENE (2026-08-07): Retry-Loop ergaenzt, damit
-          # scripts/check_security_hygiene.py den "git push mit Retry-Loop"-
-          # Check besteht. Kein git-rebase noetig wie im Commit-and-Push-
-          # Step von update_combined_blacklist.yml - Force-Push ersetzt die
-          # Historie ohnehin komplett, ein Merge-Konflikt kann hier
-          # begrifflich nicht auftreten. Der Retry deckt stattdessen
-          # transiente Netzwerk-/5xx-Fehler ab (z. B. kurzzeitige GitHub-
-          # API-Instabilitaet waehrend des Runs).
+          set -euo pipefail
+          if [[ ! "${EXPECTED_MAIN:-}" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "::error::Gueltige Reset-Basis fehlt; Abbruch."
+            exit 1
+          fi
+          reset_head=$(git rev-parse --verify HEAD)
+          # Die Lease bleibt ueber alle Retries am urspruenglichen Checkout.
+          # Neuere Commits duerfen niemals durch einen History-Reset verschwinden.
           for attempt in 1 2 3 4 5; do
-            echo "Push-Versuch $attempt..."
-            if git push origin main --force; then
-              echo "Push erfolgreich (Versuch $attempt)"
+            if git push "--force-with-lease=refs/heads/main:$EXPECTED_MAIN" origin HEAD:refs/heads/main; then
+              echo "History-Reset erfolgreich."
               exit 0
+            fi
+            if remote_line=$(git ls-remote --exit-code origin refs/heads/main); then
+              remote_head=${remote_line%%[[:space:]]*}
+              if [ "$remote_head" = "$reset_head" ]; then
+                echo "Reset bereits uebertragen; vorherige Antwort ging verloren."
+                exit 0
+              fi
+              if [ "$remote_head" != "$EXPECTED_MAIN" ]; then
+                echo "::error::main hat sich seit dem Checkout geaendert; neuere Commits bleiben erhalten."
+                exit 1
+              fi
             fi
             sleep $((attempt * 3))
           done
-          echo "::error::Force-Push nach 5 Versuchen fehlgeschlagen."
+          echo "::error::History-Reset nach 5 Versuchen fehlgeschlagen."
           exit 1
 
       - name: Ergebnis

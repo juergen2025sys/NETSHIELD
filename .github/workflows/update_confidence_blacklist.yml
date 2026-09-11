@@ -252,6 +252,7 @@ jobs:
           fi
 
       - name: Build Confidence Blacklists from seen_db
+        id: build_confidence
         env:
           PYTHONUNBUFFERED: "1"
           # TESTVERSION: 1 = SQLite-Benchmark + Live-Performance-Log.
@@ -1049,13 +1050,11 @@ jobs:
           # GitHub-Push-Grenze reisst (derzeit ~57 MB, Wachstum proportional
           # zu combined). Hauptdatei bleibt der Legacy-Pfad (kompletter
           # Score-sortierter Inhalt solange unter 100 MB), Parts decken die
-          # Vollstaendigkeit ab sobald Split-Schwelle erreicht ist.
+          # Vollstaendigkeit bei jeder Groesse ab (kanonische Downloads).
           # Reihenfolge im File: Score-sortiert absteigend bleibt erhalten;
           # Parts werden in Score-Bereiche aufgeteilt (Part 1 = hoechste Scores).
           HARD_LIMIT_MB      = 100  # GitHub Push-Limit
           TRUNCATE_TARGET_MB = 95   # Sicherheitspuffer unter HARD_LIMIT_MB
-          SPLIT_THRESHOLD_MB = 90   # ab hier Parts erzeugen
-          PART_TARGET_MB     = 40   # Groesse pro Part
 
           # Sample-basierte Avg-Schaetzung (stratifiziert, vermeidet IP-Laengen-
           # Bias durch sortierte Reihenfolge). Identische Methode wie combined.
@@ -1103,83 +1102,38 @@ jobs:
           _conf40_main_mb = os.path.getsize(OUT_40) / 1024 / 1024
           print(f"{OUT_40} (tatsaechlich): {_conf40_main_mb:.1f} MB")
 
-          # ── Split-Logik fuer grosse Confidence40-Dateien ──────────────────
-          # Identische Strategie wie in update_combined_blacklist.yml:
-          # Split-Entscheidung auf Basis der VOLLSTAENDIGEN Liste (estimated_mb),
-          # nicht der evtl. truncatierten Hauptdatei. Bei Truncate muessen
-          # die Parts zwingend existieren, weil sie die einzige vollstaendige
-          # Quelle sind.
-          _glob_conf40 = _glob  # kein zweiter Import – _glob wurde oben bereits geladen
-          _existing_parts_conf40 = sorted(
-              _glob_conf40.glob("blacklist_confidence40_ipv4_part*.txt"))
-
-          if _conf40_estimated_mb >= SPLIT_THRESHOLD_MB:
-              # FIX FIXED-2-PARTS-2026-08-14: War max(2, int(MB/40 + 0.5)) -
-              # bei genug Wachstum wurde daraus automatisch 3 statt 2 Parts.
-              # Das aendert die Konsumenten-Konfiguration (z.B. OPNsense-
-              # Alias mit fest 2 eingetragenen Part-URLs) unangekuendigt -
-              # ein 3. Part existiert dann zwar als Datei im Repo, wird aber
-              # von niemandem abgerufen, der nur die 2 urspruenglich
-              # bekannten URLs kennt. Gleicher Fix wie bereits in
-              # update_combined_blacklist.yml ("CHANGE ZWEI-FESTE-PARTS").
-              # PARTS-BEI-WEITEREM-WACHSTUM: Feste 2 Parts statt
-              # groessenabhaengiger Anzahl. Bei weiterem Wachstum werden die
-              # 2 Parts einfach groesser statt dass ein 3. dazukommt.
-              # EHRLICHER HINWEIS: Anders als update_combined_blacklist.yml
-              # hat DIESE Datei keine eigene Fruehwarnung-Sektion, die vor
-              # Erreichen der 200-MiB-Decke (2x100MB GitHub-Limit pro Datei)
-              # warnt - die Entscheidung fuer einen echten 3. Part muesste
-              # hier manuell anhand von _conf40_estimated_mb im Log erkannt
-              # werden, es gibt (Stand 2026-08-14) keinen automatisierten
-              # Alarm dafuer wie bei Combined.
-              _num_parts = 2
-              _chunk_size = (len(confidence40) + _num_parts - 1) // _num_parts
-              print(f"  -> Split aktiv: {_num_parts} Parts a ~{PART_TARGET_MB} MB "
-                    f"({_chunk_size:,} IPs/Part)")
-
-              _new_parts = []
-              for _idx in range(_num_parts):
-                  _start = _idx * _chunk_size
-                  _end   = min(_start + _chunk_size, len(confidence40))
-                  if _start >= len(confidence40):
-                      break
-                  _part_name = f"blacklist_confidence40_ipv4_part{_idx+1}.txt"
-                  _part_body = (
-                      f"# NETSHIELD Confidence-40 Blacklist – Part {_idx+1}/{_num_parts}\n"
-                      f"# Aktualisiert: {now_str}\n"
-                      f"# Score-Bereich: {confidence40[_start][1]} bis {confidence40[_end-1][1]}\n"
-                      f"# Eintraege: {_end - _start}\n"
-                      f"# Siehe README fuer Nutzung mit allen Parts.\n\n"
-                      + "".join(f"{ip}\n" for ip, conf in confidence40[_start:_end])
-                  )
-                  write_text_atomic(_part_name, _part_body)
-                  _new_parts.append(_part_name)
-                  print(f"  {_part_name}: {_end - _start:,} IPs, "
-                        f"{os.path.getsize(_part_name)/1024/1024:.1f} MB")
-
-              # Alte Parts entfernen, die nicht mehr erzeugt wurden
-              for _old in _existing_parts_conf40:
-                  if _old not in _new_parts:
-                      try:
-                          os.unlink(_old)
-                          print(f"  Alten Part entfernt: {_old}")
-                      except OSError:
-                          pass
-
-              if _conf40_estimated_mb < HARD_LIMIT_MB:
-                  _split_msg = (f"Vollliste waere {_conf40_estimated_mb:.1f} MB "
-                                f"(>= {SPLIT_THRESHOLD_MB} MB). Parts erzeugt als Reserve.")
-                  print(f"::warning file=update_confidence_blacklist.yml::{_split_msg}")
-                  print(f"WARNUNG: {_split_msg}")
-          else:
-              # Unter Schwelle: Eventuell vorhandene alte Parts aufraeumen
-              for _old in _existing_parts_conf40:
-                  try:
-                      os.unlink(_old)
-                      print(f"  Alten Part entfernt (unter Schwelle): {_old}")
-                  except OSError:
-                      pass
-
+          # Die Hauptdatei wird nicht committet: beide Download-Parts immer bauen.
+          # Feste URLs und Score-Reihenfolge bleiben bei jeder Listengroesse erhalten.
+          _existing_parts_conf40 = sorted(_glob.glob("blacklist_confidence40_ipv4_part*.txt"))
+          _chunk_size = (len(confidence40) + 1) // 2
+          _new_parts = []
+          _written_count = 0
+          for _idx in range(2):
+              _start = _idx * _chunk_size
+              _end = min(_start + _chunk_size, len(confidence40))
+              _part_name = f"blacklist_confidence40_ipv4_part{_idx + 1}.txt"
+              _part_body = (
+                  f"# NETSHIELD Confidence-40 Blacklist – Part {_idx + 1}/2\n"
+                  f"# Aktualisiert: {now_str}\n"
+                  f"# Score-Bereich: {confidence40[_start][1]} bis {confidence40[_end - 1][1]}\n"
+                  f"# Eintraege: {_end - _start}\n"
+                  f"# Fuer vollstaendigen Schutz beide Parts verwenden.\n\n"
+                  + "".join(f"{ip}\n" for ip, conf in confidence40[_start:_end])
+              )
+              _part_mb = len(_part_body.encode("utf-8")) / 1024 / 1024
+              if _part_mb >= HARD_LIMIT_MB:
+                  raise RuntimeError(f"{_part_name}: {_part_mb:.1f} MiB erreicht GitHub-Dateilimit")
+              if _part_mb >= 90:
+                  print(f"::warning::{_part_name}: {_part_mb:.1f} MiB, nahe am Dateilimit")
+              write_text_atomic(_part_name, _part_body)
+              _new_parts.append(_part_name)
+              _written_count += _end - _start
+              print(f"{_part_name}: {_end - _start:,} IPs, {_part_mb:.1f} MiB")
+          if len(_new_parts) != 2 or _written_count != len(confidence40):
+              raise RuntimeError("Confidence-Parts unvollstaendig; keine Veroeffentlichung")
+          for _old in _existing_parts_conf40:
+              if _old not in _new_parts:
+                  os.unlink(_old)
           _watch_body = (
               f"# NETSHIELD Watchlist – Niedriges Vertrauen (Score 25-39/100)\n"
               f"# Aktualisiert: {now_str}\n"
@@ -1216,8 +1170,8 @@ jobs:
           EOF
 
       - name: Commit
-        # Best-Effort-Commit bleibt auch bei Build-Fehler aktiv.
-        if: always()
+        # Nur einen vollstaendig erfolgreichen Build veroeffentlichen.
+        if: always() && steps.build_confidence.outcome == 'success'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

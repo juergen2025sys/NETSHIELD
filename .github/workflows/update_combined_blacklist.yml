@@ -548,6 +548,7 @@ jobs:
               is_protected_entry, is_whitelisted,
               parse_entries, parse_feed_entries, calculate_confidence,
               coerce_bool,
+              public_ipv4_int,
               safe_get_date, parse_date, sort_ips, write_ip_list,
               write_json_atomic, write_text_atomic,
               fetch_url, fetch_parallel_daemon, check_local_feed_age,
@@ -2145,9 +2146,9 @@ jobs:
                       return (not is_valid_public_cidr(ip_str)
                               or is_protected_entry(ip_str)
                               or is_in_fp_set(ip_str))
-                  if not is_valid_public_ipv4(ip_str):
+                  ip_int = public_ipv4_int(ip_str)
+                  if ip_int is None:
                       return True
-                  ip_int = _struct.unpack('!I', _socket.inet_pton(_socket.AF_INET, ip_str))[0]
                   pos = _bisect.bisect_right(_prot_starts, ip_int) - 1
                   if pos >= 0 and ip_int <= _prot_intervals[pos][1]:
                       return True

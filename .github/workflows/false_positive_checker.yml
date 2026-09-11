@@ -74,7 +74,7 @@ jobs:
 
           # Init: Whitelist + FP-Set laden
           load_whitelist()
-          load_fp_set()
+          _loaded_fp_ips, _loaded_fp_networks = load_fp_set()
 
           import re
           import os
@@ -112,16 +112,9 @@ jobs:
 
           # is_whitelisted() → importiert aus netshield_common
           # ── Blacklist laden ───────────────────────────────────────────────
-          # FIX BUG-TRUNCATE-PARTS: Sobald die Vollliste >= 100 MB GitHub-Push-
-          # Limit erreicht, schreibt update_combined_blacklist die Hauptdatei
-          # truncatiert und verteilt die vollstaendige Liste auf
-          # combined_threat_blacklist_ipv4_part*.txt. Wenn wir hier nur die
-          # Hauptdatei lesen, hat das KRITISCHE Konsequenzen:
-          #   merged_fp = (existing_fp | fp_set) & set(blacklist_ips)
-          # entfernt legitime FP-Eintraege deren IP nur in den Parts steht.
-          # Identische Datenverlust-Klasse wie BUG-WL1-PROPAGATION.
-          # Loesung: Hauptdatei + alle Parts einlesen, dedupen via set.
-          # Identisch zum Fix in update_confidence_blacklist.yml.
+          # Auch bei einer truncatierten oder fehlenden Legacy-Hauptdatei alle
+          # Parts auf neue Whitelist-Treffer pruefen. Bestehende FP-Ausnahmen
+          # bleiben unabhaengig von ihrer Praesenz in der Blacklist erhalten.
           import glob as _glob
           BLACKLIST = "combined_threat_blacklist_ipv4.txt"
           _sources_read = [BLACKLIST] + sorted(
@@ -164,33 +157,16 @@ jobs:
           # Vorteile:
           #   1. Keine Race-Condition mehr mit combined (der als einzige Quelle der
           #      Wahrheit für combined_threat_blacklist_ipv4.txt gilt).
-          #   2. HQ-IPs werden sauber behandelt: combined entscheidet beim nächsten
-          #      Lauf ob ein HQ-Feed die IP erneut meldet – kein ewiger Add/Remove-Zyklus.
-          fp_set = set(false_positives)
+          #   2. Auch HQ-Feeds umgehen bestaetigte FP-Ausnahmen nicht.
+          # Ohne explizite Ablaufregel bleiben bestaetigte Ausnahmen erhalten.
+          # Ihr Fehlen in der Blacklist bedeutet, dass die Ausnahme funktioniert.
+          fp_set = set()
+          for entry in false_positives:
+              net = ipaddress.IPv4Network(entry, strict=False)
+              fp_set.add(str(net.network_address) if net.prefixlen == 32 else str(net))
           FP_JSON = "state/false_positives_set.json"
-
-          existing_fp = set()
-          if os.path.exists(FP_JSON):
-              try:
-                  with open(FP_JSON) as f:
-                      data = json.load(f)
-                  existing_fp = set(data.get("ips", []))
-              except Exception:
-                  existing_fp = set()
-
-          # Leerungsschutz: wenn combined_threat_blacklist_ipv4.txt kurzzeitig leer oder
-          # stark geschrumpft ist (z.B. nach fehlgeschlagenem Combined-Run), darf der
-          # Schnitt-Filter keine legitimen FP-Einträge aus existing_fp löschen.
-          # Untergrenze: mind. 1000 IPs → sonst existing_fp NICHT per Schnitt beschneiden.
-          MIN_BLACKLIST_FOR_STALE_CLEANUP = 1000
-          if len(blacklist_ips) >= MIN_BLACKLIST_FOR_STALE_CLEANUP:
-              merged_fp = (existing_fp | fp_set) & set(blacklist_ips)
-          else:
-              # Blacklist zu klein → nur neue FPs hinzufügen, bestehende NICHT entfernen
-              merged_fp = existing_fp | fp_set
-              print(f"WARNUNG: Blacklist hat nur {len(blacklist_ips)} Einträge (<{MIN_BLACKLIST_FOR_STALE_CLEANUP}) "
-                    f"– existing_fp wird nicht per Schnitt bereinigt (Datenverlust-Schutz)")
-          removed_stale_fp = (existing_fp | fp_set) - merged_fp
+          existing_fp = set(_loaded_fp_ips) | {str(net) for net in _loaded_fp_networks}
+          merged_fp = existing_fp | fp_set
           # FIX ATOMIC: write_json_atomic statt open("w") – bei Runner-Kill
           # bleibt die Datei komplett alt oder komplett neu. Eine halb
           # geschriebene state/false_positives_set.json würde beim naechsten Run
@@ -202,7 +178,7 @@ jobs:
               "ips":      sorted(merged_fp),
           }, indent=2)
           print(f"state/false_positives_set.json: {len(merged_fp)} IPs gespeichert "
-                f"({len(fp_set)} neu erkannt, {len(existing_fp)} bereits vorhanden, {len(removed_stale_fp)} veraltete entfernt)")
+                f"({len(fp_set)} neu erkannt, {len(existing_fp)} bereits vorhanden und erhalten)")
 
           # ── seen_db wird NICHT mehr hier bereinigt ─────────────────────
           # Der combined-Workflow filtert FP-IPs beim nächsten Lauf selbst

@@ -364,6 +364,7 @@ jobs:
           PY
 
       - name: Validiere Auto-Feed Snapshot
+        id: validate_snapshot
         if: steps.refresh.outcome == 'success'
         run: |
           set -euo pipefail
@@ -426,7 +427,7 @@ jobs:
           PY
 
       - name: Save Auto-Feed Snapshot Cache
-        if: always() && steps.refresh.outcome == 'success'
+        if: always() && steps.refresh.outcome == 'success' && steps.validate_snapshot.outcome == 'success'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: state/auto_feed_daily.sqlite3
@@ -448,7 +449,7 @@ jobs:
         # Die strikte Regex "...-v1-<nur Ziffern>" schliesst diese Familie
         # sicher aus, genau wie beim seen_db-Cleanup mit seinen drei
         # Fremd-Familien.
-        if: steps.refresh.outcome == 'success'
+        if: steps.refresh.outcome == 'success' && steps.validate_snapshot.outcome == 'success'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -476,7 +477,7 @@ jobs:
           exit 0
 
       - name: Commit Report und Kompatibilitaetsliste
-        if: always()
+        if: always() && steps.refresh.outcome == 'success' && steps.validate_snapshot.outcome == 'success'
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
