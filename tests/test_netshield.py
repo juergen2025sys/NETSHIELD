@@ -736,33 +736,20 @@ class TestWhitelistLoading(unittest.TestCase):
     # beliebige Substrings galten als False-Positive.
 
     def test_load_fp_set_ips_as_string_does_not_corrupt_state(self):
-        """ips=String darf das FP-Set NICHT mit Einzelzeichen befuellen."""
         with open(self.fp_path, 'w') as f:
             json.dump({"ips": "1.2.3.4"}, f)
-        fp_ips, fp_nets = load_fp_set(self.fp_path)
-        # Erwartung: leerer State (Schema-Reject), NICHT {'1','.','2',...}
-        self.assertEqual(fp_ips, set())
-        self.assertEqual(fp_nets, [])
-        # Und: Punkt darf nicht als FP gelten
+        with self.assertRaises(ValueError):
+            load_fp_set(self.fp_path)
         self.assertFalse(is_in_fp_set("."))
-        # Auch nicht "1" oder andere Einzelzeichen
         self.assertFalse(is_in_fp_set("1"))
 
-    def test_load_fp_set_root_not_dict_returns_empty(self):
-        """JSON-Root ist eine Liste oder ein String → leerer State."""
-        # Liste statt dict
-        with open(self.fp_path, 'w') as f:
-            json.dump([], f)
-        fp_ips, fp_nets = load_fp_set(self.fp_path)
-        self.assertEqual(fp_ips, set())
-        self.assertEqual(fp_nets, [])
-
-        # String statt dict
-        with open(self.fp_path, 'w') as f:
-            json.dump("hello", f)
-        fp_ips, fp_nets = load_fp_set(self.fp_path)
-        self.assertEqual(fp_ips, set())
-        self.assertEqual(fp_nets, [])
+    def test_load_fp_set_wrong_root_aborts(self):
+        for root in ([], "hello"):
+            with self.subTest(root=root):
+                with open(self.fp_path, 'w') as f:
+                    json.dump(root, f)
+                with self.assertRaises(ValueError):
+                    load_fp_set(self.fp_path)
 
     def test_load_fp_set_skips_non_string_entries(self):
         """Mix aus validen Strings und Datenmuell – nur Strings werden uebernommen."""
@@ -772,20 +759,16 @@ class TestWhitelistLoading(unittest.TestCase):
         self.assertEqual(fp_ips, {"1.2.3.4"})
         self.assertEqual(len(fp_nets), 1)
 
-    def test_load_fp_set_partial_fill_is_reset_on_schema_error(self):
-        """Wenn der Schema-Check FAILT NACH einem Teilbefuelle, muss der
-        State wieder leer sein – kein 'Geister-FP-Set'."""
-        # Vorher legitim gefuellt
+    def test_load_fp_set_preserves_state_on_schema_error(self):
         with open(self.fp_path, 'w') as f:
             json.dump({"ips": ["1.2.3.4", "9.9.9.9"]}, f)
         load_fp_set(self.fp_path)
-        # Jetzt korrupte Datei (Root ist Liste, nicht Dict)
         with open(self.fp_path, 'w') as f:
             json.dump(["x"], f)
-        fp_ips, fp_nets = load_fp_set(self.fp_path)
-        # Re-Load mit Schema-Error → leer, NICHT alter State
-        self.assertEqual(fp_ips, set())
-        self.assertEqual(fp_nets, [])
+        with self.assertRaises(ValueError):
+            load_fp_set(self.fp_path)
+        self.assertTrue(is_in_fp_set("1.2.3.4"))
+        self.assertTrue(is_in_fp_set("9.9.9.9"))
 
     def test_is_in_fp_set(self):
         netshield_common._fp_ips = {"1.2.3.4"}
@@ -2371,7 +2354,7 @@ class TestFinalWorkflowGuardsSep01(unittest.TestCase):
 
     def test_combined_shrink_guard_blocks_commit_and_fails_job(self):
         text = self._repo_file('.github', 'workflows', 'update_combined_blacklist.yml').read_text(encoding='utf-8')
-        self.assertIn("if: always() && steps.shrink_guard.outputs.ok != 'false'", text)
+        self.assertIn("if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true'", text)
         shrink = text[text.index('- name: Schrumpfungswache'):text.index('- name: Save seen_db JSON Compatibility Cache')]
         self.assertIn('echo "ok=false" >> "$GITHUB_OUTPUT"', shrink)
         self.assertIn('exit 1', shrink)
