@@ -287,7 +287,12 @@ jobs:
             git commit -m "False Positive Check: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
-              git fetch origin ${GITHUB_REF_NAME}
+              if ! git fetch origin "${GITHUB_REF_NAME}"; then
+                echo "Fetch fehlgeschlagen (Versuch $attempt/5)"
+                if [ "$attempt" -eq 5 ]; then exit 1; fi
+                sleep $((attempt * 2))
+                continue
+              fi
               # Reset auf Upstream-Stand – übernimmt alle Remote-Änderungen
               git reset --hard origin/${GITHUB_REF_NAME}
               # Append-only Log: gesicherte Zeilen mit Dedup wieder anfügen

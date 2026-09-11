@@ -440,6 +440,7 @@ jobs:
           # is_in_fp_set() → importiert aus netshield_common
           # ── API-Helper ────────────────────────────────────────────────────
           requests_used = 0
+          failed_endpoints = set()
           # Letzter bekannter 'remaining'-Wert (numerisch, falls parsebar) -
           # nach jedem erfolgreichen Call aktualisiert. Treibt die
           # Voll-vs-Light-Entscheidung weiter unten (siehe FULL_RUN_EXTRA_COST).
@@ -491,7 +492,27 @@ jobs:
                               except (TypeError, ValueError):
                                   pass  # Header fehlt/unerwartetes Format - bleibt None
                               print(f"  [{label or endpoint}] HTTP {r.status} ({cred_label}) | verbraucht: {consumed} | verbleibend: {remaining}")
-                              return json.loads(r.read().decode("utf-8", errors="ignore"))
+                              payload = json.loads(r.read().decode("utf-8"))
+                              if endpoint.startswith("/sensor-data/"):
+                                  valid = isinstance(payload, dict)
+                                  if endpoint.endswith("/count"):
+                                      valid = valid and type(payload.get("count")) is int and payload["count"] >= 0
+                                  else:
+                                      valid = valid and isinstance(payload.get("data"), list)
+                              elif endpoint == "/services":
+                                  valid = isinstance(payload, list) and all(
+                                      (isinstance(item, str) and bool(item))
+                                      or (isinstance(item, dict) and any(
+                                          isinstance(item.get(key), str) and bool(item[key])
+                                          for key in ("service", "name", "service_name")))
+                                      for item in payload)
+                              else:
+                                  valid = isinstance(payload, list) and all(
+                                      isinstance(item, dict) and isinstance(item.get("remote_host"), str)
+                                      for item in payload)
+                              if not valid:
+                                  raise ValueError(f"Unexpected response schema: {endpoint}")
+                              return payload
                       except urllib.error.HTTPError as e:
                           if e.code == 429:
                               print(f"  RATE LIMIT [{label or endpoint}] ({cred_label}) – naechste Credential")
@@ -505,6 +526,7 @@ jobs:
                               time.sleep(wait_s)
                               continue
                           print(f"  HTTP {e.code} [{label or endpoint}]: {e.reason}")
+                          failed_endpoints.add(endpoint)
                           return None
                       except Exception as e:
                           if attempt < retries:
@@ -513,10 +535,12 @@ jobs:
                               time.sleep(wait_s)
                               continue
                           print(f"  FEHLER [{label or endpoint}]: {e}")
+                          failed_endpoints.add(endpoint)
                           return None
 
               # Alle Credentials im Ring lieferten 401/429
               print(f"  ALLE CREDENTIALS ERSCHOEPFT [{label or endpoint}]")
+              failed_endpoints.add(endpoint)
               return None
 
           def extract_ips_from_list(data):
@@ -736,6 +760,12 @@ jobs:
           print(f"\n[5/5] Zusammenfassung...")
           print(f"  Gesamt einzigartige IPs: {len(all_ips)}")
           print(f"  API Requests verbraucht: {requests_used}")
+
+          # A partial API sweep must not replace the list or refresh its state.
+          if failed_endpoints:
+              print("::error::Incomplete HoneyDB response; preserving previous files: "
+                    + ", ".join(sorted(failed_endpoints)))
+              raise SystemExit(1)
 
           # ── Ausgabedatei schreiben ────────────────────────────────────────
           HONIGTOPF_FILE = "honigtopf_ips.txt"
@@ -991,7 +1021,12 @@ jobs:
             git commit -m "Honigtopf: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
-              git fetch origin ${GITHUB_REF_NAME}
+              if ! git fetch origin "${GITHUB_REF_NAME}"; then
+                echo "Fetch fehlgeschlagen (Versuch $attempt/5)"
+                if [ "$attempt" -eq 5 ]; then exit 1; fi
+                sleep $((attempt * 2))
+                continue
+              fi
               git stash --include-untracked 2>/dev/null || true
               if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
                 git stash pop 2>/dev/null || true

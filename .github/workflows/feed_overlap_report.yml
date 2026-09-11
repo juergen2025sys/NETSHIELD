@@ -334,7 +334,12 @@ jobs:
             fi
             echo "Push fehlgeschlagen, versuche erneut ($attempt/3)..."
             cp "$REPORT_FILE" "$TMP_REPORT"
-            git fetch origin "$BRANCH"
+            if ! git fetch origin "$BRANCH"; then
+              echo "Fetch fehlgeschlagen (Versuch $attempt/3)"
+              if [ "$attempt" -eq 3 ]; then exit 1; fi
+              sleep $((attempt * 2))
+              continue
+            fi
             git reset --hard "origin/$BRANCH"
             mkdir -p reports
             cp "$TMP_REPORT" "$REPORT_FILE"

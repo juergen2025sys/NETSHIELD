@@ -301,7 +301,12 @@ jobs:
             # wieder her. Zusaetzlich git status zur Diagnose bei Fehler.
             for attempt in 1 2 3; do
               echo "Push-Versuch $attempt..."
-              git fetch origin "${GITHUB_REF_NAME}"
+              if ! git fetch origin "${GITHUB_REF_NAME}"; then
+                echo "Fetch fehlgeschlagen (Versuch $attempt/3)"
+                if [ "$attempt" -eq 3 ]; then exit 1; fi
+                sleep $((attempt * 2))
+                continue
+              fi
               if git rebase --autostash -X ours "origin/${GITHUB_REF_NAME}"; then
                 if git push origin "HEAD:${GITHUB_REF_NAME}"; then
                   echo "Push erfolgreich (Versuch $attempt)"

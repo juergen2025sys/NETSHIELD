@@ -261,7 +261,8 @@ jobs:
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
           from netshield_common import (
-              load_whitelist, load_fp_set,
+              load_whitelist, load_fp_set, is_in_fp_set,
+              is_valid_public_ipv4, is_valid_public_cidr,
               calculate_confidence, safe_get_date,
               write_text_atomic, SqliteSeenDB,
           )
@@ -601,7 +602,9 @@ jobs:
                   for line in f:
                       s = line.strip()
                       if s and not s.startswith("#"):
-                          combined_ips.add(s)
+                          valid = is_valid_public_cidr(s) if "/" in s else is_valid_public_ipv4(s)
+                          if valid and not is_in_fp_set(s):
+                              combined_ips.add(s)
           if len(_sources_read) > 1:
               print(f"Combined Blacklist: {len(combined_ips)} IPs "
                     f"(Hauptdatei + {len(_sources_read) - 1} Part(s))")
@@ -1262,7 +1265,12 @@ jobs:
             git commit -m "Confidence Blacklist: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
-              git fetch origin ${GITHUB_REF_NAME}
+              if ! git fetch origin "${GITHUB_REF_NAME}"; then
+                echo "Fetch fehlgeschlagen (Versuch $attempt/5)"
+                if [ "$attempt" -eq 5 ]; then exit 1; fi
+                sleep $((attempt * 2))
+                continue
+              fi
               git stash --include-untracked 2>/dev/null || true
               if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
                 git stash pop 2>/dev/null || true

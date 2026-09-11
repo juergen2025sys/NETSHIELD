@@ -235,7 +235,12 @@ jobs:
         run: |
           BEFORE=$(git rev-parse HEAD)
           for attempt in 1 2 3 4 5; do
-            git fetch origin main --quiet
+            if ! git fetch origin main --quiet; then
+              echo "Fetch fehlgeschlagen (Versuch $attempt/5)"
+              if [ "$attempt" -eq 5 ]; then exit 1; fi
+              sleep $((attempt * 2))
+              continue
+            fi
             REMOTE=$(git rev-parse origin/main)
             if [ "$(git rev-parse HEAD)" = "$REMOTE" ]; then
               break
@@ -447,17 +452,9 @@ jobs:
                       status = r.status
                       body   = r.read().decode("utf-8", errors="ignore")
 
-                  # FIX BUG-WF3-VALIDATE: Vorher rohes splitlines/strip ohne
-                  # IP-Validierung – ein HTML-Errorbody, eine Cloudflare-DDoS-
-                  # Page oder Whitespace-getrennte Tokens haetten direkt in
-                  # reputation_blacklist.txt gelandet. parse_entries
-                  # validiert via is_valid_public_ipv4 / is_valid_public_cidr
-                  # und filtert RFC1918/Reserved/CGNAT. Whitelist-IPs werden
-                  # nicht ueber use_protected_check=True gefiltert (war hier
-                  # vorher auch nicht), weil die Whitelist in diesem Step
-                  # nicht zwingend geladen ist und der Output noch durch die
-                  # combined-Pipeline laeuft (wo der Whitelist-Filter greift).
-                  ips = parse_entries(body)
+                  # This file is also published directly: apply WL and FP here.
+                  ips = {ip for ip in parse_entries(body, use_protected_check=True)
+                         if not is_in_fp_set(ip)}
                   all_ips.update(ips)
                   print(f"  Key {idx}: {len(ips)} IPs  [HTTP {status}] – Erfolg, stoppe hier")
                   stats.append((idx, len(ips), "OK"))
@@ -2140,30 +2137,23 @@ jobs:
           _wl_fp_starts = [iv[0] for iv in _wl_fp_intervals]
 
           def _fast_is_protected(ip_str):
-              """Schneller Protected-Check via Binary-Search (O(log K) statt O(K)).
-              FIX BUG-CIDR1: CIDRs fallen auf is_protected_entry() zurück,
-              da Binary-Search nur die Netzadresse prüft, nicht den Range-Overlap.
-              CIDRs sind <5% der Einträge → kein Performance-Impact.
-
-              FIX PERF-IPINT: int(ipaddress.ip_address(s)) durch
-              socket.inet_aton ersetzt – ~8x schneller (gemessen: 2.2 µs vs.
-              0.27 µs pro Aufruf), gleiches Prinzip wie beim _ip_sort_key
-              (s.o., FIX PERF-SORT). Nur fuer IPv4 gueltig (diese gesamte
-              Pipeline ist IPv4-only, siehe Dateinamen/IPV4_RE) – ein
-              IPv6-String wuerde inet_aton mit OSError ablehnen, was vom
-              bestehenden except-Handler wie zuvor als 'nicht geschuetzt'
-              behandelt wird (kein Verhaltensunterschied fuer diese Pipeline)."""
+              """Reject invalid state keys before the indexed protection check."""
               try:
+                  if not isinstance(ip_str, str):
+                      return True
                   if '/' in ip_str:
-                      return is_protected_entry(ip_str)
-                  ip_int = _struct.unpack('!I', _socket.inet_aton(ip_str))[0]
+                      return (not is_valid_public_cidr(ip_str)
+                              or is_protected_entry(ip_str)
+                              or is_in_fp_set(ip_str))
+                  if not is_valid_public_ipv4(ip_str):
+                      return True
+                  ip_int = _struct.unpack('!I', _socket.inet_pton(_socket.AF_INET, ip_str))[0]
                   pos = _bisect.bisect_right(_prot_starts, ip_int) - 1
                   if pos >= 0 and ip_int <= _prot_intervals[pos][1]:
                       return True
-                  # Einzel-IPs im FP-Set (O(1) Set-Lookup)
                   return ip_str in _fp_ips
               except Exception:
-                  return False
+                  return True
 
           def _fast_is_wl_or_fp(ip_str):
               """Schneller Whitelist+FP-Check via Binary-Search.
@@ -5425,9 +5415,8 @@ jobs:
         # vorher reines if: always(). Die Warteliste wird aus DIESEM
         # seen_db-Stand abgeleitet - meldet die Schrumpfungswache ok=false,
         # ist dieser Stand verdaechtig und darf auch hier nicht publiziert
-        # werden. always() bleibt erhalten, damit ein normaler Crash-
-        # Teilstand weiterhin gesichert wird.
-        if: always() && steps.shrink_guard.outputs.ok != 'false'
+        # werden. Build-Erfolg und explizite Freigabe sind erforderlich.
+        if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -5510,7 +5499,7 @@ jobs:
         # gleichnamigen Kommentar beim Warteliste-Upload oben. Die Ledger
         # entstehen aus den Cleanup-Entscheidungen dieses Laufs; bei
         # ok=false sind genau diese Entscheidungen nicht vertrauenswuerdig.
-        if: always() && steps.shrink_guard.outputs.ok != 'false'
+        if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -5625,16 +5614,17 @@ jobs:
             echo "Keine Aenderung an den Anti-Churn-Ledgern in diesem Lauf - kein Upload noetig"
           fi
 
+      - name: Preserve failed build diagnostics
+        if: always() && (steps.build_combined.outcome != 'success' || steps.shrink_guard.outputs.ok != 'true')
+        run: |
+          echo '### Combined publication blocked: incomplete build or missing guard approval' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f reports/combined_threat_blacklist_report.md ]; then
+            cat reports/combined_threat_blacklist_report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Commit and Push
-        # FIX BUG-AL1 (2/2): if: always() ergänzt. Ohne diesen Guard wurden bei einem
-        # Python-Crash weder combined_threat_blacklist_ipv4.txt noch active_blacklist noch
-        # state/seen_db_meta.json committet. Das Repo zeigte dann veraltete Stände obwohl der
-        # Workflow technisch gelaufen war. Auch Fehler-Teilstände (z.B. Report ohne
-        # Blacklist-Update) sollen sichtbar ins Repo committed werden.
-        # NOTE: always()-Semantik bleibt fuer normale Crash-/Diagnose-Teilstaende.
-        # FINAL-FAIL-CLOSED 2026-09-01: Wenn die Schrumpfungswache explizit
-        # ok=false meldet, darf dagegen GAR NICHT gepusht werden.
-        if: always() && steps.shrink_guard.outputs.ok != 'false'
+        # Publish only a complete build explicitly approved by the shrink guard.
+        if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true'
         run: |
           python3 - << 'PYEOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -5834,7 +5824,12 @@ jobs:
             # bleiben erhalten.
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
-              git fetch origin ${GITHUB_REF_NAME}
+              if ! git fetch origin "${GITHUB_REF_NAME}"; then
+                echo "Fetch fehlgeschlagen (Versuch $attempt/5)"
+                if [ "$attempt" -eq 5 ]; then exit 1; fi
+                sleep $((attempt * 2))
+                continue
+              fi
               git stash --include-untracked 2>/dev/null || true
               if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
                 git stash pop 2>/dev/null || true

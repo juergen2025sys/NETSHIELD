@@ -773,7 +773,12 @@ jobs:
             git commit -m "Seen-DB Expiry Forecast: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3 4 5; do
               echo "Push-Versuch $attempt..."
-              git fetch origin ${GITHUB_REF_NAME}
+              if ! git fetch origin "${GITHUB_REF_NAME}"; then
+                echo "Fetch fehlgeschlagen (Versuch $attempt/5)"
+                if [ "$attempt" -eq 5 ]; then exit 1; fi
+                sleep $((attempt * 2))
+                continue
+              fi
               git stash --include-untracked 2>/dev/null || true
               if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
                 git stash pop 2>/dev/null || true
@@ -911,7 +916,12 @@ jobs:
         run: |
           BEFORE=$(git rev-parse HEAD)
           for attempt in 1 2 3 4 5; do
-            git fetch origin main --quiet
+            if ! git fetch origin main --quiet; then
+              echo "Fetch fehlgeschlagen (Versuch $attempt/5)"
+              if [ "$attempt" -eq 5 ]; then exit 1; fi
+              sleep $((attempt * 2))
+              continue
+            fi
             REMOTE=$(git rev-parse origin/main)
             if [ "$(git rev-parse HEAD)" = "$REMOTE" ]; then
               break
@@ -2435,7 +2445,12 @@ jobs:
           else
             git commit -m "IP-Ablauf-Verifikation: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
             for attempt in 1 2 3; do
-              git fetch origin ${GITHUB_REF_NAME}
+              if ! git fetch origin "${GITHUB_REF_NAME}"; then
+                echo "Fetch fehlgeschlagen (Versuch $attempt/3)"
+                if [ "$attempt" -eq 3 ]; then exit 1; fi
+                sleep $((attempt * 2))
+                continue
+              fi
               git stash --include-untracked 2>/dev/null || true
               if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
                 git stash pop 2>/dev/null || true
