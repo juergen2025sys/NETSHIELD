@@ -475,88 +475,60 @@ def _rebuild_fp_index():
 
 
 def load_fp_set(path="state/false_positives_set.json"):
-    """Lädt state/false_positives_set.json.
+    """Load optional FP state transactionally; corrupt existing files abort.
 
-    The state directory is the canonical location used by all workflows.  A
-    caller may still pass an explicit path for tests or migrations.
-
-    Returns:
-        tuple[set, list]: (fp_ips, fp_networks)
+    A missing file means no FP state has been created yet. Invalid individual
+    entries are ignored, but malformed JSON or a wrong schema must never
+    silently disable the previously loaded exclusions.
     """
-    global _fp_ips, _fp_networks
-    _fp_ips = set()
-    _fp_networks = []
-    if not os.path.exists(path):
-        _rebuild_fp_index()
-        return _fp_ips, _fp_networks
+    global _fp_ips, _fp_networks, _fp_starts, _fp_ends
     try:
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
-        # FIX BUG-FP-STRICT: 'ips' MUSS eine Liste sein. Vorher genuegte ein
-        # String wie "1.2.3.4" – data.get("ips", []) lieferte den String,
-        # die for-Schleife iterierte ueber die Zeichen, und das Set enthielt
-        # danach {'1', '.', '2', '3', '4'}. Folge: is_in_fp_set('.') == True,
-        # und beliebige IPs/Substrings wurden faelschlich als False-Positive
-        # markiert – das FP-Set verfehlt seine Filterfunktion.
-        # Selbe Fail-Loud-Strategie wie load_whitelist (BUG-WL1-STRICT):
-        # lieber Workflow-Crash als silent korrumpierter State.
-        if not isinstance(data, dict):
-            raise ValueError(
-                f"'{path}' Root ist {type(data).__name__}, "
-                f"erwartet dict")
-        ips_field = data.get("ips", [])
-        if not isinstance(ips_field, list):
-            raise ValueError(
-                f"'{path}': 'ips' ist {type(ips_field).__name__}, "
-                f"erwartet list")
-        for entry in ips_field:
-            # Nur String-Eintraege akzeptieren – None/int/dict silent skippen
-            # (Schema-Drift, aber fail-soft pro Entry, nicht pro Datei).
-            if not isinstance(entry, str):
-                continue
-            try:
-                if "/" in entry:
-                    _fp_networks.append(ipaddress.ip_network(entry, strict=False))
-                else:
-                    _fp_ips.add(entry)
-            except Exception:
-                # Ungueltige Eintraege in der FP-Liste bewusst ueberspringen.
-                pass
-        print(f"{path}: {len(_fp_ips)} IPs + {len(_fp_networks)} CIDRs geladen")
-    except Exception as e:
-        # Bei Schema-/Parse-Fehler State zurueck auf leer (defensiv – falls
-        # zwischen Init oben und except hier eine partielle Befuellung lief).
-        _fp_ips = set()
-        _fp_networks = []
-        print(f"WARNUNG: {path} nicht lesbar: {e}")
-    _rebuild_fp_index()
+    except FileNotFoundError:
+        data = {"ips": []}
+    if not isinstance(data, dict) or not isinstance(data.get("ips"), list):
+        raise ValueError(f"{path}: expected an object with an 'ips' list")
+
+    ips, networks = set(), set()
+    for entry in data["ips"]:
+        if not isinstance(entry, str):
+            continue
+        try:
+            net = ipaddress.IPv4Network(entry.strip(), strict=False)
+        except (ipaddress.AddressValueError, ipaddress.NetmaskValueError, ValueError):
+            continue
+        if net.prefixlen == 32:
+            ips.add(str(net.network_address))
+        else:
+            networks.add(net)
+    networks = sorted(networks)
+    intervals = _merge_intervals_from_nets(networks)
+    starts = [iv[0] for iv in intervals]
+    ends = [iv[1] for iv in intervals]
+    # Publish the complete validated replacement only after all work succeeds.
+    _fp_ips, _fp_networks = ips, networks
+    _fp_starts, _fp_ends = starts, ends
+    print(f"{path}: {len(ips)} IPs + {len(networks)} CIDRs geladen")
     return _fp_ips, _fp_networks
 
 
 def is_in_fp_set(ip_str):
-    """True wenn IP im False-Positive-Set steht."""
-    if ip_str in _fp_ips:
+    """Match IPv4 hosts consistently, including their equivalent /32 form."""
+    if not isinstance(ip_str, str):
+        return False
+    value = ip_str.strip()
+    if value in _fp_ips:
         return True
     try:
-        addr_str = ip_str.split("/")[0]
-        # FIX PERF-PARSE: Plain-IP-Pfad ueber Binary-Search-Index (O(log K)).
-        if '/' not in ip_str:
-            try:
-                ip_int = int(ipaddress.IPv4Address(addr_str))
-                return _interval_contains(_fp_starts, _fp_ends, ip_int)
-            except (ipaddress.AddressValueError, ValueError):
-                return False
-        addr = ipaddress.ip_address(addr_str)
-        # FIX PERF-PARSE-CIDR2 (2026-08-09): siehe is_whitelisted() -
-        # gleiches Muster, gleicher Beweis: reiner Punkt-Check auf addr_str.
-        try:
-            ip_int = int(addr) if addr.version == 4 else None
-        except Exception:
-            ip_int = None
-        if ip_int is None:
-            return False
-        return _interval_contains(_fp_starts, _fp_ends, ip_int)
-    except Exception:
+        if "/" in value:
+            # Validate the suffix too; retain the existing point-check policy.
+            ipaddress.IPv4Network(value, strict=False)
+            value = value.split("/", 1)[0]
+        addr = ipaddress.IPv4Address(value)
+        return (str(addr) in _fp_ips
+                or _interval_contains(_fp_starts, _fp_ends, int(addr)))
+    except (ipaddress.AddressValueError, ipaddress.NetmaskValueError, ValueError):
         return False
 
 
@@ -747,8 +719,8 @@ def parse_entries(text, use_protected_check=False):
     Returns:
         set[str]: Gefiltertes Set von IPs und CIDRs.
     """
-    ip_check = (lambda ip: not is_protected_entry(ip)) if use_protected_check else is_valid_public_ipv4
-    cidr_check = (lambda c: not is_protected_entry(c)) if use_protected_check else is_valid_public_cidr
+    ip_check = (lambda ip: is_valid_public_ipv4(ip) and not is_protected_entry(ip)) if use_protected_check else is_valid_public_ipv4
+    cidr_check = (lambda c: is_valid_public_cidr(c) and not is_protected_entry(c)) if use_protected_check else is_valid_public_cidr
 
     # Defensiv: Wenn ein Feed None zurückliefert (fetch_url-Timeout,
     # Corrupt-Download, leerer JSON-Wert), soll der Parser nicht crashen.
