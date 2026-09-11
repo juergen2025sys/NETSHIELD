@@ -1,33 +1,33 @@
 {
-  "updated": "2026-09-10 23:35 CEST (Europe/Berlin)",
+  "updated": "2026-09-11 07:57 CEST (Europe/Berlin)",
   "total": 30,
   "ok": 30,
-  "warn": 0,
-  "error": 1,
-  "errors": [
+  "warn": 1,
+  "error": 0,
+  "errors": [],
+  "warnings": [
     {
       "file": "Production Health",
       "check": "Drift: honeypot_ips.txt",
-      "detail": "honeypot_ips.txt: 2,153,787 \u2192 1,347,169 (-37%) \u2013 starker R\u00fcckgang seit letztem Check"
+      "detail": "honeypot_ips.txt: 1,347,169 \u2192 2,179,408 (+62%) \u2013 ungew\u00f6hnliches Wachstum"
     }
   ],
-  "warnings": [],
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5443281,
-    "active_blacklist_ipv4.txt": 916191,
-    "blacklist_confidence40_ipv4_part1.txt": 4025711,
-    "cve_exploit_ips.txt": 28382,
-    "honeypot_ips.txt": 1347169,
-    "bot_detector_blacklist_ipv4.txt": 1291625
+    "combined_threat_blacklist_ipv4_part1.txt": 5467501,
+    "active_blacklist_ipv4.txt": 876868,
+    "blacklist_confidence40_ipv4_part1.txt": 4037944,
+    "cve_exploit_ips.txt": 28263,
+    "honeypot_ips.txt": 2179408,
+    "bot_detector_blacklist_ipv4.txt": 1287996
   },
   "production_health": {
-    "critical": 1,
-    "warn": 0,
+    "critical": 0,
+    "warn": 1,
     "checks": [
       {
-        "level": "CRITICAL",
+        "level": "WARN",
         "check": "Drift: honeypot_ips.txt",
-        "detail": "honeypot_ips.txt: 2,153,787 \u2192 1,347,169 (-37%) \u2013 starker R\u00fcckgang seit letztem Check"
+        "detail": "honeypot_ips.txt: 1,347,169 \u2192 2,179,408 (+62%) \u2013 ungew\u00f6hnliches Wachstum"
       }
     ]
   },
