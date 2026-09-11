@@ -22,24 +22,6 @@ from zoneinfo import ZoneInfo
 
 # Modul-Pfad einfügen
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
-from netshield_common import (
-    parse_entries,
-    is_valid_public_ipv4,
-    is_valid_public_cidr,
-    is_protected_entry,
-    is_whitelisted,
-    is_in_fp_set,
-    load_whitelist,
-    load_fp_set,
-    calculate_confidence,
-    safe_get_date,
-    parse_date,
-    sort_ips,
-    write_ip_list,
-    check_local_feed_age,
-    fetch_url,
-    validate_auto_feeds,
-)
 import netshield_common
 
 
@@ -66,122 +48,122 @@ class TestParseEntries(unittest.TestCase):
     """Tests für den universellen IP/CIDR-Parser."""
 
     def test_plain_ipv4(self):
-        result = parse_entries("1.2.3.4\n5.6.7.8")
+        result = netshield_common.parse_entries("1.2.3.4\n5.6.7.8")
         self.assertEqual(result, {"1.2.3.4", "5.6.7.8"})
 
     def test_cidr(self):
         # Policy: nur /32-CIDRs werden akzeptiert
-        result = parse_entries("1.2.3.4/32")
+        result = netshield_common.parse_entries("1.2.3.4/32")
         self.assertEqual(result, {"1.2.3.4/32"})
 
     def test_cidr_too_large_filtered_at_parse(self):
         """Policy: CIDRs breiter als /32 werden verworfen, um Kollateralschäden
         zu vermeiden (z.B. 144.76.0.0/16 würde 65k legitime Hetzner-Hosts mitblocken)."""
-        result = parse_entries("1.2.3.0/24")
+        result = netshield_common.parse_entries("1.2.3.0/24")
         self.assertEqual(result, set())
 
     def test_cidr_normalization(self):
         """CIDRs werden normalisiert (1.2.3.4/32 ist bereits Host-Adresse)."""
-        result = parse_entries("1.2.3.99/32")
+        result = netshield_common.parse_entries("1.2.3.99/32")
         self.assertEqual(result, {"1.2.3.99/32"})
 
     def test_ip_port(self):
-        result = parse_entries("1.2.3.4:8080")
+        result = netshield_common.parse_entries("1.2.3.4:8080")
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_fortigate_format(self):
-        result = parse_entries("set subnet 1.2.3.4 255.255.255.255")
+        result = netshield_common.parse_entries("set subnet 1.2.3.4 255.255.255.255")
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_ipset_format_ip(self):
-        result = parse_entries("add badguys 1.2.3.4")
+        result = netshield_common.parse_entries("add badguys 1.2.3.4")
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_ipset_format_cidr(self):
-        result = parse_entries("add badguys 1.2.3.4/32")
+        result = netshield_common.parse_entries("add badguys 1.2.3.4/32")
         self.assertEqual(result, {"1.2.3.4/32"})
 
     def test_ipset_with_semicolon(self):
-        result = parse_entries("add badguys 1.2.3.4;comment")
+        result = netshield_common.parse_entries("add badguys 1.2.3.4;comment")
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_spamhaus_drop(self):
         # Spamhaus-DROP-Syntax mit /32 (breitere CIDRs werden per Policy verworfen)
-        result = parse_entries("1.2.3.4/32 ; SBL123456")
+        result = netshield_common.parse_entries("1.2.3.4/32 ; SBL123456")
         self.assertEqual(result, {"1.2.3.4/32"})
 
     def test_csv_first_column(self):
-        result = parse_entries("1.2.3.4,8080,malware,2025-01-01")
+        result = netshield_common.parse_entries("1.2.3.4,8080,malware,2025-01-01")
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_csv_cidr_first_column(self):
-        result = parse_entries("1.2.3.4/32,SBL,DE")
+        result = netshield_common.parse_entries("1.2.3.4/32,SBL,DE")
         self.assertEqual(result, {"1.2.3.4/32"})
 
     def test_comment_hash(self):
-        result = parse_entries("# This is a comment\n1.2.3.4")
+        result = netshield_common.parse_entries("# This is a comment\n1.2.3.4")
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_comment_semicolon(self):
-        result = parse_entries("; This is a comment\n1.2.3.4")
+        result = netshield_common.parse_entries("; This is a comment\n1.2.3.4")
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_comment_doubleslash(self):
-        result = parse_entries("// This is a comment\n1.2.3.4")
+        result = netshield_common.parse_entries("// This is a comment\n1.2.3.4")
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_empty_input(self):
-        self.assertEqual(parse_entries(""), set())
+        self.assertEqual(netshield_common.parse_entries(""), set())
 
     def test_only_comments(self):
-        self.assertEqual(parse_entries("# comment\n; comment\n// comment"), set())
+        self.assertEqual(netshield_common.parse_entries("# comment\n; comment\n// comment"), set())
 
     def test_blank_lines(self):
-        result = parse_entries("\n\n1.2.3.4\n\n5.6.7.8\n\n")
+        result = netshield_common.parse_entries("\n\n1.2.3.4\n\n5.6.7.8\n\n")
         self.assertEqual(result, {"1.2.3.4", "5.6.7.8"})
 
     def test_private_ip_filtered(self):
-        result = parse_entries("192.168.1.1\n10.0.0.1\n172.16.0.1")
+        result = netshield_common.parse_entries("192.168.1.1\n10.0.0.1\n172.16.0.1")
         self.assertEqual(result, set())
 
     def test_loopback_filtered(self):
-        result = parse_entries("127.0.0.1")
+        result = netshield_common.parse_entries("127.0.0.1")
         self.assertEqual(result, set())
 
     def test_multicast_filtered(self):
-        result = parse_entries("224.0.0.1\n239.255.255.255")
+        result = netshield_common.parse_entries("224.0.0.1\n239.255.255.255")
         self.assertEqual(result, set())
 
     def test_reserved_filtered(self):
-        result = parse_entries("0.0.0.0\n255.255.255.255")
+        result = netshield_common.parse_entries("0.0.0.0\n255.255.255.255")
         self.assertEqual(result, set())
 
     def test_mixed_valid_invalid(self):
-        result = parse_entries("8.8.8.8\n192.168.1.1\n1.1.1.1\n10.0.0.1")
+        result = netshield_common.parse_entries("8.8.8.8\n192.168.1.1\n1.1.1.1\n10.0.0.1")
         self.assertEqual(result, {"8.8.8.8", "1.1.1.1"})
 
     def test_fallback_urlhaus(self):
         """URLs mit IPs werden per Fallback-Regex extrahiert."""
-        result = parse_entries("http://1.2.3.4/malware/payload.exe")
+        result = netshield_common.parse_entries("http://1.2.3.4/malware/payload.exe")
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_inline_comment_stripped(self):
-        result = parse_entries("1.2.3.4 # this is a scanner")
+        result = netshield_common.parse_entries("1.2.3.4 # this is a scanner")
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_cidr_too_large_filtered(self):
         """CIDRs < /8 werden gefiltert."""
-        result = parse_entries("1.0.0.0/7")
+        result = netshield_common.parse_entries("1.0.0.0/7")
         self.assertEqual(result, set())
 
     def test_ipv6_filtered(self):
         """IPv6-Adressen werden ignoriert."""
-        result = parse_entries("2001:db8::1\n1.2.3.4")
+        result = netshield_common.parse_entries("2001:db8::1\n1.2.3.4")
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_multiple_ips_per_line(self):
         """Fallback: Alle IPs in einer Zeile wenn kein anderes Format matcht."""
-        result = parse_entries("attack from 1.2.3.4 targeting 5.6.7.8")
+        result = netshield_common.parse_entries("attack from 1.2.3.4 targeting 5.6.7.8")
         self.assertEqual(result, {"1.2.3.4", "5.6.7.8"})
 
     def test_fallback_no_phantom_ip_from_cidr_netzadresse(self):
@@ -202,17 +184,17 @@ class TestParseEntries(unittest.TestCase):
         nicht als Phantom-IP nachgereicht wird. Erwartung: leere Menge.
         """
         # URLhaus-Style: CIDR im Fließtext
-        result = parse_entries("url 5.5.5.0/24 detected")
+        result = netshield_common.parse_entries("url 5.5.5.0/24 detected")
         self.assertEqual(result, set(),
                          "5.5.5.0 darf nicht als Phantom-IP entstehen")
 
         # JSON-Style: CIDR in JSON-Feld
-        result = parse_entries('{"net":"11.22.33.0/24","threat":"scan"}')
+        result = netshield_common.parse_entries('{"net":"11.22.33.0/24","threat":"scan"}')
         self.assertEqual(result, set(),
                          "11.22.33.0 darf nicht als Phantom-IP entstehen")
 
         # Mit Datum/Log-Präfix: typischer Honeypot-Log-Output
-        result = parse_entries("[2026-04-26] hit on 88.99.100.0/24")
+        result = netshield_common.parse_entries("[2026-04-26] hit on 88.99.100.0/24")
         self.assertEqual(result, set(),
                          "88.99.100.0 darf nicht als Phantom-IP entstehen")
 
@@ -225,11 +207,11 @@ class TestParseEntries(unittest.TestCase):
         IPs auf derselben Zeile müssen aber erhalten bleiben.
         """
         # CIDR (verworfen) + separate IP (muss durchkommen)
-        result = parse_entries("[2026] hit 88.99.100.0/24 from 11.22.33.44")
+        result = netshield_common.parse_entries("[2026] hit 88.99.100.0/24 from 11.22.33.44")
         self.assertEqual(result, {"11.22.33.44"})
 
         # Mehrere CIDRs (verworfen) + IP durcheinander
-        result = parse_entries("log: 11.22.33.0/24 hit 88.99.100.101 also 5.5.0.0/16")
+        result = netshield_common.parse_entries("log: 11.22.33.0/24 hit 88.99.100.101 also 5.5.0.0/16")
         self.assertEqual(result, {"88.99.100.101"})
 
     def test_fallback_invalid_cidr_blocks_phantom(self):
@@ -247,23 +229,23 @@ class TestParseEntries(unittest.TestCase):
         # 88.99.100.0 ist als Einzel-IP technisch valide (nicht in den
         # _RESERVED_NETS), würde also OHNE Span-Tracking als Phantom
         # durchschlüpfen.
-        result = parse_entries("hit 88.99.100.0/64 detected")
+        result = netshield_common.parse_entries("hit 88.99.100.0/64 detected")
         self.assertEqual(result, set(),
                          "88.99.100.0 darf bei invalidem CIDR-Prefix nicht als Phantom-IP durchschlüpfen")
 
         # Counter-Test: eine separate IP nach der invaliden CIDR muss
         # weiterhin erfasst werden.
-        result = parse_entries("hit 88.99.100.0/64 plus 11.22.33.44")
+        result = netshield_common.parse_entries("hit 88.99.100.0/64 plus 11.22.33.44")
         self.assertEqual(result, {"11.22.33.44"})
 
     def test_dataplane_pipe_format(self):
         """DataPlane-Format: ASN | ASname | ipaddr | lastseen | category"""
         line = "12345 | Evil ISP | 1.2.3.4 | 2025-04-14 | ssh"
-        result = parse_entries(line)
+        result = netshield_common.parse_entries(line)
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_deduplication(self):
-        result = parse_entries("1.2.3.4\n1.2.3.4\n1.2.3.4")
+        result = netshield_common.parse_entries("1.2.3.4\n1.2.3.4\n1.2.3.4")
         self.assertEqual(result, {"1.2.3.4"})
         self.assertEqual(len(result), 1)
 
@@ -282,7 +264,7 @@ class TestParseEntries(unittest.TestCase):
         nachfolgende Plain-IP muss trotzdem erfasst werden (gleicher
         Mechanik-Test wie zuvor, nur mit /32-konformer Erwartung).
         """
-        result = parse_entries("5.5.5.0/24 6.6.6.6")
+        result = netshield_common.parse_entries("5.5.5.0/24 6.6.6.6")
         self.assertEqual(result, {"6.6.6.6"})
 
     def test_multi_entry_private_cidr_with_public_ip(self):
@@ -290,25 +272,25 @@ class TestParseEntries(unittest.TestCase):
         Zeile. Der Privat-CIDR wird abgelehnt, aber die oeffentliche IP
         muss erhalten bleiben - Vorher: beide gingen verloren weil der
         Fast-Path nach dem CIDR-Match (auch bei Reject) 'continue' machte."""
-        result = parse_entries("10.20.30.0/24 5.5.5.5")
+        result = netshield_common.parse_entries("10.20.30.0/24 5.5.5.5")
         self.assertEqual(result, {"5.5.5.5"})
 
     def test_multi_entry_two_public_ips(self):
         """FIX BUG-MULTI-ENTRY: Zwei oeffentliche IPs per Whitespace getrennt."""
-        result = parse_entries("1.2.3.4 5.6.7.8")
+        result = netshield_common.parse_entries("1.2.3.4 5.6.7.8")
         self.assertEqual(result, {"1.2.3.4", "5.6.7.8"})
 
     def test_multi_entry_three_cidrs(self):
         """FIX BUG-MULTI-ENTRY: Mehrere /32-CIDRs per Whitespace, alle public.
         (Breitere CIDRs werden per /32-only-Policy verworfen — siehe
         test_multi_entry_three_wide_cidrs_rejected.)"""
-        result = parse_entries("5.5.5.1/32 6.6.6.6/32 7.7.7.7/32")
+        result = netshield_common.parse_entries("5.5.5.1/32 6.6.6.6/32 7.7.7.7/32")
         self.assertEqual(result, {"5.5.5.1/32", "6.6.6.6/32", "7.7.7.7/32"})
 
     def test_multi_entry_three_wide_cidrs_rejected(self):
         """Counter-Test zu test_multi_entry_three_cidrs: Mehrere /24 auf
         einer Zeile werden alle verworfen (Policy)."""
-        result = parse_entries("5.5.5.0/24 6.6.6.0/24 7.7.7.0/24")
+        result = netshield_common.parse_entries("5.5.5.0/24 6.6.6.0/24 7.7.7.0/24")
         self.assertEqual(result, set())
 
     def test_no_phantom_ip_from_cidr_network_address(self):
@@ -321,19 +303,19 @@ class TestParseEntries(unittest.TestCase):
         Span-Schutz muss WEITERHIN greifen — sonst entstünden Phantom-IPs.
         Erwartung daher set() (CIDR verworfen + keine Phantom-Netzadresse)."""
         # CIDR alleine
-        self.assertEqual(parse_entries("5.5.5.0/24"), set())
+        self.assertEqual(netshield_common.parse_entries("5.5.5.0/24"), set())
         # CIDR in JSON
-        self.assertEqual(parse_entries('{"net":"5.5.5.0/24"}'), set())
+        self.assertEqual(netshield_common.parse_entries('{"net":"5.5.5.0/24"}'), set())
         # CIDR mit Inline-Kommentar (Spamhaus-DROP)
-        self.assertEqual(parse_entries("5.5.5.0/24 ; SBL12345"), set())
+        self.assertEqual(netshield_common.parse_entries("5.5.5.0/24 ; SBL12345"), set())
         # CIDR-only mit Whitespace davor (auto-discovery sieht das oft so)
-        self.assertEqual(parse_entries("    5.5.5.0/24"), set())
+        self.assertEqual(netshield_common.parse_entries("    5.5.5.0/24"), set())
 
     def test_no_phantom_ip_from_slash32_cidr(self):
         """Counter-Test: /32-CIDRs werden akzeptiert; ihre Host-Adresse
         ist identisch mit dem CIDR-Eintrag — keine Phantom-IP-Gefahr."""
-        self.assertEqual(parse_entries("5.5.5.5/32"), {"5.5.5.5/32"})
-        self.assertEqual(parse_entries("5.5.5.5/32 ; SBL12345"), {"5.5.5.5/32"})
+        self.assertEqual(netshield_common.parse_entries("5.5.5.5/32"), {"5.5.5.5/32"})
+        self.assertEqual(netshield_common.parse_entries("5.5.5.5/32 ; SBL12345"), {"5.5.5.5/32"})
 
     # ─── Regression: FIX BUG-IPSET-EAGER ────────────────────────────────
     # Vorher matchte 'add\s+\S+\s+(\S+)' jede mit "add " beginnende Zeile,
@@ -343,24 +325,24 @@ class TestParseEntries(unittest.TestCase):
 
     def test_ipset_eager_match_does_not_swallow_ip_in_freetext(self):
         """'add notes here 1.2.3.4 important' darf 1.2.3.4 NICHT verlieren."""
-        result = parse_entries("add notes here 1.2.3.4 important")
+        result = netshield_common.parse_entries("add notes here 1.2.3.4 important")
         self.assertEqual(result, {"1.2.3.4"})
 
     def test_ipset_with_trailing_extra_ip(self):
         """'add badguys 1.2.3.4 5.6.7.8' findet beide IPs (Fallback-Pfad)."""
-        result = parse_entries("add badguys 1.2.3.4 5.6.7.8")
+        result = netshield_common.parse_entries("add badguys 1.2.3.4 5.6.7.8")
         self.assertEqual(result, {"1.2.3.4", "5.6.7.8"})
 
     def test_fortigate_with_trailing_extra_ip(self):
         """FortiGate-aehnliche Zeile mit zweiter IP: beide muessen rein."""
         # 255.255.255.255 ist Broadcast (240/4) und wird abgelehnt – das ist OK
-        result = parse_entries("set subnet 1.2.3.4 8.8.8.8")
+        result = netshield_common.parse_entries("set subnet 1.2.3.4 8.8.8.8")
         self.assertEqual(result, {"1.2.3.4", "8.8.8.8"})
 
     def test_ipset_private_value_does_not_leak_neighbor(self):
         """ipset-Zeile mit privatem CIDR + Fliesstext-Anhang: privater
         CIDR korrekt verworfen, Fliesstext loest keinen Phantom-Eintrag aus."""
-        result = parse_entries("add badguys 10.0.0.0/8")
+        result = netshield_common.parse_entries("add badguys 10.0.0.0/8")
         self.assertEqual(result, set())  # rein privat → leer
 
     def test_add_prefix_is_not_a_freepass(self):
@@ -369,7 +351,7 @@ class TestParseEntries(unittest.TestCase):
         # "added" beginnt mit "add", Regex sollte nicht greifen (\b-Boundary
         # nicht explizit, aber \s+ verlangt Whitespace nach 'add'). Hier
         # testen wir nur: Multi-IP-Zeilen mit 'add'-Praefix verlieren keine IP.
-        result = parse_entries("added 1.1.1.1 and 2.2.2.2 to blocklist")
+        result = netshield_common.parse_entries("added 1.1.1.1 and 2.2.2.2 to blocklist")
         # 1.1.1.1 und 2.2.2.2 sind beide oeffentlich
         self.assertEqual(result, {"1.1.1.1", "2.2.2.2"})
 
@@ -381,33 +363,33 @@ class TestParseEntries(unittest.TestCase):
 
     def test_ipv4_mapped_ipv6_no_phantom(self):
         """'::ffff:1.2.3.4' darf kein 1.2.3.4 erzeugen."""
-        self.assertEqual(parse_entries("::ffff:1.2.3.4"), set())
+        self.assertEqual(netshield_common.parse_entries("::ffff:1.2.3.4"), set())
 
     def test_full_ipv6_with_v4_suffix_no_phantom(self):
         """'2001:db8::ffff:192.0.2.1' (IPv4-mapped in vollem v6) → leer."""
-        self.assertEqual(parse_entries("2001:db8::ffff:192.0.2.1"), set())
+        self.assertEqual(netshield_common.parse_entries("2001:db8::ffff:192.0.2.1"), set())
 
     def test_ipv6_loopback_does_not_extract_anything(self):
-        self.assertEqual(parse_entries("::1"), set())
-        self.assertEqual(parse_entries("fe80::1234"), set())
+        self.assertEqual(netshield_common.parse_entries("::1"), set())
+        self.assertEqual(netshield_common.parse_entries("fe80::1234"), set())
 
     def test_mixed_ipv4_and_ipv6_in_csv(self):
         """CSV-Mischung: IPv4 muss extrahiert werden, IPv6 nicht."""
-        result = parse_entries("1.2.3.4,2001:db8::1,5.6.7.8")
+        result = netshield_common.parse_entries("1.2.3.4,2001:db8::1,5.6.7.8")
         self.assertEqual(result, {"1.2.3.4", "5.6.7.8"})
 
     def test_ip_port_still_works_after_ipv6_fix(self):
         """Sanity: 'IP:port' (1 Doppelpunkt) bleibt funktional."""
-        self.assertEqual(parse_entries("1.2.3.4:8080"), {"1.2.3.4"})
+        self.assertEqual(netshield_common.parse_entries("1.2.3.4:8080"), {"1.2.3.4"})
 
     def test_host_colon_ip_still_works(self):
         """Sanity: 'host:1.2.3.4' (1 Doppelpunkt im Token) bleibt
         unbeeintraechtigt – das Token enthaelt nur 1 ':', kein '::'."""
-        self.assertEqual(parse_entries("host:1.2.3.4"), {"1.2.3.4"})
+        self.assertEqual(netshield_common.parse_entries("host:1.2.3.4"), {"1.2.3.4"})
 
     def test_ipv6_token_neighbour_ipv4_not_swallowed(self):
         """IPv4 in eigener Token-Position neben IPv6 wird gefunden."""
-        result = parse_entries("foo 1.2.3.4 ::1 bar")
+        result = netshield_common.parse_entries("foo 1.2.3.4 ::1 bar")
         self.assertEqual(result, {"1.2.3.4"})
 
 
@@ -428,17 +410,15 @@ class TestParseEntriesForBlacklist(unittest.TestCase):
     def test_filters_private_ip(self):
         """RFC1918/Reserved werden weiterhin gefiltert - der Wrapper
         ist ein Superset von is_valid_public_ipv4."""
-        from netshield_common import parse_entries_for_blacklist
-        result = parse_entries_for_blacklist("192.168.1.1\n5.5.5.5")
+        result = netshield_common.parse_entries_for_blacklist("192.168.1.1\n5.5.5.5")
         self.assertEqual(result, {"5.5.5.5"})
 
     def test_equivalence_to_parse_entries_with_flag(self):
         """Wrapper muss exakt dasselbe liefern wie parse_entries(use_protected_check=True)."""
-        from netshield_common import parse_entries_for_blacklist
         text = "1.0.0.1\n5.5.5.5\n10.0.0.1\n8.8.8.8\n11.22.33.44\n5.5.5.0/24"
         self.assertEqual(
-            parse_entries_for_blacklist(text),
-            parse_entries(text, use_protected_check=True),
+            netshield_common.parse_entries_for_blacklist(text),
+            netshield_common.parse_entries(text, use_protected_check=True),
         )
 
 
@@ -449,42 +429,42 @@ class TestParseEntriesForBlacklist(unittest.TestCase):
 class TestIPValidation(unittest.TestCase):
 
     def test_valid_public(self):
-        self.assertTrue(is_valid_public_ipv4("8.8.8.8"))
-        self.assertTrue(is_valid_public_ipv4("1.1.1.1"))
-        self.assertTrue(is_valid_public_ipv4("185.220.101.1"))
+        self.assertTrue(netshield_common.is_valid_public_ipv4("8.8.8.8"))
+        self.assertTrue(netshield_common.is_valid_public_ipv4("1.1.1.1"))
+        self.assertTrue(netshield_common.is_valid_public_ipv4("185.220.101.1"))
 
     def test_private(self):
-        self.assertFalse(is_valid_public_ipv4("192.168.1.1"))
-        self.assertFalse(is_valid_public_ipv4("10.0.0.1"))
-        self.assertFalse(is_valid_public_ipv4("172.16.0.1"))
+        self.assertFalse(netshield_common.is_valid_public_ipv4("192.168.1.1"))
+        self.assertFalse(netshield_common.is_valid_public_ipv4("10.0.0.1"))
+        self.assertFalse(netshield_common.is_valid_public_ipv4("172.16.0.1"))
 
     def test_loopback(self):
-        self.assertFalse(is_valid_public_ipv4("127.0.0.1"))
+        self.assertFalse(netshield_common.is_valid_public_ipv4("127.0.0.1"))
 
     def test_invalid_format(self):
-        self.assertFalse(is_valid_public_ipv4("not_an_ip"))
-        self.assertFalse(is_valid_public_ipv4(""))
-        self.assertFalse(is_valid_public_ipv4("999.999.999.999"))
+        self.assertFalse(netshield_common.is_valid_public_ipv4("not_an_ip"))
+        self.assertFalse(netshield_common.is_valid_public_ipv4(""))
+        self.assertFalse(netshield_common.is_valid_public_ipv4("999.999.999.999"))
 
     def test_valid_cidr(self):
         # Policy: nur /32 erlaubt
-        self.assertTrue(is_valid_public_cidr("1.2.3.4/32"))
-        self.assertTrue(is_valid_public_cidr("8.8.8.8/32"))
+        self.assertTrue(netshield_common.is_valid_public_cidr("1.2.3.4/32"))
+        self.assertTrue(netshield_common.is_valid_public_cidr("8.8.8.8/32"))
 
     def test_private_cidr(self):
-        self.assertFalse(is_valid_public_cidr("192.168.0.0/16"))
-        self.assertFalse(is_valid_public_cidr("10.0.0.0/8"))
-        self.assertFalse(is_valid_public_cidr("192.168.1.1/32"))  # auch /32 privat → raus
+        self.assertFalse(netshield_common.is_valid_public_cidr("192.168.0.0/16"))
+        self.assertFalse(netshield_common.is_valid_public_cidr("10.0.0.0/8"))
+        self.assertFalse(netshield_common.is_valid_public_cidr("192.168.1.1/32"))  # auch /32 privat → raus
 
     def test_cidr_too_large(self):
         # Alles breiter als /32 wird abgelehnt
-        self.assertFalse(is_valid_public_cidr("1.0.0.0/7"))
-        self.assertFalse(is_valid_public_cidr("1.2.3.0/24"))
-        self.assertFalse(is_valid_public_cidr("8.0.0.0/8"))
-        self.assertFalse(is_valid_public_cidr("144.76.0.0/16"))  # Hetzner-Range
+        self.assertFalse(netshield_common.is_valid_public_cidr("1.0.0.0/7"))
+        self.assertFalse(netshield_common.is_valid_public_cidr("1.2.3.0/24"))
+        self.assertFalse(netshield_common.is_valid_public_cidr("8.0.0.0/8"))
+        self.assertFalse(netshield_common.is_valid_public_cidr("144.76.0.0/16"))  # Hetzner-Range
 
     def test_invalid_cidr(self):
-        self.assertFalse(is_valid_public_cidr("not/a/cidr"))
+        self.assertFalse(netshield_common.is_valid_public_cidr("not/a/cidr"))
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -495,14 +475,14 @@ class TestScoring(unittest.TestCase):
 
     def test_max_score(self):
         """HQ + frisch + persistent + alt → 100"""
-        score = calculate_confidence(
+        score = netshield_common.calculate_confidence(
             is_hq=True, days_since_last=0, days_seen=14, days_known=90
         )
         self.assertEqual(score, 100)
 
     def test_min_score(self):
         """Einzelner Non-HQ-Feed, uralt, 1 Tag gesehen, neu → 2"""
-        score = calculate_confidence(
+        score = netshield_common.calculate_confidence(
             is_hq=False, today_count=1, feed_count=1,
             days_since_last=999, days_seen=1, days_known=0
         )
@@ -510,14 +490,14 @@ class TestScoring(unittest.TestCase):
 
     def test_hq_fresh(self):
         """HQ + 1 Tag alt + 1 Tag gesehen + neu → 40+30+2+0=72"""
-        score = calculate_confidence(
+        score = netshield_common.calculate_confidence(
             is_hq=True, days_since_last=1, days_seen=1, days_known=0
         )
         self.assertEqual(score, 72)
 
     def test_active_threshold(self):
         """Active Blacklist braucht >= 65"""
-        score = calculate_confidence(
+        score = netshield_common.calculate_confidence(
             is_hq=True, days_since_last=1, days_seen=1, days_known=0
         )
         self.assertGreaterEqual(score, 65)
@@ -525,7 +505,7 @@ class TestScoring(unittest.TestCase):
     def test_confidence40_threshold(self):
         """Confidence40 braucht >= 40"""
         # HQ + 8 Tage alt + 1 Tag → 40 + 20 + 2 + 0 = 62
-        score = calculate_confidence(
+        score = netshield_common.calculate_confidence(
             is_hq=True, days_since_last=7, days_seen=1, days_known=0
         )
         self.assertGreaterEqual(score, 40)
@@ -537,7 +517,7 @@ class TestScoring(unittest.TestCase):
         pass
 
     def test_score_capped_at_100(self):
-        score = calculate_confidence(
+        score = netshield_common.calculate_confidence(
             is_hq=True, today_count=10, feed_count=20,
             days_since_last=0, days_seen=100, days_known=365
         )
@@ -545,7 +525,7 @@ class TestScoring(unittest.TestCase):
 
     def test_today_count_5(self):
         """5+ Feeds heute ohne HQ → 35"""
-        score = calculate_confidence(
+        score = netshield_common.calculate_confidence(
             is_hq=False, today_count=5, feed_count=5,
             days_since_last=1, days_seen=1, days_known=0
         )
@@ -554,7 +534,7 @@ class TestScoring(unittest.TestCase):
 
     def test_today_count_3(self):
         """3 Feeds heute ohne HQ → 28"""
-        score = calculate_confidence(
+        score = netshield_common.calculate_confidence(
             is_hq=False, today_count=3, feed_count=3,
             days_since_last=1, days_seen=1, days_known=0
         )
@@ -563,7 +543,7 @@ class TestScoring(unittest.TestCase):
 
     def test_today_count_2(self):
         """2 Feeds heute ohne HQ → 20"""
-        score = calculate_confidence(
+        score = netshield_common.calculate_confidence(
             is_hq=False, today_count=2, feed_count=2,
             days_since_last=1, days_seen=1, days_known=0
         )
@@ -571,26 +551,26 @@ class TestScoring(unittest.TestCase):
         self.assertEqual(score, 52)
 
     def test_days_known_tiers(self):
-        self.assertEqual(calculate_confidence(days_known=0), 2)    # 0+0+2+0
-        self.assertEqual(calculate_confidence(days_known=14), 5)   # 0+0+2+3
-        self.assertEqual(calculate_confidence(days_known=30), 8)   # 0+0+2+6
-        self.assertEqual(calculate_confidence(days_known=90), 12)  # 0+0+2+10
+        self.assertEqual(netshield_common.calculate_confidence(days_known=0), 2)    # 0+0+2+0
+        self.assertEqual(netshield_common.calculate_confidence(days_known=14), 5)   # 0+0+2+3
+        self.assertEqual(netshield_common.calculate_confidence(days_known=30), 8)   # 0+0+2+6
+        self.assertEqual(netshield_common.calculate_confidence(days_known=90), 12)  # 0+0+2+10
 
     def test_days_since_last_tiers(self):
-        self.assertEqual(calculate_confidence(days_since_last=0), 32)   # 0+30+2+0
-        self.assertEqual(calculate_confidence(days_since_last=1), 32)   # 0+30+2+0
-        self.assertEqual(calculate_confidence(days_since_last=3), 27)   # 0+25+2+0
-        self.assertEqual(calculate_confidence(days_since_last=7), 22)   # 0+20+2+0
-        self.assertEqual(calculate_confidence(days_since_last=14), 14)  # 0+12+2+0
-        self.assertEqual(calculate_confidence(days_since_last=30), 8)   # 0+6+2+0
-        self.assertEqual(calculate_confidence(days_since_last=31), 2)   # 0+0+2+0
+        self.assertEqual(netshield_common.calculate_confidence(days_since_last=0), 32)   # 0+30+2+0
+        self.assertEqual(netshield_common.calculate_confidence(days_since_last=1), 32)   # 0+30+2+0
+        self.assertEqual(netshield_common.calculate_confidence(days_since_last=3), 27)   # 0+25+2+0
+        self.assertEqual(netshield_common.calculate_confidence(days_since_last=7), 22)   # 0+20+2+0
+        self.assertEqual(netshield_common.calculate_confidence(days_since_last=14), 14)  # 0+12+2+0
+        self.assertEqual(netshield_common.calculate_confidence(days_since_last=30), 8)   # 0+6+2+0
+        self.assertEqual(netshield_common.calculate_confidence(days_since_last=31), 2)   # 0+0+2+0
 
     def test_persistence_tiers(self):
-        self.assertEqual(calculate_confidence(days_seen=1), 2)    # 0+0+2+0
-        self.assertEqual(calculate_confidence(days_seen=2), 6)    # 0+0+6+0
-        self.assertEqual(calculate_confidence(days_seen=3), 10)   # 0+0+10+0
-        self.assertEqual(calculate_confidence(days_seen=7), 15)   # 0+0+15+0
-        self.assertEqual(calculate_confidence(days_seen=14), 20)  # 0+0+20+0
+        self.assertEqual(netshield_common.calculate_confidence(days_seen=1), 2)    # 0+0+2+0
+        self.assertEqual(netshield_common.calculate_confidence(days_seen=2), 6)    # 0+0+6+0
+        self.assertEqual(netshield_common.calculate_confidence(days_seen=3), 10)   # 0+0+10+0
+        self.assertEqual(netshield_common.calculate_confidence(days_seen=7), 15)   # 0+0+15+0
+        self.assertEqual(netshield_common.calculate_confidence(days_seen=14), 20)  # 0+0+20+0
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -600,40 +580,40 @@ class TestScoring(unittest.TestCase):
 class TestDateHandling(unittest.TestCase):
 
     def test_safe_get_date_valid(self):
-        self.assertEqual(safe_get_date({"last": "2025-01-15"}, "last"), "2025-01-15")
+        self.assertEqual(netshield_common.safe_get_date({"last": "2025-01-15"}, "last"), "2025-01-15")
 
     def test_safe_get_date_missing_key(self):
-        self.assertEqual(safe_get_date({}, "last"), "2000-01-01")
+        self.assertEqual(netshield_common.safe_get_date({}, "last"), "2000-01-01")
 
     def test_safe_get_date_none_value(self):
         """FIX: data.get("last", default) gibt None wenn Key existiert mit None-Wert."""
-        self.assertEqual(safe_get_date({"last": None}, "last"), "2000-01-01")
+        self.assertEqual(netshield_common.safe_get_date({"last": None}, "last"), "2000-01-01")
 
     def test_safe_get_date_empty_string(self):
-        self.assertEqual(safe_get_date({"last": ""}, "last"), "2000-01-01")
+        self.assertEqual(netshield_common.safe_get_date({"last": ""}, "last"), "2000-01-01")
 
     def test_safe_get_date_invalid_format(self):
-        self.assertEqual(safe_get_date({"last": "invalid"}, "last"), "2000-01-01")
+        self.assertEqual(netshield_common.safe_get_date({"last": "invalid"}, "last"), "2000-01-01")
 
     def test_safe_get_date_integer(self):
-        self.assertEqual(safe_get_date({"last": 12345}, "last"), "2000-01-01")
+        self.assertEqual(netshield_common.safe_get_date({"last": 12345}, "last"), "2000-01-01")
 
     def test_safe_get_date_custom_default(self):
-        self.assertEqual(safe_get_date({}, "last", "2020-06-15"), "2020-06-15")
+        self.assertEqual(netshield_common.safe_get_date({}, "last", "2020-06-15"), "2020-06-15")
 
     def test_parse_date_valid(self):
-        result = parse_date("2025-04-14")
+        result = netshield_common.parse_date("2025-04-14")
         self.assertEqual(result.year, 2025)
         self.assertEqual(result.month, 4)
         self.assertEqual(result.day, 14)
         self.assertIsNotNone(result.tzinfo)
 
     def test_parse_date_invalid(self):
-        result = parse_date("invalid")
+        result = netshield_common.parse_date("invalid")
         self.assertEqual(result.year, 2000)
 
     def test_parse_date_none(self):
-        result = parse_date(None)
+        result = netshield_common.parse_date(None)
         self.assertEqual(result.year, 2000)
 
 
@@ -645,22 +625,22 @@ class TestSortAndWrite(unittest.TestCase):
 
     def test_numeric_sort(self):
         ips = ["10.0.0.1", "2.0.0.1", "1.0.0.1"]
-        result = sort_ips(ips)
+        result = netshield_common.sort_ips(ips)
         self.assertEqual(result, ["1.0.0.1", "2.0.0.1", "10.0.0.1"])
 
     def test_sort_with_cidrs(self):
         entries = ["10.0.0.0/24", "2.0.0.0/8", "1.2.3.4"]
-        result = sort_ips(entries)
+        result = netshield_common.sort_ips(entries)
         self.assertEqual(result, ["1.2.3.4", "2.0.0.0/8", "10.0.0.0/24"])
 
     def test_sort_empty(self):
-        self.assertEqual(sort_ips([]), [])
+        self.assertEqual(netshield_common.sort_ips([]), [])
 
     def test_write_ip_list(self):
         with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
             path = f.name
         try:
-            write_ip_list(path, ["5.6.7.8", "1.2.3.4"],
+            netshield_common.write_ip_list(path, ["5.6.7.8", "1.2.3.4"],
                           header_lines=["Test Header", "Line 2"])
             with open(path) as f:
                 content = f.read()
@@ -691,14 +671,14 @@ class TestWhitelistLoading(unittest.TestCase):
         entries = ["8.8.8.8", "1.1.1.1", "1.0.0.1"] + [f"100.{i}.0.0/16" for i in range(50)]
         with open(self.wl_path, 'w') as f:
             json.dump({"entries": entries}, f)
-        result = load_whitelist(self.wl_path, min_entries=5)
+        result = netshield_common.load_whitelist(self.wl_path, min_entries=5)
         self.assertEqual(len(result), len(entries))
 
     def test_load_whitelist_too_few_entries(self):
         with open(self.wl_path, 'w') as f:
             json.dump({"entries": ["8.8.8.8"]}, f)
         with self.assertRaises(SystemExit):
-            load_whitelist(self.wl_path, min_entries=50)
+            netshield_common.load_whitelist(self.wl_path, min_entries=50)
 
     def test_load_fp_set(self):
         fp_data = {
@@ -708,13 +688,13 @@ class TestWhitelistLoading(unittest.TestCase):
         }
         with open(self.fp_path, 'w') as f:
             json.dump(fp_data, f)
-        fp_ips, fp_nets = load_fp_set(self.fp_path)
+        fp_ips, fp_nets = netshield_common.load_fp_set(self.fp_path)
         self.assertIn("1.2.3.4", fp_ips)
         self.assertIn("9.8.7.6", fp_ips)
         self.assertEqual(len(fp_nets), 1)
 
     def test_load_fp_set_missing_file(self):
-        fp_ips, fp_nets = load_fp_set("/nonexistent/path.json")
+        fp_ips, fp_nets = netshield_common.load_fp_set("/nonexistent/path.json")
         self.assertEqual(len(fp_ips), 0)
         self.assertEqual(len(fp_nets), 0)
 
@@ -725,7 +705,7 @@ class TestWhitelistLoading(unittest.TestCase):
         os.mkdir("state")
         with open(os.path.join("state", "false_positives_set.json"), "w") as f:
             json.dump({"ips": ["8.8.8.8"]}, f)
-        fp_ips, fp_nets = load_fp_set()
+        fp_ips, fp_nets = netshield_common.load_fp_set()
         self.assertEqual(fp_ips, {"8.8.8.8"})
         self.assertEqual(fp_nets, [])
 
@@ -739,9 +719,9 @@ class TestWhitelistLoading(unittest.TestCase):
         with open(self.fp_path, 'w') as f:
             json.dump({"ips": "1.2.3.4"}, f)
         with self.assertRaises(ValueError):
-            load_fp_set(self.fp_path)
-        self.assertFalse(is_in_fp_set("."))
-        self.assertFalse(is_in_fp_set("1"))
+            netshield_common.load_fp_set(self.fp_path)
+        self.assertFalse(netshield_common.is_in_fp_set("."))
+        self.assertFalse(netshield_common.is_in_fp_set("1"))
 
     def test_load_fp_set_wrong_root_aborts(self):
         for root in ([], "hello"):
@@ -749,26 +729,26 @@ class TestWhitelistLoading(unittest.TestCase):
                 with open(self.fp_path, 'w') as f:
                     json.dump(root, f)
                 with self.assertRaises(ValueError):
-                    load_fp_set(self.fp_path)
+                    netshield_common.load_fp_set(self.fp_path)
 
     def test_load_fp_set_skips_non_string_entries(self):
         """Mix aus validen Strings und Datenmuell – nur Strings werden uebernommen."""
         with open(self.fp_path, 'w') as f:
             json.dump({"ips": ["1.2.3.4", None, 123, {"x": "y"}, "5.6.7.0/24"]}, f)
-        fp_ips, fp_nets = load_fp_set(self.fp_path)
+        fp_ips, fp_nets = netshield_common.load_fp_set(self.fp_path)
         self.assertEqual(fp_ips, {"1.2.3.4"})
         self.assertEqual(len(fp_nets), 1)
 
     def test_load_fp_set_preserves_state_on_schema_error(self):
         with open(self.fp_path, 'w') as f:
             json.dump({"ips": ["1.2.3.4", "9.9.9.9"]}, f)
-        load_fp_set(self.fp_path)
+        netshield_common.load_fp_set(self.fp_path)
         with open(self.fp_path, 'w') as f:
             json.dump(["x"], f)
         with self.assertRaises(ValueError):
-            load_fp_set(self.fp_path)
-        self.assertTrue(is_in_fp_set("1.2.3.4"))
-        self.assertTrue(is_in_fp_set("9.9.9.9"))
+            netshield_common.load_fp_set(self.fp_path)
+        self.assertTrue(netshield_common.is_in_fp_set("1.2.3.4"))
+        self.assertTrue(netshield_common.is_in_fp_set("9.9.9.9"))
 
     def test_is_in_fp_set(self):
         netshield_common._fp_ips = {"1.2.3.4"}
@@ -778,9 +758,9 @@ class TestWhitelistLoading(unittest.TestCase):
         # FIX PERF-PARSE: Direkte Mutation von _fp_networks erfordert
         # explizites Index-Rebuild fuer den Binary-Search-Pfad.
         netshield_common._rebuild_fp_index()
-        self.assertTrue(is_in_fp_set("1.2.3.4"))
-        self.assertTrue(is_in_fp_set("5.6.7.100"))
-        self.assertFalse(is_in_fp_set("9.9.9.9"))
+        self.assertTrue(netshield_common.is_in_fp_set("1.2.3.4"))
+        self.assertTrue(netshield_common.is_in_fp_set("5.6.7.100"))
+        self.assertFalse(netshield_common.is_in_fp_set("9.9.9.9"))
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -793,43 +773,43 @@ class TestCrashHandling(unittest.TestCase):
     def test_none_entry(self):
         """Regression: parse_entries(None) darf nicht crashen.
         Vorher vacuous (nur isinstance-Check), jetzt echter Call."""
-        self.assertEqual(parse_entries(None), set())
+        self.assertEqual(netshield_common.parse_entries(None), set())
 
     def test_empty_string_entry(self):
         """Regression: parse_entries('') gibt leeres Set zurück."""
-        self.assertEqual(parse_entries(""), set())
+        self.assertEqual(netshield_common.parse_entries(""), set())
 
     def test_integer_entry(self):
         """Regression: parse_entries(42) darf nicht crashen."""
-        self.assertEqual(parse_entries(42), set())
+        self.assertEqual(netshield_common.parse_entries(42), set())
 
     def test_bytes_entry(self):
         """Bytes werden dekodiert statt zu crashen."""
-        self.assertEqual(parse_entries(b"1.2.3.4"), {"1.2.3.4"})
+        self.assertEqual(netshield_common.parse_entries(b"1.2.3.4"), {"1.2.3.4"})
 
     def test_null_byte_line_rejected(self):
         """Zeilen mit Null-Bytes werden verworfen (Binärmüll-Schutz).
         Vorher: parse_entries('1.2.3.4\\x00') → {'1.2.3.4'} (akzeptiert)."""
-        self.assertEqual(parse_entries("1.2.3.4\x00"), set())
+        self.assertEqual(netshield_common.parse_entries("1.2.3.4\x00"), set())
         # Benachbarte saubere Zeilen bleiben erhalten
         self.assertEqual(
-            parse_entries("1.2.3.4\n5.6.7.8\x00\n9.10.11.12"),
+            netshield_common.parse_entries("1.2.3.4\n5.6.7.8\x00\n9.10.11.12"),
             {"1.2.3.4", "9.10.11.12"},
         )
 
     def test_missing_fields(self):
         data = {"feeds": []}
-        last = safe_get_date(data, "last")
+        last = netshield_common.safe_get_date(data, "last")
         self.assertEqual(last, "2000-01-01")
 
     def test_none_date_fields(self):
         data = {"last": None, "first": None}
-        self.assertEqual(safe_get_date(data, "last"), "2000-01-01")
-        self.assertEqual(safe_get_date(data, "first"), "2000-01-01")
+        self.assertEqual(netshield_common.safe_get_date(data, "last"), "2000-01-01")
+        self.assertEqual(netshield_common.safe_get_date(data, "first"), "2000-01-01")
 
     def test_invalid_date_format(self):
         data = {"last": "not-a-date"}
-        self.assertEqual(safe_get_date(data, "last"), "2000-01-01")
+        self.assertEqual(netshield_common.safe_get_date(data, "last"), "2000-01-01")
 
     def test_corrupt_feeds_field(self):
         """feeds ist kein List → len() sollte trotzdem funktionieren.
@@ -851,7 +831,7 @@ class TestCrashHandling(unittest.TestCase):
 
     def test_scoring_with_extreme_values(self):
         """Score-Berechnung mit extremen Werten."""
-        score = calculate_confidence(
+        score = netshield_common.calculate_confidence(
             is_hq=True, today_count=999999,
             feed_count=999999, days_since_last=0,
             days_seen=999999, days_known=999999
@@ -860,7 +840,7 @@ class TestCrashHandling(unittest.TestCase):
 
     def test_scoring_with_negative_values(self):
         """Score-Berechnung mit negativen Werten."""
-        score = calculate_confidence(
+        score = netshield_common.calculate_confidence(
             is_hq=False, today_count=-1,
             feed_count=-1, days_since_last=-1,
             days_seen=-1, days_known=-1
@@ -878,14 +858,14 @@ class TestCrashHandling(unittest.TestCase):
 
     def test_scoring_with_string_today_count(self):
         """today_count='5' (str) darf nicht crashen – wird zu int(5) gecastet."""
-        score = calculate_confidence(today_count="5")
+        score = netshield_common.calculate_confidence(today_count="5")
         self.assertIsInstance(score, int)
         self.assertGreaterEqual(score, 0)
         self.assertLessEqual(score, 100)
 
     def test_scoring_with_none_fields(self):
         """None an beliebigem Feld darf nicht crashen."""
-        score = calculate_confidence(
+        score = netshield_common.calculate_confidence(
             today_count=None, feed_count=None,
             days_since_last=None, days_seen=None, days_known=None
         )
@@ -895,21 +875,21 @@ class TestCrashHandling(unittest.TestCase):
 
     def test_scoring_with_unparseable_string(self):
         """'abc' fällt auf Default zurück – kein Crash."""
-        score = calculate_confidence(today_count="abc", feed_count="xyz")
+        score = netshield_common.calculate_confidence(today_count="abc", feed_count="xyz")
         self.assertIsInstance(score, int)
         self.assertGreaterEqual(score, 0)
 
     def test_scoring_with_float(self):
         """Float-Werte werden zu int gecastet (3.7 → 3)."""
-        score = calculate_confidence(today_count=3.7)
+        score = netshield_common.calculate_confidence(today_count=3.7)
         self.assertIsInstance(score, int)
         # today_count=3 → score_a=28
         self.assertEqual(score, 28 + 0 + 2 + 0)  # a=28, b=0(default 999), c=2(default 1), d=0
 
     def test_scoring_string_equivalent_to_int(self):
         """today_count='5' muss denselben Score geben wie today_count=5."""
-        score_str = calculate_confidence(today_count="5")
-        score_int = calculate_confidence(today_count=5)
+        score_str = netshield_common.calculate_confidence(today_count="5")
+        score_int = netshield_common.calculate_confidence(today_count=5)
         self.assertEqual(score_str, score_int)
 
 
@@ -925,7 +905,7 @@ class TestFeedAge(unittest.TestCase):
             f.write(f"# NETSHIELD\n# Aktualisiert: {now_str} UTC\n1.2.3.4\n")
             path = f.name
         try:
-            age = check_local_feed_age(path, max_age_hours=48)
+            age = netshield_common.check_local_feed_age(path, max_age_hours=48)
             self.assertIsNotNone(age)
             self.assertLess(age, 1)  # weniger als 1 Stunde alt
         finally:
@@ -941,14 +921,14 @@ class TestFeedAge(unittest.TestCase):
             f.write(f"# NETSHIELD\n# Aktualisiert: {now_local_str} (Europe/Berlin)\n1.2.3.4\n")
             path = f.name
         try:
-            age = check_local_feed_age(path, max_age_hours=48)
+            age = netshield_common.check_local_feed_age(path, max_age_hours=48)
             self.assertIsNotNone(age)
             self.assertLess(age, 1)  # weniger als 1 Stunde alt
         finally:
             os.unlink(path)
 
     def test_missing_file(self):
-        age = check_local_feed_age("/nonexistent/file.txt")
+        age = netshield_common.check_local_feed_age("/nonexistent/file.txt")
         self.assertIsNone(age)
 
     def test_no_timestamp(self):
@@ -956,7 +936,7 @@ class TestFeedAge(unittest.TestCase):
             f.write("# No timestamp here\n1.2.3.4\n")
             path = f.name
         try:
-            age = check_local_feed_age(path)
+            age = netshield_common.check_local_feed_age(path)
             self.assertIsNone(age)
         finally:
             os.unlink(path)
@@ -979,12 +959,12 @@ class TestWriteIpListAtomic(unittest.TestCase):
         shutil.rmtree(self.tmpdir)
 
     def test_normal_write_leaves_no_tempfile(self):
-        write_ip_list(self.target, ["1.2.3.4", "5.6.7.8"], header_lines=["Test"])
+        netshield_common.write_ip_list(self.target, ["1.2.3.4", "5.6.7.8"], header_lines=["Test"])
         leftovers = [f for f in os.listdir(self.tmpdir) if f != "ips.txt"]
         self.assertEqual(leftovers, [])
 
     def test_crash_during_write_keeps_old_file_intact(self):
-        write_ip_list(self.target, ["1.1.1.1"], header_lines=["v1"])
+        netshield_common.write_ip_list(self.target, ["1.1.1.1"], header_lines=["v1"])
         with open(self.target, encoding="utf-8") as f:
             original = f.read()
 
@@ -994,7 +974,7 @@ class TestWriteIpListAtomic(unittest.TestCase):
                 raise RuntimeError("simulierter Crash mitten im Write")
 
         with self.assertRaises(RuntimeError):
-            write_ip_list(self.target, BadIter())
+            netshield_common.write_ip_list(self.target, BadIter())
 
         with open(self.target, encoding="utf-8") as f:
             after = f.read()
@@ -1005,7 +985,7 @@ class TestWriteIpListAtomic(unittest.TestCase):
                          "Bei Crash dürfen keine .tmp-Leichen zurückbleiben")
 
     def test_write_produces_correct_content(self):
-        write_ip_list(self.target, ["5.6.7.8", "1.2.3.4"],
+        netshield_common.write_ip_list(self.target, ["5.6.7.8", "1.2.3.4"],
                        header_lines=["Header1", "Header2"])
         with open(self.target, encoding="utf-8") as f:
             content = f.read()
@@ -1027,7 +1007,7 @@ class TestWriteIpListAtomic(unittest.TestCase):
         import subprocess
         import signal
         # Originaldatei anlegen
-        write_ip_list(self.target, ["9.9.9.9"], header_lines=["original"])
+        netshield_common.write_ip_list(self.target, ["9.9.9.9"], header_lines=["original"])
         with open(self.target, encoding="utf-8") as f:
             original = f.read()
 
@@ -1073,16 +1053,16 @@ class TestParserEdgecases(unittest.TestCase):
 
     def test_version_string_not_extracted(self):
         # Vorher: '1.2.3.4.5' → {'1.2.3.4'} (falsch!)
-        self.assertEqual(parse_entries("1.2.3.4.5"), set())
+        self.assertEqual(netshield_common.parse_entries("1.2.3.4.5"), set())
 
     def test_version_string_in_text(self):
         # Versions-Nummer inmitten von Text
-        self.assertEqual(parse_entries("Software v1.2.3.4.5 released"), set())
+        self.assertEqual(netshield_common.parse_entries("Software v1.2.3.4.5 released"), set())
 
     def test_normal_ip_still_works(self):
         # Regression: normale IPs sollen weiterhin erkannt werden
-        self.assertEqual(parse_entries("1.2.3.4"), {"1.2.3.4"})
-        self.assertEqual(parse_entries("Malware C2: 1.2.3.4 seen"), {"1.2.3.4"})
+        self.assertEqual(netshield_common.parse_entries("1.2.3.4"), {"1.2.3.4"})
+        self.assertEqual(netshield_common.parse_entries("Malware C2: 1.2.3.4 seen"), {"1.2.3.4"})
 
     def test_ip_at_end_of_sentence(self):
         # IP am Satzende mit Punkt: '1.2.3.4.' – der Schlusspunkt ist
@@ -1090,7 +1070,7 @@ class TestParserEdgecases(unittest.TestCase):
         # weil der Punkt nicht von "ist Oktett-Trenner?" zu unterscheiden
         # ist. Bewusst angenommener Trade-off.
         # Dieser Test dokumentiert das Verhalten.
-        self.assertEqual(parse_entries("C2 ist 1.2.3.4."), set())
+        self.assertEqual(netshield_common.parse_entries("C2 ist 1.2.3.4."), set())
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -1108,7 +1088,7 @@ class TestConfidenceNegativeInputs(unittest.TestCase):
         # Jetzt: negative Aged-Werte werden auf den jeweiligen "unbekannt"-
         # Default gemappt (days_since_last=999, days_seen/known=0) → 0 Punkte
         # in allen vier Dimensionen.
-        score = calculate_confidence(
+        score = netshield_common.calculate_confidence(
             today_count=-5, feed_count=-3,
             days_since_last=-100, days_seen=-1, days_known=-1)
         # is_hq=False, today=0, feed=0                          → A=0
@@ -1118,7 +1098,7 @@ class TestConfidenceNegativeInputs(unittest.TestCase):
         self.assertEqual(score, 0)
 
     def test_all_negative_stays_in_range(self):
-        score = calculate_confidence(
+        score = netshield_common.calculate_confidence(
             is_hq=False, today_count=-999, feed_count=-999,
             days_since_last=-999, days_seen=-999, days_known=-999)
         self.assertGreaterEqual(score, 0)
@@ -1130,27 +1110,27 @@ class TestFetchUrlSsrf(unittest.TestCase):
     gefährliche Schemata noch über Auflösung auf private IPs."""
 
     def test_file_scheme_blocked(self):
-        self.assertIsNone(fetch_url("file:///etc/passwd"))
+        self.assertIsNone(netshield_common.fetch_url("file:///etc/passwd"))
 
     def test_ftp_scheme_blocked(self):
-        self.assertIsNone(fetch_url("ftp://example.com/x"))
+        self.assertIsNone(netshield_common.fetch_url("ftp://example.com/x"))
 
     def test_gopher_scheme_blocked(self):
-        self.assertIsNone(fetch_url("gopher://example.com/"))
+        self.assertIsNone(netshield_common.fetch_url("gopher://example.com/"))
 
     def test_loopback_ip_blocked(self):
-        self.assertIsNone(fetch_url("http://127.0.0.1/"))
+        self.assertIsNone(netshield_common.fetch_url("http://127.0.0.1/"))
 
     def test_aws_metadata_blocked(self):
         # Cloud-Metadata-Endpoint – der klassische SSRF-Exfil-Pfad
-        self.assertIsNone(fetch_url("http://169.254.169.254/latest/meta-data/"))
+        self.assertIsNone(netshield_common.fetch_url("http://169.254.169.254/latest/meta-data/"))
 
     def test_rfc1918_blocked(self):
-        self.assertIsNone(fetch_url("http://192.168.1.1/"))
-        self.assertIsNone(fetch_url("http://10.0.0.1/"))
+        self.assertIsNone(netshield_common.fetch_url("http://192.168.1.1/"))
+        self.assertIsNone(netshield_common.fetch_url("http://10.0.0.1/"))
 
     def test_localhost_hostname_blocked(self):
-        self.assertIsNone(fetch_url("http://localhost/"))
+        self.assertIsNone(netshield_common.fetch_url("http://localhost/"))
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -1235,7 +1215,7 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
                             self.wfile.flush()
                             time.sleep(0.04)
                     except BrokenPipeError:
-                        pass
+                        return  # The timeout test intentionally closes the client.
                 else:
                     self.send_response(404)
                     self.end_headers()
@@ -1251,14 +1231,12 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
         # Methoden bindet und self als ersten Arg einfügt – der Aufruf
         # self._orig_safe_host(host) würde sonst (self, host) senden und
         # mit TypeError scheitern.
-        import netshield_common
         cls._orig_safe_host = staticmethod(netshield_common._is_safe_public_host)
         netshield_common._is_safe_public_host = lambda h: True
 
     @classmethod
     def tearDownClass(cls):
         cls.server.shutdown()
-        import netshield_common
         netshield_common._is_safe_public_host = cls._orig_safe_host
 
     def _url(self, path):
@@ -1266,16 +1244,14 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
 
     def test_happy_path_returns_content(self):
         """fetch_url soll bei 200-Response den Body als str liefern."""
-        from netshield_common import fetch_url
-        result = fetch_url(self._url("/ok"))
+        result = netshield_common.fetch_url(self._url("/ok"))
         self.assertIsNotNone(result)
         self.assertIn("1.2.3.4", result)
         self.assertIn("feed-content", result)
 
     def test_safe_redirect_followed(self):
         """Redirect auf zulässige URL: fetch_url folgt und liefert Content."""
-        from netshield_common import fetch_url
-        result = fetch_url(self._url("/redirect-safe"))
+        result = netshield_common.fetch_url(self._url("/redirect-safe"))
         self.assertIsNotNone(result)
         self.assertIn("feed-content", result)
 
@@ -1285,8 +1261,6 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
 
         Den Patch heben wir für diesen Test kurz auf, damit die echte
         _is_safe_public_host-Logik beim Redirect greift."""
-        from netshield_common import fetch_url
-        import netshield_common
         # SSRF-Check für initiale Request erlauben, aber reale Logik
         # fürs Redirect-Ziel wiederherstellen
         patched_for_initial = [True]
@@ -1298,7 +1272,7 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
             return self._orig_safe_host(host)
         netshield_common._is_safe_public_host = selective_check
         try:
-            result = fetch_url(self._url("/redirect-unsafe"))
+            result = netshield_common.fetch_url(self._url("/redirect-unsafe"))
             # Redirect sollte blockiert werden → None
             self.assertIsNone(result)
         finally:
@@ -1306,14 +1280,12 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
 
     def test_http_error_no_retry(self):
         """HTTPError soll NICHT wiederholt werden (5xx inklusive)."""
-        from netshield_common import fetch_url
-        result = fetch_url(self._url("/500"), retries=3)
+        result = netshield_common.fetch_url(self._url("/500"), retries=3)
         self.assertIsNone(result)
 
     def test_read_limit_respected(self):
         """read_limit soll den gelesenen Body begrenzen."""
-        from netshield_common import fetch_url
-        result = fetch_url(
+        result = netshield_common.fetch_url(
             self._url("/ok"), read_limit=5, fail_on_truncation=False
         )
         self.assertIsNotNone(result)
@@ -1323,26 +1295,23 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
 
     def test_read_limit_fails_closed_by_default(self):
         """Voll-Downloads duerfen nicht stillschweigend abgeschnitten werden."""
-        from netshield_common import fetch_url
-        self.assertIsNone(fetch_url(self._url("/ok"), read_limit=5))
+        self.assertIsNone(netshield_common.fetch_url(self._url("/ok"), read_limit=5))
 
     def test_read_limit_fail_on_truncation(self):
         """Optionaler Fail-Loud-Modus darf keine Teildatei ausliefern."""
-        from netshield_common import fetch_url
-        result = fetch_url(
+        result = netshield_common.fetch_url(
             self._url("/ok"), read_limit=5, fail_on_truncation=True
         )
         self.assertIsNone(result)
 
     def test_read_limit_intentional_sample_can_be_quiet(self):
         """Bewusst begrenzte Stichproben duerfen ohne irrefuehrende Warnung laufen."""
-        from netshield_common import fetch_url
         import contextlib
         import io
 
         captured = io.StringIO()
         with contextlib.redirect_stdout(captured):
-            result = fetch_url(
+            result = netshield_common.fetch_url(
                 self._url("/ok"),
                 read_limit=5,
                 fail_on_truncation=False,
@@ -1355,9 +1324,8 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
 
     def test_total_timeout_stops_trickle_response(self):
         """Die Gesamtdeadline gilt auch bei regelmaessig eintreffenden Bytes."""
-        from netshield_common import fetch_url
         started = time.monotonic()
-        result = fetch_url(
+        result = netshield_common.fetch_url(
             self._url("/trickle"),
             timeout=0.15,
             retries=1,
@@ -1375,8 +1343,7 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
 
     def test_gzip_small_decompressed_correctly(self):
         """Sanity: kleiner gzip-Stream wird transparent dekomprimiert."""
-        from netshield_common import fetch_url
-        result = fetch_url(self._url("/gzip-small"))
+        result = netshield_common.fetch_url(self._url("/gzip-small"))
         self.assertIsNotNone(result)
         self.assertIn("1.2.3.4", result)
         self.assertIn("5.6.7.8", result)
@@ -1385,15 +1352,13 @@ class TestFetchUrlWithLocalServer(unittest.TestCase):
         """Bomb (50 MiB nullbytes komprimiert) mit read_limit=1MB:
         Streaming-Decompress muss abbrechen und None liefern, NICHT die
         Bombe materialisieren."""
-        from netshield_common import fetch_url
-        result = fetch_url(self._url("/gzip-bomb"), read_limit=1 * 1024 * 1024)
+        result = netshield_common.fetch_url(self._url("/gzip-bomb"), read_limit=1 * 1024 * 1024)
         # Erwartet: None (Fetch verworfen)
         self.assertIsNone(result)
 
     def test_gzip_broken_stream_returns_none(self):
         """Gzip-Magic mit kaputtem Inhalt: kein Crash, nur None."""
-        from netshield_common import fetch_url
-        result = fetch_url(self._url("/gzip-broken"))
+        result = netshield_common.fetch_url(self._url("/gzip-broken"))
         self.assertIsNone(result)
 
 
@@ -1407,54 +1372,54 @@ class TestIsProtectedEntry(unittest.TestCase):
     über parse_entries getestet waren."""
 
     def test_empty_string_protected(self):
-        self.assertTrue(is_protected_entry(""))
-        self.assertTrue(is_protected_entry("   "))
+        self.assertTrue(netshield_common.is_protected_entry(""))
+        self.assertTrue(netshield_common.is_protected_entry("   "))
 
     def test_public_ip_not_protected(self):
         """Echte öffentliche IPs (nicht in Whitelist) sind nicht protected."""
-        self.assertFalse(is_protected_entry("8.8.8.4"))
-        self.assertFalse(is_protected_entry("185.101.102.103"))
-        self.assertFalse(is_protected_entry("45.33.32.156"))
+        self.assertFalse(netshield_common.is_protected_entry("8.8.8.4"))
+        self.assertFalse(netshield_common.is_protected_entry("185.101.102.103"))
+        self.assertFalse(netshield_common.is_protected_entry("45.33.32.156"))
 
     def test_rfc1918_protected(self):
-        self.assertTrue(is_protected_entry("10.0.0.1"))
-        self.assertTrue(is_protected_entry("192.168.1.1"))
-        self.assertTrue(is_protected_entry("172.16.0.1"))
+        self.assertTrue(netshield_common.is_protected_entry("10.0.0.1"))
+        self.assertTrue(netshield_common.is_protected_entry("192.168.1.1"))
+        self.assertTrue(netshield_common.is_protected_entry("172.16.0.1"))
 
     def test_loopback_protected(self):
-        self.assertTrue(is_protected_entry("127.0.0.1"))
+        self.assertTrue(netshield_common.is_protected_entry("127.0.0.1"))
 
     def test_link_local_protected(self):
-        self.assertTrue(is_protected_entry("169.254.169.254"))  # AWS Metadata
+        self.assertTrue(netshield_common.is_protected_entry("169.254.169.254"))  # AWS Metadata
 
     def test_multicast_protected(self):
-        self.assertTrue(is_protected_entry("224.0.0.1"))
+        self.assertTrue(netshield_common.is_protected_entry("224.0.0.1"))
 
     def test_invalid_input_protected(self):
         """Ungültige Strings → protected (Fail-Safe)."""
-        self.assertTrue(is_protected_entry("not-an-ip"))
-        self.assertTrue(is_protected_entry("999.999.999.999"))
+        self.assertTrue(netshield_common.is_protected_entry("not-an-ip"))
+        self.assertTrue(netshield_common.is_protected_entry("999.999.999.999"))
 
     def test_ipv6_protected(self):
         """IPv6 wird nicht als Blacklist-Kandidat behandelt."""
-        self.assertTrue(is_protected_entry("2001:db8::1"))
+        self.assertTrue(netshield_common.is_protected_entry("2001:db8::1"))
 
     def test_cidr_public_not_protected(self):
         """Öffentliches CIDR, das nicht in der Whitelist steht."""
-        self.assertFalse(is_protected_entry("185.101.0.0/16"))
-        self.assertFalse(is_protected_entry("45.33.32.0/24"))
+        self.assertFalse(netshield_common.is_protected_entry("185.101.0.0/16"))
+        self.assertFalse(netshield_common.is_protected_entry("45.33.32.0/24"))
 
     def test_cidr_too_broad_protected(self):
         """CIDR < /8 (also /7, /6, …) ist zu breit – protected."""
-        self.assertTrue(is_protected_entry("8.0.0.0/7"))
-        self.assertTrue(is_protected_entry("0.0.0.0/0"))
+        self.assertTrue(netshield_common.is_protected_entry("8.0.0.0/7"))
+        self.assertTrue(netshield_common.is_protected_entry("0.0.0.0/0"))
 
     def test_cidr_rfc1918_protected(self):
-        self.assertTrue(is_protected_entry("10.0.0.0/8"))
-        self.assertTrue(is_protected_entry("192.168.0.0/16"))
+        self.assertTrue(netshield_common.is_protected_entry("10.0.0.0/8"))
+        self.assertTrue(netshield_common.is_protected_entry("192.168.0.0/16"))
 
     def test_cidr_loopback_protected(self):
-        self.assertTrue(is_protected_entry("127.0.0.0/8"))
+        self.assertTrue(netshield_common.is_protected_entry("127.0.0.0/8"))
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -1471,16 +1436,16 @@ class TestIsWhitelisted(unittest.TestCase):
         FIX BUG-WL1-HARDENING: Test ruft jetzt explizit load_whitelist() auf,
         weil is_whitelisted() ohne Load mit WhitelistNotLoadedError raised
         (siehe TestWhitelistFailClosed)."""
-        load_whitelist()
-        self.assertFalse(is_whitelisted("garbage"))
-        self.assertFalse(is_whitelisted(""))
+        netshield_common.load_whitelist()
+        self.assertFalse(netshield_common.is_whitelisted("garbage"))
+        self.assertFalse(netshield_common.is_whitelisted(""))
 
     def test_public_ip_not_whitelisted(self):
         """Eine zufällige öffentliche IP ist normalerweise nicht in der
         Whitelist."""
         # Wichtig: Whitelist muss geladen sein
-        load_whitelist()
-        self.assertFalse(is_whitelisted("198.51.100.42"))
+        netshield_common.load_whitelist()
+        self.assertFalse(netshield_common.is_whitelisted("198.51.100.42"))
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -1515,23 +1480,23 @@ class TestWhitelistFailClosed(unittest.TestCase):
         """is_whitelisted() muss raisen wenn load_whitelist() nie lief.
         Verhindert Fail-Open-Muster aus BUG-WL1."""
         with self.assertRaises(netshield_common.WhitelistNotLoadedError):
-            is_whitelisted("8.8.8.8")
+            netshield_common.is_whitelisted("8.8.8.8")
 
     def test_is_protected_entry_raises_before_load(self):
         """is_protected_entry() muss ebenfalls raisen vor load_whitelist().
         Sonst würde es zwar noch RFC1918 abfangen, aber die explizit
         konfigurierten Service-IPs (BUG-WL1-Vektor) durchlassen."""
         with self.assertRaises(netshield_common.WhitelistNotLoadedError):
-            is_protected_entry("142.250.154.94")
+            netshield_common.is_protected_entry("142.250.154.94")
         with self.assertRaises(netshield_common.WhitelistNotLoadedError):
-            is_protected_entry("8.8.8.0/24")
+            netshield_common.is_protected_entry("8.8.8.0/24")
 
     def test_works_after_load(self):
         """Nach load_whitelist() funktionieren beide Funktionen normal."""
-        load_whitelist()
+        netshield_common.load_whitelist()
         # Sollte jetzt nicht mehr raisen
-        self.assertIsInstance(is_whitelisted("8.8.8.8"), bool)
-        self.assertIsInstance(is_protected_entry("8.8.8.8"), bool)
+        self.assertIsInstance(netshield_common.is_whitelisted("8.8.8.8"), bool)
+        self.assertIsInstance(netshield_common.is_protected_entry("8.8.8.8"), bool)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -1561,7 +1526,7 @@ class TestWriteIpListCleanup(unittest.TestCase):
             os.unlink = bad_unlink
             try:
                 with self.assertRaises(RuntimeError) as ctx:
-                    write_ip_list(target, BadIter())
+                    netshield_common.write_ip_list(target, BadIter())
                 # Original-Exception (RuntimeError) soll durchkommen,
                 # nicht die OSError vom unlink-Versuch
                 self.assertIn("Feed-Crash", str(ctx.exception))
@@ -1589,47 +1554,47 @@ class TestBugCgnat1Regression(unittest.TestCase):
         # FIX BUG-WL1-HARDENING: parse_entries(use_protected_check=True) ruft
         # is_protected_entry() auf, das jetzt fail-closed ist und ohne geladene
         # Whitelist raised. Daher muss load_whitelist() im setUp laufen.
-        load_whitelist()
+        netshield_common.load_whitelist()
 
     def test_cgnat_start_rejected(self):
-        self.assertFalse(is_valid_public_ipv4("100.64.0.0"),
+        self.assertFalse(netshield_common.is_valid_public_ipv4("100.64.0.0"),
                          "100.64.0.0 (CGNAT start) muss abgelehnt werden")
 
     def test_cgnat_middle_rejected(self):
-        self.assertFalse(is_valid_public_ipv4("100.100.100.100"),
+        self.assertFalse(netshield_common.is_valid_public_ipv4("100.100.100.100"),
                          "100.100.100.100 (CGNAT mittig) muss abgelehnt werden")
 
     def test_cgnat_end_rejected(self):
-        self.assertFalse(is_valid_public_ipv4("100.127.255.255"),
+        self.assertFalse(netshield_common.is_valid_public_ipv4("100.127.255.255"),
                          "100.127.255.255 (CGNAT ende) muss abgelehnt werden")
 
     def test_just_before_cgnat_accepted(self):
-        self.assertTrue(is_valid_public_ipv4("100.63.255.255"),
+        self.assertTrue(netshield_common.is_valid_public_ipv4("100.63.255.255"),
                         "100.63.255.255 (vor CGNAT) ist oeffentlich")
 
     def test_just_after_cgnat_accepted(self):
-        self.assertTrue(is_valid_public_ipv4("100.128.0.0"),
+        self.assertTrue(netshield_common.is_valid_public_ipv4("100.128.0.0"),
                         "100.128.0.0 (nach CGNAT) ist oeffentlich")
 
     def test_ivp4_still_rejects_rfc1918(self):
         """Keine Regression gegen die bestehenden Filter."""
         for ip in ["10.0.0.1", "172.16.0.1", "192.168.1.1",
                    "127.0.0.1", "169.254.169.254", "224.0.0.1"]:
-            self.assertFalse(is_valid_public_ipv4(ip),
+            self.assertFalse(netshield_common.is_valid_public_ipv4(ip),
                              f"{ip} darf nicht als oeffentlich gelten")
 
     def test_public_ips_still_pass(self):
         """Keine Regression fuer echte oeffentliche IPs."""
         for ip in ["8.8.8.8", "1.1.1.1", "185.199.108.153", "1.2.3.4",
                    "223.255.255.254"]:
-            self.assertTrue(is_valid_public_ipv4(ip),
+            self.assertTrue(netshield_common.is_valid_public_ipv4(ip),
                             f"{ip} muss als oeffentlich gelten")
 
     def test_parse_entries_filters_cgnat_ips(self):
         """parse_entries muss CGNAT-Einzel-IPs in beiden Modi ablehnen."""
         feed = "100.64.5.1\n100.70.123.45\n1.2.3.4\n"
         for protected in [False, True]:
-            r = parse_entries(feed, use_protected_check=protected)
+            r = netshield_common.parse_entries(feed, use_protected_check=protected)
             self.assertNotIn("100.64.5.1", r,
                              f"protected={protected}: CGNAT-IP leaked")
             self.assertNotIn("100.70.123.45", r,
@@ -1650,18 +1615,18 @@ class TestBugPriv2Regression(unittest.TestCase):
     def setUp(self):
         # FIX BUG-WL1-HARDENING: is_protected_entry() ist jetzt fail-closed
         # und raised ohne geladene Whitelist.
-        load_whitelist()
+        netshield_common.load_whitelist()
 
     def test_169_slash_8_rejected(self):
         """169.0.0.0/8 ueberlappt 169.254/16 (link-local) → muss abgelehnt werden."""
-        self.assertFalse(is_valid_public_cidr("169.0.0.0/8"))
-        self.assertTrue(is_protected_entry("169.0.0.0/8"),
+        self.assertFalse(netshield_common.is_valid_public_cidr("169.0.0.0/8"))
+        self.assertTrue(netshield_common.is_protected_entry("169.0.0.0/8"),
                         "169.0.0.0/8 muss is_protected_entry=True liefern "
                         "(ueberlappt 169.254/16 link-local)")
 
     def test_100_slash_9_rejected_via_protected(self):
         """100.0.0.0/9 ueberlappt 100.64/10 CGNAT → is_protected_entry=True."""
-        self.assertTrue(is_protected_entry("100.0.0.0/9"),
+        self.assertTrue(netshield_common.is_protected_entry("100.0.0.0/9"),
                         "100.0.0.0/9 muss is_protected_entry=True liefern")
 
     def test_parse_entries_rejects_reserved_supernets(self):
@@ -1676,7 +1641,7 @@ class TestBugPriv2Regression(unittest.TestCase):
         ]
         for cidr in overlap_cidrs:
             feed = f"{cidr}\n"
-            r = parse_entries(feed, use_protected_check=True)
+            r = netshield_common.parse_entries(feed, use_protected_check=True)
             self.assertEqual(r, set(),
                              f"{cidr} leaked through parse_entries")
 
@@ -1694,7 +1659,7 @@ class TestBugPriv2Regression(unittest.TestCase):
             "11.0.0.0/8",    # unmittelbar nach 10/8
         ]
         for cidr in public_cidrs:
-            self.assertFalse(is_protected_entry(cidr),
+            self.assertFalse(netshield_common.is_protected_entry(cidr),
                              f"{cidr} darf nicht als protected gelten "
                              f"(ueberlappt kein reserved range + keine Whitelist)")
 
@@ -1876,7 +1841,7 @@ class TestLoadWhitelistStrict(unittest.TestCase):
         netshield_common._reset_whitelist_for_testing()
         # Echte Whitelist wiederherstellen fuer nachfolgende Tests
         try:
-            load_whitelist()
+            netshield_common.load_whitelist()
         except SystemExit:
             pass
 
@@ -1890,20 +1855,20 @@ class TestLoadWhitelistStrict(unittest.TestCase):
     def test_entries_as_string_sys_exits(self):
         path = self._write({"entries": "1.2.3.0/24" * 10})
         with self.assertRaises(SystemExit) as cm:
-            load_whitelist(path)
+            netshield_common.load_whitelist(path)
         self.assertEqual(cm.exception.code, 1)
 
     def test_entries_missing_sys_exits(self):
         path = self._write({"foo": "bar"})
         with self.assertRaises(SystemExit) as cm:
-            load_whitelist(path)
+            netshield_common.load_whitelist(path)
         self.assertEqual(cm.exception.code, 1)
 
     def test_too_few_valid_entries_sys_exits(self):
         # 60 Eintraege, aber alle ungueltig (Schema-Drift-Simulation)
         path = self._write({"entries": ["nicht-eine-ip"] * 60})
         with self.assertRaises(SystemExit) as cm:
-            load_whitelist(path)
+            netshield_common.load_whitelist(path)
         self.assertEqual(cm.exception.code, 1)
 
     def test_loaded_flag_only_true_after_full_validation(self):
@@ -1911,7 +1876,7 @@ class TestLoadWhitelistStrict(unittest.TestCase):
         self.assertFalse(netshield_common._whitelist_loaded)
         path = self._write({"entries": "x" * 100})
         with self.assertRaises(SystemExit):
-            load_whitelist(path)
+            netshield_common.load_whitelist(path)
         # Auch danach: loaded muss False bleiben (Fail-Closed)
         self.assertFalse(netshield_common._whitelist_loaded,
                          "_whitelist_loaded darf nach failendem Load nicht True sein")
@@ -1932,7 +1897,7 @@ class TestValidateAutoFeeds(unittest.TestCase):
             {"name": "good1", "url": "https://example.com/feed.txt"},
             {"name": "good2", "url": "https://other.example.org/list"},
         ]}
-        accepted, rejected = validate_auto_feeds(data)
+        accepted, rejected = netshield_common.validate_auto_feeds(data)
         self.assertEqual(len(accepted), 2)
         self.assertEqual(rejected, 0)
 
@@ -1940,58 +1905,58 @@ class TestValidateAutoFeeds(unittest.TestCase):
         """http:// ist erlaubt – fetch_url's SSRF-Schutz schaltet sich
         ohnehin dazwischen, und manche legacy-feeds nutzen http."""
         data = {"feeds": [{"name": "ok", "url": "http://example.com/x"}]}
-        accepted, rejected = validate_auto_feeds(data)
+        accepted, rejected = netshield_common.validate_auto_feeds(data)
         self.assertEqual(len(accepted), 1)
         self.assertEqual(rejected, 0)
 
     def test_rejects_file_url(self):
         """file:// ist ein klarer SSRF/local-file-read Vektor."""
         data = {"feeds": [{"name": "evil", "url": "file:///etc/passwd"}]}
-        accepted, rejected = validate_auto_feeds(data)
+        accepted, rejected = netshield_common.validate_auto_feeds(data)
         self.assertEqual(accepted, [])
         self.assertEqual(rejected, 1)
 
     def test_rejects_ftp_url(self):
         data = {"feeds": [{"name": "evil", "url": "ftp://attacker.com/list"}]}
-        accepted, rejected = validate_auto_feeds(data)
+        accepted, rejected = netshield_common.validate_auto_feeds(data)
         self.assertEqual(accepted, [])
         self.assertEqual(rejected, 1)
 
     def test_rejects_data_url(self):
         """data:// kann inline-Code transportieren – nicht fetchen."""
         data = {"feeds": [{"name": "evil", "url": "data:text/plain,1.2.3.4"}]}
-        accepted, rejected = validate_auto_feeds(data)
+        accepted, rejected = netshield_common.validate_auto_feeds(data)
         self.assertEqual(accepted, [])
         self.assertEqual(rejected, 1)
 
     def test_rejects_javascript_url(self):
         data = {"feeds": [{"name": "evil",
                             "url": "javascript:alert(1)"}]}
-        accepted, rejected = validate_auto_feeds(data)
+        accepted, rejected = netshield_common.validate_auto_feeds(data)
         self.assertEqual(accepted, [])
         self.assertEqual(rejected, 1)
 
     def test_rejects_missing_url_field(self):
         data = {"feeds": [{"name": "broken"}]}
-        accepted, rejected = validate_auto_feeds(data)
+        accepted, rejected = netshield_common.validate_auto_feeds(data)
         self.assertEqual(accepted, [])
         self.assertEqual(rejected, 1)
 
     def test_rejects_missing_name_field(self):
         data = {"feeds": [{"url": "https://example.com/x"}]}
-        accepted, rejected = validate_auto_feeds(data)
+        accepted, rejected = netshield_common.validate_auto_feeds(data)
         self.assertEqual(accepted, [])
         self.assertEqual(rejected, 1)
 
     def test_rejects_non_string_url(self):
         data = {"feeds": [{"name": "x", "url": 12345}]}
-        accepted, rejected = validate_auto_feeds(data)
+        accepted, rejected = netshield_common.validate_auto_feeds(data)
         self.assertEqual(accepted, [])
         self.assertEqual(rejected, 1)
 
     def test_rejects_non_dict_entry(self):
         data = {"feeds": ["not-a-dict", ["also", "not"], 42, None]}
-        accepted, rejected = validate_auto_feeds(data)
+        accepted, rejected = netshield_common.validate_auto_feeds(data)
         self.assertEqual(accepted, [])
         self.assertEqual(rejected, 4)
 
@@ -2012,7 +1977,7 @@ class TestValidateAutoFeeds(unittest.TestCase):
         ]
         for bad in bad_urls:
             data = {"feeds": [{"name": "ctrl", "url": bad}]}
-            accepted, rejected = validate_auto_feeds(data)
+            accepted, rejected = netshield_common.validate_auto_feeds(data)
             self.assertEqual(accepted, [], f"akzeptiert wurde: {bad!r}")
             self.assertEqual(rejected, 1, f"falsche reject-Zahl fuer {bad!r}")
 
@@ -2030,7 +1995,7 @@ class TestValidateAutoFeeds(unittest.TestCase):
         ]
         for good in ok_urls:
             data = {"feeds": [{"name": "ok", "url": good}]}
-            accepted, rejected = validate_auto_feeds(data)
+            accepted, rejected = netshield_common.validate_auto_feeds(data)
             self.assertEqual(len(accepted), 1, f"verworfen wurde: {good!r}")
             self.assertEqual(rejected, 0, f"falsche reject-Zahl fuer {good!r}")
 
@@ -2042,28 +2007,28 @@ class TestValidateAutoFeeds(unittest.TestCase):
             {"name": "broken"},  # missing url
             {"name": "alsoOK", "url": "https://other.org/feed"},
         ]}
-        accepted, rejected = validate_auto_feeds(data)
+        accepted, rejected = netshield_common.validate_auto_feeds(data)
         self.assertEqual(len(accepted), 2)
         self.assertEqual(rejected, 2)
         self.assertEqual({f["name"] for f in accepted}, {"good", "alsoOK"})
 
     def test_root_not_dict_raises(self):
         with self.assertRaises(ValueError):
-            validate_auto_feeds(["not", "a", "dict"])
+            netshield_common.validate_auto_feeds(["not", "a", "dict"])
 
     def test_feeds_not_list_raises(self):
         with self.assertRaises(ValueError):
-            validate_auto_feeds({"feeds": "not-a-list"})
+            netshield_common.validate_auto_feeds({"feeds": "not-a-list"})
 
     def test_feeds_field_missing_returns_empty(self):
         """Fehlendes 'feeds'-Feld ist OK (analog zur urspruenglichen
         .get(...,[])-Semantik)."""
-        accepted, rejected = validate_auto_feeds({})
+        accepted, rejected = netshield_common.validate_auto_feeds({})
         self.assertEqual(accepted, [])
         self.assertEqual(rejected, 0)
 
     def test_empty_feeds_list(self):
-        accepted, rejected = validate_auto_feeds({"feeds": []})
+        accepted, rejected = netshield_common.validate_auto_feeds({"feeds": []})
         self.assertEqual(accepted, [])
         self.assertEqual(rejected, 0)
 
@@ -2077,13 +2042,13 @@ class TestParseEntriesAsExtractIPsDropIn(unittest.TestCase):
 
     def test_ipv6_mapped_token_does_not_create_phantom(self):
         """Klassischer Phantom-Fall: '::ffff:1.2.3.4' allein."""
-        self.assertEqual(parse_entries("::ffff:1.2.3.4"), set())
+        self.assertEqual(netshield_common.parse_entries("::ffff:1.2.3.4"), set())
 
     def test_real_ipv4_alongside_ipv6_token_survives(self):
         """Vermischter Input: echte IPv4 darf nicht durch IPv6-Token-
         Filter mit verworfen werden."""
         text = "::ffff:1.2.3.4\n5.6.7.8\n::1\n9.10.11.12"
-        self.assertEqual(parse_entries(text), {"5.6.7.8", "9.10.11.12"})
+        self.assertEqual(netshield_common.parse_entries(text), {"5.6.7.8", "9.10.11.12"})
 
     def test_et_feed_style_input_with_phantom_attempt(self):
         """Simulation eines vergifteten ET-Feeds: Angreifer versucht
@@ -2097,7 +2062,7 @@ class TestParseEntriesAsExtractIPsDropIn(unittest.TestCase):
             "::ffff:5.6.7.8\n"
             "9.10.11.12\n"
         )
-        result = parse_entries(et_text)
+        result = netshield_common.parse_entries(et_text)
         self.assertIn("1.2.3.4", result)
         self.assertIn("9.10.11.12", result)
         self.assertNotIn("5.6.7.8", result, "Phantom-IPv4 darf nicht")
@@ -2107,7 +2072,7 @@ class TestParseEntriesAsExtractIPsDropIn(unittest.TestCase):
         liefert, soll has_ips=False sein (= ip_count==0). Vor Fix:
         IP_RE.findall haette die Phantom-IPv4 gezaehlt → False True."""
         sample = "::ffff:1.2.3.4\n::ffff:5.6.7.8\n2001:db8::1\n"
-        self.assertEqual(len(parse_entries(sample)), 0)
+        self.assertEqual(len(netshield_common.parse_entries(sample)), 0)
 
 
 
@@ -2125,9 +2090,8 @@ class TestRedirectSecretHeaderProtection(unittest.TestCase):
         })
 
     def test_cross_origin_redirect_strips_sensitive_headers(self):
-        from netshield_common import _strip_sensitive_headers_for_redirect
         req = self._request("https://api.example.org/start")
-        _strip_sensitive_headers_for_redirect(
+        netshield_common._strip_sensitive_headers_for_redirect(
             req, "https://api.example.org/start",
             "https://redirect.example.net/collect")
         names = {k.lower(): v for k, v in req.header_items()}
@@ -2138,9 +2102,8 @@ class TestRedirectSecretHeaderProtection(unittest.TestCase):
         self.assertEqual(names.get("user-agent"), "NETSHIELD-Test")
 
     def test_same_origin_redirect_keeps_auth_headers(self):
-        from netshield_common import _strip_sensitive_headers_for_redirect
         req = self._request("https://api.example.org/start")
-        _strip_sensitive_headers_for_redirect(
+        netshield_common._strip_sensitive_headers_for_redirect(
             req, "https://api.example.org/start",
             "https://api.example.org/v2")
         names = {k.lower(): v for k, v in req.header_items()}
@@ -2149,9 +2112,8 @@ class TestRedirectSecretHeaderProtection(unittest.TestCase):
         self.assertEqual(names.get("key"), "APIKEY123")
 
     def test_https_to_http_redirect_strips_sensitive_headers(self):
-        from netshield_common import _strip_sensitive_headers_for_redirect
         req = self._request("https://api.example.org/start")
-        _strip_sensitive_headers_for_redirect(
+        netshield_common._strip_sensitive_headers_for_redirect(
             req, "https://api.example.org/start",
             "http://api.example.org/fallback")
         names = {k.lower(): v for k, v in req.header_items()}
@@ -2164,10 +2126,9 @@ class TestSqliteSeenDBMigrationRegression(unittest.TestCase):
 
     def _db(self):
         import tempfile, os
-        from netshield_common import SqliteSeenDB
         td = tempfile.TemporaryDirectory()
         path = os.path.join(td.name, "seen.sqlite3")
-        db = SqliteSeenDB(path)
+        db = netshield_common.SqliteSeenDB(path)
         self.addCleanup(db.close)
         self.addCleanup(td.cleanup)
         return db
@@ -2272,7 +2233,7 @@ class TestRamOptimizationSep01(unittest.TestCase):
         fd, path = tempfile.mkstemp(suffix=".sqlite3")
         os.close(fd)
         try:
-            db = SqliteSeenDB(path)
+            db = netshield_common.SqliteSeenDB(path)
             mode = db._conn.execute("PRAGMA journal_mode").fetchone()[0].lower()
             self.assertEqual(mode, "truncate")
             db.close()
@@ -2286,7 +2247,7 @@ class TestRamOptimizationSep01(unittest.TestCase):
         os.close(fd)
         try:
             ips = ["1.1.1.1", "2.2.2.2", "10.0.0.1"]
-            ret = write_ip_list(path, ips, header_lines=["RAM test"], presorted=True)
+            ret = netshield_common.write_ip_list(path, ips, header_lines=["RAM test"], presorted=True)
             self.assertIs(ret, ips)
             with open(path, encoding="utf-8") as f:
                 self.assertEqual(f.read(), "# RAM test\n\n1.1.1.1\n2.2.2.2\n10.0.0.1\n")
@@ -2299,7 +2260,7 @@ class TestRamOptimizationSep01(unittest.TestCase):
         fd, path = tempfile.mkstemp(suffix=".txt")
         os.close(fd)
         try:
-            write_ip_list(path, [], presorted=True)
+            netshield_common.write_ip_list(path, [], presorted=True)
             with open(path, "rb") as f:
                 self.assertEqual(f.read(), b"\n")
         finally:
@@ -2311,7 +2272,7 @@ class TestRamOptimizationSep01(unittest.TestCase):
         fd, path = tempfile.mkstemp(suffix=".sqlite3")
         os.close(fd)
         try:
-            db = SqliteSeenDB(path)
+            db = netshield_common.SqliteSeenDB(path)
             db._conn.execute("CREATE TEMP TABLE hits(ip TEXT PRIMARY KEY)")
             db._conn.executemany("INSERT INTO hits(ip) VALUES (?)", [(f"1.2.3.{i}",) for i in range(1, 51)])
             db.commit()

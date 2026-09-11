@@ -37,7 +37,6 @@ import unittest
 # Modul-Pfad einfuegen (identisch zu test_netshield.py)
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 import netshield_common
-from netshield_common import parse_feed_entries
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -48,46 +47,46 @@ class TestFeedParserCore(unittest.TestCase):
     """Robustheit und die konservative NETSHIELD-Sicherheits-Policy."""
 
     def test_plain_ip_list(self):
-        result = parse_feed_entries("45.83.12.7\n91.219.29.8\n# comment\n")
+        result = netshield_common.parse_feed_entries("45.83.12.7\n91.219.29.8\n# comment\n")
         self.assertEqual(result, {"45.83.12.7", "91.219.29.8"})
 
     def test_slash32_normalized_to_host(self):
         # /32 wird zur reinen Host-IP normalisiert (kein "/32"-Suffix).
-        result = parse_feed_entries("185.220.101.5/32\n")
+        result = netshield_common.parse_feed_entries("185.220.101.5/32\n")
         self.assertEqual(result, {"185.220.101.5"})
 
     def test_wide_cidr_not_expanded(self):
         # Breitere Netze werden NICHT in Einzel-IPs expandiert.
-        self.assertEqual(parse_feed_entries("5.188.10.0/24\n"), set())
+        self.assertEqual(netshield_common.parse_feed_entries("5.188.10.0/24\n"), set())
 
     def test_ip_range_dash_dropped(self):
         # Ranges werden komplett verworfen (nicht nur Start/Ende).
-        self.assertEqual(parse_feed_entries("46.161.40.30-46.161.40.50\n"), set())
+        self.assertEqual(netshield_common.parse_feed_entries("46.161.40.30-46.161.40.50\n"), set())
 
     def test_ip_range_dots_dropped(self):
-        self.assertEqual(parse_feed_entries("46.161.40.30..46.161.40.50\n"), set())
+        self.assertEqual(netshield_common.parse_feed_entries("46.161.40.30..46.161.40.50\n"), set())
 
     def test_private_and_reserved_rejected(self):
-        result = parse_feed_entries("192.168.1.1\n10.0.0.5\n127.0.0.1\n")
+        result = netshield_common.parse_feed_entries("192.168.1.1\n10.0.0.5\n127.0.0.1\n")
         self.assertEqual(result, set())
 
     def test_documentation_range_rejected(self):
         # RFC 5737 TEST-NET ist nicht oeffentlich.
-        self.assertEqual(parse_feed_entries("203.0.113.5\n198.51.100.9\n"), set())
+        self.assertEqual(netshield_common.parse_feed_entries("203.0.113.5\n198.51.100.9\n"), set())
 
     def test_null_bytes_reject_whole_input(self):
         # Binaerdaten mit Null-Byte werden komplett verworfen.
-        self.assertEqual(parse_feed_entries("45.83.12.7\x00garbage"), set())
+        self.assertEqual(netshield_common.parse_feed_entries("45.83.12.7\x00garbage"), set())
 
     def test_empty_and_whitespace(self):
-        self.assertEqual(parse_feed_entries("   \n\n"), set())
-        self.assertEqual(parse_feed_entries(""), set())
+        self.assertEqual(netshield_common.parse_feed_entries("   \n\n"), set())
+        self.assertEqual(netshield_common.parse_feed_entries(""), set())
 
     def test_none_input(self):
-        self.assertEqual(parse_feed_entries(None), set())
+        self.assertEqual(netshield_common.parse_feed_entries(None), set())
 
     def test_bytes_input_decoded(self):
-        result = parse_feed_entries(b"45.83.12.7\n91.219.29.8\n")
+        result = netshield_common.parse_feed_entries(b"45.83.12.7\n91.219.29.8\n")
         self.assertEqual(result, {"45.83.12.7", "91.219.29.8"})
 
     def test_many_cidrs_do_not_hide_following_host(self):
@@ -98,7 +97,7 @@ class TestFeedParserCore(unittest.TestCase):
             f"45.83.{index // 256}.{index % 256}/24"
             for index in range(3000)
         )
-        result = parse_feed_entries(
+        result = netshield_common.parse_feed_entries(
             '{"items":[' + ",".join(f'"{value}"' for value in (cidrs.split() + ["8.8.8.8"])) + "]}"
         )
         self.assertEqual(result, {"8.8.8.8"})
@@ -109,24 +108,24 @@ class TestFeedParserAllowBoundaries(unittest.TestCase):
 
     def test_fast_path_ignores_allow_line_after_plain_ip_sample(self):
         plain = "\n".join(f"45.83.12.{index}" for index in range(1, 41))
-        result = parse_feed_entries(plain + "\nallow 8.8.8.8\n")
+        result = netshield_common.parse_feed_entries(plain + "\nallow 8.8.8.8\n")
         self.assertNotIn("8.8.8.8", result)
         self.assertEqual(len(result), 40)
 
     def test_fast_path_ignores_range_line_after_plain_ip_sample(self):
         plain = "\n".join(f"45.83.13.{index}" for index in range(1, 41))
-        result = parse_feed_entries(plain + "\n8.8.8.8-8.8.8.9\n")
+        result = netshield_common.parse_feed_entries(plain + "\n8.8.8.8-8.8.8.9\n")
         self.assertNotIn("8.8.8.8", result)
         self.assertNotIn("8.8.8.9", result)
         self.assertEqual(len(result), 40)
 
     def test_allowlist_csv_column_is_ignored(self):
         text = "allowlist_ip,comment\n8.8.8.8,approved\n"
-        self.assertEqual(parse_feed_entries(text), set())
+        self.assertEqual(netshield_common.parse_feed_entries(text), set())
 
     def test_allowlist_xml_parent_blocks_ip_child(self):
         text = "<root><allowlist><ip>8.8.8.8</ip></allowlist></root>"
-        self.assertEqual(parse_feed_entries(text), set())
+        self.assertEqual(netshield_common.parse_feed_entries(text), set())
 
     def test_nftables_allowlist_set_used_by_accept_is_ignored(self):
         text = (
@@ -134,11 +133,11 @@ class TestFeedParserAllowBoundaries(unittest.TestCase):
             "elements = { 8.8.8.8 } } chain input { "
             "ip saddr @allowlist accept } }"
         )
-        self.assertEqual(parse_feed_entries(text), set())
+        self.assertEqual(netshield_common.parse_feed_entries(text), set())
 
     def test_negated_iptables_source_is_ignored(self):
         text = "-A INPUT ! -s 8.8.8.8 -j DROP\n"
-        self.assertEqual(parse_feed_entries(text), set())
+        self.assertEqual(netshield_common.parse_feed_entries(text), set())
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -151,23 +150,23 @@ class TestFeedParserStructured(unittest.TestCase):
     def test_json_extracts_ip_skips_reporter(self):
         text = '{"indicators":[{"ip":"193.169.53.1"},{"reporter":"89.248.165.2"}]}'
         # reporter-Feld ist Metadaten und wird uebersprungen.
-        self.assertEqual(parse_feed_entries(text), {"193.169.53.1"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"193.169.53.1"})
 
     def test_jsonl_multiple_rows(self):
         text = '{"ip":"194.26.29.3"}\n{"ip":"141.98.10.4"}\n'
-        self.assertEqual(parse_feed_entries(text), {"194.26.29.3", "141.98.10.4"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"194.26.29.3", "141.98.10.4"})
 
     def test_xml_extracts_ip_skips_gateway(self):
         text = ("<root><entry><ip>80.82.77.5</ip></entry>"
                 "<gateway>23.129.64.6</gateway></root>")
-        self.assertEqual(parse_feed_entries(text), {"80.82.77.5"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"80.82.77.5"})
 
     def test_csv_picks_ioc_column_not_reporter(self):
         text = ("ioc_ip,reporter_ip\n"
                 "171.25.193.8,89.248.165.2\n"
                 "209.141.55.10,89.248.165.2\n")
         # Nur die wahrscheinlichste IP-Spalte (ioc_ip) wird uebernommen.
-        self.assertEqual(parse_feed_entries(text), {"171.25.193.8", "209.141.55.10"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"171.25.193.8", "209.141.55.10"})
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -180,54 +179,54 @@ class TestFeedParserFirewall(unittest.TestCase):
     def test_nftables_elements_set(self):
         text = ('table ip filter { set b { type ipv4_addr; '
                 'elements = { 45.83.12.7, 91.219.29.8 } } }')
-        self.assertEqual(parse_feed_entries(text), {"45.83.12.7", "91.219.29.8"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"45.83.12.7", "91.219.29.8"})
 
     def test_ipset_add(self):
         text = "add myset 185.220.101.5\nadd myset 5.188.10.20\n"
-        self.assertEqual(parse_feed_entries(text), {"185.220.101.5", "5.188.10.20"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"185.220.101.5", "5.188.10.20"})
 
     def test_mikrotik_address_list(self):
         text = "/ip firewall address-list add address=46.161.40.30 list=block"
-        self.assertEqual(parse_feed_entries(text), {"46.161.40.30"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"46.161.40.30"})
 
     def test_iptables_drop_source_accept_ignored(self):
         text = ("-A INPUT -s 193.169.53.1 -j DROP\n"
                 "-A INPUT -s 45.83.12.7 -j ACCEPT\n")
         # ACCEPT-Regel wird ignoriert.
-        self.assertEqual(parse_feed_entries(text), {"193.169.53.1"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"193.169.53.1"})
 
     def test_cisco_deny_host_permit_ignored(self):
         text = ("access-list 100 deny ip host 89.248.165.2 any\n"
                 "access-list 100 permit ip host 45.83.12.7 any")
-        self.assertEqual(parse_feed_entries(text), {"89.248.165.2"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"89.248.165.2"})
 
     def test_fortigate_host_mask_only(self):
         text = ("config firewall address\n"
                 "set subnet 194.26.29.3 255.255.255.255\n"
                 "set subnet 5.188.10.0 255.255.255.0")
         # Nur die /32-Hostmaske; das /24-Subnetz wird abgelehnt.
-        self.assertEqual(parse_feed_entries(text), {"194.26.29.3"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"194.26.29.3"})
 
     def test_pf_block_from(self):
         text = "block in from 141.98.10.4 to any\n"
-        self.assertEqual(parse_feed_entries(text), {"141.98.10.4"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"141.98.10.4"})
 
     def test_nginx_deny_allow_ignored(self):
         text = "deny 80.82.77.5;\nallow 45.83.12.7;\n"
-        self.assertEqual(parse_feed_entries(text), {"80.82.77.5"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"80.82.77.5"})
 
     def test_suricata_drop_source_alert_ignored(self):
         text = ('drop ip 23.129.64.6 any -> $HOME_NET any (msg:"x";)\n'
                 'alert ip 45.83.12.7 any -> any any (msg:"y";)')
-        self.assertEqual(parse_feed_entries(text), {"23.129.64.6"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"23.129.64.6"})
 
     def test_clash_ip_and_ip_cidr32(self):
         text = "IP-CIDR,171.25.193.8/32,REJECT\nIP,209.141.55.10,REJECT\n"
-        self.assertEqual(parse_feed_entries(text), {"171.25.193.8", "209.141.55.10"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"171.25.193.8", "209.141.55.10"})
 
     def test_allowlist_not_treated_as_block(self):
         # ignoreip ist eine Allow-Regel und darf nichts blocken.
-        self.assertEqual(parse_feed_entries("ignoreip = 45.83.12.7\n"), set())
+        self.assertEqual(netshield_common.parse_feed_entries("ignoreip = 45.83.12.7\n"), set())
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -237,7 +236,7 @@ class TestFeedParserFirewall(unittest.TestCase):
 class TestFeedParserKeyValue(unittest.TestCase):
     def test_yaml_block_key_extracted_gateway_skipped(self):
         text = "block_ip: 193.169.53.1\ngateway: 89.248.165.2\n"
-        self.assertEqual(parse_feed_entries(text), {"193.169.53.1"})
+        self.assertEqual(netshield_common.parse_feed_entries(text), {"193.169.53.1"})
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -249,13 +248,13 @@ class TestFeedParserSourceHint(unittest.TestCase):
         # Fuehrende Leerzeile -> beginnt nicht mit "{"; Endung .json (nach
         # Entfernen von ?query und #fragment) liefert den Format-Hinweis.
         text = '\n{"ip":"193.169.53.1"}\n'
-        result = parse_feed_entries(
+        result = netshield_common.parse_feed_entries(
             text, source_hint="https://host/path/feed.json?token=1#frag")
         self.assertEqual(result, {"193.169.53.1"})
 
     def test_gz_inner_extension_treated_as_csv(self):
         text = "ioc_ip,reporter_ip\n171.25.193.8,89.248.165.2\n"
-        result = parse_feed_entries(
+        result = netshield_common.parse_feed_entries(
             text, source_hint="https://host/list.csv.gz")
         # .gz wird als bereits entpackte Huelle behandelt -> csv-Hinweis.
         self.assertEqual(result, {"171.25.193.8"})
@@ -276,7 +275,7 @@ class TestFeedParserMixedLogs(unittest.TestCase):
             'fake shell output: <blank>91.219.29.8</blank>\n'
             '[7/4/2026 05:00:02] ***REJECTED*** {ip: "185.220.101.5"}\n'
         )
-        result = parse_feed_entries(text, source_hint="big.log")
+        result = netshield_common.parse_feed_entries(text, source_hint="big.log")
         self.assertEqual(
             result,
             {"45.83.12.7", "91.219.29.8", "185.220.101.5"},
@@ -304,7 +303,7 @@ class TestFeedParserProtectedMode(unittest.TestCase):
         # Ohne geladene Whitelist muss der Pipeline-Modus fail-closed raisen.
         netshield_common._reset_whitelist_for_testing()
         with self.assertRaises(netshield_common.WhitelistNotLoadedError):
-            parse_feed_entries("5.5.5.5\n", use_protected_check=True)
+            netshield_common.parse_feed_entries("5.5.5.5\n", use_protected_check=True)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -329,8 +328,8 @@ class TestFeedParserConsistency(unittest.TestCase):
     def test_same_extraction_both_modes(self):
         text = ('table ip f { set b { type ipv4_addr; '
                 'elements = { 45.83.12.7, 91.219.29.8 } } }')
-        discovery = parse_feed_entries(text, use_protected_check=False)
-        combined = parse_feed_entries(text, use_protected_check=True)
+        discovery = netshield_common.parse_feed_entries(text, use_protected_check=False)
+        combined = netshield_common.parse_feed_entries(text, use_protected_check=True)
         self.assertEqual(discovery, combined)
         self.assertEqual(discovery, {"45.83.12.7", "91.219.29.8"})
 

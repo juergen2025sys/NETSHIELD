@@ -89,7 +89,7 @@ class AuditFixTests(unittest.TestCase):
         with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output), \
              patch.dict(os.environ, env or {}), \
              patch("socket.create_connection", side_effect=AssertionError("Unexpected live network")), \
-             patch("os._exit", side_effect=lambda code: sys.exit(code)):
+             patch("os._exit", side_effect=sys.exit):
             try:
                 exec(compile(workflow_code(name, marker), name, "exec"), namespace)
             except SystemExit as exc:
