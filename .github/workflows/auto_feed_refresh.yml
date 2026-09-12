@@ -249,6 +249,23 @@ jobs:
                               or previous_success_epoch < fallback_cutoff_epoch
                               or previous_success_epoch > int(time.time())):
                           failed_without_fallback.append(name)
+                          # FIX F1-FALLBACK-EXPIRED-LEAK (2026-09-12): Die
+                          # Treffer dieses Feeds wurden oben bereits per
+                          # "INSERT OR IGNORE INTO hits ... FROM prev.hits"
+                          # kopiert - BEVOR das Alter geprueft wurde. Der
+                          # Kommentar darueber sagt "wird deshalb verworfen",
+                          # aber verworfen wurde nur die Statistikzeile
+                          # (entries=0, status=fallback_expired); die Zeilen in
+                          # "hits" blieben stehen. Folge: die abgelaufenen IPs
+                          # zaehlten weiter fuer hit_count/unique_count/
+                          # active_feed_count, halfen den Leerungsschutz
+                          # (MIN_UNIQUE) zu erfuellen und landeten in der
+                          # veroeffentlichten auto_feed_blacklist_ipv4.txt.
+                          # Die Snapshot-Validierung uebersah das, weil sie
+                          # Statistikzeilen mit entries <= 0 ueberspringt.
+                          # Combined ist NICHT betroffen - der filtert beim
+                          # Import bereits auf status=ok und entries>0.
+                          new.execute("DELETE FROM hits WHERE feed=?", (name,))
                           new.execute(
                               "INSERT OR REPLACE INTO feed_stats(feed,entries,status,last_success_epoch) VALUES (?,?,?,?)",
                               (name, 0, "fallback_expired", previous_success_epoch),
