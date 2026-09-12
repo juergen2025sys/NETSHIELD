@@ -88,18 +88,6 @@ jobs:
             echo "::warning ::Kein seen-db-sqlite-backup-Release gefunden - Bug-21/23/24-Analyse wird uebersprungen"
           fi
 
-      - name: Restore verified state generation for diagnosis
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          if [ "${{ inputs.mit_seen_db }}" = "true" ]; then
-            PYTHONPATH=scripts python3 scripts/netshield_release_state.py restore --only database watchlist_ledger active_ledger
-          else
-            PYTHONPATH=scripts python3 scripts/netshield_release_state.py restore --only watchlist_ledger active_ledger
-          fi
-
       - name: Auswertung
         run: |
           python3 << 'EOF'

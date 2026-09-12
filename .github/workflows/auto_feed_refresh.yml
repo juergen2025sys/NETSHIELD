@@ -369,13 +369,61 @@ jobs:
         run: |
           set -euo pipefail
           python3 - << 'PY'
-          import sys
-          sys.path.insert(0, 'scripts')
-          from netshield_snapshot import validate_snapshot
-          snapshot = validate_snapshot('state/auto_feed_daily.sqlite3', refresh_max_age=3600)
-          print(f"Auto-Feed Snapshot validiert: {snapshot['unique']:,} unique / "
-                f"{snapshot['hits']:,} Feed-Treffer; "
-                f"{snapshot['fallbacks']} Fallback-Feed(s) innerhalb der 6h-Frist")
+          import sqlite3, time
+          MAX_FALLBACK_AGE_SECONDS = 6 * 3600
+          MAX_REFRESH_AGE_SECONDS = 3600
+          p='state/auto_feed_daily.sqlite3'
+          c=sqlite3.connect(f'file:{p}?mode=ro', uri=True)
+          q=c.execute('PRAGMA quick_check').fetchone()
+          n=c.execute('SELECT COUNT(*) FROM hits').fetchone()[0]
+          u=c.execute('SELECT COUNT(DISTINCT entry) FROM hits').fetchone()[0]
+          meta=dict(c.execute('SELECT key,value FROM meta'))
+          generated_ts=int(meta.get('generated_at_epoch','0'))
+          refresh_ts=int(meta.get('refresh_run_at_epoch','0'))
+          feed_rows=c.execute(
+              'SELECT feed,entries,status,last_success_epoch FROM feed_stats'
+          ).fetchall()
+          c.close()
+          now=int(time.time())
+          assert q and q[0]=='ok', q
+          assert n >= 50000 and u >= 50000, (n,u)
+          # generated_at_epoch beschreibt die aelteste enthaltene Evidenz
+          # und darf bei einem begrenzten Fallback aelter als ein Refresh
+          # sein. Der Lauf selbst muss dagegen frisch sein.
+          assert 0 <= now-refresh_ts <= MAX_REFRESH_AGE_SECONDS, now-refresh_ts
+          evidence_epochs=[]
+          invalid_rows=[]
+          fallback_count=0
+          for feed,entries,status,last_success in feed_rows:
+              if entries <= 0:
+                  continue
+              try:
+                  evidence_ts=int(last_success)
+              except (TypeError, ValueError):
+                  invalid_rows.append((feed,status,'missing_timestamp'))
+                  continue
+              age=now-evidence_ts
+              if age < 0:
+                  invalid_rows.append((feed,status,'future_timestamp'))
+                  continue
+              if status == 'ok':
+                  if age > MAX_REFRESH_AGE_SECONDS:
+                      invalid_rows.append((feed,status,age))
+                      continue
+              elif status == 'fallback_previous':
+                  fallback_count += 1
+                  if age > MAX_FALLBACK_AGE_SECONDS:
+                      invalid_rows.append((feed,status,age))
+                      continue
+              else:
+                  invalid_rows.append((feed,status,'non_ok_with_entries'))
+                  continue
+              evidence_epochs.append(evidence_ts)
+          assert evidence_epochs, 'keine zeitgestempelten Feed-Daten'
+          assert generated_ts == min(evidence_epochs), (generated_ts, min(evidence_epochs))
+          assert not invalid_rows, invalid_rows[:5]
+          print(f'Auto-Feed Snapshot validiert: {u:,} unique / {n:,} Feed-Treffer; '
+                f'{fallback_count} Fallback-Feed(s) innerhalb der {MAX_FALLBACK_AGE_SECONDS//3600}h-Frist')
           PY
 
       - name: Save Auto-Feed Snapshot Cache

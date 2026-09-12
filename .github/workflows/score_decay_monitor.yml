@@ -134,14 +134,6 @@ jobs:
             echo "::warning file=score_decay_monitor.yml::Cache-Miss – weder seen_db.json noch state/seen_db_meta.json verfügbar"
           fi
 
-      - name: Restore verified state generation for Score Decay
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          PYTHONPATH=scripts python3 scripts/netshield_release_state.py restore --only database
-
       - name: Run Score Decay Analysis
         run: |
           python3 << 'EOF'

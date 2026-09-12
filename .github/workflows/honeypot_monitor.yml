@@ -64,7 +64,7 @@ jobs:
               load_whitelist, load_fp_set, is_in_fp_set,
               is_valid_public_ipv4, is_valid_public_cidr,
               is_protected_entry, is_whitelisted,
-              parse_entries, canonical_host_entries, calculate_confidence,
+              parse_entries, calculate_confidence,
               safe_get_date, parse_date, sort_ips, write_ip_list,
 
               write_text_atomic,
@@ -833,7 +833,7 @@ jobs:
                   continue
               # FIX BUG-WL7: use_protected_check=True → Whitelist-IPs
               # werden bereits beim Parsen herausgefiltert.
-              ips = canonical_host_entries(parse_entries(text, use_protected_check=True))
+              ips = parse_entries(text, use_protected_check=True)
               all_ips.update(ips)
               stats[name] = len(ips)
               feed_ip_sets[name] = ips
@@ -1466,8 +1466,6 @@ jobs:
           if os.path.exists(HONEYPOT_FILE):
               with open(HONEYPOT_FILE) as f:
                   existing = {l.strip() for l in f if l.strip() and not l.startswith("#")}
-
-          existing = canonical_host_entries(existing)
 
           # FIX BUG#3: FP- und Whitelist-Filter VOR der Delta-Berechnung anwenden.
           # Vorher wurden new_ips/removed_ips vor dem Filtern berechnet → Report

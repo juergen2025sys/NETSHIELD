@@ -255,19 +255,119 @@ jobs:
             echo "Resync: HEAD war bereits aktuell ($AFTER)"
           fi
 
-      - name: Pin generation time and input commit
-        run: |
-          echo "NETSHIELD_GENERATION_EPOCH=$(date -u +%s)" >> "$GITHUB_ENV"
-          echo "NETSHIELD_BASE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Restore Watchlist Daily Cap State Cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: state/watchlist_daily_cap_state.json
+          key: netshield-watchlist-cap-state-v1-${{ github.run_id }}
+          restore-keys: |
+            netshield-watchlist-cap-state-v1-
 
-      - name: Restore one verified state generation
-        id: restore_generation
+      # SINGLE-SEENDB-RELEASE 2026-09-01:
+      # Fuer seen_db existiert nur noch EIN GitHub-Release-Fallback:
+      # seen-db-sqlite-backup / seen_db.sqlite3.gz. JSON bleibt lediglich
+      # Actions-Cache fuer den normalen Combined-Pfad.
+      #
+      # FIX CORRUPT-JSON-FALLBACK 01.09.2026: Diese drei Steps liefen frueher
+      # nur bei hashFiles('seen_db.json') == ''. Damit war der SQLite-Fallback
+      # ausgerechnet im gefaehrlichsten Fall nicht verfuegbar: GitHub liefert
+      # einen VORHANDENEN, aber beschaedigten JSON-Cache, der Streaming-Import
+      # scheitert, db wird {} - und auf der Platte liegt keine SQLite-Datei zum
+      # Zurueckfallen. Combined haette dann aus den Tagesfeeds eine neue seen_db
+      # ohne History aufgebaut (Millionen IPs, also weit ueber der 100k-Schwelle
+      # der Upload-Guards) und Cache UND Release-Asset damit ueberschrieben -
+      # days_seen, first und hq_feed_names waeren unwiederbringlich weg.
+      # Der Restore laeuft deshalb jetzt immer. Kostet einen Cache-Restore pro
+      # Lauf, ist aber die einzige Absicherung gegen genau diesen Fall.
+      - name: Restore seen_db SQLite Cache (immer, als Korruptions-Fallback)
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: seen_db.sqlite3
+          key: netshield-seen-db-sqlite-v1-combined-fallback-${{ github.run_id }}
+          restore-keys: |
+            netshield-seen-db-sqlite-v1-
+
+      - name: Validiere restaurierte seen_db SQLite
+        if: hashFiles('seen_db.sqlite3') != ''
+        run: |
+          if ! python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); print(f"SQLite-Fallback validiert: {n:,} Eintraege"); assert q and q[0]=="ok" and n>=100000, (q,n)'; then
+            echo "::warning::Restaurierter SQLite-Cache ungueltig - verwerfe und versuche Release-Fallback"
+            rm -f seen_db.sqlite3
+          fi
+
+      - name: Restore seen_db SQLite from GitHub Release (falls SQLite-Cache leer)
+        if: hashFiles('seen_db.sqlite3') == ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
-          PYTHONPATH=scripts python3 scripts/netshield_release_state.py restore
+          if gh release download seen-db-sqlite-backup \
+              --repo "${{ github.repository }}" \
+              --pattern "seen_db.sqlite3.gz" \
+              --dir . --clobber 2>/dev/null; then
+            gzip -df seen_db.sqlite3.gz
+            python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); print(f"SQLite-Release-Fallback validiert: {n:,} Eintraege"); assert q and q[0]=="ok" and n>=100000, (q,n)'
+          else
+            echo "Kein SQLite-Release-Fallback vorhanden - nur bei einem echten Fresh-Start wird leer begonnen."
+          fi
+
+      - name: Restore Aufnahme-Warteliste from GitHub Release (falls vorhanden)
+        # FIX AUFNAHME-CROSS-DAY-V2 (2026-08-24, Nutzerwunsch "Moeglichkeit
+        # wegen den 1,6 Mio. IPs die nicht gefiltert sind"): Warteliste
+        # jetzt als GitHub-Release-Asset statt als Git-committete Datei -
+        # identisches Muster zum seen_db-Backup oben. Grund fuer die
+        # Umstellung: die erste Version (state/aufnahme_warteliste.json
+        # direkt committet) wuchs beim ersten echten Lauf auf 130 MB PRO
+        # COMMIT (alle 3h) - das haette den Git-Verlauf in Tagen um
+        # mehrere GB aufgeblaeht. Als Release-Asset entsteht KEIN Git-
+        # Verlauf-Wachstum, weil Assets nicht Teil der Commit-Historie
+        # sind (gleicher Vorteil, der beim seen_db-Backup schon genutzt
+        # wird - siehe "CHANGE BACKUP-OFF-GIT" an anderer Stelle).
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p state
+          if [ ! -f state/aufnahme_warteliste.json.gz ] && ! ls state/aufnahme_warteliste.json.gz.part* >/dev/null 2>&1; then
+            if gh release download aufnahme-warteliste-backup \
+                --repo "${{ github.repository }}" \
+                --pattern "aufnahme_warteliste.json.gz.part*" \
+                --dir state/ 2>/dev/null; then
+              COUNT=$(ls state/aufnahme_warteliste.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+              echo "Aufnahme-Warteliste-Backup von Release geladen: ${COUNT} Part(s)"
+            else
+              echo "Kein Warteliste-Release gefunden (erster Lauf mit diesem Mechanismus, oder noch nie beschrieben) – starte mit leerer Warteliste"
+            fi
+          else
+            echo "state/aufnahme_warteliste.json.gz* liegt bereits im Checkout – kein Download noetig"
+          fi
+
+      - name: Restore Anti-Churn-Ledger from GitHub Release (falls vorhanden)
+        # CHANGE LEDGER-OFF-GIT (2026-08-26, Nutzerwunsch "die json soll
+        # nicht im repo gespeichert werden"): identisches Muster wie bei der
+        # Aufnahme-Warteliste oben - state/watchlist_expired_history.json
+        # war auf 21+ MB angewachsen und blaehte den Git-Verlauf bei jedem
+        # Commit weiter auf. Beide Ledger (Watchlist + Active) liegen jetzt
+        # in EINEM gemeinsamen Release ("anti-churn-ledger-backup"), als
+        # zwei separat benannte Part-Praefixe unterscheidbar.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p state
+          if [ ! -f state/watchlist_expired_history.json.gz ] && ! ls state/watchlist_expired_history.json.gz.part* >/dev/null 2>&1 \
+             && [ ! -f state/active_expired_history.json.gz ] && ! ls state/active_expired_history.json.gz.part* >/dev/null 2>&1; then
+            if gh release download anti-churn-ledger-backup \
+                --repo "${{ github.repository }}" \
+                --pattern "*_expired_history.json.gz.part*" \
+                --dir state/ 2>/dev/null; then
+              WL_COUNT=$(ls state/watchlist_expired_history.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+              AC_COUNT=$(ls state/active_expired_history.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+              echo "Anti-Churn-Ledger von Release geladen: Watchlist ${WL_COUNT} Part(s), Active ${AC_COUNT} Part(s)"
+            else
+              echo "Kein Ledger-Release gefunden (erster Lauf mit diesem Mechanismus, oder noch nie beschrieben) – starte mit leeren Ledgern"
+            fi
+          else
+            echo "state/*_expired_history.json.gz* liegt bereits im Checkout – kein Download noetig"
+          fi
 
       - name: Restore Auto-Feed Live Snapshot Cache
         id: restore_auto_feed_snapshot
@@ -470,17 +570,7 @@ jobs:
           import socket as _socket, struct as _struct
           import threading as _threading
           import gc as _gc, time as _time, traceback as _traceback
-          try:
-            import resource as _resource
-          except ImportError:
-            class _ResourceFallback:
-              RUSAGE_SELF = 0
-              class _Usage:
-                ru_maxrss = 0
-              @staticmethod
-              def getrusage(_kind):
-                return _ResourceFallback._Usage()
-            _resource = _ResourceFallback()  # RSS diagnostics are optional on Windows
+          import resource as _resource
 
           # FIX PHASE-TIMING-LOG-2026-08-13: Waehrend der Suche nach der
           # Shutdown-Verzoegerung (siehe FIX SHUTDOWN-DELAY-2026-08-13 weiter
@@ -818,8 +908,7 @@ jobs:
           load_whitelist()
           load_fp_set()
 
-          from netshield_common import generation_now
-          now        = generation_now()
+          now        = datetime.now(timezone.utc)
           now_day    = now.strftime("%Y-%m-%d")
           now_stamp  = (
               now.astimezone(ZoneInfo("Europe/Berlin"))
@@ -2222,17 +2311,37 @@ jobs:
 
           if os.path.exists(_auto_snapshot_path):
               try:
-                  from netshield_snapshot import validate_snapshot
-                  _snapshot = validate_snapshot(
-                      _auto_snapshot_path, now=int(_time.time()),
-                      refresh_max_age=_auto_snapshot_max_age)
-                  _smeta = _snapshot['meta']
-                  _shit = _snapshot['hits']
-                  _sfresh_hits = _snapshot['fresh_hits']
-                  _sfresh_feeds = _snapshot['fresh_feeds']
-                  _sbad_fallbacks = _snapshot['fallbacks']
-                  _sage = _snapshot['age']
-                  _sq, _sfeed_stats_compatible = ('ok',), True
+                  _sc = sqlite3.connect(f"file:{_auto_snapshot_path}?mode=ro", uri=True)
+                  _sq = _sc.execute("PRAGMA quick_check").fetchone()
+                  _smeta = dict(_sc.execute("SELECT key,value FROM meta"))
+                  _shit = _sc.execute("SELECT COUNT(*) FROM hits").fetchone()[0]
+                  _sfeeds = _sc.execute("SELECT COUNT(DISTINCT feed) FROM hits").fetchone()[0]
+                  _sfeed_columns = {
+                      _row[1] for _row in _sc.execute("PRAGMA table_info(feed_stats)")
+                  }
+                  _sfeed_stats_compatible = {
+                      "feed", "entries", "status", "last_success_epoch"
+                  }.issubset(_sfeed_columns)
+                  # Fallback rows contain old evidence.  They are deliberately
+                  # not imported into today's run, otherwise stale content
+                  # would create a fresh ``today`` confirmation (F4). Fresh
+                  # rows from the same snapshot remain usable.
+                  _sbad_fallbacks = _sc.execute(
+                      "SELECT COUNT(*) FROM feed_stats "
+                      "WHERE entries > 0 AND status <> 'ok'"
+                  ).fetchone()[0]
+                  _sfresh_hits = _sc.execute(
+                      "SELECT COUNT(*) FROM hits h "
+                      "JOIN feed_stats s ON s.feed=h.feed "
+                      "WHERE s.entries > 0 AND s.status='ok'"
+                  ).fetchone()[0]
+                  _sfresh_feeds = _sc.execute(
+                      "SELECT COUNT(*) FROM feed_stats "
+                      "WHERE entries > 0 AND status='ok'"
+                  ).fetchone()[0]
+                  _sc.close()
+                  _sts = int(_smeta.get("generated_at_epoch", "0"))
+                  _sage = max(0, int(_time.time()) - _sts)
                   _registry_sha = ""
                   if os.path.exists(AUTO_FEEDS_FILE):
                       with open(AUTO_FEEDS_FILE, "rb") as _arf:
@@ -4447,7 +4556,7 @@ jobs:
           # Europe/Berlin wechselt automatisch zwischen CET (Winter) und
           # CEST (Sommer). Report-Generator und Health-Checker akzeptieren
           # UTC sowie CET/CEST und bleiben damit rueckwaertskompatibel.
-          output_now_utc = generation_now()
+          output_now_utc = datetime.now(timezone.utc)
           output_stamp_de = (
               output_now_utc.astimezone(ZoneInfo("Europe/Berlin"))
               .strftime("%Y-%m-%d %H:%M %Z")
@@ -5088,11 +5197,436 @@ jobs:
             echo "ok=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Refresh metadata and promote pending ledgers
-        id: current_state
-        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true'
+      - name: Save seen_db JSON Compatibility Cache
+        # SQLite bleibt der kanonische Combined-State. Dieser JSON-Cache wird
+        # nur fuer Legacy-/Diagnose-Workflows gepflegt, die noch seen_db.json
+        # erwarten (z.B. score_decay_monitor und Teile von ip_ablauf).
+        # Gespeichert wird nur nach erfolgreichem Build und bestandener
+        # Schrumpfungswache, damit kein korruptes/zu kleines Export-JSON den
+        # letzten gesunden Kompatibilitaets-Cache verdraengt.
+        if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.json') != ''
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: seen_db.json
+          key: netshield-seen-db-v2-${{ github.run_id }}
+
+      - name: Alte seen_db JSON Compatibility Caches aufraeumen
+        # FIX CACHE-BUDGET-SEENDB-V2 (2026-09-08, Nutzerfund via GitHub-
+        # Cache-Uebersicht: "9,3 von 10 GB belegt"): seen_db.json liegt bei
+        # ~210-230 MB je Eintrag und nutzt wie die SQLite-Variante oben
+        # "${{ github.run_id }}" als Key - also ebenfalls ein neuer, nie
+        # ueberschriebener Cache-Eintrag pro Lauf. War beim urspruenglichen
+        # Cleanup-Fix (siehe "Alte seen_db SQLite Caches aufraeumen" unten)
+        # nicht mit abgedeckt, weil zu dem Zeitpunkt nur die SQLite-Familie
+        # als Grossverbraucher bekannt war. Gleiches Muster wie dort:
+        # Paginierte Schleife (bis zu 20 Runden a 100 Treffer), strikte
+        # Regex-Filterung auf "...-v2-<nur Ziffern>" (auch wenn aktuell keine
+        # abgeleitete Fremd-Familie mit diesem Praefix bekannt ist - schuetzt
+        # trotzdem vorsorglich, falls spaeter mal eine dazukommt), behaelt
+        # die 2 neuesten, loescht den Rest. Einzelne Loesch-Fehlschlaege
+        # werden ignoriert.
+        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.json') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          _runde=0
+          while [ "$_runde" -lt 20 ]; do
+            _runde=$((_runde + 1))
+            _treffer=$(gh cache list --key "netshield-seen-db-v2-" --limit 100 \
+                --order desc --sort created_at \
+                --json id,key,createdAt --jq '.[] | select(.key | test("^netshield-seen-db-v2-[0-9]+$"))' \
+              | jq -s -c 'sort_by(.createdAt) | reverse')
+            _anzahl=$(echo "$_treffer" | jq 'length')
+            if [ "$_anzahl" -le 2 ]; then
+              echo "Runde ${_runde}: nur noch ${_anzahl} Treffer (<=2, die 2 Neuesten) - fertig."
+              break
+            fi
+            echo "Runde ${_runde}: ${_anzahl} Treffer, loesche $((_anzahl - 2)) davon (2 Neueste bleiben)..."
+            echo "$_treffer" | jq -r '.[2:] | .[].id' | while read -r _id; do
+              gh cache delete "$_id" >/dev/null 2>&1 \
+                && echo "  geloescht: Cache-ID $_id" \
+                || echo "  WARN: Cache-ID $_id konnte nicht geloescht werden (ignoriert)"
+            done
+          done
+          echo "seen_db-JSON-Cache-Aufraeumung abgeschlossen (${_runde} Runde(n))."
+          exit 0
+
+      - name: Save Watchlist Daily Cap State Cache
+        # FIX CAP-STATE-PUSH-LOSS 31.08.2026: Der State wird zusammen mit dem
+        # erfolgreichen Build ausserhalb des Git-Push gespeichert. Schlaegt
+        # der Push spaeter fehl, stellt der naechste Lauf trotzdem den zu
+        # genau diesem Datenstand gehoerenden Tagesdeckel wieder her.
+        if: always() && steps.build_combined.outcome == 'success' && hashFiles('state/watchlist_daily_cap_state.json') != ''
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: state/watchlist_daily_cap_state.json
+          key: netshield-watchlist-cap-state-v1-${{ github.run_id }}
+
+      - name: Alte Watchlist Daily Cap State Caches aufraeumen
+        # FIX CACHE-BUDGET-CAPSTATE (2026-09-09, Nutzerfund): letzte der vier
+        # Cache-Familien aus update_combined_blacklist.yml ohne Aufraeumung.
+        # Einzelne Eintraege sind mit ~300 Byte verschwindend klein und fuer
+        # sich kein Speicherplatzproblem, sammeln sich aber wie alle anderen
+        # "${{ github.run_id }}"-Caches unbegrenzt an (bis zu 24 neue
+        # Eintraege/Tag). Gleiches Muster wie bei den drei bereits
+        # aufgeraeumten Familien: paginierte Schleife, strikte Regex-Filterung
+        # auf "...-v1-<nur Ziffern>", behaelt die 2 neuesten.
+        if: steps.build_combined.outcome == 'success' && hashFiles('state/watchlist_daily_cap_state.json') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          _runde=0
+          while [ "$_runde" -lt 20 ]; do
+            _runde=$((_runde + 1))
+            _treffer=$(gh cache list --key "netshield-watchlist-cap-state-v1-" --limit 100 \
+                --order desc --sort created_at \
+                --json id,key,createdAt --jq '.[] | select(.key | test("^netshield-watchlist-cap-state-v1-[0-9]+$"))' \
+              | jq -s -c 'sort_by(.createdAt) | reverse')
+            _anzahl=$(echo "$_treffer" | jq 'length')
+            if [ "$_anzahl" -le 2 ]; then
+              echo "Runde ${_runde}: nur noch ${_anzahl} Treffer (<=2, die 2 Neuesten) - fertig."
+              break
+            fi
+            echo "Runde ${_runde}: ${_anzahl} Treffer, loesche $((_anzahl - 2)) davon (2 Neueste bleiben)..."
+            echo "$_treffer" | jq -r '.[2:] | .[].id' | while read -r _id; do
+              gh cache delete "$_id" >/dev/null 2>&1 \
+                && echo "  geloescht: Cache-ID $_id" \
+                || echo "  WARN: Cache-ID $_id konnte nicht geloescht werden (ignoriert)"
+            done
+          done
+          echo "Watchlist-Cap-State-Cache-Aufraeumung abgeschlossen (${_runde} Runde(n))."
+          exit 0
+
+      - name: Save seen_db SQLite Cache
+        if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.sqlite3') != ''
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: seen_db.sqlite3
+          key: netshield-seen-db-sqlite-v1-${{ github.run_id }}
+
+      - name: Alte seen_db SQLite Caches aufraeumen
+        # FIX CACHE-BUDGET-SEENDB (2026-09-07, Nutzerfund): seen_db.sqlite3
+        # kann bis zu ~500 MB gross werden. Der obige Save-Schritt nutzt
+        # "${{ github.run_id }}" - bei bis zu 24 Combined-Laeufen/Tag legt das
+        # JEDEN Lauf einen NEUEN, nie ueberschriebenen Cache-Eintrag an
+        # (GitHub-Actions-Caches sind unveraenderlich). Ohne aktives Aufraeumen
+        # waechst allein diese eine Cache-Familie schnell in Richtung des
+        # 10-GB-Gesamtbudgets des Repos, lange bevor GitHubs 7-Tage-Unbenutzt-
+        # Raeumung greift - im schlimmsten Fall raeumt GitHub dann selbst,
+        # nach "am laengsten unbenutzt" statt "am wichtigsten".
+        # "gh cache list --key" matched als PRAEFIX, nicht exakt - wuerde ohne
+        # die zusaetzliche Regex-Filterung auch die davon abgeleiteten
+        # Fremd-Familien netshield-seen-db-sqlite-v1-combined-fallback-*,
+        # -ip-ablauf-* und -score-decay-* (andere Workflows) mit erfassen.
+        # Deshalb hier zusaetzlich strikt auf "...-v1-<nur Ziffern>" gefiltert.
+        # FIX PAGINIERUNG (2026-09-07, Review-Fund): ein einzelner Aufruf mit
+        # "--limit 100" haette bei mehr als 100 alten Treffern nur die ersten
+        # 100 gesehen - der Rest waere liegen geblieben ("loescht alle alten
+        # Eintraege" stimmte dann nur fuer die ersten 100). Jetzt eine echte
+        # Schleife: jede Runde holt bis zu 100 (neueste zuerst, "--order desc
+        # --sort created_at"), behaelt darin immer die 2 allerneuesten (die
+        # sortieren wegen der festen Reihenfolge in JEDER Runde ganz vorne,
+        # solange waehrend des Laufs keine neueren Eintraege dazukommen -
+        # unkritisch, da neue Saves erst beim naechsten Workflow-Lauf
+        # entstehen), loescht den Rest der Runde. Endet, sobald eine Runde
+        # nach dem Filtern <=2 Treffer liefert (nichts mehr zu loeschen) oder
+        # eine Sicherheitsobergrenze von 20 Runden erreicht ist (schuetzt vor
+        # einer Endlosschleife, falls "gh cache delete" fuer eine ID dauerhaft
+        # fehlschlaegt, ohne die ID aus der Liste verschwinden zu lassen).
+        # Einzelne Loesch-Fehlschlaege werden ignoriert (bestes Bemuehen, kein
+        # Abbruch des Laufs wegen reiner Aufraeum-Nebensache).
+        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.sqlite3') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          _runde=0
+          while [ "$_runde" -lt 20 ]; do
+            _runde=$((_runde + 1))
+            _treffer=$(gh cache list --key "netshield-seen-db-sqlite-v1-" --limit 100 \
+                --order desc --sort created_at \
+                --json id,key,createdAt --jq '.[] | select(.key | test("^netshield-seen-db-sqlite-v1-[0-9]+$"))' \
+              | jq -s -c 'sort_by(.createdAt) | reverse')
+            _anzahl=$(echo "$_treffer" | jq 'length')
+            if [ "$_anzahl" -le 2 ]; then
+              echo "Runde ${_runde}: nur noch ${_anzahl} Treffer (<=2, die 2 Neuesten) - fertig."
+              break
+            fi
+            echo "Runde ${_runde}: ${_anzahl} Treffer, loesche $((_anzahl - 2)) davon (2 Neueste bleiben)..."
+            echo "$_treffer" | jq -r '.[2:] | .[].id' | while read -r _id; do
+              gh cache delete "$_id" >/dev/null 2>&1 \
+                && echo "  geloescht: Cache-ID $_id" \
+                || echo "  WARN: Cache-ID $_id konnte nicht geloescht werden (ignoriert)"
+            done
+          done
+          echo "seen_db-SQLite-Cache-Aufraeumung abgeschlossen (${_runde} Runde(n))."
+          exit 0
+
+      - name: Backup seen_db SQLite to GitHub Release
+        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.sqlite3') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+          python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); print(f"SQLite-Snapshot validiert: {n:,} Eintraege"); assert q and q[0]=="ok" and n>=100000, (q,n)'
+          rm -f seen_db.sqlite3.gz
+          gzip -1 -c seen_db.sqlite3 > seen_db.sqlite3.gz
+          # FIX RELEASE-UPLOAD-RETRY (2026-09-06, Log-Fund): "gh release upload"
+          # war bisher ein einzelner, ungeschuetzter Aufruf unter "set -e" -
+          # ein transienter GitHub-API-Fehler (z.B. HTTP 502, im echten Betrieb
+          # beobachtet) hat den kompletten Step sofort abbrechen lassen, obwohl
+          # der eigentliche Produktions-Output (combined_threat_blacklist_*
+          # usw.) unabhaengig davon per Commit/Push weiterhin ankam - nur das
+          # SQLite-Release-Backup blieb einmalig veraltet. Retry-Schleife im
+          # selben Stil wie der bestehende Git-Push-Retry weiter unten in
+          # dieser Datei (5 Versuche, kurzer Backoff fuer transiente 5xx/
+          # Netzwerkfehler).
+          for attempt in 1 2 3 4 5; do
+            echo "Release-Upload-Versuch $attempt..."
+            if ! gh release view seen-db-sqlite-backup --repo "${{ github.repository }}" >/dev/null 2>&1; then
+              gh release create seen-db-sqlite-backup --repo "${{ github.repository }}" \
+                --title "NETSHIELD seen_db SQLite Backup" \
+                --notes "Automatisch gepflegter SQLite-Fallback fuer Confidence." \
+                --latest=false 2>&1 || true
+            fi
+            if gh release upload seen-db-sqlite-backup seen_db.sqlite3.gz \
+                --repo "${{ github.repository }}" --clobber; then
+              echo "SQLite-Release-Backup aktualisiert (Versuch $attempt): $(du -h seen_db.sqlite3.gz | cut -f1)"
+              exit 0
+            fi
+            echo "Release-Upload fehlgeschlagen (Versuch $attempt) - warte kurz..."
+            sleep $((attempt * 5))
+          done
+          echo "::warning file=update_combined_blacklist.yml::SQLite-Release-Backup nach 5 Versuchen fehlgeschlagen - Produktions-Output (Commit/Push) ist davon unabhaengig, nur der Release-Fallback bleibt diesen Lauf veraltet."
+          exit 1
+
+      # Separates JSON-Release-Backup fuer seen_db entfernt (2026-09-01).
+      # Einziger seen_db-Release ist ab hier der SQLite-Release oben.
+
+      - name: Aufnahme-Warteliste zu Release sichern (komprimiert)
+        # FIX AUFNAHME-CROSS-DAY-V2 (2026-08-24): identisches Muster zum
+        # Eigenstaendiges Release-Asset fuer die Aufnahme-Warteliste;
+        # unabhaengig vom einzigen seen_db-SQLite-Release.
+        # statt fuer seen_db. Laeuft NUR, wenn der Python-Block oben eine
+        # Aenderung hatte (state/aufnahme_warteliste_upload.json existiert
+        # dann) - sonst kein unnoetiger Upload.
+        # FIX SHRINK-ALWAYS-UPLOAD 01.09.2026 (Review-Fund MITTEL): war
+        # vorher reines if: always(). Die Warteliste wird aus DIESEM
+        # seen_db-Stand abgeleitet - meldet die Schrumpfungswache ok=false,
+        # ist dieser Stand verdaechtig und darf auch hier nicht publiziert
+        # werden. Build-Erfolg und explizite Freigabe sind erforderlich.
+        if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f state/aufnahme_warteliste_upload.json ]; then
+            rm -f state/aufnahme_warteliste.json.gz state/aufnahme_warteliste.json.gz.part*
+            gzip -c state/aufnahme_warteliste_upload.json > state/aufnahme_warteliste.json.gz.tmp
+            split -b 95M -d -a 3 state/aufnahme_warteliste.json.gz.tmp state/aufnahme_warteliste.json.gz.part
+            rm -f state/aufnahme_warteliste.json.gz.tmp state/aufnahme_warteliste_upload.json
+            PART_COUNT=$(ls state/aufnahme_warteliste.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+            echo "Aufnahme-Warteliste komprimiert: ${PART_COUNT} Part(s), gesamt $(du -ch state/aufnahme_warteliste.json.gz.part* | tail -1 | awk '{print $1}')"
+
+            if gh release view aufnahme-warteliste-backup --repo "${{ github.repository }}" >/dev/null 2>&1; then
+              if gh release upload aufnahme-warteliste-backup state/aufnahme_warteliste.json.gz.part* \
+                  --repo "${{ github.repository }}" --clobber; then
+                gh release edit aufnahme-warteliste-backup --repo "${{ github.repository }}" \
+                  --title "Aufnahme-Warteliste ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
+                  --notes "Automatische Warteliste fuer noch nicht kreuzbestaetigte IPs (Aufnahme-Filter). Wird bei jeder Aenderung ersetzt, kein Git-History-Bestandteil." \
+                  --draft=false \
+                  2>/dev/null || true
+                # FIX 2026-08-24: gleicher Zeitstempel-Refresh wie beim
+                # seen_db-SQLite-Release, siehe ausfuehrlicher Kommentar dort.
+                if gh release edit aufnahme-warteliste-backup --repo "${{ github.repository }}" --draft=true 2>/dev/null; then
+                  if gh release edit aufnahme-warteliste-backup --repo "${{ github.repository }}" --draft=false 2>/dev/null; then
+                    echo "Anzeige-Zeitstempel aufgefrischt (kurzer Draft-Uebergang)"
+                  else
+                    echo "::warning file=update_combined_blacklist.yml::Draft-Toggle fuer aufnahme-warteliste-backup: draft=false nach draft=true fehlgeschlagen - Release koennte als Draft haengen! Bitte manuell in GitHub pruefen."
+                  fi
+                else
+                  echo "Draft-Toggle uebersprungen (draft=true fehlgeschlagen) - Release bleibt unveraendert wie zuvor, kein Schaden"
+                fi
+                # Verwaiste alte Parts aufraeumen (gleicher Grund wie beim
+                # seen_db-Backup: --clobber ersetzt nur gleichnamige Assets).
+                _lokale_parts=$(ls state/aufnahme_warteliste.json.gz.part* 2>/dev/null | xargs -n1 basename)
+                gh release view aufnahme-warteliste-backup --repo "${{ github.repository }}" \
+                    --json assets --jq '.assets[].name' 2>/dev/null \
+                  | grep '^aufnahme_warteliste\.json\.gz\.part' \
+                  | while read -r _remote_asset; do
+                      if ! echo "$_lokale_parts" | grep -qxF "$_remote_asset"; then
+                        echo "Entferne verwaisten alten Part: $_remote_asset"
+                        gh release delete-asset aufnahme-warteliste-backup "$_remote_asset" \
+                          --repo "${{ github.repository }}" --yes 2>/dev/null || true
+                      fi
+                    done
+                echo "Aufnahme-Warteliste als Release-Asset aktualisiert (${PART_COUNT} Part(s))"
+              else
+                echo "::warning file=update_combined_blacklist.yml::Release-Upload der Aufnahme-Warteliste fehlgeschlagen – vorherige Warteliste bleibt garantiert bestehen (kein Delete vorher)"
+              fi
+            else
+              echo "Kein bestehendes aufnahme-warteliste-backup-Release gefunden - lege neu an (erster Lauf)."
+              if gh release create aufnahme-warteliste-backup state/aufnahme_warteliste.json.gz.part* \
+                  --repo "${{ github.repository }}" \
+                  --title "Aufnahme-Warteliste ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
+                  --notes "Automatische Warteliste fuer noch nicht kreuzbestaetigte IPs (Aufnahme-Filter). Wird bei jeder Aenderung ersetzt, kein Git-History-Bestandteil."; then
+                echo "Aufnahme-Warteliste als Release-Asset hochgeladen (${PART_COUNT} Part(s))"
+                gh release edit aufnahme-warteliste-backup --repo "${{ github.repository }}" \
+                  --draft=false 2>/dev/null || true
+              else
+                echo "::warning file=update_combined_blacklist.yml::Erstanlage des Aufnahme-Warteliste-Release fehlgeschlagen"
+              fi
+            fi
+            # Lokale Parts entfernen - duerfen unter keinen Umstaenden vom
+            # "Commit and Push"-Step versehentlich mitgenommen werden (kein
+            # git add dafuer vorgesehen, aber zusaetzliche Absicherung).
+            rm -f state/aufnahme_warteliste.json.gz.part*
+          else
+            echo "Keine Aenderung an der Aufnahme-Warteliste in diesem Lauf - kein Upload noetig"
+          fi
+
+      - name: Anti-Churn-Ledger zu Release sichern (komprimiert)
+        # CHANGE LEDGER-OFF-GIT (2026-08-26): identisches Muster zum
+        # "Aufnahme-Warteliste zu Release sichern"-Step oben - hier fuer
+        # beide Anti-Churn-Ledger (Watchlist + Active) statt fuer die
+        # Warteliste. Beide teilen sich EIN gemeinsames Release
+        # ("anti-churn-ledger-backup"), da sie inhaltlich zusammengehoeren
+        # und beide typischerweise klein/mittelgross sind (anders als
+        # seen_db). Laeuft NUR fuer jeweils den Ledger, der in diesem Lauf
+        # tatsaechlich geaendert wurde (state/<name>_upload.json existiert
+        # dann) - der jeweils andere bleibt unangetastet im Release stehen.
+        # FIX SHRINK-ALWAYS-UPLOAD 01.09.2026 (Review-Fund MITTEL): siehe
+        # gleichnamigen Kommentar beim Warteliste-Upload oben. Die Ledger
+        # entstehen aus den Cleanup-Entscheidungen dieses Laufs; bei
+        # ok=false sind genau diese Entscheidungen nicht vertrauenswuerdig.
+        if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          GEAENDERTE_LEDGER=""
+          for LEDGER_NAME in watchlist_expired_history active_expired_history; do
+            if [ -f "state/${LEDGER_NAME}_upload.json" ]; then
+              rm -f "state/${LEDGER_NAME}.json.gz" state/${LEDGER_NAME}.json.gz.part*
+              # FIX LEDGER-SIZE (2026-08-28): -9 statt Default (-6). Der
+              # Ledger wird pro Lauf einmal komprimiert und ist mit wenigen
+              # MB klein genug, dass die hoehere CPU-Zeit nicht ins Gewicht
+              # faellt. Erzeugt weiterhin regulaeres gzip - Lesepfad
+              # (gzip.GzipFile in diesem Workflow, gunzip in ip_ablauf.yml)
+              # bleibt unveraendert, alte Assets bleiben lesbar.
+              gzip -9 -c "state/${LEDGER_NAME}_upload.json" > "state/${LEDGER_NAME}.json.gz.tmp"
+              split -b 95M -d -a 3 "state/${LEDGER_NAME}.json.gz.tmp" "state/${LEDGER_NAME}.json.gz.part"
+              rm -f "state/${LEDGER_NAME}.json.gz.tmp" "state/${LEDGER_NAME}_upload.json"
+              PART_COUNT=$(ls state/${LEDGER_NAME}.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
+              echo "${LEDGER_NAME}: komprimiert, ${PART_COUNT} Part(s), $(du -ch state/${LEDGER_NAME}.json.gz.part* | tail -1 | awk '{print $1}')"
+              GEAENDERTE_LEDGER="${GEAENDERTE_LEDGER} ${LEDGER_NAME}"
+            fi
+          done
+
+          if [ -n "$GEAENDERTE_LEDGER" ]; then
+            # FIX BUG-19-LEDGER-GLOB-CRASH (2026-08-28, im echten Betrieb
+            # entdeckt: Lauf mit 14.827 neu abgelaufenen Watchlist-IPs -
+            # erster echter Ledger-Zuwachs seit Bug 17 - ist genau hieran
+            # gescheitert): vorher wurden hier IMMER beide Ledger-Glob-Muster
+            # kombiniert, unabhaengig davon, welcher Ledger in $GEAENDERTE_LEDGER
+            # stand. War nur EINER der beiden geaendert (Normalfall - meist
+            # aendert sich Watchlist ODER Active, selten beide im selben Lauf),
+            # passte das Glob-Muster des UNVERAENDERTEN Ledgers zu keiner
+            # Datei. Unter "bash -e" liess das die komplette Zuweisung
+            # ALLE_PARTS=$(...) mit Exit-Code 2 fehlschlagen (ls liefert 2,
+            # wenn eines von mehreren Argumenten nicht existiert - auch mit
+            # 2>/dev/null unterdrueckt das nur die Fehlermeldung, nicht den
+            # Exit-Code) - und riss damit den gesamten Schritt ab, NOCH VOR
+            # dem eigentlichen "gh release upload". Ergebnis: die frisch
+            # abgelaufenen IPs wurden bereits aus seen_db entfernt (das commit-
+            # tet unabhaengig davon ganz normal), ihr Ledger-Eintrag landete
+            # aber nie im Release - faktisch derselbe Datenverlust wie bei
+            # Bug 17, nur in kleinerem Massstab (diese eine Charge statt des
+            # gesamten Ledgers).
+            # Fix: nur ueber die tatsaechlich in diesem Lauf geaenderten
+            # Ledger iterieren (GEAENDERTE_LEDGER ist an dieser Stelle schon
+            # bekannt) statt beide Glob-Muster blind zu kombinieren - fuer den
+            # jeweils unveraenderten Ledger wird gar kein Muster mehr
+            # ausgewertet, kann also auch nicht leer laufen.
+            ALLE_PARTS=""
+            for LEDGER_NAME in $GEAENDERTE_LEDGER; do
+              ALLE_PARTS="${ALLE_PARTS} $(ls state/${LEDGER_NAME}.json.gz.part* 2>/dev/null)"
+            done
+
+            if gh release view anti-churn-ledger-backup --repo "${{ github.repository }}" >/dev/null 2>&1; then
+              if gh release upload anti-churn-ledger-backup $ALLE_PARTS \
+                  --repo "${{ github.repository }}" --clobber; then
+                gh release edit anti-churn-ledger-backup --repo "${{ github.repository }}" \
+                  --title "Anti-Churn-Ledger ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
+                  --notes "Automatische Anti-Churn-Ledger fuer Watchlist- (30T) und Active-Pfad (180T). Wird bei jeder Aenderung ersetzt, kein Git-History-Bestandteil." \
+                  --draft=false \
+                  2>/dev/null || true
+                # FIX 2026-08-24-artig: gleicher Zeitstempel-Refresh wie beim
+                # Warteliste-Release, siehe ausfuehrlicher
+                # Kommentar dort.
+                if gh release edit anti-churn-ledger-backup --repo "${{ github.repository }}" --draft=true 2>/dev/null; then
+                  if gh release edit anti-churn-ledger-backup --repo "${{ github.repository }}" --draft=false 2>/dev/null; then
+                    echo "Anzeige-Zeitstempel aufgefrischt (kurzer Draft-Uebergang)"
+                  else
+                    echo "::warning file=update_combined_blacklist.yml::Draft-Toggle fuer anti-churn-ledger-backup: draft=false nach draft=true fehlgeschlagen - Release koennte als Draft haengen! Bitte manuell in GitHub pruefen."
+                  fi
+                else
+                  echo "Draft-Toggle uebersprungen (draft=true fehlgeschlagen) - Release bleibt unveraendert wie zuvor, kein Schaden"
+                fi
+                # Verwaiste alte Parts aufraeumen - NUR fuer die Ledger, die
+                # in DIESEM Lauf tatsaechlich neu geschrieben wurden (der
+                # jeweils andere Ledger bleibt unberuehrt, seine Parts sind
+                # kein "verwaist", nur schlicht nicht Teil dieses Uploads).
+                for LEDGER_NAME in $GEAENDERTE_LEDGER; do
+                  _lokale_parts=$(ls state/${LEDGER_NAME}.json.gz.part* 2>/dev/null | xargs -n1 basename)
+                  gh release view anti-churn-ledger-backup --repo "${{ github.repository }}" \
+                      --json assets --jq '.assets[].name' 2>/dev/null \
+                    | grep "^${LEDGER_NAME}\.json\.gz\.part" \
+                    | while read -r _remote_asset; do
+                        if ! echo "$_lokale_parts" | grep -qxF "$_remote_asset"; then
+                          echo "Entferne verwaisten alten Part: $_remote_asset"
+                          gh release delete-asset anti-churn-ledger-backup "$_remote_asset" \
+                            --repo "${{ github.repository }}" --yes 2>/dev/null || true
+                        fi
+                      done
+                done
+                echo "Anti-Churn-Ledger als Release-Asset aktualisiert (${GEAENDERTE_LEDGER})"
+              else
+                echo "::warning file=update_combined_blacklist.yml::Release-Upload des Anti-Churn-Ledgers fehlgeschlagen – vorheriger Stand bleibt garantiert bestehen (kein Delete vorher)"
+              fi
+            else
+              echo "Kein bestehendes anti-churn-ledger-backup-Release gefunden - lege neu an (erster Lauf)."
+              if gh release create anti-churn-ledger-backup $ALLE_PARTS \
+                  --repo "${{ github.repository }}" \
+                  --title "Anti-Churn-Ledger ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
+                  --notes "Automatische Anti-Churn-Ledger fuer Watchlist- (30T) und Active-Pfad (180T). Wird bei jeder Aenderung ersetzt, kein Git-History-Bestandteil."; then
+                echo "Anti-Churn-Ledger als Release-Asset hochgeladen (${GEAENDERTE_LEDGER})"
+                gh release edit anti-churn-ledger-backup --repo "${{ github.repository }}" \
+                  --draft=false 2>/dev/null || true
+              else
+                echo "::warning file=update_combined_blacklist.yml::Erstanlage des Anti-Churn-Ledger-Release fehlgeschlagen"
+              fi
+            fi
+            # Lokale Parts entfernen - duerfen unter keinen Umstaenden vom
+            # "Commit and Push"-Step versehentlich mitgenommen werden (kein
+            # git add dafuer vorgesehen, aber zusaetzliche Absicherung).
+            rm -f state/watchlist_expired_history.json.gz.part* state/active_expired_history.json.gz.part*
+          else
+            echo "Keine Aenderung an den Anti-Churn-Ledgern in diesem Lauf - kein Upload noetig"
+          fi
+
+      - name: Preserve failed build diagnostics
+        if: always() && (steps.build_combined.outcome != 'success' || steps.shrink_guard.outputs.ok != 'true')
+        run: |
+          echo '### Combined publication blocked: incomplete build or missing guard approval' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f reports/combined_threat_blacklist_report.md ]; then
+            cat reports/combined_threat_blacklist_report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Commit and Push
+        # Publish only a complete build explicitly approved by the shrink guard.
+        if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true'
+        run: |
           python3 - << 'PYEOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
           from netshield_common import (
@@ -5108,8 +5642,7 @@ jobs:
           import json, os
           from datetime import datetime, timezone
           from zoneinfo import ZoneInfo
-          from netshield_common import generation_now
-          _now_utc = generation_now()
+          _now_utc = datetime.now(timezone.utc)
           now_str = (
               _now_utc
               .astimezone(ZoneInfo("Europe/Berlin"))
@@ -5193,230 +5726,257 @@ jobs:
               meta["size_mb"] = round(os.path.getsize("seen_db.json") / 1024 / 1024, 1)
           write_json_atomic("state/seen_db_meta.json", meta, indent=2)
           PYEOF
-          PYTHONPATH=scripts python3 scripts/netshield_release_state.py promote
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # FIX STATE-SUBDIR-MIGRATION: alte Root-Version entfernen, sobald
+          # dieser Workflow die neue state/-Version committet. Idempotent.
+          git rm -q --ignore-unmatch seen_db_meta.json 2>/dev/null || true
+          # FIX SUBDIR-MIGRATION: alte Root-Version entfernen, sobald dieser
+          # Workflow die neue reports///logs/-Version committet (atomar im
+          # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
+          git rm -q --ignore-unmatch combined_threat_blacklist_report.md 2>/dev/null || true
+          # CHANGE ZWEI-FESTE-PARTS: Hauptdatei nicht mehr committen (Parts sind
+          # kanonisch). Einmalig aus dem Index nehmen (idempotent), damit sie
+          # nicht ueber 100 MB waechst und den Push blockiert. Working-Copy
+          # bleibt erhalten (--cached); .gitignore verhindert Re-Tracking.
+          git rm -q --cached --ignore-unmatch combined_threat_blacklist_ipv4.txt 2>/dev/null || true
 
-      - name: Build Confidence and Watchlist in the same generation
-        id: build_confidence
-        if: steps.current_state.outcome == 'success'
-        env:
-          PYTHONUNBUFFERED: "1"
-        run: |
-          set -euo pipefail
-          PYTHONPATH=scripts python3 scripts/build_confidence.py
+          git add active_blacklist_ipv4.txt reports/combined_threat_blacklist_report.md state/seen_db_meta.json state/watchlist_daily_cap_state.json reputation_blacklist.txt 2>/dev/null || true
+          # CHANGE LEDGER-OFF-GIT (2026-08-26, Nutzerwunsch "die json soll
+          # nicht im repo gespeichert werden"): Beide Anti-Churn-Ledger
+          # (watchlist_expired_history.json, active_expired_history.json)
+          # liegen jetzt als GitHub-Release-Assets (siehe "Ledger zu Release
+          # sichern"-Step weiter unten), nicht mehr im Git-Index. Grund:
+          # watchlist_expired_history.json war auf 21+ MB angewachsen und
+          # blaehte den Git-Verlauf bei jedem Commit weiter auf - exakt das
+          # gleiche Muster, das schon beim seen_db-Backup und der Aufnahme-
+          # Warteliste zu dieser Loesung gefuehrt hat. Falls aus einem
+          # AELTEREN Commit noch die Ledger-Dateien im Index stehen (Migration
+          # von der alten Vorgehensweise), hier einmalig idempotent entfernen.
+          git rm -q --cached --ignore-unmatch state/watchlist_expired_history.json state/active_expired_history.json 2>/dev/null || true
+          # relocated_feeds.md nur vorhanden, wenn der Move-Resolver diesen Lauf
+          # etwas umgeleitet hat – dann mitcommitten (sonst No-Op).
+          git add relocated_feeds.md 2>/dev/null || true
+          # feed_url_overrides.json: persistente Auto-Erneuerung verschobener URLs.
+          git add feed_url_overrides.json 2>/dev/null || true
+          # Split-Parts (falls erzeugt) und geloeschte Parts auch stagen
+          git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
+          git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
 
-      - name: Validate one coherent blacklist generation
-        id: validate_generation
-        if: steps.build_confidence.outcome == 'success'
-        run: |
-          set -euo pipefail
-          PYTHONPATH=scripts python3 scripts/check_pipeline_consistency.py
+          # ── Pre-Flight-Guard: Keine gestagete Datei >= 100 MB ──────────
+          # GitHub lehnt Push bei Dateien > 100 MB hart ab. Falls die
+          # Groessen-Schaetzung in der Split-Logik danebenlag (z.B. weil
+          # avg-line-length vom Sample abweicht), faengt dieser Check es
+          # ab BEVOR der Commit passiert. Besser hier hart fehlschlagen
+          # als 5 Push-Versuche mit Rebase-Loop und Datenverlust.
+          # WICHTIG: Nur STAGED files pruefen – nicht das Working-Dir.
+          # seen_db.json (~1 GB) lebt im Working-Dir (gitignored, nur im
+          # Actions-Cache), darf den Guard also nicht triggern.
+          oversized=""
+          while IFS= read -r f; do
+              [ -z "$f" ] && continue
+              [ ! -f "$f" ] && continue
+              sz_bytes=$(stat -c%s "$f" 2>/dev/null || echo 0)
+              if [ "$sz_bytes" -ge 104857600 ]; then
+                  sz=$(du -h "$f" 2>/dev/null | cut -f1)
+                  oversized="${oversized}  ${f} (${sz})"$'\n'
+              fi
+          done < <(git diff --staged --name-only --diff-filter=ACMR)
+          if [ -n "$oversized" ]; then
+              echo "::error file=update_combined_blacklist.yml::Pre-Flight-Guard: Gestagete Datei(en) >= 100 MB gefunden – Push waere unmoeglich:"
+              printf '%s' "$oversized"
+              echo "FEHLER: Abbruch vor git commit – nichts wird committet."
+              git reset >/dev/null 2>&1 || true
+              exit 1
+          fi
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Update Combined Blacklist: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
+            # FIX BUG-2: Pre-Loop-Stash entfernt. Vorher gab es zwei stashes
+            # (vor und in der Schleife). Der Pre-Loop-Stash machte den In-Loop-
+            # Stash auf der ersten Iteration zum No-Op und wurde selbst nie
+            # gepoppt → harmlos auf ephemeralem Runner, aber unbalanciert
+            # (mehr stash als pop) und verwirrend. Der In-Loop-Stash unten
+            # reicht: er klammert jeden rebase-Versuch korrekt.
+            # FIX BUG-REBASE-THEIRS-LEAK (2026-08-24, im echten Betrieb
+            # entdeckt - 35.387 IPs, die laut Ledger eingefroren sein
+            # sollten, standen trotzdem noch in active_blacklist_ipv4.txt
+            # etc.): WICHTIGE KLARSTELLUNG nach eigenem Irrtum beim ersten
+            # Versuch dieses Fixes: bei "git rebase" sind ours/theirs
+            # VERTAUSCHT gegenueber "git merge" - "ours" ist hier die
+            # Zielbranch (origin/main, "onto"), "theirs" ist der gerade
+            # abgespielte LOKALE Commit (also DIESER Lauf). "-X theirs"
+            # war also schon immer richtig fuer die einfachen, deterministisch
+            # aus seen_db.json abgeleiteten Dateien (active_blacklist_ipv4.txt,
+            # combined_threat_blacklist_*, blacklist_confidence40 usw.) - die
+            # sollen ja die frische, lokale Berechnung DIESES Laufs behalten,
+            # und "theirs" liefert im Rebase-Kontext genau das.
+            # Das tatsaechliche Problem: die beiden Anti-Churn-Ledger-Dateien
+            # (state/watchlist_expired_history.json, state/active_expired_
+            # history.json) wurden bei einem Konflikt GENAUSO blind per
+            # "checkout --theirs" (= diesen Lauf) uebernommen - dabei gehen
+            # potenziell frische Einfrierungen aus einem PARALLEL gelaufenen,
+            # anderen Combined-Lauf verloren (der zuerst gepusht hat, dessen
+            # Ledger-Ergaenzungen aber beim Rebase-Konflikt hier verworfen
+            # wurden). Fix unten: fuer genau diese zwei Dateien ein echtes
+            # JSON-Merge (Vereinigung beider Eintrags-Mengen) statt einer
+            # blinden Seiten-Wahl - alle Neu-Einfrierungen aus BEIDEN Laeufen
+            # bleiben erhalten.
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              if ! git fetch origin "${GITHUB_REF_NAME}"; then
+                echo "Fetch fehlgeschlagen (Versuch $attempt/5)"
+                if [ "$attempt" -eq 5 ]; then exit 1; fi
+                sleep $((attempt * 2))
+                continue
+              fi
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                # FIX BUG-REBASE-THEIRS-LEAK: fuer die reinen Ableitungs-
+                # Dateien (deterministisch aus DIESEM Laufs seen_db.json
+                # erzeugt) gewinnt jetzt "ours" statt "theirs" - siehe
+                # Begruendung oben.
+                git checkout --theirs active_blacklist_ipv4.txt \
+                  reports/combined_threat_blacklist_report.md \
+                  state/seen_db_meta.json state/watchlist_daily_cap_state.json \
+                  reputation_blacklist.txt 2>/dev/null || true
+                for _p in combined_threat_blacklist_ipv4_part*.txt; do
+                  [ -f "$_p" ] && git checkout --theirs "$_p" 2>/dev/null || true
+                done
+                git add active_blacklist_ipv4.txt \
+                  reports/combined_threat_blacklist_report.md state/seen_db_meta.json \
+                  state/watchlist_daily_cap_state.json \
+                  reputation_blacklist.txt 2>/dev/null || true
+                git add combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
+                git add -u combined_threat_blacklist_ipv4_part*.txt 2>/dev/null || true
 
-      - name: Prepare and verify immutable state generation
-        # The generation pointer is created only after all four public lists
-        # have passed the same-set relationship checks.
-        id: prepare_generation
-        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && steps.build_confidence.outcome == 'success' && steps.validate_generation.outcome == 'success'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          PYTHONPATH=scripts python3 scripts/netshield_release_state.py prepare
+                # FIX BUG-REBASE-THEIRS-LEAK (Ledger-Dateien): Fuer die
+                # beiden Anti-Churn-Ledger reicht blindes "checkout --theirs"
+                # NICHT - ein PARALLEL gelaufener, anderer Combined-Lauf
+                # (bereits auf origin gepusht) kann eigene, echte Neu-
+                # Einfrierungen enthalten, die sonst komplett verloren
+                # gingen (nicht nur "veraltet", sondern UNWIEDERBRINGLICH
+                # weg, da das die einzige Quelle fuer den Anti-Churn-Schutz
+                # ist). Deshalb hier ein echtes JSON-Merge (Vereinigung
+                # beider Eintrags-Mengen) statt einer blinden Seiten-Wahl.
+                # git show :2:<pfad> = Zielbranch/origin (bei Rebase die
+                # "ours"-Stage, aber inhaltlich der PARALLELE, fremde Lauf),
+                # :3:<pfad> = der gerade abgespielte lokale Commit DIESES
+                # Laufs (bei Rebase die "theirs"-Stage - siehe Kommentar
+                # weiter oben, git nennt das bei Rebase vertauscht). Bei
+                # doppelten IPs gewinnt der lokale Lauf (neuerer Wert).
+                for LEDGER_FILE in state/watchlist_expired_history.json state/active_expired_history.json; do
+                  if git diff --name-only --diff-filter=U | grep -qxF "$LEDGER_FILE"; then
+                    python3 - "$LEDGER_FILE" << 'LEDGERMERGE'
+          import json, subprocess, sys
+          path = sys.argv[1]
 
-      - name: Preserve failed build diagnostics
-        if: failure()
-        run: |
-          echo '### Combined publication blocked: incomplete build or missing guard approval' >> "$GITHUB_STEP_SUMMARY"
-          if [ -f reports/combined_threat_blacklist_report.md ]; then
-            cat reports/combined_threat_blacklist_report.md >> "$GITHUB_STEP_SUMMARY"
+          def lade_stage(stage):
+              try:
+                  raw = subprocess.run(
+                      ["git", "show", f":{stage}:{path}"],
+                      capture_output=True, text=True, check=True,
+                  ).stdout
+                  return json.loads(raw)
+              except Exception as e:
+                  print(f"  WARNUNG: Stage {stage} von {path} nicht lesbar ({e}) - wird als leer behandelt")
+                  return {"entries": {}}
+
+          # WICHTIG (per echtem Test verifiziert, siehe FIX BUG-REBASE-
+          # THEIRS-LEAK-Kommentar oben): bei "git rebase" ist Stage 2
+          # ("ours") die Zielbranch (origin/main), Stage 3 ("theirs") der
+          # gerade abgespielte LOKALE Commit dieses Laufs - umgekehrt zu
+          # "git merge". Klare Variablennamen statt der git-eigenen,
+          # verwirrenden ours/theirs-Begriffe.
+          remote_seite = lade_stage(2)   # origin/main - evtl. von einem PARALLELEN Lauf
+          lokaler_lauf = lade_stage(3)   # der gerade abgespielte Commit DIESES Laufs
+          merged_entries = dict(remote_seite.get("entries", {}))
+          merged_entries.update(lokaler_lauf.get("entries", {}))  # lokaler Lauf gewinnt bei echten Ueberschneidungen (neuerer Wert)
+          merged = {
+              "updated": lokaler_lauf.get("updated") or remote_seite.get("updated"),
+              "count": len(merged_entries),
+              "entries": merged_entries,
+          }
+          with open(path, "w") as f:
+              json.dump(merged, f, indent=2)
+          print(f"  {path}: Merge fertig - remote={len(remote_seite.get('entries', {}))}, "
+                f"lokal={len(lokaler_lauf.get('entries', {}))}, merged={len(merged_entries)}")
+          LEDGERMERGE
+                    git add "$LEDGER_FILE" 2>/dev/null || true
+                  else
+                    # Kein Konflikt auf dieser Datei - normaler add reicht
+                    git add "$LEDGER_FILE" 2>/dev/null || true
+                  fi
+                done
+
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
           fi
 
-      - name: Commit and Push
-        id: commit
-        if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && steps.build_confidence.outcome == 'success' && steps.validate_generation.outcome == 'success' && steps.prepare_generation.outcome == 'success'
-        run: bash scripts/publish_generation.sh
-
-      - name: Save seen_db JSON Compatibility Cache
-        # SQLite bleibt der kanonische Combined-State. Dieser JSON-Cache wird
-        # nur fuer Legacy-/Diagnose-Workflows gepflegt, die noch seen_db.json
-        # erwarten (z.B. score_decay_monitor und Teile von ip_ablauf).
-        # Gespeichert wird nur nach erfolgreichem Build und bestandener
-        # Schrumpfungswache, damit kein korruptes/zu kleines Export-JSON den
-        # letzten gesunden Kompatibilitaets-Cache verdraengt.
-        if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.json') != '' && steps.commit.outcome == 'success'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: seen_db.json
-          key: netshield-seen-db-v2-${{ github.run_id }}
-
-      - name: Alte seen_db JSON Compatibility Caches aufraeumen
-        # FIX CACHE-BUDGET-SEENDB-V2 (2026-09-08, Nutzerfund via GitHub-
-        # Cache-Uebersicht: "9,3 von 10 GB belegt"): seen_db.json liegt bei
-        # ~210-230 MB je Eintrag und nutzt wie die SQLite-Variante oben
-        # "${{ github.run_id }}" als Key - also ebenfalls ein neuer, nie
-        # ueberschriebener Cache-Eintrag pro Lauf. War beim urspruenglichen
-        # Cleanup-Fix (siehe "Alte seen_db SQLite Caches aufraeumen" unten)
-        # nicht mit abgedeckt, weil zu dem Zeitpunkt nur die SQLite-Familie
-        # als Grossverbraucher bekannt war. Gleiches Muster wie dort:
-        # Paginierte Schleife (bis zu 20 Runden a 100 Treffer), strikte
-        # Regex-Filterung auf "...-v2-<nur Ziffern>" (auch wenn aktuell keine
-        # abgeleitete Fremd-Familie mit diesem Praefix bekannt ist - schuetzt
-        # trotzdem vorsorglich, falls spaeter mal eine dazukommt), behaelt
-        # die 2 neuesten, loescht den Rest. Einzelne Loesch-Fehlschlaege
-        # werden ignoriert.
-        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.json') != '' && steps.commit.outcome == 'success'
+      - name: Trigger Confidence Blacklist
+        # Stoesst Confidence nach JEDEM echten Combined-Lauf an - egal ob
+        # dieser per Cron, per Watchdog (workflow_dispatch) oder manuell
+        # gestartet wurde. Ersetzt den frueheren workflow_run-Trigger in
+        # update_confidence_blacklist.yml (2026-06-02).
+        #
+        # WARUM expliziter Trigger statt workflow_run:
+        # - workflow_run feuerte zwar, aber Confidence hatte
+        #   'if: workflow_run.conclusion == success'. Bei einem per
+        #   concurrency-Gruppe verdraengten (cancelled) Combined-Run war die
+        #   Bedingung false -> Confidence wurde uebersprungen -> conf40 veraltete.
+        # - Ausserdem unsicher, ob workflow_run bei einem per workflow_dispatch
+        #   (Watchdog/GITHUB_TOKEN) gestarteten Combined zuverlaessig feuert.
+        # workflow_dispatch via gh ist die dokumentierte GITHUB_TOKEN-Ausnahme
+        # und startet den Run zuverlaessig.
+        #
+        # if: success() stellt sicher, dass NUR nach erfolgreichem Push
+        # getriggert wird (bei Push-Fehler ist der Output nicht im Repo).
+        # already_ran != 'true' => kein Trigger nach einem Idempotenz-Skip-Run.
+        if: success()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set +e
-          _runde=0
-          while [ "$_runde" -lt 20 ]; do
-            _runde=$((_runde + 1))
-            _treffer=$(gh cache list --key "netshield-seen-db-v2-" --limit 100 \
-                --order desc --sort created_at \
-                --json id,key,createdAt --jq '.[] | select(.key | test("^netshield-seen-db-v2-[0-9]+$"))' \
-              | jq -s -c 'sort_by(.createdAt) | reverse')
-            _anzahl=$(echo "$_treffer" | jq 'length')
-            if [ "$_anzahl" -le 2 ]; then
-              echo "Runde ${_runde}: nur noch ${_anzahl} Treffer (<=2, die 2 Neuesten) - fertig."
-              break
-            fi
-            echo "Runde ${_runde}: ${_anzahl} Treffer, loesche $((_anzahl - 2)) davon (2 Neueste bleiben)..."
-            echo "$_treffer" | jq -r '.[2:] | .[].id' | while read -r _id; do
-              gh cache delete "$_id" >/dev/null 2>&1 \
-                && echo "  geloescht: Cache-ID $_id" \
-                || echo "  WARN: Cache-ID $_id konnte nicht geloescht werden (ignoriert)"
-            done
-          done
-          echo "seen_db-JSON-Cache-Aufraeumung abgeschlossen (${_runde} Runde(n))."
-          exit 0
+          echo "Echter Combined-Run abgeschlossen - triggere Confidence Blacklist"
+          gh workflow run update_confidence_blacklist.yml \
+            --repo "${{ github.repository }}" \
+            --ref "${GITHUB_REF_NAME}"
 
-      - name: Save Watchlist Daily Cap State Cache
-        # FIX CAP-STATE-PUSH-LOSS 31.08.2026: Der State wird zusammen mit dem
-        # erfolgreichen Build ausserhalb des Git-Push gespeichert. Schlaegt
-        # der Push spaeter fehl, stellt der naechste Lauf trotzdem den zu
-        # genau diesem Datenstand gehoerenden Tagesdeckel wieder her.
-        if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('state/watchlist_daily_cap_state.json') != '' && steps.commit.outcome == 'success'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: state/watchlist_daily_cap_state.json
-          key: netshield-watchlist-cap-state-v1-${{ github.run_id }}
-
-      - name: Alte Watchlist Daily Cap State Caches aufraeumen
-        # FIX CACHE-BUDGET-CAPSTATE (2026-09-09, Nutzerfund): letzte der vier
-        # Cache-Familien aus update_combined_blacklist.yml ohne Aufraeumung.
-        # Einzelne Eintraege sind mit ~300 Byte verschwindend klein und fuer
-        # sich kein Speicherplatzproblem, sammeln sich aber wie alle anderen
-        # "${{ github.run_id }}"-Caches unbegrenzt an (bis zu 24 neue
-        # Eintraege/Tag). Gleiches Muster wie bei den drei bereits
-        # aufgeraeumten Familien: paginierte Schleife, strikte Regex-Filterung
-        # auf "...-v1-<nur Ziffern>", behaelt die 2 neuesten.
-        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('state/watchlist_daily_cap_state.json') != '' && steps.commit.outcome == 'success'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set +e
-          _runde=0
-          while [ "$_runde" -lt 20 ]; do
-            _runde=$((_runde + 1))
-            _treffer=$(gh cache list --key "netshield-watchlist-cap-state-v1-" --limit 100 \
-                --order desc --sort created_at \
-                --json id,key,createdAt --jq '.[] | select(.key | test("^netshield-watchlist-cap-state-v1-[0-9]+$"))' \
-              | jq -s -c 'sort_by(.createdAt) | reverse')
-            _anzahl=$(echo "$_treffer" | jq 'length')
-            if [ "$_anzahl" -le 2 ]; then
-              echo "Runde ${_runde}: nur noch ${_anzahl} Treffer (<=2, die 2 Neuesten) - fertig."
-              break
-            fi
-            echo "Runde ${_runde}: ${_anzahl} Treffer, loesche $((_anzahl - 2)) davon (2 Neueste bleiben)..."
-            echo "$_treffer" | jq -r '.[2:] | .[].id' | while read -r _id; do
-              gh cache delete "$_id" >/dev/null 2>&1 \
-                && echo "  geloescht: Cache-ID $_id" \
-                || echo "  WARN: Cache-ID $_id konnte nicht geloescht werden (ignoriert)"
-            done
-          done
-          echo "Watchlist-Cap-State-Cache-Aufraeumung abgeschlossen (${_runde} Runde(n))."
-          exit 0
-
-      - name: Save seen_db SQLite Cache
-        if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.sqlite3') != '' && steps.commit.outcome == 'success'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: seen_db.sqlite3
-          key: netshield-seen-db-sqlite-v1-${{ github.run_id }}
-
-      - name: Alte seen_db SQLite Caches aufraeumen
-        # FIX CACHE-BUDGET-SEENDB (2026-09-07, Nutzerfund): seen_db.sqlite3
-        # kann bis zu ~500 MB gross werden. Der obige Save-Schritt nutzt
-        # "${{ github.run_id }}" - bei bis zu 24 Combined-Laeufen/Tag legt das
-        # JEDEN Lauf einen NEUEN, nie ueberschriebenen Cache-Eintrag an
-        # (GitHub-Actions-Caches sind unveraenderlich). Ohne aktives Aufraeumen
-        # waechst allein diese eine Cache-Familie schnell in Richtung des
-        # 10-GB-Gesamtbudgets des Repos, lange bevor GitHubs 7-Tage-Unbenutzt-
-        # Raeumung greift - im schlimmsten Fall raeumt GitHub dann selbst,
-        # nach "am laengsten unbenutzt" statt "am wichtigsten".
-        # "gh cache list --key" matched als PRAEFIX, nicht exakt - wuerde ohne
-        # die zusaetzliche Regex-Filterung auch die davon abgeleiteten
-        # Fremd-Familien netshield-seen-db-sqlite-v1-combined-fallback-*,
-        # -ip-ablauf-* und -score-decay-* (andere Workflows) mit erfassen.
-        # Deshalb hier zusaetzlich strikt auf "...-v1-<nur Ziffern>" gefiltert.
-        # FIX PAGINIERUNG (2026-09-07, Review-Fund): ein einzelner Aufruf mit
-        # "--limit 100" haette bei mehr als 100 alten Treffern nur die ersten
-        # 100 gesehen - der Rest waere liegen geblieben ("loescht alle alten
-        # Eintraege" stimmte dann nur fuer die ersten 100). Jetzt eine echte
-        # Schleife: jede Runde holt bis zu 100 (neueste zuerst, "--order desc
-        # --sort created_at"), behaelt darin immer die 2 allerneuesten (die
-        # sortieren wegen der festen Reihenfolge in JEDER Runde ganz vorne,
-        # solange waehrend des Laufs keine neueren Eintraege dazukommen -
-        # unkritisch, da neue Saves erst beim naechsten Workflow-Lauf
-        # entstehen), loescht den Rest der Runde. Endet, sobald eine Runde
-        # nach dem Filtern <=2 Treffer liefert (nichts mehr zu loeschen) oder
-        # eine Sicherheitsobergrenze von 20 Runden erreicht ist (schuetzt vor
-        # einer Endlosschleife, falls "gh cache delete" fuer eine ID dauerhaft
-        # fehlschlaegt, ohne die ID aus der Liste verschwinden zu lassen).
-        # Einzelne Loesch-Fehlschlaege werden ignoriert (bestes Bemuehen, kein
-        # Abbruch des Laufs wegen reiner Aufraeum-Nebensache).
-        if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.sqlite3') != '' && steps.commit.outcome == 'success'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set +e
-          _runde=0
-          while [ "$_runde" -lt 20 ]; do
-            _runde=$((_runde + 1))
-            _treffer=$(gh cache list --key "netshield-seen-db-sqlite-v1-" --limit 100 \
-                --order desc --sort created_at \
-                --json id,key,createdAt --jq '.[] | select(.key | test("^netshield-seen-db-sqlite-v1-[0-9]+$"))' \
-              | jq -s -c 'sort_by(.createdAt) | reverse')
-            _anzahl=$(echo "$_treffer" | jq 'length')
-            if [ "$_anzahl" -le 2 ]; then
-              echo "Runde ${_runde}: nur noch ${_anzahl} Treffer (<=2, die 2 Neuesten) - fertig."
-              break
-            fi
-            echo "Runde ${_runde}: ${_anzahl} Treffer, loesche $((_anzahl - 2)) davon (2 Neueste bleiben)..."
-            echo "$_treffer" | jq -r '.[2:] | .[].id' | while read -r _id; do
-              gh cache delete "$_id" >/dev/null 2>&1 \
-                && echo "  geloescht: Cache-ID $_id" \
-                || echo "  WARN: Cache-ID $_id konnte nicht geloescht werden (ignoriert)"
-            done
-          done
-          echo "seen_db-SQLite-Cache-Aufraeumung abgeschlossen (${_runde} Runde(n))."
-          exit 0
-
-      - name: Clean up obsolete generation releases
-        if: steps.commit.outcome == 'success'
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: PYTHONPATH=scripts python3 scripts/netshield_release_state.py cleanup
-
-      - name: Trigger Report Generator
-        if: steps.commit.outcome == 'success'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh workflow run netshield_report_generator.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME"
-
+      # FIX JOB-STEP-TIMING-2026-08-14: Die Phasen-Tabelle oben deckt nur den
+      # einen grossen Python-Step ab ("Fetch, discover, learn and build IPv4
+      # lists"). Die umliegenden Steps (Checkout, Cache Restore/Save, Backup,
+      # Commit&Push, Reputation-Feed-Fetch) haben zwar automatisch eigene
+      # Zeitstempel im Actions-Log, aber nirgends an einer Stelle gesammelt -
+      # bisher musste man dafuer durch mehrere einzelne Step-Logs manuell
+      # blaettern. Dieser Step fragt die GitHub-API nach Abschluss aller
+      # vorherigen Steps ab und druckt eine kompakte Uebersicht alter Steps
+      # dieses Jobs in EINER Stelle.
+      #
+      # if: always() - soll auch bei einem fehlgeschlagenen Lauf noch die
+      # Zeiten der bis dahin gelaufenen Steps zeigen (Debugging-Hilfe genau
+      # dann am wichtigsten, wenn etwas schiefging).
+      #
+      # continue-on-error: true - reine Diagnose-Ausgabe, darf den Job
+      # niemals zum Scheitern bringen (z.B. falls die API kurzzeitig nicht
+      # erreichbar ist oder sich das jobs-JSON-Schema mal aendert).
+      #
+      # WICHTIG (ehrlich dokumentiert): Diese gh/jq-Kombination wurde nur
+      # lokal auf Syntax geprueft (bash -n, jq-Filter gegen ein von Hand
+      # nachgebautes Beispiel-JSON) - nicht live gegen die echte GitHub-API
+      # verifiziert, weil dieses Environment keinen echten Actions-Runner-
+      # Kontext hat. Erster echter Lauf zeigt, ob das jobs-JSON-Schema exakt
+      # so aussieht wie angenommen.
       - name: Step-Zeitübersicht (gesamter Job)
         if: always()
         continue-on-error: true
