@@ -80,9 +80,7 @@ class ProjectAuditTests(unittest.TestCase):
             with self.subTest(workflow=workflow, step=name):
                 sequence = steps(workflow)
                 step = next(step for step in sequence if step.get('name') == name)
-                step_ids = {step.get('id') for step in sequence}
-                missing = set(required) - step_ids
-                self.assertEqual(missing, set())
+                self.assertTrue(set(required) <= {step.get('id') for step in sequence})
                 ok = dict.fromkeys(required, 'success')
                 self.assertTrue(eligible(step['if'], ok))
                 for dependency in required:
