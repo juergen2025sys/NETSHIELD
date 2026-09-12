@@ -3196,6 +3196,29 @@ jobs:
           _UPD_COMMIT_EVERY = 50_000
           _upd_since_commit = 0
 
+          # Bestaetigte Wartelisteneintraege erst entfernen, wenn der RESTAURIERTE
+          # Datenbankstand alle Feed-Nachweise enthaelt. Vor dem Ingest pruefen:
+          # dessen lokale Aenderungen sind noch nicht dauerhaft veroeffentlicht.
+          # Nur Eintraege mit bereits bestaetigten 2+ Feeds brauchen SQL-Zugriffe.
+          _aufn_erledigt = []
+          for _aufn_ip, _aufn_feeds in _aufnahme_wartend.items():
+              if not isinstance(_aufn_feeds, dict) or len(_aufn_feeds) < 2:
+                  continue
+              _aufn_row = db._conn.execute(
+                  "SELECT feeds FROM seen_db WHERE ip = ?", (_aufn_ip,)).fetchone()
+              if _aufn_row:
+                  try:
+                      _aufn_gespeichert = json.loads(_aufn_row[0])
+                  except (TypeError, ValueError):
+                      continue
+                  if (isinstance(_aufn_gespeichert, list)
+                          and all(_f in _aufn_gespeichert for _f in _aufn_feeds)):
+                      _aufn_erledigt.append(_aufn_ip)
+          for _aufn_ip in _aufn_erledigt:
+              del _aufnahme_wartend[_aufn_ip]
+              _aufnahme_wartend_dirty = True
+          del _aufn_erledigt
+
           # Tageswerte nur fuer IPs ohne verwertbare Treffer zuruecksetzen.
           # Die anderen Zeilen ueberschreibt der Ingest ohnehin. NOT EXISTS
           # nutzt den (ip, feed)-Index; kein zusaetzlicher Python-Vollscan.
@@ -3944,12 +3967,18 @@ jobs:
                           # zusammen 2+ Feeds, also echte Kreuzbestaetigung,
                           # auch wenn nicht am selben Tag.
                           _wartend_eintrag = _aufnahme_wartend.get(ip, {})
+                          # 2+ gespeicherte Feeds sind eine bereits erfolgte
+                          # Kreuzbestaetigung, deren Datenbank-Upload noch nicht
+                          # quittiert ist. Ihr Nachweis darf beim Wiederanlauf
+                          # nicht an der 7-Tage-Grenze verloren gehen.
+                          _aufn_schon_bestaetigt = len(_wartend_eintrag) >= 2
                           for _f in feeds:
                               _wartend_eintrag[_f] = now_day
-                          _wartend_eintrag = {
-                              _f: _d for _f, _d in _wartend_eintrag.items()
-                              if _d >= _cutoff_wartend
-                          }
+                          if not _aufn_schon_bestaetigt:
+                              _wartend_eintrag = {
+                                  _f: _d for _f, _d in _wartend_eintrag.items()
+                                  if _d >= _cutoff_wartend
+                              }
                           if len(_wartend_eintrag) >= 2:
                               # Kreuzbestaetigt! IP bleibt drin, mit dem vollen
                               # bekannten Feed-Verlauf (nicht nur den heutigen).
@@ -3958,9 +3987,11 @@ jobs:
                               _aufn_feed_updates.append((
                                   json.dumps(sorted(_wartend_eintrag)), ip))
                               aufnahme_cross_bestaetigt += 1
-                              if ip in _aufnahme_wartend:
-                                  del _aufnahme_wartend[ip]
-                                  _aufnahme_wartend_dirty = True
+                              # Als Wiederanlauf-Nachweis mit hochladen. Ein
+                              # spaeterer Ledger-/Datenbankfehler darf die einzige
+                              # dauerhafte Kopie dieser Bestaetigung nicht loeschen.
+                              _aufnahme_wartend[ip] = _wartend_eintrag
+                              _aufnahme_wartend_dirty = True
                           else:
                               if _wartend_eintrag:
                                   _aufnahme_wartend[ip] = _wartend_eintrag
@@ -4113,6 +4144,13 @@ jobs:
           db._conn.executemany(
               "UPDATE seen_db SET feeds = ? WHERE ip = ?", _aufn_feed_updates)
           db.bulk_delete(_to_drop)
+          # Regulaer abgelaufene IPs brauchen keinen Wiederanlauf-Nachweis.
+          # Die bestehende Ablaufentscheidung bleibt auch fuer Bestaetigungen
+          # gueltig, deren Datenbankstand zuvor noch nicht gesichert war.
+          for _aufn_ip in expired:
+              if len(_aufnahme_wartend.get(_aufn_ip, {})) >= 2:
+                  del _aufnahme_wartend[_aufn_ip]
+                  _aufnahme_wartend_dirty = True
           del _aufn_feed_updates
           _phase_mark("Cleanup-Pass (WL/FP/Protected/Expiry)")
 
@@ -4471,7 +4509,8 @@ jobs:
               _aufn_cutoff_final = (now - timedelta(days=AUFNAHME_WARTEN_TAGE)).strftime("%Y-%m-%d")
               _aufn_before = len(_aufnahme_wartend)
               _aufnahme_wartend = {
-                  _ip: {_f: _d for _f, _d in _feeds.items() if _d >= _aufn_cutoff_final}
+                  _ip: (_feeds if len(_feeds) >= 2 else {
+                      _f: _d for _f, _d in _feeds.items() if _d >= _aufn_cutoff_final})
                   for _ip, _feeds in _aufnahme_wartend.items()
               }
               _aufnahme_wartend = {_ip: _feeds for _ip, _feeds in _aufnahme_wartend.items() if _feeds}
@@ -4485,9 +4524,13 @@ jobs:
                   _aufn_vor_cap = len(_aufnahme_wartend)
                   _sortiert = sorted(
                       _aufnahme_wartend.items(),
-                      key=lambda kv: max(kv[1].values()),  # juengstes Feed-Datum dieser IP
+                      # Unquittierte Bestaetigungen vor einfachen Meldungen.
+                      key=lambda kv: (len(kv[1]) >= 2, max(kv[1].values())),
                       reverse=True,
                   )
+                  if len(_sortiert[AUFNAHME_WARTEN_SICHERHEITSGRENZE][1]) >= 2:
+                      raise RuntimeError("Wartelisten-Sicherheitsgrenze wuerde "
+                                         "ungesicherte Bestaetigungen verwerfen")
                   _aufnahme_wartend = dict(_sortiert[:AUFNAHME_WARTEN_SICHERHEITSGRENZE])
                   print(f"aufnahme_warteliste: Sicherheitsgrenze erreicht ({_aufn_vor_cap:,} > "
                         f"{AUFNAHME_WARTEN_SICHERHEITSGRENZE:,}) - "
