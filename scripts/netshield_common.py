@@ -3042,7 +3042,7 @@ def write_ip_list(filepath, ips, header_lines=None, presorted=False):
         dir=target_dir,
     )
     try:
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
             if header_lines:
                 for line in header_lines:
                     f.write(f"# {line}\n")
@@ -3607,7 +3607,7 @@ class SqliteSeenDB(_MutableMapping):
         fd, tmp_path = _tempfile.mkstemp(
             prefix=f".{os.path.basename(filepath)}.", suffix=".tmp", dir=target_dir)
         try:
-            with os.fdopen(fd, "w", encoding="utf-8") as f:
+            with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
                 f.write("{")
                 cur = self._conn.execute(
                     "SELECT " + ", ".join(self._COLUMNS) + " FROM seen_db")
@@ -3686,7 +3686,7 @@ def write_json_atomic(filepath, data, **dump_kwargs):
         dir=target_dir,
     )
     try:
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
             json.dump(data, f, **dump_kwargs)
             f.flush()
             os.fsync(f.fileno())
@@ -3726,7 +3726,7 @@ def write_text_atomic(filepath, content):
         dir=target_dir,
     )
     try:
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
             f.write(content)
             f.flush()
             os.fsync(f.fileno())
@@ -3892,3 +3892,29 @@ def validate_auto_feeds(auto_data):
             _file = ""
         accepted.append({"name": name, "url": url, "file": _file})
     return accepted, rejected
+
+
+def canonical_host_entries(entries):
+    """Deduplicate IPv4 hosts and /32 without expanding wider networks."""
+    result = set()
+    for entry in entries:
+        host = str(entry).strip()
+        if host.endswith('/32'):
+            host = host[:-3]
+        if is_valid_public_ipv4(host):
+            result.add(host)
+    return result
+
+
+def generation_now():
+    """One scoring instant for Combined and Confidence in the same job."""
+    import os
+    from datetime import datetime, timezone
+    value = os.environ.get('NETSHIELD_GENERATION_EPOCH')
+    if value is None:
+        return datetime.now(timezone.utc)
+    instant = datetime.fromtimestamp(int(value), timezone.utc)
+    age = (datetime.now(timezone.utc) - instant).total_seconds()
+    if not 0 <= age <= 6 * 3600:
+        raise ValueError('Generation timestamp is stale or in the future')
+    return instant
