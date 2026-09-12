@@ -323,6 +323,41 @@ jobs:
           # Sichtbare Kompatibilitaetsliste. Combined liest diese Datei NICHT mehr als Feed,
           # damit 5 Auto-Feeds auch weiterhin als 5 Feed-Treffer zaehlen.
           ro = sqlite3.connect(f"file:{SNAPSHOT}?mode=ro", uri=True)
+
+          # FIX AFD-LEX-SORT (2026-09-12): "ORDER BY entry" sortiert eine
+          # TEXT-Spalte lexikographisch - die Datei begann dadurch mit
+          # 1.0.0.0 / 1.0.0.104 / 1.0.0.19 / 1.0.0.2 und war die einzige
+          # IP-Liste im Repo, die nicht der Hausordnung aus sort_ips()
+          # (netshield_common.py) folgte ("1.2.3.4 vor 10.0.0.1").
+          # Ein Materialisieren in Python + sort_ips() scheidet aus: die
+          # Liste hat ~2,9 Mio. Eintraege, die Tupel-Keys von sort_ips()
+          # wuerden den RAM-Vorteil des Streamings zunichtemachen. Statt
+          # dessen rechnet SQLite den Sortierschluessel selbst - die
+          # Sortierung bleibt disk-backed im SQLite-Temp-Store.
+          # Schluessel-Semantik identisch zu sort_ips(): gueltige IPv4
+          # numerisch aufsteigend, ungueltige/korrupte Eintraege ans Ende
+          # (dort lexikographisch untereinander via Sekundaerschluessel).
+          def _ip_order_key(_entry):
+              try:
+                  _parts = _entry.split("/")[0].split(".")
+                  if len(_parts) != 4:
+                      return 1 << 33
+                  _vals = [int(_p) for _p in _parts]
+                  if any(_v < 0 or _v > 255 for _v in _vals):
+                      return 1 << 33
+                  return ((_vals[0] << 24) | (_vals[1] << 16)
+                          | (_vals[2] << 8) | _vals[3])
+              except (ValueError, AttributeError, TypeError):
+                  return 1 << 33
+
+          try:
+              ro.create_function("ip_order_key", 1, _ip_order_key,
+                                 deterministic=True)
+          except TypeError:
+              # deterministic= gibt es erst ab SQLite 3.8.3; fuer ORDER BY
+              # ist das Flag ohnehin nur eine Optimierung.
+              ro.create_function("ip_order_key", 1, _ip_order_key)
+
           _out_dir = os.path.dirname(OUT_FILE) or "."
           with tempfile.NamedTemporaryFile("w", encoding="utf-8", newline="\n",
                                            dir=_out_dir, prefix=".auto_feed_",
@@ -332,7 +367,9 @@ jobs:
               out.write(f"# Aktualisiert: {now_berlin.strftime('%Y-%m-%d %H:%M %Z')} (Europe/Berlin)\n")
               out.write(f"# Eindeutige Eintraege: {unique_count} | Feed-Treffer: {hit_count} | Quellen: {active_feed_count}\n")
               out.write("# HINWEIS: Combined nutzt state/auto_feed_daily.sqlite3 aus separatem Actions Cache, nicht diese aggregierte Datei.\n\n")
-              for (entry,) in ro.execute("SELECT DISTINCT entry FROM hits ORDER BY entry"):
+              for (entry,) in ro.execute(
+                      "SELECT DISTINCT entry FROM hits "
+                      "ORDER BY ip_order_key(entry), entry"):
                   out.write(entry + "\n")
               out.flush()
               os.fsync(out.fileno())

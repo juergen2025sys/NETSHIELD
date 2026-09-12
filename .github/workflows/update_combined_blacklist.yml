@@ -530,6 +530,17 @@ jobs:
           # pip-Install-Nebeneffekt ist hier unkritisch.
           pip install --quiet --disable-pip-version-check --break-system-packages ijson==3.5.1 2>/dev/null \
             || pip install --quiet --disable-pip-version-check ijson==3.5.1
+          # FIX IJSON-LATE-FAIL (2026-09-12): Schlagen BEIDE pip-Aufrufe fehl
+          # (PyPI-Ausfall, Netzsperre), lief der Job bisher trotzdem weiter -
+          # samt vollstaendigem Feed-Download - und brach erst beim
+          # seen_db-Import mit "FAIL-CLOSED: keine gueltige bestehende seen_db
+          # verfuegbar" ab. Das Fail-Closed-Verhalten ist richtig, der
+          # Zeitpunkt war es nicht: bis dahin sind Minuten Laufzeit und
+          # Dutzende Feed-Requests verbraucht. Import hier sofort pruefen.
+          python3 -c 'import ijson' || {
+            echo "::error file=update_combined_blacklist.yml::ijson konnte nicht installiert werden - Combined bricht sofort ab, statt nach dem Feed-Download in den seen_db-FAIL-CLOSED zu laufen."
+            exit 1
+          }
           # FIX SEC-XML-BILLION-LAUGHS (2026-08-25): defusedxml wird von
           # parse_feed_entries() in netshield_common.py bevorzugt verwendet,
           # um extern abgerufene Feed-Inhalte sicher zu parsen (Schutz vor
@@ -3552,7 +3563,18 @@ jobs:
           # laengsten ueberfaelligen (aeltestes "first" zuerst).
           WATCHLIST_DAILY_CAP = 2000
           WATCHLIST_CAP_STATE_FILE = "state/watchlist_daily_cap_state.json"
-          _wl_cap_day = now.astimezone(ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d")
+          # FIX WL-CAP-TZ-DRIFT (2026-09-12): _wl_cap_day lief auf Europe/Berlin,
+          # waehrend now_day (Zeile ~369: now.strftime) und damit JEDER
+          # Ledger-Stempel ("eingefroren_am"), "first" und "last" auf UTC laufen.
+          # Die Tagesgrenze des Deckels lag dadurch bei 22:00 UTC (Sommer) bzw.
+          # 23:00 UTC (Winter), die Buchung aber bei 00:00 UTC. Bei den aktuellen
+          # Crons (7,27,47 */3, also 00:07-21:47 UTC) fallen beide Tage zufaellig
+          # zusammen - der Fehler war latent. Ein workflow_dispatch oder
+          # Watchdog-Trigger zwischen 22:00 und 24:00 UTC haette den Deckel
+          # jedoch vorzeitig zurueckgesetzt: bis zu 2 x WATCHLIST_DAILY_CAP
+          # Entfernungen auf EINEM UTC-Tag, alle mit identischem
+          # "eingefroren_am". Jetzt dieselbe Zeitbasis wie now_day.
+          _wl_cap_day = now.strftime("%Y-%m-%d")
           _wl_cap_heute_bereits_gelaufen = False
           try:
               if os.path.exists(WATCHLIST_CAP_STATE_FILE):
@@ -4656,16 +4678,42 @@ jobs:
           # unten ueberwacht; die Retention-Entscheidung ist bewusst manuell.
           if True:
               num_parts = 2
-              chunk_size = (len(sorted_ips) + num_parts - 1) // num_parts
+              # FIX PART-BYTE-SPLIT (2026-09-12): Der Split lief nach
+              # EINTRAGSANZAHL ((len+n-1)//n). Weil sorted_ips numerisch
+              # sortiert ist, landen die langen IP-Strings ("223.255.252.255")
+              # systematisch in Part 2 und die kurzen ("1.0.0.0") in Part 1.
+              # Gemessen am Stand 2026-09-11: beide Parts exakt 5.503.663
+              # Eintraege, aber 72,5 MB vs. 77,0 MB. Da das GitHub-Push-Limit
+              # PRO DATEI gilt (100 MiB) und es laut POLICY-CEILING unten
+              # KEIN automatisches Ueberlaufventil (Part 3) gibt, reisst
+              # Part 2 die Grenze rund 4,5 MB frueher als noetig.
+              # Jetzt: Grenzen so legen, dass die BYTE-Menge gleichmaessig
+              # faellt. Ein einzelner O(n)-Lauf ueber die bereits
+              # materialisierte Liste, kein zusaetzlicher Speicher ausser
+              # den num_parts-1 Schnittindizes.
+              _line_bytes_total = 0
+              for _ip in sorted_ips:
+                  _line_bytes_total += len(_ip) + 1
+              _byte_target = _line_bytes_total / num_parts if num_parts else 0
+              _cut_points = []
+              _acc = 0
+              _next_cut = 1
+              for _i, _ip in enumerate(sorted_ips):
+                  _acc += len(_ip) + 1
+                  if _next_cut < num_parts and _acc >= _byte_target * _next_cut:
+                      _cut_points.append(_i + 1)
+                      _next_cut += 1
+              _bounds = [0] + _cut_points + [len(sorted_ips)]
 
-              print(f"  -> Split aktiv: {num_parts} Parts a ~{PART_TARGET_MB} MB "
-                    f"({chunk_size:,} IPs/Part)")
+              print(f"  -> Split aktiv: {num_parts} Parts, bytebalanciert "
+                    f"(~{_byte_target / 1024 / 1024:.1f} MB/Part aus "
+                    f"{_line_bytes_total / 1024 / 1024:.1f} MB gesamt)")
 
               new_parts = []
               for idx in range(num_parts):
-                  start = idx * chunk_size
-                  end   = min(start + chunk_size, len(sorted_ips))
-                  if start >= len(sorted_ips):
+                  start = _bounds[idx]
+                  end   = _bounds[idx + 1]
+                  if start >= len(sorted_ips) or end <= start:
                       break
                   part_name = f"combined_threat_blacklist_ipv4_part{idx+1}.txt"
                   write_ip_list(

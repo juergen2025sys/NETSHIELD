@@ -445,10 +445,14 @@ jobs:
           # ── 1) all_countries_ipv4.txt ────────────────────────────────────
           # FIX ATOMIC: write_ip_list statt open("w") – bei Runner-Kill
           # bleibt die Datei komplett alt oder komplett neu.
-          header_lines = []
-          if _partial_load:
-              header_lines.append(f"WARNUNG: Teildaten – Elapsed-Time Guard bei {len(country_data)}/{len(countries)} Ländern ausgelöst")
-          write_ip_list("all_countries_ipv4.txt", all_ips, header_lines=header_lines or None)
+          # FIX DEAD-BRANCH (2026-09-12): Hier stand ein "if _partial_load:"-Zweig,
+          # der eine Teildaten-Warnung in den Header geschrieben haette. Er war
+          # unerreichbar: der Guard weiter oben (RuntimeError bei "errors or
+          # _partial_load or len(country_data) != len(COUNTRY_MAP)") bricht bei
+          # _partial_load bereits ab, bevor irgendeine Datei geschrieben wird.
+          # Teildaten koennen diese Stelle also nicht erreichen. Entfernt, damit
+          # niemand den Guard fuer abschaltbar haelt.
+          write_ip_list("all_countries_ipv4.txt", all_ips)
           print(f"\nall_countries_ipv4.txt: {len(all_ips)} entries")
 
           # ── 2) continents/*.txt ──────────────────────────────────────────

@@ -518,7 +518,11 @@ jobs:
           update_bot_detector.yml|0|0|0|1560|"
 
           now_epoch=$(date -u +%s)
-          gesamt_getriggert=0
+          # FIX DEAD-COUNTER (2026-09-12): "gesamt_getriggert=0" stand hier,
+          # wurde aber nie inkrementiert und nie gelesen (ShellCheck SC2034).
+          # Ein Inkrement waere ohnehin wirkungslos gewesen: die ZIELE-Schleife
+          # laeuft hinter einer Pipe in einer Subshell, Zuweisungen darin gehen
+          # beim Verlassen verloren. Entfernt statt scheinbar zu reparieren.
 
           echo "$ZIELE" | while IFS='|' read -r wf takt offset grace maxage extra; do
             wf=$(echo "$wf" | xargs)
