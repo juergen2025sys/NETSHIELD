@@ -68,9 +68,27 @@ class ProjectAuditTests(unittest.TestCase):
         self.assertEqual(set(rows[0] + rows[1]), set(ips))
         self.assertFalse(Path('blacklist_confidence40_ipv4_part3.txt').exists())
 
+    def test_small_watchlist_guard_removes_false_positives_and_promoted_hosts(self):
+        ips = helpers.public_ips(1201)
+        now = datetime.now(timezone.utc)
+        day = now.strftime('%Y-%m-%d')
+        entry = {'first': day, 'last': day, 'hq': True, 'feeds': ['a', 'b'],
+                 'today_count': 2, 'days_seen': 14}
+        Path('seen_db.json').write_text(json.dumps({ip: entry for ip in ips}))
+        Path('combined_threat_blacklist_ipv4.txt').write_text('\n'.join(ips))
+        Path('state/seen_db_meta.json').write_text(json.dumps({'updated_utc_iso': now.isoformat()}))
+        Path('watchlist_confidence25to39_ipv4.txt').write_text('\n'.join(ips[:20] + [ips[-1] + '/32']))
+        self.case.fp([ips[-1]])
+        result = self.case.run_code('update_confidence_blacklist.yml', 'combined_ips = set()', {'NETSHIELD_SQLITE_TEST': '0'})
+        self.case.assert_run_ok(result)
+        self.assertEqual(self.case.rows('watchlist_confidence25to39_ipv4.txt'), set())
+        confidence = self.case.rows('blacklist_confidence40_ipv4_part1.txt') | self.case.rows('blacklist_confidence40_ipv4_part2.txt')
+        self.assertEqual(confidence, set(ips[:-1]))
+
     def test_publications_require_build_and_validation_success(self):
         cases = [
-            ('update_confidence_blacklist.yml', 'Commit', ['build_confidence']),
+            # Confidence publishes inside Combined; the manual workflow only
+            # requests that full generation (tested in test_generation_publication).
             ('update-blocklist.yml', 'Commit and Push', ['build_countries']),
             ('auto_feed_refresh.yml', 'Save Auto-Feed Snapshot Cache', ['refresh', 'validate_snapshot']),
             ('auto_feed_refresh.yml', 'Alte Auto-Feed Snapshot Caches aufraeumen', ['refresh', 'validate_snapshot']),
@@ -80,9 +98,7 @@ class ProjectAuditTests(unittest.TestCase):
             with self.subTest(workflow=workflow, step=name):
                 sequence = steps(workflow)
                 step = next(step for step in sequence if step.get('name') == name)
-                step_ids = {step.get('id') for step in sequence}
-                missing = set(required) - step_ids
-                self.assertEqual(missing, set())
+                self.assertTrue(set(required) <= {step.get('id') for step in sequence})
                 ok = dict.fromkeys(required, 'success')
                 self.assertTrue(eligible(step['if'], ok))
                 for dependency in required:

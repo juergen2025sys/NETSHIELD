@@ -659,12 +659,14 @@ class TestSortAndWrite(unittest.TestCase):
 class TestWhitelistLoading(unittest.TestCase):
 
     def setUp(self):
+        self.original_cwd = os.getcwd()
         self.tmpdir = tempfile.mkdtemp()
         self.wl_path = os.path.join(self.tmpdir, "whitelist.json")
         self.fp_path = os.path.join(self.tmpdir, "fp_set.json")
 
     def tearDown(self):
         import shutil
+        os.chdir(self.original_cwd)
         shutil.rmtree(self.tmpdir)
 
     def test_load_whitelist(self):
@@ -997,6 +999,7 @@ class TestWriteIpListAtomic(unittest.TestCase):
         pos_5 = content.index("5.6.7.8")
         self.assertLess(pos_1, pos_5)
 
+    @unittest.skipUnless(os.name != "nt", "SIGKILL return codes are Unix-specific")
     def test_sigkill_before_replace_keeps_original_intact(self):
         """Realistischerer Crash-Test: SIGKILL genau vor os.replace().
 
@@ -2129,8 +2132,8 @@ class TestSqliteSeenDBMigrationRegression(unittest.TestCase):
         td = tempfile.TemporaryDirectory()
         path = os.path.join(td.name, "seen.sqlite3")
         db = netshield_common.SqliteSeenDB(path)
-        self.addCleanup(db.close)
         self.addCleanup(td.cleanup)
+        self.addCleanup(db.close)
         return db
 
     def test_select_aufnahme_kandidaten_liefert_hq_mit(self):
@@ -2323,7 +2326,7 @@ class TestFinalWorkflowGuardsSep01(unittest.TestCase):
 
     def test_combined_meta_counts_sqlite_without_loading_huge_json(self):
         text = self._repo_file('.github', 'workflows', 'update_combined_blacklist.yml').read_text(encoding='utf-8')
-        commit = text[text.index('- name: Commit and Push'):text.index('- name: Trigger Confidence Blacklist')]
+        commit = text[text.index('- name: Refresh metadata and promote pending ledgers'):text.index('- name: Build Confidence and Watchlist in the same generation')]
         self.assertIn('SELECT COUNT(*) FROM seen_db', commit)
         self.assertIn('if os.path.exists("seen_db.sqlite3")', commit)
         self.assertNotIn('db = json.load(f)', commit)

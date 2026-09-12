@@ -44,7 +44,7 @@ class TestReleaseRegressions(unittest.TestCase):
             "auto_feed_refresh.yml": ["steps.refresh.outcome == 'success'"],
             "update_combined_blacklist.yml": [
                 "steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.json') != ''",
-                "steps.build_combined.outcome == 'success' && hashFiles('state/watchlist_daily_cap_state.json') != ''",
+                "steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('state/watchlist_daily_cap_state.json') != ''",
                 "steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.sqlite3') != ''",
             ],
         }

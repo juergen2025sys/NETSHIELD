@@ -26,6 +26,8 @@ from check_release_lists import check_file, main as release_gate
 
 
 def workflow_blocks(name):
+    if name == "update_confidence_blacklist.yml":
+        return [(ROOT / "scripts/build_confidence.py").read_text(encoding="utf-8")]
     lines = (ROOT / ".github/workflows" / name).read_text().splitlines()
     result = []
     i = 0
@@ -251,7 +253,7 @@ class AuditFixTests(unittest.TestCase):
     def test_all_combined_publications_require_success_and_explicit_approval(self):
         import yaml
         doc = yaml.safe_load((ROOT / ".github/workflows/update_combined_blacklist.yml").read_text())
-        names = {"Commit and Push", "Save seen_db JSON Compatibility Cache", "Save seen_db SQLite Cache", "Backup seen_db SQLite to GitHub Release", "Aufnahme-Warteliste zu Release sichern (komprimiert)", "Anti-Churn-Ledger zu Release sichern (komprimiert)"}
+        names = {"Commit and Push", "Save seen_db JSON Compatibility Cache", "Save seen_db SQLite Cache", "Prepare and verify immutable state generation"}
         checked = set()
         for step in doc["jobs"]["update"]["steps"]:
             if step.get("name") not in names:
@@ -272,10 +274,10 @@ class AuditFixTests(unittest.TestCase):
         self.assertNotIn("all_countries", output.getvalue())
 
     def test_fetch_retries_survive_bash_errexit(self):
-        text = (ROOT / ".github/workflows/update_combined_blacklist.yml").read_text()
-        start = text.index('              if ! git fetch origin "${GITHUB_REF_NAME}"; then', text.index('- name: Commit and Push'))
-        end = text.index('\n              fi', start) + len('\n              fi')
-        block = "\n".join(line[14:] for line in text[start:end].splitlines())
+        text = (ROOT / "scripts/publish_generation.sh").read_text()
+        start = text.index('  if ! git fetch origin "${GITHUB_REF_NAME}"; then')
+        end = text.index('\n  fi', start) + len('\n  fi')
+        block = "\n".join(line[2:] for line in text[start:end].splitlines())
         for failures, expected_status, calls in ((1, 0, 2), (9, 1, 5)):
             script = f'''count=0
 git() {{ count=$((count+1)); echo "fetch:$count"; [ "$count" -gt {failures} ]; }}

@@ -159,9 +159,7 @@ class TestShrinkGuardFailClosed(unittest.TestCase):
         publizierend = [
             "Save seen_db JSON Compatibility Cache",
             "Save seen_db SQLite Cache",
-            "Backup seen_db SQLite to GitHub Release",
-            "Aufnahme-Warteliste zu Release sichern (komprimiert)",
-            "Anti-Churn-Ledger zu Release sichern (komprimiert)",
+            "Prepare and verify immutable state generation",
             "Commit and Push",
         ]
         gefunden = set()
