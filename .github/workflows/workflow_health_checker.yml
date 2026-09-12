@@ -44,11 +44,20 @@ jobs:
         # vorinstalliert.
         run: pip install --break-system-packages -q pyflakes==3.4.0
 
+      - name: Regressionstests (nur Warnungen)
+        id: regression_tests
+        continue-on-error: true
+        run: |
+          python3 -m pip install --quiet --disable-pip-version-check --break-system-packages defusedxml==0.7.1 ijson==3.5.1 PyYAML==6.0.2 \
+            || echo "::warning::Test-Abhaengigkeiten konnten nicht vollstaendig installiert werden."
+          python3 scripts/check_health_regressions.py
+
       - name: Check Python Code in all Workflow Files
         env:
           # FIX #10: Workflow-Dateiname aus github-Kontext ableiten statt hartcodiert.
           # Verhindert stilles Fehlverhalten bei Umbenennung der Datei.
           WORKFLOW_SELF: ${{ github.workflow_ref }}
+          REGRESSION_STEP_OUTCOME: ${{ steps.regression_tests.outcome }}
         run: |
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -89,6 +98,26 @@ jobs:
           errors   = []
           warnings = []
           results  = {}
+
+          # Tests dieses Checkouts auswerten; neue Befunde bleiben ausschliesslich
+          # Warnungen. Auch ein fehlendes/abgebrochenes Ergebnis ist kein Gruen-Nachweis.
+          _regression_sha = os.environ.get("GITHUB_SHA", "local")
+          try:
+              from check_health_regressions import read_summary as _read_regression_summary
+              _regression_health = _read_regression_summary(
+                  "health_regressions.json", _regression_sha,
+                  os.environ.get("REGRESSION_STEP_OUTCOME", "unknown"))
+          except Exception as _regression_error:
+              _regression_health = {
+                  "status": "warning", "sha": _regression_sha, "tests_run": 0,
+                  "detail": f"Regressionstests nicht auswertbar: {_regression_error}",
+              }
+          if _regression_health["status"] != "passed":
+              warnings.append({"file": "Regressionstests", "check": "Bekannte Logikfehler / Testsuite",
+                               "detail": _regression_health["detail"]})
+              _regression_annotation = _regression_health["detail"].replace(
+                  "%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+              print(f"::warning title=Regressionstests::{_regression_annotation}")
 
           # ── Check 1: Cron-Kollisionen & doppelte Namen ────────────────────
           # Cron-Regex matcht nur echte Cron-Expressions (Ziffern, *, /, ,)
@@ -3136,6 +3165,13 @@ jobs:
                        f"⚠️ {warn_count} Warnung | ❌ {err_count} Fehler\n")
           lines.append("---")
 
+          lines.append("## Regressionstests\n")
+          _regression_icon = "✅" if _regression_health["status"] == "passed" else "⚠️"
+          lines.append(f"{_regression_icon} Commit: `{_regression_sha}`\n")
+          lines.append(_regression_health["detail"] + "\n")
+          lines.append("Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; "
+                       "sie garantiert keine vollstaendige Fehlerfreiheit.\n")
+
           if errors:
               lines.append("## ❌ Fehler (kritisch)\n")
               lines.append("| Datei | Check | Detail |")
@@ -3196,6 +3232,7 @@ jobs:
                   "error":             err_count,
                   "errors":            errors,
                   "warnings":          warnings,
+                  "regression_tests":  _regression_health,
                   "ip_counts":         _current_ip_counts,
                   "production_health": {
                       "critical": len(_ph_critical),
