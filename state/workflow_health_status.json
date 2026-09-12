@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-12 18:17 CEST (Europe/Berlin)",
+  "updated": "2026-09-12 22:49 CEST (Europe/Berlin)",
   "total": 30,
   "ok": 29,
   "warn": 1,
@@ -12,13 +12,26 @@
       "detail": "Block 0: Doppelte Imports: ((2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
     }
   ],
+  "regression_tests": {
+    "schema": 1,
+    "sha": "7e38ab62ca9809a7ab6bda4ca96392ac51450151",
+    "status": "passed",
+    "tests_run": 425,
+    "failures": [],
+    "errors": [],
+    "skipped": [],
+    "unexpected_successes": [],
+    "missing_required": [],
+    "required_not_passed": [],
+    "detail": "425 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
+  },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5689679,
-    "active_blacklist_ipv4.txt": 919502,
-    "blacklist_confidence40_ipv4_part1.txt": 4084172,
-    "cve_exploit_ips.txt": 27938,
-    "honeypot_ips.txt": 2178296,
-    "bot_detector_blacklist_ipv4.txt": 1273533
+    "combined_threat_blacklist_ipv4_part1.txt": 5693815,
+    "active_blacklist_ipv4.txt": 924286,
+    "blacklist_confidence40_ipv4_part1.txt": 4086085,
+    "cve_exploit_ips.txt": 27953,
+    "honeypot_ips.txt": 2188112,
+    "bot_detector_blacklist_ipv4.txt": 1273406
   },
   "production_health": {
     "critical": 0,
