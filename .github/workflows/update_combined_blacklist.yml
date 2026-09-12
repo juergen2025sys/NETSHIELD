@@ -326,19 +326,26 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
           mkdir -p state
-          if [ ! -f state/aufnahme_warteliste.json.gz ] && ! ls state/aufnahme_warteliste.json.gz.part* >/dev/null 2>&1; then
-            if gh release download aufnahme-warteliste-backup \
-                --repo "${{ github.repository }}" \
-                --pattern "aufnahme_warteliste.json.gz.part*" \
-                --dir state/ 2>/dev/null; then
-              COUNT=$(ls state/aufnahme_warteliste.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
-              echo "Aufnahme-Warteliste-Backup von Release geladen: ${COUNT} Part(s)"
-            else
-              echo "Kein Warteliste-Release gefunden (erster Lauf mit diesem Mechanismus, oder noch nie beschrieben) – starte mit leerer Warteliste"
+          _repo="${GITHUB_REPOSITORY}"
+          _tag="aufnahme-warteliste-backup"
+          _pattern="aufnahme_warteliste.json.gz.part*"
+          # Nur eine erfolgreiche API-Abfrage darf einen Erstlauf feststellen.
+          # API-/Download-Fehler duerfen niemals leere Ersatzhistorie publizieren.
+          _tags=$(gh api --paginate "repos/${_repo}/releases?per_page=100" --jq '.[].tag_name')
+          _found=false
+          while IFS= read -r _release_tag; do
+            if [ "$_release_tag" = "$_tag" ]; then
+              _found=true
+              break
             fi
+          done <<< "$_tags"
+          if [ "$_found" = true ]; then
+            gh release download "$_tag" \
+              --repo "$_repo" --pattern "$_pattern" --dir state/ --clobber
           else
-            echo "state/aufnahme_warteliste.json.gz* liegt bereits im Checkout – kein Download noetig"
+            echo "Release $_tag existiert noch nicht; Erstlauf."
           fi
 
       - name: Restore Anti-Churn-Ledger from GitHub Release (falls vorhanden)
@@ -352,21 +359,26 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
           mkdir -p state
-          if [ ! -f state/watchlist_expired_history.json.gz ] && ! ls state/watchlist_expired_history.json.gz.part* >/dev/null 2>&1 \
-             && [ ! -f state/active_expired_history.json.gz ] && ! ls state/active_expired_history.json.gz.part* >/dev/null 2>&1; then
-            if gh release download anti-churn-ledger-backup \
-                --repo "${{ github.repository }}" \
-                --pattern "*_expired_history.json.gz.part*" \
-                --dir state/ 2>/dev/null; then
-              WL_COUNT=$(ls state/watchlist_expired_history.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
-              AC_COUNT=$(ls state/active_expired_history.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
-              echo "Anti-Churn-Ledger von Release geladen: Watchlist ${WL_COUNT} Part(s), Active ${AC_COUNT} Part(s)"
-            else
-              echo "Kein Ledger-Release gefunden (erster Lauf mit diesem Mechanismus, oder noch nie beschrieben) – starte mit leeren Ledgern"
+          _repo="${GITHUB_REPOSITORY}"
+          _tag="anti-churn-ledger-backup"
+          _pattern="*_expired_history.json.gz.part*"
+          # Nur eine erfolgreiche API-Abfrage darf einen Erstlauf feststellen.
+          # API-/Download-Fehler duerfen niemals leere Ersatzhistorie publizieren.
+          _tags=$(gh api --paginate "repos/${_repo}/releases?per_page=100" --jq '.[].tag_name')
+          _found=false
+          while IFS= read -r _release_tag; do
+            if [ "$_release_tag" = "$_tag" ]; then
+              _found=true
+              break
             fi
+          done <<< "$_tags"
+          if [ "$_found" = true ]; then
+            gh release download "$_tag" \
+              --repo "$_repo" --pattern "$_pattern" --dir state/ --clobber
           else
-            echo "state/*_expired_history.json.gz* liegt bereits im Checkout – kein Download noetig"
+            echo "Release $_tag existiert noch nicht; Erstlauf."
           fi
 
       - name: Restore Auto-Feed Live Snapshot Cache
@@ -1944,7 +1956,9 @@ jobs:
               _puffer.seek(0)
               with _gzip_ledger.GzipFile(fileobj=_puffer, mode="rb") as _gz:
                   _daten = json.loads(_gz.read().decode("utf-8"))
-              return dict(_daten.get("entries", {})), len(_teile)
+              if not isinstance(_daten, dict) or not isinstance(_daten.get("entries"), dict):
+                  raise ValueError("Ledger-Backup: entries muss ein JSON-Objekt sein")
+              return _daten["entries"], len(_teile)
 
           WL_EXPIRED_HISTORY_FILE = "state/watchlist_expired_history.json"
           _wl_expired_first = {}
@@ -1987,7 +2001,7 @@ jobs:
               else:
                   print("watchlist_expired_history: kein Release-Backup vorhanden - starte leer")
           except Exception as _ex:
-              print(f"WARNUNG: watchlist_expired_history-Release-Backup nicht lesbar: {_ex}")
+              raise RuntimeError("Watchlist-Ledger nicht lesbar") from _ex
           _wl_expired_first_dirty = False  # wird True, sobald neue Eintraege dazukommen
 
           # ── FIX CHURN-ACTIVE (2026-08-23): state/active_expired_history.json ──
@@ -2025,7 +2039,7 @@ jobs:
               else:
                   print("active_expired_history: kein Release-Backup vorhanden - starte leer")
           except Exception as _ex:
-              print(f"WARNUNG: active_expired_history-Release-Backup nicht lesbar: {_ex}")
+              raise RuntimeError("Active-Ledger nicht lesbar") from _ex
           _active_expired_last_dirty = False
 
           # ── FIX AUFNAHME-CROSS-DAY-V2 (2026-08-24): Warteliste als
@@ -2089,13 +2103,14 @@ jobs:
                   _aufn_buffer.seek(0)
                   with _aufn_gzip.GzipFile(fileobj=_aufn_buffer, mode="rb") as _gz:
                       _aufn_data = json.loads(_gz.read().decode("utf-8"))
-                  _aufnahme_wartend = dict(_aufn_data.get("entries", {}))
+                  if not isinstance(_aufn_data, dict) or not isinstance(_aufn_data.get("entries"), dict):
+                      raise ValueError("Warteliste-Backup: entries muss ein JSON-Objekt sein")
+                  _aufnahme_wartend = _aufn_data["entries"]
                   print(f"aufnahme_warteliste (Release-Asset): "
                         f"{len(_aufnahme_wartend):,} wartende IPs geladen "
                         f"({len(_aufn_backup_parts)} Part(s))")
               except Exception as _ex:
-                  print(f"WARNUNG: aufnahme_warteliste-Release-Backup nicht lesbar: {_ex}")
-                  _aufnahme_wartend = {}
+                  raise RuntimeError("Aufnahme-Warteliste nicht lesbar") from _ex
           else:
               print("aufnahme_warteliste: kein Release-Backup vorhanden - starte leer")
           _aufnahme_wartend_dirty = False
@@ -3758,6 +3773,8 @@ jobs:
                       _datum_cache[_v] = _c
               return _c
 
+          _aufn_feed_updates = []
+          _cutoff_wartend = (now - timedelta(days=AUFNAHME_WARTEN_TAGE)).strftime("%Y-%m-%d")
           _aufn_kandidaten = {}
           for _ak_ip, _ak_feeds_json, _ak_hq_raw in db.select_aufnahme_kandidaten():
               _ak_hq = coerce_bool(_ak_hq_raw)
@@ -3897,7 +3914,6 @@ jobs:
                           _wartend_eintrag = _aufnahme_wartend.get(ip, {})
                           for _f in feeds:
                               _wartend_eintrag[_f] = now_day
-                          _cutoff_wartend = (now - timedelta(days=AUFNAHME_WARTEN_TAGE)).strftime("%Y-%m-%d")
                           _wartend_eintrag = {
                               _f: _d for _f, _d in _wartend_eintrag.items()
                               if _d >= _cutoff_wartend
@@ -3905,9 +3921,10 @@ jobs:
                           if len(_wartend_eintrag) >= 2:
                               # Kreuzbestaetigt! IP bleibt drin, mit dem vollen
                               # bekannten Feed-Verlauf (nicht nur den heutigen).
-                              # HINWEIS PERF-CLEANUP-SQL: hier stand data["feeds"] = sorted(...) -
-                              # wirkungslos, da das Dict aus items() eine Kopie war und nie
-                              # zurueckgeschrieben wurde. Verhalten unveraendert uebernommen.
+                              # Nach dem Scan speichern: auch der naechste Lauf muss
+                              # beide Feeds kennen, wenn die Warteliste geloescht ist.
+                              _aufn_feed_updates.append((
+                                  json.dumps(sorted(_wartend_eintrag)), ip))
                               aufnahme_cross_bestaetigt += 1
                               if ip in _aufnahme_wartend:
                                   del _aufnahme_wartend[ip]
@@ -4059,7 +4076,12 @@ jobs:
           # einer einzigen executemany-Transaktion zusammen. Funktional
           # identisch (MutableMapping.pop() mit Default=None haette bei
           # bereits fehlenden IPs ohnehin nur still nichts getan).
+          # Kein Schreiben waehrend des offenen Cleanup-Cursors. Der Commit
+          # in bulk_delete() sichert Feed-Historie und Loeschungen gemeinsam.
+          db._conn.executemany(
+              "UPDATE seen_db SET feeds = ? WHERE ip = ?", _aufn_feed_updates)
           db.bulk_delete(_to_drop)
+          del _aufn_feed_updates
           _phase_mark("Cleanup-Pass (WL/FP/Protected/Expiry)")
 
           if _corrupt_dropped:
