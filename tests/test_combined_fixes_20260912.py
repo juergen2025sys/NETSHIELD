@@ -2,14 +2,17 @@
 
 No GitHub requests: the restore tests replace gh with a local shell function.
 """
+import ast
 import contextlib
 from datetime import datetime, timedelta, timezone
 import glob
 import gzip
 import io
+import itertools
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -94,16 +97,18 @@ class CombinedFixTests(unittest.TestCase):
         for name in ("_wl_expired_first", "_active_expired_last", "_aufnahme_wartend"):
             self.assertEqual(env[name], {})
 
-    def cleanup(self, db, waiting, day="2026-09-12"):
+    def cleanup(self, db, waiting, day="2026-09-12", *, ledger=None, active=None, cap_used=True):
         now = datetime.strptime(day, "%Y-%m-%d").replace(tzinfo=timezone.utc)
         env = dict(
             db=db, now=now, now_day=day, datetime=datetime, timedelta=timedelta,
             json=json, sys=sys, _time=time, coerce_bool=nc.coerce_bool,
             AUFNAHME_WARTEN_TAGE=7, WATCHLIST_DAILY_CAP=2000,
             _aufnahme_wartend=waiting, _aufnahme_wartend_dirty=False,
-            _active_expired_last={}, _active_expired_last_dirty=False,
-            _wl_expired_first={}, _wl_expired_first_dirty=False,
-            _wl_cap_heute_bereits_gelaufen=True, _wl_kandidaten=[],
+            _active_expired_last=active if active is not None else {}, _active_expired_last_dirty=False,
+            _wl_expired_first=ledger if ledger is not None else {}, _wl_expired_first_dirty=False,
+            _wl_cap_heute_bereits_gelaufen=cap_used, _wl_kandidaten=[],
+            WATCHLIST_CAP_STATE_FILE="state/watchlist_daily_cap_state.json",
+            _wl_cap_day=day, write_json_atomic=nc.write_json_atomic,
             _wl_aeltestes_first="9999-12-31", _ac_aeltestes_last="9999-12-31",
             _cln_total=len(db), _cln_processed=0, _cln_last_report=time.monotonic(),
             _cln_loop_t0=time.monotonic(), _UPD_PROGRESS_INTERVAL_S=15,
@@ -119,6 +124,262 @@ class CombinedFixTests(unittest.TestCase):
             exec(compile(code, str(WORKFLOW), "exec"), env)
         self.assertEqual(env["_corrupt_dropped"], 0)
         return env
+
+    def ingest(self, db, hits, *, day="2026-09-12", ledger=None, active=None,
+               hq_names=frozenset(), quarantine=frozenset(), families=None):
+        """Run the real SQL preparation and update loop with a local hit table."""
+        conn = db._conn
+        conn.execute("CREATE TEMP TABLE IF NOT EXISTS run_feed_hits("
+                     "ip TEXT, feed TEXT, is_hq INTEGER, PRIMARY KEY(ip,feed))")
+        conn.execute("DELETE FROM temp.run_feed_hits")
+        conn.executemany("INSERT INTO temp.run_feed_hits VALUES(?,?,?)",
+                         [(ip, feed, int(feed in hq_names))
+                          for ip, feeds in hits.items() for feed in feeds])
+        db.commit()
+        now = datetime.strptime(day, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        env = dict(db=db, sys=sys, _time=time, _itertools=itertools, _run_conn=conn,
+                   now=now, now_day=day, _upd_processed=0, _upd_last_report=time.monotonic(),
+                   _UPD_PROGRESS_INTERVAL_S=15, _upd_loop_t0=time.monotonic(), _upd_total=len(hits),
+                   _fast_is_wl_or_fp=lambda _: False, _QUARANTINE=set(quarantine),
+                   _HQ_AND_LOCAL=set(hq_names), HQ_FEED_FAMILIES=families or {},
+                   _wl_expired_first=ledger if ledger is not None else {},
+                   _active_expired_last=active if active is not None else {},
+                   _wl_expired_first_dirty=False, _active_expired_last_dirty=False,
+                   _upd_diag_sql_s=0, _upd_diag_sql_n=0, neu_angelegt_ohne_ledger=0)
+        iterator = ast.parse(workflow_section("def _iter_today_feed_groups():",
+                            "# FIX BUG-NAMEERROR-NEUANGELEGT")).body[0]
+        family = ast.parse(workflow_section("def _hq_families_of(hq_feed_names):",
+                          "# ══════════════════════════════════════════════════════════════")).body[0]
+        nodes = ast.parse(workflow_section("_UPD_COMMIT_EVERY =", "WATCHLIST_DAILY_CAP =")).body
+        end = next(i for i, node in enumerate(nodes) if isinstance(node, ast.For)
+                   and isinstance(node.iter, ast.Call)
+                   and isinstance(node.iter.func, ast.Name)
+                   and node.iter.func.id == "_iter_today_feed_groups")
+        code = ast.Module(body=[iterator, family, *nodes[:end + 1]], type_ignores=[])
+        with contextlib.redirect_stdout(io.StringIO()):
+            exec(compile(code, str(WORKFLOW), "exec"), env)
+        db.commit()
+        return env
+
+    def test_existing_frozen_ip_gets_five_feed_reentry_after_daily_cap(self):
+        db = self.db()
+        ip = "45.1.0.1"
+        ledger = {ip: {"first": "2026-08-01", "eingefroren_am": "2026-09-10"}}
+        self.ingest(db, {ip: {"a", "b"}}, day="2026-09-11", ledger=ledger)
+        self.cleanup(db, {}, "2026-09-11", ledger=ledger, cap_used=True)
+        self.assertIn(ip, db)
+        self.assertEqual(db[ip]["first"], "2026-08-01")
+        result = self.ingest(db, {ip: {"a", "b", "c", "d", "e"}}, ledger=ledger)
+        self.assertEqual(db[ip]["first"], "2026-09-12")
+        self.assertEqual(db[ip]["last"], "2000-01-01")
+        self.assertEqual(ledger, {})
+        self.assertTrue(result["_wl_expired_first_dirty"])
+        result = self.cleanup(db, {}, ledger=ledger, cap_used=False)
+        self.assertIn(ip, db)
+        self.assertEqual(result["expired_watchlist_count"], 0)
+
+    def test_four_feeds_cannot_reset_a_frozen_watchlist_anchor(self):
+        db = self.db()
+        ip = "45.1.0.1"
+        db[ip] = self.entry(first="2026-08-01")
+        ledger = {ip: {"first": "2026-08-01", "eingefroren_am": "2026-09-10"}}
+        self.ingest(db, {ip: {"a", "b", "c", "d"}}, ledger=ledger)
+        self.assertEqual(db[ip]["first"], "2026-08-01")
+        self.assertIn(ip, ledger)
+        self.cleanup(db, {}, ledger=ledger, cap_used=False)
+        self.assertNotIn(ip, db)
+
+    def test_five_feeds_with_one_hq_family_cannot_promote_frozen_ip_to_active(self):
+        db = self.db()
+        ip = "45.1.0.1"
+        db[ip] = self.entry(first="2026-08-01")
+        ledger = {ip: {"first": "2026-08-01", "eingefroren_am": "2026-09-10"}}
+        self.ingest(db, {ip: {"a", "b", "c", "hq_a1", "hq_a2"}}, ledger=ledger,
+                    hq_names={"hq_a1", "hq_a2"}, families={"hq_a1": "a", "hq_a2": "a"})
+        self.assertEqual(db[ip]["first"], "2026-09-12")
+        self.assertEqual(db[ip]["last"], "2000-01-01")
+        self.assertEqual(ledger, {})
+
+    def test_two_hq_families_remove_both_old_ledgers_for_existing_ip(self):
+        db = self.db()
+        ip = "45.1.0.1"
+        db[ip] = self.entry(first="2026-08-01")
+        ledger = {ip: {"first": "2026-08-01", "eingefroren_am": "2026-09-10"}}
+        active = {ip: {"last": "2026-01-01", "eingefroren_am": "2026-09-10"}}
+        self.ingest(db, {ip: {"hq_a", "hq_b"}}, ledger=ledger, active=active,
+                    hq_names={"hq_a", "hq_b"})
+        self.assertEqual(db[ip]["last"], "2026-09-12")
+        self.assertEqual(db[ip]["first"], "2026-08-01")
+        self.assertEqual(ledger, {})
+        self.assertEqual(active, {})
+
+    def test_unfrozen_existing_watchlist_does_not_reset_first(self):
+        db = self.db()
+        ip = "45.1.0.1"
+        db[ip] = self.entry(first="2026-08-20")
+        self.ingest(db, {ip: {"a", "b", "c", "d", "e"}})
+        self.assertEqual(db[ip]["first"], "2026-08-20")
+
+    def test_missing_hits_clear_only_current_counters_and_survive_reopen(self):
+        db = self.db()
+        ip = "45.1.0.1"
+        self.ingest(db, {ip: {"hq_a", "b", "c", "d", "e"}},
+                    day="2026-09-11", hq_names={"hq_a"})
+        previous = db[ip]
+        self.ingest(db, {})
+        self.assertEqual(db[ip], previous | {"today_count": 0, "today_hq": False})
+        db.close()
+        self.assertEqual(self.db()[ip], previous | {"today_count": 0, "today_hq": False})
+
+    def test_quarantined_hits_clear_counters_but_keep_historical_quality(self):
+        db = self.db()
+        ip = "45.1.0.1"
+        self.ingest(db, {ip: {"hq_a"}}, day="2026-09-11", hq_names={"hq_a"})
+        previous = db[ip]
+        self.ingest(db, {ip: {"hq_a"}}, hq_names={"hq_a"}, quarantine={"hq_a"})
+        self.assertEqual(db[ip], previous | {"today_count": 0, "today_hq": False})
+
+    def test_mixed_quarantine_counts_only_remaining_live_feeds(self):
+        db = self.db()
+        ip = "45.1.0.1"
+        self.ingest(db, {ip: {"hq_a", "b"}}, day="2026-09-11", hq_names={"hq_a"})
+        self.ingest(db, {ip: {"hq_a", "b"}}, hq_names={"hq_a"}, quarantine={"hq_a"})
+        self.assertEqual(db[ip]["today_count"], 1)
+        self.assertFalse(db[ip]["today_hq"])
+        self.assertTrue(db[ip]["hq"])
+
+    @staticmethod
+    def publication_allowed(condition, outcomes, guard="true"):
+        """Evaluate the real workflow's conjunctions with simulated outcomes."""
+        allowed = True
+        for clause in condition.split("&&"):
+            clause = clause.strip()
+            if clause == "always()":
+                continue
+            match = re.fullmatch(r"steps\.([a-z_]+)\.outcome == 'success'", clause)
+            if match:
+                allowed &= outcomes.get(match[1]) == "success"
+            elif clause == "steps.shrink_guard.outputs.ok == 'true'":
+                allowed &= guard == "true"
+            elif re.fullmatch(r"hashFiles\('[^']+'\) != ''", clause):
+                # Model a complete local build: every output exists.
+                continue
+            else:
+                raise AssertionError(f"Unrecognised publication condition: {clause}")
+        return allowed
+
+    def test_every_new_state_publication_waits_for_both_history_backups(self):
+        steps = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["update"]["steps"]
+        history_names = ("Aufnahme-Warteliste zu Release sichern (komprimiert)",
+                         "Anti-Churn-Ledger zu Release sichern (komprimiert)")
+        publishers = {"Save seen_db JSON Compatibility Cache", "Save seen_db SQLite Cache",
+                      "Backup seen_db SQLite to GitHub Release", "Save Watchlist Daily Cap State Cache",
+                      "Commit and Push"}
+        history = [(i, s) for i, s in enumerate(steps) if s.get("name") in history_names]
+        self.assertEqual(len(history), 2)
+        history_ids = [s.get("id") for _, s in history]
+        self.assertEqual(set(history_ids), {"persist_waitlist", "persist_ledgers"})
+        found = set()
+        for index, step in enumerate(steps):
+            if step.get("name") not in publishers:
+                continue
+            found.add(step["name"])
+            self.assertGreater(index, max(i for i, _ in history), step["name"])
+            ready = {"build_combined": "success", **dict.fromkeys(history_ids, "success")}
+            self.assertTrue(self.publication_allowed(step["if"], ready), step["name"])
+            self.assertFalse(self.publication_allowed(step["if"], ready, guard="false"))
+            for failed_id in ("build_combined", *history_ids):
+                for outcome in ("failure", "skipped", "cancelled"):
+                    with self.subTest(step=step["name"], failed_id=failed_id, outcome=outcome):
+                        self.assertFalse(self.publication_allowed(step["if"], ready | {failed_id: outcome}))
+        self.assertEqual(found, publishers)
+
+    def history_upload(self, step, prefix, mode, *, changed=True):
+        shell = os.environ.get("NETSHIELD_TEST_BASH") or shutil.which("bash")
+        if not shell:
+            self.skipTest("Bash required for workflow shell regression")
+        if changed:
+            Path(f"state/{prefix}_upload.json").write_text('{"entries":{}}', encoding="utf-8")
+            Path(f"state/{prefix}.json.gz.part000").write_bytes(b"fixture")
+        # Exercise the actual shell branching; compression, file deletion and
+        # GitHub are replaced. No system command or remote mutation is performed.
+        mock = r'''
+rm() { :; }
+gzip() { printf 'compressed-fixture'; }
+split() { :; }
+ls() { for p in "$@"; do if [ -f "$p" ]; then printf '%s\n' "$p"; fi; done; }
+wc() { printf '1\n'; }
+tr() { printf '1\n'; }
+du() { printf '1K total\n'; }
+tail() { printf '1K total\n'; }
+awk() { printf '1K\n'; }
+xargs() { while IFS= read -r p; do printf '%s\n' "${p##*/}"; done; }
+grep() {
+  if [ "$1" = -qxF ]; then
+    while IFS= read -r line; do if [ "$line" = "$2" ]; then return 0; fi; done
+    return 1
+  fi
+  while IFS= read -r line; do printf '%s\n' "$line"; done
+}
+gh() {
+  case "$2" in
+    view)
+      if [ "$MODE" = create_error ]; then return 1; fi
+      if [[ "$*" == *"--json assets"* ]]; then
+        printf '%s.json.gz.part000\n' "$PREFIX"
+        if [ "$MODE" = delete_error ]; then printf '%s.json.gz.part001\n' "$PREFIX"; fi
+      fi ;;
+    upload)
+      printf 'UPLOAD_ATTEMPT\n' >&2
+      if [ "$MODE" = upload_error ]; then return 1; fi ;;
+    create) printf 'CREATE_ATTEMPT\n' >&2; return 1 ;;
+    delete-asset) printf 'DELETE_ATTEMPT\n' >&2; return 1 ;;
+  esac
+  return 0
+}
+'''
+        try:
+            code = step["run"].replace("${{ github.repository }}", "fixture/repo")
+            return subprocess.run([shell, "-e", "-o", "pipefail", "-c",
+                                   mock + code + "\nprintf 'STEP_FINISHED\\n'"],
+                                  capture_output=True, text=True, cwd=self.directory,
+                                  env=os.environ | {"MODE": mode, "PREFIX": prefix})
+        finally:
+            for p in Path("state").glob(prefix + "*"):
+                p.unlink()
+
+    def test_history_upload_errors_block_the_step_and_all_new_state_outputs(self):
+        steps = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["update"]["steps"]
+        cases = [("Aufnahme-Warteliste zu Release sichern (komprimiert)", "aufnahme_warteliste"),
+                 ("Anti-Churn-Ledger zu Release sichern (komprimiert)", "watchlist_expired_history")]
+        for name, prefix in cases:
+            step = next(s for s in steps if s.get("name") == name)
+            for mode in ("upload_error", "create_error", "delete_error"):
+                with self.subTest(step=name, mode=mode):
+                    result = self.history_upload(step, prefix, mode)
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertNotIn("STEP_FINISHED", result.stdout)
+                    self.assertIn("ATTEMPT", result.stderr)
+                    outcomes = {"build_combined": "success", "persist_waitlist": "success",
+                                "persist_ledgers": "success", step.get("id"): "failure"}
+                    for publisher in steps:
+                        if publisher.get("name") in ("Save seen_db JSON Compatibility Cache",
+                                "Save seen_db SQLite Cache", "Save Watchlist Daily Cap State Cache",
+                                "Backup seen_db SQLite to GitHub Release", "Commit and Push"):
+                            self.assertFalse(self.publication_allowed(publisher["if"], outcomes))
+
+    def test_successful_or_unchanged_history_does_not_block_publication(self):
+        steps = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["update"]["steps"]
+        cases = [("Aufnahme-Warteliste zu Release sichern (komprimiert)", "aufnahme_warteliste"),
+                 ("Anti-Churn-Ledger zu Release sichern (komprimiert)", "active_expired_history")]
+        for name, prefix in cases:
+            step = next(s for s in steps if s.get("name") == name)
+            for changed in (False, True):
+                with self.subTest(step=name, changed=changed):
+                    result = self.history_upload(step, prefix, "success", changed=changed)
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertIn("STEP_FINISHED", result.stdout)
+                    self.assertEqual("UPLOAD_ATTEMPT" in result.stderr, changed)
 
     @staticmethod
     def entry(**overrides):
