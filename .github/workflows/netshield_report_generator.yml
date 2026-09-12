@@ -125,6 +125,7 @@ jobs:
               count_published_ips as count_ips,
               published_list_updated as file_age,
               published_list_sources,
+              published_list_status,
           )
           FILES = {
               "combined_threat_blacklist_ipv4.txt": "Stufe 1 – Alle IPs (180 Tage)",
@@ -150,7 +151,12 @@ jobs:
               count = count_ips(fname)
               age = file_age(fname)
               sources = published_list_sources(fname)
-              exists = "✅" if sources else "❌"
+              required = (1, 2) if fname == "blacklist_confidence40_ipv4.txt" else None
+              status = published_list_status(fname, required_parts=required)
+              marker = {"valid": "✅", "missing": "❌", "empty": "⚠️",
+                        "incomplete": "❌", "timestamp-mismatch": "❌",
+                        "timestamp-missing": "❌"}[status["state"]]
+              exists = f"{marker} {status['state']}"
               links = " + ".join(f"[{src.name}](../{src.as_posix()})" for src in sources) or f"`{fname}`"
               lines.append(f"| {exists} {links} | {desc} | **{count:,}** | {age} |")
               if fname == "combined_threat_blacklist_ipv4.txt":

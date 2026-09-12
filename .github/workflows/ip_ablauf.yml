@@ -173,6 +173,14 @@ jobs:
             echo "Kein anti-churn-ledger-backup-Release gefunden - Ledger-Dateien bleiben leer (normal vor dem ersten Ablauf-Ereignis)"
           fi
 
+      - name: Restore verified state generation for forecast
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts python3 scripts/netshield_release_state.py restore --only database watchlist_ledger active_ledger
+
       - name: Expiry-Prognose erstellen
         env:
           PYTHONUNBUFFERED: "1"
@@ -972,6 +980,14 @@ jobs:
           else
             echo "Kein anti-churn-ledger-backup-Release gefunden - Ledger-Dateien bleiben leer (normal vor dem ersten Ablauf-Ereignis)"
           fi
+
+      - name: Restore verified state generation for verification
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          PYTHONPATH=scripts python3 scripts/netshield_release_state.py restore --only watchlist_ledger active_ledger cap
 
       - name: Combined-Blacklist Run-Log holen
         # FIX 2026-08-23 (Nutzerwunsch "run an dem tag des ip rückgang [...]

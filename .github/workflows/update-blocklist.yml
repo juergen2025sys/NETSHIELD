@@ -505,7 +505,7 @@ jobs:
 
           stale_removed = []
           for existing_file in glob.glob("countries/*/*_ipv4.txt"):
-              if existing_file not in expected_paths:
+              if existing_file.replace("\\", "/") not in expected_paths:
                   try:
                       os.remove(existing_file)
                       stale_removed.append(existing_file)
