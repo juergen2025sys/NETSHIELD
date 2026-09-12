@@ -20,6 +20,20 @@ seen_db.json
 seen_db.sqlite3
 seen_db.sqlite3.gz
 
+# FIX AFD-SQLITE-CACHE-DEFENSE (2026-09-04): .cache/auto_feed_discovery/
+# (feed_cache.sqlite3, Performance-Cache aus auto_feed_discovery.yml) landet
+# aktuell nur deshalb nicht im Commit, weil der Commit-Step eine explizite
+# Dateiliste addet statt "git add -A". Das ist Zufalls-Absicherung, kein
+# expliziter Schutz - genau das Muster hinter dem historischen 117-GB-Repo-
+# Bloat-Vorfall (siehe FIX STOP-HISTORY-BLOAT unten). Der Cache gehoert
+# ausschliesslich in den GitHub Actions Cache (actions/cache/save), nie ins
+# Repo. Analog zu seen_db.sqlite3 hier explizit abgesichert.
+#
+# FIX GITIGNORE-WRONG-FILE (2026-09-12): Dieser Block stand ausschliesslich in
+# der punktlosen Datei "gitignore", die Git niemals liest - der Schutz war also
+# nie aktiv. Regel hierher (.gitignore) verschoben, die Dublette entfernt.
+.cache/
+
 # CHANGE ZWEI-FESTE-PARTS: Hauptdatei wird nur noch im Runner erzeugt/
 # rekonstruiert, nicht mehr committet (Parts part1/part2 sind kanonisch).
 # Verhindert, dass sie über 100 MB wächst und den Push blockiert.
