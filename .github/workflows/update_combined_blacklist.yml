@@ -2855,21 +2855,60 @@ jobs:
               with open(local_file) as lf:
                   raw_local = lf.read()
               # Alters-Check
+              # FIX NS01-STALE-LOCAL-INGEST (2026-09-12): Die Altersprüfung
+              # unten gab bei > _LOCAL_FEED_MAX_AGE_HOURS NUR eine Warnung aus -
+              # danach lief parse_entries/_ingest trotzdem unverändert durch.
+              # Ein hängender Sub-Workflow (honeypot_monitor, cve_to_ip_mapper,
+              # update_bot_detector ...) hat seine wochenalte Datei dadurch
+              # weiter als FRISCHEN Feed-Treffer eingespeist: "last" sprang auf
+              # heute, zwei alte HQ-Quellen genügten für strongly_confirmed_today,
+              # und die 30-Tage-Uhr startete neu. Die Ablauflogik schien zu
+              # funktionieren, weil sie feuerte - der Zulauf wurde aber künstlich
+              # frisch gehalten.
+              # Jetzt: veraltete oder zeitlich unplausible Dateien werden für
+              # DIESEN Lauf übersprungen. Die seen_db bleibt unberührt und
+              # unterliegt weiter den normalen Ablaufregeln (180/30 Tage).
+              _skip_local = None
               _ts_m = _ts_re.search(raw_local)
-              if _ts_m:
+              if not _ts_m:
+                  # Kein/unlesbarer Header. Bewusst fail-closed UND laut:
+                  # Der Kommentar zu FIX TS-TZ oben dokumentiert, dass genau
+                  # ein still leerlaufender Header-Check hier schon einmal
+                  # unbemerkt Schaden angerichtet hat. Ein stilles Skip wäre
+                  # derselbe Fehler in der anderen Richtung.
+                  _skip_local = (f"{local_file}: kein lesbarer 'Aktualisiert:'-Header - "
+                                 f"Alter nicht bestimmbar, Feed wird für diesen Lauf "
+                                 f"NICHT eingelesen (Header-Format geändert?)")
+                  print(f"::error file=update_combined_blacklist.yml::{_skip_local}")
+              else:
                   try:
                       _zone = _ts_m.group(2)
                       _tz = timezone.utc if _zone == "UTC" else ZoneInfo("Europe/Berlin")
                       _file_dt = datetime.strptime(_ts_m.group(1), "%Y-%m-%d %H:%M").replace(tzinfo=_tz)
                       _age_h = (now - _file_dt.astimezone(timezone.utc)).total_seconds() / 3600
                       if _age_h > _LOCAL_FEED_MAX_AGE_HOURS:
-                          _stale_msg = (f"{local_file} ist {_age_h:.0f}h alt "
-                                        f"(letztes Update: {_ts_m.group(1)} {_zone}) – "
-                                        f"Sub-Workflow möglicherweise ausgefallen")
-                          print(f"::warning file=update_combined_blacklist.yml::{_stale_msg}")
-                          print(f"WARNUNG: {_stale_msg}")
+                          _skip_local = (f"{local_file} ist {_age_h:.0f}h alt "
+                                         f"(letztes Update: {_ts_m.group(1)} {_zone}) – "
+                                         f"Sub-Workflow möglicherweise ausgefallen, "
+                                         f"Feed wird NICHT als frische Bestätigung eingelesen")
+                          print(f"::warning file=update_combined_blacklist.yml::{_skip_local}")
+                          print(f"WARNUNG: {_skip_local}")
+                      elif _age_h < 0:
+                          # Zeitstempel aus der Zukunft: derselbe Klemm-Fehler wie
+                          # beim Auto-Feed-Snapshot. "Frisch" ist nicht dasselbe
+                          # wie "Alter rechnerisch negativ".
+                          _skip_local = (f"{local_file}: Zeitstempel liegt {abs(_age_h):.0f}h "
+                                         f"in der Zukunft ({_ts_m.group(1)} {_zone}) - "
+                                         f"Feed wird NICHT eingelesen")
+                          print(f"::error file=update_combined_blacklist.yml::{_skip_local}")
                   except Exception as _suppressed:
                       print(f"WARN: suppressed Exception: {_suppressed}", file=sys.stderr)
+                      _skip_local = (f"{local_file}: Zeitstempel nicht auswertbar "
+                                     f"({_suppressed}) - Feed wird NICHT eingelesen")
+                      print(f"::error file=update_combined_blacklist.yml::{_skip_local}")
+              if _skip_local is not None:
+                  print(f"  SKIP (Alter unplausibel/veraltet): {local_file}")
+                  continue
               local_ips = parse_entries(raw_local, use_protected_check=True)
               _ingest(local_file, local_ips, is_hq_override=is_hq_local)
               ips_l   = len([e for e in local_ips if '/' not in e])
