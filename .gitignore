@@ -41,6 +41,17 @@ combined_threat_blacklist_ipv4.txt
 # confidence_blacklist.yml, "Commit and Push"-Step).
 blacklist_confidence40_ipv4.txt
 
+# Immutable release payloads stay in the generation release; only the
+# authoritative state/release_state.json pointer is committed.
+state/*_expired_history.json
+state/aufnahme_warteliste.json
+state/*_upload.json
+state/*.gz.part*
+state/.release-upload/
+state/.state-restore-*/
+state/.upload-verify-*/
+state/.ledger-stage-*/
+
 # IDE
 .vscode/
 .idea/
