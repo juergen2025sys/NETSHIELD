@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -97,13 +98,14 @@ class CombinedFixTests(unittest.TestCase):
         for name in ("_wl_expired_first", "_active_expired_last", "_aufnahme_wartend"):
             self.assertEqual(env[name], {})
 
-    def cleanup(self, db, waiting, day="2026-09-12", *, ledger=None, active=None, cap_used=True):
+    def cleanup(self, db, waiting, day="2026-09-12", *, ledger=None, active=None, cap_used=True,
+                waiting_dirty=False):
         now = datetime.strptime(day, "%Y-%m-%d").replace(tzinfo=timezone.utc)
         env = dict(
             db=db, now=now, now_day=day, datetime=datetime, timedelta=timedelta,
             json=json, sys=sys, _time=time, coerce_bool=nc.coerce_bool,
             AUFNAHME_WARTEN_TAGE=7, WATCHLIST_DAILY_CAP=2000,
-            _aufnahme_wartend=waiting, _aufnahme_wartend_dirty=False,
+            _aufnahme_wartend=waiting, _aufnahme_wartend_dirty=waiting_dirty,
             _active_expired_last=active if active is not None else {}, _active_expired_last_dirty=False,
             _wl_expired_first=ledger if ledger is not None else {}, _wl_expired_first_dirty=False,
             _wl_cap_heute_bereits_gelaufen=cap_used, _wl_kandidaten=[],
@@ -126,7 +128,7 @@ class CombinedFixTests(unittest.TestCase):
         return env
 
     def ingest(self, db, hits, *, day="2026-09-12", ledger=None, active=None,
-               hq_names=frozenset(), quarantine=frozenset(), families=None):
+               hq_names=frozenset(), quarantine=frozenset(), families=None, waiting=None):
         """Run the real SQL preparation and update loop with a local hit table."""
         conn = db._conn
         conn.execute("CREATE TEMP TABLE IF NOT EXISTS run_feed_hits("
@@ -137,7 +139,9 @@ class CombinedFixTests(unittest.TestCase):
                           for ip, feeds in hits.items() for feed in feeds])
         db.commit()
         now = datetime.strptime(day, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-        env = dict(db=db, sys=sys, _time=time, _itertools=itertools, _run_conn=conn,
+        env = dict(db=db, sys=sys, json=json, _time=time, _itertools=itertools, _run_conn=conn,
+                   _aufnahme_wartend=waiting if waiting is not None else {},
+                   _aufnahme_wartend_dirty=False,
                    now=now, now_day=day, _upd_processed=0, _upd_last_report=time.monotonic(),
                    _UPD_PROGRESS_INTERVAL_S=15, _upd_loop_t0=time.monotonic(), _upd_total=len(hits),
                    _fast_is_wl_or_fp=lambda _: False, _QUARANTINE=set(quarantine),
@@ -294,12 +298,13 @@ class CombinedFixTests(unittest.TestCase):
                         self.assertFalse(self.publication_allowed(step["if"], ready | {failed_id: outcome}))
         self.assertEqual(found, publishers)
 
-    def history_upload(self, step, prefix, mode, *, changed=True):
+    def history_upload(self, step, prefix, mode, *, changed=True, payload=None):
         shell = os.environ.get("NETSHIELD_TEST_BASH") or shutil.which("bash")
         if not shell:
             self.skipTest("Bash required for workflow shell regression")
         if changed:
-            Path(f"state/{prefix}_upload.json").write_text('{"entries":{}}', encoding="utf-8")
+            Path(f"state/{prefix}_upload.json").write_text(
+                json.dumps(payload if payload is not None else {"entries": {}}), encoding="utf-8")
             Path(f"state/{prefix}.json.gz.part000").write_bytes(b"fixture")
         # Exercise the actual shell branching; compression, file deletion and
         # GitHub are replaced. No system command or remote mutation is performed.
@@ -395,7 +400,7 @@ gh() {
         waiting = {ip: {"feed_a": "2026-09-11"}}
         result = self.cleanup(db, waiting)
         self.assertEqual(result["aufnahme_cross_bestaetigt"], 1)
-        self.assertEqual(waiting, {})
+        self.assertEqual(waiting, {ip: {"feed_a": "2026-09-11", "feed_b": "2026-09-12"}})
         self.assertEqual(db[ip], before | {"feeds": ["feed_a", "feed_b"]})
         db.close()
         reopened = self.db()
@@ -407,6 +412,156 @@ gh() {
         self.assertIn(ip, reopened)
         self.assertEqual(set(reopened[ip]["feeds"]), {"feed_a", "feed_b"})
         self.assertEqual(result["aufnahme_cross_bestaetigt"], 0)
+
+    def serialize_waiting(self, waiting, *, day="2026-09-12", dirty=True, limit=20_000_000):
+        """Execute real final pruning, safety cap and atomic upload-file writing."""
+        env = dict(_aufnahme_wartend=waiting, _aufnahme_wartend_dirty=dirty,
+                   now=datetime.strptime(day, "%Y-%m-%d").replace(tzinfo=timezone.utc),
+                   now_stamp=day, timedelta=timedelta, AUFNAHME_WARTEN_TAGE=7,
+                   AUFNAHME_WARTEN_SICHERHEITSGRENZE=limit,
+                   write_json_atomic=nc.write_json_atomic, aufnahme_cross_bestaetigt=0)
+        code = workflow_section("if _aufnahme_wartend:", "# ── seen_db speichern")
+        with contextlib.redirect_stdout(io.StringIO()):
+            exec(compile(code, str(WORKFLOW), "exec"), env)
+        return json.loads(Path("state/aufnahme_warteliste_upload.json").read_text(encoding="utf-8"))
+
+    def test_confirmation_survives_partial_upload_and_next_run(self):
+        steps = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["update"]["steps"]
+        wait_step = next(s for s in steps if s.get("id") == "persist_waitlist")
+        ledger_step = next(s for s in steps if s.get("id") == "persist_ledgers")
+        self.assertLess(steps.index(wait_step), steps.index(ledger_step))
+        for failure in ("ledger_upload", "before_database_upload", "none"):
+            with self.subTest(failure=failure):
+                case = CombinedFixTests()
+                case.setUp()
+                try:
+                    db = case.db()
+                    ip, expiring = "45.1.0.1", "45.1.0.2"
+                    first_day = "2026-09-10"
+                    old_last = (datetime.strptime(first_day, "%Y-%m-%d")
+                                - timedelta(days=180)).strftime("%Y-%m-%d")
+                    db[expiring] = case.entry(first=old_last, last=old_last, feeds=["x", "y"])
+                    waiting = {}
+                    case.ingest(db, {ip: {"feed_a"}}, day=first_day, waiting=waiting)
+                    case.cleanup(db, waiting, first_day)
+                    self.assertNotIn(ip, db)
+                    self.assertIn(expiring, db)
+                    durable = sqlite3.connect("durable.sqlite3")
+                    case.addCleanup(durable.close)
+                    db._conn.backup(durable)
+
+                    case.ingest(db, {ip: {"feed_b"}}, day="2026-09-11", waiting=waiting)
+                    result = case.cleanup(db, waiting, "2026-09-11")
+                    self.assertEqual(result["aufnahme_cross_bestaetigt"], 1)
+                    self.assertTrue(result["_active_expired_last_dirty"])
+                    self.assertEqual(set(db[ip]["feeds"]), {"feed_a", "feed_b"})
+                    uploaded = case.serialize_waiting(waiting, day="2026-09-11")
+                    shell = case.history_upload(wait_step, "aufnahme_warteliste", "success", payload=uploaded)
+                    self.assertEqual(shell.returncode, 0, shell.stderr)
+                    shell = case.history_upload(ledger_step, "active_expired_history",
+                                "upload_error" if failure == "ledger_upload" else "success")
+                    self.assertEqual(shell.returncode != 0, failure == "ledger_upload")
+                    outcomes = {"build_combined": "success", "persist_waitlist": "success",
+                                "persist_ledgers": "failure" if failure == "ledger_upload" else "success"}
+                    for step in steps:
+                        if step.get("name") in {"Save seen_db JSON Compatibility Cache",
+                                "Save seen_db SQLite Cache", "Backup seen_db SQLite to GitHub Release",
+                                "Commit and Push"}:
+                            self.assertEqual(case.publication_allowed(step["if"], outcomes),
+                                             failure != "ledger_upload")
+                    if failure == "none":
+                        db._conn.backup(durable)
+                    db.close()
+                    restored = case.db()
+                    durable.backup(restored._conn)
+                    Path("state/aufnahme_warteliste.json.gz.part000").write_bytes(
+                        gzip.compress(json.dumps(uploaded).encode()))
+                    waiting = case.load_state()["_aufnahme_wartend"]
+                    ingested = case.ingest(restored, {ip: {"feed_b"}}, waiting=waiting)
+                    result = case.cleanup(restored, waiting,
+                                          waiting_dirty=ingested["_aufnahme_wartend_dirty"])
+                    self.assertIn(ip, restored, "Cross-confirmed IP lost after partial publication")
+                    self.assertEqual(set(restored[ip]["feeds"]), {"feed_a", "feed_b"})
+                    self.assertEqual(result["aufnahme_removed"], 0)
+
+                    # Publish the recovered DB, then acknowledge it on a later run.
+                    recovered_waiting = case.serialize_waiting(waiting)
+                    restored._conn.backup(durable)
+                    waiting = recovered_waiting["entries"]
+                    result = case.ingest(restored, {}, day="2026-09-13", waiting=waiting)
+                    self.assertNotIn(ip, waiting)
+                    # Even an interruption after this safe deletion keeps the proof
+                    # in the already published DB, independent of the new run.
+                    restored.close()
+                    final_db = case.db()
+                    durable.backup(final_db._conn)
+                    case.ingest(final_db, {ip: {"feed_b"}}, day="2026-09-14", waiting=waiting)
+                    case.cleanup(final_db, waiting, "2026-09-14")
+                    self.assertIn(ip, final_db)
+                    self.assertEqual(set(final_db[ip]["feeds"]), {"feed_a", "feed_b"})
+                finally:
+                    case.doCleanups()
+
+    def test_confirmed_recovery_survives_seven_day_boundary_and_long_interruption(self):
+        db = self.db()
+        ip = "45.1.0.1"
+        waiting = {ip: {"feed_a": "2026-09-04"}}
+        self.ingest(db, {ip: {"feed_b"}}, day="2026-09-11", waiting=waiting)
+        result = self.cleanup(db, waiting, "2026-09-11")
+        self.assertEqual(result["aufnahme_cross_bestaetigt"], 1)
+        # The first observation expires the following day, but the established
+        # confirmation must survive until a durable DB can acknowledge it.
+        payload = self.serialize_waiting(waiting, day="2026-09-25")
+        db.bulk_delete([ip])  # Model restoring the older DB without the new IP.
+        Path("state/aufnahme_warteliste.json.gz.part000").write_bytes(
+            gzip.compress(json.dumps(payload).encode()))
+        waiting = self.load_state()["_aufnahme_wartend"]
+        self.ingest(db, {ip: {"feed_b"}}, day="2026-09-25", waiting=waiting)
+        self.cleanup(db, waiting, "2026-09-25")
+        self.assertIn(ip, db)
+        self.assertEqual(set(db[ip]["feeds"]), {"feed_a", "feed_b"})
+
+    def test_unconfirmed_old_feed_still_expires(self):
+        db = self.db()
+        ip = "45.1.0.1"
+        waiting = {ip: {"feed_a": "2026-09-04"}}
+        self.ingest(db, {ip: {"feed_b"}}, waiting=waiting)
+        result = self.cleanup(db, waiting)
+        self.assertNotIn(ip, db)
+        self.assertEqual(result["aufnahme_cross_bestaetigt"], 0)
+        self.assertEqual(waiting[ip], {"feed_b": "2026-09-12"})
+        self.assertEqual(self.serialize_waiting(waiting, day="2026-09-20")["entries"], {})
+
+    def test_confirmation_ack_requires_all_feeds_in_restored_db(self):
+        db = self.db()
+        waiting = {f"45.1.0.{i}": {"feed_a": "2026-09-01", "feed_b": "2026-09-02"}
+                   for i in range(1, 5)}
+        db["45.1.0.1"] = self.entry(feeds=["feed_b"])
+        db["45.1.0.2"] = self.entry(feeds=["feed_a", "feed_b", "feed_c"])
+        db["45.1.0.3"] = self.entry(feeds=["feed_a", "feed_c"])
+        db["45.1.0.4"] = self.entry(feeds=["feed_a", "feed_b"])
+        db._conn.execute("UPDATE seen_db SET feeds = '{broken' WHERE ip = '45.1.0.4'")
+        queries = []
+        db._conn.set_trace_callback(queries.append)
+        result = self.ingest(db, {}, waiting=waiting)
+        db._conn.set_trace_callback(None)
+        self.assertEqual(set(waiting), {"45.1.0.1", "45.1.0.3", "45.1.0.4"})
+        self.assertTrue(result["_aufnahme_wartend_dirty"])
+        self.assertEqual(sum(q.startswith("SELECT feeds FROM seen_db WHERE ip =") for q in queries), 4)
+
+    def test_waitlist_cap_keeps_unacknowledged_confirmations(self):
+        waiting = {"45.1.0.1": {"feed_a": "2026-09-01", "feed_b": "2026-09-02"},
+                   "45.1.0.2": {"feed_c": "2026-09-12"},
+                   "45.1.0.3": {"feed_d": "2026-09-11"}}
+        payload = self.serialize_waiting(waiting, limit=2)
+        self.assertEqual(set(payload["entries"]), {"45.1.0.1", "45.1.0.2"})
+        payload = self.serialize_waiting(waiting, limit=1)
+        self.assertEqual(set(payload["entries"]), {"45.1.0.1"})
+        waiting["45.1.0.2"]["feed_e"] = "2026-09-12"
+        previous = Path("state/aufnahme_warteliste_upload.json").read_bytes()
+        with self.assertRaisesRegex(RuntimeError, "ungesicherte Bestaetigungen"):
+            self.serialize_waiting(waiting, limit=1)
+        self.assertEqual(Path("state/aufnahme_warteliste_upload.json").read_bytes(), previous)
 
     def test_seven_day_boundary_and_same_feed_do_not_change(self):
         db = self.db()
@@ -426,8 +581,10 @@ gh() {
         db = self.db()
         ip = "45.1.0.1"
         db[ip] = self.entry(last="2025-01-01")
-        result = self.cleanup(db, {ip: {"feed_a": "2026-09-11"}})
+        waiting = {ip: {"feed_a": "2026-09-11"}}
+        result = self.cleanup(db, waiting)
         self.assertNotIn(ip, db)
+        self.assertNotIn(ip, waiting)
         self.assertEqual(result["expired_active_count"], 1)
         self.assertEqual(result["_active_expired_last"][ip]["last"], "2025-01-01")
 
