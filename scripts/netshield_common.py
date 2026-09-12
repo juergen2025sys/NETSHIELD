@@ -27,6 +27,7 @@ import sqlite3 as _sqlite3
 import tempfile as _tempfile
 from collections.abc import MutableMapping as _MutableMapping
 from datetime import datetime, timezone
+from functools import lru_cache as _lru_cache
 from zoneinfo import ZoneInfo
 
 # ═══════════════════════════════════════════════════════════════
@@ -3167,15 +3168,19 @@ class SqliteSeenDB(_MutableMapping):
                 "ALTER TABLE seen_db ADD COLUMN auto_today_count INTEGER")
         self._conn.commit()
 
-    def _row_to_dict(self, row):
+    def _row_to_dict(self, row, *, decode_feeds=None):
+        # Nur der Export verwendet einen Cache unveraenderlicher, sortierter
+        # Tupel. Normale DB-Leser bekommen weiterhin eigene mutable Listen.
+        if decode_feeds is None:
+            decode_feeds = json.loads
         (_ip, first, last, hq, feeds, hq_feed_names, hq_feeds,
          today_count, today_hq, days_seen, auto_today_count) = row
         entry = {
             "first": first,
             "last": last,
             "hq": coerce_bool(hq),
-            "feeds": json.loads(feeds) if feeds else [],
-            "hq_feed_names": json.loads(hq_feed_names) if hq_feed_names else [],
+            "feeds": decode_feeds(feeds) if feeds else [],
+            "hq_feed_names": decode_feeds(hq_feed_names) if hq_feed_names else [],
             "hq_feeds": hq_feeds,
             "today_count": today_count,
             "today_hq": coerce_bool(today_hq),
@@ -3602,6 +3607,13 @@ class SqliteSeenDB(_MutableMapping):
         Schreibens weiterhin nie eine halb geschriebene seen_db.json
         hinterlaesst.
         """
+        # Viele IPs haben dieselben Feed-Kombinationen. Pro Export begrenzt
+        # cachen: JSON-Parsing und Sortierung nur bei einem Cache-Miss.
+        # Tupel verhindern, dass eine Zeile den Cache einer anderen mutiert.
+        @_lru_cache(maxsize=4096)
+        def _sorted_feeds(raw):
+            return tuple(sorted(json.loads(raw)))
+
         target_dir = os.path.dirname(os.path.abspath(filepath)) or "."
         os.makedirs(target_dir, exist_ok=True)
         fd, tmp_path = _tempfile.mkstemp(
@@ -3616,9 +3628,12 @@ class SqliteSeenDB(_MutableMapping):
                     rows = cur.fetchmany(batch_size)
                     if not rows:
                         break
-                    _chunks = []
+                    # Ein Encoder-Aufruf pro begrenztem Batch statt pro IP.
+                    # Dict-Reihenfolge, Feldreihenfolge und JSON-Optionen bleiben
+                    # identisch; der komplette Datenbestand bleibt auf Disk.
+                    _entries = {}
                     for row in rows:
-                        entry = self._row_to_dict(row)
+                        entry = self._row_to_dict(row, decode_feeds=_sorted_feeds)
                         # FIX MEM-SQLITE-2026-08-16: feeds/hq_feed_names hier
                         # sortieren statt in einem separaten vorgelagerten
                         # Full-DB-Sweep (wie es der Plain-Dict-Vorgaenger tat,
@@ -3633,15 +3648,12 @@ class SqliteSeenDB(_MutableMapping):
                         # Byte-Stabilitaet der Ausgabe - beeinflusst keine
                         # Scoring-/Cleanup-Logik, die liest feeds nur ueber
                         # len()/Set-Operationen, nie ordnungsabhaengig.
-                        entry["feeds"] = sorted(entry["feeds"])
-                        entry["hq_feed_names"] = sorted(entry["hq_feed_names"])
-                        _chunks.append(
-                            json.dumps(row[0]) + ":" +
-                            json.dumps(entry, separators=(",", ":")))
+                        _entries[row[0]] = entry
                     if not _first:
                         f.write(",")
                     _first = False
-                    f.write(",".join(_chunks))
+                    f.write(json.dumps(_entries, separators=(",", ":"))[1:-1])
+                    del _entries
                 f.write("}")
                 f.flush()
                 os.fsync(f.fileno())
