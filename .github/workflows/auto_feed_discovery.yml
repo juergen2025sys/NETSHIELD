@@ -381,11 +381,14 @@ jobs:
               """)
               _sqlite.commit()
 
-          def _sqlite_pack_ips(ips):
+          def _sqlite_pack_ips_with_fingerprint(ips):
+              # Einmal sortieren; denselben Inhalt fuer Cache und Fingerprint
+              # verwenden. Cache-Bytes und Fingerprint bleiben unveraendert.
               if not ips:
-                  return zlib.compress(b"", level=6)
-              payload = ("\n".join(sorted(ips)) + "\n").encode("ascii", "strict")
-              return zlib.compress(payload, level=6)
+                  return zlib.compress(b"", level=6), ""
+              payload = "\n".join(sorted(ips)).encode("ascii", "strict")
+              fingerprint = hashlib.sha1(payload).hexdigest()[:16]
+              return zlib.compress(payload + b"\n", level=6), fingerprint
 
           def _sqlite_unpack_ips(blob):
               raw = zlib.decompress(blob)
@@ -419,8 +422,7 @@ jobs:
               if not url or not file_version or not ips:
                   return
               try:
-                  blob = _sqlite_pack_ips(ips)
-                  fp = _ip_fingerprint(ips)
+                  blob, fp = _sqlite_pack_ips_with_fingerprint(ips)
                   with _sqlite_lock:
                       _sqlite.execute(
                           "INSERT INTO feed_ip_cache(url,file_version,ip_count,ip_fingerprint,ip_blob,cached_at) "
@@ -2976,7 +2978,6 @@ jobs:
 
           all_new_ips = set()
           all_known_ips = set()
-          ip_auto_feed_count = {}
 
           # ── Schritt 5a: REFRESH bestehender Feeds ─────────────────────────
           removed_stale = []
@@ -3160,8 +3161,6 @@ jobs:
               if _file_days is not None:
                   approved_feeds[_name]["file_days_old"] = _file_days
               all_known_ips.update(_ips)
-              for _ip in _ips:
-                  ip_auto_feed_count[_ip] = ip_auto_feed_count.get(_ip, 0) + 1
               _cache_tag = ", SQLite-HIT" if _r.get("cache_hit") else ""
               print(f"  REFRESH {_name}: OK ({len(_ips)} IPs{_age_str}{_cache_tag})")
 
@@ -3466,8 +3465,6 @@ jobs:
                       all_new_ips.update(_nf_ips)
                   else:
                       all_known_ips.update(_nf_ips)
-                  for _ip in _nf_ips:
-                      ip_auto_feed_count[_ip] = ip_auto_feed_count.get(_ip, 0) + 1
 
                   evaluation_log.append({
                       "repo":        _repo,
@@ -4605,8 +4602,6 @@ jobs:
                       all_new_ips.update(f_ips)
                   else:
                       all_known_ips.update(f_ips)
-                  for _ip in f_ips:
-                      ip_auto_feed_count[_ip] = ip_auto_feed_count.get(_ip, 0) + 1
                   evaluation_log.append({
                       "repo":        full_name,
                       "result":      "APPROVED",
