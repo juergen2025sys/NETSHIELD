@@ -706,6 +706,33 @@ jobs:
               # Firewall-Log statt Betreiber-Reputation.
               "mattyroberts_threatlist":
                   "https://www.mattyroberts.io/api/threatlist/latest",
+
+              # IntrusionLabs: Live verifiziert am 13.09.2026 per direktem Abruf -
+              # HTTP 200, reiner Plain-Text, eine IPv4 pro Zeile, kein Kommentar-
+              # Header, kein Auth noetig (~500 Eintraege im Test-Abruf). Ueber
+              # Betreiber/Track-Record dieser Quelle liegt keine unabhaengige
+              # Bestaetigung vor - Aufnahme erfolgte auf Nutzeranweisung.
+              # Laut Nutzerbestaetigung (13.09.2026) keine Ueberschneidung mit
+              # SOURCES in update_combined_blacklist.yml.
+              "intrusionlabs":
+                  "https://intrusionlabs.com/feeds/v1/ips.txt",
+
+              # ThreatCluster: Live verifiziert am 13.09.2026 per direktem Abruf -
+              # HTTP 200, Kommentar-Header ("# Generated:", "# Count:"), danach
+              # IPv4-Liste; parse_entries() filtert den Header automatisch per
+              # Regex heraus, kein Auth noetig.
+              # WARNUNG (13.09.2026): Der verifizierte Test-Abruf enthielt u.a.
+              # die Platzhalter-/Doku-IPs 1.2.3.4, 1.2.3.5 und 5.6.7.8 - also
+              # keine typischen Angreifer-Adressen, sondern vermutlich Test-
+              # daten oder ein Datenqualitaetsproblem der Quelle. Auf
+              # Nutzeranweisung trotzdem aufgenommen, Filterung erfolgt bei
+              # Bedarf spaeter manuell ueber state/false_positives_set.json.
+              # Ueber Betreiber/Track-Record dieser Quelle liegt keine
+              # unabhaengige Bestaetigung vor. Laut Nutzerbestaetigung
+              # (13.09.2026) keine Ueberschneidung mit SOURCES in
+              # update_combined_blacklist.yml.
+              "threatcluster":
+                  "https://threatcluster.io/api/iocs/public/ips.txt",
           }
 
           # Auth-pflichtige Feeds: name -> LISTE von HTTP-Header-Dicts, in
