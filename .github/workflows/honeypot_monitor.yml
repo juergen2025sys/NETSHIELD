@@ -733,6 +733,18 @@ jobs:
               # update_combined_blacklist.yml.
               "threatcluster":
                   "https://threatcluster.io/api/iocs/public/ips.txt",
+
+              # Weitere kostenlose Feeds (2026-09-13).
+              # isMalicious: 10-Prozent-Lite-Version ohne API-Key.
+              # APNIC: nur Angreifer-IP aus CSV-Spalte 1 verarbeiten.
+              "techtools":
+                  "https://techtools.cz/crawler-api/blocklist?format=plain",
+              "apnic_ssh_bruteforce":
+                  "https://feeds.honeynet.asia/bruteforce/latest-sshbruteforce-unique.csv",
+              "apnic_telnet_bruteforce":
+                  "https://feeds.honeynet.asia/bruteforce/latest-telnetbruteforce-unique.csv",
+              "ismalicious_critical":
+                  "https://api.ismalicious.com/blocklist/download/blocklist-ips-critical.txt",
           }
 
           # Auth-pflichtige Feeds: name -> LISTE von HTTP-Header-Dicts, in
@@ -860,7 +872,14 @@ jobs:
                   continue
               # FIX BUG-WL7: use_protected_check=True → Whitelist-IPs
               # werden bereits beim Parsen herausgefiltert.
-              ips = parse_entries(text, use_protected_check=True)
+              parse_text = text
+              if name in {"apnic_ssh_bruteforce", "apnic_telnet_bruteforce"}:
+                  # Nur einzelne Angreifer-IPs, nie die ASN-Netze einlesen.
+                  parse_text = "\n".join(
+                      row[0].strip() for row in csv.reader(text.splitlines())
+                      if row and is_valid_public_ipv4(row[0].strip())
+                  )
+              ips = parse_entries(parse_text, use_protected_check=True)
               all_ips.update(ips)
               stats[name] = len(ips)
               feed_ip_sets[name] = ips
