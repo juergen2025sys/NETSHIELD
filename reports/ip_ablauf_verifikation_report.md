@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-09-13 01:38 CEST (Europe/Berlin)
+Lauf: 2026-09-13 07:21 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -8,8 +8,8 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 
 | Liste | Anzahl |
 |---|---:|
-| Watchlist (30-Tage-Pfad) | 185400 |
-| Active (180-Tage-Pfad) | 833287 |
+| Watchlist (30-Tage-Pfad) | 185338 |
+| Active (180-Tage-Pfad) | 833229 |
 
 ## Live-Fortschritt (heute + nächste Tage)
 
@@ -29,9 +29,9 @@ Zwischenstand, aktualisiert bei JEDEM Lauf (alle 3h) - nicht erst wenn der Tag v
 | Datum | Vorhergesagt | Bisher eingefroren | Fortschritt |
 |---|---:|---:|---:|
 | 2026-09-21 | 6,509 | 0 | 0% |
-| 2026-09-22 | 6,454 | 0 | 0% |
-| 2026-09-23 | 13,109 | 0 | 0% |
-| 2026-09-24 | 16,764 | 0 | 0% |
+| 2026-09-22 | 6,453 | 0 | 0% |
+| 2026-09-23 | 13,106 | 0 | 0% |
+| 2026-09-24 | 16,757 | 0 | 0% |
 
 ## Diagnose-Status
 
@@ -39,13 +39,13 @@ Zwischenstand, aktualisiert bei JEDEM Lauf (alle 3h) - nicht erst wenn der Tag v
 
 ## Wiederauftauch-Prüfung
 
-ℹ️ **190,339 Treffer sind legitime Active→Watchlist-Wiedereintritte und kein Anti-Churn-Rückfall.** Diese IPs stehen noch im Active-Ledger, wurden aber nur schwach neu bestätigt und erscheinen deshalb in konsolidierten Watchlist/Combined-Ausgaben, nicht jedoch in `active_blacklist_ipv4.txt`. Der eingefrorene Active-Anker bleibt erhalten; erst eine echte starke Neubestätigung darf wieder einen neuen 180-Tage-Active-Pfad starten.
+ℹ️ **190,758 Treffer sind legitime Active→Watchlist-Wiedereintritte und kein Anti-Churn-Rückfall.** Diese IPs stehen noch im Active-Ledger, wurden aber nur schwach neu bestätigt und erscheinen deshalb in konsolidierten Watchlist/Combined-Ausgaben, nicht jedoch in `active_blacklist_ipv4.txt`. Der eingefrorene Active-Anker bleibt erhalten; erst eine echte starke Neubestätigung darf wieder einen neuen 180-Tage-Active-Pfad starten.
 
-ℹ️ **184 Treffer sind legitime Watchlist→Active-Aufstiege und kein Anti-Churn-Rückfall.** Diese IPs stehen im Watchlist-Ledger, wurden aber per echter Zweitbestätigung (2+ HQ-Familien) direkt in den Active-Pfad aufgenommen und stehen deshalb in `active_blacklist_ipv4.txt`, ohne (noch) im Active-Ledger zu stehen. Spiegelbild des Active→Watchlist-Falls oben.
+ℹ️ **167 Treffer sind legitime Watchlist→Active-Aufstiege und kein Anti-Churn-Rückfall.** Diese IPs stehen im Watchlist-Ledger, wurden aber per echter Zweitbestätigung (2+ HQ-Familien) direkt in den Active-Pfad aufgenommen und stehen deshalb in `active_blacklist_ipv4.txt`, ohne (noch) im Active-Ledger zu stehen. Spiegelbild des Active→Watchlist-Falls oben.
 
-ℹ️ **175,959 Treffer sind ein legitimer Watchlist-Tages-Cap-Backlog und kein Anti-Churn-Rückfall.** Der aktuelle Combined-State meldet 509,586 noch wartende 30-Tage-Kandidaten (State-Tag: 2026-09-12). Diese IPs stehen im Watchlist-Ledger, aber nicht in `active_blacklist_ipv4.txt`; sie duerfen bis zu einem spaeteren 2.000er-Tages-Slot voruebergehend im Output bleiben.
+ℹ️ **175,925 Treffer sind ein legitimer Watchlist-Tages-Cap-Backlog und kein Anti-Churn-Rückfall.** Der aktuelle Combined-State meldet 520,907 noch wartende 30-Tage-Kandidaten (State-Tag: 2026-09-13). Diese IPs stehen im Watchlist-Ledger, aber nicht in `active_blacklist_ipv4.txt`; sie duerfen bis zu einem spaeteren 2.000er-Tages-Slot voruebergehend im Output bleiben.
 
-✅ 0 echte Rückfälle nach Bereinigung - 190,339 legitime Active→Watchlist-Treffer; 184 legitime Watchlist→Active-Treffer; 175,959 erklaerte Watchlist-Cap-Backlog-Treffer. Sonst keine Auffaelligkeit. Der Fix haelt.
+✅ 0 echte Rückfälle nach Bereinigung - 190,758 legitime Active→Watchlist-Treffer; 167 legitime Watchlist→Active-Treffer; 175,925 erklaerte Watchlist-Cap-Backlog-Treffer. Sonst keine Auffaelligkeit. Der Fix haelt.
 
 ## Prognose-Genauigkeit (Vorhersage vs. Realität)
 
@@ -70,7 +70,7 @@ Gleicht die Tages-Vorhersagen aus reports/ip_ablauf.md (Job "prognose") gegen di
 | 2026-09-11 | 2,000 | 0 | 2,000 | 100.0% |
 | 2026-09-12 | 2,000 | 0 | 2,000 | 100.0% |
 
-_30 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
+_31 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 **Active (180-Tage-Pfad):**
 
@@ -81,25 +81,24 @@ _30 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-09-07 | 663,981 | 0 | 663,981 | 100.0% |
 | 2026-09-08 | 662,324 | 661,899 | 425 | 0.1% |
 
-_52 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
+_53 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +3,943 (Anstieg) (jetzt 11,069,423 IPs)
-- Seit Zyklus-Start (2026-08-23): 📈 +1,673,384 (Anstieg)
-- Letzter combined-Cleanup-Pass: 245,431 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 245,431 Active/180T), 1,069,369 neue IPs hinzugekommen (davon 933,821 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 193 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 1 geschützt entfernt, 135,685 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 8,350,341 (Summe letzte 8 Läufe / ~24h)
-- Entfernte IPs (Summe letzter Läufe): 1,962,917 (Summe letzte 8 Läufe / ~24h)
+- Seit letztem Lauf: 📈 +14,616 (Anstieg) (jetzt 11,084,039 IPs)
+- Seit Zyklus-Start (2026-08-23): 📈 +1,688,000 (Anstieg)
+- Letzter combined-Cleanup-Pass: 245,428 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 245,428 Active/180T), 1,073,664 neue IPs hinzugekommen (davon 933,610 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 4,359 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 1 geschützt entfernt, 136,286 CIDR-Aggregate)
+- Neue IPs (Summe letzter Läufe): 8,338,418 (Summe letzte 8 Läufe / ~24h)
+- Entfernte IPs (Summe letzter Läufe): 1,962,877 (Summe letzte 8 Läufe / ~24h)
   - davon Watchlist/30 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-  - davon Active/180 Tage: 1,962,917 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +48,120 (~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-09-12T11:15 bis 2026-09-12T23:24 UTC
+  - davon Active/180 Tage: 1,962,877 (Summe letzte 8 Läufe / ~24h)
+- Netto-Wachstum (~24h): 📈 +39,691 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-09-12T15:26 bis 2026-09-13T05:04 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-09-11 01:35 CEST (Europe/Berlin) | 10,906,266 | 186476 | 834351 | 0 |
 | 2026-09-11 06:29 CEST (Europe/Berlin) | 10,925,392 | 186475 | 834234 | 0 |
 | 2026-09-11 07:29 CEST (Europe/Berlin) | 10,935,002 | 186475 | 834218 | 0 |
 | 2026-09-11 11:09 CEST (Europe/Berlin) | 10,975,165 | 186475 | 834196 | 0 |
@@ -119,3 +118,4 @@ _52 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-09-12 21:40 CEST (Europe/Berlin) | 11,061,542 | 186473 | 833329 | 0 |
 | 2026-09-12 23:08 CEST (Europe/Berlin) | 11,065,480 | 185406 | 833327 | 0 |
 | 2026-09-13 01:38 CEST (Europe/Berlin) | 11,069,423 | 185400 | 833287 | 0 |
+| 2026-09-13 07:21 CEST (Europe/Berlin) | 11,084,039 | 185338 | 833229 | 0 |
