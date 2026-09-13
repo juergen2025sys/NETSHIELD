@@ -3120,6 +3120,8 @@ class SqliteSeenDB(_MutableMapping):
 
     def __init__(self, db_path):
         self._path = db_path
+        self._decode_feed_list = json.loads
+        self._encode_feed_list = json.dumps
         self._conn = _sqlite3.connect(db_path)
         try:
             self._init_schema()
@@ -3172,7 +3174,7 @@ class SqliteSeenDB(_MutableMapping):
         # Nur der Export verwendet einen Cache unveraenderlicher, sortierter
         # Tupel. Normale DB-Leser bekommen weiterhin eigene mutable Listen.
         if decode_feeds is None:
-            decode_feeds = json.loads
+            decode_feeds = self._decode_feed_list
         (_ip, first, last, hq, feeds, hq_feed_names, hq_feeds,
          today_count, today_hq, days_seen, auto_today_count) = row
         entry = {
@@ -3213,8 +3215,8 @@ class SqliteSeenDB(_MutableMapping):
             d.get("first"),
             d.get("last"),
             1 if coerce_bool(d.get("hq")) else 0,
-            json.dumps(d.get("feeds") or []),
-            json.dumps(d.get("hq_feed_names") or []),
+            self._encode_feed_list(d.get("feeds") or []),
+            self._encode_feed_list(d.get("hq_feed_names") or []),
             d.get("hq_feeds", 0),
             d.get("today_count", 0),
             1 if coerce_bool(d.get("today_hq")) else 0,
@@ -3222,10 +3224,65 @@ class SqliteSeenDB(_MutableMapping):
             d.get("auto_today_count"),
         )
 
+    # SQL-Text einmal aufbauen statt zweimal pro IP im Combined-Ingest.
+    _SELECT_ONE = "SELECT " + ", ".join(_COLUMNS) + " FROM seen_db WHERE ip = ?"
+    _UPSERT = (
+        "INSERT INTO seen_db (" + ", ".join(_COLUMNS) + ") "
+        "VALUES (" + ",".join("?" * len(_COLUMNS)) + ") "
+        "ON CONFLICT(ip) DO UPDATE SET "
+        "first=excluded.first, last=excluded.last, hq=excluded.hq, "
+        "feeds=excluded.feeds, hq_feed_names=excluded.hq_feed_names, "
+        "hq_feeds=excluded.hq_feeds, today_count=excluded.today_count, "
+        "today_hq=excluded.today_hq, days_seen=excluded.days_seen, "
+        "auto_today_count=excluded.auto_today_count"
+    )
+
+    def set_feed_cache_enabled(self, enabled):
+        """Begrenzter JSON-Cache nur fuer den Combined-Ingest.
+
+        Keine IPs/DB-Zeilen cachen: Jeder Lookup liest weiterhin SQLite.
+        Listen bleiben eigene mutable Objekte; Reihenfolge und JSON-Bytes
+        bleiben erhalten. Sonderformen nutzen den bisherigen JSON-Pfad.
+        Ausschalten gibt beide Caches vor Cleanup/Export wieder frei.
+        """
+        self._decode_feed_list = json.loads
+        self._encode_feed_list = json.dumps
+        if not enabled:
+            return
+
+        uncached = object()
+
+        @_lru_cache(maxsize=4096)
+        def decode(raw):
+            value = json.loads(raw)
+            if (type(value) is list and len(value) <= 256
+                    and all(type(item) is str for item in value)):
+                return tuple(value)
+            return uncached
+
+        def decode_list(raw):
+            if type(raw) is str and len(raw) <= 8192:
+                value = decode(raw)
+                if value is not uncached:
+                    return list(value)
+            return json.loads(raw)
+
+        @_lru_cache(maxsize=4096)
+        def encode(values):
+            return json.dumps(values)
+
+        def encode_list(values):
+            if (type(values) is list and len(values) <= 256
+                    and all(type(item) is str for item in values)
+                    and sum(map(len, values)) <= 8192):
+                return encode(tuple(values))
+            return json.dumps(values)
+
+        self._decode_feed_list = decode_list
+        self._encode_feed_list = encode_list
+
     def __getitem__(self, ip):
-        cur = self._conn.execute(
-            "SELECT " + ", ".join(self._COLUMNS) +
-            " FROM seen_db WHERE ip = ?", (ip,))
+        cur = self._conn.execute(self._SELECT_ONE, (ip,))
         row = cur.fetchone()
         if row is None:
             raise KeyError(ip)
@@ -3235,17 +3292,7 @@ class SqliteSeenDB(_MutableMapping):
         if not isinstance(value, dict):
             raise TypeError(f"SqliteSeenDB[{ip!r}] erwartet ein dict, bekam {type(value)}")
         row = self._dict_to_row(ip, value)
-        self._conn.execute(
-            "INSERT INTO seen_db (" + ", ".join(self._COLUMNS) + ") "
-            "VALUES (" + ",".join("?" * len(self._COLUMNS)) + ") "
-            "ON CONFLICT(ip) DO UPDATE SET "
-            "first=excluded.first, last=excluded.last, hq=excluded.hq, "
-            "feeds=excluded.feeds, hq_feed_names=excluded.hq_feed_names, "
-            "hq_feeds=excluded.hq_feeds, today_count=excluded.today_count, "
-            "today_hq=excluded.today_hq, days_seen=excluded.days_seen, "
-            "auto_today_count=excluded.auto_today_count",
-            row,
-        )
+        self._conn.execute(self._UPSERT, row)
 
     def __delitem__(self, ip):
         cur = self._conn.execute("DELETE FROM seen_db WHERE ip = ?", (ip,))
