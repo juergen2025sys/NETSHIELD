@@ -255,6 +255,11 @@ jobs:
             echo "Resync: HEAD war bereits aktuell ($AFTER)"
           fi
 
+          # Preserve the current checkout before an older cache can overwrite it.
+          if [ -f state/watchlist_daily_cap_state.json ]; then
+            cp state/watchlist_daily_cap_state.json "$RUNNER_TEMP/netshield-watchlist-cap-from-git.json"
+          fi
+
       - name: Restore Watchlist Daily Cap State Cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -312,74 +317,16 @@ jobs:
           fi
 
       - name: Restore Aufnahme-Warteliste from GitHub Release (falls vorhanden)
-        # FIX AUFNAHME-CROSS-DAY-V2 (2026-08-24, Nutzerwunsch "Moeglichkeit
-        # wegen den 1,6 Mio. IPs die nicht gefiltert sind"): Warteliste
-        # jetzt als GitHub-Release-Asset statt als Git-committete Datei -
-        # identisches Muster zum seen_db-Backup oben. Grund fuer die
-        # Umstellung: die erste Version (state/aufnahme_warteliste.json
-        # direkt committet) wuchs beim ersten echten Lauf auf 130 MB PRO
-        # COMMIT (alle 3h) - das haette den Git-Verlauf in Tagen um
-        # mehrere GB aufgeblaeht. Als Release-Asset entsteht KEIN Git-
-        # Verlauf-Wachstum, weil Assets nicht Teil der Commit-Historie
-        # sind (gleicher Vorteil, der beim seen_db-Backup schon genutzt
-        # wird - siehe "CHANGE BACKUP-OFF-GIT" an anderer Stelle).
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -euo pipefail
-          mkdir -p state
-          _repo="${GITHUB_REPOSITORY}"
-          _tag="aufnahme-warteliste-backup"
-          _pattern="aufnahme_warteliste.json.gz.part*"
-          # Nur eine erfolgreiche API-Abfrage darf einen Erstlauf feststellen.
-          # API-/Download-Fehler duerfen niemals leere Ersatzhistorie publizieren.
-          _tags=$(gh api --paginate "repos/${_repo}/releases?per_page=100" --jq '.[].tag_name')
-          _found=false
-          while IFS= read -r _release_tag; do
-            if [ "$_release_tag" = "$_tag" ]; then
-              _found=true
-              break
-            fi
-          done <<< "$_tags"
-          if [ "$_found" = true ]; then
-            gh release download "$_tag" \
-              --repo "$_repo" --pattern "$_pattern" --dir state/ --clobber
-          else
-            echo "Release $_tag existiert noch nicht; Erstlauf."
-          fi
+          python3 scripts/netshield_history.py restore --tag aufnahme-warteliste-backup
 
       - name: Restore Anti-Churn-Ledger from GitHub Release (falls vorhanden)
-        # CHANGE LEDGER-OFF-GIT (2026-08-26, Nutzerwunsch "die json soll
-        # nicht im repo gespeichert werden"): identisches Muster wie bei der
-        # Aufnahme-Warteliste oben - state/watchlist_expired_history.json
-        # war auf 21+ MB angewachsen und blaehte den Git-Verlauf bei jedem
-        # Commit weiter auf. Beide Ledger (Watchlist + Active) liegen jetzt
-        # in EINEM gemeinsamen Release ("anti-churn-ledger-backup"), als
-        # zwei separat benannte Part-Praefixe unterscheidbar.
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -euo pipefail
-          mkdir -p state
-          _repo="${GITHUB_REPOSITORY}"
-          _tag="anti-churn-ledger-backup"
-          _pattern="*_expired_history.json.gz.part*"
-          # Nur eine erfolgreiche API-Abfrage darf einen Erstlauf feststellen.
-          # API-/Download-Fehler duerfen niemals leere Ersatzhistorie publizieren.
-          _tags=$(gh api --paginate "repos/${_repo}/releases?per_page=100" --jq '.[].tag_name')
-          _found=false
-          while IFS= read -r _release_tag; do
-            if [ "$_release_tag" = "$_tag" ]; then
-              _found=true
-              break
-            fi
-          done <<< "$_tags"
-          if [ "$_found" = true ]; then
-            gh release download "$_tag" \
-              --repo "$_repo" --pattern "$_pattern" --dir state/ --clobber
-          else
-            echo "Release $_tag existiert noch nicht; Erstlauf."
-          fi
+          python3 scripts/netshield_history.py restore --tag anti-churn-ledger-backup
 
       - name: Restore Auto-Feed Live Snapshot Cache
         id: restore_auto_feed_snapshot
@@ -3206,12 +3153,43 @@ jobs:
           # Datenbankstand alle Feed-Nachweise enthaelt. Vor dem Ingest pruefen:
           # dessen lokale Aenderungen sind noch nicht dauerhaft veroeffentlicht.
           # Nur Eintraege mit bereits bestaetigten 2+ Feeds brauchen SQL-Zugriffe.
+          _aufn_recovered = 0
           _aufn_erledigt = []
           for _aufn_ip, _aufn_feeds in _aufnahme_wartend.items():
               if not isinstance(_aufn_feeds, dict) or len(_aufn_feeds) < 2:
                   continue
               _aufn_row = db._conn.execute(
                   "SELECT feeds FROM seen_db WHERE ip = ?", (_aufn_ip,)).fetchone()
+              if _aufn_row is None:
+                  # Recover a durable cross-confirmation without inventing a
+                  # current feed hit. Keep its original confirmation date and
+                  # all frozen anchors; normal cleanup still applies afterwards.
+                  if _fast_is_wl_or_fp(_aufn_ip):
+                      continue
+                  _aufn_dates = list(_aufn_feeds.values())
+                  if not all(isinstance(_d, str) and len(_d) == 10
+                             and _d[4] == '-' and _d[7] == '-'
+                             and _d <= now_day for _d in _aufn_dates):
+                      raise RuntimeError("Invalid date in saved cross-confirmation")
+                  for _d in _aufn_dates:
+                      type(now).strptime(_d, "%Y-%m-%d")
+                  _aufn_first = max(_aufn_dates)
+                  if _aufn_ip in _wl_expired_first:
+                      _aufn_first = _wl_expired_first[_aufn_ip]["first"]
+                  db[_aufn_ip] = {
+                      "first": _aufn_first, "last": "2000-01-01",
+                      "hq": False, "feeds": sorted(_aufn_feeds),
+                      "hq_feed_names": [], "hq_feeds": 0,
+                      "today_count": 0, "today_hq": False, "days_seen": 0,
+                  }
+                  _aufn_recovered += 1
+                  _upd_since_commit += 1
+                  if _upd_since_commit >= _UPD_COMMIT_EVERY:
+                      db.commit()
+                      _upd_since_commit = 0
+                  # This newly written row is not durably published yet.
+                  # Its proof is acknowledged only after a later DB restore.
+                  continue
               if _aufn_row:
                   try:
                       _aufn_gespeichert = json.loads(_aufn_row[0])
@@ -3224,6 +3202,8 @@ jobs:
               del _aufnahme_wartend[_aufn_ip]
               _aufnahme_wartend_dirty = True
           del _aufn_erledigt
+          if _aufn_recovered:
+              print(f"Aufnahme-Wiederherstellung: {_aufn_recovered:,} bestaetigte IPs ohne neuen Treffer rekonstruiert")
 
           # Tageswerte nur fuer IPs ohne verwertbare Treffer zuruecksetzen.
           # Die anderen Zeilen ueberschreibt der Ingest ohnehin. NOT EXISTS
@@ -3694,11 +3674,22 @@ jobs:
           _wl_cap_day = now.strftime("%Y-%m-%d")
           _wl_cap_heute_bereits_gelaufen = False
           try:
+              _wl_cap_state = {}
               if os.path.exists(WATCHLIST_CAP_STATE_FILE):
                   with open(WATCHLIST_CAP_STATE_FILE) as _f:
                       _wl_cap_state = json.load(_f)
-                  if _wl_cap_state.get("letzter_lauf") == _wl_cap_day:
-                      _wl_cap_heute_bereits_gelaufen = True
+              # Compare with the checkout captured before cache restore.
+              # A cache may be older when its preceding save failed.
+              _cap_git = os.path.join(os.environ.get("RUNNER_TEMP", ""),
+                                      "netshield-watchlist-cap-from-git.json")
+              if os.path.exists(_cap_git):
+                  with open(_cap_git) as _f:
+                      _cap_git_state = json.load(_f)
+                  if _cap_git_state.get("letzter_lauf", "") > _wl_cap_state.get("letzter_lauf", ""):
+                      write_json_atomic(WATCHLIST_CAP_STATE_FILE, _cap_git_state)
+                      _wl_cap_state = _cap_git_state
+              if _wl_cap_state.get("letzter_lauf", "") >= _wl_cap_day:
+                  _wl_cap_heute_bereits_gelaufen = True
           except Exception as _e:
               _wl_cap_heute_bereits_gelaufen = True
               print(f"WARNUNG: {WATCHLIST_CAP_STATE_FILE} nicht lesbar; "
@@ -5394,218 +5385,42 @@ jobs:
       # Ergebnisse explizit; ein fehlgeschlagener Upload darf nicht durchfallen.
       - name: Aufnahme-Warteliste zu Release sichern (komprimiert)
         id: persist_waitlist
-        # FIX AUFNAHME-CROSS-DAY-V2 (2026-08-24): identisches Muster zum
-        # Eigenstaendiges Release-Asset fuer die Aufnahme-Warteliste;
-        # unabhaengig vom einzigen seen_db-SQLite-Release.
-        # statt fuer seen_db. Laeuft NUR, wenn der Python-Block oben eine
-        # Aenderung hatte (state/aufnahme_warteliste_upload.json existiert
-        # dann) - sonst kein unnoetiger Upload.
-        # FIX SHRINK-ALWAYS-UPLOAD 01.09.2026 (Review-Fund MITTEL): war
-        # vorher reines if: always(). Die Warteliste wird aus DIESEM
-        # seen_db-Stand abgeleitet - meldet die Schrumpfungswache ok=false,
-        # ist dieser Stand verdaechtig und darf auch hier nicht publiziert
-        # werden. Build-Erfolg und explizite Freigabe sind erforderlich.
         if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           if [ -f state/aufnahme_warteliste_upload.json ]; then
-            rm -f state/aufnahme_warteliste.json.gz state/aufnahme_warteliste.json.gz.part*
+            rm -f state/aufnahme_warteliste.json.gz.part*
             gzip -c state/aufnahme_warteliste_upload.json > state/aufnahme_warteliste.json.gz.tmp
             split -b 95M -d -a 3 state/aufnahme_warteliste.json.gz.tmp state/aufnahme_warteliste.json.gz.part
-            rm -f state/aufnahme_warteliste.json.gz.tmp state/aufnahme_warteliste_upload.json
-            PART_COUNT=$(ls state/aufnahme_warteliste.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
-            echo "Aufnahme-Warteliste komprimiert: ${PART_COUNT} Part(s), gesamt $(du -ch state/aufnahme_warteliste.json.gz.part* | tail -1 | awk '{print $1}')"
-
-            if gh release view aufnahme-warteliste-backup --repo "${{ github.repository }}" >/dev/null 2>&1; then
-              if gh release upload aufnahme-warteliste-backup state/aufnahme_warteliste.json.gz.part* \
-                  --repo "${{ github.repository }}" --clobber; then
-                gh release edit aufnahme-warteliste-backup --repo "${{ github.repository }}" \
-                  --title "Aufnahme-Warteliste ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
-                  --notes "Automatische Warteliste fuer noch nicht kreuzbestaetigte IPs (Aufnahme-Filter). Wird bei jeder Aenderung ersetzt, kein Git-History-Bestandteil." \
-                  --draft=false \
-                  2>/dev/null || true
-                # FIX 2026-08-24: gleicher Zeitstempel-Refresh wie beim
-                # seen_db-SQLite-Release, siehe ausfuehrlicher Kommentar dort.
-                if gh release edit aufnahme-warteliste-backup --repo "${{ github.repository }}" --draft=true 2>/dev/null; then
-                  if gh release edit aufnahme-warteliste-backup --repo "${{ github.repository }}" --draft=false 2>/dev/null; then
-                    echo "Anzeige-Zeitstempel aufgefrischt (kurzer Draft-Uebergang)"
-                  else
-                    echo "::warning file=update_combined_blacklist.yml::Draft-Toggle fuer aufnahme-warteliste-backup: draft=false nach draft=true fehlgeschlagen - Release koennte als Draft haengen! Bitte manuell in GitHub pruefen."
-                  fi
-                else
-                  echo "Draft-Toggle uebersprungen (draft=true fehlgeschlagen) - Release bleibt unveraendert wie zuvor, kein Schaden"
-                fi
-                # Verwaiste alte Parts aufraeumen (gleicher Grund wie beim
-                # seen_db-Backup: --clobber ersetzt nur gleichnamige Assets).
-                _lokale_parts=$(ls state/aufnahme_warteliste.json.gz.part* 2>/dev/null | xargs -n1 basename)
-                gh release view aufnahme-warteliste-backup --repo "${{ github.repository }}" \
-                    --json assets --jq '.assets[].name' 2>/dev/null \
-                  | grep '^aufnahme_warteliste\.json\.gz\.part' \
-                  | while read -r _remote_asset; do
-                      if ! echo "$_lokale_parts" | grep -qxF "$_remote_asset"; then
-                        echo "Entferne verwaisten alten Part: $_remote_asset"
-                        gh release delete-asset aufnahme-warteliste-backup "$_remote_asset" \
-                          --repo "${{ github.repository }}" --yes
-                      fi
-                    done
-                echo "Aufnahme-Warteliste als Release-Asset aktualisiert (${PART_COUNT} Part(s))"
-              else
-                echo "::error file=update_combined_blacklist.yml::Aufnahme-Warteliste nicht gesichert; neue Datenbank und Repo-Push werden gesperrt."
-                exit 1
-              fi
-            else
-              echo "Kein bestehendes aufnahme-warteliste-backup-Release gefunden - lege neu an (erster Lauf)."
-              if gh release create aufnahme-warteliste-backup state/aufnahme_warteliste.json.gz.part* \
-                  --repo "${{ github.repository }}" \
-                  --title "Aufnahme-Warteliste ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
-                  --notes "Automatische Warteliste fuer noch nicht kreuzbestaetigte IPs (Aufnahme-Filter). Wird bei jeder Aenderung ersetzt, kein Git-History-Bestandteil."; then
-                echo "Aufnahme-Warteliste als Release-Asset hochgeladen (${PART_COUNT} Part(s))"
-                gh release edit aufnahme-warteliste-backup --repo "${{ github.repository }}" \
-                  --draft=false 2>/dev/null || true
-              else
-                echo "::error file=update_combined_blacklist.yml::Erstanlage des Aufnahme-Warteliste-Release fehlgeschlagen; Veroeffentlichung gesperrt."
-                exit 1
-              fi
-            fi
-            # Lokale Parts entfernen - duerfen unter keinen Umstaenden vom
-            # "Commit and Push"-Step versehentlich mitgenommen werden (kein
-            # git add dafuer vorgesehen, aber zusaetzliche Absicherung).
-            rm -f state/aufnahme_warteliste.json.gz.part*
+            python3 scripts/netshield_history.py publish --tag aufnahme-warteliste-backup --parts state/aufnahme_warteliste.json.gz.part*
+            rm -f state/aufnahme_warteliste.json.gz.tmp state/aufnahme_warteliste_upload.json state/aufnahme_warteliste.json.gz.part*
           else
             echo "Keine Aenderung an der Aufnahme-Warteliste in diesem Lauf - kein Upload noetig"
           fi
 
       - name: Anti-Churn-Ledger zu Release sichern (komprimiert)
         id: persist_ledgers
-        # CHANGE LEDGER-OFF-GIT (2026-08-26): identisches Muster zum
-        # "Aufnahme-Warteliste zu Release sichern"-Step oben - hier fuer
-        # beide Anti-Churn-Ledger (Watchlist + Active) statt fuer die
-        # Warteliste. Beide teilen sich EIN gemeinsames Release
-        # ("anti-churn-ledger-backup"), da sie inhaltlich zusammengehoeren
-        # und beide typischerweise klein/mittelgross sind (anders als
-        # seen_db). Laeuft NUR fuer jeweils den Ledger, der in diesem Lauf
-        # tatsaechlich geaendert wurde (state/<name>_upload.json existiert
-        # dann) - der jeweils andere bleibt unangetastet im Release stehen.
-        # FIX SHRINK-ALWAYS-UPLOAD 01.09.2026 (Review-Fund MITTEL): siehe
-        # gleichnamigen Kommentar beim Warteliste-Upload oben. Die Ledger
-        # entstehen aus den Cleanup-Entscheidungen dieses Laufs; bei
-        # ok=false sind genau diese Entscheidungen nicht vertrauenswuerdig.
         if: always() && steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          GEAENDERTE_LEDGER=""
+          ALLE_PARTS=""
           for LEDGER_NAME in watchlist_expired_history active_expired_history; do
             if [ -f "state/${LEDGER_NAME}_upload.json" ]; then
-              rm -f "state/${LEDGER_NAME}.json.gz" state/${LEDGER_NAME}.json.gz.part*
-              # FIX LEDGER-SIZE (2026-08-28): -9 statt Default (-6). Der
-              # Ledger wird pro Lauf einmal komprimiert und ist mit wenigen
-              # MB klein genug, dass die hoehere CPU-Zeit nicht ins Gewicht
-              # faellt. Erzeugt weiterhin regulaeres gzip - Lesepfad
-              # (gzip.GzipFile in diesem Workflow, gunzip in ip_ablauf.yml)
-              # bleibt unveraendert, alte Assets bleiben lesbar.
+              rm -f state/${LEDGER_NAME}.json.gz.part*
               gzip -9 -c "state/${LEDGER_NAME}_upload.json" > "state/${LEDGER_NAME}.json.gz.tmp"
               split -b 95M -d -a 3 "state/${LEDGER_NAME}.json.gz.tmp" "state/${LEDGER_NAME}.json.gz.part"
-              rm -f "state/${LEDGER_NAME}.json.gz.tmp" "state/${LEDGER_NAME}_upload.json"
-              PART_COUNT=$(ls state/${LEDGER_NAME}.json.gz.part* 2>/dev/null | wc -l | tr -d ' ')
-              echo "${LEDGER_NAME}: komprimiert, ${PART_COUNT} Part(s), $(du -ch state/${LEDGER_NAME}.json.gz.part* | tail -1 | awk '{print $1}')"
-              GEAENDERTE_LEDGER="${GEAENDERTE_LEDGER} ${LEDGER_NAME}"
+              ALLE_PARTS="${ALLE_PARTS} $(ls state/${LEDGER_NAME}.json.gz.part*)"
             fi
           done
-
-          if [ -n "$GEAENDERTE_LEDGER" ]; then
-            # FIX BUG-19-LEDGER-GLOB-CRASH (2026-08-28, im echten Betrieb
-            # entdeckt: Lauf mit 14.827 neu abgelaufenen Watchlist-IPs -
-            # erster echter Ledger-Zuwachs seit Bug 17 - ist genau hieran
-            # gescheitert): vorher wurden hier IMMER beide Ledger-Glob-Muster
-            # kombiniert, unabhaengig davon, welcher Ledger in $GEAENDERTE_LEDGER
-            # stand. War nur EINER der beiden geaendert (Normalfall - meist
-            # aendert sich Watchlist ODER Active, selten beide im selben Lauf),
-            # passte das Glob-Muster des UNVERAENDERTEN Ledgers zu keiner
-            # Datei. Unter "bash -e" liess das die komplette Zuweisung
-            # ALLE_PARTS=$(...) mit Exit-Code 2 fehlschlagen (ls liefert 2,
-            # wenn eines von mehreren Argumenten nicht existiert - auch mit
-            # 2>/dev/null unterdrueckt das nur die Fehlermeldung, nicht den
-            # Exit-Code) - und riss damit den gesamten Schritt ab, NOCH VOR
-            # dem eigentlichen "gh release upload". Ergebnis: die frisch
-            # abgelaufenen IPs wurden bereits aus seen_db entfernt (das commit-
-            # tet unabhaengig davon ganz normal), ihr Ledger-Eintrag landete
-            # aber nie im Release - faktisch derselbe Datenverlust wie bei
-            # Bug 17, nur in kleinerem Massstab (diese eine Charge statt des
-            # gesamten Ledgers).
-            # Fix: nur ueber die tatsaechlich in diesem Lauf geaenderten
-            # Ledger iterieren (GEAENDERTE_LEDGER ist an dieser Stelle schon
-            # bekannt) statt beide Glob-Muster blind zu kombinieren - fuer den
-            # jeweils unveraenderten Ledger wird gar kein Muster mehr
-            # ausgewertet, kann also auch nicht leer laufen.
-            ALLE_PARTS=""
-            for LEDGER_NAME in $GEAENDERTE_LEDGER; do
-              ALLE_PARTS="${ALLE_PARTS} $(ls state/${LEDGER_NAME}.json.gz.part* 2>/dev/null)"
+          if [ -n "$ALLE_PARTS" ]; then
+            python3 scripts/netshield_history.py publish --tag anti-churn-ledger-backup --parts $ALLE_PARTS
+            for LEDGER_NAME in watchlist_expired_history active_expired_history; do
+              rm -f "state/${LEDGER_NAME}.json.gz.tmp" "state/${LEDGER_NAME}_upload.json" state/${LEDGER_NAME}.json.gz.part*
             done
-
-            if gh release view anti-churn-ledger-backup --repo "${{ github.repository }}" >/dev/null 2>&1; then
-              if gh release upload anti-churn-ledger-backup $ALLE_PARTS \
-                  --repo "${{ github.repository }}" --clobber; then
-                gh release edit anti-churn-ledger-backup --repo "${{ github.repository }}" \
-                  --title "Anti-Churn-Ledger ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
-                  --notes "Automatische Anti-Churn-Ledger fuer Watchlist- (30T) und Active-Pfad (180T). Wird bei jeder Aenderung ersetzt, kein Git-History-Bestandteil." \
-                  --draft=false \
-                  2>/dev/null || true
-                # FIX 2026-08-24-artig: gleicher Zeitstempel-Refresh wie beim
-                # Warteliste-Release, siehe ausfuehrlicher
-                # Kommentar dort.
-                if gh release edit anti-churn-ledger-backup --repo "${{ github.repository }}" --draft=true 2>/dev/null; then
-                  if gh release edit anti-churn-ledger-backup --repo "${{ github.repository }}" --draft=false 2>/dev/null; then
-                    echo "Anzeige-Zeitstempel aufgefrischt (kurzer Draft-Uebergang)"
-                  else
-                    echo "::warning file=update_combined_blacklist.yml::Draft-Toggle fuer anti-churn-ledger-backup: draft=false nach draft=true fehlgeschlagen - Release koennte als Draft haengen! Bitte manuell in GitHub pruefen."
-                  fi
-                else
-                  echo "Draft-Toggle uebersprungen (draft=true fehlgeschlagen) - Release bleibt unveraendert wie zuvor, kein Schaden"
-                fi
-                # Verwaiste alte Parts aufraeumen - NUR fuer die Ledger, die
-                # in DIESEM Lauf tatsaechlich neu geschrieben wurden (der
-                # jeweils andere Ledger bleibt unberuehrt, seine Parts sind
-                # kein "verwaist", nur schlicht nicht Teil dieses Uploads).
-                for LEDGER_NAME in $GEAENDERTE_LEDGER; do
-                  _lokale_parts=$(ls state/${LEDGER_NAME}.json.gz.part* 2>/dev/null | xargs -n1 basename)
-                  gh release view anti-churn-ledger-backup --repo "${{ github.repository }}" \
-                      --json assets --jq '.assets[].name' 2>/dev/null \
-                    | grep "^${LEDGER_NAME}\.json\.gz\.part" \
-                    | while read -r _remote_asset; do
-                        if ! echo "$_lokale_parts" | grep -qxF "$_remote_asset"; then
-                          echo "Entferne verwaisten alten Part: $_remote_asset"
-                          gh release delete-asset anti-churn-ledger-backup "$_remote_asset" \
-                            --repo "${{ github.repository }}" --yes
-                        fi
-                      done
-                done
-                echo "Anti-Churn-Ledger als Release-Asset aktualisiert (${GEAENDERTE_LEDGER})"
-              else
-                echo "::error file=update_combined_blacklist.yml::Anti-Churn-Ledger nicht gesichert; neue Datenbank und Repo-Push werden gesperrt."
-                exit 1
-              fi
-            else
-              echo "Kein bestehendes anti-churn-ledger-backup-Release gefunden - lege neu an (erster Lauf)."
-              if gh release create anti-churn-ledger-backup $ALLE_PARTS \
-                  --repo "${{ github.repository }}" \
-                  --title "Anti-Churn-Ledger ($(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z'))" \
-                  --notes "Automatische Anti-Churn-Ledger fuer Watchlist- (30T) und Active-Pfad (180T). Wird bei jeder Aenderung ersetzt, kein Git-History-Bestandteil."; then
-                echo "Anti-Churn-Ledger als Release-Asset hochgeladen (${GEAENDERTE_LEDGER})"
-                gh release edit anti-churn-ledger-backup --repo "${{ github.repository }}" \
-                  --draft=false 2>/dev/null || true
-              else
-                echo "::error file=update_combined_blacklist.yml::Erstanlage des Anti-Churn-Ledger-Release fehlgeschlagen; Veroeffentlichung gesperrt."
-                exit 1
-              fi
-            fi
-            # Lokale Parts entfernen - duerfen unter keinen Umstaenden vom
-            # "Commit and Push"-Step versehentlich mitgenommen werden (kein
-            # git add dafuer vorgesehen, aber zusaetzliche Absicherung).
-            rm -f state/watchlist_expired_history.json.gz.part* state/active_expired_history.json.gz.part*
           else
             echo "Keine Aenderung an den Anti-Churn-Ledgern in diesem Lauf - kein Upload noetig"
           fi
