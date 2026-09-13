@@ -2430,11 +2430,14 @@ jobs:
               """Schreibt Feed-Treffer disk-backed in SQLite statt in Millionen Python-Sets."""
               _is_hq = int((name in HIGH_QUALITY)
                            if is_hq_override is None else coerce_bool(is_hq_override))
+              # Gleiche Treffer in Reihenfolge des (ip, feed)-Primaerschluessels
+              # einfuegen: weniger zufaellige SQLite-Seitenzugriffe bei grossen
+              # Feeds. Nur die Einfuegereihenfolge aendert sich, keine Treffer.
               _run_conn.executemany(
                   "INSERT INTO temp.run_feed_hits(ip,feed,is_hq) VALUES (?,?,?) "
                   "ON CONFLICT(ip,feed) DO UPDATE SET "
                   "is_hq = MAX(run_feed_hits.is_hq, excluded.is_hq)",
-                  ((ip, name, _is_hq) for ip in ips))
+                  ((ip, name, _is_hq) for ip in sorted(ips)))
               feed_stats.append((name, len(ips)))
 
           # ── Slow-Feeds (grosse Dateien mit langer Latenz) ──────────────
@@ -3195,6 +3198,9 @@ jobs:
           # komplett erfolgreichem Build + Guards.
           _UPD_COMMIT_EVERY = 50_000
           _upd_since_commit = 0
+          # Nur wiederkehrende Feed-JSON-Werte cachen, keine IP-Zustaende.
+          # Alle Regeln, SQL-Schreibvorgaenge und Commit-Grenzen bleiben gleich.
+          db.set_feed_cache_enabled(True)
 
           # Bestaetigte Wartelisteneintraege erst entfernen, wenn der RESTAURIERTE
           # Datenbankstand alle Feed-Nachweise enthaelt. Vor dem Ingest pruefen:
@@ -3618,6 +3624,8 @@ jobs:
               db.commit()
               _upd_diag_sql_s += _time.monotonic() - _upd_diag_t
               _upd_since_commit = 0
+
+          db.set_feed_cache_enabled(False)
 
           # ── FIX PERF-CLEANUP: Vier volle seen_db-Passes zu einem zusammengefasst.
           # Vorher liefen vier separate Schleifen ueber alle ~4,8M Eintraege:
