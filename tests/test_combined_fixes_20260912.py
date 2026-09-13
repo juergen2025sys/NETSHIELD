@@ -343,6 +343,17 @@ gh() {
   return 0
 }
 '''
+        if "scripts/netshield_history.py" in step["run"]:
+            # These tests exercise the real shell gates; the helper's durable
+            # commit and every interrupted upload/rename are covered separately
+            # with an immutable local asset store in test_combined_state_safety.
+            mock += r'''
+python3() {
+  printf 'UPLOAD_ATTEMPT\n' >&2
+  if [ "$MODE" = upload_error ] || [ "$MODE" = create_error ]; then return 1; fi
+  return 0
+}
+'''
         try:
             code = step["run"].replace("${{ github.repository }}", "fixture/repo")
             return subprocess.run([shell, "-e", "-o", "pipefail", "-c",
@@ -359,7 +370,9 @@ gh() {
                  ("Anti-Churn-Ledger zu Release sichern (komprimiert)", "watchlist_expired_history")]
         for name, prefix in cases:
             step = next(s for s in steps if s.get("name") == name)
-            for mode in ("upload_error", "create_error", "delete_error"):
+            modes = (("upload_error", "create_error") if "netshield_history.py" in step["run"]
+                     else ("upload_error", "create_error", "delete_error"))
+            for mode in modes:
                 with self.subTest(step=name, mode=mode):
                     result = self.history_upload(step, prefix, mode)
                     self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -652,6 +665,10 @@ gh() {
         self.assertEqual(list(Path(".").glob(".export.json.*.tmp")), [])
 
     def test_restore_distinguishes_absent_release_from_api_and_download_errors(self):
+        if "scripts/netshield_history.py restore" in WORKFLOW.read_text(encoding="utf-8"):
+            from tests.test_combined_state_safety import assert_restore_scenarios
+            assert_restore_scenarios(self)
+            return
         shell = os.environ.get("NETSHIELD_TEST_BASH") or shutil.which("bash")
         if not shell:
             self.skipTest("Bash required for workflow shell regression")
