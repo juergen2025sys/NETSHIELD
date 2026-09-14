@@ -1,6 +1,6 @@
 # NETSHIELD – Netherlands (NL) IPv4 Ranges
-# Aktualisiert: 2026-09-09 08:20 CEST (Europe/Berlin)
-# IP-Ranges: 6246
+# Aktualisiert: 2026-09-14 08:48 CEST (Europe/Berlin)
+# IP-Ranges: 6247
 
 2.16.0.0/13
 2.56.56.0/22
@@ -5802,6 +5802,7 @@
 198.200.8.0/23
 198.228.101.0/22
 199.19.76.0/23
+199.33.179.0/24
 199.67.72.0/22
 199.67.80.0/22
 199.67.88.0/22
