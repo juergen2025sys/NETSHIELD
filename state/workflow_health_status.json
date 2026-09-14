@@ -1,16 +1,10 @@
 {
-  "updated": "2026-09-14 20:36 CEST (Europe/Berlin)",
+  "updated": "2026-09-15 00:27 CEST (Europe/Berlin)",
   "total": 30,
   "ok": 29,
   "warn": 1,
-  "error": 1,
-  "errors": [
-    {
-      "file": "Production Health",
-      "check": "active \u2286 conf40 Subset-Invariante verletzt",
-      "detail": "297 IPs in active fehlen in conf40 (0.032% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
-    }
-  ],
+  "error": 0,
+  "errors": [],
   "warnings": [
     {
       "file": "netshield_report_generator.yml",
@@ -20,7 +14,7 @@
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "e7d248c9c106ab19c979485907988419732f2c01",
+    "sha": "41aba36d5314b8c7a297133e65f048f99d997fd0",
     "status": "passed",
     "tests_run": 449,
     "failures": [],
@@ -32,23 +26,17 @@
     "detail": "449 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5746225,
-    "active_blacklist_ipv4.txt": 941612,
-    "blacklist_confidence40_ipv4_part1.txt": 4129274,
+    "combined_threat_blacklist_ipv4_part1.txt": 5755268,
+    "active_blacklist_ipv4.txt": 960146,
+    "blacklist_confidence40_ipv4_part1.txt": 4137654,
     "cve_exploit_ips.txt": 28154,
-    "honeypot_ips.txt": 2256806,
-    "bot_detector_blacklist_ipv4.txt": 1282171
+    "honeypot_ips.txt": 2270885,
+    "bot_detector_blacklist_ipv4.txt": 1282152
   },
   "production_health": {
-    "critical": 1,
+    "critical": 0,
     "warn": 0,
-    "checks": [
-      {
-        "level": "CRITICAL",
-        "check": "active \u2286 conf40 Subset-Invariante verletzt",
-        "detail": "297 IPs in active fehlen in conf40 (0.032% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
-      }
-    ]
+    "checks": []
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
