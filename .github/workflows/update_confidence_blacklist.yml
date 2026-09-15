@@ -86,12 +86,12 @@ jobs:
       # Combined-Gate. Ueberspringt den Lauf, wenn:
       #   (a) bereits ein anderer Lauf dieses Workflows aktiv ist
       #       (queued/in_progress, sich selbst ausgenommen), ODER
-      #   (b) der zuletzt abgeschlossene Lauf juenger als RECENT_MINUTES ist.
+      #   (b) der zuletzt erfolgreich abgeschlossene Lauf juenger als RECENT_MINUTES ist.
       # Gilt fuer JEDEN Trigger (workflow_dispatch UND schedule) - "egal von
       # welchem Trigger" war die explizite Anforderung, weil sowohl der
       # explizite Trigger aus Combined als auch der Fallback-Cron denselben
       # seen_db-Snapshot verarbeiten koennen.
-      - name: Idempotenz-Gate - anderer Lauf aktiv oder kuerzlich fertig?
+      - name: Idempotenz-Gate - anderer Lauf aktiv oder kuerzlich erfolgreich?
         id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -117,30 +117,34 @@ jobs:
             exit 0
           fi
 
-          echo "Kein anderer aktiver Lauf. Pruefe Zeitpunkt des letzten abgeschlossenen Laufs..."
-          LAST_FINISHED=$(gh run list --repo "$REPO" \
+          echo "Kein anderer aktiver Lauf. Pruefe Zeitpunkt des letzten erfolgreichen Laufs..."
+          # Wichtig: GitHubs Status "completed" umfasst neben success auch
+          # cancelled/failure/timed_out. Nur ein erfolgreicher Lauf darf die
+          # 15-Minuten-Idempotenzsperre ausloesen; ein abgebrochener Lauf hat
+          # den seen_db-Snapshot nicht verlaesslich verarbeitet.
+          LAST_SUCCESSFUL=$(gh run list --repo "$REPO" \
             --workflow update_confidence_blacklist.yml \
             --status completed \
-            --json databaseId,updatedAt \
-            --jq "[.[] | select(.databaseId != ${SELF_RUN_ID})] | sort_by(.updatedAt) | reverse | .[0].updatedAt // empty")
+            --json databaseId,updatedAt,conclusion \
+            --jq "[.[] | select(.databaseId != ${SELF_RUN_ID}) | select(.conclusion == \"success\")] | sort_by(.updatedAt) | reverse | .[0].updatedAt // empty")
 
-          if [ -z "$LAST_FINISHED" ]; then
+          if [ -z "$LAST_SUCCESSFUL" ]; then
             echo "proceed=true" >> "$GITHUB_OUTPUT"
-            echo "Kein frueherer abgeschlossener Lauf gefunden - Lauf startet."
+            echo "Kein frueherer erfolgreicher Lauf gefunden - Lauf startet."
             exit 0
           fi
 
-          LAST_EPOCH=$(date -u -d "$LAST_FINISHED" +%s)
+          LAST_EPOCH=$(date -u -d "$LAST_SUCCESSFUL" +%s)
           NOW_EPOCH=$(date -u +%s)
           AGE_MIN=$(( (NOW_EPOCH - LAST_EPOCH) / 60 ))
-          echo "Letzter abgeschlossener Lauf endete: ${LAST_FINISHED} (vor ${AGE_MIN} Min.)"
+          echo "Letzter erfolgreicher Lauf endete: ${LAST_SUCCESSFUL} (vor ${AGE_MIN} Min.)"
 
           if [ "$AGE_MIN" -lt "$RECENT_MINUTES" ]; then
             echo "proceed=false" >> "$GITHUB_OUTPUT"
-            echo "Ueberspringe: letzter Lauf ist erst ${AGE_MIN} Min. alt (Schwelle ${RECENT_MINUTES} Min.) - seen_db-Snapshot wurde bereits frisch verarbeitet."
+            echo "Ueberspringe: letzter erfolgreiche Lauf ist erst ${AGE_MIN} Min. alt (Schwelle ${RECENT_MINUTES} Min.) - seen_db-Snapshot wurde bereits frisch verarbeitet."
           else
             echo "proceed=true" >> "$GITHUB_OUTPUT"
-            echo "Letzter Lauf ist ${AGE_MIN} Min. alt (>= ${RECENT_MINUTES} Min. Schwelle) - Lauf startet."
+            echo "Letzter erfolgreiche Lauf ist ${AGE_MIN} Min. alt (>= ${RECENT_MINUTES} Min. Schwelle) - Lauf startet."
           fi
 
   update-confidence:
