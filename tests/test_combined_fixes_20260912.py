@@ -708,5 +708,96 @@ gh() {
                             self.assertIn("DOWNLOAD:" + argument, result.stdout)
 
 
+class WatchlistPruneGuardTests(unittest.TestCase):
+    """Exercise the real watchlist prune/guard block from the workflow."""
+
+    @staticmethod
+    def entry(day):
+        return {"first": "2026-07-01", "eingefroren_am": day}
+
+    @staticmethod
+    def ledger(day_counts, invalid=None):
+        result = {}
+        number = 0
+        for day, count in day_counts:
+            for _ in range(count):
+                result[f"45.1.{number // 250}.{number % 250 + 1}"] = WatchlistPruneGuardTests.entry(day)
+                number += 1
+        for value in invalid or []:
+            result[f"45.2.{number // 250}.{number % 250 + 1}"] = value
+            number += 1
+        return result
+
+    def run_prune(self, ledger, day="2026-09-15"):
+        now = datetime.strptime(day, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        original = dict(ledger)
+        env = {
+            "datetime": datetime,
+            "timedelta": timedelta,
+            "now": now,
+            "_wl_expired_first": ledger,
+            "_wl_expired_first_dirty": False,
+            "_active_expired_last": {},
+            "_active_expired_last_dirty": False,
+        }
+        code = workflow_section("WL_HISTORY_PRUNE_DAYS = 14", "if _wl_expired_first_dirty:")
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            exec(compile(code, str(WORKFLOW), "exec"), env)
+        return env, output.getvalue(), original
+
+    def test_large_exact_boundary_cohort_is_allowed(self):
+        ledger = self.ledger([("2026-08-31", 1000), ("2026-09-05", 200)])
+        env, output, _ = self.run_prune(ledger)
+        self.assertFalse(env["_wl_prune_guard_ausgeloest"])
+        self.assertTrue(env["_wl_kohorten_ausnahme"])
+        self.assertEqual(len(env["_wl_expired_first"]), 200)
+        self.assertIn("SANITY-GUARD Kohorten-Ausnahme", output)
+
+    def test_large_mixed_cohorts_are_blocked(self):
+        ledger = self.ledger([
+            ("2026-08-31", 700), ("2026-08-30", 300), ("2026-09-05", 200)
+        ])
+        env, output, original = self.run_prune(ledger)
+        self.assertTrue(env["_wl_prune_guard_ausgeloest"])
+        self.assertFalse(env["_wl_kohorten_ausnahme"])
+        self.assertEqual(env["_wl_expired_first"], original)
+        self.assertFalse(env["_wl_expired_first_dirty"])
+        self.assertIn("Pruning wird NICHT angewendet", output)
+
+    def test_large_single_but_wrong_cohort_is_blocked(self):
+        ledger = self.ledger([("2026-08-25", 1000), ("2026-09-05", 200)])
+        env, _, original = self.run_prune(ledger)
+        self.assertTrue(env["_wl_prune_guard_ausgeloest"])
+        self.assertFalse(env["_wl_kohorten_ausnahme"])
+        self.assertEqual(env["_wl_expired_first"], original)
+
+    def test_normal_small_prune_does_not_need_exception(self):
+        ledger = self.ledger([("2026-08-31", 400), ("2026-09-05", 800)])
+        env, _, _ = self.run_prune(ledger)
+        self.assertFalse(env["_wl_guard_schwelle_erreicht"])
+        self.assertFalse(env["_wl_prune_guard_ausgeloest"])
+        self.assertFalse(env["_wl_kohorten_ausnahme"])
+        self.assertEqual(len(env["_wl_expired_first"]), 800)
+
+    def test_missing_and_invalid_dates_are_kept_and_block_large_exception(self):
+        invalid = [
+            {},
+            {"first": "2026-07-01", "eingefroren_am": None},
+            {"first": "2026-07-01", "eingefroren_am": "2026-99-99"},
+            {"first": "2026-07-01", "eingefroren_am": "kaputt"},
+            {"first": "2026-07-01", "eingefroren_am": 20260831},
+        ]
+        ledger = self.ledger([("2026-08-31", 1000), ("2026-09-05", 195)], invalid=invalid)
+        env, output, original = self.run_prune(ledger)
+        self.assertEqual(env["_wl_undatiert"], 5)
+        self.assertTrue(env["_wl_prune_guard_ausgeloest"])
+        self.assertFalse(env["_wl_kohorten_ausnahme"])
+        self.assertEqual(env["_wl_expired_first"], original)
+        self.assertFalse(env["_wl_expired_first_dirty"])
+        self.assertIn("5 Eintraege ohne gueltiges", output)
+        self.assertIn("aktuell 5", output)
+
+
 if __name__ == "__main__":
     unittest.main()
