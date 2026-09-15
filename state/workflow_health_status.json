@@ -1,10 +1,16 @@
 {
-  "updated": "2026-09-15 14:39 CEST (Europe/Berlin)",
+  "updated": "2026-09-15 19:40 CEST (Europe/Berlin)",
   "total": 30,
   "ok": 29,
   "warn": 1,
-  "error": 0,
-  "errors": [],
+  "error": 1,
+  "errors": [
+    {
+      "file": "Production Health",
+      "check": "Drift: honeypot_ips.txt",
+      "detail": "honeypot_ips.txt: 2,273,791 \u2192 1,360,779 (-40%) \u2013 starker R\u00fcckgang seit letztem Check"
+    }
+  ],
   "warnings": [
     {
       "file": "netshield_report_generator.yml",
@@ -14,29 +20,35 @@
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "de5f8d511c2e3d389733210c90f29229fc3813bc",
+    "sha": "c2e5a6220212832f99cfef53635fa4ddac553687",
     "status": "passed",
-    "tests_run": 458,
+    "tests_run": 460,
     "failures": [],
     "errors": [],
     "skipped": [],
     "unexpected_successes": [],
     "missing_required": [],
     "required_not_passed": [],
-    "detail": "458 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
+    "detail": "460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5790764,
-    "active_blacklist_ipv4.txt": 947691,
-    "blacklist_confidence40_ipv4_part1.txt": 4165041,
-    "cve_exploit_ips.txt": 27977,
-    "honeypot_ips.txt": 2273791,
-    "bot_detector_blacklist_ipv4.txt": 1271160
+    "combined_threat_blacklist_ipv4_part1.txt": 5799009,
+    "active_blacklist_ipv4.txt": 963475,
+    "blacklist_confidence40_ipv4_part1.txt": 4172464,
+    "cve_exploit_ips.txt": 27992,
+    "honeypot_ips.txt": 1360779,
+    "bot_detector_blacklist_ipv4.txt": 1269273
   },
   "production_health": {
-    "critical": 0,
+    "critical": 1,
     "warn": 0,
-    "checks": []
+    "checks": [
+      {
+        "level": "CRITICAL",
+        "check": "Drift: honeypot_ips.txt",
+        "detail": "honeypot_ips.txt: 2,273,791 \u2192 1,360,779 (-40%) \u2013 starker R\u00fcckgang seit letztem Check"
+      }
+    ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
