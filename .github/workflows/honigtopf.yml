@@ -411,6 +411,19 @@ jobs:
 
           CREDENTIALS = _valid_credentials
 
+          # FIX 402-RUN-QUARANTAENE (2026-09-15): Ein HTTP 402 auf einem
+          # echten Daten-Endpunkt ist in der Praxis credential-/accountbezogen.
+          # Sobald eine Credential in api_get() einmal 402 liefert, wird sie
+          # fuer den REST DIESES WORKFLOW-LAUFS aus weiteren API-Aufrufen
+          # ausgeschlossen. Beim naechsten Workflow-Lauf startet der Pool
+          # wieder vollstaendig; es gibt also keine dauerhafte Sperre.
+          #
+          # Wichtig: Ein 402 im uncounted Key-Health-Check allein quarantiniert
+          # noch NICHT. Der Health-Endpunkt kann andere Plan/Berechtigungs-
+          # Eigenschaften haben. Erst ein 402 auf dem tatsaechlich benoetigten
+          # Daten-Endpunkt fuehrt zur Laufzeit-Quarantaene.
+          _disabled_402_credentials = set()
+
           # Rotations-Zeiger: zeigt auf die als naechstes zu nutzende Credential.
           # Wird bei jeder Anfrage um 1 weitergedreht (Round-Robin), sodass sich
           # die Last gleichmaessig auf alle Accounts verteilt.
@@ -450,12 +463,26 @@ jobs:
               global requests_used, _rr_index, last_remaining_numeric
               url = f"{BASE_URL}{endpoint}"
 
-              n = len(CREDENTIALS)
-              # Round-Robin: bei dieser Anfrage mit der naechsten Credential
-              # starten und den Zeiger weiterdrehen. So verteilt sich die Last
-              # ueber die Laeufe hinweg gleichmaessig auf alle Accounts.
-              start = _rr_index
-              _rr_index = (_rr_index + 1) % n
+              # Credentials, die in DIESEM Lauf bereits auf einem echten
+              # Daten-Endpunkt HTTP 402 geliefert haben, nicht erneut senden.
+              # Dadurch erzeugt ein Account-/Planproblem nicht bei jedem der
+              # ~30 Service-Endpunkte denselben unnuetzen 402-Request.
+              active_credentials = [
+                  cred for cred in CREDENTIALS
+                  if cred[2] not in _disabled_402_credentials
+              ]
+              if not active_credentials:
+                  print(f"  ALLE CREDENTIALS FUER DIESEN LAUF DEAKTIVIERT [{label or endpoint}] (HTTP 402)")
+                  failed_endpoints.add(endpoint)
+                  return None
+
+              n = len(active_credentials)
+              # Round-Robin: bei dieser Anfrage mit der naechsten aktuell
+              # aktiven Credential starten und den Zeiger weiterdrehen.
+              # Nach einer 402-Quarantaene wird der Index auf die verkleinerte
+              # aktive Liste normalisiert.
+              start = _rr_index % n
+              _rr_index = (start + 1) % n
 
               # Reihenfolge fuer DIESE Anfrage: ab start einmal rundherum.
               # Bei 401/402/429 wird die naechste Credential im Ring versucht
@@ -464,7 +491,7 @@ jobs:
               order = [(start + k) % n for k in range(n)]
 
               for idx in order:
-                  cred_id, cred_key, cred_label = CREDENTIALS[idx]
+                  cred_id, cred_key, cred_label = active_credentials[idx]
                   for attempt in range(1, retries + 1):
                       try:
                           with safe_urlopen(url, headers={
@@ -524,9 +551,13 @@ jobs:
                               # HoneyDB kann 402 credential-/accountbezogen liefern
                               # (z.B. Plan/Berechtigung), waehrend eine andere
                               # Credential denselben Endpoint noch erfolgreich
-                              # abrufen kann. Deshalb wie 401/429 failovern,
-                              # statt den gesamten Endpoint sofort abzubrechen.
-                              print(f"  HTTP 402 / PLAN-BERECHTIGUNG [{label or endpoint}] ({cred_label}) – naechste Credential")
+                              # abrufen kann. Deshalb failovern UND diese
+                              # Credential fuer den Rest dieses Laufs quarantinieren.
+                              _disabled_402_credentials.add(cred_label)
+                              print(
+                                  f"  HTTP 402 / PLAN-BERECHTIGUNG [{label or endpoint}] ({cred_label}) "
+                                  "– fuer Rest dieses Laufs deaktiviert; naechste Credential"
+                              )
                               break  # naechste Credential im Ring probieren
                           if e.code in (500, 502, 503, 504) and attempt < retries:
                               wait_s = 2 ** attempt
@@ -923,7 +954,9 @@ jobs:
           lines.append("| Credential | Status |")
           lines.append("|---|---|")
           for _c in credential_status:
-              if _c["ok"] is True:
+              if _c["label"] in _disabled_402_credentials:
+                  _status_txt = "⚠️ HTTP 402 auf Daten-Endpunkt – für diesen Lauf deaktiviert"
+              elif _c["ok"] is True:
                   _status_txt = f"✅ gültig (HTTP {_c.get('http', '?')})"
               elif _c["ok"] is False:
                   _status_txt = f"❌ ungültig (HTTP {_c.get('http', '?')}) – aus Pool entfernt"
