@@ -251,6 +251,49 @@ class AuditFixTests(unittest.TestCase):
         self.assertEqual(self.rows("honigtopf_ips.txt"), set(ips))
         self.assertIn("HTTP 402 / PLAN-BERECHTIGUNG", result[2])
 
+    def test_honey_http_402_credential_is_quarantined_for_rest_of_run(self):
+        """A credential that returns 402 on data must not be retried later in the same run."""
+        ips = public_ips(800)
+        ids = ["ID1", "ID2", "ID3"]
+        env = {
+            "HONEYDB_API_ID": ids[0], "HONEYDB_API_KEY": "KEY1",
+            "HONEYDB_API_ID_2": ids[1], "HONEYDB_API_KEY_2": "KEY2",
+            "HONEYDB_API_ID_3": ids[2], "HONEYDB_API_KEY_3": "KEY3",
+            "GITHUB_EVENT_NAME": "schedule", "FORCE_LIGHT": "false",
+        }
+        calls = []
+
+        def api(url, headers=None, **kwargs):
+            cred_id = (headers or {}).get("X-HoneyDb-ApiId")
+            calls.append((url, cred_id))
+            if "/netinfo/" in url:
+                # Health-check bleibt absichtlich nicht massgeblich fuer die
+                # Laufzeit-Quarantaene; alle drei duerfen bis api_get im Pool bleiben.
+                return Response(b'{}')
+            if cred_id in (ids[0], ids[1]):
+                raise urllib.error.HTTPError(url, 402, "Payment Required", {}, None)
+            if url.endswith("/bad-hosts"):
+                return Response(json.dumps([{"remote_host": ip} for ip in ips]).encode())
+            if url.endswith("/services"):
+                return Response(json.dumps(["SSH", "TELNET"]).encode())
+            if url.endswith("/bad-hosts/SSH") or url.endswith("/bad-hosts/TELNET"):
+                return Response(b'[]')
+            return Response(b'[]')
+
+        with patch.object(nc, "safe_urlopen", side_effect=api), patch("time.sleep"):
+            result = self.run_code("honigtopf.yml", "def api_get(", env)
+
+        self.assert_run_ok(result)
+        data_calls = [(url, cred_id) for url, cred_id in calls if "/netinfo/" not in url]
+        for bad_id in ids[:2]:
+            bad_calls = [(url, cid) for url, cid in data_calls if cid == bad_id]
+            self.assertLessEqual(len(bad_calls), 1, (bad_id, bad_calls, result[2]))
+        self.assertIn("fuer Rest dieses Laufs deaktiviert", result[2])
+        self.assertEqual(self.rows("honigtopf_ips.txt"), set(ips))
+        report = Path("reports/honigtopf_report.md").read_text()
+        self.assertIn("HTTP 402 auf Daten-Endpunkt", report)
+        self.assertIn("für diesen Lauf deaktiviert", report)
+
     def test_confidence_rejects_invalid_upstream_state_keys(self):
         ips = public_ips(1200)
         now = datetime.now(timezone.utc)
