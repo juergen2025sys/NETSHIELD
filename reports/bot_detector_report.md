@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-15 02:51 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-15 03:02 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,282,291** |
-| Neu (heute) | **+285** |
-| Entfernt | **-353** |
+| Gesamt IPs | **1,282,294** |
+| Neu (heute) | **+4** |
+| Entfernt | **-1** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 53 |
@@ -36,11 +36,11 @@
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 1,810 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,251 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,151 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 918 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 548 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 567 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 462 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 278 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 845 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 547 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 598 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 495 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 312 |
 | ✅ `officialputuid_proxyforeveryone` | 6,794 |
 | ✅ `officialputuid_proxyforeveryone_https` | 5,633 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 6,723 |
@@ -68,7 +68,7 @@
 | ✅ `configserverapps_service_blocklists_botscout_30d` | 3,535 |
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,629 |
 | ✅ `leon406_subcrawler` | 125,250 |
-| ✅ `hookzof_socks5_list` | 959 |
+| ✅ `hookzof_socks5_list` | 999 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 3,769 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,430 |
 | ✅ `claudiusdecimius_ioc_ipsets_botscout_30d` | 3,527 |
@@ -78,4 +78,4 @@
 > Diese 53 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-15 02:51 CEST (Europe/Berlin)*
+*Generiert: 2026-09-15 03:02 CEST (Europe/Berlin)*
