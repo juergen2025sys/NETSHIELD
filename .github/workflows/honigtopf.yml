@@ -290,7 +290,7 @@ jobs:
           #      Report-Piggyback workflow_run) - bewusst minimaler
           #      Footprint, nicht maximale Daten.
           #   2) Der /bad-hosts-Call selbst schlaegt fehl (z.B. alle
-          #      Credentials 401/429) - Sicherheitsnetz, damit ein
+          #      Credentials 401/402/429) - Sicherheitsnetz, damit ein
           #      Voll-Sweep nicht auf ohnehin schon kaputten Credentials
           #      aufbaut.
           FORCE_LIGHT       = os.environ.get("FORCE_LIGHT", "false").lower() == "true"
@@ -458,7 +458,7 @@ jobs:
               _rr_index = (_rr_index + 1) % n
 
               # Reihenfolge fuer DIESE Anfrage: ab start einmal rundherum.
-              # Bei 401/429 wird die naechste Credential im Ring versucht
+              # Bei 401/402/429 wird die naechste Credential im Ring versucht
               # (kombiniert Rotation + Fallback). Bei 5xx wird mit derselben
               # Credential retried (Serverproblem – Wechsel hilft nicht).
               order = [(start + k) % n for k in range(n)]
@@ -520,6 +520,14 @@ jobs:
                           if e.code == 401:
                               print(f"  AUTHENTIFIZIERUNG FEHLGESCHLAGEN [{label or endpoint}] ({cred_label}) – naechste Credential")
                               break  # naechste Credential im Ring probieren
+                          if e.code == 402:
+                              # HoneyDB kann 402 credential-/accountbezogen liefern
+                              # (z.B. Plan/Berechtigung), waehrend eine andere
+                              # Credential denselben Endpoint noch erfolgreich
+                              # abrufen kann. Deshalb wie 401/429 failovern,
+                              # statt den gesamten Endpoint sofort abzubrechen.
+                              print(f"  HTTP 402 / PLAN-BERECHTIGUNG [{label or endpoint}] ({cred_label}) – naechste Credential")
+                              break  # naechste Credential im Ring probieren
                           if e.code in (500, 502, 503, 504) and attempt < retries:
                               wait_s = 2 ** attempt
                               print(f"  HTTP {e.code} [{label or endpoint}] – Retry in {wait_s}s ({attempt}/{retries})")
@@ -538,7 +546,7 @@ jobs:
                           failed_endpoints.add(endpoint)
                           return None
 
-              # Alle Credentials im Ring lieferten 401/429
+              # Alle Credentials im Ring lieferten 401/402/429
               print(f"  ALLE CREDENTIALS ERSCHOEPFT [{label or endpoint}]")
               failed_endpoints.add(endpoint)
               return None
@@ -587,7 +595,7 @@ jobs:
               _decision_reason = "Watchdog-Dispatch/Report-Piggyback erzwingt Light"
           elif data is None:
               # bad-hosts selbst ist schon fehlgeschlagen (z.B. alle
-              # Credentials erschoepft/429/401) - dann keinen Voll-Sweep
+              # Credentials erschoepft/429/402/401) - dann keinen Voll-Sweep
               # hinterherschicken, der auf denselben kaputten Credentials
               # nur weiter scheitern wuerde. Sicher: Light erzwingen.
               LIGHT_RUN = True
