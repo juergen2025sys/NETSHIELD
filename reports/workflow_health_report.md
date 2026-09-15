@@ -1,36 +1,31 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-15 19:40 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-16 00:11 CEST (Europe/Berlin)
 
-**Workflows:** 30 | ✅ 29 OK | ⚠️ 1 Warnung | ❌ 1 Fehler
+**Workflows:** 30 | ✅ 29 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `c2e5a6220212832f99cfef53635fa4ddac553687`
+✅ Commit: `ebe48422cfaba5de6b04dc9fd74daa3287e602ec`
 
 460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
-
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 2,273,791 → 1,360,779 (-40%) – starker Rückgang seit letztem Check |
 
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
 | `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
+| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 1,360,779 → 2,275,110 (+67%) – ungewöhnliches Wachstum |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Drift: honeypot_ips.txt | honeypot_ips.txt: 2,273,791 → 1,360,779 (-40%) – starker Rückgang seit letztem Check |
+| 🟡 WARN | Drift: honeypot_ips.txt | honeypot_ips.txt: 1,360,779 → 2,275,110 (+67%) – ungewöhnliches Wachstum |
 
 ## Übersicht
 
@@ -68,4 +63,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-15 19:40 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*
+*Generiert: 2026-09-16 00:11 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*
