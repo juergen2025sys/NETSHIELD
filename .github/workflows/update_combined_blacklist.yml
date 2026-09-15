@@ -4348,6 +4348,17 @@ jobs:
 
           if _wl_expired_first:
               _wl_prune_cutoff_str = (now - timedelta(days=WL_HISTORY_PRUNE_DAYS)).strftime("%Y-%m-%d")
+              # FIX GUARD-KOHORTE (2026-09-15): Der 50%-Guard bleibt als
+              # Fail-Closed-Schutz gegen Bug 17 unveraendert aktiv. Eine grosse
+              # Loeschmenge darf ihn NUR dann passieren, wenn saemtliche
+              # Prune-Kandidaten exakt aus der EINEN Tageskohorte unmittelbar
+              # vor dem Cutoff stammen. Das trennt einen legitimen
+              # Kohorten-Ablauf (z.B. 2026-08-31 bei Cutoff 2026-09-01) von
+              # einem falschen Feld-/Datumsvergleich, der typischerweise viele
+              # verschiedene eingefroren_am-Werte gleichzeitig trifft.
+              _wl_erwartete_grenzkohorte = (
+                  now - timedelta(days=WL_HISTORY_PRUNE_DAYS + 1)
+              ).strftime("%Y-%m-%d")
               _wl_before = len(_wl_expired_first)
               # FIX BUG-PRUNE-WRONG-DATE (siehe ausfuehrlicher Kommentar beim
               # Laden oben): Filter vergleicht jetzt "eingefroren_am" (wann
@@ -4355,28 +4366,111 @@ jobs:
               # "first" (das urspruengliche Erstsichtungs-Datum der IP, das
               # naturgemaess immer >= 30 Tage alt ist und daher bei jedem
               # Lauf sofort durchgefallen waere).
-              # WICHTIG (FIX BUG-17-GUARD): erst in eine NEUE Variable pruefen,
-              # NICHT direkt in _wl_expired_first ueberschreiben - sonst
-              # koennten wir einen zu grossen Prune nicht mehr verwerfen,
-              # ohne die Originaldaten schon verloren zu haben.
-              _wl_expired_first_kandidat = {
-                  _ip: _eintrag for _ip, _eintrag in _wl_expired_first.items()
-                  if _eintrag.get("eingefroren_am", _eintrag.get("first")) >= _wl_prune_cutoff_str
-              }
-              _wl_pruned = _wl_before - len(_wl_expired_first_kandidat)
+              # WICHTIG (FIX BUG-17-GUARD): Keep- und Prune-Menge zuerst in
+              # NEUEN Variablen aufbauen. Erst NACH der Guard-Entscheidung darf
+              # _wl_expired_first ersetzt werden; so bleibt der alte Ledger bei
+              # jedem nicht eindeutig legitimen Gross-Prune vollstaendig erhalten.
+              _wl_expired_first_kandidat = {}
+              _wl_prune_kandidaten = {}
+              _wl_undatiert = 0
+              for _ip, _eintrag in _wl_expired_first.items():
+                  _eingefroren_am = _eintrag.get("eingefroren_am", _eintrag.get("first"))
+
+                  # FAIL-CLOSED FUER KAPUTTE LEDGER-EINTRAEGE: Ein Release-Asset
+                  # kann Dict-Eintraege unveraendert liefern. Fehlt dort das Datum
+                  # oder ist es nicht exakt YYYY-MM-DD, darf der Eintrag niemals
+                  # durch einen lexikographischen Vergleich versehentlich geprunt
+                  # werden. Stattdessen behalten und die grosse Kohorten-Ausnahme
+                  # unten sperren. Damit wird aus einem kaputten Eintrag ein klarer
+                  # Diagnosefall statt eines TypeError-Abbruchs nach dem Feed-Download.
+                  _wl_datum_gueltig = False
+                  if isinstance(_eingefroren_am, str):
+                      try:
+                          _wl_datum_gueltig = (
+                              datetime.strptime(_eingefroren_am, "%Y-%m-%d").strftime("%Y-%m-%d")
+                              == _eingefroren_am
+                          )
+                      except ValueError:
+                          pass
+
+                  if not _wl_datum_gueltig:
+                      _wl_undatiert += 1
+                      _wl_expired_first_kandidat[_ip] = _eintrag
+                  elif _eingefroren_am >= _wl_prune_cutoff_str:
+                      _wl_expired_first_kandidat[_ip] = _eintrag
+                  else:
+                      _wl_prune_kandidaten[_ip] = _eintrag
+
+              if _wl_undatiert:
+                  print(
+                      f"::warning::watchlist_expired_history: {_wl_undatiert:,} Eintraege "
+                      f"ohne gueltiges eingefroren_am/first-Datum; diese Eintraege werden "
+                      f"nicht geprunt und sperren eine grosse Kohorten-Ausnahme."
+                  )
+
+              _wl_pruned = len(_wl_prune_kandidaten)
               _wl_pruned_prozent = (_wl_pruned / _wl_before * 100) if _wl_before else 0
-              if (_wl_before >= LEDGER_PRUNE_GUARD_MIN_ENTRIES
-                      and _wl_pruned_prozent >= LEDGER_PRUNE_GUARD_PROZENT):
+
+              # Diagnose immer auf EXAKT denselben Prune-Kandidaten aufbauen,
+              # auf denen auch der Guard entscheidet. Fuer lesbare Logs werden
+              # maximal 20 Kohorten ausgegeben; die Entscheidung selbst benutzt
+              # selbstverstaendlich die vollstaendige Verteilung.
+              _wl_prune_kohorten = {}
+              for _eintrag in _wl_prune_kandidaten.values():
+                  _kohorte = _eintrag.get("eingefroren_am", _eintrag.get("first"))
+                  _wl_prune_kohorten[_kohorte] = _wl_prune_kohorten.get(_kohorte, 0) + 1
+              if _wl_pruned:
+                  _wl_kohorten_sortiert = sorted(
+                      _wl_prune_kohorten.items(), key=lambda _kv: str(_kv[0])
+                  )
+                  _wl_kohorten_anzeige = ", ".join(
+                      f"{_datum}={_anzahl:,}" for _datum, _anzahl in _wl_kohorten_sortiert[:20]
+                  )
+                  if len(_wl_kohorten_sortiert) > 20:
+                      _wl_kohorten_anzeige += (
+                          f", ... (+{len(_wl_kohorten_sortiert) - 20} weitere Kohorten)"
+                      )
+                  print(
+                      f"watchlist_expired_history Prune-Kohorten "
+                      f"({_wl_pruned:,} Kandidaten, Cutoff {_wl_prune_cutoff_str}): "
+                      f"{_wl_kohorten_anzeige}"
+                  )
+
+              _wl_guard_schwelle_erreicht = (
+                  _wl_before >= LEDGER_PRUNE_GUARD_MIN_ENTRIES
+                  and _wl_pruned_prozent >= LEDGER_PRUNE_GUARD_PROZENT
+              )
+              _wl_kohorten_ausnahme = (
+                  _wl_guard_schwelle_erreicht
+                  and _wl_pruned > 0
+                  and _wl_undatiert == 0
+                  and len(_wl_prune_kohorten) == 1
+                  and _wl_prune_kohorten.get(_wl_erwartete_grenzkohorte) == _wl_pruned
+              )
+
+              if _wl_guard_schwelle_erreicht and not _wl_kohorten_ausnahme:
                   _wl_prune_guard_ausgeloest = True
                   print(f"::error::SANITY-GUARD ausgeloest (watchlist_expired_history): "
                         f"Pruning wuerde {_wl_pruned:,}/{_wl_before:,} Eintraege "
                         f"({_wl_pruned_prozent:.1f}%) auf einen Schlag entfernen - "
                         f"(>= {LEDGER_PRUNE_GUARD_PROZENT}% bei >= {LEDGER_PRUNE_GUARD_MIN_ENTRIES:,} "
-                        f"Eintraegen). Pruning wird NICHT angewendet, alter Ledger-Stand "
-                        f"bleibt erhalten. Vermutlich ein Bug (falscher Vergleichswert/"
-                        f"falsches Feld) statt echtem Alterungs-Effekt - siehe Bug 17.")
+                        f"Eintraegen). Keine sichere Kohorten-Ausnahme: fuer eine automatische "
+                        f"Freigabe muessen 100% der Prune-Kandidaten exakt "
+                        f"eingefroren_am={_wl_erwartete_grenzkohorte} haben (unmittelbar vor "
+                        f"Cutoff {_wl_prune_cutoff_str}) und es duerfen keine undatierten/ungueltigen "
+                        f"Ledger-Eintraege vorliegen (aktuell {_wl_undatiert:,}). Pruning wird NICHT "
+                        f"angewendet, alter "
+                        f"Ledger-Stand bleibt erhalten - siehe Bug 17.")
                   # Kandidat bewusst verworfen - _wl_expired_first bleibt unveraendert.
               elif _wl_pruned:
+                  if _wl_kohorten_ausnahme:
+                      print(
+                          f"::notice::SANITY-GUARD Kohorten-Ausnahme "
+                          f"(watchlist_expired_history): {_wl_pruned:,}/{_wl_before:,} "
+                          f"({_wl_pruned_prozent:.1f}%) duerfen geprunt werden, weil 100% "
+                          f"der Kandidaten exakt zur erwarteten Grenzkohorte "
+                          f"{_wl_erwartete_grenzkohorte} gehoeren."
+                      )
                   _wl_expired_first = _wl_expired_first_kandidat
                   _wl_expired_first_dirty = True
                   print(f"watchlist_expired_history: {_wl_pruned} Eintraege "
