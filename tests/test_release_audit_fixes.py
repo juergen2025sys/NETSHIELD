@@ -204,6 +204,53 @@ class AuditFixTests(unittest.TestCase):
             self.assert_run_ok(self.run_code("honigtopf.yml", "def api_get(", env))
         self.assertEqual(self.rows("honigtopf_ips.txt"), set(ips))
 
+    def test_honey_http_402_fails_over_to_next_credential(self):
+        """HTTP 402 must not abort /bad-hosts while another credential works."""
+        ips = public_ips(800)
+        # api_get starts at UTC-hour % pool-size. Make that credential return
+        # 402 and the immediately following credential succeed, independent of
+        # the hour in which the test suite runs.
+        start_idx = datetime.now(timezone.utc).hour % 3
+        ids = ["ID1", "ID2", "ID3"]
+        fail_id = ids[start_idx]
+        success_id = ids[(start_idx + 1) % 3]
+        env = {
+            "HONEYDB_API_ID": ids[0], "HONEYDB_API_KEY": "KEY1",
+            "HONEYDB_API_ID_2": ids[1], "HONEYDB_API_KEY_2": "KEY2",
+            "HONEYDB_API_ID_3": ids[2], "HONEYDB_API_KEY_3": "KEY3",
+            "GITHUB_EVENT_NAME": "schedule", "FORCE_LIGHT": "true",
+        }
+        calls = []
+
+        def api(url, headers=None, **kwargs):
+            cred_id = (headers or {}).get("X-HoneyDb-ApiId")
+            calls.append((url, cred_id))
+            if "/netinfo/" in url:
+                # Mirror the real incident: the starting credential is 402,
+                # while another credential is healthy (200). 402 remains in
+                # the pool so endpoint-specific fallback can decide.
+                if cred_id == fail_id:
+                    raise urllib.error.HTTPError(url, 402, "Payment Required", {}, None)
+                return Response(b'{}')
+            if url.endswith("/bad-hosts"):
+                if cred_id == fail_id:
+                    raise urllib.error.HTTPError(url, 402, "Payment Required", {}, None)
+                if cred_id == success_id:
+                    return Response(json.dumps([{"remote_host": ip} for ip in ips]).encode())
+                raise urllib.error.HTTPError(url, 402, "Payment Required", {}, None)
+            return Response(b'[]')
+
+        with patch.object(nc, "safe_urlopen", side_effect=api), patch("time.sleep"):
+            result = self.run_code("honigtopf.yml", "def api_get(", env)
+
+        self.assert_run_ok(result)
+        bad_host_ids = [cred_id for url, cred_id in calls if url.endswith("/bad-hosts")]
+        self.assertGreaterEqual(len(bad_host_ids), 2, result[2])
+        self.assertEqual(bad_host_ids[0], fail_id, result[2])
+        self.assertIn(success_id, bad_host_ids[1:], result[2])
+        self.assertEqual(self.rows("honigtopf_ips.txt"), set(ips))
+        self.assertIn("HTTP 402 / PLAN-BERECHTIGUNG", result[2])
+
     def test_confidence_rejects_invalid_upstream_state_keys(self):
         ips = public_ips(1200)
         now = datetime.now(timezone.utc)
