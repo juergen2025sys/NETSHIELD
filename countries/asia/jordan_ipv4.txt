@@ -1,6 +1,6 @@
 # NETSHIELD – Jordan (JO) IPv4 Ranges
-# Aktualisiert: 2026-09-14 08:48 CEST (Europe/Berlin)
-# IP-Ranges: 128
+# Aktualisiert: 2026-09-16 08:23 CEST (Europe/Berlin)
+# IP-Ranges: 129
 
 2.59.52.0/22
 5.45.128.0/20
@@ -42,6 +42,7 @@
 91.186.224.0/19
 91.209.248.0/24
 91.212.0.0/24
+91.217.45.0/24
 91.220.195.0/24
 91.223.202.0/24
 92.241.32.0/19

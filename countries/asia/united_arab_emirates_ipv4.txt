@@ -1,6 +1,6 @@
 # NETSHIELD – United Arab Emirates (AE) IPv4 Ranges
-# Aktualisiert: 2026-09-14 08:48 CEST (Europe/Berlin)
-# IP-Ranges: 1281
+# Aktualisiert: 2026-09-16 08:23 CEST (Europe/Berlin)
+# IP-Ranges: 1282
 
 2.48.0.0/14
 2.56.16.0/22
@@ -718,6 +718,7 @@
 153.56.182.0/23
 153.56.210.0/24
 153.56.212.0/18
+153.56.251.0/21
 153.75.80.0/20
 153.76.192.0/19
 157.228.112.0/20
