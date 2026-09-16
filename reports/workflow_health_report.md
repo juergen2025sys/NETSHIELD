@@ -1,31 +1,40 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-16 00:11 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-16 07:59 CEST (Europe/Berlin)
 
-**Workflows:** 30 | ✅ 29 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
+**Workflows:** 30 | ✅ 29 OK | ⚠️ 1 Warnung | ❌ 1 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `ebe48422cfaba5de6b04dc9fd74daa3287e602ec`
+✅ Commit: `d948cb41caccc8c2c2dbfb1a8ff43b3d674fffa0`
 
 460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
+
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 35.186.224.28, 35.186.224.28 – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 35.186.224.28 – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 35.186.224.28, 35.186.224.28 – Filterung wirkungslos! |
 
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
 | `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
-| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 1,360,779 → 2,275,110 (+67%) – ungewöhnliches Wachstum |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 3 CRITICAL | 🟡 0 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🟡 WARN | Drift: honeypot_ips.txt | honeypot_ips.txt: 1,360,779 → 2,275,110 (+67%) – ungewöhnliches Wachstum |
+| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 35.186.224.28, 35.186.224.28 – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 35.186.224.28 – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 35.186.224.28, 35.186.224.28 – Filterung wirkungslos! |
 
 ## Übersicht
 
@@ -63,4 +72,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-16 00:11 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*
+*Generiert: 2026-09-16 07:59 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*

@@ -1,25 +1,36 @@
 {
-  "updated": "2026-09-16 00:11 CEST (Europe/Berlin)",
+  "updated": "2026-09-16 07:59 CEST (Europe/Berlin)",
   "total": 30,
   "ok": 29,
-  "warn": 2,
-  "error": 0,
-  "errors": [],
+  "warn": 1,
+  "error": 1,
+  "errors": [
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 35.186.224.28, 35.186.224.28 \u2013 Filterung wirkungslos!"
+    },
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
+      "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 35.186.224.28 \u2013 Filterung wirkungslos!"
+    },
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
+      "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 35.186.224.28, 35.186.224.28 \u2013 Filterung wirkungslos!"
+    }
+  ],
   "warnings": [
     {
       "file": "netshield_report_generator.yml",
       "check": "Doppelter Import",
       "detail": "Block 0: Doppelte Imports: ((2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
-    },
-    {
-      "file": "Production Health",
-      "check": "Drift: honeypot_ips.txt",
-      "detail": "honeypot_ips.txt: 1,360,779 \u2192 2,275,110 (+67%) \u2013 ungew\u00f6hnliches Wachstum"
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "ebe48422cfaba5de6b04dc9fd74daa3287e602ec",
+    "sha": "d948cb41caccc8c2c2dbfb1a8ff43b3d674fffa0",
     "status": "passed",
     "tests_run": 460,
     "failures": [],
@@ -31,21 +42,31 @@
     "detail": "460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5812704,
-    "active_blacklist_ipv4.txt": 987941,
-    "blacklist_confidence40_ipv4_part1.txt": 4184027,
-    "cve_exploit_ips.txt": 28010,
-    "honeypot_ips.txt": 2275110,
-    "bot_detector_blacklist_ipv4.txt": 1272495
+    "combined_threat_blacklist_ipv4_part1.txt": 5822169,
+    "active_blacklist_ipv4.txt": 947666,
+    "blacklist_confidence40_ipv4_part1.txt": 4191010,
+    "cve_exploit_ips.txt": 27997,
+    "honeypot_ips.txt": 2292322,
+    "bot_detector_blacklist_ipv4.txt": 1274776
   },
   "production_health": {
-    "critical": 0,
-    "warn": 1,
+    "critical": 3,
+    "warn": 0,
     "checks": [
       {
-        "level": "WARN",
-        "check": "Drift: honeypot_ips.txt",
-        "detail": "honeypot_ips.txt: 1,360,779 \u2192 2,275,110 (+67%) \u2013 ungew\u00f6hnliches Wachstum"
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 35.186.224.28, 35.186.224.28 \u2013 Filterung wirkungslos!"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
+        "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 35.186.224.28 \u2013 Filterung wirkungslos!"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
+        "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 35.186.224.28, 35.186.224.28 \u2013 Filterung wirkungslos!"
       }
     ]
   },
