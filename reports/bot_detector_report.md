@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-16 02:14 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-16 02:39 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,269,636** |
+| Gesamt IPs | **1,269,637** |
 | Neu (heute) | **+7** |
-| Entfernt | **-2** |
+| Entfernt | **-6** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 53 |
@@ -36,11 +36,11 @@
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 1,810 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,254 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,157 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 995 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 628 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 631 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 523 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 332 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,040 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 704 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 710 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 605 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 367 |
 | ✅ `officialputuid_proxyforeveryone` | 6,597 |
 | ✅ `officialputuid_proxyforeveryone_https` | 5,501 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 6,673 |
@@ -68,7 +68,7 @@
 | ✅ `configserverapps_service_blocklists_botscout_30d` | 3,484 |
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,641 |
 | ✅ `leon406_subcrawler` | 125,474 |
-| ✅ `hookzof_socks5_list` | 1,213 |
+| ✅ `hookzof_socks5_list` | 1,242 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 3,769 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,347 |
 | ✅ `claudiusdecimius_ioc_ipsets_botscout_30d` | 3,525 |
@@ -78,4 +78,4 @@
 > Diese 53 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-16 02:14 CEST (Europe/Berlin)*
+*Generiert: 2026-09-16 02:39 CEST (Europe/Berlin)*
