@@ -1,24 +1,16 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-16 07:59 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-16 14:36 CEST (Europe/Berlin)
 
-**Workflows:** 30 | ✅ 29 OK | ⚠️ 1 Warnung | ❌ 1 Fehler
+**Workflows:** 30 | ✅ 29 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `d948cb41caccc8c2c2dbfb1a8ff43b3d674fffa0`
+✅ Commit: `d2507c07d0387f15efb1c2ea3ce73ae8d4dcacac`
 
 460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
-
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 35.186.224.28, 35.186.224.28 – Filterung wirkungslos! |
-| `Production Health` | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 35.186.224.28 – Filterung wirkungslos! |
-| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 35.186.224.28, 35.186.224.28 – Filterung wirkungslos! |
 
 ## ⚠️ Warnungen
 
@@ -28,13 +20,9 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 ## 🏥 Production Health
 
-**Status:** 🔴 3 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 35.186.224.28, 35.186.224.28 – Filterung wirkungslos! |
-| 🔴 CRITICAL | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 35.186.224.28 – Filterung wirkungslos! |
-| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 35.186.224.28, 35.186.224.28 – Filterung wirkungslos! |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -72,4 +60,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-16 07:59 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*
+*Generiert: 2026-09-16 14:36 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*
