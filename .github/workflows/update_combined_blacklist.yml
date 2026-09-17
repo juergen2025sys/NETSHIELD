@@ -5688,112 +5688,221 @@ jobs:
 
       - name: Backup seen_db SQLite to GitHub Release
         if: steps.build_combined.outcome == 'success' && steps.shrink_guard.outputs.ok == 'true' && hashFiles('seen_db.sqlite3') != '' && steps.persist_waitlist.outcome == 'success' && steps.persist_ledgers.outcome == 'success'
-        # FIX RELEASE-UPLOAD-HANG + DIAGNOSE 2026-09-17:
-        # - jeder gh-Aufruf hat ein hartes Timeout
-        # - der optionale Release-Fallback darf Commit/Push nicht blockieren
-        # - Preflight + GH_HTTP-Debug + 15s-Heartbeat zeigen bei einem Hänger,
-        #   ob DNS/TLS/API, Release-Metadaten oder der eigentliche Asset-Upload hängt.
+        # FIX RELEASE-UPLOAD-HANG v2 2026-09-17:
+        # - 2 begrenzte gh-CLI-Versuche, danach REST/curl-Fallback ueber HTTP/1.1
+        # - Upload zuerst unter temporaerem Asset-Namen; das bestehende gute Backup
+        #   bleibt erhalten, bis das neue Asset vollstaendig (state=uploaded + Groesse) ist
+        # - haengende state=starter-Assets werden vor jedem neuen Versuch entfernt
+        # - auch nach einem Timeout wird geprueft, ob GitHub den Upload serverseitig
+        #   doch fertiggestellt hat; dann wird das Temp-Asset trotzdem uebernommen
+        # - 15s-Heartbeat mit ss -tinp zeigt TCP Queue/RTO/cwnd/retrans-Daten
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_META_TIMEOUT_SECONDS: "60"
-          RELEASE_UPLOAD_TIMEOUT_SECONDS: "180"
+          RELEASE_UPLOAD_TIMEOUT_SECONDS: "120"
         run: |
           set -euo pipefail
 
           RELEASE_TAG="seen-db-sqlite-backup"
           ASSET_NAME="seen_db.sqlite3.gz"
           REPO="${{ github.repository }}"
+          RUN_KEY="${GITHUB_RUN_ID:-0}-${GITHUB_RUN_ATTEMPT:-1}"
+          LOCAL_BYTES=""
+
+          meta_timeout() {
+            timeout --signal=TERM --kill-after=10s "${RELEASE_META_TIMEOUT_SECONDS}s" "$@"
+          }
+
+          get_release_id() {
+            meta_timeout gh api "repos/${REPO}/releases/tags/${RELEASE_TAG}" --jq '.id' 2>/dev/null
+          }
+
+          ensure_release() {
+            if meta_timeout gh release view "$RELEASE_TAG" --repo "$REPO" >/dev/null 2>&1; then
+              return 0
+            fi
+            echo "Release ${RELEASE_TAG} fehlt oder View war nicht erfolgreich; Create wird versucht..."
+            meta_timeout gh release create "$RELEASE_TAG" \
+              --repo "$REPO" \
+              --title "NETSHIELD seen_db SQLite Backup" \
+              --notes "Automatisch gepflegter SQLite-Fallback fuer Confidence." \
+              --latest=false >/dev/null 2>&1 || true
+            meta_timeout gh release view "$RELEASE_TAG" --repo "$REPO" >/dev/null 2>&1
+          }
+
+          list_assets_json() {
+            local rid="$1"
+            meta_timeout gh api "repos/${REPO}/releases/${rid}/assets?per_page=100" 2>/dev/null
+          }
+
+          cleanup_starter_assets() {
+            local rid="$1"
+            local assets ids id name
+            assets=$(list_assets_json "$rid" || echo '[]')
+            ids=$(printf '%s' "$assets" | jq -r --arg canonical "$ASSET_NAME" \
+              '.[] | select(.state=="starter") | select(.name==$canonical or (.name | startswith($canonical + ".upload-"))) | [.id,.name] | @tsv')
+            if [ -z "$ids" ]; then
+              return 0
+            fi
+            while IFS=$'\t' read -r id name; do
+              [ -n "$id" ] || continue
+              echo "Entferne haengendes starter-Asset: id=${id} name=${name}"
+              meta_timeout gh api -X DELETE "repos/${REPO}/releases/assets/${id}" >/dev/null 2>&1 || \
+                echo "WARN: starter-Asset ${id} konnte nicht geloescht werden."
+            done <<< "$ids"
+          }
+
+          # Nimmt ein vollstaendig hochgeladenes Temp-Asset erst dann als neues
+          # kanonisches Backup an, wenn state und Byte-Groesse stimmen.
+          # Das vorhandene gute Backup wird erst ganz am Ende ausgetauscht.
+          promote_temp_asset() {
+            local rid="$1" temp_name="$2"
+            local assets row new_id new_size old_row old_id old_name verify
+
+            assets=$(list_assets_json "$rid" || echo '[]')
+            row=$(printf '%s' "$assets" | jq -r --arg n "$temp_name" \
+              '.[] | select(.name==$n and .state=="uploaded") | [.id,.size] | @tsv' | head -n 1)
+            [ -n "$row" ] || return 1
+            IFS=$'\t' read -r new_id new_size <<< "$row"
+
+            if [ "$new_size" != "$LOCAL_BYTES" ]; then
+              echo "WARN: Temp-Asset ${temp_name} ist uploaded, aber Groesse ${new_size} != lokal ${LOCAL_BYTES}."
+              return 1
+            fi
+
+            echo "Temp-Asset vollstaendig: id=${new_id}, bytes=${new_size}. Bereite atomaren Austausch vor..."
+
+            # starter mit kanonischem Namen darf einen Rename nicht blockieren.
+            cleanup_starter_assets "$rid"
+            assets=$(list_assets_json "$rid" || echo '[]')
+            old_row=$(printf '%s' "$assets" | jq -r --arg n "$ASSET_NAME" --argjson nid "$new_id" \
+              '.[] | select(.name==$n and .id!=$nid) | [.id,.state,.size] | @tsv' | head -n 1)
+            old_id=""
+            old_name=""
+
+            if [ -n "$old_row" ]; then
+              IFS=$'\t' read -r old_id old_state old_size <<< "$old_row"
+              old_name="${ASSET_NAME}.previous-${RUN_KEY}-$(date +%s)"
+              echo "Vorhandenes Backup bleibt bis zum Swap erhalten: id=${old_id}, state=${old_state}, bytes=${old_size}"
+              if ! meta_timeout gh api -X PATCH "repos/${REPO}/releases/assets/${old_id}" -f name="$old_name" >/dev/null 2>&1; then
+                echo "WARN: Vorhandenes Backup konnte fuer den Swap nicht temporaer umbenannt werden."
+                return 1
+              fi
+            fi
+
+            if ! meta_timeout gh api -X PATCH "repos/${REPO}/releases/assets/${new_id}" -f name="$ASSET_NAME" >/dev/null 2>&1; then
+              echo "WARN: Neues Temp-Asset konnte nicht auf ${ASSET_NAME} umbenannt werden."
+              if [ -n "$old_id" ] && [ -n "$old_name" ]; then
+                echo "Rollback: bisheriges Backup bekommt seinen kanonischen Namen zurueck."
+                meta_timeout gh api -X PATCH "repos/${REPO}/releases/assets/${old_id}" -f name="$ASSET_NAME" >/dev/null 2>&1 || true
+              fi
+              return 1
+            fi
+
+            verify=$(list_assets_json "$rid" | jq -r --arg n "$ASSET_NAME" \
+              '.[] | select(.name==$n and .state=="uploaded") | [.id,.size,.state] | @tsv' | head -n 1)
+            if [ -z "$verify" ]; then
+              echo "WARN: Neues kanonisches Asset konnte nach dem Rename nicht verifiziert werden."
+              return 1
+            fi
+            IFS=$'\t' read -r verify_id verify_size verify_state <<< "$verify"
+            if [ "$verify_size" != "$LOCAL_BYTES" ]; then
+              echo "WARN: Verifikation meldet falsche Groesse: ${verify_size} != ${LOCAL_BYTES}."
+              return 1
+            fi
+
+            echo "Neues kanonisches Backup verifiziert: id=${verify_id}, state=${verify_state}, bytes=${verify_size}"
+
+            if [ -n "$old_id" ]; then
+              meta_timeout gh api -X DELETE "repos/${REPO}/releases/assets/${old_id}" >/dev/null 2>&1 \
+                && echo "Altes Backup nach erfolgreichem Swap geloescht: id=${old_id}" \
+                || echo "WARN: Altes Backup ${old_id} konnte nach dem Swap nicht geloescht werden; neues Backup ist trotzdem aktiv."
+            fi
+            return 0
+          }
+
+          diagnose_heartbeat() {
+            local pid="$1" label="$2" started="$3"
+            local next=15 now elapsed
+            while kill -0 "$pid" 2>/dev/null; do
+              sleep 1
+              now=$(date +%s)
+              elapsed=$((now - started))
+              if [ "$elapsed" -ge "$next" ] && kill -0 "$pid" 2>/dev/null; then
+                echo "[Upload-Heartbeat] ${label} laeuft seit ${elapsed}s / Limit ${RELEASE_UPLOAD_TIMEOUT_SECONDS}s"
+                ps -o pid=,etime=,stat=,pcpu=,pmem= -p "$pid" 2>/dev/null || true
+                echo "TCP/HTTPS-Diagnose (ss -tinp, Auszug):"
+                # -i liefert u.a. rto/cwnd/retrans/bytes_acked/delivery_rate.
+                ss -Htinp 2>/dev/null | grep -A1 -E '(:443|gh|curl|timeout)' | head -n 30 || echo "keine sichtbaren :443-Sockets"
+                next=$((next + 15))
+              fi
+            done
+          }
 
           python3 -c 'import sqlite3; c=sqlite3.connect("seen_db.sqlite3"); q=c.execute("PRAGMA quick_check").fetchone(); n=c.execute("SELECT COUNT(*) FROM seen_db").fetchone()[0]; c.close(); print(f"SQLite-Snapshot validiert: {n:,} Eintraege"); assert q and q[0]=="ok" and n>=100000, (q,n)'
           rm -f "$ASSET_NAME"
           gzip -1 -c seen_db.sqlite3 > "$ASSET_NAME"
+          LOCAL_BYTES=$(stat -c '%s' "$ASSET_NAME")
 
           echo "=== Release-Upload-Diagnose / Preflight ==="
           echo "UTC: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
           echo "Runner: ${RUNNER_NAME:-unbekannt} / ${RUNNER_OS:-unbekannt} / ${RUNNER_ARCH:-unbekannt}"
           gh --version | head -n 1 || true
           echo "Asset: $(ls -lh "$ASSET_NAME" | awk '{print $5, $9}')"
-          echo "Asset-Bytes: $(stat -c '%s' "$ASSET_NAME")"
+          echo "Asset-Bytes: ${LOCAL_BYTES}"
           echo "SHA256: $(sha256sum "$ASSET_NAME" | awk '{print $1}')"
           df -h . | tail -n 1 || true
 
-          # Nur Konnektivitaet/TLS testen; keine Secrets werden an curl uebergeben.
           for host in api.github.com uploads.github.com; do
             echo "--- Netzwerkcheck $host ---"
-            getent ahostsv4 "$host" 2>/dev/null | awk '!seen[$1]++ {print "IPv4:", $1}' | head -n 4 || true
+            getent ahostsv4 "$host" 2>/dev/null | awk '!seen[$1]++ {print "IPv4:", $1}' | head -n 6 || true
             curl -4 -sS --connect-timeout 8 --max-time 15 -o /dev/null \
               -w "HTTP=%{http_code} DNS=%{time_namelookup}s CONNECT=%{time_connect}s TLS=%{time_appconnect}s TOTAL=%{time_total}s REMOTE=%{remote_ip}\n" \
               "https://${host}/" || echo "WARN: curl zu $host fehlgeschlagen (Exit $?)"
           done
 
           echo "--- Auth/API-Check ---"
-          timeout --signal=TERM --kill-after=10s "${RELEASE_META_TIMEOUT_SECONDS}s" \
-            gh auth status --hostname github.com 2>&1 \
+          meta_timeout gh auth status --hostname github.com 2>&1 \
             | sed -E 's/(token:).*/\1 [REDACTED]/I' || true
 
-          release_id=""
-          if release_id=$(timeout --signal=TERM --kill-after=10s "${RELEASE_META_TIMEOUT_SECONDS}s" \
-              gh api "repos/${REPO}/releases/tags/${RELEASE_TAG}" --jq '.id' 2>/dev/null); then
-            echo "Release-ID: $release_id"
-            echo "Vorhandenes Asset vor Upload:"
-            timeout --signal=TERM --kill-after=10s "${RELEASE_META_TIMEOUT_SECONDS}s" \
-              gh api "repos/${REPO}/releases/${release_id}/assets" \
-              --jq '.[] | select(.name=="seen_db.sqlite3.gz") | "id=\(.id) size=\(.size) state=\(.state) updated=\(.updated_at)"' \
-              2>/dev/null || true
-          else
-            echo "Release ist noch nicht vorhanden oder Release-API antwortet nicht innerhalb ${RELEASE_META_TIMEOUT_SECONDS}s."
+          if ! ensure_release; then
+            echo "::warning::Release-Metadaten konnten nicht bereitgestellt werden. Release-Backup wird fuer diesen Lauf uebersprungen."
+            exit 1
           fi
 
+          release_id=$(get_release_id || true)
+          if [ -z "$release_id" ]; then
+            echo "::warning::Release-ID konnte nicht gelesen werden. Release-Backup wird fuer diesen Lauf uebersprungen."
+            exit 1
+          fi
+          echo "Release-ID: $release_id"
+          echo "Vorhandene passende Assets vor Upload:"
+          list_assets_json "$release_id" | jq -r --arg n "$ASSET_NAME" \
+            '.[] | select(.name==$n or (.name | startswith($n + ".upload-"))) | "id=\(.id) name=\(.name) size=\(.size) state=\(.state) updated=\(.updated_at)"' || true
+          cleanup_starter_assets "$release_id"
           echo "=== Ende Preflight ==="
 
-          for attempt in 1 2 3 4 5; do
+          # --------------------------------------------------------------
+          # Phase 1: maximal zwei gh-CLI-Versuche.
+          # Kein --clobber: das gute kanonische Backup bleibt bestehen.
+          # --------------------------------------------------------------
+          for attempt in 1 2; do
+            temp_name="${ASSET_NAME}.upload-${RUN_KEY}-gh${attempt}"
+            rm -f "$temp_name"
+            ln "$ASSET_NAME" "$temp_name"
+            cleanup_starter_assets "$release_id"
+
             echo ""
-            echo "===== Release-Upload-Versuch $attempt / $(date -u '+%H:%M:%S UTC') ====="
-
-            if timeout --signal=TERM --kill-after=15s "${RELEASE_META_TIMEOUT_SECONDS}s" \
-                gh release view "$RELEASE_TAG" --repo "$REPO" >/dev/null 2>&1; then
-              echo "Release-Metadaten erreichbar."
-            else
-              view_rc=$?
-              echo "gh release view Exit=$view_rc"
-              if [ "$view_rc" -eq 124 ] || [ "$view_rc" -eq 137 ]; then
-                echo "::warning::gh release view Timeout nach ${RELEASE_META_TIMEOUT_SECONDS}s (Versuch $attempt)."
-              fi
-              echo "Release wird angelegt bzw. Create-API getestet..."
-              timeout --signal=TERM --kill-after=15s "${RELEASE_META_TIMEOUT_SECONDS}s" \
-                gh release create "$RELEASE_TAG" \
-                --repo "$REPO" \
-                --title "NETSHIELD seen_db SQLite Backup" \
-                --notes "Automatisch gepflegter SQLite-Fallback fuer Confidence." \
-                --latest=false 2>&1 || true
-            fi
-
-            # Release-ID/Asset-Zustand direkt vor jedem Upload protokollieren.
-            release_id=$(timeout --signal=TERM --kill-after=10s "${RELEASE_META_TIMEOUT_SECONDS}s" \
-              gh api "repos/${REPO}/releases/tags/${RELEASE_TAG}" --jq '.id' 2>/dev/null || true)
-            if [ -n "$release_id" ]; then
-              echo "Release-ID vor Upload: $release_id"
-              existing_asset=$(timeout --signal=TERM --kill-after=10s "${RELEASE_META_TIMEOUT_SECONDS}s" \
-                gh api "repos/${REPO}/releases/${release_id}/assets" \
-                --jq '.[] | select(.name=="seen_db.sqlite3.gz") | "id=\(.id) size=\(.size) state=\(.state) updated=\(.updated_at)"' \
-                2>/dev/null || true)
-              echo "Asset vor Upload: ${existing_asset:-nicht vorhanden}"
-            else
-              echo "WARN: Release-ID konnte direkt vor Upload nicht gelesen werden."
-            fi
-
-            debug_log="release_upload_attempt_${attempt}.debug.log"
+            echo "===== GH-Upload-Versuch $attempt/2 / $(date -u '+%H:%M:%S UTC') ====="
+            debug_log="release_upload_gh_${attempt}.debug.log"
             : > "$debug_log"
             upload_started=$(date +%s)
 
-            # GH_DEBUG=api protokolliert Request/Response-Phasen der GitHub CLI.
-            # Authorization/Cookie-Zeilen werden zusaetzlich gefiltert.
             set +e
             (
               GH_DEBUG=api timeout --signal=TERM --kill-after=15s "${RELEASE_UPLOAD_TIMEOUT_SECONDS}s" \
-                gh release upload "$RELEASE_TAG" "$ASSET_NAME" \
-                --repo "$REPO" --clobber \
+                gh release upload "$RELEASE_TAG" "$temp_name" --repo "$REPO" \
                 2> >(sed -E \
                   -e 's/^(> )?[Aa]uthorization:.*/> Authorization: [REDACTED]/' \
                   -e 's/^(< )?[Ss]et-[Cc]ookie:.*/< Set-Cookie: [REDACTED]/' \
@@ -5802,62 +5911,116 @@ jobs:
             upload_job=$!
             set -e
 
-            # Heartbeat: Falls gh schweigt, sieht man weiterhin, ob der Prozess lebt
-            # und ob noch eine HTTPS-Verbindung (ESTAB/SYN-SENT etc.) existiert.
-            # 1s-Polling verhindert, dass ein schneller Upload kuenstlich 15s wartet;
-            # die eigentliche Diagnoseausgabe kommt nur alle 15 Sekunden.
-            next_heartbeat=15
-            while kill -0 "$upload_job" 2>/dev/null; do
-              sleep 1
-              now=$(date +%s)
-              elapsed=$((now - upload_started))
-              if [ "$elapsed" -ge "$next_heartbeat" ] && kill -0 "$upload_job" 2>/dev/null; then
-                echo "[Upload-Heartbeat] Versuch $attempt laeuft seit ${elapsed}s / Limit ${RELEASE_UPLOAD_TIMEOUT_SECONDS}s"
-                ps -o pid=,etime=,stat=,pcpu=,pmem=,cmd= -p "$upload_job" 2>/dev/null || true
-                pgrep -a -P "$upload_job" 2>/dev/null || true
-                echo "HTTPS-Sockets (Auszug):"
-                ss -Htnp 2>/dev/null | grep -E '(:443|gh|timeout)' | head -n 12 || echo "keine sichtbaren :443-Sockets"
-                next_heartbeat=$((next_heartbeat + 15))
-              fi
-            done
-
-            if wait "$upload_job"; then
-              upload_rc=0
-            else
-              upload_rc=$?
-            fi
-
+            diagnose_heartbeat "$upload_job" "GH Versuch ${attempt}" "$upload_started"
+            set +e
+            wait "$upload_job"
+            upload_rc=$?
+            set -e
             elapsed=$(( $(date +%s) - upload_started ))
-            echo "Upload-Prozess beendet: Exit=$upload_rc, Laufzeit=${elapsed}s"
+            echo "GH-Upload-Prozess beendet: Exit=${upload_rc}, Laufzeit=${elapsed}s"
 
-            if [ "$upload_rc" -eq 0 ]; then
-              echo "SQLite-Release-Backup aktualisiert (Versuch $attempt): $(du -h "$ASSET_NAME" | cut -f1)"
-              if [ -n "${release_id:-}" ]; then
-                echo "Asset nach erfolgreichem Upload:"
-                timeout --signal=TERM --kill-after=10s "${RELEASE_META_TIMEOUT_SECONDS}s" \
-                  gh api "repos/${REPO}/releases/${release_id}/assets" \
-                  --jq '.[] | select(.name=="seen_db.sqlite3.gz") | "id=\(.id) size=\(.size) state=\(.state) updated=\(.updated_at)"' \
-                  2>/dev/null || true
-              fi
+            # Wichtig: Bei einem Timeout kann GitHub das Asset bereits komplett
+            # gespeichert haben, obwohl die Client-Antwort ausblieb.
+            sleep 2
+            if promote_temp_asset "$release_id" "$temp_name"; then
+              echo "SQLite-Release-Backup erfolgreich via gh aktualisiert."
+              rm -f "$temp_name"
               exit 0
             fi
 
             if [ "$upload_rc" -eq 124 ] || [ "$upload_rc" -eq 137 ]; then
-              echo "::warning::Release-Upload-Versuch $attempt nach ${RELEASE_UPLOAD_TIMEOUT_SECONDS}s wegen Timeout beendet."
+              echo "::warning::GH-Upload-Versuch ${attempt} nach ${RELEASE_UPLOAD_TIMEOUT_SECONDS}s beendet."
             else
-              echo "::warning::Release-Upload-Versuch $attempt fehlgeschlagen (Exit $upload_rc)."
+              echo "::warning::GH-Upload-Versuch ${attempt} fehlgeschlagen (Exit ${upload_rc})."
             fi
-
-            echo "Letzte Debug-Zeilen von Versuch $attempt:"
+            echo "Letzte Debug-Zeilen von GH-Versuch ${attempt}:"
             tail -n 80 "$debug_log" 2>/dev/null || true
-
-            if [ "$attempt" -lt 5 ]; then
-              echo "Warte kurz vor dem naechsten Versuch..."
-              sleep $((attempt * 5))
-            fi
+            cleanup_starter_assets "$release_id"
+            rm -f "$temp_name"
+            sleep $((attempt * 5))
           done
 
-          echo "::warning file=update_combined_blacklist.yml::SQLite-Release-Backup nach 5 begrenzten Versuchen fehlgeschlagen. Die Preflight-, GH-API- und Heartbeat-Ausgaben oben zeigen, an welcher Phase der Upload haengt. Commit/Push und Confidence-Trigger duerfen trotzdem weiterlaufen."
+          # --------------------------------------------------------------
+          # Phase 2: REST-Fallback mit curl/HTTP/1.1.
+          # Damit umgehen wir den gh-Upload-Codepfad/HTTP2 und erzwingen eine
+          # frische Verbindung zu uploads.github.com.
+          # --------------------------------------------------------------
+          echo ""
+          echo "===== GH-CLI zweimal ohne Erfolg -> REST/curl-Fallback ====="
+          curl_cfg=$(mktemp)
+          chmod 600 "$curl_cfg"
+          trap 'rm -f "$curl_cfg"' EXIT
+          cat > "$curl_cfg" <<CURLCFG
+          header = "Authorization: Bearer ${GH_TOKEN}"
+          header = "Accept: application/vnd.github+json"
+          header = "X-GitHub-Api-Version: 2022-11-28"
+          header = "Content-Type: application/gzip"
+          CURLCFG
+
+          for attempt in 1 2; do
+            temp_name="${ASSET_NAME}.upload-${RUN_KEY}-curl${attempt}"
+            encoded_name=$(jq -nr --arg v "$temp_name" '$v|@uri')
+            upload_url="https://uploads.github.com/repos/${REPO}/releases/${release_id}/assets?name=${encoded_name}"
+            cleanup_starter_assets "$release_id"
+
+            echo ""
+            echo "===== REST/curl-Upload-Versuch $attempt/2 / $(date -u '+%H:%M:%S UTC') ====="
+            echo "uploads.github.com IPv4 vor Versuch:"
+            getent ahostsv4 uploads.github.com 2>/dev/null | awk '!seen[$1]++ {print $1}' | head -n 8 || true
+
+            headers_log="release_upload_curl_${attempt}.headers.log"
+            body_log="release_upload_curl_${attempt}.body.log"
+            metrics_log="release_upload_curl_${attempt}.metrics.log"
+            : > "$headers_log"; : > "$body_log"; : > "$metrics_log"
+            upload_started=$(date +%s)
+
+            set +e
+            (
+              timeout --signal=TERM --kill-after=15s "${RELEASE_UPLOAD_TIMEOUT_SECONDS}s" \
+                curl --config "$curl_cfg" \
+                --http1.1 -4 --request POST \
+                --connect-timeout 10 \
+                --max-time "$RELEASE_UPLOAD_TIMEOUT_SECONDS" \
+                --speed-time 30 --speed-limit 1024 \
+                --fail-with-body --show-error --silent \
+                --data-binary "@${ASSET_NAME}" \
+                --dump-header "$headers_log" \
+                --output "$body_log" \
+                --write-out 'HTTP=%{http_code} remote=%{remote_ip} connect=%{time_connect}s tls=%{time_appconnect}s starttransfer=%{time_starttransfer}s total=%{time_total}s upload=%{size_upload}B speed=%{speed_upload}B/s\n' \
+                "$upload_url" > "$metrics_log"
+            ) &
+            upload_job=$!
+            set -e
+
+            diagnose_heartbeat "$upload_job" "REST/curl Versuch ${attempt}" "$upload_started"
+            set +e
+            wait "$upload_job"
+            upload_rc=$?
+            set -e
+            elapsed=$(( $(date +%s) - upload_started ))
+            echo "REST/curl-Prozess beendet: Exit=${upload_rc}, Laufzeit=${elapsed}s"
+            cat "$metrics_log" 2>/dev/null || true
+            echo "HTTP-Antwortkopf (letzte 20 Zeilen):"
+            tail -n 20 "$headers_log" 2>/dev/null | sed -E 's/^(set-cookie:).*/\1 [REDACTED]/I' || true
+
+            sleep 2
+            if promote_temp_asset "$release_id" "$temp_name"; then
+              echo "SQLite-Release-Backup erfolgreich via REST/curl aktualisiert."
+              exit 0
+            fi
+
+            if [ "$upload_rc" -eq 124 ] || [ "$upload_rc" -eq 137 ] || [ "$upload_rc" -eq 28 ]; then
+              echo "::warning::REST/curl-Versuch ${attempt} wegen Timeout/zu geringer Uebertragungsrate beendet (Exit ${upload_rc})."
+            else
+              echo "::warning::REST/curl-Versuch ${attempt} fehlgeschlagen (Exit ${upload_rc})."
+            fi
+            echo "REST-Antwortbody (max. letzte 40 Zeilen):"
+            tail -n 40 "$body_log" 2>/dev/null || true
+            cleanup_starter_assets "$release_id"
+            sleep $((attempt * 5))
+          done
+
+          echo "::warning file=update_combined_blacklist.yml::SQLite-Release-Backup trotz 2x gh + 2x REST/curl fehlgeschlagen. Das vorhandene letzte gute kanonische Backup wurde absichtlich nicht vorab geloescht. Commit/Push und Confidence-Trigger duerfen trotzdem weiterlaufen."
           exit 1
 
       # Separates JSON-Release-Backup fuer seen_db entfernt (2026-09-01).
