@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-17 09:56 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-17 10:05 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,277,821** |
-| Neu (heute) | **+44** |
-| Entfernt | **-42** |
+| Gesamt IPs | **1,277,816** |
+| Neu (heute) | **+0** |
+| Entfernt | **-5** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 53 |
@@ -44,9 +44,9 @@
 | ✅ `officialputuid_proxyforeveryone` | 7,096 |
 | ✅ `officialputuid_proxyforeveryone_https` | 5,922 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 7,125 |
-| ✅ `ercindedeoglu_proxies` | 53,835 |
-| ✅ `ercindedeoglu_proxies_socks4` | 18,457 |
-| ✅ `ercindedeoglu_proxies_socks5` | 17,508 |
+| ✅ `ercindedeoglu_proxies` | 53,829 |
+| ✅ `ercindedeoglu_proxies_socks4` | 18,456 |
+| ✅ `ercindedeoglu_proxies_socks5` | 17,507 |
 | ✅ `tuanminpay_live_proxy` | 9,147 |
 | ✅ `tuanminpay_live_proxy_http` | 5,947 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,274 |
@@ -78,4 +78,4 @@
 > Diese 53 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-17 09:56 CEST (Europe/Berlin)*
+*Generiert: 2026-09-17 10:05 CEST (Europe/Berlin)*
