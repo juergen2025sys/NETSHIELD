@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-17 08:01 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-17 08:47 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,277,547** |
-| Neu (heute) | **+554** |
-| Entfernt | **-137** |
+| Gesamt IPs | **1,277,554** |
+| Neu (heute) | **+7** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 53 |
@@ -27,9 +27,9 @@
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,840 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,831 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,645 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,732 |
-| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,712 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,641 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,738 |
+| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,683 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,951 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,166 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 2,700 |
@@ -44,9 +44,9 @@
 | ✅ `officialputuid_proxyforeveryone` | 7,125 |
 | ✅ `officialputuid_proxyforeveryone_https` | 5,955 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 6,981 |
-| ✅ `ercindedeoglu_proxies` | 53,866 |
-| ✅ `ercindedeoglu_proxies_socks4` | 18,453 |
-| ✅ `ercindedeoglu_proxies_socks5` | 17,489 |
+| ✅ `ercindedeoglu_proxies` | 53,854 |
+| ✅ `ercindedeoglu_proxies_socks4` | 18,455 |
+| ✅ `ercindedeoglu_proxies_socks5` | 17,488 |
 | ✅ `tuanminpay_live_proxy` | 9,147 |
 | ✅ `tuanminpay_live_proxy_http` | 5,947 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,274 |
@@ -78,4 +78,4 @@
 > Diese 53 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-17 08:01 CEST (Europe/Berlin)*
+*Generiert: 2026-09-17 08:47 CEST (Europe/Berlin)*
