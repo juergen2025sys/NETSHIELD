@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-09-17 18:57 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-17 19:49 CEST (Europe/Berlin)
 
 ---
 ## 📊 Listen-Übersicht
@@ -10,9 +10,9 @@
 | ✅ [active_blacklist_ipv4.txt](../active_blacklist_ipv4.txt) | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **998,669** | 2026-09-17 16:55 CEST (Europe/Berlin) |
 | ✅ [blacklist_confidence40_ipv4_part1.txt](../blacklist_confidence40_ipv4_part1.txt) + [blacklist_confidence40_ipv4_part2.txt](../blacklist_confidence40_ipv4_part2.txt) | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **8,461,263** | 2026-09-17 17:01 CEST (Europe/Berlin) |
 | ✅ [watchlist_confidence25to39_ipv4.txt](../watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25-39/100) | **2,939,276** | 2026-09-17 17:01 CEST (Europe/Berlin) |
-| ✅ [cve_exploit_ips.txt](../cve_exploit_ips.txt) | CVE Exploit IPs | **27,949** | 2026-09-17 16:41 CEST (Europe/Berlin) |
-| ✅ [bot_detector_blacklist_ipv4.txt](../bot_detector_blacklist_ipv4.txt) | Bot-Detector Blacklist | **1,278,966** | 2026-09-17 17:11 CEST (Europe/Berlin) |
-| ✅ [honeypot_ips.txt](../honeypot_ips.txt) | Honeypot IPs | **2,299,909** | 2026-09-17 17:21 CEST (Europe/Berlin) |
+| ✅ [cve_exploit_ips.txt](../cve_exploit_ips.txt) | CVE Exploit IPs | **27,973** | 2026-09-17 19:18 CEST (Europe/Berlin) |
+| ✅ [bot_detector_blacklist_ipv4.txt](../bot_detector_blacklist_ipv4.txt) | Bot-Detector Blacklist | **1,279,578** | 2026-09-17 18:58 CEST (Europe/Berlin) |
+| ✅ [honeypot_ips.txt](../honeypot_ips.txt) | Honeypot IPs | **2,300,028** | 2026-09-17 18:58 CEST (Europe/Berlin) |
 | ✅ [honigtopf_ips.txt](../honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **46,039** | 2026-09-17 18:53 CEST (Europe/Berlin) |
 
 ---
@@ -32,4 +32,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-09-17 18:57 CEST (Europe/Berlin)*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-09-17 19:49 CEST (Europe/Berlin)*
