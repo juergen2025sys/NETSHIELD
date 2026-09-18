@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-18 08:16 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-18 08:47 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,277,846** |
-| Neu (heute) | **+10** |
-| Entfernt | **-14** |
+| Gesamt IPs | **1,277,877** |
+| Neu (heute) | **+194** |
+| Entfernt | **-163** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 53 |
@@ -27,9 +27,9 @@
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,864 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,831 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,743 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,737 |
-| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 3,059 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,741 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,744 |
+| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 3,069 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,952 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,166 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 2,700 |
@@ -51,13 +51,13 @@
 | ✅ `tuanminpay_live_proxy_http` | 6,175 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,373 |
 | ✅ `tuanminpay_live_proxy_socks5` | 3,422 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 214,536 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 214,729 |
 | ✅ `noctiro_getproxy` | 4,010 |
 | ✅ `noctiro_getproxy_socks5` | 3,699 |
-| ✅ `mohammedcha_proxripper` | 52,880 |
-| ✅ `mohammedcha_proxripper_socks4` | 113,042 |
-| ✅ `mohammedcha_proxripper_http` | 116,780 |
-| ✅ `mohammedcha_proxripper_socks5` | 115,844 |
+| ✅ `mohammedcha_proxripper` | 52,845 |
+| ✅ `mohammedcha_proxripper_socks4` | 112,943 |
+| ✅ `mohammedcha_proxripper_http` | 116,817 |
+| ✅ `mohammedcha_proxripper_socks5` | 115,917 |
 | ❌ `celestialbrain_worldpool` | 0 |
 | ✅ `dinoz0rg_proxy_list` | 91,298 |
 | ⚠️ `dinoz0rg_proxy_list_http` | 0 |
@@ -78,4 +78,4 @@
 > Diese 53 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-18 08:16 CEST (Europe/Berlin)*
+*Generiert: 2026-09-18 08:47 CEST (Europe/Berlin)*
