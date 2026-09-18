@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
 
     steps:
@@ -42,14 +42,14 @@ jobs:
         # ijson: JSON-State-Import im Combined-Regressionstest; Version wie im Combined-Workflow.
         # PyYAML: Workflow-Pruefungen ohne Abhaengigkeit von vorinstallierten Runner-Paketen.
         run: |
-          python3 -m pip install --quiet --disable-pip-version-check --break-system-packages defusedxml==0.7.1 ijson==3.5.1 PyYAML==6.0.2 2>/dev/null \
-            || python3 -m pip install --quiet --disable-pip-version-check defusedxml==0.7.1 ijson==3.5.1 PyYAML==6.0.2
+          python3 -m pip install --quiet --disable-pip-version-check --break-system-packages defusedxml==0.7.1 ijson==3.5.1 PyYAML==6.0.3 2>/dev/null \
+            || python3 -m pip install --quiet --disable-pip-version-check defusedxml==0.7.1 ijson==3.5.1 PyYAML==6.0.3
 
       - name: Run Unit Tests
         run: python3 -m unittest discover -s tests -v
 
   release-list-policy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
