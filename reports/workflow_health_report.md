@@ -1,22 +1,29 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-18 19:04 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-18 23:38 CEST (Europe/Berlin)
 
-**Workflows:** 30 | ✅ 29 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
+**Workflows:** 31 | ✅ 29 OK | ⚠️ 1 Warnung | ❌ 1 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `a2fce84f5fab72da875b6f050a68a8b0aed4738b`
+✅ Commit: `e34d811e0e9ec384da3ff881f4063196df55a8c5`
 
 460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
+
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `runner_image_watch.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
 
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
 | `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
+| `runner_image_watch.yml` | Git Push ohne Retry-Schleife | git push ohne Retry-Schleife – Race-Condition bei parallelen Runs (kein 'for attempt in ...') |
 
 ## 🏥 Production Health
 
@@ -47,6 +54,7 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `netshield_report_generator.yml` | ⚠️ | 0 | 1 | `30 * * * *`, `45 * * * *`, `55 * * * *` |
 | `repo_size_check.yml` | ✅ OK | 0 | 0 | – |
 | `run_tests.yml` | ✅ OK | 0 | 0 | – |
+| `runner_image_watch.yml` | ❌ | 1 | 1 | `43 5 * * *` |
 | `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
 | `sniffcat_fetch.yml` | ✅ OK | 0 | 0 | – |
 | `tweetfeed_monitor.yml` | ✅ OK | 0 | 0 | `45 2 * * *` |
@@ -60,4 +68,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-18 19:04 CEST (Europe/Berlin) | 30 Workflow-Dateien geprüft*
+*Generiert: 2026-09-18 23:38 CEST (Europe/Berlin) | 31 Workflow-Dateien geprüft*

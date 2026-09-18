@@ -1,20 +1,31 @@
 {
-  "updated": "2026-09-18 19:04 CEST (Europe/Berlin)",
-  "total": 30,
+  "updated": "2026-09-18 23:38 CEST (Europe/Berlin)",
+  "total": 31,
   "ok": 29,
   "warn": 1,
-  "error": 0,
-  "errors": [],
+  "error": 1,
+  "errors": [
+    {
+      "file": "runner_image_watch.yml",
+      "check": "persist-credentials fehlt",
+      "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
+    }
+  ],
   "warnings": [
     {
       "file": "netshield_report_generator.yml",
       "check": "Doppelter Import",
       "detail": "Block 0: Doppelte Imports: ((2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
+    },
+    {
+      "file": "runner_image_watch.yml",
+      "check": "Git Push ohne Retry-Schleife",
+      "detail": "git push ohne Retry-Schleife \u2013 Race-Condition bei parallelen Runs (kein 'for attempt in ...')"
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "a2fce84f5fab72da875b6f050a68a8b0aed4738b",
+    "sha": "e34d811e0e9ec384da3ff881f4063196df55a8c5",
     "status": "passed",
     "tests_run": 460,
     "failures": [],
@@ -26,12 +37,12 @@
     "detail": "460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5907267,
-    "active_blacklist_ipv4.txt": 995201,
-    "blacklist_confidence40_ipv4_part1.txt": 4264931,
-    "cve_exploit_ips.txt": 27761,
-    "honeypot_ips.txt": 2259099,
-    "bot_detector_blacklist_ipv4.txt": 1275421
+    "combined_threat_blacklist_ipv4_part1.txt": 5913330,
+    "active_blacklist_ipv4.txt": 1007020,
+    "blacklist_confidence40_ipv4_part1.txt": 4270553,
+    "cve_exploit_ips.txt": 27807,
+    "honeypot_ips.txt": 2260261,
+    "bot_detector_blacklist_ipv4.txt": 1275791
   },
   "production_health": {
     "critical": 0,
