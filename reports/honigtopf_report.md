@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-09-18 16:30 CEST (Berlin)  
+**Aktualisiert:** 2026-09-18 17:00 CEST (Berlin)  
 **Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
@@ -14,65 +14,65 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-09-18 16:30 CEST (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-09-18 17:00 CEST (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **39,724** |
-| Bad Hosts – SIP | **171** |
-| Bad Hosts – MSSQL | **898** |
-| Bad Hosts – VNC | **1,612** |
-| Bad Hosts – SSH | **3,829** |
-| Bad Hosts – RDP | **1,140** |
-| Bad Hosts – SNMP | **447** |
-| Bad Hosts – HTTP | **4,452** |
+| Bad Hosts (24h, alle Dienste) | **39,676** |
+| Bad Hosts – SIP | **172** |
+| Bad Hosts – MSSQL | **900** |
+| Bad Hosts – VNC | **1,611** |
+| Bad Hosts – SSH | **3,850** |
+| Bad Hosts – RDP | **1,093** |
+| Bad Hosts – SNMP | **443** |
+| Bad Hosts – HTTP | **4,442** |
 | Bad Hosts – TFTP | **243** |
-| Bad Hosts – FTP | **26,570** |
-| Bad Hosts – Telnet | **2,999** |
-| Bad Hosts – ProConOs | **165** |
-| Bad Hosts – PostgreSQL | **543** |
-| Bad Hosts – MySQL | **670** |
-| Bad Hosts – Kubernetes | **743** |
-| Bad Hosts – Redis | **406** |
-| Bad Hosts – Elasticsearch | **406** |
-| Bad Hosts – CouchDB | **249** |
-| Bad Hosts – Oracle | **295** |
-| Bad Hosts – ClickhouseHTTP | **273** |
-| Bad Hosts – RAW | **286** |
-| Bad Hosts – LDAP | **242** |
-| Bad Hosts – Modbus | **164** |
-| Bad Hosts – Memcached | **239** |
-| Bad Hosts – MQTT | **241** |
-| Bad Hosts – IPP | **91** |
-| Bad Hosts – HashCountRandom | **182** |
-| Bad Hosts – LPD | **85** |
+| Bad Hosts – FTP | **26,442** |
+| Bad Hosts – Telnet | **2,997** |
+| Bad Hosts – ProConOs | **171** |
+| Bad Hosts – PostgreSQL | **540** |
+| Bad Hosts – MySQL | **669** |
+| Bad Hosts – Kubernetes | **741** |
+| Bad Hosts – Redis | **412** |
+| Bad Hosts – Elasticsearch | **403** |
+| Bad Hosts – CouchDB | **246** |
+| Bad Hosts – Oracle | **296** |
+| Bad Hosts – ClickhouseHTTP | **271** |
+| Bad Hosts – RAW | **289** |
+| Bad Hosts – LDAP | **240** |
+| Bad Hosts – Modbus | **161** |
+| Bad Hosts – Memcached | **235** |
+| Bad Hosts – MQTT | **240** |
+| Bad Hosts – IPP | **92** |
+| Bad Hosts – HashCountRandom | **211** |
+| Bad Hosts – LPD | **72** |
 | Bad Hosts – MOTD | **56** |
 | Bad Hosts – Echo | **1** |
 
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
 
-Davon **heute (2026-09-18)**: **23,496** IPs
+Davon **heute (2026-09-18)**: **24,353** IPs
 
 | last_seen | IPs |
 |---|---:|
-| 2026-09-18 | **23,496** |
-| 2026-09-17 | **16,228** |
+| 2026-09-18 | **24,353** |
+| 2026-09-17 | **15,323** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **43,268** |
-| Kandidaten dieses Abrufs | **43,268** |
+| Gesamt Honigtopf-IPs | **43,235** |
+| Kandidaten dieses Abrufs | **43,235** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+3,087** |
-| Entfernt | **-3,200** |
+| Neu | **+884** |
+| Entfernt | **-917** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-09-18 16:30 CEST (Berlin)*
+*Generiert: 2026-09-18 17:00 CEST (Berlin)*
