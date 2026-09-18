@@ -1,6 +1,6 @@
 # Workflow Health Dashboard
 
-**Stand:** 2026-09-18 13:06 CEST (Europe/Berlin)
+**Stand:** 2026-09-18 18:20 CEST (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
@@ -8,15 +8,14 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 9 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 9
-- **Lucken (>210min zwischen echten Runs):** 2
-  - 2026-09-17 16:59 CEST (Europe/Berlin) -> 2026-09-17 21:02 CEST (Europe/Berlin) (242 min)
+- **Echte Combined-Runs:** 11 / 8 erwartet
+- **Skip-Runs (Idempotenz-Guard):** 10
+- **Lucken (>210min zwischen echten Runs):** 1
   - 2026-09-18 02:56 CEST (Europe/Berlin) -> 2026-09-18 06:30 CEST (Europe/Berlin) (214 min)
 
 ## Letzte 7 Tage
 
-- **Echte Combined-Runs:** 69
+- **Echte Combined-Runs:** 71
 - **Skip-Runs:** 76
 - **Fehlgeschlagene Runs:** 5
 - **Lucken >210min:** 10
@@ -24,16 +23,16 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 315
+- **Watchdog-Laeufe insgesamt:** 314
 - **Watchdog-Fehler:** 0
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 53
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 55
 
 Letzte Watchdog-Eingriffe:
-- 2026-09-17 20:26 CEST (Europe/Berlin) (Run #35258785082, Laufzeit 28m 26s)
-- 2026-09-17 21:02 CEST (Europe/Berlin) (Run #35262480471, Laufzeit 29m 22s)
-- 2026-09-18 02:36 CEST (Europe/Berlin) (Run #35291911045, Laufzeit 19m 43s)
-- 2026-09-18 08:41 CEST (Europe/Berlin) (Run #35316005452, Laufzeit 24m 5s)
 - 2026-09-18 12:03 CEST (Europe/Berlin) (Run #35332730646, Laufzeit 21m 36s)
+- 2026-09-18 13:15 CEST (Europe/Berlin) (Run #35338693983, Laufzeit 17m 0s)
+- 2026-09-18 14:42 CEST (Europe/Berlin) (Run #35346090681, Laufzeit 16m 19s)
+- 2026-09-18 16:32 CEST (Europe/Berlin) (Run #35356881412, Laufzeit 16m 50s)
+- 2026-09-18 17:15 CEST (Europe/Berlin) (Run #35361264160, Laufzeit 21m 16s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
