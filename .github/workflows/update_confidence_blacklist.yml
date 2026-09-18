@@ -60,7 +60,7 @@ concurrency:
 
 jobs:
   gate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     outputs:
       proceed: ${{ steps.check.outputs.proceed }}
@@ -149,7 +149,7 @@ jobs:
 
   update-confidence:
     needs: gate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 40
     # Nur ausfuehren wenn:
     # - das Idempotenz-Gate gruenes Licht gibt (kein anderer Lauf aktiv/kuerzlich fertig), UND

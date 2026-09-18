@@ -63,7 +63,7 @@ jobs:
     # Slot - sonst wuerde dieser teure Job auch bei jedem 3h-Verifikations-
     # Trigger unnoetig mitlaufen.
     if: github.event_name == 'workflow_dispatch' || github.event.schedule == '30 6 * * 1'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     # DIAGNOSE 5 (2026-08-23, Nutzerwunsch "was fehlt noch zur Diagnose"):
     # issues:write ergaenzt - analog zum Job "verifikation", fuer den
@@ -870,7 +870,7 @@ jobs:
     # always() den abhaengigen Job standardmaessig ebenfalls uebergehen.
     needs: prognose
     if: always() && (github.event_name == 'workflow_dispatch' || github.event.schedule == '55 */3 * * *')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     # FIX 2026-08-23 (Nutzerwunsch "Meldung waere recht"): issues:write nur
     # fuer diesen Job ueberschrieben (Workflow-Level hat nur contents:write) -

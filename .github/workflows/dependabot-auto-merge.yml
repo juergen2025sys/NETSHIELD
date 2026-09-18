@@ -13,7 +13,7 @@ permissions:
 jobs:
   automerge:
     if: github.event.pull_request.user.login == 'dependabot[bot]'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     # Guard gegen haengende Runs (Default: 360min)
     timeout-minutes: 10
 

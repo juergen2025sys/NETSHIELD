@@ -1,0 +1,265 @@
+name: Ubuntu Runner Watch
+
+on:
+  schedule:
+    # Taeglich pruefen. Solange ubuntu-latest aelter/gleich dem festen Runner ist,
+    # wird NICHTS geaendert. Erst bei einer neueren Ubuntu-Version wird getestet.
+    - cron: '43 5 * * *'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ubuntu-runner-watch
+  cancel-in-progress: false
+
+jobs:
+  probe-test-and-upgrade:
+    # Absichtlich der einzige Workflow mit ubuntu-latest:
+    # Er dient nur als Canary fuer ein neues GitHub-Runner-Image.
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Runner-Version erkennen und mit NETSHIELD-Pin vergleichen
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 << 'PY'
+          from pathlib import Path
+          import os
+          import re
+
+          self_name = "runner_image_watch.yml"
+          workflow_dir = Path(".github/workflows")
+          rx = re.compile(r"^\s*runs-on:\s*ubuntu-(\d{2}\.\d{2})\s*(?:#.*)?$")
+
+          pinned = []
+          for path in sorted(workflow_dir.glob("*.yml")):
+              if path.name == self_name:
+                  continue
+              for line in path.read_text(encoding="utf-8").splitlines():
+                  m = rx.match(line)
+                  if m:
+                      pinned.append((path.name, m.group(1)))
+
+          versions = sorted({version for _, version in pinned})
+          if not pinned:
+              raise SystemExit("Keine festen Ubuntu-runs-on-Eintraege gefunden; Auto-Upgrade abgebrochen.")
+          if len(versions) != 1:
+              details = ", ".join(versions)
+              raise SystemExit(
+                  "Mehrere feste Ubuntu-Versionen gefunden (" + details + "). "
+                  "Aus Sicherheitsgruenden keine automatische Umstellung."
+              )
+
+          current = versions[0]
+
+          os_release = {}
+          for raw in Path("/etc/os-release").read_text(encoding="utf-8").splitlines():
+              if "=" not in raw:
+                  continue
+              key, value = raw.split("=", 1)
+              os_release[key] = value.strip().strip('"')
+
+          target = os_release.get("VERSION_ID", "").strip()
+          if not re.fullmatch(r"\d{2}\.\d{2}", target):
+              raise SystemExit(f"Unerwartete VERSION_ID des GitHub-Runners: {target!r}")
+
+          def vt(value: str):
+              major, minor = value.split(".", 1)
+              return int(major), int(minor)
+
+          should_upgrade = vt(target) > vt(current)
+          latest_is_older = vt(target) < vt(current)
+
+          print(f"Fester NETSHIELD-Runner: ubuntu-{current}")
+          print(f"ubuntu-latest ist heute: ubuntu-{target}")
+          print(f"Gefundene feste runs-on-Eintraege: {len(pinned)}")
+
+          if latest_is_older:
+              print(
+                  f"::notice::ubuntu-latest (ubuntu-{target}) ist noch aelter als "
+                  f"der bereits gesetzte NETSHIELD-Runner ubuntu-{current}. Keine Aenderung."
+              )
+          elif not should_upgrade:
+              print(f"::notice::NETSHIELD ist bereits auf ubuntu-{current}. Keine Aenderung.")
+          else:
+              print(
+                  f"::notice::Neues Runner-Image erkannt: ubuntu-{target}. "
+                  "Starte Kompatibilitaetstests vor der automatischen Umstellung."
+              )
+
+          out = Path(os.environ["GITHUB_OUTPUT"])
+          with out.open("a", encoding="utf-8") as fh:
+              fh.write(f"current_version={current}\n")
+              fh.write(f"target_version={target}\n")
+              fh.write(f"pinned_count={len(pinned)}\n")
+              fh.write(f"should_upgrade={'true' if should_upgrade else 'false'}\n")
+          PY
+
+      - name: Runner-Informationen anzeigen
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "NETSHIELD fest: ubuntu-${{ steps.detect.outputs.current_version }}"
+          echo "ubuntu-latest:  ubuntu-${{ steps.detect.outputs.target_version }}"
+          echo "Python:          $(python3 --version 2>&1)"
+          echo "Kernel:          $(uname -srmo)"
+          echo "OS:"
+          cat /etc/os-release
+
+      - name: Test-Abhaengigkeiten auf neuem Runner installieren
+        if: steps.detect.outputs.should_upgrade == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet --disable-pip-version-check --break-system-packages \
+            defusedxml==0.7.1 ijson==3.5.1 PyYAML==6.0.3 pyflakes==3.4.0 2>/dev/null \
+            || python3 -m pip install --quiet --disable-pip-version-check \
+            defusedxml==0.7.1 ijson==3.5.1 PyYAML==6.0.3 pyflakes==3.4.0
+
+      - name: Workflow-YAML und Python-Syntax auf neuem Runner pruefen
+        if: steps.detect.outputs.should_upgrade == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 << 'PY'
+          from pathlib import Path
+          import yaml
+
+          files = sorted(Path('.github/workflows').glob('*.yml'))
+          for path in files:
+              with path.open('r', encoding='utf-8') as fh:
+                  yaml.safe_load(fh)
+          print(f"YAML OK: {len(files)} Workflow-Dateien")
+          PY
+          python3 -m compileall -q scripts tests
+
+      - name: Security-Hygiene auf neuem Runner pruefen
+        if: steps.detect.outputs.should_upgrade == 'true'
+        shell: bash
+        run: python3 scripts/check_security_hygiene.py
+
+      - name: Unit-Tests auf neuem Runner ausfuehren
+        if: steps.detect.outputs.should_upgrade == 'true'
+        shell: bash
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Release-Listen auf neuem Runner pruefen
+        if: steps.detect.outputs.should_upgrade == 'true'
+        shell: bash
+        run: python3 scripts/check_release_lists.py
+
+      - name: Feste Ubuntu-Version in Workflows aktualisieren
+        if: steps.detect.outputs.should_upgrade == 'true'
+        id: update
+        env:
+          CURRENT_VERSION: ${{ steps.detect.outputs.current_version }}
+          TARGET_VERSION: ${{ steps.detect.outputs.target_version }}
+          EXPECTED_COUNT: ${{ steps.detect.outputs.pinned_count }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 << 'PY'
+          from pathlib import Path
+          import os
+          import re
+
+          current = os.environ['CURRENT_VERSION']
+          target = os.environ['TARGET_VERSION']
+          expected = int(os.environ['EXPECTED_COUNT'])
+          self_name = 'runner_image_watch.yml'
+          workflow_dir = Path('.github/workflows')
+
+          rx = re.compile(
+              rf"^(?P<prefix>\s*runs-on:\s*)ubuntu-{re.escape(current)}(?P<suffix>\s*(?:#.*)?)$",
+              re.MULTILINE,
+          )
+
+          changed_files = []
+          replacements = 0
+
+          for path in sorted(workflow_dir.glob('*.yml')):
+              if path.name == self_name:
+                  continue
+              original = path.read_text(encoding='utf-8')
+              updated, count = rx.subn(rf"\g<prefix>ubuntu-{target}\g<suffix>", original)
+              if count:
+                  path.write_text(updated, encoding='utf-8', newline='')
+                  changed_files.append(path.as_posix())
+                  replacements += count
+
+          if replacements != expected:
+              raise SystemExit(
+                  f"Sicherheitsabbruch: erwartet {expected} Ersetzungen, erhalten {replacements}. "
+                  "Keine unvollstaendige Runner-Migration wird committed."
+              )
+
+          if not changed_files:
+              raise SystemExit('Keine Workflow-Datei geaendert; Auto-Upgrade abgebrochen.')
+
+          print(f"Runner-Migration vorbereitet: ubuntu-{current} -> ubuntu-{target}")
+          print(f"Ersetzungen: {replacements}")
+          for path in changed_files:
+              print(f"  {path}")
+          PY
+
+          # Nach der Ersetzung erneut syntaktisch pruefen und Whitespace-Fehler stoppen.
+          python3 << 'PY'
+          from pathlib import Path
+          import yaml
+          for path in sorted(Path('.github/workflows').glob('*.yml')):
+              with path.open('r', encoding='utf-8') as fh:
+                  yaml.safe_load(fh)
+          print('YAML nach Runner-Migration: OK')
+          PY
+          git diff --check
+
+      - name: Runner-Migration automatisch committen
+        if: steps.detect.outputs.should_upgrade == 'true'
+        env:
+          CURRENT_VERSION: ${{ steps.detect.outputs.current_version }}
+          TARGET_VERSION: ${{ steps.detect.outputs.target_version }}
+          RUNNER_UPDATE_TOKEN: ${{ secrets.RUNNER_UPDATE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- .github/workflows; then
+            echo "::notice::Keine Aenderung zum Committen vorhanden."
+            exit 0
+          fi
+
+          # Das normale GITHUB_TOKEN darf Workflow-Dateien nicht zuverlaessig
+          # selbst veraendern. Fuer die echte Vollautomatik wird einmalig ein
+          # Fine-grained PAT/GitHub-App-Token als Secret RUNNER_UPDATE_TOKEN benoetigt.
+          if [ -z "${RUNNER_UPDATE_TOKEN:-}" ]; then
+            echo "::error::Secret RUNNER_UPDATE_TOKEN fehlt. Tests waren erfolgreich, aber die Workflow-Dateien koennen ohne Workflows-Schreibrecht nicht automatisch aktualisiert werden."
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/*.yml
+          git commit -m "chore: runner ubuntu-${CURRENT_VERSION} -> ubuntu-${TARGET_VERSION}"
+
+          # Explizit den Token mit Contents + Workflows Schreibrecht verwenden.
+          # Bei Branch-Protection scheitert der Push sichtbar und es bleibt beim
+          # bisherigen Runner; es gibt keinen stillen Teil-Update.
+          git push \
+            "https://x-access-token:${RUNNER_UPDATE_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            "HEAD:${GITHUB_REF_NAME}"
+
+          echo "::notice::NETSHIELD-Workflows automatisch auf ubuntu-${TARGET_VERSION} umgestellt."

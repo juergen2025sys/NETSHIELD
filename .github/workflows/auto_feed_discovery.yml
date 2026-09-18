@@ -39,7 +39,7 @@ concurrency:
 
 jobs:
   discover:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     # FIX RUNTIME-30MIN (2026-07-31): Von 60 auf 30 Min reduziert (Vorgabe:
     # FIX RUNTIME-40MIN (2026-08-02): Von 30 auf 40 Min angehoben, um mehr
     # Suchreichweite pro Lauf zu ermoeglichen (mehr Topics/Code-Queries/

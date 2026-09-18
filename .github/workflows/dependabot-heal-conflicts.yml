@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   heal:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     # Guard gegen haengende Runs (Default: 360min). Der Loop ueber PRs
     # sollte in wenigen Minuten durchlaufen.
     timeout-minutes: 15

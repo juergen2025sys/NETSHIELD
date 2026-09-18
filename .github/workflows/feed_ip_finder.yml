@@ -52,7 +52,7 @@ concurrency:
 
 jobs:
   find:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 25
 
     steps:

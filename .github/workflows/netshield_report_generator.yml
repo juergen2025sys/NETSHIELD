@@ -28,7 +28,7 @@ jobs:
   # mit should_run=true vorgemerkt werden, waehrend der Primaer-Lauf noch
   # aktiv ist.
   generate-report:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     concurrency:
       group: ${{ github.workflow }}

@@ -25,7 +25,7 @@ concurrency:
 
 jobs:
   check-python-code:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 40
 
     steps:
@@ -48,7 +48,7 @@ jobs:
         id: regression_tests
         continue-on-error: true
         run: |
-          python3 -m pip install --quiet --disable-pip-version-check --break-system-packages defusedxml==0.7.1 ijson==3.5.1 PyYAML==6.0.2 \
+          python3 -m pip install --quiet --disable-pip-version-check --break-system-packages defusedxml==0.7.1 ijson==3.5.1 PyYAML==6.0.3 \
             || echo "::warning::Test-Abhaengigkeiten konnten nicht vollstaendig installiert werden."
           python3 scripts/check_health_regressions.py
 
