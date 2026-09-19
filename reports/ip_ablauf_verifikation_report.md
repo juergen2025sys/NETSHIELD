@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-09-19 07:00 CEST (Europe/Berlin)
+Lauf: 2026-09-19 07:21 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -83,21 +83,20 @@ _59 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +14,182 (Anstieg) (jetzt 11,508,382 IPs)
+- Seit letztem Lauf: ➡️ unverändert (jetzt 11,508,382 IPs)
 - Seit Zyklus-Start (2026-08-23): 📈 +2,112,343 (Anstieg)
 - Letzter combined-Cleanup-Pass: 243,891 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 243,891 Active/180T), 1,078,585 neue IPs hinzugekommen (davon 937,093 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 4,424 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 133,645 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 8,556,088 (Summe letzte 8 Läufe / ~24h)
-- Entfernte IPs (Summe letzter Läufe): 1,951,734 (Summe letzte 8 Läufe / ~24h)
+- Neue IPs (Summe letzter Läufe): 8,554,477 (Summe letzte 8 Läufe / ~24h)
+- Entfernte IPs (Summe letzter Läufe): 1,951,532 (Summe letzte 8 Läufe / ~24h)
   - davon Watchlist/30 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-  - davon Active/180 Tage: 1,951,734 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +74,349 (~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 15/15 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt) | zusätzlich 1 cancelled (nicht gewertet), Zeitraum 2026-09-18T16:18 bis 2026-09-19T04:49 UTC
+  - davon Active/180 Tage: 1,951,532 (Summe letzte 8 Läufe / ~24h)
+- Netto-Wachstum (~24h): 📈 +46,975 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 15/15 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt) | zusätzlich 1 cancelled (nicht gewertet), Zeitraum 2026-09-18T16:35 bis 2026-09-19T05:06 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-09-16 23:49 CEST (Europe/Berlin) | 11,355,931 | 4403 | 831937 | 0 |
 | 2026-09-17 01:59 CEST (Europe/Berlin) | 11,355,931 | 4403 | 831937 | 0 |
 | 2026-09-17 07:37 CEST (Europe/Berlin) | 11,366,937 | 4359 | 831889 | 0 |
 | 2026-09-17 13:36 CEST (Europe/Berlin) | 11,382,961 | 4356 | 831845 | 0 |
@@ -117,3 +116,4 @@ _59 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-09-18 23:22 CEST (Europe/Berlin) | 11,485,563 | 4340 | 831358 | 0 |
 | 2026-09-19 01:46 CEST (Europe/Berlin) | 11,494,200 | 4340 | 831350 | 0 |
 | 2026-09-19 07:00 CEST (Europe/Berlin) | 11,508,382 | 4229 | 831299 | 0 |
+| 2026-09-19 07:21 CEST (Europe/Berlin) | 11,508,382 | 4229 | 831299 | 0 |
