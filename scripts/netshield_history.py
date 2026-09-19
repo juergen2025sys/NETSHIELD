@@ -11,7 +11,9 @@ import json
 import os
 from pathlib import Path
 import re
+import socket
 import tempfile
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -60,8 +62,33 @@ class GitHub:
             data = file
             headers['Content-Type'] = 'application/octet-stream'
             headers['Content-Length'] = str(os.fstat(file.fileno()).st_size)
-        request = urllib.request.Request(url, data=data, headers=headers, method=method)
-        return self.opener.open(request, timeout=120)
+
+        # GitHub occasionally resets long-lived HTTPS connections while reading
+        # release metadata/assets. Retrying GET is safe and prevents a transient
+        # network hiccup from failing the complete blacklist build. Mutating
+        # requests are deliberately NOT retried here because a lost response
+        # after POST/PATCH could otherwise create duplicate release assets.
+        retry_delays = (5, 15, 30, 60) if method == 'GET' and payload is None and file is None else ()
+        attempt = 0
+        while True:
+            request = urllib.request.Request(url, data=data, headers=headers, method=method)
+            try:
+                return self.opener.open(request, timeout=120)
+            except urllib.error.HTTPError as error:
+                retryable = error.code in (429, 500, 502, 503, 504)
+                if not retryable or attempt >= len(retry_delays):
+                    raise
+                delay = retry_delays[attempt]
+                attempt += 1
+                print(f'::warning::GitHub GET returned HTTP {error.code}; retry {attempt}/{len(retry_delays)} in {delay}s')
+                time.sleep(delay)
+            except (urllib.error.URLError, ConnectionResetError, TimeoutError, socket.timeout) as error:
+                if attempt >= len(retry_delays):
+                    raise
+                delay = retry_delays[attempt]
+                attempt += 1
+                print(f'::warning::GitHub GET failed transiently ({error}); retry {attempt}/{len(retry_delays)} in {delay}s')
+                time.sleep(delay)
 
     def json_request(self, method, url, **kwargs):
         with self.request(method, url, **kwargs) as response:
