@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-19 02:45 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-19 03:13 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,279,800** |
-| Neu (heute) | **+31** |
-| Entfernt | **-4** |
+| Gesamt IPs | **1,279,948** |
+| Neu (heute) | **+476,471** |
+| Entfernt | **-476,323** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 53 |
@@ -25,15 +25,15 @@
 | ✅ `openprx_prx_sd_signatures_url_blocklist` | 373 |
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,818 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
-| ✅ `antoinevastel_avastel_bot_ips_lists` | 499,864 |
+| ✅ `antoinevastel_avastel_bot_ips_lists` | 499,837 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,831 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,746 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,749 |
 | ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,721 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 3,123 |
-| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,953 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,854 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,428 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,293 |
+| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,954 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,787 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,405 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,237 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,383 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,169 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 761 |
@@ -78,4 +78,4 @@
 > Diese 53 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-19 02:45 CEST (Europe/Berlin)*
+*Generiert: 2026-09-19 03:13 CEST (Europe/Berlin)*
