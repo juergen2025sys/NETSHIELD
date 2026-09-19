@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-19 21:06 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-19 21:23 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,285,705** |
-| Neu (heute) | **+607** |
-| Entfernt | **-328** |
+| Gesamt IPs | **1,285,709** |
+| Neu (heute) | **+6** |
+| Entfernt | **-2** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 53 |
@@ -28,12 +28,12 @@
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,837 |
 | ✅ `ipanalytics_ai_crawler_blocklist` | 2,831 |
 | ✅ `ebrasha_abdal_proxy_hub` | 6,760 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,731 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,732 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 3,008 |
-| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,953 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,785 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,434 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,312 |
+| ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,954 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,878 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,493 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,295 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,394 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,145 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 761 |
@@ -68,7 +68,7 @@
 | ✅ `configserverapps_service_blocklists_botscout_30d` | 3,244 |
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,646 |
 | ✅ `leon406_subcrawler` | 126,056 |
-| ✅ `hookzof_socks5_list` | 1,673 |
+| ✅ `hookzof_socks5_list` | 1,682 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 3,760 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,210 |
 | ✅ `claudiusdecimius_ioc_ipsets_botscout_30d` | 3,253 |
@@ -78,4 +78,4 @@
 > Diese 53 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-19 21:06 CEST (Europe/Berlin)*
+*Generiert: 2026-09-19 21:23 CEST (Europe/Berlin)*
