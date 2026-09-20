@@ -1942,6 +1942,63 @@ jobs:
           _tatsaechlich_pro_tag_live = _cleanup_ist_pro_tag("expired_watchlist")
           _tatsaechlich_pro_tag_active_live = _cleanup_ist_pro_tag("expired_active")
 
+          # ── FIX WATCHLIST-LIVE-CAP-STATE 2026-09-20 ────────────────────
+          # `seen_db_meta.json["cleanup"]["expired_watchlist"]` beschreibt
+          # immer nur den LETZTEN Combined-Lauf. Nach dem ersten Tageslauf
+          # steht dort korrekt 2.000; spaetere Combined-Laeufe desselben Tages
+          # duerfen wegen des Tagesdeckels nichts mehr entfernen und schreiben
+          # deshalb wieder 0. Wenn der Verifikations-Job den 2.000er-Lauf nicht
+          # genau erwischt, fehlt er im Verlauf und die Live-Tabelle zeigte
+          # faelschlich 0 / 2.000 = 0 %.
+          #
+          # Der persistente Tages-State ist fuer den Watchlist-Pfad die bessere
+          # Quelle: update_combined_blacklist.yml schreibt ihn VOR der realen
+          # Entfernung und laesst ihn bis zum naechsten UTC-Tag unveraendert.
+          # Deshalb fuer den aktuellen UTC-Tag mindestens dessen `entfernt`-
+          # Wert verwenden. `max()` statt Addition verhindert Doppelzaehlung,
+          # falls der 2.000er-Combined-Lauf bereits im Verlauf erfasst wurde.
+          # Active/180T bleibt absichtlich unveraendert und nutzt weiterhin
+          # die deduplizierten Combined-Zaehler aus dem Verifikationsverlauf.
+          try:
+              _cap_live_day = now.date().isoformat()  # gleiche UTC-Tagesbasis wie Combined
+              if os.path.exists(CAP_STATE_FILE):
+                  with open(CAP_STATE_FILE) as _f:
+                      _cap_live_state = json.load(_f)
+                  _cap_live_state_day = str(_cap_live_state.get("letzter_lauf") or "")
+                  _cap_live_removed = int(_cap_live_state.get("entfernt") or 0)
+                  _cap_live_candidates = int(_cap_live_state.get("kandidaten_gesamt") or 0)
+                  _cap_live_limit = int(
+                      _forecast_hist["watchlist"]["pending"]
+                      .get(_cap_live_state_day, {})
+                      .get("daily_cap") or 2000
+                  )
+                  if (
+                      _cap_live_state_day == _cap_live_day
+                      and 0 <= _cap_live_removed <= _cap_live_limit
+                      and _cap_live_candidates >= _cap_live_removed
+                  ):
+                      _alt_live = _tatsaechlich_pro_tag_live.get(_cap_live_state_day, 0)
+                      _tatsaechlich_pro_tag_live[_cap_live_state_day] = max(
+                          _alt_live, _cap_live_removed
+                      )
+                      if _cap_live_removed > _alt_live:
+                          print(
+                              f"Watchlist-Live-Fortschritt aus Tages-State korrigiert: "
+                              f"{_cap_live_state_day} {_alt_live:,} -> {_cap_live_removed:,} "
+                              f"(Kandidaten: {_cap_live_candidates:,})"
+                          )
+                  elif _cap_live_state_day == _cap_live_day:
+                      print(
+                          f"WARNUNG: unplausibler {CAP_STATE_FILE}-Wert fuer Live-Fortschritt "
+                          f"(Kandidaten={_cap_live_candidates:,}, entfernt={_cap_live_removed:,}); "
+                          f"verwende nur Verifikationsverlauf"
+                      )
+          except Exception as _e:
+              print(
+                  f"WARNUNG: {CAP_STATE_FILE} konnte fuer den Watchlist-Live-Fortschritt "
+                  f"nicht ausgewertet werden: {_e}; verwende Verifikationsverlauf"
+              )
+
           # ── Kohorten-Zaehlung fuer die PROGNOSE-GENAUIGKEIT (separat vom
           # Live-Fortschritt oben!) ───────────────────────────────────────
           # _cleanup_ist_pro_tag (oben) beantwortet "wie viel wurde an DIESEM
@@ -2062,13 +2119,13 @@ jobs:
           zeilen += ["", "## Live-Fortschritt (heute + nächste Tage)", ""]
           zeilen.append(
               "Zwischenstand, aktualisiert bei JEDEM Lauf (alle 3h) - nicht erst "
-              "wenn der Tag vorbei ist. \"Bisher eingefroren\" zeigt jetzt die "
-              "TATSAECHLICH an diesem Kalendertag vom Combined-Lauf entfernten "
-              "IPs (`expired_watchlist` bzw. `expired_active`). Damit werden "
-              "Watchlist-Rueckstaende durch den 2.000/Tag-Deckel korrekt dem "
-              "realen Entfernungstag zugerechnet. Dieselbe Ist-Logik gilt fuer "
-              "Active/180T, damit auch verspaetete Cleanup-Laeufe nicht dem "
-              "theoretischen Faelligkeitsdatum zugeschrieben werden."
+              "wenn der Tag vorbei ist. \"Bisher eingefroren\" zeigt die "
+              "tatsaechlich an diesem Kalendertag entfernten IPs. Fuer "
+              "Watchlist/30T wird zusaetzlich der persistente Tages-Cap-State "
+              "verwendet, damit ein frueher 2.000er-Lauf nicht durch spaetere "
+              "Combined-Laeufe mit `expired_watchlist=0` aus der Anzeige "
+              "verschwindet. Active/180T nutzt weiterhin die deduplizierten "
+              "Combined-Zaehler aus dem Verifikationsverlauf."
           )
           zeilen.append("")
           zeilen.append("**Watchlist (30-Tage-Pfad):**")
