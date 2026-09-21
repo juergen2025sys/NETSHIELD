@@ -1,8 +1,8 @@
 {
-  "updated": "2026-09-20 23:30 CEST (Europe/Berlin)",
+  "updated": "2026-09-21 08:18 CEST (Europe/Berlin)",
   "total": 31,
   "ok": 29,
-  "warn": 1,
+  "warn": 2,
   "error": 1,
   "errors": [
     {
@@ -21,11 +21,16 @@
       "file": "runner_image_watch.yml",
       "check": "Git Push ohne Retry-Schleife",
       "detail": "git push ohne Retry-Schleife \u2013 Race-Condition bei parallelen Runs (kein 'for attempt in ...')"
+    },
+    {
+      "file": "Production Health",
+      "check": "Feed-Ausf\u00e4lle",
+      "detail": "2 von 100 Feeds ausgefallen: abuseipdb_tmiland, fortigate_azure"
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "7273704296dee595a3e7fec0183ee85dc6303e50",
+    "sha": "88aa36da0238a2bd5f370ba022fba2b621aff818",
     "status": "passed",
     "tests_run": 460,
     "failures": [],
@@ -37,17 +42,23 @@
     "detail": "460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5983721,
-    "active_blacklist_ipv4.txt": 978624,
-    "blacklist_confidence40_ipv4_part1.txt": 4328049,
-    "cve_exploit_ips.txt": 27561,
-    "honeypot_ips.txt": 2284475,
-    "bot_detector_blacklist_ipv4.txt": 1159126
+    "combined_threat_blacklist_ipv4_part1.txt": 5996180,
+    "active_blacklist_ipv4.txt": 946738,
+    "blacklist_confidence40_ipv4_part1.txt": 4335923,
+    "cve_exploit_ips.txt": 27410,
+    "honeypot_ips.txt": 2286811,
+    "bot_detector_blacklist_ipv4.txt": 1159910
   },
   "production_health": {
     "critical": 0,
-    "warn": 0,
-    "checks": []
+    "warn": 1,
+    "checks": [
+      {
+        "level": "WARN",
+        "check": "Feed-Ausf\u00e4lle",
+        "detail": "2 von 100 Feeds ausgefallen: abuseipdb_tmiland, fortigate_azure"
+      }
+    ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
