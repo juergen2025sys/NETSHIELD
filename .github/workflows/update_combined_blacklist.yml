@@ -3145,6 +3145,12 @@ jobs:
           # komplett erfolgreichem Build + Guards.
           _UPD_COMMIT_EVERY = 50_000
           _upd_since_commit = 0
+          # FIX ACTIVE-REENTRY-HARD-GUARD (2026-09-21): Zaehlt IPs, die bereits
+          # ueber den 180-Tage-Pfad abgelaufen sind und heute NICHT durch zwei
+          # unabhaengige HQ-Feed-Familien neu bestaetigt wurden. Solche IPs
+          # duerfen nicht mehr kurz in seen_db/COMB wiederauferstehen und im
+          # selben Lauf erneut als "180 Tage entfernt" gezaehlt werden.
+          _active_reentry_blocked = 0
           # Nur wiederkehrende Feed-JSON-Werte cachen, keine IP-Zustaende.
           # Alle Regeln, SQL-Schreibvorgaenge und Commit-Grenzen bleiben gleich.
           db.set_feed_cache_enabled(True)
@@ -3165,6 +3171,17 @@ jobs:
                   # current feed hit. Keep its original confirmation date and
                   # all frozen anchors; normal cleanup still applies afterwards.
                   if _fast_is_wl_or_fp(_aufn_ip):
+                      continue
+                  # FIX ACTIVE-REENTRY-HARD-GUARD (2026-09-21): Eine bereits
+                  # ueber 180 Tage abgelaufene Active-IP darf NICHT allein aus
+                  # der historischen Aufnahme-Warteliste rekonstruiert werden.
+                  # Diese Warteliste beweist zwar 2 verschiedene Feeds ueber
+                  # mehrere Tage, aber NICHT die fuer einen Active-Wiedereintritt
+                  # geforderten 2 unabhaengigen HQ-Familien HEUTE. Ohne diesen
+                  # Guard konnte der Cross-Day-Recovery-Pfad den Anti-Churn-
+                  # Schutz umgehen und dieselbe alte IP wieder in die COMB setzen.
+                  if _aufn_ip in _active_expired_last:
+                      _active_reentry_blocked += 1
                       continue
                   _aufn_dates = list(_aufn_feeds.values())
                   if not all(isinstance(_d, str) and len(_d) == 10
@@ -3289,6 +3306,42 @@ jobs:
               # spuerbar. get() liefert None fuer nicht vorhandene IPs,
               # das reicht als Unterscheidung.
               _existing_entry = db.get(ip)
+
+              # FIX ACTIVE-REENTRY-HARD-GUARD (2026-09-21): Der bisherige
+              # Active-Anti-Churn-Schutz hat eine abgelaufene IP bei einem
+              # schwachen erneuten Feed-Treffer zunaechst wieder in seen_db
+              # angelegt (mit dem alten "last") und erst im Cleanup desselben
+              # Laufs erneut entfernt. Dadurch sah das Log bei jedem Lauf erneut
+              # hunderttausende "180 Tage entfernt", obwohl diese IPs im
+              # vorherigen fertigen COMB-Stand gar nicht mehr vorhanden waren.
+              #
+              # Ab jetzt gilt fail-closed: Steht die IP im Active-Expired-Ledger,
+              # darf sie nur bei einer ECHTEN Neubestaetigung durch mindestens
+              # zwei unabhaengige HQ-Familien HEUTE wieder eintreten. Ein einzelner
+              # HQ-Feed oder beliebig viele normale Feeds reichen nicht.
+              #
+              # Sonderfall stale Ledger: Existiert bereits ein seen_db-Eintrag
+              # mit einem ECHT NEUEREN Active-last als der eingefrorene Anker,
+              # wurde die IP frueher legitim stark neu bestaetigt; dann wird nur
+              # der veraltete Ledger-Eintrag entfernt und normal weitergearbeitet.
+              _active_frozen = _active_expired_last.get(ip)
+              if _active_frozen is not None and not strongly_confirmed_today:
+                  _active_current_last = (
+                      _existing_entry.get("last") if isinstance(_existing_entry, dict) else None
+                  )
+                  _active_frozen_last = (
+                      _active_frozen.get("last") if isinstance(_active_frozen, dict) else None
+                  )
+                  if (isinstance(_active_current_last, str)
+                          and _active_current_last != "2000-01-01"
+                          and isinstance(_active_frozen_last, str)
+                          and _active_current_last > _active_frozen_last):
+                      del _active_expired_last[ip]
+                      _active_expired_last_dirty = True
+                  else:
+                      _active_reentry_blocked += 1
+                      continue
+
               if _existing_entry is not None:
                   try:
                       # FIX PERF-UPDATE: db[ip] in lokale Variable cachen.
@@ -3598,6 +3651,10 @@ jobs:
                   if not _ist_ledger_wiederauferstehung:
                       neu_angelegt_ohne_ledger += 1
 
+          if _active_reentry_blocked:
+              print(f"ACTIVE-REENTRY-GUARD: {_active_reentry_blocked:,} bereits 180T-abgelaufene "
+                    f"IP(s) vor Wiederaufnahme blockiert (2 HQ-Familien heute erforderlich)")
+
           # Finalen Rest-Batch committen, bevor Cleanup/Export beginnen.
           if _upd_since_commit:
               _upd_diag_t = _time.monotonic()
@@ -3635,6 +3692,12 @@ jobs:
           # pro Pfad zaehlen.
           expired_watchlist_count = 0
           expired_active_count = 0
+          # FIX ACTIVE-REENTRY-HARD-GUARD (2026-09-21): Bereits frueher
+          # abgelaufene Active-IP(s), die nach dem alten Verhalten schwach als
+          # Watchlist/Alt-Active in seen_db zurueckgekommen sind, separat
+          # zaehlen. Sie sind KEINE neuen 180T-Ablaeufe und duerfen den
+          # expired_active-Zaehler nicht mehr kuenstlich aufblasen.
+          _active_reentry_purged = 0
           # FIX NEXT-EXPIRY-INFO (2026-08-28): Wird waehrend des Cleanup-Passes
           # mitgefuehrt (kein zweiter Durchlauf noetig). Startwert "9999-99-99"
           # ist lexikografisch groesser als jedes echte ISO-Datum, damit der
@@ -3914,6 +3977,34 @@ jobs:
                       protected_removed_runtime += 1
                       _to_drop.append(ip)
                       continue
+
+                  # FIX ACTIVE-REENTRY-HARD-GUARD (2026-09-21): Altbestand aus
+                  # dem bisherigen Verhalten sofort aus der fertigen COMB
+                  # entfernen. Vor diesem Fix durften Active-abgelaufene IPs
+                  # bei schwacher Evidenz als Watchlist (last=Sentinel) oder mit
+                  # dem eingefrorenen alten Active-last wieder in seen_db stehen.
+                  # Genau diese ~hunderttausenden Wiederkehrer hielten Part1+2
+                  # gross und wurden in spaeteren Laeufen erneut als 180T-Cleanup
+                  # gezaehlt.
+                  #
+                  # Einzige Ausnahme: last ist ECHT neuer als der eingefrorene
+                  # Ledger-Anker. Das ist eine fruehere legitime starke
+                  # Neubestaetigung; der Retro-Sweep weiter unten entfernt dann
+                  # nur den veralteten Ledger-Eintrag.
+                  _active_frozen_cleanup = _active_expired_last.get(ip)
+                  if isinstance(_active_frozen_cleanup, dict):
+                      _active_frozen_last_cleanup = _active_frozen_cleanup.get("last")
+                      _active_current_last_cleanup = (
+                          _row_last if _ist_iso_datum(_row_last) else "2000-01-01"
+                      )
+                      if (_active_current_last_cleanup == "2000-01-01"
+                              or (isinstance(_active_frozen_last_cleanup, str)
+                                  and _ist_iso_datum(_active_frozen_last_cleanup)
+                                  and _active_current_last_cleanup <= _active_frozen_last_cleanup)):
+                          _active_reentry_purged += 1
+                          _to_drop.append(ip)
+                          continue
+
                   # FIX PERF-CLEANUP-SQL (2026-08-29): Ab hier arbeitet der Pass
                   # mit der SQL-Vorauswahl von oben. Ein Eintrag, der NICHT in
                   # _aufn_kandidaten steht, hat den Aufnahme-Filter garantiert
@@ -4051,11 +4142,25 @@ jobs:
                               # "last" (geschuetztes Anker-Datum) bleibt
                               # erhalten, nur die Einfrier-Uhr wird gesetzt.
                               _ac_vorheriger = _active_expired_last.get(ip)
-                              _active_expired_last[ip] = {
-                                  "last": _ac_vorheriger["last"] if _ac_vorheriger else last_str,
-                                  "eingefroren_am": now_day,
-                              }
-                              _active_expired_last_dirty = True
+                              # FIX ACTIVE-FREEZE-DATE-STABLE (2026-09-21):
+                              # Ein bereits vorhandener Ledger-Eintrag darf bei
+                              # einem erneuten Cleanup NICHT sein Einfrierdatum
+                              # auf heute verschieben. Sonst sieht derselbe alte
+                              # Bestand jeden Tag/Lauf wie "neu eingefroren" aus
+                              # und der 400-Tage-Prune-Timer startet immer neu.
+                              # Nur die allererste echte 180T-Einfrierung bekommt
+                              # eingefroren_am=heute. Bei Altformat/fehlendem Feld
+                              # wird konservativ einmalig normalisiert.
+                              if isinstance(_ac_vorheriger, dict):
+                                  _ac_neu = {
+                                      "last": _ac_vorheriger.get("last", last_str),
+                                      "eingefroren_am": _ac_vorheriger.get("eingefroren_am", now_day),
+                                  }
+                              else:
+                                  _ac_neu = {"last": last_str, "eingefroren_am": now_day}
+                              if _ac_vorheriger != _ac_neu:
+                                  _active_expired_last[ip] = _ac_neu
+                                  _active_expired_last_dirty = True
                   except Exception:
                       expired.append(ip)
                       _to_drop.append(ip)
@@ -4160,6 +4265,10 @@ jobs:
               print(f"Geschützte Einträge nach Feed-Ingest entfernt: {protected_removed_runtime}")
           if cidr_aggr_removed:
               print(f"Non-/32-CIDR-Aggregate aus seen_db entfernt (BUG-CIDR-AGGR): {cidr_aggr_removed}")
+          if _active_reentry_purged:
+              print(f"ACTIVE-REENTRY-GUARD Cleanup: {_active_reentry_purged:,} bereits frueher "
+                    f"180T-abgelaufene Wiederkehrer aus seen_db/COMB entfernt "
+                    f"(nicht als neuer 180T-Ablauf gezaehlt)")
           print(f"Abgelaufen (>{EXPIRY_DAYS} Tage / Watchlist >{WATCHLIST_EXPIRY_DAYS} Tage): {len(expired)} IPs entfernt")
           if expired:
               print(f"    davon Watchlist-Pfad ({WATCHLIST_EXPIRY_DAYS} Tage): {expired_watchlist_count:,} | "
@@ -4225,6 +4334,16 @@ jobs:
               # verloren, weil ein zweiter Feed sie innerhalb der letzten
               # AUFNAHME_WARTEN_TAGE Tage schon gemeldet hatte.
               "aufnahme_cross_bestaetigt":   aufnahme_cross_bestaetigt,
+              # FIX ACTIVE-REENTRY-HARD-GUARD (2026-09-21): Wie viele bereits
+              # ueber 180 Tage abgelaufene IPs in diesem Lauf erneut gemeldet,
+              # aber mangels 2 unabhaengiger HQ-Familien NICHT wieder in seen_db
+              # bzw. die fertige COMB aufgenommen wurden.
+              "active_reentry_blocked":      _active_reentry_blocked,
+              # Bereits im restaurierten seen_db vorhandene Alt-Wiederkehrer,
+              # die der neue harte Guard beim Cleanup sofort aus der COMB
+              # entfernt hat. Separat von expired_active, weil sie nicht heute
+              # zum ersten Mal 180 Tage alt geworden sind.
+              "active_reentry_purged":       _active_reentry_purged,
               # FIX 2026-08-23 (Nutzerwunsch "werden neue ips beruecksichtigt"):
               # echte Neuanlagen dieses Laufs, OHNE Ledger-Wiederauferstehungen
               # (siehe Zaehler-Kommentar weiter oben).
