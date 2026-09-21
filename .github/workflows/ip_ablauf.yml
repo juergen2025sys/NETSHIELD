@@ -1940,7 +1940,70 @@ jobs:
               return _pro_tag
 
           _tatsaechlich_pro_tag_live = _cleanup_ist_pro_tag("expired_watchlist")
-          _tatsaechlich_pro_tag_active_live = _cleanup_ist_pro_tag("expired_active")
+
+          # ── FIX ACTIVE-LIVE-DOPPELZAEHLUNG 2026-09-21 ─────────────────
+          # `expired_active` ist ein Lauf-Zaehler: bei mehreren Combined-Laeufen
+          # am selben Tag kann derselbe grosse 180T-Rueckstand erneut als
+          # "entfernt" gemeldet werden. Eine Tagessumme dieser Lauf-Zaehler
+          # zaehlt deshalb dieselben/ueberlappenden IPs mehrfach (z.B.
+          # 243.054 + 243.062 = 486.116) und erzeugt Fantasie-Fortschritte
+          # >100 %. Fuer die echte Tageszahl ist der Active-Ledger die
+          # kanonische Quelle: jede IP steht dort genau einmal und
+          # `eingefroren_am` ist der tatsaechliche Freeze-Tag.
+          #
+          # Den Zaehler des LETZTEN Combined-Laufs zeigen wir separat als
+          # Betriebsdiagnose. Er wird nicht mehr zu einem Tageswert addiert.
+          def _ledger_neu_eingefroren_pro_tag(eintraege_voll):
+              _pro_tag = {}
+              for _ip, _eintrag in eintraege_voll.items():
+                  if not isinstance(_eintrag, dict):
+                      continue
+                  _freeze = str(_eintrag.get("eingefroren_am") or "").strip()
+                  if len(_freeze) < 10:
+                      continue
+                  _tag = _freeze[:10]
+                  try:
+                      datetime.strptime(_tag, "%Y-%m-%d")
+                  except Exception:
+                      continue
+                  _pro_tag[_tag] = _pro_tag.get(_tag, 0) + 1
+              return _pro_tag
+
+          def _cleanup_letzter_pro_tag(pfad_feld):
+              _pro_tag = {}
+              for _lauf in verlauf:
+                  _wert = _lauf.get(pfad_feld)
+                  if _wert is None:
+                      continue
+                  _cleanup_iso = _lauf.get("cleanup_updated_utc_iso")
+                  _sort_key = ""
+                  _tag = None
+                  if _cleanup_iso:
+                      try:
+                          _cleanup_dt = datetime.fromisoformat(_cleanup_iso)
+                          if _cleanup_dt.tzinfo is None:
+                              _cleanup_dt = _cleanup_dt.replace(tzinfo=timezone.utc)
+                          _tag = _cleanup_dt.astimezone(ZoneInfo("Europe/Berlin")).date().isoformat()
+                          _sort_key = _cleanup_dt.astimezone(timezone.utc).isoformat()
+                      except Exception:
+                          _tag = None
+                  if not _tag:
+                      _zeitpunkt = str(_lauf.get("zeitpunkt", ""))
+                      _tag = _zeitpunkt[:10] if len(_zeitpunkt) >= 10 else None
+                      _sort_key = _zeitpunkt
+                  if not _tag:
+                      continue
+                  try:
+                      _wert_int = int(_wert)
+                  except (TypeError, ValueError):
+                      continue
+                  _alt = _pro_tag.get(_tag)
+                  if _alt is None or _sort_key >= _alt[0]:
+                      _pro_tag[_tag] = (_sort_key, _wert_int)
+              return {k: v[1] for k, v in _pro_tag.items()}
+
+          _active_neu_eingefroren_pro_tag = _ledger_neu_eingefroren_pro_tag(ac_eintraege_voll)
+          _active_cleanup_letzter_pro_tag = _cleanup_letzter_pro_tag("expired_active")
 
           # ── FIX WATCHLIST-LIVE-CAP-STATE 2026-09-20 ────────────────────
           # `seen_db_meta.json["cleanup"]["expired_watchlist"]` beschreibt
@@ -1957,8 +2020,10 @@ jobs:
           # Deshalb fuer den aktuellen UTC-Tag mindestens dessen `entfernt`-
           # Wert verwenden. `max()` statt Addition verhindert Doppelzaehlung,
           # falls der 2.000er-Combined-Lauf bereits im Verlauf erfasst wurde.
-          # Active/180T bleibt absichtlich unveraendert und nutzt weiterhin
-          # die deduplizierten Combined-Zaehler aus dem Verifikationsverlauf.
+          # Active/180T nutzt seit 2026-09-21 NICHT mehr die Tagessumme
+          # der Combined-Zaehler: der Ledger mit `eingefroren_am` liefert die
+          # eindeutige Tageszahl; der letzte Combined-Zaehler wird separat
+          # als Diagnosewert angezeigt.
           try:
               _cap_live_day = now.date().isoformat()  # gleiche UTC-Tagesbasis wie Combined
               if os.path.exists(CAP_STATE_FILE):
@@ -2095,7 +2160,25 @@ jobs:
               return _ergebnis
 
           _live_fortschritt = _live_fortschritt_berechnen("watchlist", _tatsaechlich_pro_tag_live, 4)
-          _live_fortschritt_active = _live_fortschritt_berechnen("active", _tatsaechlich_pro_tag_active_live, 4)
+
+          def _live_active_berechnen(anzahl_tage):
+              _ergebnis = []
+              for _datum in sorted(_forecast_hist["active"]["pending"].keys())[:anzahl_tage]:
+                  _eintrag = _forecast_hist["active"]["pending"][_datum]
+                  _vorhergesagt = _eintrag.get("predicted", 0)
+                  _neu_eindeutig = _active_neu_eingefroren_pro_tag.get(_datum, 0)
+                  _letzter_cleanup = _active_cleanup_letzter_pro_tag.get(_datum)
+                  _ergebnis.append({
+                      "datum": _datum,
+                      "vorhergesagt": _vorhergesagt,
+                      "neu_eindeutig": _neu_eindeutig,
+                      "letzter_cleanup": _letzter_cleanup,
+                      "ist_heute": _datum == _heute_str,
+                      "rueckstau": _neu_eindeutig > _vorhergesagt if _vorhergesagt else _neu_eindeutig > 0,
+                  })
+              return _ergebnis
+
+          _live_fortschritt_active = _live_active_berechnen(4)
 
           # ── Bericht ────────────────────────────────────────────────────
           zeilen = [
@@ -2124,8 +2207,10 @@ jobs:
               "Watchlist/30T wird zusaetzlich der persistente Tages-Cap-State "
               "verwendet, damit ein frueher 2.000er-Lauf nicht durch spaetere "
               "Combined-Laeufe mit `expired_watchlist=0` aus der Anzeige "
-              "verschwindet. Active/180T nutzt weiterhin die deduplizierten "
-              "Combined-Zaehler aus dem Verifikationsverlauf."
+              "verschwindet. Active/180T wird dagegen aus dem Ledger-Feld "
+              "`eingefroren_am` als eindeutige Tagesmenge gezaehlt. Der Wert "
+              "des letzten Combined-Laufs wird separat angezeigt und nicht "
+              "mehr ueber mehrere Laeufe aufsummiert."
           )
           zeilen.append("")
           zeilen.append("**Watchlist (30-Tage-Pfad):**")
@@ -2150,14 +2235,47 @@ jobs:
           zeilen.append("**Active (180-Tage-Pfad):**")
           zeilen.append("")
           if _live_fortschritt_active:
-              zeilen.append("| Datum | Vorhergesagt | Bisher eingefroren | Fortschritt |")
-              zeilen.append("|---|---:|---:|---:|")
+              zeilen.append(
+                  "Beim Active-Pfad ist die Prognose die regulaer fuer diesen Tag "
+                  "erwartete Faelligkeits-Kohorte. Wenn gleichzeitig ein alter "
+                  "180T-Rueckstau abgearbeitet wird, kann die reale Tagesmenge "
+                  "deutlich hoeher sein; deshalb wird in diesem Fall bewusst "
+                  "kein irrefuehrender Prozentwert berechnet."
+              )
+              zeilen.append("")
+              zeilen.append(
+                  "| Datum | Prognose regulaer faellig | Heute eindeutig neu eingefroren | "
+                  "Letzter Combined-Cleanup | Einordnung |"
+              )
+              zeilen.append("|---|---:|---:|---:|---|")
               for _lf in _live_fortschritt_active:
                   _tag_label = f"{_lf['datum']} (heute)" if _lf["ist_heute"] else _lf["datum"]
-                  _pct = (_lf["bisher_eingefroren"] / _lf["vorhergesagt"] * 100) if _lf["vorhergesagt"] else 0.0
+                  _cleanup_anzeige = (
+                      f"{_lf['letzter_cleanup']:,}"
+                      if _lf["letzter_cleanup"] is not None else "–"
+                  )
+                  if _lf["ist_heute"] and _lf["rueckstau"]:
+                      _einordnung = "Rueckstau/Altbestand wird abgebaut – kein %-Vergleich"
+                  elif _lf["ist_heute"]:
+                      _einordnung = "regulaerer Tagesstand"
+                  else:
+                      _einordnung = "noch nicht faellig"
                   zeilen.append(
                       f"| {_tag_label} | {_lf['vorhergesagt']:,} | "
-                      f"{_lf['bisher_eingefroren']:,} | {_pct:.0f}% |"
+                      f"{_lf['neu_eindeutig']:,} | {_cleanup_anzeige} | {_einordnung} |"
+                  )
+
+              _active_heute = next(
+                  (_x for _x in _live_fortschritt_active if _x["ist_heute"]),
+                  None,
+              )
+              if _active_heute:
+                  zeilen.append("")
+                  zeilen.append(
+                      f"**Active heute:** {_active_heute['neu_eindeutig']:,} eindeutige IPs "
+                      f"neu im 180T-Ledger eingefroren; letzter Combined-Lauf: "
+                      f"{_active_heute['letzter_cleanup'] if _active_heute['letzter_cleanup'] is not None else 0:,} "
+                      "Active-IP(s) als Ablauf entfernt."
                   )
           else:
               zeilen.append(
