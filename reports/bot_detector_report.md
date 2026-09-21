@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-21 09:05 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-21 09:19 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,159,978** |
-| Neu (heute) | **+58** |
-| Entfernt | **-8** |
+| Gesamt IPs | **1,159,711** |
+| Neu (heute) | **+205** |
+| Entfernt | **-472** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 52 |
@@ -26,13 +26,13 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,823 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,849 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,776 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,765 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,777 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,768 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 3,054 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,951 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,882 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,390 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,334 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,661 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,254 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,210 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,404 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,171 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 761 |
@@ -43,14 +43,14 @@
 | ✅ `officialputuid_proxyforeveryone` | 7,922 |
 | ✅ `officialputuid_proxyforeveryone_https` | 6,787 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 7,396 |
-| ✅ `ercindedeoglu_proxies` | 54,206 |
+| ✅ `ercindedeoglu_proxies` | 54,147 |
 | ✅ `ercindedeoglu_proxies_socks4` | 18,588 |
 | ✅ `ercindedeoglu_proxies_socks5` | 17,850 |
 | ✅ `tuanminpay_live_proxy` | 10,609 |
 | ✅ `tuanminpay_live_proxy_http` | 7,336 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,875 |
 | ✅ `tuanminpay_live_proxy_socks5` | 4,066 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 215,332 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 215,157 |
 | ✅ `noctiro_getproxy` | 4,220 |
 | ✅ `noctiro_getproxy_socks5` | 3,582 |
 | ✅ `mohammedcha_proxripper` | 54,536 |
@@ -77,4 +77,4 @@
 > Diese 52 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-21 09:05 CEST (Europe/Berlin)*
+*Generiert: 2026-09-21 09:19 CEST (Europe/Berlin)*
