@@ -1,6 +1,6 @@
 # NETSHIELD – Peru (PE) IPv4 Ranges
-# Aktualisiert: 2026-09-16 08:23 CEST (Europe/Berlin)
-# IP-Ranges: 268
+# Aktualisiert: 2026-09-21 08:51 CEST (Europe/Berlin)
+# IP-Ranges: 269
 
 2.152.246.0/24
 45.4.92.0/22
@@ -53,6 +53,7 @@
 45.236.228.0/22
 45.237.172.0/22
 45.239.22.0/23
+78.110.233.0/24
 91.216.77.0/24
 131.161.100.0/22
 131.255.136.0/22

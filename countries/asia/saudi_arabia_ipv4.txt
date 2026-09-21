@@ -1,6 +1,6 @@
 # NETSHIELD – Saudi Arabia (SA) IPv4 Ranges
-# Aktualisiert: 2026-09-16 08:23 CEST (Europe/Berlin)
-# IP-Ranges: 624
+# Aktualisiert: 2026-09-21 08:51 CEST (Europe/Berlin)
+# IP-Ranges: 625
 
 2.88.0.0/14
 5.41.0.0/16
@@ -566,6 +566,7 @@
 200.225.56.0/23
 202.8.108.0/22
 202.37.110.0/23
+204.28.220.0/23
 205.238.64.0/18
 207.143.0.0/16
 207.150.160.0/19
