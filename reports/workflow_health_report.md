@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-22 08:11 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-22 14:36 CEST (Europe/Berlin)
 
-**Workflows:** 31 | ✅ 29 OK | ⚠️ 1 Warnung | ❌ 2 Fehler
+**Workflows:** 31 | ✅ 29 OK | ⚠️ 2 Warnung | ❌ 1 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `4428c413e8a2bc04f29d12a602d0c236df0e8049`
+✅ Commit: `1c8d6246ec748cdfd9e9f914e1fdf318e6843a96`
 
 460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -17,8 +17,6 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | Datei | Check | Detail |
 |---|---|---|
 | `runner_image_watch.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
-| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 4.211.70.206, 128.251.127.23, 150.171.109.107, 4.211.70.206, 128.251.127.23… – Filterung wirkungslos! |
-| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 4.211.70.206, 150.171.109.107, 128.251.127.23, 4.211.70.206, 150.171.109.107… – Filterung wirkungslos! |
 
 ## ⚠️ Warnungen
 
@@ -30,12 +28,10 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 4.211.70.206, 128.251.127.23, 150.171.109.107, 4.211.70.206, 128.251.127.23… – Filterung wirkungslos! |
-| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 4.211.70.206, 150.171.109.107, 128.251.127.23, 4.211.70.206, 150.171.109.107… – Filterung wirkungslos! |
 | 🟡 WARN | Feed-Ausfälle | 2 von 100 Feeds ausgefallen: abuseipdb_tmiland, fortigate_azure |
 
 ## Übersicht
@@ -75,4 +71,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-22 08:11 CEST (Europe/Berlin) | 31 Workflow-Dateien geprüft*
+*Generiert: 2026-09-22 14:36 CEST (Europe/Berlin) | 31 Workflow-Dateien geprüft*
