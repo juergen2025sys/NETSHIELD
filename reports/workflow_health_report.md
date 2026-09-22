@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-22 19:38 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-23 00:04 CEST (Europe/Berlin)
 
 **Workflows:** 31 | ✅ 29 OK | ⚠️ 2 Warnung | ❌ 1 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `2b7d5ed0f1745791a987d845a134cf72d3c28ffc`
+✅ Commit: `c475b5a8ffb0dc86de61f9aa7888aaa2a8bb7f68`
 
 460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -23,7 +23,6 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | Datei | Check | Detail |
 |---|---|---|
 | `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
-| `runner_image_watch.yml` | Git Push ohne Retry-Schleife | git push ohne Retry-Schleife – Race-Condition bei parallelen Runs (kein 'for attempt in ...') |
 | `Production Health` | Feed-Ausfälle | 2 von 100 Feeds ausgefallen: abuseipdb_tmiland, fortigate_azure |
 
 ## 🏥 Production Health
@@ -57,7 +56,7 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `netshield_report_generator.yml` | ⚠️ | 0 | 1 | `30 * * * *`, `45 * * * *`, `55 * * * *` |
 | `repo_size_check.yml` | ✅ OK | 0 | 0 | – |
 | `run_tests.yml` | ✅ OK | 0 | 0 | – |
-| `runner_image_watch.yml` | ❌ | 1 | 1 | `43 5 * * *` |
+| `runner_image_watch.yml` | ❌ | 1 | 0 | `0 2 * * 0` |
 | `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
 | `sniffcat_fetch.yml` | ✅ OK | 0 | 0 | – |
 | `tweetfeed_monitor.yml` | ✅ OK | 0 | 0 | `45 2 * * *` |
@@ -71,4 +70,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-22 19:38 CEST (Europe/Berlin) | 31 Workflow-Dateien geprüft*
+*Generiert: 2026-09-23 00:04 CEST (Europe/Berlin) | 31 Workflow-Dateien geprüft*
