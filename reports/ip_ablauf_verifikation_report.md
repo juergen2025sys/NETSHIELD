@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-09-22 19:28 CEST (Europe/Berlin)
+Lauf: 2026-09-22 23:14 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -9,7 +9,7 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | Liste | Anzahl |
 |---|---:|
 | Watchlist (30-Tage-Pfad) | 3986 |
-| Active (180-Tage-Pfad) | 836801 |
+| Active (180-Tage-Pfad) | 836790 |
 
 ## Live-Fortschritt (heute + nächste Tage)
 
@@ -31,9 +31,9 @@ Beim Active-Pfad ist die Prognose die regulaer fuer diesen Tag erwartete Faellig
 | Datum | Prognose regulaer faellig | Heute eindeutig neu eingefroren | Letzter Combined-Cleanup | Einordnung |
 |---|---:|---:|---:|---|
 | 2026-09-22 (heute) | 6,431 | 6,424 | 0 | regulaerer Tagesstand |
-| 2026-09-23 | 13,046 | 0 | – | noch nicht faellig |
-| 2026-09-24 | 16,645 | 0 | – | noch nicht faellig |
-| 2026-09-25 | 20,918 | 0 | – | noch nicht faellig |
+| 2026-09-23 | 13,043 | 0 | – | noch nicht faellig |
+| 2026-09-24 | 16,643 | 0 | – | noch nicht faellig |
+| 2026-09-25 | 20,917 | 0 | – | noch nicht faellig |
 
 **Active heute:** 6,424 eindeutige IPs neu im 180T-Ledger eingefroren; letzter Combined-Lauf: 0 Active-IP(s) als Ablauf entfernt.
 
@@ -86,15 +86,15 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +8,894 (Anstieg) (jetzt 11,524,945 IPs)
-- Seit Zyklus-Start (2026-09-22): 📈 +47,226 (Anstieg)
-- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 957,098 neue IPs hinzugekommen (davon 828,653 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 1 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 125,213 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 6,731,802 (Summe letzte 7 Läufe / 7 Lauf(e), noch keine 24h Historie seit Zyklus-Start)
-- Entfernte IPs (Summe letzter Läufe): 16,860 (Summe letzte 7 Läufe / 7 Lauf(e), noch keine 24h Historie seit Zyklus-Start)
-  - davon Watchlist/30 Tage: 4,000 (Summe letzte 7 Läufe / 7 Lauf(e), noch keine 24h Historie seit Zyklus-Start)
-  - davon Active/180 Tage: 12,860 (Summe letzte 7 Läufe / 7 Lauf(e), noch keine 24h Historie seit Zyklus-Start)
-- Netto-Wachstum (7 Lauf(e), noch keine 24h Historie seit Zyklus-Start): 📈 +47,226 (7 Lauf(e), noch keine 24h Historie seit Zyklus-Start)
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-09-22T00:12 bis 2026-09-22T17:18 UTC
+- Seit letztem Lauf: 📈 +3,180 (Anstieg) (jetzt 11,528,125 IPs)
+- Seit Zyklus-Start (2026-09-22): 📈 +50,406 (Anstieg)
+- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 957,525 neue IPs hinzugekommen (davon 830,891 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 222 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 123,694 CIDR-Aggregate)
+- Neue IPs (Summe letzter Läufe): 7,689,327 (Summe letzte 8 Läufe / ~24h)
+- Entfernte IPs (Summe letzter Läufe): 16,860 (Summe letzte 8 Läufe / ~24h)
+  - davon Watchlist/30 Tage: 4,000 (Summe letzte 8 Läufe / ~24h)
+  - davon Active/180 Tage: 12,860 (Summe letzte 8 Läufe / ~24h)
+- Netto-Wachstum (~24h): 📈 +50,406 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 15/15 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt) | 1 sonstige, Zeitraum 2026-09-22T04:41 bis 2026-09-22T21:12 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
@@ -107,3 +107,4 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-09-22 14:14 CEST (Europe/Berlin) | 11,512,773 | 3986 | 836923 | 0 |
 | 2026-09-22 15:24 CEST (Europe/Berlin) | 11,516,051 | 3986 | 836845 | 0 |
 | 2026-09-22 19:28 CEST (Europe/Berlin) | 11,524,945 | 3986 | 836801 | 0 |
+| 2026-09-22 23:14 CEST (Europe/Berlin) | 11,528,125 | 3986 | 836790 | 0 |
