@@ -1,5 +1,5 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-09-22 17:12 CEST (Berlin)
+**Aktualisiert:** 2026-09-22 17:15 CEST (Berlin)
 
 ---
 | Quelle | IPs | Neu | Frische |
@@ -21,7 +21,7 @@
 | ✅ `timgerstel_suspicious_ips` | 129 | +0 | 🟢 aktuell (seit 2026-09-22 17:06 CEST (Berlin)) |
 | ❌ `sniffcat` | 0 | – | – |
 | ✅ `siberkapan` | 42432 | +0 | 🟢 aktuell (seit 2026-09-22 17:06 CEST (Berlin)) |
-| ✅ `reportedip` | 9939 | +1 | 🟢 neu (2026-09-22 17:12 CEST (Berlin)) |
+| ✅ `reportedip` | 9939 | +3 | 🟢 neu (2026-09-22 17:15 CEST (Berlin)) |
 | ✅ `ipinsights` | 746064 | +0 | 🟢 aktuell (seit 2026-09-22 14:33 CEST (Berlin)) |
 | ✅ `opendbl_darknet` | 26298 | +0 | 🟢 aktuell (seit 2026-09-22 17:06 CEST (Berlin)) |
 | ✅ `opendbl_all_threats` | 39606 | +0 | 🟢 aktuell (seit 2026-09-22 17:06 CEST (Berlin)) |
@@ -32,7 +32,7 @@
 | ✅ `ipblocklist_eu` | 1408419 | +0 | 🟢 aktuell (seit 2026-09-22 17:06 CEST (Berlin)) |
 | ✅ `zenmorro_scanner_list` | 1903 | +0 | 🟡 traege (seit 2026-09-22 07:10 CEST (Berlin), 14 Laeufe unveraendert) |
 | ✅ `mattyroberts_threatlist` | 31542 | +0 | 🟡 traege (seit 2026-09-22 03:19 CEST (Berlin), 16 Laeufe unveraendert) |
-| ✅ `intrusionlabs` | 1166 | +0 | 🟢 neu (2026-09-22 17:12 CEST (Berlin)) |
+| ✅ `intrusionlabs` | 1164 | +0 | 🟢 neu (2026-09-22 17:15 CEST (Berlin)) |
 | ✅ `threatcluster` | 88 | +0 | 🔴 EINGEFROREN (seit 2026-09-21 07:47 CEST (Berlin), 38 Laeufe unveraendert) |
 | ✅ `techtools` | 5031 | +0 | 🟢 aktuell (seit 2026-09-22 17:06 CEST (Berlin)) |
 | ✅ `apnic_ssh_bruteforce` | 3328 | +0 | 🟡 traege (seit 2026-09-22 02:08 CEST (Berlin), 18 Laeufe unveraendert) |
@@ -51,4 +51,4 @@
 | Entfernt | **-0** |
 
 ---
-*Generiert: 2026-09-22 17:12 CEST (Berlin)*
+*Generiert: 2026-09-22 17:15 CEST (Berlin)*
