@@ -2,9 +2,10 @@ name: Ubuntu Runner Watch
 
 on:
   schedule:
-    # Taeglich pruefen. Solange ubuntu-latest aelter/gleich dem festen Runner ist,
-    # wird NICHTS geaendert. Erst bei einer neueren Ubuntu-Version wird getestet.
-    - cron: '43 5 * * *'
+    # Nur sonntags um 02:00 Uhr deutscher Zeit (Europe/Berlin) pruefen.
+    # Sommer-/Winterzeit wird durch die Zeitzone automatisch beruecksichtigt.
+    - cron: '0 2 * * 0'
+      timezone: 'Europe/Berlin'
   workflow_dispatch:
 
 env:
@@ -102,6 +103,8 @@ jobs:
               )
 
           out = Path(os.environ["GITHUB_OUTPUT"])
+          # allow-nonatomic: GITHUB_OUTPUT ist ein von GitHub bereitgestellter Append-Stream;
+          # vorhandene Step-Outputs muessen erhalten bleiben und duerfen nicht ersetzt werden.
           with out.open("a", encoding="utf-8") as fh:
               fh.write(f"current_version={current}\n")
               fh.write(f"target_version={target}\n")
@@ -176,6 +179,7 @@ jobs:
           from pathlib import Path
           import os
           import re
+          from scripts.netshield_common import write_text_atomic
 
           current = os.environ['CURRENT_VERSION']
           target = os.environ['TARGET_VERSION']
@@ -197,7 +201,7 @@ jobs:
               original = path.read_text(encoding='utf-8')
               updated, count = rx.subn(rf"\g<prefix>ubuntu-{target}\g<suffix>", original)
               if count:
-                  path.write_text(updated, encoding='utf-8', newline='')
+                  write_text_atomic(path, updated)
                   changed_files.append(path.as_posix())
                   replacements += count
 
@@ -256,10 +260,38 @@ jobs:
           git commit -m "chore: runner ubuntu-${CURRENT_VERSION} -> ubuntu-${TARGET_VERSION}"
 
           # Explizit den Token mit Contents + Workflows Schreibrecht verwenden.
-          # Bei Branch-Protection scheitert der Push sichtbar und es bleibt beim
-          # bisherigen Runner; es gibt keinen stillen Teil-Update.
-          git push \
-            "https://x-access-token:${RUNNER_UPDATE_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
-            "HEAD:${GITHUB_REF_NAME}"
+          # Race-Condition-Schutz: Falls zwischen Checkout und Push ein anderer
+          # Workflow committed hat, holen wir den neuen Stand, rebasen unseren
+          # Runner-Commit darauf und versuchen den Push erneut. Bei echtem
+          # Merge-Konflikt wird sicher abgebrochen statt Remote-Aenderungen
+          # automatisch zu ueberschreiben.
+          push_url="https://x-access-token:${RUNNER_UPDATE_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          for attempt in 1 2 3 4 5; do
+            echo "Push-Versuch $attempt/5..."
 
-          echo "::notice::NETSHIELD-Workflows automatisch auf ubuntu-${TARGET_VERSION} umgestellt."
+            if ! git fetch origin "${GITHUB_REF_NAME}"; then
+              echo "Fetch fehlgeschlagen (Versuch $attempt/5)"
+              if [ "$attempt" -eq 5 ]; then
+                exit 1
+              fi
+              sleep $((attempt * 2))
+              continue
+            fi
+
+            if git rebase "origin/${GITHUB_REF_NAME}"; then
+              if git push "$push_url" "HEAD:${GITHUB_REF_NAME}"; then
+                echo "::notice::NETSHIELD-Workflows automatisch auf ubuntu-${TARGET_VERSION} umgestellt."
+                exit 0
+              fi
+              echo "Push-Kollision oder temporaerer Push-Fehler (Versuch $attempt/5)."
+            else
+              echo "::error::Rebase-Konflikt bei der Runner-Migration. Remote-Aenderungen werden nicht ueberschrieben."
+              git rebase --abort 2>/dev/null || true
+              exit 1
+            fi
+
+            sleep $((attempt * 3))
+          done
+
+          echo "::error::Runner-Migration konnte nach 5 Push-Versuchen nicht veroeffentlicht werden."
+          exit 1
