@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-09-22 23:44 CEST (Europe/Berlin)
+Lauf: 2026-09-23 01:48 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -19,10 +19,10 @@ Zwischenstand, aktualisiert bei JEDEM Lauf (alle 3h) - nicht erst wenn der Tag v
 
 | Datum | Vorhergesagt | Bisher eingefroren | Fortschritt |
 |---|---:|---:|---:|
-| 2026-09-22 (heute) | 2,000 | 2,000 | 100% |
-| 2026-09-23 | 2,000 | 0 | 0% |
+| 2026-09-23 (heute) | 2,000 | 0 | 0% |
 | 2026-09-24 | 2,000 | 0 | 0% |
 | 2026-09-25 | 2,000 | 0 | 0% |
+| 2026-09-26 | 2,000 | 0 | 0% |
 
 **Active (180-Tage-Pfad):**
 
@@ -30,12 +30,12 @@ Beim Active-Pfad ist die Prognose die regulaer fuer diesen Tag erwartete Faellig
 
 | Datum | Prognose regulaer faellig | Heute eindeutig neu eingefroren | Letzter Combined-Cleanup | Einordnung |
 |---|---:|---:|---:|---|
-| 2026-09-22 (heute) | 6,431 | 6,424 | 0 | regulaerer Tagesstand |
-| 2026-09-23 | 13,043 | 0 | – | noch nicht faellig |
-| 2026-09-24 | 16,643 | 0 | – | noch nicht faellig |
-| 2026-09-25 | 20,917 | 0 | – | noch nicht faellig |
+| 2026-09-23 (heute) | 13,041 | 0 | – | regulaerer Tagesstand |
+| 2026-09-24 | 16,641 | 0 | – | noch nicht faellig |
+| 2026-09-25 | 20,915 | 0 | – | noch nicht faellig |
+| 2026-09-26 | 17,435 | 0 | – | noch nicht faellig |
 
-**Active heute:** 6,424 eindeutige IPs neu im 180T-Ledger eingefroren; letzter Combined-Lauf: 0 Active-IP(s) als Ablauf entfernt.
+**Active heute:** 0 eindeutige IPs neu im 180T-Ledger eingefroren; letzter Combined-Lauf: 0 Active-IP(s) als Ablauf entfernt.
 
 ## Diagnose-Status
 
@@ -55,7 +55,6 @@ Gleicht die Tages-Vorhersagen aus reports/ip_ablauf.md (Job "prognose") gegen di
 
 | Datum | Vorhergesagt | Tatsächlich | Gerettet | Rettungsquote |
 |---|---:|---:|---:|---:|
-| 2026-09-08 | 2,000 | 0 | 2,000 | 100.0% |
 | 2026-09-09 | 2,000 | 0 | 2,000 | 100.0% |
 | 2026-09-10 | 2,000 | 0 | 2,000 | 100.0% |
 | 2026-09-11 | 2,000 | 0 | 2,000 | 100.0% |
@@ -69,8 +68,9 @@ Gleicht die Tages-Vorhersagen aus reports/ip_ablauf.md (Job "prognose") gegen di
 | 2026-09-19 | 2,000 | 0 | 2,000 | 100.0% |
 | 2026-09-20 | 2,000 | 0 | 2,000 | 100.0% |
 | 2026-09-21 | 2,000 | 0 | 2,000 | 100.0% |
+| 2026-09-22 | 2,000 | 0 | 2,000 | 100.0% |
 
-_31 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
+_30 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 **Active (180-Tage-Pfad):**
 
@@ -81,19 +81,20 @@ _31 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-09-07 | 663,981 | 0 | 663,981 | 100.0% |
 | 2026-09-08 | 662,324 | 661,899 | 425 | 0.1% |
 | 2026-09-21 | 6,509 | 0 | 6,509 | 100.0% |
+| 2026-09-22 | 6,431 | 6,424 | 7 | 0.1% |
 
-_61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
+_60 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +5,139 (Anstieg) (jetzt 11,533,264 IPs)
+- Seit letztem Lauf: ➡️ unverändert (jetzt 11,533,264 IPs)
 - Seit Zyklus-Start (2026-09-22): 📈 +55,545 (Anstieg)
 - Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 959,618 neue IPs hinzugekommen (davon 831,040 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 83 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 123,679 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 7,686,302 (Summe letzte 8 Läufe / ~24h)
-- Entfernte IPs (Summe letzter Läufe): 8,430 (Summe letzte 8 Läufe / ~24h)
-  - davon Watchlist/30 Tage: 2,000 (Summe letzte 8 Läufe / ~24h)
-  - davon Active/180 Tage: 6,430 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +55,545 (~24h)
+- Neue IPs (Summe letzter Läufe): 7,683,277 (Summe letzte 8 Läufe / ~24h)
+- Entfernte IPs (Summe letzter Läufe): 0 (Summe letzte 8 Läufe / ~24h)
+  - davon Watchlist/30 Tage: 0 (Summe letzte 8 Läufe / ~24h)
+  - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
+- Netto-Wachstum (~24h): 📈 +39,382 (~24h)
 - Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-09-22T05:24 bis 2026-09-22T21:39 UTC
 
 ## Verlauf (letzte 20 Läufe)
@@ -109,3 +110,4 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-09-22 19:28 CEST (Europe/Berlin) | 11,524,945 | 3986 | 836801 | 0 |
 | 2026-09-22 23:14 CEST (Europe/Berlin) | 11,528,125 | 3986 | 836790 | 0 |
 | 2026-09-22 23:44 CEST (Europe/Berlin) | 11,533,264 | 3984 | 836735 | 0 |
+| 2026-09-23 01:48 CEST (Europe/Berlin) | 11,533,264 | 3984 | 836735 | 0 |
