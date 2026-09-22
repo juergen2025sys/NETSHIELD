@@ -1,14 +1,24 @@
 {
-  "updated": "2026-09-22 00:34 CEST (Europe/Berlin)",
+  "updated": "2026-09-22 08:11 CEST (Europe/Berlin)",
   "total": 31,
   "ok": 29,
-  "warn": 2,
-  "error": 1,
+  "warn": 1,
+  "error": 2,
   "errors": [
     {
       "file": "runner_image_watch.yml",
       "check": "persist-credentials fehlt",
       "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
+    },
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 4.211.70.206, 128.251.127.23, 150.171.109.107, 4.211.70.206, 128.251.127.23\u2026 \u2013 Filterung wirkungslos!"
+    },
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
+      "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 4.211.70.206, 150.171.109.107, 128.251.127.23, 4.211.70.206, 150.171.109.107\u2026 \u2013 Filterung wirkungslos!"
     }
   ],
   "warnings": [
@@ -30,7 +40,7 @@
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "501f6b8177ca90ee799016722106057793cd9b2d",
+    "sha": "4428c413e8a2bc04f29d12a602d0c236df0e8049",
     "status": "passed",
     "tests_run": 460,
     "failures": [],
@@ -42,21 +52,31 @@
     "detail": "460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5911363,
-    "active_blacklist_ipv4.txt": 976685,
-    "blacklist_confidence40_ipv4_part1.txt": 4349579,
-    "cve_exploit_ips.txt": 27471,
-    "honeypot_ips.txt": 2287234,
-    "bot_detector_blacklist_ipv4.txt": 1161907
+    "combined_threat_blacklist_ipv4_part1.txt": 5919073,
+    "active_blacklist_ipv4.txt": 930433,
+    "blacklist_confidence40_ipv4_part1.txt": 4356346,
+    "cve_exploit_ips.txt": 27389,
+    "honeypot_ips.txt": 2289798,
+    "bot_detector_blacklist_ipv4.txt": 1141871
   },
   "production_health": {
-    "critical": 0,
+    "critical": 2,
     "warn": 1,
     "checks": [
       {
         "level": "WARN",
         "check": "Feed-Ausf\u00e4lle",
         "detail": "2 von 100 Feeds ausgefallen: abuseipdb_tmiland, fortigate_azure"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 4.211.70.206, 128.251.127.23, 150.171.109.107, 4.211.70.206, 128.251.127.23\u2026 \u2013 Filterung wirkungslos!"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
+        "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 4.211.70.206, 150.171.109.107, 128.251.127.23, 4.211.70.206, 150.171.109.107\u2026 \u2013 Filterung wirkungslos!"
       }
     ]
   },
