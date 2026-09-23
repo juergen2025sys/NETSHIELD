@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-23 14:45 CEST (Europe/Berlin)",
+  "updated": "2026-09-23 19:50 CEST (Europe/Berlin)",
   "total": 32,
   "ok": 29,
   "warn": 2,
@@ -55,7 +55,7 @@
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "b22971d5a4ebe705a4f7b411e91cc442a517196e",
+    "sha": "622305f8d37684b92d36136fc4ca073fc0e2ea7c",
     "status": "passed",
     "tests_run": 460,
     "failures": [],
@@ -67,12 +67,12 @@
     "detail": "460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5952488,
-    "active_blacklist_ipv4.txt": 921389,
-    "blacklist_confidence40_ipv4_part1.txt": 4378577,
-    "cve_exploit_ips.txt": 27365,
-    "honeypot_ips.txt": 2180401,
-    "bot_detector_blacklist_ipv4.txt": 1152801
+    "combined_threat_blacklist_ipv4_part1.txt": 5973358,
+    "active_blacklist_ipv4.txt": 961751,
+    "blacklist_confidence40_ipv4_part1.txt": 4397974,
+    "cve_exploit_ips.txt": 27418,
+    "honeypot_ips.txt": 2188154,
+    "bot_detector_blacklist_ipv4.txt": 1153278
   },
   "production_health": {
     "critical": 0,
