@@ -1,6 +1,6 @@
 # NETSHIELD – British Virgin Islands (VG) IPv4 Ranges
-# Aktualisiert: 2026-09-21 08:51 CEST (Europe/Berlin)
-# IP-Ranges: 199
+# Aktualisiert: 2026-09-23 08:18 CEST (Europe/Berlin)
+# IP-Ranges: 200
 
 2.56.144.0/22
 5.35.168.0/21
@@ -32,6 +32,7 @@
 45.138.72.0/22
 45.142.0.0/22
 45.142.120.0/22
+45.142.255.0/24
 45.143.12.0/22
 45.144.64.0/22
 45.148.144.0/22
