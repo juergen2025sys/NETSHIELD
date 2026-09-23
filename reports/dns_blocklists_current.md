@@ -1,0 +1,49 @@
+# NETSHIELD – aktuelle DNS-Blocklisten
+
+Stand: **2026-09-23 08:15 UTC**
+
+Es werden nur Listen angezeigt, deren **konkrete Listen-Datei in den letzten 7 Tagen aktualisiert wurde**. Eine frische README oder irgendein anderer Repository-Commit reicht nicht.
+
+**Wichtig:** Der Workflow aktiviert keine Liste automatisch. Er erstellt nur einen Fundbericht mit Raw-Links.
+
+| # | Score | Repository / Datei | Letztes Datei-Update | Alter | Format | OPNsense direkt | Groesse | Raw-Link |
+|---:|---:|---|---|---:|---|:---:|---:|---|
+| 1 | **95** | [phishdestroy/destroylist](https://github.com/phishdestroy/destroylist) / `rootlist/formats/community/domains.txt` | 2026-09-23 08:02 UTC | 0.01 d | plain-domains | Ja | 23.0 MB | [Raw](https://raw.githubusercontent.com/phishdestroy/destroylist/main/rootlist/formats/community/domains.txt) |
+| 2 | **95** | [phishdestroy/destroylist](https://github.com/phishdestroy/destroylist) / `rootlist/formats/community_active/domains.txt` | 2026-09-23 08:02 UTC | 0.01 d | plain-domains | Ja | 11.6 MB | [Raw](https://raw.githubusercontent.com/phishdestroy/destroylist/main/rootlist/formats/community_active/domains.txt) |
+| 3 | **95** | [phishdestroy/destroylist](https://github.com/phishdestroy/destroylist) / `rootlist/formats/primary/domains.txt` | 2026-09-23 08:02 UTC | 0.01 d | plain-domains | Ja | 4.2 MB | [Raw](https://raw.githubusercontent.com/phishdestroy/destroylist/main/rootlist/formats/primary/domains.txt) |
+| 4 | **95** | [phishdestroy/destroylist](https://github.com/phishdestroy/destroylist) / `rootlist/formats/primary_active/domains.txt` | 2026-09-23 08:02 UTC | 0.01 d | plain-domains | Ja | 2.8 MB | [Raw](https://raw.githubusercontent.com/phishdestroy/destroylist/main/rootlist/formats/primary_active/domains.txt) |
+| 5 | **88** | [asteroid-99942/apophis-blocklist](https://github.com/asteroid-99942/apophis-blocklist) / `lists/blocklist.txt` | 2026-09-23 08:08 UTC | 0.0 d | plain-domains | Ja | 85.8 MB | [Raw](https://raw.githubusercontent.com/asteroid-99942/apophis-blocklist/main/lists/blocklist.txt) |
+| 6 | **88** | [asteroid-99942/apophis-blocklist](https://github.com/asteroid-99942/apophis-blocklist) / `lists/blocklist_previous.txt` | 2026-09-23 08:08 UTC | 0.0 d | plain-domains | Ja | 85.8 MB | [Raw](https://raw.githubusercontent.com/asteroid-99942/apophis-blocklist/main/lists/blocklist_previous.txt) |
+| 7 | **88** | [asteroid-99942/apophis-blocklist](https://github.com/asteroid-99942/apophis-blocklist) / `output/hosts.txt` | 2026-09-23 08:08 UTC | 0.0 d | plain-domains | Ja | 85.8 MB | [Raw](https://raw.githubusercontent.com/asteroid-99942/apophis-blocklist/main/output/hosts.txt) |
+| 8 | **88** | [asteroid-99942/apophis-blocklist](https://github.com/asteroid-99942/apophis-blocklist) / `lists/diff_report.txt` | 2026-09-23 08:08 UTC | 0.0 d | plain-domains | Ja | 67.7 KB | [Raw](https://raw.githubusercontent.com/asteroid-99942/apophis-blocklist/main/lists/diff_report.txt) |
+| 9 | **88** | [0xDanielLopez/phishunt-feed](https://github.com/0xDanielLopez/phishunt-feed) / `blocklist/domains.txt` | 2026-09-23 04:46 UTC | 0.14 d | plain-domains | Ja | 20.4 KB | [Raw](https://raw.githubusercontent.com/0xDanielLopez/phishunt-feed/main/blocklist/domains.txt) |
+| 10 | **88** | [BlackRabbitZ/BlackRabbitZ-DNS-Blocklists](https://github.com/BlackRabbitZ/BlackRabbitZ-DNS-Blocklists) / `lists/categories/malware.txt` | 2026-09-22 08:41 UTC | 0.98 d | plain-domains | Ja | 51.0 MB | [Raw](https://raw.githubusercontent.com/BlackRabbitZ/BlackRabbitZ-DNS-Blocklists/main/lists/categories/malware.txt) |
+| 11 | **84** | [kalidada18/threatbase](https://github.com/kalidada18/threatbase) / `ioc/misp/threatbase-domain.txt` | 2026-09-23 02:31 UTC | 0.24 d | plain-domains | Ja | 380.9 KB | [Raw](https://raw.githubusercontent.com/kalidada18/threatbase/main/ioc/misp/threatbase-domain.txt) |
+| 12 | **81** | [cenk/bad-hosts](https://github.com/cenk/bad-hosts) / `bad-hosts-domains` | 2026-09-22 23:44 UTC | 0.35 d | plain-domains | Ja | 44.3 MB | [Raw](https://raw.githubusercontent.com/cenk/bad-hosts/main/bad-hosts-domains) |
+| 13 | **81** | [BlackRabbitZ/BlackRabbitZ-DNS-Blocklists](https://github.com/BlackRabbitZ/BlackRabbitZ-DNS-Blocklists) / `lists/categories/phishing.txt` | 2026-09-21 18:24 UTC | 1.58 d | plain-domains | Ja | 14.3 MB | [Raw](https://raw.githubusercontent.com/BlackRabbitZ/BlackRabbitZ-DNS-Blocklists/main/lists/categories/phishing.txt) |
+| 14 | **80** | [rosical-labs/SiberGuvenlikBaskanligi-API](https://github.com/rosical-labs/SiberGuvenlikBaskanligi-API) / `data/days-120-domains.txt` | 2026-09-23 07:10 UTC | 0.04 d | plain-domains | Ja | 418.5 KB | [Raw](https://raw.githubusercontent.com/rosical-labs/SiberGuvenlikBaskanligi-API/main/data/days-120-domains.txt) |
+| 15 | **80** | [rosical-labs/SiberGuvenlikBaskanligi-API](https://github.com/rosical-labs/SiberGuvenlikBaskanligi-API) / `data/days-90-domains.txt` | 2026-09-23 07:10 UTC | 0.04 d | plain-domains | Ja | 327.2 KB | [Raw](https://raw.githubusercontent.com/rosical-labs/SiberGuvenlikBaskanligi-API/main/data/days-90-domains.txt) |
+| 16 | **80** | [rosical-labs/SiberGuvenlikBaskanligi-API](https://github.com/rosical-labs/SiberGuvenlikBaskanligi-API) / `data/days-60-domains.txt` | 2026-09-23 07:10 UTC | 0.04 d | plain-domains | Ja | 226.2 KB | [Raw](https://raw.githubusercontent.com/rosical-labs/SiberGuvenlikBaskanligi-API/main/data/days-60-domains.txt) |
+| 17 | **80** | [rosical-labs/SiberGuvenlikBaskanligi-API](https://github.com/rosical-labs/SiberGuvenlikBaskanligi-API) / `data/full-domains.txt` | 2026-09-23 07:10 UTC | 0.04 d | plain-domains | Ja | 10.1 MB | [Raw](https://raw.githubusercontent.com/rosical-labs/SiberGuvenlikBaskanligi-API/main/data/full-domains.txt) |
+| 18 | **80** | [Tagoletta/SiberGuvenlikBaskanligi-API](https://github.com/Tagoletta/SiberGuvenlikBaskanligi-API) / `data/days-120-domains.txt` | 2026-09-23 06:09 UTC | 0.09 d | plain-domains | Ja | 418.1 KB | [Raw](https://raw.githubusercontent.com/Tagoletta/SiberGuvenlikBaskanligi-API/main/data/days-120-domains.txt) |
+| 19 | **80** | [Tagoletta/SiberGuvenlikBaskanligi-API](https://github.com/Tagoletta/SiberGuvenlikBaskanligi-API) / `data/days-90-domains.txt` | 2026-09-23 06:09 UTC | 0.09 d | plain-domains | Ja | 326.7 KB | [Raw](https://raw.githubusercontent.com/Tagoletta/SiberGuvenlikBaskanligi-API/main/data/days-90-domains.txt) |
+| 20 | **80** | [Tagoletta/SiberGuvenlikBaskanligi-API](https://github.com/Tagoletta/SiberGuvenlikBaskanligi-API) / `data/days-60-domains.txt` | 2026-09-23 06:09 UTC | 0.09 d | plain-domains | Ja | 225.8 KB | [Raw](https://raw.githubusercontent.com/Tagoletta/SiberGuvenlikBaskanligi-API/main/data/days-60-domains.txt) |
+| 21 | **80** | [Tagoletta/SiberGuvenlikBaskanligi-API](https://github.com/Tagoletta/SiberGuvenlikBaskanligi-API) / `data/full-domains.txt` | 2026-09-23 06:09 UTC | 0.09 d | plain-domains | Ja | 10.1 MB | [Raw](https://raw.githubusercontent.com/Tagoletta/SiberGuvenlikBaskanligi-API/main/data/full-domains.txt) |
+| 22 | **80** | [cenk/malware-domains](https://github.com/cenk/malware-domains) / `domains` | 2026-09-23 04:58 UTC | 0.14 d | plain-domains | Ja | 43.9 MB | [Raw](https://raw.githubusercontent.com/cenk/malware-domains/main/domains) |
+| 23 | **80** | [cenk/malware-domains](https://github.com/cenk/malware-domains) / `wildcard-domains` | 2026-09-23 04:58 UTC | 0.14 d | plain-domains | Ja | 38.2 MB | [Raw](https://raw.githubusercontent.com/cenk/malware-domains/main/wildcard-domains) |
+| 24 | **78** | [shriman-dev/dns-blocklist](https://github.com/shriman-dev/dns-blocklist) / `hblock/allow.list` | 2026-09-23 02:07 UTC | 0.26 d | plain-domains | Ja | 69.5 KB | [Raw](https://raw.githubusercontent.com/shriman-dev/dns-blocklist/main/hblock/allow.list) |
+| 25 | **78** | [shriman-dev/dns-blocklist](https://github.com/shriman-dev/dns-blocklist) / `domains.d/domains-filtered-subdomains00` | 2026-09-23 02:07 UTC | 0.26 d | plain-domains | Ja | 45.0 MB | [Raw](https://raw.githubusercontent.com/shriman-dev/dns-blocklist/main/domains.d/domains-filtered-subdomains00) |
+| 26 | **78** | [shriman-dev/dns-blocklist](https://github.com/shriman-dev/dns-blocklist) / `domains.d/domains00` | 2026-09-23 02:07 UTC | 0.26 d | plain-domains | Ja | 45.0 MB | [Raw](https://raw.githubusercontent.com/shriman-dev/dns-blocklist/main/domains.d/domains00) |
+| 27 | **73** | [Yel1oww/n8n-threat-blocklist](https://github.com/Yel1oww/n8n-threat-blocklist) / `lists/aggressive.txt` | 2026-09-20 12:01 UTC | 2.84 d | plain-domains | Ja | 674.0 KB | [Raw](https://raw.githubusercontent.com/Yel1oww/n8n-threat-blocklist/main/lists/aggressive.txt) |
+| 28 | **73** | [Yel1oww/n8n-threat-blocklist](https://github.com/Yel1oww/n8n-threat-blocklist) / `lists/strict.txt` | 2026-09-20 12:00 UTC | 2.84 d | plain-domains | Ja | 34.9 KB | [Raw](https://raw.githubusercontent.com/Yel1oww/n8n-threat-blocklist/main/lists/strict.txt) |
+| 29 | **73** | [Jam0k/Public-Feeds-IOCs](https://github.com/Jam0k/Public-Feeds-IOCs) / `feeds/full/domains.txt` | 2026-09-20 06:36 UTC | 3.07 d | plain-domains | Ja | 10.6 KB | [Raw](https://raw.githubusercontent.com/Jam0k/Public-Feeds-IOCs/main/feeds/full/domains.txt) |
+| 30 | **73** | [Jam0k/Public-Feeds-IOCs](https://github.com/Jam0k/Public-Feeds-IOCs) / `feeds/domains.txt` | 2026-09-20 06:36 UTC | 3.07 d | plain-domains | Ja | 4.5 KB | [Raw](https://raw.githubusercontent.com/Jam0k/Public-Feeds-IOCs/main/feeds/domains.txt) |
+
+## Bedeutung
+
+- **Score:** Frische wird am staerksten gewichtet.
+- **OPNsense direkt = Ja:** Stichprobe besteht zu mindestens 98 % aus reinen Domains/Wildcards.
+- **dnsmasq / hosts / adblock:** gefunden, aber nicht als direkte reine Domainliste markiert.
+- **Maximal 7 Tage alt:** aeltere Listen werden gar nicht erst im Report ausgegeben.
+
+Der Score sagt nichts darueber aus, ob eine Liste garantiert frei von False Positives ist.
