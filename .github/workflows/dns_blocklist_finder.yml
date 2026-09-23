@@ -1,0 +1,583 @@
+name: DNS Blocklist Finder
+
+on:
+  workflow_dispatch:
+  schedule:
+    # GitHub Actions nutzt UTC. Laeuft jeden Tag um 04:15 UTC.
+    - cron: "15 4 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dns-blocklist-finder
+  cancel-in-progress: false
+
+jobs:
+  find-dns-blocklists:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Aktuelle DNS-Blocklisten auf GitHub suchen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CURRENT_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          import json
+          import time
+          import urllib.parse
+          import urllib.request
+          from datetime import datetime, timezone, timedelta
+          from pathlib import Path
+
+          API = "https://api.github.com"
+          TOKEN = os.environ["GH_TOKEN"]
+          CURRENT_REPO = os.environ["CURRENT_REPO"].lower()
+
+          # Nur wirklich aktuelle Listen in den Report aufnehmen.
+          MAX_FILE_AGE_DAYS = 7
+
+          # Wie viele Repositories / Dateien maximal geprueft werden.
+          MAX_REPOS = 40
+          MAX_FILES_PER_REPO = 4
+          TOP_RESULTS = 30
+
+          # Stichprobe reicht fuer die Formaterkennung.
+          SAMPLE_BYTES = 1024 * 1024
+          TIMEOUT = 20
+
+          # Suchbegriffe bewusst auf Security-DNS-Feeds beschraenkt.
+          SEARCH_QUERIES = [
+              '"dns blocklist" malware',
+              '"domain blocklist" malware',
+              '"malware domains" blocklist',
+              '"phishing domains" blocklist',
+              '"c2 domains" blocklist',
+              '"command and control" domains blocklist',
+              '"threat intelligence" domains blocklist',
+              '"ioc domains" blocklist',
+          ]
+
+          SECURITY_TERMS = (
+              "malware", "phish", "phishing", "c2", "botnet",
+              "command control", "command-and-control", "threat",
+              "ioc", "badware", "ransomware", "trojan", "stealer",
+              "scam", "fraud", "dnsbl",
+          )
+
+          GOOD_PATH_TERMS = (
+              "domain", "domains", "block", "black", "malware",
+              "phish", "c2", "ioc", "threat", "dns", "badware",
+          )
+
+          BAD_PATH_TERMS = (
+              "allowlist", "whitelist", "exclude", "exception",
+              "readme", "license", "changelog", "sample", "example",
+              "test", "archive", "old", "deprecated",
+          )
+
+          DOMAIN_RE = re.compile(
+              r"^(?:\*\.)?"
+              r"(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+"
+              r"(?:[a-z]{2,63}|xn--[a-z0-9-]{2,59})$",
+              re.I,
+          )
+
+          def utcnow():
+              return datetime.now(timezone.utc)
+
+          def parse_dt(value):
+              if not value:
+                  return None
+              try:
+                  return datetime.fromisoformat(value.replace("Z", "+00:00"))
+              except Exception:
+                  return None
+
+          def age_days(value):
+              dt = parse_dt(value) if isinstance(value, str) else value
+              if not dt:
+                  return 99999.0
+              return max(0.0, (utcnow() - dt).total_seconds() / 86400.0)
+
+          def headers():
+              return {
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": f"Bearer {TOKEN}",
+                  "User-Agent": "NETSHIELD-DNS-Blocklist-Finder",
+                  "X-GitHub-Api-Version": "2022-11-28",
+              }
+
+          def gh_json(url, params=None):
+              if params:
+                  url += ("&" if "?" in url else "?") + urllib.parse.urlencode(params)
+              req = urllib.request.Request(url, headers=headers())
+              with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+                  return json.loads(r.read().decode("utf-8", "replace"))
+
+          def raw_sample(url):
+              req = urllib.request.Request(
+                  url,
+                  headers={
+                      "User-Agent": "NETSHIELD-DNS-Blocklist-Finder",
+                      "Range": f"bytes=0-{SAMPLE_BYTES - 1}",
+                      "Accept": "text/plain,*/*;q=0.5",
+                  },
+              )
+              with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+                  return r.read(SAMPLE_BYTES).decode("utf-8", "replace")
+
+          def relevance(repo, path=""):
+              text = " ".join([
+                  repo.get("name", ""),
+                  repo.get("description") or "",
+                  path,
+              ]).lower()
+              return sum(1 for t in SECURITY_TERMS if t in text)
+
+          def path_score(path):
+              low = path.lower()
+              name = low.rsplit("/", 1)[-1]
+
+              if any(x in low for x in BAD_PATH_TERMS):
+                  return -100
+
+              if name.endswith((
+                  ".md", ".json", ".xml", ".yml", ".yaml", ".py",
+                  ".js", ".ts", ".sh", ".ps1", ".bat", ".exe", ".zip",
+                  ".tar", ".gz"
+              )):
+                  return -100
+
+              score = 0
+              score += 4 * sum(1 for x in GOOD_PATH_TERMS if x in low)
+
+              if name in (
+                  "domains", "domains.txt", "blocklist.txt",
+                  "malware_domains.txt", "phishing_domains.txt",
+                  "c2_domains.txt", "dns_blocklist.txt",
+              ):
+                  score += 20
+
+              if name.endswith((".txt", ".list", ".domains")):
+                  score += 8
+
+              # Diese Formate sind moeglicherweise brauchbar, aber nicht direkt
+              # als reine Domainliste fuer OPNsense Unbound.
+              if "hosts" in name or "dnsmasq" in name or "adblock" in name:
+                  score -= 4
+
+              return score
+
+          def detect_format(text):
+              data = 0
+              plain = 0
+              dnsmasq = 0
+              hosts = 0
+              adblock = 0
+              urls = 0
+              invalid = 0
+
+              for raw in text.splitlines():
+                  line = raw.strip()
+                  if not line or line.startswith(("#", "!", ";", "//")):
+                      continue
+
+                  data += 1
+                  low = line.lower()
+
+                  if low.startswith("address=/"):
+                      dnsmasq += 1
+                      continue
+
+                  if re.match(r"^(?:0\.0\.0\.0|127\.0\.0\.1|::1)\s+", low):
+                      hosts += 1
+                      continue
+
+                  if low.startswith("||") or low.startswith("@@||"):
+                      adblock += 1
+                      continue
+
+                  if "://" in low:
+                      urls += 1
+                      continue
+
+                  candidate = re.split(r"\s+#", line, maxsplit=1)[0].strip().rstrip(".")
+                  if DOMAIN_RE.fullmatch(candidate):
+                      plain += 1
+                  else:
+                      invalid += 1
+
+              ratio = plain / data if data else 0.0
+
+              if dnsmasq:
+                  fmt = "dnsmasq"
+              elif hosts:
+                  fmt = "hosts"
+              elif adblock:
+                  fmt = "adblock"
+              elif urls:
+                  fmt = "url-list"
+              elif data and ratio >= 0.98:
+                  fmt = "plain-domains"
+              elif data and ratio >= 0.90:
+                  fmt = "mostly-domains"
+              else:
+                  fmt = "unknown"
+
+              # Direkt fuer "URLs der Blocklisten" in OPNsense/Unbound geeignet.
+              opnsense_direct = (
+                  fmt == "plain-domains"
+                  and plain >= 20
+                  and ratio >= 0.98
+              )
+
+              return {
+                  "format": fmt,
+                  "sample_data_lines": data,
+                  "sample_domain_lines": plain,
+                  "domain_ratio": round(ratio, 4),
+                  "opnsense_direct": opnsense_direct,
+                  "invalid_sample_lines": invalid,
+              }
+
+          def latest_file_commit(repo_full, path):
+              try:
+                  commits = gh_json(
+                      f"{API}/repos/{repo_full}/commits",
+                      {"path": path, "per_page": 1},
+                  )
+                  if not commits:
+                      return None
+
+                  commit = commits[0].get("commit", {})
+                  return (
+                      commit.get("committer", {}).get("date")
+                      or commit.get("author", {}).get("date")
+                  )
+              except Exception:
+                  return None
+
+          def score_result(item):
+              score = 0
+              age = item["age_days"]
+
+              # Frische ist absichtlich der wichtigste Faktor.
+              if age <= 1:
+                  score += 45
+              elif age <= 3:
+                  score += 38
+              elif age <= 7:
+                  score += 30
+              else:
+                  return 0
+
+              if item["opnsense_direct"]:
+                  score += 25
+              elif item["domain_ratio"] >= 0.90:
+                  score += 8
+              else:
+                  score -= 15
+
+              score += min(item["relevance"] * 4, 16)
+
+              stars = item["stars"]
+              if stars >= 5000:
+                  score += 8
+              elif stars >= 1000:
+                  score += 7
+              elif stars >= 250:
+                  score += 5
+              elif stars >= 50:
+                  score += 3
+              elif stars >= 10:
+                  score += 1
+
+              if item.get("license"):
+                  score += 2
+
+              if item.get("fork"):
+                  score -= 5
+
+              return max(0, min(100, int(round(score))))
+
+          def search_repositories():
+              cutoff = (utcnow() - timedelta(days=MAX_FILE_AGE_DAYS)).date().isoformat()
+              repos = {}
+
+              for query in SEARCH_QUERIES:
+                  q = f"{query} pushed:>={cutoff}"
+
+                  try:
+                      data = gh_json(
+                          f"{API}/search/repositories",
+                          {
+                              "q": q,
+                              "sort": "updated",
+                              "order": "desc",
+                              "per_page": 25,
+                          },
+                      )
+                  except Exception as exc:
+                      print(f"::warning::Suche fehlgeschlagen: {query}: {exc}")
+                      continue
+
+                  for repo in data.get("items", []):
+                      full = (repo.get("full_name") or "").lower()
+                      if not full or full == CURRENT_REPO:
+                          continue
+                      if repo.get("archived"):
+                          continue
+                      repos[full] = repo
+
+                  # Search-API Rate-Limit schonen.
+                  time.sleep(1.2)
+
+              ordered = sorted(
+                  repos.values(),
+                  key=lambda r: (
+                      age_days(r.get("pushed_at")),
+                      -(r.get("stargazers_count") or 0),
+                  ),
+              )
+              return ordered[:MAX_REPOS]
+
+          def candidate_files(repo):
+              full = repo["full_name"]
+              branch = repo.get("default_branch") or "main"
+
+              try:
+                  tree = gh_json(
+                      f"{API}/repos/{full}/git/trees/{urllib.parse.quote(branch, safe='')}",
+                      {"recursive": "1"},
+                  )
+              except Exception as exc:
+                  print(f"::warning::Tree konnte fuer {full} nicht geladen werden: {exc}")
+                  return []
+
+              candidates = []
+              for entry in tree.get("tree", []):
+                  if entry.get("type") != "blob":
+                      continue
+
+                  path = entry.get("path") or ""
+                  ps = path_score(path)
+                  if ps <= 0:
+                      continue
+
+                  size = entry.get("size") or 0
+                  if 0 < size < 100:
+                      continue
+
+                  candidates.append((ps, path, size))
+
+              candidates.sort(key=lambda x: (-x[0], -x[2]))
+              return candidates[:MAX_FILES_PER_REPO]
+
+          repos = search_repositories()
+          print(f"{len(repos)} aktuelle Repository-Kandidaten gefunden.")
+
+          results = []
+
+          for i, repo in enumerate(repos, 1):
+              full = repo["full_name"]
+              print(f"[{i}/{len(repos)}] Pruefe {full}")
+
+              base_rel = relevance(repo)
+              if base_rel == 0:
+                  continue
+
+              for _, path, size in candidate_files(repo):
+                  last_commit = latest_file_commit(full, path)
+                  age = age_days(last_commit)
+
+                  # Ganz wichtig: Nicht nur Repository-Aktivitaet pruefen.
+                  # Das konkrete Listen-File selbst muss <= 7 Tage alt sein.
+                  if age > MAX_FILE_AGE_DAYS:
+                      continue
+
+                  branch = repo.get("default_branch") or "main"
+                  raw_url = (
+                      "https://raw.githubusercontent.com/"
+                      + full
+                      + "/"
+                      + urllib.parse.quote(branch, safe="")
+                      + "/"
+                      + urllib.parse.quote(path, safe="/")
+                  )
+
+                  try:
+                      sample = raw_sample(raw_url)
+                      fmt = detect_format(sample)
+                  except Exception as exc:
+                      print(f"::warning::Datei nicht lesbar: {raw_url}: {exc}")
+                      continue
+
+                  item = {
+                      "repo": full,
+                      "repo_url": repo.get("html_url"),
+                      "raw_url": raw_url,
+                      "path": path,
+                      "last_file_update": last_commit,
+                      "age_days": round(age, 2),
+                      "size_bytes": size,
+                      "stars": repo.get("stargazers_count") or 0,
+                      "license": (repo.get("license") or {}).get("spdx_id"),
+                      "fork": bool(repo.get("fork")),
+                      "relevance": base_rel + relevance(repo, path),
+                      **fmt,
+                  }
+
+                  item["score"] = score_result(item)
+                  if item["score"] > 0:
+                      results.append(item)
+
+          # Doppelte Raw-Links entfernen.
+          dedup = {}
+          for item in results:
+              url = item["raw_url"]
+              if url not in dedup or item["score"] > dedup[url]["score"]:
+                  dedup[url] = item
+
+          results = list(dedup.values())
+          results.sort(
+              key=lambda x: (
+                  -x["score"],
+                  x["age_days"],
+                  -x["domain_ratio"],
+                  -x["stars"],
+              )
+          )
+          results = results[:TOP_RESULTS]
+
+          out = Path("reports")
+          out.mkdir(parents=True, exist_ok=True)
+
+          json_data = {
+              "generated_at": utcnow().isoformat(),
+              "rule": f"Nur Listen, deren konkretes Listen-File maximal {MAX_FILE_AGE_DAYS} Tage alt ist.",
+              "result_count": len(results),
+              "results": results,
+          }
+
+          (out / "dns_blocklists_current.json").write_text(
+              json.dumps(json_data, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+
+          def human_size(n):
+              if not n:
+                  return "?"
+              for unit in ("B", "KB", "MB", "GB"):
+                  if n < 1024 or unit == "GB":
+                      return f"{n:.1f} {unit}"
+                  n /= 1024
+
+          def short_date(v):
+              dt = parse_dt(v)
+              return dt.strftime("%Y-%m-%d %H:%M UTC") if dt else "?"
+
+          md = []
+          md.append("# NETSHIELD – aktuelle DNS-Blocklisten")
+          md.append("")
+          md.append(f"Stand: **{utcnow().strftime('%Y-%m-%d %H:%M UTC')}**")
+          md.append("")
+          md.append(
+              f"Es werden nur Listen angezeigt, deren **konkrete Listen-Datei in den letzten "
+              f"{MAX_FILE_AGE_DAYS} Tagen aktualisiert wurde**. "
+              "Eine frische README oder irgendein anderer Repository-Commit reicht nicht."
+          )
+          md.append("")
+          md.append(
+              "**Wichtig:** Der Workflow aktiviert keine Liste automatisch. "
+              "Er erstellt nur einen Fundbericht mit Raw-Links."
+          )
+          md.append("")
+          md.append("| # | Score | Repository / Datei | Letztes Datei-Update | Alter | Format | OPNsense direkt | Groesse | Raw-Link |")
+          md.append("|---:|---:|---|---|---:|---|:---:|---:|---|")
+
+          for idx, r in enumerate(results, 1):
+              direct = "Ja" if r["opnsense_direct"] else "Nein"
+              md.append(
+                  f"| {idx} | **{r['score']}** | "
+                  f"[{r['repo']}]({r['repo_url']}) / `{r['path']}` | "
+                  f"{short_date(r['last_file_update'])} | "
+                  f"{r['age_days']} d | {r['format']} | {direct} | "
+                  f"{human_size(r['size_bytes'])} | [Raw]({r['raw_url']}) |"
+              )
+
+          md.append("")
+          md.append("## Bedeutung")
+          md.append("")
+          md.append("- **Score:** Frische wird am staerksten gewichtet.")
+          md.append("- **OPNsense direkt = Ja:** Stichprobe besteht zu mindestens 98 % aus reinen Domains/Wildcards.")
+          md.append("- **dnsmasq / hosts / adblock:** gefunden, aber nicht als direkte reine Domainliste markiert.")
+          md.append("- **Maximal 7 Tage alt:** aeltere Listen werden gar nicht erst im Report ausgegeben.")
+          md.append("")
+          md.append("Der Score sagt nichts darueber aus, ob eine Liste garantiert frei von False Positives ist.")
+          md.append("")
+
+          (out / "dns_blocklists_current.md").write_text(
+              "\n".join(md),
+              encoding="utf-8",
+          )
+
+          print("")
+          print(f"{len(results)} wirklich aktuelle Listen im Report.")
+          for r in results[:10]:
+              print(
+                  f"{r['score']:3d} | {r['age_days']:>5} d | "
+                  f"{'OPNsense' if r['opnsense_direct'] else r['format']} | "
+                  f"{r['repo']} | {r['raw_url']}"
+              )
+          PY
+
+      - name: Report in GitHub Actions anzeigen
+        if: always()
+        shell: bash
+        run: |
+          if [ -f reports/dns_blocklists_current.md ]; then
+            cat reports/dns_blocklists_current.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Report als Artifact speichern
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dns-blocklists-current
+          path: |
+            reports/dns_blocklists_current.md
+            reports/dns_blocklists_current.json
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Report ins NETSHIELD-Repository schreiben
+        shell: bash
+        run: |
+          if [ ! -f reports/dns_blocklists_current.md ]; then
+            echo "Kein Report vorhanden."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add reports/dns_blocklists_current.md reports/dns_blocklists_current.json
+
+          if git diff --cached --quiet; then
+            echo "Keine Aenderungen."
+            exit 0
+          fi
+
+          git commit -m "chore: update current DNS blocklist report"
+          git push
