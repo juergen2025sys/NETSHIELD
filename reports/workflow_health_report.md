@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-23 07:57 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-23 14:45 CEST (Europe/Berlin)
 
-**Workflows:** 31 | ✅ 29 OK | ⚠️ 1 Warnung | ❌ 2 Fehler
+**Workflows:** 32 | ✅ 29 OK | ⚠️ 2 Warnung | ❌ 2 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `4471246b123ef8e331c2523f237776243aeb1d9d`
+✅ Commit: `b22971d5a4ebe705a4f7b411e91cc442a517196e`
 
 460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -16,27 +16,27 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 | Datei | Check | Detail |
 |---|---|---|
+| `dns_blocklist_finder.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
 | `runner_image_watch.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
-| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 34.120.68.241, 34.120.68.241 – Filterung wirkungslos! |
-| `Production Health` | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 34.120.68.241 – Filterung wirkungslos! |
-| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 34.120.68.241, 34.120.68.241 – Filterung wirkungslos! |
 
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
+| `dns_blocklist_finder.yml` | Git Push ohne Retry-Schleife | git push ohne Retry-Schleife – Race-Condition bei parallelen Runs (kein 'for attempt in ...') |
+| `dns_blocklist_finder.yml` | Kein expliziter Leerungsschutz | Externer Feed/Report ohne explizite MIN_* Guard-Variable – Müll-/Leer-Daten könnten unbemerkt akzeptiert werden |
+| `dns_blocklist_finder.yml` | Action nicht SHA-pinned | uses: actions/checkout@v5 – Tag statt SHA-Hash (Supply-Chain-Risiko) |
+| `dns_blocklist_finder.yml` | Action nicht SHA-pinned | uses: actions/upload-artifact@v4 – Tag statt SHA-Hash (Supply-Chain-Risiko) |
+| `dns_blocklist_finder.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
 | `Production Health` | Feed-Ausfälle | 3 von 100 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 3 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 34.120.68.241, 34.120.68.241 – Filterung wirkungslos! |
-| 🔴 CRITICAL | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 34.120.68.241 – Filterung wirkungslos! |
-| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 34.120.68.241, 34.120.68.241 – Filterung wirkungslos! |
 | 🟡 WARN | Feed-Ausfälle | 3 von 100 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
 
 ## Übersicht
@@ -49,6 +49,7 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
 | `dependabot-auto-merge.yml` | ✅ OK | 0 | 0 | – |
 | `dependabot-heal-conflicts.yml` | ✅ OK | 0 | 0 | – |
+| `dns_blocklist_finder.yml` | ❌ | 1 | 5 | – |
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `feed_ip_finder.yml` | ✅ OK | 0 | 0 | – |
@@ -76,4 +77,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-23 07:57 CEST (Europe/Berlin) | 31 Workflow-Dateien geprüft*
+*Generiert: 2026-09-23 14:45 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*

@@ -1,32 +1,47 @@
 {
-  "updated": "2026-09-23 07:57 CEST (Europe/Berlin)",
-  "total": 31,
+  "updated": "2026-09-23 14:45 CEST (Europe/Berlin)",
+  "total": 32,
   "ok": 29,
-  "warn": 1,
+  "warn": 2,
   "error": 2,
   "errors": [
     {
-      "file": "runner_image_watch.yml",
+      "file": "dns_blocklist_finder.yml",
       "check": "persist-credentials fehlt",
       "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
     },
     {
-      "file": "Production Health",
-      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
-      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 34.120.68.241, 34.120.68.241 \u2013 Filterung wirkungslos!"
-    },
-    {
-      "file": "Production Health",
-      "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
-      "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 34.120.68.241 \u2013 Filterung wirkungslos!"
-    },
-    {
-      "file": "Production Health",
-      "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
-      "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 34.120.68.241, 34.120.68.241 \u2013 Filterung wirkungslos!"
+      "file": "runner_image_watch.yml",
+      "check": "persist-credentials fehlt",
+      "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
     }
   ],
   "warnings": [
+    {
+      "file": "dns_blocklist_finder.yml",
+      "check": "Git Push ohne Retry-Schleife",
+      "detail": "git push ohne Retry-Schleife \u2013 Race-Condition bei parallelen Runs (kein 'for attempt in ...')"
+    },
+    {
+      "file": "dns_blocklist_finder.yml",
+      "check": "Kein expliziter Leerungsschutz",
+      "detail": "Externer Feed/Report ohne explizite MIN_* Guard-Variable \u2013 M\u00fcll-/Leer-Daten k\u00f6nnten unbemerkt akzeptiert werden"
+    },
+    {
+      "file": "dns_blocklist_finder.yml",
+      "check": "Action nicht SHA-pinned",
+      "detail": "uses: actions/checkout@v5 \u2013 Tag statt SHA-Hash (Supply-Chain-Risiko)"
+    },
+    {
+      "file": "dns_blocklist_finder.yml",
+      "check": "Action nicht SHA-pinned",
+      "detail": "uses: actions/upload-artifact@v4 \u2013 Tag statt SHA-Hash (Supply-Chain-Risiko)"
+    },
+    {
+      "file": "dns_blocklist_finder.yml",
+      "check": "Node24 env fehlt",
+      "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
+    },
     {
       "file": "netshield_report_generator.yml",
       "check": "Doppelter Import",
@@ -40,7 +55,7 @@
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "4471246b123ef8e331c2523f237776243aeb1d9d",
+    "sha": "b22971d5a4ebe705a4f7b411e91cc442a517196e",
     "status": "passed",
     "tests_run": 460,
     "failures": [],
@@ -52,36 +67,21 @@
     "detail": "460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5940196,
-    "active_blacklist_ipv4.txt": 900136,
-    "blacklist_confidence40_ipv4_part1.txt": 4368764,
-    "cve_exploit_ips.txt": 27362,
-    "honeypot_ips.txt": 2289592,
-    "bot_detector_blacklist_ipv4.txt": 1152301
+    "combined_threat_blacklist_ipv4_part1.txt": 5952488,
+    "active_blacklist_ipv4.txt": 921389,
+    "blacklist_confidence40_ipv4_part1.txt": 4378577,
+    "cve_exploit_ips.txt": 27365,
+    "honeypot_ips.txt": 2180401,
+    "bot_detector_blacklist_ipv4.txt": 1152801
   },
   "production_health": {
-    "critical": 3,
+    "critical": 0,
     "warn": 1,
     "checks": [
       {
         "level": "WARN",
         "check": "Feed-Ausf\u00e4lle",
         "detail": "3 von 100 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure"
-      },
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
-        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 34.120.68.241, 34.120.68.241 \u2013 Filterung wirkungslos!"
-      },
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
-        "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 34.120.68.241 \u2013 Filterung wirkungslos!"
-      },
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
-        "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 34.120.68.241, 34.120.68.241 \u2013 Filterung wirkungslos!"
       }
     ]
   },
