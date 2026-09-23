@@ -1,14 +1,29 @@
 {
-  "updated": "2026-09-23 00:04 CEST (Europe/Berlin)",
+  "updated": "2026-09-23 07:57 CEST (Europe/Berlin)",
   "total": 31,
   "ok": 29,
-  "warn": 2,
-  "error": 1,
+  "warn": 1,
+  "error": 2,
   "errors": [
     {
       "file": "runner_image_watch.yml",
       "check": "persist-credentials fehlt",
       "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
+    },
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 34.120.68.241, 34.120.68.241 \u2013 Filterung wirkungslos!"
+    },
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
+      "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 34.120.68.241 \u2013 Filterung wirkungslos!"
+    },
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
+      "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 34.120.68.241, 34.120.68.241 \u2013 Filterung wirkungslos!"
     }
   ],
   "warnings": [
@@ -20,12 +35,12 @@
     {
       "file": "Production Health",
       "check": "Feed-Ausf\u00e4lle",
-      "detail": "2 von 100 Feeds ausgefallen: abuseipdb_tmiland, fortigate_azure"
+      "detail": "3 von 100 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure"
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "c475b5a8ffb0dc86de61f9aa7888aaa2a8bb7f68",
+    "sha": "4471246b123ef8e331c2523f237776243aeb1d9d",
     "status": "passed",
     "tests_run": 460,
     "failures": [],
@@ -37,21 +52,36 @@
     "detail": "460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5938560,
-    "active_blacklist_ipv4.txt": 960356,
-    "blacklist_confidence40_ipv4_part1.txt": 4369956,
-    "cve_exploit_ips.txt": 27466,
-    "honeypot_ips.txt": 2289220,
-    "bot_detector_blacklist_ipv4.txt": 1142413
+    "combined_threat_blacklist_ipv4_part1.txt": 5940196,
+    "active_blacklist_ipv4.txt": 900136,
+    "blacklist_confidence40_ipv4_part1.txt": 4368764,
+    "cve_exploit_ips.txt": 27362,
+    "honeypot_ips.txt": 2289592,
+    "bot_detector_blacklist_ipv4.txt": 1152301
   },
   "production_health": {
-    "critical": 0,
+    "critical": 3,
     "warn": 1,
     "checks": [
       {
         "level": "WARN",
         "check": "Feed-Ausf\u00e4lle",
-        "detail": "2 von 100 Feeds ausgefallen: abuseipdb_tmiland, fortigate_azure"
+        "detail": "3 von 100 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 34.120.68.241, 34.120.68.241 \u2013 Filterung wirkungslos!"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
+        "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 34.120.68.241 \u2013 Filterung wirkungslos!"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
+        "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 34.120.68.241, 34.120.68.241 \u2013 Filterung wirkungslos!"
       }
     ]
   },

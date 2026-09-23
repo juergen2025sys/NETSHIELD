@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-23 00:04 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-23 07:57 CEST (Europe/Berlin)
 
-**Workflows:** 31 | ✅ 29 OK | ⚠️ 2 Warnung | ❌ 1 Fehler
+**Workflows:** 31 | ✅ 29 OK | ⚠️ 1 Warnung | ❌ 2 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `c475b5a8ffb0dc86de61f9aa7888aaa2a8bb7f68`
+✅ Commit: `4471246b123ef8e331c2523f237776243aeb1d9d`
 
 460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -17,21 +17,27 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | Datei | Check | Detail |
 |---|---|---|
 | `runner_image_watch.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
+| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 34.120.68.241, 34.120.68.241 – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 34.120.68.241 – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 34.120.68.241, 34.120.68.241 – Filterung wirkungslos! |
 
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
 | `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
-| `Production Health` | Feed-Ausfälle | 2 von 100 Feeds ausgefallen: abuseipdb_tmiland, fortigate_azure |
+| `Production Health` | Feed-Ausfälle | 3 von 100 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 3 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🟡 WARN | Feed-Ausfälle | 2 von 100 Feeds ausgefallen: abuseipdb_tmiland, fortigate_azure |
+| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 34.120.68.241, 34.120.68.241 – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 34.120.68.241 – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 34.120.68.241, 34.120.68.241 – Filterung wirkungslos! |
+| 🟡 WARN | Feed-Ausfälle | 3 von 100 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
 
 ## Übersicht
 
@@ -70,4 +76,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-23 00:04 CEST (Europe/Berlin) | 31 Workflow-Dateien geprüft*
+*Generiert: 2026-09-23 07:57 CEST (Europe/Berlin) | 31 Workflow-Dateien geprüft*
