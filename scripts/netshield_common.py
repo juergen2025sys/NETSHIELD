@@ -961,6 +961,50 @@ def _is_in_ipv6_token(line, start, end):
 
 
 
+def _parse_scored_threat_csv(text, source_hint, ip_check):
+    """FFraud-style score CSV: same policy in discovery, refresh and Combined.
+
+    Other providers' scores have different meanings and are not inferred.
+    None means this is a different format; a recognized bad schema fails closed.
+    """
+    import csv
+    import io
+    from urllib.parse import urlsplit
+    lines = (line for line in io.StringIO(text.lstrip("\ufeff"))
+             if line.strip() and not line.lstrip().startswith(("#", ";", "//")))
+    rows = csv.DictReader(lines)
+    fields = rows.fieldnames or []
+    fields = [field.strip().lower() for field in fields]
+    rows.fieldnames = fields
+    try:
+        hint_path = urlsplit(str(source_hint)).path.lower()
+    except ValueError:
+        hint_path = ""
+    expected = "ffraud-com/ip-fraud-database/" in hint_path and hint_path.endswith("confirmed-abusive.csv")
+    if "ffraud_score" not in fields and not expected:
+        return None
+    required = {"ip", "ffraud_score", "confirmations", "category"}
+    if not required.issubset(fields):
+        return set()  # Schema drift: never fall through to unrestricted IP extraction.
+    allowed = {"c2", "malware", "botnet", "brute_force", "web_attack", "phishing"}
+    result = set()
+    for row in rows:
+        try:
+            score = int(row.get("ffraud_score") or "")
+            confirmations = int(row.get("confirmations") or "")
+        except (ValueError, TypeError):
+            continue
+        if not (90 <= score <= 100 and confirmations >= 2
+                and (row.get("category") or "").strip().lower() in allowed):
+            continue
+        value = (row.get("ip") or "").strip()
+        if not re.fullmatch(r"\d{1,3}(?:\.\d{1,3}){3}", value):
+            continue
+        if is_valid_public_ipv4(value) and ip_check(value):
+            result.add(value)
+    return result
+
+
 def parse_feed_entries(text, source_hint="", use_protected_check=False):
     """Formatbewusster Zentral-Parser fuer externe IP-/Firewall-Feeds.
 
@@ -1011,6 +1055,14 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
         return set()
 
     stripped = text.strip()
+    # Inspect the first data line only; do not parse huge JSON/plain feeds as CSV.
+    import io as _scored_io
+    _first = next((line for line in _scored_io.StringIO(stripped.lstrip("\ufeff"))
+                   if line.strip() and not line.lstrip().startswith(("#", ";", "//"))), "")
+    if "ffraud_score" in _first.lower() or "ffraud-com/ip-fraud-database/" in str(source_hint).lower():
+        scored = _parse_scored_threat_csv(stripped, source_hint, ip_check)
+        if scored is not None:
+            return scored
     hint = str(source_hint or "").split("?", 1)[0].split("#", 1)[0].lower()
     if hint.endswith(".gz"):
         hint = hint[:-3]
