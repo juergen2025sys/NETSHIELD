@@ -1,9 +1,9 @@
 {
   "honeydb": {
-    "hash": "a6a8f842faa3e72b0bcb1dc99db408e54ceaad9a4940059b35eddab09802a3d5",
-    "last_changed_local": "2026-09-24 20:00 CEST (Berlin)",
-    "last_changed_utc": "2026-09-24T18:00:03.365343+00:00",
-    "raw_fetch_count": 12535,
+    "hash": "dfa1933406644c6ea3ed1068869217d296129c3574da694218deaf0144dc8292",
+    "last_changed_local": "2026-09-24 21:24 CEST (Berlin)",
+    "last_changed_utc": "2026-09-24T19:24:42.623025+00:00",
+    "raw_fetch_count": 12549,
     "run_mode": "LIGHT",
     "unchanged_runs": 0
   }
