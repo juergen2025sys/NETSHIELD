@@ -1,6 +1,6 @@
 # Auto-Feed Live Refresh – Report
 
-**Aktualisiert:** 2026-09-24 12:28 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-24 12:36 CEST (Europe/Berlin)
 
 | Metrik | Wert |
 |---|---:|
@@ -10,7 +10,7 @@
 | Ohne Daten/Fallback | 0 |
 | Proxy/Bot/Scanner ausgeschlossen | 52 |
 | I-BlockList ausgeschlossen | 8 |
-| Feed-Treffer (IP/CIDR × Feed) | 5,905,102 |
+| Feed-Treffer (IP/CIDR × Feed) | 5,905,101 |
 | Eindeutige IP/CIDR-Eintraege | 2,934,451 |
 | Neu ggü. vorherigem Snapshot | 0 |
 | Entfernt ggü. vorherigem Snapshot | 0 |
