@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-09-24 22:48 CEST (Europe/Berlin)
+Lauf: 2026-09-24 23:55 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -9,7 +9,7 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | Liste | Anzahl |
 |---|---:|
 | Watchlist (30-Tage-Pfad) | 3869 |
-| Active (180-Tage-Pfad) | 865856 |
+| Active (180-Tage-Pfad) | 865837 |
 
 ## Live-Fortschritt (heute + nächste Tage)
 
@@ -88,21 +88,20 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +1,627 (Anstieg) (jetzt 11,647,495 IPs)
-- Seit Zyklus-Start (2026-09-22): 📈 +169,776 (Anstieg)
-- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 951,799 neue IPs hinzugekommen (davon 827,260 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 18 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 123,110 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 7,574,805 (Summe letzte 8 Läufe / ~24h)
+- Seit letztem Lauf: 📈 +2,632 (Anstieg) (jetzt 11,650,127 IPs)
+- Seit Zyklus-Start (2026-09-22): 📈 +172,408 (Anstieg)
+- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 955,713 neue IPs hinzugekommen (davon 830,488 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 246 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 122,791 CIDR-Aggregate)
+- Neue IPs (Summe letzter Läufe): 7,595,073 (Summe letzte 8 Läufe / ~24h)
 - Entfernte IPs (Summe letzter Läufe): 0 (Summe letzte 8 Läufe / ~24h)
   - davon Watchlist/30 Tage: 0 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +39,725 (~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-09-24T05:07 bis 2026-09-24T18:02 UTC
+- Netto-Wachstum (~24h): 📈 +36,479 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-09-24T07:53 bis 2026-09-24T21:49 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-09-22 15:24 CEST (Europe/Berlin) | 11,516,051 | 3986 | 836845 | 0 |
 | 2026-09-22 19:28 CEST (Europe/Berlin) | 11,524,945 | 3986 | 836801 | 0 |
 | 2026-09-22 23:14 CEST (Europe/Berlin) | 11,528,125 | 3986 | 836790 | 0 |
 | 2026-09-22 23:44 CEST (Europe/Berlin) | 11,533,264 | 3984 | 836735 | 0 |
@@ -122,3 +121,4 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-09-24 19:34 CEST (Europe/Berlin) | 11,645,868 | 3869 | 865867 | 0 |
 | 2026-09-24 19:40 CEST (Europe/Berlin) | 11,645,868 | 3869 | 865867 | 0 |
 | 2026-09-24 22:48 CEST (Europe/Berlin) | 11,647,495 | 3869 | 865856 | 0 |
+| 2026-09-24 23:55 CEST (Europe/Berlin) | 11,650,127 | 3869 | 865837 | 0 |
