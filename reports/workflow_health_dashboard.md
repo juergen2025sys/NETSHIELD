@@ -1,6 +1,6 @@
 # Workflow Health Dashboard
 
-**Stand:** 2026-09-24 13:39 CEST (Europe/Berlin)
+**Stand:** 2026-09-24 19:05 CEST (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
@@ -8,35 +8,34 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 12 / 8 erwartet
+- **Echte Combined-Runs:** 14 / 8 erwartet
 - **Skip-Runs (Idempotenz-Guard):** 10
 - **Lucken (>210min zwischen echten Runs):** 1
   - 2026-09-24 02:49 CEST (Europe/Berlin) -> 2026-09-24 06:34 CEST (Europe/Berlin) (224 min)
 
 ## Letzte 7 Tage
 
-- **Echte Combined-Runs:** 71
-- **Skip-Runs:** 73
-- **Fehlgeschlagene Runs:** 6
-- **Lucken >210min:** 8
+- **Echte Combined-Runs:** 73
+- **Skip-Runs:** 75
+- **Fehlgeschlagene Runs:** 5
+- **Lucken >210min:** 7
 - **Groesste Lucke:** 2026-09-23 02:10 CEST (Europe/Berlin) -> 2026-09-23 06:35 CEST (Europe/Berlin) (265 min = 4h 25min)
 
 ## Watchdog (letzte 7 Tage)
 
 - **Watchdog-Laeufe insgesamt:** 308
 - **Watchdog-Fehler:** 0
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 55
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 58
 
 Letzte Watchdog-Eingriffe:
-- 2026-09-24 01:07 CEST (Europe/Berlin) (Run #35932007836, Laufzeit 19m 14s)
-- 2026-09-24 02:29 CEST (Europe/Berlin) (Run #35938650267, Laufzeit 20m 19s)
-- 2026-09-24 08:46 CEST (Europe/Berlin) (Run #35966150713, Laufzeit 24m 18s)
-- 2026-09-24 09:53 CEST (Europe/Berlin) (Run #35972099388, Laufzeit 18m 58s)
 - 2026-09-24 12:24 CEST (Europe/Berlin) (Run #35986998550, Laufzeit 19m 39s)
+- 2026-09-24 14:30 CEST (Europe/Berlin) (Run #35999512759, Laufzeit 20m 53s)
+- 2026-09-24 14:58 CEST (Europe/Berlin) (Run #36002512490, Laufzeit 21m 0s)
+- 2026-09-24 17:25 CEST (Europe/Berlin) (Run #36020068196, Laufzeit 20m 8s)
+- 2026-09-24 18:35 CEST (Europe/Berlin) (Run #36028451893, Laufzeit 16m 54s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
-- 2026-09-17 18:50 CEST (Europe/Berlin) - cancelled - Run #35249032902 (88m 18s)
 - 2026-09-17 20:26 CEST (Europe/Berlin) - cancelled - Run #35258785082 (28m 26s)
 - 2026-09-18 20:39 CEST (Europe/Berlin) - cancelled - Run #35381409864 (9m 20s)
 - 2026-09-19 11:44 CEST (Europe/Berlin) - failure - Run #35435507912 (13m 38s)
