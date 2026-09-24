@@ -1,8 +1,8 @@
 {
-  "updated": "2026-09-24 08:09 CEST (Europe/Berlin)",
+  "updated": "2026-09-24 14:43 CEST (Europe/Berlin)",
   "total": 32,
-  "ok": 29,
-  "warn": 2,
+  "ok": 28,
+  "warn": 3,
   "error": 2,
   "errors": [
     {
@@ -17,6 +17,11 @@
     }
   ],
   "warnings": [
+    {
+      "file": "auto_feed_discovery.yml",
+      "check": "Doppelter Import",
+      "detail": "Block 0: Doppelte Imports: ((2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
+    },
     {
       "file": "dns_blocklist_finder.yml",
       "check": "Git Push ohne Retry-Schleife",
@@ -55,24 +60,24 @@
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "4c9449ebd18b2a50a1818684086ff76ab897365d",
+    "sha": "c88d1ac2608064a225ba82b7ae68a0cc8c8e5b49",
     "status": "passed",
-    "tests_run": 460,
+    "tests_run": 470,
     "failures": [],
     "errors": [],
     "skipped": [],
     "unexpected_successes": [],
     "missing_required": [],
     "required_not_passed": [],
-    "detail": "460 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
+    "detail": "470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5976312,
-    "active_blacklist_ipv4.txt": 931958,
-    "blacklist_confidence40_ipv4_part1.txt": 4398737,
-    "cve_exploit_ips.txt": 27258,
-    "honeypot_ips.txt": 2162206,
-    "bot_detector_blacklist_ipv4.txt": 1154925
+    "combined_threat_blacklist_ipv4_part1.txt": 5985294,
+    "active_blacklist_ipv4.txt": 951000,
+    "blacklist_confidence40_ipv4_part1.txt": 4403567,
+    "cve_exploit_ips.txt": 27266,
+    "honeypot_ips.txt": 2180915,
+    "bot_detector_blacklist_ipv4.txt": 1155023
   },
   "production_health": {
     "critical": 0,
