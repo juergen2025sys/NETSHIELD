@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-09-24 06:57 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-24 08:18 CEST (Europe/Berlin)
 
 ---
 ## 📊 Listen-Übersicht
@@ -10,21 +10,21 @@
 | ✅ [active_blacklist_ipv4.txt](../active_blacklist_ipv4.txt) | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **931,958** | 2026-09-24 06:47 CEST (Europe/Berlin) |
 | ✅ [blacklist_confidence40_ipv4_part1.txt](../blacklist_confidence40_ipv4_part1.txt) + [blacklist_confidence40_ipv4_part2.txt](../blacklist_confidence40_ipv4_part2.txt) | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **8,797,473** | 2026-09-24 06:52 CEST (Europe/Berlin) |
 | ✅ [watchlist_confidence25to39_ipv4.txt](../watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25-39/100) | **2,809,572** | 2026-09-24 06:52 CEST (Europe/Berlin) |
-| ✅ [cve_exploit_ips.txt](../cve_exploit_ips.txt) | CVE Exploit IPs | **27,429** | 2026-09-24 01:14 CEST (Europe/Berlin) |
-| ✅ [bot_detector_blacklist_ipv4.txt](../bot_detector_blacklist_ipv4.txt) | Bot-Detector Blacklist | **1,153,519** | 2026-09-24 03:52 CEST (Europe/Berlin) |
-| ✅ [honeypot_ips.txt](../honeypot_ips.txt) | Honeypot IPs | **2,163,375** | 2026-09-24 03:52 CEST (Europe/Berlin) |
-| ✅ [honigtopf_ips.txt](../honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **15,252** | 2026-09-24 03:38 CEST (Europe/Berlin) |
+| ✅ [cve_exploit_ips.txt](../cve_exploit_ips.txt) | CVE Exploit IPs | **27,258** | 2026-09-24 07:12 CEST (Europe/Berlin) |
+| ✅ [bot_detector_blacklist_ipv4.txt](../bot_detector_blacklist_ipv4.txt) | Bot-Detector Blacklist | **1,154,925** | 2026-09-24 06:58 CEST (Europe/Berlin) |
+| ✅ [honeypot_ips.txt](../honeypot_ips.txt) | Honeypot IPs | **2,162,206** | 2026-09-24 06:58 CEST (Europe/Berlin) |
+| ✅ [honigtopf_ips.txt](../honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **15,495** | 2026-09-24 07:30 CEST (Europe/Berlin) |
 
 ---
 ## 🔍 Feed Health: ✅ 97 OK | ⚠️ 0 leer | ❌ 3 Fehler
 
 **❌ Ausgefallen:** `abuseipdb_tmiland`, `edanwong`, `fortigate_azure`
 
-**🧊 Eingefroren (3):** `ashleykleynhans_abuseipdb` 49T, `blacksnowdot_packets` 49T, `amitambekar_threats_aa` 30T
+**🧊 Eingefroren (3):** `ashleykleynhans_abuseipdb` 50T, `blacksnowdot_packets` 50T, `amitambekar_threats_aa` 31T
 
 *3 davon ≥21 Tage → im Combined automatisch in Quarantäne (eingefrorene HQ-Feeds zählen nicht mehr als frische Bestätigung, betroffene IPs altern normal aus). Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
 
-*Letzter Check: 2026-09-23 07:24 CEST (Europe/Berlin) – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
+*Letzter Check: 2026-09-24 07:41 CEST (Europe/Berlin) – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -32,4 +32,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-09-24 06:57 CEST (Europe/Berlin)*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-09-24 08:18 CEST (Europe/Berlin)*
