@@ -133,6 +133,9 @@ jobs:
           load_whitelist()
           load_fp_set()
 
+          from netshield_discovery import (
+              FEED_NAME_RE, prioritized_code_queries, external_feed_urls, has_feed_evidence,
+          )
           import urllib.request
           import urllib.error
           import urllib.parse
@@ -404,7 +407,7 @@ jobs:
                       row = _sqlite.execute(
                           "SELECT ip_count, ip_fingerprint, ip_blob "
                           "FROM feed_ip_cache WHERE url=? AND file_version=?",
-                          (url, file_version),
+                          (url, "parser-v3:" + file_version),
                       ).fetchone()
                   if not row:
                       return None
@@ -431,7 +434,7 @@ jobs:
                           "file_version=excluded.file_version, ip_count=excluded.ip_count, "
                           "ip_fingerprint=excluded.ip_fingerprint, ip_blob=excluded.ip_blob, "
                           "cached_at=excluded.cached_at",
-                          (url, file_version, len(ips), fp, sqlite3.Binary(blob), now_day),
+                          (url, "parser-v3:" + file_version, len(ips), fp, sqlite3.Binary(blob), now_day),
                       )
                       _sqlite.commit()
               except Exception as _e:
@@ -488,7 +491,7 @@ jobs:
           EXTERNAL_URL_RE = re.compile(r'https?://[^\s\'"<>()\[\]]+')
           # v2: groessere Feeds erneut pruefen + sichere Infrastruktur-Sublisten
           # aus bestehendem State entfernen.
-          CONTENT_SNIFF_STATE_VERSION = 2
+          CONTENT_SNIFF_STATE_VERSION = 3
 
           # ── Bekannte Repos – NICHT erneut aufnehmen ───────────────────────
           KNOWN_REPOS = {
@@ -726,6 +729,12 @@ jobs:
               # Dateinamen, es fehlte nur die Endung in der Whitelist unten.
               r')\.(?:txt|csv|tsv|json|jsonl|xml|yaml|yml|toml|ini|ipset|netset|list|lst|conf|cfg|sh|dat|rsc|acl|rules?|nft|iptables|pf|fw|block|deny)(?:\.gz)?$'
               r')'
+          )
+
+          # 2026-09-24: Confidence-CSV und externe Confidence-/Botnet-/Scanner-Listen.
+          IP_FILE_PATTERNS = re.compile(
+              "(?:" + IP_FILE_PATTERNS.pattern.replace("(?i)", "") + ")|(?:" + FEED_NAME_RE.pattern.replace("(?i)", "") + ")",
+              re.IGNORECASE,
           )
 
           # ── Inhaltsbasierter Fallback fuer neutrale Dateinamen ───────────
@@ -1522,6 +1531,9 @@ jobs:
               for pat in _HARD_REJECT_NAME_PATTERNS:
                   if pat in name:
                       return True
+
+              if has_feed_evidence(meta):
+                  return False  # Nur zur Inhaltspruefung zulassen; keine automatische Annahme.
 
               score = 0
 
@@ -2464,6 +2476,8 @@ jobs:
           # es geht um "neu", nicht um "erschoepfend".
           RECENT_REPOS_DAYS = 120
           RECENT_SEARCH_TERMS = [
+              # Prioritaet vor allgemeinen Treffern, falls das Laufzeitbudget greift.
+              "botnet-ip", "scanner-ip", "c2-infrastructure", "honeypot-threat-feed",
               "blocklist", "blacklist", "ip-blacklist", "ip-blocklist",
               "malicious-ip", "threat-intel", "threat-feed", "edl",
               "honeypot", "c2-tracker", "botnet-ip", "abuseipdb",
@@ -2488,7 +2502,7 @@ jobs:
           _recent_cutoff = (now - timedelta(days=RECENT_REPOS_DAYS)).strftime("%Y-%m-%d")
           _recent_found = 0
           print(f"\n── Schritt 2b: Kuerzlich erstellte Repos (seit {_recent_cutoff}) ──")
-          for _rterm in RECENT_SEARCH_TERMS:
+          for _rterm in dict.fromkeys(RECENT_SEARCH_TERMS):
               if _check_timeout("Recent-Repos-Suche"):
                   break
               _rdata = gh_api(
@@ -2680,7 +2694,8 @@ jobs:
           # Queries pro Lauf), voller Katalog jetzt alle 2 statt 3 Wochen.
           _CODE_CHUNK_COUNT = 2
           _code_chunk_idx = _iso_week % _CODE_CHUNK_COUNT
-          _code_chunk = SEARCH_CODE_QUERIES[_code_chunk_idx::_CODE_CHUNK_COUNT]
+          # Pro Lauf reservierte Botnet-/Scanner-/Format-Suchen, gleiches Request-Budget.
+          _code_chunk = prioritized_code_queries(SEARCH_CODE_QUERIES, _iso_week, _CODE_CHUNK_COUNT)
 
           if _check_timeout("Code-Search-Start"):
               print("\nCode-Search ÜBERSPRUNGEN: globales Laufzeitbudget bereits ausgeschöpft")
@@ -3001,6 +3016,9 @@ jobs:
 
           def _get_commit_date_for_feed(feed):
               """Letztes Commit-Datum der IP-Datei ermitteln (GitHub oder GitLab)."""
+              # README-Commits sind keine Feed-Version: externe Feeds immer frisch laden.
+              if feed.get("detected_by") == "external_url":
+                  return None
               _repo = feed.get("repo", "")
               _path = feed.get("file", "")
               _platform = feed.get("platform", "github")
@@ -4004,7 +4022,7 @@ jobs:
                       )
                       if not _src_text:
                           continue
-                      for _ext_url in EXTERNAL_URL_RE.findall(_src_text):
+                      for _ext_url in external_feed_urls(_src_text, IP_FILE_PATTERNS, limit=12):
                           _ext_url = _ext_url.rstrip('.,;:)\'"')
                           # FIX CRASH-GUARD-URLPARSE (2026-08-12): _ext_url
                           # kommt aus Freitext-READMEs FREMDER Repos (per
@@ -4038,7 +4056,7 @@ jobs:
                                   f"{_ext_url[:80]!r}")
                               continue
                           _ext_filename = _ext_path.split("/")[-1]
-                          if not _ext_filename or not IP_FILE_PATTERNS.search(_ext_filename):
+                          if not _ext_filename:
                               continue
                           if _is_non_threat_file(_ext_path):
                               continue
@@ -4577,6 +4595,8 @@ jobs:
                       "url":           f_url,
                       "repo":          full_name,
                       "file":          f_path,
+                      "detected_by":   (best_file.get("detected_by", "filename") if not f_name_suffix else "filename"),
+                      "external_source_file": (best_file.get("external_source_file", "") if not f_name_suffix else ""),
                       "platform":      _platform_res,
                       "added":         existing_feeds[_fname]["added"] if not _is_new and _fname in existing_feeds else now_day,
                       "last_checked":  now_day,
