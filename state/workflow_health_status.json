@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-25 00:20 CEST (Europe/Berlin)",
+  "updated": "2026-09-25 08:09 CEST (Europe/Berlin)",
   "total": 32,
   "ok": 28,
   "warn": 3,
@@ -55,12 +55,12 @@
     {
       "file": "Production Health",
       "check": "Feed-Ausf\u00e4lle",
-      "detail": "3 von 100 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure"
+      "detail": "3 von 104 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure"
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "a356fe118917e5824ee458bd3ae42bd139eb7033",
+    "sha": "056c4eb43fb5abb1b4f690fb26094cb91d72fbcb",
     "status": "passed",
     "tests_run": 470,
     "failures": [],
@@ -72,12 +72,12 @@
     "detail": "470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5998439,
-    "active_blacklist_ipv4.txt": 977647,
-    "blacklist_confidence40_ipv4_part1.txt": 4415894,
-    "cve_exploit_ips.txt": 27294,
-    "honeypot_ips.txt": 2201277,
-    "bot_detector_blacklist_ipv4.txt": 1156297
+    "combined_threat_blacklist_ipv4_part1.txt": 6001651,
+    "active_blacklist_ipv4.txt": 952946,
+    "blacklist_confidence40_ipv4_part1.txt": 4415829,
+    "cve_exploit_ips.txt": 27307,
+    "honeypot_ips.txt": 2174693,
+    "bot_detector_blacklist_ipv4.txt": 1154520
   },
   "production_health": {
     "critical": 0,
@@ -86,7 +86,7 @@
       {
         "level": "WARN",
         "check": "Feed-Ausf\u00e4lle",
-        "detail": "3 von 100 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure"
+        "detail": "3 von 104 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure"
       }
     ]
   },

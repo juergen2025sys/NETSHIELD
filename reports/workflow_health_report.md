@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-25 00:20 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-25 08:09 CEST (Europe/Berlin)
 
 **Workflows:** 32 | ✅ 28 OK | ⚠️ 3 Warnung | ❌ 2 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `a356fe118917e5824ee458bd3ae42bd139eb7033`
+✅ Commit: `056c4eb43fb5abb1b4f690fb26094cb91d72fbcb`
 
 470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -30,7 +30,7 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `dns_blocklist_finder.yml` | Action nicht SHA-pinned | uses: actions/upload-artifact@v4 – Tag statt SHA-Hash (Supply-Chain-Risiko) |
 | `dns_blocklist_finder.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
-| `Production Health` | Feed-Ausfälle | 3 von 100 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
+| `Production Health` | Feed-Ausfälle | 3 von 104 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
 
 ## 🏥 Production Health
 
@@ -38,7 +38,7 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 | Level | Check | Detail |
 |---|---|---|
-| 🟡 WARN | Feed-Ausfälle | 3 von 100 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
+| 🟡 WARN | Feed-Ausfälle | 3 von 104 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
 
 ## Übersicht
 
@@ -78,4 +78,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-25 00:20 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
+*Generiert: 2026-09-25 08:09 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
