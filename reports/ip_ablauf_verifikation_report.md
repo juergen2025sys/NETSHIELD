@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-09-25 17:33 CEST (Europe/Berlin)
+Lauf: 2026-09-25 19:40 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -8,8 +8,8 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 
 | Liste | Anzahl |
 |---|---:|
-| Watchlist (30-Tage-Pfad) | 3865 |
-| Active (180-Tage-Pfad) | 886560 |
+| Watchlist (30-Tage-Pfad) | 3864 |
+| Active (180-Tage-Pfad) | 886545 |
 
 ## Live-Fortschritt (heute + nächste Tage)
 
@@ -43,9 +43,9 @@ Beim Active-Pfad ist die Prognose die regulaer fuer diesen Tag erwartete Faellig
 
 ## Wiederauftauch-Prüfung
 
-ℹ️ **3,659 Treffer sind ein legitimer Watchlist-Tages-Cap-Backlog und kein Anti-Churn-Rückfall.** Der aktuelle Combined-State meldet 614,690 noch wartende 30-Tage-Kandidaten (State-Tag: 2026-09-25). Diese IPs stehen im Watchlist-Ledger, aber nicht in `active_blacklist_ipv4.txt`; sie duerfen bis zu einem spaeteren 2.000er-Tages-Slot voruebergehend im Output bleiben.
+ℹ️ **3,658 Treffer sind ein legitimer Watchlist-Tages-Cap-Backlog und kein Anti-Churn-Rückfall.** Der aktuelle Combined-State meldet 614,690 noch wartende 30-Tage-Kandidaten (State-Tag: 2026-09-25). Diese IPs stehen im Watchlist-Ledger, aber nicht in `active_blacklist_ipv4.txt`; sie duerfen bis zu einem spaeteren 2.000er-Tages-Slot voruebergehend im Output bleiben.
 
-✅ 0 echte Rückfälle nach Bereinigung - 3,659 erklaerte Watchlist-Cap-Backlog-Treffer. Sonst keine Auffaelligkeit. Der Fix haelt.
+✅ 0 echte Rückfälle nach Bereinigung - 3,658 erklaerte Watchlist-Cap-Backlog-Treffer. Sonst keine Auffaelligkeit. Der Fix haelt.
 
 ## Prognose-Genauigkeit (Vorhersage vs. Realität)
 
@@ -89,21 +89,20 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +1,494 (Anstieg) (jetzt 11,678,981 IPs)
-- Seit Zyklus-Start (2026-09-22): 📈 +201,262 (Anstieg)
-- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 949,717 neue IPs hinzugekommen (davon 827,383 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 6 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 121,036 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 7,659,369 (Summe letzte 8 Läufe / ~24h)
+- Seit letztem Lauf: 📈 +5,773 (Anstieg) (jetzt 11,684,754 IPs)
+- Seit Zyklus-Start (2026-09-22): 📈 +207,035 (Anstieg)
+- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 954,017 neue IPs hinzugekommen (davon 827,571 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 91 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 120,869 CIDR-Aggregate)
+- Neue IPs (Summe letzter Läufe): 7,661,587 (Summe letzte 8 Läufe / ~24h)
 - Entfernte IPs (Summe letzter Läufe): 22,902 (Summe letzte 8 Läufe / ~24h)
   - davon Watchlist/30 Tage: 2,000 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 20,902 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +31,486 (~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-09-24T17:24 bis 2026-09-25T14:06 UTC
+- Netto-Wachstum (~24h): 📈 +34,627 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-09-24T21:26 bis 2026-09-25T17:32 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-09-23 07:24 CEST (Europe/Berlin) | 11,535,965 | 3946 | 849733 | 0 |
 | 2026-09-23 11:33 CEST (Europe/Berlin) | 11,545,976 | 3946 | 849711 | 0 |
 | 2026-09-23 14:28 CEST (Europe/Berlin) | 11,559,763 | 3946 | 849623 | 0 |
 | 2026-09-23 16:29 CEST (Europe/Berlin) | 11,594,263 | 3946 | 849562 | 0 |
@@ -123,3 +122,4 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-09-25 12:10 CEST (Europe/Berlin) | 11,669,463 | 3866 | 886621 | 0 |
 | 2026-09-25 14:28 CEST (Europe/Berlin) | 11,677,487 | 3865 | 886566 | 0 |
 | 2026-09-25 17:33 CEST (Europe/Berlin) | 11,678,981 | 3865 | 886560 | 0 |
+| 2026-09-25 19:40 CEST (Europe/Berlin) | 11,684,754 | 3864 | 886545 | 0 |
