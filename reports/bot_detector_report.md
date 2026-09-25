@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-25 22:27 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-25 22:28 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,155,287** |
-| Neu (heute) | **+31** |
-| Entfernt | **-12** |
+| Gesamt IPs | **1,155,276** |
+| Neu (heute) | **+35** |
+| Entfernt | **-27** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 50 |
@@ -53,10 +53,10 @@
 | ✅ `gitrecon1455_fresh_proxy_list` | 212,420 |
 | ✅ `noctiro_getproxy` | 4,408 |
 | ✅ `noctiro_getproxy_socks5` | 4,042 |
-| ✅ `mohammedcha_proxripper` | 53,081 |
-| ✅ `mohammedcha_proxripper_socks4` | 113,543 |
-| ✅ `mohammedcha_proxripper_http` | 117,379 |
-| ✅ `mohammedcha_proxripper_socks5` | 116,659 |
+| ✅ `mohammedcha_proxripper` | 53,278 |
+| ✅ `mohammedcha_proxripper_socks4` | 113,574 |
+| ✅ `mohammedcha_proxripper_http` | 118,007 |
+| ✅ `mohammedcha_proxripper_socks5` | 116,658 |
 | ✅ `dinoz0rg_proxy_list` | 91,537 |
 | ✅ `dinoz0rg_proxy_list_http` | 1,703 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 92,353 |
@@ -75,4 +75,4 @@
 > Diese 50 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-25 22:27 CEST (Europe/Berlin)*
+*Generiert: 2026-09-25 22:28 CEST (Europe/Berlin)*
