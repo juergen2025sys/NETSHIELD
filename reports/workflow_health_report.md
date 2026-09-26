@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-26 19:07 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-26 23:57 CEST (Europe/Berlin)
 
 **Workflows:** 32 | ✅ 28 OK | ⚠️ 2 Warnung | ❌ 3 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `af195c5591968a387ba653d1b346e00c01054efb`
+✅ Commit: `26e900c9dbad8f0fab3bbf53499d81ced58f8984`
 
 470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -18,8 +18,9 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 |---|---|---|
 | `dns_blocklist_finder.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
 | `runner_image_watch.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
-| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 45.144.208.39, 45.144.208.39 – Filterung wirkungslos! |
-| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 45.144.208.39, 45.144.208.39 – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 3.126.246.180, 104.16.198.238, 104.16.199.238, 3.126.246.180, 104.16.198.238… – Filterung wirkungslos! |
+| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 6,947 IPs in active fehlen in conf40 (0.693% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| `Production Health` | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 3 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
 
 ## ⚠️ Warnungen
 
@@ -36,12 +37,13 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 3 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 45.144.208.39, 45.144.208.39 – Filterung wirkungslos! |
-| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 45.144.208.39, 45.144.208.39 – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 3.126.246.180, 104.16.198.238, 104.16.199.238, 3.126.246.180, 104.16.198.238… – Filterung wirkungslos! |
+| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 6,947 IPs in active fehlen in conf40 (0.693% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| 🔴 CRITICAL | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 3 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
 | 🟡 WARN | Feed-Ausfälle | 3 von 104 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
 
 ## Übersicht
@@ -82,4 +84,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-26 19:07 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
+*Generiert: 2026-09-26 23:57 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
