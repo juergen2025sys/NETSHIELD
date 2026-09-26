@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-26 14:13 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-26 19:07 CEST (Europe/Berlin)
 
-**Workflows:** 32 | ✅ 28 OK | ⚠️ 3 Warnung | ❌ 2 Fehler
+**Workflows:** 32 | ✅ 28 OK | ⚠️ 2 Warnung | ❌ 3 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `ec960c9577131cab305c605c8667da96aa45de22`
+✅ Commit: `af195c5591968a387ba653d1b346e00c01054efb`
 
 470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -18,6 +18,8 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 |---|---|---|
 | `dns_blocklist_finder.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
 | `runner_image_watch.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
+| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 45.144.208.39, 45.144.208.39 – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 45.144.208.39, 45.144.208.39 – Filterung wirkungslos! |
 
 ## ⚠️ Warnungen
 
@@ -34,10 +36,12 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 2 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
+| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 45.144.208.39, 45.144.208.39 – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 45.144.208.39, 45.144.208.39 – Filterung wirkungslos! |
 | 🟡 WARN | Feed-Ausfälle | 3 von 104 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
 
 ## Übersicht
@@ -78,4 +82,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-26 14:13 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
+*Generiert: 2026-09-26 19:07 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
