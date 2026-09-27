@@ -1,9 +1,9 @@
 {
-  "updated": "2026-09-27 15:00 CEST (Europe/Berlin)",
+  "updated": "2026-09-27 19:43 CEST (Europe/Berlin)",
   "total": 32,
   "ok": 28,
-  "warn": 3,
-  "error": 2,
+  "warn": 2,
+  "error": 3,
   "errors": [
     {
       "file": "dns_blocklist_finder.yml",
@@ -14,6 +14,16 @@
       "file": "runner_image_watch.yml",
       "check": "persist-credentials fehlt",
       "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
+    },
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 13.107.6.158, 20.190.159.130, 74.242.255.116, 104.18.160.117, 104.18.161.117\u2026 \u2013 Filterung wirkungslos!"
+    },
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
+      "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 74.242.255.116, 162.159.136.234, 150.171.27.11, 20.190.159.130, 74.242.255.116\u2026 \u2013 Filterung wirkungslos!"
     }
   ],
   "warnings": [
@@ -56,11 +66,21 @@
       "file": "Production Health",
       "check": "Feed-Ausf\u00e4lle",
       "detail": "3 von 104 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure"
+    },
+    {
+      "file": "Production Health",
+      "check": "Push-Limit Naehe",
+      "detail": "combined_threat_blacklist_ipv4_part1.txt: 80.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+    },
+    {
+      "file": "Production Health",
+      "check": "Push-Limit Naehe",
+      "detail": "combined_threat_blacklist_ipv4_part2.txt: 80.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "f81dec95b55cda5eb9409ffda2ce665e52d0aca3",
+    "sha": "63f6f4a4a202223a17bfe22605fd92abac473ef3",
     "status": "passed",
     "tests_run": 470,
     "failures": [],
@@ -72,21 +92,41 @@
     "detail": "470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 6068241,
-    "active_blacklist_ipv4.txt": 945390,
-    "blacklist_confidence40_ipv4_part1.txt": 4458003,
-    "cve_exploit_ips.txt": 26574,
-    "honeypot_ips.txt": 2178130,
-    "bot_detector_blacklist_ipv4.txt": 1141765
+    "combined_threat_blacklist_ipv4_part1.txt": 6072915,
+    "active_blacklist_ipv4.txt": 954623,
+    "blacklist_confidence40_ipv4_part1.txt": 4462247,
+    "cve_exploit_ips.txt": 26606,
+    "honeypot_ips.txt": 2216725,
+    "bot_detector_blacklist_ipv4.txt": 1142116
   },
   "production_health": {
-    "critical": 0,
-    "warn": 1,
+    "critical": 2,
+    "warn": 3,
     "checks": [
       {
         "level": "WARN",
         "check": "Feed-Ausf\u00e4lle",
         "detail": "3 von 104 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 13.107.6.158, 20.190.159.130, 74.242.255.116, 104.18.160.117, 104.18.161.117\u2026 \u2013 Filterung wirkungslos!"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
+        "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 74.242.255.116, 162.159.136.234, 150.171.27.11, 20.190.159.130, 74.242.255.116\u2026 \u2013 Filterung wirkungslos!"
+      },
+      {
+        "level": "WARN",
+        "check": "Push-Limit Naehe",
+        "detail": "combined_threat_blacklist_ipv4_part1.txt: 80.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      },
+      {
+        "level": "WARN",
+        "check": "Push-Limit Naehe",
+        "detail": "combined_threat_blacklist_ipv4_part2.txt: 80.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       }
     ]
   },
