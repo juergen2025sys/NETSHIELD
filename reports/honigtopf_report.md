@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-09-27 07:49 CEST (Berlin)  
+**Aktualisiert:** 2026-09-27 07:55 CEST (Berlin)  
 **Modus:** `LIGHT` (nur /bad-hosts, merged mit existing)
 
 ---
@@ -14,7 +14,7 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-09-27 07:49 CEST (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-09-27 07:49 CEST (Berlin) (1 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
@@ -39,11 +39,11 @@ Davon **heute (2026-09-27)**: **3,338** IPs
 | Gesamt Honigtopf-IPs | **14,894** |
 | Kandidaten dieses Abrufs | **14,894** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+1,480** |
+| Neu | **+0** |
 | Entfernt | **-0** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-09-27 07:49 CEST (Berlin)*
+*Generiert: 2026-09-27 07:55 CEST (Berlin)*
