@@ -1342,7 +1342,6 @@ jobs:
               "sefinek_malicious":          ("https://raw.githubusercontent.com/sefinek/Malicious-IP-Addresses/main/lists/main.txt", False),
               "magicteamc_bad_ips":         ("https://raw.githubusercontent.com/MagicTeaMC/bad-ips/refs/heads/main/bad-ips.txt", False),
               "ddrimus_http_threats":       ("https://raw.githubusercontent.com/ddrimus/http-threat-blocklist/refs/heads/main/blocklist.txt", False),
-              "blacksnowdot_packets":       ("https://raw.githubusercontent.com/BlacKSnowDot0/packetsdatabase-db/refs/heads/main/ip_list.txt", False),
               "freakuency_threatfeed":      ("https://raw.githubusercontent.com/FreakuencyFive/Public-IP-ThreatFeed/refs/heads/main/blacklist.txt", False),
               "ultimate_hosts_ips0":        ("https://raw.githubusercontent.com/Ultimate-Hosts-Blacklist/Ultimate.Hosts.Blacklist/refs/heads/master/ips/ips0.list", False),
               # ENTFERNT (2026-08-05): amitambekar_threats - 52 Tage unveraendert lt. Stale-Feed-Report (grosser Feed, ~140k Sample-IPs).

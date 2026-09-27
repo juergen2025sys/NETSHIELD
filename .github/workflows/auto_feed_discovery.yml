@@ -525,7 +525,7 @@ jobs:
               "actuallymentor/bluetack-ip-blacklist-generator", "sefinek/Malicious-IP-Addresses",
               "scriptzteam/AbuseIPDB-BlackList", "axllent/iplists",
               "mrlooker/Suspicious-IPs", "MagicTeaMC/bad-ips",
-              "ddrimus/http-threat-blocklist", "BlacKSnowDot0/packetsdatabase-db",
+              "ddrimus/http-threat-blocklist",
               "FreakuencyFive/Public-IP-ThreatFeed",
               "dolutech/blacklist-dolutech", "ZEROF/ipextractor",
               "bitwire-it/ipblocklist",
@@ -646,6 +646,9 @@ jobs:
           # mitbetroffen sind. Bei Bedarf einfach weitere Owner ergänzen.
           BLOCKED_OWNERS = {
               "gnxd3rftt2we",
+              # Dauerhaft gesperrt: Nutzerwunsch 2026-09-27. Keine Repos/Feeds
+              # dieses Owners jemals wieder automatisch aufnehmen.
+              "blacksnowdot0",
           }
 
           # ── Dateinamen-Muster für IP-Listen ───────────────────────────────
