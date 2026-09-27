@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-09-27 19:43 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-09-28 00:05 CEST (Europe/Berlin)
 
-**Workflows:** 32 | ✅ 28 OK | ⚠️ 2 Warnung | ❌ 3 Fehler
+**Workflows:** 32 | ✅ 28 OK | ⚠️ 3 Warnung | ❌ 2 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `63f6f4a4a202223a17bfe22605fd92abac473ef3`
+✅ Commit: `74a301766c8b3436250fd012eb7afe5ecdeb85b3`
 
 470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -18,8 +18,6 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 |---|---|---|
 | `dns_blocklist_finder.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
 | `runner_image_watch.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
-| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 13.107.6.158, 20.190.159.130, 74.242.255.116, 104.18.160.117, 104.18.161.117… – Filterung wirkungslos! |
-| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 74.242.255.116, 162.159.136.234, 150.171.27.11, 20.190.159.130, 74.242.255.116… – Filterung wirkungslos! |
 
 ## ⚠️ Warnungen
 
@@ -38,12 +36,10 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 3 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 3 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 13.107.6.158, 20.190.159.130, 74.242.255.116, 104.18.160.117, 104.18.161.117… – Filterung wirkungslos! |
-| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 74.242.255.116, 162.159.136.234, 150.171.27.11, 20.190.159.130, 74.242.255.116… – Filterung wirkungslos! |
 | 🟡 WARN | Feed-Ausfälle | 3 von 104 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
 | 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4_part1.txt: 80.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 | 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4_part2.txt: 80.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
@@ -86,4 +82,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-09-27 19:43 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
+*Generiert: 2026-09-28 00:05 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
