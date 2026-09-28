@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-09-28 01:58 CEST (Europe/Berlin)
+Lauf: 2026-09-28 02:10 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -95,18 +95,17 @@ _60 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 - Seit letztem Lauf: ➡️ unverändert (jetzt 11,802,966 IPs)
 - Seit Zyklus-Start (2026-09-22): 📈 +325,247 (Anstieg)
 - Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 921,966 neue IPs hinzugekommen (davon 794,453 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 155 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 121,630 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 7,443,727 (Summe letzte 8 Läufe / ~24h)
+- Neue IPs (Summe letzter Läufe): 7,433,198 (Summe letzte 8 Läufe / ~24h)
 - Entfernte IPs (Summe letzter Läufe): 16,988 (Summe letzte 8 Läufe / ~24h)
   - davon Watchlist/30 Tage: 2,000 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 14,988 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +29,481 (~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-09-27T05:08 bis 2026-09-27T21:38 UTC
+- Netto-Wachstum (~24h): 📈 +37,199 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 15/15 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt) | 1 sonstige, Zeitraum 2026-09-27T05:29 bis 2026-09-27T23:58 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-09-25 19:40 CEST (Europe/Berlin) | 11,684,754 | 3864 | 886545 | 0 |
 | 2026-09-25 21:33 CEST (Europe/Berlin) | 11,694,193 | 3864 | 886530 | 0 |
 | 2026-09-25 23:55 CEST (Europe/Berlin) | 11,696,626 | 3863 | 886525 | 0 |
 | 2026-09-26 02:26 CEST (Europe/Berlin) | 11,696,626 | 3863 | 886525 | 0 |
@@ -126,3 +125,4 @@ _60 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-09-27 23:18 CEST (Europe/Berlin) | 11,802,966 | 4003 | 918428 | 0 |
 | 2026-09-27 23:46 CEST (Europe/Berlin) | 11,802,966 | 4003 | 918428 | 0 |
 | 2026-09-28 01:58 CEST (Europe/Berlin) | 11,802,966 | 4003 | 918428 | 0 |
+| 2026-09-28 02:10 CEST (Europe/Berlin) | 11,802,966 | 4003 | 918428 | 0 |
