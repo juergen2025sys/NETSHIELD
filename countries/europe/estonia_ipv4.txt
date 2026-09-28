@@ -1,6 +1,6 @@
 # NETSHIELD – Estonia (EE) IPv4 Ranges
-# Aktualisiert: 2026-09-23 08:18 CEST (Europe/Berlin)
-# IP-Ranges: 493
+# Aktualisiert: 2026-09-28 09:23 CEST (Europe/Berlin)
+# IP-Ranges: 494
 
 2.57.220.0/22
 2.59.164.0/22
@@ -443,6 +443,7 @@
 194.213.18.0/24
 194.238.77.0/24
 195.8.204.0/23
+195.20.17.0/24
 195.20.151.0/24
 195.34.212.0/22
 195.42.102.0/23
