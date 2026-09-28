@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-28 07:41 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-28 09:15 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,144,942** |
-| Neu (heute) | **+19,411** |
-| Entfernt | **-16,578** |
+| Gesamt IPs | **1,144,745** |
+| Neu (heute) | **+205** |
+| Entfernt | **-402** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 49 |
@@ -20,43 +20,43 @@
 | Quelle | IPs |
 |---|---|
 | ✅ `turntuptechnologies_iocs_scanner` | 88 |
-| ✅ `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | 62,973 |
+| ✅ `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | 63,089 |
 | ✅ `openprx_prx_sd_signatures` | 119,229 |
 | ✅ `openprx_prx_sd_signatures_url_blocklist` | 352 |
-| ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,828 |
+| ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,811 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,849 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,766 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,750 |
-| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 3,040 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,738 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,741 |
+| ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,958 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,952 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,832 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,549 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,351 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,728 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 2,997 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,215 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,456 |
-| ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,173 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 872 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 693 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 716 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 625 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 400 |
+| ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,184 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 936 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 670 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 691 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 600 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 380 |
 | ✅ `officialputuid_proxyforeveryone` | 7,922 |
 | ✅ `officialputuid_proxyforeveryone_https` | 6,787 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 7,396 |
-| ✅ `ercindedeoglu_proxies` | 54,171 |
-| ✅ `ercindedeoglu_proxies_socks4` | 18,690 |
-| ✅ `ercindedeoglu_proxies_socks5` | 18,322 |
+| ✅ `ercindedeoglu_proxies` | 54,157 |
+| ✅ `ercindedeoglu_proxies_socks4` | 18,693 |
+| ✅ `ercindedeoglu_proxies_socks5` | 18,320 |
 | ✅ `tuanminpay_live_proxy` | 9,918 |
 | ✅ `tuanminpay_live_proxy_http` | 6,180 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,385 |
 | ✅ `tuanminpay_live_proxy_socks5` | 4,196 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 212,218 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 211,961 |
 | ✅ `noctiro_getproxy` | 4,041 |
 | ✅ `noctiro_getproxy_socks5` | 4,836 |
-| ✅ `mohammedcha_proxripper` | 53,469 |
-| ✅ `mohammedcha_proxripper_socks4` | 113,467 |
-| ✅ `mohammedcha_proxripper_http` | 117,333 |
-| ✅ `mohammedcha_proxripper_socks5` | 117,112 |
+| ✅ `mohammedcha_proxripper` | 53,552 |
+| ✅ `mohammedcha_proxripper_socks4` | 113,405 |
+| ✅ `mohammedcha_proxripper_http` | 117,434 |
+| ✅ `mohammedcha_proxripper_socks5` | 117,260 |
 | ✅ `dinoz0rg_proxy_list` | 91,438 |
 | ✅ `dinoz0rg_proxy_list_http` | 1,754 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 92,414 |
@@ -74,4 +74,4 @@
 > Diese 49 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-28 07:41 CEST (Europe/Berlin)*
+*Generiert: 2026-09-28 09:15 CEST (Europe/Berlin)*
