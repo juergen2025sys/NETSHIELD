@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-29 11:08 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-29 11:13 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,147,501** |
-| Neu (heute) | **+11** |
-| Entfernt | **-13** |
+| Gesamt IPs | **1,147,503** |
+| Neu (heute) | **+5** |
+| Entfernt | **-3** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 49 |
@@ -26,8 +26,8 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,820 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,850 |
-| ✅ `ebrasha_abdal_proxy_hub` | 6,755 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,748 |
+| ✅ `ebrasha_abdal_proxy_hub` | 6,757 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,750 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 3,116 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,952 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,528 |
@@ -35,11 +35,11 @@
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,146 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,459 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,180 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 757 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 604 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 721 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 596 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 603 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 554 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 360 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 543 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 354 |
 | ✅ `officialputuid_proxyforeveryone` | 7,922 |
 | ✅ `officialputuid_proxyforeveryone_https` | 6,787 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 7,396 |
@@ -74,4 +74,4 @@
 > Diese 49 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-29 11:08 CEST (Europe/Berlin)*
+*Generiert: 2026-09-29 11:13 CEST (Europe/Berlin)*
