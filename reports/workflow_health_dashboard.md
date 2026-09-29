@@ -1,6 +1,6 @@
 # Workflow Health Dashboard
 
-**Stand:** 2026-09-29 01:12 CEST (Europe/Berlin)
+**Stand:** 2026-09-29 07:37 CEST (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
@@ -8,32 +8,32 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 12 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 6
+- **Echte Combined-Runs:** 13 / 8 erwartet
+- **Skip-Runs (Idempotenz-Guard):** 7
 - **Lucken (>210min zwischen echten Runs):** 2
-  - 2026-09-28 02:19 CEST (Europe/Berlin) -> 2026-09-28 07:11 CEST (Europe/Berlin) (292 min)
   - 2026-09-28 11:27 CEST (Europe/Berlin) -> 2026-09-28 15:41 CEST (Europe/Berlin) (254 min)
+  - 2026-09-28 23:32 CEST (Europe/Berlin) -> 2026-09-29 03:06 CEST (Europe/Berlin) (214 min)
 
 ## Letzte 7 Tage
 
-- **Echte Combined-Runs:** 77
-- **Skip-Runs:** 65
+- **Echte Combined-Runs:** 78
+- **Skip-Runs:** 62
 - **Fehlgeschlagene Runs:** 2
 - **Lucken >210min:** 9
 - **Groesste Lucke:** 2026-09-27 08:51 CEST (Europe/Berlin) -> 2026-09-27 13:54 CEST (Europe/Berlin) (302 min = 5h 2min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 279
+- **Watchdog-Laeufe insgesamt:** 274
 - **Watchdog-Fehler:** 0
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 55
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 57
 
 Letzte Watchdog-Eingriffe:
-- 2026-09-28 17:46 CEST (Europe/Berlin) (Run #36446122281, Laufzeit 15m 37s)
-- 2026-09-28 18:06 CEST (Europe/Berlin) (Run #36448622291, Laufzeit 24m 40s)
 - 2026-09-28 19:04 CEST (Europe/Berlin) (Run #36455520770, Laufzeit 20m 32s)
 - 2026-09-28 19:50 CEST (Europe/Berlin) (Run #36461013026, Laufzeit 19m 47s)
 - 2026-09-28 20:17 CEST (Europe/Berlin) (Run #36464195880, Laufzeit 22m 4s)
+- 2026-09-29 03:55 CEST (Europe/Berlin) (Run #36510204008, Laufzeit 21m 30s)
+- 2026-09-29 04:45 CEST (Europe/Berlin) (Run #36514107594, Laufzeit 20m 56s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
