@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-09-29 18:12 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-09-29 18:16 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,149,587** |
-| Neu (heute) | **+0** |
-| Entfernt | **-0** |
+| Gesamt IPs | **1,149,594** |
+| Neu (heute) | **+12** |
+| Entfernt | **-5** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 49 |
@@ -30,16 +30,16 @@
 | ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,753 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 3,113 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,954 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,874 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,746 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 3,251 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,811 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,498 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 3,140 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,460 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,180 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 806 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 619 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 578 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 519 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 340 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 968 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 613 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 640 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 524 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 354 |
 | ✅ `officialputuid_proxyforeveryone` | 7,922 |
 | ✅ `officialputuid_proxyforeveryone_https` | 6,787 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 7,396 |
@@ -74,4 +74,4 @@
 > Diese 49 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-09-29 18:12 CEST (Europe/Berlin)*
+*Generiert: 2026-09-29 18:16 CEST (Europe/Berlin)*
