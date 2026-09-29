@@ -1,6 +1,6 @@
 # NETSHIELD Honigtopf IP Blocklist
-# Aktualisiert: 2026-09-29 10:51 CEST (Berlin)
-# Gesamt: 13675 | +64 neu | -78 entfernt
+# Aktualisiert: 2026-09-29 10:52 CEST (Berlin)
+# Gesamt: 13705 | +16 neu | -0 entfernt
 
 1.0.210.31
 1.23.99.229
@@ -10029,6 +10029,7 @@
 175.195.238.137
 175.197.48.231
 175.198.62.180
+175.202.119.17
 175.202.119.34
 175.202.171.88
 175.202.194.168
