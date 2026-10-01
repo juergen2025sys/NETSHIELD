@@ -1,0 +1,124 @@
+{
+  "updated": "2026-10-01 09:11 CEST (Europe/Berlin)",
+  "total": 32,
+  "ok": 28,
+  "warn": 3,
+  "error": 2,
+  "errors": [
+    {
+      "file": "dns_blocklist_finder.yml",
+      "check": "persist-credentials fehlt",
+      "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
+    },
+    {
+      "file": "runner_image_watch.yml",
+      "check": "persist-credentials fehlt",
+      "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
+    }
+  ],
+  "warnings": [
+    {
+      "file": "auto_feed_discovery.yml",
+      "check": "Doppelter Import",
+      "detail": "Block 0: Doppelte Imports: ((2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
+    },
+    {
+      "file": "dns_blocklist_finder.yml",
+      "check": "Git Push ohne Retry-Schleife",
+      "detail": "git push ohne Retry-Schleife \u2013 Race-Condition bei parallelen Runs (kein 'for attempt in ...')"
+    },
+    {
+      "file": "dns_blocklist_finder.yml",
+      "check": "Kein expliziter Leerungsschutz",
+      "detail": "Externer Feed/Report ohne explizite MIN_* Guard-Variable \u2013 M\u00fcll-/Leer-Daten k\u00f6nnten unbemerkt akzeptiert werden"
+    },
+    {
+      "file": "dns_blocklist_finder.yml",
+      "check": "Action nicht SHA-pinned",
+      "detail": "uses: actions/checkout@v7 \u2013 Tag statt SHA-Hash (Supply-Chain-Risiko)"
+    },
+    {
+      "file": "dns_blocklist_finder.yml",
+      "check": "Action nicht SHA-pinned",
+      "detail": "uses: actions/upload-artifact@v7 \u2013 Tag statt SHA-Hash (Supply-Chain-Risiko)"
+    },
+    {
+      "file": "dns_blocklist_finder.yml",
+      "check": "Node24 env fehlt",
+      "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
+    },
+    {
+      "file": "netshield_report_generator.yml",
+      "check": "Doppelter Import",
+      "detail": "Block 0: Doppelte Imports: ((2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
+    },
+    {
+      "file": "Production Health",
+      "check": "Feed-Ausf\u00e4lle",
+      "detail": "3 von 103 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure"
+    },
+    {
+      "file": "Production Health",
+      "check": "Push-Limit Naehe",
+      "detail": "combined_threat_blacklist_ipv4_part1.txt: 81.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+    },
+    {
+      "file": "Production Health",
+      "check": "Push-Limit Naehe",
+      "detail": "combined_threat_blacklist_ipv4_part2.txt: 81.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+    }
+  ],
+  "regression_tests": {
+    "schema": 1,
+    "sha": "f0940b6a1c4d5047bb85ff78767afa3f169231e1",
+    "status": "passed",
+    "tests_run": 470,
+    "failures": [],
+    "errors": [],
+    "skipped": [],
+    "unexpected_successes": [],
+    "missing_required": [],
+    "required_not_passed": [],
+    "detail": "470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
+  },
+  "ip_counts": {
+    "combined_threat_blacklist_ipv4_part1.txt": 6170020,
+    "active_blacklist_ipv4.txt": 956494,
+    "blacklist_confidence40_ipv4_part1.txt": 4531454,
+    "cve_exploit_ips.txt": 25762,
+    "honeypot_ips.txt": 2244329,
+    "bot_detector_blacklist_ipv4.txt": 1147739
+  },
+  "production_health": {
+    "critical": 0,
+    "warn": 3,
+    "checks": [
+      {
+        "level": "WARN",
+        "check": "Feed-Ausf\u00e4lle",
+        "detail": "3 von 103 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure"
+      },
+      {
+        "level": "WARN",
+        "check": "Push-Limit Naehe",
+        "detail": "combined_threat_blacklist_ipv4_part1.txt: 81.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      },
+      {
+        "level": "WARN",
+        "check": "Push-Limit Naehe",
+        "detail": "combined_threat_blacklist_ipv4_part2.txt: 81.3 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      }
+    ]
+  },
+  "parts_history": {
+    "combined_threat_blacklist_ipv4.txt": [
+      "combined_threat_blacklist_ipv4_part1.txt",
+      "combined_threat_blacklist_ipv4_part2.txt"
+    ],
+    "blacklist_confidence40_ipv4.txt": [
+      "blacklist_confidence40_ipv4_part1.txt",
+      "blacklist_confidence40_ipv4_part2.txt"
+    ],
+    "geo_enriched/blacklist_geo_enriched.json": []
+  }
+}

@@ -1,0 +1,566 @@
+name: Auto-Feed Live Refresh
+
+# Holt die von auto_feed_discovery.yml akzeptierten Feeds regelmaessig neu.
+# Der Report Generator triggert diesen Workflow stuendlich; der 02:15-UTC-Cron
+# bleibt als unabhaengiger Fallback. Wichtig: Dieser Workflow schreibt NICHT in
+# seen_db. Er erzeugt einen separaten SQLite-Snapshot mit (entry, feed), damit
+# Combined die ORIGINALEN Feed-Namen und damit today_count/Admission-Semantik
+# beibehaelt. Proxy/Bot/Crawler/Scanner-Feeds bleiben bei update_bot_detector.
+
+on:
+  schedule:
+    - cron: '15 2 * * *'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: write   # write noetig fuer 'gh cache delete' (Cache-Aufraeumung)
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+concurrency:
+  group: netshield-auto-feed-refresh
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Restore vorherigen Auto-Feed Snapshot
+        id: restore_auto_snapshot
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: state/auto_feed_daily.sqlite3
+          key: netshield-auto-feed-daily-v1-${{ github.run_id }}
+          restore-keys: |
+            netshield-auto-feed-daily-v1-
+
+      - name: defusedxml sicherstellen
+        run: |
+          pip install --quiet --disable-pip-version-check --break-system-packages defusedxml==0.7.1 2>/dev/null \
+            || pip install --quiet --disable-pip-version-check defusedxml==0.7.1
+
+      - name: Auto-Feeds laden und Snapshot bauen
+        id: refresh
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: |
+          python3 << 'PY'
+          import hashlib
+          import json
+          import os
+          import sqlite3
+          import sys
+          import time
+          import tempfile
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
+
+          sys.path.insert(0, "scripts")
+          from netshield_common import (
+              fetch_url,
+              is_bot_detector_feed_name,
+              is_in_fp_set,
+              is_whitelisted,
+              load_fp_set,
+              load_whitelist,
+              parse_feed_entries,
+              validate_auto_feeds,
+              write_text_atomic,
+          )
+
+          REGISTRY = "state/auto_discovered_feeds.json"
+          SNAPSHOT = "state/auto_feed_daily.sqlite3"
+          NEXT = "state/auto_feed_daily.next.sqlite3"
+          OUT_FILE = "auto_feed_blacklist_ipv4.txt"  # nur Kompatibilitaet/Einblick; Combined liest SQLite
+          REPORT = "reports/auto_feed_blacklist_report.md"
+          MAX_WORKERS = 12
+          MIN_UNIQUE = 50_000
+          MIN_FEED_SUCCESS_RATIO = 0.50
+          # Ein Fallback darf kurzfristige Feed-Ausfaelle ueberbruecken,
+          # aber niemals unbegrenzt alten Bestand konservieren. Die Frist
+          # muss mit dem Consumer in update_combined_blacklist.yml
+          # uebereinstimmen.
+          MAX_FALLBACK_AGE_SECONDS = 6 * 3600
+
+          load_whitelist()
+          load_fp_set()
+
+          if not os.path.exists(REGISTRY):
+              raise RuntimeError(f"{REGISTRY} fehlt - kein sicherer Refresh moeglich")
+          registry_bytes = open(REGISTRY, "rb").read()
+          registry_sha = hashlib.sha256(registry_bytes).hexdigest()
+          data = json.loads(registry_bytes.decode("utf-8"))
+          feeds, rejected = validate_auto_feeds(data)
+          if rejected:
+              print(f"WARN: {rejected} Registry-Eintraege wegen Schema/URL verworfen")
+
+          selected = []
+          proxy_excluded = []
+          iblock_excluded = []
+          for f in feeds:
+              name = f["name"]
+              if "iblocklist" in name.lower():
+                  iblock_excluded.append(name)
+                  continue
+              if is_bot_detector_feed_name(name, f.get("file", "")):
+                  proxy_excluded.append(name)
+                  continue
+              selected.append(f)
+          if not selected:
+              raise RuntimeError("0 verwertbare Auto-Feeds nach Filterung")
+
+          os.makedirs("state", exist_ok=True)
+          os.makedirs("reports", exist_ok=True)
+          try:
+              os.remove(NEXT)
+          except FileNotFoundError:
+              pass
+
+          new = sqlite3.connect(NEXT)
+          new.execute("PRAGMA journal_mode=TRUNCATE")
+          new.execute("PRAGMA synchronous=NORMAL")
+          new.execute("PRAGMA temp_store=FILE")
+          new.execute("CREATE TABLE hits(entry TEXT NOT NULL, feed TEXT NOT NULL, PRIMARY KEY(entry,feed)) WITHOUT ROWID")
+          new.execute("CREATE TABLE meta(key TEXT PRIMARY KEY, value TEXT NOT NULL) WITHOUT ROWID")
+          new.execute("CREATE TABLE feed_stats(feed TEXT PRIMARY KEY, entries INTEGER NOT NULL, status TEXT NOT NULL, last_success_epoch INTEGER) WITHOUT ROWID")
+
+          prev_attached = False
+          prev_generated_epoch = 0
+          prev_has_success_epoch = False
+          if os.path.exists(SNAPSHOT):
+              try:
+                  chk = sqlite3.connect(f"file:{SNAPSHOT}?mode=ro", uri=True)
+                  q = chk.execute("PRAGMA quick_check").fetchone()
+                  has_hits = chk.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='hits'").fetchone()
+                  try:
+                      prev_generated_epoch = int(dict(
+                          chk.execute("SELECT key,value FROM meta")
+                      ).get("generated_at_epoch", "0"))
+                  except (sqlite3.Error, TypeError, ValueError):
+                      prev_generated_epoch = 0
+                  try:
+                      prev_has_success_epoch = "last_success_epoch" in {
+                          row[1] for row in chk.execute("PRAGMA table_info(feed_stats)")
+                      }
+                  except sqlite3.Error:
+                      prev_has_success_epoch = False
+                  chk.close()
+                  if q and q[0] == "ok" and has_hits:
+                      new.execute("ATTACH DATABASE ? AS prev", (os.path.abspath(SNAPSHOT),))
+                      prev_attached = True
+                      print("Vorheriger Auto-Feed Snapshot gueltig - Fehlerfeeds werden "
+                            "innerhalb der 6h-Fallback-Frist konservativ erhalten")
+                  else:
+                      print("WARN: vorheriger Auto-Feed Snapshot ungueltig - kein Feed-Fallback")
+              except Exception as e:
+                  print(f"WARN: vorheriger Snapshot nicht nutzbar: {e}")
+
+          def fetch_one(feed):
+              name, url = feed["name"], feed["url"]
+              text = fetch_url(url, timeout=22, retries=2, user_agent="NETSHIELD/3.0")
+              if text is None:
+                  return name, None, "fetch_failed", None
+              entries = parse_feed_entries(text, source_hint=url, use_protected_check=True)
+              entries = {e for e in entries if not is_in_fp_set(e) and not is_whitelisted(e)}
+              if not entries:
+                  return name, None, "zero_entries", None
+              return name, entries, "ok", int(time.time())
+
+          results = {}
+          with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+              futs = {ex.submit(fetch_one, f): f["name"] for f in selected}
+              for fut in as_completed(futs):
+                  name = futs[fut]
+                  try:
+                      n, entries, status, fetched_epoch = fut.result()
+                  except Exception as e:
+                      n, entries, status, fetched_epoch = name, None, f"exception:{type(e).__name__}", None
+                  results[n] = (entries, status, fetched_epoch)
+                  if entries is not None:
+                      print(f"OK  {n}: {len(entries):,} Eintraege")
+                  else:
+                      print(f"WARN {n}: {status}")
+
+          ok_feeds = 0
+          fallback_feeds = 0
+          failed_without_fallback = []
+          data_epochs = []
+          fallback_cutoff_epoch = int(time.time()) - MAX_FALLBACK_AGE_SECONDS
+          for f in selected:
+              name = f["name"]
+              entries, status, fetched_epoch = results.get(
+                  name, (None, "missing_result", None))
+              if entries is not None:
+                  new.executemany("INSERT OR IGNORE INTO hits(entry,feed) VALUES (?,?)", ((e, name) for e in entries))
+                  new.execute(
+                      "INSERT OR REPLACE INTO feed_stats(feed,entries,status,last_success_epoch) VALUES (?,?,?,?)",
+                      (name, len(entries), "ok", fetched_epoch),
+                  )
+                  if fetched_epoch:
+                      data_epochs.append(fetched_epoch)
+                  ok_feeds += 1
+              elif prev_attached:
+                  try:
+                      cnt = new.execute("SELECT COUNT(*) FROM prev.hits WHERE feed=?", (name,)).fetchone()[0]
+                  except sqlite3.Error:
+                      cnt = 0
+                  if cnt:
+                      previous_success_epoch = None
+                      try:
+                          if prev_has_success_epoch:
+                              previous_success_epoch = new.execute(
+                                  "SELECT last_success_epoch FROM prev.feed_stats WHERE feed=?",
+                                  (name,),
+                              ).fetchone()[0]
+                          else:
+                              previous_success_epoch = prev_generated_epoch or None
+                      except (sqlite3.Error, TypeError, ValueError):
+                          previous_success_epoch = prev_generated_epoch or None
+                      new.execute("INSERT OR IGNORE INTO hits(entry,feed) SELECT entry,feed FROM prev.hits WHERE feed=?", (name,))
+                      new.execute(
+                          "INSERT OR REPLACE INTO feed_stats(feed,entries,status,last_success_epoch) VALUES (?,?,?,?)",
+                          (name, cnt, "fallback_previous", previous_success_epoch),
+                      )
+                      if previous_success_epoch:
+                          try:
+                              previous_success_epoch = int(previous_success_epoch)
+                          except (TypeError, ValueError):
+                              previous_success_epoch = None
+                      # Ein alter Fallback darf nicht als normaler Feed-Treffer
+                      # weitergereicht werden. Er wird deshalb verworfen und
+                      # als fehlender Feed dokumentiert. Gueltige Fallbacks
+                      # bleiben fuer Recovery erhalten, behalten aber ihren
+                      # alten last_success_epoch.
+                      if (previous_success_epoch is None
+                              or previous_success_epoch < fallback_cutoff_epoch
+                              or previous_success_epoch > int(time.time())):
+                          failed_without_fallback.append(name)
+                          # FIX F1-FALLBACK-EXPIRED-LEAK (2026-09-12): Die
+                          # Treffer dieses Feeds wurden oben bereits per
+                          # "INSERT OR IGNORE INTO hits ... FROM prev.hits"
+                          # kopiert - BEVOR das Alter geprueft wurde. Der
+                          # Kommentar darueber sagt "wird deshalb verworfen",
+                          # aber verworfen wurde nur die Statistikzeile
+                          # (entries=0, status=fallback_expired); die Zeilen in
+                          # "hits" blieben stehen. Folge: die abgelaufenen IPs
+                          # zaehlten weiter fuer hit_count/unique_count/
+                          # active_feed_count, halfen den Leerungsschutz
+                          # (MIN_UNIQUE) zu erfuellen und landeten in der
+                          # veroeffentlichten auto_feed_blacklist_ipv4.txt.
+                          # Die Snapshot-Validierung uebersah das, weil sie
+                          # Statistikzeilen mit entries <= 0 ueberspringt.
+                          # Combined ist NICHT betroffen - der filtert beim
+                          # Import bereits auf status=ok und entries>0.
+                          new.execute("DELETE FROM hits WHERE feed=?", (name,))
+                          new.execute(
+                              "INSERT OR REPLACE INTO feed_stats(feed,entries,status,last_success_epoch) VALUES (?,?,?,?)",
+                              (name, 0, "fallback_expired", previous_success_epoch),
+                          )
+                          continue
+                      data_epochs.append(previous_success_epoch)
+                      fallback_feeds += 1
+                      continue
+                  failed_without_fallback.append(name)
+                  new.execute(
+                      "INSERT OR REPLACE INTO feed_stats(feed,entries,status,last_success_epoch) VALUES (?,?,?,?)",
+                      (name, 0, status, None),
+                  )
+              else:
+                  failed_without_fallback.append(name)
+                  new.execute(
+                      "INSERT OR REPLACE INTO feed_stats(feed,entries,status,last_success_epoch) VALUES (?,?,?,?)",
+                      (name, 0, status, None),
+                  )
+
+          new.commit()
+          hit_count = new.execute("SELECT COUNT(*) FROM hits").fetchone()[0]
+          unique_count = new.execute("SELECT COUNT(DISTINCT entry) FROM hits").fetchone()[0]
+          active_feed_count = new.execute("SELECT COUNT(DISTINCT feed) FROM hits").fetchone()[0]
+          success_ratio = ok_feeds / max(1, len(selected))
+
+          if unique_count < MIN_UNIQUE:
+              raise RuntimeError(f"Leerungsschutz: nur {unique_count:,} eindeutige Eintraege (<{MIN_UNIQUE:,})")
+          if success_ratio < MIN_FEED_SUCCESS_RATIO and not prev_attached:
+              raise RuntimeError(f"Zu wenige erfolgreiche Feeds: {ok_feeds}/{len(selected)} ({success_ratio:.1%})")
+
+          now_epoch = int(time.time())
+          now_berlin = datetime.now(timezone.utc).astimezone(ZoneInfo("Europe/Berlin"))
+          # The snapshot timestamp describes the data, not the moment at
+          # which a failed refresh copied old rows.  A fallback therefore
+          # keeps its old timestamp and cannot make stale hits look fresh.
+          data_epoch = min(data_epochs) if data_epochs else 0
+          data_dt = (
+              datetime.fromtimestamp(data_epoch, timezone.utc).astimezone(
+                  ZoneInfo("Europe/Berlin"))
+              if data_epoch else None
+          )
+          meta = {
+              "generated_at_epoch": str(data_epoch),
+              "generated_at": data_dt.isoformat() if data_dt else "",
+              "refresh_run_at_epoch": str(now_epoch),
+              "registry_sha256": registry_sha,
+              "selected_feeds": str(len(selected)),
+              "successful_feeds": str(ok_feeds),
+              "fallback_feeds": str(fallback_feeds),
+              "active_feed_count": str(active_feed_count),
+              "hit_count": str(hit_count),
+              "unique_count": str(unique_count),
+              "format_version": "1",
+          }
+          new.executemany("INSERT OR REPLACE INTO meta(key,value) VALUES (?,?)", meta.items())
+          new.commit()
+
+          # Delta gegen vorherigen Snapshot ohne Millionen-Eintraege in Python zu materialisieren.
+          added = removed = None
+          if prev_attached:
+              try:
+                  added = new.execute("SELECT COUNT(*) FROM (SELECT entry FROM hits EXCEPT SELECT entry FROM prev.hits)").fetchone()[0]
+                  removed = new.execute("SELECT COUNT(*) FROM (SELECT entry FROM prev.hits EXCEPT SELECT entry FROM hits)").fetchone()[0]
+              except sqlite3.Error as e:
+                  print(f"WARN: Delta gegen vorherigen Snapshot nicht berechenbar: {e}")
+              new.execute("DETACH DATABASE prev")
+          new.close()
+
+          os.replace(NEXT, SNAPSHOT)
+
+          # Sichtbare Kompatibilitaetsliste. Combined liest diese Datei NICHT mehr als Feed,
+          # damit 5 Auto-Feeds auch weiterhin als 5 Feed-Treffer zaehlen.
+          ro = sqlite3.connect(f"file:{SNAPSHOT}?mode=ro", uri=True)
+
+          # FIX AFD-LEX-SORT (2026-09-12): "ORDER BY entry" sortiert eine
+          # TEXT-Spalte lexikographisch - die Datei begann dadurch mit
+          # 1.0.0.0 / 1.0.0.104 / 1.0.0.19 / 1.0.0.2 und war die einzige
+          # IP-Liste im Repo, die nicht der Hausordnung aus sort_ips()
+          # (netshield_common.py) folgte ("1.2.3.4 vor 10.0.0.1").
+          # Ein Materialisieren in Python + sort_ips() scheidet aus: die
+          # Liste hat ~2,9 Mio. Eintraege, die Tupel-Keys von sort_ips()
+          # wuerden den RAM-Vorteil des Streamings zunichtemachen. Statt
+          # dessen rechnet SQLite den Sortierschluessel selbst - die
+          # Sortierung bleibt disk-backed im SQLite-Temp-Store.
+          # Schluessel-Semantik identisch zu sort_ips(): gueltige IPv4
+          # numerisch aufsteigend, ungueltige/korrupte Eintraege ans Ende
+          # (dort lexikographisch untereinander via Sekundaerschluessel).
+          def _ip_order_key(_entry):
+              try:
+                  _parts = _entry.split("/")[0].split(".")
+                  if len(_parts) != 4:
+                      return 1 << 33
+                  _vals = [int(_p) for _p in _parts]
+                  if any(_v < 0 or _v > 255 for _v in _vals):
+                      return 1 << 33
+                  return ((_vals[0] << 24) | (_vals[1] << 16)
+                          | (_vals[2] << 8) | _vals[3])
+              except (ValueError, AttributeError, TypeError):
+                  return 1 << 33
+
+          try:
+              ro.create_function("ip_order_key", 1, _ip_order_key,
+                                 deterministic=True)
+          except TypeError:
+              # deterministic= gibt es erst ab SQLite 3.8.3; fuer ORDER BY
+              # ist das Flag ohnehin nur eine Optimierung.
+              ro.create_function("ip_order_key", 1, _ip_order_key)
+
+          _out_dir = os.path.dirname(OUT_FILE) or "."
+          with tempfile.NamedTemporaryFile("w", encoding="utf-8", newline="\n",
+                                           dir=_out_dir, prefix=".auto_feed_",
+                                           suffix=".tmp", delete=False) as out:
+              tmp = out.name
+              out.write("# NETSHIELD Auto-Feed Blacklist (Kompatibilitaetsansicht)\n")
+              out.write(f"# Aktualisiert: {now_berlin.strftime('%Y-%m-%d %H:%M %Z')} (Europe/Berlin)\n")
+              out.write(f"# Eindeutige Eintraege: {unique_count} | Feed-Treffer: {hit_count} | Quellen: {active_feed_count}\n")
+              out.write("# HINWEIS: Combined nutzt state/auto_feed_daily.sqlite3 aus separatem Actions Cache, nicht diese aggregierte Datei.\n\n")
+              for (entry,) in ro.execute(
+                      "SELECT DISTINCT entry FROM hits "
+                      "ORDER BY ip_order_key(entry), entry"):
+                  out.write(entry + "\n")
+              out.flush()
+              os.fsync(out.fileno())
+          ro.close()
+          os.replace(tmp, OUT_FILE)
+
+          lines = [
+              "# Auto-Feed Live Refresh – Report", "",
+              f"**Aktualisiert:** {now_berlin.strftime('%Y-%m-%d %H:%M %Z')} (Europe/Berlin)", "",
+              "| Metrik | Wert |", "|---|---:|",
+              f"| Registry-Feeds ausgewaehlt | {len(selected):,} |",
+              f"| Erfolgreich frisch geladen | {ok_feeds:,} |",
+              f"| Aus vorherigem Snapshot erhalten | {fallback_feeds:,} |",
+              f"| Ohne Daten/Fallback | {len(failed_without_fallback):,} |",
+              f"| Proxy/Bot/Scanner ausgeschlossen | {len(proxy_excluded):,} |",
+              f"| I-BlockList ausgeschlossen | {len(iblock_excluded):,} |",
+              f"| Feed-Treffer (IP/CIDR × Feed) | {hit_count:,} |",
+              f"| Eindeutige IP/CIDR-Eintraege | {unique_count:,} |",
+              f"| Neu ggü. vorherigem Snapshot | {('n/a' if added is None else f'{added:,}')} |",
+              f"| Entfernt ggü. vorherigem Snapshot | {('n/a' if removed is None else f'{removed:,}')} |",
+              "",
+              "**Semantik:** Der Snapshot behaelt jeden originalen Feed-Namen. Eine IP in fünf Auto-Feeds wird in Combined weiterhin als fünf Feed-Treffer verarbeitet.",
+              "",
+          ]
+          if failed_without_fallback:
+              lines += ["## Feeds ohne aktuelle oder vorherige Daten", "", ", ".join(f"`{x}`" for x in sorted(failed_without_fallback)), ""]
+          write_text_atomic(REPORT, "\n".join(lines))
+          print(f"Snapshot fertig: {unique_count:,} unique / {hit_count:,} Hits / {active_feed_count} Feeds")
+          PY
+
+      - name: Validiere Auto-Feed Snapshot
+        id: validate_snapshot
+        if: steps.refresh.outcome == 'success'
+        run: |
+          set -euo pipefail
+          python3 - << 'PY'
+          import sqlite3, time
+          MAX_FALLBACK_AGE_SECONDS = 6 * 3600
+          MAX_REFRESH_AGE_SECONDS = 3600
+          p='state/auto_feed_daily.sqlite3'
+          c=sqlite3.connect(f'file:{p}?mode=ro', uri=True)
+          q=c.execute('PRAGMA quick_check').fetchone()
+          n=c.execute('SELECT COUNT(*) FROM hits').fetchone()[0]
+          u=c.execute('SELECT COUNT(DISTINCT entry) FROM hits').fetchone()[0]
+          meta=dict(c.execute('SELECT key,value FROM meta'))
+          generated_ts=int(meta.get('generated_at_epoch','0'))
+          refresh_ts=int(meta.get('refresh_run_at_epoch','0'))
+          feed_rows=c.execute(
+              'SELECT feed,entries,status,last_success_epoch FROM feed_stats'
+          ).fetchall()
+          c.close()
+          now=int(time.time())
+          assert q and q[0]=='ok', q
+          assert n >= 50000 and u >= 50000, (n,u)
+          # generated_at_epoch beschreibt die aelteste enthaltene Evidenz
+          # und darf bei einem begrenzten Fallback aelter als ein Refresh
+          # sein. Der Lauf selbst muss dagegen frisch sein.
+          assert 0 <= now-refresh_ts <= MAX_REFRESH_AGE_SECONDS, now-refresh_ts
+          evidence_epochs=[]
+          invalid_rows=[]
+          fallback_count=0
+          for feed,entries,status,last_success in feed_rows:
+              if entries <= 0:
+                  continue
+              try:
+                  evidence_ts=int(last_success)
+              except (TypeError, ValueError):
+                  invalid_rows.append((feed,status,'missing_timestamp'))
+                  continue
+              age=now-evidence_ts
+              if age < 0:
+                  invalid_rows.append((feed,status,'future_timestamp'))
+                  continue
+              if status == 'ok':
+                  if age > MAX_REFRESH_AGE_SECONDS:
+                      invalid_rows.append((feed,status,age))
+                      continue
+              elif status == 'fallback_previous':
+                  fallback_count += 1
+                  if age > MAX_FALLBACK_AGE_SECONDS:
+                      invalid_rows.append((feed,status,age))
+                      continue
+              else:
+                  invalid_rows.append((feed,status,'non_ok_with_entries'))
+                  continue
+              evidence_epochs.append(evidence_ts)
+          assert evidence_epochs, 'keine zeitgestempelten Feed-Daten'
+          assert generated_ts == min(evidence_epochs), (generated_ts, min(evidence_epochs))
+          assert not invalid_rows, invalid_rows[:5]
+          print(f'Auto-Feed Snapshot validiert: {u:,} unique / {n:,} Feed-Treffer; '
+                f'{fallback_count} Fallback-Feed(s) innerhalb der {MAX_FALLBACK_AGE_SECONDS//3600}h-Frist')
+          PY
+
+      - name: Save Auto-Feed Snapshot Cache
+        if: always() && steps.refresh.outcome == 'success' && steps.validate_snapshot.outcome == 'success'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: state/auto_feed_daily.sqlite3
+          key: netshield-auto-feed-daily-v1-${{ github.run_id }}
+
+      - name: Alte Auto-Feed Snapshot Caches aufraeumen
+        # FIX CACHE-BUDGET-AUTOFEED (2026-09-08, Nutzerfund via GitHub-Cache-
+        # Uebersicht: "9,3 von 10 GB belegt"): state/auto_feed_daily.sqlite3
+        # liegt bei ~51 MB je Eintrag. Der Save-Schritt oben nutzt wie alle
+        # anderen Cache-Familien "${{ github.run_id }}" - bei bis zu 24
+        # Laeufen/Tag (getriggert ueber netshield_report_generator.yml) legt
+        # das jeden Lauf einen neuen, nie ueberschriebenen Eintrag an.
+        # Gleiches Muster wie der seen_db-Cleanup in update_combined_blacklist
+        # .yml: paginierte Schleife, behaelt die 2 neuesten, loescht den Rest.
+        # WICHTIG: "gh cache list --key" matched als Praefix - es gibt eine
+        # verwandte, aber eigenstaendige Fremd-Familie
+        # netshield-auto-feed-daily-v1-combined-* (Restore-only-Fallback in
+        # update_combined_blacklist.yml, gehoert einem anderen Workflow).
+        # Die strikte Regex "...-v1-<nur Ziffern>" schliesst diese Familie
+        # sicher aus, genau wie beim seen_db-Cleanup mit seinen drei
+        # Fremd-Familien.
+        if: steps.refresh.outcome == 'success' && steps.validate_snapshot.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          _runde=0
+          while [ "$_runde" -lt 20 ]; do
+            _runde=$((_runde + 1))
+            _treffer=$(gh cache list --key "netshield-auto-feed-daily-v1-" --limit 100 \
+                --order desc --sort created_at \
+                --json id,key,createdAt --jq '.[] | select(.key | test("^netshield-auto-feed-daily-v1-[0-9]+$"))' \
+              | jq -s -c 'sort_by(.createdAt) | reverse')
+            _anzahl=$(echo "$_treffer" | jq 'length')
+            if [ "$_anzahl" -le 2 ]; then
+              echo "Runde ${_runde}: nur noch ${_anzahl} Treffer (<=2, die 2 Neuesten) - fertig."
+              break
+            fi
+            echo "Runde ${_runde}: ${_anzahl} Treffer, loesche $((_anzahl - 2)) davon (2 Neueste bleiben)..."
+            echo "$_treffer" | jq -r '.[2:] | .[].id' | while read -r _id; do
+              gh cache delete "$_id" >/dev/null 2>&1 \
+                && echo "  geloescht: Cache-ID $_id" \
+                || echo "  WARN: Cache-ID $_id konnte nicht geloescht werden (ignoriert)"
+            done
+          done
+          echo "Auto-Feed-Snapshot-Cache-Aufraeumung abgeschlossen (${_runde} Runde(n))."
+          exit 0
+
+      - name: Commit Report und Kompatibilitaetsliste
+        if: always() && steps.refresh.outcome == 'success' && steps.validate_snapshot.outcome == 'success'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add auto_feed_blacklist_ipv4.txt reports/auto_feed_blacklist_report.md
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+            exit 0
+          fi
+          git commit -m "Auto-Feed Live Refresh: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
+          for attempt in 1 2 3 4 5; do
+            if ! git fetch origin "${GITHUB_REF_NAME}"; then
+              echo "Fetch fehlgeschlagen (Versuch $attempt/5)"
+              if [ "$attempt" -eq 5 ]; then exit 1; fi
+              sleep $((attempt * 2))
+              continue
+            fi
+            git stash --include-untracked 2>/dev/null || true
+            if git rebase -X theirs "origin/${GITHUB_REF_NAME}"; then
+              git stash pop 2>/dev/null || true
+              if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+                echo "Push erfolgreich (Versuch $attempt)"
+                exit 0
+              fi
+            else
+              git stash pop 2>/dev/null || true
+              git rebase --abort 2>/dev/null || true
+            fi
+            sleep $((attempt * 3))
+          done
+          echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+          exit 1

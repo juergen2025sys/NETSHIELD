@@ -1,0 +1,76 @@
+# CodeQL Static Analysis - findet SSRF, Path-Traversal, Injection etc.
+# Ergebnisse landen im Security-Tab des Repos (Tab "Code scanning").
+#
+# v4 statt v3 verwendet, weil v3 im Dezember 2026 deprecated wird
+# (Node.js 20 EOL, v4 läuft auf Node.js 24). Quelle:
+# https://github.blog/changelog/2025-10-28-upcoming-deprecation-of-codeql-action-v3/
+#
+# CVE-Hinweis: v3.26.11 bis v3.28.2 waren von CodeQLEAKED betroffen
+# (GHSA-vqf5-2xx6-9wfm) - Token-Leak in Debug-Artifacts. v4 ist davon
+# nicht betroffen.
+name: CodeQL Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Wöchentlich Sonntags 03:00 UTC - Out-of-Band damit nicht mit
+    # anderen Workflows konkurriert.
+    - cron: '0 3 * * 0'
+
+env:
+  # Erzwingt Node.js 24 fuer JavaScript-basierte Actions (z.B. checkout).
+  # Verhindert Node20-EOL-Warnings und macht den Runner kompatibel mit
+  # neueren Action-Versionen die nur noch Node24 supporten.
+  # Wird vom Workflow Health Checker (Check 29) als Pflicht geprueft
+  # sobald actions/checkout@ im File vorkommt.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: read
+  security-events: write   # Findings ins Security-Tab schreiben
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  analyze:
+    name: Analyze Python
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          languages: python
+          # Erweiterte Security+Quality Queries (findet mehr als das Default-Set)
+          queries: security-and-quality
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          category: "/language:python"
+
+  analyze-actions:
+    name: Analyze GitHub Actions
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Initialize CodeQL for Actions
+        uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          languages: actions
+      - name: Analyze Actions
+        uses: github/codeql-action/analyze@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          category: "/language:actions"
