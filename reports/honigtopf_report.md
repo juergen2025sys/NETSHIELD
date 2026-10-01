@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-10-01 15:50 CEST (Berlin)  
+**Aktualisiert:** 2026-10-01 15:53 CEST (Berlin)  
 **Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
@@ -14,7 +14,7 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-01 15:50 CEST (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-01 15:53 CEST (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
@@ -22,21 +22,21 @@
 | Endpunkt | Treffer |
 |---|---:|
 | Bad Hosts (24h, alle Dienste) | **10,600** |
-| Bad Hosts – SIP | **163** |
-| Bad Hosts – SSH | **3,940** |
+| Bad Hosts – SIP | **162** |
+| Bad Hosts – SSH | **3,934** |
 | Bad Hosts – RDP | **698** |
-| Bad Hosts – MSSQL | **459** |
-| Bad Hosts – HTTP | **2,792** |
-| Bad Hosts – SNMP | **432** |
+| Bad Hosts – MSSQL | **458** |
+| Bad Hosts – HTTP | **2,794** |
+| Bad Hosts – SNMP | **433** |
 | Bad Hosts – VNC | **280** |
-| Bad Hosts – MySQL | **565** |
-| Bad Hosts – Telnet | **2,895** |
-| Bad Hosts – FTP | **429** |
+| Bad Hosts – MySQL | **567** |
+| Bad Hosts – Telnet | **2,892** |
+| Bad Hosts – FTP | **431** |
 | Bad Hosts – ProConOs | **95** |
 | Bad Hosts – PostgreSQL | **346** |
 | Bad Hosts – TFTP | **256** |
 | Bad Hosts – Kubernetes | **497** |
-| Bad Hosts – Elasticsearch | **565** |
+| Bad Hosts – Elasticsearch | **566** |
 | Bad Hosts – Redis | **349** |
 | Bad Hosts – CouchDB | **272** |
 | Bad Hosts – Oracle | **317** |
@@ -68,14 +68,14 @@ Davon **heute (2026-10-01)**: **6,474** IPs
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **13,236** |
-| Kandidaten dieses Abrufs | **13,236** |
+| Gesamt Honigtopf-IPs | **13,255** |
+| Kandidaten dieses Abrufs | **13,255** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+12** |
-| Entfernt | **-2** |
+| Neu | **+19** |
+| Entfernt | **-0** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-10-01 15:50 CEST (Berlin)*
+*Generiert: 2026-10-01 15:53 CEST (Berlin)*
