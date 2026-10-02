@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-10-02 11:02 CEST (Berlin)  
+**Aktualisiert:** 2026-10-02 11:03 CEST (Berlin)  
 **Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
@@ -14,7 +14,7 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-02 11:02 CEST (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-02 11:03 CEST (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
@@ -25,18 +25,18 @@
 | Bad Hosts – SIP | **171** |
 | Bad Hosts – SSH | **3,022** |
 | Bad Hosts – MSSQL | **529** |
-| Bad Hosts – SNMP | **393** |
-| Bad Hosts – RDP | **731** |
-| Bad Hosts – HTTP | **3,433** |
+| Bad Hosts – SNMP | **394** |
+| Bad Hosts – RDP | **732** |
+| Bad Hosts – HTTP | **3,431** |
 | Bad Hosts – VNC | **454** |
-| Bad Hosts – MySQL | **648** |
+| Bad Hosts – MySQL | **647** |
 | Bad Hosts – ProConOs | **175** |
-| Bad Hosts – Telnet | **3,021** |
+| Bad Hosts – Telnet | **3,020** |
 | Bad Hosts – FTP | **536** |
-| Bad Hosts – TFTP | **188** |
-| Bad Hosts – Kubernetes | **788** |
-| Bad Hosts – PostgreSQL | **393** |
-| Bad Hosts – Redis | **398** |
+| Bad Hosts – TFTP | **189** |
+| Bad Hosts – Kubernetes | **789** |
+| Bad Hosts – PostgreSQL | **394** |
+| Bad Hosts – Redis | **400** |
 | Bad Hosts – CouchDB | **309** |
 | Bad Hosts – Elasticsearch | **484** |
 | Bad Hosts – Oracle | **294** |
@@ -67,14 +67,14 @@ Davon **heute (2026-10-02)**: **4,978** IPs
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **13,370** |
-| Kandidaten dieses Abrufs | **13,370** |
+| Gesamt Honigtopf-IPs | **13,372** |
+| Kandidaten dieses Abrufs | **13,372** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+214** |
-| Entfernt | **-140** |
+| Neu | **+223** |
+| Entfernt | **-147** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-10-02 11:02 CEST (Berlin)*
+*Generiert: 2026-10-02 11:03 CEST (Berlin)*
