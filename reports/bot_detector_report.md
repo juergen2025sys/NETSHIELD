@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-02 16:10 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-02 16:13 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -8,8 +8,8 @@
 | Metrik | Wert |
 |---|---|
 | Gesamt IPs | **1,144,216** |
-| Neu (heute) | **+18** |
-| Entfernt | **-13** |
+| Neu (heute) | **+0** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 49 |
@@ -27,7 +27,7 @@
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,822 |
 | ✅ `ebrasha_abdal_proxy_hub` | 6,732 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,780 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,777 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,930 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,955 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,296 |
@@ -74,4 +74,4 @@
 > Diese 49 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-02 16:10 CEST (Europe/Berlin)*
+*Generiert: 2026-10-02 16:13 CEST (Europe/Berlin)*
