@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-10-03 07:43 CEST (Europe/Berlin)
+Lauf: 2026-10-03 07:58 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -95,21 +95,20 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +730 (Anstieg) (jetzt 12,113,975 IPs)
+- Seit letztem Lauf: ➡️ unverändert (jetzt 12,113,975 IPs)
 - Seit Zyklus-Start (2026-09-22): 📈 +636,256 (Anstieg)
 - Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 907,161 neue IPs hinzugekommen (davon 791,645 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 564 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 112,115 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 7,300,358 (Summe letzte 8 Läufe / ~24h)
+- Neue IPs (Summe letzter Läufe): 7,280,391 (Summe letzte 8 Läufe / ~24h)
 - Entfernte IPs (Summe letzter Läufe): 0 (Summe letzte 8 Läufe / ~24h)
   - davon Watchlist/30 Tage: 0 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +68,724 (~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-10-02T13:01 bis 2026-10-03T05:31 UTC
+- Netto-Wachstum (~24h): 📈 +46,355 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-10-02T13:12 bis 2026-10-03T05:48 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-09-30 15:14 CEST (Europe/Berlin) | 11,949,715 | 4263 | 948686 | 0 |
 | 2026-09-30 22:19 CEST (Europe/Berlin) | 11,968,023 | 4242 | 948613 | 0 |
 | 2026-09-30 22:26 CEST (Europe/Berlin) | 11,968,023 | 4242 | 948613 | 0 |
 | 2026-10-01 02:23 CEST (Europe/Berlin) | 11,957,361 | 4391 | 965138 | 16547 |
@@ -129,3 +128,4 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-10-03 02:25 CEST (Europe/Berlin) | 12,113,245 | 6358 | 972042 | 0 |
 | 2026-10-03 02:51 CEST (Europe/Berlin) | 12,113,245 | 6358 | 972042 | 0 |
 | 2026-10-03 07:43 CEST (Europe/Berlin) | 12,113,975 | 8330 | 979283 | 0 |
+| 2026-10-03 07:58 CEST (Europe/Berlin) | 12,113,975 | 8330 | 979283 | 0 |
