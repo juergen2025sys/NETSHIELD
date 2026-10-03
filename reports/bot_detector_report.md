@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-03 09:15 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-03 09:40 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,136,507** |
-| Neu (heute) | **+4** |
-| Entfernt | **-20** |
+| Gesamt IPs | **1,136,517** |
+| Neu (heute) | **+23** |
+| Entfernt | **-13** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 49 |
@@ -30,15 +30,15 @@
 | ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,719 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 3,013 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,950 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,861 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,512 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,316 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,567 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,155 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,126 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,511 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,162 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 835 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 641 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 656 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 569 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 878 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 657 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 632 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 567 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 396 |
 | ✅ `officialputuid_proxyforeveryone` | 7,922 |
 | ✅ `officialputuid_proxyforeveryone_https` | 6,787 |
@@ -74,4 +74,4 @@
 > Diese 49 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-03 09:15 CEST (Europe/Berlin)*
+*Generiert: 2026-10-03 09:40 CEST (Europe/Berlin)*
