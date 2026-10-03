@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-03 07:13 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-03 07:38 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,136,523** |
-| Neu (heute) | **+13,881** |
-| Entfernt | **-22,606** |
+| Gesamt IPs | **1,136,529** |
+| Neu (heute) | **+21** |
+| Entfernt | **-15** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 49 |
@@ -30,16 +30,16 @@
 | ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,718 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,902 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,952 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 4,952 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 5,604 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 3,264 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 5,055 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 5,952 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 3,478 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,511 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,186 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 980 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 790 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 623 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 554 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 338 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,119 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 888 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 666 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 566 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 354 |
 | ✅ `officialputuid_proxyforeveryone` | 7,922 |
 | ✅ `officialputuid_proxyforeveryone_https` | 6,787 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 7,396 |
@@ -74,4 +74,4 @@
 > Diese 49 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-03 07:13 CEST (Europe/Berlin)*
+*Generiert: 2026-10-03 07:38 CEST (Europe/Berlin)*
