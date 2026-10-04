@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-10-04 15:11 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-10-04 19:34 CEST (Europe/Berlin)
 
 **Workflows:** 32 | ✅ 28 OK | ⚠️ 2 Warnung | ❌ 3 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `68ebe42dd7baaadf1297734fe5ec2350a6fcadb6`
+✅ Commit: `6b607478e52910b2615000ae542f7697bca99f95`
 
 470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -18,7 +18,7 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 |---|---|---|
 | `dns_blocklist_finder.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
 | `runner_image_watch.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
-| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 5,066 IPs in active fehlen in conf40 (0.491% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 563 IPs in active fehlen in conf40 (0.053% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 
 ## ⚠️ Warnungen
 
@@ -32,8 +32,8 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `dns_blocklist_finder.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
 | `Production Health` | Feed-Ausfälle | 3 von 103 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4_part1.txt: 82.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4_part2.txt: 82.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4_part1.txt: 83.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4_part2.txt: 83.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
@@ -41,10 +41,10 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 5,066 IPs in active fehlen in conf40 (0.491% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 563 IPs in active fehlen in conf40 (0.053% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 | 🟡 WARN | Feed-Ausfälle | 3 von 103 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
-| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4_part1.txt: 82.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4_part2.txt: 82.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4_part1.txt: 83.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4_part2.txt: 83.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
 
@@ -84,4 +84,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-10-04 15:11 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
+*Generiert: 2026-10-04 19:34 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
