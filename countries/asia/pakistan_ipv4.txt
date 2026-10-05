@@ -1,6 +1,6 @@
 # NETSHIELD – Pakistan (PK) IPv4 Ranges
-# Aktualisiert: 2026-09-30 09:04 CEST (Europe/Berlin)
-# IP-Ranges: 820
+# Aktualisiert: 2026-10-05 09:30 CEST (Europe/Berlin)
+# IP-Ranges: 821
 
 14.1.104.0/22
 14.192.128.0/19
@@ -708,6 +708,7 @@
 192.188.86.0/23
 192.232.42.0/23
 192.232.52.0/23
+195.137.206.0/24
 196.3.72.0/24
 198.15.21.0/24
 202.0.110.0/24

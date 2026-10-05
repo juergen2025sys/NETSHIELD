@@ -1,6 +1,6 @@
 # NETSHIELD – Puerto Rico (PR) IPv4 Ranges
-# Aktualisiert: 2026-09-30 09:04 CEST (Europe/Berlin)
-# IP-Ranges: 268
+# Aktualisiert: 2026-10-05 09:30 CEST (Europe/Berlin)
+# IP-Ranges: 269
 
 23.128.16.0/24
 23.128.168.0/24
@@ -248,6 +248,7 @@
 204.144.78.0/24
 204.154.228.0/24
 204.238.70.0/24
+205.173.144.0/22
 206.51.0.0/24
 206.166.204.0/22
 206.168.250.0/23

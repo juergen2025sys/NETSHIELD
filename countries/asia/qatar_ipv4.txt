@@ -1,6 +1,6 @@
 # NETSHIELD – Qatar (QA) IPv4 Ranges
-# Aktualisiert: 2026-09-30 09:04 CEST (Europe/Berlin)
-# IP-Ranges: 52
+# Aktualisiert: 2026-10-05 09:30 CEST (Europe/Berlin)
+# IP-Ranges: 53
 
 5.180.36.0/22
 31.11.48.0/21
@@ -19,6 +19,7 @@
 86.36.128.0/17
 86.37.0.0/16
 86.62.192.0/18
+87.61.192.0/19
 89.211.0.0/16
 91.228.176.0/24
 92.42.103.0/24
