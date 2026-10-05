@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-05 03:09 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-05 03:18 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,138,284** |
-| Neu (heute) | **+477,115** |
-| Entfernt | **-476,904** |
+| Gesamt IPs | **1,138,354** |
+| Neu (heute) | **+194** |
+| Entfernt | **-124** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 51 |
@@ -27,12 +27,12 @@
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,842 |
 | ✅ `ebrasha_abdal_proxy_hub` | 6,745 |
-| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,790 |
+| ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,789 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 2,989 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,954 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,703 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,201 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,221 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,585 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,351 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,133 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,513 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,159 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 830 |
@@ -50,7 +50,7 @@
 | ✅ `tuanminpay_live_proxy_http` | 5,912 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,121 |
 | ✅ `tuanminpay_live_proxy_socks5` | 4,420 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 213,143 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 213,287 |
 | ✅ `noctiro_getproxy` | 3,845 |
 | ✅ `noctiro_getproxy_socks5` | 4,809 |
 | ✅ `mohammedcha_proxripper` | 54,075 |
@@ -76,4 +76,4 @@
 > Diese 51 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-05 03:09 CEST (Europe/Berlin)*
+*Generiert: 2026-10-05 03:18 CEST (Europe/Berlin)*
