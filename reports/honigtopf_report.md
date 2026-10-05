@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-10-05 18:25 CEST (Berlin)  
+**Aktualisiert:** 2026-10-05 18:31 CEST (Berlin)  
 **Modus:** `LIGHT` (nur /bad-hosts, merged mit existing)
 
 ---
@@ -14,36 +14,36 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-05 18:25 CEST (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-05 18:31 CEST (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **11,223** |
+| Bad Hosts (24h, alle Dienste) | **11,215** |
 
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
 
-Davon **heute (2026-10-05)**: **8,703** IPs
+Davon **heute (2026-10-05)**: **8,784** IPs
 
 | last_seen | IPs |
 |---|---:|
-| 2026-10-05 | **8,703** |
-| 2026-10-04 | **2,520** |
+| 2026-10-05 | **8,784** |
+| 2026-10-04 | **2,431** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **13,914** |
-| Kandidaten dieses Abrufs | **13,914** |
+| Gesamt Honigtopf-IPs | **13,968** |
+| Kandidaten dieses Abrufs | **13,968** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+0** |
+| Neu | **+54** |
 | Entfernt | **-0** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-10-05 18:25 CEST (Berlin)*
+*Generiert: 2026-10-05 18:31 CEST (Berlin)*
