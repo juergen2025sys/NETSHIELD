@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-10-05 16:50 CEST (Berlin)  
+**Aktualisiert:** 2026-10-05 16:51 CEST (Berlin)  
 **Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
@@ -14,7 +14,7 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-05 16:50 CEST (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-05 16:51 CEST (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
@@ -23,12 +23,12 @@
 |---|---:|
 | Bad Hosts (24h, alle Dienste) | **11,158** |
 | Bad Hosts – SIP | **185** |
-| Bad Hosts – SSH | **4,063** |
+| Bad Hosts – SSH | **4,064** |
 | Bad Hosts – MSSQL | **478** |
-| Bad Hosts – RDP | **783** |
+| Bad Hosts – RDP | **784** |
 | Bad Hosts – SNMP | **413** |
-| Bad Hosts – HTTP | **3,039** |
-| Bad Hosts – Telnet | **2,659** |
+| Bad Hosts – HTTP | **3,040** |
+| Bad Hosts – Telnet | **2,660** |
 | Bad Hosts – MySQL | **515** |
 | Bad Hosts – VNC | **348** |
 | Bad Hosts – ProConOs | **123** |
@@ -41,10 +41,10 @@
 | Bad Hosts – ClickhouseHTTP | **381** |
 | Bad Hosts – Memcached | **213** |
 | Bad Hosts – CouchDB | **375** |
-| Bad Hosts – LDAP | **190** |
+| Bad Hosts – LDAP | **191** |
 | Bad Hosts – Oracle | **275** |
 | Bad Hosts – Modbus | **188** |
-| Bad Hosts – MQTT | **210** |
+| Bad Hosts – MQTT | **212** |
 | Bad Hosts – RAW | **94** |
 | Bad Hosts – IPP | **94** |
 | Bad Hosts – HashCountRandom | **61** |
@@ -67,14 +67,14 @@ Davon **heute (2026-10-05)**: **8,108** IPs
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **13,779** |
-| Kandidaten dieses Abrufs | **13,779** |
+| Gesamt Honigtopf-IPs | **13,789** |
+| Kandidaten dieses Abrufs | **13,789** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+681** |
-| Entfernt | **-694** |
+| Neu | **+10** |
+| Entfernt | **-0** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-10-05 16:50 CEST (Berlin)*
+*Generiert: 2026-10-05 16:51 CEST (Berlin)*
