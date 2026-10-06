@@ -1,6 +1,6 @@
 # Workflow Health Dashboard
 
-**Stand:** 2026-10-06 08:12 CEST (Europe/Berlin)
+**Stand:** 2026-10-06 20:19 CEST (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
@@ -8,15 +8,15 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 10 / 8 erwartet
+- **Echte Combined-Runs:** 12 / 8 erwartet
 - **Skip-Runs (Idempotenz-Guard):** 7
 - **Lucken (>210min zwischen echten Runs):** 0
 
 ## Letzte 7 Tage
 
-- **Echte Combined-Runs:** 91
-- **Skip-Runs:** 55
-- **Fehlgeschlagene Runs:** 0
+- **Echte Combined-Runs:** 92
+- **Skip-Runs:** 56
+- **Fehlgeschlagene Runs:** 1
 - **Lucken >210min:** 3
 - **Groesste Lucke:** 2026-10-02 03:19 CEST (Europe/Berlin) -> 2026-10-02 07:29 CEST (Europe/Berlin) (250 min = 4h 10min)
 
@@ -24,14 +24,18 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 - **Watchdog-Laeufe insgesamt:** 231
 - **Watchdog-Fehler:** 1
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 72
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 74
 
 Letzte Watchdog-Eingriffe:
-- 2026-10-05 20:53 CEST (Europe/Berlin) (Run #37359318611, Laufzeit 21m 11s)
-- 2026-10-05 23:47 CEST (Europe/Berlin) (Run #37378257669, Laufzeit 17m 8s)
-- 2026-10-06 00:50 CEST (Europe/Berlin) (Run #37385026548, Laufzeit 17m 21s)
-- 2026-10-06 02:46 CEST (Europe/Berlin) (Run #37395763388, Laufzeit 17m 1s)
-- 2026-10-06 05:31 CEST (Europe/Berlin) (Run #37409387865, Laufzeit 17m 40s)
+- 2026-10-06 12:50 CEST (Europe/Berlin) (Run #37452439952, Laufzeit 18m 14s)
+- 2026-10-06 16:10 CEST (Europe/Berlin) (Run #37476687434, Laufzeit 20m 39s)
+- 2026-10-06 17:05 CEST (Europe/Berlin) (Run #37484421757, Laufzeit 16m 19s)
+- 2026-10-06 18:00 CEST (Europe/Berlin) (Run #37492229446, Laufzeit 19m 14s)
+- 2026-10-06 19:01 CEST (Europe/Berlin) (Run #37500273738, Laufzeit 24m 50s)
+
+## Fehlgeschlagene Combined-Runs (7d)
+
+- 2026-10-06 08:08 CEST (Europe/Berlin) - failure - Run #37422154292 (20m 8s)
 
 ---
 
