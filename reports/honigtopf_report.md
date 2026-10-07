@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-10-08 01:46 CEST (Berlin)  
+**Aktualisiert:** 2026-10-08 01:51 CEST (Berlin)  
 **Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
@@ -14,7 +14,7 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-08 01:46 CEST (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-08 01:51 CEST (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
@@ -23,28 +23,28 @@
 |---|---:|
 | Bad Hosts (24h, alle Dienste) | **11,975** |
 | Bad Hosts – SIP | **185** |
-| Bad Hosts – SSH | **3,352** |
-| Bad Hosts – VNC | **531** |
-| Bad Hosts – MSSQL | **524** |
-| Bad Hosts – RDP | **776** |
-| Bad Hosts – HTTP | **3,713** |
+| Bad Hosts – SSH | **3,360** |
+| Bad Hosts – VNC | **530** |
+| Bad Hosts – MSSQL | **525** |
+| Bad Hosts – RDP | **779** |
+| Bad Hosts – HTTP | **3,715** |
 | Bad Hosts – SNMP | **414** |
 | Bad Hosts – BitcoinP2P | **770** |
-| Bad Hosts – Telnet | **2,513** |
+| Bad Hosts – Telnet | **2,516** |
 | Bad Hosts – FTP | **545** |
-| Bad Hosts – MySQL | **652** |
+| Bad Hosts – MySQL | **649** |
 | Bad Hosts – ProConOs | **179** |
-| Bad Hosts – TFTP | **216** |
+| Bad Hosts – TFTP | **215** |
 | Bad Hosts – Memcached | **253** |
 | Bad Hosts – Redis | **371** |
-| Bad Hosts – Kubernetes | **751** |
+| Bad Hosts – Kubernetes | **752** |
 | Bad Hosts – CouchDB | **364** |
-| Bad Hosts – PostgreSQL | **361** |
-| Bad Hosts – Elasticsearch | **619** |
+| Bad Hosts – PostgreSQL | **374** |
+| Bad Hosts – Elasticsearch | **617** |
 | Bad Hosts – ClickhouseHTTP | **311** |
 | Bad Hosts – Oracle | **273** |
-| Bad Hosts – Modbus | **209** |
-| Bad Hosts – RAW | **136** |
+| Bad Hosts – Modbus | **207** |
+| Bad Hosts – RAW | **135** |
 | Bad Hosts – MQTT | **205** |
 | Bad Hosts – LDAP | **189** |
 | Bad Hosts – IPP | **88** |
@@ -81,14 +81,14 @@ Davon **heute (2026-10-07)**: **11,894** IPs
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **14,598** |
-| Kandidaten dieses Abrufs | **14,598** |
+| Gesamt Honigtopf-IPs | **14,632** |
+| Kandidaten dieses Abrufs | **14,632** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+630** |
-| Entfernt | **-925** |
+| Neu | **+40** |
+| Entfernt | **-6** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-10-08 01:46 CEST (Berlin)*
+*Generiert: 2026-10-08 01:51 CEST (Berlin)*
