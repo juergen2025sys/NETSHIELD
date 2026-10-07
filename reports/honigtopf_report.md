@@ -1,6 +1,6 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-10-07 02:19 CEST (Berlin)  
-**Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
+**Aktualisiert:** 2026-10-07 03:44 CEST (Berlin)  
+**Modus:** `LIGHT` (nur /bad-hosts, merged mit existing)
 
 ---
 ## API-Key-Status
@@ -14,74 +14,36 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-07 02:19 CEST (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-07 03:44 CEST (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **11,802** |
-| Bad Hosts – SIP | **181** |
-| Bad Hosts – SSH | **3,827** |
-| Bad Hosts – MSSQL | **513** |
-| Bad Hosts – SNMP | **399** |
-| Bad Hosts – RDP | **832** |
-| Bad Hosts – VNC | **325** |
-| Bad Hosts – TFTP | **220** |
-| Bad Hosts – HTTP | **3,778** |
-| Bad Hosts – Telnet | **2,618** |
-| Bad Hosts – FTP | **610** |
-| Bad Hosts – ProConOs | **182** |
-| Bad Hosts – MySQL | **683** |
-| Bad Hosts – Memcached | **254** |
-| Bad Hosts – Kubernetes | **925** |
-| Bad Hosts – Redis | **434** |
-| Bad Hosts – PostgreSQL | **509** |
-| Bad Hosts – CouchDB | **338** |
-| Bad Hosts – ClickhouseHTTP | **368** |
-| Bad Hosts – Elasticsearch | **714** |
-| Bad Hosts – Oracle | **317** |
-| Bad Hosts – MQTT | **274** |
-| Bad Hosts – Modbus | **190** |
-| Bad Hosts – LDAP | **219** |
-| Bad Hosts – RAW | **162** |
-| Bad Hosts – LPD | **112** |
-| Bad Hosts – IPP | **136** |
-| Bad Hosts – HashCountRandom | **115** |
-| Bad Hosts – MOTD | **76** |
-| Bad Hosts – Docker | **8** |
-| Bad Hosts – BitcoinRPC | **4** |
-| Bad Hosts – BeaconAPI.web3signer | **14** |
-| Bad Hosts – Electrum | **2** |
-| Bad Hosts – Echo | **3** |
-| Bad Hosts – ClaymoreAPI | **1** |
-| Bad Hosts – MoneroRPC | **4** |
-| Bad Hosts – BitcoinP2P.litecoin | **2** |
-| Bad Hosts – BitcoinP2P | **1** |
-| Bad Hosts – BeaconAPI.engine | **1** |
+| Bad Hosts (24h, alle Dienste) | **11,841** |
 
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
 
-Davon **heute (2026-10-07)**: **421** IPs
+Davon **heute (2026-10-07)**: **1,389** IPs
 
 | last_seen | IPs |
 |---|---:|
-| 2026-10-07 | **421** |
-| 2026-10-06 | **11,381** |
+| 2026-10-07 | **1,389** |
+| 2026-10-06 | **10,452** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **14,414** |
-| Kandidaten dieses Abrufs | **14,414** |
+| Gesamt Honigtopf-IPs | **14,807** |
+| Kandidaten dieses Abrufs | **14,807** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+202** |
-| Entfernt | **-232** |
+| Neu | **+393** |
+| Entfernt | **-0** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-10-07 02:19 CEST (Berlin)*
+*Generiert: 2026-10-07 03:44 CEST (Berlin)*
