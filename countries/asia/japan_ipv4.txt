@@ -1,6 +1,6 @@
 # NETSHIELD – Japan (JP) IPv4 Ranges
-# Aktualisiert: 2026-10-05 09:30 CEST (Europe/Berlin)
-# IP-Ranges: 4796
+# Aktualisiert: 2026-10-07 09:30 CEST (Europe/Berlin)
+# IP-Ranges: 4797
 
 1.0.16.0/20
 1.0.64.0/18
@@ -2239,6 +2239,7 @@
 143.125.224.0/19
 143.189.0.0/16
 143.201.0.0/16
+143.203.228.0/22
 144.1.0.0/16
 144.48.8.0/22
 144.79.51.0/24

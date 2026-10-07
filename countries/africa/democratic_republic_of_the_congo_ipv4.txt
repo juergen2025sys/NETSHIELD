@@ -1,6 +1,6 @@
 # NETSHIELD – Democratic Republic Of The Congo (CD) IPv4 Ranges
-# Aktualisiert: 2026-10-05 09:30 CEST (Europe/Berlin)
-# IP-Ranges: 84
+# Aktualisiert: 2026-10-07 09:30 CEST (Europe/Berlin)
+# IP-Ranges: 85
 
 41.77.220.0/22
 41.78.192.0/22
@@ -25,6 +25,7 @@
 102.68.152.0/22
 102.69.180.0/22
 102.135.176.0/21
+102.201.4.0/22
 102.202.248.0/22
 102.203.4.0/22
 102.204.126.0/24

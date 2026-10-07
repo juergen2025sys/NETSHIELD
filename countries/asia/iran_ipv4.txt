@@ -1,6 +1,6 @@
 # NETSHIELD – Iran (IR) IPv4 Ranges
-# Aktualisiert: 2026-10-05 09:30 CEST (Europe/Berlin)
-# IP-Ranges: 1968
+# Aktualisiert: 2026-10-07 09:30 CEST (Europe/Berlin)
+# IP-Ranges: 1969
 
 2.57.3.0/24
 2.144.0.0/14
@@ -388,6 +388,7 @@
 85.209.40.0/24
 85.209.41.0/24
 85.239.192.0/19
+86.54.42.0/24
 86.55.0.0/16
 86.57.0.0/17
 86.104.32.0/20
