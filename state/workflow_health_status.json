@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-07 16:29 CEST (Europe/Berlin)",
+  "updated": "2026-10-07 21:19 CEST (Europe/Berlin)",
   "total": 32,
   "ok": 28,
   "warn": 3,
@@ -59,23 +59,18 @@
     },
     {
       "file": "Production Health",
-      "check": "Drift: honeypot_ips.txt",
-      "detail": "honeypot_ips.txt: 1,352,380 \u2192 2,292,441 (+70%) \u2013 ungew\u00f6hnliches Wachstum"
+      "check": "Push-Limit Naehe",
+      "detail": "combined_threat_blacklist_ipv4_part1.txt: 84.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4_part1.txt: 84.0 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
-    },
-    {
-      "file": "Production Health",
-      "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4_part2.txt: 84.0 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4_part2.txt: 84.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "4966e2bf660ea25f8a48a1bfbabfc19f4b973b35",
+    "sha": "0172ac42e05057027f5fe4d6f41810815051dce2",
     "status": "passed",
     "tests_run": 470,
     "failures": [],
@@ -87,16 +82,16 @@
     "detail": "470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 6372258,
-    "active_blacklist_ipv4.txt": 1050123,
-    "blacklist_confidence40_ipv4_part1.txt": 4696846,
+    "combined_threat_blacklist_ipv4_part1.txt": 6377210,
+    "active_blacklist_ipv4.txt": 1059470,
+    "blacklist_confidence40_ipv4_part1.txt": 4701144,
     "cve_exploit_ips.txt": 25672,
-    "honeypot_ips.txt": 2292441,
-    "bot_detector_blacklist_ipv4.txt": 1146454
+    "honeypot_ips.txt": 2294864,
+    "bot_detector_blacklist_ipv4.txt": 1146412
   },
   "production_health": {
     "critical": 0,
-    "warn": 4,
+    "warn": 3,
     "checks": [
       {
         "level": "WARN",
@@ -105,18 +100,13 @@
       },
       {
         "level": "WARN",
-        "check": "Drift: honeypot_ips.txt",
-        "detail": "honeypot_ips.txt: 1,352,380 \u2192 2,292,441 (+70%) \u2013 ungew\u00f6hnliches Wachstum"
+        "check": "Push-Limit Naehe",
+        "detail": "combined_threat_blacklist_ipv4_part1.txt: 84.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4_part1.txt: 84.0 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
-      },
-      {
-        "level": "WARN",
-        "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4_part2.txt: 84.0 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4_part2.txt: 84.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       }
     ]
   },
