@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-08 00:11 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-08 00:18 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,146,685** |
-| Neu (heute) | **+16** |
-| Entfernt | **-4** |
+| Gesamt IPs | **1,147,482** |
+| Neu (heute) | **+1,284** |
+| Entfernt | **-487** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 51 |
@@ -30,9 +30,9 @@
 | ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,743 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 3,016 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,954 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,351 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 2,875 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 1,973 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,400 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 2,865 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,004 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,536 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,212 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 715 |
@@ -64,7 +64,7 @@
 | ✅ `ian_lusule_proxies_socks5` | 1,342 |
 | ✅ `configserverapps_service_blocklists_attacks_bots` | 2,206 |
 | ✅ `configserverapps_service_blocklists_botscout_30d` | 2,365 |
-| ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,633 |
+| ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,620 |
 | ✅ `hookzof_socks5_list` | 3,045 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,083 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,382 |
@@ -76,4 +76,4 @@
 > Diese 51 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-08 00:11 CEST (Europe/Berlin)*
+*Generiert: 2026-10-08 00:18 CEST (Europe/Berlin)*
