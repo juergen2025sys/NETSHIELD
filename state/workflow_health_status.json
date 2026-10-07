@@ -1,9 +1,9 @@
 {
-  "updated": "2026-10-07 01:00 CEST (Europe/Berlin)",
+  "updated": "2026-10-07 09:12 CEST (Europe/Berlin)",
   "total": 32,
   "ok": 28,
-  "warn": 3,
-  "error": 2,
+  "warn": 2,
+  "error": 3,
   "errors": [
     {
       "file": "dns_blocklist_finder.yml",
@@ -14,6 +14,11 @@
       "file": "runner_image_watch.yml",
       "check": "persist-credentials fehlt",
       "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
+    },
+    {
+      "file": "Production Health",
+      "check": "Drift: honeypot_ips.txt",
+      "detail": "honeypot_ips.txt: 2,299,520 \u2192 1,352,380 (-41%) \u2013 starker R\u00fcckgang seit letztem Check"
     }
   ],
   "warnings": [
@@ -60,17 +65,17 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4_part1.txt: 83.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4_part1.txt: 83.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4_part2.txt: 83.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4_part2.txt: 83.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "5d6d56ef9cdfa0e71e7ff815fb39f7aa5cdab997",
+    "sha": "2ef6eda7e4b40af2df04354081d754437dfdaa38",
     "status": "passed",
     "tests_run": 470,
     "failures": [],
@@ -82,15 +87,15 @@
     "detail": "470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 6353069,
-    "active_blacklist_ipv4.txt": 1059212,
-    "blacklist_confidence40_ipv4_part1.txt": 4682450,
-    "cve_exploit_ips.txt": 25685,
-    "honeypot_ips.txt": 2299520,
-    "bot_detector_blacklist_ipv4.txt": 1142742
+    "combined_threat_blacklist_ipv4_part1.txt": 6351059,
+    "active_blacklist_ipv4.txt": 1013759,
+    "blacklist_confidence40_ipv4_part1.txt": 4679776,
+    "cve_exploit_ips.txt": 25655,
+    "honeypot_ips.txt": 1352380,
+    "bot_detector_blacklist_ipv4.txt": 1145995
   },
   "production_health": {
-    "critical": 0,
+    "critical": 1,
     "warn": 3,
     "checks": [
       {
@@ -99,14 +104,19 @@
         "detail": "3 von 103 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure"
       },
       {
-        "level": "WARN",
-        "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4_part1.txt: 83.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "level": "CRITICAL",
+        "check": "Drift: honeypot_ips.txt",
+        "detail": "honeypot_ips.txt: 2,299,520 \u2192 1,352,380 (-41%) \u2013 starker R\u00fcckgang seit letztem Check"
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4_part2.txt: 83.8 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4_part1.txt: 83.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      },
+      {
+        "level": "WARN",
+        "check": "Push-Limit Naehe",
+        "detail": "combined_threat_blacklist_ipv4_part2.txt: 83.7 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       }
     ]
   },
