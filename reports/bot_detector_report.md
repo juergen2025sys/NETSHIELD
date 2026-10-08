@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-08 04:13 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-08 04:26 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -8,8 +8,8 @@
 | Metrik | Wert |
 |---|---|
 | Gesamt IPs | **1,148,176** |
-| Neu (heute) | **+39** |
-| Entfernt | **-7** |
+| Neu (heute) | **+2** |
+| Entfernt | **-2** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 51 |
@@ -30,9 +30,9 @@
 | ✅ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 3,750 |
 | ✅ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 3,141 |
 | ✅ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 1,952 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,893 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,532 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,362 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,681 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,432 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,165 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,536 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,212 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 734 |
@@ -43,9 +43,9 @@
 | ✅ `officialputuid_proxyforeveryone` | 7,922 |
 | ✅ `officialputuid_proxyforeveryone_https` | 6,787 |
 | ✅ `officialputuid_proxyforeveryone_proxies` | 7,396 |
-| ✅ `ercindedeoglu_proxies` | 54,208 |
-| ✅ `ercindedeoglu_proxies_socks4` | 18,507 |
-| ✅ `ercindedeoglu_proxies_socks5` | 18,905 |
+| ✅ `ercindedeoglu_proxies` | 54,248 |
+| ✅ `ercindedeoglu_proxies_socks4` | 18,512 |
+| ✅ `ercindedeoglu_proxies_socks5` | 18,904 |
 | ✅ `tuanminpay_live_proxy` | 11,031 |
 | ✅ `tuanminpay_live_proxy_http` | 6,370 |
 | ✅ `tuanminpay_live_proxy_socks4` | 3,796 |
@@ -76,4 +76,4 @@
 > Diese 51 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-08 04:13 CEST (Europe/Berlin)*
+*Generiert: 2026-10-08 04:26 CEST (Europe/Berlin)*
