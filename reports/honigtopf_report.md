@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-10-08 18:27 CEST (Berlin)  
+**Aktualisiert:** 2026-10-08 19:59 CEST (Berlin)  
 **Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
@@ -14,79 +14,79 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-08 18:27 CEST (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-08 19:59 CEST (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **11,784** |
-| Bad Hosts – SIP | **164** |
-| Bad Hosts – RDP | **930** |
-| Bad Hosts – SSH | **2,980** |
-| Bad Hosts – MSSQL | **505** |
-| Bad Hosts – SNMP | **437** |
-| Bad Hosts – VNC | **323** |
-| Bad Hosts – HTTP | **3,917** |
+| Bad Hosts (24h, alle Dienste) | **11,848** |
+| Bad Hosts – SIP | **161** |
+| Bad Hosts – RDP | **936** |
+| Bad Hosts – SSH | **2,943** |
+| Bad Hosts – MSSQL | **492** |
+| Bad Hosts – SNMP | **427** |
+| Bad Hosts – VNC | **333** |
+| Bad Hosts – HTTP | **4,087** |
 | Bad Hosts – BitcoinP2P | **772** |
-| Bad Hosts – TFTP | **211** |
-| Bad Hosts – Telnet | **2,640** |
-| Bad Hosts – ProConOs | **208** |
-| Bad Hosts – Memcached | **192** |
-| Bad Hosts – MySQL | **588** |
-| Bad Hosts – Redis | **428** |
-| Bad Hosts – PostgreSQL | **446** |
-| Bad Hosts – Kubernetes | **726** |
-| Bad Hosts – CouchDB | **328** |
-| Bad Hosts – Elasticsearch | **517** |
-| Bad Hosts – FTP | **524** |
-| Bad Hosts – ClickhouseHTTP | **332** |
-| Bad Hosts – Oracle | **273** |
-| Bad Hosts – Docker | **26** |
-| Bad Hosts – Modbus | **240** |
-| Bad Hosts – LDAP | **209** |
-| Bad Hosts – MQTT | **219** |
-| Bad Hosts – RAW | **137** |
-| Bad Hosts – IPP | **113** |
+| Bad Hosts – TFTP | **210** |
+| Bad Hosts – Telnet | **2,626** |
+| Bad Hosts – ProConOs | **221** |
+| Bad Hosts – Memcached | **203** |
+| Bad Hosts – MySQL | **578** |
+| Bad Hosts – Redis | **436** |
+| Bad Hosts – PostgreSQL | **441** |
+| Bad Hosts – Kubernetes | **765** |
+| Bad Hosts – CouchDB | **306** |
+| Bad Hosts – Elasticsearch | **547** |
+| Bad Hosts – FTP | **574** |
+| Bad Hosts – ClickhouseHTTP | **361** |
+| Bad Hosts – Docker | **31** |
+| Bad Hosts – Oracle | **256** |
+| Bad Hosts – Modbus | **269** |
+| Bad Hosts – LDAP | **205** |
+| Bad Hosts – RAW | **140** |
+| Bad Hosts – MQTT | **218** |
+| Bad Hosts – IPP | **126** |
 | Bad Hosts – BeaconAPI.web3signer | **53** |
-| Bad Hosts – HashCountRandom | **148** |
-| Bad Hosts – LPD | **83** |
-| Bad Hosts – Electrum | **45** |
-| Bad Hosts – MOTD | **69** |
-| Bad Hosts – BitcoinP2P.dogecoin | **10** |
-| Bad Hosts – BitcoinP2P.litecoin | **6** |
+| Bad Hosts – HashCountRandom | **135** |
+| Bad Hosts – LPD | **92** |
+| Bad Hosts – Electrum | **46** |
+| Bad Hosts – MOTD | **68** |
+| Bad Hosts – BitcoinP2P.dogecoin | **11** |
+| Bad Hosts – BitcoinP2P.litecoin | **5** |
 | Bad Hosts – BitcoinRPC.dash | **9** |
 | Bad Hosts – ClaymoreAPI | **9** |
 | Bad Hosts – SubstrateRPC | **1** |
-| Bad Hosts – WebLogic | **1** |
+| Bad Hosts – WebLogic | **0** |
 | Bad Hosts – XMRigAPI | **11** |
-| Bad Hosts – Echo | **7** |
-| Bad Hosts – MoneroRPC | **1** |
+| Bad Hosts – MoneroRPC | **3** |
+| Bad Hosts – Echo | **5** |
 | Bad Hosts – BitcoinRPC.dogecoin | **2** |
 | Bad Hosts – BitcoinRPC | **2** |
 
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
 
-Davon **heute (2026-10-08)**: **8,876** IPs
+Davon **heute (2026-10-08)**: **9,506** IPs
 
 | last_seen | IPs |
 |---|---:|
-| 2026-10-08 | **8,876** |
-| 2026-10-07 | **2,908** |
+| 2026-10-08 | **9,506** |
+| 2026-10-07 | **2,342** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **14,571** |
-| Kandidaten dieses Abrufs | **14,571** |
+| Gesamt Honigtopf-IPs | **14,652** |
+| Kandidaten dieses Abrufs | **14,652** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+548** |
-| Entfernt | **-601** |
+| Neu | **+673** |
+| Entfernt | **-592** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-10-08 18:27 CEST (Berlin)*
+*Generiert: 2026-10-08 19:59 CEST (Berlin)*
