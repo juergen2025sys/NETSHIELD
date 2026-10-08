@@ -1,9 +1,9 @@
 {
-  "updated": "2026-10-08 21:16 CEST (Europe/Berlin)",
+  "updated": "2026-10-09 01:44 CEST (Europe/Berlin)",
   "total": 32,
   "ok": 28,
-  "warn": 2,
-  "error": 3,
+  "warn": 3,
+  "error": 2,
   "errors": [
     {
       "file": "dns_blocklist_finder.yml",
@@ -14,11 +14,6 @@
       "file": "runner_image_watch.yml",
       "check": "persist-credentials fehlt",
       "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
-    },
-    {
-      "file": "Production Health",
-      "check": "active \u2286 conf40 Subset-Invariante verletzt",
-      "detail": "11,090 IPs in active fehlen in conf40 (1.075% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
     }
   ],
   "warnings": [
@@ -75,7 +70,7 @@
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "7467fb5233ab836d0f15bd5754c481a8149140de",
+    "sha": "99a01f4e5453b3540f4c12454d6c0d8fe0918abd",
     "status": "passed",
     "tests_run": 470,
     "failures": [],
@@ -87,15 +82,15 @@
     "detail": "470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 6378014,
-    "active_blacklist_ipv4.txt": 1031928,
-    "blacklist_confidence40_ipv4_part1.txt": 4694335,
-    "cve_exploit_ips.txt": 25712,
-    "honeypot_ips.txt": 2297320,
-    "bot_detector_blacklist_ipv4.txt": 1146516
+    "combined_threat_blacklist_ipv4_part1.txt": 6380260,
+    "active_blacklist_ipv4.txt": 1036436,
+    "blacklist_confidence40_ipv4_part1.txt": 4701946,
+    "cve_exploit_ips.txt": 25766,
+    "honeypot_ips.txt": 2311403,
+    "bot_detector_blacklist_ipv4.txt": 1146928
   },
   "production_health": {
-    "critical": 1,
+    "critical": 0,
     "warn": 3,
     "checks": [
       {
@@ -112,11 +107,6 @@
         "level": "WARN",
         "check": "Push-Limit Naehe",
         "detail": "combined_threat_blacklist_ipv4_part2.txt: 84.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
-      },
-      {
-        "level": "CRITICAL",
-        "check": "active \u2286 conf40 Subset-Invariante verletzt",
-        "detail": "11,090 IPs in active fehlen in conf40 (1.075% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
       }
     ]
   },
