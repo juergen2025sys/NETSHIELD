@@ -745,6 +745,20 @@ jobs:
                   "https://feeds.honeynet.asia/bruteforce/latest-telnetbruteforce-unique.csv",
               "ismalicious_critical":
                   "https://api.ismalicious.com/blocklist/download/blocklist-ips-critical.txt",
+
+              # Zusaetzliche Feeds (2026-10-09): Plain-Text, ohne API-Key.
+              # LureScope: Top 500 der letzten 7 Tage, Score >= 60,
+              # laut Anbieter eigene Sensoren, stuendliche Aktualisierung.
+              "lurescope_7d":
+                  "https://lurescope.com/blocklist/download/txt",
+              # TarPit.pro: eigene Honeypot-Beobachtungen, alle 15 Minuten.
+              # Gemischter IPv4/IPv6-Feed; parse_entries uebernimmt nur IPv4.
+              "tarpit_pro":
+                  "https://api.tarpit.pro/v1/feed/blocklist.txt",
+              # Honeypot Tracker: Cowrie SSH/Telnet, Zeitfenster 7 Tage.
+              # Quellenangabe: Honeypot Tracker (honeypottracker.live).
+              "honeypottracker_7d":
+                  "https://honeypottracker.live/api/export/blocklist.txt?days=7",
           }
 
           # Auth-pflichtige Feeds: name -> LISTE von HTTP-Header-Dicts, in
