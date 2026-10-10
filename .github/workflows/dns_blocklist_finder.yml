@@ -20,9 +20,9 @@ jobs:
 
     steps:
       - name: Repository auschecken
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Aktuelle DNS-Blocklisten auf GitHub suchen
         env:
@@ -552,7 +552,7 @@ jobs:
 
       - name: Report als Artifact speichern
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: dns-blocklists-current
           path: |
@@ -564,6 +564,8 @@ jobs:
       - name: Report ins NETSHIELD-Repository schreiben
         shell: bash
         run: |
+          set -euo pipefail
+
           if [ ! -f reports/dns_blocklists_current.md ]; then
             echo "Kein Report vorhanden."
             exit 0
@@ -580,4 +582,22 @@ jobs:
           fi
 
           git commit -m "chore: update current DNS blocklist report"
-          git push
+          # Other workflows can publish between checkout and this push.
+          # Rebase onto the current branch; never overwrite conflicting edits.
+          for attempt in 1 2 3 4 5; do
+            if git fetch origin "${GITHUB_REF_NAME}"; then
+              if ! git rebase "origin/${GITHUB_REF_NAME}"; then
+                git rebase --abort
+                echo "::error::Rebase-Konflikt beim DNS-Report. Keine Remote-Aenderungen ueberschrieben."
+                exit 1
+              fi
+              if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+                exit 0
+              fi
+            fi
+            if [ "$attempt" -lt 5 ]; then
+              sleep $((attempt * 3))
+            fi
+          done
+          echo "::error::DNS-Report konnte nach 5 Versuchen nicht gepusht werden."
+          exit 1
