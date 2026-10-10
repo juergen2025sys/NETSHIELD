@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-10-10 01:13 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-10-10 09:03 CEST (Europe/Berlin)
 
 **Workflows:** 32 | ✅ 28 OK | ⚠️ 3 Warnung | ❌ 2 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `8b9b0232be23c1826cde7067704609ee8522b6be`
+✅ Commit: `5c152d988fb63cca630c24c40d2d81be62b0941c`
 
 470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -30,9 +30,9 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `dns_blocklist_finder.yml` | Action nicht SHA-pinned | uses: actions/upload-artifact@v7 – Tag statt SHA-Hash (Supply-Chain-Risiko) |
 | `dns_blocklist_finder.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
-| `Production Health` | Feed-Ausfälle | 3 von 103 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4_part1.txt: 83.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4_part2.txt: 83.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Feed-Ausfälle | 2 von 103 Feeds ausgefallen: edanwong, fortigate_azure |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4_part1.txt: 82.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4_part2.txt: 82.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
@@ -40,9 +40,9 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 | Level | Check | Detail |
 |---|---|---|
-| 🟡 WARN | Feed-Ausfälle | 3 von 103 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure |
-| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4_part1.txt: 83.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4_part2.txt: 83.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Feed-Ausfälle | 2 von 103 Feeds ausgefallen: edanwong, fortigate_azure |
+| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4_part1.txt: 82.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4_part2.txt: 82.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
 
@@ -82,4 +82,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-10-10 01:13 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
+*Generiert: 2026-10-10 09:03 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*

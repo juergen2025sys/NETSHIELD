@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-10 01:13 CEST (Europe/Berlin)",
+  "updated": "2026-10-10 09:03 CEST (Europe/Berlin)",
   "total": 32,
   "ok": 28,
   "warn": 3,
@@ -55,22 +55,22 @@
     {
       "file": "Production Health",
       "check": "Feed-Ausf\u00e4lle",
-      "detail": "3 von 103 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure"
+      "detail": "2 von 103 Feeds ausgefallen: edanwong, fortigate_azure"
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4_part1.txt: 83.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4_part1.txt: 82.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4_part2.txt: 83.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4_part2.txt: 82.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "8b9b0232be23c1826cde7067704609ee8522b6be",
+    "sha": "5c152d988fb63cca630c24c40d2d81be62b0941c",
     "status": "passed",
     "tests_run": 470,
     "failures": [],
@@ -82,12 +82,12 @@
     "detail": "470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 6306788,
-    "active_blacklist_ipv4.txt": 1038682,
-    "blacklist_confidence40_ipv4_part1.txt": 4625085,
-    "cve_exploit_ips.txt": 25719,
-    "honeypot_ips.txt": 2319223,
-    "bot_detector_blacklist_ipv4.txt": 1150044
+    "combined_threat_blacklist_ipv4_part1.txt": 6287994,
+    "active_blacklist_ipv4.txt": 991964,
+    "blacklist_confidence40_ipv4_part1.txt": 4603431,
+    "cve_exploit_ips.txt": 25754,
+    "honeypot_ips.txt": 2317754,
+    "bot_detector_blacklist_ipv4.txt": 1148778
   },
   "production_health": {
     "critical": 0,
@@ -96,17 +96,17 @@
       {
         "level": "WARN",
         "check": "Feed-Ausf\u00e4lle",
-        "detail": "3 von 103 Feeds ausgefallen: abuseipdb_tmiland, edanwong, fortigate_azure"
+        "detail": "2 von 103 Feeds ausgefallen: edanwong, fortigate_azure"
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4_part1.txt: 83.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4_part1.txt: 82.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4_part2.txt: 83.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4_part2.txt: 82.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       }
     ]
   },
