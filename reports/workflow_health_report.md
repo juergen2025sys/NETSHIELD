@@ -1,38 +1,29 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-10-10 09:03 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-10-10 15:39 CEST (Europe/Berlin)
 
-**Workflows:** 32 | ✅ 28 OK | ⚠️ 3 Warnung | ❌ 2 Fehler
+**Workflows:** 32 | ✅ 29 OK | ⚠️ 4 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `5c152d988fb63cca630c24c40d2d81be62b0941c`
+✅ Commit: `8b4574aae077eb7331dea5dbedcee3bd22051546`
 
-470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
+479 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
-
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `dns_blocklist_finder.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
-| `runner_image_watch.yml` | persist-credentials fehlt | git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen |
 
 ## ⚠️ Warnungen
 
 | Datei | Check | Detail |
 |---|---|---|
 | `auto_feed_discovery.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
-| `dns_blocklist_finder.yml` | Git Push ohne Retry-Schleife | git push ohne Retry-Schleife – Race-Condition bei parallelen Runs (kein 'for attempt in ...') |
 | `dns_blocklist_finder.yml` | Kein expliziter Leerungsschutz | Externer Feed/Report ohne explizite MIN_* Guard-Variable – Müll-/Leer-Daten könnten unbemerkt akzeptiert werden |
-| `dns_blocklist_finder.yml` | Action nicht SHA-pinned | uses: actions/checkout@v7 – Tag statt SHA-Hash (Supply-Chain-Risiko) |
-| `dns_blocklist_finder.yml` | Action nicht SHA-pinned | uses: actions/upload-artifact@v7 – Tag statt SHA-Hash (Supply-Chain-Risiko) |
 | `dns_blocklist_finder.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
+| `dns_blocklist_finder.yml` | actions/upload-artifact Version-Drift | 1 Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht? |
 | `Production Health` | Feed-Ausfälle | 2 von 103 Feeds ausgefallen: edanwong, fortigate_azure |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4_part1.txt: 82.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4_part2.txt: 82.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4_part1.txt: 83.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| `Production Health` | Push-Limit Naehe | combined_threat_blacklist_ipv4_part2.txt: 83.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## 🏥 Production Health
 
@@ -41,8 +32,8 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | Level | Check | Detail |
 |---|---|---|
 | 🟡 WARN | Feed-Ausfälle | 2 von 103 Feeds ausgefallen: edanwong, fortigate_azure |
-| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4_part1.txt: 82.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
-| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4_part2.txt: 82.9 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4_part1.txt: 83.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
+| 🟡 WARN | Push-Limit Naehe | combined_threat_blacklist_ipv4_part2.txt: 83.1 MB (>= 80 MB) – Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen. |
 
 ## Übersicht
 
@@ -54,7 +45,7 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
 | `dependabot-auto-merge.yml` | ✅ OK | 0 | 0 | – |
 | `dependabot-heal-conflicts.yml` | ✅ OK | 0 | 0 | – |
-| `dns_blocklist_finder.yml` | ❌ | 1 | 5 | – |
+| `dns_blocklist_finder.yml` | ⚠️ | 0 | 2 | – |
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `feed_ip_finder.yml` | ✅ OK | 0 | 0 | – |
@@ -68,7 +59,7 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `netshield_report_generator.yml` | ⚠️ | 0 | 1 | `30 * * * *`, `45 * * * *`, `55 * * * *` |
 | `repo_size_check.yml` | ✅ OK | 0 | 0 | – |
 | `run_tests.yml` | ✅ OK | 0 | 0 | – |
-| `runner_image_watch.yml` | ❌ | 1 | 0 | `0 2 * * 0` |
+| `runner_image_watch.yml` | ✅ OK | 0 | 0 | `0 2 * * 0` |
 | `score_decay_monitor.yml` | ✅ OK | 0 | 0 | `0 7 * * 0` |
 | `sniffcat_fetch.yml` | ✅ OK | 0 | 0 | – |
 | `tweetfeed_monitor.yml` | ✅ OK | 0 | 0 | `45 2 * * *` |
@@ -82,4 +73,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-10-10 09:03 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
+*Generiert: 2026-10-10 15:39 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*

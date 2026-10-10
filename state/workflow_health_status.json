@@ -1,21 +1,10 @@
 {
-  "updated": "2026-10-10 09:03 CEST (Europe/Berlin)",
+  "updated": "2026-10-10 15:39 CEST (Europe/Berlin)",
   "total": 32,
-  "ok": 28,
-  "warn": 3,
-  "error": 2,
-  "errors": [
-    {
-      "file": "dns_blocklist_finder.yml",
-      "check": "persist-credentials fehlt",
-      "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
-    },
-    {
-      "file": "runner_image_watch.yml",
-      "check": "persist-credentials fehlt",
-      "detail": "git push verwendet aber checkout ohne persist-credentials: true \u2013 Push wird fehlschlagen"
-    }
-  ],
+  "ok": 29,
+  "warn": 4,
+  "error": 0,
+  "errors": [],
   "warnings": [
     {
       "file": "auto_feed_discovery.yml",
@@ -24,23 +13,8 @@
     },
     {
       "file": "dns_blocklist_finder.yml",
-      "check": "Git Push ohne Retry-Schleife",
-      "detail": "git push ohne Retry-Schleife \u2013 Race-Condition bei parallelen Runs (kein 'for attempt in ...')"
-    },
-    {
-      "file": "dns_blocklist_finder.yml",
       "check": "Kein expliziter Leerungsschutz",
       "detail": "Externer Feed/Report ohne explizite MIN_* Guard-Variable \u2013 M\u00fcll-/Leer-Daten k\u00f6nnten unbemerkt akzeptiert werden"
-    },
-    {
-      "file": "dns_blocklist_finder.yml",
-      "check": "Action nicht SHA-pinned",
-      "detail": "uses: actions/checkout@v7 \u2013 Tag statt SHA-Hash (Supply-Chain-Risiko)"
-    },
-    {
-      "file": "dns_blocklist_finder.yml",
-      "check": "Action nicht SHA-pinned",
-      "detail": "uses: actions/upload-artifact@v7 \u2013 Tag statt SHA-Hash (Supply-Chain-Risiko)"
     },
     {
       "file": "dns_blocklist_finder.yml",
@@ -53,6 +27,11 @@
       "detail": "Block 0: Doppelte Imports: ((2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
     },
     {
+      "file": "dns_blocklist_finder.yml",
+      "check": "actions/upload-artifact Version-Drift",
+      "detail": "1 Datei(en) weichen von der Mehrheits-SHA ab \u2013 Update vergessen oder verfrueht?"
+    },
+    {
       "file": "Production Health",
       "check": "Feed-Ausf\u00e4lle",
       "detail": "2 von 103 Feeds ausgefallen: edanwong, fortigate_azure"
@@ -60,34 +39,34 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4_part1.txt: 82.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4_part1.txt: 83.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4_part2.txt: 82.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4_part2.txt: 83.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "5c152d988fb63cca630c24c40d2d81be62b0941c",
+    "sha": "8b4574aae077eb7331dea5dbedcee3bd22051546",
     "status": "passed",
-    "tests_run": 470,
+    "tests_run": 479,
     "failures": [],
     "errors": [],
     "skipped": [],
     "unexpected_successes": [],
     "missing_required": [],
     "required_not_passed": [],
-    "detail": "470 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
+    "detail": "479 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 6287994,
-    "active_blacklist_ipv4.txt": 991964,
-    "blacklist_confidence40_ipv4_part1.txt": 4603431,
-    "cve_exploit_ips.txt": 25754,
-    "honeypot_ips.txt": 2317754,
-    "bot_detector_blacklist_ipv4.txt": 1148778
+    "combined_threat_blacklist_ipv4_part1.txt": 6309025,
+    "active_blacklist_ipv4.txt": 1019988,
+    "blacklist_confidence40_ipv4_part1.txt": 4617364,
+    "cve_exploit_ips.txt": 25678,
+    "honeypot_ips.txt": 2319912,
+    "bot_detector_blacklist_ipv4.txt": 1149511
   },
   "production_health": {
     "critical": 0,
@@ -101,12 +80,12 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4_part1.txt: 82.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4_part1.txt: 83.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4_part2.txt: 82.9 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4_part2.txt: 83.1 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       }
     ]
   },
