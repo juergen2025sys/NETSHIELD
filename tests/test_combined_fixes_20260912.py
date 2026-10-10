@@ -204,6 +204,37 @@ class CombinedFixTests(unittest.TestCase):
         self.assertEqual(db[ip]["last"], "2000-01-01")
         self.assertEqual(ledger, {})
 
+    def test_aggregate_copy_cannot_refresh_last_confirmation(self):
+        db = self.db()
+        for number, aggregate in enumerate(("cve_exploit_ips.txt", "honeypot_ips.txt"), 1):
+            ip = f"45.1.0.{number}"
+            db[ip] = self.entry(first="2026-08-01", last="2026-09-01", hq=True)
+            feeds = {"et_compromised", aggregate}
+            self.ingest(db, {ip: feeds}, hq_names=feeds,
+                        families={"et_compromised": "et"})
+            self.assertEqual(db[ip]["last"], "2026-09-01")
+            self.assertEqual(db[ip]["today_count"], 2)
+            self.assertTrue(db[ip]["today_hq"])
+
+    def test_new_ip_from_aggregate_still_has_hq_admission(self):
+        db = self.db()
+        ip = "45.1.0.1"
+        feeds = {"cve_exploit_ips.txt"}
+        self.ingest(db, {ip: feeds}, hq_names=feeds)
+        self.assertTrue(db[ip]["hq"])
+        self.assertEqual(db[ip]["last"], "2026-09-12")
+        self.assertEqual(db[ip]["today_count"], 1)
+
+    def test_two_aggregate_copies_cannot_revive_expired_active_ip(self):
+        db = self.db()
+        ip = "45.1.0.1"
+        active = {ip: {"last": "2026-01-01", "eingefroren_am": "2026-09-10"}}
+        feeds = {"cve_exploit_ips.txt", "honeypot_ips.txt", "et_compromised"}
+        self.ingest(db, {ip: feeds}, active=active, hq_names=feeds,
+                    families={"et_compromised": "et"})
+        self.assertNotIn(ip, db)
+        self.assertIn(ip, active)
+
     def test_two_hq_families_remove_both_old_ledgers_for_existing_ip(self):
         db = self.db()
         ip = "45.1.0.1"
