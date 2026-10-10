@@ -576,7 +576,13 @@ jobs:
               ".github/workflows/update_combined_blacklist.yml",
               ".github/workflows/honeypot_monitor.yml",
           ]
-          SOURCES_COVERED_FILES = {}
+          # Explicitly retired source files must not be auto-added again.
+          # Other files in these repositories remain eligible.
+          SOURCES_COVERED_FILES = {
+              "ashleykleynhans/ipset": {"ipv4.csv"},
+              "edanwong/ip_list": {"my_ips.txt"},
+              "it3ngineer/fortigateblocklist": {"azureblocklistips.txt"},
+          }
           _sync_file_count = 0
           for _sync_path in _SYNC_SOURCE_FILES:
               try:

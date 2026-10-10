@@ -1039,12 +1039,12 @@ jobs:
               # aus, ohne dass es auffaellt.
               "myip_ms", "rutgers_drop",
               # FIX BUG-DP1 (2026-08-08, workflow_health_checker.yml HIGH_QUALITY
-              # ↔ SOURCES Drift): threatslist_paloalto_edl und abuseipdb_tmiland
+              # ↔ SOURCES Drift): threatslist_paloalto_edl
               # hatten hq=True in SOURCES, fehlten aber hier. Exaktes BUG-DP1-
               # Szenario: ip_in_hq blieb leer -> strongly_confirmed_today blieb
               # False -> "last" wurde nie gesetzt -> IPs alterten trotz hq=True
               # still nach 180 Tagen aus. Beide hier ergaenzt.
-              "threatslist_paloalto_edl", "abuseipdb_tmiland",
+              "threatslist_paloalto_edl",
           }
 
           # ══════════════════════════════════════════════════════════════════
@@ -1130,24 +1130,6 @@ jobs:
               "abuseipdb_s100_30d":  "abuseipdb",
               "abuseipdb_s100_7d":   "abuseipdb",
               "abuseipdb_score100":  "abuseipdb",
-              # FIX FAMILY-TMILAND (2026-08-28): abuseipdb_tmiland fehlte hier.
-              # Der Feed ist ein weiterer Spiegel derselben AbuseIPDB-Datenbank
-              # (abuseipdb.tmiland.com/abuseipdb.txt), war aber ungemappt und
-              # zaehlte dadurch als EIGENE Familie. Folge: abuseipdb_tmiland +
-              # ein beliebiger anderer abuseipdb-Feed ergaben 2 "Familien" ->
-              # strongly_confirmed_today=True -> "last" wurde auf heute gesetzt
-              # -> volle 180 Tage, obwohl nur EINE Upstream-Quelle (AbuseIPDB)
-              # dahinterstand. Exakt das Szenario, gegen das BUG-9 gebaut wurde.
-              # Besonders relevant seit FIX WL-TO-ACTIVE-2HQ: seitdem ist
-              # strongly_confirmed_today der einzige Weg, auf dem eine zuvor
-              # eingefrorene IP ueberhaupt noch auf den 180-Tage-Pfad kommt -
-              # ein falsch gezaehlter Familien-Split wiegt damit schwerer als
-              # frueher. Der Feed war am 2026-08-02 nachtraeglich wieder in
-              # SOURCES eingetragen worden (siehe Kommentar dort); die
-              # Familien-Zuordnung wurde dabei uebersehen. Der bestehende
-              # Health-Check deckt nur HIGH_QUALITY <-> SOURCES ab, nicht
-              # HIGH_QUALITY <-> HQ_FEED_FAMILIES - deshalb fiel es nicht auf.
-              "abuseipdb_tmiland":   "abuseipdb",
               # feodotracker.abuse.ch – aggressive/recommended sind zwei
               # Aggregations-Stufen derselben Datenbank.
               "feodo_aggressive":    "feodo",
@@ -1182,17 +1164,23 @@ jobs:
           def _hq_families_of(hq_feed_names):
               """Reduziert HQ-Feed-Namen auf ihre Upstream-Familien.
               Feeds ohne explizites Family-Mapping sind ihre eigene Familie."""
-              return {HQ_FEED_FAMILIES.get(f, f) for f in hq_feed_names}
+              # These mixed lists reuse upstream feeds also fetched directly.
+              # Without per-IP provenance they cannot prove another independent
+              # HQ family. Keep their HQ/admission role and today_count unchanged.
+              aggregate_feeds = {"cve_exploit_ips.txt", "honeypot_ips.txt"}
+              return {HQ_FEED_FAMILIES.get(f, f) for f in hq_feed_names
+                      if f not in aggregate_feeds}
 
           # ══════════════════════════════════════════════════════════════════
           # SOURCES – erweitert um die vom User gelieferten Links
           # Format: "name": ("url", hq_bool)
           # ══════════════════════════════════════════════════════════════════
+          # Removed 2026-10-10: ashleykleynhans_abuseipdb, spydi_high_confidence
+          # (unchanged IP sets), abuseipdb_tmiland, edanwong, fortigate_azure
+          # (persistent fetch failures). Historical IPs follow normal expiry.
           SOURCES = {
               # Zusaetzliche Feeds (2026-09-24): zunaechst non-HQ.
-              # Spydi aggregiert vorhandene Upstreams und ist keine unabhaengige HQ-Bestaetigung.
               "sky_poppy_recent":          ("https://raw.githubusercontent.com/sky-poppy/fwfeed/main/blocklist_honeypot_ip4_aged_less_than_90days.txt", False),
-              "spydi_high_confidence":     ("https://spydisec.com/high_confidence_unlimited.txt", False),
               # Nur Score >= 90, mindestens 2 Bestaetigungen und konkrete Angriffskategorien.
               "ffraud_confirmed":         ("https://raw.githubusercontent.com/FFraud-com/ip-fraud-database/main/threat-ips/confirmed-abusive.csv", False),
               # ── Kern-Feeds ────────────────────────────────────────────────
@@ -1215,13 +1203,6 @@ jobs:
               # "heute frisch bestaetigt"-Logik in seen_db als auch den
               # Overlap-Referenzwert fuer neue Auto-Discovery-Kandidaten.
               "threatslist_paloalto_edl":   ("https://threatslist.github.io/Palo-Alto-EDL/edl_list.txt", True),
-              # NEU (2026-08-02): AbuseIPDB-Aggregator (confidence>=90%,
-              # count>=15, max 60 Tage, auf 10.000 Eintraege gedeckelt wegen
-              # AbuseIPDB-Free-Tier-API-Limit). Ueberschneidet sich vermutlich
-              # groesstenteils mit den bereits vorhandenen abuseipdb_s100_*-
-              # Feeds (borestad/blocklist-abuseipdb, ~99-100% Confidence,
-              # also strenger gefiltert) - auf Wunsch trotzdem ergaenzt.
-              "abuseipdb_tmiland":          ("https://abuseipdb.tmiland.com/abuseipdb.txt", True),
               # threatfox_ioc: FIX 2026-07-25 entfernt (nach honeypot_monitor.yml
               # verlagert, siehe HIGH_QUALITY-Kommentar oben).
               # ENTFERNT (2026-08-11): hagezi_tif (raw.githubusercontent-Variante) -
@@ -1247,16 +1228,6 @@ jobs:
               # unabhaengige HQ-Bestaetigung (vermeidet Confidence-Inflation via
               # strongly_confirmed-Logik). Dedup passiert ohnehin in parse_entries().
               "hagezi_tif_cdn":             ("https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/ips/tif.txt", False),
-              # ashleykleynhans_abuseipdb: Persoenlicher AbuseIPDB-Report-Export von
-              # Ashley Kleynhans (github.com/ashleykleynhans/ipset). CSV mit Header
-              # (Date Added,IP,Abuse Confidence Score,...), IP in Spalte 2 -
-              # parse_entries() faengt das ueber den generischen IPV4-Regex-Fallback
-              # ab (CSV wird explizit unterstuetzt). Live verifiziert: Daten bis
-              # 2026-06-26, aktiv gepflegt. Gemessener Overlap mit Bestand nur
-              # ~19% -> ~80% Netto-neu (Snapshot-Test mit hochgeladener Kopie der
-              # gleichen Datei). HQ=False: Single-Maintainer-Report-Historie, keine
-              # unabhaengige Multi-Source-Bestaetigung -> keine Confidence-Inflation.
-              "ashleykleynhans_abuseipdb":  ("https://raw.githubusercontent.com/ashleykleynhans/ipset/refs/heads/main/ipv4.csv", False),
               # threatfox_direct: FIX 2026-07-25 entfernt (nach honeypot_monitor.yml
               # verlagert - authentifizierter full.csv.zip-Export statt hier nur
               # der unauthentifizierte recent-CSV, siehe HIGH_QUALITY-Kommentar oben).
@@ -1305,11 +1276,9 @@ jobs:
               "bsdly_bruteforcers":         ("https://nxdomain.no/~peter/bruteforcers.txt", False),
               "bsdly_traplist":             ("https://nxdomain.no/~peter/bsdly.net.traplist", False),
               # "honeypot_blocklist" entfernt: yuexuana521/honeypot-blocklist Repo gelöscht
-              "edanwong":                   ("https://raw.githubusercontent.com/EdanWong/ip_list/refs/heads/main/my_ips.txt", False),
               # ENTFERNT (2026-08-05): nixbear_malicious - 52 Tage unveraendert lt. Stale-Feed-Report.
               "ufukart_blacklist":          ("https://raw.githubusercontent.com/ufukart/Blacklist/main/blacklist.txt", False),
               "f3csystems":                 ("https://raw.githubusercontent.com/f3csystems/BlockList_IP/refs/heads/main/blacklist.txt", False),
-              "fortigate_azure":            ("https://raw.githubusercontent.com/IT3ngineer/FortigateBlockList/refs/heads/main/AzureBlockListIPs.txt", False),
               "romainmarcoux_aa":           ("https://raw.githubusercontent.com/romainmarcoux/malicious-ip/main/full-300k-aa.txt", False),
               "romainmarcoux_ab":           ("https://raw.githubusercontent.com/romainmarcoux/malicious-ip/main/full-300k-ab.txt", False),
               # "romainmarcoux_ac" entfernt: full-300k-ac.txt existiert nicht mehr (HTTP 200, leerer Body)
@@ -1604,15 +1573,6 @@ jobs:
               # ── AbuseIPDB ─────────────────────────────────────────────────
               "abuseipdb_s100_30d":         ("https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-30d.ipv4", True),
               "abuseipdb_s100_7d":          ("https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/main/abuseipdb-s100-7d.ipv4", True),  # ersetzt abuseipdb_s90_30d
-              # HINWEIS abuseipdb_tmiland (aktualisiert 2026-08-02): War frueher
-              # wegen SSL-Hostname-Mismatch entfernt (Cert nicht fuer
-              # abuseipdb.tmiland.com gueltig, dauerhafter Fehler auf
-              # Server-Seite). Am 2026-08-02 auf Wunsch neu eingetragen (siehe
-              # "abuseipdb_tmiland" weiter oben bei threatslist_paloalto_edl) -
-              # lief im ersten Testlauf erfolgreich durch (9.952 IPs). Ob das
-              # SSL-Problem dauerhaft behoben ist oder nur zeitweise auftritt,
-              # zeigt sich erst nach mehreren weiteren Laeufen - falls die
-              # SSL-Fehler wiederkehren, taucht das als Fetch-Fehler im Log auf.
               # abuseipdb_score75 entfernt: 100% Subset von abuseipdb_score100/s100 (Audit 2026-05-17, 107k IPs, 0 Solo)
               "abuseipdb_score100":         ("https://raw.githubusercontent.com/LittleJake/ip-blacklist/refs/heads/main/abuseipdb_blacklist_ip_score_100.txt", True),
               # abuseipdb_scriptzteam entfernt: 100% Redundanz zu HQ-AbuseIPDB-Feeds (Audit 2026-05-17, 103k IPs, 0 Solo)
@@ -2183,7 +2143,7 @@ jobs:
 
           def normalize_selected_feed(name, raw):
               """Reine Textfeeds auf vollstaendige IPv4-Hosts begrenzen."""
-              if name not in {"sky_poppy_recent", "spydi_high_confidence"}:
+              if name != "sky_poppy_recent":
                   return raw
               if isinstance(raw, bytes):
                   raw = raw.decode("utf-8-sig", errors="replace")

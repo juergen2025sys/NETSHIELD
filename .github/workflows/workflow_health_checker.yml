@@ -428,6 +428,8 @@ jobs:
                       "detail": "; ".join(bad_pairs[:5]),
                   })
 
+          from netshield_workflow_checks import git_push_auth_warnings
+
           # ── Pro Datei ─────────────────────────────────────────────────────
           for fname in files:
               # Eigene Datei nicht prüfen: der Health Checker läuft innerhalb des Runners
@@ -1176,17 +1178,11 @@ jobs:
                       file_warnings.append(msg)
                       warnings.append({"file": fname, "check": "timeout-minutes fehlt", "detail": msg})
 
-              # ── Check 26: persist-credentials bei git push ───────────────
-              # Wenn ein Workflow git push ausfuehrt, braucht checkout
-              # persist-credentials: true. Fehlt es, schlaegt push fehl.
-              # FIX: content_shell_no_comments verwenden, damit Kommentare
-              # wie "# nicht per git push" nicht faelschlich triggern.
-              _has_git_push = 'git push' in content_shell_no_comments
-              _has_persist = 'persist-credentials: true' in content
-              if _has_git_push and not _has_persist:
-                  msg = "git push verwendet aber checkout ohne persist-credentials: true – Push wird fehlschlagen"
-                  file_errors.append(msg)
-                  errors.append({"file": fname, "check": "persist-credentials fehlt", "detail": msg})
+              # Check 26: checkout defaults and explicit Git authentication.
+              # Missing literal "persist-credentials: true" is not an error.
+              for msg in git_push_auth_warnings(content):
+                  file_warnings.append(msg)
+                  warnings.append({"file": fname, "check": "Git-Push-Anmeldung pruefen", "detail": msg})
 
               # ── Check 27: Permissions-Audit ──────────────────────────────
               # contents: write nur wenn der Workflow tatsaechlich committet.
