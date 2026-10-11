@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-10-11 20:27 CEST (Berlin)  
+**Aktualisiert:** 2026-10-11 20:58 CEST (Berlin)  
 **Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
@@ -14,82 +14,82 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-11 20:27 CEST (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-11 20:58 CEST (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **12,608** |
+| Bad Hosts (24h, alle Dienste) | **12,598** |
 | Bad Hosts – VNC | **360** |
-| Bad Hosts – SIP | **205** |
-| Bad Hosts – SSH | **3,545** |
-| Bad Hosts – RDP | **1,070** |
-| Bad Hosts – MSSQL | **420** |
-| Bad Hosts – TFTP | **204** |
-| Bad Hosts – SNMP | **377** |
-| Bad Hosts – HTTP | **2,768** |
+| Bad Hosts – SIP | **193** |
+| Bad Hosts – SSH | **3,563** |
+| Bad Hosts – RDP | **1,068** |
+| Bad Hosts – MSSQL | **422** |
+| Bad Hosts – TFTP | **206** |
+| Bad Hosts – SNMP | **376** |
+| Bad Hosts – HTTP | **2,747** |
 | Bad Hosts – BitcoinP2P | **774** |
-| Bad Hosts – ProConOs | **146** |
-| Bad Hosts – Telnet | **2,928** |
-| Bad Hosts – FTP | **340** |
-| Bad Hosts – Memcached | **186** |
-| Bad Hosts – PostgreSQL | **584** |
-| Bad Hosts – MySQL | **489** |
-| Bad Hosts – Kubernetes | **649** |
-| Bad Hosts – CouchDB | **1,121** |
-| Bad Hosts – Redis | **373** |
-| Bad Hosts – Elasticsearch | **625** |
-| Bad Hosts – Docker | **50** |
-| Bad Hosts – ClickhouseHTTP | **285** |
-| Bad Hosts – Oracle | **227** |
-| Bad Hosts – MQTT | **227** |
-| Bad Hosts – Modbus | **219** |
-| Bad Hosts – LDAP | **189** |
+| Bad Hosts – ProConOs | **151** |
+| Bad Hosts – Telnet | **2,935** |
+| Bad Hosts – FTP | **334** |
+| Bad Hosts – Memcached | **184** |
+| Bad Hosts – PostgreSQL | **577** |
+| Bad Hosts – MySQL | **487** |
+| Bad Hosts – Kubernetes | **664** |
+| Bad Hosts – Redis | **367** |
+| Bad Hosts – CouchDB | **1,124** |
+| Bad Hosts – Elasticsearch | **619** |
+| Bad Hosts – Docker | **51** |
+| Bad Hosts – ClickhouseHTTP | **283** |
+| Bad Hosts – Oracle | **234** |
+| Bad Hosts – MQTT | **230** |
+| Bad Hosts – Modbus | **222** |
+| Bad Hosts – LDAP | **184** |
 | Bad Hosts – RAW | **97** |
-| Bad Hosts – IPP | **60** |
 | Bad Hosts – BeaconAPI.web3signer | **64** |
-| Bad Hosts – HashCountRandom | **58** |
-| Bad Hosts – Electrum | **19** |
-| Bad Hosts – LPD | **42** |
-| Bad Hosts – MOTD | **25** |
+| Bad Hosts – IPP | **56** |
+| Bad Hosts – HashCountRandom | **89** |
+| Bad Hosts – Electrum | **20** |
+| Bad Hosts – LPD | **45** |
+| Bad Hosts – MOTD | **26** |
 | Bad Hosts – ClaymoreAPI | **22** |
 | Bad Hosts – IPFS | **21** |
 | Bad Hosts – XMRigAPI | **26** |
 | Bad Hosts – BitcoinRPC.dash | **17** |
-| Bad Hosts – MoneroRPC | **7** |
+| Bad Hosts – MoneroRPC | **6** |
 | Bad Hosts – BitcoinRPC | **6** |
 | Bad Hosts – MoneroRPC.wallet | **6** |
 | Bad Hosts – BitcoinP2P.litecoin | **5** |
 | Bad Hosts – DNS.udp | **0** |
 | Bad Hosts – BeaconAPI.engine | **3** |
-| Bad Hosts – BitcoinP2P.dogecoin | **2** |
 | Bad Hosts – Echo | **2** |
+| Bad Hosts – BitcoinP2P.dogecoin | **1** |
 | Bad Hosts – SubstrateRPC | **1** |
 | Bad Hosts – SubstrateRPC.legacy | **1** |
 
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
 
-Davon **heute (2026-10-11)**: **10,505** IPs
+Davon **heute (2026-10-11)**: **10,685** IPs
 
 | last_seen | IPs |
 |---|---:|
-| 2026-10-11 | **10,505** |
-| 2026-10-10 | **2,103** |
+| 2026-10-11 | **10,685** |
+| 2026-10-10 | **1,913** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **15,197** |
-| Kandidaten dieses Abrufs | **15,197** |
+| Gesamt Honigtopf-IPs | **15,185** |
+| Kandidaten dieses Abrufs | **15,185** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+1,020** |
-| Entfernt | **-1,447** |
+| Neu | **+189** |
+| Entfernt | **-201** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-10-11 20:27 CEST (Berlin)*
+*Generiert: 2026-10-11 20:58 CEST (Berlin)*
