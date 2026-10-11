@@ -1,16 +1,11 @@
 # NETSHIELD – Stale-Feed-Report
-**Aktualisiert:** 2026-10-10 08:34 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-10-11 08:41 CEST (Europe/Berlin)
 **Schwelle:** IP-Menge ≥ 14 Tage unveraendert
 
 Erkennt Feeds, die zwar antworten und IPs liefern, deren Inhalt sich aber lange nicht mehr aendert. Solche Feeds bestehen den Status-/has_ips-Check, halten ihre IPs aber kuenstlich auf voller Aktualitaet und entgehen so dem Score-Decay → Risiko veralteter Dauer-Blocks. Flag ist **advisory**, kein Auto-Remove.
 
-## ⚠️ 2 moeglicherweise eingefrorene(r) Feed(s)
+## ✅ Keine eingefrorenen Feeds
 
-| Feed | Tage unveraendert | Seit | IPs (Sample) | Typ | URL |
-|---|---|---|---|---|---|
-| `ashleykleynhans_abuseipdb` | 66 | 2026-08-04 15:19 UTC | ~31614 | normal | https://raw.githubusercontent.com/ashleykleynhans/ipset/refs/heads/main/ipv4.csv |
-| `spydi_high_confidence` | 15 | 2026-09-25 07:39 CEST (Europe/Berlin) | ~9605 | normal | https://spydisec.com/high_confidence_unlimited.txt |
+Alle Feeds haben ihre IP-Menge innerhalb der letzten 14 Tage geaendert (oder sind noch unterhalb der Schwelle).
 
-Hinweis: Kleine kuratierte Listen aendern sich legitim selten – ein Flag hier ist nicht automatisch ein Defekt. Bei DataPlane-Feeds (taegliches Honeypot-Signal) ist ein eingefrorener Stand dagegen ein echtes Alarmsignal. Der Fingerprint basiert auf dem 2-MB-Sample (wie sample_ips); bei sehr grossen Feeds ist er eine Praefix-Heuristik.
-
-*Generiert: 2026-10-10 08:34 CEST (Europe/Berlin)*
+*Generiert: 2026-10-11 08:41 CEST (Europe/Berlin)*
