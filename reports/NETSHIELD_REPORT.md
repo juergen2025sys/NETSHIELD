@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-10-12 10:12 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-10-12 11:21 CEST (Europe/Berlin)
 
 ---
 ## 📊 Listen-Übersicht
@@ -10,10 +10,10 @@
 | ✅ [active_blacklist_ipv4.txt](../active_blacklist_ipv4.txt) | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **994,038** | 2026-10-12 08:36 CEST (Europe/Berlin) |
 | ✅ [blacklist_confidence40_ipv4_part1.txt](../blacklist_confidence40_ipv4_part1.txt) + [blacklist_confidence40_ipv4_part2.txt](../blacklist_confidence40_ipv4_part2.txt) | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **9,233,573** | 2026-10-12 10:04 CEST (Europe/Berlin) |
 | ✅ [watchlist_confidence25to39_ipv4.txt](../watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25-39/100) | **3,027,025** | 2026-10-12 10:04 CEST (Europe/Berlin) |
-| ✅ [cve_exploit_ips.txt](../cve_exploit_ips.txt) | CVE Exploit IPs | **25,711** | 2026-10-12 04:34 CEST (Europe/Berlin) |
-| ✅ [bot_detector_blacklist_ipv4.txt](../bot_detector_blacklist_ipv4.txt) | Bot-Detector Blacklist | **1,150,325** | 2026-10-12 10:10 CEST (Europe/Berlin) |
-| ✅ [honeypot_ips.txt](../honeypot_ips.txt) | Honeypot IPs | **2,352,210** | 2026-10-12 08:48 CEST (Europe/Berlin) |
-| ✅ [honigtopf_ips.txt](../honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **15,403** | 2026-10-12 10:07 CEST (Europe/Berlin) |
+| ✅ [cve_exploit_ips.txt](../cve_exploit_ips.txt) | CVE Exploit IPs | **25,741** | 2026-10-12 10:30 CEST (Europe/Berlin) |
+| ✅ [bot_detector_blacklist_ipv4.txt](../bot_detector_blacklist_ipv4.txt) | Bot-Detector Blacklist | **1,150,325** | 2026-10-12 10:14 CEST (Europe/Berlin) |
+| ✅ [honeypot_ips.txt](../honeypot_ips.txt) | Honeypot IPs | **2,352,544** | 2026-10-12 10:14 CEST (Europe/Berlin) |
+| ✅ [honigtopf_ips.txt](../honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **15,234** | 2026-10-12 11:19 CEST (Europe/Berlin) |
 
 ---
 ## 🔍 Feed Health: ✅ 97 OK | ⚠️ 1 leer | ❌ 0 Fehler
@@ -28,4 +28,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-10-12 10:12 CEST (Europe/Berlin)*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-10-12 11:21 CEST (Europe/Berlin)*
