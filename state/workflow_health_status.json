@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-12 00:50 CEST (Europe/Berlin)",
+  "updated": "2026-10-12 09:20 CEST (Europe/Berlin)",
   "total": 32,
   "ok": 29,
   "warn": 4,
@@ -34,17 +34,17 @@
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4_part1.txt: 83.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4_part1.txt: 83.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     },
     {
       "file": "Production Health",
       "check": "Push-Limit Naehe",
-      "detail": "combined_threat_blacklist_ipv4_part2.txt: 83.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+      "detail": "combined_threat_blacklist_ipv4_part2.txt: 83.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "93064cdeb966cf1d2bef115940464e2e8e64d3fc",
+    "sha": "8324aac779ecca6d8d2add52c76ee7ad43268f45",
     "status": "passed",
     "tests_run": 479,
     "failures": [],
@@ -56,12 +56,12 @@
     "detail": "479 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 6341567,
-    "active_blacklist_ipv4.txt": 1027892,
-    "blacklist_confidence40_ipv4_part1.txt": 4643844,
-    "cve_exploit_ips.txt": 25761,
-    "honeypot_ips.txt": 2349110,
-    "bot_detector_blacklist_ipv4.txt": 1147700
+    "combined_threat_blacklist_ipv4_part1.txt": 6314473,
+    "active_blacklist_ipv4.txt": 994038,
+    "blacklist_confidence40_ipv4_part1.txt": 4616787,
+    "cve_exploit_ips.txt": 25711,
+    "honeypot_ips.txt": 2352210,
+    "bot_detector_blacklist_ipv4.txt": 1150318
   },
   "production_health": {
     "critical": 0,
@@ -70,12 +70,12 @@
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4_part1.txt: 83.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4_part1.txt: 83.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       },
       {
         "level": "WARN",
         "check": "Push-Limit Naehe",
-        "detail": "combined_threat_blacklist_ipv4_part2.txt: 83.6 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
+        "detail": "combined_threat_blacklist_ipv4_part2.txt: 83.2 MB (>= 80 MB) \u2013 Push-Limit-Reserve schrumpft, Splitting-Strategie pruefen."
       }
     ]
   },
