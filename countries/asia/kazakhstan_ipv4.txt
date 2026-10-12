@@ -1,6 +1,6 @@
 # NETSHIELD – Kazakhstan (KZ) IPv4 Ranges
-# Aktualisiert: 2026-10-07 09:30 CEST (Europe/Berlin)
-# IP-Ranges: 685
+# Aktualisiert: 2026-10-12 09:49 CEST (Europe/Berlin)
+# IP-Ranges: 686
 
 2.57.96.0/22
 2.72.0.0/13
@@ -685,5 +685,6 @@
 217.65.129.0/24
 217.76.64.0/20
 217.171.144.0/24
+217.180.0.0/22
 217.180.18.0/23
 217.196.16.0/20

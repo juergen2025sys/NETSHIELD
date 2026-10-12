@@ -1,6 +1,6 @@
 # NETSHIELD – Serbia (RS) IPv4 Ranges
-# Aktualisiert: 2026-10-07 09:30 CEST (Europe/Berlin)
-# IP-Ranges: 437
+# Aktualisiert: 2026-10-12 09:49 CEST (Europe/Berlin)
+# IP-Ranges: 438
 
 5.22.160.0/19
 5.57.72.0/21
@@ -207,6 +207,7 @@
 159.200.216.0/22
 160.99.0.0/16
 160.238.60.0/24
+164.37.63.0/24
 176.67.192.0/19
 176.103.216.0/23
 176.104.104.0/21

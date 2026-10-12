@@ -1,6 +1,6 @@
 # NETSHIELD – Spain (ES) IPv4 Ranges
-# Aktualisiert: 2026-10-07 09:30 CEST (Europe/Berlin)
-# IP-Ranges: 3787
+# Aktualisiert: 2026-10-12 09:49 CEST (Europe/Berlin)
+# IP-Ranges: 3788
 
 1.178.224.0/19
 2.56.64.0/22
@@ -1439,6 +1439,7 @@
 143.131.192.0/18
 144.2.160.0/22
 144.2.164.0/22
+144.2.248.0/22
 144.178.128.0/18
 145.1.128.0/17
 146.19.117.0/24

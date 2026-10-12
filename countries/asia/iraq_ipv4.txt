@@ -1,6 +1,6 @@
 # NETSHIELD – Iraq (IQ) IPv4 Ranges
-# Aktualisiert: 2026-10-07 09:30 CEST (Europe/Berlin)
-# IP-Ranges: 341
+# Aktualisiert: 2026-10-12 09:49 CEST (Europe/Berlin)
+# IP-Ranges: 342
 
 5.1.104.0/22
 5.1.108.0/23
@@ -121,6 +121,7 @@
 164.138.232.0/21
 167.160.5.0/24
 171.33.160.0/22
+171.33.164.0/22
 176.28.72.0/24
 176.28.73.0/24
 176.28.74.0/23

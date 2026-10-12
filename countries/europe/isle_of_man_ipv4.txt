@@ -1,6 +1,6 @@
 # NETSHIELD – Isle Of Man (IM) IPv4 Ranges
-# Aktualisiert: 2026-10-07 09:30 CEST (Europe/Berlin)
-# IP-Ranges: 74
+# Aktualisiert: 2026-10-12 09:49 CEST (Europe/Berlin)
+# IP-Ranges: 75
 
 5.62.80.0/20
 5.154.182.0/24
@@ -68,6 +68,7 @@
 193.33.228.0/23
 193.107.204.0/22
 193.143.248.0/24
+193.178.252.0/22
 193.219.111.0/24
 195.10.96.0/19
 195.210.50.0/23

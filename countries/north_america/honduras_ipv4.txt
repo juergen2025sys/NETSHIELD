@@ -1,6 +1,6 @@
 # NETSHIELD – Honduras (HN) IPv4 Ranges
-# Aktualisiert: 2026-10-07 09:30 CEST (Europe/Berlin)
-# IP-Ranges: 192
+# Aktualisiert: 2026-10-12 09:49 CEST (Europe/Berlin)
+# IP-Ranges: 193
 
 45.4.84.0/22
 45.4.136.0/22
@@ -12,6 +12,7 @@
 45.68.33.0/24
 45.68.34.0/23
 45.68.62.0/23
+45.68.144.0/22
 45.71.16.0/22
 45.71.52.0/22
 45.166.92.0/22

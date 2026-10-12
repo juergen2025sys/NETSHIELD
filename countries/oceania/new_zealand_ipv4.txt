@@ -1,6 +1,6 @@
 # NETSHIELD – New Zealand (NZ) IPv4 Ranges
-# Aktualisiert: 2026-10-07 09:30 CEST (Europe/Berlin)
-# IP-Ranges: 1465
+# Aktualisiert: 2026-10-12 09:49 CEST (Europe/Berlin)
+# IP-Ranges: 1464
 
 14.1.32.0/19
 14.102.98.0/23
@@ -169,7 +169,6 @@
 103.29.30.0/23
 103.29.244.0/23
 103.29.246.0/23
-103.35.88.0/23
 103.36.128.0/24
 103.37.204.0/22
 103.38.164.0/22

@@ -1,6 +1,6 @@
 # NETSHIELD – Uzbekistan (UZ) IPv4 Ranges
-# Aktualisiert: 2026-10-07 09:30 CEST (Europe/Berlin)
-# IP-Ranges: 223
+# Aktualisiert: 2026-10-12 09:49 CEST (Europe/Berlin)
+# IP-Ranges: 224
 
 5.133.120.0/22
 31.40.24.0/22
@@ -156,6 +156,7 @@
 185.196.212.0/22
 185.196.216.0/22
 185.203.236.0/22
+185.208.158.0/24
 185.208.176.0/22
 185.210.231.0/24
 185.211.128.0/22

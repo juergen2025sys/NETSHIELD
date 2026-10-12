@@ -1,6 +1,6 @@
 # NETSHIELD – Philippines (PH) IPv4 Ranges
-# Aktualisiert: 2026-10-07 09:30 CEST (Europe/Berlin)
-# IP-Ranges: 914
+# Aktualisiert: 2026-10-12 09:49 CEST (Europe/Berlin)
+# IP-Ranges: 915
 
 1.37.0.0/16
 2.58.228.0/22
@@ -48,6 +48,7 @@
 45.114.132.0/22
 45.115.224.0/22
 45.118.36.0/22
+45.118.255.0/24
 45.120.108.0/22
 45.124.16.0/22
 45.124.56.0/22
