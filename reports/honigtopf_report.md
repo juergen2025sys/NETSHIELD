@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-10-12 21:09 CEST (Berlin)  
+**Aktualisiert:** 2026-10-12 21:46 CEST (Berlin)  
 **Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
@@ -14,54 +14,54 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-12 21:09 CEST (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-12 21:46 CEST (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **12,146** |
+| Bad Hosts (24h, alle Dienste) | **12,133** |
 | Bad Hosts – VNC | **499** |
-| Bad Hosts – SIP | **187** |
-| Bad Hosts – SSH | **3,093** |
-| Bad Hosts – TFTP | **188** |
-| Bad Hosts – MSSQL | **454** |
-| Bad Hosts – SNMP | **375** |
-| Bad Hosts – HTTP | **3,569** |
-| Bad Hosts – RDP | **777** |
+| Bad Hosts – SIP | **186** |
+| Bad Hosts – SSH | **3,044** |
+| Bad Hosts – TFTP | **191** |
+| Bad Hosts – MSSQL | **451** |
+| Bad Hosts – SNMP | **373** |
+| Bad Hosts – HTTP | **3,601** |
+| Bad Hosts – RDP | **767** |
 | Bad Hosts – BitcoinP2P | **788** |
-| Bad Hosts – PostgreSQL | **472** |
-| Bad Hosts – ProConOs | **193** |
-| Bad Hosts – Telnet | **2,711** |
-| Bad Hosts – MySQL | **576** |
-| Bad Hosts – Kubernetes | **753** |
-| Bad Hosts – FTP | **465** |
-| Bad Hosts – Memcached | **189** |
-| Bad Hosts – Docker | **54** |
-| Bad Hosts – Elasticsearch | **587** |
-| Bad Hosts – Redis | **316** |
-| Bad Hosts – CouchDB | **282** |
-| Bad Hosts – ClickhouseHTTP | **389** |
-| Bad Hosts – LDAP | **203** |
-| Bad Hosts – Modbus | **221** |
-| Bad Hosts – Oracle | **238** |
-| Bad Hosts – BeaconAPI.web3signer | **64** |
-| Bad Hosts – MQTT | **230** |
-| Bad Hosts – RAW | **119** |
+| Bad Hosts – PostgreSQL | **471** |
+| Bad Hosts – ProConOs | **191** |
+| Bad Hosts – Telnet | **2,735** |
+| Bad Hosts – MySQL | **565** |
+| Bad Hosts – Kubernetes | **752** |
+| Bad Hosts – FTP | **470** |
+| Bad Hosts – Memcached | **190** |
+| Bad Hosts – Docker | **56** |
+| Bad Hosts – Elasticsearch | **584** |
+| Bad Hosts – Redis | **318** |
+| Bad Hosts – CouchDB | **284** |
+| Bad Hosts – ClickhouseHTTP | **374** |
+| Bad Hosts – LDAP | **201** |
+| Bad Hosts – Oracle | **243** |
+| Bad Hosts – Modbus | **223** |
+| Bad Hosts – BeaconAPI.web3signer | **66** |
+| Bad Hosts – MQTT | **226** |
+| Bad Hosts – RAW | **118** |
+| Bad Hosts – Electrum | **52** |
 | Bad Hosts – IPFS | **15** |
-| Bad Hosts – IPP | **104** |
-| Bad Hosts – Electrum | **50** |
-| Bad Hosts – HashCountRandom | **76** |
+| Bad Hosts – IPP | **103** |
+| Bad Hosts – HashCountRandom | **75** |
+| Bad Hosts – LPD | **72** |
 | Bad Hosts – BitcoinRPC | **16** |
-| Bad Hosts – LPD | **69** |
 | Bad Hosts – BitcoinRPC.dogecoin | **6** |
-| Bad Hosts – MOTD | **77** |
+| Bad Hosts – MOTD | **75** |
 | Bad Hosts – XMRigAPI | **33** |
-| Bad Hosts – ClaymoreAPI | **21** |
+| Bad Hosts – ClaymoreAPI | **20** |
 | Bad Hosts – MoneroRPC.wallet | **8** |
-| Bad Hosts – MoneroRPC | **12** |
-| Bad Hosts – BitcoinP2P.dogecoin | **5** |
+| Bad Hosts – BitcoinP2P.dogecoin | **4** |
+| Bad Hosts – MoneroRPC | **13** |
 | Bad Hosts – BitcoinRPC.dash | **14** |
 | Bad Hosts – MoneroRPC.restricted | **4** |
 | Bad Hosts – WebLogic | **1** |
@@ -74,24 +74,24 @@
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
 
-Davon **heute (2026-10-12)**: **10,415** IPs
+Davon **heute (2026-10-12)**: **10,642** IPs
 
 | last_seen | IPs |
 |---|---:|
-| 2026-10-12 | **10,415** |
-| 2026-10-11 | **1,731** |
+| 2026-10-12 | **10,642** |
+| 2026-10-11 | **1,491** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **14,581** |
-| Kandidaten dieses Abrufs | **14,581** |
+| Gesamt Honigtopf-IPs | **14,531** |
+| Kandidaten dieses Abrufs | **14,531** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+492** |
-| Entfernt | **-536** |
+| Neu | **+208** |
+| Entfernt | **-258** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-10-12 21:09 CEST (Berlin)*
+*Generiert: 2026-10-12 21:46 CEST (Berlin)*
