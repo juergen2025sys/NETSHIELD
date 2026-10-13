@@ -1,8 +1,8 @@
 {
-  "updated": "2026-10-13 03:18 CEST (Europe/Berlin)",
+  "updated": "2026-10-13 09:41 CEST (Europe/Berlin)",
   "total": 32,
   "ok": 29,
-  "warn": 4,
+  "warn": 3,
   "error": 0,
   "errors": [],
   "warnings": [
@@ -30,16 +30,11 @@
       "file": "dns_blocklist_finder.yml",
       "check": "actions/upload-artifact Version-Drift",
       "detail": "1 Datei(en) weichen von der Mehrheits-SHA ab \u2013 Update vergessen oder verfrueht?"
-    },
-    {
-      "file": "Production Health",
-      "check": "Drift: blacklist_confidence40_ipv4_part1.txt",
-      "detail": "blacklist_confidence40_ipv4_part1.txt: 4,636,197 \u2192 3,850,393 (-17%) \u2013 deutlicher R\u00fcckgang"
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "cdc8a072c7d7d637b3b294ce4afcf0d84bcb3222",
+    "sha": "4846f8157dbd8c60ee78be36663dc8c24dec5a4d",
     "status": "passed",
     "tests_run": 479,
     "failures": [],
@@ -51,23 +46,17 @@
     "detail": "479 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5521616,
-    "active_blacklist_ipv4.txt": 975254,
-    "blacklist_confidence40_ipv4_part1.txt": 3850393,
+    "combined_threat_blacklist_ipv4_part1.txt": 5528881,
+    "active_blacklist_ipv4.txt": 988022,
+    "blacklist_confidence40_ipv4_part1.txt": 3856641,
     "cve_exploit_ips.txt": 25818,
-    "honeypot_ips.txt": 2351742,
-    "bot_detector_blacklist_ipv4.txt": 1151195
+    "honeypot_ips.txt": 2351035,
+    "bot_detector_blacklist_ipv4.txt": 1153397
   },
   "production_health": {
     "critical": 0,
-    "warn": 1,
-    "checks": [
-      {
-        "level": "WARN",
-        "check": "Drift: blacklist_confidence40_ipv4_part1.txt",
-        "detail": "blacklist_confidence40_ipv4_part1.txt: 4,636,197 \u2192 3,850,393 (-17%) \u2013 deutlicher R\u00fcckgang"
-      }
-    ]
+    "warn": 0,
+    "checks": []
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [

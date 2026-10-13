@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-10-13 03:18 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-10-13 09:41 CEST (Europe/Berlin)
 
-**Workflows:** 32 | ✅ 29 OK | ⚠️ 4 Warnung | ❌ 0 Fehler
+**Workflows:** 32 | ✅ 29 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `cdc8a072c7d7d637b3b294ce4afcf0d84bcb3222`
+✅ Commit: `4846f8157dbd8c60ee78be36663dc8c24dec5a4d`
 
 479 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -21,15 +21,12 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `dns_blocklist_finder.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
 | `dns_blocklist_finder.yml` | actions/upload-artifact Version-Drift | 1 Datei(en) weichen von der Mehrheits-SHA ab – Update vergessen oder verfrueht? |
-| `Production Health` | Drift: blacklist_confidence40_ipv4_part1.txt | blacklist_confidence40_ipv4_part1.txt: 4,636,197 → 3,850,393 (-17%) – deutlicher Rückgang |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🟡 WARN | Drift: blacklist_confidence40_ipv4_part1.txt | blacklist_confidence40_ipv4_part1.txt: 4,636,197 → 3,850,393 (-17%) – deutlicher Rückgang |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -69,4 +66,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-10-13 03:18 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
+*Generiert: 2026-10-13 09:41 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
