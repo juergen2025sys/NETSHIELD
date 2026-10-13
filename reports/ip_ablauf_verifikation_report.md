@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-10-13 19:09 CEST (Europe/Berlin)
+Lauf: 2026-10-13 21:41 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -9,7 +9,7 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | Liste | Anzahl |
 |---|---:|
 | Watchlist (30-Tage-Pfad) | 26359 |
-| Active (180-Tage-Pfad) | 3033581 |
+| Active (180-Tage-Pfad) | 3033509 |
 
 ## Live-Fortschritt (heute + nächste Tage)
 
@@ -30,12 +30,12 @@ Beim Active-Pfad ist die Prognose die regulaer fuer diesen Tag erwartete Faellig
 
 | Datum | Prognose regulaer faellig | Heute eindeutig neu eingefroren | Letzter Combined-Cleanup | Einordnung |
 |---|---:|---:|---:|---|
-| 2026-10-13 (heute) | 1,579,746 | 1,579,655 | 0 | regulaerer Tagesstand |
+| 2026-10-13 (heute) | 1,579,746 | 1,579,643 | 0 | regulaerer Tagesstand |
 | 2026-10-14 | 32,901 | 0 | – | noch nicht faellig |
 | 2026-10-15 | 41,269 | 0 | – | noch nicht faellig |
 | 2026-10-16 | 51,132 | 0 | – | noch nicht faellig |
 
-**Active heute:** 1,579,655 eindeutige IPs neu im 180T-Ledger eingefroren; letzter Combined-Lauf: 0 Active-IP(s) als Ablauf entfernt.
+**Active heute:** 1,579,643 eindeutige IPs neu im 180T-Ledger eingefroren; letzter Combined-Lauf: 0 Active-IP(s) als Ablauf entfernt.
 
 ## Diagnose-Status
 
@@ -95,21 +95,20 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +15,398 (Anstieg) (jetzt 10,777,172 IPs)
+- Seit letztem Lauf: ➡️ unverändert (jetzt 10,777,172 IPs)
 - Seit Zyklus-Start (2026-09-22): 📉 -700,547 (Rückgang)
 - Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 904,752 neue IPs hinzugekommen (davon 766,724 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 129 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 122,713 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 7,154,625 (Summe letzte 8 Läufe / ~24h)
+- Neue IPs (Summe letzter Läufe): 7,158,808 (Summe letzte 8 Läufe / ~24h)
 - Entfernte IPs (Summe letzter Läufe): 3,163,382 (Summe letzte 8 Läufe / ~24h)
   - davon Watchlist/30 Tage: 4,000 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 3,159,382 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📉 -1,483,426 (~24h) ⚠️ **schrumpft aktuell netto** - mehr entfernt als neu aufgenommen
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-10-12T10:37 bis 2026-10-13T16:53 UTC
+- Netto-Wachstum (~24h): 📉 -1,526,129 (~24h) ⚠️ **schrumpft aktuell netto** - mehr entfernt als neu aufgenommen
+- Erfolgsquote letzte 16 combined-Läufe: 15/15 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt) | 1 sonstige, Zeitraum 2026-10-12T15:53 bis 2026-10-13T19:32 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-10-10 21:39 CEST (Europe/Berlin) | 12,265,633 | 21868 | 1371967 | 0 |
 | 2026-10-11 02:36 CEST (Europe/Berlin) | 12,271,665 | 22688 | 1387933 | 15987 |
 | 2026-10-11 02:38 CEST (Europe/Berlin) | 12,261,224 | 22688 | 1387933 | 15987 |
 | 2026-10-11 08:23 CEST (Europe/Berlin) | 12,273,613 | 22688 | 1387918 | 0 |
@@ -129,3 +128,4 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-10-13 11:21 CEST (Europe/Berlin) | 10,745,406 | 26359 | 3033698 | 0 |
 | 2026-10-13 13:19 CEST (Europe/Berlin) | 10,761,774 | 26359 | 3033642 | 0 |
 | 2026-10-13 19:09 CEST (Europe/Berlin) | 10,777,172 | 26359 | 3033581 | 0 |
+| 2026-10-13 21:41 CEST (Europe/Berlin) | 10,777,172 | 26359 | 3033509 | 0 |
