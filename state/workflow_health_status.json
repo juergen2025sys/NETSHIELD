@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-14 19:59 CEST (Europe/Berlin)",
+  "updated": "2026-10-15 00:16 CEST (Europe/Berlin)",
   "total": 32,
   "ok": 29,
   "warn": 3,
@@ -25,16 +25,11 @@
       "file": "netshield_report_generator.yml",
       "check": "Doppelter Import",
       "detail": "Block 0: Doppelte Imports: ((2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
-    },
-    {
-      "file": "dns_blocklist_finder.yml",
-      "check": "actions/upload-artifact Version-Drift",
-      "detail": "1 Datei(en) weichen von der Mehrheits-SHA ab \u2013 Update vergessen oder verfrueht?"
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "11ff7236881505868a0f02946417746f365518a8",
+    "sha": "da2ff8e91682235a7b1457b51e89f5e08d713fc4",
     "status": "passed",
     "tests_run": 479,
     "failures": [],
@@ -46,12 +41,12 @@
     "detail": "479 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5559442,
-    "active_blacklist_ipv4.txt": 1013604,
-    "blacklist_confidence40_ipv4_part1.txt": 3883123,
-    "cve_exploit_ips.txt": 25904,
-    "honeypot_ips.txt": 2361523,
-    "bot_detector_blacklist_ipv4.txt": 1158437
+    "combined_threat_blacklist_ipv4_part1.txt": 5567145,
+    "active_blacklist_ipv4.txt": 1023622,
+    "blacklist_confidence40_ipv4_part1.txt": 3887992,
+    "cve_exploit_ips.txt": 25910,
+    "honeypot_ips.txt": 2364024,
+    "bot_detector_blacklist_ipv4.txt": 1158443
   },
   "production_health": {
     "critical": 0,
