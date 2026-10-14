@@ -1,6 +1,6 @@
 # NETSHIELD – Belgium (BE) IPv4 Ranges
-# Aktualisiert: 2026-10-12 09:49 CEST (Europe/Berlin)
-# IP-Ranges: 963
+# Aktualisiert: 2026-10-14 08:27 CEST (Europe/Berlin)
+# IP-Ranges: 964
 
 2.56.171.0/24
 2.57.40.0/22
@@ -364,6 +364,7 @@
 149.126.56.0/21
 149.134.0.0/16
 149.154.192.0/18
+149.245.252.0/24
 150.251.0.0/20
 152.55.156.0/22
 152.152.0.0/16

@@ -1,6 +1,6 @@
 # NETSHIELD – Cyprus (CY) IPv4 Ranges
-# Aktualisiert: 2026-10-12 09:49 CEST (Europe/Berlin)
-# IP-Ranges: 588
+# Aktualisiert: 2026-10-14 08:27 CEST (Europe/Berlin)
+# IP-Ranges: 589
 
 2.56.116.0/22
 2.56.120.0/22
@@ -224,6 +224,7 @@
 91.202.244.0/22
 91.207.209.0/24
 91.208.6.0/24
+91.208.96.0/24
 91.210.124.0/24
 91.211.147.0/24
 91.213.140.0/24

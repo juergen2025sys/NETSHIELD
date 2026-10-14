@@ -1,6 +1,6 @@
 # NETSHIELD – Bosnia And Herzegovina (BA) IPv4 Ranges
-# Aktualisiert: 2026-10-12 09:49 CEST (Europe/Berlin)
-# IP-Ranges: 172
+# Aktualisiert: 2026-10-14 08:27 CEST (Europe/Berlin)
+# IP-Ranges: 173
 
 5.43.64.0/18
 5.133.0.0/21
@@ -147,6 +147,7 @@
 188.127.96.0/19
 188.246.64.0/19
 193.16.157.0/24
+193.24.125.0/24
 193.222.144.0/22
 194.41.40.0/22
 194.53.156.0/22
