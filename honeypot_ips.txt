@@ -1,6 +1,6 @@
 # NETSHIELD Honeypot IP Blocklist
-# Aktualisiert: 2026-10-15 16:28 CEST (Berlin)
-# Quellen: 36 | Gesamt: 2137722 | +1908 neu | -749 entfernt
+# Aktualisiert: 2026-10-15 16:30 CEST (Berlin)
+# Quellen: 36 | Gesamt: 2137723 | +1909 neu | -749 entfernt
 
 1.0.0.0
 1.0.0.26
@@ -979195,6 +979195,7 @@
 104.223.14.105
 104.223.15.5
 104.223.15.59
+104.223.15.188
 104.223.15.193
 104.223.15.247
 104.223.15.251
