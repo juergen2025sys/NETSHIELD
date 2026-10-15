@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-15 13:46 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-15 13:53 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,155,204** |
-| Neu (heute) | **+723** |
-| Entfernt | **-610** |
+| Gesamt IPs | **1,155,246** |
+| Neu (heute) | **+200** |
+| Entfernt | **-158** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 51 |
@@ -50,7 +50,7 @@
 | ✅ `tuanminpay_live_proxy_http` | 6,266 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,281 |
 | ✅ `tuanminpay_live_proxy_socks5` | 5,261 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 214,936 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 215,047 |
 | ✅ `noctiro_getproxy` | 4,345 |
 | ✅ `noctiro_getproxy_socks5` | 5,674 |
 | ✅ `mohammedcha_proxripper` | 53,607 |
@@ -69,11 +69,11 @@
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,145 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,516 |
 | ✅ `claudiusdecimius_ioc_ipsets_botscout_30d` | 2,290 |
-| ✅ `rix4uni_fresh_proxy_list` | 214,936 |
+| ✅ `rix4uni_fresh_proxy_list` | 215,047 |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 > Diese 51 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-15 13:46 CEST (Europe/Berlin)*
+*Generiert: 2026-10-15 13:53 CEST (Europe/Berlin)*
