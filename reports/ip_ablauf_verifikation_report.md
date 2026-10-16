@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-10-16 00:41 CEST (Europe/Berlin)
+Lauf: 2026-10-16 02:06 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -98,18 +98,17 @@ _60 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 - Seit letztem Lauf: ➡️ unverändert (jetzt 10,830,920 IPs)
 - Seit Zyklus-Start (2026-09-22): 📉 -646,799 (Rückgang)
 - Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 885,062 neue IPs hinzugekommen (davon 763,694 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 28 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 119,506 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 7,116,487 (Summe letzte 8 Läufe / ~24h)
+- Neue IPs (Summe letzter Läufe): 7,101,765 (Summe letzte 8 Läufe / ~24h)
 - Entfernte IPs (Summe letzter Läufe): 0 (Summe letzte 8 Läufe / ~24h)
   - davon Watchlist/30 Tage: 0 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +37,583 (~24h)
+- Netto-Wachstum (~24h): 📈 +14,849 (~24h)
 - Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-10-15T04:24 bis 2026-10-15T21:47 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-10-13 11:21 CEST (Europe/Berlin) | 10,745,406 | 26359 | 3033698 | 0 |
 | 2026-10-13 13:19 CEST (Europe/Berlin) | 10,761,774 | 26359 | 3033642 | 0 |
 | 2026-10-13 19:09 CEST (Europe/Berlin) | 10,777,172 | 26359 | 3033581 | 0 |
 | 2026-10-13 21:41 CEST (Europe/Berlin) | 10,777,172 | 26359 | 3033509 | 0 |
@@ -129,3 +128,4 @@ _60 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-10-15 21:26 CEST (Europe/Berlin) | 10,829,047 | 29982 | 3107225 | 0 |
 | 2026-10-15 23:53 CEST (Europe/Berlin) | 10,830,920 | 29981 | 3107200 | 0 |
 | 2026-10-16 00:41 CEST (Europe/Berlin) | 10,830,920 | 29981 | 3107200 | 0 |
+| 2026-10-16 02:06 CEST (Europe/Berlin) | 10,830,920 | 29981 | 3107200 | 0 |
