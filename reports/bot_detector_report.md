@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-16 08:26 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-16 08:29 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,13 +7,13 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,063,188** |
-| Neu (heute) | **+271** |
-| Entfernt | **-93,741** |
+| Gesamt IPs | **1,156,840** |
+| Neu (heute) | **+93,652** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 51 |
-| Quellen nicht erreichbar | 1 |
+| Quellen nicht erreichbar | 0 |
 
 ### Pro Quelle
 
@@ -21,7 +21,7 @@
 |---|---|
 | ✅ `turntuptechnologies_iocs_scanner` | 94 |
 | ✅ `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | 67,043 |
-| ❌ `openprx_prx_sd_signatures` | 0 |
+| ✅ `openprx_prx_sd_signatures` | 125,481 |
 | ✅ `openprx_prx_sd_signatures_url_blocklist` | 399 |
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,855 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
@@ -76,4 +76,4 @@
 > Diese 51 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-16 08:26 CEST (Europe/Berlin)*
+*Generiert: 2026-10-16 08:29 CEST (Europe/Berlin)*
