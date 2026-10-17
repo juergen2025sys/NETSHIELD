@@ -1,56 +1,56 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-10-17 06:31 CEST (Berlin)
+**Aktualisiert:** 2026-10-17 08:09 CEST (Berlin)
 
 ---
 | Quelle | IPs | Neu | Frische |
 |---|---|---|---|
 | ✅ `ipsum_level4` | 10781 | +0 | 🟢 aktuell (seit 2026-10-17 03:49 CEST (Berlin)) |
-| ✅ `blocklist_de_bots` | 4727 | +9 | 🟢 neu (2026-10-17 06:31 CEST (Berlin)) |
-| ⚠️ `blocklist_de_bruteforce` | 0 | +0 | 🟢 neu (2026-10-17 06:31 CEST (Berlin)) |
+| ✅ `blocklist_de_bots` | 4591 | +82 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
+| ✅ `blocklist_de_bruteforce` | 1038 | +1038 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
 | ✅ `jamesbrine_honeypot` | 6451 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
-| ✅ `honeysec_ip_all` | 65547 | +0 | 🟡 traege (seit 2026-10-16 08:26 CEST (Berlin), 25 Laeufe unveraendert) |
+| ✅ `honeysec_ip_all` | 65696 | +149 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
 | ✅ `turris_greylist` | 10051 | +0 | 🟢 aktuell (seit 2026-10-17 00:20 CEST (Berlin)) |
-| ✅ `abuseip_org` | 801 | +47 | 🟢 neu (2026-10-17 06:31 CEST (Berlin)) |
-| ✅ `jacobrakai_honeypot` | 538 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
+| ✅ `abuseip_org` | 833 | +37 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
+| ✅ `jacobrakai_honeypot` | 538 | +3 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
 | ✅ `im_forsale_probing` | 28456 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
-| ✅ `knock_knock_30d` | 38162 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
-| ✅ `carpathian_threat_intel` | 1437 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
-| ✅ `welford_high_confidence` | 1374 | +0 | 🔴 EINGEFROREN (seit 2026-09-06 07:59 CEST (Berlin), 1140 Laeufe unveraendert) |
+| ✅ `knock_knock_30d` | 38144 | +85 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
+| ✅ `carpathian_threat_intel` | 1441 | +4 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
+| ✅ `welford_high_confidence` | 1374 | +0 | 🔴 EINGEFROREN (seit 2026-09-06 07:59 CEST (Berlin), 1141 Laeufe unveraendert) |
 | ✅ `sblam` | 1159 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
-| ✅ `timgerstel_suspicious_ips` | 2425 | +2 | 🟢 neu (2026-10-17 06:31 CEST (Berlin)) |
-| ✅ `sniffcat` | 8925 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
-| ✅ `siberkapan` | 52848 | +5 | 🟢 neu (2026-10-17 06:31 CEST (Berlin)) |
-| ✅ `reportedip` | 9927 | +25 | 🟢 neu (2026-10-17 06:31 CEST (Berlin)) |
+| ✅ `timgerstel_suspicious_ips` | 2435 | +10 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
+| ✅ `sniffcat` | 8940 | +66 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
+| ✅ `siberkapan` | 52870 | +22 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
+| ✅ `reportedip` | 9929 | +172 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
 | ✅ `ipinsights` | 734427 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
-| ✅ `opendbl_darknet` | 19771 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
-| ✅ `opendbl_all_threats` | 33756 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
+| ✅ `opendbl_darknet` | 19788 | +796 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
+| ✅ `opendbl_all_threats` | 33498 | +1001 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
 | ✅ `bitwire_ip_list_fetch` | 28633 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
 | ✅ `configserverapps_365d` | 121914 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
 | ✅ `kamalmjt_emerging_attackers` | 173911 | +0 | 🟢 aktuell (seit 2026-10-17 01:06 CEST (Berlin)) |
-| ✅ `tn3w_ipblocklist` | 344171 | +0 | 🔴 EINGEFROREN (seit 2026-09-11 13:15 CEST (Berlin), 1001 Laeufe unveraendert) |
-| ✅ `ipblocklist_eu` | 1423791 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
+| ✅ `tn3w_ipblocklist` | 344171 | +0 | 🔴 EINGEFROREN (seit 2026-09-11 13:15 CEST (Berlin), 1002 Laeufe unveraendert) |
+| ✅ `ipblocklist_eu` | 1438327 | +43590 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
 | ✅ `zenmorro_scanner_list` | 2238 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
 | ✅ `mattyroberts_threatlist` | 29553 | +0 | 🟢 aktuell (seit 2026-10-17 03:49 CEST (Berlin)) |
-| ✅ `intrusionlabs` | 1577 | +2 | 🟢 neu (2026-10-17 06:31 CEST (Berlin)) |
-| ✅ `threatcluster` | 180 | +0 | 🟢 aktuell (seit 2026-10-17 01:06 CEST (Berlin)) |
-| ✅ `techtools` | 5505 | +1 | 🟢 neu (2026-10-17 06:31 CEST (Berlin)) |
+| ✅ `intrusionlabs` | 1571 | +22 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
+| ✅ `threatcluster` | 182 | +2 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
+| ✅ `techtools` | 5505 | +0 | 🟢 aktuell (seit 2026-10-17 06:31 CEST (Berlin)) |
 | ✅ `apnic_ssh_bruteforce` | 2576 | +0 | 🟢 aktuell (seit 2026-10-17 02:51 CEST (Berlin)) |
 | ✅ `apnic_telnet_bruteforce` | 5045 | +0 | 🟢 aktuell (seit 2026-10-17 02:51 CEST (Berlin)) |
-| ✅ `ismalicious_critical` | 9161 | +0 | 🟡 traege (seit 2026-10-16 11:22 CEST (Berlin), 22 Laeufe unveraendert) |
-| ✅ `lurescope_7d` | 500 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
-| ✅ `tarpit_pro` | 16718 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
-| ✅ `honeypottracker_7d` | 513 | +1 | 🟢 neu (2026-10-17 06:31 CEST (Berlin)) |
-| ✅ `threatfox_export` | 16339 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
-| ✅ `urlhaus_export` | 6552 | +0 | 🟢 aktuell (seit 2026-10-17 06:17 CEST (Berlin)) |
+| ✅ `ismalicious_critical` | 9161 | +0 | 🟡 traege (seit 2026-10-16 11:22 CEST (Berlin), 23 Laeufe unveraendert) |
+| ✅ `lurescope_7d` | 500 | +18 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
+| ✅ `tarpit_pro` | 16726 | +36 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
+| ✅ `honeypottracker_7d` | 508 | +5 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
+| ✅ `threatfox_export` | 16348 | +9 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
+| ✅ `urlhaus_export` | 6566 | +14 | 🟢 neu (2026-10-17 08:09 CEST (Berlin)) |
 | ✅ `criminalip_c2` | 50 | +0 | 🟢 aktuell (seit 2026-10-17 02:51 CEST (Berlin)) |
 | ✅ `haas_ssh` | 1211 | +0 | 🟢 aktuell (seit 2026-10-17 03:49 CEST (Berlin)) |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honeypot-IPs | **2329631** |
-| Neu | **+54** |
-| Entfernt | **-106** |
+| Gesamt Honeypot-IPs | **2332956** |
+| Neu | **+26653** |
+| Entfernt | **-23328** |
 
 ---
-*Generiert: 2026-10-17 06:31 CEST (Berlin)*
+*Generiert: 2026-10-17 08:09 CEST (Berlin)*
