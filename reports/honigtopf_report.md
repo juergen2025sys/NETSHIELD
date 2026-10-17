@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-10-18 00:24 CEST (Berlin)  
+**Aktualisiert:** 2026-10-18 01:03 CEST (Berlin)  
 **Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
@@ -14,7 +14,7 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-18 00:24 CEST (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-18 01:03 CEST (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
@@ -22,53 +22,53 @@
 | Endpunkt | Treffer |
 |---|---:|
 | Bad Hosts (24h, alle Dienste) | **12,928** |
-| Bad Hosts – SIP | **176** |
-| Bad Hosts – VNC | **357** |
-| Bad Hosts – SSH | **2,761** |
+| Bad Hosts – SIP | **175** |
+| Bad Hosts – VNC | **356** |
+| Bad Hosts – SSH | **2,733** |
 | Bad Hosts – RDP | **1,017** |
-| Bad Hosts – MSSQL | **477** |
-| Bad Hosts – HTTP | **4,124** |
-| Bad Hosts – SNMP | **450** |
+| Bad Hosts – MSSQL | **480** |
+| Bad Hosts – HTTP | **4,123** |
+| Bad Hosts – SNMP | **453** |
 | Bad Hosts – BitcoinP2P | **778** |
-| Bad Hosts – TFTP | **275** |
-| Bad Hosts – ProConOs | **140** |
-| Bad Hosts – Telnet | **2,849** |
-| Bad Hosts – FTP | **518** |
-| Bad Hosts – PostgreSQL | **574** |
-| Bad Hosts – Redis | **395** |
-| Bad Hosts – MySQL | **623** |
-| Bad Hosts – Kubernetes | **748** |
-| Bad Hosts – ClickhouseHTTP | **368** |
-| Bad Hosts – Elasticsearch | **651** |
-| Bad Hosts – Memcached | **232** |
-| Bad Hosts – CouchDB | **319** |
-| Bad Hosts – Oracle | **267** |
-| Bad Hosts – Docker | **38** |
-| Bad Hosts – BeaconAPI.web3signer | **62** |
+| Bad Hosts – TFTP | **282** |
+| Bad Hosts – ProConOs | **144** |
+| Bad Hosts – Telnet | **2,844** |
+| Bad Hosts – FTP | **517** |
+| Bad Hosts – PostgreSQL | **573** |
+| Bad Hosts – Redis | **371** |
+| Bad Hosts – MySQL | **614** |
+| Bad Hosts – Kubernetes | **741** |
+| Bad Hosts – ClickhouseHTTP | **362** |
+| Bad Hosts – Elasticsearch | **655** |
+| Bad Hosts – Memcached | **235** |
+| Bad Hosts – CouchDB | **310** |
+| Bad Hosts – Oracle | **265** |
+| Bad Hosts – Docker | **36** |
+| Bad Hosts – BeaconAPI.web3signer | **61** |
 | Bad Hosts – RAW | **181** |
-| Bad Hosts – Modbus | **246** |
 | Bad Hosts – CgminerAPI | **7** |
-| Bad Hosts – LDAP | **218** |
+| Bad Hosts – Modbus | **249** |
+| Bad Hosts – LDAP | **215** |
 | Bad Hosts – MQTT | **217** |
-| Bad Hosts – IPP | **91** |
-| Bad Hosts – HashCountRandom | **173** |
-| Bad Hosts – Electrum | **33** |
+| Bad Hosts – IPP | **87** |
+| Bad Hosts – HashCountRandom | **172** |
 | Bad Hosts – LPD | **61** |
-| Bad Hosts – BitcoinP2P.litecoin | **18** |
+| Bad Hosts – Electrum | **27** |
+| Bad Hosts – ClaymoreAPI | **18** |
+| Bad Hosts – BitcoinP2P.litecoin | **21** |
 | Bad Hosts – MOTD | **43** |
 | Bad Hosts – IPFS | **11** |
-| Bad Hosts – ClaymoreAPI | **18** |
 | Bad Hosts – XMRigAPI | **21** |
 | Bad Hosts – BitcoinRPC.dash | **17** |
-| Bad Hosts – BitcoinP2P.dogecoin | **5** |
+| Bad Hosts – BitcoinP2P.dogecoin | **4** |
 | Bad Hosts – BitcoinRPC | **7** |
 | Bad Hosts – SubstrateRPC | **12** |
 | Bad Hosts – MoneroRPC.wallet | **4** |
 | Bad Hosts – BitcoinRPC.litecoin | **7** |
 | Bad Hosts – BitcoinRPC.dogecoin | **3** |
-| Bad Hosts – MoneroRPC.restricted | **7** |
-| Bad Hosts – BeaconAPI.engine | **3** |
+| Bad Hosts – MoneroRPC.restricted | **6** |
 | Bad Hosts – MoneroRPC | **3** |
+| Bad Hosts – BeaconAPI.engine | **2** |
 | Bad Hosts – SubstrateRPC.legacy | **2** |
 | Bad Hosts – BeaconAPI.keymanager | **2** |
 | Bad Hosts – BeaconAPI | **2** |
@@ -88,14 +88,14 @@ Davon **heute (2026-10-17)**: **3,406** IPs
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **21,923** |
-| Kandidaten dieses Abrufs | **21,923** |
+| Gesamt Honigtopf-IPs | **22,058** |
+| Kandidaten dieses Abrufs | **22,058** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+479** |
-| Entfernt | **-116** |
+| Neu | **+170** |
+| Entfernt | **-35** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-10-18 00:24 CEST (Berlin)*
+*Generiert: 2026-10-18 01:03 CEST (Berlin)*
