@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-10-17 21:45 CEST (Europe/Berlin)
+Lauf: 2026-10-17 23:10 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -9,7 +9,7 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | Liste | Anzahl |
 |---|---:|
 | Watchlist (30-Tage-Pfad) | 29999 |
-| Active (180-Tage-Pfad) | 3182086 |
+| Active (180-Tage-Pfad) | 3182057 |
 
 ## Live-Fortschritt (heute + nächste Tage)
 
@@ -30,12 +30,12 @@ Beim Active-Pfad ist die Prognose die regulaer fuer diesen Tag erwartete Faellig
 
 | Datum | Prognose regulaer faellig | Heute eindeutig neu eingefroren | Letzter Combined-Cleanup | Einordnung |
 |---|---:|---:|---:|---|
-| 2026-10-17 (heute) | 24,149 | 24,148 | 0 | regulaerer Tagesstand |
+| 2026-10-17 (heute) | 24,149 | 24,147 | 0 | regulaerer Tagesstand |
 | 2026-10-18 | 14,154 | 0 | – | noch nicht faellig |
 | 2026-10-19 | 21,958 | 0 | – | noch nicht faellig |
 | 2026-10-20 | 11,054 | 0 | – | noch nicht faellig |
 
-**Active heute:** 24,148 eindeutige IPs neu im 180T-Ledger eingefroren; letzter Combined-Lauf: 0 Active-IP(s) als Ablauf entfernt.
+**Active heute:** 24,147 eindeutige IPs neu im 180T-Ledger eingefroren; letzter Combined-Lauf: 0 Active-IP(s) als Ablauf entfernt.
 
 ## Diagnose-Status
 
@@ -95,21 +95,20 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +11,679 (Anstieg) (jetzt 10,863,828 IPs)
-- Seit Zyklus-Start (2026-09-22): 📉 -613,891 (Rückgang)
-- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 885,619 neue IPs hinzugekommen (davon 755,921 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 188 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 118,160 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 7,049,001 (Summe letzte 8 Läufe / ~24h)
+- Seit letztem Lauf: 📈 +4,937 (Anstieg) (jetzt 10,868,765 IPs)
+- Seit Zyklus-Start (2026-09-22): 📉 -608,954 (Rückgang)
+- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 880,008 neue IPs hinzugekommen (davon 757,125 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 188 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 118,087 CIDR-Aggregate)
+- Neue IPs (Summe letzter Läufe): 7,045,835 (Summe letzte 8 Läufe / ~24h)
 - Entfernte IPs (Summe letzter Läufe): 0 (Summe letzte 8 Läufe / ~24h)
   - davon Watchlist/30 Tage: 0 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +26,018 (~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-10-16T23:27 bis 2026-10-17T18:28 UTC
+- Netto-Wachstum (~24h): 📈 +25,163 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-10-17T04:11 bis 2026-10-17T20:59 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-10-15 19:32 CEST (Europe/Berlin) | 10,826,191 | 29982 | 3107273 | 0 |
 | 2026-10-15 21:26 CEST (Europe/Berlin) | 10,829,047 | 29982 | 3107225 | 0 |
 | 2026-10-15 23:53 CEST (Europe/Berlin) | 10,830,920 | 29981 | 3107200 | 0 |
 | 2026-10-16 00:41 CEST (Europe/Berlin) | 10,830,920 | 29981 | 3107200 | 0 |
@@ -129,3 +128,4 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-10-17 16:25 CEST (Europe/Berlin) | 10,847,320 | 29999 | 3182137 | 0 |
 | 2026-10-17 18:03 CEST (Europe/Berlin) | 10,852,149 | 29999 | 3182111 | 0 |
 | 2026-10-17 21:45 CEST (Europe/Berlin) | 10,863,828 | 29999 | 3182086 | 0 |
+| 2026-10-17 23:10 CEST (Europe/Berlin) | 10,868,765 | 29999 | 3182057 | 0 |
