@@ -1,10 +1,16 @@
 {
-  "updated": "2026-10-18 18:30 CEST (Europe/Berlin)",
+  "updated": "2026-10-18 23:28 CEST (Europe/Berlin)",
   "total": 32,
   "ok": 29,
   "warn": 3,
-  "error": 0,
-  "errors": [],
+  "error": 1,
+  "errors": [
+    {
+      "file": "Production Health",
+      "check": "active \u2286 conf40 Subset-Invariante verletzt",
+      "detail": "906 IPs in active fehlen in conf40 (0.097% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+    }
+  ],
   "warnings": [
     {
       "file": "auto_feed_discovery.yml",
@@ -29,7 +35,7 @@
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "bae04fb0e4e877e864758786ab4a8eb04f87d3d8",
+    "sha": "bdcd07b2cc4cb1e08cabb55666769f93757f17cd",
     "status": "passed",
     "tests_run": 479,
     "failures": [],
@@ -41,17 +47,23 @@
     "detail": "479 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5614463,
-    "active_blacklist_ipv4.txt": 926686,
-    "blacklist_confidence40_ipv4_part1.txt": 3913417,
-    "cve_exploit_ips.txt": 25553,
-    "honeypot_ips.txt": 2341806,
-    "bot_detector_blacklist_ipv4.txt": 1153142
+    "combined_threat_blacklist_ipv4_part1.txt": 5619226,
+    "active_blacklist_ipv4.txt": 935897,
+    "blacklist_confidence40_ipv4_part1.txt": 3917368,
+    "cve_exploit_ips.txt": 25664,
+    "honeypot_ips.txt": 2344963,
+    "bot_detector_blacklist_ipv4.txt": 1116027
   },
   "production_health": {
-    "critical": 0,
+    "critical": 1,
     "warn": 0,
-    "checks": []
+    "checks": [
+      {
+        "level": "CRITICAL",
+        "check": "active \u2286 conf40 Subset-Invariante verletzt",
+        "detail": "906 IPs in active fehlen in conf40 (0.097% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+      }
+    ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
