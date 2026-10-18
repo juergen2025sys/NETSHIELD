@@ -1,22 +1,18 @@
 # Auto-Feed Live Refresh – Report
 
-**Aktualisiert:** 2026-10-18 11:21 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-10-18 12:14 CEST (Europe/Berlin)
 
 | Metrik | Wert |
 |---|---:|
-| Registry-Feeds ausgewaehlt | 148 |
-| Erfolgreich frisch geladen | 145 |
+| Registry-Feeds ausgewaehlt | 142 |
+| Erfolgreich frisch geladen | 142 |
 | Aus vorherigem Snapshot erhalten | 0 |
-| Ohne Daten/Fallback | 3 |
-| Proxy/Bot/Scanner ausgeschlossen | 51 |
+| Ohne Daten/Fallback | 0 |
+| Proxy/Bot/Scanner ausgeschlossen | 50 |
 | I-BlockList ausgeschlossen | 8 |
-| Feed-Treffer (IP/CIDR × Feed) | 6,503,164 |
-| Eindeutige IP/CIDR-Eintraege | 3,531,608 |
-| Neu ggü. vorherigem Snapshot | 1,938 |
-| Entfernt ggü. vorherigem Snapshot | 972 |
+| Feed-Treffer (IP/CIDR × Feed) | 6,296,360 |
+| Eindeutige IP/CIDR-Eintraege | 3,534,231 |
+| Neu ggü. vorherigem Snapshot | 2,630 |
+| Entfernt ggü. vorherigem Snapshot | 7 |
 
 **Semantik:** Der Snapshot behaelt jeden originalen Feed-Namen. Eine IP in fünf Auto-Feeds wird in Combined weiterhin als fünf Feed-Treffer verarbeitet.
-
-## Feeds ohne aktuelle oder vorherige Daten
-
-`configserverapps_service_blocklists_blocklist_core`, `configserverapps_service_blocklists_blocklist_extralarge`, `configserverapps_service_blocklists_blocklist_large`
