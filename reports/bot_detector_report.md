@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-19 21:31 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-19 21:55 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,152,238** |
-| Neu (heute) | **+300** |
-| Entfernt | **-86** |
+| Gesamt IPs | **1,152,248** |
+| Neu (heute) | **+10** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 50 |
@@ -30,9 +30,9 @@
 | ❌ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 0 |
 | ❌ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 0 |
 | ❌ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 0 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 6,040 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 6,437 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 3,845 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 5,645 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 6,390 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 4,047 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,768 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,194 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,001 |
@@ -75,4 +75,4 @@
 > Diese 50 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-19 21:31 CEST (Europe/Berlin)*
+*Generiert: 2026-10-19 21:55 CEST (Europe/Berlin)*
