@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-20 00:04 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-20 01:32 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,152,312** |
-| Neu (heute) | **+50** |
-| Entfernt | **-9** |
+| Gesamt IPs | **1,153,023** |
+| Neu (heute) | **+1,468** |
+| Entfernt | **-757** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 50 |
@@ -21,7 +21,7 @@
 |---|---|
 | ✅ `turntuptechnologies_iocs_scanner` | 113 |
 | ✅ `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | 67,967 |
-| ✅ `openprx_prx_sd_signatures` | 119,143 |
+| ✅ `openprx_prx_sd_signatures` | 119,141 |
 | ✅ `openprx_prx_sd_signatures_url_blocklist` | 391 |
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,934 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
@@ -30,38 +30,38 @@
 | ❌ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 0 |
 | ❌ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 0 |
 | ❌ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 0 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 5,673 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 6,719 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 4,010 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 5,509 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 6,785 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 3,947 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,768 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,194 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,151 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 839 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 685 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 590 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 397 |
-| ✅ `ercindedeoglu_proxies` | 54,791 |
-| ✅ `ercindedeoglu_proxies_socks4` | 18,686 |
-| ✅ `ercindedeoglu_proxies_socks5` | 19,656 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,064 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 768 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 578 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 477 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 206 |
+| ✅ `ercindedeoglu_proxies` | 54,668 |
+| ✅ `ercindedeoglu_proxies_socks4` | 18,682 |
+| ✅ `ercindedeoglu_proxies_socks5` | 19,658 |
 | ✅ `tuanminpay_live_proxy` | 12,872 |
 | ✅ `tuanminpay_live_proxy_http` | 7,678 |
 | ✅ `tuanminpay_live_proxy_socks4` | 5,449 |
 | ✅ `tuanminpay_live_proxy_socks5` | 6,682 |
-| ✅ `gitrecon1455_fresh_proxy_list` | 215,505 |
+| ✅ `gitrecon1455_fresh_proxy_list` | 215,538 |
 | ✅ `noctiro_getproxy` | 4,560 |
 | ✅ `noctiro_getproxy_socks5` | 6,000 |
-| ✅ `mohammedcha_proxripper` | 56,104 |
-| ✅ `mohammedcha_proxripper_socks4` | 113,118 |
-| ✅ `mohammedcha_proxripper_http` | 119,078 |
-| ✅ `mohammedcha_proxripper_socks5` | 117,823 |
-| ✅ `dinoz0rg_proxy_list` | 91,734 |
-| ✅ `dinoz0rg_proxy_list_http` | 2,642 |
-| ✅ `dinoz0rg_proxy_list_socks5` | 93,866 |
+| ✅ `mohammedcha_proxripper` | 56,129 |
+| ✅ `mohammedcha_proxripper_socks4` | 113,375 |
+| ✅ `mohammedcha_proxripper_http` | 119,278 |
+| ✅ `mohammedcha_proxripper_socks5` | 118,012 |
+| ✅ `dinoz0rg_proxy_list` | 91,804 |
+| ✅ `dinoz0rg_proxy_list_http` | 3,300 |
+| ✅ `dinoz0rg_proxy_list_socks5` | 93,992 |
 | ✅ `ian_lusule_proxies` | 3,512 |
 | ✅ `ian_lusule_proxies_socks5` | 1,849 |
 | ✅ `configserverapps_service_blocklists_attacks_bots` | 2,406 |
 | ✅ `configserverapps_service_blocklists_botscout_30d` | 2,338 |
-| ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,622 |
+| ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,631 |
 | ✅ `hookzof_socks5_list` | 3,753 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,125 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,550 |
@@ -75,4 +75,4 @@
 > Diese 50 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-20 00:04 CEST (Europe/Berlin)*
+*Generiert: 2026-10-20 01:32 CEST (Europe/Berlin)*
