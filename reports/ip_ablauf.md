@@ -1,29 +1,29 @@
 # Seen-DB Expiry Forecast
 
-Lauf: 2026-10-19 15:50 CEST (Europe/Berlin)
-Gesamt: 10,946,734 IPs in seen_db.json (7,858,506 aktiv/180-Tage-Pfad, 3,088,228 Watchlist/30-Tage-Pfad)
+Lauf: 2026-10-19 19:43 CEST (Europe/Berlin)
+Gesamt: 10,957,698 IPs in seen_db.json (7,866,460 aktiv/180-Tage-Pfad, 3,091,238 Watchlist/30-Tage-Pfad)
 
 ## Aktive IPs (180-Tage-Fenster) – wann faellt die Bestaetigung aus?
 
 | Zeitfenster | Anzahl IPs |
 |---|---:|
 | bereits ueberfaellig (Cleanup-Pass sollte das entfernen) | 0 |
-| 0-7 Tage | 185,909 |
-| 8-14 Tage | 251,460 |
-| 15-30 Tage | 383,935 |
-| 31-60 Tage | 1,084,982 |
-| 61-90 Tage | 693,494 |
-| 91-180 Tage | 5,258,726 |
+| 0-7 Tage | 185,908 |
+| 8-14 Tage | 251,447 |
+| 15-30 Tage | 383,918 |
+| 31-60 Tage | 1,084,964 |
+| 61-90 Tage | 693,475 |
+| 91-180 Tage | 5,266,748 |
 
 ## Watchlist-IPs (30-Tage-Fenster) – wann faellt die Erstsichtung aus?
 
 | Zeitfenster | Anzahl IPs |
 |---|---:|
-| bereits ueberfaellig | 2,701,126 |
-| 0-3 Tage | 34,411 |
-| 4-7 Tage | 47,782 |
-| 8-14 Tage | 120,278 |
-| 15-30 Tage | 184,631 |
+| bereits ueberfaellig | 2,701,109 |
+| 0-3 Tage | 34,409 |
+| 4-7 Tage | 47,780 |
+| 8-14 Tage | 120,276 |
+| 15-30 Tage | 187,664 |
 
 ## Konkrete Ablauftermine, Watchlist-IPs, naechste 30 Tage
 
@@ -32,14 +32,14 @@ Tagesgenau, im Gegensatz zu den groben Zeitfenstern oben - damit sich der Anti-C
 | Datum | Anzahl IPs, die an diesem Tag ihre Erstsichtungs-Frist verlieren |
 |---|---:|
 | 2026-10-19 | 5,106 |
-| 2026-10-20 | 9,502 |
+| 2026-10-20 | 9,500 |
 | 2026-10-21 | 9,469 |
 | 2026-10-22 | 10,334 |
 | 2026-10-23 | 12,331 |
-| 2026-10-24 | 15,000 |
+| 2026-10-24 | 14,998 |
 | 2026-10-25 | 11,048 |
 | 2026-10-26 | 9,403 |
-| 2026-10-27 | 35,088 |
+| 2026-10-27 | 35,086 |
 | 2026-10-28 | 11,244 |
 | 2026-10-29 | 9,804 |
 | 2026-10-30 | 20,048 |
@@ -54,32 +54,32 @@ Tagesgenau, im Gegensatz zu den groben Zeitfenstern oben - damit sich der Anti-C
 | 2026-11-08 | 6,253 |
 | 2026-11-09 | 11,467 |
 | 2026-11-10 | 23,818 |
-| 2026-11-11 | 9,885 |
-| 2026-11-12 | 8,047 |
+| 2026-11-11 | 9,884 |
+| 2026-11-12 | 8,046 |
 | 2026-11-13 | 3,342 |
 | 2026-11-14 | 11,626 |
-| 2026-11-15 | 14,354 |
-| 2026-11-16 | 18,963 |
-| 2026-11-17 | 9,369 |
-| 2026-11-18 | 3,544 |
+| 2026-11-15 | 14,353 |
+| 2026-11-16 | 18,961 |
+| 2026-11-17 | 9,366 |
+| 2026-11-18 | 3,543 |
 
 ## Erwartete tatsaechliche Watchlist-Entfernungen (mit Tagesdeckel)
 
 update_combined_blacklist.yml entfernt ueber die 30-Tage-Regel hoechstens **2,000 IPs pro Kalendertag** (FIX WATCHLIST-DAILY-CAP, 31.08.2026). Ueberzaehlige Kandidaten bleiben in seen_db und ruecken nach hinten - es geht nichts verloren, der Abbau wird nur gestreckt. Die rechte Spalte ist deshalb die realistische Erwartung, gegen die der Job "verifikation" prueft.
 
-Bereits ueberfaelliger Rueckstau zu Beginn: **2,701,126** IPs. Brutto faellig in den naechsten 30 Tagen: **382,372**, davon im selben Fenster tatsaechlich entfernbar: **62,000**. Verbleibender Rueckstau am Fensterende: **3,021,498**.
+Bereits ueberfaelliger Rueckstau zu Beginn: **2,701,109** IPs. Brutto faellig in den naechsten 30 Tagen: **382,357**, davon im selben Fenster tatsaechlich entfernbar: **62,000**. Verbleibender Rueckstau am Fensterende: **3,021,466**.
 
 | Datum | Brutto faellig | Erwartet entfernt (mit Deckel) |
 |---|---:|---:|
 | 2026-10-19 | 5,106 | 2,000 |
-| 2026-10-20 | 9,502 | 2,000 |
+| 2026-10-20 | 9,500 | 2,000 |
 | 2026-10-21 | 9,469 | 2,000 |
 | 2026-10-22 | 10,334 | 2,000 |
 | 2026-10-23 | 12,331 | 2,000 |
-| 2026-10-24 | 15,000 | 2,000 |
+| 2026-10-24 | 14,998 | 2,000 |
 | 2026-10-25 | 11,048 | 2,000 |
 | 2026-10-26 | 9,403 | 2,000 |
-| 2026-10-27 | 35,088 | 2,000 |
+| 2026-10-27 | 35,086 | 2,000 |
 | 2026-10-28 | 11,244 | 2,000 |
 | 2026-10-29 | 9,804 | 2,000 |
 | 2026-10-30 | 20,048 | 2,000 |
@@ -94,16 +94,16 @@ Bereits ueberfaelliger Rueckstau zu Beginn: **2,701,126** IPs. Brutto faellig in
 | 2026-11-08 | 6,253 | 2,000 |
 | 2026-11-09 | 11,467 | 2,000 |
 | 2026-11-10 | 23,818 | 2,000 |
-| 2026-11-11 | 9,885 | 2,000 |
-| 2026-11-12 | 8,047 | 2,000 |
+| 2026-11-11 | 9,884 | 2,000 |
+| 2026-11-12 | 8,046 | 2,000 |
 | 2026-11-13 | 3,342 | 2,000 |
 | 2026-11-14 | 11,626 | 2,000 |
-| 2026-11-15 | 14,354 | 2,000 |
-| 2026-11-16 | 18,963 | 2,000 |
-| 2026-11-17 | 9,369 | 2,000 |
-| 2026-11-18 | 3,544 | 2,000 |
+| 2026-11-15 | 14,353 | 2,000 |
+| 2026-11-16 | 18,961 | 2,000 |
+| 2026-11-17 | 9,366 | 2,000 |
+| 2026-11-18 | 3,543 | 2,000 |
 
-> Hinweis: Der Rueckstau von 3,021,498 IPs waechst schneller, als der Tagesdeckel ihn abbauen kann. Bei dauerhaftem Trend WATCHLIST_DAILY_CAP in update_combined_blacklist.yml anheben.
+> Hinweis: Der Rueckstau von 3,021,466 IPs waechst schneller, als der Tagesdeckel ihn abbauen kann. Bei dauerhaftem Trend WATCHLIST_DAILY_CAP in update_combined_blacklist.yml anheben.
 
 ## Konkrete Ablauftermine, aktive IPs, naechste 60 Tage
 
@@ -113,64 +113,64 @@ Zeigt einzelne Tage mit ueberdurchschnittlich vielen gleichzeitig ablaufenden IP
 |---|---:|
 | 2026-10-20 | 11,053 |
 | 2026-10-21 | 11,012 |
-| 2026-10-22 | 30,447 |
+| 2026-10-22 | 30,446 |
 | 2026-10-23 | 50,189 |
 | 2026-10-24 | 41,558 |
 | 2026-10-25 | 21,470 |
 | 2026-10-26 | 20,180 |
-| 2026-10-27 | 20,415 |
-| 2026-10-28 | 15,545 |
-| 2026-10-29 | 9,516 |
-| 2026-10-30 | 61,571 |
-| 2026-10-31 | 88,029 |
-| 2026-11-01 | 27,716 |
-| 2026-11-02 | 28,668 |
-| 2026-11-03 | 29,613 |
-| 2026-11-04 | 29,469 |
+| 2026-10-27 | 20,414 |
+| 2026-10-28 | 15,540 |
+| 2026-10-29 | 9,515 |
+| 2026-10-30 | 61,569 |
+| 2026-10-31 | 88,027 |
+| 2026-11-01 | 27,715 |
+| 2026-11-02 | 28,667 |
+| 2026-11-03 | 29,611 |
+| 2026-11-04 | 29,468 |
 | 2026-11-05 | 25,151 |
-| 2026-11-06 | 36,201 |
-| 2026-11-07 | 24,353 |
-| 2026-11-08 | 26,011 |
+| 2026-11-06 | 36,197 |
+| 2026-11-07 | 24,351 |
+| 2026-11-08 | 26,010 |
 | 2026-11-09 | 25,437 |
-| 2026-11-10 | 32,596 |
+| 2026-11-10 | 32,595 |
 | 2026-11-11 | 22,265 |
 | 2026-11-12 | 20,436 |
-| 2026-11-13 | 19,584 |
+| 2026-11-13 | 19,583 |
 | 2026-11-14 | 22,879 |
-| 2026-11-15 | 17,404 |
-| 2026-11-16 | 17,904 |
-| 2026-11-17 | 15,188 |
-| 2026-11-18 | 19,444 |
-| 2026-11-19 | 173,431 |
+| 2026-11-15 | 17,403 |
+| 2026-11-16 | 17,903 |
+| 2026-11-17 | 15,186 |
+| 2026-11-18 | 19,443 |
+| 2026-11-19 | 173,428 |
 | 2026-11-20 | 26,071 |
 | 2026-11-21 | 61,231 |
 | 2026-11-22 | 30,332 |
 | 2026-11-23 | 25,591 |
 | 2026-11-24 | 26,397 |
-| 2026-11-25 | 27,454 |
+| 2026-11-25 | 27,453 |
 | 2026-11-26 | 28,597 |
 | 2026-11-27 | 27,782 |
 | 2026-11-28 | 109,117 |
-| 2026-11-29 | 28,121 |
+| 2026-11-29 | 28,119 |
 | 2026-11-30 | 25,478 |
-| 2026-12-01 | 26,490 |
+| 2026-12-01 | 26,489 |
 | 2026-12-02 | 26,146 |
 | 2026-12-03 | 25,965 |
 | 2026-12-04 | 27,869 |
-| 2026-12-05 | 25,914 |
+| 2026-12-05 | 25,913 |
 | 2026-12-06 | 30,088 |
 | 2026-12-07 | 23,704 |
-| 2026-12-08 | 39,331 |
-| 2026-12-09 | 55,052 |
+| 2026-12-08 | 39,329 |
+| 2026-12-09 | 55,050 |
 | 2026-12-10 | 25,054 |
 | 2026-12-11 | 27,736 |
-| 2026-12-12 | 24,363 |
+| 2026-12-12 | 24,362 |
 | 2026-12-13 | 23,832 |
-| 2026-12-14 | 23,444 |
-| 2026-12-15 | 26,229 |
-| 2026-12-16 | 16,654 |
+| 2026-12-14 | 23,443 |
+| 2026-12-15 | 26,227 |
+| 2026-12-16 | 16,653 |
 | 2026-12-17 | 25,002 |
-| 2026-12-18 | 22,507 |
+| 2026-12-18 | 22,506 |
 
 ## Ledger-Konsistenz (gegen aktuelle seen_db geprüft)
 
