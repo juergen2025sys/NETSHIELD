@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-19 17:57 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-19 19:03 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,151,965** |
-| Neu (heute) | **+24** |
-| Entfernt | **-15** |
+| Gesamt IPs | **1,151,987** |
+| Neu (heute) | **+51** |
+| Entfernt | **-29** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 50 |
@@ -30,9 +30,9 @@
 | ❌ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 0 |
 | ❌ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 0 |
 | ❌ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 0 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 4,281 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,635 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 3,084 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,792 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 5,072 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,906 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,768 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,194 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,001 |
@@ -40,9 +40,9 @@
 | ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 610 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 530 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 323 |
-| ✅ `ercindedeoglu_proxies` | 54,606 |
-| ✅ `ercindedeoglu_proxies_socks4` | 18,685 |
-| ✅ `ercindedeoglu_proxies_socks5` | 19,639 |
+| ✅ `ercindedeoglu_proxies` | 54,484 |
+| ✅ `ercindedeoglu_proxies_socks4` | 18,777 |
+| ✅ `ercindedeoglu_proxies_socks5` | 19,764 |
 | ✅ `tuanminpay_live_proxy` | 12,176 |
 | ✅ `tuanminpay_live_proxy_http` | 7,035 |
 | ✅ `tuanminpay_live_proxy_socks4` | 5,027 |
@@ -75,4 +75,4 @@
 > Diese 50 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-19 17:57 CEST (Europe/Berlin)*
+*Generiert: 2026-10-19 19:03 CEST (Europe/Berlin)*
