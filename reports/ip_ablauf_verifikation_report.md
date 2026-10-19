@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-10-19 16:13 CEST (Europe/Berlin)
+Lauf: 2026-10-19 19:47 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -9,7 +9,7 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | Liste | Anzahl |
 |---|---:|
 | Watchlist (30-Tage-Pfad) | 26783 |
-| Active (180-Tage-Pfad) | 3217721 |
+| Active (180-Tage-Pfad) | 3217677 |
 
 ## Live-Fortschritt (heute + nächste Tage)
 
@@ -30,12 +30,12 @@ Beim Active-Pfad ist die Prognose die regulaer fuer diesen Tag erwartete Faellig
 
 | Datum | Prognose regulaer faellig | Heute eindeutig neu eingefroren | Letzter Combined-Cleanup | Einordnung |
 |---|---:|---:|---:|---|
-| 2026-10-19 (heute) | 21,951 | 21,945 | 0 | regulaerer Tagesstand |
+| 2026-10-19 (heute) | 21,951 | 21,944 | 0 | regulaerer Tagesstand |
 | 2026-10-20 | 11,053 | 0 | – | noch nicht faellig |
 | 2026-10-21 | 11,012 | 0 | – | noch nicht faellig |
-| 2026-10-22 | 30,447 | 0 | – | noch nicht faellig |
+| 2026-10-22 | 30,446 | 0 | – | noch nicht faellig |
 
-**Active heute:** 21,945 eindeutige IPs neu im 180T-Ledger eingefroren; letzter Combined-Lauf: 0 Active-IP(s) als Ablauf entfernt.
+**Active heute:** 21,944 eindeutige IPs neu im 180T-Ledger eingefroren; letzter Combined-Lauf: 0 Active-IP(s) als Ablauf entfernt.
 
 ## Diagnose-Status
 
@@ -95,21 +95,20 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +1,127 (Anstieg) (jetzt 10,946,734 IPs)
-- Seit Zyklus-Start (2026-09-22): 📉 -530,985 (Rückgang)
-- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 888,273 neue IPs hinzugekommen (davon 767,217 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 25 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 120,250 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 7,104,365 (Summe letzte 8 Läufe / ~24h)
+- Seit letztem Lauf: 📈 +10,964 (Anstieg) (jetzt 10,957,698 IPs)
+- Seit Zyklus-Start (2026-09-22): 📉 -520,021 (Rückgang)
+- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 895,079 neue IPs hinzugekommen (davon 764,230 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 28 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 120,205 CIDR-Aggregate)
+- Neue IPs (Summe letzter Läufe): 7,114,020 (Summe letzte 8 Läufe / ~24h)
 - Entfernte IPs (Summe letzter Läufe): 0 (Summe letzte 8 Läufe / ~24h)
   - davon Watchlist/30 Tage: 0 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +28,328 (~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-10-18T19:02 bis 2026-10-19T13:58 UTC
+- Netto-Wachstum (~24h): 📈 +39,292 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-10-18T20:30 bis 2026-10-19T16:35 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-10-17 13:18 CEST (Europe/Berlin) | 10,833,396 | 29999 | 3182167 | 0 |
 | 2026-10-17 16:25 CEST (Europe/Berlin) | 10,847,320 | 29999 | 3182137 | 0 |
 | 2026-10-17 18:03 CEST (Europe/Berlin) | 10,852,149 | 29999 | 3182111 | 0 |
 | 2026-10-17 21:45 CEST (Europe/Berlin) | 10,863,828 | 29999 | 3182086 | 0 |
@@ -129,3 +128,4 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-10-19 07:33 CEST (Europe/Berlin) | 10,916,527 | 26783 | 3217832 | 0 |
 | 2026-10-19 13:12 CEST (Europe/Berlin) | 10,945,607 | 26783 | 3217768 | 0 |
 | 2026-10-19 16:13 CEST (Europe/Berlin) | 10,946,734 | 26783 | 3217721 | 0 |
+| 2026-10-19 19:47 CEST (Europe/Berlin) | 10,957,698 | 26783 | 3217677 | 0 |
