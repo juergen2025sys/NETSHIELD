@@ -1,6 +1,6 @@
 # NETSHIELD – San Marino (SM) IPv4 Ranges
-# Aktualisiert: 2026-10-14 08:27 CEST (Europe/Berlin)
-# IP-Ranges: 24
+# Aktualisiert: 2026-10-19 08:36 CEST (Europe/Berlin)
+# IP-Ranges: 25
 
 5.183.163.0/24
 31.193.32.0/21
@@ -19,6 +19,7 @@
 185.45.68.0/22
 185.62.32.0/22
 185.86.60.0/22
+185.124.71.0/24
 185.125.240.0/24
 185.146.128.0/22
 185.159.90.0/24

@@ -1,6 +1,6 @@
 # NETSHIELD – Bangladesh (BD) IPv4 Ranges
-# Aktualisiert: 2026-10-14 08:27 CEST (Europe/Berlin)
-# IP-Ranges: 2346
+# Aktualisiert: 2026-10-19 08:36 CEST (Europe/Berlin)
+# IP-Ranges: 2347
 
 14.1.100.0/22
 14.128.12.0/22
@@ -1987,6 +1987,7 @@
 160.191.212.0/24
 160.202.144.0/22
 160.202.181.0/24
+160.202.188.0/23
 160.236.8.0/23
 160.236.10.0/23
 160.236.14.0/23

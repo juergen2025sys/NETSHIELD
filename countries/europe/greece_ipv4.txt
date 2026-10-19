@@ -1,6 +1,6 @@
 # NETSHIELD – Greece (GR) IPv4 Ranges
-# Aktualisiert: 2026-10-14 08:27 CEST (Europe/Berlin)
-# IP-Ranges: 454
+# Aktualisiert: 2026-10-19 08:36 CEST (Europe/Berlin)
+# IP-Ranges: 453
 
 2.84.0.0/14
 5.54.0.0/15
@@ -208,7 +208,6 @@
 178.253.0.0/18
 185.1.29.0/24
 185.1.123.0/24
-185.1.172.0/24
 185.3.220.0/22
 185.4.88.0/22
 185.4.236.0/24

@@ -1,6 +1,6 @@
 # NETSHIELD – Thailand (TH) IPv4 Ranges
-# Aktualisiert: 2026-10-14 08:27 CEST (Europe/Berlin)
-# IP-Ranges: 1193
+# Aktualisiert: 2026-10-19 08:36 CEST (Europe/Berlin)
+# IP-Ranges: 1194
 
 1.0.128.0/17
 1.1.128.0/17
@@ -33,6 +33,7 @@
 23.159.164.0/24
 23.162.28.0/24
 23.164.116.0/24
+23.165.228.0/24
 23.177.168.0/24
 23.177.200.0/24
 23.178.56.0/24
