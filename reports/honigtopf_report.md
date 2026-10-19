@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-10-19 08:43 CEST (Berlin)  
+**Aktualisiert:** 2026-10-19 10:10 CEST (Berlin)  
 **Modus:** `LIGHT` (nur /bad-hosts, merged mit existing)
 
 ---
@@ -9,12 +9,12 @@
 |---|---|
 | cred1 | ⚠️ unklar (410) – im Pool belassen |
 | cred2 | ⚠️ unklar (410) – im Pool belassen |
-| cred3 | ⚠️ unklar (410) – im Pool belassen |
+| cred3 | ⚠️ HTTP 402 auf Daten-Endpunkt – für diesen Lauf deaktiviert |
 
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-19 08:43 CEST (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-19 08:43 CEST (Berlin) (1 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
@@ -46,4 +46,4 @@ Davon **heute (2026-10-19)**: **0** IPs
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-10-19 08:43 CEST (Berlin)*
+*Generiert: 2026-10-19 10:10 CEST (Berlin)*
