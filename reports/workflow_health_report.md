@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-10-20 07:59 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-10-20 14:43 CEST (Europe/Berlin)
 
-**Workflows:** 32 | ✅ 29 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
+**Workflows:** 32 | ✅ 29 OK | ⚠️ 4 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `66b50ad9a45a89ebbb446d671cedd20f6599529d`
+✅ Commit: `0b2c396456146e04f617dde88014b4f03f4831ac`
 
 479 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -20,12 +20,15 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `dns_blocklist_finder.yml` | Kein expliziter Leerungsschutz | Externer Feed/Report ohne explizite MIN_* Guard-Variable – Müll-/Leer-Daten könnten unbemerkt akzeptiert werden |
 | `dns_blocklist_finder.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
+| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 2,348,231 → 1,959,057 (-17%) – deutlicher Rückgang |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🟡 WARN | Drift: honeypot_ips.txt | honeypot_ips.txt: 2,348,231 → 1,959,057 (-17%) – deutlicher Rückgang |
 
 ## Übersicht
 
@@ -65,4 +68,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-10-20 07:59 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
+*Generiert: 2026-10-20 14:43 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
