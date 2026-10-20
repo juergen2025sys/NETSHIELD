@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-20 08:40 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-20 09:03 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,150,834** |
-| Neu (heute) | **+265** |
-| Entfernt | **-394** |
+| Gesamt IPs | **1,150,857** |
+| Neu (heute) | **+47** |
+| Entfernt | **-24** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 50 |
@@ -20,26 +20,26 @@
 | Quelle | IPs |
 |---|---|
 | ✅ `turntuptechnologies_iocs_scanner` | 92 |
-| ✅ `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | 67,967 |
+| ✅ `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | 68,094 |
 | ✅ `openprx_prx_sd_signatures` | 117,453 |
 | ✅ `openprx_prx_sd_signatures_url_blocklist` | 388 |
-| ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,934 |
+| ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,895 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,858 |
 | ❌ `ebrasha_abdal_proxy_hub` | 0 |
 | ❌ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 0 |
 | ❌ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 0 |
 | ❌ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 0 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 4,518 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 5,376 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 3,539 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 4,031 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 5,179 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 3,286 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,768 |
-| ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,194 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,127 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 656 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 586 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 433 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 338 |
+| ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,164 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,091 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 732 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 690 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 594 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 430 |
 | ✅ `ercindedeoglu_proxies` | 54,748 |
 | ✅ `ercindedeoglu_proxies_socks4` | 18,793 |
 | ✅ `ercindedeoglu_proxies_socks5` | 19,751 |
@@ -75,4 +75,4 @@
 > Diese 50 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-20 08:40 CEST (Europe/Berlin)*
+*Generiert: 2026-10-20 09:03 CEST (Europe/Berlin)*
