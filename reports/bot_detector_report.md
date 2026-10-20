@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-20 02:31 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-20 02:39 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -8,8 +8,8 @@
 | Metrik | Wert |
 |---|---|
 | Gesamt IPs | **1,153,035** |
-| Neu (heute) | **+22** |
-| Entfernt | **-10** |
+| Neu (heute) | **+0** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 50 |
@@ -57,8 +57,8 @@
 | ✅ `dinoz0rg_proxy_list` | 91,804 |
 | ✅ `dinoz0rg_proxy_list_http` | 3,300 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 93,992 |
-| ✅ `ian_lusule_proxies` | 3,512 |
-| ✅ `ian_lusule_proxies_socks5` | 1,849 |
+| ✅ `ian_lusule_proxies` | 4,055 |
+| ✅ `ian_lusule_proxies_socks5` | 1,616 |
 | ✅ `configserverapps_service_blocklists_attacks_bots` | 2,406 |
 | ✅ `configserverapps_service_blocklists_botscout_30d` | 2,338 |
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,631 |
@@ -75,4 +75,4 @@
 > Diese 50 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-20 02:31 CEST (Europe/Berlin)*
+*Generiert: 2026-10-20 02:39 CEST (Europe/Berlin)*
