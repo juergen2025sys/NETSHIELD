@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-20 15:01 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-20 15:08 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,150,977** |
-| Neu (heute) | **+15** |
-| Entfernt | **-89** |
+| Gesamt IPs | **1,150,978** |
+| Neu (heute) | **+3** |
+| Entfernt | **-2** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 50 |
@@ -40,9 +40,9 @@
 | ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 606 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 513 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 382 |
-| ✅ `ercindedeoglu_proxies` | 54,408 |
-| ✅ `ercindedeoglu_proxies_socks4` | 18,655 |
-| ✅ `ercindedeoglu_proxies_socks5` | 19,690 |
+| ✅ `ercindedeoglu_proxies` | 54,357 |
+| ✅ `ercindedeoglu_proxies_socks4` | 18,662 |
+| ✅ `ercindedeoglu_proxies_socks5` | 19,687 |
 | ✅ `tuanminpay_live_proxy` | 12,872 |
 | ✅ `tuanminpay_live_proxy_http` | 7,678 |
 | ✅ `tuanminpay_live_proxy_socks4` | 5,449 |
@@ -62,7 +62,7 @@
 | ✅ `configserverapps_service_blocklists_attacks_bots` | 2,406 |
 | ✅ `configserverapps_service_blocklists_botscout_30d` | 2,338 |
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,635 |
-| ✅ `hookzof_socks5_list` | 3,777 |
+| ✅ `hookzof_socks5_list` | 3,789 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 4,127 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,555 |
 | ✅ `claudiusdecimius_ioc_ipsets_botscout_30d` | 2,363 |
@@ -75,4 +75,4 @@
 > Diese 50 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-20 15:01 CEST (Europe/Berlin)*
+*Generiert: 2026-10-20 15:08 CEST (Europe/Berlin)*
