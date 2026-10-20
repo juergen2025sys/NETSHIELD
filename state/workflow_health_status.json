@@ -1,10 +1,16 @@
 {
-  "updated": "2026-10-20 14:43 CEST (Europe/Berlin)",
+  "updated": "2026-10-20 19:58 CEST (Europe/Berlin)",
   "total": 32,
   "ok": 29,
-  "warn": 4,
-  "error": 0,
-  "errors": [],
+  "warn": 3,
+  "error": 1,
+  "errors": [
+    {
+      "file": "Production Health",
+      "check": "active \u2286 conf40 Subset-Invariante verletzt",
+      "detail": "3,697 IPs in active fehlen in conf40 (0.386% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+    }
+  ],
   "warnings": [
     {
       "file": "auto_feed_discovery.yml",
@@ -25,16 +31,11 @@
       "file": "netshield_report_generator.yml",
       "check": "Doppelter Import",
       "detail": "Block 0: Doppelte Imports: ((2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
-    },
-    {
-      "file": "Production Health",
-      "check": "Drift: honeypot_ips.txt",
-      "detail": "honeypot_ips.txt: 2,348,231 \u2192 1,959,057 (-17%) \u2013 deutlicher R\u00fcckgang"
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "0b2c396456146e04f617dde88014b4f03f4831ac",
+    "sha": "743cecfc1502c57c0ea8d7502f4f25ca8207a858",
     "status": "passed",
     "tests_run": 479,
     "failures": [],
@@ -46,21 +47,21 @@
     "detail": "479 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5660364,
-    "active_blacklist_ipv4.txt": 943967,
-    "blacklist_confidence40_ipv4_part1.txt": 3949451,
-    "cve_exploit_ips.txt": 25720,
-    "honeypot_ips.txt": 1959057,
-    "bot_detector_blacklist_ipv4.txt": 1151051
+    "combined_threat_blacklist_ipv4_part1.txt": 5667968,
+    "active_blacklist_ipv4.txt": 957588,
+    "blacklist_confidence40_ipv4_part1.txt": 3954077,
+    "cve_exploit_ips.txt": 25746,
+    "honeypot_ips.txt": 2355328,
+    "bot_detector_blacklist_ipv4.txt": 1151151
   },
   "production_health": {
-    "critical": 0,
-    "warn": 1,
+    "critical": 1,
+    "warn": 0,
     "checks": [
       {
-        "level": "WARN",
-        "check": "Drift: honeypot_ips.txt",
-        "detail": "honeypot_ips.txt: 2,348,231 \u2192 1,959,057 (-17%) \u2013 deutlicher R\u00fcckgang"
+        "level": "CRITICAL",
+        "check": "active \u2286 conf40 Subset-Invariante verletzt",
+        "detail": "3,697 IPs in active fehlen in conf40 (0.386% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
       }
     ]
   },
