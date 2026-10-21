@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-21 14:58 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-21 15:23 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,155,617** |
+| Gesamt IPs | **1,155,637** |
 | Neu (heute) | **+26** |
-| Entfernt | **-114** |
+| Entfernt | **-6** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 50 |
@@ -31,18 +31,18 @@
 | ❌ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 0 |
 | ❌ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 0 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,814 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,411 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,375 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,582 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,382 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,768 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,178 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 837 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 554 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 583 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 502 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 353 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,081 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 567 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 557 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 477 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 364 |
 | ✅ `ercindedeoglu_proxies` | 54,411 |
-| ✅ `ercindedeoglu_proxies_socks4` | 18,703 |
-| ✅ `ercindedeoglu_proxies_socks5` | 19,779 |
+| ✅ `ercindedeoglu_proxies_socks4` | 18,697 |
+| ✅ `ercindedeoglu_proxies_socks5` | 19,777 |
 | ✅ `tuanminpay_live_proxy` | 12,414 |
 | ✅ `tuanminpay_live_proxy_http` | 7,107 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,701 |
@@ -75,4 +75,4 @@
 > Diese 50 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-21 14:58 CEST (Europe/Berlin)*
+*Generiert: 2026-10-21 15:23 CEST (Europe/Berlin)*
