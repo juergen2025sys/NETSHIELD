@@ -1,6 +1,6 @@
 # NETSHIELD – France (FR) IPv4 Ranges
-# Aktualisiert: 2026-10-19 08:36 CEST (Europe/Berlin)
-# IP-Ranges: 4620
+# Aktualisiert: 2026-10-21 08:18 CEST (Europe/Berlin)
+# IP-Ranges: 4621
 
 1.178.224.0/19
 1.179.112.0/20
@@ -1710,6 +1710,7 @@
 159.151.0.0/16
 159.173.0.0/16
 159.180.224.0/19
+159.200.212.0/22
 160.92.0.0/16
 160.103.0.0/16
 160.223.180.0/23

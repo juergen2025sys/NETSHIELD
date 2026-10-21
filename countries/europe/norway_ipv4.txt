@@ -1,6 +1,6 @@
 # NETSHIELD – Norway (NO) IPv4 Ranges
-# Aktualisiert: 2026-10-19 08:36 CEST (Europe/Berlin)
-# IP-Ranges: 1306
+# Aktualisiert: 2026-10-21 08:18 CEST (Europe/Berlin)
+# IP-Ranges: 1307
 
 2.58.24.0/22
 2.148.0.0/14
@@ -1165,6 +1165,7 @@
 195.5.183.0/24
 195.8.32.0/23
 195.10.196.0/24
+195.10.236.0/22
 195.16.73.0/24
 195.18.0.0/22
 195.18.128.0/17
