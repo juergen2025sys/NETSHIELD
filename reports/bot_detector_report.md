@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-21 09:01 CEST (Europe/Berlin)  
+**Aktualisiert:** 2026-10-21 09:54 CEST (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,154,681** |
-| Neu (heute) | **+104** |
-| Entfernt | **-145** |
+| Gesamt IPs | **1,154,696** |
+| Neu (heute) | **+20** |
+| Entfernt | **-5** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 50 |
@@ -30,19 +30,19 @@
 | ❌ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 0 |
 | ❌ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 0 |
 | ❌ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 0 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,671 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,849 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,995 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,731 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,651 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 3,020 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,768 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,178 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,201 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 761 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 693 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 580 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 398 |
-| ✅ `ercindedeoglu_proxies` | 54,644 |
-| ✅ `ercindedeoglu_proxies_socks4` | 18,759 |
-| ✅ `ercindedeoglu_proxies_socks5` | 19,815 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 795 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 533 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 495 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 421 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 248 |
+| ✅ `ercindedeoglu_proxies` | 54,602 |
+| ✅ `ercindedeoglu_proxies_socks4` | 18,771 |
+| ✅ `ercindedeoglu_proxies_socks5` | 19,819 |
 | ✅ `tuanminpay_live_proxy` | 12,414 |
 | ✅ `tuanminpay_live_proxy_http` | 7,107 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,701 |
@@ -75,4 +75,4 @@
 > Diese 50 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-21 09:01 CEST (Europe/Berlin)*
+*Generiert: 2026-10-21 09:54 CEST (Europe/Berlin)*
