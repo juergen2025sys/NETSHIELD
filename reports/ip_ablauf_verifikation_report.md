@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-10-21 11:37 CEST (Europe/Berlin)
+Lauf: 2026-10-21 14:36 CEST (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -9,7 +9,7 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | Liste | Anzahl |
 |---|---:|
 | Watchlist (30-Tage-Pfad) | 22784 |
-| Active (180-Tage-Pfad) | 3239315 |
+| Active (180-Tage-Pfad) | 3239256 |
 
 ## Live-Fortschritt (heute + nächste Tage)
 
@@ -30,12 +30,12 @@ Beim Active-Pfad ist die Prognose die regulaer fuer diesen Tag erwartete Faellig
 
 | Datum | Prognose regulaer faellig | Heute eindeutig neu eingefroren | Letzter Combined-Cleanup | Einordnung |
 |---|---:|---:|---:|---|
-| 2026-10-21 (heute) | 11,006 | 11,006 | 0 | regulaerer Tagesstand |
+| 2026-10-21 (heute) | 11,006 | 11,005 | 0 | regulaerer Tagesstand |
 | 2026-10-22 | 30,440 | 0 | – | noch nicht faellig |
 | 2026-10-23 | 50,180 | 0 | – | noch nicht faellig |
 | 2026-10-24 | 41,550 | 0 | – | noch nicht faellig |
 
-**Active heute:** 11,006 eindeutige IPs neu im 180T-Ledger eingefroren; letzter Combined-Lauf: 0 Active-IP(s) als Ablauf entfernt.
+**Active heute:** 11,005 eindeutige IPs neu im 180T-Ledger eingefroren; letzter Combined-Lauf: 0 Active-IP(s) als Ablauf entfernt.
 
 ## Diagnose-Status
 
@@ -95,21 +95,20 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +12,703 (Anstieg) (jetzt 11,045,959 IPs)
-- Seit Zyklus-Start (2026-09-22): 📉 -431,760 (Rückgang)
-- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 896,811 neue IPs hinzugekommen (davon 763,583 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 29 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 120,849 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 7,136,803 (Summe letzte 8 Läufe / ~24h)
+- Seit letztem Lauf: 📈 +11,977 (Anstieg) (jetzt 11,057,936 IPs)
+- Seit Zyklus-Start (2026-09-22): 📉 -419,783 (Rückgang)
+- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 895,956 neue IPs hinzugekommen (davon 763,803 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 366 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 120,500 CIDR-Aggregate)
+- Neue IPs (Summe letzter Läufe): 7,139,675 (Summe letzte 8 Läufe / ~24h)
 - Entfernte IPs (Summe letzter Läufe): 13,006 (Summe letzte 8 Läufe / ~24h)
   - davon Watchlist/30 Tage: 2,000 (Summe letzte 8 Läufe / ~24h)
   - davon Active/180 Tage: 11,006 (Summe letzte 8 Läufe / ~24h)
-- Netto-Wachstum (~24h): 📈 +46,538 (~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-10-20T12:14 bis 2026-10-21T06:32 UTC
+- Netto-Wachstum (~24h): 📈 +48,557 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 15/15 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt) | 1 sonstige, Zeitraum 2026-10-20T17:32 bis 2026-10-21T12:31 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-10-18 23:12 CEST (Europe/Berlin) | 10,918,406 | 28561 | 3195966 | 0 |
 | 2026-10-19 00:25 CEST (Europe/Berlin) | 10,919,354 | 28561 | 3195946 | 0 |
 | 2026-10-19 01:49 CEST (Europe/Berlin) | 10,927,592 | 28561 | 3195905 | 0 |
 | 2026-10-19 07:15 CEST (Europe/Berlin) | 10,916,527 | 26783 | 3217832 | 0 |
@@ -129,3 +128,4 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-10-21 06:28 CEST (Europe/Berlin) | 11,013,636 | 22784 | 3239361 | 0 |
 | 2026-10-21 07:36 CEST (Europe/Berlin) | 11,033,256 | 22784 | 3239326 | 0 |
 | 2026-10-21 11:37 CEST (Europe/Berlin) | 11,045,959 | 22784 | 3239315 | 0 |
+| 2026-10-21 14:36 CEST (Europe/Berlin) | 11,057,936 | 22784 | 3239256 | 0 |
