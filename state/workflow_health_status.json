@@ -1,8 +1,8 @@
 {
-  "updated": "2026-10-22 00:17 CEST (Europe/Berlin)",
+  "updated": "2026-10-22 08:06 CEST (Europe/Berlin)",
   "total": 32,
   "ok": 29,
-  "warn": 3,
+  "warn": 4,
   "error": 0,
   "errors": [],
   "warnings": [
@@ -25,11 +25,16 @@
       "file": "netshield_report_generator.yml",
       "check": "Doppelter Import",
       "detail": "Block 0: Doppelte Imports: ((2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
+    },
+    {
+      "file": "Production Health",
+      "check": "Feed-Ausf\u00e4lle",
+      "detail": "2 von 98 Feeds ausgefallen: threat_live, urlhaus_ips"
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "066715bdcb5ec1c084dd16fd5b97ea9976c329d5",
+    "sha": "847da26a972c45bbf63ed94d6185b70293142761",
     "status": "passed",
     "tests_run": 479,
     "failures": [],
@@ -41,17 +46,23 @@
     "detail": "479 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5703436,
-    "active_blacklist_ipv4.txt": 978364,
-    "blacklist_confidence40_ipv4_part1.txt": 3984613,
+    "combined_threat_blacklist_ipv4_part1.txt": 5696537,
+    "active_blacklist_ipv4.txt": 915045,
+    "blacklist_confidence40_ipv4_part1.txt": 3975225,
     "cve_exploit_ips.txt": 24788,
-    "honeypot_ips.txt": 2362236,
-    "bot_detector_blacklist_ipv4.txt": 1155737
+    "honeypot_ips.txt": 2353635,
+    "bot_detector_blacklist_ipv4.txt": 1159621
   },
   "production_health": {
     "critical": 0,
-    "warn": 0,
-    "checks": []
+    "warn": 1,
+    "checks": [
+      {
+        "level": "WARN",
+        "check": "Feed-Ausf\u00e4lle",
+        "detail": "2 von 98 Feeds ausgefallen: threat_live, urlhaus_ips"
+      }
+    ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
