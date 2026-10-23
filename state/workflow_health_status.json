@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-23 00:17 CEST (Europe/Berlin)",
+  "updated": "2026-10-23 08:01 CEST (Europe/Berlin)",
   "total": 32,
   "ok": 29,
   "warn": 4,
@@ -29,12 +29,12 @@
     {
       "file": "Production Health",
       "check": "Feed-Ausf\u00e4lle",
-      "detail": "2 von 98 Feeds ausgefallen: threat_live, urlhaus_ips"
+      "detail": "2 von 98 Feeds ausgefallen: greensnow, urlhaus_ips"
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "5bf54695071bf6e2961a7509c4e9d8001b5ab020",
+    "sha": "d690ea74f538d5f2135c2f0274e01c8e62c96eba",
     "status": "passed",
     "tests_run": 479,
     "failures": [],
@@ -46,12 +46,12 @@
     "detail": "479 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5722628,
-    "active_blacklist_ipv4.txt": 962268,
-    "blacklist_confidence40_ipv4_part1.txt": 3997911,
-    "cve_exploit_ips.txt": 24780,
-    "honeypot_ips.txt": 2366677,
-    "bot_detector_blacklist_ipv4.txt": 1160873
+    "combined_threat_blacklist_ipv4_part1.txt": 5706648,
+    "active_blacklist_ipv4.txt": 910308,
+    "blacklist_confidence40_ipv4_part1.txt": 3980303,
+    "cve_exploit_ips.txt": 24781,
+    "honeypot_ips.txt": 2360847,
+    "bot_detector_blacklist_ipv4.txt": 1162363
   },
   "production_health": {
     "critical": 0,
@@ -60,7 +60,7 @@
       {
         "level": "WARN",
         "check": "Feed-Ausf\u00e4lle",
-        "detail": "2 von 98 Feeds ausgefallen: threat_live, urlhaus_ips"
+        "detail": "2 von 98 Feeds ausgefallen: greensnow, urlhaus_ips"
       }
     ]
   },
