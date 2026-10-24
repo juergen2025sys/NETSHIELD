@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-24 17:37 CEST
-# Eintraege: 33103
+# Aktualisiert: 2026-10-24 18:18 CEST
+# Eintraege: 33113
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -152,6 +152,7 @@
 0xq86rh6.dvfb-vn.com
 0xqme.vexa2-flow.life
 0xu6ov6b.parossag.hu
+0yd2j20l5g.workers.dev
 0ygn6edx.exploringvirtualreality.com
 0zfu07h8.audioattenuatorschematic.digital
 0zhx0obs.mustlovedogsmobilegrooming.com
@@ -1635,6 +1636,7 @@
 9baeu5sl.zistzirezarebin.shop
 9bf7j6bzrzzg.ifuckurmomjaffacakes.win
 9bfndx1c.eng--theeloncode.com
+9blb0qgz.emanuellejaques.com
 9bpjfhp7.ass-ecuadorian.digital
 9c10grb3.monopolisgame.com
 9c1qnwgg.usen-synadentix.com
@@ -2676,6 +2678,7 @@ ant.bergamonerazzurra.com
 antariscapital.com
 antbots-uni-resou-plats.garden
 ante4pathgate.lo4miren.bet
+anthonyhamlock.cyber-demo-client-website2.com
 anthonysplumbinganddrain.com
 anti-hornhaut.de
 anti.publicvm.com
@@ -9122,6 +9125,7 @@ emacademy.live
 email.closeoutstocks.com
 emailbox.icu
 emailmigration.org
+emanuellejaques.com
 embed-api.joelbaueronline.com
 ember-30.com
 ember-bridge.com
@@ -13783,6 +13787,7 @@ imobilityes.cabvlliahermosa.com.mx
 imodobeness.at
 impactawards.anthonyjoseph.ca
 impactpromotionsclt.com
+impaq.us
 implantcentr.com
 importdeep.sprutte5t.lat
 impresa.pub
@@ -15321,6 +15326,7 @@ kfuvg.buborekjatszohaz.hu
 kfvek8xo.seresniki.com
 kfvgvcb.betrophy90.com
 kfvzenz.bahiscom2023.online
+kfzgutachterputzke.de
 kfzpark.duckdns.org
 kg0kdihy.gavaedfagahe.xyz
 kgebll.xenicalby6.com
@@ -15381,6 +15387,7 @@ kick.rapidstorm.surf
 kick.redstonenova.lat
 kickoffkingdom.com
 kicugioeomcsgkeg.xyz
+kidden.com.mx
 kidjo.oasis-reimburse.in.net
 kidsjumpandplay.com
 kidsmelabd.com
@@ -16759,6 +16766,7 @@ lorijuku.workers.dev
 lorrisnopro.co
 los16zn2.celebritiesadda.com
 loscasquijales.com
+loseweightandlookyounger.com
 losfelizapartments.com
 losslvs.surf
 lot.jangkarsm188.top
@@ -16794,6 +16802,7 @@ lowfeesrealtors.com
 lowfoodanddrink.com
 lp.imersaosevenx.com.br
 lp.mtap.io
+lp.wooddesignpe.com.br
 lp4avzjm.borderlinelakewood.com
 lp4hvt2f.ravanshenakhti.shop
 lpchaf.eng-usa-sightfresh.com
@@ -16928,6 +16937,7 @@ lunza.store
 luqaqisy.workers.dev
 luqiuid91.com
 lurxrx.spirosnet.com
+lusciouslinens.ca
 lusnyak2.xyz
 lustkliondruara.space
 lustrous-strategy.icu
