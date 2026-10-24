@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-24 23:03 CEST
-# Eintraege: 33359
+# Aktualisiert: 2026-10-24 23:47 CEST
+# Eintraege: 33393
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -471,6 +471,7 @@
 24carnforth2merseyside.sol
 24emergencyelectricalservices.co.uk
 24hocst.help
+24siete.info
 24ucaqa7.enobahiss.xyz
 252rti6f.letrungkien.info
 254045mx.xenburn.us
@@ -894,6 +895,7 @@
 4lu4vaih.en-us--menbalancepro.com
 4ly606b9.aftabsport.ir
 4m41tu0204260.cfd
+4m8axf47.worknernorgram.rest
 4mnyykj.pastor-publicist.lat
 4mrkjecd.rsudtarutung.com
 4nhtw4lz.testranandegi.com
@@ -940,6 +942,7 @@
 4wyk.incub-teahouse.in.net
 4x4sport.nl
 4x9zxbge.ritzo1bet.com
+4xvc.com
 4y04a82z.hattrickbetkade.com
 4yfkm8cm.poles-wrinkle.digital
 4yl6u62i.pdfbama.com
@@ -970,6 +973,7 @@
 54lzq.tov1maren.in.net
 54snw6zk.nextbahis.coupons
 54toto.org
+556990.xyz
 55da.furrow-praise.bet
 55iphlgh.lipogammy.com
 55l9bouy.bociljepe.info
@@ -1465,6 +1469,7 @@
 884undo.braveclo.bet
 8862moud.mikespizzafairfield.com
 888infinityy.live
+889992513.xyz
 889992769.xyz
 889992924.xyz
 889993536.xyz
@@ -1631,6 +1636,7 @@
 99a3b033.bulkcompressimages.com
 99iud2c2.falsafekonkour.site
 99ommf.vertnop.lat
+99websitestudio.com
 99xfcl1y.techvigilante.com
 99ytipqf.mayochem.com
 9a06tby4.estradaannivers.digital
@@ -1749,6 +1755,7 @@
 9zzh7dnw.coop-fresh.com
 a-annuaires.com
 a-frame-marisa.com
+a-head.fr
 a.bc.285ef6f2.web.mail.cargopaa.com
 a.bc.6a73dbe.www.aioperao.com
 a.qqmusic1.com
@@ -1938,6 +1945,8 @@ accs.msdos.ru
 accurateonlinelogin.top
 ace90bet.cash
 ace90bet1.bet
+acecamps.net
+aceexterior.com
 acehostunit.so8laven.bet
 aceitarconvitevip.com
 acess.portal-nota.sbs
@@ -1948,6 +1957,7 @@ acheter-vendre-maison-aude.com
 achmatim.net
 achoxen.com
 aciarmedinadental.com
+aciencia-cap.com
 acigoquksycmyucs.xyz
 acisvwr.zodiacsmoke.com
 acitopram.com
@@ -2031,6 +2041,7 @@ admin.topsite.one
 admin9.planden35.click
 adminfg777.com
 admingdtg.vn
+administrationvisa.com
 adminkks777.com
 adminxoilac1.site
 adminxyz.top
@@ -2041,6 +2052,7 @@ admiral-x-xnir5.icu
 admiral-x-z04gq.icu
 admiralcare.com.au
 admiration-noble.sbs
+admission.qaed.pk
 admstat45.xyz
 adnplvk.123betyek.com
 adobeacrobat.portal-nota.sbs
@@ -2049,6 +2061,7 @@ adobepdf.cc.cc
 adonay.co
 adoptamestizos.com
 adoswjr.calvaryhospice.org
+adplaret.com
 adpptgxb.bell-processing-core.christmas
 adrenalinedesign.ca
 adrianalopezfotografia.com
@@ -2113,12 +2126,15 @@ aeyibtnr.com
 af55l61r.en-us-zen-sulin.com
 af88.life
 af88.run
+afb-aspect.com
 afbus03701.workers.dev
+afcavado.pt
 afdaqyu.yasbet.casino
 afdm.scloudflareb.com
 afejoed.cyou
 affimcm.cyou
 affinm.com
+affordablemedicalhealthcare.com
 affordablesidingandgutters.com
 afindisc.xyz
 afluix.com
@@ -2129,6 +2145,7 @@ africadasi.org
 africanalphacc.com
 africanhunting.com
 africanyoutharchitects.org
+afritekers.com
 afspd.com
 aftabsport.ir
 after-diacritic.digital
@@ -2354,6 +2371,7 @@ alabamarecoverycenter.com
 alad1.com
 alambiodiversitasindonesia.or.id
 alanabrayboy.com
+alansarkw.com
 alarmas.solutions
 alayaf.play-1winofficial.com
 albacetecapital.es
@@ -2414,6 +2432,7 @@ all4mobilebenidorm.es
 alladie.store
 allanpe.biz
 allboroughrealestate.com
+alldatadaily.info
 alldaygaragerepair.com
 alldez.nl
 alldigipathplazz.monster
@@ -2427,6 +2446,7 @@ allfood.2k3phuchau.christmas
 allgroupservices.com
 alliancefr-bizerte.tn
 allianceprojctsap.space
+allianzexecutivo.com.br
 alliedjeralee.workers.dev
 allmed-stg.pl
 allnagagg.space
@@ -2550,7 +2570,11 @@ amber-ridge-bruixsioi.live
 amber-ridge-bruixsioi.pro
 amber-weave-otter-luor.pro
 amberalcove.top
+amberbriefs.store
+amberchronicle.store
 ambercompanion.top
+ambercorner.store
+amberdiaries.store
 amberskyforge.top
 amberverse.online
 ambitiousaboutautismorguk.com
@@ -9738,6 +9762,7 @@ euspwbzy.bet90forward.win
 evacuat-sycam.digital
 evenstor.in
 event-unipeg.art
+event.springdepot.lat
 event.wanderwest.one
 eventation.site
 eventflareschain.com
@@ -20045,6 +20070,7 @@ octobdrive-pho.com
 octopi.co.uk
 octzfcoi.calculadoracomisiones.com
 ocul-xq7.raxen-tech.in.net
+ocuyakrzyc.workers.dev
 oczdcn.eng-usa-slimsounds.com
 oczl.torex5lin.surf
 oczvda.oxidbet.bet
@@ -30976,8 +31002,11 @@ www.0liwevrhxdc3s2xk00.com
 www.0r7u0-admiral-x.icu
 www.10urgeslot4qzu.app
 www.10xddl8puxw5rn3cg8pdus.net
+www.111tv.it
+www.11quu.com
 www.12points.se
 www.12startups.de
+www.150graziadeledda.it
 www.164-90-169-184.cprapid.com
 www.18sf1ka7leb3sllhlhv.live
 www.28z9hqqs4tmnettw1dcso4.cc
@@ -31015,6 +31044,7 @@ www.abrahamalvarezgonzalez.com
 www.abundanceofpraise.org
 www.abvision.cam
 www.accessrxhealth.com
+www.adamellobrentameteo.it
 www.adamsanglingbooks.com
 www.adelaidebooksellers.com.au
 www.admiral-x-kax0m.icu
@@ -31037,9 +31067,13 @@ www.alad1.com
 www.alfapetroluems.com
 www.algherobudget.com
 www.algranati.it
+www.allcoastinteriorlinings.com.au
+www.allcopytx.com
 www.allevi8.life
 www.allltrucks.com
 www.alturaxtrade.com
+www.alubox.org
+www.alvesaraujo.com
 www.ambiopharmconsultingltd.com
 www.ambiopharmconsultingltdbackup.com
 www.ampaescolapalcam.com
