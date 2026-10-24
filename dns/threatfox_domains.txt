@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-24 19:05 CEST
-# Eintraege: 33136
+# Aktualisiert: 2026-10-24 20:18 CEST
+# Eintraege: 33152
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2631,6 +2631,7 @@ andopening.com
 andreahubert.ca
 andressadinizbeauty.com.br
 andrew-young.net
+andrewresearchgroup.com
 androidbaz.com
 andromeda-d389d.firebasestorage.app
 androscogginpal.com
@@ -3085,6 +3086,7 @@ archipelagosarts.com
 architecturaldraftingindia.com
 archive-shlyah.digital
 archive.mintfair.click
+arclight.pipesnmetals.com
 ardaplumeit.top
 ardexion.com
 ardi.fourseasondumpling.com
@@ -10231,6 +10233,7 @@ fervxy.xyz
 fesold.com
 fest-thailand.com
 festival-enruelibre.fr
+festwirte.at
 fesv.net
 fetahi.com
 fetal3d.com
@@ -12021,6 +12024,7 @@ googlanalitlcs.xyz
 google-js.org.za
 google-meet-call.com
 google-meet-verification.icu
+google-proxy-66-102-8-163.google.com
 google-proxy-66-102-8-164.google.com
 google-proxy-66-102-8-170.google.com
 google-proxy-66-249-88-66.google.com
@@ -22114,6 +22118,7 @@ pubdraft.eight-education.lat
 publ1-wave.kymle5rax.in.net
 publiccatering.co.uk
 publicidad2vr.com
+publicmarketgrill.com
 publicwebprotection.com
 publish2-mount.bexla9rin.in.net
 publishbark.zex3liron.in.net
@@ -24597,6 +24602,7 @@ secpopper.world
 secretcav.remote-flow.work
 secretopanel2.site
 secretpi88122.life
+secrets.digistag.com
 secrvol.heavier-plumage.surf
 secsimaamquuoqko.xyz
 secu-line.drumf1esh.in.net
@@ -24684,6 +24690,7 @@ sep.sm188auto.top
 sephionecraft.site
 sepolia.gateway.tenderly.co
 sequimed.net
+sequoia.aulasequoia.com
 seqwokskwyiiikgc.xyz
 ser-draex.meltdowntemptin8.surf
 ser-meshal.flo5renth.garden
@@ -24846,6 +24853,7 @@ sharrtz.org
 shart303.com
 shartcart.xyz
 shaurma.fun
+shavondezilva.com
 shawnmaltipoopuppies.com
 shbet126.com
 shdufysuf.com
@@ -30835,6 +30843,7 @@ www.admiral-x-qpqoy.icu
 www.admiral-x-wk5ey.icu
 www.admiral-x-xnir5.icu
 www.admiral-x-z04gq.icu
+www.adrenalinedesign.ca
 www.adrisex.com
 www.adultingwithash.com
 www.aebitalia.it
@@ -30854,6 +30863,7 @@ www.allltrucks.com
 www.alturaxtrade.com
 www.ambiopharmconsultingltd.com
 www.ambiopharmconsultingltdbackup.com
+www.ampaescolapalcam.com
 www.ampimex.in
 www.andala.life
 www.anemir.fr
@@ -30894,6 +30904,7 @@ www.bl32hm8oxzy3yome193.cc
 www.blackdragonguard.rivalstore.hu
 www.blikmand.dk
 www.bluebarnestates.co.uk
+www.bluegeneration.es
 www.bluestockingbooks.com
 www.bluezonenews.it
 www.bookbill.net
@@ -30938,6 +30949,7 @@ www.citymoversmagazine.com.ng
 www.classicstandupcomedy.com
 www.clawbytes.xyz
 www.clearoriginxf.click
+www.cloudespacios.com
 www.clps.space
 www.clubanimazione.it
 www.comoshops.com
@@ -31157,6 +31169,7 @@ www.judeglass.com
 www.kalocsasirko.hu
 www.kathmandubooks.com
 www.kavkom.tv
+www.keithkloor.com
 www.kellerbooks.com
 www.kitchensecretbook.com
 www.knrd2up67onim5epfcxgvx.net
@@ -31169,6 +31182,7 @@ www.kroghs-byg.dk
 www.ksbiblio.com
 www.kt88npl.live
 www.kuedltqtddbj-hnf9gd.net
+www.kurbad-st-leonhard.de
 www.l9-xf4xzz9g7s9nywuox.app
 www.lacompaniahostal.com
 www.laltd.net
@@ -31248,6 +31262,7 @@ www.neelgirlchemicalsbackup.com
 www.nelan.com.pe
 www.neqbzjio8rflhgwclmpr.app
 www.nettflex.site
+www.neumaticosmarsili.com
 www.neurowellnesslab.site
 www.newlyknife.com
 www.nichepursuits.com
@@ -31752,6 +31767,7 @@ xipr.reliablerentalz.com
 xipuryqj.betwanna.com
 xiseus.egracefashionandbraiding.com
 xitldefl.com
+xiycg03301-efb.workers.dev
 xizaf.run
 xjbrbuwq.bosstekirdag.store
 xjdles.habbofutbol.com
