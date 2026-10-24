@@ -1,0 +1,82 @@
+name: DNS List Mirror
+
+# Spiegelt DNS-Blocklisten, die OPNsense nicht direkt laden kann, nach dns/
+# (Details siehe Kopf von scripts/dns_list_mirror.py):
+#   - dns/antimalware_domains.txt  DandelionSprout (Original-URL enthaelt "%20",
+#                                   daran stuerzt der OPNsense-DNSBL-Aufbau ab)
+#   - dns/threatfox_domains.txt    ThreatFox Domain-IOCs (Auth-Key-Export)
+on:
+  schedule:
+    # Alle 6 Stunden um :35 UTC - abseits der Combined-Slots (:07/:27/:47)
+    # und des Honeypot Monitors (:00).
+    - cron: '35 1,7,13,19 * * *'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: read
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  dns-list-mirror:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: DNS-Listen erzeugen
+        env:
+          THREATFOX_AUTH_KEY: ${{ secrets.THREATFOX_AUTH_KEY }}
+          THREATFOX_AUTH_KEY_2: ${{ secrets.THREATFOX_AUTH_KEY_2 }}
+        run: python3 -u scripts/dns_list_mirror.py
+
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dns/ 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "DNS List Mirror: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
+            for attempt in 1 2 3 4 5; do
+              echo "Push-Versuch $attempt..."
+              if ! git fetch origin "${GITHUB_REF_NAME}"; then
+                echo "Fetch fehlgeschlagen (Versuch $attempt/5)"
+                if [ "$attempt" -eq 5 ]; then exit 1; fi
+                sleep $((attempt * 2))
+                continue
+              fi
+              git stash --include-untracked 2>/dev/null || true
+              if git rebase -X theirs origin/${GITHUB_REF_NAME}; then
+                git stash pop 2>/dev/null || true
+                if git push origin HEAD:${GITHUB_REF_NAME}; then
+                  echo "Push erfolgreich (Versuch $attempt)"
+                  exit 0
+                fi
+              else
+                git stash pop 2>/dev/null || true
+                git checkout --theirs dns/ 2>/dev/null || true
+                git add dns/ 2>/dev/null || true
+                GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
+              fi
+              sleep $((attempt * 3))
+            done
+            echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+            exit 1
+          fi
