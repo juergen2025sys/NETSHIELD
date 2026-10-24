@@ -5,10 +5,15 @@ name: DNS List Mirror
 #   - dns/antimalware_domains.txt  DandelionSprout (Original-URL enthaelt "%20",
 #                                   daran stuerzt der OPNsense-DNSBL-Aufbau ab)
 #   - dns/threatfox_domains.txt    ThreatFox Domain-IOCs (Auth-Key-Export)
+#
+# Hauptausloeser: "Trigger DNS List Mirror" am Ende von
+# netshield_report_generator.yml (expliziter workflow_dispatch via gh, wie
+# Bot-Detector/Honeypot Monitor/Auto-Feed Refresh - workflow_run feuert in
+# diesem Repo nicht zuverlaessig). Der Cron unten ist nur Fallback.
 on:
   schedule:
-    # Alle 6 Stunden um :35 UTC - abseits der Combined-Slots (:07/:27/:47)
-    # und des Honeypot Monitors (:00).
+    # Fallback alle 6 Stunden um :35 UTC - abseits der Combined-Slots
+    # (:07/:27/:47) und des Honeypot Monitors (:00).
     - cron: '35 1,7,13,19 * * *'
   workflow_dispatch:
 

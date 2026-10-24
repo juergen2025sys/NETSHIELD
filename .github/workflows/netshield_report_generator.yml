@@ -704,3 +704,21 @@ jobs:
           gh workflow run auto_feed_refresh.yml \
             --repo "${{ github.repository }}" \
             --ref "${GITHUB_REF_NAME}"
+
+      - name: Trigger DNS List Mirror
+        # Stoesst dns_list_mirror.yml direkt nach jedem erfolgreichen
+        # Report-Lauf an (2026-10-24). Gleiches Muster wie die Trigger oben:
+        # expliziter workflow_dispatch via gh statt workflow_run-Event.
+        # Der eigene Cron in dns_list_mirror.yml (alle 6 h) bleibt als
+        # Fallback erhalten; die concurrency-Gruppe dort reiht einen Trigger,
+        # der auf einen noch laufenden Mirror trifft, ein statt ihn zu verwerfen.
+        # Effekt wie beim Honeypot Monitor: der ThreatFox-Export wird damit
+        # bis zu stuendlich geladen.
+        if: success() && steps.freshness.outputs.proceed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Report abgeschlossen - triggere DNS List Mirror"
+          gh workflow run dns_list_mirror.yml \
+            --repo "${{ github.repository }}" \
+            --ref "${GITHUB_REF_NAME}"
