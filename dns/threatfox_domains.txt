@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-24 23:47 CEST
-# Eintraege: 33393
+# Aktualisiert: 2026-10-25 01:32 CEST
+# Eintraege: 33442
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1655,6 +1655,7 @@
 9c1qnwgg.usen-synadentix.com
 9c8joror.melbetir.app
 9c93qxj2vi020426nw.cfd
+9c9yctp3.energedia.dev
 9d24355d.pattysole.com
 9d2a8bbd.bociljp.xyz
 9d8kjnpx.designphotoshop.ir
@@ -3030,6 +3031,7 @@ appboxs.mowin8single.lat
 appboxs.nethubtop.lat
 appboxs.prepol5oldafon.lat
 appboxs.tonmixin.surf
+appconsulting.fr
 appdevtechnology.com
 appeasy.build
 appelhout.nl
@@ -3088,6 +3090,7 @@ apyxfoundation.org
 aq4saw1.khudrukmumb1es.in.net
 aq5tnc6p.ytec.store
 aqday92687.workers.dev
+aqeellogistic.com
 aqfcvod.en-usa-sugarmute.us
 aqge8umy.khudrukrantingmanic.digital
 aqhvzk.thehqtraining.com
@@ -3237,6 +3240,7 @@ artistichairlounge.com
 artmicrodesign.com
 artnsalvage.com
 artofsen.sk
+artsetindustriesinformatiques.fr
 artumay.com
 arturprikhodkosh.com
 aruhq.jbgroup21.com
@@ -3287,10 +3291,12 @@ asdal.io
 asdder.com
 asdstar.com
 asea4ied.ruut.store
+aseantrade.asia
 aseguradora2026.kozow.com
 aseguroconfiable21.mysynology.net
 aseleeeksh.com
 asensvsh.com
+asepoxigolv.se
 asesorarcolom.crabdance.com
 asesoriamerenlinea.com
 asfaltosugalde.cl
@@ -3715,6 +3721,7 @@ azure-sharp.1zoravel.in.net
 azurecloudfire.com
 azuredocs.org
 azuremods.cc
+azwebsoft.online
 azwxo.narrownessoutri8ht.pics
 azx19-45876.portmap.host
 azxhmev.prozhe.net
@@ -3861,6 +3868,7 @@ bahsine.casino
 baidenfree.com
 baidengop.com
 baidu-cdn-10.com
+baiihua.com
 bairvitu.cfd
 baixar.xgifsbr.com
 bajbvqgz.dex4lavel.in.net
@@ -3925,13 +3933,16 @@ bar15.co.uk
 barabezo.com
 baraksamoon.com
 barazande.com
+barbaraohman.com
 barbashat.com
 barbosamaiaadvogados.com.br
 bargecontradictionexcrement.courses
 barikadeuku.freedev.app
 baritepantheon.info
 bark-line.miv7sorel.in.net
+barkacsolokboltja.hu
 barkhidden.th0rniva.garden
+barko-personal.de
 barmaleieba.lol
 barmnava.com
 barn.blinqueofficial.com
@@ -4001,6 +4012,7 @@ basilcrest.cc
 basinhook.xyz
 basketballbet.app
 basketballbet.org
+basketbay.net
 baskoniamt.com
 basyoun.com
 bat.gagahsm188.top
@@ -4131,13 +4143,17 @@ beatfocus.au
 beatfocus.store
 beatidea.store
 beatinsights.store
+beatjournals.store
 beatpress.au
 beatramiro.com
 beatreader.store
 beatrizmontes.com
 beatscope.store
+beatscribe.store
 beatscribes.store
 beatstories.store
+beattrail.store
+beatview.store
 beatwrites.store
 beatwriting.store
 beautiful213.life
@@ -4146,6 +4162,7 @@ beautifullybonkers.co.uk
 beautifulthingsda.com
 beautiolondon.com
 beautyandthebarbershoptx.com
+beautyavenue.us
 beautyfev.life
 bebarterkaw.com
 bebelonserver.duckdns.org
@@ -4205,6 +4222,7 @@ bendingrealityinc.com
 benotrobot.online
 bentleyg.com
 benuatotob.store
+beorganiser.com
 beppegallo.it
 beqbfjhnf.deepspaceparker.com
 berakasalon.com
@@ -4241,10 +4259,12 @@ bestcloudservicesupport.com
 bestcraftfurniture.com
 bestellernews.blog
 besteonlinecasinobuitenland.net
+bestfiveenterprise.ca
 bestguardservicesupport.com
 besthappyfamily.com
 bestminecraftplayer.fun
 bestnailsalonmedford.com
+bestpayoutcasinos.org
 bestsportsgearhub.com
 besttechnoschool.com
 bestwebchlen.cyou
@@ -4292,6 +4312,7 @@ betbuilder.promo
 betcompani.com
 beterbewegenmetyael.blog
 betfire90.bet
+betflikevo.pro
 betfoot.bet
 betforward.now
 betgit.casino
@@ -4464,6 +4485,7 @@ binary-dock.digital
 binaryboost.histori-pneumonia.in.net
 binarydock.courses
 binarymode.vexa2-flow.life
+binarysa.co.za
 binazirvarzesh.ir
 bindspru.div0rceskis5ing.pics
 bins.oceanic-node.su
@@ -4474,6 +4496,7 @@ biocraftdesigns.com
 biodentax.us
 biodenttix.us
 biohazzzard.com
+bioindiaservices.com
 bioluminescent-fungi-spore.garden
 biomecave.incub-teahouse.in.net
 biomesha.salvat5pozar.lat
@@ -4698,9 +4721,11 @@ blog.andrewlalchan.co.uk
 blog.clanfamily.de
 blog.derrspecial-onlinedmin.live
 blog.donitesmithy.info
+blog.edelzone.fr
 blog.jusun.org
 blog.kibotics.org
 blogsites.fr
+blogstartups.com
 bloodboundcitadel.top
 bloodhorn8123.icu
 bloodthornkeep.top
@@ -4746,6 +4771,7 @@ blue8hostunit.oceanicmeshbit.garden
 blueberryflowes.com
 blueberryxcloud.com
 blueberryxo.com
+bluebulletin.store
 bluecurrent.oceanprim.in.net
 blueexorcistchapters.com
 bluegeneration.es
@@ -4756,6 +4782,7 @@ bluepage.au
 bluepiip.digital
 blueprint-71.com
 bluesblaster7.de
+blueskiesrecruitment.co.uk
 bluespaceproperties.in
 bluetechsupply.com
 bluezonenews.it
@@ -4947,11 +4974,13 @@ borosfi-pendle.finance
 borosfinances-pendle.finance
 borrender.com
 borrilkapi4422.icu
+borrisokanegp.ie
 borrnopi.icu
 borrovnou4421.icu
 borrow.vuulh.workers.dev
 borrowskol312.icu
 borrylistu898214.icu
+borsab.org.tr
 borschokf2dd.digital
 boss.noip.at
 boss1huesos.cc
@@ -5453,6 +5482,7 @@ c-proxy-xjmkjgbsdn.cn-hangzhou.fcapp.run
 c-roots.org
 c.360ctct.com
 c.9winn.org
+c.adilawa99.org
 c.gbwhat.pro
 c.obwhatsappdownload.com
 c.pushonline.online
@@ -7229,6 +7259,7 @@ cuzxamf.airtechmedical.com
 cv.cbrw.ru
 cv.jyla.ru
 cvdhcp.amesburyforeignauto.com
+cvetox.com
 cvf9a6ez.alvare.store
 cvjd.fileboroo.com
 cvnuts.com
@@ -9356,6 +9387,7 @@ ener--flow.com
 enerflaw.us
 energedge.com
 energedia.com
+energedia.dev
 energiol.com
 energy-dasstudio.at
 energy4665.duckdns.org
@@ -10126,6 +10158,7 @@ fasdas.link
 fasea.top
 fashion-chicken.com
 fashionfee.nl
+fashionoutlet.it
 fassett.com.au
 fast-1.bexla8rin.in.net
 fast-1.there5econd.in.net
@@ -10336,6 +10369,7 @@ ffedpfb.jet90bet.bet
 ffeqlui.betrayon.casino
 ffjc9r7.vexon4al.lat
 ffjdc.run
+ffknp12227.workers.dev
 fflupuez.smartwaterbox.us
 fforket.shop
 ffrpwns.vbetirani.com
@@ -12377,6 +12411,7 @@ grupandreu.net
 grupocentauros.com.br
 grupointerfasesl.com
 grupojecam.com.br
+grupostarinfo.com.br
 grupostelegrambrasil.com
 grupotesac.com
 grvzzd.templeofazrael.org
@@ -17094,6 +17129,7 @@ luxorgym.es
 luxurygoodscaree.com
 luxuryrentalcaribbean.com
 luxuryswisshomes.com
+luxushunza.com
 luy6lvmh.site-takhtenard-sharti-betland.com
 luyzkvh.eng-en-slimsounds.com
 luzer.anix-to.com
@@ -24912,6 +24948,7 @@ serverstats-daemon.com
 service-rchqbzvz-1301033415.sh.tencentapigw.com
 service1app.com
 serviceapp1.com
+servicefon.lviv.ua
 servicegartnerne.dk
 servicehstcmon.com
 services-server0-web.com
@@ -25888,6 +25925,7 @@ spencershorttexas.com
 spesurv.biograph-discoball.pics
 spfx.phimmoichilla.org
 spia-vo.sylonix-web.in.net
+spicandspancleaning.org
 spillets.com
 spin2pathgate.torquegridunit.bet
 spin3taskhub.dra7vexa.bet
@@ -30978,6 +31016,7 @@ wvvbpwt.enfejar.game
 wvvyvhcadohpdpahcds.home-eye-app.com
 ww.maskelibros.cl
 ww2clash.com
+ww38.roofnrack.us
 ww6.runds.duckdns.org
 ww79xq.american-brazil.surf
 wwdvqwb.en-sightfresh-us.com
@@ -31070,6 +31109,7 @@ www.algranati.it
 www.allcoastinteriorlinings.com.au
 www.allcopytx.com
 www.allevi8.life
+www.alliancefr-bizerte.tn
 www.allltrucks.com
 www.alturaxtrade.com
 www.alubox.org
@@ -31087,22 +31127,27 @@ www.antiquemallbookstore.com
 www.apartuk.info
 www.api-aws.xyz
 www.appliancerookies.shop
+www.arlovsbygg.se
 www.artmostfear.co.za
 www.aryaxplorer.space
 www.assessoriabr.com
+www.associazionearches.it
 www.atgairport.com
 www.author-author.net
 www.autoccb.tech
 www.aware.com.ph
 www.axilo.top
+www.ayyappadevalayampudur.com
 www.azetti.com
 www.b-29sn-02vvbpmb0zu3kmq.org
 www.b-ui75mia5005x0vinb.cc
 www.bacsontech.com
 www.bagbooks.com
 www.ballingmania.it
+www.banchellivini.it
 www.barnerbooks.com
 www.barrycassidyrarebooks.com
+www.bathroom-vanity.com.au
 www.batsoverbooks.com
 www.bethq.work
 www.bettr-projects.be
@@ -31110,9 +31155,12 @@ www.betya.live
 www.bf2tmwypyvr7un7nmk1vzn.net
 www.bhastrika.com
 www.bibliographica.org
+www.bibliotecafregene.com
 www.biforin.com
+www.biolabdiagnostics.it
 www.biomel.life
 www.bioshealthgroup.com
+www.bitforge.com.my
 www.bl32hm8oxzy3yome193.cc
 www.blackdragonguard.rivalstore.hu
 www.blikmand.dk
@@ -31120,6 +31168,7 @@ www.bluebarnestates.co.uk
 www.bluegeneration.es
 www.bluestockingbooks.com
 www.bluezonenews.it
+www.bmreducation.com
 www.bolton-flooring.co.uk
 www.bookbill.net
 www.bookhousecatalog.com
