@@ -91,5 +91,28 @@ class TestParseThreatfoxCsv(unittest.TestCase):
             parse_threatfox_csv('"a","b"\n')
 
 
+class TestWriteDomainList(unittest.TestCase):
+    def test_unchanged_content_is_not_rewritten(self):
+        import tempfile
+        import dns_list_mirror as mirror
+
+        domains = {f"bad{i}.example.com" for i in range(1000)}
+        with tempfile.TemporaryDirectory() as tmp:
+            old_dir = mirror.OUT_DIR
+            mirror.OUT_DIR = tmp
+            try:
+                self.assertTrue(mirror.write_domain_list(
+                    "antimalware", "test.txt", "T", "S", domains, "erster Lauf"))
+                path = os.path.join(tmp, "test.txt")
+                with open(path, encoding="utf-8") as handle:
+                    first = handle.read()
+                self.assertTrue(mirror.write_domain_list(
+                    "antimalware", "test.txt", "T", "S", domains, "zweiter Lauf"))
+                with open(path, encoding="utf-8") as handle:
+                    self.assertEqual(handle.read(), first)
+            finally:
+                mirror.OUT_DIR = old_dir
+
+
 if __name__ == "__main__":
     unittest.main()
