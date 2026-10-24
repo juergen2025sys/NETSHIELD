@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-24 18:18 CEST
-# Eintraege: 33113
+# Aktualisiert: 2026-10-24 19:05 CEST
+# Eintraege: 33136
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -325,6 +325,7 @@
 1ozso11s.blackjackonlineplay83.com
 1p3iya3c.usen-slimsounds.com
 1p6kkehfjfb2s.net
+1pbwy4ua.yellohotelsharmoni.com
 1profitdeal.com
 1qe4ncxx.runtime-forge.digital
 1qmi6vxn.hesabdarinoravesh.xyz
@@ -1616,6 +1617,7 @@
 988920lt-ublib.988920a1.buzz
 98jhjysx.ehtemalatvaamar.xyz
 98win.fast
+98win.tools
 98win99m.com
 98winnnn.online
 98ykbe5.lipshellcore.lat
@@ -5399,6 +5401,7 @@ c.obwhatsappdownload.com
 c.pushonline.online
 c.whatsplus.online
 c.whatsplusdownload.com
+c0013.bizhomepass.kr
 c00l53nm.libertytokan.com
 c01kxver020426y5.cfd
 c0de-line.pavi1xen.bet
@@ -5778,6 +5781,8 @@ cdn.pixelcss.org
 cdn.privatefile.host
 cdn.project-eagle-2025.xyz
 cdn.quickdelivr.com
+cdn.remusdownloads.su
+cdn.remusdownloads.to
 cdn.smartlogicgate.lat
 cdn.soft-update.click
 cdn.sys-update.online
@@ -5862,6 +5867,7 @@ ceranet.goliath.st
 cerridwen.shop
 certifiedairbalanceinlosangelesca.com
 cess.digishart.news
+cessolutions.com.mx
 cestfininewdns.vip
 cewjik.sbs
 ceymox.xyz
@@ -6238,6 +6244,7 @@ clicky.com
 clie-route.jumping5table.surf
 cliedrift.vori7nex.surf
 client-runelite.is
+client.remus.la
 clientesvpn.egbrewview.com
 clientlab.4zorexil.in.net
 clientpilotclosers.com
@@ -6357,6 +6364,7 @@ cloudsupergatekeeper.com
 cloudteams-bookings.com
 cloudteamupdata.top
 cloudtechpro.com.hk
+cloudvault-app.com
 cloudwebpictures.com
 cloudynetwork.online
 cloudyredirect.online
@@ -7205,6 +7213,7 @@ cyberflux9unit.glenmora.garden
 cybergrid.surf
 cyberknull.com
 cyberku.com
+cyberleakgta6.net
 cybermetasynth.digital
 cybernetic-prosthetic-lab.garden
 cyberneticprostheticlab.digital
@@ -7694,6 +7703,7 @@ demand3-logic.verdi7qor.lat
 demfmb.restaurantguideaarhus.com
 demi-geek.com
 demnocusurpapanottodelivermebetterlogs.duckdns.org
+demo.mufaqar.com
 demo.noicondomini.it
 demo.oilpalmconsultant.co.id
 demo212.jnirnportaciones.net
@@ -7709,6 +7719,7 @@ denniscrosby.com
 deno2vax.digital
 denseink.clo5etterebeat.in.net
 dentalfaxgate.vip
+dentalspace.com.tr
 dentmt.us
 dentoessencern.com.br
 denverpediatricchiropractor.com
@@ -8237,6 +8248,7 @@ dom-reg.xam1riel.surf
 dom-reg.xamir9on.surf
 dom.openapiserv.pics
 doma.fastexitnow.lat
+domaine-equestre-du-somaret.com
 domainpanel.world
 domarisconcepts.com
 dombl.yanis.hu
@@ -14214,6 +14226,7 @@ ismokoimdwyfowgtz.fourseasonsmansion.com
 isnhituoyioe.com
 iso.v-panel.asia
 isochronous-cyclotron-beam.garden
+isometric.cyber-demo-client-website2.com
 isomnia.pl
 isosissisisossfiof.com
 isqacg.streamsurge.site
@@ -15638,6 +15651,7 @@ kowaaokaecceoaks.xyz
 kowcawiawagscwos.xyz
 koweeswuiaggmaiy.xyz
 kowloonindustries.org
+kowurenu.workers.dev
 kowysmaugcaqsciq.xyz
 koyet88723-44608.portmap.host
 koyqaukqaoikmyms.xyz
@@ -17960,6 +17974,7 @@ mindbodyleadership.ca
 mindyoursmallbusiness.com
 minecraft65server.3utilities.com
 minecraftserverapigame.xyz
+minecraftsmp14.duckdns.org
 minefox.lol
 mineniches.com
 mineral-considerable.with.playit.plus
@@ -18205,6 +18220,7 @@ moduleprime.weplord.lat
 modyhoba-57738.portmap.host
 moebelfan.com
 mofza12619.workers.dev
+moggydaytrainer.com
 mogilevskaya.com
 moh.6666k.org
 mohandesitraffic.shop
@@ -23302,7 +23318,11 @@ remotev2.whpayment.ru
 remoto.ddins.click
 remove.ncsgo.workers.dev
 remuloz.net
+remus.la
 remus.su
+remusapi.la
+remusdownloads.su
+remusdownloads.to
 renad.store
 renaissance-fresco-restoration.garden
 renaissancebooks.co.nz
@@ -25298,6 +25318,7 @@ sm188daftar.skin
 sm188dvlv.hair
 sm188dvlv.rest
 sm2ztett.rossandrossenterprisesinc.com
+sm8gy4u6.ozabet.promo
 smackit.lat
 smadg.visszateritok.net
 smaeak.top
@@ -25805,6 +25826,7 @@ srv.oceanic-node.su
 srv.physiolpo1icy.lat
 srv.serverdatahub.pics
 srv.turbo88ku.top
+srv45056.seohost.com.pl
 srvhub.5lorexin.surf
 srvhub.6toralex.surf
 srvhub.digitalcloudsys.lat
@@ -26108,6 +26130,7 @@ statpass3183.lol
 statpipeplus.com
 stats.wp-station.com
 statsduckcoderq.dynuddns.net
+statswarcraft.com
 status-check.rolfgrassinger.work
 status.creek-place.one
 status.fernhollow.cc
