@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-10-24 00:05 CEST (Europe/Berlin)
+**Aktualisiert:** 2026-10-24 07:47 CEST (Europe/Berlin)
 
-**Workflows:** 32 | ✅ 29 OK | ⚠️ 4 Warnung | ❌ 0 Fehler
+**Workflows:** 32 | ✅ 29 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `a61da8ab7fa206767251a1721fdb4939bb45faa4`
+✅ Commit: `9dc90c49cf671d3f4e92dd8a664ae4cab943408d`
 
 479 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -20,15 +20,12 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `dns_blocklist_finder.yml` | Kein expliziter Leerungsschutz | Externer Feed/Report ohne explizite MIN_* Guard-Variable – Müll-/Leer-Daten könnten unbemerkt akzeptiert werden |
 | `dns_blocklist_finder.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
-| `Production Health` | Feed-Ausfälle | 2 von 98 Feeds ausgefallen: greensnow, urlhaus_ips |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🟡 WARN | Feed-Ausfälle | 2 von 98 Feeds ausgefallen: greensnow, urlhaus_ips |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -68,4 +65,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-10-24 00:05 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
+*Generiert: 2026-10-24 07:47 CEST (Europe/Berlin) | 32 Workflow-Dateien geprüft*
