@@ -231,6 +231,15 @@ def write_domain_list(name: str, filename: str, title: str, source: str,
         print(f"::warning ::{filename}: nur {len(domains)} Domains (< {minimum}) - "
               f"bestehende Datei bleibt unveraendert")
         return False
+    # Nur schreiben, wenn sich der Inhalt geaendert hat. Sonst wuerde allein
+    # die "Aktualisiert"-Zeile bei jedem (stuendlichen) Lauf einen Commit
+    # erzeugen und die Git-Historie unnoetig aufblaehen.
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as handle:
+            existing = {ln.strip() for ln in handle if ln.strip() and not ln.startswith("#")}
+        if existing == domains:
+            print(f"  {filename}: unveraendert ({len(domains)} Domains) - kein Schreiben")
+            return True
     os.makedirs(OUT_DIR, exist_ok=True)
     header = [
         f"# Title: {title}",
