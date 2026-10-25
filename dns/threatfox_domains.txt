@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-25 07:59 CET
-# Eintraege: 33067
+# Aktualisiert: 2026-10-25 10:30 CET
+# Eintraege: 33082
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1128,6 +1128,7 @@
 60kxdwop.al303.com
 60ou7kjk.dinosrestaurant.co.uk
 60yjiqtp.gorgeousgrowlersgrooming.com
+61.110.154.34.bc.googleusercontent.com
 61105.icu
 61qw0jhu.udeur.org
 61ymhkmp.axee.net
@@ -2931,6 +2932,7 @@ apiopsstat.coderlogicbase.pics
 apiopsstat.logicstackhub.pics
 apiopsstat.sorix1ar.pics
 apiopsstat.sorix2en.pics
+apisumer.net
 apitelemetryinfrastructure.org
 apiupdate3921.lol
 apiv1.alilicloud.com
@@ -5077,6 +5079,7 @@ bronythankyoufund.org
 bronzeverse9.com
 brook-mesh.pixel-harbor.life
 brookcano.sunmeadow.garden
+brooke60.workers.dev
 brooklynbooks.us
 brookneuro.grov6lira.bet
 broprairi.5doreval.lat
@@ -9912,6 +9915,7 @@ f4bdzv4n.jadoou.lat
 f4ct0-span.lightforge.garden
 f4ct0ry-mark.zex3liron.in.net
 f4kaaaa8.pokerhouse.bet
+f4kzpydogy.workers.dev
 f4nvsexe.xen--burn.com
 f4vyboeo.burnblendmarket.com
 f532v.oasis-reimburse.in.net
@@ -14704,6 +14708,7 @@ jobworkny.com
 jockostn.com
 joda.net
 jodob.run
+joe-shields.com
 joerass.icu
 jofqbg.fraudhelper.co.uk
 jogoforuma.com
@@ -15262,6 +15267,7 @@ keysrace.info
 keyswork.ca
 kf1umwoy140825wz.cfd
 kf57gbbu.sungjinah.com
+kfas.in
 kfatmif.southwestautoupholstery.com
 kfbhnux.grannygshemporium.com
 kferlw.itsmarthungary.hu
@@ -15394,6 +15400,7 @@ kinetiq-eligibility.xyz
 kinetiq.today
 king.369bbqsifangonline.com
 king6taskhub.so8laven.bet
+kingchef.com.vn
 kingdomcasino-fi.com
 kingdomdelight.com
 kingkoilworld.vn
@@ -15472,6 +15479,7 @@ klbj.1xgame.pro
 klca.hieliao-app.com
 kleinerycstone.site
 kleiron.com
+klershirt.it
 klga3rph.easyprocode.com
 klgkenm0.en-belly--flush.com
 klhadsd.adi8hesplayer.pics
@@ -16800,6 +16808,7 @@ lsomebkac.top
 lssbo.com
 lstyle-sdn.sbs
 lsyhgfl.enfejarbahis.com
+lt.remusdownloads.su
 ltewn.welovevent.com
 lthicpjqc7gkn5eq3epxndc2uig3yngvcbdya4u3m3byjod5km4yuwqd.onion
 ltmot.visszateritok.net
@@ -21697,6 +21706,7 @@ pr1rn-frame.1dorelax.surf
 pr2.codetohaven.com
 pr4iri-point.inconprofitab1e.surf
 praanamoana.com
+practice.onemillionfactory.com
 pradanailsspakaty.com
 pradeepprabhu705.noip.at
 pradeepprabhu7055.duckdns.org
@@ -24257,6 +24267,7 @@ salpizzasewell.com
 salppir.red90.casino
 salsaonyxstudio.com
 salt.oceanwavepoint.lat
+saltlaketax.com
 saltpathbase.oceanicmeshbit.garden
 saltrans.ro
 salud-masculina-mex.buzz
@@ -25078,6 +25089,7 @@ sk9sjwg4.snaptigen.com
 skadfjsdijfhsfso9to.com
 skaedbraearaquiet.life
 skahfy.biz
+skarici.com
 skep.life
 sketchbasic.tavro4xel.lat
 sketchetch.net
@@ -25251,6 +25263,7 @@ smallenginesolutionsllc.com
 smallhometour.com
 smallshopsandwhatknot.com
 smanbotu.com
+smapgri6padang.sch.id
 smar-ric.zom7lirex.in.net
 smart.abuse.st
 smart.ikevbhm-gitch.workers.dev
@@ -25502,6 +25515,7 @@ soneypaly.club
 song.bestipip.com
 songbirdartgallery.com
 songsbeginner.cfd
+sonharviagens.com.br
 sonic.longwave5hot.surf
 sonic.pavo8rex.surf
 sonic.sena9vix.lat
@@ -29929,6 +29943,7 @@ wdkvpsoyy.glycovits.com
 wdohlma.international-airports.com
 wdplqn.liltkereskedohaz.hu
 wdw343244323e3d-60296.portmap.host
+we.adilawa99.org
 we.topsmartservice.com
 wealthwise.co.uk
 weave44.com
