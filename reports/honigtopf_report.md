@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-10-25 10:27 CET (Berlin)  
+**Aktualisiert:** 2026-10-25 10:52 CET (Berlin)  
 **Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
@@ -14,7 +14,7 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-25 10:27 CET (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-25 10:52 CET (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
@@ -22,55 +22,55 @@
 | Endpunkt | Treffer |
 |---|---:|
 | Bad Hosts (24h, alle Dienste) | **20,223** |
-| Bad Hosts – SIP | **5,350** |
-| Bad Hosts – VNC | **395** |
-| Bad Hosts – SSH | **3,723** |
-| Bad Hosts – RDP | **671** |
-| Bad Hosts – MSSQL | **421** |
-| Bad Hosts – SNMP | **156** |
+| Bad Hosts – SIP | **5,364** |
+| Bad Hosts – VNC | **397** |
+| Bad Hosts – SSH | **3,715** |
+| Bad Hosts – RDP | **672** |
+| Bad Hosts – MSSQL | **422** |
+| Bad Hosts – SNMP | **153** |
 | Bad Hosts – TFTP | **163** |
-| Bad Hosts – HTTP | **3,476** |
+| Bad Hosts – HTTP | **3,451** |
 | Bad Hosts – BitcoinP2P | **772** |
 | Bad Hosts – CgminerAPI | **9** |
-| Bad Hosts – Telnet | **3,509** |
-| Bad Hosts – PostgreSQL | **189** |
-| Bad Hosts – ProConOs | **84** |
-| Bad Hosts – FTP | **302** |
-| Bad Hosts – MySQL | **293** |
-| Bad Hosts – Kubernetes | **539** |
-| Bad Hosts – CouchDB | **199** |
-| Bad Hosts – Elasticsearch | **424** |
-| Bad Hosts – Redis | **230** |
-| Bad Hosts – Oracle | **108** |
-| Bad Hosts – ClickhouseHTTP | **232** |
+| Bad Hosts – Telnet | **3,511** |
+| Bad Hosts – PostgreSQL | **188** |
+| Bad Hosts – ProConOs | **87** |
+| Bad Hosts – FTP | **299** |
+| Bad Hosts – MySQL | **288** |
+| Bad Hosts – Kubernetes | **538** |
+| Bad Hosts – CouchDB | **206** |
+| Bad Hosts – Elasticsearch | **418** |
+| Bad Hosts – Redis | **225** |
+| Bad Hosts – Oracle | **110** |
+| Bad Hosts – ClickhouseHTTP | **233** |
 | Bad Hosts – Docker | **66** |
-| Bad Hosts – Memcached | **124** |
-| Bad Hosts – LDAP | **103** |
-| Bad Hosts – RAW | **118** |
-| Bad Hosts – MQTT | **133** |
-| Bad Hosts – Modbus | **114** |
-| Bad Hosts – IPP | **72** |
-| Bad Hosts – BeaconAPI.web3signer | **53** |
+| Bad Hosts – Memcached | **121** |
+| Bad Hosts – LDAP | **100** |
+| Bad Hosts – RAW | **117** |
+| Bad Hosts – MQTT | **131** |
+| Bad Hosts – Modbus | **117** |
+| Bad Hosts – IPP | **71** |
+| Bad Hosts – BeaconAPI.web3signer | **50** |
 | Bad Hosts – Electrum | **15** |
 | Bad Hosts – LPD | **33** |
 | Bad Hosts – HashCountRandom | **31** |
-| Bad Hosts – MoneroRPC | **4** |
-| Bad Hosts – ClaymoreAPI | **15** |
+| Bad Hosts – ClaymoreAPI | **16** |
+| Bad Hosts – MoneroRPC | **3** |
 | Bad Hosts – MOTD | **11** |
 | Bad Hosts – XMRigAPI | **27** |
 | Bad Hosts – SubstrateRPC | **3** |
-| Bad Hosts – BitcoinRPC | **2** |
+| Bad Hosts – BitcoinRPC | **3** |
 | Bad Hosts – BitcoinRPC.litecoin | **4** |
 | Bad Hosts – IPFS | **7** |
 | Bad Hosts – DNS.udp | **0** |
 | Bad Hosts – BitcoinP2P.litecoin | **4** |
 | Bad Hosts – MoneroRPC.wallet | **5** |
-| Bad Hosts – WebLogic | **8** |
-| Bad Hosts – BitcoinRPC.dash | **8** |
-| Bad Hosts – Random | **1** |
+| Bad Hosts – WebLogic | **7** |
+| Bad Hosts – BitcoinRPC.dash | **11** |
+| Bad Hosts – Random | **0** |
 | Bad Hosts – BitcoinRPC.dogecoin | **0** |
 | Bad Hosts – BeaconAPI.engine | **1** |
-| Bad Hosts – Echo | **1** |
+| Bad Hosts – Echo | **0** |
 | Bad Hosts – BeaconAPI | **0** |
 | Bad Hosts – BitcoinRPC.zcash | **0** |
 | Bad Hosts – MoneroRPC.restricted | **1** |
@@ -91,14 +91,14 @@ Davon **heute (2026-10-25)**: **8,117** IPs
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **21,175** |
-| Kandidaten dieses Abrufs | **21,175** |
+| Gesamt Honigtopf-IPs | **21,373** |
+| Kandidaten dieses Abrufs | **21,373** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+1,905** |
-| Entfernt | **-1,186** |
+| Neu | **+198** |
+| Entfernt | **-0** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-10-25 10:27 CET (Berlin)*
+*Generiert: 2026-10-25 10:52 CET (Berlin)*
