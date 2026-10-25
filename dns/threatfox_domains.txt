@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-25 18:11 CET
-# Eintraege: 33744
+# Aktualisiert: 2026-10-25 21:04 CET
+# Eintraege: 33783
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -438,6 +438,7 @@
 2026op.com
 209.234.247.35.bc.googleusercontent.com
 209id.queuedimsys.lat
+20bet-casino20.com
 20hc9ahim3kky.site
 20ntquqt.varzeshlife.ir
 212uqd371gsar.com
@@ -1557,6 +1558,7 @@
 8qiew2ns.en-bizopp.com
 8qkm1lut.mspa-naperville.com
 8qu7g5ql.www-bellyflush.com
+8qxevlmy.enfejar.casino
 8qxg5lyp.logic-pulse.digital
 8r0ghiko.us-us-theeloncode.com
 8r61gwvq.ravansalamat.shop
@@ -3760,6 +3762,7 @@ b2eqaaqn.bordoo.bet
 b2h67sy5.kaarenorge.com
 b2lriu362160425cy.cfd
 b33gup3p.betbet.city
+b3cxsyd3.slavyera.com
 b3gl3j28.logic-pulse.digital
 b3ioot10.khive.store
 b3mmtzy5.syndantix.com
@@ -16182,6 +16185,7 @@ laguz.africa
 lahorejazz.club
 lahtbx.shop-digestistart.com
 laicaishuli.com
+lajevoja.workers.dev
 lajt.com
 lake.wildfirelake.lat
 lakefayettervpark.com
@@ -17121,6 +17125,7 @@ lssbo.com
 lstyle-sdn.sbs
 lsyhgfl.enfejarbahis.com
 lt.remusdownloads.su
+lt.remusdownloads.to
 ltewn.welovevent.com
 lthicpjqc7gkn5eq3epxndc2uig3yngvcbdya4u3m3byjod5km4yuwqd.onion
 ltmot.visszateritok.net
@@ -17850,6 +17855,7 @@ medicalmexcr.com
 medicialanswers.forum
 medicin-morisomtobeafraid.wiki
 medicinevacansies.work
+medidemo.wastore.in
 medikalmasoz.com
 medinmoc.top
 mediosdigitalesdelnorte.net
@@ -17939,6 +17945,7 @@ meow.oceanic-node.su
 meow.schoolprojectxyz.lol
 mepi.com.sa
 mepro.co.tz
+mepysalo.workers.dev
 mer-lithor.qor9mital.in.net
 mer-meshis.dex7lavel.in.net
 mer-meshum.task7force.work
@@ -18251,6 +18258,7 @@ milleformless.com
 millerelitecarservices.com
 millionairemind.live
 millionpi66.website
+milliontecnologia.com
 millonixvip.live
 millowouykey.com
 milnleny.cyou
@@ -18264,6 +18272,7 @@ minanaskyimmigration.ca
 mindatrest.org
 mindbodyleadership.ca
 mindbugstest.nl
+mindfulnessenterprise.com
 mindrhformation.fr
 mindyoursmallbusiness.com
 minecraft65server.3utilities.com
@@ -25667,6 +25676,7 @@ slam.ssybd.workers.dev
 slashbob-distrib-plat-form.garden
 slate1-pulse.audiheadboa7d.lat
 slate16.com
+slavyera.com
 slaxbvv.audizenus.com
 slccac.rhillsmotorsport.com
 slceo.rocketbet.pro
@@ -28648,6 +28658,7 @@ u50ichq2.amanahsuara.com
 u550.cantdown.su
 u5dn1e6x.bazisangkaqazgeychidancepoli.com
 u5pn5h4p.belly--flus.com
+u6.adilawa99.org
 u6ggk611.elizabethspizzadenton.com
 u6nhwc89.engaquaburn.com
 u6ytrewqgrfewdmmmjhfjpooiuyhgghfdsaokjbn.duckdns.org
@@ -31351,6 +31362,7 @@ www.aftest.it
 www.agenceaci.com
 www.agrogreenalax.com
 www.ai2.qzz.io
+www.airessinfronteras.com
 www.aitooling.ru
 www.aj-vxvadzcbs26gxz.org
 www.alad1.com
@@ -31782,6 +31794,7 @@ www.mcinbooks.com
 www.mcttt.gov.fj
 www.mdmaleren.dk
 www.meshpedia.com
+www.metaleks.com.tr
 www.metanoashopinsoutlook.space
 www.mgmyhys8v6v19e9w5kbizn6i.cc
 www.microsofer.top
@@ -31931,6 +31944,7 @@ www.robinamedicalcentre.com.au
 www.robot-patissier-test.com
 www.rochaemucholowski.adv.br
 www.roisoftwaresolution.com
+www.rompecabeza.co
 www.rossetticonsulting.it
 www.rotundavillas.com
 www.roundtablebooks.com
@@ -31945,6 +31959,8 @@ www.safedeliverylogistics.icu
 www.salesf0rce.club
 www.salome-energia.com
 www.salon-new.ru
+www.salutpurwokerto.id
+www.samsilverman.com
 www.sardasolar.it
 www.sauconybookshop.com
 www.scarium.com.br
@@ -31957,9 +31973,11 @@ www.seneca-copharma.com
 www.sens-design.fr
 www.seodata.click
 www.service1app.com
+www.sezioneaiabari.it
 www.sgcca.org
 www.shackbd.com
 www.sharingfile.cloud
+www.shawnstratton.ca
 www.shbet.id
 www.shenzhen2050.com
 www.shinyowlbooks.com.au
@@ -31968,26 +31986,34 @@ www.shopbeautywoodbooks.com
 www.shoprecommai.space
 www.shukong.net
 www.sicopatasdevina.cl
+www.sit.edu.bd
+www.skanesmide.se
 www.ski-snowboardvancouver.ca
 www.skrotpriser.com
 www.slidingdesk.com
 www.slo.ru
 www.smartearningmethods.com
 www.sntautopart.co.th
+www.socio-antwerpen.be
 www.solucionpericial.es
 www.sotelnomentana.com
 www.soterlogos.it
 www.soudures.fr
+www.soulburger.co.nz
 www.souldiggin.com
 www.sourceforgemediastream.com
+www.spatiumxg.com
+www.spd-schwalmtal.de
 www.spectrumcomercial.com
 www.sphuatomotive.com
 www.sphuatomotivebacku.com
 www.sphuatomotivebacku1.com
 www.srcm-sa.com
 www.startsenergia.com.br
+www.steamandpressure.co.uk
 www.steffen-schoenfeld-bau.de
 www.stem-marcatura-ce.com
+www.stpi.eu
 www.strimex.de
 www.stroudbooks.com
 www.studentportal.live
@@ -31995,6 +32021,7 @@ www.studioa.de
 www.studiolegalegarosi.it
 www.studionumera.it
 www.stuf5-qqrange1.net
+www.sukipartes.co
 www.suministroelectrico.com.mx
 www.sunagawa-shop.com
 www.sunwu.world
@@ -32013,6 +32040,7 @@ www.taskforcebot.com
 www.tbcitdepot.com
 www.teamcase.it
 www.technicalauthentications.live
+www.telescopethailand.com
 www.termoliwild.it
 www.theagency.ist
 www.theavocadopit.com
@@ -32031,6 +32059,7 @@ www.topclickgaming735.info
 www.torh1.duckdns.org
 www.torontosss.com
 www.tr88.uno
+www.transmoycana.com.br
 www.transportesuriarte.com
 www.tribe9version8.net
 www.triffitt-trailers.co.uk
@@ -32039,6 +32068,8 @@ www.tsrust.com
 www.ttz-graz.at
 www.tuamec.com
 www.tucirujanovascular.com
+www.tuciudadaniaenitalia.com
+www.turismotravesiarukamanque.cl
 www.twgxcc.art
 www.txap5gmcyop0xb0s4ykikmsg.cc
 www.ucerma.sk
@@ -32065,14 +32096,17 @@ www.vbix6zw2k7b1tsccegyt4eyn.live
 www.veghelinbeeld.nl
 www.venloria.us
 www.verkeersschoolsociety.nl
+www.vhelbhergimperialhotel.com
 www.vidfree.net
 www.vinstabilskadecenter.se
 www.vintage-books.com
 www.vmcloans.com
+www.vmixzy.com
 www.vmware.rest
 www.vutjsf0sd9sdqt2rkzvgzv9a.org
 www.vvrs-info.be
 www.w4iunvbdvjof39q-3.net
+www.wasayamfg.com
 www.waverleykls.org.au
 www.wdami.cn
 www.webdevarrayremco.com
@@ -32081,7 +32115,10 @@ www.webdevarrayremcobackup2.com
 www.webdevarrayremcobackup3.com
 www.wedding7famous16.app
 www.whitefoxrarebooks.com
+www.whytehouse.co.za
+www.williammatchin.com
 www.winemixed8uwhh.net
+www.wise-horizonproject.eu
 www.wlzgm-admiral-x.icu
 www.woodline.com.sa
 www.woodwardlg.com
@@ -32105,6 +32142,7 @@ www.xuesheng3nk6.space
 www.y9m7yr8h6j2stxh1na5vy.com
 www.yeoldbookworm.com
 www.yinboxops.co
+www.younes-trade.com
 www.yu8z3uk.space
 www.yuzuapp.io
 www.z40xmimvhbytcnppy1rs3.app
@@ -32116,6 +32154,7 @@ www.zfu4n4kxgmx32hsqg.cc
 www.ziemons-shk.de
 www.zigpsychocybercowboys.com
 www.zominoz.com
+www.zonafranca.tv
 www.zp857.online
 www.zrs7b8boubf9y-b1.net
 www2.hollywoodgulfcoast.com
