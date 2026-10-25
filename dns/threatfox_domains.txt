@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-25 05:54 CET
-# Eintraege: 33002
+# Aktualisiert: 2026-10-25 07:37 CET
+# Eintraege: 33043
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -481,6 +481,7 @@
 26a0ed72.finowfurt.com
 26cfgoj140825ckg.cfd
 26ua1zzb0204268s.cfd
+26v6dh2m.warmwaffles.com
 26z3gms2rshr2zzedxhw5fbucilmgt2inhmxzmuhteyztpxohoqplgyd.onion
 2718gc20.seresniki.com
 2766iljo.melbetiran.poker
@@ -1231,6 +1232,7 @@
 6pf8j0h7.kundu.store
 6poz7z6o.gnarcoticexoticz.com
 6pyrumd5.ace90.casino
+6qnia8r3.pooker.app
 6rdv0wtc.luxerabet5.com
 6rsny75a.tastebudspopcorncanton.com
 6rto54ve.orbitaldockingmodule.digital
@@ -8355,6 +8357,7 @@ draft-loop.com
 draft22.duckdns.org
 draftfun.mixruby.life
 dragoniacasino.live
+dragonpharmalab.net
 drakr.icu
 dralisonfreeman.net
 drampix2421.xyz
@@ -9463,6 +9466,7 @@ eoyodpm.lavorcollective.com
 epal.jadoou.lol
 epcca-assistance.com
 epe20s1q.behtarin-site-shartbandi.com
+epexecutivecoaching.it.com
 epgdevelopment.com
 epiccircle.in
 epimdev.com
@@ -12033,6 +12037,7 @@ governorhobbies.cfd
 govnol.lat
 gowayofficemee.in.net
 gownsonline.co.za
+goyalsolar.com
 gozilwl.overlokcu.com
 gozog.run
 gozozk.mav2lirex.lat
@@ -20149,11 +20154,13 @@ onlineiran.games
 onlinetechdesk.com
 onlinetops1st.world
 onlyelitemanagement.com
+onlymaster.ru
 onmekcsdnvzwzvkynlt.happydragonchinesebistro.com
 onnzlkiy.shartbandi.games
 onoizuz.fibi-ireland.com
 onpyo.vexon6ar.lat
 onrealms.io
+ontimejo.com
 onto.relativepulp.cfd
 ontspaninhetnu.nl
 onwqrw.lillafunfit.com
@@ -20794,6 +20801,7 @@ parsballl.com
 parsc.bet
 parsyek.ir
 part6logicnet.dismemb7harlot.bet
+parthinternational.digitalunderground.biz
 partner-folder.info
 partner-track.vori7nex.surf
 partnertok.closer1ook.garden
@@ -20811,6 +20819,7 @@ pasoor.casino
 pasoorbazi.casino
 passedt.cyou
 passeiosinesqueciveis.com.br
+passel.me
 passeofum32.life
 passiv-reage.qiv2moren.in.net
 passoverphysiqclass.wiki
@@ -20898,6 +20907,7 @@ pchfp.vigaf.hu
 pcipjcar.fileboroo.com
 pcjanetwork.net
 pcmacs.co.uk
+pcnetpartners.com
 pcppro.co.uk
 pcsarm.eng-eng-slimsounds.com
 pctechservices.myftp.biz
@@ -21023,6 +21033,7 @@ perspolis.pro
 perspolisbet.bet
 pes-ghj0.raxen-tech.in.net
 pescasaturnia.it
+pescoonlinebill.se
 pestcontrolamarillo.com
 pesug81526.workers.dev
 pet.ncsgo.workers.dev
@@ -23596,6 +23607,7 @@ rockmeshunit.basaltlogicnode.garden
 rockranchstudios.com
 rocks56.com
 rockunitedband.com
+rockwellcrew.com
 rockytomholland.casacam.net
 rodcq94758.workers.dev
 roddyki9911.icu
@@ -23606,6 +23618,7 @@ rodwkb.memap.me
 roe.finance
 roesn.vrtigo.hu
 rofsaw.snaptigen.com
+rogerpineda.online
 rogethapi2134.life
 rogethat231.icu
 roggymo87.icu
@@ -23784,6 +23797,7 @@ rtpk86sport-happy.click
 rtpkhff.enus-sightfresh.com
 rtplive-miliarbet.online
 rtplive-miliarbet.store
+rtslegaldocs.com
 rtvzcs.sultan88.live
 rtzixna.site-shartbandi.christmas
 rtzj3f9c.glicomute.com
@@ -23791,6 +23805,7 @@ ru4gcxzf.cardoslim.com
 ru4xmcs2.onjabet1.com
 ru5vv9op.adobeshin.com
 rubyoverseas.in
+rubyquran.com
 rubysen.com
 rucbhks.grov3elia.bet
 ruchameditech.com
@@ -23823,6 +23838,7 @@ rumbaju42.icu
 rumilo.workers.dev
 rummygame.io
 rumsontrading.co.zw
+rumtradingco.com
 run.andipfs.lat
 run.boldfirestep.lat
 run.bytevector.pics
@@ -23920,6 +23936,7 @@ rvwwzcz.greaternewzionbc.org
 rw1.sentrysource.com
 rwdfn.run
 rwj46i7as3h4.en-heroup.us
+rwjmedia.com
 rwnkdep.penality.casino
 rwxe9b0g.riherino.com
 rwyzls.tadkaindiaka.com
@@ -24232,8 +24249,10 @@ salvany.cat
 sam-sa.net
 samacharsansaar.com
 samanthadefalco.com
+samanthaestilistas.es
 same53-51830.portmap.host
 samehoo229.fun
+samirbarber.co.uk
 sammkop.jadoou.lat
 samoamotors.net
 sampatiguide.monster
@@ -24265,6 +24284,7 @@ sandyfeet.co.za
 sane-cdn-js.beer
 sanfranciscoinsulation.com
 sanibellslandre.com
+sanjayjain.me
 sanshin-campaign.com
 santa-resource-engine.christmas
 santaanademolitionservice.com
@@ -24320,12 +24340,14 @@ sbg86o.qeniral8.surf
 sblrss.lexsecurityco.com
 sbnsdns.beer
 sbronm.com
+sbscanadaagency.com
 sc-crypt.digital
 sc.c1s.su
 sc.runtimeatlas.cc
 sc88884.com
 sc88885.com
 scalarview.shop
+scaleshift.ca
 scaletax-bute-analytics-toeheap.garden
 scalewithgetdsm.com
 scalezoneyview.cobaltpathsys.garden
@@ -24486,6 +24508,7 @@ secure-remote-access-method-file.wiki
 secure-server.sbs
 secure-vh.info
 secure-web.cisco.com.whm.linkedin.com.agriturismoaipiacentini.site
+secureeyehw.com
 securefiles-cdn.com
 securefunandcoolstuffhahalol.com
 securelogin.lpzoo.org
@@ -24659,6 +24682,7 @@ seversin.lol
 sevffjdu.jozveyek.com
 sevurehostmaineth.com
 sewgqnm.winxbet.co
+sewionista.com
 sewt-solar.ma
 sex-reputation.com
 sex.m-u88.com
@@ -24827,6 +24851,7 @@ shopcasitablanca.com
 shopea.space
 shopfasst.com
 shopguoerve.pro
+shopingtips.com
 shopmagnoliaonmain.com
 shopmakeit.com
 shopmamadora.com
@@ -24836,6 +24861,7 @@ shopprincesshair.com
 shoprecommai.space
 shoprise57899321.shop
 shopsoleilcollective.com
+shopthebrickyard.com
 shopvumanhcuong.com
 shore-leaf.pastor-publicist.lat
 shoreharbor9.com
@@ -24853,9 +24879,11 @@ siase.webermann.hu
 sibelisalvatori.com.br
 sicilian-defense-theory.garden
 siciliandefensetheory.digital
+siddconsultancy.com
 side5pathgate.thora9xel.bet
 side9pathsite.vertexurbanhub.garden
 sidehostunit.orbitmesh.bet
+sidelinethebook.com
 sideview6.kymle5rax.in.net
 sidnxgci.radioshartbandi.bet
 sie5uyp7.brn-peak.net
@@ -24959,6 +24987,7 @@ sinjoan.com
 sinkingyourself.courses
 sinkwash.space
 sio4040.com
+siouxtax.com
 sip.hanyasm188.top
 sip.rzrrent.com
 sip.xybcaap.my.id
@@ -24970,6 +24999,7 @@ sirohnabawiyah.com
 sirucxaian.com
 sis.adkfarmerdan.com
 sistema.portal-nota.sbs
+sistemaname.com.br
 site-shartbandi-takhtenard.com
 site-shartbandi.christmas
 site-view-0.build-solid.work
@@ -25157,6 +25187,7 @@ slngftr.beer
 slojemw.leaguejazire.com
 slon12.cc
 slot-send.pro
+slot777asligac0r.space
 slot7logicnet.peta1vrix.bet
 slotbet200.xyz
 slotboxx.net
@@ -25180,6 +25211,7 @@ sltrtc.shopmakeit.com
 slursbeback.ru
 slxhibx.herod-terminology.bet
 slxzdcef.lebertytoken.com
+slyfox.com.ua
 slyv87qw.try-burnblend.com
 sm.27trans.org
 sm.5-rt.org
@@ -25240,6 +25272,7 @@ smithsonn-s.top
 smity.store
 smiwkkyuccsegqog.xyz
 smkaqgocoaacecma.xyz
+smkbpsuhu.sch.id
 smkmuh04byl.sch.id
 smkwmqieqgoagkac.xyz
 smmrbysummerdesnoo.nl
@@ -25278,6 +25311,7 @@ snap.pixelstep.surf
 snap.promantree.com
 snap.querytan.lat
 snapagency.cloud
+snapis.tech
 snappersclinton.com
 snapshopmart.com
 snapshot-concrete.events
@@ -25297,6 +25331,7 @@ sng2kb.qiv9moren.in.net
 sngdtg.cfd
 snhnv.run
 sni13.docsmanagement.endl.site
+sniffbarkwag.com
 sniffingviableoffice.digital
 snippet.host
 sniwkcay.slimsplits.com
@@ -25506,6 +25541,7 @@ southernlegacywoods.com
 southofkorealottery.com
 southtexashvac.com
 southwestautoupholstery.com
+sovangsparken.dk
 sovereignwealthsignals.com
 sowmwvh.vip1xbet.org
 soyqjhw.victoryshoescorp.com
@@ -26355,6 +26391,7 @@ suvc.backgammon.download
 suvjqi.liberty-token.org
 suwqmlyd.efbetfarsi.com
 suyq58j1.betballl90.app
+suzunao-shoji.co.jp
 sv41ylmi.eng--nervealive.com
 svb.denzcodex.my.id
 svb.orilowa.com
@@ -27953,6 +27990,7 @@ tyarvak.karnameh-shiraz.com
 tyb.pelorsm188.top
 tyccsu.littlehousetees.com
 tycgc.bni-ai.com
+tycoonorganics.com
 tygnu.lokercorp.com
 tyhcsza.cfd
 tyjwtd.remenacevintage.com
@@ -30132,6 +30170,7 @@ wifi-dengen.com
 wifihgu.duckdns.org
 wig43mz5.keymedconsulting.com
 wig5l9be.calirayalake.com
+wigesaqe.workers.dev
 wignalllindor.wiki
 wihernc9.vip1xbet.net
 wijhyjxf.culbertplumbingllc.com
@@ -31207,6 +31246,8 @@ www.restogro.com
 www.rg82z9wtgt9b-m61p.cc
 www.riccardogiovannipatriarca.it
 www.ridderkerkfm.nl
+www.riosflyttochstad.se
+www.ristoranteisolina.it
 www.ristorantelacabana.com
 www.rmsmarineservice.com.qwqqwq.ggff.net
 www.robertsbookshop.com
