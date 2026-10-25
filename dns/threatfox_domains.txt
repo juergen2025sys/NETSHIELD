@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-25 22:59 CET
-# Eintraege: 34473
+# Aktualisiert: 2026-10-26 00:26 CET
+# Eintraege: 34481
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -6132,6 +6132,7 @@ cellularmetabolic.com
 celsiusjuice.com
 cem.mesoptik.com
 cemap123.co.uk
+cennef.com
 centauras.co.uk
 center-si.com
 centerplas.com.br
@@ -8871,6 +8872,7 @@ drrugs.xyz
 drscholl.jp
 drspine.gr
 drsvt.nextbahis.poker
+drtianna.com
 drukpaaustralia.org
 drum.jumpskyhigh.com
 drum.poconodessertco.com
@@ -12540,6 +12542,7 @@ google-proxy-66-249-93-35.google.com
 google-proxy-66-249-93-41.google.com
 google-proxy-74-125-212-162.google.com
 google-proxy-74-125-212-168.google.com
+google-proxy-74-125-212-170.google.com
 google.dns-1.help
 google2oauth.com
 googlecloud.exfrp.zip
@@ -14860,6 +14863,7 @@ iuqf.beyondhomehealthcareservices.com
 iuta.today
 iv63jnsk.shart303.net
 ivangay.bond
+ivanitsky.com
 ivanruizbarranco.com
 ivbrwc.eng-bettinggods.com
 ivclr.mango-sushi.com
@@ -15680,6 +15684,7 @@ kaede.jpn.com
 kaewe.caesarresidence.com
 kafeprog7.com
 kahox.run
+kahypiby.workers.dev
 kaiangelsystems.rest
 kaiarjsn.meadowprocessingframework.garden
 kaidandesign.com
@@ -17786,6 +17791,7 @@ m3rge-mark.nov2sirel.in.net
 m3rnbvs5d.eth
 m3wwhkus4dxbnxbtihexlyd2cv63qrvex6jiebc4vqe22kg2z3udebid.onion
 m47hkbcd.ganuneasasi.xyz
+m4akmkogkf.workers.dev
 m4ch.ru
 m4imi4w.space
 m4jpiubh.royaldoorsspringdale.com
@@ -28125,6 +28131,7 @@ tdzfnvda.plinko-1xbet.games
 te3znaut.parspoker90.com
 te5t-hinge.vexa2-flow.life
 teachark.com
+teacher.adm-edu.ru
 teacherlearning.org
 teaeffortscore.click
 teak.elizabethbuckleyschool.com
@@ -29628,6 +29635,7 @@ uniformeslima.com
 unigadgetz.com
 unikasegurancahumanizada.com.br
 unipicase.com
+uniporctandil.com.ar
 uniqedecor.com
 uniquelyblimp.icu
 uniswap-dashboard-v4.ustorage3.com
