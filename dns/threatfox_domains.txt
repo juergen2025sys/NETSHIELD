@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-25 05:38 CET
-# Eintraege: 32964
+# Aktualisiert: 2026-10-25 05:54 CET
+# Eintraege: 33002
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -219,6 +219,7 @@
 14yo-pulse.sena9vix.surf
 150graziadeledda.it
 154.60.198.35.bc.googleusercontent.com
+155.216.176.34.bc.googleusercontent.com
 155b3nro.proxy-cascade.digital
 1589green.workers.dev
 15fc73d7.wignalllindor.wiki
@@ -6005,6 +6006,7 @@ chianagent.com
 chiapasolar.com.mx
 chiaromontecontract.it
 chicago-bbq.com
+chicassalondebelleza.com
 chicheritaradio.com
 chickencutlet-hacks.christmas
 chickencutlethacks.fit
@@ -10061,6 +10063,7 @@ fastonlinedelivery.com
 fastonlineupdate.com
 fastoqoakkas.com
 fastzeit1mond.exmeshlogic.garden
+fat.ag
 fatbirdnyc.com
 fatlosscoach.org
 fatpirate.live
@@ -10708,6 +10711,7 @@ foundation-firelight.com
 foundation.forum
 fourdigs.cyou
 fourseasondumpling.com
+fourseasonsgarden.hu
 fourseasonsmansion.com
 fourstarcampground.com
 fox-glow.nanovo5kull.pics
@@ -11841,6 +11845,7 @@ gmoq.jasper-automotives.com
 gmsjsk15.salpizzasewell.com
 gmt-net.com
 gmtzkxm.hit4bet1.com
+gmvision.be
 gmxt26vc.1xborokade.com
 gnashhusks.courses
 gnbodqo.betcrash.bet
@@ -16027,6 +16032,7 @@ lbgcharpente.fr
 lbgkfp.jamjahani2026.football
 lbk-sol.com
 lblbjusf.betgar.bet
+lblue.com.br
 lbpbgqz.keyslims.com
 lbs.xybcaap.my.id
 lbsmduw.certifiedairbalanceinlosangelesca.com
@@ -17097,6 +17103,7 @@ magnoliameadowsranch.com
 magrumi.com
 maguire.top
 mahcr.banhidileadershipacademy.hu
+mahed.co.ir
 mahkota211wow.cyou
 mahkotabosmaxjp11jt.cyou
 mahkotagogo10k.cyou
@@ -20457,11 +20464,13 @@ otcgf.christorem.com
 otehaswvcc646ou4kozenrh4mfqyvntx6yrx6jdntilp5kbt7noq.arweave.net
 othila.eu
 oticaconvergencia.com.br
+oticamel.com.br
 otlqkiy.betmiz.bet
 otmkyq.usen-bpzone.com
 otntjfbp.sorix7en.surf
 otp.vagrancyvirus.cc
 otphankahr.mom
+ots-training.com
 otter-trioor-m8jr9.space
 otter0-field.miv9soren.in.net
 oturumkaradag.com
@@ -20567,6 +20576,7 @@ oxqniwv.1xpin.vip
 oxrdcm.gtacauto.com
 oxs9kh4w.blowfemme.com
 oxtumf.jamjahani.football
+oxygen-labs.org
 oxyna912.yekbetiran.com
 oxzes6d2.gut--drops.com
 oxzqss.azmoonzare.online
@@ -20743,6 +20753,7 @@ pantjoranteahouse.com
 pantofr.cyou
 panv25do.prosta-fense.org
 pany.vn
+paodoparque3.hospedagemdesites.ws
 paolettiboutique.it
 pap6wvrz.shimiskoog.shop
 papa-ehon.com
@@ -20965,6 +20976,7 @@ pelikaanii.com
 pelipeto.live
 pemcad.obrolannews.com
 pemexuvu.workers.dev
+penagamella.com
 penality.casino
 penalti.bet
 pencilduring.icu
@@ -21029,6 +21041,7 @@ petalresourceframework.garden
 petalresourcehub.garden
 petalworkflowengine.garden
 pete.spb.ru
+peterasmitbooks.com
 peterhopkin.co.uk
 petit-2.ra6ximen.in.net
 petit-berg-5p.caissonnarc0m.in.net
@@ -21250,6 +21263,7 @@ pipparrot.com
 pipx8iw2.ravanshenasiganji.xyz
 pir.rapidphonebuyer.co.uk
 piracaia.lacasadecheiro.com.br
+piramideacabamentos.com.br
 pirasriccardo.it
 pirihuntingsafari.com
 pirqlheh.hugugtejarat4.xyz
@@ -21365,6 +21379,7 @@ pl.5-rt.org
 pl4sm-flow.nov7liren.in.net
 pla7ina.cfd
 placebetweenphotos.us
+placewell.in
 plag59o.bexlor-net.in.net
 plaguec2.cc
 plain-wood-6829.aasya.workers.dev
@@ -21624,6 +21639,7 @@ pparesearch.org
 ppdp.oza.bet
 ppdrqc.pshealthcare.net
 ppew.au
+ppf-ag.com
 ppheaimondon.store
 pphoki-jp88.click
 ppilipp.lol
@@ -21788,6 +21804,7 @@ productionmaza.cyou
 productionmaza.sbs
 productpi121.icu
 productsradar.org
+produmpstersusa.com
 produtecnicaagro.com.br
 prodxk.lol
 proetctagent.com
@@ -21825,6 +21842,7 @@ prokladka.lol
 prolocorotzo.it
 promo.summat10n.org
 promo.tennis
+promocionespiscas.com
 promosijack.com
 promotiko.it
 pronexinstalaciones.com
@@ -21959,6 +21977,7 @@ prre.behtarin-site-shartbandi-football.com
 prtbakgue.wildernesscabinvacationrental.com
 pru2xh.thora8lin.lat
 pruagent.com
+prudentim.com
 pruebas.pickterra.com
 pruiksma.nu
 prunarok.lol
@@ -21975,6 +21994,7 @@ psiwhza.baocongnghe.net
 psmecdlr.hugugedari.xyz
 psqj.app888starz.download
 pssoduvnzud.xyz
+pst.qaed.pk
 psv5ejeysrncs6ltu4pkjyazswcmw3atmxi4eg44a6luudin5ufchcqd.onion
 psvrn6ahevi6dgf55bzc26q3gjc7s6n7vcth34rmkl2y7e7dijhjfiqd.onion
 pswdub.feherzsuzsanna.hu
@@ -22044,6 +22064,7 @@ pulsepot.io
 pulseroot.dark-salittle.bet
 pulsge.biz
 pulumur-haber.cyou
+punitbalangroup.com
 punjabclick.com
 puntodigital.com.gt
 puqrhdze.onjabet1.com
@@ -22810,6 +22831,7 @@ rabijv.valleynewsandbooze.com
 rabonaabet.com
 rabota-nazavode-panel.lol
 rabvsryhs.phim18k.de
+raceaps.co.za
 rada24ukraine.top
 radassu.top
 radaukraine.top
@@ -22843,6 +22865,7 @@ railroad-boot.com
 railspark.zun5larek.in.net
 rain-line.rax5pavel.in.net
 rain.afghankabobgrill.com
+rainfoundations.org
 rainhostunit.flen3qor.bet
 rainhostunit.nimbusviewgate.garden
 rainmeshnode.po5ehuweather.bet
@@ -22860,6 +22883,7 @@ raketti-casino.com
 raliz.one
 rally.wiwgf.workers.dev
 rallypass.hu
+ramaenterprises.org
 ramonline365.live
 ran.slotmacau188e.top
 randlain.mom
@@ -22982,6 +23006,8 @@ rc.zpix.info
 rc0.flavorroute.cc
 rc395.com
 rc3bbq.com
+rccconstruction.us
+rcconstrutora.com
 rcleba.tenancydeposit-claim.com
 rclop3ch.aryllab.com
 rcn2co2t.socop.org
@@ -23076,6 +23102,7 @@ redo2taskhub.undo-wingless.bet
 redrockscoach.com
 redtypedesign.com
 redwoodgallery.photos
+redwoodresinfarms.com
 reebons.com
 reed-greogzium.life
 reed-koaor-tekzr.pro
@@ -23089,6 +23116,7 @@ reelmeshnode.peta1vrix.bet
 reesetransports.com
 ref-api.homefulia.com
 ref1ne-dock.sverbw2tch.surf
+reference-inclusion.fr
 refid-1.pavl9ore.surf
 refid-core.fromj2nitor.lat
 refid-core.pav6mirex.pics
@@ -23217,6 +23245,7 @@ renia.gr
 renotad.com
 renouvelle-ta-carte.com
 renovapqs.com.br
+renovation-lca.fr
 rentalstgbg.com
 rentaride.top
 rentechglobalsolutions.com
@@ -23441,6 +23470,7 @@ riyazinikokar.xyz
 riyazishahkilid.xyz
 rizvw.sanjeshravani.shop
 rizziaja.my.id
+rjcruzeiro.com.br
 rjcuszqj.siciliandefensetheory.digital
 rjdg.bambatagear.com
 rjh4yjp2.shop-lipogummy.com
@@ -23477,6 +23507,7 @@ rlpxurgo.qurandownload.xyz
 rlr.it
 rltczk86.us-en-us-nervearmor.com
 rluvz62i.observability-matrix.digital
+rm-accounting.co.uk
 rm9jpaae.themertraa.com
 rmans.webredirect.org
 rmawet.bp-zone.us
@@ -27446,6 +27477,7 @@ tonajukbhuakpo2.shop
 tonelogicgate7.astrolinkview.garden
 tonelogicgate7.sonicwavehost.garden
 tongdailyphanphoi.com
+tonicteaching.com
 too.wiwgf.workers.dev
 tooca.sm188daftar.skin
 tookphoto.fr
@@ -30093,6 +30125,7 @@ wibestgh.com
 wiciauth.com
 wicug18w.usa-blinzador.us
 wifcimg.planksbiergarten.site
+wifegyko.workers.dev
 wifewithabudget.com
 wifflvy.cyou
 wifi-dengen.com
@@ -31100,6 +31133,7 @@ www.olababamazinow.com
 www.olababamazinowbackup.com
 www.oldscrolls.com
 www.oldwestbooks.com
+www.oneright.it
 www.onestepstar.com
 www.orientspareb8tter.com
 www.osh9xntw0spl96bbe.org
@@ -31128,6 +31162,7 @@ www.polonez.org.au
 www.precisionprinterservices.com
 www.premiosarquitectura.org
 www.premiumlakaskezeles.automentesgocza.hu
+www.progettocodireparma.it
 www.projectusf.com
 www.projectyola.click
 www.prolocorotzo.it
@@ -31144,6 +31179,8 @@ www.qkshhdjrbd.work
 www.quick-shares.com
 www.quiromasajistafernandopr.com
 www.quk222g21jo0s9zrkmwiwwu.net
+www.radallarm.it
+www.radarlamteng.com
 www.radiosantateresa.it
 www.raffaela-und-dominik.de
 www.rarebookshonolulu.com
@@ -31306,6 +31343,7 @@ www.vaporhill41yek.net
 www.varietyfencefl.com
 www.vasttruly33i87.org
 www.vbix6zw2k7b1tsccegyt4eyn.live
+www.veghelinbeeld.nl
 www.venloria.us
 www.verkeersschoolsociety.nl
 www.vidfree.net
