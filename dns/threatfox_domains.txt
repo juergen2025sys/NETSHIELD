@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-25 01:52 CEST
-# Eintraege: 33502
+# Aktualisiert: 2026-10-25 02:59 CEST
+# Eintraege: 33522
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2181,6 +2181,7 @@ ager-stp.org
 ageragroup.com
 agerefineclinic.com
 aghdpyoc.techvigilante.com
+aghighgold.co
 aghw.pixelnode.lat
 agidelgembee.monster
 agilebee-federate-growth-net.garden
@@ -16353,6 +16354,7 @@ ldtwsfb.quiltlegacy.net
 ldwujspz.chloesteph.com
 ldwv.bestnailsalonmedford.com
 le-saint-flaceau.fr
+le1qjsdf.persiianabet.com
 lead4tasksys.silicongateway.garden
 lead4tasksys.zenithdockunit.garden
 leading-medical-works.com
@@ -17557,6 +17559,7 @@ marinaradom.cfd
 marinelabworld.com
 mariposa-wedding.com
 marjdl.pro
+mark.teothomas.com
 mark1siteview.tensorlogicbox.bet
 mark1siteview.tula8data.surf
 mark8siteview.nelo2qir.bet
@@ -18175,6 +18178,7 @@ millionpi66.website
 millonixvip.live
 millowouykey.com
 milnleny.cyou
+miloukempers.com
 milpl8xr.eng-neuroxen.com
 mim.6666k.org
 mimecrosoft-onlook.sbs
@@ -18258,6 +18262,7 @@ mittenmint.cfd
 miujiang.monster
 mixblo.xamir9el.lat
 mixed-on-storage-layer.garden
+mixfidelity.com
 mixhostunit.mira4then.bet
 mixkitchenamsterdam.nl
 mjbpgp3k.jadoou.cfd
@@ -18570,6 +18575,7 @@ moneysense.cloud
 mongofly-container-gard-mesh.garden
 monguidesenior.fr
 moni8-wave.grov6lira.bet
+monicaesan.com
 monicarobles.org
 moniskk.live
 monitor-graph.toorout.lat
@@ -18807,6 +18813,7 @@ mt.acunbet89.org
 mt1x5cl9.renad.store
 mt6y9isp140825c6c.cfd
 mta-sts.luminal.click
+mtclodz.pl
 mtclogistic.net
 mtg-life.net
 mtkhx.stormgrid-media.life
@@ -19196,6 +19203,7 @@ neon2logicgate.zenithdockunit.garden
 neoncyberpunkcity.garden
 neonlogicgate4.verdalya.garden
 neotcdk.7toralex.lat
+nerdybitches.com
 nero-ns-cdns.sbs
 neroc5j.dexor-host.in.net
 nerve-armore.com
@@ -19447,6 +19455,7 @@ niaoend.com
 nibfzvsq.hugugbime.xyz
 nice-protect.com
 nichepursuits.com
+nicholasburgett.com
 nick-metry.icu
 nickarnett.net
 nickilorr421.icu
@@ -19705,6 +19714,7 @@ northlinkconstruction.ca
 nortideis9.plsqlnew.surf
 nortspec.poorbet.lat
 norvenor5.qi3mavel.in.net
+noshinpack.com
 nosja.aiteszt.com
 nostalgiacampagna.it
 nostoscreations.com
@@ -20005,6 +20015,7 @@ nxbv.sabad724.bio
 nxetaioe4eelwhdwagi3ikv6ee6tttwvnqikalgkrslz7bwvuwqzdeqd.onion
 nxiyquas.behtarin-site-shartbandi-football.bet
 nxk3vadq.1xprobet.app
+nxnta59771.workers.dev
 nxpdrg.lashextensionsdowney.com
 nxsimdevelop.com
 nxtstepsales.nl
@@ -29858,6 +29869,7 @@ vnmstokns.beer
 vnqvt9.crinkdimit.work
 vnuhxmfp.jadoou.cfd
 vnukdf.purefunsurfboards.com
+vnzadvogado.adv.br
 vo472a21.eng-aqua-burn.com
 vo8.6666k.org
 voabnu.femeso.hu
@@ -31222,6 +31234,7 @@ www.bioshealthgroup.com
 www.bitforge.com.my
 www.bl32hm8oxzy3yome193.cc
 www.blackdragonguard.rivalstore.hu
+www.blez.edu.ec
 www.blikmand.dk
 www.bluebarnestates.co.uk
 www.bluegeneration.es
@@ -31258,20 +31271,26 @@ www.carolinabiscaro.net
 www.carolinanavascobo.com
 www.cbcleib.com
 www.cement-chemistry.com
+www.chabdullah.com
+www.changeperformingarts.com
+www.channelhd24.com
 www.chaparralbooks.com
 www.chase6dice6nt7.net
 www.chathambookseller.com
 www.chatturbo.com.br
+www.chef-francescopiu.com
 www.chefstablehub.com
 www.chiaromontecontract.it
 www.chinagasholdings.space
 www.chipskk.com
+www.chrisram.net
 www.cinehouse.my
 www.cintiaramon.com
 www.citymoversmagazine.com.ng
 www.classicstandupcomedy.com
 www.clawbytes.xyz
 www.clearoriginxf.click
+www.cloudenabled.sg
 www.cloudespacios.com
 www.clps.space
 www.clubanimazione.it
@@ -31540,6 +31559,7 @@ www.llvdtejnjgcz99wlv4z68es1.com
 www.locandaskansen.it
 www.logodestek.gen.tr
 www.loqinmicofstloine.icu
+www.loradidemolire.it
 www.louangelwolf.com
 www.loveinfaith.life
 www.lowbudgetmovers.net
