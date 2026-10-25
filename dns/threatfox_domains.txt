@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-25 13:52 CET
-# Eintraege: 33539
+# Aktualisiert: 2026-10-25 15:06 CET
+# Eintraege: 33544
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -867,6 +867,7 @@
 4h3y0wdh.varzeshitime.ir
 4h79jvxe.metrobahiscark.com
 4hjech32.helabetkade.com
+4hqwi3xf.expotour.org
 4hs7joli.sokla3ren.in.net
 4i1yrtc2.shop-genesis-revival.com
 4i3lqas7.en-us-en-prostawive.com
@@ -1380,6 +1381,7 @@
 7roz32am.letrungkien.info
 7seasstore.com
 7stfczbr.liberty-token.org
+7sxnxlmko2.workers.dev
 7sxu8ft8.shartbandikade.online
 7t2lkz7v1c2u2ry.top
 7t3zi3e7ki6iseun77ofqtr6wmbpgnpc2ada6gstcxp54lw6q2zb7jad.onion
@@ -9936,6 +9938,7 @@ expoglobalservice.com
 export1.duckdns.org
 exportearth.monster
 exposerv.pav7lorex.in.net
+expotour.org
 expressbatteryreplacement.com
 expresssmash.com
 exqrm.accredit.hu
@@ -20629,6 +20632,7 @@ oqtr.haleywoodportfolio.com
 oquqeioasecousmu.xyz
 oqwoomsiqsyiguqa.xyz
 oqyagkqmocsauuay.xyz
+or2by62l.urgentblue.com
 or3k-51808.portmap.host
 oracleup.cc
 oralhome.expertosip.co
@@ -24815,6 +24819,7 @@ season7-ethena.finance
 seasonmber.duckdns.org
 seasonmberbk.duckdns.org
 seasonsofaustraliafnv.com.au
+seasprayfiley.co.uk
 seat-aviation.com
 seat.wiwgf.workers.dev
 seattlewrongfuldeathlawyer.com
