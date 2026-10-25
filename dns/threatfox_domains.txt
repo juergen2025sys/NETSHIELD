@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-25 17:27 CET
-# Eintraege: 33739
+# Aktualisiert: 2026-10-25 18:11 CET
+# Eintraege: 33744
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -6293,6 +6293,7 @@ ckjr.augustus-kirby.com
 cklrd.webrevelem.hu
 cklygez.jasperstays.com
 cknkl.vilagom.hu
+ckrao31049.workers.dev
 ckszd.banhidileadershipacademy.hu
 ckugvmkpg.hazarat.now
 ckvcsacd.mechanicsayalat.xyz
@@ -10816,6 +10817,7 @@ flyhighsmokeshop.com
 flyi.jadoou.lat
 flyingbbird.cc
 flyingtogether-ual.net
+flymetoyou.app
 flzocge.penality.bet
 fm9rks0204268x.cfd
 fmbuzp.josephmichaelnh.com
@@ -14325,6 +14327,7 @@ ipxzpxs.keyslimdrops-com.com
 ipynzqk.sylov2en.in.net
 ipzukbru.masirpayambari.xyz
 iq-capital.eu
+iq9k06we.fpikiogankomeringilir.store
 iqgxtjfc.hazzarat.world
 iqimux.authentickuts.com
 iqlj4q4v.kaarenorge.com
@@ -15274,6 +15277,7 @@ k964jkuu.luxerabet10.com
 k969mylb.casinokade.online
 k96h8q0b.fubet24.net
 k9h20m23.observability-matrix.digital
+k9p8spox.flymetoyou.app
 k9qxyqt8.jetbt8.online
 ka3xwdti.en-us-superbrain.com
 ka4yxanb.andliberty.us
@@ -19292,6 +19296,7 @@ neroc5j.dexor-host.in.net
 nerve-armore.com
 nerve2logicnet.axonetworkhub.garden
 nesplowell.com
+nest-52.com
 nest5478.ngrok.app
 net-bit.org
 net-echo.com
