@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-25 13:18 CET
-# Eintraege: 33536
+# Aktualisiert: 2026-10-25 13:52 CET
+# Eintraege: 33539
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -14243,6 +14243,7 @@ ipoweres.com
 ipregionchecker.org
 ipsandwich.com
 iptext.de
+iptvb1g.com
 iptvdk.net
 iptvr.icu
 ipulsecloud.com
@@ -18755,6 +18756,7 @@ mslynn48.bosskayseri.store
 msm.6666k.org
 msml.co.ke
 msnbot-157-55-39-13.search.msn.com
+msnbot-157-55-39-52.search.msn.com
 msnbot-40-77-167-58.search.msn.com
 msnbot-52-167-144-172.search.msn.com
 msnbot-52-167-144-188.search.msn.com
@@ -26760,6 +26762,7 @@ surexglobaldelivery.icu
 surf.oceanwavepoint.lat
 surf2taskhub.felo7wave.surf
 surf3logicgate.oceanicmeshbit.garden
+surgigate.com
 suriyamotors.com.pk
 surplusofer.com
 surv3y7-plate.miv7sorel.in.net
