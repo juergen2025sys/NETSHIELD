@@ -117,6 +117,7 @@ def normalize_domain(token: str) -> str | None:
         ipaddress.ip_address(value)
         return None
     except ValueError:
+        # Keine IP-Adresse - weiter mit der Domain-Pruefung
         pass
     if not DOMAIN_RE.match(value):
         return None
@@ -178,6 +179,7 @@ def parse_threatfox_csv(text: str, min_confidence: int = THREATFOX_MIN_CONFIDENC
                 if int(row[idx_conf].strip()) < min_confidence:
                     continue
             except ValueError:
+                # Leere oder nicht numerische Confidence: IOC trotzdem uebernehmen
                 pass
         domain = normalize_domain(row[idx_value])
         if domain and not is_protected(domain):
