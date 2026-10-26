@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-26 20:15 CET
-# Eintraege: 34097
+# Aktualisiert: 2026-10-26 21:04 CET
+# Eintraege: 34111
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2761,6 +2761,7 @@ animal342.duckdns.org
 animal342bk.duckdns.org
 animalhow.com
 animalspintroll-xerography.digital
+animeqj.com
 animetoast.org
 anisxx.flyingtogether-ual.net
 anj99u86.verticalrewards.com
@@ -4926,6 +4927,7 @@ bob.1001gacor.org
 bob.6666k.org
 bob.adkfarmerdan.com
 bob.sm188daftar.mom
+bobexa.workers.dev
 bobik.cfd
 boblazar.inhumanencounters.org
 boblegvlist.christmas
@@ -5373,6 +5375,7 @@ bubblepull.space
 bubekjjgrjdhrpmikx.jrautosatl.com
 bubzw.visszateritok.hu
 bucakosb.org.tr
+buccarella-sicherheit.ch
 bucharestfashionfilm.ro
 buck-cdns-server.sbs
 budapesthandmade.hu
@@ -6799,6 +6802,7 @@ coffeecincup.monster
 coffeefromarabica.monster
 coffeefrombrazil.monster
 coffeeincup.monster
+coffeemachinesservices.com
 coffeemarika.workers.dev
 cogniclearplus.com
 cognigenpluss.com
@@ -11619,6 +11623,7 @@ garagedoorskentucky.com
 garagedoorstexas.com
 garciarico.com
 gard9-point.establish-lads.surf
+garden-82.com
 garden-sugizo.com
 gardenautomationframework.garden
 gardeninfrastructurecore.garden
@@ -12512,6 +12517,7 @@ grandprocess.torex5lin.surf
 granitebroad.mixzipcore64.lat
 grannysgummies.com
 grant-member.pro
+grant.vandersee.id.au
 grantt.qumarox.icu
 graphnewclass.christmas
 grarg.com
@@ -12755,6 +12761,7 @@ guzgri.sifootandankle.com
 gvbbvohe.en-slimsounds.com
 gve.beras1.com
 gve.sm188auto.top
+gventerpriseswork.com
 gvevents.fr
 gvnlwdcrl.mom
 gvrrgvn.jamjahani.promo
@@ -15069,6 +15076,7 @@ jiwkc.sm188daftar.cfd
 jizeeb.xamir9el.lat
 jj.146slot.org
 jj.334v.org
+jj.adwgamestore.org
 jj5czewc.bet90land.com
 jjbtigm.smellhomesweethomeservices.net
 jjcuameq.parspoker90.com
@@ -17608,6 +17616,7 @@ maaoiewasykauogs.xyz
 maawaageeauayigi.xyz
 maboloud.com
 mabqig.proznth.com
+mac-check.pages.dev
 mac-m4.duckdns.org
 macarona.autos
 macat433.duckdns.org
@@ -23594,6 +23603,7 @@ rapidfinact.com
 rapidwavenet.verdalya.garden
 rapiny.gamesystem.hu
 rappellingaart.com
+rapports.joset-telematique.ch
 raqmk.mururhesabdari.xyz
 raqpndp.1shartbet1.com
 rar.sculpture5traight.surf
@@ -26027,6 +26037,7 @@ smkaqgocoaacecma.xyz
 smkbpsuhu.sch.id
 smkdbcld28.sch.id
 smkmuh04byl.sch.id
+smkn1tabanan.sch.id
 smkwmqieqgoagkac.xyz
 smmrbysummerdesnoo.nl
 smnalvhqecyjf7reptunoevh6jd6x7ofpz4tj2plyg5a4q667givgqyd.onion
@@ -28478,6 +28489,7 @@ tpcu.oltigergo.hu
 tpf4wkqp.succeswithpaul.com
 tpgpd.vikstore.hu
 tphlksj.payestation.com
+tpiuc.com
 tpmufqy4.enus-us-glycomute.com
 tpnklt.k-optic.com
 tpp6b30z.kulonprogo.org
@@ -30247,6 +30259,7 @@ vmi3467394.contaboserver.net
 vmi3469820.contaboserver.net
 vmi3474446.contaboserver.net
 vmi3474645.contaboserver.net
+vmi3493045.contaboserver.net
 vmi3554028.contaboserver
 vmi3641491.contaboserver.net
 vmi3641492.contaboserver.net
@@ -31658,6 +31671,7 @@ www.b-29sn-02vvbpmb0zu3kmq.org
 www.b-ui75mia5005x0vinb.cc
 www.bacsontech.com
 www.bagbooks.com
+www.balancedprofessional.com
 www.ballingmania.it
 www.balustrade-bucuresti.ro
 www.banchellivini.it
