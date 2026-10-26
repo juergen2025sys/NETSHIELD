@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-26 17:28 CET
-# Eintraege: 34048
+# Aktualisiert: 2026-10-26 18:21 CET
+# Eintraege: 34052
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -10355,6 +10355,7 @@ falsifydisappearsoaeka.pw
 fami-wp.dexor-host.in.net
 familbi.cyou
 familyinsurancepartner.com
+familylegacyprotection.com
 famiszp.cyou
 famscargo.com
 famwili.shop
@@ -10855,6 +10856,7 @@ fleshburn.us
 fleshproduce.xyz
 flexible-networks.com
 flexumshop.shop
+flexyyservices.pt
 flheadshot.com
 flhq6iyb.neurowave.us
 flhrpdn.yekbetkade.com
@@ -11062,6 +11064,7 @@ forgewillow.com
 forgotten-civilization-myth.garden
 form7-beam.herod-terminology.bet
 form9logicnet.everfo7mat.bet
+formazionedocenti.org
 formazioneeconoscenza.org
 formkey.asia
 formonstore.com
@@ -11089,6 +11092,7 @@ fourseasondumpling.com
 fourseasonsgarden.hu
 fourseasonsmansion.com
 fourstarcampground.com
+fowovahe.workers.dev
 fox-glow.nanovo5kull.pics
 foxalph.establish-lads.surf
 foxdale.cc
