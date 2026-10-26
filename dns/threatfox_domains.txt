@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-26 07:48 CET
-# Eintraege: 33973
+# Aktualisiert: 2026-10-26 09:13 CET
+# Eintraege: 33979
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -332,6 +332,7 @@
 1qvrznky.runtimebeacon.top
 1r72in.sokla3ren.in.net
 1r7j0.icu
+1remz.duckdns.org
 1rlnt3t6.kiper.store
 1rvrental.com
 1s3hqwvr.varzeshlife.ir
@@ -3447,6 +3448,7 @@ asynclient21.duckdns.org
 asyncpipelinehub.wiki
 aszdgo8b.www-trumpgoldenbadge.com
 aszzi.webgondozas.hu
+at.adwgamestore.org
 at.ajo7.org
 at1.227api.com
 at2.227api.com
@@ -5595,6 +5597,7 @@ c.360ctct.com
 c.9winn.org
 c.adilawa99.org
 c.amo98.org
+c.aot88.com
 c.gbwhat.pro
 c.obwhatsappdownload.com
 c.pushonline.online
@@ -6319,6 +6322,7 @@ cht.utvrent.com
 chubrik.sbs
 chughtaianaplastology.pk
 chuhrhh.theslimsplits.us
+church.springsoflife.org
 churchoflife.io
 chyeselq.betpublic.casino
 chyoxppm.bet1xindia.com
@@ -6375,6 +6379,7 @@ ciu2swv9.alibabasport.ir
 ciuzdaw.shop
 civi-opti.shadowpeak.garden
 civicvehicl.scriptmesh.ink
+civil.rezendenetto.adv.br
 ciwid.run
 cjafok.shieldshardwareandsupply.com
 cjbbdtba.maharatmodiran.xyz
@@ -32292,6 +32297,7 @@ www.vhelbhergimperialhotel.com
 www.vidfree.net
 www.vinstabilskadecenter.se
 www.vintage-books.com
+www.vinte3comunicacao.com.br
 www.vjrservizi.it
 www.vmcloans.com
 www.vmixzy.com
