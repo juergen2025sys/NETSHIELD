@@ -1,6 +1,6 @@
 # NETSHIELD – Ivory Coast (CI) IPv4 Ranges
-# Aktualisiert: 2026-10-21 08:18 CEST (Europe/Berlin)
-# IP-Ranges: 247
+# Aktualisiert: 2026-10-26 07:45 CET (Europe/Berlin)
+# IP-Ranges: 248
 
 41.66.0.0/18
 41.67.64.0/20
@@ -90,6 +90,7 @@
 102.135.184.0/22
 102.135.191.0/24
 102.136.0.0/14
+102.200.216.0/22
 102.201.56.0/22
 102.201.192.0/23
 102.201.210.0/24

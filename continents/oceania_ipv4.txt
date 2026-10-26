@@ -1,6 +1,6 @@
 # NETSHIELD – Oceania IPv4 Ranges
-# Aktualisiert: 2026-10-21 08:18 CEST (Europe/Berlin)
-# IP-Ranges: 11748
+# Aktualisiert: 2026-10-26 07:45 CET (Europe/Berlin)
+# IP-Ranges: 11749
 
 1.0.0.0/24
 1.0.4.0/22
@@ -2062,6 +2062,7 @@
 95.82.0.0/18
 95.131.201.0/24
 101.0.64.0/18
+101.1.19.0/24
 101.2.168.0/22
 101.2.192.0/18
 101.53.192.0/19

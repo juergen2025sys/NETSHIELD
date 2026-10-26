@@ -1,6 +1,6 @@
 # NETSHIELD – Mali (ML) IPv4 Ranges
-# Aktualisiert: 2026-10-21 08:18 CEST (Europe/Berlin)
-# IP-Ranges: 27
+# Aktualisiert: 2026-10-26 07:45 CET (Europe/Berlin)
+# IP-Ranges: 28
 
 41.73.96.0/19
 41.203.192.0/20
@@ -8,6 +8,7 @@
 102.68.176.0/22
 102.130.232.0/22
 102.165.96.0/20
+102.200.223.0/24
 102.212.72.0/22
 102.213.136.0/22
 102.217.24.0/22
