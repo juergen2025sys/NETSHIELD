@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-26 21:04 CET
-# Eintraege: 34111
+# Aktualisiert: 2026-10-26 22:12 CET
+# Eintraege: 34115
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -13946,6 +13946,7 @@ identityoneexpress.net
 idilemajemufoundation.com
 idlmwh.shop-echoxen.us
 idn777.de.com
+idrive.ba
 idverification-cdn.info
 idverification-code.beer
 idwfsf.jamjahani.cash
@@ -14035,6 +14036,7 @@ ihypqyrn.sadreislam.xyz
 iiabc8.com
 iiamtrbo.liketudong.biz
 iibet.fi
+iict.gov.la
 iidqou.jamjahani.app
 iieqea.buy-goldalign.com
 iifoqkzw.betpublic.casino
@@ -14170,6 +14172,7 @@ img.drisnya.online
 img.viet69.vg
 imgcloudpr.info
 imgonehq.com
+imhoteplukata.com
 imjbwe71.jadoou.xyz
 imkc64pm.us-en-us-keyslimdrops.com
 immer-unter-strom.de
@@ -15454,6 +15457,7 @@ k1h.hopesm188.top
 k25qo8xh.fungame777.co
 k29f.vexa7lorn.bet
 k2bs9h2k.proxy-horizon.digital
+k2rf8oi3.energedia.com
 k35xtdfx.us-en-us-heroup.com
 k3mikejobong.com
 k3mmhmpn.runtime-atlas.digital
