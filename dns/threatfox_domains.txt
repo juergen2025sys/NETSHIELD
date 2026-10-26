@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-26 00:26 CET
-# Eintraege: 34481
+# Aktualisiert: 2026-10-26 01:50 CET
+# Eintraege: 34501
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -249,6 +249,7 @@
 17tx25qi.casinokade.online
 181xlt4g.gavaedfagahe.xyz
 1822jtv8.betwoonuyelik.com
+184.15.72.136.bc.googleusercontent.com
 18523n3s71bgf06.top
 187-102-16-66.ghnet.com.br
 189199.xyz
@@ -1236,6 +1237,7 @@
 6l2yvway.fidoubet.com
 6leriop4.littleitalypizzafortwashington.com
 6lphdepl.sibbet90iran.com
+6lv94olvi0.workers.dev
 6lw6ugue.qdawdasdsadada.icu
 6lzo5xl.tov6larek.in.net
 6m4tfqkq.enus-heroup.com
@@ -1474,6 +1476,7 @@
 86uweryp.zarib.bet
 86x499ro.finowfurt.com
 86y4vfwl.lssbo.com
+874constant.workers.dev
 877zsa.earoauth.life
 87bad9fc.udeur.org
 87jcg6w8.everestpointnorthglenn.org
@@ -2170,6 +2173,7 @@ afraid.veloitall.cfd
 africadasi.org
 africanalphacc.com
 africanyoutharchitects.org
+africaoil-ci.com
 afritekers.com
 afspd.com
 aftabsport.ir
@@ -2280,6 +2284,7 @@ aikokintsugi.com
 aikuqommeauisccy.xyz
 aikyoyiamaeiiqsq.xyz
 ailinshop.com
+aim.shawn-liang.com
 aimano.nl
 aimbest.com
 aimdss.com
@@ -9191,6 +9196,7 @@ ebju.betropol.bet
 ebnbwm070725fhl.cfd
 ebnlinfengv6l2ilx.duckdns.org
 ebnyn6t3.sallysprattstudio.com
+ebookonline.store
 ebooks.assalaam.or.id
 ebuxsfresh.duckdns.org
 ebwgtb.vezaratshart.com
@@ -11855,6 +11861,7 @@ gbueeqa.eurothrombosis2018.com
 gbugugpucukhbnvwxg.oasteadomnuluidiaspora.com
 gbv7cjvi.www-bellyflush.com
 gbw.cmpc.fun
+gbw43n90.georgelounge.bar
 gbwaapps.org
 gc.146slot.org
 gc.334v.org
@@ -17028,6 +17035,7 @@ lightmeshsite.mero2beam.surf
 lightmeshway.pulsarspin.bet
 lightsiteview1.solavern.garden
 lightsnow.info
+lihannaowenzaus.fit
 liifa.co.za
 liizlfb.bet30bet.com
 liketudong.biz
@@ -17173,6 +17181,7 @@ livnesticity.com
 livto.store
 liwery.workers.dev
 liwxdd48.romabetkade.com
+lixk4efy.lihannaowenzaus.fit
 lizablud.shop
 ljbtsuq.midcontinentoilservices.com
 ljbtuch.kbshavanese.com
@@ -31957,6 +31966,7 @@ wvrbkeshcii77eb3urvai.beer
 wvsvkdju.eng-usa-goldalign.com
 wvvbpwt.enfejar.game
 wvvyvhcadohpdpahcds.home-eye-app.com
+ww.adilawa99.org
 ww.maskelibros.cl
 ww2clash.com
 ww38.roofnrack.us
@@ -32090,11 +32100,14 @@ www.b-ui75mia5005x0vinb.cc
 www.bacsontech.com
 www.bagbooks.com
 www.ballingmania.it
+www.balustrade-bucuresti.ro
 www.banchellivini.it
 www.barnerbooks.com
 www.barrycassidyrarebooks.com
 www.bathroom-vanity.com.au
 www.batsoverbooks.com
+www.beraumen.com
+www.bestproduk.my.id
 www.bethq.work
 www.bettr-projects.be
 www.betya.live
@@ -32116,6 +32129,7 @@ www.bluegeneration.es
 www.bluestockingbooks.com
 www.bluezonenews.it
 www.bmreducation.com
+www.bokkeh.com
 www.bolton-flooring.co.uk
 www.bookbill.net
 www.bookhousecatalog.com
@@ -32123,6 +32137,8 @@ www.bookhousestlouis.com
 www.bookrackjackson.com
 www.booksofparadise.net
 www.bookson7thave.com
+www.boosterconseil.com
+www.borapraespanha.com
 www.bossleysportsclub.com.au
 www.bosslifesa.com
 www.brandonbays.cz
@@ -32142,6 +32158,7 @@ www.cag-promotion.fr
 www.cailovelife.art
 www.cameronpinegar.com
 www.canaza7epbbtducao-ve0s.cc
+www.capital8finance.co.uk
 www.carolinabiscaro.net
 www.carolinanavascobo.com
 www.cbcleib.com
@@ -32160,6 +32177,7 @@ www.chinagasholdings.space
 www.chipskk.com
 www.chrisram.net
 www.cinehouse.my
+www.cintasfirereports.com
 www.cintiaramon.com
 www.citymoversmagazine.com.ng
 www.classicstandupcomedy.com
@@ -32169,6 +32187,7 @@ www.cloudenabled.sg
 www.cloudespacios.com
 www.clps.space
 www.clubanimazione.it
+www.comfort-style.co.uk
 www.comoshops.com
 www.compleatscholar.com
 www.confettibooks.com
@@ -33885,6 +33904,7 @@ yzqzbtkr.betfidokade.com
 yzrdn.yanis.hu
 z.a9bet.org
 z.abc22.org
+z.amo98.org
 z01zh1hu.truenarrator.com
 z02aheni.thevallartasrestaurants.com
 z048c6t8.habbofutbol.com
