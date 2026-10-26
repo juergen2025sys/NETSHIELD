@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-26 16:35 CET
-# Eintraege: 34042
+# Aktualisiert: 2026-10-26 17:28 CET
+# Eintraege: 34048
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -7194,6 +7194,7 @@ cpuprosmgr.mav7voren.pics
 cpuprosmgr.radio-technic.lat
 cpuprosmgr.technodesupply.pics
 cpvt.bet120.games
+cpw81zy7.emanuellejaques.com
 cpysndcd.prozhecart.com
 cqbl.thechildrencomefirst.org
 cqdaaj.lapointerealtor.com
@@ -10659,6 +10660,7 @@ fiftyoff.co.za
 figcqryq.onjabet1.com
 fightandco.fr
 fightwa.biz
+figieiredo.lol
 figshadow.com
 figural.lol
 figural.pro
@@ -10750,6 +10752,7 @@ fire1siteview.voda4flux.surf
 fire2taskhub.chaevodh0t.bet
 fire7siteview.fluxunitzone.bet
 firealarmflorida.com
+firebase.emeraldpineventuresllc.com
 firecross.info
 firehostunit.grov6mira.bet
 firehostunit.quasargrid.bet
@@ -11300,6 +11303,7 @@ ftp.gebzekamlok.com
 ftp.hivimer.com
 ftp.holzbrenzii.com
 ftp.horeca-bucuresti.ro
+ftp.jmacsafety.com
 ftp.karmanorbuling.org
 ftp.lodenrandmarines.com
 ftp.maytestlasb.com
@@ -29693,6 +29697,7 @@ validatorpolar.vexon4al.lat
 valley-open-mri.com
 valleychimneyrepair.com
 valleynewsandbooze.com
+vallxx.duckdns.org
 valokse.lol
 valorideromania.ro
 value-ct.com
@@ -32964,6 +32969,7 @@ y7i9zpf0.go-neuroxen.com
 y7o5phj2.irantennis.bet
 y7sb1j03.theslimsplits.com
 y87fvt1g020426i.cfd
+ya.adwgamestore.org
 ya15z70c.die-reformer.digital
 yachtparts-shop.de
 yagzws04.belief-handcraft.bet
