@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-26 14:53 CET
-# Eintraege: 34037
+# Aktualisiert: 2026-10-26 16:35 CET
+# Eintraege: 34042
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -641,6 +641,7 @@
 33pedia.org
 33xmfjam.cloud-beacon.digital
 34.91.240.35.bc.googleusercontent.com
+3413718a.exploreargentina.tours
 347hoy7r.signal-frontier.digital
 348787241.com
 34bbeito.canlibahis1xbet.click
@@ -1849,6 +1850,7 @@ aave-dapp-connect-interface-v114.vercel.app
 aavehmy.therodeoroundup.com
 aawhn.salutemarket.net
 aawzmuz.1xvip.live
+ab41vc541fd04435740.health-carereform.com
 ab950zja.testpaye.xyz
 abandoned-asylum-expedition.garden
 abbccharters.ca
@@ -4727,6 +4729,7 @@ bkuseej.goldelign.com
 bkwmqv.us-en-us-slimsounds.com
 bl.furries.com.cn
 bl0kfp6v.us-en-us-nervealive.com
+bl4ckyhills.com
 bl7gsqjt.parsgoal90.com
 blackandwhiteshoose.com
 blackballsgaminglounge.co.ke
@@ -24786,6 +24789,7 @@ s9ufafpx.digeststart.us
 sa.146slot.org
 sa.334v.org
 sa1-sharepoint.com
+sa129.saturn.dedi.server-hosting.expert
 sa1atik.cn
 sa888.bar
 saamhorigheidsfonds.nl
@@ -32724,6 +32728,7 @@ xn5nkp1j.us-energyrevolution.com
 xn6yof5y.josephmichaelnh.com
 xn88.se.net
 xnburn.com
+xndi84wqer.workers.dev
 xndjbjo.enus-sightfresh.com
 xnjbjf7o.shop-aquapeace.us
 xnjwhp5s.arayemek.com
