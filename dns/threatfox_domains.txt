@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-26 12:02 CET
-# Eintraege: 34020
+# Aktualisiert: 2026-10-26 13:11 CET
+# Eintraege: 34027
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -4128,6 +4128,7 @@ bazikeno.com
 bazikonbartar.ir
 baztechalarm.net
 bb6lmhi140825m16.cfd
+bb6lxq63.verticalrewards.com
 bbacademylearning.com
 bbb.0101011010010111001.com
 bbbadfflkhroksd.cn
@@ -6044,6 +6045,7 @@ ce1l-craft.trave1.bet
 ceayo90m.jadoou.xyz
 cebsrg.jamjahani.football
 cec.co.com
+cecute.workers.dev
 cedar-55.com
 cedar-satin.com
 cedarember.lunave5.bet
@@ -7888,6 +7890,7 @@ deamobros.com
 deanofthedead.com
 deantico.com
 debloatex.com
+debug.pingload.cc
 debug.windowsdiagnostics.st
 debugshy-fansync.cyou
 dec15coma.com
@@ -20412,6 +20415,7 @@ obds.betsher.casino
 obese-table-usweb-play.wiki
 obese-uzousweb-play.wiki
 object-postfinance.digital
+object.glimmerpull.cc
 objectiverallypoint.org
 objectivescenes.com
 obmhxqg.rocketbet.pro
@@ -23820,6 +23824,7 @@ relay.docu-lopab.de
 relay.goruf.top
 relay.miranarts-top.cc
 relay.pettnittiprague.workers.dev
+relay.reelxgrab.cc
 relay.serverkinetices.cfd
 relay.stingold.com
 relay0.aquadisplay.lol
@@ -23934,6 +23939,7 @@ respaldofinal.kozow.com
 respectmountain.xyz
 resplast.com
 respondmeasure.monster
+rest.echofetch.cc
 rest.openapiservicehub.pics
 rest3taskhub.kali9drift.surf
 restapiserv.click
@@ -30169,6 +30175,7 @@ vlog.physiolpo1icy.lat
 vlttkdma.eng-us-neurowave.com
 vm-list.4dorexal.surf
 vm-list.8dorexin.surf
+vm.adwgamestore.org
 vmaa.in
 vmailnewwqmwe.vercel.app
 vmbspptn.tov6larek.in.net
