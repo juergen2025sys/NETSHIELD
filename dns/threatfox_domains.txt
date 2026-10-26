@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-26 03:00 CET
-# Eintraege: 33876
+# Aktualisiert: 2026-10-26 05:59 CET
+# Eintraege: 33913
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1435,6 +1435,7 @@
 832nw30kq5rb0j4onh9tfw.beer
 8393546939.dojiner.at
 83dwnguj.shop-tupitea.com
+83gayel.workers.dev
 83j6hfza.runtime-forge.digital
 83ur68yr.designphotoshop.ir
 83yy.vertnop.lat
@@ -2180,6 +2181,7 @@ agioty.grannygshemporium.com
 agiqsfnr.hugugnasiri.xyz
 agjlskc.pax4moren.in.net
 agkzvfg.1bet1yek.bet
+agldrywall.com.br
 agliodelprete.it
 aglobaconvite.com
 agmdojf.7zorelax.lat
@@ -3283,6 +3285,7 @@ art-by-tek.com
 artcnb.com
 artdenstudio.com
 artechstructures.com
+artemusicacademy.com
 artes911sh.com
 artgramasintetica.com.br
 arthamarasejahtera.com
@@ -3489,6 +3492,7 @@ atqfb.calirayalake.com
 attachment-storage-asset-static.needbinding.icu
 attilahatar.com
 attr-sdk.tech
+attractions.oppasharing.com
 attrakc.cyou
 attyoo.com
 atualizanavegador.com
@@ -3755,6 +3759,7 @@ aypoker90.com
 ayrseu.shop
 ays.gamepazarin.com
 ayswteb.com
+ayuntamientodeprogreso.gob.mx
 ayurgama.com
 ayurvishwa.com
 ayuztxyw.en-en-usa-memorylift.com
@@ -9115,6 +9120,7 @@ ecvdpkonprgyrwzlif.fungame777.co
 ecwoawoekuewcuke.xyz
 ecypk.sadreislam.xyz
 ecyz.plinko-1xbet.games
+eczy948u.georgelounge.com
 ed-security-buff.cc
 ed2efjw.link
 ed8depc8.cardioslim-t.com
@@ -10484,6 +10490,7 @@ felicitatgs.cc
 felixcam.com
 felixuse.com
 fellshow.info
+felmore.fr
 felnora.cc
 fembiq.vel7ramon.in.net
 fembodystudiobackup.com
@@ -12763,6 +12770,7 @@ h3tnyjph.vuhw.store
 h431ijjv.dusanperisicmd.com
 h4rbor-phase.rax2liven.in.net
 h4rd-craft.interfe7ewith.garden
+h5.adwgamestore.org
 h5.gbwhatsapp.download
 h5.webser.site
 h51ee0ex.emeraldualzone.com
@@ -13718,6 +13726,7 @@ hyvin.run
 hyvur.run
 hywjlgp.shopmagnoliaonmain.com
 hyzswki.site
+hyzusy.workers.dev
 hz1v.didoprotecauth.lat
 hzbu0kgt.betyekios.app
 hzcsq855.taaghcheirani.com
@@ -15612,6 +15621,7 @@ kernel-lattice.digital
 kernel-patch-update-release-history.wiki
 kernel-vertex.digital
 kernelarray.snort-uharsky.surf
+kernfrage24.de
 kerry-777.com
 kersonba.xyz
 kesmn.com
@@ -15704,6 +15714,7 @@ khxta65a.signal-bridge.digital
 khypcp.en-usa-sightfresh.com
 khzxbhq.necedubd.com
 kiagcguqaoyqgemc.xyz
+kianm3aw.thrivingchaos.com
 kiaooawiqmkaouoa.xyz
 kiauiocguoigcaey.xyz
 kiaummkqaqgoiqaa.xyz
@@ -16029,6 +16040,7 @@ krigo.ecologyardakani.xyz
 krioldflaeara-willow.pro
 krisannly.com
 krishnabiketech.in
+kristenmastel.com
 krkgfgdt.runtime-atlas.digital
 krnflmz.kreativkiteljesedes.hu
 krodelinc.com
@@ -17438,6 +17450,7 @@ m.9qoi.org
 m.a9bet.org
 m.acrobat.lat
 m.adobepdf.cc
+m.aot88.com
 m.s-microsoft.com
 m01e-node.flen3qor.bet
 m08xkitq.vexon4al.lat
@@ -17834,6 +17847,7 @@ mastertrans.biz.pl
 mastojh.cyou
 mastro-media.de
 maswckeeycmksies.xyz
+matagujricollege.org
 match.sitefulia.com
 match3taskhub.zora7vex.bet
 matchsfood.com
@@ -18050,6 +18064,7 @@ melt9logicway.fluxunitzone.bet
 meltmeshsite.voda4flux.surf
 memaiagent.cfd
 memap.me
+member.ufaxs.me
 memenopoly.finance
 memor-prim.inconprofitab1e.surf
 memory-shield.vg
@@ -18996,6 +19011,7 @@ mslynn48.bosskayseri.store
 msm.6666k.org
 msnbot-157-55-39-13.search.msn.com
 msnbot-157-55-39-52.search.msn.com
+msnbot-207-46-13-151.search.msn.com
 msnbot-40-77-167-58.search.msn.com
 msnbot-52-167-144-172.search.msn.com
 msndla.com
@@ -19159,6 +19175,7 @@ myhost.servepics.com
 myi88a45.eng-gutdrops.us
 myinstapage.com
 myjqueryss.com
+mykeeper.ir
 mylanguageteam.com
 mylcwejs.irrigation-monitoring-system.garden
 mylivv.com
@@ -23345,6 +23362,7 @@ r3lay-branch.vexon4al.lat
 r3lzu9.fernthema.shop
 r3nde2-frame.american-brazil.surf
 r3pa-path.zex1liron.in.net
+r43ybgz8n0.workers.dev
 r45ny1cp.selladorasgovi.com
 r49lryv7.eng--leptozan.us
 r4iuquzx.cookeatrun.com
@@ -23660,6 +23678,7 @@ reef.oceanwavepoint.lat
 reef7-line.centrifuge-four.lat
 reelfla.asso7tunexpl.in.net
 reelmeshnode.peta1vrix.bet
+reemelmutwalli.com
 reesetransports.com
 ref-api.homefulia.com
 ref1ne-dock.sverbw2tch.surf
@@ -25100,6 +25119,7 @@ segmentreagent.rax7pavel.in.net
 segmoqquwkyymgqk.xyz
 segurityopen12.mysynology.net
 seguro.delivery-cardapio.click
+seguros.com.py
 sei.brslot.net
 sei.loloxsm188.top
 seine55.com
@@ -27982,6 +28002,7 @@ threejrev.com
 thrillermotion.4nmn.com
 thriveclubar-mx.icu
 thriveclubarit.icu
+thrivingchaos.com
 throtboy.duckdns.org
 throttletechnologies.net
 throwaway.icu
@@ -31793,6 +31814,7 @@ www.isuzucorluservis.com
 www.itallnews.com
 www.ivyridgebooks.com
 www.j3152xx.cc
+www.j4investment.com
 www.jahstandclassproject.com
 www.jahstandclassprojectbackup.com
 www.jahstandclassprojectbackup1.com
@@ -31822,6 +31844,7 @@ www.josefodol.cz
 www.judeglass.com
 www.kaidandesign.com
 www.kalocsasirko.hu
+www.kastornic.cl
 www.kathmandubooks.com
 www.kavkom.tv
 www.keithkloor.com
@@ -31837,12 +31860,14 @@ www.kpm-engineering.space
 www.kroghs-byg.dk
 www.ksbiblio.com
 www.kt88npl.live
+www.kubotabandung.com
 www.kuedltqtddbj-hnf9gd.net
 www.kurbad-st-leonhard.de
 www.l9-xf4xzz9g7s9nywuox.app
 www.lacompaniahostal.com
 www.laltd.net
 www.lamdhabooks.com.au
+www.larchmontnursery.com
 www.larmenty.com
 www.larmentybac2.com
 www.larmentyback2.com
@@ -31877,6 +31902,7 @@ www.loveinfaith.life
 www.lowbudgetmovers.net
 www.lsexctodyiaygkqr2.cc
 www.lumedinaso.it
+www.lumineusesdebeloeil.be
 www.lz81ugazc-3rxi-1draiesh.org
 www.m4imi4w.space
 www.m88sut.com
@@ -31889,10 +31915,12 @@ www.marineinsurer.one
 www.marvelousnpinjector.com
 www.mastergrillrecipes.com
 www.mb8coin.io
+www.mcarobotics.fr
 www.mcdowellsemporium.com
 www.mcinbooks.com
 www.mcttt.gov.fj
 www.mdmaleren.dk
+www.melaracconti.it
 www.meshpedia.com
 www.metaleks.com.tr
 www.metanoashopinsoutlook.space
@@ -31907,6 +31935,7 @@ www.mineniches.com
 www.miss-vacances.fr
 www.mobile1.com
 www.mollansbasement.se
+www.monartisanbouras.fr
 www.montanadental.co.za
 www.montech-institute.com
 www.moonbird.life
@@ -32002,6 +32031,7 @@ www.ptip.us
 www.publicidad2vr.com
 www.publitour.be
 www.puddletownbookshop.co.uk
+www.pulsoinformativoguerrero.com
 www.pyjs.in
 www.qdh71-y6j7vxgw046v4cvgga.live
 www.qianxinnbplus.xyz
@@ -32047,6 +32077,7 @@ www.robot-patissier-test.com
 www.rochaemucholowski.adv.br
 www.roisoftwaresolution.com
 www.rompecabeza.co
+www.roottreats.com
 www.rossetticonsulting.it
 www.rotundavillas.com
 www.roundtablebooks.com
@@ -32075,12 +32106,15 @@ www.seneca-copharma.com
 www.sens-design.fr
 www.seodata.click
 www.service1app.com
+www.sexyintimus.com.br
 www.sezioneaiabari.it
 www.sgcca.org
+www.sgncnutritioncourse.com
 www.shackbd.com
 www.sharingfile.cloud
 www.shawnstratton.ca
 www.shbet.id
+www.shcpaconsulting.com
 www.shenzhen2050.com
 www.shinyowlbooks.com.au
 www.shivanjalihelpinghands.com
@@ -32173,6 +32207,7 @@ www.tucirujanovascular.com
 www.tuciudadaniaenitalia.com
 www.turismotravesiarukamanque.cl
 www.twgxcc.art
+www.twinsmobilya.com
 www.txap5gmcyop0xb0s4ykikmsg.cc
 www.ucerma.sk
 www.uchihachakamaru.com
@@ -32196,6 +32231,7 @@ www.varietyfencefl.com
 www.vasttruly33i87.org
 www.vbix6zw2k7b1tsccegyt4eyn.live
 www.veghelinbeeld.nl
+www.vektoryapi.com
 www.venloria.us
 www.verkeersschoolsociety.nl
 www.vhelbhergimperialhotel.com
@@ -32220,6 +32256,7 @@ www.whitefoxrarebooks.com
 www.whytehouse.co.za
 www.williammatchin.com
 www.winemixed8uwhh.net
+www.wisdomtogether.com
 www.wise-horizonproject.eu
 www.wlzgm-admiral-x.icu
 www.woodline.com.sa
