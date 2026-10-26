@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-10-26 07:48 CET (Berlin)  
+**Aktualisiert:** 2026-10-26 09:12 CET (Berlin)  
 **Modus:** `LIGHT` (nur /bad-hosts, merged mit existing)
 
 ---
@@ -9,41 +9,41 @@
 |---|---|
 | cred1 | ⚠️ unklar (410) – im Pool belassen |
 | cred2 | ⚠️ unklar (410) – im Pool belassen |
-| cred3 | ⚠️ unklar (410) – im Pool belassen |
+| cred3 | ⚠️ HTTP 402 auf Daten-Endpunkt – für diesen Lauf deaktiviert |
 
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-26 07:48 CET (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-26 09:12 CET (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **17,046** |
+| Bad Hosts (24h, alle Dienste) | **17,041** |
 
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
 
-Davon **heute (2026-10-26)**: **6,074** IPs
+Davon **heute (2026-10-26)**: **6,883** IPs
 
 | last_seen | IPs |
 |---|---:|
-| 2026-10-26 | **6,074** |
-| 2026-10-25 | **10,972** |
+| 2026-10-26 | **6,883** |
+| 2026-10-25 | **10,158** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **17,535** |
-| Kandidaten dieses Abrufs | **17,535** |
+| Gesamt Honigtopf-IPs | **18,113** |
+| Kandidaten dieses Abrufs | **18,113** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+496** |
+| Neu | **+578** |
 | Entfernt | **-0** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-10-26 07:48 CET (Berlin)*
+*Generiert: 2026-10-26 09:12 CET (Berlin)*
