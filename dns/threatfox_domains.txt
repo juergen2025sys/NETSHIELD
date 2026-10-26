@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-26 22:57 CET
-# Eintraege: 34121
+# Aktualisiert: 2026-10-27 00:02 CET
+# Eintraege: 34124
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -241,6 +241,7 @@
 17p9jll6.1xborobetyek.bet
 17pqcbl3.mychartradyschildrens.org
 17tx25qi.casinokade.online
+18.126.48.34.bc.googleusercontent.com
 181xlt4g.gavaedfagahe.xyz
 1822jtv8.betwoonuyelik.com
 184.15.72.136.bc.googleusercontent.com
@@ -33539,6 +33540,7 @@ z02aheni.thevallartasrestaurants.com
 z048c6t8.habbofutbol.com
 z07gqmv.mirelax9.life
 z08omixf.mrbet90.com
+z0bhclq0.energedia.dev
 z0mvmrtr.eng-us-puraboost.us
 z0pub8f7.marc90bet.com
 z0wbdk.5tr.org
@@ -33778,6 +33780,7 @@ zfrfayl.one1xbet.app
 zfs.agenpr.org
 zfs6aubs.betropol.bet
 zfuxwvouqvnttpsrxe.tech
+zfvg0vcv.forbesae.com
 zg25d3bt.shop-alphaboostpro.us
 zgdpxwcq.sadreislam.xyz
 zgeetmr.enus-bpzone.com
