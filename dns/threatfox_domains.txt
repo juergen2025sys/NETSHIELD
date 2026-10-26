@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-26 09:13 CET
-# Eintraege: 33979
+# Aktualisiert: 2026-10-26 12:02 CET
+# Eintraege: 34020
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -323,6 +323,7 @@
 1og90icd.betyek.app
 1omdhqtb.eng-usa-memorylift.com
 1ozso11s.blackjackonlineplay83.com
+1p289c94.betballl90.app
 1p3iya3c.usen-slimsounds.com
 1p6kkehfjfb2s.net
 1pbwy4ua.yellohotelsharmoni.com
@@ -4395,6 +4396,7 @@ betalist-wkewda.bordcalm.surf
 betav2ryazhsky.digital
 betaval-5pn6.hustrock.surf
 betball90.casino
+betballl90.app
 betbet.city
 betboro.bio
 betbuf.live
@@ -5589,6 +5591,7 @@ bzngye4l.proxy-orbit.digital
 bzqtp.vilagom.hu
 bztmkx.en-us-slimsounds.com
 bzwbfps.winxbet.co
+bzxlc31w.ghostnode.us
 c-73-211-0-71.hsd1.in.comcast.net
 c-proxy-xjmkjgbsdn.cn-hangzhou.fcapp.run
 c-roots.org
@@ -5598,6 +5601,7 @@ c.9winn.org
 c.adilawa99.org
 c.amo98.org
 c.aot88.com
+c.aww88.net
 c.gbwhat.pro
 c.obwhatsappdownload.com
 c.pushonline.online
@@ -5909,6 +5913,7 @@ cb2kljpv.eng--slimsounds.com
 cbardentistry.com
 cbawrwwb.wrfc8.com
 cbfincom.com
+cbg80csz.deurnenwinkel.com
 cbgrnuxq.col7ecapture.surf
 cbjahpiu.us-theslimsplitsmethod.com
 cbrldu.phoenixfactory.org
@@ -6851,6 +6856,7 @@ comidarapidas.store
 comienzo.ydns.eu
 cominiucadosinternos.store
 commercialpropertycashflow.com.au
+commithealthandwellness.com
 commodities.liquide.life
 commonhedgehogs.com
 commun1onsouf.digital
@@ -6910,6 +6916,7 @@ comwebstat.scriptnode.pics
 conceitualalbuns.com.br
 concisenews.co.kr
 concludanotafiscal.site
+concreterepairny.com
 concretewestgj.com
 coneogz.cyou
 conexiongb.com
@@ -6995,10 +7002,12 @@ content.duskrunner.cc
 content.lakepeak.lol
 contentprotectiongate.com
 contentremixrr.com
+contese-rnc.com.br
 contextio.one
 contididit.conti.pk
 contr2ddesign.digital
 contractor.click
+contratotemporario.ammadvocacia.com
 conv-line.faint-gather.surf
 conv-wagon.cryptostack.lat
 convientodelobos.com
@@ -7461,6 +7470,7 @@ cxwqtlc8.asibshenasiyahya.shop
 cy.27trans.org
 cy.5-rt.org
 cy75lpfn.xano4mel.lat
+cy9.narahtech.com
 cyber-defensepro.christmas
 cyber-harbor.digital
 cyber-lattice.digital
@@ -7482,6 +7492,7 @@ cyberneticprostheticlab.digital
 cybersec-chile.online
 cyceykkyisyoccuk.xyz
 cycle.looprim.pics
+cyclecamper.eu
 cyclingjordan.co
 cydm.domirunway.com
 cyfftx.com
@@ -7528,6 +7539,7 @@ czpcvew.bet1xiraq.com
 czrsixg.en-us--neuroxen.com
 cztv.betfa.download
 czxzcu2smxtrbm7rj4eclskgydq5kiif4tgrvlsn2ri5rbndj5hu6wad.onion
+d.aww88.net
 d.tmpfile.link
 d0658smb.gamelandiran.ir
 d0c2wgj1.pczrt.hu
@@ -7604,6 +7616,7 @@ damza.store
 danatotalx1000.space
 danatoto11w.cyou
 danatoto39top.online
+dance.pappu.co.in
 dancebet.net
 daneshafra.ir
 danhbalbaluatsu.net
@@ -7669,6 +7682,7 @@ dash.boldfirestep.lat
 dash.boldpulse.surf
 dash.brightskycore.lat
 dash.brix9qen.surf
+dash.erosteps.in
 dash.fena7dor.lat
 dash.installer-catip.surf
 dash.neonstream.surf
@@ -7830,6 +7844,7 @@ dc16h0z3.energyrevolutionsystem.org
 dc6z7ywb.en-us-energyrevolution.com
 dcaxdwoo.barcelona11.com
 dccd28hw.hightidesuffolk.com
+dccidadu.org.pk
 dcgbh.zsatom.hu
 dcgfun.top
 dcgip3x8.futshart.pro
@@ -7920,6 +7935,7 @@ deepsteam.sa.com
 deepsurve.leafspring.garden
 deepweb.network
 deer.albaikmenuonline.com
+deesaidesign.com
 deeznutsinyomouthhahahalol.com
 default-configuration-sandy.vercel.app
 default-configuration.vercel.app
@@ -8951,6 +8967,7 @@ e-servicesolutions.com
 e-solovieva.ru
 e.88idn.net
 e.88idr.org
+e.ayu99.pro
 e.perspolis.pro
 e0lg2w5e.us-en-us-nervesoothe.com
 e0vt7hv0.saostar.biz
@@ -9054,6 +9071,7 @@ ebyeos.com.br
 ebzwaki.bakhtbetyek.com
 ec-hasslau.de
 ec2-13-58-175-81.us-east-2.compute.amazonaws.com
+ec2-3-15-17-30.us-east-2.compute.amazonaws.com
 ec2-3-22-66-152.us-east-2.compute.amazonaws.com
 ecaakmuwiwwesugo.xyz
 ecaqosz.1bonus.bet
@@ -9677,6 +9695,7 @@ engnervearmor.com
 engneuroxen.com
 engnitrilean.com
 engprostavaive.com
+engrubenssilva.com.br
 engsightfresh.com
 engslimsounds.com
 engthyrafemmebalance.com
@@ -11144,6 +11163,7 @@ freesoftupdater.com
 freetasklink.vectorstarcity.garden
 freetasksite8.petalune.garden
 freetaskunit.cyberpeaklink.garden
+freetrend.cc
 fregiyu.com
 freightbird.rodrules.surf
 freightexpress-pk.com
@@ -12818,6 +12838,7 @@ h89kbhtt.schleer.hu
 h8a4eye4.frameless1.shop
 h8d.acunbet89.org
 h8egsuh2.crownconnectpk.com
+h8h.agenplay89.org
 h8rpbqpa.damza.store
 h8w5a5u0.proxy-orbit.digital
 h930qz07.cloud-atlas.digital
@@ -13903,6 +13924,7 @@ iegswyuwqiuiyguu.xyz
 iehcbcgc.irantop.bet
 iehuipy.airtechmedical.com
 iejzed.liltkereskedohaz.hu
+iejzff0w.etablissementsbonnet.com
 iekcmgmoewumgcaq.xyz
 ieke13.7toralex.lat
 iemb.hansikaenterprises.com
@@ -17637,6 +17659,7 @@ mail.chukysohoadondientu.vn
 mail.cope.st
 mail.coping.ink
 mail.ekx.mya.mybluehost.me
+mail.freetrend.cc
 mail.iaa-airferight.com
 mail.mailban.pics
 mail.nemail.co
@@ -19676,6 +19699,7 @@ nexuspatronage.digital
 nexzen.top
 neypx.bmz.hu
 nf-edigital.com
+nf.agenplay89.org
 nf.alfatransportes.site
 nf.transalfa.online
 nfbjoi.greenestreetchurch.com
@@ -22792,6 +22816,7 @@ pyjh.bet1forward.com
 pykimubo.workers.dev
 pykistovlqlelammgy.jungle-prada-tavern.site
 pylonstaticbase.thorniva.garden
+pylyxoku.workers.dev
 pymyajs.pegaadvance.com
 pypi-get.com
 pyrd.radioshartbandi.bet
@@ -24224,6 +24249,7 @@ rogethapi2134.life
 rogethat231.icu
 roggymo87.icu
 rohaumon.net
+rohworld.com
 roidlink.com
 roisoftwaresolution.com
 rojbqzt.8k-vw33sx-6.buzz
@@ -25508,6 +25534,7 @@ shpu1xz9.gdcpemasaranbekasi.com
 shreekantdaga.com
 shrekf.art
 shriraghavendratravels.com
+shroom010.duckdns.org
 shrqj.mabanimashin.site
 shssshdscn.beer
 shur-inc.com
@@ -27384,6 +27411,7 @@ t-trustrest.com
 t.88mdc.org
 t.99rtp.net
 t.9winn.org
+t.aww88.net
 t.shakesnap.net
 t.vwgze.workers.dev
 t0902rv3jt.workers.dev
@@ -29162,6 +29190,7 @@ unitkaltwind2.mivorpulsegate.garden
 unitmemory.wiki
 univchristianchurch.com
 univers22.digital
+universalfood.dz
 universaltyresautos.com.au
 universevibe123459.shop
 univesalcheckrobot.site
@@ -29562,6 +29591,7 @@ v-lan.su
 v-log902.tari8lax.surf
 v-vill.hu
 v.abc69.net
+v.aww88.net
 v.getpi.su
 v01.88bravo.com
 v0a4ke9x.www-metabodrops.us
@@ -29628,6 +29658,7 @@ vagabondcosmetictoiletbags.co.uk
 vagvm.brssolar.hu
 vaillyharry9988.icu
 vailora231.life
+vajuremu.workers.dev
 vakgarageschaap.nl
 val.argsleg.pics
 valab.iti.gr
@@ -31653,6 +31684,7 @@ www.comfort-style.co.uk
 www.comoshops.com
 www.compleatscholar.com
 www.confettibooks.com
+www.confialscuola.com
 www.constructeddigital.com
 www.consultarprocesosramajudicial.com.co
 www.contexception.com
@@ -31793,6 +31825,7 @@ www.grantcampaignbackup.store
 www.grantcampaignbackup1.store
 www.grantcampaignbackup2.store
 www.grarg.com
+www.gravinaparquet.it
 www.green-resale.com
 www.greensleevesbooks.co.uk
 www.grillchefsecrets.com
@@ -31855,6 +31888,7 @@ www.iltatbackup1.com
 www.iltatbackup2.com
 www.immo-guru.com
 www.impresadipuliziecristal-to.it
+www.indiafin.com
 www.indo78livescore.live
 www.industry1culture.com
 www.infidu.com
@@ -31905,6 +31939,7 @@ www.kindralid.hosianna.ee
 www.kitchensecretbook.com
 www.knrd2up67onim5epfcxgvx.net
 www.kokobrown.com
+www.kopecky.family
 www.korkmazotoizmit.com
 www.kovactransport.com
 www.kp2-3ur6pe4r8i2hj5.com
@@ -32003,6 +32038,7 @@ www.mtsmalerfirma.dk
 www.mudanzasmadrid24h.com
 www.muse.com.tr
 www.musica-eventi.it
+www.musicar.rs
 www.muzikveotizm.com
 www.mvgl1ne40s65srdtnlc.info
 www.mylanguageteam.com
@@ -32453,6 +32489,7 @@ x8jh7qqg.die-reformer.digital
 x9598z25.halcyonhempltd.com
 x9hs.rataj-vertky.lat
 x9xus7.pares-system.in.net
+xa.agenplay89.org
 xabierbande.com
 xacqfhao.us-eng-zensulin.com
 xacuemp.bakhtazmaeii.com
@@ -32872,6 +32909,7 @@ y-hazel-ten.vercel.app
 y-lilac-sigma.vercel.app
 y-ml.co
 y.9winn.org
+y.aww88.net
 y01q42ad.theslimsplitsmethod.com
 y06e8hvi.proxyharbor.top
 y07kwey1.eng-us-zensulin.com
@@ -33281,6 +33319,7 @@ ytl99.vip
 ytmjwql.eurothrombosis2018.com
 ytnfopo.sm188dvlv.cfd
 ytuit.tractor11.com
+yu.agenplay89.org
 yu3dc.com
 yu8z3uk.space
 yuansource.fr
@@ -33394,6 +33433,7 @@ yzrdn.yanis.hu
 z.a9bet.org
 z.abc22.org
 z.amo98.org
+z.aww88.net
 z01zh1hu.truenarrator.com
 z02aheni.thevallartasrestaurants.com
 z048c6t8.habbofutbol.com
@@ -33635,6 +33675,7 @@ zfnv2q4q.dayvillelaundry.com
 zfomko.jamjahani.cash
 zfpcqpp6kfe5wl72b2cfb5qbp4kkzi4oj6if4r226idr3efvtocgd6id.onion
 zfrfayl.one1xbet.app
+zfs.agenpr.org
 zfs6aubs.betropol.bet
 zfuxwvouqvnttpsrxe.tech
 zg25d3bt.shop-alphaboostpro.us
