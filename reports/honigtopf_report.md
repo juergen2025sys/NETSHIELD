@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-10-26 22:55 CET (Berlin)  
+**Aktualisiert:** 2026-10-27 00:00 CET (Berlin)  
 **Modus:** `VOLL` (voll: /services + /bad-hosts + alle Service-Endpunkte)
 
 ---
@@ -14,54 +14,54 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-26 22:55 CET (Berlin) (0 unveränderte Läufe seither).
+🟢 Aktiv – letzte Änderung im Roh-Abruf: 2026-10-27 00:00 CET (Berlin) (0 unveränderte Läufe seither).
 
 ---
 ## Endpunkte & Ergebnisse
 
 | Endpunkt | Treffer |
 |---|---:|
-| Bad Hosts (24h, alle Dienste) | **17,854** |
-| Bad Hosts – SIP | **3,307** |
-| Bad Hosts – RDP | **559** |
-| Bad Hosts – SSH | **3,257** |
-| Bad Hosts – MSSQL | **505** |
-| Bad Hosts – SNMP | **153** |
-| Bad Hosts – VNC | **242** |
-| Bad Hosts – HTTP | **3,684** |
-| Bad Hosts – BitcoinP2P | **786** |
+| Bad Hosts (24h, alle Dienste) | **17,802** |
+| Bad Hosts – SIP | **3,306** |
+| Bad Hosts – RDP | **554** |
+| Bad Hosts – SSH | **3,289** |
+| Bad Hosts – MSSQL | **502** |
+| Bad Hosts – VNC | **243** |
+| Bad Hosts – SNMP | **151** |
+| Bad Hosts – HTTP | **3,774** |
+| Bad Hosts – BitcoinP2P | **785** |
 | Bad Hosts – CgminerAPI | **22** |
 | Bad Hosts – ProConOs | **94** |
-| Bad Hosts – Docker | **86** |
-| Bad Hosts – Telnet | **3,775** |
-| Bad Hosts – TFTP | **128** |
-| Bad Hosts – MySQL | **307** |
-| Bad Hosts – FTP | **302** |
-| Bad Hosts – PostgreSQL | **199** |
-| Bad Hosts – Kubernetes | **482** |
+| Bad Hosts – Docker | **87** |
+| Bad Hosts – TFTP | **127** |
+| Bad Hosts – Telnet | **3,788** |
+| Bad Hosts – MySQL | **313** |
+| Bad Hosts – FTP | **300** |
+| Bad Hosts – PostgreSQL | **187** |
+| Bad Hosts – Kubernetes | **464** |
 | Bad Hosts – ClickhouseHTTP | **267** |
-| Bad Hosts – Redis | **217** |
+| Bad Hosts – Redis | **223** |
 | Bad Hosts – Elasticsearch | **324** |
-| Bad Hosts – IPP | **23** |
-| Bad Hosts – CouchDB | **149** |
-| Bad Hosts – Oracle | **117** |
-| Bad Hosts – Modbus | **117** |
-| Bad Hosts – LDAP | **101** |
-| Bad Hosts – MQTT | **126** |
-| Bad Hosts – Memcached | **112** |
-| Bad Hosts – RAW | **81** |
-| Bad Hosts – LPD | **20** |
+| Bad Hosts – CouchDB | **138** |
+| Bad Hosts – Oracle | **118** |
+| Bad Hosts – Modbus | **118** |
+| Bad Hosts – LDAP | **102** |
+| Bad Hosts – MQTT | **119** |
+| Bad Hosts – Memcached | **106** |
+| Bad Hosts – BeaconAPI.web3signer | **34** |
+| Bad Hosts – RAW | **76** |
+| Bad Hosts – LPD | **21** |
 | Bad Hosts – Electrum | **10** |
-| Bad Hosts – BeaconAPI.web3signer | **33** |
+| Bad Hosts – IPP | **25** |
 | Bad Hosts – HashCountRandom | **30** |
 | Bad Hosts – ClaymoreAPI | **20** |
-| Bad Hosts – MOTD | **16** |
+| Bad Hosts – MOTD | **14** |
 | Bad Hosts – IPFS | **18** |
 | Bad Hosts – MoneroRPC | **9** |
 | Bad Hosts – BitcoinRPC.dash | **16** |
 | Bad Hosts – XMRigAPI | **21** |
-| Bad Hosts – SubstrateRPC | **4** |
 | Bad Hosts – MoneroRPC.wallet | **3** |
+| Bad Hosts – SubstrateRPC | **4** |
 | Bad Hosts – BitcoinP2P.litecoin | **11** |
 | Bad Hosts – BitcoinP2P.dogecoin | **8** |
 | Bad Hosts – BitcoinRPC | **1** |
@@ -77,24 +77,24 @@
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
 
-Davon **heute (2026-10-26)**: **16,777** IPs
+Davon **heute (2026-10-26)**: **17,297** IPs
 
 | last_seen | IPs |
 |---|---:|
-| 2026-10-26 | **16,777** |
-| 2026-10-25 | **1,077** |
+| 2026-10-26 | **17,297** |
+| 2026-10-25 | **505** |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honigtopf-IPs | **17,969** |
-| Kandidaten dieses Abrufs | **17,969** |
+| Gesamt Honigtopf-IPs | **17,968** |
+| Kandidaten dieses Abrufs | **17,968** |
 | Veroeffentlichung | Veröffentlicht |
-| Neu | **+1,205** |
-| Entfernt | **-1,834** |
+| Neu | **+572** |
+| Entfernt | **-573** |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-10-26 22:55 CET (Berlin)*
+*Generiert: 2026-10-27 00:00 CET (Berlin)*
