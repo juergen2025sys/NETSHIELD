@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-26 18:21 CET
-# Eintraege: 34052
+# Aktualisiert: 2026-10-26 20:15 CET
+# Eintraege: 34097
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -537,6 +537,7 @@
 2ffahbg8eydhr96hx3x2lje2ymygt5iq.duckdns.org
 2ffuyto6.taktikbet.bio
 2gfxwchj.emeraldualzone.com
+2gogame.se
 2gp421dm.en-us-en-smartwaterbox.com
 2h7bybpbc521sa1hbmf0qo.beer
 2hc0b19k.en-us-en-darkreset.com
@@ -683,6 +684,7 @@
 3b7ed5ab.imzural.info
 3bjguds4.eng--glycofree.com
 3bse5c5d.b00kself.com
+3cb50pyi.warmwaffles.com
 3cipm334.pilkada2017.com
 3ck7o3zl.die-reformer.digital
 3d5108a1.finowfurt.com
@@ -1038,6 +1040,7 @@
 5g6unmz0.eng-usa-glycofree.com
 5gghr1ol.eng-echoxen.us
 5ginvestmentnews.com
+5gs2zjcc.fazbet1.app
 5hidc.annakuehner.work
 5hor-mount.dex2lavel.in.net
 5hvf702j.siciliandefensetheory.digital
@@ -1278,6 +1281,7 @@
 7-elang.space
 7.99.174.34.bc.googleusercontent.com
 70.93.154.34.bc.googleusercontent.com
+702490.us28.myftpupload.com
 70bcr.lena3qit.lat
 7109hvuj.retinaclier.com
 711zam.vexa2-flow.life
@@ -2392,6 +2396,7 @@ alessandracalheira.com.br
 alessiaremedies.com
 aleverifocation.beer
 alewitz.com
+alexandraportfolio.com
 alexiabioconsult.com
 alexistotojp12jt.cyou
 alexmartincoach.com
@@ -2899,6 +2904,7 @@ api-download.us
 api-ext.bixbitemarketing.com
 api-imager-host.beer
 api-master.site
+api-metadata-v6.is
 api-metrics-5453.com
 api-metrics-6258.com
 api-relay.cc
@@ -3982,6 +3988,7 @@ ballad82.com
 ballingmania.it
 ballyflush.us
 balp.run
+balsamdolmen.org
 balservicesgroup.com.au
 balustrade-bucuresti.ro
 balvlqts.cyou
@@ -5661,6 +5668,7 @@ c50tvp96.bet1yekbet.bet
 c52ih.lomov-stroganal.lat
 c533d8a0-2c69-47ed-b173-0234c17c3989.codepit-rized-denengine.garden
 c5375w2iro4ewj23oukm6yd63wma5zuv6nhmh4qrlkjrhdijgkca.arweave.net
+c5568623b3.nxcli.io
 c557zanx.1xhot.xyz
 c56qm35r.proxy-orbit.digital
 c56xjoz.represent-skittish.lat
@@ -9271,6 +9279,7 @@ efendireklam.com
 efesg5.space
 effc4p41.honardartarikh.xyz
 effect-tec.com
+effectsaesthetics.com
 effgtty.ar888starz.bet
 effi.truesttory.in.net
 effinghampodiatriclore.com
@@ -9739,6 +9748,7 @@ enterprise-solution-buffer-utility-log.wiki
 entertainment.zincgroup.com
 entertainok.com
 entretiensol.com
+entroelektronik.com
 entry-code-cdn.codes
 entry-verifed-cdn.codes
 enus--lipovive.com
@@ -11148,6 +11158,7 @@ framework-jsoncdn.beer
 frameworkjsbns.beer
 franbellamail.co.uk
 franceinfo-finance.com
+francescmarcalvaro.cat
 francescoforti.net
 frank-psy.de
 franklintowing.net
@@ -11266,6 +11277,7 @@ fsjkul62.onjabet1.com
 fso.cantdown.su
 fsocietyhackattack.botlesscucks.st
 fsphwjzi.maharatmodiran.xyz
+fsroma.com
 fswqsjdd.betxane.com
 ft4borxw.questionstest.xyz
 ft4y9eg8.mars303.com
@@ -11371,6 +11383,7 @@ fuckyou.femboys.dating
 fud0tirx.hazzaratbet.com
 fudupdate.com
 fuhakafe.workers.dev
+fujizego.workers.dev
 fujxga.fluss.hu
 fukyfket.bekabet.casino
 fulfreeswd.xyz
@@ -11563,6 +11576,7 @@ galaxiaeventos.pt
 galaxybet88.icu
 galaxyflowsystems.lol
 galeriarealia.com
+galerie-dakoenig.de
 galesync7zone.tundraflowunit.garden
 galilea-naturopati.com.aditpropertybali.space
 galjdxt.bet1bartar.com
@@ -12171,6 +12185,8 @@ globalcertificates.net
 globalchrome.com
 globalcoclos.cc
 globalfiats.click
+globalfinancetalent.com
+globalintermed.com.br
 globallookclub.com
 globalplayservices.com
 globalprotecnode.cc
@@ -12703,6 +12719,9 @@ gulfgoldrates.com
 gulfportlittletheatre.org
 gulwui.cinemarcell.hu
 gumdrop.lunaforce.cfd
+gumduck.duckdns.org
+gumduck1.duckdns.org
+gumduck2.duckdns.org
 gumiymwigooywusk.xyz
 gummyloc.ch
 gumusatolyesi.com
@@ -13657,6 +13676,7 @@ htro.site-shartbandi-khareji.com
 httpsfewapi.surf
 htusgm8k.sydo9marel.in.net
 htxvanthanhphat.vn
+hu406sua.ozabet.promo
 hub.celeb-cytology.surf
 hub.datasrvhub.pics
 hub.fastworknode.lat
@@ -14992,6 +15012,7 @@ jeuxdedragonballz.net
 jevomukif.com
 jevun.ru
 jewels-love.gr
+jewels.awkwardmedia.ca
 jexvgc.levelupadventure.hu
 jfbrxii.enf90.app
 jfdewff.link
@@ -15175,6 +15196,7 @@ jonnienesimy.online
 jonnypickup.com
 joodwh.theroyalpizza.com
 jorgealderete.com
+jorgemachado.org
 jorjsrfgd.lion1bet.com
 jormed.de
 jortbrc.goldaling.com
@@ -16044,6 +16066,7 @@ korunder.com
 kosewkiogowqaoeo.xyz
 kosgukmymeuiwqua.xyz
 kosigsqigeqquciq.xyz
+kostastina.com
 kot.denzcodex.my.id
 kot.orilowa.com
 kotlowniemobilne.pl
@@ -17243,6 +17266,7 @@ loungelovers.io
 loureiru.lol
 louvree.abudhabe.info
 lovecasino.co
+lovecutessss.top
 lovefreephotos.us
 lovefromallareas.at
 loveloveinfo.xyz
@@ -17859,6 +17883,7 @@ marmiorobicl.it
 marmoteilefinance.com
 marodka.com
 marooncloister.info
+maroonlita.workers.dev
 marqueq.lol
 marquettedetailing.com
 marriottcompanies.com
@@ -19517,6 +19542,7 @@ neotcdk.7toralex.lat
 nerdybitches.com
 nero-ns-cdns.sbs
 neroc5j.dexor-host.in.net
+nerovouvalos.eu
 nerve-armore.com
 nerve2logicnet.axonetworkhub.garden
 nesplowell.com
@@ -22085,6 +22111,7 @@ pluyk.com
 plxxxru.elpatronrestaurantbar.com
 plyxcbx.wrfc8.com
 plzm.onjabet1.com
+pm3c7bwl.encompass-graphics.co.uk
 pm44.gotdns.ch
 pmaumei.1xgame.bet
 pmco-sa.com
@@ -22699,6 +22726,7 @@ pulsa188slot.co
 pulsasoft.com
 pulse-vol.com
 pulse.ashjunit.lat
+pulse.festival.mayapillot.fr
 pulse.fiverfle8ma.surf
 pulse.nexo5mir.lat
 pulse.novi7xel.surf
@@ -22981,6 +23009,7 @@ qenacromv.6oclocktrain.com
 qenkzpp.rika90.bet
 qeqnjdds.hugugmadani6.xyz
 qeqnt3ir.mapiedonuts.com
+qescoonlinebill.se
 qeshmbtc.com
 qestyevents.com
 qetbootstrap.com
@@ -23427,6 +23456,7 @@ r1dge2-stream.grove5s.garden
 r1iugua4.cloud-meridian.digital
 r1l.me
 r1oqxdev.abijacobs.co.uk
+r1ufabet.news
 r1wnbepa.life
 r20pgeh1.qlaneturnstiles.com
 r214gfd5.theslimsplitsmethod.com
@@ -23619,6 +23649,7 @@ rawdats.setting5hoo.lat
 rawdats.tavro6xel.lat
 rawdats.tavro8xel.surf
 rawdats.tavro9xel.lat
+rawegg123.duckdns.org
 rawfoodlife.com
 rawocav.com
 ray-id-v3.com
@@ -23626,6 +23657,7 @@ ray.brightsunray.lat
 ray2logicnet.quasargrid.bet
 ray2logicway.mero2beam.surf
 rayhostunit.sola8ven.bet
+raymondemi.ca
 rayonbet.com
 raypathbodycare.com
 raypathlink.xenonraypoint.garden
@@ -24860,6 +24892,7 @@ sagliklitarif.com
 sagressunstay.com
 sagsblog.telinduslab.lu
 sagxjkhp.solucionesintegralesgiraldo.com
+sahaaluminyum.com
 sahabet2023.xyz
 sahalexchange.com
 sahil.org
@@ -26598,6 +26631,7 @@ sshproserv.9doreval.pics
 sshproserv.infraworkspace.pics
 sshproserv.krat5urface.lat
 sshproserv.softnetworkset.pics
+sshussain.com
 ssieqaaiwiqoqiam.xyz
 ssiysqt.1xbet1farsi.com
 ssjscrybootstrup.beer
@@ -27804,6 +27838,7 @@ telemetry-nexus.digital
 telemetry-observability-core.wiki
 telemetry-orbit.buzz
 telemetry-orbit.digital
+telemetry-pipe.sh
 telemetry-relay.kartohaantoha36-6a9.workers.dev
 telemetry-sphere.digital
 telemetry-stream-core.courses
@@ -29684,6 +29719,7 @@ vaer-cdn-3.sbs
 vafcj.buborekjatszohaz.hu
 vagabondcosmetictoiletbags.co.uk
 vagvm.brssolar.hu
+vaiksed.ee
 vaillyharry9988.icu
 vailora231.life
 vajuremu.workers.dev
@@ -31592,6 +31628,7 @@ www.alubox.org
 www.alvesaraujo.com
 www.ambiopharmconsultingltd.com
 www.ambiopharmconsultingltdbackup.com
+www.ambizioneviaggi.com
 www.amfd83.fr
 www.ampaescolapalcam.com
 www.ampimex.in
@@ -31607,6 +31644,7 @@ www.appliancerookies.shop
 www.arlovsbygg.se
 www.artmostfear.co.za
 www.aryaxplorer.space
+www.asacor.com.ar
 www.assessoriabr.com
 www.associazionearches.it
 www.atgairport.com
@@ -31721,6 +31759,7 @@ www.contexception.com
 www.continuumclothing.com
 www.contractor.click
 www.contratoscliente.online
+www.coonfiance.com.br
 www.corelaunchhj.click
 www.corterosantico.com
 www.cortig.net
@@ -32151,6 +32190,7 @@ www.publitour.be
 www.puddletownbookshop.co.uk
 www.pulsoinformativoguerrero.com
 www.pyjs.in
+www.qatestinglaboratories.com
 www.qdh71-y6j7vxgw046v4cvgga.live
 www.qianxinnbplus.xyz
 www.qkshhdjrbd.work
@@ -32183,6 +32223,7 @@ www.resourcebooks.net
 www.restaurant-leuehof.ch
 www.restogro.com
 www.rg82z9wtgt9b-m61p.cc
+www.riabitarelasardegna.it
 www.riccardogiovannipatriarca.it
 www.ridderkerkfm.nl
 www.riosflyttochstad.se
@@ -32210,6 +32251,7 @@ www.safedeliverylogistics.icu
 www.salesf0rce.club
 www.salome-energia.com
 www.salon-new.ru
+www.saludseguro.com
 www.salutpurwokerto.id
 www.samsilverman.com
 www.sardasolar.it
@@ -32246,6 +32288,7 @@ www.ski-snowboardvancouver.ca
 www.skrotpriser.com
 www.slidingdesk.com
 www.slo.ru
+www.smartchild.sk
 www.smartearningmethods.com
 www.sntautopart.co.th
 www.socio-antwerpen.be
@@ -32992,6 +33035,7 @@ yandexslot01.space
 yanepidor.mom
 yaniatbisb.duckdns.org
 yanisrea.hu
+yantratechzone.in
 yarrowalcove.net
 yarwba4c.greatcarprofessionalwindowtint.net
 yasbet.casino
@@ -34044,6 +34088,7 @@ zyuhgbux.hugugtejarat4.xyz
 zyuhz.wilhelmglobal.com
 zywnzrqf.prozhedownload.com
 zyzdto.storia-riferimenti.org
+zz-infratechniek.nl
 zzcg.bet90forward.win
 zzhjiutfakhcwqbeb.geigersjobs.com
 zzjrse.usen-pegasus.com
