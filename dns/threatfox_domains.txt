@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-26 22:12 CET
-# Eintraege: 34115
+# Aktualisiert: 2026-10-26 22:57 CET
+# Eintraege: 34121
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -256,6 +256,7 @@
 19.tcp.cpolar.top
 193-233-126-53.sslip.io
 193-233-82-248.sslip.io
+195.251.154.34.bc.googleusercontent.com
 19kiojm6.us-thetrumptoken.com
 19te57b3ft.workers.dev
 19uir4dz.grannygshemporium.com
@@ -6362,6 +6363,7 @@ ciec-cd.com
 cielohillsevents.com
 cilygv.missionlanereview.com
 cin3m2-frame.vex7lurin.in.net
+cinchcoalition.org
 cincycarpetcleaning.com
 cinderlake.cc
 cine2-path.nol7sirex.in.net
@@ -9021,6 +9023,7 @@ e5wy6a5o.oncloudllc.com.mx
 e5xwaq5b.en-us-men-balancepro.com
 e6ce6uwg.bingobet90.com
 e6q3vpkqpqjnerdtseb5wkgmuluqfsluu2sgwjghtrlf2u2pzybrlzid.onion
+e711setfue.workers.dev
 e75usda.lena3qit.lat
 e784kfx8.shop-powerbite.us
 e7a6zgqfijn2ko6lzkz53tysjpnf22fxj4h2f3saufrmsts5pbul5eid.onion
@@ -14122,6 +14125,7 @@ iloveholland.com
 ilovemonney.com
 ilovetobe.com
 iloveuevenifudontlovemeback.is
+ilovevirginiabeer.com
 iloveyoulucid.space
 iloveyourweewee.bz
 ilovusaverivy.com
@@ -20251,6 +20255,7 @@ nswofmyl.site-shartbandi-50toman.com
 nsx1-7f7aa-default-rtdb.asia-southeast1.firebasedatabase.app
 nsx1-7f7aa.firebasestorage.app
 nsz2gpgw.iaap2019.com
+nt5kwuux.paars.poker
 ntdnewtds.shop
 ntds.shop
 ntegm9h9.varzeshlife.ir
@@ -31740,6 +31745,7 @@ www.capital8finance.co.uk
 www.carolinabiscaro.net
 www.carolinanavascobo.com
 www.cbcleib.com
+www.cbl-wetterau.de
 www.cement-chemistry.com
 www.chabdullah.com
 www.changeperformingarts.com
