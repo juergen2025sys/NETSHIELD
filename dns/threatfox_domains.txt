@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-27 06:24 CET
-# Eintraege: 33885
+# Aktualisiert: 2026-10-27 06:54 CET
+# Eintraege: 33904
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -6408,6 +6408,7 @@ classgum.com
 classicartindia.com
 claud-computing.net
 claud-new-tools591.pages.dev
+claude-desk-code.com
 claude-docs.org
 claudecode.li
 claudedesktop-llm.gitlab.io
@@ -7011,6 +7012,7 @@ copperlodestar.info
 copperreliquary.info
 coppertrack.cfd
 coppkbr.ru
+copseandonyx.com
 copysofort.org
 cor38-loop.7lorexan.surf
 coral-forge-beacon-glioen.live
@@ -10504,6 +10506,7 @@ fencescapeinc.com
 fendqt.lifealigned.hu
 fenesc.com.br
 fenixsegurancaesaude.com
+fennelcanticle.co
 fepez.run
 fer1.duckdns.org
 feralhendown.xyz
@@ -10641,6 +10644,7 @@ finalexpenseinfo.net
 financiales-groupe.com
 financiallywellorganised.com
 finansial.berandaperistiwa.com
+finatic.1stcontent.co.za
 finbooks.ca
 fincheck.site
 fincloudsolution.com
@@ -11048,6 +11052,7 @@ fpbgrevs.betpublic.casino
 fpbmngh4.fira6dox.lat
 fpcdkqee.mobilebusinesscompany.com
 fphhkiyz.betforward.download
+fpikiogankomeringilir.store
 fpinmobiliaria.com.ar
 fpk81nyo.thevallartasrestaurants.com
 fplsoznh.brian-mcdermott.com
@@ -11452,6 +11457,7 @@ g9epkl53.site-asli-bedon-filter-1xbet.com
 g9l6s9w5.greenestreetchurch.com
 g9lo26em.shartland.com
 ga.adwgamestore.org
+ga5.uk
 ga888vn.ru.com
 gaaeacuogsywmiue.xyz
 gaagkgwmciyykqeu.xyz
@@ -12171,6 +12177,7 @@ gmn.kijangturbo88.top
 gmn.paptogel.net
 gmokdazc.aapartman.hu
 gmoq.jasper-automotives.com
+gmpxaidwv4cw7o2uvkrxpwnxk5esflzv2l3lm4lvpypu56bigr4n4nad.onion
 gmsjsk15.salpizzasewell.com
 gmt-net.com
 gmtn.net.id
@@ -12553,6 +12560,7 @@ growthmagnet.world
 growthmoneyvault.com
 grrab.cannatural.cz
 grrojyt.sm188login.cyou
+grs-50-250.ru
 gruaspresidente.com
 gruendlers.com.tr
 grupa-bgm.pl
@@ -12880,6 +12888,7 @@ haoriskdk839ska.com
 happydeliveryllc.com
 happydragonchinesebistro.com
 happyhealthyhomebody.com
+happylens-co.crosswalkfund.com
 happyslot88pg.co
 happytugsmassage.com
 hapvidaonline.com.br
@@ -16296,6 +16305,7 @@ lahtbx.shop-digestistart.com
 laicaishuli.com
 lajevoja.workers.dev
 lajt.com
+lake-90.com
 lake.wildfirelake.lat
 lakefayettervpark.com
 lakerealestatetn.com
@@ -17390,6 +17400,7 @@ lxxlxxnew.noip.at
 lxyapp.top
 lxzwf4qm.samanthadefalco.com
 ly1p.mixruby.life
+ly9f8v40.fpikiogankomeringilir.store
 lyandalynnhaupt.com
 lyapissvebechkopassword.wiki
 lydbvsp.shop-mochalean.com
@@ -17648,6 +17659,7 @@ makhaniwelfare.com
 makoyqkeciyueoea.xyz
 maksysiceoiiqssa.xyz
 malamutestudio.com
+malditopiano.com
 maldivescasinoguides.com
 malekos.pro
 malekras.pro
@@ -18118,6 +18130,7 @@ mesh0-sheet.thorni9ra.bet
 meshcore.courses
 meshpedia.com
 mesin-gacor.com
+mesoncord.com
 message.uljhs.workers.dev
 mestizo.co.com
 meta-0bse.thora5ven.bet
@@ -19520,6 +19533,7 @@ network-security-ops-flow-base.wiki
 network-vector.digital
 network000.ddns.net
 networkness.com
+networkservicesupp.flashhub.net
 networksolutionson.sbs
 neumanab.se
 neural-atlas-code-flat.courses
@@ -24633,6 +24647,7 @@ s1txlndg.forbiddenpantsshop.com
 s1x30duk.spirosnet.com
 s2a87q6s.www-cardioslim.com
 s2aqpx7u.succeswithpaul.com
+s2bhhyxu.sleavepiker.com
 s33mon3y.noip.at
 s35umghu.basketballiran.bet
 s3fg6ji1.usen-burnflow.com
@@ -25166,6 +25181,7 @@ serve0.omega-fabric41.lol
 serven8on.dis9ualescapes.bet
 server.activeworkshops.com
 server.fbsecurity.net
+server.tocher33.online
 server.us.org
 serverless-mesh-core-yet-go.garden
 serverless-mesh-core.courses
@@ -25696,6 +25712,7 @@ sky1ine.digital
 sky4meshnode.neto7cloud.surf
 sky88.builders
 sky9siteview.zenithnode.bet
+skyepeptides-us.com
 skygatewholesale.net
 skyhills.in
 skynet-i.asuscomm.com
@@ -27298,6 +27315,7 @@ t.88mdc.org
 t.99rtp.net
 t.9winn.org
 t.aww88.net
+t.ayu99.pro
 t.shakesnap.net
 t.vwgze.workers.dev
 t0902rv3jt.workers.dev
@@ -30430,6 +30448,7 @@ vxxyant.family-man.surf
 vy2f0f2a.josephmichaelnh.com
 vye296vc.us-en-morningcoffeeritual.com
 vygjdt.trustcsbs.com
+vyhaci.workers.dev
 vykzqwol.gamefarma.com
 vyqili.workers.dev
 vysqdcm6.sportday.ir
