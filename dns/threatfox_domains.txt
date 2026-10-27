@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-27 01:00 CET
-# Eintraege: 34130
+# Aktualisiert: 2026-10-27 01:51 CET
+# Eintraege: 34132
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2290,6 +2290,7 @@ airco-thuis.nl
 airflow-cooling.fr
 airlinesapp.net
 airlinesreservationsonline.com
+airport-homes.com
 airstatus.live
 airuhuo.xyz
 airy.brightflowsite.lat
@@ -20781,6 +20782,7 @@ onelitteday.com
 onelivemusicshop.com
 onemusic24.com
 onemusicllc.com
+onepage-basic.hoverdroids.com
 onepay114.top
 onepay138.top
 onepay146.top
