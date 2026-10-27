@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-27 08:14 CET
-# Eintraege: 33915
+# Aktualisiert: 2026-10-27 10:20 CET
+# Eintraege: 33941
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -326,6 +326,7 @@
 1p6kkehfjfb2s.net
 1pbwy4ua.yellohotelsharmoni.com
 1profitdeal.com
+1q4l6c52.georgelounge.bar
 1qe4ncxx.runtime-forge.digital
 1qmi6vxn.hesabdarinoravesh.xyz
 1qvrznky.runtimebeacon.top
@@ -1635,6 +1636,7 @@
 9bfndx1c.eng--theeloncode.com
 9blb0qgz.emanuellejaques.com
 9bpjfhp7.ass-ecuadorian.digital
+9c0v693y.epexecutivecoaching.com
 9c10grb3.monopolisgame.com
 9c1qnwgg.usen-synadentix.com
 9c8joror.melbetir.app
@@ -1665,6 +1667,7 @@
 9lxp680a.jetshart.net
 9mb8413h.pleasuredome.hu
 9moh1wwq.homepowershield.us
+9mqqy4xsot.workers.dev
 9mqzhu71.sainidigirocket.com
 9mrz5b66.shop-dentalprime.com
 9na5plvp.twilightlexiconblog.com
@@ -8073,6 +8076,7 @@ devbox.technoglobalnet.lat
 devcisco.com
 devcloudpro.com
 devcon.cd
+developer.sandmark.com
 development.leandro.st
 deviceauth-code.us.com
 devicehubcloud.com
@@ -12355,6 +12359,7 @@ gothic-cathedral-blueprint.garden
 gothic-vault-engineering.garden
 gothiccathedralblueprint.digital
 goto.followfromapps.icu
+gotomuhammed.hopto.org
 gotroops.online
 gotynotbag.cc
 gou.xiaogoubi.top
@@ -14512,6 +14517,7 @@ iruledolical.org
 irvineinteriordesigner.com
 irwinchevy.com
 irxbetkade.com
+is.adwgamestore.org
 is1e-leaf.zom7lirex.in.net
 is34r2fh.marc90bet.com
 is79oi37.en-us-glucotrustt-bites.com
@@ -16556,6 +16562,7 @@ lebang.si
 leceramicheotranto.it
 leconomie.re
 leconto.lol
+lecormanon.ch
 lectricelfuel.com
 ledele.de
 ledesla.cfd
@@ -16617,6 +16624,7 @@ lestyanesfiai.hu
 leswap.store
 letaryzipthone.ddns.net
 letgapfixit.com
+letisserin.org
 letmeliveit.com
 letsgomakemoneyoncaptcha.beer
 lette-logic.to6varil.in.net
@@ -17619,6 +17627,7 @@ mail.ekx.mya.mybluehost.me
 mail.freetrend.cc
 mail.iaa-airferight.com
 mail.mailban.pics
+mail.merchantinvestnetwork.com
 mail.nemail.co
 mail.novaform.cc
 mail.outlook-office365.com
@@ -18104,6 +18113,7 @@ mercator-gymnasium.de
 mercedez-bens.com
 merch.b-bot.space
 merchantdude.com
+merchantinvestnetwork.com
 mercio.org
 mercore0or.mistbr1a.garden
 mercore7is.velorix.life
@@ -18845,6 +18855,7 @@ moonbeamfiber.digital
 moonglide.monster
 moonglobaliteemecool.mom
 moonshadowforge.top
+moonshts-vote.pro
 moonskyo.run
 moonstatemecool.biz
 moonvelvet.online
@@ -20259,6 +20270,7 @@ ny4tkjgp.us-en-morningcoffeeritual.com
 ny6047lj.beterbewegenmetyael.blog
 nyakurohana.shop
 nyakvcev.bunos.bet
+nyaralogondozo.hu
 nybul31609.workers.dev
 nycsocialsportsclub.com
 nyenf.kmmits.com
@@ -20934,6 +20946,7 @@ origin-ug.whatsplus.online
 origin-www.whatsplus.online
 orionplus.biz
 orionstrategyconsulting.org
+oritasinc.ca
 orjrdtyn.site-shartbandi-khareji.com
 orkapool.hu
 orlandodoorandglass.com
@@ -21080,6 +21093,7 @@ owccomauocwckocg.xyz
 owckawysgqiyiewi.xyz
 owcwkeeeyyqiqiao.xyz
 owedcphc.ravanshenakhti.shop
+owensfinancialconsulting.com
 owewkougwykuyiue.xyz
 owgowwowacygqsqg.xyz
 owgqcgcmyqyeykgg.xyz
@@ -21969,6 +21983,7 @@ playmeshnode.mist5qora.bet
 plbajth.tracytowingcompany.com
 ple21.poznan.pl
 pledgeschools.com.ng
+plenapack.com.br
 plencos.com
 plethorawallet.com
 plf7x.valci.store
@@ -22084,6 +22099,7 @@ polecy.cyou
 poles-wrinkle.digital
 polestennisplayer.digital
 policysync.pro
+polidil.gr
 polikov.hu
 politehnickasu.edu.rs
 polnet.lol
@@ -22179,6 +22195,7 @@ power-bank.in
 power-bran.jumping5table.surf
 power-jo.com
 power6f1sd.saltberk.surf
+power8protein.com
 powerfireguard.com
 powerflash64.duckdns.org
 powerflash64bk.duckdns.org
@@ -22278,6 +22295,7 @@ presidentialenterpriseservicesllc.com
 prestigesuperstores.com.ng
 pretunz.com
 prevcerta.com.br
+preview.salamacademy.edu.eg
 previnaodontologia.com.br
 prevoz-putnika.net
 prgfeg84.getdsm.com
@@ -22300,6 +22318,7 @@ primeglowunit.zenithflowgrid.garden
 primegrillmaster.com
 primemobilelv.com
 primeproxy.sorix7el.lat
+primeringroad.com
 primes-online.com
 primescaffolding.com
 primofa.biz
@@ -22400,6 +22419,7 @@ project-msg510901kja.pages.dev
 project-stor51092.pages.dev
 project-usb392891.pages.dev
 project.pm
+project7.thedivineprojecthouse.co.za
 projectbook.org
 projet-artisan.com
 projitkar.digital
@@ -22470,6 +22490,7 @@ proxy-stream.christmas
 proxy-us-east000-cip7.ahrefs.net
 proxy-us-east002-cip2.ahrefs.net
 proxy-us-east002-cip8.ahrefs.net
+proxy-us-east005-cip15.ahrefs.net
 proxy-us-east007-cip3.ahrefs.net
 proxy-us-east008-cip13.ahrefs.net
 proxy-us-east009-cip9.ahrefs.net
@@ -24308,6 +24329,7 @@ rqwanh.gyulaicsevego.hu
 rqwkms23.anodaz.store
 rqz74grh.home-power-shield.com
 rqziwtbf.truenarrator.com
+rr4i84gmpc.workers.dev
 rrbc.betpublic.casino
 rrfljnpj.site-takhtenard-sharti-betland.com
 rritelh.one1xbet.net
@@ -31858,6 +31880,7 @@ www.larmentybadup.com
 www.lasquinceletras.es
 www.laviadelluno.com
 www.ldglabs.com
+www.lecormanon.ch
 www.lectioz.com
 www.lemargouillat.fr
 www.lemasdoha.com
@@ -31937,6 +31960,7 @@ www.mvgl1ne40s65srdtnlc.info
 www.mylanguageteam.com
 www.myleadsgen.co
 www.mysticlink.com
+www.namathejaljawdah.com
 www.narodoboronprom.org
 www.naturalstone.store
 www.navalandmaritimebooks.com
@@ -32342,6 +32366,7 @@ x-trane.com
 x.abc22.org
 x.acunbet89.org
 x.ajo7.org
+x.ayu99.pro
 x.btwpayme.top
 x.eltofeq.com
 x089w0f5.btyek.boats
@@ -32758,6 +32783,7 @@ xwnfpj7t.betrein.pro
 xwnmveu.echoxenweb.us
 xwpw.vexon6ar.lat
 xwsub.cincv.group
+xwszdkj.com
 xwtwlrkc.masaelmohandesi.xyz
 xwuuj.juragansolar.info
 xwwitjs.rayonbet.com
