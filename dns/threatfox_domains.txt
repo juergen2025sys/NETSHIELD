@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-27 11:47 CET
-# Eintraege: 33949
+# Aktualisiert: 2026-10-27 14:11 CET
+# Eintraege: 33958
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -180,6 +180,7 @@
 123betyek.com
 124.222.229.8.bc.googleusercontent.com
 124merton.com
+129.53.18.34.bc.googleusercontent.com
 12cscmg1.enus-tupitea.com
 12jzlr7i.boano.store
 12startups.de
@@ -841,6 +842,7 @@
 4c6add69.icu
 4c6b9766.linuxfortravelers.com
 4cfyhd61.fagaheestedlali.xyz
+4ck8ubdi.warmwaffles.com
 4clablx7.wisma138chiori.net
 4ct1ve-point.klatren.lat
 4ctohaaw.roseanne.id
@@ -1990,6 +1992,7 @@ actmimo.aftabsport.ir
 actual.msdos.ru
 acu1ajv0.irxbetkade.com
 acuksqoyyqacyqya.xyz
+acumenvaluers.co.ke
 acuon.bni-ai.com
 acusoiwwwqcaaqwk.xyz
 acuwicecgicucucu.xyz
@@ -7129,6 +7132,7 @@ cpanel.sbkollel.org
 cpantalonesnegro.store
 cpclyyro.hugugtejarat4.xyz
 cpcontacts.20-102-99-149.cprapid.com
+cpdt5fagtd.workers.dev
 cpnazr.braindefendere.com
 cpnisnik.bearriverchiropractic.com
 cppeh.spacedecorideas.com
@@ -20538,6 +20542,7 @@ oisapmtg.sanjeshvaandazegiri.shop
 oitavwl.dusanperisicmd.com
 oixkxhga.qen2virex.lat
 oiyksxf.vexon3ar.surf
+oj.aeon888link.org
 oj7f87i3.radioshartbandi.casino
 ojblxlua.hugugtejarat4.xyz
 ojbprh.krokodilpince.hu
@@ -22498,6 +22503,7 @@ proxy-us-east000-cip7.ahrefs.net
 proxy-us-east002-cip2.ahrefs.net
 proxy-us-east002-cip8.ahrefs.net
 proxy-us-east005-cip15.ahrefs.net
+proxy-us-east007-cip16.ahrefs.net
 proxy-us-east007-cip3.ahrefs.net
 proxy-us-east008-cip13.ahrefs.net
 proxy-us-east009-cip9.ahrefs.net
@@ -23267,6 +23273,7 @@ quqr.keymedconsulting.com
 qusetagent.com
 quskeqkeuackaoeu.xyz
 qusqucwciquecscu.xyz
+qutql88386.workers.dev
 quuckumwmyyiioma.xyz
 quuikiecgwuseqai.xyz
 quuos.optikusom.hu
@@ -25839,6 +25846,7 @@ slotgacor4d.icu
 slotgalaxy.life
 slotmacau188ab.sbs
 slotmacau188q.hair
+slotsensi138.org
 slotsvaderr.org
 slotteds.org
 slotwallet777.co
@@ -29518,6 +29526,7 @@ v-log902.tari8lax.surf
 v-vill.hu
 v.abc69.net
 v.aww88.net
+v.ayu99.pro
 v.getpi.su
 v01.88bravo.com
 v0a4ke9x.www-metabodrops.us
