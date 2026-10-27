@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-27 22:56 CET
-# Eintraege: 34024
+# Aktualisiert: 2026-10-27 23:58 CET
+# Eintraege: 34033
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -488,6 +488,7 @@
 26ua1zzb0204268s.cfd
 26v6dh2m.warmwaffles.com
 26z3gms2rshr2zzedxhw5fbucilmgt2inhmxzmuhteyztpxohoqplgyd.onion
+27.99.233.35.bc.googleusercontent.com
 2718gc20.seresniki.com
 2766iljo.melbetiran.poker
 2784kns.kernelgrid.ink
@@ -2564,6 +2565,7 @@ amaniza.com
 amarelinhastore.online
 amarszalek.net
 amavelle.online
+amaze.printedsimply.com
 amazingschool.co.ao
 amazom.my
 amazon-cz.com
@@ -11350,6 +11352,7 @@ fudupdate.com
 fujizego.workers.dev
 fujxga.fluss.hu
 fukyfket.bekabet.casino
+fulajesy.workers.dev
 fulfreeswd.xyz
 full-brown.com
 full-room4.kymle5rax.in.net
@@ -11592,6 +11595,7 @@ gardenprocessinghub.garden
 gardenresourcecontroller.garden
 gardenworkflowcenter.garden
 gardoone-shans-pool.com
+gargiulobuilders.com
 gargona-music-prizdec.asia
 garnetmill.cc
 garowy.workers.dev
@@ -11927,6 +11931,7 @@ gfwbeo2g.7lf.net
 gfwcy7xf.subdermalbiometricchip.digital
 gg88.hevymotors.in
 gg88.yellowred.in
+gg8gdk7e.sleavepiker.com
 ggagehbk.jadoobet.xyz
 ggaicciaoygoagio.xyz
 ggao4r0b.omars.store
@@ -13937,6 +13942,7 @@ ieqgmgywewecmaco.xyz
 ieqqusaugaoygmui.xyz
 iesandresperezserrano.org
 iesicoieqkwwkyas.xyz
+iesolajara.es
 iesuegoaiwmwuccs.xyz
 iesyyacakggqgkyo.xyz
 iewaiaeicgsyqscm.xyz
@@ -15408,6 +15414,7 @@ k1h.hopesm188.top
 k25qo8xh.fungame777.co
 k29f.vexa7lorn.bet
 k2bs9h2k.proxy-horizon.digital
+k2im6qzv.warmwaffles.com
 k2rf8oi3.energedia.com
 k35xtdfx.us-en-us-heroup.com
 k3mikejobong.com
@@ -30626,6 +30633,7 @@ wagosinga.ydns.eu
 wagxbxx.ac90bet.net
 waho-apps.com
 wahoceky.workers.dev
+wahyutehnikutama.com
 waihzc.phoenixdistnc.com
 waikipizzabar.com
 wailciry9911.icu
@@ -31532,6 +31540,7 @@ www.airessinfronteras.com
 www.aitooling.ru
 www.aj-vxvadzcbs26gxz.org
 www.alad1.com
+www.alessandrofamiani.it
 www.alfapetroluems.com
 www.algherobudget.com
 www.algranati.it
