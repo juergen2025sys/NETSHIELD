@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-27 00:02 CET
-# Eintraege: 34124
+# Aktualisiert: 2026-10-27 01:00 CET
+# Eintraege: 34130
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -11535,6 +11535,7 @@ g98546cg.beget.tech
 g9epkl53.site-asli-bedon-filter-1xbet.com
 g9l6s9w5.greenestreetchurch.com
 g9lo26em.shartland.com
+ga.adwgamestore.org
 ga888vn.ru.com
 gaaeacuogsywmiue.xyz
 gaagkgwmciyykqeu.xyz
@@ -12395,6 +12396,7 @@ google-proxy-66-249-93-35.google.com
 google-proxy-66-249-93-41.google.com
 google-proxy-74-125-212-162.google.com
 google-proxy-74-125-212-168.google.com
+google-proxy-74-125-212-169.google.com
 google-proxy-74-125-212-170.google.com
 google.dns-1.help
 google2oauth.com
@@ -13116,6 +13118,7 @@ health.winnererasable.cc
 health0.pinetile86.click
 healthcareqai.com
 healthcoveragepolicy.com
+healthyhomespartners.com
 healthyjeart.com
 healthyyou.world
 heap-lawcert.christmas
@@ -17762,6 +17765,7 @@ maison-s.it
 maisonatelier.live
 maisonhildegarde.fr
 majalaganja.cc
+majastee.com
 major-pur.adi8hesplayer.pics
 majordubai.com
 mak-intl.com
@@ -19684,6 +19688,7 @@ new-projection.zelenie.info
 new-rabby.at
 new-rabby.gr.com
 new.amadehlaziz.com
+new.blagovmr.ru
 new.decorhome.kz
 new.srdvrbas.ba
 new.sunstonewell.info
@@ -31731,6 +31736,7 @@ www.bsv-rehden.de
 www.btgrealestateenterprises.com
 www.build-graphic.com
 www.burb.space
+www.businessdevelopmentgermany.com
 www.butra.pl
 www.buymycar.de
 www.byasa.com.mx
