@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-27 19:52 CET
-# Eintraege: 34001
+# Aktualisiert: 2026-10-27 21:58 CET
+# Eintraege: 34014
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -711,6 +711,7 @@
 3i5px2hibsyityv6jixnqba35yz25jekbwwumjdxjqzt3euqsygjx5id.onion
 3i8e3aty.ef90bet.com
 3igbupne.eng-bpzone.com
+3imyvvfh.slavyera.com
 3ivn3wjq.eastcoastseafoodsupply.com
 3jcnvfi5.thelogicofmoney.com
 3jf88h.th0rniva.garden
@@ -5207,6 +5208,7 @@ brhwmjkk.frost-engine.christmas
 briarvelarium.top
 bridge-schema.com
 bridge.garden-pixel.one
+bridge73.com
 bridgeimpex.net
 bridgevita.com
 bridgewaterskateboarding.com
@@ -6290,6 +6292,7 @@ chocolaterie-gayraud.live
 choicerescreening.com
 chor-baddeckenstedt.de
 chordapple.com
+chrgasa.org
 chrisbrowndetroit.com
 chrislandmodel.com
 chrismooneysingh.com
@@ -17710,6 +17713,7 @@ maletoks.pro
 maletosr.world
 maljuraishi.com
 mallaak.mom
+malo-coaching.ch
 maloke.pro
 maloneyr.cyou
 malrok.com
@@ -18716,6 +18720,7 @@ moielli.xyz
 moisca.com
 moitruongdothi.com.vn
 moitruonglamvien.com
+mojije.workers.dev
 mojsgrupa.pl
 mojtabaabbasi.com
 mokatebatedari.xyz
@@ -21204,6 +21209,7 @@ p.2137gang.pl
 p.2137gang.shop
 p.2137gang.st
 p.2137gang.store
+p.bala7.org
 p.thelayzf.fyi
 p0d2virz.blackjacktipsnnt.com
 p0fc8ejw.us-en-us-synaboost.com
@@ -26667,6 +26673,7 @@ stage6.stillpath8.one
 stagesteril.pax4moren.in.net
 staging.detectors-shop.com
 staging.lisadegen.de
+staging.physiciansforpeace.ph
 stagjunkremoval.com
 stagneswv.org
 stakcl.com
@@ -28502,6 +28509,7 @@ tree.greenforesthub.lat
 tree.greenlogiclab.lat
 tree.terraview.surf
 treify.top
+trejosroofing.com
 trejzg.femeso.hu
 trekkernel4.com
 trekmesh15.com
@@ -28633,6 +28641,7 @@ tsdezjb.gregoryschreiercabinetmaker.com
 tsexoxslh.nextbahis.free
 tsfrecords.com
 tsluzklz6uhkbm1.top
+tsm.norstrilia.net
 tsmdw.lelekszepsegstudio.hu
 tsnjsimoo.en-us-en-eloncode.com
 tspdegr.askvava.com
@@ -28796,6 +28805,7 @@ tzcy9ec8.onjabet1.com
 tziuge.bp-zone.us
 tzmwem2q.usa-slimsounds.com
 tzpfztp.90bet.org
+tzps.pl
 tzpx.courses
 tzqmbji.great-insue.pics
 tztgw.impactpromotionsclt.com
@@ -29616,6 +29626,7 @@ v6o8c9xi.mrbet90.com
 v6pggtfljylf5cekfssrdhcyaxsk6m5xoudrqnvskw73iueyvaexsnad.onion
 v6sjo9pv.omec.store
 v7jry8na.roxymigurdia.wiki
+v8.aeon888link.org
 v8dkk3.braveclo.bet
 v8xihekm.ramzfile.com
 v91rw911.betraca.bet
@@ -30609,6 +30620,7 @@ wagonsummi.7lorexan.surf
 wagosinga.ydns.eu
 wagxbxx.ac90bet.net
 waho-apps.com
+wahoceky.workers.dev
 waihzc.phoenixdistnc.com
 waikipizzabar.com
 wailciry9911.icu
@@ -32584,6 +32596,7 @@ xghc222o.amanahmaka.com
 xglycuye.tarikhcheravanshenasi.xyz
 xgu7k53h.economywindowsparts.com
 xh2vawpt.little-spoken.digital
+xh8tunnv.paars.poker
 xhbgt.nextbahis.blog
 xhbmcyyao.adsbln1.xyz
 xhfecr.jamjahani2026.football
