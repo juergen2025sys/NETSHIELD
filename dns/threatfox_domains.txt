@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-27 02:47 CET
-# Eintraege: 33854
+# Aktualisiert: 2026-10-27 06:24 CET
+# Eintraege: 33885
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -157,6 +157,7 @@
 0zrbstse.tiptop-shops.com
 1.kurama.ltd
 1.outofsitechicago.com
+1.win-faw.win
 102z512uqjl6m.xyz
 108.199.58.34.bc.googleusercontent.com
 108h764sg7npw.xyz
@@ -3363,6 +3364,7 @@ asiudasoidu.90g90.com
 ask.shurimaster.com
 askgeoffrey.ai
 askglobalbiz.com
+askhr.ch
 aslelectronic.ir
 aslidomino.pro
 asltel.com
@@ -3785,6 +3787,7 @@ b.9-9-8.com
 b.acrobatreader.online
 b.adobepdf
 b.adobepdf.cc
+b.ayu99.pro
 b.worldpress.biz
 b031beafd8f3.net
 b0gkye8f.nou-sauvage.pro
@@ -5861,6 +5864,7 @@ catground1957.casacam.net
 catita.shop
 catloverzz.club
 catoregon.org
+catsport.it
 caudzzwo.coop-fresh.com
 cauterizespray.icu
 cavbp.zaszlorudbolt.hu
@@ -6039,6 +6043,7 @@ centraldelancamento.com
 centralflgaragedoors.com
 centralfloridapowerwash.com
 centre-dentaire-levallois-carnot.fr
+centrealestetic.com
 centricwebsolutions.com
 centrodediabetescuritiba.com.br
 centroempresasfamiliares.com
@@ -6300,6 +6305,7 @@ cia-churchinaction.org
 ciabjdb.mav8loren.lat
 ciao.nu
 ciborin.shop
+cibvm07837.workers.dev
 ciccarelligelato.co.uk
 cie-felicettechazerand.be
 ciec-cd.com
@@ -6481,7 +6487,9 @@ climatecertifications.com
 climatechangeinitiative.org
 climatereparations.com
 clinicadentistica.com
+clinicadivinoninojesus.org.pe
 clinicasenise.com.br
+clinicavetcenter.com.br
 cliniquetoulal.com
 clinkscalesdrugssc.com
 clintonhvacandplumbing.com
@@ -6730,6 +6738,7 @@ codeframe.wiki
 codemeshsite.cryptosyncflow.bet
 codepit-rized-denengine.garden
 coder-logic-vault.courses
+codes.caffe-img.com
 codeverificatrorcl.info
 codeviewer-fawn.vercel.app
 codeviewer-three.vercel.app
@@ -6918,6 +6927,7 @@ consizac.pe
 console.plan-stack2.click
 consorzioaion.net
 constantiashul.co.za
+constructoraags.com.do
 consultaant.uk
 consultenotafiscal.lat
 consumerclaimshelpline.co.uk
@@ -7500,6 +7510,7 @@ d0658smb.gamelandiran.ir
 d0c2wgj1.pczrt.hu
 d0jft8en.gtacauto.com
 d1jtbg8r.node-matrix.digital
+d1muwuka.frameless1.shop
 d1zih0uv.en-us-zen-sulin.com
 d2.googleos-js.vip
 d29u9g6c.betfire90.bet
@@ -7783,6 +7794,7 @@ dbndtif.crownconnectpk.com
 dbnnsjv.mangobetfarsi.com
 dbodpo.nextbahis.blog
 dbomd.famscargo.com
+dbperformance.com
 dbpw.cn.com
 dbs-service.org.uk
 dbswholesale.lk
@@ -7843,6 +7855,7 @@ debloatex.com
 debug.pingload.cc
 debug.windowsdiagnostics.st
 debugshy-fansync.cyou
+dec-llc.net
 dec15coma.com
 dec15coma.xyz
 decennale-pro.fr
@@ -7991,6 +8004,7 @@ designphotoshop.ir
 desireedanceworld.com
 desk-sensor-tabel-tunnel-key.wiki
 desluisautos.nl
+despina.ph
 destek1.com.tr
 destinkol.lol
 desvendandoreceitas.com.br
@@ -9535,6 +9549,7 @@ encoderfreight.daro6vex.lat
 encompass-graphics.co.uk
 encorevault.live
 encryption5hadow.digital
+encuentrocofrade.oracionlebrija.es
 endlessai.io
 endlesssummer-pools.com
 endomarketingbrasil.com
@@ -9765,6 +9780,7 @@ epexecutivecoaching.it.com
 epgdevelopment.com
 epicglobalgroup.net
 epicly.digital
+epicskater.com
 epimdev.com
 epltd3ga.kkslot777.asia
 eplusarchitecture.com.au
@@ -11067,6 +11083,7 @@ frame-facet.com
 frame-kite.com
 frame97.com
 framehostunit.focallensview.garden
+frameless1.shop
 framesavecloudjs.beer
 framesi.com
 framework-css-styles-js.beer
@@ -12548,6 +12565,7 @@ grupostelegrambrasil.com
 grupotesac.com
 grvzzd.templeofazrael.org
 gs1044.life
+gs4t5c3u.worknernorgram.rest
 gs870sms.nuerovera.com
 gs8istwl.en-usa-sugarmute.us
 gsave.yanisrea.hu
@@ -12636,6 +12654,7 @@ guonv3yxlb5t7mptz2cwxsqrsnmsocrufkz3z3nvuv45h66submxe4yd.onion
 guqimquoyqueqquk.xyz
 gurra-pdsh.org
 gusakccgyqogeass.xyz
+gusate.workers.dev
 gusgiaagmgoamioq.xyz
 gusgkwuwsgqkeeoq.xyz
 gushchina-kriz.digital
@@ -13493,6 +13512,7 @@ hp.333vip.org
 hp.3toto.com
 hp.citadelsquishyhumvee.in.net
 hp.tailc223d4.ts.net
+hp3zguzu.forgestudios.co
 hpbbvnz.get-goldalign.com
 hpdhfc.merit-uk.co.uk
 hpihyg.marathoncrane.com
@@ -16564,6 +16584,7 @@ lensaberita.biz.id
 lenshostunit.mero2beam.surf
 lenteam.beer
 lentesdecontatoecia.com.br
+lenuce.workers.dev
 leo.longwave5hot.surf
 leo88vn.vip
 leoconcepts.com
@@ -19242,6 +19263,7 @@ n9bv1oq5.proxy-orbit.digital
 n9gg9zga.wiskaoane.com
 n9gkcwto.byte-forge.digital
 na-cs.com
+na7y8y3cvn.workers.dev
 naamtravel.com.sg
 nabane.com.mx
 nachoiuiwe123.buzz
@@ -20252,6 +20274,7 @@ nztdbnij.mabanishimi.xyz
 nzvutkh.eng-echoxen.us
 o.9qoi.org
 o.a9bet.org
+o.adwgamestore.org
 o.fecebbk.xyz
 o.peer4you.net
 o04h18rp.rsfoodproducts.com
@@ -22090,6 +22113,7 @@ port5pathgate.matrixhostbit.bet
 port9logicnet.mori9port.surf
 portablessd.site
 portal-idos.network
+portal.countypress9.lol
 portal.framerun.click
 portal.grandir.live
 portal.nifatualiza.com
@@ -24650,6 +24674,7 @@ sa.334v.org
 sa1-sharepoint.com
 sa129.saturn.dedi.server-hosting.expert
 sa1atik.cn
+sa508.saturn.dedi.server-hosting.expert
 sa888.bar
 saamhorigheidsfonds.nl
 saanvipeddi.com
@@ -31392,6 +31417,7 @@ www.allltrucks.com
 www.alturaxtrade.com
 www.alubox.org
 www.alvesaraujo.com
+www.amberblogs.au
 www.ambiopharmconsultingltd.com
 www.ambiopharmconsultingltdbackup.com
 www.ambizioneviaggi.com
@@ -31467,6 +31493,7 @@ www.boosterconseil.com
 www.borapraespanha.com
 www.bossleysportsclub.com.au
 www.bosslifesa.com
+www.bran.lol
 www.brandonbays.cz
 www.brandonhix.com
 www.brooklynbooks.us
@@ -31922,6 +31949,7 @@ www.orientspareb8tter.com
 www.osh9xntw0spl96bbe.org
 www.oskdel.pl
 www.osmb.net
+www.ots-training.com
 www.ov86ayb0fe4ep2b92-645o.com
 www.oxfordshirechilligarden.co.uk
 www.oxtu0ashinenj0.net
@@ -31940,6 +31968,7 @@ www.physiephoto.com.au
 www.pig-ex8motionq.com
 www.pinnacleradio-net.edmimwa.com
 www.pjedwards.net
+www.playasdealmeria.com
 www.pokerdom-kasinos-site.ru
 www.pokertalkshow.com
 www.polonez.org.au
@@ -32179,6 +32208,7 @@ www.vjrservizi.it
 www.vmcloans.com
 www.vmixzy.com
 www.vmware.rest
+www.vocalmedia.in
 www.vutjsf0sd9sdqt2rkzvgzv9a.org
 www.vvrs-info.be
 www.w4iunvbdvjof39q-3.net
@@ -32567,6 +32597,7 @@ xojeme.workers.dev
 xols-qojze.com
 xomsymkut.derbi.football
 xomvdxaa.red90.casino
+xopapuju.workers.dev
 xoqlqpdb.psgnewsiran.com
 xorados.com
 xorisapedophile.st
