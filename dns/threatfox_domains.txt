@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-27 17:48 CET
-# Eintraege: 33987
+# Aktualisiert: 2026-10-27 19:27 CET
+# Eintraege: 33996
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -10996,6 +10996,7 @@ foliclesalonandspa.com
 folksaroundtheworld.com
 folkunwary.digital
 followyourjoy.hu
+folysatu.workers.dev
 fond-sn.ru
 fontanayoga.com
 fontawesome-cdn.cfd
@@ -13783,6 +13784,7 @@ hzydyub.gutdrops-store.com
 hzyocvyc.en-us-slimsplits.com
 hzzgoxjvb.pdfbama.com
 i-mill.net
+i.bala7.org
 i.gckni.com
 i.peer4you.net
 i0bep9cj.medallionfoodsinctempura.com
@@ -27141,6 +27143,7 @@ sweetsavory.ca
 sweetserendipitybakeshop.com
 sweetvp.xyz
 sweyblidian.com
+swgnj9q0.mon-iam-espace-esa-lia.online
 swgraphic.com
 swgtcampus0101.duckdns.org
 swhbk.bohochal.hu
@@ -27463,6 +27466,7 @@ tahinhtfenwimi.com
 tahorataps.com
 tahory.workers.dev
 tahypi.workers.dev
+tailorexecutive.kastner.com.au
 tailwind-version-4.vercel.app
 tailwind-version-four.vercel.app
 taisunwin.bar
@@ -27741,6 +27745,7 @@ teiittoeg.com
 tekmart.uk
 telaviv.androiddebugbridge.su
 telefoonnummer-klantenservice.nl
+telegraphharp.com
 telehex1921.lol
 telehouse.com.pk
 telembank.com
@@ -27829,12 +27834,14 @@ test.adriance.workers.dev
 test.argsleg.pics
 test.desire-veratrum.surf
 test.dnslogger.site
+test.fbmeliquidation.com
 test.kilnteam35.click
 test.mcfind.workers.dev
 test.officeplustool.top
 test.omegafic.com
 test.txtensatorxgyt.xyz
 test3012.duckdns.org
+teste.atctecnologia.com.br
 teste.clarasampaio.com.br
 teste.m-firma.lat
 teste.ste-pdffiller.lat
@@ -27854,6 +27861,7 @@ tetra.mira2tal.surf
 tetra.oceanstormview.lat
 tetra.puro2tal.lat
 tetra.radiomop.lat
+tetrahedralflowers.com
 tettrans.com.br
 tetz.site-shartbandi-khareji.com
 texapelfabrics.com
@@ -28012,6 +28020,7 @@ thetruthaboutmercedes.com
 thetsm.in
 theultimateoutlet.com
 thevenueapartments.com
+thewashingtoninquirer.com
 thewebsitezone.com
 thewildbrow.com
 thewrayforward.com
