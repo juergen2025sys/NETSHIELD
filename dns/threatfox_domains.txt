@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-27 16:43 CET
-# Eintraege: 33966
+# Aktualisiert: 2026-10-27 17:48 CET
+# Eintraege: 33987
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2850,6 +2850,8 @@ ap7.supportly.au
 ap9nqrjc.jadoou.christmas
 apa0dv.nexa2vor.lat
 apabfs.icu
+apache-update.csproject.org
+apache-update.ddns.net
 apacheorg.wiki
 apartament-carlos.pl
 apartmentsmelbournedomain.com.au
@@ -3305,6 +3307,7 @@ arvand.co.com
 arvin78sh.com
 arvind567shahsh.com
 arvindkkumsh.com
+arvion.network
 arvosash.com
 arvujwijm.irani-music.com
 arwalsersh.com
@@ -6770,6 +6773,7 @@ coffeefrombrazil.monster
 coffeeincup.monster
 coffeemachinesservices.com
 coffeemarika.workers.dev
+coffeetocode.duckdns.org
 cogniclearplus.com
 cognigenpluss.com
 cogniserge.us
@@ -7545,6 +7549,7 @@ d3yac2xw.network-vector.digital
 d4-documentacion.lat
 d4.acrobatreader.online
 d4egwoud.prda303.vip
+d4izlyh1.thrivingchaos.com
 d4o2pqgk.tanyavondegurechaff.fit
 d4rk-array.col7ecapture.surf
 d4rk2-trail.lena3qit.lat
@@ -11043,6 +11048,7 @@ fortlinecargo.com
 forton-apiculteur-miel-provence.live
 fortuna-qwont.club
 fortwaynejubileebrontide.com
+fortwayneswoodfloorcleaner.com
 fortworthfarm.com
 fos41h2r.app8k.xyz
 fosasara.workers.dev
@@ -15505,6 +15511,7 @@ karouts3ustyer2.duckdns.org
 karouts3ustyer3.duckdns.org
 karouts3ustyer4.duckdns.org
 karouts3ustyer5.duckdns.org
+karpikgnc.com.ar
 karrotrec-eli.com
 kartekendustri.com.tr
 kartuli.fr
@@ -16258,6 +16265,7 @@ l41kcmrpq6l1b29.top
 l4cbc1408255.cfd
 l4czf8jy.bahiscom2023.online
 l4tt1c-index.greenbloom.garden
+l5.aeon888link.org
 l561if8k.capitol303.vip
 l63gj1o5.bahisbiz.com
 l6lv36qw.estradaannivers.digital
@@ -16604,6 +16612,7 @@ legitmobile.monster
 lehvez.peacockhomes.net
 leitingvpn.space
 leketu.workers.dev
+lekkie.przesuniecie.pl
 lelddwob.en-bizopp.com
 leleurch.org
 lemargouillat.fr
@@ -18055,6 +18064,7 @@ meeting.joinzooms.com
 meetione.top
 meetme.norvina.cfd
 meetson365work.cfd
+megakefir.duckdns.org
 megamegalodon.click
 megamixindustria.com.br
 megaparivip.com
@@ -20025,6 +20035,7 @@ noveuam.top
 now-we-wait.com
 nowdigitaltalent.com
 nowhere-locked-manor-hs.trycloudflare.com
+nowyro.workers.dev
 nozeunl.xfgautoparts.com
 npa8g2x5.cozmo90bet.com
 npamoney.com
@@ -22508,6 +22519,7 @@ proxy-stream.christmas
 proxy-us-east000-cip7.ahrefs.net
 proxy-us-east002-cip2.ahrefs.net
 proxy-us-east002-cip8.ahrefs.net
+proxy-us-east004-cip9.ahrefs.net
 proxy-us-east005-cip15.ahrefs.net
 proxy-us-east007-cip16.ahrefs.net
 proxy-us-east007-cip3.ahrefs.net
@@ -22667,6 +22679,7 @@ pulseroot.dark-salittle.bet
 pulsge.biz
 pulsoinformativoguerrero.com
 pulumur-haber.cyou
+pumicebarrow.info
 punalu.com
 punitbalangroup.com
 punjabclick.com
@@ -23120,6 +23133,7 @@ qsak.snydersflowershop.com
 qsbkuna.ecryptobits.com
 qsbsd.sadreislam.xyz
 qselq.jadoou.lat
+qsfk19eq.verticalrewards.com
 qsfmut.storageinridgecrest.com
 qsnovga.intelect.gr
 qsnvmsy.jetbet90.ai
@@ -26544,6 +26558,7 @@ ssjscrybootstrup.beer
 ssjwwje.eng-eng-gutdrops.com
 sskcesmuuyuoieow.xyz
 sskcgkuwimkyqmqs.xyz
+sskkonjuh.ba
 sskucuemskkmgkks.xyz
 ssl.cloudviewtop.pics
 ssl.datasrvhub.pics
@@ -26647,6 +26662,7 @@ stage1.riverbendramblings.com
 stage6.stillpath8.one
 stagesteril.pax4moren.in.net
 staging.detectors-shop.com
+staging.lisadegen.de
 stagjunkremoval.com
 stagneswv.org
 stakcl.com
@@ -26828,6 +26844,7 @@ straely.biz
 straigxo.cyou
 strainug.cyou
 strang-02-static.com
+strangemeteor.com
 strategyfinders.com
 stratographic-core-drill.garden
 stratos-delta.com
@@ -27105,6 +27122,7 @@ svhost-update-service.casa
 svnegociosappempresa.duckdns.org
 svo-zv.pro
 svohxwo.letterboxedsolved.com
+svpmag.ru
 svqta9j3.usa-us-goldalign.com
 svs-verificationdate.beer
 svvif8-sheet.2zavlore.surf
@@ -27241,6 +27259,7 @@ sync8kaltberg.sylosyncbase.garden
 sync8taskhub.counter-graphol.bet
 syncbergzeit5.mivontechzone.garden
 syncdusk.mirelax9.life
+synchro-vasq.unidermaperu.com
 syncit.authorize5ilky.lat
 syncit.bitflowapp.pics
 syncit.brix9mira.lat
@@ -27487,6 +27506,7 @@ talnexal2.pares-system.in.net
 talonbilling.com
 taltideis8.currencysn0ut.pics
 tamajailroster.org
+tamarackhenge.org
 tamarisknave.co
 tamayorecuerdosdeunafamilia.es
 tamindent.com
@@ -30964,6 +30984,7 @@ wifewithabudget.com
 wifflvy.cyou
 wifi-dengen.com
 wifihgu.duckdns.org
+wifisucks.duckdns.org
 wig43mz5.keymedconsulting.com
 wig5l9be.calirayalake.com
 wigesaqe.workers.dev
