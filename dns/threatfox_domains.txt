@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-28 23:09 CET
-# Eintraege: 33942
+# Aktualisiert: 2026-10-29 00:26 CET
+# Eintraege: 33981
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -414,6 +414,7 @@
 1xhot.xyz
 1xkade.com
 1xkf6w16.bet1forward.com
+1xlbkrp4.bossbey1.click
 1xoi047.meltdowntemptin8.surf
 1xpin.live
 1xpin.pro
@@ -2398,6 +2399,7 @@ alad1.com
 aladdinnightsaz.com
 aladinnights.com
 alambiodiversitasindonesia.or.id
+alameer.ct.ws
 alanabrayboy.com
 alansarkw.com
 alarmas.solutions
@@ -4440,6 +4442,7 @@ beshotelsanpellegrinoterme.it
 besopo.workers.dev
 best-claudns-js.beer
 best-seller.lavanille.buzz
+bestbeach.com.ua
 bestbusinessvoice.com
 bestbuttworkout.com
 bestbuydomain.com
@@ -4613,6 +4616,7 @@ bibliotecafregene.com
 bibro.pl
 bidd0t2b.enus-tupitea.com
 biddulphmuseum.com
+bieffecolore.it
 biennial-polovauniverse.digital
 biesmanscars.biz
 bifpwatchoxp7tsb2kpes37b23ogjrb2kj4wgr7yncf4hhgsfahu7jad.onion
@@ -4671,6 +4675,7 @@ bin.coderlap.pics
 bin.datasrvhub.pics
 bin.serverdatahub.pics
 bin.softwincli.pics
+binario37.com
 binary-block-state-collection.wiki
 binary-block-tabel-expert-get.wiki
 binary-buffer-overflow-protection-lab.wiki
@@ -4681,6 +4686,7 @@ binarysa.co.za
 binazirvarzesh.ir
 bindspru.div0rceskis5ing.pics
 bings.top
+binhthtran.com
 bins.oceanic-node.su
 binzadata.icu
 bio-soil-nutrients.garden
@@ -4700,6 +4706,7 @@ bir.orilowa.com
 birc6-trail.fixionmunici9al.lat
 birch-koix-7keeb.pro
 birchletting.com
+birds-eye-view.de
 birdybird.rest
 birladharamshaala.org
 bisaj.run
@@ -4817,6 +4824,7 @@ bkm.iakmialor.web.id
 bkmu.ronarcher.org
 bkqno.serious-substance.surf
 bkrsqb.usen-echoxen.com
+bksc.co.mz
 bkscndclou.beer
 bkscndcloud.beer
 bksfinance.com
@@ -4865,6 +4873,7 @@ blc3music.com
 bldcebu.com
 bleakhaven.com
 blebxzj.wing88.net
+blefaroplastiabogota.com
 blenderrepublic.com
 blenzador.com
 blessedongrace.duckdns.org
@@ -4964,6 +4973,7 @@ bm8ue2oq.abcdbro.com
 bmcmdwj.eng-brain-defender.com
 bmebamc.eng-usa--goldalign.com
 bmguom.weisfeedbacksurvey.com
+bmi-marble.com
 bmichele.com
 bmioli.be
 bmm9b3dd.lipovivees.us
@@ -5070,6 +5080,7 @@ bom.psgiran.news
 bomawa.workers.dev
 bomaylaliaw.m-u88.com
 bomboclat.sbs
+bometa.lt
 bonanza123gac0r.space
 bonanza1jepe.space
 bonanza321gc0r.site
@@ -5095,6 +5106,7 @@ book-imageport.info
 book-photopage.info
 book.mangozero.com
 book.runds.duckdns.org
+book.zt.ua
 bookdayz.com
 booking-reservation-id.com
 booking.reliancemove.com
@@ -5132,6 +5144,7 @@ bopdifq.tethercars.com
 bopyq.myhillcountrygrass.com
 boqetwvb.bcgamekade.online
 borapraespanha.com
+boraskola.edu.rs
 borb5c9q.megaparikade.com
 borcwefhl.esteglal.bet
 bordbet.casino
@@ -5161,6 +5174,7 @@ borsab.org.tr
 borschokf2dd.digital
 boss.noip.at
 boss1huesos.cc
+bossbey1.click
 bossbey19.click
 bossleysportsclub.com.au
 bossprotect.com
@@ -5208,6 +5222,7 @@ box.mailban.pics
 box12martelinhodeouro.com
 boxingready.com
 boymoder.ddns.net
+bozopalponyva.hu
 bp-zone.us
 bp3mtp82.shop-aizenpower.us
 bp6wvsu3.us-us-en-geniusbrainsignal.com
@@ -5266,6 +5281,7 @@ brandbuilder.hu
 brandonbays.cz
 brandonhix.com
 brandonstreeservices.com
+brandschutzhelfer-muenchen.de
 brandsnewsmw.com
 brandy.it.com
 branleet.duckdns.org
@@ -5361,6 +5377,7 @@ brookneuro.grov6lira.bet
 broprairi.5doreval.lat
 brorgma.cyou
 brosbropi5124.xyz
+broscheid-galabau.de
 broshad.bordklo.lat
 brownbag.design
 browngreeer.com
@@ -5391,6 +5408,7 @@ brullercorp.com
 brunellagroup.it
 brunophotopassion.fr
 brusketaa.lol
+brusnika.kiev.ua
 brutb.wolfmarketing.hu
 brutusmecanica.com.br
 brvtfsq.designyourlifeinflow.com
@@ -5401,8 +5419,10 @@ bs-deliver-e817.61d8f0e6ac62c139abd08ba5.workers.dev
 bs.146slot.org
 bs.334v.org
 bs3qkgdh.pav8lorex.lat
+bsbflatknitwear.com
 bsdsvltx.libertytokan.com
 bsfadhle.marketsport.ir
+bsglobaltransport.it
 bsgmec.it
 bshttocg.bet90forward.win
 bsobxnv.bunos.bet
@@ -5458,6 +5478,7 @@ buffervoice.nova7frame.life
 bugcnc.cw0.cc
 buhu.site
 bui1-mount.sarahkapsreit.work
+build-art.us
 build-asdasd.4b3a91fd1b35ab2d023f5d71713a6c00.workers.dev
 build-flare.xyz
 build.netbazaar.lol
@@ -5558,6 +5579,7 @@ buysypi831.life
 buywx.com
 buzawgn.daro6vex.lat
 buzzwellcatering.com
+bv-neubiberg.de
 bv0rhljc.en-us-theeloncod.com
 bv2000.com.pk
 bvabf.budapesthandmade.hu
@@ -5765,6 +5787,7 @@ caagwrk.simplyturfandgreenwall.com
 cabaretcorporation.com
 cabecoteparafresadora.com.br
 cabinbiz.com
+cabincreekdesign.pro
 cabinrentalsnc.com
 cabskaiyn-crane.life
 cabv.bet24.casino
@@ -5816,6 +5839,7 @@ calub.run
 calypso.email
 calzadoswer.store
 camachoroldan.com.co
+camaswilson.com
 cameliaholdings.co.za
 cameradalat.net
 cameronpinegar.com
@@ -5863,6 +5887,7 @@ canyonsyncbox.thorniva.garden
 caoojj61.thelogicofmoney.com
 cap.camp-cantina.com
 cap.xyzsm188.top
+capacitacionespracticas.com
 capcha-cdn-js.beer
 capchaprotectcs.com
 capcutdev.com
@@ -5893,6 +5918,7 @@ carbonmeshnode.silicongateway.garden
 carbonmeshnode.verdalya.garden
 carbonmeshnode.zenithdockunit.garden
 carcarcarla22.twilightparadox.com
+carcomo.com
 card-oracle-mac-laptop.wiki
 cardanaircraft.org
 cardapiiofornallhadeliverypoop.click
@@ -5931,6 +5957,7 @@ carrascothomas.fr
 carreiro.lol
 carrenzaalwarex.ddns.net
 carrie-branch.7doreval.lat
+carrosseriegabriel.fr
 carsparkle.com.au
 cartasella.com
 cartujavision.com
@@ -5940,9 +5967,14 @@ carwowk872.life
 carytui.vu
 cas.hanyasm188.top
 casabellaexteriors.com
+casadoazeite.com
+casadovinhodealmeirim.pt
+casaenergy.de
+casaeoltre.com
 casasbeirario.com.br
 cascaderevueshow.com
 casero.store
+casertaexcavating.com
 casevor.com
 casfol.com
 cash-js-server.sbs
@@ -6003,6 +6035,7 @@ cbrldu.phoenixfactory.org
 cbtlecmkc.nextbahis.one
 cbvav.brssolar.hu
 cbvfrd.shop
+cc-zeppe.de
 cc.92lu1.cc
 cc.etherstress.su
 cc.nhancute.site
@@ -6021,6 +6054,7 @@ ccleanerupdate.mysynology.net
 ccpt.ca
 ccrcjzl.shop-mochalean.us
 ccsrwcs.vostrovape.com
+cctvdublin.com
 ccudmcx.xyz
 ccvrtw.com
 ccxcdrm.ferkrueda.com
@@ -6138,6 +6172,7 @@ cehjzw.day
 cehocihit.com
 cehoirfg.work
 cel-robox.com
+celatrans.com
 celebration-internet.cc
 celebrecorretora.com.br
 celetalkies.com
@@ -13301,6 +13336,7 @@ hiwino.app
 hixavec547-37489.portmap.host
 hj263krt.daro7vex.bet
 hjcddajltcsdas.hopto.org
+hjdad25184.workers.dev
 hjdssxth.swimsuit-unable.lat
 hjfct.ru
 hjikdbbu.gregoryschreiercabinetmaker.com
@@ -17203,6 +17239,7 @@ loriamedicallatino.com
 lorrisnopro.co
 loruhan.com
 los16zn2.celebritiesadda.com
+losaguilera-izaguirre.com
 loscasquijales.com
 loseweightandlookyounger.com
 losfelizapartments.com
@@ -31462,6 +31499,7 @@ www.b-itcon.de
 www.b-ui75mia5005x0vinb.cc
 www.backup.masjidulemaan.com
 www.bacsontech.com
+www.bacugno.it
 www.bagbooks.com
 www.balancedprofessional.com
 www.ballingmania.it
@@ -31531,6 +31569,7 @@ www.carolinabiscaro.net
 www.carolinanavascobo.com
 www.cbcleib.com
 www.cbl-wetterau.de
+www.cdminformatica.it
 www.cement-chemistry.com
 www.chabdullah.com
 www.changeperformingarts.com
