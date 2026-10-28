@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-28 18:25 CET
-# Eintraege: 33757
+# Aktualisiert: 2026-10-28 20:08 CET
+# Eintraege: 33793
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -176,6 +176,7 @@
 11udvmp9.polestennisplayer.digital
 11x74.bordklo.lat
 121drivingschool.co.uk
+123-nonexistant-dnsjedi-456.financial-reality.sk
 123b-jp.com
 123b-mb.com
 123b-mobilee.com
@@ -272,6 +273,7 @@
 1ce6-route.fixionmunici9al.lat
 1cfx1w5z.zen-sulin.com
 1cihg2b5.anodaz.vip
+1clean.by
 1cqslawq.1xhot.org
 1cujg0ph.nomoneynohoney.org
 1cw38pnu.usa-puraboost.us
@@ -444,6 +446,7 @@
 212uqd371gsar.com
 2169tae0hhtd6.net
 21grscompany.com
+21october.com
 21wg02hmrp1ldfn7.org
 222.blue
 222align.noip.at
@@ -518,6 +521,7 @@
 2cpd365m.plaque5tucco.digital
 2d4e5f6-7a8b-4c2d-9e1f-3b5a7c8d9e0fc.s3.us-east-1.amazonaws.com
 2dflte3h.grannygshemporium.com
+2digitalconsulting.com
 2dm5zbbk.oris303.com
 2dvs.miri7qen.lat
 2dz4gggg.betgopro.com
@@ -587,6 +591,7 @@
 2skmlgm2.motabartarin-site-shartbandi-jahan.com
 2t1ridv.logicbyte.lat
 2t8cpyvwbhcze.app
+2taxi.ir
 2tfq28mb.stack-matrix.digital
 2ti34h1lzcapw2f3rt8mfs.beer
 2tkoflhf.berlin-knights.com
@@ -654,6 +659,7 @@
 35quvguj.banko90bet.com
 35su8ccd.favarzesh.ir
 35x7940o.thelovebugsband.com
+360plusar.com
 360safeupdate.com
 365media.vn
 36qgwr.gabard-viewed.surf
@@ -844,6 +850,7 @@
 4cfyhd61.fagaheestedlali.xyz
 4ck8ubdi.warmwaffles.com
 4clablx7.wisma138chiori.net
+4cprocessing.com
 4ct1ve-point.klatren.lat
 4ctohaaw.roseanne.id
 4cuissch.wcimbali2016.org
@@ -1613,6 +1620,7 @@
 97035mb3.signal-harbor.digital
 97d1n21t.betav2ryazhsky.digital
 9849bronze.workers.dev
+988.escutismo.pt
 988920lt-ublib.988920a1.buzz
 98jhjysx.ehtemalatvaamar.xyz
 98win.fast
@@ -1777,6 +1785,7 @@ a2login.com
 a2rf9er0.bossbaba.store
 a2wk5fd0.purity-pharmaceuticals.net
 a2ztraders.in
+a2zvideosolutions.com
 a32uqtcs.nurvealive.com
 a3asesor.wolterskluwer.lat
 a3f5sclr.stichtingseptember.locker
@@ -1810,6 +1819,7 @@ aa63qt.assonanceka1e.lat
 aaa.ad4min.com
 aaa.akoraofficial.com
 aaaa1.guiowow.com
+aaaconstructor.com
 aabancaa.com
 aabm.my
 aabqjhcdf.quickandcleanfetish.com
@@ -1921,6 +1931,7 @@ accggroup.com
 accgkogmeuimwuci.xyz
 acclaimrm.com
 acconstruire.com
+accordinstitute.co.in
 accordtrucking.monster
 accoun-table-unleash-soft.wiki
 account-auth.userlogin.kro.kr
@@ -2005,7 +2016,9 @@ acwkwkeigqemkgqi.xyz
 acxhyz.unitedpropertiesltd.com
 acxmquqg.winter-pulse.christmas
 acyd.io
+ad-oculos.at
 adabiyat.org
+adaco.ir
 adamellobrentameteo.it
 adan.uy
 adapter-pal.milo3ren.lat
@@ -2022,6 +2035,8 @@ adenpanel.xyz
 adewbrfg.bet90forward.win
 adeyqa.net
 adflow.monster
+adfontes-mediation.nl
+adgroupasia.com
 adhaehaht-42050.portmap.host
 adilyiw.fitprotracker-campaign.com
 adivasifirstnation.in
@@ -2088,6 +2103,7 @@ adxvwa.us-en-us-bizopp.com
 adxwe.boutiqbar.com
 ady26.hu
 adzeta.monster
+adzobt.hu
 adzyw.cn
 ae5ap687.healthfoodzone.com
 ae888.living
@@ -2132,6 +2148,7 @@ affimcm.cyou
 affinm.com
 affordablemedicalhealthcare.com
 affordablesidingandgutters.com
+afinco.net
 afindisc.xyz
 afluix.com
 afnsw.wlwyb.com
@@ -2139,8 +2156,12 @@ afpheqe.ledridingco.com
 afraid.veloitall.cfd
 africadasi.org
 africanalphacc.com
+africanamericanliteracy.com
+africandunes.com
 africaoil-ci.com
 africasbrainbank.org
+africhembotanicals.co.ke
+afripolitik.org
 afritekers.com
 afspd.com
 aftabsport.ir
@@ -2166,10 +2187,12 @@ agentrecovery.com
 agenxexo.cyou
 agenxox.cyou
 agenxux.cyou
+agenziatecnoimmobiliaregaeta.it
 agenzzt.cyou
 ageqour.hit4bet1.com
 ager-stp.org
 agerefineclinic.com
+aggydabrowska.co.uk
 aghdpyoc.techvigilante.com
 aghighgold.co
 aghw.pixelnode.lat
@@ -14470,6 +14493,7 @@ itpcsydney.com
 itpysxfajhrtpnfwacr.herbscutsandolives.com
 itqzwqj.rikashart.com
 its-plombier-chaufagiste.fr
+itsallogic.com
 itsmarthungary.hu
 itsolutionnest.com
 itstoodayeasy.com
@@ -14708,6 +14732,7 @@ jamjahani.win
 jammdesign.de
 jamphotographic.com
 jamstudios.com.au
+janakabiz.unaux.com
 janatcosmetics.com
 jandoz.com
 janicevavra.com
@@ -16522,6 +16547,7 @@ levoncargo.com.br
 levyvo.lunave5.bet
 lewokodwqko.icu
 lexema-rpa.com
+lexiloju.workers.dev
 lexsecurityco.com
 ley.123ful.net
 ley.sm188dvlv.icu
@@ -19703,6 +19729,7 @@ no3htbxq.varzeshlife.ir
 noabasteb.lol
 noahsruleomau.click
 noamykonos.com
+nobinsikder.epizy.com
 nobl-desi.puro2tal.surf
 nobodydenied.com
 nockbase.com
@@ -21258,6 +21285,7 @@ patriciakleijn.nl
 patrickschrader.com
 patrins.com
 patser.life
+pattigame.co.in
 patxisdublin.com
 pauheuld.questionsmotor.xyz
 pav4lirex.digital
@@ -23166,6 +23194,7 @@ r-relay.herbertrutt.work
 r.88bravo.com
 r.88kfc.org
 r.abc212.org
+r.bamto.org
 r.v-panel.asia
 r0.erloro.com
 r066m9wa.eng-cardio-slim-tea.com
@@ -31178,8 +31207,10 @@ www.12startups.de
 www.150graziadeledda.it
 www.164-90-169-184.cprapid.com
 www.18sf1ka7leb3sllhlhv.live
+www.1aml.it
 www.28z9hqqs4tmnettw1dcso4.cc
 www.2d2eb-7dzk-akmg1jovs.net
+www.2fcommercial.com
 www.373hf1zy01njyqbz.live
 www.39rwcybep-20pwozhvdrzzy.net
 www.3rtmi4mknw285dffeu0.org
@@ -31210,12 +31241,15 @@ www.9vlqt9g3n0ijfbrs.info
 www.a0zajmpz4610-sdfbt.cc
 www.a4ngg3ua.space
 www.abrahamalvarezgonzalez.com
+www.absassicurazioni.it
 www.abundanceofpraise.org
 www.abvision.cam
 www.accessrxhealth.com
 www.adamellobrentameteo.it
 www.adamsanglingbooks.com
+www.addon-danieltschumicom.erinmallon.cyon.site
 www.adelaidebooksellers.com.au
+www.adete.cz
 www.adlibentertainment.com.au
 www.admiral-x-kax0m.icu
 www.admiral-x-qpqoy.icu
@@ -31226,6 +31260,7 @@ www.adrenalinedesign.ca
 www.adrisex.com
 www.adultingwithash.com
 www.aebitalia.it
+www.aedsistemi.it
 www.aeqen.de
 www.aftest.it
 www.agenceaci.com
@@ -32312,6 +32347,7 @@ xedad2tj.digeststart.us
 xee13c9a.pishbini90.bet
 xeft5.peta1un.garden
 xehbafo.overlokcu.com
+xekulovi.workers.dev
 xelautometic.com
 xelecqe.yutongdrying.com
 xeledkz.olabahiskayit.com
