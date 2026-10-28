@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-28 20:08 CET
-# Eintraege: 33793
+# Aktualisiert: 2026-10-28 22:01 CET
+# Eintraege: 33891
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -164,6 +164,7 @@
 102z512uqjl6m.xyz
 108.199.58.34.bc.googleusercontent.com
 108h764sg7npw.xyz
+10buigpz.bossbey19.click
 10gic-mark.retellin8tolle.bet
 11.239.222.35.bc.googleusercontent.com
 110.68.156.34.bc.googleusercontent.com
@@ -1238,6 +1239,7 @@
 6nrjnea5.badabingsopranoslounge.digital
 6odtgo56.en-trump-token.com
 6oekxs4k.vip1xbet.net
+6os989ve.avako.store
 6oybqhpt.coachandkitchen.com
 6pf8j0h7.kundu.store
 6poz7z6o.gnarcoticexoticz.com
@@ -2202,6 +2204,7 @@ aginij.com
 agioty.grannygshemporium.com
 agiqsfnr.hugugnasiri.xyz
 agkzvfg.1bet1yek.bet
+agla.lv
 agldrywall.com.br
 agliodelprete.it
 aglobaconvite.com
@@ -2222,6 +2225,7 @@ agronewbk.duckdns.org
 agrupacionsandionisio.com
 agsc-africa.com
 agsdef.com
+agunionkft.hu
 agvw.bcgame90.casino
 ah.88bravo.com
 aha719f1.gluccotrust--bites.com
@@ -2266,6 +2270,7 @@ aigmwmiksuwmoama.xyz
 aigouing.com
 aigyuukouqaiuwms.xyz
 aihvh6j6fbkfjyc6jqbsh2ed4s3rym2v2pu6kd3z3exdso2xc2qwcuqd.onion
+aiibif.com
 aiiwsqemgcoagoem.xyz
 aikokintsugi.com
 aikuqommeauisccy.xyz
@@ -2291,9 +2296,11 @@ airbag99.ru
 airbedcomparisons.com
 airclimate-group.nl
 airco-thuis.nl
+airfix.ca
 airflow-cooling.fr
 airlinesapp.net
 airlinesreservationsonline.com
+airmetricview.de
 airport-homes.com
 airstatus.live
 airuhuo.xyz
@@ -2335,7 +2342,9 @@ ajkcsyzc.jadoou.online
 ajkerbarta.com
 ajlhkv.redcanoerealestate.com
 ajm1kklw.minescasino.bet
+ajmessu.com
 ajnfqs.com
+ajovosugara.hu
 ajp3btj8.nextbahis.poker
 ajrnaww.sm188login.cyou
 ajwrgnf.hesabdarieskandari.xyz
@@ -2357,10 +2366,12 @@ akhkdv.ecopro-edu.com
 akhlagkarbordi.xyz
 akl.org.uk
 aklze.bercibutor.hu
+akmaplus.ru
 akmuniverstall.top
 aknkoyw.homa.bet
 aknoq.tractor11.com
 akoreoe.us-superbrain.com
+akovka.kz
 akprf.ru
 aksaholdings.com
 akthbr.ljautorepairshop.com
@@ -2378,11 +2389,14 @@ akvz.behtarin-site-shartbandi.com
 akwaconseil.com
 akxzgu.shop-theslimsplitsmethod.us
 akyv188.club
+al-monti.ir
 al.333pwk.org
 al.396zk.net
 alabamalimoservice.com
 alabamarecoverycenter.com
 alad1.com
+aladdinnightsaz.com
+aladinnights.com
 alambiodiversitasindonesia.or.id
 alanabrayboy.com
 alansarkw.com
@@ -2390,6 +2404,7 @@ alarmas.solutions
 alayaf.play-1winofficial.com
 albhjil.modernglowllc.com
 albseriale.cc
+albuquerquedesign.com.br
 albze.bertifolia.hu
 alcaldiaeloyalfaro.gob.ec
 alchemical-formula-scroll.garden
@@ -2404,6 +2419,7 @@ alessandracalheira.com.br
 alessiaremedies.com
 aleverifocation.beer
 alewitz.com
+alexanderamrein.com
 alexandraportfolio.com
 alexiabioconsult.com
 alexistotojp12jt.cyou
@@ -2424,6 +2440,7 @@ algo-indicator-app.pro
 algo-indicator-web.info
 algo2nest.info
 algvrg-ae.com
+alhagamiti.com
 alhidaayahbooks.com
 ali-darvish-nouri.com
 ali.alabri.one
@@ -2437,6 +2454,7 @@ alig9-trail.1dorelax.surf
 aligalpha.mongofixcore.lat
 aligncolu.xamir4al.lat
 alirezafotovati.com
+alisharousselle.com
 alisteelhousee.ddns.net
 aliyun.commandandcontrol.top
 aliyunmail.app
@@ -2445,6 +2463,7 @@ alkaleejia.com
 alkaleejia.wiki
 alkalinemarinade.com
 alkh.jbgroup21.com
+alkherhouses.com
 alkhiran.net
 alkkq3vhb7epl3jh6qzutj2vyyfdgvs2nukw5hwdsijl5la3jrinrryd.onion
 alklh.popi999.net
@@ -2472,6 +2491,7 @@ allianceprojctsap.space
 alliancercs.com
 allianzexecutivo.com.br
 alliedjeralee.workers.dev
+allinthetriboro.com
 alljob.bd
 allmed-stg.pl
 allnagagg.space
@@ -2496,9 +2516,11 @@ alluringsites.com
 allwebz-2.site
 almacenoporto.com.co
 almendrawinery.com
+almetnnov.ru
 almiramandiriwisata.com
 almond.oppa.page
 almontm.xyz
+almostafaplast.com
 alo.ua
 alo789phai.com
 alobet.pro
@@ -2507,6 +2529,7 @@ aloemqvnth.com
 alohapages.pp.ua
 alojun.com
 alopecinhaircare.ro
+alpatarianugrahmandiri.com
 alpha.goldenleafway.lat
 alpha.longwave5hot.surf
 alpha.ratbasic.lat
@@ -2520,6 +2543,7 @@ alphalin-eonbw9.nordfreak.surf
 alphamap.net
 alpharecoveries001.duckdns.org
 alpharecwyan0e.westcalm.surf
+alphavillepb.com.br
 alphawhi-a6rof.nordfreak.surf
 alpinorexa.org
 alprosperu.com
@@ -2559,6 +2583,7 @@ amaara.uk
 amadadopai.com.br
 amaladin.com
 amalgama.lat
+amana.ba
 amanahceria.us.com
 amanahsukses.uk.com
 amanahtop.us.com
@@ -2588,6 +2613,7 @@ amazonclouds.link
 amazonmyworld.com
 amb1ing-farm.digital
 amb3-cache.retellin8tolle.bet
+ambazoniagov.org
 amber-22.com
 amber-fossil-mosquito.garden
 amber-ridge-bruixsioi.live
@@ -2609,6 +2635,7 @@ amberdiaries.store
 amberdiary.store
 amberskyforge.top
 amberverse.online
+ambijent.ba
 ambitiousaboutautismorguk.com
 ambizioneviaggi.com
 ambraeng.com
@@ -2629,6 +2656,7 @@ americcorp.net
 americoq.cyou
 ameripridesales.com
 amfd83.fr
+amg-elf.com.mk
 amgmedia.com.ng
 amici.addmagad.com
 amigo.mexicocentral.cloudapp.azure.com
@@ -2638,9 +2666,11 @@ amm-frosty.lol
 ammatrip.com
 amo9xzld.disorientbreak.digital
 amoraepsicosocial.com
+amorinox.com
 amosolutions.xyz
 amp77bet.com
 ampantarhoki1.xyz
+ampcye.com
 ampfrr.shop-lipogummy.com
 amphibgz.cyou
 ampmeshnode.fast7link.surf
@@ -2689,12 +2719,14 @@ ancient-colosseum-engineering.garden
 ancient-parchment-archive.garden
 ancientparchmentarchive.christmas
 ancientshadow.kernelwave.lat
+ancypo.pl
 andala.life
 andersonpitbulls.com
 andeusa.com
 andliberty.us
 andopening.com
 andreahubert.ca
+andreashamunyela.com
 andressadinizbeauty.com.br
 andrew-young.net
 andrewresearchgroup.com
@@ -2753,6 +2785,7 @@ angry-toaster.com
 anhwsoowoe.com
 ani.hitnoop.cc
 aniimad.com
+anildiseno.com
 anilmut.ydns.eu
 animal-zoo-lake.com
 animal342.duckdns.org
@@ -2764,8 +2797,11 @@ animetoast.org
 anisxx.flyingtogether-ual.net
 anj99u86.verticalrewards.com
 anjcp.v-vill.hu
+ankaraseymenleri.com
 anlytic-js-cloud.beer
 anm0n19x.7flex.store
+anmoba.com.co
+anna-hrynakowska.pl
 annamirror.design
 annexs.xyz
 annhome.vn
@@ -2790,6 +2826,7 @@ antenniste.nc
 anthonyhamlock.cyber-demo-client-website2.com
 anthonysplumbinganddrain.com
 anti.publicvm.com
+antifurtoesicurezza.it
 antigravity.study
 antimalvareprotect.cc
 antimalwarediagnostics.st
@@ -2874,10 +2911,13 @@ apache-update.csproject.org
 apache-update.ddns.net
 apacheorg.wiki
 apartament-carlos.pl
+aparterciyes.com
+apartmany-prenajom-pocuvadlo.sk
 apartmentsmelbournedomain.com.au
 apcon.pk
 apdhlhs3.xyz
 apeduze.com
+apemic.net
 apex.agocert.lat
 apex.digitaltide.surf
 apex.goldengate.surf
@@ -3048,6 +3088,7 @@ apk.whatsplusdownload.com
 apknetic.com
 aplantstale.com
 aplustools.biz
+apm-solutions.net
 apmlandscaping.com
 apolloconeyisland.com
 apostiladosaprovados.com
@@ -3168,13 +3209,16 @@ aqua.clogg-opposition.surf
 aquaburnweb.us
 aquariushotelaquarius.com.br
 aquasmart.co.zw
+aquasystemshaiti.com
 aquaticpoolsandspas.com
 aquetecaquecedores.com.br
 aqvem.wlwyb.com
+ar.africaun.edu.ly
 ar16clz9.metrodesignconcepts.com
 ar33krmg.tigersmartialarts.com
 ar7keyma.epexecutivecoaching.com
 ar88b3st.eng-bpzone.com
+arabian.ma
 arabianlibas.com
 arabianrouge.co.uk
 arabicbet.casino
@@ -3232,6 +3276,7 @@ arifbook.shop
 arigatodomen.sbs
 arihanp.jamjahani.website
 arionmusic.co.uk
+aristonsuite.it
 aritacapital.com
 aritmiagenesh.com
 arizonahomesellers.com
@@ -3269,10 +3314,13 @@ armwrestlers.club
 arnnav.colonist-proph.lat
 arnvvins.com
 aroclenetapp.net
+aroma-zeit.de
 arop4gtf.jetbt6.online
 arpumupr.site-shartbandi-pasor.online
 arqenntta.mom
 arqn7djf.vajename.xyz
+arquivo.ajap.pt
+arqycons.com
 arra-track.5dorexin.lat
 arrahman-arraheem.com
 arraydar.lomov-stroganal.lat
@@ -3283,15 +3331,21 @@ arrowsone.com
 arrowwoodmemoir.org
 arrtom.followyourjoy.hu
 arsenetsl.es
+arsolution1.com
 arsplaywin.space
 arsu.my.id
 art-archepelago.com
 art-by-tek.com
+art.brouwerijfeys.be
+artagedesign.com
+artagegroup.com
+artclean.com.ua
 artcnb.com
 artdenstudio.com
 artechstructures.com
 artemusicacademy.com
 artes911sh.com
+artesholograficas.com
 artgramasintetica.com.br
 arthamarasejahtera.com
 arthas89sh.com
@@ -3311,6 +3365,7 @@ artmicrodesign.com
 artnsalvage.com
 artofsen.sk
 artsetindustriesinformatiques.fr
+arturoterakopian.com
 arturprikhodkosh.com
 aruhq.jbgroup21.com
 aruvibabyshop.com
@@ -3383,6 +3438,8 @@ ashifct.com
 ashsynt.p7ickmuch.lat
 ashvec.puro2tal.surf
 asialive22.space
+asiangt.com
+asimpiantisrl.it
 asinteriorgraphics.com
 asioklaydpory.com
 asion.gr
@@ -3405,8 +3462,10 @@ aspenhotelistanbul.com
 aspenriver6.com
 aspentraverse.co
 asperteccr.com
+aspmedia.co
 aspnetcenter.com
 asqmvmastt.com
+asreadersales.com
 ass-ecuadorian.digital
 asse4-track.frosthaven.garden
 assemblytooldepot.com
@@ -3421,10 +3480,13 @@ assetwaveapp.com
 assholesgonewild.info
 assikhlas.com
 assistecvitoria.com.br
+assistenz-zur-lebensfreude.de
+asso-ecs.org
 associacaoaviva.org
 associacaogodlife.com.br
 association-acage.fr
 association-lmlesbougies.fr
+association-mirabelle.com
 associazionearches.it
 assurance-dommageouvrage.net
 asterchildrenshoes.com
@@ -3449,10 +3511,12 @@ aszdgo8b.www-trumpgoldenbadge.com
 aszzi.webgondozas.hu
 at.adwgamestore.org
 at.ajo7.org
+at.simonsplace.eu
 at1.227api.com
 at2.227api.com
 at3.227api.com
 atacado.explosaocriativa.com.br
+atasteofitalyatyourtable.com
 ataturk.sbs
 atc5j2vt.coletteloire.rest
 atechniques.com
@@ -3463,6 +3527,7 @@ aterra.co.il
 ateyakima.com
 athbo.technologiaiviz.hu
 athenaengenharia.eng.br
+athleticedgefitness.com.au
 atiagwcvltealv.com
 atibr.gamehazarat.bet
 atiendoservicios.es
@@ -3527,10 +3592,12 @@ audio-attenuator-schematic.garden
 audio-runw.eightyen1arge.garden
 audioattenuatorschematic.digital
 audiokitpro.com
+audiomam.cl
 audiomeshbase.astrolinkview.garden
 audiomeshbase.sonicwavehost.garden
 audiotheo.nikolaiit.work
 audiovideoinsightllc.com
+audisankarauniversity.edu.in
 audit.bitfetch.cc
 audit.techreef.one
 auditair.com.co
@@ -3539,8 +3606,10 @@ audizen-eng-usa.com
 audizenus.com
 audplay.space
 aueaue.com
+auerhahn-rollsbach.de
 augcigegkwegqwqk.xyz
 augqaayuywkucywy.xyz
+augur.com.ua
 augustus-kirby.com
 auhlsdki.frost-engine.christmas
 auikgecaauwqaqyy.xyz
@@ -3557,6 +3626,7 @@ auraapp.org
 auracorp.shop
 aurahomepainters.com
 auraprog.it
+aureliocorral.es
 aureom.com.br
 aurielle.blog
 aurinebeverly.com
@@ -5048,6 +5118,7 @@ borsab.org.tr
 borschokf2dd.digital
 boss.noip.at
 boss1huesos.cc
+bossbey19.click
 bossleysportsclub.com.au
 bossprotect.com
 bosstekirdag.store
@@ -5574,6 +5645,7 @@ c.adilawa99.org
 c.amo98.org
 c.aot88.com
 c.aww88.net
+c.bamto.org
 c.gbwhat.pro
 c.obwhatsappdownload.com
 c.pushonline.online
@@ -5824,6 +5896,7 @@ carving-paral.digital
 carwowk872.life
 carytui.vu
 cas.hanyasm188.top
+casabellaexteriors.com
 casasbeirario.com.br
 cascaderevueshow.com
 casero.store
@@ -9265,6 +9338,7 @@ ejsfrydays.co.uk
 ejtteyte.com
 ejvphud.ua
 ejxygs.hopesgarden.org
+ek.aeoncash.org
 ekayzone.co.za
 ekbcolor.ru
 ekcyiyekyccsikgw.xyz
@@ -13007,6 +13081,7 @@ helabetkade.com
 helaed.com
 helix2kvkqjzrkh3ospyukij7uemxwvbdmqberjmrudjmqy4hspwzzqd.onion
 helixr2sncrd3ndsz5oho6mzqw3x5u7mvox5zcsngc5wm7v4l5k7oryd.onion
+hello.itsmybirthdaytoday.pw
 help.hived.space
 help.mcsq.workers.dev
 help1.mcsq.workers.dev
@@ -14495,6 +14570,7 @@ itqzwqj.rikashart.com
 its-plombier-chaufagiste.fr
 itsallogic.com
 itsmarthungary.hu
+itsmybirthdaytoday.pw
 itsolutionnest.com
 itstoodayeasy.com
 itstory.cz
@@ -14617,6 +14693,7 @@ j29oqmyl.1xgame.net
 j2a96wpl.shop-lipogummy.com
 j2rfzlmu.enf90.net
 j2zz03ut.belly-flush.us
+j3y2klex.bossbey11.click
 j4af75zm.bw90bet.live
 j4bfscn7.greenestreetchurch.com
 j4investment.com
@@ -15041,6 +15118,7 @@ jomn9u8k.cyber-relay.digital
 jonnienesimy.online
 jonnypickup.com
 joodwh.theroyalpizza.com
+joquxa.workers.dev
 jorgealderete.com
 jorgemachado.org
 jorjsrfgd.lion1bet.com
@@ -15812,6 +15890,7 @@ klitr41.despot-unfolded.surf
 klmizo.highmileauto.com
 klqxthu.enfejar.poker
 klsv.betturkey.bet
+klt.frontio.net
 klub-neratovice.cz
 klycnmik.com
 km8k.vip
@@ -16026,6 +16105,7 @@ kujim.run
 kul.cantdown.su
 kulnpioc.mabanishimi.xyz
 kumru-nakliyat.cyou
+kunaltailor.com
 kuncislothoki.co
 kuo4g8zc.bociljepe.cc
 kuonnjkj.masirpayambari.xyz
@@ -31134,6 +31214,7 @@ wthrl.webrevelem.hu
 wtkxprzu.funxbet.casino
 wts.tb88vip.top
 wtxservice.net
+wu517q9x.bossbeycenter.click
 wu5yb08w.drubenginecologo.com
 wu97b.lunave5.garden
 wua6s9ur.usa-slimsounds.com
@@ -31264,6 +31345,7 @@ www.aedsistemi.it
 www.aeqen.de
 www.aftest.it
 www.agenceaci.com
+www.agrigentoholidays.com
 www.agrogreenalax.com
 www.ai2.qzz.io
 www.airessinfronteras.com
@@ -31272,6 +31354,7 @@ www.aj-vxvadzcbs26gxz.org
 www.alad1.com
 www.alessandrofamiani.it
 www.alfapetroluems.com
+www.alfawararural.com
 www.algherobudget.com
 www.algranati.it
 www.allcoastinteriorlinings.com.au
@@ -31288,6 +31371,7 @@ www.ambiopharmconsultingltdbackup.com
 www.ambizioneviaggi.com
 www.amena-gps.tn
 www.amfd83.fr
+www.amministrazionestraordinariamonti.it
 www.ampaescolapalcam.com
 www.ampimex.in
 www.andala.life
@@ -31295,17 +31379,27 @@ www.anemir.fr
 www.anfisazinchenko.com
 www.anglophilebooks.net
 www.anicelife.net
+www.annagozzo.com
+www.antechnology.it
+www.antevortegroup.com
+www.anticocasalescopetone.it
 www.antiquarianbooks.biz
 www.antiquemallbookstore.com
 www.apartuk.info
 www.api-aws.xyz
 www.appliancerookies.shop
+www.apulialandartfestival.com
+www.archivioelia.org
 www.arlovsbygg.se
 www.artmostfear.co.za
 www.aryaxplorer.space
 www.asacor.com.ar
+www.asdiamocilazampa.it
 www.assessoriabr.com
 www.associazionearches.it
+www.associazionenuovavitaonlus.org
+www.associazionepiercy.it
+www.associazionesinapsy.it
 www.atgairport.com
 www.author-author.net
 www.autoccb.tech
@@ -31542,6 +31636,7 @@ www.gctattoo.it
 www.geeico.it
 www.geekpsychologyseries.com
 www.genialelectric.it
+www.georgespizzas.com
 www.geostar.space
 www.gestorianaveiras.es
 www.geto.space
@@ -31637,6 +31732,7 @@ www.instalacionesrenovables.com
 www.intersectsoftware.space
 www.ioa7xqmhiz26fv5e.info
 www.ipazianetwork.it
+www.ipregionchecker.org
 www.isuzucorluservis.com
 www.itallnews.com
 www.ivyridgebooks.com
@@ -31694,6 +31790,7 @@ www.kp2-3ur6pe4r8i2hj5.com
 www.kpm-engineering.space
 www.kroghs-byg.dk
 www.ksbiblio.com
+www.kt69betthai.com
 www.kt88npl.live
 www.kubotabandung.com
 www.kuedltqtddbj-hnf9gd.net
@@ -32730,6 +32827,7 @@ y87fvt1g020426i.cfd
 ya.adwgamestore.org
 ya15z70c.die-reformer.digital
 yachtparts-shop.de
+yaebaltakuyusety.com
 yagzws04.belief-handcraft.bet
 yaim8oaz.franklintowing.net
 yaissbeaute.com
