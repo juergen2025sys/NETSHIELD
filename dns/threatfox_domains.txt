@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-28 06:33 CET
-# Eintraege: 33666
+# Aktualisiert: 2026-10-28 06:51 CET
+# Eintraege: 33673
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3983,6 +3983,7 @@ barazande.com
 barbaraohman.com
 barbashat.com
 barbosamaiaadvogados.com.br
+barcasavictor.es
 bargecontradictionexcrement.courses
 barikadeuku.freedev.app
 baritepantheon.info
@@ -14549,6 +14550,7 @@ izyob7rickets.digital
 j.88mdc.org
 j.9kio.org
 j.abc22.org
+j0.bala7.org
 j01nn5zm.istanbul303.com
 j0g2ia0g.bet1yek.bet
 j0p0cibb.lunza.store
@@ -21150,6 +21152,7 @@ park.terraview.surf
 parkup.ae
 parlouredshop.com
 parma-delikatessen.com
+parotide.eu
 parquemetroleon.gob.mx
 pars0lang.ir
 parsballl.com
@@ -23097,6 +23100,7 @@ qyns.eddieswindowtintca.com
 qyov.site-asli-bedon-filter-1xbet.com
 qypefu.thebutlerspantrykitchenandhome.com
 qyqetw.yasbetapp.com
+qyqotyse.workers.dev
 qyteglr.1xbetios.bet
 qyvbm.fun
 qza78s32.parsc.bet
@@ -23363,6 +23367,7 @@ rc395.com
 rc3bbq.com
 rccconstruction.us
 rcconstrutora.com
+rcguk.com
 rcleba.tenancydeposit-claim.com
 rclop3ch.aryllab.com
 rcn2co2t.socop.org
@@ -26601,6 +26606,7 @@ studioa.de
 studiolegalegarosi.it
 studiomarini.com
 studionumera.it
+study.goldenpeak.edu.np
 stuqvv.eng-usa-slimsounds.com
 stustverif.com
 stv4ec5.shop
@@ -31689,6 +31695,7 @@ www.mvgl1ne40s65srdtnlc.info
 www.mylanguageteam.com
 www.myleadsgen.co
 www.mysticlink.com
+www.nalco-jo.com
 www.namathejaljawdah.com
 www.narodoboronprom.org
 www.naturalstone.store
