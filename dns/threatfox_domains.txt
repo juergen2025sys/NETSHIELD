@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-28 15:08 CET
-# Eintraege: 33725
+# Aktualisiert: 2026-10-28 17:00 CET
+# Eintraege: 33747
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -259,6 +259,7 @@
 19te57b3ft.workers.dev
 19uir4dz.grannygshemporium.com
 1a3qsz5i.pozitifmed.com
+1a6m3e8e.ased.store
 1a81inkd.genesis-revival.net
 1ab-grid.pavo8rex.lat
 1aed1cm5.cloudzone.com.tr
@@ -10328,6 +10329,7 @@ favmrwg.1xbet-official-xbet.top
 fayzcm.greenwaysolar.hu
 faz.jurangsm188.top
 faz.realmadridiran.news
+fazbet1.app
 fazbetkade.com
 fazehotafa.com
 fazv.jadoobet.pro
@@ -11231,6 +11233,7 @@ fttec.co.uk
 ftvfx.faux-paws.com
 ftwealthmgt.com
 ftz730n.novi7xel.lat
+fuchsiagabie.workers.dev
 fucismarjiaff.com
 fuck-life007.no-ip.biz
 fuckrussiafuckukraine.duckdns.org
@@ -16609,6 +16612,7 @@ lifehtx.com
 lifeisabouthavingfun448.duckdns.org
 lifemed.net.br
 lifenote.com.ng
+lift50.com
 ligabfa.com
 ligaciputra.bio
 ligamajestic.shop
@@ -18698,6 +18702,7 @@ monstersstat.com
 monsterstower.com
 montagne-emotion.fr
 montanadental.co.za
+montanari.lol
 montech-institute.com
 monteiro.click
 monter-steaming.digital
@@ -20794,6 +20799,7 @@ ortopediaqueralto.com
 oruaaga.1xbet1farsi.com
 orub3g.chi8nondanyl.surf
 orwwvz.the-beggar-kings-bride.com
+os.aeon888link.org
 os.linkdataproc.pics
 osatcarton.ir
 osbase.1zorelix.surf
@@ -22599,6 +22605,7 @@ pzk.v-panel.asia
 pzq4qskw.techvigilante.com
 pzsbygor.radioshartbandi.bet
 q.9winn.org
+q.bamto.org
 q.thelayzf.fyi
 q048bmxn.aqua-brn.com
 q08rvd2u.btyek.bond
@@ -24588,6 +24595,7 @@ sahalexchange.com
 sahil.org
 saigonpickle.com
 sail.autolabsouthgate.com
+sail91.com
 sailboaterists.net
 sailcompi.gela1vor.lat
 sailree.herod-terminology.bet
@@ -24698,6 +24706,7 @@ sarnpl39-vault.strangle-snup.surf
 sarveabarkouh.com
 sash.thirstyschnapps.cfd
 saskiadesign.nl
+sassafrastell.org
 sassythesongstress.com
 satabi-guide.com
 satiasesores.cl
@@ -25104,6 +25113,7 @@ sgp-edo.com
 sgs68ivh.binary-dock.digital
 sgsolicitors.com
 sgspmozgq.lowermyoverheads.com
+sguf571h.bossbeyburda.xyz
 sh1e1d8-trail.diesel-stark.lat
 sh4do-phase.di7ectkoshevoy.lat
 sh56a-57180.portmap.host
@@ -28600,6 +28610,7 @@ uauc3i2w.culling-posture-schnitzel.digital
 uaxjdnjn.tarikhravannovin.shop
 uaycwz4b.nextbahis.blog
 ubaarquitectura.com
+ubbrobccheck20.cc
 ubcvxb.southwestautoupholstery.com
 ubdxpzyl.usa-biodentix.us
 uberdox.aishdas.org
@@ -30858,6 +30869,7 @@ withoutedge.com
 wiwcg.lelekbuvar.hu
 wiwrwkaotibzdwpqow.focus-logistics.net
 wixconsulting.com
+wixinyqo.workers.dev
 wizzyaddon.com
 wj-abi.de
 wj2vge4z.eng-usa-neurowave.com
@@ -31258,6 +31270,7 @@ www.ayyappadevalayampudur.com
 www.azetti.com
 www.b-29sn-02vvbpmb0zu3kmq.org
 www.b-ui75mia5005x0vinb.cc
+www.backup.masjidulemaan.com
 www.bacsontech.com
 www.bagbooks.com
 www.balancedprofessional.com
@@ -31614,8 +31627,10 @@ www.joliveira.com.br
 www.jolivet.asso.fr
 www.josefodol.cz
 www.judeglass.com
+www.k-diaspora.biz
 www.kaidandesign.com
 www.kalocsasirko.hu
+www.karagkiozis-chatzianagnostou.gr
 www.kashisansadkhelkud.com
 www.kastornic.cl
 www.kathmandubooks.com
@@ -31665,6 +31680,7 @@ www.liderventas.com
 www.lillyandlark.com
 www.linkkedin.life
 www.liokouralaw.gr
+www.lirosseafood.gr
 www.literarycatbooks.com
 www.ljot1cem6jhzfu53yb9aj3h.app
 www.llvdtejnjgcz99wlv4z68es1.com
@@ -31685,6 +31701,7 @@ www.m4imi4w.space
 www.m88sut.com
 www.maedso.com
 www.mamalupe.es
+www.mandiepinto.com
 www.manyhillsbooks.com
 www.manzl.org
 www.mapisas.eu
@@ -31817,6 +31834,7 @@ www.polonez.org.au
 www.precisionprinterservices.com
 www.premiosarquitectura.org
 www.premiumlakaskezeles.automentesgocza.hu
+www.prenotazione20h.it
 www.progettocodireparma.it
 www.projectusf.com
 www.projectyola.click
@@ -31899,6 +31917,7 @@ www.sauconybookshop.com
 www.scarium.com.br
 www.schloss-virnsberg.de
 www.schoonerbooks.com
+www.scottsdalelaser.hair
 www.searedrecipes.com
 www.secure-accounts-verify.com
 www.securepathiul.life
@@ -31940,6 +31959,7 @@ www.soudures.fr
 www.soulburger.co.nz
 www.souldiggin.com
 www.sourceforgemediastream.com
+www.spanishtutorfortmyers.com
 www.spatiumxg.com
 www.spd-schwalmtal.de
 www.spectrumcomercial.com
@@ -31994,11 +32014,13 @@ www.thueringer-stuck.de
 www.timejas.lt
 www.tipsytransit.com
 www.topclickgaming735.info
+www.topendglam.territoryimage.com.au
 www.torh1.duckdns.org
 www.torontosss.com
 www.tr88.uno
 www.transmoycana.com.br
 www.transportesuriarte.com
+www.treja.net
 www.trevor-greenfield.com
 www.tribe9version8.net
 www.triffitt-trailers.co.uk
