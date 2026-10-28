@@ -1,6 +1,6 @@
 # Auto-Feed Live Refresh – Report
 
-**Aktualisiert:** 2026-10-28 22:29 CET (Europe/Berlin)
+**Aktualisiert:** 2026-10-28 23:10 CET (Europe/Berlin)
 
 | Metrik | Wert |
 |---|---:|
@@ -10,10 +10,10 @@
 | Ohne Daten/Fallback | 1 |
 | Proxy/Bot/Scanner ausgeschlossen | 50 |
 | I-BlockList ausgeschlossen | 8 |
-| Feed-Treffer (IP/CIDR × Feed) | 6,547,861 |
-| Eindeutige IP/CIDR-Eintraege | 3,566,144 |
-| Neu ggü. vorherigem Snapshot | 438 |
-| Entfernt ggü. vorherigem Snapshot | 0 |
+| Feed-Treffer (IP/CIDR × Feed) | 6,547,876 |
+| Eindeutige IP/CIDR-Eintraege | 3,565,784 |
+| Neu ggü. vorherigem Snapshot | 2,441 |
+| Entfernt ggü. vorherigem Snapshot | 2,801 |
 
 **Semantik:** Der Snapshot behaelt jeden originalen Feed-Namen. Eine IP in fünf Auto-Feeds wird in Combined weiterhin als fünf Feed-Treffer verarbeitet.
 
