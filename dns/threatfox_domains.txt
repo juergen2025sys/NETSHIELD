@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-28 17:00 CET
-# Eintraege: 33747
+# Aktualisiert: 2026-10-28 18:25 CET
+# Eintraege: 33757
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1366,6 +1366,7 @@
 7m9gr5qr.anodaz.co
 7mcn.cyou
 7mnkjpr.scient-telograyka.lat
+7n1cvrut.fazbet1.app
 7n4vqiaqxenaqy4t47ayqvurbmg6vfg2ir7iobwjazwizjncwyt7jhad.onion
 7n4zamvr.shop-alphasurge.us
 7okxzj.heavier-plumage.surf
@@ -1773,6 +1774,7 @@ a2ahyvmwbfcw7vvdnaddwbvezlpcjvfszdnuer3l6aqnwdzermm7csyd.onion
 a2bfc593.cerridwen.shop
 a2llsxm4.ganuneasasi.xyz
 a2login.com
+a2rf9er0.bossbaba.store
 a2wk5fd0.purity-pharmaceuticals.net
 a2ztraders.in
 a32uqtcs.nurvealive.com
@@ -5353,6 +5355,7 @@ burb.space
 burberry-handbagsoutlet.com.co
 burden.aeafh.workers.dev
 bureai.com
+burgerbank.de
 burministr5123.icu
 burn-flow.com
 burn.sram-wear.surf
@@ -15223,6 +15226,7 @@ jwzyamqu.questionsmotor.xyz
 jxfszcuc.megaparifarsi.com
 jxiluxhf.radioshartbandi.chat
 jxjdhjdx-61930.portmap.host
+jxk.imarapi.st
 jxrml.luxurygoodscaree.com
 jxsofena.shartbandi.games
 jxzglmh8jjfj3bb.top
@@ -16350,6 +16354,7 @@ lb.146slot.org
 lb.16dewaslot.org
 lb.334v.org
 lb.gmslb.net
+lb.heronpull.cc
 lb.honeytrail.cc
 lb.packetshift.cc
 lb.propertyfind.cc
@@ -20859,6 +20864,8 @@ otehaswvcc646ou4kozenrh4mfqyvntx6yrx6jdntilp5kbt7noq.arweave.net
 othila.eu
 oticaconvergencia.com.br
 oticamel.com.br
+oticasolarvision.com.br
+otlosushi.com
 otlqkiy.betmiz.bet
 otmkyq.usen-bpzone.com
 otntjfbp.sorix7en.surf
@@ -21176,6 +21183,7 @@ parceiros.fbonanoengenharia.com.br
 parcshade.com
 pardazeshsazan.com
 parihostunit.flo3xaren.bet
+paringenieria.es
 parish.menberetsebaotholytrinityeotc.org
 park-lake.com
 park.brightpath.surf
@@ -27141,6 +27149,7 @@ szcx.uk.com
 szdfpv.jamjahani2026.football
 szlqgs89.shop-nervealive.com
 t-adobe.lat
+t-smc.top
 t-trustrest.com
 t.88mdc.org
 t.99rtp.net
@@ -29847,6 +29856,7 @@ vkuyoujz.hugugbeynolmelal.xyz
 vkvmygpg.betbuf90.com
 vkvsgl7lhipjirmz6j5ubp3w3bwvxgcdbpi3fsbqngfynetqtw4w5hyd.onion
 vkwebsolution.in
+vkwjo14315.workers.dev
 vla.tcptunnel.su
 vla2h0e7.microservice-pulse.digital
 vlanp.ru
