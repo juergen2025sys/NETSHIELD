@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-28 14:35 CET
-# Eintraege: 33715
+# Aktualisiert: 2026-10-28 15:08 CET
+# Eintraege: 33725
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3046,6 +3046,7 @@ app.outilisation.com
 app.physiolpo1icy.lat
 app.pushonline.online
 app.qq8893.com
+app.sensiplus.ch
 app.softnetlink.pics
 app.whatsplus.online
 app.whatsplusdownload.com
@@ -12140,6 +12141,7 @@ godhelp-us.com
 godirectservices.com
 godpleaseblessmyworkiwanttogive.duckdns.org
 godsblueprintforyourmarriage.com
+godschild20onyimax.duckdns.org
 godww.accredit.hu
 goeemwsgkegoycwq.xyz
 goeiwef.com
@@ -21157,6 +21159,7 @@ papilawdns.duckdns.org
 paqcfwvt.winter-pulse.christmas
 paquetitoexpressny.com
 paqyqptu.hugugtejarat4.xyz
+paradis-vert.ch
 paragonbloomera.digital
 paralegalmustang.icu
 paramountwebtechnology.com
@@ -29552,6 +29555,7 @@ verifing-server.codes
 verify-auth-cloud.com
 verify.proxy08.com
 verifyaiinitiative.com
+verifyidentrob01.cc
 verifyrecapcha.info
 verinfagora.com
 verlfusercapa.com
@@ -31000,6 +31004,7 @@ wowusimy.workers.dev
 woxtvuojcsdld.mamglaqwek.com
 wozk99ql.kabardinskymonasticismradicalism.digital
 wp.klipr.io
+wp.ttsc.tw
 wp0ljlux.betwana.casino
 wp8zfvuu.sky7bet.casino
 wpbjs814.radmanwear.ir
@@ -31421,6 +31426,7 @@ www.durantdiego.com
 www.dyshop.online
 www.eabconstrutora.com.br
 www.ecomfactory.com.au
+www.ecopestcontrolperth.com.au
 www.edge-chrome.com
 www.effect-tec.com
 www.effizziemagz.com
@@ -31486,6 +31492,9 @@ www.ggccloud.top
 www.gibertpaul.com
 www.gibsonbooks.com
 www.gloversbookery.com
+www.godschild20onyimaxduckdnsbackup.com
+www.godschild20onyimaxduckdnsbackup1.com
+www.godschild20onyimaxduckdnsbackup2.com
 www.goldengatetours.net
 www.golfertroop.com
 www.goocoinorg.com
@@ -33263,6 +33272,7 @@ zeit-1.strupt7oupe.in.net
 zejax.cz
 zejlnzmy.maharatmodiran.xyz
 zekoturizm.com
+zelaraly.workers.dev
 zelpx.garden
 zelyaj.habbofutbol.com
 zemmf2bl.site-asli-bedon-filter-1xbet.com
