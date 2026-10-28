@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-27 23:58 CET
-# Eintraege: 34033
+# Aktualisiert: 2026-10-28 01:11 CET
+# Eintraege: 34043
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -10664,6 +10664,7 @@ fileupdates.blob.core.windows.net
 fileworks.cfd
 filezilla.cc
 filhosdeangola.es
+filikuje-729.workers.dev
 filmfilmfilm.studio
 filmydhoom.live
 filt3-scope.lightforge.garden
@@ -11039,6 +11040,7 @@ forexf1.com
 forexlancer.com
 forge-copper.com
 forge-ember.pw
+forgestudios.co
 forgevaultstead.live
 forgewillow.com
 forgotten-civilization-myth.garden
@@ -15975,6 +15977,7 @@ knyjwxkg.fileboroo.com
 knyo.vex7lurin.in.net
 ko.27trans.org
 ko.5-rt.org
+koa1sb08.forgestudios.co
 koaaiygaakekayye.xyz
 koalafield.cc
 koalworld.com
@@ -16263,6 +16266,7 @@ kzwvrleb.irrigation-monitoring-system.garden
 l.7sot.org
 l.88qr.org
 l.9winn.org
+l0.aeon888link.org
 l04de9-span.closer1ook.garden
 l0jpgk5p.tapl.store
 l1.topayapp.org
@@ -31416,6 +31420,7 @@ wu97b.lunave5.garden
 wua6s9ur.usa-slimsounds.com
 wuakewmq.agriturismo-di-toscana.com
 wubbueiu.betpublic.casino
+wuddmackh.co.ug
 wuexpxs.channelsbetyek.com
 wuguosqckgugmiie.xyz
 wumuuyaqymcgmygw.xyz
@@ -31556,6 +31561,7 @@ www.amberblogs.au
 www.ambiopharmconsultingltd.com
 www.ambiopharmconsultingltdbackup.com
 www.ambizioneviaggi.com
+www.amena-gps.tn
 www.amfd83.fr
 www.ampaescolapalcam.com
 www.ampimex.in
@@ -31563,6 +31569,7 @@ www.andala.life
 www.anemir.fr
 www.anfisazinchenko.com
 www.anglophilebooks.net
+www.anicelife.net
 www.antiquarianbooks.biz
 www.antiquemallbookstore.com
 www.apartuk.info
@@ -32157,6 +32164,7 @@ www.remoteiconnectbackup1.com
 www.remoteiconnectbackup2.com
 www.renaissancebooks.co.nz
 www.renataprates.com
+www.reparacioneshosteleria.es
 www.residencialdama.com
 www.resourcebooks.net
 www.restaurant-leuehof.ch
@@ -32493,6 +32501,7 @@ x6ho2kp5.1xcart.pro
 x6veozdp.ganuneasasi.xyz
 x78boe03.lion1bet.com
 x7abhl.weplord.lat
+x7onu4r4.slotsensi138.org
 x8268vj9.hugugmadanikatouzian.xyz
 x87sw.top
 x88-km88k.com
@@ -33377,6 +33386,7 @@ yvryz.gepco-energy.com
 yvsy.betcrash.bet
 yvutfxz.pabloobet.com
 yvzqh.hazaratbet.game
+yw.bala7.org
 yw1tz6yc.englishekhtesasi.xyz
 yw2204.shop
 yw8bvcf7.betandyou90.com
