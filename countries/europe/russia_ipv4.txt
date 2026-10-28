@@ -1,6 +1,6 @@
 # NETSHIELD – Russia (RU) IPv4 Ranges
-# Aktualisiert: 2026-10-26 07:45 CET (Europe/Berlin)
-# IP-Ranges: 11456
+# Aktualisiert: 2026-10-28 08:05 CET (Europe/Berlin)
+# IP-Ranges: 11457
 
 2.56.24.0/23
 2.56.26.0/23
@@ -5240,6 +5240,7 @@
 94.180.0.0/15
 94.187.192.0/22
 94.187.196.0/22
+94.187.200.0/22
 94.188.0.0/17
 94.190.0.0/17
 94.198.0.0/21
