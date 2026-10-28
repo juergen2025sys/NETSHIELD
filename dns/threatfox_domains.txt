@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-28 06:51 CET
-# Eintraege: 33673
+# Aktualisiert: 2026-10-28 08:07 CET
+# Eintraege: 33679
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -862,6 +862,7 @@
 4g591jl4.havenchurchraleigh.com
 4getd0km.script-matrix.digital
 4gfsvs7l.jennyrussianbluepalace.com
+4gzdhrn8.epexecutivecoaching.com
 4h3y0wdh.varzeshitime.ir
 4h6csw00km.workers.dev
 4h79jvxe.metrobahiscark.com
@@ -15235,6 +15236,7 @@ k.ajo7.org
 k.upgrades.lat
 k.worldpress.biz
 k0pr01pw.diero.store
+k0v5zt7p.verticalrewards.com
 k1h.fileboro.com
 k1h.hopesm188.top
 k25qo8xh.fungame777.co
@@ -16251,6 +16253,7 @@ laquepipix.xyz
 larchfable.cloud
 larchmontnursery.com
 lard.asset-images-konoha.us
+larpestan.duckdns.org
 larsasresources.com
 larwssaf.laparnih.com
 las-js-claud.beer
@@ -17139,6 +17142,7 @@ ludex.cc
 ludic.space
 lueplxze.sadreislam.xyz
 lueurexterne.com
+lufiximy.workers.dev
 lufry.mabelsnursery.com
 luisrobertobarroso.com.br
 lujefyle.workers.dev
@@ -25119,6 +25123,7 @@ shawnstratton.ca
 shbet126.com
 shcpaconsulting.com
 shdufysuf.com
+shebei.sellingate.com
 shedsofmarion.com
 sheersdesigns.com
 sheetmancer.com
@@ -25591,6 +25596,7 @@ slot888maxwin1.space
 slotbet200.xyz
 slotboxx.net
 slotcatalog.co
+slotcore.top
 slotgacor4d.icu
 slotgalaxy.life
 slotmacau188ab.sbs
