@@ -1,16 +1,22 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-10-28 07:50 CET (Europe/Berlin)
+**Aktualisiert:** 2026-10-28 15:00 CET (Europe/Berlin)
 
-**Workflows:** 33 | ✅ 30 OK | ⚠️ 4 Warnung | ❌ 0 Fehler
+**Workflows:** 33 | ✅ 30 OK | ⚠️ 3 Warnung | ❌ 1 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `def2b23b4b9b67532e55054706a5c92ecf8f7dc0`
+✅ Commit: `caaadcee3a7d3a5c8b3e34608f84fdf18b98a271`
 
 490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
+
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 4,034 IPs in active fehlen in conf40 (0.504% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 
 ## ⚠️ Warnungen
 
@@ -24,10 +30,11 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 1 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
+| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 4,034 IPs in active fehlen in conf40 (0.504% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 | 🟡 WARN | Feed-Ausfälle | 4 von 98 Feeds ausgefallen: blocklist_de_all, blocklist_net_ua, rtbh_com_tr, urlhaus_ips |
 
 ## Übersicht
@@ -69,4 +76,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-10-28 07:50 CET (Europe/Berlin) | 33 Workflow-Dateien geprüft*
+*Generiert: 2026-10-28 15:00 CET (Europe/Berlin) | 33 Workflow-Dateien geprüft*
