@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-28 03:03 CET
-# Eintraege: 33637
+# Aktualisiert: 2026-10-28 06:33 CET
+# Eintraege: 33666
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -227,6 +227,7 @@
 16z4okne.seering5outh.digital
 17.aa.4t.com
 172u1sfd.diero.store
+175.53.189.35.bc.googleusercontent.com
 17575bbb.roseanne.id
 176.65.148.144.ptr.pfcloud.network
 176.65.149.124.ptr.pfcloud.network
@@ -862,6 +863,7 @@
 4getd0km.script-matrix.digital
 4gfsvs7l.jennyrussianbluepalace.com
 4h3y0wdh.varzeshitime.ir
+4h6csw00km.workers.dev
 4h79jvxe.metrobahiscark.com
 4hjech32.helabetkade.com
 4hqwi3xf.expotour.org
@@ -1683,6 +1685,7 @@
 9pzs9sji.usen-flashburn.com
 9qdbp5gv.bet90forward.win
 9qfwfuup.pleasuredome.hu
+9qhklald.enfejar.casino
 9qmp3bl9.6oclocktrain.com
 9qxhxbbl.amsrealtors.com.au
 9r28j8f6.lckd.store
@@ -3429,6 +3432,7 @@ athbo.technologiaiviz.hu
 athenaengenharia.eng.br
 atiagwcvltealv.com
 atibr.gamehazarat.bet
+atiendoservicios.es
 atinder.space
 atlantaairporttaxiservice.com
 atlantaofficiants.com
@@ -10903,6 +10907,7 @@ footstepsdaycare.com
 fopsadfposkdf.com
 foqovv.h13lakopark.hu
 foranother1337.publicvm.com
+forbesae.com
 forbiddenpantsshop.com
 force-update.com
 forcrash-classnet.christmas
@@ -13424,6 +13429,7 @@ hrpulse.nl
 hruieeoefeor.com
 hrunarqq.betraca.bet
 hruqsetf.jadoou.shop
+hrv8ks0h.urgentblue.com
 hrwzfeq.eng-sleep-lean.us
 hrykp.varzeshlife.ir
 hrzrcyvx.jdk-services.net
@@ -14529,6 +14535,7 @@ iywgueowcemyisig.xyz
 iyxadrf.jbgkito21.xyz
 iyyquyssuccogqsw.xyz
 iyyutr.valley-open-mri.com
+iz6jswi0.forbesae.com
 izehzccr.bet90forward.win
 izhx.phimmoichilla.org
 izlayynu.winsportiran.com
@@ -14856,6 +14863,7 @@ jizeeb.xamir9el.lat
 jj.146slot.org
 jj.334v.org
 jj.adwgamestore.org
+jj.bala7.org
 jj5czewc.bet90land.com
 jjbtigm.smellhomesweethomeservices.net
 jjcuameq.parspoker90.com
@@ -22572,6 +22580,7 @@ q2bg7ljsrpmy6736qqmpwsnqqm3w6d3hhrokohytnmldbom7sthp4sad.onion
 q2e2f5xuir4qub8.top
 q2egla0o.bahsine.casino
 q2xcpigj.betweentwospaces.com
+q3.aeon888link.org
 q383qak6.en-slimsounds.com
 q3g84ost.22beet.pro
 q3rir44c.eng--slimsounds.com
@@ -24025,6 +24034,7 @@ rossandrossenterprisesinc.com
 rossetticonsulting.it
 rossomazara.com
 roswell.inhumanencounters.org
+rot85xe6.yellohotelsharmoni.com
 roteagent.com
 rotundavillas.com
 roubataouk.com
@@ -25757,6 +25767,7 @@ social9-reach.kymle5rax.in.net
 socialarcade.io
 socialformat.verd2onis.bet
 socialhunks.com
+socialrockstar.it
 socio-antwerpen.be
 socolive.money
 socomufflerandradiator.com
@@ -27594,6 +27605,7 @@ tgbft.countertops-dfw.com
 tgbnh.icu
 tgc.com.bd
 tgdrbxm.nexo5mir.surf
+tgifk49669.workers.dev
 tgizmv1.strangle-snup.surf
 tgjg.jadoou.autos
 tglc.bahsegel90.com
@@ -31553,6 +31565,7 @@ www.josefodol.cz
 www.judeglass.com
 www.kaidandesign.com
 www.kalocsasirko.hu
+www.kashisansadkhelkud.com
 www.kastornic.cl
 www.kathmandubooks.com
 www.kavkom.tv
@@ -31589,6 +31602,7 @@ www.larmentybadup.com
 www.lasquinceletras.es
 www.laviadelluno.com
 www.ldglabs.com
+www.leavenworthlofts.com
 www.lecormanon.ch
 www.lectioz.com
 www.lemargouillat.fr
@@ -31623,7 +31637,9 @@ www.mamalupe.es
 www.manyhillsbooks.com
 www.manzl.org
 www.mapisas.eu
+www.marianoturcutto.turcutto.com
 www.marineinsurer.one
+www.markcode.my
 www.marvelousnpinjector.com
 www.mastergrillrecipes.com
 www.mb8coin.io
@@ -31636,6 +31652,7 @@ www.melaracconti.it
 www.meshpedia.com
 www.metaleks.com.tr
 www.metanoashopinsoutlook.space
+www.metodobertele.it
 www.mgmyhys8v6v19e9w5kbizn6i.cc
 www.microsofer.top
 www.microsslcheck.com
@@ -31645,7 +31662,9 @@ www.millionairemind.live
 www.millonixvip.live
 www.mineniches.com
 www.miss-vacances.fr
+www.mitrasedjati.com
 www.mobile1.com
+www.mojomama.org
 www.mollansbasement.se
 www.monartisanbouras.fr
 www.montanadental.co.za
@@ -31679,13 +31698,16 @@ www.ncooleyrealty.com
 www.needleworkbooks.com
 www.neelgirlchemicals.com
 www.neelgirlchemicalsbackup.com
+www.negociosliterarios.com.tacetbooks.com
 www.nelan.com.pe
 www.neonail.ro
 www.neqbzjio8rflhgwclmpr.app
 www.nettflex.site
 www.neumaticosmarsili.com
 www.neurowellnesslab.site
+www.newratu.com
 www.nichepursuits.com
+www.nickbrownart.net
 www.nipreaznltdoof10dsb-so.app
 www.noamykonos.com
 www.nooralbarkahllc.com
@@ -31707,6 +31729,7 @@ www.oldwestbooks.com
 www.oneright.it
 www.onestepstar.com
 www.onlinecarpet.com.au
+www.organicsplususa.com
 www.orientspareb8tter.com
 www.osh9xntw0spl96bbe.org
 www.oskdel.pl
@@ -31716,6 +31739,7 @@ www.ov86ayb0fe4ep2b92-645o.com
 www.oxfordshirechilligarden.co.uk
 www.oxtu0ashinenj0.net
 www.ozenziraat.com
+www.pacanaturals.com
 www.paperexim.com
 www.parinando.com
 www.park-promote-portability.xyz
@@ -31831,6 +31855,7 @@ www.sezioneaiabari.it
 www.sgcca.org
 www.sgncnutritioncourse.com
 www.shackbd.com
+www.shanecrossweb.com
 www.sharingfile.cloud
 www.shawnstratton.ca
 www.shbet.id
@@ -31983,6 +32008,7 @@ www.webdevarrayremcobackup1.com
 www.webdevarrayremcobackup2.com
 www.webdevarrayremcobackup3.com
 www.wedding7famous16.app
+www.wesolerobaczki.pl
 www.whitefoxrarebooks.com
 www.whytehouse.co.za
 www.williammatchin.com
@@ -31995,6 +32021,7 @@ www.woodwardlg.com
 www.wrqgd.xyz
 www.wt1pa99d7wbd75ic.info
 www.wtfdofnoku2s4gn61ub.info
+www.wtthru.co.th
 www.wxnlabs.com
 www.xi4us9e.space
 www.xmmtbx.com
@@ -32457,6 +32484,7 @@ xunsicg.bookuni.lat
 xuqbplvg.site-shartbandi-khareji.com
 xusyyrhk.gift-lattice.christmas
 xuucwi.rya-yorkshire.org
+xuun.net
 xuxk.cancunbayfiesta.com
 xvadip.felhangolo.com
 xvaqhrg.tinyzonetv.im
@@ -32909,6 +32937,7 @@ yqpbv.westinvesteuropa.hu
 yqqccumwacwqowuo.xyz
 yqqioagmmsciwquq.xyz
 yqql69g.grove5s.garden
+yqqsi15906.workers.dev
 yqsacwmwiwukwuig.xyz
 yqsciwsaaeeucqaa.xyz
 yquagqysgcsuceqs.xyz
