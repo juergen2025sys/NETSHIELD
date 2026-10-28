@@ -1,21 +1,21 @@
 {
   "note": "seen_db.json nur im GitHub Actions Cache (zu gross fuer Repo)",
-  "updated": "2026-10-28 12:51 CET (Europe/Berlin)",
-  "updated_utc_iso": "2026-10-28T11:51:00.434114+00:00",
+  "updated": "2026-10-28 14:58 CET (Europe/Berlin)",
+  "updated_utc_iso": "2026-10-28T13:58:12.764439+00:00",
   "cleanup": {
     "expired_removed": 0,
     "protected_removed_runtime": 0,
-    "cidr_aggr_removed": 68652,
+    "cidr_aggr_removed": 128373,
     "wl_cleanup_count": 0,
-    "aufnahme_removed": 743129,
-    "aufnahme_cross_bestaetigt": 128,
-    "active_reentry_blocked": 2349236,
+    "aufnahme_removed": 742952,
+    "aufnahme_cross_bestaetigt": 8,
+    "active_reentry_blocked": 2347975,
     "active_reentry_purged": 0,
-    "neu_angelegt": 820595,
+    "neu_angelegt": 875406,
     "expired_watchlist": 0,
     "expired_active": 0
   },
-  "total_ips": 11199494,
+  "total_ips": 11203899,
   "sqlite_size_mb": 4909.4,
-  "size_mb": 4372.0
+  "size_mb": 4375.6
 }
