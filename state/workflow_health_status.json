@@ -1,8 +1,8 @@
 {
-  "updated": "2026-10-27 23:55 CET (Europe/Berlin)",
+  "updated": "2026-10-28 07:50 CET (Europe/Berlin)",
   "total": 33,
   "ok": 30,
-  "warn": 3,
+  "warn": 4,
   "error": 0,
   "errors": [],
   "warnings": [
@@ -25,11 +25,16 @@
       "file": "netshield_report_generator.yml",
       "check": "Doppelter Import",
       "detail": "Block 0: Doppelte Imports: ((2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
+    },
+    {
+      "file": "Production Health",
+      "check": "Feed-Ausf\u00e4lle",
+      "detail": "4 von 98 Feeds ausgefallen: blocklist_de_all, blocklist_net_ua, rtbh_com_tr, urlhaus_ips"
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "ffc6c28c71d218fd28d1acc5644d9806c562f6ff",
+    "sha": "def2b23b4b9b67532e55054706a5c92ecf8f7dc0",
     "status": "passed",
     "tests_run": 490,
     "failures": [],
@@ -41,17 +46,23 @@
     "detail": "490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5763751,
-    "active_blacklist_ipv4.txt": 824827,
-    "blacklist_confidence40_ipv4_part1.txt": 4020552,
-    "cve_exploit_ips.txt": 24826,
-    "honeypot_ips.txt": 2292051,
-    "bot_detector_blacklist_ipv4.txt": 1172261
+    "combined_threat_blacklist_ipv4_part1.txt": 5759175,
+    "active_blacklist_ipv4.txt": 785356,
+    "blacklist_confidence40_ipv4_part1.txt": 4015432,
+    "cve_exploit_ips.txt": 24837,
+    "honeypot_ips.txt": 2293850,
+    "bot_detector_blacklist_ipv4.txt": 1175880
   },
   "production_health": {
     "critical": 0,
-    "warn": 0,
-    "checks": []
+    "warn": 1,
+    "checks": [
+      {
+        "level": "WARN",
+        "check": "Feed-Ausf\u00e4lle",
+        "detail": "4 von 98 Feeds ausgefallen: blocklist_de_all, blocklist_net_ua, rtbh_com_tr, urlhaus_ips"
+      }
+    ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
