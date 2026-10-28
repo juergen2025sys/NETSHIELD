@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-28 01:11 CET
-# Eintraege: 34043
+# Aktualisiert: 2026-10-28 02:09 CET
+# Eintraege: 34049
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -21110,6 +21110,7 @@ outlook8web.com
 ouvavde.skillitacademy.com
 oux36.dev-process.work
 ov14c020426v.cfd
+ov1j9h5mhk.localto.net
 ovbbx.popi999.net
 ovbeoktk.coop-fresh.com
 ovcvaphj.jadoou.cfd
@@ -21117,6 +21118,7 @@ overcoynode.click
 overdoin8seven.digital
 overlokcu.com
 overreactuntr2ve.digital
+overseas34.workers.dev
 ovgkkdx.ignaitra.us
 oviewram.top
 ovjcwn.mav3torel.surf
@@ -24589,6 +24591,7 @@ rxxcydjgk.enfejartime.com
 rxxgnn.jamjahani.cash
 rxyvhv1x.1xforward.cash
 rya-yorkshire.org
+ryandesigner.infinityfree.me
 ryanmorales.me
 ryanposocco.com
 ryazan.net
@@ -27954,6 +27957,7 @@ theatredureel.fr
 thebansalbrothers.com
 thebeatmedia.com
 thebestein.com
+theblackteachronicles.com
 thebookreviewhaiku.com
 thebrandus.com
 theburritocity.com
@@ -31816,6 +31820,7 @@ www.geeico.it
 www.geekpsychologyseries.com
 www.genialelectric.it
 www.geostar.space
+www.gestorianaveiras.es
 www.geto.space
 www.getscalespilot.co
 www.ggccloud.top
@@ -32749,6 +32754,7 @@ xocdiapro.co
 xoilacpro.com
 xoiowm.eauviveinasia.com
 xojeme.workers.dev
+xokocemu.workers.dev
 xols-qojze.com
 xomsymkut.derbi.football
 xomvdxaa.red90.casino
