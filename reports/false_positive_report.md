@@ -1,12 +1,12 @@
 # False Positive Checker – Report
-**Aktualisiert:** 2026-10-28 00:36 CET (Europe/Berlin)
+**Aktualisiert:** 2026-10-28 11:54 CET (Europe/Berlin)
 
 ---
 ## Ergebnis
 
 | Metrik | Wert |
 |---|---|
-| Geprüfte IPs (gesamt) | 11196808 |
+| Geprüfte IPs (gesamt) | 11190356 |
 | Whitelist-Treffer (dieser Run) | **0** |
 | FP-Set gesamt (kumuliert) | **4** |
 
@@ -14,4 +14,4 @@
 > `state/false_positives_set.json` wird beim nächsten `update_combined_blacklist`-Lauf über `is_in_fp_set()` angewendet.
 
 ---
-*Generiert: 2026-10-28 00:36 CET (Europe/Berlin)*
+*Generiert: 2026-10-28 11:54 CET (Europe/Berlin)*
