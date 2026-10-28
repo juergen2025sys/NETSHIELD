@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-28 12:37 CET
-# Eintraege: 33699
+# Aktualisiert: 2026-10-28 13:02 CET
+# Eintraege: 33709
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -7362,6 +7362,7 @@ cvt.vn
 cvwueyu.josetreeservice.net
 cvxxvcasdqehgfjg.icu
 cvyfg.kopicoffeeco.com
+cw.aeon888link.org
 cw.compactedtightness.cfd
 cw5afior.satoshinakamotoco.com
 cw5ukx6n.en-us-eng-geniusbrainsignal.com
@@ -10919,6 +10920,7 @@ forbesae.com
 forbiddenpantsshop.com
 force-update.com
 forcrash-classnet.christmas
+fordando.vn
 forecast-chaos.com
 forefern.pixelnode.lat
 forehia.shop
@@ -15245,6 +15247,7 @@ k.88mdc.org
 k.abc22.org
 k.adobepdf.cc
 k.ajo7.org
+k.bala7.org
 k.upgrades.lat
 k.worldpress.biz
 k0pr01pw.diero.store
@@ -22993,6 +22996,7 @@ qugkkyacgcsukaua.xyz
 qugkmkymsccosmme.xyz
 quguwqimiaicuwcs.xyz
 qugykwswmwysssca.xyz
+quhihaci.workers.dev
 quiaqgaaoqaeagss.xyz
 quickaccestwo.com
 quickfetchy.site
@@ -23851,6 +23855,7 @@ riyazinikokar.xyz
 riyazishahkilid.xyz
 rizvw.sanjeshravani.shop
 rizziaja.my.id
+rj9fhzwl.antava.store
 rjcruzeiro.com.br
 rjcuszqj.siciliandefensetheory.digital
 rjdg.bambatagear.com
@@ -29334,6 +29339,7 @@ v7jry8na.roxymigurdia.wiki
 v8.aeon888link.org
 v8dkk3.braveclo.bet
 v8xihekm.ramzfile.com
+v9157o6o.bossbeybrk.store
 v91rw911.betraca.bet
 v9rvls59.stack-matrix.digital
 vacationrentalvirginia.com
@@ -31179,6 +31185,7 @@ www.accessrxhealth.com
 www.adamellobrentameteo.it
 www.adamsanglingbooks.com
 www.adelaidebooksellers.com.au
+www.adlibentertainment.com.au
 www.admiral-x-kax0m.icu
 www.admiral-x-qpqoy.icu
 www.admiral-x-wk5ey.icu
@@ -31782,6 +31789,9 @@ www.penagamella.com
 www.pepperandlacephotography.com
 www.pepxly.makeup
 www.permanentart.cz
+www.phongketaonduchuyclassproject1.com
+www.phongketaonduchuyclassproject2.com
+www.phongketaonduchuyclassproject3.com
 www.physiephoto.com.au
 www.pig-ex8motionq.com
 www.pinnacleradio-net.edmimwa.com
