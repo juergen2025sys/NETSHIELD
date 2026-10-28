@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-28 22:01 CET
-# Eintraege: 33891
+# Aktualisiert: 2026-10-28 23:09 CET
+# Eintraege: 33942
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3711,12 +3711,17 @@ authshipup.net
 authwic.com
 autoccb.tech
 autodesign-marinkovic.de
+autodiscover.mm-carving.de
 autoeletricaavenidaitu.com.br
+autofin.cz
 autoflotte-vergabe.de
+autoliga-kyiv.com
 automated-sprout-labs.garden
 automobilvertrieb-masterclass.de
 autoparkrigacker.ch
 autopartesdonjulian.com
+autopostomaximo.com.br
+autopulse.co.in
 autoressq.com
 autoricambigalluzzi.it
 autotuongtac.biz
@@ -3750,6 +3755,7 @@ avciauto.com
 avdev.net
 avduwco.alhilal90.com
 avelune.blog
+avengenhariaindustrial.com.br
 avenix.icu
 avenix.lol
 avenix.world
@@ -3767,6 +3773,7 @@ avianrescuecorp.com
 avistahomes.com.au
 avivtech.org
 avjquzsd.seresniki.com
+avladimirov.net
 avsn5e1u.cia-churchinaction.org
 avsup.info
 avtgz.vrtigo.hu
@@ -3813,6 +3820,7 @@ ay84niib.snaptigen.com
 ay8go7sf.usen-enerflow.com
 ayalonk-ins.co.il
 ayamprestonyonyalina.com
+aycdiaz.com
 aydenlincoln.org
 aydlee.nairmess.com
 ayehtlgp.systemcompass.top
@@ -3949,6 +3957,7 @@ babelo.pro
 babmalo.pro
 baboa502.rtplive-miliarbet.online
 baboke.pro
+babs.org.za
 babullies.app
 babullies.live
 babybon.cfd
@@ -3992,9 +4001,11 @@ backyard-harvest-planner.garden
 bacloudserver.beer
 bacon-rumors.xyz
 bactergy.cyou
+bactrian.tj
 bacu.bahsegel90.com
 bada-bing-sopranos-lounge.garden
 badabingsopranoslounge.digital
+badawood.com
 badgalbeautyllc.com
 badger-kuis-vnex5.life
 badmintonmaldives.org.mv
@@ -4004,6 +4015,7 @@ bafcoaustral.cl
 bafybeihryapqa7lq7w3bc7cyqiipfyh7psq7qttgzp5euijblhohcmwweq.ipfs.w3s.link
 bagansi-wild-flowr-manage-form.garden
 bagkqzj.zeppelin.bet
+bagnoalex.it
 bagueie.xyz
 bahaisda.cyou
 bahawuldzslcqfvhkgi.krushburger.net
@@ -4042,6 +4054,7 @@ balkanbridge.eu
 ballad82.com
 ballingmania.it
 ballyflush.us
+balonismoemboituva.com
 balp.run
 balsamdolmen.org
 balservicesgroup.com.au
@@ -4051,6 +4064,7 @@ balyek.rsfoodproducts.com
 balykin.com
 bam.csmq.workers.dev
 bambangdental.com
+bambangkurniawan.com
 bambatagear.com
 bambi.mk
 bamyansupermarket.com.au
@@ -4094,13 +4108,16 @@ barkacsolokboltja.hu
 barkhidden.th0rniva.garden
 barko-personal.de
 barmaleieba.lol
+barmanstair.com
 barmnava.com
 barn.blinqueofficial.com
 barneyschurch.au
+barnsconnect.com.ng
 barnum-creative.com
 baronnews.com
 baroquecam-up.digital
 barrosovianna.com
+barsisa.com.ar
 barsows.com
 barsuki8822.life
 bartach.xyz
@@ -4110,6 +4127,7 @@ bartinyatirim.com
 bartzbau.net
 basalt9logic.thorniva.garden
 basartoto.com
+basculasipisa.com
 base.anythin8weaned.surf
 base.cryptobase.surf
 base.docsbed.pics
@@ -4159,6 +4177,7 @@ basketballbet.app
 basketballbet.org
 basketbay.net
 baskoniamt.com
+bastion-kansk.ru
 basyoun.com
 bat.gagahsm188.top
 bat.glamisdunesrentals.com
@@ -4175,7 +4194,9 @@ battebare.com
 batteryqk.com
 battlerally.com
 bauduccogru.it
+bauherren-hilfe-verein.net
 baum6tqjsg.bordcalm.surf
+baumann-praxis.de
 bausch.com.au
 baxbet.bet
 baxubfe4.1xborobetyek.bet
@@ -4185,6 +4206,7 @@ bayberrygalleon.cc
 baydounappliances.com
 bayleyecuador.com
 baynemedia.ca
+bayouni.net
 baziieenfejar.com
 bazikeno.com
 bazikonbartar.ir
@@ -4195,6 +4217,7 @@ bbacademylearning.com
 bbb.0101011010010111001.com
 bbbadfflkhroksd.cn
 bbbrqf.km8k.vip
+bbcattedrale.it
 bbczea.gregoryschreiercabinetmaker.com
 bbdsnssserver.beer
 bbeln.com
@@ -4209,9 +4232,11 @@ bbs.vic.edu.au
 bbssj.run
 bbtidwyn.shop-cardioslim.com
 bbtotoalter.xyz
+bbtriclinio.it
 bbuxtc93.osan.store
 bbv-vkbv1.nl
 bbvalues.uk
+bbvillafiorita.it
 bbwptlox.dota.pw
 bbysf.sm188login.cyou
 bbzvqin8.zamineravan.xyz
@@ -4237,6 +4262,7 @@ bcopleesr.com
 bcouiutk.bordvipbet.com
 bcrealestateagency.com
 bcrfix.com
+bct-co.com
 bctalking.com
 bctechnol.com
 bctqs.technologiaiviz.hu
@@ -4263,6 +4289,7 @@ bdtaximoto.com
 bduwih8.pro
 bdyqsrv.kbshavanese.com
 bdyze.wilhelmglobal.com
+beach-life-lager.de
 beachhoteldestin.com
 beachjiujitsu.com
 beacon-mysummitfcu.org
@@ -4285,6 +4312,7 @@ beardiscovery.xyz
 bearman.bond
 beartrend.logicstack.ink
 beast--force.com
+beataromaszewska.pl
 beatbrief.au
 beatfocus.au
 beatfocus.store
@@ -4327,9 +4355,11 @@ beccamayfield.com
 becfrzsw.buzz
 beckronald.duckdns.org
 becoffeecompany.com
+becomingapartofchristmas.com
 becoquin.org
 bed.camp-cantina.com
 bedanaccountants.org
+bedandbreakfasttorrelara.com
 bedavasorgupaneli.help
 bedcdnset.beer
 bedotiq.net
@@ -4337,8 +4367,10 @@ bedpocket.xyz
 bedym.ru
 bedzvnbo.ecosystemresourceplatform.garden
 bee.beachcafemb.com
+beec.ovh
 beefsofa.xyz
 beenetprotect.com
+beeyondip.co.za
 befaes.mom
 befdon.biz
 befestigungen24.de
@@ -4350,6 +4382,7 @@ bekirtopcu.com
 bel1tower.digital
 belajarlisensi.id
 beldeluxe.co
+belehova.pro
 belfryledger.top
 beliefdesk.xyz
 belieftrack.cfd
@@ -4357,6 +4390,8 @@ beliefworks.cfd
 believedtobeclean.ddns.net
 bellamacho.com
 belldredgingpump.com
+bellefluxcalhas.com.br
+bellesens.com
 bellow-norushka-pianissimo.digital
 bellows.pics
 bellscares.com
@@ -4364,6 +4399,7 @@ belly--flus.com
 belly--flush.us
 belly-flush.net
 belorks.xyz
+beltendo.com
 beltka.shop
 belxgvc.thevallartasrestaurants.com
 belzvc.nakliyemistanbul.com
@@ -4373,6 +4409,8 @@ bendera-3.com
 bendesin.com
 bendingrealityinc.com
 benotrobot.online
+benro.ps
+benthosambiental.com.br
 benuatotob.store
 beorganiser.com
 beppegallo.it
@@ -4383,6 +4421,7 @@ bereksolution.com.br
 beritaslotonline.com
 berjimek.com
 berkahpoker.co
+berkzpmsd.com.ua
 berlinc.net
 berlof.shop
 bernardi.lol
@@ -4393,8 +4432,10 @@ berrythebear.com
 berthramson.com
 bertoltravelservices.com
 bertoscuisine.com
+bertuolo.com.br
 besbolkita.com
 beseest.com
+besharatemooud.ir
 beshotelsanpellegrinoterme.it
 besopo.workers.dev
 best-claudns-js.beer
@@ -4493,6 +4534,8 @@ betyek.live
 beuatyplussalon.com
 bewiseimmunize.com
 bewsertinekk.info
+bewusst-geniessen.com
+beydoors.com
 beyondhomehealthcareservices.com
 beypazaribirtat.com
 bezdickova.cz
@@ -11142,6 +11185,7 @@ free3pathgate.niva2ron.bet
 free5logicway.eleuther-stupidity.bet
 free5tytokova.digital
 free8siteview.pure9drift.surf
+freeairtime.unaux.com
 freecatimages.com
 freecoffee.monster
 freecoupon.net
@@ -17283,6 +17327,7 @@ lufry.mabelsnursery.com
 luisrobertobarroso.com.br
 lujefyle.workers.dev
 lukkeze.club
+lulemo.workers.dev
 lulfav.bet404farsi.com
 luluni.online
 lum-cresta.qeniral8.surf
@@ -29701,6 +29746,7 @@ vertical-eco-farming.garden
 veryhotcoffee.monster
 vescel.es
 vestbio.com
+veterinaria.byethost12.com
 vetso.com.br
 veu42xr9.yekbetiran.com
 veuxstaniovallano.com
@@ -31389,8 +31435,11 @@ www.apartuk.info
 www.api-aws.xyz
 www.appliancerookies.shop
 www.apulialandartfestival.com
+www.aquaramasportswear.it
+www.arancerossecastellana.it
 www.archivioelia.org
 www.arlovsbygg.se
+www.artecar.net
 www.artmostfear.co.za
 www.aryaxplorer.space
 www.asacor.com.ar
@@ -31401,6 +31450,7 @@ www.associazionenuovavitaonlus.org
 www.associazionepiercy.it
 www.associazionesinapsy.it
 www.atgairport.com
+www.athenianblueyachting.com
 www.author-author.net
 www.autoccb.tech
 www.aware.com.ph
@@ -31408,6 +31458,7 @@ www.axilo.top
 www.ayyappadevalayampudur.com
 www.azetti.com
 www.b-29sn-02vvbpmb0zu3kmq.org
+www.b-itcon.de
 www.b-ui75mia5005x0vinb.cc
 www.backup.masjidulemaan.com
 www.bacsontech.com
