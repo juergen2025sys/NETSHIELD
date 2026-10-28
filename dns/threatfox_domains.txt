@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-28 13:02 CET
-# Eintraege: 33709
+# Aktualisiert: 2026-10-28 14:35 CET
+# Eintraege: 33715
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -58,6 +58,7 @@
 09pl09jo.dokturumsensin.com
 09pqwdqh.rsudtarutung.com
 09xadksl.wismajoko.net
+0a07hpvb.georgelounge.com
 0akhfy37.despot-unfolded.surf
 0aylp390.coletteloire.rest
 0b3kzmav.swin9.store
@@ -11361,6 +11362,7 @@ g3b4hjbg.calculadoracomisiones.com
 g3byemsx.xbetone.com
 g3ne-cast.puro2tal.surf
 g3ne-dock.foersteron.work
+g41nxq8p.bonolo.store
 g4me.flashpopdownloadbutton.monster
 g4p227nh.highdesertarchers.org
 g4teway.com
@@ -11702,6 +11704,7 @@ geomaq.eng.br
 geometre-ledoare.fr
 geopoynt.london
 georgelounge.bar
+georgelounge.com
 georgischerweinkeller.de
 geostar.space
 geostationary-orbit-altitude.garden
@@ -27752,6 +27755,7 @@ thetaetap0tnuh.nordfreak.surf
 thetaiotrm9nz.hustrock.surf
 thetokestudio.com
 thetradestorevehicles.com
+thetrendygalblog.com
 thetruthaboutmercedes.com
 thetsm.in
 theultimateoutlet.com
@@ -31711,6 +31715,7 @@ www.moonbird.life
 www.moovynow.it
 www.mosconiaf.it
 www.mostlyusefulfictions.com
+www.mountpharma.com
 www.mrfixitmrfixitlocalplc.com
 www.mrfixitmrfixitlocalplc1.com
 www.mrfixitmrfixitlocalplcbackup.com
@@ -32455,6 +32460,7 @@ xpfovzj6.enus-zensulin.com
 xplvwza.newspaperseng.com
 xpo.paptogel.net
 xprba39f.jadoou.space
+xpswz67615.workers.dev
 xpxxxro.tnrautomotive.net
 xpzjxywai.funxbet.casino
 xq5m6ofel63h57by46algju25g37zkdwoxxt7ij45b6obo4mxzc3h6id.onion
