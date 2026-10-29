@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-29 06:46 CET
-# Eintraege: 32877
+# Aktualisiert: 2026-10-29 07:06 CET
+# Eintraege: 32929
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1605,6 +1605,7 @@
 96e0qwgn.hero--up.com
 96mjt1sb.axee.net
 97035mb3.signal-harbor.digital
+9741varying.workers.dev
 9849bronze.workers.dev
 988.escutismo.pt
 988920lt-ublib.988920a1.buzz
@@ -5012,6 +5013,7 @@ boss1huesos.cc
 bossbey1.click
 bossbey19.click
 bossbey20.click
+bossbey30.click
 bossleysportsclub.com.au
 bossprotect.com
 bosstekirdag.store
@@ -8658,6 +8660,7 @@ dtzu.patxisdublin.com
 du03146t.eromeofficial.us
 duaeshen.org
 duafwkrh.luxerabet100.com
+dualmont.com
 dualverify.com
 duaozkgx.gtacauto.com
 dubai.thelayzf.fyi
@@ -8707,6 +8710,7 @@ dust.packetflow.cc
 dust3logicgate.sporesyncnode.garden
 dust6logicway.nebulaflux.bet
 dutchgp2020.com
+duthuyenbaoanh.com
 duxnluh.slimsplits.com
 dv1q7cal.eng-usa-nervealive.com
 dvbkmkq.rocketbet.pro
@@ -8730,6 +8734,7 @@ dwmlcjt4.elcornerderaulmorote.com
 dwnloadsg.top
 dwordname.com
 dwpxsmzy.1xforward.bet
+dwr.co.za
 dwterbangbets.icu
 dwtkz.technologiaiviz.hu
 dwvygj31.dermatologycongress.org
@@ -8895,14 +8900,17 @@ eastvillageeatery.de
 easy-pixx321.world
 easyautism.org
 easybatteryfixed.us
+easyglobalvacation.com
 easysoundhealing.com
 easyzionwedding.com
+eatchickenstayfit.com
 eatouteatwell.com
 eaty6go0.anodaz.co
 eauviveinasia.com
 eayuhgu.xbetone.com
 eazcu9o7.eutoor.com
 eazk7las3xsvsyxgww3jgzammqjevso2ydnmlopdhl3u2muyrmmilrqd.onion
+ebafosa.org
 ebasinbulteni.com
 ebatkopat.click
 ebe5z0d5.en-us-en-heroup.com
@@ -8961,9 +8969,11 @@ ecmgugcskqeiiaok.xyz
 ecmsykmiceaqwcmw.xyz
 ecned5tg.roseanne.id
 ecnoagent.com
+ecoambiental.info
 ecodation.com
 ecoeoeoakwswwsaq.xyz
 ecoforindustrial.cl
+ecogreen.co.id
 ecointernationalltd.com
 ecokgyweeqwgosoy.xyz
 ecoledefelix.org
@@ -8987,6 +8997,7 @@ ecourwue.takhtenard-online.com
 ecouvs23.cialispi.com
 ecovida.co
 ecovita.life
+ecpalmeirense.com.br
 ecprofessionals.co
 ecqioykyqcamsicq.xyz
 ecqqwwywgeoogaiu.xyz
@@ -9066,6 +9077,7 @@ edtbi.jetbet.download
 edtechcambodia.org
 edtg.thelegalexpertise.com
 edtmogyp.red90.casino
+eduardoalcivar.com
 education-lab.starbrain.jp
 educationcaster.monster
 educlic.ca
@@ -9143,6 +9155,7 @@ eh-masled.courses
 ehchq7m7rpvdr.cfc-execute.bj.baidubce.com
 ehgbv6lm.us-thetrumptoken.com
 ehhzba.rsfoodproducts.com
+ehiaa.com
 ehj.chriskendall.media
 ehj.loniluekegerman.com
 ehkqhm.eng-usa-prozenith-us.com
@@ -9207,7 +9220,9 @@ ekzhvqgg.schleer.hu
 ekzsmwa.digeststart.us
 el-4dfmiwuflwf.digital
 el-5fmkdhfsfdsg.digital
+el-town.ru
 el9ozjuh.cardislim.com
+elaiz.com
 elangcybernusantaratv.com
 elavelle.online
 elbaaz.com
@@ -9220,6 +9235,7 @@ elderberryloft.net
 eldertechsupport.com
 elderwood.cc
 eldiadigitalcr.com
+elearning.ipav.pt
 eleasthea.gr
 electricdredger.com
 electricsalesinc.com
@@ -9232,6 +9248,7 @@ electrumn.gr.com
 electsharon.com
 elegantshoppingbd.com
 elektrikclothing.com
+elektronika-chertkovo.shop
 elencuentrosl.com
 eletrosoldalimeira.com.br
 elevate2innovate.com
@@ -9245,6 +9262,7 @@ eligibility-apyx.finance
 eligibility-firelight.com
 elijahwgummer.baby
 elipsbet.poker
+elipseradiologiadigital.com
 elite-agri.com
 eliteandace.com
 elitecheats.live
@@ -9258,9 +9276,11 @@ elizabethbuckleyschool.com
 elizabethspizzadenton.com
 elizium999.digital
 ellab0098.duckdns.org
+ellibano.edu.co
 ellington-costa-mare.com
 elliptical-rabbit.icu
 ellisgadget.com
+ellozcorp.com.br
 elmolnafs.xyz
 elmqfzy.zsatom.hu
 elmquarry.cc
@@ -9314,6 +9334,7 @@ emcqesvk.garland-network-hub.christmas
 emdnfl2fv32jhssxcbxlo6dzg2at4d7qbw2md6inz63qzdfgyln5cwyd.onion
 emeenakshi.org
 emelec-grenoble.fr
+emeraldbaku.com
 emeraldyachtship.com
 emergeno.com
 emergingtalentllc.com
@@ -9421,11 +9442,14 @@ en.iranphotonics.com
 en.skep.life
 enak.tc
 enbhkx.jackpot77.de.com
+enchantedjourneys.co.za
 encod-vault.herod-terminology.bet
 encoderfreight.daro6vex.lat
 encompass-graphics.co.uk
+encoresalestx.com
 encorevault.live
 encryption5hadow.digital
+encuentramedicos.com
 encuentrocofrade.oracionlebrija.es
 endlessai.io
 endlesssummer-pools.com
@@ -9443,6 +9467,7 @@ energedia.foundation
 energetyk.walbrzych.pl
 energy-dasstudio.at
 energy4665.duckdns.org
+energyincentives.services
 enf.com.mx
 enf90.app
 enf90.net
@@ -9542,6 +9567,7 @@ engusa-sugarmute.com
 enh878lb.fungame777.co
 enhanced-1.jeetbot.cc
 enhanced.jeetbot.cc
+enisey-tur.info
 enkafood.de
 enkkxbi.n1betiran.com
 ennovar.io
@@ -9626,6 +9652,7 @@ envsets.smell-chat.lat
 envsets.sorix9el.surf
 envsets.vexon4al.lat
 enwz.5dorexin.lat
+enylawservices.gr
 enzccxnn.jadoobet.live
 eo0eq5ok.truenarrator.com
 eoczi62r.wiro88.blog
@@ -9656,6 +9683,7 @@ epgdevelopment.com
 epicglobalgroup.net
 epicly.digital
 epicskater.com
+epilskin.com.ua
 epltd3ga.kkslot777.asia
 eplusarchitecture.com.au
 epnoyy.viveheadspa.com
@@ -9700,6 +9728,7 @@ eqtatpq.go-neuroxen.com
 equ1t-spark.ve7loria.garden
 equecgemyikeqqga.xyz
 equi-sto.team-sync.work
+equicoopai.com
 equigfy.biz
 equinixad.monster
 eqwbbhd.1xborobet.bet
@@ -9742,6 +9771,7 @@ erubhug7.eng-slimsounds.com
 erzincanisitme.com
 es2utu9l.samsann.com
 es5e30kv.clarins-sale2025.online
+esagrililardernegi.com
 esby4edt.en-us-thetrumptoken.com
 esbydax.tobisha.com
 escalatefud.duckdns.org
@@ -9751,11 +9781,14 @@ esdev.my.id
 esed.bahiacafehotelsalvador.com
 eserverx.com
 esfas3nf.acce1eratpacify.digital
+esgmexico.com.mx
+esgnative.org
 eshop.nanosoft.gr
 eshyma-market.com
 esicm.biz
 esim360.eu
 esjvtzn6.aloo.bet
+eskisehiraltinfiyatlari.net
 esnjo.tractor11.com
 esoftwareupdates.com
 esotericpro.com
@@ -10087,6 +10120,7 @@ f4nvsexe.xen--burn.com
 f4vyboeo.burnblendmarket.com
 f5gookpr.cinecluster.com
 f6gn33i6.mard.store
+f6mnq0ep.bossbey13.click
 f7a20n5o.ravansalamat.shop
 f7a91683.b00kself.com
 f7ezcfta.lunza.store
@@ -10406,6 +10440,7 @@ fh.4toto.net
 fh.54toto.org
 fh32dvqs.eachway-multiplier.com
 fh6sil11.test-drive-iran.com
+fh8bjwfs.bossbey30.click
 fhaedl.com
 fhbd.golibet.page
 fhbyrsz.cfd
@@ -17210,6 +17245,7 @@ malenko.net
 maletoks.pro
 maletosr.world
 mallaak.mom
+mallorcavipcar.es
 malo-coaching.ch
 maloke.pro
 maloneyr.cyou
@@ -18496,6 +18532,7 @@ msm.6666k.org
 msnbot-157-55-39-52.search.msn.com
 msnbot-207-46-13-151.search.msn.com
 msnbot-52-167-144-172.search.msn.com
+msnbot-52-167-144-184.search.msn.com
 msndla.com
 msnvm.us.com
 msnwgu.josetreeservice.net
@@ -18828,6 +18865,7 @@ nbyap.danestanihavarzeshi.com
 nc45aae1.tractor11.com
 ncfgesrw.derbi.football
 ncgxk.visszateritok.hu
+ncheck-brows.beer
 ncia.hazaratbet.games
 ncodbsverify.dynv6.net
 ncodbvverify.dynv6.net
@@ -28837,6 +28875,7 @@ vibe.silveraxis.surf
 vibe.silvermoonlight.lat
 vibe.urbanpulse.surf
 vibe8siteview.mira4then.bet
+vibehunter.epizy.com
 vibemedia.me
 vibesclubcol.com
 vicblessings.noip.at
@@ -30629,29 +30668,42 @@ www.drechftankholding.com
 www.droppingjulzz.com
 www.dservices.space
 www.dtu92.top
+www.ducatimooca.com.br
 www.dumhome.be
 www.duo240.top
+www.duomoregina.com
 www.durantdiego.com
 www.dyshop.online
+www.e42.it
 www.eabconstrutora.com.br
 www.ecomfactory.com.au
 www.ecopestcontrolperth.com.au
 www.edge-chrome.com
+www.edilmattoni.com
 www.effect-tec.com
+www.efficienthouse.cat
 www.effizziemagz.com
 www.eflackprofi.at
 www.efziqo9lqgsakqmvf.cc
 www.egnarts.com
 www.ejoist.com
+www.ekotek-tarimuydu.com.tr
 www.ekramsales.org
 www.ekramsalesbackup.org
 www.ekramsalesbackup1.org
 www.ekramsalesbackup2.org
 www.electsharon.com
+www.eliorambaldi.com
+www.eliteceramichedarredo.it
+www.elmaitalia.it
 www.elsefinebooksellers.com
+www.emanueleocchipinti.com
+www.emmanelpiceno.it
+www.emmausbiblechurch.net
 www.encajesmecanicos.com
 www.epicly.digital
 www.eqtreporting.com
+www.esgtechnology.it
 www.etnorais.es
 www.everynameinhistoryisi.net
 www.ex0x40vmi8qyccxq.net
