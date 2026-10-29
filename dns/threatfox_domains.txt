@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-29 23:03 CET
-# Eintraege: 33270
+# Aktualisiert: 2026-10-30 00:30 CET
+# Eintraege: 33318
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -5039,6 +5039,7 @@ bossbey31.click
 bossbey69.click
 bossbey71.click
 bossbeyagency.click
+bossbeyalpha.click
 bossleysportsclub.com.au
 bossprotect.com
 bosstekirdag.store
@@ -7671,6 +7672,7 @@ datapointly.icu
 datapulse.wiki
 dataramara.icu
 dataset58.com
+datastoria.com
 datastorminc.live
 datasurge-bot.com
 datasurge-bot.info
@@ -7690,6 +7692,7 @@ daviderampazzo.it
 davidesoranzio.com
 davidhirle.com
 davidkapor.com
+davidmiklos.com
 davidoerter.com
 dawn.ssybd.workers.dev
 dawn3-spool.fixionmunici9al.lat
@@ -7906,6 +7909,8 @@ demnocusurpapanottodelivermebetterlogs.duckdns.org
 demo.mufaqar.com
 demo.noicondomini.it
 demo.oilpalmconsultant.co.id
+demo2.amcham-ci.org
+demo2.goldschadt.com
 demo212.jnirnportaciones.net
 democrazzy.net
 demogortexpro.cc
@@ -7982,6 +7987,7 @@ dev.clpcentr.world
 dev.coderlap.pics
 dev.esteghlal.news
 dev.holidaysm188.top
+dev.kitecostabrava.com
 dev.masihsm188.top
 dev.merahsm188.top
 dev.mpsolar.co.za
@@ -9813,6 +9819,7 @@ erzincanisitme.com
 es2utu9l.samsann.com
 es5e30kv.clarins-sale2025.online
 esagrililardernegi.com
+esastus-oct29.eastus.cloudapp.azure.com
 esby4edt.en-us-thetrumptoken.com
 esbydax.tobisha.com
 escalatefud.duckdns.org
@@ -15876,6 +15883,7 @@ kruxjou.ua
 krvryy.laurelgrovepv.com
 kryfgu.finkfamilyautomotive.com
 krz8atn6.avenue-laverie.fr
+krza2dpb.bossbeyalpha.click
 ks3fup.grov6lira.bet
 ks52m3wi.apmlandscaping.com
 ksaj1cgw.mrgreenbetiran.com
@@ -17621,6 +17629,7 @@ mars8-path.pavi1xen.bet
 marsalgroup.org
 marshallspest.com
 marshalshart.xyz
+marta-romanowska.pl
 martabakcinta.com
 martinvandalen.live
 marvelouslooks.monster
@@ -17628,6 +17637,7 @@ marxgo.top
 maryamshop02.com
 maryaxdn.sanjeshravani.shop
 marymaryclaire.com
+masaz-torun.pl
 mascard.biz
 mascyeamiumawaiu.xyz
 maseratis.net
@@ -17667,9 +17677,11 @@ mastermyrecipe.com
 mastojh.cyou
 maswckeeycmksies.xyz
 matagujricollege.org
+mataran.eu
 match.sitefulia.com
 match3taskhub.zora7vex.bet
 matchsfood.com
+matebelelandpulse.co.zw
 matefalls.pages.dev
 matefallsbeta.pages.dev
 material-deals.com
@@ -17679,6 +17691,7 @@ math4logicway.cosmologic.bet
 mathandchessss.com
 mathlah.com
 matie-bal.club
+matolcsy.net
 matong.buzz
 matr-broo.thora8lin.lat
 matrix-config.net
@@ -17687,6 +17700,7 @@ matsnews.com
 mau.bcagency.vn
 maugeiciyokkmggq.xyz
 maui.ae
+maunakeaorchids.com
 mauriciolizcano.com.co
 maurya.nl
 mavisuru.lk
@@ -17700,6 +17714,7 @@ maxcodedinc.com
 maxhealthinsadvantage.com
 maxidogetoken.org
 maximalmaxing.com
+maximoimpactocomercial.com
 maximumservers.net
 maxosoft.com
 maxstatesus.org
@@ -17722,6 +17737,7 @@ mayoaooyykakuegi.xyz
 mayochem.com
 maytwilcz.easternartmuseum.com
 mayurbhanjtour.com
+mazzara.love
 mb7oktk3.archive-shlyah.digital
 mb86k2nu.metaboddrops.com
 mbbzfh.grannygshemporium.com
@@ -17734,6 +17750,7 @@ mbifcxdz.careeriran.ir
 mbigpi.pishbinifoori.com
 mboshll.crownconnectpk.com
 mboxao.lipoviveofficials.com
+mbpducati.ca
 mbperformanceonline.com
 mbq5b6qe.nelloconstruction.com
 mbqhhu.gtacauto.com
@@ -17747,6 +17764,7 @@ mcbelize.com
 mcdejwixr.fg777depo5k.com
 mcdns-imager.click
 mcdowellsemporium.com
+mcepdkt.in
 mcgrawney.com
 mcinbooks.com
 mckglhnz.holiday-matrix.christmas
@@ -17757,6 +17775,7 @@ mcqkkmc.betfootbal90.com
 mcreu5e7.heroe.store
 mcrhotels.com
 md7buqog.melbetturkiye.org
+mda-cro.com
 mdaasesorias.com.mx
 mdazhynx.btyek.site
 mdbia.welovevent.com
@@ -17806,17 +17825,21 @@ media.hazelnook.cc
 mediaart.gleeze.com
 medialek.cyou
 mediamarkt.mom
+mediasales.az
+mediatorsecurity.com
 medicalmexcr.com
 medicalschoolcompanion.org
 mediccore.pl
 medicialanswers.forum
 medicin-morisomtobeafraid.wiki
+medicinabemestar.com.br
 medicinevacansies.work
 medidemo.wastore.in
 medikalmasoz.com
 medinmoc.top
 mediosdigitalesdelnorte.net
 medjourneytourism.com
+medline.az
 medmakine.com
 medmark.sa
 medonaz.net
@@ -17825,6 +17848,7 @@ medsolutions360.com
 medstopmedicalservices.com
 meduurst.space
 meedeal.com
+meejab.com.ng
 meet-google776846673678.pages.dev
 meet.google.com-join.us
 meetinformation.com
@@ -17839,6 +17863,7 @@ megangray.workers.dev
 megaparivip.com
 megapariwin.bet
 megaslot8gac0r.site
+megastroymsk.ru
 megaways5000jp.site
 megawin122.space
 megawin888jp.site
@@ -17850,6 +17875,7 @@ megumin.tech
 meharsons.com
 mehig.run
 mehpuqa.ac90bet.org
+mehtasolutions.de
 meierhealthcare.ch
 meinepacks.live
 mejeuqh.audizyn.com
@@ -17885,6 +17911,7 @@ memshowblob.forum
 menang120.space
 menangmulu.jp.net
 menara62.com
+mendagropapers.com
 mendocs-opera-shub-cowddos.garden
 menomou.shop
 mentopo.info
@@ -17905,6 +17932,7 @@ merch.b-bot.space
 merchantdude.com
 merchantinvestnetwork.com
 mercio.org
+merciwil.com
 mercore0or.mistbr1a.garden
 mercore7is.velorix.life
 merengagoi.bond
@@ -17925,6 +17953,7 @@ mernexex.vori7nex.surf
 merrywannainq.com
 merspirea.weplord.lat
 mervaleet.userssawtone.lat
+mes-rdv.net
 mesa-braior-k3w3b.life
 mesa-seen-dcjcj.live
 mesa-zaimmuen.life
@@ -18034,6 +18063,7 @@ mexq.breakfast-hut.site
 mexyzfs0.aktinovolia.com
 mexzicaj.cyou
 mezcalpro.com
+mezoberenyszallas.hu
 mezqmtx.mellbeet.com
 mf-solutions91.fr
 mf.9qoi.org
@@ -18113,6 +18143,7 @@ mi6.operationanonrecoil.ru
 miamidadenotary.com
 miamipcsupport.com
 miamiresidentialroofing.com
+miaso.org.eg
 mibombo.in
 micfybfh.jadoobet.ink
 michaelrutter.dev
@@ -18198,6 +18229,7 @@ minak.run
 minanaskyimmigration.ca
 mindbugstest.nl
 mindfulnessenterprise.com
+mindgarden.ir
 mindrhformation.fr
 minecraft65server.3utilities.com
 minecraftserverapigame.xyz
@@ -18217,6 +18249,7 @@ mininebulizer.in
 minitipsx.com
 minkadsus.shop
 minnarasanen.com
+minneolasg.com
 minoh.ec-sky.click
 mint2pathgate.verd7loka.bet
 mint2pathgate.verdi7rax.bet
@@ -18261,6 +18294,7 @@ mistwalkerforge.top
 misty-arc-rook-sleoor.com
 misty-ripple-lark-kraiara.top
 misty-whirl-beacon-doa.life
+mit-kindern-leben.de
 mitkzq.reynoldsbrothersconstruction.com
 mitolyn-us-en.us
 mitolyncart.com
@@ -18669,6 +18703,7 @@ motifroy.gabard-viewed.surf
 motionbluedigital.com
 motivationiran.com
 motopicks.com
+motorsport-zander.de
 motowin77login.world
 motrosa.com
 mottledservices.com
@@ -20112,6 +20147,7 @@ ocjly.visszateritok.net
 ockpahmv.karbordriyaziyat.xyz
 ocsol.net
 octobdrive-pho.com
+october28floor.eastus.cloudapp.azure.com
 octzfcoi.calculadoracomisiones.com
 ocuyakrzyc.workers.dev
 oczdcn.eng-usa-slimsounds.com
@@ -20228,6 +20264,7 @@ oitavwl.dusanperisicmd.com
 oixkxhga.qen2virex.lat
 oiyksxf.vexon3ar.surf
 oj.aeon888link.org
+oj6t7bx1tw.workers.dev
 oj7f87i3.radioshartbandi.casino
 ojblxlua.hugugtejarat4.xyz
 ojbprh.krokodilpince.hu
@@ -24984,6 +25021,7 @@ sightfreshh.com
 sigmaboy86868-64288.portmap.host
 sigmagranni1.fun
 sigmatauethifarma.com
+sigmauperdonesoft.com
 signal-bridge.digital
 signal-core-engine.christmas
 signal-frontier.digital
@@ -28529,6 +28567,7 @@ uqmsyasksaoaiqso.xyz
 uqmvta.shop-theslimsplitsmethod.us
 uqoemmmgcskamsgc.xyz
 uqquaumoewosaeiy.xyz
+uqtwk66004.workers.dev
 uqyaakgqymuksosc.xyz
 uqz8xcw9.gamebc.bet
 ur.146slot.org
@@ -30080,6 +30119,7 @@ westpeta.bordklo.lat
 westpointfulfillment.com
 westscope.agency
 westtherr.com
+westusserverfor.westus2.cloudapp.azure.com
 westy04.karslioglu4-tr.com
 wet-envelope-beam-laser.trycloudflare.com
 wetrainsimulation.com
@@ -31272,6 +31312,7 @@ www.maedso.com
 www.malavasiagostino.it
 www.mamalupe.es
 www.mandiepinto.com
+www.mannellagroup.it
 www.manyhillsbooks.com
 www.manzl.org
 www.marianoturcutto.turcutto.com
@@ -31279,18 +31320,23 @@ www.marineinsurer.one
 www.markcode.my
 www.marvelousnpinjector.com
 www.mastergrillrecipes.com
+www.matalnatura.com
+www.mauroleo.com
 www.mb8coin.io
 www.mcarobotics.fr
 www.mcdowellsemporium.com
 www.mcinbooks.com
+www.mclagodiseo.it
 www.mcttt.gov.fj
 www.mdmaleren.dk
+www.meclab.it
 www.melaracconti.it
 www.meshpedia.com
 www.metaleks.com.tr
 www.metanoashopinsoutlook.space
 www.metodobertele.it
 www.mgmyhys8v6v19e9w5kbizn6i.cc
+www.michelemiglionico.com
 www.microsofer.top
 www.microsslcheck.com
 www.midtownscholar.us
@@ -31298,6 +31344,7 @@ www.milanotoonight.com
 www.millionairemind.live
 www.millonixvip.live
 www.mineniches.com
+www.mirastudio.it
 www.mitrasedjati.com
 www.mobile1.com
 www.mojomama.org
@@ -33088,6 +33135,7 @@ zonaelectrove.com
 zonafranca.tv
 zonainfo.biz.id
 zonavibi.workers.dev
+zone-14-service-8-8.eastus.cloudapp.azure.com
 zone.darkwinterlab.lat
 zone.frostpoint.surf
 zone.oceanblue.surf
