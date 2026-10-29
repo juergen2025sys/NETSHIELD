@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-29 13:15 CET
-# Eintraege: 33051
+# Aktualisiert: 2026-10-29 14:31 CET
+# Eintraege: 33057
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -709,6 +709,7 @@
 3igbupne.eng-bpzone.com
 3imyvvfh.slavyera.com
 3ivn3wjq.eastcoastseafoodsupply.com
+3j7cilgavj.workers.dev
 3jcnvfi5.thelogicofmoney.com
 3jf88h.th0rniva.garden
 3jlqu63c.drubenginecologo.com
@@ -3831,6 +3832,7 @@ b7ttsc7s.shop-theslimsplitsmethod.us
 b7uoqibt.eachway-multiplier.com
 b7zhnw8a.enus-prostafense.com
 b86pccs5.en-us-prostaafense.com
+b8ecrz1g.yellohotelsharmoni.com
 b8i7k0hi.parsbet90.com
 b8ix9khn.bosstekirdag.store
 b8jjrvqi.gluccotrust--bites.com
@@ -4724,6 +4726,7 @@ blastikcn.com
 blatnoitovar.xyz
 blazeblaze.ddns.net
 blazerpro.pro
+blbekcpc.bossbey69.click
 blc3music.com
 bldcebu.com
 bleakhaven.com
@@ -5023,6 +5026,7 @@ bossbey19.click
 bossbey20.click
 bossbey30.click
 bossbey31.click
+bossbey69.click
 bossleysportsclub.com.au
 bossprotect.com
 bosstekirdag.store
@@ -15410,6 +15414,7 @@ kffd3.vogueatelier.cc
 kflm3k81.rtplive-miliarbet.store
 kfpjbqczj.jadoobet.pro
 kfplmpbmdmxewleiom.oasteadomnuluidiaspora.com
+kfsesbn5.paars.poker
 kfshh.qeniral8.surf
 kfsteels.com
 kftla.sm188login.sbs
@@ -26268,6 +26273,7 @@ surestayplussanantoniotx.com
 surexglobaldelivery.icu
 surf.oceanwavepoint.lat
 surf2taskhub.felo7wave.surf
+surfixasa.duckdns.org
 surgigate.com
 suriyamotors.com.pk
 surplusofer.com
