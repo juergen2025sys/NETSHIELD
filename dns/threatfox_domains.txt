@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-29 03:06 CET
-# Eintraege: 32790
+# Aktualisiert: 2026-10-29 03:56 CET
+# Eintraege: 32811
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -68,6 +68,7 @@
 0co7tx46.worldofmacarons.com
 0cppgosu.prairiefurnitureshop.com
 0dahrppq.taktikbet.bio
+0dd93xws.bossbey20.click
 0doro4y0.www-genesisrevival.com
 0dptx.earoauth.life
 0dt4r35j.gavaedfagahe.xyz
@@ -6216,6 +6217,7 @@ chrisparrycollection.com
 chrisram.com
 chrisram.net
 chrisrico.picklescoop.com
+christadutoit.co.za
 christen-wilkau-hasslau.de
 christiaan.ch
 christiancordero.mba
@@ -6623,6 +6625,7 @@ cnc.reaperc2.xyz
 cnd.bagsrad.com
 cniqfzhe.riskybet.casino
 cnjiaju.vip
+cnrit.co.th
 cns.bagsrad.com
 cns.grotominpgroup.pl
 cnssuaritma.com
@@ -7033,6 +7036,7 @@ cowswap-gateway.ru2tor.com
 coyahome.com
 cozffr.plumberservices.store
 cozinca.com.br
+cozinhadamarinoca.com.br
 cozmo90bet.com
 cp2.7dewaslot.org
 cp53yk6u.unseen-zorenka.digital
@@ -7284,6 +7288,7 @@ culling-posture-schnitzel.digital
 cunozylb.sanjeshvaandazegiri.shop
 cunts.colg1.org
 cuo2gs4q.sportteen.ir
+cuocsongchauphi.com
 cuoredelleone.de
 cup.blinqueofficial.com
 cup.wiwgf.workers.dev
@@ -7302,6 +7307,7 @@ cursol.com.br
 cursor.li
 cursosonlinepremium.com.br
 curux.run
+custodiomartinho.com
 customers.googlesecuritysystem.com
 custosern.digital
 cut2taskhub.dismemb7harlot.bet
@@ -8178,6 +8184,7 @@ djqiyxyx.calirayalake.com
 djrtt.run
 djspe30g.eng-usa-heroup.com
 djtffqa.oxiidbet.com
+djuregler.dk
 djwmagazine.com
 djwof.ady26.hu
 dk1oqrra.en-us-en-heroup.com
@@ -19717,6 +19724,7 @@ obmjbub.artisourlifestyle.com
 obnusho.cyou
 oboizw.atriplejranch.com
 obparso.eventmanagementindia.com
+obrasyurbanismoim.com
 obser-guide.bookuni.lat
 obser4-beam.sarahkapsreit.work
 observability-hub-system.courses
@@ -24780,6 +24788,7 @@ skaedbraearaquiet.life
 skahfy.biz
 skanesmide.se
 skarici.com
+skating.kz
 skep.life
 sketchbasic.tavro4xel.lat
 sketchetch.net
@@ -30482,10 +30491,15 @@ www.cloudespacios.com
 www.clps.space
 www.clubanimazione.it
 www.coberitaly.it
+www.collegiatasanlorenzo.it
+www.coltelligiapponesi.com
 www.comfort-style.co.uk
+www.comitatoparterre.it
+www.commune-khlidia.gov.tn
 www.comoshops.com
 www.compleatscholar.com
 www.comprooroaosta.it
+www.condominiobologna.it
 www.confettibooks.com
 www.confialscuola.com
 www.constructeddigital.com
@@ -30493,18 +30507,24 @@ www.consultarprocesosramajudicial.com.co
 www.contexception.com
 www.continuumclothing.com
 www.contractor.click
+www.contradadeimiracoli.it
 www.contratoscliente.online
+www.controvena.com
 www.coonfiance.com.br
 www.corelaunchhj.click
 www.corterosantico.com
 www.cortig.net
 www.costadeibarbari.com
 www.covertocoverbooks.ca
+www.coworkingtroina.it
 www.craicheads.com
 www.cranecertllc.com
+www.creimonza.it
+www.crocedorocagliari.it
 www.crookedhousebooks.com
 www.crossroadbookstore.com
 www.csri.space
+www.ctctrailer.com
 www.cube-cycle4mdy.org
 www.currituckduckhunting.com
 www.cutoffwheelsrus.com
@@ -32718,6 +32738,7 @@ zuhg5fig.drubenginecologo.com
 zuibs.jetbet.download
 zujqygdq.sakhtemandade.shop
 zuldqm04.riyaziyattajrobi.xyz
+zulozuqe.workers.dev
 zumil.run
 zuodx.com
 zurggoyttjof21.cc
