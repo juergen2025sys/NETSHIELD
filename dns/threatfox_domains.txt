@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-29 18:06 CET
-# Eintraege: 33084
+# Aktualisiert: 2026-10-29 20:00 CET
+# Eintraege: 33122
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1273,6 +1273,7 @@
 71ovhjko.cocoricobeachbar.com
 71t3btzj.zcode--system.com
 71vb3uq6.byte-foundry.digital
+71vu88ey.bossbeyagency.click
 7242fdr7.us-en-nervesoothe.com
 725iok0i.lazici.store
 72abbjf.gela1vor.lat
@@ -1893,6 +1894,7 @@ abyssalflowunit.digital
 abyssalkraken.fit
 ac-api-v3.r0csgo.com
 ac-socket.r0csgo.com
+ac5qz4t1.urgentblue.com
 ac8oq.toorout.lat
 acac.hopto.org
 academiaods.com.br
@@ -2549,6 +2551,7 @@ amanapayroll.com
 amanda902.infinityfreeapp.com
 amanfactory.com
 amaniza.com
+amaranth5104.workers.dev
 amarszalek.net
 amavelle.online
 amaze.printedsimply.com
@@ -5034,6 +5037,7 @@ bossbey30.click
 bossbey31.click
 bossbey69.click
 bossbey71.click
+bossbeyagency.click
 bossleysportsclub.com.au
 bossprotect.com
 bosstekirdag.store
@@ -5805,6 +5809,7 @@ casfol.com
 cash-js-server.sbs
 cash-win.nl
 cash8siteview.peta1vrix.bet
+cashin24.ca
 cashorix.xyz
 cashout2018.ddnss.de
 cashplay.pk
@@ -11438,6 +11443,7 @@ galilea-naturopati.com.aditpropertybali.space
 galjdxt.bet1bartar.com
 galleries-physicians-psp-wv.trycloudflare.com
 gallowayconsulting.net
+galpaodaluz.com.br
 gals.kleenghjah.com
 galspost.com
 gambleworldhub.com
@@ -11469,6 +11475,7 @@ gaqkweawewiyuimg.xyz
 gaqqqccykioaegss.xyz
 garagedoorskentucky.com
 garagedoorstexas.com
+garagepartner.com
 garciarico.com
 gard9-point.establish-lads.surf
 garden-82.com
@@ -11478,17 +11485,22 @@ gardeninfrastructurecore.garden
 gardeninfrastructurelab.garden
 gardenprocessinghub.garden
 gardenresourcecontroller.garden
+gardenservicos.com.br
 gardenworkflowcenter.garden
 gardoone-shans-pool.com
 gargiulobuilders.com
 gargona-music-prizdec.asia
+garlin.biz
 garnetmill.cc
 garsonuoma.lt
 gas3taskhub.nebulaflux.bet
 gascwmskqoggmyki.xyz
 gasienda.com
 gasmoceikmoswaqg.xyz
+gasoxygen.ir
 gasshopper.sale
+gasthaus-auerhahn-rollsbach.de
+gasthaus-auerhahn.eu
 gasthof.punkthotel.de
 gastonrenard.com
 gastric.mezmd.com
@@ -11544,8 +11556,10 @@ gayoouakiiesssse.xyz
 gayqkcausycqmcuq.xyz
 gayssoawioymwyuk.xyz
 gaz.sm188dvlv.lol
+gazandmarty.com
 gb-dwnplus.org
 gb-westerveld.nl
+gba.gov.mw
 gbappze.com
 gbbzsnq.1xgame.cash
 gbbzykw.melbetkade.com
@@ -11625,7 +11639,9 @@ gebbxexd.shop-alphaboostpro.us
 gebyqsk76vri0ocd.org
 gec56eyc.pczrt.hu
 gecsge4e1e5427f8.com
+gedici.de
 geeico.it
+geem-international.com
 gefpeqd.bet1xiraq.com
 geigersjobs.com
 geirvzju.betxane.com
@@ -11693,6 +11709,7 @@ geometre-ledoare.fr
 geopoynt.london
 georgelounge.bar
 georgelounge.com
+georgeslab.com
 georgeslab.cz
 georgischerweinkeller.de
 geostar.space
@@ -11703,6 +11720,7 @@ gepco-energy.com
 gepskmb.wildwingpreservepoa.com
 geraldine-crai.com
 gerar-nfe.online
+gerbangpraja.com
 gerchik.pro
 gerenagosto.duckdns.org
 german-uboats.com
@@ -11716,6 +11734,7 @@ gesellatv.com.ar
 gesmfesgs.abcdbro.com
 gestcular.cfd
 gestiatalaia.biz
+gestionmedicaensalud.com
 gestionmype.com
 gestir.is
 gestticalia.com
@@ -11788,6 +11807,7 @@ getyhb.sbs
 gexbskxk.beshnoinja.ir
 gey5-reach.didoprotecauth.lat
 geysergentle.bnaumann87.work
+gfarming.com
 gfcbm.xyz
 gfcwiur.yutongdrying.com
 gfddx.run
@@ -11852,6 +11872,7 @@ ggx.hypervisor-resource-allocation.in.net
 ggymiagewkimcaqu.xyz
 ggzc8z1w.travelley.health
 gh6fn4zq.i90.bet
+ghanshyamgupta.com
 ghbfozy.olabahiskayit.com
 ghccipia.fifa90bet.casino
 ghcruhhs.sanjeshvaandazegiri.shop
@@ -11877,12 +11898,15 @@ ghyu.in
 gi4q7bgx.infinityjoespizzaclearwater.com
 gi4tt6hi.enus-puraboost.com
 gialird.pishbini11.com
+giardinodellezagare.com
+gicls.com
 gideonconstructioninc.com
 gidptxnf.shartbandi.games
 gif4ttuk.habbofutbol.com
 gifqd3gd.mahbet.poker
 gift-harbor.christmas
 gift-lattice.christmas
+giftgivingsimplified.com
 giga.miraibotnet.su
 gigacuan-a.icu
 gigaping.online
@@ -12225,6 +12249,7 @@ gorivume.workers.dev
 gorsefield.cc
 gorsegazette.co
 gorto.ridgerenovation.com
+gosciniecbielik.pl
 goserres.gr
 gositeline.com
 gospelofwork.com
@@ -12257,6 +12282,7 @@ gowayofficemee.in.net
 goyalsolar.com
 gozilwl.overlokcu.com
 gozog.run
+gozomet.pl
 gozozk.mav2lirex.lat
 gp.4-win.org
 gp.54toto.org
@@ -12348,6 +12374,7 @@ green-macrohim-work-center.garden
 greenbay.lk
 greencocos.com
 greencrowdsourcing.com
+greenertidings.co.za
 greengroundinnovations.com
 greenhouse-climate-control-sys.garden
 greenhouse-resource-center.garden
@@ -12361,6 +12388,7 @@ greenhouseoperationshub.garden
 greenhouseresourceengine.garden
 greenhouseworkflowcenter.garden
 greenhouseworkflowhub.garden
+greeninstitute.mk
 greennexte.xyz
 greenofmoon.com
 greenpulselandscaping.com
@@ -15134,6 +15162,7 @@ k.upgrades.lat
 k.worldpress.biz
 k0pr01pw.diero.store
 k0v5zt7p.verticalrewards.com
+k1.bb69.org
 k1h.fileboro.com
 k1h.hopesm188.top
 k25qo8xh.fungame777.co
@@ -21622,6 +21651,7 @@ portal.countypress9.lol
 portal.framerun.click
 portal.grandir.live
 portal.nifatualiza.com
+portal2.bloomloop.lol
 portalbyte8345.lol
 portaldasfinanca.com
 portaldasfinancas.portal-nota.sbs
@@ -27128,6 +27158,7 @@ thelegalexpertise.com
 thelibertytoken.net
 thelibertytoken.org
 thelibertytoken.us
+thelocticiansalon.com
 thelovebugsband.com
 thelumberjackswife.com
 themagicneedle.monster
@@ -30868,17 +30899,23 @@ www.fiveroomsortigia.it
 www.fixbug.icu
 www.fixitfuego.online
 www.flyfishingiceland.com
+www.fondazioneannalisegalligani.it
 www.formazioneeconoscenza.org
 www.fortheloveofyou.al
 www.fosterbooks.co.uk
 www.fotografoaroma.it
+www.foukalek.cz
 www.francocadoni.it
+www.freddysbarbershop.it
 www.freedomsolar.hu
+www.freepowergreen.it
+www.fresh-air.it
 www.fridanitours.de
 www.friesen-bau.de
 www.frownappr0veizl.com
 www.fruitdelice.it
 www.furbabyfortune.shop
+www.furnaridentistaroma.it
 www.fuseum.eu
 www.gabrovo.info
 www.gabyfox.it
@@ -30895,6 +30932,7 @@ www.gestorianaveiras.es
 www.geto.space
 www.getscalespilot.co
 www.ggccloud.top
+www.giacalonerappresentanze.com
 www.gibertpaul.com
 www.gibsonbooks.com
 www.gloversbookery.com
