@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-29 12:16 CET
-# Eintraege: 33044
+# Aktualisiert: 2026-10-29 13:15 CET
+# Eintraege: 33051
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -4763,6 +4763,7 @@ blogstartups.com
 bloodboundcitadel.top
 bloodhorn8123.icu
 bloodthornkeep.top
+bloom-88.com
 bloom-distribution-engine.garden
 bloom7-hinge.setqueueat.lat
 bloomdistributioncenter.garden
@@ -11468,6 +11469,7 @@ gardoone-shans-pool.com
 gargiulobuilders.com
 gargona-music-prizdec.asia
 garnetmill.cc
+garsonuoma.lt
 gas3taskhub.nebulaflux.bet
 gascwmskqoggmyki.xyz
 gasienda.com
@@ -11700,6 +11702,7 @@ gesmfesgs.abcdbro.com
 gestcular.cfd
 gestiatalaia.biz
 gestionmype.com
+gestir.is
 gestticalia.com
 get-aquaburn.com
 get-aquaburn.us
@@ -15786,6 +15789,7 @@ ks52m3wi.apmlandscaping.com
 ksaj1cgw.mrgreenbetiran.com
 ksfogaszat.hu
 ksidj.wearecharlie.fun
+ksm.aeoncash.org
 ksms.therippleeffectcollc.com
 ksplay88hoki.space
 ksplsoft.com
@@ -17045,6 +17049,7 @@ lvsc.net
 lvsn8zv8.zen--sulin.com
 lvt.vip1xbet.net
 lvtimaax.usoleamoozesh.xyz
+lvtraveladventures.com
 lvvacationrentals.com
 lvvbnf3q.angelnailsphenix.com
 lvvseg9o.velocitymindset.com
@@ -19745,6 +19750,7 @@ nvms.miraibotnet.su
 nvms9000.online
 nvms9000.su
 nvoaagent.com
+nvprofessional.com
 nvsybmf.ecryptobits.com
 nvvdiym7.eng--neurowave.com
 nvwhch.yummiquickway.com
@@ -27462,6 +27468,7 @@ topsvcutil.technodesupply.pics
 toptenis.com.ar
 topvisionmarketing.com
 topwateradventure.com
+toqokify.workers.dev
 torh3.duckdns.org
 torpedototo1.store
 torpedototob.xyz
