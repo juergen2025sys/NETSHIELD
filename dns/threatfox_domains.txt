@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-29 00:26 CET
-# Eintraege: 33981
+# Aktualisiert: 2026-10-29 02:15 CET
+# Eintraege: 34033
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1617,6 +1617,7 @@
 953k25jr.kcmotorsllc.com
 954591cm.nyashsens.top
 95mfmnebv9a1r.cfc-execute.gz.baidubce.com
+960gz3a6.bossbeycity.click
 961gamers.com
 96e0qwgn.hero--up.com
 96mjt1sb.axee.net
@@ -4785,6 +4786,7 @@ biuropodatkoweradom.pl
 bix9vc6j202042624.cfd
 bixcash.net
 biyaconserver.beer
+biyolift.com
 bizec8bu.zaribbala.bet
 bizuter.au
 bizuter.com
@@ -4842,6 +4844,7 @@ blackcarserviceslax.com
 blackcryptknight.com
 blackhills.ddns.net
 blackhillsutv.rentals
+blackhorses.co.za
 blackjack-x.com
 blackjacktipsnnt.com
 blackkkkdate.icu
@@ -5299,6 +5302,7 @@ brazpi.shop
 brbyxsj.riverpoker1.com
 brcorni.mabaninazari.shop
 brdiesel.cl
+brdrivingschool.com.au
 brdxo.old-ground.garden
 bre-rednitzhembach.sbs
 breackhave11.buzz
@@ -5363,6 +5367,7 @@ broad-royal.gabard-viewed.surf
 broad7-grid.shadowpeak.garden
 broadlab.mikestahlber.work
 broadswordcallingdannyboy.com
+broadwayfineart.com
 brobbaeonlucid.life
 brokenheart.club
 brokenvelvetdream.top
@@ -5476,6 +5481,7 @@ buffalobrbk.duckdns.org
 buffer-switch.mav2lirex.lat
 buffervoice.nova7frame.life
 bugcnc.cw0.cc
+buh75.ru
 buhu.site
 bui1-mount.sarahkapsreit.work
 build-art.us
@@ -5823,6 +5829,7 @@ cailovelife.art
 caishendaole.com
 caixas.link
 cajya.addmagad.com
+cakarelang99.space
 cakesdelicacy.com
 cal-water.com
 cal.magicalegyptwomen.com
@@ -5839,6 +5846,7 @@ calub.run
 calypso.email
 calzadoswer.store
 camachoroldan.com.co
+camachoycia.pe
 camaswilson.com
 cameliaholdings.co.za
 cameradalat.net
@@ -5891,6 +5899,7 @@ capacitacionespracticas.com
 capcha-cdn-js.beer
 capchaprotectcs.com
 capcutdev.com
+capetownbox.com
 capita1-reach.crinkdimit.work
 capital8finance.co.uk
 capitalcitypowerwashingatl.com
@@ -5933,6 +5942,7 @@ cardoslim.com
 careandgrowth.com
 career.cityu.edu.gr
 careercollegesusa.com
+careerscrafters.com
 careertools.in
 caresalonservices.com
 carfinancenow.co.uk
@@ -5949,6 +5959,7 @@ carogra.biz
 carolinanavascobo.com
 carolinelunara.com
 carotari-beton.ro
+carpacciosangennaro.com.br
 carpediem-ms.shop
 carpesj.surf
 carpet-sail.com
@@ -6013,6 +6024,7 @@ catita.shop
 catloverzz.club
 catoregon.org
 catsport.it
+cattai.mat.br
 caudzzwo.coop-fresh.com
 cauterizespray.icu
 cavbp.zaszlorudbolt.hu
@@ -6175,6 +6187,7 @@ cel-robox.com
 celatrans.com
 celebration-internet.cc
 celebrecorretora.com.br
+celej.pl
 celetalkies.com
 cell1-line.narrownessoutri8ht.pics
 cell3logicway.matrixhostbit.bet
@@ -6194,6 +6207,7 @@ centralfloridapowerwash.com
 centre-dentaire-levallois-carnot.fr
 centrealestetic.com
 centricwebsolutions.com
+centroaziendeonline.it
 centrodediabetescuritiba.com.br
 centroempresasfamiliares.com
 centrumrownowagi.com
@@ -6207,6 +6221,7 @@ ceranet.goliath.st
 cerridwen.shop
 certifiedairbalanceinlosangelesca.com
 certifiedmoverslasvegas.com
+certinter.com
 ces.rs
 cesadariz.com
 cesin.rs
@@ -6298,6 +6313,7 @@ charlottedefenseattorney.com
 charlottesvilleinteriordesign.com
 charmouniversity.org
 chase-cvs.org.uk
+chasing.website
 chat.mondeikin.com
 chatatrebichava.sk
 chatgpt-backup.com
@@ -6419,11 +6435,13 @@ chor-baddeckenstedt.de
 chordapple.com
 chrgasa.org
 chrisbrowndetroit.com
+chrisharvey.me.uk
 chrislandmodel.com
 chrismooneysingh.com
 chrisparrycollection.com
 chrisram.com
 chrisram.net
+chrisrico.picklescoop.com
 christen-wilkau-hasslau.de
 christiaan.ch
 christiancordero.mba
@@ -6450,6 +6468,7 @@ chzldmh3.parsbet90.com
 ci7uxmq7.proxy-harbor.digital
 cia-churchinaction.org
 ciabjdb.mav8loren.lat
+cialiy.nl
 ciao.nu
 ciborin.shop
 cibvm07837.workers.dev
@@ -6595,6 +6614,7 @@ clearflux.cc
 clearpointdata.mistbriar.garden
 clearpointdata.zenithflowgrid.garden
 cleastora.immer-weeping.garden
+cleophee.eu
 clevergeriatric.icu
 cleversources.com
 cleverstack.cc
@@ -6631,6 +6651,7 @@ climacoolllll202620262026.dynuddns.net
 climatecertifications.com
 climatechangeinitiative.org
 climatereparations.com
+clinicabogaz.com.br
 clinicadentistica.com
 clinicadivinoninojesus.org.pe
 clinicasenise.com.br
@@ -6758,6 +6779,8 @@ club21ids.space
 club21idsofficial.com
 clubinho.assessoriasalus.com.br
 clubsoar.com
+clubsocialfordis.net
+clubtripta.com
 cluster-module-deployment-standard-map.wiki
 clusterend.3lunavex.life
 clusteroasi.wentgot.lat
@@ -13990,6 +14013,7 @@ ieyeuaoimksiisga.xyz
 ieygeccocgswyumc.xyz
 ieyqkmmawewoaoao.xyz
 if.88idn.net
+if.aeoncash.org
 if8drhcl.greenbloom.garden
 ifaeybz.toolbcr2026.com
 ifbjtm.entrepot-demarque.com
@@ -15051,6 +15075,7 @@ jibilika.org.zw
 jicinvestments.monster
 jidm.jadoobet.pro
 jiesaida.cn
+jifepzmu.bossbey12.click
 jifyi.gamehazarat.com
 jig.5tr.org
 jig.iakmialor.web.id
@@ -17310,6 +17335,7 @@ lrnvtw2a.en-en-us-zensulin.com
 lrucuzu.rika90.bet
 lrvizgxp.lincoplus.xyz
 lry.6666k.org
+lsair.net
 lsakthu69u020426i1w.cfd
 lseczri.enfejar.poker
 lseeetm.federationofpbos.org
@@ -19308,6 +19334,7 @@ n.88mdc.org
 n.9winn.org
 n.abc22.org
 n.acunbet89.org
+n.bamto.org
 n058152033245.netvigator.com
 n0de-stream.grov9mira.lat
 n0df7.kernelgrid.ink
@@ -21446,6 +21473,7 @@ patratrimulia.com
 patriciakleijn.nl
 patrickschrader.com
 patrins.com
+patriothousinggroup.com
 patser.life
 pattigame.co.in
 patxisdublin.com
@@ -27072,6 +27100,7 @@ svchosst.com
 svcnode.net
 svcrencst.com
 svcshosvt.com
+svdlmi8d8s.workers.dev
 sve6lmhf.us-us-us-mindvault.com
 sveexec.com
 sveindia.net
@@ -27381,6 +27410,7 @@ t5gnk3khm55f9ar.top
 t5kfgfm1.stgsolar.hu
 t5n2mgno.cdn-jbgroup.com
 t622q131.therodeoroundup.com
+t64yup0g.bittu.store
 t66l.fira6dox.lat
 t6h2yu60.luxerabet1000.com
 t7.88idn.net
@@ -30884,6 +30914,7 @@ whitehorseceilidhband.co.uk
 whitelist-ponsfamily.com
 whitellllshop.icu
 whitelllshop.icu
+whitepainful.workers.dev
 whitfkos.ace9bet.net
 whm.tamiltotamil.com
 whmakm.synaptigen-usa.com
@@ -31520,6 +31551,7 @@ www.bibliographica.org
 www.bibliotecafregene.com
 www.biforin.com
 www.biolabdiagnostics.it
+www.biolineabergamo.com
 www.biomel.life
 www.bioshealthgroup.com
 www.bitforge.com.my
@@ -31534,6 +31566,7 @@ www.bluezonenews.it
 www.bmreducation.com
 www.bokkeh.com
 www.bolton-flooring.co.uk
+www.boncinelliedoardo.com
 www.bookbill.net
 www.bookhousecatalog.com
 www.bookhousestlouis.com
@@ -31544,10 +31577,16 @@ www.boosterconseil.com
 www.borapraespanha.com
 www.bossleysportsclub.com.au
 www.bosslifesa.com
+www.bozzonegiulia.it
+www.brainfuel.it
 www.bran.lol
 www.brandonbays.cz
 www.brandonhix.com
+www.brisascruzadas.com
 www.brooklynbooks.us
+www.brspassion.it
+www.brt-uk.org
+www.bsqcert.it
 www.bsv-rehden.de
 www.btgrealestateenterprises.com
 www.build-graphic.com
@@ -31555,6 +31594,7 @@ www.burb.space
 www.businessdevelopmentgermany.com
 www.butra.pl
 www.buymycar.de
+www.by-joost.nl
 www.byasa.com.mx
 www.bythebellboxing.com
 www.c1s.su
@@ -31562,14 +31602,24 @@ www.c8un2-bz0ox-ecsxpp.xyz
 www.caesarjaco.co.id
 www.cag-promotion.fr
 www.cailovelife.art
+www.cameresantucci.com
 www.cameronpinegar.com
+www.camporesemarco.it
 www.canaza7epbbtducao-ve0s.cc
+www.cantinacliternia.it
 www.capital8finance.co.uk
 www.carolinabiscaro.net
 www.carolinanavascobo.com
+www.carrozzeriamax.it
+www.carrozzeriatondi.it
+www.cassacoopatc.it
+www.castellodiromena.it
 www.cbcleib.com
 www.cbl-wetterau.de
 www.cdminformatica.it
+www.cefaludellerose.com
+www.cegtamogatas.hu
+www.celibatorimini.it
 www.cement-chemistry.com
 www.chabdullah.com
 www.changeperformingarts.com
@@ -31596,9 +31646,11 @@ www.cloudenabled.sg
 www.cloudespacios.com
 www.clps.space
 www.clubanimazione.it
+www.coberitaly.it
 www.comfort-style.co.uk
 www.comoshops.com
 www.compleatscholar.com
+www.comprooroaosta.it
 www.confettibooks.com
 www.confialscuola.com
 www.constructeddigital.com
