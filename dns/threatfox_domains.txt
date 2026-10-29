@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-29 14:56 CET
-# Eintraege: 33062
+# Aktualisiert: 2026-10-29 18:06 CET
+# Eintraege: 33084
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -463,6 +463,7 @@
 23q34ztp.luxerabet1.com
 24.yallashoot111.space
 241.50.97.34.bc.googleusercontent.com
+241.74.191.92.dynamic.jazztel.es
 248bestmoon.click
 249.92.12.34.bc.googleusercontent.com
 24carnforth2merseyside.sol
@@ -3249,6 +3250,7 @@ arrahman-arraheem.com
 arraydar.lomov-stroganal.lat
 arrowsone.com
 arrowwoodmemoir.org
+arrtofphotography.com
 arrtom.followyourjoy.hu
 arsenetsl.es
 arsolution1.com
@@ -3279,6 +3281,7 @@ artisan-advertising.cc
 artisourlifestyle.com
 artist2actresssh.com
 artistichairlounge.com
+artkoruna.ru
 artmicrodesign.com
 artnsalvage.com
 artofsen.sk
@@ -3432,6 +3435,7 @@ ateliernow.net
 aterra.co.il
 ateyakima.com
 athbo.technologiaiviz.hu
+athedsl-140723.home.otenet.gr
 athenaengenharia.eng.br
 athleticedgefitness.com.au
 atiagwcvltealv.com
@@ -3744,6 +3748,7 @@ ayrseu.shop
 ays.gamepazarin.com
 ayswteb.com
 ayuntamientodeprogreso.gob.mx
+ayuow0q7.bossbey71.click
 ayuztxyw.en-en-usa-memorylift.com
 ayxo4gdl.ushealthlaboratories.com
 ayyappadevalayampudur.com
@@ -5028,6 +5033,7 @@ bossbey20.click
 bossbey30.click
 bossbey31.click
 bossbey69.click
+bossbey71.click
 bossleysportsclub.com.au
 bossprotect.com
 bosstekirdag.store
@@ -10538,6 +10544,7 @@ fikvjna5.telemetry-orbit.digital
 filaspo.com
 file.pushclick.online
 file7pathgate.pilo1byte.surf
+fileagreement.xyz
 fileecell.com
 filehostunit.sara5byte.surf
 files.cachematrix.cc
@@ -10808,6 +10815,7 @@ flux.silvermoonlight.lat
 flux.urbanpulse.surf
 flux.vmesscab.lat
 flux45r.lunave5.bet
+flv.aeoncash.org
 fly.wiwgf.workers.dev
 fly88-l.com
 flybuilt.eu
@@ -11007,6 +11015,7 @@ francescocolianni.com
 francescoforti.net
 frank-psy.de
 frankfurt-dutyfree.de
+frankfurt-hochzeitslocation.de
 franklintowing.net
 frans-meijers.nl
 fraternidadecristoredentor.org.br
@@ -12332,6 +12341,7 @@ greatcarprofessionalwindowtint.net
 greatmastertrading.com
 greatnessabove.com
 greatsorors.digital
+greatwivesforme.wifenet.lol
 greatxil3010.duckdns.org
 greekxwl3010.duckdns.org
 green-macrohim-work-center.garden
@@ -15259,6 +15269,7 @@ kbnexc.com
 kbnvuvtsfjksbqvdhj.mamaspizzansubsmenu.com
 kbtmm8vw.redcanoerealestate.com
 kbyoix.div0rceskis5ing.pics
+kbyue62054.workers.dev
 kc2m8580.booro.bet
 kc4brp35.cardiosliim.com
 kc7s4uri.padelconstruct.hu
@@ -18106,6 +18117,7 @@ mitolyn-us-en.us
 mitolyncart.com
 mittenmint.cfd
 miujiang.monster
+mivibo.workers.dev
 mixblo.xamir9el.lat
 mixed-on-storage-layer.garden
 mixfidelity.com
@@ -18628,6 +18640,7 @@ msnbot-157-55-39-52.search.msn.com
 msnbot-207-46-13-151.search.msn.com
 msnbot-52-167-144-172.search.msn.com
 msnbot-52-167-144-184.search.msn.com
+msnbot-52-167-144-190.search.msn.com
 msndla.com
 msnvm.us.com
 msnwgu.josetreeservice.net
@@ -18907,6 +18920,7 @@ nama-belakang.nebao.icu
 namanami.top
 nambaohiem.com
 namecheaps.duckdns.org
+namecheat.niggerservers.xyz
 nameisfame.com
 namlongland.net
 namrqlix.hugugnasiri.xyz
@@ -19501,6 +19515,7 @@ nortspec.poorbet.lat
 norvenor5.qi3mavel.in.net
 noshinpack.com
 nosja.aiteszt.com
+nossaestante.com.br
 nostalgiacampagna.it
 nostrendezvous.com
 not1fie-mesh.mixzipcore64.lat
@@ -20051,6 +20066,7 @@ ohtvwmv.keyslimdrops-com.com
 ohzmh.bninolimit.com
 ohztowdn.burn--flow.com
 oi.1betasia.org
+oi.bb69.org
 oi.hg77.org
 oi41pfmg.saok.store
 oiewpbg.spirosnet.com
@@ -26554,6 +26570,7 @@ szb4ajn8.abcdbro.com
 szcx.uk.com
 szdfpv.jamjahani2026.football
 szlqgs89.shop-nervealive.com
+szuag45572.workers.dev
 t-adobe.lat
 t-smc.top
 t-trustrest.com
@@ -27595,6 +27612,7 @@ travel-js-ns.beer
 travelley.health
 travelprair.zori6mav.lat
 travelquestperu.com
+travertinekurgans.info
 travimespolu.sk
 trdisd.simply-bpo.com
 tre75.cryptostack.lat
@@ -29196,6 +29214,7 @@ vmi3666256.contaboserver.net
 vmi3666264.contaboserver.net
 vmi3702066.contaboserver.net
 vmi3702078.contaboserver.net
+vmi3703999.contaboserver.net
 vmidxev.troythebrickmason.com
 vmixzy.com
 vmiyjlp.brain--defender.com
@@ -30533,6 +30552,7 @@ www.alvesaraujo.com
 www.amberblogs.au
 www.ambiopharmconsultingltd.com
 www.ambiopharmconsultingltdbackup.com
+www.ambiopharmconsultingltdbackup1.com
 www.ambizioneviaggi.com
 www.amena-gps.tn
 www.amfd83.fr
@@ -30857,6 +30877,7 @@ www.freedomsolar.hu
 www.fridanitours.de
 www.friesen-bau.de
 www.frownappr0veizl.com
+www.fruitdelice.it
 www.furbabyfortune.shop
 www.fuseum.eu
 www.gabrovo.info
@@ -32354,6 +32375,7 @@ yqyueyuoukmsmqem.xyz
 yqzbm.barnamenevisi.xyz
 yr126pdf.luxerabet100.com
 yr69u41b.pdfcoach.ir
+yrayg0ro.sleavepiker.com
 yreztzh.usa-us--goldalign.com
 yrfely7l.shop-lipovive.us
 yrfxbtcx.mawos.store
