@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-29 07:06 CET
-# Eintraege: 32929
+# Aktualisiert: 2026-10-29 08:01 CET
+# Eintraege: 32979
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1768,6 +1768,7 @@ a2ahyvmwbfcw7vvdnaddwbvezlpcjvfszdnuer3l6aqnwdzermm7csyd.onion
 a2bfc593.cerridwen.shop
 a2llsxm4.ganuneasasi.xyz
 a2login.com
+a2ob.de
 a2rf9er0.bossbaba.store
 a2wk5fd0.purity-pharmaceuticals.net
 a2ztraders.in
@@ -1997,6 +1998,7 @@ adcwm.yanis.hu
 addeg.quranmohagegin.shop
 addictedmenswear.myddns.me
 addin-fita.digital
+addon-danieltschumicom.erinmallon.cyon.site
 adelaidejap.com.au
 adelaidetriathlonclub.com.au
 adelkdantas.com.br
@@ -2165,6 +2167,7 @@ agioty.grannygshemporium.com
 agiqsfnr.hugugnasiri.xyz
 agkzvfg.1bet1yek.bet
 agla.lv
+aglabs.sbs
 agldrywall.com.br
 aglobaconvite.com
 agmdojf.7zorelax.lat
@@ -3604,6 +3607,7 @@ authservice6020.com
 authshellverif.co
 authshipup.net
 authwic.com
+auto-schmidke.de
 autoccb.tech
 autodesign-marinkovic.de
 autodiscover.mm-carving.de
@@ -4275,6 +4279,7 @@ benbeloorg.duckdns.org
 bendera-3.com
 bendesin.com
 bendingrealityinc.com
+benesserenelmovimento.it
 benotrobot.online
 benro.ps
 benthosambiental.com.br
@@ -5239,6 +5244,7 @@ brusnika.kiev.ua
 brutb.wolfmarketing.hu
 brutusmecanica.com.br
 brvtfsq.designyourlifeinflow.com
+bryan.dvrcam.info
 bryk.telegrarn.fun
 bryonsad.net
 brzygpu.glennscarcare.com
@@ -6246,6 +6252,7 @@ ci7uxmq7.proxy-harbor.digital
 cia-churchinaction.org
 ciabjdb.mav8loren.lat
 cialiy.nl
+ciavet.com.br
 ciborin.shop
 cibvm07837.workers.dev
 ciccarelligelato.co.uk
@@ -6688,6 +6695,7 @@ coffeefrombrazil.monster
 coffeeincup.monster
 coffeemachinesservices.com
 coffeetocode.duckdns.org
+coffiimg.beer
 cogniclearplus.com
 cognigenpluss.com
 cogniserge.us
@@ -6918,6 +6926,7 @@ conv-wagon.cryptostack.lat
 convientodelobos.com
 cookcoolbaistat.lol
 cookeatrun.com
+cookie-xi-seven.vercel.app
 cookieholder.com
 cookischase.us
 cool-horizon.com
@@ -9789,12 +9798,14 @@ esicm.biz
 esim360.eu
 esjvtzn6.aloo.bet
 eskisehiraltinfiyatlari.net
+eskisehiridasyatak.com
 esnjo.tractor11.com
 esoftwareupdates.com
 esotericpro.com
 espacesante-suisse.ch
 espacointegracao.com.br
 espanolesdecuba.info
+espectaculostaurinos.colvet.es
 esqbzfn.bet365iran.com
 esseguro.net.co
 essek.lol
@@ -9805,6 +9816,8 @@ essor-fitness.ch
 estaliax.io
 estat-goldilock.digital
 estebanmasis.com
+esteticadentalnares.com
+estilumocr.com
 estradaannivers.digital
 estranat.biz
 esunager.net
@@ -9857,6 +9870,7 @@ euftrhnx.computationalgrid.com
 eugen-x.com
 euggvtxb.fununetadris.shop
 eujvn.business360.hu
+eulatafpol.com
 euls.behtarin-site-shartbandi-football.bet
 eumlu.ridgerenovation.com
 eunoiatoday.com
@@ -9866,7 +9880,9 @@ eurogulf-group.com
 eurolight-residence.ro
 euromoc.co.mz
 eurototop1win.space
+eurxpert.fr
 euspwbzy.bet90forward.win
+ev240v.com
 evacuat-sycam.digital
 event-unipeg.art
 event.springdepot.lat
@@ -9900,6 +9916,8 @@ evostogel11w.cyou
 evostogel38max.online
 evostogel99top.online
 evostotosly2nd.cyou
+evrootel.com
+evropluss.lv
 evrything-pix.icu
 evsdbwa.pasukan138.de.com
 evspwohq.betgar.bet
@@ -9909,6 +9927,7 @@ evypenr.winnerbahis-tr.com
 evz9hzhn.bonuscode.in
 evzkqyyd.turkeybahis.com
 ewa1b63u.fununetadris.shop
+ewald-krause-academy.de
 ewaouoqocowsycco.xyz
 ewawggussgamswao.xyz
 ewaysyoicmgmmcio.xyz
@@ -9950,6 +9969,7 @@ exactupdate.com
 example-probe-does-not-exist-12345.invalid
 excellentquantum.com
 excelnt.ai
+excelpro.co.ke
 exchangeallltd.com
 exchangesys.monster
 excite.aeafh.workers.dev
@@ -9996,6 +10016,7 @@ extensions14718.sytes.net
 exterminateuraraigne.com
 exterminateurguepe.com
 extic.icu
+extintoresempaex.com.br
 extnet.openapiserv.pics
 extnet.openapiservicedata.pics
 extnet.quantumlinkpoint.lat
@@ -10143,6 +10164,7 @@ fab-tech-machinery.com
 fabidi.com
 fable-shine.com
 fabric16.com
+fabrichcatalogue.com
 fabriclattic.verd2onis.bet
 fabriclounge.in
 fabricplume8.com
@@ -10156,8 +10178,10 @@ faceupfinder.com
 factima.lomov-stroganal.lat
 facturacionlapaca.com
 facturacionmexico.net
+facturaporcorreo.com
 fade2pathgate.colorfu1prep.bet
 fadedfractal.com
+fadelsaleem.com
 fadesyncbox.chromacorebit.garden
 fadoj.run
 fagaheestedlali.xyz
@@ -10171,6 +10195,7 @@ faithbiglovered.opik.net
 faithfulresolver.7lorexan.surf
 faithfultin.5dorexin.lat
 fakehostunit.kutsy-proquac.bet
+fakhr-az.com
 fakirpaikarizone.com
 faktite.eu
 falaheeh.mom
@@ -10178,6 +10203,7 @@ falcoju.shop
 falconbrave.serious-substance.surf
 falconext.so1aver.garden
 falconnorth.mirelax9.life
+faldom.pl
 fallbackmaximidfjdsia.com
 fallodick87-78.sbs
 fallow-willow-diogdaiyn.xyz
@@ -10187,6 +10213,8 @@ falsafekonkour.site
 false.wiwgf.workers.dev
 falseflag1.ru
 falsifydisappearsoaeka.pw
+famecome.com
+fameico.com
 familbi.cyou
 familyinsurancepartner.com
 familylegacyprotection.com
@@ -10200,6 +10228,7 @@ fanavarietelat.xyz
 fancystraits.info
 fanera.com.tr
 fangfang.live
+fankade.ir
 fanlo.addmagad.com
 fao70xbsy9gff0ll.org
 faogw.bankefile.com
@@ -10209,6 +10238,7 @@ faremovals.com
 faresahmedkuwait-52119.portmap.host
 farhan.safeverify.com.ng
 farhangsch.ir
+farinmarket.ir
 farm.aeafh.workers.dev
 farmacia-bienestar.com
 farmlinegh.com
@@ -10347,8 +10377,10 @@ federatedplantplatform.garden
 federatedstoragelab.courses
 federicogrilli.it
 fedij.com
+fedjmedic.com
 fedrvhjy.click
 feds.iphaven.qzz.io
+feedsome.com
 feedspanone.net
 feersona.net
 feeykse.betbacklink.com
@@ -11823,6 +11855,7 @@ git.softwincli.pics
 gitarlessonfinger.xyz
 gitbase.su
 gitenter.digital
+githooks.xyz
 gitihubusercomtent.com
 gitlab.barchon-virtue.lat
 gitlab.coop-san.lat
@@ -12128,6 +12161,7 @@ gor.emiraride.com
 gordinez.com
 gorgbetkade.com
 gorillagaz.com
+gorivume.workers.dev
 gorsefield.cc
 gorsegazette.co
 gorto.ridgerenovation.com
@@ -14050,6 +14084,7 @@ ip-address-check-mo.vercel.app
 ip-address-check1.vercel.app.vercel.app
 ip-address-vscode-checking.vercel.app
 ip-ap-check.vercel.app
+ip-api-server.vercel.app
 ip-api-test.vercel.app
 ip-checking-notification-firebase-2.vercel.app
 ip-regions-check.vercel.app
@@ -14101,6 +14136,7 @@ ipnodes.stick-shaped.lat
 ipopm.business360.hu
 ipoweres.com
 ipraywithjoy.org
+ipregionchecker.com
 ipregionchecker.org
 ipsandwich.com
 iptext.de
@@ -14207,6 +14243,7 @@ isemployment.com
 iseugwcwemequeas.xyz
 ishcerf.org
 ishevmrr.herbertrutt.work
+isillegalregion.com
 isl4eo0i.echo--free.com
 islaartistica.com
 islandepstain.cc
@@ -17143,6 +17180,7 @@ magaukykcswsyamm.xyz
 magazinecoolarchiveshop.live
 magazinehub.co.uk
 magellanfit.com
+magicalplanet.4nmn.com
 magicmike26.myddns.me
 magicworks.cfd
 magiskdeltas.com
@@ -21454,6 +21492,7 @@ polderandlimestone.com
 polecy.cyou
 poles-wrinkle.digital
 polestennisplayer.digital
+policlinika.top
 policysync.pro
 polidil.gr
 polikov.hu
@@ -27666,6 +27705,7 @@ tudorlodgekennels.com
 tue-orange-04.cfd
 tue-partner-03.cfd
 tuejpvg.agivedresphotography.com
+tufacrannog.info
 tuffcromlech.info
 tufxszft.efcasino.bet
 tugovc.gesol.hu
@@ -28145,6 +28185,7 @@ unitkaltwind.dexispointnexus.garden
 unitmemory.wiki
 univchristianchurch.com
 univers22.digital
+universal-api.algarveexportltd.com
 universalfood.dz
 universaltyresautos.com.au
 universevibe123459.shop
@@ -29089,6 +29130,8 @@ vmi3641491.contaboserver.net
 vmi3641492.contaboserver.net
 vmi3666256.contaboserver.net
 vmi3666264.contaboserver.net
+vmi3702066.contaboserver.net
+vmi3702078.contaboserver.net
 vmidxev.troythebrickmason.com
 vmixzy.com
 vmiyjlp.brain--defender.com
@@ -30585,6 +30628,7 @@ www.cleversources.com
 www.cloudenabled.sg
 www.cloudespacios.com
 www.clps.space
+www.club-scootergt.com
 www.clubanimazione.it
 www.coberitaly.it
 www.collegiatasanlorenzo.it
@@ -30700,7 +30744,9 @@ www.elsefinebooksellers.com
 www.emanueleocchipinti.com
 www.emmanelpiceno.it
 www.emmausbiblechurch.net
+www.emmecistampi.it
 www.encajesmecanicos.com
+www.engevo.it
 www.epicly.digital
 www.eqtreporting.com
 www.esgtechnology.it
@@ -30713,15 +30759,19 @@ www.f168.today
 www.f5u-uhpdrtwj6azysqpud.net
 www.f9p0blhu2vw6rkwo.com
 www.fabriclounge.in
+www.faisamilano.it
 www.faithpointum.org
+www.famdd.de
 www.family-funeral.icu
 www.farmaciacentrale.biz
 www.fast-tech.uk
+www.fenal.it
 www.ferienhaus-buenavista.de
 www.fibraimpresa.it
 www.fieragustarte.com
 www.finance77-laudantium.pro
 www.fingeruo8mind0.com
+www.fioreriadaalberto.it
 www.firmaprincipal.store
 www.fixbug.icu
 www.fixitfuego.online
