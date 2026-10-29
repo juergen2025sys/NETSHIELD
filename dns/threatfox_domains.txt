@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-29 08:01 CET
-# Eintraege: 32979
+# Aktualisiert: 2026-10-29 11:17 CET
+# Eintraege: 33041
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1232,6 +1232,7 @@
 6qnia8r3.pooker.app
 6qrg61iaz9.workers.dev
 6rdv0wtc.luxerabet5.com
+6rpbrwoxih.workers.dev
 6rsny75a.tastebudspopcorncanton.com
 6rto54ve.orbitaldockingmodule.digital
 6rxe52vn.us-us-us-biodentix.com
@@ -1389,6 +1390,7 @@
 7ve71wpr.eng-neuroxen.com
 7vet1020426xxc.cfd
 7vewgb63.anodynedenver.com
+7vpwppvd.bossbey31.click
 7vq4on85.site-shartbandi-khareji.com
 7vwik7zn.enfejar.casino
 7w00lr9c.eng-usa-memorylift.com
@@ -5019,6 +5021,7 @@ bossbey1.click
 bossbey19.click
 bossbey20.click
 bossbey30.click
+bossbey31.click
 bossleysportsclub.com.au
 bossprotect.com
 bosstekirdag.store
@@ -6261,6 +6264,7 @@ cie-felicettechazerand.be
 ciec-cd.com
 cielohillsevents.com
 cienciaciudadana.ceaza.cl
+ciganshina.org
 cilygv.missionlanereview.com
 cinchcoalition.org
 cincycarpetcleaning.com
@@ -7333,6 +7337,7 @@ cv.jyla.ru
 cvdhcp.amesburyforeignauto.com
 cvetox.com
 cvf9a6ez.alvare.store
+cvicenicko.cz
 cvjd.fileboroo.com
 cvnuts.com
 cvt.vn
@@ -8197,6 +8202,7 @@ divanailsachse.com
 divara888.com
 divara888.tech
 divaselinsajep.com
+diversiangola.com
 divi.gestoriaextranjeriasd.com
 divinex.to
 divoraworld.com
@@ -8568,6 +8574,7 @@ drdeepti.org
 dream-boat.in
 dreambot.cc
 dreamcastlegacy.cfd
+dreamhome.org.ua
 dreamkoks.com
 dreamlinestream.com
 dreamscometrue.vip
@@ -9270,6 +9277,7 @@ elgccyx.cyou
 eligibility-apyx.finance
 eligibility-firelight.com
 elijahwgummer.baby
+eliorambaldi.com
 elipsbet.poker
 elipseradiologiadigital.com
 elite-agri.com
@@ -10314,6 +10322,7 @@ fb88.farm
 fb88.style
 fb88l.co.com
 fbbzh.mango-sushi.com
+fbcx5nas.bossbey15.click
 fbecwqni.pdfbama.com
 fbkhheg.bahisforward.com
 fbltqznhi.crownconnectpk.com
@@ -10382,6 +10391,7 @@ fedrvhjy.click
 feds.iphaven.qzz.io
 feedsome.com
 feedspanone.net
+feelingthelookinc.org
 feersona.net
 feeykse.betbacklink.com
 fefeo.iknowthat.space
@@ -10389,6 +10399,7 @@ fefsfes.org
 feirinhacoracaodataquara.com.br
 feiyuwei.com
 feldenkrais-limoges.com
+felicitarlocacoes.com.br
 felicitatgs.cc
 felixcam.com
 felixuse.com
@@ -10431,12 +10442,16 @@ fetahi.com
 fetal3d.com
 fetestjs.beer
 fettcy.boutiqbar.com
+feuerwehr-friemersheim.de
+feuerwehr.kallham.at
 feulntzw.site-shartbandi-farsi.com
 fewfwfwfwfwf.info
+fewo-ankerplatz-coswig.de
 fexdeliverypro.com
 feydav.com
 feyrijavac.com
 fezk.polbaz.bet
+ff-kaltenberg.at
 ff168.club
 ff4ekbmd.7lf.net
 ffedpfb.jet90bet.bet
@@ -10496,10 +10511,12 @@ fibi-ireland.com
 fibvhxte.bekabet.casino
 fibxbqsm.fileboroo.com
 fichenkitchen.com
+fidandizayn.com
 fidelyus.com
 fidipodiatry.com
 fiebird.hundred-weight.surf
 fienagroupholdings.com
+fietsclubadmiraal.be
 fif.6666k.org
 fifaclubchamps.com
 fifacud.com
@@ -10526,6 +10543,7 @@ fileworks.cfd
 filezilla.cc
 filhosdeangola.es
 filikuje-729.workers.dev
+filipkonserwacja.pl
 filmfilmfilm.studio
 filmydhoom.live
 filte-path.7zorelax.lat
@@ -10597,6 +10615,7 @@ firehostunit.grov6mira.bet
 firehostunit.quasargrid.bet
 firehostunit.thora5ven.bet
 fireipsrevolt.top
+firepitvietnam.com
 firewai.biz
 firewall-sentinel.cc
 firewallwithadvancedserurity.com
@@ -10615,6 +10634,7 @@ fish.alexiagavela.com
 fishersace.com
 fishinsupply.com
 fisholl.xyz
+fisioterapiavillaverla.it
 fit.wiwgf.workers.dev
 fitfirst.net
 fithusbandplan.monster
@@ -10785,6 +10805,7 @@ flux45r.lunave5.bet
 fly.wiwgf.workers.dev
 fly88-l.com
 flybuilt.eu
+flydaddyco.com
 flyhighsmokeshop.com
 flyi.jadoou.lat
 flyingbbird.cc
@@ -10860,6 +10881,7 @@ fonts-fontawesome.click
 fonts25-save.sbs
 fontspace.us
 foodathome.ch
+foodforbee.com
 foodnflavors.com
 footbal90bet.app
 football-attraction.pro
@@ -10894,14 +10916,17 @@ formazionedocenti.org
 formkey.asia
 formonstore.com
 formreba.qeniral8.surf
+formulario.colvet.es
 forsell.tech
 fortheloveofyou.al
 fortlinecargo.com
 forton-apiculteur-miel-provence.live
 fortuna-qwont.club
+fortunemaldives.com
 fortwaynejubileebrontide.com
 fortwayneswoodfloorcleaner.com
 fortworthfarm.com
+forwardtranslate.com.ar
 fos41h2r.app8k.xyz
 fosmhvf.en-en-en-slimsounds.com
 fossil8crypto.lunavera.garden
@@ -10956,6 +10981,7 @@ fr.litemailzone.space
 fr249dkbg170425xdi.cfd
 fraberperu.com
 frag7logicnet.zora7vex.bet
+fragilepuzzle.com
 fraitas.lol
 fram-branch.byerottin8.lat
 frame-facet.com
@@ -10971,13 +10997,16 @@ frameworkjsbns.beer
 franbellamail.co.uk
 franceinfo-finance.com
 francescmarcalvaro.cat
+francescocolianni.com
 francescoforti.net
 frank-psy.de
+frankfurt-dutyfree.de
 franklintowing.net
 frans-meijers.nl
 fraternidadecristoredentor.org.br
 frcdk4gw.deepseahydrothermalvent.digital
 fre1g-logic.interfe7ewith.garden
+frealacademiacordoba.com
 fredcoplumbingpros.com
 fredcreate.beer
 fredscarpetcleaning.com
@@ -11000,6 +11029,7 @@ freetasklink.vectorstarcity.garden
 freetasksite8.petalune.garden
 freetrend.cc
 fregiyu.com
+freightai.ca
 freightbird.rodrules.surf
 freightexpress-pk.com
 freightflow.verd2onis.bet
@@ -11069,12 +11099,15 @@ fruitbeginner.space
 frwoaf.hallmarkcarpets.net
 frwvvaqob3ofmegrbc4q2ovtwyf5u7ozyyv35unib3saq3ppx2pkwuad.onion
 fryzjer-sarna.pl
+fs-siegemund.de
 fsakcopsf.cheznevine.com
 fsamon.com
+fsat.com.br
 fsaxdfy0.hit4.bet
 fsc.arizonafamilylawfirm.com
 fsdmkfskdojyttt.pro
 fserd.icu
+fsfvconference.rs
 fsjkul62.onjabet1.com
 fso.cantdown.su
 fsocietyhackattack.botlesscucks.st
@@ -11091,6 +11124,7 @@ ftjilgqw.winter-pulse.christmas
 ftlvugqf.fileboroo.com
 ftmcr.lampaoszlopbolt.hu
 ftmffls.gorbio-echos.com
+ftms-concept.com
 ftoa.healthvarzesh.ir
 ftp.3dsportsgins.com
 ftp.4bagh.net
@@ -11167,6 +11201,7 @@ ftpsrvs.tavro8xel.surf
 ftpsrvs.tavro9xel.lat
 ftscfs.logicstack.ink
 ftsif.handker-unicamer.surf
+fttcfoundations.com
 fttec.co.uk
 ftvfx.faux-paws.com
 ftwealthmgt.com
@@ -11181,6 +11216,7 @@ fuckthecisunion.duckdns.org
 fuckyou.femboy-e.date
 fuckyou.femboys.dating
 fud0tirx.hazzaratbet.com
+fudikar.de
 fudupdate.com
 fujizego.workers.dev
 fujxga.fluss.hu
@@ -11193,12 +11229,14 @@ full2siteview.pilo1byte.surf
 full7siteview.everfo7mat.bet
 full9siteview.sara5byte.surf
 fullcrypters.net
+fullhouse-advertising.com
 fullpowerproperties.uk
 fuluz.akonyvelod.hu
 fumigacioneseuskadi.es
 fun-family-adventures-from-buffalo.com
 fun88kyc.com
 fundacionolipica.store
+fundacor.org.bo
 fundfall.qi3mavel.in.net
 fundingfactors.com
 fundivox.com
@@ -11231,6 +11269,7 @@ futuredist.com
 futuregrameen.com
 fuwtp.tafsirnasiri.xyz
 fuz.supportify360.io
+fuzescukraszdaegressy.hu
 fv-gym-alfter.de
 fv1hcoo0.neuro-neurosharp.com
 fv3y26cp.bfun.store
@@ -11336,6 +11375,7 @@ gaaiumckmyummmyu.xyz
 gaauqaeqcyaygees.xyz
 gab45f.american-brazil.surf
 gabinet.lukaszsarnecki.pl
+gabion-region.ru
 gabriellekwilson.com
 gabuys.perspolisbet90.com
 gabyfox.it
@@ -11354,6 +11394,7 @@ gaeucikkcqiyecyc.xyz
 gaewwmsaeqckmoio.xyz
 gaezskoynbrisk.com
 gafaiyfx.mechanickhodakarami.shop
+gagassultra.com
 gagayksccyoaegsy.xyz
 gahay.visszateritok.net
 gahour5lamo1.duckdns.org
@@ -11375,6 +11416,7 @@ gakvmew.tinybet.bio
 gakwiockeoeqgsqw.xyz
 galaxybet88.icu
 galaxyflowsystems.lol
+galeri678.com
 galeriarealia.com
 galerie-dakoenig.de
 galilea-naturopati.com.aditpropertybali.space
@@ -12791,6 +12833,7 @@ hdba7cl2.container-vector.digital
 hddecorationksa.com
 hdfc-bank-8ab58-default-rtdb.firebaseio.com
 hdfc-bank-8ab58.firebasestorage.app
+hdicircuitboard.com
 hdios.cn
 hdjdchgb.onjabet1.com
 hdkkxsm.kbshavanese.com
@@ -17080,6 +17123,7 @@ m.acrobat.lat
 m.adobepdf.cc
 m.aot88.com
 m.s-microsoft.com
+m0.aeoncash.org
 m01e-node.flen3qor.bet
 m08xkitq.vexon4al.lat
 m0del9-spool.mav8loren.lat
@@ -18410,6 +18454,7 @@ moorlandatlas.com
 moov.school
 moovynow.it
 mops.to
+mopsikimilie.cc
 moqlgtez.masirpayambari.xyz
 moqyji.workers.dev
 moragaitan.com
@@ -19793,6 +19838,7 @@ o04h18rp.rsfoodproducts.com
 o0hs8g3u.web-sighttfresh.com
 o0irv3h9.ravabetensani.site
 o0o766h7.osbratstvojedinstvo.com
+o0wxi6dx.bodes.store
 o1n09oad7b170425rx.cfd
 o26fc0qb.en-belly--flush.com
 o2w2806g.tagat120art.com
@@ -20747,6 +20793,7 @@ paneagreement.cfd
 panel-sms.firebasestorage.app
 panel.msdos.ru
 panel.munchyyyyyscpann.live
+panel.servererr.beer
 panel.vidar.to
 panelcoreapp.xyz
 panelmienbac.com
@@ -30065,6 +30112,7 @@ winupdateconf.cfd
 winupdateservice.com
 wiouy.visszateritok.net
 wipe3taskhub.everfo7mat.bet
+wipyne.workers.dev
 wire.universitynetservice1979.info
 wiro88.blog
 wiro88game.it.com
@@ -30220,6 +30268,7 @@ workplacemeetingconnect.com
 worksdigitaldeals.com
 workship.space
 worksodsirius.ydns.eu
+worktoday.3utilities.com
 workvmailbox-central.berrygleam.org
 workwardrobes.lk
 workworm1412.buzz
@@ -30750,6 +30799,7 @@ www.engevo.it
 www.epicly.digital
 www.eqtreporting.com
 www.esgtechnology.it
+www.esteticadamar.it
 www.etnorais.es
 www.everynameinhistoryisi.net
 www.ex0x40vmi8qyccxq.net
@@ -30764,17 +30814,23 @@ www.faithpointum.org
 www.famdd.de
 www.family-funeral.icu
 www.farmaciacentrale.biz
+www.fast-pc.be
 www.fast-tech.uk
+www.fcsarredamenti.it
 www.fenal.it
 www.ferienhaus-buenavista.de
+www.festadiborgorovereto.it
 www.fibraimpresa.it
 www.fieragustarte.com
 www.finance77-laudantium.pro
 www.fingeruo8mind0.com
 www.fioreriadaalberto.it
 www.firmaprincipal.store
+www.fisioterapiacioni.it
+www.fiveroomsortigia.it
 www.fixbug.icu
 www.fixitfuego.online
+www.flyfishingiceland.com
 www.formazioneeconoscenza.org
 www.fortheloveofyou.al
 www.fosterbooks.co.uk
@@ -31082,6 +31138,10 @@ www.onestepstar.com
 www.onlinecarpet.com.au
 www.organicsplususa.com
 www.orientspareb8tter.com
+www.osamaphplogistices.com
+www.osamaphplogisticesbackup.com
+www.osamaphplogisticesbackup1.com
+www.osamaphplogisticesbackup2.com
 www.osh9xntw0spl96bbe.org
 www.oskdel.pl
 www.osmb.net
@@ -31642,6 +31702,7 @@ xjzupm.eng-neuroxen.com
 xk0ffmw0.ecryptobits.com
 xk22cqwr.boano.store
 xk282qui.shop-lipovive.us
+xk8yzcu5.bossbeycrown.click
 xkhhwp.sliimsound.com
 xkoptd6q.mosbatsms.ir
 xkpdf.run
@@ -32828,6 +32889,7 @@ zosjd.zaszlorudbolt.hu
 zoulatv.pro
 zouwemmig.cfd
 zovdt.run
+zoxiteda.workers.dev
 zoyza.store
 zozhhgic.btyek.buzz
 zpbn.comptonanimalrescue.com
