@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-30 07:52 CET
-# Eintraege: 33928
+# Aktualisiert: 2026-10-30 08:52 CET
+# Eintraege: 33941
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -4080,6 +4080,7 @@ baziieenfejar.com
 bazikeno.com
 bazikonbartar.ir
 baztechalarm.net
+bb0g3dia6g.workers.dev
 bb6lmhi140825m16.cfd
 bb6lxq63.verticalrewards.com
 bbacademylearning.com
@@ -6358,6 +6359,7 @@ clamsal.cyou
 clamshellkarakulchaalumina.digital
 clang-outrag.digital
 clarisamba.it
+clarorecargas.online
 clash-verge-upgrade.com
 classdigital.com.br
 classgum.com
@@ -6566,6 +6568,7 @@ clwoce8k.runtime-atlas.digital
 clwpuvknw.mumsdebtservice.co.uk
 clxurg.eng--bpzone.com
 clysselw.betkaka.bet
+cm.afktogel.org
 cmaogogisysiceya.xyz
 cmaugmucqookyacg.xyz
 cmayecgeeaaygiae.xyz
@@ -10272,6 +10275,7 @@ fao70xbsy9gff0ll.org
 faogw.bankefile.com
 faqgkjb.testmobo.ir
 faratech-co.ir
+farenaw.cc
 faresahmedkuwait-52119.portmap.host
 farhan.safeverify.com.ng
 farhangsch.ir
@@ -12306,6 +12310,7 @@ govnol.lat
 gowayofficemee.in.net
 goyalsolar.com
 gozilwl.overlokcu.com
+gozmmmaa.duckdns.org
 gozog.run
 gozomet.pl
 gozozk.mav2lirex.lat
@@ -23647,6 +23652,7 @@ registers-keeta.xyz
 registration-theindex.finance
 registration.v-panel.asia
 registry.amberscreen.lol
+registry.bakeryhub.club
 registry.evercircle.click
 registry.lighttexture18.one
 regularizaeuro.portal-nota.sbs
@@ -32036,8 +32042,10 @@ www.physiephoto.com.au
 www.pig-ex8motionq.com
 www.pinnacleradio-net.edmimwa.com
 www.pjedwards.net
+www.planaakar.com
 www.planandgoprivatetours.com
 www.playasdealmeria.com
+www.poderelevigne.it
 www.pokerdom-kasinos-site.ru
 www.polesetour.it
 www.poli-system.it
@@ -32064,6 +32072,7 @@ www.qdh71-y6j7vxgw046v4cvgga.live
 www.qianxinnbplus.xyz
 www.qkshhdjrbd.work
 www.quick-shares.com
+www.quintessence-portraits.fr
 www.quk222g21jo0s9zrkmwiwwu.net
 www.radallarm.it
 www.radarlamteng.com
@@ -32085,15 +32094,19 @@ www.remoteiconnectbackup1.com
 www.remoteiconnectbackup2.com
 www.renaissancebooks.co.nz
 www.renataprates.com
+www.renzocantarelli.it
 www.reparacioneshosteleria.es
+www.rescogroup.it
 www.residencialdama.com
 www.resourcebooks.net
 www.restaurant-leuehof.ch
 www.rg82z9wtgt9b-m61p.cc
+www.ri-mediasrl.com
 www.riabitarelasardegna.it
 www.riccardogiovannipatriarca.it
 www.ridderkerkfm.nl
 www.riosflyttochstad.se
+www.riparazionitv.it
 www.ristoranteisolina.it
 www.rmsmarineservice.com.qwqqwq.ggff.net
 www.robertsbookshop.com
