@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-30 21:05 CET
-# Eintraege: 34053
+# Aktualisiert: 2026-10-30 22:11 CET
+# Eintraege: 34066
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1263,6 +1263,7 @@
 701amata.workers.dev
 702490.us28.myftpupload.com
 70bcr.lena3qit.lat
+71.62.13.34.bc.googleusercontent.com
 7109hvuj.retinaclier.com
 711zam.vexa2-flow.life
 71ovhjko.cocoricobeachbar.com
@@ -3952,6 +3953,7 @@ balancelag.xyz
 balanceyourlife.hu
 balanroc.5toravex.lat
 balazs-rwa.hu
+balcentraleverwarming.be
 balcharityfoundation.com.au
 baldreamhomes.com.au
 baldreamloans.com.au
@@ -16589,6 +16591,7 @@ lenuce.workers.dev
 leo.longwave5hot.surf
 leoconcepts.com
 leprefleuri-mali.com
+lequertier.com
 lergothelabel.com
 les-biogaz.com
 les-biogaz.fr
@@ -18564,6 +18567,7 @@ mnnwpo.jamjahani2026.football
 mnoo.betawarz.com
 mnoskemp.beer
 mns6fyl1.bossbey69.click
+mnx2zxkvj4.workers.dev
 mnxmy.laborfotostudio.hu
 mnyok7h6.usa-slimsounds.com
 mnyz084l.jadoou.lat
@@ -22610,6 +22614,7 @@ publicwebprotection.com
 publisher99.com
 pudamponorogo.com
 pudyboro.workers.dev
+puertodeobligado.com.ar
 puf.merahsm188.top
 puffingsiterreorganize.courses
 puffvny.premiumrent-car.com
@@ -23148,6 +23153,7 @@ quartzleap5.com
 quartzsatin.com
 quasarcolonnade.top
 quasartrafficnet.lol
+quaseartistas.com.br
 quauuacgeausqkgy.xyz
 quawuacegiemokis.xyz
 qubitblockchain.space
@@ -23414,6 +23420,7 @@ raelagent.com
 raerazl.abcdbro.com
 raerscd.autotuongtac.biz
 rafacommunications.com
+rafastandfurious.es
 raft.asyoulike.nyc
 rahasa.com
 rahmagrill.com
@@ -32232,6 +32239,7 @@ www.salutpurwokerto.id
 www.samanins.com
 www.samsilverman.com
 www.sanbartolomeomonselice.it
+www.santamariadiognina.it
 www.santaritacoop.it
 www.sartoriadellintimo.it
 www.sauconybookshop.com
@@ -32246,11 +32254,13 @@ www.securepathiul.life
 www.seneca-copharma.com
 www.seodata.click
 www.service1app.com
+www.sevencolours.ro
 www.sexyintimus.com.br
 www.sezioneaiabari.it
 www.sgncnutritioncourse.com
 www.shanecrossweb.com
 www.sharingfile.cloud
+www.sharrplast.com
 www.shawnstratton.ca
 www.shbet.id
 www.shcpaconsulting.com
@@ -32261,6 +32271,7 @@ www.shopbeautywoodbooks.com
 www.shoprecommai.space
 www.shukong.net
 www.sicopatasdevina.cl
+www.siksous-friedmann.com
 www.sit.edu.bd
 www.skanesmide.se
 www.slidingdesk.com
@@ -32268,6 +32279,8 @@ www.slo.ru
 www.smartchild.sk
 www.socio-antwerpen.be
 www.solucionpericial.es
+www.soluzionienologiche.it
+www.sorrisoesalutecorrado.it
 www.soulburger.co.nz
 www.souldiggin.com
 www.sourceforgemediastream.com
