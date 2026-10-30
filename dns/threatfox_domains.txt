@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-30 17:02 CET
-# Eintraege: 33994
+# Aktualisiert: 2026-10-30 17:46 CET
+# Eintraege: 33996
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -616,6 +616,7 @@
 30tr04n4gr4m4.cndb-jsdelivr-net.christmas
 30vw.mav8loren.lat
 30zu55sj.radioshartbandi.bet
+31.155.190.35.bc.googleusercontent.com
 313betapk.com
 313betios.com
 313betiran.online
@@ -26929,6 +26930,7 @@ subwaymoney.duckdns.org
 subwaymoney.flashhub.net
 succeswithpaul.com
 such-captain.gl.at.ply.gg
+sudaty.workers.dev
 sudclient.1zorelin.lat
 suddencast.doe-negotation.surf
 suddenhar.currencysn0ut.pics
