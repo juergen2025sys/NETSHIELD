@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-30 10:58 CET
-# Eintraege: 33958
+# Aktualisiert: 2026-10-30 14:55 CET
+# Eintraege: 33981
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -465,6 +465,7 @@
 24hocst.help
 24siete.info
 24ucaqa7.enobahiss.xyz
+252.170.65.34.bc.googleusercontent.com
 252rti6f.letrungkien.info
 254045mx.xenburn.us
 25niconail.com
@@ -577,6 +578,7 @@
 2rty3po2.clamshellkarakulchaalumina.digital
 2rvmsbh4.bet303.download
 2rw7p1f0.en-us-en-bloodarmor.com
+2rzkuxmn.verticalrewards.com
 2sci40h1.ravanshenasiganji.xyz
 2skmlgm2.motabartarin-site-shartbandi-jahan.com
 2t1ridv.logicbyte.lat
@@ -818,6 +820,7 @@
 46imdg6k.blackjackonlineplay83.com
 46vm4qgb.www-glycofree.com
 46z2kbbw.shartplus.bet
+47.209.174.34.bc.googleusercontent.com
 47.249.156.34.bc.googleusercontent.com
 470bcs9bne.workers.dev
 471yebmv.betexper.bet
@@ -1321,6 +1324,7 @@
 7cj04th6.shartland.com
 7cz5jg6k.enus-goldalign.com
 7d6da0ri.axee.net
+7dcct4ro9q.workers.dev
 7dml.netstack.lat
 7e4kctpk.orbitaldockingmodule.digital
 7egbakn4anfwdtase7fnkgsdpywl4mtsxwpud4ou5lxjjhy4qthv4vid.onion
@@ -3669,6 +3673,7 @@ avhepv.aapartman.hu
 avhussamalshaar.com
 avianrescuecorp.com
 avilaheinz.com.br
+avisee.com
 avistahomes.com.au
 avivtech.org
 avjquzsd.seresniki.com
@@ -3791,6 +3796,7 @@ b.worldpress.biz
 b031beafd8f3.net
 b0gkye8f.nou-sauvage.pro
 b0iyqov228.workers.dev
+b0silg64.bossbey12.click
 b10.hr
 b14xsab8.milioner.bet
 b2-analytics.xyz
@@ -4744,6 +4750,7 @@ blobtop.sbs
 blockchainlegion.duckdns.org
 blockchainstartups-crypto.com
 blog.andrewlalchan.co.uk
+blog.anjobi.at
 blog.cdc7.net
 blog.derrspecial-onlinedmin.live
 blog.donitesmithy.info
@@ -5815,6 +5822,7 @@ cat.jumpskyhigh.com
 cat.xiaoshabi.nl
 catal0-trail.buckish-nabere.lat
 catalapnews.today
+catalinaconsultant.com
 catalog3.calmtexture.click
 catalogpriv.hundred5elf.lat
 catalrail.thora8lin.lat
@@ -7350,6 +7358,7 @@ cuwsruwd.gtacauto.com
 cuzxamf.airtechmedical.com
 cv.cbrw.ru
 cv.jyla.ru
+cvbmynpm.bittu.store
 cvdhcp.amesburyforeignauto.com
 cvetox.com
 cvf9a6ez.alvare.store
@@ -9940,6 +9949,7 @@ eventation.site
 eventflareschain.com
 eventos.mdhealth.com.br
 eventras.duckdns.org
+events.mirthfield.cc
 eventwireix.com
 everestndkvzcibcje2cqxhre2hmmybl3rn2gwzwsblz7gx6uryn5rad.onion
 evergreentimberland.garden
@@ -10853,6 +10863,7 @@ flyingbbird.cc
 flyingtogether-ual.net
 flymetoyou.app
 flzocge.penality.bet
+fm.afktogel.org
 fm9rks0204268x.cfd
 fmbuzp.josephmichaelnh.com
 fmgvaoemg.jadoou.lat
@@ -14186,6 +14197,7 @@ insuliteskylights.com
 integralappraisals.com
 integrar.id
 integrated-security.net
+integrativemedicineconsortium.net
 intelect.gr
 intellectualgroupie.com
 intellectualhaily.workers.dev
@@ -16157,6 +16169,7 @@ kzwvrleb.irrigation-monitoring-system.garden
 l.7sot.org
 l.88qr.org
 l.9winn.org
+l.bb69.org
 l0.aeon888link.org
 l04de9-span.closer1ook.garden
 l0jpgk5p.tapl.store
@@ -16250,6 +16263,7 @@ lagranvina.com
 lagrotta.cat
 lahorejazz.club
 lahtbx.shop-digestistart.com
+lahvidovre.dk
 laicaishuli.com
 lainstrumentadora.com
 lajevoja.workers.dev
@@ -17141,6 +17155,7 @@ lowfoodanddrink.com
 lp.wooddesignpe.com.br
 lp4avzjm.borderlinelakewood.com
 lp4hvt2f.ravanshenakhti.shop
+lparfaite.com
 lpchaf.eng-usa-sightfresh.com
 lpdapm.zcode--system.com
 lpf0cwi4.shop-metabodrops.com
@@ -17549,6 +17564,7 @@ mail.cope.st
 mail.coping.ink
 mail.ekx.mya.mybluehost.me
 mail.freetrend.cc
+mail.holzbrenzii.com
 mail.iaa-airferight.com
 mail.mailban.pics
 mail.merchantinvestnetwork.com
@@ -18002,6 +18018,7 @@ melemoeuhane.com
 melhores-casinos-pt-2026.com
 mellow-flicker-comet-pluio.pro
 melney.fr
+melo.rs
 melocatalogo.meloteste.site
 melt8pathgate.chaevodh0t.bet
 melt9logicway.fluxunitzone.bet
@@ -18600,6 +18617,7 @@ moduleprime.weplord.lat
 modupar.com.br
 modyhoba-57738.portmap.host
 moeller-brang.de
+mofomere.workers.dev
 moggydaytrainer.com
 mogilevskaya.com
 moh.6666k.org
@@ -19511,6 +19529,7 @@ new7taskhub.novapath.bet
 newafricacompany.com
 newcoservicemower.com
 newgrowthsa.com
+newhomebuildingservice.co.uk
 newhydeparkcarpetcleaning.com
 newimmigrant.org.tw
 newjerseypetsitter.com
@@ -21393,6 +21412,7 @@ pcsarm.eng-eng-slimsounds.com
 pctechservices.myftp.biz
 pctor.link
 pcue.elitesport.ir
+pcve7fdo.forbesae.com
 pcwhlb.qummy-group.com
 pcwiygd.trueessencehairextensions.net
 pcwx.thechildrencomefirst.org
@@ -21880,6 +21900,7 @@ plaque5tucco.digital
 plasmatech.ir
 plasmaticsystems.com
 plast.one
+plasticsurgeonnyc.com
 plastiroom.com
 plataformaweb360.com
 platform.isystemservices.com
@@ -29484,6 +29505,7 @@ v33c66mq.zabanhaggani.shop
 v33nfut7.elipsbet.poker
 v47e4385.fununetadris.shop
 v47m17r8.cerocarey.com
+v48egot9.bossbey12.click
 v4lfh2trw03nr9r.top
 v4qu8nnt.azmoondadrasi.xyz
 v4wbnux67t0204260.cfd
@@ -33411,6 +33433,7 @@ z7ql7rl5.gregoriasmod.com
 z8l6eurt.gtacauto.com
 z94z50ta.storageinridgecrest.com
 z9coc5j3.webhostlounge.com
+z9mnifrjwh.workers.dev
 z9sb13jt.cloud-beacon.digital
 z9x8xddp.federationofpbos.org
 z9yxj5lc.us-morningfatmelter.com
