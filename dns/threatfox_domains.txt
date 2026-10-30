@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-30 19:46 CET
-# Eintraege: 34011
+# Aktualisiert: 2026-10-30 21:05 CET
+# Eintraege: 34053
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2407,11 +2407,13 @@ aliyunmail.app
 alkaleejia.com
 alkaleejia.wiki
 alkalinemarinade.com
+alkausarpharma.com
 alkh.jbgroup21.com
 alkherhouses.com
 alkkq3vhb7epl3jh6qzutj2vyyfdgvs2nukw5hwdsijl5la3jrinrryd.onion
 alklh.popi999.net
 alkociferblat.cc
+all2getherwraps.com
 alladie.store
 allanpe.biz
 allboroughrealestate.com
@@ -2535,6 +2537,7 @@ amanda902.infinityfreeapp.com
 amaniza.com
 amaranth5104.workers.dev
 amarszalek.net
+amati.org.uk
 amavelle.online
 amaze.printedsimply.com
 amazom.my
@@ -2634,6 +2637,7 @@ analyze-me3.buzz
 analyze-me6.world
 analyze.ironmaidenonlineclub.com
 analyzer01.com
+anambra.duckdns.org
 ananthmulgund.com
 anarchiv.net
 anarchy10.duckdns.org
@@ -3352,6 +3356,7 @@ ashevilleweddingfilms.com
 ashifct.com
 ashsynt.p7ickmuch.lat
 ashvec.puro2tal.surf
+ashwinbk.com
 asialive22.space
 asiangt.com
 asimpiantisrl.it
@@ -3470,6 +3475,7 @@ atomento10.icu
 atomfil.col7ecapture.surf
 atoposs.com
 atotodaily.ng
+atozservies.com
 atqfb.calirayalake.com
 atr2t37ngllrkkbt7tsxprlnuejxknxjjiqvy3woralbuok3unhuzeqd.onion
 attachment-storage-asset-static.needbinding.icu
@@ -3530,6 +3536,7 @@ auraalhind.com
 auraapp.org
 auracorp.shop
 auraprog.it
+auravisionstudio.in
 aureliocorral.es
 aureom.com.br
 aurielle.blog
@@ -3650,6 +3657,7 @@ auyflxp.emshab.bet
 auykkgimyugaugye.xyz
 auyyqkmswyesycqw.xyz
 av-laverie.fr
+ava88t.work
 avaltozatossagize.corpuscom.hu
 avasecurityservices.com
 avast.mysecuritycamera.com
@@ -3989,6 +3997,7 @@ bapixkar1241.buzz
 bapp.netlink-connect.com
 barabezo.com
 baraksamoon.com
+barbarabonomiromagnoli.com
 barbaraohman.com
 barbashat.com
 barbosamaiaadvogados.com.br
@@ -4284,6 +4293,7 @@ benesserenelmovimento.it
 benotrobot.online
 benro.ps
 benthosambiental.com.br
+benu.com.br
 benuatotob.store
 beorganiser.com
 beqbfjhnf.deepspaceparker.com
@@ -4581,6 +4591,7 @@ bit.fastbitbox.pics
 bit.vpsgateway.pics
 bitbluemond9.zexorcloudsync.garden
 bitescull1231.world
+bitetheroad.com
 bitfinance.live
 bitforge.com.my
 bitfox.quirky-shedding.lat
@@ -4706,6 +4717,7 @@ blackjacktipsnnt.com
 blackkkkdate.icu
 blackkkkkdate.icu
 blackmorebooks.ravenhawk.net.au
+blackmusic.com.br
 blackriverlawn.com
 blackthornkeep.top
 bladehostpi.life
@@ -5671,6 +5683,7 @@ calzadoswer.store
 camachoroldan.com.co
 camachoycia.pe
 camaswilson.com
+camelinksolutions.com
 cameradalat.net
 cameresantucci.com
 camicamicmai0390393.duckdns.org
@@ -5709,6 +5722,7 @@ cantinacliternia.it
 canvahow.com
 canvas-35.com
 canvas-port.qu2ntitative-tenero.pics
+canwashers.com
 canyonmere.cc
 canyonsyncbox.thorniva.garden
 caoojj61.thelogicofmoney.com
@@ -6246,6 +6260,7 @@ chrisparrycollection.com
 chrisram.com
 chrisram.net
 chrisrico.picklescoop.com
+chrissz.duckdns.org
 christadutoit.co.za
 christen-wilkau-hasslau.de
 christiancordero.mba
@@ -6405,6 +6420,7 @@ cleandrygreen.com
 cleanex-reinigung.de
 cleanlay-fet-telemetry-vault.garden
 cleanmyduct.com
+cleanpacificperu.com
 cleantruckchecksac.com
 clear8siteview.focallensview.garden
 cleardig477.icu
@@ -6652,6 +6668,7 @@ cnbgladespring.com
 cnc.reaperc2.xyz
 cnd.bagsrad.com
 cniqfzhe.riskybet.casino
+cnit.com.br
 cnjiaju.vip
 cnrit.co.th
 cns.bagsrad.com
@@ -6849,6 +6866,7 @@ comwebstat.scriptnode.pics
 conceptx.be
 concisenews.co.kr
 concludanotafiscal.site
+concretecuttingae.com
 concretehomesaruba.lat
 concreterepairny.com
 concretewestgj.com
@@ -7078,6 +7096,7 @@ cowswap-gateway.ru2tor.com
 coyahome.com
 cozffr.plumberservices.store
 cozinca.com.br
+cozinhacasasabor.com.br
 cozinhadamarinoca.com.br
 cozmo90bet.com
 cp2.7dewaslot.org
@@ -10462,6 +10481,7 @@ fencecompanycharleston.com
 fencescapeinc.com
 fendqt.lifealigned.hu
 fenesc.com.br
+feni24x7.com
 fenix-konin.pl
 fennelcanticle.co
 fenster-sanierung.info
@@ -22125,6 +22145,7 @@ portmeshnode.sora5link.surf
 portmeshnode.zori9vax.bet
 portmeshsite.flex2node.surf
 portojavspirit.net
+pos-marine.com
 pos-terminal.vg
 pos.808skor.org
 pos47.com
@@ -22212,7 +22233,9 @@ pragmaticme1k.cyou
 pragmaticws1.world
 pragmaticwsg1st.world
 praianorteseguros.com.br
+prairiedesk.cfd
 prairielink.cfd
+prairierailingregina.ca
 prakashjadhav74.duckdns.org
 prakashjadhav7473.duckdns.org
 praktijkkindinzicht.nl
@@ -22258,6 +22281,7 @@ prgfeg84.getdsm.com
 prgqvfu.payestation.com
 pric3-well.herbertrutt.work
 pricasino.com
+priceisrightjewelry.com
 pricelou.cyou
 priem-pixart.life
 priesthoodagc.org.uk
@@ -22538,6 +22562,7 @@ pshealthcare.net
 psicogenealogia.com.br
 psiconanes.com
 psicoterapiatombolato.it
+psihologlife.ru
 psihosan.ro
 psistart.pl
 psiwhza.baocongnghe.net
@@ -24938,6 +24963,7 @@ scansail.gela1vor.lat
 scanvertzeit.zexorcloudsync.garden
 scare.zedqo.workers.dev
 scarfaceserver.com
+scarletabbye.workers.dev
 scarletplume.com
 scawwaq.jet90betiran.bet
 sccdnd-ltyles.click
@@ -31449,6 +31475,7 @@ www.api-aws.xyz
 www.appliancerookies.shop
 www.apulialandartfestival.com
 www.aquaramasportswear.it
+www.arakanobserver.com
 www.arancerossecastellana.it
 www.archivioelia.org
 www.arlovsbygg.se
@@ -31592,6 +31619,7 @@ www.comfort-style.co.uk
 www.comitatoparterre.it
 www.commune-khlidia.gov.tn
 www.comoshops.com
+www.company-maintenance.org
 www.compleatscholar.com
 www.comprooroaosta.it
 www.condominiobologna.it
@@ -32178,24 +32206,38 @@ www.rmsmarineservice.com.qwqqwq.ggff.net
 www.robertsbookshop.com
 www.robinamedicalcentre.com.au
 www.rochaemucholowski.adv.br
+www.rollsbach.de
 www.rompecabeza.co
 www.roottreats.com
 www.rossetticonsulting.it
+www.rossitrans.it
+www.rosso130.it
+www.rossprotezionecivile.it
 www.rotundavillas.com
 www.roundtablebooks.com
 www.rudolfsteinerbookcentre.com.au
+www.rv-schwarzbach.de
 www.s-w34iusuwt9mdjzen7b.live
 www.s4p5ms8r4z8907j9o.app
 www.sabine-kley.com
 www.sadcgov.net
 www.safedeliverylogistics.icu
+www.sagaponackcharter.com
+www.salaricevimentipolifunzionale.com
 www.salesf0rce.club
 www.salon-new.ru
 www.saludseguro.com
+www.salumificiomontearci.it
 www.salutpurwokerto.id
+www.samanins.com
 www.samsilverman.com
+www.sanbartolomeomonselice.it
+www.santaritacoop.it
+www.sartoriadellintimo.it
 www.sauconybookshop.com
+www.savioscale.it
 www.schloss-virnsberg.de
+www.schoolbuswarszawa.pl
 www.schoonerbooks.com
 www.scottsdalelaser.hair
 www.searedrecipes.com
