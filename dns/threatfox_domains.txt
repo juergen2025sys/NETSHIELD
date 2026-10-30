@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-30 03:53 CET
-# Eintraege: 33869
+# Aktualisiert: 2026-10-30 07:52 CET
+# Eintraege: 33928
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -447,6 +447,7 @@
 2280.cantdown.su
 228fsijc.therodeoroundup.com
 22bahis-tr.com
+22ed84bl.georgelounge.bar
 22goulm8.runtime-nexus.digital
 22nbxu1y.eng-usa-goldalign.com
 22prf6xs.eduprof.ir
@@ -648,6 +649,7 @@
 360plusar.com
 360safeupdate.com
 365media.vn
+366patiopenquista.cl
 36qgwr.gabard-viewed.surf
 36zyoge3n0.workers.dev
 37.250.142.34.bc.googleusercontent.com
@@ -1638,6 +1640,7 @@
 9dg185kq.sensa138var.com
 9dzz.despot-unfolded.surf
 9e763bw7.theloncode.org
+9e9tjipz.bossbeyavrupa.store
 9edpkf5o.powershart.com
 9egu923jfsdf.pro
 9eqccu8w.vitalitymission.com
@@ -3213,6 +3216,8 @@ armcobarriersuppliers.duckdns.org
 armcobarriersuppliersbk.duckdns.org
 arminext.com
 armwrestlers.club
+armyskuri.duckdns.org
+armyskuri101.duckdns.org
 arnnav.colonist-proph.lat
 arnvvins.com
 aroclenetapp.net
@@ -3661,6 +3666,7 @@ avhbto.yasbet90.com
 avhepv.aapartman.hu
 avhussamalshaar.com
 avianrescuecorp.com
+avilaheinz.com.br
 avistahomes.com.au
 avivtech.org
 avjquzsd.seresniki.com
@@ -5014,6 +5020,7 @@ bossbey71.click
 bossbeyagency.click
 bossbeyalpha.click
 bossbeyanadolu.store
+bossbeyavrupa.store
 bossleysportsclub.com.au
 bossprotect.com
 bosstekirdag.store
@@ -5167,6 +5174,7 @@ bright-sk-y1.to6varil.in.net
 brightcaresolution.com
 brightdeltazone.top
 brightestprocexchange.wiki
+brightingsouls.com
 brightloop.cc
 brightmarkconsultingltd.com
 brightmorningday.top
@@ -5639,6 +5647,7 @@ cakarelang99.space
 cal-water.com
 cal.magicalegyptwomen.com
 cal.snehamumbai.org
+calaismetonne.fr
 calciteperistyle.info
 californiasmallbusinesslaw.com
 call.openapiservicehub.pics
@@ -6761,6 +6770,7 @@ cometparapet.top
 comfort-style.co.uk
 comfortaireat.com
 comfortinnlaytonutah.com
+comfortprollc.net
 comicstar.lat
 comidarapidas.store
 comienzo.ydns.eu
@@ -7121,6 +7131,7 @@ cr-cloud.crinkdimit.work
 cr7iran.ir
 cr9i8up3.stgsolar.hu
 cra.kliksm188.top
+crackedkrypton.xyz
 crackedsoftware.doxbin.cy
 craft-house.com.au
 craft.zjkgx.workers.dev
@@ -12602,6 +12613,7 @@ gustotek.cloud
 gutachter-gebhardt.de
 gutdp.aileadfactory.com
 gutinkft.hu
+gutmann.lol
 guuckmgogwiceiyq.xyz
 guw.akusm188.top
 guw.matriculador.digital
@@ -14102,6 +14114,7 @@ infra.monop-oriental.surf
 infra.rapidfirepixel.lat
 infrastructurecore.cc
 infrax.network
+ing-access.help
 ingestdot.net
 ingestwebneo.com
 inggeobur.ru
@@ -15356,6 +15369,7 @@ kall4234ribk3assa.pw
 kaloed.cfd
 kaloed.pro
 kalooms.com
+kalpatropin.com
 kalt-s8.ra6ximen.in.net
 kaltourusa.com
 kamieniarski.gdynia.pl
@@ -15737,6 +15751,7 @@ kiskapeskaloska.com
 kislosflfkcjdj.com
 kiss.a-dog.top
 kita-eichhoernchenbande.de
+kitabu.hu
 kitchenage.in
 kitchenbathremodels.com
 kitchensecretbook.com
@@ -15794,6 +15809,7 @@ klettnerlehen.de
 klga3rph.easyprocode.com
 klgkenm0.en-belly--flush.com
 klhadsd.adi8hesplayer.pics
+kliadmin.com
 klib6tlr.eng--xenburn.com
 kliearthmover.com
 klik-adzkia.com
@@ -15847,6 +15863,7 @@ kocmqukicmskqick.xyz
 kocqqkyyyswiumuc.xyz
 kodg0fih.palmdriverv.com
 kodhfeq.one1xbet.net
+kodyxyju.workers.dev
 koenigwood.com
 koeqcoommgkagouk.xyz
 kof.5tr.org
@@ -16214,6 +16231,7 @@ lagbout6ouisft03.duckdns.org
 lagbout6ouisft04.duckdns.org
 lagbout6ouisft05.duckdns.org
 laggdr7f.crownconnectpk.com
+lagisarchitects.com
 lagoo-beam.indulgence5crimp.surf
 lagranvina.com
 lagrotta.cat
@@ -16477,6 +16495,7 @@ ledger.com.ag
 ledgerbirc.qi3mavel.in.net
 ledgerlive.ldgr.co.com
 ledicadjc25ksdzv6e5n63ksfo2lx2rqrein4pkd7i5demnvfkfq.arweave.net
+ledtric.com
 ledxom.kaarenorge.com
 leebin101.com
 leegraf.co.il
@@ -16564,6 +16583,7 @@ lfumk.winston.bet
 lfvkqfz.diesel-stark.lat
 lfwboc.jamejahani.win
 lfycpw4f.en-en--enerflow.com
+lg.afktogel.org
 lg.sonqhong.com
 lgbtqplusfriendlydomain.com
 lgeioayhrehsoa.com
@@ -17557,6 +17577,7 @@ maison-isabelle.com
 maison-s.it
 maisonatelier.live
 maisonhildegarde.fr
+maitrikala.com
 majalaganja.cc
 majastee.com
 major-pur.adi8hesplayer.pics
@@ -20219,6 +20240,7 @@ oadckt.cserypadlo.hu
 oak-branch.swimsuit-unable.lat
 oakbalancer.setqueueat.lat
 oakington.org
+oakleyschool.in
 oakvvbov.parossag.hu
 oalaoiodgne.com
 oapi.polysupport.team
@@ -20602,6 +20624,7 @@ ooe.5tr.org
 ooe.myserver.com.bd
 ooeet.cannaturalgroup.com
 oofnjcu.floatservicesnw.com
+ooia3lx2.ased.store
 ookksol.zeebline.com
 ookzqmk.selladorasgovi.com
 oopsboobs.com
@@ -20819,6 +20842,7 @@ orokingauto.com
 orospucocu.sbs
 orthodoxok.com
 orthrex.co.uk
+orto-stazhkov.com.ua
 ortobellozero.net
 ortopediaqueralto.com
 oruaaga.1xbet1farsi.com
@@ -21220,6 +21244,7 @@ park.greenforest.surf
 park.greenforesthub.lat
 park.greenlogiclab.lat
 park.terraview.surf
+parlamentopai.com
 parlouredshop.com
 parma-delikatessen.com
 parmella.it
@@ -21290,6 +21315,7 @@ patratrimulia.com
 patriciakleijn.nl
 patriciatsiouli.gr
 patrickschrader.com
+patrimonioculturaljacarehy.com.br
 patrins.com
 patriothousinggroup.com
 patser.life
@@ -21441,6 +21467,7 @@ pepesnix.org
 pepperstrail.com
 pepunn.com
 peqe8mvw.byte-foundry.digital
+pereirabienert.com.br
 perfecpl.cyou
 perfect-bolognese-simmer.garden
 perfect-lasagna-layer.garden
@@ -21655,7 +21682,9 @@ picturequitting.monster
 picturesurprise.info
 pidor.catalogotrader.com
 pidorsas.site
+pidu-togo.tg
 pig.369bbqsifangonline.com
+pigitacars.com
 pigtweet-kitdiff-it.christmas
 piizeaa.shop
 pijjrfa.warrenumcpgh.org
@@ -21828,6 +21857,7 @@ planecorn.xyz
 planetreeapse.co
 planksbiergarten.site
 planospag.com
+planryder.org
 plantanova.com.br
 plantcures.it.com
 planus.store
@@ -22034,6 +22064,7 @@ portal2.bloomloop.lol
 portalbyte8345.lol
 portaldasfinanca.com
 portaldasfinancas.portal-nota.sbs
+portaldojota.com.br
 portcho.lunave5.bet
 porteralarm.cfd
 porthot-irr-gation-menthub.garden
@@ -25038,6 +25069,7 @@ sei.brslot.net
 sei.loloxsm188.top
 seine55.com
 seiri.es
+sekera-26f.workers.dev
 sekguqqwqykgeykw.xyz
 sekirolegion.duckdns.org
 sektorplay.space
@@ -25389,6 +25421,7 @@ showoff-display.com
 shpu1xz9.gdcpemasaranbekasi.com
 shreekantdaga.com
 shrekf.art
+shriraghavendratravels.com
 shroom010.duckdns.org
 shrqj.mabanimashin.site
 shssshdscn.beer
@@ -25838,6 +25871,7 @@ smoothoutlawcoffee.com
 smqemscyoimqmmuc.xyz
 smqqrbvjf7kfcikigbq5hxzq5y6n2as7oy4bmb6dsrb4keyn3korxcid.onion
 smtnscerver.beer
+smtp.briskgrab.cc
 smtp.catsec.ink
 smtp.cope.st
 smtp.coping.ink
@@ -26690,6 +26724,7 @@ strainug.cyou
 strang-02-static.com
 strangemeteor.com
 strategyfinders.com
+stratex.ao
 stratographic-core-drill.garden
 stratos-delta.com
 stratos30.com
@@ -29703,6 +29738,7 @@ vftudd2r.gamehazarat.bet
 vfw2j6ds.designhomeir.com
 vfxdzptjm.mabaninazaridelavar.xyz
 vfytosq.topspeedmoving.co
+vg.bb69.org
 vg2tw8iq.unseen-zorenka.digital
 vg5sgxv.lol
 vgatogel.org
@@ -30254,6 +30290,7 @@ vsttorentz.net
 vsv1ftyzzn48uhz.top
 vsxc.webyek.com
 vszptzu.elcornerderaulmorote.com
+vt0potv8.bossbey1.click
 vt40b8nw.badabingsopranoslounge.digital
 vtb-kleve.de
 vtc44.herbertrutt.work
@@ -31346,6 +31383,8 @@ www.aquaramasportswear.it
 www.arancerossecastellana.it
 www.archivioelia.org
 www.arlovsbygg.se
+www.armyskuriclassproject.com
+www.armyskuriclassproject1.com
 www.artecar.net
 www.artmostfear.co.za
 www.aryaxplorer.space
@@ -31962,22 +32001,34 @@ www.osamaphplogistices.com
 www.osamaphplogisticesbackup.com
 www.osamaphplogisticesbackup1.com
 www.osamaphplogisticesbackup2.com
+www.oscarmartinez4sheriff.com
 www.osh9xntw0spl96bbe.org
 www.osmb.net
 www.ots-training.com
+www.otticaimperatore.it
 www.ov86ayb0fe4ep2b92-645o.com
 www.oxfordshirechilligarden.co.uk
 www.oxtu0ashinenj0.net
+www.oywasacco.com
 www.ozenziraat.com
 www.pacanaturals.com
+www.panificiopallaria.it
+www.paralumimarinelli.it
 www.parinando.com
 www.park-promote-portability.xyz
+www.parmella.it
+www.partitodemocraticobat.it
+www.partyservice-regensburg.info
 www.patbookman.net
 www.patches.icu
+www.patienten-lotsen.de
+www.pchelp.sk
+www.pedipeus.com
 www.penagamella.com
 www.pepperandlacephotography.com
 www.pepxly.makeup
 www.permanentart.cz
+www.pettiarredamenti.it
 www.phongketaonduchuyclassproject1.com
 www.phongketaonduchuyclassproject2.com
 www.phongketaonduchuyclassproject3.com
@@ -31985,13 +32036,19 @@ www.physiephoto.com.au
 www.pig-ex8motionq.com
 www.pinnacleradio-net.edmimwa.com
 www.pjedwards.net
+www.planandgoprivatetours.com
 www.playasdealmeria.com
 www.pokerdom-kasinos-site.ru
+www.polesetour.it
+www.poli-system.it
 www.polonez.org.au
 www.precisionprinterservices.com
 www.premiosarquitectura.org
 www.premiumlakaskezeles.automentesgocza.hu
 www.prenotazione20h.it
+www.primintimo.com
+www.procesossi.com
+www.progettazionedaysurgery.it
 www.progettocodireparma.it
 www.projectusf.com
 www.projectyola.click
@@ -32000,6 +32057,7 @@ www.ptip.us
 www.publitour.be
 www.puddletownbookshop.co.uk
 www.pulsoinformativoguerrero.com
+www.pvcleaning.com
 www.pyjs.in
 www.qatestinglaboratories.com
 www.qdh71-y6j7vxgw046v4cvgga.live
@@ -32238,6 +32296,7 @@ www.zeus138.io
 www.zfederal.com
 www.zfu4n4kxgmx32hsqg.cc
 www.zigpsychocybercowboys.com
+www.zikweb.net
 www.zominoz.com
 www.zonafranca.tv
 www.zp857.online
