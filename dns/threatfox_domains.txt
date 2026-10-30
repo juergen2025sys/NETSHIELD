@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-30 10:00 CET
-# Eintraege: 33952
+# Aktualisiert: 2026-10-30 10:58 CET
+# Eintraege: 33958
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -634,6 +634,7 @@
 33pedia.org
 33xmfjam.cloud-beacon.digital
 3413718a.exploreargentina.tours
+34234342342rerr.beer
 347hoy7r.signal-frontier.digital
 348787241.com
 34bbeito.canlibahis1xbet.click
@@ -9491,6 +9492,7 @@ en-webaquaburn.com
 en.deccart.pl
 en.iranphotonics.com
 en.skep.life
+en9rg9th.avako.store
 enak.tc
 enbhkx.jackpot77.de.com
 enchantedjourneys.co.za
@@ -14618,6 +14620,7 @@ j0.bala7.org
 j01nn5zm.istanbul303.com
 j0g2ia0g.bet1yek.bet
 j0p0cibb.lunza.store
+j0uxrx2g.paars.poker
 j10.com.pk
 j112srgz.bahigo90bet.com
 j1jh2b9y.jacksorbetter.casino
@@ -14771,6 +14774,7 @@ jawahirjewels.co.uk
 jawamukilifiadventures.com
 jaxivo.com
 jaybhavaniwoodworks.com
+jaymarsh.4masgrooming.com
 jayswraps.com
 jazz.oceanwavepoint.lat
 jazzbakerband.com
@@ -18817,6 +18821,7 @@ mossmesh17.com
 mossparlor.com
 mosswood.cc
 mossymorrow.com
+mosyni.workers.dev
 moszp.jetbet.download
 moteldb2000.com.pl
 moth.betweenthebunz.co
@@ -23415,6 +23420,7 @@ rat.best
 rat.m-u88.com
 rata-tech.com
 ratatwista.com
+rate-limited-proxy-66-249-87-133.google.com
 rate-limited-proxy-66-249-87-134.google.com
 rate-limited-proxy-66-249-90-34.google.com
 rate-limited-proxy-66-249-92-131.google.com
