@@ -39069,8 +39069,8 @@
       "96.126.130.106",
       "98.81.185.217"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "blocklist_de_bruteforce": {
@@ -39827,8 +39827,8 @@
       "98.94.86.150",
       "99.224.248.10"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "carpathian_threat_intel": {
@@ -41526,8 +41526,8 @@
       "98.81.25.90",
       "98.84.26.196"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "configserverapps_365d": {
@@ -177475,8 +177475,8 @@
       "98.188.247.50",
       "98.70.50.166"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "honeysec_ip2": {
@@ -306489,7 +306489,7 @@
     "unchanged_runs": 13
   },
   "intrusionlabs": {
-    "hash": "02330538d18171133b33368359de2283602942f01ae260673497d7f7c5d07f00",
+    "hash": "c149ae45dd3a595dfc71e9bf46f685fb8990b9cf466e4e4b0469235ab30a0ffd",
     "ips": [
       "1.163.181.173",
       "1.214.214.114",
@@ -307752,6 +307752,7 @@
       "2.57.122.238",
       "2.57.122.74",
       "20.102.98.53",
+      "20.105.65.67",
       "20.115.209.228",
       "20.116.34.103",
       "20.12.41.6",
@@ -308861,8 +308862,8 @@
       "98.71.8.129",
       "99.92.204.98"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "ipblocklist_eu": {
@@ -1744884,8 +1744885,8 @@
       "99.99.203.43",
       "99.99.221.135"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "ipinsights": {
@@ -2755695,8 +2755696,8 @@
       "99.92.204.97",
       "99.92.204.98"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "lurescope_7d": {
@@ -2756203,8 +2756204,8 @@
       "96.78.175.36",
       "97.93.43.157"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "mattyroberts_threatlist": {
@@ -2820638,8 +2820639,8 @@
       "99.92.203.162/32",
       "99.92.204.98/32"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "opendbl_darknet": {
@@ -2842578,8 +2842579,8 @@
       "99.51.162.233",
       "99.71.160.19"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "reportedip": {
@@ -2852536,8 +2852537,8 @@
       "99.66.10.104",
       "99.92.204.98"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "reportedip_bruteforce": {
@@ -2905148,8 +2905149,8 @@
       "99.93.41.135",
       "99.96.109.62"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "siberkapan_fortigate": {
@@ -2950780,8 +2950781,8 @@
       "98.90.43.197",
       "99.92.204.98"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "stratosphere_aip": {
@@ -3019677,8 +3019678,8 @@
       "99.92.204.98",
       "99.93.177.9"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "techtools": {
@@ -3044890,8 +3044891,8 @@
       "99.79.9.18",
       "99.92.203.162"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "timgerstel_suspicious_ips": {
@@ -3049180,8 +3049181,8 @@
       "99.109.247.207",
       "99.92.204.98"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "tn3w_ipblocklist": {
@@ -3410320,8 +3410321,8 @@
       "98.36.141.73",
       "99.39.251.174"
     ],
-    "last_changed_local": "2026-10-30 22:10 CET (Berlin)",
-    "last_changed_utc": "2026-10-30 21:10 UTC",
+    "last_changed_local": "2026-10-30 22:13 CET (Berlin)",
+    "last_changed_utc": "2026-10-30 21:13 UTC",
     "unchanged_runs": 0
   },
   "welford_high_confidence": {
