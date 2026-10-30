@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-30 22:11 CET
-# Eintraege: 34066
+# Aktualisiert: 2026-10-30 23:02 CET
+# Eintraege: 34094
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -679,6 +679,7 @@
 3b213f9c.lionsport.ir
 3b7ed5ab.imzural.info
 3bjguds4.eng--glycofree.com
+3bn9xbsj.bodes.store
 3bse5c5d.b00kself.com
 3cb50pyi.warmwaffles.com
 3cipm334.pilkada2017.com
@@ -12052,6 +12053,7 @@ gjpz.auladeingles.co
 gjs.whitepppplatform.icu
 gjt.clashofmaps.vip
 gjtnia1n.us-en-us-xenburn.com
+gjuqlcwh.bossbey71.click
 gjuqzxwz.irantop.bet
 gjwc.kalientestore.com
 gk8afjtp.hoown.store
@@ -23545,6 +23547,7 @@ ray-id-v3.com
 ray.brightsunray.lat
 ray2logicnet.quasargrid.bet
 ray2logicway.mero2beam.surf
+raybake.com
 raymondemi.ca
 rayonbet.com
 raypathlink.xenonraypoint.garden
@@ -23618,6 +23621,7 @@ ready-logic.job-ready.work
 reagentshield.zen-5lora.life
 real.botnet.st
 real.kabgagk234d.info
+realestate.financialhouse.gr
 realestateagentsd.com
 realfunsolutions.com
 reallocations-firelight.app
@@ -23673,6 +23677,7 @@ redlinebusiness.space
 redo2taskhub.undo-wingless.bet
 redrockscoach.com
 redsdj.ca
+redtecsi.com.ar
 redwoodgallery.photos
 redwoodresinfarms.com
 reebons.com
@@ -23780,6 +23785,7 @@ reliablefencecompany.com
 reliablelogisticsltd.com
 reliablerentalz.com
 reliancecad.co.za
+relief.sherinsha.in
 relitorin.com
 relmciarnlioix.life
 rem.herbalsupplementss.com
@@ -23852,6 +23858,7 @@ report.pantrystudio18.lol
 reportehla.xyz
 reportsnapbit.com
 reposboy.asia
+repositorio.ksdesktop.com.br
 rept.seescanf.cc
 repticlub.com
 repu1sivebrazen.digital
@@ -24084,6 +24091,7 @@ rl035mt.7zorelax.lat
 rl2tx309.laborpost.com
 rl88qulx.izyob7rickets.digital
 rlaa5uje.stack-frontier.digital
+rlfsizewellb.co.uk
 rlhk5nxo.ra7ximor.in.net
 rlio.catsandcarp.com
 rlmjgwi.appmegapari.com
@@ -26293,6 +26301,7 @@ spongebob.dynuddns.com
 spool1-scope.verdi7qor.lat
 sportback.org
 sportchat.ir
+sporti.id
 sportouverte.ch
 sportsmodelagency.nl
 sportstvrights.com
@@ -26315,7 +26324,9 @@ spro3-gate.years-very.lat
 sprounite.zooblob.surf
 spruce-nimbus.com
 sprucevale.torex5lin.surf
+spruhasolutions.com
 spscryspy.com
+spske.sk
 sptlkenya.co.ke
 sptx.supportrmx.xyz
 sputnik23crown.club
@@ -27005,6 +27016,7 @@ sultankito.com
 sultankito.net
 sultanoffc.com
 sulthansalmanjaya.com
+summasonorum.at
 summercampadvice.com
 summitdawn.breadpotho1e.surf
 summxif.biz
@@ -32158,6 +32170,7 @@ www.progettazionedaysurgery.it
 www.progettocodireparma.it
 www.projectusf.com
 www.projectyola.click
+www.prolocomedicina.it
 www.pronhub.shop
 www.ptip.us
 www.publitour.be
@@ -32270,14 +32283,20 @@ www.shivanjalihelpinghands.com
 www.shopbeautywoodbooks.com
 www.shoprecommai.space
 www.shukong.net
+www.sicilypantelleriapropertyforsale.com
 www.sicopatasdevina.cl
+www.signasis.com
 www.siksous-friedmann.com
+www.silviapadula.it
+www.simple-intake.com
+www.sindacatoalpi.it
 www.sit.edu.bd
 www.skanesmide.se
 www.slidingdesk.com
 www.slo.ru
 www.smartchild.sk
 www.socio-antwerpen.be
+www.socopes.it
 www.solucionpericial.es
 www.soluzionienologiche.it
 www.sorrisoesalutecorrado.it
@@ -32291,13 +32310,21 @@ www.spectrumcomercial.com
 www.sphuatomotive.com
 www.sphuatomotivebacku.com
 www.sphuatomotivebacku1.com
+www.spineteam.it
+www.sslaziociclismo.it
 www.steamandpressure.co.uk
+www.stoopidshades.com
 www.stpi.eu
 www.strimex.de
 www.stroudbooks.com
 www.studentportal.live
+www.studiolegalecolombo.info
+www.studiolegalelacatena.it
+www.studiolegalemp.net
+www.studiopsicopedagogico-paola.it
 www.stuf5-qqrange1.net
 www.sukipartes.co
+www.sullaviadiulisse.it
 www.sunagawa-shop.com
 www.sunwu.world
 www.switchse.com.br
@@ -32541,6 +32568,7 @@ xaic33d75dantn47hqcrpyzzqvpcl3mdes7wkmmkvz35l3aaznfxoaqd.onion
 xaktywhe.btyek.site
 xalfsi.mspa-naperville.com
 xaltvrv.en-usa-sightfresh.com
+xaluziki.workers.dev
 xamanxrpclaim.com
 xamayojir.com
 xamir9on.digital
