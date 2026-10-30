@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-30 02:57 CET
-# Eintraege: 33861
+# Aktualisiert: 2026-10-30 03:53 CET
+# Eintraege: 33869
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -219,6 +219,7 @@
 1629bqt9p34elwv.top
 164-90-169-184.cprapid.com
 168-avth.com
+169.174.116.136.bc.googleusercontent.com
 16dewaslot.org
 16mp59qr.usen-neurovera.com
 16t38k5v.rtp-k86sportop.site
@@ -649,6 +650,7 @@
 365media.vn
 36qgwr.gabard-viewed.surf
 36zyoge3n0.workers.dev
+37.250.142.34.bc.googleusercontent.com
 37aveautorepair.com
 37d389gt.botvn.net
 37lzounh.holographicprojectiongrid.digital
@@ -10196,6 +10198,7 @@ faceit-anti-cheat.com
 faceit-cdn.org
 facetstem5.com
 faceupfinder.com
+facevaluenft.com
 fachwirt-ecommerce.de
 factima.lomov-stroganal.lat
 facturacionlapaca.com
@@ -22058,6 +22061,7 @@ potpb963.fubet24.net
 pousadanascentedoaraguaia.com.br
 pousadaportodoitagua.com.br
 pouulacmu.phogoldencow.com
+povudevu.workers.dev
 povuns.shop-synaptigen.com
 povver4-pulse.mav2lirex.lat
 power-bank.in
@@ -23369,6 +23373,8 @@ rat.best
 rat.m-u88.com
 rata-tech.com
 ratatwista.com
+rate-limited-proxy-66-249-87-134.google.com
+rate-limited-proxy-66-249-90-34.google.com
 rate-limited-proxy-66-249-92-131.google.com
 rate5pathgate.flo3xaren.bet
 ratox.hu
@@ -24562,6 +24568,7 @@ s3fg6ji1.usen-burnflow.com
 s3qrni26.bcgamefarsi.com
 s3unirpm.bet90land.com
 s3zzh7np.sigaribetkade.com
+s4.bb69.org
 s48bo9y4.en-en--enerflow.com
 s4d36a8i.mattheneus-healthcare.com
 s4oaurcr.eng-genesis-revival.com
@@ -31573,6 +31580,7 @@ www.ekramsales.org
 www.ekramsalesbackup.org
 www.ekramsalesbackup1.org
 www.ekramsalesbackup2.org
+www.eleedit.com
 www.eliorambaldi.com
 www.eliteceramichedarredo.it
 www.elmaitalia.it
