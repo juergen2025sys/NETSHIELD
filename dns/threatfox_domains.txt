@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-30 14:55 CET
-# Eintraege: 33981
+# Aktualisiert: 2026-10-30 17:02 CET
+# Eintraege: 33994
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3949,6 +3949,7 @@ baldreamloans.com.au
 balgroup.com.au
 balimeditation.com
 ballad82.com
+balladquartz.com
 ballyflush.us
 balonismoemboituva.com
 balp.run
@@ -12267,6 +12268,8 @@ googlanalitlcs.xyz
 google-js.org.za
 google-meet-call.com
 google-meet-verification.icu
+google-proxy-64-233-172-13.google.com
+google-proxy-64-233-172-7.google.com
 google-proxy-66-102-8-163.google.com
 google-proxy-74-125-212-169.google.com
 google-proxy-74-125-212-170.google.com
@@ -17909,6 +17912,7 @@ mdftw8lo.btyek.website
 mdgg3n1z.vanatarsim.xyz
 mdironandsteelfoundry.com
 mdmiyjtnknlwwxsqnjz.krodelinc.com
+mdpnw66863.workers.dev
 mdprzinwo.xyz
 mdsbgax.hesabdaripishrafte.xyz
 mdsearch.xyz
@@ -21362,6 +21366,7 @@ pava21r5.slimsplits.com
 pavelnistor.de
 pavementmg.duckdns.org
 pavvcqh0.luxerabet5.com
+pawpawrath.org
 pawsockenjoyer.site
 pawyjf.metrodesignconcepts.com
 pay.datasurge.vip
@@ -23441,10 +23446,13 @@ rat.best
 rat.m-u88.com
 rata-tech.com
 ratatwista.com
+rate-limited-proxy-66-249-87-129.google.com
 rate-limited-proxy-66-249-87-133.google.com
 rate-limited-proxy-66-249-87-134.google.com
 rate-limited-proxy-66-249-90-34.google.com
+rate-limited-proxy-66-249-90-37.google.com
 rate-limited-proxy-66-249-92-131.google.com
+rate-limited-proxy-66-249-92-133.google.com
 rate5pathgate.flo3xaren.bet
 ratox.hu
 ratsales.duckdns.org
@@ -24388,6 +24396,7 @@ runelite.is
 runelite.menu
 runmarine-services.com
 runmyaba.com
+runolfssnn.lol
 runtime-atlas.digital
 runtime-cascade.digital
 runtime-control-plane.courses
@@ -24638,6 +24647,7 @@ s3fg6ji1.usen-burnflow.com
 s3qrni26.bcgamefarsi.com
 s3unirpm.bet90land.com
 s3zzh7np.sigaribetkade.com
+s4.afktogel.org
 s4.bb69.org
 s48bo9y4.en-en--enerflow.com
 s4d36a8i.mattheneus-healthcare.com
@@ -29524,6 +29534,7 @@ v8xihekm.ramzfile.com
 v9157o6o.bossbeybrk.store
 v91rw911.betraca.bet
 v9rvls59.stack-matrix.digital
+va9ucaqk.bossbey13.click
 vacationrentalvirginia.com
 vaci-cloud.b-cdn.net
 vacnkjqi.btyek.cloud
@@ -30775,6 +30786,7 @@ westusserverfor.westus2.cloudapp.azure.com
 westy04.karslioglu4-tr.com
 wet-envelope-beam-laser.trycloudflare.com
 wetsockclub.com
+wevuhe.workers.dev
 wexltdqtf.hazzarat.com
 weyland-yutani-corporate-file.garden
 wezdgtt.betistcomgiris.com
@@ -32912,6 +32924,7 @@ y4hvadqo.taxrundo.hu
 y4ihhq2f.lollipupspetgrooming.com
 y4nlu8wu.thelogicofmoney.com
 y5cngab5.shirbetfarsi.com
+y6auq3j5.forgestudios.co
 y6q8ve44.protransportationservice.com
 y7.88idn.net
 y71dzxlq.scissormasterstanningsalon.com
