@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-31 22:30 CET
-# Eintraege: 34524
+# Aktualisiert: 2026-10-31 22:58 CET
+# Eintraege: 34560
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2019,6 +2019,7 @@ acwkwkeigqemkgqi.xyz
 acxhyz.unitedpropertiesltd.com
 acxmquqg.winter-pulse.christmas
 acyd.io
+ad-bear.net
 ad-oculos.at
 ada-restaurant.at
 adabiyat.org
@@ -3473,6 +3474,7 @@ astradomain.com
 astroflowsystems.lol
 astrogrossi.de
 astrolline.mom
+astrosvia.com.tr
 astroznenekey.com
 astryxrix.com
 asts.datarunkey.lat
@@ -3510,6 +3512,7 @@ atiagwcvltealv.com
 atibr.gamehazarat.bet
 atiendoservicios.es
 atinder.space
+atkinsonrealestatellc.com
 atlancoproducts.com
 atlantaairporttaxiservice.com
 atlantaofficiants.com
@@ -3694,6 +3697,7 @@ autofin.cz
 autoflotte-vergabe.de
 autoliga-kyiv.com
 automated-sprout-labs.garden
+automateed.site
 autopartesdonjulian.com
 autopazio.pl
 autopostomaximo.com.br
@@ -4185,6 +4189,7 @@ bbczea.gregoryschreiercabinetmaker.com
 bbdrou.cc
 bbdsnssserver.beer
 bbeln.com
+bbets.fi
 bbglobalbau.hu
 bbhf.bet1forward.com
 bbibeautyshop.com
@@ -4272,6 +4277,7 @@ beartrend.logicstack.ink
 beast--force.com
 beataromaszewska.pl
 beatbrief.au
+beatden.store
 beatfocus.au
 beatfocus.store
 beatidea.store
@@ -4289,6 +4295,7 @@ beatscribe.store
 beatscribes.au
 beatscribes.store
 beatstories.store
+beatstory.store
 beattrail.store
 beatview.store
 beatvoice.au
@@ -4326,6 +4333,7 @@ bedym.ru
 bedzvnbo.ecosystemresourceplatform.garden
 bee.beachcafemb.com
 beec.ovh
+beecodemedia.com
 beefsofa.xyz
 beenetprotect.com
 beeyondip.co.za
@@ -4356,6 +4364,7 @@ bellows.pics
 belly--flus.com
 belly--flush.us
 belly-flush.net
+bellydancingbyjudy.com
 belorks.xyz
 beltendo.com
 beltka.shop
@@ -4368,6 +4377,7 @@ bendera-3.com
 bendesin.com
 bendingrealityinc.com
 benesserenelmovimento.it
+bennettlc.com
 benotrobot.online
 benro.ps
 benthosambiental.com.br
@@ -4386,6 +4396,7 @@ berkzpmsd.com.ua
 berlinc.net
 berlof.shop
 bernardi.lol
+bernardrohmer-partners.com
 bernergraniummaerit.ch
 bernieforweeed.com
 beroniw.com
@@ -4402,6 +4413,7 @@ bestbeach.com.ua
 bestbusinessvoice.com
 bestbuttworkout.com
 bestbuydomain.com
+bestcasinoonlineuk.com
 bestcheats.online
 bestcheats.space
 bestcloudservicesupport.com
@@ -4414,6 +4426,7 @@ besthopeacademy.co.za
 bestminecraftplayer.fun
 bestnailsalonmedford.com
 bestpayoutcasinos.org
+bestproductslovers.com
 bestproduk.my.id
 bestprog.net
 bestsportsgearhub.com
@@ -4542,6 +4555,7 @@ bharatlivestock.online
 bharatlivestock.org
 bhceaaf.eng-sighttfresh.com
 bhcivpxh.derbi.football
+bheeshmainfra.com
 bhfgtrns-js.beer
 bhgs361d.venoplus.us
 bhhuh.v-vill.hu
@@ -4803,6 +4817,7 @@ blackmorebooks.ravenhawk.net.au
 blackmusic.com.br
 blackriverlawn.com
 blackthornkeep.top
+blacktownfruitworld.com.au
 bladehostpi.life
 blakcinwhitexn.cc
 blanautch.com
@@ -4899,6 +4914,7 @@ bluecurrent.oceanprim.in.net
 bluedoggdesign.com
 blueexorcistchapters.com
 bluegeneration.es
+blueharbor.biz.id
 blueideas.au
 bluejournals.store
 bluelogs.store
@@ -4909,6 +4925,7 @@ blueoceanbreeze.org
 bluepage.au
 bluepiip.digital
 blueprint-71.com
+blueprism-campaignexpress.com
 bluesandbullets.com
 blueskiesrecruitment.co.uk
 bluespaceproperties.in
@@ -5275,6 +5292,7 @@ bremadsf.com
 brenowblyuk.com
 brentwoodautoupholstery.com
 breteamz.com
+brevityofthesoul.com
 brewmacosterm.com
 brexcavatingllc.com
 brezo.live
@@ -5424,6 +5442,7 @@ bubzw.visszateritok.hu
 bucakosb.org.tr
 buccarella-sicherheit.ch
 buck-cdns-server.sbs
+bucketsking.com.br
 buckis-garage.de
 budapesthandmade.hu
 budimprove.com
@@ -5459,6 +5478,7 @@ bula-silomercitationlaptop.wiki
 bulan77terpercaya.org
 bulb.aeafh.workers.dev
 bulkcompressimages.com
+bulldogcommunitygaming.com
 bulletpop.cyou
 bunaholic.com
 bundform.puro2tal.surf
@@ -5484,6 +5504,7 @@ burntstorerecycling.com
 burrberry.eth
 burreepr.ace90betkade.com
 burritodelight.com
+bursalimbah.com
 burtonsoss.com
 burunagangababagmakeodionweginoyekelegid.duckdns.org
 burunduktracker.xyz
@@ -5699,6 +5720,7 @@ c2uwzjf8.blackjackonlineplay83.com
 c3353u83.peddler-wasting.digital
 c3ord92p.ravanshenasiganji.xyz
 c3u3g7dz2yxkefci3x34jfvfa4gka4iogi4zfjkyxx2c536oqdld4kid.onion
+c4cexchange.com
 c4che-pulse.earoauth.life
 c4cxraym.megaparicom.poker
 c4nrz428.gregoryschreiercabinetmaker.com
@@ -5735,6 +5757,7 @@ cabaretcorporation.com
 cabecoteparafresadora.com.br
 cabinbiz.com
 cabincreekdesign.pro
+cabinetsetc-nc.com
 cabinrentalsnc.com
 cabskaiyn-crane.life
 cabv.bet24.casino
@@ -5855,6 +5878,7 @@ captcha-cds.click
 captcha-cf.com
 captcha-web.cc
 captchadefence.com
+captionskill.online
 captivationphotography.com
 car.intelcar.pics
 caramelkosher.com
@@ -5874,6 +5898,7 @@ cardioslim.us
 cardislim.com
 cardoslim.com
 careandgrowth.com
+caredforathome.com
 career.cityu.edu.gr
 careercollegesusa.com
 careerscrafters.com
@@ -5976,6 +6001,7 @@ cazasapa.workers.dev
 cb2kljpv.eng--slimsounds.com
 cbawrwwb.wrfc8.com
 cbfincom.com
+cbfinestfood.com
 cbg80csz.deurnenwinkel.com
 cbgrnuxq.col7ecapture.surf
 cbjahpiu.us-theslimsplitsmethod.com
@@ -6117,13 +6143,16 @@ cedartone.nelo2qir.bet
 ceddtheartist.com
 cefaludellerose.com
 cegtamogatas.hu
+cehis.in
 cehjzw.day
 cehocihit.com
 cehoirfg.work
 cel-robox.com
 celatrans.com
+celebhusband.online
 celebration-internet.cc
 celebrecorretora.com.br
+celebritiezclub.online
 celej.pl
 celetalkies.com
 celibatorimini.it
@@ -6250,6 +6279,7 @@ charge-point-cp.com
 charge0x.at
 charlestonlawncompany.com
 charlestonwaterheater.com
+charlieflextrainer.nl
 charlotteawning.com
 charlottedefenseattorney.com
 charlotterainbowlers.com
@@ -6337,6 +6367,7 @@ chilapina.com
 childhealthresources.com
 chileefood.com
 chillbazi.com
+chillerstoragelogisticsexpress.com
 chillicothegutters.com
 chilloutvrmod.org
 chilloutvrmodded.net
@@ -24719,6 +24750,7 @@ runelight.net
 runelite.cc
 runelite.is
 runelite.menu
+runforregina.ca
 runmarine-services.com
 runmyaba.com
 runolfssnn.lol
@@ -31814,6 +31846,7 @@ www.allcopytx.com
 www.allevi8.life
 www.alliancefr-bizerte.tn
 www.allltrucks.com
+www.altacorporacion.com
 www.alturaxtrade.com
 www.alubox.org
 www.alvesaraujo.com
@@ -31879,6 +31912,7 @@ www.barnerbooks.com
 www.barrycassidyrarebooks.com
 www.bathroom-vanity.com.au
 www.batsoverbooks.com
+www.bctourismindustryconference.ca
 www.bellscares.com
 www.beopvcstolarija.com
 www.beraumen.com
@@ -31919,6 +31953,7 @@ www.brisascruzadas.com
 www.brooklynbooks.us
 www.brspassion.it
 www.brt-uk.org
+www.bs-byggeservice.dk
 www.bsqcert.it
 www.build-graphic.com
 www.burb.space
@@ -31955,6 +31990,7 @@ www.chabdullah.com
 www.changeperformingarts.com
 www.channelhd24.com
 www.chaparralbooks.com
+www.charlotteresearchinstitute.com
 www.chase6dice6nt7.net
 www.chathambookseller.com
 www.chatturbo.com.br
