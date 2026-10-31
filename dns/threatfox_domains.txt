@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-31 05:18 CET
-# Eintraege: 34290
+# Aktualisiert: 2026-10-31 07:30 CET
+# Eintraege: 34302
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -839,6 +839,7 @@
 48ex7rbv.moren.store
 48ypnsgk.porel.store
 49h06cy9.pashtuns-study-rose-hip.digital
+49vcy2na.verticalrewards.com
 4bgr76dk.morib.store
 4bklvfdi.estradaannivers.digital
 4bo6zbcy.www-bellyflush.com
@@ -5099,6 +5100,7 @@ bossbeyalpha.click
 bossbeyanadolu.store
 bossbeyavrupa.store
 bossbeybrk.store
+bossbeycenter.click
 bossleysportsclub.com.au
 bossprotect.com
 bosstekirdag.store
@@ -6848,6 +6850,7 @@ coldcoercekowja.fun
 coldformat.info
 coldtechreview.vip
 colegioafi.com.br
+colegiobautistamanagua.com
 colegiocristianojosue.com
 colegiofenix.edu.ar
 coletteloire.rest
@@ -17842,6 +17845,7 @@ map.skewed-pronoun.surf
 map2taskhub.tavi8grid.surf
 map4logicnet.exceedvil1ager.bet
 map4logicway.nelo2qir.bet
+mapazoxi.workers.dev
 mapesandmapes.com
 mapiedonuts.com
 maple30.com
@@ -17970,6 +17974,7 @@ matong.buzz
 matr-broo.thora8lin.lat
 matrix-config.net
 matsnews.com
+matutony.workers.dev
 mau.bcagency.vn
 maugeiciyokkmggq.xyz
 maunakeaorchids.com
@@ -18768,6 +18773,7 @@ moduleprime.weplord.lat
 modupar.com.br
 modyhoba-57738.portmap.host
 moeller-brang.de
+mofacollection.ir
 mofomere.workers.dev
 moggydaytrainer.com
 mogilevskaya.com
@@ -31813,6 +31819,7 @@ www.contradadeimiracoli.it
 www.contratoscliente.online
 www.controvena.com
 www.coonfiance.com.br
+www.coratologistica.it
 www.corelaunchhj.click
 www.cortig.net
 www.costadeibarbari.com
@@ -32109,6 +32116,7 @@ www.lacasanella.com
 www.lacenacoifiocchi.it
 www.lacompaniahostal.com
 www.lacortedelcavaliere.it
+www.lakepartyboat.com
 www.lamdhabooks.com.au
 www.larchmontnursery.com
 www.larmenty.com
@@ -32254,6 +32262,7 @@ www.nutmegsoccergirl.com
 www.nwa.space
 www.nypdprosecutorcorruption.com
 www.oam6g5x6u0hrmhe50mctg.live
+www.ocesrl.it
 www.oddballbooks.com
 www.odz-lipno.pl
 www.of6npor1sq1ko7rs.net
@@ -32494,6 +32503,7 @@ www.sydneyjoos.com
 www.syntegon.live
 www.syumai.life
 www.t9ffxu6zhf915fadjv1.app
+www.tallerdegeologia.com
 www.taskforcebot.com
 www.technicalauthentications.live
 www.tecnohospital.it
@@ -33167,6 +33177,7 @@ xxziiqx.realmanpath.com
 xy08z5pm.shop-aizenpower.us
 xya.supercrone.cc
 xybtn.bartendersclub.net
+xylorprints.store
 xymg.betropol.bet
 xynero.xyz
 xynsirt.agivedresphotography.com
@@ -33502,6 +33513,7 @@ yogitaelegantbeauty.com
 yoi0771.p7ickmuch.lat
 yoigusekcwamuoqe.xyz
 yoj8sdzn.neurowave.us
+yokgiuoy.bossbeycenter.click
 yolyardimgebze.com
 yom.mefound.com
 yomogi-2203.com
