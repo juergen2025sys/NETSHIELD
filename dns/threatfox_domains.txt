@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-31 18:44 CET
-# Eintraege: 34421
+# Aktualisiert: 2026-10-31 19:46 CET
+# Eintraege: 34432
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2674,6 +2674,7 @@ anambra.duckdns.org
 ananthmulgund.com
 anarchiv.net
 anarchy10.duckdns.org
+anarivasfisioterapia.com
 anazon2-aws.xyz
 anbush.com
 anchocav.7lorexan.surf
@@ -10660,6 +10661,7 @@ feyrijavac.com
 fezk.polbaz.bet
 ff-kaltenberg.at
 ff168.club
+ff1etlshat.workers.dev
 ff4ekbmd.7lf.net
 ffedpfb.jet90bet.bet
 ffeqlui.betrayon.casino
@@ -23531,6 +23533,7 @@ r1iugua4.cloud-meridian.digital
 r1l.me
 r1oqxdev.abijacobs.co.uk
 r1ufabet.news
+r1vu03a9qg.workers.dev
 r1wnbepa.life
 r20pgeh1.qlaneturnstiles.com
 r214gfd5.theslimsplitsmethod.com
@@ -32120,6 +32123,7 @@ www.i4feaqo5h.xyz
 www.i7dqb-admiral-x.icu
 www.i9ouovd08z68oi4jluf-z.com
 www.ibv7pi89gcy6fq-oc3.net
+www.iceal.com.br
 www.idn15r69vh3fwhzclfoeuaoy.today
 www.iiufo-admiral-x.icu
 www.ikukuomagloballimited1.com
@@ -32160,6 +32164,7 @@ www.jahstandclassprojectbackup3.com
 www.jaipuragratour.com
 www.jancorinnecross.com
 www.japaneseknifeguide.com
+www.jasarootsurabaya.com
 www.jbnowclassprojecttoday.com
 www.jbnowclassprojecttodaybackup.com
 www.jbnowclassprojecttodaybackup1.com
@@ -32192,6 +32197,7 @@ www.kastornic.cl
 www.kathmandubooks.com
 www.kavkom.tv
 www.kcde-ks.org
+www.keatscollege.com
 www.keep-coding.net
 www.keithkloor.com
 www.kellerbooks.com
@@ -32227,6 +32233,7 @@ www.larmentybackup1.com
 www.larmentybackup2.com
 www.larmentybadup.com
 www.lasinska.eu
+www.lastronauta.it
 www.laviadelluno.com
 www.leavenworthlofts.com
 www.lecaseditobia.com
@@ -32354,6 +32361,7 @@ www.neqbzjio8rflhgwclmpr.app
 www.nettflex.site
 www.neumaticosmarsili.com
 www.neurowellnesslab.site
+www.new-age-bookstore.amanamission.com
 www.newratu.com
 www.nickbrownart.net
 www.nipreaznltdoof10dsb-so.app
@@ -32363,6 +32371,7 @@ www.nonnafilomena.it
 www.nonsolocioccolato.it
 www.notaiomatano.it
 www.ntn.it.com
+www.ntokozoyingwana.com
 www.nuovopameka.it
 www.nutmegsoccergirl.com
 www.nwa.space
@@ -32420,6 +32429,7 @@ www.pettiarredamenti.it
 www.phongketaonduchuyclassproject1.com
 www.phongketaonduchuyclassproject2.com
 www.phongketaonduchuyclassproject3.com
+www.phuthotech.vn
 www.physiephoto.com.au
 www.pig-ex8motionq.com
 www.pinnacleradio-net.edmimwa.com
@@ -32560,6 +32570,7 @@ www.sicilypantelleriapropertyforsale.com
 www.sicopatasdevina.cl
 www.signasis.com
 www.siksous-friedmann.com
+www.silersstumpgrinding.com
 www.silviapadula.it
 www.simple-intake.com
 www.sindacatoalpi.it
