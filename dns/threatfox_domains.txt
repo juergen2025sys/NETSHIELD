@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-31 17:02 CET
-# Eintraege: 34419
+# Aktualisiert: 2026-10-31 18:44 CET
+# Eintraege: 34421
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -12378,6 +12378,7 @@ gojq.theafribar.com
 gokksosyecuwukcw.xyz
 gokooiuegwiiiiys.xyz
 goksearch.com
+gol1111.store
 golcapresources.com
 gold-cure.com
 gold-fish4.to6varil.in.net
@@ -31626,6 +31627,7 @@ ww2clash.com
 ww38.roofnrack.us
 ww6.runds.duckdns.org
 ww79xq.american-brazil.surf
+wwc.co.za
 wwdvqwb.en-sightfresh-us.com
 wwhllpi.tongdailyphanphoi.com
 wwjgeu.phomaivietnameserestaurant.com
