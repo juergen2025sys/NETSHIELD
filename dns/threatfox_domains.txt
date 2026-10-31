@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-31 21:28 CET
-# Eintraege: 34499
+# Aktualisiert: 2026-10-31 22:30 CET
+# Eintraege: 34524
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -429,6 +429,7 @@
 1zlu7sit.lltreeremoval.com
 2-sa-sharepoint.com
 2000tiendasd1.com.co
+200bonuscasino.org
 2026.futbol
 2026op.com
 209.234.247.35.bc.googleusercontent.com
@@ -654,6 +655,7 @@
 35x7940o.thelovebugsband.com
 360plusar.com
 360safeupdate.com
+365abkantbank.de
 365media.vn
 366patiopenquista.cl
 36qgwr.gabard-viewed.surf
@@ -1322,6 +1324,7 @@
 7877group.icu
 789bet.tennis
 789cllub.co
+789pi.info
 78fm.kernelwave.lat
 78sdc3hp.varzeshlife.ir
 78sgh99h.en-us-energyrevolution.com
@@ -1870,6 +1873,7 @@ abcfoods.mu
 abcplavani.cz
 abcsgftr.cc
 abell.store
+aberdeen-angus.lt
 abernaahy.sbs
 abernaehy.lol
 abettershine.com
@@ -1921,6 +1925,7 @@ acac.hopto.org
 academiaods.com.br
 acakygeemesqkkyu.xyz
 acarmanken.com
+acatfg.com
 acautosec.com
 acayenne-651-1-31-206.w80-12.abo.wanadoo.fr
 acbt8fx6.crownconnectpk.com
@@ -1956,6 +1961,7 @@ ace90bet.cash
 ace90bet1.bet
 acecamps.net
 aceexterior.com
+aceflowersndecor.com
 aceitarconvitevip.com
 aceleradoradeciudades.org
 acenge.com.br
@@ -2221,6 +2227,7 @@ agvw.bcgame90.casino
 ah.88bravo.com
 aha719f1.gluccotrust--bites.com
 ahdwvzwy.jadoou.christmas
+aheadofthecurvelaw.com
 ahiak.com
 ahjno6f501z6jd1nnah9bc236iffkepedkzyvyshi.wsecurite.com
 ahkx.jadoou.lol
@@ -2256,6 +2263,7 @@ aieesukoociwagak.xyz
 aielevatex.com
 aientertainmentcompany.com
 aigekqusymaeaqaa.xyz
+aigleconsult.com
 aigmwmiksuwmoama.xyz
 aigouing.com
 aigyuukouqaiuwms.xyz
@@ -2697,6 +2705,7 @@ andliberty.us
 andopening.com
 andreahubert.ca
 andreashamunyela.com
+andremourase.com.br
 andressadinizbeauty.com.br
 andrew-young.net
 andrewresearchgroup.com
@@ -2802,10 +2811,12 @@ antigravity.study
 antimalvareprotect.cc
 antimalwarediagnostics.st
 antiq-telegraphyproduct.wiki
+antiqueglow.in
 antje-susanne-schneider.de
 antlermotel.com.au
 antongandon.club
 antoniogomez.novagro-ag.com
+antropologos.net
 anubixfreedom001.duckdns.org
 anushl.com
 anveraspain.com
@@ -3113,6 +3124,7 @@ appelhout.nl
 appetizerrecipes.net
 appleaday.company
 applecart.ir
+applesigns.com.pk
 applieddirectservicescorp.com
 applog.canon-cumulative.lat
 applog.lumo3ren.lat
@@ -3157,6 +3169,7 @@ apricotrun.cc
 aprilrecactivepro.org
 apt73grpjgjwykrenq7vnjejue76vosdzptdvmonv7vyqnsyokrw57ad.onion
 aptabase.jesfeoqrj3.xyz
+aptunits.com
 apulialandartfestival.com
 apxij.zsatom.hu
 apyxfoundation.org
@@ -3497,6 +3510,7 @@ atiagwcvltealv.com
 atibr.gamehazarat.bet
 atiendoservicios.es
 atinder.space
+atlancoproducts.com
 atlantaairporttaxiservice.com
 atlantaofficiants.com
 atlanticbreezepm.com
@@ -3818,6 +3832,7 @@ azahabi.com
 azautotraders.com
 azbkptz.enfejar-site.bet
 azcd8d81.libartytoken.com
+azcosteel.com
 azevedo.lol
 azffnyvq.zaribbala.bet
 azflexfit.com
@@ -4167,6 +4182,7 @@ bbbadfflkhroksd.cn
 bbbrqf.km8k.vip
 bbcattedrale.it
 bbczea.gregoryschreiercabinetmaker.com
+bbdrou.cc
 bbdsnssserver.beer
 bbeln.com
 bbglobalbau.hu
@@ -12571,6 +12587,7 @@ grabbrunch.com
 grace-tung.com
 grace.aeafh.workers.dev
 graciasdenada.beer
+gradex.beer
 graficacastaldo.com
 grafirap.com.ar
 grahammarsh.com.au
@@ -19317,6 +19334,7 @@ mustleadschools.ac.tz
 mustlovedogsmobilegrooming.com
 mutfce.help
 mutvwz.ozabet90.com
+muzupelo.workers.dev
 mvdfcfa6.xenbrn.com
 mvgw.col7ecapture.surf
 mvipnisr.mabanishimi.xyz
@@ -19391,6 +19409,7 @@ myofcdr.hezarfencrash.bet
 myoshc.net.au
 mypamella.xyz
 mypersonalphotographerstudios.com
+mypscae.com
 mypwk0n2.jadoou.click
 myrepis.gd
 myrrupr.duckdns.org
@@ -21302,6 +21321,7 @@ owywioyuowqaoocg.xyz
 owyyaaycmuuyimeo.xyz
 ox18mx54.hor1inka-lonely.digital
 ox3.gasturbo88.top
+oxcjqtb.pw
 oxeaczec.containerized-growth-engine.garden
 oxepqya.btyek.autos
 oxfordholidays.pl
@@ -26964,6 +26984,7 @@ starfishdancestudio.com
 starhostunit.finchre5t.bet
 starhostunit.tide5peak.surf
 starlightnetcore.lol
+start-hub.beer
 start-sad.kz
 start.csmq.workers.dev
 startbuildingasite.com
@@ -31775,11 +31796,13 @@ www.adrisex.com
 www.adultingwithash.com
 www.aedsistemi.it
 www.aeqen.de
+www.aerobiz.net
 www.aftest.it
 www.agrigentoholidays.com
 www.agrogreenalax.com
 www.ai2.qzz.io
 www.airessinfronteras.com
+www.airports-taxi-transfers.com
 www.aitooling.ru
 www.aj-vxvadzcbs26gxz.org
 www.alessandrofamiani.it
@@ -32233,6 +32256,7 @@ www.jbnowclassprojecttodaybackup.com
 www.jbnowclassprojecttodaybackup1.com
 www.jbnowclassprojecttodaybackup2.com
 www.jefyd.top
+www.jenniferaron.com
 www.jennywilliamlogistics.com
 www.jennywilliamlogisticsbackup.com
 www.jennywilliamlogisticsbackup1.com
@@ -34300,6 +34324,7 @@ zocx.cannalawnetwork.com
 zodem5ma.fungame777.co
 zodiacsmoke.com
 zoek-je-hovenier.nl
+zogeliva.workers.dev
 zogun.run
 zogyjkdssr.localto.net
 zoihkb.pureglamlb.com
