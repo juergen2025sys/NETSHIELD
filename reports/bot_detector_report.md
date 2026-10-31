@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-10-31 19:46 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-10-31 20:18 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,178,644** |
-| Neu (heute) | **+181** |
-| Entfernt | **-102** |
+| Gesamt IPs | **1,178,658** |
+| Neu (heute) | **+15** |
+| Entfernt | **-1** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 50 |
@@ -30,9 +30,9 @@
 | ❌ `ebrasha_abdal_proxy_hub_socks4_proxy_list_by_ebrasha` | 0 |
 | ❌ `ebrasha_abdal_proxy_hub_http_proxy_list_by_ebrasha` | 0 |
 | ❌ `ebrasha_abdal_proxy_hub_socks5_proxy_list_by_ebrasha` | 0 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,851 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,158 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 3,066 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,736 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,230 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,915 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,938 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,160 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 957 |
@@ -40,9 +40,9 @@
 | ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 542 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 437 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 258 |
-| ✅ `ercindedeoglu_proxies` | 54,749 |
-| ✅ `ercindedeoglu_proxies_socks4` | 18,901 |
-| ✅ `ercindedeoglu_proxies_socks5` | 20,359 |
+| ✅ `ercindedeoglu_proxies` | 54,700 |
+| ✅ `ercindedeoglu_proxies_socks4` | 18,888 |
+| ✅ `ercindedeoglu_proxies_socks5` | 20,362 |
 | ✅ `tuanminpay_live_proxy` | 12,785 |
 | ✅ `tuanminpay_live_proxy_http` | 6,971 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,605 |
@@ -75,4 +75,4 @@
 > Diese 50 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-10-31 19:46 CET (Europe/Berlin)*
+*Generiert: 2026-10-31 20:18 CET (Europe/Berlin)*
