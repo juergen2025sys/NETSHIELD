@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-31 02:54 CET
-# Eintraege: 34277
+# Aktualisiert: 2026-10-31 05:18 CET
+# Eintraege: 34290
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -5789,6 +5789,7 @@ canyonmere.cc
 canyonsyncbox.thorniva.garden
 caoojj61.thelogicofmoney.com
 cap.camp-cantina.com
+cap.gramspin.win
 cap.xyzsm188.top
 capacitacionespracticas.com
 capcha-cdn-js.beer
@@ -14054,6 +14055,7 @@ ikguakuwyumugium.xyz
 ikhebkankerinmijnrechterteelbal.st
 ikhppmm.buy-ignitra.com
 ikhsanjauhari.com
+ikikk2j7.sleavepiker.com
 ikimquigykukwkgm.xyz
 ikjsbyby.pdfbama.com
 ikkeacqwooawweoc.xyz
@@ -14581,6 +14583,7 @@ iruledolical.org
 irvineinteriordesigner.com
 irwinchevy.com
 irxbetkade.com
+irzl46yh.bossbaba.store
 is.adwgamestore.org
 is1e-leaf.zom7lirex.in.net
 is34r2fh.marc90bet.com
@@ -16853,6 +16856,7 @@ liizlfb.bet30bet.com
 liketudong.biz
 lila-lastenrad.de
 lilianlogistic.it
+lilolyko.workers.dev
 limidos.com
 limitesdoamor.com
 limmerconsulting.com
@@ -23619,6 +23623,7 @@ rate-limited-proxy-66-249-90-34.google.com
 rate-limited-proxy-66-249-90-37.google.com
 rate-limited-proxy-66-249-92-131.google.com
 rate-limited-proxy-66-249-92-133.google.com
+rate-limited-proxy-66-249-92-142.google.com
 rate5pathgate.flo3xaren.bet
 ratox.hu
 ratsales.duckdns.org
@@ -26899,6 +26904,7 @@ steelwings.org
 steffens-geilenkirchen.de
 steffenschirmer.com
 stek-moldova.com
+stellalellouche-psychotherapie.fr
 stellar-minds.cfd
 stellar-sync.to
 stellar5bit.petalune.garden
@@ -32567,6 +32573,7 @@ www.verkeersschoolsociety.nl
 www.vhelbhergimperialhotel.com
 www.vidfree.net
 www.villamimosa.toscana.it
+www.vineblossom.it
 www.vintage-books.com
 www.vinte3comunicacao.com.br
 www.visit-pompeii.com
@@ -32577,6 +32584,7 @@ www.vmixzy.com
 www.vmware.rest
 www.vocalmedia.in
 www.volontarideuropa.org
+www.vonkpropisolasiepanele.co.za
 www.vutjsf0sd9sdqt2rkzvgzv9a.org
 www.vvrs-info.be
 www.w4iunvbdvjof39q-3.net
@@ -32587,11 +32595,14 @@ www.webdevarrayremco.com
 www.webdevarrayremcobackup1.com
 www.webdevarrayremcobackup2.com
 www.webdevarrayremcobackup3.com
+www.webstorebusiness.it
 www.wedding7famous16.app
+www.weight-loss-center.net
 www.wesolerobaczki.pl
 www.whitefoxrarebooks.com
 www.whytehouse.co.za
 www.williammatchin.com
+www.winconceptdesign.com
 www.winemixed8uwhh.net
 www.wisdomtogether.com
 www.wise-horizonproject.eu
@@ -32878,6 +32889,7 @@ xipr.reliablerentalz.com
 xipuryqj.betwanna.com
 xiseus.egracefashionandbraiding.com
 xitldefl.com
+xivastudio.org
 xiycg03301-efb.workers.dev
 xizaf.run
 xjbrbuwq.bosstekirdag.store
@@ -33703,6 +33715,7 @@ z048c6t8.habbofutbol.com
 z07gqmv.mirelax9.life
 z08omixf.mrbet90.com
 z0bhclq0.energedia.dev
+z0eex2krtl.workers.dev
 z0mvmrtr.eng-us-puraboost.us
 z0pub8f7.marc90bet.com
 z0wbdk.5tr.org
