@@ -1,16 +1,24 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-10-31 14:38 CET (Europe/Berlin)
+**Aktualisiert:** 2026-10-31 18:41 CET (Europe/Berlin)
 
-**Workflows:** 33 | ✅ 30 OK | ⚠️ 3 Warnung | ❌ 0 Fehler
+**Workflows:** 33 | ✅ 30 OK | ⚠️ 3 Warnung | ❌ 1 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `e8973e4c6d13333240d0343ec767bfbea118104e`
+✅ Commit: `bd6c82ad73d45306cc06a6bc8e12ca9bfec58554`
 
 490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
+
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 104.255.106.53, 35.185.44.232, 35.201.91.89, 104.255.106.53, 35.185.44.232… – Filterung wirkungslos! |
+| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 1,165 IPs in active fehlen in conf40 (0.144% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| `Production Health` | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 3 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
 
 ## ⚠️ Warnungen
 
@@ -23,9 +31,13 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 3 CRITICAL | 🟡 0 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 104.255.106.53, 35.185.44.232, 35.201.91.89, 104.255.106.53, 35.185.44.232… – Filterung wirkungslos! |
+| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 1,165 IPs in active fehlen in conf40 (0.144% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| 🔴 CRITICAL | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 3 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
 
 ## Übersicht
 
@@ -66,4 +78,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-10-31 14:38 CET (Europe/Berlin) | 33 Workflow-Dateien geprüft*
+*Generiert: 2026-10-31 18:41 CET (Europe/Berlin) | 33 Workflow-Dateien geprüft*
