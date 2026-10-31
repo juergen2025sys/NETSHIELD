@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-31 07:30 CET
-# Eintraege: 34302
+# Aktualisiert: 2026-10-31 08:25 CET
+# Eintraege: 34326
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -5814,6 +5814,7 @@ captcha-cds.click
 captcha-cf.com
 captcha-web.cc
 captchadefence.com
+captivationphotography.com
 car.intelcar.pics
 caramelkosher.com
 caravan-crm-lu.com
@@ -6903,6 +6904,7 @@ companionsecurehighflier.top
 company-maintenance.org
 companyharbor.xyz
 companyhelpline.co.uk
+comparecreditcards.com.au
 compass51.com
 compassbase.cfd
 compensation-apyx.fi
@@ -9102,6 +9104,7 @@ ebzwaki.bakhtbetyek.com
 ec-hasslau.de
 ec2-3-15-17-30.us-east-2.compute.amazonaws.com
 ec2-3-22-66-152.us-east-2.compute.amazonaws.com
+ec2-44-249-43-89.us-west-2.compute.amazonaws.com
 ec2-aws.ddns.net
 ecaakmuwiwwesugo.xyz
 ecaqosz.1bonus.bet
@@ -9258,6 +9261,7 @@ educationcaster.monster
 educlic.ca
 educor.pro.br
 edukacjaparlamentarna.pl
+eduplatform.it
 edutronicas.com
 edvdafc.prozhe.vip
 edvekzo.alohawatersports.com
@@ -10825,6 +10829,7 @@ fiva.com.br
 fiveminuteschess.com
 fivepointschiro.com
 fiveroomsortigia.it
+fivokovi.workers.dev
 fiwmth.gyorsanhaz.hu
 fiwvrsju.yekbetyek.com
 fiwyj.run
@@ -14181,6 +14186,7 @@ impactawards.anthonyjoseph.ca
 impactpromotionsclt.com
 impaq.us
 imperiamovies.com
+imperiumpeptides.com
 implantcentr.com
 importagriflor.com
 importdeep.sprutte5t.lat
@@ -14340,6 +14346,7 @@ instore-solution.info
 instrapper.com
 instructables.ir
 insuliteskylights.com
+intechpol.pl
 integralappraisals.com
 integrar.id
 integrated-security.net
@@ -14970,6 +14977,7 @@ jcttadgn.betlivo90.bet
 jcyca.sm188login.cyou
 jd4zow6i.eng--geniusbrainsignal.com
 jdfirmware.ba
+jdindia.net
 jdinternet.net
 jdj3ssby.us-en-us-nervesoothe.com
 jdjgvaia.bordoo.bet
@@ -16583,6 +16591,7 @@ lb.packetshift.cc
 lb.propertyfind.cc
 lb.qq1x.org
 lb66wl6p.sarahelizabethphotoandfilm.com
+lbcgroup.cz
 lbcsuyq.payestation.com
 lbftpzh.takbetkade.com
 lbgcharpente.fr
@@ -16740,6 +16749,7 @@ letviotar.ydns.eu
 leurabooks.com.au
 leusceke.com
 levelupadventure.hu
+levin.com.tr
 leviume.com
 levoncargo.com.br
 levyvo.lunave5.bet
@@ -17837,6 +17847,7 @@ mantleminerals.africa
 manuel3.publicvm.com
 manzzkontolaktolakan.my.id
 maochikomajf.com
+maorconsulting.com
 maoucmymyickssmw.xyz
 map-entry.herbertrutt.work
 map.globalnodeviewset.pics
@@ -19112,6 +19123,7 @@ msedgewebview7.com
 mseikoean.allboroughrealestate.com
 msequcmykikuuuyw.xyz
 mseuygekeamookmu.xyz
+msevietnam.com
 msg.msdegeup.com
 msgkmmaoawwieycw.xyz
 msgqaugcyymqageg.xyz
@@ -20444,6 +20456,7 @@ oay019z6.1xfa.bio
 oazd.olcsongepet.hu
 ob0fix15.1xgame.org
 ob1phqqu.degassing-mould.digital
+ob3x7195.bossbeyanadolu.store
 obcsii2g.en-usa-bpzone.com
 obds.betsher.casino
 obese-table-usweb-play.wiki
@@ -25337,6 +25350,7 @@ selfcarewesternlivestream.click
 selkin.newddns.com
 selladorasgovi.com
 sellersusa.com
+semarinonunes.adv.br
 semilink.ir
 semqmmwcgukoiyka.xyz
 semsu.com.tr
@@ -25897,6 +25911,7 @@ skgzwxo.bonuliautoparts.com
 skhoh.westinvesteuropa.hu
 skhormoz.com
 ski.blacklabelfremont.com
+ski.fc-wernberg.de
 skibidiclipper.pw
 skibidiproliv.com
 skibidistealer.team
@@ -26915,6 +26930,7 @@ stellar-minds.cfd
 stellar-sync.to
 stellar5bit.petalune.garden
 stellaspicy.org
+stem-marcatura-ce.com
 stem4pathgate.goddess-tapir.bet
 stem7meshnode.biomasselement.garden
 stempel-art.de
@@ -30589,6 +30605,7 @@ vtcircuits.com
 vthaoip.get-sightfresh.com
 vtivcdc.org
 vtneuluzf.pathfindersafrica.com
+vtninfo.co.nz
 vtniqu.theslimsplitsmethod.com
 vtoodor.biz
 vtptolt.pink-salt.us
@@ -30913,6 +30930,7 @@ webcpu.globaldatanetworksys.lat
 webcpu.kira7vex.lat
 webcpu.vexo7larn.lat
 webdesign-toenisvorst.de
+webdesignchamps.in
 webdisk.tamiltotamil.com
 webdoc.barchon-virtue.lat
 webdoc.coop-san.lat
@@ -32165,9 +32183,11 @@ www.lumineusesdebeloeil.be
 www.lz81ugazc-3rxi-1draiesh.org
 www.m4imi4w.space
 www.maedso.com
+www.maestripastai.it
 www.malavasiagostino.it
 www.mamalupe.es
 www.mandiepinto.com
+www.manganrealestate.com
 www.mannellagroup.it
 www.manyhillsbooks.com
 www.mariaelenaferraresi.it
@@ -32203,6 +32223,7 @@ www.millonixvip.live
 www.mineniches.com
 www.mipymesoft.com
 www.mirastudio.it
+www.mirthquakemusic.com
 www.mitrasedjati.com
 www.mobile1.com
 www.mojomama.org
@@ -32599,6 +32620,7 @@ www.vutjsf0sd9sdqt2rkzvgzv9a.org
 www.vvrs-info.be
 www.w4iunvbdvjof39q-3.net
 www.wagnerauto.net
+www.waronline.com
 www.wasayamfg.com
 www.waverleykls.org.au
 www.webdevarrayremco.com
@@ -32630,6 +32652,7 @@ www.xmmtbxbackup1.com
 www.xmmtbxbackup2.com
 www.xmmtbxbackup3.com
 www.xmmtbxbackup4.com
+www.xn--90abz0a.xn--p1ai
 www.xoilacca.tv
 www.xoilactv247.io
 www.xoso66.cruises
@@ -32891,6 +32914,7 @@ xiidysrc.xenomorphhiveintel.christmas
 xikycu.workers.dev
 ximalaci.workers.dev
 ximyt.run
+xin88admin.com
 xinclas.vmcentra.top
 xiomtk.ushealthlaboratories.com
 xip.808skor.org
