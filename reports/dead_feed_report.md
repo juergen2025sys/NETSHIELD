@@ -1,13 +1,13 @@
 # NETSHIELD – Dead-Feed-Report
-**Aktualisiert:** 2026-10-30 07:40 CET (Europe/Berlin)
+**Aktualisiert:** 2026-10-31 07:30 CET (Europe/Berlin)
 **Schwelle:** 3 Fehl-Laeufe in Folge (Daily-Cron → 3 Tage)
 
 ## ❌ 1 tote Feed(s) – manueller Fix noetig
 
 | Feed | Fehl-Laeufe | Seit | Letzter Status | URL |
 |---|---|---|---|---|
-| `urlhaus_ips` | 9 | 2026-10-22 07:38 CEST (Europe/Berlin) | 410 | https://urlhaus.abuse.ch/downloads/text/ |
+| `urlhaus_ips` | 10 | 2026-10-22 07:38 CEST (Europe/Berlin) | 410 | https://urlhaus.abuse.ch/downloads/text/ |
 
 Hinweis: GitHub-raw-Feeds werden bei einem 404 zusaetzlich vom Move-Resolver automatisch im Repo gesucht. Steht ein Feed hier, ist die Datei dort entweder weg oder die Quelle ist keine GitHub-raw-URL (Webseite) – dann hilft nur eine neue URL.
 
-*Generiert: 2026-10-30 07:40 CET (Europe/Berlin)*
+*Generiert: 2026-10-31 07:30 CET (Europe/Berlin)*
