@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-31 14:49 CET
-# Eintraege: 34404
+# Aktualisiert: 2026-10-31 16:20 CET
+# Eintraege: 34413
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -735,6 +735,7 @@
 3ni72dru.impo7tervicin.surf
 3nx9nb3g.twin303.vip
 3o3irtt8p0eztfqlkeso.beer
+3o4ujth3ns.workers.dev
 3o93soz9pvqis.xyz
 3ohr8brt.qen2virex.lat
 3ongg3jv.victoryshoescorp.com
@@ -838,6 +839,7 @@
 47ytdzjs.economywindowsparts.com
 48ex7rbv.moren.store
 48ypnsgk.porel.store
+49crrg0d.bossbeynova.click
 49h06cy9.pashtuns-study-rose-hip.digital
 49vcy2na.verticalrewards.com
 4bgr76dk.morib.store
@@ -5629,6 +5631,7 @@ c.bb69.org
 c.gbwhat.pro
 c.obwhatsappdownload.com
 c.pushonline.online
+c.ufsbrf.com
 c.whatsplus.online
 c.whatsplusdownload.com
 c0013.bizhomepass.kr
@@ -8290,6 +8293,7 @@ diloro.dev
 dilruire.com
 dim-proxy.crinkdimit.work
 dimap.asia
+dimatrust.com
 dimensionemosaico.it
 dimitriadis.com.gr
 dinitro.buzz
@@ -10859,6 +10863,7 @@ fixteethtmj.com
 fixx.sbs
 fixzba.cosaques.com
 fiysou.hanovereyephotography.com
+fj8yfdpr.bossbey12.click
 fjagjlhm.psgnewsiran.com
 fjaoi5is.megaparibet.vip
 fjedaz.us-en-pegasus.com
@@ -13879,6 +13884,7 @@ iamgeneva.com
 iamshahid.pro
 iandalton.com
 ianfha6s.7lf.net
+iantfoto.com
 iaqzkapq.marketsport.ir
 iasolopreneur.com
 iasonstrading.com
@@ -15703,6 +15709,7 @@ kdnwrc.slimsounds.net
 kdoyvze.megaparii.pro
 kdphdmr.rahnemayenegaresh.site
 kdqtqtbo.ace9bet.net
+kdtvl3x7.enfejar.casino
 kdwaemkx.stefsoregano.co.uk
 kdwuzpk.yutongdrying.com
 kdyi.thetokestudio.com
@@ -32760,6 +32767,7 @@ www2.hollywoodgulfcoast.com
 www2.kempp.hu
 www82live.com
 www88vv.com
+wwwapko.top
 wwwvbcsajmj.cn
 wwwydzo.penaltibazi.com
 wxavzee.en-us-slimsplits.com
@@ -33996,6 +34004,7 @@ zenspirea.byerottin8.lat
 zenterprise2026.com
 zentide8on.flen4vax.lat
 zentideis4.priesthood-in.lat
+zentu22712.workers.dev
 zenvaleet.herod-terminology.bet
 zenvyus.ddns.net
 zenzenzendrnzenzenzenzen.xyz
