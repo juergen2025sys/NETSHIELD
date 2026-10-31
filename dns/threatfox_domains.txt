@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-31 00:08 CET
-# Eintraege: 34103
+# Aktualisiert: 2026-10-31 01:58 CET
+# Eintraege: 34127
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -5051,6 +5051,7 @@ bossbeyagency.click
 bossbeyalpha.click
 bossbeyanadolu.store
 bossbeyavrupa.store
+bossbeybrk.store
 bossleysportsclub.com.au
 bossprotect.com
 bosstekirdag.store
@@ -6413,6 +6414,7 @@ clawandpurr.com
 clawd-setup.com
 clay.asianpalaceii.com
 clbvihoangsatruongsathanyeu.com
+cldmo76955.workers.dev
 cldppqm.jetshart.net
 cldqkeez.us-us-us-echofree.com
 cle.sm188dvlv.lol
@@ -7568,6 +7570,7 @@ dakk5rnsax46s.cfc-execute.su.baidubce.com
 dallas.baltos.online
 dallasirrigationservices.com
 dallasmobileautomechanic.com
+dalumy.workers.dev
 damp7taskhub.stigmaflowlink.garden
 dampatya.app
 dampcaps-flor-sou-rail.garden
@@ -9713,6 +9716,7 @@ envestassetmanagement.com
 envi12.dynuddns.com
 envinewrat1.duckdns.org
 enviroment.gr
+environmentchallenge.org
 environments.gr
 enviropuresolutions.com
 envset.cottonwat-bad.lat
@@ -10365,6 +10369,7 @@ fast7siteview.chaevodh0t.bet
 fast7siteview.torquegridunit.bet
 fast9siteview.kren3sync.surf
 fast9siteview.vibe7wave.surf
+fastcrimescenecleanupchicago.com
 fastlistjabberboxvinu.com
 fastonlinedelivery.com
 fastonlineupdate.com
@@ -12538,6 +12543,7 @@ groverudder12.com
 grow3taskhub.grov6lira.bet
 grow6siteview.biomasselement.garden
 grow6taskhub.goddess-tapir.bet
+growingtogether.club
 growpix31.digital
 growth2-mark.lami4qor.surf
 growthflo.ima8invika.garden
@@ -12636,6 +12642,7 @@ gukeasiiqcwuiiqw.xyz
 gukikuwwwwycqgqo.xyz
 gukxgn.yasbet90.com
 gulfbreezervrentals.com
+gulfcoastgardenclub.org
 gulfgoldrates.com
 gulfportlittletheatre.org
 gulwui.cinemarcell.hu
@@ -17534,6 +17541,7 @@ macronex.news
 macswi.sola5reth.lat
 macwhisper.org
 madeiratratadanehemy.com.br
+madenova.com.br
 madinafinefoods.com
 madisonjetskirentals.com
 madproxys.top
@@ -23073,6 +23081,7 @@ qpemifog.winxbet.co
 qpf49lup.shop-gutlite.us
 qppbkj.jackpot888.de.com
 qqdhq.cn
+qqe7snob.bossbeybrk.store
 qqjbcfkl.fileboroo.com
 qqmrn.webrevelem.hu
 qqn5ukah.usen-slimsounds.com
@@ -23459,6 +23468,7 @@ ran.slotmacau188e.top
 randevau.eu
 randevau.hu
 randlain.mom
+randolphretreatphotography.com
 raner.pl
 ranganathcosmetologycenter.com
 range2021.kozow.com
@@ -23489,6 +23499,7 @@ rarechristianbooks.com
 rasa-artiman.com
 rasa-artiman.ir
 rasmfani.xyz
+rasompsicologa.it
 raster-80.com
 raster-87.com
 rat.best
@@ -23866,6 +23877,7 @@ repositorio.ksdesktop.com.br
 rept.seescanf.cc
 repticlub.com
 repu1sivebrazen.digital
+repuestoamericano.cl
 rerrioara.live
 res.cargowhy.surf
 res.cloudleb.cc
@@ -24754,6 +24766,7 @@ sabad724.xyz
 sabadigital.com.br
 sabaindustry.com
 sabatravels.com.pk
+sabco.com.lb
 sable-orbit-wren-fiayn.live
 sableyard.cc
 sabzzbet.com
@@ -27731,6 +27744,7 @@ tehpm.zsatom.hu
 tehran.ing
 tehrandental.ir
 teiittoeg.com
+tejasdigital.co.in
 tekkullanimlikpvc.com
 tekmart.uk
 telaviv.androiddebugbridge.su
@@ -29128,6 +29142,7 @@ uniedpureevenywjk.shop
 uniekinbeeld.nl
 uniformesjr.com.mx
 unigadgetz.com
+unigovn.com
 unikasegurancahumanizada.com.br
 unipack-ukraine.com
 uniporctandil.com.ar
@@ -32335,6 +32350,7 @@ www.sullaviadiulisse.it
 www.sunagawa-shop.com
 www.sunwu.world
 www.suorecistercensi.org
+www.surgel3v.it
 www.svevocosenza.it
 www.switchse.com.br
 www.sx3cjniwo1bmtqs0vlj-va2f.app
@@ -32346,18 +32362,25 @@ www.syumai.life
 www.t9ffxu6zhf915fadjv1.app
 www.taskforcebot.com
 www.technicalauthentications.live
+www.tecnohospital.it
+www.tecnoimball.it
 www.telescopethailand.com
+www.tempo.com.my
+www.thaihomeplan.com
 www.theavocadopit.com
+www.thebigred.it
 www.thebooksend.com
 www.thebooktique.org
 www.thelibrarium.com
 www.theokanegroup.com
 www.theridgebooks.com
+www.thesmos.org.gr
 www.thesportscorporation.mbcreative.ca
 www.thewrightcollection.com
 www.thousandoaksbsalandscaping.com
 www.thueringer-stuck.de
 www.tipsytransit.com
+www.tolnaiallatorvos.hu
 www.topclickgaming735.info
 www.topendglam.territoryimage.com.au
 www.torh1.duckdns.org
@@ -32384,6 +32407,7 @@ www.uchihachakamarubackup3.com
 www.uj3gb7q.shop
 www.ultimategrillhub.com
 www.uniqueroast29y.com
+www.unterritorio.it
 www.urbanboxed.live
 www.usaa-login-verify-usaa.chase-cvs.org.uk
 www.usemention.ai
