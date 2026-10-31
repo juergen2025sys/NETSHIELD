@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-31 09:40 CET
-# Eintraege: 34367
+# Aktualisiert: 2026-10-31 11:11 CET
+# Eintraege: 34374
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -6523,7 +6523,6 @@ clickhitriver.com
 clickndoor.com
 clickprint.com.au
 clickstream.icu
-clicky.com
 clie-route.jumping5table.surf
 cliedrift.vori7nex.surf
 client-runelite.is
@@ -6909,6 +6908,7 @@ companyharbor.xyz
 companyhelpline.co.uk
 comparecreditcards.com.au
 compass51.com
+compassagreement.cfd
 compassbase.cfd
 compensation-apyx.fi
 compensations-apyx.com
@@ -13066,6 +13066,7 @@ hayleymarienorman.com
 haytmyo.alternatifdekorasyon.com
 hazelcolonnade.net
 hazelfen.cc
+hazelmoss.cc
 hb2grktsae.localto.net
 hbcq8sv3.oghabbet1.com
 hbd.sm188dnsxx.top
@@ -14149,6 +14150,7 @@ imagiraffe.shop
 imagpod.build-solid.work
 imagss.com
 imamat-static.theismaili.live
+imap.hazelmoss.cc
 imap.mailban.pics
 imap.quietfox.cc
 imap.silverpine.cc
@@ -14197,7 +14199,6 @@ imperiumpeptides.com
 implantcentr.com
 importagriflor.com
 importdeep.sprutte5t.lat
-impresa.pub
 impresadipuliziecristal-to.it
 impresaedilepasquato.it
 impresafunebrearcangeli.com
@@ -17211,6 +17212,7 @@ login-web.sarahkapsreit.work
 login.metricsdashboard.cc
 login.nimbusforge.cc
 login.onemusic24.com
+login.sorrelglen.cc
 login.trees4sale.net
 login.uu88.fashion
 login.v-panel.asia
@@ -19458,6 +19460,7 @@ naolemedia.com
 napavalleymentalhealth.com
 naphthaep.com
 napolicult.com
+naqixizy.workers.dev
 naqsigxg.masaelmohandesi.xyz
 narailexpress.site
 narang.cfd
@@ -23654,6 +23657,7 @@ rat.m-u88.com
 rata-tech.com
 ratatwista.com
 rate-limited-proxy-66-249-87-129.google.com
+rate-limited-proxy-66-249-87-130.google.com
 rate-limited-proxy-66-249-87-133.google.com
 rate-limited-proxy-66-249-87-134.google.com
 rate-limited-proxy-66-249-90-34.google.com
@@ -24009,7 +24013,6 @@ reoen.webgondozas.hu
 rep.miraibotnet.su
 rep4-node.furrow-praise.bet
 repa1r-track.producer5chming.bet
-repack-games.com
 repaigatewa.brix9qen.lat
 repairwoo.sylov2en.in.net
 repeg-apyx-fi.app
@@ -24057,6 +24060,7 @@ rest.openapiservicehub.pics
 rest3taskhub.kali9drift.surf
 restapiserv.click
 restaurant-bangkok.fr
+restaurantkingstandoori.ch
 restmeshnode.inertianetway.bet
 restoredoo.com
 restoremental.com
@@ -25333,6 +25337,7 @@ securityalertcaptchacheck.com
 securitysur.info
 securo45z554mw7rgrt7wcgv5eenj2xmxyrsdj3fcjsvindu63s4bsid.onion
 sedgeoriel.co
+sedidu.workers.dev
 seducingdelirium.surf
 sedxjax.winxbet.co
 seedhostunit1.biomasselement.garden
@@ -26368,6 +26373,7 @@ sorgupaneli.net
 sorix8el.digital
 sorov.run
 sorrelapse.best
+sorrelglen.cc
 sorriclean.com.br
 sorrisoesalutecorrado.it
 sorrystartstat1.net
@@ -32438,6 +32444,7 @@ www.rescogroup.it
 www.residencialdama.com
 www.resourcebooks.net
 www.restaurant-leuehof.ch
+www.restaurantkingstandoori.ch
 www.rg82z9wtgt9b-m61p.cc
 www.ri-mediasrl.com
 www.riabitarelasardegna.it
