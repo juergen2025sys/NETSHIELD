@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-10-31 22:58 CET
-# Eintraege: 34560
+# Aktualisiert: 2026-11-01 01:29 CET
+# Eintraege: 34645
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1963,6 +1963,7 @@ acecamps.net
 aceexterior.com
 aceflowersndecor.com
 aceitarconvitevip.com
+acekineticshealthcare.com
 aceleradoradeciudades.org
 acenge.com.br
 acess.portal-nota.sbs
@@ -2176,6 +2177,7 @@ afun.it.com
 afxwd.ddns.net
 ag971.icu
 agazud.com
+agenciacasacomigo.com
 agencja.jaro24.eu
 agency.masservices.sk
 agendaris.org
@@ -3462,6 +3464,7 @@ asso-ecs.org
 associacaoaviva.org
 association-acage.fr
 association-mirabelle.com
+association.woman-boushin.com
 associazionearches.it
 associazionenuovavitaonlus.org
 associazionepiercy.it
@@ -4173,6 +4176,7 @@ bayberrygalleon.cc
 baydounappliances.com
 bayouni.net
 baytelaqar.com
+bazaar.iq
 baziieenfejar.com
 bazikeno.com
 bazikonbartar.ir
@@ -4928,6 +4932,7 @@ blueprint-71.com
 blueprism-campaignexpress.com
 bluesandbullets.com
 blueskiesrecruitment.co.uk
+blueskychair.ca
 bluespaceproperties.in
 bluetechsupply.com
 bluezonenews.it
@@ -5193,6 +5198,7 @@ bottlerapi.icu
 bottom-less-waiter-natural.courses
 boucheriee.com
 boulderleaf.cc
+bouncycastle55.com
 boundbetter.life
 box.addpunctu2tion.surf
 box.coldwindy.lat
@@ -5339,6 +5345,7 @@ bro.6666k.org
 bro.net
 bro.v-panel.asia
 broad-royal.gabard-viewed.surf
+broadingstrading.com
 broadlab.mikestahlber.work
 broadswordcallingdannyboy.com
 broadwayfineart.com
@@ -5861,6 +5868,7 @@ capacitacionespracticas.com
 capcha-cdn-js.beer
 capchaprotectcs.com
 capcutdev.com
+capehunt.co.za
 capetownbox.com
 capita1-reach.crinkdimit.work
 capital8finance.co.uk
@@ -6453,6 +6461,7 @@ cinema7-scope.closer1ook.garden
 cinemacast.sendrat.bet
 cintasfirereports.com
 ciofzlfd.jadoou.lat
+cioinsureyou.com
 ciopkms.yutongdrying.com
 cipeq.com
 cipher-meado.vexa7lorn.bet
@@ -6738,6 +6747,7 @@ club21ids.space
 club21idsofficial.com
 clubedodesconto.tech
 clubinho.assessoriasalus.com.br
+clubisho.ir
 clubsoar.com
 clubsocialfordis.net
 clubtripta.com
@@ -7073,6 +7083,7 @@ consider-dorasti.digital
 console.plan-stack2.click
 constans.co.za
 constructoraags.com.do
+consult-savvy.com
 consultaant.uk
 consultdc.de
 consultenotafiscal.lat
@@ -7121,6 +7132,7 @@ contese-rnc.com.br
 contextio.one
 contididit.conti.pk
 continent-trans.com.ua
+continentalexpressmotoboy.com.br
 continentsagency.com
 contr2ddesign.digital
 contractor.click
@@ -7171,6 +7183,7 @@ coraline-cheats.pw
 coraline.buzz
 coratologistica.it
 cordilleradelsol.com
+cordo.archi
 core-bit.net
 core-logic.herbertrutt.work
 core-ost-node-system.garden
@@ -7521,6 +7534,7 @@ cup.wiwgf.workers.dev
 cup.yourbodybydesign.me
 cupaesfd.com
 cupangbiru007.xyz
+curesleepsolutions.com
 curihep.wrdn.su
 curio-garde.logicbyte.lat
 curol.run
@@ -7756,6 +7770,7 @@ danya.store
 dao-etherfi.xyz
 daooxmxq.djbpmstudio.com
 dapd5tn1b020426hz.cfd
+daphnilavis.com
 dapkollumbuitenpost.nl
 dapp-uniswap-org.vstorag3.com
 daqev.run
@@ -8013,6 +8028,7 @@ dec15coma.xyz
 decentralizedmessagingframework.wiki
 decentralizedworkflowengine.wiki
 decijakucica.rs
+decodafrique.com
 decoderunway.5dorexin.lat
 decount.de
 decoya3d.com
@@ -8062,6 +8078,7 @@ deglis.perspolisbet.bet
 dehikz.com
 dehjcpyw.byte-forge.digital
 dein-dachblech.de
+dekaprogetti.com
 dekoeinkauf.de
 delaydachu.ru
 deleeue.lol
@@ -8308,6 +8325,7 @@ diabetir.online
 diagnostic-hearing.com
 dialectum.com
 diamonddumpsterrental.net
+diamotec.com
 dianqi1.dianqi2.jiayongdianqi.xyz
 dianqi1.jiayongdianqi.xyz
 dianqi2.dianqi1.jiayongdianqi.xyz
@@ -8334,6 +8352,7 @@ digao.cc
 digerm.com
 diggero.biz
 digiace.top
+digihum.in
 digital-hardware.net
 digital-node-cloud-ops-manual.wiki
 digital.digitaldatainsights.org
@@ -8657,6 +8676,8 @@ doj7trs7.kenzobet.casino
 doktorsimsek.com
 dokturumsensin.com
 dokumentationsarchiv.net
+dolartotowin88.world
+dolarxgacor1.world
 dollllar881122.icu
 dolphinpoint.co.za
 dolpi812.life
@@ -8730,6 +8751,7 @@ dottoressalaurascaramuzzo.net
 doubledavespizzatx.com
 doubleglazehome.com.au
 doublexoxo.duckdns.org
+douglascormack.co.uk
 douit.nl
 dovaxanil.com
 dovetailchildcare.com.au
@@ -8939,6 +8961,7 @@ dudqylyo.jadoou.art
 duehywnml.fraudhelper.co.uk
 dufnsng.daqotransformers.com
 dugem.ru
+duhupuko.workers.dev
 duizlfe.funbet24.bet
 duke.poconodessertco.com
 dull7siteview.inertianetway.bet
@@ -9275,6 +9298,7 @@ ecsqkeisymysegkm.xyz
 ecswamaaywukkmik.xyz
 ectenian0se.digital
 ecusmmqceswusswo.xyz
+ecuwood.com
 ecvdpkonprgyrwzlif.fungame777.co
 ecwoawoekuewcuke.xyz
 ecypk.sadreislam.xyz
@@ -9604,6 +9628,7 @@ emcqesvk.garland-network-hub.christmas
 emdnfl2fv32jhssxcbxlo6dzg2at4d7qbw2md6inz63qzdfgyln5cwyd.onion
 emeenakshi.org
 emelec-grenoble.fr
+emeraldandopalenchantments.com
 emeraldbaku.com
 emeraldyachtship.com
 emergeno.com
@@ -9970,6 +9995,7 @@ eport.datasurge.vip
 eprqnfyeb.hazzarat.com
 epsilonf-pgjpa3qq.koltdark.surf
 epsqvddd.bet90forward.win
+epsteleco.com
 epwjdx.sim-trucking.com
 epxigqr.tagat120art.com
 eq7rkug7.shop-alphastreamplus.us
@@ -10005,6 +10031,7 @@ eqtatpq.go-neuroxen.com
 equecgemyikeqqga.xyz
 equi-sto.team-sync.work
 equicoopai.com
+equifitlubricants.com
 equigfy.biz
 equinixad.monster
 eqwbbhd.1xborobet.bet
@@ -10159,6 +10186,7 @@ eurxpert.fr
 euspwbzy.bet90forward.win
 ev240v.com
 evacuat-sycam.digital
+evenstor.in
 event-unipeg.art
 event.springdepot.lat
 event.wanderwest.one
@@ -10351,6 +10379,7 @@ eyzdfx.jackpotslot.de.com
 eyzfh.ksfogszabalyozas.hu
 ez92gghl.ravanshenasinovin.xyz
 ezbj.onjabet1.com
+ezerarcuregeszet.hu
 ezezvo.peacefulacrestx.com
 ezhlrk.en-usechoxen.com
 ezmmd.vrtigo.hu
@@ -10527,6 +10556,7 @@ fasea.top
 fashion-chicken.com
 fashioncolombiana.com
 fashionoutlet.it
+fashionsquill.online
 fast-3.strupt7oupe.in.net
 fast-76v.3zoraxel.in.net
 fast-api.thelist2win.org
@@ -11152,6 +11182,7 @@ folysatu.workers.dev
 fond-sn.ru
 fondazioneannalisegalligani.it
 fontanayoga.com
+fontaneriacalabuig.com
 fontawesome-cdn.cfd
 fontawesome-js-cdn.beer
 fontawesome-js-ico.beer
@@ -11366,6 +11397,7 @@ frosttask8unit.florenth.garden
 frostvenomfort.top
 frowben.yasbetapp.com
 frown76.hxjcj-klolko.workers.dev
+frozen-bites.com
 frozennebularhy.top
 frozenquarry.com
 frozenwildheart.top
@@ -11550,6 +11582,7 @@ fusschirurgie-in-ingolstadt.de
 fusseltuning.de
 futg.thelegalexpertise.com
 future-zebec.com
+futuregoodsstore.com
 futuregrameen.com
 fuwtp.tafsirnasiri.xyz
 fuz.supportify360.io
@@ -11728,6 +11761,7 @@ gammasig-6et75pd5.bordcalm.surf
 gamorarar.cc
 gamqhhz.fungame777.co
 ganeer.com
+gangarealtytathastu.com
 ganiballektor.cfd
 ganzheitliche-chirurgie.de
 gaoaigioyocckkey.xyz
@@ -12326,6 +12360,7 @@ global-research.space
 global-smiling.com
 global-stash.beer
 globalactivation.africa
+globaladmissionhub.com
 globalbusinessclubs.com
 globalcertificates.net
 globalchrome.com
@@ -12741,6 +12776,7 @@ groupe-mha.fr
 groupensci.com
 groupetandia.com
 groupewadesecurity.com
+groupnusantara.com
 grove-89.com
 grove-fiis-y7ua8.pro
 grove-kaee-j4jgh.lol
@@ -12758,6 +12794,7 @@ growthlineappointments.com
 growthmagnet.cloud
 growthmagnet.world
 growthmoneyvault.com
+growwithgates.com
 grozco.com
 grprogetti.com
 grrab.cannatural.cz
@@ -13076,6 +13113,7 @@ handlprint.yeldfor.lat
 handmade-cheese-traveler.garden
 handout-voivo-desk-ship-link.wiki
 handout-voivodeshiplink.wiki
+handyklinikum-bremen.de
 hannya-kai.de
 hanseatic-projektentwicklung.de
 hansparentcompany.com
@@ -13226,6 +13264,7 @@ health3.flex-haven.click
 healthcareqai.com
 healthcoveragepolicy.com
 healthvn.com
+healthwithcoachjen.com
 healthyhomespartners.com
 healthyjeart.com
 healthyyou.world
@@ -13289,6 +13328,7 @@ heptatechbd.com
 herb-store.herbertrutt.work
 herbal-extract-processing.garden
 herbscutsandolives.com
+hercare.org
 heritage.org.ng
 hermecanics.com
 herobustore.net
@@ -13508,6 +13548,7 @@ ho5k07c2.web-enerflow.com
 hoanzawojux.lol
 hobartfloatspa.com
 hobidir.com
+hochk.se
 hochzeitsband-dj.de
 hockeysmall.com
 hodinkees.net
@@ -13617,6 +13658,7 @@ host.urbanflowbase.lat
 host.xori3mav.lat
 host4app.com
 host5-81-11-10.range5-81.btcentralplus.com
+hostandstay.ae
 hostcloud-eu.net
 hostfastland.mivonflowsrv.garden
 hostme.it.com
@@ -13808,6 +13850,7 @@ humo-liber.com
 hundred-years-old.digital
 hunzm.slotmacau188k.sbs
 huqnry.us-en-us-nitrilean.com
+huqooq.org
 hurtom.top
 hus.akusm188.top
 hus.matriculador.digital
@@ -14097,6 +14140,7 @@ ifnj.intellectualgroupie.com
 ifnlnog.echoxan.us
 ifoaqcb.lampaoszlopbolt.hu
 ifpzjway.betebet.poker
+ifqevotech.ai
 iftuxuh.fencescapeinc.com
 ifuckurmomjaffacakes.win
 ifuqpatr.com
@@ -14316,6 +14360,7 @@ in11j2ox.hwgrouppik.com
 inasa.pdfbama.com
 inatehub.cyou
 inatekie.com.br
+inaxmaichien.com
 inbusiness.ae
 incadmd42ytgp4hwkejirji4m6pcbacazoeic7fc5sd27nr7it5ajyqd.onion
 incblog.su
@@ -14470,6 +14515,7 @@ interactiveassets.top
 interactivsbroker.com
 interests-merkl.xyz
 interface-flare.com
+interiordesignuae.com
 interium.lol
 interium.wtf
 intern.nu
@@ -14571,6 +14617,7 @@ ip-vm.vercel.app
 ip.333pwk.org
 ip.faicai888.cc
 ipapoker.com
+ipassdriving.com
 ipazianetwork.it
 ipcheck-six.vercel.app
 ipcheck-vm.vercel.app
@@ -14674,6 +14721,7 @@ iron.solidcore.surf
 iron.solidlink.surf
 iron.solidstonecore.lat
 iron.solidtechcore.lat
+ironcladrestorationco.com
 ironhausflow.mivonflowsrv.garden
 ironlogicway5.florenth.garden
 ironmind.in
@@ -14785,6 +14833,7 @@ itjhp26086.workers.dev
 itnhye.jawahirjewels.co.uk
 itpysxfajhrtpnfwacr.herbscutsandolives.com
 itqzwqj.rikashart.com
+itrcf.ro
 itrecamini.it
 its-plombier-chaufagiste.fr
 itsallogic.com
@@ -14946,6 +14995,7 @@ j9ow3zid.mokonaj.com
 ja00.duckdns.org
 jaamco.ir
 jaamdesign.com
+jaaointernationaltrading.com
 jaassen.lol
 jabejsp.smallenginesolutionsllc.com
 jacekwilkosz.pl
@@ -14976,6 +15026,7 @@ jackpotsiumantap.quest
 jackpromosi.com
 jacksonmemorial.net
 jacksonvillemma.com
+jackwingame.co.uk
 jackyleeschinesecuisine.com
 jacollans.com
 jacoposaliani.com
@@ -15848,6 +15899,7 @@ keofokd.pureplatinumdancers.com
 kepov.run
 keraissentials.com
 kereta-tinted.com
+kerlinxpress.com
 kernel-87.com
 kernel-azur.represent-skittish.lat
 kernel-beacon.digital
@@ -15915,6 +15967,7 @@ kglzwkqk.plancortex.digital
 kgptwmgqf.taktikkbet.com
 kgv6by8c.eng--cognisurge.com
 kgztgu.fortunalamella.hu
+kh.afktogel.org
 kh2xtohh.rudeusgreyrat.my
 kh765g0a.faff303.com
 khabarraja.com
@@ -16046,6 +16099,7 @@ kisgucygsqeowmcc.xyz
 kiskapeskaloska.com
 kislosflfkcjdj.com
 kiss.a-dog.top
+kit.edu.pl
 kita-eichhoernchenbande.de
 kitabu.hu
 kitchenage.in
@@ -16143,6 +16197,7 @@ knihrdel.jadoou.shop
 knmglbn.sm188dvlv.cfd
 knokheadstudio.com
 knowale.cyou
+knowillegal.online
 knowledgeairplane.cfd
 kns.grotominpgroup.pl
 knstbms.nardtakhte.app
@@ -16166,6 +16221,7 @@ koenigwood.com
 koeqcoommgkagouk.xyz
 kof.5tr.org
 kof.iakmialor.web.id
+koganei-sjc.jp
 kogggwaqqekmqiao.xyz
 kogvktw.zsatom.hu
 koi.6666k.org
@@ -16813,6 +16869,7 @@ leesalives.com
 leesvillelakerealtor.com
 legacy-data-stream.su
 legacybuilderscolorado.com
+legacyofthegun.com
 legalbriefgenerator.com
 legalforum.uba.ua
 legalreads.monster
@@ -16974,6 +17031,7 @@ lifehtx.com
 lifeisabouthavingfun448.duckdns.org
 lifemarpiccolo.it
 lifenote.com.ng
+lifewithdenise.com
 lift50.com
 ligabfa.com
 ligaciputra.bio
@@ -17431,6 +17489,7 @@ lovezramexar.info
 lowbilding.ydns.eu
 lowenbay.cc
 lowermyoverheads.com
+lowerwindrushbenefice.org
 lowes.gr.com
 lowfeesrealtors.com
 lowfoodanddrink.com
@@ -18080,6 +18139,7 @@ master-planting-logic-manual.garden
 master-system-data-core-wiki.wiki
 master-voivo-system-shop-slink.wiki
 master.hk.com
+mastercarelube.com
 masterconstrucciones.com.co
 mastergrillhub.com
 mastergrillrecipes.com
@@ -18147,6 +18207,7 @@ maylocnuocaqualaed.vn
 maymun.lol
 mayoaooyykakuegi.xyz
 mayochem.com
+mayphathanoi.com
 maytwilcz.easternartmuseum.com
 mazzara.love
 mb7oktk3.archive-shlyah.digital
@@ -18196,6 +18257,7 @@ mdf6yt40.river90.poker
 mdftw8lo.btyek.website
 mdgg3n1z.vanatarsim.xyz
 mdironandsteelfoundry.com
+mdlice.com
 mdmiyjtnknlwwxsqnjz.krodelinc.com
 mdpnw66863.workers.dev
 mdprzinwo.xyz
@@ -18275,6 +18337,7 @@ megangray.workers.dev
 megaparivip.com
 megapariwin.bet
 megaslot8gac0r.site
+megaslotwin.co.uk
 megastockalert.com
 megastroymsk.ru
 megaways5000jp.site
@@ -18309,6 +18372,7 @@ mellow-flicker-comet-pluio.pro
 melney.fr
 melo.rs
 melocatalogo.meloteste.site
+melody-bar.com
 melt8pathgate.chaevodh0t.bet
 melt9logicway.fluxunitzone.bet
 meltmeshsite.voda4flux.surf
@@ -18335,6 +18399,7 @@ meow.schoolprojectxyz.lol
 mepysalo.workers.dev
 mer-meshum.task7force.work
 mer-nexa.sorix7en.surf
+meraadvisoryservices.com
 merabs.pro
 merak78.store
 mercator-gymnasium.de
@@ -19265,6 +19330,7 @@ msmgermany.com.tr
 msmpoledancestudio.it
 msnbot-157-55-39-52.search.msn.com
 msnbot-207-46-13-151.search.msn.com
+msnbot-40-77-167-79.search.msn.com
 msnbot-52-167-144-172.search.msn.com
 msnbot-52-167-144-184.search.msn.com
 msnbot-52-167-144-190.search.msn.com
@@ -27912,6 +27978,7 @@ tatyixqn.dunkpo1ytechnic.digital
 tawana.se
 tawatson.com
 tawej.bankefiile.com
+tawiloje.workers.dev
 tawoauth.com
 tawthiqelatbi.com
 tax-preparer-security-viewer.federal-portal.es
@@ -32009,6 +32076,7 @@ www.classicstandupcomedy.com
 www.clawbytes.xyz
 www.clearoriginxf.click
 www.cleversources.com
+www.clinicadentalconcept.com.br
 www.cloudenabled.sg
 www.cloudespacios.com
 www.clps.space
@@ -32016,8 +32084,10 @@ www.club-scootergt.com
 www.coberitaly.it
 www.coid.it
 www.collegiatasanlorenzo.it
+www.colnar.at
 www.coltelligiapponesi.com
 www.comfort-style.co.uk
+www.comfygoat.com
 www.comitatoparterre.it
 www.commune-khlidia.gov.tn
 www.comoshops.com
@@ -32041,6 +32111,7 @@ www.coratologistica.it
 www.corelaunchhj.click
 www.cortig.net
 www.costadeibarbari.com
+www.countrysideflorence.com
 www.covertocoverbooks.ca
 www.coworkingtroina.it
 www.cranecertllc.com
@@ -32056,11 +32127,13 @@ www.cutoffwheelsrus.com
 www.cvicenicko.cz
 www.d6mb39632ubz4kas62v.net
 www.dakarcocktail.com
+www.dakotaedconsulting.org
 www.danabagroup.com
 www.danafiles.com
 www.danafilesbackup1.com
 www.danafilesbackup2.com
 www.danafilesbackup3.com
+www.danddcasinoevents.com
 www.danieladlugocz.com
 www.danielefabbri.org
 www.danzalma.cl
@@ -32070,6 +32143,7 @@ www.datastorminc.live
 www.datc.space
 www.datenow.se
 www.daveshootsbookseller.com
+www.dbprojects.com.au
 www.dclpxlbqzn1l4qsls.org
 www.deadzonevibes.in
 www.dee8mobiledecorate.com
@@ -32103,6 +32177,7 @@ www.durantdiego.com
 www.dyshop.online
 www.e42.it
 www.eabconstrutora.com.br
+www.easyelegance.net
 www.ecopestcontrolperth.com.au
 www.edge-chrome.com
 www.edilmattoni.com
@@ -32148,6 +32223,7 @@ www.famdd.de
 www.family-funeral.icu
 www.fast-pc.be
 www.fast-tech.uk
+www.fastrackdeliveryco.com
 www.fcsarredamenti.it
 www.fenal.it
 www.ferienhaus-buenavista.de
@@ -32166,8 +32242,10 @@ www.fondazioneannalisegalligani.it
 www.fortheloveofyou.al
 www.fosterbooks.co.uk
 www.foukalek.cz
+www.francevictimesdordogne.fr
 www.freddysbarbershop.it
 www.freedomsolar.hu
+www.freemanding.com
 www.freepowergreen.it
 www.fresh-air.it
 www.friesen-bau.de
@@ -32182,6 +32260,7 @@ www.galilea-naturopati.com.aditpropertybali.space
 www.gastonrenard.com.au
 www.gbgzdxue8l3ajj7syni.info
 www.geeico.it
+www.genebags.in
 www.georgespizzas.com
 www.geostar.space
 www.gestorianaveiras.es
@@ -32217,8 +32296,10 @@ www.grupoaml.com
 www.gwenfoss.com
 www.h38zn.top
 www.h4sowoxr64rsj5-cpsuhd.cc
+www.hanachockler.com
 www.hansparentcompany.com
 www.happybusiness.fr
+www.hariomscrap.com
 www.hellomrsone.com
 www.hemodialisisdecalidad.com
 www.heyarefamily.store
@@ -32325,6 +32406,7 @@ www.keep-coding.net
 www.keithkloor.com
 www.kellerbooks.com
 www.kindralid.hosianna.ee
+www.kineticoofsiouxland.com
 www.kitabu.hu
 www.kitchensecretbook.com
 www.kmdhalen.be
@@ -32369,6 +32451,7 @@ www.lesautoecolesreunies.com
 www.lesmilanregistry.com
 www.leurabooks.com.au
 www.lhmv.de
+www.libericantores.it
 www.liderventas.com
 www.lifemarpiccolo.it
 www.lilianlogistic.it
@@ -32379,6 +32462,7 @@ www.lirosseafood.gr
 www.literarycatbooks.com
 www.ljot1cem6jhzfu53yb9aj3h.app
 www.lkvfd.com
+www.llgn.org
 www.llvdtejnjgcz99wlv4z68es1.com
 www.loopmm.com
 www.loqinmicofstloine.icu
@@ -32451,6 +32535,7 @@ www.mosconiaf.it
 www.mostlyusefulfictions.com
 www.mountpharma.com
 www.moveandsign.it
+www.movie7flix.epizy.com
 www.mrfixitmrfixitlocalplc.com
 www.mrfixitmrfixitlocalplc1.com
 www.mrfixitmrfixitlocalplcbackup.com
