@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-01 17:56 CET
-# Eintraege: 35064
+# Aktualisiert: 2026-11-01 19:30 CET
+# Eintraege: 35069
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1055,6 +1055,7 @@
 5jnq4l13.elcornerderaulmorote.com
 5jsdebh3.backgammon.download
 5jtpv8ur.planus.store
+5jtq1o90.bossbeylegend.click
 5jwn1ww9.binary-dock.digital
 5k9iblva.ace90bet1.bet
 5kbm8nkr.foodpapajobs.com
@@ -1292,6 +1293,7 @@
 74br4nt0.e-rse.fit
 74l3it.messy-zamai.pics
 74ock8ke.mahbetiran.com
+75.36.115.136.bc.googleusercontent.com
 751.lol
 757ylxaeemidrhrmmuz6rkxw5jlk65oqou3lvi6evxtrr2nhm5ytmrqd.onion
 75aohwq.qen2virex.lat
@@ -5571,6 +5573,7 @@ bui1-mount.sarahkapsreit.work
 build-art.us
 build-asdasd.4b3a91fd1b35ab2d023f5d71713a6c00.workers.dev
 build-flare.xyz
+build.civicyard.click
 build.netbazaar.lol
 build.polysupport.team
 buildableconcepts.com
@@ -26071,6 +26074,7 @@ sharepoint-document-verification.icu
 shareyourprompt.com
 sharjahaquarium.com
 sharjahtodip.com
+sharkmba.in
 sharonrea.com
 sharp7taskhub.focallensview.garden
 sharrplast.com
@@ -32319,6 +32323,7 @@ www.archivioelia.org
 www.armyskuriclassproject.com
 www.armyskuriclassproject1.com
 www.artecar.net
+www.artetavola.ch
 www.artmostfear.co.za
 www.aryaxplorer.space
 www.asacor.com.ar
