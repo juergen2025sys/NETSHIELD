@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-01 16:57 CET
-# Eintraege: 35059
+# Aktualisiert: 2026-11-01 17:56 CET
+# Eintraege: 35064
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -209,6 +209,7 @@
 155.216.176.34.bc.googleusercontent.com
 155b3nro.proxy-cascade.digital
 15fc73d7.wignalllindor.wiki
+16.135.199.104.bc.googleusercontent.com
 16.ser3xvodc.xyz
 161-35-173-98.sslip.io
 1629bqt9p34elwv.top
@@ -10721,6 +10722,7 @@ farmingdaleyouthcouncil.org
 farmlinegh.com
 farrdigital.com
 farrhaio4123.icu
+farsiwood.ir
 faruva.com
 fasdas.link
 fasea.top
@@ -20537,6 +20539,7 @@ november.read-books.org
 novemberstar.com
 noveuam.top
 novincell.ir
+novo.sicilianobalancas.com.br
 now-we-wait.com
 nowdigitaltalent.com
 nowhere-locked-manor-hs.trycloudflare.com
@@ -23922,6 +23925,7 @@ qxyamp.itsmarthungary.hu
 qxyvx.yanisrea.hu
 qxzwbbx.bakht.club
 qybtsfy.natsumitapas.net
+qydape.workers.dev
 qyedp6vby4cdyvxrqj4hklcf5yjuepvq2gnovovbvpbngs323kxa.arweave.net
 qyfbzxh.emeenakshi.org
 qyhgsea.jetshart.net
@@ -31892,6 +31896,7 @@ wir-brauchen-sport.de
 wire.universitynetservice1979.info
 wirkaufenunfallfahrzeuge.de
 wiro88.blog
+wiro88.it.com
 wiro88game.it.com
 wirroflobsny.ydns.eu
 wisa-immobilien.de
