@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-01 23:25 CET
-# Eintraege: 35095
+# Aktualisiert: 2026-11-01 23:59 CET
+# Eintraege: 35136
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2147,6 +2147,7 @@ aenvmnaq.hugugmadanikatouzian.xyz
 aenysk.aborszerintem.hu
 aeons-echo.org
 aerafilms.com
+aereception.fr
 aero1logicnet.glid1zone.surf
 aerobetdesk.nl
 aerobiz.net
@@ -2199,6 +2200,7 @@ ag971.icu
 agapehomechoice.com
 agazud.com
 agenciacasacomigo.com
+agenciavecina.org
 agencja.jaro24.eu
 agency.masservices.sk
 agendaris.org
@@ -2387,9 +2389,11 @@ akdsoev.eachway-multiplier.com
 akesu.voteable.live
 aket65o2xznczt5ef4xtlo46g6lv5nlebjpsjrl3ihrvq3pmysekhhyd.onion
 akfzi.lampaoszlopbolt.hu
+akhbarwa.com
 akhfbttn.blinderai.com
 akhkdv.ecopro-edu.com
 akhlagkarbordi.xyz
+akinslifecare.com
 akk-finaudit.com
 aklze.bercibutor.hu
 akmaplus.ru
@@ -2744,6 +2748,7 @@ anambra.duckdns.org
 anarchiv.net
 anarchy10.duckdns.org
 anarivasfisioterapia.com
+anatamayomd.com
 anazon2-aws.xyz
 anbush.com
 anchocav.7lorexan.surf
@@ -2854,6 +2859,7 @@ annual.mwbwu.workers.dev
 anomalii.info
 anonam39-41248.portmap.io
 anonkrnl-47127.portmap.io
+anouka.co.za
 anpjcfq.attilahatar.com
 anpysts.yasbetapp.com
 anruolvbjabgewdqym.infinityjoespizzaclearwater.com
@@ -3130,6 +3136,7 @@ apk.bet
 apk.obwhatsappdownload.com
 apk.whatsplus.online
 apk.whatsplusdownload.com
+apkprox.com
 aplustools.biz
 apm-solutions.net
 apmedia.asia
@@ -3240,6 +3247,7 @@ aptunits.com
 apulialandartfestival.com
 apxij.zsatom.hu
 apyxfoundation.org
+aq04chzm.bossbeyline.click
 aq5tnc6p.ytec.store
 aqeellogistic.com
 aqfcvod.en-usa-sugarmute.us
@@ -3457,6 +3465,7 @@ as.wordz.sbs
 as.zends.sbs
 as59n9n3.photoshopvn.net
 as9e2wvl.leswap.store
+asaa.net
 asadmalikphotography.com
 asartefatos.com.br
 asasyz.com
@@ -3550,6 +3559,7 @@ associazionearches.it
 associazionenuovavitaonlus.org
 associazionepiercy.it
 associazionesinapsy.it
+assumpcaoadv.com
 assurervosprets.com
 asterchildrenshoes.com
 asthadentalclinic2010.com
@@ -3897,6 +3907,7 @@ ay8go7sf.usen-enerflow.com
 ayainstitute.com
 ayalonk-ins.co.il
 ayamprestonyonyalina.com
+ayamtechs.com
 aycdiaz.com
 aydlee.nairmess.com
 ayehtlgp.systemcompass.top
@@ -4163,6 +4174,7 @@ bapak178.org
 bapeshop.us
 bapixkar1241.buzz
 bapp.netlink-connect.com
+bappamtv.se
 barabezo.com
 barbara-arnold-art.com
 barbarabonomiromagnoli.com
@@ -4262,6 +4274,7 @@ bayberrygalleon.cc
 baydohardwoodfloor.com
 baydounappliances.com
 bayouni.net
+bayspringsproductions.com
 baytelaqar.com
 bazaar.iq
 baziieenfejar.com
@@ -4354,6 +4367,7 @@ beachjiujitsu.com
 beacon-mysummitfcu.org
 beacon.kraynov.org
 beacon.systemd-notify-service.co
+beaconmgmtgroup.com
 beacontrace.bond
 beacontweezersbinge.wiki
 beadbikes.xyz
@@ -4631,6 +4645,7 @@ bg-removerok.online
 bg-transparency.online
 bg678.tamilkamaveri.pro
 bgbconsultores.com
+bgef.org
 bgfwrtgo.jam-jahani.com
 bggyafniwiadvaddfa.blog
 bgjgku.consumerclaimshelpline.co.uk
@@ -4786,6 +4801,7 @@ bisaj.run
 bisblj.visionfordsales.com
 bisbomsorvetes.com.br
 bismarckchiropractor.com
+bispoadvocacia.adv.br
 bistrolord.lat
 biswasenterprise.co
 bit-fox.mav2terol.surf
@@ -4850,6 +4866,7 @@ bitly.globaldatanetworksys.lat
 bitly.kira7vex.lat
 bitly.vexo7larn.lat
 bitmorpher.com
+bitplanes.se
 bitsjq.eng--usa-sugarmute.com
 bitsmeshnode.sara5byte.surf
 bitter-salty.digital
@@ -5116,6 +5133,7 @@ bocillanang.com
 bodegaycocina.com.co
 bodhicittatours.com
 bodvlnfv.masaelmohandesi.xyz
+bodyhealthempire.com
 bofcv8ir.bet90boro.com
 bogem10.org
 bogisibh.xyz
@@ -5176,6 +5194,7 @@ boncinelliedoardo.com
 bond4pathgate.deno2link.surf
 bonecaambalabu.com
 bonfwldgaovmxvvza.footstepsdaycare.com
+bonissimo.com.tr
 bonniesfolio.com
 bonuliautoparts.com
 bonuscode.in
@@ -5311,6 +5330,7 @@ bottlerapi.icu
 bottom-less-waiter-natural.courses
 boucheriee.com
 boulderleaf.cc
+bounce2youpartyrentals.com
 bouncycastle55.com
 boundbetter.life
 box.addpunctu2tion.surf
@@ -5355,6 +5375,7 @@ br1d-array.chi8nondanyl.surf
 br7p47p1.morgz.store
 bra.666iapk.net
 brackenfolio.top
+bradleysarabians.com
 bradtkr.com
 bragadeandrade.com.br
 bragpc.com
@@ -5846,6 +5867,7 @@ c2qzm47m.dsm.li
 c2rdcpuv.runtime-sphere.digital
 c2uwzjf8.blackjackonlineplay83.com
 c3353u83.peddler-wasting.digital
+c360mortgage.com
 c3ord92p.ravanshenasiganji.xyz
 c3u3g7dz2yxkefci3x34jfvfa4gka4iogi4zfjkyxx2c536oqdld4kid.onion
 c4cexchange.com
@@ -6333,6 +6355,7 @@ ceragpv.pjnphotography.com
 ceramichebagaglini.com
 ceramicskick.digital
 ceranet.goliath.st
+cerebralsystems.ca
 cerridwen.shop
 certifiedairbalanceinlosangelesca.com
 certifiedmoverslasvegas.com
@@ -6553,6 +6576,7 @@ chrisrico.picklescoop.com
 chrissz.duckdns.org
 christadutoit.co.za
 christen-wilkau-hasslau.de
+christian-louboutinheels.us.com
 christiancordero.mba
 christmasgiftideasforgirlfriends.com
 christorem.com
@@ -6571,6 +6595,7 @@ chuhrhh.theslimsplits.us
 church.springsoflife.org
 churchoflife.io
 chyeselq.betpublic.casino
+chyneskysealcoating.com
 chyoxppm.bet1xindia.com
 chzkvv.panthertowingfl.com
 chzldmh3.parsbet90.com
@@ -6753,6 +6778,7 @@ clientlab.4zorexil.in.net
 clientpilotclosers.com
 clients.enigmasolutions.xyz
 cliffdawn.eight-education.lat
+cliffmelvynltd.com
 cliffsfomoher.mom
 cliffsmouhur.mom
 cliffsomoher.mom
@@ -6988,6 +7014,7 @@ coaba.net
 coachandkitchen.com
 coachgina.com
 coachingwithlenalee.com
+coachshanti.com
 coad-meadow-analytics-center.garden
 coal.albaikmenuonline.com
 coalwork.info
@@ -7092,6 +7119,7 @@ colossiansfamilynetwork.org
 colouconsulting.com
 colourstravel.co.uk
 coltelligiapponesi.com
+columbianph.org
 columna.lol
 columnclient.zori6mav.lat
 com-web.pav3lorex.surf
@@ -7207,6 +7235,7 @@ connect.mcfind.workers.dev
 connectbizapp.com
 connectcapita.com
 connectcapita.com.au
+connecticutvision.com
 connection101.duckdns.org
 connectme.mom
 connectmeinside.com
@@ -7355,6 +7384,7 @@ coreshield.pixelnode.lat
 corestack.netlogicstack.co
 coretoken8476.top
 coreviewer.vercel.app
+corevoyage.biz.id
 corfuescapes2nature.com
 coriolis-effect-trajectory.garden
 coris-asset.com
@@ -7664,6 +7694,7 @@ cucumber-oslo.cc
 cudbweeo.cyou
 cuddlecrochet.site
 cudos.kz
+cuelloduarte.com
 cuerpo-mq00n1em.westrock.surf
 cufgin74.digeststart.us
 cugeuvle.betwanna.com
@@ -7708,6 +7739,7 @@ customslipcoversnyc.com
 custosern.digital
 cut.plus
 cutstudios.life
+cuttershairdressing.com.au
 cuuhrxbg52c5agytmtjpwfu7mrs4xtaitc4mukkiy2kqdxeqbcmuhaid.onion
 cuwsruwd.gtacauto.com
 cuzxamf.airtechmedical.com
@@ -7807,6 +7839,7 @@ cyruh.run
 cyrus.anondns.net
 cysmomswcqwuwwas.xyz
 cyswywukoyyeciuy.xyz
+cytrexcyber.com
 cyvvepo.90pishbini.com
 cywkcgcckgyiaoai.xyz
 cywkkhmc.betlivo90.bet
@@ -7887,6 +7920,7 @@ dailq.com
 daily1nutrition.com
 dailychefhub.com
 dailychefrecipe.com
+dailygrynde.com
 dailyhomreciple.com
 dailymedicareleads.com
 daisiiafsfk.com
@@ -15379,6 +15413,7 @@ jekilhubhaedeihch.sngdtg.cfd
 jekky.wlwyb.com
 jektcp.eng-gutdrops.us
 jellyrollboston.com
+jemowaji.workers.dev
 jempp912.duckdns.org
 jemsysi.com
 jenderalkito.xyz
@@ -21417,6 +21452,7 @@ opulentbeautybarllc.com
 opwiik.reesetransports.com
 opwvak.usa-us-sugarmute.com
 opyo2s3o.akhlagvaahkam.xyz
+oq9ed7lg.exploreargentina.tours
 oqaaoysgmcqecgmi.xyz
 oqakicqmcasciwwe.xyz
 oqasuckykemaikie.xyz
@@ -29611,6 +29647,7 @@ u2fl6mod.stratosphericweatherballoon.digital
 u3.88kfc.org
 u39975ls6hsp8hz.top
 u3hqns4msrc4hei.top
+u40jfumq.bossbeypoint.click
 u47ijv6z070725o7q.cfd
 u4eum9pz.powershart.com
 u4llv3k5.usen-neurosharp.com
@@ -32313,6 +32350,7 @@ www.alessandrofamiani.it
 www.alfapetroluems.com
 www.alfawararural.com
 www.algranati.it
+www.allaportaccanto.it
 www.allevi8.life
 www.allltrucks.com
 www.altacorporacion.com
@@ -32363,6 +32401,7 @@ www.avardrone.com
 www.avoavenue.com
 www.aware.com.ph
 www.axilo.top
+www.ayadinaassociation.org
 www.b-29sn-02vvbpmb0zu3kmq.org
 www.b-itcon.de
 www.b-ui75mia5005x0vinb.cc
@@ -32427,6 +32466,7 @@ www.camporesemarco.it
 www.canaza7epbbtducao-ve0s.cc
 www.cantinacliternia.it
 www.capital8finance.co.uk
+www.carlyraeinteriors.com
 www.carolinabiscaro.net
 www.carrozzeriamax.it
 www.carrozzeriatondi.it
@@ -32466,6 +32506,7 @@ www.clarisamba.it
 www.classicstandupcomedy.com
 www.clawbytes.xyz
 www.clearoriginxf.click
+www.clenbuterol-for-sale.com
 www.cleversources.com
 www.clinicadentalconcept.com.br
 www.clps.space
