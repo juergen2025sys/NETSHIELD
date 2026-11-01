@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-01 20:57 CET
-# Eintraege: 35085
+# Aktualisiert: 2026-11-01 23:25 CET
+# Eintraege: 35095
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -636,6 +636,7 @@
 33hb26ve.usa--flashburn.com
 33liwbcf.parspoker.casino
 33pedia.org
+33winvip.biz
 33xmfjam.cloud-beacon.digital
 34.254.108.136.bc.googleusercontent.com
 3413718a.exploreargentina.tours
@@ -739,6 +740,7 @@
 3o3irtt8p0eztfqlkeso.beer
 3o4ujth3ns.workers.dev
 3o93soz9pvqis.xyz
+3ogame.io
 3ohr8brt.qen2virex.lat
 3ongg3jv.victoryshoescorp.com
 3p1x6btm.1xbet90.bet
@@ -1614,6 +1616,7 @@
 92vm44.qu2ntitative-tenero.pics
 933anmoo.azmoonhayeravani.shop
 943jljae.ydns.shop
+94fbrcapcutpro.se
 94fngygd.yasbet.co
 94gs0ok1.dota.pw
 953k25jr.kcmotorsllc.com
@@ -1641,6 +1644,7 @@
 99ok.tokyo
 99ommf.vertnop.lat
 99websitestudio.com
+99win-vip.online
 99xfcl1y.techvigilante.com
 99ytipqf.mayochem.com
 9a06tby4.estradaannivers.digital
@@ -1867,6 +1871,7 @@ aawzmuz.1xvip.live
 ab41vc541fd04435740.health-carereform.com
 ab950zja.testpaye.xyz
 abandoned-asylum-expedition.garden
+abbyrosephoto.com
 abc-emea.com
 abc-tunnel.com
 abc212.org
@@ -1963,6 +1968,7 @@ accraindiefilmfest.org
 accrenpi813.icu
 accs.msdos.ru
 accurateonlinelogin.top
+acdef.ngo
 ace90bet.cash
 ace90bet1.bet
 acecamps.net
@@ -1989,6 +1995,7 @@ acnuzqcgq.daddybetiran.live
 acomuowuwwisieic.xyz
 acornvista.cc
 acougue100k.life
+acoustair.net
 acqapxu.yumasiancommercecity.com
 acquaexcel.com
 acquireatdesign.com
@@ -2165,6 +2172,7 @@ affimcm.cyou
 affinm.com
 affordablemedicalhealthcare.com
 affordablesidingandgutters.com
+affordalift.com.au
 afinco.net
 afindisc.xyz
 aflamy.top
@@ -16457,6 +16465,7 @@ kokotaru.com
 kolaybet.club
 koloosdas.life
 kolpa.lol
+kolynady.workers.dev
 komfortec.de
 komindekeet.nl
 komkbc.ellenscleaningservice.com
@@ -28909,6 +28918,7 @@ tiumloir.com
 tiv2dcd7.cloud-sphere.digital
 tivex.store
 tiwdt.hazzarat.com
+tiwoxi.workers.dev
 tiwpe.com
 tizant.com
 tiziyditr2xof4y.top
