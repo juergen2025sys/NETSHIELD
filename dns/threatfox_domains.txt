@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-01 20:03 CET
-# Eintraege: 35080
+# Aktualisiert: 2026-11-01 20:57 CET
+# Eintraege: 35085
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1006,6 +1006,7 @@
 58win.builders
 58win.futbol
 58win.gifts
+592ee2j0.forgestudios.co
 59k3ql4x.akhlagvaahkam.xyz
 59na.com
 59qxatd0.gtacauto.com
@@ -2357,6 +2358,7 @@ ajfohrg.designyourlifeinflow.com
 ajhgra.stephanie-bates.com
 ajht2xg0.sensa138var.com
 ajkcsyzc.jadoou.online
+ajkerkagojbd.com
 ajlhkv.redcanoerealestate.com
 ajm1kklw.minescasino.bet
 ajmessu.com
@@ -5789,6 +5791,7 @@ c-rose.com
 c.360ctct.com
 c.9winn.org
 c.adilawa99.org
+c.afterbet88.org
 c.amo98.org
 c.aot88.com
 c.aww88.net
@@ -34500,6 +34503,7 @@ z.a9bet.org
 z.abc22.org
 z.amo98.org
 z.aww88.net
+z.bok13.org
 z01zh1hu.truenarrator.com
 z02aheni.thevallartasrestaurants.com
 z03gwmgs.bossbaba.store
@@ -34781,6 +34785,7 @@ zigeoavk.jadoou.click
 zigfree.eastus.cloudapp.azure.com
 zijas.5toravex.lat
 zijgmuqjzb6dc7pofxhtaiz36qqyg35lhutybmzaz6whzgei2casjgid.onion
+zikezu.workers.dev
 ziono.xyz
 zip.fastbitbox.pics
 zip.fastrunbase.pics
