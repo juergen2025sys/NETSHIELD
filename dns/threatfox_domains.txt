@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-01 19:30 CET
-# Eintraege: 35069
+# Aktualisiert: 2026-11-01 20:03 CET
+# Eintraege: 35080
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -219,6 +219,7 @@
 169.174.116.136.bc.googleusercontent.com
 16dewaslot.org
 16mp59qr.usen-neurovera.com
+16store.ru
 16t38k5v.rtp-k86sportop.site
 16tv.hu
 17.aa.4t.com
@@ -301,6 +302,7 @@
 1llume-sync.fixionmunici9al.lat
 1lpwxzik.lunza.store
 1m4wielp.1xbtt.com
+1marsh.com
 1mataw10.moltem.store
 1ml4kzh4.subfossiloakchronology.digital
 1moko8um.encompass-graphics.co.uk
@@ -6530,6 +6532,7 @@ chor-baddeckenstedt.de
 chordapple.com
 chrgasa.org
 chrisbrowndetroit.com
+chrisconewlife.org
 chrisharvey.me.uk
 chrislandmodel.com
 chrisparrycollection.com
@@ -11698,6 +11701,7 @@ fuckyou.femboys.dating
 fud0tirx.hazzaratbet.com
 fudikar.de
 fudupdate.com
+fuja2ejs.bossbeyplus.click
 fujizego.workers.dev
 fujxga.fluss.hu
 fuku8823.com
@@ -15020,6 +15024,7 @@ itiedizioni.com
 itieyi.com
 itimac.org
 itjhp26086.workers.dev
+itlu.xyz
 itnhye.jawahirjewels.co.uk
 itpysxfajhrtpnfwacr.herbscutsandolives.com
 itqzwqj.rikashart.com
@@ -17507,6 +17512,7 @@ local24news-portal.pro
 localhost.exchange
 localhost4000.fun
 localio.agency
+localpartners-immobilier.com
 location-dkfl.fr
 locationsolvers.com
 lock.rowlocks.pics
@@ -18072,6 +18078,7 @@ mafchik.lobby-join.cc
 mafco-eg.com
 magaji.duckdns.org
 magaukykcswsyamm.xyz
+magazine.tacoshop.it
 magazinecoolarchiveshop.live
 magellanfit.com
 magga.mw
@@ -25985,6 +25992,7 @@ setechnowork.com
 setfupstore.icu
 seti.pl
 setlist-blog.com
+settimadiminuita.it
 settra5ldqwgtw5q7z5awbsvlksakyfojuc5slgrz5lvapune4fantqd.onion
 setup.explore-store.xyz
 setup.infrastructurerun.pics
@@ -31258,6 +31266,7 @@ vuhmb.technologiaiviz.hu
 vuhtxv7n.cartbahis.com
 vukvhota.mellbeet.com
 vumobeb.bakhtazmaeii.com
+vumusako.workers.dev
 vunex.dev
 vupqz.balintpiroska.hu
 vuq72f2a.truenarrator.com
@@ -31682,6 +31691,7 @@ wfv.floatpried.icu
 wfvof3o.boxemoj.surf
 wfwwdsvv.irantop.bet
 wg1wa8.xamir9el.lat
+wgames.unaux.com
 wgauqygysmuwkwmk.xyz
 wgcqiqqugqqckyka.xyz
 wgdwmi.carouselauto.com
@@ -32847,6 +32857,7 @@ www.ljot1cem6jhzfu53yb9aj3h.app
 www.lkvfd.com
 www.llgn.org
 www.llvdtejnjgcz99wlv4z68es1.com
+www.location-box-dordogne.com
 www.loopmm.com
 www.loqinmicofstloine.icu
 www.lorenabrancucci.com
