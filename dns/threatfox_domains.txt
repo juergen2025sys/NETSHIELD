@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-01 14:39 CET
-# Eintraege: 35002
+# Aktualisiert: 2026-11-01 16:27 CET
+# Eintraege: 35054
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -818,6 +818,7 @@
 45cbh9h6.liketudong.biz
 45uwt.sarahkapsreit.work
 45vpt6bf8rlh.hellodcuser.com
+45x6vzup.bossbeyplace.click
 45z48gf6.get-aquaburn.us
 465p7p53.usen-synadentix.com
 46fe21f9.eveningneighbor.com
@@ -2944,6 +2945,7 @@ aparterciyes.com
 apartmany-prenajom-pocuvadlo.sk
 apartmentsmelbournedomain.com.au
 apartsearcher.com
+apcegroup.com
 apcon.pk
 apdhlhs3.xyz
 apeduze.com
@@ -3510,6 +3512,7 @@ aspnetcenter.com
 asqmvmastt.com
 asreadersales.com
 ass-ecuadorian.digital
+asserwis.com.pl
 asset-images-konoha.us
 asset-trades.com
 assetiva.net
@@ -4469,6 +4472,7 @@ beraumen.com
 bereksolution.com.br
 bergiemedia.com
 beritaslotonline.com
+beritaupdate360.com
 berjimek.com
 berkahpoker.co
 berkeltraininginstitute.com
@@ -5255,6 +5259,7 @@ bossbeycity.click
 bossbeycrown.click
 bossprotect.com
 bosstekirdag.store
+bostaxservice.com
 bostokohoki78.live
 bosvip70wow.cyou
 bosvip77wiw.cyou
@@ -5296,6 +5301,7 @@ box.coldwindy.lat
 box.fastbitbox.pics
 box.mailban.pics
 boxingready.com
+boxingreviewer.com
 boymoder.ddns.net
 bozopalponyva.hu
 bozzonegiulia.it
@@ -5865,6 +5871,7 @@ cabinrentalsnc.com
 cabskaiyn-crane.life
 cabv.bet24.casino
 cacbvgql.jadoou.skin
+cacedaly.workers.dev
 cache-orbit.christmas
 cache-processing-node.com
 cache.coastpilot.lol
@@ -6040,6 +6047,7 @@ carportscapetown.co.za
 carreiro.lol
 carrenzaalwarex.ddns.net
 carrie-branch.7doreval.lat
+carritosnutri.in
 carrosseriegabriel.fr
 carrozzeriamax.it
 carrozzeriatondi.it
@@ -6561,6 +6569,7 @@ cienciaciudadana.ceaza.cl
 ciganshina.org
 cilygv.missionlanereview.com
 cimafina.com
+cimes.pt
 cinchcoalition.org
 cincycarpetcleaning.com
 cinderlake.cc
@@ -7265,6 +7274,7 @@ cookieholder.com
 cookischase.us
 cool-horizon.com
 cool8siteview.stigmaflowlink.garden
+coolcatspygadgets.com
 coolcity.earth
 cooldogshistory.com
 coolmeshbit.petalune.garden
@@ -9442,6 +9452,7 @@ eddieswindowtintca.com
 eddysdinerfrommalden.com
 edebiyatkonulari.com
 edegarpretto.com.br
+edel-systems.com
 edenbar.com.br
 edeooigg.com
 edeval.dz
@@ -11692,6 +11703,7 @@ full9siteview.sara5byte.surf
 fullcrypters.net
 fuller-eg.com
 fullhouse-advertising.com
+fullservicedirect.com
 fuluz.akonyvelod.hu
 fumigacioneseuskadi.es
 fun-family-adventures-from-buffalo.com
@@ -12496,6 +12508,7 @@ glfree.hu
 glgoowufmn.duckdns.org
 glheoet37vdimgho57tqj76v7fnebnbqxn65bounxyt6hduilkso4yyd.onion
 gli.cantdown.su
+glicianneconde.com
 glicomute.com
 glimemragent.com
 glitsychic.com
@@ -13215,6 +13228,7 @@ hablaportafolio.com
 hackattackkaboom.botlesscucks.st
 hacker.two-i.com
 hadasamoreno.com
+hadassabeautysupply.com.sv
 haddjskak827sja.com
 hadiordan.lol
 hadtmqe.greaternewzionbc.org
@@ -13569,6 +13583,7 @@ hibwmmbn.shartbandi.games
 hidajii.ir
 hidatt.cyou
 hiddenalpha.so1verin.bet
+hiddentreasurelodge.co.ke
 hideaway.coop
 hidoslsk.shop
 hidraulicajac.es
@@ -13760,6 +13775,7 @@ homeinspectoralaska.com
 homeliri.it
 homemademaster.com
 homerenovationsaustin.com
+hometechservice.in
 homethrives.com
 hominisbarbershop.com.br
 homlokzat-gipszkarton.hu
@@ -14638,6 +14654,7 @@ innovativesystem.in
 inoxcontract.com
 inqazplus.com
 inqix.com
+inrate.mx
 inrs.kernelbridge.top
 insightinnovation.info
 insightmemo.expo5ejouer.lat
@@ -15245,6 +15262,7 @@ janatcosmetics.com
 jandoz.com
 jangorski01.prv.pl
 janicevavra.com
+jantakamood.com
 janua-0g45g3u.westcalm.surf
 janyawedding.com
 japanaction059.duckdns.org
@@ -16392,6 +16410,7 @@ ko.5-rt.org
 koa1sb08.forgestudios.co
 koaaiygaakekayye.xyz
 koalafield.cc
+koaruhaz.hu
 koasoikiwyskwggq.xyz
 kobiecaprzestrzen.pl
 kocaskysguiuuwmu.xyz
@@ -17295,6 +17314,7 @@ linkmob.org
 linuxfortravelers.com
 linuxkerneldbs.com
 liopcwza.work
+liphatgroup.com
 lipinaroopeshmakeupstudio.com
 lipo--vive.com
 lipoavive.com
@@ -18493,6 +18513,7 @@ medialek.cyou
 mediamarkt.mom
 mediasales.az
 mediatorsecurity.com
+mediazionefamiliarepn.com
 medicalmexcr.com
 medicalschoolcompanion.org
 medicalweedsa.com
@@ -18560,6 +18581,7 @@ melbetturkiye.org
 melbournescooters.com.au
 melemoeuhane.com
 melhores-casinos-pt-2026.com
+melhormaodeobra.com.br
 mellow-flicker-comet-pluio.pro
 melney.fr
 melo.rs
@@ -18575,6 +18597,7 @@ memenopoly.finance
 memor-prim.inconprofitab1e.surf
 memory-shield.vg
 memory-tone.nanovo5kull.pics
+memphismandysue.com
 memshowblob.forum
 menang120.space
 menangmulu.jp.net
@@ -18751,6 +18774,7 @@ mfvea.bognartransport.hu
 mfwhezll.gift-lattice.christmas
 mg0bl3r5.zaribbala.bet
 mgbkbp4b.enus-tupitea.com
+mgc.briandebeersalessolutions.com
 mgckoksqiiaoagaa.xyz
 mgcuqyseqgcqgmie.xyz
 mgeccekqwukweiyo.xyz
@@ -19039,6 +19063,7 @@ mmayigkciiaikqgm.xyz
 mmb.adv.br
 mmbtours.com
 mmcewwqaygmmgwwm.xyz
+mmecotimoteo.com.br
 mmeeggewqeuaaguk.xyz
 mmeqcsyakwwyoeqm.xyz
 mmgamingpal.com
@@ -19344,6 +19369,7 @@ moon.darknightstar.lat
 moonbeamfiber.digital
 moonglide.monster
 moonglobaliteemecool.mom
+moonlightweddingservices.co.uk
 moonshadowforge.top
 moonshts-vote.pro
 moonskyo.run
@@ -20076,6 +20102,7 @@ neurocenter-peru.com
 neurocivi.sorix3en.lat
 neurod.nl
 neuromedicinecompany.com
+neuroscopegroup.com
 neuroxan.us
 neuroxene.com
 nevadacashoffer.com
@@ -20111,6 +20138,7 @@ newpremierproducts.com
 newproject-newworld.info
 newremupdate.duckdns.org
 news.pieset.co
+news.pppsb.org.pk
 news33.ma
 news365crypto-portal.info
 newsbhadas4india.com
@@ -21394,6 +21422,7 @@ or3k-51808.portmap.host
 oracleup.cc
 oralsurgeontintonfalls.com
 orangefarmersmarket.org
+orangemoon.it
 orangexhello.com
 orantow.com
 orataxi.com
@@ -22206,6 +22235,7 @@ phijdnv.sm188login.cyou
 philadelphiajewelrystore.com
 philippemartin-gers.net
 phillipit.com
+philocalist.site
 phishing.adminxoilac1.site
 phishing.chatboxvs.com
 phishing.classofcovid.org
@@ -22516,6 +22546,7 @@ playunleash.com
 plbajth.tracytowingcompany.com
 ple21.poznan.pl
 pleasantacrefarms.com
+pleasureselfescapes.com
 pledgeschools.com.ng
 plenapack.com.br
 plencos.com
@@ -22666,6 +22697,7 @@ popeak.biz
 popelkar.pro
 popicert.co.za
 popkas.bond
+popkenya.com
 poplarmemoir.top
 poprawnerodzicielstwo.pl
 popshues.top
@@ -23385,6 +23417,7 @@ q2xcpigj.betweentwospaces.com
 q3.aeon888link.org
 q383qak6.en-slimsounds.com
 q3g84ost.22beet.pro
+q3mart.in
 q3rir44c.eng--slimsounds.com
 q41liphc.packet-vector.digital
 q43myq5p.parsbet90.com
@@ -24408,6 +24441,7 @@ remember-autoparts.com
 remember.ncsgo.workers.dev
 rememberer.digital
 remenacevintage.com
+remimeen.nl
 remiumholdings.com
 remixform.com
 remnantbooks.org
@@ -24770,6 +24804,7 @@ road.swedencentral.cloudapp.azure.com
 roadpatchindustries.com
 roadsteriio981.icu
 roatanandersontours.com
+robandlauren.ca
 robbylinkpi.icu
 robbywoj321.life
 robertjonesrealty.com
@@ -25360,6 +25395,7 @@ saarni-music.de
 saas-stash.beer
 saas-systems.hu
 saascription.app
+saathmahila.org
 saayc.co.za
 sabaad724.bet
 sabad724.bio
@@ -25520,6 +25556,7 @@ santaritacoop.it
 santarosa3dprinting.com
 sante-verte.ch
 santiago-cl.com
+santopecadocafe.co
 santuariolourdesmessina.it
 santyn.com.br
 sanugems.store
@@ -26628,6 +26665,7 @@ smoking-hot-cigars.com
 smokingstationhub.com
 smoothbioticsgummies.com
 smoothoutlawcoffee.com
+smpn58jakarta.sch.id
 smqemscyoimqmmuc.xyz
 smqqrbvjf7kfcikigbq5hxzq5y6n2as7oy4bmb6dsrb4keyn3korxcid.onion
 smsslot.co
@@ -26798,6 +26836,7 @@ solution004.duckdns.org
 solutionscc.com.au
 soluzionienologiche.it
 solvaleis.lami4qor.surf
+solvbeta.com
 solven9ix.sorix7el.lat
 solvueo.shop
 som.cl
@@ -27753,6 +27792,7 @@ supremegods.website
 supremelabbd.com
 supremepaintingandrestoration.com
 suprind.com.br
+suqyhu.workers.dev
 surestayplussanantoniotx.com
 surexglobaldelivery.icu
 surf.oceanwavepoint.lat
@@ -28114,6 +28154,7 @@ t92hw5pi.nazariyeyadgiri.xyz
 taaeiuep.com
 taalswap.finance
 taartendoordetijd.nl
+taatconsulting.com
 tab.rowlocks.pics
 tabbyottercub.com
 tablebable2231.world
@@ -29381,6 +29422,7 @@ ttvgjb.usa-tupitea.us
 ttvsj7o9.jdexteriorcleaning.com
 ttxch.run
 tualiadomunicipal.com
+tuaulaalamedida.com
 tubahandicraft.in
 tubauto.it
 tubidy.my
@@ -29772,6 +29814,7 @@ ujlo7o5o.readthisintro.xyz
 ujniklzz.radioshartbandi.bet
 ujpt1kmh.remote-flow.work
 ujpwid.dorottyanadorfi.com
+ujte21pc.bossbeyking.click
 ujungkulontravel.com
 ujxjvdku.catsandcarp.com
 uk-airport-car-parking.co.uk
@@ -30582,6 +30625,7 @@ vespark.com
 vesta-trade.de
 vestaprotrade.com
 vestbio.com
+vestmais.com.br
 vet-zone.net
 veterinaria.byethost12.com
 vetso.com.br
@@ -30811,6 +30855,7 @@ vitamindpi55.digital
 vitaqnutrition.com
 vitoplast.sk
 vitoppe.com
+vitormaquinas.com.br
 vitpc.miri7qen.lat
 vitrinekast-expert.nl
 vittoriamaurophotography.com
@@ -32276,6 +32321,7 @@ www.atgairport.com
 www.athenianblueyachting.com
 www.author-author.net
 www.autoccb.tech
+www.avardrone.com
 www.avoavenue.com
 www.aware.com.ph
 www.axilo.top
@@ -32460,6 +32506,7 @@ www.di-da.it
 www.diasparbooks.com
 www.diatropebooks.com
 www.dietzel.info
+www.diewachic.com
 www.digitalpro.it
 www.dijazz.it
 www.direkt-vom-erzeuger.info
@@ -32730,6 +32777,7 @@ www.kitabu.hu
 www.kitchensecretbook.com
 www.kmdhalen.be
 www.knrd2up67onim5epfcxgvx.net
+www.koaruhaz.hu
 www.kopecky.family
 www.kotzian-spanndecken.de
 www.kp2-3ur6pe4r8i2hj5.com
@@ -32773,6 +32821,7 @@ www.lhmv.de
 www.libericantores.it
 www.liderventas.com
 www.lifemarpiccolo.it
+www.liftingbarriers.org
 www.lilianlogistic.it
 www.lillyandlark.com
 www.linkkedin.life
@@ -32854,6 +32903,7 @@ www.mollansbasement.se
 www.monartisanbouras.fr
 www.montanadental.co.za
 www.moonbird.life
+www.moonlightweddingservices.co.uk
 www.moovynow.it
 www.morganaorvokki.com
 www.mosconiaf.it
@@ -32930,6 +32980,7 @@ www.onestepstar.com
 www.online-ernaehrungsberatung.com
 www.onlinecarpet.com.au
 www.onlinecasinodeck.com
+www.orangemoon.it
 www.organicsplususa.com
 www.organicsurgical.com
 www.orientspareb8tter.com
@@ -33047,6 +33098,7 @@ www.riparazionitv.it
 www.ristoranteisolina.it
 www.rizzieng.it
 www.rmsmarineservice.com.qwqqwq.ggff.net
+www.robandlauren.ca
 www.robertsbookshop.com
 www.robinamedicalcentre.com.au
 www.rochaemucholowski.adv.br
