@@ -1,23 +1,16 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-01 15:16 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-01 19:25 CET (Europe/Berlin)
 
-**Workflows:** 33 | ✅ 30 OK | ⚠️ 3 Warnung | ❌ 1 Fehler
+**Workflows:** 33 | ✅ 30 OK | ⚠️ 4 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `01dba656617f14df4fa6aa99c3b82d2461cc8983`
+✅ Commit: `684a8535da4ffc635711d8e94eebd596ee4f8bf7`
 
 490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
-
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 84.17.59.115, 103.10.125.40, 103.28.54.189, 155.133.226.68, 155.133.226.87… – Filterung wirkungslos! |
-| `Production Health` | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 84.17.59.115, 155.133.226.87, 162.254.196.66 – Filterung wirkungslos! |
 
 ## ⚠️ Warnungen
 
@@ -28,18 +21,14 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `dns_blocklist_finder.yml` | Node24 env fehlt | FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt – Node.js Kompatibilitaetsproblem moeglich |
 | `netshield_report_generator.yml` | Doppelter Import | Block 0: Doppelte Imports: ((2x) – moeglicherweise Copy-Paste-Artefakt |
 | `Production Health` | Feed-Ausfälle | 2 von 98 Feeds ausgefallen: greensnow, urlhaus_ips |
-| `Production Health` | active ⊆ conf40 Subset-Invariante (Mini-Drift) | 3 IPs in active fehlen in conf40 (unterhalb CRITICAL-Schwelle). Wahrscheinlich kleiner Cache-Drift im Toleranz-bereich oder Score-Bucket-Wechsel am Tageswechsel. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 2 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 84.17.59.115, 103.10.125.40, 103.28.54.189, 155.133.226.68, 155.133.226.87… – Filterung wirkungslos! |
-| 🔴 CRITICAL | Whitelist-Leak: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt enthält whitelisted IPs: 84.17.59.115, 155.133.226.87, 162.254.196.66 – Filterung wirkungslos! |
 | 🟡 WARN | Feed-Ausfälle | 2 von 98 Feeds ausgefallen: greensnow, urlhaus_ips |
-| 🟡 WARN | active ⊆ conf40 Subset-Invariante (Mini-Drift) | 3 IPs in active fehlen in conf40 (unterhalb CRITICAL-Schwelle). Wahrscheinlich kleiner Cache-Drift im Toleranz-bereich oder Score-Bucket-Wechsel am Tageswechsel. |
 
 ## Übersicht
 
@@ -80,4 +69,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-01 15:16 CET (Europe/Berlin) | 33 Workflow-Dateien geprüft*
+*Generiert: 2026-11-01 19:25 CET (Europe/Berlin) | 33 Workflow-Dateien geprüft*

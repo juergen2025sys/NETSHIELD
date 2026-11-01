@@ -1,21 +1,10 @@
 {
-  "updated": "2026-11-01 15:16 CET (Europe/Berlin)",
+  "updated": "2026-11-01 19:25 CET (Europe/Berlin)",
   "total": 33,
   "ok": 30,
-  "warn": 3,
-  "error": 1,
-  "errors": [
-    {
-      "file": "Production Health",
-      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
-      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 84.17.59.115, 103.10.125.40, 103.28.54.189, 155.133.226.68, 155.133.226.87\u2026 \u2013 Filterung wirkungslos!"
-    },
-    {
-      "file": "Production Health",
-      "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
-      "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 84.17.59.115, 155.133.226.87, 162.254.196.66 \u2013 Filterung wirkungslos!"
-    }
-  ],
+  "warn": 4,
+  "error": 0,
+  "errors": [],
   "warnings": [
     {
       "file": "auto_feed_discovery.yml",
@@ -41,16 +30,11 @@
       "file": "Production Health",
       "check": "Feed-Ausf\u00e4lle",
       "detail": "2 von 98 Feeds ausgefallen: greensnow, urlhaus_ips"
-    },
-    {
-      "file": "Production Health",
-      "check": "active \u2286 conf40 Subset-Invariante (Mini-Drift)",
-      "detail": "3 IPs in active fehlen in conf40 (unterhalb CRITICAL-Schwelle). Wahrscheinlich kleiner Cache-Drift im Toleranz-bereich oder Score-Bucket-Wechsel am Tageswechsel."
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "01dba656617f14df4fa6aa99c3b82d2461cc8983",
+    "sha": "684a8535da4ffc635711d8e94eebd596ee4f8bf7",
     "status": "passed",
     "tests_run": 490,
     "failures": [],
@@ -62,36 +46,21 @@
     "detail": "490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5752420,
-    "active_blacklist_ipv4.txt": 778839,
-    "blacklist_confidence40_ipv4_part1.txt": 3994054,
-    "cve_exploit_ips.txt": 27581,
-    "honeypot_ips.txt": 2192285,
-    "bot_detector_blacklist_ipv4.txt": 1175066
+    "combined_threat_blacklist_ipv4_part1.txt": 5754570,
+    "active_blacklist_ipv4.txt": 783052,
+    "blacklist_confidence40_ipv4_part1.txt": 3996055,
+    "cve_exploit_ips.txt": 27617,
+    "honeypot_ips.txt": 2182800,
+    "bot_detector_blacklist_ipv4.txt": 1174927
   },
   "production_health": {
-    "critical": 2,
-    "warn": 2,
+    "critical": 0,
+    "warn": 1,
     "checks": [
       {
         "level": "WARN",
         "check": "Feed-Ausf\u00e4lle",
         "detail": "2 von 98 Feeds ausgefallen: greensnow, urlhaus_ips"
-      },
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
-        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 84.17.59.115, 103.10.125.40, 103.28.54.189, 155.133.226.68, 155.133.226.87\u2026 \u2013 Filterung wirkungslos!"
-      },
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: active_blacklist_ipv4.txt",
-        "detail": "active_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 84.17.59.115, 155.133.226.87, 162.254.196.66 \u2013 Filterung wirkungslos!"
-      },
-      {
-        "level": "WARN",
-        "check": "active \u2286 conf40 Subset-Invariante (Mini-Drift)",
-        "detail": "3 IPs in active fehlen in conf40 (unterhalb CRITICAL-Schwelle). Wahrscheinlich kleiner Cache-Drift im Toleranz-bereich oder Score-Bucket-Wechsel am Tageswechsel."
       }
     ]
   },
