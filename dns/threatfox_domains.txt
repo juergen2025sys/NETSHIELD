@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-01 16:27 CET
-# Eintraege: 35054
+# Aktualisiert: 2026-11-01 16:57 CET
+# Eintraege: 35059
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -634,6 +634,7 @@
 33liwbcf.parspoker.casino
 33pedia.org
 33xmfjam.cloud-beacon.digital
+34.254.108.136.bc.googleusercontent.com
 3413718a.exploreargentina.tours
 34234342342rerr.beer
 347hoy7r.signal-frontier.digital
@@ -3380,6 +3381,7 @@ artechstructures.com
 artemusicacademy.com
 artes911sh.com
 artesholograficas.com
+artetavola.ch
 artgramasintetica.com.br
 arthamarasejahtera.com
 arthas89sh.com
@@ -10597,6 +10599,7 @@ f1git16x.eng--neurowave.us
 f1mrikc1.us-theslimsplitsmethod.com
 f1ny7ogq.sweethannahs.com
 f1shh.at
+f2.afterbet88.org
 f27u92nr.ravanshenasi.xyz
 f29i.toorout.lat
 f2vxl7ys.thehairnetshop.com
@@ -15124,6 +15127,7 @@ izyob7rickets.digital
 j.88mdc.org
 j.9kio.org
 j.abc22.org
+j.bok13.org
 j0.bala7.org
 j01nn5zm.istanbul303.com
 j0g2ia0g.bet1yek.bet
@@ -17266,6 +17270,7 @@ linanil.com
 lindenplumb.top
 lindgk.biz
 lindpro.az
+linefalu.workers.dev
 linen-harbor.com
 linenquill.com
 linenwood.cc
