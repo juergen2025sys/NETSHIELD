@@ -1,0 +1,15 @@
+version: 2
+
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+    # Wartezeit fuer Versionsupdates; alle Action-Updates werden manuell geprueft.
+    cooldown:
+      default-days: 2
+    groups:
+      github-actions:
+        patterns:
+          - "*"
