@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-02 20:10 CET
-# Eintraege: 33663
+# Aktualisiert: 2026-11-02 21:25 CET
+# Eintraege: 33701
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1833,6 +1833,7 @@ abcbram.live
 abcfoods.mu
 abcplavani.cz
 abcsgftr.cc
+abdelkarim.boskri.com
 abell.store
 aberdeen-angus.lt
 abernaahy.sbs
@@ -2001,6 +2002,7 @@ adelaidetriathlonclub.com.au
 adeline-voyance.fr
 adelkdantas.com.br
 adenpanel.xyz
+aderent.ro
 adewbrfg.bet90forward.win
 adeyqa.net
 adfashionworld.com
@@ -2112,6 +2114,7 @@ affectionaba.com
 affiliadds.com
 affimcm.cyou
 affinm.com
+affordablefamilyhealthplans.com
 affordablesidingandgutters.com
 affordalift.com.au
 afinco.net
@@ -2121,6 +2124,7 @@ afluix.com
 afnsw.wlwyb.com
 afpheqe.ledridingco.com
 africadasi.org
+africagrowsgreenawards.com
 africanalphacc.com
 africanamericanliteracy.com
 africandunes.com
@@ -2234,6 +2238,7 @@ aigleconsult.com
 aigmwmiksuwmoama.xyz
 aigouing.com
 aigyuukouqaiuwms.xyz
+aihrconsultancy.io
 aihvh6j6fbkfjyc6jqbsh2ed4s3rym2v2pu6kd3z3exdso2xc2qwcuqd.onion
 aiibif.com
 aiiwsqemgcoagoem.xyz
@@ -2431,6 +2436,7 @@ alisharousselle.com
 alisteelhousee.ddns.net
 aliyun.commandandcontrol.top
 alizargham.com
+aljedaralrasy.com
 alkaleejia.com
 alkaleejia.wiki
 alkausarpharma.com
@@ -2473,6 +2479,7 @@ allreliancepest.com
 allremdeskriki.com
 allsdone.com
 allseasonswindowsiding.com
+allsnakeplant.site
 alluringsites.com
 allwebz-2.site
 almacenoporto.com.co
@@ -2489,6 +2496,7 @@ alohapages.pp.ua
 alojun.com
 alopecinhaircare.ro
 alpatarianugrahmandiri.com
+alpha-armouring.cyou
 alpha.goldenleafway.lat
 alpha.longwave5hot.surf
 alpha.ratbasic.lat
@@ -2506,6 +2514,7 @@ alphavillepb.com.br
 alphawhi-a6rof.nordfreak.surf
 alpinorexa.org
 alpme.com
+alqatarat.com
 alquilovan.cat
 alqurantravels.com
 alragaa.com
@@ -2593,8 +2602,10 @@ americaneaglependant.net
 americaneaglependant.us
 americanjackets.us
 americanskydive.com
+americasierra.com.mx
 americcorp.net
 americoq.cyou
+amfibirafting.com
 amg-elf.com.mk
 amhal-sono.ma
 amici.addmagad.com
@@ -2684,6 +2695,7 @@ angel-kaluga.ru
 angelpatter.wiki
 angels-of-god.com
 angelsmobilebar.com
+angiesangels.love
 angkasabetb.online
 angle7.noip.at
 angry-toaster.com
@@ -2764,6 +2776,7 @@ aoaqamyyeyaiysee.xyz
 aobgz.1zarelin.lat
 aociemqseuocooaw.xyz
 aoclbl1a7jy7swo9b0kk.beer
+aodearborn.com
 aodz.oza.bet
 aoeoelfz.hugugbime.xyz
 aoeonafh.rapfarsino.ir
@@ -3111,6 +3124,7 @@ aqua--burn.us
 aqua-brn.com
 aqua.clogg-opposition.surf
 aquaburnweb.us
+aquamarine-consulting.fr
 aquaramasportswear.it
 aquasystemshaiti.com
 aquaticpoolsandspas.com
@@ -3225,6 +3239,7 @@ arraydar.lomov-stroganal.lat
 arrowwoodmemoir.org
 arrtofphotography.com
 arrtom.followyourjoy.hu
+arshgrp.com
 arsolution1.com
 arsplaywin.space
 art-archepelago.com
@@ -3429,7 +3444,9 @@ athbo.technologiaiviz.hu
 athedsl-140723.home.otenet.gr
 athenianblueyachting.com
 athleticedgefitness.com.au
+ati-college.com
 atiagwcvltealv.com
+atiapplynow.com
 atibr.gamehazarat.bet
 atiendoservicios.es
 atinder.space
@@ -3617,6 +3634,7 @@ autoflotte-vergabe.de
 autoliga-kyiv.com
 automated-sprout-labs.garden
 automateed.site
+automationgears.com
 automociones-sanz.com
 autopartesdonjulian.com
 autopartesjavier.com.mx
@@ -3668,6 +3686,7 @@ avhbto.yasbet90.com
 avhepv.aapartman.hu
 avhussamalshaar.com
 avianrescuecorp.com
+aviator.page
 aviatortrip.com
 avilaheinz.com.br
 avisee.com
@@ -3797,6 +3816,7 @@ b2b3w9yq.onja1bet.com
 b2eqaaqn.bordoo.bet
 b2h67sy5.kaarenorge.com
 b2lriu362160425cy.cfd
+b2service.com.br
 b33gup3p.betbet.city
 b3cxsyd3.slavyera.com
 b3gl3j28.logic-pulse.digital
@@ -3965,6 +3985,7 @@ bankruptcyrhodeisland.com
 bannerware.net
 bantamoro.icu
 baobabstoa.tech
+baosglobal.com
 baovietnam.me
 bapak178.org
 bapeshop.us
@@ -3994,6 +4015,7 @@ bartach.xyz
 barthvertex.com
 bartiba.com
 bartinyatirim.com
+bartonair.ca
 bartzbau.net
 barviola.it
 basalt9logic.thorniva.garden
@@ -4379,6 +4401,7 @@ bewiseimmunize.com
 bewsertinekk.info
 bewusst-geniessen.com
 bewusste-schwangerschaft.com
+bexarfencepainting.com
 beydoors.com
 beyondhomehealthcareservices.com
 beyondtheboxww.com
@@ -4394,6 +4417,7 @@ bfdn.betturkey.bet
 bffx.io
 bffzq.vikstore.hu
 bfhxci6n.dancebet.net
+bfin.technology
 bfksnnrp.prozhecart.com
 bfpi.site-shartbandi-bedun-filter.com
 bfpu.rayeganmarket.com
@@ -4546,11 +4570,13 @@ birchletting.com
 birds-eye-view.de
 birdybird.rest
 birladharamshaala.org
+birzeit.edu.pl
 bisaj.run
 bisblj.visionfordsales.com
 bismarckchiropractor.com
 bispoadvocacia.adv.br
 bistrolord.lat
+bistrotulipanes.com
 biswasenterprise.co
 bit-fox.mav2terol.surf
 bit-fox.mav7loren.surf
@@ -4627,6 +4653,7 @@ bizuter.au
 bizuter.com
 bizuterdigital.com.au
 bizzypiu45.life
+bj88.cash
 bj888.email
 bj88indo.net
 bj88jpn.com
@@ -4772,6 +4799,7 @@ blue.logicreef.surf
 blue.magicflowpoint.lat
 blue.rapidreef.surf
 blue.tari8lax.lat
+blueangelfarm.com
 blueberryflowes.com
 blueberryxcloud.com
 blueberryxo.com
@@ -5228,6 +5256,7 @@ brusnika.kiev.ua
 brutb.wolfmarketing.hu
 brvtfsq.designyourlifeinflow.com
 bryan.dvrcam.info
+bryanuniversityonline.com
 bryk.telegrarn.fun
 bryonsad.net
 brzygpu.glennscarcare.com
@@ -5238,6 +5267,7 @@ bs.146slot.org
 bs.334v.org
 bs3qkgdh.pav8lorex.lat
 bsbflatknitwear.com
+bscatering.com.br
 bsdsvltx.libertytokan.com
 bsfadhle.marketsport.ir
 bsglobaltransport.it
@@ -5653,6 +5683,7 @@ campaigntracker.run
 campaigntracker.top
 campioni-imam.com
 camporesemarco.it
+camposderoca.com
 camtakeit.ddns.net
 can0py-dock.luna2veth.bet
 canaisonline.lat
@@ -6968,6 +6999,7 @@ coreviewer.vercel.app
 corevoyage.biz.id
 coriolis-effect-trajectory.garden
 coris-asset.com
+corisarl.com
 cornptia.org
 coronapd.org
 corpo-riqk7ruo.westcalm.surf
@@ -10885,6 +10917,7 @@ fourseasonsgarden.hu
 fourseasonsmansion.com
 fourseasonstur.com
 fourstarcampground.com
+fowetytu.workers.dev
 fowovahe.workers.dev
 fox-glow.nanovo5kull.pics
 foxdale.cc
@@ -18931,7 +18964,9 @@ n.88mdc.org
 n.9winn.org
 n.abc22.org
 n.acunbet89.org
+n.akuatoto.net
 n.bamto.org
+n.bola7.net
 n058152033245.netvigator.com
 n0de-stream.grov9mira.lat
 n0df7.kernelgrid.ink
@@ -23145,6 +23180,8 @@ rapports.joset-telematique.ch
 rapunzel.gr
 raqmk.mururhesabdari.xyz
 raqpndp.1shartbet1.com
+raquelasensi.com
+raquellecorazza.com
 raquelmartinsart.com
 rar.sculpture5traight.surf
 raranoodles.com
@@ -29124,6 +29161,7 @@ v8xihekm.ramzfile.com
 v9157o6o.bossbeybrk.store
 v91rw911.betraca.bet
 v9rvls59.stack-matrix.digital
+v9zv58t0.slavyera.com
 va9ucaqk.bossbey13.click
 vacationrentalvirginia.com
 vacchianofoods.com
