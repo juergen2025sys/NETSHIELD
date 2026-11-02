@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-01 23:59 CET
-# Eintraege: 35136
+# Aktualisiert: 2026-11-02 01:01 CET
+# Eintraege: 35184
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -8169,6 +8169,7 @@ dcservices.com.co
 dcworman.duckdns.org
 dcyfiemg.betzopoda.com
 dd.googleos-js.vip
+ddb.ae
 ddbk25ms.helabetkade.com
 dddododiiik.com
 ddimsjy.pasoorbazi.casino
@@ -8247,6 +8248,7 @@ defegh.com
 defenr.com
 defi-xstocks.vip
 definitions-webmarketing.com
+defintek.io
 defiq.live
 defy.3ce7ab2da45404231f376cac66904a01.workers.dev
 degassing-mould.digital
@@ -8259,6 +8261,7 @@ dekaprogetti.com
 dekoeinkauf.de
 delaydachu.ru
 deleeue.lol
+delhipoetryfest.org
 deliastamaels.com
 delivery.fitswowllc.com
 deliverycave.milo3ren.lat
@@ -8281,6 +8284,7 @@ deltatransmission.com
 deltavie-iwyjqh.westcalm.surf
 deltawood.cc
 deltga.biz
+deluxediamondtravel.com
 demagic009.duckdns.org
 demale.shop
 demand3-logic.verdi7qor.lat
@@ -9076,12 +9080,14 @@ drmbehqw.bociljepe.info
 drnafis.com
 drnahidreza.com
 drnfrptutxnwhaulrpb.guardyapps.com
+drone-video-france.com
 drone.hiphop
 dronegreece.gr
 dronesky.com.br
 dropklant.com
 droppicches.xyz
 droptest.xyz
+droroszagnes.hu
 drrugs.xyz
 drsnpanda.in
 drsvt.nextbahis.poker
@@ -9103,6 +9109,7 @@ dsc8ybog.schleer.hu
 dscao.bbautokozmetika.hu
 dscdkc.silvereagleproof.com
 dscf.radioshartbandi.bet
+dsconsultoresassociados.com.br
 dsdvsvqgy.jetbet.download
 dsensj.com
 dsfamsi4b.cn
@@ -9663,6 +9670,7 @@ eindgren.lol
 einfach-helfen-harz.de
 eisgjj.code8k.vip
 eisnuo.bognarautomoso.hu
+eitech.app.br
 eitxotup.icicle-processing-engine.christmas
 eiuphpvo.fiorentini.ir
 eiweisspulver-test.com
@@ -9716,6 +9724,7 @@ el-town.ru
 el9ozjuh.cardislim.com
 elaiz.com
 elangcybernusantaratv.com
+elaspol.pl
 elavelle.online
 elbaaz.com
 elbowa.shop
@@ -9857,6 +9866,7 @@ employeenotifierdevice-cha9g0g9g4hebmea.z02.azurefd.net
 employerspartner.dk
 employme-app.com
 employmentlawwakefield.co.uk
+empoderatucreatividad.com
 emporiumdelight987656.shop
 emporiumwave245768.shop
 empowerconsulting.live
@@ -9953,6 +9963,7 @@ encoderfreight.daro6vex.lat
 encompass-graphics.co.uk
 encoresalestx.com
 encorevault.live
+encountergallery.com
 encryption5hadow.digital
 encuentramedicos.com
 encuentrocofrade.oracionlebrija.es
@@ -10400,7 +10411,9 @@ euspwbzy.bet90forward.win
 ev.afterbet88.org
 ev240v.com
 evacuat-sycam.digital
+evalueight.ai
 evanie.cz
+evavergauwen.be
 evenstor.in
 event-unipeg.art
 event.springdepot.lat
@@ -10417,6 +10430,7 @@ evergreentimberland.garden
 everkindhomehealthcare.com
 everplay-mvp.vercel.app
 everyday-camper.de
+everyoneinternational.com
 everythingchecker.com
 everythingisephemere.com
 everztsi.maharatmodiran.xyz
@@ -10491,7 +10505,9 @@ ex5nibpq.vip1xbet.net
 ex7gv4y7.bet90land.com
 exactupdate.com
 example-probe-does-not-exist-12345.invalid
+excellence-aviation.com
 excellentquantum.com
+excellentwireless.net
 excelnt.ai
 excelpro.co.ke
 exchangeallltd.com
@@ -10817,6 +10833,7 @@ fastseals.in
 fastzeit1mond.exmeshlogic.garden
 fat.ag
 fatlosscoach.org
+fatorhumanotd.com.br
 fatura.tjspbr.com
 faturaeletronicapt.com
 faux-paws.com
@@ -10908,6 +10925,7 @@ fedij.com
 fedjmedic.com
 fedrvhjy.click
 feds.iphaven.qzz.io
+feedingtheworld.info
 feedsome.com
 feedspanone.net
 feelingthelookinc.org
@@ -11331,6 +11349,7 @@ flyhighsmokeshop.com
 flyi.jadoou.lat
 flyingbbird.cc
 flyingtogether-ual.net
+flymenu.ai
 flymetoyou.app
 flzocge.penality.bet
 fm.afktogel.org
@@ -11440,6 +11459,7 @@ formonstore.com
 formreba.qeniral8.surf
 formulario.colvet.es
 forsell.tech
+fortelezaestates.com
 fortheloveofyou.al
 fortlinecargo.com
 forton-apiculteur-miel-provence.live
@@ -11746,6 +11766,7 @@ fuckyou.femboys.dating
 fud0tirx.hazzaratbet.com
 fudikar.de
 fudupdate.com
+fufusgrill.com
 fuja2ejs.bossbeyplus.click
 fujizego.workers.dev
 fujxga.fluss.hu
@@ -11767,6 +11788,7 @@ fun-family-adventures-from-buffalo.com
 fun88kyc.com
 fundacionconvergentes.org
 fundacionolipica.store
+fundacjaustudni.pl
 fundacor.org.bo
 fundfall.qi3mavel.in.net
 fundingfactors.com
@@ -11915,6 +11937,7 @@ gabrovo.info
 gabuys.perspolisbet90.com
 gabyfox.it
 gacgmicogiqymeaq.xyz
+gacha-nox.com
 gaciaaqgsmuswugg.xyz
 gacoygyuqysscoyw.xyz
 gacwkuoemkiyccss.xyz
@@ -12011,6 +12034,7 @@ gargona-music-prizdec.asia
 garlin.biz
 garnetmill.cc
 garsonuoma.lt
+gasbillonlinecheck.se
 gascwmskqoggmyki.xyz
 gasienda.com
 gasmoceikmoswaqg.xyz
@@ -12077,6 +12101,7 @@ gbappze.com
 gbbzsnq.1xgame.cash
 gbbzykw.melbetkade.com
 gbclubs.com
+gbdoithuong.com
 gbgl.kafekarachi.com
 gbhij.vilagom.hu
 gbhpljne.paars.poker
@@ -12254,6 +12279,7 @@ ges.sm188daftar.mom
 geschmeidig6307-kotyatanet.sbs
 gesck4m.pro
 gesellatv.com.ar
+geskeindonesia.com
 gesmfesgs.abcdbro.com
 gestcular.cfd
 gestiatalaia.biz
@@ -12593,6 +12619,7 @@ globalchrome.com
 globalcoclos.cc
 globalfiats.click
 globalfinancetalent.com
+globalfuturetc.sa
 globalimpactprojects.org
 globalintermed.com.br
 globallookclub.com
@@ -12681,6 +12708,7 @@ goalharvest.digital
 gobfmmh.casino888.promo
 gobgem.com
 gobugatti.pro
+gochailluminationfoundation.org
 gocogmqsgyqqmeis.xyz
 godbleesss8912.life
 godhelp-us.com
@@ -12879,10 +12907,12 @@ graficheconti.it
 grafirap.com.ar
 grahammarsh.com.au
 grajnalm.site-asli-bedon-filter-1xbet.com
+grammygums.com
 gran1xea.xyz
 grand-tandyr.com
 grand-world-tour.com
 granddsd.cyou
+grandmedical.com
 grandnode3unit.solavern.garden
 grandprocess.torex5lin.surf
 granitebroad.mixzipcore64.lat
@@ -12905,6 +12935,7 @@ great-fauna-tcpipgay-go-system.garden
 great.wintercoldlab.lat
 greatcarprofessionalwindowtint.net
 greatermiamicsitv.com
+greatfallsdispatch.com
 greatmastertrading.com
 greatnessabove.com
 greatsorors.digital
@@ -13076,6 +13107,7 @@ gu1d-frame.hundred5elf.lat
 guard-substance.digital
 guard.warm-climate.click
 guard7.barnfabric.click
+guardianangelsroofingllc.com
 guardianlab.ca
 guardianresponsealert.com
 guardiansunlimited.org
@@ -13221,6 +13253,7 @@ gzmyosuj.aftabsport.ir
 gzvwla.dimamma.hu
 gzxrgq4a.saostar.biz
 gzxz.onlyfansagency.hu
+h-clean.de
 h.9qoi.org
 h.9winn.org
 h04c.kernelwave.lat
@@ -13324,6 +13357,7 @@ ham.matriculador.digital
 hamanaglobalservices.com
 hambufreihgt.com
 hamdiaccounting.com
+hamlinchurch.com
 hammerenter.com
 hamohas-46035.portmap.host
 hamzehkoumakli.com
@@ -13631,6 +13665,7 @@ hhywcqm.us-eng-us-gutdrops.com
 hi-tech-news.com
 hi.146slot.org
 hi.334v.org
+hi.afterbet88.org
 hi0cx4lq.bulkcompressimages.com
 hi4ztw3j.vip1xbet.org
 hibeauty.pl
@@ -25295,6 +25330,7 @@ rzuwk0yv.spirosnet.com
 s-master.sarahkapsreit.work
 s.abc22.org
 s.bb69.org
+s.bok13.org
 s.goliath.st
 s.littleshabby.net
 s01687.byte-buff.com
@@ -32577,6 +32613,7 @@ www.daveshootsbookseller.com
 www.dbprojects.com.au
 www.dclpxlbqzn1l4qsls.org
 www.deadzonevibes.in
+www.decayetti.com
 www.dee8mobiledecorate.com
 www.demo.evalida.com
 www.depannage-serrurier-78.com
@@ -32612,6 +32649,7 @@ www.dyshop.online
 www.e42.it
 www.eabconstrutora.com.br
 www.easyelegance.net
+www.echowaveusa.com
 www.eco-friendly.com
 www.ecopestcontrolperth.com.au
 www.edge-chrome.com
@@ -32629,6 +32667,7 @@ www.ekramsalesbackup.org
 www.ekramsalesbackup1.org
 www.ekramsalesbackup2.org
 www.eleedit.com
+www.elephas-consultants.com
 www.eliorambaldi.com
 www.elisabettapellarin.it
 www.eliteceramichedarredo.it
@@ -32643,6 +32682,7 @@ www.engevo.it
 www.epicly.digital
 www.epokaere.com
 www.eqtreporting.com
+www.erikarenealarsen.com
 www.esgtechnology.it
 www.esteticadamar.it
 www.etnorais.es
@@ -32660,6 +32700,8 @@ www.famdd.de
 www.famesaexplosivos.com
 www.famikon.pl
 www.family-funeral.icu
+www.fantasy-parc.fr
+www.farmacologiaclinica.es
 www.fast-pc.be
 www.fast-tech.uk
 www.fastrackdeliveryco.com
@@ -32675,9 +32717,13 @@ www.fisioterapiacioni.it
 www.fiveroomsortigia.it
 www.fixbug.icu
 www.fixitfuego.online
+www.floorconstrutora.com.br
+www.florence-wischer-avocat.com
 www.flyfishingiceland.com
 www.fondazioneannalisegalligani.it
 www.fondazioneoav.it
+www.fondenvagnjespersen.dk
+www.foreverhome.com
 www.fortheloveofyou.al
 www.fosterbooks.co.uk
 www.foukalek.cz
@@ -32688,6 +32734,7 @@ www.freemanding.com
 www.freepowergreen.it
 www.fresh-air.it
 www.friesen-bau.de
+www.frontalit.hu
 www.frownappr0veizl.com
 www.fruitdelice.it
 www.furbabyfortune.shop
@@ -32701,6 +32748,7 @@ www.gastonrenard.com.au
 www.gbgzdxue8l3ajj7syni.info
 www.geeico.it
 www.genebags.in
+www.genetik.com.br
 www.georgespizzas.com
 www.geostar.space
 www.gestorianaveiras.es
