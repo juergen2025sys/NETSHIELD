@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-02 18:56 CET
-# Eintraege: 33655
+# Aktualisiert: 2026-11-02 20:10 CET
+# Eintraege: 33663
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -177,6 +177,7 @@
 123enardresis.org
 129.53.18.34.bc.googleusercontent.com
 12cscmg1.enus-tupitea.com
+12deoctubreveterinaria.com.ar
 12jzlr7i.boano.store
 12xb1qlu.jet-theme.com
 12zjij7k.betrein90.com
@@ -465,6 +466,7 @@
 2718gc20.seresniki.com
 2766iljo.melbetiran.poker
 2784kns.kernelgrid.ink
+27b.network
 27e13kk2.enus-enerflow.com
 27hrchzs.megaparibet.games
 28.hu
@@ -678,6 +680,7 @@
 3e30omav.velorix.life
 3ed27xfd.libertytokan.com
 3efofny3.cielohillsevents.com
+3esolutionsandmore.com
 3ezvsan5.ferkrueda.com
 3f0pppyh.impressiveaudiotint.com
 3fbkahzk.coinsgame.pro
@@ -1690,6 +1693,7 @@
 9thvfl.2zavlore.surf
 9ti1zjdd.wignalllindor.wiki
 9tj7h8tb.usa-us-goldalign.com
+9tsv6sqb.bossbeyhub.click
 9u5y9pkv.icewounded.digital
 9ujl0507.shop-goldalign.com
 9urlqeq9.diyar303.com
@@ -3572,6 +3576,7 @@ auth-thomsonreuters.com
 auth.bury2tsfinger.surf
 auth.commonup.click
 auth.predatordeuce.cc
+auth.topbolt68.xyz
 auth.unnerpectinreword.us
 authconnection.org
 authenticatdrivestor.top
@@ -5000,6 +5005,7 @@ bossbeycity.click
 bossbeycrown.click
 bossbeylink.click
 bossbeylord.click
+bossbeylux.click
 bossprotect.com
 bosstekirdag.store
 bostaxservice.com
@@ -16171,6 +16177,7 @@ laquepipix.xyz
 larchfable.cloud
 lard.asset-images-konoha.us
 larpestan.duckdns.org
+larutigy.workers.dev
 larwssaf.laparnih.com
 las-js-claud.beer
 lasagna-bakingpro.christmas
@@ -29979,6 +29986,7 @@ vxcpyh.metaboddrops.com
 vxfo.bahigo.casino
 vxg18bmc.btyek.baby
 vxgz.1xsaudi.com
+vxj8vrpc.bossbeylux.click
 vxpkpgb.khaled-salah.com
 vxqz.bahigo90bet.com
 vxxyant.family-man.surf
