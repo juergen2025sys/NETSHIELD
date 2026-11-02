@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-02 07:57 CET
-# Eintraege: 33583
+# Aktualisiert: 2026-11-02 08:58 CET
+# Eintraege: 33588
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -4528,6 +4528,7 @@ bir.orilowa.com
 birc6-trail.fixionmunici9al.lat
 birch-koix-7keeb.pro
 birch-nuiis-d9q37.xyz
+birchcore.cc
 birchletting.com
 birds-eye-view.de
 birdybird.rest
@@ -5834,6 +5835,7 @@ cctvdublin.com
 ccudmcx.xyz
 ccxcdrm.ferkrueda.com
 ccy6w1d1.en-en--cardioslim.com
+cczqm49612.workers.dev
 cd.afktogel.org
 cd.iconstaff.top
 cd239429.hwgrouppik.com
@@ -10793,6 +10795,7 @@ fonts25-save.sbs
 fontspace.us
 foodathome.ch
 foodforbee.com
+foodiebunked.com
 foodnflavors.com
 footbal90bet.app
 football-attraction.pro
@@ -16198,6 +16201,7 @@ lb-rnypyjwi-rzm2gb9ys7wtc4u0.clb.sg-tencentclb.net
 lb.146slot.org
 lb.16dewaslot.org
 lb.334v.org
+lb.birchcore.cc
 lb.gmslb.net
 lb.heronpull.cc
 lb.honeytrail.cc
@@ -30772,6 +30776,7 @@ wvrbkeshcii77eb3urvai.beer
 wvsvkdju.eng-usa-goldalign.com
 wvvbpwt.enfejar.game
 wvvyvhcadohpdpahcds.home-eye-app.com
+wvw.akuatoto.net
 ww.adilawa99.org
 ww.maskelibros.cl
 ww2clash.com
