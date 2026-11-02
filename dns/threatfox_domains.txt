@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-02 02:56 CET
-# Eintraege: 33231
+# Aktualisiert: 2026-11-02 05:05 CET
+# Eintraege: 33300
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -160,6 +160,7 @@
 1.outofsitechicago.com
 1.win-faw.win
 102z512uqjl6m.xyz
+107.24.156.34.bc.googleusercontent.com
 108h764sg7npw.xyz
 10buigpz.bossbey19.click
 1112.688608.xyz
@@ -439,6 +440,7 @@
 23ida6x1.pizzadays.net
 23q34ztp.luxerabet1.com
 24.yallashoot111.space
+240.172.108.136.bc.googleusercontent.com
 241.74.191.92.dynamic.jazztel.es
 247mobiletyre.com
 248bestmoon.click
@@ -2187,6 +2189,7 @@ ai-detect.online
 ai-elevatedsolutions.com
 ai-nexora.sbs
 ai-scan.digital
+ai.akuatoto.net
 ai.myrtlelexicon.co
 aiacwsyguwmiquie.xyz
 aiaikqkmoyomaigw.xyz
@@ -4316,6 +4319,7 @@ betnoise-unionour.cyou
 betpool.online
 betpoop.com
 betrayon.casino
+betterment-us.comalign.pro
 bettertalentadvisors.com
 bettime.win
 bettime90.casino
@@ -6048,6 +6052,7 @@ checkms5.cc
 checkmybtrobot.cc
 checkout.lat
 checkphoto-bookin.com
+checkpoint-access.com
 checkrobotbb.pw
 checkvbbrows39.cc
 checkyoubrowse.codes
@@ -6620,6 +6625,7 @@ colegiofenix.edu.ar
 coletteloire.rest
 colg1.org
 colibri.ms
+collectif-mobilites-hdf.fr
 collectlabsworks.com
 collectortimetech.com
 collegedemocratsil.com
@@ -7031,6 +7037,7 @@ creatifanay.duckdns.org
 creativetalentnyc.com
 creativetalentnyc.net
 creativex5.cc
+creator.cutehair.com
 creditscore.usbankcreditcards.com
 crehmoqz.bekabet.casino
 creimonza.it
@@ -7088,6 +7095,7 @@ cryptex-core.pw
 crypticdialect.garden
 cryptifyhub.cloud
 cryptobasetop.top
+cryptobettingbrazil.com
 cryptogrid.wiki
 cryptonewskenya.co.ke
 cryptovault.codeflux.lat
@@ -7726,6 +7734,7 @@ demand3-logic.verdi7qor.lat
 demfmb.restaurantguideaarhus.com
 demi-geek.com
 demnocusurpapanottodelivermebetterlogs.duckdns.org
+demo.dakwin-tech.com
 demo.mufaqar.com
 demo2.amcham-ci.org
 demo2.goldschadt.com
@@ -7799,6 +7808,7 @@ deutwell.net
 dev-js-cdn.cfd
 dev-shel.sorix1ar.lat
 dev-tokyotechie.com
+dev.armx.com.au
 dev.basquecountrycom.online
 dev.blendup.xyz
 dev.clpcentr.world
@@ -11069,6 +11079,7 @@ futg.thelegalexpertise.com
 future-zebec.com
 futuregoodsstore.com
 futurex.media
+fuvudoke.workers.dev
 fuwihi.workers.dev
 fuwtp.tafsirnasiri.xyz
 fuz.supportify360.io
@@ -18280,6 +18291,7 @@ monitor.telemetry-controlsystem.in.net
 monitor5.roast-core85.click
 monitor9.easttrail5.xyz
 monitoramentomirimcosteiro.com.br
+monitoringsites.shop
 monitorondomainwintgt.store
 monitoropsworks.com
 monom.cc
@@ -21573,6 +21585,7 @@ poxzxin.cyou
 poygon-notifications.cfd
 poygon-notifications.click
 pozitifmed.com
+pozuvubo.workers.dev
 pozyczkidlafirm.co.uk
 ppdp.oza.bet
 ppdrqc.pshealthcare.net
@@ -23641,6 +23654,7 @@ rootsinfosoft.com
 ropapormayormontevideo.com.uy
 roperotivo.pro
 roptik.com
+rorgame.io
 rorl.lusy.ink
 rose-garden-shop.com
 rosebiel.com
@@ -23685,6 +23699,8 @@ royalfischer.com
 royalflushblc.com
 royalkiss.store
 royalxcasino.zone
+royalxcasinodownload.cam
+royalxcasinodownload.se
 royar.store
 roz3b4iqyrt6.wiestonunanasikasar.win
 roze.click
@@ -23743,6 +23759,8 @@ rsc.sm188dvlv.icu
 rsforecast.com
 rsgip.visszateritok.hu
 rshtgesa.com
+rsimalahayati.com
+rsizza.co.id
 rss.top-business-blog.com
 rsxg.app-bet303.download
 rt9ugrfy.shop-metabodrops.com
@@ -23888,6 +23906,7 @@ rvvemra.takhtebet.app
 rvweldedmesh.com
 rvwwzcz.greaternewzionbc.org
 rw1.sentrysource.com
+rwa.nexus
 rwdfn.run
 rwj46i7as3h4.en-heroup.us
 rwnkdep.penality.casino
@@ -24113,6 +24132,7 @@ saamhorigheidsfonds.nl
 saas-stash.beer
 saas-systems.hu
 saascription.app
+saashuddle.com
 saathmahila.org
 saayc.co.za
 sabaad724.bet
@@ -24230,6 +24250,7 @@ sample-website1.tuttlehandyman.com
 samplerace.info
 samrom.com
 samruby.vn
+sams-shipping.com
 samsarahtlv.com
 samsungservicecenterabudhabi.com
 samtpfotchensnezhok9566leisegepard.sbs
@@ -24393,6 +24414,7 @@ script-nexus.digital
 script-six-tawny.vercel.app
 script-vault.digital
 script1-gate.lipshellcore.lat
+script8media.com
 scriptmesh.surf
 scripture.life
 scrnmailpsie.com
@@ -24444,6 +24466,7 @@ se-isa.mx
 se-ka.de
 se2lnidzfvts.org
 se7ahj6q.laparnih.com
+sea-aba.com
 sea-horse.agency
 seagaieoseccqeai.xyz
 seahohx.saas-systems.hu
@@ -24662,6 +24685,7 @@ seuresever.info
 seuvsq.pablobet90.com
 sevabrigade.org
 sevencolours.ro
+sevencorners-concrete.com
 sevenhungredbucks.com
 sevensynergy.com
 sever-sb.info
@@ -24697,6 +24721,7 @@ sgkg29g4.gregoryschreiercabinetmaker.com
 sgl5ele3.botvn.net
 sgn.v-panel.asia
 sgnfvyd.1pishbini.com
+sgorchids.com
 sgs68ivh.binary-dock.digital
 sgspmozgq.lowermyoverheads.com
 sguf571h.bossbeyburda.xyz
@@ -24845,8 +24870,10 @@ shopsoleilcollective.com
 shopvumanhcuong.com
 shore-leaf.pastor-publicist.lat
 shoreharbor9.com
+show-box.vip
 showerrepairsperth.com.au
 showmecoffee.monster
+showringservices.com
 shpu1xz9.gdcpemasaranbekasi.com
 shrekf.art
 shrinimbarkbroadcasting.com
@@ -24854,6 +24881,7 @@ shriraghavendratravels.com
 shroom010.duckdns.org
 shrqj.mabanimashin.site
 shssshdscn.beer
+shtick.io
 shyariinhindi.com
 shzc.fourseasonsmansion.com
 si1e-branch.setqueueat.lat
@@ -25103,6 +25131,7 @@ sky1ine.digital
 skyepeptides-us.com
 skyfly4.com
 skygatewholesale.net
+skyledgers.com
 skylinengineering.com
 skylitecleaning.co.uk
 skynet-i.asuscomm.com
@@ -25215,6 +25244,7 @@ small-morning-8be0.fsocietyandtools.workers.dev
 smallbusinessmailservices.space
 smallenginesolutionsllc.com
 smallshopsandwhatknot.com
+sman104jakarta.sch.id
 smanbotu.com
 smansinho.com
 smar-ric.zom7lirex.in.net
@@ -25286,6 +25316,7 @@ smtp.mailban.pics
 smtulna.emeraldyachtship.com
 smuggler-beluga-notion.courses
 smurab.usa-tinnitrol.us
+smypxs3u.paars.poker
 smyskiusokcsoikk.xyz
 sn.88idr.org
 snacky-time.club
@@ -25354,6 +25385,7 @@ social9-reach.kymle5rax.in.net
 socialmediamarketingformusicians.com
 socialrockstar.it
 socitiii.com
+socolive.study
 socomufflerandradiator.com
 socopes.it
 sodapixerr.world
@@ -25442,6 +25474,7 @@ somorz.omwcafespot.com
 son2.1368.lol
 son2v1ep.kyotocamaro.com
 sondagua.com.br
+sondeve.com
 soneypaly.club
 song.bestipip.com
 songsbeginner.cfd
@@ -25490,6 +25523,7 @@ souf1atwindow.digital
 sougiaoceanis.com
 soujan.com
 soul.poconodessertco.com
+soulenergyexpression.com
 soulgenai.app
 souljaboynft.io
 souls-of-wildlife.ch
@@ -25950,6 +25984,7 @@ staracamp.org
 starayadaet.com
 starbeliefs.online
 starfishdancestudio.com
+stariup.com
 starlightnetcore.lol
 start-hub.beer
 start-sad.kz
@@ -26056,6 +26091,7 @@ stoplooking2.botlesscucks.st
 stopman.ooguy.com
 stoppingignpi.buzz
 stoppingpi82.life
+stoqbrothers.com
 storageinridgecrest.com
 storageprofiler.com
 store-content.net
@@ -26240,6 +26276,7 @@ sudewi.com
 sudutinfo.biz.id
 sue-intentioned.digital
 sufaraalhedaya.com
+sugammettech.com
 sugarmuite.com
 suger-mute.com
 sugermut.us
@@ -26295,6 +26332,7 @@ superboomer.world
 supercharque.com.br
 superfirewallprotection.com
 superiorwriters247.org
+superlifeghana.com
 superliga.pro
 superliga168irama.com
 supermarcadigital.com
@@ -26506,6 +26544,7 @@ syncits.residency5ilicat.lat
 syncits.softworkapi.lat
 syncorporation.com
 synctime.australiaeast.cloudapp.azure.com
+synerexexim.com
 synerfy.biz
 synergyplus.com.au
 synnersys.com
@@ -26663,6 +26702,7 @@ tabbyottercub.com
 tablebable2231.world
 tacosymotos.com
 tacticalk9familycoin.com
+tacticalsoccerplayer.com
 tactip.cyou
 tadbirts.ir
 tadkaindiaka.com
@@ -26807,6 +26847,7 @@ tblrdccw.mabanishimi.xyz
 tbpvaoy.8kbetcc.it.com
 tbs46zz6.nurve-alive.com
 tbzp.upthesmokee.com
+tcartist.ru
 tcbk5mqnutfglt6.top
 tccn.rubixbet.casino
 tcessolution.com
@@ -26877,6 +26918,7 @@ team-traders.de
 team.tesisquare.com
 teamchaosky.com
 teamcss.beer
+teamee.app
 teamfenterprise2026.com
 teamgetdsm.com
 teams-securecall.com
@@ -26909,6 +26951,7 @@ techworks.com.sa
 techycarterpiller.kozow.com
 tecnicoindustrialpasto.edu.co
 tecnocapgroup.academy
+tecnocrisa.com
 tecnohospital.it
 tecnoimball.it
 tectonic-fault-seismograph.garden
@@ -27130,6 +27173,7 @@ thegetdsm.com
 theglobetrotters.de
 thegoduniverse.com
 thegolddepot.net
+thegoldentree.net
 thegoodelectric.com
 thegothamhotelny.com
 thegrillbible.com
@@ -27163,6 +27207,7 @@ thenbkgroup.com
 theothersidepb.com
 thepasar.my
 thepeakenterprise.com
+thepropertysolutionscompany.com
 thequarterlymethod.com
 thequeenofesteem.com
 therapygeorgia.com
@@ -27268,6 +27313,7 @@ tieuhocnguyendu-ntl.edu.vn
 tifameat.containerized-growth-engine.garden
 tiftonroofing.com
 tigerenten-kinder.de
+tigertemp.ca
 tight-dew-df89.esbpomiqpz.workers.dev
 tiixeira.lol
 tikaltravel.com
@@ -27530,9 +27576,11 @@ torrrj.highlife-global.com
 torrybok11.icu
 torrykouu4512.icu
 torsten-ringling-fuer-schkopau.de
+toryburch-outlet.com.co
 toscanacivicarezzo.org
 toscawebdesign.com
 toseuhlxdkhpqachkr.phim18k.de
+tosunlab.com.tr
 totalads.monster
 totalbiztransformation.com
 totalconstructionsolutionswi.com
@@ -27652,6 +27700,7 @@ tree.greenforest.surf
 tree.greenforesthub.lat
 tree.greenlogiclab.lat
 tree.terraview.surf
+treehouselearningacademy.com
 tregimpianti.com
 treify.top
 trejosroofing.com
@@ -27724,6 +27773,7 @@ trqyckok.ganuneasasi.xyz
 truckrepairlasvegas.com
 trucktrailersparts.com
 trucnher.skin
+tructiepbj66.com
 trudyhelder.nl
 true.fastexitnow.lat
 trueconnectives.com
@@ -28099,6 +28149,7 @@ uffhtyiqtmiea.com
 ufhsqy.shop-sugarmute.com
 ufphxl.gorbio-echos.com
 ufpykr.rossbridgemedicalcenterlp.com
+uftn789x.ased.store
 ufuoew6n.tanyavondegurechaff.fit
 ufwxr629.tanyavondegurechaff.fit
 ug.gbwhat.pro
@@ -28832,6 +28883,7 @@ vbpco.cannaturalgroup.com
 vbpje3kh.burn--flow.com
 vbpqhn.usa-audizen-us.com
 vbsjxw.eclipsechasers.net
+vbsoaps.com
 vbtl.fileboroo.com
 vbvfs28b.network-harbor.digital
 vbyiq.yanis.hu
@@ -28898,6 +28950,7 @@ vellithon1.fina1vrub.surf
 velmeshix.cyberframe.lat
 velmeshos.eight-education.lat
 velnoderic.com
+veloce-shop.com
 velocimotors.com
 velocitymindset.com
 velodromomonti.it
@@ -29002,6 +29055,7 @@ vgatoto.org
 vgepnjpy.site-shartbandi-variz-kam.com
 vggil.yanis.hu
 vggl.thunderinternationalgroup.com
+vghmentalhealthservices.com
 vgip5uas.1xgame.casino
 vgjb.bahsegel90.com
 vgkjld.gulyaskriszti.hu
@@ -29191,6 +29245,7 @@ vivid-roam-cove-gleon.life
 vividali.bordklo.lat
 vividanchorlab.top
 vividmeshflow.solavern.garden
+vivinamedia.com
 vivmart.com
 viza7nex.digital
 vizhanyobalazsistvan.hu
@@ -29568,6 +29623,7 @@ vvmyrshz.bittu.store
 vvoplgpy.bet303.poker
 vvopvrgbi.gamehazarat.bet
 vvpfsda.pasoor11.bet
+vvrvpark.com
 vvuto.bartaenergetika.com
 vvvbk.webermann.hu
 vvxcqgv.jamjahani.world
@@ -29727,6 +29783,7 @@ watchthisyear.gotdns.ch
 waterdamagerepairflorida.com
 watereum.hu
 watermelonxo.com
+watkinslawteam.com
 watteejai.com
 wave.bela6qit.lat
 wave.goldenleafway.lat
@@ -29768,6 +29825,7 @@ wdplqn.liltkereskedohaz.hu
 wdw343244323e3d-60296.portmap.host
 we.adilawa99.org
 we.topsmartservice.com
+we999.se
 weave44.com
 weaveink12.com
 weaveridge7.com
@@ -30091,6 +30149,7 @@ willowbox.xyz
 willowgazette.top
 willowtransit.com
 willynop9821.icu
+wimandassociates.com
 win-changer.xyz
 win-masters.net
 win.softwincli.pics
@@ -31447,8 +31506,10 @@ www.syntegon.live
 www.syumai.life
 www.t9ffxu6zhf915fadjv1.app
 www.tallerdegeologia.com
+www.tasarimrehberleri.com
 www.taskforcebot.com
 www.tastecooktravel.com
+www.tateofmindconsulting.com
 www.tawdeatithibhavan.com
 www.technicalauthentications.live
 www.tecnohospital.it
@@ -31468,10 +31529,13 @@ www.thephyllconnect.com
 www.theridgebooks.com
 www.thesmos.org.gr
 www.thesportscorporation.mbcreative.ca
+www.thevona.com
 www.thewrightcollection.com
 www.thousandoaksbsalandscaping.com
 www.thueringer-stuck.de
 www.tipsytransit.com
+www.tkj.dk
+www.tlckidstherapynyc.com
 www.tolnaiallatorvos.hu
 www.topcargroup.it
 www.topclickgaming735.info
@@ -31505,6 +31569,7 @@ www.uj3gb7q.shop
 www.ultimategrillhub.com
 www.uniqueroast29y.com
 www.unterritorio.it
+www.upwithdowns.co.za
 www.urbanboxed.live
 www.usaa-login-verify-usaa.chase-cvs.org.uk
 www.usemention.ai
@@ -31547,6 +31612,7 @@ www.vonkpropisolasiepanele.co.za
 www.vutjsf0sd9sdqt2rkzvgzv9a.org
 www.w4iunvbdvjof39q-3.net
 www.wagnerauto.net
+www.walbumbyg.dk
 www.waronline.com
 www.waverleykls.org.au
 www.webdevarrayremco.com
@@ -31558,6 +31624,7 @@ www.wedding7famous16.app
 www.weight-loss-center.net
 www.weilaizhijiao.com
 www.wesolerobaczki.pl
+www.wheelerconstruct.com
 www.whitefoxrarebooks.com
 www.winconceptdesign.com
 www.winemixed8uwhh.net
@@ -31918,6 +31985,7 @@ xn----btbendj.xn--p1ai
 xn----ctbgrjodhsketj.xn--p1ai
 xn----dtbjdyqbeb2a1jd.xn--p1ai
 xn----etbftgccnccb2adq.xn--p1ai
+xn----etbhabcjqcoy5bza0a4hi.xn--p1ai
 xn----gtbdagjcbmf7dheig.xn--p1ai
 xn----itbjivcdicm.xn--p1ai
 xn---36-eddblex2anpecbtpfmdd2s.xn--p1ai
@@ -32725,6 +32793,7 @@ zahnarzt-lingemann.de
 zahnarztpraxis-toplar.de
 zai.gr.com
 zainbeauty-sa.com
+zajesdb.com
 zalupka.website
 zaluposs.com
 zamankids.ir
