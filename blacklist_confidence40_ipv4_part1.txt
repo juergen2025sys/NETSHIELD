@@ -1,7 +1,7 @@
 # NETSHIELD Confidence-40 Blacklist – Part 1/2
-# Aktualisiert: 2026-11-02 20:01 CET (Europe/Berlin)
+# Aktualisiert: 2026-11-02 21:31 CET (Europe/Berlin)
 # Score-Bereich: 100 bis 52
-# Eintraege: 3999944
+# Eintraege: 3999943
 # Fuer vollstaendigen Schutz beide Parts verwenden.
 
 1.0.164.165
@@ -1455191,7 +1455191,6 @@
 34.29.250.22
 34.29.32.148
 34.29.50.142
-34.3.0.27
 34.3.1.27
 34.30.147.131
 34.30.209.8
