@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-02 08:58 CET
-# Eintraege: 33588
+# Aktualisiert: 2026-11-02 10:24 CET
+# Eintraege: 33590
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -7971,6 +7971,7 @@ dfsjfisafosdikfos.info
 dfuvstc.mrvapora.pk
 dfwemergencydentist.com
 dfxwbjt.tiptop-shops.com
+dg058uew.epexecutivecoaching.com
 dg0x81sh.pattysole.com
 dgctf.concretewestgj.com
 dgdf.nimographic.com
@@ -16071,6 +16072,7 @@ lalavanderiahtx.com
 lamande.eu
 lambdauyamna.com
 lamezzaluna.net
+lamifu-f4a.workers.dev
 lamisandhanna.net
 lamournails.net
 lamplab.com.mx
