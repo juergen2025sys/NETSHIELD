@@ -1,6 +1,6 @@
 # NETSHIELD Auto-Feed Blacklist (Kompatibilitaetsansicht)
-# Aktualisiert: 2026-11-02 21:27 CET (Europe/Berlin)
-# Eindeutige Eintraege: 3545066 | Feed-Treffer: 6392392 | Quellen: 139
+# Aktualisiert: 2026-11-02 21:43 CET (Europe/Berlin)
+# Eindeutige Eintraege: 3545070 | Feed-Treffer: 6392393 | Quellen: 139
 # HINWEIS: Combined nutzt state/auto_feed_daily.sqlite3 aus separatem Actions Cache, nicht diese aggregierte Datei.
 
 1.0.0.0
@@ -685904,6 +685904,7 @@
 52.51.11.211
 52.51.19.131
 52.51.20.225
+52.51.21.68
 52.51.25.159
 52.51.32.255
 52.51.33.192
@@ -741118,6 +741119,7 @@
 61.220.112.137
 61.220.127.240
 61.220.128.79
+61.220.133.191
 61.220.139.2
 61.220.140.235
 61.220.142.129
@@ -873326,6 +873328,7 @@
 77.237.184.159
 77.237.184.160
 77.237.184.164
+77.237.184.167
 77.237.184.169
 77.237.184.181
 77.237.184.198
@@ -2176906,6 +2176909,7 @@
 149.46.2.90
 149.46.2.100
 149.46.2.101
+149.46.2.108
 149.46.2.119
 149.46.2.122
 149.46.2.126
