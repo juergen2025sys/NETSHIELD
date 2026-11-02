@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-02 10:24 CET
-# Eintraege: 33590
+# Aktualisiert: 2026-11-02 11:13 CET
+# Eintraege: 33598
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -8881,6 +8881,7 @@ ebuxsfresh.duckdns.org
 ebwgtb.vezaratshart.com
 ebzwaki.bakhtbetyek.com
 ec-hasslau.de
+ec2-18-226-72-236.us-east-2.compute.amazonaws.com
 ec2-3-15-17-30.us-east-2.compute.amazonaws.com
 ec2-3-22-66-152.us-east-2.compute.amazonaws.com
 ec2-44-249-43-89.us-west-2.compute.amazonaws.com
@@ -10132,6 +10133,7 @@ fadoj.run
 fafiqoxi.workers.dev
 fagaheestedlali.xyz
 fagppnw.nasbt.com
+fahr-weinclub.ch
 fahrzeugvergabe.de
 fahv2h6l.kimimaro-trance.com
 faircloud512421.buzz
@@ -12099,6 +12101,7 @@ goldledgers.com
 goldlign.com
 goldrabprotect.cc
 goldstar6port.dexispointnexus.garden
+goldtechgps.com
 goldunitpath.verdalya.garden
 golesorkhco.ir
 golf-fitness-akademie.de
@@ -12869,6 +12872,7 @@ hemlockbay.cc
 hemlocktransept.co
 hemorrhoid-daydark.wiki
 hen.yourbodybydesign.me
+henhouseandco.com
 henofrl.cyou
 henreques.lol
 henriqueq.xyz
@@ -14024,6 +14028,7 @@ intern.nu
 international-airports.com
 international.xpand.ro
 internationaltreeservice.com
+internet-freedom-in-south-korea.lol
 internetandcableservicesatgadget.com
 internetlouisiana.com
 internetmissouri.com
@@ -22320,6 +22325,7 @@ pvxvsil.lawnmowinglawrenceville.com
 pvxvwrfu.sadreislam.xyz
 pvzaccounting.co.za
 pw.sonqhong.com
+pwa.com.au
 pway7.mongofixcore.lat
 pwcgc6140825i6b.cfd
 pwev0y0.poorbet.lat
@@ -25799,6 +25805,7 @@ spacemanfly5k.online
 spaceporcupines.com
 spacezonepage.monster
 spamgym.asia
+spamhaus.help
 spamhaushackers.at
 spanishtravelandstudies.com
 spapro.co.com
@@ -32183,6 +32190,7 @@ xiaoshabi.xiaoshabi.cc
 xiaovy4p.eng-slimsounds.com
 xicefoga.com
 xiidysrc.xenomorphhiveintel.christmas
+xijuqo.workers.dev
 xikycu.workers.dev
 ximalaci.workers.dev
 ximyt.run
