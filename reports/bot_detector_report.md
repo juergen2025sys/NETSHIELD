@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-02 14:00 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-02 18:31 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,173,008** |
-| Neu (heute) | **+525** |
-| Entfernt | **-576** |
+| Gesamt IPs | **1,173,013** |
+| Neu (heute) | **+45** |
+| Entfernt | **-40** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 46 |
@@ -26,9 +26,9 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,797 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,797 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,725 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,514 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,942 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,921 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,666 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 2,440 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,973 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,163 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 957 |
@@ -36,23 +36,23 @@
 | ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 542 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 437 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 258 |
-| ✅ `ercindedeoglu_proxies` | 54,851 |
-| ✅ `ercindedeoglu_proxies_socks4` | 18,938 |
-| ✅ `ercindedeoglu_proxies_socks5` | 20,372 |
+| ✅ `ercindedeoglu_proxies` | 54,782 |
+| ✅ `ercindedeoglu_proxies_socks4` | 18,927 |
+| ✅ `ercindedeoglu_proxies_socks5` | 20,370 |
 | ✅ `tuanminpay_live_proxy` | 12,785 |
 | ✅ `tuanminpay_live_proxy_http` | 6,971 |
 | ✅ `tuanminpay_live_proxy_socks4` | 4,605 |
 | ✅ `tuanminpay_live_proxy_socks5` | 6,510 |
 | ✅ `gitrecon1455_fresh_proxy_list` | 216,021 |
-| ✅ `noctiro_getproxy` | 5,204 |
-| ✅ `noctiro_getproxy_socks5` | 6,257 |
+| ✅ `noctiro_getproxy` | 5,529 |
+| ✅ `noctiro_getproxy_socks5` | 6,067 |
 | ✅ `mohammedcha_proxripper` | 53,187 |
 | ✅ `mohammedcha_proxripper_socks4` | 112,819 |
 | ✅ `mohammedcha_proxripper_http` | 117,482 |
 | ✅ `mohammedcha_proxripper_socks5` | 118,302 |
-| ✅ `dinoz0rg_proxy_list` | 91,919 |
-| ✅ `dinoz0rg_proxy_list_http` | 2,097 |
-| ✅ `dinoz0rg_proxy_list_socks5` | 94,570 |
+| ✅ `dinoz0rg_proxy_list` | 91,918 |
+| ✅ `dinoz0rg_proxy_list_http` | 2,905 |
+| ✅ `dinoz0rg_proxy_list_socks5` | 94,539 |
 | ✅ `ian_lusule_proxies` | 3,837 |
 | ✅ `ian_lusule_proxies_socks5` | 1,926 |
 | ✅ `configserverapps_service_blocklists_attacks_bots` | 1,599 |
@@ -71,4 +71,4 @@
 > Diese 46 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-02 14:00 CET (Europe/Berlin)*
+*Generiert: 2026-11-02 18:31 CET (Europe/Berlin)*
