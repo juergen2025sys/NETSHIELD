@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-02 18:31 CET
-# Eintraege: 33654
+# Aktualisiert: 2026-11-02 18:56 CET
+# Eintraege: 33655
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -11273,6 +11273,7 @@ g0wpz7jh.packet-orbit.digital
 g1cdqpil.betzopoda.com
 g1rxiw6o.parspoker90.com
 g1tmfx1d.vaperfumeuae.com
+g1tuktcr97.workers.dev
 g1wgxqj5.nextbahis.one
 g1zevlqh.casinokade.online
 g29aiuih.zabanenglishanari.xyz
