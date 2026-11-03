@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-03 21:13 CET
-# Eintraege: 33839
+# Aktualisiert: 2026-11-03 22:19 CET
+# Eintraege: 33845
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -233,6 +233,7 @@
 17tx25qi.casinokade.online
 181xlt4g.gavaedfagahe.xyz
 1822jtv8.betwoonuyelik.com
+183.157.185.35.bc.googleusercontent.com
 18523n3s71bgf06.top
 18fz9t32.foodpapajobs.com
 18inchgermanylovercapybara.space
@@ -3177,6 +3178,7 @@ araestudio.es
 aragoniteforum.info
 araizx.com
 arakanobserver.com
+aram-tillas.free.nf
 aramohanian.com
 arancerossecastellana.it
 arcanemods.top
@@ -3966,6 +3968,7 @@ bactrian.tj
 bacu.bahsegel90.com
 bacugno.it
 bada-bing-sopranos-lounge.garden
+bada9b8l.bossbeyvip.click
 badabingsopranoslounge.digital
 badawood.com
 baddiexhub.com
@@ -20951,6 +20954,7 @@ p.2137gang.shop
 p.2137gang.st
 p.2137gang.store
 p.bala7.org
+p.bob78.org
 p.thelayzf.fyi
 p0d2virz.blackjacktipsnnt.com
 p0fc8ejw.us-en-us-synaboost.com
@@ -32619,6 +32623,7 @@ xqsxioa.en-usa-sugarmute.us
 xqudjilf.en-en-usa-sightfresh.com
 xquxoceqj.radioshartbandi.bet
 xr10z4n2.usen-flashburn.com
+xr30sg3o.bossbeyprimeline.click
 xrafxsq.thefenceguysinc.com
 xraydbdr.eng-thebrain-song.us
 xrb3ppl3.akharinbama.ir
@@ -33765,6 +33770,7 @@ zuibs.jetbet.download
 zujqygdq.sakhtemandade.shop
 zuldqm04.riyaziyattajrobi.xyz
 zulozuqe.workers.dev
+zulyzuby.workers.dev
 zumil.run
 zunezbd.com
 zuodx.com
