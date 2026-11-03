@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-03 18:25 CET
-# Eintraege: 33807
+# Aktualisiert: 2026-11-03 21:13 CET
+# Eintraege: 33839
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -210,6 +210,7 @@
 161-35-173-98.sslip.io
 1629bqt9p34elwv.top
 164-90-169-184.cprapid.com
+167.85.28.34.bc.googleusercontent.com
 168-group.com
 169.174.116.136.bc.googleusercontent.com
 16dewaslot.org
@@ -241,6 +242,7 @@
 19.tcp.cpolar.top
 193-233-126-53.sslip.io
 193-233-82-248.sslip.io
+197.6.156.34.bc.googleusercontent.com
 19kiojm6.us-thetrumptoken.com
 19uir4dz.grannygshemporium.com
 1a3qsz5i.pozitifmed.com
@@ -1395,6 +1397,7 @@
 7zcef54a.eng-usa-goldalign.com
 7zs7j32p.enus-zensulin.com
 8-hhh.org
+8.63.189.35.bc.googleusercontent.com
 8.tcp.cpolar.cn
 805380ed.cyclingjordan.co
 80ro65f.div0rceskis5ing.pics
@@ -2619,6 +2622,7 @@ ameli-monespace.com
 amena-gps.tn
 amenom.jp
 america-surrey.gl.at.ply.gg
+americandreamlost.com
 americaneaglependant.net
 americaneaglependant.us
 americanjackets.us
@@ -3883,6 +3887,7 @@ b534.lena3qit.lat
 b53jdkck.photoshopvn.net
 b57agvqn.azmoonhayeravani.shop
 b58jef3z.22beet.com
+b5cy1a4mlt.workers.dev
 b5fdl2mw.hor1inka-lonely.digital
 b5hhv7o8.crownconnectpk.com
 b5hqgkl3.kaarenorge.com
@@ -5091,6 +5096,7 @@ bossbeymax.click
 bossbeymega.click
 bossbeynetwork.click
 bossbeyprimeplace.click
+bossbeyprimeteam.click
 bossprotect.com
 bosstekirdag.store
 bostaxservice.com
@@ -5449,6 +5455,7 @@ busslercreate.com
 busy-sunni.digital
 butikiplik.com
 butlercandoit.ca
+butlerskateland.com
 butterbread1122.icu
 buttresshalcyon.top
 buwlufiffmvphqsimp.focus-logistics.net
@@ -6069,6 +6076,7 @@ cemeco.com.ar
 central-da-logistica.com
 centralflgaragedoors.com
 centralfloridapowerwash.com
+centralparamedical.com
 centrealestetic.com
 centrecourtslots.com
 centroaziendeonline.it
@@ -6275,6 +6283,7 @@ chocolatdemodica.fr
 chocolate412932.icu
 chocolaterie-gayraud.live
 chongosleague.com
+chonv59030.workers.dev
 chordapple.com
 chrgasa.org
 chrisbrowndetroit.com
@@ -8058,6 +8067,7 @@ dewberryhill.cc
 dexband.quest
 dexblog90.club
 dexflow.pics
+dexgrow.quest
 dexterseolab.com
 dexvckz.keepitgnarly.com
 dexvfy.sivasumutemlak.com
@@ -8069,6 +8079,7 @@ dfcm078a.hoown.store
 dfd.slotmacau188e.top
 dfdghfhddhdhfhdfhdfyhdfdfh.pages.dev
 dfenkcqx.asynchronous-growth-platform.garden
+dfgdfhdftiudrtjrgjgdf.mom
 dfisjqef0s.app
 dfjdzmq.penality.bet
 dfojjm.angebagnia.com
@@ -11363,6 +11374,10 @@ fzori.vikstore.hu
 fzsehld.salemcountyarrests.org
 fzvxejch.en-us--memorylift.com
 fzxuju.dachservice.hu
+g-hgfdsgd.mom
+g-sdfgdsf.mom
+g-sdfhvrg.rest
+g-sdfrgh.rest
 g.obrn.cc
 g0flf7f0.jet90betyek.bet
 g0nyy40c.swin9.store
@@ -11618,6 +11633,7 @@ gdhpgxg.echoxenmarket.com
 gdnssljs.beer
 gdpkvkr.com
 gdqsdd.kovacsago.hu
+gdsfgdfg.mom
 gdtuyoor.gamehazarat.com
 gdv3zpg.novi7xel.lat
 gdvi.janatcosmetics.com
@@ -12758,6 +12774,7 @@ hairbyniki.com
 hairkeratin.net
 hairpi9911.icu
 hajar-tricks.com
+hajartravels.com
 hakdfgklsdk833ksd.com
 hakdsiwqs281ks.com
 hakubapizza.com
@@ -13481,6 +13498,7 @@ hugocpa.net
 hugomoto.com
 huh3jy35.system-horizon.digital
 huhowabisi.net
+huhylo.workers.dev
 huippu.live
 huiqbzp.clawandpurr.com
 huishuvish.cc
@@ -14938,6 +14956,7 @@ jnlysj.com
 jnsp5pfi.fishersace.com
 jnwkm.visszateritok.hu
 jnxetp.sa.com
+jny0xjtd.bossbeyprimeteam.click
 jnyut.zsatom.hu
 jo9cdmnc.cr7iran.ir
 joaoszr3.ddns.net
@@ -15844,6 +15863,7 @@ koncgrjy.omec.store
 kongographics.com
 kongotechorg.com
 konizia.com
+konopicesko.cz
 konr.domirunway.com
 konradkerz40000.work
 konstruktbouw.com
@@ -17324,6 +17344,7 @@ m3f6b86b.memap.me
 m3rg0-sync.cyberframe.lat
 m3rnbvs5d.eth
 m3wwhkus4dxbnxbtihexlyd2cv63qrvex6jiebc4vqe22kg2z3udebid.onion
+m4.akun258.org
 m47hkbcd.ganuneasasi.xyz
 m4ch.ru
 m4imi4w.space
@@ -17697,6 +17718,7 @@ matsnews.com
 matutony.workers.dev
 mau.bcagency.vn
 maugeiciyokkmggq.xyz
+maui.ae
 maunakeaorchids.com
 mauriciolizcano.com.co
 maurya.nl
@@ -18678,6 +18700,7 @@ moteldb2000.com.pl
 moth.betweenthebunz.co
 mothechurh.com
 motherotters.com
+motionsneakers.com
 motivationiran.com
 motopicks.com
 motorsport-zander.de
@@ -19353,6 +19376,7 @@ new.v-panel.asia
 new.zsnestemice.cz
 newcoservicemower.com
 newcrown.com.au
+newdnsglobaldns.duckdns.org
 newgrowthsa.com
 newhomebuildingservice.co.uk
 newhydeparkcarpetcleaning.com
@@ -19451,6 +19475,7 @@ ngrety.com
 nguyenvanhoafood.com
 ngzhdgm.thecharcuteriebeach.com
 nhacaiuytin.center
+nhakhoataysaigon.com
 nhapcode8k.com
 nhg.1001gacor.org
 nhg.sm188daftar.mom
@@ -20362,6 +20387,7 @@ olympus123gac0r.site
 olympus1gacors.online
 olympus4asli.space
 olympusgac0rwin.online
+olympusgods.website
 olyqj.luxurygoodscaree.com
 om6q0drg.eng-usa-slimsounds.com
 om8d1tx6uuvmm0m.top
@@ -21316,6 +21342,7 @@ pereirabienert.com.br
 perfecpl.cyou
 perfect-bolognese-simmer.garden
 perfect-lasagna-layer.garden
+perfectchoicehair.com
 perfectcloudgate.com
 perfectgameiran.com
 perfectgo.top
@@ -22258,6 +22285,7 @@ proxy-us-east004-cip9.ahrefs.net
 proxy-us-east005-cip15.ahrefs.net
 proxy-us-east005-cip4.ahrefs.net
 proxy-us-east005-cip5.ahrefs.net
+proxy-us-east006-cip5.ahrefs.net
 proxy-us-east007-cip16.ahrefs.net
 proxy-us-east009-cip14.ahrefs.net
 proxy.am
@@ -25372,6 +25400,7 @@ simintejarat.ir
 simo.msdos.ru
 simo.v-panel.asia
 simple-cheats.com
+simple-tech-it.com
 simplecheck.online
 simplegastronomy.com
 simplegiftsfarmcsa.com
@@ -29416,6 +29445,7 @@ vendas.lacasadolinux.com
 venezia-deggendorf.de
 venezianasbrasil.com
 vengelfinance.com
+venix-hub.mom
 venom.summertunnel.shop
 venom189.org
 ventadrones.com
@@ -29601,6 +29631,7 @@ vine-linen.com
 vineblossom.it
 vinergil.com
 vinespr.mav2lorix.lat
+vinip-xup.mom
 vinmporflowgroun.ydns.eu
 vintage-blueprint-vault.garden
 vintage-telemetry-receiver.garden
@@ -31733,6 +31764,7 @@ www.neqbzjio8rflhgwclmpr.app
 www.nettflex.site
 www.neurowellnesslab.site
 www.new-age-bookstore.amanamission.com
+www.newdnsglobaldnsduckdns.com
 www.newgemtsa63.fr
 www.newratu.com
 www.nextge.fr
