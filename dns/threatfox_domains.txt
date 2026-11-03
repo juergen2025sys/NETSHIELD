@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-03 22:19 CET
-# Eintraege: 33845
+# Aktualisiert: 2026-11-03 23:31 CET
+# Eintraege: 33850
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -5100,6 +5100,7 @@ bossbeymega.click
 bossbeynetwork.click
 bossbeyprimeplace.click
 bossbeyprimeteam.click
+bossbeyprimeworld.click
 bossprotect.com
 bosstekirdag.store
 bostaxservice.com
@@ -9705,6 +9706,7 @@ enus-synaptigen.com
 enus-thyrafemmebalance.com
 enus-tinnitrol.com
 enuvdz.ksfogaszat.hu
+env-hamiltonjankecomau-staging2.kinsta.cloud
 env.vpssysnet.pics
 envelzm.xyz
 envestassetmanagement.com
@@ -12312,6 +12314,7 @@ governances-onyx.xyz
 governmentyard.cfd
 governorhobbies.cfd
 govnol.lat
+govrobczxc.cc
 gowayofficemee.in.net
 gozilwl.overlokcu.com
 gozmmmaa.duckdns.org
@@ -16010,6 +16013,7 @@ kuilfgfd.cc
 kujim.run
 kuksis.lt
 kul.cantdown.su
+kul2gqhg.bossbeyprimeworld.click
 kulnpioc.mabanishimi.xyz
 kum-bonsweiher.de
 kumeassociates.com
@@ -33763,6 +33767,7 @@ ztwwcx.gerecseglamping.com
 ztx7i07q.ravanshenasisaeedi.xyz
 ztyjalwc.betropol.bet
 zucx.bet90forward.win
+zufidyqe.workers.dev
 zugaztieta.com
 zugp0kx8.en-us-easybatteryfixed.com
 zuhg5fig.drubenginecologo.com
