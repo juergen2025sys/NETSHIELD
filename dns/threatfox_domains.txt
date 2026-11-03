@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-03 10:56 CET
-# Eintraege: 33752
+# Aktualisiert: 2026-11-03 12:01 CET
+# Eintraege: 33757
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -16983,6 +16983,7 @@ lopp.hitnoop.cc
 lopstmisot.com
 loqgw5hc.botvn.net
 loqira.com
+lord.ducks-food.com
 lorenabrancucci.com
 lorettesdiary.com
 lorex7in.digital
@@ -23145,6 +23146,7 @@ rafacommunications.com
 rafamolla.es
 rafastandfurious.es
 raft.asyoulike.nyc
+raft.ducks-food.com
 rahasa.com
 raheomid-clinic.ir
 rahmagrill.com
@@ -23651,6 +23653,7 @@ reveltio.com
 reviewgard.priesthood-in.lat
 revistadocallcenter.com.br
 revivebyviv.com
+revizuly.workers.dev
 revmatolog-almaty.kz
 revoengenharia.com.br
 revokes-humanity.com
@@ -24953,6 +24956,7 @@ sercresta.mongofixcore.lat
 serelle.blog
 serengetifrontier.co.tz
 serer.run
+serf.ducks-food.com
 serforge8en.xamir4al.lat
 serforgeis.1dorelax.surf
 sergedoka.org
@@ -30968,6 +30972,7 @@ www.abogadotraficobarcelona.com
 www.aboutbayarea.com
 www.absassicurazioni.it
 www.abvision.cam
+www.accarda.com
 www.accessrxhealth.com
 www.acropolinuragica.it
 www.adamconsultings.com
