@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-03 01:08 CET
-# Eintraege: 34153
+# Aktualisiert: 2026-11-03 02:07 CET
+# Eintraege: 34170
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -203,6 +203,7 @@
 1441bet.com
 14cabp433878.vicp.fun
 14fet9qp.hwgrouppik.com
+151.99.77.34.bc.googleusercontent.com
 155b3nro.proxy-cascade.digital
 15fc73d7.wignalllindor.wiki
 16.135.199.104.bc.googleusercontent.com
@@ -17285,6 +17286,7 @@ lueplxze.sadreislam.xyz
 lufiximy.workers.dev
 lufry.mabelsnursery.com
 luisrobertobarroso.com.br
+lukasspricht.de
 lukkeze.club
 lulalili.workers.dev
 lulemo.workers.dev
@@ -17596,6 +17598,7 @@ mahzls.trustcsbs.com
 maia-bentley.com
 maiaoqeuekuosskg.xyz
 maibnyf.303-bet.buzz
+maiditcleanfl.com
 mail-cross3.acilkredi.ch
 mail-my-account.com
 mail.catsec.ink
@@ -19643,6 +19646,7 @@ ngbui90.com
 ngdt6tui.rsfoodproducts.com
 ngi.88idn.net
 ngieimu.kvbel.com
+ngknr71262.workers.dev
 nglrdgbx.prozhedownload.com
 ngofederation.in
 ngrbvc.sppartamax.com
@@ -28054,6 +28058,7 @@ timpwpomohungn.site
 timremcos.ddns.net
 timtheitguy.ca
 tin.tokyo77hit.com
+tinhtedalat.vn
 tinitrol.us
 tinneatonenessnabobical.com
 tinnitraul.com
@@ -28388,6 +28393,7 @@ trackerredirect.online
 trackmetrica.icu
 tractor.persistfromchicago.com
 tracuuthansohoc.com.vn
+trade-mp.com
 tradecap.dk
 tradecap.se
 tradegenuis.com
@@ -29686,6 +29692,7 @@ vednb0n9eo7pn6z.top
 vedshyamlal.com
 vefzvud7.jadoou.bond
 vegacomercial.com.br
+vegantraveltoolkit.com
 vegasmanageditservices.com
 vegetgrand-fath.digital
 vehicledeliverymanchester.co.uk
@@ -30224,6 +30231,7 @@ voulamastori.gr
 vovoh.run
 voyag413.xyz
 voyagefroz.messy-zamai.pics
+vozoll.com.tr
 vozzijig.site-shartbandi-pasor.online
 vpanel.v-panel.asia
 vpn.addpunctu2tion.surf
@@ -30518,6 +30526,7 @@ wakvssup.1xgame.pro
 walbumbyg.dk
 wald10k.fixt-turbine.in.net
 waldfriedhof-fuer-tiere.de
+walkinstabilitychamber.com
 wall.casajuanchos.com
 walmagua.cc
 walshtimberflooring.com
@@ -31843,6 +31852,7 @@ www.ioa7xqmhiz26fv5e.info
 www.ipregionchecker.org
 www.irisetosavelives.com
 www.ivyridgebooks.com
+www.iwx.dvf.mybluehost.me
 www.j3152xx.cc
 www.j4investment.com
 www.ja82.fr
@@ -32291,6 +32301,7 @@ www.slidingdesk.com
 www.slo.ru
 www.slotgame-myanmar.com
 www.smartchild.sk
+www.smartproductssa.co.za
 www.socopes.it
 www.solucionpericial.es
 www.soluzionienologiche.it
@@ -32366,6 +32377,7 @@ www.thueringer-stuck.de
 www.tipsytransit.com
 www.tkj.dk
 www.tlckidstherapynyc.com
+www.toldosoriente.com.br
 www.tolnaiallatorvos.hu
 www.topcargroup.it
 www.topclickgaming735.info
@@ -32376,6 +32388,7 @@ www.tosoweb.com
 www.tourandtravel.eu
 www.translationcompany.co
 www.travaux-renovation-decoration.fr
+www.treegintl.com
 www.tregimpianti.com
 www.treja.net
 www.trentocaldaie.it
@@ -32406,6 +32419,7 @@ www.usemention.ai
 www.utdxr9omtswgfgl5vyz6huj8.net
 www.v71zxahc3jd0txzxs.app
 www.vagabondbooks.com
+www.valbellunameteo.it
 www.valentinar.ru
 www.valleyintmd.com
 www.valleyintmdbackup.com
@@ -32445,6 +32459,7 @@ www.wagnerauto.net
 www.walbumbyg.dk
 www.waronline.com
 www.waverleykls.org.au
+www.wazo.lu
 www.webdevarrayremco.com
 www.webdevarrayremcobackup1.com
 www.webdevarrayremcobackup2.com
@@ -32499,6 +32514,7 @@ www.zfederal.com
 www.zfu4n4kxgmx32hsqg.cc
 www.zigpsychocybercowboys.com
 www.zikweb.net
+www.zindobaresina.com
 www.zominoz.com
 www.zp857.online
 www.zrs7b8boubf9y-b1.net
@@ -32618,6 +32634,7 @@ xave.jadoobet.ink
 xavierclothing.com
 xavytub.alternatifdekorasyon.com
 xawur.workoutwithdorci.com
+xaydunghoangdannguyen.com
 xaydungnissi.com
 xaz2.com
 xaztwb.redcanoerealestate.com
