@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-03 10:30 CET
-# Eintraege: 33747
+# Aktualisiert: 2026-11-03 10:56 CET
+# Eintraege: 33752
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -6136,6 +6136,7 @@ ch79s29o.eng--nervealive.com
 chainlist.org
 chainlist.simplr.sh
 chalet-ovalala.com
+challengeswiss.ch
 chalx.live
 chammaautosales.com
 chamomilecanto.co
@@ -16359,6 +16360,7 @@ lcrchiropraxie.fr
 lcs5a3iy.devtec.store
 lcstdnsns.beer
 lcsywbam.btyek.christmas
+lcyhw43786.workers.dev
 ldbrrvwc.hugugmadani6.xyz
 lddwegnb.ketabworld.ir
 ldebgt.suger-mute.com
@@ -26721,6 +26723,7 @@ surplusofer.com
 surveillance.1qq.cam
 surveillancetechsolution.com
 survivaltraits.com
+susanne-scholz.com
 sushe.store
 sutf.kafekarachi.com
 suvc.backgammon.download
@@ -28133,6 +28136,7 @@ trilochansubedi.com.np
 trimark5ar.cryptostack.lat
 trimarkex6.mirelax9.life
 trimergeconsultants.org
+trinacria.hr
 trinex7is.pav8lorex.lat
 trinityhallllc.com
 triotmelon.com
@@ -28196,6 +28200,7 @@ trust-wallet.gr.com
 trusted-capi.nexa2vor.lat
 trusteddecod.deryuga-sablist.garden
 trustedwicky.com
+trustpayusa.com
 trustwallet-verify.com
 trustygoodies.com
 truth-dialogue.com
