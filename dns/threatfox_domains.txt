@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-03 13:31 CET
-# Eintraege: 33768
+# Aktualisiert: 2026-11-03 16:34 CET
+# Eintraege: 33795
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -157,6 +157,7 @@
 1.outofsitechicago.com
 1.win-faw.win
 102z512uqjl6m.xyz
+103.59.55.34.bc.googleusercontent.com
 107.24.156.34.bc.googleusercontent.com
 108h764sg7npw.xyz
 10buigpz.bossbey19.click
@@ -223,6 +224,7 @@
 176.65.149.124.ptr.pfcloud.network
 176.65.149.4.ptr.pfcloud.network
 178-128-196-79.sslip.io
+179.241.150.34.bc.googleusercontent.com
 17eqwy30.takhtenard.app
 17p9jll6.1xborobetyek.bet
 17pqcbl3.mychartradyschildrens.org
@@ -802,6 +804,7 @@
 45vpt6bf8rlh.hellodcuser.com
 45x6vzup.bossbeyplace.click
 45z48gf6.get-aquaburn.us
+46.85.175.207.bc.googleusercontent.com
 465p7p53.usen-synadentix.com
 46fe21f9.eveningneighbor.com
 46fmfamd.crispychickencutlets.digital
@@ -1830,6 +1833,7 @@ abcfoods.mu
 abcplavani.cz
 abcsgftr.cc
 abdelkarim.boskri.com
+abdulwahabembroidery.com
 abell.store
 aberdeen-angus.lt
 abernaahy.sbs
@@ -3584,6 +3588,7 @@ ausicsckckkoaiaq.xyz
 auslanbee.com.au
 ausputn.com
 aussiejetsetter.com.au
+austinechemical.workers.dev
 australianroadlines.com.au
 australiansuper.xyz
 aut.bitflowapp.pics
@@ -4423,6 +4428,7 @@ betlikegirisi.com
 betmegapari.net
 betmel.coupons
 betnoise-unionour.cyou
+betoqueiroz.com.br
 betpool.online
 betpoop.com
 betrayon.casino
@@ -5083,6 +5089,7 @@ bossbeymaster.click
 bossbeymax.click
 bossbeymega.click
 bossbeynetwork.click
+bossbeyprimeplace.click
 bossprotect.com
 bosstekirdag.store
 bostaxservice.com
@@ -5360,6 +5367,7 @@ bucakosb.org.tr
 buck-cdns-server.sbs
 bucketsking.com.br
 buckis-garage.de
+buckymotter.com
 buckyteachesguitar.com
 budapesthandmade.hu
 buecher.hagalil.com
@@ -8529,6 +8537,7 @@ dotprompt.digital
 dottoressalaurascaramuzzo.net
 doubledavespizzatx.com
 doublexoxo.duckdns.org
+doublexoxoclassproject.duckdns.org
 douglascormack.co.uk
 douit.nl
 dovaxanil.com
@@ -9140,6 +9149,7 @@ educiruped.com
 educlic.ca
 edukacjaparlamentarna.pl
 eduplatform.it
+edusystem.pk
 edutronicas.com
 edvdafc.prozhe.vip
 edvekzo.alohawatersports.com
@@ -10834,6 +10844,7 @@ flyhighsmokeshop.com
 flyi.jadoou.lat
 flyingbbird.cc
 flyingtogether-ual.net
+flymehigh.space
 flymenu.ai
 flymetoyou.app
 flzocge.penality.bet
@@ -13277,6 +13288,7 @@ hopehousing.net
 hopepreschool.co.uk
 hopesgarden.org
 hopetotesbuffalo.org
+hoppeebrouwer.lol
 hor.kaitorinihon.jp
 hor1inka-lonely.digital
 horabe.workers.dev
@@ -13701,6 +13713,7 @@ idecaperu.org
 ideea-design.ro
 identityoneexpress.net
 idlmwh.shop-echoxen.us
+idma.digital
 idn777.de.com
 idodoe.co.tz
 idrive.ba
@@ -14700,6 +14713,7 @@ jasobilo.workers.dev
 jasper-automotives.com
 jasperstays.com
 jatafatuna.com
+jauntygroup.com
 javascript.skin
 jawahirjewels.co.uk
 jaxivo.com
@@ -17431,6 +17445,7 @@ mail.nemail.co
 mail.novaform.cc
 mail.outlook-office365.com
 mail.physioxrsize.nl
+mail.praventra.com
 mail.prolifemobilization.com
 mail.qilantelecorn.com
 mail.spacaex.com
@@ -17468,6 +17483,7 @@ majdod.com
 major-pur.adi8hesplayer.pics
 majordubai.com
 make.thbwi.workers.dev
+makedonias.gr
 makerman.in
 makespaceforyou.org
 makeverizyjar.info
@@ -18661,6 +18677,7 @@ motivationiran.com
 motopicks.com
 motorsport-zander.de
 motowin77login.world
+motus.ro
 moun4-plate.milo3ren.lat
 mount9-crest.rataj-vertky.lat
 mountainsoccer.org
@@ -21085,6 +21102,7 @@ parlamentopai.com
 parlouredshop.com
 parma-delikatessen.com
 parmella.it
+parosrentcars.com
 parotide.eu
 parsballl.com
 parsc.bet
@@ -22683,6 +22701,7 @@ qhziiivs.casinomhub.bet
 qi20j1a8.leptozanstore.com
 qianxinnbplus.xyz
 qiekqweantyyr.com
+qihupu.workers.dev
 qikkcsyucaimsyyk.xyz
 qilapvvt.ganuneasasi.xyz
 qimicmumwioomgga.xyz
@@ -23157,6 +23176,7 @@ raft.ducks-food.com
 rahasa.com
 raheomid-clinic.ir
 rahmagrill.com
+rahu.ir
 rai1u9u3.bociljp.id
 railchalk.xyz
 railcountry.xyz
@@ -23419,6 +23439,7 @@ redjaxfire.com
 redlable1.website
 redlable3.website
 redlinebusiness.space
+redmondjeffreyassociates.co.uk
 redrockscoach.com
 redtecsi.com.ar
 redwheelvacationrentals.com
@@ -28208,6 +28229,7 @@ trunqitcg.com
 trusaifi.cfd
 truspanel.com
 trust-wallet.gr.com
+trustchecknes.com
 trusted-capi.nexa2vor.lat
 trusteddecod.deryuga-sablist.garden
 trustedwicky.com
@@ -28294,6 +28316,7 @@ tunartyapi.com
 tundebadru.com
 tundraflow6net.veloria.garden
 tunivert.com
+tuoitresamco.vn
 tuplediskdkey.christmas
 tur.jurangsm188.top
 tur.realmadridiran.news
@@ -30713,6 +30736,7 @@ wmqggqacomwuusyu.xyz
 wmqgoqqowyiewiag.xyz
 wmqikoumgsagskyg.xyz
 wmqrmnaqwmbverkhryd.greenpulselandscaping.com
+wmriovkj.bossbeyprimeplace.click
 wmsoueekcksooosg.xyz
 wmtstats.live
 wmxdata.ddns.net
@@ -31258,6 +31282,8 @@ www.dojcatena.com
 www.donnidifora.it
 www.donorart90opub.info
 www.dotit-corp.com
+www.doublexoxoclassprojectduckdns.com
+www.doublexoxoclassprojectduckdns1.com
 www.dpic-computers.com
 www.drechftankholding.com
 www.drone.hiphop
@@ -32084,6 +32110,7 @@ www.weight-loss-center.net
 www.weilaizhijiao.com
 www.wesolerobaczki.pl
 www.wheelerconstruct.com
+www.whereisfrancis.com
 www.whitefoxrarebooks.com
 www.winconceptdesign.com
 www.winemixed8uwhh.net
