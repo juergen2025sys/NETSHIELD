@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-03 07:59 CET
-# Eintraege: 33596
+# Aktualisiert: 2026-11-03 09:26 CET
+# Eintraege: 33631
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -863,6 +863,7 @@
 4j08c44n.omars.store
 4j0v33ow.cyber-lattice.digital
 4j6m037n.mcbelize.com
+4jw9mmho.bossbeyvip4.xyz
 4kqxthda.porel.store
 4l5f9s48j9140825u.cfd
 4l988hfr.1fabet.live
@@ -925,8 +926,10 @@
 4yl6u62i.pdfbama.com
 4z0tdlyo.calvaryhospice.org
 4z4tzb9w.portman-photos.com
+4z51u17u.bossbeyprimeclub.click
 4zf0849k.www-genesisrevival.com
 4zmg28xb.napolipizzaweymouth.com
+5.1.71.136.bc.googleusercontent.com
 509ukk9c.enf90.vip
 50cia8-route.3toravix.lat
 50plusblogging.com
@@ -4749,6 +4752,7 @@ blog.insidemarket.ng
 blog.jusun.org
 blog.kibotics.org
 blog.kireev.me
+blog.maistocadas.top
 blog.paipweb.com
 blog.publiregal.es
 blog.universe-edge.ru
@@ -5160,6 +5164,7 @@ bridge73.com
 bridgelimited.com.hk
 briefcomunicacao.com.br
 bright-sk-y1.to6varil.in.net
+brightbunnyservices.com
 brightdeltazone.top
 brightestprocexchange.wiki
 brightingsouls.com
@@ -5809,6 +5814,7 @@ catalinaconsultant.com
 catalog3.calmtexture.click
 catalogpriv.hundred5elf.lat
 catalrail.thora8lin.lat
+catalystxshop.com
 catesautoservice.com
 catfoodeuro.shop
 catground1957.casacam.net
@@ -6011,6 +6017,7 @@ cespedamserra.com
 cess.digishart.news
 cessolutions.com.mx
 cestfininewdns.vip
+cestiecalici.com
 ceutaflat.com
 cewjik.sbs
 ceymox.xyz
@@ -7472,6 +7479,7 @@ dadc.noip.at
 dadhettniaedas.com
 dadshirts.net
 daf.bet
+daffe2.xyz
 dafkov.shop
 daftarbolapro.click
 dagatructiep.boats
@@ -7606,6 +7614,7 @@ dataplaysolutions.com
 datapointly.icu
 datapulse.wiki
 dataramara.icu
+datasciconnect.com
 datastoria.com
 datastorminc.live
 datasurge-bot.com
@@ -9706,6 +9715,7 @@ eqzsjra.pasur21.com
 er.dropklant.com
 er.theinfoinc.com
 er4goixf.zaribbala.bet
+eraaluminyum.com.tr
 eraleignews.com
 eraplay88asli.space
 eraplay88csn88.space
@@ -9768,6 +9778,7 @@ esoftwareupdates.com
 esotericpro.com
 espacointegrar.com.br
 espectaculostaurinos.colvet.es
+espritjourneys.com
 esqbzfn.bet365iran.com
 essek.lol
 essence.ncsgo.workers.dev
@@ -10930,6 +10941,7 @@ franbellamail.co.uk
 francescmarcalvaro.cat
 francescoameglio.it
 francescocolianni.com
+frank-brushes.com
 frank-psy.de
 frankfurt-airport-shopping.de
 frankfurt-dutyfree.de
@@ -11558,6 +11570,7 @@ gene-pod.di7ectkoshevoy.lat
 gene-track.messy-zamai.pics
 genebags.in
 genehome.info
+geneparks.com
 general-sample.space
 general-soft.space
 general.activeworkshops.com
@@ -11573,6 +11586,7 @@ genesisfibra.com.br
 genesisrevivl.com
 genesun.arch-vivarium.lat
 genetik.com.br
+genevahealing.com
 genevievesasseville.com
 gengivoplastiabh.com.br
 genieagentflow.com
@@ -12369,6 +12383,7 @@ grupocentauros.com.br
 grupoeleanor.com
 grupoenergetiko.cl
 grupogko.cl
+grupomedic.eng.br
 grupomengual.com
 grupostelegrambrasil.com
 gruppotadduni.it
@@ -14507,6 +14522,7 @@ jaba.store
 jabejsp.smallenginesolutionsllc.com
 jacekwilkosz.pl
 jack.versionverif.icu
+jackbelmontbarbers.com
 jackdohertycontracting.com
 jacketsupport.com
 jackiewhitfield.com
@@ -14574,6 +14590,7 @@ janatcosmetics.com
 jandoz.com
 jangorski01.prv.pl
 janicevavra.com
+jannashocked.workers.dev
 jantakamood.com
 janyawedding.com
 japanaction059.duckdns.org
@@ -16490,6 +16507,7 @@ ligamayordebeisbol.com
 light-copying5ingle.digital
 light-zip.com
 lighthouseboston.com
+lighthousefrc.org
 lightiswinning.top
 lightsiteview1.solavern.garden
 lightsnow.info
@@ -18723,6 +18741,7 @@ mukvsxft.sazebetonarme.xyz
 mulberrylodestar.top
 mulip.store
 mullenpalimpseststudio.com
+multi-sweep.com
 multiculturalpartners.com
 multigroup.co.id
 multipliers-kinetiq.xyz
@@ -19375,6 +19394,7 @@ ninjamysticblade.cfd
 nintvncm.rayegan.net
 nioas33l.shop-aquaburn.us
 niol201d.comoycuandopodar.com
+niotechone.com
 niowimq.shansline.com
 nirvanakeysmethod.com
 nirvikalpatherapy.com
@@ -21500,6 +21520,7 @@ pjw2jloy.synadentics.com
 pjzhlamo.karbordriyaziyat.xyz
 pjzmil.sim-trucking.com
 pk365.ac.pk
+pk69slot.vip
 pk88vn.dev
 pkdac095.euroyek.bio
 pkdehbp.the-xbitcoinclub.com
@@ -23011,6 +23032,7 @@ radianhealthcare.com
 radiant7path.petalune.garden
 radiantprospera.digital
 radio-legitdown.digital
+radioamistadaucayacu.com
 radiocarmelo.com
 radioistara.com
 radiokakande.com
@@ -23158,6 +23180,7 @@ raybake.com
 raybet.tech
 raymondrealtyin.com
 rayonbet.com
+raypathbodycare.com
 raypathlink.xenonraypoint.garden
 razefti.cyou
 razonewane.com
@@ -24186,6 +24209,7 @@ s-artishock.co.il
 s.abc22.org
 s.bb69.org
 s.bok13.org
+s.bola7.net
 s.goliath.st
 s.littleshabby.net
 s01687.byte-buff.com
@@ -25017,6 +25041,7 @@ shield-sky.com
 shieldprotect.duckdns.org
 shieldpure3link.lunavera.garden
 shienslot88.asia
+shifra.org.il
 shift-api-control.com
 shift-art.com
 shift.ashjunit.lat
@@ -26344,6 +26369,7 @@ stormvenomforge.top
 stormwraith.com
 storyslow.airport-clar.lat
 stpata.biz
+stpaulsfamily.or.ug
 stqdx.gominhabjj.com
 str-smcontrcats.cfd
 straely.biz
@@ -27468,6 +27494,7 @@ therodeoroundup.com
 theroyalfischer.co.za
 theroyalpizza.com
 thesamba-viewpicture.com
+thesecretinventory.cyberthread.net
 thesit.eu
 theskydigitalmedia.com
 thesleepingontour.info
@@ -27842,6 +27869,7 @@ totalads.monster
 totalbiztransformation.com
 totalconstructionsolutionswi.com
 totalwomenhealthcare.com
+tothgeorgina.hu
 totyc.run
 touchbearersacademy.com
 touchsteelware.com
@@ -27942,6 +27970,7 @@ translationcompany.co
 transportationacademy.org
 transportdewachter.nl
 transportesandrio.com.br
+trattoriabelmicolle.com
 travel-js-ns.beer
 travelawed.com
 travelley.health
@@ -28037,6 +28066,7 @@ true.fastexitnow.lat
 trueconnectives.com
 trueessencehairextensions.net
 truenarrator.com
+truenorthphysio.com
 truepartner.great-insue.pics
 trueworks.site
 trufflecatering.com
@@ -29046,6 +29076,7 @@ v6k91pk4.truenarrator.com
 v6o8c9xi.mrbet90.com
 v6pggtfljylf5cekfssrdhcyaxsk6m5xoudrqnvskw73iueyvaexsnad.onion
 v6sjo9pv.omec.store
+v79.ad
 v79.poker
 v7jry8na.roxymigurdia.wiki
 v8.aeon888link.org
@@ -30915,6 +30946,7 @@ www.bacugno.it
 www.bagbooks.com
 www.barnerbooks.com
 www.barrycassidyrarebooks.com
+www.basketball.co
 www.batsoverbooks.com
 www.bctourismindustryconference.ca
 www.bellscares.com
@@ -31355,6 +31387,7 @@ www.kasmitra.lt
 www.kathmandubooks.com
 www.kavkom.tv
 www.kcde-ks.org
+www.kcse.com
 www.keatscollege.com
 www.keep-coding.net
 www.kellerbooks.com
@@ -31618,6 +31651,7 @@ www.pokerdom-kasinos-site.ru
 www.polesetour.it
 www.poli-system.it
 www.polonez.org.au
+www.portal.adapta.inf.br
 www.powderskiartistry.com
 www.praxisnord.com
 www.premiumlakaskezeles.automentesgocza.hu
@@ -32010,6 +32044,7 @@ x-tree.be
 x.abc22.org
 x.acunbet89.org
 x.ajo7.org
+x.akuatoto.net
 x.ayu99.pro
 x.bola7.net
 x.btwpayme.top
