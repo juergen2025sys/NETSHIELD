@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-03 16:34 CET
-# Eintraege: 33795
+# Aktualisiert: 2026-11-03 17:01 CET
+# Eintraege: 33802
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -202,6 +202,7 @@
 14cabp433878.vicp.fun
 14fet9qp.hwgrouppik.com
 151.99.77.34.bc.googleusercontent.com
+151dmnyj.bossbeyprimehub.click
 155b3nro.proxy-cascade.digital
 15fc73d7.wignalllindor.wiki
 16.135.199.104.bc.googleusercontent.com
@@ -9993,6 +9994,7 @@ evrything-pix.icu
 evs.org.pk
 evsdbwa.pasukan138.de.com
 evspwohq.betgar.bet
+evu.akun258.org
 evuoos85.adabiyat.org
 evyahvhbwbsxufviky.energyrefundhelpline.com
 evypenr.winnerbahis-tr.com
@@ -13326,6 +13328,7 @@ hot51.se
 hotbet90.casino
 hotel-a24.com
 hotel-pineta.it
+hotel.wildhorsehotnet.net
 hotelalritrovo.com
 hotelboyacaplaza.co
 hotelbrunella.com
@@ -23005,6 +23008,7 @@ quwmvbk.ismailnas.com
 quwoaeowmqeoqukw.xyz
 quwyymgakyuqueks.xyz
 quxap.run
+quxzw2zz.bossbeyvipcenter.click
 quy30mlr.shop-aeroslim.us
 quygkusucsckmska.xyz
 quyiaismmkesyoku.xyz
@@ -23327,6 +23331,7 @@ rbxtools.cc
 rbzsq.sm188login.cfd
 rc.7dewaslot.org
 rc.de-zahlung.eu
+rc.doesstuff.com
 rc.kz
 rc.svtt.top
 rc.szpd.info
@@ -23703,6 +23708,7 @@ rex.sm188daftar.mom
 rexacheat.com
 rexastress.com
 rexlightpro.com
+rexrat.ccwu.cc
 reyhanebeheshti.xyz
 reykh.icu
 reynoldsbrothersconstruction.com
@@ -25796,6 +25802,7 @@ softcrate.cfd
 softcrewinc.duckdns.org
 softdoska.ru
 softgroup.ma
+softify.lat
 softify.space
 softloadup.com
 softsfliesa.site
