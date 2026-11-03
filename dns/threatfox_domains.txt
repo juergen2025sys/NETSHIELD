@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-03 23:31 CET
-# Eintraege: 33850
+# Aktualisiert: 2026-11-03 23:54 CET
+# Eintraege: 33857
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -220,6 +220,7 @@
 16tv.hu
 17.aa.4t.com
 172u1sfd.diero.store
+173ye7va.bossbeyprimezone.click
 175.53.189.35.bc.googleusercontent.com
 17575bbb.roseanne.id
 176.65.148.144.ptr.pfcloud.network
@@ -1500,6 +1501,7 @@
 8k-wum35a-10.buzz
 8k-ze24kjf-9.buzz
 8k2t5.icu
+8katifmu.bossbeyprimenetwork.click
 8kbet18.com
 8kbet18k.com
 8kbetke.com
@@ -5101,6 +5103,7 @@ bossbeynetwork.click
 bossbeyprimeplace.click
 bossbeyprimeteam.click
 bossbeyprimeworld.click
+bossbeyprimezone.click
 bossprotect.com
 bosstekirdag.store
 bostaxservice.com
@@ -12343,6 +12346,7 @@ gpy.psgiran.news
 gq0e2dm9.kernel-beacon.digital
 gq2r07sp.easybatteryfixed.org
 gq59bezr.energedia.foundation
+gq5pyt40.bossbeyvipclub.click
 gqbociqf.mayochem.com
 gqfcklh.leesvillelakerealtor.com
 gqjz709j.bordoo.bet
@@ -13141,6 +13145,7 @@ hirelatamlaw.com
 hirelatamlawyer.com
 hirelatamparalegals.com
 hirjnqvagnfswonyxw.web-goldalign.com
+hiruje.workers.dev
 hit.sm188dnsxx.top
 hitclub.ac
 hitclubblog.com
@@ -15367,6 +15372,7 @@ kantnxrl.betropol.bet
 kanzlei-steyer.de
 kappa-systems.com
 kappadocia.net
+kaprychozas.rf.gd
 kapsnovin.com
 kaptureprefab.com
 kapuleti.com
@@ -18300,6 +18306,7 @@ mixblo.xamir9el.lat
 mixed-on-storage-layer.garden
 mixfidelity.com
 mixhostunit.mira4then.bet
+mixil.usc.edu
 mixkitchenamsterdam.nl
 mjbpgp3k.jadoou.cfd
 mjca.fontanayoga.com
