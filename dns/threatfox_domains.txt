@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-03 17:01 CET
-# Eintraege: 33802
+# Aktualisiert: 2026-11-03 18:25 CET
+# Eintraege: 33807
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -11414,6 +11414,7 @@ gaaeacuogsywmiue.xyz
 gaagkgwmciyykqeu.xyz
 gaaiumckmyummmyu.xyz
 gaauqaeqcyaygees.xyz
+gabbrobarbican.info
 gabinet.lukaszsarnecki.pl
 gabion-region.ru
 gabriellekwilson.com
@@ -17861,6 +17862,7 @@ mehig.run
 mehpuqa.ac90bet.org
 mehtasolutions.de
 meierhealthcare.ch
+meima32858.workers.dev
 mein-stadtgarten.de
 meinepacks.live
 mejeuqh.audizyn.com
@@ -27099,6 +27101,7 @@ taatconsulting.com
 tab-consultancy.com
 tab.rowlocks.pics
 tabbyottercub.com
+taberetoby.ro
 tablebable2231.world
 tacosymotos.com
 tacticalk9familycoin.com
@@ -30229,6 +30232,7 @@ wave.taro5lin.surf
 wavepathlink.plasmagridunit.garden
 wavhfe.biz
 wawuggiwoasasqcc.xyz
+wayho.com
 waylace.xyz
 waysmakeyourlifebetter.com
 wazo.lu
@@ -30660,6 +30664,7 @@ wisebyte.cc
 wiselystarting.com
 wiseview58.com
 wishcourt.cfd
+wishdirection.xyz
 wishgrove.cfd
 wishline.xyz
 wishyourgifts.in
