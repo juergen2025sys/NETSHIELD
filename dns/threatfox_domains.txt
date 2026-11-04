@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-04 04:38 CET
-# Eintraege: 33387
+# Aktualisiert: 2026-11-04 07:30 CET
+# Eintraege: 33401
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -173,6 +173,7 @@
 123enardresis.org
 12cscmg1.enus-tupitea.com
 12deoctubreveterinaria.com.ar
+12dim-xanth.xan.sch.gr
 12jzlr7i.boano.store
 12xb1qlu.jet-theme.com
 12zjij7k.betrein90.com
@@ -200,6 +201,7 @@
 151.99.77.34.bc.googleusercontent.com
 151dmnyj.bossbeyprimehub.click
 155b3nro.proxy-cascade.digital
+15f54so2.bossbeyroyal.click
 15fc73d7.wignalllindor.wiki
 16.135.199.104.bc.googleusercontent.com
 16.ser3xvodc.xyz
@@ -1167,6 +1169,7 @@
 6cyzeu86.bettilt90.com
 6dg7sjam.bet404farsi.com
 6e023wyi.bossbey.store
+6f35xsvz7x.workers.dev
 6f3m8.icu
 6f59jp0g.waterfiltermag.com
 6feq96px.eutoor.com
@@ -5040,6 +5043,7 @@ bossbeyprimeteam.click
 bossbeyprimeworld.click
 bossbeyprimezone.click
 bossbeypro.click
+bossbeyroyal.click
 bossprotect.com
 bosstekirdag.store
 bostaxservice.com
@@ -15182,6 +15186,7 @@ kamyanetski.com
 kanaljogja.id
 kancelaria-lach.pl
 kancelaria-miastkowski.pl
+kancelarianovus.pl
 kanganjeweller.com
 kanopy.fr
 kantnxrl.betropol.bet
@@ -16044,6 +16049,7 @@ lalalae.com
 lalandscapelighting.com
 lalavanderiahtx.com
 lambdauyamna.com
+lamborshop.com
 lamezzaluna.net
 lamifu-f4a.workers.dev
 lamisandhanna.net
@@ -16639,6 +16645,7 @@ lmq0ixtj.en-us-memrylift.com
 lmstles-bootstrapped.click
 lmstudio.co.com
 lmtdb.run
+ln.akun258.org
 ln08p2fb.roseanne.id
 lnc1c2cf.anodaz.vip
 lncv1x6u.smokedamageinbellevue.com
@@ -20015,6 +20022,7 @@ ogliastraeventi.info
 ogo1.duckdns.org
 ogoba.bohochal.hu
 ogonna.ydns.eu
+ogtko71935.workers.dev
 ogtqavytw.usa--us-audizen.com
 ogwil.bet
 oh.whatisyourname.buzz
@@ -22293,6 +22301,7 @@ q2e2f5xuir4qub8.top
 q2egla0o.bahsine.casino
 q2xcpigj.betweentwospaces.com
 q3.aeon888link.org
+q3.alien203.org
 q383qak6.en-slimsounds.com
 q3g84ost.22beet.pro
 q3mart.in
@@ -25259,6 +25268,7 @@ skyvpns.tribun-triptych.lat
 skzz37qv.teamgetdsm.com
 sl0tsareas.space
 sl3iwbho7zdqjc3phm24pcd2xnko3nympkiplp6xthkc4775lb6nmxqd.onion
+sla.lovestoblog.com
 slaaplekker.online
 slabandsoul.com
 slaloolasiksubnovayachim.ru
@@ -26714,6 +26724,7 @@ t.99rtp.net
 t.9winn.org
 t.aww88.net
 t.ayu99.pro
+t.coy9.com
 t.shakesnap.net
 t.vwgze.workers.dev
 t0kmixg4.glas-design.shop
@@ -29732,6 +29743,7 @@ vzxzmkr.eachway-multiplier.com
 vzyeissn.rial.bet
 w.9winn.org
 w.abc69.net
+w.bosmj.org
 w02eza6e.plinkoirani.com
 w03yer1e.peddler-wasting.digital
 w0a86nbg.eng--neurowave.com
@@ -30979,6 +30991,7 @@ www.festadiborgorovereto.it
 www.finance77-laudantium.pro
 www.fingeruo8mind0.com
 www.fioreriadaalberto.it
+www.firedoormaintenance.com.au
 www.firmaprincipal.store
 www.fisioterapiacioni.it
 www.fiveroomsortigia.it
@@ -31897,6 +31910,7 @@ xbgnx37a.byte-lattice.digital
 xbhjypu.attilahatar.com
 xbvj.bahigo90bet.com
 xbwtz.cleantruckchecksac.com
+xbxza50287.workers.dev
 xbyq.olcsongepet.hu
 xbzbvp9g.remarq.store
 xbzh.kafekarachi.com
