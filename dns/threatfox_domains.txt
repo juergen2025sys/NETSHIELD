@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-04 08:53 CET
-# Eintraege: 33431
+# Aktualisiert: 2026-11-04 11:02 CET
+# Eintraege: 33452
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1767,6 +1767,7 @@ a6ybbuqh.eaglepasstoday.com
 a7px1y1v.container-pulse.digital
 a7r6cxyd.lacavamexicancocina.com
 a7vu3k7t.skillitacademy.com
+a8.coy9.com
 a8ps09r7.easybatteryfixed.us
 a8y1vw63.luxerabet1000.com
 a96ampff.mrgreenbetiran.com
@@ -2184,6 +2185,7 @@ agnbpfw.arbetwinner.com
 agpoferroli1.nl
 agqjwmu.betyekritzo.com
 agrandelephant.com
+agreement-rc.com
 agreminj.com
 agricropmarket.com
 agriculturemachineries.com
@@ -2461,6 +2463,7 @@ alladie.store
 allanpe.biz
 allaportaccanto.it
 allayyinah.sch.id
+allbaslot.org
 allboroughrealestate.com
 allcasinobet.live
 alldez.nl
@@ -5050,6 +5053,7 @@ bossbeyprimeworld.click
 bossbeyprimezone.click
 bossbeypro.click
 bossbeyroyal.click
+bossbeyservice.click
 bossprotect.com
 bosstekirdag.store
 bostaxservice.com
@@ -5316,6 +5320,7 @@ btye.bekabet.casino
 btyek.store
 btyek.website
 btyek.xyz
+bu.allbaslot.org
 bu6l986k.rihan.store
 buaoqtgen.adsbln3.xyz
 bubblepix2.life
@@ -7290,6 +7295,7 @@ cu3bm1vz.shop-sightfresh.com
 cu3lrjg7.rossbridgemedicalcenterlp.com
 cu8d1374.us-eng-zensulin.com
 cuajsf.racines.restaurant
+cube-60.com
 cubgalaxy.com
 cucnczaq.testdrivepaye3.com
 cucumb.cyou
@@ -9807,6 +9813,7 @@ estranat.biz
 estrategaswebs.com
 estudosmundiais.org.br
 esunager.net
+esyscozo.bossbeyservice.click
 et.aeon888link.org
 et5qogz2.one1xbet.promo
 et8095ov.parspoker.casino
@@ -10406,6 +10413,7 @@ fern-plume.com
 fern-roam-moss-luio.pro
 fern-song.pages.dev
 fern-trace-anvil-meoix.live
+fern46.com
 fernandopaula.com
 ferncurrent14.com
 fernmenshway.stigmaflowlink.garden
@@ -12360,6 +12368,7 @@ grrab.cannatural.cz
 grrojyt.sm188login.cyou
 grs-50-250.ru
 gruaspresidente.com
+grubbymiguelita.workers.dev
 gruendlers.com.tr
 grumpydesigns.co.uk
 grundschule-buergeln-betziesdorf.de
@@ -16979,6 +16988,7 @@ ludex.cc
 lueplxze.sadreislam.xyz
 lufiximy.workers.dev
 lufry.mabelsnursery.com
+lujeviki.workers.dev
 lukasspricht.de
 lukkeze.club
 lulalili.workers.dev
@@ -18577,6 +18587,7 @@ mrsls88.com
 mrtaesh2.radio-legitdown.digital
 mrtfx.com
 mruh.store
+mrv001.ddns.net
 mrvapora.pk
 mrwqb.bartaenergetika.com
 mryaseen.com
@@ -18690,6 +18701,7 @@ multisprint.mk
 mulxyzc.sm188wing.cyou
 mumbleplaything.digital
 mumsdebtservice.co.uk
+mundocircular.com.br
 muninn.nl
 murat.ink
 murooj.ba
@@ -19166,6 +19178,8 @@ new.decorhome.kz
 new.sunstonewell.info
 new.v-panel.asia
 new.zsnestemice.cz
+newbiesember.duckdns.org
+newbiesemberbk.duckdns.org
 newcoservicemower.com
 newcrown.com.au
 newdnsglobaldns.duckdns.org
@@ -19323,6 +19337,7 @@ niliafshar.com
 nimblecoral.mav3torel.surf
 nimbleshoal.adi8hesplayer.pics
 nimbtimber.vexa2-flow.life
+nimbus-58.com
 nimbus-pearl.com
 nimdelcapital.com
 ninarober.accesscam.org
@@ -21889,6 +21904,7 @@ pro-architecture-engineering-vault-info.wiki
 pro-comfort.pl
 pro-cyber-defense.courses
 pro-d63a.protexweer.workers.dev
+pro-sud-micro.fr
 pro.jasperwater.info
 pro.oakcanticle.co
 pro.skyprodoc.pics
@@ -22840,6 +22856,7 @@ r.88kfc.org
 r.abc212.org
 r.au338.org
 r.bamto.org
+r.bosmj.org
 r.v-panel.asia
 r0.erloro.com
 r066m9wa.eng-cardio-slim-tea.com
@@ -23702,6 +23719,7 @@ roblxexecutors.com
 robodomain.sbs
 robotpi8812.buzz
 robscarpetcleaning.com
+robsnson.lol
 robsoncidadao.com.br
 rochandmadeholiday.com
 rock.betweenthebunz.co
@@ -24233,6 +24251,7 @@ s7rpvlti.bahigo.casino
 s7uz9nrn.rayeganmarket.com
 s7w5r3s2.onebet1x.com
 s8.abad777.org
+s8.akun258.org
 s8006.com
 s8a20vxh.gavaedfagahe.xyz
 s8p4n4bz.behtarin-site-shartbandi-football.bet
@@ -26752,6 +26771,7 @@ t0kmixg4.glas-design.shop
 t0loka.live
 t0n3-wave.5toravex.lat
 t0uo8kf9.basketballiran.com
+t1.allbaslot.org
 t1.ishano456.sbs
 t1.xmsae.sbs
 t1.xshaon123.sbs
@@ -32881,6 +32901,7 @@ yzrdn.yanis.hu
 yzreuh97.bodes.store
 z.a9bet.org
 z.abc22.org
+z.allbaslot.org
 z.amo98.org
 z.aww88.net
 z.bok13.org
