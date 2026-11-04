@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-04 15:48 CET
-# Eintraege: 33483
+# Aktualisiert: 2026-11-04 16:41 CET
+# Eintraege: 33494
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2045,6 +2045,7 @@ adnplvk.123betyek.com
 adobeacrobat.portal-nota.sbs
 adobeartsia.com
 adobepdf.cc.cc
+adobeupdate.ddns.net
 adoswjr.calvaryhospice.org
 adpptgxb.bell-processing-core.christmas
 adsbln1.xyz
@@ -2486,6 +2487,7 @@ allocation-flarefoundation.xyz
 allocation-lienfi.app
 allocations-curve.com
 allocations-grove.xyz
+alloha4d.org
 allopizzapluslonguenesse.fr
 allowcheckd3.cc
 allowcsxan2.site
@@ -4523,6 +4525,7 @@ bighoki500jp.site
 bigmouthcomix.com
 bignosestudio.com
 bigr.dyn
+bigriemp.com
 bigsbubbasbadbbq.com
 bigsmart.beer
 bigsolutionsgc.com
@@ -5059,6 +5062,7 @@ bossbeypro.click
 bossbeyroyal.click
 bossbeyservice.click
 bossbeyspace.click
+bossbeyspot.click
 bossprotect.com
 bosstekirdag.store
 bostaxservice.com
@@ -6474,6 +6478,7 @@ clmkghe.bettime90.casino
 clna.springhillcommons.com
 clnsdns.beer
 clodflare.info
+clopprotext.com
 closedfistllc.com
 closegate21.xyz
 closestnum20.com
@@ -13511,6 +13516,7 @@ i0xh1sjp.en-us-zen-sulin.us
 i0zaakp5.monotheism-sled.digital
 i198k0170425m9.cfd
 i1i374tc.echo-fre.com
+i1l77lh7.bossbeyspot.click
 i1s4s2bo.disnakerkopjambikota.com
 i1zec9op.us-en-us-neuroxen.com
 i365pptc.lion1bet.com
@@ -18876,6 +18882,7 @@ n.acunbet89.org
 n.akuatoto.net
 n.bamto.org
 n.bola7.net
+n.coy9.com
 n058152033245.netvigator.com
 n0de-stream.grov9mira.lat
 n0df7.kernelgrid.ink
@@ -22543,6 +22550,7 @@ qjyrjxka.eng-usa-slimsounds.com
 qjzhj.buborekjatszohaz.hu
 qkduh.jadoou.lat
 qkexyga.wlwyb.com
+qkff7oizsz.workers.dev
 qkkw.bahigo90bet.com
 qkqxbb.doobixbet.bet
 qkqz220k.jetbet1.xyz
@@ -23432,6 +23440,7 @@ res.cargowhy.surf
 res.cloudleb.cc
 res.explicittweak.cc
 res.gridstack.cc
+res.shadowbirch.cc
 resantevous.cfd
 rescogroup.it
 rescuekings.com
@@ -24491,6 +24500,7 @@ saymto9213.life
 sayosay.cc
 sayyestocleaning.com
 sb-sinapsa.hr
+sb.alloha4d.org
 sb53vhba.bellyflushs.com
 sbconsultant.online
 sbg86o.qeniral8.surf
@@ -24901,6 +24911,7 @@ sh56a-57180.portmap.host
 sh6rkpx6.shartmag.bet
 sh6ze53a.bet90forward.win
 sha.sm188dvlv.icu
+shadowbirch.cc
 shadowburninside.top
 shadowcape.online
 shadowemberstrike.top
