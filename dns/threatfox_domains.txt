@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-04 22:42 CET
-# Eintraege: 33615
+# Aktualisiert: 2026-11-05 00:58 CET
+# Eintraege: 33632
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1061,6 +1061,7 @@
 5obvjtqm.bossbey20.click
 5ound-span.brand5calpel.lat
 5parr-forge.torex5lin.surf
+5pbqe4a7.bossbeyteam.click
 5pfvza4o.cretasoft.gr
 5pr0-span.wetshardauth.lat
 5pru3-trail.sorix3en.lat
@@ -1577,6 +1578,7 @@
 94fbrcapcutpro.se
 94fngygd.yasbet.co
 94gs0ok1.dota.pw
+95.234.52.34.bc.googleusercontent.com
 953k25jr.kcmotorsllc.com
 954591cm.nyashsens.top
 960gz3a6.bossbeycity.click
@@ -2522,6 +2524,7 @@ alohapages.pp.ua
 alojun.com
 alopecinhaircare.ro
 aloss.sa
+aloytoto.org
 alpatarianugrahmandiri.com
 alpha-armouring.cyou
 alpha.ratbasic.lat
@@ -3840,6 +3843,7 @@ b.adobepdf.cc
 b.ayu99.pro
 b.coy9.com
 b.worldpress.biz
+b0.alloha4d.org
 b031beafd8f3.net
 b0gkye8f.nou-sauvage.pro
 b0silg64.bossbey12.click
@@ -4112,6 +4116,7 @@ bats2.com
 battaglia.lol
 bauherren-hilfe-verein.net
 baumann-praxis.de
+bawigelu.workers.dev
 baxbet.bet
 baxubfe4.1xborobetyek.bet
 baxus.net
@@ -5077,6 +5082,7 @@ bossbeyservice.click
 bossbeyspace.click
 bossbeyspot.click
 bossbeystar.click
+bossbeyteam.click
 bossprotect.com
 bosstekirdag.store
 bostaxservice.com
@@ -7182,6 +7188,7 @@ crapuhn.cyou
 cratebase.cfd
 crateridge.cfd
 craving.life
+crawl-144-217-135-156.dataproviderbot.com
 crawl-149-56-150-149.dataproviderbot.com
 crawlerhidden.qorivault.life
 crazy-gas.life
@@ -7343,6 +7350,7 @@ cugeuvle.betwanna.com
 cugl.audiovideoinsightllc.com
 cuiskceogflayn.pro
 cuit.ydns.eu
+cuit8.org
 cujob.ru
 cukurovaithalat.com.tr
 culappkcuogv2omb37253e236mvmsfzvl4yw3p3incyzeoixhc6ocxqd.onion
@@ -9149,6 +9157,7 @@ efcudif.vitalmarkings.net
 efd7fi03.monti.bet
 efdnssea.honaribash.ir
 efesg5.space
+efev6d2j.bossbeyvip3.xyz
 effc4p41.honardartarikh.xyz
 effeci.cloud
 effgtty.ar888starz.bet
@@ -13538,6 +13547,7 @@ hyptoburn.com
 hyvin.run
 hyvur.run
 hywjlgp.shopmagnoliaonmain.com
+hyxypini.workers.dev
 hyzswki.site
 hz1v.didoprotecauth.lat
 hzbu0kgt.betyekios.app
@@ -13573,6 +13583,7 @@ i1i374tc.echo-fre.com
 i1l77lh7.bossbeyspot.click
 i1s4s2bo.disnakerkopjambikota.com
 i1zec9op.us-en-us-neuroxen.com
+i3.aloytoto.org
 i365pptc.lion1bet.com
 i3pwieem.rsfoodproducts.com
 i4.bala7.org
@@ -21901,7 +21912,9 @@ pragmaticwsg1st.world
 prairiedesk.cfd
 prairielink.cfd
 prairierailingregina.ca
+prakahjadhav74.duckdns.org
 prakashjadhav74.duckdns.org
+prakashjadhav747.duckdns.org
 prakashjadhav7473.duckdns.org
 pralniapralinski.pl
 prasannatherapy.com
@@ -24221,6 +24234,7 @@ s.abc22.org
 s.bb69.org
 s.bok13.org
 s.bola7.net
+s.cuit8.org
 s.goliath.st
 s.littleshabby.net
 s01687.byte-buff.com
@@ -26021,6 +26035,7 @@ srvnode.open-system-infra-logic-base.wiki
 srvnode.stackpulse.ink
 srvnodehub.devlogicmaster.pics
 srvnodehub.globalnetviewer.pics
+ss.akun269.org
 ssaiokkquqwaqcmm.xyz
 ssaisuuawgqikyus.xyz
 sscamgmqycygeygc.xyz
@@ -28121,6 +28136,7 @@ ttfg.bahigo.casino
 ttfy4zmtiaywfkkmykpxiwtlxkcr5ofvrhqgxxyspgwzbxkc3uze7jid.onion
 tthbmmcd.fidoubet.com
 ttjmpding.biodentax.com
+ttjs9qkl.bossbeymax.click
 ttmwdcsm.testranandegi.com
 ttoryhwh.en-bizopp.com
 ttowige.goldenroulette.bet
@@ -28133,6 +28149,7 @@ tturfmcfk.adsbln4.xyz
 ttvgjb.usa-tupitea.us
 ttvsj7o9.jdexteriorcleaning.com
 ttxch.run
+tu.aloytoto.org
 tuaulaalamedida.com
 tubahandicraft.in
 tubauto.it
