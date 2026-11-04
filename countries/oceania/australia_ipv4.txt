@@ -1,6 +1,6 @@
 # NETSHIELD – Australia (AU) IPv4 Ranges
-# Aktualisiert: 2026-11-02 09:00 CET (Europe/Berlin)
-# IP-Ranges: 9965
+# Aktualisiert: 2026-11-04 08:46 CET (Europe/Berlin)
+# IP-Ranges: 9964
 
 1.0.0.0/24
 1.0.4.0/22
@@ -3928,7 +3928,6 @@
 103.254.6.0/24
 103.254.7.0/24
 103.254.24.0/24
-103.254.50.0/24
 103.254.88.0/23
 103.254.90.0/24
 103.254.92.0/23
