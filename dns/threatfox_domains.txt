@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-04 03:50 CET
-# Eintraege: 33381
+# Aktualisiert: 2026-11-04 04:38 CET
+# Eintraege: 33387
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3812,6 +3812,7 @@ b.acrobatreader.online
 b.adobepdf
 b.adobepdf.cc
 b.ayu99.pro
+b.coy9.com
 b.worldpress.biz
 b031beafd8f3.net
 b0gkye8f.nou-sauvage.pro
@@ -9981,6 +9982,7 @@ expoglobalservice.com
 export1.duckdns.org
 exportearth.monster
 expotour.org
+expovirtual2020.upsa.edu.bo
 expoxperts.net
 expressbatteryreplacement.com
 expressoandp.com
@@ -10067,6 +10069,7 @@ f.88qr.org
 f.abad777.org
 f.akasia988.net
 f.au338.org
+f015oa9h.kunci.store
 f0ceohvy.eutoor.com
 f0qnr43h.epexecutivecoaching.com
 f0rfdtvf.canlibahis1xbet.click
@@ -15902,6 +15905,7 @@ kymli2ren.digital
 kymlo2.digital
 kyotocamaro.com
 kypa.press
+kyqoryme.workers.dev
 kyqwfrjr.betturkey.bet
 kys.botdealers.st
 kysv223u.zaribbala.bet
@@ -17126,6 +17130,7 @@ m1brakes.com
 m1napmzv.shartbazi.net
 m1rz16og.poles-wrinkle.digital
 m1ub6qaj.kabardinskymonasticismradicalism.digital
+m1woevi7.haon.store
 m2.88kfc.org
 m2bu2yf9.ansuyemarg.xyz
 m2jml0yu.en-xenburn.com
@@ -30756,6 +30761,7 @@ www.c8un2-bz0ox-ecsxpp.xyz
 www.cabsalotti.it
 www.cacoach.com
 www.caesarjaco.co.id
+www.cameliaholdings.co.za
 www.cameresantucci.com
 www.camporesemarco.it
 www.canaza7epbbtducao-ve0s.cc
