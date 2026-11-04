@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-03 23:54 CET
-# Eintraege: 33857
+# Aktualisiert: 2026-11-04 02:21 CET
+# Eintraege: 33864
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1993,6 +1993,7 @@ acuwicecgicucucu.xyz
 acvgste.club
 acvwd.lunapizzaco.com
 acwkwkeigqemkgqi.xyz
+acwts46591.workers.dev
 acxhyz.unitedpropertiesltd.com
 acxmquqg.winter-pulse.christmas
 ad-bear.net
@@ -7533,6 +7534,7 @@ d-k-renovation.de
 d.aww88.net
 d.bb69.org
 d.bob78.org
+d.bosmj.org
 d.tmpfile.link
 d0658smb.gamelandiran.ir
 d0c2wgj1.pczrt.hu
@@ -15272,6 +15274,7 @@ k.adobepdf.cc
 k.ajo7.org
 k.bala7.org
 k.bo787.com
+k.bob78.org
 k.upgrades.lat
 k.worldpress.biz
 k0pr01pw.diero.store
@@ -17788,6 +17791,7 @@ mckglhnz.holiday-matrix.christmas
 mclagodiseo.it
 mclennancotxgenweb.org
 mcot.thai.org
+mcovenantacademy.gateway-church.net
 mcq9ktcv.telemetry-nexus.digital
 mcqkkmc.betfootbal90.com
 mcreu5e7.heroe.store
@@ -27308,6 +27312,7 @@ tcbk5mqnutfglt6.top
 tccn.rubixbet.casino
 tcessolution.com
 tcj2m98hg3zwupp.top
+tcla2gkluf.workers.dev
 tcng.buckish-nabere.lat
 tcot.one1winbet.com
 tcp-con.4dorexal.surf
@@ -29405,6 +29410,7 @@ vdsina.vg
 vdsinatest.beer
 vdyhrgylv.bio--booster.com
 vdyoex.feherpeter.hu
+ve.akun258.org
 ve5j.cloak-custody.pics
 veb0im5p.ansuyemarg.xyz
 vebiotic.com
@@ -31113,6 +31119,7 @@ www.annagozzo.com
 www.annesophie-montpied.fr
 www.antechnology.it
 www.antevortegroup.com
+www.anticamodena.it
 www.anticocasalescopetone.it
 www.antiquarianbooks.biz
 www.antiquemallbookstore.com
