@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-04 12:06 CET
-# Eintraege: 33460
+# Aktualisiert: 2026-11-04 13:42 CET
+# Eintraege: 33475
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1110,6 +1110,7 @@
 60yjiqtp.gorgeousgrowlersgrooming.com
 61105.icu
 61qw0jhu.udeur.org
+61tbj2c7.levoya.store
 61ymhkmp.axee.net
 62am4zti.rugsofus.com
 62k1d7bn.shop-sightfresh.com
@@ -5055,6 +5056,7 @@ bossbeyprimezone.click
 bossbeypro.click
 bossbeyroyal.click
 bossbeyservice.click
+bossbeyspace.click
 bossprotect.com
 bosstekirdag.store
 bostaxservice.com
@@ -5543,6 +5545,7 @@ c.aww88.net
 c.bamto.org
 c.bb69.org
 c.bok13.org
+c.bosmj.org
 c.gbwhat.pro
 c.obwhatsappdownload.com
 c.pushonline.online
@@ -8173,6 +8176,7 @@ distributedmeadownetwork.garden
 distributedobjectstoragenet.wiki
 distributions-edgex.xyz
 distributiontheory.cfd
+distrohaven.xyz
 distrolink.cfd
 distrostation.cfd
 distrosummit.xyz
@@ -11309,6 +11313,7 @@ g67bv8oy.mgmcoffee.com
 g6e17ret.sanderscollision.com
 g6gib60b.raftarsazmani.xyz
 g6zaqd6k.schleer.hu
+g7.akun258.org
 g70jv5jnisaopa3.top
 g76w2vqs.techvigilante.com
 g8prthf3.flexumshop.shop
@@ -13088,6 +13093,7 @@ hmskuzk.get-thyrafemmebalance.com
 hmstinget.no
 hmwrabs.btyek.cfd
 hmwtez6m.getbraindefender.us
+hn.coy9.com
 hn40pz.milo3ren.lat
 hn8ah9qr.pdfteach.ir
 hnainyw.ninjafruitcubes.bet
@@ -13098,6 +13104,7 @@ hnh-realestate.com
 hnhdl.hazaratbet.bet
 hnsxpharm.com
 hnzi.behtarin-site-shartbandi.com
+ho.allbaslot.org
 ho5k07c2.web-enerflow.com
 hoanzawojux.lol
 hobartfloatspa.com
@@ -14662,6 +14669,7 @@ jeig3sli.brandonstreeservices.com
 jekilhubhaedeihch.sngdtg.cfd
 jekky.wlwyb.com
 jektcp.eng-gutdrops.us
+jellyfishparty.info
 jellyrollboston.com
 jemowaji.workers.dev
 jempp912.duckdns.org
@@ -15485,6 +15493,7 @@ kidden.com.mx
 kids-talente.de
 kidsinsyncsw.com
 kidsjumpandplay.com
+kidsmoralstory.in
 kidzo.space
 kieaa.balazsotthonepites.hu
 kieaqsgmsssmicgw.xyz
@@ -15533,6 +15542,7 @@ kinetiq-eligibility.xyz
 kinetiq.today
 king.369bbqsifangonline.com
 kingchef.com.vn
+kingdomcaster.com
 kingkongherbal.com
 kingo.lol
 kingremcos2026.duckdns.org
@@ -17732,6 +17742,7 @@ melody-bar.com
 melyepitok.hu
 memaiagent.cfd
 memap.me
+meme20.duckdns.org
 memenopoly.finance
 memory-shield.vg
 memory-tone.nanovo5kull.pics
@@ -24261,6 +24272,7 @@ s8p4n4bz.behtarin-site-shartbandi-football.bet
 s8yeyqet.enus-metabodrops.com
 s9.alan4d.org
 s9fsvyxk.seresniki.com
+s9g2z9wi.bossbeyspace.click
 s9ufafpx.digeststart.us
 sa.146slot.org
 sa.334v.org
@@ -24716,6 +24728,8 @@ send-preobi.life
 send0x519c-7315d04.sbs
 senebuvuyi.com
 senexconsulting.com
+seniorman.duckdns.org
+seniormanbk.duckdns.org
 senorgyros.com
 sens-ring.didoprotecauth.lat
 sensa138.pro
@@ -29152,6 +29166,7 @@ vertex2urban.thorniva.garden
 vertical-eco-farming.garden
 verticalli.com.br
 veryhotcoffee.monster
+verymiha.workers.dev
 vescel.es
 vespark.com
 vespero.xyz
