@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-04 13:42 CET
-# Eintraege: 33475
+# Aktualisiert: 2026-11-04 15:48 CET
+# Eintraege: 33483
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -676,6 +676,7 @@
 3d5108a1.finowfurt.com
 3dfkb2ls19wa5.xyz
 3dhubsa.com
+3dmedworld.com
 3dtraining.fr
 3dw.com.br
 3e30omav.velorix.life
@@ -3363,6 +3364,7 @@ aseleeeksh.com
 asensvsh.com
 asesionline.org
 asesorarcolom.crabdance.com
+asesoresinfonavit.com
 asesoriamerenlinea.com
 asf8lmtv.bociljepe.info
 asfjjasguasus.xyz
@@ -11198,6 +11200,7 @@ funnel.kreatifabrik.de
 funportal.live
 funrat.cam
 funrat.co
+funrat.top
 funtar.vercel.app
 fuotcd3b.futshart.pro
 fuptae0y.shop-bellyflush.com
@@ -18182,6 +18185,7 @@ mlydvb.whimsyweddingsco.com
 mlye7rvg.siciliandefensetheory.digital
 mlz3n0k4.elcornerderaulmorote.com
 mm-carving.de
+mm.allbaslot.org
 mm.tgoodluck.xyz
 mmascokyuwikcgky.xyz
 mmaweisgokeeeasm.xyz
@@ -18738,6 +18742,7 @@ mustlovedogsmobilegrooming.com
 mutfce.help
 mutvwz.ozabet90.com
 muzupelo.workers.dev
+mv.allbaslot.org
 mvdfcfa6.xenbrn.com
 mvipnisr.mabanishimi.xyz
 mvjx.phtaxiservices.com
@@ -23322,7 +23327,9 @@ relaxbangla.com
 relaxmadmax.de
 relay-01-static.com
 relay-02-static.com
+relay-3f9c71.kartohaantoha36-6a9.workers.dev
 relay-agent-v4.am
+relay-mirror.kartohaantoha36-6a9.workers.dev
 relay.backupper.pro
 relay.docu-lopab.de
 relay.goruf.top
@@ -29845,6 +29852,7 @@ wabel.azmoonzare.online
 wacagaoiqwimiiwi.xyz
 wacseaaagmwuyiio.xyz
 wadbrnz.1xx.games
+wadoho.workers.dev
 wadosefa.workers.dev
 wag1cew7.josephmichaelnh.com
 wagerwealth.id
