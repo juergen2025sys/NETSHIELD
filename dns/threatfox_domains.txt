@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-04 19:53 CET
-# Eintraege: 33593
+# Aktualisiert: 2026-11-04 21:31 CET
+# Eintraege: 33606
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2374,6 +2374,7 @@ aktiva.rs
 akumakotori.shop
 akumaqqq.xyz
 akun258.org
+akun269.org
 akurat78.de.com
 akvljg.perspolisbet90.com
 akvtmtx.technologiaiviz.hu
@@ -6689,6 +6690,7 @@ cnurx.testranandegi.com
 cnuwz.bankefile.com
 cnxst.jardins-do-mar.com
 cnybvst9.1zorelin.lat
+co.alloha4d.org
 co777.club
 coaa0h4a.graphicstabletreviews.com
 coaba.net
@@ -12624,6 +12626,7 @@ gzxz.onlyfansagency.hu
 h-clean.de
 h.9qoi.org
 h.9winn.org
+h.bosmj.org
 h04c.kernelwave.lat
 h0cbv92p.golfbetkade.com
 h0pjwrll.wignalllindor.wiki
@@ -13575,6 +13578,7 @@ i6s46ndy.site-takhtenard-sharti-betland.com
 i6uk81wh.djbpmstudio.com
 i79y6sn0.snaptigen.com
 i7un01w0.xnburn.com
+i8.akun269.org
 i83pv2vx.ravabetensani.site
 i8lvkq19.bordino.bet
 i8tdljt4.pmeelectric.org
@@ -14517,6 +14521,7 @@ j0uxrx2g.paars.poker
 j10.com.pk
 j112srgz.bahigo90bet.com
 j1jh2b9y.jacksorbetter.casino
+j1ll6l7c.marya.store
 j1tkppsh.en-hero-up.com
 j1uz3zee.bonolo.store
 j1xayyip.bordbett10.com
@@ -15487,6 +15492,7 @@ kfvgvcb.betrophy90.com
 kfvzenz.bahiscom2023.online
 kfzgutachterputzke.de
 kfzpark.duckdns.org
+kg.afktogel.org
 kg0kdihy.gavaedfagahe.xyz
 kgebll.xenicalby6.com
 kgfgvgm.audizyn.com
@@ -19085,6 +19091,7 @@ ncpzdseh.usoleamoozesh.xyz
 ncspeakeasy.com
 ncvhdwcq.medsalamat.ir
 nd7k2mor.mumsdebtservice.co.uk
+ndclassprojectnow.duckdns.org
 ndclvm.charliestaplesbbq.com
 ndd.beras1.com
 ndd.sm188auto.top
@@ -21979,6 +21986,7 @@ privahtc.cyou
 private2-port.5toravex.lat
 privateautomation.com
 privatehos.casacam.net
+privatehub.icu
 privatejetfuel.com
 privatetoken.cc
 privetbelvedere.net
@@ -22596,6 +22604,7 @@ qiyiigqycwgyqsma.xyz
 qiyqyckiosaigoac.xyz
 qiziytn.theultimateoutlet.com
 qj2ddn7c.zabanmemari.shop
+qj4pbwfysb-990.workers.dev
 qj73eba3.eng--trumptoken.com
 qj8qdkw1.kernel-compass.digital
 qjadqgu.wildwingpreservepoa.com
@@ -29058,6 +29067,7 @@ v8xihekm.ramzfile.com
 v9157o6o.bossbeybrk.store
 v91rw911.betraca.bet
 v9rvls59.stack-matrix.digital
+v9sro8y6.jumar.store
 v9zv58t0.slavyera.com
 va9ucaqk.bossbey13.click
 vacationrentalvirginia.com
@@ -31526,6 +31536,9 @@ www.nathalielippens.be
 www.naturalstone.store
 www.navalandmaritimebooks.com
 www.ncooleyrealty.com
+www.ndclassprojectnowduckdns.com
+www.ndclassprojectnowduckdns1.com
+www.ndclassprojectnowduckdns2.com
 www.needleworkbooks.com
 www.neelgirlchemicals.com
 www.neelgirlchemicalsbackup.com
