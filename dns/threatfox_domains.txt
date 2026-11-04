@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-04 17:10 CET
-# Eintraege: 33561
+# Aktualisiert: 2026-11-04 19:00 CET
+# Eintraege: 33580
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -797,6 +797,7 @@
 4378u3hz.melemoeuhane.com
 43cycles.com
 43ww5frz.forbiddenpantsshop.com
+43wylma.workers.dev
 440c.en-us-theeloncod.com
 441k40w4.shop-bellyflush.com
 44384f75.roxymigurdia.wiki
@@ -1116,6 +1117,7 @@
 61tbj2c7.levoya.store
 61ymhkmp.axee.net
 62am4zti.rugsofus.com
+62helen.workers.dev
 62k1d7bn.shop-sightfresh.com
 62mwjc02.jadoou.lat
 62ukoitn.thetokestudio.com
@@ -2439,6 +2441,7 @@ algo2nest.info
 algvrg-ae.com
 alhagamiti.com
 alhidaayahbooks.com
+ali-logtrace.net
 ali.alabri.one
 alibabasport.ir
 alicerosaestetica.com.br
@@ -4122,6 +4125,8 @@ baziieenfejar.com
 bazikeno.com
 bazikonbartar.ir
 baztechalarm.net
+bb001.bd-devmetrics.net
+bb001.tx-devmetrics.net
 bb0g3dia6g.workers.dev
 bb6lmhi140825m16.cfd
 bb6lxq63.verticalrewards.com
@@ -8793,6 +8798,8 @@ dxsxl.sm188wing.cyou
 dxuqwuwuofecqgqgb.greenpulselandscaping.com
 dxxxyoqr.bet313.org
 dxyour.forum
+dy-adstats.net
+dy-applog.net
 dy0iwfp0.privateautomation.com
 dy1h1rmc.thetrumplapelpin.com
 dy5q6qvp.zcode--system.com
@@ -10173,6 +10180,7 @@ f4nvsexe.xen--burn.com
 f4vyboeo.burnblendmarket.com
 f5gookpr.cinecluster.com
 f5rhckvo.bossbeyprimecenter.click
+f6.alloha4d.org
 f6gn33i6.mard.store
 f6mnq0ep.bossbey13.click
 f7a20n5o.ravansalamat.shop
@@ -12981,6 +12989,7 @@ hgt3.7toralex.lat
 hgtankkv.worknernorgram.rest
 hgtaqyp.abcdbro.com
 hgvxmlmj.go-synadentix.com
+hh002.tx-logtrace.net
 hh3.sm188dvlv.icu
 hh88.fit
 hhb3xwzf.parspoker90.com
@@ -13880,6 +13889,7 @@ img.colatv88xd.cc
 img.drisnya.online
 img.tallowfetch.cc
 img.viet69.vg
+img3.centovinipolska.com
 imgcloudpr.info
 imgonehq.com
 imhoteplukata.com
@@ -17724,6 +17734,7 @@ medidemo.wastore.in
 medikalmasoz.com
 medinmoc.top
 medjourneytourism.com
+medlarportcullis.org
 medline.az
 medmakine.com
 medmark.sa
@@ -18085,6 +18096,7 @@ milpl8xr.eng-neuroxen.com
 mimaja-design.de
 mimecrosoft-onlook.sbs
 minak.run
+minchones.com
 mindfulnessenterprise.com
 mindgarden.ir
 mindshift.global
@@ -20276,6 +20288,7 @@ onanothertry.ydns.eu
 onb.life
 onboard.radiantfluxstudio.com
 onboarding.radiantfluxstudio.com
+onchaindocfile.com
 oncolonb.cyou
 ondgegtt.bekabet.casino
 ondigital.az
@@ -22119,6 +22132,7 @@ proxy-us-east002-cip3.ahrefs.net
 proxy-us-east005-cip4.ahrefs.net
 proxy-us-east005-cip5.ahrefs.net
 proxy-us-east006-cip5.ahrefs.net
+proxy-us-east007-cip5.ahrefs.net
 proxy-us-east009-cip14.ahrefs.net
 proxy.am
 proxy.cloudload.cc
@@ -22989,6 +23003,7 @@ raajanarts.com
 rabbids-sixseven.cc
 rabbihorowitz.com
 rabby.com.mx
+rabiajamil.com
 rabihino.com
 rabijv.valleynewsandbooze.com
 rabonaabet.com
@@ -26552,6 +26567,7 @@ suppcat.online
 supplyflash.wiki
 supplyvau.fixionmunici9al.lat
 support-wellsfargovis.com
+support.grovecityelectrician.com
 support.whatsappsignup.com
 support4medicine.pl
 supremegods.website
@@ -27474,6 +27490,7 @@ thevisadirect.com
 thevona.com
 thewashenforcement.com
 thewes-werke.de
+thewestore.store
 thewildbrow.com
 thewoodlandsdental.co.uk
 thewrayforward.com
@@ -28264,6 +28281,7 @@ u888np.com
 u88aud.space
 u88o.com
 u8e5w7fmbaesjlu.top
+u8j.alloha4d.org
 u8x7zwdx3q9x2sr.top
 u8z97prx.parsgoal90.com
 u9.akasia988.net
@@ -28873,6 +28891,7 @@ utuyuea.backlinkyek.com
 utwemm1gdzs9lwe.top
 utwli.almasiklima.hu
 uu.alan4d.org
+uu.coy9.com
 uu888.jp.net
 uubbkkxd.network-vector.digital
 uudbsfju.evergreen-routing-system.christmas
