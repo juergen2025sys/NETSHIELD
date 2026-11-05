@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-05 03:56 CET
-# Eintraege: 32944
+# Aktualisiert: 2026-11-05 05:10 CET
+# Eintraege: 32951
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -795,6 +795,7 @@
 45b54h98.bossbeyonline.click
 45cbh9h6.liketudong.biz
 45vpt6bf8rlh.hellodcuser.com
+45w62lk5.bossbeymega.click
 45x6vzup.bossbeyplace.click
 45z48gf6.get-aquaburn.us
 46.85.175.207.bc.googleusercontent.com
@@ -5136,6 +5137,7 @@ brn-hacker.duckdns.org
 bro-pdffiller.lat
 bro.net
 bro.v-panel.asia
+bro50.org
 broadingstrading.com
 broadswordcallingdannyboy.com
 broadwayfineart.com
@@ -14360,6 +14362,7 @@ jasperstays.com
 jatafatuna.com
 jauntygroup.com
 javascript.skin
+javixisa.workers.dev
 jawahirjewels.co.uk
 jaxivo.com
 jaybhavaniwoodworks.com
@@ -14812,6 +14815,7 @@ juuk.de
 juw0th09.runtime-atlas.digital
 juwhlbr.anadoluslot.bet
 juymyarc.betgar.bet
+jv.aloytoto.org
 jvczj219.photoshopvn.net
 jvdf.serial.video
 jvegter.nl
@@ -25476,6 +25480,7 @@ srcgets.noopcup.surf
 srcgets.xamir3on.lat
 srcgets.xamir4on.surf
 srcgets.xamir5ol.lat
+srerotyj.bossbeyvip4.xyz
 srglqrcvuey6p3a352d7hnqdnxwfvwfmlkclvs5u5zydvr6c2cq6mtad.onion
 srgq.icebet90.com
 sribcag.starfishdancestudio.com
@@ -28470,6 +28475,7 @@ v.abc69.net
 v.akuatoto.net
 v.aww88.net
 v.ayu99.pro
+v.bro50.org
 v.getpi.su
 v01.88bravo.com
 v0a4ke9x.www-metabodrops.us
@@ -29271,6 +29277,7 @@ vsttorentz.net
 vsv1ftyzzn48uhz.top
 vsxc.webyek.com
 vszptzu.elcornerderaulmorote.com
+vt.akun269.org
 vt0potv8.bossbey1.click
 vt40b8nw.badabingsopranoslounge.digital
 vtb-kleve.de
