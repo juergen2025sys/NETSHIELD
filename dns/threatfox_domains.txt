@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-05 03:40 CET
-# Eintraege: 32940
+# Aktualisiert: 2026-11-05 03:56 CET
+# Eintraege: 32944
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -230,6 +230,7 @@
 1822jtv8.betwoonuyelik.com
 183.157.185.35.bc.googleusercontent.com
 18523n3s71bgf06.top
+189.88.158.34.bc.googleusercontent.com
 18fz9t32.foodpapajobs.com
 18inchgermanylovercapybara.space
 18nnbu.fixionmunici9al.lat
@@ -27732,6 +27733,7 @@ tztgw.impactpromotionsclt.com
 tzxecu85.heroe.store
 u.86idn.com
 u.bok13.org
+u.cuit8.org
 u.idsource.su
 u014toh8.noug.store
 u0naz53l.eng-en--glucore.com
@@ -31694,6 +31696,7 @@ xn--temple-de-lumire-6pb.space
 xn--vermgensv-gmbh-ypb.de
 xn--webdesign-nrnberg-d3b.net
 xn--wh1b87g15i82elqa51ff2olwq.com
+xn.aloytoto.org
 xn5nkp1j.us-energyrevolution.com
 xn6yof5y.josephmichaelnh.com
 xn88.se.net
@@ -31885,6 +31888,7 @@ xz1aa7xc.royalshart.bet
 xz783f49.lomaazul.com
 xzelng.jamjahani.cash
 xzhuzft.asyabet303.bet
+xzqmygnp18.workers.dev
 xzttyt.xyz
 xzxllyxf.radioshartbandi.bet
 xzz.proxygrid.cc
