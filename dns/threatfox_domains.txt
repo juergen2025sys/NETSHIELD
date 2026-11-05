@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-05 05:58 CET
-# Eintraege: 32956
+# Aktualisiert: 2026-11-05 07:53 CET
+# Eintraege: 33014
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -695,6 +695,7 @@
 3imyvvfh.slavyera.com
 3ivn3wjq.eastcoastseafoodsupply.com
 3j7cilgavj.workers.dev
+3jbhn5gsv7yd22n7yasftjab2aystm7mw2x3cvonzipsrnxpjqufmgyd.onion
 3jcnvfi5.thelogicofmoney.com
 3jlqu63c.drubenginecologo.com
 3jpdqv73qlweoytmfinj6ce5hwfblx55poomhfjkqmybdnlktljitbad.onion
@@ -1295,6 +1296,7 @@
 7cz5jg6k.enus-goldalign.com
 7d6da0ri.axee.net
 7dcct4ro9q.workers.dev
+7dfw4p3pzo3zlcy5hzm7y43z3kfke2rhd3eudncmvknwhsqqvseadkad.onion
 7dml.netstack.lat
 7e4kctpk.orbitaldockingmodule.digital
 7egbakn4anfwdtase7fnkgsdpywl4mtsxwpud4ou5lxjjhy4qthv4vid.onion
@@ -2495,6 +2497,7 @@ alphacornerstakehq.com
 alphalifesupplements.com
 alphamap.net
 alpharecoveries001.duckdns.org
+alphaslot677.org
 alphavillepb.com.br
 alpinorexa.org
 alpme.com
@@ -2888,6 +2891,7 @@ api.loretesimorix.com
 api.meetione.top
 api.microsoftstorapi.com
 api.mineblack.lol
+api.moonbeaut.top
 api.netinfrahubsys.pics
 api.netlogicstack.co
 api.netnodeset.pics
@@ -3314,6 +3318,7 @@ ashenravenfort.top
 ashenshadowfort.top
 ashevilleroofingcontractor.com
 ashevilleweddingfilms.com
+ashfold.cc
 ashsynt.p7ickmuch.lat
 ashwinbk.com
 asiangt.com
@@ -4204,6 +4209,7 @@ bellefluxcalhas.com.br
 bellesens.com
 bellow-norushka-pianissimo.digital
 bellows.pics
+bellwick.cc
 belly--flus.com
 belly--flush.us
 belly-flush.net
@@ -4902,6 +4908,7 @@ borcwefhl.esteglal.bet
 bordbet.casino
 bordestan.com
 bore.pub
+borieshanae022.net
 borizhog.com
 borjominews.ge
 born-x-raised.us
@@ -5101,6 +5108,7 @@ brezo.live
 brezxcchec.com
 brfavfmp.bet90forward.win
 brhwmjkk.frost-engine.christmas
+briardell.cc
 briarvelarium.top
 brickfi.vip
 bridge-schema.com
@@ -6177,6 +6185,7 @@ cimafina.com
 cimes.pt
 cincycarpetcleaning.com
 cinderlake.cc
+cindermoor.cc
 cinecluster.com
 cinema7-scope.closer1ook.garden
 cinemacast.sendrat.bet
@@ -6923,6 +6932,8 @@ covadonga.cat
 covcalm.narrownessoutri8ht.pics
 cove-koi-hk753.xyz
 cove-sdk.di7ectkoshevoy.lat
+cove-taee-tmx4z.pro
+coveglen.cc
 covenant.co.id
 covenantnewmd.com
 covenantventure.digital
@@ -8550,6 +8561,7 @@ duruby.be
 dusanperisi.com
 dusk1-vector.fashina5pread.garden
 duskamp.tavro6xel.lat
+duskglen.cc
 duskmoor.cc
 duskreaverhold.top
 duskrunner.cc
@@ -8711,6 +8723,7 @@ e99d0st4.sallysprattstudio.com
 e99is6wd.www-bellyflush.com
 ea168jci.customhomebuildersplainfield.com
 ea4y7vng.pimiy.store
+ea52lfk4w6dza6hmmb4o6ndef7ep45wkkjxuo7sfzkyqt7rplyph3zyd.onion
 eabcewlhe.diloro.dev
 eadzagba1.duckdns.org
 eaeqoumsiggwqwqc.xyz
@@ -10018,6 +10031,7 @@ fahr-weinclub.ch
 fahrzeugvergabe.de
 fahv2h6l.kimimaro-trance.com
 faircloud512421.buzz
+fairmoor.cc
 fairpi521.icu
 faisamilano.it
 faithbiglovered.opik.net
@@ -10368,6 +10382,7 @@ financiales-groupe.com
 financiallywellorganised.com
 finansial.berandaperistiwa.com
 finatic.1stcontent.co.za
+finch-klegceoix.pro
 fincheck.site
 fincoadvance.com
 find.csmq.workers.dev
@@ -11085,6 +11100,7 @@ g-hgfdsgd.mom
 g-sdfgdsf.mom
 g-sdfhvrg.rest
 g-sdfrgh.rest
+g.cuit8.org
 g.obrn.cc
 g0flf7f0.jet90betyek.bet
 g0nyy40c.swin9.store
@@ -11965,6 +11981,7 @@ gorillagaz.com
 gorivume.workers.dev
 gorsefield.cc
 gorsegazette.co
+gorsevale.cc
 gorto.ridgerenovation.com
 gosciniecbielik.pl
 gositeline.com
@@ -12070,6 +12087,7 @@ gravitfluxbox.grovessa.garden
 gravyblicus.com
 gray.bowlinggreenwinnelsonco.com
 gray7taskhub.nimbusviewgate.garden
+grayfen.cc
 gre-enleaf2.4zorexil.in.net
 gre.syslicense.net
 great-basic.com
@@ -12833,6 +12851,7 @@ hjnnsbj.elcornerderaulmorote.com
 hjoeseiatehn.com
 hjwaxur.kvbel.com
 hjynlx3f.highmileauto.com
+hjyxshsj.top
 hk-holzbau.com
 hk5kmml4.fleshburn.us
 hkbtnx.pamsribbonsandroses.com
@@ -12925,7 +12944,9 @@ holistichealthandhope.com
 holisticpaws.org
 hollow-badger-moasfraum.life
 hollow-forge-rook-guiyn.life
+hollow-prism-liamklie.pro
 hollowash.fashina5pread.garden
+hollowfen.cc
 hollowsentinel.com
 hollyarcade.org
 holographic-projection-grid.garden
@@ -15898,6 +15919,7 @@ laptoponrent.co.in
 laquepipix.xyz
 larchfable.cloud
 lard.asset-images-konoha.us
+larkfen.cc
 larpestan.duckdns.org
 larutigy.workers.dev
 larwssaf.laparnih.com
@@ -17509,6 +17531,7 @@ merrywannainq.com
 mervaleet.userssawtone.lat
 mes-rdv.net
 mesa-braior-k3w3b.life
+mesa-ceosfloae.pro
 mesa-seen-dcjcj.live
 mesa-zaimmuen.life
 mesh.sentra.cx
@@ -17820,6 +17843,7 @@ mission24.net
 missionviejocarpetcleaning.com
 missmovie.lol
 mistcin.priesthood-in.lat
+mistcove.cc
 misterhokiterbaik.space
 misterphoto.cl
 misterslivker.asia
@@ -18191,6 +18215,7 @@ moodess.ddns.net
 moodsbyera.com
 mool.mesoptik.com
 moonbeamfiber.digital
+moonbeaut.top
 moonglide.monster
 moonglobaliteemecool.mom
 moonlightweddingservices.co.uk
@@ -18237,6 +18262,7 @@ moteldb2000.com.pl
 moth.betweenthebunz.co
 mothechurh.com
 motherotters.com
+mothwick.cc
 motionsneakers.com
 motivationiran.com
 motopicks.com
@@ -18322,6 +18348,7 @@ mrvapora.pk
 mrwqb.bartaenergetika.com
 mryaseen.com
 ms-data.online
+ms-telemetry.us
 ms365-team.com
 ms9amh2h.1xcart.vip
 ms9datqz.953.games
@@ -18355,6 +18382,7 @@ mslperformance.co.uk
 mslynn48.bosskayseri.store
 msmgermany.com.tr
 msmpoledancestudio.it
+msnbot-157-55-39-9.search.msn.com
 msnbot-40-77-167-79.search.msn.com
 msnbot-52-167-144-184.search.msn.com
 msnbot-52-167-144-190.search.msn.com
@@ -19788,6 +19816,7 @@ ohjslh.littlemissclothing.com
 ohkmpt.tavro6xel.lat
 ohlly-mohly.world
 ohn.stainedunstitch.work
+ohnnyeriesen51.com
 ohnymfxm.btyek.cloud
 ohowxc.gamesystem.hu
 ohqdboshn.hear-easy.com
@@ -20543,6 +20572,7 @@ palace.mdlrh.workers.dev
 paladin5.com
 palalto.live
 paleanchor.com
+palefen.cc
 palefox.cc
 palehostunit5.chromacorebit.garden
 palenyz.gulshans.com
@@ -21057,6 +21087,7 @@ pine5-vector.godjava.surf
 pine63.com
 pineapplevacationrentals.com
 pinellascountyroofers.com
+pinemarsh.cc
 pinescope11.com
 ping.node-stock.lol
 ping.south-loop.click
@@ -22314,6 +22345,7 @@ qris100gacor.space
 qrt.arizonafamilylawfirm.com
 qrwtkz.epitoipariszakertok.hu
 qrxnqauz.winter-pulse.christmas
+qs.alphaslot677.org
 qs268cl5.radioshartbandi.bet
 qs4vqdby.en-en-en-theeloncode.com
 qsak.snydersflowershop.com
@@ -22478,6 +22510,7 @@ qv.gahq.ru
 qv3dp7rx.ahkam.xyz
 qvf16jfy.crispychickencutlets.digital
 qvfdqtv.tshirtquiltcomp.com
+qvfgzg2yukem4ldat2zk6umidqbzydhf7au5ecfybp7d65av6q3jyjad.onion
 qvibova.com
 qvipoojy.karafarini.shop
 qvistgaard.dk
@@ -22996,10 +23029,12 @@ relay-3f9c71.kartohaantoha36-6a9.workers.dev
 relay-agent-v4.am
 relay-mirror.kartohaantoha36-6a9.workers.dev
 relay.backupper.pro
+relay.bobdthjau.com
 relay.docu-lopab.de
 relay.goruf.top
 relay.miranarts-top.cc
 relay.pettnittiprague.workers.dev
+relay.pronconetydesire.online
 relay.reelxgrab.cc
 relay.serverkinetices.cfd
 relay.stingold.com
@@ -23689,6 +23724,7 @@ rurheeejl.sushilandanglet.com
 rurhmgw2.readthisintro.xyz
 ruruurururururu.ru
 rushouse.es
+rushwick.cc
 russetmoor.cc
 russk22.icu
 rustrak.kz
@@ -23891,6 +23927,7 @@ s1s2jfjh.mrbet90.com
 s1txlndg.forbiddenpantsshop.com
 s1x30duk.spirosnet.com
 s2.ind.br
+s27k4va5sqe2h2sbw4wmbikibaz6lnwdjngl4v3qptcffsvtrdxx7yyd.onion
 s2a87q6s.www-cardioslim.com
 s2aqpx7u.succeswithpaul.com
 s2bhhyxu.sleavepiker.com
@@ -23955,6 +23992,7 @@ sabaindustry.com
 sabanasluxury.com
 sabco.com.lb
 sable-orbit-wren-fiayn.live
+sablecroft.cc
 sableyard.cc
 sabora.com.mx
 sabzzbet.com
@@ -24463,6 +24501,7 @@ serversniperxx.duckdns.org
 serverstats-daemon.com
 service-master.in.ua
 service-rchqbzvz-1301033415.sh.tencentapigw.com
+service.upgrade.ug
 service1app.com
 serviceapp1.com
 servicehstcmon.com
@@ -24564,6 +24603,7 @@ shadowmetric.buzz
 shadownbr.ddns.net
 shadowrunevail.top
 shahzadsanmal.com
+shainafuchsia.workers.dev
 shakilfarming.com
 shakilmehraz.com
 shal2vr2.us-us-us-glucore.com
@@ -24982,6 +25022,7 @@ slam.ssybd.workers.dev
 slashbob-distrib-plat-form.garden
 slate1-pulse.audiheadboa7d.lat
 slate16.com
+slatefold.cc
 slavyera.com
 slaxbvv.audizenus.com
 slccac.rhillsmotorsport.com
@@ -26463,6 +26504,7 @@ tahinhtfenwimi.com
 taika.uk
 tailoredreentry.org
 tailorexecutive.kastner.com.au
+tailsupdates.org
 tailwind-version-4.vercel.app
 tailwind-version-four.vercel.app
 taivvan.ydns.eu
@@ -26614,6 +26656,7 @@ tcp.niceports.shop
 tcp.skynodecfg.pics
 tcp.skyprodoc.pics
 tcp.tcptunnel.shop
+tcp.wrenholt.cc
 tcpcon.flen3qor.lat
 tcpcon.ultradatastack.lat
 tcpcon.ultratechstackweb.lat
@@ -26672,6 +26715,7 @@ teamcss.beer
 teamee.app
 teamfenterprise2026.com
 teamgetdsm.com
+teams-microsoftcom5d41402abc4b2a76b9719d911017c592.kiratham.com
 teams-securecall.com
 teams.live05ms.us
 teams.livesweb.us
@@ -27027,6 +27071,7 @@ thomasdesbonnets.com
 thopywork.vercel.app
 thornbanner.cryptostack.lat
 thornflex.co.tz
+thornmere.cc
 thre-thic.pav1mirex.lat
 thread-mark.7toralex.lat
 threadtheory.interfe7ewith.garden
@@ -27055,6 +27100,7 @@ thyraafemme-balance.com
 ti.332toto.net
 tiacollege.com
 tiagosgrott.com.br
+ticket.unknower.win
 ticketreceipt.cfd
 tide-maple.com
 tide6-well.mixzipcore64.lat
@@ -27468,6 +27514,7 @@ tretegroup.it
 treviro.icu
 trexnd.biz
 trf.kookapp.pro
+trialmbrie-reed.pro
 triapfog.com
 tribot.co.uk
 tribunalmotocross.digital
@@ -28146,6 +28193,7 @@ update.microsoftkernel.com
 update.mloadspring.com
 update.norwayeast.cloudapp.azure.com
 update.qzkgpqn.kdns.fr
+update.ssl-certificate-verify.com
 update.unknower.win
 update04.microsoft-essentials.com
 updatecurrent.com
@@ -28166,6 +28214,7 @@ updateyourprogram.com
 updateyoursoft.com
 updbwip.samoamotors.net
 upgrade.mloadspring.com
+upgrade.ug
 upi.log.30ca777733df8aa6e4404bd8beadb65c36105e9346e15819152e9ecc4.fd746f6f221867dd6d504e00569cc108bbf5c5e0daf7628d26285775.86174a0a1dc3dd1625fc62e486572c26425c95ffef342f6dddb5ffe0.1b1f3f2edc.7605f6.pnalumni.dgitd.anchorbolnorth.com
 upiqcdsgvh6v5owteasjzyxbj2xug574dj4fctthehd7zjq7wmuxbwqd.onion
 upkarcharitable.org
@@ -28555,6 +28604,7 @@ vaillantservisieskisehir.com
 vaillyharry9988.icu
 vailora231.life
 vaineciadermatics.com
+vaipzeenquiet.pro
 vajyloco.workers.dev
 vakerotienda.com
 vakgarageschaap.nl
@@ -28876,6 +28926,7 @@ villajardimrestaurante.pt
 villalobosdavid.com
 villamimosa.toscana.it
 villawoodcapital.com
+villers-handball.com
 vimjes.edu.in
 vinarstvisoman.eu
 vine-96.com
@@ -29619,6 +29670,7 @@ webdocserv.logicstackhub.pics
 webdocserv.sorix1ar.pics
 webdocserv.sorix2en.pics
 webdocserv.surgeon-snoot.lat
+webdocusign.viewportal.es
 webdot.ddns.net
 webfeedonline.com
 webflare.beer
@@ -30088,6 +30140,7 @@ wrdn.lol
 wrdn.rest
 wrdn.su
 wreck.wiwgf.workers.dev
+wrenholt.cc
 wrersk.ar888starz.bet
 wrhorqww.gothiccathedralblueprint.digital
 wrinkky.cyou
@@ -30478,6 +30531,7 @@ www.dnd40k.com
 www.dojcatena.com
 www.donnidifora.it
 www.donorart90opub.info
+www.doppio-click.it
 www.dotit-corp.com
 www.doublexoxoclassprojectduckdns.com
 www.doublexoxoclassprojectduckdns1.com
@@ -30565,6 +30619,7 @@ www.fixbug.icu
 www.fixitfuego.online
 www.floorconstrutora.com.br
 www.florence-wischer-avocat.com
+www.fluffypumpkin.southcastle.com
 www.flyfishingiceland.com
 www.fondazioneannalisegalligani.it
 www.fondazioneoav.it
@@ -30883,6 +30938,7 @@ www.mrcz.com.br
 www.mrfixitmrfixitlocalplc.com
 www.mrfixitmrfixitlocalplc1.com
 www.mrfixitmrfixitlocalplcbackup.com
+www.ms-telemetry.us
 www.msdizajn.com
 www.mslperformance.co.uk
 www.msmpoledancestudio.it
@@ -31215,6 +31271,7 @@ www.thewrightcollection.com
 www.thousandoaksbsalandscaping.com
 www.thueringer-stuck.de
 www.tipsytransit.com
+www.tixi.it
 www.tkj.dk
 www.tlckidstherapynyc.com
 www.toldosoriente.com.br
@@ -31400,6 +31457,7 @@ x.abc22.org
 x.acunbet89.org
 x.ajo7.org
 x.akuatoto.net
+x.alphaslot677.org
 x.ayu99.pro
 x.bob78.org
 x.bola7.net
