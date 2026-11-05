@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-05 13:52 CET
-# Eintraege: 33138
+# Aktualisiert: 2026-11-05 16:02 CET
+# Eintraege: 33147
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3272,6 +3272,7 @@ aryarom.com
 aryaxplorer.space
 aryl.app
 arylhive.com
+as.alsg96.org
 as.bulkz.sbs
 as.elsq.top
 as.havz.top
@@ -5431,6 +5432,7 @@ bywrcba.wlwyb.com
 byy3qdk9.rsfoodproducts.com
 byz28tfk.rasmfani.xyz
 byzantine-mosaic-restoration.garden
+bz.alsg96.org
 bz6o5g3c.hor1inka-lonely.digital
 bzcxhjo.vostrovape.com
 bzd7mk6q.parsalip.bio
@@ -9451,6 +9453,7 @@ enterprise-solution-buffer-utility-log.wiki
 enterprisedays.co.uk
 entertainment.zincgroup.com
 entertainok.com
+entre2mares.com
 entrelagosglamping.com
 entretiensol.com
 entry-code-cdn.codes
@@ -15719,6 +15722,7 @@ kujim.run
 kuksis.lt
 kul.cantdown.su
 kul2gqhg.bossbeyprimeworld.click
+kulix.store
 kulnpioc.mabanishimi.xyz
 kum-bonsweiher.de
 kumeassociates.com
@@ -20407,6 +20411,7 @@ osteriatalentino.it
 ostlomtophamchese.com
 ot2k.mav3torel.surf
 ota.proxystream.st
+otbjn72723.workers.dev
 otcgf.christorem.com
 otehaswvcc646ou4kozenrh4mfqyvntx6yrx6jdntilp5kbt7noq.arweave.net
 othila.eu
@@ -22682,6 +22687,7 @@ r.abc212.org
 r.au338.org
 r.bamto.org
 r.bosmj.org
+r.cuit8.org
 r.v-panel.asia
 r0.erloro.com
 r066m9wa.eng-cardio-slim-tea.com
@@ -24276,6 +24282,7 @@ satserfield.com
 satta-king-11.site
 sattlerei-nuernberg.de
 savanyusag.eu
+savelogs.ooguy.com
 savemypropertynow.com
 savioscale.it
 saviouronline.in
@@ -27887,6 +27894,7 @@ ty954rii.313betios.com
 tyanjoyas.com
 tyarvak.karnameh-shiraz.com
 tyb.pelorsm188.top
+tybanyme.workers.dev
 tyccsu.littlehousetees.com
 tycgc.bni-ai.com
 tygnu.lokercorp.com
@@ -32693,6 +32701,7 @@ zawzq25p.grupoelede.com
 zb6u9568.pabloobet.com
 zbavseauta.cz
 zbaxyauyx.eng-bettinggods.com
+zbc2qxrk.kulix.store
 zbc7yta5.taktiik.bet
 zbhlswy.totalgreenenergysolutions.com
 zbklcsro.jadoou.lat
