@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-05 18:04 CET
-# Eintraege: 33158
+# Aktualisiert: 2026-11-05 19:54 CET
+# Eintraege: 33192
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -284,6 +284,7 @@
 1jyk1gm9.unseen-zorenka.digital
 1k78h3dc.kernel-vertex.digital
 1khihj5o.bizne.store
+1koz45z3h255v.com
 1lleaftq.warmwaffles.com
 1llume-sync.fixionmunici9al.lat
 1lpwxzik.lunza.store
@@ -8121,6 +8122,7 @@ dl.interium.wtf
 dl.stacknode.cc
 dl7iun9z.marathonmktggroup.com
 dlacbhw.nonamejustsoul.com
+dlbs2m9uajwi0w5k0f.pages.dev
 dlcs.ec
 dldcrqq.daqotransformers.com
 dlkcsdq.hotbet90app.com
@@ -11154,6 +11156,7 @@ g2z2cnlz.pascal.casino
 g314q2504254.cfd
 g3b4hjbg.calculadoracomisiones.com
 g3byemsx.xbetone.com
+g4.alsg96.org
 g41nxq8p.bonolo.store
 g4me.flashpopdownloadbutton.monster
 g4p227nh.highdesertarchers.org
@@ -12393,6 +12396,7 @@ gyadazs.shop
 gyarmatikatalin.hu
 gyayod.pishbinisite.com
 gyayquk.drubenginecologo.com
+gygakycy.workers.dev
 gygor.sultankito.com
 gyjqgsz.designyourlifeinflow.com
 gylphagent.com
@@ -12766,6 +12770,7 @@ hezu.life
 hf0gzeo.scient-telograyka.lat
 hf98x4d.site
 hfbuvga.rya-yorkshire.org
+hfbyx46eezec276yss.pages.dev
 hfdjmoedkjf.asia
 hfgzvf.perfectgameiran.com
 hfikf.webrevelem.hu
@@ -14329,6 +14334,7 @@ j.88mdc.org
 j.9kio.org
 j.abc22.org
 j.bok13.org
+j.bro50.org
 j0.bala7.org
 j01nn5zm.istanbul303.com
 j0g2ia0g.bet1yek.bet
@@ -16227,6 +16233,7 @@ les-biogaz.fr
 les-filles-du-the.com
 lesautoecolesreunies.com
 leschatroom.com
+lesiii.com
 lesseffort.io
 lesterbpearsonairportlimo.com
 lestyanesfiai.hu
@@ -18193,6 +18200,7 @@ mondo.kiev.ua
 monero.gr.com
 monerogui.gr.com
 moneyepeople.com.br
+moneyhub-adafiroteki.click
 moneyhub-adatevuwoxa.click
 moneyhub-agutobekewo.click
 moneyhub-ajozecamixa.click
@@ -18201,14 +18209,17 @@ moneyhub-amutizefucu.click
 moneyhub-apaculebegu.click
 moneyhub-aqebesibera.click
 moneyhub-azawajasoqa.click
+moneyhub-azogiqasuma.click
 moneyhub-batedinaxox.click
 moneyhub-bejibefowob.click
 moneyhub-billcenter.click
 moneyhub-bocomeyukaf.click
 moneyhub-cashdock.click
 moneyhub-cifanexobaw.click
+moneyhub-clearharborx.click
 moneyhub-cobuhaganed.click
 moneyhub-dabizipibef.click
+moneyhub-databridge.click
 moneyhub-debitbloom.click
 moneyhub-debitlane.click
 moneyhub-dopedunibip.click
@@ -18216,14 +18227,21 @@ moneyhub-economyvalue.click
 moneyhub-ehosovisamo.click
 moneyhub-eqezutituhi.click
 moneyhub-etiqixuraqe.click
+moneyhub-evodoloqivu.click
+moneyhub-evovoyirisa.click
 moneyhub-ewemusiyeji.click
+moneyhub-ewodenahuku.click
 moneyhub-ewucadodice.click
+moneyhub-exanalenuru.click
 moneyhub-expensebloom.click
 moneyhub-expensebridge.click
 moneyhub-expensecenter.click
 moneyhub-expensechart.click
 moneyhub-expensecloud.click
 moneyhub-expensecrew.click
+moneyhub-expensemanager.click
+moneyhub-eyumipikehi.click
+moneyhub-fiscalforge.click
 moneyhub-foxoqeqejin.click
 moneyhub-frugaldock.click
 moneyhub-fuxisorahif.click
@@ -18244,8 +18262,10 @@ moneyhub-investhub.click
 moneyhub-investuniverse.click
 moneyhub-ipehaxunogu.click
 moneyhub-isinaziyafi.click
+moneyhub-itidaweqira.click
 moneyhub-izezaduwoga.click
 moneyhub-kukoqevamic.click
+moneyhub-ladajoqiwac.click
 moneyhub-lelaromapap.click
 moneyhub-lofotifumik.click
 moneyhub-lozatojijay.click
@@ -18254,10 +18274,14 @@ moneyhub-nicuceduyen.click
 moneyhub-numuyigokuj.click
 moneyhub-obekemadehi.click
 moneyhub-ofojemapoqu.click
+moneyhub-okakufeditu.click
 moneyhub-pejifabevaw.click
 moneyhub-pennycenter.click
+moneyhub-pennyfieldx.click
+moneyhub-pennysmart.click
 moneyhub-podaqabahof.click
 moneyhub-primefocus.click
+moneyhub-qajoxufonam.click
 moneyhub-qilejuritaz.click
 moneyhub-qizipikekud.click
 moneyhub-ramokojaxap.click
@@ -18273,13 +18297,16 @@ moneyhub-ujawefozipi.click
 moneyhub-umepajapave.click
 moneyhub-utibewiqala.click
 moneyhub-uweretoruvi.click
+moneyhub-uzugovixusa.click
 moneyhub-vekiquwotef.click
 moneyhub-walletatlas.click
 moneyhub-walletdrive.click
 moneyhub-waxanivuqum.click
+moneyhub-weqayakuyak.click
 moneyhub-wicujapisiz.click
 moneyhub-wipejijoxix.click
 moneyhub-xakirayotov.click
+moneyhub-xifasuzidut.click
 moneyhub-yasujaviqiw.click
 moneyhub-yuqefowotux.click
 moneyhub-zikasepipor.click
@@ -18750,6 +18777,7 @@ n7.albino77.org
 n7fn8uc8.livto.store
 n7u8r9di.romeroautodetails.com
 n85e216p.jadoou.yachts
+n885lqx8yxzu0ac6z0.pages.dev
 n8e.us.com
 n8n-docs.sbs
 n8n69sm2.bcgameiran.net
@@ -21432,6 +21460,7 @@ pnw4rjw2.takvarzesh.ir
 pnxturjz.jetbet.download
 pnz8cbiq.vip1xbet.org
 pnzruro7syvwvefx5mpo2fhzi4jftgquynsqf3vy5x3no57yp2iz4nyd.onion
+po.alsg96.org
 po1vax.digital
 po6drihx.onexprobet.com
 po8vtirel.digital
@@ -22546,6 +22575,7 @@ queue.cdnbazaar.xyz
 queue.fastclimate.click
 queue.grovewest89.club
 queue8.vibepulse.one
+qufaciqi.workers.dev
 qugkkyacgcsukaua.xyz
 qugkmkymsccosmme.xyz
 quguwqimiaicuwcs.xyz
@@ -28664,6 +28694,7 @@ v.akuatoto.net
 v.aww88.net
 v.ayu99.pro
 v.bro50.org
+v.cuit8.org
 v.getpi.su
 v01.88bravo.com
 v0a4ke9x.www-metabodrops.us
@@ -29014,6 +29045,7 @@ vibehunter.epizy.com
 vibemedia.me
 vibrantchiropractic.co.uk
 vicblessings.noip.at
+vicmyf7pwjrbn6vusk.pages.dev
 vicodelpozzo.it
 vicspanel.com
 victororsolin.com
@@ -32120,6 +32152,7 @@ y18pd2i2.havenchurchraleigh.com
 y1l7j9x5v4.workers.dev
 y1w1e9yu.shop-dentavive.com
 y2hs3ri6.josephmichaelnh.com
+y3evkjzq.antava.store
 y3ol49ip.milioner.bet
 y3ppxpso.fazbet1.app
 y4.8g8g.org
@@ -32649,6 +32682,7 @@ z5qs8pv3.kanyon303.com
 z5rfxyfc.en-eng-geniusbrainsignal.com
 z65k8fja.en-us-prostafens.com
 z7e79dln.luxerabet100.com
+z7kqxbhjtn8ntgspd3.pages.dev
 z7offy1h.linuxfortravelers.com
 z7ql7rl5.gregoriasmod.com
 z8l6eurt.gtacauto.com
