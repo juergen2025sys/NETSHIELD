@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-05 07:53 CET
-# Eintraege: 33014
+# Aktualisiert: 2026-11-05 09:21 CET
+# Eintraege: 33030
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1388,6 +1388,7 @@
 816fxrfv.luxerabet1.com
 81729sv5.stgsolar.hu
 81ro1qyb.radioshartbandi.bet
+82-65-68-100.subs.proxad.net
 82-67-139-80.subs.proxad.net
 82a3dcwt.sazehayefooladi.xyz
 82uowq3m.infinityjoespizzaclearwater.com
@@ -1746,6 +1747,7 @@ a3asesor.wolterskluwer.lat
 a3f5sclr.stichtingseptember.locker
 a3tf75e7k596x.cfc-execute.bj.baidubce.com
 a3vrjnwj.xamir9el.lat
+a48ocd2a.korvox.store
 a4ngg3ua.space
 a4oqs65jw1020426za.cfd
 a4vbe7yp4kluped6khuhpr5nmzshiimx2jt5j22ozriiq6ngsm3fcpyd.onion
@@ -6591,6 +6593,7 @@ codeviewer-fawn.vercel.app
 codeviewer-three.vercel.app
 codex-craft.com
 codex.gr.com
+codingoffensive.duckdns.org
 coerwt.us-energyrevolution.com
 coffee.az
 coffee.wiwgf.workers.dev
@@ -10875,6 +10878,7 @@ fruitdelice.it
 frwoaf.hallmarkcarpets.net
 frwvvaqob3ofmegrbc4q2ovtwyf5u7ozyyv35unib3saq3ppx2pkwuad.onion
 fs-siegemund.de
+fs.alphaslot677.org
 fsakcopsf.cheznevine.com
 fsamon.com
 fsat.com.br
@@ -11902,6 +11906,7 @@ gohan-suki.com
 goias64.com.br
 goifahq.audizyn.com
 goigeqiawsogwgke.xyz
+goingcamprev.redirectme.net
 goinvincea.com
 gojq.theafribar.com
 gokksosyecuwukcw.xyz
@@ -13185,6 +13190,7 @@ human-confirmation.top
 human-verify-second.pages.dev
 human2nd-confirm.top
 humanconnect.in
+humanfernande.workers.dev
 humanity-revoke.xyz
 humanwebpage.online
 humiliatepreseason.cc
@@ -13407,6 +13413,7 @@ idlmwh.shop-echoxen.us
 idma.digital
 idn777.de.com
 idodoe.co.tz
+idoemh9m.bossbeynetwork.click
 idrive.ba
 idrpoker.club
 idskw.com
@@ -15506,6 +15513,7 @@ korichniuu122.icu
 kornikook12.icu
 korpihy.herz-frank.com
 korunder.com
+korvox.store
 kosewkiogowqaoeo.xyz
 kosgukmymeuiwqua.xyz
 kosigsqigeqquciq.xyz
@@ -15749,6 +15757,7 @@ l.88qr.org
 l.9winn.org
 l.bb69.org
 l.bola7.net
+l.bro50.org
 l0.aeon888link.org
 l04de9-span.closer1ook.garden
 l0jpgk5p.tapl.store
@@ -16158,6 +16167,7 @@ ley.sm188dvlv.icu
 leypuuq.cyou
 lezo.store
 lf2qo513.shop-aquaburn.com
+lfbn-nan-1-550-79.w86-217.abo.wanadoo.fr
 lfgjvq.lockchangeny.com
 lfk25ohk.win1bahis.com
 lflwppj.webrevelem.hu
@@ -22271,6 +22281,7 @@ qlwxqybo.prozhedownload.com
 qlzqh.sultankito.net
 qmcbnya.mellbeet.com
 qmfcyxca.sarahelizabethphotoandfilm.com
+qmibonif.bossbeyvip5.xyz
 qmmrenctaq.com
 qmnldei.akhlagheslami.xyz
 qmoil.com
@@ -22893,6 +22904,7 @@ rebakagit.com
 rebalance.finance
 rebaonerenalclinic.co.bw
 rebel-pause.xyz
+reboot.duckdns.org
 reboquekingkong.com.br
 rebrato.com
 recap-cha.xyz
@@ -26427,6 +26439,7 @@ szuag45572.workers.dev
 t-adobe.lat
 t-smc.top
 t-t-b.cz
+t-trustresnew.com
 t-trustrest.com
 t.88mdc.org
 t.99rtp.net
@@ -27378,6 +27391,7 @@ torrrj.highlife-global.com
 torrybok11.icu
 torrykouu4512.icu
 torsten-ringling-fuer-schkopau.de
+tortyfivev.crabdance.com
 toryburch-outlet.com.co
 toscanacivicarezzo.org
 toscawebdesign.com
@@ -29577,6 +29591,7 @@ wctvn.mrslopezsings.org
 wcwe.onjabet1.com
 wczgexs.termeroseo.com
 wczkcbe.halcyonhempltd.com
+wd4.akun269.org
 wdagbwd.peacockhomes.net
 wdbcypih.hugugedari.xyz
 wdccb3xe.home-power-shield.com
@@ -31406,6 +31421,7 @@ www.zindobaresina.com
 www.zominoz.com
 www.zp857.online
 www.zrs7b8boubf9y-b1.net
+www.zukistudio.com
 www.zuqiubabaaw.net.cn
 www2.hollywoodgulfcoast.com
 www2.kempp.hu
