@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-05 16:51 CET
-# Eintraege: 33152
+# Aktualisiert: 2026-11-05 18:04 CET
+# Eintraege: 33158
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -527,6 +527,7 @@
 2iuso53h.usa-lipogummy.us
 2j2yukwx.energedia.foundation
 2jgfxx83.liketudong.biz
+2jmrfr1x.bossbeyonline.click
 2k4qdiiwe3ons6j776cic2jfnclcmlorpanpzdtdsmg3g6scxela.arweave.net
 2kask8yn.getbraindefender.us
 2ky85g4j.goldalignn.com
@@ -4967,6 +4968,7 @@ bossbeymax.click
 bossbeymega.click
 bossbeynetwork.click
 bossbeynova.click
+bossbeyonline.click
 bossbeyprimeplace.click
 bossbeyprimeteam.click
 bossbeyprimeworld.click
@@ -12584,6 +12586,7 @@ hatkldsksd392vbc.com
 hatksaks281ksa.com
 hatl.sk
 hatmnfx.usen-tinnitrol.com
+hatolkay.hu
 hatshdnxi.merit-uk.co.uk
 hatvtf.globalcontact.hu
 haubner-bau.de
@@ -14612,6 +14615,7 @@ jhyaz.brssolar.hu
 jhzehezj.backgammon.download
 ji.27trans.org
 ji.5-rt.org
+ji.alsg96.org
 jicinvestments.monster
 jidm.jadoobet.pro
 jiesaida.cn
@@ -21257,6 +21261,7 @@ pixelstormsys.glenmora.garden
 pixey.lampaoszlopbolt.hu
 pixxarting24141.icu
 pixz1b5f.salsaonyxstudio.com
+pizdalisibivet.org
 pizza-greenlantern.com
 pizza-primavera-wiesbaden.de
 pizzadays.net
@@ -32094,6 +32099,7 @@ xz783f49.lomaazul.com
 xzelng.jamjahani.cash
 xzhuzft.asyabet303.bet
 xzqmygnp18.workers.dev
+xzr2tux1.bossbeyvipclub.click
 xzttyt.xyz
 xzxllyxf.radioshartbandi.bet
 xzz.proxygrid.cc
