@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-05 21:58 CET
-# Eintraege: 33208
+# Aktualisiert: 2026-11-05 22:58 CET
+# Eintraege: 33212
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -6591,6 +6591,7 @@ cochru.xyz
 cock.thehandymanconcierge.com
 cocoa.inhumanencounters.org
 cocoricobeachbar.com
+cocu.cc
 cocuktekstil.com
 cod2d8fn.osbratstvojedinstvo.com
 codbsd.cyou
@@ -21918,6 +21919,7 @@ prox.vpssysnet.pics
 proxies.identities.network
 proxies.internetshadow.link
 proxies.internetshadow.org
+proxy-ca011-cip225.ahrefs.net
 proxy-cascade.digital
 proxy-compass.digital
 proxy-frontier.digital
@@ -21933,6 +21935,7 @@ proxy-us-east005-cip5.ahrefs.net
 proxy-us-east006-cip5.ahrefs.net
 proxy-us-east007-cip5.ahrefs.net
 proxy-us-east009-cip14.ahrefs.net
+proxy-us001-sa4.ahrefs.net
 proxy.am
 proxy.cloudload.cc
 proxy.cloudproxyserv.pics
@@ -32153,6 +32156,7 @@ xzz.proxygrid.cc
 xzzxhqm.eng-us--goldalign.com
 y-lilac-sigma.vercel.app
 y.9winn.org
+y.altertogel.net
 y.aww88.net
 y.coy9.com
 y01q42ad.theslimsplitsmethod.com
