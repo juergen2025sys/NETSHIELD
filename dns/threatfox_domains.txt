@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-05 19:54 CET
-# Eintraege: 33192
+# Aktualisiert: 2026-11-05 21:32 CET
+# Eintraege: 33200
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1765,6 +1765,7 @@ a6ybbuqh.eaglepasstoday.com
 a7px1y1v.container-pulse.digital
 a7r6cxyd.lacavamexicancocina.com
 a7vu3k7t.skillitacademy.com
+a8.akun269.org
 a8.coy9.com
 a8ps09r7.easybatteryfixed.us
 a8y1vw63.luxerabet1000.com
@@ -2843,6 +2844,7 @@ apapg.com
 apartmany-prenajom-pocuvadlo.sk
 apartsearcher.com
 apcegroup.com
+apcfacilities.com.br
 apdhlhs3.xyz
 apeduze.com
 apexfd.click
@@ -7820,6 +7822,7 @@ dev.kitecostabrava.com
 dev.masihsm188.top
 dev.merahsm188.top
 dev.mpsolar.co.za
+dev.questapp.lat
 dev.serverdatahub.pics
 dev.sextop1.cafe
 dev.theokanegroup.com
@@ -8708,6 +8711,7 @@ e-tna.it
 e.88idn.net
 e.88idr.org
 e.ayu99.pro
+e.bro50.org
 e.perspolis.pro
 e0lg2w5e.us-en-us-nervesoothe.com
 e0vt7hv0.saostar.biz
@@ -12480,6 +12484,7 @@ h9fw1u0e.hanasushiorlando.com
 h9qlti2y.marjaevakil.ir
 h9tiiej7.sivasumutemlak.com
 h9wjuhba.greaternewzionbc.org
+ha.alsg96.org
 haarstudio-oswald.de
 hab.kijangturbo88.top
 hab.paptogel.net
@@ -26028,6 +26033,7 @@ steuerkanzlei-anders.de
 stevebiegel.com
 stfconnect.onthewifi.com
 stfgfw.drubenginecologo.com
+stg-hamiltonjankecomau-hamjankestg.kinsta.cloud
 sth4xz5f.pacificcrestforaging.com
 stiaxvadkloai.life
 stickcloth.xyz
@@ -27562,6 +27568,7 @@ toureurpi51924.icu
 touristprogram.com
 tourscure.com
 tourtrade.shop
+towerrush.cam
 towinginculvercity.com
 towmaxusa.com
 toyslot.co
@@ -31772,6 +31779,7 @@ xenomorph-hive-intelligence.garden
 xenomorphhiveintel.christmas
 xenoware.lol
 xepjlus.riverpoker1.com
+xeqynula.workers.dev
 xetxx.bankefile.com
 xevayuhace.com
 xeviozwk.hugugnasiri.xyz
