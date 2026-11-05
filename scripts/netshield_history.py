@@ -65,10 +65,13 @@ class GitHub:
 
         # GitHub occasionally resets long-lived HTTPS connections while reading
         # release metadata/assets. Retrying GET is safe and prevents a transient
-        # network hiccup from failing the complete blacklist build. Mutating
-        # requests are deliberately NOT retried here because a lost response
-        # after POST/PATCH could otherwise create duplicate release assets.
-        retry_delays = (5, 15, 30, 60) if method == 'GET' and payload is None and file is None else ()
+        # network hiccup from failing the complete blacklist build. PATCH only
+        # renames an existing asset ID to a fixed name, so repeating it yields
+        # the same result (05.11.2026: rename failed once with HTTP 502 and
+        # blocked the whole publication). POST uploads are deliberately NOT
+        # retried because a lost response could create duplicate release assets.
+        idempotent = (method == 'GET' and payload is None) or (method == 'PATCH' and payload is not None)
+        retry_delays = (5, 15, 30, 60) if idempotent and file is None else ()
         attempt = 0
         while True:
             request = urllib.request.Request(url, data=data, headers=headers, method=method)
@@ -80,14 +83,14 @@ class GitHub:
                     raise
                 delay = retry_delays[attempt]
                 attempt += 1
-                print(f'::warning::GitHub GET returned HTTP {error.code}; retry {attempt}/{len(retry_delays)} in {delay}s')
+                print(f'::warning::GitHub {method} returned HTTP {error.code}; retry {attempt}/{len(retry_delays)} in {delay}s')
                 time.sleep(delay)
             except (urllib.error.URLError, ConnectionResetError, TimeoutError, socket.timeout) as error:
                 if attempt >= len(retry_delays):
                     raise
                 delay = retry_delays[attempt]
                 attempt += 1
-                print(f'::warning::GitHub GET failed transiently ({error}); retry {attempt}/{len(retry_delays)} in {delay}s')
+                print(f'::warning::GitHub {method} failed transiently ({error}); retry {attempt}/{len(retry_delays)} in {delay}s')
                 time.sleep(delay)
 
     def json_request(self, method, url, **kwargs):
