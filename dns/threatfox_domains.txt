@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-06 19:20 CET
-# Eintraege: 30972
+# Aktualisiert: 2026-11-06 19:51 CET
+# Eintraege: 30975
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -13972,6 +13972,7 @@ kalalaxmiindustries.com
 kalamutech.co.tz
 kalashnikovs-001-site1.jtempurl.com
 kaleda.pro
+kaleho.workers.dev
 kalekos.world
 kalem.store
 kalerdarpan24.com
@@ -15936,6 +15937,7 @@ malekras.pro
 malenko.net
 maletoks.pro
 maletosr.world
+mall.shopotube.com
 mallaak.mom
 maloke.pro
 maloneyr.cyou
@@ -25632,6 +25634,7 @@ totalads.monster
 totalbiztransformation.com
 totalconstructionsolutionswi.com
 totalwomenhealthcare.com
+totemytaboo.pe
 tothgeorgina.hu
 totyc.run
 touchbearersacademy.com
