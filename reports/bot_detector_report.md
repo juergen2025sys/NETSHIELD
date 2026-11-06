@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-06 03:52 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-06 03:59 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,173,997** |
-| Neu (heute) | **+3** |
-| Entfernt | **-1** |
+| Gesamt IPs | **1,173,985** |
+| Neu (heute) | **+32** |
+| Entfernt | **-44** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 46 |
@@ -26,9 +26,9 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,790 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,810 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,455 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 5,445 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 664 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 4,887 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,511 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 763 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 219,996 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,151 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,436 |
@@ -46,10 +46,10 @@
 | ✅ `gitrecon1455_fresh_proxy_list` | 215,847 |
 | ✅ `noctiro_getproxy` | 5,303 |
 | ✅ `noctiro_getproxy_socks5` | 6,346 |
-| ✅ `mohammedcha_proxripper` | 55,108 |
-| ✅ `mohammedcha_proxripper_socks4` | 113,018 |
-| ✅ `mohammedcha_proxripper_http` | 118,600 |
-| ✅ `mohammedcha_proxripper_socks5` | 118,448 |
+| ✅ `mohammedcha_proxripper` | 55,050 |
+| ✅ `mohammedcha_proxripper_socks4` | 113,093 |
+| ✅ `mohammedcha_proxripper_http` | 118,367 |
+| ✅ `mohammedcha_proxripper_socks5` | 118,527 |
 | ✅ `dinoz0rg_proxy_list` | 91,701 |
 | ✅ `dinoz0rg_proxy_list_http` | 3,118 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 94,459 |
@@ -71,4 +71,4 @@
 > Diese 46 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-06 03:52 CET (Europe/Berlin)*
+*Generiert: 2026-11-06 03:59 CET (Europe/Berlin)*
