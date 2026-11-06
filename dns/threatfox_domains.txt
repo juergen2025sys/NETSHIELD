@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-06 19:51 CET
-# Eintraege: 30975
+# Aktualisiert: 2026-11-06 21:01 CET
+# Eintraege: 30979
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -798,6 +798,7 @@
 47.209.174.34.bc.googleusercontent.com
 47.249.156.34.bc.googleusercontent.com
 471yebmv.betexper.bet
+4724extra.workers.dev
 47jt59gp.us-en-us-heroup.com
 47sat9ax.corpuschristiairporthotel.com
 47wv110r.mosbatsms.ir
@@ -13281,6 +13282,7 @@ j.9kio.org
 j.abc22.org
 j.bok13.org
 j.bro50.org
+j.cou4d.org
 j0.bala7.org
 j01nn5zm.istanbul303.com
 j0g2ia0g.bet1yek.bet
@@ -27524,6 +27526,7 @@ vtrow.ydns.eu
 vtulyasw.leaguejazire.com
 vtxdo.shawnmaltipoopuppies.com
 vtxywg.osbratstvojedinstvo.com
+vu.akuntoti.net
 vuacas.com
 vucfhf.en-us-eachwaymultiplier.com
 vue0sabv.vanatarsim.xyz
@@ -28845,6 +28848,7 @@ www.kasmitra.lt
 www.kavkom.tv
 www.kcse.com
 www.keatscollege.com
+www.keriani.cz
 www.kevinalton.com
 www.kindralid.hosianna.ee
 www.kineticoofsiouxland.com
