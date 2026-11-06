@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-06 07:51 CET
-# Eintraege: 30900
+# Aktualisiert: 2026-11-06 09:00 CET
+# Eintraege: 30905
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2665,6 +2665,7 @@ anvayainfo.com
 anvil-32.com
 anvil-89.com
 anvil-laii-r7tc2.pro
+anvil13.com
 anwhinweudee.com
 anxjzoez.shartbandi.games
 anxstwt.akharinbama.ir
@@ -10224,6 +10225,7 @@ ftscfs.logicstack.ink
 fttec.co.uk
 ftvfx.faux-paws.com
 ftwealthmgt.com
+fu.alxeabet.org
 fucismarjiaff.com
 fuck-life007.no-ip.biz
 fuckrussiafuckukraine.duckdns.org
@@ -14606,6 +14608,7 @@ kx4z8st8.escritoriovirtualasesor.com
 kxkdfydq.crownconnectpk.com
 kxlkbmz.303-bet.buzz
 kxlw35vctxgbmwtz6474xwtkm2kywifg4efs6ixmvgdgbgi2uaurenid.onion
+kxozwkop.bossbeyhub.click
 kxqxhh.lestyanesfiai.hu
 kxrvczi.echo-xen.us
 kxwuxeow.site-shartbandi-variz-mostagim.com
@@ -15426,6 +15429,7 @@ longmbx.click
 longpih.shop
 longslimpi.life
 lookup.hazelshelf.xyz
+lookup.wavegrid79.lol
 loombronze.com
 loop-88.com
 loop-lumen.com
@@ -24679,6 +24683,7 @@ t-trustrest.com
 t.88mdc.org
 t.99rtp.net
 t.9winn.org
+t.akuntoti.net
 t.aww88.net
 t.ayu99.pro
 t.coy9.com
