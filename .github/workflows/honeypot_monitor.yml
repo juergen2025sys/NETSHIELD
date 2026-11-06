@@ -327,6 +327,8 @@ jobs:
           # - tn3w_ipblocklist ENTFERNT (01.11.2026, Nutzeranweisung): Release-
           #   Datei laut Last-Modified vom 14.08.2026, im Report eingefroren.
           # - ipthreat_30 ergaenzt (01.11.2026): siehe Kommentar am Eintrag.
+          # - etnetera_aggressive und interserver_rbl ergaenzt (06.11.2026,
+          #   Nutzeranweisung): siehe Kommentare an den Eintraegen.
           #
           # Aktuelle Quellen (alle auf bewährten Repos/Diensten):
           # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
@@ -342,6 +344,8 @@ jobs:
           # - honeysec_ip_all: UCM Trnava Honeypot-Netzwerk, alle Login-Versuche (≥1)
           # - turris_greylist: CZ.NIC Turris-Sentinel-Minipot-Netzwerk (taeglich)
           # - ipthreat_30: IPThreat Honeypots/Reports, gzip, ThreatLevel >= 30
+          # - etnetera_aggressive: Etnetera (CZ), aggressive Angreifer-IPs
+          # - interserver_rbl: InterServer-Hoster-RBL (nicht = ip.txt in combined)
           # ══════════════════════════════════════════════════════════════════
 
           # FIX SIZE: Separate fetch-Funktion mit explizitem Size-Limit fuer
@@ -765,6 +769,22 @@ jobs:
               # https://ipthreat.net im README erforderlich.
               "ipthreat_30":
                   "https://lists.ipthreat.net/file/ipthreat-lists/threat/threat-30.txt.gz",
+              # Etnetera (2026-11-06): "Detected aggressive IPs" aus der
+              # eigenen Erkennung des tschechischen Sicherheitsdienstleisters
+              # Etnetera, kein API-Key. Live verifiziert am 06.11.2026: Klartext
+              # mit #-Kommentarkopf ("Generated: 20261106 15:30:02"), 556
+              # Einzel-IPs, laufend neu erzeugt; ~38% nicht in NETSHIELD.
+              # Nicht in combined SOURCES.
+              "etnetera_aggressive":
+                  "https://security.etnetera.cz/feeds/etn_aggressive.txt",
+              # InterServer RBL (2026-11-06): Sperrliste des Hosters InterServer
+              # aus Angriffen auf die eigenen Server, kein API-Key. Live
+              # verifiziert am 06.11.2026: Klartext mit #-Kopf ("total ips
+              # 4432"), 4.431 Einzel-IPs, ~46% nicht in NETSHIELD. NICHT
+              # identisch mit "interserver" (ip.txt) in combined SOURCES -
+              # Ueberschneidung nur 867 IPs (~20%).
+              "interserver_rbl":
+                  "https://sigs.interserver.net/iprbl.txt",
           }
 
           # Auth-pflichtige Feeds: name -> LISTE von HTTP-Header-Dicts, in
