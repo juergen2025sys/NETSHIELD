@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-06 18:01 CET
-# Eintraege: 30963
+# Aktualisiert: 2026-11-06 19:20 CET
+# Eintraege: 30972
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -4703,6 +4703,7 @@ bossbeyprimecenter.click
 bossbeyprimeclub.click
 bossbeyprimegroup.click
 bossbeyprimehub.click
+bossbeyprimeline.click
 bossbeyprimeplace.click
 bossbeyprimeteam.click
 bossbeyprimeworld.click
@@ -10000,6 +10001,7 @@ formkey.asia
 formonstore.com
 foroinnovacion-2edicion.sefh.es
 forsell.tech
+fort-venom.com
 fortelezaestates.com
 fortesting-alpha.vercel.app
 forton-apiculteur-miel-provence.live
@@ -11217,6 +11219,7 @@ gpixx.xyz
 gpkqkb.engus-prostavive.com
 gplca9pf.script-bridge.digital
 gpnsfzvzqphjpluvmsr.happydragonchinesebistro.com
+gpnw6ayrly.workers.dev
 gppcdnns.beer
 gptjr.visszateritok.net
 gpukjn7z.betraca.bet
@@ -18467,6 +18470,7 @@ oj7f87i3.radioshartbandi.casino
 ojblxlua.hugugtejarat4.xyz
 ojbprh.krokodilpince.hu
 ojbsqt.german-uboats.com
+ojihx88e.verticalrewards.com
 ojlfy.akonyvelod.hu
 ojnkoxdg.pokerbazi.poker
 ojpqxkm.one1x.bet
@@ -19103,6 +19107,7 @@ p9kos7r3.scriptyek.com
 p9p6kvws.en-easybatteryfixed.com
 pa9xqikq.1000shart.xyz
 paaglx.lifemax.hu
+paars.poker
 pable.sm188login.rest
 pace-draft.sbs
 pacer-gov.com
@@ -25368,6 +25373,7 @@ tieuhocnguyendu-ntl.edu.vn
 tifa984a.antava.store
 tifameat.containerized-growth-engine.garden
 tiftonroofing.com
+tigerdoor.tigerwoodfloor.com
 tigertemp.ca
 tight-dew-df89.esbpomiqpz.workers.dev
 tiixeira.lol
@@ -26999,6 +27005,7 @@ vertbaum9view.exmeshlogic.garden
 vertex2urban.thorniva.garden
 vertical-eco-farming.garden
 verticalli.com.br
+verticalrewards.com
 veryhotcoffee.monster
 verymiha.workers.dev
 vescel.es
@@ -29564,6 +29571,7 @@ xevulypa.workers.dev
 xexop.burritodelight.com
 xf.alan4d.org
 xf4v3zjk.parspoker.casino
+xf8qxybn.bossbeyprimeline.click
 xfakmoduw.lion1bet.com
 xfcv55u8.iraniporn.video
 xffoobdu.jamjahani2026.football
@@ -30456,6 +30464,7 @@ z3eaveor.kevg.store
 z3ebwqw0.seering5outh.digital
 z3u99l6p.en-us-en-nervealive.com
 z4.afktogel.org
+z41spc7f.bossbeymarket.click
 z4d0x58u.bossbeypro.click
 z4e0sn7r.keca.store
 z514sw28.paripalse.com
