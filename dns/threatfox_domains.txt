@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-05 22:58 CET
-# Eintraege: 33212
+# Aktualisiert: 2026-11-06 01:00 CET
+# Eintraege: 33220
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -4592,6 +4592,7 @@ bittersweetkennel.com
 biurolibra.com.pl
 biuropodatkoweradom.pl
 bivashindustries.com
+bivyde.workers.dev
 bix9vc6j202042624.cfd
 biyaconserver.beer
 biyolift.com
@@ -7379,6 +7380,7 @@ d1jtbg8r.node-matrix.digital
 d1muwuka.frameless1.shop
 d1zih0uv.en-us-zen-sulin.com
 d2.googleos-js.vip
+d200n.com
 d29u9g6c.betfire90.bet
 d2dvwf88.nextbahis.blog
 d2jlyc6m.bossbeyhouse.click
@@ -12437,6 +12439,7 @@ h-clean.de
 h.9qoi.org
 h.9winn.org
 h.bosmj.org
+h.d200n.com
 h04c.kernelwave.lat
 h0cbv92p.golfbetkade.com
 h0pjwrll.wignalllindor.wiki
@@ -18901,6 +18904,7 @@ ncodbvverify.dynv6.net
 ncpzdseh.usoleamoozesh.xyz
 ncspeakeasy.com
 ncvhdwcq.medsalamat.ir
+ncxrv36942.workers.dev
 nd7k2mor.mumsdebtservice.co.uk
 ndclassprojectnow.duckdns.org
 ndclvm.charliestaplesbbq.com
@@ -22109,6 +22113,7 @@ push.shorecourt.lol
 push.telemetryportal.cc
 push7pathgate.pavi1rix.bet
 puygyxc6.parspoker90.com
+pv.akun269.org
 pv0onuvi.habbofutbol.com
 pv2000kft.hu
 pv8jpfri.alldayslimtea.uk
@@ -29636,6 +29641,7 @@ w2hnzhub.fununetadris.shop
 w2rd3n.cc
 w3jxkd42.jardins-do-mar.com
 w3ruma49.packet-cascade.digital
+w4.altertogel.net
 w5kaz0nm.ahkam.xyz
 w5mzg.para5itrecal.in.net
 w5r4tev8.magneticlevitationtrain.digital
@@ -31085,6 +31091,7 @@ www.mb8coin.io
 www.mcdowellsemporium.com
 www.mcinbooks.com
 www.mclagodiseo.it
+www.mcovenantacademy.gateway-church.net
 www.mcttt.gov.fj
 www.meclab.it
 www.mediation.brussels
@@ -32535,6 +32542,7 @@ yqwysiuoiyomosec.xyz
 yqyoccyuaoysckmm.xyz
 yqyueyuoukmsmqem.xyz
 yqzbm.barnamenevisi.xyz
+yr.altertogel.net
 yr126pdf.luxerabet100.com
 yr69u41b.pdfcoach.ir
 yrayg0ro.sleavepiker.com
