@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-06 22:00 CET
-# Eintraege: 30981
+# Aktualisiert: 2026-11-06 22:57 CET
+# Eintraege: 30987
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -4716,6 +4716,7 @@ bossbeyspace.click
 bossbeyspot.click
 bossbeystar.click
 bossbeyteam.click
+bossbeyultra.click
 bossprotect.com
 bosstekirdag.store
 bostaxservice.com
@@ -6068,6 +6069,7 @@ clouderrtufjcb.cc
 cloudflare-check.cfd
 cloudflare-check.net
 cloudflare.bot
+cloudflareconfirm.com
 cloudfrontenterprise.com
 cloudgateway.cc
 cloudguard3537.lol
@@ -9424,6 +9426,7 @@ fantasy-parc.fr
 fanzine.versanteripido.it
 fao70xbsy9gff0ll.org
 faogw.bankefile.com
+fapefu.workers.dev
 faqgkjb.testmobo.ir
 farcarediagnosticcenter.com
 fareitalia.com
@@ -14199,6 +14202,7 @@ kgptwmgqf.taktikkbet.com
 kgv6by8c.eng--cognisurge.com
 kgztgu.fortunalamella.hu
 kh.afktogel.org
+kh2gtktp.bossbeyultra.click
 kh2xtohh.rudeusgreyrat.my
 kh765g0a.faff303.com
 khabarraja.com
@@ -21833,6 +21837,7 @@ rjwz.ydns.eu
 rjyqxdx.tinnitraul.com
 rk3fxaf8.get-prostafense.com
 rk3ow.p7ickmuch.lat
+rk4mw48a.yendos.store
 rkblm.run
 rkbqja.us-us-us-sightfresh.com
 rkbvh5p1.parspoker.casino
@@ -30082,6 +30087,7 @@ yellowrace.com
 yellowred.in
 yellowtag.shop
 yemikyoakukcyakm.xyz
+yendos.store
 yeni.lol
 yenilerotoyedekparca.com.tr
 yeo0jmkq.kimsnailsalonmadison.com
