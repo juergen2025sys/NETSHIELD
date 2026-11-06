@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-06 11:20 CET
-# Eintraege: 30918
+# Aktualisiert: 2026-11-06 12:32 CET
+# Eintraege: 30928
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -792,6 +792,7 @@
 46fe21f9.eveningneighbor.com
 46fmfamd.crispychickencutlets.digital
 46imdg6k.blackjackonlineplay83.com
+46u1kyawzw.workers.dev
 46vm4qgb.www-glycofree.com
 46z2kbbw.shartplus.bet
 47.209.174.34.bc.googleusercontent.com
@@ -2337,6 +2338,7 @@ alexandraodontiatros.gr
 alexandrebeudet.com
 alexiabioconsult.com
 alexistotojp12jt.cyou
+alexsi4d.org
 alextyler.eth
 alfabettradycji.pl
 alfadivit.ba
@@ -2396,6 +2398,7 @@ allocation-flarefoundation.xyz
 allocation-lienfi.app
 allocations-curve.com
 allocations-grove.xyz
+alloha4d.or
 alloha4d.org
 allopizzapluslonguenesse.fr
 allowcheckd3.cc
@@ -3579,6 +3582,7 @@ b.bro50.org
 b.coy9.com
 b.d200n.com
 b.worldpress.biz
+b0.alloha4d.or
 b0.alloha4d.org
 b031beafd8f3.net
 b0gkye8f.nou-sauvage.pro
@@ -4539,6 +4543,7 @@ boatshow.com.br
 bob.1001gacor.org
 bob.adkfarmerdan.com
 bob.sm188daftar.mom
+bob78.org
 bobik.cfd
 boblazar.inhumanencounters.org
 boblegvlist.christmas
@@ -17285,6 +17290,7 @@ n.9winn.org
 n.abc22.org
 n.acunbet89.org
 n.akuatoto.net
+n.alexsi4d.org
 n.bamto.org
 n.bola7.net
 n.coy9.com
@@ -20435,6 +20441,7 @@ push.telemetryportal.cc
 push7pathgate.pavi1rix.bet
 puygyxc6.parspoker90.com
 pv.akun269.org
+pv.akuntoti.net
 pv0onuvi.habbofutbol.com
 pv2000kft.hu
 pv8jpfri.alldayslimtea.uk
@@ -21812,12 +21819,14 @@ rlmjgwi.appmegapari.com
 rlnmfj.paginaespumaflex.com
 rloafi.engmitolyn.us
 rlpxurgo.qurandownload.xyz
+rlskni07.bossbeylink.click
 rltczk86.us-en-us-nervearmor.com
 rluvz62i.observability-matrix.digital
 rm9jpaae.themertraa.com
 rmans.webredirect.org
 rmawet.bp-zone.us
 rmbatiment.fr
+rmbikers.lightbox.mx
 rmbvag.jamjahani2026shartbandi.com
 rmc.asia
 rmdgroup.com.au
@@ -21917,6 +21926,7 @@ rokkyho32.life
 rokkykopi.icu
 roland.uscourt.online
 rolandypo98.life
+rolex-ankaufen.de
 rolex22.duckdns.org
 roljpcp.hectortm-plumbing.com
 rollcoil.cfd
