@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-06 01:00 CET
-# Eintraege: 33220
+# Aktualisiert: 2026-11-06 01:52 CET
+# Eintraege: 33228
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1157,6 +1157,7 @@
 6azbm23o.sazehayefooladi.xyz
 6b2e76df.pattysole.com
 6b4ki3sp.abt90kade.com
+6b86s0yu.bittu.store
 6biioqya.vitalmcallen.com
 6biyu5ds.greaternewzionbc.org
 6bj30.eightyen1arge.garden
@@ -4589,6 +4590,7 @@ bitplanes.se
 bitsjq.eng--usa-sugarmute.com
 bitter-salty.digital
 bittersweetkennel.com
+bittu.store
 biurolibra.com.pl
 biuropodatkoweradom.pl
 bivashindustries.com
@@ -4976,6 +4978,7 @@ bossbeynetwork.click
 bossbeynova.click
 bossbeyonline.click
 bossbeyprime.click
+bossbeyprimecenter.click
 bossbeyprimeplace.click
 bossbeyprimeteam.click
 bossbeyprimeworld.click
@@ -12223,6 +12226,7 @@ groverudder12.com
 grow6siteview.biomasselement.garden
 growingtogether.club
 growingupsavannah.com
+growmoreaccounting.co.nz
 growpix31.digital
 growthflo.ima8invika.garden
 growthhub.in
@@ -15028,6 +15032,7 @@ k35xtdfx.us-en-us-heroup.com
 k3mmhmpn.runtime-atlas.digital
 k3q6fgf9.parsbet90.com
 k4.akurat80.org
+k4.altertogel.net
 k45ks1jv.enus-mindvault.com
 k4d8qigu.houtbriketten.net
 k4gwqp86.go-flashburn.com
@@ -15045,6 +15050,7 @@ k78134om.bet359.bet
 k7d5sjnk.jadoobet.club
 k7elan-43083.portmap.host
 k7o1ql3j.eng-us--goldalign.com
+k81f5l4o.kunci.store
 k8xn2yer.go-flashburn.com
 k9.alien203.org
 k94em4jx.bossbeycity.click
@@ -22191,6 +22197,7 @@ pythg1jn.greenestreetchurch.com
 pythnplk.online
 python3.en-us--balancing.co
 pythonmania.org
+pyxuvy.workers.dev
 pyzoi.ceremoniavezeto.hu
 pzacsqp.ariash.art
 pzaiotb.akhbarirani.com
@@ -28703,6 +28710,7 @@ uza.sm188dvlv.icu
 uzibfmopqrkgcjl.is-a-therapist.com
 uzmapubv.behtarin-site-shartbandi-football.com
 uznjkx.onlineshart.com
+uzpzgday.bossbeyprimecenter.click
 uzq4z9m2.federationofpbos.org
 uzrekc.globalcontact.hu
 uzyjmjoqveovvvbfxo.gamestwists.com
