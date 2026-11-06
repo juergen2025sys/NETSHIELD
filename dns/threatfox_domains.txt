@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-06 21:01 CET
-# Eintraege: 30979
+# Aktualisiert: 2026-11-06 22:00 CET
+# Eintraege: 30981
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -13560,6 +13560,7 @@ jidm.jadoobet.pro
 jiesaida.cn
 jifepzmu.bossbey12.click
 jifyi.gamehazarat.com
+jig8qfoi.bossbeymaster.click
 jiguz.com
 jii17zh7.yekbetyek.com
 jij.sm188dvlv.icu
@@ -17038,6 +17039,7 @@ mpdmwhr9.jadoobet.forum
 mpfmdjf.ace90.games
 mpgfy.sakhtemandade.shop
 mpgowpnw.pesas.store
+mpirehealth.com
 mpla-clo.cc
 mpmu.slepsluzbaublizini.com
 mpozwop.winxbet.co
