@@ -67,8 +67,32 @@ on:
   # WICHTIG: 'workflows' referenziert den name: des Quell-Workflows, nicht
   # den Dateinamen. Die Watchdog-Datei muss dafuer auf dem Default-Branch
   # (main) liegen.
+  #
+  # FIX MORE-TICK-SOURCES (2026-11-06): Honigtopf allein reichte nicht.
+  # Am 06.11.2026 schluckte GitHub von 12:32 bis 15:59 CET sowohl alle
+  # 15min-Watchdog-Slots als auch Honigtopf und alle drei Combined-Slots
+  # 12:07/12:27/12:47 UTC - Combined blieb von 11:10 bis nach 16:00 CET
+  # ohne Update. In derselben Luecke liefen aber Confidence Blacklist
+  # (13:28), Honeypot Monitor (13:32), NETSHIELD Report Generator (13:33),
+  # False Positive Checker (13:34) und DNS List Mirror (13:35) durch. Jede
+  # davon haette den Watchdog angestossen, der den unbedienten Slot
+  # 12:07 UTC nach Ablauf der Grace (20min) erkannt und Combined per
+  # workflow_dispatch nachgeholt haette. Mehr Quellen = mehr unabhaengige
+  # Chancen. Zusaetzliche Watchdog-Laeufe sind billig (Sekunden) und
+  # stauen sich nicht: concurrency 'watchdog-combined' haelt hoechstens
+  # einen laufenden plus einen wartenden Lauf. 'Update Combined Blacklist'
+  # selbst ist bewusst NICHT gelistet.
   workflow_run:
-    workflows: ["Honigtopf"]
+    workflows:
+      - "Honigtopf"
+      - "Watchdog IP-Ablauf"
+      - "IP-Ablauf"
+      - "NETSHIELD Report Generator"
+      - "Confidence Blacklist"
+      - "Honeypot Monitor"
+      - "False Positive Checker"
+      - "Workflow Health Checker"
+      - "DNS List Mirror"
     types: [completed]
 
 env:
