@@ -1,6 +1,6 @@
 # Workflow Health Dashboard
 
-**Stand:** 2026-11-05 20:52 CET (Europe/Berlin)
+**Stand:** 2026-11-06 07:29 CET (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
@@ -8,7 +8,7 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 8 / 8 erwartet
+- **Echte Combined-Runs:** 7 / 8 erwartet
 - **Skip-Runs (Idempotenz-Guard):** 6
 - **Lucken (>210min zwischen echten Runs):** 1
   - 2026-11-05 07:43 CET (Europe/Berlin) -> 2026-11-05 12:17 CET (Europe/Berlin) (274 min)
@@ -16,23 +16,23 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 ## Letzte 7 Tage
 
 - **Echte Combined-Runs:** 58
-- **Skip-Runs:** 39
+- **Skip-Runs:** 41
 - **Fehlgeschlagene Runs:** 1
-- **Lucken >210min:** 10
+- **Lucken >210min:** 9
 - **Groesste Lucke:** 2026-11-03 10:47 CET (Europe/Berlin) -> 2026-11-03 16:31 CET (Europe/Berlin) (343 min = 5h 43min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 199
+- **Watchdog-Laeufe insgesamt:** 196
 - **Watchdog-Fehler:** 0
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 34
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 35
 
 Letzte Watchdog-Eingriffe:
-- 2026-11-05 04:46 CET (Europe/Berlin) (Run #41963701687, Laufzeit 15m 48s)
-- 2026-11-05 13:57 CET (Europe/Berlin) (Run #42031513145, Laufzeit 15m 54s)
 - 2026-11-05 16:51 CET (Europe/Berlin) (Run #42059237139, Laufzeit 16m 18s)
 - 2026-11-05 17:35 CET (Europe/Berlin) (Run #42065994681, Laufzeit 19m 32s)
 - 2026-11-05 19:54 CET (Europe/Berlin) (Run #42088822171, Laufzeit 15m 27s)
+- 2026-11-05 22:28 CET (Europe/Berlin) (Run #42112993749, Laufzeit 19m 31s)
+- 2026-11-06 01:29 CET (Europe/Berlin) (Run #42137142687, Laufzeit 14m 0s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
