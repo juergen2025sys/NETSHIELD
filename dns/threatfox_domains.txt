@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-06 22:57 CET
-# Eintraege: 30987
+# Aktualisiert: 2026-11-07 00:27 CET
+# Eintraege: 30988
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -20214,6 +20214,7 @@ prod-static.nascarnash.com
 prod-weblink.videmateshare.com
 prod.commonsource14.click
 prod5.data-square.click
+product-search-83-99-206-203.geedo.com
 productionmaza.bond
 productionmaza.cfd
 productionmaza.cyou
