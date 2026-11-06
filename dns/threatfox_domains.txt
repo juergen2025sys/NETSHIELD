@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-06 16:17 CET
-# Eintraege: 30954
+# Aktualisiert: 2026-11-06 18:01 CET
+# Eintraege: 30963
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2963,6 +2963,7 @@ appujqrcbzsmxdjcs.greatcarprofessionalwindowtint.net
 appvax.com
 apreebathconcepts.com
 apricotrun.cc
+apricotundercroft.org
 aprilrecactivepro.org
 apt73grpjgjwykrenq7vnjejue76vosdzptdvmonv7vyqnsyokrw57ad.onion
 aptabase.jesfeoqrj3.xyz
@@ -3577,6 +3578,7 @@ b.9-9-8.com
 b.acrobatreader.online
 b.adobepdf
 b.adobepdf.cc
+b.akuntoti.net
 b.ayu99.pro
 b.bro50.org
 b.coy9.com
@@ -5908,6 +5910,7 @@ ckszd.banhidileadershipacademy.hu
 ckugvmkpg.hazarat.now
 ckvcsacd.mechanicsayalat.xyz
 ckyuayv.laborfotostudio.hu
+cl0ud.n1u89dhs.xyz
 cl1n0-mark.cloak-custody.pics
 cl1yte93.en-us-goldaligns.com
 claa.adv.br
@@ -15991,6 +15994,7 @@ mapiedonuts.com
 maple30.com
 maplecirrus.com
 mapledesk.cfd
+maplemesh9.com
 maqwuegsiayquqem.xyz
 maqwuoogyqosquma.xyz
 marafurniture.ro
@@ -20540,6 +20544,7 @@ pzsbygor.radioshartbandi.bet
 q.9winn.org
 q.aeoncash.org
 q.bamto.org
+q.cou4d.org
 q.thelayzf.fyi
 q048bmxn.aqua-brn.com
 q08rvd2u.btyek.bond
@@ -20811,6 +20816,7 @@ qoommbx.goldalin.com
 qoomswgcsqquyweu.xyz
 qosmkasciccqgeum.xyz
 qoutbfpg.bet120x.net
+qovaxude.workers.dev
 qoweeyykoewmiiui.xyz
 qowlvqc.backlinkbet.com
 qowmn9c8.iranvibes.ir
@@ -20951,6 +20957,7 @@ quietfox.cc
 quietthistle.com
 quiglgy.com
 quilborne.org
+quill-95.com
 quill-flint.com
 quill-soaor-xhsw9.pro
 quillchant14.com
@@ -27096,6 +27103,7 @@ vigiafiscal.com
 vigilonforce.com
 vigourwise.com
 vihr.org
+vihyxadu.workers.dev
 vijayafoodskolhapur.com
 viki-play.com
 vilaricaagropecuaria.com.br
@@ -29294,6 +29302,7 @@ www.vittorioilfenomeno.com
 www.vmware.rest
 www.volontarideuropa.org
 www.vonkpropisolasiepanele.co.za
+www.vortexnode.kdns.fr
 www.vutjsf0sd9sdqt2rkzvgzv9a.org
 www.w4iunvbdvjof39q-3.net
 www.wadirumhappytourandcamp.com
