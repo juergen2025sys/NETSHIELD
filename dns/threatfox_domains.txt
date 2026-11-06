@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-06 12:32 CET
-# Eintraege: 30928
+# Aktualisiert: 2026-11-06 13:36 CET
+# Eintraege: 30935
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -9933,6 +9933,7 @@ fog.blacklabelfremont.com
 fog.jangkarsm188.top
 fog.psgiran.news
 fogdev.org
+fohysehu.workers.dev
 foipwjgt.paketmalam.vip
 foivs.highkickstkd.com
 fol9.com
@@ -10758,6 +10759,7 @@ getyhb.sbs
 gexbskxk.beshnoinja.ir
 gey5-reach.didoprotecauth.lat
 geyerstudio.com
+gf.akuntoti.net
 gfcbm.xyz
 gfcwiur.yutongdrying.com
 gfddx.run
@@ -11522,6 +11524,7 @@ h-clean.de
 h.9qoi.org
 h.9winn.org
 h.bosmj.org
+h.cou4d.org
 h.d200n.com
 h04c.kernelwave.lat
 h0cbv92p.golfbetkade.com
@@ -12110,6 +12113,7 @@ host-metrics-rev.su
 host-netsup.com
 host.cloudproxyserv.pics
 host.serveminecraft.net
+host6.southspark.lat
 hostandstay.ae
 hostcloud-eu.net
 hostfastland.mivonflowsrv.garden
@@ -12738,6 +12742,7 @@ incubateurdelafranchise.co
 indaspands.shop
 indebud.hu
 independence-day.wildmildwest.cz
+index.brew-reef.lat
 index.gentle-weekly.lol
 index.ridgefield.lol
 index.searchchinas.top
@@ -21185,6 +21190,7 @@ ramialrizik.com
 ramonline365.live
 ramosbusinessservicesllc.com
 rampel.com.do
+ramus.com.br
 ran.slotmacau188e.top
 rancholamuneca.com
 randevau.eu
@@ -29881,6 +29887,7 @@ xzhuzft.asyabet303.bet
 xzqmygnp18.workers.dev
 xzr2tux1.bossbeyvipclub.click
 xzttyt.xyz
+xzx1.com
 xzxllyxf.radioshartbandi.bet
 xzz.proxygrid.cc
 xzzxhqm.eng-us--goldalign.com
