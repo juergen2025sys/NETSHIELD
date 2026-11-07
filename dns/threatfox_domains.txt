@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-07 16:00 CET
-# Eintraege: 30312
+# Aktualisiert: 2026-11-07 17:39 CET
+# Eintraege: 30317
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -18182,6 +18182,7 @@ o4epigrc.en-en--echofree.com
 o5.gg
 o59dzghe.calculadoracomisiones.com
 o5xvhdzy.stgsolar.hu
+o6.amarikatoto.com
 o62u0.icu
 o656aeo7.en-en-us-biobooster.com
 o6h0n635.shop-theslimsplitsmethod.us
@@ -21983,6 +21984,7 @@ s.bb69.org
 s.bok13.org
 s.bola7.net
 s.cuit8.org
+s.dewii.net
 s.goliath.st
 s.littleshabby.net
 s01687.byte-buff.com
@@ -26460,6 +26462,7 @@ vexon1al.digital
 vexxproject.org
 vezawahoy.com
 vezlp9pr.amanahnaga.com
+vf.amanbet89.org
 vfchqur.bahiscash.com
 vfepwox.hyptoburn.com
 vfgaunjv.usa-us--goldalign.com
@@ -27065,6 +27068,7 @@ w7yspq54.betexper.bet
 w8.abad777.org
 w8avjtdi.rsfoodproducts.com
 w8cyew46.metricsdataapi.com
+w8oindvvsr.workers.dev
 w8sxay63.varzeshlife.ir
 w9.alphaslot677.org
 w9so9yni.enus-lipovive.com
@@ -29323,6 +29327,7 @@ yandexslot01.space
 yanepidor.mom
 yaniatbisb.duckdns.org
 yanisrea.hu
+yaponovosh.org
 yarrowalcove.net
 yarwba4c.greatcarprofessionalwindowtint.net
 yasbet.casino
