@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-07 04:08 CET
-# Eintraege: 30235
+# Aktualisiert: 2026-11-07 06:56 CET
+# Eintraege: 30256
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -24,6 +24,7 @@
 022iqw23.bet303.download
 022kgyq9.eachway-multiplier.com
 02eiya9o.xn--ndux-kza.store
+02u144enjy.workers.dev
 02y48l3v.asibshenasiyahya.shop
 039489023.duckdns.org
 03f7.nova7frame.life
@@ -159,6 +160,7 @@
 11181118.icu
 11eventz.com
 11udvmp9.polestennisplayer.digital
+120coral.workers.dev
 123b-jp.com
 123b-mb.com
 123b-mobilee.com
@@ -2290,6 +2292,7 @@ al-aqobah.org
 al-tec-vershevci.de
 al.333pwk.org
 al.396zk.net
+al6.amanbet87.org
 alabamalimoservice.com
 alabamarecoverycenter.com
 alad1.com
@@ -2471,6 +2474,7 @@ amanahtotolive.de.com
 amanahtotolust.us.com
 amanahtotomobile.de.com
 amanahtotonice.de.com
+amanbet87.org
 amaniza.com
 amarszalek.net
 amati.org.uk
@@ -3505,6 +3509,7 @@ ayuntamientodeprogreso.gob.mx
 ayuow0q7.bossbey71.click
 ayuztxyw.en-en-usa-memorylift.com
 ayxo4gdl.ushealthlaboratories.com
+az17ostj.medwedsltd.com
 az1cv6zs.calvaryhospice.org
 az2030port.duckdns.org
 az6trzrx.one1xbet.vip
@@ -4740,6 +4745,7 @@ bqvojtsj.betgar.bet
 bqxhfhog.bet313.org
 br-adobe.lat
 br.16dewaslot.org
+br.amanbet87.org
 br.qq1x.org
 br7p47p1.morgz.store
 brackburger.com
@@ -5797,6 +5803,7 @@ ciccioroomsandbreakfast.it
 ciec-cd.com
 cielohillsevents.com
 ciganshina.org
+cikisile.workers.dev
 cilygv.missionlanereview.com
 cimafina.com
 cimes.pt
@@ -6873,6 +6880,7 @@ d29u9g6c.betfire90.bet
 d2dvwf88.nextbahis.blog
 d2jlyc6m.bossbeyhouse.click
 d2qbo0u3.en-us-eng-geniusbrainsignal.com
+d300m.org
 d35ign4-vault.qu2ntitative-tenero.pics
 d3j9d91vxmbmsx.cloudfront.net
 d3qx7quq68rdce.cloudfront.net
@@ -8172,6 +8180,7 @@ ec-hasslau.de
 ec2-18-226-72-236.us-east-2.compute.amazonaws.com
 ec2-3-22-66-152.us-east-2.compute.amazonaws.com
 ec2-44-249-43-89.us-west-2.compute.amazonaws.com
+ec2-54-213-149-80.us-west-2.compute.amazonaws.com
 ec2-aws.ddns.net
 ecaakmuwiwwesugo.xyz
 ecaqosz.1bonus.bet
@@ -9425,6 +9434,7 @@ fbltqznhi.crownconnectpk.com
 fbuytf67.click
 fbvxbuzt.questionsmotor.xyz
 fby6y3nd.illuigiitaliancuisine.com
+fc.cooklf.net
 fc.rsqqq.top
 fc660864.roseanne.id
 fcbxn.nova7frame.life
@@ -10188,6 +10198,7 @@ fudupdate.com
 fufusgrill.com
 fuja2ejs.bossbeyplus.click
 fujxga.fluss.hu
+fukn5tcj.wafay.store
 fuku8823.com
 fukyfket.bekabet.casino
 fulfreeswd.xyz
@@ -14595,6 +14606,7 @@ l.bb69.org
 l.bola7.net
 l.bro50.org
 l.cuit8.org
+l.d300m.org
 l0.aeon888link.org
 l04de9-span.closer1ook.garden
 l0jpgk5p.tapl.store
@@ -14603,6 +14615,7 @@ l1.topayapp.org
 l1pi06sr.us-us-usa-lipovive.com
 l1twkhat.valleychimneyrepair.com
 l1zcdjtn.gorbio-echos.com
+l2.amanbet87.org
 l2ekym1s.megaparivip.vip
 l2s4j1li.pattysole.com
 l35ypax8.dlcore.cc
@@ -14622,6 +14635,7 @@ l6y96jmj.ravanshenasisaeedi.xyz
 l74u0.ima8invika.garden
 l7jn1e9j.unseen-zorenka.digital
 l7wgh93czcwqhlyt.org
+l8.amanbet87.org
 l81aa3qt.mawos.store
 l83i8m5k.bossbeyhouse.click
 l8dxnew1.en-us-glycomut.com
@@ -20553,6 +20567,7 @@ qowlvqc.backlinkbet.com
 qowmn9c8.iranvibes.ir
 qowquuyueykwcuka.xyz
 qoyieeammkewseqm.xyz
+qp.akuntoti.net
 qpcytsl.browhutsalon.com
 qpdogbyo.floraanalyticshub.garden
 qpduk.hazaratbet.bet
@@ -24570,6 +24585,7 @@ terminalbrewmac.com
 termiteuslbumdge2zmfmfcsrvmvsfe4gvyudc5j6cdnisnhtftvokid.onion
 terporten.nl
 terraincastlerock.com
+terrains-a-vendre.ch
 terroklo.com
 terrycheng.org
 terrystoner4.ddns.net
@@ -26131,6 +26147,7 @@ v.aww88.net
 v.ayu99.pro
 v.bro50.org
 v.cuit8.org
+v.d300m.org
 v.getpi.su
 v0a4ke9x.www-metabodrops.us
 v0cal-hold.narrownessoutri8ht.pics
@@ -27018,6 +27035,7 @@ wacseaaagmwuyiio.xyz
 wadbrnz.1xx.games
 wadoho.workers.dev
 wadosefa.workers.dev
+wafay.store
 wag1cew7.josephmichaelnh.com
 wagerwealth.id
 waggrzdi.meadow-observability-core.garden
@@ -27214,6 +27232,7 @@ webrat.es
 webratxaye1.ton
 websalat.top
 webshareclouds.com
+website.huishurenibiza.nl
 webtask6566.top
 webtechnica.net
 webtracelab.icu
@@ -29231,6 +29250,7 @@ y7o5phj2.irantennis.bet
 y7sb1j03.theslimsplits.com
 y87fvt1g020426i.cfd
 ya.adwgamestore.org
+ya.amanbet87.org
 ya15z70c.die-reformer.digital
 yaebalciganovvjopu.org
 yaebaltakuyusety.com
@@ -29710,6 +29730,7 @@ z.amo98.org
 z.aww88.net
 z.bok13.org
 z.cou4d.org
+z.d300m.org
 z01zh1hu.truenarrator.com
 z02aheni.thevallartasrestaurants.com
 z03gwmgs.bossbaba.store
