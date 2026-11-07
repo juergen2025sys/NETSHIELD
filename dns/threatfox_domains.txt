@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-07 11:39 CET
-# Eintraege: 30281
+# Aktualisiert: 2026-11-07 11:54 CET
+# Eintraege: 30286
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -4189,6 +4189,7 @@ bigsolutionsgc.com
 bigwin1000jp.online
 bigyahu.fans
 bihaku77.com
+biheluja.workers.dev
 biirwl32.patxisdublin.com
 bijmduj.betforward.now
 bikbakers.com.au
@@ -6261,6 +6262,7 @@ comicstar.lat
 comidarapidas.store
 comienzo.ydns.eu
 cominiucadosinternos.store
+comissaonainternet.com.br
 commithealthandwellness.com
 commodities.liquide.life
 commonhedgehogs.com
@@ -17093,6 +17095,7 @@ museummacan.mom
 museview.buzz
 mushamusha-kenyaku.jp
 mushxhb.best
+musicsubmissions.vipmusicrecords.com
 musika.botlesscucks.st
 muslimiina.com
 musonare.top
@@ -20407,6 +20410,7 @@ qcvuzme.ima8invika.garden
 qcwvat.1kickbet90.com
 qcxwddc.aaudizen.com
 qczybp.liftoff.hu
+qd.amanbet89.org
 qddgay.sight--fresh.com
 qdfck9el.crownconnectpk.com
 qdgpv.p7ickmuch.lat
@@ -25653,6 +25657,7 @@ uhwyehxa.leo10.ir
 ui.abad777.org
 ui.akuatoto.net
 ui19bdn2.us-neuro-vera.com
+ui5lvd9i.metaversetravel.org
 uiaoweomysoyumys.xyz
 uiccvbk.click
 uid.fastrunbase.pics
