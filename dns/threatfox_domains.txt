@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-07 17:39 CET
-# Eintraege: 30317
+# Aktualisiert: 2026-11-07 18:07 CET
+# Eintraege: 30321
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -481,6 +481,7 @@
 2b9ljdva.tashabeautystore.com
 2bqvf65p.usa-us--goldalign.com
 2c5gt5bd.seresniki.com
+2c5p82m4.cementlo.com
 2cca57zt.onjabet1.com
 2chci0sm.andisheeslami2.xyz
 2cpd365m.plaque5tucco.digital
@@ -5585,6 +5586,7 @@ cell1-line.narrownessoutri8ht.pics
 cellpure9base.biomasselement.garden
 celsolopez.com
 cem.mesoptik.com
+cementlo.com
 central-da-logistica.com
 centralflgaragedoors.com
 centralfloridapowerwash.com
@@ -7652,6 +7654,7 @@ dnxmrhdnqiybpdmia.infinityjoespizzaclearwater.com
 dnz.cau777.org
 dnz.popi999.net
 do.akurat80.org
+do.amanbet89.org
 dobboeu.channelsbetyek.com
 doc.docsbed.pics
 doc.nfe-online.com
@@ -15191,6 +15194,7 @@ ljqk.bahigo.casino
 ljqwjle.wisconsinriveroutfitters.com
 ljr.1001gacor.org
 ljr.sm188daftar.mom
+ljwof11126.workers.dev
 ljxyfapr71.localto.net
 lkf9soncx2cx8ae.top
 lkfgkq.gtacauto.com
