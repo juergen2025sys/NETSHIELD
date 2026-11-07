@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-07 03:29 CET
-# Eintraege: 30229
+# Aktualisiert: 2026-11-07 04:08 CET
+# Eintraege: 30235
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -15647,6 +15647,7 @@ m0.aeoncash.org
 m08xkitq.vexon4al.lat
 m0del9-spool.mav8loren.lat
 m14rfe59.unseen-zorenka.digital
+m15vczhb.wostu.store
 m1brakes.com
 m1napmzv.shartbazi.net
 m1rz16og.poles-wrinkle.digital
@@ -26235,6 +26236,7 @@ vanta.st
 vantarat.st
 vantrexindustries.com
 vapezozo.com
+vaqapuvi.workers.dev
 varmil9.digital
 varnart.com
 varnixboya.com
@@ -27614,6 +27616,7 @@ worldtripora.com
 wormfear.xyz
 wornod.qen2virex.lat
 wosback.cc
+wostu.store
 wow.androiddebugbridge.su
 wowaow.com
 woxtvuojcsdld.mamglaqwek.com
@@ -28044,6 +28047,7 @@ www.fixbug.icu
 www.fixitfuego.online
 www.floorconstrutora.com.br
 www.florence-wischer-avocat.com
+www.flowmatter.org
 www.fluffypumpkin.southcastle.com
 www.fondazioneoav.it
 www.fondenvagnjespersen.dk
@@ -28225,6 +28229,7 @@ www.larmentybackup2.com
 www.larmentybadup.com
 www.lastronauta.it
 www.latelierdupedalboard.com
+www.lauschlaune.de
 www.leavenworthlofts.com
 www.les-bayoux.fr
 www.libericantores.it
@@ -28323,6 +28328,7 @@ www.neurowellnesslab.site
 www.new-age-bookstore.amanamission.com
 www.newdnsglobaldnsduckdns.com
 www.newgemtsa63.fr
+www.newipi.ipi.com.ng
 www.newratu.com
 www.nextge.fr
 www.nickbrownart.net
