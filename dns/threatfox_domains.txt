@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-07 23:17 CET
-# Eintraege: 30431
+# Aktualisiert: 2026-11-07 23:55 CET
+# Eintraege: 30456
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3523,6 +3523,7 @@ ayov.olcsongepet.hu
 ayoz.jadoobet.live
 aypoker90.com
 ayrseu.shop
+ayrtonborgesonline.com
 ays.gamepazarin.com
 ayuntamientodeprogreso.gob.mx
 ayuow0q7.bossbey71.click
@@ -3596,6 +3597,7 @@ b3ioot10.khive.store
 b3mmtzy5.syndantix.com
 b4376y8b.asion.gr
 b4a1d6cb.rudeusgreyrat.my
+b4dm3ptj.bossbeyvipcenter.click
 b4e08w5n.slavyera.com
 b4jy90mg.succeswithpaul.com
 b4l0cqbk.eng--memorylift.com
@@ -3988,6 +3990,7 @@ beliefdesk.xyz
 belieftrack.cfd
 beliefworks.cfd
 believedtobeclean.ddns.net
+belipakanikan.com
 bellamacho.com
 bellaoils.com.au
 belldredgingpump.com
@@ -4710,6 +4713,7 @@ bossbeyspot.click
 bossbeystar.click
 bossbeyteam.click
 bossbeyultra.click
+bossbeyvipcenter.click
 bossprotect.com
 bosstekirdag.store
 bostaxservice.com
@@ -5758,6 +5762,7 @@ chernichco5t.digital
 chernyour.com
 chesft.com
 cheshmepenhan.ir
+chestercountyhardwood.com
 chestnutstanza.top
 chevyrepairhuntingtonbeach.com
 chewira.com
@@ -6796,6 +6801,7 @@ customdnaconstructs.com
 customers.googlesecuritysystem.com
 customhomesbycablik.com
 custosern.digital
+cutesquares.com
 cutstudios.life
 cuttershairdressing.com.au
 cuuhrxbg52c5agytmtjpwfu7mrs4xtaitc4mukkiy2kqdxeqbcmuhaid.onion
@@ -10258,6 +10264,7 @@ fttec.co.uk
 ftvfx.faux-paws.com
 ftwealthmgt.com
 fu.alxeabet.org
+fu.amanbet99.net
 fucismarjiaff.com
 fuck-life007.no-ip.biz
 fuckrussiafuckukraine.duckdns.org
@@ -14006,6 +14013,7 @@ kanaljogja.id
 kancelarianovus.pl
 kanganjeweller.com
 kanis.store
+kantapoyta.fi
 kantnxrl.betropol.bet
 kappa-systems.com
 kappadocia.net
@@ -14319,6 +14327,7 @@ kirk.velyra.ru
 kirkcharlie.com
 kirvnj.shop-echoxen.com
 kisgucygsqeowmcc.xyz
+kishvekush.com
 kiskapeskaloska.com
 kislosflfkcjdj.com
 kiss.a-dog.top
@@ -14472,6 +14481,7 @@ kor-arabiaholding.com
 korepetycjeonline24.pl
 kori1903.anondns.net
 korichniuu122.icu
+korkuevi.com.tr
 kornikook12.icu
 korpihy.herz-frank.com
 korunder.com
@@ -15236,6 +15246,7 @@ live-zebec.com
 live.colatv88xb.cc
 live05ms.us
 live5.msrktz.app
+livebj66.com
 liverpoolenslaved.com
 liverupdate.org
 livespacenext.monster
@@ -15543,6 +15554,7 @@ lplhoo.pishbinigame.com
 lpnvi.bergertetokft.hu
 lpo88ruu.seresniki.com
 lpqzx6iv.lepto--zan.com
+lpradio.online
 lprxjf.samanthadefalco.com
 lpsbdveg.eng-usa--goldalign.com
 lptgdpfh.irantop.bet
@@ -15646,6 +15658,7 @@ lunelle.click
 luniva.blog
 lunyrax.com
 lunza.store
+luoab.ir
 luqiuid91.com
 lurxrx.spirosnet.com
 lusciouslinens.ca
@@ -15867,6 +15880,7 @@ magic-tv.se
 magicalplanet.4nmn.com
 magicmike26.myddns.me
 magicpresets.online
+magicwoodworks.com
 magicworks.cfd
 maglev-propulsion-system.garden
 magnalenz.com
@@ -17049,6 +17063,7 @@ mpla-clo.cc
 mpmu.slepsluzbaublizini.com
 mpozwop.winxbet.co
 mppxtrz.fencescapeinc.com
+mpqav96756.workers.dev
 mprgta.inoxsystem.hu
 mprwjkek.betwanaa.com
 mpsysysx.stacknexus.top
@@ -17201,6 +17216,7 @@ musonare.top
 mustleadschools.ac.tz
 mustlovedogsmobilegrooming.com
 mutfce.help
+mutualamba.com
 mutvwz.ozabet90.com
 muzupelo.workers.dev
 mv.allbaslot.org
@@ -17425,6 +17441,7 @@ natsav.com
 naturaleeleganceflooring.com
 naturelbodrum.com
 natureoasisdesign.garden
+naturillica.com
 navajowhite-capybara-119115.hostingersite.com
 navalc.cyou
 navasluna.es
@@ -27981,6 +27998,7 @@ www.accessrxhealth.com
 www.acropolinuragica.it
 www.adamconsultings.com
 www.addon-danieltschumicom.erinmallon.cyon.site
+www.adegemsvolkstheater.be
 www.admiral-x-kax0m.icu
 www.admiral-x-qpqoy.icu
 www.admiral-x-wk5ey.icu
@@ -28074,6 +28092,7 @@ www.cacoach.com
 www.caesarjaco.co.id
 www.cameliaholdings.co.za
 www.canaza7epbbtducao-ve0s.cc
+www.cardinfoods.com
 www.carlyraeinteriors.com
 www.carolinabiscaro.net
 www.cartoontjes.nl
@@ -28335,6 +28354,7 @@ www.intersectsoftware.space
 www.ioa7xqmhiz26fv5e.info
 www.ipregionchecker.org
 www.irisetosavelives.com
+www.isanpietrini.it
 www.iwx.dvf.mybluehost.me
 www.j3152xx.cc
 www.ja82.fr
@@ -28395,6 +28415,7 @@ www.kp2-3ur6pe4r8i2hj5.com
 www.kpm-engineering.space
 www.kt88npl.live
 www.kuedltqtddbj-hnf9gd.net
+www.kyramediaafrique.com
 www.l9-xf4xzz9g7s9nywuox.app
 www.laboratorioborzi.it
 www.lacompaniahostal.com
@@ -28433,6 +28454,7 @@ www.lumeopetro.com
 www.lundstrom-elservice.dk
 www.lz81ugazc-3rxi-1draiesh.org
 www.m4imi4w.space
+www.madeleineslim.com
 www.maedso.com
 www.maestripastai.it
 www.makmigroup.com
@@ -28472,6 +28494,7 @@ www.mobile1.com
 www.mobilicassara.com
 www.modecoenergie.be
 www.mojomama.org
+www.moneyandmirth.com
 www.moonbird.life
 www.moonlightweddingservices.co.uk
 www.morganaorvokki.com
@@ -28495,11 +28518,13 @@ www.mydriverbs.it
 www.myleadsgen.co
 www.nanofotonica.it
 www.nathalielippens.be
+www.nationalcollegeofhealth.com
 www.naturalstone.store
 www.ncooleyrealty.com
 www.ndclassprojectnowduckdns.com
 www.ndclassprojectnowduckdns1.com
 www.ndclassprojectnowduckdns2.com
+www.nearlyinfinite.com
 www.neelgirlchemicals.com
 www.neelgirlchemicalsbackup.com
 www.negociosliterarios.com.tacetbooks.com
