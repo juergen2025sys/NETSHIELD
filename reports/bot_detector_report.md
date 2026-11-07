@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-07 17:39 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-07 18:07 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,182,438** |
-| Neu (heute) | **+133** |
-| Entfernt | **-555** |
+| Gesamt IPs | **1,182,457** |
+| Neu (heute) | **+50** |
+| Entfernt | **-31** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 46 |
@@ -26,9 +26,9 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,660 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,811 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,894 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,561 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 640 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 4,405 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,670 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 699 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,038 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,084 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 866 |
@@ -50,9 +50,9 @@
 | ✅ `mohammedcha_proxripper_socks4` | 112,606 |
 | ✅ `mohammedcha_proxripper_http` | 117,675 |
 | ✅ `mohammedcha_proxripper_socks5` | 118,188 |
-| ✅ `dinoz0rg_proxy_list` | 92,032 |
-| ✅ `dinoz0rg_proxy_list_http` | 2,339 |
-| ✅ `dinoz0rg_proxy_list_socks5` | 94,766 |
+| ✅ `dinoz0rg_proxy_list` | 91,873 |
+| ✅ `dinoz0rg_proxy_list_http` | 2,094 |
+| ✅ `dinoz0rg_proxy_list_socks5` | 94,636 |
 | ✅ `ian_lusule_proxies` | 3,350 |
 | ✅ `ian_lusule_proxies_socks5` | 1,542 |
 | ✅ `configserverapps_service_blocklists_attacks_bots` | 3,388 |
@@ -71,4 +71,4 @@
 > Diese 46 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-07 17:39 CET (Europe/Berlin)*
+*Generiert: 2026-11-07 18:07 CET (Europe/Berlin)*
