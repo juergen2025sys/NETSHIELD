@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-07 11:54 CET
-# Eintraege: 30286
+# Aktualisiert: 2026-11-07 14:20 CET
+# Eintraege: 30301
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -632,6 +632,7 @@
 37e.lat
 37e.pics
 37lzounh.holographicprojectiongrid.digital
+38.245.195.35.bc.googleusercontent.com
 38.tcp.vip.cpolar.cn
 3822lbt1.stack-sphere.digital
 384njud7.enfejarkade.online
@@ -1678,6 +1679,7 @@ a-di.co
 a.bc.285ef6f2.web.mail.cargopaa.com
 a.bc.6a73dbe.www.aioperao.com
 a.bok13.org
+a.dewii.net
 a.qqmusic1.com
 a.tesslatoto.org
 a.wv2022.com
@@ -3997,6 +3999,7 @@ beopvcstolarija.com
 beqbfjhnf.deepspaceparker.com
 berakasalon.com
 bereksolution.com.br
+bergdorfgoodmanbag.com
 bergiemedia.com
 beritaupdate360.com
 berjimek.com
@@ -5378,6 +5381,7 @@ carrie-branch.7doreval.lat
 carritosnutri.in
 carspeaker.com
 cartasella.com
+carteiracloth.com
 carterconnection.org
 cartujavision.com
 cartwell-pastphantom.courses
@@ -7335,6 +7339,7 @@ devtec.store
 devwpsite.bullishmediapros.com
 devynly.monster
 dewberryhill.cc
+dewii.net
 dexband.quest
 dexblog90.club
 dexflow.pics
@@ -13828,6 +13833,7 @@ k.akuntoti.net
 k.bala7.org
 k.bo787.com
 k.bob78.org
+k.d300m.org
 k.upgrades.lat
 k.worldpress.biz
 k0pr01pw.diero.store
@@ -13974,6 +13980,7 @@ kc7s4uri.padelconstruct.hu
 kcaasiiogywqgseu.xyz
 kcaumkkyqkqsywse.xyz
 kccqafs.enviroment.gr
+kcfmfk.ltd
 kcgxidkf.hugugmadani6.xyz
 kcgyd99232.workers.dev
 kcipytrnpyvvjygeh5dtehdlhzc6i6ijvsivbgvvevuvbsplgawdezyd.onion
@@ -14491,6 +14498,7 @@ ktkxw.shimiaodaoflushing.com
 ktokj.sanjeshvaandazegiri.shop
 ktoktotam.cc
 ktqwn.ktsoon.ee
+ktrced.top
 kttjcvdz.ddkg.store
 ktuxsg.fittkor.hu
 ktwyzyj.hesabdaripishrafte.xyz
@@ -14935,6 +14943,7 @@ leitingvpn.space
 lekkie.przesuniecie.pl
 lelddwob.en-bizopp.com
 leleurch.org
+lelyreku.workers.dev
 lembehargoexport.com
 lemon-hill7.pages.dev
 lemongrassasiangrill.com
@@ -24903,6 +24912,7 @@ tivex.store
 tiwdt.hazzarat.com
 tiwoxi.workers.dev
 tiziyditr2xof4y.top
+tj.amanbet89.org
 tj2ay0gm.en-us--mindvault.com
 tj6oqmj6.creditrepairhacking.com
 tjaaioz32salcoj63ttxra6nfqggwbcezkzpwnhyoiwq5tuimzmsb3qd.onion
@@ -25780,6 +25790,7 @@ unic0re.click
 unicore.lol
 unicore.pw
 uniedpureevenywjk.shop
+uniformeselsoldado.com.mx
 unionringroofing.com
 unipack-ukraine.com
 uniporctandil.com.ar
@@ -26678,6 +26689,7 @@ vmi3469820.contaboserver.net
 vmi3474446.contaboserver.net
 vmi3474645.contaboserver.net
 vmi3554028.contaboserver
+vmi3569709.contaboserver.net
 vmi3641491.contaboserver.net
 vmi3641492.contaboserver.net
 vmi3666256.contaboserver.net
@@ -28149,6 +28161,7 @@ www.highgradebastardbackup2.com
 www.highgradebastardbackup3.com
 www.highlandersformigine.it
 www.hirequitb50d19.com
+www.historics.nl
 www.hoeising.dk
 www.hofer.nl
 www.honjometal.co.th
@@ -29209,6 +29222,7 @@ xxs3dmkoflcfrkon7a2guje2ojsyv63z7eyxpctjota7xil646v4byyd.onion
 xxx.sytes.net
 xxxxxx69.cn
 xxziiqx.realmanpath.com
+xy.amanbet89.org
 xy08z5pm.shop-aizenpower.us
 xya.supercrone.cc
 xybtn.bartendersclub.net
@@ -29311,6 +29325,7 @@ yawlixdf.en-us--levium.com
 yaxy.radioshartbandi.bet
 yayana.myftp.org
 yazervan.pegasjam-wikieye.christmas
+yb.amarikatoto.com
 yb0sm6rr.navv.store
 yba7z7vt.ravansalamat.shop
 ybfrvo.greaternewzionbc.org
