@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-07 00:27 CET
-# Eintraege: 30988
+# Aktualisiert: 2026-11-07 01:58 CET
+# Eintraege: 30994
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -13904,6 +13904,7 @@ k.88mdc.org
 k.abc22.org
 k.adobepdf.cc
 k.ajo7.org
+k.akuntoti.net
 k.bala7.org
 k.bo787.com
 k.bob78.org
@@ -14575,6 +14576,7 @@ ktqwn.ktsoon.ee
 kttjcvdz.ddkg.store
 ktuxsg.fittkor.hu
 ktwyzyj.hesabdaripishrafte.xyz
+ktzt37w2w2.workers.dev
 ku.16dewaslot.org
 ku.qq1x.org
 kuacu.eight-education.lat
@@ -18256,6 +18258,7 @@ o.a9bet.org
 o.adwgamestore.org
 o.bob78.org
 o.bola7.net
+o.cou4d.org
 o.fecebbk.xyz
 o.peer4you.net
 o04h18rp.rsfoodproducts.com
@@ -26495,6 +26498,7 @@ urbanboxed.live
 urbanhostgate.grovessa.garden
 urbanmatrix.digital
 urchlogs.duckdns.org
+urcmmv0irl.workers.dev
 urcvafs7.betwoon.art
 urdjsnn.jamjahani.net
 urelelgc.betforwardkade.com
@@ -27805,6 +27809,7 @@ webanalytics-cdn.cfd
 webanalytics-cdn.cyou
 webanalytics-cdn.icu
 webanalytics-cdn.sbs
+webap.store
 webcdnstat.5toralix.pics
 webcdnstat.7toravex.pics
 webcdnstat.cereal5pesivet.lat
@@ -30454,6 +30459,7 @@ yzqorlb.betvolleyball.net
 yzqzbtkr.betfidokade.com
 yzrdn.yanis.hu
 yzreuh97.bodes.store
+yzwtf7g7.webap.store
 z.a9bet.org
 z.abc22.org
 z.allbaslot.org
