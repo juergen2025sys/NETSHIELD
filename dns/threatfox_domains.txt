@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-07 18:07 CET
-# Eintraege: 30321
+# Aktualisiert: 2026-11-07 18:57 CET
+# Eintraege: 30326
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2482,6 +2482,7 @@ amanahtotomobile.de.com
 amanahtotonice.de.com
 amanbet87.org
 amanbet89.org
+amanbet99.net
 amaniza.com
 amarikatoto.com
 amarszalek.net
@@ -9252,6 +9253,7 @@ f.88qr.org
 f.abad777.org
 f.akasia988.net
 f.au338.org
+f.dak69.org
 f015oa9h.kunci.store
 f0ceohvy.eutoor.com
 f0qnr43h.epexecutivecoaching.com
@@ -13609,6 +13611,7 @@ joiningtrade.com
 joinunicore.top
 jojisy.workers.dev
 jojobetuyelik.info
+jojoby.workers.dev
 jojomb8o.petsoftcrate.com
 jojxmyi.betwoonuyelik.com
 jokesprite.info
@@ -15912,6 +15915,7 @@ manager.moonlighter.space
 managingdeceptive.digital
 manbipll.duckdns.org
 manchester1.site
+mandolinamandolina.it
 mandtar.shop
 manggaraitimur.com
 mangy10.ddns.net
@@ -18814,6 +18818,7 @@ ou.9kio.org
 ou.qymj.ru
 oucgpofp.karafarini.shop
 oudwaubach.nl
+oui.amanbet99.net
 ouiucyh3.web-optimizer.us
 oulkepos.nikansefile.ir
 oumuxj.pshealthcare.net
