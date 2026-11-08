@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-08 07:54 CET
-# Eintraege: 30496
+# Aktualisiert: 2026-11-08 08:49 CET
+# Eintraege: 30538
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -414,6 +414,7 @@
 20ntquqt.varzeshlife.ir
 21-realty.com
 212uqd371gsar.com
+215ogi8v.levoya.store
 2169tae0hhtd6.net
 21wg02hmrp1ldfn7.org
 222.blue
@@ -2815,12 +2816,14 @@ api.linkdataproc.pics
 api.loretesimorix.com
 api.meetione.top
 api.microsoftstorapi.com
+api.migadyn.info
 api.mineblack.lol
 api.moonbeaut.top
 api.netinfrahubsys.pics
 api.netlogicstack.co
 api.netnodeset.pics
 api.office-updates.org
+api.onoplainai.ink
 api.open-system-infra-logic-base.wiki
 api.openapiservicehub.pics
 api.operilezabre.com
@@ -4815,6 +4818,7 @@ br.amanbet87.org
 br.qq1x.org
 br7p47p1.morgz.store
 brackburger.com
+brackendellham.cc
 brackenfolio.top
 bradleysarabians.com
 bradtkr.com
@@ -4898,6 +4902,7 @@ brightnode9sys.lunavera.garden
 brightonwp.com
 brigou.com
 brikeb.com
+brindlecoveton.cc
 brisk-forge-willow-caium.life
 brisk-sail-ridge-dreor.pro
 briskinternet.com
@@ -5212,6 +5217,7 @@ c.bamto.org
 c.bb69.org
 c.bok13.org
 c.bosmj.org
+c.dewii.net
 c.gbwhat.pro
 c.obwhatsappdownload.com
 c.pushonline.online
@@ -5513,6 +5519,7 @@ caxvhiw.jamjahani.org
 caycn.tampabayspin.com
 cayif.hellokism.click
 caym.africa
+cazar.cc
 cb2kljpv.eng--slimsounds.com
 cbawrwwb.wrfc8.com
 cbg80csz.deurnenwinkel.com
@@ -6148,6 +6155,7 @@ cloudyspaces.net
 cloudzone.com.tr
 cloudzone.tr
 cloveranthology.org
+cloverholtway.cc
 clovermark.cc
 clpcentr.world
 clps.space
@@ -6519,6 +6527,7 @@ copperlodestar.info
 copperreliquary.info
 coppertrack.cfd
 coppertreepartners.com
+coppervaleley.cc
 copseandonyx.com
 copysofort.org
 coral-forge-beacon-glioen.live
@@ -7022,6 +7031,7 @@ dailx.de
 daily1nutrition.com
 dailychefhub.com
 dailychefrecipe.com
+dailygrindstumps.com
 dailygrynde.com
 dailygrynde.fit
 dailyjobsinfo.com
@@ -7060,6 +7070,7 @@ dapd5tn1b020426hz.cfd
 daphnilavis.com
 dapkollumbuitenpost.nl
 dapp-uniswap-org.vstorag3.com
+dapplefenland.cc
 daqev.run
 daqotransformers.com
 dar-alyasmin.net
@@ -8085,6 +8096,7 @@ duroelectric.com
 durra.live
 dusanperisi.com
 dusk1-vector.fashina5pread.garden
+duskfoldton.cc
 duskglen.cc
 duskmoor.cc
 duskreaverhold.top
@@ -8288,6 +8300,7 @@ eauviveinasia.com
 eayuhgu.xbetone.com
 eazcu9o7.eutoor.com
 eazk7las3xsvsyxgww3jgzammqjevso2ydnmlopdhl3u2muyrmmilrqd.onion
+eb.amarikatoto.com
 ebe5z0d5.en-us-en-heroup.com
 ebensen-timent.digital
 ebju.betropol.bet
@@ -8362,6 +8375,7 @@ ecprofessionals.co
 ecqioykyqcamsicq.xyz
 ecqqwwywgeoogaiu.xyz
 ecqwemwwuguosoym.xyz
+ecs.amanlay.org
 ecseoiioowgsiuci.xyz
 ecsgkcgqsqyasmuo.xyz
 ecsig.lampaoszlopbolt.hu
@@ -9669,6 +9683,7 @@ fernanda.fr
 ferncurrent14.com
 fernmenshway.stigmaflowlink.garden
 fernvalidator.ra7ximor.in.net
+fernwoldway.cc
 ferrarahockey.it
 ferrari-rolling-facilities-lounge.trycloudflare.com
 ferraty.sk
@@ -10245,6 +10260,7 @@ fs.alphaslot677.org
 fsakcopsf.cheznevine.com
 fsamon.com
 fsaxdfy0.hit4.bet
+fsbrf.org
 fsc.arizonafamilylawfirm.com
 fsdmkfskdojyttt.pro
 fserd.icu
@@ -11065,6 +11081,7 @@ gli.cantdown.su
 glicianneconde.com
 glicomute.com
 glimemragent.com
+glintmereley.cc
 glj24nrt.radioshartbandi.bet
 gllmkzi.betexper.bet
 glmm.colg1.org
@@ -11361,6 +11378,7 @@ gravitfluxbox.grovessa.garden
 gravyblicus.com
 gray.bowlinggreenwinnelsonco.com
 gray7taskhub.nimbusviewgate.garden
+grayfellby.cc
 grayfen.cc
 gre-enleaf2.4zorexil.in.net
 gre.syslicense.net
@@ -11772,6 +11790,7 @@ harmonyshoused.com
 harp.poconodessertco.com
 harrain.diesel-stark.lat
 harrenshipping.com
+hartbrookley.cc
 harukanishitani.com
 harunbelenkogullari.com
 harvest-53.com
@@ -12165,6 +12184,7 @@ hollow-forge-rook-guiyn.life
 hollow-prism-liamklie.pro
 hollowash.fashina5pread.garden
 hollowfen.cc
+hollowickber.cc
 hollowsentinel.com
 hollyarcade.org
 holographic-projection-grid.garden
@@ -15173,6 +15193,7 @@ levelupadventure.hu
 levin.com.tr
 leviume.com
 levoncargo.com.br
+levoya.store
 levyvo.lunave5.bet
 lewokodwqko.icu
 lexema-rpa.com
@@ -15306,6 +15327,7 @@ linkkedin.life
 linkmail5768.com
 linkmob.org
 linktocars.com
+lintmoorley.cc
 linuxfortravelers.com
 linuxkerneldbs.com
 liopcwza.work
@@ -15401,6 +15423,7 @@ llegando09328.ydns.eu
 llfarlit.bet120x.net
 llgdqtat.betpublic.casino
 llgrzomtw.hazaratbet.games
+llm.mothglenber.cc
 llm325.qu2ntitative-tenero.pics
 llmpgrax.mechanickhodakarami.shop
 llny16fk.btobglobal.com
@@ -15559,6 +15582,7 @@ logviewsys.devlogicmaster.pics
 logviewsys.globalnetviewer.pics
 lohapece.workers.dev
 lohgcyy.winsportiran.com
+lohyry.workers.dev
 loja.acscientifica.com.br
 loja.claudineroberto.com.br
 loja.panan.com.br
@@ -16138,6 +16162,7 @@ maple30.com
 maplecirrus.com
 mapledesk.cfd
 maplemesh9.com
+maplezenith.live
 maqwuegsiayquqem.xyz
 maqwuoogyqosquma.xyz
 marafurniture.ro
@@ -16722,12 +16747,14 @@ miqhc.bmiroda.hu
 miqmh80v.bosskayseri.store
 mirage-dz.com
 miraz.store
+mireglenland.cc
 mireyasflowersshop.com
 miritservices.com
 mirolsoftstm.top
 mirqics.hesabdariosmani.xyz
 mirroflobsny.sytes.net
 mirt.bondbrandingco.com
+mirthvaleway.cc
 mirutadelaseda.com
 misamario1.dynuddns.com
 misbahulquran.org
@@ -17118,6 +17145,7 @@ morganstat.sbs
 morgz.store
 morib.store
 morkaj.bet
+morkovka.cn
 morlies.com
 morningsidechurchofchrist.org.nz
 moro4tix.digital
@@ -17139,6 +17167,7 @@ moszp.jetbet.download
 moth.betweenthebunz.co
 mothechurh.com
 motherotters.com
+mothglenber.cc
 mothwick.cc
 motionsneakers.com
 motivationiran.com
@@ -18061,6 +18090,7 @@ nortideis9.plsqlnew.surf
 norvenor5.qi3mavel.in.net
 noshinpack.com
 nosja.aiteszt.com
+nosql.mireglenland.cc
 nossaestante.com.br
 nostoscreations.com
 nostrendezvous.com
@@ -19399,6 +19429,7 @@ payloadrz5yw227brtbvdqpnlhq3rdcdekdnn3rgucbcdeawq2v6vuyd.onion
 payloadynyvabjacbun4uwhmxc7yvdzorycslzmnleguxjn7glahsvqd.onion
 paymenthhcvhs.ddns.net
 paymentsai.space
+payneofin.cc
 pazarlamasi.com
 pazona.shop
 pb6aoj2p.luxerabet.com
@@ -20264,6 +20295,7 @@ project7.thedivineprojecthouse.co.za
 projectrreck.com
 projet-artisan.com
 projitkar.digital
+prokla0411.com
 prokladka.lol
 promo.summat10n.org
 promo.tennis
@@ -20442,6 +20474,7 @@ pulsemeshnode.axonetworkhub.garden
 pulsepathnet.com
 pulsge.biz
 pumicebarrow.info
+pumpadmin.fun
 pumpmidia.com
 punithotelresort.in
 punjabiweddingsongs.in
@@ -20975,6 +21008,7 @@ quill-95.com
 quill-flint.com
 quill-soaor-xhsw9.pro
 quillchant14.com
+quillmoorston.cc
 quiltdress.xyz
 quiltlegacy.net
 quinterta.com
@@ -22398,6 +22432,8 @@ sabco.com.lb
 sabihaa.com
 sable-orbit-wren-fiayn.live
 sablecroft.cc
+sablehurstby.cc
+sablewoodton.cc
 sableyard.cc
 sabora.com.mx
 sabzzbet.com
@@ -24694,6 +24730,7 @@ tatovlog.top
 tatyixqn.dunkpo1ytechnic.digital
 tawazon.in
 tawej.bankefiile.com
+tawnyfoldton.cc
 tawoauth.com
 tax-preparer-security-viewer.federal-portal.es
 tax.11gokil.org
@@ -27737,6 +27774,7 @@ willo.life
 willow-62.com
 willow-pluiis-smsj6.pro
 willowbox.xyz
+willowfenham.cc
 willowgazette.top
 willowtransit.com
 willynop9821.icu
@@ -27769,6 +27807,7 @@ wingmanbrewers.com
 wingschauffeurs.com
 wingsofalaska.com
 winmastersbetiran.com
+winncelo.com
 winnerscorner.gleeze.com
 winopenhaus4.zexorcloudsync.garden
 winpars.casino
@@ -28500,6 +28539,7 @@ www.jesusboyglobalbackup1.com
 www.jesusboyglobalbackup2.com
 www.jesusboyglobalbackup3.com
 www.jeugdraadtienen.be
+www.jeyms.com
 www.jhflt6l0dwminsl494836rb.org
 www.joenyc.com
 www.joezsingin.com
@@ -29107,6 +29147,7 @@ xdvitbv.drubenginecologo.com
 xeanui.x50wheel.bet
 xedad2tj.digeststart.us
 xedimexe.workers.dev
+xedplay.com
 xee13c9a.pishbini90.bet
 xehbafo.overlokcu.com
 xelautometic.com
@@ -29342,6 +29383,7 @@ xsa9t3ir.enus-tupitea.com
 xscciae7.fewhtml.surf
 xsdxey.westpacifichomefashions.com
 xsdyxio.com
+xskx.artemida.live
 xsmstattrain.com
 xsomiaq5awxh3zkzn334s3dgwuvngy6z2to7265exgovnkwk66hjypid.onion
 xsqil.sm188dvlv.skin
