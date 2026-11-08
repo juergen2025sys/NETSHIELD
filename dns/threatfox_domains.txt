@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-08 23:18 CET
-# Eintraege: 30728
+# Aktualisiert: 2026-11-09 00:00 CET
+# Eintraege: 30739
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -161,6 +161,7 @@
 11eventz.com
 11udvmp9.polestennisplayer.digital
 120coral.workers.dev
+121.196.22.34.bc.googleusercontent.com
 123b-jp.com
 123b-mb.com
 123b-mobilee.com
@@ -237,6 +238,7 @@
 19.tcp.cpolar.top
 193-233-126-53.sslip.io
 193-233-82-248.sslip.io
+194.143.194.35.bc.googleusercontent.com
 196.173.77.34.bc.googleusercontent.com
 197.6.156.34.bc.googleusercontent.com
 19kiojm6.us-thetrumptoken.com
@@ -6078,6 +6080,7 @@ clientlab.4zorexil.in.net
 clientpilotclosers.com
 clients.enigmasolutions.xyz
 clientservices.cozyloft.cc
+clientservices1.cozyloft.cc
 cliffdawn.eight-education.lat
 cliffmelvynltd.com
 cliffsfomoher.mom
@@ -8150,6 +8153,7 @@ duskreaverhold.top
 duskrunner.cc
 duskwarden.com
 dusky-lark-piarnskaeum.ink
+duskyprunttrioor.pro
 dust.packetflow.cc
 dust3logicgate.sporesyncnode.garden
 dutchgp2020.com
@@ -11091,6 +11095,7 @@ gitrm.sbs
 gitsl.xyz
 gitupdate.lol
 gitview.sbs
+givary.workers.dev
 giwawaysua.com
 giwl.highkickstkd.com
 gixxipi9823.life
@@ -14113,6 +14118,7 @@ k.worldpress.biz
 k0.amanplya.org
 k0pr01pw.diero.store
 k0v5zt7p.verticalrewards.com
+k1.amin90.org
 k1.bb69.org
 k10kplastik.com
 k1h.fileboro.com
@@ -14631,6 +14637,7 @@ knowale.cyou
 knowledgeairplane.cfd
 kns.grotominpgroup.pl
 knstbms.nardtakhte.app
+knx3wib6.kotik.store
 knyjwxkg.fileboroo.com
 ko.27trans.org
 ko.5-rt.org
@@ -18620,6 +18627,7 @@ ocglemkm.betraca.bet
 ochre-otter-nernbreoe.life
 ochre-quill-buindbaio.icu
 ochre-roam-rook-geoum.pro
+ochre-sail-lark-bioix.pro
 ochre-wren-satbais.life
 ocjly.visszateritok.net
 ockpahmv.karbordriyaziyat.xyz
@@ -20329,6 +20337,7 @@ printable.rhinoplax.com
 printiepie.com
 printify.tech
 printposte.colonist-proph.lat
+priompruia.pro
 prism-tech.cfd
 prismlogic.cfd
 privahtc.cyou
@@ -23290,6 +23299,7 @@ silicon8host.veloria.garden
 silkestate.io
 silox.com.br
 silv3r-flow.buckish-nabere.lat
+silver-birch-lepfliois.pro
 silveradolandscape.com
 silvereagleproof.com
 silvermuse.online
@@ -26677,6 +26687,7 @@ v2.chatboxvs.com
 v2.colatv88xb.cc
 v2.unpkg.com
 v2.xoilackvb.cc
+v2202511233747405773.hotsrv.de
 v22eqt8a.drubenginecologo.com
 v23ewcsy.calculadoracomisiones.com
 v28e.assonanceka1e.lat
