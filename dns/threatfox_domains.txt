@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-08 21:07 CET
-# Eintraege: 30712
+# Aktualisiert: 2026-11-08 21:56 CET
+# Eintraege: 30717
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -4808,6 +4808,7 @@ boulderleaf.cc
 bounce2youpartyrentals.com
 bouncycastle55.com
 boundbetter.life
+bournemouthchessclub.org.uk
 box.fastbitbox.pics
 box.mailban.pics
 boxingreviewer.com
@@ -13733,6 +13734,7 @@ jgtl.novin-gps.ir
 jguzg.stashngrab.com
 jgypzot.overtheitgirl.com
 jgyqxldn.leaguejazire.com
+jh74etf1.bournemouthchessclub.org.uk
 jhejjsa.penality.casino
 jhjokx.sweethannahs.com
 jhmysc.eng--mitoyn.com
@@ -25920,6 +25922,7 @@ tyb.pelorsm188.top
 tybanyme.workers.dev
 tyccsu.littlehousetees.com
 tycgc.bni-ai.com
+tydiqu.workers.dev
 tygnu.lokercorp.com
 tyhcsza.cfd
 tyjwtd.remenacevintage.com
@@ -29195,6 +29198,7 @@ x.bola7.net
 x.bosmj.org
 x.btwpayme.top
 x.d200n.com
+x.dav88.org
 x.dewii.net
 x.eltofeq.com
 x089w0f5.btyek.boats
@@ -29671,6 +29675,7 @@ xzzxhqm.eng-us--goldalign.com
 y-lilac-sigma.vercel.app
 y.9winn.org
 y.altertogel.net
+y.ameriktoto.org
 y.aww88.net
 y.coy9.com
 y01q42ad.theslimsplitsmethod.com
