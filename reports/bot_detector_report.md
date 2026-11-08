@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-08 19:19 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-08 19:49 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,178,613** |
-| Neu (heute) | **+247** |
-| Entfernt | **-49** |
+| Gesamt IPs | **1,178,635** |
+| Neu (heute) | **+59** |
+| Entfernt | **-37** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 44 |
@@ -25,16 +25,16 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,660 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,800 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 4,161 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,458 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 699 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 4,659 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 5,344 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 763 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,039 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,084 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 646 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 485 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 411 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 357 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 198 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 618 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 419 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 352 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 309 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 166 |
 | ✅ `ercindedeoglu_proxies` | 54,968 |
 | ✅ `ercindedeoglu_proxies_socks4` | 18,974 |
 | ✅ `ercindedeoglu_proxies_socks5` | 20,600 |
@@ -69,4 +69,4 @@
 > Diese 44 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-08 19:19 CET (Europe/Berlin)*
+*Generiert: 2026-11-08 19:49 CET (Europe/Berlin)*
