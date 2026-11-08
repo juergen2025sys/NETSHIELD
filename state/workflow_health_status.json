@@ -1,35 +1,14 @@
 {
-  "updated": "2026-11-07 23:41 CET (Europe/Berlin)",
+  "updated": "2026-11-08 08:16 CET (Europe/Berlin)",
   "total": 33,
-  "ok": 30,
-  "warn": 3,
+  "ok": 33,
+  "warn": 0,
   "error": 0,
   "errors": [],
-  "warnings": [
-    {
-      "file": "auto_feed_discovery.yml",
-      "check": "Doppelter Import",
-      "detail": "Block 0: Doppelte Imports: ((2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
-    },
-    {
-      "file": "dns_blocklist_finder.yml",
-      "check": "Kein expliziter Leerungsschutz",
-      "detail": "Externer Feed/Report ohne explizite MIN_* Guard-Variable \u2013 M\u00fcll-/Leer-Daten k\u00f6nnten unbemerkt akzeptiert werden"
-    },
-    {
-      "file": "dns_blocklist_finder.yml",
-      "check": "Node24 env fehlt",
-      "detail": "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 env-Variable fehlt \u2013 Node.js Kompatibilitaetsproblem moeglich"
-    },
-    {
-      "file": "netshield_report_generator.yml",
-      "check": "Doppelter Import",
-      "detail": "Block 0: Doppelte Imports: ((2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
-    }
-  ],
+  "warnings": [],
   "regression_tests": {
     "schema": 1,
-    "sha": "2d55df451bd665e0e927b9400304d40f81f9b19f",
+    "sha": "ad6ccd08509249dc6e99f6f08e215018c05f9684",
     "status": "passed",
     "tests_run": 490,
     "failures": [],
@@ -41,12 +20,12 @@
     "detail": "490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5765390,
-    "active_blacklist_ipv4.txt": 718014,
-    "blacklist_confidence40_ipv4_part1.txt": 3992612,
-    "cve_exploit_ips.txt": 28928,
-    "honeypot_ips.txt": 2172576,
-    "bot_detector_blacklist_ipv4.txt": 1183569
+    "combined_threat_blacklist_ipv4_part1.txt": 5757774,
+    "active_blacklist_ipv4.txt": 694394,
+    "blacklist_confidence40_ipv4_part1.txt": 3982393,
+    "cve_exploit_ips.txt": 28937,
+    "honeypot_ips.txt": 2172716,
+    "bot_detector_blacklist_ipv4.txt": 1178192
   },
   "production_health": {
     "critical": 0,
