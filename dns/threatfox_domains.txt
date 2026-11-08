@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-08 17:54 CET
-# Eintraege: 30687
+# Aktualisiert: 2026-11-08 19:19 CET
+# Eintraege: 30697
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -5218,6 +5218,7 @@ bzdujmed.sazebetonarme.xyz
 bzeg.bikertlane.com
 bzersz.lat
 bzfgqwnp.ronkarr.com
+bzfug47144.workers.dev
 bzijzpfj.yellohotelsharmoni.com
 bzki.jetbet.download
 bzmkmgt.rayegan.net
@@ -5279,6 +5280,7 @@ c2bactingacademy.com
 c2busrch.venoplus.us
 c2qzm47m.dsm.li
 c2rdcpuv.runtime-sphere.digital
+c2s9xs3f.levoya.store
 c2uwzjf8.blackjackonlineplay83.com
 c3353u83.peddler-wasting.digital
 c360mortgage.com
@@ -8249,6 +8251,7 @@ e.88idn.net
 e.88idr.org
 e.ayu99.pro
 e.bro50.org
+e.dav88.org
 e.perspolis.pro
 e0lg2w5e.us-en-us-nervesoothe.com
 e0vt7hv0.saostar.biz
@@ -12562,6 +12565,7 @@ hzvvlqps.mechanicsayalat.xyz
 hzydyub.gutdrops-store.com
 hzyocvyc.en-us-slimsplits.com
 hzzgoxjvb.pdfbama.com
+i.ameriktoto.org
 i.bala7.org
 i.dak69.org
 i.dewii.net
@@ -24159,6 +24163,7 @@ ste-pdffiller.lat
 stea-summ.5toravex.lat
 steadmanrealestate.com
 steadymeasure.qen2virex.lat
+stealer.greatfinds.life
 stealth-bomber-radar-cross.garden
 stealthgram.org.uk
 steampunkaeronautics.garden
@@ -24410,6 +24415,7 @@ sunvalleysurf.com
 sunwu.world
 sup.gasturbo88.top
 supcra.trave1.bet
+super-fourteen33.cc
 superapp-zebecnetwork.com
 superboomer.world
 superfirewallprotection.com
@@ -25479,6 +25485,7 @@ toolspro.su
 toolstally.duckdns.org
 tooltaps.com
 toonhymp.barcelona11.com
+tooth-fairy.rf.gd
 toothnir23.xyz
 tootiswe.cfd
 tooyoungtoholdon.world
@@ -26875,6 +26882,7 @@ verifyaiinitiative.com
 verifyidentrob01.cc
 verifyrecapcha.info
 verinfagora.com
+veritycraft.lol
 veritymein.eastus.cloudapp.azure.com
 verlfusercapa.com
 vero-living.store
@@ -29971,6 +29979,7 @@ yomogi-2203.com
 yoouslot88.org
 yorubapriestess.com
 yoshicity.xyz
+yoszp9ahm3.workers.dev
 youareafagifyoufoundthis.com
 youareall.botlesscucks.st
 yougriddonaldsfile.com
@@ -30522,6 +30531,7 @@ zone-14-service-8-8.eastus.cloudapp.azure.com
 zoneday-green-house-oper-center.garden
 zonpvb.perfectgame.casino
 zontrip.com
+zoo101.ydns.eu
 zoofis.net
 zoom.web-interviews.live
 zoom4logicnet.focallensview.garden
