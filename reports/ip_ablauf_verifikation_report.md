@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-11-08 07:51 CET (Europe/Berlin)
+Lauf: 2026-11-08 08:33 CET (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -31,8 +31,8 @@ Beim Active-Pfad ist die Prognose die regulaer fuer diesen Tag erwartete Faellig
 | Datum | Prognose regulaer faellig | Heute eindeutig neu eingefroren | Letzter Combined-Cleanup | Einordnung |
 |---|---:|---:|---:|---|
 | 2026-11-08 (heute) | 25,970 | 25,968 | 0 | regulaerer Tagesstand |
-| 2026-11-09 | 25,368 | 0 | – | noch nicht faellig |
-| 2026-11-10 | 32,526 | 0 | – | noch nicht faellig |
+| 2026-11-09 | 25,367 | 0 | – | noch nicht faellig |
+| 2026-11-10 | 32,523 | 0 | – | noch nicht faellig |
 | 2026-11-11 | 22,204 | 0 | – | noch nicht faellig |
 
 **Active heute:** 25,968 eindeutige IPs neu im 180T-Ledger eingefroren; letzter Combined-Lauf: 0 Active-IP(s) als Ablauf entfernt.
@@ -49,28 +49,28 @@ Beim Active-Pfad ist die Prognose die regulaer fuer diesen Tag erwartete Faellig
 
 ## Prognose-Genauigkeit (Vorhersage vs. Realität)
 
-Gleicht die Tages-Vorhersagen aus reports/ip_ablauf.md (Job "prognose") gegen die tatsaechlichen Ledger-Eintraege ab (nach Anker-Datum + Fenster gruppiert, dieselbe Formel wie die jeweilige Prognose: `first`+31 Tage fuer Watchlist, `last`+181 Tage fuer Active), sobald das jeweilige Datum erreicht ist. "Gerettet" = per Zweitbestaetigung (5+ Feeds oder 2+ HQ-Familien) doch nicht abgelaufen.
+Gleicht die Tages-Vorhersagen aus reports/ip_ablauf.md (Job "prognose") gegen die tatsaechlichen Ledger-Eintraege ab (nach Anker-Datum + Fenster gruppiert, dieselbe Formel wie die jeweilige Prognose: `first`+31 Tage fuer Watchlist, `last`+181 Tage fuer Active), sobald das jeweilige Datum erreicht ist. "Gerettet" = per Zweitbestaetigung (5+ Feeds oder 2+ HQ-Familien) doch nicht abgelaufen. **Ausnahme Watchlist mit Tagesdeckel:** Vorhersage und Ist sind hier die am Kalendertag entfernte Menge (max. 2.000, "Muell zuerst" aus dem Rueckstau); eine Rettungsquote ist dann nicht bestimmbar ("–").
 
 **Watchlist (30-Tage-Pfad):**
 
 | Datum | Vorhergesagt | Tatsächlich | Gerettet | Rettungsquote |
 |---|---:|---:|---:|---:|
-| 2026-10-25 | 2,000 | 0 | 2,000 | 100.0% |
-| 2026-10-26 | 2,000 | 0 | 2,000 | 100.0% |
-| 2026-10-27 | 2,000 | 0 | 2,000 | 100.0% |
-| 2026-10-28 | 2,000 | 0 | 2,000 | 100.0% |
-| 2026-10-29 | 2,000 | 0 | 2,000 | 100.0% |
-| 2026-10-30 | 2,000 | 0 | 2,000 | 100.0% |
-| 2026-10-31 | 2,000 | 0 | 2,000 | 100.0% |
-| 2026-11-01 | 2,000 | 0 | 2,000 | 100.0% |
-| 2026-11-02 | 2,000 | 0 | 2,000 | 100.0% |
-| 2026-11-03 | 2,000 | 0 | 2,000 | 100.0% |
-| 2026-11-04 | 2,000 | 0 | 2,000 | 100.0% |
-| 2026-11-05 | 2,000 | 0 | 2,000 | 100.0% |
-| 2026-11-06 | 2,000 | 0 | 2,000 | 100.0% |
-| 2026-11-07 | 2,000 | 0 | 2,000 | 100.0% |
+| 2026-10-25 | 2,000 | 2,000 | – (Tagesdeckel) | – |
+| 2026-10-26 | 2,000 | 2,000 | – (Tagesdeckel) | – |
+| 2026-10-27 | 2,000 | 2,000 | – (Tagesdeckel) | – |
+| 2026-10-28 | 2,000 | 7 | – (Tagesdeckel) | – |
+| 2026-10-29 | 2,000 | 2,000 | – (Tagesdeckel) | – |
+| 2026-10-30 | 2,000 | 2,000 | – (Tagesdeckel) | – |
+| 2026-10-31 | 2,000 | 2,000 | – (Tagesdeckel) | – |
+| 2026-11-01 | 2,000 | 2,000 | – (Tagesdeckel) | – |
+| 2026-11-02 | 2,000 | 2,000 | – (Tagesdeckel) | – |
+| 2026-11-03 | 2,000 | 2,000 | – (Tagesdeckel) | – |
+| 2026-11-04 | 2,000 | 2,000 | – (Tagesdeckel) | – |
+| 2026-11-05 | 2,000 | 2,000 | – (Tagesdeckel) | – |
+| 2026-11-06 | 2,000 | 2,000 | – (Tagesdeckel) | – |
+| 2026-11-07 | 2,000 | 2,000 | – (Tagesdeckel) | – |
 
-_30 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
+_31 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 **Active (180-Tage-Pfad):**
 
@@ -91,17 +91,17 @@ _30 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-11-06 | 36,119 | 36,118 | 1 | 0.0% |
 | 2026-11-07 | 24,295 | 24,291 | 4 | 0.0% |
 
-_60 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
+_61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
 - Seit letztem Lauf: ➡️ unverändert (jetzt 11,181,721 IPs)
 - Seit Zyklus-Start (2026-10-22): 📈 +123,278 (Anstieg)
 - Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 819,586 neue IPs hinzugekommen (davon 707,186 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 5,045 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 109,774 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 6,495,589 (Summe letzte 8 Läufe / ~24h)
-- Entfernte IPs (Summe letzter Läufe): 0 (Summe letzte 8 Läufe / ~24h)
-  - davon Watchlist/30 Tage: 0 (Summe letzte 8 Läufe / ~24h)
-  - davon Active/180 Tage: 0 (Summe letzte 8 Läufe / ~24h)
+- Neue IPs (Summe letzter Läufe): 4,055,944 (Summe 5 verschiedene Combined-Läufe in den letzten 8 Prüfläufen / ~24h; vor dem Aufnahme-Filter gezählt)
+- Entfernte IPs (abgelaufen): heute 27,968 | gestern 26,291 (Kalendertag, aus Ablauf-Ledgern)
+  - davon Watchlist/30 Tage: heute 2,000 | gestern 2,000
+  - davon Active/180 Tage: heute 25,968 | gestern 24,291
 - Netto-Wachstum (~24h): 📉 -3,598 (~24h) ⚠️ **schrumpft aktuell netto** - mehr entfernt als neu aufgenommen
 - Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-11-07T01:14 bis 2026-11-08T06:43 UTC
 
@@ -109,7 +109,6 @@ _60 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-11-05 09:29 CET (Europe/Berlin) | 11,167,849 | 5745 | 3733911 | 0 |
 | 2026-11-05 12:45 CET (Europe/Berlin) | 11,172,291 | 5745 | 3733846 | 0 |
 | 2026-11-05 17:56 CET (Europe/Berlin) | 11,181,445 | 5745 | 3733779 | 0 |
 | 2026-11-05 21:26 CET (Europe/Berlin) | 11,190,160 | 5745 | 3733697 | 0 |
@@ -129,3 +128,4 @@ _60 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-11-07 23:27 CET (Europe/Berlin) | 11,196,864 | 8032 | 3793504 | 0 |
 | 2026-11-08 07:46 CET (Europe/Berlin) | 11,181,721 | 9161 | 3819398 | 0 |
 | 2026-11-08 07:51 CET (Europe/Berlin) | 11,181,721 | 9161 | 3819398 | 0 |
+| 2026-11-08 08:33 CET (Europe/Berlin) | 11,181,721 | 9161 | 3819398 | 0 |
