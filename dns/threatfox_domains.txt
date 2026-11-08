@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-08 19:19 CET
-# Eintraege: 30697
+# Aktualisiert: 2026-11-08 19:49 CET
+# Eintraege: 30705
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -213,6 +213,7 @@
 17.aa.4t.com
 172u1sfd.diero.store
 173ye7va.bossbeyprimezone.click
+175.16.152.34.bc.googleusercontent.com
 17575bbb.roseanne.id
 176.65.148.144.ptr.pfcloud.network
 176.65.149.124.ptr.pfcloud.network
@@ -405,6 +406,7 @@
 1zlu7sit.lltreeremoval.com
 20.93.198.104.bc.googleusercontent.com
 2000tiendasd1.com.co
+201.150.151.129.halleytelecom.com.br
 2026.futbol
 207.82.62.34.bc.googleusercontent.com
 208.56.156.34.bc.googleusercontent.com
@@ -12469,6 +12471,7 @@ hundred-years-old.digital
 hunzm.slotmacau188k.sbs
 huqnry.us-en-us-nitrilean.com
 huqooq.org
+hurricanereecequiltystitches.com
 hurtom.top
 hus.akusm188.top
 hus.matriculador.digital
@@ -16298,6 +16301,7 @@ martyrd.com
 marvelarchitects.in
 marvelouslooks.monster
 marxgo.top
+marya.store
 maryamshop02.com
 maryaxdn.sanjeshravani.shop
 maryberryfiberart.com
@@ -22147,6 +22151,7 @@ rqwanh.gyulaicsevego.hu
 rqwkms23.anodaz.store
 rqz74grh.home-power-shield.com
 rqziwtbf.truenarrator.com
+rr.ameriktoto.org
 rramadasmakeovers.com
 rrashimaswaarupverma.com
 rrbc.betpublic.casino
@@ -23821,6 +23826,7 @@ spencershorttexas.com
 spesurv.biograph-discoball.pics
 spfx.phimmoichilla.org
 spinalorthodontist.com
+spinaltocasino.co.uk
 spinbode.lol
 spindlewoodatlas.co
 spineandsportsmed.com
@@ -27455,6 +27461,7 @@ vye296vc.us-en-morningcoffeeritual.com
 vygjdt.trustcsbs.com
 vyjatawa.workers.dev
 vykzqwol.gamefarma.com
+vypyxo.workers.dev
 vyqowuxa.workers.dev
 vysqdcm6.sportday.ir
 vyujwwlgw.dinosrestaurant.co.uk
@@ -28902,6 +28909,7 @@ www.raffaela-und-dominik.de
 www.raisingames.com
 www.rateon.co.uk.lubcononline.com
 www.re1ieftyoutput.com
+www.reathlefitcenter.com
 www.reginaldtjackson.com
 www.regioncheck.xyz
 www.relaistrasteverestation.com
