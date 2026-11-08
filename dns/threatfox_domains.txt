@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-08 19:49 CET
-# Eintraege: 30705
+# Aktualisiert: 2026-11-08 21:07 CET
+# Eintraege: 30712
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -589,6 +589,7 @@
 304771.eu15.myftpupload.com
 3070ptd6.us-energyrevolution.com
 307xq.braveclo.bet
+30o7jnvc.marya.store
 30tr04n4gr4m4.cndb-jsdelivr-net.christmas
 30vw.mav8loren.lat
 30zu55sj.radioshartbandi.bet
@@ -2032,6 +2033,7 @@ adxvwa.us-en-us-bizopp.com
 adxwe.boutiqbar.com
 ady26.hu
 adzeta.monster
+ae.amarta89.org
 ae5ap687.healthfoodzone.com
 ae666l.space
 ae888.living
@@ -7534,6 +7536,7 @@ dhaafy3l.thevallartasrestaurants.com
 dhamijastore.com
 dharmaraladventure.hu
 dhatfu.apmlandscaping.com
+dhawa.net
 dhddzix.betbet.city
 dhdhro456.gleeze.com
 dhdjisksnsbhssu.com
@@ -9645,6 +9648,7 @@ fchj6wun.wellcome-c-store.com
 fclmwfzz.colonist-proph.lat
 fcmdallas.org
 fcmznlck.hazaratbet.games
+fcrfs.duckdns.org
 fcri.net
 fcsilva.com.br
 fcsulewd.karafarini.shop
@@ -12572,6 +12576,7 @@ i.ameriktoto.org
 i.bala7.org
 i.dak69.org
 i.dewii.net
+i.dhawa.net
 i.gckni.com
 i.peer4you.net
 i0bep9cj.medallionfoodsinctempura.com
@@ -28119,6 +28124,7 @@ worldtripora.com
 wormfear.xyz
 wornod.qen2virex.lat
 wosback.cc
+wositaga.workers.dev
 wostu.store
 wotcn.net
 wow.androiddebugbridge.su
@@ -28194,6 +28200,7 @@ wsus.227api.com
 wsus2.227api.com
 wswgllp.honarcinema.online
 wszq.burntstorerecycling.com
+wt.ameriktoto.org
 wt1d3ceb.en-en-en-slimsounds.com
 wt51peii.boomball.bet
 wtagq.legrandpartnerklub.hu
