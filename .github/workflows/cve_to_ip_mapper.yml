@@ -101,9 +101,11 @@ jobs:
                   "https://raw.githubusercontent.com/elliotwutingfeng/ThreatFox-IOC-IPs/main/ips.txt",
               # FIX C2-MIGRATION: montysecurity/C2-Tracker archiviert → entfernt.
               # C2-Abdeckung bleibt über "ThreatFox IOC IPs" und "MISP Botnet C2".
-              # Botnet C2 IPs
-              "URLhaus Malware IPs":
-                  "https://urlhaus.abuse.ch/downloads/text/",
+              # ENTFERNT (2026-11-08): "URLhaus Malware IPs" -
+              # urlhaus.abuse.ch/downloads/text/ liefert seit 22.10.2026 HTTP 410
+              # (wie in update_combined_blacklist.yml bereits am 01.11. entfernt).
+              # URLhaus bleibt ueber urlhaus_agh (combined) und urlhaus_export
+              # (honeypot_monitor.yml, mit Key) abgedeckt.
               # C2 Intel Feeds – IP_RE extrahiert erste Spalte (ioc) korrekt,
               # Port-Nummern haben keine 4-Oktet-Struktur → kein Fehlmatch
               "MISP Botnet C2":

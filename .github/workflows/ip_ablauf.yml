@@ -1749,12 +1749,27 @@ jobs:
           # Durchlauf).
           _letzte_8 = verlauf[-8:]
           _fenster_label = "~24h" if len(_letzte_8) == 8 else f"{len(_letzte_8)} Lauf(e), noch keine 24h Historie seit Zyklus-Start"
-          _neu_24h_werte = [l.get("neu_angelegt") for l in _letzte_8 if l.get("neu_angelegt") is not None]
+          # FIX DOPPELZAEHLUNG-NEU (2026-11-08): Verifiziert ip_ablauf denselben
+          # Combined-Stand zweimal (z.B. 12:28 und 12:42 mit identischem
+          # cleanup_updated_utc_iso), wurde "neu_angelegt" doppelt summiert.
+          # Pro Combined-Lauf (cleanup_updated_utc_iso) nur einmal zaehlen.
+          _letzte_8_eindeutig = []
+          _gesehen_cleanup_iso = set()
+          for _l8 in _letzte_8:
+              _iso8 = _l8.get("cleanup_updated_utc_iso")
+              if _iso8:
+                  if _iso8 in _gesehen_cleanup_iso:
+                      continue
+                  _gesehen_cleanup_iso.add(_iso8)
+              _letzte_8_eindeutig.append(_l8)
+          _neu_24h_werte = [l.get("neu_angelegt") for l in _letzte_8_eindeutig if l.get("neu_angelegt") is not None]
           _entfernt_24h_werte = [l.get("expired_removed") for l in _letzte_8 if l.get("expired_removed") is not None]
-          if len(_neu_24h_werte) == len(_letzte_8) and len(_letzte_8) > 0:
-              neu_24h_text = f"{sum(_neu_24h_werte):,} (Summe letzte {len(_letzte_8)} Läufe / {_fenster_label})"
+          if len(_neu_24h_werte) == len(_letzte_8_eindeutig) and len(_letzte_8_eindeutig) > 0:
+              neu_24h_text = (f"{sum(_neu_24h_werte):,} (Summe {len(_letzte_8_eindeutig)} verschiedene "
+                              f"Combined-Läufe in den letzten {len(_letzte_8)} Prüfläufen / {_fenster_label}; "
+                              f"vor dem Aufnahme-Filter gezählt)")
           else:
-              neu_24h_text = f"n/a ({len(_neu_24h_werte)}/{len(_letzte_8)} Läufe im Fenster mit Daten)"
+              neu_24h_text = f"n/a ({len(_neu_24h_werte)}/{len(_letzte_8_eindeutig)} Läufe im Fenster mit Daten)"
           if len(_entfernt_24h_werte) == len(_letzte_8) and len(_letzte_8) > 0:
               entfernt_24h_text = f"{sum(_entfernt_24h_werte):,} (Summe letzte {len(_letzte_8)} Läufe / {_fenster_label})"
           else:
@@ -2079,6 +2094,33 @@ jobs:
           _tatsaechlich_pro_tag = _tatsaechlich_pro_tag_kohorte(wl_eintraege_voll, "first", 30)
           _tatsaechlich_pro_tag_active = _tatsaechlich_pro_tag_kohorte(ac_eintraege_voll, "last", 180)
 
+          # ── FIX WATCHLIST-RETTUNGSQUOTE-TAGESDECKEL (2026-11-08) ──────────
+          # Mit Tagesdeckel lautet die Watchlist-Prognose "2.000 werden an
+          # diesem KALENDERTAG entfernt". Combined entfernt dann aber die
+          # 2.000 aeltesten/schwaechsten IPs aus dem Rueckstau ("Muell
+          # zuerst"), NICHT die Kohorte mit first+31 == Datum. Der Kohorten-
+          # Abgleich fand deshalb taeglich 0 und meldete faelschlich
+          # "2.000 gerettet / 100 %" (im Report 14 Tage am Stueck).
+          # Fuer gedeckelte Prognosen jetzt: Ist = an diesem Kalendertag
+          # tatsaechlich eingefroren (Tages-State/Verlauf bzw. Ledger
+          # "eingefroren_am"), "Gerettet" = nicht bestimmbar (None).
+          _wl_ledger_pro_tag = _ledger_neu_eingefroren_pro_tag(wl_eintraege_voll)
+
+          def _wl_kalendertag_ist(_datum):
+              return max(
+                  int(_tatsaechlich_pro_tag_live.get(_datum, 0) or 0),
+                  int(_wl_ledger_pro_tag.get(_datum, 0) or 0),
+              )
+
+          # Migration bereits aufgeloester Watchlist-Tage (alte Methode).
+          for _r_alt in _forecast_hist["watchlist"]["resolved"]:
+              if _r_alt.get("methode"):
+                  continue
+              _r_alt["tatsaechlich"] = _wl_kalendertag_ist(_r_alt.get("datum", ""))
+              _r_alt["gerettet"] = None
+              _r_alt["rettungsquote_prozent"] = None
+              _r_alt["methode"] = "kalendertag_tagesdeckel"
+
           def _pfad_aufloesen(pfad_key, tatsaechlich_pro_tag):
               """Loest alle vergangenen Forecast-Tage gegen die TATSAECHLICH
               an diesem Kalendertag vom Combined-Lauf entfernten IPs auf.
@@ -2091,15 +2133,23 @@ jobs:
                       continue
                   _eintrag = _forecast_hist[pfad_key]["pending"].pop(_datum)
                   _vorhergesagt = _eintrag.get("predicted", 0)
-                  _tatsaechlich = tatsaechlich_pro_tag.get(_datum, 0)
-                  _gerettet = max(0, _vorhergesagt - _tatsaechlich)
-                  _quote = (_gerettet / _vorhergesagt * 100) if _vorhergesagt else 0.0
+                  if pfad_key == "watchlist" and _eintrag.get("daily_cap"):
+                      _tatsaechlich = _wl_kalendertag_ist(_datum)
+                      _gerettet = None
+                      _quote = None
+                      _methode = "kalendertag_tagesdeckel"
+                  else:
+                      _tatsaechlich = tatsaechlich_pro_tag.get(_datum, 0)
+                      _gerettet = max(0, _vorhergesagt - _tatsaechlich)
+                      _quote = (_gerettet / _vorhergesagt * 100) if _vorhergesagt else 0.0
+                      _methode = "kohorte"
                   _resolved_eintrag = {
                       "datum": _datum,
                       "vorhergesagt": _vorhergesagt,
                       "tatsaechlich": _tatsaechlich,
                       "gerettet": _gerettet,
-                      "rettungsquote_prozent": round(_quote, 1),
+                      "rettungsquote_prozent": round(_quote, 1) if _quote is not None else None,
+                      "methode": _methode,
                       "forecast_made_on": _eintrag.get("forecast_made_on"),
                       "aufgeloest_am": _heute_str,
                   }
@@ -2117,9 +2167,11 @@ jobs:
               if _liste:
                   print(f"Prognose-Abgleich ({_label}): {len(_liste)} Tag(e) neu aufgeloest")
                   for _r in _liste:
+                      _g_txt = (f"gerettet {_r['gerettet']:,} ({_r['rettungsquote_prozent']}%)"
+                                if _r.get("gerettet") is not None
+                                else "gerettet n/a (Tagesdeckel)")
                       print(f"  {_r['datum']}: vorhergesagt {_r['vorhergesagt']:,} | "
-                            f"tatsaechlich {_r['tatsaechlich']:,} | "
-                            f"gerettet {_r['gerettet']:,} ({_r['rettungsquote_prozent']}%)")
+                            f"tatsaechlich {_r['tatsaechlich']:,} | {_g_txt}")
               else:
                   print(f"Prognose-Abgleich ({_label}): kein faelliges Datum zum Aufloesen")
 
@@ -2375,7 +2427,10 @@ jobs:
               "jeweilige Prognose: `first`+31 Tage fuer Watchlist, `last`+181 "
               "Tage fuer Active), sobald das jeweilige Datum erreicht ist. "
               "\"Gerettet\" = per Zweitbestaetigung (5+ Feeds oder 2+ "
-              "HQ-Familien) doch nicht abgelaufen."
+              "HQ-Familien) doch nicht abgelaufen. **Ausnahme Watchlist mit "
+              "Tagesdeckel:** Vorhersage und Ist sind hier die am Kalendertag "
+              "entfernte Menge (max. 2.000, \"Muell zuerst\" aus dem Rueckstau); "
+              "eine Rettungsquote ist dann nicht bestimmbar (\"–\")."
           )
           zeilen.append("")
           zeilen.append("**Watchlist (30-Tage-Pfad):**")
@@ -2384,9 +2439,14 @@ jobs:
               zeilen.append("| Datum | Vorhergesagt | Tatsächlich | Gerettet | Rettungsquote |")
               zeilen.append("|---|---:|---:|---:|---:|")
               for _r in _forecast_hist["watchlist"]["resolved"][-14:]:
+                  if _r.get("gerettet") is None:
+                      _g_zelle, _q_zelle = "– (Tagesdeckel)", "–"
+                  else:
+                      _g_zelle = f"{_r['gerettet']:,}"
+                      _q_zelle = f"{_r['rettungsquote_prozent']}%"
                   zeilen.append(
                       f"| {_r['datum']} | {_r['vorhergesagt']:,} | {_r['tatsaechlich']:,} | "
-                      f"{_r['gerettet']:,} | {_r['rettungsquote_prozent']}% |"
+                      f"{_g_zelle} | {_q_zelle} |"
                   )
           else:
               zeilen.append(
@@ -2426,6 +2486,31 @@ jobs:
                   f"ausstehend (Ablaufdatum liegt noch in der Zukunft)._"
               )
 
+          # ── FIX ENTFERNT-AUS-LEDGER (2026-11-08) ──────────────────────────
+          # Die Summe von expired_* ueber die letzten 8 Pruefläufe zeigte oft
+          # 0, obwohl am selben Tag ~28.000 IPs abgelaufen waren: Combined
+          # entfernt nur im ERSTEN Lauf des Tages (Tagesdeckel / 180T-Kohorte),
+          # spaetere Laeufe ueberschreiben seen_db_meta.json wieder mit 0, und
+          # ip_ablauf (alle 3h) erwischt den einen Lauf nicht zuverlaessig.
+          # Gleichzeitig meldete "Netto-Wachstum" korrekt einen Rueckgang -
+          # der Report widersprach sich. Kanonische Quellen sind dieselben wie
+          # in der Live-Tabelle oben: Watchlist-Tages-State/Verlauf und
+          # Active-Ledger "eingefroren_am" (jede IP genau einmal).
+          try:
+              _gestern_str = (datetime.strptime(_heute_str, "%Y-%m-%d").date()
+                              - timedelta(days=1)).isoformat()
+              _wl_h = _wl_kalendertag_ist(_heute_str)
+              _wl_g = _wl_kalendertag_ist(_gestern_str)
+              _ac_h = int(_active_neu_eingefroren_pro_tag.get(_heute_str, 0) or 0)
+              _ac_g = int(_active_neu_eingefroren_pro_tag.get(_gestern_str, 0) or 0)
+              entfernt_24h_text = (f"heute {_wl_h + _ac_h:,} | gestern {_wl_g + _ac_g:,} "
+                                   f"(Kalendertag, aus Ablauf-Ledgern)")
+              entfernt_wl_24h_text = f"heute {_wl_h:,} | gestern {_wl_g:,}"
+              entfernt_act_24h_text = f"heute {_ac_h:,} | gestern {_ac_g:,}"
+          except Exception as _e_entf:
+              print(f"WARNUNG: Entfernt-Zahlen aus Ledgern nicht berechenbar: {_e_entf}; "
+                    f"verwende Summe der Prueflaeufe")
+
           zeilen += [
               "",
               "## seen_db-Trend",
@@ -2435,7 +2520,7 @@ jobs:
               f"- Seit Zyklus-Start ({zyklus_start_str}): {_delta_zyklus_txt}",
               f"- Letzter combined-Cleanup-Pass: {cleanup_text}",
               f"- Neue IPs (Summe letzter Läufe): {neu_24h_text}",
-              f"- Entfernte IPs (Summe letzter Läufe): {entfernt_24h_text}",
+              f"- Entfernte IPs (abgelaufen): {entfernt_24h_text}",
               f"  - davon Watchlist/30 Tage: {entfernt_wl_24h_text}",
               f"  - davon Active/180 Tage: {entfernt_act_24h_text}",
               f"- Netto-Wachstum ({_fenster_label}): {_netto_text}",
