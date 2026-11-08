@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-08 03:57 CET
-# Eintraege: 30475
+# Aktualisiert: 2026-11-08 07:29 CET
+# Eintraege: 30493
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -806,6 +806,7 @@
 49vcy2na.verticalrewards.com
 4bgr76dk.morib.store
 4bklvfdi.estradaannivers.digital
+4bng6wh7.esmaymedia.com
 4bo6zbcy.www-bellyflush.com
 4c6add69.icu
 4c6b9766.linuxfortravelers.com
@@ -4635,6 +4636,7 @@ book-imageport.info
 book-photopage.info
 book.mangozero.com
 book.runds.duckdns.org
+book.sabrina.lordlamer.de
 bookalookalike.co.uk
 bookdayz.com
 booking-reservation-id.com
@@ -9083,6 +9085,7 @@ eshop.nanosoft.gr
 esim360.eu
 esjvtzn6.aloo.bet
 eskorzo.com
+esmaymedia.com
 esnjo.tractor11.com
 esoftwareupdates.com
 esotericpro.com
@@ -9356,6 +9359,7 @@ f-resins.com
 f.88qr.org
 f.abad777.org
 f.akasia988.net
+f.amanlay.org
 f.au338.org
 f.dak69.org
 f015oa9h.kunci.store
@@ -13578,6 +13582,7 @@ jekky.wlwyb.com
 jektcp.eng-gutdrops.us
 jellyfishparty.info
 jellyrollboston.com
+jemmamarket.com
 jemowaji.workers.dev
 jempp912.duckdns.org
 jendelamedia.com
@@ -14004,6 +14009,7 @@ k.bo787.com
 k.bob78.org
 k.d300m.org
 k.dak69.org
+k.dewii.net
 k.upgrades.lat
 k.worldpress.biz
 k0pr01pw.diero.store
@@ -14829,6 +14835,7 @@ l41kcmrpq6l1b29.top
 l4cbc1408255.cfd
 l4czf8jy.bahiscom2023.online
 l5.aeon888link.org
+l5.amanlay.org
 l561if8k.capitol303.vip
 l63gj1o5.bahisbiz.com
 l6lv36qw.estradaannivers.digital
@@ -15093,6 +15100,7 @@ learn.investohalal.com
 lebaneseamericansociety.org
 lebang.si
 lecabinetdartdentaire.ch
+lecar.store
 leceramicheotranto.it
 leconto.lol
 lecormanon.ch
@@ -16305,6 +16313,7 @@ mdzt.behtarin-site-shartbandi-football.bet
 me23z6yn.reneck.store
 me4stn67.network-forge.digital
 me7wszz7.usalo.store
+me9htoup1o.workers.dev
 meadow-observability-core.garden
 meadow-processing-core.garden
 meadow-processing-engine.garden
@@ -21242,6 +21251,7 @@ raster-87.com
 rat.best
 rat.m-u88.com
 ratatwista.com
+rate-limited-proxy-66-249-87-132.google.com
 ratsales.duckdns.org
 rattc2jn.asibshenasiyahya.shop
 ratting.top
@@ -21794,6 +21804,7 @@ rlpxurgo.qurandownload.xyz
 rlskni07.bossbeylink.click
 rltczk86.us-en-us-nervearmor.com
 rluvz62i.observability-matrix.digital
+rm.amarikatoto.com
 rm9jpaae.themertraa.com
 rmans.webredirect.org
 rmawet.bp-zone.us
@@ -22417,6 +22428,7 @@ saferyalla.com
 safetconsult.co.za
 safetyofoman.com
 safevisa-hb.info
+safewahy.workers.dev
 sagaraya.vip
 sagarlakeviewhomes.com
 sagdxf.krokodilpince.hu
@@ -24910,6 +24922,7 @@ testesclaus.beer
 testhostrouter.onthewifi.com
 testingherenigger.loophole.site
 testmyopinion.live
+tests.gkmastermind.in
 testsoryy.hopto.org
 testspsychotechniques974.re
 tetafup.com
@@ -25874,6 +25887,7 @@ ucwoiqkiamygsyuq.xyz
 ucwoqeaycuqwkeyo.xyz
 ucwqiiwawoswwgkq.xyz
 ucwyqcegcaooycqe.xyz
+ud.amanlay.org
 ud0rcyot.hegong-tools.com
 udaipurtaxi.in
 udbarbastro.com
@@ -27842,6 +27856,7 @@ wlr33mz.cloudvector.ink
 wlwjxpc.finkfamilyautomotive.com
 wlx9bsjd.gone303.com
 wlzgm-admiral-x.icu
+wm5y6jly.lecar.store
 wmaacoiokoioisse.xyz
 wmaqacugcmeeoweq.xyz
 wmassqqiaigwesou.xyz
@@ -28696,6 +28711,7 @@ www.qkshhdjrbd.work
 www.quick-shares.com
 www.quk222g21jo0s9zrkmwiwwu.net
 www.qvistgaard.dk
+www.racwel.com
 www.raffaela-und-dominik.de
 www.raisingames.com
 www.rateon.co.uk.lubcononline.com
@@ -29961,6 +29977,7 @@ z.aww88.net
 z.bok13.org
 z.cou4d.org
 z.d300m.org
+z.dak69.org
 z01zh1hu.truenarrator.com
 z02aheni.thevallartasrestaurants.com
 z03gwmgs.bossbaba.store
@@ -30465,6 +30482,7 @@ zythdolm.cn
 zytmarketing.com
 zyuhgbux.hugugtejarat4.xyz
 zyuhz.wilhelmglobal.com
+zyvyhipo.workers.dev
 zywnzrqf.prozhedownload.com
 zyzdto.storia-riferimenti.org
 zz-infratechniek.nl
