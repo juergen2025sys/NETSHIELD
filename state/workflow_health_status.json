@@ -1,14 +1,25 @@
 {
-  "updated": "2026-11-08 15:17 CET (Europe/Berlin)",
+  "updated": "2026-11-08 19:20 CET (Europe/Berlin)",
   "total": 33,
   "ok": 33,
   "warn": 0,
-  "error": 0,
-  "errors": [],
+  "error": 1,
+  "errors": [
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 34.142.140.180, 45.32.150.247, 136.244.112.177, 209.250.236.126, 34.142.140.180\u2026 \u2013 Filterung wirkungslos!"
+    },
+    {
+      "file": "Production Health",
+      "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
+      "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 45.32.150.247, 34.142.140.180, 136.244.112.177, 209.250.236.126, 45.32.150.247\u2026 \u2013 Filterung wirkungslos!"
+    }
+  ],
   "warnings": [],
   "regression_tests": {
     "schema": 1,
-    "sha": "9ca7534cc97ab5311d08a14e1947eed7abe385f0",
+    "sha": "95d9c3c5294cc35af9210ed6fc776d5842205f0d",
     "status": "passed",
     "tests_run": 490,
     "failures": [],
@@ -20,17 +31,28 @@
     "detail": "490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5763091,
-    "active_blacklist_ipv4.txt": 703306,
-    "blacklist_confidence40_ipv4_part1.txt": 3986538,
+    "combined_threat_blacklist_ipv4_part1.txt": 5764407,
+    "active_blacklist_ipv4.txt": 705980,
+    "blacklist_confidence40_ipv4_part1.txt": 3987803,
     "cve_exploit_ips.txt": 28997,
-    "honeypot_ips.txt": 2173362,
-    "bot_detector_blacklist_ipv4.txt": 1178451
+    "honeypot_ips.txt": 2173302,
+    "bot_detector_blacklist_ipv4.txt": 1178415
   },
   "production_health": {
-    "critical": 0,
+    "critical": 2,
     "warn": 0,
-    "checks": []
+    "checks": [
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
+        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 34.142.140.180, 45.32.150.247, 136.244.112.177, 209.250.236.126, 34.142.140.180\u2026 \u2013 Filterung wirkungslos!"
+      },
+      {
+        "level": "CRITICAL",
+        "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
+        "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 45.32.150.247, 34.142.140.180, 136.244.112.177, 209.250.236.126, 45.32.150.247\u2026 \u2013 Filterung wirkungslos!"
+      }
+    ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [

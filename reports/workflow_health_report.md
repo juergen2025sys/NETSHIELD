@@ -1,22 +1,32 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-08 15:17 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-08 19:20 CET (Europe/Berlin)
 
-**Workflows:** 33 | ✅ 33 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
+**Workflows:** 33 | ✅ 33 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `9ca7534cc97ab5311d08a14e1947eed7abe385f0`
+✅ Commit: `95d9c3c5294cc35af9210ed6fc776d5842205f0d`
 
 490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
 
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 34.142.140.180, 45.32.150.247, 136.244.112.177, 209.250.236.126, 34.142.140.180… – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 45.32.150.247, 34.142.140.180, 136.244.112.177, 209.250.236.126, 45.32.150.247… – Filterung wirkungslos! |
+
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 2 CRITICAL | 🟡 0 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 34.142.140.180, 45.32.150.247, 136.244.112.177, 209.250.236.126, 34.142.140.180… – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 45.32.150.247, 34.142.140.180, 136.244.112.177, 209.250.236.126, 45.32.150.247… – Filterung wirkungslos! |
 
 ## Übersicht
 
@@ -57,4 +67,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-08 15:17 CET (Europe/Berlin) | 33 Workflow-Dateien geprüft*
+*Generiert: 2026-11-08 19:20 CET (Europe/Berlin) | 33 Workflow-Dateien geprüft*
