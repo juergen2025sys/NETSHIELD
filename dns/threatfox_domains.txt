@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-08 09:59 CET
-# Eintraege: 30560
+# Aktualisiert: 2026-11-08 10:55 CET
+# Eintraege: 30565
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -16923,6 +16923,7 @@ mobile-hydraulic.com
 mobile.rumtar365-pro.click
 mobile.runds.duckdns.org
 mobilebusinesscompany.com
+mobiler-videoturm.ch
 mobility-aids.in
 mocauhxe.mabanishimi.xyz
 mod.openlogmgr.pics
@@ -23971,6 +23972,7 @@ sssh.burntstorerecycling.com
 sssndns.beer
 ssuokqukkymyusgo.xyz
 ssyeugmiisqiukws.xyz
+ssyxl35z.fadiatalahoud.com
 st-attr.robstuder.org
 st-eloy.be
 st-shop.nl
@@ -25194,6 +25196,7 @@ tiacollege.com
 tiagosgrott.com.br
 ticket.unknower.win
 ticketreceipt.cfd
+ticohuto.workers.dev
 tide-maple.com
 tide6-well.mixzipcore64.lat
 tidptlj.buy-goldalign.com
@@ -28947,6 +28950,7 @@ www.vutjsf0sd9sdqt2rkzvgzv9a.org
 www.w4iunvbdvjof39q-3.net
 www.wadirumhappytourandcamp.com
 www.walbumbyg.dk
+www.waterskiwa.com.au
 www.waverleykls.org.au
 www.wazo.lu
 www.webdevarrayremco.com
@@ -29688,6 +29692,7 @@ yewanthology.co
 yeyaqmgqcmwukkmi.xyz
 yeymcemuyesuegwo.xyz
 yezqbe5v.tarahisystem.xyz
+yf.amanplya.org
 yf1vlynb.gtacauto.com
 yfekdkqg.jadoobet.forum
 yferx.gepco-energy.com
