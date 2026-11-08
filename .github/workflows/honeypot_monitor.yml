@@ -329,6 +329,8 @@ jobs:
           # - ipthreat_30 ergaenzt (01.11.2026): siehe Kommentar am Eintrag.
           # - etnetera_aggressive und interserver_rbl ergaenzt (06.11.2026,
           #   Nutzeranweisung): siehe Kommentare an den Eintraegen.
+          # - offseq_mirage_30d ergaenzt (08.11.2026, Nutzeranweisung): siehe
+          #   Kommentar am Eintrag.
           #
           # Aktuelle Quellen (alle auf bewährten Repos/Diensten):
           # - ipsum_level4: selbes Repo wie level3/5/7, NICHT in combined SOURCES
@@ -346,6 +348,7 @@ jobs:
           # - ipthreat_30: IPThreat Honeypots/Reports, gzip, ThreatLevel >= 30
           # - etnetera_aggressive: Etnetera (CZ), aggressive Angreifer-IPs
           # - interserver_rbl: InterServer-Hoster-RBL (nicht = ip.txt in combined)
+          # - offseq_mirage_30d: OffSeq-Mirage-Honeypot-Flotte, 30 Tage, ohne Forschungsscanner
           # ══════════════════════════════════════════════════════════════════
 
           # FIX SIZE: Separate fetch-Funktion mit explizitem Size-Limit fuer
@@ -785,6 +788,17 @@ jobs:
               # Ueberschneidung nur 867 IPs (~20%).
               "interserver_rbl":
                   "https://sigs.interserver.net/iprbl.txt",
+              # OffSeq Mirage (2026-11-08, Nutzeranweisung): eigene Honeypot-
+              # Flotte von OffSeq, handshake-verifizierte Angreifer, bekannte
+              # Forschungsscanner (Shodan/Censys usw.) ausgeschlossen, taeglich
+              # neu gebaut, kein API-Key. Live verifiziert am 08.11.2026:
+              # Klartext, eine IPv4 pro Zeile, ohne Kommentare, 8.162 IPs;
+              # ~98% bereits in NETSHIELD (144 neu) - Nutzen v.a. als
+              # unabhaengige Zusatzbestaetigung. Nicht in combined SOURCES.
+              # Lizenz CC BY 4.0 - Quellenangabe im README erforderlich:
+              # "Mirage Feed by OffSeq Mirage (https://github.com/offseq/mirage-feed), CC BY 4.0"
+              "offseq_mirage_30d":
+                  "https://feeds.offseq.com/mirage-feed/latest/ipv4-30d.txt",
           }
 
           # Auth-pflichtige Feeds: name -> LISTE von HTTP-Header-Dicts, in
