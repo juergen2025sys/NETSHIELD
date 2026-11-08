@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-08 02:56 CET
-# Eintraege: 30464
+# Aktualisiert: 2026-11-08 03:57 CET
+# Eintraege: 30475
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1631,6 +1631,7 @@
 9rtfhxav.nanovo5kull.pics
 9ry5wan8qu.de
 9s25krs9.dumanbett.co
+9s5tc2qk.credimag.com
 9sb5ntsb.supremepaintingandrestoration.com
 9se85xh3.pesas.store
 9si5pybc.pastinaikwisma.org
@@ -1732,6 +1733,7 @@ a8.coy9.com
 a8ps09r7.easybatteryfixed.us
 a8y1vw63.luxerabet1000.com
 a8y6v0uy.bossbeyvipcenter.click
+a93200c42e.scan.leakix.org
 a96ampff.mrgreenbetiran.com
 a98nkya7.onexprobet.com
 a9bet.org
@@ -4738,6 +4740,7 @@ bossbeystar.click
 bossbeyteam.click
 bossbeyultra.click
 bossbeyvipcenter.click
+bossbeyvipclub.click
 bossprotect.com
 bosstekirdag.store
 bostaxservice.com
@@ -6672,6 +6675,7 @@ createbeer.beer
 creatifanay.duckdns.org
 creativex5.cc
 creator.cutehair.com
+credimag.com
 creditscore.usbankcreditcards.com
 creekside-landscape.com
 crehmoqz.bekabet.casino
@@ -6972,6 +6976,7 @@ d2jlyc6m.bossbeyhouse.click
 d2qbo0u3.en-us-eng-geniusbrainsignal.com
 d300m.org
 d35ign4-vault.qu2ntitative-tenero.pics
+d36k7gt6tq.workers.dev
 d3j9d91vxmbmsx.cloudfront.net
 d3qx7quq68rdce.cloudfront.net
 d3yac2xw.network-vector.digital
@@ -8974,6 +8979,7 @@ epe20s1q.behtarin-site-shartbandi.com
 epexecutivecoaching.it.com
 epgdevelopment.com
 epicskater.com
+epimdev.com
 epltd3ga.kkslot777.asia
 epnoyy.viveheadspa.com
 eporiaeal.com
@@ -16666,6 +16672,7 @@ miloukempers.com
 milpl8xr.eng-neuroxen.com
 mimaja-design.de
 mimecrosoft-onlook.sbs
+mimundofinanciero.online
 minak.run
 minchones.com
 mindcaree.com
@@ -17738,6 +17745,7 @@ newproject-newworld.info
 news.pieset.co
 news.pppsb.org.pk
 news33.ma
+newsite.arccan.com
 newsnationbharat.com
 newsstarlinkhindi.com
 newstamagavk.com
@@ -20541,6 +20549,7 @@ q.9winn.org
 q.aeoncash.org
 q.bamto.org
 q.cou4d.org
+q.dak69.org
 q.thelayzf.fyi
 q048bmxn.aqua-brn.com
 q08rvd2u.btyek.bond
@@ -21957,6 +21966,7 @@ royar.store
 roz3b4iqyrt6.wiestonunanasikasar.win
 roze.click
 rp.afktogel.org
+rp.amanlay.org
 rp.techworldit.com
 rp05pfgt.7lf.net
 rp543g140825tby.cfd
@@ -29495,6 +29505,7 @@ yarrowalcove.net
 yarwba4c.greatcarprofessionalwindowtint.net
 yasbet.casino
 yasbetkade.com
+yatb9gah.bossbeyvipclub.click
 yatxpal6.lckd.store
 yau.aksara87.org
 yauvanpower.online
