@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-08 07:29 CET
-# Eintraege: 30493
+# Aktualisiert: 2026-11-08 07:54 CET
+# Eintraege: 30496
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -297,6 +297,7 @@
 1oc4l-node.xamir9el.lat
 1og90icd.betyek.app
 1omdhqtb.eng-usa-memorylift.com
+1optrc92.hasir.store
 1ozso11s.blackjackonlineplay83.com
 1p289c94.betballl90.app
 1p3iya3c.usen-slimsounds.com
@@ -11780,6 +11781,7 @@ hasanahacademy.co.uk
 hasebtb.en-us--gold-align.com
 hashedsolver.icu
 hasicikunvald.cz
+hasir.store
 haskakwo291sa.com
 hasmeverdcdn.beer
 hasmysql.christmas
@@ -29257,6 +29259,7 @@ xn--temple-de-lumire-6pb.space
 xn--webdesign-nrnberg-d3b.net
 xn--wh1b87g15i82elqa51ff2olwq.com
 xn.aloytoto.org
+xn.amanlay.org
 xn5nkp1j.us-energyrevolution.com
 xn6yof5y.josephmichaelnh.com
 xn88.se.net
