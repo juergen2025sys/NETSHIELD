@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-08 21:56 CET
-# Eintraege: 30717
+# Aktualisiert: 2026-11-08 23:18 CET
+# Eintraege: 30728
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2557,6 +2557,7 @@ amfibirafting.com
 amhal-sono.ma
 amici.addmagad.com
 amigo.mexicocentral.cloudapp.azure.com
+amin90.org
 amitkulkarni.net
 amm-frosty.lol
 amo9xzld.disorientbreak.digital
@@ -3084,6 +3085,7 @@ arkvenex1.godjava.surf
 arkvenon1.represent-skittish.lat
 arkwemiinoex.com
 arlune.blog
+armaizadenwala.com
 armcobarriersuppliers.duckdns.org
 armcobarriersuppliersbk.duckdns.org
 armeh.com.tr
@@ -7251,6 +7253,7 @@ dbvxnw.fullnrg.hu
 dbx.formsift.io
 dbxqkb.net
 dbyhtyvx.forbiddenpantsshop.com
+dc.amin90.org
 dc10varl.rsudtarutung.com
 dc16h0z3.energyrevolutionsystem.org
 dc6z7ywb.en-us-energyrevolution.com
@@ -11994,6 +11997,7 @@ helixr2sncrd3ndsz5oho6mzqw3x5u7mvox5zcsngc5wm7v4l5k7oryd.onion
 hello.itsmybirthdaytoday.pw
 helloworldscaffolding.com
 helloyoga.in
+hellyhansenfactoryoutlet.us.com
 help.hived.space
 help.mcsq.workers.dev
 help1.mcsq.workers.dev
@@ -14140,6 +14144,7 @@ k7d5sjnk.jadoobet.club
 k7elan-43083.portmap.host
 k7o1ql3j.eng-us--goldalign.com
 k81f5l4o.kunci.store
+k85x997p.armaizadenwala.com
 k8xn2yer.go-flashburn.com
 k9.alien203.org
 k94em4jx.bossbeycity.click
@@ -21517,6 +21522,7 @@ realrim.com
 realsecuritystore.com
 realtux.com
 realtyflora.com
+realzz.net
 reasongrove.cfd
 reavercncv3.duckdns.org
 reavercncv4.duckdns.org
@@ -24441,6 +24447,7 @@ superstarlog.click
 superwebprotection.com
 superwin4d.online
 suppcat.online
+supplychaininsights.com
 supplyflash.wiki
 supplyvau.fixionmunici9al.lat
 support-wellsfargovis.com
@@ -24565,6 +24572,7 @@ syiwaogcwiwayoaa.xyz
 syiyymyqquqosawo.xyz
 syjgiug.fibi-ireland.com
 sykcmiemgyegowwy.xyz
+syke-kasino.fi
 sykgkkakewoeysgw.xyz
 sykiaekyowiokywo.xyz
 sykkeqmyoeeysqmi.xyz
@@ -25378,6 +25386,7 @@ tjcmwnljp.fileboroo.com
 tjdmkxi.eng-usa-sightfresh.com
 tjdxsecd.stacknexus.top
 tjhsq.onjabet1.com
+tjsmedical.com
 tjsojdll.betropol.bet
 tjsp9235.thunderinternationalgroup.com
 tjt7bjni.bociljepe.info
@@ -28786,6 +28795,7 @@ www.metodobertele.it
 www.meysammazrae.com
 www.mfaa.it
 www.mgmyhys8v6v19e9w5kbizn6i.cc
+www.mgttw.com
 www.mhcld.com
 www.microsofer.top
 www.microsslcheck.com
@@ -30647,6 +30657,7 @@ zulyzuby.workers.dev
 zumil.run
 zunezbd.com
 zuodx.com
+zupicora.workers.dev
 zurggoyttjof21.cc
 zusautomation.com
 zuvofzppp.hoehnacura.com
