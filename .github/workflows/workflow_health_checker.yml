@@ -137,7 +137,9 @@ jobs:
               "false_positive_checker.yml": ["whitelist.json", "is_whitelisted"],
           }
 
-          cron_re = re.compile(r"cron:\s*'([\d\s*/,]+)'")
+          # FIX: Auch Cron-Ausdruecke in doppelten Anfuehrungszeichen erkennen
+          # (dns_blocklist_finder.yml, dependabot-heal-conflicts.yml).
+          cron_re = re.compile(r"""cron:\s*['"]([\d\s*/,]+)['"]""")
           cron_map = {}
           name_map = {}
 
@@ -1278,7 +1280,11 @@ jobs:
                               _parts = _mod.strip().split()
                               if not _parts:
                                   continue
-                              _mod_name = _parts[0].strip()
+                              # FIX CHK28b: Mehrzeiliger Import "from x import (" liefert
+                              # "(" als Namen. Das ist kein Modul; zwei solche Imports
+                              # aus VERSCHIEDENEN Modulen wurden faelschlich als
+                              # Duplikat "((2x)" gemeldet. Klammern entfernen.
+                              _mod_name = _parts[0].strip().strip('()')
                               if not _mod_name:
                                   continue
                               # "import X as Y" → Key = "X as Y", sonst Key = "X".

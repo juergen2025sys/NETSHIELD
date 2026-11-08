@@ -6,6 +6,9 @@ on:
     # GitHub Actions nutzt UTC. Laeuft jeden Tag um 04:15 UTC.
     - cron: "15 4 * * *"
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
 
@@ -51,6 +54,11 @@ jobs:
           MAX_REPOS = 40
           MAX_FILES_PER_REPO = 4
           TOP_RESULTS = 30
+
+          # Leerungsschutz: Liefert die Suche (z. B. wegen Rate-Limit oder
+          # API-Ausfall) zu wenige Treffer, wird der bestehende Report NICHT
+          # mit einer leeren Tabelle ueberschrieben.
+          MIN_RESULTS = 3
 
           # Stichprobe reicht fuer die Formaterkennung.
           SAMPLE_BYTES = 1024 * 1024
@@ -459,6 +467,14 @@ jobs:
               )
           )
           results = results[:TOP_RESULTS]
+
+          if len(results) < MIN_RESULTS:
+              print(
+                  f"::warning file=dns_blocklist_finder.yml::Leerungsschutz: nur "
+                  f"{len(results)} Treffer (Minimum {MIN_RESULTS}). "
+                  "Bestehender Report bleibt unveraendert."
+              )
+              raise SystemExit(1)
 
           out = Path("reports")
           out.mkdir(parents=True, exist_ok=True)
