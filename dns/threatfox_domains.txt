@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-09 18:54 CET
-# Eintraege: 29265
+# Aktualisiert: 2026-11-09 21:05 CET
+# Eintraege: 29273
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2471,6 +2471,7 @@ amfibirafting.com
 amici.addmagad.com
 amigo.mexicocentral.cloudapp.azure.com
 amin90.org
+aminjauhary.com
 amitkulkarni.net
 amm-frosty.lol
 amo9xzld.disorientbreak.digital
@@ -4576,6 +4577,7 @@ boucheriee.com
 boulderleaf.cc
 bounce2youpartyrentals.com
 boundbetter.life
+bournemouthchess.club
 bournemouthchessclub.org.uk
 box.fastbitbox.pics
 box.mailban.pics
@@ -6532,6 +6534,7 @@ cutstudios.life
 cuttershairdressing.com.au
 cuuhrxbg52c5agytmtjpwfu7mrs4xtaitc4mukkiy2kqdxeqbcmuhaid.onion
 cuwsruwd.gtacauto.com
+cuygl10401.workers.dev
 cuzxamf.airtechmedical.com
 cv.cbrw.ru
 cv.jyla.ru
@@ -16761,6 +16764,7 @@ n.akuatoto.net
 n.alexsi4d.org
 n.amanplya.org
 n.amarikatoto.com
+n.ampelbet.org
 n.bamto.org
 n.bola7.net
 n.coy9.com
@@ -18802,6 +18806,7 @@ pevrix.com
 pexab.run
 pey.cau777.org
 pey.popi999.net
+pey7qyul.aminjauhary.com
 peykanrapkon.com
 pf6n62u7.luxerabet5.com
 pfalzhotel.live
@@ -20023,6 +20028,7 @@ qowmn9c8.iranvibes.ir
 qowquuyueykwcuka.xyz
 qoyieeammkewseqm.xyz
 qp.akuntoti.net
+qp.amarta89.org
 qpcytsl.browhutsalon.com
 qpdogbyo.floraanalyticshub.garden
 qpduk.hazaratbet.bet
@@ -25394,6 +25400,7 @@ v-lan.su
 v-vill.hu
 v.abc69.net
 v.akuatoto.net
+v.ampelbet.org
 v.aww88.net
 v.ayu99.pro
 v.bro50.org
@@ -26481,6 +26488,7 @@ wexltdqtf.hazzarat.com
 weyland-yutani-corporate-file.garden
 wezdgtt.betistcomgiris.com
 wf.abad777.org
+wfaf6zon.bournemouthchess.club
 wfev64yd.habbofutbol.com
 wfmbnyx.penalti.bet
 wftmzym.habbofutbol.com
