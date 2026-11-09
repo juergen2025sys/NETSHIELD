@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-09 08:59 CET
-# Eintraege: 29154
+# Aktualisiert: 2026-11-09 11:09 CET
+# Eintraege: 29187
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -150,6 +150,7 @@
 0zrbstse.tiptop-shops.com
 1.kurama.ltd
 1.win-faw.win
+100daysofdante.com
 100porcentopiaui.com.br
 102z512uqjl6m.xyz
 103.59.55.34.bc.googleusercontent.com
@@ -363,6 +364,7 @@
 1wtxob.life
 1wubqv.life
 1wusjg.life
+1wv7si59.allafricabackpackers.shop
 1wwhue.life
 1wxdnt.life
 1wzgaf.life
@@ -946,6 +948,7 @@
 58win.builders
 58win.futbol
 58win.gifts
+59.85.195.35.bc.googleusercontent.com
 590realtors.com
 592ee2j0.forgestudios.co
 59k3ql4x.akhlagvaahkam.xyz
@@ -2263,6 +2266,7 @@ aleiamaryllis.fr
 alepocfr.live
 aleppofood.com
 alert.livewave47.one
+alerton.360elevate.co
 alessiaremedies.com
 aleverifocation.beer
 alewitz.com
@@ -2307,6 +2311,7 @@ alklh.popi999.net
 alkociferblat.cc
 all2getherwraps.com
 alladie.store
+allafricabackpackers.shop
 allanpe.biz
 allaportaccanto.it
 allayyinah.sch.id
@@ -2467,6 +2472,7 @@ amor76.com
 amoressalvajes.cl
 amoressalvajes.com
 amosolutions.xyz
+amoy323.org
 ampantarhoki1.xyz
 ampfrr.shop-lipogummy.com
 amphibgz.cyou
@@ -3440,6 +3446,7 @@ b.ayu99.pro
 b.bro50.org
 b.coy9.com
 b.d200n.com
+b.dax96.org
 b.worldpress.biz
 b0.alloha4d.org
 b031beafd8f3.net
@@ -3522,6 +3529,7 @@ backdoor.fifa55red.me
 backdoor.kolaybet.club
 backdoor.qh88eu.com
 backend.sextop1.cafe
+backhomeagaincafe.com
 backlinkclub.com
 backlinkyek.com
 backoffice.ptbaconsulting.com
@@ -3903,6 +3911,7 @@ bet303iran.com
 bet313.app
 bet365persian.com
 beta.local-screen.click
+beta.p14.io
 beta.smartcore.click
 beta.wgestor.click
 beta9.coralfabric.one
@@ -4779,6 +4788,7 @@ bubzw.visszateritok.hu
 bucakosb.org.tr
 buck-cdns-server.sbs
 buckaroosandbones.com
+buckaroosandbones.shop
 buckymotter.com
 budapesthandmade.hu
 buecher.hagalil.com
@@ -5547,6 +5557,7 @@ chicmode.com.cn
 chicospaintingllc.com
 chief-ignite.pro
 chiefsafetysolutions.com
+chikaaaaa1.duckdns.org
 childhealthresources.com
 childtofamilyconnections.org
 chillbazi.com
@@ -6228,6 +6239,7 @@ corona2022.duckdns.org
 coronapd.org
 corppop.shop
 corraia.icu
+corralos.beer
 correction-pancake-seissy.courses
 correspondabb.com
 corrykro.icu
@@ -6651,6 +6663,7 @@ d8bo879o.grannygshemporium.com
 d8f3565o.abell.store
 d8p2pugb.eng-us-puraboost.us
 d9.amarikatoto.com
+d97.amor76.com
 d9mjs.sbs
 d9xy3942.jetbet.download
 d9ycd24u.pro--prostavive.com
@@ -6763,6 +6776,7 @@ data.wickenhollow.cc
 data.xoilackvb.cc
 data.xoilactvqq.live
 datacrypt5840.top
+datadevfuture.buzz
 datadock.info
 dataempireusa.com
 datafluxworker.system-telemetry.workers.dev
@@ -7123,6 +7137,7 @@ dhillonhomes.com.au
 dhjdjee.sbs
 dhnsdns.beer
 dhruveliladhar.com
+dhsbdgs.icu
 dht5z2yx50uypbr.top
 dhur9q3h.1x303.casino
 dhvutaee.parsbet90.com
@@ -9041,6 +9056,7 @@ farm.aeafh.workers.dev
 farma-natura.store
 farmacia-bienestar.com
 farmaciacarapicuiba.com.br
+farmaciamicenas.com.br
 farmacologiaclinica.es
 farmlinegh.com
 farrdigital.com
@@ -9140,6 +9156,7 @@ fecif.run
 fed.harussm188.top
 fed.rzrrent.com
 fedbakbd.com
+federalsiobhan.workers.dev
 federated-grow-install-framework.garden
 federated-node-system.courses
 federated-runtime-network.wiki
@@ -9877,6 +9894,7 @@ funnelbs.com
 funportal.live
 funrat.cam
 funrat.co
+funrat.lol
 funrat.top
 funtar.vercel.app
 fuotcd3b.futshart.pro
@@ -10271,6 +10289,7 @@ geraldine-crai.com
 gerar-nfe.online
 gerchik.pro
 gerenagosto.duckdns.org
+gerlace.com
 german-uboats.com
 gerrirsen.icu
 ges.1001gacor.org
@@ -10861,6 +10880,7 @@ grgsg.onexbet.best
 grid-push.com
 grid.sena9vix.lat
 gridnest.cc
+griffihhs.click
 griland.ru
 grillchefsecrets.com
 grillcraftrecipes.com
@@ -11769,6 +11789,7 @@ htftvttj.1xyek.net
 htk.arizonafamilylawfirm.com
 htro.site-shartbandi-khareji.com
 httpsfewapi.surf
+htxvanthanhphat.vn
 hu406sua.ozabet.promo
 hub.datasrvhub.pics
 hub.globalnodeviewset.pics
@@ -13250,6 +13271,7 @@ juakvinjpo34.xyz
 jualbeliartikel.com
 juanfimonitoring.com
 juanmisagui.freeddns.org
+jucaniqu.workers.dev
 juctuahuyrdsmqyhao.rsudtarutung.com
 judahadewusi.com
 judasbuoyeahuruhusitemnaakezigbonduyaaaa.duckdns.org
@@ -14529,6 +14551,7 @@ lhpahogn.karafarini.shop
 lhsighlrp.jawahirjewels.co.uk
 lhsq.janatcosmetics.com
 lhxly.cannatural.eu
+li.amoy323.org
 liavruizskioo.pro
 lib.fastrunbase.pics
 libaneast.com
@@ -16618,6 +16641,7 @@ myboostup.io
 myboutiqswitch.com
 mybuffalobungalow.com
 mychartradyschildrens.org
+mydatprivelook.wiki
 mydiaperisfull.baby
 mydriverbs.it
 myflowermoon.com
@@ -17768,6 +17792,7 @@ ogonna.ydns.eu
 ogtko71935.workers.dev
 ogtqavytw.usa--us-audizen.com
 ogwil.bet
+ogxlhwb.xyz
 oh.whatisyourname.buzz
 oh0vsizc.vipbahis.cash
 oh3nc2mh.monicarobles.org
@@ -19996,6 +20021,7 @@ qttqcz.lexsecurityco.com
 qtu3bnjl.eng-en-cognisurge.com
 qtxcrltc.testpaye.xyz
 qtxunci.sm188login.cyou
+qtztcqie.backhomeagaincafe.com
 qu3v65kt.mrbet90.com
 qu66rw99.stratosphericweatherballoon.digital
 quackpad.meme
@@ -24267,6 +24293,7 @@ tourtrade.shop
 towerrush.cam
 towinginculvercity.com
 towmaxusa.com
+tozywepo.workers.dev
 tp.146slot.org
 tp.334v.org
 tp1mpkvn.usa-lipogummy.com
@@ -24953,6 +24980,7 @@ unwoeue.try-bpzone.com
 unx7.swimsuit-unable.lat
 unzip2.xyz
 uo2vv3xp.segaup.store
+uo6nlrth.buckaroosandbones.shop
 uo7gtu8agqb1rlm.top
 uocoxj.viveheadspa.com
 uocqxlqf.sendrat.bet
@@ -26960,6 +26988,7 @@ www.atgairport.com
 www.attelectricmotor.co.id
 www.aussiesuper.com.au
 www.autoccb.tech
+www.autocodekenya.com
 www.aware.com.ph
 www.axilo.top
 www.b-29sn-02vvbpmb0zu3kmq.org
@@ -27132,6 +27161,7 @@ www.grantcampaignbackup2.store
 www.green-resale.com
 www.grillchefsecrets.com
 www.growinghealthyhair.com
+www.gulfbridgerealtors.com
 www.gundemarsivi.com
 www.h38zn.top
 www.h4sowoxr64rsj5-cpsuhd.cc
@@ -27303,6 +27333,7 @@ www.mhcld.com
 www.microsofer.top
 www.microsslcheck.com
 www.milfont.org
+www.milikikasricleanersandmovers.co.ke
 www.millionairemind.live
 www.millonixvip.live
 www.mitrasedjati.com
@@ -28075,6 +28106,7 @@ xw.jukt.top
 xw.maxr.top
 xw.vqxt.top
 xw.vyqt.top
+xwarmert.duckdns.org
 xwaycomunicacao.com.br
 xwezrnmm0tf1vd3llbdwl.beer
 xwjoalrqt.evohempstore.com
@@ -28871,6 +28903,7 @@ zhibyovi.persianeducation.ir
 zhky2b5h.sportclips.ir
 zhlwyqr.3sefr3.ir
 zhnar.jadoou.space
+zhongguozhengfuwang.online
 zhoulaifu.com
 zhqqgpts.heap-lawcert.christmas
 zhrmhqs.patrickschrader.com
