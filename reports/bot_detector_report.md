@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-09 07:30 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-09 08:21 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,170,383** |
-| Neu (heute) | **+32** |
-| Entfernt | **-51** |
+| Gesamt IPs | **1,170,375** |
+| Neu (heute) | **+37** |
+| Entfernt | **-45** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 44 |
@@ -25,16 +25,16 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,660 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,816 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 4,590 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 5,193 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 755 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 4,053 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,649 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 656 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,041 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,084 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 867 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 570 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 491 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 420 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 299 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 661 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 447 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 437 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 394 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 283 |
 | ✅ `ercindedeoglu_proxies` | 54,968 |
 | ✅ `ercindedeoglu_proxies_socks4` | 18,974 |
 | ✅ `ercindedeoglu_proxies_socks5` | 20,600 |
@@ -62,11 +62,11 @@
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,155 |
 | ✅ `claudiusdecimius_ioc_ipsets_tor_exits` | 1,241 |
 | ✅ `claudiusdecimius_ioc_ipsets_sblam` | 1,077 |
-| ✅ `telekom_security_listbot` | 513 |
+| ✅ `telekom_security_listbot` | 514 |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 > Diese 44 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-09 07:30 CET (Europe/Berlin)*
+*Generiert: 2026-11-09 08:21 CET (Europe/Berlin)*
