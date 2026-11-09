@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-09 01:01 CET
-# Eintraege: 30745
+# Aktualisiert: 2026-11-09 02:23 CET
+# Eintraege: 30749
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -4918,6 +4918,7 @@ brickfi.vip
 bridge-schema.com
 bridge.garden-pixel.one
 bridge73.com
+bridgeargentina.com
 bridgelimited.com.hk
 briefcomunicacao.com.br
 bright-sk-y1.to6varil.in.net
@@ -17772,6 +17773,7 @@ neiwteamcdn.beer
 nekdncv.usa2026.bet
 nekigecy.workers.dev
 nekomoonkai.top
+nekuso.workers.dev
 nelloconstruction.com
 nelson47.com
 nenadopapa.cfd
@@ -19335,6 +19337,7 @@ p3nqewz0nzrfs50w24qpun.beer
 p43qsij4.nextbahis.one
 p49oexcb.eng--geniusbrainsignal.com
 p4dpx17w.proxy-frontier.digital
+p4jy107n.bridgeargentina.com
 p4l3fctz.bitter-salty.digital
 p4m4q08g.eng--neurowave.us
 p4nkss83.alsulmicpa.com
@@ -20075,6 +20078,7 @@ pmpo.cloudvector.cc
 pmszxzb.fungame777.co
 pmue9zga.eng--slimsounds.com
 pmzvrv9c.ezgarageautorepairtx.com
+pn.amin90.org
 pn2.skfilmsint.com
 pnarkhn.popi999.net
 pnctyeq.qpon
