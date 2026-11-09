@@ -1,6 +1,6 @@
 # NETSHIELD – Switzerland (CH) IPv4 Ranges
-# Aktualisiert: 2026-11-04 08:46 CET (Europe/Berlin)
-# IP-Ranges: 2892
+# Aktualisiert: 2026-11-09 09:29 CET (Europe/Berlin)
+# IP-Ranges: 2893
 
 2.56.40.0/22
 2.56.169.0/24
@@ -1436,6 +1436,7 @@
 185.190.124.0/22
 185.190.244.0/22
 185.191.68.0/22
+185.191.147.0/24
 185.191.236.0/22
 185.192.192.0/22
 185.193.180.0/22

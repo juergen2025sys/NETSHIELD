@@ -1,6 +1,6 @@
 # NETSHIELD – Chile (CL) IPv4 Ranges
-# Aktualisiert: 2026-11-04 08:46 CET (Europe/Berlin)
-# IP-Ranges: 823
+# Aktualisiert: 2026-11-09 09:29 CET (Europe/Berlin)
+# IP-Ranges: 824
 
 45.4.0.0/22
 45.4.168.0/22
@@ -760,6 +760,7 @@
 200.123.42.0/24
 200.123.43.0/24
 200.123.44.0/24
+200.123.51.0/24
 200.123.63.0/24
 200.124.32.0/20
 200.124.48.0/20
