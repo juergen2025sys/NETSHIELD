@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-09 11:09 CET
-# Eintraege: 29187
+# Aktualisiert: 2026-11-09 12:18 CET
+# Eintraege: 29210
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -210,6 +210,7 @@
 16store.ru
 16t38k5v.rtp-k86sportop.site
 17.aa.4t.com
+170.152.185.35.bc.googleusercontent.com
 172u1sfd.diero.store
 173ye7va.bossbeyprimezone.click
 175.16.152.34.bc.googleusercontent.com
@@ -2025,6 +2026,7 @@ afdm.scloudflareb.com
 afejoed.cyou
 affimcm.cyou
 affinm.com
+afforabl3.com
 affordablefamilyhealthplans.com
 affordablesidingandgutters.com
 affordalift.com.au
@@ -3807,6 +3809,7 @@ beautybytia.com
 beautyfev.life
 bebarterkaw.com
 bebelonserver.duckdns.org
+bebeloofficial.duckdns.org
 bebesbackyard.com
 bebfuorigrotta.com
 beblormakran.cc
@@ -4662,6 +4665,7 @@ brezxcchec.com
 brfavfmp.bet90forward.win
 brhwmjkk.frost-engine.christmas
 briardell.cc
+briarfenland.cc
 briarvelarium.top
 brickfi.vip
 bridge-schema.com
@@ -9211,6 +9215,7 @@ fern-trace-anvil-meoix.live
 fern46.com
 fernanda.fr
 ferncurrent14.com
+fernholtton.cc
 fernmenshway.stigmaflowlink.garden
 fernvalidator.ra7ximor.in.net
 fernwoldway.cc
@@ -9484,6 +9489,7 @@ flos-strip.digital
 flow-bann.byerottin8.lat
 flow-hub-green-house-work.garden
 flow.looprim.pics
+flow19.click
 flow9taskunit.plasmagridunit.garden
 flowbilding.ydns.eu
 flowerpii9831.life
@@ -9526,6 +9532,7 @@ fmslna.nr1office.hu
 fmtt8q1j.fungame777.co
 fmugk.lelekbuvar.hu
 fmui74n9.bottegadesiresstore.com
+fmvz6hv3c2.workers.dev
 fmxxnm.lippogummy.com
 fmyummk.com
 fnd9555t.ligabfa.com
@@ -9727,6 +9734,7 @@ frhphph.1xsomalia.com
 fri-dod-01.cfd
 friendihelp.info
 friendsanchor.xyz
+friendsgrove.cfd
 friendsofdormontlibrary.net
 friendsonfuture.com
 friendsstack.cfd
@@ -10666,6 +10674,7 @@ goeemwsgkegoycwq.xyz
 goeiwef.com
 goelagent.com
 goeuaigkucuigaou.xyz
+gof77.click
 gofq.phtaxiservices.com
 gog.tb88tank.top
 gogetdsm.com
@@ -10842,6 +10851,7 @@ gray.bowlinggreenwinnelsonco.com
 gray7taskhub.nimbusviewgate.garden
 grayfellby.cc
 grayfen.cc
+graywickton.cc
 gre-enleaf2.4zorexil.in.net
 gre.syslicense.net
 great-basic.com
@@ -11349,6 +11359,7 @@ heartycenter.com
 heastings.com
 heathergent.cloudvector.ink
 heatherkiln.top
+heathmoorston.cc
 heatindexgreg.com
 heatmeshbase.plasmagridunit.garden
 heaucts.click
@@ -11609,6 +11620,7 @@ hollow-prism-liamklie.pro
 hollowash.fashina5pread.garden
 hollowfen.cc
 hollowickber.cc
+hollowmereley.cc
 hollowsentinel.com
 hollyarcade.org
 holographic-projection-grid.garden
@@ -13294,6 +13306,7 @@ julya.bmz.hu
 julyblessed634.duckdns.org
 juma.de
 jumar.store
+jump77.click
 jumperforrent.com
 june-fed-plant-workflow.garden
 junebrook.cc
@@ -13637,11 +13650,13 @@ kevg.store
 kevinalton.com
 kevwo.akonyvelod.hu
 key.rowlocks.pics
+key5.click
 keycloud.live
 keyslim-drops.us
 keyslimdrops-com.com
 keyslims.com
 keysrace.info
+keyw0rd.com
 kf1umwoy140825wz.cfd
 kf57gbbu.sungjinah.com
 kfas.in
@@ -16411,6 +16426,7 @@ motivationiran.com
 motopicks.com
 motorenleasen.nl
 motowin77login.world
+mottledellham.cc
 motus.ro
 mount9-crest.rataj-vertky.lat
 mountainsoccer.org
@@ -16688,6 +16704,7 @@ myuse-60542-default-rtdb.asia-southeast1.firebasedatabase.app
 myuse-60542.firebasestorage.app
 myverifhouse.sbs
 myverifyblog.sbs
+myx24.click
 myymk.cc
 myyoikamwqwuuaia.xyz
 myzcyjdkacfxmpndgou.hibridgedispensary.com
@@ -17003,6 +17020,7 @@ newsite.arccan.com
 newsstarlinkhindi.com
 newstamagavk.com
 newstan.online
+newtampapet.com
 newtownsquareweather.com
 newufe.workers.dev
 newworld-helloworld.icu
@@ -17013,6 +17031,7 @@ nexahub.lat
 nexo3n5e.born-x-raised.us
 nexrogcapital.xyz
 next.looprim.pics
+next222.click
 nextbahis.org
 nextcheck.online
 nextdoor3.kymle5rax.in.net
@@ -19305,6 +19324,7 @@ priconfinfel.instrumentoguitarra.cfd
 priconlingor.instrumentobateria.cfd
 priem-pixart.life
 prime-object-container-task-archive.wiki
+prime3.click
 primeamzabo008.pro
 primecarelearningcenter.com
 primedrivingschoolllc.com
@@ -19404,6 +19424,7 @@ projet-artisan.com
 projitkar.digital
 prokla0411.com
 prokladka.lol
+prolitobobitovan.fun
 promo.summat10n.org
 promo.tennis
 promosijack.com
@@ -21681,6 +21702,7 @@ scsadmm.penaltibazi.com
 scsjldll.prozhedownload.com
 sctawfw.1xgame.games
 scvnivk.sabaad724.bet
+sd.amoy323.org
 sd62uazg.en-en-us-zensulin.com
 sd6kcygx.goodmorningsweetheart.com
 sd9arw2r.flos-strip.digital
@@ -27911,6 +27933,7 @@ xjmrl.wlwyb.com
 xju2vcrh.www-tupitea.com
 xjv0dj60.ddkg.store
 xjzupm.eng-neuroxen.com
+xk.akuntoti.net
 xk0ffmw0.ecryptobits.com
 xk22cqwr.boano.store
 xk282qui.shop-lipovive.us
