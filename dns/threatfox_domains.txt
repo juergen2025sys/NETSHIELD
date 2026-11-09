@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-09 03:06 CET
-# Eintraege: 29110
+# Aktualisiert: 2026-11-09 03:53 CET
+# Eintraege: 29114
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -5731,6 +5731,7 @@ client-runelite.is
 client.remus.la
 clientlab.4zorexil.in.net
 clientpilotclosers.com
+clientretention.com
 clients.enigmasolutions.xyz
 clientservices.cozyloft.cc
 clientservices1.cozyloft.cc
@@ -9935,6 +9936,7 @@ g-hgfdsgd.mom
 g-sdfgdsf.mom
 g-sdfhvrg.rest
 g-sdfrgh.rest
+g.amin90.org
 g.cuit8.org
 g.dak69.org
 g.obrn.cc
@@ -11887,6 +11889,7 @@ hzzgoxjvb.pdfbama.com
 i.ameriktoto.org
 i.bala7.org
 i.dak69.org
+i.dav88.org
 i.dewii.net
 i.dhawa.net
 i.gckni.com
@@ -28934,6 +28937,7 @@ zo4t1q36.moarefeslami.xyz
 zo88t.xyz
 zoasav.onlineshart.com
 zoastklaeon.pro
+zocaveco.workers.dev
 zocx.cannalawnetwork.com
 zodem5ma.fungame777.co
 zodiacsmoke.com
