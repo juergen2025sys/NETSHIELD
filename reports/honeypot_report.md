@@ -1,58 +1,58 @@
 # Honeypot Monitor – Report
-**Aktualisiert:** 2026-11-09 03:53 CET (Berlin)
+**Aktualisiert:** 2026-11-09 07:20 CET (Berlin)
 
 ---
 | Quelle | IPs | Neu | Frische |
 |---|---|---|---|
 | ✅ `ipsum_level4` | 8905 | +0 | 🟢 aktuell (seit 2026-11-09 03:09 CET (Berlin)) |
-| ✅ `blocklist_de_bots` | 2735 | +12 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
-| ✅ `blocklist_de_bruteforce` | 670 | +11 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
+| ✅ `blocklist_de_bots` | 2770 | +221 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `blocklist_de_bruteforce` | 659 | +52 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
 | ✅ `jamesbrine_honeypot` | 14477 | +0 | 🟢 aktuell (seit 2026-11-09 03:09 CET (Berlin)) |
-| ✅ `honeysec_ip_all` | 53638 | +0 | 🟡 traege (seit 2026-11-08 07:29 CET (Berlin), 26 Laeufe unveraendert) |
+| ✅ `honeysec_ip_all` | 53716 | +78 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
 | ✅ `turris_greylist` | 9409 | +0 | 🟢 aktuell (seit 2026-11-09 01:01 CET (Berlin)) |
-| ✅ `abuseip_org` | 847 | +5 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
+| ✅ `abuseip_org` | 873 | +58 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
 | ✅ `jacobrakai_honeypot` | 525 | +0 | 🟢 aktuell (seit 2026-11-09 01:01 CET (Berlin)) |
-| ✅ `im_forsale_probing` | 28748 | +0 | 🟡 traege (seit 2026-11-08 07:29 CET (Berlin), 26 Laeufe unveraendert) |
-| ✅ `knock_knock_30d` | 40495 | +0 | 🟢 aktuell (seit 2026-11-09 03:09 CET (Berlin)) |
-| ✅ `carpathian_threat_intel` | 1930 | +0 | 🟢 aktuell (seit 2026-11-09 03:09 CET (Berlin)) |
-| ✅ `sblam` | 1077 | +0 | 🟡 traege (seit 2026-11-08 07:29 CET (Berlin), 26 Laeufe unveraendert) |
-| ✅ `timgerstel_suspicious_ips` | 5166 | +5 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
-| ✅ `sniffcat` | 10115 | +25 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
-| ✅ `siberkapan` | 40074 | +5 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
-| ✅ `reportedip` | 9963 | +23 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
-| ✅ `ipinsights` | 740443 | +0 | 🟢 aktuell (seit 2026-11-09 02:23 CET (Berlin)) |
-| ✅ `opendbl_darknet` | 25474 | +600 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
-| ✅ `opendbl_all_threats` | 37726 | +462 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
+| ✅ `im_forsale_probing` | 28329 | +1280 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `knock_knock_30d` | 40479 | +154 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `carpathian_threat_intel` | 1935 | +5 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `sblam` | 1078 | +54 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `timgerstel_suspicious_ips` | 5177 | +11 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `sniffcat` | 10126 | +94 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `siberkapan` | 39692 | +21 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `reportedip` | 9965 | +92 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `ipinsights` | 728464 | +9960 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `opendbl_darknet` | 24564 | +1336 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `opendbl_all_threats` | 36266 | +1655 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
 | ✅ `bitwire_ip_list_fetch` | 26188 | +0 | 🟢 aktuell (seit 2026-11-08 21:07 CET (Berlin)) |
-| ✅ `configserverapps_365d` | 134076 | +0 | 🟢 aktuell (seit 2026-11-09 01:01 CET (Berlin)) |
+| ✅ `configserverapps_365d` | 134195 | +121 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
 | ✅ `kamalmjt_emerging_attackers` | 180110 | +0 | 🟢 aktuell (seit 2026-11-09 02:23 CET (Berlin)) |
-| ✅ `ipblocklist_eu` | 1437357 | +0 | 🟢 aktuell (seit 2026-11-09 03:09 CET (Berlin)) |
-| ✅ `zenmorro_scanner_list` | 2547 | +0 | 🟡 traege (seit 2026-11-08 07:29 CET (Berlin), 26 Laeufe unveraendert) |
+| ✅ `ipblocklist_eu` | 1437522 | +3276 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `zenmorro_scanner_list` | 2615 | +68 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
 | ✅ `mattyroberts_threatlist` | 30395 | +0 | 🟢 aktuell (seit 2026-11-09 03:09 CET (Berlin)) |
-| ✅ `intrusionlabs` | 1606 | +4 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
-| ✅ `threatcluster` | 176 | +0 | 🟢 aktuell (seit 2026-11-08 19:49 CET (Berlin)) |
-| ✅ `techtools` | 864 | +0 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
+| ✅ `intrusionlabs` | 1555 | +32 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `threatcluster` | 174 | +0 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `techtools` | 868 | +4 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
 | ✅ `apnic_ssh_bruteforce` | 2057 | +0 | 🟢 aktuell (seit 2026-11-09 01:01 CET (Berlin)) |
 | ✅ `apnic_telnet_bruteforce` | 5505 | +0 | 🟢 aktuell (seit 2026-11-09 01:01 CET (Berlin)) |
-| ✅ `ismalicious_critical` | 10432 | +0 | 🟡 traege (seit 2026-11-08 12:34 CET (Berlin), 18 Laeufe unveraendert) |
-| ✅ `lurescope_7d` | 500 | +5 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
-| ✅ `tarpit_pro` | 19212 | +10 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
-| ✅ `honeypottracker_7d` | 835 | +1 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
-| ✅ `ipthreat_30` | 3547 | +0 | 🟢 aktuell (seit 2026-11-09 03:09 CET (Berlin)) |
-| ✅ `etnetera_aggressive` | 769 | +7 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
-| ✅ `interserver_rbl` | 4214 | +1 | 🟢 neu (2026-11-09 03:53 CET (Berlin)) |
-| ✅ `offseq_mirage_30d` | 8162 | +0 | 🟡 traege (seit 2026-11-08 08:47 CET (Berlin), 24 Laeufe unveraendert) |
-| ✅ `threatfox_export` | 20839 | +0 | 🟢 aktuell (seit 2026-11-09 03:09 CET (Berlin)) |
-| ✅ `urlhaus_export` | 5588 | +0 | 🟢 aktuell (seit 2026-11-09 01:01 CET (Berlin)) |
+| ✅ `ismalicious_critical` | 10432 | +0 | 🟡 traege (seit 2026-11-08 12:34 CET (Berlin), 19 Laeufe unveraendert) |
+| ✅ `lurescope_7d` | 500 | +26 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `tarpit_pro` | 19192 | +50 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `honeypottracker_7d` | 829 | +3 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `ipthreat_30` | 3560 | +148 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `etnetera_aggressive` | 804 | +42 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `interserver_rbl` | 4208 | +11 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `offseq_mirage_30d` | 8216 | +188 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `threatfox_export` | 20848 | +9 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
+| ✅ `urlhaus_export` | 5448 | +35 | 🟢 neu (2026-11-09 07:20 CET (Berlin)) |
 | ✅ `criminalip_c2` | 50 | +0 | 🟢 aktuell (seit 2026-11-09 01:01 CET (Berlin)) |
 | ✅ `haas_ssh` | 1510 | +0 | 🟢 aktuell (seit 2026-11-09 03:09 CET (Berlin)) |
 
 ---
 | Metrik | Wert |
 |---|---|
-| Gesamt Honeypot-IPs | **2178042** |
-| Neu | **+748** |
-| Entfernt | **-863** |
+| Gesamt Honeypot-IPs | **2168276** |
+| Neu | **+9346** |
+| Entfernt | **-19112** |
 
 ---
-*Generiert: 2026-11-09 03:53 CET (Berlin)*
+*Generiert: 2026-11-09 07:20 CET (Berlin)*
