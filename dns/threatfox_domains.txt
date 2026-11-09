@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-09 17:23 CET
-# Eintraege: 29256
+# Aktualisiert: 2026-11-09 18:54 CET
+# Eintraege: 29265
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -5126,6 +5126,7 @@ camposderoca.com
 camtakeit.ddns.net
 can0py-dock.luna2veth.bet
 canadian-hoursguide.com
+canadianweb.org
 canaisonline.lat
 canakkaleayvaciktdiosb.org.tr
 cancunbayfiesta.com
@@ -13106,6 +13107,7 @@ jjbtigm.smellhomesweethomeservices.net
 jjcuameq.parspoker90.com
 jjgnawd.penalti.website
 jjj25d6f.drubenginecologo.com
+jjjducodes.beer
 jjl.jangkarsm188.top
 jjl.psgiran.news
 jjn76gwl.3lunavex.life
@@ -13706,6 +13708,7 @@ kg0kdihy.gavaedfagahe.xyz
 kgebll.xenicalby6.com
 kgfgvgm.audizyn.com
 kgfkfhqgg.gem90bet.com
+kggey37259.workers.dev
 kggzmtp.romeroautodetails.com
 kglzwkqk.plancortex.digital
 kgptwmgqf.taktikkbet.com
@@ -14235,6 +14238,7 @@ l74u0.ima8invika.garden
 l7jn1e9j.unseen-zorenka.digital
 l7wgh93czcwqhlyt.org
 l8.amanbet87.org
+l8.ampelbet.org
 l81aa3qt.mawos.store
 l83i8m5k.bossbeyhouse.click
 l8dxnew1.en-us-glycomut.com
@@ -17246,6 +17250,7 @@ nmnntl.bet303casino.com
 nmo1ivv6.akhlagvaahkam.xyz
 nmpriestabuse.com
 nmsqiavn.enfejar-site.bet
+nn.ampelbet.org
 nn9ixw7m.martabakcinta.com
 nnciokgy.floraanalyticshub.garden
 nnnoeogotiitso.com
@@ -19247,6 +19252,7 @@ pos.808skor.org
 pos47.com
 posdteu.shop
 poshbeautyhub.com
+positivehopecounseling.com
 posostamioalkfjka.com
 postaspen18.com
 postdatak.duckdns.org
@@ -24119,6 +24125,7 @@ tiemj.technologiaiviz.hu
 tieuhocnguyendu-ntl.edu.vn
 tifa984a.antava.store
 tifameat.containerized-growth-engine.garden
+tifobiva.workers.dev
 tiftonroofing.com
 tigerdoor.tigerwoodfloor.com
 tigerknight-xyst.xyz
@@ -27774,6 +27781,7 @@ x.bosmj.org
 x.btwpayme.top
 x.d200n.com
 x.dav88.org
+x.dax96.org
 x.dewii.net
 x.eltofeq.com
 x089w0f5.btyek.boats
@@ -28781,6 +28789,7 @@ z5cable.com
 z5qs8pv3.kanyon303.com
 z5rfxyfc.en-eng-geniusbrainsignal.com
 z65k8fja.en-us-prostafens.com
+z6g263qc.canadianweb.org
 z7e79dln.luxerabet100.com
 z7kqxbhjtn8ntgspd3.pages.dev
 z7offy1h.linuxfortravelers.com
