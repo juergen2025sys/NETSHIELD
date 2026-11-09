@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-09 12:18 CET
-# Eintraege: 29210
+# Aktualisiert: 2026-11-09 13:11 CET
+# Eintraege: 29226
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2207,6 +2207,7 @@ ak1n41aj.berlinc.net
 akabespokejewellers.com
 akaluij.com
 akamaclouds.app
+akashbartabd.com
 akashicbooks.com
 akcamur.ru
 akdczp.jackyleeschinesecuisine.com
@@ -2381,6 +2382,7 @@ alrwomdp.restaurantguideaarhus.com
 alsafurahijabs.in
 alsananmarketing.com
 alsg96.org
+alshamsi-uae.com
 alsulmicpa.com
 alt-1mpo.qi3mavel.in.net
 alt-5cene.priesthood-in.lat
@@ -2693,6 +2695,7 @@ apg3but9.zjz-service.cn
 apgagls.bonuliautoparts.com
 aphuarxedlktfmdgkl.mamaspizzansubsmenu.com
 api-configuard.com
+api-dns.org
 api-ext.bixbitemarketing.com
 api-imager-host.beer
 api-master.site
@@ -6958,6 +6961,7 @@ delivery.fitswowllc.com
 deload.getpi.su
 delordcosmetics.com
 delta-canvas.com
+delta.p14.io
 deltahostgate2.verdalya.garden
 deltaoutline8.com
 deltatransmission.com
@@ -7808,6 +7812,7 @@ e-tna.it
 e.ayu99.pro
 e.bro50.org
 e.dav88.org
+e.dhawa.net
 e.perspolis.pro
 e0lg2w5e.us-en-us-nervesoothe.com
 e0vt7hv0.saostar.biz
@@ -9176,6 +9181,7 @@ federatedplantmesh.garden
 federatedplantplatform.garden
 federatedstoragelab.courses
 fedij.com
+fedon.no
 fedrvhjy.click
 feds.iphaven.qzz.io
 feedingtheworld.info
@@ -11128,6 +11134,7 @@ h1zhr28q.usa-lipogummy.com
 h2homecollection.com
 h2i7u6w3.shop-nervealive.com
 h2vkq89b.angizeshfarahani.store
+h3.amoy323.org
 h3cyc1or.betturkey.bet
 h3mraocc.telemetry-harbor.digital
 h3tnyjph.vuhw.store
@@ -14156,6 +14163,7 @@ kytemu.workers.dev
 kyvqgkidufinrkdprb.oakdalerodeogrounds.com
 kyxuncq.jamjahani.net
 kyzvja.matsnews.com
+kz.amarta89.org
 kz6e3mq6.pipo303.com
 kz7rv55b.jadoou.cyou
 kzaftq.hyflowtp.com
@@ -14462,6 +14470,7 @@ lecar.store
 leceramicheotranto.it
 leconto.lol
 lectricelfuel.com
+lecyliki.workers.dev
 ledele.de
 ledesla.cfd
 ledeuil.monster
@@ -15211,6 +15220,7 @@ m.acrobat.lat
 m.adobepdf.cc
 m.aot88.com
 m.bola7.net
+m.dax96.org
 m.s-microsoft.com
 m0.aeoncash.org
 m08xkitq.vexon4al.lat
@@ -17665,6 +17675,7 @@ o7ve5wvj.cognigen-plus.net
 o82lzdzb.networkatlas.top
 o8w2orhn.1bahis.app
 o8x1lij5.archive-shlyah.digital
+o96el85c.alshamsi-uae.com
 o98orlmh.nurosarp.com
 o9a66qig.zaribbala.bet
 o9et1u5q.maseratis.net
@@ -21031,6 +21042,7 @@ rose-garden-shop.com
 rosebiel.com
 rosegrip.xyz
 roselandhotel.com
+roselinebailly.com
 rosemaryballad.co
 roshangallery.com.au
 rosrcf.inoxsystem.hu
@@ -21697,6 +21709,7 @@ script8media.com
 scriptmesh.surf
 scripture.life
 scrnmailpsie.com
+scroltenterprise.com
 scrummyafterscandyshoppe.com
 scsadmm.penaltibazi.com
 scsjldll.prozhedownload.com
@@ -22547,6 +22560,7 @@ softwarefile.wiki
 sofverse.com
 sogouupdate.com
 sohosushigr.com
+sohotextile.com
 sohovintagebarbers.com
 soicauthudo24h.net
 soilhostunit.stigmaflowlink.garden
@@ -23984,6 +23998,7 @@ thelumberjackswife.com
 themagicneedle.monster
 themass.in
 thenbkgroup.com
+theoptimaemhltd.com
 theothersidepb.com
 theplanetearthfoundation.org
 thepropertysolutionscompany.com
@@ -24051,6 +24066,7 @@ thrillermotion.4nmn.com
 thriveclubar-mx.icu
 thriveclubarit.icu
 thrivingchaos.com
+throbbing-firefly-3aa3.westynvillegasnfrs.workers.dev
 throtboy.duckdns.org
 throwaway.icu
 thu-ipad-02.cfd
