@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-09 21:05 CET
-# Eintraege: 29273
+# Aktualisiert: 2026-11-09 22:58 CET
+# Eintraege: 29286
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -508,6 +508,7 @@
 2gfxwchj.emeraldualzone.com
 2gogame.se
 2gp421dm.en-us-en-smartwaterbox.com
+2h1j0qtt.caryturf.com
 2h7bybpbc521sa1hbmf0qo.beer
 2hc0b19k.en-us-en-darkreset.com
 2hnjv5o9tq18x.xyz
@@ -873,6 +874,7 @@
 4q74zsh8.raftarsazmani.xyz
 4q7l3aauklpq0bj86rdnvr.beer
 4qm7sqpa.cyber-harbor.digital
+4r6b0iom.verticalrewards.com
 4rqjjify.omars.store
 4rray-dock.7zorelax.lat
 4s9g9m9n.ravanshenasisaeedi.xyz
@@ -2482,6 +2484,7 @@ amosolutions.xyz
 amoy323.org
 ampantarhoki1.xyz
 ampelbet.org
+amper888.net
 ampfrr.shop-lipogummy.com
 amphibgz.cyou
 amrl.salvat5pozar.lat
@@ -4120,6 +4123,7 @@ bistrotulipanes.com
 bit.fastbitbox.pics
 bit.vpsgateway.pics
 bitbluemond9.zexorcloudsync.garden
+bitese.com.vn
 bitetheroad.com
 bitfox.websyncbox.pics
 bitfoxcore.coderworkflow.pics
@@ -5219,6 +5223,7 @@ cartwell-pastphantom.courses
 carving-paral.digital
 carwowk872.life
 carytui.vu
+caryturf.com
 cas.hanyasm188.top
 cascaderevueshow.com
 cascinamartesana.com
@@ -5770,6 +5775,7 @@ clientretention.com
 clients.enigmasolutions.xyz
 clientservices.cozyloft.cc
 clientservices1.cozyloft.cc
+clientservices12.cozyloft.cc
 cliffdawn.eight-education.lat
 cliffmelvynltd.com
 cliffsfomoher.mom
@@ -8989,6 +8995,7 @@ f3e33vzn.nurvesoothe.com
 f3fbe4cm.eng-slimsounds.com
 f3grdcpf.dyar.store
 f3rn-forge.simpres-solst.garden
+f4.ampelbet.org
 f4bdzv4n.jadoou.lat
 f4kaaaa8.pokerhouse.bet
 f4nvsexe.xen--burn.com
@@ -18818,6 +18825,7 @@ pfnwcz.en-us-energyrevolution.com
 pfyfyt.bankefiile.com
 pg1mu94o.yek.baby
 pg22wk81.kuechen-welt.eu
+pgeal78560.workers.dev
 pgfdesigns.com
 pgfiv.jbgroup21.com
 pgfor.bookdrive.xyz
@@ -18927,6 +18935,7 @@ phs72t70.citasasesor.com
 phtaxiservices.com
 phw2uk1e.casinokade.online
 phwy7fn6.betvarzeshkade.online
+physioga.net
 pi.open-system-infra-logic-base.wiki
 pi4x.qi3mavel.in.net
 pianle.biz
@@ -24692,6 +24701,7 @@ tybanyme.workers.dev
 tyccsu.littlehousetees.com
 tycgc.bni-ai.com
 tydiqu.workers.dev
+tygemyla.workers.dev
 tygnu.lokercorp.com
 tyhcsza.cfd
 tyjwtd.remenacevintage.com
@@ -27391,6 +27401,7 @@ www.lz81ugazc-3rxi-1draiesh.org
 www.m4imi4w.space
 www.madeleineslim.com
 www.maedso.com
+www.main-salesforce.com
 www.manageyourppc.com
 www.mandiepinto.com
 www.marianoturcutto.turcutto.com
@@ -27509,6 +27520,7 @@ www.praxisnord.com
 www.premiumlakaskezeles.automentesgocza.hu
 www.prenotazione20h.it
 www.printcopy.cloud
+www.proit.com
 www.projectusf.com
 www.projectyola.click
 www.prolocolucera.com
@@ -28554,6 +28566,7 @@ ynteevb.1xvip.xyz
 ynuqd.wlwyb.com
 ynwe.jetourmexico.com
 ynzpk.varzeshlife.ir
+yo.amper888.net
 yo1yin0j.enus-ignitra.com
 yo24r1j5.healthfoodzone.com
 yo88t.live
