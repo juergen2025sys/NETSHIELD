@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-09 03:53 CET
-# Eintraege: 29114
+# Aktualisiert: 2026-11-09 07:20 CET
+# Eintraege: 29141
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -421,6 +421,7 @@
 226c6tcnujin1.app
 2280.cantdown.su
 228fsijc.therodeoroundup.com
+229.201.148.34.bc.googleusercontent.com
 22bahis-tr.com
 22ed84bl.georgelounge.bar
 22goulm8.runtime-nexus.digital
@@ -2043,6 +2044,7 @@ afterhours.click
 afun.it.com
 afxwd.ddns.net
 ag971.icu
+agapool.com
 agatovakosice.sk
 agazud.com
 aged-care.net
@@ -2461,6 +2463,7 @@ amin90.org
 amitkulkarni.net
 amm-frosty.lol
 amo9xzld.disorientbreak.digital
+amor76.com
 amoressalvajes.cl
 amoressalvajes.com
 amosolutions.xyz
@@ -3179,6 +3182,7 @@ aucceqaqcqqkcsyc.xyz
 audeezen.com
 audelr.com
 audi-vector.centrifuge-four.lat
+audi-zen.fit
 audio-attenuator-schematic.garden
 audio-runw.eightyen1arge.garden
 audioattenuatorschematic.digital
@@ -4436,6 +4440,7 @@ bootstrup-cdnmaper.beer
 bootstrup-framework-js.beer
 boouwer.lol
 boovs.anniethaispa.hu
+bopbop.pro
 bopdifq.tethercars.com
 bopyq.myhillcountrygrass.com
 boqetwvb.bcgamekade.online
@@ -4772,6 +4777,7 @@ bubekjjgrjdhrpmikx.jrautosatl.com
 bubzw.visszateritok.hu
 bucakosb.org.tr
 buck-cdns-server.sbs
+buckaroosandbones.com
 buckymotter.com
 budapesthandmade.hu
 buecher.hagalil.com
@@ -6785,6 +6791,7 @@ dawn.ssybd.workers.dev
 dawn3-spool.fixionmunici9al.lat
 dawncrest.vexa2-flow.life
 dawsszrm.behtarin-site-shartbandi-football.com
+dax96.org
 daxivo.com
 daydu-monheim.com
 dazayse.hi-lo.bet
@@ -9513,6 +9520,7 @@ fnwaiz.mitolyn-us-en.us
 fnzct1ai.farmf.store
 fo88.ws
 foasfjkasf.com
+fobitechvietnam.com
 fochinal5123.life
 fock.bekabet.casino
 focopxs.biz
@@ -12739,6 +12747,7 @@ j.abc22.org
 j.bok13.org
 j.bro50.org
 j.cou4d.org
+j.dhawa.net
 j0.bala7.org
 j01nn5zm.istanbul303.com
 j0g2ia0g.bet1yek.bet
@@ -13656,6 +13665,7 @@ khndao.x50wheel.bet
 khob.formonstore.com
 khpnej.franbellamail.co.uk
 khqcst.latinmarketmana.com
+khqmk70877.workers.dev
 khrugme.halcyonhempltd.com
 khtlqekj.lamournails.net
 khudrukrantingmanic.digital
@@ -13730,6 +13740,7 @@ kingo.lol
 kingremcos2026.duckdns.org
 kingsranchministries.com
 kinikar.pro
+kinuje.workers.dev
 kiomccassamkccys.xyz
 kioswaskwsqyscac.xyz
 kiouc.visszateritok.hu
@@ -15196,6 +15207,7 @@ m5zv3oa7.parsgoal90.com
 m60mkvir.finkfamilyautomotive.com
 m6i6238u.alternatifdekorasyon.com
 m7ibdgbm.en-us-neuro-vera.com
+m7kxqr5w.agapool.com
 m7mxjq7o.imzural.info
 m7nohnc7.modiriyatnikbakht.xyz
 m7r4r2i2.stackpathcdn.com
@@ -16840,6 +16852,7 @@ nekuso.workers.dev
 nelloconstruction.com
 nelson47.com
 nenadopapa.cfd
+nenoinsurance.co.tz
 neo-anch0r.7zorelax.lat
 neo-carg0.skewedencro2ch.lat
 neogateway9hub.solavern.garden
@@ -17314,6 +17327,7 @@ npoxns.pinellascountyroofers.com
 npukpk.fodraszoktatas.eu
 npvnwrv.jetbet90iran.bet
 npwzigwd.systemcompass.top
+nq.amarta89.org
 nq99706w.mulip.store
 nqbecrh.one1x.bet
 nqdnoel.hectortm-plumbing.com
@@ -19544,6 +19558,7 @@ purerawk.com
 puresyncbase.florenth.garden
 purikurniaayuvilla.com
 purity-pharmaceuticals.net
+purplekaren.workers.dev
 pusanik.shop
 pusaq.cl
 pusatjasapasangcctv.com
@@ -19863,6 +19878,7 @@ qlvnzgygqgnfcrduhuw.holisticpaws.org
 qlvwxer.karafarini.shop
 qlwxqybo.prozhedownload.com
 qlzqh.sultankito.net
+qm4a8n7m.buckaroosandbones.com
 qmcbnya.mellbeet.com
 qmfcyxca.sarahelizabethphotoandfilm.com
 qmibonif.bossbeyvip5.xyz
@@ -22333,6 +22349,7 @@ smartereyewear.com
 smartfrogeducation.org
 smarthouseapp.com
 smartindialife.com
+smartindustrial.africa.com
 smartlegacy.co
 smartmeshsys2.petalune.garden
 smartpeoplework.info
@@ -22900,6 +22917,7 @@ stat-collection-engine-performance-view.wiki
 stat.keitaro.company
 stati-fy.sbs
 static-js.com
+static.254.136.21.65.clients.your-server.de
 static.cdns.space
 static.nvidiadrives.com
 static.quorashift.cc
@@ -23157,6 +23175,7 @@ sunandafoundations.org
 sunat.lat
 sunluckchineserestaurant.com
 sunnycloud.online
+sunnycoastleathercare.com.au
 sunnydaycoffees.net
 sunsblade.com
 sunservicedryice.com
@@ -23691,6 +23710,7 @@ tech.coderlaptechnical.pics
 tech0204vercelapp.vercel.app
 techapiguard.co
 techarbo.com
+techcrumz.com
 techdevcorp.com
 techevent.us
 techieblogging.com
@@ -23896,6 +23916,7 @@ thejuicerguide.com
 thekhabri.in
 thelazybunnyfarm.com
 thelegalexpertise.com
+theletter.co
 thelibertytoken.net
 thelibertytoken.org
 thelibertytoken.us
@@ -23987,6 +24008,7 @@ thymesonnet.co
 thyraafemme-balance.com
 ti.332toto.net
 tiacollege.com
+ticas-park.com
 ticket.unknower.win
 ticketreceipt.cfd
 ticohuto.workers.dev
@@ -25657,6 +25679,7 @@ virtualtourpro.in
 visadoc-vault.info
 visagelab.co.uk
 visalogisticsbd.com
+visaovencedora.com.br
 viscdnclaud.beer
 visionfordsales.com
 visiononfire.co.za
@@ -26212,6 +26235,7 @@ wdohlma.international-airports.com
 wdplqn.liltkereskedohaz.hu
 wdw343244323e3d-60296.portmap.host
 we.adilawa99.org
+we.amor76.com
 we.topsmartservice.com
 we999.se
 weave44.com
@@ -27653,6 +27677,7 @@ x17or3y4.gothiccathedralblueprint.digital
 x1gwqsft.bibliosmirk.digital
 x1m07e7w.enus-metabodrops.com
 x1zsp.cc
+x2.amor76.com
 x2hreeo4.usa-bloodarmor.us
 x2jjzvnd.dichvuff.com
 x2jz63qemhcbhyskzt3pie757oicdkctk2rh5dpykmxsw2yoayeqs5yd.onion
@@ -28104,6 +28129,7 @@ y.altertogel.net
 y.ameriktoto.org
 y.aww88.net
 y.coy9.com
+y.dax96.org
 y.dhawa.net
 y01q42ad.theslimsplitsmethod.com
 y06e8hvi.proxyharbor.top
@@ -28631,6 +28657,7 @@ z3eaveor.kevg.store
 z3ebwqw0.seering5outh.digital
 z3u99l6p.en-us-en-nervealive.com
 z4.afktogel.org
+z4.amor76.com
 z41spc7f.bossbeymarket.click
 z4d0x58u.bossbeypro.click
 z4e0sn7r.keca.store
