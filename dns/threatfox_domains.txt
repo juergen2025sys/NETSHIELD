@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-09 13:11 CET
-# Eintraege: 29226
+# Aktualisiert: 2026-11-09 14:31 CET
+# Eintraege: 29236
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -944,6 +944,7 @@
 57b0rv7c.sansekerta.org
 57ikdje6.en-us-us-lipogummy.com
 583848.clmonth.nyashteam.top
+58657467.ru
 58knxotz.proxy-compass.digital
 58shz66o.tahlilsazeha.xyz
 58win.builders
@@ -5109,6 +5110,7 @@ caltvora.cc
 calub.run
 calzadoswer.store
 camachoroldan.com.co
+camatrix.org
 camelinksolutions.com
 camicamicmai0390393.duckdns.org
 camp.4b3a91fd1b35ab2d023f5d71713a6c00.workers.dev
@@ -6370,6 +6372,7 @@ crewlworkinew.com
 crghbprm.shartbandi.games
 crimesupport.cfd
 criminallawyerpr.com
+crimson7890.workers.dev
 crimsonhub.cc
 crimsonnightsky.top
 crimsonroundel.info
@@ -9681,6 +9684,7 @@ fqibjme.globallatedeals.com
 fqsmqhyz.mosbatsms.ir
 fqtdjda.usen-thyrafemmebalance.com
 fqul.betkhanee.com
+fr-01.zilith.xyz
 fr.1betasia.org
 fr.8mytogel.org
 fr.hg77.org
@@ -15658,6 +15662,7 @@ medellin202156.duckdns.org
 medespic.cl
 media.barmaidlushness.cc
 media.hazelnook.cc
+media.vgrblogg.se
 mediaart.gleeze.com
 medialek.cyou
 mediamarkt.mom
@@ -16544,6 +16549,7 @@ msiulosjudiid.com
 mslperformance.co.uk
 mslynn48.bosskayseri.store
 msnbot-157-55-39-9.search.msn.com
+msnbot-40-77-167-4.search.msn.com
 msndla.com
 msnwgu.josetreeservice.net
 msoftupdate.com
@@ -19276,6 +19282,7 @@ pqxlboc.winsportiran.com
 pqyajjta.betgar.bet
 pqycltd.hokm.casino
 pqzevvh.winx303.com
+pr.amoy323.org
 pr2.codetohaven.com
 practice.onemillionfactory.com
 pradanailsspakaty.com
@@ -22170,6 +22177,7 @@ signin.v-panel.asia
 signup-flarenetworks.xyz
 signup.v-panel.asia
 sigosa.store
+sih81hf3.camatrix.org
 sihat-alrajul-ar.buzz
 sihat-alrajul-aro.buzz
 sihat-alrajul-bf.buzz
@@ -22312,6 +22320,7 @@ skrin-archiv.info
 skrupamenterprise.com
 skugdro.en-usa-bpzone.com
 skullcode1.myddns.me
+skullriders.com.br
 skunkxd.live
 sky-borders.com
 sky.dolcefantasia.us
@@ -27594,6 +27603,7 @@ www.topclickgaming735.info
 www.topendglam.territoryimage.com.au
 www.torh1.duckdns.org
 www.torontosss.com
+www.tr88.uno
 www.treegintl.com
 www.treja.net
 www.trendingindeals.com
