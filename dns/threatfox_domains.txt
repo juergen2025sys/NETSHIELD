@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-09 07:20 CET
-# Eintraege: 29141
+# Aktualisiert: 2026-11-09 08:21 CET
+# Eintraege: 29149
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3446,6 +3446,7 @@ b031beafd8f3.net
 b0gkye8f.nou-sauvage.pro
 b0silg64.bossbey12.click
 b14xsab8.milioner.bet
+b1sqrl0e.audi-zen.fit
 b2-analytics.xyz
 b25s30n3.chloroquineser.com
 b26ba1yu1020426u.cfd
@@ -5667,6 +5668,7 @@ ckszd.banhidileadershipacademy.hu
 ckugvmkpg.hazarat.now
 ckvcsacd.mechanicsayalat.xyz
 ckyuayv.laborfotostudio.hu
+cl.amor76.com
 cl0ud.n1u89dhs.xyz
 cl1n0-mark.cloak-custody.pics
 cl1yte93.en-us-goldaligns.com
@@ -6639,6 +6641,7 @@ d4o2pqgk.tanyavondegurechaff.fit
 d52cv625.ahkam.xyz
 d5mkg5ct.en-prosta-fense.com
 d5xpvvah.memerylift.com
+d67-193-172-159.home3.cgocable.net
 d6ms6gm7.genesirevival.com
 d77tnb4bkmj3e366msrzllnwsi2t5e54e4yqh7zm7y5hlfwugnwzswad.onion
 d7i95j75.stgsolar.hu
@@ -6938,6 +6941,7 @@ deload.getpi.su
 delordcosmetics.com
 delta-canvas.com
 deltahostgate2.verdalya.garden
+deltaoutline8.com
 deltatransmission.com
 deltawood.cc
 deltga.biz
@@ -14409,6 +14413,7 @@ leafot.xyz
 leafpathgate.biomasselement.garden
 leakads.com
 lean.brilliancespontaneous.shop
+leap19.com
 leappoploaderinstantly.monster
 learn.investohalal.com
 lebaneseamericansociety.org
@@ -19335,6 +19340,7 @@ prod-static.nascarnash.com
 prod-weblink.videmateshare.com
 prod.commonsource14.click
 prod5.data-square.click
+prodavnica.vraneskadolina.com
 product-search-83-99-206-203.geedo.com
 productionmaza.bond
 productionmaza.cfd
@@ -19403,6 +19409,7 @@ proto-s0uth.cloudmesh.lat
 protonvpn.co.com
 protramal.com
 proveevida.com
+providencefarmltd.com
 proviewhomeinspections.com
 prowastevalet.com
 prox.vpssysnet.pics
@@ -27461,6 +27468,7 @@ www.slo.ru
 www.slotgame-myanmar.com
 www.smartproductssa.co.za
 www.solucionpericial.es
+www.somalicomputer.com
 www.souldiggin.com
 www.sourceforgemediastream.com
 www.spanishtutorfortmyers.com
