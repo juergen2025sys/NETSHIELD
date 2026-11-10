@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-10 09:56 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-10 09:59 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,172,899** |
-| Neu (heute) | **+48** |
-| Entfernt | **-31** |
+| Gesamt IPs | **1,172,900** |
+| Neu (heute) | **+1** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 44 |
@@ -62,11 +62,11 @@
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,116 |
 | ✅ `claudiusdecimius_ioc_ipsets_tor_exits` | 1,239 |
 | ✅ `claudiusdecimius_ioc_ipsets_sblam` | 1,078 |
-| ✅ `telekom_security_listbot` | 514 |
+| ✅ `telekom_security_listbot` | 515 |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 > Diese 44 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-10 09:56 CET (Europe/Berlin)*
+*Generiert: 2026-11-10 09:59 CET (Europe/Berlin)*
