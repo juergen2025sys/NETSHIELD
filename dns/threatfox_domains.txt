@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-10 17:46 CET
-# Eintraege: 28343
+# Aktualisiert: 2026-11-10 19:00 CET
+# Eintraege: 28357
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -621,6 +621,7 @@
 35su8ccd.favarzesh.ir
 35x7940o.thelovebugsband.com
 360safeupdate.com
+361uce.com
 365media.vn
 37d389gt.botvn.net
 37lzounh.holographicprojectiongrid.digital
@@ -6578,6 +6579,7 @@ darkprn3d3udnhpuxknsrhft3376lrz5tenhgkrxge5hxqe46pkbrwid.onion
 darkslateblue-gnu-453682.hostingersite.com
 darkspice.bakhkondach.in.net
 darkstar5core.mivonflowsrv.garden
+darksword.helicha.com
 darndcs-js.beer
 darnuquexunx.live
 daroughgan8hajous30.duckdns.org
@@ -6981,6 +6983,7 @@ dibardo.net
 dibimuso.workers.dev
 dice.1467dd4e407bdff28460ad05765f04e0.workers.dev
 dickfpg.mgfurnituretampa.com
+dictionarvise.com
 diddyparty.click
 die-reformer.digital
 diegestistart.com
@@ -7007,6 +7010,7 @@ dihdsze.gutjahrauctionservice.com
 dihsov.jamjahani.cash
 dii.magalygemioteixeira.com.br
 dikdiy.xyz
+dillonmuseum1.com
 diloro.dev
 dilruire.com
 dimatrust.com
@@ -11386,6 +11390,7 @@ host.serveminecraft.net
 host6.southspark.lat
 hostcloud-eu.net
 hostfastland.mivonflowsrv.garden
+hostj.duckdns.org
 hostphpwindowsappsconecting.ydns.eu
 hostreservation-reports.one
 hostyour.tv
@@ -11914,6 +11919,7 @@ image-mesh.xamir9el.lat
 image-pdf-online.com
 imagederm.com
 imagehubguest.info
+imagensuploades.ddns.com.br
 imagephotosafe.info
 imagesafedown.info
 imagestore-vault.info
@@ -13600,6 +13606,7 @@ kpckilf.visszateritok.hu
 kpeahfhd.rial.bet
 kpghbfvn.8route.hu
 kpm-engineering.space
+kpneuqgc.dillonmuseum1.com
 kpnmx.vizhoszivattyu.hu
 kpqvuy.lovesiloam.com
 kptawr.lacavamexicancocina.com
@@ -17830,6 +17837,7 @@ p.bala7.org
 p.bob78.org
 p.bro50.org
 p.dav88.org
+p.dewa2.org
 p.thelayzf.fyi
 p0d2virz.blackjacktipsnnt.com
 p0fc8ejw.us-en-us-synaboost.com
@@ -20382,6 +20390,7 @@ roggymo87.icu
 rohaumon.net
 roiroger.com.br
 rojbqzt.8k-vw33sx-6.buzz
+rojiduzu.workers.dev
 rokkko89123.life
 rokkyho32.life
 rokkykopi.icu
@@ -22298,6 +22307,7 @@ stashngrab.com
 stat-collection-engine-performance-view.wiki
 stat.keitaro.company
 stati-fy.sbs
+static-198-44-133-117.cust.tzulo.com
 static-js.com
 static.12.133.217.95.clients.your-server.de
 static.254.136.21.65.clients.your-server.de
@@ -22567,6 +22577,7 @@ supersapp-zebec.com
 superstarlog.click
 superwebprotection.com
 superwin4d.online
+suportetii.minhacasa.tv
 suppcat.online
 supplychaininsights.com
 supplyflash.wiki
@@ -24604,6 +24615,7 @@ v2.chatboxvs.com
 v2.colatv88xb.cc
 v2.unpkg.com
 v2.xoilackvb.cc
+v2202509243680385900.happysrv.de
 v2202511233747405773.hotsrv.de
 v2202511233747405776.megasrv.de
 v22eqt8a.drubenginecologo.com
@@ -24975,6 +24987,7 @@ vistapropertyllc.com
 vistda.biz
 visual-ns-portal.beer
 visualstudioapp.com
+visualupdate.ddns.com.br
 vita-not.scriptmesh.ink
 vitalamb.reptbot.bet
 vitalbusinesservices.com
@@ -25373,6 +25386,7 @@ w1j0v9ni.thequeenofesteem.com
 w1lefe83.cyclingjordan.co
 w2hnzhub.fununetadris.shop
 w2rd3n.cc
+w3.andaltoto.org
 w3jxkd42.jardins-do-mar.com
 w3ruma49.packet-cascade.digital
 w4.altertogel.net
