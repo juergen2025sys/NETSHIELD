@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-09 23:58 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-10 03:01 CET (Europe/Berlin)
 
 **Workflows:** 33 | ✅ 33 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `22c3a2617625abc57426cd081c5b559a1fb65945`
+✅ Commit: `b410d48737782cd0fb1d13bbdfeb703d3042e1bd`
 
 490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -16,7 +16,7 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 | Datei | Check | Detail |
 |---|---|---|
-| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 2,169,066 → 1,166,102 (-46%) – starker Rückgang seit letztem Check |
+| `Production Health` | Drift: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt: 719,553 → 380,535 (-47%) – starker Rückgang seit letztem Check |
 
 ## 🏥 Production Health
 
@@ -24,7 +24,7 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 | Level | Check | Detail |
 |---|---|---|
-| 🔴 CRITICAL | Drift: honeypot_ips.txt | honeypot_ips.txt: 2,169,066 → 1,166,102 (-46%) – starker Rückgang seit letztem Check |
+| 🔴 CRITICAL | Drift: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt: 719,553 → 380,535 (-47%) – starker Rückgang seit letztem Check |
 
 ## Übersicht
 
@@ -65,4 +65,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-09 23:58 CET (Europe/Berlin) | 33 Workflow-Dateien geprüft*
+*Generiert: 2026-11-10 03:01 CET (Europe/Berlin) | 33 Workflow-Dateien geprüft*
