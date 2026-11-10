@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-10 04:09 CET
-# Eintraege: 28186
+# Aktualisiert: 2026-11-10 05:02 CET
+# Eintraege: 28193
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1218,6 +1218,7 @@
 76i045oo.alldayslimtea.uk
 76mh2tbp.eddieswindowtintca.com
 76ocm7az.en-us-glycofree.com
+77.19.38.34.bc.googleusercontent.com
 770marketing.com
 777palm.com
 777x.you
@@ -2425,6 +2426,7 @@ ampelbet.org
 amper888.net
 ampfrr.shop-lipogummy.com
 amphibgz.cyou
+ampluna.com
 amrl.salvat5pozar.lat
 amrwjltv.tarikhcheravanshenasi.xyz
 ams-prd-cob.nl
@@ -8649,6 +8651,7 @@ f.akasia988.net
 f.amanlay.org
 f.au338.org
 f.dak69.org
+f.dog69.net
 f015oa9h.kunci.store
 f0ceohvy.eutoor.com
 f0qnr43h.epexecutivecoaching.com
@@ -19729,6 +19732,7 @@ rbbhubp.kbshavanese.com
 rbbmdao.popi999.net
 rbdncyyrpu.club
 rbnz.hairbyniki.com
+rbpbo56022.workers.dev
 rbqsvbo.fidoubet.com
 rbrkej.liberty--token.com
 rbso1spv.hi-lo.bet
@@ -20511,6 +20515,7 @@ rvvemra.takhtebet.app
 rvwwzcz.greaternewzionbc.org
 rw.aksara87.org
 rw.akun269.org
+rw.ampluna.com
 rw1.sentrysource.com
 rwdfn.run
 rwj46i7as3h4.en-heroup.us
@@ -21676,6 +21681,7 @@ smokedamageinbellevue.com
 smokingstationhub.com
 smoothbioticsgummies.com
 smoothoutlawcoffee.com
+smparroudhohbeji.sch.id
 smqemscyoimqmmuc.xyz
 smqqrbvjf7kfcikigbq5hxzq5y6n2as7oy4bmb6dsrb4keyn3korxcid.onion
 smrgco.com
@@ -23989,6 +23995,7 @@ uiyqaiseouycimck.xyz
 uiysoewmgucoegss.xyz
 uiyucwkaymeaykio.xyz
 uizkpdr.visionfordsales.com
+uj.amav5d.org
 uj36tvbs.theslimsplitsmethod.us
 uja2kfy9x79dpeb.top
 ujbhfgb.sm188dvlv.cfd
