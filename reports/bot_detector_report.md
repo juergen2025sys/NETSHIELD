@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-10 23:01 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-10 23:03 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,169,862** |
-| Neu (heute) | **+50** |
-| Entfernt | **-38** |
+| Gesamt IPs | **1,170,842** |
+| Neu (heute) | **+1,050** |
+| Entfernt | **-70** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 44 |
@@ -54,8 +54,8 @@
 | ✅ `dinoz0rg_proxy_list_socks5` | 94,472 |
 | ✅ `ian_lusule_proxies` | 3,198 |
 | ✅ `ian_lusule_proxies_socks5` | 1,496 |
-| ✅ `configserverapps_service_blocklists_attacks_bots` | 2,000 |
-| ✅ `configserverapps_service_blocklists_botscout_30d` | 2,804 |
+| ✅ `configserverapps_service_blocklists_attacks_bots` | 2,791 |
+| ✅ `configserverapps_service_blocklists_botscout_30d` | 2,805 |
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,628 |
 | ✅ `hookzof_socks5_list` | 4,596 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 3,661 |
@@ -69,4 +69,4 @@
 > Diese 44 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-10 23:01 CET (Europe/Berlin)*
+*Generiert: 2026-11-10 23:03 CET (Europe/Berlin)*
