@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-10 01:30 CET
-# Eintraege: 29302
+# Aktualisiert: 2026-11-10 01:58 CET
+# Eintraege: 29304
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2912,6 +2912,7 @@ aquamarine-consulting.fr
 aquaticpoolsandspas.com
 aqueijadinhadelicia.com.br
 aqvem.wlwyb.com
+ar.amper888.net
 ar16clz9.metrodesignconcepts.com
 ar33krmg.tigersmartialarts.com
 ar7keyma.epexecutivecoaching.com
@@ -7807,6 +7808,7 @@ dynmesh5et.xamir9el.lat
 dynnex9os.div0rceskis5ing.pics
 dynsys.is-a-guru.com
 dynven3um.pixelnode.lat
+dypypiha.workers.dev
 dyqanvdt.betfidokade.com
 dysimasyd.shop
 dysphoria.androiddebugbridge.su
