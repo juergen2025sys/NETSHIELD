@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-10 19:00 CET
-# Eintraege: 28357
+# Aktualisiert: 2026-11-10 20:10 CET
+# Eintraege: 28364
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -97,6 +97,7 @@
 0ijvvr6j.en-en--cardioslim.com
 0j03b8ri.jetbahis2023.xyz
 0jye42ba.socop.space
+0kezc3bqdy.workers.dev
 0ki6ewis.wiskaoane.com
 0ksjitt3.hanovereyephotography.com
 0kt.one
@@ -475,6 +476,7 @@
 2b4zfudu.ekhtelalat.xyz
 2b7f1jfa.cloud-forge.digital
 2b9ljdva.tashabeautystore.com
+2bkpjtos.greatbettinginfo.com
 2bqvf65p.usa-us--goldalign.com
 2c5gt5bd.seresniki.com
 2c5p82m4.cementlo.com
@@ -1487,6 +1489,7 @@
 8wzrpus8.kernel-beacon.digital
 8x3dirc5.ydns.shop
 8xbet71.live
+8xbetpro.me
 8xgyjq9t.casero.store
 8xorq0f0.after-diacritic.digital
 8xr7xiog.rudeusgreyrat.my
@@ -2060,6 +2063,7 @@ agpoferroli1.nl
 agqjwmu.betyekritzo.com
 agreement-rc.com
 agreminj.com
+agri-nehrunagar.com
 agriculturemachineries.com
 agriterra.com.br
 agroclonetechno.com
@@ -2342,6 +2346,7 @@ alt-1mpo.qi3mavel.in.net
 alt-5cene.priesthood-in.lat
 alt-c0mp.years-very.lat
 alt-me4sure.rodrules.surf
+alternateurmoto.com
 alternativemedicine.org.il
 altersa.ru
 altertogel.net
@@ -10583,6 +10588,7 @@ gre.syslicense.net
 great-basic.com
 great-fade.sbs
 great-fauna-tcpipgay-go-system.garden
+greatbettinginfo.com
 greatcarprofessionalwindowtint.net
 greatfallsdispatch.com
 greatmastertrading.com
@@ -24593,6 +24599,7 @@ v.abc69.net
 v.akuatoto.net
 v.ampelbet.org
 v.ampluna.com
+v.andaltoto.org
 v.aww88.net
 v.ayu99.pro
 v.bro50.org
