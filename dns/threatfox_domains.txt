@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-10 17:01 CET
-# Eintraege: 28337
+# Aktualisiert: 2026-11-10 17:46 CET
+# Eintraege: 28343
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -155,6 +155,7 @@
 103.59.55.34.bc.googleusercontent.com
 108h764sg7npw.xyz
 10buigpz.bossbey19.click
+111-255-212-206.dynamic-ip.hinet.net
 1112.688608.xyz
 11181118.icu
 11udvmp9.polestennisplayer.digital
@@ -5621,6 +5622,7 @@ clientservices117.cozyloft.cc
 clientservices118.cozyloft.cc
 clientservices12.cozyloft.cc
 clientservices17.cozyloft.cc
+clientservices63.cozyloft.cc
 cliffdawn.eight-education.lat
 cliffmelvynltd.com
 cliffsfomoher.mom
@@ -11313,6 +11315,7 @@ hohn365wbtrynmfw57z3crqgjyu2rwlcn2mfq7j2rwyhcfxfsuanakyd.onion
 hojaverdetrading.com
 hokm.bet
 hold-holdskopetztakenaback.courses
+holepticglovec.com
 holiday-matrix.christmas
 holidayexpertsusa.com
 holidayonid.com.co
@@ -13076,6 +13079,7 @@ k81f5l4o.kunci.store
 k85x997p.armaizadenwala.com
 k8xn2yer.go-flashburn.com
 k9.alien203.org
+k9.andaltoto.org
 k94em4jx.bossbeycity.click
 k964jkuu.luxerabet10.com
 k969mylb.casinokade.online
@@ -19283,6 +19287,7 @@ qhy0wolx.casinomhub.bet
 qhziiivs.casinomhub.bet
 qi20j1a8.leptozanstore.com
 qianxinnbplus.xyz
+qid1bvvr64.workers.dev
 qiekqweantyyr.com
 qihupu.workers.dev
 qikkcsyucaimsyyk.xyz
@@ -28335,6 +28340,7 @@ zzhjiutfakhcwqbeb.geigersjobs.com
 zzjrse.usen-pegasus.com
 zzkd.eight-education.lat
 zzksh.sm188dvlv.rest
+zzkuntai.net
 zzlkkghnmh.cn
 zztz.jetourmexico.com
 zzux.birladharamshaala.org
