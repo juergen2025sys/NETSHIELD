@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-10 09:46 CET
-# Eintraege: 28261
+# Aktualisiert: 2026-11-10 13:56 CET
+# Eintraege: 28315
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -44,6 +44,7 @@
 07vl5r6o.en-us-en-blinzador.com
 0807.st
 086bn6e3.prostafene.com
+0899gsml.fwdtheatre.org
 08llaz3s.wrda.store
 08tk02ji.nexorhino.digital
 09090clami09090930032.duckdns.org
@@ -1593,6 +1594,7 @@
 9qfwfuup.pleasuredome.hu
 9qhklald.enfejar.casino
 9qmp3bl9.6oclocktrain.com
+9qniujf7.conflict-uk.com
 9qxhxbbl.amsrealtors.com.au
 9r28j8f6.lckd.store
 9r6xw7w2.poker-online.bet
@@ -2443,6 +2445,7 @@ amyguomycmsqwiqe.xyz
 an818f37.en-us-en-theeloncode.com
 anakkontolmemek.my.id
 anakondabob.club
+anakraja87.org
 analipr.cyou
 analisislibre.org
 analizator.kz
@@ -3444,6 +3447,7 @@ backdoor.fifa55hr.com
 backdoor.fifa55red.me
 backdoor.kolaybet.club
 backdoor.qh88eu.com
+backdoor.rr88vipa.com
 backend.sextop1.cafe
 backhomeagaincafe.com
 backlinkclub.com
@@ -4517,6 +4521,7 @@ brandylynns.com
 branleet.duckdns.org
 branthtech.com.br
 brasilengenhariaecom.store
+brasscourt.cfd
 brasswindow.xyz
 bratibobotito.fun
 bravecdp.duckdns.org
@@ -4893,6 +4898,7 @@ c2.ethanremote.co.uk
 c2.heavenproject.lgbt
 c2.kolaybet.club
 c2.m-u88.com
+c2.rr88vipa.com
 c2.saintpetersburgresident.ru
 c2.slagerijbloem.nl
 c2.thesmith.online
@@ -5465,6 +5471,7 @@ chyneskysealcoating.com
 chyoxppm.bet1xindia.com
 chzkvv.panthertowingfl.com
 chzldmh3.parsbet90.com
+ci.anakraja87.org
 ci.fidexconseil.net
 ci7uxmq7.proxy-harbor.digital
 cia-churchinaction.org
@@ -5602,7 +5609,10 @@ clientretention.com
 clients.enigmasolutions.xyz
 clientservices.cozyloft.cc
 clientservices1.cozyloft.cc
+clientservices117.cozyloft.cc
+clientservices118.cozyloft.cc
 clientservices12.cozyloft.cc
+clientservices17.cozyloft.cc
 cliffdawn.eight-education.lat
 cliffmelvynltd.com
 cliffsfomoher.mom
@@ -5941,6 +5951,7 @@ conferencedesk.net
 config.cove-post.xyz
 config.hubdisplay.lol
 configservermu.net
+conflict-uk.com
 congigenplus.com
 conhoosst.com
 conhosst.com
@@ -6144,6 +6155,7 @@ cqimainp.asynchronouswateringmesh.garden
 cqjeqfltg.fg777jbg.net
 cqjqu0zb.bellow-norushka-pianissimo.digital
 cqkjo.porukau8ar.lat
+cql1sjv2.erementar-gerad.online
 cqshazxp.neural-atlas.digital
 cqtwbvlx.testranandegi.com
 cqvdiki.xenicalby6.com
@@ -6263,6 +6275,7 @@ csqcocscsuwwioco.xyz
 csqoececackykgag.xyz
 csqv8f020426tlb.cfd
 csri.space
+css.fernwold.cc
 cssaaiukomkasyuo.xyz
 cssekgkqiayacmwc.xyz
 cssemisoskiawsiy.xyz
@@ -6328,6 +6341,7 @@ currituckduckhunting.com
 curseddark.co.uk
 curux.run
 cusackelectronics.com
+cushionbridge.cfd
 custardlegwarmer.cc
 customdnaconstructs.com
 customers.googlesecuritysystem.com
@@ -6513,6 +6527,7 @@ dakk5rnsax46s.cfc-execute.su.baidubce.com
 dallas.baltos.online
 dallasirrigationservices.com
 dallasmobileautomechanic.com
+dam28.click
 damp7taskhub.stigmaflowlink.garden
 dampcaps-flor-sou-rail.garden
 damza.store
@@ -6662,6 +6677,7 @@ dc10varl.rsudtarutung.com
 dc16h0z3.energyrevolutionsystem.org
 dc6z7ywb.en-us-energyrevolution.com
 dcaxdwoo.barcelona11.com
+dcccore.noip.at
 dccd28hw.hightidesuffolk.com
 dccidadu.org.pk
 dcgbh.zsatom.hu
@@ -7098,7 +7114,9 @@ dl.stacknode.cc
 dl7iun9z.marathonmktggroup.com
 dlacbhw.nonamejustsoul.com
 dlbs2m9uajwi0w5k0f.pages.dev
+dlcore.cc
 dldcrqq.daqotransformers.com
+dlforge.cc
 dlkcsdq.hotbet90app.com
 dlklyo.jamjahani2026.football
 dln38.info
@@ -7374,8 +7392,10 @@ drmbehqw.bociljepe.info
 drnfrptutxnwhaulrpb.guardyapps.com
 drone-video-france.com
 dronegreece.gr
+dropforge.cc
 dropklant.com
 droppicches.xyz
+dropstream.cc
 droptest.xyz
 droroszagnes.hu
 drotez.instrumentoviolino.cfd
@@ -8381,6 +8401,7 @@ eraplay88go.space
 eraply88team.space
 erdogan.lol
 eredmenyek.vise.hu
+erementar-gerad.online
 ergotherapie-ssl.de
 erhuda.advanceddrivelines.com
 ericasjourney.com
@@ -8952,11 +8973,13 @@ ferncurrent14.com
 fernholtton.cc
 fernmenshway.stigmaflowlink.garden
 fernvalidator.ra7ximor.in.net
+fernwold.cc
 fernwoldway.cc
 ferrari-rolling-facilities-lounge.trycloudflare.com
 fervxy.xyz
 fesold.com
 festival-enruelibre.fr
+fetchwave.cc
 fetestjs.beer
 fettcy.boutiqbar.com
 feulntzw.site-shartbandi-farsi.com
@@ -9651,6 +9674,7 @@ fw.146slot.org
 fw.334v.org
 fwb.brslot.net
 fwb.loloxsm188.top
+fwdtheatre.org
 fwf.merahsm188.top
 fwh.kijangturbo88.top
 fwh.paptogel.net
@@ -10789,6 +10813,7 @@ h.9winn.org
 h.bosmj.org
 h.cou4d.org
 h.d200n.com
+h.dewa2.org
 h0.amper888.net
 h04c.kernelwave.lat
 h0cbv92p.golfbetkade.com
@@ -11197,6 +11222,7 @@ hjoeseiatehn.com
 hjwaxur.kvbel.com
 hjynlx3f.highmileauto.com
 hjyxshsj.top
+hk.anakraja87.org
 hk5kmml4.fleshburn.us
 hkbtnx.pamsribbonsandroses.com
 hkckpom.aoudizen.com
@@ -11324,6 +11350,7 @@ hook.ftp21.cc
 hopehousing.net
 hopepreschool.co.uk
 hopesgarden.org
+hopeylp.duckdns.org
 hoppeebrouwer.lol
 hor.kaitorinihon.jp
 hor1inka-lonely.digital
@@ -11464,10 +11491,12 @@ hu406sua.ozabet.promo
 hub4.cdndock.click
 hubscore.io
 hucx.fortworthfarm.com
+hudb9.click
 hue3meshway.chromacorebit.garden
 hugg1ngvx.top
 hugocpa.net
 huh3jy35.system-horizon.digital
+huhesd.duckdns.org
 huhowabisi.net
 huhylo.workers.dev
 huiqbzp.clawandpurr.com
@@ -12396,6 +12425,7 @@ j.bok13.org
 j.bro50.org
 j.cou4d.org
 j.dhawa.net
+j.dog69.net
 j0.bala7.org
 j01nn5zm.istanbul303.com
 j0g2ia0g.bet1yek.bet
@@ -12510,6 +12540,7 @@ jannashocked.workers.dev
 japanaction059.duckdns.org
 japanaction059bk.duckdns.org
 japanpatagonia.monster
+japlukarmore.org
 jarayemaleyhamval.xyz
 jardinemajorelle.mom
 jardins-do-mar.com
@@ -13371,6 +13402,7 @@ kiqaceaqecyiugkq.xyz
 kiqaiymyeyycyaee.xyz
 kiqcmqimwkoqmoyu.xyz
 kiqqqgciqgwycses.xyz
+kiqyhata.workers.dev
 kirk.velyra.ru
 kirkcharlie.com
 kirvnj.shop-echoxen.com
@@ -14157,6 +14189,7 @@ lightsiteview1.solavern.garden
 lightsnow.info
 lihannaowenzaus.fit
 liizlfb.bet30bet.com
+lik101.click
 liketudong.biz
 limidos.com
 limous-nitout.digital
@@ -14324,6 +14357,7 @@ lnxrtusxx.yourheavensbest.com
 load-array.sprutte5t.lat
 load-errorbooking23809.com
 load-meadows-analytics-cntr.garden
+loadcore.cc
 loaddesign.zen-5lora.life
 loaddri.zom7lirex.in.net
 loadfilerun.com
@@ -14493,6 +14527,7 @@ lowenbay.cc
 lowermyoverheads.com
 lowfeesrealtors.com
 lowfoodanddrink.com
+loxagy-9f7.workers.dev
 lp.wooddesignpe.com.br
 lp4avzjm.borderlinelakewood.com
 lp4hvt2f.ravanshenakhti.shop
@@ -16618,6 +16653,7 @@ nkvi.thunderinternationalgroup.com
 nkxkhfp.bet303.app
 nkzajnx4.pablobet.bet
 nkzfatjf.gut--drops.com
+nl.anakraja87.org
 nlahtc.theluxehomeoffice.com
 nlbuiak.ptologisticsandfreight.com
 nld9qz8u.en-us-glycofree.com
@@ -18443,6 +18479,7 @@ playgame.pk
 playvodz.com
 playwize.org
 plbajth.tracytowingcompany.com
+pleasefinalattachedfinaldocsoriginalseto.duckdns.org
 plenapack.com.br
 plencos.com
 plenibulle.fr
@@ -18692,6 +18729,7 @@ pretunz.com
 preview.salamacademy.edu.eg
 prgfeg84.getdsm.com
 prgqvfu.payestation.com
+prho88.click
 pricasino.com
 priceisrightjewelry.com
 pricelou.cyou
@@ -18832,6 +18870,7 @@ proxies.identities.network
 proxies.internetshadow.link
 proxies.internetshadow.org
 proxy-ca011-cip225.ahrefs.net
+proxy-ca013-cip229.ahrefs.net
 proxy-cascade.digital
 proxy-compass.digital
 proxy-frontier.digital
@@ -18844,6 +18883,7 @@ proxy-stream.christmas
 proxy-us-east006-cip5.ahrefs.net
 proxy-us-east007-cip5.ahrefs.net
 proxy-us001-sa4.ahrefs.net
+proxy-us003-sa1.ahrefs.net
 proxy.am
 proxy.cloudload.cc
 proxy.everatlas.lol
@@ -18942,7 +18982,9 @@ puffvny.premiumrent-car.com
 pull.alpha-zone.click
 pull.valley-screen.click
 pull7.motiondepot.one
+pullbyte.cc
 pullout.ezgateway.net
+pullstack.cc
 pulsa188slot.co
 pulsasoft.com
 pulse-vol.com
@@ -20408,6 +20450,7 @@ rpoeu7zimfpwxbwmjmjyprqaprtvkj3ykfczhbc4x3voydopffn337id.onion
 rpvfsmg.bankiran.bet
 rpyrxh.lilbaukft.hu
 rq.alan4d.org
+rq.anakraja87.org
 rq5ic3bf.usa-lipogummy.com
 rqappw.buy-ignitra.com
 rqecwy9l.betgit.casino
@@ -20421,6 +20464,7 @@ rqwkms23.anodaz.store
 rqz74grh.home-power-shield.com
 rqziwtbf.truenarrator.com
 rr.ameriktoto.org
+rr88vipa.com
 rrbc.betpublic.casino
 rrfljnpj.site-takhtenard-sharti-betland.com
 rritelh.one1xbet.net
@@ -20900,6 +20944,7 @@ sandman.lat
 sandman.qen2virex.lat
 sane-cdn-js.beer
 sanfranciscoinsulation.com
+sang01.duckdns.org
 sanibellslandre.com
 sanshin-campaign.com
 santa-resource-engine.christmas
@@ -21700,6 +21745,7 @@ smartpeoplework.info
 smartworkflowmanagement.christmas
 smartworkflowmanagement.courses
 smarwth.biz
+smashroomcity.com.au
 smashshape.com
 smc.tb88cuka.top
 smdh7.surf
@@ -21883,6 +21929,7 @@ sonkhiyajewellers.com
 sonnysdetailshop.com
 soochiparawaterfalls.com
 sopa1805.duckdns.org
+soporte5.jlmarketing.com.mx
 sopranos-familytree.christmas
 soqtorent.monster
 sorakitsumi.shop
@@ -22527,6 +22574,7 @@ suvjqi.liberty-token.org
 suwqmlyd.efbetfarsi.com
 suxessg.com
 suyq58j1.betballl90.app
+sv2.ggsrv.de
 sv41ylmi.eng--nervealive.com
 svarka-kzn.ru
 svcd.tavro6xen.lat
@@ -22644,6 +22692,7 @@ sync1.thriveforge.lat
 sync4logicway.nexo2ran.bet
 sync8bergzeit.exmeshlogic.garden
 syncdusk.mirelax9.life
+syncgrab.cc
 synchro-vasq.unidermaperu.com
 syncitnode.cloudprocmgr.pics
 syncitnode.fastnetgatehub.pics
@@ -23325,6 +23374,7 @@ tiv2dcd7.cloud-sphere.digital
 tivex.store
 tiwdt.hazzarat.com
 tiziyditr2xof4y.top
+tj.akuntoti.net
 tj.amanbet89.org
 tj2ay0gm.en-us--mindvault.com
 tj6oqmj6.creditrepairhacking.com
@@ -24005,6 +24055,7 @@ ugkcnf.slimsplits.us
 uglkqfj.sm188dvlv.cfd
 uglycute.life
 ugmitqk.one1xbet.poker
+ugra0.click
 ugurmali.com.tr
 ugygn.shartmag.bet
 uh83re33.magneticlevitationtrain.digital
@@ -26582,6 +26633,7 @@ www.rmsmarineservice.com.qwqqwq.ggff.net
 www.robattini.com.br
 www.robinamedicalcentre.com.au
 www.rochaemucholowski.adv.br
+www.rr88vipa.com
 www.runeliteplus.net
 www.s-w34iusuwt9mdjzen7b.live
 www.s4p5ms8r4z8907j9o.app
@@ -26875,6 +26927,7 @@ xbxza50287.workers.dev
 xbyq.olcsongepet.hu
 xbzbvp9g.remarq.store
 xbzh.kafekarachi.com
+xc.amav5d.org
 xc1y2oam.jetbet.download
 xc1zdm30.singermegha.com
 xcaejii.enobahis.co
@@ -27332,6 +27385,7 @@ yba7z7vt.ravansalamat.shop
 ybfrvo.greaternewzionbc.org
 ybhyrjaj.asynchronouswateringmesh.garden
 ybirhhkf.onjabet1.com
+ybkms92144.workers.dev
 yblfhadfu.mango90bet.com
 ybm58ckf.finovestpedia.com
 ybntipf1.ramenizakaya-himeji.com
