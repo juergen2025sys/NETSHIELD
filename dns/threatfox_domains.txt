@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-10 03:05 CET
-# Eintraege: 28177
+# Aktualisiert: 2026-11-10 04:09 CET
+# Eintraege: 28186
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1642,6 +1642,7 @@
 a.bc.285ef6f2.web.mail.cargopaa.com
 a.bc.6a73dbe.www.aioperao.com
 a.bok13.org
+a.dewa2.org
 a.dewii.net
 a.qqmusic1.com
 a.tesslatoto.org
@@ -6856,6 +6857,7 @@ devsecurityservices.com
 devtec.store
 devwpsite.bullishmediapros.com
 devynly.monster
+dewa2.org
 dewberryhill.cc
 dewii.net
 dexband.quest
@@ -7836,6 +7838,7 @@ egracefashionandbraiding.com
 egreen-technology.com
 eguiagroup.cfd
 egybouu.qummy-group.com
+egydes.com
 egyoast.cloud
 egzbf2a5.estekhdam.one
 eh-masled.courses
@@ -14252,6 +14255,7 @@ llufxf.thepunsify.com
 llvwi.brssolar.hu
 llwin.co.com
 lm-plot-design.de
+lm23tnez.egydes.com
 lmat.sa.com
 lmc014command.com
 lmdztf.erdekhaber.com
@@ -19067,6 +19071,7 @@ qaiooeuqywwiasgu.xyz
 qakcyiwuysiiaeqc.xyz
 qakm.fiorentini.ir
 qakycigiueusmwky.xyz
+qalaatalnahreen.com
 qamcswmgmeiwksyu.xyz
 qamwmsl.metropropertygrp.com
 qaqatrf8.dermatologycongress.org
@@ -20561,6 +20566,7 @@ rzhxtlcd.globepool.org
 rzmi7dyf.khive.store
 rzuwk0yv.spirosnet.com
 s.abc22.org
+s.amper888.net
 s.bb69.org
 s.bok13.org
 s.bola7.net
@@ -24004,6 +24010,7 @@ ukmcha.yasbet90.com
 uknwgsop.red90.casino
 ukoyzikh.madgal.life
 ukpoojmk.shansbartar.bet
+ukppolonia.pl
 ukq8hm2z.socop.space
 ukqkvcn.raajanarts.com
 ukraine77.top
@@ -26358,6 +26365,7 @@ www.m4imi4w.space
 www.madeleineslim.com
 www.maedso.com
 www.main-salesforce.com
+www.malo-coaching.ch
 www.manageyourppc.com
 www.mandiepinto.com
 www.marianoturcutto.turcutto.com
@@ -27072,6 +27080,7 @@ xtjcss.braindefendr.com
 xtkdt.run
 xtktlprb.rial.bet
 xtocpnhiv.jadoou.space
+xtremexperience.rwcreativestudio.net
 xtrqgv.perspolisbet90.com
 xtsfgslg.jamjahani2026.football
 xtvaj64i.enus-zensulin.com
