@@ -1,20 +1,14 @@
 {
-  "updated": "2026-11-10 03:01 CET (Europe/Berlin)",
+  "updated": "2026-11-10 09:23 CET (Europe/Berlin)",
   "total": 33,
   "ok": 33,
   "warn": 0,
-  "error": 1,
-  "errors": [
-    {
-      "file": "Production Health",
-      "check": "Drift: active_blacklist_ipv4.txt",
-      "detail": "active_blacklist_ipv4.txt: 719,553 \u2192 380,535 (-47%) \u2013 starker R\u00fcckgang seit letztem Check"
-    }
-  ],
+  "error": 0,
+  "errors": [],
   "warnings": [],
   "regression_tests": {
     "schema": 1,
-    "sha": "b410d48737782cd0fb1d13bbdfeb703d3042e1bd",
+    "sha": "6b1ddcdcd93b11d61f2767ac113f250efff8556b",
     "status": "passed",
     "tests_run": 490,
     "failures": [],
@@ -26,23 +20,17 @@
     "detail": "490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5768091,
-    "active_blacklist_ipv4.txt": 380535,
-    "blacklist_confidence40_ipv4_part1.txt": 3988877,
-    "cve_exploit_ips.txt": 29015,
-    "honeypot_ips.txt": 1189558,
-    "bot_detector_blacklist_ipv4.txt": 1172410
+    "combined_threat_blacklist_ipv4_part1.txt": 5773379,
+    "active_blacklist_ipv4.txt": 388558,
+    "blacklist_confidence40_ipv4_part1.txt": 3992667,
+    "cve_exploit_ips.txt": 28969,
+    "honeypot_ips.txt": 1177589,
+    "bot_detector_blacklist_ipv4.txt": 1172882
   },
   "production_health": {
-    "critical": 1,
+    "critical": 0,
     "warn": 0,
-    "checks": [
-      {
-        "level": "CRITICAL",
-        "check": "Drift: active_blacklist_ipv4.txt",
-        "detail": "active_blacklist_ipv4.txt: 719,553 \u2192 380,535 (-47%) \u2013 starker R\u00fcckgang seit letztem Check"
-      }
-    ]
+    "checks": []
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [

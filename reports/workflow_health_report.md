@@ -1,30 +1,22 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-10 03:01 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-10 09:23 CET (Europe/Berlin)
 
-**Workflows:** 33 | ✅ 33 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
+**Workflows:** 33 | ✅ 33 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `b410d48737782cd0fb1d13bbdfeb703d3042e1bd`
+✅ Commit: `6b1ddcdcd93b11d61f2767ac113f250efff8556b`
 
 490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
 
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Drift: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt: 719,553 → 380,535 (-47%) – starker Rückgang seit letztem Check |
-
 ## 🏥 Production Health
 
-**Status:** 🔴 1 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🔴 CRITICAL | Drift: active_blacklist_ipv4.txt | active_blacklist_ipv4.txt: 719,553 → 380,535 (-47%) – starker Rückgang seit letztem Check |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -65,4 +57,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-10 03:01 CET (Europe/Berlin) | 33 Workflow-Dateien geprüft*
+*Generiert: 2026-11-10 09:23 CET (Europe/Berlin) | 33 Workflow-Dateien geprüft*
