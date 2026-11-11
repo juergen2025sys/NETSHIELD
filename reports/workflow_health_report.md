@@ -1,30 +1,22 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-11 08:44 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-11 16:09 CET (Europe/Berlin)
 
-**Workflows:** 33 | ✅ 33 OK | ⚠️ 1 Warnung | ❌ 0 Fehler
+**Workflows:** 33 | ✅ 33 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `3abf7df298d832a28be854c6af2b6a045ed9c173`
+✅ Commit: `2432b29272f1a47862454b4fda9434524ae1c0dc`
 
 490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
 
-## ⚠️ Warnungen
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Drift: honeypot_ips.txt | honeypot_ips.txt: 1,186,027 → 2,155,033 (+82%) – ungewöhnliches Wachstum |
-
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 1 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🟡 WARN | Drift: honeypot_ips.txt | honeypot_ips.txt: 1,186,027 → 2,155,033 (+82%) – ungewöhnliches Wachstum |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -65,4 +57,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-11 08:44 CET (Europe/Berlin) | 33 Workflow-Dateien geprüft*
+*Generiert: 2026-11-11 16:09 CET (Europe/Berlin) | 33 Workflow-Dateien geprüft*
