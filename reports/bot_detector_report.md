@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-11 01:05 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-11 01:10 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -8,8 +8,8 @@
 | Metrik | Wert |
 |---|---|
 | Gesamt IPs | **1,171,111** |
-| Neu (heute) | **+940** |
-| Entfernt | **-671** |
+| Neu (heute) | **+0** |
+| Entfernt | **-0** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 44 |
@@ -19,7 +19,7 @@
 
 | Quelle | IPs |
 |---|---|
-| ✅ `turntuptechnologies_iocs_scanner` | 73 |
+| ✅ `turntuptechnologies_iocs_scanner` | 114 |
 | ✅ `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | 74,450 |
 | ✅ `openprx_prx_sd_signatures` | 130,403 |
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,576 |
@@ -69,4 +69,4 @@
 > Diese 44 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-11 01:05 CET (Europe/Berlin)*
+*Generiert: 2026-11-11 01:10 CET (Europe/Berlin)*
