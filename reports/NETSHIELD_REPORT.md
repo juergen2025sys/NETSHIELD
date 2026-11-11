@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-11-11 01:55 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-11 03:20 CET (Europe/Berlin)
 
 ---
 ## 📊 Listen-Übersicht
@@ -11,8 +11,8 @@
 | ✅ [blacklist_confidence40_ipv4_part1.txt](../blacklist_confidence40_ipv4_part1.txt) + [blacklist_confidence40_ipv4_part2.txt](../blacklist_confidence40_ipv4_part2.txt) | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **8,005,969** | 2026-11-11 01:49 CET (Europe/Berlin) |
 | ✅ [watchlist_confidence25to39_ipv4.txt](../watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25-39/100) | **3,225,123** | 2026-11-11 01:49 CET (Europe/Berlin) |
 | ✅ [cve_exploit_ips.txt](../cve_exploit_ips.txt) | CVE Exploit IPs | **29,067** | 2026-11-10 21:23 CET (Europe/Berlin) |
-| ✅ [bot_detector_blacklist_ipv4.txt](../bot_detector_blacklist_ipv4.txt) | Bot-Detector Blacklist | **1,171,111** | 2026-11-11 01:10 CET (Europe/Berlin) |
-| ✅ [honeypot_ips.txt](../honeypot_ips.txt) | Honeypot IPs | **2,174,339** | 2026-11-11 01:10 CET (Europe/Berlin) |
+| ✅ [bot_detector_blacklist_ipv4.txt](../bot_detector_blacklist_ipv4.txt) | Bot-Detector Blacklist | **1,171,004** | 2026-11-11 03:09 CET (Europe/Berlin) |
+| ✅ [honeypot_ips.txt](../honeypot_ips.txt) | Honeypot IPs | **2,175,685** | 2026-11-11 01:56 CET (Europe/Berlin) |
 | ✅ [honigtopf_ips.txt](../honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **45,912** | 2026-11-11 01:37 CET (Europe/Berlin) |
 
 ---
@@ -28,4 +28,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-11-11 01:55 CET (Europe/Berlin)*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-11-11 03:20 CET (Europe/Berlin)*
