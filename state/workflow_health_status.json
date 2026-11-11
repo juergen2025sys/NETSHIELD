@@ -1,14 +1,20 @@
 {
-  "updated": "2026-11-10 21:27 CET (Europe/Berlin)",
+  "updated": "2026-11-11 01:00 CET (Europe/Berlin)",
   "total": 33,
   "ok": 33,
   "warn": 0,
-  "error": 0,
-  "errors": [],
+  "error": 1,
+  "errors": [
+    {
+      "file": "Production Health",
+      "check": "active \u2286 conf40 Subset-Invariante verletzt",
+      "detail": "658 IPs in active fehlen in conf40 (0.156% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+    }
+  ],
   "warnings": [],
   "regression_tests": {
     "schema": 1,
-    "sha": "c2a788d9b05f80429daf28894b4f2d36891d2ee5",
+    "sha": "614637c8df0c21ba136e368beb8d3f8d00e57839",
     "status": "passed",
     "tests_run": 490,
     "failures": [],
@@ -20,17 +26,23 @@
     "detail": "490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5788692,
-    "active_blacklist_ipv4.txt": 418511,
-    "blacklist_confidence40_ipv4_part1.txt": 4006677,
+    "combined_threat_blacklist_ipv4_part1.txt": 5791020,
+    "active_blacklist_ipv4.txt": 422902,
+    "blacklist_confidence40_ipv4_part1.txt": 4008232,
     "cve_exploit_ips.txt": 29067,
-    "honeypot_ips.txt": 1184105,
-    "bot_detector_blacklist_ipv4.txt": 1169826
+    "honeypot_ips.txt": 1186027,
+    "bot_detector_blacklist_ipv4.txt": 1170842
   },
   "production_health": {
-    "critical": 0,
+    "critical": 1,
     "warn": 0,
-    "checks": []
+    "checks": [
+      {
+        "level": "CRITICAL",
+        "check": "active \u2286 conf40 Subset-Invariante verletzt",
+        "detail": "658 IPs in active fehlen in conf40 (0.156% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+      }
+    ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
