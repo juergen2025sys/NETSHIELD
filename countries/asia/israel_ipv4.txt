@@ -1,6 +1,6 @@
 # NETSHIELD – Israel (IL) IPv4 Ranges
-# Aktualisiert: 2026-11-09 09:29 CET (Europe/Berlin)
-# IP-Ranges: 996
+# Aktualisiert: 2026-11-11 08:59 CET (Europe/Berlin)
+# IP-Ranges: 997
 
 2.52.0.0/14
 2.57.228.0/22
@@ -925,6 +925,7 @@
 207.232.0.0/18
 209.35.197.0/24
 209.35.224.0/19
+209.135.139.0/24
 209.135.152.0/24
 209.204.117.0/24
 209.206.0.0/19

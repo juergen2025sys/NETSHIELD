@@ -1,6 +1,6 @@
 # NETSHIELD – Singapore (SG) IPv4 Ranges
-# Aktualisiert: 2026-11-09 09:29 CET (Europe/Berlin)
-# IP-Ranges: 1905
+# Aktualisiert: 2026-11-11 08:59 CET (Europe/Berlin)
+# IP-Ranges: 1906
 
 1.21.224.0/19
 1.32.128.0/18
@@ -1020,6 +1020,7 @@
 144.89.128.0/17
 145.223.128.0/18
 146.88.128.0/21
+146.94.224.0/20
 146.174.128.0/18
 147.124.12.0/22
 147.136.128.0/19

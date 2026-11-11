@@ -1,6 +1,6 @@
 # NETSHIELD – Latvia (LV) IPv4 Ranges
-# Aktualisiert: 2026-11-09 09:29 CET (Europe/Berlin)
-# IP-Ranges: 455
+# Aktualisiert: 2026-11-11 08:59 CET (Europe/Berlin)
+# IP-Ranges: 454
 
 2.58.16.0/22
 5.44.216.0/21
@@ -310,7 +310,6 @@
 188.92.16.0/21
 188.92.72.0/21
 188.112.128.0/18
-192.144.36.0/22
 192.162.104.0/22
 193.0.136.0/22
 193.0.140.0/23
