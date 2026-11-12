@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-11-12 21:27 CET (Europe/Berlin)
+Lauf: 2026-11-12 21:34 CET (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -95,21 +95,20 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📈 +25,285 (Anstieg) (jetzt 11,299,112 IPs)
+- Seit letztem Lauf: ➡️ unverändert (jetzt 11,299,112 IPs)
 - Seit Zyklus-Start (2026-10-22): 📈 +240,669 (Anstieg)
 - Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 822,067 neue IPs hinzugekommen (davon 718,095 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 20 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 107,064 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 5,742,656 (Summe 7 verschiedene Combined-Läufe in den letzten 8 Prüfläufen / ~24h; vor dem Aufnahme-Filter gezählt)
+- Neue IPs (Summe letzter Läufe): 4,930,681 (Summe 6 verschiedene Combined-Läufe in den letzten 8 Prüfläufen / ~24h; vor dem Aufnahme-Filter gezählt)
 - Entfernte IPs (abgelaufen): heute 22,377 | gestern 23,336 (Kalendertag, aus Ablauf-Ledgern)
   - davon Watchlist/30 Tage: heute 2,000 | gestern 1,158
   - davon Active/180 Tage: heute 20,377 | gestern 22,178
-- Netto-Wachstum (~24h): 📈 +57,929 (~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-11-11T17:27 bis 2026-11-12T20:13 UTC
+- Netto-Wachstum (~24h): 📈 +39,075 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-11-11T19:29 bis 2026-11-12T20:28 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-11-09 02:20 CET (Europe/Berlin) | 11,199,190 | 10301 | 3844504 | 25366 |
 | 2026-11-09 03:37 CET (Europe/Berlin) | 11,178,721 | 10301 | 3844504 | 0 |
 | 2026-11-09 12:20 CET (Europe/Berlin) | 11,201,610 | 10301 | 3844323 | 0 |
 | 2026-11-09 13:23 CET (Europe/Berlin) | 11,209,981 | 10301 | 3844269 | 0 |
@@ -129,3 +128,4 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-11-12 04:49 CET (Europe/Berlin) | 11,256,860 | 13703 | 3918186 | 0 |
 | 2026-11-12 13:00 CET (Europe/Berlin) | 11,273,827 | 13699 | 3918040 | 0 |
 | 2026-11-12 21:27 CET (Europe/Berlin) | 11,299,112 | 13699 | 3917839 | 0 |
+| 2026-11-12 21:34 CET (Europe/Berlin) | 11,299,112 | 13699 | 3917839 | 0 |
