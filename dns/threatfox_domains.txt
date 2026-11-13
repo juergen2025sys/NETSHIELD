@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-13 01:19 CET
-# Eintraege: 29963
+# Aktualisiert: 2026-11-13 01:57 CET
+# Eintraege: 29970
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1417,6 +1417,7 @@
 8393546939.dojiner.at
 83dwnguj.shop-tupitea.com
 83j6hfza.runtime-forge.digital
+83uae7er.garla.store
 83ur68yr.designphotoshop.ir
 84mucdco.sketchetch.net
 84nog8td.nazimhikmetakademisi.org
@@ -7486,6 +7487,7 @@ datapressos.com
 datapulse.wiki
 dataramara.icu
 datasciconnect.com
+dataset.ethack.slabs.dev
 datastoria.com
 datastorminc.live
 datasurge-bot.com
@@ -7775,6 +7777,7 @@ devle.store
 devltd.us
 devmatrix.wiki
 devoinnanote.com
+devpse.wiki
 devs.homelabnode.qzz.io
 devsecurityservices.com
 devtec.store
@@ -16969,6 +16972,7 @@ mole.albaikmenuonline.com
 moledynam.vexon6ar.lat
 molerok.mom
 moleroos.pro
+moligo-960.workers.dev
 moll.lanjut.in
 moltem.store
 molterstat.xyz
@@ -21054,6 +21058,7 @@ r87qvncm.dilma.store
 r8cgf6ux.luxerabet100.com
 r8jg3f99.padelconstruct.hu
 r8rq1x9t.tenancydeposit-claim.com
+r9.antirungkad.org
 r9chaxy2.pura--boost.us
 r9chy91i.unseen-zorenka.digital
 r9zhnj8a.palso.store
@@ -27783,9 +27788,11 @@ www.bl32hm8oxzy3yome193.cc
 www.blackdragonguard.rivalstore.hu
 www.borgodeglidei.it
 www.bosslifesa.com
+www.bravensinc.com
 www.build-graphic.com
 www.burb.space
 www.buymycar.de
+www.buzzdesports.com
 www.bvu.edu.cv
 www.bw-automation.net
 www.bythebellboxing.com
