@@ -1,6 +1,6 @@
 # Workflow Health Dashboard
 
-**Stand:** 2026-11-13 07:29 CET (Europe/Berlin)
+**Stand:** 2026-11-13 20:35 CET (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
@@ -9,30 +9,29 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 ## Letzte 24h
 
 - **Echte Combined-Runs:** 9 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 8
-- **Lucken (>210min zwischen echten Runs):** 1
-  - 2026-11-12 19:58 CET (Europe/Berlin) -> 2026-11-12 23:30 CET (Europe/Berlin) (212 min)
+- **Skip-Runs (Idempotenz-Guard):** 10
+- **Lucken (>210min zwischen echten Runs):** 0
 
 ## Letzte 7 Tage
 
-- **Echte Combined-Runs:** 55
-- **Skip-Runs:** 44
+- **Echte Combined-Runs:** 57
+- **Skip-Runs:** 45
 - **Fehlgeschlagene Runs:** 0
-- **Lucken >210min:** 11
+- **Lucken >210min:** 10
 - **Groesste Lucke:** 2026-11-08 01:44 CET (Europe/Berlin) -> 2026-11-08 07:25 CET (Europe/Berlin) (341 min = 5h 41min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 412
+- **Watchdog-Laeufe insgesamt:** 424
 - **Watchdog-Fehler:** 0
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 36
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 38
 
 Letzte Watchdog-Eingriffe:
-- 2026-11-12 19:40 CET (Europe/Berlin) (Run #43282375123, Laufzeit 17m 27s)
-- 2026-11-12 23:30 CET (Europe/Berlin) (Run #43320571315, Laufzeit 16m 22s)
-- 2026-11-13 01:37 CET (Europe/Berlin) (Run #43338555579, Laufzeit 12m 12s)
-- 2026-11-13 01:50 CET (Europe/Berlin) (Run #43340198444, Laufzeit 18m 38s)
-- 2026-11-13 04:49 CET (Europe/Berlin) (Run #43361500690, Laufzeit 18m 25s)
+- 2026-11-13 08:23 CET (Europe/Berlin) (Run #43385380343, Laufzeit 18m 47s)
+- 2026-11-13 10:51 CET (Europe/Berlin) (Run #43404685072, Laufzeit 12m 50s)
+- 2026-11-13 13:43 CET (Europe/Berlin) (Run #43427598413, Laufzeit 15m 58s)
+- 2026-11-13 16:36 CET (Europe/Berlin) (Run #43454258218, Laufzeit 15m 17s)
+- 2026-11-13 19:34 CET (Europe/Berlin) (Run #43483998064, Laufzeit 19m 12s)
 
 ---
 
