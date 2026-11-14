@@ -284,7 +284,14 @@ jobs:
           # 401/403 gilt als "ungueltig", alles andere bleibt im Pool (kann
           # ein voruebergehendes Problem sein, kein Grund die Credential zu
           # verwerfen).
-          KEY_HEALTH_ENDPOINT = "/netinfo/geolocation/8.8.8.8"  # uncounted lt. Doku
+          # FIX HEALTH-410 (2026-11-14): Der alte Pfad
+          # "/netinfo/geolocation/8.8.8.8" liefert inzwischen HTTP 410 Gone.
+          # Laut aktueller HoneyDB-Postman-Doku (documenter.getpostman.com/
+          # view/17070515/2sBXiesuMY) zaehlt dieser Endpunkt NICHT gegen das
+          # Monatskontingent ("Calls to this endpoint do not count against
+          # monthly quota"). Sollte auch er wegfallen (404/410), greift die
+          # Laufzeit-Erkennung in api_get() (siehe _runtime_invalid_credentials).
+          KEY_HEALTH_ENDPOINT = "/ip/8.8.8.8/threatinfo/project-honeypot"  # uncounted lt. Doku 2026-11
           credential_status = []  # fuer Report/Log: [{"label", "ok", "http"/"error"}]
           _valid_credentials = []
           for _cid, _key, _label in CREDENTIALS:
@@ -305,6 +312,17 @@ jobs:
                   if _e.code in (401, 403):
                       credential_status.append({"label": _label, "ok": False, "http": _e.code})
                       print(f"  ::warning::Key-Health [{_label}]: UNGUELTIG (HTTP {_e.code}) – aus Pool entfernt")
+                  elif _e.code in (404, 410):
+                      # FIX HEALTH-410 (2026-11-14): HoneyDB hat den uncounted
+                      # netinfo-Endpunkt abgeschaltet (HTTP 410 Gone). Damit
+                      # kann der Vorab-Check die Keys nicht mehr pruefen.
+                      # Die Credential bleibt im Pool; ungueltige Keys werden
+                      # stattdessen beim ersten ECHTEN Abruf in api_get()
+                      # erkannt (401/403 -> _runtime_invalid_credentials) und
+                      # landen trotzdem im Key-Alarm-Issue. Kostet 0 Extra-Requests.
+                      credential_status.append({"label": _label, "ok": None, "http": _e.code})
+                      _valid_credentials.append((_cid, _key, _label))
+                      print(f"  Key-Health [{_label}]: Pruef-Endpunkt nicht mehr verfuegbar (HTTP {_e.code}) – Pruefung erfolgt beim ersten echten Abruf")
                   else:
                       # Anderer HTTP-Fehler (z.B. 5xx) - kein Auth-Problem,
                       # Credential bleibt im Pool.
@@ -337,13 +355,25 @@ jobs:
           # /tmp waere ein Crash-Risiko zwar gering, aber der Check macht
           # keine Ausnahme fuer /tmp - und Konsistenz zum Rest des Codes ist
           # ohnehin sinnvoll.
-          try:
-              write_text_atomic(
-                  "/tmp/honigtopf_invalid_creds.txt",
-                  ",".join(c["label"] for c in credential_status if c["ok"] is False),
-              )
-          except OSError as _e:
-              print(f"  WARNUNG: Konnte invalid_creds-Marker nicht schreiben: {_e}")
+          # FIX HEALTH-410 (2026-11-14): Zusaetzlich zu den im Vorab-Check
+          # als ungueltig erkannten Credentials werden auch solche gemeldet,
+          # die erst beim echten Abruf 401/403 liefern (api_get fuellt
+          # _runtime_invalid_credentials). Der Marker wird jetzt sofort UND
+          # per atexit nochmal am Ende geschrieben - so greift der Key-Alarm
+          # auch bei sys.exit()/SystemExit mitten im Lauf.
+          _runtime_invalid_credentials = set()
+
+          def _write_invalid_marker():
+              _labels = [c["label"] for c in credential_status if c["ok"] is False]
+              _labels += sorted(l for l in _runtime_invalid_credentials if l not in _labels)
+              try:
+                  write_text_atomic("/tmp/honigtopf_invalid_creds.txt", ",".join(_labels))
+              except OSError as _e:
+                  print(f"  WARNUNG: Konnte invalid_creds-Marker nicht schreiben: {_e}")
+
+          _write_invalid_marker()
+          import atexit as _atexit
+          _atexit.register(_write_invalid_marker)
 
           if not _valid_credentials:
               print("FEHLER: Keine gueltige Credential nach Key-Health-Check uebrig!")
@@ -484,8 +514,11 @@ jobs:
                           if e.code == 429:
                               print(f"  RATE LIMIT [{label or endpoint}] ({cred_label}) – naechste Credential")
                               break  # naechste Credential im Ring probieren
-                          if e.code == 401:
-                              print(f"  AUTHENTIFIZIERUNG FEHLGESCHLAGEN [{label or endpoint}] ({cred_label}) – naechste Credential")
+                          if e.code in (401, 403):
+                              # FIX HEALTH-410: Auth-Fehler im echten Abruf fuer
+                              # den Key-Alarm merken (Vorab-Check kann nicht mehr pruefen).
+                              _runtime_invalid_credentials.add(cred_label)
+                              print(f"  ::warning::AUTHENTIFIZIERUNG FEHLGESCHLAGEN [{label or endpoint}] ({cred_label}, HTTP {e.code}) – naechste Credential")
                               break  # naechste Credential im Ring probieren
                           if e.code == 402:
                               # HoneyDB kann 402 credential-/accountbezogen liefern
@@ -638,9 +671,25 @@ jobs:
                   SERVICES = FALLBACK_SERVICES[:]
               print(f"\n[2/5] Bad Hosts nach Dienst ({', '.join(SERVICES)})...")
               service_stats = {}
+              # FIX SVC-BREAKER (2026-11-14): Liefert HoneyDB fuer mehrere
+              # Dienst-Endpunkte HINTEREINANDER Fehler (z.B. 503 Service
+              # Unavailable fuer ALLE 54 Dienste am 14.11.2026), werden die
+              # restlichen Dienste uebersprungen statt jeden einzeln mit
+              # 3 Retries (2s+4s) abzuarbeiten - spart ~5 Minuten Laufzeit.
+              SVC_FAIL_BREAKER = 3
+              _consec_svc_fail = 0
+              _svc_skipped = 0
               for svc in SERVICES:
-                  data = api_get(f"/bad-hosts/{svc}", f"bad-hosts/{svc}")
+                  _svc_ep = f"/bad-hosts/{svc}"
+                  if _consec_svc_fail >= SVC_FAIL_BREAKER:
+                      failed_endpoints.add(_svc_ep)
+                      service_stats[svc] = 0
+                      stats[f"Bad Hosts – {svc}"] = 0
+                      _svc_skipped += 1
+                      continue
+                  data = api_get(_svc_ep, f"bad-hosts/{svc}")
                   if data:
+                      _consec_svc_fail = 0
                       ips = extract_ips_from_list(data)
                       all_ips.update(ips)
                       service_stats[svc] = len(ips)
@@ -649,6 +698,31 @@ jobs:
                   else:
                       service_stats[svc] = 0
                       stats[f"Bad Hosts – {svc}"] = 0
+                      if _svc_ep in failed_endpoints:
+                          _consec_svc_fail += 1
+                          if _consec_svc_fail == SVC_FAIL_BREAKER:
+                              print(f"  ::warning::{SVC_FAIL_BREAKER} Dienst-Abrufe in Folge fehlgeschlagen – restliche Dienste werden uebersprungen")
+                      else:
+                          _consec_svc_fail = 0  # leere, aber gueltige Antwort
+              if _svc_skipped:
+                  print(f"  → {_svc_skipped} Dienste uebersprungen (Circuit-Breaker)")
+
+              # FIX SVC-DEGRADE (2026-11-14): Fehlgeschlagene Dienst-Abrufe
+              # duerfen den Lauf NICHT mehr komplett blockieren, solange der
+              # Haupt-Abruf /bad-hosts (alle Dienste, 24h) geklappt hat.
+              # Vorher: ein einziger 503 auf irgendeinem Dienst -> "Incomplete
+              # HoneyDB response" -> Exit 1 -> Liste friert ein, obwohl 40.000+
+              # frische IPs vorlagen. Jetzt: Lauf wird zum LIGHT-Lauf herab-
+              # gestuft -> bestehende IPs werden per LIGHT_RUN-Merge behalten
+              # (Liste schrumpft nicht), die frischen /bad-hosts-IPs kommen dazu.
+              _svc_failed = {e for e in failed_endpoints if e.startswith("/bad-hosts/")}
+              if _svc_failed and "/bad-hosts" not in failed_endpoints:
+                  failed_endpoints -= _svc_failed
+                  LIGHT_RUN = True
+                  run_mode_label = "LIGHT"
+                  _decision_reason = (f"{len(_svc_failed)}/{len(SERVICES)} Dienst-Abrufe fehlgeschlagen - "
+                                      f"herabgestuft auf Light (Haupt-Abruf + Merge mit bestehender Liste)")
+                  print(f"  ::warning::{_decision_reason}")
 
           # ── 3) Sensor Event Data – gestern (letzter vollständiger Tag) ────
           # WICHTIG: /sensor-data/{date} liefert NUR Events deiner eigenen
