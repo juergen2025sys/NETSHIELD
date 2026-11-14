@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-11-14 17:57 CET (Berlin)  
+**Aktualisiert:** 2026-11-14 18:36 CET (Berlin)  
 **Modus:** `LIGHT` (nur /bad-hosts, merged mit existing)
 
 ---
@@ -14,7 +14,7 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🔴 **EINGEFROREN** – seit **7** Läufen identische Roh-Daten (letzte Änderung: 2026-11-14 07:52 CET (Berlin)).
+🔴 **EINGEFROREN** – seit **8** Läufen identische Roh-Daten (letzte Änderung: 2026-11-14 07:52 CET (Berlin)).
 
 ---
 ## Endpunkte & Ergebnisse
@@ -51,8 +51,8 @@
 | Bad Hosts – BitcoinRPC | **0** |
 | Bad Hosts – IPP | **0** |
 | Bad Hosts – BitcoinRPC.litecoin | **0** |
-| Bad Hosts – RAW | **0** |
 | Bad Hosts – BitcoinRPC.dogecoin | **0** |
+| Bad Hosts – RAW | **0** |
 | Bad Hosts – HashCountRandom | **0** |
 | Bad Hosts – Modbus | **0** |
 | Bad Hosts – Electrum | **0** |
@@ -64,15 +64,15 @@
 | Bad Hosts – ClaymoreAPI | **0** |
 | Bad Hosts – IPFS | **0** |
 | Bad Hosts – MOTD | **0** |
-| Bad Hosts – XMRigAPI | **0** |
 | Bad Hosts – BitcoinP2P.litecoin | **0** |
 | Bad Hosts – SubstrateRPC | **0** |
+| Bad Hosts – XMRigAPI | **0** |
 | Bad Hosts – BeaconAPI | **0** |
 | Bad Hosts – MoneroRPC.restricted | **0** |
-| Bad Hosts – BitcoinP2P.dogecoin | **0** |
 | Bad Hosts – WebLogic | **0** |
-| Bad Hosts – BeaconAPI.engine | **0** |
+| Bad Hosts – BitcoinP2P.dogecoin | **0** |
 | Bad Hosts – CgminerAPI | **0** |
+| Bad Hosts – BeaconAPI.engine | **0** |
 | Bad Hosts – SolanaRPC | **0** |
 | Bad Hosts – BeaconAPI.keymanager | **0** |
 | Bad Hosts – SubstrateRPC.legacy | **0** |
@@ -102,4 +102,4 @@ Davon **heute (2026-11-14)**: **0** IPs
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-11-14 17:57 CET (Berlin)*
+*Generiert: 2026-11-14 18:36 CET (Berlin)*
