@@ -14,6 +14,7 @@ from asn_drop_build import fetch
 
 FEED = 'https://raw.githubusercontent.com/Jam0k/Public-Feeds-IOCs/HEAD/feeds/ips.csv'
 NETWORK_INFO = 'https://stat.ripe.net/data/network-info/data.json?resource='
+THREAT_LIVE = 'https://list.threat.live/'
 CATEGORIES = {'c2', 'malware', 'botnet', 'ransomware'}
 
 
@@ -51,10 +52,57 @@ def attribute(address):
     return address, asns, prefix or ''
 
 
+def threat_live_report(records, coverage=None):
+    listed = set()
+    for line in fetch(THREAT_LIVE).splitlines():
+        value = line.partition('#')[0].strip()
+        if value:
+            listed.add(ipaddress.ip_address(value))
+    if not listed:
+        raise ValueError('Threat.live returned no IPs')
+
+    grouped = {}
+    for address, asns, prefix in records:
+        if asns and prefix:
+            key = ipaddress.ip_network(prefix)
+            group = grouped.setdefault(key, (set(), set()))
+            group[0].add(address)
+            group[1].update(asns.split(','))
+
+    output = StringIO()
+    writer = csv.writer(output, delimiter='\t', lineterminator='\n')
+    writer.writerow(('announced_prefix', 'origin_asns', 'threatcluster_ips',
+                     'threat_live_ips', 'additional_threat_live_ips', 'firewall_coverage'))
+    candidates = 0
+    for network, (iocs, asns) in grouped.items():
+        hits = {ip for ip in listed if ip.version == network.version and ip in network}
+        additional = hits - iocs
+        if len(additional) < 2:
+            continue
+        status = 'not_checked'
+        if coverage is not None:
+            same_version = coverage[network.version]
+            status = ('full' if any(network.subnet_of(n) for n in same_version)
+                      else 'partial' if any(network.overlaps(n) for n in same_version)
+                      else 'none')
+        writer.writerow((network, ','.join(sorted(asns)), len(iocs), len(hits),
+                         len(additional), status))
+        candidates += 1
+    print(f'Threat.live: {candidates} candidate prefixes')
+    return output.getvalue()
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('output', type=Path)
+    parser.add_argument('--firewall-prefixes', type=Path,
+                        help='Optional text export of active firewall block prefixes')
     args = parser.parse_args()
+    coverage = None
+    if args.firewall_prefixes:
+        networks = [ipaddress.ip_network(line) for raw in args.firewall_prefixes.read_text().splitlines()
+                    if (line := raw.partition('#')[0].strip())]
+        coverage = {v: list(ipaddress.collapse_addresses(n for n in networks if n.version == v))
+                    for v in (4, 6)}
     addresses = select_iocs(fetch(FEED), datetime.now(timezone.utc))
     with ThreadPoolExecutor(max_workers=6) as pool:
         records = list(pool.map(attribute, addresses))
@@ -64,7 +112,10 @@ def main():
     writer = csv.writer(report, delimiter='\t', lineterminator='\n')
     writer.writerow(('ip', 'origin_asns', 'announced_prefix'))
     writer.writerows(records)
-    outputs = {'asn_recent_iocs.tsv': report.getvalue()}
+    outputs = {
+        'asn_recent_iocs.tsv': report.getvalue(),
+        'threat_live_asns.tsv': threat_live_report(records, coverage),
+    }
     for version in (4, 6):
         # Collapse only adjacent observed addresses. No unobserved IP is added.
         networks = ipaddress.collapse_addresses(ip for ip in addresses if ip.version == version)
@@ -82,4 +133,9 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
+
+
 
