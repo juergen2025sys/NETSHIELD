@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-14 22:46 CET
-# Eintraege: 30601
+# Aktualisiert: 2026-11-15 00:00 CET
+# Eintraege: 30608
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1343,6 +1343,7 @@
 7kblrgq1.shartbazi.com
 7kmewphy.crms.pro
 7l7r9wyu.casinowon.bet
+7lkbcr8idc.workers.dev
 7lm2xwqz.1x1bet.xyz
 7louefau.microservice-compass.digital
 7lqwvctv.usa-us-beastforce.com
@@ -3136,6 +3137,7 @@ appboxs.tonmixin.surf
 appconsulting.fr
 appdevtechnology.com
 appel4d.com
+appel88.org
 appelhout.nl
 appinstallercomponent.com
 appinstallerusa.com
@@ -5663,6 +5665,7 @@ c56xjoz.represent-skittish.lat
 c5kwvkoh.greenestreetchurch.com
 c5xxg0v3.eng-flashburnn.com
 c5ylbfsw.packet-vector.digital
+c6.appel88.org
 c6e051x9.khudrukrantingmanic.digital
 c6ta3e1a.remenacevintage.com
 c6vw4imq.nycsocialsportsclub.com
@@ -18692,6 +18695,7 @@ numerosoftware.click
 numqi.wilhelmglobal.com
 numvvvx.oxiidbet.com
 nunszxef.fileboroo.com
+nunza.store
 nuovec.site.tb-hosting.com
 nuqx7vo8.jadoobet.pro
 nurf.io
@@ -20776,6 +20780,7 @@ psychotherapiepraxis-schmeink.de
 psychozc.cyou
 pt-etp.com
 pt-security.ru
+pt.appel88.org
 pt6nyxsf.unseen-zorenka.digital
 ptaej.caesarresidence.hu
 ptapgsl.betwana.casino
@@ -22985,6 +22990,7 @@ scheduler2.travel-scope.lol
 schemaleap1.com
 schester.beer
 schinner.icu
+schneemann.cfd
 schoenberg-ensemble.nl
 scholarplanningusa.com
 school.ncsgo.workers.dev
@@ -27734,6 +27740,7 @@ webplusinfotech.in
 webpulsedata.icu
 webrat.es
 webratxaye1.ton
+webrtwtre22.cc
 websalat.top
 webshareclouds.com
 website.huishurenibiza.nl
