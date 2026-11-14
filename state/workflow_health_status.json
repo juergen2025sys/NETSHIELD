@@ -1,31 +1,50 @@
 {
-  "updated": "2026-11-14 08:35 CET (Europe/Berlin)",
-  "total": 33,
-  "ok": 33,
-  "warn": 0,
+  "updated": "2026-11-14 15:07 CET (Europe/Berlin)",
+  "total": 34,
+  "ok": 34,
+  "warn": 2,
   "error": 0,
   "errors": [],
-  "warnings": [],
+  "warnings": [
+    {
+      "file": "Regressionstests",
+      "check": "Bekannte Logikfehler / Testsuite",
+      "detail": "490 Tests; 7 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=429), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=503), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='timeout'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='json'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema-items')"
+    },
+    {
+      "file": "asn_drop.yml + dns_blocklist_finder.yml",
+      "check": "Cron-Kollision",
+      "detail": "'15 4 * * *' \u2013 beide Workflows laufen gleichzeitig"
+    }
+  ],
   "regression_tests": {
     "schema": 1,
-    "sha": "bef243cbb0a3f4fc12997b9a1f53f82c5c52c4df",
-    "status": "passed",
+    "sha": "a492f2a2735cf3b0d95d229867ce9d23e40233b0",
+    "status": "warning",
     "tests_run": 490,
-    "failures": [],
+    "failures": [
+      "test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run",
+      "test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=429)",
+      "test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=503)",
+      "test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='timeout')",
+      "test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='json')",
+      "test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema')",
+      "test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema-items')"
+    ],
     "errors": [],
     "skipped": [],
     "unexpected_successes": [],
     "missing_required": [],
     "required_not_passed": [],
-    "detail": "490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
+    "detail": "490 Tests; 7 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=429), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=503), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='timeout'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='json'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema-items')"
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5834866,
-    "active_blacklist_ipv4.txt": 431241,
-    "blacklist_confidence40_ipv4_part1.txt": 4042649,
-    "cve_exploit_ips.txt": 28905,
-    "honeypot_ips.txt": 2152145,
-    "bot_detector_blacklist_ipv4.txt": 1173888
+    "combined_threat_blacklist_ipv4_part1.txt": 5836551,
+    "active_blacklist_ipv4.txt": 434362,
+    "blacklist_confidence40_ipv4_part1.txt": 4044066,
+    "cve_exploit_ips.txt": 28980,
+    "honeypot_ips.txt": 2153770,
+    "bot_detector_blacklist_ipv4.txt": 1173921
   },
   "production_health": {
     "critical": 0,
