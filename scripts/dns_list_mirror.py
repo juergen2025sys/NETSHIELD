@@ -67,11 +67,6 @@ MIN_ENTRIES = {
 # ThreatFox: nur IOCs ab dieser Confidence (0-100) uebernehmen.
 THREATFOX_MIN_CONFIDENCE = 50
 THREATFOX_READ_LIMIT = 150 * 1024 * 1024  # wie honeypot_monitor.yml
-# 2026-11-14: Seit Combined diesen Workflow alle 3 h anstoesst, kam ThreatFox
-# mit HTTP 429 (Rate-Limit). Derselbe Key wird auch vom Honeypot Monitor
-# genutzt. Den full.csv.zip-Export daher hoechstens alle 6 h neu laden -
-# gemessen an der "Aktualisiert"-Zeile der bestehenden Datei.
-THREATFOX_MIN_AGE_HOURS = 6
 
 DOMAIN_RE = re.compile(
     r"^(?:[a-z0-9](?:[a-z0-9_-]{0,61}[a-z0-9])?\.)+"
@@ -265,23 +260,6 @@ def write_domain_list(name: str, filename: str, title: str, source: str,
     return True
 
 
-def threatfox_age_hours(now: datetime) -> float | None:
-    """Alter der bestehenden threatfox_domains.txt laut "# Aktualisiert:"-Zeile."""
-    path = os.path.join(OUT_DIR, "threatfox_domains.txt")
-    try:
-        with open(path, encoding="utf-8") as handle:
-            for _ in range(10):
-                line = handle.readline()
-                if line.startswith("# Aktualisiert:"):
-                    stamp = line.split(":", 1)[1].strip()[:16]
-                    written = datetime.strptime(stamp, "%Y-%m-%d %H:%M").replace(
-                        tzinfo=ZoneInfo("Europe/Berlin"))
-                    return (now - written).total_seconds() / 3600
-    except (OSError, ValueError):
-        return None
-    return None
-
-
 def main() -> int:
     now = datetime.now(timezone.utc)
     now_str = now.astimezone(ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d %H:%M %Z")
@@ -299,16 +277,16 @@ def main() -> int:
             DANDELION_URL, parse_hosts_text(text), now_str)
 
     print("ThreatFox Domain-IOCs ...")
-    keys = [k for k in (os.environ.get("THREATFOX_AUTH_KEY", "").strip(),
-                        os.environ.get("THREATFOX_AUTH_KEY_2", "").strip()) if k]
-    age = threatfox_age_hours(now)
+    # Bis zu vier API-Keys in Reihenfolge verwenden (Failover bei 401/403/429).
+    key_names = ("THREATFOX_AUTH_KEY", "THREATFOX_AUTH_KEY_2",
+                 "THREATFOX_AUTH_KEY_3", "THREATFOX_AUTH_KEY_4")
+    keys = list(dict.fromkeys(
+        key for name in key_names
+        if (key := os.environ.get(name, "").strip())
+    ))
     if not keys:
-        print("::warning ::THREATFOX_AUTH_KEY nicht gesetzt - ThreatFox uebersprungen")
+        print("::warning ::Keine THREATFOX_AUTH_KEY-Variable gesetzt - ThreatFox uebersprungen")
         results["threatfox"] = False
-    elif age is not None and 0 <= age < THREATFOX_MIN_AGE_HOURS:
-        print(f"  threatfox_domains.txt ist {age:.1f} h alt (< {THREATFOX_MIN_AGE_HOURS} h) - "
-              f"kein neuer Abruf (schont das ThreatFox-Rate-Limit)")
-        results["threatfox"] = True
     else:
         csv_text = fetch_threatfox_csv(keys)
         if csv_text is None:
