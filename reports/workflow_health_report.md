@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-14 15:07 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-14 19:44 CET (Europe/Berlin)
 
 **Workflows:** 34 | ✅ 34 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-⚠️ Commit: `a492f2a2735cf3b0d95d229867ce9d23e40233b0`
+⚠️ Commit: `33062da2fb380f036c6299768b54bd0effb3e601`
 
 490 Tests; 7 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=429), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=503), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='timeout'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='json'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema-items')
 
@@ -65,4 +65,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-14 15:07 CET (Europe/Berlin) | 34 Workflow-Dateien geprüft*
+*Generiert: 2026-11-14 19:44 CET (Europe/Berlin) | 34 Workflow-Dateien geprüft*
