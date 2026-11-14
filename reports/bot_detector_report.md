@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-14 19:23 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-14 20:23 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,174,034** |
-| Neu (heute) | **+85** |
-| Entfernt | **-78** |
+| Gesamt IPs | **1,174,028** |
+| Neu (heute) | **+35** |
+| Entfernt | **-41** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 44 |
@@ -25,9 +25,9 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,478 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,795 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,673 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,456 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 535 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,614 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,059 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 556 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,041 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,010 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,195 |
@@ -49,9 +49,9 @@
 | ✅ `mohammedcha_proxripper_socks4` | 112,611 |
 | ✅ `mohammedcha_proxripper_http` | 117,424 |
 | ✅ `mohammedcha_proxripper_socks5` | 118,366 |
-| ✅ `dinoz0rg_proxy_list` | 91,815 |
-| ✅ `dinoz0rg_proxy_list_http` | 1,212 |
-| ✅ `dinoz0rg_proxy_list_socks5` | 94,803 |
+| ✅ `dinoz0rg_proxy_list` | 91,780 |
+| ✅ `dinoz0rg_proxy_list_http` | 1,592 |
+| ✅ `dinoz0rg_proxy_list_socks5` | 94,760 |
 | ✅ `ian_lusule_proxies` | 2,753 |
 | ✅ `ian_lusule_proxies_socks5` | 1,295 |
 | ✅ `configserverapps_service_blocklists_attacks_bots` | 3,142 |
@@ -62,11 +62,11 @@
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,099 |
 | ✅ `claudiusdecimius_ioc_ipsets_tor_exits` | 1,259 |
 | ✅ `claudiusdecimius_ioc_ipsets_sblam` | 1,147 |
-| ✅ `telekom_security_listbot` | 519 |
+| ✅ `telekom_security_listbot` | 521 |
 
 ---
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 > Diese 44 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-14 19:23 CET (Europe/Berlin)*
+*Generiert: 2026-11-14 20:23 CET (Europe/Berlin)*
