@@ -1,5 +1,5 @@
 # Honigtopf – Report
-**Aktualisiert:** 2026-11-14 18:36 CET (Berlin)  
+**Aktualisiert:** 2026-11-14 19:39 CET (Berlin)  
 **Modus:** `LIGHT` (nur /bad-hosts, merged mit existing)
 
 ---
@@ -14,7 +14,7 @@
 ---
 ## Freshness (liefert die API wirklich neue Daten?)
 
-🔴 **EINGEFROREN** – seit **8** Läufen identische Roh-Daten (letzte Änderung: 2026-11-14 07:52 CET (Berlin)).
+🔴 **EINGEFROREN** – seit **9** Läufen identische Roh-Daten (letzte Änderung: 2026-11-14 07:52 CET (Berlin)).
 
 ---
 ## Endpunkte & Ergebnisse
@@ -46,13 +46,13 @@
 | Bad Hosts – Oracle | **0** |
 | Bad Hosts – Memcached | **0** |
 | Bad Hosts – BitcoinRPC.dash | **0** |
-| Bad Hosts – MoneroRPC.wallet | **0** |
 | Bad Hosts – LDAP | **0** |
+| Bad Hosts – MoneroRPC.wallet | **0** |
 | Bad Hosts – BitcoinRPC | **0** |
-| Bad Hosts – IPP | **0** |
 | Bad Hosts – BitcoinRPC.litecoin | **0** |
 | Bad Hosts – BitcoinRPC.dogecoin | **0** |
 | Bad Hosts – RAW | **0** |
+| Bad Hosts – IPP | **0** |
 | Bad Hosts – HashCountRandom | **0** |
 | Bad Hosts – Modbus | **0** |
 | Bad Hosts – Electrum | **0** |
@@ -76,8 +76,8 @@
 | Bad Hosts – SolanaRPC | **0** |
 | Bad Hosts – BeaconAPI.keymanager | **0** |
 | Bad Hosts – SubstrateRPC.legacy | **0** |
-| Bad Hosts – BitcoinRPC.zcash | **0** |
 | Bad Hosts – Echo | **0** |
+| Bad Hosts – BitcoinRPC.zcash | **0** |
 
 ---
 ## Feed-Frische – /bad-hosts (last_seen)
@@ -102,4 +102,4 @@ Davon **heute (2026-11-14)**: **0** IPs
 > ℹ️ Die IPs werden automatisch vom **update_combined_blacklist**-Workflow eingelesen.
 
 ---
-*Generiert: 2026-11-14 18:36 CET (Berlin)*
+*Generiert: 2026-11-14 19:39 CET (Berlin)*
