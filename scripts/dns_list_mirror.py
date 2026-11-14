@@ -222,14 +222,14 @@ def fetch_threatfox_csv(keys: list[str], retries: int = 3, timeout: int = 60) ->
                 print(f"  FEHLER threatfox: kein gueltiges ZIP (Key #{key_idx}) - Key pruefen")
                 break
             except Exception as err:  # Netzwerkfehler, Timeouts
-                print(f"  FEHLER threatfox (Key #{key_idx}, Versuch {attempt}/{retries}): {err}")
+                print(f"  FEHLER threatfox (Key #{key_idx}, Versuch {attempt}/{retries}): {type(err).__name__}")
             if attempt < retries:
                 time.sleep(2 ** attempt)
     return None
 
 
 def write_domain_list(name: str, filename: str, title: str, source: str,
-                      domains: set[str], now_str: str) -> bool:
+                      domains: set[str], now_str: str, refresh_timestamp: bool = False) -> bool:
     """Schreibt die Liste atomar - oder behaelt die alte bei zu wenig Eintraegen."""
     path = os.path.join(OUT_DIR, filename)
     minimum = MIN_ENTRIES[name]
@@ -237,13 +237,14 @@ def write_domain_list(name: str, filename: str, title: str, source: str,
         print(f"::warning ::{filename}: nur {len(domains)} Domains (< {minimum}) - "
               f"bestehende Datei bleibt unveraendert")
         return False
-    # Nur schreiben, wenn sich der Inhalt geaendert hat. Sonst wuerde allein
+    # ThreatFox aktualisiert den Abruf-Zeitstempel auch bei gleichem Inhalt.
+    # Sonst nur schreiben, wenn sich der Inhalt geaendert hat. Sonst wuerde allein
     # die "Aktualisiert"-Zeile bei jedem (stuendlichen) Lauf einen Commit
     # erzeugen und die Git-Historie unnoetig aufblaehen.
     if os.path.exists(path):
         with open(path, encoding="utf-8") as handle:
             existing = {ln.strip() for ln in handle if ln.strip() and not ln.startswith("#")}
-        if existing == domains:
+        if existing == domains and not refresh_timestamp:
             print(f"  {filename}: unveraendert ({len(domains)} Domains) - kein Schreiben")
             return True
     os.makedirs(OUT_DIR, exist_ok=True)
@@ -258,6 +259,7 @@ def write_domain_list(name: str, filename: str, title: str, source: str,
     write_text_atomic(path, "\n".join(header + sorted(domains)) + "\n")
     print(f"  {filename}: {len(domains)} Domains geschrieben")
     return True
+
 
 
 def main() -> int:
@@ -303,7 +305,7 @@ def main() -> int:
                     "threatfox", "threatfox_domains.txt",
                     f"ThreatFox Domain-IOCs (abuse.ch, Confidence >= {THREATFOX_MIN_CONFIDENCE})",
                     "https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)",
-                    tf_domains, now_str)
+                    tf_domains, now_str, refresh_timestamp=True)
 
     ok = [name for name, done in results.items() if done]
     print(f"\nFERTIG: {len(ok)}/{len(results)} Listen aktualisiert ({', '.join(ok) or '-'})")
