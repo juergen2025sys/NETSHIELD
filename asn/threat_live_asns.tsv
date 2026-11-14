@@ -1,4 +1,0 @@
-announced_prefix	origin_asns	threatcluster_ips	threat_live_ips	additional_threat_live_ips	firewall_coverage
-45.115.26.0/24	AS199457	1	17	17	not_checked
-167.148.201.0/24	AS135392	1	2	2	not_checked
-178.16.54.0/24	AS6461	1	2	2	not_checked
