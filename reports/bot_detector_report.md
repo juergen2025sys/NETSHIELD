@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-14 06:10 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-14 07:52 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,176,526** |
-| Neu (heute) | **+135** |
-| Entfernt | **-107** |
+| Gesamt IPs | **1,173,890** |
+| Neu (heute) | **+13,062** |
+| Entfernt | **-15,698** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 44 |
@@ -21,13 +21,13 @@
 |---|---|
 | ✅ `turntuptechnologies_iocs_scanner` | 101 |
 | ✅ `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | 74,995 |
-| ✅ `openprx_prx_sd_signatures` | 137,807 |
+| ✅ `openprx_prx_sd_signatures` | 136,349 |
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,479 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,795 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,849 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,875 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 507 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,346 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 2,560 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 425 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,041 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,005 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,195 |
@@ -49,9 +49,9 @@
 | ✅ `mohammedcha_proxripper_socks4` | 112,558 |
 | ✅ `mohammedcha_proxripper_http` | 116,874 |
 | ✅ `mohammedcha_proxripper_socks5` | 118,280 |
-| ✅ `dinoz0rg_proxy_list` | 91,819 |
-| ✅ `dinoz0rg_proxy_list_http` | 1,985 |
-| ✅ `dinoz0rg_proxy_list_socks5` | 94,787 |
+| ✅ `dinoz0rg_proxy_list` | 91,835 |
+| ✅ `dinoz0rg_proxy_list_http` | 1,717 |
+| ✅ `dinoz0rg_proxy_list_socks5` | 94,794 |
 | ✅ `ian_lusule_proxies` | 3,185 |
 | ✅ `ian_lusule_proxies_socks5` | 1,533 |
 | ✅ `configserverapps_service_blocklists_attacks_bots` | 3,142 |
@@ -69,4 +69,4 @@
 > Diese 44 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-14 06:10 CET (Europe/Berlin)*
+*Generiert: 2026-11-14 07:52 CET (Europe/Berlin)*
