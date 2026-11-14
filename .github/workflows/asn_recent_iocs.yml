@@ -1,0 +1,58 @@
+name: ASN Malware and C2 IPs
+
+on:
+  schedule:
+    - cron: '35 5 * * *'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: none
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  asn-recent-iocs:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Aktuelle Malware- und C2-IP-Adressen zuordnen
+        run: |
+          mkdir -p asn
+          python3 scripts/asn_recent_iocs.py asn
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add asn/asn_recent_iocs_ipv4.txt asn/asn_recent_iocs_ipv6.txt asn/asn_recent_iocs.tsv
+          if git diff --staged --quiet; then
+            echo "Keine inhaltlichen Aenderungen"
+            git reset -q
+            exit 0
+          fi
+          git commit -m "ASN IOC: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
+          for attempt in 1 2 3 4 5; do
+            git fetch origin "${GITHUB_REF_NAME}" && git rebase -X theirs "origin/${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && { echo "Push erfolgreich (Versuch $attempt)"; exit 0; }
+            git rebase --abort 2>/dev/null || true
+            sleep $((attempt * 3))
+          done
+          echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+          exit 1
+
+
