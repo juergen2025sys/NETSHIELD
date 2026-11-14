@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-14 19:44 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-14 23:57 CET (Europe/Berlin)
 
 **Workflows:** 34 | ✅ 34 OK | ⚠️ 2 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-⚠️ Commit: `33062da2fb380f036c6299768b54bd0effb3e601`
+⚠️ Commit: `7818e27ea75ec6dea623becd0508c5499b91adf3`
 
 490 Tests; 7 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=429), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=503), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='timeout'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='json'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema-items')
 
@@ -37,7 +37,7 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `dependabot-auto-merge.yml` | ✅ OK | 0 | 0 | – |
 | `dependabot-heal-conflicts.yml` | ✅ OK | 0 | 0 | `17 4 * * *` |
 | `dns_blocklist_finder.yml` | ✅ OK | 0 | 0 | `15 4 * * *` |
-| `dns_list_mirror.yml` | ✅ OK | 0 | 0 | `35 1,7,13,19 * * *` |
+| `dns_list_mirror.yml` | ✅ OK | 0 | 0 | `35 * * * *` |
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `feed_ip_finder.yml` | ✅ OK | 0 | 0 | – |
@@ -65,4 +65,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-14 19:44 CET (Europe/Berlin) | 34 Workflow-Dateien geprüft*
+*Generiert: 2026-11-14 23:57 CET (Europe/Berlin) | 34 Workflow-Dateien geprüft*

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-14 19:44 CET (Europe/Berlin)",
+  "updated": "2026-11-14 23:57 CET (Europe/Berlin)",
   "total": 34,
   "ok": 34,
   "warn": 2,
@@ -19,7 +19,7 @@
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "33062da2fb380f036c6299768b54bd0effb3e601",
+    "sha": "7818e27ea75ec6dea623becd0508c5499b91adf3",
     "status": "warning",
     "tests_run": 490,
     "failures": [
@@ -39,12 +39,12 @@
     "detail": "490 Tests; 7 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=429), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=503), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='timeout'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='json'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema-items')"
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5840071,
-    "active_blacklist_ipv4.txt": 441013,
-    "blacklist_confidence40_ipv4_part1.txt": 4047096,
+    "combined_threat_blacklist_ipv4_part1.txt": 5846848,
+    "active_blacklist_ipv4.txt": 453392,
+    "blacklist_confidence40_ipv4_part1.txt": 4053031,
     "cve_exploit_ips.txt": 28980,
-    "honeypot_ips.txt": 2153299,
-    "bot_detector_blacklist_ipv4.txt": 1174034
+    "honeypot_ips.txt": 2152238,
+    "bot_detector_blacklist_ipv4.txt": 1173961
   },
   "production_health": {
     "critical": 0,
