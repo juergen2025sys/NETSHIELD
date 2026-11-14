@@ -244,6 +244,9 @@ def write_domain_list(name: str, filename: str, title: str, source: str,
     if os.path.exists(path):
         with open(path, encoding="utf-8") as handle:
             existing = {ln.strip() for ln in handle if ln.strip() and not ln.startswith("#")}
+        added = len(domains - existing)
+        removed = len(existing - domains)
+        print(f"  {filename}: Vergleich zur bisherigen Liste: +{added} neu, -{removed} entfernt")
         if existing == domains and not refresh_timestamp:
             print(f"  {filename}: unveraendert ({len(domains)} Domains) - kein Schreiben")
             return True
@@ -257,7 +260,7 @@ def write_domain_list(name: str, filename: str, title: str, source: str,
         "",
     ]
     write_text_atomic(path, "\n".join(header + sorted(domains)) + "\n")
-    print(f"  {filename}: {len(domains)} Domains geschrieben")
+    print(f"  {filename}: {len(domains)} Domains geschrieben (Abrufzeit, nicht Quell-Datenstand)")
     return True
 
 
