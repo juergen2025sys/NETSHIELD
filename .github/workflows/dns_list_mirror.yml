@@ -47,6 +47,8 @@ jobs:
         env:
           THREATFOX_AUTH_KEY: ${{ secrets.THREATFOX_AUTH_KEY }}
           THREATFOX_AUTH_KEY_2: ${{ secrets.THREATFOX_AUTH_KEY_2 }}
+          THREATFOX_AUTH_KEY_3: ${{ secrets.THREATFOX_AUTH_KEY_3 }}
+          THREATFOX_AUTH_KEY_4: ${{ secrets.THREATFOX_AUTH_KEY_4 }}
         run: python3 -u scripts/dns_list_mirror.py
 
       - name: Commit
