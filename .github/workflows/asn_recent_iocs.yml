@@ -40,7 +40,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add asn/asn_recent_iocs_ipv4.txt asn/asn_recent_iocs_ipv6.txt asn/asn_recent_iocs.tsv
+          git add asn/asn_recent_iocs_ipv4.txt asn/asn_recent_iocs_ipv6.txt asn/asn_recent_iocs.tsv asn/threat_live_asns.tsv
           if git diff --staged --quiet; then
             echo "Keine inhaltlichen Aenderungen"
             git reset -q
@@ -54,5 +54,6 @@ jobs:
           done
           echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
           exit 1
+
 
 
