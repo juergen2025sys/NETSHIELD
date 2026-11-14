@@ -237,8 +237,7 @@ def write_domain_list(name: str, filename: str, title: str, source: str,
         print(f"::warning ::{filename}: nur {len(domains)} Domains (< {minimum}) - "
               f"bestehende Datei bleibt unveraendert")
         return False
-    # ThreatFox aktualisiert den Abruf-Zeitstempel auch bei gleichem Inhalt.
-    # Sonst nur schreiben, wenn sich der Inhalt geaendert hat. Sonst wuerde allein
+    # Nur schreiben, wenn sich der Inhalt geaendert hat. Sonst wuerde allein
     # die "Aktualisiert"-Zeile bei jedem (stuendlichen) Lauf einen Commit
     # erzeugen und die Git-Historie unnoetig aufblaehen.
     if os.path.exists(path):
@@ -308,7 +307,7 @@ def main() -> int:
                     "threatfox", "threatfox_domains.txt",
                     f"ThreatFox Domain-IOCs (abuse.ch, Confidence >= {THREATFOX_MIN_CONFIDENCE})",
                     "https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)",
-                    tf_domains, now_str, refresh_timestamp=True)
+                    tf_domains, now_str)
 
     ok = [name for name, done in results.items() if done]
     print(f"\nFERTIG: {len(ok)}/{len(results)} Listen aktualisiert ({', '.join(ok) or '-'})")
