@@ -6478,6 +6478,28 @@ jobs:
             --repo "${{ github.repository }}" \
             --ref "${GITHUB_REF_NAME}"
 
+      - name: Trigger ASN-DROP und DNS List Mirror
+        # 2026-11-14: Nach jedem echten Combined-Lauf (alle 3 h) auch die
+        # ASN-DROP-Liste (asn/) und die DNS-Spiegel (dns/) neu bauen, damit
+        # beide nicht nur 1x taeglich bzw. alle 6 h aktualisiert werden.
+        # Gleiches Muster wie der Confidence-Trigger oben (workflow_dispatch
+        # via gh, weil workflow_run in diesem Repo nicht zuverlaessig feuert).
+        # Beide Workflows committen nur bei inhaltlichen Aenderungen, ihre
+        # eigenen Crons bleiben als Fallback bestehen.
+        # continue-on-error: ein fehlgeschlagener Trigger darf den bereits
+        # erfolgreich gepushten Combined-Lauf nicht rot faerben.
+        if: always() && steps.commit_push.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for wf in asn_drop.yml dns_list_mirror.yml; do
+            echo "Triggere $wf"
+            gh workflow run "$wf" \
+              --repo "${{ github.repository }}" \
+              --ref "${GITHUB_REF_NAME}" || echo "::warning::Trigger fuer $wf fehlgeschlagen"
+          done
+
       # FIX JOB-STEP-TIMING-2026-08-14: Die Phasen-Tabelle oben deckt nur den
       # einen grossen Python-Step ab ("Fetch, discover, learn and build IPv4
       # lists"). Die umliegenden Steps (Checkout, Cache Restore/Save, Backup,
