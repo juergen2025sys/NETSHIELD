@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-14 04:02 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-14 06:10 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,176,498** |
-| Neu (heute) | **+282** |
-| Entfernt | **-276** |
+| Gesamt IPs | **1,176,526** |
+| Neu (heute) | **+135** |
+| Entfernt | **-107** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 44 |
@@ -25,8 +25,8 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,479 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,795 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,070 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,278 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,849 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,875 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 507 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,041 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,005 |
@@ -45,10 +45,10 @@
 | ✅ `gitrecon1455_fresh_proxy_list` | 216,665 |
 | ✅ `noctiro_getproxy` | 4,373 |
 | ✅ `noctiro_getproxy_socks5` | 6,580 |
-| ✅ `mohammedcha_proxripper` | 53,460 |
-| ✅ `mohammedcha_proxripper_socks4` | 112,519 |
-| ✅ `mohammedcha_proxripper_http` | 116,963 |
-| ✅ `mohammedcha_proxripper_socks5` | 118,273 |
+| ✅ `mohammedcha_proxripper` | 53,065 |
+| ✅ `mohammedcha_proxripper_socks4` | 112,558 |
+| ✅ `mohammedcha_proxripper_http` | 116,874 |
+| ✅ `mohammedcha_proxripper_socks5` | 118,280 |
 | ✅ `dinoz0rg_proxy_list` | 91,819 |
 | ✅ `dinoz0rg_proxy_list_http` | 1,985 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 94,787 |
@@ -69,4 +69,4 @@
 > Diese 44 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-14 04:02 CET (Europe/Berlin)*
+*Generiert: 2026-11-14 06:10 CET (Europe/Berlin)*
