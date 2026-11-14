@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-14 17:51 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-14 19:23 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,174,027** |
-| Neu (heute) | **+39** |
-| Entfernt | **-39** |
+| Gesamt IPs | **1,174,034** |
+| Neu (heute) | **+85** |
+| Entfernt | **-78** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 44 |
@@ -25,9 +25,9 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,478 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,795 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,748 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,084 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 492 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,673 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,456 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 535 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,041 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,010 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,195 |
@@ -45,10 +45,10 @@
 | ✅ `gitrecon1455_fresh_proxy_list` | 216,674 |
 | ✅ `noctiro_getproxy` | 4,474 |
 | ✅ `noctiro_getproxy_socks5` | 6,307 |
-| ✅ `mohammedcha_proxripper` | 52,138 |
-| ✅ `mohammedcha_proxripper_socks4` | 112,636 |
-| ✅ `mohammedcha_proxripper_http` | 116,657 |
-| ✅ `mohammedcha_proxripper_socks5` | 118,506 |
+| ✅ `mohammedcha_proxripper` | 52,981 |
+| ✅ `mohammedcha_proxripper_socks4` | 112,611 |
+| ✅ `mohammedcha_proxripper_http` | 117,424 |
+| ✅ `mohammedcha_proxripper_socks5` | 118,366 |
 | ✅ `dinoz0rg_proxy_list` | 91,815 |
 | ✅ `dinoz0rg_proxy_list_http` | 1,212 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 94,803 |
@@ -69,4 +69,4 @@
 > Diese 44 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-14 17:51 CET (Europe/Berlin)*
+*Generiert: 2026-11-14 19:23 CET (Europe/Berlin)*
