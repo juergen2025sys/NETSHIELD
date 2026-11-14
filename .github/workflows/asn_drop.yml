@@ -38,15 +38,19 @@ jobs:
           persist-credentials: true
 
       - name: ASN-DROP holen und aufloesen
-        run: python3 -I scripts/asn_drop_build.py .
+        run: |
+          mkdir -p asn
+          python3 -I scripts/asn_drop_build.py asn
 
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add asn_drop_ipv4.txt asn_drop_ipv6.txt asn_drop_asns.txt
+          # Umzug in den Unterordner asn/: alte Dateien im Hauptverzeichnis entfernen (idempotent)
+          git rm -q --ignore-unmatch asn_drop_ipv4.txt asn_drop_ipv6.txt asn_drop_asns.txt
+          git add asn/asn_drop_ipv4.txt asn/asn_drop_ipv6.txt asn/asn_drop_asns.txt
           # Nur committen, wenn sich ausser der Zeitstempel-Zeile etwas geaendert hat
-          if git diff --staged --quiet || [ -z "$(git diff --staged -U0 | grep -E '^[+-][^#+-]')" ]; then
+          if git diff --staged --quiet || [ -z "$(git diff --staged --no-renames -U0 | grep -E '^[+-][^#+-]')" ]; then
             echo "Keine inhaltlichen Aenderungen"
             git reset -q
             exit 0
