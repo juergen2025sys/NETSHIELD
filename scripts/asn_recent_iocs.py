@@ -18,7 +18,7 @@ THREAT_LIVE = 'https://list.threat.live/'
 CATEGORIES = {'c2', 'malware', 'botnet', 'ransomware'}
 
 
-def select_iocs(raw, now):
+def select_iocs(raw, now, days=7):
     reader = csv.DictReader(StringIO(raw))
     required = {'value', 'confidence', 'last_seen', 'categories'}
     if not required <= set(reader.fieldnames or []):
@@ -33,7 +33,7 @@ def select_iocs(raw, now):
             continue
         last_seen = datetime.fromisoformat(row['last_seen'].replace('Z', '+00:00'))
         address = ipaddress.ip_address(row['value'])
-        if address.is_global and not address.is_multicast and now - timedelta(days=7) <= last_seen <= now:
+        if address.is_global and not address.is_multicast and now - timedelta(days=days) <= last_seen <= now:
             selected.add(address)
     if not rows:
         raise ValueError('ThreatCluster returned no rows')
@@ -41,7 +41,7 @@ def select_iocs(raw, now):
 
 
 def attribute(address):
-    response = json.loads(fetch(NETWORK_INFO + str(address), timeout=12, tries=2))
+    response = json.loads(fetch(NETWORK_INFO + str(address), timeout=20, tries=3))
     if response.get('status') != 'ok':
         raise ValueError(f'RIPEstat lookup failed for {address}')
     data = response['data']
@@ -52,75 +52,52 @@ def attribute(address):
     return address, asns, prefix or ''
 
 
-def threat_live_report(records, coverage=None):
-    listed = set()
-    for line in fetch(THREAT_LIVE).splitlines():
-        value = line.partition('#')[0].strip()
-        if value:
-            listed.add(ipaddress.ip_address(value))
+def threat_live_prefixes(records):
+    listed = {ipaddress.ip_address(value) for line in fetch(THREAT_LIVE).splitlines()
+              if (value := line.partition('#')[0].strip())}
     if not listed:
         raise ValueError('Threat.live returned no IPs')
 
-    grouped = {}
+    networks = set()
     for address, asns, prefix in records:
         if asns and prefix:
-            key = ipaddress.ip_network(prefix)
-            group = grouped.setdefault(key, (set(), set()))
-            group[0].add(address)
-            group[1].update(asns.split(','))
+            announced = ipaddress.ip_network(prefix)
+            minimum = 24 if address.version == 4 else 48
+            networks.add(ipaddress.ip_network((address, max(minimum, announced.prefixlen)), strict=False))
+    additional = listed - {address for address, _, _ in records}
+    candidates = [
+        network for network in networks
+        if sum(ip.version == network.version and ip in network for ip in additional) >= 2
+    ]
+    print(f'Threat.live: {len(candidates)} prefixes included in blocklists')
+    return candidates
 
-    output = StringIO()
-    writer = csv.writer(output, delimiter='\t', lineterminator='\n')
-    writer.writerow(('announced_prefix', 'origin_asns', 'threatcluster_ips',
-                     'threat_live_ips', 'additional_threat_live_ips', 'firewall_coverage'))
-    candidates = 0
-    for network, (iocs, asns) in grouped.items():
-        hits = {ip for ip in listed if ip.version == network.version and ip in network}
-        additional = hits - iocs
-        if len(additional) < 2:
-            continue
-        status = 'not_checked'
-        if coverage is not None:
-            same_version = coverage[network.version]
-            status = ('full' if any(network.subnet_of(n) for n in same_version)
-                      else 'partial' if any(network.overlaps(n) for n in same_version)
-                      else 'none')
-        writer.writerow((network, ','.join(sorted(asns)), len(iocs), len(hits),
-                         len(additional), status))
-        candidates += 1
-    print(f'Threat.live: {candidates} candidate prefixes')
-    return output.getvalue()
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('output', type=Path)
-    parser.add_argument('--firewall-prefixes', type=Path,
-                        help='Optional text export of active firewall block prefixes')
     args = parser.parse_args()
-    coverage = None
-    if args.firewall_prefixes:
-        networks = [ipaddress.ip_network(line) for raw in args.firewall_prefixes.read_text().splitlines()
-                    if (line := raw.partition('#')[0].strip())]
-        coverage = {v: list(ipaddress.collapse_addresses(n for n in networks if n.version == v))
-                    for v in (4, 6)}
-    addresses = select_iocs(fetch(FEED), datetime.now(timezone.utc))
+    raw = fetch(FEED)
+    now = datetime.now(timezone.utc)
+    addresses = select_iocs(raw, now)
+    prefix_seeds = select_iocs(raw, now, days=30)
     with ThreadPoolExecutor(max_workers=6) as pool:
-        records = list(pool.map(attribute, addresses))
+        records = list(pool.map(attribute, prefix_seeds))
 
     args.output.mkdir(parents=True, exist_ok=True)
     report = StringIO()
     writer = csv.writer(report, delimiter='\t', lineterminator='\n')
     writer.writerow(('ip', 'origin_asns', 'announced_prefix'))
-    writer.writerows(records)
-    outputs = {
-        'asn_recent_iocs.tsv': report.getvalue(),
-        'threat_live_asns.tsv': threat_live_report(records, coverage),
-    }
+    recent_addresses = set(addresses)
+    writer.writerows(row for row in records if row[0] in recent_addresses)
+    outputs = {'asn_recent_iocs.tsv': report.getvalue()}
+    prefixes = threat_live_prefixes(records)
     for version in (4, 6):
-        # Collapse only adjacent observed addresses. No unobserved IP is added.
-        networks = ipaddress.collapse_addresses(ip for ip in addresses if ip.version == version)
+        entries = [ip for ip in addresses if ip.version == version]
+        entries.extend(network for network in prefixes if network.version == version)
+        networks = ipaddress.collapse_addresses(entries)
         outputs[f'asn_recent_iocs_ipv{version}.txt'] = (
-            '# Source: ThreatCluster | high confidence | last seen within 7 days\n'
+            '# Sources: ThreatCluster IPs (7 days) and BGP prefixes corroborated by Threat.live (30-day ThreatCluster window)\n'
             + ''.join(f'{network}\n' for network in networks)
         )
     for name, content in outputs.items():
@@ -128,14 +105,11 @@ def main():
         temporary = target.with_suffix(target.suffix + '.tmp')
         temporary.write_text(content, encoding='utf-8', newline='\n')
         temporary.replace(target)
-    print(f'{len(records)} recent IPs, {sum(bool(row[1]) for row in records)} with origin ASN')
+    print(f'{len(addresses)} recent IPs, {len(records)} IPs checked for prefix matches')
 
 
 if __name__ == '__main__':
     main()
-
-
-
 
 
 
