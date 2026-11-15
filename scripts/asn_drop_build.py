@@ -31,6 +31,9 @@ einschliesslich AS9009 M247) - diese werden NICHT uebernommen, weil sie sonst
 grosse Teile des Internets sperren. Uebernommen wird nur der zweite Teil
 (ueberwiegend Bulletproof-/Graue Hoster) ab dem Eintrag NACH AS9009. Fehlt die
 Markierung AS9009 (Dateiaufbau geaendert), wird Maltrail komplett ausgelassen.
+
+Dritte Zusatzquelle (seit 2026-11-15): Bulletproof Hosting Watch (ai.rud.is),
+woechentlicher Bericht - die ASN-Tabelle des jeweils neuesten Berichts.
 """
 import csv
 import datetime
@@ -57,6 +60,40 @@ BPH_SKIP_STATUS = ('dissolved', 'seized', 'dormant')
 BPH_ASN_RE = re.compile(r'(?<![A-Za-z0-9-])AS(\d{1,10})\b')
 # Bewusst KEINE Ausnahmeliste (Nutzerentscheidung 2026-11-15): was Spamhaus oder
 # BPH_Research (T1/T2) als kriminell fuehrt, wird gesperrt - ohne Sonderregeln.
+
+
+# Dritte Zusatzquelle (seit 2026-11-15, Nutzerentscheidung): "Bulletproof
+# Hosting Watch" (ai.rud.is) - woechentlicher Bericht ueber beobachtete
+# Bulletproof-Hoster. Uebernommen wird die Tabelle des NEUESTEN Berichts
+# (erste Spalte = ASN). Erscheint ein neuer Bericht, wird er automatisch
+# genommen. Faellt die Seite aus -> Warnung, Build laeuft ohne sie weiter.
+BPHW_INDEX = 'https://ai.rud.is/posts/'
+BPHW_POST_RE = re.compile(r'/posts/(\d{4}-\d{2}-\d{2}-weekly-bulletproof-report)/?')
+BPHW_ROW_RE = re.compile(r'(?s)<tr>\s*<td[^>]*>\s*(?:<[^>]+>\s*)*AS(\d{1,10})\b(.*?)</tr>')
+BPHW_MIN_ROWS = 5            # weniger Zeilen -> Seitenaufbau geaendert, Quelle auslassen
+
+
+def load_bph_watch():
+    """ASNs aus dem neuesten Bulletproof-Hosting-Watch-Bericht: ({asn: name}, datum); ({}, None) bei Fehler."""
+    try:
+        posts = sorted(set(BPHW_POST_RE.findall(fetch(BPHW_INDEX))), reverse=True)
+        if not posts:
+            print('::warning::Bulletproof Hosting Watch: kein Bericht gefunden - ausgelassen')
+            return {}, None
+        html = fetch(BPHW_INDEX + posts[0] + '/')
+        out = {}
+        for m in BPHW_ROW_RE.finditer(html):
+            cells = [c.strip() for c in re.sub(r'<[^>]+>', '|', m.group(2)).split('|') if c.strip()]
+            a = int(m.group(1))
+            if 0 < a < 4200000000:
+                out.setdefault(a, cells[0] if cells else '')
+        if len(out) < BPHW_MIN_ROWS:
+            print('::warning::Bulletproof Hosting Watch: nur %d ASNs - Seitenaufbau geaendert, ausgelassen' % len(out))
+            return {}, None
+        return out, posts[0][:10]
+    except Exception as e:
+        print('::warning::Bulletproof Hosting Watch nicht ladbar (%s) - ohne diese Quelle weiter' % e)
+        return {}, None
 
 
 MALTRAIL_URL = 'https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt'
@@ -234,6 +271,12 @@ def main():
     print('Maltrail worst_asns: %d ASNs (Teil 2) | davon neu ggue. Spamhaus+BPH: %d'
           % (len(mt), len(mt_new)))
 
+    bw, bw_date = load_bph_watch()
+    bw_new = {a: n for a, n in bw.items() if a not in asns}
+    for a, name in bw_new.items():
+        asns[a] = {'asn': a, 'cc': '', 'asname': name, 'domain': 'Bulletproof Hosting Watch %s' % bw_date}
+    print('Bulletproof Hosting Watch (%s): %d ASNs | davon neu: %d' % (bw_date, len(bw), len(bw_new)))
+
     man_new = {a: n for a, n in MANUAL_ASNS.items() if a not in asns}
     for a, name in man_new.items():
         asns[a] = {'asn': a, 'cc': '', 'asname': name, 'domain': 'eigene Auswertung 2026-11-15'}
@@ -306,10 +349,12 @@ def main():
             '# Quelle ASNs: %s (Stand Spamhaus: %s)\n'
             '# Zusatz-ASNs: %s (MIT; T1/T2, ohne Upstream/aufgeloest)\n'
             '# Zusatz-ASNs: %s (nur Teil 2, ohne grosse Hoster)\n'
+            '# Zusatz-ASNs: %s (Bulletproof Hosting Watch, Bericht %s)\n'
             '# Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)\n'
-            '# Aktualisiert: %s | ASNs: %d (Spamhaus %d + BPH %d + Maltrail %d + eigene %d + ThreatFox %d, aktiv: %d)\n'
-            % (SPAMHAUS_URL, meta.get('timestamp'), BPH_URL, MALTRAIL_URL, now, len(asns),
-               n_spamhaus, len(bph_new), len(mt_new), len(man_new), len(tf_new), active))
+            '# Aktualisiert: %s | ASNs: %d (Spamhaus %d + BPH %d + Maltrail %d + BPH-Watch %d + eigene %d'
+            ' + ThreatFox %d, aktiv: %d)\n'
+            % (SPAMHAUS_URL, meta.get('timestamp'), BPH_URL, MALTRAIL_URL, BPHW_INDEX, bw_date, now, len(asns),
+               n_spamhaus, len(bph_new), len(mt_new), len(bw_new), len(man_new), len(tf_new), active))
 
     def write(name, body):
         tmp = os.path.join(OUT_DIR, name + '.tmp')
