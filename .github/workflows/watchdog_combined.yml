@@ -539,11 +539,11 @@ jobs:
           # FIX HONIGTOPF-2H (2026-11-15): Honigtopf laeuft nur noch alle 2 h
           # (cron '0 */2'). Slot-Takt 120 kann die Slot-Logik unten nicht
           # abbilden (>=60 wird als stuendlich behandelt) -> Takt 0 = nur
-          # Max-Age. Honigtopf laeuft alle 40 min (FIX CRON-40MIN). Nachgeholt
-          # wird, wenn > 55 min kein Erfolg (40 min + 15 min Puffer). GitHub
-          # verwirft geplante Slots oft komplett (beobachtet 15.11.2026 08:00
-          # UTC inkl. Backups) - dann holt der Watchdog nach.
-          ZIELE="honigtopf.yml|0|0|0|55|
+          # Max-Age. FIX REPORT-TAKT (2026-11-15): Honigtopf wird stuendlich
+          # vom Report Generator angestossen (Gate 50 min) -> Nachholen erst,
+          # wenn > 75 min kein Erfolg (60 min + 15 min Puffer). GitHub
+          # verwirft geplante Slots oft komplett - dann holt der Watchdog nach.
+          ZIELE="honigtopf.yml|0|0|0|75|
           netshield_report_generator.yml|60|30|25|150|
           honeypot_monitor.yml|0|0|0|420|
           update_bot_detector.yml|0|0|0|1560|"

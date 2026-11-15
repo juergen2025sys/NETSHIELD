@@ -722,3 +722,22 @@ jobs:
           gh workflow run dns_list_mirror.yml \
             --repo "${{ github.repository }}" \
             --ref "${GITHUB_REF_NAME}"
+
+      - name: Trigger Honigtopf
+        # 2026-11-15 (Nutzerwunsch): Der Report laeuft stuendlich zuverlaessiger
+        # als der Honigtopf-Cron (GitHub verwirft dessen Slots oft). Daher
+        # stoesst der Report den Honigtopf an - mit von_report=true. Der
+        # Honigtopf-Gate ueberspringt dann, wenn sein letzter Erfolg weniger
+        # als 50 min her ist -> hoechstens ein Voll-Lauf pro Stunde.
+        # continue-on-error: ein fehlgeschlagener Trigger darf den Report
+        # nicht rot faerben.
+        if: success() && steps.freshness.outputs.proceed == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Report abgeschlossen - triggere Honigtopf"
+          gh workflow run honigtopf.yml \
+            --repo "${{ github.repository }}" \
+            --ref "${GITHUB_REF_NAME}" \
+            -f von_report=true

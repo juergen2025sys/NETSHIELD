@@ -63,27 +63,27 @@ on:
     # 12 Voll-Laeufe/Tag x ~58 = ~700 Requests/Tag -> passt mit 1 Credential.
     # Die Report-Piggyback-Laeufe (workflow_run) bleiben Light (1 Request).
     # Backup-Slots +5/+10 min bleiben; der 12-min-Gate unten verhindert Doppellaeufe.
-    # FIX CRON-40MIN (2026-11-15, Nutzerwunsch): alle 40 Minuten, abseits der
-    # vollen Stunde (dort verwirft GitHub die meisten Slots, beobachtet
-    # 15.11. 08:00 UTC inkl. Backups) und abseits Combined (:07/:27/:47).
-    # Cron kennt kein "alle 40 min" ueber Stundengrenzen - daher 3 Zeilen,
-    # die zusammen 00:17, 00:57, 01:37, 02:17, 02:57, 03:37 ... ergeben.
-    # KONTINGENT: 36 Laeufe/Tag x ~58 Requests = ~2.100 Requests/Tag.
-    # Das braucht MINDESTENS 3 funktionierende Community-Credentials
-    # (3 x 1.000/Tag). Mit nur 2 gueltigen Keys ist das Kontingent abends
-    # erschoepft (HTTP 402). Ausfaelle holt watchdog_combined.yml nach.
-    - cron: '17 0-23/2 * * *'   # gerade Stunden  :17
-    - cron: '57 0-23/2 * * *'   # gerade Stunden  :57
-    - cron: '37 1-23/2 * * *'   # ungerade Stunden :37
+    # FIX REPORT-TAKT (2026-11-15, Nutzerwunsch): Hauptausloeser ist jetzt der
+    # NETSHIELD Report Generator (stuendlich, Step "Trigger Honigtopf" mit
+    # von_report=true). Der Gate unten laesst dann nur durch, wenn der letzte
+    # Erfolg >= 50 min her ist -> max. 1 Voll-Lauf pro Stunde
+    # (~24 x 58 = ~1.400 HoneyDB-Requests/Tag, passt mit 2 Credentials).
+    # Der Cron hier ist nur noch Fallback (alle 2 h, abseits der vollen
+    # Stunde, weil GitHub dort die meisten Slots verwirft).
+    - cron: '17 */2 * * *'      # Fallback: 00:17, 02:17, 04:17 ... UTC
   workflow_dispatch:
     inputs:
       force_light:
         description: "Light-Lauf erzwingen (nur /bad-hosts, merged mit existing), unabhaengig vom verbleibenden Budget. Vom Watchdog genutzt, damit ein dispatch-Trigger die Liste NICHT auf den 24h-Snapshot schrumpft. Ohne diesen Input entscheidet auch ein manueller dispatch budget-basiert (siehe schedule-Kommentar oben)."
         type: boolean
         default: false
-  workflow_run:
-    workflows: ["NETSHIELD Report Generator"]
-    types: [completed]
+      von_report:
+        description: "Vom Report Generator angestossen: nur laufen, wenn der letzte Erfolg >= 50 min her ist (stuendlicher Takt)."
+        type: boolean
+        default: false
+  # FIX REPORT-TAKT (2026-11-15): workflow_run-Piggyback entfernt. Er feuerte
+  # nicht, wenn der Report per workflow_dispatch (GITHUB_TOKEN) lief, und haette
+  # als Light-Lauf den 50-min-Gate des expliziten Report-Triggers ausgehebelt.
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -138,9 +138,13 @@ jobs:
         id: recent
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VON_REPORT: ${{ github.event.inputs.von_report }}
         run: |
           if [ "${GITHUB_EVENT_NAME}" = "workflow_run" ]; then
             FENSTER_MIN=45
+          elif [ "${VON_REPORT}" = "true" ]; then
+            # FIX REPORT-TAKT: stuendlicher Takt ueber den Report-Trigger
+            FENSTER_MIN=50
           else
             FENSTER_MIN=12
           fi
@@ -411,6 +415,28 @@ jobs:
           # Eigenschaften haben. Erst ein 402 auf dem tatsaechlich benoetigten
           # Daten-Endpunkt fuehrt zur Laufzeit-Quarantaene.
           _disabled_402_credentials = set()
+
+          # FIX KEY-STATUS-LOG (2026-11-15, Nutzerwunsch): Am Ende JEDES Laufs
+          # (auch bei sys.exit/Abbruch, daher atexit) den Status aller
+          # HoneyDB-Credentials in eine Datei schreiben. Der Shell-Teil nach
+          # dem Python-Block gibt daraus einen gut sichtbaren Block im Log aus
+          # und meldet ::error, wenn KEINE Credential mehr funktioniert.
+          def _write_key_status():
+              try:
+                  _rows = []
+                  for _c in credential_status:
+                      _lab = _c["label"]
+                      if _lab in _runtime_invalid_credentials or _c.get("ok") is False:
+                          _st = "GESPERRT (HTTP 401/403 - Key ungueltig)"
+                      elif _lab in _disabled_402_credentials:
+                          _st = "GESPERRT (HTTP 402 - Tarif/Tageskontingent)"
+                      else:
+                          _st = "OK"
+                      _rows.append(f"{_lab}|{_st}")
+                  write_text_atomic("/tmp/honigtopf_key_status.txt", "\n".join(_rows) + "\n")
+              except Exception as _e:  # Diagnose darf den Lauf nie stoeren
+                  print(f"  (Key-Status-Datei nicht geschrieben: {_e})")
+          _atexit.register(_write_key_status)
 
           # Rotations-Zeiger: zeigt auf die als naechstes zu nutzende Credential.
           # Wird bei jeder Anfrage um 1 weitergedreht (Round-Robin), sodass sich
@@ -1068,6 +1094,27 @@ jobs:
           fi
           echo "invalid_creds=${INVALID_CREDS}" >> "$GITHUB_OUTPUT"
           rm -f /tmp/honigtopf_invalid_creds.txt
+
+          # FIX KEY-STATUS-LOG: gut sichtbarer Key-Status-Block im Log
+          if [ -f /tmp/honigtopf_key_status.txt ]; then
+            echo ""
+            echo "=================== HONEYDB-KEY-STATUS ==================="
+            KEYS_TOTAL=0; KEYS_OK=0
+            while IFS='|' read -r lab st; do
+              [ -z "$lab" ] && continue
+              KEYS_TOTAL=$((KEYS_TOTAL + 1))
+              case "$st" in OK) KEYS_OK=$((KEYS_OK + 1)); echo "  [OK]       $lab";; *) echo "  [GESPERRT] $lab - $st";; esac
+            done < /tmp/honigtopf_key_status.txt
+            echo "  -> $KEYS_OK von $KEYS_TOTAL Keys funktionieren"
+            if [ "$KEYS_TOTAL" -gt 0 ] && [ "$KEYS_OK" -eq 0 ]; then
+              echo "  !!! ALLE HONEYDB-KEYS GESPERRT - keine neuen Honigtopf-Daten !!!"
+              echo "::error title=HoneyDB-Keys gesperrt::Alle ${KEYS_TOTAL} HoneyDB-Keys gesperrt (402/401/403). Neue Keys als Secrets HONEYDB_API_ID_N/HONEYDB_API_KEY_N eintragen."
+            elif [ "$KEYS_OK" -lt "$KEYS_TOTAL" ]; then
+              echo "::warning title=HoneyDB-Keys::Nur ${KEYS_OK} von ${KEYS_TOTAL} HoneyDB-Keys funktionieren."
+            fi
+            echo "=========================================================="
+            rm -f /tmp/honigtopf_key_status.txt
+          fi
 
           exit "$PY_EXIT"
 
