@@ -224,6 +224,7 @@ def parse_threatfox_ips(text: str, min_confidence: int = THREATFOX_MIN_CONFIDENC
                 if int(row[idx_conf].strip()) < min_confidence:
                     continue
             except ValueError:
+                # Leere oder nicht numerische Confidence: IOC trotzdem uebernehmen
                 pass
         value = row[idx_value].strip().strip('"').rsplit(":", 1)[0]
         try:

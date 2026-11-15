@@ -112,7 +112,8 @@ def threatfox_candidates():
     if not os.path.exists(TF_IPS_FILE):
         print('::warning::%s fehlt - ThreatFox-Auswertung uebersprungen' % TF_IPS_FILE)
         return {}
-    ips = [l.strip() for l in open(TF_IPS_FILE) if l.strip() and not l.startswith('#')]
+    with open(TF_IPS_FILE, encoding='utf-8') as handle:
+        ips = [l.strip() for l in handle if l.strip() and not l.startswith('#')]
     db = None
     for url in TF_ASNDB_URLS:
         try:
