@@ -6478,7 +6478,7 @@ jobs:
             --repo "${{ github.repository }}" \
             --ref "${GITHUB_REF_NAME}"
 
-      - name: Trigger ASN-DROP und DNS List Mirror
+      - name: Trigger DNS List Mirror (startet danach ASN-DROP)
         # 2026-11-14: Nach jedem echten Combined-Lauf (alle 3 h) auch die
         # ASN-DROP-Liste (asn/) und die DNS-Spiegel (dns/) neu bauen, damit
         # beide nicht nur 1x taeglich bzw. alle 6 h aktualisiert werden.
@@ -6493,7 +6493,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for wf in asn_drop.yml dns_list_mirror.yml; do
+          # 2026-11-15: ASN-DROP wird jetzt vom DNS List Mirror gestartet, sobald
+          # dieser frische ThreatFox-C2-IPs gepusht hat (richtige Reihenfolge).
+          for wf in dns_list_mirror.yml; do
             echo "Triggere $wf"
             gh workflow run "$wf" \
               --repo "${{ github.repository }}" \

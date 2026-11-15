@@ -10,6 +10,11 @@ name: DNS List Mirror
 # netshield_report_generator.yml (expliziter workflow_dispatch via gh, wie
 # Bot-Detector/Honeypot Monitor/Auto-Feed Refresh - workflow_run feuert in
 # diesem Repo nicht zuverlaessig). Der Cron unten ist nur Fallback.
+#
+# REIHENFOLGE (2026-11-15): Dieser Workflow holt die ThreatFox-ZIP und schreibt
+# dns/threatfox_c2_ips.txt. Hat sich diese Datei geaendert, startet er danach
+# ASN-DROP (asn_drop.yml), damit die ASN-Auswertung immer die frischen C2-IPs
+# nutzt. Combined startet deshalb nur noch diesen Workflow, nicht mehr ASN-DROP.
 on:
   schedule:
     # Fallback stuendlich um :35 UTC - abseits der Combined-Slots
@@ -22,7 +27,7 @@ env:
 
 permissions:
   contents: write
-  actions: read
+  actions: write    # noetig fuer 'gh workflow run asn_drop.yml' am Ende
   issues: none
   packages: none
   pull-requests: none
@@ -53,11 +58,16 @@ jobs:
         run: python3 -u scripts/dns_list_mirror.py
 
       - name: Commit
+        id: commit
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add dns/ 2>/dev/null || true
+          if git diff --staged --name-only | grep -q '^dns/threatfox_c2_ips.txt$'; then
+            echo "c2_changed=true" >> "$GITHUB_OUTPUT"
+            echo "ThreatFox-C2-IPs geaendert - ASN-DROP wird danach gestartet"
+          fi
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -88,3 +98,16 @@ jobs:
             echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
             exit 1
           fi
+
+      - name: Trigger ASN-DROP
+        # Nur wenn neue ThreatFox-C2-IPs erfolgreich gepusht wurden. So wertet
+        # ASN-DROP immer die frische Liste aus und laeuft nicht unnoetig.
+        if: steps.commit.outcome == 'success' && steps.commit.outputs.c2_changed == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Neue C2-IPs gepusht - triggere ASN-DROP"
+          gh workflow run asn_drop.yml \
+            --repo "${{ github.repository }}" \
+            --ref "${GITHUB_REF_NAME}"
