@@ -1,8 +1,8 @@
 {
-  "updated": "2026-11-15 08:48 CET (Europe/Berlin)",
+  "updated": "2026-11-15 15:44 CET (Europe/Berlin)",
   "total": 34,
-  "ok": 34,
-  "warn": 2,
+  "ok": 33,
+  "warn": 3,
   "error": 0,
   "errors": [],
   "warnings": [
@@ -15,11 +15,16 @@
       "file": "asn_drop.yml + dns_blocklist_finder.yml",
       "check": "Cron-Kollision",
       "detail": "'15 4 * * *' \u2013 beide Workflows laufen gleichzeitig"
+    },
+    {
+      "file": "netshield_report_generator.yml",
+      "check": "continue-on-error aktiv",
+      "detail": "continue-on-error=true gesetzt \u2013 Fehler k\u00f6nnen still bleiben; Review ob das wirklich beabsichtigt ist"
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "ca037603376ebf68f9dfd01ff32677ac3828a491",
+    "sha": "0567d37acc52c3128ac2c792ff0daa8bd33bc01e",
     "status": "warning",
     "tests_run": 490,
     "failures": [
@@ -39,12 +44,12 @@
     "detail": "490 Tests; 7 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=429), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=503), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='timeout'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='json'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema-items')"
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5840516,
-    "active_blacklist_ipv4.txt": 399864,
-    "blacklist_confidence40_ipv4_part1.txt": 4046746,
-    "cve_exploit_ips.txt": 28944,
-    "honeypot_ips.txt": 2148258,
-    "bot_detector_blacklist_ipv4.txt": 1173480
+    "combined_threat_blacklist_ipv4_part1.txt": 5849605,
+    "active_blacklist_ipv4.txt": 412856,
+    "blacklist_confidence40_ipv4_part1.txt": 4052791,
+    "cve_exploit_ips.txt": 28983,
+    "honeypot_ips.txt": 2148812,
+    "bot_detector_blacklist_ipv4.txt": 1173704
   },
   "production_health": {
     "critical": 0,
