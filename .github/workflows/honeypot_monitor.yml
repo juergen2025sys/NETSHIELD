@@ -42,8 +42,7 @@ jobs:
           SNIFFCAT_TOKEN_2: ${{ secrets.SNIFFCAT_TOKEN_2 }}
           SNIFFCAT_TOKEN_3: ${{ secrets.SNIFFCAT_TOKEN_3 }}
           SNIFFCAT_TOKEN_4: ${{ secrets.SNIFFCAT_TOKEN_4 }}
-          THREATFOX_AUTH_KEY: ${{ secrets.THREATFOX_AUTH_KEY }}
-          THREATFOX_AUTH_KEY_2: ${{ secrets.THREATFOX_AUTH_KEY_2 }}
+          THREATFOX_SECRETS_JSON: ${{ toJSON(secrets) }}
           REPORTEDIP_KEY: ${{ secrets.REPORTEDIP_KEY }}
           REPORTEDIP_KEY_2: ${{ secrets.REPORTEDIP_KEY_2 }}
         run: |
@@ -992,9 +991,33 @@ jobs:
           # der ThreatFox-Key steckt in der URL statt in einem Header ->
           # eigene Kandidaten-Liste statt Header-Dict. Reihenfolge = Prioritaet
           # (Primaer-Key zuerst), leere/nicht gesetzte Keys werden gefiltert.
-          THREATFOX_AUTH_KEY   = os.environ.get("THREATFOX_AUTH_KEY", "").strip()
-          THREATFOX_AUTH_KEY_2 = os.environ.get("THREATFOX_AUTH_KEY_2", "").strip()
-          THREATFOX_KEYS = [k for k in (THREATFOX_AUTH_KEY, THREATFOX_AUTH_KEY_2) if k]
+          def threatfox_keys(environ=None):
+              """Read all numbered API keys from Actions secrets or environment."""
+              import json
+              import os
+              import re
+
+              env = os.environ if environ is None else environ
+              pattern = re.compile(r"THREATFOX_AUTH_KEY(?:_([0-9]+))?\Z")
+              candidates = {}
+              raw = env.get("THREATFOX_SECRETS_JSON", "")
+              if raw:
+                  try:
+                      values = json.loads(raw)
+                  except (ValueError, TypeError):
+                      raise ValueError("THREATFOX_SECRETS_JSON ist kein gueltiges JSON") from None
+                  if not isinstance(values, dict):
+                      raise ValueError("THREATFOX_SECRETS_JSON muss ein JSON-Objekt sein")
+                  candidates.update(values)
+              candidates.update({k: v for k, v in env.items() if pattern.fullmatch(k)})
+              numbered = []
+              for name, value in candidates.items():
+                  match = pattern.fullmatch(name)
+                  if match and isinstance(value, str) and value.strip():
+                      numbered.append((int(match.group(1)) if match.group(1) else 1, name, value.strip()))
+              numbered.sort(key=lambda item: (item[0], item[1]))
+              return list(dict.fromkeys(value for _, _, value in numbered))
+          THREATFOX_KEYS = threatfox_keys()
           if not THREATFOX_KEYS:
               print("  SKIP threatfox_export: THREATFOX_AUTH_KEY nicht gesetzt – "
                     "GitHub-Secret fehlt")
