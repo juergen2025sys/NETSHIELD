@@ -1,8 +1,8 @@
 # NETSHIELD - Spamhaus ASN-DROP (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794659204)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794722204)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-14 13:00 UTC | ASNs: 455 (aktiv: 274)
-# IPv6-Netze: 454
+# Aktualisiert: 2026-11-15 06:27 UTC | ASNs: 455 (aktiv: 281)
+# IPv6-Netze: 453
 
 2001:470:491::/48
 2001:470:526::/48
@@ -96,8 +96,7 @@
 2602:fa59:9::/48
 2602:fa59:10::/45
 2602:fa59:18::/47
-2602:fa59:20::/46
-2602:fa59:24::/47
+2602:fa59:20::/45
 2602:fa59:28::/48
 2602:fa5d::/45
 2602:fa5d:8::/47
