@@ -55,6 +55,31 @@ jobs:
           THREATFOX_AUTH_KEY_3: ${{ secrets.THREATFOX_AUTH_KEY_3 }}
           THREATFOX_AUTH_KEY_4: ${{ secrets.THREATFOX_AUTH_KEY_4 }}
           THREATFOX_AUTH_KEY_5: ${{ secrets.THREATFOX_AUTH_KEY_5 }}
+          THREATFOX_AUTH_KEY_6: ${{ secrets.THREATFOX_AUTH_KEY_6 }}
+          THREATFOX_AUTH_KEY_7: ${{ secrets.THREATFOX_AUTH_KEY_7 }}
+          THREATFOX_AUTH_KEY_8: ${{ secrets.THREATFOX_AUTH_KEY_8 }}
+          THREATFOX_AUTH_KEY_9: ${{ secrets.THREATFOX_AUTH_KEY_9 }}
+          THREATFOX_AUTH_KEY_10: ${{ secrets.THREATFOX_AUTH_KEY_10 }}
+          THREATFOX_AUTH_KEY_11: ${{ secrets.THREATFOX_AUTH_KEY_11 }}
+          THREATFOX_AUTH_KEY_12: ${{ secrets.THREATFOX_AUTH_KEY_12 }}
+          THREATFOX_AUTH_KEY_13: ${{ secrets.THREATFOX_AUTH_KEY_13 }}
+          THREATFOX_AUTH_KEY_14: ${{ secrets.THREATFOX_AUTH_KEY_14 }}
+          THREATFOX_AUTH_KEY_15: ${{ secrets.THREATFOX_AUTH_KEY_15 }}
+          THREATFOX_AUTH_KEY_16: ${{ secrets.THREATFOX_AUTH_KEY_16 }}
+          THREATFOX_AUTH_KEY_17: ${{ secrets.THREATFOX_AUTH_KEY_17 }}
+          THREATFOX_AUTH_KEY_18: ${{ secrets.THREATFOX_AUTH_KEY_18 }}
+          THREATFOX_AUTH_KEY_19: ${{ secrets.THREATFOX_AUTH_KEY_19 }}
+          THREATFOX_AUTH_KEY_20: ${{ secrets.THREATFOX_AUTH_KEY_20 }}
+          THREATFOX_AUTH_KEY_21: ${{ secrets.THREATFOX_AUTH_KEY_21 }}
+          THREATFOX_AUTH_KEY_22: ${{ secrets.THREATFOX_AUTH_KEY_22 }}
+          THREATFOX_AUTH_KEY_23: ${{ secrets.THREATFOX_AUTH_KEY_23 }}
+          THREATFOX_AUTH_KEY_24: ${{ secrets.THREATFOX_AUTH_KEY_24 }}
+          THREATFOX_AUTH_KEY_25: ${{ secrets.THREATFOX_AUTH_KEY_25 }}
+          THREATFOX_AUTH_KEY_26: ${{ secrets.THREATFOX_AUTH_KEY_26 }}
+          THREATFOX_AUTH_KEY_27: ${{ secrets.THREATFOX_AUTH_KEY_27 }}
+          THREATFOX_AUTH_KEY_28: ${{ secrets.THREATFOX_AUTH_KEY_28 }}
+          THREATFOX_AUTH_KEY_29: ${{ secrets.THREATFOX_AUTH_KEY_29 }}
+          THREATFOX_AUTH_KEY_30: ${{ secrets.THREATFOX_AUTH_KEY_30 }}
         run: python3 -u scripts/dns_list_mirror.py
 
       - name: Commit
