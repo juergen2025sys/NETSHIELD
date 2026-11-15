@@ -83,6 +83,21 @@ def load_maltrail():
         return {}
 
 
+# Eigene Auswertung (2026-11-15): kleine Hoster mit sehr hoher Dichte an
+# Malware-IPs, die (noch) bei keiner der drei Quellen stehen. Feste Liste,
+# wird NICHT automatisch aktualisiert. Tor-Betreiber und Internet-Scanner
+# (Censys, Modat, BitSight) sind bewusst nicht dabei.
+MANUAL_ASNS = {
+    198075: 'BounceZero Ltd', 270353: 'Tyna Host', 60567: 'SIA RixHost',
+    203557: 'SIA RixHost', 48721: 'Flyservers S.A.', 197194: 'Kayan Establishment',
+    208690: 'JeskeSolutions LTDA', 272547: 'Servicos de Infraestrutura e Datacenter',
+    48874: 'HOSTMAZE INC SRL-D', 40861: 'Paradise Networks LLC',
+    215929: 'Data Campus Limited', 212512: 'Detai Prosperous Technologies',
+    61254: 'ESTOXY OU', 214218: 'PE Mironova Lyudmila', 64107: 'RACK SPHERE HOSTING',
+    401739: 'RedLuff LLC',
+}
+
+
 def load_bph():
     """ASNs aus BPH_Research: {asn: (provider, risk_tier, status)}; {} bei Fehler."""
     try:
@@ -154,6 +169,11 @@ def main():
     print('Maltrail worst_asns: %d ASNs (Teil 2) | davon neu ggue. Spamhaus+BPH: %d'
           % (len(mt), len(mt_new)))
 
+    man_new = {a: n for a, n in MANUAL_ASNS.items() if a not in asns}
+    for a, name in man_new.items():
+        asns[a] = {'asn': a, 'cc': '', 'asname': name, 'domain': 'eigene Auswertung 2026-11-15'}
+    print('Eigene Auswertung: %d ASNs | davon neu: %d' % (len(MANUAL_ASNS), len(man_new)))
+
     def resolve(asn):
         try:
             txt = fetch(IPVERSE_URL % asn)
@@ -201,9 +221,9 @@ def main():
             '# Zusatz-ASNs: %s (MIT; T1/T2, ohne Upstream/aufgeloest)\n'
             '# Zusatz-ASNs: %s (nur Teil 2, ohne grosse Hoster)\n'
             '# Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)\n'
-            '# Aktualisiert: %s | ASNs: %d (Spamhaus %d + BPH %d + Maltrail %d, aktiv: %d)\n'
+            '# Aktualisiert: %s | ASNs: %d (Spamhaus %d + BPH %d + Maltrail %d + eigene %d, aktiv: %d)\n'
             % (SPAMHAUS_URL, meta.get('timestamp'), BPH_URL, MALTRAIL_URL, now, len(asns),
-               n_spamhaus, len(bph_new), len(mt_new), active))
+               n_spamhaus, len(bph_new), len(mt_new), len(man_new), active))
 
     def write(name, body):
         tmp = os.path.join(OUT_DIR, name + '.tmp')
