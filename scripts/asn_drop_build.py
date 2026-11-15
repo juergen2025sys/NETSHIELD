@@ -97,7 +97,7 @@ def load_maltrail():
 # TF_MODE = 'report': nur Kandidatenliste asn/threatfox_asn_kandidaten.txt
 #                     schreiben, NICHT sperren (erst pruefen).
 # TF_MODE = 'block':  Kandidaten zusaetzlich in die Sperrliste aufnehmen.
-TF_MODE = 'report'
+TF_MODE = 'block'   # Nutzerentscheidung 2026-11-15: direkt automatisch sperren
 TF_IPS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            'dns', 'threatfox_c2_ips.txt')
 TF_ASNDB_URLS = ('https://cdn.jsdelivr.net/npm/@ip-location-db/asn/asn-ipv4.csv',
