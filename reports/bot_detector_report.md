@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-15 01:03 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-15 02:16 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,174,944** |
-| Neu (heute) | **+1,082** |
-| Entfernt | **-381** |
+| Gesamt IPs | **1,174,880** |
+| Neu (heute) | **+472,164** |
+| Entfernt | **-472,228** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 44 |
@@ -19,15 +19,15 @@
 
 | Quelle | IPs |
 |---|---|
-| ✅ `turntuptechnologies_iocs_scanner` | 101 |
+| ✅ `turntuptechnologies_iocs_scanner` | 140 |
 | ✅ `kraloveckey_ipsets_blocklist_r2_drop2_scanners` | 75,142 |
 | ✅ `openprx_prx_sd_signatures` | 136,349 |
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,478 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
-| ✅ `antoinevastel_avastel_bot_ips_lists` | 499,795 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 4,341 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,850 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 695 |
+| ✅ `antoinevastel_avastel_bot_ips_lists` | 499,803 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,796 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,176 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 649 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,041 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,010 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,195 |
@@ -57,7 +57,7 @@
 | ✅ `configserverapps_service_blocklists_attacks_bots` | 2,096 |
 | ✅ `configserverapps_service_blocklists_botscout_30d` | 2,823 |
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,633 |
-| ✅ `hookzof_socks5_list` | 4,746 |
+| ✅ `hookzof_socks5_list` | 4,753 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 3,572 |
 | ✅ `claudiusdecimius_ioc_ipsets_myip` | 1,099 |
 | ✅ `claudiusdecimius_ioc_ipsets_tor_exits` | 1,259 |
@@ -69,4 +69,4 @@
 > Diese 44 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-15 01:03 CET (Europe/Berlin)*
+*Generiert: 2026-11-15 02:16 CET (Europe/Berlin)*
