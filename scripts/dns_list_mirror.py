@@ -103,7 +103,7 @@ THREATFOX_READ_LIMIT = 150 * 1024 * 1024  # wie honeypot_monitor.yml
 # alle Schluessel im Rate-Limit (HTTP 429). Gemessen wird am Zeitstempel in
 # dns/threatfox_last_fetch.txt, der bei JEDEM erfolgreichen Abruf geschrieben
 # wird (die Listen selbst werden nur bei Inhaltsaenderung neu geschrieben).
-THREATFOX_MIN_AGE_HOURS = 2
+THREATFOX_MIN_AGE_HOURS = 1.75   # 1 h 45 min: Laeufe kurz vor 2 h (z. B. 1 h 58 min) sollen trotzdem laden
 THREATFOX_STAMP_FILE = "threatfox_last_fetch.txt"
 
 DOMAIN_RE = re.compile(
