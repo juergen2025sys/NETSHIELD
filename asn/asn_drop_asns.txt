@@ -1,9 +1,9 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794740204)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794743804)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-15 11:22 UTC | ASNs: 587 (Spamhaus 454 + BPH 37 + Maltrail 96, aktiv: 363)
+# Aktualisiert: 2026-11-15 12:17 UTC | ASNs: 603 (Spamhaus 454 + BPH 37 + Maltrail 96 + eigene 16, aktiv: 379)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS2601	UA	RADIOLINK-AS	pitline.net
@@ -66,6 +66,7 @@ AS39798			Maltrail worst_asns
 AS40065			Maltrail worst_asns
 AS40193	US	AS-TRIT	trit.net
 AS40665	US	SPCTR	spectrenetworks.net
+AS40861		Paradise Networks LLC	eigene Auswertung 2026-11-15
 AS40963	UA	PRAID-AS	bignet.ua
 AS41155	TR	orbitdc	orbittelekom.com
 AS42192	JP	India	idodns.com
@@ -103,6 +104,8 @@ AS48198	UA	AVTOTRANS-EURO-AS	avtotrans
 AS48214	IR	GAJNET-CDN-IRAN	lordvps.net
 AS48589	GB	TIGER	imtigernet
 AS48693	RU	NTSERVICE-AS	ntup.net
+AS48721		Flyservers S.A.	eigene Auswertung 2026-11-15
+AS48874		HOSTMAZE INC SRL-D	eigene Auswertung 2026-11-15
 AS49418	UA	AS-NETSHIELD	chosting.solutions
 AS49443	MD	Contrust-Solutions	kontrast.md
 AS49453			Maltrail worst_asns
@@ -147,7 +150,9 @@ AS58961	ID	OPENIP-AS	klikindonesia.or.id
 AS59425	HK	HORIZONMSK-AS	changway.hk
 AS59651	RU	AS-QualityNetwork	fineproxy.org
 AS59683	RU	iridatelecom	vip-net.net
+AS60567		SIA RixHost	eigene Auswertung 2026-11-15
 AS60842	RU	HUIZE-HOLDINGS-AS	62yun.com
+AS61254		ESTOXY OU	eigene Auswertung 2026-11-15
 AS61336		Zservers	BPH_Research T1-Confirmed BPH / sanctioned
 AS61432	UA	VAIZ-AS	link-host.com
 AS61879	BR	América_Latina_Educacional_Adm._e_Serviços_LTDA	aleducacional.com.br
@@ -157,6 +162,7 @@ AS62380	RO	BUNEA-HIGH-PEER-NETWORK	bunea.eu
 AS62864	JP	NILAS	netinnovation.net
 AS63881	ID	MDI-AS-ID	medianetdigital.co
 AS64050	SG	BGNL-HK	bgp.net
+AS64107		RACK SPHERE HOSTING	eigene Auswertung 2026-11-15
 AS131388	VN	HTS-AS-VN	hts.vn
 AS131750	ID	SUFIANET-AS-ID	sufia.tv
 AS131831	KR	MNT-KRNIC-AP	nexon.co.kr
@@ -250,6 +256,7 @@ AS154177	CN	LIGHT4-AS-AP	kaopuyun.com
 AS154206	HK	CDN1COM-AS-AP	cloudie.hk
 AS197170	DE	TECHTIES-AS	hostslick.de
 AS197176	CN	KylieCDN-AS	kyliecdn
+AS197194		Kayan Establishment	eigene Auswertung 2026-11-15
 AS197283	UA	PowerRDP-Network-AS	powerrdp.pro
 AS197414		Zservers	BPH_Research T1-Confirmed BPH / sanctioned
 AS197450	TR	SUNUCUN	sunucun.com.tr
@@ -257,6 +264,7 @@ AS197555	IN	SMARTMIETEN	smartmieten.in
 AS197703		First Server Limited	BPH_Research T2-High Risk / flagged
 AS197769	US	VPSDEDICATED-AS	vpsdedicated.net
 AS198071	GB	BERCHSOLUTIONS-AS	berch.co.uk
+AS198075		BounceZero Ltd	eigene Auswertung 2026-11-15
 AS198189	GB	STEALTHVM	stealthvm.net
 AS198364			Maltrail worst_asns
 AS198375			Maltrail worst_asns
@@ -315,6 +323,7 @@ AS203154	RU	MITELIS-DOWNSTREAM	play2go.cloud
 AS203168			Maltrail worst_asns
 AS203273	RU	NetCraftersOU	aeza.net
 AS203319	RU	GIR-AS-1	gir.network
+AS203557		SIA RixHost	eigene Auswertung 2026-11-15
 AS203662			Maltrail worst_asns
 AS203727		Altawk (Daniil Yevchenko)	BPH_Research T2-High Risk / flagged
 AS203861	GB	SERVEREXPRESS-AS	netiface.co.uk
@@ -383,6 +392,7 @@ AS208312			Maltrail worst_asns
 AS208317	MD	Contrust-Solutions	kontrast.md
 AS208476			Maltrail worst_asns
 AS208525	HK	AIRULIMITED	cloudie.hk
+AS208690		JeskeSolutions LTDA	eigene Auswertung 2026-11-15
 AS208846	UA	ATOM3-AS	atom3.com.ua
 AS208962			Maltrail worst_asns
 AS209121	UA	NOVYTSKA-AS	liptel.net.ua
@@ -447,6 +457,7 @@ AS211955	RU	NOTBADHOSTING	notbad.cloud
 AS212017	ES	CUBILLO	cubilloconstrucciones.com
 AS212283	BG	ROZA-AS	rosa-holidays.com
 AS212448	TR	turkbil	turkbil.com.tr
+AS212512		Detai Prosperous Technologies	eigene Auswertung 2026-11-15
 AS212622	UA	LIVECOMM-AS	livecomm
 AS212651	UA	D-CONECT-AS	d-conect
 AS212666	TR	ipv4-net	eksenbilisim.com.tr
@@ -478,6 +489,7 @@ AS213921	GB	DA-MOTORS-AS	davidascottmotorsltd
 AS213995	RU	FROSTYHOSTING-AS	frostyhosting
 AS213999	MD	THE-CLIENTS	stark-industries.solutions
 AS214018	GB	IIC-AS	intintell.co.uk
+AS214218		PE Mironova Lyudmila	eigene Auswertung 2026-11-15
 AS214295		BtHoster	BPH_Research T1-Confirmed BPH / active
 AS214351	GB	FEMOIT	as214351.com
 AS214357	IR	First-Host	almaseabi.net
@@ -518,6 +530,7 @@ AS215789			Maltrail worst_asns
 AS215826		Altawk (Daniil Yevchenko)	BPH_Research T2-High Risk / flagged
 AS215828			Maltrail worst_asns
 AS215925	GB	VPSVAULTHOST	vpsvault.host
+AS215929		Data Campus Limited	eigene Auswertung 2026-11-15
 AS215930	IR	COD	almaseabi.net
 AS215987			Maltrail worst_asns
 AS216078	GB	KREMER-AS	snowcore.io
@@ -551,6 +564,8 @@ AS219509	DE	PRIVATESECTOR-AS	pfcloud.io
 AS266702	AR	MEGALINK_S.R.L.	nodonorte.net.ar
 AS266724	CL	MYRIAM_PILAR_ESCOBAR_VEGA_(DON_SERVER)	donserver.cl
 AS267784			Maltrail worst_asns
+AS270353		Tyna Host	eigene Auswertung 2026-11-15
+AS272547		Servicos de Infraestrutura e Datacenter	eigene Auswertung 2026-11-15
 AS327837	SC	SEY-IX-MANAGEMENT	seyix.sc
 AS327952	NG	AS-NATCOM	ntel.com.ng
 AS328095	ZA	BLUEGATE-EXCHANGE-AS	bluegate-exchange.co.za
@@ -587,6 +602,7 @@ AS401142	RO	ACERDP	acerdp.io
 AS401626	GB	NETIFACE-TORONTO	netiface.co.uk
 AS401696	HK	COGNETCLOUD	cognetcloud.com
 AS401701	HK	COGNETCLOUD-2	cognetcloud.com
+AS401739		RedLuff LLC	eigene Auswertung 2026-11-15
 AS402075	US	PEEKABO	securecommsgroup.xyz
 AS402253	KN	SKN-NETWORK-1	skntelecom.com
 AS402425			Maltrail worst_asns
