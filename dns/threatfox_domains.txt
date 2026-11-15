@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-15 10:49 CET
-# Eintraege: 30291
+# Aktualisiert: 2026-11-15 10:56 CET
+# Eintraege: 30294
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3205,6 +3205,7 @@ arabhmc.org
 arabicbet.casino
 arabs.promo
 arabtelemediaseries.com
+aradi777.org
 aragoniteforum.info
 araizx.com
 aramondi.it
@@ -9880,6 +9881,7 @@ fadoj.run
 fagaheestedlali.xyz
 faglobalenergy.com
 fagppnw.nasbt.com
+fahr-sulz.ch
 fahrzeugvergabe.de
 fahv2h6l.kimimaro-trance.com
 faircloud512421.buzz
@@ -18600,6 +18602,7 @@ o0irv3h9.ravabetensani.site
 o0o766h7.osbratstvojedinstvo.com
 o0wxi6dx.bodes.store
 o1n09oad7b170425rx.cfd
+o2.aradi777.org
 o26fc0qb.en-belly--flush.com
 o2w2806g.tagat120art.com
 o2yen35b.en-en--xenburn.com
