@@ -1,9 +1,9 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794749204)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794756404)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-15 13:41 UTC | ASNs: 647 (Spamhaus 454 + BPH 37 + Maltrail 96 + eigene 16 + ThreatFox 44, aktiv: 422)
+# Aktualisiert: 2026-11-15 16:01 UTC | ASNs: 647 (Spamhaus 454 + BPH 37 + Maltrail 96 + eigene 16 + ThreatFox 44, aktiv: 422)
 # IPv4-Netze: 7300
 
 1.32.192.0/18
