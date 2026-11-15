@@ -68,6 +68,13 @@ MIN_ENTRIES = {
 # ThreatFox: nur IOCs ab dieser Confidence (0-100) uebernehmen.
 THREATFOX_MIN_CONFIDENCE = 50
 THREATFOX_READ_LIMIT = 150 * 1024 * 1024  # wie honeypot_monitor.yml
+# 2026-11-15 (Nutzerentscheidung): ThreatFox-Export hoechstens alle 2 Stunden
+# laden. Grund: Bei stuendlichem Cron plus Combined- und Report-Trigger waren
+# alle Schluessel im Rate-Limit (HTTP 429). Gemessen wird am Zeitstempel in
+# dns/threatfox_last_fetch.txt, der bei JEDEM erfolgreichen Abruf geschrieben
+# wird (die Listen selbst werden nur bei Inhaltsaenderung neu geschrieben).
+THREATFOX_MIN_AGE_HOURS = 2
+THREATFOX_STAMP_FILE = "threatfox_last_fetch.txt"
 
 DOMAIN_RE = re.compile(
     r"^(?:[a-z0-9](?:[a-z0-9_-]{0,61}[a-z0-9])?\.)+"
@@ -305,6 +312,16 @@ def write_domain_list(name: str, filename: str, title: str, source: str,
 
 
 
+def threatfox_last_fetch_age(now: datetime) -> float | None:
+    """Stunden seit dem letzten erfolgreichen ThreatFox-Abruf (None = unbekannt)."""
+    try:
+        with open(os.path.join(OUT_DIR, THREATFOX_STAMP_FILE), encoding="utf-8") as handle:
+            stamp = datetime.fromisoformat(handle.read().strip())
+        return (now - stamp).total_seconds() / 3600
+    except (OSError, ValueError):
+        return None
+
+
 def main() -> int:
     now = datetime.now(timezone.utc)
     now_str = now.astimezone(ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d %H:%M %Z")
@@ -329,11 +346,20 @@ def main() -> int:
         key for name in key_names
         if (key := os.environ.get(name, "").strip())
     ))
+    age = threatfox_last_fetch_age(now)
     if not keys:
         print("::warning ::Keine THREATFOX_AUTH_KEY-Variable gesetzt - ThreatFox uebersprungen")
         results["threatfox"] = False
+    elif age is not None and 0 <= age < THREATFOX_MIN_AGE_HOURS:
+        print(f"  letzter ThreatFox-Abruf vor {age:.1f} h (< {THREATFOX_MIN_AGE_HOURS} h) - "
+              f"kein neuer Abruf (schont das Rate-Limit)")
+        results["threatfox"] = True
     else:
         csv_text = fetch_threatfox_csv(keys)
+        if csv_text is not None:
+            os.makedirs(OUT_DIR, exist_ok=True)
+            write_text_atomic(os.path.join(OUT_DIR, THREATFOX_STAMP_FILE),
+                              now.isoformat(timespec="seconds") + "\n")
         if csv_text is None:
             print("::warning ::ThreatFox-Export nicht ladbar - bestehende Datei bleibt")
             results["threatfox"] = False
