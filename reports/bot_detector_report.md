@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-15 14:55 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-15 16:57 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,173,704** |
-| Neu (heute) | **+39** |
-| Entfernt | **-37** |
+| Gesamt IPs | **1,173,683** |
+| Neu (heute) | **+91** |
+| Entfernt | **-112** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 41 |
@@ -25,9 +25,9 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,484 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,803 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,650 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 2,970 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 451 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,575 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,085 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 444 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,041 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,026 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,195 |
@@ -45,10 +45,10 @@
 | ✅ `gitrecon1455_fresh_proxy_list` | 216,586 |
 | ✅ `noctiro_getproxy` | 4,302 |
 | ✅ `noctiro_getproxy_socks5` | 6,320 |
-| ✅ `mohammedcha_proxripper` | 53,365 |
-| ✅ `mohammedcha_proxripper_socks4` | 112,830 |
-| ✅ `mohammedcha_proxripper_http` | 116,917 |
-| ✅ `mohammedcha_proxripper_socks5` | 118,595 |
+| ✅ `mohammedcha_proxripper` | 53,091 |
+| ✅ `mohammedcha_proxripper_socks4` | 112,770 |
+| ✅ `mohammedcha_proxripper_http` | 116,727 |
+| ✅ `mohammedcha_proxripper_socks5` | 118,219 |
 | ✅ `dinoz0rg_proxy_list` | 92,168 |
 | ✅ `dinoz0rg_proxy_list_http` | 1,530 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 95,120 |
@@ -57,7 +57,7 @@
 | ✅ `configserverapps_service_blocklists_attacks_bots` | 2,043 |
 | ✅ `configserverapps_service_blocklists_botscout_30d` | 2,809 |
 | ✅ `mitchellkrogza_nginx_ultimate_bad_bot_blocker` | 10,632 |
-| ✅ `hookzof_socks5_list` | 4,760 |
+| ✅ `hookzof_socks5_list` | 4,762 |
 | ✅ `claudiusdecimius_ioc_ipsets_socks_proxy_30d` | 3,659 |
 | ✅ `telekom_security_listbot` | 521 |
 
@@ -66,4 +66,4 @@
 > Diese 41 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-15 14:55 CET (Europe/Berlin)*
+*Generiert: 2026-11-15 16:57 CET (Europe/Berlin)*
