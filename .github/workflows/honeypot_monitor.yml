@@ -1059,6 +1059,10 @@ jobs:
                                   print(f"  HTTP {e.code} threatfox_export "
                                         f"(Key #{key_idx}) – {nxt}")
                                   break
+                              if e.code == 429:
+                                  # Rate-Limit: weitere Versuche mit demselben Key verschaerfen es nur
+                                  print(f"  HTTP 429 threatfox_export (Key #{key_idx}) – Rate-Limit, naechster Key")
+                                  break
                               print(f"  HTTP {e.code} threatfox_export "
                                     f"(Key #{key_idx}, Versuch {attempt}/{retries})")
                               if attempt < retries:
@@ -1076,8 +1080,26 @@ jobs:
                             f"alle {len(keys)} Key(s) fehlgeschlagen")
                   return None
 
-              tf_raw = _tf_fetch_binary(THREATFOX_KEYS)
-              if tf_raw is None:
+              # 2026-11-15: Der DNS List Mirror laedt den ThreatFox-Export bereits
+              # (hoechstens alle 1 h 45 min) und legt die C2-IPs (ip:port-IOCs) in
+              # dns/threatfox_c2_ips.txt ab. Diese Datei wird hier bevorzugt genutzt
+              # - so belastet der Honeypot Monitor das ThreatFox-Rate-Limit nicht
+              # zusaetzlich. Nur wenn sie fehlt/leer ist, wird selbst geladen.
+              _tf_local = "dns/threatfox_c2_ips.txt"
+              _tf_local_ips = set()
+              if os.path.exists(_tf_local):
+                  with open(_tf_local, encoding="utf-8") as _tf_fh:
+                      _tf_local_ips = {ln.strip() for ln in _tf_fh
+                                       if ln.strip() and not ln.startswith("#")
+                                       and is_valid_public_ipv4(ln.strip())}
+              tf_raw = None if _tf_local_ips else _tf_fetch_binary(THREATFOX_KEYS)
+              if _tf_local_ips:
+                  all_ips.update(_tf_local_ips)
+                  stats["threatfox_export"] = len(_tf_local_ips)
+                  feed_ip_sets["threatfox_export"] = _tf_local_ips
+                  print(f"  threatfox_export: {len(_tf_local_ips)} IPs aus {_tf_local} "
+                        f"(vom DNS List Mirror geladen, kein eigener API-Abruf)")
+              elif tf_raw is None:
                   stats["threatfox_export"] = 0
                   fetch_failed.add("threatfox_export")
                   print("  threatfox_export: FETCH FEHLGESCHLAGEN (None)")
