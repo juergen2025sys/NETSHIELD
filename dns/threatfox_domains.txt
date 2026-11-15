@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-15 09:23 CET
-# Eintraege: 30281
+# Aktualisiert: 2026-11-15 10:49 CET
+# Eintraege: 30291
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -8532,6 +8532,7 @@ dust.packetflow.cc
 dust3logicgate.sporesyncnode.garden
 dutchgp2020.com
 duwola.com
+dux.aprendizajeeslibertad.cl
 duxnluh.slimsplits.com
 dv.angsa44d.org
 dv1q7cal.eng-usa-nervealive.com
@@ -14351,6 +14352,7 @@ k.bob78.org
 k.d300m.org
 k.dak69.org
 k.dewii.net
+k.gg018.org
 k.upgrades.lat
 k.worldpress.biz
 k0.amanplya.org
@@ -19169,6 +19171,7 @@ osggwts6.fubet24.net
 osgmyjt.lampaoszlopbolt.hu
 osgyx.cn
 oshaduck123.duckdns.org
+osira.store
 osk9vrnj.usa-us-goldalign.com
 osl2rfoi.shopprincesshair.com
 osljzcm.salesventure.co
@@ -24073,6 +24076,7 @@ static.nvidiadrives.com
 static.quorashift.cc
 static.slbc7890.shop
 static.stacksupport.cc
+static.wanderreef37.wiki
 staticcloudflare.pro
 statifile.sbs
 station66.space
@@ -25636,6 +25640,7 @@ turbch.wiki
 turbeb.onl
 turbo-course.com
 turkeycovebc.org
+turquoise3860.workers.dev
 tusometech.com
 tutymart.com
 tuuik.com
@@ -28232,6 +28237,7 @@ www.ekramsalesbackup.org
 www.ekramsalesbackup1.org
 www.ekramsalesbackup2.org
 www.electricians-london.co.uk
+www.emagetranscripts.com
 www.encajesmecanicos.com
 www.epicly.digital
 www.eqtreporting.com
@@ -28245,10 +28251,12 @@ www.f168.today
 www.f5u-uhpdrtwj6azysqpud.net
 www.f9p0blhu2vw6rkwo.com
 www.faithpointum.org
+www.falgo.se
 www.family-funeral.icu
 www.ferienhaus-buenavista.de
 www.fideca.com
 www.finance77-laudantium.pro
+www.finestore.lk
 www.fingeruo8mind0.com
 www.firmaprincipal.store
 www.fixbug.icu
@@ -28268,6 +28276,7 @@ www.geostar.space
 www.gestorianaveiras.es
 www.geto.space
 www.getscalespilot.co
+www.go2fuzzy.de
 www.godschild20onyimaxduckdnsbackup.com
 www.godschild20onyimaxduckdnsbackup1.com
 www.godschild20onyimaxduckdnsbackup2.com
@@ -28281,6 +28290,7 @@ www.grantcampaignbackup1.store
 www.grantcampaignbackup2.store
 www.grillchefsecrets.com
 www.growinghealthyhair.com
+www.gsrunners.it
 www.gulfbridgerealtors.com
 www.gundemarsivi.com
 www.gxthienthan.vn
