@@ -101,7 +101,7 @@ TF_MODE = 'block'   # Nutzerentscheidung 2026-11-15: direkt automatisch sperren
 TF_IPS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            'dns', 'threatfox_c2_ips.txt')
 TF_ASNDB_URLS = ('https://cdn.jsdelivr.net/npm/@ip-location-db/asn/asn-ipv4.csv',
-                 'https://raw.githubusercontent.com/sapics/ip-location-db/main/asn/asn-ipv4.csv')
+                 'https://raw.githubusercontent.com/sapics/ip-location-db/main/dbip-asn/dbip-asn-ipv4.csv')
 TF_MAX_ADDR = 65536
 TF_MIN_IPS = 5
 TF_MIN_DENSITY = 0.0025   # mind. 1 C2-Server je 400 Adressen
