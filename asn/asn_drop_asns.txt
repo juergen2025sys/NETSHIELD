@@ -4,7 +4,7 @@
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-09)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-15 21:11 UTC | ASNs: 653 (Spamhaus 454 + BPH 37 + Maltrail 96 + BPH-Watch 6 + eigene 16 + ThreatFox 44, aktiv: 428)
+# Aktualisiert: 2026-11-15 21:12 UTC | ASNs: 653 (Spamhaus 454 + BPH 37 + Maltrail 96 + BPH-Watch 6 + eigene 16 + ThreatFox 44, aktiv: 428)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS2601	UA	RADIOLINK-AS	pitline.net
