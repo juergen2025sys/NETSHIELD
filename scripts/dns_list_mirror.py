@@ -322,9 +322,9 @@ def main() -> int:
             DANDELION_URL, parse_hosts_text(text), now_str)
 
     print("ThreatFox Domain-IOCs ...")
-    # Bis zu vier API-Keys in Reihenfolge verwenden (Failover bei 401/403/429).
+    # Bis zu fuenf API-Keys in Reihenfolge verwenden (Failover bei 401/403/429).
     key_names = ("THREATFOX_AUTH_KEY", "THREATFOX_AUTH_KEY_2",
-                 "THREATFOX_AUTH_KEY_3", "THREATFOX_AUTH_KEY_4")
+                 "THREATFOX_AUTH_KEY_3", "THREATFOX_AUTH_KEY_4", "THREATFOX_AUTH_KEY_5")
     keys = list(dict.fromkeys(
         key for name in key_names
         if (key := os.environ.get(name, "").strip())
