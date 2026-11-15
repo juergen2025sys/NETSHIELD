@@ -536,7 +536,11 @@ jobs:
           # weniger durchkommen) bleibt das im Rahmen; die Obergrenze
           # entspricht dem bereits in honigtopf.yml kalkulierten Fall
           # "jeder Slot faehrt Voll" (72 x 34 = 2.448/Tag).
-          ZIELE="honigtopf.yml|20|0|12|90|
+          # FIX HONIGTOPF-2H (2026-11-15): Honigtopf laeuft nur noch alle 2 h
+          # (cron '0 */2'). Slot-Takt 120 kann die Slot-Logik unten nicht
+          # abbilden (>=60 wird als stuendlich behandelt) -> Takt 0 = nur
+          # Max-Age. Nachgeholt wird erst, wenn > 150 min kein Erfolg.
+          ZIELE="honigtopf.yml|0|0|0|150|
           netshield_report_generator.yml|60|30|25|150|
           honeypot_monitor.yml|0|0|0|420|
           update_bot_detector.yml|0|0|0|1560|"

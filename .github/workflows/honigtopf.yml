@@ -54,9 +54,18 @@ on:
     # primaere Slot tatsaechlich ausgefallen ist. Die Obergrenze bleibt
     # damit bei ~72 Laeufen/Tag (= 2.448 Requests), exakt wie in der
     # Kontingent-Rechnung unten kalkuliert.
-    - cron: '*/20 * * * *'      # primaer:   :00, :20, :40
-    - cron: '5,25,45 * * * *'   # Backup #1: +5min,  falls primaerer Slot verworfen
-    - cron: '10,30,50 * * * *'  # Backup #2: +10min, falls auch Backup #1 verworfen
+    # FIX FREQ-2H (2026-11-15): Von alle 20 Minuten auf alle 2 Stunden
+    # gesenkt. Grund: 72 Voll-Laeufe/Tag x 58 Requests (aktuell 56 Dienste
+    # + bad-hosts + services) = ~4.200 Requests/Tag - mehr als 3 Community-
+    # Credentials (3 x 1.000/Tag) hergeben. Folge: ab Mittag "HTTP 402 /
+    # ALLE CREDENTIALS ERSCHOEPFT" und rote Laeufe. /bad-hosts liefert ohnehin
+    # immer die letzten 24 h - alle 20 Minuten abzufragen brachte kaum Neues.
+    # 12 Voll-Laeufe/Tag x ~58 = ~700 Requests/Tag -> passt mit 1 Credential.
+    # Die Report-Piggyback-Laeufe (workflow_run) bleiben Light (1 Request).
+    # Backup-Slots +5/+10 min bleiben; der 12-min-Gate unten verhindert Doppellaeufe.
+    - cron: '0 */2 * * *'       # primaer:   00:00, 02:00, 04:00 ... UTC
+    - cron: '5 */2 * * *'       # Backup #1: +5min,  falls primaerer Slot verworfen
+    - cron: '10 */2 * * *'      # Backup #2: +10min, falls auch Backup #1 verworfen
   workflow_dispatch:
     inputs:
       force_light:
