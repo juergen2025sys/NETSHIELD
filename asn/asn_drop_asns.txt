@@ -1,9 +1,10 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794769004)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794774404)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
+# Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-09)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-15 19:21 UTC | ASNs: 647 (Spamhaus 454 + BPH 37 + Maltrail 96 + eigene 16 + ThreatFox 44, aktiv: 422)
+# Aktualisiert: 2026-11-15 21:11 UTC | ASNs: 653 (Spamhaus 454 + BPH 37 + Maltrail 96 + BPH-Watch 6 + eigene 16 + ThreatFox 44, aktiv: 428)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS2601	UA	RADIOLINK-AS	pitline.net
@@ -44,6 +45,7 @@ AS26173	CW	King's_Cross_N.V.	wirelesscuracao.com
 AS26561	GB	NETRIDGE	mylir.co.uk
 AS26833	US	ETCC	quarterhill.com
 AS30490	US	ETHRN	ethr.net
+AS30823		AUROLOGIC (aurologic GmbH)	Bulletproof Hosting Watch 2026-11-09
 AS33042	GB	NETIFACE-TORONTO	netiface.co.uk
 AS33993	MD	UFO-AS	stark-industries.solutions
 AS34450	RO	WDC-AS	net-gate.ro
@@ -145,6 +147,7 @@ AS56362	UA	PITLINE-AS	pitline.net
 AS56584	NL	INTER-IX	serverion.com
 AS56873	SC	ELITETEAM-ANTIDDOS	eliteteam.to
 AS56971			Maltrail worst_asns
+AS57043		HOSTKEY-AS	Bulletproof Hosting Watch 2026-11-09
 AS57100	UA	WEBNETWORK	pitline.net
 AS57415	UA	R-TEL-AS	bignet.ua
 AS57509	BG	LL-Investment-Ltd	cloudbs.biz
@@ -216,6 +219,7 @@ AS140129	IN	MSBSPL-AS-IN	mabasafenet.com
 AS140155	IN	HOSTNET-AS-IN	thepinnaclegroup.in
 AS140184	IN	SFNSNPL-AS	sfns
 AS140208	PK	OBHOST-AS-AP	obhost.org
+AS140666		ADPL-AS-AP (ANY DIGITAL PTE. LTD.)	Bulletproof Hosting Watch 2026-11-09
 AS140787	VN	LAMA-AS-VN	vinahost.vn
 AS140869	NZ	TGL-AS-AP	turingserver.com
 AS140941	PK	FULLTIMEHOSTING-AS-AP	fulltimehosting.net
@@ -307,6 +311,7 @@ AS200313			Maltrail worst_asns
 AS200373	DE	Drei-K-Tech-GmbH	plainproxies.com
 AS200499	GB	EHL-AS	enterprises-holding
 AS200593	RU	PROSPERO-AS	pro-spero.ru
+AS200651		FLOKINET	Bulletproof Hosting Watch 2026-11-09
 AS200671	GB	START-AS	start-building
 AS200699	SC	DATASHIELD_NL	xor.sc
 AS200740		First Server Limited	BPH_Research T2-High Risk / flagged
@@ -338,6 +343,7 @@ AS202388	UA	CLUB-NADIYA-AS	club-nadiya
 AS202412	GB	OMEGATECH-AS	virtualine.org
 AS202425	NL	INT-NETWORK	ipvolume.net
 AS202481	UA	REAPOLIS-AS	reapolis
+AS202685		TR-ARKEL	Bulletproof Hosting Watch 2026-11-09
 AS202799		SYSECT D.O.O.	ThreatFox C2-Dichte 0.75%
 AS202972	TR	ROKUNET	pixoof.com
 AS203044	KZ	telepatiya	telepatiya.kz
@@ -569,6 +575,7 @@ AS215987			Maltrail worst_asns
 AS216039		EdgeSec Technologies Limited	ThreatFox C2-Dichte 0.26%
 AS216078	GB	KREMER-AS	snowcore.io
 AS216127	RU	NUXT-AS	nuxt.cloud
+AS216139		IRONHOST	Bulletproof Hosting Watch 2026-11-09
 AS216234			Maltrail worst_asns
 AS216240		MortalSoft	Maltrail worst_asns
 AS216246	RU	RU-AEZA-AS	aeza.net
