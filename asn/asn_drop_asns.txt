@@ -1,7 +1,7 @@
 # NETSHIELD - Spamhaus ASN-DROP (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794722204)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794736604)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-15 06:27 UTC | ASNs: 455 (aktiv: 281)
+# Aktualisiert: 2026-11-15 10:05 UTC | ASNs: 454 (aktiv: 281)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS2601	UA	RADIOLINK-AS	pitline.net
@@ -430,7 +430,6 @@ AS266724	CL	MYRIAM_PILAR_ESCOBAR_VEGA_(DON_SERVER)	donserver.cl
 AS327837	SC	SEY-IX-MANAGEMENT	seyix.sc
 AS327952	NG	AS-NATCOM	ntel.com.ng
 AS328095	ZA	BLUEGATE-EXCHANGE-AS	bluegate-exchange.co.za
-AS328819	ZA	UNKNOWN	bluecentrix.co.za
 AS328958	SC	CL21-AS	cybrscrb.com
 AS329007	AO	ELENDE	elende.ao
 AS394082	US	GOOGLE-PEER	ipswat.com
