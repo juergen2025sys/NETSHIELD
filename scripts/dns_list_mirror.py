@@ -47,6 +47,33 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from netshield_common import fetch_url, safe_urlopen, write_text_atomic  # noqa: E402
+def threatfox_keys(environ=None):
+    """Read all numbered API keys from Actions secrets or environment."""
+    import json
+    import os
+    import re
+
+    env = os.environ if environ is None else environ
+    pattern = re.compile(r"THREATFOX_AUTH_KEY(?:_([0-9]+))?\Z")
+    candidates = {}
+    raw = env.get("THREATFOX_SECRETS_JSON", "")
+    if raw:
+        try:
+            values = json.loads(raw)
+        except (ValueError, TypeError):
+            raise ValueError("THREATFOX_SECRETS_JSON ist kein gueltiges JSON") from None
+        if not isinstance(values, dict):
+            raise ValueError("THREATFOX_SECRETS_JSON muss ein JSON-Objekt sein")
+        candidates.update(values)
+    candidates.update({k: v for k, v in env.items() if pattern.fullmatch(k)})
+    numbered = []
+    for name, value in candidates.items():
+        match = pattern.fullmatch(name)
+        if match and isinstance(value, str) and value.strip():
+            numbered.append((int(match.group(1)) if match.group(1) else 1, name, value.strip()))
+    numbered.sort(key=lambda item: (item[0], item[1]))
+    return list(dict.fromkeys(value for _, _, value in numbered))
+
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(REPO_ROOT, "dns")
@@ -340,13 +367,7 @@ def main() -> int:
             DANDELION_URL, parse_hosts_text(text), now_str)
 
     print("ThreatFox Domain-IOCs ...")
-    # Bis zu fuenf API-Keys in Reihenfolge verwenden (Failover bei 401/403/429).
-    key_names = ("THREATFOX_AUTH_KEY", "THREATFOX_AUTH_KEY_2",
-                 "THREATFOX_AUTH_KEY_3", "THREATFOX_AUTH_KEY_4", "THREATFOX_AUTH_KEY_5")
-    keys = list(dict.fromkeys(
-        key for name in key_names
-        if (key := os.environ.get(name, "").strip())
-    ))
+    keys = threatfox_keys()
     age = threatfox_last_fetch_age(now)
     if not keys:
         print("::warning ::Keine THREATFOX_AUTH_KEY-Variable gesetzt - ThreatFox uebersprungen")
