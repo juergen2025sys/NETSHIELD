@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-15 04:08 CET
-# Eintraege: 30205
+# Aktualisiert: 2026-11-15 07:20 CET
+# Eintraege: 30233
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -419,6 +419,7 @@
 1zlu7sit.lltreeremoval.com
 2000tiendasd1.com.co
 201.150.151.129.halleytelecom.com.br
+202.19.195.35.bc.googleusercontent.com
 2026.futbol
 207.205.59.34.bc.googleusercontent.com
 209id.queuedimsys.lat
@@ -610,6 +611,7 @@
 2zz07wlf.verticalchurchfilms.org
 3-s.sa
 3.tcp.cpolar.top
+300.ltd
 3000vps.kozow.com
 303-bet.xyz
 303.audio
@@ -1181,6 +1183,7 @@
 6cyzeu86.bettilt90.com
 6dg7sjam.bet404farsi.com
 6e023wyi.bossbey.store
+6ek8lbik.sagex.store
 6f3m8.icu
 6f59jp0g.waterfiltermag.com
 6feq96px.eutoor.com
@@ -2691,6 +2694,7 @@ aminjauhary.com
 amitieclinicamedica.com.br
 amitsinghal.net
 amm-frosty.lol
+ammediterrania.com
 amnamoversllc.com
 amor76.com
 amoressalvajes.cl
@@ -3153,6 +3157,7 @@ appvbe.onl
 appvbe.wiki
 apr-hamburg.de
 apreebathconcepts.com
+aprendizajeeslibertad.cl
 aprendoyemprendoca.com
 apricotrun.cc
 apricotundercroft.org
@@ -7374,6 +7379,7 @@ cyysmscysqmwkqmo.xyz
 czcnj5n7.sazehayefooladi.xyz
 czcwu.vigaf.hu
 czcymhx.enfejar-site.bet
+czerninstrategies.ch
 czf2txr8.asion.gr
 czpcvew.bet1xiraq.com
 czrsixg.en-us--neuroxen.com
@@ -11042,6 +11048,7 @@ gbowm.cannatural.cz
 gbqlwrat.prozhecart.com
 gbrdqbb.bunos.bet
 gbrid.tattoo
+gbtz1zfg7p.workers.dev
 gbueeqa.eurothrombosis2018.com
 gbugugpucukhbnvwxg.oasteadomnuluidiaspora.com
 gbv7cjvi.www-bellyflush.com
@@ -13290,6 +13297,7 @@ inkbossstudios.com
 inktapestry.com
 inmjycz.olabahiskayit.com
 inmovan.com
+inn.aprendizajeeslibertad.cl
 inner-api.help
 innersightcoach.com
 innodocumentsetup.com
@@ -14320,6 +14328,7 @@ k.dewii.net
 k.upgrades.lat
 k.worldpress.biz
 k0.amanplya.org
+k0f.aprendizajeeslibertad.cl
 k0pr01pw.diero.store
 k0v5zt7p.verticalrewards.com
 k1.amin90.org
@@ -18854,6 +18863,7 @@ ombpfuc.eastcoastrefrig.com
 omckf2vc.omec.store
 omeade.2k3phuchau.christmas
 omec.store
+ometv.store
 omg.itsjasonborn.today
 omgexplolts.com
 omgolqds.sazebetonarme.xyz
@@ -19992,6 +20002,7 @@ planetreeapse.co
 planksbiergarten.site
 planospag.com
 plantcures.it.com
+plantmarcenaria.com.br
 planus.store
 plaque5tucco.digital
 plasmaforgeai.com
@@ -27167,6 +27178,7 @@ vzyeissn.rial.bet
 w.apigacor889.org
 w.bosmj.org
 w.dog69.net
+w.gg018.org
 w02eza6e.plinkoirani.com
 w0a86nbg.eng--neurowave.com
 w0r1t50n.seresniki.com
@@ -27689,6 +27701,7 @@ wknzex.petalresourcehub.garden
 wkqsof7p.network-pulse.digital
 wkstazionmagat.obrigadocristiano.space
 wkymyaaegeucmiui.xyz
+wl.apaljitu.org
 wlc.v-panel.asia
 wlcm.v-panel.asia
 wldctoe.shart90bet.com
@@ -28036,6 +28049,7 @@ www.assessoriabr.com
 www.atakentlastik.com
 www.atgairport.com
 www.atlasworkforce.com
+www.attorneycollectionservices.com
 www.aussiesuper.com.au
 www.autocarrozzeriacastagna.it
 www.autoccb.tech
@@ -28076,6 +28090,7 @@ www.c1s.su
 www.c8un2-bz0ox-ecsxpp.xyz
 www.cabsalotti.it
 www.caesarjaco.co.id
+www.cagliari4u.com
 www.canaza7epbbtducao-ve0s.cc
 www.carloniimmobiliare.it
 www.carolinabiscaro.net
@@ -28140,10 +28155,12 @@ www.datenow.se
 www.dclpxlbqzn1l4qsls.org
 www.deadzonevibes.in
 www.dee8mobiledecorate.com
+www.deepellumtexas.com
 www.di-da.it
 www.diemaennersache.de
 www.dietzel.info
 www.diewachic.com
+www.dinmatpavag.se
 www.divinex.to
 www.dlosdekr1u18msmov51.net
 www.dnd40k.com
@@ -28207,6 +28224,7 @@ www.godschild20onyimaxduckdnsbackup.com
 www.godschild20onyimaxduckdnsbackup1.com
 www.godschild20onyimaxduckdnsbackup2.com
 www.goldlaminates.com
+www.gommoniegadi.it
 www.goocoinorg.com
 www.gpcashoknagar-net.iidesign.in
 www.grantcampaign.store
@@ -28321,11 +28339,13 @@ www.kitchensecretbook.com
 www.kkpsialpha.com
 www.kmdhalen.be
 www.knrd2up67onim5epfcxgvx.net
+www.koupelny-labuda.cz
 www.kp2-3ur6pe4r8i2hj5.com
 www.kpm-engineering.space
 www.kt88npl.live
 www.kuedltqtddbj-hnf9gd.net
 www.l9-xf4xzz9g7s9nywuox.app
+www.lacompagniadelgiallo.it
 www.lacompaniahostal.com
 www.laikos.it
 www.lapetitebarque.fr
@@ -28369,6 +28389,7 @@ www.mastergrillrecipes.com
 www.mb8coin.io
 www.mcttt.gov.fj
 www.meddkol.com
+www.medtacglobal.org
 www.metaleks.com.tr
 www.metanoashopinsoutlook.space
 www.metodobertele.it
@@ -28457,12 +28478,14 @@ www.phuthotech.vn
 www.physiephoto.com.au
 www.pig-ex8motionq.com
 www.pjedwards.net
+www.pkf.co.in
 www.pokerdom-kasinos-site.ru
 www.portaleimmigrazioneconfial.it
 www.praxisnord.com
 www.premiumlakaskezeles.automentesgocza.hu
 www.prenotazione20h.it
 www.printcopy.cloud
+www.proaktiftumbuhsolusi.com
 www.prodel.it
 www.professorpaulomoraes.com
 www.proit.com
@@ -28485,8 +28508,10 @@ www.rateon.co.uk.lubcononline.com
 www.re1ieftyoutput.com
 www.reathlefitcenter.com
 www.rebatefirm.com
+www.redlinedivision.id
 www.regioncheck.xyz
 www.relaistrasteverestation.com
+www.relan-eg.com
 www.remicionesexternas.store
 www.remoteiconnect.com
 www.remoteiconnectbackup.com
@@ -28504,6 +28529,7 @@ www.rmsmarineservice.com.qwqqwq.ggff.net
 www.robinamedicalcentre.com.au
 www.robloxfruit.site
 www.rochaemucholowski.adv.br
+www.rohabuilders.com
 www.routedesmetiers.com
 www.rr88vipa.com
 www.runeliteplus.net
@@ -28533,6 +28559,7 @@ www.slidingdesk.com
 www.slo.ru
 www.slusaria.pl
 www.social.pureweb.com.ng
+www.sohbetozel.org
 www.solucionpericial.es
 www.somalicomputer.com
 www.souldiggin.com
@@ -29027,6 +29054,7 @@ xox.slotmacau188bd.top
 xoxnfbr.eng--tinnitrol.com
 xp.146slot.org
 xp.334v.org
+xp.aprendizajeeslibertad.cl
 xp0re0bg.oucloud.com.mx
 xp2v23h9.goldalignn.com
 xpcnbrpll.eng-bettinggods.com
