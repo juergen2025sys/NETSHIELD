@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-15 02:16 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-15 02:37 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,174,880** |
-| Neu (heute) | **+472,164** |
-| Entfernt | **-472,228** |
+| Gesamt IPs | **1,174,809** |
+| Neu (heute) | **+55** |
+| Entfernt | **-126** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 44 |
@@ -25,9 +25,9 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,478 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,803 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,796 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,176 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 649 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,431 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,954 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 591 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,041 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,010 |
 | ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,195 |
@@ -45,10 +45,10 @@
 | ✅ `gitrecon1455_fresh_proxy_list` | 216,547 |
 | ✅ `noctiro_getproxy` | 3,865 |
 | ✅ `noctiro_getproxy_socks5` | 6,428 |
-| ✅ `mohammedcha_proxripper` | 53,214 |
-| ✅ `mohammedcha_proxripper_socks4` | 112,647 |
-| ✅ `mohammedcha_proxripper_http` | 117,704 |
-| ✅ `mohammedcha_proxripper_socks5` | 118,558 |
+| ✅ `mohammedcha_proxripper` | 53,953 |
+| ✅ `mohammedcha_proxripper_socks4` | 112,994 |
+| ✅ `mohammedcha_proxripper_http` | 117,846 |
+| ✅ `mohammedcha_proxripper_socks5` | 118,699 |
 | ✅ `dinoz0rg_proxy_list` | 91,776 |
 | ✅ `dinoz0rg_proxy_list_http` | 2,092 |
 | ✅ `dinoz0rg_proxy_list_socks5` | 94,811 |
@@ -69,4 +69,4 @@
 > Diese 44 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-15 02:16 CET (Europe/Berlin)*
+*Generiert: 2026-11-15 02:37 CET (Europe/Berlin)*
