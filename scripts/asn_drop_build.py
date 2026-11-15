@@ -87,6 +87,70 @@ def load_maltrail():
 # Malware-IPs, die (noch) bei keiner der drei Quellen stehen. Feste Liste,
 # wird NICHT automatisch aktualisiert. Tor-Betreiber und Internet-Scanner
 # (Censys, Modat, BitSight) sind bewusst nicht dabei.
+# ThreatFox-Auswertung (2026-11-15): dns_list_mirror.py legt die C2-IPs aus
+# dem ThreatFox-Export (CC0) in dns/threatfox_c2_ips.txt ab. Hier wird jede IP
+# ihrem Netzbetreiber zugeordnet (ip-location-db, Quelle RouteViews/iptoasn).
+# Kandidat ist ein Netzbetreiber, wenn er KLEIN ist (<= TF_MAX_ADDR Adressen,
+# damit Clouds/Provider wie Amazon, Hetzner oder Telekom nie erfasst werden),
+# mindestens TF_MIN_IPS verschiedene C2-Server hat und die Dichte (C2-IPs je
+# Adresse) mindestens TF_MIN_DENSITY betraegt.
+# TF_MODE = 'report': nur Kandidatenliste asn/threatfox_asn_kandidaten.txt
+#                     schreiben, NICHT sperren (erst pruefen).
+# TF_MODE = 'block':  Kandidaten zusaetzlich in die Sperrliste aufnehmen.
+TF_MODE = 'report'
+TF_IPS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                           'dns', 'threatfox_c2_ips.txt')
+TF_ASNDB_URLS = ('https://cdn.jsdelivr.net/npm/@ip-location-db/asn/asn-ipv4.csv',
+                 'https://raw.githubusercontent.com/sapics/ip-location-db/main/asn/asn-ipv4.csv')
+TF_MAX_ADDR = 65536
+TF_MIN_IPS = 5
+TF_MIN_DENSITY = 0.0025   # mind. 1 C2-Server je 400 Adressen
+
+
+def threatfox_candidates():
+    """{asn: (name, c2_ips, adressen, dichte)} - {} wenn Daten fehlen."""
+    if not os.path.exists(TF_IPS_FILE):
+        print('::warning::%s fehlt - ThreatFox-Auswertung uebersprungen' % TF_IPS_FILE)
+        return {}
+    ips = [l.strip() for l in open(TF_IPS_FILE) if l.strip() and not l.startswith('#')]
+    db = None
+    for url in TF_ASNDB_URLS:
+        try:
+            db = fetch(url, timeout=120)
+            break
+        except Exception as e:
+            print('::warning::ASN-Datenbank %s nicht ladbar (%s)' % (url, e))
+    if not db:
+        print('::warning::keine ASN-Datenbank erreichbar - ThreatFox-Auswertung uebersprungen')
+        return {}
+    import bisect
+    iv, size, name = [], {}, {}
+    for r in csv.reader(io.StringIO(db)):
+        try:
+            a = int(ipaddress.ip_address(r[0])); b = int(ipaddress.ip_address(r[1])); s = int(r[2])
+        except (ValueError, IndexError):
+            continue
+        iv.append((a, b, s)); size[s] = size.get(s, 0) + (b - a + 1); name[s] = r[3] if len(r) > 3 else ''
+    iv.sort(); starts = [x[0] for x in iv]
+    hits = {}
+    for ip in ips:
+        try:
+            a = int(ipaddress.ip_address(ip))
+        except ValueError:
+            continue
+        i = bisect.bisect_right(starts, a) - 1
+        if i >= 0 and iv[i][0] <= a <= iv[i][1]:
+            hits.setdefault(iv[i][2], set()).add(ip)
+    out = {}
+    for s, h in hits.items():
+        n, sz = len(h), size.get(s, 0)
+        if sz and sz <= TF_MAX_ADDR and n >= TF_MIN_IPS and n / sz >= TF_MIN_DENSITY:
+            out[s] = (name.get(s, ''), n, sz, n / sz)
+    print('ThreatFox: %d C2-IPs in %d Netzbetreibern -> %d Kandidaten (<= %d Adressen, >= %d C2, Dichte >= %.2f%%)'
+          % (len(ips), len(hits), len(out), TF_MAX_ADDR, TF_MIN_IPS, TF_MIN_DENSITY * 100))
+    return out
+
+
 MANUAL_ASNS = {
     198075: 'BounceZero Ltd', 270353: 'Tyna Host', 60567: 'SIA RixHost',
     203557: 'SIA RixHost', 48721: 'Flyservers S.A.', 197194: 'Kayan Establishment',
@@ -174,6 +238,27 @@ def main():
         asns[a] = {'asn': a, 'cc': '', 'asname': name, 'domain': 'eigene Auswertung 2026-11-15'}
     print('Eigene Auswertung: %d ASNs | davon neu: %d' % (len(MANUAL_ASNS), len(man_new)))
 
+    tf = threatfox_candidates()
+    tf_new = {a: v for a, v in tf.items() if a not in asns}
+    if tf:
+        lines = ['# NETSHIELD - Netzbetreiber mit auffaellig vielen ThreatFox-C2-Servern',
+                 '# Modus: %s (report = nur Liste, block = wird mitgesperrt)' % TF_MODE,
+                 '# Kriterien: <= %d Adressen, >= %d C2-IPs, Dichte >= %.2f%%' % (TF_MAX_ADDR, TF_MIN_IPS, TF_MIN_DENSITY * 100),
+                 '# Spalten: ASN | C2-IPs | Adressen | Dichte | schon gesperrt | Name', '']
+        for a, (nm, n, sz, d) in sorted(tf.items(), key=lambda x: -x[1][3]):
+            lines.append('AS%d\t%d\t%d\t%.2f%%\t%s\t%s' % (a, n, sz, d * 100, 'ja' if a in asns else 'nein', nm))
+        tmp = os.path.join(OUT_DIR, 'threatfox_asn_kandidaten.txt.tmp')
+        with open(tmp, 'w') as f:
+            f.write('\n'.join(lines) + '\n')
+        os.replace(tmp, os.path.join(OUT_DIR, 'threatfox_asn_kandidaten.txt'))
+        print('ThreatFox-Kandidaten: %d (davon noch nicht gesperrt: %d) -> asn/threatfox_asn_kandidaten.txt'
+              % (len(tf), len(tf_new)))
+    if TF_MODE == 'block':
+        for a, (nm, n, sz, d) in tf_new.items():
+            asns[a] = {'asn': a, 'cc': '', 'asname': nm, 'domain': 'ThreatFox C2-Dichte %.2f%%' % (d * 100)}
+    else:
+        tf_new = {}
+
     def resolve(asn):
         try:
             txt = fetch(IPVERSE_URL % asn)
@@ -221,9 +306,9 @@ def main():
             '# Zusatz-ASNs: %s (MIT; T1/T2, ohne Upstream/aufgeloest)\n'
             '# Zusatz-ASNs: %s (nur Teil 2, ohne grosse Hoster)\n'
             '# Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)\n'
-            '# Aktualisiert: %s | ASNs: %d (Spamhaus %d + BPH %d + Maltrail %d + eigene %d, aktiv: %d)\n'
+            '# Aktualisiert: %s | ASNs: %d (Spamhaus %d + BPH %d + Maltrail %d + eigene %d + ThreatFox %d, aktiv: %d)\n'
             % (SPAMHAUS_URL, meta.get('timestamp'), BPH_URL, MALTRAIL_URL, now, len(asns),
-               n_spamhaus, len(bph_new), len(mt_new), len(man_new), active))
+               n_spamhaus, len(bph_new), len(mt_new), len(man_new), len(tf_new), active))
 
     def write(name, body):
         tmp = os.path.join(OUT_DIR, name + '.tmp')

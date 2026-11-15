@@ -62,6 +62,7 @@ DANDELION_URL = ("https://raw.githubusercontent.com/DandelionSprout/adfilt/maste
 MIN_ENTRIES = {
     "antimalware": 1000,
     "threatfox": 500,
+    "threatfox_ips": 200,
 }
 
 # ThreatFox: nur IOCs ab dieser Confidence (0-100) uebernehmen.
@@ -187,6 +188,46 @@ def parse_threatfox_csv(text: str, min_confidence: int = THREATFOX_MIN_CONFIDENC
     return domains
 
 
+def parse_threatfox_ips(text: str, min_confidence: int = THREATFOX_MIN_CONFIDENCE) -> set[str]:
+    """Extrahiert die IPv4-Adressen aus ThreatFox-IOCs vom Typ ip:port (C2-Server).
+
+    Wird nicht fuer DNS benutzt, sondern von scripts/asn_drop_build.py, um
+    Netzbetreiber mit auffaellig vielen C2-Servern zu finden (2026-11-15).
+    ThreatFox-Daten stehen unter CC0.
+    """
+    lines = text.splitlines()
+    col_index: dict[str, int] = {}
+    for line in lines:
+        stripped = line.lstrip("#").strip()
+        if stripped.startswith('"first_seen_utc"'):
+            header = next(csv.reader([stripped], skipinitialspace=True))
+            col_index = {name.strip(): i for i, name in enumerate(header)}
+            break
+    if "ioc_value" not in col_index or "ioc_type" not in col_index:
+        raise ValueError("ThreatFox-CSV: Spalten ioc_value/ioc_type nicht gefunden")
+    idx_value, idx_type = col_index["ioc_value"], col_index["ioc_type"]
+    idx_conf = col_index.get("confidence_level")
+    needed = max(i for i in (idx_value, idx_type, idx_conf) if i is not None)
+    ips: set[str] = set()
+    for row in csv.reader([ln for ln in lines if ln.startswith('"')], skipinitialspace=True):
+        if len(row) <= needed or row[idx_type].strip() != "ip:port":
+            continue
+        if idx_conf is not None:
+            try:
+                if int(row[idx_conf].strip()) < min_confidence:
+                    continue
+            except ValueError:
+                pass
+        value = row[idx_value].strip().strip('"').rsplit(":", 1)[0]
+        try:
+            addr = ipaddress.ip_address(value)
+        except ValueError:
+            continue
+        if addr.version == 4 and addr.is_global:
+            ips.add(str(addr))
+    return ips
+
+
 def fetch_threatfox_csv(keys: list[str], retries: int = 3, timeout: int = 60) -> str | None:
     """Laedt full.csv.zip mit Key-Failover und liefert den CSV-Text.
 
@@ -308,6 +349,18 @@ def main() -> int:
                     f"ThreatFox Domain-IOCs (abuse.ch, Confidence >= {THREATFOX_MIN_CONFIDENCE})",
                     "https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)",
                     tf_domains, now_str)
+            # Zusaetzlich: C2-IPs (ip:port-IOCs) fuer die ASN-Auswertung in
+            # scripts/asn_drop_build.py. Gleicher Download, kein Extra-Abruf.
+            try:
+                tf_ips = parse_threatfox_ips(csv_text)
+            except ValueError as err:
+                print(f"::warning ::{err} - threatfox_c2_ips.txt bleibt unveraendert")
+            else:
+                write_domain_list(
+                    "threatfox_ips", "threatfox_c2_ips.txt",
+                    f"ThreatFox C2-IPs (ip:port-IOCs, Confidence >= {THREATFOX_MIN_CONFIDENCE}) - Grundlage fuer die ASN-Auswertung",
+                    "https://threatfox.abuse.ch (CC0)",
+                    tf_ips, now_str)
 
     ok = [name for name, done in results.items() if done]
     print(f"\nFERTIG: {len(ok)}/{len(results)} Listen aktualisiert ({', '.join(ok) or '-'})")
