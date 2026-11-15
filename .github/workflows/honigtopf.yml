@@ -63,9 +63,18 @@ on:
     # 12 Voll-Laeufe/Tag x ~58 = ~700 Requests/Tag -> passt mit 1 Credential.
     # Die Report-Piggyback-Laeufe (workflow_run) bleiben Light (1 Request).
     # Backup-Slots +5/+10 min bleiben; der 12-min-Gate unten verhindert Doppellaeufe.
-    - cron: '0 */2 * * *'       # primaer:   00:00, 02:00, 04:00 ... UTC
-    - cron: '5 */2 * * *'       # Backup #1: +5min,  falls primaerer Slot verworfen
-    - cron: '10 */2 * * *'      # Backup #2: +10min, falls auch Backup #1 verworfen
+    # FIX CRON-40MIN (2026-11-15, Nutzerwunsch): alle 40 Minuten, abseits der
+    # vollen Stunde (dort verwirft GitHub die meisten Slots, beobachtet
+    # 15.11. 08:00 UTC inkl. Backups) und abseits Combined (:07/:27/:47).
+    # Cron kennt kein "alle 40 min" ueber Stundengrenzen - daher 3 Zeilen,
+    # die zusammen 00:17, 00:57, 01:37, 02:17, 02:57, 03:37 ... ergeben.
+    # KONTINGENT: 36 Laeufe/Tag x ~58 Requests = ~2.100 Requests/Tag.
+    # Das braucht MINDESTENS 3 funktionierende Community-Credentials
+    # (3 x 1.000/Tag). Mit nur 2 gueltigen Keys ist das Kontingent abends
+    # erschoepft (HTTP 402). Ausfaelle holt watchdog_combined.yml nach.
+    - cron: '17 0-23/2 * * *'   # gerade Stunden  :17
+    - cron: '57 0-23/2 * * *'   # gerade Stunden  :57
+    - cron: '37 1-23/2 * * *'   # ungerade Stunden :37
   workflow_dispatch:
     inputs:
       force_light:
