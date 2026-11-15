@@ -48,10 +48,13 @@ from zoneinfo import ZoneInfo
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from netshield_common import fetch_url, safe_urlopen, write_text_atomic  # noqa: E402
 def threatfox_keys(environ=None):
-    """Read all numbered API keys from Actions secrets or environment."""
+    """Read all numbered API keys (THREATFOX_AUTH_KEY, _2, _3 ...) from the environment.
+
+    Die Workflows reichen die Schluessel einzeln als Umgebungsvariablen weiter
+    (kein toJSON(secrets) mehr - CodeQL "Excessive Secrets Exposure").
+    THREATFOX_SECRETS_JSON wird nur noch aus Kompatibilitaetsgruenden gelesen.
+    """
     import json
-    import os
-    import re
 
     env = os.environ if environ is None else environ
     pattern = re.compile(r"THREATFOX_AUTH_KEY(?:_([0-9]+))?\Z")
