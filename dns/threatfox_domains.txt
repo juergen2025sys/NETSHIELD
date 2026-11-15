@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-15 00:00 CET
-# Eintraege: 30608
+# Aktualisiert: 2026-11-15 01:03 CET
+# Eintraege: 30614
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -5673,6 +5673,7 @@ c71414tk.betxane.com
 c86k6nbm.en-webaquaburn.com
 c8bl0t87.nailhousechicago.com
 c9.anka4d.org
+c911rjp1.ruhus.store
 c92n2sba.easyprocode.com
 c9wivbtb.www-tupitea.com
 c9xrdjdb.us-en-us-enerflow.com
@@ -5694,6 +5695,7 @@ cachmkcqj.venus90bet.com
 caclcc.com
 cacophonydiaphanous-acquiesce.xyz
 cacote.com
+cad-kon.com
 cadcr.zaszlorudbolt.hu
 cadetsguru.com
 cadltmk.gutdrops-us-eng.com
@@ -9861,6 +9863,7 @@ eztdugurr.eachway-multiplier.com
 f-resins.com
 f.akasia988.net
 f.amanlay.org
+f.apaljitu.org
 f.au338.org
 f.dak69.org
 f.dog69.net
@@ -14620,6 +14623,7 @@ kartal-haber.com.tr
 kas-transport.de
 kashjsjdja829jas.com
 kasmokitomaccito.com
+kasogomo.workers.dev
 kastouncollins.info
 kasuduca.workers.dev
 katalizatorotzhigi.com
@@ -18812,6 +18816,7 @@ o.cou4d.org
 o.dewii.net
 o.fecebbk.xyz
 o.gam99.org
+o.geng7.org
 o.peer4you.net
 o03u2lab.chestercountyhardwood.com
 o04h18rp.rsfoodproducts.com
@@ -25996,6 +26001,7 @@ txwd.borrender.com
 txyx.betawarz.com
 ty-syndic.fr
 ty.afktogel.org
+ty.appel88.org
 ty53sr9w.abcdbro.com
 ty7zctpt.bet303casino.com
 ty954rii.313betios.com
