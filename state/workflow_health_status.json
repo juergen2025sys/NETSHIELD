@@ -1,16 +1,10 @@
 {
-  "updated": "2026-11-15 20:21 CET (Europe/Berlin)",
+  "updated": "2026-11-16 00:22 CET (Europe/Berlin)",
   "total": 34,
   "ok": 31,
   "warn": 5,
-  "error": 1,
-  "errors": [
-    {
-      "file": "Production Health",
-      "check": "active \u2286 conf40 Subset-Invariante verletzt",
-      "detail": "2,225 IPs in active fehlen in conf40 (0.533% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
-    }
-  ],
+  "error": 0,
+  "errors": [],
   "warnings": [
     {
       "file": "Regressionstests",
@@ -40,7 +34,7 @@
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "24521b8b5b37aebe3b3d0ff4e99f2c10bee50676",
+    "sha": "383506d8c59fe0669a5874498805ad61425e0598",
     "status": "warning",
     "tests_run": 490,
     "failures": [
@@ -60,23 +54,17 @@
     "detail": "490 Tests; 7 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=429), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=503), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='timeout'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='json'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema-items')"
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5852219,
-    "active_blacklist_ipv4.txt": 417558,
-    "blacklist_confidence40_ipv4_part1.txt": 4053717,
+    "combined_threat_blacklist_ipv4_part1.txt": 5853438,
+    "active_blacklist_ipv4.txt": 419877,
+    "blacklist_confidence40_ipv4_part1.txt": 4055853,
     "cve_exploit_ips.txt": 28983,
-    "honeypot_ips.txt": 2150590,
-    "bot_detector_blacklist_ipv4.txt": 1174002
+    "honeypot_ips.txt": 2152500,
+    "bot_detector_blacklist_ipv4.txt": 1174562
   },
   "production_health": {
-    "critical": 1,
+    "critical": 0,
     "warn": 0,
-    "checks": [
-      {
-        "level": "CRITICAL",
-        "check": "active \u2286 conf40 Subset-Invariante verletzt",
-        "detail": "2,225 IPs in active fehlen in conf40 (0.533% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
-      }
-    ]
+    "checks": []
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
