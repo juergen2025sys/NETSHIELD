@@ -12,7 +12,7 @@ Quellen:
   - monosans/proxy-list    (proxies/all.txt)
   - seit 2026-11-16 abends 11 weitere: hookzof, KangProxy, mmpx12,
     dpangestuw, hideip.me, VPSLab, elliottophellia, iplocate, sunny9577,
-    roosterkid, Zaeem20 (siehe SOURCES)
+    roosterkid, Zaeem20, ProxyScrape (siehe SOURCES)
 
 Bewusst NICHT dabei: proxifly/free-proxy-list - traf im NetFlow-Abgleich
 (16.11.2026) einen WordPress-Hoster (WP Engine), also echte Webseiten.
@@ -59,6 +59,8 @@ for _name, _paths in {
     'sunny9577':    ['sunny9577/proxy-scraper/HEAD/proxies.txt'],
     'roosterkid':   ['roosterkid/openproxylist/HEAD/%s_RAW.txt' % p for p in ('HTTPS', 'SOCKS4', 'SOCKS5')],
     'Zaeem20':      ['Zaeem20/FREE_PROXIES_LIST/HEAD/%s.txt' % p for p in ('http', 'https', 'socks4', 'socks5')],
+    # 2026-11-16 abends (Nutzerwunsch): ProxyScrape-GitHub-Spiegel, laufend aktualisiert
+    'ProxyScrape':  ['proxyscrape/free-proxy-list/HEAD/proxies/all/data.txt'],
 }.items():
     for _i, _p in enumerate(_paths):
         SOURCES['%s %d' % (_name, _i + 1) if len(_paths) > 1 else _name] = _GH + _p
