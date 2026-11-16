@@ -137,6 +137,14 @@ def load_maltrail():
 TF_MODE = 'block'   # Nutzerentscheidung 2026-11-15: direkt automatisch sperren
 TF_IPS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            'dns', 'threatfox_c2_ips.txt')
+# Seit 2026-11-16 (Nutzerentscheidung): zweite Datenquelle fuer dieselbe
+# Dichte-Auswertung - reputation_blacklist.txt im Repo-Hauptordner. Die legt
+# update_combined_blacklist.yml taeglich aus der AbuseIPDB-API ab (Top 10.000,
+# Score >= 50). Es werden KEINE zusaetzlichen API-Abfragen gemacht. Jede Quelle
+# wird einzeln mit denselben Kriterien bewertet.
+AB_IPS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                           'reputation_blacklist.txt')
+DENSITY_SOURCES = (('ThreatFox C2-Dichte', TF_IPS_FILE), ('AbuseIPDB-Dichte', AB_IPS_FILE))
 TF_ASNDB_URLS = ('https://cdn.jsdelivr.net/npm/@ip-location-db/asn/asn-ipv4.csv',
                  'https://raw.githubusercontent.com/sapics/ip-location-db/main/dbip-asn/dbip-asn-ipv4.csv')
 TF_MAX_ADDR = 65536
@@ -145,12 +153,17 @@ TF_MIN_DENSITY = 0.0025   # mind. 1 C2-Server je 400 Adressen
 
 
 def threatfox_candidates():
-    """{asn: (name, c2_ips, adressen, dichte)} - {} wenn Daten fehlen."""
-    if not os.path.exists(TF_IPS_FILE):
-        print('::warning::%s fehlt - ThreatFox-Auswertung uebersprungen' % TF_IPS_FILE)
+    """{asn: (name, ips, adressen, dichte, quelle)} aus allen DENSITY_SOURCES - {} wenn Daten fehlen."""
+    sources = []
+    for label, path in DENSITY_SOURCES:
+        if not os.path.exists(path):
+            print('::warning::%s fehlt - %s uebersprungen' % (path, label))
+            continue
+        with open(path, encoding='utf-8') as handle:
+            sources.append((label, [l.split('#')[0].strip() for l in handle
+                                    if l.strip() and not l.lstrip().startswith('#')]))
+    if not sources:
         return {}
-    with open(TF_IPS_FILE, encoding='utf-8') as handle:
-        ips = [l.strip() for l in handle if l.strip() and not l.startswith('#')]
     db = None
     for url in TF_ASNDB_URLS:
         try:
@@ -170,22 +183,26 @@ def threatfox_candidates():
             continue
         iv.append((a, b, s)); size[s] = size.get(s, 0) + (b - a + 1); name[s] = r[3] if len(r) > 3 else ''
     iv.sort(); starts = [x[0] for x in iv]
-    hits = {}
-    for ip in ips:
-        try:
-            a = int(ipaddress.ip_address(ip))
-        except ValueError:
-            continue
-        i = bisect.bisect_right(starts, a) - 1
-        if i >= 0 and iv[i][0] <= a <= iv[i][1]:
-            hits.setdefault(iv[i][2], set()).add(ip)
     out = {}
-    for s, h in hits.items():
-        n, sz = len(h), size.get(s, 0)
-        if sz and sz <= TF_MAX_ADDR and n >= TF_MIN_IPS and n / sz >= TF_MIN_DENSITY:
-            out[s] = (name.get(s, ''), n, sz, n / sz)
-    print('ThreatFox: %d C2-IPs in %d Netzbetreibern -> %d Kandidaten (<= %d Adressen, >= %d C2, Dichte >= %.2f%%)'
-          % (len(ips), len(hits), len(out), TF_MAX_ADDR, TF_MIN_IPS, TF_MIN_DENSITY * 100))
+    for label, ips in sources:
+        hits = {}
+        for ip in ips:
+            try:
+                a = int(ipaddress.ip_address(ip))
+            except ValueError:
+                continue
+            i = bisect.bisect_right(starts, a) - 1
+            if i >= 0 and iv[i][0] <= a <= iv[i][1]:
+                hits.setdefault(iv[i][2], set()).add(ip)
+        found = 0
+        for s, h in hits.items():
+            n, sz = len(h), size.get(s, 0)
+            if sz and sz <= TF_MAX_ADDR and n >= TF_MIN_IPS and n / sz >= TF_MIN_DENSITY:
+                found += 1
+                if s not in out or n / sz > out[s][3]:
+                    out[s] = (name.get(s, ''), n, sz, n / sz, label)
+        print('%s: %d IPs in %d Netzbetreibern -> %d Kandidaten (<= %d Adressen, >= %d IPs, Dichte >= %.2f%%)'
+              % (label, len(ips), len(hits), found, TF_MAX_ADDR, TF_MIN_IPS, TF_MIN_DENSITY * 100))
     return out
 
 
@@ -285,21 +302,23 @@ def main():
     tf = threatfox_candidates()
     tf_new = {a: v for a, v in tf.items() if a not in asns}
     if tf:
-        lines = ['# NETSHIELD - Netzbetreiber mit auffaellig vielen ThreatFox-C2-Servern',
+        lines = ['# NETSHIELD - Netzbetreiber mit auffaellig vielen ThreatFox-C2-Servern / AbuseIPDB-IPs',
                  '# Modus: %s (report = nur Liste, block = wird mitgesperrt)' % TF_MODE,
-                 '# Kriterien: <= %d Adressen, >= %d C2-IPs, Dichte >= %.2f%%' % (TF_MAX_ADDR, TF_MIN_IPS, TF_MIN_DENSITY * 100),
-                 '# Spalten: ASN | C2-IPs | Adressen | Dichte | schon gesperrt | Name', '']
-        for a, (nm, n, sz, d) in sorted(tf.items(), key=lambda x: -x[1][3]):
-            lines.append('AS%d\t%d\t%d\t%.2f%%\t%s\t%s' % (a, n, sz, d * 100, 'ja' if a in asns else 'nein', nm))
+                 '# Kriterien je Quelle: <= %d Adressen, >= %d IPs, Dichte >= %.2f%%' % (TF_MAX_ADDR, TF_MIN_IPS, TF_MIN_DENSITY * 100),
+                 '# Spalten: ASN | IPs | Adressen | Dichte | schon gesperrt | Name | Quelle', '']
+        for a, (nm, n, sz, d, why) in sorted(tf.items(), key=lambda x: -x[1][3]):
+            lines.append('AS%d\t%d\t%d\t%.2f%%\t%s\t%s\t%s' % (a, n, sz, d * 100, 'ja' if a in asns else 'nein', nm, why))
         tmp = os.path.join(OUT_DIR, 'threatfox_asn_kandidaten.txt.tmp')
         with open(tmp, 'w') as f:
             f.write('\n'.join(lines) + '\n')
         os.replace(tmp, os.path.join(OUT_DIR, 'threatfox_asn_kandidaten.txt'))
-        print('ThreatFox-Kandidaten: %d (davon noch nicht gesperrt: %d) -> asn/threatfox_asn_kandidaten.txt'
-              % (len(tf), len(tf_new)))
+        print('Dichte-Kandidaten: %d (davon noch nicht gesperrt: %d, ThreatFox %d / AbuseIPDB %d)'
+              ' -> asn/threatfox_asn_kandidaten.txt'
+              % (len(tf), len(tf_new), sum(1 for v in tf_new.values() if v[4].startswith('ThreatFox')),
+                 sum(1 for v in tf_new.values() if v[4].startswith('AbuseIPDB'))))
     if TF_MODE == 'block':
-        for a, (nm, n, sz, d) in tf_new.items():
-            asns[a] = {'asn': a, 'cc': '', 'asname': nm, 'domain': 'ThreatFox C2-Dichte %.2f%%' % (d * 100)}
+        for a, (nm, n, sz, d, why) in tf_new.items():
+            asns[a] = {'asn': a, 'cc': '', 'asname': nm, 'domain': '%s %.2f%%' % (why, d * 100)}
     else:
         tf_new = {}
 
@@ -352,7 +371,7 @@ def main():
             '# Zusatz-ASNs: %s (Bulletproof Hosting Watch, Bericht %s)\n'
             '# Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)\n'
             '# Aktualisiert: %s | ASNs: %d (Spamhaus %d + BPH %d + Maltrail %d + BPH-Watch %d + eigene %d'
-            ' + ThreatFox %d, aktiv: %d)\n'
+            ' + ThreatFox/AbuseIPDB-Dichte %d, aktiv: %d)\n'
             % (SPAMHAUS_URL, meta.get('timestamp'), BPH_URL, MALTRAIL_URL, BPHW_INDEX, bw_date, now, len(asns),
                n_spamhaus, len(bph_new), len(mt_new), len(bw_new), len(man_new), len(tf_new), active))
 
