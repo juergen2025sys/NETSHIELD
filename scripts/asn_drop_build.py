@@ -144,7 +144,12 @@ TF_IPS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 # wird einzeln mit denselben Kriterien bewertet.
 AB_IPS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            'reputation_blacklist.txt')
-DENSITY_SOURCES = (('ThreatFox C2-Dichte', TF_IPS_FILE), ('AbuseIPDB-Dichte', AB_IPS_FILE))
+# Seit 2026-11-16 abends (Nutzerentscheidung, bewusst ohne Filter):
+# threat.live (rund 51.000 Einzel-IPs, taeglich) als dritte Dichte-Quelle.
+# Wird direkt per URL geladen; faellt sie aus -> Warnung, Rest laeuft weiter.
+TL_URL = 'https://list.threat.live/'
+DENSITY_SOURCES = (('ThreatFox C2-Dichte', TF_IPS_FILE), ('AbuseIPDB-Dichte', AB_IPS_FILE),
+                   ('threat.live-Dichte', TL_URL))
 TF_ASNDB_URLS = ('https://cdn.jsdelivr.net/npm/@ip-location-db/asn/asn-ipv4.csv',
                  'https://raw.githubusercontent.com/sapics/ip-location-db/main/dbip-asn/dbip-asn-ipv4.csv')
 TF_MAX_ADDR = 65536
@@ -156,12 +161,20 @@ def threatfox_candidates():
     """{asn: (name, ips, adressen, dichte, quelle)} aus allen DENSITY_SOURCES - {} wenn Daten fehlen."""
     sources = []
     for label, path in DENSITY_SOURCES:
-        if not os.path.exists(path):
+        if path.startswith('http'):
+            try:
+                lines = fetch(path, timeout=120).splitlines()
+            except Exception as e:
+                print('::warning::%s nicht ladbar (%s) - %s uebersprungen' % (path, e, label))
+                continue
+        elif not os.path.exists(path):
             print('::warning::%s fehlt - %s uebersprungen' % (path, label))
             continue
-        with open(path, encoding='utf-8') as handle:
-            sources.append((label, [l.split('#')[0].strip() for l in handle
-                                    if l.strip() and not l.lstrip().startswith('#')]))
+        else:
+            with open(path, encoding='utf-8') as handle:
+                lines = handle.read().splitlines()
+        sources.append((label, [l.split('#')[0].strip() for l in lines
+                                if l.strip() and not l.lstrip().startswith('#')]))
     if not sources:
         return {}
     db = None
@@ -312,10 +325,11 @@ def main():
         with open(tmp, 'w') as f:
             f.write('\n'.join(lines) + '\n')
         os.replace(tmp, os.path.join(OUT_DIR, 'threatfox_asn_kandidaten.txt'))
-        print('Dichte-Kandidaten: %d (davon noch nicht gesperrt: %d, ThreatFox %d / AbuseIPDB %d)'
+        print('Dichte-Kandidaten: %d (davon noch nicht gesperrt: %d, ThreatFox %d / AbuseIPDB %d / threat.live %d)'
               ' -> asn/threatfox_asn_kandidaten.txt'
               % (len(tf), len(tf_new), sum(1 for v in tf_new.values() if v[4].startswith('ThreatFox')),
-                 sum(1 for v in tf_new.values() if v[4].startswith('AbuseIPDB'))))
+                 sum(1 for v in tf_new.values() if v[4].startswith('AbuseIPDB')),
+                 sum(1 for v in tf_new.values() if v[4].startswith('threat.live'))))
     if TF_MODE == 'block':
         for a, (nm, n, sz, d, why) in tf_new.items():
             asns[a] = {'asn': a, 'cc': '', 'asname': nm, 'domain': '%s %.2f%%' % (why, d * 100)}
@@ -371,7 +385,7 @@ def main():
             '# Zusatz-ASNs: %s (Bulletproof Hosting Watch, Bericht %s)\n'
             '# Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)\n'
             '# Aktualisiert: %s | ASNs: %d (Spamhaus %d + BPH %d + Maltrail %d + BPH-Watch %d + eigene %d'
-            ' + ThreatFox/AbuseIPDB-Dichte %d, aktiv: %d)\n'
+            ' + Dichte ThreatFox/AbuseIPDB/threat.live %d, aktiv: %d)\n'
             % (SPAMHAUS_URL, meta.get('timestamp'), BPH_URL, MALTRAIL_URL, BPHW_INDEX, bw_date, now, len(asns),
                n_spamhaus, len(bph_new), len(mt_new), len(bw_new), len(man_new), len(tf_new), active))
 
