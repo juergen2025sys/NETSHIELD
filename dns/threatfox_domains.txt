@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-16 04:12 CET
-# Eintraege: 31368
+# Aktualisiert: 2026-11-16 07:23 CET
+# Eintraege: 31380
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3312,6 +3312,7 @@ area.lapatom.lat
 area20bank.live
 areaseguras.con-ip.com
 arema39.org
+arena003.org
 arenaremax.com
 arenasanimaltraining.com
 arendalsjakk.no
@@ -8780,6 +8781,7 @@ dwvygj31.dermatologycongress.org
 dwyxchu.megashart.org
 dwzc4sh2.comsift.com
 dx.andora188.org
+dx.arena003.org
 dxblg.workoutwithdorci.com
 dxblt.sm188daftar.net
 dxclneq.webrevelem.hu
@@ -10037,6 +10039,7 @@ f015oa9h.kunci.store
 f0ceohvy.eutoor.com
 f0qnr43h.epexecutivecoaching.com
 f0rfdtvf.canlibahis1xbet.click
+f1.arena003.org
 f113c084.wignalllindor.wiki
 f168-co.com
 f168-v1.cheap
@@ -14147,6 +14150,7 @@ j.cou4d.org
 j.dhawa.net
 j.dog69.net
 j.gam99.org
+j.gg180.net
 j0.bala7.org
 j01nn5zm.istanbul303.com
 j0g2ia0g.bet1yek.bet
@@ -14393,6 +14397,7 @@ jffl6ogj.bet1forward.com
 jfgevxgdj.omahacaulkingandsealing.com
 jfjhdq.en-us-en-pegasus.com
 jfmz4630.badabingsopranoslounge.digital
+jfn.apibet99.net
 jfpi.site-asli-bedon-filter-1xbet.com
 jfrpack.com
 jfwh.hazzarat.com
@@ -14752,6 +14757,7 @@ jyrighxw.prozhedownload.net
 jytlbnje.radioshartbandi.bet
 jyvartai.hugugdaryayi.xyz
 jz8kpepi.jadoou.store
+jzfer95304.workers.dev
 jzhh.akhbarirani.com
 jzl4bylm4bng2zgmeqw3lx6bcbxzb2hulicxneuosq26sshnitrcvcad.onion
 jzl98lpw.betbuilder.promo
@@ -16490,6 +16496,7 @@ lufry.mabelsnursery.com
 lukkeze.club
 luky00921.ddns.net
 lulfav.bet404farsi.com
+lulolypy.workers.dev
 lum-fluxen.1zarelin.lat
 lum-valeon.3toravix.lat
 lumaracleaning.com
@@ -16646,6 +16653,7 @@ m.s-microsoft.com
 m0.aeoncash.org
 m08xkitq.vexon4al.lat
 m0del9-spool.mav8loren.lat
+m12pl989.yanok.store
 m15vczhb.wostu.store
 m1brakes.com
 m1napmzv.shartbazi.net
@@ -16670,6 +16678,7 @@ m4ch.ru
 m4imi4w.space
 m4jpiubh.royaldoorsspringdale.com
 m5.angkt777.org
+m5.arena003.org
 m52axger.lmgnc.org
 m55uqh6r.daddybetiran.live
 m5dke7ud.covrn.com
@@ -27154,6 +27163,7 @@ usaechoxen.com
 usalaborforhire.net
 usapoolsupplies.com
 usasightfresh.com
+usastatesdates.com
 usatrendblog.com
 usdc.edu.pl
 use-opencode.com
@@ -27410,6 +27420,7 @@ valokse.lol
 valtrioninternational.com
 vamjuwk.ijnitra.com
 vamocomigo.com
+vancez.store
 vandacreative.com.tr
 vanessapilatesemcasa.com.br
 vangrd.biz
@@ -27815,6 +27826,7 @@ vmi3467394.contaboserver.net
 vmi3469820.contaboserver.net
 vmi3474446.contaboserver.net
 vmi3474645.contaboserver.net
+vmi3534777.contaboserver.net
 vmi3554028.contaboserver
 vmi3641491.contaboserver.net
 vmi3641492.contaboserver.net
