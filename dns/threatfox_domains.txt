@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-16 14:15 CET
-# Eintraege: 31489
+# Aktualisiert: 2026-11-16 17:22 CET
+# Eintraege: 31520
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1635,6 +1635,7 @@
 9d2a8bbd.bociljp.xyz
 9d8kjnpx.designphotoshop.ir
 9dg185kq.sensa138var.com
+9e5nx7qm.sidar.store
 9e763bw7.theloncode.org
 9e9tjipz.bossbeyavrupa.store
 9edpkf5o.powershart.com
@@ -1737,6 +1738,7 @@ a.dewii.net
 a.qqmusic1.com
 a.tesslatoto.org
 a.wv2022.com
+a00e2eok.sanbo.store
 a042exok.app8k.xyz
 a07dpu4d.303-bet.buzz
 a07uacwz.smity.store
@@ -2369,6 +2371,7 @@ aiwicaguewkmuwae.xyz
 aiwkkmcgiaqgmwyg.xyz
 aiwkokmmoweqwusa.xyz
 aiyweowgoymswqos.xyz
+aj.arena213.net
 aj3ocrawf43r6u5miezvmzh5sjtuv2rx6na3tm26fao3laobu5unfhyd.onion
 aj6s7u3v.fourstarcampground.com
 aj9m1fsp.barbashat.com
@@ -3322,6 +3325,7 @@ areaseguras.con-ip.com
 arema39.org
 arena003.org
 arena213.net
+arenapildun.org
 arenaremax.com
 arenasanimaltraining.com
 arendalsjakk.no
@@ -4584,6 +4588,7 @@ beyondhomehealthcareservices.com
 beyondinfluence.com
 beyourpeak.com
 beypazaribirtat.com
+beyptzft4k.workers.dev
 bezelek.shop
 bezonailbar.com
 bezsyyl.eng-slimsounds.com
@@ -5616,6 +5621,7 @@ bwvlejk.iranicc.org
 bwwpcpi.bahisbey90.com
 bwwxd.polarstartire.com
 bwyb.love
+bx.arenapildun.org
 bxb41a9q.federationofpbos.org
 bxcyxs.lowermyoverheads.com
 bxhnheh.vostrovape.com
@@ -6129,6 +6135,7 @@ cdn-yethounds.beer
 cdn.0807.st
 cdn.api-middle-connect.com
 cdn.clintonpqfg-adriance.workers.dev
+cdn.cloudfront-assets.online
 cdn.copperfern.cc
 cdn.decadenza.me
 cdn.deltapress.one
@@ -11144,6 +11151,7 @@ fxdrze.sivasumutemlak.com
 fxfa.dbuswet.surf
 fxllt.webrevelem.hu
 fxsr.akhbarirani.com
+fxtincan.com
 fxwklbyr.meadowprocessingframework.garden
 fxxqmo5b.letrungkien.info
 fxzmbai.technologiaiviz.hu
@@ -11513,6 +11521,7 @@ georgelounge.bar
 georgelounge.com
 geostar.space
 geostationary-orbit-altitude.garden
+geotekstil.com.ua
 geovin.bet404farsi.com
 gepan.kaiketsu.moe
 gepcash.com
@@ -11762,6 +11771,7 @@ gjuqzxwz.irantop.bet
 gjwc.kalientestore.com
 gk8afjtp.hoown.store
 gkdtl.lampaoszlopbolt.hu
+gki4d.org
 gkkma-glcaks-summ.pages.dev
 gkmulq.dimamma.hu
 gkpaspaky.taktikkbet.com
@@ -13261,6 +13271,7 @@ hypervisorcontrolplanegrid.wiki
 hypervisorresourcecontroller.wiki
 hypnosisinstitute.net
 hyptoburn.com
+hyuhyuyhy.org
 hyvin.run
 hyvur.run
 hywjlgp.shopmagnoliaonmain.com
@@ -13699,6 +13710,7 @@ indoslots.click
 indoslotsui.icu
 indoxl.click
 industriafortefibra.com.br
+ineditas.top
 inelloelectric.com
 ineptail.digital
 infiht.biz
@@ -14872,6 +14884,7 @@ kadapaoficial.com
 kadush-sideburnsushan.courses
 kaewe.caesarresidence.com
 kafeprog7.com
+kafluzglobal.com
 kahamahotel.co.ke
 kahox.run
 kaiangelsystems.rest
@@ -15220,6 +15233,7 @@ king.369bbqsifangonline.com
 kingchef.com.vn
 kingdomcaster.com
 kingdomdelight.com
+kingnet1.duckdns.org
 kingo.lol
 kingremcos2026.duckdns.org
 kingremcos2026duckdns.com
@@ -17677,6 +17691,7 @@ mmyeukskiwwyumug.xyz
 mn.fd147-api5-control-routing-mesh-prd-az1.in.net
 mnejbrs.volleyball.vin
 mnepohui.sbs
+mng.digafertiliser.com
 mnhhhrkf.friendsofdormontlibrary.net
 mnhunimj.persian.sex
 mniitgki.sbs
@@ -18011,6 +18026,7 @@ mpuwd.deepspaceparker.com
 mpv5bjr9.yasbet.co
 mpvcbz.quantumvelocitylabs.study
 mpygi.jadoou.space
+mq.arena213.net
 mqamat.shop
 mqbjnx.jamjahani.app
 mqduizlq.shop-biodentex.com
@@ -18222,6 +18238,7 @@ myhost.misecure.com
 myhost.servepics.com
 myi88a45.eng-gutdrops.us
 myinstapage.com
+myjazfov.sishi.store
 myjqueryss.com
 mykeeper.ir
 mylcwejs.irrigation-monitoring-system.garden
@@ -18476,6 +18493,7 @@ neoncyberpunkcity.garden
 neonlogicgate4.verdalya.garden
 neonplay.online
 neotcdk.7toralex.lat
+neppe92157.workers.dev
 nerdliv.se
 nerdybitches.com
 nero-ns-cdns.sbs
@@ -21296,6 +21314,7 @@ ptnza.bni-ai.com
 ptologisticsandfreight.com
 ptrpzfj.volleyball.poker
 ptsefif6.us-thetrumptoken.com
+pttec.net
 ptybfgjf.karbordriyaziyat.xyz
 pu.aksara87.org
 pu88.com
@@ -23292,6 +23311,7 @@ s6mdlbay.antava.store
 s6paj79n.en-en--enerflow.com
 s6qvly4b.fews.store
 s6tqoka5.sonnysdetailshop.com
+s7.apigacor77.org
 s77h4.icu
 s7lgx4no.rochi.store
 s7n9i1si.opticamarcopolo.com
@@ -24163,6 +24183,7 @@ siren.aeafh.workers.dev
 sirius.surpasstools.com
 sirucxaian.com
 sis.adkfarmerdan.com
+sishi.store
 sistema.portal-nota.sbs
 site-shartbandi-takhtenard.com
 site-shartbandi.christmas
@@ -26969,6 +26990,7 @@ uktdrm.rsudtarutung.com
 uktyl.com
 ukwearstore.org
 ular.store
+ulb18ixh.zayce.store
 uleadvietnam.com
 ulgdmdtp.en-en--cardioslim.com
 ulgqmzld.jadoou.online
@@ -27097,6 +27119,7 @@ update.cdn-update.workers.dev
 update.ddns.net
 update.inteldrives.com
 update.javashell.com
+update.lux-lingua.tech
 update.microsoftapply.com
 update.microsofthk.com
 update.microsoftkernel.com
@@ -27136,6 +27159,7 @@ upload.frame-quest.lol
 upnbvji.healthfoodzone.com
 upnq65dj.kaarenorge.com
 upon.zedqo.workers.dev
+uppjampea.org
 upsbatteriespr.com
 upselawindow.cfd
 upsurge.solutions
@@ -27820,6 +27844,7 @@ virtual-routing-gateway.wiki
 virtualgateway.courses
 virtualpangea-mvp.vercel.app
 virtualsvote.com
+virtualtourpro.in
 virzicarburanti.it
 visadoc-vault.info
 visaovencedora.com.br
@@ -28857,6 +28882,7 @@ wolfwraps.com
 wolrdcup2026202620262026.dynuddns.net
 womenarisingfordestiny.org
 womenito.com
+womenscollegekolkata.in
 wood-switch.p7ickmuch.lat
 woodcat.xyz
 woodcora.devmatrix.lat
@@ -29196,6 +29222,7 @@ www.cagliari4u.com
 www.canaza7epbbtducao-ve0s.cc
 www.carloniimmobiliare.it
 www.carolinabiscaro.net
+www.cartogram.com
 www.casadellasperanzadata.com
 www.caycanhdep.store
 www.cbcleib.com
@@ -29275,6 +29302,7 @@ www.di-da.it
 www.diemaennersache.de
 www.dietzel.info
 www.diewachic.com
+www.dinao.store
 www.dinmatpavag.se
 www.disanarquitectos.com
 www.divinex.to
@@ -29504,6 +29532,7 @@ www.kt88npl.live
 www.kuedltqtddbj-hnf9gd.net
 www.kurbad-st-leonhard.de
 www.l9-xf4xzz9g7s9nywuox.app
+www.lacan.com
 www.lacompagniadelgiallo.it
 www.lacompaniahostal.com
 www.laikos.it
@@ -29734,6 +29763,7 @@ www.s4p5ms8r4z8907j9o.app
 www.sadcgov.net
 www.safedeliverylogistics.icu
 www.salesf0rce.club
+www.salon-new.ru
 www.scottsdalelaser.hair
 www.scottyputtersofficial.com
 www.searedrecipes.com
@@ -30971,6 +31001,7 @@ z.dewa2.org
 z.dhawa.net
 z.gam99.org
 z.gg018.org
+z.gki4d.org
 z0.arena213.net
 z01zh1hu.truenarrator.com
 z02aheni.thevallartasrestaurants.com
