@@ -10,6 +10,9 @@ Netzbereiche (NETSHIELD-Regel: nur einzelne IPs).
 Quellen:
   - TheSpeedX/PROXY-List   (http.txt, socks4.txt, socks5.txt)
   - monosans/proxy-list    (proxies/all.txt)
+  - seit 2026-11-16 abends 11 weitere: hookzof, KangProxy, mmpx12,
+    dpangestuw, hideip.me, VPSLab, elliottophellia, iplocate, sunny9577,
+    roosterkid, Zaeem20 (siehe SOURCES)
 
 Bewusst NICHT dabei: proxifly/free-proxy-list - traf im NetFlow-Abgleich
 (16.11.2026) einen WordPress-Hoster (WP Engine), also echte Webseiten.
@@ -38,6 +41,27 @@ SOURCES = {
     'TheSpeedX socks5': 'https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt',
     'monosans':         'https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt',
 }
+# Seit 2026-11-16 abends: weitere taeglich gepflegte Listen offener Proxies.
+# Alle wurden vorher gegen 10 Tage NetFlow geprueft (0 Kontakte zu eigenen
+# Geraeten). Bewusst NICHT dabei: vakhov/fresh-proxy-list (traf WP Engine) und
+# Thordata (V2Ray-Server, oft hinter Cloudflare).
+_GH = 'https://raw.githubusercontent.com/'
+for _name, _paths in {
+    'hookzof':      ['hookzof/socks5_list/HEAD/proxy.txt'],
+    'KangProxy':    ['officialputuid/KangProxy/HEAD/%s/%s.txt' % (p, p) for p in ('http', 'https', 'socks4', 'socks5')],
+    'mmpx12':       ['mmpx12/proxy-list/HEAD/proxies.txt'],
+    'dpangestuw':   ['dpangestuw/Free-Proxy/HEAD/All_proxies.txt'],
+    'hideip.me':    ['zloi-user/hideip.me/HEAD/%s.txt' % p for p in ('http', 'https', 'socks4', 'socks5')],
+    'VPSLab':       ['VPSLabCloud/VPSLab-Free-Proxy-List/HEAD/all_proxies.txt'],
+    'elliottophellia': ['elliottophellia/proxylist/HEAD/results/%s/global/%s_checked.txt' % (p, p)
+                        for p in ('http', 'socks4', 'socks5')],
+    'iplocate':     ['iplocate/free-proxy-list/HEAD/all-proxies.txt'],
+    'sunny9577':    ['sunny9577/proxy-scraper/HEAD/proxies.txt'],
+    'roosterkid':   ['roosterkid/openproxylist/HEAD/%s_RAW.txt' % p for p in ('HTTPS', 'SOCKS4', 'SOCKS5')],
+    'Zaeem20':      ['Zaeem20/FREE_PROXIES_LIST/HEAD/%s.txt' % p for p in ('http', 'https', 'socks4', 'socks5')],
+}.items():
+    for _i, _p in enumerate(_paths):
+        SOURCES['%s %d' % (_name, _i + 1) if len(_paths) > 1 else _name] = _GH + _p
 UA = {'User-Agent': 'NETSHIELD-OpenProxies/1.0 (+https://github.com/juergen2025sys/NETSHIELD)'}
 OUT = sys.argv[1] if len(sys.argv) > 1 else 'proxy/offene_proxies.txt'
 MIN_IPS = 500
@@ -85,7 +109,8 @@ def main():
     now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
     write_ip_list(OUT, ips, header_lines=[
         'NETSHIELD - offene Proxy-Server (nur Einzel-IPs, ohne Port)',
-        'Quellen: TheSpeedX/PROXY-List (http/socks4/socks5), monosans/proxy-list',
+        'Quellen: TheSpeedX/PROXY-List, monosans/proxy-list + %d weitere Proxy-Listen (siehe Skript)'
+        % len({k.split(' ')[0] for k in per_source} - {'TheSpeedX', 'monosans'}),
         'Aktualisiert: %s | IPs: %d' % (now, len(ips)),
     ])
     print('FERTIG -> %s' % OUT)
