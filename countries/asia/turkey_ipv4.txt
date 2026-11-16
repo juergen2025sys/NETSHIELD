@@ -1,6 +1,6 @@
 # NETSHIELD – Turkey (TR) IPv4 Ranges
-# Aktualisiert: 2026-11-11 08:59 CET (Europe/Berlin)
-# IP-Ranges: 2046
+# Aktualisiert: 2026-11-16 09:22 CET (Europe/Berlin)
+# IP-Ranges: 2047
 
 2.56.60.0/23
 2.56.62.0/24
@@ -841,6 +841,7 @@
 153.56.215.0/24
 153.56.224.0/23
 153.56.226.0/23
+153.56.244.0/24
 153.56.246.0/24
 153.56.251.0/24
 153.56.252.0/24

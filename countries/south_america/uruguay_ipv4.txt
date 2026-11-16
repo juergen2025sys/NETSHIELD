@@ -1,6 +1,6 @@
 # NETSHIELD – Uruguay (UY) IPv4 Ranges
-# Aktualisiert: 2026-11-11 08:59 CET (Europe/Berlin)
-# IP-Ranges: 92
+# Aktualisiert: 2026-11-16 09:22 CET (Europe/Berlin)
+# IP-Ranges: 93
 
 45.6.248.0/22
 45.6.252.0/22
@@ -8,6 +8,7 @@
 69.164.80.0/24
 69.164.91.0/24
 69.164.98.0/24
+92.43.88.0/24
 131.0.212.0/22
 138.59.12.0/22
 138.99.44.0/22

@@ -1,6 +1,6 @@
 # NETSHIELD – Colombia (CO) IPv4 Ranges
-# Aktualisiert: 2026-11-11 08:59 CET (Europe/Berlin)
-# IP-Ranges: 650
+# Aktualisiert: 2026-11-16 09:22 CET (Europe/Berlin)
+# IP-Ranges: 651
 
 2.152.8.0/21
 2.152.33.0/24
@@ -416,6 +416,7 @@
 190.109.128.0/19
 190.109.160.0/19
 190.110.64.0/19
+190.110.239.0/24
 190.115.224.0/19
 190.120.128.0/20
 190.120.228.0/22

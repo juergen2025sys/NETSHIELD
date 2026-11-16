@@ -1,6 +1,6 @@
 # NETSHIELD – Tajikistan (TJ) IPv4 Ranges
-# Aktualisiert: 2026-11-11 08:59 CET (Europe/Berlin)
-# IP-Ranges: 70
+# Aktualisiert: 2026-11-16 09:22 CET (Europe/Berlin)
+# IP-Ranges: 71
 
 37.98.152.0/21
 45.81.37.0/24
@@ -47,6 +47,7 @@
 185.105.228.0/22
 185.121.0.0/23
 185.121.2.0/23
+185.153.27.0/24
 185.166.56.0/22
 185.177.0.0/22
 185.191.52.0/22
