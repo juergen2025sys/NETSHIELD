@@ -1,0 +1,59 @@
+name: Offene Proxies
+
+# Alle 2 Stunden: oeffentliche Listen offener Proxy-Server (TheSpeedX,
+# monosans) holen, auf Einzel-IPs reduzieren (ohne Port, ohne Netzbereiche)
+# und als proxy/offene_proxies.txt committen. Offene Proxies wechseln
+# schnell, deshalb der kurze Takt. Die Firewall laedt die Datei als URL-Alias.
+on:
+  schedule:
+    - cron: '35 */2 * * *'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+  actions: none
+  issues: none
+  packages: none
+  pull-requests: none
+  security-events: none
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  offene-proxies:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Listen holen und zusammenfuehren
+        run: python3 -I scripts/open_proxies_build.py proxy/offene_proxies.txt
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add proxy/offene_proxies.txt
+          # Nur committen, wenn sich ausser der Zeitstempel-Zeile etwas geaendert hat
+          if git diff --staged --quiet || [ -z "$(git diff --staged --no-renames -U0 | grep -E '^[+-][^#+-]')" ]; then
+            echo "Keine inhaltlichen Aenderungen"
+            git reset -q
+            exit 0
+          fi
+          git commit -m "Offene Proxies: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')"
+          for attempt in 1 2 3 4 5; do
+            git fetch origin "${GITHUB_REF_NAME}" && git rebase -X theirs "origin/${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && { echo "Push erfolgreich (Versuch $attempt)"; exit 0; }
+            git rebase --abort 2>/dev/null || true
+            sleep $((attempt * 3))
+          done
+          echo "FEHLER: Push nach 5 Versuchen fehlgeschlagen"
+          exit 1
