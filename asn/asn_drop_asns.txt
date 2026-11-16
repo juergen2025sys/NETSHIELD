@@ -1,10 +1,10 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794797804)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794808604)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-09)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-16 03:13 UTC | ASNs: 653 (Spamhaus 454 + BPH 37 + Maltrail 96 + BPH-Watch 6 + eigene 16 + ThreatFox 44, aktiv: 426)
+# Aktualisiert: 2026-11-16 06:24 UTC | ASNs: 653 (Spamhaus 454 + BPH 37 + Maltrail 96 + BPH-Watch 6 + eigene 16 + ThreatFox 44, aktiv: 426)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS2601	UA	RADIOLINK-AS	pitline.net
@@ -196,7 +196,7 @@ AS133994	IN	RMHOSPITALITY-AS-IN	rmhospitality.co.in
 AS134121	HK	RAINBOW-HK	itsidc.com
 AS134176	HK	CLOUDIE-AS-AP	cloudie.hk
 AS134196	HK	ANYUN-INTERNET-TECHNOLOGY-HK-CO-LIMITED	cloudie.hk
-AS134677		Dromatics Systems Pte Ltd	ThreatFox C2-Dichte 0.26%
+AS134677		Dromatics Systems Pte Ltd	ThreatFox C2-Dichte 0.28%
 AS135271	US	GLOBTELGROUP-AS-AP	globtelgroup.com
 AS135388	LT	RPL-HK	serveroffer.lt
 AS135392	HK	MILLENIALHOSTLIMITED-AS-GB	tele-asia.net
