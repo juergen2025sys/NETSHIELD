@@ -1,10 +1,10 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794853604)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794866204)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-16 19:21 UTC | ASNs: 724 (Spamhaus 453 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 16 + Dichte ThreatFox/AbuseIPDB/threat.live 114, aktiv: 493)
+# Aktualisiert: 2026-11-16 22:27 UTC | ASNs: 724 (Spamhaus 453 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 16 + Dichte ThreatFox/AbuseIPDB/threat.live 114, aktiv: 493)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS2601	UA	RADIOLINK-AS	pitline.net
@@ -74,7 +74,7 @@ AS39720	UA	MANILICH-AS	darkclub.com.ua
 AS39798			Maltrail worst_asns
 AS40065			Maltrail worst_asns
 AS40193	US	AS-TRIT	trit.net
-AS40662		Layer7 Technologies Inc	ThreatFox C2-Dichte 0.62%
+AS40662		Layer7 Technologies Inc	ThreatFox C2-Dichte 0.70%
 AS40665	US	SPCTR	spectrenetworks.net
 AS40861		Paradise Networks LLC	eigene Auswertung 2026-11-15
 AS40963	UA	PRAID-AS	bignet.ua
@@ -320,7 +320,7 @@ AS198364			Maltrail worst_asns
 AS198375			Maltrail worst_asns
 AS198465		BtHoster	BPH_Research T1-Confirmed BPH / active
 AS198571	DE	PlainProxies	plainproxies.com
-AS198926	IR	Fazed	rapidoserver.com
+AS198926	IR	Fazel	rapidoserver.com
 AS198953	RU	proton66	proton66.ru
 AS198981	UA	NETSHIELD-BYOIP	chosting.solutions
 AS199021		Greenline Ltd.	ThreatFox C2-Dichte 0.34%
@@ -508,7 +508,7 @@ AS211121	GB	India	imtigernet
 AS211138			Maltrail worst_asns
 AS211199	UA	LIPTEL-AS	liptel.net.ua
 AS211238	IN	DCYBER	zumy.eu
-AS211298		Driftnet Ltd	threat.live-Dichte 38.67%
+AS211298		Driftnet Ltd	threat.live-Dichte 38.77%
 AS211381			Maltrail worst_asns
 AS211443	HK	SINOWORLDWIDE	sinoworldwidetrading.com
 AS211486			Maltrail worst_asns
@@ -662,7 +662,7 @@ AS267398		mega ip connect	threat.live-Dichte 0.63%
 AS267784			Maltrail worst_asns
 AS267788		IP TECHNOLOGIES S.A.S.	threat.live-Dichte 0.26%
 AS268276		MEGA WIFI - EIRELI	threat.live-Dichte 0.49%
-AS268305		T & I TELECOMUNICACOES LTDA ME	threat.live-Dichte 1.17%
+AS268305		T & I TELECOMUNICACOES LTDA ME	threat.live-Dichte 1.27%
 AS269039		DENISE DE OLIVEIRA SILVA	threat.live-Dichte 0.98%
 AS269070		Hostzone Tecnologia LTDA	threat.live-Dichte 0.29%
 AS270353		Tyna Host	eigene Auswertung 2026-11-15
