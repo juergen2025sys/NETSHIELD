@@ -1,10 +1,10 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794832004)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794842804)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-16 13:17 UTC | ASNs: 653 (Spamhaus 453 + BPH 37 + Maltrail 97 + BPH-Watch 6 + eigene 16 + ThreatFox 44, aktiv: 426)
+# Aktualisiert: 2026-11-16 16:23 UTC | ASNs: 653 (Spamhaus 453 + BPH 37 + Maltrail 97 + BPH-Watch 6 + eigene 16 + ThreatFox 44, aktiv: 426)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS2601	UA	RADIOLINK-AS	pitline.net
@@ -196,7 +196,7 @@ AS133994	IN	RMHOSPITALITY-AS-IN	rmhospitality.co.in
 AS134121	HK	RAINBOW-HK	itsidc.com
 AS134176	HK	CLOUDIE-AS-AP	cloudie.hk
 AS134196	HK	ANYUN-INTERNET-TECHNOLOGY-HK-CO-LIMITED	cloudie.hk
-AS134677		Dromatics Systems Pte Ltd	ThreatFox C2-Dichte 0.28%
+AS134677		Dromatics Systems Pte Ltd	ThreatFox C2-Dichte 0.30%
 AS135271	US	GLOBTELGROUP-AS-AP	globtelgroup.com
 AS135388	LT	RPL-HK	serveroffer.lt
 AS135392	HK	MILLENIALHOSTLIMITED-AS-GB	tele-asia.net
@@ -330,7 +330,7 @@ AS201738	HK	UFO-TECHNOLOGIES-LIMITED	changway.hk
 AS201813	MD	Contrust-Solutions	kontrast.md
 AS201824	GB	stat-cons-as	stat-cons
 AS201836	UA	GARANT-AS	garant-plus-inform
-AS201988		VPSPay Networks LTD	ThreatFox C2-Dichte 0.48%
+AS201988		VPSPay Networks LTD	ThreatFox C2-Dichte 0.51%
 AS202144	UA	CHEMPIR-AS	chempir
 AS202171	UA	TORERO-AS	torero
 AS202226	IL	GreatFlower	flowerproxy.com
@@ -616,11 +616,11 @@ AS328958	SC	CL21-AS	cybrscrb.com
 AS329007	AO	ELENDE	elende.ao
 AS394082	US	GOOGLE-PEER	ipswat.com
 AS394711			Maltrail worst_asns
-AS396073		Majestic Hosting Solutions, LLC	ThreatFox C2-Dichte 0.37%
+AS396073		Majestic Hosting Solutions, LLC	ThreatFox C2-Dichte 0.39%
 AS397081	US	VALKYRIE-HOSTING	valkyrie-hosting.net
 AS397881	US	STINGERS	ipswat.com
 AS397966		ReadyDedis, LLC	ThreatFox C2-Dichte 0.28%
-AS398019		Dynu Systems Incorporated	ThreatFox C2-Dichte 0.31%
+AS398019		Dynu Systems Incorporated	ThreatFox C2-Dichte 0.32%
 AS398256		Ultahost, Inc.	ThreatFox C2-Dichte 0.39%
 AS398357		Ethernic LLC	ThreatFox C2-Dichte 0.68%
 AS398638	US	JELLYDIGITAL	jellydigital.net

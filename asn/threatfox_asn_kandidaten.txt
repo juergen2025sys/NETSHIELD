@@ -8,13 +8,13 @@ AS214472	65	512	12.70%	ja	Offshore LC
 AS214961	118	1024	11.52%	ja	Stellar Group SAS
 AS205759	123	1536	8.01%	ja	Ghosty Networks LLC
 AS64107	18	256	7.03%	ja	RACK SPHERE HOSTING S.A.
-AS197769	151	2304	6.55%	ja	ABINTERNET-V Ltd.
-AS214351	48	768	6.25%	ja	FEMO IT SOLUTIONS LIMITED
+AS197769	152	2304	6.60%	ja	ABINTERNET-V Ltd.
+AS214351	50	768	6.51%	ja	FEMO IT SOLUTIONS LIMITED
 AS202412	253	5120	4.94%	ja	Omegatech LTD
 AS401626	23	512	4.49%	ja	Netiface America, Inc.
 AS399979	10	256	3.91%	ja	49.3 Networking LLC
 AS135388	10	256	3.91%	ja	RMP Protection Limited
-AS197170	98	2560	3.83%	ja	TechTies Inc.
+AS197170	99	2560	3.87%	ja	TechTies Inc.
 AS44382	131	3584	3.66%	ja	Fiba Cloud Operation Company, LLC
 AS200593	28	768	3.65%	ja	PROSPERO OOO
 AS219443	26	768	3.39%	nein	AS219443
@@ -31,7 +31,7 @@ AS402253	84	4352	1.93%	ja	SKN Subnet & Telecom Ltd
 AS202226	60	3328	1.80%	ja	Emil Vitukhnovskii trading as Great Flower
 AS401739	9	512	1.76%	ja	RedLuff, LLC
 AS152485	9	512	1.76%	ja	Hosterdaddy Private Limited
-AS207043	126	7424	1.70%	ja	DEDIK SERVICES LIMITED
+AS207043	127	7424	1.71%	ja	DEDIK SERVICES LIMITED
 AS267784	13	768	1.69%	ja	Flyservers S.A.
 AS213850	17	1024	1.66%	ja	Justin Harth
 AS211443	27	1792	1.51%	ja	SINO WORLDWIDE TRADING LIMITED
@@ -40,8 +40,8 @@ AS214940	7	512	1.37%	ja	KPROHOST LLC
 AS197194	7	512	1.37%	ja	Rakan Alsulaiman trading as Kayan Establishment For Information Technology
 AS203557	17	1280	1.33%	ja	SIA RixHost
 AS214209	13	1024	1.27%	nein	Internet Magnate (Pty) Ltd
+AS209605	29	2304	1.26%	ja	UAB Host Baltic
 AS215659	29	2304	1.26%	nein	Aokigahara SRL
-AS209605	28	2304	1.22%	ja	UAB Host Baltic
 AS7488	286	24064	1.19%	nein	CNServer LLC
 AS209274	12	1024	1.17%	ja	Kraken Network ISP LTD
 AS215929	15	1280	1.17%	ja	Data Campus Limited
@@ -49,7 +49,7 @@ AS215428	15	1280	1.17%	ja	Mykyta Skorobohatko
 AS205089	6	512	1.17%	nein	Alfahost LLC
 AS209207	27	2560	1.05%	ja	Digital Hosting Provider LLC
 AS48874	12	1280	0.94%	ja	HOSTMAZE INC SRL-D
-AS399486	166	18176	0.91%	ja	12651980 CANADA INC.
+AS399486	168	18176	0.92%	ja	12651980 CANADA INC.
 AS213186	14	1536	0.91%	ja	Yanoor Islam Khan
 AS215286	7	768	0.91%	nein	IXROOT LTD
 AS200823	31	3584	0.86%	ja	MHost LLC
@@ -62,47 +62,48 @@ AS49447	7	1024	0.68%	nein	Nice IT Services Group Inc.
 AS211673	7	1024	0.68%	nein	Mynymbox Hosting LLC
 AS209946	17	2560	0.66%	ja	ALINDA LLC
 AS214927	20	3072	0.65%	ja	PSB HOSTING LTD
+AS210457	18	2816	0.64%	ja	Kyonix Networks Limited
 AS51396	50	7936	0.63%	ja	Pfcloud UG (haftungsbeschrankt)
 AS40662	8	1280	0.62%	nein	Layer7 Technologies Inc
 AS211507	14	2304	0.61%	nein	Julian Achter
-AS210457	17	2816	0.60%	ja	Kyonix Networks Limited
 AS203861	6	1024	0.59%	ja	Miteflux Technologies Ltd
+AS211486	6	1024	0.59%	ja	Alferov Aleksey Aleksandrovich
 AS62563	63	11008	0.57%	nein	GLOBALTELEHOST Corp.
 AS48753	23	4096	0.56%	nein	AVA HOST SRL
 AS201670	7	1280	0.55%	nein	S.C. INFOTECH-GRUP S.R.L.
 AS215117	11	2048	0.54%	ja	HosterDaddy Private Limited
-AS213702	43	8704	0.49%	ja	QWINS LTD
+AS57523	8	1536	0.52%	ja	changway-as Chang Way Technologies Co. Limited
+AS213702	44	8704	0.51%	ja	QWINS LTD
+AS201988	22	4352	0.51%	nein	VPSPay Networks LTD
 AS399629	86	17408	0.49%	ja	BL Networks
-AS201988	21	4352	0.48%	nein	VPSPay Networks LTD
 AS210083	11	2304	0.48%	nein	Privex Inc.
-AS402169	240	54272	0.44%	nein	Uscloud Inc
+AS402169	241	54272	0.44%	nein	Uscloud Inc
 AS263331	13	3072	0.42%	nein	Netvox Telecomunicacoes LTDA
 AS58580	40	9472	0.42%	nein	Managed Data Solutions
 AS40861	110	26368	0.42%	ja	Paradise Networks LLC
 AS139659	74	18944	0.39%	nein	LUCIDACLOUD LIMITED
 AS133201	12	3072	0.39%	nein	ABCDE GROUP COMPANY LIMITED
 AS398256	11	2816	0.39%	nein	Ultahost, Inc.
-AS57523	6	1536	0.39%	ja	changway-as Chang Way Technologies Co. Limited
 AS56322	21	5376	0.39%	ja	ServerAstra Kft.
 AS209272	6	1536	0.39%	nein	Alviva Holding Limited
-AS396073	90	24064	0.37%	nein	Majestic Hosting Solutions, LLC
+AS396073	93	24064	0.39%	nein	Majestic Hosting Solutions, LLC
 AS212441	20	5376	0.37%	nein	Cloud assets LLC
 AS214677	24	6656	0.36%	nein	Matteo Martelloni trading as DELUXHOST
 AS215311	20	5632	0.36%	ja	Regxa Company for Information Technology Ltd
-AS14956	188	53760	0.35%	ja	RouterHosting LLC
+AS14956	189	53760	0.35%	ja	RouterHosting LLC
 AS52048	15	4352	0.34%	nein	SIA RixHost
 AS270353	7	2048	0.34%	ja	Tyna Host - Datacenter no Brasil
 AS199021	7	2048	0.34%	nein	Greenline Ltd.
 AS201579	6	1792	0.33%	nein	HOSTGNOME LTD
 AS150895	53	15872	0.33%	nein	EZ TECHNOLOGY COMPANY LIMITED
 AS399471	5	1536	0.33%	ja	Des Equity LLC
+AS398019	23	7168	0.32%	nein	Dynu Systems Incorporated
 AS400897	9	2816	0.32%	nein	PETROSKY CLOUD LLC
-AS398019	22	7168	0.31%	nein	Dynu Systems Incorporated
+AS134677	14	4608	0.30%	nein	Dromatics Systems Pte Ltd
 AS49276	7	2304	0.30%	nein	Zemlyaniy Dmitro Leonidovich
 AS208185	39	13056	0.30%	ja	Net Gate Telecom S.R.L.
 AS153656	12	4096	0.29%	nein	OWGELS INTERNATIONAL CO., LIMITED
 AS213200	6	2048	0.29%	ja	Ferdinand Zink trading as Tube-Hosting
-AS134677	13	4608	0.28%	nein	Dromatics Systems Pte Ltd
 AS397966	5	1792	0.28%	nein	ReadyDedis, LLC
 AS63025	10	3584	0.28%	nein	NOHAVPS LLC
 AS399461	42	15360	0.27%	nein	HostSNAP LLC
