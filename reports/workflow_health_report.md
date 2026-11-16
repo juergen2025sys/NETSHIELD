@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-16 17:59 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-16 23:52 CET (Europe/Berlin)
 
-**Workflows:** 34 | ✅ 31 OK | ⚠️ 5 Warnung | ❌ 0 Fehler
+**Workflows:** 35 | ✅ 32 OK | ⚠️ 5 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-⚠️ Commit: `088cc1641ecee852d218ef05bf0c2f437d09fb5a`
+⚠️ Commit: `be259b2ff20b6c0b0dce2c36e1c565e492ae31ec`
 
 490 Tests; 7 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=429), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure=503), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='timeout'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='json'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema'), test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness (endpoint='/bad-hosts/SSH', failure='schema-items')
 
@@ -52,6 +52,7 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `ip_ablauf.yml` | ✅ OK | 0 | 0 | `30 6 * * 1`, `55 */3 * * *` |
 | `ledger_diagnose.yml` | ✅ OK | 0 | 0 | – |
 | `netshield_report_generator.yml` | ⚠️ | 0 | 1 | `30 * * * *`, `45 * * * *`, `55 * * * *` |
+| `open_proxies.yml` | ✅ OK | 0 | 0 | `35 */2 * * *` |
 | `repo_size_check.yml` | ✅ OK | 0 | 0 | – |
 | `run_tests.yml` | ✅ OK | 0 | 0 | – |
 | `runner_image_watch.yml` | ✅ OK | 0 | 0 | `0 2 * * 0` |
@@ -68,4 +69,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-16 17:59 CET (Europe/Berlin) | 34 Workflow-Dateien geprüft*
+*Generiert: 2026-11-16 23:52 CET (Europe/Berlin) | 35 Workflow-Dateien geprüft*
