@@ -23,7 +23,7 @@ AS399979	10	256	3.91%	ja	49.3 Networking LLC	ThreatFox C2-Dichte
 AS135388	10	256	3.91%	ja	RMP Protection Limited	ThreatFox C2-Dichte
 AS197170	99	2560	3.87%	ja	TechTies Inc.	ThreatFox C2-Dichte
 AS211680	57	1536	3.71%	nein	NSEC - Sistemas Informaticos, S.A.	AbuseIPDB-Dichte
-AS44382	131	3584	3.66%	ja	Fiba Cloud Operation Company, LLC	ThreatFox C2-Dichte
+AS44382	132	3584	3.68%	ja	Fiba Cloud Operation Company, LLC	ThreatFox C2-Dichte
 AS200593	28	768	3.65%	ja	PROSPERO OOO	ThreatFox C2-Dichte
 AS398324	219	6144	3.56%	nein	Censys, Inc.	AbuseIPDB-Dichte
 AS219443	26	768	3.39%	nein	AS219443	ThreatFox C2-Dichte
@@ -127,8 +127,8 @@ AS14956	189	53760	0.35%	ja	RouterHosting LLC	ThreatFox C2-Dichte
 AS52048	15	4352	0.34%	nein	SIA RixHost	ThreatFox C2-Dichte
 AS270353	7	2048	0.34%	ja	Tyna Host - Datacenter no Brasil	ThreatFox C2-Dichte
 AS199021	7	2048	0.34%	nein	Greenline Ltd.	ThreatFox C2-Dichte
+AS150895	54	15872	0.34%	nein	EZ TECHNOLOGY COMPANY LIMITED	ThreatFox C2-Dichte
 AS201579	6	1792	0.33%	nein	HOSTGNOME LTD	ThreatFox C2-Dichte
-AS150895	53	15872	0.33%	nein	EZ TECHNOLOGY COMPANY LIMITED	ThreatFox C2-Dichte
 AS399471	5	1536	0.33%	ja	Des Equity LLC	ThreatFox C2-Dichte
 AS398019	23	7168	0.32%	nein	Dynu Systems Incorporated	ThreatFox C2-Dichte
 AS400897	9	2816	0.32%	nein	PETROSKY CLOUD LLC	ThreatFox C2-Dichte
