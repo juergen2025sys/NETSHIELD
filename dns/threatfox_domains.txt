@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-16 11:32 CET
-# Eintraege: 31459
+# Aktualisiert: 2026-11-16 14:15 CET
+# Eintraege: 31489
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3128,6 +3128,7 @@ apidocserv.cloudstackproc.pics
 apidocserv.logicframe.pics
 apidocserv.nodesystemcore.pics
 apidocserv.systemcorelinkx.pics
+apigacor77.org
 apigacor889.org
 apigcor88.org
 apigoogle-ashen.vercel.app
@@ -5629,6 +5630,7 @@ bxzyp.daneshkhanevade.xyz
 by-me.tn
 by1r8hqk.us-eng-zensulin.com
 byagqv8a.fileboroo.com
+bybusiness.fr
 bycl.betpublic.casino
 byhessw.online
 byi4cjm.expo5ejouer.lat
@@ -5668,6 +5670,7 @@ byy3qdk9.rsfoodproducts.com
 byz28tfk.rasmfani.xyz
 byzantine-mosaic-restoration.garden
 bz.alsg96.org
+bz.apigacor77.org
 bzcxhjo.vostrovape.com
 bzd7mk6q.parsalip.bio
 bzdujmed.sazebetonarme.xyz
@@ -8278,6 +8281,7 @@ divinex.to
 divoraworld.com
 divorceprolaw.com
 divyajotifoundation.in
+divyaplasticindustries.com
 diwevyhi.workers.dev
 dixierider.com
 dixietransportinc.com
@@ -10371,6 +10375,7 @@ fern-trace-anvil-meoix.live
 fern46.com
 fernan.com.es
 fernandeseneri.adv.br
+fernandoac.com
 ferncurrent14.com
 fernholtton.cc
 fernmenshway.stigmaflowlink.garden
@@ -11461,6 +11466,7 @@ genddos.st
 gendes.store
 gene-pod.di7ectkoshevoy.lat
 genehome.info
+geneparks.com
 general-sample.space
 general-soft.space
 general.activeworkshops.com
@@ -13485,6 +13491,7 @@ igrbuyo.pokerkade.online
 igsx.closedfistllc.com
 igxpbym.enus-goldalign.com
 igyom.technologiaiviz.hu
+ihet.ens.tn
 ihlnvrv.abcdbro.com
 ihmqfsm.arabicbet.casino
 ihnx.footbalpersian.ir
@@ -14092,6 +14099,7 @@ iuibcp.theothersidepb.com
 iuko.bet1forward.com
 iuqf.beyondhomehealthcareservices.com
 iuta.today
+iv.arena213.net
 iv63jnsk.shart303.net
 ivangay.bond
 ivanitsky.com
@@ -16675,6 +16683,7 @@ m.bola7.net
 m.dax96.org
 m.gam99.org
 m.geng7.org
+m.gg180.net
 m.s-microsoft.com
 m0.aeoncash.org
 m08xkitq.vexon4al.lat
@@ -20044,6 +20053,7 @@ p5k42qtw.anodaz.co
 p5tnetyi.footb.xyz
 p5ymbof6.drdavidzweiback.com
 p64urvgn.wiskaoane.com
+p6a.arena213.net
 p6b6yovt.rsfoodproducts.com
 p6hck3674wix7hcbeaxndqu45vkiafwokbtojykqxjwqkzwel3js3fqd.onion
 p6p6cxqw.betwoonuyelik.com
@@ -20327,6 +20337,7 @@ peacockhomes.net
 peafamqe.cyou
 peakypinkers.ddns.net
 peanut.aeafh.workers.dev
+pearcleaner.com
 peargxn3oki34c4savcbcfqofjjwjnnyrlrbszfv6ujlx36mhrh57did.onion
 pearl91.com
 pearlswift16.com
@@ -22599,6 +22610,7 @@ rickybobbystowing.com
 ricocaseagainst.rebirth.st
 riddermanpainting.com
 rideemotos.com
+ridercheer.com
 riderls32.life
 riderstouchmfg.com
 ridge-ciosktai.site
@@ -22755,6 +22767,7 @@ roblox-execut.net
 roblxexecutors.com
 robodomain.sbs
 roboticmedia.net
+robotikboya.com.tr
 robotpi8812.buzz
 robscarpetcleaning.com
 robsnson.lol
@@ -24023,6 +24036,8 @@ sibel.sbs
 sicilian-defense-theory.garden
 siciliandefensetheory.digital
 sickfat.com
+sickfat.org
+sidar.store
 sideview6.kymle5rax.in.net
 sidisafaris.com
 sidnxgci.radioshartbandi.bet
@@ -24954,6 +24969,7 @@ statsync.rt-sim-tick-sync-clstr.in.net
 status.creek-place.one
 status.fernhollow.cc
 status.provided.space
+status.reido.in
 status.russetmoor.cc
 status7.skypress.click
 staxta.click
@@ -26567,6 +26583,7 @@ tubahandicraft.in
 tubidy.radio.am
 tuby27nu.paars.poker
 tudfpifq.shop-glpro.com
+tudiencongnghiep.com
 tue-orange-04.cfd
 tue-partner-03.cfd
 tuejpvg.agivedresphotography.com
@@ -27013,6 +27030,7 @@ unicore.pw
 uniedpureevenywjk.shop
 uniformeselsoldado.com.mx
 unigovn.com
+uniprolings.ru
 uniquelyblimp.icu
 unisun-bd.com
 uniswap-dashboard-v4.ustorage3.com
@@ -27835,6 +27853,7 @@ viva88.style
 vivahouse.biz
 vivaldinotabot.com
 vivanuncios.com.co
+vivea.store
 vivekanandayoga.in
 viventuresgroup.com
 vivequeretaro.com
@@ -28170,6 +28189,7 @@ vvftgffdgyggdhdgdhhfbbkjhggdsesdssxgjjkj.duckdns.org
 vvigese.eng-usa--goldalign.com
 vvlainw.vip.tennis
 vvmyrshz.bittu.store
+vvnza25033.workers.dev
 vvoid.tattoo
 vvoplgpy.bet303.poker
 vvopvrgbi.gamehazarat.bet
@@ -28446,6 +28466,7 @@ webratxaye1.ton
 webrtwtre22.cc
 websalat.top
 webshareclouds.com
+website-wizard.de
 website.huishurenibiza.nl
 websmartserverun.com
 webtask6566.top
@@ -28503,6 +28524,7 @@ westpointfulfillment.com
 westtherr.com
 westusserverfor.westus2.cloudapp.azure.com
 westy04.karslioglu4-tr.com
+wetrainsimulation.com
 wetsockclub.com
 wexltdqtf.hazzarat.com
 weyland-yutani-corporate-file.garden
@@ -28589,6 +28611,7 @@ whnlicusamu41.com
 whnlicusamu42.com
 who022h5.sallysprattstudio.com
 whohelpedtheturtlecrosstheroad.com
+wholefamilieshome.com
 wholesalecustomboxes.com
 wholesalepetfood.ae
 whtfwec.hesabdari3.xyz
@@ -29284,6 +29307,7 @@ www.ekramsalesbackup2.org
 www.electricians-london.co.uk
 www.elolivarspa.cl
 www.emagetranscripts.com
+www.embalafacil.es
 www.emineozmete.com
 www.employmentlawwakefield.co.uk
 www.encajesmecanicos.com
@@ -29315,6 +29339,7 @@ www.fixbug.icu
 www.fixitfuego.online
 www.flowmatter.org
 www.fluffypumpkin.southcastle.com
+www.fondazioneoav.it
 www.foxnevs.com
 www.franksdigitaltv.com
 www.fratellifoschiani.com
@@ -29365,6 +29390,7 @@ www.highgradebastardbackup2.com
 www.highgradebastardbackup3.com
 www.hirequitb50d19.com
 www.historics.nl
+www.hlsre.com
 www.hmcrent.com
 www.hojarasca.net
 www.honjometal.co.th
@@ -29454,6 +29480,7 @@ www.judeglass.com
 www.julianafernandespediatra.com.br
 www.k-diaspora.biz
 www.kahamahotel.co.ke
+www.kampaiima.com.br
 www.karagkiozis-chatzianagnostou.gr
 www.kashisansadkhelkud.com
 www.kcse.com
@@ -29682,6 +29709,7 @@ www.remoteiconnectbackup1.com
 www.remoteiconnectbackup2.com
 www.remuvr.com.tr
 www.renataprates.com
+www.residences-anna.com
 www.residencialdama.com
 www.restaurant-leuehof.ch
 www.retrieverarbeit.ch
@@ -29827,6 +29855,7 @@ www.victorycaseadvance.com
 www.vidfree.net
 www.vieclamuytin.com
 www.virzicarburanti.it
+www.visualizerstudio.com
 www.vividblue.co.za
 www.vizsla-in-not.eu
 www.vmware.rest
@@ -30942,6 +30971,7 @@ z.dewa2.org
 z.dhawa.net
 z.gam99.org
 z.gg018.org
+z0.arena213.net
 z01zh1hu.truenarrator.com
 z02aheni.thevallartasrestaurants.com
 z03gwmgs.bossbaba.store
