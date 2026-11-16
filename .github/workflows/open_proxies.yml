@@ -1,7 +1,7 @@
 name: Offene Proxies
 
 # Alle 2 Stunden: oeffentliche Listen offener Proxy-Server (TheSpeedX,
-# monosans) holen, auf Einzel-IPs reduzieren (ohne Port, ohne Netzbereiche)
+# monosans und 11 weitere, siehe scripts/open_proxies_build.py) holen, auf Einzel-IPs reduzieren (ohne Port, ohne Netzbereiche)
 # und als proxy/offene_proxies.txt committen. Offene Proxies wechseln
 # schnell, deshalb der kurze Takt. Die Firewall laedt die Datei als URL-Alias.
 on:

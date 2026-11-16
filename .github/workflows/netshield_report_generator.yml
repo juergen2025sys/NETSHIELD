@@ -15,7 +15,7 @@ env:
 
 permissions:
   contents: write
-  actions: write    # write noetig fuer 'gh workflow run' (Trigger am Ende: Bot-Detector 2026-07-05, Honeypot Monitor 2026-07-25, Auto-Feed Refresh 2026-09-02)
+  actions: write    # write noetig fuer 'gh workflow run' (Trigger am Ende: Bot-Detector 2026-07-05, Honeypot Monitor 2026-07-25, Auto-Feed Refresh 2026-09-02, Offene Proxies 2026-11-16)
   issues: none
   packages: none
   pull-requests: none
@@ -741,3 +741,19 @@ jobs:
             --repo "${{ github.repository }}" \
             --ref "${GITHUB_REF_NAME}" \
             -f von_report=true
+
+      - name: Trigger Offene Proxies
+        # 2026-11-16 (Nutzerwunsch): Der Report stoesst auch open_proxies.yml
+        # an. Offene Proxies wechseln schnell, damit wird die Liste bis zu
+        # stuendlich erneuert. Der eigene Cron dort (alle 2 h, :35) bleibt
+        # als Fallback; die concurrency-Gruppe reiht doppelte Starts ein.
+        # Committet wird dort nur bei echten Aenderungen.
+        if: success() && steps.freshness.outputs.proceed == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Report abgeschlossen - triggere Offene Proxies"
+          gh workflow run open_proxies.yml \
+            --repo "${{ github.repository }}" \
+            --ref "${GITHUB_REF_NAME}"
