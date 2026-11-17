@@ -3,11 +3,12 @@
 # Kriterien je Quelle: <= 65536 Adressen, >= 5 IPs, Dichte >= 0.25%
 # Spalten: ASN | IPs | Adressen | Dichte | schon gesperrt | Name | Quelle
 
-AS213412	666	1536	43.36%	nein	ONYPHE SAS	threat.live-Dichte
+AS213412	669	1536	43.55%	nein	ONYPHE SAS	threat.live-Dichte
 AS206305	103	256	40.23%	ja	Contrust Solutions S.R.L.	threat.live-Dichte
 AS211298	399	1024	38.96%	nein	Driftnet Ltd	threat.live-Dichte
 AS205089	107	512	20.90%	nein	Alfahost LLC	threat.live-Dichte
 AS209373	96	512	18.75%	ja	SWISSNET LLC	ThreatFox C2-Dichte
+AS215125	44	256	17.19%	nein	Church of Cyberology	AbuseIPDB-Dichte
 AS209334	129	768	16.80%	nein	Modat B.V.	threat.live-Dichte
 AS211680	218	1536	14.19%	nein	NSEC - Sistemas Informaticos, S.A.	threat.live-Dichte
 AS398722	67	512	13.09%	nein	Censys, Inc.	threat.live-Dichte
@@ -18,14 +19,14 @@ AS214961	118	1024	11.52%	ja	Stellar Group SAS	ThreatFox C2-Dichte
 AS14987	89	1024	8.69%	nein	Rethem Hosting LLC	threat.live-Dichte
 AS204428	21	256	8.20%	ja	SS-Net	threat.live-Dichte
 AS205759	123	1536	8.01%	ja	Ghosty Networks LLC	ThreatFox C2-Dichte
+AS48090	60	768	7.81%	ja	TECHOFF SRV LIMITED	AbuseIPDB-Dichte
 AS64107	18	256	7.03%	ja	RACK SPHERE HOSTING S.A.	ThreatFox C2-Dichte
 AS197769	156	2304	6.77%	ja	ABINTERNET-V Ltd.	ThreatFox C2-Dichte
 AS214351	50	768	6.51%	ja	FEMO IT SOLUTIONS LIMITED	ThreatFox C2-Dichte
 AS398324	400	6144	6.51%	nein	Censys, Inc.	threat.live-Dichte
-AS48090	49	768	6.38%	ja	TECHOFF SRV LIMITED	AbuseIPDB-Dichte
-AS202306	13	256	5.08%	ja	HOSTGLOBAL.PLUS LTD	AbuseIPDB-Dichte
 AS200730	13	256	5.08%	nein	ISAEV Igor	threat.live-Dichte
 AS202412	253	5120	4.94%	ja	Omegatech LTD	ThreatFox C2-Dichte
+AS216014	12	256	4.69%	nein	BestDC Limited	AbuseIPDB-Dichte
 AS401626	23	512	4.49%	ja	Netiface America, Inc.	ThreatFox C2-Dichte
 AS399979	10	256	3.91%	ja	49.3 Networking LLC	ThreatFox C2-Dichte
 AS135388	10	256	3.91%	ja	RMP Protection Limited	ThreatFox C2-Dichte
@@ -40,58 +41,60 @@ AS209630	66	2048	3.22%	ja	LLC VASH KREDIT BANK	threat.live-Dichte
 AS200051	16	512	3.12%	ja	RIZKI ABDUL AZIS	ThreatFox C2-Dichte
 AS211138	8	256	3.12%	ja	Private-Hosting di Cipriano oscar	ThreatFox C2-Dichte
 AS398705	16	512	3.12%	nein	Censys, Inc.	threat.live-Dichte
+AS60729	22	768	2.86%	nein	Stiftung Erneuerbare Freiheit	AbuseIPDB-Dichte
 AS60223	7	256	2.73%	nein	Netiface Limited	ThreatFox C2-Dichte
 AS208476	7	256	2.73%	ja	Badr Ouseffar trading as Rootlink	ThreatFox C2-Dichte
 AS210558	152	5632	2.70%	ja	1337 Services GmbH	ThreatFox C2-Dichte
 AS206560	19	768	2.47%	ja	Contrust Solutions S.R.L.	threat.live-Dichte
 AS215925	25	1024	2.44%	ja	VPSVAULT.HOST LTD	ThreatFox C2-Dichte
 AS209413	12	512	2.34%	ja	DEDIK SERVICES LIMITED	ThreatFox C2-Dichte
-AS214940	12	512	2.34%	ja	KPROHOST LLC	AbuseIPDB-Dichte
+AS42969	18	768	2.34%	nein	Alpha Strike Labs GmbH	AbuseIPDB-Dichte
 AS47154	6	256	2.34%	nein	HUSAM A. H. HIJAZI	AbuseIPDB-Dichte
-AS205997	12	512	2.34%	nein	Vlad Cojuhari	AbuseIPDB-Dichte
 AS211590	12	512	2.34%	ja	Bucklog SARL	threat.live-Dichte
-AS215125	6	256	2.34%	nein	Church of Cyberology	AbuseIPDB-Dichte
-AS20052	11	512	2.15%	nein	Arbor Networks, Inc.	AbuseIPDB-Dichte
 AS142627	11	512	2.15%	nein	Multilink International	threat.live-Dichte
 AS213790	27	1280	2.11%	ja	Limited Network LTD	threat.live-Dichte
 AS198953	16	768	2.08%	ja	Proton66 OOO	ThreatFox C2-Dichte
-AS215930	10	512	1.95%	ja	CIPHER OPERATIONS DOO BEOGRAD - NOVI BEOGRAD	AbuseIPDB-Dichte
-AS213474	10	512	1.95%	ja	HomeLine Broadband LLC	AbuseIPDB-Dichte
-AS216014	5	256	1.95%	nein	BestDC Limited	AbuseIPDB-Dichte
+AS57509	5	256	1.95%	ja	L&L Investment Ltd.	AbuseIPDB-Dichte
 AS214664	5	256	1.95%	nein	JSC Buduschee	threat.live-Dichte
 AS402253	84	4352	1.93%	ja	SKN Subnet & Telecom Ltd	ThreatFox C2-Dichte
 AS202226	61	3328	1.83%	ja	Emil Vitukhnovskii trading as Great Flower	ThreatFox C2-Dichte
+AS211607	14	768	1.82%	nein	Securitytrails, LLC	AbuseIPDB-Dichte
 AS401739	9	512	1.76%	ja	RedLuff, LLC	ThreatFox C2-Dichte
 AS152485	9	512	1.76%	ja	Hosterdaddy Private Limited	ThreatFox C2-Dichte
+AS205997	9	512	1.76%	nein	Vlad Cojuhari	threat.live-Dichte
 AS273514	18	1024	1.76%	nein	AMPLE SOLUCOES TECNOLOGICAS LTDA	threat.live-Dichte
 AS207043	126	7424	1.70%	ja	DEDIK SERVICES LIMITED	ThreatFox C2-Dichte
 AS267784	13	768	1.69%	ja	Flyservers S.A.	ThreatFox C2-Dichte
 AS213850	17	1024	1.66%	ja	Justin Harth	ThreatFox C2-Dichte
 AS25211	173	11008	1.57%	nein	"Euro Crypt" EOOD	threat.live-Dichte
+AS215930	8	512	1.56%	ja	CIPHER OPERATIONS DOO BEOGRAD - NOVI BEOGRAD	AbuseIPDB-Dichte
 AS211443	27	1792	1.51%	ja	SINO WORLDWIDE TRADING LIMITED	ThreatFox C2-Dichte
+AS214940	7	512	1.37%	ja	KPROHOST LLC	ThreatFox C2-Dichte
 AS197194	7	512	1.37%	ja	Rakan Alsulaiman trading as Kayan Establishment For Information Technology	ThreatFox C2-Dichte
+AS213474	7	512	1.37%	ja	HomeLine Broadband LLC	AbuseIPDB-Dichte
+AS268305	14	1024	1.37%	nein	T & I TELECOMUNICACOES LTDA ME	threat.live-Dichte
 AS273785	14	1024	1.37%	nein	A. C. V. TELECOM LTDA	threat.live-Dichte
 AS203557	17	1280	1.33%	ja	SIA RixHost	ThreatFox C2-Dichte
-AS211607	10	768	1.30%	nein	Securitytrails, LLC	AbuseIPDB-Dichte
 AS211860	10	768	1.30%	ja	Nerushenko Vyacheslav Nikolaevich	threat.live-Dichte
 AS214209	13	1024	1.27%	nein	Internet Magnate (Pty) Ltd	ThreatFox C2-Dichte
 AS211486	13	1024	1.27%	ja	Alferov Aleksey Aleksandrovich	threat.live-Dichte
-AS268305	13	1024	1.27%	nein	T & I TELECOMUNICACOES LTDA ME	threat.live-Dichte
 AS209605	29	2304	1.26%	ja	UAB Host Baltic	ThreatFox C2-Dichte
 AS215659	29	2304	1.26%	nein	Aokigahara SRL	ThreatFox C2-Dichte
 AS7488	286	24064	1.19%	nein	CNServer LLC	ThreatFox C2-Dichte
 AS209274	12	1024	1.17%	ja	Kraken Network ISP LTD	ThreatFox C2-Dichte
 AS215929	15	1280	1.17%	ja	Data Campus Limited	ThreatFox C2-Dichte
 AS215428	15	1280	1.17%	ja	Mykyta Skorobohatko	ThreatFox C2-Dichte
-AS50219	6	512	1.17%	nein	LNK SYSTEMS MUNTENIA SRL	threat.live-Dichte
+AS61125	6	512	1.17%	nein	SABOTAGE LLC	AbuseIPDB-Dichte
+AS198093	6	512	1.17%	nein	Foreningen for digitala fri- och rattigheter	AbuseIPDB-Dichte
+AS50219	6	512	1.17%	nein	LNK SYSTEMS MUNTENIA SRL	AbuseIPDB-Dichte
 AS48721	6	512	1.17%	ja	Flyservers S.A.	threat.live-Dichte
 AS209207	27	2560	1.05%	ja	Digital Hosting Provider LLC	ThreatFox C2-Dichte
+AS209366	13	1280	1.02%	nein	SEMrush CY LTD	AbuseIPDB-Dichte
 AS269039	10	1024	0.98%	nein	DENISE DE OLIVEIRA SILVA	threat.live-Dichte
 AS48874	12	1280	0.94%	ja	HOSTMAZE INC SRL-D	ThreatFox C2-Dichte
 AS399486	169	18176	0.93%	ja	12651980 CANADA INC.	ThreatFox C2-Dichte
 AS213186	14	1536	0.91%	ja	Yanoor Islam Khan	ThreatFox C2-Dichte
 AS215286	7	768	0.91%	nein	IXROOT LTD	ThreatFox C2-Dichte
-AS60729	7	768	0.91%	nein	Stiftung Erneuerbare Freiheit	AbuseIPDB-Dichte
 AS266702	21	2304	0.91%	ja	MEGALINK S.R.L.	threat.live-Dichte
 AS270664	9	1024	0.88%	nein	A K C PROV DE ACESSO AS REDES DE TEL. E INF EIRELI	threat.live-Dichte
 AS135687	9	1024	0.88%	nein	Qwistel Network Service Private Limited	threat.live-Dichte
@@ -100,14 +103,17 @@ AS200313	61	7168	0.85%	ja	IT WEB LTD	ThreatFox C2-Dichte
 AS51396	67	7936	0.84%	ja	Pfcloud UG (haftungsbeschrankt)	threat.live-Dichte
 AS135392	23	2816	0.82%	ja	MillenialHost Limited	ThreatFox C2-Dichte
 AS142637	8	1024	0.78%	nein	STAR FAX GROUP PTE LTD	ThreatFox C2-Dichte
+AS396507	8	1024	0.78%	nein	Emerald Onion	AbuseIPDB-Dichte
 AS135198	6	768	0.78%	nein	Bombay Bullion Commmunication	threat.live-Dichte
 AS141767	23	3072	0.75%	nein	C G Communications Ltd	threat.live-Dichte
 AS202799	21	2816	0.75%	nein	SYSECT D.O.O.	ThreatFox C2-Dichte
 AS40662	9	1280	0.70%	nein	Layer7 Technologies Inc	ThreatFox C2-Dichte
+AS215778	9	1280	0.70%	nein	Alpha Strike Labs GmbH	AbuseIPDB-Dichte
 AS398357	7	1024	0.68%	nein	Ethernic LLC	ThreatFox C2-Dichte
 AS49447	7	1024	0.68%	nein	Nice IT Services Group Inc.	ThreatFox C2-Dichte
 AS211673	7	1024	0.68%	nein	Mynymbox Hosting LLC	ThreatFox C2-Dichte
 AS212512	12	1792	0.67%	ja	Detai Prosperous Technologies Limited	threat.live-Dichte
+AS50360	41	6144	0.67%	ja	Tamatiya EOOD	AbuseIPDB-Dichte
 AS209946	17	2560	0.66%	ja	ALINDA LLC	ThreatFox C2-Dichte
 AS262821	27	4096	0.66%	nein	PHS INTERNET E SUPRIMENTOS LTDA - ME	threat.live-Dichte
 AS214927	20	3072	0.65%	ja	PSB HOSTING LTD	ThreatFox C2-Dichte
@@ -115,7 +121,6 @@ AS34327	5	768	0.65%	nein	JSC "E-Publish"	ThreatFox C2-Dichte
 AS210457	18	2816	0.64%	ja	Kyonix Networks Limited	ThreatFox C2-Dichte
 AS267398	13	2048	0.63%	nein	mega ip connect	threat.live-Dichte
 AS201670	8	1280	0.62%	nein	S.C. INFOTECH-GRUP S.R.L.	ThreatFox C2-Dichte
-AS209366	8	1280	0.62%	nein	SEMrush CY LTD	AbuseIPDB-Dichte
 AS211507	14	2304	0.61%	nein	Julian Achter	ThreatFox C2-Dichte
 AS203861	6	1024	0.59%	ja	Miteflux Technologies Ltd	ThreatFox C2-Dichte
 AS203485	6	1024	0.59%	nein	Noinet Societa Cooperativa	threat.live-Dichte
@@ -125,7 +130,6 @@ AS132386	6	1024	0.59%	nein	Usman Internet Service Provider Private Limited	threa
 AS62563	63	11008	0.57%	nein	GLOBALTELEHOST Corp.	ThreatFox C2-Dichte
 AS48753	23	4096	0.56%	nein	AVA HOST SRL	ThreatFox C2-Dichte
 AS141167	47	8448	0.56%	nein	AgotoZ HK Limited	threat.live-Dichte
-AS215778	7	1280	0.55%	nein	Alpha Strike Labs GmbH	threat.live-Dichte
 AS215117	11	2048	0.54%	ja	HosterDaddy Private Limited	ThreatFox C2-Dichte
 AS57523	8	1536	0.52%	ja	changway-as Chang Way Technologies Co. Limited	ThreatFox C2-Dichte
 AS210006	8	1536	0.52%	ja	Shereverov Marat Ahmedovich	threat.live-Dichte
@@ -149,13 +153,13 @@ AS402169	241	54272	0.44%	nein	Uscloud Inc	ThreatFox C2-Dichte
 AS151330	17	3840	0.44%	nein	PLAY BROADBAND (PRIVATE) LIMITED	threat.live-Dichte
 AS206961	9	2048	0.44%	nein	Riccardo Gori	threat.live-Dichte
 AS38298	9	2048	0.44%	nein	Redfox Internet	threat.live-Dichte
+AS62744	12	2816	0.43%	nein	Quintex Alliance Consulting	AbuseIPDB-Dichte
 AS263331	13	3072	0.42%	nein	Netvox Telecomunicacoes LTDA	ThreatFox C2-Dichte
-AS50360	26	6144	0.42%	ja	Tamatiya EOOD	AbuseIPDB-Dichte
 AS58580	40	9472	0.42%	nein	Managed Data Solutions	ThreatFox C2-Dichte
 AS40861	110	26368	0.42%	ja	Paradise Networks LLC	ThreatFox C2-Dichte
+AS138423	74	17920	0.41%	nein	CMPak Limited	threat.live-Dichte
 AS262992	29	7168	0.40%	nein	CONEXAO SERVICOS DE COMUNICACAO MULTIMIDIA LTDA-ME	threat.live-Dichte
 AS206092	126	31232	0.40%	ja	F.N.S. HOLDINGS LIMITED	threat.live-Dichte
-AS138423	72	17920	0.40%	nein	CMPak Limited	threat.live-Dichte
 AS139659	74	18944	0.39%	nein	LUCIDACLOUD LIMITED	ThreatFox C2-Dichte
 AS133201	12	3072	0.39%	nein	ABCDE GROUP COMPANY LIMITED	ThreatFox C2-Dichte
 AS398256	11	2816	0.39%	nein	Ultahost, Inc.	ThreatFox C2-Dichte
@@ -190,13 +194,14 @@ AS272539	6	2048	0.29%	nein	ENEVE TELECOMUNICACOES LTDA	threat.live-Dichte
 AS205775	15	5376	0.28%	ja	NEON CORE NETWORK LLC	ThreatFox C2-Dichte
 AS397966	5	1792	0.28%	nein	ReadyDedis, LLC	ThreatFox C2-Dichte
 AS63025	10	3584	0.28%	nein	NOHAVPS LLC	ThreatFox C2-Dichte
+AS273045	5	1792	0.28%	nein	DATAHOME S.A.	AbuseIPDB-Dichte
 AS399461	42	15360	0.27%	nein	HostSNAP LLC	ThreatFox C2-Dichte
 AS62610	171	63232	0.27%	nein	Zenlayer Inc	ThreatFox C2-Dichte
 AS205051	9	3328	0.27%	nein	Connetta Srl	threat.live-Dichte
 AS58212	48	17920	0.27%	nein	dataforest GmbH	ThreatFox C2-Dichte
 AS216039	8	3072	0.26%	nein	EdgeSec Technologies Limited	ThreatFox C2-Dichte
+AS202425	40	15360	0.26%	ja	IP Volume inc	threat.live-Dichte
 AS267788	6	2304	0.26%	nein	IP TECHNOLOGIES S.A.S.	threat.live-Dichte
 AS140900	8	3072	0.26%	nein	Getlinks (SMC-Private) Limited	threat.live-Dichte
 AS267120	6	2304	0.26%	nein	Brnet Telecomunicacoes LTDA - ME	threat.live-Dichte
-AS202425	39	15360	0.25%	ja	IP Volume inc	threat.live-Dichte
 AS58087	22	8704	0.25%	ja	Florian Kolb	ThreatFox C2-Dichte
