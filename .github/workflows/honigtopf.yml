@@ -2,67 +2,9 @@ name: Honigtopf
 
 on:
   schedule:
-    # FIX FREQ-20MIN (2026-08-10): Von stuendlich auf alle 20 Minuten erhoeht.
-    #
-    # FIX ALWAYS-FULL (2026-08-29, Nutzeranfrage): Jeder normale Cron-/
-    # Dispatch-Lauf faehrt jetzt IMMER Voll (/services + Pro-Dienst-
-    # Endpunkte), keine budget-basierte Voll/Light-Abwaegung mehr. Die
-    # bisherige Live-Header-Logik (aus 'honeydb-qpm-remaining' vor jedem
-    # Lauf entscheiden, ob ein Voll-Sweep passt) wurde entfernt. Ausnahmen
-    # bleiben unveraendert Light: Watchdog-Dispatch (force_light=true) und
-    # Report-Piggyback (workflow_run) - siehe HARD_LIGHT weiter unten -
-    # sowie ein fehlgeschlagener /bad-hosts-Call (Sicherheitsnetz).
-    #
-    # Kontingent-Rechnung (Stand 2026-08-29, bestaetigt per HoneyDB-API-Doku
-    # https://honeydb.io/threats, Abschnitt "Request Limits" - live
-    # abgerufen, nicht aus Training-Wissen): Community-Accounts haben
-    # EINDEUTIG 1.000 gezaehlte Requests/Tag PRO Credential, Reset um
-    # Mitternacht UTC. Der fruehere Kommentar hier ("1500/Monat vs.
-    # 1000/Tag"-Dokuwiderspruch) ist damit aufgeloest - 1.500 ist NICHT die
-    # aktuelle Zahl, auf keiner der beiden Seiten. Bei N Credentials im
-    # Round-Robin-Pool (siehe CREDENTIALS-Aufbau unten) ergibt das N x 1.000
-    # Requests/Tag Gesamtkapazitaet.
-    # Ein Voll-Lauf kostet ~32-34 Requests (beobachtet in echten Laeufen:
-    # 1 bad-hosts + 1 services + ~30 Pro-Dienst-Endpunkte). Bei */20 * * * *
-    # (72 Laeufe/Tag) IMMER Voll: 72 x 34 = 2.448 Requests/Tag.
-    # Das passt bei >= 3 Credentials (3.000/Tag Kapazitaet, ~550 Requests
-    # Puffer fuer 5xx-Retries + Watchdog-Backup-Laeufe). Bei WENIGER als 3
-    # Credentials reicht das Kontingent im Dauer-Voll-Betrieb NICHT mehr
-    # sicher aus - dann im Report/Log auf gehaeufte 429/"ALLE CREDENTIALS
-    # ERSCHOEPFT"-Meldungen achten und ggf. Cron-Frequenz senken oder
-    # weitere Credentials (Secret-Suffix _N) ergaenzen.
-    # FIX CRON-REDUNDANZ (2026-08-30, Nutzeranfrage "finde eine loesung das
-    # der oefters startet"): GitHub verwirft geplante schedule-Events bei
-    # Last - gemessen an der echten Actions-Historie am 2026-08-30 liefen
-    # nur ~5 statt der erwarteten ~48 Scheduled-Laeufe in 16 Stunden
-    # (~90% Ausfall), mit Luecken von 3-5 Stunden zwischen zwei
-    # Cron-Laeufen. Das ist NICHT in diesem Workflow behebbar (kein
-    # Konfigurationsfehler - Cron-Ausdruck, Skip-Step und concurrency sind
-    # korrekt), sondern eine dokumentierte GitHub-Eigenschaft.
-    #
-    # Gegenmassnahme: dasselbe Redundanz-Muster wie in
-    # update_combined_blacklist.yml ('7/27/47 */3') und
-    # auto_feed_discovery.yml (3 Slots, Kommentar dort: "Backup falls
-    # primaerer Slot von GitHub uebersprungen"). Jede cron-Zeile ist fuer
-    # GitHub ein EIGENES Event - faellt der primaere Slot aus, hat der
-    # Backup-Slot 5 bzw. 10 Minuten spaeter eine unabhaengige Chance.
-    #
-    # WICHTIG: Die Mehrfach-Trigger vervielfachen NICHT den API-Verbrauch.
-    # Der Idempotenz-Gate im Step "Skip if Honigtopf ran recently" (weiter
-    # unten) ueberspringt jeden Lauf, der weniger als 12 Minuten nach einem
-    # erfolgreichen Lauf startet - die Backups feuern also nur, wenn der
-    # primaere Slot tatsaechlich ausgefallen ist. Die Obergrenze bleibt
-    # damit bei ~72 Laeufen/Tag (= 2.448 Requests), exakt wie in der
-    # Kontingent-Rechnung unten kalkuliert.
-    # FIX FREQ-2H (2026-11-15): Von alle 20 Minuten auf alle 2 Stunden
-    # gesenkt. Grund: 72 Voll-Laeufe/Tag x 58 Requests (aktuell 56 Dienste
-    # + bad-hosts + services) = ~4.200 Requests/Tag - mehr als 3 Community-
-    # Credentials (3 x 1.000/Tag) hergeben. Folge: ab Mittag "HTTP 402 /
-    # ALLE CREDENTIALS ERSCHOEPFT" und rote Laeufe. /bad-hosts liefert ohnehin
-    # immer die letzten 24 h - alle 20 Minuten abzufragen brachte kaum Neues.
-    # 12 Voll-Laeufe/Tag x ~58 = ~700 Requests/Tag -> passt mit 1 Credential.
-    # Die Report-Piggyback-Laeufe (workflow_run) bleiben Light (1 Request).
-    # Backup-Slots +5/+10 min bleiben; der 12-min-Gate unten verhindert Doppellaeufe.
+    # HoneyDB-Kontingente gelten pro Account. Honigtopf nutzt die
+    # Credential-Paare in numerischer Reihenfolge und merkt sich
+    # ausgeschoepfte Kontingente bis zum naechsten UTC-Kontingentfenster.
     # FIX REPORT-TAKT (2026-11-15, Nutzerwunsch): Hauptausloeser ist jetzt der
     # NETSHIELD Report Generator (stuendlich, Step "Trigger Honigtopf" mit
     # von_report=true). Der Gate unten laesst dann nur durch, wenn der letzte
@@ -74,7 +16,7 @@ on:
   workflow_dispatch:
     inputs:
       force_light:
-        description: "Light-Lauf erzwingen (nur /bad-hosts, merged mit existing), unabhaengig vom verbleibenden Budget. Vom Watchdog genutzt, damit ein dispatch-Trigger die Liste NICHT auf den 24h-Snapshot schrumpft. Ohne diesen Input entscheidet auch ein manueller dispatch budget-basiert (siehe schedule-Kommentar oben)."
+        description: "Light-Lauf erzwingen (nur /bad-hosts, merged mit existing), unabhaengig vom verbleibenden Budget. Vom Watchdog genutzt, damit ein dispatch-Trigger die Liste NICHT auf den 24h-Snapshot schrumpft. Ohne diesen Input startet ein Voll-Lauf."
         type: boolean
         default: false
       von_report:
@@ -112,6 +54,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.ref }}
           persist-credentials: true
 
       - name: Skip if Honigtopf ran recently
@@ -165,6 +108,51 @@ jobs:
           fi
 
 
+      - name: WireGuard fuer HoneyDB starten
+        id: wireguard
+        if: steps.recent.outputs.skip != 'true'
+        env:
+          WG_CONF: ${{ secrets.WG_CONF }}
+        run: |
+          set -euo pipefail
+          if [ -z "$WG_CONF" ]; then
+            echo "::error::GitHub-Secret WG_CONF fehlt oder ist leer."
+            exit 1
+          fi
+
+          if ! command -v wg-quick >/dev/null || ! command -v nft >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq wireguard-tools nftables
+          fi
+
+          config="$RUNNER_TEMP/wg-honigtopf.conf"
+          umask 077
+          # Wie im WireGuard-Test wird der Runner-DNS beibehalten.
+          printf '%s\n' "$WG_CONF" | tr -d '\r' \
+            | sed -E '/^[[:space:]]*(DNS|SaveConfig)[[:space:]]*=/Id' > "$config"
+          unset WG_CONF
+          if ! sudo wg-quick up "$config" >/dev/null 2>&1; then
+            echo "::error::WireGuard konnte mit WG_CONF nicht gestartet werden."
+            exit 1
+          fi
+
+          # Verhindert direkten HTTPS-Verkehr, falls die Tunnelroute wegfaellt.
+          sudo nft -f - <<'NFT'
+          table inet honigtopf_vpn {
+            chain output {
+              type filter hook output priority filter; policy accept;
+              oifname != "wg-honigtopf" tcp dport 443 reject
+            }
+          }
+          NFT
+          # Ohne API-Credentials Tunnelroute und Erreichbarkeit pruefen.
+          if ! curl --noproxy '*' --interface 'if!wg-honigtopf' -sS \
+              --connect-timeout 10 --max-time 20 -o /dev/null https://honeydb.io/; then
+            echo "::error::HoneyDB ist ueber den WireGuard-Tunnel nicht erreichbar."
+            exit 1
+          fi
+          echo "HoneyDB ist ueber WireGuard erreichbar."
+
       - name: Fetch Honigtopf Threat Data
         if: steps.recent.outputs.skip != 'true'
         id: fetch
@@ -196,6 +184,8 @@ jobs:
           # Standardmaessig laeuft dieser Step mit 'bash -e' (GitHub-Actions-
           # Default) - ohne 'set +e' wuerde er bei python3-Fehlschlag SOFORT
           # abbrechen, die Zeilen danach wuerden nie erreicht.
+          # Proxy-Umgebungsvariablen fuer den direkten HoneyDB-Abruf umgehen.
+          export NO_PROXY='*' no_proxy='*'
           set +e
           python3 << 'EOF'
           import sys as _sys; _sys.path.insert(0, "scripts")
@@ -232,10 +222,7 @@ jobs:
           def _sec(name):
               return str(os.environ.get(name, "") or "").strip()
 
-          # now: UTC – bleibt so fuer 'today'/'_heute' (Abgleich mit last_seen-
-          # Datumswerten aus der HoneyDB-API, die UTC-basiert sind) und fuer
-          # die Credential-Rotation (now.hour). NICHT auf Berlin-Zeit
-          # umstellen, sonst brechen diese Vergleiche/die Rotation.
+          # API-Datumswerte und Kontingentfenster sind UTC-basiert.
           now     = datetime.now(timezone.utc)
           today   = now.strftime("%Y-%m-%d")
 
@@ -290,166 +277,58 @@ jobs:
               print("GitHub Secret anlegen: Settings → Secrets and variables → Actions")
               sys.exit(1)
 
-          print(f"Credential-Pool: {len(CREDENTIALS)} Credential(s) – Round-Robin aktiv")
+          print(f"Credential-Pool: {', '.join(label for _, _, label in CREDENTIALS)}")
 
-          # ── API-Key-Health-Check (Nutzeranfrage, 2026-08-29) ───────────────
-          # FIX KEY-HEALTH: Prueft VOR dem eigentlichen Sweep jede Credential
-          # einzeln auf Gueltigkeit (401/403 = ungueltig/gesperrt/revoked).
-          # Nutzt bewusst einen laut aktueller HoneyDB-Doku (honeydb.io/
-          # threats, Abschnitt "Uncounted Endpoints", live abgerufen
-          # 2026-08-29) NICHT gezaehlten netinfo-Endpunkt - der Check
-          # verbraucht also KEIN Tages-Kontingent, unabhaengig davon wie oft
-          # er laeuft. Ungueltige Credentials werden aus dem Round-Robin-Pool
-          # fuer DIESEN Lauf entfernt, damit sie den Voll-Sweep nicht durch
-          # wiederholte 401-Fehlversuche verlangsamen. Reine Netzwerkfehler
-          # (Timeout etc.) disqualifizieren NICHT - nur ein expliziter
-          # 401/403 gilt als "ungueltig", alles andere bleibt im Pool (kann
-          # ein voruebergehendes Problem sein, kein Grund die Credential zu
-          # verwerfen).
-          # FIX HEALTH-410 (2026-11-14): Der alte Pfad
-          # "/netinfo/geolocation/8.8.8.8" liefert inzwischen HTTP 410 Gone.
-          # Laut aktueller HoneyDB-Postman-Doku (documenter.getpostman.com/
-          # view/17070515/2sBXiesuMY) zaehlt dieser Endpunkt NICHT gegen das
-          # Monatskontingent ("Calls to this endpoint do not count against
-          # monthly quota"). Sollte auch er wegfallen (404/410), greift die
-          # Laufzeit-Erkennung in api_get() (siehe _runtime_invalid_credentials).
-          KEY_HEALTH_ENDPOINT = "/ip/8.8.8.8/threatinfo/project-honeypot"  # uncounted lt. Doku 2026-11
-          credential_status = []  # fuer Report/Log: [{"label", "ok", "http"/"error"}]
-          _valid_credentials = []
-          for _cid, _key, _label in CREDENTIALS:
-              try:
-                  with safe_urlopen(
-                      f"{_dec('aHR0cHM6Ly9ob25leWRiLmlvL2FwaQ==')}{KEY_HEALTH_ENDPOINT}",
-                      headers={
-                          _dec("WC1Ib25leURiLUFwaUlk"):  _cid,
-                          _dec("WC1Ib25leURiLUFwaUtleQ=="): _key,
-                          "User-Agent": "NETSHIELD-Honigtopf/1.0",
-                      },
-                      timeout=15,
-                  ) as _r:
-                      credential_status.append({"label": _label, "ok": True, "http": _r.status})
-                      _valid_credentials.append((_cid, _key, _label))
-                      print(f"  Key-Health [{_label}]: OK (HTTP {_r.status})")
-              except urllib.error.HTTPError as _e:
-                  if _e.code in (401, 403):
-                      credential_status.append({"label": _label, "ok": False, "http": _e.code})
-                      print(f"  ::warning::Key-Health [{_label}]: UNGUELTIG (HTTP {_e.code}) – aus Pool entfernt")
-                  elif _e.code in (404, 410):
-                      # FIX HEALTH-410 (2026-11-14): HoneyDB hat den uncounted
-                      # netinfo-Endpunkt abgeschaltet (HTTP 410 Gone). Damit
-                      # kann der Vorab-Check die Keys nicht mehr pruefen.
-                      # Die Credential bleibt im Pool; ungueltige Keys werden
-                      # stattdessen beim ersten ECHTEN Abruf in api_get()
-                      # erkannt (401/403 -> _runtime_invalid_credentials) und
-                      # landen trotzdem im Key-Alarm-Issue. Kostet 0 Extra-Requests.
-                      credential_status.append({"label": _label, "ok": None, "http": _e.code})
-                      _valid_credentials.append((_cid, _key, _label))
-                      print(f"  Key-Health [{_label}]: Pruef-Endpunkt nicht mehr verfuegbar (HTTP {_e.code}) – Pruefung erfolgt beim ersten echten Abruf")
-                  else:
-                      # Anderer HTTP-Fehler (z.B. 5xx) - kein Auth-Problem,
-                      # Credential bleibt im Pool.
-                      credential_status.append({"label": _label, "ok": None, "http": _e.code})
-                      _valid_credentials.append((_cid, _key, _label))
-                      print(f"  Key-Health [{_label}]: unklar (HTTP {_e.code}, kein Auth-Fehler) – bleibt im Pool")
-              except Exception as _e:
-                  credential_status.append({"label": _label, "ok": None, "error": str(_e)})
-                  _valid_credentials.append((_cid, _key, _label))
-                  print(f"  Key-Health [{_label}]: Netzwerkfehler ({_e}) – bleibt im Pool")
+          QUOTA_FILE = "state/honigtopf_quota.json"
+          try:
+              with open(QUOTA_FILE, encoding="utf-8") as quota_file:
+                  quota_state = json.load(quota_file)
+              if not isinstance(quota_state, dict):
+                  raise ValueError("Kontingentstatus muss ein Objekt sein")
+          except FileNotFoundError:
+              quota_state = {}
+          except (OSError, ValueError) as error:
+              print(f"  ::warning::Kontingentstatus konnte nicht gelesen werden: {error}")
+              quota_state = {}
 
-          _n_ok  = sum(1 for c in credential_status if c["ok"] is True)
-          _n_bad = sum(1 for c in credential_status if c["ok"] is False)
-          _n_unk = len(credential_status) - _n_ok - _n_bad
-          print(f"Key-Health-Zusammenfassung: {_n_ok} OK, {_n_bad} ungueltig, {_n_unk} unklar")
+          def quota_window_key(window):
+              pattern = "%Y-%m" if window == "monthly" else "%Y-%m-%d"
+              return datetime.now(timezone.utc).strftime(pattern)
 
-          # FIX KEY-ALARM (2026-08-29, Nutzeranfrage "kann doch ein issue
-          # erstellt werden"): ungueltige Credential-Labels in eine Datei
-          # schreiben, damit der Bash-Teil DIESES Steps (nach dem Python-
-          # Heredoc) sie per GITHUB_OUTPUT an den nachfolgenden Issue-Step
-          # weiterreichen kann. Wird VOR dem sys.exit(1)-Fall unten
-          # geschrieben, damit der Alarm auch greift, wenn ALLE Credentials
-          # ungueltig sind und der Job deshalb abbricht.
-          # FIX SECURITY-HYGIENE (2026-08-30, automatisierter Check
-          # scripts/check_security_hygiene.py meldete Verstoss): direktes
-          # open(...).write() durch write_text_atomic() ersetzt - konsistent
-          # mit dem Rest des Repos (tempfile + fsync + os.replace statt
-          # potenziell unvollstaendigem Write bei Absturz/SIGKILL mitten im
-          # Schreibvorgang). Fuer eine so kleine, fluechtige Marker-Datei in
-          # /tmp waere ein Crash-Risiko zwar gering, aber der Check macht
-          # keine Ausnahme fuer /tmp - und Konsistenz zum Rest des Codes ist
-          # ohnehin sinnvoll.
-          # FIX HEALTH-410 (2026-11-14): Zusaetzlich zu den im Vorab-Check
-          # als ungueltig erkannten Credentials werden auch solche gemeldet,
-          # die erst beim echten Abruf 401/403 liefern (api_get fuellt
-          # _runtime_invalid_credentials). Der Marker wird jetzt sofort UND
-          # per atexit nochmal am Ende geschrieben - so greift der Key-Alarm
-          # auch bei sys.exit()/SystemExit mitten im Lauf.
-          _runtime_invalid_credentials = set()
+          def quota_exhausted(label):
+              window = quota_state.get(label)
+              return window == quota_window_key("daily") or window == quota_window_key("monthly")
 
-          def _write_invalid_marker():
-              _labels = [c["label"] for c in credential_status if c["ok"] is False]
-              _labels += sorted(l for l in _runtime_invalid_credentials if l not in _labels)
-              try:
-                  write_text_atomic("/tmp/honigtopf_invalid_creds.txt", ",".join(_labels))
-              except OSError as _e:
-                  print(f"  WARNUNG: Konnte invalid_creds-Marker nicht schreiben: {_e}")
+          def mark_quota_exhausted(label, headers):
+              window = headers.get("honeydb-quota-window") or quota_windows.get(label, "daily")
+              quota_state[label] = quota_window_key(window)
+              write_text_atomic(QUOTA_FILE, json.dumps(quota_state, indent=2, sort_keys=True) + "\n")
 
-          _write_invalid_marker()
-          import atexit as _atexit
-          _atexit.register(_write_invalid_marker)
+          quota_windows = {}
+          forbidden = {}
+          payment_required = set()
+          verified = {}
+          import atexit
 
-          if not _valid_credentials:
-              print("FEHLER: Keine gueltige Credential nach Key-Health-Check uebrig!")
-              sys.exit(1)
+          def credential_status(label):
+              if label in forbidden:
+                  return f"Ungueltig (HTTP {forbidden[label]})"
+              if quota_exhausted(label):
+                  return "Kontingent ausgeschoepft"
+              if label in payment_required:
+                  return "Tarif/Berechtigung (HTTP 402), fuer diesen Lauf uebersprungen"
+              if label in verified:
+                  return f"OK (HTTP {verified[label]})"
+              return "Reserve, in diesem Lauf nicht abgefragt"
 
-          CREDENTIALS = _valid_credentials
-
-          # FIX 402-RUN-QUARANTAENE (2026-09-15): Ein HTTP 402 auf einem
-          # echten Daten-Endpunkt ist in der Praxis credential-/accountbezogen.
-          # Sobald eine Credential in api_get() einmal 402 liefert, wird sie
-          # fuer den REST DIESES WORKFLOW-LAUFS aus weiteren API-Aufrufen
-          # ausgeschlossen. Beim naechsten Workflow-Lauf startet der Pool
-          # wieder vollstaendig; es gibt also keine dauerhafte Sperre.
-          #
-          # Wichtig: Ein 402 im uncounted Key-Health-Check allein quarantiniert
-          # noch NICHT. Der Health-Endpunkt kann andere Plan/Berechtigungs-
-          # Eigenschaften haben. Erst ein 402 auf dem tatsaechlich benoetigten
-          # Daten-Endpunkt fuehrt zur Laufzeit-Quarantaene.
-          _disabled_402_credentials = set()
-
-          # FIX KEY-STATUS-LOG (2026-11-15, Nutzerwunsch): Am Ende JEDES Laufs
-          # (auch bei sys.exit/Abbruch, daher atexit) den Status aller
-          # HoneyDB-Credentials in eine Datei schreiben. Der Shell-Teil nach
-          # dem Python-Block gibt daraus einen gut sichtbaren Block im Log aus
-          # und meldet ::error, wenn KEINE Credential mehr funktioniert.
-          def _write_key_status():
-              try:
-                  _rows = []
-                  for _c in credential_status:
-                      _lab = _c["label"]
-                      if _lab in _runtime_invalid_credentials or _c.get("ok") is False:
-                          _st = "GESPERRT (HTTP 401/403 - Key ungueltig)"
-                      elif _lab in _disabled_402_credentials:
-                          _st = "GESPERRT (HTTP 402 - Tarif/Tageskontingent)"
-                      else:
-                          _st = "OK"
-                      _rows.append(f"{_lab}|{_st}")
-                  write_text_atomic("/tmp/honigtopf_key_status.txt", "\n".join(_rows) + "\n")
-              except Exception as _e:  # Diagnose darf den Lauf nie stoeren
-                  print(f"  (Key-Status-Datei nicht geschrieben: {_e})")
-          _atexit.register(_write_key_status)
-
-          # Rotations-Zeiger: zeigt auf die als naechstes zu nutzende Credential.
-          # Wird bei jeder Anfrage um 1 weitergedreht (Round-Robin), sodass sich
-          # die Last gleichmaessig auf alle Accounts verteilt.
-          #
-          # STARTINDEX aus der UTC-Stunde: GitHub Actions haelt KEINEN Zustand
-          # zwischen Laeufen. Wuerde der Zeiger fix bei 0 starten, naehme jeder
-          # stuendliche Light-Lauf (nur 1 Anfrage) immer cred1 -> keine Rotation
-          # ueber die Laeufe. Durch (Stunde % Pool-Groesse) startet jeder Lauf bei
-          # einer anderen Credential: 14:15->cred(14%n), 15:15->cred(15%n) usw.
-          # So rotieren auch die Light-Laeufe ueber den Tag gleichmaessig durch.
-          _rr_index = now.hour % len(CREDENTIALS)
-          print(f"Rotations-Start: cred{_rr_index + 1} (UTC-Stunde {now.hour} % {len(CREDENTIALS)})")
+          @atexit.register
+          def write_credential_status():
+              labels = [label for _, _, label in CREDENTIALS]
+              rows = [f"{label}|{credential_status(label)}" for label in labels]
+              write_text_atomic("/tmp/honigtopf_key_status.txt", "\n".join(rows) + "\n")
+              write_text_atomic("/tmp/honigtopf_invalid_creds.txt", ",".join(forbidden))
+              if all(label in verified and label not in forbidden for label in labels):
+                  write_text_atomic("/tmp/honigtopf_all_keys_verified.txt", "true")
 
           BASE_URL = _dec("aHR0cHM6Ly9ob25leWRiLmlvL2FwaQ==")
           HDR_ID   = _dec("WC1Ib25leURiLUFwaUlk")
@@ -468,44 +347,12 @@ jobs:
           # ── API-Helper ────────────────────────────────────────────────────
           requests_used = 0
           failed_endpoints = set()
-          # Letzter bekannter 'remaining'-Wert (numerisch, falls parsebar) -
-          # nach jedem erfolgreichen Call aktualisiert. Treibt die
-          # Voll-vs-Light-Entscheidung weiter unten (siehe FULL_RUN_EXTRA_COST).
-          last_remaining_numeric = None
-
           def api_get(endpoint, label="", retries=3):
-              global requests_used, _rr_index, last_remaining_numeric
+              global requests_used
               url = f"{BASE_URL}{endpoint}"
-
-              # Credentials, die in DIESEM Lauf bereits auf einem echten
-              # Daten-Endpunkt HTTP 402 geliefert haben, nicht erneut senden.
-              # Dadurch erzeugt ein Account-/Planproblem nicht bei jedem der
-              # ~30 Service-Endpunkte denselben unnuetzen 402-Request.
-              active_credentials = [
-                  cred for cred in CREDENTIALS
-                  if cred[2] not in _disabled_402_credentials
-              ]
-              if not active_credentials:
-                  print(f"  ALLE CREDENTIALS FUER DIESEN LAUF DEAKTIVIERT [{label or endpoint}] (HTTP 402)")
-                  failed_endpoints.add(endpoint)
-                  return None
-
-              n = len(active_credentials)
-              # Round-Robin: bei dieser Anfrage mit der naechsten aktuell
-              # aktiven Credential starten und den Zeiger weiterdrehen.
-              # Nach einer 402-Quarantaene wird der Index auf die verkleinerte
-              # aktive Liste normalisiert.
-              start = _rr_index % n
-              _rr_index = (start + 1) % n
-
-              # Reihenfolge fuer DIESE Anfrage: ab start einmal rundherum.
-              # Bei 401/402/429 wird die naechste Credential im Ring versucht
-              # (kombiniert Rotation + Fallback). Bei 5xx wird mit derselben
-              # Credential retried (Serverproblem – Wechsel hilft nicht).
-              order = [(start + k) % n for k in range(n)]
-
-              for idx in order:
-                  cred_id, cred_key, cred_label = active_credentials[idx]
+              for cred_id, cred_key, cred_label in CREDENTIALS:
+                  if cred_label in forbidden or cred_label in payment_required or quota_exhausted(cred_label):
+                      continue
                   for attempt in range(1, retries + 1):
                       try:
                           with safe_urlopen(url, headers={
@@ -521,17 +368,12 @@ jobs:
                                   elif _l.endswith("qpm-consumed"):
                                       consumed = _hv
                               requests_used += 1
-                              # FIX DYNAMIC-FULL: 'remaining' numerisch cachen,
-                              # damit der Aufrufer (Voll/Light-Entscheidung)
-                              # das tatsaechliche Live-Kontingent kennt, statt
-                              # sich auf eine der beiden widerspruechlichen
-                              # HoneyDB-Doku-Angaben (1500/Monat vs. 1000/Tag)
-                              # zu verlassen. "/1500" im Log-String ist nur
-                              # noch ein Anhaltspunkt, keine harte Aussage.
-                              try:
-                                  last_remaining_numeric = int(remaining)
-                              except (TypeError, ValueError):
-                                  pass  # Header fehlt/unerwartetes Format - bleibt None
+                              quota_window = r.headers.get("honeydb-quota-window")
+                              if quota_window in ("daily", "monthly"):
+                                  quota_windows[cred_label] = quota_window
+                              verified[cred_label] = r.status
+                              if remaining.strip() == "0":
+                                  mark_quota_exhausted(cred_label, r.headers)
                               print(f"  [{label or endpoint}] HTTP {r.status} ({cred_label}) | verbraucht: {consumed} | verbleibend: {remaining}")
                               payload = json.loads(r.read().decode("utf-8"))
                               if endpoint.startswith("/sensor-data/"):
@@ -556,26 +398,17 @@ jobs:
                               return payload
                       except urllib.error.HTTPError as e:
                           if e.code == 429:
-                              print(f"  RATE LIMIT [{label or endpoint}] ({cred_label}) – naechste Credential")
-                              break  # naechste Credential im Ring probieren
+                              mark_quota_exhausted(cred_label, e.headers)
+                              print(f"  KONTINGENT ERSCHOEPFT [{label or endpoint}] ({cred_label}, HTTP 429) – naechste Credential")
+                              break
                           if e.code in (401, 403):
-                              # FIX HEALTH-410: Auth-Fehler im echten Abruf fuer
-                              # den Key-Alarm merken (Vorab-Check kann nicht mehr pruefen).
-                              _runtime_invalid_credentials.add(cred_label)
+                              forbidden[cred_label] = e.code
                               print(f"  ::warning::AUTHENTIFIZIERUNG FEHLGESCHLAGEN [{label or endpoint}] ({cred_label}, HTTP {e.code}) – naechste Credential")
-                              break  # naechste Credential im Ring probieren
+                              break
                           if e.code == 402:
-                              # HoneyDB kann 402 credential-/accountbezogen liefern
-                              # (z.B. Plan/Berechtigung), waehrend eine andere
-                              # Credential denselben Endpoint noch erfolgreich
-                              # abrufen kann. Deshalb failovern UND diese
-                              # Credential fuer den Rest dieses Laufs quarantinieren.
-                              _disabled_402_credentials.add(cred_label)
-                              print(
-                                  f"  HTTP 402 / PLAN-BERECHTIGUNG [{label or endpoint}] ({cred_label}) "
-                                  "– fuer Rest dieses Laufs deaktiviert; naechste Credential"
-                              )
-                              break  # naechste Credential im Ring probieren
+                              payment_required.add(cred_label)
+                              print(f"  HTTP 402 [{label or endpoint}] ({cred_label}) – fuer diesen Lauf uebersprungen")
+                              break
                           if e.code in (500, 502, 503, 504) and attempt < retries:
                               wait_s = 2 ** attempt
                               print(f"  HTTP {e.code} [{label or endpoint}] – Retry in {wait_s}s ({attempt}/{retries})")
@@ -594,8 +427,7 @@ jobs:
                           failed_endpoints.add(endpoint)
                           return None
 
-              # Alle Credentials im Ring lieferten 401/402/429
-              print(f"  ALLE CREDENTIALS ERSCHOEPFT [{label or endpoint}]")
+              print(f"  KEINE VERFUEGBARE CREDENTIAL [{label or endpoint}]")
               failed_endpoints.add(endpoint)
               return None
 
@@ -1011,16 +843,8 @@ jobs:
           lines.append("## API-Key-Status\n")
           lines.append("| Credential | Status |")
           lines.append("|---|---|")
-          for _c in credential_status:
-              if _c["label"] in _disabled_402_credentials:
-                  _status_txt = "⚠️ HTTP 402 auf Daten-Endpunkt – für diesen Lauf deaktiviert"
-              elif _c["ok"] is True:
-                  _status_txt = f"✅ gültig (HTTP {_c.get('http', '?')})"
-              elif _c["ok"] is False:
-                  _status_txt = f"❌ ungültig (HTTP {_c.get('http', '?')}) – aus Pool entfernt"
-              else:
-                  _status_txt = f"⚠️ unklar ({_c.get('error', _c.get('http', '?'))}) – im Pool belassen"
-              lines.append(f"| {_c['label']} | {_status_txt} |")
+          for _, _, label in CREDENTIALS:
+              lines.append(f"| {label} | {credential_status(label)} |")
           lines.append("")
           lines.append("---")
           lines.append("## Freshness (liefert die API wirklich neue Daten?)\n")
@@ -1095,29 +919,33 @@ jobs:
           echo "invalid_creds=${INVALID_CREDS}" >> "$GITHUB_OUTPUT"
           rm -f /tmp/honigtopf_invalid_creds.txt
 
-          # FIX KEY-STATUS-LOG: gut sichtbarer Key-Status-Block im Log
           if [ -f /tmp/honigtopf_key_status.txt ]; then
-            echo ""
             echo "=================== HONEYDB-KEY-STATUS ==================="
-            KEYS_TOTAL=0; KEYS_OK=0
-            while IFS='|' read -r lab st; do
-              [ -z "$lab" ] && continue
-              KEYS_TOTAL=$((KEYS_TOTAL + 1))
-              case "$st" in OK) KEYS_OK=$((KEYS_OK + 1)); echo "  [OK]       $lab";; *) echo "  [GESPERRT] $lab - $st";; esac
+            while IFS='|' read -r label status; do
+              printf '  %s: %s\n' "$label" "$status"
             done < /tmp/honigtopf_key_status.txt
-            echo "  -> $KEYS_OK von $KEYS_TOTAL Keys funktionieren"
-            if [ "$KEYS_TOTAL" -gt 0 ] && [ "$KEYS_OK" -eq 0 ]; then
-              echo "  !!! ALLE HONEYDB-KEYS GESPERRT - keine neuen Honigtopf-Daten !!!"
-              echo "::error title=HoneyDB-Keys gesperrt::Alle ${KEYS_TOTAL} HoneyDB-Keys gesperrt (402/401/403). Neue Keys als Secrets HONEYDB_API_ID_N/HONEYDB_API_KEY_N eintragen."
-            elif [ "$KEYS_OK" -lt "$KEYS_TOTAL" ]; then
-              echo "::warning title=HoneyDB-Keys::Nur ${KEYS_OK} von ${KEYS_TOTAL} HoneyDB-Keys funktionieren."
-            fi
-            echo "=========================================================="
             rm -f /tmp/honigtopf_key_status.txt
+          fi
+          if [ -f /tmp/honigtopf_all_keys_verified.txt ]; then
+            echo 'all_keys_verified=true' >> "$GITHUB_OUTPUT"
+            rm -f /tmp/honigtopf_all_keys_verified.txt
           fi
 
           exit "$PY_EXIT"
 
+
+      - name: WireGuard abbauen
+        if: always() && steps.wireguard.outcome != 'skipped'
+        run: |
+          sudo nft delete table inet honigtopf_vpn >/dev/null 2>&1 || true
+          config="$RUNNER_TEMP/wg-honigtopf.conf"
+          if ip link show dev wg-honigtopf >/dev/null 2>&1; then
+            if ! sudo wg-quick down "$config" >/dev/null 2>&1; then
+              echo "::error::WireGuard konnte nicht sauber abgebaut werden."
+              exit 1
+            fi
+          fi
+          rm -f "$config"
 
       - name: Commit
         if: always()  # FIX: auch bei Leerungsschutz-Exit den Report committen
@@ -1128,7 +956,11 @@ jobs:
           # Workflow die neue reports///logs/-Version committet (atomar im
           # selben Commit). Idempotent: --ignore-unmatch nach 1. Lauf.
           git rm -q --ignore-unmatch honigtopf_report.md 2>/dev/null || true
-          git add honigtopf_ips.txt reports/honigtopf_report.md state/honigtopf_freshness.json
+          files=(honigtopf_ips.txt reports/honigtopf_report.md state/honigtopf_freshness.json)
+          if [ -f state/honigtopf_quota.json ]; then
+            files+=(state/honigtopf_quota.json)
+          fi
+          git add -- "${files[@]}"
           if git diff --staged --quiet; then
             echo "Keine Änderungen"
           else
@@ -1150,8 +982,8 @@ jobs:
                 fi
               else
                 git stash pop 2>/dev/null || true
-                git checkout --theirs honigtopf_ips.txt reports/honigtopf_report.md state/honigtopf_freshness.json 2>/dev/null || true
-                git add honigtopf_ips.txt reports/honigtopf_report.md state/honigtopf_freshness.json 2>/dev/null || true
+                git checkout --theirs "${files[@]}" 2>/dev/null || true
+                git add "${files[@]}" 2>/dev/null || true
                 GIT_EDITOR=true git rebase --continue 2>/dev/null || git rebase --skip
               fi
               sleep $((attempt * 3))
@@ -1162,15 +994,6 @@ jobs:
 
 
       - name: Key-Alarm (GitHub Issue) öffnen/aktualisieren
-        # FIX KEY-ALARM (2026-08-29, Nutzeranfrage "sollten die keys nimmer
-        # angenommen werden kann doch ein issue erstellt werden"): sobald der
-        # Key-Health-Check (siehe Fetch-Step) mindestens eine Credential als
-        # ungueltig (401/403) markiert, wird automatisch ein GitHub Issue
-        # aufgemacht bzw. aktualisiert - analog zum bestehenden Alarm-Muster
-        # in ip_ablauf.yml (Job "prognose"/"verifikation"). Laeuft auch wenn
-        # der Fetch-Step insgesamt fehlgeschlagen ist (z.B. ALLE Credentials
-        # ungueltig) - siehe 'always()' plus outcome-Check unten, der einen
-        # reinen Piggyback-Skip (steps.recent.outputs.skip=true) ausschliesst.
         if: >-
           always() &&
           steps.fetch.outcome != 'skipped' &&
@@ -1179,11 +1002,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TITLE="🔴 Honigtopf: HoneyDB-API-Key(s) werden nicht mehr angenommen"
-          BODY="Der Key-Health-Check im Honigtopf-Workflow hat mindestens eine ungueltige/gesperrte HoneyDB-Credential festgestellt (HTTP 401/403 beim Auth-Check gegen den uncounted netinfo-Endpunkt).
+          BODY="HoneyDB hat beim Abruf mindestens eine Credential mit HTTP 401/403 abgelehnt.
 
           Betroffene Credential(s): \`${{ steps.fetch.outputs.invalid_creds }}\`
 
-          Diese Credential(s) wurden fuer den aktuellen Lauf aus dem Round-Robin-Pool entfernt. Bitte pruefen/erneuern unter honeydb.io und das zugehoerige GitHub Secret (HONEYDB_API_ID[_N] / HONEYDB_API_KEY[_N]) aktualisieren.
+          Diese Credential(s) wurden fuer den aktuellen Lauf uebersprungen. Bitte pruefen/erneuern unter honeydb.io und das zugehoerige GitHub Secret (HONEYDB_API_ID[_N] / HONEYDB_API_KEY[_N]) aktualisieren.
 
           Lauf: $(TZ=Europe/Berlin date '+%Y-%m-%d %H:%M %Z')
           Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
@@ -1204,7 +1027,7 @@ jobs:
         if: >-
           always() &&
           steps.fetch.outcome != 'skipped' &&
-          steps.fetch.outputs.invalid_creds == ''
+          steps.fetch.outputs.all_keys_verified == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
