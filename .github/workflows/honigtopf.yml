@@ -127,14 +127,60 @@ jobs:
 
           config="$RUNNER_TEMP/wg-honigtopf.conf"
           umask 077
-          # Wie im WireGuard-Test wird der Runner-DNS beibehalten.
-          printf '%s\n' "$WG_CONF" | tr -d '\r' \
-            | sed -E '/^[[:space:]]*(DNS|SaveConfig)[[:space:]]*=/Id' > "$config"
+          # Dem vorhandenen WireGuard-Test folgen: Runner-DNS beibehalten
+          # und auf dem GitHub-Runner nur IPv4-Adressen und -Routen nutzen.
+          printf '%s\n' "$WG_CONF" | tr -d '\r' | awk '
+            {
+              key = $0
+              sub(/=.*/, "", key)
+              gsub(/[[:space:]]/, "", key)
+              key = tolower(key)
+              if (key == "dns" || key == "saveconfig") next
+              if (key == "address" || key == "allowedips") {
+                values = $0
+                sub(/^[^=]*=/, "", values)
+                sub(/#.*/, "", values)
+                count = split(values, entries, ",")
+                ipv4 = ""
+                for (i = 1; i <= count; i++) {
+                  gsub(/[[:space:]]/, "", entries[i])
+                  if (entries[i] != "" && entries[i] !~ /:/)
+                    ipv4 = ipv4 (ipv4 == "" ? "" : ", ") entries[i]
+                }
+                if (ipv4 != "") print (key == "address" ? "Address" : "AllowedIPs") " = " ipv4
+                next
+              }
+              print
+            }
+          ' > "$config"
           unset WG_CONF
-          if ! sudo wg-quick up "$config" >/dev/null 2>&1; then
-            echo "::error::WireGuard konnte mit WG_CONF nicht gestartet werden."
+
+          if ! grep -q '^\[Interface\][[:space:]]*$' "$config" ||
+             ! grep -q '^Address = ' "$config" ||
+             ! grep -q '^AllowedIPs = ' "$config"; then
+            echo "::error::WG_CONF muss eine WireGuard-Konfiguration mit IPv4-Adresse und IPv4-AllowedIPs enthalten."
             exit 1
           fi
+
+          # wg-quick-Fehler koennen Teile der Konfiguration enthalten.
+          # Nur feste Fehlermeldungen ausgeben und Rohdaten sofort entfernen.
+          diagnostic=$(mktemp "$RUNNER_TEMP/honigtopf-wg.XXXXXX")
+          trap 'rm -f "$diagnostic"' EXIT
+          if ! sudo wg-quick up "$config" >"$diagnostic" 2>&1; then
+            if grep -Eqi 'key is not the correct length|key is not the correct format|configuration parsing error|line unrecognized' "$diagnostic"; then
+              reason="WireGuard hat Schluessel oder Konfigurationsformat abgelehnt."
+            elif grep -Eqi 'temporary failure in name resolution|name or service not known|unable to resolve' "$diagnostic"; then
+              reason="Der Servername des WireGuard-Endpoints konnte nicht aufgeloest werden."
+            elif grep -Eqi 'RTNETLINK answers|operation not supported|operation not permitted|network is unreachable' "$diagnostic"; then
+              reason="Der Runner konnte WireGuard-Interface oder Routen nicht einrichten."
+            else
+              reason="wg-quick ist beim Einrichten des Tunnels fehlgeschlagen."
+            fi
+            echo "::error::$reason"
+            exit 1
+          fi
+          rm -f "$diagnostic"
+          trap - EXIT
 
           # Verhindert direkten HTTPS-Verkehr, falls die Tunnelroute wegfaellt.
           sudo nft -f - <<'NFT'
