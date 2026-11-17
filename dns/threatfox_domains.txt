@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-17 04:01 CET
-# Eintraege: 32639
+# Aktualisiert: 2026-11-17 05:54 CET
+# Eintraege: 32643
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3383,6 +3383,7 @@ argonaddon.com
 argvlidcheck.co
 arhipenkolenagenesh.com
 aria-style.co.il
+aria88.net
 ariash.art
 aridejunkie.se
 ariesit.in
@@ -4107,6 +4108,7 @@ baccarat01.space
 baccoucheautomobiles.tn
 bacdanvongbi.vn
 backativeservizi.com
+backbarber.it
 backdoor.61116222b2.buzz
 backdoor.688vbet.pro
 backdoor.afribus.co
@@ -19901,6 +19903,7 @@ o54.angkajitu.org
 o59dzghe.calculadoracomisiones.com
 o5xvhdzy.stgsolar.hu
 o6.amarikatoto.com
+o6.aria88.net
 o62u0.icu
 o656aeo7.en-en-us-biobooster.com
 o6h0n635.shop-theslimsplitsmethod.us
@@ -29849,6 +29852,7 @@ wmtstats.live
 wmxdata.ddns.net
 wmycykewmususgki.xyz
 wmyeuwcyseaymqyc.xyz
+wn.apigacor77.org
 wn0nofms.dsmlabs.io
 wn6vonooq6fggjdgyocp7bioykmfjket7sbp47cwhgubvowwd7ws5pyd.onion
 wn82o2i1.en-usa-bpzone.com
