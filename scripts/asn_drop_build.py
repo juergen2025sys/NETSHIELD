@@ -148,8 +148,15 @@ AB_IPS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 # threat.live (rund 51.000 Einzel-IPs, taeglich) als dritte Dichte-Quelle.
 # Wird direkt per URL geladen; faellt sie aus -> Warnung, Rest laeuft weiter.
 TL_URL = 'https://list.threat.live/'
+# Seit 2026-11-17 (Nutzerentscheidung, ohne Filter): dataplane.org - 17
+# Signal-Listen (SSH, Telnet, VNC, SIP, DNS, NTP, SMTP, Proto41) mit rund
+# 130.000 Angreifer-IPs. Format: "ASN | Name | IP | Zeit | Kategorie".
+DP_URLS = tuple('https://dataplane.org/signals/%s.txt' % f for f in (
+    'sshclient', 'sshpwauth', 'vncrfb', 'telnetlogin', 'dnsrd', 'dnsrdany', 'dnsversion', 'dnstcp',
+    'smtpdata', 'smtpgreet', 'proto41', 'ntpmode3', 'ntpmode6', 'ntpmode7',
+    'sipinvitation', 'sipquery', 'sipregistration'))
 DENSITY_SOURCES = (('ThreatFox C2-Dichte', TF_IPS_FILE), ('AbuseIPDB-Dichte', AB_IPS_FILE),
-                   ('threat.live-Dichte', TL_URL))
+                   ('threat.live-Dichte', TL_URL), ('Dataplane-Dichte', DP_URLS))
 TF_ASNDB_URLS = ('https://cdn.jsdelivr.net/npm/@ip-location-db/asn/asn-ipv4.csv',
                  'https://raw.githubusercontent.com/sapics/ip-location-db/main/dbip-asn/dbip-asn-ipv4.csv')
 TF_MAX_ADDR = 65536
@@ -161,6 +168,25 @@ def threatfox_candidates():
     """{asn: (name, ips, adressen, dichte, quelle)} aus allen DENSITY_SOURCES - {} wenn Daten fehlen."""
     sources = []
     for label, path in DENSITY_SOURCES:
+        if isinstance(path, tuple):
+            # mehrere URLs im Dataplane-Format "ASN | Name | IP | Zeit | Kategorie"
+            lines, ok = [], 0
+            for u in path:
+                try:
+                    for l in fetch(u, timeout=120).splitlines():
+                        if l.startswith('#') or '|' not in l:
+                            continue
+                        p = [x.strip() for x in l.split('|')]
+                        if len(p) >= 3:
+                            lines.append(p[2])
+                    ok += 1
+                except Exception as e:
+                    print('::warning::%s nicht ladbar (%s)' % (u, e))
+            if not ok:
+                print('::warning::%s: keine Liste ladbar - uebersprungen' % label)
+                continue
+            sources.append((label, lines))
+            continue
         if path.startswith('http'):
             try:
                 lines = fetch(path, timeout=120).splitlines()
@@ -325,11 +351,12 @@ def main():
         with open(tmp, 'w') as f:
             f.write('\n'.join(lines) + '\n')
         os.replace(tmp, os.path.join(OUT_DIR, 'threatfox_asn_kandidaten.txt'))
-        print('Dichte-Kandidaten: %d (davon noch nicht gesperrt: %d, ThreatFox %d / AbuseIPDB %d / threat.live %d)'
-              ' -> asn/threatfox_asn_kandidaten.txt'
+        print('Dichte-Kandidaten: %d (davon noch nicht gesperrt: %d, ThreatFox %d / AbuseIPDB %d / threat.live %d'
+              ' / Dataplane %d) -> asn/threatfox_asn_kandidaten.txt'
               % (len(tf), len(tf_new), sum(1 for v in tf_new.values() if v[4].startswith('ThreatFox')),
                  sum(1 for v in tf_new.values() if v[4].startswith('AbuseIPDB')),
-                 sum(1 for v in tf_new.values() if v[4].startswith('threat.live'))))
+                 sum(1 for v in tf_new.values() if v[4].startswith('threat.live')),
+                 sum(1 for v in tf_new.values() if v[4].startswith('Dataplane'))))
     if TF_MODE == 'block':
         for a, (nm, n, sz, d, why) in tf_new.items():
             asns[a] = {'asn': a, 'cc': '', 'asname': nm, 'domain': '%s %.2f%%' % (why, d * 100)}
@@ -385,7 +412,7 @@ def main():
             '# Zusatz-ASNs: %s (Bulletproof Hosting Watch, Bericht %s)\n'
             '# Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)\n'
             '# Aktualisiert: %s | ASNs: %d (Spamhaus %d + BPH %d + Maltrail %d + BPH-Watch %d + eigene %d'
-            ' + Dichte ThreatFox/AbuseIPDB/threat.live %d, aktiv: %d)\n'
+            ' + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane %d, aktiv: %d)\n'
             % (SPAMHAUS_URL, meta.get('timestamp'), BPH_URL, MALTRAIL_URL, BPHW_INDEX, bw_date, now, len(asns),
                n_spamhaus, len(bph_new), len(mt_new), len(bw_new), len(man_new), len(tf_new), active))
 
