@@ -1,0 +1,104 @@
+name: WireGuard Test
+
+# Prueft per Hand, ob der WireGuard-Zugang aus dem Secret WG_CONF noch
+# funktioniert: Tunnel aufbauen, Handshake pruefen, oeffentliche IP vorher
+# und nachher vergleichen, Tunnel wieder abbauen.
+# Der Inhalt des Secrets wird NIE ausgegeben.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  wg-test:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 8
+
+    steps:
+      - name: WireGuard installieren
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq wireguard-tools >/dev/null
+          wg --version
+
+      - name: Konfiguration aus Secret schreiben
+        env:
+          WG_CONF: ${{ secrets.WG_CONF }}
+        run: |
+          if [ -z "$WG_CONF" ]; then
+            echo "::error::Secret WG_CONF ist leer oder fehlt"
+            exit 1
+          fi
+          sudo mkdir -p /etc/wireguard
+          # DNS-Zeilen entfernen (wg-quick braucht sonst resolvconf) und
+          # IPv6-Teile aus Address/AllowedIPs streichen (Runner ohne IPv6).
+          printf '%s\n' "$WG_CONF" | tr -d '\r' \
+            | grep -v -i '^[[:space:]]*DNS[[:space:]]*=' \
+            | sed -E '/^[[:space:]]*(Address|AllowedIPs)[[:space:]]*=/{s/,[[:space:]]*[0-9a-fA-F:]+:[0-9a-fA-F:]*\/[0-9]+//g; s/=[[:space:]]*[0-9a-fA-F:]+:[0-9a-fA-F:]*\/[0-9]+,[[:space:]]*/= /;}' \
+            | sudo tee /etc/wireguard/wg0.conf >/dev/null
+          sudo chmod 600 /etc/wireguard/wg0.conf
+          echo "Konfiguration geschrieben: $(sudo grep -c . /etc/wireguard/wg0.conf) Zeilen,"\
+               "Peers: $(sudo grep -ci '^\[Peer\]' /etc/wireguard/wg0.conf)"
+          # Nur unkritische Angaben anzeigen: Endpoint (Server) und Port
+          sudo grep -i '^[[:space:]]*Endpoint' /etc/wireguard/wg0.conf | sed 's/^/  /'
+
+      - name: IP vorher
+        id: vorher
+        run: |
+          IP=$(curl -4 -s -m 15 https://api.ipify.org || echo "unbekannt")
+          echo "ip=$IP" >> "$GITHUB_OUTPUT"
+          echo "Oeffentliche IP ohne Tunnel: $IP"
+
+      - name: Tunnel aufbauen und pruefen
+        id: test
+        run: |
+          set +e
+          sudo wg-quick up wg0
+          UP=$?
+          if [ $UP -ne 0 ]; then
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::error::wg-quick up fehlgeschlagen (Exit $UP)"
+            exit 0
+          fi
+          sleep 6
+          HS=$(sudo wg show wg0 latest-handshakes | awk '{print $2}' | head -1)
+          NOW=$(date +%s)
+          if [ -n "$HS" ] && [ "$HS" -gt 0 ]; then
+            AGE=$((NOW - HS)); echo "Handshake erfolgreich (vor ${AGE}s)"
+          else
+            echo "::warning::Kein Handshake - Schluessel ungueltig, Server weg oder Port gesperrt"
+          fi
+          sudo wg show wg0 transfer | awk '{printf "Empfangen: %s Bytes, Gesendet: %s Bytes\n", $2, $3}'
+          IP2=$(curl -4 -s -m 20 https://api.ipify.org || echo "")
+          INFO=$(curl -4 -s -m 20 "https://ipinfo.io/${IP2}/json" | tr -d '\n' | sed 's/  */ /g' || true)
+          echo "Oeffentliche IP durch den Tunnel: ${IP2:-keine Antwort}"
+          echo "Info: $INFO"
+          if [ -n "$IP2" ] && [ "$IP2" != "${{ steps.vorher.outputs.ip }}" ] && [ -n "$HS" ] && [ "$HS" -gt 0 ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "ip=$IP2" >> "$GITHUB_OUTPUT"
+
+      - name: Tunnel abbauen
+        if: always()
+        run: |
+          sudo wg-quick down wg0 2>/dev/null || true
+          sudo rm -f /etc/wireguard/wg0.conf
+
+      - name: Ergebnis
+        if: always()
+        run: |
+          if [ "${{ steps.test.outputs.ok }}" = "true" ]; then
+            MSG="WireGuard-Zugang FUNKTIONIERT (IP vorher ${{ steps.vorher.outputs.ip }}, durch Tunnel ${{ steps.test.outputs.ip }})"
+            echo "$MSG"; echo "### ✅ $MSG" >> "$GITHUB_STEP_SUMMARY"
+          else
+            MSG="WireGuard-Zugang funktioniert NICHT (Details im Schritt 'Tunnel aufbauen und pruefen')"
+            echo "::error::$MSG"; echo "### ❌ $MSG" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
