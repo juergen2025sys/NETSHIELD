@@ -125,8 +125,10 @@ jobs:
             sudo apt-get install -y -qq wireguard-tools nftables
           fi
 
-          config="$RUNNER_TEMP/wg-honigtopf.conf"
+          config=/etc/wireguard/wg0.conf
           umask 077
+          temp_config=$(mktemp "$RUNNER_TEMP/honigtopf-wg-conf.XXXXXX")
+          trap 'rm -f "$temp_config"' EXIT
           # Dem vorhandenen WireGuard-Test folgen: Runner-DNS beibehalten
           # und auf dem GitHub-Runner nur IPv4-Adressen und -Routen nutzen.
           printf '%s\n' "$WG_CONF" | tr -d '\r' | awk '
@@ -152,21 +154,25 @@ jobs:
               }
               print
             }
-          ' > "$config"
+          ' > "$temp_config"
           unset WG_CONF
 
-          if ! grep -q '^\[Interface\][[:space:]]*$' "$config" ||
-             ! grep -q '^Address = ' "$config" ||
-             ! grep -q '^AllowedIPs = ' "$config"; then
+          if ! grep -q '^\[Interface\][[:space:]]*$' "$temp_config" ||
+             ! grep -q '^Address = ' "$temp_config" ||
+             ! grep -q '^AllowedIPs = ' "$temp_config"; then
             echo "::error::WG_CONF muss eine WireGuard-Konfiguration mit IPv4-Adresse und IPv4-AllowedIPs enthalten."
             exit 1
           fi
+
+          sudo install -d -m 0700 /etc/wireguard
+          sudo install -m 0600 "$temp_config" "$config"
+          rm -f "$temp_config"
 
           # wg-quick-Fehler koennen Teile der Konfiguration enthalten.
           # Nur feste Fehlermeldungen ausgeben und Rohdaten sofort entfernen.
           diagnostic=$(mktemp "$RUNNER_TEMP/honigtopf-wg.XXXXXX")
           trap 'rm -f "$diagnostic"' EXIT
-          if ! sudo wg-quick up "$config" >"$diagnostic" 2>&1; then
+          if ! sudo wg-quick up wg0 >"$diagnostic" 2>&1; then
             if grep -Eqi 'key is not the correct length|key is not the correct format|configuration parsing error|line unrecognized' "$diagnostic"; then
               reason="WireGuard hat Schluessel oder Konfigurationsformat abgelehnt."
             elif grep -Eqi 'temporary failure in name resolution|name or service not known|unable to resolve' "$diagnostic"; then
@@ -176,7 +182,18 @@ jobs:
             else
               reason="wg-quick ist beim Einrichten des Tunnels fehlgeschlagen."
             fi
-            echo "::error::$reason"
+            # Nur bekannte Kommandonamen, keine Argumente oder Secrets.
+            stage=$(awk '
+              /^\[#\] ip link add / { stage = "Interface anlegen" }
+              /^\[#\] wg setconf / { stage = "Peer-Konfiguration laden" }
+              /^\[#\] ip -4 address add / { stage = "IPv4-Adresse setzen" }
+              /^\[#\] ip link set / { stage = "Interface aktivieren" }
+              /^\[#\] ip -4 (rule|route) add / { stage = "IPv4-Routing einrichten" }
+              /^\[#\] sysctl / { stage = "Kernel-Routingoption setzen" }
+              /^\[#\] (nft|iptables-restore) / { stage = "Firewall einrichten" }
+              END { if (stage != "") print stage; else print "vor dem Interface-Aufbau" }
+            ' "$diagnostic")
+            echo "::error::$reason Letzter Setup-Schritt: $stage."
             exit 1
           fi
           rm -f "$diagnostic"
@@ -187,12 +204,12 @@ jobs:
           table inet honigtopf_vpn {
             chain output {
               type filter hook output priority filter; policy accept;
-              oifname != "wg-honigtopf" tcp dport 443 reject
+              oifname != "wg0" tcp dport 443 reject
             }
           }
           NFT
           # Ohne API-Credentials Tunnelroute und Erreichbarkeit pruefen.
-          if ! curl --noproxy '*' --interface 'if!wg-honigtopf' -sS \
+          if ! curl --noproxy '*' --interface 'if!wg0' -sS \
               --connect-timeout 10 --max-time 20 -o /dev/null https://honeydb.io/; then
             echo "::error::HoneyDB ist ueber den WireGuard-Tunnel nicht erreichbar."
             exit 1
@@ -984,14 +1001,14 @@ jobs:
         if: always() && steps.wireguard.outcome != 'skipped'
         run: |
           sudo nft delete table inet honigtopf_vpn >/dev/null 2>&1 || true
-          config="$RUNNER_TEMP/wg-honigtopf.conf"
-          if ip link show dev wg-honigtopf >/dev/null 2>&1; then
-            if ! sudo wg-quick down "$config" >/dev/null 2>&1; then
+          config=/etc/wireguard/wg0.conf
+          if ip link show dev wg0 >/dev/null 2>&1; then
+            if ! sudo wg-quick down wg0 >/dev/null 2>&1; then
               echo "::error::WireGuard konnte nicht sauber abgebaut werden."
               exit 1
             fi
           fi
-          rm -f "$config"
+          sudo rm -f "$config"
 
       - name: Commit
         if: always()  # FIX: auch bei Leerungsschutz-Exit den Report committen
