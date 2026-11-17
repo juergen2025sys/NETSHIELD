@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-17 14:31 CET
-# Eintraege: 32917
+# Aktualisiert: 2026-11-17 17:09 CET
+# Eintraege: 32944
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -213,6 +213,7 @@
 161-35-173-98.sslip.io
 1629bqt9p34elwv.top
 164-90-169-184.cprapid.com
+167.226.231.8.bc.googleusercontent.com
 16dewaslot.org
 16mp59qr.usen-neurovera.com
 16store.ru
@@ -1079,6 +1080,7 @@
 5pz8o2y9.xzer.store
 5qflb4vy.usa--lipogummy.com
 5qstmqnw.viker.store
+5qu3fpr4.yanok.store
 5qynbyjl4u6vbtnmpokslaxaknyicdvty7vn2qgxmaty3lb7wwxpkbid.onion
 5r35llx8.deamobros.com
 5r48e4d3.betturkey.bet
@@ -2901,6 +2903,7 @@ andrewscott.co.za
 androidbaz.com
 andromeda-d389d.firebasestorage.app
 androscogginpal.com
+andunlockmobile.com
 andyezeani.com
 andyras.com
 anek4d.org
@@ -3517,6 +3520,7 @@ artsetindustriesinformatiques.fr
 arturprikhodkosh.com
 artycsoka.hu
 aruhq.jbgroup21.com
+aruskoki.org
 arvand.co.com
 arvin78sh.com
 arvind567shahsh.com
@@ -5672,6 +5676,7 @@ buildagent.duckdns.org
 buildcraft.cc
 buildercleaning.co.uk
 buildersbliss.ca
+buildinglooks.com
 buildingpi81.xyz
 buildsci.com
 buildtogetherproperty.mu
@@ -6556,6 +6561,7 @@ checkbot-cf.site
 checkcloudflere.site
 checkdvvc99.cc
 checkgwfwtg465.art
+checkingrayid.com
 checkjekorting.nl
 checkmrobot.site
 checkms5.cc
@@ -8018,6 +8024,7 @@ data-image-svg--base64.b-cdn.net
 data-protection-test.com
 data.nomadhive.cc
 data.vaceditions.com
+data.valley-rhythm.work
 data.webdatapoint.co
 data.wickenhollow.cc
 data.xoilactvqq.live
@@ -11267,6 +11274,7 @@ fpsjq82d.shartbandifootballkade.online
 fpt-haiphong.vn
 fpuuve.howtomovies.biz
 fpw.sm188dvlv.mom
+fq.aruskoki.org
 fq3gm5xphax8c.cfc-execute.bj.baidubce.com
 fq5lyk18.bet404.games
 fqcwxddh.tractor11.com
@@ -12200,6 +12208,7 @@ givingcirclefoundation.org
 giwawaysua.com
 giwl.highkickstkd.com
 gixxipi9823.life
+giyxfaf2.sidar.store
 giyypma.dewa111.de.com
 gjendw2d6oqjs6nxnwwuc6khpa5g5gzp7pyuiwzamalzzzk6vomm7xid.onion
 gjif3sqh.behtarin-site-shartbandi.com
@@ -12518,6 +12527,7 @@ govrobczxc.cc
 gowayofficemee.in.net
 gowcar.com
 gowong.onl
+goyardde.com
 gozilwl.overlokcu.com
 gozmmmaa.duckdns.org
 gozog.run
@@ -12857,6 +12867,7 @@ gy4q.supportly.au
 gyadazs.shop
 gyayod.pishbinisite.com
 gyayquk.drubenginecologo.com
+gybasyso.workers.dev
 gyfq7acl.tucargaseguraceo.com
 gygor.sultankito.com
 gyjqgsz.designyourlifeinflow.com
@@ -12932,6 +12943,7 @@ h7.aloytoto.org
 h78yoza9.miraz.store
 h7cyp6bl.kernel-compass.digital
 h7iarqsz.bossbeycrown.click
+h8.aromattoto.org
 h81b1ag4.code-hediye-1xbet.com
 h89kbhtt.schleer.hu
 h8a4eye4.frameless1.shop
@@ -15244,6 +15256,9 @@ js-static.com
 js-static.digital
 js-static.global
 js-static.icu
+js-static.online
+js-static.pro
+js-static.site
 js.apiforxwork.net
 js.msedgeupdate.com
 js5po212.kaarenorge.com
@@ -19086,6 +19101,7 @@ n0n-cases.net
 n0n.to
 n1.google-analytcis.com
 n1.persistfromchicago.com
+n1nrcs2e.udap.store
 n2.google-analytcis.com
 n2dypmy2.smanbotu.com
 n2late.fr
@@ -19473,6 +19489,7 @@ niaoend.com
 nibfzvsq.hugugbime.xyz
 nibol.store
 nice-protect.com
+nicholasburgett.com
 nick-metry.icu
 nickarnett.net
 nickilorr421.icu
@@ -22585,6 +22602,7 @@ qjzhj.buborekjatszohaz.hu
 qkduh.jadoou.lat
 qkexyga.wlwyb.com
 qkkw.bahigo90bet.com
+qkp.anka69.org
 qkqxbb.doobixbet.bet
 qkqz220k.jetbet1.xyz
 qksxwop.agivedresphotography.com
@@ -23463,6 +23481,7 @@ resourcesmxuy.ydns.eu
 respaldofinal.kozow.com
 respectmountain.xyz
 rest.echofetch.cc
+restapi-web-cf.cfd
 restapiserv.click
 restauradordemotor.com
 restaurant-polite.de
@@ -25321,6 +25340,7 @@ slegx.bonuszugynokseg.hu
 slentnaearamisty.pro
 slepsluzbaublizini.com
 slfcorporate.com
+slideshowtomsk.ru
 slim-sounds.com
 slim-sounds.us
 slimsounds-us.com
@@ -26700,6 +26720,7 @@ talk-chief.gl.at.ply.gg
 talkhome.space
 talkingteenage.com
 talktovig.com
+talladega.edu.pl
 tallercrespi.com
 tallerdegeologia.com
 tallithix9.mirelax9.life
@@ -26855,6 +26876,7 @@ tdflhz.josephmichaelnh.com
 tdfzyex.amoozeshagazade.shop
 tdsbfjwqc.eng-glycofree.com
 tdsgug.hanovereyephotography.com
+tdssecure.beer
 tdyqptv.bet1betyek.bet
 tdyx2uq8.jadoobet.info
 tdyyhcqa.hi-lo.bet
@@ -26906,6 +26928,7 @@ technoseal.co
 techsyscloud.com
 techtifiedsolutions.com
 techwizzardz.com
+techworldx.xyz
 techycarterpiller.kozow.com
 techylondon.co.uk
 tecnocapgroup.academy
@@ -27755,6 +27778,7 @@ ttf.sm188auto.top
 ttfg.bahigo.casino
 ttfy4zmtiaywfkkmykpxiwtlxkcr5ofvrhqgxxyspgwzbxkc3uze7jid.onion
 tthbmmcd.fidoubet.com
+tthcsslread21.cc
 ttjmpding.biodentax.com
 ttjs9qkl.bossbeymax.click
 ttmwdcsm.testranandegi.com
@@ -29484,6 +29508,7 @@ vysqdcm6.sportday.ir
 vyujwwlgw.dinosrestaurant.co.uk
 vyw0demm.gluccotrust--bites.com
 vz.altertogel.net
+vz.aromattoto.org
 vzcr.bahigo.casino
 vzedvim.bet1forward.com
 vzfelbc.1shartbet1.com
@@ -31014,6 +31039,7 @@ www.osamaphplogisticesbackup2.com
 www.osh9xntw0spl96bbe.org
 www.osmb.net
 www.osolutionsllc.com
+www.ourweddings.my.id
 www.ov86ayb0fe4ep2b92-645o.com
 www.ove-valopale.com
 www.oxfordshirechilligarden.co.uk
@@ -31378,6 +31404,7 @@ x.dewii.net
 x.doyok.net
 x.eltofeq.com
 x.gam99.org
+x.gl111.org
 x089w0f5.btyek.boats
 x0ih2pfd.scottpwilliamslaw.com
 x0ihfh5u.asesoriamerenlinea.com
