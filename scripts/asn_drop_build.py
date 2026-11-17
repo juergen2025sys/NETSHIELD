@@ -257,6 +257,9 @@ MANUAL_ASNS = {
     215929: 'Data Campus Limited', 212512: 'Detai Prosperous Technologies',
     61254: 'ESTOXY OU', 214218: 'PE Mironova Lyudmila', 64107: 'RACK SPHERE HOSTING',
     401739: 'RedLuff LLC',
+    # 2026-11-17 (Nutzerwunsch): niederlaendische Hoster, dauerhaft gesperrt.
+    # Die IP-Bereiche werden bei jedem Lauf neu ueber ipverse aufgeloest.
+    49305: 'Alsycon B.V.', 39572: 'DataWeb Global Group B.V.',
 }
 
 
@@ -339,8 +342,8 @@ def main():
 
     man_new = {a: n for a, n in MANUAL_ASNS.items() if a not in asns}
     for a, name in man_new.items():
-        asns[a] = {'asn': a, 'cc': '', 'asname': name, 'domain': 'eigene Auswertung 2026-11-15'}
-    print('Eigene Auswertung: %d ASNs | davon neu: %d' % (len(MANUAL_ASNS), len(man_new)))
+        asns[a] = {'asn': a, 'cc': '', 'asname': name, 'domain': 'feste eigene Liste'}
+    print('Feste eigene Liste: %d ASNs | davon neu: %d' % (len(MANUAL_ASNS), len(man_new)))
 
     tf = threatfox_candidates()
     tf_new = {a: v for a, v in tf.items() if a not in asns}
