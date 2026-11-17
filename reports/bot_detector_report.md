@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-17 14:31 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-17 15:00 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,174,740** |
-| Neu (heute) | **+868** |
-| Entfernt | **-803** |
+| Gesamt IPs | **1,174,739** |
+| Neu (heute) | **+25** |
+| Entfernt | **-26** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 41 |
@@ -25,8 +25,8 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,538 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,818 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 1,428 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 1,702 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 1,459 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 1,613 |
 | ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 302 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,041 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,045 |
@@ -38,10 +38,10 @@
 | ✅ `ercindedeoglu_proxies` | 54,968 |
 | ✅ `ercindedeoglu_proxies_socks4` | 18,974 |
 | ✅ `ercindedeoglu_proxies_socks5` | 20,600 |
-| ✅ `tuanminpay_live_proxy` | 13,514 |
-| ✅ `tuanminpay_live_proxy_http` | 6,433 |
-| ✅ `tuanminpay_live_proxy_socks4` | 4,713 |
-| ✅ `tuanminpay_live_proxy_socks5` | 6,681 |
+| ✅ `tuanminpay_live_proxy` | 13,231 |
+| ✅ `tuanminpay_live_proxy_http` | 6,105 |
+| ✅ `tuanminpay_live_proxy_socks4` | 4,792 |
+| ✅ `tuanminpay_live_proxy_socks5` | 6,741 |
 | ✅ `gitrecon1455_fresh_proxy_list` | 217,082 |
 | ✅ `noctiro_getproxy` | 4,116 |
 | ✅ `noctiro_getproxy_socks5` | 6,647 |
@@ -66,4 +66,4 @@
 > Diese 41 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-17 14:31 CET (Europe/Berlin)*
+*Generiert: 2026-11-17 15:00 CET (Europe/Berlin)*
