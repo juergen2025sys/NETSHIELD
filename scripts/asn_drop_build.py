@@ -155,14 +155,12 @@ DP_URLS = tuple('https://dataplane.org/signals/%s.txt' % f for f in (
     'sshclient', 'sshpwauth', 'vncrfb', 'telnetlogin', 'dnsrd', 'dnsrdany', 'dnsversion', 'dnstcp',
     'smtpdata', 'smtpgreet', 'proto41', 'ntpmode3', 'ntpmode6', 'ntpmode7',
     'sipinvitation', 'sipquery', 'sipregistration'))
-# Seit 2026-11-17 (Nutzerentscheidung, ohne Filter/Vorauswertung): die eigene
-# Honigtopf-Liste honeypot_ips.txt im Repo-Hauptordner (vom Honeypot Monitor
-# erstellt) als fuenfte Dichte-Quelle.
-HP_IPS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                           'honeypot_ips.txt')
+# honeypot_ips.txt wurde am 2026-11-17 kurz als Dichte-Quelle getestet und
+# wieder entfernt: 2,15 Mio. IPs (v.a. infizierte Heimgeraete) ergaben 7.356
+# zusaetzliche ASNs / 34 Mio. Adressen und haetten Minecraft-, Xbox/CoD- und
+# GTA-Server getroffen. Fuer Einzel-IPs bleibt sie in der Combined-Liste.
 DENSITY_SOURCES = (('ThreatFox C2-Dichte', TF_IPS_FILE), ('AbuseIPDB-Dichte', AB_IPS_FILE),
-                   ('threat.live-Dichte', TL_URL), ('Dataplane-Dichte', DP_URLS),
-                   ('Honigtopf-Dichte', HP_IPS_FILE))
+                   ('threat.live-Dichte', TL_URL), ('Dataplane-Dichte', DP_URLS))
 TF_ASNDB_URLS = ('https://cdn.jsdelivr.net/npm/@ip-location-db/asn/asn-ipv4.csv',
                  'https://raw.githubusercontent.com/sapics/ip-location-db/main/dbip-asn/dbip-asn-ipv4.csv')
 TF_MAX_ADDR = 65536
@@ -358,12 +356,11 @@ def main():
             f.write('\n'.join(lines) + '\n')
         os.replace(tmp, os.path.join(OUT_DIR, 'threatfox_asn_kandidaten.txt'))
         print('Dichte-Kandidaten: %d (davon noch nicht gesperrt: %d, ThreatFox %d / AbuseIPDB %d / threat.live %d'
-              ' / Dataplane %d / Honigtopf %d) -> asn/threatfox_asn_kandidaten.txt'
+              ' / Dataplane %d) -> asn/threatfox_asn_kandidaten.txt'
               % (len(tf), len(tf_new), sum(1 for v in tf_new.values() if v[4].startswith('ThreatFox')),
                  sum(1 for v in tf_new.values() if v[4].startswith('AbuseIPDB')),
                  sum(1 for v in tf_new.values() if v[4].startswith('threat.live')),
-                 sum(1 for v in tf_new.values() if v[4].startswith('Dataplane')),
-                 sum(1 for v in tf_new.values() if v[4].startswith('Honigtopf'))))
+                 sum(1 for v in tf_new.values() if v[4].startswith('Dataplane'))))
     if TF_MODE == 'block':
         for a, (nm, n, sz, d, why) in tf_new.items():
             asns[a] = {'asn': a, 'cc': '', 'asname': nm, 'domain': '%s %.2f%%' % (why, d * 100)}
@@ -419,7 +416,7 @@ def main():
             '# Zusatz-ASNs: %s (Bulletproof Hosting Watch, Bericht %s)\n'
             '# Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)\n'
             '# Aktualisiert: %s | ASNs: %d (Spamhaus %d + BPH %d + Maltrail %d + BPH-Watch %d + eigene %d'
-            ' + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honigtopf %d, aktiv: %d)\n'
+            ' + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane %d, aktiv: %d)\n'
             % (SPAMHAUS_URL, meta.get('timestamp'), BPH_URL, MALTRAIL_URL, BPHW_INDEX, bw_date, now, len(asns),
                n_spamhaus, len(bph_new), len(mt_new), len(bw_new), len(man_new), len(tf_new), active))
 
