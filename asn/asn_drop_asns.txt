@@ -1,10 +1,10 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794920204)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794931004)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-17 13:31 UTC | ASNs: 730 (Spamhaus 454 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 16 + Dichte ThreatFox/AbuseIPDB/threat.live 119, aktiv: 499)
+# Aktualisiert: 2026-11-17 16:06 UTC | ASNs: 726 (Spamhaus 454 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 16 + Dichte ThreatFox/AbuseIPDB/threat.live 115, aktiv: 495)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS2601	UA	RADIOLINK-AS	pitline.net
@@ -36,6 +36,7 @@ AS17612	KR	RINNAI-AS-KR	rinnai.co.kr
 AS17994	NZ	SPARK-AS-AP	appserv.co.nz
 AS18526	JP	DDPS	ddps.jp
 AS19318			Maltrail worst_asns
+AS20052		Arbor Networks, Inc.	AbuseIPDB-Dichte 1.37%
 AS22295			Maltrail worst_asns
 AS23865	JP	NETINNOVATIONLLC-AS-AP	netinnovation.net
 AS24426	CN	CNNIC-SINO-I	myce.net.cn
@@ -87,7 +88,6 @@ AS42419	UA	TAVRIA-TRANSSERVIS-AS	tavriatrans.com.ua
 AS42505	UA	R-TEL-AS	bignet.ua
 AS42624			Maltrail worst_asns
 AS42881	MD	Kontrast	kontrast.md
-AS42969		Alpha Strike Labs GmbH	AbuseIPDB-Dichte 2.34%
 AS43444	RU	BNS-AS	fineproxy.org
 AS43463	LT	BST-LT	bst.lt
 AS43481	UA	PITLINE-AS	pitline.net
@@ -106,7 +106,6 @@ AS45054		PINSPB (Petersburg Internet Network Ltd)	BPH_Research T2-High Risk / fl
 AS46370	US	GRANDWEB	grandwebsolutions.com
 AS46664	US	VDI-NETWORK	volumedrive.com
 AS47105	EE	as-vd	vaultdweller.net
-AS47154		HUSAM A. H. HIJAZI	AbuseIPDB-Dichte 2.34%
 AS47436			Maltrail worst_asns
 AS47890	RO	UNMANAGED-DEDICATED-SERVERS	bunea.eu
 AS47893	UA	R-TEL-AS	bignet.ua
@@ -129,10 +128,11 @@ AS49453			Maltrail worst_asns
 AS49581	DE	TUBE-HOSTING	tube-hosting.de
 AS49870			Maltrail worst_asns
 AS50113		First Server Limited	BPH_Research T2-High Risk / flagged
-AS50219		LNK SYSTEMS MUNTENIA SRL	AbuseIPDB-Dichte 1.17%
+AS50219		LNK SYSTEMS MUNTENIA SRL	threat.live-Dichte 1.17%
 AS50236	RU	Vertexlink_Communications	62yun.com
 AS50321			Maltrail worst_asns
 AS50360			Maltrail worst_asns
+AS50662		PP "Scientific-industrial enterprise 'Leokom'	AbuseIPDB-Dichte 0.33%
 AS51045	UA	DEMENIN-AS	bignet.ua
 AS51124	UA	ITPLUS-UA-AS	bignet.ua
 AS51381	SC	ELITETEAM-PEERING-AZ1	eliteteam.to
@@ -174,9 +174,8 @@ AS59651	RU	AS-QualityNetwork	fineproxy.org
 AS59683	RU	iridatelecom	vip-net.net
 AS60223		Netiface Limited	ThreatFox C2-Dichte 2.73%
 AS60567		SIA RixHost	eigene Auswertung 2026-11-15
-AS60729		Stiftung Erneuerbare Freiheit	AbuseIPDB-Dichte 2.86%
+AS60729		Stiftung Erneuerbare Freiheit	AbuseIPDB-Dichte 1.69%
 AS60842	RU	HUIZE-HOLDINGS-AS	62yun.com
-AS61125		SABOTAGE LLC	AbuseIPDB-Dichte 1.17%
 AS61254		ESTOXY OU	eigene Auswertung 2026-11-15
 AS61336		Zservers	BPH_Research T1-Confirmed BPH / sanctioned
 AS61432	UA	VAIZ-AS	link-host.com
@@ -186,7 +185,6 @@ AS62206	UA	PITLINE-AS	pitline.net
 AS62380	RO	BUNEA-HIGH-PEER-NETWORK	bunea.eu
 AS62563		GLOBALTELEHOST Corp.	ThreatFox C2-Dichte 0.57%
 AS62610		Zenlayer Inc	ThreatFox C2-Dichte 0.27%
-AS62744		Quintex Alliance Consulting	AbuseIPDB-Dichte 0.43%
 AS62864	JP	NILAS	netinnovation.net
 AS63025		NOHAVPS LLC	ThreatFox C2-Dichte 0.28%
 AS63881	ID	MDI-AS-ID	medianetdigital.co
@@ -319,7 +317,7 @@ AS197703		First Server Limited	BPH_Research T2-High Risk / flagged
 AS197769	US	VPSDEDICATED-AS	vpsdedicated.net
 AS198071	GB	BERCHSOLUTIONS-AS	berch.co.uk
 AS198075		BounceZero Ltd	eigene Auswertung 2026-11-15
-AS198093		Foreningen for digitala fri- och rattigheter	AbuseIPDB-Dichte 1.17%
+AS198093		Foreningen for digitala fri- och rattigheter	AbuseIPDB-Dichte 0.98%
 AS198189	GB	STEALTHVM	stealthvm.net
 AS198364			Maltrail worst_asns
 AS198375			Maltrail worst_asns
@@ -471,7 +469,7 @@ AS209272		Alviva Holding Limited	ThreatFox C2-Dichte 0.39%
 AS209274	RS	Kraken-Network-ISP	mortalsoft.online
 AS209290			Maltrail worst_asns
 AS209334		Modat B.V.	threat.live-Dichte 16.80%
-AS209366		SEMrush CY LTD	AbuseIPDB-Dichte 1.02%
+AS209366		SEMrush CY LTD	AbuseIPDB-Dichte 1.33%
 AS209373	IR	SWISSNET-AS	swissnetwork.io
 AS209375	MD	Contrust-Solutions	kontrast.md
 AS209396	MD	Contrust-Solutions	kontrast.md
@@ -513,14 +511,14 @@ AS211121	GB	India	imtigernet
 AS211138			Maltrail worst_asns
 AS211199	UA	LIPTEL-AS	liptel.net.ua
 AS211238	IN	DCYBER	zumy.eu
-AS211298		Driftnet Ltd	threat.live-Dichte 38.96%
+AS211298		Driftnet Ltd	threat.live-Dichte 39.16%
 AS211381			Maltrail worst_asns
 AS211443	HK	SINOWORLDWIDE	sinoworldwidetrading.com
 AS211486			Maltrail worst_asns
 AS211507		Julian Achter	ThreatFox C2-Dichte 0.61%
 AS211522		Hypercore LTD	BPH_Research T1-Confirmed BPH / sanctioned
 AS211590			Maltrail worst_asns
-AS211607		Securitytrails, LLC	AbuseIPDB-Dichte 1.82%
+AS211607		Securitytrails, LLC	AbuseIPDB-Dichte 1.56%
 AS211619			Maltrail worst_asns
 AS211663	HK	GALEON-AS	changway.hk
 AS211673		Mynymbox Hosting LLC	ThreatFox C2-Dichte 0.68%
@@ -587,7 +585,7 @@ AS214940		KPROHOST	BPH_Research T2-High Risk / flagged
 AS214943			Maltrail worst_asns
 AS214961	BE	STELLARGROUPSAS	stellar-group.fr
 AS215117	IN	HOSTERDADDY	hosterdaddy.com
-AS215125		Church of Cyberology	AbuseIPDB-Dichte 17.19%
+AS215125		Church of Cyberology	AbuseIPDB-Dichte 5.86%
 AS215127			Maltrail worst_asns
 AS215136	AT	Ryzehosting	ryzehosting.com
 AS215183	EE	zhaikov-as	vaultdweller.net
@@ -613,7 +611,7 @@ AS215659		Aokigahara SRL	ThreatFox C2-Dichte 1.26%
 AS215730	UA	H2NEXUS-AS	h2.nexus
 AS215731	US	NovusLabs	novuslabslimited.com
 AS215765	UA	RADIO-LINK-SMART	pitline.net
-AS215778		Alpha Strike Labs GmbH	AbuseIPDB-Dichte 0.70%
+AS215778		Alpha Strike Labs GmbH	threat.live-Dichte 0.55%
 AS215789			Maltrail worst_asns
 AS215826		Altawk (Daniil Yevchenko)	BPH_Research T2-High Risk / flagged
 AS215828			Maltrail worst_asns
@@ -621,7 +619,7 @@ AS215925	GB	VPSVAULTHOST	vpsvault.host
 AS215929		Data Campus Limited	eigene Auswertung 2026-11-15
 AS215930	IR	COD	almaseabi.net
 AS215987			Maltrail worst_asns
-AS216014		BestDC Limited	AbuseIPDB-Dichte 4.69%
+AS216014		BestDC Limited	AbuseIPDB-Dichte 4.30%
 AS216039		EdgeSec Technologies Limited	ThreatFox C2-Dichte 0.26%
 AS216078	GB	KREMER-AS	snowcore.io
 AS216127			Maltrail worst_asns
@@ -677,7 +675,6 @@ AS271262		COMETAFIBER SERVICOS DE INTERNET LTDA	threat.live-Dichte 0.49%
 AS271330		Dide telecomunicacoes Ltda	threat.live-Dichte 0.49%
 AS272539		ENEVE TELECOMUNICACOES LTDA	threat.live-Dichte 0.29%
 AS272547		Servicos de Infraestrutura e Datacenter	eigene Auswertung 2026-11-15
-AS273045		DATAHOME S.A.	AbuseIPDB-Dichte 0.28%
 AS273113		ONERED JWG532 SRL	threat.live-Dichte 11.94%
 AS273514		AMPLE SOLUCOES TECNOLOGICAS LTDA	threat.live-Dichte 1.76%
 AS273785		A. C. V. TELECOM LTDA	threat.live-Dichte 1.37%
@@ -690,7 +687,6 @@ AS394082	US	GOOGLE-PEER	ipswat.com
 AS394468		Wave Wireless LLC	threat.live-Dichte 0.30%
 AS394711			Maltrail worst_asns
 AS396073		Majestic Hosting Solutions, LLC	ThreatFox C2-Dichte 0.39%
-AS396507		Emerald Onion	AbuseIPDB-Dichte 0.78%
 AS397081	US	VALKYRIE-HOSTING	valkyrie-hosting.net
 AS397881	US	STINGERS	ipswat.com
 AS397966		ReadyDedis, LLC	ThreatFox C2-Dichte 0.28%
