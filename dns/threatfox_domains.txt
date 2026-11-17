@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-17 17:09 CET
-# Eintraege: 32944
+# Aktualisiert: 2026-11-17 19:15 CET
+# Eintraege: 32956
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -174,6 +174,7 @@
 123bca.com
 123betyek.com
 123blueslot.co
+124.179.187.35.bc.googleusercontent.com
 12cscmg1.enus-tupitea.com
 12deoctubreveterinaria.com.ar
 12dim-xanth.xan.sch.gr
@@ -1119,6 +1120,7 @@
 5z9j5y93.akhlagvaahkam.xyz
 5zh0a5l5.en-flashburnn.com
 5zn1z0hp.dancebetyek.app
+60.147.53.34.bc.googleusercontent.com
 602a5sud.foodpapajobs.com
 602kigvy.hanovereyephotography.com
 60aahn1v.nurvealive.com
@@ -8611,6 +8613,7 @@ djsmobiledetailingllc.com
 djspe30g.eng-usa-heroup.com
 djtffqa.oxiidbet.com
 djwof.ady26.hu
+dk.aruskoki.org
 dk1oqrra.en-us-en-heroup.com
 dk2acd53.anodaz.co
 dkdszy.onesourceautollc.com
@@ -13934,6 +13937,7 @@ id.mapletile.click
 id.v-panel.asia
 id10ixg6.1x1bet.cash
 id5bvscbrncaqc6brpxyx63wazhapg5z7gwvvcedka4uqhzacpasiaid.onion
+id9cgqfhfefmi9s.icu
 idc6.yjzj.org
 idcheckbrowese.codes
 idcjago.xyz
@@ -14442,6 +14446,7 @@ intopython.com
 intotain.com
 intothefuture.fondazionedimodena.it
 intouchsystem.com
+intuit-office-login.com
 inuvrupi.cfd
 inv527xk.testpaye.xyz
 investigatemiami.com
@@ -15027,6 +15032,7 @@ jfwh.hazzarat.com
 jfxdrqqn.maharatmodiran.xyz
 jg.ampluna.com
 jgjikxq.penalti.website
+jgjol70616.workers.dev
 jgjuwx.pishbiniclass.com
 jgkvlq.fulop-vargafanni.hu
 jgm.kozow.com
@@ -16714,6 +16720,7 @@ lhpahogn.karafarini.shop
 lhsconstrutora.com
 lhsighlrp.jawahirjewels.co.uk
 lhsq.janatcosmetics.com
+lhtfx0yq.tafti.store
 lhxly.cannatural.eu
 li-solutions.co.uk
 li.amoy323.org
@@ -17958,6 +17965,7 @@ memaiagent.cfd
 memap.me
 memariassociates.com
 member-pathology.gl.at.ply.gg
+membros.chicomorbene.com.br
 meme20.duckdns.org
 memenopoly.finance
 memory-shield.vg
@@ -19965,6 +19973,7 @@ nuypoiaklber.lol
 nv.aksara87.org
 nv.alphaslot677.org
 nv.aprendizajeeslibertad.cl
+nv.aruskoki.org
 nv1ay8ls.en-us-us-zensulin.com
 nvbaeuyzskimpgqxhjdt.is-a-rockstar.com
 nvbfcdnclaud.beer
@@ -26011,6 +26020,7 @@ stage.mycourt33.click
 stage.vibedisplay32.one
 stage1.riverbendramblings.com
 stage6.stillpath8.one
+staging-everythingrhythmicgymnasticscom.kinsta.cloud
 staging.detectors-shop.com
 staging.lisadegen.de
 staging.physiciansforpeace.ph
@@ -26686,6 +26696,7 @@ tacticalk9familycoin.com
 tactip.cyou
 tadkaindiaka.com
 tafhu17n.nextbahis.blog
+tafti.store
 tag-manager.xyz
 tagmentos.bingbaochow.cam
 tagujog.com
@@ -31887,6 +31898,7 @@ y.dhawa.net
 y.dps69.org
 y.geng7.org
 y.gki4d.org
+y.gl111.org
 y0.angkt777.org
 y01q42ad.theslimsplitsmethod.com
 y06e8hvi.proxyharbor.top
