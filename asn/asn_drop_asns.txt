@@ -1,10 +1,10 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794873404)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794882404)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-17 00:56 UTC | ASNs: 721 (Spamhaus 453 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 16 + Dichte ThreatFox/AbuseIPDB/threat.live 111, aktiv: 490)
+# Aktualisiert: 2026-11-17 03:02 UTC | ASNs: 721 (Spamhaus 453 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 16 + Dichte ThreatFox/AbuseIPDB/threat.live 111, aktiv: 490)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS2601	UA	RADIOLINK-AS	pitline.net
@@ -240,7 +240,7 @@ AS140787	VN	LAMA-AS-VN	vinahost.vn
 AS140869	NZ	TGL-AS-AP	turingserver.com
 AS140900		Getlinks (SMC-Private) Limited	threat.live-Dichte 0.26%
 AS140941	PK	FULLTIMEHOSTING-AS-AP	fulltimehosting.net
-AS141167		AgotoZ HK Limited	threat.live-Dichte 0.54%
+AS141167		AgotoZ HK Limited	threat.live-Dichte 0.56%
 AS141275		Maxnet Digital Pvt Ltd	threat.live-Dichte 0.46%
 AS141333	IN	ROCKETGP-AS-IN	rocketmediagroups.com
 AS141567	IN	INTERSP-AS-IN	interspireaddon.co.in
@@ -463,7 +463,7 @@ AS209207			Maltrail worst_asns
 AS209272		Alviva Holding Limited	ThreatFox C2-Dichte 0.39%
 AS209274	RS	Kraken-Network-ISP	mortalsoft.online
 AS209290			Maltrail worst_asns
-AS209334		Modat B.V.	threat.live-Dichte 16.41%
+AS209334		Modat B.V.	threat.live-Dichte 16.67%
 AS209366		SEMrush CY LTD	AbuseIPDB-Dichte 0.70%
 AS209373	IR	SWISSNET-AS	swissnetwork.io
 AS209375	MD	Contrust-Solutions	kontrast.md
@@ -506,7 +506,7 @@ AS211121	GB	India	imtigernet
 AS211138			Maltrail worst_asns
 AS211199	UA	LIPTEL-AS	liptel.net.ua
 AS211238	IN	DCYBER	zumy.eu
-AS211298		Driftnet Ltd	threat.live-Dichte 38.77%
+AS211298		Driftnet Ltd	threat.live-Dichte 38.87%
 AS211381			Maltrail worst_asns
 AS211443	HK	SINOWORLDWIDE	sinoworldwidetrading.com
 AS211486			Maltrail worst_asns
@@ -548,7 +548,7 @@ AS213373	SC	IPCONNECT	ipconnect.services
 AS213382	FR	PEERYX	cubixserv.com
 AS213388	GB	IIC-AS	iic-rail
 AS213389	UA	ASPODOLSK	netip.com.ua
-AS213412		ONYPHE SAS	threat.live-Dichte 43.10%
+AS213412		ONYPHE SAS	threat.live-Dichte 43.16%
 AS213438	SC	colocatel-inc	colocatel.com
 AS213474			Maltrail worst_asns
 AS213511	TR	VSVK	vonie.net
