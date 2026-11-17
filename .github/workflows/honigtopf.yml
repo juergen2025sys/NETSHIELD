@@ -208,10 +208,16 @@ jobs:
             }
           }
           NFT
-          # Ohne API-Credentials Tunnelroute und Erreichbarkeit pruefen.
-          if ! curl --noproxy '*' --interface 'if!wg0' -sS \
-              --connect-timeout 10 --max-time 20 -o /dev/null https://honeydb.io/; then
-            echo "::error::HoneyDB ist ueber den WireGuard-Tunnel nicht erreichbar."
+          # Dieselbe IPv4-/HTTP-1.1-Strecke wie beim eigentlichen API-Abruf
+          # pruefen. Eine HTTP-Antwort ohne Credentials reicht als TLS-Nachweis.
+          if ! curl -4 --http1.1 --noproxy '*' --interface 'if!wg0' -sS \
+              --connect-timeout 8 --max-time 15 --retry 2 --retry-all-errors \
+              --retry-max-time 35 -o /dev/null https://honeydb.io/api/bad-hosts; then
+            if sudo wg show wg0 latest-handshakes | awk '$2 > 0 { seen = 1 } END { exit !seen }'; then
+              echo "::error::WireGuard-Handshake vorhanden, aber keine HTTPS-Verbindung zur HoneyDB-API ueber diesen VPN-Ausgang."
+            else
+              echo "::error::Kein WireGuard-Handshake und keine HTTPS-Verbindung zur HoneyDB-API."
+            fi
             exit 1
           fi
           echo "HoneyDB ist ueber WireGuard erreichbar."
