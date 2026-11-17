@@ -1,11 +1,11 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794932804)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1794938204)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-17 16:54 UTC | ASNs: 964 (Spamhaus 454 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 16 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane 353, aktiv: 728)
-# IPv6-Netze: 1197
+# Aktualisiert: 2026-11-17 18:16 UTC | ASNs: 966 (Spamhaus 454 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 16 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane 355, aktiv: 730)
+# IPv6-Netze: 1194
 
 2001:470:491::/48
 2001:470:526::/48
@@ -129,12 +129,6 @@
 2403:3a40::/32
 2403:3b40::/32
 2403:3bc0::/32
-2403:72c0:a100::/40
-2403:72c0:a200::/39
-2403:72c0:a400::/38
-2403:72c0:a800::/38
-2403:72c0:ac00::/40
-2403:72c0:ae00::/40
 2403:c280::/46
 2403:c280:4::/47
 2403:c280:9::/48
@@ -182,6 +176,7 @@
 2404:a140:4f::/48
 2404:a140:50::/48
 2404:b8c0::/32
+2404:cb40::/32
 2405:3440::/44
 2405:7240::/32
 2405:e9c0::/32
@@ -375,7 +370,6 @@
 2803:5120:c000::/36
 2803:55e0::/32
 2803:5900::/32
-2803:5c50::/32
 2803:6850:1::/48
 2803:6850:5::/48
 2803:6d20::/48
@@ -409,10 +403,11 @@
 2804:1950::/32
 2804:1cb4::/32
 2804:1d34::/32
-2804:1d48::/32
 2804:1e10:6800::/37
 2804:1ed8::/32
 2804:2424::/32
+2804:2514::/32
+2804:2620::/32
 2804:27a8::/32
 2804:28c4::/32
 2804:2c24::/32
@@ -431,6 +426,7 @@
 2804:3e1c::/32
 2804:3f0c::/40
 2804:3f0c:f900::/40
+2804:4250::/32
 2804:45e0::/32
 2804:486c::/32
 2804:4ba4::/32
@@ -1044,6 +1040,7 @@
 2a12:5940:4000::/34
 2a12:5940:8000::/33
 2a12:5a00::/29
+2a12:5b80::/29
 2a12:6740::/29
 2a12:7240::/32
 2a12:73c0::/32
