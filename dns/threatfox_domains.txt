@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-18 08:39 CET
-# Eintraege: 33165
+# Aktualisiert: 2026-11-18 11:55 CET
+# Eintraege: 33194
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -213,6 +213,7 @@
 1629bqt9p34elwv.top
 164-90-169-184.cprapid.com
 167.226.231.8.bc.googleusercontent.com
+1688360.cc
 16dewaslot.org
 16mp59qr.usen-neurovera.com
 16store.ru
@@ -1329,6 +1330,7 @@
 7dak.lol
 7dfw4p3pzo3zlcy5hzm7y43z3kfke2rhd3eudncmvknwhsqqvseadkad.onion
 7dml.netstack.lat
+7e0pcdh8.taksim-fil.click
 7e4kctpk.orbitaldockingmodule.digital
 7egbakn4anfwdtase7fnkgsdpywl4mtsxwpud4ou5lxjjhy4qthv4vid.onion
 7ejjnjb6.eng-usa-glycomute.com
@@ -2494,6 +2496,7 @@ al-waely.iq
 al-waely.net
 al.333pwk.org
 al.396zk.net
+al10.store
 al6.amanbet87.org
 alabamalimoservice.com
 alabamarecoverycenter.com
@@ -3369,6 +3372,7 @@ aqnkjcr.tigersmartialarts.com
 aqrhxu.linuxmedialabs.com
 aqringagook.website
 aqshoponline.com
+aqtis.store
 aqua--burn.us
 aqua-brn.com
 aquaburnweb.us
@@ -3566,6 +3570,7 @@ arvujwijm.irani-music.com
 arwalsersh.com
 arwanageming.org
 arxjmuy.crownconnectpk.com
+ary303.org
 aryaarieash.com
 aryabet.bet
 aryalalexsh.com
@@ -3637,6 +3642,7 @@ ashraydesign.com
 ashsynt.p7ickmuch.lat
 ashwinbk.com
 asiancon.com
+asimo.store
 asioklaydpory.com
 asion.gr
 asistenciatecnica24.com
@@ -4715,6 +4721,7 @@ betballl90.app
 betbet.city
 betbook247.fun
 betboro.bio
+betbr.store
 betbuf.live
 betbuilder.promo
 betcompani.com
@@ -5249,6 +5256,7 @@ bociljp.store
 bociljp.us.com
 bociljp.xyz
 bocillanang.com
+bocoi.store
 bodaq.vn
 bodegaycocina.com.co
 bodes.store
@@ -5704,6 +5712,7 @@ btyek.store
 btyek.website
 btyek.xyz
 bu.allbaslot.org
+bu.ary303.org
 bu6l986k.rihan.store
 buaoqtgen.adsbln3.xyz
 bubblepix2.life
@@ -6162,6 +6171,7 @@ capitalstockbrokers.com
 capitol303.vip
 capitpl.biz
 capizeats.com
+capkat.pro
 capricecapitalpartners.com
 capsnwfl.com
 capt-stash.beer
@@ -7166,6 +7176,7 @@ cnuwz.bankefile.com
 cnxst.jardins-do-mar.com
 cnybvst9.1zorelin.lat
 co.alloha4d.org
+co.arwanageming.org
 co777.club
 coaa0h4a.graphicstabletreviews.com
 coachandkitchen.com
@@ -8374,6 +8385,7 @@ designhomeir.com
 designjaya.com
 designly.net
 designphotoshop.ir
+designsbycraigveenker.com
 designtische.de
 desis3x.com
 desitripper.in
@@ -9324,6 +9336,7 @@ e365aac901114d3db00d42b59e56a037-cn-hangzhou.alicloudapi.com
 e3giv37r.pokerpars.poker
 e3grmgyn.drubenginecologo.com
 e3k00lxe.truenarrator.com
+e4.ary303.org
 e40nbbpq.winmastersbetiran.com
 e43hciingepfdx74bsmy3z537tkumjvkzk2lpp6ixvsblwdgnsda.arweave.net
 e495897b.roxymigurdia.wiki
@@ -11893,6 +11906,7 @@ gate.carebridge.blog
 gate.runmanor.click
 gate.steadygroup.xyz
 gate.voyagezone.click
+gate5.archpark.wiki
 gategoldberg.zexorcloudsync.garden
 gatekeepernet.com
 gateway-switching-control-zone.in.net
@@ -14165,6 +14179,7 @@ ihtfqktk.holiday-matrix.christmas
 ihypqyrn.sadreislam.xyz
 iiabc8.com
 iiamtrbo.liketudong.biz
+iict.gov.la
 iidqou.jamjahani.app
 iieqea.buy-goldalign.com
 iifoqkzw.betpublic.casino
@@ -15034,6 +15049,7 @@ jaxturbotowing.com
 jaybhavaniwoodworks.com
 jaymarsh.4masgrooming.com
 jayratnaindsol.com
+jaystrading.in
 jayswraps.com
 jb6p5nn8.rtplive-miliarbet.online
 jb7207ut.us-tupitea.com
@@ -16386,6 +16402,7 @@ kyqwfrjr.betturkey.bet
 kys.botdealers.st
 kysv223u.zaribbala.bet
 kyvqgkidufinrkdprb.oakdalerodeogrounds.com
+kywipeby.workers.dev
 kyxuncq.jamjahani.net
 kyzvja.matsnews.com
 kz.amarta89.org
@@ -16936,6 +16953,7 @@ linkedlin-us.com
 linkedmba.com
 linkednewsapi.top
 linkedwiz.com
+linkforge.cc
 linkinmasgocf.com
 linkkedin.life
 linkmail5768.com
@@ -17684,6 +17702,7 @@ main.coderlaptechnical.pics
 main.commontexture76.one
 main.gardencourt.work
 main.southcarolinacounselor.com
+main9.nodewest.work
 mainenteew.top
 mainepoultry.com
 mainhold.duckdns.org
@@ -17996,6 +18015,7 @@ mdtupbnx.mawos.store
 mdwkkvc.sm188login.rest
 mdzgddyj.7naposokosotthonkihivas.hu
 mdzt.behtarin-site-shartbandi-football.bet
+me.ankapaito.org
 me23z6yn.reneck.store
 me4stn67.network-forge.digital
 me7wszz7.usalo.store
@@ -18604,6 +18624,7 @@ mnxmy.laborfotostudio.hu
 mnyok7h6.usa-slimsounds.com
 mnyz084l.jadoou.lat
 mnzrz.azmoonzare.online
+mo.go33.org
 mob.lanjut.in
 mobel.co.za
 mobile.runds.duckdns.org
@@ -19155,6 +19176,7 @@ mydatprivelook.wiki
 mydiaperisfull.baby
 myevim.com
 myflowermoon.com
+myfocale.workers.dev
 mygameszones.com
 mygar.run
 mygiftscorner.com
@@ -23744,6 +23766,7 @@ ri3o2083.pasoor.casino
 riaddarnaomi.com
 riadlallajihane.com
 riaifhk.entrepot-demarque.com
+ricardoavelar.com.br
 ricardotaxiservices.com
 ricardotro.duckdns.org
 ricarle.homes
@@ -29067,6 +29090,7 @@ velavelle.online
 veldty.biz
 veled.com.tr
 velika.es
+vellumwasim.com
 velmeshix.cyberframe.lat
 velmeshos.eight-education.lat
 velmontriq.net
@@ -29958,6 +29982,7 @@ webratxaye1.ton
 webrtwtre22.cc
 websalat.top
 webshareclouds.com
+webshell.lol
 website-wizard.de
 website.huishurenibiza.nl
 websmartserverun.com
@@ -30015,6 +30040,7 @@ wesleyandemma.com
 wesmarwinery.com
 wesolveit.pt
 westicbyfatima.com
+westlegendre.com
 westonresearch.org
 westpacifichomefashions.com
 westpointfulfillment.com
@@ -31336,6 +31362,7 @@ www.retrieverarbeit.ch
 www.rg82z9wtgt9b-m61p.cc
 www.riccardogiovannipatriarca.it
 www.ridderkerkfm.nl
+www.rightwaytobegreen.com
 www.risefoundationngo.org
 www.ristorantealcinemaitalia.it
 www.ristoranteallagondola.it
@@ -31561,6 +31588,7 @@ www.zominoz.com
 www.zrs7b8boubf9y-b1.net
 www.zukistudio.com
 www.zuqiubabaaw.net.cn
+www.zycus.com
 www2.hollywoodgulfcoast.com
 www82live.com
 www88vv.com
@@ -32856,6 +32884,7 @@ zgrongbo.com
 zgsjyxzx.com
 zgvdmh.eng-usa-gutdrops.com
 zgzyob.freemanframeca.com
+zh.arwanageming.org
 zh3l5x4j.betstrong.bet
 zh87ptod.venoplus.us
 zhangyuge.xyz
