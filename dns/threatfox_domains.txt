@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-18 22:05 CET
-# Eintraege: 33332
+# Aktualisiert: 2026-11-19 00:15 CET
+# Eintraege: 33336
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3614,6 +3614,7 @@ as9e2wvl.leswap.store
 asadhealth.com
 asah189.org
 asarofirm.com
+asas777.org
 asases.com
 asasyz.com
 asbaph.krisztinavarga.hu
@@ -7647,6 +7648,7 @@ cpuprosmgr.technodesupply.pics
 cpvt.bet120.games
 cpw81zy7.emanuellejaques.com
 cpysndcd.prozhecart.com
+cq.asas777.org
 cqbl.thechildrencomefirst.org
 cqdaaj.lapointerealtor.com
 cqdprod.com
@@ -18083,6 +18085,7 @@ mcq9ktcv.telemetry-nexus.digital
 mcqkkmc.betfootbal90.com
 mcreu5e7.heroe.store
 mcrhotels.com
+md.asas777.org
 md7buqog.melbetturkiye.org
 mdaasesorias.com.mx
 mdazhynx.btyek.site
@@ -32567,6 +32570,7 @@ yn9307x6.7lf.net
 yn9w54gw.springfieldsummerhoops.com
 ynbfqi.enus-synaptigen.com
 ynkcoqkg.snow-harbor.christmas
+ynkrjgbl1l.workers.dev
 ynq.adg.mybluehost.me
 ynteevb.1xvip.xyz
 ynuqd.wlwyb.com
