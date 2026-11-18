@@ -4,7 +4,7 @@
 # Spalten: ASN | IPs | Adressen | Dichte | schon gesperrt | Name | Quelle
 
 AS211298	1007	1024	98.34%	nein	Driftnet Ltd	Dataplane-Dichte
-AS213412	978	1536	63.67%	nein	ONYPHE SAS	Dataplane-Dichte
+AS213412	976	1536	63.54%	nein	ONYPHE SAS	Dataplane-Dichte
 AS206305	103	256	40.23%	ja	Contrust Solutions S.R.L.	threat.live-Dichte
 AS198798	345	1024	33.69%	nein	IFO.net Internet Service GmbH	Dataplane-Dichte
 AS42969	254	768	33.07%	nein	Alpha Strike Labs GmbH	Honeypot-Feeds-Dichte
@@ -19,7 +19,7 @@ AS214472	85	512	16.60%	ja	Offshore LC	Honeypot-Feeds-Dichte
 AS401626	77	512	15.04%	ja	Netiface America, Inc.	Honeypot-Feeds-Dichte
 AS211680	220	1536	14.32%	nein	NSEC - Sistemas Informaticos, S.A.	threat.live-Dichte
 AS398722	67	512	13.09%	nein	Censys, Inc.	threat.live-Dichte
-AS14987	133	1024	12.99%	nein	Rethem Hosting LLC	Dataplane-Dichte
+AS14987	132	1024	12.89%	nein	Rethem Hosting LLC	Dataplane-Dichte
 AS398324	788	6144	12.83%	nein	Censys, Inc.	Dataplane-Dichte
 AS151663	32	256	12.50%	nein	Islington College Pvt. Ltd.	threat.live-Dichte
 AS273113	214	1792	11.94%	nein	ONERED JWG532 SRL	threat.live-Dichte
@@ -494,6 +494,7 @@ AS202520	9	3072	0.29%	nein	SkyPass Solutions Sp. z.o.o.	Honeypot-Feeds-Dichte
 AS52414	6	2048	0.29%	nein	COOP. ELECTRICA DE TODD LTDA	Honeypot-Feeds-Dichte
 AS267124	6	2048	0.29%	nein	Paulino Perreira Dos Santos Eireli	Honeypot-Feeds-Dichte
 AS201814	57	19712	0.29%	nein	MEVSPACE sp. z o.o.	Honeypot-Feeds-Dichte
+AS47143	11	3840	0.29%	nein	Todayhost Limited	Dataplane-Dichte
 AS136634	8	2816	0.28%	nein	Navkar Netsol Private Ltd	Dataplane-Dichte
 AS213772	8	2816	0.28%	nein	UAB "Baltnetos komunikacijos"	Honeypot-Feeds-Dichte
 AS134177	8	2816	0.28%	nein	Rural Broadband Pvt. Ltd	Honeypot-Feeds-Dichte
@@ -516,7 +517,6 @@ AS216039	8	3072	0.26%	nein	EdgeSec Technologies Limited	ThreatFox C2-Dichte
 AS267788	6	2304	0.26%	nein	IP TECHNOLOGIES S.A.S.	threat.live-Dichte
 AS267120	6	2304	0.26%	nein	Brnet Telecomunicacoes LTDA - ME	threat.live-Dichte
 AS45194	36	13824	0.26%	nein	Syscon Infoway Pvt. Ltd.	Dataplane-Dichte
-AS47143	10	3840	0.26%	nein	Todayhost Limited	Dataplane-Dichte
 AS134932	8	3072	0.26%	nein	VORTEX INFOWAY PRIVATE LIMITED	Dataplane-Dichte
 AS57164	24	9216	0.26%	nein	Viacheslav Fitiunin	Dataplane-Dichte
 AS61280	8	3072	0.26%	nein	FGUP "GRCHC"	Dataplane-Dichte

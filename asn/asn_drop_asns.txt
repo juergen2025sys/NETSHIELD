@@ -4,7 +4,7 @@
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-18 17:00 UTC | ASNs: 1034 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds 419, aktiv: 799)
+# Aktualisiert: 2026-11-18 17:10 UTC | ASNs: 1034 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds 419, aktiv: 799)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS2601	UA	RADIOLINK-AS	pitline.net
@@ -35,7 +35,7 @@ AS12989		Black HOST Ltd	Dataplane-Dichte 0.34%
 AS13875	HK	AS13875-MX-FIBER	mxfiber.com
 AS14576	US	HOSTING-SOLUTIONS	king-servers.com
 AS14956	IR	ROUTERHOSTING	cloudzy.com
-AS14987		Rethem Hosting LLC	Dataplane-Dichte 12.99%
+AS14987		Rethem Hosting LLC	Dataplane-Dichte 12.89%
 AS15611			Maltrail worst_asns
 AS16190		LIR LLC	threat.live-Dichte 0.29%
 AS17447	IN	NET4-IN	net4india.com
@@ -156,7 +156,7 @@ AS45204		Gemnet	Honeypot-Feeds-Dichte 0.36%
 AS46370	US	GRANDWEB	grandwebsolutions.com
 AS46664	US	VDI-NETWORK	volumedrive.com
 AS47105	EE	as-vd	vaultdweller.net
-AS47143		Todayhost Limited	Dataplane-Dichte 0.26%
+AS47143		Todayhost Limited	Dataplane-Dichte 0.29%
 AS47154		HUSAM A. H. HIJAZI	Dataplane-Dichte 4.69%
 AS47436			Maltrail worst_asns
 AS47890	RO	UNMANAGED-DEDICATED-SERVERS	bunea.eu
@@ -782,7 +782,7 @@ AS213373	SC	IPCONNECT	ipconnect.services
 AS213382	FR	PEERYX	cubixserv.com
 AS213388	GB	IIC-AS	iic-rail
 AS213389	UA	ASPODOLSK	netip.com.ua
-AS213412		ONYPHE SAS	Dataplane-Dichte 63.67%
+AS213412		ONYPHE SAS	Dataplane-Dichte 63.54%
 AS213438	SC	colocatel-inc	colocatel.com
 AS213474			Maltrail worst_asns
 AS213511	TR	VSVK	vonie.net
