@@ -4,9 +4,10 @@
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-18 17:10 UTC | ASNs: 1034 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds 419, aktiv: 799)
+# Aktualisiert: 2026-11-18 17:18 UTC | ASNs: 1043 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf 428, aktiv: 808)
 
 AS245	US	PRC-AS	planningresearchcorp.com
+AS1054		Zont LLC	Honigtopf-Dichte 0.66%
 AS2601	UA	RADIOLINK-AS	pitline.net
 AS2702	US	INTERSERVE	novx-systems
 AS3507	US	IPSWAT_TEAM	ipswat.com
@@ -70,6 +71,7 @@ AS30490	US	ETHRN	ethr.net
 AS30823		AUROLOGIC (aurologic GmbH)	Bulletproof Hosting Watch 2026-11-16
 AS31149		Shtoler Vitaliy Andreevich	Dataplane-Dichte 3.12%
 AS31234		KRAM Ltd	Dataplane-Dichte 0.36%
+AS31531		TOV Point	Honigtopf-Dichte 0.39%
 AS33042	GB	NETIFACE-TORONTO	netiface.co.uk
 AS33993	MD	UFO-AS	stark-industries.solutions
 AS34279		S.C. Teletrans S.A.	Dataplane-Dichte 0.25%
@@ -155,6 +157,7 @@ AS45194		Syscon Infoway Pvt. Ltd.	Dataplane-Dichte 0.26%
 AS45204		Gemnet	Honeypot-Feeds-Dichte 0.36%
 AS46370	US	GRANDWEB	grandwebsolutions.com
 AS46664	US	VDI-NETWORK	volumedrive.com
+AS46783		EASY LINK LLC	Honigtopf-Dichte 0.27%
 AS47105	EE	as-vd	vaultdweller.net
 AS47143		Todayhost Limited	Dataplane-Dichte 0.29%
 AS47154		HUSAM A. H. HIJAZI	Dataplane-Dichte 4.69%
@@ -239,6 +242,7 @@ AS56400		SPD Chernega Aleksandr Anatolevich	Dataplane-Dichte 2.46%
 AS56526		PC Media Zmijov	Dataplane-Dichte 1.86%
 AS56584	NL	INTER-IX	serverion.com
 AS56587		Citadel Crimea Ltd.	Dataplane-Dichte 0.65%
+AS56703		MEHR AVA GOSTAR PARSIAN INFORMATION ENGINEERING CO.,LTD	Honigtopf-Dichte 0.39%
 AS56873	SC	ELITETEAM-ANTIDDOS	eliteteam.to
 AS56899		Granat Ukraine LLC	Dataplane-Dichte 0.45%
 AS56971			Maltrail worst_asns
@@ -356,6 +360,7 @@ AS136355		Suntech Sanchar Private Limited	Dataplane-Dichte 0.46%
 AS136367	IN	HERBZOOT-AS-IN	herbzoothealthcare.co.in
 AS136442		Ocean Wave Communication Co., Ltd	Dataplane-Dichte 0.33%
 AS136452		SHANGXING TECH LIMITED	BPH_Research T2-High Risk / suspected
+AS136514		Onesky Communications Limited.	Honigtopf-Dichte 0.29%
 AS136525		Wancom (Pvt) Ltd.	Dataplane-Dichte 1.03%
 AS136634		Navkar Netsol Private Ltd	Dataplane-Dichte 0.28%
 AS136923	HK	WIT-AS-AP	thestack.net
@@ -475,6 +480,7 @@ AS153656		OWGELS INTERNATIONAL CO., LIMITED	ThreatFox C2-Dichte 0.37%
 AS153947		FAST ZONE IT	threat.live-Dichte 0.31%
 AS154177	CN	LIGHT4-AS-AP	kaopuyun.com
 AS154206	HK	CDN1COM-AS-AP	cloudie.hk
+AS196705		Ardinvest LTD	Honigtopf-Dichte 0.29%
 AS196977		Private Entrepreneur Bubley Igor Yurievich	Dataplane-Dichte 0.78%
 AS197015		Individual Entrepreneur Antipov Andrey Vyacheslavovich	Dataplane-Dichte 0.50%
 AS197058		PSTS Ltd.	Dataplane-Dichte 0.68%
@@ -577,7 +583,7 @@ AS203154	RU	MITELIS-DOWNSTREAM	play2go.cloud
 AS203168			Maltrail worst_asns
 AS203273	RU	NetCraftersOU	aeza.net
 AS203319	RU	GIR-AS-1	gir.network
-AS203451		K-telekom LLC	Dataplane-Dichte 0.71%
+AS203451		K-telekom LLC	Honigtopf-Dichte 0.75%
 AS203485		Noinet Societa Cooperativa	threat.live-Dichte 0.59%
 AS203557		SIA RixHost	feste eigene Liste
 AS203662			Maltrail worst_asns
@@ -597,6 +603,7 @@ AS204610	CY	IMASOFTWARE-AS	imasfs.com
 AS204685		PE KRYVENKO SERGIY ANDRIYOVYCH	Dataplane-Dichte 3.52%
 AS204752		Delfi Internet LLC	Dataplane-Dichte 3.12%
 AS204794	MD	Contrust-Solutions	kontrast.md
+AS204829		Onet Group Ltd.	Honigtopf-Dichte 4.69%
 AS204868	MD	Contrust-Solutions	kontrast.md
 AS204872	MD	Contrust-Solutions	kontrast.md
 AS204875		ISTEC UKRAINE LLC	Dataplane-Dichte 0.55%
@@ -1016,6 +1023,7 @@ AS400171	IN	AS-AINFO	alphainfolab.com
 AS400177	US	RC	ipswat.com
 AS400328	DE	INTELLIGENCE	pfcloud.io
 AS400377	NL	CUSTOMER	serverion.com
+AS400464		VMISS Inc.	Honigtopf-Dichte 1.68%
 AS400506	US	BAIAS	blackappleus.com
 AS400519			Maltrail worst_asns
 AS400522	US	ROOTCLOUD	ipswat.com
@@ -1029,6 +1037,7 @@ AS401115			Maltrail worst_asns
 AS401116			Maltrail worst_asns
 AS401120			Maltrail worst_asns
 AS401142	RO	ACERDP	acerdp.io
+AS401476		Spruce Creek Networks LLC	Honigtopf-Dichte 21.32%
 AS401626	GB	NETIFACE-TORONTO	netiface.co.uk
 AS401696	HK	COGNETCLOUD	cognetcloud.com
 AS401701	HK	COGNETCLOUD-2	cognetcloud.com

@@ -4,8 +4,8 @@
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-18 17:10 UTC | ASNs: 1034 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds 419, aktiv: 799)
-# IPv6-Netze: 1292
+# Aktualisiert: 2026-11-18 17:18 UTC | ASNs: 1043 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf 428, aktiv: 808)
+# IPv6-Netze: 1305
 
 2001:470:491::/48
 2001:470:526::/48
@@ -118,6 +118,10 @@
 2400:a820::/32
 2400:ab60::/48
 2400:ac40::/32
+2401:6c0::/32
+2401:2660:2000::/46
+2401:2660:2004::/47
+2401:2660:2006::/48
 2401:2be0::/48
 2401:37e0::/48
 2401:5f20::/32
@@ -276,6 +280,14 @@
 2602:f2d5::/40
 2602:f2d7::/43
 2602:f2d7:20::/44
+2602:f5c0::/40
+2602:f656:1::/48
+2602:f656:2::/47
+2602:f656:4::/47
+2602:f656:6::/48
+2602:f656:8::/47
+2602:f656:101::/48
+2602:f656:102::/48
 2602:f6a0::/40
 2602:f6f6::/47
 2602:f6f6:2::/48
@@ -578,6 +590,7 @@
 2a02:b48::/30
 2a02:b4c::/31
 2a02:2708::/32
+2a02:2818:5::/48
 2a02:29b8::/32
 2a02:4840::/47
 2a02:4840:2::/48

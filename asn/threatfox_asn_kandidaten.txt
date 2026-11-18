@@ -9,6 +9,7 @@ AS206305	103	256	40.23%	ja	Contrust Solutions S.R.L.	threat.live-Dichte
 AS198798	345	1024	33.69%	nein	IFO.net Internet Service GmbH	Dataplane-Dichte
 AS42969	254	768	33.07%	nein	Alpha Strike Labs GmbH	Honeypot-Feeds-Dichte
 AS215778	286	1280	22.34%	nein	Alpha Strike Labs GmbH	Honeypot-Feeds-Dichte
+AS401476	764	3584	21.32%	nein	Spruce Creek Networks LLC	Honigtopf-Dichte
 AS205089	107	512	20.90%	nein	Alfahost LLC	threat.live-Dichte
 AS208843	254	1280	19.84%	nein	Alpha Strike Labs GmbH	Honeypot-Feeds-Dichte
 AS215125	50	256	19.53%	nein	Church of Cyberology	Dataplane-Dichte
@@ -48,6 +49,7 @@ AS202412	253	5120	4.94%	ja	Omegatech LTD	ThreatFox C2-Dichte
 AS211590	24	512	4.69%	ja	Bucklog SARL	Honeypot-Feeds-Dichte
 AS208137	36	768	4.69%	ja	Feo Prest SRL	Honeypot-Feeds-Dichte
 AS47154	12	256	4.69%	nein	HUSAM A. H. HIJAZI	Dataplane-Dichte
+AS204829	12	256	4.69%	nein	Onet Group Ltd.	Honigtopf-Dichte
 AS209630	95	2048	4.64%	ja	LLC VASH KREDIT BANK	Honeypot-Feeds-Dichte
 AS48721	22	512	4.30%	ja	Flyservers S.A.	Honeypot-Feeds-Dichte
 AS209605	94	2304	4.08%	ja	UAB Host Baltic	Dataplane-Dichte
@@ -126,6 +128,7 @@ AS197490	9	512	1.76%	nein	SIRIUS VP LLC	Dataplane-Dichte
 AS142647	67	3840	1.74%	nein	Nasstec Airnet Networks Private Limited	Honeypot-Feeds-Dichte
 AS207043	126	7424	1.70%	ja	DEDIK SERVICES LIMITED	ThreatFox C2-Dichte
 AS267784	13	768	1.69%	ja	Flyservers S.A.	ThreatFox C2-Dichte
+AS400464	86	5120	1.68%	nein	VMISS Inc.	Honigtopf-Dichte
 AS213850	17	1024	1.66%	ja	Justin Harth	ThreatFox C2-Dichte
 AS268305	17	1024	1.66%	nein	T & I TELECOMUNICACOES LTDA ME	Dataplane-Dichte
 AS211190	38	2304	1.65%	nein	QUICKNET LLC	Dataplane-Dichte
@@ -232,6 +235,7 @@ AS48004	25	3328	0.75%	nein	PE Tsibrankov Konstantin Igorevich	Dataplane-Dichte
 AS50360	46	6144	0.75%	ja	Tamatiya EOOD	Honeypot-Feeds-Dichte
 AS141767	23	3072	0.75%	nein	C G Communications Ltd	threat.live-Dichte
 AS43060	44	5888	0.75%	nein	IPLUS LLC	Dataplane-Dichte
+AS203451	42	5632	0.75%	nein	K-telekom LLC	Honigtopf-Dichte
 AS138871	19	2560	0.74%	nein	PT. Trans Indonesia Superkoridor	Dataplane-Dichte
 AS141167	62	8448	0.73%	nein	AgotoZ HK Limited	Honeypot-Feeds-Dichte
 AS215117	15	2048	0.73%	ja	HosterDaddy Private Limited	Dataplane-Dichte
@@ -239,7 +243,6 @@ AS141846	15	2048	0.73%	nein	Netfix Networks Opc Pvt Ltd	Dataplane-Dichte
 AS50648	43	5888	0.73%	nein	PE UAinet	Dataplane-Dichte
 AS398019	52	7168	0.73%	nein	Dynu Systems Incorporated	Honeypot-Feeds-Dichte
 AS132168	26	3584	0.73%	nein	ESUN TECHNOLOGY INTERNATIONAL CO., LIMITED	Dataplane-Dichte
-AS203451	40	5632	0.71%	nein	K-telekom LLC	Dataplane-Dichte
 AS62744	20	2816	0.71%	nein	Quintex Alliance Consulting	Honeypot-Feeds-Dichte
 AS40662	9	1280	0.70%	nein	Layer7 Technologies Inc	ThreatFox C2-Dichte
 AS209366	9	1280	0.70%	nein	SEMrush CY LTD	AbuseIPDB-Dichte
@@ -263,6 +266,7 @@ AS212512	12	1792	0.67%	ja	Detai Prosperous Technologies Limited	threat.live-Dich
 AS209946	17	2560	0.66%	ja	ALINDA LLC	ThreatFox C2-Dichte
 AS52613	44	6656	0.66%	nein	GIGA MAIS FIBRA TELECOMUNICACOES S.A.	Dataplane-Dichte
 AS262821	27	4096	0.66%	nein	PHS INTERNET E SUPRIMENTOS LTDA - ME	threat.live-Dichte
+AS1054	47	7168	0.66%	nein	Zont LLC	Honigtopf-Dichte
 AS214927	20	3072	0.65%	ja	PSB HOSTING LTD	ThreatFox C2-Dichte
 AS34327	5	768	0.65%	nein	JSC "E-Publish"	ThreatFox C2-Dichte
 AS50043	5	768	0.65%	nein	Korzhos Oleg	Dataplane-Dichte
@@ -413,6 +417,8 @@ AS142430	5	1280	0.39%	ja	DIGI VPS	Honeypot-Feeds-Dichte
 AS209101	7	1792	0.39%	nein	IP Vendetta Inc.	Honeypot-Feeds-Dichte
 AS214503	8	2048	0.39%	nein	QuxLabs AB	Honeypot-Feeds-Dichte
 AS394353	5	1280	0.39%	nein	B.Root-Server-OPS	Honeypot-Feeds-Dichte
+AS56703	7	1792	0.39%	nein	MEHR AVA GOSTAR PARSIAN INFORMATION ENGINEERING CO.,LTD	Honigtopf-Dichte
+AS31531	6	1536	0.39%	nein	TOV Point	Honigtopf-Dichte
 AS37148	103	26624	0.39%	nein	Globacom Limited	Dataplane-Dichte
 AS396073	93	24064	0.39%	nein	Majestic Hosting Solutions, LLC	ThreatFox C2-Dichte
 AS27717	185	48640	0.38%	nein	Corporacion Digitel C.A.	Dataplane-Dichte
@@ -493,8 +499,10 @@ AS136180	6	2048	0.29%	nein	Beijing Tiantexin Tech. Co., Ltd.	Honeypot-Feeds-Dich
 AS202520	9	3072	0.29%	nein	SkyPass Solutions Sp. z.o.o.	Honeypot-Feeds-Dichte
 AS52414	6	2048	0.29%	nein	COOP. ELECTRICA DE TODD LTDA	Honeypot-Feeds-Dichte
 AS267124	6	2048	0.29%	nein	Paulino Perreira Dos Santos Eireli	Honeypot-Feeds-Dichte
+AS136514	6	2048	0.29%	nein	Onesky Communications Limited.	Honigtopf-Dichte
 AS201814	57	19712	0.29%	nein	MEVSPACE sp. z o.o.	Honeypot-Feeds-Dichte
 AS47143	11	3840	0.29%	nein	Todayhost Limited	Dataplane-Dichte
+AS196705	19	6656	0.29%	nein	Ardinvest LTD	Honigtopf-Dichte
 AS136634	8	2816	0.28%	nein	Navkar Netsol Private Ltd	Dataplane-Dichte
 AS213772	8	2816	0.28%	nein	UAB "Baltnetos komunikacijos"	Honeypot-Feeds-Dichte
 AS134177	8	2816	0.28%	nein	Rural Broadband Pvt. Ltd	Honeypot-Feeds-Dichte
@@ -507,6 +515,7 @@ AS134829	5	1792	0.28%	nein	PPIP Associated Communication Limited	Dataplane-Dicht
 AS138746	5	1792	0.28%	nein	Live Fibernet	Honeypot-Feeds-Dichte
 AS399461	42	15360	0.27%	nein	HostSNAP LLC	ThreatFox C2-Dichte
 AS198820	14	5120	0.27%	nein	Limited Liability Company Radio Network	Dataplane-Dichte
+AS46783	30	11008	0.27%	nein	EASY LINK LLC	Honigtopf-Dichte
 AS62610	171	63232	0.27%	nein	Zenlayer Inc	ThreatFox C2-Dichte
 AS57871	11	4096	0.27%	nein	TeleCentr Ltd.	Dataplane-Dichte
 AS58376	11	4096	0.27%	nein	PT Angkasa Komunikasi Global Utama	Dataplane-Dichte
