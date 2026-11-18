@@ -1,15 +1,16 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795031804)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795033604)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-18 20:33 UTC | ASNs: 1133 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf 432 + ASN-Risiko 86, aktiv: 897)
+# Aktualisiert: 2026-11-18 20:52 UTC | ASNs: 1138 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf 432 + ASN-Risiko 91, aktiv: 902)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS1054		Zont LLC	Honigtopf-Dichte 0.66%
 AS2601	UA	RADIOLINK-AS	pitline.net
 AS2702	US	INTERSERVE	novx-systems
+AS3255			ASN-Risiko Monat ? (Hoster, 86528 Adressen)
 AS3507	US	IPSWAT_TEAM	ipswat.com
 AS3563	US	PILOT-ASN	pilot.net
 AS5065	US	BUNNY-COMMUNICATIONS-GLOBAL	bunnycommunications.com
@@ -32,6 +33,7 @@ AS9164	UA	R-TEL-AS	bignet.ua
 AS9465		AGOTOZ PTE. LTD.	Dataplane-Dichte 4.69%
 AS9541		Cyber Internet Services (Private) Limited	Dataplane-Dichte 1.34%
 AS9988			ASN-Risiko Monat ?
+AS10439			ASN-Risiko Monat ? (Hoster, 106752 Adressen)
 AS11527	US	NOVABROADBAND	xproxies.com
 AS11693		WideOpenWest Finance LLC	Dataplane-Dichte 0.40%
 AS11960		EMPRESA DE TELECOMUNICACIONES DE CUBA S.A. (IXP CUBA)	Dataplane-Dichte 2.34%
@@ -52,6 +54,7 @@ AS18526	JP	DDPS	ddps.jp
 AS19318			Maltrail worst_asns
 AS20052		Arbor Networks, Inc.	Dataplane-Dichte 5.66%
 AS21378		PJSC Rostelecom	Dataplane-Dichte 0.43%
+AS21769			ASN-Risiko Monat ? (Hoster, 403968 Adressen)
 AS22295			Maltrail worst_asns
 AS23865	JP	NETINNOVATIONLLC-AS-AP	netinnovation.net
 AS23888		National Telecommunication Corporation	Dataplane-Dichte 0.94%
@@ -321,6 +324,7 @@ AS62005			Maltrail worst_asns
 AS62040		Innovative Telecommunications LLC	Dataplane-Dichte 0.52%
 AS62206	UA	PITLINE-AS	pitline.net
 AS62227		CLOUDHELIX LIMITED	Dataplane-Dichte 0.46%
+AS62240			ASN-Risiko Monat ? (Hoster, 342784 Adressen)
 AS62380	RO	BUNEA-HIGH-PEER-NETWORK	bunea.eu
 AS62419		I.Q Online for Internet Services and Communications LLC	Dataplane-Dichte 0.98%
 AS62563		GLOBALTELEHOST Corp.	ThreatFox C2-Dichte 0.57%
@@ -412,6 +416,7 @@ AS137120		Nas Internet Services Private Limited	Dataplane-Dichte 0.49%
 AS137122		Imperium Digital Network Pvt Ltd	Dataplane-Dichte 0.49%
 AS137156	IN	BLUEB-AS	blueberrywebs.com
 AS137160		BHARAT DATA SERVICES PVT LTD	threat.live-Dichte 0.49%
+AS137409			ASN-Risiko Monat ? (Hoster, 150016 Adressen)
 AS137508	GB	TOKO	imtigernet
 AS138152		YISU CLOUD LTD	Dataplane-Dichte 0.26%
 AS138311		Limerick Technologies Pvt Ltd	Dataplane-Dichte 1.19%
