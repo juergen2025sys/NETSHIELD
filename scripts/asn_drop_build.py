@@ -202,7 +202,7 @@ def load_risk():
         txt = fh.read()
     m = re.search(r'^# Monat: ([^|\n]*)', txt, re.M)
     out = [int(l) for l in (x.strip() for x in txt.splitlines()) if l.isdigit()]
-    return [a for a in out if 0 < a < 4200000000 and a not in RISK_NEVER], (m.group(1).strip() if m else '?')
+    return [a for a in out if 0 < a < 4200000000 and a not in RISK_NEVER], ((m.group(1).strip() if m else '') or 'Monat ?')
 
 
 DENSITY_SOURCES = (('ThreatFox C2-Dichte', TF_IPS_FILE), ('AbuseIPDB-Dichte', AB_IPS_FILE),
