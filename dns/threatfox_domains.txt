@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-18 04:57 CET
-# Eintraege: 33149
+# Aktualisiert: 2026-11-18 08:39 CET
+# Eintraege: 33165
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -219,6 +219,7 @@
 16t38k5v.rtp-k86sportop.site
 17.aa.4t.com
 17.tcp.cpolar.top
+171.63.152.34.bc.googleusercontent.com
 172-234-95-30.ip.linodeusercontent.com
 172-238-204-199.ip.linodeusercontent.com
 172u1sfd.diero.store
@@ -2510,6 +2511,7 @@ alayaf.play-1winofficial.com
 albalad-news.net
 albanaturaalapitvany.hu
 albarakahenterprises.com
+alberguevillanua.es
 albertafingerprints.com
 albertocorteshernandez.com
 albhjil.modernglowllc.com
@@ -4009,6 +4011,7 @@ awtad.biz
 awvz.backgammon.download
 awxcwqg.cfd
 awzhaf.hypnosisinstitute.net
+ax.arwanageming.org
 ax8ayl1guumv.hellodcuser.com
 axelkim.com
 axellcnge.cfd
@@ -8129,6 +8132,7 @@ datapulse.wiki
 dataramara.icu
 datasciconnect.com
 dataset.ethack.slabs.dev
+dataspoiler.com
 datastoria.com
 datasurge-bot.com
 datasurge-bot.info
@@ -9332,6 +9336,7 @@ e5xwaq5b.en-us-men-balancepro.com
 e6.alxeabet.org
 e6ce6uwg.bingobet90.com
 e6q3vpkqpqjnerdtseb5wkgmuluqfsluu2sgwjghtrlf2u2pzybrlzid.onion
+e7.arwanageming.org
 e784kfx8.shop-powerbite.us
 e7a6zgqfijn2ko6lzkz53tysjpnf22fxj4h2f3saufrmsts5pbul5eid.onion
 e7ryllbp.container-pulse.digital
@@ -11407,6 +11412,7 @@ francismclaren.co.uk
 frankfurt-hochzeitslocation.de
 franklintowing.net
 frans-meijers.nl
+franzlery.com
 fratellifoschiani.com
 fraules.shop
 frcdk4gw.deepseahydrothermalvent.digital
@@ -11581,6 +11587,7 @@ ftpsrvs.poi5oneducation.lat
 ftpsrvs.setting5hoo.lat
 ftpsrvs.tavro6xel.lat
 ftpsrvs.tavro9xel.lat
+fttec.co.uk
 ftvfx.faux-paws.com
 ftwealthmgt.com
 fu.alxeabet.org
@@ -12756,6 +12763,7 @@ grid.sena9vix.lat
 gridnest.cc
 griffighs.club
 griffihhs.click
+griffnoria.eating-organic.net
 grillchefsecrets.com
 grillcraftrecipes.com
 grillcrafts.com
@@ -13270,6 +13278,7 @@ hdvkjf.getsightfresh.com
 hdwirguz.bossbeyhub.click
 hdxxax.shop
 hdz7omr1.nextbahis.blog
+he.arwanageming.org
 he2o9t.com
 header.flavorroute.cc
 headlock.ru
@@ -15584,6 +15593,7 @@ k9h20m23.observability-matrix.digital
 k9k9.xyz
 k9p8spox.flymetoyou.app
 k9qxyqt8.jetbt8.online
+ka.go33.org
 ka3xwdti.en-us-superbrain.com
 ka4yxanb.andliberty.us
 kabab.lol
@@ -22895,6 +22905,7 @@ qualitybathremodel.com
 qualitycleaningnj.com
 qualitycorecuttinguae.com
 qualitycounselingcenter.com
+qualityfirstfamilyhealth.com
 qualitylivingpm.com
 qualitytvmounting.com
 qualytecbrasil.com.br
@@ -25015,6 +25026,7 @@ servx278x.xyz
 serwis-o2.netlify.app
 ses.1001gacor.org
 ses.sm188daftar.mom
+sescominfo.com
 sesksz.venusbet90.com
 session-tangem.com
 sessionstoresys.com
@@ -25386,6 +25398,7 @@ site-shartbandi.christmas
 site.dev.hutechweb.com
 siteaimecool.org
 siteamnsserv.beer
+siteborg.com
 siteinsights.icu
 sitekopen.nl
 sitepromclop.click
@@ -25467,6 +25480,7 @@ skunkxd.live
 sky-borders.com
 sky.dolcefantasia.us
 sky1ine.digital
+skyepeptides-us.com
 skyery-auto.com
 skyfoxcs.co.za
 skygatewholesale.net
@@ -26595,6 +26609,7 @@ svo-zv.pro
 svohxwo.letterboxedsolved.com
 svpmag.ru
 svqta9j3.usa-us-goldalign.com
+svr.erc200.com
 svs-verificationdate.beer
 svwuxca.en-us-energyrevolution.com
 sw10j5d9.behtarin-site-shartbandi-football.com
@@ -28675,6 +28690,7 @@ usadevgroup.com
 usadigitizer.com
 usaechoxen.com
 usalaborforhire.net
+usapdftool.com
 usapoolsupplies.com
 usasightfresh.com
 usastatesdates.com
