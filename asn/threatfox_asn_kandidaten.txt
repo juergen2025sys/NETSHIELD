@@ -4,29 +4,29 @@
 # Spalten: ASN | IPs | Adressen | Dichte | schon gesperrt | Name | Quelle
 
 AS211298	1007	1024	98.34%	nein	Driftnet Ltd	Dataplane-Dichte
-AS213412	981	1536	63.87%	nein	ONYPHE SAS	Dataplane-Dichte
+AS213412	978	1536	63.67%	nein	ONYPHE SAS	Dataplane-Dichte
 AS206305	103	256	40.23%	ja	Contrust Solutions S.R.L.	threat.live-Dichte
 AS198798	345	1024	33.69%	nein	IFO.net Internet Service GmbH	Dataplane-Dichte
 AS42969	198	768	25.78%	nein	Alpha Strike Labs GmbH	Dataplane-Dichte
 AS205089	107	512	20.90%	nein	Alfahost LLC	threat.live-Dichte
+AS215125	50	256	19.53%	nein	Church of Cyberology	Dataplane-Dichte
 AS209334	148	768	19.27%	nein	Modat B.V.	AbuseIPDB-Dichte
 AS209373	96	512	18.75%	ja	SWISSNET LLC	ThreatFox C2-Dichte
-AS215125	47	256	18.36%	nein	Church of Cyberology	Dataplane-Dichte
 AS208843	215	1280	16.80%	nein	Alpha Strike Labs GmbH	Dataplane-Dichte
 AS211680	220	1536	14.32%	nein	NSEC - Sistemas Informaticos, S.A.	threat.live-Dichte
 AS215778	170	1280	13.28%	nein	Alpha Strike Labs GmbH	Dataplane-Dichte
 AS398722	67	512	13.09%	nein	Censys, Inc.	threat.live-Dichte
 AS14987	133	1024	12.99%	nein	Rethem Hosting LLC	Dataplane-Dichte
-AS398324	785	6144	12.78%	nein	Censys, Inc.	Dataplane-Dichte
+AS398324	787	6144	12.81%	nein	Censys, Inc.	Dataplane-Dichte
 AS214472	65	512	12.70%	ja	Offshore LC	ThreatFox C2-Dichte
 AS151663	32	256	12.50%	nein	Islington College Pvt. Ltd.	threat.live-Dichte
 AS273113	214	1792	11.94%	nein	ONERED JWG532 SRL	threat.live-Dichte
 AS214961	119	1024	11.62%	ja	Stellar Group SAS	ThreatFox C2-Dichte
 AS212825	24	256	9.38%	nein	Novitni Informaciini Merezhi Ltd	Dataplane-Dichte
 AS48090	68	768	8.85%	ja	TECHOFF SRV LIMITED	AbuseIPDB-Dichte
-AS132386	87	1024	8.50%	nein	Usman Internet Service Provider Private Limited	Dataplane-Dichte
+AS202845	68	768	8.85%	nein	LLC Unetco Corp	Dataplane-Dichte
+AS132386	86	1024	8.40%	nein	Usman Internet Service Provider Private Limited	Dataplane-Dichte
 AS204428	21	256	8.20%	ja	SS-Net	threat.live-Dichte
-AS202845	62	768	8.07%	nein	LLC Unetco Corp	Dataplane-Dichte
 AS205759	122	1536	7.94%	ja	Ghosty Networks LLC	ThreatFox C2-Dichte
 AS64107	18	256	7.03%	ja	RACK SPHERE HOSTING S.A.	ThreatFox C2-Dichte
 AS197769	157	2304	6.81%	ja	ABINTERNET-V Ltd.	ThreatFox C2-Dichte
@@ -35,19 +35,19 @@ AS142627	32	512	6.25%	nein	Multilink International	Dataplane-Dichte
 AS20052	30	512	5.86%	nein	Arbor Networks, Inc.	Dataplane-Dichte
 AS216014	15	256	5.86%	nein	BestDC Limited	AbuseIPDB-Dichte
 AS51995	14	256	5.47%	nein	Toroptsev Igor	Dataplane-Dichte
+AS214218	14	256	5.47%	ja	PE Mironova Lyudmila Alexandrovna	Dataplane-Dichte
 AS200730	13	256	5.08%	nein	ISAEV Igor	threat.live-Dichte
-AS214218	13	256	5.08%	ja	PE Mironova Lyudmila Alexandrovna	Dataplane-Dichte
 AS202412	253	5120	4.94%	ja	Omegatech LTD	ThreatFox C2-Dichte
 AS47154	12	256	4.69%	nein	HUSAM A. H. HIJAZI	Dataplane-Dichte
 AS401626	23	512	4.49%	ja	Netiface America, Inc.	ThreatFox C2-Dichte
 AS204685	11	256	4.30%	nein	PE KRYVENKO SERGIY ANDRIYOVYCH	Dataplane-Dichte
 AS209605	94	2304	4.08%	ja	UAB Host Baltic	Dataplane-Dichte
-AS133450	41	1024	4.00%	nein	University Of Chittagong	Dataplane-Dichte
 AS399979	10	256	3.91%	ja	49.3 Networking LLC	ThreatFox C2-Dichte
 AS135388	10	256	3.91%	ja	RMP Protection Limited	ThreatFox C2-Dichte
-AS134300	20	512	3.91%	nein	vertigotechnologies pvt ltd	Dataplane-Dichte
+AS133450	40	1024	3.91%	nein	University Of Chittagong	Dataplane-Dichte
 AS197170	99	2560	3.87%	ja	TechTies Inc.	ThreatFox C2-Dichte
 AS44382	133	3584	3.71%	ja	Fiba Cloud Operation Company, LLC	ThreatFox C2-Dichte
+AS134300	19	512	3.71%	nein	vertigotechnologies pvt ltd	Dataplane-Dichte
 AS200593	28	768	3.65%	ja	PROSPERO OOO	ThreatFox C2-Dichte
 AS208137	28	768	3.65%	ja	Feo Prest SRL	threat.live-Dichte
 AS209630	73	2048	3.56%	ja	LLC VASH KREDIT BANK	Dataplane-Dichte
@@ -55,32 +55,34 @@ AS153379	9	256	3.52%	nein	NS INTERNET	threat.live-Dichte
 AS9465	9	256	3.52%	nein	AGOTOZ PTE. LTD.	Dataplane-Dichte
 AS219443	26	768	3.39%	nein	AS219443	ThreatFox C2-Dichte
 AS43049	17	512	3.32%	nein	Multisystem Technologies Ltd.	Dataplane-Dichte
-AS266702	76	2304	3.30%	ja	MEGALINK S.R.L.	Dataplane-Dichte
+AS266702	75	2304	3.26%	ja	MEGALINK S.R.L.	Dataplane-Dichte
 AS200051	16	512	3.12%	ja	RIZKI ABDUL AZIS	ThreatFox C2-Dichte
 AS211138	8	256	3.12%	ja	Private-Hosting di Cipriano oscar	ThreatFox C2-Dichte
 AS398705	16	512	3.12%	nein	Censys, Inc.	threat.live-Dichte
 AS31149	32	1024	3.12%	nein	Shtoler Vitaliy Andreevich	Dataplane-Dichte
 AS204752	8	256	3.12%	nein	Delfi Internet LLC	Dataplane-Dichte
 AS267869	16	512	3.12%	nein	CABLE Y TELECOMUNICACIONES DE COLOMBIA S.A.S (CABLETELCO)	Dataplane-Dichte
+AS211590	15	512	2.93%	ja	Bucklog SARL	threat.live-Dichte
 AS60223	7	256	2.73%	nein	Netiface Limited	ThreatFox C2-Dichte
 AS208476	7	256	2.73%	ja	Badr Ouseffar trading as Rootlink	ThreatFox C2-Dichte
-AS211590	14	512	2.73%	ja	Bucklog SARL	AbuseIPDB-Dichte
 AS50850	14	512	2.73%	nein	Altes-R Ltd	Dataplane-Dichte
 AS151473	7	256	2.73%	nein	GAMMA LINKS PVT LTD	Dataplane-Dichte
+AS152447	14	512	2.73%	nein	My Mandalay Company Limited	Dataplane-Dichte
 AS198356	28	1024	2.73%	nein	FOP Kondratyuk Evgeniy Vladimirovich	Dataplane-Dichte
 AS199625	7	256	2.73%	nein	Netcom LLC	Dataplane-Dichte
 AS210558	151	5632	2.68%	ja	1337 Services GmbH	ThreatFox C2-Dichte
 AS60729	20	768	2.60%	nein	Stiftung Erneuerbare Freiheit	AbuseIPDB-Dichte
-AS135572	65	2560	2.54%	nein	ACT International Telecom Limited	Dataplane-Dichte
+AS135572	66	2560	2.58%	nein	ACT International Telecom Limited	Dataplane-Dichte
 AS6768	32	1280	2.50%	nein	"EUROTELE-PLUS" LLC	Dataplane-Dichte
+AS269843	70	2816	2.49%	nein	BANTEL SAC	Dataplane-Dichte
 AS58470	127	5120	2.48%	nein	Mobilink GSM, Pakistan Mobile Communication Ltd.	Dataplane-Dichte
 AS206560	19	768	2.47%	ja	Contrust Solutions S.R.L.	threat.live-Dichte
-AS269843	69	2816	2.45%	nein	BANTEL SAC	Dataplane-Dichte
 AS215925	25	1024	2.44%	ja	VPSVAULT.HOST LTD	ThreatFox C2-Dichte
-AS56400	61	2560	2.38%	nein	SPD Chernega Aleksandr Anatolevich	Dataplane-Dichte
+AS56400	62	2560	2.42%	nein	SPD Chernega Aleksandr Anatolevich	Dataplane-Dichte
 AS209413	12	512	2.34%	ja	DEDIK SERVICES LIMITED	ThreatFox C2-Dichte
 AS50219	12	512	2.34%	nein	LNK SYSTEMS MUNTENIA SRL	Dataplane-Dichte
 AS207889	18	768	2.34%	nein	Unetco Ltd.	Dataplane-Dichte
+AS11960	6	256	2.34%	nein	EMPRESA DE TELECOMUNICACIONES DE CUBA S.A. (IXP CUBA)	Dataplane-Dichte
 AS198953	17	768	2.21%	ja	Proton66 OOO	ThreatFox C2-Dichte
 AS213474	11	512	2.15%	ja	HomeLine Broadband LLC	AbuseIPDB-Dichte
 AS204584	22	1024	2.15%	nein	Qnet LLC	Dataplane-Dichte
@@ -92,12 +94,10 @@ AS48721	10	512	1.95%	ja	Flyservers S.A.	AbuseIPDB-Dichte
 AS214664	5	256	1.95%	nein	JSC Buduschee	threat.live-Dichte
 AS44294	5	256	1.95%	nein	Lopatin Arkadiy Borisovich	Dataplane-Dichte
 AS48995	5	256	1.95%	nein	IE Gilaskhanov Said Visirpashaevich	Dataplane-Dichte
-AS152447	10	512	1.95%	nein	My Mandalay Company Limited	Dataplane-Dichte
 AS202668	5	256	1.95%	nein	Karelova Olena Viktorivna	Dataplane-Dichte
 AS210964	5	256	1.95%	nein	TV Kamenica sh.p.k	Dataplane-Dichte
 AS212617	5	256	1.95%	nein	Lynnyk Olexii	Dataplane-Dichte
 AS214210	5	256	1.95%	nein	PE Pigin Alexander Lirovich	Dataplane-Dichte
-AS11960	5	256	1.95%	nein	EMPRESA DE TELECOMUNICACIONES DE CUBA S.A. (IXP CUBA)	Dataplane-Dichte
 AS202226	62	3328	1.86%	ja	Emil Vitukhnovskii trading as Great Flower	ThreatFox C2-Dichte
 AS56526	19	1024	1.86%	nein	PC Media Zmijov	Dataplane-Dichte
 AS401739	9	512	1.76%	ja	RedLuff, LLC	ThreatFox C2-Dichte
@@ -122,22 +122,21 @@ AS211443	27	1792	1.51%	ja	SINO WORLDWIDE TRADING LIMITED	ThreatFox C2-Dichte
 AS329244	15	1024	1.46%	nein	Connect, Surf and Smile Limited	Dataplane-Dichte
 AS147302	29	2048	1.42%	nein	FALCON BROADBAND (PRIVATE) LIMITED	Dataplane-Dichte
 AS203557	18	1280	1.41%	ja	SIA RixHost	ThreatFox C2-Dichte
-AS37004	99	7168	1.38%	nein	Suburban Broadband Ltd	Dataplane-Dichte
 AS142647	53	3840	1.38%	nein	Nasstec Airnet Networks Private Limited	Dataplane-Dichte
 AS273785	14	1024	1.37%	nein	A. C. V. TELECOM LTDA	threat.live-Dichte
 AS43175	14	1024	1.37%	nein	LUX.NET, LLC	Dataplane-Dichte
 AS202538	7	512	1.37%	nein	Private Enterprise TRK "ATV-PLUS"	Dataplane-Dichte
-AS47898	45	3328	1.35%	nein	RPC HomeNet Ltd.	Dataplane-Dichte
+AS37004	96	7168	1.34%	nein	Suburban Broadband Ltd	Dataplane-Dichte
+AS47898	44	3328	1.32%	nein	RPC HomeNet Ltd.	Dataplane-Dichte
 AS211860	10	768	1.30%	ja	Nerushenko Vyacheslav Nikolaevich	threat.live-Dichte
 AS211607	10	768	1.30%	nein	Securitytrails, LLC	AbuseIPDB-Dichte
-AS215654	10	768	1.30%	nein	Genichesk Online LLC	Dataplane-Dichte
 AS207558	23	1792	1.28%	nein	Sergey Kus	Dataplane-Dichte
 AS214209	13	1024	1.27%	nein	Internet Magnate (Pty) Ltd	ThreatFox C2-Dichte
 AS211486	13	1024	1.27%	ja	Alferov Aleksey Aleksandrovich	threat.live-Dichte
 AS266812	13	1024	1.27%	nein	CONEXIONTOTAL S.A.	Dataplane-Dichte
 AS215659	29	2304	1.26%	nein	Aokigahara SRL	ThreatFox C2-Dichte
-AS138311	143	11776	1.21%	nein	Limerick Technologies Pvt Ltd	Dataplane-Dichte
 AS134489	62	5120	1.21%	nein	S. B Link Network	Dataplane-Dichte
+AS138311	142	11776	1.21%	nein	Limerick Technologies Pvt Ltd	Dataplane-Dichte
 AS7488	286	24064	1.19%	nein	CNServer LLC	ThreatFox C2-Dichte
 AS209274	12	1024	1.17%	ja	Kraken Network ISP LTD	ThreatFox C2-Dichte
 AS215929	15	1280	1.17%	ja	Data Campus Limited	ThreatFox C2-Dichte
@@ -145,16 +144,18 @@ AS215428	15	1280	1.17%	ja	Mykyta Skorobohatko	ThreatFox C2-Dichte
 AS48897	6	512	1.17%	nein	OOO KB Avia	Dataplane-Dichte
 AS39297	6	512	1.17%	nein	Netgroup-Kalush Ltd.	Dataplane-Dichte
 AS42719	6	512	1.17%	nein	FOP Churilova Marta Mykhaylivna	Dataplane-Dichte
-AS43633	42	3584	1.17%	nein	Gigabit-Online LLC	Dataplane-Dichte
 AS149368	6	512	1.17%	nein	PT Bentang Johar Awal	Dataplane-Dichte
+AS204929	24	2048	1.17%	nein	Television, Telephony, Internet of Ukraine Ltd.	Dataplane-Dichte
+AS215654	9	768	1.17%	nein	Genichesk Online LLC	Dataplane-Dichte
 AS270291	12	1024	1.17%	nein	Bertolini & Guzzo Ltda	Dataplane-Dichte
 AS29615	12	1024	1.17%	nein	Associacao Porto Digital	Dataplane-Dichte
-AS204929	23	2048	1.12%	nein	Television, Telephony, Internet of Ukraine Ltd.	Dataplane-Dichte
 AS47890	112	9984	1.12%	ja	UNMANAGED LTD	Dataplane-Dichte
+AS43633	40	3584	1.12%	nein	Gigabit-Online LLC	Dataplane-Dichte
 AS197960	17	1536	1.11%	nein	LIMITED LIABILITY COMPANY "INTERNET SERVICE PROVIDER "MEGA"	Dataplane-Dichte
+AS48602	11	1024	1.07%	nein	Connect plus s.r.o.	Dataplane-Dichte
 AS209207	27	2560	1.05%	ja	Digital Hosting Provider LLC	ThreatFox C2-Dichte
-AS136525	230	22528	1.02%	nein	Wancom (Pvt) Ltd.	Dataplane-Dichte
-AS141342	130	12800	1.02%	nein	FIBERISH (PVT) LTD	Dataplane-Dichte
+AS136525	232	22528	1.03%	nein	Wancom (Pvt) Ltd.	Dataplane-Dichte
+AS141342	129	12800	1.01%	nein	FIBERISH (PVT) LTD	Dataplane-Dichte
 AS206257	23	2304	1.00%	nein	LLC LANA-IT	Dataplane-Dichte
 AS269039	10	1024	0.98%	nein	DENISE DE OLIVEIRA SILVA	threat.live-Dichte
 AS141551	5	512	0.98%	nein	Creative Networks	Dataplane-Dichte
@@ -163,51 +164,53 @@ AS265786	10	1024	0.98%	nein	MUNICIPALIDAD DE MALAGUENO	Dataplane-Dichte
 AS52074	5	512	0.98%	nein	mandarun-AS FOP Hrush Andriy Bogdanovich	Dataplane-Dichte
 AS60904	10	1024	0.98%	nein	ATC Telecom LTD.	Dataplane-Dichte
 AS62419	10	1024	0.98%	nein	I.Q Online for Internet Services and Communications LLC	Dataplane-Dichte
+AS201302	5	512	0.98%	nein	LLC "VOLNA"	Dataplane-Dichte
 AS204889	10	1024	0.98%	nein	Online Business Technologies Ltd.	Dataplane-Dichte
+AS206435	5	512	0.98%	nein	Individual Entrepreneur Umarov Huseyn Suleimanovich	Dataplane-Dichte
 AS213389	5	512	0.98%	ja	Podolskie opticheskie seti Ltd.	Dataplane-Dichte
+AS267812	5	512	0.98%	nein	COMWAY SRL	Dataplane-Dichte
 AS272975	5	512	0.98%	nein	TECNO ARG COM S. R. L.	Dataplane-Dichte
 AS328708	5	512	0.98%	nein	DishNet Africa Limited	Dataplane-Dichte
-AS48602	10	1024	0.98%	nein	Connect plus s.r.o.	Dataplane-Dichte
 AS266574	10	1024	0.98%	nein	GMT Multimidia	Dataplane-Dichte
 AS48874	12	1280	0.94%	ja	HOSTMAZE INC SRL-D	ThreatFox C2-Dichte
 AS151330	36	3840	0.94%	nein	PLAY BROADBAND (PRIVATE) LIMITED	Dataplane-Dichte
-AS23888	228	24320	0.94%	nein	National Telecommunication Corporation	Dataplane-Dichte
 AS399486	170	18176	0.94%	ja	12651980 CANADA INC.	ThreatFox C2-Dichte
+AS23888	227	24320	0.93%	nein	National Telecommunication Corporation	Dataplane-Dichte
 AS213186	14	1536	0.91%	ja	Yanoor Islam Khan	ThreatFox C2-Dichte
 AS215286	7	768	0.91%	nein	IXROOT LTD	ThreatFox C2-Dichte
 AS131275	37	4096	0.90%	nein	Logon Broadband Pvt. Limited	Dataplane-Dichte
 AS270664	9	1024	0.88%	nein	A K C PROV DE ACESSO AS REDES DE TEL. E INF EIRELI	threat.live-Dichte
 AS135687	9	1024	0.88%	nein	Qwistel Network Service Private Limited	threat.live-Dichte
 AS265083	9	1024	0.88%	nein	UltraWeb Telecomunicacoes LTDA	Dataplane-Dichte
+AS51396	69	7936	0.87%	ja	Pfcloud UG (haftungsbeschrankt)	threat.live-Dichte
 AS265798	20	2304	0.87%	nein	LEVEL SEVEN SRL	Dataplane-Dichte
 AS200823	31	3584	0.86%	ja	MHost LLC	ThreatFox C2-Dichte
-AS51396	68	7936	0.86%	ja	Pfcloud UG (haftungsbeschrankt)	threat.live-Dichte
 AS135392	24	2816	0.85%	ja	MillenialHost Limited	ThreatFox C2-Dichte
 AS200313	61	7168	0.85%	ja	IT WEB LTD	ThreatFox C2-Dichte
 AS135300	41	4864	0.84%	nein	Myanmar Broadband Telecom Co., Ltd	Dataplane-Dichte
-AS152584	60	7168	0.84%	nein	Infinivan Incorporated	Dataplane-Dichte
-AS50012	27	3328	0.81%	nein	LLC "BEST-LINK"	Dataplane-Dichte
+AS50012	28	3328	0.84%	nein	LLC "BEST-LINK"	Dataplane-Dichte
+AS152584	58	7168	0.81%	nein	Infinivan Incorporated	Dataplane-Dichte
 AS24812	146	18432	0.79%	nein	RPC HomeNet Ltd.	Dataplane-Dichte
 AS202799	22	2816	0.78%	nein	SYSECT D.O.O.	ThreatFox C2-Dichte
 AS203861	8	1024	0.78%	ja	Miteflux Technologies Ltd	Dataplane-Dichte
 AS142637	8	1024	0.78%	nein	STAR FAX GROUP PTE LTD	ThreatFox C2-Dichte
 AS135198	6	768	0.78%	nein	Bombay Bullion Commmunication	threat.live-Dichte
 AS150980	8	1024	0.78%	nein	PT Menara Digital Salama	Dataplane-Dichte
-AS48004	26	3328	0.78%	nein	PE Tsibrankov Konstantin Igorevich	Dataplane-Dichte
+AS61519	8	1024	0.78%	nein	COOP. DE PROVISION DE SERV ELECTRICOS Y OTROS SER PUBLICOS Y SERV SOCIALES Y DE 	Dataplane-Dichte
 AS196977	8	1024	0.78%	nein	Private Entrepreneur Bubley Igor Yurievich	Dataplane-Dichte
-AS210003	8	1024	0.78%	nein	SKY ELBASAN sh.p.k	Dataplane-Dichte
 AS273171	6	768	0.78%	nein	SERVICIOS Y ADMINISTRACION DE DATOS Y VIDEO, SOCIEDAD ANONIMA DE CAPITAL VARIAB	Dataplane-Dichte
-AS141846	16	2048	0.78%	nein	Netfix Networks Opc Pvt Ltd	Dataplane-Dichte
-AS271652	8	1024	0.78%	nein	POWER NET	Dataplane-Dichte
 AS268533	8	1024	0.78%	nein	RIONET TECNOLOGIA EM INTERNET EIRELI - ME	Dataplane-Dichte
 AS50004	71	9216	0.77%	nein	FO-P Gromov Evgeniy Viktorovich	Dataplane-Dichte
 AS43060	45	5888	0.76%	nein	IPLUS LLC	Dataplane-Dichte
+AS48004	25	3328	0.75%	nein	PE Tsibrankov Konstantin Igorevich	Dataplane-Dichte
 AS141767	23	3072	0.75%	nein	C G Communications Ltd	threat.live-Dichte
-AS50648	44	5888	0.75%	nein	PE UAinet	Dataplane-Dichte
 AS138871	19	2560	0.74%	nein	PT. Trans Indonesia Superkoridor	Dataplane-Dichte
+AS141846	15	2048	0.73%	nein	Netfix Networks Opc Pvt Ltd	Dataplane-Dichte
+AS50648	43	5888	0.73%	nein	PE UAinet	Dataplane-Dichte
+AS132168	26	3584	0.73%	nein	ESUN TECHNOLOGY INTERNATIONAL CO., LIMITED	Dataplane-Dichte
 AS40662	9	1280	0.70%	nein	Layer7 Technologies Inc	ThreatFox C2-Dichte
 AS209366	9	1280	0.70%	nein	SEMrush CY LTD	AbuseIPDB-Dichte
-AS132168	25	3584	0.70%	nein	ESUN TECHNOLOGY INTERNATIONAL CO., LIMITED	Dataplane-Dichte
+AS203451	39	5632	0.69%	nein	K-telekom LLC	Dataplane-Dichte
 AS215117	14	2048	0.68%	ja	HosterDaddy Private Limited	Dataplane-Dichte
 AS398357	7	1024	0.68%	nein	Ethernic LLC	ThreatFox C2-Dichte
 AS49447	7	1024	0.68%	nein	Nice IT Services Group Inc.	ThreatFox C2-Dichte
@@ -216,38 +219,42 @@ AS201688	7	1024	0.68%	nein	Bilgi Teknolojileri ve iletisim Kurumu	Dataplane-Dich
 AS329503	7	1024	0.68%	nein	NGCOM LASTMILE SOLUTION LTD	Dataplane-Dichte
 AS197058	7	1024	0.68%	nein	PSTS Ltd.	Dataplane-Dichte
 AS199951	7	1024	0.68%	nein	K-NET, kabelski sistemi, d.o.o.	Dataplane-Dichte
+AS210003	7	1024	0.68%	nein	SKY ELBASAN sh.p.k	Dataplane-Dichte
 AS264354	7	1024	0.68%	nein	TOP FIBRA (CARRENHO E PELEGRINO LTDA ME)	Dataplane-Dichte
 AS266374	7	1024	0.68%	nein	Ponte Digital	Dataplane-Dichte
 AS270707	7	1024	0.68%	nein	LINK NET BRASIL TELECOMUNICACOES LTDA	Dataplane-Dichte
 AS271822	7	1024	0.68%	nein	INNO FIBER INFI CIA LTDA	Dataplane-Dichte
+AS271652	7	1024	0.68%	nein	POWER NET	Dataplane-Dichte
+AS134840	50	7424	0.67%	nein	Myanmar Country Co., Ltd.	Dataplane-Dichte
 AS212512	12	1792	0.67%	ja	Detai Prosperous Technologies Limited	threat.live-Dichte
 AS209946	17	2560	0.66%	ja	ALINDA LLC	ThreatFox C2-Dichte
 AS52613	44	6656	0.66%	nein	GIGA MAIS FIBRA TELECOMUNICACOES S.A.	Dataplane-Dichte
-AS134840	49	7424	0.66%	nein	Myanmar Country Co., Ltd.	Dataplane-Dichte
 AS262821	27	4096	0.66%	nein	PHS INTERNET E SUPRIMENTOS LTDA - ME	threat.live-Dichte
 AS214927	20	3072	0.65%	ja	PSB HOSTING LTD	ThreatFox C2-Dichte
 AS34327	5	768	0.65%	nein	JSC "E-Publish"	ThreatFox C2-Dichte
+AS272274	5	768	0.65%	nein	BACH E CIESIELSKI LTDA - ME	threat.live-Dichte
 AS50043	5	768	0.65%	nein	Korzhos Oleg	Dataplane-Dichte
 AS56587	10	1536	0.65%	nein	Citadel Crimea Ltd.	Dataplane-Dichte
-AS58322	15	2304	0.65%	nein	Hala Al Rafidain Company for Communications and Internet LTD.	Dataplane-Dichte
 AS208314	5	768	0.65%	nein	Access Telecom Ltd.	Dataplane-Dichte
 AS210457	18	2816	0.64%	ja	Kyonix Networks Limited	ThreatFox C2-Dichte
-AS203451	36	5632	0.64%	nein	K-telekom LLC	Dataplane-Dichte
 AS267398	13	2048	0.63%	nein	mega ip connect	threat.live-Dichte
 AS141167	53	8448	0.63%	nein	AgotoZ HK Limited	Dataplane-Dichte
 AS201670	8	1280	0.62%	nein	S.C. INFOTECH-GRUP S.R.L.	ThreatFox C2-Dichte
 AS206385	19	3072	0.62%	nein	OOO "SPETSTELECOM-YUG"	Dataplane-Dichte
 AS208570	11	1792	0.61%	nein	Spark for Information Technology Services Ltd	Dataplane-Dichte
 AS211507	14	2304	0.61%	nein	Julian Achter	ThreatFox C2-Dichte
+AS58322	14	2304	0.61%	nein	Hala Al Rafidain Company for Communications and Internet LTD.	Dataplane-Dichte
 AS203485	6	1024	0.59%	nein	Noinet Societa Cooperativa	threat.live-Dichte
 AS266502	6	1024	0.59%	nein	TimerNet Telecom	threat.live-Dichte
 AS267141	6	1024	0.59%	nein	Terabyte de Teresopolis Provedor de Internet LTDA	threat.live-Dichte
+AS60936	6	1024	0.59%	nein	LLC Skynet	Dataplane-Dichte
 AS263175	6	1024	0.59%	nein	GUYACOM	Dataplane-Dichte
 AS263915	6	1024	0.59%	nein	Connectronic Servicos Ltda	Dataplane-Dichte
 AS264323	6	1024	0.59%	nein	OXMAN TECNOLOGIA LTDA	Dataplane-Dichte
 AS268114	6	1024	0.59%	nein	THM Tecnologia Net Ltda	Dataplane-Dichte
 AS271020	6	1024	0.59%	nein	Adrianopolis Solucao Tecnologica Ltda	Dataplane-Dichte
 AS271136	6	1024	0.59%	nein	ACK TELECOMUNICACOES LTDA ­ ME	Dataplane-Dichte
+AS52847	6	1024	0.59%	nein	Master Telecom	Dataplane-Dichte
 AS264963	6	1024	0.59%	nein	LUMIAR TELECOMUNICACOES	Dataplane-Dichte
 AS265268	6	1024	0.59%	nein	Smart Solucoes Tecnologicas	Dataplane-Dichte
 AS266348	6	1024	0.59%	nein	REDE UNICON	Dataplane-Dichte
@@ -268,6 +275,7 @@ AS35298	13	2560	0.51%	nein	PJSC MegaFon	Dataplane-Dichte
 AS201988	22	4352	0.51%	nein	VPSPay Networks LTD	ThreatFox C2-Dichte
 AS399629	88	17408	0.51%	ja	BL Networks	ThreatFox C2-Dichte
 AS197015	9	1792	0.50%	nein	Individual Entrepreneur Antipov Andrey Vyacheslavovich	Dataplane-Dichte
+AS37248	41	8192	0.50%	nein	Phase3 Telecom Limited	Dataplane-Dichte
 AS396507	5	1024	0.49%	nein	Emerald Onion	AbuseIPDB-Dichte
 AS50360	30	6144	0.49%	ja	Tamatiya EOOD	AbuseIPDB-Dichte
 AS262527	10	2048	0.49%	nein	BRASIL TECPAR | AMIGO | AVATO	threat.live-Dichte
@@ -279,10 +287,9 @@ AS271330	5	1024	0.49%	nein	Dide telecomunicacoes Ltda	threat.live-Dichte
 AS137160	5	1024	0.49%	nein	BHARAT DATA SERVICES PVT LTD	threat.live-Dichte
 AS138734	5	1024	0.49%	nein	Bakliwal Telecom Services Pvt Ltd	threat.live-Dichte
 AS268711	5	1024	0.49%	nein	ULTRACONECT COMUNICACAO LTDA	Dataplane-Dichte
-AS60936	5	1024	0.49%	nein	LLC Skynet	Dataplane-Dichte
-AS61519	5	1024	0.49%	nein	COOP. DE PROVISION DE SERV ELECTRICOS Y OTROS SER PUBLICOS Y SERV SOCIALES Y DE 	Dataplane-Dichte
 AS61764	5	1024	0.49%	nein	Rio Grande Tecnologia e Comunic Multimidia Ltda	Dataplane-Dichte
 AS135371	10	2048	0.49%	nein	Fortune International Ltd.	Dataplane-Dichte
+AS141216	5	1024	0.49%	nein	GREAT GOLDEN HORSE COMPANY LIMITED	Dataplane-Dichte
 AS212994	5	1024	0.49%	nein	MEDIA INVESTCOM LLC	Dataplane-Dichte
 AS263633	5	1024	0.49%	nein	Wconect Wireless Informatica LTDA - ME	Dataplane-Dichte
 AS263979	5	1024	0.49%	nein	CYBERNETRS LTDA - ME	Dataplane-Dichte
@@ -291,30 +298,27 @@ AS267492	5	1024	0.49%	nein	ROBSON CARLOS THOMES - ME	Dataplane-Dichte
 AS268817	5	1024	0.49%	nein	Acelera Telecom	Dataplane-Dichte
 AS270044	5	1024	0.49%	nein	CORRIENTES TELECOMUNICACIONES S.A.P.E.M.	Dataplane-Dichte
 AS270276	5	1024	0.49%	nein	VELOCITYNET TELECOM EIRELLI - EPP	Dataplane-Dichte
-AS52847	5	1024	0.49%	nein	Master Telecom	Dataplane-Dichte
 AS141520	5	1024	0.49%	nein	Getincity It Services Pvt Ltd	Dataplane-Dichte
 AS141262	5	1024	0.49%	nein	King Netsol Private Limited	Dataplane-Dichte
 AS263065	5	1024	0.49%	nein	DNSLINK SOLUCOES PARA INTERNET LTDA	Dataplane-Dichte
 AS263404	5	1024	0.49%	nein	TELECOM FOZ	Dataplane-Dichte
 AS264259	5	1024	0.49%	nein	INTERATIVA TECNOLOGIA, INFORMACAO E COMUNICACAO LT	Dataplane-Dichte
 AS264449	5	1024	0.49%	nein	A. A. Informatica e Manutencao Ltda	Dataplane-Dichte
-AS266159	5	1024	0.49%	nein	SIN FIBRA SERVICOS DE COMUNICACOES LTDA	Dataplane-Dichte
 AS266516	5	1024	0.49%	nein	Naveganet Comercio e Servicos Eirele	Dataplane-Dichte
 AS266534	5	1024	0.49%	nein	AZECOM INTERNET	Dataplane-Dichte
 AS267320	5	1024	0.49%	nein	PRIME SERVICOS DE COMUNICACAO LTDA	Dataplane-Dichte
 AS269250	5	1024	0.49%	nein	EVOLUCAO TELECOM LTDA	Dataplane-Dichte
-AS41820	36	7424	0.48%	nein	New Information Systems PP	Dataplane-Dichte
-AS139879	32	6656	0.48%	nein	Galaxy Broadband (pvt.) Ltd.	Dataplane-Dichte
 AS210083	11	2304	0.48%	nein	Privex Inc.	ThreatFox C2-Dichte
 AS62040	11	2304	0.48%	nein	Innovative Telecommunications LLC	Dataplane-Dichte
-AS37248	39	8192	0.48%	nein	Phase3 Telecom Limited	Dataplane-Dichte
+AS135607	209	43776	0.48%	nein	Infinivan Incorporated	Dataplane-Dichte
+AS41820	35	7424	0.47%	nein	New Information Systems PP	Dataplane-Dichte
 AS398044	6	1280	0.47%	nein	Trinity Network Solutions	Dataplane-Dichte
-AS135607	204	43776	0.47%	nein	Infinivan Incorporated	Dataplane-Dichte
 AS263331	14	3072	0.46%	nein	Netvox Telecomunicacoes LTDA	ThreatFox C2-Dichte
 AS205196	7	1536	0.46%	nein	BIG CORE LLC	threat.live-Dichte
 AS35586	7	1536	0.46%	nein	VOLYN OPTICAL NETWORKS LLC	Dataplane-Dichte
 AS147243	7	1536	0.46%	nein	TREELINK NETWORK PVT LTD	Dataplane-Dichte
-AS265547	14	3072	0.46%	nein	GigNet, S.A. de C.V.	Dataplane-Dichte
+AS139879	30	6656	0.45%	nein	Galaxy Broadband (pvt.) Ltd.	Dataplane-Dichte
+AS59497	39	8704	0.45%	nein	Buknet LLC	Dataplane-Dichte
 AS201579	8	1792	0.45%	nein	HOSTGNOME LTD	threat.live-Dichte
 AS56899	16	3584	0.45%	nein	Granat Ukraine LLC	Dataplane-Dichte
 AS208139	8	1792	0.45%	nein	FOP Avator Myhaylo Mykolayovych	Dataplane-Dichte
@@ -325,13 +329,13 @@ AS38298	9	2048	0.44%	nein	Redfox Internet	threat.live-Dichte
 AS48909	9	2048	0.44%	nein	CityLine LLC	Dataplane-Dichte
 AS137120	9	2048	0.44%	nein	Nas Internet Services Private Limited	Dataplane-Dichte
 AS262571	9	2048	0.44%	nein	SM Networks	Dataplane-Dichte
-AS59497	38	8704	0.44%	nein	Buknet LLC	Dataplane-Dichte
 AS21378	50	11520	0.43%	nein	PJSC Rostelecom	Dataplane-Dichte
 AS273953	10	2304	0.43%	nein	TV COLOMBIA DIGITAL SAS	Dataplane-Dichte
 AS11693	43	9984	0.43%	nein	WideOpenWest Finance LLC	Dataplane-Dichte
 AS202425	66	15360	0.43%	ja	IP Volume inc	Dataplane-Dichte
 AS138423	77	17920	0.43%	nein	CMPak Limited	threat.live-Dichte
 AS62227	13	3072	0.42%	nein	CLOUDHELIX LIMITED	Dataplane-Dichte
+AS265547	13	3072	0.42%	nein	GigNet, S.A. de C.V.	Dataplane-Dichte
 AS139659	80	18944	0.42%	nein	LUCIDACLOUD LIMITED	ThreatFox C2-Dichte
 AS58580	40	9472	0.42%	nein	Managed Data Solutions	ThreatFox C2-Dichte
 AS270065	14	3328	0.42%	nein	CHILE TV CABLE S.A.	Dataplane-Dichte
@@ -339,7 +343,6 @@ AS40861	110	26368	0.42%	ja	Paradise Networks LLC	ThreatFox C2-Dichte
 AS212441	22	5376	0.41%	nein	Cloud assets LLC	ThreatFox C2-Dichte
 AS262992	29	7168	0.40%	nein	CONEXAO SERVICOS DE COMUNICACAO MULTIMIDIA LTDA-ME	threat.live-Dichte
 AS206092	126	31232	0.40%	ja	F.N.S. HOLDINGS LIMITED	threat.live-Dichte
-AS8814	68	16896	0.40%	nein	Aztelekom LLC	Dataplane-Dichte
 AS270353	8	2048	0.39%	ja	Tyna Host - Datacenter no Brasil	ThreatFox C2-Dichte
 AS133201	12	3072	0.39%	nein	ABCDE GROUP COMPANY LIMITED	ThreatFox C2-Dichte
 AS398256	11	2816	0.39%	nein	Ultahost, Inc.	ThreatFox C2-Dichte
@@ -358,15 +361,18 @@ AS268255	8	2048	0.39%	nein	FIBRANET BRASIL	Dataplane-Dichte
 AS273069	6	1536	0.39%	nein	MINET, C.A	Dataplane-Dichte
 AS327906	8	2048	0.39%	nein	Embarq Limited	Dataplane-Dichte
 AS135780	11	2816	0.39%	nein	AirFiber Networks Pvt Ltd	Dataplane-Dichte
+AS136355	6	1536	0.39%	nein	Suntech Sanchar Private Limited	Dataplane-Dichte
 AS200275	6	1536	0.39%	nein	sc synergy GmbH	Dataplane-Dichte
 AS203828	8	2048	0.39%	nein	DSS OPERATOR SPOLKA AKCYJNA	Dataplane-Dichte
-AS27717	188	48640	0.39%	nein	Corporacion Digitel C.A.	Dataplane-Dichte
+AS38901	104	26880	0.39%	nein	EZECOM CO., LTD.	Dataplane-Dichte
 AS396073	93	24064	0.39%	nein	Majestic Hosting Solutions, LLC	ThreatFox C2-Dichte
-AS37148	102	26624	0.38%	nein	Globacom Limited	Dataplane-Dichte
-AS38901	102	26880	0.38%	nein	EZECOM CO., LTD.	Dataplane-Dichte
+AS27717	186	48640	0.38%	nein	Corporacion Digitel C.A.	Dataplane-Dichte
+AS37148	101	26624	0.38%	nein	Globacom Limited	Dataplane-Dichte
+AS8814	64	16896	0.38%	nein	Aztelekom LLC	Dataplane-Dichte
 AS133384	16	4352	0.37%	nein	Global Technology Co., Ltd.	Dataplane-Dichte
 AS153656	15	4096	0.37%	nein	OWGELS INTERNATIONAL CO., LIMITED	ThreatFox C2-Dichte
 AS31234	13	3584	0.36%	nein	KRAM Ltd	Dataplane-Dichte
+AS197275	13	3584	0.36%	nein	Link Telecom NN Ltd.	Dataplane-Dichte
 AS214677	24	6656	0.36%	nein	Matteo Martelloni trading as DELUXHOST	ThreatFox C2-Dichte
 AS208185	47	13056	0.36%	ja	Net Gate Telecom S.R.L.	threat.live-Dichte
 AS215311	20	5632	0.36%	ja	Regxa Company for Information Technology Ltd	ThreatFox C2-Dichte
@@ -374,10 +380,8 @@ AS8870	20	5632	0.36%	nein	Overseas Technologies LLC	Dataplane-Dichte
 AS14956	189	53760	0.35%	ja	RouterHosting LLC	ThreatFox C2-Dichte
 AS136030	27	7680	0.35%	nein	Redtone Telecommunications Pakistan (Private) Limited	Dataplane-Dichte
 AS209439	35	9984	0.35%	nein	BRENAC EURL	Dataplane-Dichte
-AS136284	17	4864	0.35%	nein	Paradise Telecom Pvt Ltd	Dataplane-Dichte
-AS42905	17	4864	0.35%	nein	LIMANET Ltd.	Dataplane-Dichte
+AS49870	24	6912	0.35%	ja	Alsycon B.V.	Dataplane-Dichte
 AS52048	15	4352	0.34%	nein	SIA RixHost	ThreatFox C2-Dichte
-AS43764	30	8704	0.34%	nein	LLC "Electron-sevlush"	Dataplane-Dichte
 AS199021	7	2048	0.34%	nein	Greenline Ltd.	ThreatFox C2-Dichte
 AS137047	7	2048	0.34%	nein	TELECOMMUNICATION AND TECHNOLOGY MASTERS (PVT.) LIMITED	Dataplane-Dichte
 AS12989	21	6144	0.34%	nein	Black HOST Ltd	Dataplane-Dichte
@@ -386,41 +390,37 @@ AS49827	7	2048	0.34%	nein	IE KHOMA YURY ROMANOVICH	Dataplane-Dichte
 AS61786	7	2048	0.34%	nein	E. D. SERVICOS DE COMUNICACOES LTDA	Dataplane-Dichte
 AS264204	7	2048	0.34%	nein	CAS TELECOMUNICACOES EIRELI	Dataplane-Dichte
 AS265198	7	2048	0.34%	nein	BLUE3 TECNOLOGIA EIRELI	Dataplane-Dichte
-AS134885	7	2048	0.34%	nein	Global (India) Tele-Infra Pvt Ltd	Dataplane-Dichte
 AS150895	54	15872	0.34%	nein	EZ TECHNOLOGY COMPANY LIMITED	ThreatFox C2-Dichte
+AS136255	81	23808	0.34%	nein	Telecom International Myanmar Company Limited	Dataplane-Dichte
 AS138608	19	5632	0.34%	nein	Cloud Host Pte Ltd	Dataplane-Dichte
-AS136255	80	23808	0.34%	nein	Telecom International Myanmar Company Limited	Dataplane-Dichte
 AS51357	6	1792	0.33%	nein	LLC "SMARTCOM"	Dataplane-Dichte
-AS197275	12	3584	0.33%	nein	Link Telecom NN Ltd.	Dataplane-Dichte
 AS199276	6	1792	0.33%	nein	Tele.Co.Albania SHPK	Dataplane-Dichte
 AS134417	6	1792	0.33%	nein	Nanjing	Dataplane-Dichte
-AS49870	23	6912	0.33%	ja	Alsycon B.V.	Dataplane-Dichte
+AS52308	91	27648	0.33%	nein	AGUAS DEL COLORADO SAPEM	Dataplane-Dichte
+AS136284	16	4864	0.33%	nein	Paradise Telecom Pvt Ltd	Dataplane-Dichte
+AS42905	16	4864	0.33%	nein	LIMANET Ltd.	Dataplane-Dichte
 AS134677	15	4608	0.33%	nein	Dromatics Systems Pte Ltd	ThreatFox C2-Dichte
 AS399471	5	1536	0.33%	ja	Des Equity LLC	ThreatFox C2-Dichte
 AS58485	5	1536	0.33%	nein	WIFIAN ID	Dataplane-Dichte
 AS140026	5	1536	0.33%	nein	PT. KUPANG INTERMEDIA	Dataplane-Dichte
 AS136442	10	3072	0.33%	nein	Ocean Wave Communication Co., Ltd	Dataplane-Dichte
-AS136355	5	1536	0.33%	nein	Suntech Sanchar Private Limited	Dataplane-Dichte
 AS50581	66	20480	0.32%	nein	Ukrainian Telecommunication Group LLC	Dataplane-Dichte
+AS43764	28	8704	0.32%	nein	LLC "Electron-sevlush"	Dataplane-Dichte
 AS398019	23	7168	0.32%	nein	Dynu Systems Incorporated	ThreatFox C2-Dichte
 AS400897	9	2816	0.32%	nein	PETROSKY CLOUD LLC	ThreatFox C2-Dichte
-AS266732	22	6912	0.32%	nein	FIBERTEL PERU S.A.	Dataplane-Dichte
-AS58376	13	4096	0.32%	nein	PT Angkasa Komunikasi Global Utama	Dataplane-Dichte
+AS29303	17	5376	0.32%	nein	Perm Internet Company LLC	Dataplane-Dichte
 AS153947	8	2560	0.31%	nein	FAST ZONE IT	threat.live-Dichte
-AS52308	86	27648	0.31%	nein	AGUAS DEL COLORADO SAPEM	Dataplane-Dichte
-AS44032	27	8704	0.31%	nein	PP "TRC"City TV center"	Dataplane-Dichte
-AS136969	22	7168	0.31%	ja	KK Networks (Pvt) Ltd.	Dataplane-Dichte
 AS60711	11	3584	0.31%	nein	Fernando Perez Morales	Dataplane-Dichte
 AS49276	7	2304	0.30%	nein	Zemlyaniy Dmitro Leonidovich	ThreatFox C2-Dichte
 AS56354	7	2304	0.30%	nein	IT-INVEST LTD	Dataplane-Dichte
+AS266732	21	6912	0.30%	nein	FIBERTEL PERU S.A.	Dataplane-Dichte
 AS205051	10	3328	0.30%	nein	Connetta Srl	threat.live-Dichte
 AS50751	10	3328	0.30%	nein	CHKS LLC	Dataplane-Dichte
 AS394468	13	4352	0.30%	nein	Wave Wireless LLC	threat.live-Dichte
+AS44032	26	8704	0.30%	nein	PP "TRC"City TV center"	Dataplane-Dichte
 AS205775	16	5376	0.30%	ja	NEON CORE NETWORK LLC	ThreatFox C2-Dichte
-AS29303	16	5376	0.30%	nein	Perm Internet Company LLC	Dataplane-Dichte
 AS35004	16	5376	0.30%	nein	Branch Enterprise "Netgroup-Service"	Dataplane-Dichte
 AS59577	16	5376	0.30%	nein	LinkCom Networks LLC	Dataplane-Dichte
-AS150008	129	43776	0.29%	nein	Pioneer Elabs Ltd.	Dataplane-Dichte
 AS213200	6	2048	0.29%	ja	Ferdinand Zink trading as Tube-Hosting	ThreatFox C2-Dichte
 AS269070	9	3072	0.29%	nein	Hostzone Tecnologia LTDA	threat.live-Dichte
 AS16190	6	2048	0.29%	nein	LIR LLC	threat.live-Dichte
@@ -430,9 +430,12 @@ AS42723	6	2048	0.29%	nein	TRK Vektor Ltd.	Dataplane-Dichte
 AS61888	6	2048	0.29%	nein	GFT COMERCIO DE TELEFONIA E COMUNICACAO LTDA	Dataplane-Dichte
 AS210402	21	7168	0.29%	nein	Hala Al Rafidain Company for Communications and Internet LTD.	Dataplane-Dichte
 AS215623	6	2048	0.29%	nein	OOO "LUGALINK"	Dataplane-Dichte
+AS58376	12	4096	0.29%	nein	PT Angkasa Komunikasi Global Utama	Dataplane-Dichte
 AS61670	6	2048	0.29%	nein	New Net Informatica e Telecomunicacoes	Dataplane-Dichte
+AS134885	6	2048	0.29%	nein	Global (India) Tele-Infra Pvt Ltd	Dataplane-Dichte
 AS137076	18	6144	0.29%	nein	TTSL-ISP DIVISION	Dataplane-Dichte
 AS268605	6	2048	0.29%	nein	SRG TELECOM LTDA	Dataplane-Dichte
+AS150008	128	43776	0.29%	nein	Pioneer Elabs Ltd.	Dataplane-Dichte
 AS136634	8	2816	0.28%	nein	Navkar Netsol Private Ltd	Dataplane-Dichte
 AS397966	5	1792	0.28%	nein	ReadyDedis, LLC	ThreatFox C2-Dichte
 AS63025	10	3584	0.28%	nein	NOHAVPS LLC	ThreatFox C2-Dichte
@@ -443,17 +446,18 @@ AS198820	14	5120	0.27%	nein	Limited Liability Company Radio Network	Dataplane-Di
 AS62610	171	63232	0.27%	nein	Zenlayer Inc	ThreatFox C2-Dichte
 AS57871	11	4096	0.27%	nein	TeleCentr Ltd.	Dataplane-Dichte
 AS58212	48	17920	0.27%	nein	dataforest GmbH	ThreatFox C2-Dichte
+AS136969	19	7168	0.27%	ja	KK Networks (Pvt) Ltd.	Dataplane-Dichte
 AS136052	61	23296	0.26%	nein	PT Cloud Hosting Indonesia	Dataplane-Dichte
 AS216039	8	3072	0.26%	nein	EdgeSec Technologies Limited	ThreatFox C2-Dichte
 AS267788	6	2304	0.26%	nein	IP TECHNOLOGIES S.A.S.	threat.live-Dichte
 AS267120	6	2304	0.26%	nein	Brnet Telecomunicacoes LTDA - ME	threat.live-Dichte
-AS132165	120	46080	0.26%	nein	Connect Communication	Dataplane-Dichte
+AS45194	36	13824	0.26%	nein	Syscon Infoway Pvt. Ltd.	Dataplane-Dichte
 AS47143	10	3840	0.26%	nein	Todayhost Limited	Dataplane-Dichte
 AS134932	8	3072	0.26%	nein	VORTEX INFOWAY PRIVATE LIMITED	Dataplane-Dichte
 AS57164	24	9216	0.26%	nein	Viacheslav Fitiunin	Dataplane-Dichte
 AS61280	8	3072	0.26%	nein	FGUP "GRCHC"	Dataplane-Dichte
+AS132165	119	46080	0.26%	nein	Connect Communication	Dataplane-Dichte
 AS138152	29	11264	0.26%	nein	YISU CLOUD LTD	Dataplane-Dichte
 AS41165	17	6656	0.26%	nein	RPC HomeNet Ltd.	Dataplane-Dichte
 AS34279	13	5120	0.25%	nein	S.C. Teletrans S.A.	Dataplane-Dichte
-AS45194	35	13824	0.25%	nein	Syscon Infoway Pvt. Ltd.	Dataplane-Dichte
 AS58087	22	8704	0.25%	ja	Florian Kolb	ThreatFox C2-Dichte
