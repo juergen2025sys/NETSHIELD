@@ -1078,7 +1078,17 @@ jobs:
               print('::warning::ASN-Risiko: nur %d ASNs - alte Datei bleibt (Felder: %s)'
                     % (len(asns), list(data['asns'][0])[:10] if isinstance(data['asns'][0], dict) else '?'))
               raise SystemExit(0)
-          period = str(data.get('period') or data.get('latest_month') or '')
+          period = ''
+          for k in ('period', 'latest_month', 'month', 'report_month', 'report_period'):
+              if data.get(k):
+                  period = str(data[k]); break
+          if not period and isinstance(data.get('available_months'), list) and data['available_months']:
+              period = str(sorted(map(str, data['available_months']))[-1])
+          if not period:
+              w = data.get('methodology', {}).get('window') if isinstance(data.get('methodology'), dict) else None
+              m = re.search(r'\d{4}-\d{2}', json.dumps(w or ''))
+              period = m.group() if m else ''
+          print('ASN-Risiko: Felder der Antwort: %s' % sorted(data)[:15])
           now = datetime.now(timezone.utc)
           with open(OUT + '.tmp', 'w') as f:
               f.write('# NETSHIELD - ASN-Risiko (monatliche Bewertung, Top %d, nur Nummern)\n' % TOP)
