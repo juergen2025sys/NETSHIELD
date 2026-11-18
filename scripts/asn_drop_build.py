@@ -182,6 +182,29 @@ HPF_URLS = (
 # NICHT verwechseln mit honeypot_ips.txt (2 Mio. IPs, am 17.11. wieder entfernt).
 HT_IPS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            'honigtopf_ips.txt')
+# Seit 2026-11-18 (Nutzerwunsch): monatliche ASN-Risiko-Bewertung (Top 250),
+# vom Honigtopf-Workflow als asn/asn_risiko.txt abgelegt (nur Nummern).
+# Uebernommen werden nur kleine Netzbetreiber (<= RISK_MAX_ADDR IPv4-Adressen
+# laut ipverse) und nie die Netze aus RISK_NEVER (grosse Clouds/CDNs, Contabo
+# = Minecraft-Server, Starlink/FiberLink = GTA-Mitspieler, Scanner).
+RISK_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                         'asn', 'asn_risiko.txt')
+RISK_MAX_ADDR = 65536
+RISK_NEVER = {13335, 14061, 58224, 63949, 197207, 51167, 14593, 6939, 56673, 22168, 393406}
+
+
+def load_risk():
+    """ASN-Nummern aus asn/asn_risiko.txt: (liste, monat); ([], None) wenn nicht da."""
+    if not os.path.exists(RISK_FILE):
+        print('::warning::%s fehlt - ASN-Risiko uebersprungen' % RISK_FILE)
+        return [], None
+    with open(RISK_FILE, encoding='utf-8') as fh:
+        txt = fh.read()
+    m = re.search(r'^# Monat: ([^|\n]*)', txt, re.M)
+    out = [int(l) for l in (x.strip() for x in txt.splitlines()) if l.isdigit()]
+    return [a for a in out if 0 < a < 4200000000 and a not in RISK_NEVER], (m.group(1).strip() if m else '?')
+
+
 DENSITY_SOURCES = (('ThreatFox C2-Dichte', TF_IPS_FILE), ('AbuseIPDB-Dichte', AB_IPS_FILE),
                    ('threat.live-Dichte', TL_URL), ('Dataplane-Dichte', DP_URLS),
                    ('Honeypot-Feeds-Dichte', HPF_URLS), ('Honigtopf-Dichte', HT_IPS_FILE))
@@ -381,6 +404,7 @@ def main():
         asns[a] = {'asn': a, 'cc': '', 'asname': name, 'domain': 'feste eigene Liste'}
     print('Feste eigene Liste: %d ASNs | davon neu: %d' % (len(MANUAL_ASNS), len(man_new)))
 
+
     tf = threatfox_candidates()
     tf_new = {a: v for a, v in tf.items() if a not in asns}
     if tf:
@@ -446,6 +470,14 @@ def main():
         tf_new = {**tf_new, **{a: None for a in held}}
     else:
         tf_new = {}
+    # ASN-Risiko zuletzt: steht ein ASN schon ueber eine andere Quelle drin,
+    # gelten deren Regeln (keine Groessengrenze aus RISK_MAX_ADDR)
+    risk, risk_month = load_risk()
+    risk_new = {a for a in risk if a not in asns}
+    for a in risk_new:
+        asns[a] = {'asn': a, 'cc': '', 'asname': '', 'domain': 'ASN-Risiko %s' % risk_month}
+    print('ASN-Risiko (%s): %d ASNs | davon noch nicht gesperrt: %d (Groessenpruefung nach Aufloesung)'
+          % (risk_month, len(risk), len(risk_new)))
 
     def resolve(asn):
         # 1. ipverse (CC0, BGP-Daten); 2. Ersatz: RIPEstat announced-prefixes
@@ -476,6 +508,25 @@ def main():
         return 1
     if failed:
         print('::warning::%d ipverse-Abrufe fehlgeschlagen: %s' % (len(failed), failed[:20]))
+
+    # ASN-Risiko: nur kleine Netzbetreiber uebernehmen
+    risk_big = []
+    for asn, pref, err in results:
+        if asn in risk_new and pref:
+            sz = 0
+            for p in pref.get('ipv4', []):
+                try:
+                    sz += ipaddress.ip_network(p, strict=False).num_addresses
+                except ValueError:
+                    pass
+            if sz > RISK_MAX_ADDR:
+                risk_big.append(asn)
+    for a in risk_big:
+        del asns[a]
+        risk_new.discard(a)
+    results = [r for r in results if r[0] in asns]
+    print('ASN-Risiko: %d zu gross (> %d Adressen) ausgelassen -> %d neu gesperrt'
+          % (len(risk_big), RISK_MAX_ADDR, len(risk_new)))
 
     v4, v6, active = [], [], 0
     for asn, pref, err in results:
@@ -509,9 +560,9 @@ def main():
             '# Zusatz-ASNs: %s (Bulletproof Hosting Watch, Bericht %s)\n'
             '# Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)\n'
             '# Aktualisiert: %s | ASNs: %d (Spamhaus %d + BPH %d + Maltrail %d + BPH-Watch %d + eigene %d'
-            ' + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf %d, aktiv: %d)\n'
+            ' + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf %d + ASN-Risiko %d, aktiv: %d)\n'
             % (SPAMHAUS_URL, meta.get('timestamp'), BPH_URL, MALTRAIL_URL, BPHW_INDEX, bw_date, now, len(asns),
-               n_spamhaus, len(bph_new), len(mt_new), len(bw_new), len(man_new), len(tf_new), active))
+               n_spamhaus, len(bph_new), len(mt_new), len(bw_new), len(man_new), len(tf_new), len(risk_new), active))
 
     def write(name, body):
         tmp = os.path.join(OUT_DIR, name + '.tmp')
