@@ -1,8 +1,8 @@
 {
-  "updated": "2026-11-18 17:26 CET (Europe/Berlin)",
+  "updated": "2026-11-18 22:23 CET (Europe/Berlin)",
   "total": 36,
-  "ok": 33,
-  "warn": 5,
+  "ok": 32,
+  "warn": 6,
   "error": 0,
   "errors": [],
   "warnings": [
@@ -27,6 +27,11 @@
       "detail": "Block 0: Doppelte Imports: re(2x), json(2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
     },
     {
+      "file": "honigtopf.yml",
+      "check": "continue-on-error aktiv",
+      "detail": "continue-on-error=true gesetzt \u2013 Fehler k\u00f6nnen still bleiben; Review ob das wirklich beabsichtigt ist"
+    },
+    {
       "file": "netshield_report_generator.yml",
       "check": "continue-on-error aktiv",
       "detail": "continue-on-error=true gesetzt \u2013 Fehler k\u00f6nnen still bleiben; Review ob das wirklich beabsichtigt ist"
@@ -34,7 +39,7 @@
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "d252d6a856b66c3a4e43cfe7b6f5d5a7a091e254",
+    "sha": "4067ec996cd2dcbdd4cab090962629729da426b9",
     "status": "warning",
     "tests_run": 490,
     "failures": [
@@ -50,12 +55,12 @@
     "detail": "490 Tests; 3 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness"
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5869642,
-    "active_blacklist_ipv4.txt": 360925,
-    "blacklist_confidence40_ipv4_part1.txt": 4064295,
-    "cve_exploit_ips.txt": 29565,
-    "honeypot_ips.txt": 2153338,
-    "bot_detector_blacklist_ipv4.txt": 1175896
+    "combined_threat_blacklist_ipv4_part1.txt": 5872488,
+    "active_blacklist_ipv4.txt": 367023,
+    "blacklist_confidence40_ipv4_part1.txt": 4066928,
+    "cve_exploit_ips.txt": 29567,
+    "honeypot_ips.txt": 2150511,
+    "bot_detector_blacklist_ipv4.txt": 1177759
   },
   "production_health": {
     "critical": 0,
