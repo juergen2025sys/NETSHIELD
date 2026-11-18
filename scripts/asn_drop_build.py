@@ -184,13 +184,22 @@ HT_IPS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fil
                            'honigtopf_ips.txt')
 # Seit 2026-11-18 (Nutzerwunsch): monatliche ASN-Risiko-Bewertung (Top 250),
 # vom Honigtopf-Workflow als asn/asn_risiko.txt abgelegt (nur Nummern).
-# Uebernommen werden nur kleine Netzbetreiber (<= RISK_MAX_ADDR IPv4-Adressen
-# laut ipverse) und nie die Netze aus RISK_NEVER (grosse Clouds/CDNs, Contabo
-# = Minecraft-Server, Starlink/FiberLink = GTA-Mitspieler, Scanner).
+# Uebernommen werden (Nutzerentscheidung 2026-11-18):
+#   - ALLE Netzbetreiber bis RISK_MAX_ADDR IPv4-Adressen (auch kleine Heim-ISPs)
+#   - mittelgrosse bis RISK_MAX_HOSTER Adressen nur, wenn sie Hoster/VPS-Anbieter
+#     sind: ipverse-Kategorie "hosting", InsightFlare-Hosting-Liste oder ein
+#     Name mit HOST/VPS/SERVER/CLOUD/DATACENTER/DEDICATED/COLO
+#   - nie die Netze aus RISK_NEVER (grosse Clouds/CDNs, Contabo = Minecraft-
+#     Server, Starlink/FiberLink = GTA-Mitspieler, Scanner).
 RISK_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                          'asn', 'asn_risiko.txt')
 RISK_MAX_ADDR = 65536
-RISK_NEVER = {13335, 14061, 58224, 63949, 197207, 51167, 14593, 6939, 56673, 22168, 393406}
+RISK_MAX_HOSTER = 1000000
+RISK_HOSTING_URL = 'https://raw.githubusercontent.com/InsightFlare/asn-blocklist/main/dist/hosting.txt'
+RISK_HOSTER_RE = re.compile(r'HOST|VPS|SERVER|CLOUD|DATA ?CENT|DEDICATED|COLO(?!MBIA|R)', re.I)
+RISK_NEVER = {13335, 14061, 58224, 63949, 197207, 51167, 14593, 6939, 56673, 22168, 393406,
+              14789,   # Cloudflare (zweites Netz)
+              52468}   # UFINET Panama - Transit fuer lateinamerikanische ISPs (GTA)
 
 
 def load_risk():
@@ -479,11 +488,15 @@ def main():
     print('ASN-Risiko (%s): %d ASNs | davon noch nicht gesperrt: %d (Groessenpruefung nach Aufloesung)'
           % (risk_month, len(risk), len(risk_new)))
 
+    meta_info = {}   # asn -> ipverse-metadata (Kategorie, Name) fuer die Hoster-Pruefung
+
     def resolve(asn):
         # 1. ipverse (CC0, BGP-Daten); 2. Ersatz: RIPEstat announced-prefixes
         try:
             txt = fetch(IPVERSE_URL % asn)
-            return asn, (json.loads(txt).get('prefixes', {}) if txt else {}), None
+            js = json.loads(txt) if txt else {}
+            meta_info[asn] = js.get('metadata') or {}
+            return asn, js.get('prefixes', {}), None
         except Exception as e:
             err = str(e)
         try:
@@ -509,8 +522,13 @@ def main():
     if failed:
         print('::warning::%d ipverse-Abrufe fehlgeschlagen: %s' % (len(failed), failed[:20]))
 
-    # ASN-Risiko: nur kleine Netzbetreiber uebernehmen
-    risk_big = []
+    # ASN-Risiko: kleine immer, mittelgrosse nur als Hoster
+    hosting_list = set()
+    try:
+        hosting_list = {int(m) for m in re.findall(r'AS(\d+)', fetch(RISK_HOSTING_URL))}
+    except Exception as e:
+        print('::warning::Hosting-Liste nicht ladbar (%s) - nur ipverse-Kategorie und Name' % e)
+    risk_big, risk_hoster = [], []
     for asn, pref, err in results:
         if asn in risk_new and pref:
             sz = 0
@@ -519,14 +537,24 @@ def main():
                     sz += ipaddress.ip_network(p, strict=False).num_addresses
                 except ValueError:
                     pass
-            if sz > RISK_MAX_ADDR:
+            if sz <= RISK_MAX_ADDR:
+                continue
+            md = meta_info.get(asn, {})
+            nm = '%s %s' % (md.get('handle', ''), md.get('description', ''))
+            hoster = (md.get('category') == 'hosting' or asn in hosting_list
+                      or bool(RISK_HOSTER_RE.search(nm)))
+            if hoster and sz <= RISK_MAX_HOSTER:
+                risk_hoster.append(asn)
+                asns[asn]['asname'] = ''
+                asns[asn]['domain'] += ' (Hoster, %d Adressen)' % sz
+            else:
                 risk_big.append(asn)
     for a in risk_big:
         del asns[a]
         risk_new.discard(a)
     results = [r for r in results if r[0] in asns]
-    print('ASN-Risiko: %d zu gross (> %d Adressen) ausgelassen -> %d neu gesperrt'
-          % (len(risk_big), RISK_MAX_ADDR, len(risk_new)))
+    print('ASN-Risiko: %d mittelgrosse Hoster uebernommen (%s), %d zu gross/kein Hoster ausgelassen -> %d neu gesperrt'
+          % (len(risk_hoster), ','.join(map(str, risk_hoster)), len(risk_big), len(risk_new)))
 
     v4, v6, active = [], [], 0
     for asn, pref, err in results:
