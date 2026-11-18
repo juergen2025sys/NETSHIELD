@@ -159,8 +159,23 @@ DP_URLS = tuple('https://dataplane.org/signals/%s.txt' % f for f in (
 # wieder entfernt: 2,15 Mio. IPs (v.a. infizierte Heimgeraete) ergaben 7.356
 # zusaetzliche ASNs / 34 Mio. Adressen und haetten Minecraft-, Xbox/CoD- und
 # GTA-Server getroffen. Fuer Einzel-IPs bleibt sie in der Combined-Liste.
+# Seit 2026-11-18 (Nutzerentscheidung): 7 kleine Feeds aus dem Honeypot Monitor,
+# die in der Vorauswertung nur wenige zusaetzliche ASNs brachten (zusammen ~50).
+# Die grossen Feeds (ipblocklist_eu, ipinsights, configserverapps, kamalmjt)
+# sind bewusst NICHT dabei - sie haetten tausende Heim-ISPs gesperrt.
+IPV4_ANY_RE = re.compile(r'(?<![\d.])(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?![\d./])')
+HPF_URLS = (
+    'https://api.tarpit.pro/v1/feed/blocklist.txt',
+    'https://siberkapan.org/api/v1/list/txt',
+    'https://api.carpathian.ai/public/threat-intel/blocklist.txt',
+    'https://api.ismalicious.com/blocklist/download/blocklist-ips-critical.txt',
+    'https://opendbl.net/lists/opendbl-darknet.list',
+    'https://feeds.offseq.com/mirage-feed/latest/ipv4-30d.txt',
+    'https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv',
+)
 DENSITY_SOURCES = (('ThreatFox C2-Dichte', TF_IPS_FILE), ('AbuseIPDB-Dichte', AB_IPS_FILE),
-                   ('threat.live-Dichte', TL_URL), ('Dataplane-Dichte', DP_URLS))
+                   ('threat.live-Dichte', TL_URL), ('Dataplane-Dichte', DP_URLS),
+                   ('Honeypot-Feeds-Dichte', HPF_URLS))
 TF_ASNDB_URLS = ('https://cdn.jsdelivr.net/npm/@ip-location-db/asn/asn-ipv4.csv',
                  'https://raw.githubusercontent.com/sapics/ip-location-db/main/dbip-asn/dbip-asn-ipv4.csv')
 TF_MAX_ADDR = 65536
@@ -173,16 +188,22 @@ def threatfox_candidates():
     sources = []
     for label, path in DENSITY_SOURCES:
         if isinstance(path, tuple):
-            # mehrere URLs im Dataplane-Format "ASN | Name | IP | Zeit | Kategorie"
+            # mehrere URLs: Dataplane-Format "ASN | Name | IP | ..." oder
+            # einfache Listen/CSV (erste IPv4-Adresse der Zeile)
             lines, ok = [], 0
             for u in path:
                 try:
                     for l in fetch(u, timeout=120).splitlines():
-                        if l.startswith('#') or '|' not in l:
+                        if not l.strip() or l.lstrip().startswith(('#', ';', '//')):
                             continue
-                        p = [x.strip() for x in l.split('|')]
-                        if len(p) >= 3:
-                            lines.append(p[2])
+                        if '|' in l:
+                            p = [x.strip() for x in l.split('|')]
+                            if len(p) >= 3:
+                                lines.append(p[2])
+                        else:
+                            m = IPV4_ANY_RE.search(l)
+                            if m:
+                                lines.append(m.group(1))
                     ok += 1
                 except Exception as e:
                     print('::warning::%s nicht ladbar (%s)' % (u, e))
@@ -359,11 +380,12 @@ def main():
             f.write('\n'.join(lines) + '\n')
         os.replace(tmp, os.path.join(OUT_DIR, 'threatfox_asn_kandidaten.txt'))
         print('Dichte-Kandidaten: %d (davon noch nicht gesperrt: %d, ThreatFox %d / AbuseIPDB %d / threat.live %d'
-              ' / Dataplane %d) -> asn/threatfox_asn_kandidaten.txt'
+              ' / Dataplane %d / Honeypot-Feeds %d) -> asn/threatfox_asn_kandidaten.txt'
               % (len(tf), len(tf_new), sum(1 for v in tf_new.values() if v[4].startswith('ThreatFox')),
                  sum(1 for v in tf_new.values() if v[4].startswith('AbuseIPDB')),
                  sum(1 for v in tf_new.values() if v[4].startswith('threat.live')),
-                 sum(1 for v in tf_new.values() if v[4].startswith('Dataplane'))))
+                 sum(1 for v in tf_new.values() if v[4].startswith('Dataplane')),
+                 sum(1 for v in tf_new.values() if v[4].startswith('Honeypot-Feeds'))))
     if TF_MODE == 'block':
         for a, (nm, n, sz, d, why) in tf_new.items():
             asns[a] = {'asn': a, 'cc': '', 'asname': nm, 'domain': '%s %.2f%%' % (why, d * 100)}
@@ -419,7 +441,7 @@ def main():
             '# Zusatz-ASNs: %s (Bulletproof Hosting Watch, Bericht %s)\n'
             '# Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)\n'
             '# Aktualisiert: %s | ASNs: %d (Spamhaus %d + BPH %d + Maltrail %d + BPH-Watch %d + eigene %d'
-            ' + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane %d, aktiv: %d)\n'
+            ' + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds %d, aktiv: %d)\n'
             % (SPAMHAUS_URL, meta.get('timestamp'), BPH_URL, MALTRAIL_URL, BPHW_INDEX, bw_date, now, len(asns),
                n_spamhaus, len(bph_new), len(mt_new), len(bw_new), len(man_new), len(tf_new), active))
 
