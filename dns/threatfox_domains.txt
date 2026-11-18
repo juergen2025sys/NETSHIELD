@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-18 11:55 CET
-# Eintraege: 33194
+# Aktualisiert: 2026-11-18 13:45 CET
+# Eintraege: 33200
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -4264,6 +4264,7 @@ baixar.xgifsbr.com
 bajarep.com
 bajmol.com
 bajocerofilms.com
+bajuqafy.workers.dev
 bakadirtour.com
 bakermediaco.com
 bakesbyleilei.com
@@ -5867,6 +5868,7 @@ bxjmrg.krisztinavarga.hu
 bxkbbt.usen-spartamax.com
 bxodsojs.btyek.site
 bxto.site-shartbandi-variz-kam.com
+bxvc.store
 bxx2rghe05kng.cfc-execute.bj.baidubce.com
 bxzpts.aurinebeverly.com
 bxzyp.daneshkhanevade.xyz
@@ -12572,6 +12574,7 @@ gominhabjj.com
 gommoniegadi.it
 gomucsqgmoassouo.xyz
 gomzablobws.cc
+goo55.org
 goocoinorg.com
 good123.eastus.cloudapp.azure.com
 gooddogshop.click
@@ -20178,6 +20181,7 @@ nwrxmu.soulgenai.app
 nwsaduex.radioshartbandi.bet
 nwtca6gs.schleer.hu
 nwumcm.igni--tra.com
+nx.ankapaito.org
 nx3vcqkx.persiandiet.com
 nx7k0dvp.eng--memorylift.com
 nxarphaf35qp2uuosaq54m3a2s5kt4svpcv56mvz6r7xy6na7uo5ypyd.onion
@@ -22594,6 +22598,7 @@ q56x2p00.us-en-us-synaboost.com
 q5tb6pspk3ndnjb3hrjncxwjhcbdjs3gneyucav5nniv4zj7od5tehad.onion
 q6.aromattoto.org
 q62sm4y0.parsgoal90.com
+q65.ary303.org
 q67j6c2zqxim4zgugydc-api-svc-fd.state-manager-cache-mn02.in.net
 q6972jc6.powershart.com
 q6b5duw2.zubu.store
@@ -31650,6 +31655,7 @@ x.doyok.net
 x.eltofeq.com
 x.gam99.org
 x.gl111.org
+x.goo55.org
 x089w0f5.btyek.boats
 x0ih2pfd.scottpwilliamslaw.com
 x0ihfh5u.asesoriamerenlinea.com
