@@ -1002,6 +1002,93 @@ jobs:
 
           exit "$PY_EXIT"
 
+      # 2026-11-18 (Nutzerwunsch): monatliche ASN-Risiko-Bewertung (Top 250)
+      # holen, solange WireGuard noch steht. Nur ASN-Nummern, keine Namen.
+      # Hoechstens einmal je 20 h (Bericht erscheint monatlich). Fehler hier
+      # duerfen den Honigtopf-Lauf nie stoeren -> continue-on-error.
+      - name: ASN-Risiko holen
+        if: always() && steps.recent.outputs.skip != 'true' && steps.wireguard.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        env:
+          HONEYDB_API_ID: ${{ secrets.HONEYDB_API_ID }}
+          HONEYDB_API_KEY: ${{ secrets.HONEYDB_API_KEY }}
+          HONEYDB_API_ID_2: ${{ secrets.HONEYDB_API_ID_2 }}
+          HONEYDB_API_KEY_2: ${{ secrets.HONEYDB_API_KEY_2 }}
+          HONEYDB_API_ID_3: ${{ secrets.HONEYDB_API_ID_3 }}
+          HONEYDB_API_KEY_3: ${{ secrets.HONEYDB_API_KEY_3 }}
+          HONEYDB_API_ID_4: ${{ secrets.HONEYDB_API_ID_4 }}
+          HONEYDB_API_KEY_4: ${{ secrets.HONEYDB_API_KEY_4 }}
+          HONEYDB_API_ID_5: ${{ secrets.HONEYDB_API_ID_5 }}
+          HONEYDB_API_KEY_5: ${{ secrets.HONEYDB_API_KEY_5 }}
+          HONEYDB_API_ID_6: ${{ secrets.HONEYDB_API_ID_6 }}
+          HONEYDB_API_KEY_6: ${{ secrets.HONEYDB_API_KEY_6 }}
+          HONEYDB_API_ID_7: ${{ secrets.HONEYDB_API_ID_7 }}
+          HONEYDB_API_KEY_7: ${{ secrets.HONEYDB_API_KEY_7 }}
+          HONEYDB_API_ID_8: ${{ secrets.HONEYDB_API_ID_8 }}
+          HONEYDB_API_KEY_8: ${{ secrets.HONEYDB_API_KEY_8 }}
+          HONEYDB_API_ID_9: ${{ secrets.HONEYDB_API_ID_9 }}
+          HONEYDB_API_KEY_9: ${{ secrets.HONEYDB_API_KEY_9 }}
+        run: |
+          export NO_PROXY='*' no_proxy='*'
+          mkdir -p asn
+          python3 -I << 'EOF'
+          import json, os, re, time, urllib.request, urllib.error
+          from datetime import datetime, timezone
+          OUT = 'asn/asn_risiko.txt'
+          TOP = 250
+          if os.path.exists(OUT):
+              m = re.search(r'^# Abgerufen: (\d+)', open(OUT).read(), re.M)
+              if m and time.time() - int(m.group(1)) < 20 * 3600:
+                  print('ASN-Risiko: letzter Abruf juenger als 20 h - uebersprungen')
+                  raise SystemExit(0)
+          creds = []
+          for i in range(1, 10):
+              s = '' if i == 1 else '_%d' % i
+              cid = os.environ.get('HONEYDB_API_ID' + s, '').strip()
+              key = os.environ.get('HONEYDB_API_KEY' + s, '').strip()
+              if cid and key:
+                  creds.append((cid, key, i))
+          data = None
+          for cid, key, i in creds:
+              req = urllib.request.Request('https://honeydb.io/api/asn-risk?limit=%d' % TOP, headers={
+                  'X-HoneyDb-ApiId': cid, 'X-HoneyDb-ApiKey': key, 'User-Agent': 'NETSHIELD'})
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as r:
+                      data = json.load(r)
+                  print('ASN-Risiko: Abruf mit Credential %d ok' % i)
+                  break
+              except urllib.error.HTTPError as e:
+                  print('ASN-Risiko: Credential %d -> HTTP %s' % (i, e.code))
+              except Exception as e:
+                  print('ASN-Risiko: Credential %d -> %s' % (i, type(e).__name__))
+          if not isinstance(data, dict) or not data.get('asns'):
+              print('::warning::ASN-Risiko: keine Daten - alte Datei bleibt')
+              raise SystemExit(0)
+          asns = []
+          for row in data['asns']:
+              v = row.get('asn') if isinstance(row, dict) else row
+              if v is None and isinstance(row, dict):
+                  v = row.get('as_number')
+              m = re.search(r'\d+', str(v or ''))
+              if m and int(m.group()) not in asns:
+                  asns.append(int(m.group()))
+          asns = asns[:TOP]
+          if len(asns) < 50:
+              print('::warning::ASN-Risiko: nur %d ASNs - alte Datei bleibt (Felder: %s)'
+                    % (len(asns), list(data['asns'][0])[:10] if isinstance(data['asns'][0], dict) else '?'))
+              raise SystemExit(0)
+          period = str(data.get('period') or data.get('latest_month') or '')
+          now = datetime.now(timezone.utc)
+          with open(OUT + '.tmp', 'w') as f:
+              f.write('# NETSHIELD - ASN-Risiko (monatliche Bewertung, Top %d, nur Nummern)\n' % TOP)
+              f.write('# Monat: %s | Stand: %s\n' % (period, now.strftime('%Y-%m-%d %H:%M UTC')))
+              f.write('# Abgerufen: %d\n\n' % int(now.timestamp()))
+              f.write('\n'.join(map(str, asns)) + '\n')
+          os.replace(OUT + '.tmp', OUT)
+          print('ASN-Risiko: %d ASNs (Monat %s) -> %s' % (len(asns), period, OUT))
+          EOF
+
 
       - name: WireGuard abbauen
         if: always() && steps.wireguard.outcome != 'skipped'
@@ -1028,6 +1115,9 @@ jobs:
           files=(honigtopf_ips.txt reports/honigtopf_report.md state/honigtopf_freshness.json)
           if [ -f state/honigtopf_quota.json ]; then
             files+=(state/honigtopf_quota.json)
+          fi
+          if [ -f asn/asn_risiko.txt ]; then
+            files+=(asn/asn_risiko.txt)
           fi
           git add -- "${files[@]}"
           if git diff --staged --quiet; then
