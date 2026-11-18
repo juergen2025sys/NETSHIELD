@@ -1,6 +1,6 @@
 # NETSHIELD - Netzbetreiber mit auffaellig vielen ThreatFox-C2-Servern / AbuseIPDB-IPs
 # Modus: block (report = nur Liste, block = wird mitgesperrt)
-# Kriterien je Quelle: <= 65536 Adressen, >= 5 IPs, Dichte >= 0.25%
+# Kriterien je Quelle: <= 1000000 Adressen, >= 5 IPs, Dichte >= 0.25%
 # Spalten: ASN | IPs | Adressen | Dichte | schon gesperrt | Name | Quelle
 
 AS211298	1007	1024	98.34%	nein	Driftnet Ltd	Dataplane-Dichte
@@ -120,6 +120,7 @@ AS402226	5	256	1.95%	nein	OnlyScans LLC	Honeypot-Feeds-Dichte
 AS202226	62	3328	1.86%	ja	Emil Vitukhnovskii trading as Great Flower	ThreatFox C2-Dichte
 AS203861	19	1024	1.86%	ja	Miteflux Technologies Ltd	Honeypot-Feeds-Dichte
 AS56526	19	1024	1.86%	nein	PC Media Zmijov	Dataplane-Dichte
+AS25369	2019	113152	1.78%	nein	Hydra Communications Ltd	Dataplane-Dichte
 AS401739	9	512	1.76%	ja	RedLuff, LLC	ThreatFox C2-Dichte
 AS152485	9	512	1.76%	ja	Hosterdaddy Private Limited	ThreatFox C2-Dichte
 AS273514	18	1024	1.76%	nein	AMPLE SOLUCOES TECNOLOGICAS LTDA	threat.live-Dichte
@@ -151,6 +152,7 @@ AS47898	46	3328	1.38%	nein	RPC HomeNet Ltd.	Dataplane-Dichte
 AS273785	14	1024	1.37%	nein	A. C. V. TELECOM LTDA	threat.live-Dichte
 AS202538	7	512	1.37%	nein	Private Enterprise TRK "ATV-PLUS"	Dataplane-Dichte
 AS37004	96	7168	1.34%	nein	Suburban Broadband Ltd	Dataplane-Dichte
+AS9541	3031	227072	1.33%	nein	Cyber Internet Services (Private) Limited	Dataplane-Dichte
 AS214209	13	1024	1.27%	nein	Internet Magnate (Pty) Ltd	ThreatFox C2-Dichte
 AS211486	13	1024	1.27%	ja	Alferov Aleksey Aleksandrovich	threat.live-Dichte
 AS266812	13	1024	1.27%	nein	CONEXIONTOTAL S.A.	Dataplane-Dichte
@@ -240,6 +242,7 @@ AS137047	15	2048	0.73%	nein	TELECOMMUNICATION AND TECHNOLOGY MASTERS (PVT.) LIMI
 AS141846	15	2048	0.73%	nein	Netfix Networks Opc Pvt Ltd	Dataplane-Dichte
 AS398019	52	7168	0.73%	nein	Dynu Systems Incorporated	Honeypot-Feeds-Dichte
 AS132168	26	3584	0.73%	nein	ESUN TECHNOLOGY INTERNATIONAL CO., LIMITED	Dataplane-Dichte
+AS17762	1641	227584	0.72%	nein	Tata Teleservices (Maharashtra) Ltd	Dataplane-Dichte
 AS50648	42	5888	0.71%	nein	PE UAinet	Dataplane-Dichte
 AS62744	20	2816	0.71%	nein	Quintex Alliance Consulting	Honeypot-Feeds-Dichte
 AS40662	9	1280	0.70%	nein	Layer7 Technologies Inc	ThreatFox C2-Dichte
@@ -280,6 +283,7 @@ AS206385	19	3072	0.62%	nein	OOO "SPETSTELECOM-YUG"	Dataplane-Dichte
 AS208570	11	1792	0.61%	nein	Spark for Information Technology Services Ltd	Dataplane-Dichte
 AS211507	14	2304	0.61%	nein	Julian Achter	ThreatFox C2-Dichte
 AS58322	14	2304	0.61%	nein	Hala Al Rafidain Company for Communications and Internet LTD.	Dataplane-Dichte
+AS135377	1141	192768	0.59%	nein	UCLOUD INFORMATION TECHNOLOGY (HK) LIMITED	Honeypot-Feeds-Dichte
 AS210006	9	1536	0.59%	ja	Shereverov Marat Ahmedovich	Honeypot-Feeds-Dichte
 AS203485	6	1024	0.59%	nein	Noinet Societa Cooperativa	threat.live-Dichte
 AS266502	6	1024	0.59%	nein	TimerNet Telecom	threat.live-Dichte
@@ -462,6 +466,7 @@ AS151592	5	1536	0.33%	nein	PT Awan Data Teknologi	Honeypot-Feeds-Dichte
 AS400897	9	2816	0.32%	nein	PETROSKY CLOUD LLC	ThreatFox C2-Dichte
 AS135780	9	2816	0.32%	nein	AirFiber Networks Pvt Ltd	Dataplane-Dichte
 AS50581	65	20480	0.32%	nein	Ukrainian Telecommunication Group LLC	Dataplane-Dichte
+AS8193	237	75520	0.31%	nein	"Uzbektelekom" Joint Stock Company	Dataplane-Dichte
 AS153947	8	2560	0.31%	nein	FAST ZONE IT	threat.live-Dichte
 AS47143	12	3840	0.31%	nein	Todayhost Limited	Dataplane-Dichte
 AS43764	27	8704	0.31%	nein	LLC "Electron-sevlush"	Dataplane-Dichte
@@ -530,3 +535,4 @@ AS41165	17	6656	0.26%	nein	RPC HomeNet Ltd.	Dataplane-Dichte
 AS34279	13	5120	0.25%	nein	S.C. Teletrans S.A.	Dataplane-Dichte
 AS45194	35	13824	0.25%	nein	Syscon Infoway Pvt. Ltd.	Dataplane-Dichte
 AS58087	22	8704	0.25%	ja	Florian Kolb	ThreatFox C2-Dichte
+AS27725	478	190464	0.25%	nein	Empresa de Telecomunicaciones de Cuba, S.A.	Dataplane-Dichte

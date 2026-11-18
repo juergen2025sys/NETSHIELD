@@ -1,10 +1,10 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795026404)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795028204)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-18 19:14 UTC | ASNs: 1039 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf 424, aktiv: 804)
+# Aktualisiert: 2026-11-18 19:28 UTC | ASNs: 1045 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf 430, aktiv: 810)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS1054		Zont LLC	Honigtopf-Dichte 0.66%
@@ -23,12 +23,14 @@ AS7488		CNServer LLC	ThreatFox C2-Dichte 1.19%
 AS7857	US	EMPIRE2-ASN	empire-communications
 AS7907	US	NETWORD-CORP	networldtron.net
 AS8129	US	CAIWIRELESS	caiwireless.net
+AS8193		"Uzbektelekom" Joint Stock Company	Dataplane-Dichte 0.31%
 AS8649	DE	Webtraffic	zexotek.de
 AS8814		Aztelekom LLC	Dataplane-Dichte 0.41%
 AS8870		Overseas Technologies LLC	Dataplane-Dichte 0.34%
 AS9123			Maltrail worst_asns
 AS9164	UA	R-TEL-AS	bignet.ua
 AS9465		AGOTOZ PTE. LTD.	Dataplane-Dichte 4.30%
+AS9541		Cyber Internet Services (Private) Limited	Dataplane-Dichte 1.33%
 AS11527	US	NOVABROADBAND	xproxies.com
 AS11693		WideOpenWest Finance LLC	Dataplane-Dichte 0.41%
 AS11960		EMPRESA DE TELECOMUNICACIONES DE CUBA S.A. (IXP CUBA)	Dataplane-Dichte 2.34%
@@ -41,6 +43,7 @@ AS15611			Maltrail worst_asns
 AS16190		LIR LLC	threat.live-Dichte 0.29%
 AS17447	IN	NET4-IN	net4india.com
 AS17612	KR	RINNAI-AS-KR	rinnai.co.kr
+AS17762		Tata Teleservices (Maharashtra) Ltd	Dataplane-Dichte 0.72%
 AS17994	NZ	SPARK-AS-AP	appserv.co.nz
 AS18526	JP	DDPS	ddps.jp
 AS19318			Maltrail worst_asns
@@ -56,6 +59,7 @@ AS24812		RPC HomeNet Ltd.	Dataplane-Dichte 0.76%
 AS25198		INTERKVM HOST SRL	Honeypot-Feeds-Dichte 1.08%
 AS25211		"Euro Crypt" EOOD	threat.live-Dichte 1.57%
 AS25288	UA	LIR-UKRAINE-AS	bignet.ua
+AS25369		Hydra Communications Ltd	Dataplane-Dichte 1.78%
 AS25862	HK	ISNX	cloudie.hk
 AS26132	JP	DDPS	ddps.jp
 AS26173	CW	King's_Cross_N.V.	wirelesscuracao.com
@@ -63,6 +67,7 @@ AS26561	GB	NETRIDGE	mylir.co.uk
 AS26833	US	ETCC	quarterhill.com
 AS27284		Fourplex Telecom LLC	Honeypot-Feeds-Dichte 0.46%
 AS27717		Corporacion Digitel C.A.	Dataplane-Dichte 0.38%
+AS27725		Empresa de Telecomunicaciones de Cuba, S.A.	Dataplane-Dichte 0.25%
 AS27986		ENTEL CHILE S.A.	Dataplane-Dichte 0.28%
 AS28026		Grape S.A.	Dataplane-Dichte 0.29%
 AS29303		Perm Internet Company LLC	Dataplane-Dichte 0.30%
@@ -340,6 +345,7 @@ AS135198		Bombay Bullion Commmunication	threat.live-Dichte 0.78%
 AS135271	US	GLOBTELGROUP-AS-AP	globtelgroup.com
 AS135300		Myanmar Broadband Telecom Co., Ltd	Dataplane-Dichte 0.86%
 AS135371		Fortune International Ltd.	Dataplane-Dichte 0.49%
+AS135377		UCLOUD INFORMATION TECHNOLOGY (HK) LIMITED	Honeypot-Feeds-Dichte 0.59%
 AS135388	LT	RPL-HK	serveroffer.lt
 AS135392	HK	MILLENIALHOSTLIMITED-AS-GB	tele-asia.net
 AS135523		Multinet Broadband	Honeypot-Feeds-Dichte 0.30%
