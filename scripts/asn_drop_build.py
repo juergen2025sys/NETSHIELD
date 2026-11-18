@@ -48,8 +48,12 @@ from concurrent.futures import ThreadPoolExecutor
 
 SPAMHAUS_URL = 'https://www.spamhaus.org/drop/asndrop.json'
 IPVERSE_URL = 'https://raw.githubusercontent.com/ipverse/as-ip-blocks/master/as/%d/aggregated.json'
+# Ersatzquelle (seit 2026-11-18), falls ipverse fuer eine ASN nicht erreichbar ist
+RIPESTAT_URL = 'https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS%d&sourceapp=netshield-asn-drop'
+HOLD_DAYS = 14
 UA = {'User-Agent': 'NETSHIELD-ASN-DROP/1.0 (+https://github.com/juergen2025sys/NETSHIELD)'}
 OUT_DIR = sys.argv[1] if len(sys.argv) > 1 else '.'
+HOLD_FILE = os.path.join(OUT_DIR, 'asn_dichte_haltezeit.json')
 MIN_ASNS = 100
 MAX_FAIL_RATIO = 0.10
 MIN_V4 = 1000
@@ -183,7 +187,10 @@ DENSITY_SOURCES = (('ThreatFox C2-Dichte', TF_IPS_FILE), ('AbuseIPDB-Dichte', AB
                    ('Honeypot-Feeds-Dichte', HPF_URLS), ('Honigtopf-Dichte', HT_IPS_FILE))
 TF_ASNDB_URLS = ('https://cdn.jsdelivr.net/npm/@ip-location-db/asn/asn-ipv4.csv',
                  'https://raw.githubusercontent.com/sapics/ip-location-db/main/dbip-asn/dbip-asn-ipv4.csv')
-TF_MAX_ADDR = 65536
+# 2026-11-18 (Nutzerentscheidung): von 65.536 auf 1.000.000 erhoeht. Test: nur
+# +6 ASNs / +1 Mio. Adressen, 0 Kontakte in 10 Tagen NetFlow. Grosse Clouds und
+# Provider (Amazon, Microsoft, Hetzner, Telekom ... je viele Mio.) bleiben aussen vor.
+TF_MAX_ADDR = 1000000
 TF_MIN_IPS = 5
 TF_MIN_DENSITY = 0.0025   # mind. 1 C2-Server je 400 Adressen
 
@@ -395,21 +402,73 @@ def main():
                  sum(1 for v in tf_new.values() if v[4].startswith('Dataplane')),
                  sum(1 for v in tf_new.values() if v[4].startswith('Honeypot-Feeds')),
                  sum(1 for v in tf_new.values() if v[4].startswith('Honigtopf'))))
+    # Haltezeit (seit 2026-11-18): Netzbetreiber aus der Dichte-Auswertung bleiben
+    # HOLD_DAYS Tage nach ihrem letzten Auftauchen gesperrt - auch wenn eine Quelle
+    # kurz ausfaellt oder der Taeter ein paar Tage still ist. Zustand liegt in
+    # asn/asn_dichte_haltezeit.json (wird vom Workflow mit committet).
+    today = datetime.date.today()
+    state = {}
+    if os.path.exists(HOLD_FILE):
+        try:
+            with open(HOLD_FILE, encoding='utf-8') as fh:
+                state = json.load(fh)
+        except (OSError, ValueError) as e:
+            print('::warning::Haltezeit-Datei unlesbar (%s) - beginne neu' % e)
+            state = {}
+    for a, (nm, n, sz, d, why) in tf.items():
+        state[str(a)] = {'name': nm, 'why': why, 'density': round(d * 100, 2), 'last_seen': today.isoformat()}
+    held = {}
+    for k in list(state):
+        e = state[k]
+        try:
+            age = (today - datetime.date.fromisoformat(e.get('last_seen', ''))).days
+        except ValueError:
+            age = HOLD_DAYS + 1
+        if age > HOLD_DAYS:
+            del state[k]
+            continue
+        a = int(k)
+        if a not in tf and a not in asns:
+            held[a] = (e, age)
+    tmp = HOLD_FILE + '.tmp'
+    with open(tmp, 'w', encoding='utf-8') as fh:
+        json.dump(state, fh, indent=0, sort_keys=True)
+    os.replace(tmp, HOLD_FILE)
+    print('Haltezeit %d Tage: %d Netzbetreiber gemerkt, davon %d nur noch ueber die Haltezeit gesperrt'
+          % (HOLD_DAYS, len(state), len(held)))
+
     if TF_MODE == 'block':
         for a, (nm, n, sz, d, why) in tf_new.items():
             asns[a] = {'asn': a, 'cc': '', 'asname': nm, 'domain': '%s %.2f%%' % (why, d * 100)}
+        for a, (e, age) in held.items():
+            asns[a] = {'asn': a, 'cc': '', 'asname': e.get('name', ''),
+                       'domain': '%s (Haltezeit, zuletzt auffaellig %s)' % (e.get('why', ''), e.get('last_seen', ''))}
+        tf_new = {**tf_new, **{a: None for a in held}}
     else:
         tf_new = {}
 
     def resolve(asn):
+        # 1. ipverse (CC0, BGP-Daten); 2. Ersatz: RIPEstat announced-prefixes
         try:
             txt = fetch(IPVERSE_URL % asn)
             return asn, (json.loads(txt).get('prefixes', {}) if txt else {}), None
         except Exception as e:
-            return asn, None, str(e)
+            err = str(e)
+        try:
+            data = json.loads(fetch(RIPESTAT_URL % asn, timeout=60, tries=2)).get('data', {})
+            pref = {'ipv4': [], 'ipv6': []}
+            for p in data.get('prefixes', []):
+                pfx = p.get('prefix', '')
+                pref['ipv6' if ':' in pfx else 'ipv4'].append(pfx)
+            return asn, pref, 'ripestat'
+        except Exception as e2:
+            return asn, None, '%s / RIPEstat: %s' % (err, e2)
 
     with ThreadPoolExecutor(8) as ex:
         results = list(ex.map(resolve, sorted(asns)))
+    via_ripe = [a for a, p, err in results if p is not None and err == 'ripestat']
+    if via_ripe:
+        print('::warning::%d ASNs ueber RIPEstat statt ipverse aufgeloest: %s' % (len(via_ripe), via_ripe[:20]))
 
     failed = [a for a, p, err in results if p is None]
     if len(failed) > MAX_FAIL_RATIO * len(asns):
