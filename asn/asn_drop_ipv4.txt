@@ -1,11 +1,11 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795033604)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795040804)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-18 21:06 UTC | ASNs: 1140 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf 434 + ASN-Risiko 91, aktiv: 904)
-# IPv4-Netze: 11953
+# Aktualisiert: 2026-11-18 23:16 UTC | ASNs: 1143 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf 439 + ASN-Risiko 89, aktiv: 907)
+# IPv4-Netze: 11960
 
 1.32.192.0/18
 2.26.0.0/21
@@ -4252,6 +4252,7 @@
 93.170.116.0/22
 93.170.136.0/23
 93.170.160.0/22
+93.171.4.0/24
 93.171.214.0/24
 93.171.240.0/22
 93.171.246.0/23
@@ -4433,6 +4434,7 @@
 94.249.227.0/24
 94.249.230.0/23
 94.249.246.0/24
+95.46.8.0/24
 95.46.104.0/24
 95.46.142.0/24
 95.46.212.0/22
@@ -4603,11 +4605,14 @@
 102.212.40.0/22
 102.213.48.0/22
 102.213.84.0/22
+102.213.132.0/22
 102.215.231.0/24
 102.216.252.0/22
+102.217.85.0/24
 102.217.104.0/24
 102.217.144.0/22
 102.217.236.0/22
+102.217.240.0/22
 102.219.208.0/22
 102.220.88.0/22
 102.220.160.0/22
@@ -6348,6 +6353,7 @@
 138.124.252.0/23
 138.204.158.0/23
 138.204.224.0/22
+138.204.240.0/22
 138.249.37.0/24
 138.249.56.0/24
 138.249.75.0/24
@@ -8368,6 +8374,7 @@
 170.205.28.0/24
 170.205.52.0/23
 170.205.55.0/24
+170.231.216.0/22
 170.231.232.0/22
 170.233.68.0/22
 170.233.196.0/22
