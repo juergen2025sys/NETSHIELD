@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-18 20:12 CET
-# Eintraege: 33314
+# Aktualisiert: 2026-11-18 22:05 CET
+# Eintraege: 33332
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1125,6 +1125,7 @@
 60.147.53.34.bc.googleusercontent.com
 602a5sud.foodpapajobs.com
 602kigvy.hanovereyephotography.com
+609315-shopneutroclimatcom-7005.site.tb-hosting.com
 60aahn1v.nurvealive.com
 60guam39.drubenginecologo.com
 60hx33ds.minescasino.bet
@@ -1607,6 +1608,7 @@
 94lxmbqa.ecoshoreline.org
 953k25jr.kcmotorsllc.com
 954591cm.nyashsens.top
+95ux6wlidu.workers.dev
 960gz3a6.bossbeycity.click
 96e0qwgn.hero--up.com
 96mjt1sb.axee.net
@@ -1741,6 +1743,7 @@ a-head.fr
 a-stergiou.com
 a-talentagency.com
 a.arenapildun.org
+a.async.6g.in
 a.bc.285ef6f2.web.mail.cargopaa.com
 a.bc.6a73dbe.www.aioperao.com
 a.bok13.org
@@ -1852,6 +1855,7 @@ aaronweintraubfromcogent.com
 aaronweintraubwantstobecyberpolice.com
 aasdaonz.mechanickhodakarami.shop
 aastitva.com
+aaswjobstaging.wpenginepowered.com
 aatyg3a4.deocultismo.com
 aaudizen.com
 aave-connect-dapp-layer-v124.vercel.app
@@ -3511,6 +3515,7 @@ aromatrekking.com
 aromattoto.org
 aromatyzycia.pl
 arop4gtf.jetbt6.online
+aroveafpl.com
 arpumupr.site-shartbandi-pasor.online
 arqenntta.mom
 arqing.studio
@@ -6032,6 +6037,7 @@ c65wje4f.zere.store
 c6ta3e1a.remenacevintage.com
 c6vw4imq.nycsocialsportsclub.com
 c71414tk.betxane.com
+c8.asah189.org
 c86k6nbm.en-webaquaburn.com
 c8bl0t87.nailhousechicago.com
 c9.anka4d.org
@@ -6052,6 +6058,7 @@ cacbvgql.jadoou.skin
 cache-orbit.christmas
 cache-processing-node.com
 cache.coastpilot.lol
+cacheapi.cacheapi.icu
 cachehub.cc
 cachenest.cc
 cachmkcqj.venus90bet.com
@@ -10559,6 +10566,7 @@ ey7qdgkv.bazikonbartar.ir
 eyahy.expo5ejouer.lat
 eycgzaa.jamjahani.site
 eycho.tattoo
+eyeconsultants.ae
 eyefinancemonitor.com
 eyemove.space
 eyesarelying.online
@@ -16153,6 +16161,7 @@ klaroengenharia.com.br
 klassickitchenqatar.com
 klbj.1xgame.pro
 klca.hieliao-app.com
+klearly.eu
 klein-tanja.de
 kleinerycstone.site
 klershirt.it
@@ -23168,6 +23177,7 @@ qwen.co.com
 qwfh.bekabet.casino
 qwimnzu.daqotransformers.com
 qwnvfv.elcornerderaulmorote.com
+qwp.asah189.org
 qxaail.shop-tinnitrol.com
 qxguiws.1xpin.org
 qxisjdiag.oneidajailroster.org
@@ -23513,6 +23523,7 @@ rebel-pause.xyz
 rebelsupply.co.uk
 rebelwithareason.com
 reboot.duckdns.org
+rebound.digasfertilizerth.com
 rebrato.com
 recap-cha.xyz
 recaptcha-check.com
@@ -24135,6 +24146,7 @@ rosendalshallon.se
 rosewongo.org
 roshangallery.com.au
 roshanidea.com
+rosierclub.online
 rosrcf.inoxsystem.hu
 rossandrossenterprisesinc.com
 rossomazara.com
@@ -27329,6 +27341,7 @@ termeroseo.com
 termikcontrol.com
 terminalbrewmac.com
 termiteuslbumdge2zmfmfcsrvmvsfe4gvyudc5j6cdnisnhtftvokid.onion
+termos24.pl
 terporten.nl
 terracegrill.pk
 terraincastlerock.com
@@ -29006,6 +29019,7 @@ v.dewa2.org
 v.doyok.net
 v.getpi.su
 v.gg180.net
+v.goo55.org
 v0a4ke9x.www-metabodrops.us
 v0cow1k020426uj.cfd
 v0hkpadr04mbz5lkearqa.com
@@ -30858,6 +30872,7 @@ www.cartogram.com
 www.caycanhdep.store
 www.cb-system.net
 www.cbcleib.com
+www.cbdpurereview.com
 www.cbgeophysical.com
 www.ccsavvocati.it
 www.cec.edu.cv
@@ -31345,6 +31360,7 @@ www.mypartydeluxe.com
 www.nanofotonica.it
 www.naturalstone.store
 www.natureorganicbeauty.com
+www.nauticaloscoglio.it
 www.ncooleyrealty.com
 www.ndclassprojectnowduckdns.com
 www.ndclassprojectnowduckdns1.com
@@ -31574,6 +31590,7 @@ www.test.sabodyanalysis.com.au
 www.thanksinstitute.com
 www.thefatoyster.com
 www.theforestrecovery.kinsta.cloud
+www.thenekocafe.com
 www.theokanegroup.com
 www.thesportscorporation.mbcreative.ca
 www.thousandoaksbsalandscaping.com
@@ -33004,6 +33021,7 @@ zgrongbo.com
 zgsjyxzx.com
 zgvdmh.eng-usa-gutdrops.com
 zgzyob.freemanframeca.com
+zh.ankapaito.org
 zh.arwanageming.org
 zh3l5x4j.betstrong.bet
 zh87ptod.venoplus.us
