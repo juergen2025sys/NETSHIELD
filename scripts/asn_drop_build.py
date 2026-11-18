@@ -281,6 +281,9 @@ MANUAL_ASNS = {
     # 2026-11-17 (Nutzerwunsch): niederlaendische Hoster, dauerhaft gesperrt.
     # Die IP-Bereiche werden bei jedem Lauf neu ueber ipverse aufgeloest.
     49305: 'Alsycon B.V.', 39572: 'DataWeb Global Group B.V.',
+    # 2026-11-18 (Nutzerwunsch): US-Hoster mit viel Missbrauch, bisher nur ueber
+    # Maltrail drin - fest, damit er bleibt (USA kann per GeoIP nicht gesperrt werden).
+    19318: 'Interserver, Inc',
 }
 
 
