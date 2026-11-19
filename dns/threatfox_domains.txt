@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-19 09:48 CET
-# Eintraege: 32791
+# Aktualisiert: 2026-11-19 11:58 CET
+# Eintraege: 32803
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1444,6 +1444,7 @@
 88i-mobile.com
 88i.jp.net
 88j.co.com
+88ltmwh6m8.workers.dev
 88vjwi0w.web-zensulin.com
 88win.store
 8909451279.f1shh.at
@@ -3461,6 +3462,7 @@ aschnurmansh.com
 ascontechnologies.sbs
 ascsrl.com.ar
 asdder.com
+asdlot.org
 asea4ied.ruut.store
 ased.store
 aseguradora2026.kozow.com
@@ -6291,6 +6293,7 @@ cf-restapi-web.cfd
 cf-web-restapi.sbs
 cf-webapi.cfd
 cf-www.com
+cf.asastogel.org
 cf.lala1.lat
 cf3322kr.aqua--burn.us
 cfapi.sbs
@@ -11444,6 +11447,7 @@ g.aria88.net
 g.cuit8.org
 g.dak69.org
 g.dax96.org
+g.gp108.org
 g.obrn.cc
 g0flf7f0.jet90betyek.bet
 g0nyy40c.swin9.store
@@ -12598,6 +12602,7 @@ guildofsecurity.co.uk
 guioywy.eng--slimsounds.com
 guiwqqukagiywike.xyz
 gujaratihelpguru.in
+gujyqylo.workers.dev
 gukccqauswacuaaa.xyz
 gukeasiiqcwuiiqw.xyz
 gukikuwwwwycqgqo.xyz
@@ -13985,6 +13990,7 @@ imep.com.mx
 imersion4cf.site
 img-cdn-cloud.cfd
 img-cdn-cloud.click
+img-codes-cloude.info
 img.drisnya.online
 img.tallowfetch.cc
 img3.centovinipolska.com
@@ -14615,6 +14621,7 @@ j6vfh2b2.thelogicofmoney.com
 j7n7i2dx.enfej.win
 j7sd6wjs.en-theslimsplitsmethod.com
 j7wu9ixq0e170425ma4.cfd
+j8.asdlot.org
 j821h5f5.gtacauto.com
 j88.studio
 j88jh.com
@@ -25625,6 +25632,7 @@ sr-hostes-js.beer
 sra.kijangturbo88.top
 sra.paptogel.net
 srascontabil.com.br
+src.img-codes-cloude.info
 src.mcfind.workers.dev
 src.mcsq.workers.dev
 srcgetproc.datalinkservice.pics
@@ -27227,6 +27235,7 @@ tmajnhws.sazebetonarme.xyz
 tmbwqter.com
 tmegramapps.com
 tmeypq.perfectgame.casino
+tmf.asdlot.org
 tmgroupcre.com
 tmgyscx.jet1bet.com
 tmm18nfa.1xpin.bet
@@ -29611,6 +29620,8 @@ wec-net.xyz
 wecarehairstudio.com
 wecup.store
 weeblueranch.com
+weedstealer.icu
+weedstealer.pl
 weedstealer.xyz
 weekaim.com
 weekfoc.cyou
@@ -30321,6 +30332,7 @@ www.bulletproofbabes.net
 www.buzzdesports.com
 www.bvu.edu.cv
 www.bw-automation.net
+www.bytecraftid.com
 www.bythebellboxing.com
 www.c1s.su
 www.c8un2-bz0ox-ecsxpp.xyz
