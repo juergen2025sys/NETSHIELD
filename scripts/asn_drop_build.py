@@ -536,7 +536,8 @@ def main():
                 try:
                     sz += ipaddress.ip_network(p, strict=False).num_addresses
                 except ValueError:
-                    pass
+                    # ungueltiger Prefix aus ipverse/RIPEstat: zaehlt nicht zur Groesse
+                    print('::warning::AS%d: ungueltiger Prefix %r uebersprungen' % (asn, p))
             if sz <= RISK_MAX_ADDR:
                 continue
             md = meta_info.get(asn, {})
