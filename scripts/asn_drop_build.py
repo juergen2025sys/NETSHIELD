@@ -214,9 +214,17 @@ def load_risk():
     return [a for a in out if 0 < a < 4200000000 and a not in RISK_NEVER], ((m.group(1).strip() if m else '') or 'Monat ?')
 
 
+# Seit 2026-11-19 (Nutzerwunsch): FireHOL abusers_30d (Sammelliste mehrerer
+# Missbrauchs-Feeds der letzten 30 Tage, ~170.000 IPs). Gezaehlt werden nur
+# Einzel-IPs, keine CIDR-Bloecke. Test: +342 ASNs, ueberwiegend VPS-/Hoster.
+FH_URLS = ('https://iplists.firehol.org/files/firehol_abusers_30d.netset',)
+# Netzbetreiber, die die Dichte-Auswertung NIE sperren darf (Kontakt eigener
+# Geraete laut NetFlow bzw. wichtige Infrastruktur). Gilt fuer alle Dichte-Quellen.
+DENSITY_NEVER = set()
 DENSITY_SOURCES = (('ThreatFox C2-Dichte', TF_IPS_FILE), ('AbuseIPDB-Dichte', AB_IPS_FILE),
                    ('threat.live-Dichte', TL_URL), ('Dataplane-Dichte', DP_URLS),
-                   ('Honeypot-Feeds-Dichte', HPF_URLS), ('Honigtopf-Dichte', HT_IPS_FILE))
+                   ('Honeypot-Feeds-Dichte', HPF_URLS), ('Honigtopf-Dichte', HT_IPS_FILE),
+                   ('FireHOL-Abusers-Dichte', FH_URLS))
 TF_ASNDB_URLS = ('https://cdn.jsdelivr.net/npm/@ip-location-db/asn/asn-ipv4.csv',
                  'https://raw.githubusercontent.com/sapics/ip-location-db/main/dbip-asn/dbip-asn-ipv4.csv')
 # 2026-11-18 (Nutzerentscheidung): von 65.536 auf 1.000.000 erhoeht. Test: nur
@@ -305,6 +313,8 @@ def threatfox_candidates():
         found = 0
         for s, h in hits.items():
             n, sz = len(h), size.get(s, 0)
+            if s in DENSITY_NEVER:
+                continue
             if sz and sz <= TF_MAX_ADDR and n >= TF_MIN_IPS and n / sz >= TF_MIN_DENSITY:
                 found += 1
                 if s not in out or n / sz > out[s][3]:
@@ -428,13 +438,14 @@ def main():
             f.write('\n'.join(lines) + '\n')
         os.replace(tmp, os.path.join(OUT_DIR, 'threatfox_asn_kandidaten.txt'))
         print('Dichte-Kandidaten: %d (davon noch nicht gesperrt: %d, ThreatFox %d / AbuseIPDB %d / threat.live %d'
-              ' / Dataplane %d / Honeypot-Feeds %d / Honigtopf %d) -> asn/threatfox_asn_kandidaten.txt'
+              ' / Dataplane %d / Honeypot-Feeds %d / Honigtopf %d / FireHOL %d) -> asn/threatfox_asn_kandidaten.txt'
               % (len(tf), len(tf_new), sum(1 for v in tf_new.values() if v[4].startswith('ThreatFox')),
                  sum(1 for v in tf_new.values() if v[4].startswith('AbuseIPDB')),
                  sum(1 for v in tf_new.values() if v[4].startswith('threat.live')),
                  sum(1 for v in tf_new.values() if v[4].startswith('Dataplane')),
                  sum(1 for v in tf_new.values() if v[4].startswith('Honeypot-Feeds')),
-                 sum(1 for v in tf_new.values() if v[4].startswith('Honigtopf'))))
+                 sum(1 for v in tf_new.values() if v[4].startswith('Honigtopf')),
+                 sum(1 for v in tf_new.values() if v[4].startswith('FireHOL'))))
     # Haltezeit (seit 2026-11-18): Netzbetreiber aus der Dichte-Auswertung bleiben
     # HOLD_DAYS Tage nach ihrem letzten Auftauchen gesperrt - auch wenn eine Quelle
     # kurz ausfaellt oder der Taeter ein paar Tage still ist. Zustand liegt in
@@ -589,7 +600,7 @@ def main():
             '# Zusatz-ASNs: %s (Bulletproof Hosting Watch, Bericht %s)\n'
             '# Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)\n'
             '# Aktualisiert: %s | ASNs: %d (Spamhaus %d + BPH %d + Maltrail %d + BPH-Watch %d + eigene %d'
-            ' + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf %d + ASN-Risiko %d, aktiv: %d)\n'
+            ' + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL %d + ASN-Risiko %d, aktiv: %d)\n'
             % (SPAMHAUS_URL, meta.get('timestamp'), BPH_URL, MALTRAIL_URL, BPHW_INDEX, bw_date, now, len(asns),
                n_spamhaus, len(bph_new), len(mt_new), len(bw_new), len(man_new), len(tf_new), len(risk_new), active))
 
