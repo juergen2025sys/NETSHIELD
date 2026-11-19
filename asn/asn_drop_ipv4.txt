@@ -1,11 +1,11 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795120004)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795129004)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-19 21:03 UTC | ASNs: 1510 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL 827 + ASN-Risiko 68, aktiv: 1266)
-# IPv4-Netze: 19393
+# Aktualisiert: 2026-11-19 23:23 UTC | ASNs: 1514 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL 831 + ASN-Risiko 68, aktiv: 1270)
+# IPv4-Netze: 19401
 
 1.32.192.0/18
 2.26.0.0/21
@@ -3306,6 +3306,7 @@
 58.65.128.0/18
 58.65.192.0/19
 58.72.180.0/24
+58.82.191.0/24
 58.84.60.0/22
 58.145.184.0/21
 58.147.8.0/22
@@ -6537,6 +6538,7 @@
 95.46.8.0/24
 95.46.104.0/24
 95.46.142.0/24
+95.46.176.0/21
 95.46.212.0/22
 95.47.59.0/24
 95.47.104.0/23
@@ -9982,6 +9984,7 @@
 138.94.192.0/22
 138.94.216.0/22
 138.97.12.0/22
+138.97.108.0/22
 138.97.176.0/22
 138.97.232.0/22
 138.99.28.0/22
@@ -13697,11 +13700,13 @@
 177.1.197.0/24
 177.1.200.0/24
 177.3.208.0/20
+177.10.168.0/22
 177.22.112.0/21
 177.22.176.0/21
 177.28.11.0/24
 177.53.180.0/22
 177.66.148.0/22
+177.71.64.0/20
 177.72.153.0/24
 177.72.154.0/23
 177.73.160.0/21
@@ -14290,6 +14295,8 @@
 182.48.92.0/23
 182.48.94.0/24
 182.50.64.0/21
+182.50.84.0/22
+182.50.92.0/22
 182.54.128.0/23
 182.156.6.0/23
 182.156.20.0/23
@@ -18225,6 +18232,7 @@
 203.189.232.0/22
 203.189.252.0/22
 203.202.232.0/24
+203.209.191.0/24
 203.212.28.0/22
 203.215.163.0/24
 203.215.167.0/24
