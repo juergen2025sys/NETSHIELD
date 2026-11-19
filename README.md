@@ -12,6 +12,7 @@
 
 
 
+
 <img src=".github/assets/banner.svg" alt="NETSHIELD — Automated Threat Intelligence" width="100%">
 
 <br>
@@ -24,7 +25,7 @@
 &nbsp;
 [![False Positive](https://img.shields.io/github/actions/workflow/status/juergen2025sys/NETSHIELD/false_positive_checker.yml?style=flat-square&logo=githubactions&logoColor=white&label=False%20Positive&labelColor=0d1626)](https://github.com/juergen2025sys/NETSHIELD/actions/workflows/false_positive_checker.yml)
 
-[**⚡ Quick Start**](#-quick-start--opnsense-alias) · [**📊 Blocklisten**](#-blocklisten) · [**🎯 Scoring**](#-wie-funktioniert-die-bewertung) · [**🏗️ Architektur**](#%EF%B8%8F-architektur) · [**⚙️ Workflows**](#%EF%B8%8F-workflows) · [**📡 Feeds**](#-feed-quellen)
+[**⚡ Quick Start**](#-quick-start--opnsense-alias) · [**📊 Blocklisten**](#-blocklisten) · [**🌐 ASN-Sperre**](#-asn-sperre-netzbetreiber) · [**🎯 Scoring**](#-wie-funktioniert-die-bewertung) · [**🏗️ Architektur**](#%EF%B8%8F-architektur) · [**⚙️ Workflows**](#%EF%B8%8F-workflows) · [**📡 Feeds**](#-feed-quellen)
 
 </div>
 
@@ -96,6 +97,14 @@
 | 🤖 [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Bot- & Scanner-IPs | **1,178,397**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Web-Schutz |
 | 🔗 [`reputation_blacklist.txt`](reputation_blacklist.txt) | Reputation Top-IPs (API, Score ≥50) | **9,990**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Ergänzung |
 
+**Zusatzlisten (eigene Workflows, unabhängig vom Scoring):**
+
+| Datei | Zweck | Einträge | Empfohlen für |
+|---|---|---:|---|
+| 🌐 [`asn/asn_drop_ipv4.txt`](asn/asn_drop_ipv4.txt) · [`asn/asn_drop_ipv6.txt`](asn/asn_drop_ipv6.txt) | Netze krimineller und auffälliger Netzbetreiber (ASN-Sperre) | **~19.400 Netze** (~15 Mio. IPv4) · **~4.200 IPv6-Netze** | OPNsense URL-Tabelle · beide Richtungen |
+| 🧾 [`asn/asn_drop_asns.txt`](asn/asn_drop_asns.txt) | Gesperrte ASNs mit Quelle und Grund (Kontrolle) | **~1.500 ASNs** | Nachschlagen bei Fehlsperren |
+| 🕵️ [`proxy/offene_proxies.txt`](proxy/offene_proxies.txt) | Offene Proxy-Server aus 14 öffentlichen Proxy-Listen (nur IPs) | **~16.000** | Ausgehend sperren |
+
 > [!NOTE]
 > **Combined-Blacklist (2 feste Parts):** Die vollständige IPv4-Liste wird als genau zwei committete Dateien `combined_threat_blacklist_ipv4_part1.txt` und `combined_threat_blacklist_ipv4_part2.txt` bereitgestellt (IP-sortiert geteilt, je ~48 MB). Diese beiden Parts sind die **kanonische Quelle**. Die frühere Einzeldatei `combined_threat_blacklist_ipv4.txt` wird nicht mehr committet (sie würde das 100-MB-GitHub-Limit pro Datei sprengen); interne Workflows erzeugen sie bei Bedarf im Runner aus den Parts. Firewall-Konsumenten (z. B. OPNsense) importieren die beiden Part-URLs als separate Aliase. Hinweis: Bei fix zwei Parts liegt die harte Obergrenze bei ~200 MB gesamt (2 × 100-MB-Limit); ein Frühwarn-Log meldet, sobald ein Part 90 MB überschreitet.
 >
@@ -111,6 +120,31 @@ all_countries_ipv4.txt  →  Alle Länder in einer Datei
 ```
 
 </details>
+
+---
+
+## 🌐 ASN-Sperre (Netzbetreiber)
+
+Statt einzelner IPs sperrt die ASN-Sperre **ganze Netzbetreiber**, die nachweislich kriminell sind oder bei denen auffällig viele Angreifer sitzen. Der Workflow **ASN-DROP** sammelt die ASNs, löst sie über [ipverse/as-ip-blocks](https://github.com/ipverse/as-ip-blocks) (CC0, BGP-Daten; Ersatz: RIPEstat) in IP-Präfixe auf und schreibt `asn/asn_drop_ipv4.txt` / `asn_drop_ipv6.txt`.
+
+| Quelle | Was übernommen wird |
+|---|---|
+| **Spamhaus ASN-DROP** | komplett (Netzbetreiber unter Kontrolle von Spam-/Cybercrime-Gruppen) |
+| **BPH_Research** (crimsonvector) | nur Risikostufe T1/T2, ohne Upstream-Anbieter und aufgelöste Firmen |
+| **Maltrail worst_asns** | nur der zweite Teil (Bulletproof-/graue Hoster), ohne die großen Hoster |
+| **Bulletproof Hosting Watch** | ASN-Tabelle des neuesten Wochenberichts |
+| **Feste eigene Liste** | 19 dauerhaft gesperrte Hoster |
+| **Dichte-Auswertung** | ThreatFox-C2, AbuseIPDB, threat.live, Dataplane (17 Listen), 7 Honeypot-Feeds, Honigtopf, FireHOL abusers_30d |
+| **ASN-Risiko** | monatliche Risiko-Bewertung (Top 250, über den Honigtopf-Workflow) |
+
+**Dichte-Regel** (je Quelle einzeln): Ein Netzbetreiber wird gesperrt, wenn er **höchstens 1 Mio. IPv4-Adressen** hat, **mindestens 5** auffällige IPs aufweist und die **Dichte mindestens 0,25 %** beträgt (mind. 1 auffällige IP je 400 Adressen). Große Clouds und Provider bleiben so automatisch außen vor.
+
+**ASN-Risiko-Regel:** Netzbetreiber bis 65.536 Adressen werden immer übernommen. Bis 1 Mio. Adressen nur, wenn sie **Hoster/VPS-Anbieter** sind (ipverse-Kategorie „hosting“, Hosting-Liste oder Name mit HOST/VPS/SERVER/CLOUD/DATACENTER).
+
+> [!IMPORTANT]
+> - **Haltezeit 14 Tage:** Netzbetreiber aus der Dichte-Auswertung bleiben bis 14 Tage nach ihrem letzten Auftauchen gesperrt (`asn/asn_dichte_haltezeit.json`). Wer sich bessert, fällt danach automatisch wieder heraus.
+> - **Feste Ausnahmen:** Cloudflare, DigitalOcean, Akamai, Contabo, Starlink, Hurricane Electric und einige Transit-/Spiele-relevante Netze werden nie über das ASN-Risiko gesperrt.
+> - **Nachvollziehbar:** `asn/asn_drop_asns.txt` nennt bei jedem ASN Quelle, Dichte bzw. Haltezeit-Datum.
 
 ---
 
@@ -216,6 +250,8 @@ Enrichment (nach Combined):
 | **Honigtopf** | stündlich (:15) | Honigtopf API → honigtopf_ips.txt |
 | **TweetFeed Monitor** | täglich 02:45 | TweetFeed.live IOCs → tweetfeed_ips.txt |
 | **Bot-Detector Blacklist** | täglich 22:45 | Bot-IPs → bot_detector_blacklist_ipv4.txt |
+| **ASN-DROP** | täglich 04:15 + 06:15 (+ manuell) | Netzbetreiber-Sperre → asn/asn_drop_ipv4.txt, asn_drop_ipv6.txt, asn_drop_asns.txt |
+| **Offene Proxies** | alle 2h (:35) + stündlich über den Report Generator | 14 Proxy-Listen → proxy/offene_proxies.txt |
 | **Auto Feed Discovery** | wöchentlich So 04:37 (+Backups 07:23, 11:47) | GitHub nach neuen Feeds durchsuchen |
 | **Auto-Feed Live Refresh** | täglich 02:15 | Aktuelle Inhalte aller auto-entdeckten Feeds als SQLite-Snapshot bauen (Combined liest ihn identitätserhaltend ein) |
 
@@ -283,6 +319,8 @@ Enrichment (nach Combined):
 02:45             TweetFeed Monitor
 03:00 (So)        CodeQL Security Scan
 04:00             CVE-to-IP Mapper
+04:15,06:15       ASN-DROP (Netzbetreiber-Sperre)
+:35 (alle 2h)     Offene Proxies (+ stündlich über Report Generator)
 04:37 (So)        Auto Feed Discovery (+Backups 07:23, 11:47)
 05:00,11:00,17:00,23:00  Honeypot Monitor
 05:00,13:00,20:00        False Positive Checker
@@ -355,6 +393,17 @@ NETSHIELD/
 ├── bot_detector_blacklist_ipv4.txt      # Bot-Detector (täglich)
 ├── reputation_blacklist.txt          # Reputation API (Round-Robin)
 │
+├── asn/
+│   ├── asn_drop_ipv4.txt                # → Firewall: Netze gesperrter Netzbetreiber
+│   ├── asn_drop_ipv6.txt                #   IPv6-Gegenstück
+│   ├── asn_drop_asns.txt                #   ASNs mit Quelle/Grund (Kontrolle)
+│   ├── asn_dichte_haltezeit.json        #   14-Tage-Haltezeit der Dichte-Netze
+│   ├── asn_risiko.txt                   #   monatliche ASN-Risiko-Bewertung (nur Nummern)
+│   └── threatfox_asn_kandidaten.txt     #   alle Dichte-Kandidaten mit Werten
+│
+├── proxy/
+│   └── offene_proxies.txt               # → Firewall: offene Proxy-Server
+│
 ├── auto_discovered_feeds.json           # Auto-entdeckte Feeds
 ├── false_positives_set.json             # FP-Whitelist
 ├── feed_health_status.json              # Feed-Status
@@ -389,6 +438,7 @@ NETSHIELD/
 | 🧊 **Anti-Churn-Ledger** | Abgelaufene IPs bekommen bei schwacher Wiedersichtung ihr eingefrorenes Ablauf-Datum zurück statt eines frischen — kein endloses Reset-Flackern mehr |
 | 📥 **Aufnahme-Warteliste** | IPs mit nur 1 Feed haben 7 Tage Zeit auf eine Kreuzbestätigung durch einen zweiten, unabhängigen Feed, statt sofort verworfen zu werden |
 | 🛑 **Ledger-Sanity-Guard** | Blockiert automatisch jedes Pruning, das mehr als die Hälfte eines Ledgers (≥1.000 Einträge) auf einen Schlag entfernen würde – löst statt der Löschung einen GitHub-Issue-Alarm aus |
+| 🌐 **ASN-Schutz** | ASN-DROP behält die alte Liste bei < 100 Spamhaus-ASNs, > 10 % fehlgeschlagenen Präfix-Abrufen oder < 1.000 Netzen; ausgefallene Zusatzquellen erzeugen nur eine Warnung; nur öffentliche (is_global) Präfixe |
 | 🔁 **Push-Retry** | 5 Versuche mit git rebase bei gleichzeitigen Commits |
 | 🔐 **Concurrency-Lock** | Jeder Workflow läuft max. 1× gleichzeitig |
 | 📦 **Cache-Isolation** | Eigene Cache-Familien pro Zweck (`seen-db-sqlite-v1`, `seen-db-v2` als JSON-Kompat-Cache, `auto-feed-daily-v1`, `watchlist-cap-state-v1` u. a.) – kein gegenseitiges Überschreiben zwischen Workflows; alte Einträge der größten Familie (~500 MB) werden nach jedem Lauf automatisch aufgeräumt (behält die 2 neuesten) |
