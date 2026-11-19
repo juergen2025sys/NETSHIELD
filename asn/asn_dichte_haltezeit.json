@@ -18,7 +18,7 @@
 "why": "Dataplane-Dichte"
 },
 "12989": {
-"density": 0.37,
+"density": 0.39,
 "last_seen": "2026-11-19",
 "name": "Black HOST Ltd",
 "why": "Dataplane-Dichte"
@@ -36,7 +36,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "132165": {
-"density": 0.25,
+"density": 0.26,
 "last_seen": "2026-11-19",
 "name": "Connect Communication",
 "why": "Dataplane-Dichte"
@@ -48,7 +48,7 @@
 "why": "Dataplane-Dichte"
 },
 "132386": {
-"density": 7.52,
+"density": 7.71,
 "last_seen": "2026-11-19",
 "name": "Usman Internet Service Provider Private Limited",
 "why": "Dataplane-Dichte"
@@ -66,7 +66,7 @@
 "why": "Dataplane-Dichte"
 },
 "133450": {
-"density": 3.61,
+"density": 4.1,
 "last_seen": "2026-11-19",
 "name": "University Of Chittagong",
 "why": "Dataplane-Dichte"
@@ -126,7 +126,7 @@
 "why": "Dataplane-Dichte"
 },
 "134932": {
-"density": 0.33,
+"density": 0.29,
 "last_seen": "2026-11-19",
 "name": "VORTEX INFOWAY PRIVATE LIMITED",
 "why": "Dataplane-Dichte"
@@ -138,7 +138,7 @@
 "why": "threat.live-Dichte"
 },
 "135300": {
-"density": 0.82,
+"density": 0.8,
 "last_seen": "2026-11-19",
 "name": "Myanmar Broadband Telecom Co., Ltd",
 "why": "Dataplane-Dichte"
@@ -150,7 +150,7 @@
 "why": "Dataplane-Dichte"
 },
 "135377": {
-"density": 0.5,
+"density": 0.49,
 "last_seen": "2026-11-19",
 "name": "UCLOUD INFORMATION TECHNOLOGY (HK) LIMITED",
 "why": "Honeypot-Feeds-Dichte"
@@ -174,7 +174,7 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "135572": {
-"density": 2.58,
+"density": 2.5,
 "last_seen": "2026-11-19",
 "name": "ACT International Telecom Limited",
 "why": "Dataplane-Dichte"
@@ -186,7 +186,7 @@
 "why": "Dataplane-Dichte"
 },
 "135687": {
-"density": 0.88,
+"density": 0.98,
 "last_seen": "2026-11-19",
 "name": "Qwistel Network Service Private Limited",
 "why": "threat.live-Dichte"
@@ -204,7 +204,7 @@
 "why": "Dataplane-Dichte"
 },
 "136052": {
-"density": 0.26,
+"density": 0.27,
 "last_seen": "2026-11-19",
 "name": "PT Cloud Hosting Indonesia",
 "why": "Dataplane-Dichte"
@@ -216,7 +216,7 @@
 "why": "AbuseIPDB-Dichte"
 },
 "136255": {
-"density": 0.32,
+"density": 0.33,
 "last_seen": "2026-11-19",
 "name": "Telecom International Myanmar Company Limited",
 "why": "Dataplane-Dichte"
@@ -252,7 +252,7 @@
 "why": "Honigtopf-Dichte"
 },
 "136525": {
-"density": 1.03,
+"density": 1.06,
 "last_seen": "2026-11-19",
 "name": "Wancom (Pvt) Ltd.",
 "why": "Dataplane-Dichte"
@@ -276,7 +276,7 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "137076": {
-"density": 0.28,
+"density": 0.29,
 "last_seen": "2026-11-19",
 "name": "TTSL-ISP DIVISION",
 "why": "Dataplane-Dichte"
@@ -342,7 +342,7 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "138871": {
-"density": 0.66,
+"density": 0.7,
 "last_seen": "2026-11-19",
 "name": "PT. Trans Indonesia Superkoridor",
 "why": "Dataplane-Dichte"
@@ -363,6 +363,12 @@
 "density": 0.33,
 "last_seen": "2026-11-19",
 "name": "PT. KUPANG INTERMEDIA",
+"why": "Dataplane-Dichte"
+},
+"140164": {
+"density": 0.49,
+"last_seen": "2026-11-19",
+"name": "ConnectSpacelink Infomedia Pvt Ltd",
 "why": "Dataplane-Dichte"
 },
 "140900": {
@@ -408,7 +414,7 @@
 "why": "threat.live-Dichte"
 },
 "141342": {
-"density": 0.97,
+"density": 0.95,
 "last_seen": "2026-11-19",
 "name": "FIBERISH (PVT) LTD",
 "why": "Dataplane-Dichte"
@@ -504,7 +510,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "14987": {
-"density": 12.7,
+"density": 12.6,
 "last_seen": "2026-11-19",
 "name": "Rethem Hosting LLC",
 "why": "Dataplane-Dichte"
@@ -570,7 +576,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "152584": {
-"density": 0.73,
+"density": 0.75,
 "last_seen": "2026-11-19",
 "name": "Infinivan Incorporated",
 "why": "Dataplane-Dichte"
@@ -660,7 +666,7 @@
 "why": "Dataplane-Dichte"
 },
 "197490": {
-"density": 1.56,
+"density": 1.76,
 "last_seen": "2026-11-19",
 "name": "SIRIUS VP LLC",
 "why": "Dataplane-Dichte"
@@ -672,16 +678,22 @@
 "why": "ThreatFox C2-Dichte"
 },
 "197960": {
-"density": 1.17,
+"density": 1.37,
 "last_seen": "2026-11-19",
 "name": "LIMITED LIABILITY COMPANY \"INTERNET SERVICE PROVIDER \"MEGA\"",
 "why": "Dataplane-Dichte"
 },
 "198093": {
-"density": 0.98,
+"density": 1.17,
 "last_seen": "2026-11-19",
 "name": "Foreningen for digitala fri- och rattigheter",
 "why": "AbuseIPDB-Dichte"
+},
+"198338": {
+"density": 0.98,
+"last_seen": "2026-11-19",
+"name": "NEAPOL GROUP LLC",
+"why": "Dataplane-Dichte"
 },
 "198356": {
 "density": 2.64,
@@ -696,7 +708,7 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "198798": {
-"density": 38.67,
+"density": 38.77,
 "last_seen": "2026-11-19",
 "name": "IFO.net Internet Service GmbH",
 "why": "Dataplane-Dichte"
@@ -804,7 +816,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "201688": {
-"density": 0.68,
+"density": 0.78,
 "last_seen": "2026-11-19",
 "name": "Bilgi Teknolojileri ve iletisim Kurumu",
 "why": "Dataplane-Dichte"
@@ -828,7 +840,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "202011": {
-"density": 0.65,
+"density": 0.72,
 "last_seen": "2026-11-19",
 "name": "EN+ TELECOM LLC",
 "why": "Dataplane-Dichte"
@@ -852,7 +864,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "202425": {
-"density": 0.42,
+"density": 0.43,
 "last_seen": "2026-11-19",
 "name": "IP Volume inc",
 "why": "Dataplane-Dichte"
@@ -888,7 +900,7 @@
 "why": "Dataplane-Dichte"
 },
 "203451": {
-"density": 0.73,
+"density": 0.75,
 "last_seen": "2026-11-19",
 "name": "K-telekom LLC",
 "why": "Dataplane-Dichte"
@@ -924,13 +936,13 @@
 "why": "threat.live-Dichte"
 },
 "204584": {
-"density": 1.66,
+"density": 0.59,
 "last_seen": "2026-11-19",
 "name": "Qnet LLC",
 "why": "Dataplane-Dichte"
 },
 "204685": {
-"density": 3.91,
+"density": 4.3,
 "last_seen": "2026-11-19",
 "name": "PE KRYVENKO SERGIY ANDRIYOVYCH",
 "why": "Dataplane-Dichte"
@@ -1194,7 +1206,7 @@
 "why": "threat.live-Dichte"
 },
 "209366": {
-"density": 0.86,
+"density": 0.62,
 "last_seen": "2026-11-19",
 "name": "SEMrush CY LTD",
 "why": "AbuseIPDB-Dichte"
@@ -1224,7 +1236,7 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "209605": {
-"density": 4.17,
+"density": 4.12,
 "last_seen": "2026-11-19",
 "name": "UAB Host Baltic",
 "why": "Dataplane-Dichte"
@@ -1266,7 +1278,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "210402": {
-"density": 0.33,
+"density": 0.35,
 "last_seen": "2026-11-19",
 "name": "Hala Al Rafidain Company for Communications and Internet LTD.",
 "why": "Honeypot-Feeds-Dichte"
@@ -1284,7 +1296,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "210731": {
-"density": 2.73,
+"density": 2.34,
 "last_seen": "2026-11-19",
 "name": "Forening for DotSrc",
 "why": "Dataplane-Dichte"
@@ -1410,7 +1422,7 @@
 "why": "Dataplane-Dichte"
 },
 "212825": {
-"density": 8.2,
+"density": 8.59,
 "last_seen": "2026-11-19",
 "name": "Novitni Informaciini Merezhi Ltd",
 "why": "Dataplane-Dichte"
@@ -1446,7 +1458,7 @@
 "why": "Dataplane-Dichte"
 },
 "213412": {
-"density": 63.41,
+"density": 63.48,
 "last_seen": "2026-11-19",
 "name": "ONYPHE SAS",
 "why": "Dataplane-Dichte"
@@ -1476,7 +1488,7 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "21378": {
-"density": 0.43,
+"density": 0.42,
 "last_seen": "2026-11-19",
 "name": "PJSC Rostelecom",
 "why": "Dataplane-Dichte"
@@ -1560,7 +1572,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "214940": {
-"density": 1.56,
+"density": 2.15,
 "last_seen": "2026-11-19",
 "name": "KPROHOST LLC",
 "why": "AbuseIPDB-Dichte"
@@ -1698,7 +1710,7 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "23888": {
-"density": 0.87,
+"density": 0.9,
 "last_seen": "2026-11-19",
 "name": "National Telecommunication Corporation",
 "why": "Dataplane-Dichte"
@@ -1776,9 +1788,15 @@
 "why": "Dataplane-Dichte"
 },
 "263761": {
-"density": 0.31,
+"density": 0.27,
 "last_seen": "2026-11-19",
 "name": "Broadcom Group, S.A",
+"why": "Dataplane-Dichte"
+},
+"263891": {
+"density": 0.29,
+"last_seen": "2026-11-19",
+"name": "TURBONET INFO E TELECOM",
 "why": "Dataplane-Dichte"
 },
 "263913": {
@@ -1836,7 +1854,7 @@
 "why": "Dataplane-Dichte"
 },
 "265083": {
-"density": 0.78,
+"density": 0.68,
 "last_seen": "2026-11-19",
 "name": "UltraWeb Telecomunicacoes LTDA",
 "why": "Dataplane-Dichte"
@@ -1860,7 +1878,7 @@
 "why": "Dataplane-Dichte"
 },
 "265547": {
-"density": 0.39,
+"density": 0.42,
 "last_seen": "2026-11-19",
 "name": "GigNet, S.A. de C.V.",
 "why": "Dataplane-Dichte"
@@ -1938,7 +1956,7 @@
 "why": "Dataplane-Dichte"
 },
 "266574": {
-"density": 1.07,
+"density": 0.88,
 "last_seen": "2026-11-19",
 "name": "GMT Multimidia",
 "why": "Dataplane-Dichte"
@@ -1962,7 +1980,7 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "266732": {
-"density": 0.29,
+"density": 0.27,
 "last_seen": "2026-11-19",
 "name": "FIBERTEL PERU S.A.",
 "why": "Dataplane-Dichte"
@@ -2207,6 +2225,12 @@
 "name": "INNO FIBER INFI CIA LTDA",
 "why": "Dataplane-Dichte"
 },
+"271916": {
+"density": 0.26,
+"last_seen": "2026-11-19",
+"name": "TELECABLE BANILEJO S.R.L",
+"why": "Dataplane-Dichte"
+},
 "271936": {
 "density": 1.56,
 "last_seen": "2026-11-19",
@@ -2250,7 +2274,7 @@
 "why": "threat.live-Dichte"
 },
 "273171": {
-"density": 0.78,
+"density": 0.65,
 "last_seen": "2026-11-19",
 "name": "SERVICIOS Y ADMINISTRACION DE DATOS Y VIDEO, SOCIEDAD ANONIMA DE CAPITAL VARIAB",
 "why": "Dataplane-Dichte"
@@ -2298,7 +2322,7 @@
 "why": "Dataplane-Dichte"
 },
 "29303": {
-"density": 0.32,
+"density": 0.33,
 "last_seen": "2026-11-19",
 "name": "Perm Internet Company LLC",
 "why": "Dataplane-Dichte"
@@ -2358,7 +2382,7 @@
 "why": "Dataplane-Dichte"
 },
 "34279": {
-"density": 0.27,
+"density": 0.25,
 "last_seen": "2026-11-19",
 "name": "S.C. Teletrans S.A.",
 "why": "Dataplane-Dichte"
@@ -2370,7 +2394,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "35004": {
-"density": 0.3,
+"density": 0.32,
 "last_seen": "2026-11-19",
 "name": "Branch Enterprise \"Netgroup-Service\"",
 "why": "Dataplane-Dichte"
@@ -2382,7 +2406,7 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "35213": {
-"density": 0.31,
+"density": 0.35,
 "last_seen": "2026-11-19",
 "name": "TOV \"Kompjuternie Merezhi\"",
 "why": "Dataplane-Dichte"
@@ -2406,7 +2430,7 @@
 "why": "Dataplane-Dichte"
 },
 "37004": {
-"density": 1.33,
+"density": 1.35,
 "last_seen": "2026-11-19",
 "name": "Suburban Broadband Ltd",
 "why": "Dataplane-Dichte"
@@ -2418,7 +2442,7 @@
 "why": "Dataplane-Dichte"
 },
 "37248": {
-"density": 0.45,
+"density": 0.44,
 "last_seen": "2026-11-19",
 "name": "Phase3 Telecom Limited",
 "why": "Dataplane-Dichte"
@@ -2461,7 +2485,7 @@
 },
 "396507": {
 "density": 0.49,
-"last_seen": "2026-11-18",
+"last_seen": "2026-11-19",
 "name": "Emerald Onion",
 "why": "AbuseIPDB-Dichte"
 },
@@ -2478,7 +2502,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "398044": {
-"density": 0.39,
+"density": 0.47,
 "last_seen": "2026-11-19",
 "name": "Trinity Network Solutions",
 "why": "Dataplane-Dichte"
@@ -2490,7 +2514,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "398324": {
-"density": 13.09,
+"density": 13.13,
 "last_seen": "2026-11-19",
 "name": "Censys, Inc.",
 "why": "Dataplane-Dichte"
@@ -2628,7 +2652,7 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "41820": {
-"density": 0.46,
+"density": 0.48,
 "last_seen": "2026-11-19",
 "name": "New Information Systems PP",
 "why": "Dataplane-Dichte"
@@ -2643,7 +2667,7 @@
 "density": 0.45,
 "last_seen": "2026-11-19",
 "name": "w1n ltd",
-"why": "Honeypot-Feeds-Dichte"
+"why": "AbuseIPDB-Dichte"
 },
 "42397": {
 "density": 0.65,
@@ -2664,7 +2688,7 @@
 "why": "Dataplane-Dichte"
 },
 "42905": {
-"density": 0.33,
+"density": 0.29,
 "last_seen": "2026-11-19",
 "name": "LIMANET Ltd.",
 "why": "Dataplane-Dichte"
@@ -2682,7 +2706,7 @@
 "why": "Dataplane-Dichte"
 },
 "43060": {
-"density": 0.68,
+"density": 0.75,
 "last_seen": "2026-11-19",
 "name": "IPLUS LLC",
 "why": "Dataplane-Dichte"
@@ -2694,7 +2718,7 @@
 "why": "Dataplane-Dichte"
 },
 "43633": {
-"density": 1.0,
+"density": 1.06,
 "last_seen": "2026-11-19",
 "name": "Gigabit-Online LLC",
 "why": "Dataplane-Dichte"
@@ -2724,7 +2748,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "44941": {
-"density": 0.52,
+"density": 0.54,
 "last_seen": "2026-11-19",
 "name": "ZAO Astrakhan Digital Television",
 "why": "Dataplane-Dichte"
@@ -2766,13 +2790,13 @@
 "why": "Dataplane-Dichte"
 },
 "47898": {
-"density": 1.35,
+"density": 1.44,
 "last_seen": "2026-11-19",
 "name": "RPC HomeNet Ltd.",
 "why": "Dataplane-Dichte"
 },
 "48004": {
-"density": 0.78,
+"density": 0.84,
 "last_seen": "2026-11-19",
 "name": "PE Tsibrankov Konstantin Igorevich",
 "why": "Dataplane-Dichte"
@@ -2849,6 +2873,12 @@
 "name": "Nice IT Services Group Inc.",
 "why": "ThreatFox C2-Dichte"
 },
+"49491": {
+"density": 0.28,
+"last_seen": "2026-11-19",
+"name": "PE Sukonnik Mukola Valeriyovuch",
+"why": "Dataplane-Dichte"
+},
 "49824": {
 "density": 0.48,
 "last_seen": "2026-11-19",
@@ -2874,13 +2904,13 @@
 "why": "Dataplane-Dichte"
 },
 "50012": {
-"density": 0.75,
+"density": 0.78,
 "last_seen": "2026-11-19",
 "name": "LLC \"BEST-LINK\"",
 "why": "Dataplane-Dichte"
 },
 "50043": {
-"density": 0.65,
+"density": 0.78,
 "last_seen": "2026-11-19",
 "name": "Korzhos Oleg",
 "why": "Dataplane-Dichte"
@@ -2898,28 +2928,28 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "50360": {
-"density": 0.75,
+"density": 0.73,
 "last_seen": "2026-11-19",
 "name": "Tamatiya EOOD",
 "why": "Honeypot-Feeds-Dichte"
 },
 "50581": {
-"density": 0.29,
+"density": 0.28,
 "last_seen": "2026-11-19",
 "name": "Ukrainian Telecommunication Group LLC",
 "why": "Dataplane-Dichte"
 },
 "50648": {
-"density": 0.75,
+"density": 0.78,
 "last_seen": "2026-11-19",
 "name": "PE UAinet",
 "why": "Dataplane-Dichte"
 },
 "50662": {
-"density": 0.59,
+"density": 0.52,
 "last_seen": "2026-11-19",
 "name": "PP \"Scientific-industrial enterprise 'Leokom'",
-"why": "Honeypot-Feeds-Dichte"
+"why": "Dataplane-Dichte"
 },
 "50751": {
 "density": 0.3,
@@ -2940,7 +2970,7 @@
 "why": "Dataplane-Dichte"
 },
 "51396": {
-"density": 2.03,
+"density": 2.07,
 "last_seen": "2026-11-19",
 "name": "Pfcloud UG (haftungsbeschrankt)",
 "why": "Honeypot-Feeds-Dichte"
@@ -2987,8 +3017,14 @@
 "name": "Cotel Ltda.",
 "why": "Honeypot-Feeds-Dichte"
 },
+"52601": {
+"density": 0.29,
+"last_seen": "2026-11-19",
+"name": "BIZZ INTERNET LTDA",
+"why": "Dataplane-Dichte"
+},
 "52613": {
-"density": 0.66,
+"density": 0.63,
 "last_seen": "2026-11-19",
 "name": "GIGA MAIS FIBRA TELECOMUNICACOES S.A.",
 "why": "Dataplane-Dichte"
@@ -3024,7 +3060,7 @@
 "why": "Dataplane-Dichte"
 },
 "56400": {
-"density": 2.5,
+"density": 2.42,
 "last_seen": "2026-11-19",
 "name": "SPD Chernega Aleksandr Anatolevich",
 "why": "Dataplane-Dichte"
@@ -3084,7 +3120,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "57871": {
-"density": 0.27,
+"density": 0.29,
 "last_seen": "2026-11-19",
 "name": "TeleCentr Ltd.",
 "why": "Dataplane-Dichte"
@@ -3108,7 +3144,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "58322": {
-"density": 0.61,
+"density": 0.69,
 "last_seen": "2026-11-19",
 "name": "Hala Al Rafidain Company for Communications and Internet LTD.",
 "why": "Dataplane-Dichte"
@@ -3144,7 +3180,7 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "59497": {
-"density": 0.45,
+"density": 0.44,
 "last_seen": "2026-11-19",
 "name": "Buknet LLC",
 "why": "Dataplane-Dichte"
@@ -3197,6 +3233,12 @@
 "name": "FGUP \"GRCHC\"",
 "why": "Dataplane-Dichte"
 },
+"61324": {
+"density": 0.65,
+"last_seen": "2026-11-19",
+"name": "D-TELEKOM LLC",
+"why": "Dataplane-Dichte"
+},
 "61519": {
 "density": 1.07,
 "last_seen": "2026-11-19",
@@ -3222,7 +3264,7 @@
 "why": "Dataplane-Dichte"
 },
 "61888": {
-"density": 0.34,
+"density": 0.29,
 "last_seen": "2026-11-19",
 "name": "GFT COMERCIO DE TELEFONIA E COMUNICACAO LTDA",
 "why": "Dataplane-Dichte"
@@ -3270,7 +3312,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "63996": {
-"density": 0.27,
+"density": 0.28,
 "last_seen": "2026-11-19",
 "name": "Mazeda Networks Limited",
 "why": "Dataplane-Dichte"
@@ -3300,7 +3342,7 @@
 "why": "Dataplane-Dichte"
 },
 "8814": {
-"density": 0.39,
+"density": 0.4,
 "last_seen": "2026-11-19",
 "name": "Aztelekom LLC",
 "why": "Dataplane-Dichte"
@@ -3318,7 +3360,7 @@
 "why": "Dataplane-Dichte"
 },
 "9541": {
-"density": 1.33,
+"density": 1.34,
 "last_seen": "2026-11-19",
 "name": "Cyber Internet Services (Private) Limited",
 "why": "Dataplane-Dichte"
