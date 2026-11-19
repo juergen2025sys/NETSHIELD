@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-19 19:53 CET
-# Eintraege: 32887
+# Aktualisiert: 2026-11-19 22:01 CET
+# Eintraege: 32916
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -708,6 +708,7 @@
 3i5px2hibsyityv6jixnqba35yz25jekbwwumjdxjqzt3euqsygjx5id.onion
 3i8e3aty.ef90bet.com
 3igbupne.eng-bpzone.com
+3iksoaw0.tpdistanbul.com
 3imyvvfh.slavyera.com
 3ivn3wjq.eastcoastseafoodsupply.com
 3jbhn5gsv7yd22n7yasftjab2aystm7mw2x3cvonzipsrnxpjqufmgyd.onion
@@ -2067,6 +2068,7 @@ admin.model-point.click
 admin.sm-veo.com
 admin.topsite.one
 admin9.planden35.click
+adminbigprint.com
 adminetole.icu
 adminfg777.com
 administraciondefincasalbatera.es
@@ -2153,6 +2155,7 @@ aesthetdrama.digital
 aetherframework.digital
 aetherxx.com
 aeyibtnr.com
+aez.asia211.org
 af.asah189.org
 af2tfcqmwc3crg56d5iirf3u5znrqc36wxn4mst4ytljm56dwtxgkfid.onion
 af55l61r.en-us-zen-sulin.com
@@ -2257,6 +2260,7 @@ agrotarvek.kz
 ags-offshore.com
 agsdef.com
 agvw.bcgame90.casino
+agwe.store
 aha719f1.gluccotrust--bites.com
 ahdwvzwy.jadoou.christmas
 ahiak.com
@@ -2428,6 +2432,9 @@ al-waely.iq
 al-waely.net
 al.333pwk.org
 al.396zk.net
+al06.store
+al07.store
+al08.store
 al10.store
 al6.amanbet87.org
 alabamalimoservice.com
@@ -3912,6 +3919,7 @@ azflexfit.com
 azfnlhbk.starlight-workflow-hub.christmas
 azhentong111.top
 azimurs.com
+aziz-info.epizy.com
 azj9wm5k.fununetadris.shop
 azktfv.wildflora-processing-network.garden
 azm8xtz8.us-us-us-blinzador.com
@@ -4196,6 +4204,7 @@ basecodereset.com
 basehex1267.top
 basepiip9911.icu
 basequill9.com
+baseupdate2798.com
 bashe4aec32kr6zbifwd5x6xgjsmhg4tbowrbx4pneqhc5mqooyifpid.onion
 basheasy.com
 bashed52orwi7qoyvmcfkdnuaogta4inpojfd6cthzkp4qpsq64ux4ad.onion
@@ -4295,6 +4304,7 @@ bcmsc.deckico.bet
 bcncdncl-ns.beer
 bcopleesr.com
 bcouiutk.bordvipbet.com
+bcr.asia211.org
 bcrealestateagency.com
 bcrfix.com
 bctqs.technologiaiviz.hu
@@ -12390,6 +12400,7 @@ gozmmmaa.duckdns.org
 gozog.run
 gp0bowhq.bet90boro.com
 gp108.org
+gp11.org
 gp2nzna7.taxrundo.hu
 gp5ysexe.kaarenorge.com
 gpbohyg5.greaternewzionbc.org
@@ -12533,6 +12544,7 @@ gro.runtimeforge.cc
 groeschelcompany.com
 grofwgh.biz
 grok.seescanf.cc
+grokaiagenticattkexp.net
 gros59kalmso1.duckdns.org
 gros59kalmso2.duckdns.org
 groundinvest.com
@@ -15177,6 +15189,7 @@ juj.psgiran.news
 juj.realmadridiran.news
 jujupuluz.icu
 jul.juelenemaerke.dk
+julevoru.workers.dev
 juliaannlong.depaolisremodeling.com
 julicishotelandsuite.com
 july-feded-plants-workflow.garden
@@ -16776,6 +16789,7 @@ lkls.kernelbridge.top
 lkol.dyn
 lkxwuddc.northworkflow.christmas
 ll.aksara87.org
+ll.gp11.org
 ll96bzym.salamatyari.ir
 lla.firesupport.com
 lla.fixsm188.top
@@ -17485,6 +17499,7 @@ malware.phimsexz.pro
 malware.seegersbelettering.nl
 malware.xemphim3x.tv
 malwawre.xoilactvqq.live
+mamalamakiska.fun
 mamalupe.es
 mamamiadomio.cfd
 mamaspizzansubsmenu.com
@@ -20969,6 +20984,7 @@ partidoinovabrasil.org.br
 partner-folder.info
 partnersincredit.com
 partnertok.closer1ook.garden
+party-villa-balloons.pages.dev
 partyboxlovely.com
 partyfriends.cfd
 partylimony.com
@@ -21723,6 +21739,7 @@ postaconsultora.com
 postaspen18.com
 postdatak.duckdns.org
 postofficeltdc.com
+postu.cloud
 potassium.vitacocoyougolocobecauseyouaresodamndeliciocobarampam.st
 potassium1.vitacocoyougolocobecauseyouaresodamndeliciocobarampam.st
 potassium2.vitacocoyougolocobecauseyouaresodamndeliciocobarampam.st
@@ -22847,6 +22864,7 @@ r4zhwkgz.betbuf.live
 r5pzk86j.diorauction.com
 r5vxurxp.ebaz.store
 r5zs3qn0.eng--cognisurge.com
+r63o8kfc.ceomutual.com.mx
 r64h4yde.us-energyrevolution.com
 r6qobdol.laken.store
 r6ud44az.eng-eng-slimsounds.com
@@ -25919,6 +25937,7 @@ start.csmq.workers.dev
 startitit2-23969.portmap.host
 startmenuexperiencehosting.ydns.eu
 startmonkey.cfd
+startupclaudemain.net
 starvixos.com
 stashngrab.com
 stat-collection-engine-performance-view.wiki
@@ -28630,6 +28649,7 @@ v91rw911.betraca.bet
 v9rvls59.stack-matrix.digital
 v9sro8y6.jumar.store
 v9zv58t0.slavyera.com
+va.ankasanet4drtp.org
 va88.games
 va9ucaqk.bossbey13.click
 vacationrentalvirginia.com
@@ -30429,6 +30449,7 @@ www.cbdpurereview.com
 www.cbgeophysical.com
 www.ccsavvocati.it
 www.cec.edu.cv
+www.ceenux.com
 www.cell-engineering.de
 www.cement-chemistry.com
 www.centroquirurgicointernacional.net
@@ -30436,6 +30457,8 @@ www.ceylongemocean.com
 www.chase6dice6nt7.net
 www.chefdanielepriori.it
 www.chefstablehub.com
+www.chemspecsolutions.com
+www.chicagowushu.com
 www.chinagasholdings.space
 www.chioscohavanacaorle.com
 www.chipskk.com
@@ -30463,6 +30486,7 @@ www.collomb.com
 www.company-maintenance.org
 www.comtecdev.com
 www.concreteasap.com
+www.congecar2000.com
 www.consegna-express.it
 www.constructeddigital.com
 www.consultarprocesosramajudicial.com.co
@@ -30553,6 +30577,7 @@ www.ekramsalesbackup1.org
 www.ekramsalesbackup2.org
 www.el-jarad.de
 www.electricians-london.co.uk
+www.elisirdelbenessere.it
 www.elolivarspa.cl
 www.emagetranscripts.com
 www.embalafacil.es
@@ -30577,6 +30602,7 @@ www.f168.today
 www.f5u-uhpdrtwj6azysqpud.net
 www.f9p0blhu2vw6rkwo.com
 www.fabrica.cat
+www.fabriziobiagioli.it
 www.fairmounthomestaging.com
 www.faithpointum.org
 www.falgo.se
@@ -30724,6 +30750,7 @@ www.ipermedia.cloud
 www.ipivot.it
 www.ipregionchecker.org
 www.ironwoodply.com
+www.isecure-cctv.com
 www.isuzucorluservis.com
 www.italian-university.com
 www.j1spices.com
@@ -30890,6 +30917,7 @@ www.mirkomiletic.rs
 www.missnikkilane.com
 www.mobile1.com
 www.mobilicassara.com
+www.modeldent.it
 www.mojomama.org
 www.montagnafutura.com
 www.moonlightweddingservices.co.uk
@@ -30982,6 +31010,7 @@ www.park-promote-portability.xyz
 www.pastificioilmattarello.it
 www.patrickmduggan.com
 www.patzcuaro.gob.mx
+www.pawtage.com.au
 www.peekabooslots.com
 www.pepperandlacephotography.com
 www.pepxly.makeup
