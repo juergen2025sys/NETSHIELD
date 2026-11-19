@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-19 14:42 CET
-# Eintraege: 32833
+# Aktualisiert: 2026-11-19 17:36 CET
+# Eintraege: 32860
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3495,6 +3495,7 @@ ashokbpatel.com
 ashraydesign.com
 ashsynt.p7ickmuch.lat
 ashwinbk.com
+asia211.org
 asiancon.com
 asimo.store
 asioklaydpory.com
@@ -4393,6 +4394,7 @@ belamobili.com
 belfryledger.top
 belgrade.edu.rs
 beliefdesk.xyz
+beliefridge.xyz
 belieftrack.cfd
 beliefworks.cfd
 believedtobeclean.ddns.net
@@ -5000,6 +5002,7 @@ bo.apij4ya.org
 bo.appel4d.com
 bo787.com
 board.go-frame89.one
+board.skyworks.wiki
 board8.creekpath.lol
 boardgamelinks.com
 boatdesk.xyz
@@ -7041,6 +7044,7 @@ colonyparklakeside.org
 coloradoaffordablelawyer.com
 coloradoconstructionsupply.com
 coloradomarketingresources.com
+coloradoresearchpeptides.com
 colorvinaccia.it
 colourstravel.co.uk
 columna.lol
@@ -7198,6 +7202,7 @@ contractingwithanchor.com
 contractmanufacturers.in
 contractor.click
 contratotemporario.ammadvocacia.com
+controlinterno2039.duckdns.org
 conv-wagon.cryptostack.lat
 conv.doceditorinc.com
 converzed.com
@@ -10569,6 +10574,7 @@ federicolosito.com
 fedij.com
 fedrvhjy.click
 feds.iphaven.qzz.io
+feed.blend-season23.today
 feedspanone.net
 feedweave14.com
 feersona.net
@@ -10993,6 +10999,7 @@ fog.blacklabelfremont.com
 fog.jangkarsm188.top
 fog.psgiran.news
 fogdev.org
+foheko.workers.dev
 foipwjgt.paketmalam.vip
 foivs.highkickstkd.com
 fol9.com
@@ -11448,6 +11455,7 @@ g-sparts.com
 g.amin90.org
 g.anakraja87.org
 g.aria88.net
+g.asdlot.org
 g.cuit8.org
 g.dak69.org
 g.dax96.org
@@ -11737,6 +11745,7 @@ geliodor.eu
 gelmedi.lol
 gelsintatil.com
 geminicii.co.com
+geminoargotai.net
 geminyw.xyz
 gemscocl.com
 gen.sm188dvlv.lat
@@ -14064,6 +14073,7 @@ index.brew-reef.lat
 index.gentle-weekly.lol
 index.ridgefield.lol
 index.searchchinas.top
+index.townweather.today
 indf.betawarz.com
 indiagov.duckdns.org
 indiainlens.com
@@ -15163,6 +15173,7 @@ june-fed-plant-workflow.garden
 junebrook.cc
 jungle-prada-tavern.site
 jungstudios.co
+junkforkfunrat-43850.portmap.host
 junm.run
 junovzz0.eng-slimsounds.com
 juraeinmaleins.de
@@ -15999,6 +16010,7 @@ kucabi.de
 kuciel.com.pl
 kudoassam.org
 kuechen-welt.eu
+kufazworld.duckdns.org
 kufflet.com
 kuilfgfd.cc
 kujengana.org
@@ -20537,6 +20549,7 @@ orlandosmuncy.com
 orluna.blog
 ornejeve.microfloraresource.garden
 ornikol232.life
+oromah.org
 oroojloo.com
 orospucocu.sbs
 orthodoxok.com
@@ -21140,6 +21153,7 @@ perfume-casablanca.com
 pergolamimosa.top
 peridotskerry.top
 permanentmakeup-andric.de
+perplexityauauai.net
 perps.fun-apply.com
 persembe-nakliyat.com.tr
 persian.sex
@@ -21390,6 +21404,7 @@ pitainterior.com
 pitch-cast.p7ickmuch.lat
 pitchgb.cyou
 pitmurr.zsatom.hu
+pitobi.ddns.net
 pitrouzub.cfd
 pittnertour.cz
 pituf.vigaf.hu
@@ -22622,6 +22637,7 @@ queue.cdnbazaar.xyz
 queue.fastclimate.click
 queue.grovewest89.club
 queue.prooutlet58.website
+queue.restorefabric.work
 queue8.forestbrief.website
 queue8.vibepulse.one
 qugkkyacgcsukaua.xyz
@@ -23545,6 +23561,7 @@ rmxixoixm.pdfbama.com
 rmxohycah.sky7bet.casino
 rmxuj8se.sprutte5t.lat
 rmyotbx.bahiscart.com
+rn.sortv3s9hcjlfag9n.shop
 rn0mptxh.anodaz.tv
 rn0ss-index.doe-negotation.surf
 rn255nbo.eng-slimsounds.com
@@ -24019,6 +24036,7 @@ s01692.star-layer.com
 s0bhultx.thirtyonehat.net
 s0ls07nv.www-genesisrevival.com
 s0y9huzr.ravanshenasibartar.com
+s1.asia211.org
 s1408.byte-buff.com
 s1408.house-spirit.com
 s1408.novel-layer.com
@@ -24414,6 +24432,7 @@ sciencelifedata.com
 scissormasterstanningsalon.com
 scjzlqeyk.hazzarat.world
 scoalaruncu.ro
+scooter-distinct.tun.ply.gg
 scope-quest.com
 scottpwilliamslaw.com
 scottsdalemobilewindowtinting.com
@@ -25140,6 +25159,7 @@ skyery-auto.com
 skyfoxcs.co.za
 skygatewholesale.net
 skynet-i.asuscomm.com
+skynet1488.mywire.org
 skyprotech.ru
 skytopsteakhouse.com
 skyvanto.id
@@ -26874,6 +26894,7 @@ tesladiagnosticclinic.com
 test-cx-origin.api.informa.com
 test-drive-iran.com
 test.227api.com
+test.98web.eu.org
 test.accendente.tn
 test.adriance.workers.dev
 test.dnslogger.site
@@ -29957,6 +29978,7 @@ wjwbqeuni4zslbm4cduvo7uwyo653k4gdx2x4irj4zkrwyerksdcxryd.onion
 wjxhax.jackyleeschinesecuisine.com
 wjyfieh.evaz.io
 wjyt.betturkey.bet
+wk.asdlot.org
 wk00z1ey.vip1xbet.org
 wkblxv.shop-thyrafemmebalance.com
 wkeysfdb.stacknexus.top
@@ -30200,6 +30222,7 @@ wvvbpwt.enfejar.game
 wvvyvhcadohpdpahcds.home-eye-app.com
 wvw.akuatoto.net
 ww.anka4d.org
+ww.ankasanet4drtp.org
 ww.maskelibros.cl
 ww2.tdm-bg.org
 ww25.trybuilder.website
@@ -30548,6 +30571,7 @@ www.flowmatter.org
 www.fluffypumpkin.southcastle.com
 www.flyblue.com.au
 www.fondazioneoav.it
+www.formulario.inpulsestore.com.br
 www.fourdata.com.au
 www.foxnevs.com
 www.franksdigitaltv.com
@@ -30650,6 +30674,7 @@ www.ikukuomaprojectbackup.com
 www.ikukuomaprojectbackup1.com
 www.ikukuomaprojectbackup2.com
 www.ilgiardinodicrocus.it
+www.ilsentierodellupo.it
 www.iltat.com
 www.iltatbackup1.com
 www.iltatbackup2.com
@@ -30891,6 +30916,7 @@ www.noithatotolaocai.com
 www.novashow.com.cn
 www.ntokozoyingwana.com
 www.ntpardavimai.lt
+www.nue-immobilien.de
 www.nwa.space
 www.nyankids.com
 www.nypdprosecutorcorruption.com
@@ -31288,6 +31314,7 @@ x.eltofeq.com
 x.gam99.org
 x.gl111.org
 x.goo55.org
+x.gp108.org
 x089w0f5.btyek.boats
 x0ih2pfd.scottpwilliamslaw.com
 x0ihfh5u.asesoriamerenlinea.com
