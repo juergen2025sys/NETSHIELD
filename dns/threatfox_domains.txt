@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-19 11:58 CET
-# Eintraege: 32803
+# Aktualisiert: 2026-11-19 14:42 CET
+# Eintraege: 32833
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -155,6 +155,7 @@
 108h764sg7npw.xyz
 10buigpz.bossbey19.click
 10kgdc.com
+111.127.148.146.bc.googleusercontent.com
 1112.688608.xyz
 11181118.icu
 112fotografiebrandweerhaaglanden.nl
@@ -1585,6 +1586,7 @@
 960gz3a6.bossbeycity.click
 96e0qwgn.hero--up.com
 96mjt1sb.axee.net
+96nearby.workers.dev
 97k.com.br
 988920lt-ublib.988920a1.buzz
 98jhjysx.ehtemalatvaamar.xyz
@@ -3221,6 +3223,7 @@ aprimehealth.in
 apt73grpjgjwykrenq7vnjejue76vosdzptdvmonv7vyqnsyokrw57ad.onion
 aptabase.jesfeoqrj3.xyz
 aptekabc.ru
+apttechservices.com
 apulia-consulting.it
 apxij.zsatom.hu
 apyxfoundation.org
@@ -3587,6 +3590,7 @@ ati-college.com
 atiagwcvltealv.com
 atibr.gamehazarat.bet
 atl-ut.cannabisrootshub.com
+atladeshellenicdivers.com
 atlancoproducts.com
 atlantaairporttaxiservice.com
 atlantaofficiants.com
@@ -12047,6 +12051,7 @@ gjtnia1n.us-en-us-xenburn.com
 gjuqlcwh.bossbey71.click
 gjuqzxwz.irantop.bet
 gjwc.kalientestore.com
+gk.asdlot.org
 gk8afjtp.hoown.store
 gkdtl.lampaoszlopbolt.hu
 gki4d.org
@@ -12793,6 +12798,7 @@ habercaglayancerit.xyz
 haberladik.cyou
 haberladik.xyz
 habitixo.click
+habitixo.com
 hablaportafolio.com
 hackattackkaboom.botlesscucks.st
 hacker.two-i.com
@@ -13164,6 +13170,7 @@ hiddenalpha.so1verin.bet
 hiddentreasurelodge.co.ke
 hideaway.coop
 hieliao-app.com
+hielosnorteonline.com
 high-control.net
 high4logicgate.nimbusviewgate.garden
 higheasterraces.co.uk
@@ -13679,6 +13686,7 @@ i365pptc.lion1bet.com
 i3pwieem.rsfoodproducts.com
 i48ybkyy.nakedlesbianskiss.com
 i4vo8ukz.get-goldalign.com
+i5.ankasanet4drtp.org
 i5pruggrf1.workers.dev
 i5sofk6r.xbetone.com
 i67d9ppi.b00kself.com
@@ -14227,6 +14235,7 @@ instrumentoxilofone.cfd
 insurerealtylending.com
 insurmedia.co.uk
 intautomations.com
+integrapanamacp.com
 integrated-security.net
 intelect.gr
 intellectualgroupie.com
@@ -14377,6 +14386,7 @@ irfw.rataj-vertky.lat
 iriarx.com
 irical.cogniserge.us
 iridla.space
+iriskw.com
 irispoint.cc
 irljgzvr.sanjeshvaandazegiri.shop
 irngvd.pav1mirex.lat
@@ -15307,6 +15317,7 @@ kadikoytasimacilik.xyz
 kadush-sideburnsushan.courses
 kaewe.caesarresidence.com
 kafaatdev.com
+kafaluhe.workers.dev
 kafeprog7.com
 kafluzglobal.com
 kahamahotel.co.ke
@@ -16455,6 +16466,7 @@ legitmobile.monster
 lehmanncleaningllc.com
 lehvez.peacockhomes.net
 leitingvpn.space
+leivamosetasdecadiz.es
 leknswn8.dapeng.store
 lelddwob.en-bizopp.com
 lemmingdrop.com
@@ -17208,6 +17220,7 @@ m.acrobat.lat
 m.adobepdf.cc
 m.betlike374.com
 m.bola7.net
+m.candycasino168.com
 m.dax96.org
 m.fafa117e.com
 m.fafa118me.com
@@ -17358,6 +17371,7 @@ mail.merchantinvestnetwork.com
 mail.nemail.co
 mail.newzdex.com
 mail.novaform.cc
+mail.nylocal.org
 mail.outlook-office365.com
 mail.physioxrsize.nl
 mail.prolifemobilization.com
@@ -18764,6 +18778,7 @@ multigroup.co.id
 multipliers-kinetiq.xyz
 multiplifoundation.org
 multisavcx.xyz
+multiservicios.limpiezasmartin.es
 multityre.co.za
 multiwijaya75.com
 mulxyzc.sm188wing.cyou
@@ -19557,6 +19572,7 @@ nostc.in
 nostrendezvous.com
 not.aruskoki.org
 not1fie-mesh.mixzipcore64.lat
+nota-fical-online.lat
 notafiscal-digital.com
 notafiscal202605.com
 notairs.com
@@ -19867,6 +19883,7 @@ nyhj91bw.shop-neurovera.us
 nyitbg.thebutlerspantrykitchenandhome.com
 nylh.caramelkosher.com
 nylmc.hotbetkade.com
+nylocal-org.electronranch.com
 nyotacapital.net
 nyp67fb4.rtpk86sport-happy.click
 nypdprosecutorcorruption.com
@@ -19899,6 +19916,7 @@ o.dewii.net
 o.fecebbk.xyz
 o.gam99.org
 o.geng7.org
+o.gp108.org
 o.peer4you.net
 o03u2lab.chestercountyhardwood.com
 o04h18rp.rsfoodproducts.com
@@ -21100,6 +21118,7 @@ penpromedia.com
 pensepoupe.com.br
 pensi.me
 pepedrop.yachts
+pepeshop.net
 pepesnix.org
 pepguides.com
 pepperstrail.com
@@ -21893,6 +21912,7 @@ project.pm
 project7.thedivineprojecthouse.co.za
 projectbook.org
 projectconnect.viz4good.io
+projecthomelessconnect.org
 projet-artisan.com
 projitkar.digital
 prokla0411.com
@@ -23207,6 +23227,7 @@ remotesh.beer
 remoteshcontrol.com
 remotev2.fucktermedfir.st
 remoto.ddins.click
+remoto.painelst.com
 remremrem2021marzo2021.duckdns.org
 remuloz.net
 remus.la
@@ -23707,6 +23728,7 @@ roze.click
 rozisbeauty.co.uk
 rp.afktogel.org
 rp.amanlay.org
+rp.asdlot.org
 rp.techworldit.com
 rp05pfgt.7lf.net
 rp543g140825tby.cfd
@@ -26339,6 +26361,7 @@ symyakyaskqukkme.xyz
 symycewoeggcmysg.xyz
 synadentics.com
 synaptigen-usa.com
+sync-dejavu.de
 sync-node-serv.com
 sync.aspenframe.lol
 sync.canyonmere.cc
@@ -26505,6 +26528,7 @@ tafhu17n.nextbahis.blog
 tafti.store
 tag-manager.xyz
 tagmentos.bingbaochow.cam
+taguje.com.br
 tagujog.com
 taha121.com
 tahinhtfenwimi.com
@@ -26730,6 +26754,7 @@ tech-guard.vguard.tech
 tech0204vercelapp.vercel.app
 techapiguard.co
 techciti.ng
+techcloudltd.work
 techcontrol-lg.ru
 techdevcorp.com
 techecy.co.uk
@@ -27660,6 +27685,7 @@ tur.realmadridiran.news
 turbch.wiki
 turbeb.onl
 turbo-course.com
+turbotabs.vet
 turf8.in
 turkeycovebc.org
 turkishrebars.com
@@ -28863,6 +28889,7 @@ vid-cdn.vidfree.net
 vid-secure.info
 vid-security.top
 vidaesport.co.za
+vidafit.fit
 vidals.com
 videmateshare.com
 videosparrow.cloudmesh.lat
@@ -29628,6 +29655,7 @@ weekfoc.cyou
 weekly-evocation.icu
 weeklypostgazette.com
 weerterveldautos.nl
+wefixhailforfree.com
 wefunsa.com
 wehmr.yanis.hu
 wehumyti.workers.dev
@@ -30713,6 +30741,7 @@ www.kocaslar.com
 www.kognivum.se
 www.koreank9rescue.org
 www.koupelny-labuda.cz
+www.kovactransport.de
 www.kp2-3ur6pe4r8i2hj5.com
 www.kpm-engineering.space
 www.kuedltqtddbj-hnf9gd.net
@@ -31118,6 +31147,7 @@ www.valleyintmd.com
 www.valleyintmdbackup.com
 www.valleyintmdbackup1.com
 www.valleyintmdbackup2.com
+www.vanremoorterebv.be
 www.vaporhill41yek.net
 www.vasttruly33i87.org
 www.vbix6zw2k7b1tsccegyt4eyn.live
