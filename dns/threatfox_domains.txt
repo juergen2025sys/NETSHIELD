@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-19 00:15 CET
-# Eintraege: 33336
+# Aktualisiert: 2026-11-19 02:37 CET
+# Eintraege: 33363
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -167,6 +167,7 @@
 11bett.jpn.com
 11udvmp9.polestennisplayer.digital
 11xplaypro.site
+121.22.233.35.bc.googleusercontent.com
 123b-mb.com
 123b-mobilee.com
 123bca.com
@@ -1168,6 +1169,7 @@
 68ikx1c9.ace90bet.bet
 68uvag.qen8vorel.lat
 68v034mp.bet1xiraq.com
+69.81.175.207.bc.googleusercontent.com
 694j5tdy.behtarin-site-shartbandi-football.com
 6995847.5doreval.lat
 69bs66ln.socop.org
@@ -7689,6 +7691,7 @@ creativebackup.website
 creativemind.website
 creativex5.cc
 creator.cutehair.com
+creatum.com
 credabilitybillingsolutions.com
 credi-big.com
 credimag.com
@@ -7925,6 +7928,7 @@ cy.27trans.org
 cy.5-rt.org
 cy.angkt777.org
 cy9.narahtech.com
+cyanjustina.workers.dev
 cybede.wiki
 cyber-defensepro.christmas
 cyber-harbor.digital
@@ -9671,6 +9675,7 @@ egycuisine.com
 egyoast.cloud
 egzbf2a5.estekhdam.one
 eh-masled.courses
+eh.asas777.org
 ehchq7m7rpvdr.cfc-execute.bj.baidubce.com
 ehgbv6lm.us-thetrumptoken.com
 ehhzba.rsfoodproducts.com
@@ -18107,6 +18112,7 @@ me.ankapaito.org
 me23z6yn.reneck.store
 me4stn67.network-forge.digital
 me7wszz7.usalo.store
+meadow-facet.com
 meadow-observability-core.garden
 meadow-processing-core.garden
 meadow-processing-engine.garden
@@ -22670,6 +22676,7 @@ q.dak69.org
 q.dog69.net
 q.dps69.org
 q.gl111.org
+q.goo55.org
 q.thelayzf.fyi
 q048bmxn.aqua-brn.com
 q08rvd2u.btyek.bond
@@ -24704,6 +24711,7 @@ saimonabdullah.com
 sainbroissilver.pro
 sainidigirocket.com
 saint-maximin-au-coeur.fr
+saintpatricksanglicanchurch.org
 saintvanityllc.com
 sajij.com
 sajuk.in
@@ -25561,6 +25569,7 @@ sjpwlsr.mbperformanceonline.com
 sjwtvp.buy-audizen.com
 sjyur55n.jurni.store
 sjzcjaqs.jadoou.bond
+sk.ankapaito.org
 sk.bumblemovies.com
 sk4a8369.anodaz.store
 sk9sjwg4.snaptigen.com
@@ -27439,6 +27448,7 @@ thankingpi.icu
 thanksinstitute.com
 thaonguyen.shop
 tharafemme.com
+tharwatpress.com
 thatfreelancelady.com
 thavammusic.com
 thconnewfoot.org
@@ -27528,6 +27538,7 @@ themcdonaldsmenu.ca
 themillennialwayshow.com
 themusicexecutives.com
 thenbkgroup.com
+thenewparentplaybook.com
 theninetenth.com
 theofficer.in
 theoptimaemhltd.com
@@ -27843,6 +27854,7 @@ top.realslimshady.xyz
 top50business.com
 topax.run
 topbo.cannatural.eu
+topbodytrainer.com
 topbrasiltur.com.br
 topcitypick.com
 topclouddefence.com
@@ -28025,6 +28037,7 @@ triotmelon.com
 tripinupdate.net
 tripletungbroadband.top
 triplinepk.com
+trippias.com
 tristan.sexy
 tristan.too.sexy
 tritantech.com
@@ -28261,6 +28274,7 @@ tycgc.bni-ai.com
 tygnu.lokercorp.com
 tyhcsza.cfd
 tyjwtd.remenacevintage.com
+tykhea.com
 tylerperrymerch.com
 tyroky.cc
 tyxa.today
@@ -28644,7 +28658,9 @@ unlimitsquid.info
 unlmqfl5.eng-usa-neurovera.com
 unlumarkiz.com.tr
 unnd8ttc.us-us-theeloncode.com
+unnorte.digital
 unp2idvalk.digital
+unscrewyourkids.com
 unseen-zorenka.digital
 unsinkable.boats
 untraceableit.com
@@ -29118,6 +29134,7 @@ vanta.im
 vantage-uae.com
 vantaiminhthanh.com.vn
 vantarat.st
+vantilenj.com
 vaqogosa.workers.dev
 varalearning.in
 variable-onba5e.edge-cloud-api-bridge.in.net
@@ -29139,6 +29156,7 @@ vault.rungarden.one
 vault8.brighttempo.lol
 vaultask-micro-service-pulse.garden
 vaultsight.icu
+vavoomdesign.com
 vawogtsax.phim18k.de
 vayolens.com
 vazqhwad.sadreislam.xyz
@@ -29194,6 +29212,7 @@ ve.arenapildun.org
 veb0im5p.ansuyemarg.xyz
 vebiotic.com
 vectorgridzone.digital
+vectoriplaw.com
 vectorpointbit.veloria.garden
 vectorprospera.digital
 vectorsofmassdestruction.com
@@ -29294,11 +29313,13 @@ vert-1k.vortex-sys.in.net
 vertbaum9view.exmeshlogic.garden
 vertex2urban.thorniva.garden
 vertical-eco-farming.garden
+vertisapremiumincek.com
 veryhotcoffee.monster
 vescel.es
 vespero.xyz
 vessant.com
 vestaawave.com
+vestirygroup.com.br
 vetstudents.eu
 veu42xr9.yekbetiran.com
 vewknyie.com
@@ -29380,6 +29401,7 @@ vidinesdurys.lt
 vidsloii.bcgamekade.online
 vidtihe.cyou
 viebe.tattoo
+vieclambacninh24h.com
 view-my-result.lol
 view.rapidreef.surf
 view2pathgate.focallensview.garden
@@ -29602,6 +29624,7 @@ voabnu.femeso.hu
 voafww1e.1xcart.pro
 vobncb6s.mruh.store
 vobyslb.hilo.casino
+vocacademyltd.com
 vocalpro.pixelnode.lat
 vocamhr.ca
 voderlence.com
@@ -30016,6 +30039,7 @@ wcs.rest
 wcsfgwq.springsconstruction.net
 wctvn.mrslopezsings.org
 wcwe.onjabet1.com
+wcyshopb.com
 wczgexs.termeroseo.com
 wczkcbe.halcyonhempltd.com
 wd4.akun269.org
@@ -30075,6 +30099,7 @@ webcdnx.mowin8single.lat
 webcdnx.nethubtop.lat
 webcdnx.prepol5oldafon.lat
 webcdnx.tonmixin.surf
+webdesignchamps.in
 webdisk.tamiltotamil.com
 webdocs.1navorex.lat
 webdocs.fatovism-r2ccoon.lat
@@ -30688,6 +30713,7 @@ wvvyvhcadohpdpahcds.home-eye-app.com
 wvw.akuatoto.net
 ww.anka4d.org
 ww.maskelibros.cl
+ww2.tdm-bg.org
 ww25.trybuilder.website
 ww2clash.com
 ww38.roofnrack.us
@@ -31824,6 +31850,7 @@ x7.aksara87.org
 x7.antirungkad.org
 x78boe03.lion1bet.com
 x7onu4r4.slotsensi138.org
+x8.asas777.org
 x8268vj9.hugugmadanikatouzian.xyz
 x87sw.top
 x88t.space
