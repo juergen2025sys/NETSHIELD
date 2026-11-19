@@ -15,7 +15,7 @@ AS208843	254	1280	19.84%	nein	Alpha Strike Labs GmbH	Honeypot-Feeds-Dichte
 AS215778	254	1280	19.84%	nein	Alpha Strike Labs GmbH	Honeypot-Feeds-Dichte
 AS48090	144	768	18.75%	ja	TECHOFF SRV LIMITED	Honeypot-Feeds-Dichte
 AS209373	96	512	18.75%	ja	SWISSNET LLC	ThreatFox C2-Dichte
-AS209334	132	768	17.19%	nein	Modat B.V.	threat.live-Dichte
+AS209334	133	768	17.32%	nein	Modat B.V.	threat.live-Dichte
 AS214472	84	512	16.41%	ja	Offshore LC	Honeypot-Feeds-Dichte
 AS401626	81	512	15.82%	ja	Netiface America, Inc.	Honeypot-Feeds-Dichte
 AS211680	222	1536	14.45%	nein	NSEC - Sistemas Informaticos, S.A.	threat.live-Dichte
@@ -88,6 +88,7 @@ AS142400	14	512	2.73%	nein	PT Inovasi Digital Telekomunikasi	Honeypot-Feeds-Dich
 AS210558	152	5632	2.70%	ja	1337 Services GmbH	ThreatFox C2-Dichte
 AS6768	34	1280	2.66%	nein	"EUROTELE-PLUS" LLC	Dataplane-Dichte
 AS198356	27	1024	2.64%	nein	FOP Kondratyuk Evgeniy Vladimirovich	Dataplane-Dichte
+AS150493	13	512	2.54%	nein	PT Gunung Sedayu Sentosa	Honeypot-Feeds-Dichte
 AS135572	64	2560	2.50%	nein	ACT International Telecom Limited	Dataplane-Dichte
 AS269843	70	2816	2.49%	nein	BANTEL SAC	Dataplane-Dichte
 AS211607	19	768	2.47%	nein	Securitytrails, LLC	Honeypot-Feeds-Dichte
@@ -95,7 +96,6 @@ AS58470	124	5120	2.42%	nein	Mobilink GSM, Pakistan Mobile Communication Ltd.	Dat
 AS56400	62	2560	2.42%	nein	SPD Chernega Aleksandr Anatolevich	Dataplane-Dichte
 AS209413	12	512	2.34%	ja	DEDIK SERVICES LIMITED	ThreatFox C2-Dichte
 AS207812	6	256	2.34%	ja	DM AUTO EOOD	AbuseIPDB-Dichte
-AS150493	12	512	2.34%	nein	PT Gunung Sedayu Sentosa	Honeypot-Feeds-Dichte
 AS50219	12	512	2.34%	nein	LNK SYSTEMS MUNTENIA SRL	Dataplane-Dichte
 AS210731	6	256	2.34%	nein	Forening for DotSrc	Dataplane-Dichte
 AS210964	6	256	2.34%	nein	TV Kamenica sh.p.k	Dataplane-Dichte

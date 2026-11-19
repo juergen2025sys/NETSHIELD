@@ -522,7 +522,7 @@
 "why": "Dataplane-Dichte"
 },
 "150493": {
-"density": 2.34,
+"density": 2.54,
 "last_seen": "2026-11-19",
 "name": "PT Gunung Sedayu Sentosa",
 "why": "Honeypot-Feeds-Dichte"
@@ -1200,7 +1200,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "209334": {
-"density": 17.19,
+"density": 17.32,
 "last_seen": "2026-11-19",
 "name": "Modat B.V.",
 "why": "threat.live-Dichte"

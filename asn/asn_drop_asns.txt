@@ -1,10 +1,10 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795093004)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795094804)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-19 13:18 UTC | ASNs: 1158 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf 458 + ASN-Risiko 85, aktiv: 920)
+# Aktualisiert: 2026-11-19 13:43 UTC | ASNs: 1158 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf 458 + ASN-Risiko 85, aktiv: 920)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS1054		Zont LLC	Honigtopf-Dichte (Haltezeit, zuletzt auffaellig 2026-11-19)
@@ -511,7 +511,7 @@ AS150091	IN	VEDIMA-AS-IN	vedimantra.co.in
 AS150100	IN	ARKCOM-AS-IN	arkcomtele.com
 AS150101	IN	YASHITS-AS-IN	ithostline.com
 AS150102	IN	ITSERVICE-AS-IN	ithostline.com
-AS150493		PT Gunung Sedayu Sentosa	Honeypot-Feeds-Dichte 2.34%
+AS150493		PT Gunung Sedayu Sentosa	Honeypot-Feeds-Dichte 2.54%
 AS150604	IN	GLOBALSOL-AS-IN	globalsol.co.in
 AS150813	VN	MINHTHOIPC-VN	thoimmo.com
 AS150860	VN	JETCLOUD-VN	jetcloud.vn
@@ -763,7 +763,7 @@ AS209207			Maltrail worst_asns
 AS209272		Alviva Holding Limited	ThreatFox C2-Dichte 0.39%
 AS209274	RS	Kraken-Network-ISP	mortalsoft.online
 AS209290			Maltrail worst_asns
-AS209334		Modat B.V.	threat.live-Dichte 17.19%
+AS209334		Modat B.V.	threat.live-Dichte 17.32%
 AS209366		SEMrush CY LTD	AbuseIPDB-Dichte 0.62%
 AS209373	IR	SWISSNET-AS	swissnetwork.io
 AS209375	MD	Contrust-Solutions	kontrast.md
