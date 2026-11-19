@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-11-19 05:11 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-19 09:47 CET (Europe/Berlin)
 
 ---
 ## 📊 Listen-Übersicht
@@ -11,20 +11,22 @@
 | ✅ [blacklist_confidence40_ipv4_part1.txt](../blacklist_confidence40_ipv4_part1.txt) + [blacklist_confidence40_ipv4_part2.txt](../blacklist_confidence40_ipv4_part2.txt) | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **7,970,046** | 2026-11-19 05:04 CET (Europe/Berlin) |
 | ✅ [watchlist_confidence25to39_ipv4.txt](../watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25-39/100) | **3,269,938** | 2026-11-19 05:04 CET (Europe/Berlin) |
 | ✅ [cve_exploit_ips.txt](../cve_exploit_ips.txt) | CVE Exploit IPs | **29,656** | 2026-11-19 03:51 CET (Europe/Berlin) |
-| ✅ [bot_detector_blacklist_ipv4.txt](../bot_detector_blacklist_ipv4.txt) | Bot-Detector Blacklist | **1,178,117** | 2026-11-19 04:47 CET (Europe/Berlin) |
-| ✅ [honeypot_ips.txt](../honeypot_ips.txt) | Honeypot IPs | **2,152,727** | 2026-11-19 04:06 CET (Europe/Berlin) |
-| ✅ [honigtopf_ips.txt](../honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **17,659** | 2026-11-19 03:51 CET (Europe/Berlin) |
+| ✅ [bot_detector_blacklist_ipv4.txt](../bot_detector_blacklist_ipv4.txt) | Bot-Detector Blacklist | **1,178,140** | 2026-11-19 05:13 CET (Europe/Berlin) |
+| ✅ [honeypot_ips.txt](../honeypot_ips.txt) | Honeypot IPs | **2,159,598** | 2026-11-19 05:13 CET (Europe/Berlin) |
+| ✅ [honigtopf_ips.txt](../honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **17,534** | 2026-11-19 05:13 CET (Europe/Berlin) |
 
 ---
-## 🔍 Feed Health: ✅ 93 OK | ⚠️ 1 leer | ❌ 0 Fehler
+## 🔍 Feed Health: ✅ 92 OK | ⚠️ 1 leer | ❌ 1 Fehler
+
+**❌ Ausgefallen:** `data_shield`
 
 **⚠️ Leer:** `greedybear_recur`
 
-**🧊 Eingefroren (1):** `ffraud_confirmed` 14T
+**🧊 Eingefroren (1):** `ffraud_confirmed` 15T
 
 *Noch unter der 21-Tage-Quarantäne-Schwelle – nur beobachtet. Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
 
-*Letzter Check: 2026-11-18 09:06 CET (Europe/Berlin) – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
+*Letzter Check: 2026-11-19 09:12 CET (Europe/Berlin) – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -32,4 +34,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-11-19 05:11 CET (Europe/Berlin)*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-11-19 09:47 CET (Europe/Berlin)*
