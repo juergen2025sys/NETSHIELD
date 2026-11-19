@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-19 22:01 CET
-# Eintraege: 32916
+# Aktualisiert: 2026-11-20 00:22 CET
+# Eintraege: 32926
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1566,6 +1566,7 @@
 90pxyy6p.imzural.info
 90shair.com
 90uk7unu.eachway-multiplier.com
+90xfksds.americaspadel.com
 911cm.com
 91cwlqu1.enus-theeloncode.com
 91lrgb4j.eachway-multiplier.com
@@ -2720,6 +2721,7 @@ americanprime.com
 americanskydive.com
 americanwatchmen.com
 americasnurse.com
+americaspadel.com
 americcorp.net
 americoq.cyou
 amerika88.org
@@ -3295,6 +3297,7 @@ arctic-peptides.com
 ardaplumeit.top
 ardemo.it
 ardenmares.es
+ardenpeaksolutions.com
 ardi.fourseasondumpling.com
 ardortrading.com
 ardotcharleybuking.com
@@ -3508,6 +3511,7 @@ ashraydesign.com
 ashsynt.p7ickmuch.lat
 ashwinbk.com
 asia211.org
+asia608.org
 asiancon.com
 asimo.store
 asioklaydpory.com
@@ -3949,6 +3953,7 @@ b.adobepdf.cc
 b.akuntoti.net
 b.ampluna.com
 b.apigcor88.org
+b.asia608.org
 b.bro50.org
 b.coy9.com
 b.d200n.com
@@ -14478,6 +14483,7 @@ isdyzdy.baocongnghe.net
 isemobil.de
 iseugwcwemequeas.xyz
 isfasenegal.com
+isflafe0.tucargaseguraceo.com
 isillegalregion.com
 isl4eo0i.echo--free.com
 islamdjibouti.com
@@ -16651,6 +16657,7 @@ light-zip.com
 lighthousefrc.org
 lighthousemoving.com
 lightiswinning.top
+lightmagazines.com
 lightsiteview1.solavern.garden
 lightsnow.info
 ligne.tattoo
@@ -23051,6 +23058,7 @@ rbwnmu.medjourneytourism.com
 rbxtools.cc
 rbzsq.sm188login.cfd
 rc-hall.net
+rc.asia608.org
 rc.browse-nnccodes.beer
 rc.de-zahlung.eu
 rc.doesstuff.com
@@ -26914,6 +26922,7 @@ tenz-valo.org
 teoz.radioshartbandi.casino
 tepebasi-haber.com.tr
 tepemasterkurs.com
+tepepeja.workers.dev
 tera-home.com
 teracryptotech.com
 teraview.info
@@ -30392,6 +30401,7 @@ www.assuncaoescapamento.com.br
 www.atakentlastik.com
 www.atbiopower.co.th
 www.atgairport.com
+www.ati-aca.org
 www.attorneycollectionservices.com
 www.autoccb.tech
 www.autocodekenya.com
