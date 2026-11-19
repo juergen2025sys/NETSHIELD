@@ -1272,7 +1272,7 @@
 "why": "FireHOL-Abusers-Dichte"
 },
 "14956": {
-"density": 0.35,
+"density": 0.36,
 "last_seen": "2026-11-19",
 "name": "RouterHosting LLC",
 "why": "ThreatFox C2-Dichte"
@@ -1578,7 +1578,7 @@
 "why": "FireHOL-Abusers-Dichte"
 },
 "196705": {
-"density": 0.29,
+"density": 0.27,
 "last_seen": "2026-11-19",
 "name": "Ardinvest LTD",
 "why": "Honigtopf-Dichte"
@@ -1926,7 +1926,7 @@
 "why": "threat.live-Dichte"
 },
 "203557": {
-"density": 1.41,
+"density": 1.48,
 "last_seen": "2026-11-19",
 "name": "SIA RixHost",
 "why": "ThreatFox C2-Dichte"
@@ -1962,7 +1962,7 @@
 "why": "Dataplane-Dichte"
 },
 "204634": {
-"density": 0.65,
+"density": 0.78,
 "last_seen": "2026-11-19",
 "name": "TOV \"Onet-Group\"",
 "why": "Honigtopf-Dichte"
@@ -2814,10 +2814,10 @@
 "why": "Dataplane-Dichte"
 },
 "215659": {
-"density": 1.26,
+"density": 1.74,
 "last_seen": "2026-11-19",
 "name": "Aokigahara SRL",
-"why": "ThreatFox C2-Dichte"
+"why": "Honigtopf-Dichte"
 },
 "215778": {
 "density": 19.77,
@@ -4362,7 +4362,7 @@
 "why": "FireHOL-Abusers-Dichte"
 },
 "400897": {
-"density": 0.32,
+"density": 0.36,
 "last_seen": "2026-11-19",
 "name": "PETROSKY CLOUD LLC",
 "why": "ThreatFox C2-Dichte"
@@ -4602,7 +4602,7 @@
 "why": "Dataplane-Dichte"
 },
 "44382": {
-"density": 3.71,
+"density": 3.74,
 "last_seen": "2026-11-19",
 "name": "Fiba Cloud Operation Company, LLC",
 "why": "ThreatFox C2-Dichte"
@@ -5130,7 +5130,7 @@
 "why": "Dataplane-Dichte"
 },
 "56703": {
-"density": 0.33,
+"density": 0.39,
 "last_seen": "2026-11-19",
 "name": "MEHR AVA GOSTAR PARSIAN INFORMATION ENGINEERING CO.,LTD",
 "why": "Honigtopf-Dichte"
