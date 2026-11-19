@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-19 17:36 CET
-# Eintraege: 32860
+# Aktualisiert: 2026-11-19 19:53 CET
+# Eintraege: 32887
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -154,6 +154,7 @@
 103decor.com
 108h764sg7npw.xyz
 10buigpz.bossbey19.click
+10city.store
 10kgdc.com
 111.127.148.146.bc.googleusercontent.com
 1112.688608.xyz
@@ -206,6 +207,7 @@
 15f54so2.bossbeyroyal.click
 15fc73d7.wignalllindor.wiki
 161-35-173-98.sslip.io
+161.7.108.136.bc.googleusercontent.com
 1629bqt9p34elwv.top
 164-90-169-184.cprapid.com
 167.226.231.8.bc.googleusercontent.com
@@ -1402,6 +1404,7 @@
 82a3dcwt.sazehayefooladi.xyz
 82uowq3m.infinityjoespizzaclearwater.com
 832nw30kq5rb0j4onh9tfw.beer
+83754ka9.ceoinsurancecorp.com
 8393546939.dojiner.at
 83dwnguj.shop-tupitea.com
 83j6hfza.runtime-forge.digital
@@ -1687,6 +1690,7 @@
 9tsv6sqb.bossbeyhub.click
 9ujl0507.shop-goldalign.com
 9urlqeq9.diyar303.com
+9uu08koj.taksims.click
 9v1whxmi.parsyek.ir
 9v42ch67.proxy-frontier.digital
 9vn1ctfe.partyboxlovely.com
@@ -2038,6 +2042,7 @@ addin-fita.digital
 addisonroofingcontractors.com
 addon-danieltschumicom.erinmallon.cyon.site
 addsomespice.co.za
+adeac.com.mx
 adean.co
 adelaidejap.com.au
 adelaidetriathlonclub.com.au
@@ -5361,6 +5366,7 @@ brightravel.co.za
 brightspott.xyz
 brikeb.com
 brilhoceleste.com.br
+brille.kozow.com
 brilliantdental.rs
 brindlecoveton.cc
 brisk-forge-willow-caium.life
@@ -5759,6 +5765,7 @@ c4938afg.urgentblue.com
 c4base.store
 c4cxraym.megaparicom.poker
 c4nrz428.gregoryschreiercabinetmaker.com
+c4q.asia211.org
 c4rr1-switch.fashina5pread.garden
 c4ut95w4.bociljp.online
 c5.amanbet99.net
@@ -6598,6 +6605,7 @@ ciwid.run
 ciza-software.at
 ciza.at
 cj.animtoto.org
+cj.asia211.org
 cjafok.shieldshardwareandsupply.com
 cjbbdtba.maharatmodiran.xyz
 cjbookmarks.com
@@ -6870,7 +6878,6 @@ clxurg.eng--bpzone.com
 clysselw.betkaka.bet
 cm-vernou.fr
 cm.afktogel.org
-cm88.wales
 cmaogogisysiceya.xyz
 cmaugmucqookyacg.xyz
 cmayecgeeaaygiae.xyz
@@ -7747,6 +7754,7 @@ d4o2pqgk.tanyavondegurechaff.fit
 d52cv625.ahkam.xyz
 d5mkg5ct.en-prosta-fense.com
 d5xpvvah.memerylift.com
+d65vnso5.adeac.com.mx
 d6ms6gm7.genesirevival.com
 d735kjp6tu.workers.dev
 d77tnb4bkmj3e366msrzllnwsi2t5e54e4yqh7zm7y5hlfwugnwzswad.onion
@@ -7819,6 +7827,7 @@ danhbalbaluatsu.net
 danialba.com
 daniwindsor.com
 daniyahkhan.info
+danmek.duckdns.org
 danya.store
 danyelle177.workers.dev
 dao-etherfi.xyz
@@ -8518,6 +8527,7 @@ dmwncnnnp.defamogadas.xyz
 dn.saohaoqi.com
 dnafitbody.fit
 dncloteam.beer
+dng-deco.com
 dngzhceb.hugugmadani3.xyz
 dnh8as3q.hyptoburn.com
 dnhvcls.bahiscart.com
@@ -8903,6 +8913,7 @@ duehywnml.fraudhelper.co.uk
 dufnsng.daqotransformers.com
 dugem.ru
 dugwd.cc
+duhocvictoria.edu.vn
 duizlfe.funbet24.bet
 duke.poconodessertco.com
 duldulsports.com.pk
@@ -9499,6 +9510,7 @@ elmqfzy.zsatom.hu
 elmquarry.cc
 elmstonegroup.org
 elmuntasser.ly
+elnes-taxi.fr
 elng.jadoou.baby
 elnl9lof.303-bet.xyz
 elo.canamrent.com
@@ -9514,6 +9526,7 @@ els22gzs.bondbrandingco.com
 elsfpng.classicpontiac.org
 elsms.webgondozas.hu
 elswaytrends.com
+eltgrammar.com
 eltiaeb.engus-prostavive.com
 eltyalg.bet30bet.com
 eludftjk.mellbeet.com
@@ -9993,6 +10006,7 @@ esotericpro.com
 espacoluzenergia.com.br
 espako.store
 especialistadoamor.com.br
+espiaus.com
 espritjourneys.com
 esqbzfn.bet365iran.com
 essaywriter.co.uk
@@ -10005,6 +10019,7 @@ essentialvibration.net
 essiosdigitalllc.com
 essoay020426qr.cfd
 estaliax.io
+estaryia.com
 estat-goldilock.digital
 estimationparis17.fr
 estradaannivers.digital
@@ -14191,6 +14206,7 @@ instant-healthonline.com
 instantwebupdate.com
 institute.shubhvardan.com
 institutoandura.com.br
+institutofernandeschammas.com.br
 institutomapeando.com.br
 instnhvy.melbetiran.bet
 instrapper.com
@@ -14974,6 +14990,7 @@ jny0xjtd.bossbeyprimeteam.click
 jnyut.zsatom.hu
 jo9cdmnc.cr7iran.ir
 joaoszr3.ddns.net
+joaquinsanchezgil.com
 job-in-europe.com.ua
 job.coast-space.lol
 job.itechno.cc
@@ -16019,6 +16036,7 @@ kul.cantdown.su
 kul2gqhg.bossbeyprimeworld.click
 kulix.store
 kulnpioc.mabanishimi.xyz
+kultojewels.com
 kumru-nakliyat.cyou
 kumyy.com
 kunaltailor.com
@@ -16458,6 +16476,7 @@ ledger.com.ag
 ledgerbirc.qi3mavel.in.net
 ledgerlive.ldgr.co.com
 ledicadjc25ksdzv6e5n63ksfo2lx2rqrein4pkd7i5demnvfkfq.arweave.net
+ledotconsulting.com
 ledsvieslente.lt
 ledtric.com
 ledxom.kaarenorge.com
@@ -17240,6 +17259,7 @@ m.fafa99skykhr.com
 m.gam99.org
 m.geng7.org
 m.gg180.net
+m.gp108.org
 m.nohuvip.co
 m.s-microsoft.com
 m0.aeoncash.org
@@ -17363,6 +17383,7 @@ maharashtraimpex.com
 mahcr.banhidileadershipacademy.hu
 mahed.co.ir
 mahibloom.com
+mahie.net
 mahud.ru
 mahuraweaves.com
 mahzls.trustcsbs.com
@@ -17599,6 +17620,7 @@ master-core-system-date-slink.wiki
 master-planting-logic-manual.garden
 master-voivo-system-shop-slink.wiki
 master.hk.com
+masterclassforthefuture.it
 masterconstrucciones.com.co
 mastergrillhub.com
 mastergrillrecipes.com
@@ -20903,6 +20925,7 @@ panel.vidar.to
 panelcoreapp.xyz
 panelmienbac.com
 panelwork.cfd
+panelwp.net
 panguanhaiwai168.com
 pantaukorupsi.com
 panthertowingfl.com
@@ -25559,6 +25582,7 @@ sowmwvh.vip1xbet.org
 soyqjhw.victoryshoescorp.com
 soyzarate.com
 soyze.kafekarachi.com
+sp.asia211.org
 sp13.gstats-api-cont.co
 sp1i3-crest.immer-weeping.garden
 sp4rk-plate.7toralex.lat
@@ -26314,6 +26338,7 @@ swiftfixgaragedoors.com
 swiftflux.cc
 swiftonyx16.com
 swiftverify.me
+swiftwatch.duckdns.org
 swingerwives.com
 swirlscinnamonrolls.com
 swisshomesforsale.com
@@ -28028,6 +28053,7 @@ uidmaps.poi5oneducation.lat
 uidmaps.setting5hoo.lat
 uidmaps.tavro6xel.lat
 uidmaps.tavro9xel.lat
+uidqaxan.libersity.mx
 uieqmsuekgkukuio.xyz
 uiiamccsmoeaowys.xyz
 uijj13g4jittyau.top
@@ -30865,6 +30891,7 @@ www.missnikkilane.com
 www.mobile1.com
 www.mobilicassara.com
 www.mojomama.org
+www.montagnafutura.com
 www.moonlightweddingservices.co.uk
 www.morganaorvokki.com
 www.mountpharma.com
