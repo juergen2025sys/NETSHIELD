@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-20 18:59 CET
-# Eintraege: 32184
+# Aktualisiert: 2026-11-20 22:02 CET
+# Eintraege: 32208
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2138,6 +2138,7 @@ agapool.com
 agatovakosice.sk
 agazud.com
 aged-care.net
+agenciaciis.com.br
 agenciamazzucca.com.br
 agenciaopen.com
 agendaris.org
@@ -3347,6 +3348,7 @@ asistenciatecnica24.com
 asiudasoidu.90g90.com
 ask.shurimaster.com
 askgeoffrey.ai
+askyourfitnessquestion.com
 aslidomino.pro
 asm-app.com
 asmarabella.com
@@ -3957,6 +3959,7 @@ bartinyatirim.com
 bartzbau.net
 basalt9logic.thorniva.garden
 basartoto.com
+base-render.com
 base.infrastructurerun.pics
 base4openwald.dexispointnexus.garden
 base5siteview.axonetworkhub.garden
@@ -5459,6 +5462,7 @@ cacaoalcazar.org
 cacbvgql.jadoou.skin
 cache-orbit.christmas
 cache-processing-node.com
+cache-provider.com
 cache.coastpilot.lol
 cacheapi.cacheapi.icu
 cachehub.cc
@@ -5629,6 +5633,7 @@ carreiro.lol
 carrenzaalwarex.ddns.net
 carrie-branch.7doreval.lat
 carritosnutri.in
+carsparkle.com.au
 cartasella.com
 carteiracloth.com
 cartwell-pastphantom.courses
@@ -7713,6 +7718,7 @@ devcisco.com
 devcloudpro.com
 devcon.cd
 develop45-ip-489-debug15-framework.in.net
+developdatum.com
 developer-rony.com
 developer.metamask.io
 developer.office365api.com
@@ -11011,6 +11017,7 @@ g7.akun258.org
 g7.anka69.org
 g70jv5jnisaopa3.top
 g76w2vqs.techvigilante.com
+g78mdqih.zere.store
 g8prthf3.flexumshop.shop
 g9.afterbet88.org
 g98546cg.beget.tech
@@ -11097,6 +11104,7 @@ gamvip.work
 ganeer.com
 ganeshkomma.com
 ganiballektor.cfd
+gannagalodge.co.za
 gaoaigioyocckkey.xyz
 gapi-node.io
 gapo.rako9jabus1.com
@@ -12436,6 +12444,7 @@ havefuntours.com
 havelbeenpwned.net
 haven-post.com
 haven-vibe.com
+havenleaf3.com
 havgbelc.bingobet.pro
 hawaiifencecompany.com
 hawaiistateofmind.com
@@ -12523,6 +12532,7 @@ heartbeatpipe.net
 heartbeatyardpoint.com
 heartcode.biz
 heartomenal.co.uk
+heartsofhomdev.wpengine.com
 heartycenter.com
 heastings.com
 heatherkiln.top
@@ -15527,6 +15537,7 @@ kwgn9wkj.cupprimosouth.com
 kwgsweecasiiguiw.xyz
 kwiakwoeguscqoao.xyz
 kwickewsiqwcmuak.xyz
+kwik.delivery
 kwjvdq.street-flex.com
 kwkcywosewayyeym.xyz
 kwmgicksuuwiaosk.xyz
@@ -15657,7 +15668,6 @@ labibsyagakport.com
 labipt.com
 laboonadventure.id
 laboratoriodentalnorte.com
-labottegadibottone.live
 labrecordsapp.com
 labshift-winmail-get.christmas
 labswesternadventamplify.xyz
@@ -16879,6 +16889,7 @@ mainepoultry.com
 mainhold.duckdns.org
 mainmenuflo.ydns.eu
 mainrist.click
+mainsearchtools.com
 mainstreetcarpetsc.com
 maiokquauyoegsem.xyz
 maison-isabelle.com
@@ -17544,6 +17555,7 @@ midnight-cache.pw
 midnightcompassengine.com
 midpfv.xyz
 midtown.ilovecollege.info
+midwayammunition.com
 midwestguy.com
 mifnd.tattoo
 mihai.popean.com
@@ -17622,6 +17634,7 @@ miratorg-trading.com
 miraz.store
 mireglenland.cc
 mireyasflowersshop.com
+mirigrace.com
 mirissasnorkellingwithscubadiving.com
 mirkomiletic.rs
 mirolsoftstm.top
@@ -18727,6 +18740,7 @@ nextdoor3.kymle5rax.in.net
 nextlanding.net
 nextpgh3.com
 nextside.cfd
+nexttools2022.com
 nexujcs.biz
 nexus-bridge.to
 nexus-mods.biz
@@ -20330,6 +20344,7 @@ pamodea.com
 pamyatnikitver.ru
 pan.paihost.com
 pancar.lol
+panchmukhiinfra.com
 panda888slot.org
 pandlautoparts.com
 pandorasenergy.com
@@ -23881,6 +23896,7 @@ sderfjs42.com
 sdfxcvjk23423789dskjfsd234dsfsdvvsdfsf.publicvm.com
 sdgbisna.jamjahani2026.football
 sdh-c373.persephonegloria44235.workers.dev
+sdhagreyr.cc
 sdhscndnssl.beer
 sdjozvi.jimmieleeautosales.com
 sdkconnect121.st
@@ -24152,6 +24168,7 @@ sfrevdsgd1.shop
 sfsgldq.1xx.games
 sfwaretech.com
 sfzfzyeb.btyek.site
+sg02vvao.midwayammunition.com
 sg03wupc.brexcavatingllc.com
 sg9sj8ifda.com
 sgepxhg.qualitycounselingcenter.com
@@ -24259,6 +24276,7 @@ shivamdandgavhal.com
 shivlpf.shop
 shivtejbhel.com
 shiyicaster.com
+shizaahmedmakeup.com
 shizij.com
 shjwxe.lergothelabel.com
 shkcinnc.beer
@@ -25698,6 +25716,7 @@ swiftenv.io
 swiftfixgaragedoors.com
 swiftflux.cc
 swiftonyx16.com
+swiftops7.com
 swiftverify.me
 swiftwatch.duckdns.org
 swingerwives.com
@@ -26681,6 +26700,7 @@ tniukh64.bitbet.download
 tnofq5azobfw9eq.top
 tnslzkh.sus.com.pk
 tntparana.com.br
+tnvqz72643.workers.dev
 to9vamil.digital
 toad.ampwin123.com
 toaok.workoutwithdorci.com
@@ -29421,6 +29441,7 @@ workingrectorys.xyz
 workipia.com
 worksdigitaldeals.com
 worksodsirius.ydns.eu
+workstation0422.com
 worktoday.3utilities.com
 workvmailbox-central.berrygleam.org
 workwardrobes.lk
@@ -29745,6 +29766,7 @@ www.ceylongemocean.com
 www.chase6dice6nt7.net
 www.chefdanielepriori.it
 www.chefstablehub.com
+www.chefvoyage.com
 www.chemspecsolutions.com
 www.chicagowushu.com
 www.chinagasholdings.space
@@ -30640,6 +30662,7 @@ x.gam99.org
 x.gl111.org
 x.goo55.org
 x.gp108.org
+x.gpy88.org
 x089w0f5.btyek.boats
 x0ih2pfd.scottpwilliamslaw.com
 x0ihfh5u.asesoriamerenlinea.com
@@ -31733,6 +31756,7 @@ zao9axot.us-us--goldalign.com
 zapas-xoga-cig.cc
 zappelinej.noip.at
 zapxa.com
+zaraproperties.net
 zarinfile.com
 zarox.karatasyasin058.workers.dev
 zaserz.com
