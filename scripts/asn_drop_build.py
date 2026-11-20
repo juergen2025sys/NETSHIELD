@@ -189,6 +189,8 @@ HT_IPS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 #   - mittelgrosse bis RISK_MAX_HOSTER Adressen nur, wenn sie Hoster/VPS-Anbieter
 #     sind: ipverse-Kategorie "hosting", InsightFlare-Hosting-Liste oder ein
 #     Name mit HOST/VPS/SERVER/CLOUD/DATACENTER/DEDICATED/COLO
+#     (seit 2026-11-20 zusaetzlich VDS/RDP/IDC/PROXY/BULLETPROOF, Nutzerwunsch;
+#     VDS/RDP/IDC nur als ganzes Wort, damit z. B. "MIDCO" nicht trifft)
 #   - nie die Netze aus RISK_NEVER (grosse Clouds/CDNs, Contabo = Minecraft-
 #     Server, Starlink/FiberLink = GTA-Mitspieler, Scanner).
 RISK_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -196,7 +198,8 @@ RISK_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file_
 RISK_MAX_ADDR = 65536
 RISK_MAX_HOSTER = 1000000
 RISK_HOSTING_URL = 'https://raw.githubusercontent.com/InsightFlare/asn-blocklist/main/dist/hosting.txt'
-RISK_HOSTER_RE = re.compile(r'HOST|VPS|SERVER|CLOUD|DATA ?CENT|DEDICATED|COLO(?!MBIA|R)', re.I)
+RISK_HOSTER_RE = re.compile(r'HOST|VPS|\bVDS\b|RDP(?![A-Z])|SERVER|CLOUD|DATA ?CENT|DEDI(?:C|PATH)|\bIDC\b'
+                            r'|PROX(?:Y|IES)|BULLETPROOF|COLO(?!MBIA|R)', re.I)
 RISK_NEVER = {13335, 14061, 58224, 63949, 197207, 51167, 14593, 6939, 56673, 22168, 393406,
               14789,   # Cloudflare (zweites Netz)
               52468}   # UFINET Panama - Transit fuer lateinamerikanische ISPs (GTA)
