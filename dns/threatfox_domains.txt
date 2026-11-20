@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-20 17:12 CET
-# Eintraege: 32175
+# Aktualisiert: 2026-11-20 18:59 CET
+# Eintraege: 32184
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1844,6 +1844,7 @@ abmrct.rhettskateboarding.com
 abnnews.co.uk
 aboddehousing.co.uk
 abode-veify20auth.es
+abosdro-minimum.info
 aboutdatabasesoftware.com
 abra.org.tw
 abrahamalvarezgonzalez.com
@@ -6587,6 +6588,7 @@ comidarapidas.store
 comienzo.ydns.eu
 cominiucadosinternos.store
 comissaonainternet.com.br
+commercialogs.com
 commithealthandwellness.com
 commodities.liquide.life
 commun1onsouf.digital
@@ -8860,6 +8862,7 @@ eguiagroup.cfd
 egybouu.qummy-group.com
 egycuisine.com
 egyoast.cloud
+egypthologram.com
 egzbf2a5.estekhdam.one
 eh-masled.courses
 eh.asas777.org
@@ -10939,6 +10942,7 @@ fylabs.com
 fynga.com
 fypal.run
 fz.afktogel.org
+fz.asiabet777.org
 fz9hhl90.eng-us-neurowave.com
 fzgktgh.bord90.bet
 fziomerof.com
@@ -16404,7 +16408,6 @@ lookup.wavegrid79.lol
 loombronze.com
 loop-88.com
 loop-lumen.com
-loopatl.space
 loopsdigi.com
 lootrush.sbs
 lootrushs.xyz
@@ -16582,6 +16585,7 @@ lusnyak2.xyz
 lustkliondruara.space
 lustrous-strategy.icu
 lutahamutuk.org
+lutahyfi.workers.dev
 lute.bowlinggreenwinnelsonco.com
 lutgesigns.com
 luthel.com
@@ -21670,6 +21674,7 @@ q3g84ost.22beet.pro
 q3rir44c.eng--slimsounds.com
 q41liphc.packet-vector.digital
 q43myq5p.parsbet90.com
+q4c08cds.tafti.store
 q4matles.us-theeloncode.com
 q4ylri6k.1000shart.xyz
 q56x2p00.us-en-us-synaboost.com
@@ -22833,6 +22838,8 @@ rhysidaiqemmlrvn2jvncdwhkvuiv7s2iu342xnrpeynxoe6r2dtjfyd.onion
 rhysidaqho36b6i6mvpmy5di4ro5zglovtxixrirky6q3fgack7q5uyd.onion
 rhysidaxx6gdihss7urv4ecbh2yz4izhnfulfbrb4ua5dwkocm653yid.onion
 ri3o2083.pasoor.casino
+riadbabyacout.com
+riaddarcouscous.com
 riaddarnaomi.com
 riadlallajihane.com
 riaifhk.entrepot-demarque.com
@@ -24459,6 +24466,7 @@ sis.adkfarmerdan.com
 sishi.store
 sistema.portal-nota.sbs
 sisterhoodofservants.com
+sisterleveling.com
 site-shartbandi-takhtenard.com
 site-shartbandi.christmas
 site.dev.hutechweb.com
@@ -31115,6 +31123,7 @@ y.dps69.org
 y.geng7.org
 y.gki4d.org
 y.gl111.org
+y.gpy88.org
 y0.angkt777.org
 y01q42ad.theslimsplitsmethod.com
 y06e8hvi.proxyharbor.top
