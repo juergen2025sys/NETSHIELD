@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-20 09:33 CET
-# Eintraege: 32077
+# Aktualisiert: 2026-11-20 11:31 CET
+# Eintraege: 32099
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -100,6 +100,7 @@
 0jye42ba.socop.space
 0ki6ewis.wiskaoane.com
 0ksjitt3.hanovereyephotography.com
+0ln8r6lz.sidar.store
 0lq2f3fa.yekbetiran.com
 0lt9m77b.roundtheclockcare.net
 0mx8cbge.fa1xbet.vip
@@ -921,6 +922,7 @@
 51g2l83a.bvcbx.store
 51jt9qzn.us-en-us-neuroxen.com
 521mc6ro.melbettr.co
+52s8sojv.zalfa.store
 52uj2wm2.7flex.store
 53bbwqsrdg3rxni.top
 53lbzsch.flasburn.us
@@ -2376,6 +2378,7 @@ aleppofood.com
 alert.bakerypark51.wiki
 alert.livewave47.one
 alert.mintstack43.click
+alert.pressweather33.wiki
 alertgolf.in
 alessiaremedies.com
 aleverifocation.beer
@@ -3330,6 +3333,7 @@ ashwinbk.com
 asia211.org
 asia608.org
 asia689.org
+asiabet303.net
 asiancon.com
 asimo.store
 asioklaydpory.com
@@ -4145,6 +4149,7 @@ belamobili.com
 belfryledger.top
 belgrade.edu.rs
 beliefdesk.xyz
+belieffield.cfd
 beliefridge.xyz
 belieftrack.cfd
 beliefworks.cfd
@@ -6105,6 +6110,7 @@ ciborin.shop
 ciec-cd.com
 cielohillsevents.com
 ciganshina.org
+cihiqyhe.workers.dev
 cihqobpe.receivewelfarebenefits.com
 cilygv.missionlanereview.com
 cimesemergences.fr
@@ -7667,6 +7673,7 @@ dev.blendup.xyz
 dev.clpcentr.world
 dev.empresasgestiondocumental.com
 dev.esteghlal.news
+dev.gojournal.wiki
 dev.holidaysm188.top
 dev.kitecostabrava.com
 dev.masihsm188.top
@@ -7837,6 +7844,7 @@ digitechuk.co.uk
 dihdsze.gutjahrauctionservice.com
 dihsov.jamjahani.cash
 dii.magalygemioteixeira.com.br
+dijitalpencere.com.tr
 dikdiy.xyz
 dillonmuseum1.com
 dilma.store
@@ -8165,6 +8173,7 @@ double-fix.com
 doubledavespizzatx.com
 doublexoxo.duckdns.org
 doublexoxoclassproject.duckdns.org
+doublexoxoproject2026.duckdns.org
 douit.nl
 dovaxanil.com
 dovetailchildcare.com.au
@@ -13804,6 +13813,7 @@ ipv4has-lampnew.cyou
 ipxzpxs.keyslimdrops-com.com
 ipynzqk.sylov2en.in.net
 ipzukbru.masirpayambari.xyz
+iq.asiabet303.net
 iq9k06we.fpikiogankomeringilir.store
 iqgxtjfc.hazzarat.world
 iqimux.authentickuts.com
@@ -14909,6 +14919,7 @@ kdtvl3x7.enfejar.casino
 kdwaemkx.stefsoregano.co.uk
 kdwuzpk.yutongdrying.com
 kdyi.thetokestudio.com
+ke.gp11.org
 ke2odk7l.vip1xbet.xyz
 ke4asholdings.com
 ke796qs7.eng-en-cognisurge.com
@@ -15069,6 +15080,7 @@ kiciqckgmqykuksy.xyz
 kickoffghana.com
 kickoffkingdom.com
 kickstartupbusiness.com
+kickzorggroep.nl
 kicugioeomcsgkeg.xyz
 kidandkru.com
 kidden.com.mx
@@ -15949,6 +15961,7 @@ ley.123ful.net
 ley.sm188dvlv.icu
 leypuuq.cyou
 lezo.store
+lf.asia689.org
 lf2qo513.shop-aquaburn.com
 lffs.eu
 lfgjvq.lockchangeny.com
@@ -16474,6 +16487,7 @@ lts.cloudvaly.com
 lttazjwo.pishbini90bet.bet
 ltvz.jadoou.biz
 ltxnzpfvmr3c3rcbw5x4q2ejy6fmbp7kc35oql3gooyydg7belfmnyad.onion
+lu5ivex.tattoo
 lu88za.com
 luahrq.snowssurfshack.com
 lubiworld.com
@@ -17144,6 +17158,7 @@ meadowworkflowframework.garden
 meadowworkflowplatform.garden
 meal-formula.com
 means-3657fmefilesdown.com
+meatronic.us.com
 meau.bet90forward.win
 meba.sib90.bet
 mebanebols.trade
@@ -24129,6 +24144,7 @@ shart303.com
 shartcart.xyz
 shatamilo.com
 shaurma.fun
+shavondezilva.com
 shawnmaltipoopuppies.com
 shbet126.com
 shdufysuf.com
@@ -25638,6 +25654,7 @@ sxmaytinhdientu.devs.surf
 sxohnfj3.shop-blinzador.com
 sxvgrh.havenchurchraleigh.com
 sxzvcen2.shansline.com
+sy3theo.tattoo
 syaieisyswocikki.xyz
 sybro.net
 sybxhd9s.stgsolar.hu
@@ -27911,6 +27928,7 @@ vamjuwk.ijnitra.com
 vamocomigo.com
 vancez.store
 vandacreative.cyou
+vang0.wiki
 vangrd.biz
 vangshares.com
 vanguard-bridge-global.com
@@ -27942,6 +27960,7 @@ vault8.brighttempo.lol
 vaultask-micro-service-pulse.garden
 vaultsight.icu
 vavoomdesign.com
+vaw3b.wiki
 vawogtsax.phim18k.de
 vazqhwad.sadreislam.xyz
 vb07w7bg.havenchurchraleigh.com
@@ -29735,6 +29754,8 @@ www.doppio-click.it
 www.dottoressamilini.it
 www.doublexoxoclassprojectduckdns.com
 www.doublexoxoclassprojectduckdns1.com
+www.doublexoxoproject2026duckdns.com
+www.doublexoxoproject2026duckdns1.com
 www.dpic-computers.com
 www.drechftankholding.com
 www.drjeffkaplan.com
@@ -31158,6 +31179,7 @@ yekaackwqsggueqc.xyz
 yekshart.app
 yekshart.net
 yelahaye.surf
+yellow-monkey.cfd
 yellow-smoke-3d0d.yellow-smoke.workers.dev
 yellowrace.com
 yellowred.in
