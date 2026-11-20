@@ -1,6 +1,6 @@
 # Workflow Health Dashboard
 
-**Stand:** 2026-11-20 08:01 CET (Europe/Berlin)
+**Stand:** 2026-11-20 21:02 CET (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
@@ -8,31 +8,31 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 9 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 7
+- **Echte Combined-Runs:** 10 / 8 erwartet
+- **Skip-Runs (Idempotenz-Guard):** 9
 - **Lucken (>210min zwischen echten Runs):** 1
-  - 2026-11-19 13:16 CET (Europe/Berlin) -> 2026-11-19 17:34 CET (Europe/Berlin) (258 min)
+  - 2026-11-20 04:57 CET (Europe/Berlin) -> 2026-11-20 09:32 CET (Europe/Berlin) (274 min)
 
 ## Letzte 7 Tage
 
-- **Echte Combined-Runs:** 56
-- **Skip-Runs:** 50
+- **Echte Combined-Runs:** 57
+- **Skip-Runs:** 49
 - **Fehlgeschlagene Runs:** 0
-- **Lucken >210min:** 10
+- **Lucken >210min:** 11
 - **Groesste Lucke:** 2026-11-17 04:59 CET (Europe/Berlin) -> 2026-11-17 10:13 CET (Europe/Berlin) (313 min = 5h 13min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 340
+- **Watchdog-Laeufe insgesamt:** 328
 - **Watchdog-Fehler:** 0
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 46
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 47
 
 Letzte Watchdog-Eingriffe:
-- 2026-11-19 17:34 CET (Europe/Berlin) (Run #44567677983, Laufzeit 17m 28s)
-- 2026-11-19 19:34 CET (Europe/Berlin) (Run #44589330434, Laufzeit 17m 21s)
-- 2026-11-19 22:30 CET (Europe/Berlin) (Run #44619461809, Laufzeit 19m 6s)
-- 2026-11-20 02:09 CET (Europe/Berlin) (Run #44651526407, Laufzeit 19m 36s)
-- 2026-11-20 04:38 CET (Europe/Berlin) (Run #44669146702, Laufzeit 18m 55s)
+- 2026-11-20 11:29 CET (Europe/Berlin) (Run #44719643090, Laufzeit 15m 29s)
+- 2026-11-20 14:01 CET (Europe/Berlin) (Run #44740674766, Laufzeit 19m 7s)
+- 2026-11-20 17:10 CET (Europe/Berlin) (Run #44770647594, Laufzeit 16m 33s)
+- 2026-11-20 19:42 CET (Europe/Berlin) (Run #44795354637, Laufzeit 14m 7s)
+- 2026-11-20 19:57 CET (Europe/Berlin) (Run #44797570225, Laufzeit 23m 17s)
 
 ---
 
