@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-20 22:02 CET
-# Eintraege: 32208
+# Aktualisiert: 2026-11-21 00:57 CET
+# Eintraege: 32219
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1526,6 +1526,7 @@
 8ve3qsgxk7rs6.cfc-execute.bj.baidubce.com
 8vizuy7n.betbatis.com
 8vjdfz8n.basketballiran.bet
+8w9hvvdk.zodi.store
 8wzrpus8.kernel-beacon.digital
 8x3dirc5.ydns.shop
 8xgyjq9t.casero.store
@@ -5208,6 +5209,7 @@ bulkcompressimages.com
 bulkly.io
 bulletpop.cyou
 bullyfiendz.com
+bunaholic.com
 bunntyca.icu
 bunnybathco.com
 burden.aeafh.workers.dev
@@ -7238,6 +7240,7 @@ d.bosmj.org
 d.dps69.org
 d.gl111.org
 d0.angkajitu.org
+d037tqeu.movilidadacademica.com
 d0658smb.gamelandiran.ir
 d0c2wgj1.pczrt.hu
 d0jft8en.gtacauto.com
@@ -7485,6 +7488,7 @@ dbyhtyvx.forbiddenpantsshop.com
 dc.amin90.org
 dc10varl.rsudtarutung.com
 dc16h0z3.energyrevolutionsystem.org
+dc55crk8.nowfromhome.com
 dc6z7ywb.en-us-energyrevolution.com
 dcaxdwoo.barcelona11.com
 dcccore.noip.at
@@ -11765,6 +11769,7 @@ gokanke.cyou
 gokksosyecuwukcw.xyz
 gokooiuegwiiiiys.xyz
 goksearch.com
+gokyzuro.workers.dev
 gol1111.store
 golcuk-web-tasarim.xyz
 gold-fish4.to6varil.in.net
@@ -12394,6 +12399,7 @@ haqoakt0.elmolnafs.xyz
 harborfreight.delivery
 harborlinecdn.com
 hardcontrol.ru
+hardener33.opik.net
 hardicki.com
 hardload.su
 hardsmi.cyou
@@ -14094,6 +14100,7 @@ j.dhawa.net
 j.dog69.net
 j.gam99.org
 j.gg180.net
+j.gpy88.org
 j01nn5zm.istanbul303.com
 j0g2ia0g.bet1yek.bet
 j0p0cibb.lunza.store
@@ -18095,6 +18102,7 @@ movieclassicwings.com
 moviegallerys.com
 movierulzz.co.in
 movies.liho.tw
+movilidadacademica.com
 movixyra.click
 movxvv.enus-pegasus.com
 mowcangler.co.uk
@@ -23403,6 +23411,7 @@ ryazan.net
 rybcodduchgohassl.nextbahis.blog
 rybmyip.osbratstvojedinstvo.com
 rycerskidwor.ctit.pl
+rydyhobi.workers.dev
 ryfdskufgwpc.tiroalpaloes.co
 rykwhjt.winsportiran.com
 ryodr8kw.varzeshlife.ir
@@ -28084,6 +28093,7 @@ vcq1hydz.sleavepiker.com
 vcrjfnwa.ketab.blog
 vctiae.bet360pro.bet
 vctraders.co.za
+vcuvrehd.taksim-fil.click
 vcwxkel0.get-echofree.com
 vcxddac.eng--digestistart.com
 vd-ntds.com
@@ -28784,6 +28794,7 @@ vzwkcrp.megashart.org
 vzxzmkr.eachway-multiplier.com
 vzyeissn.rial.bet
 w.apigacor889.org
+w.asiabet777.org
 w.bosmj.org
 w.dog69.net
 w.gg018.org
