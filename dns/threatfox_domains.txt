@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-20 00:22 CET
-# Eintraege: 32926
+# Aktualisiert: 2026-11-20 02:11 CET
+# Eintraege: 32953
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -902,6 +902,7 @@
 4q4880m7.bwin90.bet
 4q74zsh8.raftarsazmani.xyz
 4q7l3aauklpq0bj86rdnvr.beer
+4qktmvoy.pruebasrhglobal.com
 4qm7sqpa.cyber-harbor.digital
 4r6b0iom.verticalrewards.com
 4rqjjify.omars.store
@@ -7159,6 +7160,7 @@ connectcapita.com.au
 connection101.duckdns.org
 connectme.mom
 connectmeinside.com
+connectric.co.uk
 connectus.cristianoobrigado.shop
 connollystewart.com
 connorconsultingservices.com
@@ -7568,6 +7570,7 @@ ctxlnc.twomamasgourmetpizzeria.org
 cu3bm1vz.shop-sightfresh.com
 cu3lrjg7.rossbridgemedicalcenterlp.com
 cu8d1374.us-eng-zensulin.com
+cuadrante7.mx
 cuajsf.racines.restaurant
 cuanvision.com
 cube-60.com
@@ -7840,6 +7843,7 @@ danceofwholeness.com
 daneshtahlil.com
 danhbalbaluatsu.net
 danialba.com
+danieltschumi.com
 daniwindsor.com
 daniyahkhan.info
 danmek.duckdns.org
@@ -8091,6 +8095,7 @@ dehikz.com
 dehjcpyw.byte-forge.digital
 deiyeuwma-group.com
 deleeue.lol
+delegadajessica.com
 delhidanceacademy.in
 delhidda.com
 delife-eg.com
@@ -9094,6 +9099,7 @@ e0lg2w5e.us-en-us-nervesoothe.com
 e0vt7hv0.saostar.biz
 e0w3eaj4.us-us-us-geniusbrainsignal.com
 e1l3tn5m.bet1xyek.bet
+e2.asia608.org
 e20yl90d.parsgoal90.com
 e22bfyxd.usa-lipogummy.com
 e2bet-games.org
@@ -9816,6 +9822,7 @@ enseigne-magasin.fr
 enskbzl.enus-goldalign.com
 enslaveculprit.digital
 enstrhr.czhaijiangdrying.com
+ensurebb.com
 entbd.org
 entegaljerm.xyz
 enter-code-cdn.info
@@ -10108,6 +10115,7 @@ ev99.world
 evacuat-sycam.digital
 evangelion-ec.me
 evanie.cz
+evasistem.com.tr
 evdenevenakliyatmanisa.com.tr
 event-unipeg.art
 event.dis4cle.info
@@ -10147,6 +10155,7 @@ evohumanx.com
 evoke.wiwgf.workers.dev
 evoklbxr.karafarini.shop
 evolucaoinfo.com
+evolveperformance.fit
 evolvetrader.co.uk
 evoria.blog
 evorune.online
@@ -10762,6 +10771,7 @@ fileupdates.blob.core.windows.net
 fileworks.cfd
 filezilla.cc
 filltheform.site
+filmfactorylibrary.com
 filmfilmfilm.studio
 filqexo.com
 filte-path.7zorelax.lat
@@ -10939,6 +10949,7 @@ floraobservabilitycenter.garden
 floraobservabilitysystem.garden
 floraresourcecenter.garden
 floraresourcecontroller.garden
+floreer.nu
 florelle.blog
 floriculture-mastery.garden
 florida-grower.com
@@ -11094,6 +11105,7 @@ former-agir-normandie.fr
 formkey.asia
 formonstore.com
 formulaire.objectifmaisonresponsable.fr
+forneyroofers.wpenginepowered.com
 foroinnovacion-2edicion.sefh.es
 forsell.tech
 forsttrading.com
@@ -11102,6 +11114,7 @@ fortesting-alpha.vercel.app
 fortifivebackup.net
 fortifivemain.net
 fortress.video
+fortressgrcit.com
 fortresssomalia.com
 fortuna-qwont.club
 fortwaynejubileebrontide.com
@@ -11180,6 +11193,7 @@ framework-jsoncdn.beer
 frameworkjsbns.beer
 franbellamail.co.uk
 francescmarcalvaro.cat
+francescolibralon.com
 francismclaren.co.uk
 frankfurt-hochzeitslocation.de
 franklintowing.net
@@ -11396,6 +11410,7 @@ fun88kyc.com
 funbites.com
 fundacionconvergentes.org
 fundacionleaencontexto.com
+fundacionmirizzi.org
 fundacionolipica.store
 fundfall.qi3mavel.in.net
 fundingfactors.com
@@ -11419,6 +11434,7 @@ fusionise.co.uk
 fusionjanicepalimpsest.com
 futg.thelegalexpertise.com
 future-zebec.com
+futuredesignpainting.com
 futureleadersincubator.org
 futuresongs.org
 futurex.media
@@ -11723,6 +11739,7 @@ gcobdr.get-thyrafemmebalance.com
 gcpydqb.airtechmedical.com
 gcrexj.glfree.hu
 gcrn.org.gh
+gcs-factory.fr
 gcteway.com
 gctlg.webgondozas.hu
 gcwsnip.hokm.casino
@@ -11816,6 +11833,7 @@ genovau.com
 genovaw.com
 genow.run
 genrols.gamestwists.com
+gentledentalassistantschoolinplanotx.com
 gentletide.setqueueat.lat
 gentletouchchiropracticclinicauroracol.com
 genugsq.best
@@ -13348,6 +13366,7 @@ holepticglovec.com
 holiday-matrix.christmas
 holidayexpertsusa.com
 holistic-detective-agency.garden
+holistic-humans.com
 holisticdetective.christmas
 holisticpaws.org
 hollandspecial.com
@@ -19290,6 +19309,7 @@ newpopularimages.com
 newproject-newworld.info
 newrqas1.duckdns.org
 news-games.com
+news.ambisi.co
 news.pieset.co
 news.pppsb.org.pk
 newsestrenos1.duckdns.org
@@ -19758,6 +19778,7 @@ ns1.nsebseshop.cloud
 ns1.servicedata.services
 ns1.translategoos.com
 ns1.twnic.top
+ns1.yexiaowei.icu
 ns1.yukklzwo.vip
 ns1cdnclaude.beer
 ns2.admlistdel.com
@@ -19773,6 +19794,7 @@ ns2.msgkg.xyz
 ns2.newchatsits.ir
 ns2.nsebseshop.cloud
 ns2.translategoos.com
+ns2.yexiaowei.icu
 ns2.yukklzwo.vip
 ns3.admlistdel.com
 ns3.akawowfast.com
@@ -20008,6 +20030,7 @@ o7ve5wvj.cognigen-plus.net
 o82lzdzb.networkatlas.top
 o8w2orhn.1bahis.app
 o8x1lij5.archive-shlyah.digital
+o9.asia608.org
 o96el85c.alshamsi-uae.com
 o98orlmh.nurosarp.com
 o9a66qig.zaribbala.bet
@@ -20640,6 +20663,7 @@ osscdf.icu
 ostamioalkfjka.com
 ostekstatmen.net
 ostlomtophamchese.com
+ot.ankasanet4drtp.org
 otcgf.christorem.com
 otehaswvcc646ou4kozenrh4mfqyvntx6yrx6jdntilp5kbt7noq.arweave.net
 oticasolarvision.com.br
@@ -22334,6 +22358,7 @@ qaegoiqamesgkuke.xyz
 qaesugaikooqosiq.xyz
 qaezg.sm188akurat.sbs
 qaff1aeg.chronicle5-diachiha.digital
+qagaqame.workers.dev
 qagmckgswgaaqeig.xyz
 qaieskaoqeaoacuy.xyz
 qaiooeuqywwiasgu.xyz
@@ -30405,6 +30430,7 @@ www.ati-aca.org
 www.attorneycollectionservices.com
 www.autoccb.tech
 www.autocodekenya.com
+www.autosy.se
 www.avardrone.com
 www.avellano.com.co
 www.avertieducation.com
@@ -32831,6 +32857,7 @@ zsupeg.angelnailsphenix.com
 zsv2c62243.space
 zsvipfhj.fileboroo.com
 zsyahul.prozhe.pro
+zt.gp11.org
 ztcgioka.shop-alphatonic.us
 zthayuyp.1x303.casino
 zthedtkr.1xbitkade.com
