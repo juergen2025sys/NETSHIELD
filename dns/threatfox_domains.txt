@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-21 09:47 CET
-# Eintraege: 31759
+# Aktualisiert: 2026-11-21 12:09 CET
+# Eintraege: 31797
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -235,6 +235,7 @@
 18inchgermanylovercapybara.space
 18nnbu.fixionmunici9al.lat
 18ppizar.easybatteryfixed.net
+18tllktok.xyz
 18ttucts.us-en-us-eloncode.com
 19.tcp.cpolar.top
 193-233-126-53.sslip.io
@@ -449,6 +450,7 @@
 26z3gms2rshr2zzedxhw5fbucilmgt2inhmxzmuhteyztpxohoqplgyd.onion
 2718gc20.seresniki.com
 2766iljo.melbetiran.poker
+2773iaa7.playstationrepublic.games
 277darrelle.workers.dev
 27e13kk2.enus-enerflow.com
 27hrchzs.megaparibet.games
@@ -2404,6 +2406,7 @@ alkkq3vhb7epl3jh6qzutj2vyyfdgvs2nukw5hwdsijl5la3jrinrryd.onion
 alklh.popi999.net
 alkociferblat.cc
 alkoseal.com
+all1.realdd.click
 all2getherwraps.com
 allaccessep.com
 alladie.store
@@ -4627,6 +4630,7 @@ bmy7ns1j.premiumrent-car.com
 bmz.hu
 bn6xg7zi.geniusbrainsignal.net
 bnaesbhrt.nextdoorcontractors.com
+bnaksm25rk.anondns.net
 bnb.sm188dvlv.icu
 bnbgest.com
 bnbwupr9.rsfoodproducts.com
@@ -4789,6 +4793,7 @@ borrow.vuulh.workers.dev
 borrowskol312.icu
 borrylistu898214.icu
 borschokf2dd.digital
+bosinn.top
 bosmj.org
 boss.noip.at
 boss1huesos.cc
@@ -6046,6 +6051,7 @@ cimesemergences.fr
 cinar.ae
 cincycarpetcleaning.com
 cinder-anvil-muinplii.pro
+cinder.at
 cindercoveber.cc
 cinderlake.cc
 cindermoor.cc
@@ -6542,6 +6548,7 @@ comwebs.residency5ilicat.lat
 comwebs.softworkapi.lat
 comwebstat.cloudprocmgr.pics
 comwebstat.fastnetgatehub.pics
+conad-plus.shop
 conarca.com
 concludanotafiscal.site
 concretecuttingae.com
@@ -6582,6 +6589,7 @@ conseil-ab.fr
 conseilsst.com
 conshelm.digital
 consider-dorasti.digital
+console.hazelcadence.website
 console.plan-stack2.click
 consorzioaion.net
 consultenotafiscal.lat
@@ -6690,6 +6698,7 @@ core.infrastructurerun.pics
 core2.craft-hq19.one
 coreaccessbilling.com
 corelaunchhj.click
+coreprotector.org
 coreshield.pixelnode.lat
 coretoken8476.top
 coreviewer.vercel.app
@@ -9974,6 +9983,7 @@ ferzaadvocacia.com.br
 fesold.com
 fest-thailand.com
 festival-enruelibre.fr
+feszuncp.northcountrygentleacupuncture.com
 fetch-01.bot.pactmesh.net
 fetchwave.cc
 fetestjs.beer
@@ -10349,6 +10359,7 @@ folkunwary.digital
 folliedibellezza.it
 followyourjoy.hu
 fombord.com
+fondasi.amscprivacy.com
 fontanayoga.com
 fontawesome-cdn.cfd
 fontawesome-js-cdn.beer
@@ -10964,6 +10975,7 @@ gastric.mezmd.com
 gaswert.com
 gate-air.com
 gate-dock.deryuga-sablist.garden
+gate-fender.luftribka.workers.dev
 gate.albaikmenuonline.com
 gate.carebridge.blog
 gate.runmanor.click
@@ -11079,6 +11091,7 @@ gejy.site-shartbandi-takhtenard.com
 geliodor.eu
 gelmedi.lol
 gelsintatil.com
+gem4jv80.pawrangers.com
 geminicii.co.com
 geminoargotai.net
 geminyw.xyz
@@ -12351,6 +12364,7 @@ heavyset-that.digital
 heavywbp.cyou
 hebertwellnessgroup.com
 hechiceriacristaldelsol.com
+hechman.top
 heethcote.com
 hegmaen.com
 hehegahu.com
@@ -13180,6 +13194,7 @@ iieqea.buy-goldalign.com
 iifoqkzw.betpublic.casino
 iii.jangkarsm188.top
 iii.psgiran.news
+iiilii.top
 iiillillilliiliilllliilllililiillillililiiliillilliiiiiliiillli.cyou
 iiss-mru.com
 iiuhvm1r.foodpapajobs.com
@@ -13244,6 +13259,7 @@ ilikecircumcised.com
 ilikegoodpersontoo.com
 iling.shop
 ilinspix.world
+illakunturtravel.com
 illegalbeauty.de
 illinoiscoal.biz
 illiquidlabs.com
@@ -13789,6 +13805,7 @@ iuko.bet1forward.com
 iuqf.beyondhomehealthcareservices.com
 iuta.today
 iv.arena213.net
+iv368fvf.adeac.com.mx
 iv63jnsk.shart303.net
 ivanataborska.cz
 ivangay.bond
@@ -13825,6 +13842,7 @@ ix8fhxrx.flasburn.com
 ixcube.ddns.net
 ixejqlu.wavelu.com
 ixober.jamaicamihappyga.com
+ixor.top
 ixscgl.marquettedetailing.com
 ixxrzs3zo57qhbscszen2nvx6hgav5zrx6tjs7lq6unsphwcadeadlid.onion
 iy.alxeabet.org
@@ -15021,6 +15039,7 @@ kkid.hightidesuffolk.com
 kkjituanhaiwai888.top
 kkjjjytvfdfd4534-41452.portmap.host
 kkkbbb.duckdns.org
+kkkvvvzxg.online
 kkridjbd38263djbd.com
 kkslot777.click
 kku.amanplya.org
@@ -15252,6 +15271,7 @@ kubilas.lt
 kubli.lv
 kucabi.de
 kuciel.com.pl
+kudefy.workers.dev
 kudoassam.org
 kuechen-welt.eu
 kufazworld.duckdns.org
@@ -16069,6 +16089,7 @@ localhost.exchange
 localhost247.org
 localhost4000.fun
 localhost8000.fun
+locanto.cam
 locationdevoitureessaouira.com
 locationsolvers.com
 lochnesshunters.com
@@ -17253,6 +17274,7 @@ mibombo.in
 micfybfh.jadoobet.ink
 michaelpriv-books.com
 michaelrutter.dev
+michiko.casacam.net
 micorsoft.cloud
 micro-fan-obs-plan.garden
 micro-service-cluster.garden
@@ -17339,6 +17361,8 @@ mindbodyswag.com
 mindfulnessenterprise.com
 mindscaping.pro
 mindset-design.fr
+minecraft-set.com
+minecraft-vip.top
 minecraft65server.3utilities.com
 minecraftserverapigame.xyz
 minecraftsmp14.duckdns.org
@@ -18687,6 +18711,7 @@ node-pulse.digital
 node-slate.com
 node-vml.vidfree.net
 node.androiddebugbridge.su
+node.cinder.at
 node.gentleroom.lol
 node.lami4qor.lat
 node.mothwick.cc
@@ -18759,6 +18784,7 @@ norrykilu231.digital
 northamptonearpiercing.co.uk
 northavo.cc
 northcombe.org
+northcountrygentleacupuncture.com
 northglyp.devmatrix.lat
 northhouse.cfd
 northlakeresearch.org
@@ -19080,6 +19106,7 @@ nyitbg.thebutlerspantrykitchenandhome.com
 nylh.caramelkosher.com
 nylmc.hotbetkade.com
 nylocal-org.electronranch.com
+nymra.cc
 nyotacapital.net
 nyp67fb4.rtpk86sport-happy.click
 nypdprosecutorcorruption.com
@@ -20353,6 +20380,7 @@ peterbosherphotography.co.uk
 petersenbusinesssolutions.co.za
 petit-2.ra6ximen.in.net
 petitwaldnet.mivonflowsrv.garden
+petroodawd.top
 petsandvets.website
 petsoftcrate.com
 peuraboost.com
@@ -20659,6 +20687,7 @@ player-js.joelbauer.com
 player.gamesstatusfun.com
 playfulbricker.hk
 playgame.pk
+playgoodout.click
 playlist-thematique.fr
 playunleash.com
 playvodz.com
@@ -21411,6 +21440,7 @@ qa.araytoto.org
 qa5c8tze.www-glucotrust-bites.com
 qa6yskm1.en-us-xenburn.com
 qaaeysoaoqieeikk.xyz
+qadamcash.top
 qaeacamquamakmeu.xyz
 qaeaeeyqgaakugag.xyz
 qaeccaimagyiikwi.xyz
@@ -22912,6 +22942,7 @@ rttrentals.com
 rtvzcs.sultan88.live
 rtzixna.site-shartbandi.christmas
 rtzj3f9c.glicomute.com
+ru.dakjdnwgnu.sbs
 ru4gcxzf.cardoslim.com
 ru4xmcs2.onjabet1.com
 ru5vv9op.adobeshin.com
@@ -23378,6 +23409,7 @@ sandblastingaustin.com
 sanderscollision.com
 sandhudigital.com
 sandiegomobiletire.com
+sandiegopartybusrentals.com
 sandlefordparade.co.uk
 sandman.bond
 sandman.lat
@@ -23798,6 +23830,7 @@ sfzfzyeb.btyek.site
 sg02vvao.midwayammunition.com
 sg03wupc.brexcavatingllc.com
 sg9sj8ifda.com
+sgdkgdksgdkgsd.top
 sgepxhg.qualitycounselingcenter.com
 sgkg29g4.gregoryschreiercabinetmaker.com
 sgl5ele3.botvn.net
@@ -25442,6 +25475,7 @@ syqseimsowywgskg.xyz
 syqwmkmwuyemakiu.xyz
 syqxxqi.riyaziyattajrobi.xyz
 syracusefertilitycenter.com
+syrna.cc
 syrzz.technologiaiviz.hu
 sys.systemworld.info
 syshash4392.top
@@ -27873,6 +27907,7 @@ vidaesport.co.za
 vidafit.fit
 vidals.com
 videmateshare.com
+videoavarii17.sbs
 videosparrow.cloudmesh.lat
 vidinesdurys.lt
 vidsloii.bcgamekade.online
@@ -28002,6 +28037,7 @@ vjs8k4dd.betyek.bio
 vjscloudjsns.beer
 vk10.waizerfly.com
 vk88.work
+vkawdwa.top
 vkdif.sm188daftar.cfd
 vkebuqp.uplandmealsonwheels.org
 vkg9h21t.eachway-multiplier.com
@@ -29733,6 +29769,7 @@ www.m4imi4w.space
 www.maedso.com
 www.magazzino-elmarstone.com
 www.mahibloom.com
+www.maidstoneremovals.co.uk
 www.makmigroup.com
 www.mandiepinto.com
 www.mansionhouse.gr
@@ -29903,6 +29940,7 @@ www.projecthomelessconnect.org
 www.projectusf.com
 www.projectyola.click
 www.pronhub.shop
+www.prowesssoft.com
 www.proyed.com.co
 www.psicologiadsc.com
 www.ptip.us
