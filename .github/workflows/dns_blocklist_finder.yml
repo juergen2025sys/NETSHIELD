@@ -140,6 +140,55 @@ jobs:
               "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/tif.txt",
               "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/doh-vpn-proxy-bypass.txt",
           )
+          # Wildcard-Domains aus Unbound (Feld "Wildcard-Domains", Stand
+          # 2026-11-21): komplett gesperrt inkl. aller Subdomains. Ohne sie
+          # wuerden z. B. tausende *.pages.dev-Funde faelschlich als "neu" gelten.
+          UNBOUND_WILDCARDS = """
+          trycloudflare.com loclx.io localhost.run lhr.life lhr.rocks loca.lt localtunnel.me pinggy.io pinggy.link
+          pinggy.online zrok.io localxpose.io packetriot.net srv.us tuns.sh pagekite.me sharedwithexpose.com tunnelto.dev
+          pastebin.com hastebin.com rentry.co rentry.org paste.rs dpaste.org dpaste.com controlc.com pastebin.pl justpaste.it
+          pastetext.net zerobin.net textbin.net termbin.com sprunge.us clbin.com ix.io pastie.org ghostbin.co pastes.io
+          pastecode.io paste.c-net.org transfer.sh bashupload.com oshi.at keep.sh file.io temp.sh catbox.moe 0x0.st uguu.se
+          ufile.io filetransfer.io anonfiles.com filecloudonline.com uplooder.net qu.ax x0.at upload.ee webhook.site
+          pipedream.net requestbin.net requestcatcher.com beeceptor.com ptsv2.com ptsv3.com postb.in hookbin.com oast.fun
+          oast.pro oast.live oast.site oast.online oast.me oastify.com interact.sh interactsh.com burpcollaborator.net
+          dnslog.cn ceye.io sitenable.co proxyorca.com proxy-site.io telebit.io jprq.io jprq.live openport.io segfault.net
+          ssh-j.com bore.digital remote.it expose.dev lt.dev paste2.org pastelink.net paste.mod.gg privatebin.net 0bin.net
+          katb.in paste.sh nopaste.net ghostbin.me pastes.dev pasteio.com notes.io paste.org.ru paste.gg bpa.st
+          pomf2.lain.la letsupload.io anonymfile.com tempfile.org easyupload.io fileditch.com uploadnow.io anonsharing.com
+          filedoge.com file.coffee send.vis.ee wormhole.app requestbin.com mockbin.org mockbin.io requestinspector.com
+          httpdump.app webhook.cool typedwebhook.tools xss.ht xss.report pingb.in webhookrelay.com smee.io ngrok.io
+          ngrok.app ngrok-free.app ngrok.dev ngrok-free.dev serveo.net serveousercontent.com bore.pub tunnelmole.net
+          gofile.io paste.ee localtonet.com loophole.site portmap.io pagekite.net pastefy.app pixeldrain.com tmpfiles.org
+          filebin.net bayfiles.com requestrepo.com bxss.me ipinfo.io ip-api.com ipify.org icanhazip.com ifconfig.me
+          ifconfig.co wtfismyip.com ipwho.is myexternalip.com ident.me ipecho.net myip.com ip.sb checkip.amazonaws.com
+          anonfile.la tunnel.pyjam.as pastebin.fr pastefs.com paste.myst.rs hastebin.de requestbin.io webhookinbox.com
+          dig.pm ipwhois.app ipwhois.io ipgeolocation.io ip2location.io ipapi.is ip-api.io ipinfo.info trackip.net
+          ip.tyk.nu seeip.org myip.wtf ipaddress.sh workupload.com krakenfiles.com uploadhaven.com buzzheavier.com
+          send.cm up-load.io hexupload.net tusfiles.com dosya.tc ngrok-agent.com argotunnel.com cfargotunnel.com
+          inlets.dev tuna.am localcan.dev cloudflareclient.com supportxmr.com xmrpool.eu hashvault.pro ipfs.io storry.tv
+          webflow.io surge.sh replit.dev repl.co replit.app lovable.app anotepad.com pasteall.org paste.ofcode.org
+          paste.lol pastes.org paste.in justpaste.me cl1p.net send.now file.kiwi uploady.io formspree.io getform.io
+          formcarry.com usebasin.com web3forms.com staticforms.xyz formbold.com fabform.io formkeep.com geojs.io
+          freeipapi.com ipdata.co ipregistry.co bigdatacloud.net ifconfig.io my-ip.io ip.guide ipquery.io ipapi.com
+          mocky.io mockapi.io jsonbin.io jsonblob.com npoint.io extendsclass.com kvdb.io pantry.cloud jsonstorage.net
+          anonymousfiles.io uploadfiles.io files.dp.ua fastupload.io upload.disroot.org pomf.lain.la instatunnel.my
+          tunnl.gg outray.dev tunwg.com pyjam.as imageshare.best sportshub.bar lovebird.guru grabify.icu whatstheirip.com
+          webresolver.nl bit.do urlz.fr ipinfo.tw nip.io xip.io lvh.me localtest.me vcap.me traefik.me localhost.direct
+          rbndr.us lacolhost.com local.gd 1u.ms w3s.link r2.dev onrender.com up.railway.app deno.dev val.run
+          pythonanywhere.com csb.app bitbucket.io telegra.ph graph.org iplogger.org iplogger.com 2no.co yip.su
+          grabify.link blasze.com ipapi.co geoplugin.net extreme-ip-lookup.com ip.42.pl l2.io myip.dnsomatic.com
+          checkip.dyndns.org freegeoip.app db-ip.com nanopool.org 2miners.com moneroocean.stream c3pool.com
+          herominers.com unmineable.com nicehash.com minergate.com f2pool.com xmrig.com paste.debian.net
+          paste.ubuntu.com paste.opensuse.org bin.disroot.org paste.pythondiscord.com privnote.com write.as txti.es
+          ideone.com codepad.org glot.io sendspace.com dropmefiles.com files.fm 1fichier.com filemail.com
+          transfernow.net tempsend.com sendgb.com remote.moe sslip.io xsshunter.com ezxss.com devtunnels.ms localto.net
+          pktriot.net ts.net tailscale.io pangolin.net fossorial.io anydesk.com anydesk.de teamviewer.com teamviewer.net
+          tvc.teamviewer.com rustdesk.com screenconnect.com connectwise.com splashtop.com getscreen.me
+          remoteutilities.com ammyy.com supremocontrol.com zohoassist.com dwservice.net remotepc.com logmein.com
+          logme.in gotoassist.com islonline.net atera.com syncromsp.com netsupportsoftware.com meshcentral.com
+          ultraviewer.net rport.io workers.dev pages.dev
+          """.split()
           # Abgleich nur, wenn die eigenen Listen genug Domains liefern -
           # sonst waere "neu" irrefuehrend (z. B. bei Download-Fehlern).
           COVERAGE_MIN_DOMAINS = 1000000
@@ -526,6 +575,8 @@ jobs:
                   if total_bytes >= COVERAGE_MAX_BYTES:
                       print("::warning::Groessenlimit fuer eigene Listen erreicht.")
                       break
+              own.update(d.lower() for d in UNBOUND_WILDCARDS)
+              print(f"  eigene Wildcard-Domains: {len(UNBOUND_WILDCARDS)}")
               return own
 
           def covered(domain, own):
@@ -795,7 +846,7 @@ jobs:
           md.append("")
           md.append("- **Score:** Frische wird am staerksten gewichtet. Abzug bei beliebten Domains (-10 / -30) und bei schon genutzten Listen (-20).")
           md.append("- **Status:** 🆕 neu = noch nirgends genutzt · ✅ genutzt = URL steht schon in Unbound oder NETSHIELD · ☑️ Repo genutzt = andere Datei aus einem schon genutzten Repo · 🪞 Spiegel = Kopie einer genutzten Quelle unter anderem Konto.")
-          md.append("- **Schon gesperrt / Neu fuer mich:** Abgleich mit allen eigenen Unbound-Listen (eigene URLs + AdGuard, StevenBlack, OISD NSFW, Hagezi Pro++/TIF/DoH-Bypass), exakt und ueber die Hauptdomain (Wildcard). Score-Abzug ab 80 % (-10) und 95 % (-25) Abdeckung.")
+          md.append("- **Schon gesperrt / Neu fuer mich:** Abgleich mit allen eigenen Unbound-Listen (eigene URLs + AdGuard, StevenBlack, OISD NSFW, Hagezi Pro++/TIF/DoH-Bypass + Unbound-Wildcard-Domains wie pages.dev/workers.dev), exakt und ueber die Hauptdomain (Wildcard). Score-Abzug ab 80 % (-10) und 95 % (-25) Abdeckung.")
           md.append(f"- **Beliebte Domains:** Treffer aus den {POPULAR_TOP:,} meistbesuchten Domains (Tranco). Jeder Treffer waere eine echte Seite, die gesperrt wuerde.".replace(",", "."))
           md.append("- **Eintraege:** Anzahl Domains in der ganzen Datei (nicht nur Stichprobe).")
           md.append("- **OPNsense direkt = Ja:** Stichprobe besteht zu mindestens 98 % aus reinen Domains/Wildcards.")
