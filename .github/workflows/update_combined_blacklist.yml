@@ -1288,6 +1288,13 @@ jobs:
               # Sperrliste (~13k, stuendlich, frei nutzbar; max. 1x/h abrufen).
               # Test: 98,6 % schon gesperrt, 186 neu, 0 Kontakte eigener Geraete. Non-HQ.
               "herrbischoff_ipbl":          ("https://ipbl.herrbischoff.com/list.txt", False),
+              # 2026-11-21 (Nutzerwunsch): CESNET NERD (Tschechien) - Reputation
+              # aus Warden-Sensoren, DShield, OTX u. a.; Forschungs-Scanner und
+              # Whitelist schon herausgefiltert. Stuendlich, max. 1x/h abrufen.
+              # Test: med_conf 15.575 neu, bl_login 17.302 neu, 0 Kontakte. Non-HQ.
+              # bl_scan bewusst NICHT: enthielt Anthropic, Fastly, Google.
+              "nerd_bad_ips_med_conf":      ("https://nerd.cesnet.cz/nerd/data/bad_ips_med_conf.txt", False),
+              "nerd_bl_login":              ("https://nerd.cesnet.cz/nerd/data/bl_login.txt", False),
               # "honeypot_blocklist" entfernt: yuexuana521/honeypot-blocklist Repo gelöscht
               # ENTFERNT (2026-08-05): nixbear_malicious - 52 Tage unveraendert lt. Stale-Feed-Report.
               "ufukart_blacklist":          ("https://raw.githubusercontent.com/ufukart/Blacklist/main/blacklist.txt", False),
