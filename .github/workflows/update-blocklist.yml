@@ -420,6 +420,31 @@ jobs:
 
               time.sleep(0.1)
 
+          # ── Rueckfall auf Bestand (2026-11-21) ──────────────────────────────
+          # Einzelne Laender liefern bei hackinggate gelegentlich HTTP 503
+          # (z. B. CC, CX, PN am 21.11.2026). Statt den ganzen Lauf zu verwerfen,
+          # werden bei hoechstens FALLBACK_MAX Fehlern die bisherigen Dateien
+          # dieser Laender aus dem Repo uebernommen. Bei mehr Fehlern oder
+          # fehlender Bestandsdatei greift weiterhin der Abbruch-Guard unten.
+          FALLBACK_MAX = 10
+          if errors and not _partial_load and len(errors) <= FALLBACK_MAX:
+              _still_failed = []
+              for cc in errors:
+                  continent, name = COUNTRY_MAP[cc]
+                  _path = f"countries/{continent}/{name}_ipv4.txt"
+                  try:
+                      with open(_path, encoding="utf-8") as _fh:
+                          _old = [l.strip() for l in _fh if l.strip() and l.strip()[0].isdigit()]
+                  except OSError:
+                      _still_failed.append(cc)
+                      continue
+                  all_ips.update(_old)
+                  continent_ips[continent].update(_old)
+                  country_data[cc] = (continent, name, sorted(_old, key=sort_key))
+                  print(f"::warning file=update-blocklist.yml::{cc} ({name}) nicht abrufbar - "
+                        f"Bestand aus {_path} uebernommen ({len(_old)} entries)")
+              errors = _still_failed
+
           # ── Leerungsschutz ────────────────────────────────────────────────
           # hackinggate liefert ~255k aggregierte Ranges. Bei partiellem Ausfall
           # könnten trotzdem 200k+ ankommen → Schwelle auf 240k erhöht für
