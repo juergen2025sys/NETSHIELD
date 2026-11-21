@@ -1,21 +1,10 @@
 {
-  "updated": "2026-11-21 16:20 CET (Europe/Berlin)",
+  "updated": "2026-11-21 21:03 CET (Europe/Berlin)",
   "total": 36,
   "ok": 31,
   "warn": 7,
-  "error": 1,
-  "errors": [
-    {
-      "file": "Production Health",
-      "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
-      "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 104.29.147.57, 104.29.147.64, 104.29.147.57, 104.29.147.64 \u2013 Filterung wirkungslos!"
-    },
-    {
-      "file": "Production Health",
-      "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
-      "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 104.29.147.64, 104.29.147.57, 104.29.147.64, 104.29.147.57 \u2013 Filterung wirkungslos!"
-    }
-  ],
+  "error": 0,
+  "errors": [],
   "warnings": [
     {
       "file": "Regressionstests",
@@ -55,7 +44,7 @@
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "82bd3bd0b0e9a95b6eb7599f3a74b9c04f5df82c",
+    "sha": "fc7a8bc8cab552c5e38f503472e813bb1ece7994",
     "status": "warning",
     "tests_run": 490,
     "failures": [
@@ -72,28 +61,17 @@
     "detail": "490 Tests; 4 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_project_audit_fixes.ProjectAuditTests.test_geo_partial_failure_preserves_all_outputs_above_minimum, test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness"
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5796013,
-    "active_blacklist_ipv4.txt": 365032,
-    "blacklist_confidence40_ipv4_part1.txt": 3973452,
-    "cve_exploit_ips.txt": 29955,
-    "honeypot_ips.txt": 2166354,
-    "bot_detector_blacklist_ipv4.txt": 1195331
+    "combined_threat_blacklist_ipv4_part1.txt": 5802762,
+    "active_blacklist_ipv4.txt": 371215,
+    "blacklist_confidence40_ipv4_part1.txt": 3976302,
+    "cve_exploit_ips.txt": 29957,
+    "honeypot_ips.txt": 2166686,
+    "bot_detector_blacklist_ipv4.txt": 1195592
   },
   "production_health": {
-    "critical": 2,
+    "critical": 0,
     "warn": 0,
-    "checks": [
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: combined_threat_blacklist_ipv4.txt",
-        "detail": "combined_threat_blacklist_ipv4.txt enth\u00e4lt whitelisted IPs: 104.29.147.57, 104.29.147.64, 104.29.147.57, 104.29.147.64 \u2013 Filterung wirkungslos!"
-      },
-      {
-        "level": "CRITICAL",
-        "check": "Whitelist-Leak: blacklist_confidence40_ipv4.txt",
-        "detail": "blacklist_confidence40_ipv4.txt enth\u00e4lt whitelisted IPs: 104.29.147.64, 104.29.147.57, 104.29.147.64, 104.29.147.57 \u2013 Filterung wirkungslos!"
-      }
-    ]
+    "checks": []
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
