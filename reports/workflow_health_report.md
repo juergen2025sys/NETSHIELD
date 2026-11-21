@@ -1,16 +1,23 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-21 09:14 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-21 16:20 CET (Europe/Berlin)
 
-**Workflows:** 36 | ✅ 31 OK | ⚠️ 7 Warnung | ❌ 0 Fehler
+**Workflows:** 36 | ✅ 31 OK | ⚠️ 7 Warnung | ❌ 1 Fehler
 
 ---
 ## Regressionstests
 
-⚠️ Commit: `3c702e84b1acaa59b961e2914224b68bac372145`
+⚠️ Commit: `82bd3bd0b0e9a95b6eb7599f3a74b9c04f5df82c`
 
 490 Tests; 4 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_project_audit_fixes.ProjectAuditTests.test_geo_partial_failure_preserves_all_outputs_above_minimum, test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
+
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 104.29.147.57, 104.29.147.64, 104.29.147.57, 104.29.147.64 – Filterung wirkungslos! |
+| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 104.29.147.64, 104.29.147.57, 104.29.147.64, 104.29.147.57 – Filterung wirkungslos! |
 
 ## ⚠️ Warnungen
 
@@ -26,9 +33,12 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 2 CRITICAL | 🟡 0 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 104.29.147.57, 104.29.147.64, 104.29.147.57, 104.29.147.64 – Filterung wirkungslos! |
+| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 104.29.147.64, 104.29.147.57, 104.29.147.64, 104.29.147.57 – Filterung wirkungslos! |
 
 ## Übersicht
 
@@ -72,4 +82,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-21 09:14 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*
+*Generiert: 2026-11-21 16:20 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*
