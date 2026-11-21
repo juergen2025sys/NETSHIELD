@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-20 22:03 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-21 01:46 CET (Europe/Berlin)
 
 **Workflows:** 36 | ✅ 32 OK | ⚠️ 6 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-⚠️ Commit: `c322f06f983746a2dbb0b461d5a39c28f40ac904`
+⚠️ Commit: `703d1123143effdc19f6192f2c208e359ec5a070`
 
 490 Tests; 3 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness
 
@@ -71,4 +71,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-20 22:03 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*
+*Generiert: 2026-11-21 01:46 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*
