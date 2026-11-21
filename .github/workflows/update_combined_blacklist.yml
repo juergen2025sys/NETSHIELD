@@ -1284,6 +1284,10 @@ jobs:
               # Eintraege als /32-CIDR, Test: ~10.500 neu). Non-HQ. Enthaelt
               # vereinzelt 0.x-Muell, den der Bogon-/Protected-Filter verwirft.
               "voipbl":                     ("https://voipbl.org/update/", False),
+              # 2026-11-21 (Nutzerwunsch): Herr Bischoff IPBL - handgepflegte
+              # Sperrliste (~13k, stuendlich, frei nutzbar; max. 1x/h abrufen).
+              # Test: 98,6 % schon gesperrt, 186 neu, 0 Kontakte eigener Geraete. Non-HQ.
+              "herrbischoff_ipbl":          ("https://ipbl.herrbischoff.com/list.txt", False),
               # "honeypot_blocklist" entfernt: yuexuana521/honeypot-blocklist Repo gelöscht
               # ENTFERNT (2026-08-05): nixbear_malicious - 52 Tage unveraendert lt. Stale-Feed-Report.
               "ufukart_blacklist":          ("https://raw.githubusercontent.com/ufukart/Blacklist/main/blacklist.txt", False),
