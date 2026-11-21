@@ -1,7 +1,7 @@
 # Title: ThreatFox C2-IPs (ip:port-IOCs, Confidence >= 50) - Grundlage fuer die ASN-Auswertung
 # Quelle: https://threatfox.abuse.ch (CC0)
-# Aktualisiert: 2026-11-21 07:48 CET
-# Eintraege: 21825
+# Aktualisiert: 2026-11-21 09:47 CET
+# Eintraege: 21827
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 1.116.73.99
@@ -3546,6 +3546,7 @@
 134.175.151.226
 134.175.236.45
 134.175.253.242
+134.175.40.200
 134.175.71.50
 134.175.78.181
 134.175.8.102
@@ -19867,6 +19868,7 @@
 84.200.33.163
 84.200.77.29
 84.200.81.72
+84.200.87.203
 84.200.91.170
 84.200.91.172
 84.201.14.11
