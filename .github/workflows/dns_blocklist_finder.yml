@@ -25,7 +25,17 @@ jobs:
       - name: Repository auschecken
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
+          # 2026-11-21: fetch-depth 0 (volle Historie) dauerte >11 min.
+          # Jetzt nur der aktuelle Stand (fetch-depth 1) und per Sparse-
+          # Checkout nur die Ordner, die dieser Workflow braucht (die grossen
+          # Listen-Dateien im Hauptordner werden nicht ausgecheckt).
+          # fetch/rebase/push am Ende funktionieren damit genauso.
+          fetch-depth: 1
+          sparse-checkout: |
+            /.github/
+            /scripts/
+            /reports/
+          sparse-checkout-cone-mode: false
 
       - name: Aktuelle DNS-Blocklisten auf GitHub suchen
         env:
@@ -38,8 +48,10 @@ jobs:
           import re
           import json
           import time
+          import io
           import urllib.parse
           import urllib.request
+          import zipfile
           from datetime import datetime, timezone, timedelta
           from pathlib import Path
 
@@ -74,7 +86,49 @@ jobs:
               '"command and control" domains blocklist',
               '"threat intelligence" domains blocklist',
               '"ioc domains" blocklist',
+              # 2026-11-21: zusaetzliche Suchen (Topics + weitere Begriffe)
+              'topic:dns-blocklist',
+              'topic:domain-blocklist',
+              '"malicious domains" list',
+              '"scam domains" blocklist',
           ]
+
+          # ── 2026-11-21: Fehlalarm-Pruefung + Abgleich mit genutzten Listen ──
+          # Volle Datei fuer die besten Treffer laden (bis FULL_MAX_BYTES), alle
+          # Eintraege zaehlen und gegen die meistbesuchten Domains (Tranco Top
+          # POPULAR_TOP) pruefen. Listen mit vielen beliebten Domains sperren
+          # echte Seiten (wie USOM full-domains mit csiro.au, is.gd, r2.dev).
+          FULL_MAX_BYTES = 40 * 1024 * 1024
+          POPULAR_TOP = 20000
+          TRANCO_URL = "https://tranco-list.eu/top-1m.csv.zip"
+
+          # Listen, die schon in den Unbound-Blocklisten der Firewall stehen
+          # (Stand 2026-11-21). Werden im Report als "schon genutzt" markiert.
+          UNBOUND_URLS = (
+              "https://raw.githubusercontent.com/phishdestroy/destroylist/main/rootlist/formats/primary_active/domains.txt",
+              "https://raw.githubusercontent.com/cenk/malware-domains/refs/heads/main/domains",
+              "https://github.com/stamparm/trails/releases/latest/download/maltrail-malware-domains.txt",
+              "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/dyndns.txt",
+              "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/hoster.txt",
+              "https://threatview.io/Downloads/DOMAIN-High-Confidence-Feed.txt",
+              "https://raw.githubusercontent.com/AssoEchap/stalkerware-indicators/master/generated/hosts",
+              "https://malware-filter.gitlab.io/malware-filter/phishing-filter-wildcard.txt",
+              "https://raw.githubusercontent.com/hagezi/nrd/main/domains/nrd7.txt",
+              "https://raw.githubusercontent.com/romainmarcoux/malicious-domains/main/full-domains-aa.txt",
+              "https://raw.githubusercontent.com/romainmarcoux/malicious-domains/main/full-domains-ab.txt",
+              "https://raw.githubusercontent.com/ShadowWhisperer/BlockLists/master/RAW/Malware",
+              "https://raw.githubusercontent.com/hagezi/nrd/main/domains/nrd14-8.txt",
+              "https://raw.githubusercontent.com/hagezi/nrd/main/domains/dga30.txt",
+              "https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-hosts.txt",
+              "https://phishing.army/download/phishing-army-wildcard.txt",
+              "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/fake.txt",
+              "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/popupads.txt",
+              "https://raw.githubusercontent.com/Jam0k/Public-Feeds-IOCs/HEAD/feeds/domains.txt",
+              "https://raw.githubusercontent.com/Tagoletta/SiberGuvenlikBaskanligi-API/main/data/days-90-domains.txt",
+          )
+          # Vordefinierte Unbound-Listen (Hagezi, OISD, AdGuard ...) laufen
+          # ueber diese Repos - Funde daraus sind ebenfalls "schon genutzt".
+          UNBOUND_REPOS = ("hagezi/", "sjhgvr/oisd", "adguardteam/", "stevenblack/")
 
           SECURITY_TERMS = (
               "malware", "phish", "phishing", "c2", "botnet",
@@ -392,6 +446,112 @@ jobs:
               candidates.sort(key=lambda x: (-x[0], -x[2]))
               return candidates[:MAX_FILES_PER_REPO]
 
+          # ── Bekannte Quellen (Unbound + NETSHIELD-Workflows/Skripte) ─────────
+          def norm_url(u):
+              u = u.strip().lower().rstrip("/")
+              u = re.sub(r"^https?://(www\.)?", "", u)
+              # github.com/o/r/blob/<branch>/p  ->  raw.githubusercontent.com/o/r/<branch>/p
+              m = re.match(r"github\.com/([^/]+/[^/]+)/(?:blob|raw)/(.+)$", u)
+              if m:
+                  u = f"raw.githubusercontent.com/{m.group(1)}/{m.group(2)}"
+              u = u.replace("/refs/heads/", "/")
+              return u
+
+          def raw_repo(u):
+              m = re.match(r"raw\.githubusercontent\.com/([^/]+/[^/]+)/", norm_url(u))
+              return m.group(1) if m else None
+
+          def load_known():
+              urls = {norm_url(u) for u in UNBOUND_URLS}
+              for pattern in (".github/workflows/*.yml", "scripts/*.py"):
+                  for f in Path(".").glob(pattern):
+                      if f.name == "dns_blocklist_finder.yml":
+                          continue
+                      try:
+                          txt = f.read_text(encoding="utf-8", errors="replace")
+                      except Exception:
+                          continue
+                      for u in re.findall(r"https?://[^\s\"'<>()\]]+", txt):
+                          urls.add(norm_url(u))
+              repos_known = {raw_repo(u) for u in urls if raw_repo(u)}
+              return urls, repos_known
+
+          KNOWN_URLS, KNOWN_REPOS = load_known()
+          print(f"{len(KNOWN_URLS)} bekannte Quell-URLs, {len(KNOWN_REPOS)} bekannte Repos geladen.")
+
+          def known_status(item):
+              if norm_url(item["raw_url"]) in KNOWN_URLS:
+                  return "genutzt"
+              repo = item["repo"].lower()
+              if any(repo.startswith(p) for p in UNBOUND_REPOS) or repo in KNOWN_REPOS:
+                  return "Repo genutzt"
+              return "neu"
+
+          # ── Beliebte Domains (Tranco) fuer die Fehlalarm-Pruefung ─────────────
+          def load_popular():
+              try:
+                  req = urllib.request.Request(TRANCO_URL, headers={"User-Agent": "NETSHIELD-DNS-Blocklist-Finder"})
+                  with urllib.request.urlopen(req, timeout=60) as r:
+                      data = r.read()
+                  with zipfile.ZipFile(io.BytesIO(data)) as z:
+                      name = z.namelist()[0]
+                      out = set()
+                      with z.open(name) as fh:
+                          for i, line in enumerate(io.TextIOWrapper(fh, encoding="utf-8", errors="replace")):
+                              if i >= POPULAR_TOP:
+                                  break
+                              parts = line.strip().split(",")
+                              if len(parts) >= 2 and parts[1]:
+                                  out.add(parts[1].lower())
+                  return out
+              except Exception as exc:
+                  print(f"::warning::Tranco-Liste nicht ladbar, Fehlalarm-Pruefung entfaellt: {exc}")
+                  return set()
+
+          def extract_domains(text):
+              out = []
+              for raw in text.splitlines():
+                  line = raw.strip()
+                  if not line or line.startswith(("#", "!", ";", "//")):
+                      continue
+                  low = line.lower()
+                  if low.startswith("address=/"):
+                      cand = low.split("/")[1] if low.count("/") >= 2 else ""
+                  elif re.match(r"^(?:0\.0\.0\.0|127\.0\.0\.1|::1)\s+", low):
+                      cand = low.split()[1] if len(low.split()) > 1 else ""
+                  elif low.startswith("||"):
+                      cand = low[2:].split("^")[0]
+                  else:
+                      cand = re.split(r"\s+#", low, maxsplit=1)[0].strip()
+                  cand = cand.rstrip(".")
+                  if cand.startswith("*."):
+                      cand = cand[2:]
+                  if DOMAIN_RE.fullmatch(cand):
+                      out.append(cand)
+              return out
+
+          def full_check(item, popular):
+              """Ganze Datei laden: Eintraege zaehlen + beliebte Domains finden."""
+              item["entries"] = None
+              item["popular_hits"] = None
+              item["popular_examples"] = []
+              if item.get("size_bytes") and item["size_bytes"] > FULL_MAX_BYTES:
+                  item["full_note"] = "zu gross, nur Stichprobe"
+                  return
+              try:
+                  req = urllib.request.Request(item["raw_url"], headers={"User-Agent": "NETSHIELD-DNS-Blocklist-Finder"})
+                  with urllib.request.urlopen(req, timeout=60) as r:
+                      text = r.read(FULL_MAX_BYTES + 1).decode("utf-8", "replace")
+              except Exception as exc:
+                  item["full_note"] = f"nicht ladbar: {str(exc)[:60]}"
+                  return
+              doms = set(extract_domains(text))
+              item["entries"] = len(doms)
+              if popular:
+                  hits = sorted(d for d in doms if d in popular or (d.startswith("www.") and d[4:] in popular))
+                  item["popular_hits"] = len(hits)
+                  item["popular_examples"] = hits[:8]
+
           repos = search_repositories()
           print(f"{len(repos)} aktuelle Repository-Kandidaten gefunden.")
 
@@ -468,6 +628,22 @@ jobs:
           )
           results = results[:TOP_RESULTS]
 
+          # 2026-11-21: Bekannt/neu markieren, volle Datei pruefen, Score
+          # bei beliebten Domains (Fehlalarm-Gefahr) senken und neu sortieren.
+          popular = load_popular()
+          print(f"{len(popular)} beliebte Domains (Tranco Top {POPULAR_TOP}) geladen.")
+          for item in results:
+              item["known"] = known_status(item)
+              full_check(item, popular)
+              hits = item.get("popular_hits") or 0
+              if hits > 5:
+                  item["score"] = max(0, item["score"] - 30)
+              elif hits > 0:
+                  item["score"] = max(0, item["score"] - 10)
+              if item["known"] != "neu":
+                  item["score"] = max(0, item["score"] - 20)
+          results.sort(key=lambda x: (-x["score"], x["age_days"], -x["stars"]))
+
           if len(results) < MIN_RESULTS:
               print(
                   f"::warning file=dns_blocklist_finder.yml::Leerungsschutz: nur "
@@ -519,23 +695,35 @@ jobs:
               "Er erstellt nur einen Fundbericht mit Raw-Links."
           )
           md.append("")
-          md.append("| # | Score | Repository / Datei | Letztes Datei-Update | Alter | Format | OPNsense direkt | Groesse | Raw-Link |")
-          md.append("|---:|---:|---|---|---:|---|:---:|---:|---|")
+          md.append("| # | Score | Status | Repository / Datei | Letztes Datei-Update | Alter | Format | OPNsense direkt | Eintraege | Beliebte Domains | Groesse | Raw-Link |")
+          md.append("|---:|---:|---|---|---|---:|---|:---:|---:|---|---:|---|")
 
           for idx, r in enumerate(results, 1):
               direct = "Ja" if r["opnsense_direct"] else "Nein"
+              status = {"neu": "🆕 neu", "genutzt": "✅ genutzt", "Repo genutzt": "☑️ Repo genutzt"}.get(r.get("known"), "?")
+              entries = f"{r['entries']:,}".replace(",", ".") if r.get("entries") is not None else (r.get("full_note") or "?")
+              hits = r.get("popular_hits")
+              if hits is None:
+                  pop = "?"
+              elif hits == 0:
+                  pop = "0 ✅"
+              else:
+                  pop = f"⚠️ {hits} ({', '.join(r.get('popular_examples', [])[:4])})"
               md.append(
-                  f"| {idx} | **{r['score']}** | "
+                  f"| {idx} | **{r['score']}** | {status} | "
                   f"[{r['repo']}]({r['repo_url']}) / `{r['path']}` | "
                   f"{short_date(r['last_file_update'])} | "
-                  f"{r['age_days']} d | {r['format']} | {direct} | "
+                  f"{r['age_days']} d | {r['format']} | {direct} | {entries} | {pop} | "
                   f"{human_size(r['size_bytes'])} | [Raw]({r['raw_url']}) |"
               )
 
           md.append("")
           md.append("## Bedeutung")
           md.append("")
-          md.append("- **Score:** Frische wird am staerksten gewichtet.")
+          md.append("- **Score:** Frische wird am staerksten gewichtet. Abzug bei beliebten Domains (-10 / -30) und bei schon genutzten Listen (-20).")
+          md.append("- **Status:** 🆕 neu = noch nirgends genutzt · ✅ genutzt = URL steht schon in Unbound oder NETSHIELD · ☑️ Repo genutzt = andere Datei aus einem schon genutzten Repo.")
+          md.append(f"- **Beliebte Domains:** Treffer aus den {POPULAR_TOP:,} meistbesuchten Domains (Tranco). Jeder Treffer waere eine echte Seite, die gesperrt wuerde.".replace(",", "."))
+          md.append("- **Eintraege:** Anzahl Domains in der ganzen Datei (nicht nur Stichprobe).")
           md.append("- **OPNsense direkt = Ja:** Stichprobe besteht zu mindestens 98 % aus reinen Domains/Wildcards.")
           md.append("- **dnsmasq / hosts / adblock:** gefunden, aber nicht als direkte reine Domainliste markiert.")
           md.append("- **Maximal 7 Tage alt:** aeltere Listen werden gar nicht erst im Report ausgegeben.")
@@ -554,7 +742,8 @@ jobs:
               print(
                   f"{r['score']:3d} | {r['age_days']:>5} d | "
                   f"{'OPNsense' if r['opnsense_direct'] else r['format']} | "
-                  f"{r['repo']} | {r['raw_url']}"
+                  f"{r.get('known', '?')} | Eintraege {r.get('entries')} | "
+                  f"beliebt {r.get('popular_hits')} | {r['repo']} | {r['raw_url']}"
               )
           PY
 
