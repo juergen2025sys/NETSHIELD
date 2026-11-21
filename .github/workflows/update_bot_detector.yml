@@ -138,6 +138,16 @@ jobs:
               print(f"WARNUNG: {msg} – behalte bestehende Datei")
               sys.exit(1)
 
+          # ── Feste Zusatzquellen (nicht aus Auto-Discovery) ─────────────────
+          # 2026-11-21 (Nutzerwunsch): td-commits Botnetz-Feed, taeglich
+          # (~17.200 IPs, Test: ~4.080 noch nicht gesperrt). Enthielt Fastly-,
+          # Google- und Cloudflare-IPs; die stehen in whitelist.json und werden
+          # von parse_entries(use_protected_check=True) verworfen.
+          # Bewusst NACH der Leer-Pruefung oben: fehlt die Auto-Feed-Datei,
+          # bleibt die bestehende Ausgabe erhalten statt nur td-commits.
+          PROXY_SOURCES["td_commits_botnets"] = (
+              "https://raw.githubusercontent.com/td-commits/threat-intel-ips/main/feeds/botnets.txt")
+
           # ── Fetch mit Retry (fetch_url: SSRF-Schutz, DNS-Pin, Backoff) ─────
           all_ips      = set()
           stats        = {}
