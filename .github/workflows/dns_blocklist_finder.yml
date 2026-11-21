@@ -920,42 +920,51 @@ jobs:
           md.append("")
           md.append("## Alle Funde")
           md.append("")
-          md.append("| # | Score | Tipp | Kategorie | Status | Repository / Datei | Letztes Datei-Update | Alter | Format | OPNsense direkt | Eintraege | Schon gesperrt | Neu fuer mich | Beliebte Domains | Groesse | Raw-Link |")
-          md.append("|---:|---:|---|---|---|---|---|---:|---|:---:|---:|---:|---:|---|---:|---|")
+          # 2026-11-21: kompakte Tabelle (8 statt 16 Spalten), damit sie auf
+          # den Bildschirm passt. Details (Score, Format, Groesse, Datum, Status)
+          # stehen weiterhin in reports/dns_blocklists_current.json.
+          md.append("| # | Tipp | Kategorie | Liste | Eintraege | Gesperrt | Neu | Beliebte Domains |")
+          md.append("|---:|---|---|---|---:|---:|---:|---|")
 
           def de_num(n):
               return f"{n:,}".replace(",", ".")
 
+          TIP_SHORT = {"yes": "✅ einbauen", "check": "⚠️ pruefen", "no": "❌ nein"}
+
           for idx, r in enumerate(results, 1):
-              direct = "Ja" if r["opnsense_direct"] else "Nein"
-              status = {"neu": "🆕 neu", "genutzt": "✅ genutzt", "Repo genutzt": "☑️ Repo genutzt",
-                        "Spiegel": "🪞 Spiegel"}.get(r.get("known"), "?")
-              cov = f"{r['covered_pct']} %" if r.get("covered_pct") is not None else "?"
+              code = r.get("tip_code")
+              tip = TIP_SHORT.get(code, "?")
+              if code == "skip":
+                  tip = "✅ schon drin" if r.get("known") == "genutzt" else "➖ Kopie"
+              elif code == "no" and "kaum Neues" in (r.get("tip") or ""):
+                  tip = "➖ kaum Neues"
+              elif code == "check" and r.get("popular_hits") is None:
+                  tip = "❔ zu gross"
+              cov = f"{r['covered_pct']:.0f} %" if r.get("covered_pct") is not None else "?"
               newd = de_num(r["new_domains"]) if r.get("new_domains") is not None else "?"
-              entries = f"{r['entries']:,}".replace(",", ".") if r.get("entries") is not None else (r.get("full_note") or "?")
+              entries = de_num(r["entries"]) if r.get("entries") is not None else "?"
               hits = r.get("popular_hits")
               if hits is None:
                   pop = "?"
               elif hits == 0:
                   pop = "0 ✅"
               else:
-                  pop = f"⚠️ {hits} ({', '.join(r.get('popular_examples', [])[:4])})"
+                  pop = f"⚠️ {hits}: {', '.join(r.get('popular_examples', [])[:2])}"
+              name = r["path"].rsplit("/", 1)[-1]
               md.append(
-                  f"| {idx} | **{r['score']}** | {r.get('tip', '?')} | "
-                  f"{r.get('category_icon', '')} {r.get('category', '?')} | {status} | "
-                  f"[{r['repo']}]({r['repo_url']}) / `{r['path']}` | "
-                  f"{short_date(r['last_file_update'])} | "
-                  f"{r['age_days']} d | {r['format']} | {direct} | {entries} | {cov} | {newd} | {pop} | "
-                  f"{human_size(r['size_bytes'])} | [Raw]({r['raw_url']}) |"
+                  f"| {idx} | {tip} | {r.get('category_icon', '')} {r.get('category', '?')} | "
+                  f"[{r['repo']}]({r['repo_url']})<br>[{name}]({r['raw_url']}) · {r['age_days']:.1f} d | "
+                  f"{entries} | {cov} | {newd} | {pop} |"
               )
 
           md.append("")
           md.append("## Bedeutung")
           md.append("")
-          md.append("- **Score:** Frische wird am staerksten gewichtet. Abzug bei beliebten Domains (-10 / -30) und bei schon genutzten Listen (-20).")
+          md.append("- **Reihenfolge:** nach Score (Frische am staerksten, Abzuege fuer beliebte Domains, Abdeckung und genutzte Listen). Score, Format, Groesse und Datum stehen in `dns_blocklists_current.json`.")
+          md.append("- **Liste:** Repo-Link, darunter die Datei (Link = Download-Adresse fuer Unbound) und ihr Alter in Tagen.")
           md.append("- **Tipp:** ✅ einbauen = Schutz-Kategorie, 0 beliebte Domains, mind. 500 neue · ⚠️ pruefen · ❌ nicht (Gluecksspiel/Erwachsene/Werbung, >5 beliebte Domains) · ➖ bringt kaum Neues oder ist eine Kopie.")
           md.append("- **Kategorie:** erkannt an Dateipfad, Repo-Name/-Beschreibung und am Inhalt (Anteil Gluecksspiel-/Erwachsenen-Namen ab 30 %).")
-          md.append("- **Status:** 🆕 neu = noch nirgends genutzt · ✅ genutzt = URL steht schon in Unbound oder NETSHIELD · ☑️ Repo genutzt = andere Datei aus einem schon genutzten Repo · 🪞 Spiegel = Kopie einer genutzten Quelle unter anderem Konto.")
+          md.append("- **✅ schon drin** = URL steht schon in Unbound oder NETSHIELD · **➖ Kopie** = Spiegel einer genutzten Quelle unter anderem Konto · **❔ zu gross** = Datei nicht voll pruefbar.")
           md.append("- **Schon gesperrt / Neu fuer mich:** Abgleich mit allen eigenen Unbound-Listen (eigene URLs + AdGuard, StevenBlack, OISD NSFW, Hagezi Pro++/TIF/DoH-Bypass + Unbound-Wildcard-Domains wie pages.dev/workers.dev), exakt und ueber die Hauptdomain (Wildcard). Score-Abzug ab 80 % (-10) und 95 % (-25) Abdeckung.")
           md.append(f"- **Beliebte Domains:** Treffer aus den {POPULAR_TOP:,} meistbesuchten Domains (Tranco). Jeder Treffer waere eine echte Seite, die gesperrt wuerde.".replace(",", "."))
           md.append("- **Eintraege:** Anzahl Domains in der ganzen Datei (nicht nur Stichprobe).")
