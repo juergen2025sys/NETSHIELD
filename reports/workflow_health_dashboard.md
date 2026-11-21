@@ -1,6 +1,6 @@
 # Workflow Health Dashboard
 
-**Stand:** 2026-11-21 07:56 CET (Europe/Berlin)
+**Stand:** 2026-11-21 20:06 CET (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
@@ -8,30 +8,35 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 11 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 8
-- **Lucken (>210min zwischen echten Runs):** 0
+- **Echte Combined-Runs:** 9 / 8 erwartet
+- **Skip-Runs (Idempotenz-Guard):** 7
+- **Lucken (>210min zwischen echten Runs):** 1
+  - 2026-11-21 07:47 CET (Europe/Berlin) -> 2026-11-21 11:53 CET (Europe/Berlin) (245 min)
 
 ## Letzte 7 Tage
 
 - **Echte Combined-Runs:** 58
-- **Skip-Runs:** 49
-- **Fehlgeschlagene Runs:** 0
+- **Skip-Runs:** 47
+- **Fehlgeschlagene Runs:** 1
 - **Lucken >210min:** 10
 - **Groesste Lucke:** 2026-11-17 04:59 CET (Europe/Berlin) -> 2026-11-17 10:13 CET (Europe/Berlin) (313 min = 5h 13min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 320
+- **Watchdog-Laeufe insgesamt:** 304
 - **Watchdog-Fehler:** 0
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 47
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 49
 
 Letzte Watchdog-Eingriffe:
-- 2026-11-20 19:57 CET (Europe/Berlin) (Run #44797570225, Laufzeit 23m 17s)
-- 2026-11-20 22:29 CET (Europe/Berlin) (Run #44820754165, Laufzeit 14m 26s)
-- 2026-11-21 01:49 CET (Europe/Berlin) (Run #44846373581, Laufzeit 12m 40s)
-- 2026-11-21 02:02 CET (Europe/Berlin) (Run #44847710982, Laufzeit 19m 22s)
 - 2026-11-21 07:30 CET (Europe/Berlin) (Run #44875896728, Laufzeit 17m 8s)
+- 2026-11-21 11:53 CET (Europe/Berlin) (Run #44896498396, Laufzeit 14m 45s)
+- 2026-11-21 12:45 CET (Europe/Berlin) (Run #44900582069, Laufzeit 14m 22s)
+- 2026-11-21 13:26 CET (Europe/Berlin) (Run #44903878824, Laufzeit 20m 19s)
+- 2026-11-21 16:42 CET (Europe/Berlin) (Run #44920577707, Laufzeit 11m 56s)
+
+## Fehlgeschlagene Combined-Runs (7d)
+
+- 2026-11-21 11:52 CET (Europe/Berlin) - cancelled - Run #44896391381 (2m 3s)
 
 ---
 
