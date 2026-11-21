@@ -98,7 +98,8 @@ jobs:
           # Eintraege zaehlen und gegen die meistbesuchten Domains (Tranco Top
           # POPULAR_TOP) pruefen. Listen mit vielen beliebten Domains sperren
           # echte Seiten (wie USOM full-domains mit csiro.au, is.gd, r2.dev).
-          FULL_MAX_BYTES = 40 * 1024 * 1024
+          # 2026-11-21: 40 -> 120 MB, damit z. B. apophis (87 MB) voll geprueft wird.
+          FULL_MAX_BYTES = 120 * 1024 * 1024
           POPULAR_TOP = 20000
           TRANCO_URL = "https://tranco-list.eu/top-1m.csv.zip"
 
@@ -565,16 +566,26 @@ jobs:
           NO_ATTACK_PROTECTION = ("Gluecksspiel", "Erwachsene", "Werbung/Tracker")
 
           def categorize(item):
-              text = " ".join([item.get("path", ""), item.get("repo", ""), item.get("description", "")]).lower()
-              text = re.sub(r"[_/.-]", " ", text)
               # Inhalt zuerst fuer eindeutige Faelle (z. B. "all.txt" in einem Gambling-Ordner)
               if (item.get("gambling_share") or 0) >= 0.30:
                   return "Gluecksspiel", "🎰"
               if (item.get("adult_share") or 0) >= 0.30:
                   return "Erwachsene", "🔞"
-              for name, icon, pattern in CATEGORY_RULES:
-                  if re.search(pattern, text):
-                      return name, icon
+              # Dann der Dateipfad (genauer als die Repo-Beschreibung: ein Repo
+              # wie ezoblocker hat security/ UND gambling/ - die Beschreibung
+              # nennt beides), erst danach Repo-Name + Beschreibung.
+              sources = (
+                  (True, item.get("path", "")),
+                  (False, " ".join([item.get("repo", ""), item.get("description", "")])),
+              )
+              for is_path, raw in sources:
+                  text = re.sub(r"[_/.-]", " ", raw.lower())
+                  for name, icon, pattern in CATEGORY_RULES:
+                      # "all.txt" allein im Pfad sagt nichts ueber die Kategorie
+                      if is_path and name == "Sammelliste":
+                          continue
+                      if re.search(pattern, text):
+                          return name, icon
               return "unklar", "❔"
 
           def recommend(item):
