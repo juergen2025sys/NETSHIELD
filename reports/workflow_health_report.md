@@ -1,14 +1,14 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-21 01:46 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-21 09:14 CET (Europe/Berlin)
 
-**Workflows:** 36 | ✅ 32 OK | ⚠️ 6 Warnung | ❌ 0 Fehler
+**Workflows:** 36 | ✅ 31 OK | ⚠️ 7 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-⚠️ Commit: `703d1123143effdc19f6192f2c208e359ec5a070`
+⚠️ Commit: `3c702e84b1acaa59b961e2914224b68bac372145`
 
-490 Tests; 3 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness
+490 Tests; 4 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_project_audit_fixes.ProjectAuditTests.test_geo_partial_failure_preserves_all_outputs_above_minimum, test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
 
@@ -16,12 +16,13 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 
 | Datei | Check | Detail |
 |---|---|---|
-| `Regressionstests` | Bekannte Logikfehler / Testsuite | 490 Tests; 3 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness |
+| `Regressionstests` | Bekannte Logikfehler / Testsuite | 490 Tests; 4 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_project_audit_fixes.ProjectAuditTests.test_geo_partial_failure_preserves_all_outputs_above_minimum, test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness |
 | `asn_drop.yml + dns_blocklist_finder.yml` | Cron-Kollision | '15 4 * * *' – beide Workflows laufen gleichzeitig |
 | `dns_list_mirror.yml` | continue-on-error aktiv | continue-on-error=true gesetzt – Fehler können still bleiben; Review ob das wirklich beabsichtigt ist |
 | `honeypot_monitor.yml` | Doppelter Import | Block 0: Doppelte Imports: re(2x), json(2x) – moeglicherweise Copy-Paste-Artefakt |
 | `honigtopf.yml` | continue-on-error aktiv | continue-on-error=true gesetzt – Fehler können still bleiben; Review ob das wirklich beabsichtigt ist |
 | `netshield_report_generator.yml` | continue-on-error aktiv | continue-on-error=true gesetzt – Fehler können still bleiben; Review ob das wirklich beabsichtigt ist |
+| `update_combined_blacklist.yml` | Untrusted Feed hq=True | 1 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "bitwire_outbound" (https://raw.githubusercontent.com/bitwire-it/ipblocklist/ref) |
 
 ## 🏥 Production Health
 
@@ -71,4 +72,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-21 01:46 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*
+*Generiert: 2026-11-21 09:14 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*

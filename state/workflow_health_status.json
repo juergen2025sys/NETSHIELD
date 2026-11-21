@@ -1,15 +1,15 @@
 {
-  "updated": "2026-11-21 01:46 CET (Europe/Berlin)",
+  "updated": "2026-11-21 09:14 CET (Europe/Berlin)",
   "total": 36,
-  "ok": 32,
-  "warn": 6,
+  "ok": 31,
+  "warn": 7,
   "error": 0,
   "errors": [],
   "warnings": [
     {
       "file": "Regressionstests",
       "check": "Bekannte Logikfehler / Testsuite",
-      "detail": "490 Tests; 3 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness"
+      "detail": "490 Tests; 4 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_project_audit_fixes.ProjectAuditTests.test_geo_partial_failure_preserves_all_outputs_above_minimum, test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness"
     },
     {
       "file": "asn_drop.yml + dns_blocklist_finder.yml",
@@ -35,14 +35,20 @@
       "file": "netshield_report_generator.yml",
       "check": "continue-on-error aktiv",
       "detail": "continue-on-error=true gesetzt \u2013 Fehler k\u00f6nnen still bleiben; Review ob das wirklich beabsichtigt ist"
+    },
+    {
+      "file": "update_combined_blacklist.yml",
+      "check": "Untrusted Feed hq=True",
+      "detail": "1 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"bitwire_outbound\" (https://raw.githubusercontent.com/bitwire-it/ipblocklist/ref)"
     }
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "703d1123143effdc19f6192f2c208e359ec5a070",
+    "sha": "3c702e84b1acaa59b961e2914224b68bac372145",
     "status": "warning",
     "tests_run": 490,
     "failures": [
+      "test_project_audit_fixes.ProjectAuditTests.test_geo_partial_failure_preserves_all_outputs_above_minimum",
       "test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run",
       "test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential",
       "test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness"
@@ -52,15 +58,15 @@
     "unexpected_successes": [],
     "missing_required": [],
     "required_not_passed": [],
-    "detail": "490 Tests; 3 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness"
+    "detail": "490 Tests; 4 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_project_audit_fixes.ProjectAuditTests.test_geo_partial_failure_preserves_all_outputs_above_minimum, test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness"
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5806791,
-    "active_blacklist_ipv4.txt": 378179,
-    "blacklist_confidence40_ipv4_part1.txt": 3996345,
-    "cve_exploit_ips.txt": 29895,
-    "honeypot_ips.txt": 2164022,
-    "bot_detector_blacklist_ipv4.txt": 1180780
+    "combined_threat_blacklist_ipv4_part1.txt": 5785518,
+    "active_blacklist_ipv4.txt": 354007,
+    "blacklist_confidence40_ipv4_part1.txt": 3968357,
+    "cve_exploit_ips.txt": 29951,
+    "honeypot_ips.txt": 2168405,
+    "bot_detector_blacklist_ipv4.txt": 1177994
   },
   "production_health": {
     "critical": 0,
