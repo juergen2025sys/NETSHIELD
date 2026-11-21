@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T13:04:48.846076+00:00",
+  "generated_at": "2026-11-21T13:09:41.375229+00:00",
   "rule": "Nur Listen, deren konkretes Listen-File maximal 7 Tage alt ist.",
   "result_count": 30,
   "results": [
@@ -85,94 +85,12 @@
       "covered_pct": null
     },
     {
-      "repo": "ezoblocker/ezoblocker.app",
-      "repo_url": "https://github.com/ezoblocker/ezoblocker.app",
-      "raw_url": "https://raw.githubusercontent.com/ezoblocker/ezoblocker.app/main/domains/security/all.txt",
-      "path": "domains/security/all.txt",
-      "last_file_update": "2026-11-21T01:05:08Z",
-      "age_days": 0.5,
-      "size_bytes": 2371087,
-      "stars": 0,
-      "license": "CC0-1.0",
-      "fork": false,
-      "relevance": 6,
-      "format": "plain-domains",
-      "sample_data_lines": 34741,
-      "sample_domain_lines": 34740,
-      "domain_ratio": 1.0,
-      "opnsense_direct": true,
-      "invalid_sample_lines": 1,
-      "score": 88,
-      "known": "neu",
-      "entries": 78965,
-      "popular_hits": 0,
-      "popular_examples": [],
-      "new_domains": 72695,
-      "covered_pct": 7.9
-    },
-    {
-      "repo": "ezoblocker/ezoblocker.app",
-      "repo_url": "https://github.com/ezoblocker/ezoblocker.app",
-      "raw_url": "https://raw.githubusercontent.com/ezoblocker/ezoblocker.app/main/domains/security/ct.txt",
-      "path": "domains/security/ct.txt",
-      "last_file_update": "2026-11-21T01:05:08Z",
-      "age_days": 0.5,
-      "size_bytes": 2370862,
-      "stars": 0,
-      "license": "CC0-1.0",
-      "fork": false,
-      "relevance": 6,
-      "format": "plain-domains",
-      "sample_data_lines": 34739,
-      "sample_domain_lines": 34739,
-      "domain_ratio": 1.0,
-      "opnsense_direct": true,
-      "invalid_sample_lines": 0,
-      "score": 88,
-      "known": "neu",
-      "entries": 78954,
-      "popular_hits": 0,
-      "popular_examples": [],
-      "new_domains": 72695,
-      "covered_pct": 7.9
-    },
-    {
-      "repo": "asteroid-99942/apophis-blocklist",
-      "repo_url": "https://github.com/asteroid-99942/apophis-blocklist",
-      "raw_url": "https://raw.githubusercontent.com/asteroid-99942/apophis-blocklist/main/lists/diff_report.txt",
-      "path": "lists/diff_report.txt",
-      "last_file_update": "2026-11-21T10:30:11Z",
-      "age_days": 0.11,
-      "size_bytes": 173945,
-      "stars": 1,
-      "license": "MIT",
-      "fork": false,
-      "relevance": 4,
-      "format": "plain-domains",
-      "sample_data_lines": 5168,
-      "sample_domain_lines": 5163,
-      "domain_ratio": 0.999,
-      "opnsense_direct": true,
-      "invalid_sample_lines": 5,
-      "score": 78,
-      "known": "neu",
-      "entries": 5163,
-      "popular_hits": 3,
-      "popular_examples": [
-        "inmotionhosting.com",
-        "myftpupload.com",
-        "paypalinc.com"
-      ],
-      "new_domains": 1326,
-      "covered_pct": 74.3
-    },
-    {
       "repo": "fisventurous/fisphish",
       "repo_url": "https://github.com/fisventurous/fisphish",
       "raw_url": "https://raw.githubusercontent.com/fisventurous/fisphish/main/data/discord-scams.txt",
       "path": "data/discord-scams.txt",
       "last_file_update": "2026-11-21T04:36:47Z",
-      "age_days": 0.35,
+      "age_days": 0.36,
       "size_bytes": 593213,
       "stars": 0,
       "license": "MIT",
@@ -192,8 +110,90 @@
         "freecash.com",
         "serveuser.com"
       ],
-      "new_domains": 27657,
-      "covered_pct": 14.1
+      "new_domains": 27225,
+      "covered_pct": 15.4
+    },
+    {
+      "repo": "ezoblocker/ezoblocker.app",
+      "repo_url": "https://github.com/ezoblocker/ezoblocker.app",
+      "raw_url": "https://raw.githubusercontent.com/ezoblocker/ezoblocker.app/main/domains/security/all.txt",
+      "path": "domains/security/all.txt",
+      "last_file_update": "2026-11-21T01:05:08Z",
+      "age_days": 0.5,
+      "size_bytes": 2371087,
+      "stars": 0,
+      "license": "CC0-1.0",
+      "fork": false,
+      "relevance": 6,
+      "format": "plain-domains",
+      "sample_data_lines": 34741,
+      "sample_domain_lines": 34740,
+      "domain_ratio": 1.0,
+      "opnsense_direct": true,
+      "invalid_sample_lines": 1,
+      "score": 78,
+      "known": "neu",
+      "entries": 78965,
+      "popular_hits": 0,
+      "popular_examples": [],
+      "new_domains": 7261,
+      "covered_pct": 90.8
+    },
+    {
+      "repo": "ezoblocker/ezoblocker.app",
+      "repo_url": "https://github.com/ezoblocker/ezoblocker.app",
+      "raw_url": "https://raw.githubusercontent.com/ezoblocker/ezoblocker.app/main/domains/security/ct.txt",
+      "path": "domains/security/ct.txt",
+      "last_file_update": "2026-11-21T01:05:08Z",
+      "age_days": 0.5,
+      "size_bytes": 2370862,
+      "stars": 0,
+      "license": "CC0-1.0",
+      "fork": false,
+      "relevance": 6,
+      "format": "plain-domains",
+      "sample_data_lines": 34739,
+      "sample_domain_lines": 34739,
+      "domain_ratio": 1.0,
+      "opnsense_direct": true,
+      "invalid_sample_lines": 0,
+      "score": 78,
+      "known": "neu",
+      "entries": 78954,
+      "popular_hits": 0,
+      "popular_examples": [],
+      "new_domains": 7261,
+      "covered_pct": 90.8
+    },
+    {
+      "repo": "asteroid-99942/apophis-blocklist",
+      "repo_url": "https://github.com/asteroid-99942/apophis-blocklist",
+      "raw_url": "https://raw.githubusercontent.com/asteroid-99942/apophis-blocklist/main/lists/diff_report.txt",
+      "path": "lists/diff_report.txt",
+      "last_file_update": "2026-11-21T10:30:11Z",
+      "age_days": 0.11,
+      "size_bytes": 173945,
+      "stars": 1,
+      "license": "MIT",
+      "fork": false,
+      "relevance": 4,
+      "format": "plain-domains",
+      "sample_data_lines": 5168,
+      "sample_domain_lines": 5163,
+      "domain_ratio": 0.999,
+      "opnsense_direct": true,
+      "invalid_sample_lines": 5,
+      "score": 68,
+      "known": "neu",
+      "entries": 5163,
+      "popular_hits": 3,
+      "popular_examples": [
+        "inmotionhosting.com",
+        "myftpupload.com",
+        "paypalinc.com"
+      ],
+      "new_domains": 646,
+      "covered_pct": 87.5
     },
     {
       "repo": "cenk/malware-domains",
@@ -281,8 +281,8 @@
         "geniussports.com",
         "hkjc.com"
       ],
-      "new_domains": 865163,
-      "covered_pct": 2.2
+      "new_domains": 639514,
+      "covered_pct": 27.7
     },
     {
       "repo": "ezoblocker/ezoblocker.app",
@@ -314,8 +314,8 @@
         "penidabetnew.com",
         "productmadness.com"
       ],
-      "new_domains": 863675,
-      "covered_pct": 2.2
+      "new_domains": 638028,
+      "covered_pct": 27.8
     },
     {
       "repo": "fisventurous/fisphish",
@@ -349,8 +349,8 @@
         "qrco.de",
         "robbreport.com"
       ],
-      "new_domains": 387195,
-      "covered_pct": 6.7
+      "new_domains": 360331,
+      "covered_pct": 13.2
     },
     {
       "repo": "0xDanielLopez/phishunt-feed",
@@ -380,8 +380,8 @@
         "mybluehost.me",
         "temporary.site"
       ],
-      "new_domains": 42,
-      "covered_pct": 95.2
+      "new_domains": 41,
+      "covered_pct": 95.3
     },
     {
       "repo": "cenk/bad-hosts",
@@ -389,7 +389,7 @@
       "raw_url": "https://raw.githubusercontent.com/cenk/bad-hosts/main/bad-hosts-domains",
       "path": "bad-hosts-domains",
       "last_file_update": "2026-11-21T02:41:45Z",
-      "age_days": 0.43,
+      "age_days": 0.44,
       "size_bytes": 38587933,
       "stars": 34,
       "license": "MIT",
@@ -415,8 +415,8 @@
         "1rtb.com",
         "1rx.io"
       ],
-      "new_domains": 361224,
-      "covered_pct": 76.5
+      "new_domains": 360061,
+      "covered_pct": 76.6
     },
     {
       "repo": "DanielEnki420/dns-blocklist-builder",
@@ -424,7 +424,7 @@
       "raw_url": "https://raw.githubusercontent.com/DanielEnki420/dns-blocklist-builder/main/lists/blocklist-all.pihole.txt",
       "path": "lists/blocklist-all.pihole.txt",
       "last_file_update": "2026-11-19T20:27:03Z",
-      "age_days": 1.69,
+      "age_days": 1.7,
       "size_bytes": 32080,
       "stars": 0,
       "license": "MIT",
@@ -450,8 +450,8 @@
         "adskeeper.com",
         "adsrvr.org"
       ],
-      "new_domains": 385,
-      "covered_pct": 76.0
+      "new_domains": 367,
+      "covered_pct": 77.1
     },
     {
       "repo": "oo12/SMBBB",
@@ -459,7 +459,7 @@
       "raw_url": "https://raw.githubusercontent.com/oo12/SMBBB/master/blocklist.txt",
       "path": "blocklist.txt",
       "last_file_update": "2026-11-19T16:49:41Z",
-      "age_days": 1.84,
+      "age_days": 1.85,
       "size_bytes": 130452,
       "stars": 8,
       "license": "GPL-3.0",
@@ -485,8 +485,8 @@
         "clck.ru",
         "core.ac.uk"
       ],
-      "new_domains": 4751,
-      "covered_pct": 14.8
+      "new_domains": 4668,
+      "covered_pct": 16.3
     },
     {
       "repo": "Jam0k/Public-Feeds-IOCs",
@@ -494,7 +494,7 @@
       "raw_url": "https://raw.githubusercontent.com/Jam0k/Public-Feeds-IOCs/main/feeds/full/domains.txt",
       "path": "feeds/full/domains.txt",
       "last_file_update": "2026-11-20T15:24:56Z",
-      "age_days": 0.9,
+      "age_days": 0.91,
       "size_bytes": 47577,
       "stars": 3,
       "license": "GPL-3.0",
@@ -516,8 +516,8 @@
         "kro.kr",
         "pbapi.xyz"
       ],
-      "new_domains": 424,
-      "covered_pct": 82.1
+      "new_domains": 419,
+      "covered_pct": 82.3
     },
     {
       "repo": "phishdestroy/destroylist",
@@ -551,7 +551,7 @@
         "mez.ink",
         "playmods.net"
       ],
-      "new_domains": 77827,
+      "new_domains": 77823,
       "covered_pct": 66.5
     },
     {
@@ -560,7 +560,7 @@
       "raw_url": "https://raw.githubusercontent.com/phishdestroy/destroylist/main/rootlist/formats/community/domains.txt",
       "path": "rootlist/formats/community/domains.txt",
       "last_file_update": "2026-11-21T12:01:06Z",
-      "age_days": 0.04,
+      "age_days": 0.05,
       "size_bytes": 26167814,
       "stars": 1844,
       "license": "MIT",
@@ -586,8 +586,8 @@
         "arnes.si",
         "bigpond.com"
       ],
-      "new_domains": 840379,
-      "covered_pct": 28.8
+      "new_domains": 755491,
+      "covered_pct": 36.0
     },
     {
       "repo": "phishdestroy/destroylist",
@@ -621,8 +621,8 @@
         "arnes.si",
         "bigpond.com"
       ],
-      "new_domains": 231738,
-      "covered_pct": 55.0
+      "new_domains": 146873,
+      "covered_pct": 71.5
     },
     {
       "repo": "Jam0k/Public-Feeds-IOCs",
@@ -630,7 +630,7 @@
       "raw_url": "https://raw.githubusercontent.com/Jam0k/Public-Feeds-IOCs/main/feeds/domains.txt",
       "path": "feeds/domains.txt",
       "last_file_update": "2026-11-20T15:24:56Z",
-      "age_days": 0.9,
+      "age_days": 0.91,
       "size_bytes": 15595,
       "stars": 3,
       "license": "GPL-3.0",
@@ -655,28 +655,28 @@
       "repo_url": "https://github.com/Tagoletta/SiberGuvenlikBaskanligi-API",
       "raw_url": "https://raw.githubusercontent.com/Tagoletta/SiberGuvenlikBaskanligi-API/main/data/days-120-domains.txt",
       "path": "data/days-120-domains.txt",
-      "last_file_update": "2026-11-21T12:12:18Z",
-      "age_days": 0.03,
-      "size_bytes": 462073,
+      "last_file_update": "2026-11-21T13:07:50Z",
+      "age_days": 0.0,
+      "size_bytes": 461938,
       "stars": 3,
       "license": "GPL-3.0",
       "fork": false,
       "relevance": 2,
       "format": "plain-domains",
-      "sample_data_lines": 19193,
-      "sample_domain_lines": 19192,
+      "sample_data_lines": 19188,
+      "sample_domain_lines": 19187,
       "domain_ratio": 0.9999,
       "opnsense_direct": true,
       "invalid_sample_lines": 1,
       "score": 40,
       "known": "Repo genutzt",
-      "entries": 19191,
+      "entries": 19186,
       "popular_hits": 1,
       "popular_examples": [
         "earn.fm"
       ],
-      "new_domains": 2935,
-      "covered_pct": 84.7
+      "new_domains": 2909,
+      "covered_pct": 84.8
     },
     {
       "repo": "rosical-labs/SiberGuvenlikBaskanligi-API",
@@ -684,7 +684,7 @@
       "raw_url": "https://raw.githubusercontent.com/rosical-labs/SiberGuvenlikBaskanligi-API/main/data/days-120-domains.txt",
       "path": "data/days-120-domains.txt",
       "last_file_update": "2026-11-21T11:59:13Z",
-      "age_days": 0.04,
+      "age_days": 0.05,
       "size_bytes": 462073,
       "stars": 0,
       "license": "GPL-3.0",
@@ -703,17 +703,17 @@
       "popular_examples": [
         "earn.fm"
       ],
-      "new_domains": 2935,
-      "covered_pct": 84.7
+      "new_domains": 2917,
+      "covered_pct": 84.8
     },
     {
       "repo": "Tagoletta/SiberGuvenlikBaskanligi-API",
       "repo_url": "https://github.com/Tagoletta/SiberGuvenlikBaskanligi-API",
       "raw_url": "https://raw.githubusercontent.com/Tagoletta/SiberGuvenlikBaskanligi-API/main/data/full-domains.txt",
       "path": "data/full-domains.txt",
-      "last_file_update": "2026-11-21T12:12:18Z",
-      "age_days": 0.03,
-      "size_bytes": 10845315,
+      "last_file_update": "2026-11-21T13:07:50Z",
+      "age_days": 0.0,
+      "size_bytes": 10845432,
       "stars": 3,
       "license": "GPL-3.0",
       "fork": false,
@@ -726,7 +726,7 @@
       "invalid_sample_lines": 9,
       "score": 30,
       "known": "Repo genutzt",
-      "entries": 480695,
+      "entries": 480700,
       "popular_hits": 27,
       "popular_examples": [
         "1fichier.com",
@@ -738,8 +738,8 @@
         "cyberprotector.online",
         "dfmc.com.cn"
       ],
-      "new_domains": 351066,
-      "covered_pct": 27.0
+      "new_domains": 350390,
+      "covered_pct": 27.1
     },
     {
       "repo": "rosical-labs/SiberGuvenlikBaskanligi-API",
@@ -747,7 +747,7 @@
       "raw_url": "https://raw.githubusercontent.com/rosical-labs/SiberGuvenlikBaskanligi-API/main/data/full-domains.txt",
       "path": "data/full-domains.txt",
       "last_file_update": "2026-11-21T11:59:13Z",
-      "age_days": 0.04,
+      "age_days": 0.05,
       "size_bytes": 10845315,
       "stars": 0,
       "license": "GPL-3.0",
@@ -773,30 +773,30 @@
         "cyberprotector.online",
         "dfmc.com.cn"
       ],
-      "new_domains": 351066,
-      "covered_pct": 27.0
+      "new_domains": 350390,
+      "covered_pct": 27.1
     },
     {
       "repo": "Tagoletta/SiberGuvenlikBaskanligi-API",
       "repo_url": "https://github.com/Tagoletta/SiberGuvenlikBaskanligi-API",
       "raw_url": "https://raw.githubusercontent.com/Tagoletta/SiberGuvenlikBaskanligi-API/main/data/days-90-domains.txt",
       "path": "data/days-90-domains.txt",
-      "last_file_update": "2026-11-21T12:12:18Z",
-      "age_days": 0.03,
-      "size_bytes": 346701,
+      "last_file_update": "2026-11-21T13:07:50Z",
+      "age_days": 0.0,
+      "size_bytes": 346777,
       "stars": 3,
       "license": "GPL-3.0",
       "fork": false,
       "relevance": 2,
       "format": "plain-domains",
-      "sample_data_lines": 14007,
-      "sample_domain_lines": 14006,
+      "sample_data_lines": 14010,
+      "sample_domain_lines": 14009,
       "domain_ratio": 0.9999,
       "opnsense_direct": true,
       "invalid_sample_lines": 1,
       "score": 25,
       "known": "genutzt",
-      "entries": 14005,
+      "entries": 14008,
       "popular_hits": 1,
       "popular_examples": [
         "earn.fm"
@@ -809,22 +809,22 @@
       "repo_url": "https://github.com/Tagoletta/SiberGuvenlikBaskanligi-API",
       "raw_url": "https://raw.githubusercontent.com/Tagoletta/SiberGuvenlikBaskanligi-API/main/data/days-60-domains.txt",
       "path": "data/days-60-domains.txt",
-      "last_file_update": "2026-11-21T12:12:18Z",
-      "age_days": 0.03,
-      "size_bytes": 230446,
+      "last_file_update": "2026-11-21T13:07:50Z",
+      "age_days": 0.0,
+      "size_bytes": 230306,
       "stars": 3,
       "license": "GPL-3.0",
       "fork": false,
       "relevance": 2,
       "format": "plain-domains",
-      "sample_data_lines": 9411,
-      "sample_domain_lines": 9410,
+      "sample_data_lines": 9407,
+      "sample_domain_lines": 9406,
       "domain_ratio": 0.9999,
       "opnsense_direct": true,
       "invalid_sample_lines": 1,
       "score": 25,
       "known": "Repo genutzt",
-      "entries": 9410,
+      "entries": 9406,
       "popular_hits": 1,
       "popular_examples": [
         "earn.fm"
@@ -838,7 +838,7 @@
       "raw_url": "https://raw.githubusercontent.com/rosical-labs/SiberGuvenlikBaskanligi-API/main/data/days-90-domains.txt",
       "path": "data/days-90-domains.txt",
       "last_file_update": "2026-11-21T11:59:13Z",
-      "age_days": 0.04,
+      "age_days": 0.05,
       "size_bytes": 346701,
       "stars": 0,
       "license": "GPL-3.0",
@@ -857,7 +857,7 @@
       "popular_examples": [
         "earn.fm"
       ],
-      "new_domains": 0,
+      "new_domains": 2,
       "covered_pct": 100.0
     },
     {
@@ -866,7 +866,7 @@
       "raw_url": "https://raw.githubusercontent.com/rosical-labs/SiberGuvenlikBaskanligi-API/main/data/days-60-domains.txt",
       "path": "data/days-60-domains.txt",
       "last_file_update": "2026-11-21T11:59:13Z",
-      "age_days": 0.04,
+      "age_days": 0.05,
       "size_bytes": 230498,
       "stars": 0,
       "license": "GPL-3.0",
