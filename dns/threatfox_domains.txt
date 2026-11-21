@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-21 13:55 CET
-# Eintraege: 31813
+# Aktualisiert: 2026-11-21 16:16 CET
+# Eintraege: 31821
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -573,6 +573,7 @@
 2wiifhiu6qqxehbr5yd-mesh-x9-dc7.mn567-az62-prd5-rs01-com.in.net
 2wij971l.betbazi.net
 2wr0b5x0.jetbetkade.com
+2xxu139r.americaspadel.com
 2xzklzguutbgd.com
 2z9voqdn.cetek.store
 2zj0cj0t.eng--thebrainsong.com
@@ -3017,6 +3018,7 @@ applicensingstudio.com
 appmind.center
 appmine.io
 appoinments.click
+appropriateyellow.workers.dev
 approval-tangem.com
 approvalrequest-api.com
 approve-tangem.com
@@ -3134,6 +3136,7 @@ ariktreininger.business-profiles.com
 ario-tech.com
 aristacosmetics.com
 aritmiagenesh.com
+ariuc8vw.ceomutual.com.mx
 arizonahomesellers.com
 arjunsingh.info
 ark-crestos.eightyen1arge.garden
@@ -5803,6 +5806,7 @@ centrovirginia.com
 centrumrownowagi.com
 ceoasyigymmigmgi.xyz
 ceohdvj.bonos.promo
+ceomutual.com.mx
 cepliss.info
 cepot.store
 ceragpv.pjnphotography.com
@@ -8566,6 +8570,7 @@ ebzwaki.bakhtbetyek.com
 ec-hasslau.de
 ec2-13-185-9-23.us-east-2.compute.amazonaws.com
 ec2-3-22-66-152.us-east-2.compute.amazonaws.com
+ec2-52-14-78-149.us-east-2.compute.amazonaws.com
 ec2-aws.ddns.net
 ecaakmuwiwwesugo.xyz
 ecaqosz.1bonus.bet
@@ -28533,6 +28538,9 @@ wblfdanab.ethanhartyblacksmith.com
 wbnggxoc.tractor11.com
 wbpypinui.generososbakerycafe.com
 wbworkshops.com
+wc-doge.ddns.net
+wc-ltc.ddns.net
+wc-vps.ddns.net
 wc2z5pjy.digeststart.us
 wc7skdzu.yakhbet.com
 wcbradley.duckdns.org
