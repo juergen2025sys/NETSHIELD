@@ -226,13 +226,19 @@ FH_URLS = ('https://iplists.firehol.org/files/firehol_abusers_30d.netset',)
 # fast nur kleine Hoster, 0 NetFlow-Kontakte.
 CVE_IPS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                             'cve_exploit_ips.txt')
+# Seit 2026-11-21 (Nutzerwunsch): bitwire-it outbound (kuratierte Ziele fuer
+# ausgehende Sperren: Malware/C2/Phishing, alle 2 h, ~97.000 Einzel-IPs).
+# Test: +84 ASNs / 245.760 Adressen, ueberwiegend VPS-/Anonym-Hoster,
+# 0 NetFlow-Kontakte. Gezaehlt werden nur Einzel-IPs (keine CIDR-Bloecke).
+BW_URLS = ('https://raw.githubusercontent.com/bitwire-it/ipblocklist/main/outbound.txt',)
 # Netzbetreiber, die die Dichte-Auswertung NIE sperren darf (Kontakt eigener
 # Geraete laut NetFlow bzw. wichtige Infrastruktur). Gilt fuer alle Dichte-Quellen.
 DENSITY_NEVER = set()
 DENSITY_SOURCES = (('ThreatFox C2-Dichte', TF_IPS_FILE), ('AbuseIPDB-Dichte', AB_IPS_FILE),
                    ('threat.live-Dichte', TL_URL), ('Dataplane-Dichte', DP_URLS),
                    ('Honeypot-Feeds-Dichte', HPF_URLS), ('Honigtopf-Dichte', HT_IPS_FILE),
-                   ('FireHOL-Abusers-Dichte', FH_URLS), ('CVE-Exploit-Dichte', CVE_IPS_FILE))
+                   ('FireHOL-Abusers-Dichte', FH_URLS), ('CVE-Exploit-Dichte', CVE_IPS_FILE),
+                   ('Bitwire-Outbound-Dichte', BW_URLS))
 TF_ASNDB_URLS = ('https://cdn.jsdelivr.net/npm/@ip-location-db/asn/asn-ipv4.csv',
                  'https://raw.githubusercontent.com/sapics/ip-location-db/main/dbip-asn/dbip-asn-ipv4.csv')
 # 2026-11-18 (Nutzerentscheidung): von 65.536 auf 1.000.000 erhoeht. Test: nur
@@ -446,7 +452,7 @@ def main():
             f.write('\n'.join(lines) + '\n')
         os.replace(tmp, os.path.join(OUT_DIR, 'threatfox_asn_kandidaten.txt'))
         print('Dichte-Kandidaten: %d (davon noch nicht gesperrt: %d, ThreatFox %d / AbuseIPDB %d / threat.live %d'
-              ' / Dataplane %d / Honeypot-Feeds %d / Honigtopf %d / FireHOL %d / CVE-Exploit %d) -> asn/threatfox_asn_kandidaten.txt'
+              ' / Dataplane %d / Honeypot-Feeds %d / Honigtopf %d / FireHOL %d / CVE-Exploit %d / Bitwire %d) -> asn/threatfox_asn_kandidaten.txt'
               % (len(tf), len(tf_new), sum(1 for v in tf_new.values() if v[4].startswith('ThreatFox')),
                  sum(1 for v in tf_new.values() if v[4].startswith('AbuseIPDB')),
                  sum(1 for v in tf_new.values() if v[4].startswith('threat.live')),
@@ -454,7 +460,8 @@ def main():
                  sum(1 for v in tf_new.values() if v[4].startswith('Honeypot-Feeds')),
                  sum(1 for v in tf_new.values() if v[4].startswith('Honigtopf')),
                  sum(1 for v in tf_new.values() if v[4].startswith('FireHOL')),
-                 sum(1 for v in tf_new.values() if v[4].startswith('CVE-Exploit'))))
+                 sum(1 for v in tf_new.values() if v[4].startswith('CVE-Exploit')),
+                 sum(1 for v in tf_new.values() if v[4].startswith('Bitwire'))))
     # Haltezeit (seit 2026-11-18): Netzbetreiber aus der Dichte-Auswertung bleiben
     # HOLD_DAYS Tage nach ihrem letzten Auftauchen gesperrt - auch wenn eine Quelle
     # kurz ausfaellt oder der Taeter ein paar Tage still ist. Zustand liegt in
@@ -609,7 +616,7 @@ def main():
             '# Zusatz-ASNs: %s (Bulletproof Hosting Watch, Bericht %s)\n'
             '# Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)\n'
             '# Aktualisiert: %s | ASNs: %d (Spamhaus %d + BPH %d + Maltrail %d + BPH-Watch %d + eigene %d'
-            ' + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit %d + ASN-Risiko %d, aktiv: %d)\n'
+            ' + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire %d + ASN-Risiko %d, aktiv: %d)\n'
             % (SPAMHAUS_URL, meta.get('timestamp'), BPH_URL, MALTRAIL_URL, BPHW_INDEX, bw_date, now, len(asns),
                n_spamhaus, len(bph_new), len(mt_new), len(bw_new), len(man_new), len(tf_new), len(risk_new), active))
 
