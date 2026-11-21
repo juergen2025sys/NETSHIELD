@@ -1,5 +1,5 @@
 # 🛡 NETSHIELD Report
-**Aktualisiert:** 2026-11-21 08:47 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-21 09:46 CET (Europe/Berlin)
 
 ---
 ## 📊 Listen-Übersicht
@@ -10,23 +10,23 @@
 | ✅ [active_blacklist_ipv4.txt](../active_blacklist_ipv4.txt) | Stufe 2 – Aktiv (30 Tage + Conf≥65) | **354,007** | 2026-11-21 07:44 CET (Europe/Berlin) |
 | ✅ [blacklist_confidence40_ipv4_part1.txt](../blacklist_confidence40_ipv4_part1.txt) + [blacklist_confidence40_ipv4_part2.txt](../blacklist_confidence40_ipv4_part2.txt) | Mittleres/Hohes Vertrauen (≥40/100) → OPNsense | **7,936,714** | 2026-11-21 07:49 CET (Europe/Berlin) |
 | ✅ [watchlist_confidence25to39_ipv4.txt](../watchlist_confidence25to39_ipv4.txt) | Watchlist (Score 25-39/100) | **3,291,960** | 2026-11-21 07:49 CET (Europe/Berlin) |
-| ✅ [cve_exploit_ips.txt](../cve_exploit_ips.txt) | CVE Exploit IPs | **29,951** | 2026-11-21 03:42 CET (Europe/Berlin) |
-| ✅ [bot_detector_blacklist_ipv4.txt](../bot_detector_blacklist_ipv4.txt) | Bot-Detector Blacklist | **1,177,966** | 2026-11-21 07:56 CET (Europe/Berlin) |
-| ✅ [honeypot_ips.txt](../honeypot_ips.txt) | Honeypot IPs | **2,168,544** | 2026-11-21 07:56 CET (Europe/Berlin) |
-| ✅ [honigtopf_ips.txt](../honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **16,720** | 2026-11-21 07:55 CET (Europe/Berlin) |
+| ✅ [cve_exploit_ips.txt](../cve_exploit_ips.txt) | CVE Exploit IPs | **29,955** | 2026-11-21 09:17 CET (Europe/Berlin) |
+| ✅ [bot_detector_blacklist_ipv4.txt](../bot_detector_blacklist_ipv4.txt) | Bot-Detector Blacklist | **1,177,994** | 2026-11-21 08:48 CET (Europe/Berlin) |
+| ✅ [honeypot_ips.txt](../honeypot_ips.txt) | Honeypot IPs | **2,168,405** | 2026-11-21 08:48 CET (Europe/Berlin) |
+| ✅ [honigtopf_ips.txt](../honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **17,222** | 2026-11-21 08:48 CET (Europe/Berlin) |
 
 ---
-## 🔍 Feed Health: ✅ 92 OK | ⚠️ 1 leer | ❌ 1 Fehler
+## 🔍 Feed Health: ✅ 95 OK | ⚠️ 1 leer | ❌ 1 Fehler
 
 **❌ Ausgefallen:** `data_shield`
 
 **⚠️ Leer:** `greedybear_recur`
 
-**🧊 Eingefroren (1):** `ffraud_confirmed` 16T
+**🧊 Eingefroren (1):** `ffraud_confirmed` 17T
 
 *Noch unter der 21-Tage-Quarantäne-Schwelle – nur beobachtet. Details: [reports/stale_feed_report.md](reports/stale_feed_report.md)*
 
-*Letzter Check: 2026-11-20 08:55 CET (Europe/Berlin) – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
+*Letzter Check: 2026-11-21 08:53 CET (Europe/Berlin) – Details: [reports/feed_health_report.md](reports/feed_health_report.md)*
 
 ---
 ## ⚙️ Workflow Health
@@ -34,4 +34,4 @@
 *Details: [reports/workflow_health_report.md](reports/workflow_health_report.md)*
 
 ---
-*Automatisch generiert von NETSHIELD Report Generator · 2026-11-21 08:47 CET (Europe/Berlin)*
+*Automatisch generiert von NETSHIELD Report Generator · 2026-11-21 09:46 CET (Europe/Berlin)*
