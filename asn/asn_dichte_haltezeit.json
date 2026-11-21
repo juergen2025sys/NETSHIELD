@@ -663,7 +663,7 @@
 "density": 0.44,
 "last_seen": "2026-11-21",
 "name": "Onesky Communications Limited.",
-"why": "FireHOL-Abusers-Dichte"
+"why": "Honigtopf-Dichte"
 },
 "136515": {
 "density": 0.54,
@@ -1836,7 +1836,7 @@
 "why": "Dataplane-Dichte"
 },
 "198093": {
-"density": 2.34,
+"density": 2.54,
 "last_seen": "2026-11-21",
 "name": "Foreningen for digitala fri- och rattigheter",
 "why": "Honigtopf-Dichte"
@@ -2322,10 +2322,10 @@
 "why": "threat.live-Dichte"
 },
 "205100": {
-"density": 3.91,
+"density": 4.3,
 "last_seen": "2026-11-21",
 "name": "F3 Netze e.V.",
-"why": "Honeypot-Feeds-Dichte"
+"why": "Honigtopf-Dichte"
 },
 "205119": {
 "density": 1.27,
@@ -2592,7 +2592,7 @@
 "why": "Dataplane-Dichte"
 },
 "208323": {
-"density": 5.08,
+"density": 5.47,
 "last_seen": "2026-11-21",
 "name": "Foundation for Applied Privacy",
 "why": "Honigtopf-Dichte"
@@ -2814,7 +2814,7 @@
 "why": "FireHOL-Abusers-Dichte"
 },
 "210731": {
-"density": 3.12,
+"density": 3.52,
 "last_seen": "2026-11-21",
 "name": "Forening for DotSrc",
 "why": "Honigtopf-Dichte"
@@ -5076,7 +5076,7 @@
 "why": "FireHOL-Abusers-Dichte"
 },
 "396507": {
-"density": 1.07,
+"density": 1.66,
 "last_seen": "2026-11-21",
 "name": "Emerald Onion",
 "why": "Honigtopf-Dichte"
@@ -6492,7 +6492,7 @@
 "why": "Dataplane-Dichte"
 },
 "60729": {
-"density": 6.51,
+"density": 8.59,
 "last_seen": "2026-11-21",
 "name": "Stiftung Erneuerbare Freiheit",
 "why": "Honigtopf-Dichte"
@@ -6534,7 +6534,7 @@
 "why": "USOM-Dichte"
 },
 "61125": {
-"density": 1.37,
+"density": 1.76,
 "last_seen": "2026-11-21",
 "name": "SABOTAGE LLC",
 "why": "Honigtopf-Dichte"
@@ -6672,7 +6672,7 @@
 "why": "FireHOL-Abusers-Dichte"
 },
 "62744": {
-"density": 0.92,
+"density": 1.21,
 "last_seen": "2026-11-21",
 "name": "Quintex Alliance Consulting",
 "why": "Honigtopf-Dichte"

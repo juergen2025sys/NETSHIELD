@@ -1,10 +1,10 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795262204)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795264004)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-21 12:15 UTC | ASNs: 1682 (Spamhaus 456 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1000 + ASN-Risiko 67, aktiv: 1429)
+# Aktualisiert: 2026-11-21 12:43 UTC | ASNs: 1684 (Spamhaus 458 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1000 + ASN-Risiko 67, aktiv: 1430)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS1054		Zont LLC	Honigtopf-Dichte (Haltezeit, zuletzt auffaellig 2026-11-19)
@@ -435,7 +435,7 @@ AS60567		SIA RixHost	feste eigene Liste
 AS60602		Inovare-Prim SRL	CVE-Exploit-Dichte 0.76%
 AS60612		Albatros Ltd.	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-20)
 AS60711		Fernando Perez Morales	Dataplane-Dichte 0.28%
-AS60729		Stiftung Erneuerbare Freiheit	Honigtopf-Dichte 6.51%
+AS60729		Stiftung Erneuerbare Freiheit	Honigtopf-Dichte 8.59%
 AS60754		Dianet Ltd.	FireHOL-Abusers-Dichte 0.28%
 AS60831		Arkadia Spolka Cywilna Krysztof Rozmus Barbara Rozmus	Bitwire-Outbound-Dichte 0.47%
 AS60842	RU	HUIZE-HOLDINGS-AS	62yun.com
@@ -443,7 +443,7 @@ AS60904		ATC Telecom LTD.	Bitwire-Outbound-Dichte 2.83%
 AS60936		LLC Skynet	Dataplane-Dichte 0.59%
 AS61002		Smart Solutions & Soft SRL	FireHOL-Abusers-Dichte 0.39%
 AS61053		UAB ESNET	USOM-Dichte 0.29%
-AS61125		SABOTAGE LLC	Honigtopf-Dichte 1.37%
+AS61125		SABOTAGE LLC	Honigtopf-Dichte 1.76%
 AS61254		ESTOXY OU	feste eigene Liste
 AS61272		Informacines sistemos ir technologijos, UAB	Bitwire-Outbound-Dichte 0.46%
 AS61280		FGUP "GRCHC"	Dataplane-Dichte 0.29%
@@ -473,7 +473,7 @@ AS62419		I.Q Online for Internet Services and Communications LLC	Dataplane-Dicht
 AS62563		GLOBALTELEHOST Corp.	ThreatFox C2-Dichte 0.57%
 AS62610		Zenlayer Inc	ThreatFox C2-Dichte 0.27%
 AS62651		Strong Technology, LLC.	FireHOL-Abusers-Dichte 0.81%
-AS62744		Quintex Alliance Consulting	Honigtopf-Dichte 0.92%
+AS62744		Quintex Alliance Consulting	Honigtopf-Dichte 1.21%
 AS62864	JP	NILAS	netinnovation.net
 AS62874		Web2Objects LLC	FireHOL-Abusers-Dichte 0.73%
 AS63023		GTHost	FireHOL-Abusers-Dichte 0.36%
@@ -619,7 +619,7 @@ AS136367	IN	HERBZOOT-AS-IN	herbzoothealthcare.co.in
 AS136429		BAS Network	FireHOL-Abusers-Dichte 0.63%
 AS136442		Ocean Wave Communication Co., Ltd	Dataplane-Dichte 0.46%
 AS136452		SHANGXING TECH LIMITED	BPH_Research T2-High Risk / suspected
-AS136514		Onesky Communications Limited.	FireHOL-Abusers-Dichte 0.44%
+AS136514		Onesky Communications Limited.	Honigtopf-Dichte 0.44%
 AS136515		Dasca Cable Services, Inc.	FireHOL-Abusers-Dichte 0.54%
 AS136525		Wancom (Pvt) Ltd.	Dataplane-Dichte 1.19%
 AS136557		Host Universal Pty Ltd	FireHOL-Abusers-Dichte 0.42%
@@ -681,11 +681,13 @@ AS138915	CN	KAOPU-HK	kaopuyun.com
 AS138926		Netpoint IT & Communications Pvt. Ltd	FireHOL-Abusers-Dichte 0.34%
 AS138968	HK	RAINBOWIDC-AS-AP	itsidc.com
 AS138985		CITS PVT (LTD)	FireHOL-Abusers-Dichte 0.26%
+AS138995	HK	ANTBOX1-AS-AP	antboxnetwork.com
 AS139009		Windstream Communication Ltd	FireHOL-Abusers-Dichte 0.33%
 AS139029		AKNetworks	FireHOL-Abusers-Dichte 0.55%
 AS139043		WellNetworks (Private) Limited	FireHOL-Abusers-Dichte 1.64%
 AS139325		IQ-TEL	FireHOL-Abusers-Dichte 0.39%
 AS139549			ASN-Risiko 2026-10
+AS139638	HK	ANTBOX1-AS-AP	antboxnetwork.com
 AS139642			ASN-Risiko 2026-10
 AS139659		LUCIDACLOUD LIMITED	Bitwire-Outbound-Dichte 0.46%
 AS139762		Solution	CVE-Exploit-Dichte 1.56%
@@ -883,7 +885,7 @@ AS197769	US	VPSDEDICATED-AS	vpsdedicated.net
 AS197960		LIMITED LIABILITY COMPANY "INTERNET SERVICE PROVIDER "MEGA"	Dataplane-Dichte 1.63%
 AS198071	GB	BERCHSOLUTIONS-AS	berch.co.uk
 AS198075		BounceZero Ltd	feste eigene Liste
-AS198093		Foreningen for digitala fri- och rattigheter	Honigtopf-Dichte 2.34%
+AS198093		Foreningen for digitala fri- och rattigheter	Honigtopf-Dichte 2.54%
 AS198178		365.partners INC	USOM-Dichte 0.33%
 AS198189	GB	STEALTHVM	stealthvm.net
 AS198338		NEAPOL GROUP LLC	Dataplane-Dichte 1.17%
@@ -1029,7 +1031,7 @@ AS205051		Connetta Srl	threat.live-Dichte 0.30%
 AS205083	SC	DATASHIELD_FILTER	xor.sc
 AS205089		Alfahost LLC	threat.live-Dichte 21.09%
 AS205090		First Server Limited	BPH_Research T2-High Risk / flagged
-AS205100		F3 Netze e.V.	Honeypot-Feeds-Dichte 3.91%
+AS205100		F3 Netze e.V.	Honigtopf-Dichte 4.30%
 AS205119		TELEKS DOOEL Skopje	FireHOL-Abusers-Dichte 1.27%
 AS205196		BIG CORE LLC	threat.live-Dichte 0.46%
 AS205301	MD	Contrust-Solutions	kontrast.md
@@ -1109,7 +1111,7 @@ AS208241	UA	RADIO-LINK-PLUS	pitline.net
 AS208312			Maltrail worst_asns
 AS208314		Access Telecom Ltd.	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-20)
 AS208317	MD	Contrust-Solutions	kontrast.md
-AS208323		Foundation for Applied Privacy	Honigtopf-Dichte 5.08%
+AS208323		Foundation for Applied Privacy	Honigtopf-Dichte 5.47%
 AS208476			Maltrail worst_asns
 AS208525	HK	AIRULIMITED	cloudie.hk
 AS208570		Spark for Information Technology Services Ltd	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-19)
@@ -1178,7 +1180,7 @@ AS210703	IR	FIRSTBYTE-AS	almaseabi.net
 AS210705	IR	AliMonfared	rapidoserver.com
 AS210707	IR	Company	dadeh-pardazesh-boroumand-kerman
 AS210714	TR	WORLD-NET-ISP-Provider	eksenbilisim.com.tr
-AS210731		Forening for DotSrc	Honigtopf-Dichte 3.12%
+AS210731		Forening for DotSrc	Honigtopf-Dichte 3.52%
 AS210809	GB	UniFlex	fxmail.club
 AS210846		Dedispot Web Solution pvt ltd	Bitwire-Outbound-Dichte 1.95%
 AS210848	SC	TK-NET	server-panel.org
@@ -1621,7 +1623,7 @@ AS395339		Donnelley Financial, LLC.	Bitwire-Outbound-Dichte 0.31%
 AS395470		Nymlyria LLC	FireHOL-Abusers-Dichte 0.35%
 AS396073		Majestic Hosting Solutions, LLC	CVE-Exploit-Dichte 0.39%
 AS396319		Oxylabs	FireHOL-Abusers-Dichte 0.38%
-AS396507		Emerald Onion	Honigtopf-Dichte 1.07%
+AS396507		Emerald Onion	Honigtopf-Dichte 1.66%
 AS397081	US	VALKYRIE-HOSTING	valkyrie-hosting.net
 AS397270		NetInformatik Inc.	CVE-Exploit-Dichte 0.25%
 AS397731		EliteWork LLC	FireHOL-Abusers-Dichte 0.44%
