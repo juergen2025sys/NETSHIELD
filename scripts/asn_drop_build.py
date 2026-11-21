@@ -231,6 +231,10 @@ CVE_IPS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 # Test: +84 ASNs / 245.760 Adressen, ueberwiegend VPS-/Anonym-Hoster,
 # 0 NetFlow-Kontakte. Gezaehlt werden nur Einzel-IPs (keine CIDR-Bloecke).
 BW_URLS = ('https://raw.githubusercontent.com/bitwire-it/ipblocklist/main/outbound.txt',)
+# Seit 2026-11-21 (Nutzerwunsch): USOM (tuerkische Cyber-Behoerde, via
+# Tagoletta-Spiegel, ~16.500 Einzel-IPs, stuendlich aktualisiert).
+# Test: +33 ASNs / 107.008 Adressen, kleine Hoster/VPS, 0 NetFlow-Kontakte.
+USOM_URLS = ('https://raw.githubusercontent.com/Tagoletta/SiberGuvenlikBaskanligi-API/main/data/full-ips.txt',)
 # Netzbetreiber, die die Dichte-Auswertung NIE sperren darf (Kontakt eigener
 # Geraete laut NetFlow bzw. wichtige Infrastruktur). Gilt fuer alle Dichte-Quellen.
 DENSITY_NEVER = set()
@@ -238,7 +242,7 @@ DENSITY_SOURCES = (('ThreatFox C2-Dichte', TF_IPS_FILE), ('AbuseIPDB-Dichte', AB
                    ('threat.live-Dichte', TL_URL), ('Dataplane-Dichte', DP_URLS),
                    ('Honeypot-Feeds-Dichte', HPF_URLS), ('Honigtopf-Dichte', HT_IPS_FILE),
                    ('FireHOL-Abusers-Dichte', FH_URLS), ('CVE-Exploit-Dichte', CVE_IPS_FILE),
-                   ('Bitwire-Outbound-Dichte', BW_URLS))
+                   ('Bitwire-Outbound-Dichte', BW_URLS), ('USOM-Dichte', USOM_URLS))
 TF_ASNDB_URLS = ('https://cdn.jsdelivr.net/npm/@ip-location-db/asn/asn-ipv4.csv',
                  'https://raw.githubusercontent.com/sapics/ip-location-db/main/dbip-asn/dbip-asn-ipv4.csv')
 # 2026-11-18 (Nutzerentscheidung): von 65.536 auf 1.000.000 erhoeht. Test: nur
