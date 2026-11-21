@@ -1303,6 +1303,10 @@ jobs:
               # 7 Tage, Forschungs-Scanner herausgefiltert, stuendlich, CC BY 4.0.
               # Test: 1.033 neu, 0 Kontakte. Non-HQ.
               "fontaine_cloud":             ("https://raw.githubusercontent.com/Fontaine-Cloud/threat-intel/main/blocklist.txt", False),
+              # 2026-11-21 (Nutzerwunsch): NetAPI "compromised" - gehackte Geraete
+              # (ueberwiegend Heim-/Mobilfunk-Anschluesse, ~137k, taeglich).
+              # Test: 24.431 neu, 0 Kontakte, 0 Steam-Relays. Non-HQ.
+              "netapi_compromised":         ("https://netapi.com/zf-api/f/compromised/ip/full/", False),
               # "honeypot_blocklist" entfernt: yuexuana521/honeypot-blocklist Repo gelöscht
               # ENTFERNT (2026-08-05): nixbear_malicious - 52 Tage unveraendert lt. Stale-Feed-Report.
               "ufukart_blacklist":          ("https://raw.githubusercontent.com/ufukart/Blacklist/main/blacklist.txt", False),
