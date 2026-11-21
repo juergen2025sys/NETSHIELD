@@ -125,6 +125,7 @@ jobs:
               "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/popupads.txt",
               "https://raw.githubusercontent.com/Jam0k/Public-Feeds-IOCs/HEAD/feeds/domains.txt",
               "https://raw.githubusercontent.com/Tagoletta/SiberGuvenlikBaskanligi-API/main/data/days-90-domains.txt",
+              "https://raw.githubusercontent.com/ezoblocker/ezoblocker.app/main/domains/security/all.txt",
           )
           # Vordefinierte Unbound-Listen (Hagezi, OISD, AdGuard ...) laufen
           # ueber diese Repos - Funde daraus sind ebenfalls "schon genutzt".
@@ -545,6 +546,67 @@ jobs:
 
           KNOWN_REPO_NAMES = {r.split("/", 1)[1] for r in KNOWN_REPOS if "/" in r}
 
+          # ── 2026-11-21: Kategorie-Erkennung + Tipp ───────────────────────────
+          # Reihenfolge = Prioritaet. Geprueft werden Dateipfad, Repo-Name und
+          # Repo-Beschreibung; danach der Inhalt (Anteil typischer Namen).
+          CATEGORY_RULES = (
+              ("Gluecksspiel", "🎰", r"gambl|casino|betting|\bbet\b|bookmaker|lottery|poker"),
+              ("Erwachsene", "🔞", r"\badult|porn|nsfw|\bxxx\b|\bsex\b"),
+              ("Werbung/Tracker", "📢", r"\bads?\b|adblock|adserver|advert|tracker|tracking|telemetry|analytics|annoyance|\bspy\b"),
+              ("Krypto-Drainer", "🪙", r"drainer|crypto.?scam|wallet.?drain"),
+              ("Phishing/Betrug", "🎣", r"phish|scam|fraud|fake|impersonat"),
+              ("Malware/C2", "🦠", r"malware|\bc2\b|botnet|ransom|stealer|trojan|\bioc\b|threat|exploit|badware"),
+              ("Sicherheit", "🛡️", r"security|secur|\bcert\b|cyber|siber|usom|abuse|malicious|dangerous"),
+              ("Neu registriert", "🆕", r"\bnrd\b|newly.?regist|new.?domains"),
+              ("Sammelliste", "📚", r"\ball\b|combined|aggregat|merged|ultimate|everything"),
+          )
+          GAMBLING_NAME_RE = re.compile(r"bet|casino|slot|poker|bingo|lotto|gambl|jackpot|togel|judi|spin")
+          ADULT_NAME_RE = re.compile(r"porn|xxx|nude|hentai|xvideo|camgirl|escort|onlyfan")
+          NO_ATTACK_PROTECTION = ("Gluecksspiel", "Erwachsene", "Werbung/Tracker")
+
+          def categorize(item):
+              text = " ".join([item.get("path", ""), item.get("repo", ""), item.get("description", "")]).lower()
+              text = re.sub(r"[_/.-]", " ", text)
+              # Inhalt zuerst fuer eindeutige Faelle (z. B. "all.txt" in einem Gambling-Ordner)
+              if (item.get("gambling_share") or 0) >= 0.30:
+                  return "Gluecksspiel", "🎰"
+              if (item.get("adult_share") or 0) >= 0.30:
+                  return "Erwachsene", "🔞"
+              for name, icon, pattern in CATEGORY_RULES:
+                  if re.search(pattern, text):
+                      return name, icon
+              return "unklar", "❔"
+
+          def recommend(item):
+              """Kurzer Tipp: einbauen oder nicht - und warum."""
+              cat = item.get("category")
+              known = item.get("known")
+              hits = item.get("popular_hits")
+              new = item.get("new_domains")
+              cov = item.get("covered_pct")
+              if known == "genutzt":
+                  return "skip", "✅ schon in Nutzung"
+              if known == "Spiegel":
+                  return "skip", "➖ Kopie einer genutzten Liste"
+              if cat in NO_ATTACK_PROTECTION:
+                  return "no", f"❌ {cat} - kein Schutz vor Angriffen"
+              if hits is None or new is None:
+                  return "check", "❔ nicht voll pruefbar (zu gross/nicht ladbar)"
+              if hits > 5:
+                  return "no", f"❌ {hits} beliebte Domains - wuerde echte Seiten sperren"
+              if (cov is not None and cov >= 95) or new < 500:
+                  return "no", "➖ bringt kaum Neues"
+              if hits > 0:
+                  return "check", f"⚠️ pruefen: {hits} beliebte Domain(s) - {', '.join(item.get('popular_examples', [])[:3])}"
+              if cat == "Neu registriert":
+                  return "check", "⚠️ NRD-Liste: viele harmlose neue Seiten moeglich"
+              if cat == "Sammelliste" or cat == "unklar":
+                  return "check", "⚠️ Inhalt unklar - Stichprobe ansehen"
+              return "yes", f"✅ Empfehlung: einbauen ({fmt_de(new)} neue Domains, 0 beliebte)"
+
+          def fmt_de(n):
+              return f"{n:,}".replace(",", ".")
+
           def known_status(item):
               if norm_url(item["raw_url"]) in KNOWN_URLS:
                   return "genutzt"
@@ -647,6 +709,11 @@ jobs:
                   return
               doms = set(extract_domains(text))
               item["entries"] = len(doms)
+              # Inhalts-Hinweis fuer die Kategorie: Anteil Gluecksspiel-/Erwachsenen-Namen
+              if doms:
+                  n = len(doms)
+                  item["gambling_share"] = round(sum(1 for d in doms if GAMBLING_NAME_RE.search(d)) / n, 3)
+                  item["adult_share"] = round(sum(1 for d in doms if ADULT_NAME_RE.search(d)) / n, 3)
               if popular:
                   hits = sorted(d for d in doms if d in popular or (d.startswith("www.") and d[4:] in popular))
                   item["popular_hits"] = len(hits)
@@ -695,6 +762,7 @@ jobs:
                   item = {
                       "repo": full,
                       "repo_url": repo.get("html_url"),
+                      "description": (repo.get("description") or "")[:300],
                       "raw_url": raw_url,
                       "path": path,
                       "last_file_update": last_commit,
@@ -760,6 +828,13 @@ jobs:
                   elif item["covered_pct"] >= 80:
                       item["score"] = max(0, item["score"] - 10)
           del own
+          for item in results:
+              item["category"], item["category_icon"] = categorize(item)
+              item["tip_code"], item["tip"] = recommend(item)
+              if item["tip_code"] == "yes":
+                  item["score"] = min(100, item["score"] + 10)
+              elif item["tip_code"] == "no":
+                  item["score"] = max(0, item["score"] - 15)
           results.sort(key=lambda x: (-x["score"], x["age_days"], -x["stars"]))
 
           if len(results) < MIN_RESULTS:
@@ -813,8 +888,29 @@ jobs:
               "Er erstellt nur einen Fundbericht mit Raw-Links."
           )
           md.append("")
-          md.append("| # | Score | Status | Repository / Datei | Letztes Datei-Update | Alter | Format | OPNsense direkt | Eintraege | Schon gesperrt | Neu fuer mich | Beliebte Domains | Groesse | Raw-Link |")
-          md.append("|---:|---:|---|---|---|---:|---|:---:|---:|---:|---:|---|---:|---|")
+          # ── Empfehlungen zuerst ──
+          recs = [r for r in results if r.get("tip_code") == "yes"]
+          checks = [r for r in results if r.get("tip_code") == "check"]
+          md.append("## 💡 Tipp: Diese Listen einbauen")
+          md.append("")
+          if recs:
+              for r in recs:
+                  md.append(f"- {r['category_icon']} **{r['repo']}** / `{r['path']}` - {r['category']}, "
+                            f"{fmt_de(r['new_domains'])} neue Domains, 0 beliebte"
+                            f"  \n  `{r['raw_url']}`")
+          else:
+              md.append("- Heute keine Liste, die sauber ist **und** genug Neues bringt.")
+          if checks:
+              md.append("")
+              md.append("**Vielleicht - erst pruefen:**")
+              md.append("")
+              for r in checks[:8]:
+                  md.append(f"- {r['category_icon']} {r['repo']} / `{r['path']}` - {r['tip']}")
+          md.append("")
+          md.append("## Alle Funde")
+          md.append("")
+          md.append("| # | Score | Tipp | Kategorie | Status | Repository / Datei | Letztes Datei-Update | Alter | Format | OPNsense direkt | Eintraege | Schon gesperrt | Neu fuer mich | Beliebte Domains | Groesse | Raw-Link |")
+          md.append("|---:|---:|---|---|---|---|---|---:|---|:---:|---:|---:|---:|---|---:|---|")
 
           def de_num(n):
               return f"{n:,}".replace(",", ".")
@@ -834,7 +930,8 @@ jobs:
               else:
                   pop = f"⚠️ {hits} ({', '.join(r.get('popular_examples', [])[:4])})"
               md.append(
-                  f"| {idx} | **{r['score']}** | {status} | "
+                  f"| {idx} | **{r['score']}** | {r.get('tip', '?')} | "
+                  f"{r.get('category_icon', '')} {r.get('category', '?')} | {status} | "
                   f"[{r['repo']}]({r['repo_url']}) / `{r['path']}` | "
                   f"{short_date(r['last_file_update'])} | "
                   f"{r['age_days']} d | {r['format']} | {direct} | {entries} | {cov} | {newd} | {pop} | "
@@ -845,6 +942,8 @@ jobs:
           md.append("## Bedeutung")
           md.append("")
           md.append("- **Score:** Frische wird am staerksten gewichtet. Abzug bei beliebten Domains (-10 / -30) und bei schon genutzten Listen (-20).")
+          md.append("- **Tipp:** ✅ einbauen = Schutz-Kategorie, 0 beliebte Domains, mind. 500 neue · ⚠️ pruefen · ❌ nicht (Gluecksspiel/Erwachsene/Werbung, >5 beliebte Domains) · ➖ bringt kaum Neues oder ist eine Kopie.")
+          md.append("- **Kategorie:** erkannt an Dateipfad, Repo-Name/-Beschreibung und am Inhalt (Anteil Gluecksspiel-/Erwachsenen-Namen ab 30 %).")
           md.append("- **Status:** 🆕 neu = noch nirgends genutzt · ✅ genutzt = URL steht schon in Unbound oder NETSHIELD · ☑️ Repo genutzt = andere Datei aus einem schon genutzten Repo · 🪞 Spiegel = Kopie einer genutzten Quelle unter anderem Konto.")
           md.append("- **Schon gesperrt / Neu fuer mich:** Abgleich mit allen eigenen Unbound-Listen (eigene URLs + AdGuard, StevenBlack, OISD NSFW, Hagezi Pro++/TIF/DoH-Bypass + Unbound-Wildcard-Domains wie pages.dev/workers.dev), exakt und ueber die Hauptdomain (Wildcard). Score-Abzug ab 80 % (-10) und 95 % (-25) Abdeckung.")
           md.append(f"- **Beliebte Domains:** Treffer aus den {POPULAR_TOP:,} meistbesuchten Domains (Tranco). Jeder Treffer waere eine echte Seite, die gesperrt wuerde.".replace(",", "."))
@@ -865,7 +964,7 @@ jobs:
           print(f"{len(results)} wirklich aktuelle Listen im Report.")
           for r in results[:10]:
               print(
-                  f"{r['score']:3d} | {r['age_days']:>5} d | "
+                  f"{r['score']:3d} | {r.get('tip', '?')} | {r.get('category', '?')} | {r['age_days']:>5} d | "
                   f"{'OPNsense' if r['opnsense_direct'] else r['format']} | "
                   f"{r.get('known', '?')} | Eintraege {r.get('entries')} | "
                   f"beliebt {r.get('popular_hits')} | gesperrt {r.get('covered_pct')} % | "
