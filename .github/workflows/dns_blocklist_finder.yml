@@ -129,6 +129,21 @@ jobs:
           # Vordefinierte Unbound-Listen (Hagezi, OISD, AdGuard ...) laufen
           # ueber diese Repos - Funde daraus sind ebenfalls "schon genutzt".
           UNBOUND_REPOS = ("hagezi/", "sjhgvr/oisd", "adguardteam/", "stevenblack/")
+          # Vordefinierte Unbound-Typen der Firewall (ag,sb,hgz005,oisd2,hgz011,
+          # hgz014 - Zuordnung laut OPNsense-Template blocklists.conf). Fuer den
+          # Abdeckungs-Vergleich werden sie zusammen mit UNBOUND_URLS geladen.
+          PREDEFINED_URLS = (
+              "https://v.firebog.net/hosts/AdguardDNS.txt",
+              "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",
+              "https://nsfw.oisd.nl/domainswild",
+              "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/pro.plus.txt",
+              "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/tif.txt",
+              "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/doh-vpn-proxy-bypass.txt",
+          )
+          # Abgleich nur, wenn die eigenen Listen genug Domains liefern -
+          # sonst waere "neu" irrefuehrend (z. B. bei Download-Fehlern).
+          COVERAGE_MIN_DOMAINS = 1000000
+          COVERAGE_MAX_BYTES = 400 * 1024 * 1024
 
           SECURITY_TERMS = (
               "malware", "phish", "phishing", "c2", "botnet",
@@ -479,13 +494,47 @@ jobs:
           KNOWN_URLS, KNOWN_REPOS = load_known()
           print(f"{len(KNOWN_URLS)} bekannte Quell-URLs, {len(KNOWN_REPOS)} bekannte Repos geladen.")
 
+          KNOWN_REPO_NAMES = {r.split("/", 1)[1] for r in KNOWN_REPOS if "/" in r}
+
           def known_status(item):
               if norm_url(item["raw_url"]) in KNOWN_URLS:
                   return "genutzt"
               repo = item["repo"].lower()
               if any(repo.startswith(p) for p in UNBOUND_REPOS) or repo in KNOWN_REPOS:
                   return "Repo genutzt"
+              # Spiegel/Fork: gleicher Repo-Name wie eine schon genutzte Quelle
+              # (z. B. rosical-labs/SiberGuvenlikBaskanligi-API = USOM-Kopie).
+              if repo.split("/", 1)[-1] in KNOWN_REPO_NAMES:
+                  return "Spiegel"
               return "neu"
+
+          # ── Abdeckung durch die eigenen Unbound-Listen ──────────────────────
+          def load_own_domains():
+              own = set()
+              total_bytes = 0
+              for u in UNBOUND_URLS + PREDEFINED_URLS:
+                  try:
+                      req = urllib.request.Request(u, headers={"User-Agent": "NETSHIELD-DNS-Blocklist-Finder"})
+                      with urllib.request.urlopen(req, timeout=120) as r:
+                          data = r.read(COVERAGE_MAX_BYTES - total_bytes + 1)
+                      total_bytes += len(data)
+                      before = len(own)
+                      own.update(extract_domains(data.decode("utf-8", "replace")))
+                      print(f"  eigene Liste: +{len(own) - before:>9} | {u}")
+                  except Exception as exc:
+                      print(f"::warning::Eigene Liste nicht ladbar: {u}: {str(exc)[:80]}")
+                  if total_bytes >= COVERAGE_MAX_BYTES:
+                      print("::warning::Groessenlimit fuer eigene Listen erreicht.")
+                      break
+              return own
+
+          def covered(domain, own):
+              """Exakt gesperrt oder ueber eine uebergeordnete Domain (Wildcard)."""
+              parts = domain.split(".")
+              for i in range(len(parts) - 1):
+                  if ".".join(parts[i:]) in own:
+                      return True
+              return False
 
           # ── Beliebte Domains (Tranco) fuer die Fehlalarm-Pruefung ─────────────
           def load_popular():
@@ -551,6 +600,7 @@ jobs:
                   hits = sorted(d for d in doms if d in popular or (d.startswith("www.") and d[4:] in popular))
                   item["popular_hits"] = len(hits)
                   item["popular_examples"] = hits[:8]
+              return doms
 
           repos = search_repositories()
           print(f"{len(repos)} aktuelle Repository-Kandidaten gefunden.")
@@ -632,9 +682,19 @@ jobs:
           # bei beliebten Domains (Fehlalarm-Gefahr) senken und neu sortieren.
           popular = load_popular()
           print(f"{len(popular)} beliebte Domains (Tranco Top {POPULAR_TOP}) geladen.")
+          print("Eigene Unbound-Listen fuer den Abdeckungs-Vergleich laden ...")
+          own = load_own_domains()
+          coverage_ok = len(own) >= COVERAGE_MIN_DOMAINS
+          print(f"{len(own)} eigene Domains geladen - Abgleich {'aktiv' if coverage_ok else 'AUS (zu wenige)'}.")
           for item in results:
               item["known"] = known_status(item)
-              full_check(item, popular)
+              doms = full_check(item, popular)
+              item["new_domains"] = None
+              item["covered_pct"] = None
+              if coverage_ok and doms:
+                  new = sum(1 for d in doms if not covered(d, own))
+                  item["new_domains"] = new
+                  item["covered_pct"] = round(100.0 * (len(doms) - new) / len(doms), 1)
               hits = item.get("popular_hits") or 0
               if hits > 5:
                   item["score"] = max(0, item["score"] - 30)
@@ -642,6 +702,13 @@ jobs:
                   item["score"] = max(0, item["score"] - 10)
               if item["known"] != "neu":
                   item["score"] = max(0, item["score"] - 20)
+              # Bringt die Liste kaum Neues gegenueber den eigenen Listen?
+              if item["covered_pct"] is not None:
+                  if item["covered_pct"] >= 95:
+                      item["score"] = max(0, item["score"] - 25)
+                  elif item["covered_pct"] >= 80:
+                      item["score"] = max(0, item["score"] - 10)
+          del own
           results.sort(key=lambda x: (-x["score"], x["age_days"], -x["stars"]))
 
           if len(results) < MIN_RESULTS:
@@ -695,12 +762,18 @@ jobs:
               "Er erstellt nur einen Fundbericht mit Raw-Links."
           )
           md.append("")
-          md.append("| # | Score | Status | Repository / Datei | Letztes Datei-Update | Alter | Format | OPNsense direkt | Eintraege | Beliebte Domains | Groesse | Raw-Link |")
-          md.append("|---:|---:|---|---|---|---:|---|:---:|---:|---|---:|---|")
+          md.append("| # | Score | Status | Repository / Datei | Letztes Datei-Update | Alter | Format | OPNsense direkt | Eintraege | Schon gesperrt | Neu fuer mich | Beliebte Domains | Groesse | Raw-Link |")
+          md.append("|---:|---:|---|---|---|---:|---|:---:|---:|---:|---:|---|---:|---|")
+
+          def de_num(n):
+              return f"{n:,}".replace(",", ".")
 
           for idx, r in enumerate(results, 1):
               direct = "Ja" if r["opnsense_direct"] else "Nein"
-              status = {"neu": "🆕 neu", "genutzt": "✅ genutzt", "Repo genutzt": "☑️ Repo genutzt"}.get(r.get("known"), "?")
+              status = {"neu": "🆕 neu", "genutzt": "✅ genutzt", "Repo genutzt": "☑️ Repo genutzt",
+                        "Spiegel": "🪞 Spiegel"}.get(r.get("known"), "?")
+              cov = f"{r['covered_pct']} %" if r.get("covered_pct") is not None else "?"
+              newd = de_num(r["new_domains"]) if r.get("new_domains") is not None else "?"
               entries = f"{r['entries']:,}".replace(",", ".") if r.get("entries") is not None else (r.get("full_note") or "?")
               hits = r.get("popular_hits")
               if hits is None:
@@ -713,7 +786,7 @@ jobs:
                   f"| {idx} | **{r['score']}** | {status} | "
                   f"[{r['repo']}]({r['repo_url']}) / `{r['path']}` | "
                   f"{short_date(r['last_file_update'])} | "
-                  f"{r['age_days']} d | {r['format']} | {direct} | {entries} | {pop} | "
+                  f"{r['age_days']} d | {r['format']} | {direct} | {entries} | {cov} | {newd} | {pop} | "
                   f"{human_size(r['size_bytes'])} | [Raw]({r['raw_url']}) |"
               )
 
@@ -721,7 +794,8 @@ jobs:
           md.append("## Bedeutung")
           md.append("")
           md.append("- **Score:** Frische wird am staerksten gewichtet. Abzug bei beliebten Domains (-10 / -30) und bei schon genutzten Listen (-20).")
-          md.append("- **Status:** 🆕 neu = noch nirgends genutzt · ✅ genutzt = URL steht schon in Unbound oder NETSHIELD · ☑️ Repo genutzt = andere Datei aus einem schon genutzten Repo.")
+          md.append("- **Status:** 🆕 neu = noch nirgends genutzt · ✅ genutzt = URL steht schon in Unbound oder NETSHIELD · ☑️ Repo genutzt = andere Datei aus einem schon genutzten Repo · 🪞 Spiegel = Kopie einer genutzten Quelle unter anderem Konto.")
+          md.append("- **Schon gesperrt / Neu fuer mich:** Abgleich mit allen eigenen Unbound-Listen (eigene URLs + AdGuard, StevenBlack, OISD NSFW, Hagezi Pro++/TIF/DoH-Bypass), exakt und ueber die Hauptdomain (Wildcard). Score-Abzug ab 80 % (-10) und 95 % (-25) Abdeckung.")
           md.append(f"- **Beliebte Domains:** Treffer aus den {POPULAR_TOP:,} meistbesuchten Domains (Tranco). Jeder Treffer waere eine echte Seite, die gesperrt wuerde.".replace(",", "."))
           md.append("- **Eintraege:** Anzahl Domains in der ganzen Datei (nicht nur Stichprobe).")
           md.append("- **OPNsense direkt = Ja:** Stichprobe besteht zu mindestens 98 % aus reinen Domains/Wildcards.")
@@ -743,7 +817,8 @@ jobs:
                   f"{r['score']:3d} | {r['age_days']:>5} d | "
                   f"{'OPNsense' if r['opnsense_direct'] else r['format']} | "
                   f"{r.get('known', '?')} | Eintraege {r.get('entries')} | "
-                  f"beliebt {r.get('popular_hits')} | {r['repo']} | {r['raw_url']}"
+                  f"beliebt {r.get('popular_hits')} | gesperrt {r.get('covered_pct')} % | "
+                  f"neu {r.get('new_domains')} | {r['repo']} | {r['raw_url']}"
               )
           PY
 
