@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (abuse.ch, Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)
-# Aktualisiert: 2026-11-21 12:09 CET
-# Eintraege: 31797
+# Aktualisiert: 2026-11-21 13:55 CET
+# Eintraege: 31813
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -148,6 +148,7 @@
 100daysofdante.com
 1015fest.com
 102z512uqjl6m.xyz
+107.10.76.34.bc.googleusercontent.com
 108h764sg7npw.xyz
 10buigpz.bossbey19.click
 10city.store
@@ -433,6 +434,7 @@
 23euhdso.deryuga-sablist.garden
 23ida6x1.pizzadays.net
 23q34ztp.luxerabet1.com
+240.122.205.35.bc.googleusercontent.com
 248bestmoon.click
 24carnforth2merseyside.sol
 24ucaqa7.enobahiss.xyz
@@ -3293,6 +3295,7 @@ asia608.org
 asia689.org
 asiabet303.net
 asiabet777.org
+asiagacor777.org
 asiancon.com
 asimo.store
 asioklaydpory.com
@@ -6333,6 +6336,7 @@ clwoce8k.runtime-atlas.digital
 clwpuvknw.mumsdebtservice.co.uk
 clxurg.eng--bpzone.com
 clysselw.betkaka.bet
+cmaelevadores.com
 cmaison.fr
 cmaogogisysiceya.xyz
 cmaugmucqookyacg.xyz
@@ -8560,6 +8564,7 @@ ebwgtb.vezaratshart.com
 ebyeos.com.br
 ebzwaki.bakhtbetyek.com
 ec-hasslau.de
+ec2-13-185-9-23.us-east-2.compute.amazonaws.com
 ec2-3-22-66-152.us-east-2.compute.amazonaws.com
 ec2-aws.ddns.net
 ecaakmuwiwwesugo.xyz
@@ -13178,6 +13183,7 @@ igrbuyo.pokerkade.online
 igsx.closedfistllc.com
 igxpbym.enus-goldalign.com
 igyom.technologiaiviz.hu
+ihealthytree.com
 ihet.ens.tn
 ihlnvrv.abcdbro.com
 ihmqfsm.arabicbet.casino
@@ -14519,6 +14525,7 @@ jyviviba.workers.dev
 jz8kpepi.jadoou.store
 jzfer95304.workers.dev
 jzhh.akhbarirani.com
+jzizfiq2.northernwaytransportcompact.com
 jzl4bylm4bng2zgmeqw3lx6bcbxzb2hulicxneuosq26sshnitrcvcad.onion
 jzl98lpw.betbuilder.promo
 jzourneyy.shop
@@ -17432,6 +17439,7 @@ mitkzq.reynoldsbrothersconstruction.com
 mitmatmet.com
 mitolyn-us-en.us
 mitolyncart.com
+mitoqaqi.workers.dev
 mitrahazard.com
 mittenmint.cfd
 miujiang.monster
@@ -18102,6 +18110,7 @@ mygar.run
 mygiftscorner.com
 mygoodblog.bond
 mygoodblog.cfd
+myguardiantax.com
 myhealthdiary.com.au
 myhost.misecure.com
 myhost.servepics.com
@@ -18785,6 +18794,7 @@ northamptonearpiercing.co.uk
 northavo.cc
 northcombe.org
 northcountrygentleacupuncture.com
+northernwaytransportcompact.com
 northglyp.devmatrix.lat
 northhouse.cfd
 northlakeresearch.org
@@ -20610,6 +20620,7 @@ pizdalisibivet.org
 pizza-greenlantern.com
 pizza-primavera-wiesbaden.de
 pizzadays.net
+pizzeria-toscana1.de
 pj0410c1.hallmarkcarpets.net
 pjbozbf.rootconsole.net
 pjdxbok5.fus-u8k8fs-8.buzz
@@ -20715,6 +20726,7 @@ plume-compass.com
 plumossuary.org
 plunder.nsupdate.info
 pluyk.com
+pluzz899.com
 plxxxru.elpatronrestaurantbar.com
 plytki24.pl
 plyxcbx.wrfc8.com
@@ -23117,6 +23129,7 @@ s.dhawa.net
 s.dps69.org
 s.gg180.net
 s.goliath.st
+s.gsx88.org
 s.littleshabby.net
 s01687.byte-buff.com
 s01687.house-spirit.com
@@ -29258,6 +29271,7 @@ www.adrenalinedesign.ca
 www.adrisex.com
 www.adultingwithash.com
 www.aeqen.de
+www.afsanehansari.com
 www.aftest.it
 www.agropol.ar
 www.ai2.qzz.io
@@ -29495,6 +29509,7 @@ www.espacoluzenergia.com.br
 www.essaywriter.co.uk
 www.etaic.org
 www.etnorais.es
+www.euromedsardegna.com
 www.evamariephoto.com
 www.everynameinhistoryisi.net
 www.ex0x40vmi8qyccxq.net
@@ -31205,6 +31220,7 @@ yxs476tf.eng-aquaburnn.com
 yxwomyfmexm3bfcuumnugrzwluol5qwsw6pmne7jklgmzthkp35l2jqd.onion
 yxxyqkkf.jadoou.one
 yxzsj.derbi.promo
+yy.asiagacor777.org
 yy.go33.org
 yyaohk.bni-ai.com
 yyaqcymcosceugwu.xyz
