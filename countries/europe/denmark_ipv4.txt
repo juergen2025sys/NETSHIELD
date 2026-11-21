@@ -1,6 +1,6 @@
 # NETSHIELD – Denmark (DK) IPv4 Ranges
-# Aktualisiert: 2026-11-16 09:22 CET (Europe/Berlin)
-# IP-Ranges: 1522
+# Aktualisiert: 2026-11-21 07:28 CET (Europe/Berlin)
+# IP-Ranges: 1523
 
 2.56.4.0/22
 2.59.180.0/22
@@ -664,6 +664,7 @@
 185.116.184.0/22
 185.116.188.0/22
 185.118.40.0/22
+185.118.63.0/24
 185.118.180.0/22
 185.118.248.0/22
 185.121.60.0/22

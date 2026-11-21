@@ -1,6 +1,6 @@
 # NETSHIELD – Moldova (MD) IPv4 Ranges
-# Aktualisiert: 2026-11-16 09:22 CET (Europe/Berlin)
-# IP-Ranges: 424
+# Aktualisiert: 2026-11-21 07:28 CET (Europe/Berlin)
+# IP-Ranges: 425
 
 2.57.152.0/22
 2.59.204.0/22
@@ -194,6 +194,7 @@
 93.119.200.0/21
 93.119.228.0/22
 93.119.232.0/21
+93.180.248.0/21
 94.131.2.0/23
 94.131.8.0/21
 94.131.20.0/24

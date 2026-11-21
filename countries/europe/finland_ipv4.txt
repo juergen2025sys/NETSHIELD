@@ -1,6 +1,6 @@
 # NETSHIELD – Finland (FI) IPv4 Ranges
-# Aktualisiert: 2026-11-16 09:22 CET (Europe/Berlin)
-# IP-Ranges: 1092
+# Aktualisiert: 2026-11-21 07:28 CET (Europe/Berlin)
+# IP-Ranges: 1091
 
 2.58.88.0/22
 2.58.220.0/22
@@ -171,7 +171,6 @@
 80.248.160.0/20
 80.248.240.0/20
 81.16.64.0/20
-81.17.192.0/21
 81.17.200.0/21
 81.19.112.0/20
 81.20.224.0/20
