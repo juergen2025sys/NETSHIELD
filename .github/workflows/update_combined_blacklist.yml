@@ -981,6 +981,8 @@ jobs:
               "blocklist_de_ssh", "c2_iplist",
               "ipsum_level5", "ipsum_level7", "abuseipdb_s100_30d", "abuseipdb_s100_7d",
               "abuseipdb_score100",
+              # 2026-11-21: bitwire-it outbound (Sammelliste, siehe SOURCES)
+              "bitwire_outbound",
               # FIX CROSS-WF-DUP (2026-08-09): turris_greylist NICHT mehr hier,
               # siehe Begruendung beim SOURCES-Eintrag weiter unten (Zeile ~1024,
               # jetzt entfernt) - die Quelle wird bereits ueber honeypot_monitor.yml
@@ -1166,7 +1168,7 @@ jobs:
               # These mixed lists reuse upstream feeds also fetched directly.
               # Without per-IP provenance they cannot prove another independent
               # HQ family. Keep their HQ/admission role and today_count unchanged.
-              aggregate_feeds = {"cve_exploit_ips.txt", "honeypot_ips.txt"}
+              aggregate_feeds = {"cve_exploit_ips.txt", "honeypot_ips.txt", "bitwire_outbound"}
               return {HQ_FEED_FAMILIES.get(f, f) for f in hq_feed_names
                       if f not in aggregate_feeds}
 
@@ -1274,6 +1276,14 @@ jobs:
               "bsdly_pop3":                 ("https://nxdomain.no/~peter/pop3_sixweeks.txt", False),
               "bsdly_bruteforcers":         ("https://nxdomain.no/~peter/bruteforcers.txt", False),
               "bsdly_traplist":             ("https://nxdomain.no/~peter/bsdly.net.traplist", False),
+              # 2026-11-21 (Nutzerwunsch): gleicher Betreiber wie bsdly - Angreifer
+              # auf POP3/IMAP-Postfaecher, taeglich aktualisiert (~157k, Test:
+              # ~22.200 IPs noch nicht in NETSHIELD). Non-HQ.
+              "nuug_pop3gropers":           ("https://home.nuug.no/~peter/pop3gropers.txt", False),
+              # 2026-11-21 (Nutzerwunsch): VoIPBL - SIP/VoIP-Angreifer (~122k
+              # Eintraege als /32-CIDR, Test: ~10.500 neu). Non-HQ. Enthaelt
+              # vereinzelt 0.x-Muell, den der Bogon-/Protected-Filter verwirft.
+              "voipbl":                     ("https://voipbl.org/update/", False),
               # "honeypot_blocklist" entfernt: yuexuana521/honeypot-blocklist Repo gelöscht
               # ENTFERNT (2026-08-05): nixbear_malicious - 52 Tage unveraendert lt. Stale-Feed-Report.
               "ufukart_blacklist":          ("https://raw.githubusercontent.com/ufukart/Blacklist/main/blacklist.txt", False),
@@ -1286,6 +1296,12 @@ jobs:
               # ENTFERNT (2026-11-01): black_mirror - BLOCK_IPV4.txt seit 01.10.2026 unveraendert lt. Stale-Feed-Report (~1,58 Mio. IPs).
               # "alienvault" entfernt: OTX/AlienVault laut Ausschluss-Policy deaktiviert
               "bitwire_ipblocklist":        ("https://raw.githubusercontent.com/bitwire-it/ipblocklist/refs/heads/main/inbound.txt", False),
+              # 2026-11-21 (Nutzerwunsch): bitwire-it outbound - kuratierte Ziele
+              # fuer AUSGEHENDE Sperren (Malware/C2/Phishing, alle 2 h, ~100k).
+              # HQ, damit sie die active_blacklist fuellt (Test: ~65.600 IPs noch
+              # nicht in active). Sammelliste -> in aggregate_feeds (keine eigene
+              # unabhaengige HQ-Familie fuer die 2-Familien-Pruefung).
+              "bitwire_outbound":           ("https://raw.githubusercontent.com/bitwire-it/ipblocklist/refs/heads/main/outbound.txt", True),
               # ENTFERNT (2026-08-05): littlejake_all_blacklist - 52 Tage unveraendert lt. Stale-Feed-Report (jsdelivr-CDN, nicht raw.githubusercontent.com - Wiederauffindbarkeit ueber SOURCES_COVERED_FILES nicht abgedeckt).
               # ShadowWhisperer/IPs: Legacy-Ordner Malware/, BruteForce/, Other/
               # werden seit dem Repo-Umbau (README: "Lists/ is the only actively
