@@ -1,7 +1,7 @@
 # Title: Stamparm Maltrail Trails - malicious (DNS-only)
 # Quelle: https://github.com/stamparm/trails/tree/main/malicious
-# Aktualisiert: 2026-11-22 22:16 CET
-# Eintraege: 226166
+# Aktualisiert: 2026-11-22 23:33 CET
+# Eintraege: 226178
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 0-4.top
@@ -3286,6 +3286,7 @@
 2.s61y5.ru
 2.sajjad-adeliwp7201.workers.dev
 2.siteforyou3d.com
+2.ugskbbdkjdh.shop
 2.whitelinetosplit.com
 2.yxh.me
 2.zxcv1.icu
@@ -4287,6 +4288,7 @@
 3-112-255-206.sslip.io
 3-132-145-242.sslip.io
 3-24-221-206.sslip.io
+3-26-51-101.sslip.io
 3-5y.ru
 3-80-85-142.cprapid.com
 3-easy.xyz
@@ -4306,6 +4308,7 @@
 3.ploi-app.work
 3.sajjad-adeliwp7201.workers.dev
 3.tiqk.ru
+3.ugskbbdkjdh.shop
 3.vkbot-pro.icu
 3.yingshi.icu
 30.c70ye.ru
@@ -9967,6 +9970,7 @@
 94-156-189-245.cprapid.com
 94-156-237-195.sslip.io
 94-23-35-36.cprapid.com
+94-23-35-36.plesk.page
 94-249-172-147.sslip.io
 94.228.168.53.sslip.io
 94.lovely-music.icu
@@ -57812,6 +57816,7 @@ cs.greensapphire.icu
 cs.hankaigc.xyz
 cs.hax0x.win
 cs.j31359931.workers.dev
+cs.mseteam.ru
 cs.sany.ac.cn
 cs.sys-update-service.top
 cs.vxsb.cn
@@ -59001,6 +59006,7 @@ cyberspc.com
 cyberstampedeinc.com
 cyberstress.us
 cyberstrike-185-92-189-153.sslip.io
+cyberstrike-38-55-215-117.sslip.io
 cyberstrike-ai.night-wolf.tech
 cyberstrike.107.149.104.208.sslip.io
 cyberstrike.168-110-206-41.sslip.io
@@ -126398,6 +126404,7 @@ mail.jawfeedmas.top
 mail.jaxil.sbs
 mail.jayartill.live
 mail.jayebbado.live
+mail.jayson.top
 mail.jeandimwire.live
 mail.jelmedia.com
 mail.jertexindonesia.com
@@ -136409,6 +136416,7 @@ msd.verifiedaccesssecure.icu
 msdocsonline.live
 msecurely.com
 mselite.org
+mseteam.ru
 msez.symposiumwash.in.net
 msf-mfa.cam
 msfconfig.icu
@@ -149868,6 +149876,7 @@ p1.nickq.icu
 p1.qo1s.ru
 p1.re-t0.ru
 p1.somir.cfd
+p1.vantoi.cc
 p1.yeongcheonswedish.icu
 p1.zi-qa.ru
 p118yh64.dep2rtmen0va.ru
@@ -205803,6 +205812,7 @@ utobond-api.com
 utochthonously.info
 utoken.club
 utpesi.pablobet90.com
+utrcsao.shop
 utterdeflected.ru
 uttts.78988.icu
 utucivewir.allserial.icu
@@ -207125,6 +207135,7 @@ vansyes.faith
 vantagedataceters.com
 vantitle.bid
 vantoesic.live
+vantoi.cc
 vantor.bond
 vantyre.cyou
 vantyx.life
@@ -220925,6 +220936,7 @@ xystatus.suminote.com
 xystream.cyou
 xysub.nexai.plus
 xysub.tool2ai.com
+xytgylgs.com
 xytra.art
 xytracker.cyou
 xytrion.bond
