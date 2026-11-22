@@ -1,16 +1,22 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-22 00:46 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-22 08:58 CET (Europe/Berlin)
 
-**Workflows:** 36 | ✅ 31 OK | ⚠️ 7 Warnung | ❌ 0 Fehler
+**Workflows:** 36 | ✅ 31 OK | ⚠️ 7 Warnung | ❌ 1 Fehler
 
 ---
 ## Regressionstests
 
-⚠️ Commit: `515fa1dd5293ea25be6d52afecbb478029f567aa`
+⚠️ Commit: `ffa794a1b02d29d886a39987bf46615b424be73a`
 
 490 Tests; 4 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_project_audit_fixes.ProjectAuditTests.test_geo_partial_failure_preserves_all_outputs_above_minimum, test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
+
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 2,700 IPs in active fehlen in conf40 (0.776% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 
 ## ⚠️ Warnungen
 
@@ -23,12 +29,16 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `honigtopf.yml` | continue-on-error aktiv | continue-on-error=true gesetzt – Fehler können still bleiben; Review ob das wirklich beabsichtigt ist |
 | `netshield_report_generator.yml` | continue-on-error aktiv | continue-on-error=true gesetzt – Fehler können still bleiben; Review ob das wirklich beabsichtigt ist |
 | `update_combined_blacklist.yml` | Untrusted Feed hq=True | 1 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "bitwire_outbound" (https://raw.githubusercontent.com/bitwire-it/ipblocklist/ref) |
+| `Production Health` | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4_part1.txt ist 7h alt (WARN-Schwelle: 6h) |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 1 CRITICAL | 🟡 1 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 2,700 IPs in active fehlen in conf40 (0.776% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| 🟡 WARN | Aktualität: Confidence-40 Blacklist | blacklist_confidence40_ipv4_part1.txt ist 7h alt (WARN-Schwelle: 6h) |
 
 ## Übersicht
 
@@ -72,4 +82,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-22 00:46 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*
+*Generiert: 2026-11-22 08:58 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*
