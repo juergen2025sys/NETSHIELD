@@ -13,6 +13,10 @@ Quellen, die OPNsense nicht direkt laden kann:
         bis die URL entfernt wurde). Der Spiegel liefert dieselbe Liste
         unter einer URL ohne Sonderzeichen.
 
+  - dns/stamparm_malicious_domains.txt
+        Alle DNS-Domains aus den aktuellen stamparm/trails/malicious/*.txt.
+        Keine IPs, CIDRs, URLs, Ports, Regex oder Fingerprints.
+
   - dns/threatfox_domains.txt
         ThreatFox-IOCs vom Typ "domain" aus taeglichem authentifiziertem
         full.csv.zip-Export und zweistuendlicher Recent-API (gleicher Endpoint und Secret wie
@@ -34,6 +38,7 @@ Ausfuehren:
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
 import http.client
 import json
@@ -57,6 +62,8 @@ def threatfox_keys(environ=None):
     (kein toJSON(secrets) mehr - CodeQL "Excessive Secrets Exposure").
     THREATFOX_SECRETS_JSON wird nur noch aus Kompatibilitaetsgruenden gelesen.
     """
+    import json
+
     env = os.environ if environ is None else environ
     pattern = re.compile(r"THREATFOX_AUTH_KEY(?:_([0-9]+))?\Z")
     candidates = {}
@@ -94,6 +101,7 @@ MIN_ENTRIES = {
     "antimalware": 1000,
     "threatfox": 500,
     "threatfox_ips": 200,
+    "stamparm": 100,
 }
 
 # ThreatFox: nur IOCs ab dieser Confidence (0-100) uebernehmen.
@@ -570,6 +578,72 @@ def update_threatfox(keys: list[str], now: datetime, now_str: str) -> bool:
     return False
 
 
+STAMPARM_ARCHIVE_URL = "https://codeload.github.com/stamparm/trails/zip/refs/heads/main"
+STAMPARM_MAX_ARCHIVE_BYTES = 150 * 1024 * 1024
+
+
+def parse_stamparm_indicator(raw: str) -> str | None:
+    """Nur eigenstaendige DNS-Namen, keine URLs, IPs, Pfade oder Fingerprints."""
+    value = raw.split("#", 1)[0].strip()
+    if not value or any(c.isspace() for c in value):
+        return None
+    # Keine Hosts aus URLs ableiten: geteilte Hosting-Plattformen schuetzen.
+    if any(c in value for c in ("/", ":", "[", "]", "*", "?", "@")):
+        return None
+    domain = normalize_domain(value)
+    return domain if domain and not is_protected(domain) else None
+
+
+def update_stamparm(now_str: str) -> bool:
+    """Jeden Lauf den gesamten aktuellen malicious/-Ordner einlesen."""
+    print("Stamparm Trails malicious/: aktuelles GitHub-Archiv abrufen ...")
+    request = urllib.request.Request(STAMPARM_ARCHIVE_URL, headers={
+        "User-Agent": USER_AGENT, "Accept": "application/zip", "Cache-Control": "no-cache"})
+    try:
+        with urllib.request.urlopen(request, timeout=120) as response:
+            chunks = []
+            total = 0
+            while True:
+                chunk = response.read(1024 * 1024)
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > STAMPARM_MAX_ARCHIVE_BYTES:
+                    raise ValueError("GitHub-Archiv groesser als 150 MiB")
+                chunks.append(chunk)
+        domains = set()
+        files = 0
+        with zipfile.ZipFile(io.BytesIO(b"".join(chunks))) as archive:
+            entries = [item for item in archive.infolist()
+                       if not item.is_dir() and "/malicious/" in item.filename
+                       and item.filename.endswith(".txt")
+                       and item.filename.split("/", 1)[-1].startswith("malicious/")]
+            if not entries:
+                raise ValueError("Keine malicious/*.txt-Dateien im GitHub-Archiv")
+            for item in entries:
+                if item.file_size > 20 * 1024 * 1024:
+                    raise ValueError(f"Einzeldatei zu gross: {item.filename}")
+                with archive.open(item) as handle:
+                    content = handle.read().decode("utf-8-sig", errors="replace")
+                files += 1
+                for line in content.splitlines():
+                    domain = parse_stamparm_indicator(line)
+                    if domain:
+                        domains.add(domain)
+        print(f"  Stamparm: {files} Quelldateien, {len(domains)} eindeutige DNS-Domains")
+        if not files or len(domains) < MIN_ENTRIES["stamparm"]:
+            print("::warning ::Stamparm unvollstaendig/leer; bisherige Liste bleibt erhalten")
+            return False
+        return write_domain_list(
+            "stamparm", "stamparm_malicious_domains.txt",
+            "Stamparm Maltrail Trails - malicious (DNS-only)",
+            "https://github.com/stamparm/trails/tree/main/malicious",
+            domains, now_str)
+    except (OSError, urllib.error.URLError, zipfile.BadZipFile, ValueError) as error:
+        print(f"::warning ::Stamparm-Abruf fehlgeschlagen ({type(error).__name__}: {error}); bisherige Liste bleibt")
+        return False
+
+
 def main() -> int:
     now = datetime.now(timezone.utc)
     now_str = now.astimezone(ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d %H:%M %Z")
@@ -585,6 +659,8 @@ def main() -> int:
             "antimalware", "antimalware_domains.txt",
             "DandelionSprout Anti-Malware List (Spiegel ohne %20 in der URL)",
             DANDELION_URL, parse_hosts_text(text), now_str)
+
+    results["stamparm"] = update_stamparm(now_str)
 
     print("ThreatFox Domain-IOCs und C2-IPs ...")
     results["threatfox"] = update_threatfox(threatfox_keys(), now, now_str)
