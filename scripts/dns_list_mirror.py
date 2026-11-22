@@ -280,6 +280,25 @@ def key_label(key: str) -> str:
     return "Key unbekannt (aus kompatibler JSON-Konfiguration)"
 
 
+class KeyQuotaExhausted(Exception):
+    """Server explicitly reports that this key's download quota is exhausted."""
+
+
+def quota_exhausted(error: urllib.error.HTTPError) -> bool:
+    """Only switch keys for an explicit quota message, not generic HTTP 429."""
+    if error.code != 429:
+        return False
+    try:
+        message = error.read(8192).decode("utf-8", errors="replace").lower()
+    except (OSError, ValueError):
+        return False
+    return any(phrase in message for phrase in (
+        "daily download volume", "download quota exceeded",
+        "download limit reached", "download quota reached",
+        "daily download limit", "quota exhausted",
+    ))
+
+
 def fetch_threatfox_csv(keys: list[str], retries: int = 3, timeout: int = 60) -> str | None:
     """Laedt full.csv.zip mit Key-Failover und liefert den CSV-Text.
 
@@ -310,20 +329,25 @@ def fetch_threatfox_csv(keys: list[str], retries: int = 3, timeout: int = 60) ->
                     return csv_content
             except urllib.error.HTTPError as err:
                 if err.code in (401, 403):
-                    print(f"  Full-ZIP: {label}, HTTP {err.code} - naechster Key")
-                    break
+                    print(f"::warning ::Full-ZIP: {label}, HTTP {err.code} - kein Key-Wechsel")
+                    return None
                 if err.code == 429:
-                    # Rate-Limit: weitere Versuche mit demselben Key verschaerfen es nur
-                    print(f"  Full-ZIP: {label}, HTTP 429 - naechster Key")
-                    break
+                    if quota_exhausted(err):
+                        print(f"  Full-ZIP: {label}, Downloadkontingent nachweislich verbraucht - naechster Key")
+                        break
+                    print(f"::warning ::Full-ZIP: {label}, HTTP 429 ohne eindeutigen Key-Quota-Nachweis - STOP")
+                    return None
                 print(f"  HTTP {err.code} threatfox (Key #{key_idx}, Versuch {attempt}/{retries})")
             except zipfile.BadZipFile:
                 print(f"  FEHLER threatfox: kein gueltiges ZIP (Key #{key_idx}) - Key pruefen")
-                break
+                return None
             except Exception as err:  # Netzwerkfehler, Timeouts
                 print(f"  FEHLER threatfox (Key #{key_idx}, Versuch {attempt}/{retries}): {type(err).__name__}")
             if attempt < retries:
                 time.sleep(2 ** attempt)
+        else:
+            # Non-quota failure: do not consume the next key.
+            return None
     return None
 
 
@@ -424,7 +448,10 @@ def fetch_threatfox_recent(key: str, timeout: int = 60) -> tuple[set[str], set[s
             print(f"  Recent: {key_label(key)}, {received} Bytes vollstaendig empfangen")
             break
         except urllib.error.HTTPError as err:
-            print(f"::warning ::ThreatFox Recent {key_label(key)} HTTP {err.code}")
+            if quota_exhausted(err):
+                print(f"::warning ::ThreatFox Recent {key_label(key)}: Key-Kontingent verbraucht")
+                raise KeyQuotaExhausted from None
+            print(f"::warning ::ThreatFox Recent {key_label(key)} HTTP {err.code} - kein Key-Wechsel")
             return None
         except (http.client.IncompleteRead, http.client.RemoteDisconnected,
                 ConnectionResetError, TimeoutError, urllib.error.URLError,
@@ -493,7 +520,7 @@ def update_threatfox(keys: list[str], now: datetime, now_str: str) -> bool:
     if full_due:
         save_stamp(THREATFOX_FULL_ATTEMPT_FILE, now)
         # One key per day, avoiding 30 downloads against a shared export quota.
-        print("  taeglicher Full-Export: feste Reihenfolge Key 1, Key 2, ...; bei Fehler naechster Key")
+        print("  taeglicher Full-Export: Key 1 zuerst; Key-Wechsel nur bei bestaetigtem Kontingentlimit")
         csv_text = fetch_threatfox_csv(keys, retries=1)
         if csv_text is not None:
             try:
@@ -523,11 +550,16 @@ def update_threatfox(keys: list[str], now: datetime, now_str: str) -> bool:
     recent = None
     for recent_key in keys:
         print(f"  Recent-API: pruefe {key_label(recent_key)}")
-        recent = fetch_threatfox_recent(recent_key)
+        try:
+            recent = fetch_threatfox_recent(recent_key)
+        except KeyQuotaExhausted:
+            print(f"  Recent-API: {key_label(recent_key)} erschoepft - naechster Key")
+            continue
         if recent is not None:
             print(f"  Recent-API: erfolgreich mit {key_label(recent_key)}")
-            break
-        print(f"::warning ::Recent-API: {key_label(recent_key)} fehlgeschlagen - naechster Key")
+        else:
+            print(f"::warning ::Recent-API: {key_label(recent_key)} fehlgeschlagen - kein Key-Wechsel")
+        break
     if recent is None:
         return False
     domains, ips = recent
