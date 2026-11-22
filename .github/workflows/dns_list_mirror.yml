@@ -17,9 +17,9 @@ name: DNS List Mirror
 # nutzt. Combined startet deshalb nur noch diesen Workflow, nicht mehr ASN-DROP.
 on:
   schedule:
-    # Fallback stuendlich um :35 UTC - abseits der Combined-Slots
+    # Fallback alle 2 Stunden um :35 UTC - abseits der Combined-Slots
     # (:07/:27/:47) und des Honeypot Monitors (:00).
-    - cron: '35 * * * *'
+    - cron: '35 */2 * * *'
   workflow_dispatch:
 
 env:
@@ -40,7 +40,7 @@ concurrency:
 jobs:
   dns-list-mirror:
     runs-on: ubuntu-26.04
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Checkout Repository
