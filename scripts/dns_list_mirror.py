@@ -14,8 +14,8 @@ Quellen, die OPNsense nicht direkt laden kann:
         unter einer URL ohne Sonderzeichen.
 
   - dns/threatfox_domains.txt
-        ThreatFox-IOCs vom Typ "domain" aus dem authentifizierten
-        full.csv.zip-Export (gleicher Endpoint und Secret wie
+        ThreatFox-IOCs vom Typ "domain" aus taeglichem authentifiziertem
+        full.csv.zip-Export und zweistuendlicher Recent-API (gleicher Endpoint und Secret wie
         honeypot_monitor.yml). Die oeffentlichen ThreatFox-Hostfiles/
         -Exporte liefern seit 2026 nur noch HTTP 410.
         Bewusst NUR ioc_type=domain, keine Hosts aus ioc_type=url: deren
@@ -35,12 +35,14 @@ from __future__ import annotations
 
 import csv
 import io
+import json
 import ipaddress
 import os
 import re
 import sys
 import time
 import urllib.error
+import urllib.request
 import zipfile
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
@@ -105,6 +107,8 @@ THREATFOX_READ_LIMIT = 150 * 1024 * 1024  # wie honeypot_monitor.yml
 # wird (die Listen selbst werden nur bei Inhaltsaenderung neu geschrieben).
 THREATFOX_MIN_AGE_HOURS = 1.75   # 1 h 45 min: Laeufe kurz vor 2 h (z. B. 1 h 58 min) sollen trotzdem laden
 THREATFOX_STAMP_FILE = "threatfox_last_fetch.txt"
+THREATFOX_FULL_STAMP_FILE = "threatfox_last_full_fetch.txt"
+THREATFOX_FULL_ATTEMPT_FILE = "threatfox_last_full_attempt.txt"
 
 DOMAIN_RE = re.compile(
     r"^(?:[a-z0-9](?:[a-z0-9_-]{0,61}[a-z0-9])?\.)+"
@@ -343,14 +347,141 @@ def write_domain_list(name: str, filename: str, title: str, source: str,
 
 
 
-def threatfox_last_fetch_age(now: datetime) -> float | None:
-    """Stunden seit dem letzten erfolgreichen ThreatFox-Abruf (None = unbekannt)."""
+def stamp_time(filename: str) -> datetime | None:
     try:
-        with open(os.path.join(OUT_DIR, THREATFOX_STAMP_FILE), encoding="utf-8") as handle:
-            stamp = datetime.fromisoformat(handle.read().strip())
-        return (now - stamp).total_seconds() / 3600
+        with open(os.path.join(OUT_DIR, filename), encoding="utf-8") as handle:
+            value = datetime.fromisoformat(handle.read().strip())
+        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
     except (OSError, ValueError):
         return None
+
+
+def save_stamp(filename: str, now: datetime) -> None:
+    os.makedirs(OUT_DIR, exist_ok=True)
+    write_text_atomic(os.path.join(OUT_DIR, filename), now.isoformat(timespec="seconds") + "\n")
+
+
+def threatfox_last_fetch_age(now: datetime) -> float | None:
+    stamp = stamp_time(THREATFOX_STAMP_FILE)
+    return (now - stamp).total_seconds() / 3600 if stamp else None
+
+
+def read_existing(filename: str) -> set[str] | None:
+    path = os.path.join(OUT_DIR, filename)
+    try:
+        with open(path, encoding="utf-8") as handle:
+            return {line.strip() for line in handle if line.strip() and not line.startswith("#")}
+    except OSError:
+        return None
+
+
+def fetch_threatfox_recent(key: str, timeout: int = 60) -> tuple[set[str], set[str]] | None:
+    """Official ThreatFox get_iocs API, 2 days by first_seen; never replace full baseline."""
+    request = urllib.request.Request(
+        "https://threatfox-api.abuse.ch/api/v1/",
+        data=json.dumps({"query": "get_iocs", "days": 2}).encode("utf-8"),
+        headers={"Auth-Key": key, "Content-Type": "application/json", "User-Agent": USER_AGENT},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            raw = response.read(20 * 1024 * 1024 + 1)
+        if len(raw) > 20 * 1024 * 1024:
+            raise ValueError("Recent-Antwort zu gross")
+        payload = json.loads(raw)
+        if payload.get("query_status") not in ("ok", "no_result"):
+            raise ValueError(f"Recent-API: {payload.get('query_status')}")
+        rows = payload.get("data") or []
+        if not isinstance(rows, list):
+            raise ValueError("Recent-API: data ist keine Liste")
+        domains, ips = set(), set()
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            try:
+                if int(row.get("confidence_level") or 0) < THREATFOX_MIN_CONFIDENCE:
+                    continue
+            except (ValueError, TypeError):
+                continue
+            value = str(row.get("ioc") or "").strip()
+            if row.get("ioc_type") == "domain":
+                domain = normalize_domain(value)
+                if domain and not is_protected(domain):
+                    domains.add(domain)
+            elif row.get("ioc_type") == "ip:port":
+                try:
+                    addr = ipaddress.ip_address(value.rsplit(":", 1)[0])
+                    if addr.version == 4 and addr.is_global:
+                        ips.add(str(addr))
+                except ValueError:
+                    continue
+        return domains, ips
+    except urllib.error.HTTPError as err:
+        print(f"::warning ::ThreatFox Recent HTTP {err.code} - bestehende Listen bleiben erhalten")
+    except (urllib.error.URLError, OSError, ValueError, json.JSONDecodeError) as err:
+        print(f"::warning ::ThreatFox Recent fehlgeschlagen: {type(err).__name__}")
+    return None
+
+
+def update_threatfox(keys: list[str], now: datetime, now_str: str) -> bool:
+    if not keys:
+        print("::warning ::Keine THREATFOX_AUTH_KEY-Variable gesetzt")
+        return False
+    domain_file, ip_file = "threatfox_domains.txt", "threatfox_c2_ips.txt"
+    titles = (
+        f"ThreatFox Domain-IOCs (Confidence >= {THREATFOX_MIN_CONFIDENCE})",
+        f"ThreatFox C2-IPs (Confidence >= {THREATFOX_MIN_CONFIDENCE}) - ASN-Auswertung",
+    )
+    source = "https://threatfox.abuse.ch (Full-Export + Recent-API)"
+    last_full = stamp_time(THREATFOX_FULL_STAMP_FILE)
+    last_attempt = stamp_time(THREATFOX_FULL_ATTEMPT_FILE)
+    # At most one large full-export attempt per UTC calendar day, even after 429.
+    # On a new deployment, existing files remain intact if the full export fails.
+    full_due = (last_full is None or last_full.date() < now.date()) and (last_attempt is None or last_attempt.date() < now.date())
+    if full_due:
+        save_stamp(THREATFOX_FULL_ATTEMPT_FILE, now)
+        # One key per day, avoiding 30 downloads against a shared export quota.
+        key = keys[now.date().toordinal() % len(keys)]
+        print("  taeglicher Full-Export: genau ein Download-Versuch")
+        csv_text = fetch_threatfox_csv([key], retries=1)
+        if csv_text is not None:
+            try:
+                domains = parse_threatfox_csv(csv_text)
+                ips = parse_threatfox_ips(csv_text)
+            except ValueError as err:
+                print(f"::warning ::Full-Export ungueltig: {err}")
+            else:
+                good_domains = write_domain_list("threatfox", domain_file, titles[0], source, domains, now_str)
+                good_ips = write_domain_list("threatfox_ips", ip_file, titles[1], source, ips, now_str)
+                if good_domains and good_ips:
+                    save_stamp(THREATFOX_FULL_STAMP_FILE, now)
+                    save_stamp(THREATFOX_STAMP_FILE, now)
+                    print("  Full-Export erfolgreich, veraltete IOCs bereinigt")
+                    return True
+        print("::warning ::Full-Export fehlgeschlagen; keine Loeschung, Recent-Fallback wird versucht")
+    age = threatfox_last_fetch_age(now)
+    if age is not None and 0 <= age < THREATFOX_MIN_AGE_HOURS:
+        print(f"  letzter erfolgreicher Abruf vor {age:.2f} h - kein weiterer Abruf")
+        return True
+    existing_domains = read_existing(domain_file)
+    existing_ips = read_existing(ip_file)
+    if existing_domains is None or existing_ips is None:
+        print("::warning ::Recent-API kann ohne beide bestehenden Basislisten keinen Full-Export ersetzen")
+        return False
+    # Rotate one key per two-hour slot, without retry storms on HTTP 429.
+    slot = int(now.timestamp() // 7200)
+    print("  Recent-API: neue IOCs der letzten 48 Stunden")
+    recent = fetch_threatfox_recent(keys[slot % len(keys)])
+    if recent is None:
+        return False
+    domains, ips = recent
+    good_domains = write_domain_list("threatfox", domain_file, titles[0], source, existing_domains | domains, now_str)
+    good_ips = write_domain_list("threatfox_ips", ip_file, titles[1], source, existing_ips | ips, now_str)
+    if good_domains and good_ips:
+        save_stamp(THREATFOX_STAMP_FILE, now)
+        print(f"  Recent erfolgreich: +{len(domains - existing_domains)} Domains, +{len(ips - existing_ips)} C2-IPs")
+        return True
+    return False
 
 
 def main() -> int:
@@ -369,49 +500,8 @@ def main() -> int:
             "DandelionSprout Anti-Malware List (Spiegel ohne %20 in der URL)",
             DANDELION_URL, parse_hosts_text(text), now_str)
 
-    print("ThreatFox Domain-IOCs ...")
-    keys = threatfox_keys()
-    age = threatfox_last_fetch_age(now)
-    if not keys:
-        print("::warning ::Keine THREATFOX_AUTH_KEY-Variable gesetzt - ThreatFox uebersprungen")
-        results["threatfox"] = False
-    elif age is not None and 0 <= age < THREATFOX_MIN_AGE_HOURS:
-        print(f"  letzter ThreatFox-Abruf vor {age:.1f} h (< {THREATFOX_MIN_AGE_HOURS} h) - "
-              f"kein neuer Abruf (schont das Rate-Limit)")
-        results["threatfox"] = True
-    else:
-        csv_text = fetch_threatfox_csv(keys)
-        if csv_text is not None:
-            os.makedirs(OUT_DIR, exist_ok=True)
-            write_text_atomic(os.path.join(OUT_DIR, THREATFOX_STAMP_FILE),
-                              now.isoformat(timespec="seconds") + "\n")
-        if csv_text is None:
-            print("::warning ::ThreatFox-Export nicht ladbar - bestehende Datei bleibt")
-            results["threatfox"] = False
-        else:
-            try:
-                tf_domains = parse_threatfox_csv(csv_text)
-            except ValueError as err:
-                print(f"::warning ::{err} - bestehende Datei bleibt")
-                results["threatfox"] = False
-            else:
-                results["threatfox"] = write_domain_list(
-                    "threatfox", "threatfox_domains.txt",
-                    f"ThreatFox Domain-IOCs (abuse.ch, Confidence >= {THREATFOX_MIN_CONFIDENCE})",
-                    "https://threatfox.abuse.ch (authentifizierter full.csv.zip-Export)",
-                    tf_domains, now_str)
-            # Zusaetzlich: C2-IPs (ip:port-IOCs) fuer die ASN-Auswertung in
-            # scripts/asn_drop_build.py. Gleicher Download, kein Extra-Abruf.
-            try:
-                tf_ips = parse_threatfox_ips(csv_text)
-            except ValueError as err:
-                print(f"::warning ::{err} - threatfox_c2_ips.txt bleibt unveraendert")
-            else:
-                write_domain_list(
-                    "threatfox_ips", "threatfox_c2_ips.txt",
-                    f"ThreatFox C2-IPs (ip:port-IOCs, Confidence >= {THREATFOX_MIN_CONFIDENCE}) - Grundlage fuer die ASN-Auswertung",
-                    "https://threatfox.abuse.ch (CC0)",
-                    tf_ips, now_str)
+    print("ThreatFox Domain-IOCs und C2-IPs ...")
+    results["threatfox"] = update_threatfox(threatfox_keys(), now, now_str)
 
     ok = [name for name, done in results.items() if done]
     print(f"\nFERTIG: {len(ok)}/{len(results)} Listen aktualisiert ({', '.join(ok) or '-'})")
