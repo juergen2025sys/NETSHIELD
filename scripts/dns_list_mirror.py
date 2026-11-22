@@ -38,7 +38,6 @@ Ausfuehren:
 from __future__ import annotations
 
 import csv
-import hashlib
 import io
 import http.client
 import json
@@ -62,8 +61,6 @@ def threatfox_keys(environ=None):
     (kein toJSON(secrets) mehr - CodeQL "Excessive Secrets Exposure").
     THREATFOX_SECRETS_JSON wird nur noch aus Kompatibilitaetsgruenden gelesen.
     """
-    import json
-
     env = os.environ if environ is None else environ
     pattern = re.compile(r"THREATFOX_AUTH_KEY(?:_([0-9]+))?\Z")
     candidates = {}
