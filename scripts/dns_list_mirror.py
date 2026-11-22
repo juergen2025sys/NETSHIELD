@@ -271,6 +271,15 @@ def parse_threatfox_ips(text: str, min_confidence: int = THREATFOX_MIN_CONFIDENC
     return ips
 
 
+def key_label(key: str) -> str:
+    """Log only the environment variable name, never the secret value."""
+    for number in range(1, 31):
+        name = "THREATFOX_AUTH_KEY" + (f"_{number}" if number > 1 else "")
+        if os.environ.get(name, "").strip() == key:
+            return f"Key {number} ({name})"
+    return "Key unbekannt (aus kompatibler JSON-Konfiguration)"
+
+
 def fetch_threatfox_csv(keys: list[str], retries: int = 3, timeout: int = 60) -> str | None:
     """Laedt full.csv.zip mit Key-Failover und liefert den CSV-Text.
 
@@ -278,11 +287,15 @@ def fetch_threatfox_csv(keys: list[str], retries: int = 3, timeout: int = 60) ->
     dekodiert und das ZIP damit korrumpieren wuerde.
     """
     for key_idx, key in enumerate(keys, start=1):
+        label = key_label(key)
         url = f"https://threatfox-api.abuse.ch/v2/files/exports/{key}/full.csv.zip"
         for attempt in range(1, retries + 1):
+            print(f"  Full-ZIP: Anfrage mit {label}, Versuch {attempt}/{retries}")
             try:
                 with safe_urlopen(url, headers={"User-Agent": USER_AGENT}, timeout=timeout) as resp:
+                    print(f"  Full-ZIP: {label}, HTTP {resp.status}, Content-Length={resp.headers.get('Content-Length', 'unbekannt')}")
                     data = resp.read(THREATFOX_READ_LIMIT + 1)
+                print(f"  Full-ZIP: {label}, {len(data)} Bytes empfangen")
                 if len(data) > THREATFOX_READ_LIMIT:
                     print(f"  FEHLER threatfox: Antwort > {THREATFOX_READ_LIMIT} bytes")
                     return None
@@ -292,14 +305,16 @@ def fetch_threatfox_csv(keys: list[str], retries: int = 3, timeout: int = 60) ->
                     print(f"  FEHLER threatfox: keine .csv im ZIP ({archive.namelist()})")
                     return None
                 with archive.open(csv_names[0]) as handle:
-                    return handle.read().decode("utf-8", errors="ignore")
+                    csv_content = handle.read().decode("utf-8", errors="ignore")
+                    print(f"  Full-ZIP: {label}, ZIP erfolgreich geprueft")
+                    return csv_content
             except urllib.error.HTTPError as err:
                 if err.code in (401, 403):
-                    print(f"  HTTP {err.code} threatfox (Key #{key_idx}) - naechster Key")
+                    print(f"  Full-ZIP: {label}, HTTP {err.code} - naechster Key")
                     break
                 if err.code == 429:
                     # Rate-Limit: weitere Versuche mit demselben Key verschaerfen es nur
-                    print(f"  HTTP 429 threatfox (Key #{key_idx}) - Rate-Limit, naechster Key")
+                    print(f"  Full-ZIP: {label}, HTTP 429 - naechster Key")
                     break
                 print(f"  HTTP {err.code} threatfox (Key #{key_idx}, Versuch {attempt}/{retries})")
             except zipfile.BadZipFile:
@@ -388,14 +403,20 @@ def fetch_threatfox_recent(key: str, timeout: int = 60) -> tuple[set[str], set[s
     # Transfer niemals Teil-JSON in die Blocklisten uebernehmen.
     raw = None
     for attempt in range(1, 4):
+        print(f"  Recent: Anfrage mit {key_label(key)}, Versuch {attempt}/3")
         try:
             with urllib.request.urlopen(request, timeout=timeout) as response:
+                print(f"  Recent: {key_label(key)}, HTTP {response.status}, Content-Length={response.headers.get('Content-Length', 'unbekannt')}")
                 raw = response.read(20 * 1024 * 1024 + 1)
+            print(f"  Recent: {key_label(key)}, {len(raw)} Bytes empfangen")
             break
+        except urllib.error.HTTPError as err:
+            print(f"::warning ::ThreatFox Recent {key_label(key)} HTTP {err.code}")
+            return None
         except (http.client.IncompleteRead, http.client.RemoteDisconnected,
                 ConnectionResetError, TimeoutError, urllib.error.URLError,
                 OSError) as err:
-            print(f"::warning ::ThreatFox Recent Transfer unterbrochen "
+            print(f"::warning ::ThreatFox Recent {key_label(key)} Transfer unterbrochen "
                   f"({type(err).__name__}, Versuch {attempt}/3)")
             if attempt == 3:
                 return None
@@ -432,9 +453,9 @@ def fetch_threatfox_recent(key: str, timeout: int = 60) -> tuple[set[str], set[s
                     continue
         return domains, ips
     except urllib.error.HTTPError as err:
-        print(f"::warning ::ThreatFox Recent HTTP {err.code} - bestehende Listen bleiben erhalten")
+        print(f"::warning ::ThreatFox Recent {key_label(key)} HTTP {err.code} - bestehende Listen bleiben erhalten")
     except (urllib.error.URLError, OSError, ValueError, json.JSONDecodeError, http.client.HTTPException) as err:
-        print(f"::warning ::ThreatFox Recent fehlgeschlagen: {type(err).__name__}")
+        print(f"::warning ::ThreatFox Recent {key_label(key)} fehlgeschlagen: {type(err).__name__}")
     return None
 
 
@@ -442,6 +463,7 @@ def update_threatfox(keys: list[str], now: datetime, now_str: str) -> bool:
     if not keys:
         print("::warning ::Keine THREATFOX_AUTH_KEY-Variable gesetzt")
         return False
+    print(f"  Erkannte ThreatFox-Keys: {len(keys)} -> " + ", ".join(key_label(key) for key in keys))
     domain_file, ip_file = "threatfox_domains.txt", "threatfox_c2_ips.txt"
     titles = (
         f"ThreatFox Domain-IOCs (Confidence >= {THREATFOX_MIN_CONFIDENCE})",
@@ -456,9 +478,8 @@ def update_threatfox(keys: list[str], now: datetime, now_str: str) -> bool:
     if full_due:
         save_stamp(THREATFOX_FULL_ATTEMPT_FILE, now)
         # One key per day, avoiding 30 downloads against a shared export quota.
-        key = keys[now.date().toordinal() % len(keys)]
-        print("  taeglicher Full-Export: genau ein Download-Versuch")
-        csv_text = fetch_threatfox_csv([key], retries=1)
+        print("  taeglicher Full-Export: feste Reihenfolge Key 1, Key 2, ...; bei Fehler naechster Key")
+        csv_text = fetch_threatfox_csv(keys, retries=1)
         if csv_text is not None:
             try:
                 domains = parse_threatfox_csv(csv_text)
@@ -483,10 +504,15 @@ def update_threatfox(keys: list[str], now: datetime, now_str: str) -> bool:
     if existing_domains is None or existing_ips is None:
         print("::warning ::Recent-API kann ohne beide bestehenden Basislisten keinen Full-Export ersetzen")
         return False
-    # Rotate one key per two-hour slot, without retry storms on HTTP 429.
-    slot = int(now.timestamp() // 7200)
-    print("  Recent-API: neue IOCs der letzten 48 Stunden")
-    recent = fetch_threatfox_recent(keys[slot % len(keys)])
+    # Feste Reihenfolge, keine Rotation: erst Key 1, danach Key 2 usw.
+    recent = None
+    for recent_key in keys:
+        print(f"  Recent-API: pruefe {key_label(recent_key)}")
+        recent = fetch_threatfox_recent(recent_key)
+        if recent is not None:
+            print(f"  Recent-API: erfolgreich mit {key_label(recent_key)}")
+            break
+        print(f"::warning ::Recent-API: {key_label(recent_key)} fehlgeschlagen - naechster Key")
     if recent is None:
         return False
     domains, ips = recent
