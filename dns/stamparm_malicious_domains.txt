@@ -1,7 +1,7 @@
 # Title: Stamparm Maltrail Trails - malicious (DNS-only)
 # Quelle: https://github.com/stamparm/trails/tree/main/malicious
-# Aktualisiert: 2026-11-22 21:17 CET
-# Eintraege: 226165
+# Aktualisiert: 2026-11-22 22:16 CET
+# Eintraege: 226166
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 0-4.top
@@ -196026,6 +196026,7 @@ tlp.ar
 tlpacc.co
 tlr73hr0.abcdbro.com
 tls.cdn-jsdelivr.com
+tlschssl22read.cc
 tlswinrare.xyz
 tltnx.demo.ezra-ai.com
 tlucrativesurvey.top
