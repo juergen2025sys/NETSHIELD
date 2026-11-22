@@ -84,7 +84,11 @@ jobs:
               sub(/=.*/, "", key)
               gsub(/[[:space:]]/, "", key)
               key = tolower(key)
-              if (key == "dns" || key == "saveconfig") next
+              if (key == "dns" || key == "saveconfig" || key == "mtu") next
+              # 2026-11-22: feste MTU 1280. Ohne sie brach der grosse ThreatFox-
+              # Download (full.csv.zip) im Tunnel mit IncompleteRead ab, waehrend
+              # kleine Anfragen (TLS-Test) durchgingen - typisches MTU-Problem.
+              if (key == "[interface]") { print; print "MTU = 1280"; next }
               if (key == "address" || key == "allowedips") {
                 values = $0
                 sub(/^[^=]*=/, "", values)
