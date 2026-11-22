@@ -47,6 +47,84 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: true
+          # 2026-11-22: nur scripts/ und dns/ auschecken (vorher ~55 s fuer das
+          # ganze Repo). fetch/rebase/push im Commit-Schritt funktionieren so weiter.
+          fetch-depth: 1
+          sparse-checkout: |
+            /scripts/
+            /dns/
+          sparse-checkout-cone-mode: false
+
+      # 2026-11-22: ThreatFox-Export ueber den eigenen WireGuard-Ausgang (Secret
+      # WG_CONF, wie honigtopf.yml) laden. Grund: Alle Schluessel bekamen von den
+      # geteilten GitHub-Runner-IPs HTTP 429. Faellt der Tunnel aus, laeuft der
+      # Abruf direkt weiter wie bisher (continue-on-error) - nie schlechter als vorher.
+      - name: WireGuard fuer ThreatFox starten
+        id: wireguard
+        continue-on-error: true
+        env:
+          WG_CONF: ${{ secrets.WG_CONF }}
+        run: |
+          set -euo pipefail
+          if [ -z "$WG_CONF" ]; then
+            echo "::warning::Secret WG_CONF fehlt - ThreatFox wird direkt abgerufen"
+            exit 1
+          fi
+          if ! command -v wg-quick >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq wireguard-tools >/dev/null
+          fi
+          umask 077
+          temp_config=$(mktemp "$RUNNER_TEMP/dnsmirror-wg-conf.XXXXXX")
+          trap 'rm -f "$temp_config"' EXIT
+          # Wie honigtopf.yml: Runner-DNS behalten, nur IPv4-Adressen/-Routen.
+          printf '%s\n' "$WG_CONF" | tr -d '\r' | awk '
+            {
+              key = $0
+              sub(/=.*/, "", key)
+              gsub(/[[:space:]]/, "", key)
+              key = tolower(key)
+              if (key == "dns" || key == "saveconfig") next
+              if (key == "address" || key == "allowedips") {
+                values = $0
+                sub(/^[^=]*=/, "", values)
+                sub(/#.*/, "", values)
+                count = split(values, entries, ",")
+                ipv4 = ""
+                for (i = 1; i <= count; i++) {
+                  gsub(/[[:space:]]/, "", entries[i])
+                  if (entries[i] != "" && entries[i] !~ /:/)
+                    ipv4 = ipv4 (ipv4 == "" ? "" : ", ") entries[i]
+                }
+                if (ipv4 != "") print (key == "address" ? "Address" : "AllowedIPs") " = " ipv4
+                next
+              }
+              print
+            }
+          ' > "$temp_config"
+          unset WG_CONF
+          if ! grep -q '^Address = ' "$temp_config" || ! grep -q '^AllowedIPs = ' "$temp_config"; then
+            echo "::warning::WG_CONF ohne IPv4-Address/AllowedIPs - ThreatFox wird direkt abgerufen"
+            exit 1
+          fi
+          sudo install -d -m 0700 /etc/wireguard
+          sudo install -m 0600 "$temp_config" /etc/wireguard/wg0.conf
+          rm -f "$temp_config"
+          # Ausgabe von wg-quick nicht anzeigen (kann Teile der Konfiguration enthalten)
+          if ! sudo wg-quick up wg0 >/dev/null 2>&1; then
+            echo "::warning::wg-quick up fehlgeschlagen - ThreatFox wird direkt abgerufen"
+            sudo rm -f /etc/wireguard/wg0.conf
+            exit 1
+          fi
+          # Erreichbarkeit von abuse.ch durch den Tunnel pruefen (ohne Key)
+          if ! curl -4 -sS --interface wg0 --connect-timeout 8 --max-time 15 -o /dev/null \
+               https://threatfox-api.abuse.ch/; then
+            echo "::warning::abuse.ch ueber WireGuard nicht erreichbar - Tunnel wird abgebaut, Abruf direkt"
+            sudo wg-quick down wg0 >/dev/null 2>&1 || true
+            sudo rm -f /etc/wireguard/wg0.conf
+            exit 1
+          fi
+          echo "WireGuard aktiv - ThreatFox wird ueber den eigenen VPN-Ausgang geladen."
 
       - name: DNS-Listen erzeugen
         env:
@@ -81,6 +159,15 @@ jobs:
           THREATFOX_AUTH_KEY_29: ${{ secrets.THREATFOX_AUTH_KEY_29 }}
           THREATFOX_AUTH_KEY_30: ${{ secrets.THREATFOX_AUTH_KEY_30 }}
         run: python3 -u scripts/dns_list_mirror.py
+
+      # Tunnel vor dem git push abbauen, damit GitHub wieder direkt erreicht wird.
+      - name: WireGuard abbauen
+        if: always() && steps.wireguard.outcome == 'success'
+        run: |
+          if ip link show dev wg0 >/dev/null 2>&1; then
+            sudo wg-quick down wg0 >/dev/null 2>&1 || echo "::warning::WireGuard konnte nicht sauber abgebaut werden"
+          fi
+          sudo rm -f /etc/wireguard/wg0.conf
 
       - name: Commit
         id: commit
