@@ -1,7 +1,7 @@
 # Title: Stamparm Maltrail Trails - malicious (DNS-only)
 # Quelle: https://github.com/stamparm/trails/tree/main/malicious
-# Aktualisiert: 2026-11-22 23:33 CET
-# Eintraege: 226178
+# Aktualisiert: 2026-11-23 00:46 CET
+# Eintraege: 226179
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 0-4.top
@@ -22229,6 +22229,7 @@ artesanias1.vip
 artesfut.com
 artestfut.com
 artex-0886cf5f.nip.io
+artex-38-55-215-117.sslip.io
 artex-54-79-42-99.sslip.io
 artex-ai.gooele.site
 artex-cn.otoken.pro
