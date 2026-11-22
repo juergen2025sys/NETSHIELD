@@ -392,32 +392,47 @@ def read_existing(filename: str) -> set[str] | None:
 
 
 def fetch_threatfox_recent(key: str, timeout: int = 60) -> tuple[set[str], set[str]] | None:
-    """Official ThreatFox get_iocs API, 2 days by first_seen; never replace full baseline."""
+    """Official ThreatFox get_iocs API, 1 day by first_seen; never replace full baseline."""
     request = urllib.request.Request(
         "https://threatfox-api.abuse.ch/api/v1/",
-        data=json.dumps({"query": "get_iocs", "days": 2}).encode("utf-8"),
+        data=json.dumps({"query": "get_iocs", "days": 1}).encode("utf-8"),
         headers={"Auth-Key": key, "Content-Type": "application/json", "User-Agent": USER_AGENT},
         method="POST",
     )
-    # Nur vollstaendige Antworten verarbeiten. Bei einem abgebrochenen
-    # Transfer niemals Teil-JSON in die Blocklisten uebernehmen.
+    # Kleinere Antwort (1 Tag statt 2) und stueckweises Lesen zur Diagnose.
+    # Abgebrochene JSON-Antworten werden NIE als gueltige Daten behandelt.
     raw = None
+    max_bytes = 20 * 1024 * 1024
     for attempt in range(1, 4):
-        print(f"  Recent: Anfrage mit {key_label(key)}, Versuch {attempt}/3")
+        received = 0
+        chunks = []
+        print(f"  Recent: Anfrage mit {key_label(key)}, Versuch {attempt}/3 (1 Tag)")
         try:
             with urllib.request.urlopen(request, timeout=timeout) as response:
-                print(f"  Recent: {key_label(key)}, HTTP {response.status}, Content-Length={response.headers.get('Content-Length', 'unbekannt')}")
-                raw = response.read(20 * 1024 * 1024 + 1)
-            print(f"  Recent: {key_label(key)}, {len(raw)} Bytes empfangen")
+                print(f"  Recent: {key_label(key)}, HTTP {response.status}, "
+                      f"Content-Length={response.headers.get('Content-Length', 'unbekannt')}, "
+                      f"Transfer-Encoding={response.headers.get('Transfer-Encoding', 'unbekannt')}")
+                while True:
+                    block = response.read(64 * 1024)
+                    if not block:
+                        break
+                    received += len(block)
+                    if received > max_bytes:
+                        raise ValueError(f"Recent-Antwort groesser als {max_bytes} Bytes")
+                    chunks.append(block)
+            raw = b"".join(chunks)
+            print(f"  Recent: {key_label(key)}, {received} Bytes vollstaendig empfangen")
             break
         except urllib.error.HTTPError as err:
             print(f"::warning ::ThreatFox Recent {key_label(key)} HTTP {err.code}")
             return None
         except (http.client.IncompleteRead, http.client.RemoteDisconnected,
                 ConnectionResetError, TimeoutError, urllib.error.URLError,
-                OSError) as err:
+                OSError, ValueError) as err:
+            partial = len(getattr(err, "partial", b""))
             print(f"::warning ::ThreatFox Recent {key_label(key)} Transfer unterbrochen "
-                  f"({type(err).__name__}, Versuch {attempt}/3)")
+                  f"({type(err).__name__}, {received + partial} Bytes empfangen, "
+                  f"Versuch {attempt}/3)")
             if attempt == 3:
                 return None
             time.sleep(min(2 ** attempt, 8))
