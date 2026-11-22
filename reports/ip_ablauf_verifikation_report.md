@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-11-22 02:35 CET (Europe/Berlin)
+Lauf: 2026-11-22 02:50 CET (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -95,15 +95,15 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📉 -25,630 (Rückgang) (jetzt 11,236,169 IPs)
+- Seit letztem Lauf: ➡️ unverändert (jetzt 11,236,169 IPs)
 - Seit Zyklus-Start (2026-11-21): 📉 -36,041 (Rückgang)
 - Letzter combined-Cleanup-Pass: 32,221 IPs durch Ablauf entfernt (davon 2,000 Watchlist/30T, 30,221 Active/180T), 905,074 neue IPs hinzugekommen (davon 791,927 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 69 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 110,225 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 6,027,183 (Summe 7 verschiedene Combined-Läufe in den letzten 7 Prüfläufen / 7 Lauf(e), noch keine 24h Historie seit Zyklus-Start; vor dem Aufnahme-Filter gezählt)
+- Neue IPs (Summe letzter Läufe): 6,027,183 (Summe 7 verschiedene Combined-Läufe in den letzten 8 Prüfläufen / ~24h; vor dem Aufnahme-Filter gezählt)
 - Entfernte IPs (abgelaufen): heute 32,221 | gestern 62,183 (Kalendertag, aus Ablauf-Ledgern)
   - davon Watchlist/30 Tage: heute 2,000 | gestern 1,117
   - davon Active/180 Tage: heute 30,221 | gestern 61,066
-- Netto-Wachstum (7 Lauf(e), noch keine 24h Historie seit Zyklus-Start): 📉 -36,041 (7 Lauf(e), noch keine 24h Historie seit Zyklus-Start) ⚠️ **schrumpft aktuell netto** - mehr entfernt als neu aufgenommen
-- Erfolgsquote letzte 16 combined-Läufe: 15/15 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt) | zusätzlich 1 cancelled (nicht gewertet), Zeitraum 2026-11-21T02:50 bis 2026-11-22T01:27 UTC
+- Netto-Wachstum (~24h): 📉 -36,041 (~24h) ⚠️ **schrumpft aktuell netto** - mehr entfernt als neu aufgenommen
+- Erfolgsquote letzte 16 combined-Läufe: 15/15 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt) | zusätzlich 1 cancelled (nicht gewertet), Zeitraum 2026-11-21T06:30 bis 2026-11-22T01:36 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
@@ -116,3 +116,4 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-11-21 16:18 CET (Europe/Berlin) | 11,248,765 | 18194 | 4286936 | 0 |
 | 2026-11-21 20:53 CET (Europe/Berlin) | 11,261,799 | 18193 | 4286856 | 0 |
 | 2026-11-22 02:35 CET (Europe/Berlin) | 11,236,169 | 18168 | 4317016 | 0 |
+| 2026-11-22 02:50 CET (Europe/Berlin) | 11,236,169 | 18168 | 4317016 | 0 |
