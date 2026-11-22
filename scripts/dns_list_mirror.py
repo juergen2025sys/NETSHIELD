@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import csv
 import io
+import http.client
 import json
 import ipaddress
 import os
@@ -383,11 +384,25 @@ def fetch_threatfox_recent(key: str, timeout: int = 60) -> tuple[set[str], set[s
         headers={"Auth-Key": key, "Content-Type": "application/json", "User-Agent": USER_AGENT},
         method="POST",
     )
+    # Nur vollstaendige Antworten verarbeiten. Bei einem abgebrochenen
+    # Transfer niemals Teil-JSON in die Blocklisten uebernehmen.
+    raw = None
+    for attempt in range(1, 4):
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                raw = response.read(20 * 1024 * 1024 + 1)
+            break
+        except (http.client.IncompleteRead, http.client.RemoteDisconnected,
+                ConnectionResetError, TimeoutError, urllib.error.URLError,
+                OSError) as err:
+            print(f"::warning ::ThreatFox Recent Transfer unterbrochen "
+                  f"({type(err).__name__}, Versuch {attempt}/3)")
+            if attempt == 3:
+                return None
+            time.sleep(min(2 ** attempt, 8))
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            raw = response.read(20 * 1024 * 1024 + 1)
-        if len(raw) > 20 * 1024 * 1024:
-            raise ValueError("Recent-Antwort zu gross")
+        if raw is None or len(raw) > 20 * 1024 * 1024:
+            raise ValueError("Recent-Antwort fehlt oder ist zu gross")
         payload = json.loads(raw)
         if payload.get("query_status") not in ("ok", "no_result"):
             raise ValueError(f"Recent-API: {payload.get('query_status')}")
@@ -418,7 +433,7 @@ def fetch_threatfox_recent(key: str, timeout: int = 60) -> tuple[set[str], set[s
         return domains, ips
     except urllib.error.HTTPError as err:
         print(f"::warning ::ThreatFox Recent HTTP {err.code} - bestehende Listen bleiben erhalten")
-    except (urllib.error.URLError, OSError, ValueError, json.JSONDecodeError) as err:
+    except (urllib.error.URLError, OSError, ValueError, json.JSONDecodeError, http.client.HTTPException) as err:
         print(f"::warning ::ThreatFox Recent fehlgeschlagen: {type(err).__name__}")
     return None
 
