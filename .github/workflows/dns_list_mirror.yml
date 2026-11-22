@@ -4,6 +4,7 @@ name: DNS List Mirror
 # (Details siehe Kopf von scripts/dns_list_mirror.py):
 #   - dns/antimalware_domains.txt  DandelionSprout (Original-URL enthaelt "%20",
 #                                   daran stuerzt der OPNsense-DNSBL-Aufbau ab)
+#   - dns/stamparm_malicious_domains.txt  alle Stamparm malicious/-DNS-Domains
 #   - dns/threatfox_domains.txt    ThreatFox Domain-IOCs (Auth-Key-Export)
 #
 # Hauptausloeser: "Trigger DNS List Mirror" am Ende von
