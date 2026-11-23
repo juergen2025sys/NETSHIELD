@@ -106,13 +106,23 @@ THREATFOX_MIN_CONFIDENCE = 50
 THREATFOX_READ_LIMIT = 150 * 1024 * 1024  # wie honeypot_monitor.yml
 # 2026-11-15 (Nutzerentscheidung): ThreatFox-Export hoechstens alle 2 Stunden
 # laden. Grund: Bei stuendlichem Cron plus Combined- und Report-Trigger waren
-# alle Schluessel im Rate-Limit (HTTP 429). Gemessen wird am Zeitstempel in
-# dns/threatfox_last_fetch.txt, der bei JEDEM erfolgreichen Abruf geschrieben
-# wird (die Listen selbst werden nur bei Inhaltsaenderung neu geschrieben).
+# alle Schluessel im Rate-Limit (HTTP 429). Gemessen wird am Zeitstempel
+# "last_fetch" in dns/.threatfox_state.json, der bei JEDEM erfolgreichen Abruf
+# geschrieben wird (die Listen selbst werden nur bei Inhaltsaenderung neu
+# geschrieben).
 THREATFOX_MIN_AGE_HOURS = 1.75   # 1 h 45 min: Laeufe kurz vor 2 h (z. B. 1 h 58 min) sollen trotzdem laden
-THREATFOX_STAMP_FILE = "threatfox_last_fetch.txt"
-THREATFOX_FULL_STAMP_FILE = "threatfox_last_full_fetch.txt"
-THREATFOX_FULL_ATTEMPT_FILE = "threatfox_last_full_attempt.txt"
+# 2026-11-23: Die drei Zeitstempel stehen in EINER versteckten Datei
+# dns/.threatfox_state.json statt in drei einzelnen .txt-Dateien.
+THREATFOX_STATE_FILE = ".threatfox_state.json"
+THREATFOX_STAMP_FILE = "last_fetch"
+THREATFOX_FULL_STAMP_FILE = "last_full_fetch"
+THREATFOX_FULL_ATTEMPT_FILE = "last_full_attempt"
+# Alte Einzeldateien: werden beim ersten Lauf uebernommen und danach geloescht.
+THREATFOX_LEGACY_STAMP_FILES = {
+    THREATFOX_STAMP_FILE: "threatfox_last_fetch.txt",
+    THREATFOX_FULL_STAMP_FILE: "threatfox_last_full_fetch.txt",
+    THREATFOX_FULL_ATTEMPT_FILE: "threatfox_last_full_attempt.txt",
+}
 
 DOMAIN_RE = re.compile(
     r"^(?:[a-z0-9](?:[a-z0-9_-]{0,61}[a-z0-9])?\.)+"
@@ -390,18 +400,52 @@ def write_domain_list(name: str, filename: str, title: str, source: str,
 
 
 
-def stamp_time(filename: str) -> datetime | None:
+def load_threatfox_state() -> dict[str, str]:
+    """Liest dns/.threatfox_state.json. Fehlende Werte kommen (einmalig) aus
+    den alten Einzeldateien threatfox_last_*.txt, damit die 2-Stunden-Bremse
+    und die Tagesgrenze der Full-ZIP beim Umstieg nicht verloren gehen."""
+    state: dict[str, str] = {}
     try:
-        with open(os.path.join(OUT_DIR, filename), encoding="utf-8") as handle:
-            value = datetime.fromisoformat(handle.read().strip())
-        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+        with open(os.path.join(OUT_DIR, THREATFOX_STATE_FILE), encoding="utf-8") as handle:
+            loaded = json.load(handle)
+        if isinstance(loaded, dict):
+            state = {str(k): str(v) for k, v in loaded.items()}
     except (OSError, ValueError):
+        pass
+    for key, legacy in THREATFOX_LEGACY_STAMP_FILES.items():
+        if key in state:
+            continue
+        try:
+            with open(os.path.join(OUT_DIR, legacy), encoding="utf-8") as handle:
+                value = handle.read().strip()
+            if value:
+                state[key] = value
+        except OSError:
+            pass
+    return state
+
+
+def stamp_time(key: str) -> datetime | None:
+    try:
+        value = datetime.fromisoformat(load_threatfox_state()[key])
+        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+    except (KeyError, ValueError):
         return None
 
 
-def save_stamp(filename: str, now: datetime) -> None:
+def save_stamp(key: str, now: datetime) -> None:
     os.makedirs(OUT_DIR, exist_ok=True)
-    write_text_atomic(os.path.join(OUT_DIR, filename), now.isoformat(timespec="seconds") + "\n")
+    state = load_threatfox_state()
+    state[key] = now.isoformat(timespec="seconds")
+    write_text_atomic(os.path.join(OUT_DIR, THREATFOX_STATE_FILE),
+                      json.dumps(state, indent=2, sort_keys=True) + "\n")
+    # Alte Einzeldateien entfernen; ihre Werte stehen jetzt in der JSON-Datei.
+    # "git add dns/" im Workflow nimmt die Loeschung mit in den Commit.
+    for legacy in THREATFOX_LEGACY_STAMP_FILES.values():
+        try:
+            os.remove(os.path.join(OUT_DIR, legacy))
+        except OSError:
+            pass
 
 
 def threatfox_last_fetch_age(now: datetime) -> float | None:
