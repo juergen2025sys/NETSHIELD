@@ -16,6 +16,10 @@ Quellen, die OPNsense nicht direkt laden kann:
   - dns/stamparm_malicious_domains.txt
         Alle DNS-Domains aus den aktuellen stamparm/trails/malicious/*.txt.
         Keine IPs, CIDRs, URLs, Ports, Regex oder Fingerprints.
+  - dns/stamparm_c2_ips.txt   (2026-11-23)
+        C2-IPv4 aus stamparm/trails malware/ + malicious/ ("1.2.3.4" und
+        "1.2.3.4:port"), ohne sinkhole_*.txt und ohne nicht-oeffentliche
+        Adressen. Fuer den Firewall-Sammelalias Gratis_Blocklisten.
 
   - dns/threatfox_domains.txt
         ThreatFox-IOCs vom Typ "domain" aus taeglichem authentifiziertem
@@ -99,6 +103,7 @@ MIN_ENTRIES = {
     "threatfox": 500,
     "threatfox_ips": 200,
     "stamparm": 100,
+    "stamparm_ips": 1000,
 }
 
 # ThreatFox: nur IOCs ab dieser Confidence (0-100) uebernehmen.
@@ -411,7 +416,9 @@ def load_threatfox_state() -> dict[str, str]:
         if isinstance(loaded, dict):
             state = {str(k): str(v) for k, v in loaded.items()}
     except (OSError, ValueError):
-        pass
+        # Datei fehlt (erster Lauf) oder ist kaputt: mit leerem Zustand
+        # weitermachen, die alten Einzeldateien werden unten gelesen.
+        state = {}
     for key, legacy in THREATFOX_LEGACY_STAMP_FILES.items():
         if key in state:
             continue
@@ -421,7 +428,8 @@ def load_threatfox_state() -> dict[str, str]:
             if value:
                 state[key] = value
         except OSError:
-            pass
+            # Alte Einzeldatei gibt es nicht (mehr) - nichts zu uebernehmen.
+            continue
     return state
 
 
@@ -444,8 +452,11 @@ def save_stamp(key: str, now: datetime) -> None:
     for legacy in THREATFOX_LEGACY_STAMP_FILES.values():
         try:
             os.remove(os.path.join(OUT_DIR, legacy))
-        except OSError:
-            pass
+        except FileNotFoundError:
+            # Schon geloescht (normaler Fall nach dem ersten Umstieg).
+            continue
+        except OSError as error:
+            print(f"::warning ::{legacy} konnte nicht geloescht werden: {error}")
 
 
 def threatfox_last_fetch_age(now: datetime) -> float | None:
@@ -635,9 +646,51 @@ def parse_stamparm_indicator(raw: str) -> str | None:
     return domain if domain and not is_protected(domain) else None
 
 
-def update_stamparm(now_str: str) -> bool:
-    """Jeden Lauf den gesamten aktuellen malicious/-Ordner einlesen."""
-    print("Stamparm Trails malicious/: aktuelles GitHub-Archiv abrufen ...")
+# Nie sperren: oeffentliche DNS-Resolver (u. a. Quad9) und Cloudflare-Anycast.
+# Gemeinsam genutzte Adressen - eine Sperre traefe Tausende harmlose Dienste.
+STAMPARM_IP_PROTECTED_NETS = tuple(ipaddress.ip_network(net) for net in (
+    "1.0.0.0/24", "1.1.1.0/24", "8.8.8.0/24", "8.8.4.0/24", "9.9.9.0/24",
+    "149.112.112.0/24", "208.67.222.0/24", "208.67.220.0/24", "94.140.14.0/24",
+    "94.140.15.0/24", "185.228.168.0/24", "76.76.2.0/24", "76.76.10.0/24",
+    "173.245.48.0/20", "103.21.244.0/22", "103.22.200.0/22", "103.31.4.0/22",
+    "141.101.64.0/18", "108.162.192.0/18", "190.93.240.0/20", "188.114.96.0/20",
+    "197.234.240.0/22", "198.41.128.0/17", "162.158.0.0/15", "104.16.0.0/13",
+    "104.24.0.0/14", "172.64.0.0/13", "131.0.72.0/22",
+))
+
+
+def parse_stamparm_ip(raw: str) -> str | None:
+    """2026-11-23: C2-IPv4 aus malware/ und malicious/ ("1.2.3.4" oder
+    "1.2.3.4:8080"). Keine URLs, Netze, IPv6 oder nicht-oeffentlichen Adressen."""
+    value = raw.split("#", 1)[0].strip()
+    if not value or any(c.isspace() for c in value) or "/" in value:
+        return None
+    if value.count(":") == 1:
+        value, port = value.split(":", 1)
+        if not port.isdigit():
+            return None
+    try:
+        address = ipaddress.ip_address(value)
+    except ValueError:
+        return None
+    if address.version != 4 or not address.is_global:
+        return None
+    if any(address in net for net in STAMPARM_IP_PROTECTED_NETS):
+        return None
+    return str(address)
+
+
+def stamparm_ip_file_allowed(name: str) -> bool:
+    """Nur malware/ und malicious/. Sinkholes (Microsoft, CERTs, Shadowserver ...)
+    sind Server der Verteidiger, nicht der Angreifer - nie sperren."""
+    base = name.rsplit("/", 1)[-1]
+    return not base.startswith("sinkhole_")
+
+
+def update_stamparm(now_str: str) -> tuple[bool, bool]:
+    """Jeden Lauf das aktuelle stamparm/trails-Archiv einlesen:
+    Domains aus malicious/, C2-IPv4 aus malware/ + malicious/ (ohne Sinkholes)."""
+    print("Stamparm Trails: aktuelles GitHub-Archiv abrufen ...")
     request = urllib.request.Request(STAMPARM_ARCHIVE_URL, headers={
         "User-Agent": USER_AGENT, "Accept": "application/zip", "Cache-Control": "no-cache"})
     try:
@@ -653,36 +706,59 @@ def update_stamparm(now_str: str) -> bool:
                     raise ValueError("GitHub-Archiv groesser als 150 MiB")
                 chunks.append(chunk)
         domains = set()
+        ips = set()
         files = 0
+        ip_files = 0
         with zipfile.ZipFile(io.BytesIO(b"".join(chunks))) as archive:
-            entries = [item for item in archive.infolist()
-                       if not item.is_dir() and "/malicious/" in item.filename
-                       and item.filename.endswith(".txt")
-                       and item.filename.split("/", 1)[-1].startswith("malicious/")]
-            if not entries:
+            entries = []
+            for item in archive.infolist():
+                rel = item.filename.split("/", 1)[-1]
+                if item.is_dir() or not rel.endswith(".txt"):
+                    continue
+                if rel.startswith("malicious/") or rel.startswith("malware/"):
+                    entries.append((rel, item))
+            if not any(rel.startswith("malicious/") for rel, _ in entries):
                 raise ValueError("Keine malicious/*.txt-Dateien im GitHub-Archiv")
-            for item in entries:
+            for rel, item in entries:
                 if item.file_size > 20 * 1024 * 1024:
                     raise ValueError(f"Einzeldatei zu gross: {item.filename}")
                 with archive.open(item) as handle:
                     content = handle.read().decode("utf-8-sig", errors="replace")
-                files += 1
+                take_domains = rel.startswith("malicious/")
+                take_ips = stamparm_ip_file_allowed(rel)
+                files += take_domains
+                ip_files += take_ips
                 for line in content.splitlines():
-                    domain = parse_stamparm_indicator(line)
-                    if domain:
-                        domains.add(domain)
-        print(f"  Stamparm: {files} Quelldateien, {len(domains)} eindeutige DNS-Domains")
+                    if take_domains:
+                        domain = parse_stamparm_indicator(line)
+                        if domain:
+                            domains.add(domain)
+                            continue
+                    if take_ips:
+                        ip = parse_stamparm_ip(line)
+                        if ip:
+                            ips.add(ip)
+        print(f"  Stamparm: {files} malicious-Dateien, {len(domains)} eindeutige DNS-Domains")
+        print(f"  Stamparm: {ip_files} malware/malicious-Dateien (ohne Sinkholes), {len(ips)} eindeutige C2-IPv4")
+        domains_ok = False
         if not files or len(domains) < MIN_ENTRIES["stamparm"]:
-            print("::warning ::Stamparm unvollstaendig/leer; bisherige Liste bleibt erhalten")
-            return False
-        return write_domain_list(
-            "stamparm", "stamparm_malicious_domains.txt",
-            "Stamparm Maltrail Trails - malicious (DNS-only)",
-            "https://github.com/stamparm/trails/tree/main/malicious",
-            domains, now_str)
+            print("::warning ::Stamparm-Domains unvollstaendig/leer; bisherige Liste bleibt erhalten")
+        else:
+            domains_ok = write_domain_list(
+                "stamparm", "stamparm_malicious_domains.txt",
+                "Stamparm Maltrail Trails - malicious (DNS-only)",
+                "https://github.com/stamparm/trails/tree/main/malicious",
+                domains, now_str)
+        # write_domain_list prueft MIN_ENTRIES selbst und behaelt sonst die alte Datei.
+        ips_ok = write_domain_list(
+            "stamparm_ips", "stamparm_c2_ips.txt",
+            "Stamparm Maltrail Trails - C2-IPv4 aus malware/ + malicious/ (ohne Sinkholes)",
+            "https://github.com/stamparm/trails",
+            ips, now_str)
+        return domains_ok, ips_ok
     except (OSError, urllib.error.URLError, zipfile.BadZipFile, ValueError) as error:
-        print(f"::warning ::Stamparm-Abruf fehlgeschlagen ({type(error).__name__}: {error}); bisherige Liste bleibt")
-        return False
+        print(f"::warning ::Stamparm-Abruf fehlgeschlagen ({type(error).__name__}: {error}); bisherige Listen bleiben")
+        return False, False
 
 
 def main() -> int:
@@ -701,7 +777,7 @@ def main() -> int:
             "DandelionSprout Anti-Malware List (Spiegel ohne %20 in der URL)",
             DANDELION_URL, parse_hosts_text(text), now_str)
 
-    results["stamparm"] = update_stamparm(now_str)
+    results["stamparm"], results["stamparm_ips"] = update_stamparm(now_str)
 
     print("ThreatFox Domain-IOCs und C2-IPs ...")
     results["threatfox"] = update_threatfox(threatfox_keys(), now, now_str)
