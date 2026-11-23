@@ -1,22 +1,22 @@
 # Auto-Feed Live Refresh – Report
 
-**Aktualisiert:** 2026-11-23 17:01 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-23 19:14 CET (Europe/Berlin)
 
 | Metrik | Wert |
 |---|---:|
 | Registry-Feeds ausgewaehlt | 139 |
-| Erfolgreich frisch geladen | 137 |
+| Erfolgreich frisch geladen | 138 |
 | Aus vorherigem Snapshot erhalten | 0 |
-| Ohne Daten/Fallback | 2 |
+| Ohne Daten/Fallback | 1 |
 | Proxy/Bot/Scanner ausgeschlossen | 43 |
 | I-BlockList ausgeschlossen | 8 |
-| Feed-Treffer (IP/CIDR × Feed) | 5,980,394 |
-| Eindeutige IP/CIDR-Eintraege | 3,285,599 |
-| Neu ggü. vorherigem Snapshot | 35 |
-| Entfernt ggü. vorherigem Snapshot | 1 |
+| Feed-Treffer (IP/CIDR × Feed) | 6,330,817 |
+| Eindeutige IP/CIDR-Eintraege | 3,448,160 |
+| Neu ggü. vorherigem Snapshot | 162,561 |
+| Entfernt ggü. vorherigem Snapshot | 0 |
 
 **Semantik:** Der Snapshot behaelt jeden originalen Feed-Namen. Eine IP in fünf Auto-Feeds wird in Combined weiterhin als fünf Feed-Treffer verarbeitet.
 
 ## Feeds ohne aktuelle oder vorherige Daten
 
-`gazpitchy92_ip_blocklist`, `sereinfy_adrules`
+`sereinfy_adrules`
