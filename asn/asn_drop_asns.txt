@@ -4,7 +4,7 @@
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-23)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-23 18:12 UTC | ASNs: 1759 (Spamhaus 460 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1082 + ASN-Risiko 58, aktiv: 1500)
+# Aktualisiert: 2026-11-23 18:18 UTC | ASNs: 1759 (Spamhaus 460 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1082 + ASN-Risiko 58, aktiv: 1500)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS1054		Zont LLC	Dataplane-Dichte 0.45%
@@ -457,7 +457,7 @@ AS60567		SIA RixHost	feste eigene Liste
 AS60602		Inovare-Prim SRL	CVE-Exploit-Dichte 0.76%
 AS60612		Albatros Ltd.	Dataplane-Dichte 0.39%
 AS60711		Fernando Perez Morales	Dataplane-Dichte 0.25%
-AS60729		Stiftung Erneuerbare Freiheit	Honigtopf-Dichte 6.90%
+AS60729		Stiftung Erneuerbare Freiheit	Honigtopf-Dichte 4.95%
 AS60754		Dianet Ltd.	FireHOL-Abusers-Dichte 0.30%
 AS60831		Arkadia Spolka Cywilna Krysztof Rozmus Barbara Rozmus	Bitwire-Outbound-Dichte 0.62%
 AS60842	RU	HUIZE-HOLDINGS-AS	62yun.com

@@ -37,7 +37,6 @@ AS64107	19	256	7.42%	ja	RACK SPHERE HOSTING S.A.	ThreatFox C2-Dichte
 AS56873	19	256	7.42%	ja	ELITETEAM-ANTIDDOS 1337TEAM LIMITED	USOM-Dichte
 AS197769	166	2304	7.20%	ja	ABINTERNET-V Ltd.	CVE-Exploit-Dichte
 AS214351	55	768	7.16%	ja	FEMO IT SOLUTIONS LIMITED	Bitwire-Outbound-Dichte
-AS60729	53	768	6.90%	nein	Stiftung Erneuerbare Freiheit	Honigtopf-Dichte
 AS215925	70	1024	6.84%	ja	VPSVAULT.HOST LTD	Honeypot-Feeds-Dichte
 AS206560	52	768	6.77%	ja	Contrust Solutions S.R.L.	Honeypot-Feeds-Dichte
 AS200373	4027	63488	6.34%	ja	3xK Tech GmbH	FireHOL-Abusers-Dichte
@@ -49,6 +48,7 @@ AS197170	147	2560	5.74%	ja	TechTies Inc.	Honeypot-Feeds-Dichte
 AS200730	14	256	5.47%	nein	ISAEV Igor	Honeypot-Feeds-Dichte
 AS216261	13	256	5.08%	nein	IPAK YOL MChJ	Honeypot-Feeds-Dichte
 AS213355	13	256	5.08%	ja	HOST GLOBAL NETWORKS LTD	Honeypot-Feeds-Dichte
+AS60729	38	768	4.95%	nein	Stiftung Erneuerbare Freiheit	Honigtopf-Dichte
 AS213954	721	14592	4.94%	nein	Global Transit Systems LLC	FireHOL-Abusers-Dichte
 AS213790	63	1280	4.92%	ja	Limited Network LTD	Honeypot-Feeds-Dichte
 AS202412	248	5120	4.84%	ja	Omegatech LTD	Bitwire-Outbound-Dichte
