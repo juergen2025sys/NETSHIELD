@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (Full-Export + Recent-API)
-# Aktualisiert: 2026-11-23 21:22 CET
-# Eintraege: 33294
+# Aktualisiert: 2026-11-23 23:09 CET
+# Eintraege: 33301
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3679,6 +3679,7 @@ authservice6020.com
 authshipup.net
 authwic.com
 auto-service1.ru
+auto6slot.org
 autoccb.tech
 autocodekenya.com
 autoflotte-vergabe.de
@@ -17026,6 +17027,7 @@ lprxjf.samanthadefalco.com
 lpsbdveg.eng-usa--goldalign.com
 lptgdpfh.irantop.bet
 lpzi.behtarin-site-shartbandi.com
+lq.hkb7.org
 lq8j82kc.shirbetfarsi.com
 lqcah.cheaperthan-dirt.com
 lqfzdiu.sifootandankle.com
@@ -21035,6 +21037,7 @@ pakistanskimalchik.org
 pakketepaksempak.com
 palace.mdlrh.workers.dev
 paladin5.com
+paladinet.xyz
 palalto.live
 paleanchor.com
 palefen.cc
@@ -23800,6 +23803,7 @@ rmkr.webyek.com
 rmlgnuvje.barkerautoms.com
 rmm.fastmoneyclaim.com
 rmm.smartscreen.lifestyle
+rmr.auto6slot.org
 rmseyw.nerve-armore.com
 rmv.sm188dvlv.icu
 rmwj.betfa.download
@@ -31413,6 +31417,7 @@ www.qkshhdjrbd.work
 www.quick-shares.com
 www.quickcareclinicservices.com
 www.quk222g21jo0s9zrkmwiwwu.net
+www.raffaelesestito.it
 www.rakusuikai.jp
 www.rashidcocement.com
 www.rateon.co.uk.lubcononline.com
@@ -31743,6 +31748,7 @@ x4227u7g.ewagajewskamd.com
 x46oo826.memap.me
 x4emye5homuwkrvrfaoql53hc5spbazkvcw3m4pv6jaj5tjqmjizleqd.onion
 x4ii4c50.btyek.store
+x4niye0b.zayce.store
 x4yqlty5.fotrclinic.com
 x53ini6v.winnerbaz.bet
 x656wum4.us-us-us-zensulin.com
@@ -32838,6 +32844,7 @@ zaviyarengineering.com
 zavorky.cz
 zawifk.liltkereskedohaz.hu
 zawzq25p.grupoelede.com
+zayce.store
 zazathc.com
 zb.angkt777.org
 zb.angsa44d.org
