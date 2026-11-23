@@ -1,11 +1,11 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795391804)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795422404)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-16)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-23 00:38 UTC | ASNs: 1735 (Spamhaus 459 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1053 + ASN-Risiko 64, aktiv: 1480)
-# IPv6-Netze: 4643
+# Aktualisiert: 2026-11-23 09:04 UTC | ASNs: 1749 (Spamhaus 459 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1073 + ASN-Risiko 58, aktiv: 1491)
+# IPv6-Netze: 4646
 
 2001:470:139::/48
 2001:470:491::/48
@@ -522,6 +522,7 @@
 2401:8360:a400::/48
 2401:84e0::/32
 2401:8ae0::/32
+2401:9620::/32
 2401:9640::/46
 2401:9640:720::/48
 2401:9640:730::/48
@@ -1164,8 +1165,7 @@
 2406:d500:2::/47
 2406:d500:4::/46
 2406:d500:8::/47
-2406:d500:11::/48
-2406:d500:12::/47
+2406:d500:10::/46
 2406:d500:14::/47
 2406:d500:16::/48
 2406:d501:f::/48
@@ -1265,6 +1265,7 @@
 2602:f2d5::/40
 2602:f2d7::/43
 2602:f2d7:20::/44
+2602:f34c:ff0::/44
 2602:f5c0::/40
 2602:f5e5::/36
 2602:f651:100::/48
@@ -1675,6 +1676,7 @@
 2803:55e0::/32
 2803:5900::/32
 2803:5c50::/32
+2803:5e00::/32
 2803:6330::/32
 2803:6800::/32
 2803:6820::/32
@@ -1800,6 +1802,7 @@
 2804:1064::/32
 2804:1084::/32
 2804:10b4::/32
+2804:16a0::/32
 2804:18f0::/32
 2804:1950::/32
 2804:1cb4::/32
@@ -1828,6 +1831,7 @@
 2804:2bbc:7000::/36
 2804:2bbc:8000::/36
 2804:2bbc:c000::/36
+2804:2bf8::/32
 2804:2c24::/32
 2804:2c30::/32
 2804:2cac::/32
@@ -1845,6 +1849,7 @@
 2804:3534::/32
 2804:3608::/32
 2804:3670::/32
+2804:3684::/32
 2804:36d0::/32
 2804:383c::/32
 2804:38c4::/48
@@ -1867,6 +1872,7 @@
 2804:4250::/32
 2804:4398::/32
 2804:43b4::/32
+2804:44b4:4000::/36
 2804:459c::/32
 2804:45e0::/32
 2804:47fc::/32
@@ -1893,6 +1899,7 @@
 2804:5b14::/34
 2804:5b14:4100::/44
 2804:5b14:4200::/40
+2804:5bc8::/32
 2804:5df8::/32
 2804:5e88::/32
 2804:5f00::/32
@@ -3142,7 +3149,6 @@
 2a06:dd01::/32
 2a06:ddc0::/29
 2a06:de06:387::/48
-2a06:de07:fc00::/44
 2a06:fd80::/47
 2a06:fe40::/32
 2a07:440::/32
@@ -3288,11 +3294,11 @@
 2a0a:2d06:10::/48
 2a0a:2d07:e5::/48
 2a0a:3280::/29
-2a0a:3507:1::/48
 2a0a:3680::/29
 2a0a:37c1::/32
 2a0a:3840::/29
 2a0a:39c0::/32
+2a0a:4180::/48
 2a0a:4587:2010::/46
 2a0a:53c0:a66::/48
 2a0a:54c0::/29
@@ -3571,6 +3577,7 @@
 2a0c:8a41:a000::/36
 2a0c:8a47::/32
 2a0c:8e47::/45
+2a0c:9a40:8350::/48
 2a0c:9a40:8440::/44
 2a0c:9a40:8e60::/44
 2a0c:9a40:8f40::/48
@@ -3684,10 +3691,8 @@
 2a0d:af00::/30
 2a0d:afc7::/32
 2a0d:b287:dd00::/40
-2a0d:bbc0:1::/48
-2a0d:bbc0:2::/48
 2a0d:bbc1::/48
-2a0d:bbc7::/47
+2a0d:bbc7:1::/48
 2a0d:c102::/32
 2a0d:c580::/29
 2a0d:d940:13::/48
@@ -4164,7 +4169,6 @@
 2a10:c800::/47
 2a10:c800:400::/47
 2a10:ca80:1::/48
-2a10:ccc7:b110::/44
 2a10:d740:78::/48
 2a10:d940::/29
 2a10:d9c0::/29
@@ -4527,7 +4531,6 @@
 2a14:7c0:40::/44
 2a14:7c0:100::/40
 2a14:7c0:1300::/40
-2a14:7c0:1740::/48
 2a14:7c0:1742::/48
 2a14:7c0:3a00::/40
 2a14:7c0:6200::/39
