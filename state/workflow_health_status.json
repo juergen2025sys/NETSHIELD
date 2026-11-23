@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-23 01:14 CET (Europe/Berlin)",
+  "updated": "2026-11-23 09:58 CET (Europe/Berlin)",
   "total": 36,
   "ok": 31,
   "warn": 8,
@@ -49,7 +49,7 @@
   ],
   "regression_tests": {
     "schema": 1,
-    "sha": "f417b88b6623ecb67eaf6e44b2a5cbd1443ad500",
+    "sha": "2cafa35d17a058087da288de1e8039447927b11b",
     "status": "warning",
     "tests_run": 490,
     "failures": [
@@ -66,12 +66,12 @@
     "detail": "490 Tests; 4 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden. Betroffen: test_project_audit_fixes.ProjectAuditTests.test_geo_partial_failure_preserves_all_outputs_above_minimum, test_release_audit_fixes.AuditFixTests.test_honey_http_402_credential_is_quarantined_for_rest_of_run, test_release_audit_fixes.AuditFixTests.test_honey_http_402_fails_over_to_next_credential, test_release_audit_fixes.AuditFixTests.test_honey_partial_failures_preserve_list_and_freshness"
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5806556,
-    "active_blacklist_ipv4.txt": 365268,
-    "blacklist_confidence40_ipv4_part1.txt": 3972950,
-    "cve_exploit_ips.txt": 30159,
-    "honeypot_ips.txt": 2166720,
-    "bot_detector_blacklist_ipv4.txt": 1209778
+    "combined_threat_blacklist_ipv4_part1.txt": 5802642,
+    "active_blacklist_ipv4.txt": 341985,
+    "blacklist_confidence40_ipv4_part1.txt": 3962969,
+    "cve_exploit_ips.txt": 30542,
+    "honeypot_ips.txt": 2161300,
+    "bot_detector_blacklist_ipv4.txt": 1210375
   },
   "production_health": {
     "critical": 0,
