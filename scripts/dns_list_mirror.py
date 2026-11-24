@@ -49,6 +49,7 @@ import ipaddress
 import os
 import re
 import sys
+import tarfile
 import time
 import urllib.error
 import urllib.request
@@ -104,6 +105,8 @@ MIN_ENTRIES = {
     "threatfox_ips": 200,
     "stamparm": 100,
     "stamparm_ips": 1000,
+    "et_open": 500,
+    "fritzbox": 1000,
 }
 
 # ThreatFox: nur IOCs ab dieser Confidence (0-100) uebernehmen.
@@ -761,6 +764,90 @@ def update_stamparm(now_str: str) -> tuple[bool, bool]:
         return False, False
 
 
+# 2026-11-24: Domains aus den ET-Open-Suricata-Regeln (Proofpoint Emerging Threats).
+# Nur Regeln der Kategorien unten, die per dns.query eine konkrete Domain
+# pruefen (endswith/dotprefix/bsize = ganzer Name, kein Teilstring).
+ET_OPEN_URL = "https://rules.emergingthreats.net/open/suricata-8.0/emerging.rules.tar.gz"
+ET_OPEN_MAX_BYTES = 60 * 1024 * 1024
+ET_OPEN_CATEGORIES = ("MALWARE", "PHISHING", "MOBILE_MALWARE", "EXPLOIT_KIT",
+                      "CURRENT_EVENTS", "TROJAN", "ATTACK_RESPONSE")
+ET_MSG_RE = re.compile(r'msg:"ET (' + "|".join(ET_OPEN_CATEGORIES) + r')\b')
+ET_CONTENT_RE = re.compile(r'content:"([^"]+)"')
+# Geteilte Plattformen: nur die Hauptdomain nie sperren, Subdomains schon.
+ET_SHARED_APEX = frozenset({
+    "workers.dev", "pages.dev", "duckdns.org", "ngrok.io", "ngrok-free.app",
+    "trycloudflare.com", "github.io", "githubusercontent.com", "azurewebsites.net",
+    "blogspot.com", "firebaseapp.com", "web.app", "herokuapp.com", "vercel.app",
+    "netlify.app", "glitch.me", "repl.co", "000webhostapp.com", "r2.dev",
+    "dynv6.net", "ddns.net", "no-ip.com", "hopto.org", "serveo.net", "loca.lt",
+})
+
+
+def parse_et_open_domains(archive_bytes: bytes) -> set[str]:
+    domains: set[str] = set()
+    with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:gz") as tar:
+        for member in tar.getmembers():
+            if not member.isfile() or not member.name.endswith(".rules"):
+                continue
+            handle = tar.extractfile(member)
+            if handle is None:
+                continue
+            for line in handle.read().decode("utf-8", errors="replace").splitlines():
+                if line.lstrip().startswith("#") or "dns.query" not in line:
+                    continue
+                if not ET_MSG_RE.search(line):
+                    continue
+                part = line.split("dns.query", 1)[1]
+                match = ET_CONTENT_RE.search(part)
+                if not match:
+                    continue
+                # Nur vollstaendige Namen: Ende der Domain muss festgelegt sein.
+                options = part[match.end():match.end() + 120]
+                if not any(opt in options for opt in ("endswith", "bsize:", "isdataat:!1")):
+                    continue
+                value = re.sub(r"\|[0-9a-fA-F ]+\|", ".", match.group(1)).strip(".").lower()
+                domain = normalize_domain(value)
+                if not domain or is_protected(domain) or domain in ET_SHARED_APEX:
+                    continue
+                domains.add(domain)
+    return domains
+
+
+def update_et_open(now_str: str) -> bool:
+    print("ET Open (Emerging Threats) - Domains aus DNS-Regeln ...")
+    request = urllib.request.Request(ET_OPEN_URL, headers={"User-Agent": USER_AGENT})
+    try:
+        with urllib.request.urlopen(request, timeout=120) as response:
+            data = response.read(ET_OPEN_MAX_BYTES + 1)
+        if len(data) > ET_OPEN_MAX_BYTES:
+            raise ValueError("ET-Open-Archiv groesser als 60 MiB")
+        domains = parse_et_open_domains(data)
+    except (OSError, urllib.error.URLError, tarfile.TarError, ValueError) as error:
+        print(f"::warning ::ET-Open-Abruf fehlgeschlagen ({type(error).__name__}: {error}); bisherige Liste bleibt")
+        return False
+    print(f"  ET Open: {len(domains)} Domains aus MALWARE/PHISHING/... DNS-Regeln")
+    return write_domain_list(
+        "et_open", "et_open_domains.txt",
+        "Emerging Threats Open - Domains aus DNS-Regeln (MALWARE, PHISHING, MOBILE_MALWARE, EXPLOIT_KIT, CURRENT_EVENTS)",
+        ET_OPEN_URL, domains, now_str)
+
+
+def update_fritzbox(now_str: str) -> bool:
+    """Eine Datei fuer die FRITZ!Box (nur 2 Filterlisten moeglich):
+    ThreatFox-Domains + ET-Open-Domains zusammen, aus den aktuellen Dateien."""
+    threatfox = read_existing("threatfox_domains.txt") or set()
+    et_open = read_existing("et_open_domains.txt") or set()
+    combined = threatfox | et_open
+    print(f"FRITZ!Box-Liste: ThreatFox {len(threatfox)} + ET Open {len(et_open)} = {len(combined)} Domains")
+    if not threatfox or not et_open:
+        print("::warning ::FRITZ!Box-Liste: eine Quelle fehlt - bisherige Datei bleibt")
+        return False
+    return write_domain_list(
+        "fritzbox", "fritzbox_domains.txt",
+        "NETSHIELD FRITZ!Box-Filterliste: ThreatFox + Emerging Threats Open",
+        "dns/threatfox_domains.txt + dns/et_open_domains.txt", combined, now_str)
+
+
 def main() -> int:
     now = datetime.now(timezone.utc)
     now_str = now.astimezone(ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d %H:%M %Z")
@@ -781,6 +868,9 @@ def main() -> int:
 
     print("ThreatFox Domain-IOCs und C2-IPs ...")
     results["threatfox"] = update_threatfox(threatfox_keys(), now, now_str)
+
+    results["et_open"] = update_et_open(now_str)
+    results["fritzbox"] = update_fritzbox(now_str)
 
     ok = [name for name, done in results.items() if done]
     print(f"\nFERTIG: {len(ok)}/{len(results)} Listen aktualisiert ({', '.join(ok) or '-'})")
