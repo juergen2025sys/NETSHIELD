@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-24 13:51 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-24 14:17 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,201,943** |
-| Neu (heute) | **+59** |
-| Entfernt | **-28** |
+| Gesamt IPs | **1,201,946** |
+| Neu (heute) | **+35** |
+| Entfernt | **-32** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 44 |
@@ -25,16 +25,16 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,488 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,802 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,895 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,093 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 401 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 2,777 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 3,345 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 430 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,041 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 1,004 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 953 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 532 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 534 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 449 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 302 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 989 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 551 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 514 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 416 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 262 |
 | ✅ `ercindedeoglu_proxies` | 54,968 |
 | ✅ `ercindedeoglu_proxies_socks4` | 18,974 |
 | ✅ `ercindedeoglu_proxies_socks5` | 20,600 |
@@ -69,4 +69,4 @@
 > Diese 44 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-24 13:51 CET (Europe/Berlin)*
+*Generiert: 2026-11-24 14:17 CET (Europe/Berlin)*
