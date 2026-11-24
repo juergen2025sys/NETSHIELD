@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (Full-Export + Recent-API)
-# Aktualisiert: 2026-11-24 11:58 CET
-# Eintraege: 32115
+# Aktualisiert: 2026-11-24 13:50 CET
+# Eintraege: 32134
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -782,6 +782,8 @@
 4585d800.eveningneighbor.com
 45b54h98.bossbeyonline.click
 45cbh9h6.liketudong.biz
+45dogcatmouse.net
+45mousestripdog.net
 45vpt6bf8rlh.hellodcuser.com
 45w62lk5.bossbeymega.click
 45x6vzup.bossbeyplace.click
@@ -1557,7 +1559,9 @@
 94lxmbqa.ecoshoreline.org
 953k25jr.kcmotorsllc.com
 954591cm.nyashsens.top
+95catsharkboss.net
 95ux6wlidu.workers.dev
+95wormbiggan.net
 960gz3a6.bossbeycity.click
 96e0qwgn.hero--up.com
 96mjt1sb.axee.net
@@ -4351,6 +4355,7 @@ bgtwfmx.rikashart.com
 bguhecd.beshnoinja.ir
 bgxngll3.douit.nl
 bgzdrdniv.venus90bet.com
+bh9xacbp.thepparatlodge.com
 bhagatiis.com
 bharatlivestock.online
 bharatlivestock.org
@@ -7272,6 +7277,7 @@ d0658smb.gamelandiran.ir
 d0c2wgj1.pczrt.hu
 d0jft8en.gtacauto.com
 d1.arema39.org
+d1.autoslot.cc
 d15aa.org
 d1jtbg8r.node-matrix.digital
 d1muwuka.frameless1.shop
@@ -10467,6 +10473,7 @@ flux45r.lunave5.bet
 flvux.tattoo
 fly.wiwgf.workers.dev
 fly88-l.com
+flybeebox.fun
 flybirdfoundation.com
 flybuilt.eu
 flyersholding.com
@@ -12607,6 +12614,7 @@ hexesq.cyou
 hexforge.cc
 hexxion.com
 heydear.duckdns.org
+heysunlab.fun
 hezu.life
 hf0gzeo.scient-telograyka.lat
 hf98x4d.site
@@ -16303,6 +16311,7 @@ localhost247.org
 localhost4000.fun
 localhost8000.fun
 locanto.cam
+location-compte-agence.com
 locationdevoitureessaouira.com
 lochnesshunters.com
 lockbit7z2mmiz3ryxafn5kapbvbbiywsxwovasfkgf5dqqp5kxlajad.onion
@@ -19462,6 +19471,7 @@ o62u0.icu
 o656aeo7.en-en-us-biobooster.com
 o6h0n635.shop-theslimsplitsmethod.us
 o6k7lcz5.shartbazi.net
+o6r949b6.termpaperwritinglab.com
 o72vyfqo.collegedemocratsil.com
 o74y80h4.myinstapage.com
 o7tyz0a3.pura--boost.us
@@ -20654,6 +20664,7 @@ perfectgameiran.com
 perfectgo.top
 perfectgrillguide.com
 perfectgrillsecrets.com
+perfecthouseltd.in
 perfectpitmaster.com
 perfume-casablanca.com
 perfume-essence.com
@@ -21760,6 +21771,7 @@ q43myq5p.parsbet90.com
 q4c08cds.tafti.store
 q4matles.us-theeloncode.com
 q4ylri6k.1000shart.xyz
+q5.autoslot.cc
 q56x2p00.us-en-us-synaboost.com
 q5tb6pspk3ndnjb3hrjncxwjhcbdjs3gneyucav5nniv4zj7od5tehad.onion
 q6.aromattoto.org
@@ -26311,6 +26323,7 @@ termeroseo.com
 terminalbrewmac.com
 termiteuslbumdge2zmfmfcsrvmvsfe4gvyudc5j6cdnisnhtftvokid.onion
 termos24.pl
+termpaperwritinglab.com
 terporten.nl
 terraincastlerock.com
 terrains-a-vendre.ch
@@ -26329,6 +26342,7 @@ test.227api.com
 test.98web.eu.org
 test.accendente.tn
 test.adriance.workers.dev
+test.beibu.de5.net
 test.dnslogger.site
 test.fbmeliquidation.com
 test.kilnteam35.click
@@ -26499,6 +26513,7 @@ theoutspokeninvestor.com
 theparentcompanyindia.com
 thepdfsoftsetup.com
 thepowersofconnection.com
+thepparatlodge.com
 thequarterlymethod.com
 thequeenofesteem.com
 therapygeorgia.com
@@ -27390,6 +27405,7 @@ ueoqlpahabibi.com
 uepkhpbf.zen-sulin.com
 ueplmeq.vivmart.com
 ueppwtrkonujissbbl.web-ignitra.us
+uerp.com
 uewtda.wavelu.com
 ueyhxow.eng--echoxen.com
 uf3hzwgi.enus-glucore.com
@@ -28010,6 +28026,7 @@ v2puzhht3hgoduknhwjy6gpc4ylcgnkjepqhpzcmzx2qrj3ibwnicqyd.onion
 v2wiot8t.usa-trumptoken.com
 v2y2nkzm.manchester1.site
 v2zz7b4w.zodi.store
+v3.asianwins.com
 v33c66mq.zabanhaggani.shop
 v33nfut7.elipsbet.poker
 v38e4zrp.adminbigprint.com
@@ -28840,6 +28857,7 @@ w.bosmj.org
 w.dog69.net
 w.gg018.org
 w.gpy88.org
+w.hlo88.org
 w02eza6e.plinkoirani.com
 w0a86nbg.eng--neurowave.com
 w0r1t50n.seresniki.com
@@ -29775,6 +29793,7 @@ www.briannacrawford.com
 www.buccarella-sicherheit.com
 www.build-graphic.com
 www.bulletproofbabes.net
+www.bvsc.top
 www.bytecraftid.com
 www.bythebellboxing.com
 www.c1s.su
