@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-11-24 02:54 CET (Europe/Berlin)
+Lauf: 2026-11-24 03:42 CET (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -95,15 +95,15 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📉 -14,849 (Rückgang) (jetzt 11,255,087 IPs)
+- Seit letztem Lauf: ➡️ unverändert (jetzt 11,255,087 IPs)
 - Seit Zyklus-Start (2026-11-21): 📉 -17,123 (Rückgang)
 - Letzter combined-Cleanup-Pass: 28,303 IPs durch Ablauf entfernt (davon 2,000 Watchlist/30T, 26,303 Active/180T), 914,670 neue IPs hinzugekommen (davon 805,668 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 86 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 108,052 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 6,343,809 (Summe 7 verschiedene Combined-Läufe in den letzten 8 Prüfläufen / ~24h; vor dem Aufnahme-Filter gezählt)
+- Neue IPs (Summe letzter Läufe): 5,440,215 (Summe 6 verschiedene Combined-Läufe in den letzten 8 Prüfläufen / ~24h; vor dem Aufnahme-Filter gezählt)
 - Entfernte IPs (abgelaufen): heute 28,303 | gestern 27,498 (Kalendertag, aus Ablauf-Ledgern)
   - davon Watchlist/30 Tage: heute 2,000 | gestern 2,000
   - davon Active/180 Tage: heute 26,303 | gestern 25,498
-- Netto-Wachstum (~24h): 📉 -4,680 (~24h) ⚠️ **schrumpft aktuell netto** - mehr entfernt als neu aufgenommen
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-11-22T19:58 bis 2026-11-24T00:40 UTC
+- Netto-Wachstum (~24h): 📉 -7,840 (~24h) ⚠️ **schrumpft aktuell netto** - mehr entfernt als neu aufgenommen
+- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-11-23T01:32 bis 2026-11-24T02:35 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
@@ -126,3 +126,4 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-11-23 14:54 CET (Europe/Berlin) | 11,269,936 | 18131 | 4341947 | 0 |
 | 2026-11-23 15:28 CET (Europe/Berlin) | 11,269,936 | 18131 | 4341947 | 0 |
 | 2026-11-24 02:54 CET (Europe/Berlin) | 11,255,087 | 18046 | 4368074 | 0 |
+| 2026-11-24 03:42 CET (Europe/Berlin) | 11,255,087 | 18046 | 4368074 | 0 |
