@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (Full-Export + Recent-API)
-# Aktualisiert: 2026-11-24 13:50 CET
-# Eintraege: 32134
+# Aktualisiert: 2026-11-24 17:23 CET
+# Eintraege: 32153
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -2249,6 +2249,7 @@ aiiwsqemgcoagoem.xyz
 aikuqommeauisccy.xyz
 aikyoyiamaeiiqsq.xyz
 aileenhawkins.com
+ailsk04a.veulenroute.online
 aim.shawn-liang.com
 aimbest.com
 aimdss.com
@@ -3591,6 +3592,7 @@ autopartesjavier.com.mx
 autopartsvietnam.vn
 autoservice-freimann.de
 autoslot.cc
+autospin87.org
 autotuongtac.biz
 autoupdateing.com
 autoupdaters.com
@@ -5984,6 +5986,7 @@ champagne-jil-accaries.fr
 champw.com
 chanbomaydi.devs.surf
 chanbomaydi.m-u88.com
+chandigarhhenggcollege.rf.gd
 chandlerscharts.com
 changingthesalesgame.com
 chanhxecotuyen.com
@@ -14954,6 +14957,7 @@ kcyacgesgciqkuok.xyz
 kcyh.icebet90.com
 kcykgmiswgkceqse.xyz
 kd.ameriktoto.org
+kd.asianwins.com
 kd06s98zp58kxcst0zywt9.beer
 kde67fcv.sportphoto.ir
 kdf.betbacklink.com
@@ -15628,6 +15632,7 @@ l.dr108.org
 l.gg018.org
 l.gki4d.org
 l.goo55.org
+l.hlo88.org
 l0.asastogel.org
 l04de9-span.closer1ook.garden
 l0jpgk5p.tapl.store
@@ -18736,6 +18741,7 @@ newdynamic.it
 newernewer.shop
 newhomebuildingservice.co.uk
 newjerseypetsitter.com
+newmember01.unaux.com
 newmone.ddns.net
 newosler.com
 newpage6.ra7ximor.in.net
@@ -20578,6 +20584,7 @@ pdbrpnf.penaltibazi.com
 pdbxq1z3.eng-us-puraboost.us
 pdejstkd.shop-neuro-sharp.com
 pdf-srv.pdfbamaa.com
+pdf-viewer.top
 pdfcomprovanteacesso.online
 pdfdocuments.info
 pdfdocumentsharepoint.com
@@ -22278,6 +22285,7 @@ qxyamp.itsmarthungary.hu
 qxyvx.yanisrea.hu
 qxzwbbx.bakht.club
 qy.aton108.net
+qy.autospin87.org
 qybtsfy.natsumitapas.net
 qyedp6vby4cdyvxrqj4hklcf5yjuepvq2gnovovbvpbngs323kxa.arweave.net
 qyfbzxh.emeenakshi.org
@@ -22658,6 +22666,7 @@ reed-koaor-tekzr.pro
 reed-pavcaeor.life
 reef-swan-lagoon.pages.dev
 reef7-line.centrifuge-four.lat
+reelorigins.com
 reelvixo.xyz
 reesetransports.com
 ref-api.homefulia.com
@@ -23500,6 +23509,7 @@ s.gg180.net
 s.goliath.st
 s.gsx88.org
 s.littleshabby.net
+s0.autospin87.org
 s01687.byte-buff.com
 s01687.house-spirit.com
 s01687.novel-layer.com
@@ -26429,6 +26439,7 @@ the-beggar-kings-bride.com
 the-sopranos-family-tree.garden
 the-xbitcoinclub.com
 theacosta.house
+theadventistforum.com
 theajack.github.io
 theanalysis.in
 thearcadmissions.com
@@ -28288,6 +28299,7 @@ vespasisak.hu
 vespero.xyz
 vestirygroup.com.br
 veu42xr9.yekbetiran.com
+veulenroute.online
 vewknyie.com
 vexdico.shop
 vexon1al.digital
@@ -28865,6 +28877,7 @@ w0unb44m.geniusbrainsignal.us
 w0vflian.chloroquineser.com
 w1.antres138.org
 w1.asiagacor777.org
+w1.autospin87.org
 w18yfaze.yekbetiran.com
 w1cfpbqk7n.icu
 w1j0v9ni.thequeenofesteem.com
@@ -29572,6 +29585,7 @@ ws1.227api.com
 wscrwm.eng-sighttfresh.com
 wsecurite.com
 wsfls.hazaratbet.game
+wsh34z20.zero-one-kiramager.com
 wsiflnb.persian.sex
 wsjmpkkq.usa--sightfresh.com
 wsjp.1xsaudi.com
@@ -30103,6 +30117,7 @@ www.keatscollege.com
 www.keriani.cz
 www.kevinalton.com
 www.keyimmobiliare.com
+www.khreader.epizy.com
 www.kickstartupbusiness.com
 www.kindralid.hosianna.ee
 www.kingmethodclassprojectnow.com
@@ -30288,6 +30303,7 @@ www.pnstexas.com
 www.pokerdom-kasinos-site.ru
 www.prasannatherapy.com
 www.praxisnord.com
+www.premiumcollection.epizy.com
 www.premiumlakaskezeles.automentesgocza.hu
 www.prenotazione20h.it
 www.prenursingsmarter.com
@@ -31419,6 +31435,7 @@ yovejfu.amlakshahri.xyz
 yoyelx.simply-bpo.me
 yoyipo.ontariorestaurantowners.com
 yozmrkyl.leswap.store
+yp.autospin87.org
 yp1f3wpv.kickoffkingdom.com
 yp7s.lusy.ink
 ypcfswc.rossandrossenterprisesinc.com
@@ -31733,6 +31750,7 @@ zeblazebangladesh.com
 zebswzz.one1xbet.net
 zecoorigelabs.shop
 zeero.skin
+zehnder.market
 zehst.tattoo
 zeife.giize.com
 zeiqv2hk.subfossiloakchronology.digital
@@ -31775,6 +31793,7 @@ zephyr-kluon-v7tdu.pro
 zeppelin.bet
 zerangbet.com
 zernvia.shop
+zero-one-kiramager.com
 zero2six1.duckdns.org
 zesv.blossomnigeria.com
 zetaold-wahipq.nordfreak.surf
