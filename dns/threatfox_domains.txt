@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (Full-Export + Recent-API)
-# Aktualisiert: 2026-11-24 03:28 CET
-# Eintraege: 32059
+# Aktualisiert: 2026-11-24 05:19 CET
+# Eintraege: 32067
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -3575,6 +3575,7 @@ autoflotte-vergabe.de
 automated-sprout-labs.garden
 automatizalas.szily.hu
 autonomoamin.com
+autooris77.org
 autopartesdonjulian.com
 autopartesjavier.com.mx
 autopartsvietnam.vn
@@ -7095,6 +7096,7 @@ cuadrante7.mx
 cuajsf.racines.restaurant
 cube-60.com
 cubgalaxy.com
+cubitnet.xyz
 cucnczaq.testdrivepaye3.com
 cucumb.cyou
 cucumber-oslo.cc
@@ -7316,6 +7318,7 @@ dadc.noip.at
 dadhettniaedas.com
 dadshirts.net
 daerk.tattoo
+daf.asdselot.org
 daf.bet
 daffe2.xyz
 daftarbolapro.click
@@ -12609,6 +12612,7 @@ hftplcnsns.beer
 hfwex7a5.josephmichaelnh.com
 hfy48lay.cloud-orbit.digital
 hg.aretabetlink.org
+hg.autooris77.org
 hgbyapzpe.derbi.football
 hgdiucl.iranwp.ai
 hgdktvy.audeezen.com
@@ -19100,6 +19104,7 @@ noveuam.top
 novo.sicilianobalancas.com.br
 novtelyx.cc
 now-we-wait.com
+nowfromhome.com
 nowhere-locked-manor-hs.trycloudflare.com
 nozeunl.xfgautoparts.com
 np.akun258.org
@@ -20466,6 +20471,7 @@ pattigame.co.in
 patxisdublin.com
 patzcuaro.gob.mx
 pauheuld.questionsmotor.xyz
+paulmccartneylookalike.com
 pav4lirex.digital
 pava21r5.slimsplits.com
 pavementmg.duckdns.org
@@ -21734,6 +21740,7 @@ q6972jc6.powershart.com
 q6b5duw2.zubu.store
 q6ewl5b2.casinokade.online
 q6p4rp08.web-zensulin.com
+q7.hkb7.org
 q7alfk3i.ular.store
 q7me81i7.jadoou.xyz
 q7ufuwnu.en-trump-token.com
@@ -31778,6 +31785,7 @@ zigbee.eastus.cloudapp.azure.com
 zigelpi12.life
 zigeoavk.jadoou.click
 zigfree.eastus.cloudapp.azure.com
+ziggimfk.paulmccartneylookalike.com
 zijas.5toravex.lat
 zijgmuqjzb6dc7pofxhtaiz36qqyg35lhutybmzaz6whzgei2casjgid.onion
 zim-h2.com
