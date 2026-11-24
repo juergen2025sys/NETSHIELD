@@ -1,7 +1,7 @@
 # Title: Stamparm Maltrail Trails - malicious (DNS-only)
 # Quelle: https://github.com/stamparm/trails/tree/main/malicious
-# Aktualisiert: 2026-11-23 00:46 CET
-# Eintraege: 226179
+# Aktualisiert: 2026-11-24 03:28 CET
+# Eintraege: 226188
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 0-4.top
@@ -43810,6 +43810,7 @@ cdn.dvielec.bar
 cdn.dvrandot.store
 cdn.dvtmob.shop
 cdn.dzeeusa.cfd
+cdn.dzeeusa.help
 cdn.eats365.click
 cdn.echoenabled.com
 cdn.ecosustain.digital
@@ -44739,6 +44740,7 @@ cdn.ribber.xyz
 cdn.richen.club
 cdn.rifpiit.quest
 cdn.rijtech.shop
+cdn.rimzoneonline.cfd
 cdn.rithdigit.cyou
 cdn.rivtec.online
 cdn.rivtek.click
@@ -62031,6 +62033,7 @@ deathmatchuk.com
 deathnine.gdn
 deathodds.bid
 deathvice.bid
+deatosa.com
 deb1t.1-byhih-05-ey.ru
 debans.live
 debate-hub.dialectonforge.in.net
@@ -70478,6 +70481,7 @@ dz65tjrl.sunbit.digital
 dz9gfvy4.a5hsuper1or.ru
 dzed1.dzed.xyz
 dzeeusa.cfd
+dzeeusa.help
 dzek.learnzonekey.monster
 dzelonline.shop
 dzem-4.ru
@@ -144978,6 +144982,7 @@ nyxafini.workers.dev
 nyxar.sbs
 nyxar.website
 nyxen.bond
+nyxen.surf
 nyxfathz.joggedyankedtetrao.ru
 nyxion.cfd
 nyxtron.online
@@ -151109,6 +151114,7 @@ paperypaper.icu
 papest.live
 papex.live
 papfirehas.live
+papheco.shop
 paphoolred.com
 papi.fooz.eu.org
 papiashvili.top
@@ -168704,6 +168710,7 @@ rimpstatic.net
 rimstarintl.com
 rimtankship.live
 rimtefun.live
+rimzoneonline.cfd
 rinabewo.allserial.icu
 rinbang.xyz
 rinconsaludables.click
@@ -174014,6 +174021,7 @@ scanwills.win
 scapfl.org
 scappare-ascoltarebraccio.icu
 scaraabresearch.com
+scarandcas.com
 scarasiltandiarteroken.assinc.live
 scarborough-fair-jp.zpodcdn.icu
 scarcesociety.shop
@@ -208754,6 +208762,7 @@ vexum.kobeonline.icu
 vexviro.cfd
 veygo-auth.com
 veynor.click
+veyro.buzz
 veyron.cfd
 vezanory.my
 vezaratshart.com

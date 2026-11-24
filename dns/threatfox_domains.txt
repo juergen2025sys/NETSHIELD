@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (Full-Export + Recent-API)
-# Aktualisiert: 2026-11-24 01:41 CET
-# Eintraege: 32034
+# Aktualisiert: 2026-11-24 03:28 CET
+# Eintraege: 32059
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -655,6 +655,7 @@
 3a45ds92.zen--sulin.com
 3agcohuj.peaceinwarr.net
 3awswdxc.mav2lorix.lat
+3aymn8vx.zuppy.store
 3b213f9c.lionsport.ir
 3b7ed5ab.imzural.info
 3bjguds4.eng--glycofree.com
@@ -1884,6 +1885,7 @@ acarmanken.com
 acbt8fx6.crownconnectpk.com
 acc.v-panel.asia
 acce1eratpacify.digital
+accelerated-ga.com
 accesoriidegradina.ro
 accesscovidtest.com
 accesscovidtests.com
@@ -3336,11 +3338,13 @@ asiancoastal.com
 asiancon.com
 asianorthopaedic.com
 asiantoto88.org
+asiioasdjasiojasodijasa.eastus.cloudapp.azure.com
 asimo.store
 asioklaydpory.com
 asion.gr
 asistenciatecnica24.com
 asiudasoidu.90g90.com
+asjenfasjknfka.me
 ask.shurimaster.com
 askgeoffrey.ai
 askhakim.com
@@ -4627,6 +4631,7 @@ blog.kibotics.org
 blog.kunikiya.jp
 blog.maistocadas.top
 blog.metroo.es
+blog.mocsolucoes.com.br
 blog.paipweb.com
 blog.publiregal.es
 blog.universe-edge.ru
@@ -5378,6 +5383,7 @@ bzwbfps.winxbet.co
 bzxlc31w.ghostnode.us
 c-proxy-xjmkjgbsdn.cn-hangzhou.fcapp.run
 c.360ctct.com
+c.alibaba-cloud.cloud
 c.anakraja87.org
 c.antres138.org
 c.apisyncs.com
@@ -6087,6 +6093,7 @@ chocolatdemodica.fr
 chocolate412932.icu
 chocolatemilf.fun
 chocolaterie-gayraud.live
+choi-co-caro-di.netlify.app
 choiceqlube.com
 choiceweddingsandevents.com.au
 chordapple.com
@@ -7177,6 +7184,7 @@ cxwqtlc8.asibshenasiyahya.shop
 cy.27trans.org
 cy.5-rt.org
 cy.angkt777.org
+cy.asiantoto88.org
 cy9.narahtech.com
 cyanjustina.workers.dev
 cybede.wiki
@@ -8533,6 +8541,7 @@ dynsys.is-a-guru.com
 dynven3um.pixelnode.lat
 dyqanvdt.betfidokade.com
 dyshatilo.com.ua
+dysols.com
 dysphoria.androiddebugbridge.su
 dytpelinsu.com
 dyzjs.gepco-energy.com
@@ -12920,6 +12929,7 @@ houstonhealthysmartmart.com
 houtbriketten.net
 hov.multiatend.com.br
 howgsr7.porukau8ar.lat
+howp.store
 howtodisappearcompletely.zip
 howtoexplainer.com
 howtomovies.biz
@@ -14724,6 +14734,7 @@ k.dak69.org
 k.dewii.net
 k.gg018.org
 k.hino9.net
+k.hkb7.org
 k.upgrades.lat
 k.worldpress.biz
 k0.amanplya.org
@@ -15347,6 +15358,7 @@ kosewkiogowqaoeo.xyz
 kosgukmymeuiwqua.xyz
 kosigsqigeqquciq.xyz
 kotik.store
+kotodver.shop
 kotoyk.shop
 kouigaggmiqugaku.xyz
 kovacsago.com
@@ -16076,6 +16088,7 @@ limous-nitout.digital
 linanil.com
 lindenplumb.top
 lindgk.biz
+lineeryapi.com
 linen-harbor.com
 linenquill.com
 linenwood.cc
@@ -17414,6 +17427,7 @@ mfv28o7o.get-cardioslim.com
 mfvea.bognartransport.hu
 mfwasia.com
 mfwhezll.gift-lattice.christmas
+mg.auto6slot.org
 mg0bl3r5.zaribbala.bet
 mg7upxjmhxcgark3td4nqhvwhuryjcrn2vbgkd7rss5jbyf2zmv6y4qd.onion
 mgbkbp4b.enus-tupitea.com
@@ -18684,6 +18698,7 @@ newbiesemberbk.duckdns.org
 newcoservicemower.com
 newdnsglobaldns.duckdns.org
 newdynamic.it
+newernewer.shop
 newhomebuildingservice.co.uk
 newjerseypetsitter.com
 newmone.ddns.net
@@ -20536,6 +20551,7 @@ pdubvw.vitalmarkings.net
 pdyer.bmiroda.hu
 pdzb.pdfbama.com
 pdzsnweqtctrtqobt.grannysgummies.com
+pe.auto6slot.org
 peacefulacrestx.com
 peachbro.bond
 peacockhomes.net
@@ -22656,6 +22672,7 @@ relay.papuzziskreen.top
 relay.pettnittiprague.workers.dev
 relay.pronconetydesire.online
 relay.reelxgrab.cc
+relay.rolmasrong.online
 relay.serverkinetices.cfd
 relay.stingold.com
 relay0.aquadisplay.lol
@@ -23250,6 +23267,7 @@ rtplive-miliarbet.store
 rtplivepkrklik188.click
 rtslegaldocs.com
 rtvzcs.sultan88.live
+rtyudsa.shop
 rtzixna.site-shartbandi.christmas
 rtzj3f9c.glicomute.com
 ru.dakjdnwgnu.sbs
@@ -23776,6 +23794,7 @@ satta-king-11.site
 satyahglobals.com
 saudismc.com
 saurabhblogger.com
+save-money-explore-future.netlify.app
 saved4later.com
 savelogs.ooguy.com
 sawah.store
@@ -23848,6 +23867,7 @@ scottpwilliamslaw.com
 scottsdalemobilewindowtinting.com
 scottsdalevending.com
 scqhkd.seobulan.com
+scrapmetalbuyerksa.com
 scrbsmf.activebook.xyz
 scrd.fr
 screencard.wiki
@@ -23964,6 +23984,7 @@ securepathiul.life
 securequoteme.com
 securetds.beer
 securewebareaxxx.ddns.net
+security-pierce-ooyqjra-4yqud7qos27fo.us-4.platformsh.site
 securityalertcaptchacheck.com
 securitycompanymelbourne.com.au
 securitysur.info
@@ -25916,6 +25937,7 @@ t8d5qcrnupkve1x.icu
 t8y.arema39.org
 t92hw5pi.nazariyeyadgiri.xyz
 ta.aloytoto.org
+ta0of384.ceoinsurancecorp.com
 taabwk78.yanok.store
 taaeiuep.com
 taalswap.finance
@@ -27671,6 +27693,7 @@ urvvoj7wlkh476p2tgntzez3nuke2ylfdkekpnkajxfz43o7jqkokeyd.onion
 urzsxn.usa--burnflow.com
 us-addnewdevice.com
 us-audizenn.com
+us-beacon.globaltrading-fr.com
 us-clio.com
 us-en-nervesoothe.com
 us-en-pegasus.com
@@ -29616,6 +29639,7 @@ www.9vlqt9g3n0ijfbrs.info
 www.a-imagine.co.ke
 www.a0zajmpz4610-sdfbt.cc
 www.a4ngg3ua.space
+www.aatias.co.il
 www.abvision.cam
 www.accarda.com
 www.accessrxhealth.com
@@ -31964,6 +31988,7 @@ zujqygdq.sakhtemandade.shop
 zuldqm04.riyaziyattajrobi.xyz
 zumil.run
 zuodx.com
+zuppy.store
 zurggoyttjof21.cc
 zuvofzppp.hoehnacura.com
 zuvul.run
