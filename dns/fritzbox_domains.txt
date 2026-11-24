@@ -1,7 +1,7 @@
 # Title: NETSHIELD FRITZ!Box-Filterliste: ThreatFox + Emerging Threats Open
 # Quelle: dns/threatfox_domains.txt + dns/et_open_domains.txt
-# Aktualisiert: 2026-11-24 19:12 CET
-# Eintraege: 35685
+# Aktualisiert: 2026-11-24 22:38 CET
+# Eintraege: 35724
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -335,6 +335,7 @@
 1p6kkehfjfb2s.net
 1pbwy4ua.yellohotelsharmoni.com
 1profitdeal.com
+1q1gvm22.theyellowkitchen.com
 1q4l6c52.georgelounge.bar
 1qmi6vxn.hesabdarinoravesh.xyz
 1qvrznky.runtimebeacon.top
@@ -1836,6 +1837,7 @@ a6dz9tb6oicn.app
 a6m1n.xyz
 a6pj4d7y.libersity.mx
 a6ybbuqh.eaglepasstoday.com
+a79ep76b.webxpros.com
 a7b37115ce3cc2eb.com
 a7nou50uk9.workers.dev
 a7px1y1v.container-pulse.digital
@@ -2318,6 +2320,7 @@ agelesstrainer.com
 agence.adafri.co
 agenciaciis.com.br
 agenciadigitallord.com.br
+agenciafexi.com.br
 agenciamazzucca.com.br
 agenciaopen.com
 agendaris.org
@@ -2714,6 +2717,7 @@ almacenoporto.com.co
 almafood.net
 almarsagroup.ae
 almatart.pl
+almatfant.top
 almersalstore.com
 almond.oppa.page
 almondmegaron.org
@@ -2992,6 +2996,7 @@ ankasanet.org
 ankasanet4drtp.org
 anlytic-js-cloud.beer
 anm0n19x.7flex.store
+anme.epizy.com
 annamirror.design
 annastawecka.pl
 annecy-bnb-conciergerie.fr
@@ -4064,6 +4069,7 @@ axelkim.com
 axellcnge.cfd
 axes.endl.site
 axeypjx.eng-us-us-sugarmute.com
+axiat4d.org
 axidom.biz
 axifkc.snaptigen.com
 axile.su
@@ -4338,6 +4344,7 @@ balimeditation.com
 baliventur.com
 ballad82.com
 balladquartz.com
+ballll.click
 ballyflush.us
 balp.run
 balsamdolmen.org
@@ -5177,6 +5184,7 @@ blog.metroo.es
 blog.mocsolucoes.com.br
 blog.paipweb.com
 blog.publiregal.es
+blog.thecursedgroup.rf.gd
 blog.universe-edge.ru
 blogcenter.site
 blogforge.vu
@@ -7137,6 +7145,7 @@ cloudelivrenterprise.com
 cloudenterprise26.com
 clouderfaster.cc
 clouderrtufjcb.cc
+cloudfiare-verification.app
 cloudfiare-verification.cc
 cloudflare-check.cfd
 cloudflare-check.net
@@ -7168,6 +7177,8 @@ cloudscomputers.com
 cloudsenterprise2026.com
 cloudsflere.agency
 cloudsnewenterprise.com
+cloudstat-api.buzz
+cloudstat-api.top
 cloudsteamview.com
 cloudsupergatekeeper.com
 cloudteams-bookings.com
@@ -8235,6 +8246,7 @@ daitalh.ml
 dak69.org
 dakareypa.ru
 dakindsoups.com
+dakjdnwgnw.sbs
 dakk5rnsax46s.cfc-execute.su.baidubce.com
 dallas.baltos.online
 dallasirrigationservices.com
@@ -8333,6 +8345,7 @@ datadevfuture.buzz
 datadock.info
 datadrivendreamers.com
 datafetch.cc
+dataflow-hub.work
 datafluxworker.system-telemetry.workers.dev
 datahostunit.flex2node.surf
 datalink.one
@@ -11178,6 +11191,7 @@ fanavarsteel.com
 fancystraits.info
 fanlo.addmagad.com
 fanonlyatn.xyz
+fantalmat.top
 fantvk.top
 fao70xbsy9gff0ll.org
 faogw.bankefile.com
@@ -12326,6 +12340,7 @@ g0flf7f0.jet90betyek.bet
 g0nyy40c.swin9.store
 g0s5tsyj.theafribar.com
 g0vpt.nifatualiza.com
+g0w421b4.ztnightmares.com
 g0wpz7jh.packet-orbit.digital
 g1.antonhoki.org
 g1cdqpil.betzopoda.com
@@ -12366,6 +12381,7 @@ g70jv5jnisaopa3.top
 g76w2vqs.techvigilante.com
 g78mdqih.zere.store
 g8prthf3.flexumshop.shop
+g9.axiat4d.org
 g98546cg.beget.tech
 g9epkl53.site-asli-bedon-filter-1xbet.com
 g9h533a0.georgelounge.bar
@@ -12469,6 +12485,7 @@ gaqkweawewiyuimg.xyz
 gaqqqccykioaegss.xyz
 garagedoorskentucky.com
 garagedoorstexas.com
+garant-suisse.ch
 garciarico.com
 garden-82.com
 garden-sugizo.com
@@ -12739,6 +12756,7 @@ getdsmpros.com
 getdsmwebagency.com
 getdsmwebdevpros.com
 getec.site
+getfreecash.xyz
 getfreshnews.com
 getgoapi.cc
 getignitra.com
@@ -13523,6 +13541,7 @@ gstatic-node.io
 gsvkwg.lovesiloam.com
 gswa.bettertalentadvisors.com
 gsweeiu.betyekritzo.com
+gswiss.ch
 gsx88.org
 gt-tours.com
 gt5kq695.die-reformer.digital
@@ -14516,6 +14535,7 @@ hroffice.work
 hruieeoefeor.com
 hrunarqq.betraca.bet
 hruqsetf.jadoou.shop
+hrv.axiat4d.org
 hrv8ks0h.urgentblue.com
 hrwzfeq.eng-sleep-lean.us
 hrykp.varzeshlife.ir
@@ -16430,6 +16450,7 @@ jyhdzq.eng-us--goldalign.com
 jyheezbl.questionsmotor.xyz
 jyhgpvvuctpbssvdyr.brentwoodautoupholstery.com
 jyjev.run
+jym53dsk.theaeroartcompany.com
 jyp2epby.vajename.xyz
 jyqao0zu.pattysole.com
 jyrighxw.prozhedownload.net
@@ -18068,6 +18089,7 @@ llvwi.brssolar.hu
 llwin.co.com
 lm.aton108.net
 lm23tnez.egydes.com
+lmabagas.com
 lmarc.com
 lmat.sa.com
 lmc014command.com
@@ -18630,6 +18652,7 @@ m8.albino77.org
 m8fpbfz3.container-bridge.digital
 m8tjzg79.site-shartbandi-khareji.com
 m8to2gkj.hundred-years-old.digital
+m9y.asianwins.com
 m9zxgtiz.eng-usa-neurowave.us
 ma-pdffiller.lat
 ma1-pdffiller.lat
@@ -20934,6 +20957,7 @@ newcoservicemower.com
 newdnsglobaldns.duckdns.org
 newdynamic.it
 newernewer.shop
+newglnbsj.click
 newhomebuildingservice.co.uk
 newhost.hopto.org
 newjerseypetsitter.com
@@ -23027,6 +23051,7 @@ peddlingconjure.cc
 pedestriankodwu.xyz
 pedophile.onthewifi.com
 peedprexz.xyz
+peeetroooo.click
 peer.saintpetersburgresident.ru
 peercon.org
 peetg3pz.dentlprime.com
@@ -25646,6 +25671,7 @@ rize.lat
 rizvw.sanjeshravani.shop
 rj.akuatoto.net
 rj.amav5d.org
+rj.axiat4d.org
 rj9fhzwl.antava.store
 rjdg.bambatagear.com
 rjh4yjp2.shop-lipogummy.com
@@ -26160,6 +26186,7 @@ rzecbgjw.enfejartime.com
 rzhxtlcd.globepool.org
 rzmi7dyf.khive.store
 rzuwk0yv.spirosnet.com
+s-cube.pro
 s-p-o-o-f-e-d.h-o-s-t.name
 s.amper888.net
 s.angkt777.org
@@ -28267,6 +28294,7 @@ staging.amediatech.net
 staging.detectors-shop.com
 staging.lisadegen.de
 staging.physiciansforpeace.ph
+staging.uok.ac.rw
 stagneswv.org
 stakcl.com
 stake.libertariancounterpoint.com
@@ -29496,6 +29524,7 @@ the-sopranos-family-tree.garden
 the-xbitcoinclub.com
 theacosta.house
 theadventistforum.com
+theaeroartcompany.com
 theajack.github.io
 theanalysis.in
 theandersonco.com
@@ -29634,6 +29663,7 @@ theworldtales.com
 theworthz.com
 thewrayforward.com
 theyardservice.com
+theyellowkitchen.com
 thfn.jadoobet.pro
 thhcalzn.jam-jahani.com
 thi-revetement.com
@@ -31802,6 +31832,7 @@ vkg9h21t.eachway-multiplier.com
 vkgenuine.com
 vkgfakco.yan303.com
 vkjzbd.painting-ct.com
+vkkc.ru
 vkl3xfkp2vtpdzk7ohock3w2oiwwtvgnwbwvurrqafh5nhw23h43dbid.onion
 vkmz8u3b.enfejarkade.online
 vkoqp.accredit.hu
@@ -32451,6 +32482,7 @@ webupdateflow.com
 webuser.n1u89dhs.xyz
 webuytexashousesforcash.com
 webuyurcar.com.au
+webxpros.com
 webyek.com
 webyoutubeshop.com
 wecarehairstudio.com
@@ -32920,6 +32952,7 @@ wordpresslogin.kinsta.cloud
 workableefferz.click
 workan.ddns.net
 workcdnmass.beer
+worker-metrics.shop
 worker-net.com
 worker.ivoryboard.lol
 workerwing.net
@@ -33227,6 +33260,7 @@ www.b-ui75mia5005x0vinb.cc
 www.backup.masjidulemaan.com
 www.backus.myftp.name
 www.bacsontech.com
+www.bankcard.co
 www.basketball.co
 www.beerstreetfest.it
 www.benoitblein.net
@@ -33265,6 +33299,7 @@ www.cbdpurereview.com
 www.ccsavvocati.it
 www.ceenux.com
 www.cell-engineering.de
+www.celvas.com.pk
 www.cement-chemistry.com
 www.centroquirurgicointernacional.net
 www.ceylongemocean.com
@@ -33325,6 +33360,7 @@ www.debourg-joaillerie.fr
 www.dee8mobiledecorate.com
 www.delmonteschool.edu.gt
 www.dentandhail.com.au
+www.dentown.com.au
 www.devjyotghoshal.com
 www.dialogieuropaei.eu
 www.dietzel.info
@@ -33617,6 +33653,7 @@ www.maedso.com
 www.magazzino-elmarstone.com
 www.maidstoneremovals.co.uk
 www.makmigroup.com
+www.manazel-altareek.infinityfreeapp.com
 www.mansionhouse.gr
 www.mantovaimpresa.it
 www.maplezenith.live
@@ -33811,6 +33848,7 @@ www.runeliteplus.net
 www.s-w34iusuwt9mdjzen7b.live
 www.s4p5ms8r4z8907j9o.app
 www.sadcgov.net
+www.saharservices.com
 www.salesf0rce.club
 www.salon-new.ru
 www.sampladigital.com.br
@@ -35588,6 +35626,7 @@ zthayuyp.1x303.casino
 zthedtkr.1xbitkade.com
 zthnnrr.betistmobil.com
 ztlfqqk.1bahis.app
+ztnightmares.com
 ztnr4f37.overtheitgirl.com
 zto37lic.blenzador.com
 ztop.hazzaratbet.com
