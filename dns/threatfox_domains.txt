@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (Full-Export + Recent-API)
-# Aktualisiert: 2026-11-24 05:19 CET
-# Eintraege: 32067
+# Aktualisiert: 2026-11-24 07:33 CET
+# Eintraege: 32074
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -16,6 +16,7 @@
 00pq7d1j.1xboropartners.com
 00rr59n2.en-pegasus.com
 00vn1.top
+00yo0m32.zalfa.store
 015bj63k.parspoker90.com
 01ejjpa2.behtarin-site-shartbandi.com
 01h0oh62.www-glycofree.com
@@ -3374,6 +3375,7 @@ assetwaveapp.com
 assholesgonewild.info
 association.woman-boushin.com
 assurena.fr
+astana-city.club
 asterchildrenshoes.com
 asthadentalclinic2010.com
 astp.africa.com
@@ -12984,6 +12986,7 @@ hrykp.varzeshlife.ir
 hrzrcyvx.jdk-services.net
 hs.hangzhouzhiqi.com
 hs01.1zarelin.lat
+hs3ayvtg.nowfromhome.com
 hsa0rnvp.masukbendera.me
 hsab20.duckdns.org
 hsdav.stable-virtual-camera.com
@@ -19424,6 +19427,7 @@ o2w2806g.tagat120art.com
 o2yen35b.en-en--xenburn.com
 o3fs4mi0.little-spoken.digital
 o3rxmx6a.bestbusinessvoice.com
+o4.autooris77.org
 o4bkhohp.usa--thebrainsong.us
 o4epigrc.en-en--echofree.com
 o5.amarta89.org
@@ -21012,6 +21016,7 @@ plshousing.org
 plsleavemealone.com
 pluginyardware.com
 pluhabovra.info
+plumberparkercolorado.com
 plume-compass.com
 plumossuary.org
 plunder.nsupdate.info
@@ -24354,6 +24359,7 @@ shoprecommai.space
 shoprise57899321.shop
 shopsoleilcollective.com
 shopvumanhcuong.com
+shopwildwoven.com
 shore-leaf.pastor-publicist.lat
 shoreharbor9.com
 showerrepairsperth.com.au
@@ -31002,6 +31008,7 @@ y.gki4d.org
 y.gl111.org
 y.gpy88.org
 y0.angkt777.org
+y0.asiantoto88.org
 y01q42ad.theslimsplitsmethod.com
 y06e8hvi.proxyharbor.top
 y07kwey1.eng-us-zensulin.com
