@@ -1,6 +1,6 @@
 # Workflow Health Dashboard
 
-**Stand:** 2026-11-25 09:18 CET (Europe/Berlin)
+**Stand:** 2026-11-25 22:36 CET (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
@@ -8,34 +8,36 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 
 ## Letzte 24h
 
-- **Echte Combined-Runs:** 8 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 5
-- **Lucken (>210min zwischen echten Runs):** 0
+- **Echte Combined-Runs:** 9 / 8 erwartet
+- **Skip-Runs (Idempotenz-Guard):** 7
+- **Lucken (>210min zwischen echten Runs):** 1
+  - 2026-11-25 11:05 CET (Europe/Berlin) -> 2026-11-25 15:30 CET (Europe/Berlin) (265 min)
 
 ## Letzte 7 Tage
 
-- **Echte Combined-Runs:** 61
-- **Skip-Runs:** 47
-- **Fehlgeschlagene Runs:** 1
+- **Echte Combined-Runs:** 62
+- **Skip-Runs:** 46
+- **Fehlgeschlagene Runs:** 2
 - **Lucken >210min:** 8
 - **Groesste Lucke:** 2026-11-22 01:52 CET (Europe/Berlin) -> 2026-11-22 08:34 CET (Europe/Berlin) (401 min = 6h 41min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 275
+- **Watchdog-Laeufe insgesamt:** 271
 - **Watchdog-Fehler:** 0
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 52
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 53
 
 Letzte Watchdog-Eingriffe:
-- 2026-11-24 17:22 CET (Europe/Berlin) (Run #45436282440, Laufzeit 20m 3s)
-- 2026-11-24 19:55 CET (Europe/Berlin) (Run #45464678095, Laufzeit 19m 42s)
-- 2026-11-24 22:38 CET (Europe/Berlin) (Run #45493191744, Laufzeit 19m 9s)
-- 2026-11-25 01:55 CET (Europe/Berlin) (Run #45521788408, Laufzeit 19m 40s)
-- 2026-11-25 05:40 CET (Europe/Berlin) (Run #45548334374, Laufzeit 15m 56s)
+- 2026-11-25 10:50 CET (Europe/Berlin) (Run #45589223722, Laufzeit 15m 13s)
+- 2026-11-25 15:30 CET (Europe/Berlin) (Run #45634887853, Laufzeit 13m 59s)
+- 2026-11-25 16:58 CET (Europe/Berlin) (Run #45650104889, Laufzeit 18m 18s)
+- 2026-11-25 18:30 CET (Europe/Berlin) (Run #45665453973, Laufzeit 16m 8s)
+- 2026-11-25 20:27 CET (Europe/Berlin) (Run #45685443764, Laufzeit 19m 26s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
 - 2026-11-21 11:52 CET (Europe/Berlin) - cancelled - Run #44896391381 (2m 3s)
+- 2026-11-25 16:58 CET (Europe/Berlin) - failure - Run #45650104889 (18m 18s)
 
 ---
 
