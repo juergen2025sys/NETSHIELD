@@ -43,7 +43,13 @@ import ipaddress
 import json
 import os
 import sys
+import urllib.error
 import urllib.request
+
+# 2026-11-25: Hausregeln aus check_security_hygiene.py - atomare Writes und
+# SSRF-geschuetzte Downloads ueber die gemeinsamen Hilfsfunktionen.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from netshield_common import safe_urlopen, write_json_atomic, write_text_atomic  # noqa: E402
 from concurrent.futures import ThreadPoolExecutor
 
 SPAMHAUS_URL = 'https://www.spamhaus.org/drop/asndrop.json'
@@ -385,7 +391,7 @@ def fetch(url, timeout=60, tries=3):
     last = None
     for _ in range(tries):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=timeout) as r:
+            with safe_urlopen(url, headers=UA, timeout=timeout) as r:
                 if r.status == 200:
                     return r.read().decode('utf-8')
                 last = 'HTTP %s' % r.status
@@ -451,10 +457,7 @@ def main():
                  '# Spalten: ASN | IPs | Adressen | Dichte | schon gesperrt | Name | Quelle', '']
         for a, (nm, n, sz, d, why) in sorted(tf.items(), key=lambda x: -x[1][3]):
             lines.append('AS%d\t%d\t%d\t%.2f%%\t%s\t%s\t%s' % (a, n, sz, d * 100, 'ja' if a in asns else 'nein', nm, why))
-        tmp = os.path.join(OUT_DIR, 'threatfox_asn_kandidaten.txt.tmp')
-        with open(tmp, 'w') as f:
-            f.write('\n'.join(lines) + '\n')
-        os.replace(tmp, os.path.join(OUT_DIR, 'threatfox_asn_kandidaten.txt'))
+        write_text_atomic(os.path.join(OUT_DIR, 'threatfox_asn_kandidaten.txt'), '\n'.join(lines) + '\n')
         print('Dichte-Kandidaten: %d (davon noch nicht gesperrt: %d, ThreatFox %d / AbuseIPDB %d / threat.live %d'
               ' / Dataplane %d / Honeypot-Feeds %d / Honigtopf %d / FireHOL %d / CVE-Exploit %d / Bitwire %d) -> asn/threatfox_asn_kandidaten.txt'
               % (len(tf), len(tf_new), sum(1 for v in tf_new.values() if v[4].startswith('ThreatFox')),
@@ -494,10 +497,7 @@ def main():
         a = int(k)
         if a not in tf and a not in asns:
             held[a] = (e, age)
-    tmp = HOLD_FILE + '.tmp'
-    with open(tmp, 'w', encoding='utf-8') as fh:
-        json.dump(state, fh, indent=0, sort_keys=True)
-    os.replace(tmp, HOLD_FILE)
+    write_json_atomic(HOLD_FILE, state, indent=0, sort_keys=True)
     print('Haltezeit %d Tage: %d Netzbetreiber gemerkt, davon %d nur noch ueber die Haltezeit gesperrt'
           % (HOLD_DAYS, len(state), len(held)))
 
@@ -625,10 +625,7 @@ def main():
                n_spamhaus, len(bph_new), len(mt_new), len(bw_new), len(man_new), len(tf_new), len(risk_new), active))
 
     def write(name, body):
-        tmp = os.path.join(OUT_DIR, name + '.tmp')
-        with open(tmp, 'w') as f:
-            f.write(body)
-        os.replace(tmp, os.path.join(OUT_DIR, name))
+        write_text_atomic(os.path.join(OUT_DIR, name), body)
 
     write('asn_drop_ipv4.txt', head + '# IPv4-Netze: %d\n\n' % len(v4) + '\n'.join(map(str, v4)) + '\n')
     write('asn_drop_ipv6.txt', head + '# IPv6-Netze: %d\n\n' % len(v6) + '\n'.join(map(str, v6)) + '\n')

@@ -33,6 +33,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from netshield_common import (  # noqa: E402
     load_whitelist, load_fp_set, is_in_fp_set, is_whitelisted,
     is_protected_entry, is_valid_public_ipv4, write_ip_list,
+    safe_urlopen,  # 2026-11-25: SSRF-geschuetzt statt rohem urlopen
 )
 
 SOURCES = {
@@ -74,7 +75,7 @@ def fetch(url, timeout=60, tries=3):
     last = None
     for _ in range(tries):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=timeout) as r:
+            with safe_urlopen(url, headers=UA, timeout=timeout) as r:
                 return r.read().decode('utf-8', 'ignore')
         except Exception as e:  # Netzwerkfehler -> erneut versuchen
             last = e
