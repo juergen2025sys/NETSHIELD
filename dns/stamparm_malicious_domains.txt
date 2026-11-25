@@ -1,7 +1,7 @@
 # Title: Stamparm Maltrail Trails - malicious (DNS-only)
 # Quelle: https://github.com/stamparm/trails/tree/main/malicious
-# Aktualisiert: 2026-11-25 15:51 CET
-# Eintraege: 226266
+# Aktualisiert: 2026-11-25 18:30 CET
+# Eintraege: 226268
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 0-4.top
@@ -97493,6 +97493,7 @@ hidden-valoryx.digital
 hiddenalpha.so1verin.bet
 hiddenbyt.vex7lurin.in.net
 hiddenfeelings.life
+hiddenfox.shop
 hiddenframezone.top
 hiddenloopshadowcode.monster
 hiddenmeanings.life
@@ -129826,6 +129827,7 @@ marmosfinancial.com
 marniplib.live
 marnolutex.my
 marohay.top
+marokettis.xyz
 marooncloister.info
 marooneran.workers.dev
 maroonexpedition.tours
