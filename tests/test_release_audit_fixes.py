@@ -193,13 +193,30 @@ class AuditFixTests(unittest.TestCase):
                             return Response(b"{broken" if failure == "json" else b'{"error":"test"}')
                         body = [{"remote_host": ip} for ip in ips[:600]] if url.endswith("/bad-hosts") else []
                         return Response(json.dumps(body).encode())
+                    # 2026-11-25: Ein HTTP 429 merkt sich das Kontingent seit dem
+                    # Honigtopf-Umbau bis zum Ende des Tages in
+                    # state/honigtopf_quota.json. Jeder Teilfall startet daher mit
+                    # frischem Kontingent, sonst testet er nur "keine Credential".
+                    Path("state/honigtopf_quota.json").unlink(missing_ok=True)
                     with patch.object(nc, "safe_urlopen", side_effect=partial), patch("time.sleep"):
                         result = self.run_code("honigtopf.yml", "def api_get(", env)
+                    if endpoint.startswith("/bad-hosts/"):
+                        # FIX SVC-DEGRADE (honigtopf.yml, 2026-11-14): Ein
+                        # fehlgeschlagener Dienst-Abruf stuft den Lauf nur auf
+                        # LIGHT herab. Der Lauf gelingt, die bestehende Liste
+                        # bleibt per Merge vollstaendig erhalten (kein Schrumpfen).
+                        self.assert_run_ok(result)
+                        self.assertIn("herabgestuft auf Light", result[2])
+                        self.assertTrue(set(ips) <= self.rows("honigtopf_ips.txt"))
+                        for path, content in before.items():
+                            Path(path).write_bytes(content)  # Ausgangslage fuer den naechsten Teilfall
+                        continue
                     self.assertIsNotNone(result[1], result[2][-1000:])
                     for path, content in before.items():
                         self.assertEqual(Path(path).read_bytes(), content, path)
         # A complete successful sweep is allowed to remove genuinely absent IPs.
         ips = ips[:600]
+        Path("state/honigtopf_quota.json").unlink(missing_ok=True)  # neuer Tag / frisches Kontingent
         with patch.object(nc, "safe_urlopen", side_effect=api), patch("time.sleep"):
             self.assert_run_ok(self.run_code("honigtopf.yml", "def api_get(", env))
         self.assertEqual(self.rows("honigtopf_ips.txt"), set(ips))
