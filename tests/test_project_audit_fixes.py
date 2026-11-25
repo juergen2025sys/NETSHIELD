@@ -130,10 +130,16 @@ class ProjectAuditTests(unittest.TestCase):
         return result, paths, before, calls, old
 
     def test_geo_partial_failure_preserves_all_outputs_above_minimum(self):
-        result, paths, before, calls, _ = self.geo(503)
-        self.assertIsInstance(result[1], RuntimeError)
+        # 2026-11-25: Seit dem Bestands-Rueckfall (update-blocklist.yml, 21.11.2026)
+        # bricht ein einzelnes dauerhaft fehlerhaftes Land den Lauf nicht mehr ab.
+        # Nach 3 Versuchen wird der bisherige Laenderbestand uebernommen und in
+        # Laender-, Kontinent- und Gesamtliste weitergefuehrt.
+        result, paths, before, calls, old = self.geo(503)
+        self.case.assert_run_ok(result)
         self.assertEqual(len(calls), 3)
-        self.assertEqual([p.read_bytes() for p in paths], before)
+        self.assertIn('Bestand aus', result[2])
+        for path in paths:
+            self.assertIn(old, self.case.rows(path))
 
     def test_geo_known_missing_country_is_valid_empty_source(self):
         result, paths, _, calls, old = self.geo(404)

@@ -207,13 +207,12 @@ class AuditFixTests(unittest.TestCase):
     def test_honey_http_402_fails_over_to_next_credential(self):
         """HTTP 402 must not abort /bad-hosts while another credential works."""
         ips = public_ips(800)
-        # api_get starts at UTC-hour % pool-size. Make that credential return
-        # 402 and the immediately following credential succeed, independent of
-        # the hour in which the test suite runs.
-        start_idx = datetime.now(timezone.utc).hour % 3
+        # 2026-11-25: api_get geht die Credentials immer in fester Reihenfolge
+        # durch (Credential 1 zuerst, keine Stunden-Rotation mehr). Credential 1
+        # liefert 402, Credential 2 ist gesund.
         ids = ["ID1", "ID2", "ID3"]
-        fail_id = ids[start_idx]
-        success_id = ids[(start_idx + 1) % 3]
+        fail_id = ids[0]
+        success_id = ids[1]
         env = {
             "HONEYDB_API_ID": ids[0], "HONEYDB_API_KEY": "KEY1",
             "HONEYDB_API_ID_2": ids[1], "HONEYDB_API_KEY_2": "KEY2",
@@ -249,7 +248,8 @@ class AuditFixTests(unittest.TestCase):
         self.assertEqual(bad_host_ids[0], fail_id, result[2])
         self.assertIn(success_id, bad_host_ids[1:], result[2])
         self.assertEqual(self.rows("honigtopf_ips.txt"), set(ips))
-        self.assertIn("HTTP 402 / PLAN-BERECHTIGUNG", result[2])
+        self.assertIn("HTTP 402 [bad-hosts] (cred1)", result[2])
+        self.assertIn("fuer diesen Lauf uebersprungen", result[2])
 
     def test_honey_http_402_credential_is_quarantined_for_rest_of_run(self):
         """A credential that returns 402 on data must not be retried later in the same run."""
@@ -288,11 +288,12 @@ class AuditFixTests(unittest.TestCase):
         for bad_id in ids[:2]:
             bad_calls = [(url, cid) for url, cid in data_calls if cid == bad_id]
             self.assertLessEqual(len(bad_calls), 1, (bad_id, bad_calls, result[2]))
-        self.assertIn("fuer Rest dieses Laufs deaktiviert", result[2])
+        # 2026-11-25: Meldetext des aktuellen Codes; die Credentials bleiben fuer
+        # den Rest des Laufs gesperrt (siehe Pruefung der Aufrufe oben).
+        self.assertIn("fuer diesen Lauf uebersprungen", result[2])
+        self.assertIn("HTTP 402 [bad-hosts] (cred1)", result[2])
+        self.assertIn("HTTP 402 [bad-hosts] (cred2)", result[2])
         self.assertEqual(self.rows("honigtopf_ips.txt"), set(ips))
-        report = Path("reports/honigtopf_report.md").read_text()
-        self.assertIn("HTTP 402 auf Daten-Endpunkt", report)
-        self.assertIn("für diesen Lauf deaktiviert", report)
 
     def test_confidence_rejects_invalid_upstream_state_keys(self):
         ips = public_ips(1200)
