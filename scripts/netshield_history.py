@@ -133,8 +133,34 @@ class GitHub:
         endpoint = release['upload_url'].split('{', 1)[0]
         if urllib.parse.urlsplit(endpoint).hostname != 'uploads.github.com':
             raise HistoryError('Unexpected release upload host')
-        with Path(path).open('rb') as stream:
-            return self.json_request('POST', endpoint + '?name=' + urllib.parse.quote(name, safe=''), file=stream)
+        # 2026-11-25: uploads.github.com answered a backup upload once with
+        # HTTP 500 and the whole Combined run failed before committing. Retry
+        # 5xx/connection errors, but first delete any (partial) asset with the
+        # same name: asset names are unique per release, so this can never
+        # create duplicates.
+        delays = (10, 30, 60)
+        for attempt in range(len(delays) + 1):
+            try:
+                with Path(path).open('rb') as stream:
+                    return self.json_request('POST', endpoint + '?name=' + urllib.parse.quote(name, safe=''), file=stream)
+            except urllib.error.HTTPError as error:
+                if error.code not in (500, 502, 503, 504) or attempt >= len(delays):
+                    raise
+                problem = f'HTTP {error.code}'
+            except (urllib.error.URLError, ConnectionResetError, TimeoutError, socket.timeout) as error:
+                if attempt >= len(delays):
+                    raise
+                problem = str(error)
+            print(f'::warning::Release upload {name} failed ({problem}); retry {attempt + 1}/{len(delays)} in {delays[attempt]}s')
+            time.sleep(delays[attempt])
+            try:
+                for asset in self.json_request('GET', self.base + f'/releases/{release["id"]}/assets?per_page=100'):
+                    if asset.get('name') == name:
+                        self.delete(asset['id'])
+                        print(f'::warning::Removed incomplete asset {name} before retry')
+            except (urllib.error.URLError, HistoryError) as error:
+                print(f'::warning::Could not check for incomplete asset {name}: {error}')
+        raise HistoryError(f'Upload of {name} failed')
 
     def rename(self, asset_id, name):
         return self.json_request('PATCH', self.base + f'/releases/assets/{asset_id}', payload={'name': name})
