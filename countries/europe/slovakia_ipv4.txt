@@ -1,6 +1,6 @@
 # NETSHIELD – Slovakia (SK) IPv4 Ranges
-# Aktualisiert: 2026-11-23 10:33 CET (Europe/Berlin)
-# IP-Ranges: 441
+# Aktualisiert: 2026-11-25 11:08 CET (Europe/Berlin)
+# IP-Ranges: 440
 
 2.57.64.0/22
 5.34.168.0/21
@@ -232,7 +232,6 @@
 185.59.184.0/22
 185.61.16.0/22
 185.63.156.0/22
-185.65.69.0/24
 185.65.220.0/22
 185.66.200.0/23
 185.69.48.0/22
