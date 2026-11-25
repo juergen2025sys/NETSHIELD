@@ -1,7 +1,7 @@
 # Title: Stamparm Maltrail Trails - malicious (DNS-only)
 # Quelle: https://github.com/stamparm/trails/tree/main/malicious
-# Aktualisiert: 2026-11-25 02:14 CET
-# Eintraege: 226242
+# Aktualisiert: 2026-11-25 15:32 CET
+# Eintraege: 226245
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 0-4.top
@@ -167244,6 +167244,7 @@ rerogs.live
 rerojexaqity.editionbooksly.icu
 reroks.live
 rerons.live
+rerreira.shop
 rerrioara.live
 res-1.cdn.varrysections.digital
 res-info-confirmation.com
@@ -174087,6 +174088,7 @@ sccs-reviewed.com
 sccsweden.se
 scdncon.com
 scdnwire.com
+sceemite.com
 scelba.org
 scene4-render.fourscene.in.net
 sceneask.gdn
@@ -191615,6 +191617,7 @@ taltideor.fastchck.in.net
 taluk.live
 talup.icu
 talus3.rapidstone.ru
+talusgalena.com
 talvaleet.histori-pneumonia.in.net
 talven8ex.q7ravo.in.net
 talvenal7.dreswaoaky.in.net
