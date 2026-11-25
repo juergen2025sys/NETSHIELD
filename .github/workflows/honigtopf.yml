@@ -1090,12 +1090,14 @@ jobs:
               period = m.group() if m else ''
           print('ASN-Risiko: Felder der Antwort: %s' % sorted(data)[:15])
           now = datetime.now(timezone.utc)
-          with open(OUT + '.tmp', 'w') as f:
-              f.write('# NETSHIELD - ASN-Risiko (monatliche Bewertung, Top %d, nur Nummern)\n' % TOP)
-              f.write('# Monat: %s | Stand: %s\n' % (period, now.strftime('%Y-%m-%d %H:%M UTC')))
-              f.write('# Abgerufen: %d\n\n' % int(now.timestamp()))
-              f.write('\n'.join(map(str, asns)) + '\n')
-          os.replace(OUT + '.tmp', OUT)
+          # 2026-11-25: atomar ueber die gemeinsame Hilfsfunktion (check_security_hygiene).
+          import sys as _sys; _sys.path.insert(0, 'scripts')
+          from netshield_common import write_text_atomic
+          write_text_atomic(OUT,
+              '# NETSHIELD - ASN-Risiko (monatliche Bewertung, Top %d, nur Nummern)\n' % TOP
+              + '# Monat: %s | Stand: %s\n' % (period, now.strftime('%Y-%m-%d %H:%M UTC'))
+              + '# Abgerufen: %d\n\n' % int(now.timestamp())
+              + '\n'.join(map(str, asns)) + '\n')
           print('ASN-Risiko: %d ASNs (Monat %s) -> %s' % (len(asns), period, OUT))
           EOF
 
