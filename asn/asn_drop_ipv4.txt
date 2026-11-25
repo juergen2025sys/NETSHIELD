@@ -1,11 +1,11 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795573604)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795580804)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-23)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-25 02:46 UTC | ASNs: 1794 (Spamhaus 461 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1117 + ASN-Risiko 57, aktiv: 1536)
-# IPv4-Netze: 20993
+# Aktualisiert: 2026-11-25 04:41 UTC | ASNs: 1795 (Spamhaus 461 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1118 + ASN-Risiko 57, aktiv: 1537)
+# IPv4-Netze: 20996
 
 1.32.192.0/18
 2.26.0.0/21
@@ -3931,6 +3931,7 @@
 64.204.170.0/23
 64.204.194.0/23
 64.204.202.0/24
+64.204.204.0/24
 64.204.207.0/24
 64.204.242.0/24
 64.204.251.0/24
@@ -13635,6 +13636,7 @@
 162.251.60.0/22
 162.251.119.0/24
 162.252.8.0/22
+162.252.32.0/24
 162.252.52.0/22
 162.252.198.0/23
 162.253.40.0/22
@@ -19783,6 +19785,7 @@
 204.3.252.0/23
 204.8.5.0/24
 204.8.96.0/22
+204.10.18.0/23
 204.10.194.0/24
 204.13.232.0/21
 204.14.72.0/24
