@@ -641,14 +641,23 @@ jobs:
         # durch diesen Trigger laeuft der Proxy-Feed-Fetch jetzt effektiv
         # bis zu stuendlich (wann immer dieser Report-Workflow erfolgreich
         # durchlaeuft).
+        # 2026-11-25: continue-on-error + 3 Versuche. Ein kurzer GitHub-API-
+        # Fehler (z. B. HTTP 500 bei workflow_dispatch) darf weder den Report
+        # rot faerben noch die nachfolgenden Trigger ueberspringen.
         if: success() && steps.freshness.outputs.proceed == 'true'
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Report abgeschlossen - triggere Bot-Detector (Proxy-Feeds)"
-          gh workflow run update_bot_detector.yml \
-            --repo "${{ github.repository }}" \
-            --ref "${GITHUB_REF_NAME}"
+          for i in 1 2 3; do
+            gh workflow run update_bot_detector.yml \
+              --repo "${{ github.repository }}" \
+              --ref "${GITHUB_REF_NAME}" && exit 0
+            echo "::warning::Trigger Bot-Detector Versuch $i fehlgeschlagen"
+            sleep $((i * 10))
+          done
+          exit 1
 
       - name: Trigger Honeypot Monitor
         # Stoesst honeypot_monitor.yml direkt nach jedem erfolgreichen
@@ -664,14 +673,22 @@ jobs:
         # github.workflow }}, cancel-in-progress: false) verhindert
         # ueberlappende Laeufe - bei zu kurzem Abstand wird der naechste
         # Trigger einfach in die Warteschlange gestellt, nicht verworfen.
+        # 2026-11-25: continue-on-error + 3 Versuche (HTTP 500 der GitHub-API
+        # hatte hier alle folgenden Trigger uebersprungen).
         if: success() && steps.freshness.outputs.proceed == 'true'
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Report abgeschlossen - triggere Honeypot Monitor"
-          gh workflow run honeypot_monitor.yml \
-            --repo "${{ github.repository }}" \
-            --ref "${GITHUB_REF_NAME}"
+          for i in 1 2 3; do
+            gh workflow run honeypot_monitor.yml \
+              --repo "${{ github.repository }}" \
+              --ref "${GITHUB_REF_NAME}" && exit 0
+            echo "::warning::Trigger Honeypot Monitor Versuch $i fehlgeschlagen"
+            sleep $((i * 10))
+          done
+          exit 1
 
       - name: Trigger Auto-Feed Refresh
         # Stoesst auto_feed_refresh.yml direkt nach jedem erfolgreichen
@@ -696,14 +713,21 @@ jobs:
         # auto_feed_discovery.yml) - dann bleibt es bei einem Volllauf pro
         # Kalendertag und der Trigger wirkt nur noch als Nachhol-Mechanismus
         # fuer ausgefallene Cron-Slots.
+        # 2026-11-25: continue-on-error + 3 Versuche.
         if: success() && steps.freshness.outputs.proceed == 'true'
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Report abgeschlossen - triggere Auto-Feed Refresh"
-          gh workflow run auto_feed_refresh.yml \
-            --repo "${{ github.repository }}" \
-            --ref "${GITHUB_REF_NAME}"
+          for i in 1 2 3; do
+            gh workflow run auto_feed_refresh.yml \
+              --repo "${{ github.repository }}" \
+              --ref "${GITHUB_REF_NAME}" && exit 0
+            echo "::warning::Trigger Auto-Feed Refresh Versuch $i fehlgeschlagen"
+            sleep $((i * 10))
+          done
+          exit 1
 
       - name: Trigger DNS List Mirror
         # Stoesst dns_list_mirror.yml direkt nach jedem erfolgreichen
@@ -714,14 +738,21 @@ jobs:
         # der auf einen noch laufenden Mirror trifft, ein statt ihn zu verwerfen.
         # Effekt wie beim Honeypot Monitor: der ThreatFox-Export wird damit
         # bis zu stuendlich geladen.
+        # 2026-11-25: continue-on-error + 3 Versuche.
         if: success() && steps.freshness.outputs.proceed == 'true'
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Report abgeschlossen - triggere DNS List Mirror"
-          gh workflow run dns_list_mirror.yml \
-            --repo "${{ github.repository }}" \
-            --ref "${GITHUB_REF_NAME}"
+          for i in 1 2 3; do
+            gh workflow run dns_list_mirror.yml \
+              --repo "${{ github.repository }}" \
+              --ref "${GITHUB_REF_NAME}" && exit 0
+            echo "::warning::Trigger DNS List Mirror Versuch $i fehlgeschlagen"
+            sleep $((i * 10))
+          done
+          exit 1
 
       - name: Trigger Honigtopf
         # 2026-11-15 (Nutzerwunsch): Der Report laeuft stuendlich zuverlaessiger
@@ -737,10 +768,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Report abgeschlossen - triggere Honigtopf"
-          gh workflow run honigtopf.yml \
-            --repo "${{ github.repository }}" \
-            --ref "${GITHUB_REF_NAME}" \
-            -f von_report=true
+          for i in 1 2 3; do
+            gh workflow run honigtopf.yml \
+              --repo "${{ github.repository }}" \
+              --ref "${GITHUB_REF_NAME}" \
+              -f von_report=true && exit 0
+            echo "::warning::Trigger Honigtopf Versuch $i fehlgeschlagen"
+            sleep $((i * 10))
+          done
+          exit 1
 
       - name: Trigger Offene Proxies
         # 2026-11-16 (Nutzerwunsch): Der Report stoesst auch open_proxies.yml
@@ -754,6 +790,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Report abgeschlossen - triggere Offene Proxies"
-          gh workflow run open_proxies.yml \
-            --repo "${{ github.repository }}" \
-            --ref "${GITHUB_REF_NAME}"
+          for i in 1 2 3; do
+            gh workflow run open_proxies.yml \
+              --repo "${{ github.repository }}" \
+              --ref "${GITHUB_REF_NAME}" && exit 0
+            echo "::warning::Trigger Offene Proxies Versuch $i fehlgeschlagen"
+            sleep $((i * 10))
+          done
+          exit 1
