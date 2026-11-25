@@ -27,7 +27,6 @@ import datetime
 import os
 import re
 import sys
-import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from netshield_common import (  # noqa: E402

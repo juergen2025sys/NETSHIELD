@@ -44,7 +44,6 @@ import json
 import os
 import sys
 import urllib.error
-import urllib.request
 
 # 2026-11-25: Hausregeln aus check_security_hygiene.py - atomare Writes und
 # SSRF-geschuetzte Downloads ueber die gemeinsamen Hilfsfunktionen.
