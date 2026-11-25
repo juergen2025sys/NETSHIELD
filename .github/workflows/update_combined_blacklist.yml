@@ -1234,7 +1234,8 @@ jobs:
               # der unauthentifizierte recent-CSV, siehe HIGH_QUALITY-Kommentar oben).
               # ENTFERNT (2026-08-05): l7_ddos - 52 Tage unveraendert lt. Stale-Feed-Report, ueber GitHub, KNOWN_REPOS-Eintrag entfernt fuer Wiederauffindbarkeit.
               "binary_defense":             ("https://binarydefense.com/banlist.txt", True),
-              "data_shield":                ("https://raw.githubusercontent.com/duggytuxy/Data-Shield_IPv4_Blocklist/refs/heads/main/prod_critical_data-shield_ipv4_blocklist.txt", False),  # Einzelperson-Repo, kein verifizierter Betreiber
+              # ENTFERNT (2026-11-25): data_shield (prod_critical_data-shield_ipv4_blocklist.txt) -
+              # Datei im Repo geloescht (HTTP 404). Abgedeckt durch data_shield_full unten.
               # data_shield_full: Full-List-Variante desselben Repos (prod_data-shield_ipv4_blocklist.txt).
               # Komplementaer zu "data_shield" (= prod_critical_, kuratierte CI/CD- und kritische
               # Infrastruktur-Targets). Die Full-List enthaelt zusaetzlich breitere Malicious-Traffic-
