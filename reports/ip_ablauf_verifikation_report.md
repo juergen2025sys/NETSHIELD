@@ -1,6 +1,6 @@
 # IP-Ablauf-Verifikationsbericht
 
-Lauf: 2026-11-25 06:25 CET (Europe/Berlin)
+Lauf: 2026-11-25 10:25 CET (Europe/Berlin)
 
 Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WATCHLIST / FIX CHURN-ACTIVE), tatsaechlich dauerhaft draussen bleiben statt Stunden spaeter mit zurueckgesetzter Uhr wieder aufzutauchen.
 
@@ -9,7 +9,7 @@ Prueft, ob IPs, die einmal ohne Zweitbestaetigung abgelaufen sind (FIX CHURN-WAT
 | Liste | Anzahl |
 |---|---:|
 | Watchlist (30-Tage-Pfad) | 17922 |
-| Active (180-Tage-Pfad) | 4394996 |
+| Active (180-Tage-Pfad) | 4394955 |
 
 ## Live-Fortschritt (heute + nächste Tage)
 
@@ -95,21 +95,20 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 
 ## seen_db-Trend
 
-- Seit letztem Lauf: 📉 -14,898 (Rückgang) (jetzt 11,276,349 IPs)
-- Seit Zyklus-Start (2026-11-21): 📈 +4,139 (Anstieg)
-- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 915,155 neue IPs hinzugekommen (davon 800,178 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 1,092 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 111,786 CIDR-Aggregate)
-- Neue IPs (Summe letzter Läufe): 6,378,707 (Summe 7 verschiedene Combined-Läufe in den letzten 8 Prüfläufen / ~24h; vor dem Aufnahme-Filter gezählt)
+- Seit letztem Lauf: 📈 +2,947 (Anstieg) (jetzt 11,279,296 IPs)
+- Seit Zyklus-Start (2026-11-21): 📈 +7,086 (Anstieg)
+- Letzter combined-Cleanup-Pass: 0 IPs durch Ablauf entfernt (davon 0 Watchlist/30T, 0 Active/180T), 909,561 neue IPs hinzugekommen (davon 799,976 direkt wieder durch Aufnahme-Filter entfernt: <2 Feeds & kein HQ) | 278 IPs heute per Kreuzbestätigung (2. Feed innerhalb 7 Tage) doch aufgenommen (zusätzlich: 109,021 CIDR-Aggregate)
+- Neue IPs (Summe letzter Läufe): 6,374,106 (Summe 7 verschiedene Combined-Läufe in den letzten 8 Prüfläufen / ~24h; vor dem Aufnahme-Filter gezählt)
 - Entfernte IPs (abgelaufen): heute 29,323 | gestern 28,298 (Kalendertag, aus Ablauf-Ledgern)
   - davon Watchlist/30 Tage: heute 2,000 | gestern 2,000
   - davon Active/180 Tage: heute 27,323 | gestern 26,298
-- Netto-Wachstum (~24h): 📈 +6,413 (~24h)
-- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-11-24T02:35 bis 2026-11-25T04:40 UTC
+- Netto-Wachstum (~24h): 📈 +24,209 (~24h)
+- Erfolgsquote letzte 16 combined-Läufe: 16/16 erfolgreich (100%, nur echte Erfolge/Fehlschläge gezählt), Zeitraum 2026-11-24T10:56 bis 2026-11-25T09:11 UTC
 
 ## Verlauf (letzte 20 Läufe)
 
 | Zeitpunkt | seen_db gesamt | Watchlist-Liste | Active-Liste | Rückfälle |
 |---|---:|---:|---:|---:|
-| 2026-11-21 12:56 CET (Europe/Berlin) | 11,236,560 | 18194 | 4286963 | 0 |
 | 2026-11-21 16:18 CET (Europe/Berlin) | 11,248,765 | 18194 | 4286936 | 0 |
 | 2026-11-21 20:53 CET (Europe/Berlin) | 11,261,799 | 18193 | 4286856 | 0 |
 | 2026-11-22 02:35 CET (Europe/Berlin) | 11,236,169 | 18168 | 4317016 | 0 |
@@ -129,3 +128,4 @@ _61 Tag(e) noch ausstehend (Ablaufdatum liegt noch in der Zukunft)._
 | 2026-11-24 23:47 CET (Europe/Berlin) | 11,288,357 | 18045 | 4367777 | 0 |
 | 2026-11-25 01:15 CET (Europe/Berlin) | 11,291,247 | 18045 | 4367728 | 0 |
 | 2026-11-25 06:25 CET (Europe/Berlin) | 11,276,349 | 17922 | 4394996 | 0 |
+| 2026-11-25 10:25 CET (Europe/Berlin) | 11,279,296 | 17922 | 4394955 | 0 |
