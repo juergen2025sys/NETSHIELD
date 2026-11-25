@@ -1,11 +1,11 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795580804)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795593404)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-23)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-25 04:41 UTC | ASNs: 1795 (Spamhaus 461 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1118 + ASN-Risiko 57, aktiv: 1537)
-# IPv4-Netze: 20996
+# Aktualisiert: 2026-11-25 08:36 UTC | ASNs: 1797 (Spamhaus 461 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1120 + ASN-Risiko 57, aktiv: 1539)
+# IPv4-Netze: 21004
 
 1.32.192.0/18
 2.26.0.0/21
@@ -1622,6 +1622,8 @@
 38.226.100.0/22
 38.226.206.0/23
 38.226.218.0/23
+38.236.72.0/24
+38.236.74.0/24
 38.236.165.0/24
 38.236.166.0/24
 38.240.224.0/22
@@ -3016,6 +3018,7 @@
 45.179.88.0/22
 45.179.188.0/22
 45.180.20.0/23
+45.181.228.0/22
 45.182.28.0/22
 45.182.176.0/22
 45.182.189.0/24
@@ -3218,6 +3221,7 @@
 45.234.32.0/22
 45.234.180.0/22
 45.234.196.0/22
+45.235.8.0/22
 45.235.20.0/22
 45.235.98.0/23
 45.235.120.0/22
@@ -13990,6 +13994,7 @@
 167.160.75.0/24
 167.160.76.0/23
 167.248.133.0/24
+167.249.168.0/22
 167.249.240.0/22
 167.250.0.0/22
 167.250.28.0/22
@@ -14825,6 +14830,7 @@
 177.36.16.0/22
 177.53.180.0/22
 177.66.148.0/22
+177.66.192.0/22
 177.67.170.0/24
 177.71.64.0/20
 177.72.153.0/24
@@ -14833,6 +14839,7 @@
 177.74.160.0/22
 177.84.28.0/24
 177.84.240.0/21
+177.91.52.0/22
 177.105.246.0/23
 177.122.75.0/24
 177.122.97.0/24
@@ -19847,6 +19854,7 @@
 205.164.1.0/24
 205.164.4.0/24
 205.164.34.0/24
+205.164.232.0/21
 205.164.248.0/22
 205.185.112.0/20
 205.185.192.0/23
