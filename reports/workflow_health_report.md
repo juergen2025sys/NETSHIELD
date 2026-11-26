@@ -1,34 +1,30 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-26 10:29 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-26 18:42 CET (Europe/Berlin)
 
-**Workflows:** 36 | ✅ 31 OK | ⚠️ 7 Warnung | ❌ 0 Fehler
+**Workflows:** 36 | ✅ 36 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `00586c0db9178cd0a609bed5b4eff5fe0be3debe`
+✅ Commit: `939910b49fee35f453e2dc917bb00ba1e66563ac`
 
 490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
 
-## ⚠️ Warnungen
+## ❌ Fehler (kritisch)
 
 | Datei | Check | Detail |
 |---|---|---|
-| `asn_drop.yml + dns_blocklist_finder.yml` | Cron-Kollision | '15 4 * * *' – beide Workflows laufen gleichzeitig |
-| `dns_list_mirror.yml + open_proxies.yml` | Cron-Kollision | '35 */2 * * *' – beide Workflows laufen gleichzeitig |
-| `dns_list_mirror.yml` | continue-on-error aktiv | continue-on-error=true gesetzt – Fehler können still bleiben; Review ob das wirklich beabsichtigt ist |
-| `honeypot_monitor.yml` | Doppelter Import | Block 0: Doppelte Imports: re(2x), json(2x) – moeglicherweise Copy-Paste-Artefakt |
-| `honigtopf.yml` | continue-on-error aktiv | continue-on-error=true gesetzt – Fehler können still bleiben; Review ob das wirklich beabsichtigt ist |
-| `netshield_report_generator.yml` | continue-on-error aktiv | continue-on-error=true gesetzt – Fehler können still bleiben; Review ob das wirklich beabsichtigt ist |
-| `update_combined_blacklist.yml` | Untrusted Feed hq=True | 1 Feed(s) mit hq=True ohne bekannten Betreiber – IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: "bitwire_outbound" (https://raw.githubusercontent.com/bitwire-it/ipblocklist/ref) |
+| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 1,763 IPs in active fehlen in conf40 (0.512% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 1 CRITICAL | 🟡 0 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 1,763 IPs in active fehlen in conf40 (0.512% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
 
 ## Übersicht
 
@@ -41,20 +37,20 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `cve_to_ip_mapper.yml` | ✅ OK | 0 | 0 | `0 4 * * *` |
 | `dependabot-auto-merge.yml` | ✅ OK | 0 | 0 | – |
 | `dependabot-heal-conflicts.yml` | ✅ OK | 0 | 0 | `17 4 * * *` |
-| `dns_blocklist_finder.yml` | ✅ OK | 0 | 0 | `15 4 * * *` |
-| `dns_list_mirror.yml` | ⚠️ | 0 | 1 | `35 */2 * * *` |
+| `dns_blocklist_finder.yml` | ✅ OK | 0 | 0 | `40 4 * * *` |
+| `dns_list_mirror.yml` | ✅ OK | 0 | 0 | `35 */2 * * *` |
 | `false_positive_checker.yml` | ✅ OK | 0 | 0 | `0 5 * * *`, `0 13 * * *`, `0 20 * * *` |
 | `feed_health_monitor.yml` | ✅ OK | 0 | 0 | `0 1 * * *` |
 | `feed_ip_finder.yml` | ✅ OK | 0 | 0 | – |
 | `feed_overlap_report.yml` | ✅ OK | 0 | 0 | `25 3 * * 0` |
 | `force_cancel_stuck_runs.yml` | ✅ OK | 0 | 0 | – |
 | `history_fresh_start.yml` | ✅ OK | 0 | 0 | `20 5 1 * *` |
-| `honeypot_monitor.yml` | ⚠️ | 0 | 1 | `0 5,11,17,23 * * *` |
-| `honigtopf.yml` | ⚠️ | 0 | 1 | `17 */2 * * *` |
+| `honeypot_monitor.yml` | ✅ OK | 0 | 0 | `0 5,11,17,23 * * *` |
+| `honigtopf.yml` | ✅ OK | 0 | 0 | `17 */2 * * *` |
 | `ip_ablauf.yml` | ✅ OK | 0 | 0 | `30 6 * * 1`, `55 */3 * * *` |
 | `ledger_diagnose.yml` | ✅ OK | 0 | 0 | – |
-| `netshield_report_generator.yml` | ⚠️ | 0 | 1 | `30 * * * *`, `45 * * * *`, `55 * * * *` |
-| `open_proxies.yml` | ✅ OK | 0 | 0 | `35 */2 * * *` |
+| `netshield_report_generator.yml` | ✅ OK | 0 | 0 | `30 * * * *`, `45 * * * *`, `55 * * * *` |
+| `open_proxies.yml` | ✅ OK | 0 | 0 | `40 */2 * * *` |
 | `repo_size_check.yml` | ✅ OK | 0 | 0 | – |
 | `run_tests.yml` | ✅ OK | 0 | 0 | – |
 | `runner_image_watch.yml` | ✅ OK | 0 | 0 | `0 2 * * 0` |
@@ -72,4 +68,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-26 10:29 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*
+*Generiert: 2026-11-26 18:42 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*

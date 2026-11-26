@@ -1,50 +1,20 @@
 {
-  "updated": "2026-11-26 10:29 CET (Europe/Berlin)",
+  "updated": "2026-11-26 18:42 CET (Europe/Berlin)",
   "total": 36,
-  "ok": 31,
-  "warn": 7,
-  "error": 0,
-  "errors": [],
-  "warnings": [
+  "ok": 36,
+  "warn": 0,
+  "error": 1,
+  "errors": [
     {
-      "file": "asn_drop.yml + dns_blocklist_finder.yml",
-      "check": "Cron-Kollision",
-      "detail": "'15 4 * * *' \u2013 beide Workflows laufen gleichzeitig"
-    },
-    {
-      "file": "dns_list_mirror.yml + open_proxies.yml",
-      "check": "Cron-Kollision",
-      "detail": "'35 */2 * * *' \u2013 beide Workflows laufen gleichzeitig"
-    },
-    {
-      "file": "dns_list_mirror.yml",
-      "check": "continue-on-error aktiv",
-      "detail": "continue-on-error=true gesetzt \u2013 Fehler k\u00f6nnen still bleiben; Review ob das wirklich beabsichtigt ist"
-    },
-    {
-      "file": "honeypot_monitor.yml",
-      "check": "Doppelter Import",
-      "detail": "Block 0: Doppelte Imports: re(2x), json(2x) \u2013 moeglicherweise Copy-Paste-Artefakt"
-    },
-    {
-      "file": "honigtopf.yml",
-      "check": "continue-on-error aktiv",
-      "detail": "continue-on-error=true gesetzt \u2013 Fehler k\u00f6nnen still bleiben; Review ob das wirklich beabsichtigt ist"
-    },
-    {
-      "file": "netshield_report_generator.yml",
-      "check": "continue-on-error aktiv",
-      "detail": "continue-on-error=true gesetzt \u2013 Fehler k\u00f6nnen still bleiben; Review ob das wirklich beabsichtigt ist"
-    },
-    {
-      "file": "update_combined_blacklist.yml",
-      "check": "Untrusted Feed hq=True",
-      "detail": "1 Feed(s) mit hq=True ohne bekannten Betreiber \u2013 IPs bleiben dauerhaft in active_blacklist ohne Score-Altern: \"bitwire_outbound\" (https://raw.githubusercontent.com/bitwire-it/ipblocklist/ref)"
+      "file": "Production Health",
+      "check": "active \u2286 conf40 Subset-Invariante verletzt",
+      "detail": "1,763 IPs in active fehlen in conf40 (0.512% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
     }
   ],
+  "warnings": [],
   "regression_tests": {
     "schema": 1,
-    "sha": "00586c0db9178cd0a609bed5b4eff5fe0be3debe",
+    "sha": "939910b49fee35f453e2dc917bb00ba1e66563ac",
     "status": "passed",
     "tests_run": 490,
     "failures": [],
@@ -56,17 +26,23 @@
     "detail": "490 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden."
   },
   "ip_counts": {
-    "combined_threat_blacklist_ipv4_part1.txt": 5823207,
-    "active_blacklist_ipv4.txt": 335614,
-    "blacklist_confidence40_ipv4_part1.txt": 3952414,
-    "cve_exploit_ips.txt": 35728,
-    "honeypot_ips.txt": 2133457,
-    "bot_detector_blacklist_ipv4.txt": 1211428
+    "combined_threat_blacklist_ipv4_part1.txt": 5827715,
+    "active_blacklist_ipv4.txt": 344092,
+    "blacklist_confidence40_ipv4_part1.txt": 3955292,
+    "cve_exploit_ips.txt": 35730,
+    "honeypot_ips.txt": 2134674,
+    "bot_detector_blacklist_ipv4.txt": 1212268
   },
   "production_health": {
-    "critical": 0,
+    "critical": 1,
     "warn": 0,
-    "checks": []
+    "checks": [
+      {
+        "level": "CRITICAL",
+        "check": "active \u2286 conf40 Subset-Invariante verletzt",
+        "detail": "1,763 IPs in active fehlen in conf40 (0.512% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen."
+      }
+    ]
   },
   "parts_history": {
     "combined_threat_blacklist_ipv4.txt": [
