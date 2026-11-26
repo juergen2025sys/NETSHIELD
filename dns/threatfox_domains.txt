@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (Full-Export + Recent-API)
-# Aktualisiert: 2026-11-26 14:13 CET
-# Eintraege: 31242
+# Aktualisiert: 2026-11-26 16:54 CET
+# Eintraege: 31270
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -445,6 +445,7 @@
 25smp.audiheadboa7d.lat
 25yiumhh.rahnemayenegaresh.site
 25zuxmtq.futuremillionaire.net
+26.dirtyshield-posting-airbeacon.space
 260120.vercel.app
 26a0ed72.finowfurt.com
 26cfgoj140825ckg.cfd
@@ -1815,13 +1816,18 @@ aafibireuen.org
 aafiborot.org
 aafibungo.org
 aafibuseryo.org
+aafidairi.org
 aafidisendobo.org
 aafidokoneida.org
+aafidugunik.org
 aafigayolues.org
 aafigembileme.org
 aafigiko.org
+aafigiwan.org
+aafigolikme.org
 aafiipouwa.org
 aafijambi.org
+aafijerusalem.org
 aafnojwq.megashart.blog
 aah.celikit.my
 aah3bpf6.eng-eng-glucore.com
@@ -3687,6 +3693,7 @@ azuremods.cc
 azvvedo.lol
 azx19-45876.portmap.host
 azxhmev.prozhe.net
+azzawin.org
 azzy.bossynailspa.com
 b.360ctct.com
 b.7sot.org
@@ -4605,6 +4612,7 @@ blueprint-71.com
 bluespaceproperties.in
 bluetechsupply.com
 bluettoo0123.duckdns.org
+blueupload.website
 bluewallfilm.com
 bluezonepath6.grovessa.garden
 bluyswow.com
@@ -8614,6 +8622,7 @@ edge.kernelmonitor.cc
 edge.kitchencraft.lol
 edge.wickenfell.cc
 edge1.gentleline.click
+edgeconfig-api.shop
 edgekey.tech
 edgeservice2933.com
 edgeupdater.com
@@ -11963,6 +11972,7 @@ h5wpqxywtw5dgmrfczpzdtvyib7ajg3oc6vj6bwxyx3eryphuvb2aaad.onion
 h5x6ijt1.kulonprogo.org
 h5xluule.barbashat.com
 h6.asgar88.org
+h6.ayukply.com
 h6490qgh.lepto--zan.com
 h67as5d5x.m6p3wca1.cc
 h6a927ks.shop-eloncode.com
@@ -14367,6 +14377,7 @@ k.hkb7.org
 k.upgrades.lat
 k.worldpress.biz
 k0.amanplya.org
+k0.azzawin.org
 k0f.aprendizajeeslibertad.cl
 k0pr01pw.diero.store
 k0v5zt7p.verticalrewards.com
@@ -15083,6 +15094,7 @@ kubli.lv
 kucabi.de
 kudefy.workers.dev
 kudoassam.org
+kudokoshi.cfd
 kuechen-welt.eu
 kufazworld.duckdns.org
 kugooplus.com
@@ -16051,6 +16063,7 @@ lqfzdiu.sifootandankle.com
 lqljywai.jadoou.christmas
 lqlrmchm.tasisathosseini.shop
 lqom.bet90forward.win
+lqosksuo.aafijerusalem.org
 lqqpunt.megaparii.pro
 lquhgnrw.studypersia.ir
 lr9acgjp.eng-usa-heroup.com
@@ -16480,6 +16493,7 @@ mallosis.gr
 maloke.pro
 maloneyr.cyou
 malrok.com
+maltavps.online
 maltepe-haber.com.tr
 malware.688vbet.pro
 malware.clipmagic.co
@@ -17986,6 +18000,7 @@ n7u8r9di.romeroautodetails.com
 n85e216p.jadoou.yachts
 n885lqx8yxzu0ac6z0.pages.dev
 n8e.us.com
+n8jdj63k.aafidairi.org
 n8n-docs.sbs
 n8n69sm2.bcgameiran.net
 n8t62ep9.stack-orbit.digital
@@ -18559,6 +18574,7 @@ norflux9ar.scient-telograyka.lat
 norfolkcarehomes.co.uk
 norkapi41.icu
 norlineor.hundred5elf.lat
+norm.sushimoscow.online
 normeshon6.1zorelin.lat
 nornikal3pi12.life
 norrykilu231.digital
@@ -19463,6 +19479,7 @@ orbitflownetwork.lol
 orbitmeshpath.glenmora.garden
 orbitstride7.com
 orbittrack.cfd
+orbitvps.shop
 orbitwindow.cfd
 orbixt.click
 orcaleagent.com
@@ -19698,6 +19715,7 @@ p.2137gang.shop
 p.2137gang.st
 p.2137gang.store
 p.asianwins.com
+p.ayuselot.org
 p.bob78.org
 p.bro50.org
 p.dav88.org
@@ -20070,6 +20088,7 @@ peluche-sanvalentino.it
 peluche-viaggio.it
 pelvibiz.com
 pemcad.obrolannews.com
+pemtoghm.aafidugunik.org
 penality.casino
 penalti.bet
 pencilduring.icu
@@ -20582,6 +20601,7 @@ pompa-sayac.com
 pompe.tn
 ponek.run
 ponikas.cyou
+ponyvps.online
 ponzinivek.com
 pooh33333.no-ip.biz
 poohthejoker2.no-ip.biz
@@ -22360,6 +22380,7 @@ rililyde.workers.dev
 rilzg1u6.shop-sightfresh.com
 rimamarestart.com
 rincondemaria.com
+rinselogic.date
 riograndenha.org
 riograndetest.com
 riorego.finkfamilyautomotive.com
@@ -23574,6 +23595,7 @@ sevurehostmaineth.com
 sewgqnm.winxbet.co
 sex-reputation.com
 sex.m-u88.com
+sexsex.cfd
 sezezapa.com
 sfaofd.brain--defender.com
 sfcrhzgd.btyek.shop
@@ -23585,6 +23607,7 @@ sfmbqki.betfa90.net
 sfoig93rafa.io
 sfrevdsgd1.shop
 sfsgldq.1xx.games
+sfwbzv8e.aafigolikme.org
 sfzfzyeb.btyek.site
 sg02vvao.midwayammunition.com
 sg03wupc.brexcavatingllc.com
@@ -25265,6 +25288,7 @@ t.dak69.org
 t.doyok.net
 t.gl111.org
 t.gp108.org
+t.hqq77.org
 t.shakesnap.net
 t.vwgze.workers.dev
 t0.axioo88.net
@@ -25578,6 +25602,7 @@ telemetrin.com
 telemetry-control-hub.christmas
 telemetry-folder-stream-core.garden
 telemetry-grid.christmas
+telemetry-grid.club
 telemetry-harbor.digital
 telemetry-nexus.digital
 telemetry-observability-core.wiki
@@ -26208,6 +26233,7 @@ traile4-branch.immer-weeping.garden
 trailminor.trave1.bet
 trailshore17.com
 trainthougths.com
+trakov.cfd
 trakyagundem.net
 tralunexi.icu
 tramoqj.cyou
@@ -26407,6 +26433,7 @@ tundraflow6net.veloria.garden
 tunivert.com
 tuntian.top
 tuplediskdkey.christmas
+tupsvps.site
 tur.jurangsm188.top
 tur.realmadridiran.news
 turbch.wiki
@@ -28727,6 +28754,7 @@ wordpresslogin.kinsta.cloud
 workableefferz.click
 workcdnmass.beer
 worker-metrics.shop
+worker-metrics.top
 worker-net.com
 worker.ivoryboard.lol
 workerwing.net

@@ -1,7 +1,7 @@
 # Title: Stamparm Maltrail Trails - malicious (DNS-only)
 # Quelle: https://github.com/stamparm/trails/tree/main/malicious
-# Aktualisiert: 2026-11-26 09:50 CET
-# Eintraege: 226261
+# Aktualisiert: 2026-11-26 16:54 CET
+# Eintraege: 226263
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 0-4.top
@@ -43742,6 +43742,7 @@ cdn.darkforums.st
 cdn.darlinket.shop
 cdn.datahil.pics
 cdn.dataofpages.com
+cdn.dcap.lat
 cdn.debt.ink
 cdn.decadig.online
 cdn.decentralappps.com
@@ -48755,6 +48756,7 @@ ciriloehansen.agencialegalads.com
 cirins.live
 cirkoborpi.life
 ciro.depannage.icu
+cirqsite.com
 cirrus.cloudv1be.ru
 cirshift.portcry.surf
 cirtaisteept.net
