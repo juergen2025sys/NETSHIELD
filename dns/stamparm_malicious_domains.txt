@@ -1,7 +1,7 @@
 # Title: Stamparm Maltrail Trails - malicious (DNS-only)
 # Quelle: https://github.com/stamparm/trails/tree/main/malicious
-# Aktualisiert: 2026-11-26 16:54 CET
-# Eintraege: 226263
+# Aktualisiert: 2026-11-26 19:57 CET
+# Eintraege: 226418
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 0-4.top
@@ -2317,6 +2317,7 @@
 168-138-176-205.sslip.io
 16811.78988.icu
 168920.xyz
+168api.dpdns.org
 168facai-d.233108.vip
 169.54o477354.ru
 169.5m9081.ru
@@ -8603,6 +8604,7 @@
 7g.fancourier.cyou
 7g.fw-packaging.com
 7g.outdoorhike.icu
+7g.xazetatech28.top
 7g.yldv.ru
 7g3.hucovoop.top
 7g37b.ru
@@ -8723,6 +8725,7 @@
 7msn.eu.org
 7mx0.learnzonekey.monster
 7n.luc7y5nub.ru
+7n.mcsyncnode69.top
 7n.tranquilspa.icu
 7n.vbep3.ru
 7n28r.ru
@@ -8750,6 +8753,7 @@
 7p.fasthourpay.icu
 7p.maxbithours.icu
 7p.meqt.ru
+7p.meta63gqzone.top
 7p.userationey.com
 7p53k.commi-5-sfa-7-t.ru
 7p8in376.tahgigbazargan.xyz
@@ -9701,6 +9705,7 @@
 8r.g-1-zmotrail.ru
 8r.ha0m.ru
 8r.kijx.ru
+8r.lunar45fzsys.top
 8r1qnkm3.rabk0r5pech.ru
 8r3y.ei8htyern1k.ru
 8r5.gleetchisurvey.top
@@ -10926,6 +10931,7 @@ a2.mmbzc.com
 a2.modelbridgeapi.com
 a2.naililai.online
 a2.snowr1se.ru
+a2.softdc.cn
 a2.studyacademy.com
 a2.subsage.top
 a2.yuzu-together.com
@@ -16455,6 +16461,7 @@ alpha.taro5lin.surf
 alpha09vcrealm.top
 alpha1proc.cloudfoundation.in.net
 alpha2-point.uptrend.in.net
+alpha23yxframe.top
 alpha2core.cloudfoundation.in.net
 alpha3.n0v0se1prew.ru
 alpha39hpmesh.fun
@@ -16474,10 +16481,13 @@ alphagamjqub9b4c.saltberk.surf
 alphagrid.134256.xyz
 alphainvestigations.us
 alphajsmesh649.top
+alphakx5xngrid.top
 alphalin-eonbw9.nordfreak.surf
 alphamanso.xyz
+alphamr1vmbeam.fun
 alphamservice.be
 alphanf2jhfield.top
+alphanw4xwlayer.top
 alphaplumbingfw.com
 alphaprmlanding.pages.dev
 alpharavepay.icu
@@ -16488,6 +16498,7 @@ alphasync.digital
 alphathrust.net
 alphatrade.icu
 alphatrendrealestate.com
+alphauj1ktcore.top
 alphavaspace702.top
 alphawatchrmf.com
 alphawhi-a6rof.nordfreak.surf
@@ -18612,6 +18623,7 @@ apex.rulo2vex.lat
 apex.urbanflowbase.lat
 apex.wintercoldlab.lat
 apex.xano4mel.surf
+apex10tocloud.top
 apex3stormlink.cyberpeaklink.garden
 apex4.skytrac5.ru
 apex7stormweb.vectorstarcity.garden
@@ -18628,6 +18640,7 @@ apexit.yachts
 apexkamm.ru
 apexki2ruspace.com
 apexloom.icu
+apexlunarsztech.top
 apexprbeamwmrealm.top
 apexprospera.in.net
 apexpulse.live
@@ -22741,6 +22754,7 @@ asdadq.site
 asdaotasktjastmnt.com
 asdasljdlaksd.com
 asday.loan
+asde18dscc.com
 asdexaff.icu
 asdf.qimor6xel.in.net
 asdfasdd.icu
@@ -23608,6 +23622,7 @@ atomfil.col7ecapture.surf
 atomi-point.norsdwest.in.net
 atomi5-watch.woodflo.in.net
 atomic-stresser.xyz
+atomic88tylayer.fun
 atomicatom.2rmpitoutstand.in.net
 atomicextract.to9varon.in.net
 atomiclogichub.in.net
@@ -23617,6 +23632,7 @@ atomicphotonrylink.top
 atomicqt9jqframe.top
 atomictflink034.fun
 atomictitaneilabs.top
+atomictnnode463.top
 atomicxlvault042.top
 atommolecularparticleion.com
 atomportperson.top
@@ -24205,6 +24221,7 @@ auth88.snapbargain.coupons
 auth98bkstream.icu
 authadoritative-nam.longmusic.com
 authbridgehub.net
+authciphercygateway.fun
 authcraft.mosslark.in.net
 authcrize.net
 authcurlassess.net
@@ -24253,6 +24270,7 @@ authnovakjscope.fun
 authognu.com
 author-safeguard.com
 author.auth0r1etter.ru
+authorionakwave.top
 authorization-cdn-press-enter.info
 authorization-code-cdn.info
 authorization-code.beer
@@ -24329,7 +24347,9 @@ authstep984-booking.info
 authsteps27-booking.com
 authsync.site
 authuser08-verifyinfo7sec.com
+authuwnexuswelabs.top
 authvibridge300.fun
+authvo1gflink.top
 authvpn.link
 authvtzoneqbvault.com
 authvyscope741.top
@@ -25223,6 +25243,7 @@ axiro.sbs
 axirt.xyz
 axis-portal.formalisticcore.in.net
 axis.agilelid.lat
+axis.blueoakassets.com
 axis.cryptonodex.lat
 axis.darkstonebase.lat
 axis.gela1vor.surf
@@ -25740,6 +25761,7 @@ b2.ede-1-g-0-rge.ru
 b2.h-18.ru
 b2.jk-3-y-7.ru
 b2.l3z4.ru
+b2.lunar84tnmesh.top
 b2.messager.my
 b2.postanywhere.net
 b2.v46e.ru
@@ -27775,6 +27797,7 @@ bd.i924ao.ru
 bd.j2e6.ru
 bd.k3o9d.ru
 bd.kudaxy.ru
+bd.lunar75txlink.top
 bd.macnavicat.com
 bd.med-expert24.com
 bd.o05h.ru
@@ -30569,6 +30592,7 @@ bikbal.com
 biked.live
 bikefusionstore.com
 bikegames-eu.com
+bikemaxthailand.com
 bikemolktwo.xyz
 bikems.xyz
 bikens.live
@@ -30747,10 +30771,12 @@ binarydock.courses
 binaryflowbuffer.in.net
 binaryhaflow706.fun
 binaryhkportal935.top
+binaryhugrid107.fun
 binaryintegritynet.in.net
 binarymod.vyr2dalen.in.net
 binarymode.vexa2-flow.life
 binarymzfield363.top
+binarynexusiuportal.top
 binaryrapid.qelto5rin.in.net
 binaryscale.overtmantram.in.net
 binarytradingexpert.com
@@ -31594,6 +31620,7 @@ bl-1-zpond.ru
 bl.888-c.ru
 bl.f8t6m.ru
 bl.g6i2.ru
+bl.kzvertexnet15.top
 bl.medicwellness.co
 bl.router-click.pics
 bl.rowe6yi5.ru
@@ -32304,6 +32331,7 @@ bluename.date
 bluenew.bid
 bluenexttail.xyz
 blueoak.in.net
+blueoakassets.com
 blueocean.deepwave.in.net
 blueocean.endpoint-metrics-internal.coupons
 blueocean.frozenshell.coupons
@@ -39997,6 +40025,7 @@ c3r.phoenixbogen.ru
 c3r.vortexgipfel.ru
 c3u193ap.betmajic.cc
 c3wgnqbmqrk9sti.icu
+c4.authvo1gflink.top
 c4.haeundaenight.icu
 c4.hydraofficial.icu
 c4.usa-sugermute.com
@@ -40405,6 +40434,7 @@ cahult-71.cf
 cahumec.allserial.icu
 cahuqebe.workers.dev
 cai.xjia.run
+cai.zb-j.com
 caiapo.store
 caicaibao66.com
 caicaipoop.com
@@ -42997,6 +43027,7 @@ cc.schindler-it.org
 cc.shyrgame.com
 cc.stonetmall.cn
 cc.teigigutesiegel.at
+cc.titaneowave587.top
 cc.ufomath.com
 cc.verifyrelay.shop
 cc.yamihouse.com
@@ -45649,6 +45680,7 @@ cdzctycw.com
 ce-apside.com
 ce.essaywriter247.icu
 ce.exterior-tips.icu
+ce.nexusgwtech008.top
 ce.romani.icu
 ce.tygilyo.ru
 ce1im.ru
@@ -48693,10 +48725,13 @@ cipher76vlnexus.fun
 cipherbelvedere.top
 ciphercas.sadfont.in.net
 ciphercircle.help
+ciphercz7vpnode.top
 cipherdepo.conferen-cesman.in.net
 cipherengin.mor5laxis.in.net
 cipherexnet002.top
+ciphergocoreomsys.top
 cipherlmwavecqflow.top
+ciphermf3jjforge.top
 ciphermolecu.plantpo1luter.in.net
 ciphernexusvostream.top
 ciphernx3jklayer.fun
@@ -48707,7 +48742,9 @@ ciphertrust.firstvpsresturn.buzz
 ciphervectoratforge.fun
 ciphervue.icu
 ciphervz6qebeam.top
+cipherwebridgejfflow.top
 cipherxyspace279.top
+cipherzrgatewayicstream.fun
 cipins.live
 cipmem.cutlog.in.net
 cipoqag.allserial.icu
@@ -50219,6 +50256,7 @@ cloud.duosign.net
 cloud.edgerapidcdn.com
 cloud.edns-server.cfd
 cloud.emeraldpinesenterprises.com
+cloud.emeraldpineventuresllc.com
 cloud.entert2inru8.ru
 cloud.f1atte5tudies.ru
 cloud.f1owreci7at.ru
@@ -56176,6 +56214,7 @@ cosmicmicrowavebackground.garden
 cosmicodzonerjlabs.fun
 cosmicpharma-bd.com
 cosmicpulse.world
+cosmicrnbridge446.top
 cosmicucforge669.top
 cosmicvent.net
 cosmix.site
@@ -57912,6 +57951,7 @@ csmoney.cfd
 csmultimedia.com
 cso.burydyu0.ru
 csogbyxt.com
+csolrc.biz
 csout.bid
 csp.accountrestore.online
 csp.bulktrading.cloud
@@ -59045,6 +59085,7 @@ cyberstrike.drb420.ru
 cyberstrike.honghub.cloud
 cyberstrike.hongpengai.cloud
 cyberstrike.infra.makekod.ru
+cyberstrike.logicloft.website
 cyberstrike.mangoworks.win
 cyberstrike.taibear.app
 cyberstrike.teledocmedical.ai
@@ -59471,6 +59512,7 @@ d3.g-95i.ru
 d3.microsoftofice.cz
 d3.newconnect.online
 d3.nexus32oefield.fun
+d3.peplasmanode94.top
 d3.reddirtpoolco.com
 d3.tryyingwrong5.icu
 d307.ssl.topgearoutfitters.com
@@ -61811,6 +61853,7 @@ dd-09872.com
 dd-105531.com
 dd-130512.com
 dd-i00312.com
+dd.fpcosmicflow04.top
 dd.gwut.ru
 dd.kkkkm.com
 dd.vuln5.ru
@@ -64584,6 +64627,7 @@ dfy.yckjtab.com
 dfzk00235.store
 dg.819818.xyz
 dg.buckleshrivel.top
+dg.dhlunarspark40.top
 dg.sunsettrai1.ru
 dg3ov.winalert.net
 dg45.n1ghtowl.ru
@@ -64657,6 +64701,7 @@ dhl.info-id818.com
 dhl.posteid-a365.com
 dhlfast-de.top
 dhlmanagemypack0099.com
+dhlunarspark40.top
 dhmc.in
 dhnsdns.beer
 dhnupmwq.novi7xel.lat
@@ -66234,6 +66279,7 @@ dn.b2-ra.ru
 dn.dataofpages.com
 dn.industrimicro.icu
 dn.jsdelivr.autos
+dn.matrixutsys904.top
 dn.mynq.ru
 dn.statisticscripts.com
 dn.y9r8.my
@@ -71337,6 +71383,7 @@ echolightsfinetimepieces.com
 echoloa.bexla9rin.in.net
 echomeshsite.canyonsyncgate.garden
 echomest.com
+echonmsphere375.fun
 echople.top
 echoqtnet391.top
 echorouter.airoe.cn
@@ -72022,6 +72069,7 @@ eh.jsuv0.ru
 eh.mxta6.ru
 eh.p2-om.ru
 eh.pl-8a.ru
+eh.pssolarpulse56.top
 eh.s4-ti.ru
 eh.tr-8n.ru
 eh.wzhy1.ru
@@ -72806,6 +72854,7 @@ emeoxm.com
 emerald.icu
 emeralddrucie.workers.dev
 emeraldgorgeous.top
+emeraldpineventuresllc.com
 emeraldsignalhub.top
 emeraldualzone.com
 emergency.autos
@@ -76242,6 +76291,7 @@ f0z1n.ru
 f1.71o9.ru
 f1.dzem-4.ru
 f1.screendataflow.cfd
+f1.solarot0kgnode.top
 f1.tvoj5.ru
 f1111.cn
 f121.campaign.tworiversboat.com
@@ -77585,6 +77635,7 @@ fb.com50063427851.top
 fb.eng--cognisurge.com
 fb.lilacsilo.ru
 fb.rotiri-gratuite-fara-depunere.ro
+fb.titanht0bpflow.top
 fb.vbof.ru
 fb.webcasinogames.icu
 fb1.fun
@@ -78596,6 +78647,7 @@ ffmqitnka.pages.dev
 ffng5.qu1ck.ru
 ffr-1-u.ru
 ffrpwns.vbetirani.com
+ffstem.com
 ffujj.our.openarmscv.org
 ffuu.timeline.transversallearning.com
 ffvwks.chromeflack.in.net
@@ -79752,6 +79804,7 @@ fire2.wildsh1ne.ru
 fire2taskhub.chaevodh0t.bet
 fire3.crysta1drop.ru
 fire7siteview.fluxunitzone.bet
+firebase.emeraldpineventuresllc.com
 firebitcoin.icu
 firec.live
 firecantrade.site
@@ -80948,6 +81001,7 @@ flux9.l1ghtflare.ru
 fluxa-api2.pages.dev
 fluxalphaoyspace.top
 fluxapi.cyou
+fluxaulinklilink.fun
 fluxberry.rest
 fluxbridge.in.net
 fluxchargers.com
@@ -80956,6 +81010,7 @@ fluxcrate.ru
 fluxdrive.digital
 fluxhaven.in.net
 fluxjezonecnmesh.top
+fluxnexusntsphere.top
 fluxnode.in.net
 fluxobase.in.net
 fluxobase.info
@@ -82352,6 +82407,7 @@ fp57ddz7.stormh1ll.ru
 fp8565340.temple321.bar
 fpaqjul.bahiscom2023.online
 fpbmngh4.fira6dox.lat
+fpcosmicflow04.top
 fpeplvrlgt.ru
 fpj.givegk.icu
 fpk81nyo.thevallartasrestaurants.com
@@ -83539,6 +83595,7 @@ ftp.karimtour.com
 ftp.lazarpanzio.ro
 ftp.lupolab.com.au
 ftp.luxconcarpati.ro
+ftp.majmue.com
 ftp.marciomedradophotography.com
 ftp.marketstallco.com.au
 ftp.mastree.live
@@ -84764,6 +84821,7 @@ g3yse7-glow.kym7laper.in.net
 g4.cogwhittle.ru
 g4.hovermint.ru
 g4.q642.ru
+g4.qiatomicrealm92.top
 g4.r852o.ru
 g4.t-14o.ru
 g4.t99oo.ru
@@ -86474,6 +86532,7 @@ gegust7.cf
 gegust7.gq
 gegust7.ml
 gegust7.tk
+gehab.top
 gehaji.workers.dev
 gehamaul.top
 gehans.xyz
@@ -94512,6 +94571,7 @@ h5yx.2h7-o.ru
 h5z.xr7a0.ru
 h6.3u-6.ru
 h6.5h0p.ru
+h6.plasma22xsvault.top
 h650evc4.cl0ud5tream.ru
 h663gbdv.ahkam.xyz
 h6982107.indusol.org
@@ -101678,6 +101738,7 @@ i3dubai.com
 i3o.brightgate.ru
 i3y3y.ru
 i4-27k.ru
+i4.ciphercz7vpnode.top
 i4.enus-neurosharp.com
 i40.f1atte5tudies.ru
 i44c.sbs
@@ -105674,6 +105735,7 @@ iq.18yk.ru
 iq.7-com.cn
 iq.f-2-na-7-under.ru
 iq.musst-erinnerst.icu
+iq.stellarrzcore876.top
 iq71846426.blind227.boutique
 iq7wtog0.ieubsae.icu
 iq85570406.bind853.me
@@ -105857,6 +105919,7 @@ ironwoodrotunda.top
 ironwraithtower.top
 irpd79.lix7morav.in.net
 irplumada.enturbioaj.xyz
+irprismbridge79.top
 irq.photo.beyoudcor.com
 irrati.uno
 irregnancies.xyz
@@ -106827,6 +106890,7 @@ j8ro.ru
 j9-main-point.ferroviva.in.net
 j9.ku33.icu
 j9.mcr0phnuc1.ru
+j9.pkstellarspace15.top
 j9.vintageshopping.icu
 j935.ru
 j9i2c.ru
@@ -107476,6 +107540,7 @@ jbgroup21.com
 jbkef.wincleaner.info
 jbluej.com
 jblz.trc20.kcgrocks.com
+jbmatrixsys93.top
 jbotd.photo.beyoudcor.com
 jbp.chinaxpp.com
 jbp.icetap.ru
@@ -110242,6 +110307,7 @@ justjoy.trade
 justlice.store
 justmytouch.com
 justnative.tempobet.icu
+justodo.shop
 justofhlatf.top
 justoplatf.online
 justoxtop.live
@@ -110799,6 +110865,7 @@ k9x.ieubsae.icu
 k9x5nff.tronk6vesta.coupons
 k9yn.crystal0ak.ru
 k_x9.quonaris.in.net
+ka.cosmicrnbridge446.top
 ka.do-k3.ru
 ka.ky-4x.ru
 ka.nyyl.uk
@@ -111683,6 +111750,7 @@ kecins.xyz
 kecir.live
 kecirs.xyz
 kecitic.site
+kecjr.biz
 kecju.places.creeksidehuntingpreserve.com
 keclex.live
 kecons.xyz
@@ -115451,6 +115519,7 @@ kztels.site
 kztime.ddns.net
 kzttt.winalert.net
 kzu.settings.oysterfloats.org
+kzvertexnet15.top
 kzw.lakeray.ru
 kzwvrleb.irrigation-monitoring-system.garden
 kzxtech.site
@@ -120675,6 +120744,7 @@ logichear.bid
 logicinputoutputdata.info
 logicinputoutputdata.pro
 logicinputoutputdata.sbs
+logicloft.website
 logicloo.com
 logicmatrix.in.net
 logicmetricgate.in.net
@@ -122636,8 +122706,12 @@ lunar-arc-birch-caum.icu
 lunar-quill-fluscriois.live
 lunar.perfecto.design
 lunar2waveunit.alphafluxnode.garden
+lunar45fzsys.top
 lunar53lsforge.top
 lunar57udpulse.fun
+lunar75txlink.top
+lunar84tnmesh.top
+lunaradrealmcdmesh.com
 lunarapfieldsjnet.top
 lunarbridge.digital
 lunarexil.my
@@ -122647,7 +122721,10 @@ lunarllcloud636.top
 lunarnoapfleon.pro
 lunarorbit.site
 lunarorganize.polyate-eye.in.net
+lunarqkmeshtvsphere.top
+lunarqlbridgeglvault.top
 lunarslo.oakumsenile.in.net
+lunarua9aaforge.top
 lunarwaveunit.titanmeshflow.garden
 lunaryb8bhnexus.top
 lunaterra.my
@@ -128262,6 +128339,7 @@ mail.testfeedgovern.xyz
 mail.testing-evil.duckdns.org
 mail.textmator.com
 mail.tffoodindustries.com
+mail.thaifreeevent.com
 mail.thankseightbright.xyz
 mail.thanksskindivision.top
 mail.thankstoolread.top
@@ -128996,6 +129074,7 @@ majey.live
 majirg.xyz
 majirt.xyz
 majist.live
+majmue.com
 majofres.awry-pause.in.net
 major-pur.adi8hesplayer.pics
 major-video.click
@@ -130218,6 +130297,7 @@ matrix.intxeighty.de
 matrix.namoet.de
 matrix.robotnov.online
 matrix.toxyl.nl
+matrix33qutech.top
 matrix369.org
 matrix65zbfield.fun
 matrix6pathway.cobaltpathsys.garden
@@ -130232,16 +130312,22 @@ matrixfjor.alfabon.in.net
 matrixhang.ru
 matrixhostbit.bet
 matrixhub.site
+matrixjh0jklink.icu
 matrixoemeshmktech.top
 matrixpai.space
+matrixphotonxgnet.top
 matrixpointing.com
 matrixreo.com
+matrixrtlabsgxbeam.top
 matrixrxsysvrcore.top
 matrixs1.eastus.cloudapp.azure.com
 matrixsigmaukwave.fun
 matrixspwave508.fun
+matrixutsys904.top
+matrixuz8lwflow.fun
 matrixvectorarraylist.com
 matrixwhbridge625.top
+matrixwtmeshftportal.com
 matrixyz2iqnode.top
 matsmap.com
 matsoufty.com
@@ -130709,6 +130795,7 @@ mcscindgccssd.online
 mcscloud2.com
 mcsh-program.site
 mcstorm.io
+mcsyncnode69.top
 mcttt.gov.fj
 mcvaka.xyz
 mcx.deepcl0ud.ru
@@ -132213,6 +132300,7 @@ meta.oceanstormview.lat
 meta.puro2tal.lat
 meta.veloxunit.in.net
 meta07lhflow.fun
+meta63gqzone.top
 metabase.kubegroup.co
 metabluefire.qivorpaknode.garden
 metabluefire6.mivorpulsegate.garden
@@ -132294,6 +132382,8 @@ metaplanet.icu
 metaprobusiness.com
 metaprobussiness.com
 metapureplus.com
+metapx6ykvault.top
+metarxbridgeuoforge.top
 metasensitive.com
 metasg9zlpulse.top
 metastresser.io
@@ -140200,9 +140290,11 @@ neuralclip.larkspin.in.net
 neuralcnvaultqdgrid.fun
 neuralcra.arch-vivarium.lat
 neuraldepot.brand5calpel.lat
+neuraledsparkvqmesh.top
 neuralflow.life
 neuralprismnet.digital
 neuralprobe.mobi
+neuralsynctlnet.fun
 neuralvau.plix9anor.in.net
 neuralx.sbs
 neuralxrgatewaynqgrid.fun
@@ -140959,6 +141051,7 @@ nexusdata.digital
 nexuseb7dzgateway.top
 nexusfbbeamjdforge.fun
 nexusgaze.icu
+nexusgwtech008.top
 nexusharbora.in.net
 nexusharvest.in.net
 nexushaven.in.net
@@ -143056,17 +143149,22 @@ nova7.polywhiz.ru
 nova7frame.life
 nova8.hazebinder.ru
 nova9.jump3r.ru
+novabyspark858.fun
+novacdgridiisys.top
 novacinder.digital
 novaclarke.com
 novacode.digital
 novaconsciousness.com
 novacupola.top
+novafhlabs955.fun
+novaflmeshgrnet.fun
 novaforge.in.net
 novafoxx.com
 novaglow.world
 novajclabsydspace.top
 novajyportaltqlink.com
 novakeyai.com
+novakx6qjforge.top
 novakyforge699.top
 noval.hundun.ink
 novalento.in.net
@@ -146857,6 +146955,7 @@ omega16jkrealm.top
 omega39gplayer.top
 omegaalphahkflow.top
 omegaarea.site
+omegafluxnpmesh.fun
 omegagb8uoscope.fun
 omegamd9hjflow.fun
 omeganeuraljyrealm.top
@@ -148408,6 +148507,7 @@ orchestheo.gl1mmeroak.in.net
 orchestravault.digital
 orchoose.bid
 orclasses.bid
+orcosmiclayer48.top
 orcreates.gdn
 orcs.win
 orct1.ref1nemsei7e.ru
@@ -148685,6 +148785,7 @@ orion.xs-net.tech
 orion03ahsphere.com
 orion50tcwave.fun
 orion51srbeam.com
+orionap2ciwave.top
 orioncomms.net
 orionfeld.ru
 orioniusphere340.fun
@@ -149926,6 +150027,7 @@ p0x.opaldrift.ru
 p0zn.shiweipu.com
 p1.entan.icu
 p1.gloryplan.club
+p1.justodo.shop
 p1.kilan.sbs
 p1.mscar.icu
 p1.nickq.icu
@@ -150001,6 +150103,7 @@ p3.95tbm.ru
 p3.depop.lat
 p3.gaven.sbs
 p3.gloryplan.club
+p3.justodo.shop
 p3.trips10.cc
 p300hk.ieubsae.icu
 p31dr0bs.dealzauber.qpon
@@ -151110,6 +151213,7 @@ panoramarevue.sitecreation.ma
 panoramicarrival.shop
 panorg.xyz
 panotek.site
+panovapulse15.top
 panplanning.com
 pansphygmograph.xyz
 pantech.online
@@ -153527,6 +153631,7 @@ pepirs.live
 pepirs.xyz
 pepirt.xyz
 pepjm.press
+peplasmanode94.top
 pepog.live
 pepoint.readytocheckline.com
 peporg.xyz
@@ -154109,6 +154214,7 @@ ph-testing.org
 ph.18yk.ru
 ph.changwonbutterfly.icu
 ph.dblcsecurity.net
+ph.justodo.shop
 ph.meneh.be
 ph.miwu04.icu
 ph.rjins.icu
@@ -155610,6 +155716,7 @@ pkngnws.online
 pkowolkos.site
 pkq.toludye0.ru
 pkqwqx.svolota-player.in.net
+pkstellarspace15.top
 pkumlg-spiking.org
 pkw.kos0ltyu4etey.ru
 pkwhrr.cloudgloss.in.net
@@ -155820,13 +155927,17 @@ plasm-about.ru
 plasm-spool.qyx7darem.in.net
 plasma-node.novaforge.in.net
 plasma.blo0dci7cul.ru
+plasma22xsvault.top
 plasma64qunet.top
 plasma707.promoportal4.coupons
+plasmaajfield917.com
 plasmaattech216.top
 plasmaawscope500.fun
 plasmabout.ru
 plasmacgcloudfispace.top
 plasmacipherugspace.fun
+plasmafluxgczone.fun
+plasmaibframehsgateway.top
 plasmalunarofspark.top
 plasmamjspace827.top
 plasmaphotontvframe.top
@@ -158369,6 +158480,7 @@ prewondered.com
 prework.uno
 preworkless.com
 prezly-auth.com
+prezzopro.it
 prfectr.xyz
 prgqvfu.payestation.com
 prhll.collection.aixpirts.com
@@ -158613,6 +158725,7 @@ prism.gadgetgrab.coupons
 prism.se1fve5ky.ru
 prism.tap365.org
 prism08fhgateway.com
+prism40cesys.top
 prism6hostunit.quartzprismcloud.garden
 prism82nwtech.top
 prism99lfsys.top
@@ -158622,14 +158735,17 @@ prismaviva.in.net
 prismboden.ru
 prismbot.icu
 prismca2qjstream.com
+prismentechvdscope.top
 prismex--502f038e.stellarpointnode.in.net
 prismgdcore420.fun
+prismgglinkahbeam.top
 prismgrau.ru
 prismharbor.top
 prismio.net
 prismlogic.cfd
 prismmly.com
 prismoenodecysys.fun
+prismoriondfscope.fun
 prismpay.app
 prismpfote.ru
 prismrocket.top
@@ -158637,6 +158753,7 @@ prismrpsphere381.fun
 prismsoforge785.top
 prismvwportal323.fun
 prismzetawuspark.top
+prismzr2yzpulse.top
 pristineway.world
 pritastromana.top
 pritoparivata.top
@@ -160019,6 +160136,7 @@ psoutsee.top
 psowhaugloo.com
 psozousu.com
 pspservice.com.br.caldasservice.com.br
+pssolarpulse56.top
 pstatics.com
 pstmrk.it.tronscan.sbs
 pstorespro.com
@@ -162077,6 +162195,7 @@ qianyueapi.com
 qiaoliandeng.com
 qiaozhiw.com
 qiastria.top
+qiatomicrealm92.top
 qiauhat.dawnspire.in.net
 qiazen4.icu
 qibangjiankang.com
@@ -162914,6 +163033,7 @@ quantumelitejapan.click
 quantumgpucooling.com
 quantumharbinger.digital
 quantumharbinger.in.net
+quantumhgforge121.top
 quantumhlforgeajspark.top
 quantumhorizon.digital
 quantumincome.click
@@ -162930,6 +163050,7 @@ quantumprospera.in.net
 quantumrelaypoint.in.net
 quantumridge.digital
 quantumrinde.ru
+quantumsigmayzgrid.fun
 quantumspace.world
 quantumstellarinitiative.exchange
 quantumsystem.financial
@@ -171755,6 +171876,7 @@ rwi2v.eu
 rwiewotherportal.com
 rwj46i7as3h4.en-heroup.us
 rwkl.ieubsae.icu
+rwmetagateway17.com
 rworldcity.com
 rwp.d0nit7then.ru
 rwsfixadores.com.br
@@ -178469,6 +178591,7 @@ si-you.com
 si.furion.icu
 si.kidizue6.ru
 si.ljat.ru
+si.matrixrtlabsgxbeam.top
 si.oyang.me
 si.revcot.icu
 si.sxqy9.ru
@@ -178622,7 +178745,9 @@ sigismund.installateur.icu
 sigma-xxx.xyz
 sigma.calculu5eve7y.ru
 sigma.kobeonline.icu
+sigma62qnzone.top
 sigma92aqzone.com
+sigma93fgnet.top
 sigma95yrgrid.top
 sigmact3gzfield.com
 sigmaeqforgeailink.top
@@ -181351,6 +181476,7 @@ softcloud.dy5trops7uffy.ru
 softcr5st.ru
 softcrest.ru
 softcrisp.bid
+softdc.cn
 softdeploy.xyz
 softdialogue.life
 softdr1ve.ru
@@ -181617,6 +181743,7 @@ solarmfnet922.top
 solarnestpower.com
 solarnetix.my
 solarospulsebxscope.top
+solarot0kgnode.top
 solarpeak.ru
 solarpfad.ru
 solarpoint4net.grovessa.garden
@@ -185085,6 +185212,7 @@ stellarjx0rswave.fun
 stellarmorningstar.digital
 stellarpointnode.in.net
 stellarrnsysesrealm.top
+stellarrzcore876.top
 stellarsoroban.com
 stellarstocks.claims
 stellarstyles.monster
@@ -190814,6 +190942,7 @@ t3vlw.cloudf0rm.ru
 t4.gtus-4.ru
 t4.nolix.cyou
 t4.payones.tw
+t4.vectororionzhframe.top
 t408.ru
 t4305hzn.gastronsyriansky.digital
 t48qdsn.apexprospera.in.net
@@ -192675,6 +192804,7 @@ tebimg.xyz
 tebing.xyz
 tebins.xyz
 tebirg.xyz
+tebkao.lol
 tebox.live
 tebtele.online
 tecaitouque.net
@@ -193760,6 +193890,7 @@ test.tokenflowai.cn
 test.toolslog.com
 test.topwishes.top
 test.tpa.co.at
+test.uadtpay.vip
 test.vbn67.top
 test.vincent247.xyz
 test.vkeys.cn
@@ -194199,6 +194330,7 @@ thaichashootu.net
 thaicoin.icu
 thaidrokr.net
 thaidsir.xyz
+thaifreeevent.com
 thaifteg.com
 thaighinaw.net
 thailandlenka.info
@@ -195929,6 +196061,8 @@ titanautoae.com
 titanbirch.ru
 titanco.space
 titanechouwforge.top
+titaneowave587.top
+titanht0bpflow.top
 titanlunarxlcore.top
 titanmeshflow.garden
 titanroof.world
@@ -201143,6 +201277,7 @@ uads.shop
 uads.space
 uads.store
 uads.today
+uadtpay.vip
 uae-aramex.com
 uae-business-directory.com
 uaeia.online
@@ -201170,6 +201305,7 @@ uas-store.shop
 uas-store.su
 uasbet.live
 uasdivision.com
+uasyncframe57.fun
 uat-flowiseai.kaikaiyun.icu
 uat-law.regenesys.net
 uat.marketstallco.com.au
@@ -201435,11 +201571,13 @@ ufa-789v1.net
 ufa.miamiclubcasinonodepositbonus.icu
 ufa.rgymnastics.ru
 ufa.shazamcasinonodepositbonuscodes.icu
+ufa087.top
 ufa24.co
 ufa365.cloud
 ufa365login.com
 ufa911v1.net
 ufabsoonsijeerg.net
+ufafun350.net
 ufaheng789.app
 ufaifophsurvey.space
 ufathaiv1.net
@@ -206776,6 +206914,7 @@ va.deltasync.ru
 va.hpap-6.ru
 va.jvrjobs.co.za
 va.koremax.icu
+va.metarxbridgeuoforge.top
 va.panerix.icu
 va.pewi2ee5.ru
 va.rixvora.cfd
@@ -207527,6 +207666,7 @@ vbpco.cannaturalgroup.com
 vbq6.v1b3forge.ru
 vbrmy.cathedralza.icu
 vbsvco.7-com.cn
+vbsyncscope74.top
 vbt.novelty.akibacreative.com
 vbuckgenerator.icu
 vbucks.icu
@@ -207764,6 +207904,7 @@ vector17mjsys.icu
 vector3sitehub.cobaltpathsys.garden
 vector3sitehub.vectorpointsite.garden
 vectoraltimeter.in.net
+vectorapexshnexus.top
 vectorbase.in.net
 vectorblitz.ru
 vectorcxnodepiwave.top
@@ -207781,6 +207922,7 @@ vectorizegraphic.com
 vectorjtlinkvdzone.fun
 vectormxzone461.fun
 vectornexusqblink.top
+vectororionzhframe.top
 vectorpathsys.bet
 vectorpatronage.in.net
 vectorpointsite.garden
@@ -208693,6 +208835,7 @@ vertexbloom.in.net
 vertexgm5izstream.com
 vertexharbinger.in.net
 vertexiw2rklabs.top
+vertexmw7rlcloud.top
 vertexpatron.in.net
 vertexpointlinknet.lat
 vertexshifthub.lat
@@ -208702,7 +208845,9 @@ vertextrustadvisors.com
 vertexurbanhub.garden
 vertexvenetzqsys.top
 vertexvmsys592.top
+vertexxxsyspalayer.top
 vertexyhsyscbsys.top
+vertexzwlinkoqspark.top
 vertical-data-flow.brightcliff.in.net
 vertical-eco-farming.garden
 verticapeople.com
@@ -212115,6 +212260,7 @@ w_t8.quonaris.in.net
 wa-helper.sznm.dev
 wa-ke-a-ri.org
 wa-track.com
+wa.168api.dpdns.org
 wa.dater.world
 wa.nianmo.top
 wa.poxyway.ru
@@ -213024,6 +213170,7 @@ wcy91.haziranlar3.icu
 wd-79.ru
 wd.abdurrahmangungor.com
 wd.gunim5yi8.ru
+wd.lunarqkmeshtvsphere.top
 wd.z-99-l.ru
 wd94tpd06.ieubsae.icu
 wdav.skykraft.su
@@ -218955,6 +219102,7 @@ xawur.workoutwithdorci.com
 xaxezotaficysy.ipaperbook.icu
 xaydungminhtam.vn
 xazavo.workers.dev
+xazetatech28.top
 xazomezaletuluno.einkpapers.icu
 xb-4-e-7.ru
 xb.nyps.ru
@@ -220313,6 +220461,7 @@ xozpwh9b.sn1pburrow.ru
 xozqet.gr-1-tfable.ru
 xp.bitbrief.org
 xp.bluecant.icu
+xp.cipherwebridgejfflow.top
 xp.coinscan.icu
 xp.ieubsae.icu
 xp.marscode.icu
@@ -222895,6 +223044,7 @@ ys.chowsbus.org
 ys.jazzm1s8uid.ru
 ys.onaritest-1.com
 ys.tentpolo.icu
+ys11.cn
 ysd.lessondv.icu
 ysetechnologies.com.appniacs.com
 ysflo.events.socalpocis.org
@@ -223868,6 +224018,7 @@ zaziwudepul.eformatspaper.icu
 zazsouq.com
 zazsvrye.vex4moral.in.net
 zb-bingo.top
+zb-j.com
 zb.3spdpages.com
 zb.cdn-core.com
 zb.kpyw-8.ru
@@ -223891,6 +224042,7 @@ zbqzzxu.lavorcollective.com
 zbtesting.cypermadi.com
 zbyhm.cokenote.in.net
 zbzb.ypsecurity.fr
+zbzetamesh70.fun
 zbzldh.greenwaysolar.hu
 zc.1o6y4.ru
 zc.1vd-z.ru
@@ -224367,6 +224519,7 @@ zeta.urbanpulse.surf
 zeta.vori7nex.lat
 zeta.zori6mav.surf
 zeta11wlscope.top
+zeta28tfnet.top
 zeta74ktfield.fun
 zetaeknode127.top
 zetaexgridfrlabs.top
@@ -224391,7 +224544,9 @@ zetas.quest
 zetas.shop
 zetas.xyz
 zetasigmawmlink.top
+zetasnflow386.top
 zetavectoravfield.fun
+zetaxq4nrrealm.fun
 zetaxuwaveyalabs.top
 zetaypgatewaymuframe.top
 zethrax.rest

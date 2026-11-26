@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (Full-Export + Recent-API)
-# Aktualisiert: 2026-11-26 16:54 CET
-# Eintraege: 31270
+# Aktualisiert: 2026-11-26 19:57 CET
+# Eintraege: 31315
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1077,6 +1077,7 @@
 5xt7cdfm.deurnenwinkel.com
 5yedpf632rk3t98.icu
 5yohaely.betexper.bet
+5yt11xls.aafiekapame.org
 5yvw9e40.behtarin-site-shartbandi-football.com
 5z9j5y93.akhlagvaahkam.xyz
 5zh0a5l5.en-flashburnn.com
@@ -1817,17 +1818,21 @@ aafiborot.org
 aafibungo.org
 aafibuseryo.org
 aafidairi.org
+aafidarungan.org
 aafidisendobo.org
 aafidokoneida.org
 aafidugunik.org
+aafiekapame.org
 aafigayolues.org
 aafigembileme.org
 aafigiko.org
 aafigiwan.org
 aafigolikme.org
+aafigumagame.org
 aafiipouwa.org
 aafijambi.org
 aafijerusalem.org
+aafijilekme.org
 aafnojwq.megashart.blog
 aah.celikit.my
 aah3bpf6.eng-eng-glucore.com
@@ -2167,6 +2172,7 @@ agaemr.ro
 agapool.com
 agazud.com
 agelesstrainer.com
+agenarimoonjakarbade.cfd
 agence.adafri.co
 agenciaciis.com.br
 agenciadigitallord.com.br
@@ -2673,6 +2679,7 @@ anambra.duckdns.org
 anarchy10.duckdns.org
 anarivasfisioterapia.com
 anazon2-aws.xyz
+anb6etxp.cloud.xenzhao.sbs
 anbush.com
 anchorcoral10.com
 anchorfreigh.setqueueat.lat
@@ -2869,6 +2876,8 @@ api-configuard.com
 api-dns.org
 api-ext.bixbitemarketing.com
 api-imager-host.beer
+api-kkenq8fer.blackmirrorfilemkhubie.cfd
+api-kkenq8fer.doc23portalmireoonja.cfd
 api-master.site
 api-metadata-v6.is
 api-metrics-5453.com
@@ -3149,6 +3158,7 @@ arigatodomen.sbs
 arihanp.jamjahani.website
 ariktreininger.business-profiles.com
 ario-tech.com
+arisehrsolutions.com
 aristacosmetics.com
 aritmiagenesh.com
 ariuc8vw.ceomutual.com.mx
@@ -3974,6 +3984,7 @@ bazardemagia.com
 baziieenfejar.com
 bazikeno.com
 bazikonbartar.ir
+bazishaditafrihkhande.cfd
 baztechalarm.net
 bb-rv.de
 bb001.bd-devmetrics.net
@@ -4517,6 +4528,7 @@ blackjack-x.com
 blackjacktipsnnt.com
 blackkkkdate.icu
 blackkkkkdate.icu
+blackmirrorfilemkhubie.cfd
 blackmorebooks.ravenhawk.net.au
 blackmusic.com.br
 blackriverlawn.com
@@ -5178,6 +5190,7 @@ bushesbone.xyz
 bushrosvalni.courses
 business360.hu
 businessclassdeals.com.au
+businessexperience.cfd
 businessservicesolution.com
 busy-sunni.digital
 butlercandoit.ca
@@ -5206,6 +5219,7 @@ bv0rhljc.en-us-theeloncod.com
 bvabf.budapesthandmade.hu
 bvcbx.store
 bvd0k429.maia-bentley.com
+bvfse31d.aafigumagame.org
 bvhqwydv.greenestreetchurch.com
 bvk32.ru
 bvm9kxn7.gut--drops.com
@@ -5686,6 +5700,7 @@ cdbxemdoq.toofan90bet.com
 cdcila.net
 cdcleaning.co.uk
 cdctvukr.taktikkbet.com
+cdicustomapi-tbaj3zlak.businessexperience.cfd
 cdmke7zf.sky7bet.casino
 cdn-2.cloud.xenzhao.sbs
 cdn-2faclov.sbs
@@ -5716,6 +5731,7 @@ cdn-yethounds.beer
 cdn.0807.st
 cdn.876553.xyz
 cdn.api-middle-connect.com
+cdn.claritydelivr.com
 cdn.clintonpqfg-adriance.workers.dev
 cdn.cloudfront-assets.online
 cdn.copperfern.cc
@@ -5869,6 +5885,7 @@ ch.ampelbet.org
 ch79s29o.eng--nervealive.com
 chaithanya.com
 chakaame.com
+challengnakonmanobaina.cfd
 chammaautosales.com
 chamomilecanto.co
 champag-mannered.digital
@@ -5886,6 +5903,7 @@ channelkornofuli.org
 chant-78.com
 chant66.com
 chant98.com
+chantec.co.uk
 chantfern11.com
 chaomoinguoi.duckdns.org
 chapaan.lol
@@ -5949,6 +5967,7 @@ cherish-cultscreencard.wiki
 chernichco5t.digital
 chernyour.com
 cherryhypogeum.org
+chertopertbemannagulotfan.cfd
 chesft.com
 chestercountyhardwood.com
 chestnutstanza.top
@@ -6120,6 +6139,7 @@ claesenmaleri.top
 claghemaxc.com
 claim-mainstreet.finance
 claim-mainstreets.fi
+claimant5.click
 claimpassivedebatw.pw
 claims-altura.trade
 claims-zebec.com
@@ -6989,6 +7009,7 @@ cunozylb.sanjeshvaandazegiri.shop
 cunts.colg1.org
 cuo2gs4q.sportteen.ir
 cuoibebung.com
+cuongmobile.com
 cup.blinqueofficial.com
 cup.wiwgf.workers.dev
 cup.yourbodybydesign.me
@@ -7409,6 +7430,7 @@ dea1e060.udeur.org
 deadseamineral.sk
 deafeninggeh.biz
 deamobros.com
+debiandelivr.com
 debloatex.com
 debonairnukk.xyz
 debug.pingload.cc
@@ -7944,6 +7966,7 @@ dobboeu.channelsbetyek.com
 doc.nfe-online.com
 doc.nfiscais.com
 doc.worldpress.lat
+doc23portalmireoonja.cfd
 docardebiary.blog
 doceditorinc.com
 dock.yourbodybydesign.me
@@ -7963,6 +7986,7 @@ doclabutil.guess-relevation.lat
 doclabutil.infrapointbase.pics
 doclabutil.infrasettopview.pics
 doclabutil.openapiservicex.pics
+docomocoblog.cfd
 docpic-safe.info
 docs.css-kunststofftechnik.de
 docs.traxstreaming.live
@@ -8042,6 +8066,7 @@ donutinsulinphilosophy.courses
 donzfamily.com
 doogle-pixel.buzz
 doorblu.xyz
+doostmanbashtaberemail.cfd
 dopabaxu.workers.dev
 doppe.io
 dopz07hy.rewardbet.bet
@@ -12340,6 +12365,7 @@ hi4ztw3j.vip1xbet.org
 hiainav.com
 hibmarket.help
 hibridgedispensary.com
+hiburkandirimu.click
 hibwmmbn.shartbandi.games
 hidatt.cyou
 hiddenalpha.so1verin.bet
@@ -12532,6 +12558,7 @@ honestshape.wetshardauth.lat
 honestyfi.xyz
 honeymoonshop.asia
 honeytrail.cc
+hongthensite.click
 hooijo.site.transip.me
 hook-relay.xyz
 hook.ftp21.cc
@@ -12692,6 +12719,7 @@ htk.arizonafamilylawfirm.com
 htro.site-shartbandi-khareji.com
 htxvanthanhphat.vn
 hu.asianwins.com
+hu.azzawin.org
 hu406sua.ozabet.promo
 hub4.cdndock.click
 hubdonostia.com
@@ -15939,6 +15967,7 @@ logicvault.icu
 logimar.pl
 login-grvt.com
 login-grvt.my
+login-mlcrosoft365online.cfd
 login.cloud.xenzhao.sbs
 login.metricsdashboard.cc
 login.nimbusforge.cc
@@ -17370,6 +17399,7 @@ model.bytedrop.cc
 modelclinics.com
 modelcut-auto-frame-nodipfs.garden
 modeldent.it
+modern.free.nf
 modernanchorengine.com
 moderncloudprotection.com
 moderncountryrocketheaters.com
@@ -17809,6 +17839,7 @@ muscle-up-yavne.com
 museodiocesanonoto.it
 museummacan.mom
 museview.buzz
+mushop.unaux.com
 musicalbox.com
 musicalbox.sbs
 musicbuzznation.com
@@ -18936,6 +18967,7 @@ o.gam99.org
 o.geng7.org
 o.gp108.org
 o.hino9.net
+o.hqq77.org
 o.peer4you.net
 o03u2lab.chestercountyhardwood.com
 o04h18rp.rsfoodproducts.com
@@ -19099,6 +19131,7 @@ office-rechnung.icu
 office-rechnung.life
 office-rechnung.top
 office356.icu
+office365mail-com5utbdma4h7uq82nhbr2m.cfd
 office365update.duckdns.org
 office36o.online
 officefagbo.duckdns.org
@@ -19151,6 +19184,7 @@ ohoinewfoundlands.com
 ohqdboshn.hear-easy.com
 ohqvz201.unseen-zorenka.digital
 ohtvwmv.keyslimdrops-com.com
+ohuc0yrz.aafijilekme.org
 ohzmh.bninolimit.com
 ohztowdn.burn--flow.com
 oi.1betasia.org
@@ -20614,6 +20648,7 @@ poolscrystalclear.com
 poop.garden
 poopflavored.beer
 pop.topsm188.top
+popcorntazebarambiar.cfd
 popeak.biz
 popelkar.pro
 popkas.bond
@@ -20861,6 +20896,7 @@ profidiam.com
 profilab.monster
 profile.cobaltwayfinder.org
 profile.turquoisequadrant.info
+profilesecureservices.cfd
 prognosisinfo.in
 programacionlineal.net
 programakuntansi.id
@@ -21927,6 +21963,7 @@ rawocav.com
 ray-id-v3.com
 rayaduradesandia.com
 raybake.com
+raygee.com
 raymeesautocoach.com
 rayonbet.com
 raypathlink.xenonraypoint.garden
@@ -22879,6 +22916,7 @@ ryrob.boutiqbar.com
 rywwahl.romabet90.bet
 rz.333pwk.org
 rz.396zk.net
+rz.azzawin.org
 rz45lyi2ehl2e2xs3ivwbah65tumebztmypmtqpc6cigc3wadwjicgad.onion
 rz5lecsm2re5ec4im362jnalrypxylxsdobuibuotbovvs4d3ctrcoyd.onion
 rz8whp3p.citafm1.com
@@ -23781,6 +23819,7 @@ shopvumanhcuong.com
 shopwildwoven.com
 shore-leaf.pastor-publicist.lat
 shoreharbor9.com
+shortlifematergroup.cfd
 showharbor.fr
 showmecoffee.monster
 showroomcycling.com
@@ -24992,6 +25031,7 @@ sullyphotos.com
 sultan88.de.com
 sultan88.link
 sultan88.live
+sultanjp6582.click
 sultankito.com
 sultankito.net
 sultanoffc.com
@@ -25457,6 +25497,7 @@ tasty-apple1.sylov2en.in.net
 tatgolf.cyou
 taton.tattoo
 tatovlog.top
+tatsubei.click
 tatyixqn.dunkpo1ytechnic.digital
 tauzzvhy.zuppy.store
 tavona.shop
@@ -25522,6 +25563,7 @@ tcymfy.krokodilpince.hu
 td.distributedruntimehub.surf
 td3avpdc.dota.pw
 td5323u3.primordialsoupevolution.digital
+td910240s.com
 tdd.ambiltogel.net
 tdd.kijangturbo88.top
 tde.ayuselot.org
@@ -25678,6 +25720,7 @@ test.officeplustool.top
 test.omegafic.com
 test.txtensatorxgyt.xyz
 test3012.duckdns.org
+testdelivrsys31523.com
 teste.atctecnologia.com.br
 teste.clarasampaio.com.br
 teste.ghostnfc.site
@@ -26432,6 +26475,7 @@ tumaile.com
 tundraflow6net.veloria.garden
 tunivert.com
 tuntian.top
+tup9c9ef.aafidarungan.org
 tuplediskdkey.christmas
 tupsvps.site
 tur.jurangsm188.top
@@ -30764,6 +30808,7 @@ z41spc7f.bossbeymarket.click
 z4d0x58u.bossbeypro.click
 z4e0sn7r.keca.store
 z4tonbkjybcllsvd45smpkqkk5uaspmlnvmysrkxt37wuudijvp7k2id.onion
+z5.azzawin.org
 z514sw28.paripalse.com
 z52rumys.customhomebuildersplainfield.com
 z59ux9.he2o9t.com
