@@ -1670,23 +1670,75 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
     # 5) YAML / TOML / INI / generische Key-Value-Listen -------------------
     kv_fragments = []
     kv_seen = False
-    for line in data_lines:
-        match = re.match(r"^\s*[\-]?\s*([A-Za-z0-9_.-]{1,80})\s*[:=]\s*(.+)$", line)
-        if not match:
-            continue
-        kv_seen = True
-        key = match.group(1).lower()
+
+    def _kv_key_state(key):
+        """'bad' = Allow-/Infrastruktur-Schluessel, 'good' = Sperr-Schluessel."""
+        key = key.lower()
         if any(bad in key for bad in (
             "whitelist", "allowlist", "trusted", "ignore", "gateway",
             "resolver", "nameserver", "reporter",
         )):
-            continue
+            return "bad"
         if any(good in key for good in (
             "ip", "address", "host", "ioc", "indicator", "block", "deny",
             "threat", "malicious", "bad", "attacker", "source", "src",
             "target", "destination", "dst", "element", "member",
         )):
+            return "good"
+        return ""
+
+    for line in data_lines:
+        match = re.match(r"^\s*[\-]?\s*([A-Za-z0-9_.-]{1,80})\s*[:=]\s*(.+)$", line)
+        if not match:
+            continue
+        kv_seen = True
+        if _kv_key_state(match.group(1)) == "good":
             kv_fragments.append(match.group(2))
+
+    # YAML-Blocklisten (2026-11-26): Eintraege als "- 1.2.3.4" unter einem
+    # Schluessel ohne Wert, z.B. GCP Cloud Armor "srcIpRanges:". data_lines
+    # ist bereits gestrippt, deshalb hier die Originalzeilen mit Einrueckung.
+    # Massgeblich ist der zuletzt geoeffnete leere Schluessel; Listen unter
+    # Allow-/Trusted-Schluesseln werden nie uebernommen. Listen ohne
+    # Eltern-Schluessel (Top-Level) zaehlen als Sperrliste.
+    # Ausserhalb von .yaml/.yml zaehlen nur Listen unter einem Sperr-
+    # Schluessel, damit Markdown-Aufzaehlungen weiter den bewaehrten
+    # Plain-Text-Fallback nutzen.
+    _yaml_top_state = "good" if ext in (".yaml", ".yml") else ""
+    _yaml_key_stack = []  # [(einrueckung, zustand)]
+    _yaml_structure_seen = False
+    for raw in stripped.splitlines():
+        if not raw.strip() or raw.lstrip().startswith(("#", "//")):
+            continue
+        indent = len(raw) - len(raw.lstrip(" "))
+        body = raw.strip()
+        item = re.match(r"^-\s+(.+)$", body)
+        if item and not re.match(r"^[A-Za-z0-9_.-]{1,80}\s*:(?:\s|$)", item.group(1)):
+            while _yaml_key_stack and _yaml_key_stack[-1][0] > indent:
+                _yaml_key_stack.pop()
+            state = _yaml_key_stack[-1][1] if _yaml_key_stack else _yaml_top_state
+            if state == "good":
+                kv_seen = True
+                kv_fragments.append(item.group(1).split(" #", 1)[0])
+            continue
+        if item:
+            body = item.group(1)
+            indent += 2
+        key_only = re.match(r"^([A-Za-z0-9_.-]{1,80})\s*:\s*(?:#.*)?$", body)
+        while _yaml_key_stack and _yaml_key_stack[-1][0] >= indent:
+            _yaml_key_stack.pop()
+        if key_only:
+            # Ein Allow-/Trusted-Vorfahre gilt fuer alle Unterlisten.
+            if any(s == "bad" for _i, s in _yaml_key_stack):
+                state = "bad"
+            else:
+                state = _kv_key_state(key_only.group(1))
+            _yaml_key_stack.append((indent, state))
+            _yaml_structure_seen = True
+    # Eine .yaml/.yml mit Schluessel-Struktur nie an den Plain-Text-Fallback
+    # geben: der wuerde auch IPs unter trusted:/allow-Schluesseln lesen.
+    if _yaml_structure_seen and ext in (".yaml", ".yml"):
+        kv_seen = True
     if kv_seen:
         kv_result = _hosts_from_fragments(kv_fragments)
         if kv_result or ext in (".yaml", ".yml", ".toml", ".ini"):
@@ -1698,8 +1750,11 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
     # Policy abgelehnt.
     # IP-Ranges vor dem Fallback entfernen, damit nicht nur Start und Ende
     # faelschlich als zwei einzelne Hosts in die Liste gelangen.
+    # Nur innerhalb einer Zeile ([ \t]* statt \s*): sonst galten
+    # "1.2.3.4\n- 5.6.7.8" (Markdown-/YAML-Aufzaehlung) als Range und
+    # beide IPs fielen weg (2026-11-26).
     fallback_text = re.sub(
-        r'(?<![\d.])\d{1,3}(?:\.\d{1,3}){3}\s*(?:-|\.\.)\s*'
+        r'(?<![\d.])\d{1,3}(?:\.\d{1,3}){3}[ \t]*(?:-|\.\.)[ \t]*'
         r'\d{1,3}(?:\.\d{1,3}){3}(?![\d.])',
         ' ',
         stripped,
