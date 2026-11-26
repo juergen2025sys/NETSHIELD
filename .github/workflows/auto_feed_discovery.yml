@@ -1874,8 +1874,9 @@ jobs:
           ]
 
           def _fetch_hq_ref(url):
-              # HQ-Ref-Limit: 8 MB – abuseipdb-s100-30d.ipv4 ist >5 MB
-              text = fetch_raw(url, limit=8 * 1024 * 1024, timeout=30)
+              # HQ-Ref-Limit: 16 MB – abuseipdb-s100-30d.ipv4 ist seit
+              # 26.11.2026 ueber 8 MB (8,3 MB) und fiel mit 8 MB komplett weg.
+              text = fetch_raw(url, limit=16 * 1024 * 1024, timeout=45)
               if text:
                   found = extract_ips(text, url)
                   print(f"  HQ-Ref {url.split('/')[-1]}: {len(found)} IPs")
