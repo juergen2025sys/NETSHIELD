@@ -1,5 +1,5 @@
 # Bot-Detector Blacklist – Report
-**Aktualisiert:** 2026-11-26 20:26 CET (Europe/Berlin)  
+**Aktualisiert:** 2026-11-26 20:58 CET (Europe/Berlin)  
 **Quelle:** Proxy-Feeds aus auto_feed_discovery (dynamisch ausgewaehlt via is_bot_detector_feed_name())
 
 ---
@@ -7,9 +7,9 @@
 
 | Metrik | Wert |
 |---|---|
-| Gesamt IPs | **1,212,762** |
+| Gesamt IPs | **1,212,765** |
 | Neu (heute) | **+41** |
-| Entfernt | **-32** |
+| Entfernt | **-38** |
 | FP-Filter entfernt | 0 |
 | Whitelist-Filter entfernt | 0 |
 | Quellen gesamt | 44 |
@@ -25,16 +25,16 @@
 | ✅ `kraloveckey_ipsets_blocklist_socks_proxy_30d` | 2,438 |
 | ✅ `alsyundawy_mikrotik_blacklist` | 48,653 |
 | ✅ `antoinevastel_avastel_bot_ips_lists` | 499,824 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 3,611 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,350 |
-| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 577 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list` | 4,008 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_https` | 4,850 |
+| ✅ `vmheaven_vmheaven_io_free_proxy_list_http_anonymous` | 597 |
 | ✅ `configserverapps_service_blocklists_blocklist_webcrawlers` | 220,041 |
 | ✅ `kraloveckey_ipsets_blocklist_sslproxies_30d` | 956 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,158 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 615 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 517 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 438 |
-| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 244 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list` | 1,069 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl` | 543 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_elite` | 504 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_all_ssl_elite` | 414 |
+| ✅ `vpslabcloud_vpslab_free_proxy_list_socks5_all` | 253 |
 | ✅ `ercindedeoglu_proxies` | 54,968 |
 | ✅ `ercindedeoglu_proxies_socks4` | 18,974 |
 | ✅ `ercindedeoglu_proxies_socks5` | 20,600 |
@@ -69,4 +69,4 @@
 > Diese 44 Quellen sind dort aus dem Auto-Feed-Loop ausgeschlossen (Doppelzaehlungs-Schutz).
 
 ---
-*Generiert: 2026-11-26 20:26 CET (Europe/Berlin)*
+*Generiert: 2026-11-26 20:58 CET (Europe/Berlin)*
