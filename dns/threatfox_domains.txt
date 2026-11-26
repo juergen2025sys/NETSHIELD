@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (Full-Export + Recent-API)
-# Aktualisiert: 2026-11-26 19:57 CET
-# Eintraege: 31315
+# Aktualisiert: 2026-11-26 22:52 CET
+# Eintraege: 31335
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -492,6 +492,7 @@
 2dm5zbbk.oris303.com
 2dz4gggg.betgopro.com
 2dzxuao7.parossag.hu
+2e7q9tsw.aafideliserdang.org
 2ell0jzk.lacek.store
 2emkqggv.pdfclass.ir
 2epf8wxl.josephmichaelnh.com
@@ -1393,6 +1394,7 @@
 84mucdco.sketchetch.net
 84nog8td.nazimhikmetakademisi.org
 84pa4isp.retinaclearofficials.com
+84zqug8e.aafihokolekma.org
 853vs3ju.honargrafi.com
 855e6v1la8ngbep.top
 859wyr.porukau8ar.lat
@@ -1819,20 +1821,24 @@ aafibungo.org
 aafibuseryo.org
 aafidairi.org
 aafidarungan.org
+aafideliserdang.org
 aafidisendobo.org
 aafidokoneida.org
 aafidugunik.org
 aafiekapame.org
+aafiendokisi.org
 aafigayolues.org
 aafigembileme.org
 aafigiko.org
 aafigiwan.org
 aafigolikme.org
 aafigumagame.org
+aafihokolekma.org
 aafiipouwa.org
 aafijambi.org
 aafijerusalem.org
 aafijilekme.org
+aafikalipepe.org
 aafnojwq.megashart.blog
 aah.celikit.my
 aah3bpf6.eng-eng-glucore.com
@@ -3781,6 +3787,7 @@ ba5ufc2h.logic-sphere.digital
 baainbw-vergabe.de
 baaptyst-25027.portmap.host
 babacan.lol
+babahhoki.com
 babayagadead.duckdns.org
 babbel.pulverbjoern.info
 babelo.pro
@@ -7481,6 +7488,7 @@ defegh.com
 defenderos2.con-ip.com
 defenr.com
 defi-xstocks.vip
+definiacapital.com
 defisecurityaudit.com
 defjamsea.com
 defy.3ce7ab2da45404231f376cac66904a01.workers.dev
@@ -8111,6 +8119,7 @@ doxbin.cy
 doyok.net
 dp-test1.com
 dp.atoslot.org
+dp.azzawin.org
 dp866jpu.lmshumate.com
 dpbp.betsher.casino
 dpctech.net
@@ -12436,6 +12445,7 @@ hjwix773-61426.portmap.host
 hjynlx3f.highmileauto.com
 hjyxshsj.top
 hk.anakraja87.org
+hk.babahhoki.com
 hk5kmml4.fleshburn.us
 hkb7.org
 hkbjsdafsfoukhg4566578.lol
@@ -16325,6 +16335,7 @@ m.gg180.net
 m.gp108.org
 m.gsx88.org
 m.ho108.org
+m.hqq77.org
 m.l1biz.sbs
 m.nerobet888.com
 m.nohuvip.co
@@ -17998,6 +18009,7 @@ n058152033245.netvigator.com
 n0mxdac6.enus-us-glycomute.com
 n0n-cases.net
 n0n.to
+n0nnbe54.aafiendokisi.org
 n1.google-analytcis.com
 n1.persistfromchicago.com
 n1nrcs2e.udap.store
@@ -19252,6 +19264,7 @@ olabs.net
 olakv.technologiaiviz.hu
 olamiccutlery.com
 olanocorp.com.pe
+old.olivina.ch
 olddenver.xyz
 oldisgoldgameis.com
 oldmon56121.icu
@@ -20206,6 +20219,7 @@ pey.popi999.net
 pey7qyul.aminjauhary.com
 peykanrapkon.com
 pf.ayowd49.org
+pf.ayuselot.org
 pf6n62u7.luxerabet5.com
 pfalzhotel.live
 pfbaej.enus-en-audizen.com
@@ -23997,6 +24011,7 @@ sjwtvp.buy-audizen.com
 sjyur55n.jurni.store
 sjzcjaqs.jadoou.bond
 sk.ankapaito.org
+sk.azzawin.org
 sk.bumblemovies.com
 sk4a8369.anodaz.store
 sk9sjwg4.snaptigen.com
@@ -25075,6 +25090,7 @@ superapp-zebecnetwork.com
 superboomer.world
 superfirewallprotection.com
 superlampara.com
+superpay.pk
 superpooper.click
 supersapp-zebec.com
 supersoftwarede.com
@@ -28617,6 +28633,7 @@ winchmnb.space
 wind-3q.sylov1er.in.net
 wind.cafemartinezsa.com
 windharbor.1zarelin.lat
+windmill-cottages.co.uk
 windonws.com
 windows-18.sbs
 windows-update-local.rest
@@ -29344,6 +29361,7 @@ www.joenyc.com
 www.joezsingin.com
 www.jolivet.asso.fr
 www.jqseguros.com.br
+www.jts6831897.casa
 www.judeglass.com
 www.justicewatts.com
 www.k-diaspora.biz
@@ -30524,6 +30542,7 @@ yl9wom1c.en-trump-token.com
 ylccwf.jamjahani.games
 ylcfeow.penalty.casino
 ylevents.com
+ylheltwi.aafikalipepe.org
 yliqkmh.akhbarirani.com
 yliw.site-asli-bedon-filter-1xbet.com
 yljcpgd.mercedcutnshaveco.com
@@ -30944,6 +30963,7 @@ zen-tava.com
 zen-video-arrest-monster.xyz
 zen-zensulin.com
 zen.ayxandevgang.workers.dev
+zenci.sbs
 zendriol.com
 zenfa.store
 zenithharbinger.digital
