@@ -2069,6 +2069,22 @@ jobs:
               "osquery", "osquery-ioc",
               "elastic-security", "elastic-siem",
               "crowdstrike-ioc", "sentinelone-ioc", "defender-xdr",
+              # NEU (2026-11-26): weitere Firewall-/Router-Hersteller und
+              # Cloud-Firewalls, deren Community Blocklisten pflegt. Alle nutzen
+              # Plain-Text (IP/CIDR je Zeile) oder bereits erkannte Formate
+              # (.rsc, .ipset, .netset, .edl) - keine neue Format-Erkennung noetig.
+              "unifi", "ubiquiti", "unifi-blocklist", "edgerouter", "edgeos",
+              "openwrt", "openwrt-blocklist", "banip", "luci-app-banip",
+              "ipfire", "ipfire-blocklist", "zyxel", "zyxel-usg",
+              "stormshield", "f5-bigip", "big-ip", "f5-irules",
+              "vyos", "untangle", "arista-edge", "zenarmor", "sensei",
+              "synology-firewall", "synology-autoblock", "draytek", "lancom",
+              "hillstone", "huawei-usg", "kerio-control", "smoothwall",
+              "endian-firewall", "clearos", "gl-inet", "asuswrt", "asuswrt-merlin",
+              "skynet-firewall", "diversion", "tp-link-omada",
+              "aws-waf", "aws-waf-ipset", "aws-network-firewall",
+              "azure-firewall", "azure-nsg", "gcp-cloud-armor", "cloud-armor",
+              "cloudflare-waf", "cloudflare-lists", "zscaler", "netskope",
           ]
 
           # FIX API1: Queries ohne Body-Keyword wurden entfernt (HTTP 422).
@@ -2246,6 +2262,26 @@ jobs:
               "filename:compromised-ips.txt ip",
               "filename:c2-servers.txt ip",
               "filename:botnet-c2.txt ip malicious",
+              # NEU (2026-11-26): weitere Firewall-/Router-Hersteller und Cloud-WAFs
+              # (siehe gleiche Ergaenzung bei SEARCH_TOPICS).
+              "unifi threat blocklist ip",
+              "ubiquiti edgerouter blocklist ip",
+              "openwrt banip feed ip",
+              "ipfire ip blocklist malicious",
+              "zyxel usg blocklist ip",
+              "stormshield blocklist ip",
+              "f5 big-ip ip blocklist malicious",
+              "vyos firewall blocklist ip",
+              "synology autoblock blocklist ip",
+              "asuswrt skynet blocklist ip",
+              "draytek blocklist ip",
+              "aws waf ip set blocklist malicious",
+              "azure firewall threat intelligence ip blocklist",
+              "cloud armor ip blocklist malicious",
+              "cloudflare waf ip list malicious",
+              "zenarmor blocklist ip",
+              "filename:skynet.ipset ip",
+              "filename:banip.blocklist ip",
           ]
 
           candidate_repos = {}
@@ -2894,6 +2930,9 @@ jobs:
               "fortigate", "fortinet", "cisco-firepower", "checkpoint",
               "sophos", "sophos-firewall", "juniper-srx", "pfblockerng",
               "sonicwall", "watchguard",
+              # NEU (2026-11-26): weitere Hersteller (siehe SEARCH_TOPICS)
+              "unifi", "openwrt", "banip", "ipfire", "mikrotik", "opnsense",
+              "zyxel", "vyos", "asuswrt", "aws-waf", "cloudflare-waf",
               # NEU: spezifischere Begriffe
               "attacker-ips", "scanner-ips", "bruteforce-ips",
               "threat-intelligence", "security-feed",
