@@ -6,7 +6,8 @@ name: Offene Proxies
 # schnell, deshalb der kurze Takt. Die Firewall laedt die Datei als URL-Alias.
 on:
   schedule:
-    - cron: '35 */2 * * *'
+    # 2026-11-26: von :35 auf :40 verschoben (Cron-Kollision mit dns_list_mirror.yml).
+    - cron: '40 */2 * * *'
   workflow_dispatch:
 
 env:

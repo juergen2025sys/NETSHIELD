@@ -357,6 +357,16 @@ jobs:
               # Der Combined-Run-Log-Abruf ist nur Diagnose-Komfort. Ein API-/
               # Log-Fehler darf die eigentliche Ablauf-Verifikation nicht rot machen.
               "ip_ablauf.yml",
+              # 2026-11-26 (Nutzerentscheidung): bewusst non-blocking.
+              # dns_list_mirror.yml: Anstoss von ASN-DROP nach neuen C2-IPs.
+              # honigtopf.yml: Nebenschritte (Report-Anstoesse/Abrufe) duerfen
+              #   den Honigtopf-Lauf nicht abbrechen.
+              # netshield_report_generator.yml: 6 Trigger (je 3 Versuche) - ein
+              #   GitHub-API-Aussetzer (HTTP 500) darf Report und die uebrigen
+              #   Trigger nicht stoppen.
+              "dns_list_mirror.yml",
+              "honigtopf.yml",
+              "netshield_report_generator.yml",
           }
           for fname in files:
               content = open(f"{WORKFLOWS_DIR}/{fname}").read()
@@ -1772,6 +1782,9 @@ jobs:
               # HQ-Feeds. Der Guard prueft bekannte Betreiber, nicht die
               # inhaltliche HQ-Entscheidung erneut.
               "rtbh.com.tr", "rutgers.edu",
+              # 2026-11-26 (Nutzerentscheidung): bitwire_outbound bleibt bewusst
+              # hq=True in NETSHIELD (Bitwire-IT ipblocklist, alle 2 h gepflegt).
+              "bitwire",
           }
           if os.path.exists(_combined_path):
               _cb_text = open(_combined_path).read()

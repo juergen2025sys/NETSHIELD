@@ -997,10 +997,7 @@ jobs:
           # (Primaer-Key zuerst), leere/nicht gesetzte Keys werden gefiltert.
           def threatfox_keys(environ=None):
               """Read all numbered API keys from Actions secrets or environment."""
-              import json
-              import os
-              import re
-
+              # json, os, re sind oben im Block bereits importiert (2026-11-26).
               env = os.environ if environ is None else environ
               pattern = re.compile(r"THREATFOX_AUTH_KEY(?:_([0-9]+))?\Z")
               candidates = {}

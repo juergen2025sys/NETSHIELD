@@ -3,8 +3,9 @@ name: DNS Blocklist Finder
 on:
   workflow_dispatch:
   schedule:
-    # GitHub Actions nutzt UTC. Laeuft jeden Tag um 04:15 UTC.
-    - cron: "15 4 * * *"
+    # GitHub Actions nutzt UTC. Laeuft jeden Tag um 04:40 UTC.
+    # 2026-11-26: von 04:15 verschoben (Cron-Kollision mit asn_drop.yml).
+    - cron: "40 4 * * *"
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
