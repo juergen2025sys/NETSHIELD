@@ -1,15 +1,15 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795660004)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795681604)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-23)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-26 03:12 UTC | ASNs: 1832 (Spamhaus 471 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1147 + ASN-Risiko 55, aktiv: 1569)
+# Aktualisiert: 2026-11-26 09:08 UTC | ASNs: 1846 (Spamhaus 471 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1161 + ASN-Risiko 55, aktiv: 1582)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS967		VMISS Inc.	Dataplane-Dichte 0.29%
 AS1054		Zont LLC	Dataplane-Dichte 0.47%
-AS1931		HP Inc.	Honeypot-Feeds-Dichte 1.95%
+AS1931		HP Inc.	Bitwire-Outbound-Dichte 2.34%
 AS2601	UA	RADIOLINK-AS	pitline.net
 AS2702	US	INTERSERVE	novx-systems
 AS3255			ASN-Risiko 2026-10 (Hoster, 86528 Adressen)
@@ -23,32 +23,32 @@ AS6060	US	MAGI-NET-GW	management-alliance-group
 AS6186	GB	GARCIA-ASN	mylir.co.uk
 AS6207	US	BUNNY-COMMUNICATIONS	bunnycommunications.com
 AS6729	UA	DEMENIN-AS	bignet.ua
-AS6768		"EUROTELE-PLUS" LLC	Dataplane-Dichte 4.06%
-AS7040		Netminders Server Hosting	CVE-Exploit-Dichte 1.02%
+AS6768		"EUROTELE-PLUS" LLC	Dataplane-Dichte 3.98%
+AS7040		Netminders Server Hosting	ThreatFox C2-Dichte 1.19%
 AS7411	US	WINTERSTORM	sulharai.com
 AS7488		CNServer LLC	ThreatFox C2-Dichte 1.21%
-AS7568		CS Loxinfo Public Company Limited	Dataplane-Dichte 0.49%
+AS7568		CS Loxinfo Public Company Limited	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS7857	US	EMPIRE2-ASN	empire-communications
 AS7907	US	NETWORD-CORP	networldtron.net
 AS8129	US	CAIWIRELESS	caiwireless.net
 AS8193		"Uzbektelekom" Joint Stock Company	Dataplane-Dichte 0.31%
 AS8649	DE	Webtraffic	zexotek.de
-AS8814		Aztelekom LLC	Dataplane-Dichte 0.50%
-AS8870		Overseas Technologies LLC	Dataplane-Dichte 0.50%
+AS8814		Aztelekom LLC	Dataplane-Dichte 0.49%
+AS8870		Overseas Technologies LLC	Dataplane-Dichte 0.48%
 AS9123			Maltrail worst_asns
 AS9164	UA	R-TEL-AS	bignet.ua
-AS9465		AGOTOZ PTE. LTD.	Dataplane-Dichte 3.52%
+AS9465		AGOTOZ PTE. LTD.	Dataplane-Dichte 3.91%
 AS9541		Cyber Internet Services (Private) Limited	Dataplane-Dichte 1.33%
 AS9825		SDNP Bangladesh	FireHOL-Abusers-Dichte 0.26%
 AS9988			ASN-Risiko 2026-10
 AS10439			ASN-Risiko 2026-10 (Hoster, 106752 Adressen)
 AS11527	US	NOVABROADBAND	xproxies.com
-AS11693		WideOpenWest Finance LLC	Dataplane-Dichte 0.33%
+AS11693		WideOpenWest Finance LLC	Dataplane-Dichte 0.32%
 AS11960		EMPRESA DE TELECOMUNICACIONES DE CUBA S.A. (IXP CUBA)	Dataplane-Dichte 1.95%
 AS12438		Enterpreneur Oshitjer Igor Anatolievich	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-22)
 AS12958			ASN-Risiko 2026-10
-AS12989		Black HOST Ltd	Dataplane-Dichte 0.44%
-AS13208		Newtel Limited	Dataplane-Dichte 0.40%
+AS12989		Black HOST Ltd	Dataplane-Dichte 0.47%
+AS13208		Newtel Limited	Dataplane-Dichte 0.37%
 AS13332		Hype Enterprises	FireHOL-Abusers-Dichte 0.48%
 AS13357		Ampernet Telecomunicacoes Ltda	FireHOL-Abusers-Dichte 0.39%
 AS13875	HK	AS13875-MX-FIBER	mxfiber.com
@@ -64,16 +64,16 @@ AS17072		TOTAL PLAY TELECOMUNICACIONES SA DE CV	FireHOL-Abusers-Dichte 0.37%
 AS17447	IN	NET4-IN	net4india.com
 AS17612	KR	RINNAI-AS-KR	rinnai.co.kr
 AS17747		SITI NETWORKS LIMITED	FireHOL-Abusers-Dichte 0.47%
-AS17762		Tata Teleservices (Maharashtra) Ltd	Dataplane-Dichte 0.70%
+AS17762		Tata Teleservices (Maharashtra) Ltd	Dataplane-Dichte 0.69%
 AS17763		number for Mid Nort Coast Internet,	FireHOL-Abusers-Dichte 1.17%
 AS17994	NZ	SPARK-AS-AP	appserv.co.nz
 AS18053		Special Communication Organization	FireHOL-Abusers-Dichte 0.51%
 AS18526	JP	DDPS	ddps.jp
 AS19084		ColoUp	FireHOL-Abusers-Dichte 0.29%
 AS19318			Maltrail worst_asns
-AS20052		Arbor Networks, Inc.	Dataplane-Dichte 5.86%
-AS20499		IP Connect LLC	Bitwire-Outbound-Dichte 1.95%
-AS21378		PJSC Rostelecom	Dataplane-Dichte 0.31%
+AS20052		Arbor Networks, Inc.	Dataplane-Dichte 6.25%
+AS20499		IP Connect LLC	Bitwire-Outbound-Dichte 1.76%
+AS21378		PJSC Rostelecom	Dataplane-Dichte 0.33%
 AS21769			ASN-Risiko 2026-10 (Hoster, 402944 Adressen)
 AS22160		INIsmart Technology Ltd.	ThreatFox C2-Dichte 0.39%
 AS22295			Maltrail worst_asns
@@ -90,12 +90,12 @@ AS24499		Telenor Pakistan (Pvt) Ltd	FireHOL-Abusers-Dichte 0.42%
 AS24544	HK	LAWSCLOUDINFRASTRUCTURELIMITED-AS-HK	cloudie.hk
 AS24556		Bijoy Online Ltd	FireHOL-Abusers-Dichte 0.35%
 AS24567	JP	QTINC-AS-AP	qtcloud.co.jp
-AS24812		RPC HomeNet Ltd.	Dataplane-Dichte 0.72%
+AS24812		RPC HomeNet Ltd.	Dataplane-Dichte 0.73%
 AS25159		PJSC MegaFon	FireHOL-Abusers-Dichte 0.50%
 AS25198		INTERKVM HOST SRL	Honeypot-Feeds-Dichte 1.08%
-AS25211		"Euro Crypt" EOOD	Honeypot-Feeds-Dichte 1.48%
+AS25211		"Euro Crypt" EOOD	Honeypot-Feeds-Dichte 1.46%
 AS25288	UA	LIR-UKRAINE-AS	bignet.ua
-AS25369		Hydra Communications Ltd	Dataplane-Dichte 1.83%
+AS25369		Hydra Communications Ltd	Dataplane-Dichte 1.82%
 AS25403		Firm Delta PE	Dataplane-Dichte 0.98%
 AS25862	HK	ISNX	cloudie.hk
 AS26132	JP	DDPS	ddps.jp
@@ -121,12 +121,12 @@ AS30490	US	ETHRN	ethr.net
 AS30823		AUROLOGIC (aurologic GmbH)	Bulletproof Hosting Watch 2026-11-23
 AS30893		No ACK Group Holding AB	Bitwire-Outbound-Dichte 0.43%
 AS31149		Shtoler Vitaliy Andreevich	Dataplane-Dichte 3.03%
-AS31234		KRAM Ltd	Dataplane-Dichte 0.31%
+AS31234		KRAM Ltd	Dataplane-Dichte 0.28%
 AS31531		TOV Point	Honigtopf-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
-AS31593		TV Company "Black Sea" Ltd	Dataplane-Dichte 0.30%
+AS31593		TV Company "Black Sea" Ltd	Dataplane-Dichte 0.32%
 AS33042	GB	NETIFACE-TORONTO	netiface.co.uk
 AS33368		Visual Trading Systems, LLC	FireHOL-Abusers-Dichte 1.32%
-AS33567		Econet Telecom Lesotho (PTY) LTD	Dataplane-Dichte 0.32%
+AS33567		Econet Telecom Lesotho (PTY) LTD	Dataplane-Dichte 0.31%
 AS33993	MD	UFO-AS	stark-industries.solutions
 AS34143		Freenet LTD	Dataplane-Dichte 0.40%
 AS34279		S.C. Teletrans S.A.	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-19)
@@ -136,25 +136,25 @@ AS34450	RO	WDC-AS	net-gate.ro
 AS34534			Maltrail worst_asns
 AS34665		PINSPB (Petersburg Internet Network Ltd)	BPH_Research T2-High Risk / flagged
 AS34985	JP	NETINNOVATIONLLC-AS-AP	netinnovation.net
-AS35004		Branch Enterprise "Netgroup-Service"	Dataplane-Dichte 0.26%
+AS35004		Branch Enterprise "Netgroup-Service"	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS35029		AS35029	USOM-Dichte 2.73%
 AS35042		Layer7 Networks GmbH	USOM-Dichte 0.78%
 AS35048		Biterika Group LLC	FireHOL-Abusers-Dichte 2.68%
 AS35166		PE Shtanhret Taras Orestovych	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
 AS35196		First Server Limited	BPH_Research T2-High Risk / flagged
-AS35213		TOV "Kompjuternie Merezhi"	Dataplane-Dichte 0.35%
+AS35213		TOV "Kompjuternie Merezhi"	Dataplane-Dichte 0.31%
 AS35293		E-Card Ltd.	USOM-Dichte 0.86%
-AS35298		PJSC MegaFon	Dataplane-Dichte 0.74%
+AS35298		PJSC MegaFon	Dataplane-Dichte 0.70%
 AS35478	RO	DATACENTER	bunea.eu
 AS35586		VOLYN OPTICAL NETWORKS LLC	Dataplane-Dichte 0.59%
 AS35624	RU	SILVERSTAR-AS	fineproxy.org
 AS35830	RU	BTTGROUP-AS	fineproxy.org
 AS36680	GB	NETIFACELLC	netiface.co.uk
-AS36849		1st Amendment Encrypted Openness LLC	Bitwire-Outbound-Dichte 0.39%
-AS37004		Suburban Broadband Ltd	Dataplane-Dichte 1.42%
+AS36849		1st Amendment Encrypted Openness LLC	Bitwire-Outbound-Dichte 0.51%
+AS37004		Suburban Broadband Ltd	Dataplane-Dichte 1.45%
 AS37136		ETISALAT BENIN	FireHOL-Abusers-Dichte 0.28%
-AS37148		Globacom Limited	Dataplane-Dichte 0.34%
-AS37248		Phase3 Telecom Limited	Dataplane-Dichte 0.42%
+AS37148		Globacom Limited	Dataplane-Dichte 0.35%
+AS37248		Phase3 Telecom Limited	Dataplane-Dichte 0.43%
 AS37429		SPIDERNET SPRL BURUNDI	FireHOL-Abusers-Dichte 0.49%
 AS37707	SC	SEY-IX-PEERING	seyix.sc
 AS38136		Akari Networks Limited	FireHOL-Abusers-Dichte 0.30%
@@ -194,14 +194,14 @@ AS41165		RPC HomeNet Ltd.	Dataplane-Dichte 0.30%
 AS41281		KeFF Networks Ltd	Honeypot-Feeds-Dichte 0.94%
 AS41564		Orion Network Limited	FireHOL-Abusers-Dichte 0.36%
 AS41608		NextGenWebs, S.L.	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-24)
-AS41820		New Information Systems PP	Dataplane-Dichte 0.63%
+AS41820		New Information Systems PP	Dataplane-Dichte 0.62%
 AS42014		Chumachenko Dmytro Stepanovych	Honeypot-Feeds-Dichte 1.56%
 AS42074		SVITONLINE-TOV	Dataplane-Dichte 0.65%
 AS42082		JSC "Silknet"	FireHOL-Abusers-Dichte 1.60%
 AS42159		Zemlyaniy Dmitro Leonidovich	USOM-Dichte 0.27%
 AS42192	JP	India	idodns.com
 AS42201		PVDataNet AB	FireHOL-Abusers-Dichte 0.28%
-AS42237		w1n ltd	Bitwire-Outbound-Dichte 0.45%
+AS42237		w1n ltd	Bitwire-Outbound-Dichte 0.50%
 AS42366			ASN-Risiko 2026-10
 AS42397	RO	BUNEA-HIGH-VOLUME-NETWORK	bunea.eu
 AS42419	UA	TAVRIA-TRANSSERVIS-AS	tavriatrans.com.ua
@@ -214,10 +214,10 @@ AS42861		Foton Telecom CJSC	USOM-Dichte 0.30%
 AS42881	MD	Kontrast	kontrast.md
 AS42905		LIMANET Ltd.	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
 AS42969		Alpha Strike Labs GmbH	Honeypot-Feeds-Dichte 33.07%
-AS43049		Multisystem Technologies Ltd.	Dataplane-Dichte 3.52%
-AS43060		IPLUS LLC	Dataplane-Dichte 1.09%
+AS43049		Multisystem Technologies Ltd.	Dataplane-Dichte 3.71%
+AS43060		IPLUS LLC	Dataplane-Dichte 1.12%
 AS43149		Rocket Telecom Center LLC	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
-AS43175		LUX.NET, LLC	Dataplane-Dichte 1.27%
+AS43175		LUX.NET, LLC	Dataplane-Dichte 1.17%
 AS43197		Closed Joint Stock Company TT mobile	Honigtopf-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
 AS43330		Individual Entrepreneur Dmitriy Fokin	Dataplane-Dichte 0.28%
 AS43357		Owl Limited	FireHOL-Abusers-Dichte 0.30%
@@ -225,11 +225,11 @@ AS43444	RU	BNS-AS	fineproxy.org
 AS43463	LT	BST-LT	bst.lt
 AS43481	UA	PITLINE-AS	pitline.net
 AS43613	UA	SOWA	liptel.net.ua
-AS43633		Gigabit-Online LLC	Dataplane-Dichte 1.00%
+AS43633		Gigabit-Online LLC	Dataplane-Dichte 0.95%
 AS43668	UA	BIGNET-AS	bignet.ua
 AS43743	UA	KRUIZUA-AS	bignet.ua
 AS43764		LLC "Electron-sevlush"	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-18)
-AS44032		PP "TRC"City TV center"	Dataplane-Dichte 0.37%
+AS44032		PP "TRC"City TV center"	Dataplane-Dichte 0.34%
 AS44050		PINSPB (Petersburg Internet Network Ltd)	BPH_Research T2-High Risk / flagged
 AS44092		HAL Service SpA	FireHOL-Abusers-Dichte 0.27%
 AS44208	IR	Farahoosh	farahoosh.ir
@@ -248,7 +248,7 @@ AS44828		Neterra Ltd.	Bitwire-Outbound-Dichte 0.49%
 AS44866		FOP Fedasiuk Oksana Petrivna	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
 AS44901			Maltrail worst_asns
 AS44925		1984 ehf	Bitwire-Outbound-Dichte 0.50%
-AS44941		ZAO Astrakhan Digital Television	Dataplane-Dichte 0.33%
+AS44941		ZAO Astrakhan Digital Television	Dataplane-Dichte 0.35%
 AS45054		PINSPB (Petersburg Internet Network Ltd)	BPH_Research T2-High Risk / flagged
 AS45148		Digivision Entertainment Private Limited	FireHOL-Abusers-Dichte 2.47%
 AS45194		Syscon Infoway Pvt. Ltd.	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-18)
@@ -271,7 +271,7 @@ AS46918		GLOBALHOSTINGSOLUTIONS INC	FireHOL-Abusers-Dichte 0.29%
 AS46997		Black Mesa Corporation	FireHOL-Abusers-Dichte 0.43%
 AS47105	EE	as-vd	vaultdweller.net
 AS47143		Todayhost Limited	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-24)
-AS47154		HUSAM A. H. HIJAZI	Dataplane-Dichte 2.73%
+AS47154		HUSAM A. H. HIJAZI	Honigtopf-Dichte 2.73%
 AS47172		Greenhost BV	FireHOL-Abusers-Dichte 0.32%
 AS47303		Cyfrowy Polsat S.A.	USOM-Dichte 0.98%
 AS47436			Maltrail worst_asns
@@ -279,11 +279,11 @@ AS47464		Address Management Inc.	USOM-Dichte 0.39%
 AS47674		Net Solutions - Consultoria Em Tecnologias De Informacao, Sociedade Unipessoal 	USOM-Dichte 0.26%
 AS47890	RO	UNMANAGED-DEDICATED-SERVERS	bunea.eu
 AS47893	UA	R-TEL-AS	bignet.ua
-AS47898		RPC HomeNet Ltd.	Dataplane-Dichte 1.32%
+AS47898		RPC HomeNet Ltd.	Dataplane-Dichte 1.35%
 AS47913		Moshonkin Ilia Sergeevich	FireHOL-Abusers-Dichte 1.46%
 AS47926	UA	LIRUKRAINE	bignet.ua
 AS47945	UA	R-TEL-AS	bignet.ua
-AS48004		PE Tsibrankov Konstantin Igorevich	Dataplane-Dichte 0.87%
+AS48004		PE Tsibrankov Konstantin Igorevich	Dataplane-Dichte 0.84%
 AS48014			Maltrail worst_asns
 AS48030		Martynova Irina Nikolaevna	FireHOL-Abusers-Dichte 1.34%
 AS48090	SC	DMZHOST	dmzhost.co
@@ -297,51 +297,52 @@ AS48411		FOP Samoylenko Oleksandr Volodymirovich	Dataplane-Dichte 1.37%
 AS48480		S.C. AltNet C.C. S.R.L.	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-22)
 AS48492		I.Q Online for Internet Services and Communications LLC	FireHOL-Abusers-Dichte 0.58%
 AS48589	GB	TIGER	imtigernet
-AS48602		Connect plus s.r.o.	Dataplane-Dichte 1.17%
+AS48602		Connect plus s.r.o.	Dataplane-Dichte 0.78%
 AS48693	RU	NTSERVICE-AS	ntup.net
 AS48721		Flyservers S.A.	feste eigene Liste
-AS48753		AVA HOST SRL	Bitwire-Outbound-Dichte 0.88%
+AS48753		AVA HOST SRL	Bitwire-Outbound-Dichte 0.90%
 AS48874		HOSTMAZE INC SRL-D	feste eigene Liste
 AS48897		OOO KB Avia	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-22)
 AS48909		CityLine LLC	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS48955		Internet Resources Management SRL	FireHOL-Abusers-Dichte 0.37%
 AS48995		IE Gilaskhanov Said Visirpashaevich	Dataplane-Dichte 1.95%
 AS49276		Zemlyaniy Dmitro Leonidovich	ThreatFox C2-Dichte 0.26%
+AS49293		Digital Tehnology Ltd	Bitwire-Outbound-Dichte 0.26%
 AS49305		Alsycon B.V.	feste eigene Liste
 AS49418	UA	AS-NETSHIELD	chosting.solutions
 AS49443	MD	Contrust-Solutions	kontrast.md
 AS49447		Nice IT Services Group Inc.	USOM-Dichte 2.05%
 AS49453			Maltrail worst_asns
-AS49491		PE Sukonnik Mukola Valeriyovuch	Dataplane-Dichte 0.61%
+AS49491		PE Sukonnik Mukola Valeriyovuch	Dataplane-Dichte 0.56%
 AS49532		Eonix Corporation	FireHOL-Abusers-Dichte 0.28%
 AS49581	DE	TUBE-HOSTING	tube-hosting.de
 AS49596		Fara Negar Pardaz Noor Khuzestan Co.JSP	Dataplane-Dichte 0.34%
-AS49824		PC "Astra-net"	Dataplane-Dichte 0.54%
-AS49827		IE KHOMA YURY ROMANOVICH	Dataplane-Dichte 0.59%
+AS49824		PC "Astra-net"	Dataplane-Dichte 0.55%
+AS49827		IE KHOMA YURY ROMANOVICH	Dataplane-Dichte 0.54%
 AS49870			Maltrail worst_asns
 AS49909		Direct One SA	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
 AS49981		WorldStream B.V.	FireHOL-Abusers-Dichte 0.30%
 AS50004		FO-P Gromov Evgeniy Viktorovich	Dataplane-Dichte 0.43%
 AS50012		LLC "BEST-LINK"	Dataplane-Dichte 1.23%
-AS50043		Korzhos Oleg	Dataplane-Dichte 1.17%
-AS50049		RedSwitches Pty LTD.	ThreatFox C2-Dichte 0.65%
+AS50043		Korzhos Oleg	Dataplane-Dichte 1.30%
+AS50049		RedSwitches Pty LTD.	ThreatFox C2-Dichte 0.70%
 AS50077		SYN LTD	FireHOL-Abusers-Dichte 0.27%
 AS50113		First Server Limited	BPH_Research T2-High Risk / flagged
 AS50132		3nt solutions LLP	FireHOL-Abusers-Dichte 0.39%
 AS50219		LNK SYSTEMS MUNTENIA SRL	Dataplane-Dichte 2.34%
 AS50223			ASN-Risiko 2026-10
 AS50236	RU	Vertexlink_Communications	62yun.com
-AS50257		JV A-Mobile Ltd.	Honeypot-Feeds-Dichte 0.39%
+AS50257		JV A-Mobile Ltd.	Honeypot-Feeds-Dichte 0.36%
 AS50284		Goroshko Evgeniy Andreevich	FireHOL-Abusers-Dichte 1.95%
 AS50321			Maltrail worst_asns
 AS50360			Maltrail worst_asns
 AS50581		Ukrainian Telecommunication Group LLC	Dataplane-Dichte 0.27%
-AS50648		PE UAinet	Dataplane-Dichte 0.88%
+AS50648		PE UAinet	Dataplane-Dichte 0.90%
 AS50662		PP "Scientific-industrial enterprise 'Leokom'	Dataplane-Dichte 0.65%
-AS50751		CHKS LLC	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
+AS50751		CHKS LLC	Honeypot-Feeds-Dichte 0.27%
 AS50850		Altes-R Ltd	Dataplane-Dichte 2.15%
 AS51045	UA	DEMENIN-AS	bignet.ua
-AS51079		P.H.U. MOKADI Wieslawa Kazmierczak	Bitwire-Outbound-Dichte 0.39%
+AS51079		P.H.U. MOKADI Wieslawa Kazmierczak	Bitwire-Outbound-Dichte 0.32%
 AS51124	UA	ITPLUS-UA-AS	bignet.ua
 AS51177		TIPZOR MEDIA SRL	USOM-Dichte 0.33%
 AS51247		Serverio technologijos MB	Bitwire-Outbound-Dichte 0.25%
@@ -381,7 +382,8 @@ AS52490		COOPERATIVA DE ELECTRICIDAD DE PEDRO LURO	Bitwire-Outbound-Dichte (Halt
 AS52495		Cotel Ltda.	Bitwire-Outbound-Dichte 0.37%
 AS52527		IWNET TELECOM LTDA ME	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
 AS52601		BIZZ INTERNET LTDA	Dataplane-Dichte 0.29%
-AS52613		GIGA MAIS FIBRA TELECOMUNICACOES S.A.	Dataplane-Dichte 0.68%
+AS52613		GIGA MAIS FIBRA TELECOMUNICACOES S.A.	Dataplane-Dichte 0.69%
+AS52626		NovaNet Provedor e Web Ltda	Bitwire-Outbound-Dichte 0.27%
 AS52673		WI-MAX INTERNET LTDA	Dataplane-Dichte 0.34%
 AS52714		Firemicro Informatica	Dataplane-Dichte 0.29%
 AS52716		Viaband Telecomunicacao Ltda	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
@@ -413,11 +415,11 @@ AS56584	NL	INTER-IX	serverion.com
 AS56587		Citadel Crimea Ltd.	Dataplane-Dichte 0.98%
 AS56701			ASN-Risiko 2026-10
 AS56703		MEHR AVA GOSTAR PARSIAN INFORMATION ENGINEERING CO.,LTD	Honigtopf-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
-AS56797		FOP Ruban Nataliya	Dataplane-Dichte 1.95%
-AS56812		CHP Zarko Alexandr Ivanovich	Bitwire-Outbound-Dichte 0.39%
-AS56838		PUH Vatus Rafal Wejman	Bitwire-Outbound-Dichte 0.68%
+AS56797		FOP Ruban Nataliya	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
+AS56812		CHP Zarko Alexandr Ivanovich	Bitwire-Outbound-Dichte 0.46%
+AS56838		PUH Vatus Rafal Wejman	Bitwire-Outbound-Dichte 0.49%
 AS56873	SC	ELITETEAM-ANTIDDOS	eliteteam.to
-AS56899		Granat Ukraine LLC	Dataplane-Dichte 0.42%
+AS56899		Granat Ukraine LLC	Dataplane-Dichte 0.39%
 AS56962		RHS s.r.l.	FireHOL-Abusers-Dichte 1.43%
 AS56971			Maltrail worst_asns
 AS57043		HOSTKEY-AS	Bulletproof Hosting Watch 2026-11-23
@@ -429,10 +431,10 @@ AS57354		SYSTEMA Ltd	Honigtopf-Dichte 0.27%
 AS57415	UA	R-TEL-AS	bignet.ua
 AS57509	BG	LL-Investment-Ltd	cloudbs.biz
 AS57523	HK	changway-as	changway.hk
-AS57558		METIS S.R.L.	Bitwire-Outbound-Dichte 2.68%
+AS57558		METIS S.R.L.	Bitwire-Outbound-Dichte 2.06%
 AS57724		DDOS-GUARD LTD	FireHOL-Abusers-Dichte 0.31%
 AS57858		Angelnet Limited	FireHOL-Abusers-Dichte 0.27%
-AS57871		TeleCentr Ltd.	Dataplane-Dichte 0.29%
+AS57871		TeleCentr Ltd.	Dataplane-Dichte 0.27%
 AS57903		Comfort XXI Century Ltd.	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-19)
 AS58065		Orion Network Limited	FireHOL-Abusers-Dichte 0.35%
 AS58087			Maltrail worst_asns
@@ -440,11 +442,11 @@ AS58192	IR	DDOS-PROTECTION-GAJNET	lordvps.net
 AS58212		dataforest GmbH	Bitwire-Outbound-Dichte 0.36%
 AS58322		Hala Al Rafidain Company for Communications and Internet LTD.	Dataplane-Dichte 0.91%
 AS58329		servinga GmbH	CVE-Exploit-Dichte 0.27%
-AS58376		PT Angkasa Komunikasi Global Utama	Dataplane-Dichte 0.39%
-AS58470		Mobilink GSM, Pakistan Mobile Communication Ltd.	Dataplane-Dichte 1.58%
+AS58376		PT Angkasa Komunikasi Global Utama	Dataplane-Dichte 0.42%
+AS58470		Mobilink GSM, Pakistan Mobile Communication Ltd.	Dataplane-Dichte 1.56%
 AS58485		WIFIAN ID	FireHOL-Abusers-Dichte 0.33%
 AS58580		Managed Data Solutions	Bitwire-Outbound-Dichte 0.50%
-AS58597		M.S. Info Web Pvt. Ltd.	Bitwire-Outbound-Dichte 0.26%
+AS58597		M.S. Info Web Pvt. Ltd.	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS58655		SkyTel Communications Limited	FireHOL-Abusers-Dichte 0.34%
 AS58689		ICC Communication	FireHOL-Abusers-Dichte 0.46%
 AS58762		Candor infosolution Pvt Ltd	FireHOL-Abusers-Dichte 0.31%
@@ -457,7 +459,7 @@ AS58961	ID	OPENIP-AS	klikindonesia.or.id
 AS58965		ANJANI BROADBAND SOLUTIONS PVT.LTD.	FireHOL-Abusers-Dichte 0.79%
 AS59257		CMPak Limited	FireHOL-Abusers-Dichte 0.44%
 AS59425	HK	HORIZONMSK-AS	changway.hk
-AS59497		Buknet LLC	Dataplane-Dichte 0.37%
+AS59497		Buknet LLC	Dataplane-Dichte 0.36%
 AS59577		LinkCom Networks LLC	Dataplane-Dichte 0.37%
 AS59580		Batterflyai Media ltd.	USOM-Dichte 0.91%
 AS59642		UAB Cherry Servers	Bitwire-Outbound-Dichte 0.39%
@@ -465,7 +467,7 @@ AS59651	RU	AS-QualityNetwork	fineproxy.org
 AS59668		Turon Media XK	FireHOL-Abusers-Dichte 0.27%
 AS59683	RU	iridatelecom	vip-net.net
 AS59823		Osipenko Alexander Nikolaevich	Honigtopf-Dichte (Haltezeit, zuletzt auffaellig 2026-11-19)
-AS60017		FASTLINES SRL	Bitwire-Outbound-Dichte 0.49%
+AS60017		FASTLINES SRL	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS60068		Datacamp Limited	FireHOL-Abusers-Dichte 0.33%
 AS60119		Ediniy Operator Svyazi LLC	Dataplane-Dichte 0.31%
 AS60154		Connectria, LLC	Bitwire-Outbound-Dichte 0.55%
@@ -478,7 +480,7 @@ AS60612		Albatros Ltd.	Dataplane-Dichte 0.33%
 AS60711		Fernando Perez Morales	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
 AS60729		Stiftung Erneuerbare Freiheit	Honeypot-Feeds-Dichte 3.91%
 AS60754		Dianet Ltd.	FireHOL-Abusers-Dichte 0.32%
-AS60831		Arkadia Spolka Cywilna Krysztof Rozmus Barbara Rozmus	Bitwire-Outbound-Dichte 0.39%
+AS60831		Arkadia Spolka Cywilna Krysztof Rozmus Barbara Rozmus	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS60842	RU	HUIZE-HOLDINGS-AS	62yun.com
 AS60904		ATC Telecom LTD.	Bitwire-Outbound-Dichte 2.83%
 AS60936		LLC Skynet	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-24)
@@ -486,8 +488,8 @@ AS61002		Smart Solutions & Soft SRL	FireHOL-Abusers-Dichte 0.70%
 AS61053		UAB ESNET	USOM-Dichte 0.29%
 AS61125		SABOTAGE LLC	Bitwire-Outbound-Dichte 1.17%
 AS61254		ESTOXY OU	feste eigene Liste
-AS61272		Informacines sistemos ir technologijos, UAB	Bitwire-Outbound-Dichte 0.47%
-AS61280		FGUP "GRCHC"	Dataplane-Dichte 0.29%
+AS61272		Informacines sistemos ir technologijos, UAB	Bitwire-Outbound-Dichte 0.46%
+AS61280		FGUP "GRCHC"	Dataplane-Dichte 0.26%
 AS61317		Hivelocity Inc	FireHOL-Abusers-Dichte 0.62%
 AS61324		D-TELEKOM LLC	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
 AS61336		Zservers	BPH_Research T1-Confirmed BPH / sanctioned
@@ -497,8 +499,8 @@ AS61670		New Net Informatica e Telecomunicacoes	Dataplane-Dichte (Haltezeit, zul
 AS61764		Rio Grande Tecnologia e Comunic Multimidia Ltda	Dataplane-Dichte 0.78%
 AS61786		E. D. SERVICOS DE COMUNICACOES LTDA	Dataplane-Dichte 0.39%
 AS61879	BR	América_Latina_Educacional_Adm._e_Serviços_LTDA	aleducacional.com.br
-AS61888		GFT COMERCIO DE TELEFONIA E COMUNICACAO LTDA	Dataplane-Dichte 0.54%
-AS61908		Nova Net Telecomunicacoes Ltda	Dataplane-Dichte 0.29%
+AS61888		GFT COMERCIO DE TELEFONIA E COMUNICACAO LTDA	Dataplane-Dichte 0.59%
+AS61908		Nova Net Telecomunicacoes Ltda	Dataplane-Dichte 0.27%
 AS62005			Maltrail worst_asns
 AS62014		Telegram Messenger Inc	Honigtopf-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
 AS62033		CLOUDEUS SL	USOM-Dichte 0.31%
@@ -506,16 +508,16 @@ AS62040		Innovative Telecommunications LLC	Dataplane-Dichte 0.43%
 AS62068		SpectraIP B.V.	USOM-Dichte 0.26%
 AS62164		Heymman Servers Corporation	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-24)
 AS62206	UA	PITLINE-AS	pitline.net
-AS62227		CLOUDHELIX LIMITED	Dataplane-Dichte 0.46%
+AS62227		CLOUDHELIX LIMITED	Dataplane-Dichte 0.42%
 AS62240			ASN-Risiko 2026-10 (Hoster, 341504 Adressen)
 AS62370		Snel.com B.V.	CVE-Exploit-Dichte 0.71%
 AS62380	RO	BUNEA-HIGH-PEER-NETWORK	bunea.eu
-AS62384		Radio Service Ltd.	Bitwire-Outbound-Dichte 0.59%
+AS62384		Radio Service Ltd.	Bitwire-Outbound-Dichte 0.54%
 AS62419		I.Q Online for Internet Services and Communications LLC	Dataplane-Dichte 0.78%
 AS62563		GLOBALTELEHOST Corp.	ThreatFox C2-Dichte 0.57%
 AS62610		Zenlayer Inc	ThreatFox C2-Dichte 0.27%
 AS62651		Strong Technology, LLC.	FireHOL-Abusers-Dichte 0.80%
-AS62744		Quintex Alliance Consulting	Honeypot-Feeds-Dichte 0.64%
+AS62744		Quintex Alliance Consulting	Honeypot-Feeds-Dichte 0.60%
 AS62864	JP	NILAS	netinnovation.net
 AS62874		Web2Objects LLC	FireHOL-Abusers-Dichte 0.73%
 AS63023		GTHost	FireHOL-Abusers-Dichte 0.36%
@@ -531,7 +533,7 @@ AS64123		GRUPO IN S.A.S	Honigtopf-Dichte 0.39%
 AS64249		Charles River Operation	FireHOL-Abusers-Dichte 0.28%
 AS64267		Sprious LLC	FireHOL-Abusers-Dichte 0.42%
 AS64466		UNIVERSAL MOBILE SYSTEMS LCC	FireHOL-Abusers-Dichte 0.29%
-AS131267		Star Telecom	Dataplane-Dichte 0.26%
+AS131267		Star Telecom	Dataplane-Dichte 0.25%
 AS131275		Logon Broadband Pvt. Limited	FireHOL-Abusers-Dichte 0.56%
 AS131279			ASN-Risiko 2026-10
 AS131366		Lanit Technology and Communication Joint Stock Company	ThreatFox C2-Dichte 0.29%
@@ -546,7 +548,7 @@ AS132165		Connect Communication	FireHOL-Abusers-Dichte 0.48%
 AS132168		ESUN TECHNOLOGY INTERNATIONAL CO., LIMITED	Dataplane-Dichte 0.64%
 AS132298		Antaranga Dot Com Ltd	FireHOL-Abusers-Dichte 0.48%
 AS132359	BD	MSROBITRADERS-AS-AP	robitraders.com
-AS132386		Usman Internet Service Provider Private Limited	Dataplane-Dichte 3.22%
+AS132386		Usman Internet Service Provider Private Limited	Dataplane-Dichte 3.03%
 AS132447		Hutchison Telecommunications Lanka (Private) Limited	FireHOL-Abusers-Dichte 0.34%
 AS132574	IN	AI-1720-132574	alphainfolab.com
 AS132608		Mango Teleservices Limited (ISP)	FireHOL-Abusers-Dichte 0.45%
@@ -555,10 +557,10 @@ AS132627		FIBERMETRIC BROADBAND PRIVATE LIMITED	FireHOL-Abusers-Dichte (Haltezei
 AS132817		DZCRD Networks Ltd	FireHOL-Abusers-Dichte 0.69%
 AS132827	JP	GATEWAY-AS-AP	g-w.bz
 AS132883		Hong Kong San Ai Net Int'l Limited	Bitwire-Outbound-Dichte 0.28%
-AS132924		Ero Wide Comm Private Limited	Bitwire-Outbound-Dichte 0.49%
+AS132924		Ero Wide Comm Private Limited	Bitwire-Outbound-Dichte 0.68%
 AS132930	IN	HERBALVE-AS-IN	herbalvedawellness.com
 AS132934			ASN-Risiko 2026-10
-AS132996		Threesa Infoway Pvt.Ltd.	Dataplane-Dichte 0.35%
+AS132996		Threesa Infoway Pvt.Ltd.	Dataplane-Dichte 0.39%
 AS133007		UCN CABLE NETWORK PVT. LTD	FireHOL-Abusers-Dichte 0.28%
 AS133201		ABCDE GROUP COMPANY LIMITED	ThreatFox C2-Dichte 0.42%
 AS133257		Spider Broadband And Cable Pvt. Ltd.	Dataplane-Dichte 0.59%
@@ -570,7 +572,7 @@ AS133368		Net 3 Link	FireHOL-Abusers-Dichte 1.17%
 AS133384		Global Technology Co., Ltd.	Dataplane-Dichte 0.37%
 AS133385			ASN-Risiko 2026-10
 AS133398	HK	TELE-AS	tele-asia.net
-AS133450		University Of Chittagong	Dataplane-Dichte 2.64%
+AS133450		University Of Chittagong	Dataplane-Dichte 2.34%
 AS133488	HK	SERVICE-AS-AP	servicehk.net
 AS133652		Zapbytes Technologies Pvt. Ltd.	FireHOL-Abusers-Dichte 0.52%
 AS133668	IN	INFOBB-AS-IN	eikontech.net
@@ -584,7 +586,7 @@ AS133867	BD	TOMATOWEB-BD	tomatoweb.com.bd
 AS133982		Excitel Broadband Private Limited	FireHOL-Abusers-Dichte 1.08%
 AS133994	IN	RMHOSPITALITY-AS-IN	rmhospitality.co.in
 AS134022		Genstar Network Solutions Pvt Ltd.	FireHOL-Abusers-Dichte 0.25%
-AS134032		INFONET COMM ENTERPRISES	Bitwire-Outbound-Dichte 0.25%
+AS134032		INFONET COMM ENTERPRISES	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS134108	BD	REDDATA-AS-AP	datomato.com
 AS134113		Millennium Computers & Networking	FireHOL-Abusers-Dichte 0.44%
 AS134121	HK	RAINBOW-HK	itsidc.com
@@ -595,7 +597,7 @@ AS134177		Rural Broadband Pvt. Ltd	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auf
 AS134196	HK	ANYUN-INTERNET-TECHNOLOGY-HK-CO-LIMITED	cloudie.hk
 AS134204		Business Network	FireHOL-Abusers-Dichte 0.54%
 AS134259		Skynet	FireHOL-Abusers-Dichte 0.52%
-AS134300		vertigotechnologies pvt ltd	Dataplane-Dichte 2.54%
+AS134300		vertigotechnologies pvt ltd	Dataplane-Dichte 2.34%
 AS134345		Giga5 Fiber Network Private Limited	FireHOL-Abusers-Dichte 0.52%
 AS134353	BD	NetcoCloud-VirtuaIization-Technology	netcocloud.com
 AS134375		Fusionnet Web Services Private Limited	FireHOL-Abusers-Dichte 1.47%
@@ -614,7 +616,7 @@ AS134806		Sky View Online Limited	FireHOL-Abusers-Dichte 0.41%
 AS134829		PPIP Associated Communication Limited	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-22)
 AS134840		Myanmar Country Co., Ltd.	Dataplane-Dichte 0.85%
 AS134858		iForce Networks	FireHOL-Abusers-Dichte 0.37%
-AS134863		SP INTERNET TECHNOLOGIES PRIVATE LTD	Bitwire-Outbound-Dichte 0.42%
+AS134863		SP INTERNET TECHNOLOGIES PRIVATE LTD	Bitwire-Outbound-Dichte 0.44%
 AS134885		Global (India) Tele-Infra Pvt Ltd	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-19)
 AS134922		R G TECHNOSOLUTIONS PVT LTD	Dataplane-Dichte 0.36%
 AS134932		VORTEX INFOWAY PRIVATE LIMITED	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
@@ -624,7 +626,7 @@ AS135003		Multan Cable & Internet Services (Pvt) Ltd	FireHOL-Abusers-Dichte 0.29
 AS135037		Techno Asia Infotech Limited	FireHOL-Abusers-Dichte 0.39%
 AS135130		Anik Computer & Networking	FireHOL-Abusers-Dichte 0.33%
 AS135198		Bombay Bullion Commmunication	threat.live-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
-AS135208		Megahertz Internet Network Pvt. Ltd.	Dataplane-Dichte 0.31%
+AS135208		Megahertz Internet Network Pvt. Ltd.	Dataplane-Dichte 0.29%
 AS135225		SMART NET INDIA PVT LTD	Bitwire-Outbound-Dichte 0.33%
 AS135227		Foxcell Communication Pvt Ltd	FireHOL-Abusers-Dichte 0.55%
 AS135258		Sdh Network Pvt Ltd	FireHOL-Abusers-Dichte 1.17%
@@ -633,14 +635,14 @@ AS135300		Myanmar Broadband Telecom Co., Ltd	Dataplane-Dichte 0.64%
 AS135325		EWS DS Networks Inc	FireHOL-Abusers-Dichte 0.65%
 AS135341		Orange Communication	FireHOL-Abusers-Dichte 0.30%
 AS135371		Fortune International Ltd.	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
-AS135377		UCLOUD INFORMATION TECHNOLOGY (HK) LIMITED	Bitwire-Outbound-Dichte 0.44%
+AS135377		UCLOUD INFORMATION TECHNOLOGY (HK) LIMITED	Dataplane-Dichte 0.43%
 AS135388	LT	RPL-HK	serveroffer.lt
 AS135392	HK	MILLENIALHOSTLIMITED-AS-GB	tele-asia.net
 AS135405			ASN-Risiko 2026-10
 AS135407		Trans World Enterprise Services (Private) Limited	FireHOL-Abusers-Dichte 1.32%
 AS135450		PT Berkah Solusi Teknologi Informasi	FireHOL-Abusers-Dichte 0.49%
 AS135523		Multinet Broadband	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-19)
-AS135572		ACT International Telecom Limited	Dataplane-Dichte 2.50%
+AS135572		ACT International Telecom Limited	Dataplane-Dichte 2.46%
 AS135589			ASN-Risiko 2026-10
 AS135607		Infinivan Incorporated	Dataplane-Dichte 0.47%
 AS135683		Netncr Technology Pvt. Ltd.	FireHOL-Abusers-Dichte 0.68%
@@ -651,7 +653,7 @@ AS135738		Adn Broadband	FireHOL-Abusers-Dichte 0.95%
 AS135746		Cityline Networks Pvt Ltd	FireHOL-Abusers-Dichte 0.27%
 AS135752	IN	EVOKEDS-AS	evokedigital.in
 AS135761		Userlinks Netcom Pvt. Ltd.	FireHOL-Abusers-Dichte 0.39%
-AS135780		AirFiber Networks Pvt Ltd	Dataplane-Dichte 0.32%
+AS135780		AirFiber Networks Pvt Ltd	Dataplane-Dichte 0.36%
 AS135799		Rapidnet Private Limited	FireHOL-Abusers-Dichte 0.34%
 AS135810		Srk Network	Dataplane-Dichte 0.29%
 AS135852		Galaxynet Connections Private Limited	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
@@ -660,15 +662,15 @@ AS135876		AT Broadband Pvt Ltd	FireHOL-Abusers-Dichte 0.59%
 AS135901			Maltrail worst_asns
 AS135953		Vietnam Online Network Solution Joint Stock Compnay	USOM-Dichte 0.49%
 AS136014		SS Online	FireHOL-Abusers-Dichte 0.59%
-AS136030		Redtone Telecommunications Pakistan (Private) Limited	Dataplane-Dichte 0.26%
-AS136052		PT Cloud Hosting Indonesia	Dataplane-Dichte 0.42%
+AS136030		Redtone Telecommunications Pakistan (Private) Limited	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
+AS136052		PT Cloud Hosting Indonesia	Dataplane-Dichte 0.41%
 AS136141		SK Traders	FireHOL-Abusers-Dichte 0.50%
 AS136180		Beijing Tiantexin Tech. Co., Ltd.	AbuseIPDB-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
 AS136210			ASN-Risiko 2026-10
 AS136250	CN	ZQHWL-AS-AP	zqhwl-cn
-AS136255		Telecom International Myanmar Company Limited	Dataplane-Dichte 0.33%
+AS136255		Telecom International Myanmar Company Limited	Dataplane-Dichte 0.32%
 AS136280		Costel Networks P Ltd	FireHOL-Abusers-Dichte 1.12%
-AS136284		Paradise Telecom Pvt Ltd	Dataplane-Dichte 0.60%
+AS136284		Paradise Telecom Pvt Ltd	Dataplane-Dichte 0.64%
 AS136285		Karunay Internet Pvt Ltd	Honigtopf-Dichte (Haltezeit, zuletzt auffaellig 2026-11-24)
 AS136332		Adri Infocom Pvt Ltd	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
 AS136355		Suntech Sanchar Private Limited	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
@@ -679,7 +681,7 @@ AS136442		Ocean Wave Communication Co., Ltd	Dataplane-Dichte 0.39%
 AS136452		SHANGXING TECH LIMITED	BPH_Research T2-High Risk / suspected
 AS136514		Onesky Communications Limited.	FireHOL-Abusers-Dichte 0.44%
 AS136515		Dasca Cable Services, Inc.	FireHOL-Abusers-Dichte 0.49%
-AS136525		Wancom (Pvt) Ltd.	Dataplane-Dichte 1.18%
+AS136525		Wancom (Pvt) Ltd.	Dataplane-Dichte 1.16%
 AS136557		Host Universal Pty Ltd	FireHOL-Abusers-Dichte 0.41%
 AS136598		HN Telecom Limited	FireHOL-Abusers-Dichte 0.78%
 AS136634		Navkar Netsol Private Ltd	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-24)
@@ -688,16 +690,16 @@ AS136671		Osbnet Broadband Pvt Ltd	FireHOL-Abusers-Dichte 0.49%
 AS136708		F2h Networks Pvt Ltd	FireHOL-Abusers-Dichte 1.46%
 AS136923	HK	WIT-AS-AP	thestack.net
 AS136969			Maltrail worst_asns
-AS137047		TELECOMMUNICATION AND TECHNOLOGY MASTERS (PVT.) LIMITED	Honeypot-Feeds-Dichte 0.54%
-AS137076		TTSL-ISP DIVISION	Dataplane-Dichte 0.36%
+AS137047		TELECOMMUNICATION AND TECHNOLOGY MASTERS (PVT.) LIMITED	Honeypot-Feeds-Dichte 0.49%
+AS137076		TTSL-ISP DIVISION	Dataplane-Dichte 0.34%
 AS137095		Dm Lot Infotech Solutions Private Limited	FireHOL-Abusers-Dichte 0.54%
 AS137114		Kwikzo Telecomm Pvt Ltd	Honeypot-Feeds-Dichte 0.34%
-AS137120		Nas Internet Services Private Limited	Dataplane-Dichte 0.73%
-AS137122		Imperium Digital Network Pvt Ltd	Dataplane-Dichte 0.59%
+AS137120		Nas Internet Services Private Limited	Dataplane-Dichte 0.83%
+AS137122		Imperium Digital Network Pvt Ltd	Dataplane-Dichte 0.49%
 AS137156	IN	BLUEB-AS	blueberrywebs.com
 AS137160		BHARAT DATA SERVICES PVT LTD	threat.live-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
 AS137165		Net9online Hathway Pvt. Ltd	Dataplane-Dichte 0.25%
-AS137172		ALL CONNECT NETWORK SERVICES PRIVATE LIMITED	Dataplane-Dichte 0.39%
+AS137172		ALL CONNECT NETWORK SERVICES PRIVATE LIMITED	Dataplane-Dichte 0.34%
 AS137213		Romance Cable Network	FireHOL-Abusers-Dichte 2.93%
 AS137235		Kami Mobile Services	FireHOL-Abusers-Dichte 0.28%
 AS137239		Fil Products Service Television Incorporated	Dataplane-Dichte 0.62%
@@ -714,19 +716,20 @@ AS137967		Digicon Telecommunication Ltd	FireHOL-Abusers-Dichte 0.43%
 AS138089		PT.Global Media Data Prima	FireHOL-Abusers-Dichte 0.28%
 AS138112		PT. Megarap Mitra Solusi	threat.live-Dichte 0.49%
 AS138146		North Bengal Online	FireHOL-Abusers-Dichte 0.49%
-AS138152		YISU CLOUD LTD	Dataplane-Dichte 0.29%
+AS138152		YISU CLOUD LTD	Dataplane-Dichte 0.28%
 AS138199		Transatel	Bitwire-Outbound-Dichte 0.39%
 AS138245		Xpress Net Solution	FireHOL-Abusers-Dichte 0.33%
+AS138257		Gigatel Infocomm Pvt Ltd	Dataplane-Dichte 0.25%
 AS138277		Radinet Info Solutions Private Limited	FireHOL-Abusers-Dichte 0.61%
-AS138311		Limerick Technologies Pvt Ltd	Dataplane-Dichte 1.11%
+AS138311		Limerick Technologies Pvt Ltd	Dataplane-Dichte 1.08%
 AS138368		INSTACOM Pvt. LTD	FireHOL-Abusers-Dichte 3.12%
 AS138388		Pokhara Internet Pvt. Ltd.	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-24)
-AS138415		YANCY LIMITED	ThreatFox C2-Dichte 0.28%
-AS138423		CMPak Limited	FireHOL-Abusers-Dichte 0.45%
+AS138415		YANCY LIMITED	ThreatFox C2-Dichte 0.29%
+AS138423		CMPak Limited	threat.live-Dichte 0.45%
 AS138551		Skyinfo Online	FireHOL-Abusers-Dichte 1.17%
 AS138590		Prime Networks	FireHOL-Abusers-Dichte 2.20%
 AS138600		Achiever Broadband Internet	FireHOL-Abusers-Dichte 0.49%
-AS138608		Cloud Host Pte Ltd	Dataplane-Dichte 0.32%
+AS138608		Cloud Host Pte Ltd	Dataplane-Dichte 0.36%
 AS138622		Unique Communication Service	FireHOL-Abusers-Dichte 0.49%
 AS138640		HelloTech Limited	FireHOL-Abusers-Dichte 0.39%
 AS138655		Trans World Enterprise Services (Private) Limited	FireHOL-Abusers-Dichte 1.53%
@@ -754,12 +757,12 @@ AS139043		WellNetworks (Private) Limited	FireHOL-Abusers-Dichte 1.76%
 AS139180		Shandong eshinton Network Technology Co., Ltd.	Bitwire-Outbound-Dichte 0.27%
 AS139325		IQ-TEL	FireHOL-Abusers-Dichte 0.33%
 AS139506		Uniqe Telecare Pvt Ltd	Dataplane-Dichte 2.34%
-AS139531		Syncbroad Networks Private Limited	Dataplane-Dichte 0.46%
+AS139531		Syncbroad Networks Private Limited	Dataplane-Dichte 0.39%
 AS139549		Crisp Enterprises	Honeypot-Feeds-Dichte 0.65%
 AS139604		Arrow Net	Honigtopf-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
 AS139638	HK	ANTBOX1-AS-AP	antboxnetwork.com
 AS139642			ASN-Risiko 2026-10
-AS139659		LUCIDACLOUD LIMITED	Bitwire-Outbound-Dichte 0.67%
+AS139659		LUCIDACLOUD LIMITED	Bitwire-Outbound-Dichte 0.68%
 AS139762		Solution	CVE-Exploit-Dichte 1.56%
 AS139808		Sony Cyber Net	FireHOL-Abusers-Dichte 0.91%
 AS139820		HG TELECOMMUNICATION PRIVATE LIMITED	FireHOL-Abusers-Dichte 0.33%
@@ -797,8 +800,9 @@ AS141167		AgotoZ HK Limited	Honeypot-Feeds-Dichte 0.71%
 AS141212		MyNet Broadband (Pvt.) Ltd	FireHOL-Abusers-Dichte 0.52%
 AS141216		GREAT GOLDEN HORSE COMPANY LIMITED	Dataplane-Dichte 0.49%
 AS141217		A.B.S. Online Service	FireHOL-Abusers-Dichte 0.98%
-AS141262		King Netsol Private Limited	Dataplane-Dichte 0.78%
-AS141275		Maxnet Digital Pvt Ltd	threat.live-Dichte 0.46%
+AS141262		King Netsol Private Limited	Dataplane-Dichte 0.88%
+AS141275		Maxnet Digital Pvt Ltd	threat.live-Dichte 0.52%
+AS141295		Madhya Pradesh Agency For Promotion   Of Information Technology	Honigtopf-Dichte 1.95%
 AS141333	IN	ROCKETGP-AS-IN	rocketmediagroups.com
 AS141342		FIBERISH (PVT) LTD	Dataplane-Dichte 0.51%
 AS141347		7 Star Telecom (Private) Limited	FireHOL-Abusers-Dichte 2.34%
@@ -869,7 +873,7 @@ AS149675		PT Garuda Lintas Cakrawala	Dataplane-Dichte 1.07%
 AS149844		Connect Communication	FireHOL-Abusers-Dichte 0.98%
 AS149866		Super Sitapaila Cable Net Pvt. Ltd	Dataplane-Dichte 1.95%
 AS149978	BD	SPNHOST-AS-AP	spnhost.com.bd
-AS150008		Pioneer Elabs Ltd.	Dataplane-Dichte 0.26%
+AS150008		Pioneer Elabs Ltd.	Dataplane-Dichte 0.27%
 AS150030	IN	ALGO-AS-IN	algoz.co.in
 AS150036	IN	HEEBS-AS-IN	heebshealthcare.co.in
 AS150082	IN	GARGASSO-AS-IN	isofttechnology.net
@@ -883,7 +887,7 @@ AS150303	IN	SOLORDP-AS-AP	solordp.com
 AS150324		DOTSIS NETWORK	FireHOL-Abusers-Dichte 1.56%
 AS150371		Pace Telecom and Brodcasting Private Limited	FireHOL-Abusers-Dichte 0.52%
 AS150423		Server Galactic Private Limited	FireHOL-Abusers-Dichte 0.28%
-AS150445		Getechbrothers	Bitwire-Outbound-Dichte 0.39%
+AS150445		Getechbrothers	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS150493		PT Gunung Sedayu Sentosa	Honeypot-Feeds-Dichte 2.15%
 AS150552		PT Link Data Sumber Barokah	FireHOL-Abusers-Dichte 0.98%
 AS150589		NM PARIBAS PRIVATE LIMITED	FireHOL-Abusers-Dichte 0.98%
@@ -897,7 +901,7 @@ AS150860	VN	JETCLOUD-VN	jetcloud.vn
 AS150895		EZ TECHNOLOGY COMPANY LIMITED	CVE-Exploit-Dichte 0.37%
 AS150980		PT Menara Digital Salama	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
 AS151048		Win Broadband (Pvt) Ltd	FireHOL-Abusers-Dichte 0.98%
-AS151330		PLAY BROADBAND (PRIVATE) LIMITED	Honeypot-Feeds-Dichte 1.33%
+AS151330		PLAY BROADBAND (PRIVATE) LIMITED	Honeypot-Feeds-Dichte 1.35%
 AS151389		Synergy Cross Corporation	FireHOL-Abusers-Dichte 0.27%
 AS151396		Sajilo Net Pvt Ltd	FireHOL-Abusers-Dichte 0.39%
 AS151468		SHANGXING TECH LIMITED	BPH_Research T2-High Risk / suspected
@@ -919,7 +923,7 @@ AS152479		DELTA SOFTWARE AND COMMUNICATION LIMITED	FireHOL-Abusers-Dichte 0.70%
 AS152485	IN	HOSTER-AS-IN	hosterdaddy.com
 AS152486	IN	NTSHIELD-AS-IN	jdmbroadband.com
 AS152499		INFINITYLINK COMMUNICATIONS PRIVATE LIMITED	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-24)
-AS152584		Infinivan Incorporated	Dataplane-Dichte 0.77%
+AS152584		Infinivan Incorporated	Dataplane-Dichte 0.80%
 AS152586			Maltrail worst_asns
 AS152605		Z COM NETWORKS	FireHOL-Abusers-Dichte 1.38%
 AS152646	BD	RAKINIT-AS-AP	rakinit.com.bd
@@ -933,7 +937,7 @@ AS153252		ELXIRE	Dataplane-Dichte 0.26%
 AS153379		NS INTERNET	threat.live-Dichte 3.52%
 AS153383	BD	NAZIMHOST-AS-AP	nazimhost.com.bd
 AS153596		SWIS	FireHOL-Abusers-Dichte 1.95%
-AS153622		Madina IT	Honeypot-Feeds-Dichte 0.59%
+AS153622		Madina IT	Dataplane-Dichte 0.59%
 AS153656		OWGELS INTERNATIONAL CO., LIMITED	ThreatFox C2-Dichte 0.49%
 AS153685		S.I.S.P Broadband	FireHOL-Abusers-Dichte 4.30%
 AS153706		Stack Network Sdn. Bhd.	ThreatFox C2-Dichte 0.37%
@@ -955,7 +959,7 @@ AS197152		Comfort XXI Century Ltd.	Honigtopf-Dichte (Haltezeit, zuletzt auffaell
 AS197170	DE	TECHTIES-AS	hostslick.de
 AS197176	CN	KylieCDN-AS	kyliecdn
 AS197194		Kayan Establishment	feste eigene Liste
-AS197218		PP Dmutrashko Evgeny Vitalievich	Bitwire-Outbound-Dichte 0.63%
+AS197218		PP Dmutrashko Evgeny Vitalievich	Bitwire-Outbound-Dichte 0.54%
 AS197275		Link Telecom NN Ltd.	Dataplane-Dichte 0.33%
 AS197283	UA	PowerRDP-Network-AS	powerrdp.pro
 AS197414		Zservers	BPH_Research T1-Confirmed BPH / sanctioned
@@ -970,14 +974,14 @@ AS197706		Keminet SHPK	FireHOL-Abusers-Dichte 0.38%
 AS197769	US	VPSDEDICATED-AS	vpsdedicated.net
 AS197960		LIMITED LIABILITY COMPANY "INTERNET SERVICE PROVIDER "MEGA"	Dataplane-Dichte 1.04%
 AS198071	GB	BERCHSOLUTIONS-AS	berch.co.uk
-AS198072		GTnet sp.j. Tomasz Gajewski Grzegorz Mazurek	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
+AS198072		GTnet sp.j. Tomasz Gajewski Grzegorz Mazurek	Bitwire-Outbound-Dichte 0.59%
 AS198075		BounceZero Ltd	feste eigene Liste
 AS198093		Foreningen for digitala fri- och rattigheter	FireHOL-Abusers-Dichte 1.95%
-AS198133		AIRNET MARIUSZ KAJDAS, TOMASZ PYREK sp.j.	Bitwire-Outbound-Dichte 0.29%
+AS198133		AIRNET MARIUSZ KAJDAS, TOMASZ PYREK sp.j.	Bitwire-Outbound-Dichte 0.34%
 AS198178		365.partners INC	USOM-Dichte 0.33%
 AS198189	GB	STEALTHVM	stealthvm.net
 AS198338		NEAPOL GROUP LLC	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
-AS198356		FOP Kondratyuk Evgeniy Vladimirovich	Dataplane-Dichte 2.25%
+AS198356		FOP Kondratyuk Evgeniy Vladimirovich	Dataplane-Dichte 2.15%
 AS198364			Maltrail worst_asns
 AS198375			Maltrail worst_asns
 AS198465		BtHoster	BPH_Research T1-Confirmed BPH / active
@@ -985,7 +989,7 @@ AS198550		NODE HOST LIMITED	Honeypot-Feeds-Dichte 0.30%
 AS198571	DE	PlainProxies	plainproxies.com
 AS198616		MediaKvant Ltd.	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-24)
 AS198798		IFO.net Internet Service GmbH	Dataplane-Dichte 39.06%
-AS198820		Limited Liability Company Radio Network	Dataplane-Dichte 0.25%
+AS198820		Limited Liability Company Radio Network	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS198890		Albanian Fiber Telecommunications SHPK	FireHOL-Abusers-Dichte 0.33%
 AS198926	IR	Fazel	rapidoserver.com
 AS198953	RU	proton66	proton66.ru
@@ -1010,11 +1014,11 @@ AS200051	RU	VPSLab-Networks	kyonix.com
 AS200130	AT	SIMON-MARIACHER	ryzehosting.com
 AS200195			Maltrail worst_asns
 AS200275		sc synergy GmbH	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
-AS200311		PRE WIFI SRL	Bitwire-Outbound-Dichte 1.27%
+AS200311		PRE WIFI SRL	Bitwire-Outbound-Dichte 0.68%
 AS200313			Maltrail worst_asns
 AS200373	DE	Drei-K-Tech-GmbH	plainproxies.com
 AS200391		KREZ 999 EOOD	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-22)
-AS200475		ET VESELIN JELQZKOV	Bitwire-Outbound-Dichte 0.52%
+AS200475		ET VESELIN JELQZKOV	Bitwire-Outbound-Dichte 0.46%
 AS200499	GB	EHL-AS	enterprises-holding
 AS200582		LLC O-NET	Dataplane-Dichte 0.49%
 AS200593	RU	PROSPERO-AS	pro-spero.ru
@@ -1022,7 +1026,7 @@ AS200651		FLOKINET	Bulletproof Hosting Watch 2026-11-23
 AS200671	GB	START-AS	start-building
 AS200699	SC	DATASHIELD_NL	xor.sc
 AS200702			ASN-Risiko 2026-10
-AS200730		ISAEV Igor	threat.live-Dichte 4.69%
+AS200730		ISAEV Igor	Honigtopf-Dichte 5.86%
 AS200740		First Server Limited	BPH_Research T2-High Risk / flagged
 AS200823			Maltrail worst_asns
 AS200908			Maltrail worst_asns
@@ -1039,14 +1043,14 @@ AS201341		trafficforce, UAB	FireHOL-Abusers-Dichte 0.43%
 AS201380	UA	ALFABISNES-AS	excitedmatch.com
 AS201409		HOSTSHIELD LTD	Bitwire-Outbound-Dichte 1.56%
 AS201572	UA	EKO-INICIATIVE-AS	ekoiniciative.pp.ua
-AS201579		HOSTGNOME LTD	Honeypot-Feeds-Dichte 0.73%
+AS201579		HOSTGNOME LTD	Honeypot-Feeds-Dichte 0.67%
 AS201626	UA	PODILLIA-AS	bignet.ua
-AS201670		S.C. INFOTECH-GRUP S.R.L.	Bitwire-Outbound-Dichte 0.78%
+AS201670		S.C. INFOTECH-GRUP S.R.L.	ThreatFox C2-Dichte 0.70%
 AS201688		Bilgi Teknolojileri ve iletisim Kurumu	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
 AS201738	HK	UFO-TECHNOLOGIES-LIMITED	changway.hk
 AS201767		"Uzbektelekom" Joint Stock Company	FireHOL-Abusers-Dichte 0.39%
 AS201813	MD	Contrust-Solutions	kontrast.md
-AS201814		MEVSPACE sp. z o.o.	Bitwire-Outbound-Dichte 0.42%
+AS201814		MEVSPACE sp. z o.o.	Bitwire-Outbound-Dichte 0.40%
 AS201824	GB	stat-cons-as	stat-cons
 AS201836	UA	GARANT-AS	garant-plus-inform
 AS201884		ISP SUPPORT LLC	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-20)
@@ -1062,7 +1066,7 @@ AS202302	UA	NETH-AS	s-host.com.ua
 AS202306	RU	HOSTGLOBALPLUS-AS	hostglobal.plus
 AS202318	UA	EKOINICIATIVE-AS	ekoiniciative.pp.ua
 AS202375		Digital Albox SL	Dataplane-Dichte 0.26%
-AS202376		Arvid Logicum OU	Bitwire-Outbound-Dichte 1.42%
+AS202376		Arvid Logicum OU	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS202383	UA	EL-K-STIL-AS	el-k-stil
 AS202388	UA	CLUB-NADIYA-AS	club-nadiya
 AS202412	GB	OMEGATECH-AS	virtualine.org
@@ -1076,7 +1080,7 @@ AS202645		PORTALLIANCE JOINT STOCK COMPANY PORT ALLIANCE	USOM-Dichte 4.30%
 AS202668		Karelova Olena Viktorivna	Dataplane-Dichte 1.95%
 AS202685		TR-ARKEL	Bulletproof Hosting Watch 2026-11-23
 AS202799		SYSECT D.O.O.	Bitwire-Outbound-Dichte 0.82%
-AS202845		LLC Unetco Corp	Dataplane-Dichte 8.85%
+AS202845		LLC Unetco Corp	Dataplane-Dichte 9.64%
 AS202972	TR	ROKUNET	pixoof.com
 AS202984		Chernyshov Aleksandr Aleksandrovich	Bitwire-Outbound-Dichte 0.46%
 AS203044	KZ	telepatiya	telepatiya.kz
@@ -1085,7 +1089,7 @@ AS203154	RU	MITELIS-DOWNSTREAM	play2go.cloud
 AS203168			Maltrail worst_asns
 AS203273	RU	NetCraftersOU	aeza.net
 AS203319	RU	GIR-AS-1	gir.network
-AS203451		K-telekom LLC	Dataplane-Dichte 0.75%
+AS203451		K-telekom LLC	Dataplane-Dichte 0.76%
 AS203485		Noinet Societa Cooperativa	threat.live-Dichte 0.59%
 AS203493		Egor Timoshenko	USOM-Dichte 0.33%
 AS203557		SIA RixHost	feste eigene Liste
@@ -1107,7 +1111,7 @@ AS204584		Qnet LLC	Dataplane-Dichte 0.49%
 AS204610	CY	IMASOFTWARE-AS	imasfs.com
 AS204634		TOV "Onet-Group"	Honigtopf-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
 AS204641		HOSTGW SRL	USOM-Dichte 0.34%
-AS204685		PE KRYVENKO SERGIY ANDRIYOVYCH	Dataplane-Dichte 5.08%
+AS204685		PE KRYVENKO SERGIY ANDRIYOVYCH	Dataplane-Dichte 4.30%
 AS204752		Delfi Internet LLC	Dataplane-Dichte 3.12%
 AS204794	MD	Contrust-Solutions	kontrast.md
 AS204829		Onet Group Ltd.	Honigtopf-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
@@ -1117,12 +1121,12 @@ AS204872	MD	Contrust-Solutions	kontrast.md
 AS204875		ISTEC UKRAINE LLC	Dataplane-Dichte 0.47%
 AS204889		Online Business Technologies Ltd.	Dataplane-Dichte 1.27%
 AS204914		LABIXE LTD	ThreatFox C2-Dichte 0.26%
-AS204929		Television, Telephony, Internet of Ukraine Ltd.	Dataplane-Dichte 0.78%
+AS204929		Television, Telephony, Internet of Ukraine Ltd.	Dataplane-Dichte 0.63%
 AS204997		First Server Limited	BPH_Research T2-High Risk / flagged
 AS205016		HERN Labs AB	FireHOL-Abusers-Dichte 3.03%
 AS205051		Connetta Srl	threat.live-Dichte 0.30%
 AS205083	SC	DATASHIELD_FILTER	xor.sc
-AS205089		Alfahost LLC	Honeypot-Feeds-Dichte 20.31%
+AS205089		Alfahost LLC	Honeypot-Feeds-Dichte 20.70%
 AS205090		First Server Limited	BPH_Research T2-High Risk / flagged
 AS205100		F3 Netze e.V.	Honeypot-Feeds-Dichte 3.91%
 AS205119		TELEKS DOOEL Skopje	FireHOL-Abusers-Dichte 1.27%
@@ -1152,13 +1156,13 @@ AS206206		Kurdistan Net Company for Computer and Internet Ltd.	FireHOL-Abusers-D
 AS206216		Advin Services LLC	Bitwire-Outbound-Dichte 0.41%
 AS206236		default gateway UG (haftungsbeschraenkt)	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
 AS206257		LLC LANA-IT	Dataplane-Dichte 0.95%
-AS206262		TelKos L.L.C	Dataplane-Dichte 0.29%
+AS206262		TelKos L.L.C	Dataplane-Dichte 0.28%
 AS206272		Bluvisio GmbH	USOM-Dichte 1.95%
 AS206305	MD	Contrust-Solutions	kontrast.md
 AS206336		Datavice MCHJ	BPH_Research T1-Confirmed BPH / sanctioned
 AS206340	MD	AMPERAURA-AS	kontrast.md
 AS206378	MD	STOLITOMSON-AS	zerolimit-servers.cool
-AS206385		OOO "SPETSTELECOM-YUG"	Dataplane-Dichte 0.78%
+AS206385		OOO "SPETSTELECOM-YUG"	Dataplane-Dichte 0.75%
 AS206413	MD	Contrust-Solutions	kontrast.md
 AS206435		Individual Entrepreneur Umarov Huseyn Suleimanovich	Dataplane-Dichte 0.98%
 AS206499		LOCIX LIMITED	FireHOL-Abusers-Dichte 0.52%
@@ -1183,10 +1187,10 @@ AS207279			Maltrail worst_asns
 AS207408			Maltrail worst_asns
 AS207461			Maltrail worst_asns
 AS207506		"NEWNET" LLC	Dataplane-Dichte 0.78%
-AS207558		Sergey Kus	Dataplane-Dichte 0.78%
+AS207558		Sergey Kus	Dataplane-Dichte 0.84%
 AS207560		Zubritska Valeriia Nikolaevna	Honeypot-Feeds-Dichte 1.17%
 AS207566	HK	LD007-AS	changway.hk
-AS207567		Intezio Worldwide Limited	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-24)
+AS207567		Intezio Worldwide Limited	Bitwire-Outbound-Dichte 0.26%
 AS207656		Epinatura LLC	Bitwire-Outbound-Dichte 1.17%
 AS207713	RU	GIR-AS	gir.network
 AS207802		Provider "Setka" LLC	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-22)
@@ -1210,6 +1214,7 @@ AS208323		Foundation for Applied Privacy	Honeypot-Feeds-Dichte 2.73%
 AS208476			Maltrail worst_asns
 AS208525	HK	AIRULIMITED	cloudie.hk
 AS208570		Spark for Information Technology Services Ltd	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-19)
+AS208598		Aquilo s.r.l.	Bitwire-Outbound-Dichte 0.88%
 AS208637		4 Vendeta Ltd	Bitwire-Outbound-Dichte 2.73%
 AS208690		JeskeSolutions LTDA	feste eigene Liste
 AS208821			ASN-Risiko 2026-10
@@ -1229,17 +1234,18 @@ AS209207			Maltrail worst_asns
 AS209272		Alviva Holding Limited	USOM-Dichte 0.91%
 AS209274	RS	Kraken-Network-ISP	mortalsoft.online
 AS209290			Maltrail worst_asns
-AS209334		Modat B.V.	threat.live-Dichte 17.45%
-AS209353		Maurizio Giuseppe Fanari trading as LABEL SISTEMI TECNOLOGICI	Bitwire-Outbound-Dichte 2.15%
-AS209366		SEMrush CY LTD	AbuseIPDB-Dichte 0.78%
+AS209334		Modat B.V.	threat.live-Dichte 17.58%
+AS209353		Maurizio Giuseppe Fanari trading as LABEL SISTEMI TECNOLOGICI	Bitwire-Outbound-Dichte 0.98%
+AS209366		SEMrush CY LTD	AbuseIPDB-Dichte 0.55%
 AS209373	IR	SWISSNET-AS	swissnetwork.io
 AS209375	MD	Contrust-Solutions	kontrast.md
-AS209380		Arat Telekominikasyon Tek. Bil.Hiz.San. ve Tic. Ltd.Sti	Bitwire-Outbound-Dichte 0.39%
+AS209380		Arat Telekominikasyon Tek. Bil.Hiz.San. ve Tic. Ltd.Sti	Bitwire-Outbound-Dichte 0.47%
 AS209396	MD	Contrust-Solutions	kontrast.md
 AS209410		SiciLink s.r.l.s	Dataplane-Dichte 0.59%
 AS209413	LV	DEDIK-CH	dedik.io
 AS209425	IR	KOI-AS	lordvps.net
 AS209439		BRENAC EURL	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
+AS209474		EKIPHOST BILISIM TEKNOLOJILERI TICARET VE SANAYI LIMITED SIRKETI	Honigtopf-Dichte 0.78%
 AS209557		Jesse Roehsler	FireHOL-Abusers-Dichte 0.78%
 AS209588			Maltrail worst_asns
 AS209605	LT	hostbaltic	serveroffer.lt
@@ -1260,7 +1266,7 @@ AS209982	MD	Contrust-Solutions	kontrast.md
 AS210003		SKY ELBASAN sh.p.k	Dataplane-Dichte 0.59%
 AS210006	KZ	ASKZ	shereverov.marat
 AS210083		Privex Inc.	Bitwire-Outbound-Dichte 0.65%
-AS210238		Dieffeitalia.it S.r.l.	Bitwire-Outbound-Dichte 1.03%
+AS210238		Dieffeitalia.it S.r.l.	Bitwire-Outbound-Dichte 0.59%
 AS210240	RU	NTC-AS	nts.center
 AS210281		WAIcore Hosting Ltd	BPH_Research T2-High Risk / flagged
 AS210316	UA	ELEKOMS-AS	elekoms.net.ua
@@ -1290,7 +1296,7 @@ AS211066	AT	RYZEHOSTING-TRADING	ryzehosting.com
 AS211072		MFI INVESTMENTS LIMITED	Honeypot-Feeds-Dichte 0.98%
 AS211121	GB	India	imtigernet
 AS211138			Maltrail worst_asns
-AS211190		QUICKNET LLC	Dataplane-Dichte 1.35%
+AS211190		QUICKNET LLC	Dataplane-Dichte 1.30%
 AS211199	UA	LIPTEL-AS	liptel.net.ua
 AS211238	IN	DCYBER	zumy.eu
 AS211250		TELECOM TRADE LLC	FireHOL-Abusers-Dichte 1.56%
@@ -1300,7 +1306,7 @@ AS211356		MyTv-Alb SH.P.K.	Honeypot-Feeds-Dichte 1.95%
 AS211381			Maltrail worst_asns
 AS211443	HK	SINOWORLDWIDE	sinoworldwidetrading.com
 AS211486			Maltrail worst_asns
-AS211507		Julian Achter	Bitwire-Outbound-Dichte 1.95%
+AS211507		Julian Achter	Bitwire-Outbound-Dichte 1.87%
 AS211522		Hypercore LTD	BPH_Research T1-Confirmed BPH / sanctioned
 AS211590			Maltrail worst_asns
 AS211606		UNIJA SIBIT D.O.O.	Bitwire-Outbound-Dichte 3.52%
@@ -1327,14 +1333,14 @@ AS212271		Cinzia Tocci trading as Lumanex Srl	ThreatFox C2-Dichte 4.14%
 AS212283	BG	ROZA-AS	rosa-holidays.com
 AS212441		Cloud assets LLC	Bitwire-Outbound-Dichte 0.45%
 AS212448	TR	turkbil	turkbil.com.tr
-AS212463		FOP Polischyk O.V	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
+AS212463		FOP Polischyk O.V	Dataplane-Dichte 0.98%
 AS212508		Lowhosting services of Davide Gennari	Bitwire-Outbound-Dichte 0.39%
 AS212512		Detai Prosperous Technologies	feste eigene Liste
-AS212617		Lynnyk Olexii	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-24)
+AS212617		Lynnyk Olexii	Honigtopf-Dichte 1.95%
 AS212622	UA	LIVECOMM-AS	livecomm
 AS212651	UA	D-CONECT-AS	d-conect
 AS212666	TR	ipv4-net	eksenbilisim.com.tr
-AS212825		Novitni Informaciini Merezhi Ltd	Dataplane-Dichte 8.59%
+AS212825		Novitni Informaciini Merezhi Ltd	Dataplane-Dichte 7.81%
 AS212835			Maltrail worst_asns
 AS212849		J.C. TECNICS, S.L.	FireHOL-Abusers-Dichte 0.78%
 AS212867	NL	SIPALTO	brutalproxies.com
@@ -1352,7 +1358,7 @@ AS213373	SC	IPCONNECT	ipconnect.services
 AS213382	FR	PEERYX	cubixserv.com
 AS213388	GB	IIC-AS	iic-rail
 AS213389	UA	ASPODOLSK	netip.com.ua
-AS213412		ONYPHE SAS	Dataplane-Dichte 64.19%
+AS213412		ONYPHE SAS	Dataplane-Dichte 64.00%
 AS213438	SC	colocatel-inc	colocatel.com
 AS213461		Igor Andreevich Nemtsov	USOM-Dichte 1.76%
 AS213474			Maltrail worst_asns
@@ -1404,14 +1410,14 @@ AS215136	AT	Ryzehosting	ryzehosting.com
 AS215183	EE	zhaikov-as	vaultdweller.net
 AS215208			Maltrail worst_asns
 AS215240			Maltrail worst_asns
-AS215286		IXROOT LTD	ThreatFox C2-Dichte 1.04%
+AS215286		IXROOT LTD	ThreatFox C2-Dichte 1.17%
 AS215310	DE	USERCLOUD	pfcloud.io
 AS215311	IQ	REGXA-CLOUD	regxa.iq
 AS215340	RU	MySim-Nigeria	62yun.com
 AS215365		Tom Gewiese	Bitwire-Outbound-Dichte 0.27%
 AS215373		Sabiedriba ar ierobezotu atbildibu DELSKA Latvia	FireHOL-Abusers-Dichte 1.05%
 AS215376	RU	mlcloud	sshvps.net
-AS215381		ROCKHOSTER PRIVATE LIMITED	Bitwire-Outbound-Dichte 0.56%
+AS215381		ROCKHOSTER PRIVATE LIMITED	Bitwire-Outbound-Dichte 0.61%
 AS215402	RU	ASAD-AS	berdiev-ruslan-mukhabatovich
 AS215420			Maltrail worst_asns
 AS215421		LikeNet LLC	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
@@ -1435,6 +1441,7 @@ AS215778		Alpha Strike Labs GmbH	Honeypot-Feeds-Dichte 19.84%
 AS215789			Maltrail worst_asns
 AS215826		Altawk (Daniil Yevchenko)	BPH_Research T2-High Risk / flagged
 AS215828			Maltrail worst_asns
+AS215898		Saganetwork Telekomunikasyon A.S.	Bitwire-Outbound-Dichte 0.33%
 AS215925	GB	VPSVAULTHOST	vpsvault.host
 AS215929		Data Campus Limited	feste eigene Liste
 AS215930	IR	COD	almaseabi.net
@@ -1462,7 +1469,7 @@ AS216368		Petersburg Internet Network ltd.	Bitwire-Outbound-Dichte 0.35%
 AS216378	RO	NETGATE-COMUNICATIONS-AS	net-gate.ro
 AS216416			Maltrail worst_asns
 AS216472		High Speed For Internet Services L.L.C	FireHOL-Abusers-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
-AS216473		Bashinskii Vadim Ruslanovich	Bitwire-Outbound-Dichte 3.91%
+AS216473		Bashinskii Vadim Ruslanovich	Bitwire-Outbound-Dichte 3.52%
 AS216475	RU	nktelecom	nktele.com
 AS218063	SC	RAIHAN-AS	blatant.host
 AS218219	BG	Denev	darkvps.pro
@@ -1483,11 +1490,11 @@ AS219262		WAIcore Hosting Ltd	BPH_Research T2-High Risk / flagged
 AS219288			ASN-Risiko 2026-10
 AS219326	GB	SULAVIL	sulavi.co.uk
 AS219337	RU	PLAY2GO	play2go.cloud
-AS219443		AS219443	Bitwire-Outbound-Dichte 4.69%
+AS219443		AS219443	Bitwire-Outbound-Dichte 4.56%
 AS219474		AS219474	Bitwire-Outbound-Dichte 0.65%
 AS219502	US	STORMCLOUD-AS	stormindustries.llc
 AS219509	DE	PRIVATESECTOR-AS	pfcloud.io
-AS262161		COTES Ltda.	Dataplane-Dichte 0.29%
+AS262161		COTES Ltda.	Dataplane-Dichte 0.31%
 AS262262		METRONET	FireHOL-Abusers-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS262503		WIKI TELECOMUNICACOES EIRELI	Dataplane-Dichte 1.05%
 AS262527		BRASIL TECPAR | AMIGO | AVATO	threat.live-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
@@ -1529,28 +1536,30 @@ AS264323		OXMAN TECNOLOGIA LTDA	Dataplane-Dichte 1.07%
 AS264354		TOP FIBRA (CARRENHO E PELEGRINO LTDA ME)	Dataplane-Dichte 0.49%
 AS264358		PETRANET INTERNET LTDA	Dataplane-Dichte 1.46%
 AS264385		Itop Internet e Servicos LTDA	FireHOL-Abusers-Dichte 0.59%
+AS264404		NETGOOL TELECOMUNICACOES	Dataplane-Dichte 0.26%
 AS264449		A. A. Informatica e Manutencao Ltda	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-19)
 AS264491		Sonik Servicos de Comunicacao LTDA	Dataplane-Dichte 4.54%
 AS264500		SoulTelecom - Provedor de Acesso a Internet	Dataplane-Dichte 0.49%
-AS264619		Wireless Provider	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
+AS264619		Wireless Provider	Bitwire-Outbound-Dichte 0.30%
 AS264628		CORPORACION FIBEX TELECOM, C.A.	FireHOL-Abusers-Dichte 0.57%
 AS264631		RED PARAGUAYA DE TELECOMUNICACIONES SA	FireHOL-Abusers-Dichte 0.59%
 AS264685		REDES DEL OESTE S.A	FireHOL-Abusers-Dichte 0.65%
 AS264696		CABLEMAR	Dataplane-Dichte 0.59%
-AS264732		NETLATIN S.R.L.	Honeypot-Feeds-Dichte 0.29%
+AS264732		NETLATIN S.R.L.	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS264796		CABLEMAS SAS	FireHOL-Abusers-Dichte 0.68%
 AS264827			ASN-Risiko 2026-10
 AS264850		TODAS LAS REDES SA	FireHOL-Abusers-Dichte 0.85%
 AS264932		STAYNET SERVICOS DE INTERNET LTDA - ME	Dataplane-Dichte 1.56%
 AS264959		Torres Telecom	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
 AS264963		LUMIAR TELECOMUNICACOES	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-20)
+AS264965		R PARMIGIANI COMERCIO DE INFORMATICA LTDA	Bitwire-Outbound-Dichte 0.49%
 AS265083		UltraWeb Telecomunicacoes LTDA	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
 AS265172		E. C. E. Telecomunicacoes LTDA	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-20)
 AS265185		VIANET LTDA ME	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
 AS265198		BLUE3 TECNOLOGIA EIRELI	Dataplane-Dichte 0.49%
 AS265201		MEGANET SERVICOS DE COMUNICACAO E MULTIMIDIA LTDA	Dataplane-Dichte 0.59%
 AS265234		N-MULTIMIDIA TELECOMUNICACOES LTDA - ME	FireHOL-Abusers-Dichte 0.63%
-AS265260		JOSE APARECIDO PEREIRA DA SILVA TELNET - ME	Bitwire-Outbound-Dichte 0.59%
+AS265260		JOSE APARECIDO PEREIRA DA SILVA TELNET - ME	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS265268		Smart Solucoes Tecnologicas	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
 AS265283		IAGO NET TEL SERVICOS DE INTERNET EIRELI - EPP	Dataplane-Dichte 0.68%
 AS265457		FELIPE MAURICIO DE QUEIROZ	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-24)
@@ -1561,13 +1570,14 @@ AS265770		GRUPO LANA, S.A.	FireHOL-Abusers-Dichte 0.43%
 AS265776		MEYNET	Dataplane-Dichte 0.61%
 AS265786		MUNICIPALIDAD DE MALAGUENO	Dataplane-Dichte 0.49%
 AS265790		COOP. DE PROV. DE SERV. ELECTRICOS Y OTROS SERV. PUB. DE SERV. SOCIALES, CRED. Y	Bitwire-Outbound-Dichte 2.34%
-AS265798		LEVEL SEVEN SRL	Dataplane-Dichte 0.65%
+AS265798		LEVEL SEVEN SRL	Dataplane-Dichte 0.69%
 AS265816		DELCO IMAGEN S.A.	Dataplane-Dichte 0.39%
 AS265817			ASN-Risiko 2026-10
 AS265823		NETROPOLYS S.A.	Dataplane-Dichte 0.50%
 AS265849		HONDURAS ADELANTE SA	FireHOL-Abusers-Dichte 0.34%
 AS265936		TURBONET CE	Honeypot-Feeds-Dichte 0.68%
-AS266032		T.A.LUIZ ELETRONICO LTDA - ME	Dataplane-Dichte 0.68%
+AS265980		FTTH TELECOM	Dataplane-Dichte 0.49%
+AS266032		T.A.LUIZ ELETRONICO LTDA - ME	Dataplane-Dichte 0.78%
 AS266121		SUPER SONIC TELECOM LTDA	threat.live-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
 AS266159		SIN FIBRA SERVICOS DE COMUNICACOES LTDA	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
 AS266192		LP PROVEDORA DE INTERNET E INSTALACOES DE REDES TE	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
@@ -1583,19 +1593,19 @@ AS266515		robson galassi - me	FireHOL-Abusers-Dichte 1.17%
 AS266516		Naveganet Comercio e Servicos Eirele	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-22)
 AS266534		AZECOM INTERNET	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
 AS266574		GMT Multimidia	Dataplane-Dichte 0.49%
-AS266636		REDE WORKS TELECOM	Dataplane-Dichte 0.70%
+AS266636		REDE WORKS TELECOM	Dataplane-Dichte 0.78%
 AS266651		R. M. TELECOM LTDA ME	Dataplane-Dichte 0.88%
 AS266673		FLYTEC TELECOM SOCIEDAD ANONIMA	FireHOL-Abusers-Dichte 0.49%
 AS266698		INSITEL S.A.S.	FireHOL-Abusers-Dichte (Haltezeit, zuletzt auffaellig 2026-11-20)
 AS266702	AR	MEGALINK_S.R.L.	nodonorte.net.ar
 AS266724	CL	MYRIAM_PILAR_ESCOBAR_VEGA_(DON_SERVER)	donserver.cl
 AS266725		SOLUTION LAN S.A	FireHOL-Abusers-Dichte 0.72%
-AS266732		FIBERTEL PERU S.A.	Dataplane-Dichte 0.75%
+AS266732		FIBERTEL PERU S.A.	Dataplane-Dichte 0.74%
 AS266743			ASN-Risiko 2026-10
 AS266764		TERAN JORGE LUIS (Social Datos)	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
 AS266769		ISPCOM S.A.	FireHOL-Abusers-Dichte 0.68%
-AS266777		DOVAL MANUEL ANGEL (INETGAMING)	Honigtopf-Dichte 0.52%
-AS266812		CONEXIONTOTAL S.A.	Dataplane-Dichte 0.88%
+AS266777		DOVAL MANUEL ANGEL (INETGAMING)	Honigtopf-Dichte 0.65%
+AS266812		CONEXIONTOTAL S.A.	Dataplane-Dichte 0.68%
 AS266820		HAMMERHEAD DIVE S.A.	FireHOL-Abusers-Dichte 0.27%
 AS266827		BOHO BEACH CLUB S.A.	FireHOL-Abusers-Dichte 0.89%
 AS266860		CONEXION DIGITAL EXPRESS S.A.S.	FireHOL-Abusers-Dichte 1.46%
@@ -1608,7 +1618,7 @@ AS267141		Terabyte de Teresopolis Provedor de Internet LTDA	threat.live-Dichte (
 AS267225		Filhonet Telecomunicacoes Ltda - ME	Bitwire-Outbound-Dichte 0.78%
 AS267251		TELEFONARNET TELECOMUNICACOES	Bitwire-Outbound-Dichte 0.59%
 AS267320		PRIME SERVICOS DE COMUNICACAO LTDA	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-19)
-AS267384		G7 BSB TELECOM LTDA	Dataplane-Dichte 1.07%
+AS267384		G7 BSB TELECOM LTDA	Dataplane-Dichte 0.98%
 AS267398		mega ip connect	threat.live-Dichte 0.49%
 AS267405		WIKINET TELECOMUNICACOES	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
 AS267463		ALL CONECTA INTERNET LTDA - ME	FireHOL-Abusers-Dichte 0.78%
@@ -1617,10 +1627,10 @@ AS267578		WILLIAN MENDES DE OLIVEIRA ­ ME	FireHOL-Abusers-Dichte 0.52%
 AS267585		NETEXPAND TELECOM LTDA	Dataplane-Dichte 0.88%
 AS267648		SPEEDNETMAIS TELECOMUNICACOES LTDA - ME	Dataplane-Dichte 0.59%
 AS267684		VISIONMAGICA SOCIEDAD ANONIMA	FireHOL-Abusers-Dichte 0.49%
-AS267690		ELDA SALERNO(FULLNET)	Bitwire-Outbound-Dichte 1.04%
+AS267690		ELDA SALERNO(FULLNET)	Bitwire-Outbound-Dichte 1.17%
 AS267708		SP SISTEMAS PALACIOS LTDA	FireHOL-Abusers-Dichte 0.33%
 AS267741			ASN-Risiko 2026-10
-AS267765		COTAP LTDA	Dataplane-Dichte 0.35%
+AS267765		COTAP LTDA	Dataplane-Dichte 0.36%
 AS267784			Maltrail worst_asns
 AS267788		IP TECHNOLOGIES S.A.S.	threat.live-Dichte 0.26%
 AS267812		COMWAY SRL	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
@@ -1642,21 +1652,22 @@ AS268305		T & I TELECOMUNICACOES LTDA ME	threat.live-Dichte 1.37%
 AS268467		Voa Internet	Dataplane-Dichte 0.39%
 AS268468		MXCONECT SERVICOS DE COMUNICACAO LTDA	Dataplane-Dichte 0.78%
 AS268533		RIONET TECNOLOGIA EM INTERNET EIRELI - ME	Dataplane-Dichte 0.49%
-AS268605		SRG TELECOM LTDA	Dataplane-Dichte 0.34%
+AS268537		TAQUARANET SERVICOS DE PROVEDOR DE INTERNET LTDA M	Dataplane-Dichte 0.49%
+AS268605		SRG TELECOM LTDA	Dataplane-Dichte 0.29%
 AS268613		VERO S.A	FireHOL-Abusers-Dichte 0.49%
 AS268817		Acelera Telecom	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
 AS268869		FIBRA PLUS TELECOM	Dataplane-Dichte 0.49%
 AS269004		MORE SPEED FIBRA	Dataplane-Dichte 0.59%
 AS269039		DENISE DE OLIVEIRA SILVA	threat.live-Dichte 0.78%
 AS269070		Hostzone Tecnologia LTDA	threat.live-Dichte 0.26%
-AS269195		J. CALUX & CIA LTDA	Bitwire-Outbound-Dichte 0.49%
+AS269195		J. CALUX & CIA LTDA	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS269250		EVOLUCAO TELECOM LTDA	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-18)
 AS269359		CANAA TELECOMUNICACOES LTDA - ME	Dataplane-Dichte 0.39%
 AS269499		FIBRALINK INTERNET E TELECOMUNICACOES LTDA	FireHOL-Abusers-Dichte 0.59%
-AS269630		Jose Carlos Santana Junior-ME	Bitwire-Outbound-Dichte 0.68%
+AS269630		Jose Carlos Santana Junior-ME	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS269729		GRUPO MULTICABLES DE CORTES S.R.L de C.V	Dataplane-Dichte 0.39%
 AS269769		SERVICABLE S.A. DE C.V.	Dataplane-Dichte 0.65%
-AS269843		BANTEL SAC	Dataplane-Dichte 2.45%
+AS269843		BANTEL SAC	Dataplane-Dichte 2.49%
 AS269846		T.V ZAMORA, C.A.	FireHOL-Abusers-Dichte 0.49%
 AS269853		CBVISION S.A.	FireHOL-Abusers-Dichte 0.52%
 AS269897		C Y M INTERNET S.R.L.	Honigtopf-Dichte 0.49%
@@ -1669,24 +1680,26 @@ AS270044		CORRIENTES TELECOMUNICACIONES S.A.P.E.M.	Dataplane-Dichte 0.68%
 AS270052		ARANDA CARDOZO LIDER RAMON	FireHOL-Abusers-Dichte 0.33%
 AS270054		GLOBALRADIO S.A.	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
 AS270065		CHILE TV CABLE S.A.	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-19)
-AS270276		VELOCITYNET TELECOM EIRELLI - EPP	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
+AS270276		VELOCITYNET TELECOM EIRELLI - EPP	Dataplane-Dichte 0.49%
 AS270291		Bertolini & Guzzo Ltda	Dataplane-Dichte 0.88%
 AS270353		Tyna Host	feste eigene Liste
-AS270368		TR TELECOMUNICACOES LTDA	Bitwire-Outbound-Dichte 2.34%
+AS270368		TR TELECOMUNICACOES LTDA	Bitwire-Outbound-Dichte 1.17%
 AS270458		Agility Telecom	Bitwire-Outbound-Dichte 0.78%
-AS270572		ADRIANO ROSA DOS SANTOS	Dataplane-Dichte 0.78%
-AS270639		EGTECH SOLUCOES EM TELECOMUNICACOES	Dataplane-Dichte 0.49%
+AS270572		ADRIANO ROSA DOS SANTOS	Dataplane-Dichte 0.68%
+AS270585		Rodrigo de Mello Goncalves Lopes ME	Dataplane-Dichte 0.49%
+AS270639		EGTECH SOLUCOES EM TELECOMUNICACOES	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-26)
 AS270664		A K C PROV DE ACESSO AS REDES DE TEL. E INF EIRELI	threat.live-Dichte 0.78%
 AS270707		LINK NET BRASIL TELECOMUNICACOES LTDA	Dataplane-Dichte 0.59%
 AS270757		VIP NET PROVEDOR DE SERVICOS DE INTERNET LTDA	Dataplane-Dichte 1.02%
 AS270885		VITORIA NET	threat.live-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
 AS271020		Adrianopolis Solucao Tecnologica Ltda	Dataplane-Dichte 0.49%
 AS271042		BOT INTERNET E SERVICOS DE TELECOMUNICACOES LTDA	Dataplane-Dichte 37.60%
-AS271136		ACK TELECOMUNICACOES LTDA ­ ME	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-20)
+AS271136		ACK TELECOMUNICACOES LTDA ­ ME	Dataplane-Dichte 0.49%
 AS271181		whnet telecom servicos de telecomunicacoes LTDA	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
 AS271262		COMETAFIBER SERVICOS DE INTERNET LTDA	threat.live-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
 AS271325		LACKNET SERVICOS DE TELECOMUNICACOES	FireHOL-Abusers-Dichte 0.49%
 AS271330		Dide telecomunicacoes Ltda	threat.live-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
+AS271392		Expressnet Telecom	Dataplane-Dichte 0.49%
 AS271425		Terracel Provedor de Internet Ltda Me	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-22)
 AS271528		GIGA FIBRA	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-22)
 AS271538		EB FOX TELECOM LTDA	Bitwire-Outbound-Dichte (Haltezeit, zuletzt auffaellig 2026-11-24)
@@ -1696,7 +1709,7 @@ AS271652		POWER NET	Dataplane-Dichte 0.59%
 AS271791		CABLE NORTE CA.	FireHOL-Abusers-Dichte 0.26%
 AS271822		INNO FIBER INFI CIA LTDA	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-25)
 AS271874		SERVITRACTOR S.A.	FireHOL-Abusers-Dichte 0.65%
-AS271916		TELECABLE BANILEJO S.R.L	Dataplane-Dichte 0.33%
+AS271916		TELECABLE BANILEJO S.R.L	Dataplane-Dichte 0.29%
 AS271933		AIRMAXTELECOM SOLUCIONES TECNOLOGICAS S.A.	FireHOL-Abusers-Dichte 0.39%
 AS271936		SERVICIOS DE TELECOMUNICACIONES ATVCABLE CIA. LTDA.	Dataplane-Dichte 1.56%
 AS271990		AIRNET, COPROPIEDAD	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-24)
@@ -1707,7 +1720,7 @@ AS272090		ALDERETE RIVAS JORDAN TOMAS SEBASTIAN (COMUNICATE INTERNET)	Honeypot-F
 AS272102		BESSER SOLUTIONS C.A.	FireHOL-Abusers-Dichte 0.29%
 AS272112		TELECABLE DOMINICANO, S.A.	FireHOL-Abusers-Dichte 0.26%
 AS272133		A&A COMUNICACIONES SRL	Dataplane-Dichte 1.95%
-AS272274		BACH E CIESIELSKI LTDA - ME	threat.live-Dichte 1.69%
+AS272274		BACH E CIESIELSKI LTDA - ME	threat.live-Dichte 1.82%
 AS272539		ENEVE TELECOMUNICACOES LTDA	threat.live-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
 AS272547		Servicos de Infraestrutura e Datacenter	feste eigene Liste
 AS272854		TELECOMUNICACIONES SILVERDATA, C.A.	FireHOL-Abusers-Dichte 0.28%
@@ -1731,9 +1744,9 @@ AS274061			ASN-Risiko 2026-10
 AS274286			ASN-Risiko 2026-10
 AS275000			ASN-Risiko 2026-10
 AS327837	SC	SEY-IX-MANAGEMENT	seyix.sc
-AS327906		Embarq Limited	Dataplane-Dichte 0.54%
+AS327906		Embarq Limited	Dataplane-Dichte 0.49%
 AS327952	NG	AS-NATCOM	ntel.com.ng
-AS327991		Megasurf Wireless Internet CC	Bitwire-Outbound-Dichte 0.91%
+AS327991		Megasurf Wireless Internet CC	Bitwire-Outbound-Dichte 0.82%
 AS328095	ZA	BLUEGATE-EXCHANGE-AS	bluegate-exchange.co.za
 AS328200		Al Madar Al Jadeed Joint Stock Company	Bitwire-Outbound-Dichte 0.41%
 AS328223		VOIPTECH LIMITADA	Bitwire-Outbound-Dichte 1.66%
@@ -1764,7 +1777,8 @@ AS394711			Maltrail worst_asns
 AS394814		ISP4Life INC	FireHOL-Abusers-Dichte 1.16%
 AS395339		Donnelley Financial, LLC.	Bitwire-Outbound-Dichte 0.31%
 AS395470		Nymlyria LLC	FireHOL-Abusers-Dichte 0.39%
-AS396073		Majestic Hosting Solutions, LLC	Bitwire-Outbound-Dichte 0.41%
+AS395904		Servury	Bitwire-Outbound-Dichte 1.95%
+AS396073		Majestic Hosting Solutions, LLC	CVE-Exploit-Dichte 0.41%
 AS396319		Oxylabs	FireHOL-Abusers-Dichte 0.38%
 AS396507		Emerald Onion	Dataplane-Dichte 0.49%
 AS397081	US	VALKYRIE-HOSTING	valkyrie-hosting.net
@@ -1772,15 +1786,15 @@ AS397270		NetInformatik Inc.	CVE-Exploit-Dichte 0.25%
 AS397731		EliteWork LLC	FireHOL-Abusers-Dichte 0.48%
 AS397881	US	STINGERS	ipswat.com
 AS397966		ReadyDedis, LLC	ThreatFox C2-Dichte 0.39%
-AS398019		Dynu Systems Incorporated	CVE-Exploit-Dichte 0.36%
+AS398019		Dynu Systems Incorporated	Bitwire-Outbound-Dichte 0.38%
 AS398044		Trinity Network Solutions	Dataplane-Dichte 0.39%
 AS398256		Ultahost, Inc.	ThreatFox C2-Dichte 0.43%
-AS398324		Censys, Inc.	Dataplane-Dichte 14.26%
+AS398324		Censys, Inc.	Dataplane-Dichte 14.36%
 AS398357		Ethernic LLC	ThreatFox C2-Dichte 0.68%
 AS398391		Check Point Software Technologies Inc.	Bitwire-Outbound-Dichte 0.37%
 AS398638	US	JELLYDIGITAL	jellydigital.net
-AS398705		Censys, Inc.	threat.live-Dichte 3.12%
-AS398722		Censys, Inc.	Dataplane-Dichte 7.81%
+AS398705		Censys, Inc.	Bitwire-Outbound-Dichte 3.91%
+AS398722		Censys, Inc.	Dataplane-Dichte 7.42%
 AS398741	RU	AS-VERTEXLINK-01	62yun.com
 AS398781		OCULUS NETWORKS INC	FireHOL-Abusers-Dichte 0.25%
 AS399073	US	TBB-ASN	bunnycommunications.com
@@ -1790,7 +1804,7 @@ AS399461		HostSNAP LLC	Bitwire-Outbound-Dichte 0.31%
 AS399471	NL	CUSTOMER	serverion.com
 AS399486			Maltrail worst_asns
 AS399498		Private Networks Labs LLC	FireHOL-Abusers-Dichte 1.95%
-AS399628		Internet Measurement Research	Bitwire-Outbound-Dichte 13.38%
+AS399628		Internet Measurement Research	Bitwire-Outbound-Dichte 13.43%
 AS399629			Maltrail worst_asns
 AS399804		Hostodo	Bitwire-Outbound-Dichte 0.26%
 AS399820		SPARKED HOST LLC	Bitwire-Outbound-Dichte 1.56%
@@ -1829,7 +1843,7 @@ AS401696	HK	COGNETCLOUD	cognetcloud.com
 AS401701	HK	COGNETCLOUD-2	cognetcloud.com
 AS401739		RedLuff LLC	feste eigene Liste
 AS402075	US	PEEKABO	securecommsgroup.xyz
-AS402169		Uscloud Inc	ThreatFox C2-Dichte 0.41%
+AS402169		Uscloud Inc	ThreatFox C2-Dichte 0.49%
 AS402226		OnlyScans LLC	Honeypot-Feeds-Dichte (Haltezeit, zuletzt auffaellig 2026-11-22)
 AS402253	KN	SKN-NETWORK-1	skntelecom.com
 AS402349		Gatewaysentry LLC	ThreatFox C2-Dichte 0.65%

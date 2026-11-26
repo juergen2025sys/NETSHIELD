@@ -1,11 +1,11 @@
 # NETSHIELD - Spamhaus ASN-DROP + BPH_Research + Maltrail (Bulletproof-/Kriminellen-Netzbetreiber)
-# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795660004)
+# Quelle ASNs: https://www.spamhaus.org/drop/asndrop.json (Stand Spamhaus: 1795681604)
 # Zusatz-ASNs: https://raw.githubusercontent.com/crimsonvector/BPH_Research/main/BPH_Master.csv (MIT; T1/T2, ohne Upstream/aufgeloest)
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-23)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-26 03:12 UTC | ASNs: 1832 (Spamhaus 471 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1147 + ASN-Risiko 55, aktiv: 1569)
-# IPv6-Netze: 5008
+# Aktualisiert: 2026-11-26 09:08 UTC | ASNs: 1846 (Spamhaus 471 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1161 + ASN-Risiko 55, aktiv: 1582)
+# IPv6-Netze: 5020
 
 2001:3a8:8f00::/48
 2001:470:139::/48
@@ -1370,6 +1370,7 @@
 2406:4fc0:3000::/36
 2406:5740::/32
 2406:5ec0::/32
+2406:6040::/32
 2406:6fc0::/45
 2406:7400:2::/48
 2406:7400:4::/48
@@ -1545,6 +1546,7 @@
 2602:f2d7::/43
 2602:f2d7:20::/44
 2602:f34c:ff0::/44
+2602:f41c::/36
 2602:f5c0::/40
 2602:f5e5::/36
 2602:f651:100::/48
@@ -2109,6 +2111,7 @@
 2804:68c::/32
 2804:c78::/32
 2804:d3c::/32
+2804:d70::/32
 2804:dec::/32
 2804:e60::/32
 2804:ec0::/32
@@ -2122,6 +2125,7 @@
 2804:1d34::/32
 2804:1d48::/32
 2804:1dac::/33
+2804:1df8::/32
 2804:1e10:6800::/37
 2804:1ed8::/32
 2804:2074::/32
@@ -2157,6 +2161,7 @@
 2804:303c:8000::/34
 2804:3088::/32
 2804:3098::/32
+2804:30a0::/32
 2804:3284::/32
 2804:346c::/32
 2804:351c::/32
@@ -2184,6 +2189,7 @@
 2804:3f0c::/40
 2804:3f0c:f900::/40
 2804:3f4c::/32
+2804:40c4::/32
 2804:4250::/32
 2804:4398::/32
 2804:43b4::/32
@@ -2206,6 +2212,7 @@
 2804:4f20::/32
 2804:51a4::/32
 2804:52ac::/32
+2804:52b8::/32
 2804:53c4::/32
 2804:53e0::/32
 2804:54b4::/32
@@ -2231,6 +2238,7 @@
 2804:6af4::/32
 2804:6c4c::/32
 2804:6e0c::/32
+2804:6e44::/32
 2804:6f1c::/32
 2804:6f80::/32
 2804:7020::/33
@@ -2250,8 +2258,10 @@
 2804:79c0:900::/47
 2804:79c0:8000::/47
 2804:79d4::/32
+2804:7ac8::/32
 2804:7acc::/32
 2804:7b54::/32
+2804:7bd0::/32
 2804:7d18::/32
 2804:7dd8::/32
 2804:7e58::/33
@@ -4337,6 +4347,7 @@
 2a0f:5f46:800::/40
 2a0f:5f46:1000::/40
 2a0f:63c0::/29
+2a0f:6580:108::/48
 2a0f:6680::/29
 2a0f:6700::/29
 2a0f:6bc0::/29
@@ -4981,6 +4992,7 @@
 2a14:c380:600::/40
 2a14:c380:c70::/44
 2a14:c380:d70::/44
+2a14:c380:e00::/40
 2a14:c380:1100::/40
 2a14:c380:1200::/39
 2a14:c380:3000::/40
