@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (Full-Export + Recent-API)
-# Aktualisiert: 2026-11-26 10:06 CET
-# Eintraege: 31220
+# Aktualisiert: 2026-11-26 12:00 CET
+# Eintraege: 31230
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1813,10 +1813,13 @@ aafibintan.org
 aafibireuen.org
 aafiborot.org
 aafibungo.org
+aafibuseryo.org
 aafidisendobo.org
+aafidokoneida.org
 aafigayolues.org
 aafigembileme.org
 aafiipouwa.org
+aafijambi.org
 aafnojwq.megashart.blog
 aah.celikit.my
 aah3bpf6.eng-eng-glucore.com
@@ -10741,6 +10744,7 @@ g66c3tx3.semilink.ir
 g67bv8oy.mgmcoffee.com
 g6e17ret.sanderscollision.com
 g6gib60b.raftarsazmani.xyz
+g6n2ejfc.aafibuseryo.org
 g6zaqd6k.schleer.hu
 g7.akun258.org
 g7.anka69.org
@@ -12218,6 +12222,7 @@ helixr2sncrd3ndsz5oho6mzqw3x5u7mvox5zcsngc5wm7v4l5k7oryd.onion
 hello.itsmybirthdaytoday.pw
 help.hived.space
 help.mcsq.workers.dev
+help.windows64.men
 help.xenngypt.com
 help1.mcsq.workers.dev
 helper-sdk.tentvs.com
@@ -22994,6 +22999,7 @@ s48bo9y4.en-en--enerflow.com
 s4bhqpb2.aafiipouwa.org
 s4d36a8i.mattheneus-healthcare.com
 s4oaurcr.eng-genesis-revival.com
+s4ovvgcj.aafidokoneida.org
 s4x5yd7i.anodaz.store
 s570wlpz.us-us-us-goldalign.com
 s5e7xnaa.celar.store
@@ -25949,6 +25955,7 @@ tjt7bjni.bociljepe.info
 tjv82ulc.bet1xindia.com
 tjvdbbc.yektbet.bet
 tjxoublo.fileboroo.com
+tk-1500200614.cos.ap-guangzhou.myqcloud.com
 tk0mqqvqzjunlyv6.org
 tk11bangladesh.com
 tk7r5jj6.bjkg.store
@@ -25965,6 +25972,7 @@ tkshns3r.belly-flush.net
 tkushmo.naolemedia.com
 tkwt.doubledavespizzatx.com
 tkzvl.nagshekeshi.xyz
+tl.ayukply.com
 tl9afxug.bahsegel90.com
 tl9l6e9m.slavyera.com
 tlbwfid.3toravix.lat
@@ -26339,6 +26347,7 @@ tssjiwjfx.hazzarat.com
 tsukinorami.shop
 tsyf22nq.milioner.bet
 tszebpwz.1xprobet.app
+tt.xmlengsuo.com
 ttabqw6x.tickett.bet
 ttasqdwmpwnaw.com
 ttcxdljiue.cn
@@ -26774,6 +26783,7 @@ ulinecustomboxes.com
 ulkgysz.popi999.net
 ulmfab.infoscatter.com
 ulmherbals.gunturwebdesigning.com
+ulmnlrch.aafijambi.org
 ulpin.brssolar.hu
 ulqg.ridgerenovation.com
 ulqlge.jackpot4d.de.com
