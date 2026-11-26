@@ -238,6 +238,32 @@ class TestFeedParserKeyValue(unittest.TestCase):
         text = "block_ip: 193.169.53.1\ngateway: 89.248.165.2\n"
         self.assertEqual(netshield_common.parse_feed_entries(text), {"193.169.53.1"})
 
+    # YAML-Blocklisten "- IP" unter einem Schluessel (2026-11-26)
+    def test_yaml_nested_block_list_cloud_armor(self):
+        text = ("rules:\n- action: deny(403)\n  match:\n    config:\n"
+                "      srcIpRanges:\n      - 193.169.53.1/32\n"
+                "      - 89.248.165.2/32\n      - 89.248.0.0/16\n")
+        self.assertEqual(
+            netshield_common.parse_feed_entries(text, source_hint="armor.yaml"),
+            {"193.169.53.1", "89.248.165.2"})
+
+    def test_yaml_top_level_list(self):
+        text = "- 193.169.53.1\n- 89.248.165.2 # c2\n"
+        self.assertEqual(
+            netshield_common.parse_feed_entries(text, source_hint="bl.yml"),
+            {"193.169.53.1", "89.248.165.2"})
+
+    def test_yaml_list_under_trusted_parent_ignored(self):
+        text = "trusted:\n  ips:\n    - 193.169.53.1\ntrusted_ips:\n  - 89.248.165.2\n"
+        self.assertEqual(
+            netshield_common.parse_feed_entries(text, source_hint="cfg.yaml"), set())
+
+    def test_markdown_dash_list_and_range(self):
+        text = "# Liste\n- 193.169.53.1\n* 89.248.165.2\n- 46.0.0.1 - 46.0.0.9\n"
+        self.assertEqual(
+            netshield_common.parse_feed_entries(text, source_hint="README.md"),
+            {"193.169.53.1", "89.248.165.2"})
+
 
 # ═══════════════════════════════════════════════════════════════
 # source_hint: Format-Hinweis, Query/Fragment-Strip, .gz-Innenendung
