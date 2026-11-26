@@ -207,7 +207,7 @@ class AuditFixTests(unittest.TestCase):
                         # bleibt per Merge vollstaendig erhalten (kein Schrumpfen).
                         self.assert_run_ok(result)
                         self.assertIn("herabgestuft auf Light", result[2])
-                        self.assertTrue(set(ips) <= self.rows("honigtopf_ips.txt"))
+                        self.assertLessEqual(set(ips), self.rows("honigtopf_ips.txt"))
                         for path, content in before.items():
                             Path(path).write_bytes(content)  # Ausgangslage fuer den naechsten Teilfall
                         continue
