@@ -899,6 +899,12 @@
 "name": "BOL System",
 "why": "FireHOL-Abusers-Dichte"
 },
+"137816": {
+"density": 0.34,
+"last_seen": "2026-11-26",
+"name": "Cloud Net Technologies Limited",
+"why": "Honigtopf-Dichte"
+},
 "137959": {
 "density": 1.17,
 "last_seen": "2026-11-26",
@@ -1260,7 +1266,7 @@
 "why": "FireHOL-Abusers-Dichte"
 },
 "140869": {
-"density": 0.4,
+"density": 0.41,
 "last_seen": "2026-11-26",
 "name": "Turing Group Limited",
 "why": "Bitwire-Outbound-Dichte"
@@ -1440,13 +1446,13 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "142002": {
-"density": 0.32,
+"density": 0.33,
 "last_seen": "2026-11-26",
 "name": "Scloud Pte Ltd",
 "why": "Bitwire-Outbound-Dichte"
 },
 "142036": {
-"density": 0.63,
+"density": 0.67,
 "last_seen": "2026-11-26",
 "name": "Hosteons Pte. Ltd.",
 "why": "Bitwire-Outbound-Dichte"
@@ -2400,10 +2406,10 @@
 "why": "ThreatFox C2-Dichte"
 },
 "202306": {
-"density": 3.91,
+"density": 2.73,
 "last_seen": "2026-11-26",
 "name": "HOSTGLOBAL.PLUS LTD",
-"why": "AbuseIPDB-Dichte"
+"why": "Bitwire-Outbound-Dichte"
 },
 "202375": {
 "density": 0.26,
@@ -2772,10 +2778,10 @@
 "why": "FireHOL-Abusers-Dichte"
 },
 "206560": {
-"density": 2.47,
+"density": 3.12,
 "last_seen": "2026-11-26",
 "name": "Contrust Solutions S.R.L.",
-"why": "threat.live-Dichte"
+"why": "Honigtopf-Dichte"
 },
 "206728": {
 "density": 1.9,
@@ -3018,7 +3024,7 @@
 "why": "Bitwire-Outbound-Dichte"
 },
 "209366": {
-"density": 0.94,
+"density": 1.09,
 "last_seen": "2026-11-26",
 "name": "SEMrush CY LTD",
 "why": "AbuseIPDB-Dichte"
@@ -3144,7 +3150,7 @@
 "why": "Bitwire-Outbound-Dichte"
 },
 "210558": {
-"density": 4.33,
+"density": 4.35,
 "last_seen": "2026-11-26",
 "name": "1337 Services GmbH",
 "why": "Bitwire-Outbound-Dichte"
@@ -3672,7 +3678,7 @@
 "why": "ThreatFox C2-Dichte"
 },
 "215540": {
-"density": 0.26,
+"density": 0.27,
 "last_seen": "2026-11-26",
 "name": "GLOBAL CONNECTIVITY SOLUTIONS LLP",
 "why": "Bitwire-Outbound-Dichte"
@@ -3720,7 +3726,7 @@
 "why": "Bitwire-Outbound-Dichte"
 },
 "215925": {
-"density": 5.76,
+"density": 6.15,
 "last_seen": "2026-11-26",
 "name": "VPSVAULT.HOST LTD",
 "why": "Honeypot-Feeds-Dichte"
@@ -5841,7 +5847,7 @@
 "density": 0.49,
 "last_seen": "2026-11-26",
 "name": "Emerald Onion",
-"why": "AbuseIPDB-Dichte"
+"why": "Dataplane-Dichte"
 },
 "397270": {
 "density": 0.25,
@@ -6072,7 +6078,7 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "401696": {
-"density": 0.33,
+"density": 0.34,
 "last_seen": "2026-11-26",
 "name": "cognetcloud INC",
 "why": "Bitwire-Outbound-Dichte"
@@ -6138,7 +6144,7 @@
 "why": "FireHOL-Abusers-Dichte"
 },
 "40662": {
-"density": 1.02,
+"density": 1.09,
 "last_seen": "2026-11-26",
 "name": "Layer7 Technologies Inc",
 "why": "Bitwire-Outbound-Dichte"
@@ -6636,7 +6642,7 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "48753": {
-"density": 0.9,
+"density": 0.93,
 "last_seen": "2026-11-26",
 "name": "AVA HOST SRL",
 "why": "Bitwire-Outbound-Dichte"
@@ -7446,7 +7452,7 @@
 "why": "Honeypot-Feeds-Dichte"
 },
 "60567": {
-"density": 0.86,
+"density": 0.78,
 "last_seen": "2026-11-26",
 "name": "SIA RixHost",
 "why": "Bitwire-Outbound-Dichte"
@@ -7488,7 +7494,7 @@
 "why": "Bitwire-Outbound-Dichte"
 },
 "60904": {
-"density": 2.83,
+"density": 2.93,
 "last_seen": "2026-11-26",
 "name": "ATC Telecom LTD.",
 "why": "Bitwire-Outbound-Dichte"
