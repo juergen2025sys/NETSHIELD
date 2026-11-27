@@ -1,7 +1,7 @@
 # Title: Stamparm Maltrail Trails - C2-IPv4 aus malware/ + malicious/ (ohne Sinkholes)
 # Quelle: https://github.com/stamparm/trails
-# Aktualisiert: 2026-11-26 20:58 CET
-# Eintraege: 199639
+# Aktualisiert: 2026-11-27 10:12 CET
+# Eintraege: 199640
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 1.1.141.234
@@ -136103,6 +136103,7 @@
 42.96.5.54
 42.97.39.239
 42.98.143.215
+42.98.227.153
 42.98.5.225
 42.99.117.95
 43.100.117.240
