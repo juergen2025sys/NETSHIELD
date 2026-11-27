@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (Full-Export + Recent-API)
-# Aktualisiert: 2026-11-27 14:42 CET
-# Eintraege: 31226
+# Aktualisiert: 2026-11-27 17:59 CET
+# Eintraege: 31237
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1843,13 +1843,17 @@ aafikalipepe.org
 aafikanggilo.org
 aafikaranganyar.org
 aafikarangrejo.org
+aafikarimun.org
 aafikaru.org
 aafikaur.org
+aafikebonsari.org
 aafikerinci.org
 aafikiroma.org
 aafikonikme.org
+aafikotorambur.org
 aafikungge.org
 aafilabuhanbatu.org
+aafilambera.org
 aafnojwq.megashart.blog
 aah.celikit.my
 aah3bpf6.eng-eng-glucore.com
@@ -3125,6 +3129,7 @@ araestudio.es
 aragoniteforum.info
 araizx.com
 arak-elt.com
+aravzzfo.aafikotorambur.org
 araytoto.org
 arc.com.tr
 arcanemods.top
@@ -8761,6 +8766,7 @@ eizgbh.xenicalby6.com
 ej.asiantoto88.org
 ejash.store
 ejjfjm2l.vip1xbet.net
+ejms62eb.aafilambera.org
 ejneqdj9.lvsc.net
 ejnztsw.morlies.com
 ejtteyte.com
@@ -18930,6 +18936,7 @@ o3rxmx6a.bestbusinessvoice.com
 o4.autooris77.org
 o4bkhohp.usa--thebrainsong.us
 o4epigrc.en-en--echofree.com
+o4f0lkmz.aafikarimun.org
 o5.amarta89.org
 o5.gg
 o54.angkajitu.org
@@ -20767,6 +20774,7 @@ primenetwork.es
 primeproxy.sorix7el.lat
 primeringroad.com
 primescaffolding.com
+primetime-filmproduktion.de
 primeupdates.es
 primia.shop
 priminsurance.co.th
@@ -27910,6 +27918,7 @@ vqfqrqgv.red90.casino
 vqincjko.jetbahis.win
 vqjlbv.pizzadays.net
 vqsoqrdq.hazarat.now
+vqv.baber168.org
 vqwj.phimmoichilla.org
 vqyjhmr.1xpin.live
 vqyux3rgt3ips2kecakobstj4ht2bmfjvpqdignb6zpjpstkmbun5fqd.onion
@@ -28694,6 +28703,7 @@ wolrdcup2026202620262026.dynuddns.net
 womenscollegekolkata.in
 womenshub.pk
 wonderlandcasinos.com
+wonuxr8h.aafikebonsari.org
 wood-switch.p7ickmuch.lat
 woodcat.xyz
 woodcora.devmatrix.lat
@@ -29697,6 +29707,7 @@ x.goo55.org
 x.gp108.org
 x.gpy88.org
 x.ho108.org
+x.hri88.org
 x089w0f5.btyek.boats
 x0ih2pfd.scottpwilliamslaw.com
 x0ihfh5u.asesoriamerenlinea.com
