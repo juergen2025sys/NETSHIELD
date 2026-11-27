@@ -1065,6 +1065,7 @@ def _parse_dshield_daily_sources(text, source_hint, ip_check):
 # (mastodon, openresolver, tldns = TLD-Nameserver, Forschungsscanner).
 # Nur diese Kategorien werden uebernommen (Nutzerentscheidung 27.11.2026).
 ISC_INTELFEED_CATEGORIES = frozenset({"webscanner"})
+_ISC_INTELFEED_HOSTS = frozenset({"isc.sans.edu"})
 
 
 def _parse_isc_intelfeed(text, source_hint, ip_check):
@@ -1084,7 +1085,9 @@ def _parse_isc_intelfeed(text, source_hint, ip_check):
         hint_path = parts.path.lower()
     except ValueError:
         host, hint_path = "", ""
-    if not (host.endswith("isc.sans.edu") and hint_path.rstrip("/").endswith("/api/intelfeed")):
+    # Exakter Host-Vergleich (CodeQL #73): endswith("isc.sans.edu") haette
+    # auch fremde Hosts wie "evilisc.sans.edu" akzeptiert.
+    if host not in _ISC_INTELFEED_HOSTS or hint_path.rstrip("/") != "/api/intelfeed":
         return None
     try:
         data = _json.loads(text)
