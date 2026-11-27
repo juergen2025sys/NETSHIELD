@@ -1,32 +1,22 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-27 18:27 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-27 22:56 CET (Europe/Berlin)
 
-**Workflows:** 36 | ✅ 36 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
+**Workflows:** 36 | ✅ 36 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `066eb1fe5dcce9668dcf09a0e5ece16c38372fe6`
+✅ Commit: `baa0c2b93478d9670ca754a8b5a7fe5c3d144327`
 
 500 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
 
-## ❌ Fehler (kritisch)
-
-| Datei | Check | Detail |
-|---|---|---|
-| `Production Health` | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 18.155.145.96, 23.227.39.20, 34.128.177.21, 34.144.250.199, 35.157.26.135… – Filterung wirkungslos! |
-| `Production Health` | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 35.157.26.135, 34.128.177.21, 34.144.250.199, 18.155.145.96, 63.176.8.218… – Filterung wirkungslos! |
-
 ## 🏥 Production Health
 
-**Status:** 🔴 2 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
 
-| Level | Check | Detail |
-|---|---|---|
-| 🔴 CRITICAL | Whitelist-Leak: combined_threat_blacklist_ipv4.txt | combined_threat_blacklist_ipv4.txt enthält whitelisted IPs: 18.155.145.96, 23.227.39.20, 34.128.177.21, 34.144.250.199, 35.157.26.135… – Filterung wirkungslos! |
-| 🔴 CRITICAL | Whitelist-Leak: blacklist_confidence40_ipv4.txt | blacklist_confidence40_ipv4.txt enthält whitelisted IPs: 35.157.26.135, 34.128.177.21, 34.144.250.199, 18.155.145.96, 63.176.8.218… – Filterung wirkungslos! |
+*Alle Production Health Checks bestanden.*
 
 ## Übersicht
 
@@ -70,4 +60,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-27 18:27 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*
+*Generiert: 2026-11-27 22:56 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*
