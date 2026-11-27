@@ -1,7 +1,7 @@
 # Title: Stamparm Maltrail Trails - malicious (DNS-only)
 # Quelle: https://github.com/stamparm/trails/tree/main/malicious
-# Aktualisiert: 2026-11-26 19:57 CET
-# Eintraege: 226418
+# Aktualisiert: 2026-11-27 12:20 CET
+# Eintraege: 226430
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 0-4.top
@@ -36344,6 +36344,7 @@ bot.cdnlivechatinc.com
 bot.chalcharsangtim.site
 bot.cmanager.lol
 bot.deepstresser.su
+bot.earnmitra.in
 bot.fraternityzzz.com
 bot.health9.icu
 bot.lijh.cc
@@ -37752,6 +37753,8 @@ browse-cdn.beer
 browse-cloud.codes
 browse-codes-enter.beer
 browse-id-enter.codes
+browse-login.info
+browse-nnccodes.beer
 browse-veriid.beer
 browseid.codes
 browser-crash-report.coupons
@@ -41425,6 +41428,7 @@ captcha.2.26.123.89.sslip.io
 captcha.bz
 captcha.milkywayzone.xyz
 captcha.nxgengames.com
+captcha.tonnels.me
 captcha.zip
 captcha214.pages.dev
 captchachecking.top
@@ -41997,6 +42001,7 @@ careersigma.site
 careerslvmh.com
 careersstart.site
 careflex.prod.phishing.dev-bb.co.uk
+careflow.vasvox.com
 carefree-z.link
 carefreecupid.com
 carefull.science
@@ -72078,6 +72083,7 @@ eh6x6mbxzcve7z.ieubsae.icu
 eh74850685.reduction925.cc
 eharmonys.icu
 ehatec.quest
+ehaulmarketing.cyatech.rs
 ehe5rg.ieubsae.icu
 eheringe-trauringe.com
 ehgetsix.live
@@ -89873,6 +89879,7 @@ gogoanimee.cv
 gogogo.bugsafe.net
 gogogovtv.com
 gogolannis.site
+gogomedikoreaskin.com
 gogosale.live
 gogosalevs.life
 gogreenliving.site
@@ -107273,6 +107280,7 @@ jar.da5v.ru
 jar.fa0n.ru
 jar.zen-and.ru
 jar1.icu
+jarabot.co.kr
 jarayemaleyhamval.xyz
 jarbe.live
 jardario.ddns.net
@@ -144416,6 +144424,7 @@ ns559345.ip-54-39-104.net
 ns57.hostvn.net
 ns7.isy-cpa.com
 nsaa.songlingjj.com
+nsandan.com
 nsbalert.weebly.com
 nsbdnscloud.beer
 nsc216.116.187-56.newsouth.net
@@ -159477,8 +159486,10 @@ promotions.nationalrail.co.uk
 promottks.shop
 prompt.host
 prompt.zonashoppers.academy
+promptcat.in
 promptgens.com
 promptmy.party
+promptvibes.in
 promsmotion.com
 pronavydry.live
 pronax.xyz
@@ -174285,6 +174296,7 @@ scher4.glimmerkranz.ru
 schester.beer
 schetdigit.pics
 schg2.ieubsae.icu
+schhackathon.cloud
 schiff.pumaschiff.ru
 schild.onyxkamm.ru
 schinner.icu
