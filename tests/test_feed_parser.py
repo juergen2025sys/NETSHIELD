@@ -289,6 +289,37 @@ class TestFeedParserKeyValue(unittest.TestCase):
                 text, source_hint="https://feeds.dshield.org/feeds/daily_sources"),
             set())
 
+    # SANS ISC intelfeed (2026-11-27): nur Kategorie "webscanner"
+    ISC_INTEL_URL = "https://isc.sans.edu/api/intelfeed?json"
+
+    def test_isc_intelfeed_only_webscanner(self):
+        text = (
+            '[{"ip":"193.169.53.1","description":"webscanner"},'
+            '{"ip":"89.248.165.2","description":"mastodon"},'
+            '{"ip":"45.148.10.152","description":"tldns"},'
+            '{"ip":"46.161.27.151","description":"openresolver"},'
+            '{"ip":"185.220.101.1","description":"webscanner,mastodon"},'
+            '{"ip":"10.0.0.1","description":"webscanner"},'
+            '{"ip":"0.0.0.0","description":"miner"}]'
+        )
+        self.assertEqual(
+            netshield_common.parse_feed_entries(text, source_hint=self.ISC_INTEL_URL),
+            {"193.169.53.1"})
+
+    def test_isc_intelfeed_schema_drift_fails_closed(self):
+        # Kein Rueckfall auf den generischen JSON-Parser (der alle IPs naehme).
+        for text in ('{"error":"rate limit"}', 'not json 193.169.53.1',
+                     '[{"addr":"193.169.53.1","type":"webscanner"}]'):
+            self.assertEqual(
+                netshield_common.parse_feed_entries(text, source_hint=self.ISC_INTEL_URL),
+                set(), text)
+
+    def test_other_json_feed_unaffected(self):
+        text = '[{"ip":"193.169.53.1","description":"mastodon"}]'
+        self.assertEqual(
+            netshield_common.parse_feed_entries(text, source_hint="https://example.com/feed.json"),
+            {"193.169.53.1"})
+
     def test_markdown_dash_list_and_range(self):
         text = "# Liste\n- 193.169.53.1\n* 89.248.165.2\n- 46.0.0.1 - 46.0.0.9\n"
         self.assertEqual(
