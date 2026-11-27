@@ -1,7 +1,7 @@
 # Title: NETSHIELD FRITZ!Box-Filterliste: ThreatFox + Emerging Threats Open
 # Quelle: dns/threatfox_domains.txt + dns/et_open_domains.txt
-# Aktualisiert: 2026-11-27 01:15 CET
-# Eintraege: 34601
+# Aktualisiert: 2026-11-27 03:08 CET
+# Eintraege: 34644
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -908,6 +908,7 @@
 4o6giyl4.ravanshenasinovin.xyz
 4oeeg3rf.en-us-en-glycofree.com
 4oob20cq.sue-intentioned.digital
+4ow1bnj8.aafiesahapuk.org
 4p2hmbuy36oau64fcvwz2yvdw7eptlkionm46p2m2cs6dmhone5mxiyd.onion
 4p7109sg.www-bellyflush.com
 4pbnoncf5c2kzevec7g3nrhyuu4bq234gnwlso2nnebmij4di7ia.turbo-gateway.com
@@ -1887,11 +1888,13 @@ aafibuseryo.org
 aafidairi.org
 aafidarungan.org
 aafideliserdang.org
+aafidelsa.org
 aafidisendobo.org
 aafidokoneida.org
 aafidugunik.org
 aafiekapame.org
 aafiendokisi.org
+aafiesahapuk.org
 aafigayolues.org
 aafigembileme.org
 aafigiko.org
@@ -1899,11 +1902,13 @@ aafigiwan.org
 aafigolikme.org
 aafigumagame.org
 aafihokolekma.org
+aafihumbanghasundutan.org
 aafiipouwa.org
 aafijambi.org
 aafijerusalem.org
 aafijilekme.org
 aafikalipepe.org
+aafikanggilo.org
 aafnojwq.megashart.blog
 aah.celikit.my
 aah3bpf6.eng-eng-glucore.com
@@ -3138,6 +3143,7 @@ api-trend-micro.com
 api-v1.cfd
 api-web-point.cfd
 api-web-point.sbs
+api.2k5u.ru
 api.360mads.com
 api.688vbet.pro
 api.adriance.workers.dev
@@ -3490,6 +3496,7 @@ arpumupr.site-shartbandi-pasor.online
 arqenntta.mom
 arqn7djf.vajename.xyz
 arra-track.5dorexin.lat
+arraybig.auc5.com
 arraydar.lomov-stroganal.lat
 arreglafacil.com
 arrowwoodmemoir.org
@@ -5260,6 +5267,7 @@ bonmawp.at
 bonnemaisonhotel.com
 bonuliautoparts.com
 bonuscode.in
+boobies.homelabnode.qzz.io
 boodystat.click
 book-imagegallery.info
 book-imageport.info
@@ -7006,6 +7014,7 @@ cloudflarecdn.com
 cloudflareconfirm.com
 cloudfrontenterprise.com
 cloudfronts.services
+cloudgateapp.net
 cloudgateway.cc
 cloudgrab.cc
 cloudguard3537.lol
@@ -11108,6 +11117,7 @@ fernwold.cc
 fernwoldway.cc
 ferpizza.it
 ferrari-rolling-facilities-lounge.trycloudflare.com
+ferreteriadepot.com
 fervxy.xyz
 fesold.com
 festival-enruelibre.fr
@@ -11518,6 +11528,7 @@ fog.psgiran.news
 foheko.workers.dev
 foipwjgt.paketmalam.vip
 foivs.highkickstkd.com
+fokoffkont.anondns.net
 fol9.com
 folder-management-core.garden
 folderdrive.info
@@ -11847,6 +11858,7 @@ ftp.ulfl.co.in
 ftp.untentepc.info
 ftp.verisimilitude.cam
 ftp.viatic.pro
+ftp.vietnam852.com
 ftp.vilimorin.com
 ftp.zetrocom.my
 ftpserverit.otzo.com
@@ -12579,6 +12591,7 @@ githooks.homes
 githooks.xyz
 github.ignorelist.com
 github.pw
+githubguru.at
 gitihubusercomtent.com
 gitlabh.1navorex.lat
 gitlabh.fatovism-r2ccoon.lat
@@ -12869,6 +12882,7 @@ google-meet-verification.icu
 google-searching.com
 google-statics.com
 google.dns-1.help
+google.kasin.xyz
 google2oauth.com
 googlechromehost.ddns.net
 googlecloud.exfrp.zip
@@ -14836,6 +14850,7 @@ instabill.com
 installerpdf.com
 instance-g63lkz-relay.screenconnect.com
 instance-v81wjy-relay.screenconnect.com
+instance-vjqhlx-relay.screenconnect.com
 instant-healthonline.com
 instantwebupdate.com
 institutarbiorescence.fr
@@ -15701,6 +15716,7 @@ jobureau.com
 jobworkny.com
 jodob.run
 joe-shields.com
+joefilters.com
 joekairbos.com
 joexpediagroup.com
 jofqbg.fraudhelper.co.uk
@@ -15996,6 +16012,7 @@ k.gg018.org
 k.hino9.net
 k.hkb7.org
 k.upgrades.lat
+k.vietnam852.com
 k.worldpress.biz
 k0.amanplya.org
 k0.azzawin.org
@@ -17588,6 +17605,7 @@ loaderclientarea22.ru
 loaderclientarea24.ru
 loadfilerun.com
 loadmirapp.org
+loadnode.cc
 loadpetitstar1.qivornodeunit.garden
 loadsync.cc
 loagolden.arch-vivarium.lat
@@ -19733,6 +19751,7 @@ mspatcomedy.com
 mssbksu.overtheitgirl.com
 msservice.site
 mssfr.icu
+mssqlok.load230713.ru
 mstclaudens.beer
 mstcyi.theslimsplitsmethod.net
 mstdvyct.gift-lattice.christmas
@@ -19953,6 +19972,7 @@ myslotgame.top
 myslothorizon.com
 mysoliq.lat
 mysqlserver.org
+mysqlupdate.anondns.net
 mysterygaming.de
 mystic-brews.com
 mysticwordsanswers.net
@@ -21097,6 +21117,7 @@ nzraw48i.rayegan.net
 nztdbnij.mabanishimi.xyz
 nzvutkh.eng-echoxen.us
 o.atoslot.org
+o.babahhoki.com
 o.bob78.org
 o.cou4d.org
 o.dewii.net
@@ -21289,6 +21310,7 @@ officeproductdownload.com
 official-ol.gl.at.ply.gg
 officialkeren777.hair
 officialswebsites.info
+officialtrends.unaux.com
 officmasy.cloud.xenzhao.sbs
 offset2.net
 offset22.duckdns.org
@@ -21692,6 +21714,7 @@ oqyagkqmocsauuay.xyz
 or2by62l.urgentblue.com
 or3k-51808.portmap.host
 oracleup.cc
+oracleupdate.anondns.net
 oral-career-renewable-bacterial.trycloudflare.com
 oralsurgeontintonfalls.com
 orangefarmersmarket.org
@@ -21973,6 +21996,7 @@ p.gg180.net
 p.goo55.org
 p.hino9.net
 p.hlo88.org
+p.hqq77.org
 p.thelayzf.fyi
 p0d2virz.blackjacktipsnnt.com
 p0fc8ejw.us-en-us-synaboost.com
@@ -23585,6 +23609,7 @@ pzq4qskw.techvigilante.com
 pzsbygor.radioshartbandi.bet
 pzzao3th.northcountrygentleacupuncture.com
 q.apigacor889.org
+q.babahhoki.com
 q.cou4d.org
 q.dak69.org
 q.dog69.net
@@ -24202,6 +24227,7 @@ r64h4yde.us-energyrevolution.com
 r6qobdol.laken.store
 r6ud44az.eng-eng-slimsounds.com
 r7.asiakasino.org
+r73lrkx9.aafikanggilo.org
 r7e0hc30.legend-capital-group.com
 r7qaivk5.shop-burnflow.com
 r7w.ampluna.com
@@ -24573,6 +24599,7 @@ regenciatransfert.fr
 regencykwoffers.com
 regenerate5141.icu
 region8879.hxjcj-klolko.workers.dev
+regional-bank-crt-2024.structuredcreditinvestor.com
 register-theindex.finance
 register.snapshot-theindex.finance
 register.toastmasters86.org
@@ -24603,6 +24630,8 @@ relay-02-static.com
 relay-3f9c71.kartohaantoha36-6a9.workers.dev
 relay-agent-v4.am
 relay-mirror.kartohaantoha36-6a9.workers.dev
+relay.acrobatreader.app
+relay.asszaax.online
 relay.backupper.pro
 relay.bobdthjau.com
 relay.docu-lopab.de
@@ -25895,6 +25924,7 @@ schneemann.cfd
 schoenbacher.at
 schoenberg-ensemble.nl
 school.ncsgo.workers.dev
+schoolspiritshowcase.advancedkiosksmarketing.com
 schooltillhungryprocess.com
 schuttc.lol
 schvz3s8.us-superbrain.com
@@ -26184,6 +26214,7 @@ servemaining.science
 server-victory5.vercel.app
 server.activeworkshops.com
 server.fbsecurity.net
+server.reido.in
 server.tocher33.online
 server38.info
 server4love.ru
@@ -27055,6 +27086,7 @@ soliq-qaytarish.pro
 solivellse.online
 solkoptions.host
 soloecommerce.it
+soloferreteria.com
 soloflightdesign.com
 solopharma.com.tr
 solrig.turbo-course.com
@@ -27245,6 +27277,7 @@ sqbw.jadoou.makeup
 sqcbwqj.popi999.net
 sqg-nf9a4.mckennaeleanor69537.workers.dev
 sqgdb.tractor11.com
+sqlite.anondns.net
 sqlmapff.com
 sqlnetcat.com
 sqlserver-sqlite.com
@@ -27492,6 +27525,7 @@ starshipadvisors.com
 start-hub.beer
 start.csmq.workers.dev
 startitit2-23969.portmap.host
+startmenuexperiencehostin.ydns.eu
 startmenuexperiencehosting.ydns.eu
 startservicefounds.com
 startupclaudemain.net
@@ -27594,6 +27628,7 @@ stinehedenskog.coach
 stinnovations.ca
 stmariapharmacy.com
 stnltenberg.lol
+stnqg78i.aafidelsa.org
 sto.1001gacor.org
 sto.sm188daftar.mom
 sto.ttc-auto.ru
@@ -28487,6 +28522,7 @@ teker.cz
 telaviv.androiddebugbridge.su
 telecomly.info
 teledyneflir.com.de
+telegramnotify.streamminer95.workers.dev
 telehex1921.lol
 telembank.com
 telemerty-cdn-cloud.host
@@ -29007,6 +29043,7 @@ toclongvu.com
 todahkuy.podcastshop.ir
 toddloftindds.com
 todn.hansikaenterprises.com
+todoestacionesmeteorologicas.com
 todosobrecesped.com
 todosurfer.com
 tofartinthesummer.com
@@ -29731,6 +29768,7 @@ ufwxr629.tanyavondegurechaff.fit
 ufye28738bd3yv23d783.con-ip.com
 ug.asiabet303.net
 ug.gbwhat.pro
+ug.infinityfree.me
 ug.obwhatsappdownload.com
 ug.whatsplus.online
 ug0o21g1.phoenixfactory.org
@@ -31437,6 +31475,7 @@ web-thyrafemme-balance.com
 web-traffic.info
 web-tupitea.com
 web-zensulin.com
+web.2k5u.ru
 web.coderlaptechnical.pics
 web.dipaexchange.co.uk
 web54zoom.us
@@ -32155,6 +32194,7 @@ wvrbkeshcii77eb3urvai.beer
 wvsvkdju.eng-usa-goldalign.com
 wvvbpwt.enfejar.game
 wvvyvhcadohpdpahcds.home-eye-app.com
+wvxuilzm.aafihumbanghasundutan.org
 ww.anka4d.org
 ww.ankasanet4drtp.org
 ww.maskelibros.cl
@@ -32556,6 +32596,7 @@ www.joenyc.com
 www.joezsingin.com
 www.jolivet.asso.fr
 www.jqseguros.com.br
+www.jts6831897.casa
 www.judeglass.com
 www.justicewatts.com
 www.k-diaspora.biz
@@ -34072,6 +34113,7 @@ z5qs8pv3.kanyon303.com
 z5rfxyfc.en-eng-geniusbrainsignal.com
 z65k8fja.en-us-prostafens.com
 z6g263qc.canadianweb.org
+z7.babahhoki.com
 z7e79dln.luxerabet100.com
 z7hn.alghas.cc
 z7kqxbhjtn8ntgspd3.pages.dev
@@ -34202,6 +34244,7 @@ zen-video-arrest-monster.xyz
 zen-zensulin.com
 zen.ayxandevgang.workers.dev
 zen.mozillaupdates.us
+zenci.sbs
 zendriol.com
 zenfa.store
 zenithharbinger.digital
