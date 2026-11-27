@@ -1060,6 +1060,53 @@ def _parse_dshield_daily_sources(text, source_hint, ip_check):
     return result
 
 
+# SANS ISC intelfeed (https://isc.sans.edu/api/intelfeed?json): JSON-Liste
+# {"ip": ..., "description": ...}. Enthaelt auch HARMLOSE Kategorien
+# (mastodon, openresolver, tldns = TLD-Nameserver, Forschungsscanner).
+# Nur diese Kategorien werden uebernommen (Nutzerentscheidung 27.11.2026).
+ISC_INTELFEED_CATEGORIES = frozenset({"webscanner"})
+
+
+def _parse_isc_intelfeed(text, source_hint, ip_check):
+    """ISC intelfeed: nur Eintraege, deren description-Kategorien
+    ausschliesslich in ISC_INTELFEED_CATEGORIES liegen.
+
+    Gemischte Eintraege wie "webscanner,mastodon" werden verworfen, damit
+    nie ein Dienst-/Infrastruktur-Host gesperrt wird. None = anderes Format;
+    erkanntes Format mit unerwartetem Schema = leere Menge (fail-closed,
+    kein Rueckfall auf den generischen JSON-Parser, der alle IPs nehmen wuerde).
+    """
+    import json as _json
+    from urllib.parse import urlsplit
+    try:
+        parts = urlsplit(str(source_hint))
+        host = (parts.hostname or "").lower()
+        hint_path = parts.path.lower()
+    except ValueError:
+        host, hint_path = "", ""
+    if not (host.endswith("isc.sans.edu") and hint_path.rstrip("/").endswith("/api/intelfeed")):
+        return None
+    try:
+        data = _json.loads(text)
+    except ValueError:
+        return set()
+    if not isinstance(data, list):
+        return set()
+    result = set()
+    for row in data:
+        if not isinstance(row, dict):
+            continue
+        cats = {c.strip().lower() for c in str(row.get("description") or "").split(",") if c.strip()}
+        if not cats or not cats.issubset(ISC_INTELFEED_CATEGORIES):
+            continue
+        value = str(row.get("ip") or "").strip()
+        if not re.fullmatch(r"\d{1,3}(?:\.\d{1,3}){3}", value):
+            continue
+        if is_valid_public_ipv4(value) and ip_check(value):
+            result.add(value)
+    return result
+
+
 def parse_feed_entries(text, source_hint="", use_protected_check=False):
     """Formatbewusster Zentral-Parser fuer externe IP-/Firewall-Feeds.
 
@@ -1122,6 +1169,10 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
         dshield = _parse_dshield_daily_sources(stripped, source_hint, ip_check)
         if dshield is not None:
             return dshield
+    if "/api/intelfeed" in str(source_hint).lower():
+        intel = _parse_isc_intelfeed(stripped, source_hint, ip_check)
+        if intel is not None:
+            return intel
     hint = str(source_hint or "").split("?", 1)[0].split("#", 1)[0].lower()
     if hint.endswith(".gz"):
         hint = hint[:-3]
