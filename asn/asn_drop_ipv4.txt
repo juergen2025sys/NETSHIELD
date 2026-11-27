@@ -4,8 +4,8 @@
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-23)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-27 16:45 UTC | ASNs: 1888 (Spamhaus 486 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1190 + ASN-Risiko 53, aktiv: 1611)
-# IPv4-Netze: 21442
+# Aktualisiert: 2026-11-27 17:01 UTC | ASNs: 1889 (Spamhaus 486 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1191 + ASN-Risiko 53, aktiv: 1612)
+# IPv4-Netze: 21443
 
 1.32.192.0/18
 2.26.0.0/21
@@ -3054,6 +3054,7 @@
 45.170.96.0/22
 45.170.112.0/22
 45.171.120.0/23
+45.171.124.0/22
 45.172.19.0/24
 45.172.68.0/22
 45.172.222.0/23
