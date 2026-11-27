@@ -1205,6 +1205,14 @@ jobs:
               # _parse_isc_intelfeed() in netshield_common.py filtert strikt.
               # Eintraege ohne Datum (Alter unbekannt) -> non-HQ.
               "isc_webscanner":           ("https://isc.sans.edu/api/intelfeed?json", False),
+              # NEU (2026-11-27, Nutzerwunsch): NERD/CESNET bl_scan - Scanner aus
+              # dem CESNET-Sensornetz (~438k IPs). Enthaelt auch Google-,
+              # Microsoft-, Cloudflare- und Quad9-IPs (als direkter Firewall-
+              # Alias sperrte die Liste am 27.11. Google). Hier nur non-HQ: der
+              # Schutzfilter entfernt Whitelist-/Protected-IPs (z. B. 9.9.9.9),
+              # und die Aufnahme-Warteliste verlangt eine zweite Quelle.
+              # Bei Fehlsperren grosser Anbieter zuerst diese Quelle pruefen.
+              "nerd_bl_scan":             ("https://nerd.cesnet.cz/nerd/data/bl_scan.txt", False),
               # ── Kern-Feeds ────────────────────────────────────────────────
               "cinsscore":                  ("https://cinsscore.com/list/ci-badguys.txt", True),
               "cinsarmy":                   ("https://cinsarmy.com/list/ci-badguys.txt", True),
