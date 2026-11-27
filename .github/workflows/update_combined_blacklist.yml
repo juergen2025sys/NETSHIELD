@@ -887,6 +887,12 @@ jobs:
           EXPIRY_DAYS = 180
           DB_FILE     = "seen_db.json"
           READ_LIMIT  = 100 * 1024 * 1024  # 100 MB pro Feed (war 50 MB - bitwire_ipblocklist überschritt das mit ~50,04 MB, Datenverlust)
+          # Einzelne Quellen mit groesserer Rohdatei (2026-11-27). DShield
+          # daily_sources ist ~130 MB unkomprimiert (keine .gz-Variante); ohne
+          # eigene Grenze wuerde fetch_url wegen fail_on_truncation leer liefern.
+          FEED_READ_LIMITS = {
+              "dshield_daily_sources": 256 * 1024 * 1024,
+          }
 
           # FIX PERF-PARALLEL-2026-07-04:
           # Worker-Anzahl zentral steuerbar. GitHub-Runner laden viele Feeds I/O-lastig,
@@ -1184,7 +1190,12 @@ jobs:
               "sky_poppy_recent":          ("https://raw.githubusercontent.com/sky-poppy/fwfeed/main/blocklist_honeypot_ip4_aged_less_than_90days.txt", False),
               # Nur Score >= 90, mindestens 2 Bestaetigungen und konkrete Angriffskategorien.
               "ffraud_confirmed":         ("https://raw.githubusercontent.com/FFraud-com/ip-fraud-database/main/threat-ips/confirmed-abusive.csv", False),
-              # ── Kern-Feeds ────────────────────────────────────────────────
+              # NEU (2026-11-27): DShield/SANS ISC Tages-Quellen. Rohdaten sind
+              # ungefiltert ("THIS IS NOT A BLOCKLIST"); parse_feed_entries()
+              # uebernimmt nur IPs, die von mindestens 10 verschiedenen Sensoren
+              # gemeldet wurden (DSHIELD_DAILY_MIN_TARGETS). Non-HQ.
+              # Datei ~130 MB -> eigene Download-Grenze in FEED_READ_LIMITS.
+              "dshield_daily_sources":    ("https://feeds.dshield.org/feeds/daily_sources", False),              # ── Kern-Feeds ────────────────────────────────────────────────
               "cinsscore":                  ("https://cinsscore.com/list/ci-badguys.txt", True),
               "cinsarmy":                   ("https://cinsarmy.com/list/ci-badguys.txt", True),
               "greensnow":                  ("https://blocklist.greensnow.co/greensnow.txt", True),
@@ -2233,10 +2244,11 @@ jobs:
               # Upstream am meisten Schaden anrichten koennte – jetzt ueber
               # die abgesicherte API.
               effective_url = url
+              _read_limit = FEED_READ_LIMITS.get(name, READ_LIMIT)
               try:
                   raw = fetch_url(url, timeout=timeout, retries=retries,
                                   user_agent="NETSHIELD/3.0",
-                                  read_limit=READ_LIMIT,
+                                  read_limit=_read_limit,
                                   total_timeout=total_timeout)
                   if raw is None:
                       # FEED-MOVE-RESOLVER: Persistenter Fehler (i.d.R. 404 nach
@@ -2253,7 +2265,7 @@ jobs:
                           effective_url = new_url
                           raw = fetch_url(new_url, timeout=timeout, retries=retries,
                                           user_agent="NETSHIELD/3.0",
-                                          read_limit=READ_LIMIT,
+                                          read_limit=_read_limit,
                                           total_timeout=total_timeout)
                           relocations.append({
                               "name": name, "old_url": url, "new_url": new_url,
@@ -2431,6 +2443,7 @@ jobs:
               "bitwire_ipblocklist",
               "firehol_anonymous",
               "magicteamc_bad_ips",
+              "dshield_daily_sources",   # ~130 MB (2026-11-27)
           }
           # ── FEED-URL-OVERRIDES: dauerhaft erneuerte URLs anwenden ──────────
           # Vom Move-Resolver bestaetigte Relocations werden in
