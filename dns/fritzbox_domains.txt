@@ -1,7 +1,7 @@
 # Title: NETSHIELD FRITZ!Box-Filterliste: ThreatFox + Emerging Threats Open
 # Quelle: dns/threatfox_domains.txt + dns/et_open_domains.txt
-# Aktualisiert: 2026-11-27 20:14 CET
-# Eintraege: 34800
+# Aktualisiert: 2026-11-27 23:00 CET
+# Eintraege: 34825
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -201,6 +201,7 @@
 1318289497-6hwi9hel8e.ap-beijing.tencentscf.com
 1325813086-kvn4jlpgeu.ap-shanghai.tencentscf.com
 1328750890-eja72jp2s9.ap-guangzhou.tencentscf.com
+1328fdghhoo1.top
 1364170351-5ezc7c8ssf.ap-guangzhou.tencentscf.com
 1364170351-9enmkvd46p.ap-guangzhou.tencentscf.com
 1364170351-fntufi0mu7.ap-guangzhou.tencentscf.com
@@ -448,6 +449,7 @@
 21mvlvyy.free.tryportwarp.cc
 21scteg.com
 21wg02hmrp1ldfn7.org
+220fdghhoo1.top
 222.blue
 222align.noip.at
 226c6tcnujin1.app
@@ -464,8 +466,11 @@
 22solvarento.website
 23.tcp.vip.cpolar.cn
 2301amarilloa.kozow.com
+2310fdghhoo1.top
 2311forget.online
 23568fdq.mosbatsms.ir
+238fdghhoo1.top
+239fdghhoo1.top
 23dcbt0c.network-horizon.digital
 23euhdso.deryuga-sablist.garden
 23ida6x1.pizzadays.net
@@ -1933,6 +1938,7 @@ aafikiroma.org
 aafikonikme.org
 aafikotorambur.org
 aafikrai.org
+aafikraton.org
 aafikungge.org
 aafilabuhanbatu.org
 aafilambera.org
@@ -3223,6 +3229,7 @@ api.r0csgo.com
 api.recapcha.fun
 api.rh7.ninja
 api.riklicidufiorai.com
+api.ruanwan.top
 api.shenzhenschool.fun
 api.startservicefounds.com
 api.teloce.cc
@@ -3518,6 +3525,7 @@ armwrestlers.club
 armydevice.shop
 armyskuri.duckdns.org
 armyskuri101.duckdns.org
+arn05ali.aafikraton.org
 arnnav.colonist-proph.lat
 arnvvins.com
 aroclenetapp.net
@@ -4469,6 +4477,7 @@ bbdsnssserver.beer
 bbglobalbau.hu
 bbhf.bet1forward.com
 bbhmeetre1ms.freeddns.org
+bbi.com.eg
 bbibeautyshop.com
 bbs.baoxissde.one
 bbs.laokwmsde.art
@@ -5678,6 +5687,7 @@ brullercorp.com
 brunchusher.global
 brusketaa.lol
 brutb.wolfmarketing.hu
+brvnare-rozaje.me
 brvtfsq.designyourlifeinflow.com
 bryan.dvrcam.info
 bryk.telegrarn.fun
@@ -6465,6 +6475,7 @@ cedarmotive.com
 cedarribbon.com
 ceddtheartist.com
 ceenux.com
+cehennemdirloo34.com
 cehocihit.com
 cehoirfg.work
 cekrovnyshim.com
@@ -6792,6 +6803,7 @@ ciltrix.com
 cilvina.shop
 cilygv.missionlanereview.com
 cimesemergences.fr
+cimindia.in
 cincycarpetcleaning.com
 cinder-anvil-muinplii.pro
 cinder.at
@@ -9259,6 +9271,7 @@ drives.googles
 drivethrough.top
 drivres-update.info
 drkynxdcu.gem90bet.com
+drleonardcoldwelldeutschland.com
 drlesterpereira.com
 drlweddings.co.uk
 drlycjl.jamjahani.mobi
@@ -16316,6 +16329,7 @@ kdnwrc.slimsounds.net
 kdoyvze.megaparii.pro
 kdphdmr.rahnemayenegaresh.site
 kdqtqtbo.ace9bet.net
+kdsloga.me
 kdtvl3x7.enfejar.casino
 kdwaemkx.stefsoregano.co.uk
 kdwuzpk.yutongdrying.com
@@ -19480,6 +19494,7 @@ molterstat.xyz
 moma-pk.org
 momdum.biz
 momentumbloomera.digital
+mommychuck.com
 momomegu.com
 momsdodigital.com
 mon-banana-03.cfd
@@ -20179,6 +20194,7 @@ nagawar.xyz
 nagyg.run
 nahcjeo.hezarfencrash.bet
 nahtizi.ru
+naijaturnup.com
 nail-forward-valid.lol
 nail-lists-compact-project.trycloudflare.com
 nailhousechicago.com
@@ -20854,6 +20870,7 @@ nota-fical-online.lat
 notafiscal-digital.com
 notafiscal202605.com
 notairs.com
+notallhprojland.icu
 notaprincipalirs.com
 notaprincipalrf.com
 notas.alfatransportes.site
@@ -21753,6 +21770,7 @@ opsonm.cyou
 optasko.com
 opticademichoacan.com
 opticvoices.com
+optima-online.fr
 optimcoins.com
 optiminddigital.online
 optimizerapi.long.tv
@@ -21928,6 +21946,7 @@ otphankahr.mom
 otter-crois-475qg.pro
 otter-trioor-m8jr9.space
 oturumkaradag.com
+otururkenterliyorum42.com
 otxkq8x6.us-neuro-vera.com
 ou.qymj.ru
 ouagayaar.bf
@@ -25401,6 +25420,7 @@ rudeusgreyrat.my
 rudidutoitphotography.com
 rudranshmetals.com
 ruduqo.littlecreationsacademy.net
+ruecker-itk.de
 ruenagent.com
 ruffyayeaye.ddns.net
 rufmpt.eng-eng-braindefender.com
@@ -26290,6 +26310,7 @@ senterprise2026.com
 sentinel.cryptodigitalsupport.com
 sentrydb.org
 seo-master.club
+seo-world.eu
 seo.codesmithsystems.com
 seo.contractor.click
 seobundlekit.com
@@ -28011,6 +28032,7 @@ sunstatehvac.com
 sunstonejetty.info
 sunstonekeystone.info
 sunsweet.info
+suntexboatclub.com
 sunubuzzsn.com
 sunvalleysurf.com
 sunvoyage.com.ua
@@ -30485,6 +30507,7 @@ uwannaplaygame.space
 uwaowgwwiokugqqk.xyz
 uwasin.sugarmuite.com
 uwayimkyueaysuss.xyz
+uwbdli.com
 uwc26lb6.wisma138cyno.net
 uwcmaemeieukcomm.xyz
 uwddobn.shop-sightfresh.us
@@ -30870,6 +30893,7 @@ vg5sgxv.lol
 vgatogel.org
 vgatoto.org
 vgepnjpy.site-shartbandi-variz-kam.com
+vgfgfttfyug76567877655.cfd
 vggil.yanis.hu
 vggl.thunderinternationalgroup.com
 vgip5uas.1xgame.casino
@@ -31695,6 +31719,7 @@ websitetheme.com
 websmartserverun.com
 websquads.net
 webstp.com
+webstruck.in
 webtask6566.top
 webtechnica.net
 webtracelab.icu
