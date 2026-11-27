@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (Full-Export + Recent-API)
-# Aktualisiert: 2026-11-27 12:20 CET
-# Eintraege: 31202
+# Aktualisiert: 2026-11-27 14:42 CET
+# Eintraege: 31226
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -425,8 +425,12 @@
 22bahis-tr.com
 22ed84bl.georgelounge.bar
 22goulm8.runtime-nexus.digital
+22holmentrix.website
+22kezantoria.website
 22nbxu1y.eng-usa-goldalign.com
+22oximerato.website
 22prf6xs.eduprof.ir
+22solvarento.website
 23.tcp.vip.cpolar.cn
 2301amarilloa.kozow.com
 23568fdq.mosbatsms.ir
@@ -5665,6 +5669,7 @@ caycn.tampabayspin.com
 cayif.hellokism.click
 caym.africa
 cazar.cc
+cazentoro.website
 cb2kljpv.eng--slimsounds.com
 cbawrwwb.wrfc8.com
 cbg80csz.deurnenwinkel.com
@@ -8077,6 +8082,7 @@ down-playing-folder-seven-ue.courses
 downcry.s3.ap-east-1.amazonaws.com
 download-windows-update.live
 download.dancefloor.top
+download.dorku.space
 download.globalprotection.services
 download.logltech.workers.dev
 download.paloaltopnetwork.site
@@ -8366,6 +8372,7 @@ dyar.store
 dybkohl.goldenroulette.bet
 dybndxun.bet90forward.win
 dydmteto.bet90forward.win
+dyhuiying.com
 dyky.press
 dylantreeservice.com
 dyn-fluxix.porukau8ar.lat
@@ -10219,6 +10226,7 @@ flowbilding.ydns.eu
 flowerpii9831.life
 flowerqueensgirls.com
 flowersvest.xyz
+flowlokset.com
 flowmasterservices.com
 flpquwu.enfejar-site.bet
 fluoriterefrectory.info
@@ -10736,6 +10744,7 @@ g0vpt.nifatualiza.com
 g0w421b4.ztnightmares.com
 g0wpz7jh.packet-orbit.digital
 g1.antonhoki.org
+g1.baber168.org
 g1cdqpil.betzopoda.com
 g1rxiw6o.parspoker90.com
 g1tmfx1d.vaperfumeuae.com
@@ -12680,6 +12689,7 @@ htxvanthanhphat.vn
 hu.asianwins.com
 hu.azzawin.org
 hu406sua.ozabet.promo
+huangqing.net
 hub4.cdndock.click
 hubdonostia.com
 hubscore.io
@@ -12812,6 +12822,7 @@ hzu31rpb.eachway-multiplier.com
 hzuib.addmagad.com
 hzvho.shartbandifootballkade.online
 hzvvlqps.mechanicsayalat.xyz
+hzwbl.com
 hzydyub.gutdrops-store.com
 hzyocvyc.en-us-slimsplits.com
 hzyp7n436ecwo73xvrgnf5wmbjewszwut4h6vz4fu6f2oqd5zfcd7sad.onion
@@ -21547,6 +21558,7 @@ qugykwswmwysssca.xyz
 quiaqgaaoqaeagss.xyz
 quickaccestwo.com
 quickfetchy.site
+quickfilebox.website
 quickkitchendishes.com
 quickwebdevops.courses
 quiet-orbit-zephyr-tie.pro
@@ -23458,6 +23470,7 @@ seo.codesmithsystems.com
 seo.contractor.click
 seoclerck.ir
 seohumanoid.com
+seoul-city.club
 sep.beras1.com
 sep.sm188auto.top
 sepehrbar.com
@@ -23582,6 +23595,7 @@ sgs68ivh.binary-dock.digital
 sgsolicitors.com
 sgspmozgq.lowermyoverheads.com
 sguf571h.bossbeyburda.xyz
+sh-mylike.com
 sh1e1d8-trail.diesel-stark.lat
 sh4do-phase.di7ectkoshevoy.lat
 sh56a-57180.portmap.host
@@ -23609,6 +23623,7 @@ shameisland.xyz
 shamla.org
 shanemacneill.com
 shantivana.in
+shanxisaide.com
 shapegate.rataj-vertky.lat
 shapegeyse.centrifuge-four.lat
 shapekapseln.com.de
@@ -24026,6 +24041,7 @@ slngftr.beer
 slojemw.leaguejazire.com
 slommhmd-64162.portmap.host
 slon12.cc
+slopmods.tech
 slot-send.pro
 slot789.us
 slotbet200.xyz
@@ -25209,6 +25225,7 @@ syskeys.sorix7el.lat
 syskeys.vbytetap.lat
 sysouiyqeogigwyc.xyz
 system-analytics-pro-guide.courses
+system-city.club
 system-forge.digital
 system-horizon.digital
 system-monitoring-hub.in.net
@@ -25857,6 +25874,7 @@ thre-thic.pav1mirex.lat
 thread-mark.7toralex.lat
 threadtheory.interfe7ewith.garden
 three.followfromapps.icu
+threedrows.net
 threejrev.com
 thrillermotion.4nmn.com
 thriveclubar-mx.icu
@@ -27448,6 +27466,7 @@ velvetstream.mirelax9.life
 vemila.shop
 vend-path.simpres-solst.garden
 vendas.lacasadolinux.com
+veneracloud.com
 venix-hub.mom
 venom.summertunnel.shop
 venom189.org
@@ -27995,6 +28014,7 @@ vva5dqlz.en-en-us-zensulin.com
 vvcbgf.spareing.com
 vvft.hu
 vvftgffdgyggdhdgdhhfbbkjhggdsesdssxgjjkj.duckdns.org
+vvgbgfd.com
 vvigese.eng-usa--goldalign.com
 vvlainw.vip.tennis
 vvmyrshz.bittu.store
@@ -28793,6 +28813,7 @@ wsus2.227api.com
 wswgllp.honarcinema.online
 wszq.burntstorerecycling.com
 wt.ameriktoto.org
+wt.baber168.org
 wt1d3ceb.en-en-en-slimsounds.com
 wt51peii.boomball.bet
 wt6pqcau.aafianambas.org
@@ -29047,6 +29068,7 @@ www.currituckduckhunting.com
 www.cutoffwheelsrus.com
 www.cvdinfraprojects.com
 www.d6mb39632ubz4kas62v.net
+www.dada.design
 www.dakarcocktail.com
 www.daleelectronicsstore.com
 www.dancroke.id.au
@@ -29440,6 +29462,7 @@ www.remoteiconnectbackup.com
 www.remoteiconnectbackup1.com
 www.remoteiconnectbackup2.com
 www.renataprates.com
+www.resight-cheats.com
 www.restaurant-leuehof.ch
 www.rexpowermagnetics.com
 www.rg82z9wtgt9b-m61p.cc
@@ -30352,6 +30375,7 @@ yigu360.com
 yilufafafa.club
 yimfx.closer1ook.garden
 yimmunotek.com
+yingjiesh.com
 yitqjyww.hugu2gt2ejarat.shop
 yivola.shop
 yiw4thre.en-us-zen-sulin.com
