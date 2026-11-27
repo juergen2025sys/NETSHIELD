@@ -1195,7 +1195,14 @@ jobs:
               # uebernimmt nur IPs, die von mindestens 10 verschiedenen Sensoren
               # gemeldet wurden (DSHIELD_DAILY_MIN_TARGETS). Non-HQ.
               # Datei ~130 MB -> eigene Download-Grenze in FEED_READ_LIMITS.
-              "dshield_daily_sources":    ("https://feeds.dshield.org/feeds/daily_sources", False),              # ── Kern-Feeds ────────────────────────────────────────────────
+              "dshield_daily_sources":    ("https://feeds.dshield.org/feeds/daily_sources", False),
+              # NEU (2026-11-27): SANS ISC intelfeed, NUR Kategorie "webscanner"
+              # (IPs, die DShield-Web-Honigtoepfe abgetastet haben). Der Feed
+              # enthaelt auch harmlose Hosts (mastodon, openresolver, tldns);
+              # _parse_isc_intelfeed() in netshield_common.py filtert strikt.
+              # Eintraege ohne Datum (Alter unbekannt) -> non-HQ.
+              "isc_webscanner":           ("https://isc.sans.edu/api/intelfeed?json", False),
+              # ── Kern-Feeds ────────────────────────────────────────────────
               "cinsscore":                  ("https://cinsscore.com/list/ci-badguys.txt", True),
               "cinsarmy":                   ("https://cinsarmy.com/list/ci-badguys.txt", True),
               "greensnow":                  ("https://blocklist.greensnow.co/greensnow.txt", True),
