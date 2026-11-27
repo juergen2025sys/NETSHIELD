@@ -258,6 +258,37 @@ class TestFeedParserKeyValue(unittest.TestCase):
         self.assertEqual(
             netshield_common.parse_feed_entries(text, source_hint="cfg.yaml"), set())
 
+    # DShield daily_sources (2026-11-27): nur IPs ab 10 Sensoren (targets)
+    DSHIELD_SAMPLE = (
+        "# daily_sources\n"
+        "# THIS IS NOT A BLOCKLIST! DATA IS UNFILTERED AND CONTAINS FALSE POSITIVES.\n"
+        "193.169.053.001\t22\t6\t2095\t218\t00:01:03\t23:59:14\n"
+        "089.248.165.002\t23\t6\t40\t9\t03:22:52\t04:28:42\n"
+        "089.248.165.002\t445\t6\t40\t12\t03:22:52\t04:28:42\n"
+        "045.148.010.152\t3389\t6\t5\t3\t01:00:00\t02:00:00\n"
+        "127.000.000.053\t53\t17\t12203\t9712\t00:00:00\t23:59:59\n"
+        "010.000.000.001\t22\t6\t500\t300\t00:00:00\t23:59:59\n"
+    )
+
+    def test_dshield_daily_sources_threshold_and_padding(self):
+        result = netshield_common.parse_feed_entries(
+            self.DSHIELD_SAMPLE,
+            source_hint="https://feeds.dshield.org/feeds/daily_sources")
+        # 193.169.53.1 (218 Sensoren) und 89.248.165.2 (max 12 ueber Ports)
+        # ja; 45.148.10.152 (3) nein; Loopback/RFC1918 nie.
+        self.assertEqual(result, {"193.169.53.1", "89.248.165.2"})
+
+    def test_dshield_daily_sources_detected_by_header(self):
+        result = netshield_common.parse_feed_entries(self.DSHIELD_SAMPLE, source_hint="")
+        self.assertEqual(result, {"193.169.53.1", "89.248.165.2"})
+
+    def test_dshield_daily_sources_schema_drift_fails_closed(self):
+        text = "# daily_sources\n193.169.53.1\n89.248.165.2\n"
+        self.assertEqual(
+            netshield_common.parse_feed_entries(
+                text, source_hint="https://feeds.dshield.org/feeds/daily_sources"),
+            set())
+
     def test_markdown_dash_list_and_range(self):
         text = "# Liste\n- 193.169.53.1\n* 89.248.165.2\n- 46.0.0.1 - 46.0.0.9\n"
         self.assertEqual(
