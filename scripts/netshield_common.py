@@ -1005,6 +1005,61 @@ def _parse_scored_threat_csv(text, source_hint, ip_check):
     return result
 
 
+# DShield (SANS ISC) daily_sources: Mindestzahl verschiedener Sensoren
+# (Spalte "targets"), die eine Quell-IP an einem Tag gemeldet haben. SANS
+# kennzeichnet die Rohdatei ausdruecklich als ungefiltert ("THIS IS NOT A
+# BLOCKLIST"); erst ab 10 Sensoren gilt eine IP als breit scannender
+# Angreifer statt Einzel-/Fehlmeldung (Nutzerentscheidung 27.11.2026).
+DSHIELD_DAILY_MIN_TARGETS = 10
+
+
+def _parse_dshield_daily_sources(text, source_hint, ip_check):
+    """DShield daily_sources (Tab-getrennt, IPs mit fuehrenden Nullen).
+
+    Spalten: ip, targetport, protocol, reports, targets, firstseen, lastseen.
+    Eine IP kann mehrfach (je Port) vorkommen; massgeblich ist der hoechste
+    targets-Wert einer Zeile (konservativ, keine Summierung ueber Ports).
+    None = anderes Format; erkanntes Format mit kaputtem Schema = leere Menge
+    (fail-closed, kein Rueckfall auf ungefilterte IP-Extraktion).
+    """
+    from urllib.parse import urlsplit
+    try:
+        hint_path = urlsplit(str(source_hint)).path.lower()
+    except ValueError:
+        hint_path = ""
+    head = text[:2048].lower()
+    if not (hint_path.endswith("/feeds/daily_sources") or "# daily_sources" in head):
+        return None
+    best = {}
+    data_rows = 0
+    for line in text.splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        parts = line.split("\t")
+        if len(parts) < 5:
+            continue
+        data_rows += 1
+        octets = parts[0].strip().split(".")
+        if len(octets) != 4 or not all(o.isdigit() and len(o) <= 3 for o in octets):
+            continue
+        try:
+            value = ".".join(str(int(o)) for o in octets)
+            targets = int(parts[4].strip())
+        except ValueError:
+            continue
+        if targets > best.get(value, -1):
+            best[value] = targets
+    if data_rows == 0:
+        return set()
+    result = set()
+    for value, targets in best.items():
+        if targets < DSHIELD_DAILY_MIN_TARGETS:
+            continue
+        if is_valid_public_ipv4(value) and ip_check(value):
+            result.add(value)
+    return result
+
+
 def parse_feed_entries(text, source_hint="", use_protected_check=False):
     """Formatbewusster Zentral-Parser fuer externe IP-/Firewall-Feeds.
 
@@ -1063,6 +1118,10 @@ def parse_feed_entries(text, source_hint="", use_protected_check=False):
         scored = _parse_scored_threat_csv(stripped, source_hint, ip_check)
         if scored is not None:
             return scored
+    if "daily_sources" in stripped[:2048].lower() or "/feeds/daily_sources" in str(source_hint).lower():
+        dshield = _parse_dshield_daily_sources(stripped, source_hint, ip_check)
+        if dshield is not None:
+            return dshield
     hint = str(source_hint or "").split("?", 1)[0].split("#", 1)[0].lower()
     if hint.endswith(".gz"):
         hint = hint[:-3]
