@@ -240,7 +240,7 @@
 "why": "FireHOL-Abusers-Dichte"
 },
 "133619": {
-"density": 0.56,
+"density": 0.61,
 "last_seen": "2026-11-27",
 "name": "SRIYAAN TECHNOLOGIES",
 "why": "Honeypot-Feeds-Dichte"
@@ -1788,7 +1788,7 @@
 "why": "FireHOL-Abusers-Dichte"
 },
 "151330": {
-"density": 1.46,
+"density": 1.51,
 "last_seen": "2026-11-27",
 "name": "PLAY BROADBAND (PRIVATE) LIMITED",
 "why": "Honeypot-Feeds-Dichte"
@@ -2334,7 +2334,7 @@
 "why": "Dataplane-Dichte"
 },
 "200730": {
-"density": 5.47,
+"density": 5.08,
 "last_seen": "2026-11-27",
 "name": "ISAEV Igor",
 "why": "Honigtopf-Dichte"
@@ -2838,7 +2838,7 @@
 "why": "FireHOL-Abusers-Dichte"
 },
 "206560": {
-"density": 7.81,
+"density": 7.94,
 "last_seen": "2026-11-27",
 "name": "Contrust Solutions S.R.L.",
 "why": "Honeypot-Feeds-Dichte"
@@ -6930,7 +6930,7 @@
 "why": "Dataplane-Dichte"
 },
 "50257": {
-"density": 0.39,
+"density": 0.36,
 "last_seen": "2026-11-27",
 "name": "JV A-Mobile Ltd.",
 "why": "Honeypot-Feeds-Dichte"

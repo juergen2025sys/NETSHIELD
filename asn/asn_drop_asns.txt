@@ -4,7 +4,7 @@
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-23)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-27 13:44 UTC | ASNs: 1887 (Spamhaus 486 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1189 + ASN-Risiko 53, aktiv: 1610)
+# Aktualisiert: 2026-11-27 13:57 UTC | ASNs: 1887 (Spamhaus 486 + BPH 37 + Maltrail 98 + BPH-Watch 6 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1189 + ASN-Risiko 53, aktiv: 1610)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS967		VMISS Inc.	Dataplane-Dichte 0.29%
@@ -342,7 +342,7 @@ AS50132		3nt solutions LLP	FireHOL-Abusers-Dichte 0.39%
 AS50219		LNK SYSTEMS MUNTENIA SRL	Dataplane-Dichte 2.34%
 AS50223			ASN-Risiko 2026-10
 AS50236	RU	Vertexlink_Communications	62yun.com
-AS50257		JV A-Mobile Ltd.	Honeypot-Feeds-Dichte 0.39%
+AS50257		JV A-Mobile Ltd.	Honeypot-Feeds-Dichte 0.36%
 AS50284		Goroshko Evgeniy Andreevich	FireHOL-Abusers-Dichte 1.95%
 AS50321			Maltrail worst_asns
 AS50360			Maltrail worst_asns
@@ -596,7 +596,7 @@ AS133398	HK	TELE-AS	tele-asia.net
 AS133399		HI-TECH SOLUTIONS LIMITED	Dataplane-Dichte 0.26%
 AS133450		University Of Chittagong	Dataplane-Dichte 2.93%
 AS133488	HK	SERVICE-AS-AP	servicehk.net
-AS133619		SRIYAAN TECHNOLOGIES	Honeypot-Feeds-Dichte 0.56%
+AS133619		SRIYAAN TECHNOLOGIES	Honeypot-Feeds-Dichte 0.61%
 AS133652		Zapbytes Technologies Pvt. Ltd.	FireHOL-Abusers-Dichte 0.52%
 AS133668	IN	INFOBB-AS-IN	eikontech.net
 AS133692	IN	Fastnet-AS-IN	fastnetcpl.com
@@ -928,7 +928,7 @@ AS150860	VN	JETCLOUD-VN	jetcloud.vn
 AS150895		EZ TECHNOLOGY COMPANY LIMITED	Bitwire-Outbound-Dichte 0.38%
 AS150980		PT Menara Digital Salama	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-21)
 AS151048		Win Broadband (Pvt) Ltd	FireHOL-Abusers-Dichte 0.98%
-AS151330		PLAY BROADBAND (PRIVATE) LIMITED	Honeypot-Feeds-Dichte 1.46%
+AS151330		PLAY BROADBAND (PRIVATE) LIMITED	Honeypot-Feeds-Dichte 1.51%
 AS151389		Synergy Cross Corporation	FireHOL-Abusers-Dichte 0.27%
 AS151396		Sajilo Net Pvt Ltd	FireHOL-Abusers-Dichte 0.39%
 AS151468		SHANGXING TECH LIMITED	BPH_Research T2-High Risk / suspected
@@ -1054,7 +1054,7 @@ AS200651		FLOKINET	Bulletproof Hosting Watch 2026-11-23
 AS200671	GB	START-AS	start-building
 AS200699	SC	DATASHIELD_NL	xor.sc
 AS200702		Kazakov Viktor Aleksandrovich	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-27)
-AS200730		ISAEV Igor	Honigtopf-Dichte 5.47%
+AS200730		ISAEV Igor	Honigtopf-Dichte 5.08%
 AS200740		First Server Limited	BPH_Research T2-High Risk / flagged
 AS200823			Maltrail worst_asns
 AS200908			Maltrail worst_asns
@@ -1410,7 +1410,7 @@ AS213954		Global Transit Systems LLC	FireHOL-Abusers-Dichte 4.84%
 AS213990		AOFB Telecom Networks Ltd	Honeypot-Feeds-Dichte 0.28%
 AS213995	RU	FROSTYHOSTING-AS	frostyhosting
 AS213999	MD	THE-CLIENTS	stark-industries.solutions
-AS214094		Osservatorio Nessuno ODV	Honigtopf-Dichte 2.34%
+AS214094		Osservatorio Nessuno ODV	Honigtopf-Dichte (Haltezeit, zuletzt auffaellig 2026-11-27)
 AS214209		Internet Magnate (Pty) Ltd	Bitwire-Outbound-Dichte 1.66%
 AS214210		PE Pigin Alexander Lirovich	Dataplane-Dichte 1.95%
 AS214218		PE Mironova Lyudmila	feste eigene Liste
