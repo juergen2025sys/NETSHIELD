@@ -1032,6 +1032,33 @@ jobs:
                           print(f"  GitLab Fehler {path}: {ex}")
                           return None
 
+          # LIVE-MELDUNG NEUER FEEDS (2026-11-26): Wird ein bisher unbekannter
+          # Feed angenommen, sofort sichtbar machen, nicht erst im Abschluss-
+          # bericht. 1) GitHub-Annotation (::notice) erscheint oben auf der
+          # Run-Seite, 2) auffaellige Log-Zeile mit klickbarem Link, per
+          # Log-Suche "NEUER FEED" auffindbar. Vorlaeufig: die spaetere
+          # Deduplizierung kann einzelne Eintraege noch entfernen.
+          _live_new_feeds = []
+
+          def _announce_new_feed(name, url, repo, ip_count, platform="github"):
+              try:
+                  _live_new_feeds.append(name)
+                  repo_url = (f"https://gitlab.com/{repo}" if platform == "gitlab"
+                              else f"https://github.com/{repo}")
+                  def _esc(v):
+                      return (str(v).replace("%", "%25").replace("\r", "%0D")
+                              .replace("\n", "%0A"))
+                  print(f"::notice title=Neuer Feed {len(_live_new_feeds)} (vorlaeufig)::"
+                        f"{_esc(name)} – {ip_count} IPs – {_esc(url)} – Repo {_esc(repo_url)}",
+                        flush=True)
+                  print("  " + "=" * 70)
+                  print(f"  🆕 NEUER FEED #{len(_live_new_feeds)}: {name} ({ip_count} IPs)")
+                  print(f"     Datei: {url}")
+                  print(f"     Repo:  {repo_url}")
+                  print("  " + "=" * 70, flush=True)
+              except Exception as ex:
+                  print(f"  Live-Meldung fehlgeschlagen: {type(ex).__name__}")
+
           def fetch_raw(url, limit=READ_LIMIT, timeout=25, allow_partial=False):
               # FIX SEC: Nutzt fetch_url aus netshield_common – enthält SSRF-Schutz
               # (Schema-/Host-Validierung, auch bei Redirects). Ohne diesen Schutz
@@ -1852,7 +1879,8 @@ jobs:
           # ── Schritt 2: HQ-Referenz-Set laden (Overlap-Check) ─────────────
           print("\nLade HQ-Referenz-Sets für Overlap-Check...")
           hq_ref_ips = set()
-          # FIX #5 + ERWEITERT: 6 thematisch verschiedene HQ-Referenzquellen.
+          # FIX #5 + ERWEITERT: thematisch verschiedene HQ-Referenzquellen
+          # (seit 2026-11-27 fuenf, DShield block.txt entfernt).
           # Ursprünglich 4 Quellen (Feodo, AbuseIPDB, ipsum, Turris).
           # NEU: DShield (generelle Angreifer) + BlockList.de strongips (SSH-Fokus)
           # → bessere Abdeckung für Feeds die spezielle Angriffsvektoren bedienen.
@@ -1867,8 +1895,8 @@ jobs:
               "https://raw.githubusercontent.com/stamparm/ipsum/master/levels/5.txt",
               # Honeypot/Greylist-Abdeckung
               "https://view.sentinel.turris.cz/greylist-data/greylist-latest.csv",
-              # NEU: DShield Top-Attacker (SANS Internet Storm Center)
-              "https://www.dshield.org/block.txt",
+              # ENTFERNT (2026-11-27): DShield block.txt - nur 20 /24-Netze,
+              # ergab im Overlap-Check 20 sinnlose .0-Netzadressen.
               # NEU: BlockList.de strongips (Brute-Force, viele Protokolle)
               "https://lists.blocklist.de/lists/strongips.txt",
           ]
@@ -3546,6 +3574,8 @@ jobs:
                   })
                   _extra_found_total += 1
                   print(f"    ✅ {_nf_name}: {len(_nf_ips)} IPs ({_nf['path']})")
+                  if _is_new:
+                      _announce_new_feed(_nf_name, _nf_url, _repo, len(_nf_ips), _platform)
 
           print(f"Extra-File-Scan: {_extra_repos_scanned} Repos gescannt, "
                 f"{_extra_found_total} neue Feed(s) hinzugefügt")
@@ -4688,6 +4718,8 @@ jobs:
                   print(f"  ✅ ANGENOMMEN als '{_fname}' ({len(f_ips)} IPs, "
                         f"{'NEU' if _is_new else 'bekannt'}, {_platform_res.upper()}, "
                         f"Neuheit {_entry_novelty_pct:.1%}, Qualität {_entry_quality:.1f}/100)")
+                  if _is_new:
+                      _announce_new_feed(_fname, f_url, full_name, len(f_ips), _platform_res)
                   return True
 
               # Hauptdatei registrieren (kein Suffix – bleibt rückwärtskompatibel)
@@ -4931,7 +4963,7 @@ jobs:
           # Tagesdeckel und Anti-Churn-Ledger.
           lines.append("| Ablauf-Kandidaten Watchlist (30d) | **nicht geprueft – Combined ist allein zustaendig** |")
           lines.append("| Ablauf-Kandidaten Active (180d) | **nicht geprueft – Combined ist allein zustaendig** |")
-          lines.append(f"| HQ-Referenz-IPs (6 Quellen) | **{len(hq_ref_ips)}** |")
+          lines.append(f"| HQ-Referenz-IPs ({len(hq_ref_urls)} Quellen) | **{len(hq_ref_ips)}** |")
           lines.append(f"| SQLite-Refresh-Cache-Hits | **{_sqlite_refresh_hits}/{len(_refresh_results)}** |")
 
           # Reject-Gruende-Tabelle (nur wenn was passiert ist)

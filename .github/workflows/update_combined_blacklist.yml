@@ -979,7 +979,10 @@ jobs:
               # (LOCAL_FEED honeypot_ips.txt darf keine SOURCES-Duplikate haben).
               "binary_defense", "crowdsec_ssh",
               "danger_bruteforce", "threatview_high_conf",
-              "firehol_anonymous", "dshield",
+              # 2026-11-27: "dshield" (block.txt) entfernt - nur /24-Netze,
+              # NETSHIELD nimmt keine Netze auf; der Parser machte daraus 20
+              # einzelne .0-Netzadressen. Ersatz: dshield_daily_sources (Einzel-IPs).
+              "firehol_anonymous",
               "urlhaus_agh", "firehol_level2", "firehol_level3",
               "firehol_webserver", "firehol_abusers_1d",
               "et_compromised",
@@ -1280,7 +1283,10 @@ jobs:
               # Auto-Discovery bei Bedarf sowohl diese Datei bei Reaktivierung
               # als auch die weiterhin aktiven Einzelkomponenten finden kann.
               "firehol_anonymous":          ("https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_anonymous.netset", True),
-              "dshield":                    ("https://www.dshield.org/block.txt", True),
+              # ENTFERNT (2026-11-27): dshield (block.txt) - enthaelt nur die
+              # Top-20-/24-Netze; NETSHIELD nimmt keine Netze auf, der Parser
+              # lieferte stattdessen 20 sinnlose .0-Netzadressen (als HQ!).
+              # Einzel-IPs aus DShield kommen jetzt ueber dshield_daily_sources.
               # ENTFERNT (2026-08-05): cloudzy - 52 Tage unveraendert lt. Stale-Feed-Report.
               # ENTFERNT (2026-08-05): bbcan177 - 52 Tage unveraendert lt. Stale-Feed-Report (GitHub Gist).
               # ENTFERNT (2026-08-11): kevinmarx - 20 Tage unveraendert lt.
