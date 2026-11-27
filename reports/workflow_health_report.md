@@ -1,12 +1,12 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-27 03:08 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-27 10:39 CET (Europe/Berlin)
 
 **Workflows:** 36 | ✅ 36 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `209fa96f1b0272b37a4e9199662acdd4ada40118`
+✅ Commit: `6ca78adc4f33c753ab5420e09d5c81ca647353d9`
 
 494 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
@@ -60,4 +60,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-27 03:08 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*
+*Generiert: 2026-11-27 10:39 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*
