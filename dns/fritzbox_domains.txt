@@ -1,7 +1,7 @@
 # Title: NETSHIELD FRITZ!Box-Filterliste: ThreatFox + Emerging Threats Open
 # Quelle: dns/threatfox_domains.txt + dns/et_open_domains.txt
-# Aktualisiert: 2026-11-28 19:00 CET
-# Eintraege: 34648
+# Aktualisiert: 2026-11-28 21:14 CET
+# Eintraege: 34665
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1946,7 +1946,10 @@ aafilampungbarat.org
 aafilampungselatan.org
 aafilampungtengah.org
 aafilampungtimur.org
+aafilampungutara.org
+aafilhokseumawe.org
 aafimaima.org
+aafimandailingnatal.org
 aafimesuji.org
 aafimeukisi.org
 aafiminegimen.org
@@ -9479,8 +9482,10 @@ e.geng7.org
 e.gki4d.org
 e.gp108.org
 e.hoki5.org
+e.idn46.org
 e.perspolis.pro
 e0lg2w5e.us-en-us-nervesoothe.com
+e0sssq3a.aafimandailingnatal.org
 e0vt7hv0.saostar.biz
 e0w3eaj4.us-us-us-geniusbrainsignal.com
 e1.ayojp888.com
@@ -20671,6 +20676,7 @@ noopyr.eng--braindefender.com
 noor-clinic.net
 nopsec.org
 nor-valeet.simpres-solst.garden
+nora-ahmed.free.nf
 norbdence.co.jp
 norcrest9os.represent-skittish.lat
 nordcoremedia.com
@@ -28274,6 +28280,7 @@ tadkaofjoy.com
 tafhu17n.nextbahis.blog
 tafti.store
 tag-manager.xyz
+tagide.com
 tagmentos.bingbaochow.cam
 taguje.com.br
 tagujog.com
@@ -28576,6 +28583,7 @@ telemgate.com
 telenet-webmail.com
 teleportsoft.com
 teleupdate6573.top
+telewerks.com.sg
 telizant.com
 telnets.top
 teloom.site
@@ -28641,6 +28649,7 @@ test.mcfind.workers.dev
 test.officeplustool.top
 test.omegafic.com
 test.txtensatorxgyt.xyz
+test.visa-center.nyc
 test3012.duckdns.org
 testdelivrsys31523.com
 teste.atctecnologia.com.br
@@ -29291,6 +29300,7 @@ trdisd.simply-bpo.com
 tre75.cryptostack.lat
 treboarkez.lol
 treify.top
+trek40.com
 trekkernel4.com
 trekmesh15.com
 trekworkshop3.com
@@ -30357,6 +30367,7 @@ uvdifyv.eng-usa-goldalign.com
 uvfa.kafekarachi.com
 uvgih0or.us-us-us-zensulin.com
 uvjkxyc.ac90bet.net
+uvkq4ymx.aafilampungutara.org
 uvtpqo.unitedpropertiesltd.com
 uvxh0h1f.ethen0shypnotist.digital
 uvxzsajar.lion1bet.com
@@ -31389,6 +31400,7 @@ wanderlustfestival.art
 wanderlustsince95.com
 wandpllc.com
 wangzongfacai.com
+wanjikuconsultancy.rf.gd
 wantddantiprot.space
 wap-slightly.tun.ply.gg
 wapblkb.baocongnghe.net
@@ -32534,6 +32546,7 @@ www.highgradebastard.com
 www.highgradebastardbackup1.com
 www.highgradebastardbackup2.com
 www.highgradebastardbackup3.com
+www.hireamermaid.com.au
 www.hirequitb50d19.com
 www.historics.nl
 www.honjometal.co.th
@@ -32846,6 +32859,7 @@ www.securepathiul.life
 www.seo-techs.com
 www.serendipeter.com
 www.service1app.com
+www.shahajada-al-mursalin.rf.gd
 www.shanecrossweb.com
 www.sharingfile.cloud
 www.shoeaid.co.uk
@@ -33020,6 +33034,7 @@ wxuwbd.represent-skittish.lat
 wxxlppea.onjabet1.com
 wy.146slot.org
 wy.334v.org
+wy.badai776.org
 wyban.run
 wybod.run
 wydi.press
@@ -33801,6 +33816,7 @@ ykkusmyeskgaqwyi.xyz
 ykmiogscecaquiiw.xyz
 ykmmud.en-us-en-gold-align.com
 ykmyoegkukequqai.xyz
+ykneqf97.aafilhokseumawe.org
 ykoqymcuwwwggkqw.xyz
 ykpwsn.accredit.hu
 ykqegysecaamkage.xyz
@@ -34282,6 +34298,7 @@ zesv.blossomnigeria.com
 zetaold-wahipq.nordfreak.surf
 zetazsystems.com
 zetkskre.funxbet.casino
+zetolacs-api.rest
 zeub6fb8.bossbeyvip3.xyz
 zeuephv.tafsirquran.xyz
 zeus138.co
