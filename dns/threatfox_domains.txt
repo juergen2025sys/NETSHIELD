@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (Full-Export + Recent-API)
-# Aktualisiert: 2026-11-28 13:53 CET
-# Eintraege: 31056
+# Aktualisiert: 2026-11-28 16:38 CET
+# Eintraege: 31071
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1868,6 +1868,8 @@ aafilabuhanbatu.org
 aafilambera.org
 aafilampungbarat.org
 aafilampungselatan.org
+aafilampungtengah.org
+aafimaima.org
 aafimesuji.org
 aafimeukisi.org
 aafnojwq.megashart.blog
@@ -3793,6 +3795,7 @@ b97pimiu.vip1x.bet
 b9yzartkj9dd53v.top
 ba.asah189.org
 ba5ufc2h.logic-sphere.digital
+ba5yxlu1.aafigembileme.org
 baainbw-vergabe.de
 baaptyst-25027.portmap.host
 babacan.lol
@@ -5102,6 +5105,7 @@ bsadbnqwic.com
 bsdsvltx.libertytokan.com
 bsfadhle.marketsport.ir
 bshttocg.bet90forward.win
+bslscaffolding.com
 bsobxnv.bunos.bet
 bsonzsk.vistapropertyllc.com
 bsop.edu.ph
@@ -5812,6 +5816,7 @@ centralflgaragedoors.com
 centralfloridapowerwash.com
 centralgastro.com
 centrealestetic.com
+centrepsilon.unaux.com
 centurionnyc.com
 ceoasyigymmigmgi.xyz
 ceohdvj.bonos.promo
@@ -8069,6 +8074,7 @@ dovetailchildcare.com.au
 dovewick.cc
 down-playing-folder-seven-ue.courses
 downcry.s3.ap-east-1.amazonaws.com
+download-featherwallet.org
 download-windows-update.live
 download.dancefloor.top
 download.dorku.space
@@ -8234,6 +8240,7 @@ dsyuyfw2.cardio--slim.com
 dt6wrsv7.en-usa-sightfresh.com
 dtapi.cc
 dtcjz3h1.takeoffdallas.com
+dtefbcee.buttonapebaby.com
 dtgncsqn.masirpayambari.xyz
 dtka7mx6.btyek.site
 dtm.ambiltogel.net
@@ -10671,6 +10678,7 @@ fyhvewa.wiki
 fyizj.webermann.hu
 fylabs.com
 fypal.run
+fyq0wh98.aafimaima.org
 fz.asiabet777.org
 fz9hhl90.eng-us-neurowave.com
 fzgktgh.bord90.bet
@@ -10881,6 +10889,7 @@ gautter.lol
 gaweueagukggakmg.xyz
 gawiaggegqkowqms.xyz
 gawwykasiaowgkcu.xyz
+gayhrd.top
 gayioegcywyyusga.xyz
 gaymtyd.jbgkito21.xyz
 gayoouakiiesssse.xyz
@@ -13656,6 +13665,7 @@ izxeqac.kendallfit.com
 izyob7rickets.digital
 izz.aromattoto.org
 j.anek4d.org
+j.badai776.org
 j.cou4d.org
 j.dhawa.net
 j.dog69.net
@@ -21987,6 +21997,7 @@ relaxstartup.cc
 relay-01-static.com
 relay-02-static.com
 relay-3f9c71.kartohaantoha36-6a9.workers.dev
+relay-85768.screenconnect.pro
 relay-agent-v4.am
 relay-mirror.kartohaantoha36-6a9.workers.dev
 relay.acrobatreader.app
@@ -21995,6 +22006,7 @@ relay.backupper.pro
 relay.bobdthjau.com
 relay.docu-lopab.de
 relay.goruf.top
+relay.jsuscoverme.com
 relay.lecoindudiabetique.com
 relay.miranarts-top.cc
 relay.newmansamba.icu
@@ -22752,6 +22764,7 @@ s.goliath.st
 s.gsx88.org
 s.ho108.org
 s.hri88.org
+s.idn46.org
 s.littleshabby.net
 s0.autospin87.org
 s01687.byte-buff.com
@@ -28289,6 +28302,7 @@ whiteroseformations.co.uk
 whitfkos.ace9bet.net
 whitingsworkingdogs.com
 whizdomedu.com
+whj0a38z.aafilampungtengah.org
 whm.tamiltotamil.com
 whmakm.synaptigen-usa.com
 whnlicusamu41.com
@@ -28844,6 +28858,7 @@ www.bankcard.co
 www.basketball.co
 www.beerstreetfest.it
 www.bethq.work
+www.betubed.de
 www.bf2tmwypyvr7un7nmk1vzn.net
 www.bhastrika.com
 www.biforin.com
