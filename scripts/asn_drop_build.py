@@ -240,6 +240,11 @@ BW_URLS = ('https://raw.githubusercontent.com/bitwire-it/ipblocklist/main/outbou
 # Tagoletta-Spiegel, ~16.500 Einzel-IPs, stuendlich aktualisiert).
 # Test: +33 ASNs / 107.008 Adressen, kleine Hoster/VPS, 0 NetFlow-Kontakte.
 USOM_URLS = ('https://raw.githubusercontent.com/Tagoletta/SiberGuvenlikBaskanligi-API/main/data/full-ips.txt',)
+# Seit 2026-11-28 (Nutzerwunsch): NERD/CESNET bad_ips_med_conf (tschechisches
+# Forschungsnetz, Reputation > 0,2 aus mehreren aktuellen Meldungen, ohne
+# Forschungsscanner, ~84.000 Einzel-IPs, stuendlich). Auch als Firewall-Alias
+# (Gratis_Blocklisten) im Einsatz. NERD bittet um max. 1 Abruf pro Stunde.
+NERD_URLS = ('https://nerd.cesnet.cz/nerd/data/bad_ips_med_conf.txt',)
 # Netzbetreiber, die die Dichte-Auswertung NIE sperren darf (Kontakt eigener
 # Geraete laut NetFlow bzw. wichtige Infrastruktur). Gilt fuer alle Dichte-Quellen.
 DENSITY_NEVER = set()
@@ -247,7 +252,8 @@ DENSITY_SOURCES = (('ThreatFox C2-Dichte', TF_IPS_FILE), ('AbuseIPDB-Dichte', AB
                    ('threat.live-Dichte', TL_URL), ('Dataplane-Dichte', DP_URLS),
                    ('Honeypot-Feeds-Dichte', HPF_URLS), ('Honigtopf-Dichte', HT_IPS_FILE),
                    ('FireHOL-Abusers-Dichte', FH_URLS), ('CVE-Exploit-Dichte', CVE_IPS_FILE),
-                   ('Bitwire-Outbound-Dichte', BW_URLS), ('USOM-Dichte', USOM_URLS))
+                   ('Bitwire-Outbound-Dichte', BW_URLS), ('USOM-Dichte', USOM_URLS),
+                   ('NERD-Dichte', NERD_URLS))
 TF_ASNDB_URLS = ('https://cdn.jsdelivr.net/npm/@ip-location-db/asn/asn-ipv4.csv',
                  'https://raw.githubusercontent.com/sapics/ip-location-db/main/dbip-asn/dbip-asn-ipv4.csv')
 # 2026-11-18 (Nutzerentscheidung): von 65.536 auf 1.000.000 erhoeht. Test: nur
@@ -458,7 +464,8 @@ def main():
             lines.append('AS%d\t%d\t%d\t%.2f%%\t%s\t%s\t%s' % (a, n, sz, d * 100, 'ja' if a in asns else 'nein', nm, why))
         write_text_atomic(os.path.join(OUT_DIR, 'threatfox_asn_kandidaten.txt'), '\n'.join(lines) + '\n')
         print('Dichte-Kandidaten: %d (davon noch nicht gesperrt: %d, ThreatFox %d / AbuseIPDB %d / threat.live %d'
-              ' / Dataplane %d / Honeypot-Feeds %d / Honigtopf %d / FireHOL %d / CVE-Exploit %d / Bitwire %d) -> asn/threatfox_asn_kandidaten.txt'
+              ' / Dataplane %d / Honeypot-Feeds %d / Honigtopf %d / FireHOL %d / CVE-Exploit %d / Bitwire %d'
+              ' / USOM %d / NERD %d) -> asn/threatfox_asn_kandidaten.txt'
               % (len(tf), len(tf_new), sum(1 for v in tf_new.values() if v[4].startswith('ThreatFox')),
                  sum(1 for v in tf_new.values() if v[4].startswith('AbuseIPDB')),
                  sum(1 for v in tf_new.values() if v[4].startswith('threat.live')),
@@ -467,7 +474,9 @@ def main():
                  sum(1 for v in tf_new.values() if v[4].startswith('Honigtopf')),
                  sum(1 for v in tf_new.values() if v[4].startswith('FireHOL')),
                  sum(1 for v in tf_new.values() if v[4].startswith('CVE-Exploit')),
-                 sum(1 for v in tf_new.values() if v[4].startswith('Bitwire'))))
+                 sum(1 for v in tf_new.values() if v[4].startswith('Bitwire')),
+                 sum(1 for v in tf_new.values() if v[4].startswith('USOM')),
+                 sum(1 for v in tf_new.values() if v[4].startswith('NERD'))))
     # Haltezeit (seit 2026-11-18): Netzbetreiber aus der Dichte-Auswertung bleiben
     # HOLD_DAYS Tage nach ihrem letzten Auftauchen gesperrt - auch wenn eine Quelle
     # kurz ausfaellt oder der Taeter ein paar Tage still ist. Zustand liegt in
