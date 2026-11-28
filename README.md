@@ -31,7 +31,7 @@
 <sub>IP-Quellen<br>(dynamisch)</sub>
 </td>
 <td align="center" valign="top" width="25%">
-<h3>332,241</h3>
+<h3>334,512</h3>
 <sub>Aktive IP-Drohungen<br>(Confidence ≥65)</sub>
 </td>
 <td align="center" valign="top" width="25%">
@@ -39,7 +39,7 @@
 <sub>CVE/Exploit IPs<br>&nbsp;</sub>
 </td>
 <td align="center" valign="top" width="25%">
-<h3>2,075,914</h3>
+<h3>2,076,171</h3>
 <sub>Honeypot IPs<br>&nbsp;</sub>
 </td>
 </tr>
@@ -50,7 +50,7 @@
 <table>
 <tr>
 <td><strong>🕒 Letztes Update</strong></td>
-<td>2026-11-28 10:35 CET (Europe/Berlin)</td>
+<td>2026-11-28 10:59 CET (Europe/Berlin)</td>
 <td><strong>🔄 Intervall</strong></td>
 <td>8× täglich</td>
 </tr>
@@ -92,16 +92,16 @@
 
 | Datei | Zweck | Einträge | Empfohlen für |
 |---|---|---:|---|
-| 🛡️ [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen · letzte 30 Tage · Score ≥ 65 | **332,241** | OPNsense / pfSense / Firewall |
-| 🔶 [`_part1.txt`](blacklist_confidence40_ipv4_part1.txt) · [`_part2.txt`](blacklist_confidence40_ipv4_part2.txt) | Mittleres bis hohes Vertrauen · Score ≥ 40 · 2 Parts | **7,805,928** | Erweiterte Filterregeln |
-| 📦 [`_part1.txt`](combined_threat_blacklist_ipv4_part1.txt) · [`_part2.txt`](combined_threat_blacklist_ipv4_part2.txt) | Alle IPs · 180 Tage · 2 Parts | **11,313,812** | Audit / SIEM |
-| 👁️ [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist · Score 25–39 | **3,507,884** | Monitoring |
+| 🛡️ [`active_blacklist_ipv4.txt`](active_blacklist_ipv4.txt) | Aktive Bedrohungen · letzte 30 Tage · Score ≥ 65 | **334,512** | OPNsense / pfSense / Firewall |
+| 🔶 [`_part1.txt`](blacklist_confidence40_ipv4_part1.txt) · [`_part2.txt`](blacklist_confidence40_ipv4_part2.txt) | Mittleres bis hohes Vertrauen · Score ≥ 40 · 2 Parts | **7,807,978** | Erweiterte Filterregeln |
+| 📦 [`_part1.txt`](combined_threat_blacklist_ipv4_part1.txt) · [`_part2.txt`](combined_threat_blacklist_ipv4_part2.txt) | Alle IPs · 180 Tage · 2 Parts | **11,316,589** | Audit / SIEM |
+| 👁️ [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist · Score 25–39 | **3,508,611** | Monitoring |
 | 💣 [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploits & aktive C2-Server | **37,346** | IDS / IPS |
-| 🍯 [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **2,075,914** | Ergänzung |
-| 🍯 [`honigtopf_ips.txt`](honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **22,579** | Ergänzung |
+| 🍯 [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **2,076,171** | Ergänzung |
+| 🍯 [`honigtopf_ips.txt`](honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **22,976** | Ergänzung |
 | 🐦 [`tweetfeed_ips.txt`](tweetfeed_ips.txt) | TweetFeed.live Community IOCs | **7,671** | Ergänzung |
-| 🤖 [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Proxy-, VPN- & Tor-IPs (Proxy-Feeds) | **1,217,190** | Ausgehend sperren |
-| 🔗 [`reputation_blacklist.txt`](reputation_blacklist.txt) | Reputation Top-IPs (API, Score ≥50) | **9,968** | Ergänzung |
+| 🤖 [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Proxy-, VPN- & Tor-IPs (Proxy-Feeds) | **1,217,201** | Ausgehend sperren |
+| 🔗 [`reputation_blacklist.txt`](reputation_blacklist.txt) | Reputation Top-IPs (API, Score ≥50) | **9,988** | Ergänzung |
 
 **Zusatzlisten (eigene Workflows, unabhängig vom Scoring):**
 
