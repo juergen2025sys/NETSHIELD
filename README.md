@@ -13,6 +13,7 @@
 
 
 
+
 <img src=".github/assets/banner.svg" alt="NETSHIELD — Automated Threat Intelligence" width="100%">
 
 <br>
@@ -106,9 +107,7 @@
 | 🕵️ [`proxy/offene_proxies.txt`](proxy/offene_proxies.txt) | Offene Proxy-Server aus 14 öffentlichen Proxy-Listen (nur IPs) | **~16.000** | Ausgehend sperren |
 
 > [!NOTE]
-> **Combined-Blacklist (2 feste Parts):** Die vollständige IPv4-Liste wird als genau zwei committete Dateien `combined_threat_blacklist_ipv4_part1.txt` und `combined_threat_blacklist_ipv4_part2.txt` bereitgestellt (IP-sortiert geteilt, je ~48 MB). Diese beiden Parts sind die **kanonische Quelle**. Die frühere Einzeldatei `combined_threat_blacklist_ipv4.txt` wird nicht mehr committet (sie würde das 100-MB-GitHub-Limit pro Datei sprengen); interne Workflows erzeugen sie bei Bedarf im Runner aus den Parts. Firewall-Konsumenten (z. B. OPNsense) importieren die beiden Part-URLs als separate Aliase. Hinweis: Bei fix zwei Parts liegt die harte Obergrenze bei ~200 MB gesamt (2 × 100-MB-Limit); ein Frühwarn-Log meldet, sobald ein Part 90 MB überschreitet.
->
-> **Wann kommen keine neuen IPs mehr in die Hauptdatei?** Die Begrenzung erfolgt über die **Dateigröße**, nicht über eine feste IP-Anzahl. Solange die geschätzte Vollgröße unter 100 MB (`HARD_LIMIT_MB`) bleibt, enthält die Hauptdatei **alle** IPs. Sobald sie 100 MB erreichen würde, wird sie auf ~95 MB (`TRUNCATE_TARGET_MB`) gekürzt – bei der aktuellen durchschnittlichen Zeilenlänge (~14,3 Bytes/IP) entspricht das **rund 7 Millionen IPs**. Ab diesem Punkt wächst nur noch die Part-Datei-Reihe; zusätzliche IPs landen ausschließlich in den Parts. **Es gehen dabei keine IPs verloren** – die Parts (und `seen_db`) enthalten stets die vollständige Liste. Die genaue Schwelle verschiebt sich leicht mit der IP-Zusammensetzung (kurze vs. lange Adressen).
+> **Combined-Blacklist = 2 Parts:** Die vollständige Liste (~11,3 Mio. IPs) steht in `combined_threat_blacklist_ipv4_part1.txt` und `_part2.txt` – IP-sortiert, gleich groß aufgeteilt, derzeit **je ~77 MB** (GitHub erlaubt max. 100 MB pro Datei). Für Firewalls (z. B. OPNsense) **beide Parts** als eigene URL-Tabellen-Aliase einbinden. Die frühere Einzeldatei `combined_threat_blacklist_ipv4.txt` gibt es nicht mehr.
 
 <details>
 <summary><strong>🌍 Geo-Listen</strong></summary>
@@ -125,26 +124,11 @@ all_countries_ipv4.txt  →  Alle Länder in einer Datei
 
 ## 🌐 ASN-Sperre (Netzbetreiber)
 
-Statt einzelner IPs sperrt die ASN-Sperre **ganze Netzbetreiber**, die nachweislich kriminell sind oder bei denen auffällig viele Angreifer sitzen. Der Workflow **ASN-DROP** sammelt die ASNs, löst sie über [ipverse/as-ip-blocks](https://github.com/ipverse/as-ip-blocks) (CC0, BGP-Daten; Ersatz: RIPEstat) in IP-Präfixe auf und schreibt `asn/asn_drop_ipv4.txt` / `asn_drop_ipv6.txt`.
+Sperrt **ganze Netzbetreiber**, die kriminell sind oder bei denen auffällig viele Angreifer sitzen. Der Workflow **ASN-DROP** löst die ASNs über [ipverse/as-ip-blocks](https://github.com/ipverse/as-ip-blocks) in IP-Netze auf → `asn/asn_drop_ipv4.txt` / `asn_drop_ipv6.txt`.
 
-| Quelle | Was übernommen wird |
-|---|---|
-| **Spamhaus ASN-DROP** | komplett (Netzbetreiber unter Kontrolle von Spam-/Cybercrime-Gruppen) |
-| **BPH_Research** (crimsonvector) | nur Risikostufe T1/T2, ohne Upstream-Anbieter und aufgelöste Firmen |
-| **Maltrail worst_asns** | nur der zweite Teil (Bulletproof-/graue Hoster), ohne die großen Hoster |
-| **Bulletproof Hosting Watch** | ASN-Tabelle des neuesten Wochenberichts |
-| **Feste eigene Liste** | 19 dauerhaft gesperrte Hoster |
-| **Dichte-Auswertung** | ThreatFox-C2, AbuseIPDB, threat.live, Dataplane (17 Listen), 7 Honeypot-Feeds, Honigtopf, FireHOL abusers_30d |
-| **ASN-Risiko** | monatliche Risiko-Bewertung (Top 250, über den Honigtopf-Workflow) |
-
-**Dichte-Regel** (je Quelle einzeln): Ein Netzbetreiber wird gesperrt, wenn er **höchstens 1 Mio. IPv4-Adressen** hat, **mindestens 5** auffällige IPs aufweist und die **Dichte mindestens 0,25 %** beträgt (mind. 1 auffällige IP je 400 Adressen). Große Clouds und Provider bleiben so automatisch außen vor.
-
-**ASN-Risiko-Regel:** Netzbetreiber bis 65.536 Adressen werden immer übernommen. Bis 1 Mio. Adressen nur, wenn sie **Hoster/VPS-Anbieter** sind (ipverse-Kategorie „hosting“, Hosting-Liste oder Name mit HOST/VPS/SERVER/CLOUD/DATACENTER).
-
-> [!IMPORTANT]
-> - **Haltezeit 14 Tage:** Netzbetreiber aus der Dichte-Auswertung bleiben bis 14 Tage nach ihrem letzten Auftauchen gesperrt (`asn/asn_dichte_haltezeit.json`). Wer sich bessert, fällt danach automatisch wieder heraus.
-> - **Feste Ausnahmen:** Cloudflare, DigitalOcean, Akamai, Contabo, Starlink, Hurricane Electric und einige Transit-/Spiele-relevante Netze werden nie über das ASN-Risiko gesperrt.
-> - **Nachvollziehbar:** `asn/asn_drop_asns.txt` nennt bei jedem ASN Quelle, Dichte bzw. Haltezeit-Datum.
+- **Quellen:** Spamhaus ASN-DROP · BPH_Research · Maltrail worst_asns · Bulletproof Hosting Watch · eigene feste Liste · Dichte-Auswertung der Angreifer-Feeds · monatliches ASN-Risiko
+- **Schutz vor Fehlsperren:** per Dichte nur Netzbetreiber mit ≤ 1 Mio. Adressen, ≥ 5 auffälligen IPs und ≥ 0,25 % Dichte; große Clouds und Provider (Cloudflare, Akamai, DigitalOcean …) nie. Dichte-Sperren enden 14 Tage nach dem letzten Auftauchen.
+- **Nachvollziehbar:** `asn/asn_drop_asns.txt` nennt zu jedem ASN Quelle und Grund.
 
 ---
 
