@@ -1,7 +1,7 @@
 # Title: Stamparm Maltrail Trails - malicious (DNS-only)
 # Quelle: https://github.com/stamparm/trails/tree/main/malicious
-# Aktualisiert: 2026-11-28 02:48 CET
-# Eintraege: 226447
+# Aktualisiert: 2026-11-28 04:48 CET
+# Eintraege: 226448
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 0-4.top
@@ -50084,6 +50084,7 @@ clodujflare.com
 cloflguared.com
 clogg-opposition.surf
 clogrolling.digital
+cloludflare.com
 clomidonline.icu
 clomids.icu
 clon.collectfasttracks.com
