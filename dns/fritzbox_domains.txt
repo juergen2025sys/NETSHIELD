@@ -1,7 +1,7 @@
 # Title: NETSHIELD FRITZ!Box-Filterliste: ThreatFox + Emerging Threats Open
 # Quelle: dns/threatfox_domains.txt + dns/et_open_domains.txt
-# Aktualisiert: 2026-11-28 09:21 CET
-# Eintraege: 34551
+# Aktualisiert: 2026-11-28 12:00 CET
+# Eintraege: 34552
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -14370,6 +14370,7 @@ icoloridichia.it
 icon789.life
 iconiq-capitel.com
 iconitinc.com
+icossako.aafiborot.org
 icovaj.sivasumutemlak.com
 icrcworld.com
 icro-soft.com

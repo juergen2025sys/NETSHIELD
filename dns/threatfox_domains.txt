@@ -1,7 +1,7 @@
 # Title: ThreatFox Domain-IOCs (Confidence >= 50)
 # Quelle: https://threatfox.abuse.ch (Full-Export + Recent-API)
-# Aktualisiert: 2026-11-28 09:21 CET
-# Eintraege: 31042
+# Aktualisiert: 2026-11-28 12:00 CET
+# Eintraege: 31043
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -12842,6 +12842,7 @@ icoloridichia.it
 icon789.life
 iconiq-capitel.com
 iconitinc.com
+icossako.aafiborot.org
 icovaj.sivasumutemlak.com
 icro-soft.com
 id-kkslot777.com
