@@ -1,22 +1,32 @@
 # Workflow Health Checker – Report
-**Aktualisiert:** 2026-11-27 22:56 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-28 02:56 CET (Europe/Berlin)
 
-**Workflows:** 36 | ✅ 36 OK | ⚠️ 0 Warnung | ❌ 0 Fehler
+**Workflows:** 36 | ✅ 36 OK | ⚠️ 0 Warnung | ❌ 1 Fehler
 
 ---
 ## Regressionstests
 
-✅ Commit: `baa0c2b93478d9670ca754a8b5a7fe5c3d144327`
+✅ Commit: `67ab1515e17f7ff7e5c3bc7d0d3cedf73a3bbbd5`
 
 500 Tests; 0 Fehlschlaege, 0 Ausfuehrungsfehler, 0 uebersprungen, 0 unerwartete Testerfolge, 0 fehlende Pflichtpruefungen, 0 Pflichtpruefungen nicht bestanden.
 
 Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garantiert keine vollstaendige Fehlerfreiheit.
 
+## ❌ Fehler (kritisch)
+
+| Datei | Check | Detail |
+|---|---|---|
+| `Production Health` | active ⊆ conf40 Subset-Invariante verletzt | 2,896 IPs in active fehlen in conf40 (0.883% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| `Production Health` | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 110,919 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
+
 ## 🏥 Production Health
 
-**Status:** 🔴 0 CRITICAL | 🟡 0 WARN
+**Status:** 🔴 2 CRITICAL | 🟡 0 WARN
 
-*Alle Production Health Checks bestanden.*
+| Level | Check | Detail |
+|---|---|---|
+| 🔴 CRITICAL | active ⊆ conf40 Subset-Invariante verletzt | 2,896 IPs in active fehlen in conf40 (0.883% von active). Ursache vermutlich Cache-Drift zwischen combined- und confidence-Workflow (siehe BUG-CACHE-DRIFT). Der Heilungs-Pfad in update_confidence_blacklist.yml hat entweder nicht gegriffen (Cap >10%) oder wurde umgangen. |
+| 🔴 CRITICAL | conf40 ∪ watch ⊆ combined Subset-Invariante verletzt | 110,919 Phantom-IPs in conf40/watch ohne Entsprechung in combined. Sollte unmoeglich sein (confidence-Workflow filtert via 'ip in combined_ips'). Indikator fuer manuellen Edit der Output-Listen oder Race zwischen Workflows. |
 
 ## Übersicht
 
@@ -60,4 +70,4 @@ Diese Pruefung meldet nur Warnungen. Sie prueft bekannte Fehlerfaelle; sie garan
 | `workflow_health_dashboard.yml` | ✅ OK | 0 | 0 | `5 */6 * * *` |
 
 ---
-*Generiert: 2026-11-27 22:56 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*
+*Generiert: 2026-11-28 02:56 CET (Europe/Berlin) | 36 Workflow-Dateien geprüft*
