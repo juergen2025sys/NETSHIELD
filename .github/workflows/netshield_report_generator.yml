@@ -540,14 +540,19 @@ jobs:
               )
 
               matched = False
-              new_readme, n1 = re.subn(pattern_link, rf'\1 {formatted} \2', readme)
+              # FIX README-PADDING (2026-11-28): Gruppe 2 ist "(\s*\|)". Mit
+              # "\2" wurden die vorhandenen Leerzeichen zurueckgeschrieben UND
+              # ein weiteres davor gesetzt -> jede Zeile wuchs pro Lauf um ein
+              # Leerzeichen (zuletzt >40.000 Zeichen Leerraum in der README).
+              # Jetzt immer genau " |".
+              new_readme, n1 = re.subn(pattern_link, rf'\1 {formatted} |', readme)
               if n1 > 0:
                   readme = new_readme
                   matched = True
                   print(f"  ✅ {filename}: {formatted} (Link-Pattern, {n1} Treffer)")
 
               if not matched:
-                  new_readme, n2 = re.subn(pattern_code, rf'\1 {formatted} \2', readme)
+                  new_readme, n2 = re.subn(pattern_code, rf'\1 {formatted} |', readme)
                   if n2 > 0:
                       readme = new_readme
                       matched = True
