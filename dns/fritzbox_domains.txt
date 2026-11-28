@@ -1,7 +1,7 @@
 # Title: NETSHIELD FRITZ!Box-Filterliste: ThreatFox + Emerging Threats Open
 # Quelle: dns/threatfox_domains.txt + dns/et_open_domains.txt
-# Aktualisiert: 2026-11-28 16:38 CET
-# Eintraege: 34580
+# Aktualisiert: 2026-11-28 19:00 CET
+# Eintraege: 34648
 # Erzeugt von NETSHIELD (scripts/dns_list_mirror.py) fuer OPNsense Unbound DNSBL
 
 000.hikvision-cctv.su
@@ -1945,9 +1945,11 @@ aafilambera.org
 aafilampungbarat.org
 aafilampungselatan.org
 aafilampungtengah.org
+aafilampungtimur.org
 aafimaima.org
 aafimesuji.org
 aafimeukisi.org
+aafiminegimen.org
 aafnojwq.megashart.blog
 aah.celikit.my
 aah3bpf6.eng-eng-glucore.com
@@ -5843,6 +5845,7 @@ bwiesit.com
 bwil48h8.baxus.net
 bwimlqru.jetbet.download
 bwojdfuickrntqqlhd.azautotraders.com
+bwoktqcf.aafilampungtimur.org
 bwqzszo.football2026.world
 bws6mgq6.usen-flashburn.com
 bwsrztte.en-en-en-slimsounds.com
@@ -12616,6 +12619,7 @@ gixxipi9823.life
 giyxfaf2.sidar.store
 giyypma.dewa111.de.com
 gjendw2d6oqjs6nxnwwuc6khpa5g5gzp7pyuiwzamalzzzk6vomm7xid.onion
+gjhcjn6q.aafiminegimen.org
 gjif3sqh.behtarin-site-shartbandi.com
 gjii3jk6.en-us-theslimsplitsmethod.com
 gjiyr4j0.aafiborot.org
@@ -22114,13 +22118,74 @@ paneagreement.cfd
 panegrove.cfd
 panel-sms.firebasestorage.app
 panel-view-get.buzz
+panel.bapusa16.xyz
+panel.bemawe24.xyz
+panel.bemico35.xyz
+panel.bidape40.xyz
+panel.biveti39.xyz
+panel.buveno47.xyz
+panel.darasa53.xyz
+panel.dazegu36.xyz
+panel.deseve55.xyz
+panel.dojano97.xyz
+panel.dulomu72.xyz
+panel.fesepa15.xyz
+panel.furuve62.xyz
+panel.galopo35.xyz
+panel.gasefu47.xyz
+panel.gefube91.xyz
+panel.gemidu24.xyz
+panel.gipeji38.xyz
+panel.girego71.xyz
+panel.goduse54.xyz
+panel.gunejo71.xyz
+panel.hasibu53.xyz
+panel.hedina66.xyz
+panel.hubako29.xyz
+panel.hucowe57.xyz
+panel.jasoka14.xyz
+panel.jasuzi31.xyz
+panel.jokewa83.xyz
+panel.junate34.xyz
+panel.kararu37.xyz
+panel.kirezi79.xyz
+panel.kogocu43.xyz
+panel.kovucu54.xyz
+panel.kowanu73.xyz
 panel.legion-x.tech
+panel.lesine89.xyz
+panel.lipune55.xyz
+panel.meleru74.xyz
+panel.migalo49.xyz
 panel.msdos.ru
 panel.munchyyyyyscpann.live
+panel.mutebu45.xyz
+panel.muwowi54.xyz
+panel.natovi12.xyz
+panel.nejeve62.xyz
+panel.nunezi27.xyz
+panel.pasefe92.xyz
+panel.picuti86.xyz
+panel.pidawo54.xyz
+panel.pijoto59.xyz
+panel.pituka25.xyz
+panel.rehuju81.xyz
+panel.rivaga58.xyz
+panel.satofa46.xyz
 panel.servererr.beer
 panel.sineramiel.com
 panel.strong-men.icu
+panel.totaza84.xyz
+panel.tunoba30.xyz
+panel.vesuzu30.xyz
 panel.vidar.to
+panel.vilobo56.xyz
+panel.vohoso75.xyz
+panel.wejohe28.xyz
+panel.wonewu46.xyz
+panel.wotahi87.xyz
+panel.wutedu87.xyz
+panel.zirapa95.xyz
 panelcoreapp.xyz
 panelmienbac.com
 panelwork.cfd
@@ -22962,6 +23027,7 @@ portevergladeslive.com
 portfolio.prismscale.com
 porthot-irr-gation-menthub.garden
 porticoesquadrias.com.br
+portifolioosoro.unaux.com
 portmapper222-61558.portmap.host
 portojavspirit.net
 pos-marine.com
@@ -24609,6 +24675,7 @@ relays-connects.com
 releases-export-finishing-phillips.trycloudflare.com
 releases.cloudgateway.cc
 releases.mosswood.cc
+relfnru.com
 reliablelogisticsltd.com
 reliablerentalz.com
 relief.sherinsha.in
@@ -25323,6 +25390,7 @@ ruudho.com
 ruuhsuzpanel.cyou
 ruut.store
 ruuupkia.jadoobet.pro
+ruvkffek.com
 ruwyzto7.thequeenofesteem.com
 ruxbn.welovevent.com
 ruxi.kernelbridge.top
