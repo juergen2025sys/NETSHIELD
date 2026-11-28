@@ -1,17 +1,19 @@
 # NETSHIELD – Stale-Feed-Report
-**Aktualisiert:** 2026-11-27 10:19 CET (Europe/Berlin)
+**Aktualisiert:** 2026-11-28 09:36 CET (Europe/Berlin)
 **Schwelle:** IP-Menge ≥ 14 Tage unveraendert
 
 Erkennt Feeds, die zwar antworten und IPs liefern, deren Inhalt sich aber lange nicht mehr aendert. Solche Feeds bestehen den Status-/has_ips-Check, halten ihre IPs aber kuenstlich auf voller Aktualitaet und entgehen so dem Score-Decay → Risiko veralteter Dauer-Blocks. Flag ist **advisory**, kein Auto-Remove.
 
-## ⚠️ 3 moeglicherweise eingefrorene(r) Feed(s)
+## ⚠️ 5 moeglicherweise eingefrorene(r) Feed(s)
 
 | Feed | Tage unveraendert | Seit | IPs (Sample) | Typ | URL |
 |---|---|---|---|---|---|
-| `ffraud_confirmed` | 23 | 2026-11-04 08:06 CET (Europe/Berlin) | ~964367 | normal | https://raw.githubusercontent.com/FFraud-com/ip-fraud-database/main/threat-ips/confirmed-abusive.csv |
-| `firehol_webserver` | 17 | 2026-11-10 08:55 CET (Europe/Berlin) | ~845 | normal | https://iplists.firehol.org/files/firehol_webserver.netset |
-| `myip_ms` | 17 | 2026-11-10 08:55 CET (Europe/Berlin) | ~1099 | normal | https://myip.ms/files/blacklist/general/latest_blacklist.txt |
+| `ffraud_confirmed` | 24 | 2026-11-04 08:06 CET (Europe/Berlin) | ~964367 | normal | https://raw.githubusercontent.com/FFraud-com/ip-fraud-database/main/threat-ips/confirmed-abusive.csv |
+| `firehol_webserver` | 18 | 2026-11-10 08:55 CET (Europe/Berlin) | ~845 | normal | https://iplists.firehol.org/files/firehol_webserver.netset |
+| `myip_ms` | 18 | 2026-11-10 08:55 CET (Europe/Berlin) | ~1099 | normal | https://myip.ms/files/blacklist/general/latest_blacklist.txt |
+| `pgl_yoyo_adservers` | 14 | 2026-11-14 08:14 CET (Europe/Berlin) | ~8690 | normal | https://pgl.yoyo.org/adservers/iplist.php?format=&showintro=0 |
+| `sky_poppy_recent` | 14 | 2026-11-14 08:14 CET (Europe/Berlin) | ~115814 | normal | https://raw.githubusercontent.com/sky-poppy/fwfeed/main/blocklist_honeypot_ip4_aged_less_than_90days.txt |
 
 Hinweis: Kleine kuratierte Listen aendern sich legitim selten – ein Flag hier ist nicht automatisch ein Defekt. Bei DataPlane-Feeds (taegliches Honeypot-Signal) ist ein eingefrorener Stand dagegen ein echtes Alarmsignal. Der Fingerprint basiert auf dem 2-MB-Sample (wie sample_ips); bei sehr grossen Feeds ist er eine Praefix-Heuristik.
 
-*Generiert: 2026-11-27 10:19 CET (Europe/Berlin)*
+*Generiert: 2026-11-28 09:36 CET (Europe/Berlin)*
