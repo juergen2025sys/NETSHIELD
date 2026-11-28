@@ -4,7 +4,7 @@
 # Zusatz-ASNs: https://raw.githubusercontent.com/stamparm/maltrail/master/data/worst_asns.txt (nur Teil 2, ohne grosse Hoster)
 # Zusatz-ASNs: https://ai.rud.is/posts/ (Bulletproof Hosting Watch, Bericht 2026-11-23)
 # Quelle Netze: github.com/ipverse/as-ip-blocks (CC0)
-# Aktualisiert: 2026-11-28 15:37 UTC | ASNs: 2088 (Spamhaus 481 + BPH 37 + Maltrail 99 + BPH-Watch 7 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1402 + ASN-Risiko 44, aktiv: 1804)
+# Aktualisiert: 2026-11-28 15:40 UTC | ASNs: 2088 (Spamhaus 481 + BPH 37 + Maltrail 99 + BPH-Watch 7 + eigene 18 + Dichte ThreatFox/AbuseIPDB/threat.live/Dataplane/Honeypot-Feeds/Honigtopf/FireHOL/CVE-Exploit/Bitwire 1402 + ASN-Risiko 44, aktiv: 1804)
 
 AS245	US	PRC-AS	planningresearchcorp.com
 AS967		VMISS Inc.	Dataplane-Dichte 0.29%
@@ -599,7 +599,7 @@ AS131267		Star Telecom	Dataplane-Dichte (Haltezeit, zuletzt auffaellig 2026-11-2
 AS131275		Logon Broadband Pvt. Limited	FireHOL-Abusers-Dichte 0.59%
 AS131279			ASN-Risiko 2026-10
 AS131366		Lanit Technology and Communication Joint Stock Company	ThreatFox C2-Dichte 0.54%
-AS131374		HQG Technology Solutions Joint Stock Company	AbuseIPDB-Dichte (Haltezeit, zuletzt auffaellig 2026-11-28)
+AS131374		HQG Technology Solutions Joint Stock Company	AbuseIPDB-Dichte 0.49%
 AS131388	VN	HTS-AS-VN	hts.vn
 AS131429		MOBIFONE Corporation	FireHOL-Abusers-Dichte (Haltezeit, zuletzt auffaellig 2026-11-23)
 AS131464		Digi Jadoo Broadband Ltd	NERD-Dichte 0.51%
@@ -742,7 +742,7 @@ AS136030		Redtone Telecommunications Pakistan (Private) Limited	Dataplane-Dichte
 AS136052		PT Cloud Hosting Indonesia	Dataplane-Dichte 0.36%
 AS136141		SK Traders	FireHOL-Abusers-Dichte 0.53%
 AS136165		X4B	Honigtopf-Dichte (Haltezeit, zuletzt auffaellig 2026-11-28)
-AS136180		Beijing Tiantexin Tech. Co., Ltd.	AbuseIPDB-Dichte (Haltezeit, zuletzt auffaellig 2026-11-27)
+AS136180		Beijing Tiantexin Tech. Co., Ltd.	AbuseIPDB-Dichte 0.29%
 AS136210			ASN-Risiko 2026-10
 AS136224		City Online Ltd.	NERD-Dichte 0.27%
 AS136250	CN	ZQHWL-AS-AP	zqhwl-cn
@@ -1363,7 +1363,7 @@ AS209274	RS	Kraken-Network-ISP	mortalsoft.online
 AS209290			Maltrail worst_asns
 AS209334		Modat B.V.	NERD-Dichte 22.01%
 AS209353		Maurizio Giuseppe Fanari trading as LABEL SISTEMI TECNOLOGICI	NERD-Dichte 4.59%
-AS209366		SEMrush CY LTD	NERD-Dichte 1.09%
+AS209366		SEMrush CY LTD	AbuseIPDB-Dichte 1.09%
 AS209373	IR	SWISSNET-AS	swissnetwork.io
 AS209375	MD	Contrust-Solutions	kontrast.md
 AS209380		Arat Telekominikasyon Tek. Bil.Hiz.San. ve Tic. Ltd.Sti	NERD-Dichte 0.86%

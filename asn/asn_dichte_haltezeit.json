@@ -780,8 +780,8 @@
 "why": "Honigtopf-Dichte"
 },
 "136180": {
-"density": 0.34,
-"last_seen": "2026-11-27",
+"density": 0.29,
+"last_seen": "2026-11-28",
 "name": "Beijing Tiantexin Tech. Co., Ltd.",
 "why": "AbuseIPDB-Dichte"
 },
@@ -2769,7 +2769,7 @@
 "density": 3.91,
 "last_seen": "2026-11-28",
 "name": "HOSTGLOBAL.PLUS LTD",
-"why": "Bitwire-Outbound-Dichte"
+"why": "AbuseIPDB-Dichte"
 },
 "202375": {
 "density": 0.26,
@@ -3477,7 +3477,7 @@
 "density": 1.09,
 "last_seen": "2026-11-28",
 "name": "SEMrush CY LTD",
-"why": "NERD-Dichte"
+"why": "AbuseIPDB-Dichte"
 },
 "209373": {
 "density": 18.75,
