@@ -1,6 +1,6 @@
 # Workflow Health Dashboard
 
-**Stand:** 2026-11-28 08:37 CET (Europe/Berlin)
+**Stand:** 2026-11-28 20:55 CET (Europe/Berlin)
 **Betrachtungszeitraum:** 7 Tage
 
 Generiert von `.github/workflows/workflow_health_dashboard.yml` alle 6h.
@@ -9,33 +9,33 @@ Klassifizierung: Echter Run = Laufzeit > 60s, Skip-Run = kurzer Idempotenz-Guard
 ## Letzte 24h
 
 - **Echte Combined-Runs:** 9 / 8 erwartet
-- **Skip-Runs (Idempotenz-Guard):** 5
-- **Lucken (>210min zwischen echten Runs):** 0
+- **Skip-Runs (Idempotenz-Guard):** 3
+- **Lucken (>210min zwischen echten Runs):** 1
+  - 2026-11-28 04:48 CET (Europe/Berlin) -> 2026-11-28 09:13 CET (Europe/Berlin) (264 min)
 
 ## Letzte 7 Tage
 
-- **Echte Combined-Runs:** 60
-- **Skip-Runs:** 40
-- **Fehlgeschlagene Runs:** 2
-- **Lucken >210min:** 7
+- **Echte Combined-Runs:** 61
+- **Skip-Runs:** 36
+- **Fehlgeschlagene Runs:** 1
+- **Lucken >210min:** 8
 - **Groesste Lucke:** 2026-11-22 01:52 CET (Europe/Berlin) -> 2026-11-22 08:34 CET (Europe/Berlin) (401 min = 6h 41min)
 
 ## Watchdog (letzte 7 Tage)
 
-- **Watchdog-Laeufe insgesamt:** 262
+- **Watchdog-Laeufe insgesamt:** 260
 - **Watchdog-Fehler:** 0
-- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 49
+- **Combined-Runs via workflow_dispatch (Watchdog-Eingriff):** 47
 
 Letzte Watchdog-Eingriffe:
-- 2026-11-27 17:46 CET (Europe/Berlin) (Run #46036469087, Laufzeit 20m 21s)
-- 2026-11-27 18:22 CET (Europe/Berlin) (Run #46041374014, Laufzeit 19m 49s)
 - 2026-11-27 20:14 CET (Europe/Berlin) (Run #46055305979, Laufzeit 15m 8s)
 - 2026-11-27 22:53 CET (Europe/Berlin) (Run #46073164421, Laufzeit 19m 16s)
 - 2026-11-28 02:32 CET (Europe/Berlin) (Run #46093590574, Laufzeit 16m 43s)
+- 2026-11-28 10:34 CET (Europe/Berlin) (Run #46131120718, Laufzeit 17m 32s)
+- 2026-11-28 19:33 CET (Europe/Berlin) (Run #46176525836, Laufzeit 21m 45s)
 
 ## Fehlgeschlagene Combined-Runs (7d)
 
-- 2026-11-21 11:52 CET (Europe/Berlin) - cancelled - Run #44896391381 (2m 3s)
 - 2026-11-25 16:58 CET (Europe/Berlin) - failure - Run #45650104889 (18m 18s)
 
 ---
