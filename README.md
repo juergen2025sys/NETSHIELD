@@ -39,7 +39,7 @@
 <sub>CVE/Exploit IPs<br>&nbsp;</sub>
 </td>
 <td align="center" valign="top" width="25%">
-<h3>2,076,297</h3>
+<h3>2,076,236</h3>
 <sub>Honeypot IPs<br>&nbsp;</sub>
 </td>
 </tr>
@@ -50,7 +50,7 @@
 <table>
 <tr>
 <td><strong>🕒 Letztes Update</strong></td>
-<td>2026-11-28 16:45 CET (Europe/Berlin)</td>
+<td>2026-11-28 18:10 CET (Europe/Berlin)</td>
 <td><strong>🔄 Intervall</strong></td>
 <td>8× täglich</td>
 </tr>
@@ -97,10 +97,10 @@
 | 📦 [`_part1.txt`](combined_threat_blacklist_ipv4_part1.txt) · [`_part2.txt`](combined_threat_blacklist_ipv4_part2.txt) | Alle IPs · 180 Tage · 2 Parts | **11,322,398** | Audit / SIEM |
 | 👁️ [`watchlist_confidence25to39_ipv4.txt`](watchlist_confidence25to39_ipv4.txt) | Watchlist · Score 25–39 | **3,509,653** | Monitoring |
 | 💣 [`cve_exploit_ips.txt`](cve_exploit_ips.txt) | CVE-Exploits & aktive C2-Server | **37,346** | IDS / IPS |
-| 🍯 [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **2,076,297** | Ergänzung |
-| 🍯 [`honigtopf_ips.txt`](honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **15,788** | Ergänzung |
+| 🍯 [`honeypot_ips.txt`](honeypot_ips.txt) | Honeypot-bestätigte Angreifer | **2,076,236** | Ergänzung |
+| 🍯 [`honigtopf_ips.txt`](honigtopf_ips.txt) | Honigtopf Community Honeypot (API) | **15,874** | Ergänzung |
 | 🐦 [`tweetfeed_ips.txt`](tweetfeed_ips.txt) | TweetFeed.live Community IOCs | **7,649** | Ergänzung |
-| 🤖 [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Proxy-, VPN- & Tor-IPs (Proxy-Feeds) | **1,217,148** | Ausgehend sperren |
+| 🤖 [`bot_detector_blacklist_ipv4.txt`](bot_detector_blacklist_ipv4.txt) | Proxy-, VPN- & Tor-IPs (Proxy-Feeds) | **1,217,190** | Ausgehend sperren |
 | 🔗 [`reputation_blacklist.txt`](reputation_blacklist.txt) | Reputation Top-IPs (API, Score ≥50) | **9,988** | Ergänzung |
 
 **Zusatzlisten (eigene Workflows, unabhängig vom Scoring):**
